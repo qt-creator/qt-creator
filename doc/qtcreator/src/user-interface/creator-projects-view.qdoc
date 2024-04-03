@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -15,7 +15,11 @@
 
     \title Projects
 
+    \if defined(qtdesignstudio)
+    \brief View a list of the files contained within the open project.
+    \else
     \brief Shows a list of projects in a project tree.
+    \endif
 
     \if defined(qtcreator)
     The project tree has a list of all projects open in the current
@@ -29,7 +33,7 @@
     is the fastest way to find a particular project, file, class, or function,
     or almost anything else in your project.
     \else
-    \image qtcreator-projects-view-design.png {Projects view}
+    \image projects-view-design.webp {Projects view}
     \endif
 
     You can use the project tree in the following ways:
@@ -43,14 +47,19 @@
             Use the \l{Switch between modes} {mode selector} to open the current
             file in another editor.
             \endif
-        \li To bring up a \l{Projects View Context Menu}{context menu}
+        \li To open a
+            \if defined(qtcreator)
+            \l{Projects View Context Menu}{context menu}
+            \else
+            context menu
+            \endif
             that has the actions most commonly needed, right-click an
             item in the project tree. For example, through the menu of
             the project root directory you can, among other actions, run
             and close the project.
         \li To see the absolute path of a file, move the mouse pointer over the
             file name.
-        \li To move files from one project to another, drag-and-drop them
+        \li To move files from one project to another, drag them
             in the project tree. \QC makes the necessary changes to project
             configuration files.
     \endlist
@@ -58,6 +67,7 @@
     \note If you cannot see a file in the \l Projects view, switch to the
     \uicontrol {File System} view, which shows all the files in the file system.
 
+    \if defined(qtcreator)
     \section1 Projects View Context Menu
 
     The \uicontrol Projects view has context menus for managing projects,
@@ -65,22 +75,15 @@
     projects and subprojects:
 
     \list
-        \if defined(qtcreator)
         \li Set a project as the active project.
-        \endif
         \li Execute \uicontrol Build menu commands.
         \li Create new files. For more information, see
-            \if defined(qtdesignstudio)
-            \l{Adding Files to Projects}.
-            \else
             \l{Create files}.
-            \endif
         \li Rename existing files. If you change the base name of a
             file, \QC displays a list of other files with the same base name
             and offers to rename them as well. If you rename a UI file (.ui),
             \QC also changes corresponding include statements accordingly.
         \li Remove existing files.
-        \if defined(qtcreator)
         \li Remove existing directories from \l{Import an existing project}
             {generic projects}.
         \li Add existing files and directories.
@@ -88,16 +91,13 @@
             \l{Add libraries to qmake projects}.
         \li Add and remove subprojects.
         \li Find unused functions.
-        \endif
         \li Search in the selected directory.
 
         \li Open a terminal window in the project directory. To specify the
             terminal to use on Linux and \macos, select \preferences >
             \uicontrol Environment > \uicontrol System.
-            \if defined(qtcreator)
             To use an \l{Terminal}{internal terminal}, select \preferences >
             \uicontrol Terminal > \uicontrol {Use internal terminal}.
-            \endif
         \li Open a terminal window in the project directory that you configured
             for building or running the project.
         \li Expand or collapse the tree view to show or hide all files and
@@ -114,7 +114,6 @@
     the \l {File System} view. To view a project in it, select
     \uicontrol {Show in File System View}.
 
-    \if defined(qtcreator)
     \section1 Projects View Toolbar
 
     The toolbar in the \uicontrol Projects view has additional options.

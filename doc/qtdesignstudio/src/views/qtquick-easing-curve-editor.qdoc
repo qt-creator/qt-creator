@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -79,7 +79,7 @@
     \endlist
 
     When you attach easing curves to keyframes, the shape of the
-    \l{keyframe_marker}{keyframe marker} on a keyframe track in
+    keyframe marker on a keyframe track in
     \l Timeline changes from \inlineimage icons/keyframe_linear_active.png
     to a marker that describes the type of the selected easing curve.
 

@@ -6,7 +6,11 @@
     \previouspage qtquick-effect-composer-view.html
     \nextpage creator-project-managing-workspaces.html
 
+    \ingroup studio-views
+
     \title Model Editor
+
+    \brief Create, manage, import, and export data models.
 
     In the \uicontrol {Model Editor} view, you can create, manage, import, and export
     data models. With data models, you can, for example, populate views with data.

@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -191,7 +191,7 @@
     position of the playhead, right-click the component name on the timeline and
     select \uicontrol {Add Keyframes at Current Frame}.
 
-    Keyframes are marked on the timeline by using \l{keyframe_marker}{markers}
+    Keyframes are marked on the timeline by using markers
     of different colors and shapes, depending on whether they are active or
     inactive or whether you have applied \l{Editing Easing Curves}
     {easing curves} to them.

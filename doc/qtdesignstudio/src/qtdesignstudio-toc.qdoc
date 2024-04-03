@@ -16,30 +16,30 @@
                             \list
                                 \li \l{2D}
                                 \li \l{3D}
-                                \li \l{Material Editor and Browser}
-                                \li \l{Components}
                                 \li \l{Assets}
-                                \li \l{Navigator}
-                                \li \l{Properties}
-                                \li \l{Connections}
-                                \li \l{States}
-                                \li \l{Translations}
-                                \li \l{Transitions}
-                                \li \l{Timeline}
-                                \li \l{Curves}
                                 \li \l{Code}
                                     \generatelist studio-how-to-code
                                     \generatelist studio-how-to-refactor-code
                                     \generatelist studio-how-to-search
                                     \generatelist studio-preferences-code
-                                \li \l{Projects}
-                                \li \l{File System}
-                                \li \l{Open Documents}
+                                \li \l{Components}
+                                \li \l{Connections}
                                 \li \l{Content Library}
-                                \li \l{Texture Editor}
-                                \li \l{Qt Insight}
+                                \li \l{Curves}
                                 \li \l{Effect Composer}
+                                \li \l{File System}
+                                \li \l{Material Editor and Browser}
                                 \li \l{Model Editor}
+                                \li \l{Navigator}
+                                \li \l{Open Documents}
+                                \li \l{Projects}
+                                \li \l{Properties}
+                                \li \l{Qt Insight}
+                                \li \l{States}
+                                \li \l{Texture Editor}
+                                \li \l{Timeline}
+                                \li \l{Transitions}
+                                \li \l{Translations}
                            \endlist
                         \li \l{Managing Workspaces}
                         \li \l{Manage sessions}

@@ -204,7 +204,10 @@
             \li  Action
             \li  Keyboard shortcut
         \row
-            \li  Open the QML file that defines the selected component
+            \li  Open the project with \uicontrol {Live Preview}.
+            \li  \key{Alt+P} (\key{Opt+P} on \macos)
+        \row
+            \li  Open the QML file that defines the selected component.
             \li  \key{F2}
         \row
             \li  Jump to the \uicontrol {Code} view.

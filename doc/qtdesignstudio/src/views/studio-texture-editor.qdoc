@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,11 +6,15 @@
     \previouspage studio-content-library.html
     \nextpage studio-qt-insight.html
 
+    \ingroup studio-views
+
     \title Texture Editor
+
+    \brief Create and manage textures.
 
     In the \uicontrol {Texture Editor} view, you create and manage textures.
 
-    \image texture-editor.png
+    \image texture-editor.webp "Texture Editor"
 
     \section1 Creating a Texture
 
@@ -38,7 +42,7 @@
       \li Select \inlineimage icons/apply.png
       .
       \li Select the material and property that you want to add the texture to.
-      \image select-material-property.png
+      \image select-material-property.png "Select a material property"
     \endlist
 
     \note You can also apply textures to materials in the

@@ -30,7 +30,7 @@
     An \e asset is an image, font file, 3D model, or other supported file that
     you add to your \l{glossary-project}{project}.
 
-    \image qtquick-assets-tab.png "Assets"
+    \image qtquick-assets-tab.webp "Assets"
 
     Assets are packaged with \l{glossary-component}{components} for delivery
     to users.
@@ -187,7 +187,7 @@
     also be modified by another component, unless a particular component
     type has explicitly disallowed this for a specific property.
 
-    \image qtquick-item-properties-common.png "Properties view"
+    \image qtquick-item-properties-common.webp "Properties view"
 
     Read more about properties:
 

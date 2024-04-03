@@ -1,12 +1,17 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
     \page quick-components-view.html
     \previouspage studio-material-editor.html
     \nextpage quick-assets.html
+    \sa {Using Components}
+
+    \ingroup studio-views
 
     \title Components
+
+    \brief Select preset components and your own components to use in your application.
 
     The \uicontrol Component view lists the available components.
 
@@ -86,27 +91,4 @@
     final application package, it is recommended that you select
     \uicontrol {Remove Module} to remove the ones you don't use in the project.
 
-    \section1 Context Menu Commands
-
-    \image qtquick-components-context-menu.png "Context menu commands in Components"
-    \image qtquick-components-context-menu-hide.png "Context menu command Hide Category"
-
-    To use the context menu commands in \uicontrol Components, right-click the
-    name of a module or category and select one of the following commands:
-
-    \list
-        \li \uicontrol {Remove Module}: removes the module and all of its
-            components from \uicontrol Components.
-        \li \uicontrol {Expand All}: expands all the modules.
-        \li \uicontrol {Collapse All}: collapses all the modules.
-        \li \uicontrol {Hide Category}: hides the category from the module.
-        \li \uicontrol {Show Module Hidden Categories}: shows the hidden
-            categories of the module.
-        \li \uicontrol {Show All Hidden Categories}: shows the hidden
-            categories in all of the modules.
-    \endlist
-
-    \note The context menu commands for the \uicontrol Components categories do
-    not function if you have entered something into the \uicontrol Search field.
-    Clear the \uicontrol Search field to resume using the context menu commands.
 */
