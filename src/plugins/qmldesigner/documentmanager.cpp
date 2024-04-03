@@ -130,7 +130,7 @@ static void openComponentSourcePropertyOfLoader(const ModelNode &modelNode)
     }
 
     Core::EditorManager::openEditor(FilePath::fromString(
-                                        componentModelNode.metaInfo().componentFileName()),
+                                        ModelUtils::componentFilePath(componentModelNode)),
                                     Utils::Id(),
                                     Core::EditorManager::DoNotMakeVisible);
 }
