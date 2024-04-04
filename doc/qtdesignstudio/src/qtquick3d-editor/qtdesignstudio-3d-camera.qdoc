@@ -14,7 +14,7 @@
     scene, it can be used to direct what is displayed in a \l {3D Views}
     {3D view}.
 
-    \image studio-qtquick-3d-components.png "Qt Quick 3D components in Components"
+    \image studio-qtquick-3d-components.webp "Qt Quick 3D components in Components"
 
     To add a camera component to your UI, do one of the following:
     \list
@@ -65,7 +65,7 @@
 
     You can edit the camera properties in the \uicontrol Properties view.
 
-    \image studio-qtquick-camera-properties.png "Properties view for Perspective Camera"
+   \image studio-qtquick-camera-properties.webp "Properties view for Perspective Camera"
 
     \section1 Setting Camera Field of View
 

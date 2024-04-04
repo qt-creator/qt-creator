@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -8,42 +8,53 @@
 
     \title 3D Views
 
-    To create a Qt Quick 3D UI project, we recommend using a \uicontrol
-    {Qt Quick 3D Application} wizard template that adds the
+    To create a Qt Quick 3D UI project, use the \uicontrol {3D} preset that adds the
     \l {3D Components}{Qt Quick 3D} components to \uicontrol Components
-    and contains a 3D view. A 3D view component includes a
-    \l {Scene Environment}{scene environment} as well as a scene
-    \l {Lights}{light}, \l {Cameras}{camera}, and
-    \l {3D Models}{model}. A default \l {Materials and Shaders}{material}
-    is attached to the model. You can attach \l {Textures}{textures}
-    to materials. For more information about creating projects, see \l{Creating Projects}.
+    and contains a 3D view component. The \uicontrol {View3D} component
+    includes a \l {Scene Environments}{scene environment} as well as a scene \l {Lights}{light},
+    \l {Cameras}{camera}, and \l {3D Models}{model}. A default \l {Materials and Shaders}{material}
+    is attached to the model. You can attach \l {Textures}{textures} to materials.
 
-    To add a 3D view to some other kind of a project, you first need to add the
+    To create a project with many complex effects, use the \uicontrol {Extended 3D} preset
+    that creates a project with an \uicontrol {Extended View3D} component.
+    The extended 3D view includes an {Extended Scene Environment}
+    component that enables using various effects by defining them as properties.
+
+    \note The extended 3D view is available in projects created with Qt 6.5
+    or higher set as the target version.
+
+    For more information about creating projects, see \l{Creating Projects}.
+
+    To manually add a 3D view to your project, you first need to add the
     \uicontrol {Qt Quick 3D} module to \uicontrol {Components}, as described in
     \l {Adding and Removing Modules}.
 
-    \image studio-qtquick-3d-components.png "Qt Quick 3D components in Components"
+    \note \uicontrol {The Qt Quick 3D} module is not available in projects created
+    with Qt 5 set as the target version.
 
-    You can now drag-and-drop a \uicontrol View3D component to the \l Navigator
-    or \l {2D} view.
+    \image studio-qtquick-3d-components.webp "QtQuick3D components"
 
-    \image studio-navigator-view3d.png "A View 3D component in the Navigator"
+    You can now drag a \uicontrol View3D or an \uicontrol {Extended View3D} component from
+    \l Components > \uicontrol QtQuick3D \uicontrol
+    > Items to \l Navigator or to the \l {2D} view.
 
-    By default, a directional light and a perspective camera are used in a 3D
-    scene created by using the wizard template mentioned above. To use other
-    light and camera types, select the component in the \uicontrol{3D} or
-    \uicontrol Navigator view and change the type of the component in the \uicontrol
-    Type field in \l Properties. For example, to use a point light, enter
-    \e {PointLight}.
+    \image studio-navigator-view3d.png "A View 3D component in Navigator"
 
-    \image studio-3d-properties-type.png "Type field in Properties view"
+    By default, a directional light and a perspective camera are used in 3D
+    scenes created by using the \uicontrol 3D and \uicontrol {Extended 3D}
+    presets. To use other light and camera types, select the component in
+    the \uicontrol {3D} or \uicontrol Navigator view and change the type of
+    the component in the \uicontrol Type field in \l Properties. For example,
+    to use a point light, enter \c {PointLight}.
 
-    Similarly to other components, you can select a 3D view in \uicontrol
-    Navigator or the \uicontrol{3D} view and modify its property values in the
-    \uicontrol Properties view. Use the properties in the \uicontrol View3D
-    tab to set properties specific to a 3D view component.
+    \image studio-3d-properties-type.webp "Type field in the Properties view"
 
-    \image studio-qtquick-3d-view.png "View 3D component properties"
+    Select a 3D view in \uicontrol Navigator or in \uicontrol{3D} to modify
+    its property values in the \uicontrol Properties view. Use the properties
+    in the \uicontrol View3D tab to set properties specific to a 3D view
+    component.
+
+    \image studio-qtquick-3d-view.webp "View 3D component properties"
 
     The \uicontrol Camera property defines which camera is used to render the
     scene to the \uicontrol {2D} view. If this property is not defined, the
@@ -63,4 +74,7 @@
 
     \note The \uicontrol {Import Scene} property can only be set once.
     Subsequent changes will have no effect.
+
+    The \uicontrol {Render Format} property defines the format of the backing
+    texture.
 */
