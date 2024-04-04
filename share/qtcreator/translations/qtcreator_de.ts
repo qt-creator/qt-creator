@@ -39335,7 +39335,7 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Expand</source>
-        <translation>Erweitern</translation>
+        <translation>Aufklappen</translation>
     </message>
     <message>
         <source>Ctrl+T</source>
