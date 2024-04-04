@@ -14636,15 +14636,15 @@ Lokale Commits werden nicht zum Master-Branch gepusht, bis ein normaler Commit e
     </message>
     <message>
         <source>User</source>
-        <translation>Nutzer</translation>
+        <translation>Benutzer</translation>
     </message>
     <message>
         <source>Username to use by default on commit.</source>
-        <translation>Nutzername für Commit.</translation>
+        <translation>Benutzername für Commit.</translation>
     </message>
     <message>
         <source>Default username:</source>
-        <translation>Vorgabe für Nutzernamen:</translation>
+        <translation>Vorgabe für Benutzernamen:</translation>
     </message>
     <message>
         <source>Email to use by default on commit.</source>
@@ -18261,11 +18261,11 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
-        <translation>&amp;Nutzername:</translation>
+        <translation>&amp;Benutzername:</translation>
     </message>
     <message>
         <source>&lt;Username&gt;</source>
-        <translation>&lt;Nutzername&gt;</translation>
+        <translation>&lt;Benutzername&gt;</translation>
     </message>
     <message>
         <source>&amp;Description:</source>
@@ -18293,7 +18293,7 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Username:</source>
-        <translation>Nutzername:</translation>
+        <translation>Benutzername:</translation>
     </message>
     <message>
         <source>Default protocol:</source>
@@ -20970,7 +20970,7 @@ Sie werden wahrscheinlich auf weitere Probleme mit dieser Instanz von %3 stoßen
     </message>
     <message>
         <source>%1 uses Google Crashpad for collecting crashes and sending them to our backend for processing. Crashpad may capture arbitrary contents from crashed process’ memory, including user sensitive information, URLs, and whatever other content users have trusted %1 with. The collected crash reports are however only used for the sole purpose of fixing bugs.</source>
-        <translation>%1 nutzt Google Crashpad, um Absturzberichte zu sammeln und diese zur Verarbeitung an unsere Server zu senden. Crashpad kann beliebige Inhalte des Speichers des abgestürzten Prozesses erfassen. Dies beinhaltet persönliche Daten, URLs und welche Inhalte auch immer der Nutzer %1 anvertraut hat. Die gesammelten Absturzberichte werden allerdings nur zum Zweck der Fehlerbehebung genutzt.</translation>
+        <translation>%1 nutzt Google Crashpad, um Absturzberichte zu sammeln und diese zur Verarbeitung an unsere Server zu senden. Crashpad kann beliebige Inhalte des Speichers des abgestürzten Prozesses erfassen. Dies beinhaltet persönliche Daten, URLs und welche Inhalte auch immer der Benutzer %1 anvertraut hat. Die gesammelten Absturzberichte werden allerdings nur zum Zweck der Fehlerbehebung genutzt.</translation>
     </message>
     <message>
         <source>More information:</source>
@@ -21824,7 +21824,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>The plugin will be available to all compatible %1 installations, but only for the current user.</source>
-        <translation>Das Plugin wird für alle kompatiblen Installationen von %1 verfügbar sein, aber nur für den aktuellen Nutzer.</translation>
+        <translation>Das Plugin wird für alle kompatiblen Installationen von %1 verfügbar sein, aber nur für den aktuellen Benutzer.</translation>
     </message>
     <message>
         <source>%1 installation</source>
@@ -21832,7 +21832,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>The plugin will be available only to this %1 installation, but for all users that can access it.</source>
-        <translation>Das Plugin wird nur für diese Installation von %1 verfügbar sein, aber für alle Nutzer, die diese Ausführen können.</translation>
+        <translation>Das Plugin wird nur für diese Installation von %1 verfügbar sein, aber für alle Benutzer, die diese Ausführen können.</translation>
     </message>
     <message>
         <source>Summary</source>
@@ -25529,7 +25529,7 @@ markers in the source code editor.</source>
     <message>
         <source>Allows or inhibits reading the user&apos;s default
 .gdbinit file on debugger startup.</source>
-        <translation>Gestattet oder unterdrückt das Lesen der Vorgabe-.gdbinit-Datei des Nutzers beim Starten des Debuggers.</translation>
+        <translation>Gestattet oder unterdrückt das Lesen der Vorgabe-.gdbinit-Datei des Benutzers beim Starten des Debuggers.</translation>
     </message>
     <message>
         <source>Load system GDB pretty printers</source>
@@ -26595,7 +26595,7 @@ Sie werden möglicherweise gebeten, den Inhalt dieses Logs mitzuteilen, wenn Sie
     </message>
     <message>
         <source>User commands are not accepted in the current state.</source>
-        <translation>Die Eingabe von Nutzerkommandos ist in diesem Zustand nicht möglich.</translation>
+        <translation>Die Eingabe von Benutzerkommandos ist in diesem Zustand nicht möglich.</translation>
     </message>
     <message>
         <source>Log File</source>
@@ -27151,7 +27151,7 @@ Soll es noch einmal versucht werden?</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
-        <translation>&amp;Nutzername:</translation>
+        <translation>&amp;Benutzername:</translation>
     </message>
     <message>
         <source>&amp;Password:</source>
@@ -28051,7 +28051,7 @@ Bitte wählen Sie einen 64-bit-Debugger in den Kit-Einstellungen für dieses Kit
     </message>
     <message>
         <source>This debugger cannot handle user input.</source>
-        <translation>Dieser Debugger kann keine Nutzereingaben verarbeiten.</translation>
+        <translation>Dieser Debugger kann keine Benutzereingaben verarbeiten.</translation>
     </message>
     <message>
         <source>Stopped: &quot;%1&quot;.</source>
@@ -30691,7 +30691,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>User:</source>
-        <translation>Nutzer:</translation>
+        <translation>Benutzer:</translation>
     </message>
     <message>
         <source>Repository Settings</source>
@@ -31103,7 +31103,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>User</source>
-        <translation>Nutzer</translation>
+        <translation>Benutzer</translation>
     </message>
     <message>
         <source>Miscellaneous</source>
@@ -32360,7 +32360,7 @@ Möchten Sie ihn beenden?</translation>
     </message>
     <message>
         <source>&amp;User:</source>
-        <translation>&amp;Nutzer:</translation>
+        <translation>&amp;Benutzer:</translation>
     </message>
     <message>
         <source>&amp;ssh:</source>
@@ -32404,7 +32404,7 @@ nicht konfiguriert ist.</translation>
     </message>
     <message>
         <source>Invalid Gerrit configuration. Host, user and ssh binary are mandatory.</source>
-        <translation>Ungültige Gerrit-Konfiguration. Host, Nutzer und ausführbare SSH-Datei müssen angegeben werden.</translation>
+        <translation>Ungültige Gerrit-Konfiguration. Host, Benutzer und ausführbare SSH-Datei müssen angegeben werden.</translation>
     </message>
     <message>
         <source>Git is not available.</source>
@@ -36492,15 +36492,15 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des benutzten Langu
     </message>
     <message>
         <source>User</source>
-        <translation>Nutzer</translation>
+        <translation>Benutzer</translation>
     </message>
     <message>
         <source>Username to use by default on commit.</source>
-        <translation>Nutzername für Commit.</translation>
+        <translation>Benutzername für Commit.</translation>
     </message>
     <message>
         <source>Default username:</source>
-        <translation>Vorgabe für Nutzernamen:</translation>
+        <translation>Vorgabe für Benutzernamen:</translation>
     </message>
     <message>
         <source>Email to use by default on commit.</source>
@@ -36540,7 +36540,7 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des benutzten Langu
     </message>
     <message>
         <source>Prompt for credentials</source>
-        <translation>Nutzerdaten abfragen</translation>
+        <translation>Benutzerdaten abfragen</translation>
     </message>
     <message>
         <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
@@ -38316,15 +38316,15 @@ Weitere Erklärungen sind möglicherweise in &quot;Ausgabe der Anwendung&quot; z
     </message>
     <message>
         <source>P4 client:</source>
-        <translation>P4 Client:</translation>
+        <translation>P4-Client:</translation>
     </message>
     <message>
         <source>P4 user:</source>
-        <translation>P4 Nutzer:</translation>
+        <translation>P4-Benutzer:</translation>
     </message>
     <message>
         <source>P4 port:</source>
-        <translation>P4 Port-Nummer:</translation>
+        <translation>P4-Port:</translation>
     </message>
     <message>
         <source>Environment Variables</source>
@@ -38344,7 +38344,7 @@ Weitere Erklärungen sind möglicherweise in &quot;Ausgabe der Anwendung&quot; z
     </message>
     <message>
         <source>User:</source>
-        <translation>Nutzer:</translation>
+        <translation>Benutzer:</translation>
     </message>
     <message>
         <source>No executable specified</source>
@@ -44195,7 +44195,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>User requested stop. Shutting down...</source>
-        <translation>Abbruch auf Nutzeranforderung...</translation>
+        <translation>Abbruch auf Benutzeranforderung...</translation>
     </message>
     <message>
         <source>Cannot run: No command given.</source>
@@ -49769,7 +49769,7 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
     <message>
         <source>The username to log into the device:</source>
-        <translation>Nutzername für Geräte-Login:</translation>
+        <translation>Benutzername für Geräte-Login:</translation>
     </message>
     <message>
         <source>Authentication type:</source>
@@ -49810,7 +49810,7 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
-        <translation>&amp;Nutzername:</translation>
+        <translation>&amp;Benutzername:</translation>
     </message>
     <message>
         <source>QML runtime executable:</source>
@@ -53247,7 +53247,7 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
     </message>
     <message>
         <source>Cannot create user snippet directory %1</source>
-        <translation>Das Snippet-Verzeichnis des Nutzers konnte nicht erstellt werden: %1</translation>
+        <translation>Das Snippet-Verzeichnis des Benutzers konnte nicht erstellt werden: %1</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -56448,7 +56448,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Refusing to remove your home directory.</source>
-        <translation>Das Nutzerverzeichnis (Home) kann nicht entfernt werden.</translation>
+        <translation>Das Benutzerverzeichnis (Home) kann nicht entfernt werden.</translation>
     </message>
     <message>
         <source>Failed to remove directory &quot;%1&quot;.</source>
@@ -57122,7 +57122,7 @@ in &quot;%2&quot; aus.
     </message>
     <message>
         <source>User:</source>
-        <translation>Nutzer:</translation>
+        <translation>Benutzer:</translation>
     </message>
     <message>
         <source>Password:</source>
@@ -58807,17 +58807,17 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     </message>
     <message>
         <source>User/&amp;alias configuration file:</source>
-        <translation>Nutzer/&amp;Alias-Konfigurationsdatei:</translation>
+        <translation>Benutzer/&amp;Alias-Konfigurationsdatei:</translation>
     </message>
     <message>
         <source>A file listing nicknames in a 4-column mailmap format:
 &apos;name &lt;email&gt; alias &lt;email&gt;&apos;.</source>
-        <translation>Eine Datei, die Nutzernamen in einem vierspaltigen Format (mailmap) enthält:
+        <translation>Eine Datei, die Benutzernamen in einem vierspaltigen Format (mailmap) enthält:
 &apos;Name &lt;E-Mail&gt; Alias &lt;E-Mail&gt;&apos;.</translation>
     </message>
     <message>
         <source>User &amp;fields configuration file:</source>
-        <translation>Nutzer&amp;feld-Konfigurationsdatei:</translation>
+        <translation>Benutzer&amp;feld-Konfigurationsdatei:</translation>
     </message>
     <message>
         <source>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</source>
