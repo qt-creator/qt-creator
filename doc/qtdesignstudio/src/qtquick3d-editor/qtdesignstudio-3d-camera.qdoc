@@ -65,7 +65,7 @@
 
     You can edit the camera properties in the \uicontrol Properties view.
 
-   \image studio-qtquick-camera-properties "Properties view for Perspective Camera"
+    \image studio-qtquick-camera-properties.png "Properties view for Perspective Camera"
 
     \section1 Setting Camera Field of View
 
