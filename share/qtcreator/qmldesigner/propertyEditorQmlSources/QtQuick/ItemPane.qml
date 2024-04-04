@@ -133,6 +133,10 @@ PropertyEditorPane {
                 visible: specificsOne.source.toString() !== ""
             }
 
+            EffectsSection {
+                expanded: false
+            }
+
             AdvancedSection {
                 expanded: false
             }
