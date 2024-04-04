@@ -12365,7 +12365,7 @@ und das Überschreiben Ihrer Einstellungen erfordert. Das Überschreiben erlaube
     </message>
     <message>
         <source>Limit result description:</source>
-        <translation>Beschreibung der Resultate begrenzen:</translation>
+        <translation>Beschreibung der Ergebnisse begrenzen:</translation>
     </message>
     <message>
         <source>Limit number of lines shown in test result tooltip and description.</source>
@@ -20654,7 +20654,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt von einem Leerzeiche
     </message>
     <message>
         <source>Filter Results</source>
-        <translation>Resultate filtern</translation>
+        <translation>Ergebnisse filtern</translation>
     </message>
     <message>
         <source>%1 %2</source>
@@ -23642,7 +23642,7 @@ z.B. name = &quot;m_test_foo_&quot;:
     </message>
     <message>
         <source>&lt;p&gt;If background indexing is enabled, global symbol searches will yield more accurate results, at the cost of additional CPU load when the project is first opened. The indexing result is persisted in the project&apos;s build directory. If you disable background indexing, a faster, but less accurate, built-in indexer is used instead. The thread priority for building the background index can be adjusted since clangd 15.&lt;/p&gt;&lt;p&gt;Background Priority: Minimum priority, runs on idle CPUs. May leave &apos;performance&apos; cores unused.&lt;/p&gt;&lt;p&gt;Normal Priority: Reduced priority compared to interactive work.&lt;/p&gt;&lt;p&gt;Low Priority: Same priority as other clangd work.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Wenn sie das globale Indizieren aktivieren, liefert die globale Symbolsuche genauere Resultate, es erhöht aber die CPU-Last beim ersten Öffnen von Projekten. Das Resultat der Indizierung wird im Build-Verzeichnis des Projekts gespeichert. Wenn sie das globale Indizieren deaktivieren, wird stattdessen ein schnellerer, aber weniger genauer, integrierter Indexer benutzt. Seit Clangd 15 können Sie die Priorität für die Indizierungs-Threads anpassen.&lt;/p&gt;&lt;p&gt;Hintergrund-Priorität: Niedrigste Priorität, läuft nur auf leerlaufenden CPUs. Kann &quot;Performance&quot;-Kerne ungenutzt lassen.&lt;/p&gt;&lt;p&gt;Normale Priorität: Geringere Priorität im Vergleich zu interaktiven Aktivitäten.&lt;/p&gt;&lt;p&gt;Niedrige Priorität: Dieselbe Priorität wie andere Clangd-Aktivitäten.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Wenn sie das globale Indizieren aktivieren, liefert die globale Symbolsuche genauere Ergebnisse, es erhöht aber die CPU-Last beim ersten Öffnen von Projekten. Das Ergebnis der Indizierung wird im Build-Verzeichnis des Projekts gespeichert. Wenn sie das globale Indizieren deaktivieren, wird stattdessen ein schnellerer, aber weniger genauer, integrierter Indexer benutzt. Seit Clangd 15 können Sie die Priorität für die Indizierungs-Threads anpassen.&lt;/p&gt;&lt;p&gt;Hintergrund-Priorität: Niedrigste Priorität, läuft nur auf leerlaufenden CPUs. Kann &quot;Performance&quot;-Kerne ungenutzt lassen.&lt;/p&gt;&lt;p&gt;Normale Priorität: Geringere Priorität im Vergleich zu interaktiven Aktivitäten.&lt;/p&gt;&lt;p&gt;Niedrige Priorität: Dieselbe Priorität wie andere Clangd-Aktivitäten.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;The C/C++ backend to use for switching between header and source files.&lt;/p&gt;&lt;p&gt;While the clangd implementation has more capabilities than the built-in code model, it tends to find false positives.&lt;/p&gt;&lt;p&gt;When &quot;Try Both&quot; is selected, clangd is used only if the built-in variant does not find anything.&lt;/p&gt;</source>
@@ -23674,7 +23674,7 @@ Das integrierte Codemodell übernimmt Syntaxhervorhebung, Code-Vervollständigun
     </message>
     <message>
         <source>The maximum number of completion results returned by clangd.</source>
-        <translation>Die maximale Anzahl Resultate die von Clangd für die Code-Vervollständigung zurück gegeben werden.</translation>
+        <translation>Die maximale Anzahl Ergebnisse, die von Clangd für die Code-Vervollständigung zurückgegeben werden.</translation>
     </message>
     <message>
         <source>Use clangd</source>
@@ -23694,7 +23694,7 @@ Das integrierte Codemodell übernimmt Syntaxhervorhebung, Code-Vervollständigun
     </message>
     <message>
         <source>Completion results:</source>
-        <translation>Anzahl der Resultate der Code-Vervollständigung:</translation>
+        <translation>Anzahl der Ergebnisse der Code-Vervollständigung:</translation>
     </message>
     <message>
         <source>No limit</source>
@@ -45976,7 +45976,7 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
     </message>
     <message>
         <source>Checking this option avoids unwanted side effects, but may result in inexact parsing results.</source>
-        <translation>Diese Einstellung verhindert ungewollte Nebeneffekte, kann aber zu ungenauen Resultaten beim Auswerten führen.</translation>
+        <translation>Diese Einstellung verhindert ungewollte Nebeneffekte, kann aber zu ungenauen Ergebnissen beim Auswerten führen.</translation>
     </message>
     <message>
         <source>Qmake</source>
