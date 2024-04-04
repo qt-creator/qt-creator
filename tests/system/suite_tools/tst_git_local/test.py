@@ -82,7 +82,8 @@ def __clickCommit__(count):
     test.verify(waitFor('str(fileName.currentText) == expected', 5000),
                 "Verifying editor switches to Git Show.")
     description = waitForObject(":Qt Creator_DiffEditor::Internal::DescriptionEditorWidget")
-    waitFor('len(str(description.plainText)) != 0', 5000)
+    waitFor('len(str(description.plainText)) != 0 '
+            'and str(description.plainText) != "Waiting for data..."', 5000)
     show = str(description.plainText)
     id = "Nobody <nobody@nowhere\.com>"
     time = "\w{3} \w{3} \d{1,2} \d{2}:\d{2}:\d{2} \d{4}.* seconds ago\)"
