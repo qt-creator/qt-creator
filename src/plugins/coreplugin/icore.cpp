@@ -2578,6 +2578,7 @@ void ICorePrivate::changeLog()
     });
 
     auto versionCombo = new QComboBox;
+    versionCombo->setMinimumWidth(80);
     for (const VersionFilePair &f : versionedFiles)
         versionCombo->addItem(f.first.toString());
     dialog = new LogDialog(ICore::dialogParent());
