@@ -3,6 +3,7 @@
 
 #include "collectioneditorutils.h"
 
+#include "collectiondatatypemodel.h"
 #include "model.h"
 #include "nodemetainfo.h"
 #include "propertymetainfo.h"
@@ -288,7 +289,7 @@ QJsonObject defaultCollection()
     QJsonArray columns;
     QJsonObject defaultColumn;
     defaultColumn.insert("name", "Column 1");
-    defaultColumn.insert("type", "string");
+    defaultColumn.insert("type", CollectionDataTypeModel::dataTypeToString(DataType::String));
     columns.append(defaultColumn);
 
     QJsonArray collectionData;
