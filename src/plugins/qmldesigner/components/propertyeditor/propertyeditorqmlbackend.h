@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include "qmlanchorbindingproxy.h"
 #include "designerpropertymap.h"
-#include "propertyeditorvalue.h"
 #include "propertyeditorcontextobject.h"
+#include "propertyeditorvalue.h"
+#include "qmlanchorbindingproxy.h"
 #include "qmlmodelnodeproxy.h"
 #include "quick2propertyeditorview.h"
 
@@ -71,7 +71,15 @@ public:
                                        PropertyEditorView *propertyEditor);
     void setupInsightAttachedProperties(const QmlObjectNode &qmlObjectNode,
                                         PropertyEditorView *propertyEditor);
-    void setupAuxiliaryProperties(const QmlObjectNode &qmlObjectNode, PropertyEditorView *propertyEditor);
+    void setupAuxiliaryProperties(const QmlObjectNode &qmlObjectNode,
+                                  PropertyEditorView *propertyEditor);
+
+    void handleInstancePropertyChangedInModelNodeProxy(const ModelNode &modelNode,
+                                                       const PropertyName &propertyName);
+
+    void handleVariantPropertyChangedInModelNodeProxy(const VariantProperty &property);
+    void handleBindingPropertyChangedInModelNodeProxy(const BindingProperty &property);
+    void handlePropertiesRemovedInModelNodeProxy(const AbstractProperty &property);
 
     static NodeMetaInfo findCommonAncestor(const ModelNode &node);
 

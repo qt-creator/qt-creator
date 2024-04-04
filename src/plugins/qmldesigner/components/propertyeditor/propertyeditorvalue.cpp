@@ -10,9 +10,12 @@
 #include "designmodewidget.h"
 #include "nodemetainfo.h"
 #include "nodeproperty.h"
+#include "propertyeditorview.h"
+#include "qmldesignerplugin.h"
 #include "qmlitemnode.h"
 #include "qmlobjectnode.h"
-#include "qmldesignerplugin.h"
+#include "rewritertransaction.h"
+#include "rewritingexception.h"
 
 #include <enumeration.h>
 
@@ -724,6 +727,262 @@ void PropertyEditorNodeWrapper::update()
     setup();
     emit existsChanged();
     emit typeChanged();
+}
+
+QQmlPropertyMap *PropertyEditorSubSelectionWrapper::properties()
+{
+    return &m_valuesPropertyMap;
+}
+
+static QObject *variantToQObject(const QVariant &value)
+{
+    if (value.typeId() == QMetaType::QObjectStar || value.typeId() > QMetaType::User)
+        return *(QObject **)value.constData();
+
+    return nullptr;
+}
+
+void PropertyEditorSubSelectionWrapper::createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
+                                                                  const PropertyName &name,
+                                                                  const QVariant &value)
+{
+    PropertyName propertyName(name);
+    propertyName.replace('.', '_');
+    auto valueObject = qobject_cast<PropertyEditorValue*>(variantToQObject(m_valuesPropertyMap.value(QString::fromUtf8(propertyName))));
+    if (!valueObject) {
+        valueObject = new PropertyEditorValue(&m_valuesPropertyMap);
+        QObject::connect(valueObject, &PropertyEditorValue::valueChanged, this, &PropertyEditorSubSelectionWrapper::changeValue);
+        QObject::connect(valueObject, &PropertyEditorValue::expressionChanged, this, &PropertyEditorSubSelectionWrapper::changeExpression);
+        QObject::connect(valueObject, &PropertyEditorValue::exportPropertyAsAliasRequested, this, &PropertyEditorSubSelectionWrapper::exportPropertyAsAlias);
+        QObject::connect(valueObject, &PropertyEditorValue::removeAliasExportRequested, this, &PropertyEditorSubSelectionWrapper::removeAliasExport);
+        m_valuesPropertyMap.insert(QString::fromUtf8(propertyName), QVariant::fromValue(valueObject));
+    }
+    valueObject->setName(name);
+    valueObject->setModelNode(qmlObjectNode);
+
+    if (qmlObjectNode.propertyAffectedByCurrentState(name) && !(qmlObjectNode.modelNode().property(name).isBindingProperty()))
+        valueObject->setValue(qmlObjectNode.modelValue(name));
+
+    else
+        valueObject->setValue(value);
+
+    if (propertyName != "id" &&
+        qmlObjectNode.currentState().isBaseState() &&
+        qmlObjectNode.modelNode().property(propertyName).isBindingProperty()) {
+        valueObject->setExpression(qmlObjectNode.modelNode().bindingProperty(propertyName).expression());
+    } else {
+        if (qmlObjectNode.hasBindingProperty(name))
+            valueObject->setExpression(qmlObjectNode.expression(name));
+        else
+            valueObject->setExpression(qmlObjectNode.instanceValue(name).toString());
+    }
+}
+
+void PropertyEditorSubSelectionWrapper::exportPropertyAsAlias(const QString &name)
+{
+    if (name.isNull())
+        return;
+
+    if (locked())
+        return;
+
+    QTC_ASSERT(m_modelNode.isValid(), return);
+
+    view()->executeInTransaction("PropertyEditorView::exportPropertyAsAlias", [this, name](){
+        PropertyEditorView::generateAliasForProperty(m_modelNode, name);
+    });
+}
+
+void PropertyEditorSubSelectionWrapper::removeAliasExport(const QString &name)
+{
+    if (name.isNull())
+        return;
+
+    if (locked())
+        return;
+
+    QTC_ASSERT(m_modelNode.isValid(), return );
+
+    view()->executeInTransaction("PropertyEditorView::exportPropertyAsAlias", [this, name]() {
+        PropertyEditorView::removeAliasForProperty(m_modelNode, name);
+    });
+}
+
+bool PropertyEditorSubSelectionWrapper::locked() const
+{
+    return m_locked;
+}
+
+PropertyEditorSubSelectionWrapper::PropertyEditorSubSelectionWrapper(const ModelNode &modelNode)
+    : m_modelNode(modelNode)
+{
+    QmlObjectNode qmlObjectNode(modelNode);
+
+    QTC_ASSERT(qmlObjectNode.isValid(), return );
+
+    for (const auto &property : qmlObjectNode.modelNode().metaInfo().properties()) {
+        auto propertyName = property.name();
+        createPropertyEditorValue(qmlObjectNode,
+                                  propertyName,
+                                  qmlObjectNode.instanceValue(propertyName));
+    }
+}
+
+ModelNode PropertyEditorSubSelectionWrapper::modelNode() const
+{
+    return m_modelNode;
+}
+
+void PropertyEditorSubSelectionWrapper::deleteModelNode()
+{
+    QmlObjectNode objectNode(m_modelNode);
+
+    view()->executeInTransaction("PropertyEditorView::changeExpression", [&] {
+        if (objectNode.isValid())
+            objectNode.destroy();
+    });
+}
+
+void PropertyEditorSubSelectionWrapper::changeValue(const QString &name)
+{
+    QTC_ASSERT(m_modelNode.isValid(), return );
+
+    if (name.isNull())
+        return;
+
+    if (locked())
+        return;
+
+    const QScopeGuard cleanup([&] { m_locked = false; });
+    m_locked = true;
+
+    const NodeMetaInfo metaInfo = m_modelNode.metaInfo();
+    QVariant castedValue;
+    PropertyEditorValue *value = qobject_cast<PropertyEditorValue *>(
+        variantToQObject(m_valuesPropertyMap.value(name)));
+
+    if (auto property = metaInfo.property(name.toUtf8())) {
+        castedValue = property.castedValue(value->value());
+
+        if (castedValue.typeId() == QVariant::Color) {
+            QColor color = castedValue.value<QColor>();
+            QColor newColor = QColor(color.name());
+            newColor.setAlpha(color.alpha());
+            castedValue = QVariant(newColor);
+        }
+
+        if (!value->value().isValid()) { // reset
+            removePropertyFromModel(name.toUtf8());
+        } else {
+            if (castedValue.isValid())
+                commitVariantValueToModel(name.toUtf8(), castedValue);
+        }
+    }
+}
+
+void PropertyEditorSubSelectionWrapper::setValueFromModel(const PropertyName &name,
+                                                          const QVariant &value)
+{
+    m_locked = true;
+
+    QmlObjectNode qmlObjectNode(m_modelNode);
+
+    PropertyName propertyName = name;
+    propertyName.replace('.', '_');
+    auto propertyValue = qobject_cast<PropertyEditorValue *>(
+        variantToQObject(m_valuesPropertyMap.value(QString::fromUtf8(propertyName))));
+    if (propertyValue)
+        propertyValue->setValue(value);
+    m_locked = false;
+}
+
+void PropertyEditorSubSelectionWrapper::resetValue(const PropertyName &name)
+{
+    auto propertyValue = qobject_cast<PropertyEditorValue *>(
+        variantToQObject(m_valuesPropertyMap.value(QString::fromUtf8(name))));
+    if (propertyValue)
+        propertyValue->resetValue();
+}
+
+bool PropertyEditorSubSelectionWrapper::isRelevantModelNode(const ModelNode &modelNode) const
+{
+    QmlObjectNode objectNode(m_modelNode);
+    return modelNode == m_modelNode || objectNode.propertyChangeForCurrentState() == modelNode;
+}
+
+void PropertyEditorSubSelectionWrapper::changeExpression(const QString &propertyName)
+{
+    PropertyName name = propertyName.toUtf8();
+
+    QTC_ASSERT(m_modelNode.isValid(), return );
+
+    if (name.isNull())
+        return;
+
+    if (locked())
+        return;
+
+    const QScopeGuard cleanup([&] { m_locked = false; });
+    m_locked = true;
+
+    view()->executeInTransaction("PropertyEditorView::changeExpression", [this, name, propertyName] {
+        QmlObjectNode qmlObjectNode{m_modelNode};
+        PropertyEditorValue *value = qobject_cast<PropertyEditorValue *>(
+            variantToQObject(m_valuesPropertyMap.value(propertyName)));
+
+        if (!value) {
+            qWarning() << "PropertyEditor::changeExpression no value for " << propertyName;
+            return;
+        }
+
+        if (value->expression().isEmpty()) {
+            value->resetValue();
+            return;
+        }
+        PropertyEditorView::setExpressionOnObjectNode(qmlObjectNode, name, value->expression());
+    }); /* end of transaction */
+}
+
+void PropertyEditorSubSelectionWrapper::removePropertyFromModel(const PropertyName &propertyName)
+{
+    QTC_ASSERT(m_modelNode.isValid(), return );
+
+    m_locked = true;
+    try {
+        RewriterTransaction transaction = view()->beginRewriterTransaction(
+            "PropertyEditorView::removePropertyFromModel");
+
+        QmlObjectNode(m_modelNode).removeProperty(propertyName);
+
+        transaction.commit();
+    } catch (const RewritingException &e) {
+        e.showException();
+    }
+    m_locked = false;
+}
+
+void PropertyEditorSubSelectionWrapper::commitVariantValueToModel(const PropertyName &propertyName,
+                                                                  const QVariant &value)
+{
+    QTC_ASSERT(m_modelNode.isValid(), return );
+
+    try {
+        RewriterTransaction transaction = view()->beginRewriterTransaction(
+            "PropertyEditorView::commitVariantValueToMode");
+
+        QmlObjectNode(m_modelNode).setVariantProperty(propertyName, value);
+
+        transaction.commit();
+    } catch (const RewritingException &e) {
+        e.showException();
+    }
+}
+
+AbstractView *PropertyEditorSubSelectionWrapper::view() const
+{
+    QTC_CHECK(m_modelNode.isValid());
+
+    return m_modelNode.view();
 }
 
 } // namespace QmlDesigner

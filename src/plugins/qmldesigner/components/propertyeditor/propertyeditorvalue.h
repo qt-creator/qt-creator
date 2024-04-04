@@ -14,6 +14,43 @@ namespace QmlDesigner {
 
 class PropertyEditorValue;
 
+class PropertyEditorSubSelectionWrapper : public QObject
+{
+    Q_OBJECT
+
+    Q_PROPERTY(QQmlPropertyMap *properties READ properties NOTIFY propertiesChanged)
+
+signals:
+    void propertiesChanged();
+
+public:
+    QQmlPropertyMap *properties();
+    PropertyEditorSubSelectionWrapper(const ModelNode &modelNode);
+    ModelNode modelNode() const;
+
+    Q_INVOKABLE void deleteModelNode();
+
+    void setValueFromModel(const PropertyName &name, const QVariant &value);
+    void resetValue(const PropertyName &name);
+
+    bool isRelevantModelNode(const ModelNode &modelNode) const;
+
+private:
+    void changeValue(const QString &name);
+    void changeExpression(const QString &propertyName);
+    void createPropertyEditorValue(const QmlObjectNode &qmlObjectNode, const PropertyName &name, const QVariant &value);
+    void exportPropertyAsAlias(const QString &name);
+    void removeAliasExport(const QString &name);
+    bool locked() const;
+
+    ModelNode m_modelNode;
+    QQmlPropertyMap m_valuesPropertyMap;
+    bool m_locked = false;
+    void removePropertyFromModel(const PropertyName &propertyName);
+    void commitVariantValueToModel(const PropertyName &propertyName, const QVariant &value);
+    AbstractView *view() const;
+};
+
 class PropertyEditorNodeWrapper : public QObject
 {
     Q_OBJECT
