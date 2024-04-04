@@ -31,6 +31,7 @@ public:
 
     Q_INVOKABLE bool selectRow(int row);
     Q_INVOKABLE bool selectColumn(int column);
+    Q_INVOKABLE void deselectAll();
 
 signals:
     void selectedColumnChanged(int);

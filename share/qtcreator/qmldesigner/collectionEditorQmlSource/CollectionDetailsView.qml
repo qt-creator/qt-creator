@@ -26,6 +26,11 @@ Rectangle {
         toolbar.closeDialogs()
     }
 
+    MouseArea {
+        anchors.fill: parent
+        onClicked: tableView.model.deselectAll()
+    }
+
     Column {
         id: topRow
         readonly property real maxAvailableHeight: root.height
@@ -100,7 +105,8 @@ Rectangle {
                         id: topHeaderMouseArea
 
                         anchors.fill: parent
-                        anchors.margins: 5
+                        anchors.leftMargin: StudioTheme.Values.borderHover
+                        anchors.rightMargin: StudioTheme.Values.borderHover
                         acceptedButtons: Qt.LeftButton | Qt.RightButton
                         hoverEnabled: true
                         onClicked: (mouse) => {
@@ -188,7 +194,8 @@ Rectangle {
 
                     MouseArea {
                         anchors.fill: parent
-                        anchors.margins: 5
+                        anchors.topMargin: StudioTheme.Values.borderHover
+                        anchors.bottomMargin: StudioTheme.Values.borderHover
                         acceptedButtons: Qt.LeftButton
                         onClicked: tableView.model.selectRow(index)
                     }
@@ -366,6 +373,7 @@ Rectangle {
                             top: itemCell.top
                             left: itemCell.left
                         }
+                        Component.onCompleted: tableView.model.deselectAll()
                     }
                 }
 
