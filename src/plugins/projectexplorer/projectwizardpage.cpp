@@ -32,7 +32,7 @@
 #include <QTextStream>
 
 /*!
-    \class ProjectExplorer::Internal::ProjectWizardPage
+    \class ProjectExplorer::ProjectWizardPage
 
     \brief The ProjectWizardPage class provides a wizard page showing projects
     and version control to add new files to.
@@ -261,6 +261,8 @@ static AddNewTree *buildAddFilesTree(FolderNode *root, const FilePaths &files,
     return new AddNewTree(root, children, root->displayName());
 }
 
+} // namespace Internal
+
 // --------------------------------------------------------------------
 // ProjectWizardPage:
 // --------------------------------------------------------------------
@@ -302,7 +304,7 @@ ProjectWizardPage::ProjectWizardPage(QWidget *parent)
     setProperty(SHORT_TITLE_PROPERTY, Tr::tr("Summary"));
 
     connect(VcsManager::instance(), &VcsManager::configurationChanged,
-            this, &ProjectExplorer::Internal::ProjectWizardPage::initializeVersionControls);
+            this, &ProjectExplorer::ProjectWizardPage::initializeVersionControls);
 
     m_projectComboBox->setModel(&m_model);
 }
@@ -333,14 +335,14 @@ bool ProjectWizardPage::expandTree(const QModelIndex &root)
         m_projectComboBox->view()->collapse(root);
 
     // if we are a high priority node, our *parent* needs to be expanded
-    auto tree = static_cast<AddNewTree *>(root.internalPointer());
+    auto tree = static_cast<Internal::AddNewTree *>(root.internalPointer());
     if (tree && tree->priority() >= 100)
         expand = true;
 
     return expand;
 }
 
-void ProjectWizardPage::setBestNode(AddNewTree *tree)
+void ProjectWizardPage::setBestNode(Internal::AddNewTree *tree)
 {
     QModelIndex index = tree ? m_model.indexForItem(tree) : QModelIndex();
     m_projectComboBox->setCurrentIndex(index);
@@ -458,29 +460,29 @@ void ProjectWizardPage::initializeProjectTree(Node *context, const FilePaths &pa
                                               ProjectAction action)
 {
     m_projectComboBox->disconnect();
-    BestNodeSelector selector(m_commonDirectory, paths);
+    Internal::BestNodeSelector selector(m_commonDirectory, paths);
 
     TreeItem *root = m_model.rootItem();
     root->removeChildren();
     for (Project *project : ProjectManager::projects()) {
         if (ProjectNode *pn = project->rootProjectNode()) {
             if (kind == IWizardFactory::ProjectWizard) {
-                if (AddNewTree *child = buildAddProjectTree(pn, paths.first(), context, &selector))
+                if (Internal::AddNewTree *child = buildAddProjectTree(pn, paths.first(), context, &selector))
                     root->appendChild(child);
             } else {
-                if (AddNewTree *child = buildAddFilesTree(pn, paths, context, &selector))
+                if (Internal::AddNewTree *child = buildAddFilesTree(pn, paths, context, &selector))
                     root->appendChild(child);
             }
         }
     }
     root->sortChildren([](const TreeItem *ti1, const TreeItem *ti2) {
-        return compareNodes(static_cast<const AddNewTree *>(ti1)->node(),
-                            static_cast<const AddNewTree *>(ti2)->node());
+        return Internal::compareNodes(static_cast<const Internal::AddNewTree *>(ti1)->node(),
+                            static_cast<const Internal::AddNewTree *>(ti2)->node());
     });
     root->prependChild(createNoneNode(&selector));
 
     // Set combobox to context node if that appears in the tree:
-    auto predicate = [context](TreeItem *ti) { return static_cast<AddNewTree*>(ti)->node() == context; };
+    auto predicate = [context](TreeItem *ti) { return static_cast<Internal::AddNewTree*>(ti)->node() == context; };
     TreeItem *contextItem = root->findAnyChild(predicate);
     if (contextItem)
         m_projectComboBox->setCurrentIndex(m_model.indexForItem(contextItem));
@@ -600,5 +602,4 @@ void ProjectWizardPage::setProjectUiVisible(bool visible)
     m_projectComboBox->setVisible(visible);
 }
 
-} // namespace Internal
 } // namespace ProjectExplorer

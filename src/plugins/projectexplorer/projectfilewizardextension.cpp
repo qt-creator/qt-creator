@@ -49,7 +49,7 @@ using namespace Utils;
         managed) and do 'add' if the VCS supports it.
     \endlist
 
-    \sa ProjectExplorer::Internal::ProjectWizardPage
+    \sa ProjectExplorer::ProjectWizardPage
 */
 
 enum { debugExtension = 0 };

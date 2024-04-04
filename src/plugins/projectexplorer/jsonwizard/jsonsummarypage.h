@@ -14,7 +14,7 @@ class FolderNode;
 class Node;
 
 // Documentation inside.
-class JsonSummaryPage : public Internal::ProjectWizardPage
+class JsonSummaryPage : public ProjectWizardPage
 {
     Q_OBJECT
 
