@@ -373,9 +373,9 @@ QList<std::pair<Core::Section, QList<ExampleItem *>>> getCategories(const QList<
             // order "known" categories as wanted, others come afterwards
             const int defaultIndex = defaultOrder.indexOf(it->first);
             const int priority = defaultIndex >= 0 ? defaultIndex : (index + defaultOrderSize);
-            const std::optional<int> maxRows = restrictRows
-                                                   ? std::make_optional<int>(index == 0 ? 2 : 1)
-                                                   : std::nullopt;
+            const std::optional<int> maxRows = restrictRows ? std::make_optional<int>(
+                                                   defaultIndex == 0 ? 2 : 1)
+                                                            : std::nullopt;
             categories.append({{it->first, priority, maxRows}, it->second});
             ++index;
         }
