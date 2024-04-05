@@ -8,8 +8,6 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/textdocumentlayout.h>
 
-#include <KSyntaxHighlighting/Definition>
-
 #include <QObject>
 #include <QTextLayout>
 
