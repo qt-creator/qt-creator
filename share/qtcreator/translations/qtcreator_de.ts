@@ -61498,7 +61498,7 @@ This is used for calculating the total implicit size.</source>
     </message>
     <message>
         <source>Auto scroll</source>
-        <translation>Automatisch rollen</translation>
+        <translation>Automatisch scrollen</translation>
     </message>
     <message>
         <source>Toggles if the text scrolls when it exceeds its boundary.</source>
