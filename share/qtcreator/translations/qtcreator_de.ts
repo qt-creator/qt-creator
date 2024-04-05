@@ -15967,7 +15967,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Show subfolders inside source group folders</source>
-        <translation>Unterverzeichnisse in Sourcegruppen anzeigen</translation>
+        <translation>Unterverzeichnisse in Quelltext-Gruppenverzeichnissen anzeigen</translation>
     </message>
     <message>
         <source>Show advanced options by default</source>
@@ -25524,7 +25524,7 @@ was generated. In such situations the breakpoint is shifted to the
 next source code line for which code was actually generated.
 This option reflects such temporary change by moving the breakpoint
 markers in the source code editor.</source>
-        <translation>Nicht alle Quellcode-Zeilen bewirken die Erzeugung von ausführbarem Code. Wenn man dort einen Haltepunkt setzt, verhält er sich so, als ob er auf die nächste Zeile gesetzt worden wäre. Das Aktivieren der Einstellung &apos;Positionen der Haltepunkte korrigieren&apos; bewirkt, dass der Haltepunkt-Marker in so einem Fall auf die Stelle des resultierenden Haltepunkts verschoben wird.</translation>
+        <translation>Nicht alle Quelltext-Zeilen bewirken die Erzeugung von ausführbarem Code. Wenn man dort einen Haltepunkt setzt, verhält er sich so, als ob er auf die nächste Zeile gesetzt worden wäre. Das Aktivieren der Einstellung &apos;Positionen der Haltepunkte korrigieren&apos; bewirkt, dass der Haltepunkt-Marker in so einem Fall auf die Stelle des resultierenden Haltepunkts verschoben wird.</translation>
     </message>
     <message>
         <source>Allows or inhibits reading the user&apos;s default
@@ -25833,7 +25833,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>Sources for this frame are available.&lt;br&gt;Double-click on the file name to open an editor.</source>
-        <translation>Für diesen Stackframe ist Quellcode vorhanden&lt;br&gt;Doppelklicken Sie auf den Dateinamen, um einen Editor zu öffnen.</translation>
+        <translation>Für diesen Stackframe ist Quelltext vorhanden&lt;br&gt;Doppelklicken Sie auf den Dateinamen, um einen Editor zu öffnen.</translation>
     </message>
     <message>
         <source>Binary debug information is not accessible for this frame. This either means the core was not compiled with debug information, or the debug information is not accessible.</source>
@@ -25841,7 +25841,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>Binary debug information is accessible for this frame. However, matching sources have not been found.</source>
-        <translation>Für diesen Stackframe ist binäre Debuginformation verfügbar. Es konnte aber kein passender Quellcode gefunden werden.</translation>
+        <translation>Für diesen Stackframe ist binäre Debuginformation verfügbar. Es konnte aber kein passender Quelltext gefunden werden.</translation>
     </message>
     <message>
         <source>Note that most distributions ship debug information in separate packages.</source>
@@ -26471,7 +26471,7 @@ If you have updated %2 via Maintenance Tool, you may need to rerun the Tool and 
 If you build %2 from sources and want to use a CDB executable with another bitness than your %2 build, you will need to build a separate CDB extension with the same bitness as the CDB you want to use.</source>
         <translation>Interner Fehler: Die Erweiterung %1 wurde nicht gefunden.
 Wenn Sie %2 mit dem Maintenance Tool aktualisiert haben, müssen Sie dieses vielleicht erneut ausführen, &quot;Komponenten hinzufügen oder entfernen&quot; auswählen und die Komponente Qt &gt; Tools &gt; Qt Creator CDB Debugger Support auswählen.
-Wenn Sie %2 aus den Quelltexten erstellen und eine ausführbare CDB-Datei mit einer anderen Architektur (32 Bit, 64 Bit) verwenden wollen als %2, müssen Sie eine separate CDB-Erweiterung mit der gleichen Architektur wie diese CDB-Datei erstellen.</translation>
+Wenn Sie %2 aus dem Quelltext erstellen und eine ausführbare CDB-Datei mit einer anderen Architektur (32 Bit, 64 Bit) verwenden wollen als %2, müssen Sie eine separate CDB-Erweiterung mit der gleichen Architektur wie diese CDB-Datei erstellen.</translation>
     </message>
     <message>
         <source>Trace point %1 in thread %2 triggered.</source>
@@ -28496,7 +28496,7 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>Not all source code lines generate executable code. Putting a breakpoint on such a line acts as if the breakpoint was set on the next line that generated code. Selecting &apos;Adjust Breakpoint Locations&apos; shifts the red breakpoint markers in such cases to the location of the true breakpoint.</source>
-        <translation>Nicht aus allen Quellcode-Zeilen wird ausführbarer Code erzeugt. Wenn man dort einen Haltepunkt setzt, verhält er sich so, als ob er auf die nächste Zeile gesetzt worden wäre, aus der Maschinencode erzeugt wurde. Das Aktivieren der Einstellung &apos;Positionen der Haltepunkte korrigieren&apos; bewirkt, dass der Haltepunkt-Marker in so einem Fall an die Stelle des resultierenden Haltepunkts verschoben wird.</translation>
+        <translation>Nicht aus allen Quelltext-Zeilen wird ausführbarer Code erzeugt. Wenn man dort einen Haltepunkt setzt, verhält er sich so, als ob er auf die nächste Zeile gesetzt worden wäre, aus der Maschinencode erzeugt wurde. Das Aktivieren der Einstellung &apos;Positionen der Haltepunkte korrigieren&apos; bewirkt, dass der Haltepunkt-Marker in so einem Fall an die Stelle des resultierenden Haltepunkts verschoben wird.</translation>
     </message>
     <message>
         <source>Stopping and stepping in the debugger will automatically open views associated with the current location.</source>
@@ -38764,7 +38764,7 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Hide Source and Header Groups</source>
-        <translation>Source- und Headergruppen ausblenden</translation>
+        <translation>Quelltext- und Header-Gruppenverzeichnisse ausblenden</translation>
     </message>
     <message>
         <source>Synchronize with Editor</source>
@@ -41824,7 +41824,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>Specify basic information about the classes for which you want to generate skeleton source code files.</source>
-        <translation>Geben Sie Informationen bezüglich der Klassen ein, für die Sie Quelltexte generieren wollen.</translation>
+        <translation>Geben Sie Informationen bezüglich der Klassen ein, für die Sie Quelltext generieren wollen.</translation>
     </message>
     <message>
         <source>Fully qualified name, including namespaces</source>
