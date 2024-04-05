@@ -13387,7 +13387,7 @@ Weitere Informationen über GTest-Filter finden Sie in der Dokumenation von Goog
     </message>
     <message>
         <source>Run Test Under Cursor</source>
-        <translation>Test unter Cursor ausführen</translation>
+        <translation>Test unter Einfügemarke ausführen</translation>
     </message>
     <message>
         <source>&amp;Run Test</source>
@@ -18532,7 +18532,7 @@ Ansonsten müssen Sie den Pfad zur Datei %2 aus dem Copilot-Plugin für Neovim a
     </message>
     <message>
         <source>Request Copilot suggestion at the current editor&apos;s cursor position.</source>
-        <translation>Fordert Vorschläge für die Cursorposition des aktuellen Editors von Copilot an.</translation>
+        <translation>Fordert Vorschläge für die Einfügemarke des aktuellen Editors von Copilot an.</translation>
     </message>
     <message>
         <source>Show Next Copilot Suggestion</source>
@@ -18710,7 +18710,7 @@ Ansonsten müssen Sie den Pfad zur Datei %2 aus dem Copilot-Plugin für Neovim a
     </message>
     <message>
         <source>Automatically request suggestions for the current text cursor position after changes to the document.</source>
-        <translation>Fordert Vorschläge für die aktuelle Cursorposition nach Änderungen am Dokument automatisch an.</translation>
+        <translation>Fordert Vorschläge für die aktuelle Einfügemarke nach Änderungen am Dokument automatisch an.</translation>
     </message>
 </context>
 <context>
@@ -29731,7 +29731,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Exchange Cursor and Mark</source>
-        <translation>Textmarke und Markierung austauschen</translation>
+        <translation>Einfügemarke und Markierung austauschen</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -52544,11 +52544,11 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Allow blinking cursor</source>
-        <translation>Blinkenden Cursor erlauben</translation>
+        <translation>Blinkende Einfügemarke erlauben</translation>
     </message>
     <message>
         <source>Allow the cursor to blink.</source>
-        <translation>Erlaubt dem Cursor zu blinken.</translation>
+        <translation>Erlaubt der Einfügemarke zu blinken.</translation>
     </message>
     <message>
         <source>Shell path:</source>
@@ -52688,11 +52688,11 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Move Cursor Word Left</source>
-        <translation>Cursor ein Wort nach links bewegen</translation>
+        <translation>Einfügemarke ein Wort nach links bewegen</translation>
     </message>
     <message>
         <source>Move Cursor Word Right</source>
-        <translation>Cursor ein Wort nach rechts bewegen</translation>
+        <translation>Einfügemarke ein Wort nach rechts bewegen</translation>
     </message>
     <message>
         <source>Close Terminal</source>
@@ -53170,11 +53170,11 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
     </message>
     <message>
         <source>Line number of the text cursor position in current document (starts with 1).</source>
-        <translation>Zeilennummer der Cursorposition des aktuellen Dokuments (beginnend bei 1).</translation>
+        <translation>Zeilennummer der Einfügemarke des aktuellen Dokuments (beginnend bei 1).</translation>
     </message>
     <message>
         <source>Column number of the text cursor position in current document (starts with 0).</source>
-        <translation>Spaltennummer der Cursorposition des aktuellen Dokuments (beginnend bei 0).</translation>
+        <translation>Spaltennummer der Einfügemarke des aktuellen Dokuments (beginnend bei 0).</translation>
     </message>
     <message>
         <source>Number of lines visible in current document.</source>
@@ -53648,7 +53648,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>Center &amp;cursor on scroll</source>
-        <translation>Cursor beim Scrollen in der &amp;Mitte halten</translation>
+        <translation>Einfügemarke beim Scrollen in der &amp;Mitte halten</translation>
     </message>
     <message>
         <source>Enable text &amp;wrapping</source>
