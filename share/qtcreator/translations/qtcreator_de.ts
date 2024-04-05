@@ -9544,7 +9544,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Edit</source>
-        <translation>Editieren</translation>
+        <translation>Bearbeiten</translation>
     </message>
     <message>
         <source>Anchors</source>
@@ -18845,7 +18845,7 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Edit</source>
-        <translation>Editieren</translation>
+        <translation>Bearbeiten</translation>
     </message>
     <message>
         <source>&lt;System Language&gt;</source>
@@ -34090,7 +34090,7 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>Open in Edit Mode</source>
-        <translation>Im Editieren-Modus öffnen</translation>
+        <translation>Im Bearbeiten-Modus öffnen</translation>
     </message>
     <message>
         <source>Open in New Page</source>
@@ -37034,7 +37034,7 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>Edit Element Properties</source>
-        <translation>Elementeigenschaften editieren</translation>
+        <translation>Elementeigenschaften bearbeiten</translation>
     </message>
     <message>
         <source>Shift+Return</source>
@@ -37042,7 +37042,7 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>Edit Item on Diagram</source>
-        <translation>Element auf Diagramm editieren</translation>
+        <translation>Element auf Diagramm bearbeiten</translation>
     </message>
     <message>
         <source>Return</source>
@@ -37964,7 +37964,7 @@ Weitere Erklärungen sind möglicherweise in &quot;Ausgabe der Anwendung&quot; z
     </message>
     <message>
         <source>Edit File</source>
-        <translation>Datei zum Editieren anfordern</translation>
+        <translation>Datei zum Bearbeiten anfordern</translation>
     </message>
     <message>
         <source>Add</source>
@@ -59050,7 +59050,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>&lt;p style=&quot;margin-top: 30px&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td style=&quot;padding-right: 20px&quot;&gt;Welcome:&lt;/td&gt;&lt;td&gt;Open examples, tutorials, and recent sessions and projects.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Edit:&lt;/td&gt;&lt;td&gt;Work with code and navigate your project.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Design:&lt;/td&gt;&lt;td&gt;Visually edit Widget-based user interfaces, state charts and UML models.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debug:&lt;/td&gt;&lt;td&gt;Analyze your application with a debugger or other analyzers.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Projects:&lt;/td&gt;&lt;td&gt;Manage project settings.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Help:&lt;/td&gt;&lt;td&gt;Browse the help database.&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation>&lt;p style=&quot;margin-top: 30px&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td style=&quot;padding-right: 20px&quot;&gt;Willkommen:&lt;/td&gt;&lt;td&gt;Öffnen Sie Beispiele, Anleitungen, sowie kürzlich verwendete Sitzungen und Projekte.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Editieren:&lt;/td&gt;&lt;td&gt;Arbeiten Sie am Quelltext und navigieren Sie im Projekt.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Design:&lt;/td&gt;&lt;td&gt;Bearbeiten Sie Oberflächendesigns für Qt Widgets, State Charts und UML-Modelle.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debug:&lt;/td&gt;&lt;td&gt;Analysieren Sie Ihre Anwendung mit einem Debugger oder anderen Werkzeugen.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Projekte:&lt;/td&gt;&lt;td&gt;Verwalten Sie Projekteinstellungen.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Hilfe:&lt;/td&gt;&lt;td&gt;Durchsuchen Sie die Hilfedatenbank.&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
+        <translation>&lt;p style=&quot;margin-top: 30px&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td style=&quot;padding-right: 20px&quot;&gt;Willkommen:&lt;/td&gt;&lt;td&gt;Öffnen Sie Beispiele, Anleitungen, sowie kürzlich verwendete Sitzungen und Projekte.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Bearbeiten:&lt;/td&gt;&lt;td&gt;Arbeiten Sie am Quelltext und navigieren Sie im Projekt.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Design:&lt;/td&gt;&lt;td&gt;Bearbeiten Sie Oberflächendesigns für Qt Widgets, State Charts und UML-Modelle.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debug:&lt;/td&gt;&lt;td&gt;Analysieren Sie Ihre Anwendung mit einem Debugger oder anderen Werkzeugen.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Projekte:&lt;/td&gt;&lt;td&gt;Verwalten Sie Projekteinstellungen.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Hilfe:&lt;/td&gt;&lt;td&gt;Durchsuchen Sie die Hilfedatenbank.&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Kit Selector</source>
