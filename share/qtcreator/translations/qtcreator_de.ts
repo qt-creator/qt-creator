@@ -23054,7 +23054,7 @@ ausgerichtet werden würden</translation>
    int (*pa)[2] = ...;
 
 &lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Dies bezieht sich nicht auf die Stern- und Referenzsymbole in Zeigern auf / Referenzen zu Funktionen und Feldern, zum Beispiel:
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Dies bezieht sich nicht auf die Stern- und Referenzsymbole in Zeigern auf / Referenzen zu Funktionen und Arrays, zum Beispiel:
 &lt;pre&gt;   int (&amp;rf)() = ...;
    int (*pf)() = ...;
 
@@ -26381,8 +26381,8 @@ markers in the source code editor.</source>
     <message numerus="yes">
         <source>Array of %n items</source>
         <translation>
-            <numerusform>Feld aus einem Element</numerusform>
-            <numerusform>Feld aus %n Elementen</numerusform>
+            <numerusform>Array aus einem Element</numerusform>
+            <numerusform>Array aus %n Elementen</numerusform>
         </translation>
     </message>
     <message>
@@ -30045,11 +30045,11 @@ Grund: %3</translation>
     </message>
     <message>
         <source>Value for key &quot;%1&quot; is not an array of objects</source>
-        <translation>Wert des Schlüssels &quot;%1&quot; ist kein Feld von Objekten</translation>
+        <translation>Wert des Schlüssels &quot;%1&quot; ist kein Array von Objekten</translation>
     </message>
     <message>
         <source>Value for key &quot;%1&quot; is not a string and not an array of strings</source>
-        <translation>Wert des Schlüssels &quot;%1&quot; ist keine Zeichenkette und auch kein Feld von Zeichenketten</translation>
+        <translation>Wert des Schlüssels &quot;%1&quot; ist keine Zeichenkette und auch kein Array von Zeichenketten</translation>
     </message>
     <message>
         <source>Value &quot;%2&quot; for key &quot;%1&quot; has invalid format</source>
@@ -46388,11 +46388,11 @@ Für CMake-Projekte stellen Sie sicher, dass die Variable QML_IMPORT_PATH in CMa
     </message>
     <message>
         <source>Expected array of strings after colon.</source>
-        <translation>Nach dem Doppelpunkt wird ein Feld von Zeichenketten erwartet.</translation>
+        <translation>Nach dem Doppelpunkt wird ein Array von Zeichenketten erwartet.</translation>
     </message>
     <message>
         <source>Expected array literal with only string literal members.</source>
-        <translation>Es wird ein nur aus Zeichenketten bestehendes Feldliteral erwartet.</translation>
+        <translation>Es wird ein nur aus Zeichenketten bestehendes Arrayliteral erwartet.</translation>
     </message>
     <message>
         <source>Expected string literal to contain &apos;Package/Name major.minor&apos; or &apos;Name major.minor&apos;.</source>
@@ -46400,11 +46400,11 @@ Für CMake-Projekte stellen Sie sicher, dass die Variable QML_IMPORT_PATH in CMa
     </message>
     <message>
         <source>Expected array of numbers after colon.</source>
-        <translation>Nach dem Doppelpunkt wird ein aus Zahlen bestehendes Feld erwartet.</translation>
+        <translation>Nach dem Doppelpunkt wird ein aus Zahlen bestehendes Array erwartet.</translation>
     </message>
     <message>
         <source>Expected array literal with only number literal members.</source>
-        <translation>Es wird ein nur aus Zahlenliteralen bestehendes Feldliteral erwartet.</translation>
+        <translation>Es wird ein nur aus Zahlenliteralen bestehendes Arrayliteral erwartet.</translation>
     </message>
     <message>
         <source>Meta object revision without matching export.</source>
@@ -46756,7 +46756,7 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
     </message>
     <message>
         <source>Array value expected.</source>
-        <translation>Feld erwartet.</translation>
+        <translation>Array erwartet.</translation>
     </message>
     <message>
         <source>%1 value expected.</source>
@@ -46792,7 +46792,7 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
     </message>
     <message>
         <source>%1 elements expected in array value.</source>
-        <translation>Das Feld benötigt %1 Werte.</translation>
+        <translation>Das Array benötigt %1 Werte.</translation>
     </message>
     <message>
         <source>Parsing QML Files</source>
