@@ -21,7 +21,7 @@
     \endlist
 
     For more useful information for application developers, see
-    \l {Performance Considerations And Suggestions}.
+    \l {QML Performance Considerations And Suggestions}.
 
     For more information about optimizing 3D scenes, see
     \l{Creating Optimized 3D Scenes}.
