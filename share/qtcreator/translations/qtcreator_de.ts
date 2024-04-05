@@ -8393,7 +8393,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Do not show this dialog again</source>
-        <translation>Diesen Dialog nicht noch einmal anzeigen</translation>
+        <translation>Diesen Dialog nicht erneut anzeigen</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -10360,7 +10360,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Retype password:</source>
-        <translation>Passwort noch einmal eingeben:</translation>
+        <translation>Passwort erneut eingeben:</translation>
     </message>
     <message>
         <source>Show password</source>
@@ -14127,7 +14127,7 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>The following providers were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
-        <translation>Die folgenden Provider wurden bereits konfiguriert:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;Sie wurden nicht noch einmal konfiguriert.</translation>
+        <translation>Die folgenden Provider wurden bereits konfiguriert:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;Sie wurden nicht erneut konfiguriert.</translation>
     </message>
     <message>
         <source>Add</source>
@@ -18580,7 +18580,7 @@ Ansonsten müssen Sie den Pfad zur Datei %2 aus dem Copilot-Plugin für Neovim a
     </message>
     <message>
         <source>Do not ask again. This will disable Copilot for now.</source>
-        <translation>Nicht noch einmal nachfragen. Dies deaktiviert Copilot.</translation>
+        <translation>Nicht erneut nachfragen. Dies deaktiviert Copilot.</translation>
     </message>
     <message>
         <source>Enables the Copilot integration.</source>
@@ -18961,7 +18961,7 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     </message>
     <message>
         <source>Re-enable warnings that were suppressed by selecting &quot;Do Not Show Again&quot; (for example, missing highlighter).</source>
-        <translation>Alle Warnungen wieder aktivieren, die durch &quot;Nicht noch einmal anzeigen&quot; unterdrückt wurden (zum Beispiel fehlende Syntaxhervorhebung).</translation>
+        <translation>Alle Warnungen wieder aktivieren, die durch &quot;Nicht erneut anzeigen&quot; unterdrückt wurden (zum Beispiel fehlende Syntaxhervorhebung).</translation>
     </message>
     <message>
         <source>Theme:</source>
@@ -20261,7 +20261,7 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
     </message>
     <message>
         <source>Locates files from a custom set of directories. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation>Findet Dateien aus vom Benutzer gewählten Pfaden. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
+        <translation>Findet Dateien aus vom Benutzer gewählten Pfaden. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie erneut &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
     </message>
     <message>
         <source>Add...</source>
@@ -20588,7 +20588,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt von einem Leerzeiche
     </message>
     <message>
         <source>&amp;Search Again</source>
-        <translation>Noch einmal &amp;suchen</translation>
+        <translation>Erneut &amp;suchen</translation>
     </message>
     <message>
         <source>Repla&amp;ce with:</source>
@@ -20838,7 +20838,7 @@ Möchten Sie es beenden?</translation>
     </message>
     <message>
         <source>Do not ask again.</source>
-        <translation>Nicht noch einmal nachfragen.</translation>
+        <translation>Nicht erneut nachfragen.</translation>
     </message>
     <message>
         <source>No themes found in installation.</source>
@@ -21599,7 +21599,7 @@ provided they were unmodified before the refactoring.</source>
     </message>
     <message>
         <source>Locates files from a global file system index (Spotlight, Locate, Everything). Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation>Findet Dateien aus einem globalen Dateisystemindex (Spotlight, Locate, Everything). Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
+        <translation>Findet Dateien aus einem globalen Dateisystemindex (Spotlight, Locate, Everything). Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie erneut &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
     </message>
     <message>
         <source>Sort results</source>
@@ -23664,7 +23664,7 @@ z.B. name = &quot;m_test_foo_&quot;:
         <source>Defines the amount of time %1 waits before sending document changes to the server.
 If the document changes again while waiting, this timeout resets.</source>
         <translation>Bestimmt die Zeit, die %1 vor dem Senden von Dokumentänderungen an den Server wartet.
-Falls sich das Dokument innerhalb dieser Zeit wieder ändert, wird erneut die volle Zeit gewartet.</translation>
+Falls sich das Dokument innerhalb dieser Zeit erneut ändert, wird nochmal die volle Zeit gewartet.</translation>
     </message>
     <message>
         <source>Files greater than this will not be opened as documents in clangd.
@@ -24066,7 +24066,7 @@ Flags: %3</translation>
     </message>
     <message>
         <source>Locates files that are included by C++ files of any open project. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation>Findet alle Dateien die von allen C++-Dateien aller Projekte eingebunden werden. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
+        <translation>Findet alle Dateien die von allen C++-Dateien aller Projekte eingebunden werden. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie erneut &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
     </message>
     <message>
         <source>collecting overrides...</source>
@@ -27011,7 +27011,7 @@ Sie werden möglicherweise gebeten, den Inhalt dieses Logs mitzuteilen, wenn Sie
         <source>Could not connect to the in-process QML debugger.
 Do you want to retry?</source>
         <translation>Konnte keine Verbindung zur Debuggerkomponente im Prozess herstellen.
-Soll es noch einmal versucht werden?</translation>
+Soll es erneut versucht werden?</translation>
     </message>
     <message>
         <source>Starting %1</source>
@@ -27664,11 +27664,11 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>Reopen dialog when application finishes</source>
-        <translation>Dialog nach Beendigung der Anwendung wieder öffnen</translation>
+        <translation>Dialog nach Beendigung der Anwendung erneut öffnen</translation>
     </message>
     <message>
         <source>Reopens this dialog when application finishes.</source>
-        <translation>Öffnet den Dialog nach Beendigung der Anwendung wieder.</translation>
+        <translation>Öffnet den Dialog nach Beendigung der Anwendung erneut.</translation>
     </message>
     <message>
         <source>Continue on attach</source>
@@ -28034,7 +28034,7 @@ Bitte wählen Sie einen 64-bit-Debugger in den Kit-Einstellungen für dieses Kit
     </message>
     <message>
         <source>Reverse-execution history exhausted. Going forward again.</source>
-        <translation>Keine weiteren rückwärts ausführbaren Schritte vorhanden. Führe sie wieder vorwärts aus.</translation>
+        <translation>Keine weiteren rückwärts ausführbaren Schritte vorhanden. Führe sie erneut vorwärts aus.</translation>
     </message>
     <message>
         <source>Attempting to interrupt.</source>
@@ -31341,7 +31341,7 @@ Jetzt Commit ausführen?</translation>
     </message>
     <message>
         <source>Rebase, merge or am is in progress. Finish or abort it and then try again.</source>
-        <translation>Es ist eine Rebase-, Merge- oder am-Operation aktiv. Bitte beenden oder brechen Sie sie ab und versuchen Sie es noch einmal.</translation>
+        <translation>Es ist eine Rebase-, Merge- oder am-Operation aktiv. Bitte beenden oder brechen Sie sie ab und versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Stash local changes and pop when %1 finishes.</source>
@@ -38601,7 +38601,7 @@ Weitere Erklärungen sind möglicherweise in &quot;Ausgabe der Anwendung&quot; z
     </message>
     <message>
         <source>Locates files of all open projects. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation>Findet Dateien in allen geöffneten Projekten. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
+        <translation>Findet Dateien in allen geöffneten Projekten. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie erneut &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
     </message>
     <message>
         <source>All Projects</source>
@@ -38701,7 +38701,7 @@ Außer: %2
     </message>
     <message>
         <source>Locates files from the current document&apos;s project. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation>Findet Dateien im Projekt des aktuellen Dokuments. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
+        <translation>Findet Dateien im Projekt des aktuellen Dokuments. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie erneut &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
     </message>
     <message>
         <source>Project &quot;%1&quot;</source>
@@ -39451,7 +39451,7 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Locates files from all project directories. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
-        <translation>Findet Dateien in allen Projektverzeichnissen. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
+        <translation>Findet Dateien in allen Projektverzeichnissen. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie erneut &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
     </message>
     <message>
         <source>Run Run Configuration</source>
@@ -40249,11 +40249,11 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     </message>
     <message>
         <source>The following compiler was already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;It was not configured again.</source>
-        <translation>Der folgende Compiler ist bereits konfiguriert:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;Er wurde nicht noch einmal konfiguriert.</translation>
+        <translation>Der folgende Compiler ist bereits konfiguriert:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;Er wurde nicht erneut konfiguriert.</translation>
     </message>
     <message>
         <source>The following compilers were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
-        <translation>Die folgenden Compiler wurden bereits konfiguriert:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;Sie wurden nicht noch einmal konfiguriert.</translation>
+        <translation>Die folgenden Compiler wurden bereits konfiguriert:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;Sie wurden nicht erneut konfiguriert.</translation>
     </message>
     <message>
         <source>Clone of %1</source>
@@ -47313,7 +47313,7 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
         <source>Could not connect to the in-process QML profiler within %1 s.
 Do you want to retry and wait %2 s?</source>
         <translation>Innerhalb von %1 s konnte keine Verbindung zum QML-Profiler im Prozess hergestellt werden.
-Wollen Sie es noch einmal versuchen und %2 s warten?</translation>
+Wollen Sie es erneut versuchen und %2 s warten?</translation>
     </message>
     <message>
         <source>%1 s</source>
@@ -56033,11 +56033,11 @@ Die Trace-Daten sind verloren.</translation>
     <name>QtC::Utils</name>
     <message>
         <source>Do not &amp;ask again</source>
-        <translation>Nicht noch einmal nach&amp;fragen</translation>
+        <translation>Nicht erneut nach&amp;fragen</translation>
     </message>
     <message>
         <source>Do not &amp;show again</source>
-        <translation>Nicht noch einmal an&amp;zeigen</translation>
+        <translation>Nicht erneut an&amp;zeigen</translation>
     </message>
     <message>
         <source>The class name must not contain namespace delimiters.</source>
@@ -56899,7 +56899,7 @@ Um eine Variable zu deaktivieren, stellen Sie der Zeile &quot;#&quot; voran.</tr
     </message>
     <message>
         <source>Do Not Show Again</source>
-        <translation>Nicht noch einmal anzeigen</translation>
+        <translation>Nicht erneut anzeigen</translation>
     </message>
     <message>
         <source>Close</source>
@@ -57842,7 +57842,7 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     </message>
     <message>
         <source>Go back one step in history. This will select the previously selected item.</source>
-        <translation>Gehe einen Schritt im Verlauf zurück. Das vorher ausgewählte Element wird wieder ausgewählt.</translation>
+        <translation>Gehe einen Schritt im Verlauf zurück. Das vorher ausgewählte Element wird erneut ausgewählt.</translation>
     </message>
     <message>
         <source>Go forward one step in history.</source>
