@@ -8,6 +8,7 @@
 #include "pluginspec.h"
 
 #include <utils/algorithm.h>
+#include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 
 #include <QCoreApplication>
@@ -54,6 +55,7 @@ public:
         , copyright(createContentsLabel())
         , license(createTextEdit())
         , dependencies(new QListWidget(q))
+        , softLoadable(new Utils::InfoLabel)
     {
         using namespace Layouting;
 
@@ -70,7 +72,8 @@ public:
             Tr::tr("Description:"), description, br,
             Tr::tr("Copyright:"), copyright, br,
             Tr::tr("License:"), license, br,
-            Tr::tr("Dependencies:"), dependencies,
+            Tr::tr("Dependencies:"), dependencies, br,
+            Tr::tr("Loadable without restart:"), softLoadable, br,
             noMargin
         }.attachTo(q);
         // clang-format on
@@ -90,6 +93,7 @@ public:
     QLabel *copyright = nullptr;
     QTextEdit *license = nullptr;
     QListWidget *dependencies = nullptr;
+    Utils::InfoLabel *softLoadable = nullptr;
 
 private:
     QLabel *createContentsLabel() {
@@ -157,6 +161,8 @@ void PluginDetailsView::update(PluginSpec *spec)
     d->license->setText(spec->license());
     d->dependencies->addItems(Utils::transform<QList>(spec->dependencies(),
                                                       &PluginDependency::toString));
+    d->softLoadable->setType(spec->isSoftLoadable() ? Utils::InfoLabel::Ok
+                                                    : Utils::InfoLabel::NotOk);
 }
 
 void PluginDetailsView::showModal(QWidget *parent, PluginSpec *spec)
