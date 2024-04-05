@@ -110,7 +110,7 @@
     </message>
     <message>
         <source>Frequently used signals</source>
-        <translation>Häufig benutzte Signale</translation>
+        <translation>Häufig verwendete Signale</translation>
     </message>
     <message>
         <source>Property changes</source>
@@ -7772,11 +7772,11 @@ Exporting assets: %2</source>
     </message>
     <message>
         <source>If you select this radio button, Qt Quick Designer always uses the QML emulation layer (QML Puppet) located at the following path.</source>
-        <translation>Wenn Sie diesen Radiobutton auswählen, benutzt der Qt Quick Designer immer die QML-Emulationsschicht (QML Puppet) im folgenden Pfad.</translation>
+        <translation>Wenn Sie diesen Radiobutton auswählen, verwendet der Qt Quick Designer immer die QML-Emulationsschicht (QML Puppet) im folgenden Pfad.</translation>
     </message>
     <message>
         <source>Use fallback QML emulation layer</source>
-        <translation>Fallback QML-Emulationsschicht benutzen</translation>
+        <translation>Fallback QML-Emulationsschicht verwenden</translation>
     </message>
     <message>
         <source>Path:</source>
@@ -7840,7 +7840,7 @@ Exporting assets: %2</source>
     </message>
     <message>
         <source>Warn about using .qml files instead of .ui.qml files</source>
-        <translation>Bei der Benutzung von .qml-Dateien statt .ui.qml-Dateien warnen</translation>
+        <translation>Bei der Verwendung von .qml-Dateien statt .ui.qml-Dateien warnen</translation>
     </message>
     <message>
         <source>Width:</source>
@@ -7856,7 +7856,7 @@ Exporting assets: %2</source>
     </message>
     <message>
         <source>Use QML emulation layer that is built with the selected Qt</source>
-        <translation>Mit dem gewählten Qt erstellte QML-Emulationsschicht benutzen</translation>
+        <translation>Mit dem gewählten Qt erstellte QML-Emulationsschicht verwenden</translation>
     </message>
     <message>
         <source>qsTranslate()</source>
@@ -11639,7 +11639,7 @@ Breche ausstehende Operationen ab...
     </message>
     <message>
         <source>The operation requires user interaction. Use the &quot;sdkmanager&quot; command-line tool.</source>
-        <translation>Die Operation benötigt Benutzereingaben. Benutzen Sie das Kommandozeilenwerkzeug &quot;sdkmanager&quot;.</translation>
+        <translation>Die Operation benötigt Benutzereingaben. Verwenden Sie das Kommandozeilenwerkzeug &quot;sdkmanager&quot;.</translation>
     </message>
     <message>
         <source>License command failed.</source>
@@ -12131,7 +12131,7 @@ Rufen Sie QtAndroid::hideSplashScreen() auf, um einen Startbildschirm zu verstec
     </message>
     <message>
         <source>Select master image to use.</source>
-        <translation>Wählen Sie das zu benutzende Hauptbild aus.</translation>
+        <translation>Wählen Sie das zu verwendende Hauptbild aus.</translation>
     </message>
     <message>
         <source>Master image:</source>
@@ -12181,7 +12181,7 @@ Rufen Sie QtAndroid::hideSplashScreen() auf, um einen Startbildschirm zu verstec
         <source>An image is used for the splashscreen. Qt Creator manages
 splashscreen by using a different method which requires changing
 the manifest file by overriding your settings. Allow override?</source>
-        <translation>Für den Startbildschirm wird ein Bild benutzt. Qt Creator verwaltet
+        <translation>Für den Startbildschirm wird ein Bild verwendet. Qt Creator verwaltet
 Startbildschirme auf andere Weise, was eine Änderung der Manifest-Datei
 und das Überschreiben Ihrer Einstellungen erfordert. Das Überschreiben erlauben?</translation>
     </message>
@@ -12294,7 +12294,7 @@ und das Überschreiben Ihrer Einstellungen erfordert. Das Überschreiben erlaube
     </message>
     <message>
         <source>Using: %1.</source>
-        <translation>Benutze: %1.</translation>
+        <translation>Verwende: %1.</translation>
     </message>
     <message>
         <source>Cannot debug: Only QML and native applications are supported.</source>
@@ -12353,7 +12353,7 @@ und das Überschreiben Ihrer Einstellungen erfordert. Das Überschreiben erlaube
     </message>
     <message>
         <source>Number of worker threads used when scanning for tests.</source>
-        <translation>Anzahl der Threads, die zum Suchen nach Tests benutzt werden.</translation>
+        <translation>Anzahl der Threads, die zum Suchen nach Tests verwendet werden.</translation>
     </message>
     <message>
         <source>Omit run configuration warnings</source>
@@ -12397,7 +12397,7 @@ und das Überschreiben Ihrer Einstellungen erfordert. Das Überschreiben erlaube
     </message>
     <message>
         <source>Timeout used when executing each test case.</source>
-        <translation>Zeitlimit für jeden Testfall benutzen.</translation>
+        <translation>Zeitlimit, das während der Ausführung für jeden Testfall verwendet wird.</translation>
     </message>
     <message>
         <source>Scan threads:</source>
@@ -12873,7 +12873,7 @@ Dies könnte Probleme während der Ausführung verursachen.
     </message>
     <message>
         <source>Unable to display test results when using CDB.</source>
-        <translation>Wenn CDB benutzt wird, können keine Testergebnisse angezeigt werden.</translation>
+        <translation>Wenn CDB verwendet wird, können keine Testergebnisse angezeigt werden.</translation>
     </message>
     <message>
         <source>Build failed. Canceling test run.</source>
@@ -12929,11 +12929,11 @@ Dies könnte Probleme während der Ausführung verursachen.
     </message>
     <message>
         <source>Number of resamples used for statistical bootstrapping.</source>
-        <translation>Anzahl der für statistisches Bootstrapping benutzten Resamples.</translation>
+        <translation>Anzahl der für statistisches Bootstrapping verwendeten Resamples.</translation>
     </message>
     <message>
         <source>Confidence interval used for statistical bootstrapping.</source>
-        <translation>Für das statistische Bootstrapping benutzte Konfidenzinterval.</translation>
+        <translation>Konfidenzinterval, das für statistisches Bootstrapping verwendet wird.</translation>
     </message>
     <message>
         <source>Benchmark confidence interval</source>
@@ -13125,7 +13125,7 @@ Dies könnte Probleme während der Ausführung verursachen.
     </message>
     <message>
         <source>A seed of 0 means no randomization. A value of 1 uses the current time, any other value is used as random seed generator.</source>
-        <translation>Ein Startwert von 0 bedeutet keine Randomisierung. Ein Wert von 1 benutzt die aktuelle Zeit, jeder andere Wert wird als Startwert für Zufallszahlen benutzt.</translation>
+        <translation>Ein Startwert von 0 bedeutet keine Randomisierung. Ein Wert von 1 verwendet die aktuelle Zeit, jeder andere Wert wird als Startwert für Zufallszahlen verwendet.</translation>
     </message>
     <message>
         <source>Randomize</source>
@@ -13247,7 +13247,7 @@ Weitere Informationen über GTest-Filter finden Sie in der Dokumenation von Goog
     </message>
     <message>
         <source>Uses tick counter when executing benchmarks.</source>
-        <translation>Den Tickzähler bei der Benchmarkausführung benutzen.</translation>
+        <translation>Den Tickzähler bei der Benchmarkausführung verwenden.</translation>
     </message>
     <message>
         <source>Tick counter</source>
@@ -13255,7 +13255,7 @@ Weitere Informationen über GTest-Filter finden Sie in der Dokumenation von Goog
     </message>
     <message>
         <source>Uses event counter when executing benchmarks.</source>
-        <translation>Ereigniszähler bei der Benchmarkausführung benutzen.</translation>
+        <translation>Ereigniszähler bei der Benchmarkausführung verwenden.</translation>
     </message>
     <message>
         <source>Event counter</source>
@@ -13263,7 +13263,7 @@ Weitere Informationen über GTest-Filter finden Sie in der Dokumenation von Goog
     </message>
     <message>
         <source>Uses Valgrind Callgrind when executing benchmarks (it must be installed).</source>
-        <translation>&quot;Valgrind Callgrind&quot; zur Benchmarkausführung benutzen (dazu muss es installiert sein).</translation>
+        <translation>&quot;Valgrind Callgrind&quot; zur Benchmarkausführung verwenden (dazu muss es installiert sein).</translation>
     </message>
     <message>
         <source>Find user-defined locations</source>
@@ -13271,7 +13271,7 @@ Weitere Informationen über GTest-Filter finden Sie in der Dokumenation von Goog
     </message>
     <message>
         <source>Parse messages for the following pattern and use it as location information:&lt;pre&gt;file://filepath:line&lt;/pre&gt;where &quot;:line&quot; is optional.&lt;p&gt;Warning: If the patterns are used in code, the location information for debug messages and other messages might improve,at the risk of some incorrect locations and lower performance.</source>
-        <translation>Wertet Nachrichten nach den folgenden Mustern aus und benutzt sie als Positionsinformation:&lt;pre&gt;file://dateipfad:zeile&lt;/pre&gt;wobei &quot;:zeile&quot; optional ist.&lt;p&gt;Achtung: Wenn diese Muster im Code benutzt werden, können sich die Positionsinformationen für Debug- und andere Nachrichten verbessern, es besteht aber die Gefahr falscher Positionen und verringerter Leistung.</translation>
+        <translation>Wertet Nachrichten nach den folgenden Mustern aus und verwendet sie als Positionsinformation:&lt;pre&gt;file://dateipfad:zeile&lt;/pre&gt;wobei &quot;:zeile&quot; optional ist.&lt;p&gt;Achtung: Wenn diese Muster im Code verwendet werden, können sich die Positionsinformationen für Debug- und andere Nachrichten verbessern, es besteht aber die Gefahr falscher Positionen und verringerter Leistung.</translation>
     </message>
     <message>
         <source>Callgrind</source>
@@ -13279,7 +13279,7 @@ Weitere Informationen über GTest-Filter finden Sie in der Dokumenation von Goog
     </message>
     <message>
         <source>Uses Perf when executing benchmarks (it must be installed).</source>
-        <translation>&quot;Perf&quot; zur Benchmarkausführung benutzen (dazu muss es installiert sein).</translation>
+        <translation>&quot;Perf&quot; zur Benchmarkausführung verwenden (dazu muss es installiert sein).</translation>
     </message>
     <message>
         <source>Perf</source>
@@ -14038,7 +14038,7 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Use GDB target extended-remote</source>
-        <translation>GDB &quot;target extended-remote&quot; benutzen</translation>
+        <translation>GDB &quot;target extended-remote&quot; verwenden</translation>
     </message>
     <message>
         <source>Extended mode:</source>
@@ -14101,13 +14101,13 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
         <source>GDB compatible provider engine
 (used together with the GDB debuggers).</source>
         <translation>GDB-kompatible Provider-Engine
-(wird zusammen mit GDB-Debuggern benutzt).</translation>
+(wird zusammen mit GDB-Debuggern verwendet).</translation>
     </message>
     <message>
         <source>UVSC compatible provider engine
 (used together with the KEIL uVision).</source>
         <translation>UVSC-kompatible Provider-Engine
-(wird zusammen mit KEIL uVision benutzt).</translation>
+(wird zusammen mit KEIL uVision verwendet).</translation>
     </message>
     <message>
         <source>Name</source>
@@ -14199,7 +14199,7 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Do not use EBlink flash cache.</source>
-        <translation>EBlink-Flash-Cache nicht benutzen.</translation>
+        <translation>EBlink-Flash-Cache nicht verwenden.</translation>
     </message>
     <message>
         <source>Disable cache:</source>
@@ -15559,7 +15559,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Enter one CMake &lt;a href=&quot;variable&quot;&gt;variable&lt;/a&gt; per line.&lt;br/&gt;To set or change a variable, use -D&amp;lt;variable&amp;gt;:&amp;lt;type&amp;gt;=&amp;lt;value&amp;gt;.&lt;br/&gt;&amp;lt;type&amp;gt; can have one of the following values: FILEPATH, PATH, BOOL, INTERNAL, or STRING.&lt;br/&gt;To unset a variable, use -U&amp;lt;variable&amp;gt;.&lt;br/&gt;</source>
-        <translation>Geben Sie eine CMake-&lt;a href=&quot;variable&quot;&gt;Variable&lt;/a&gt; pro Zeile ein.&lt;br/&gt;Um eine Variable zu setzen oder zu ändern, benutzen Sie -D&amp;lt;Variable&amp;gt;:&amp;lt;Typ&amp;gt;=&amp;lt;Wert&amp;gt;.&lt;br/&gt;&amp;lt;Typ&amp;gt; kann einer der folgenden Werte sein: FILEPATH, PATH, BOOL, INTERNAL oder STRING.&lt;br/&gt;Um eine Variable zurückzusetzen, benutzen Sie -U&amp;lt;Variable&amp;gt;.&lt;br/&gt;</translation>
+        <translation>Geben Sie eine CMake-&lt;a href=&quot;variable&quot;&gt;Variable&lt;/a&gt; pro Zeile ein.&lt;br/&gt;Um eine Variable zu setzen oder zu ändern, verwenden Sie -D&amp;lt;Variable&amp;gt;:&amp;lt;Typ&amp;gt;=&amp;lt;Wert&amp;gt;.&lt;br/&gt;&amp;lt;Typ&amp;gt; kann einer der folgenden Werte sein: FILEPATH, PATH, BOOL, INTERNAL oder STRING.&lt;br/&gt;Um eine Variable zurückzusetzen, verwenden Sie -U&amp;lt;Variable&amp;gt;.&lt;br/&gt;</translation>
     </message>
     <message>
         <source>Re-configure with Initial Parameters</source>
@@ -15975,11 +15975,11 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Use junctions for CMake configuration and build operations</source>
-        <translation>Junctions für die CMake-Konfiguration und das Erstellen benutzen</translation>
+        <translation>Junctions für die CMake-Konfiguration und das Erstellen verwenden</translation>
     </message>
     <message>
         <source>Create and use junctions for the source and build directories to overcome issues with long paths on Windows.&lt;br&gt;&lt;br&gt;Junctions are stored under &lt;tt&gt;C:\ProgramData\QtCreator\Links&lt;/tt&gt; (overridable via the &lt;tt&gt;QTC_CMAKE_JUNCTIONS_DIR&lt;/tt&gt; environment variable).&lt;br&gt;&lt;br&gt;With &lt;tt&gt;QTC_CMAKE_JUNCTIONS_HASH_LENGTH&lt;/tt&gt;, you can shorten the MD5 hash key length to a value smaller than the default length value of 32.&lt;br&gt;&lt;br&gt;Junctions are used for CMake configure, build and install operations.</source>
-        <translation>Erstellt und benutzt Junctions für die Quell- und Build-Verzeichnisse, um Probleme mit langen Pfaden auf Windows zu umgehen.&lt;br&gt;&lt;br&gt;Junctions werden unter &lt;tt&gt;C:\ProgramData\QtCreator\Links&lt;/tt&gt; gespeichert (überschreibbar mit der Umgebungsvariable &lt;tt&gt;QTC_CMAKE_JUNCTIONS_DIR&lt;/tt&gt;).&lt;br&gt;&lt;br&gt;Sie können mit der Umgebungsvariable &lt;tt&gt;QTC_CMAKE_JUNCTIONS_HASH_LENGTH&lt;/tt&gt; die Länge des MD5-Hashschlüssels auf einen kleineren Wert als die Voreinstellung 32 verkürzen.&lt;br&gt;&lt;br&gt;Junctions werden für das Konfigurieren mit CMake, das Erstellen und die Installation benutzt.</translation>
+        <translation>Erstellt und verwendet Junctions für die Quell- und Build-Verzeichnisse, um Probleme mit langen Pfaden auf Windows zu umgehen.&lt;br&gt;&lt;br&gt;Junctions werden unter &lt;tt&gt;C:\ProgramData\QtCreator\Links&lt;/tt&gt; gespeichert (überschreibbar mit der Umgebungsvariable &lt;tt&gt;QTC_CMAKE_JUNCTIONS_DIR&lt;/tt&gt;).&lt;br&gt;&lt;br&gt;Sie können mit der Umgebungsvariable &lt;tt&gt;QTC_CMAKE_JUNCTIONS_HASH_LENGTH&lt;/tt&gt; die Länge des MD5-Hashschlüssels auf einen kleineren Wert als die Voreinstellung 32 verkürzen.&lt;br&gt;&lt;br&gt;Junctions werden für das Konfigurieren mit CMake, das Erstellen und die Installation verwendet.</translation>
     </message>
     <message>
         <source>General</source>
@@ -16119,7 +16119,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>&lt;Use Default Generator&gt;</source>
-        <translation>&lt;Benutze Standardgenerator&gt;</translation>
+        <translation>&lt;Verwende Standardgenerator&gt;</translation>
     </message>
     <message>
         <source>Generator: %1&lt;br&gt;Extra generator: %2</source>
@@ -16147,7 +16147,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Enter one CMake &lt;a href=&quot;variable&quot;&gt;variable&lt;/a&gt; per line.&lt;br/&gt;To set a variable, use -D&amp;lt;variable&amp;gt;:&amp;lt;type&amp;gt;=&amp;lt;value&amp;gt;.&lt;br/&gt;&amp;lt;type&amp;gt; can have one of the following values: FILEPATH, PATH, BOOL, INTERNAL, or STRING.</source>
-        <translation>Geben Sie eine CMake-&lt;a href=&quot;variable&quot;&gt;Variable&lt;/a&gt; pro Zeile ein.&lt;br/&gt;Um eine Variable zu setzen, benutzen Sie -D&amp;lt;Variable&amp;gt;:&amp;lt;Typ&amp;gt;=&amp;lt;Wert&amp;gt;.&lt;br/&gt;&amp;lt;Typ&amp;gt; kann einer der folgenden Werte sein: FILEPATH, PATH, BOOL, INTERNAL oder STRING.</translation>
+        <translation>Geben Sie eine CMake-&lt;a href=&quot;variable&quot;&gt;Variable&lt;/a&gt; pro Zeile ein.&lt;br/&gt;Um eine Variable zu setzen, verwenden Sie -D&amp;lt;Variable&amp;gt;:&amp;lt;Typ&amp;gt;=&amp;lt;Wert&amp;gt;.&lt;br/&gt;&amp;lt;Typ&amp;gt; kann einer der folgenden Werte sein: FILEPATH, PATH, BOOL, INTERNAL oder STRING.</translation>
     </message>
     <message>
         <source>CMake Configuration</source>
@@ -16981,7 +16981,7 @@ Das integrierte Codemodell übernimmt das Einrücken.</translation>
     </message>
     <message>
         <source>Use built-in indenter</source>
-        <translation>Integriertes Codemodell für das Einrücken benutzen</translation>
+        <translation>Integriertes Codemodell für das Einrücken verwenden</translation>
     </message>
     <message>
         <source>Use global settings</source>
@@ -16989,7 +16989,7 @@ Das integrierte Codemodell übernimmt das Einrücken.</translation>
     </message>
     <message>
         <source>Please note that the current project includes a .clang-format file, which will be used for code indenting and formatting.</source>
-        <translation>Beachten Sie, dass das aktuelle Projekt eine .clang-format-Datei enthält, welche für das Einrücken und die Formatierung von Code benutzt werden wird.</translation>
+        <translation>Beachten Sie, dass das aktuelle Projekt eine .clang-format-Datei enthält, welche für das Einrücken und die Formatierung von Code verwendet werden wird.</translation>
     </message>
     <message>
         <source>ClangFormat settings:</source>
@@ -17009,7 +17009,7 @@ Das integrierte Codemodell übernimmt das Einrücken.</translation>
     </message>
     <message>
         <source>When this option is enabled, ClangFormat will use a user-specified configuration from the widget below, instead of the project .clang-format file. You can customize the formatting options for your code by adjusting the settings in the widget. Note that any changes made there will only affect the current configuration, and will not modify the project .clang-format file.</source>
-        <translation>Wenn diese Einstellung aktiviert ist, wird statt der .clang-format-Datei des Projekts die benutzerdefinierte Einstellung unten benutzt. Beachten Sie, dass die unten durchgeführten Einstellungen nur die aktuelle Konfiguration beeinflussen und die .clang-format-Datei des Projekts nicht verändert wird.</translation>
+        <translation>Wenn diese Einstellung aktiviert ist, wird statt der .clang-format-Datei des Projekts die benutzerdefinierte Einstellung unten verwendet. Beachten Sie, dass die unten durchgeführten Einstellungen nur die aktuelle Konfiguration beeinflussen und die .clang-format-Datei des Projekts nicht verändert wird.</translation>
     </message>
     <message>
         <source>ClangFormat</source>
@@ -17266,7 +17266,7 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Clang-Tidy and Clazy use a customized Clang executable from the Clang project to search for diagnostics.</source>
-        <translation>Clang-Tidy und Clazy benutzen eine angepasste Version der Anwendung Clang vom Clang-Projekt, um nach Problemen zu suchen.</translation>
+        <translation>Clang-Tidy und Clazy verwenden eine angepasste Version der Anwendung Clang vom Clang-Projekt, um nach Problemen zu suchen.</translation>
     </message>
     <message>
         <source>Release</source>
@@ -17278,11 +17278,11 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>You are trying to run the tool &quot;%1&quot; on an application in %2 mode. The tool is designed to be used in Debug mode since enabled assertions can reduce the number of false positives.</source>
-        <translation>Sie versuchen das Werkzeug &quot;%1&quot; auf eine Applikation im %2-Modus anzuwenden. Das Werkzeug sollte im Debug-Modus benutzt werden, da eingeschaltete Assertions die Zahl der False-Positives verringern können.</translation>
+        <translation>Sie versuchen das Werkzeug &quot;%1&quot; auf eine Applikation im %2-Modus anzuwenden. Das Werkzeug sollte im Debug-Modus verwendet werden, da eingeschaltete Assertions die Zahl der False-Positives verringern können.</translation>
     </message>
     <message>
         <source>Do you want to continue and run the tool in %1 mode?</source>
-        <translation>Wollen Sie fortfahren und das Werkzeug im %1-Modus benutzen?</translation>
+        <translation>Wollen Sie fortfahren und das Werkzeug im %1-Modus verwenden?</translation>
     </message>
     <message>
         <source>Analyze Project with %1...</source>
@@ -18331,7 +18331,7 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Reset used libraries</source>
-        <translation>Benutzte Bibliotheken zurücksetzen</translation>
+        <translation>Verwendete Bibliotheken zurücksetzen</translation>
     </message>
     <message>
         <source>No libraries selected</source>
@@ -18371,7 +18371,7 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>No source code added yet. Add some using the button below.</source>
-        <translation>Es wurde noch kein Quelltext hinzugefügt. Benutzen Sie die Schaltfläche unten, um einen Code-Editor hinzuzufügen.</translation>
+        <translation>Es wurde noch kein Quelltext hinzugefügt. Verwenden Sie die Schaltfläche unten, um einen Code-Editor hinzuzufügen.</translation>
     </message>
     <message>
         <source>Add Source</source>
@@ -18447,7 +18447,7 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>URL of the Compiler Explorer instance to use.</source>
-        <translation>URL der zu benutzenden Compiler Explorer-Instanz.</translation>
+        <translation>URL der zu verwendenden Compiler Explorer-Instanz.</translation>
     </message>
 </context>
 <context>
@@ -18866,8 +18866,8 @@ Trotzdem fortfahren?</translation>
     <message>
         <source>Provide cursors for resizing views.
 If the system cursors for resizing views are not displayed properly, you can use the cursors provided by %1.</source>
-        <translation>Benutzt separate Mauszeiger für das Verändern der Größe von Ansichten.
-Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrekt dargestellt werden, können von %1 bereitgestellte Zeiger benutzt werden.</translation>
+        <translation>Verwendet separate Mauszeiger für das Verändern der Größe von Ansichten.
+Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrekt dargestellt werden, können von %1 bereitgestellte Zeiger verwendet werden.</translation>
     </message>
     <message>
         <source>Toolbar style:</source>
@@ -19125,7 +19125,7 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     </message>
     <message>
         <source>&lt;p&gt;Qt Creator developers can be reached at the Qt Creator mailing list:&lt;/p&gt;%1&lt;p&gt;or the #qt-creator channel on Libera.Chat IRC:&lt;/p&gt;%2&lt;p&gt;Our bug tracker is located at %3.&lt;/p&gt;&lt;p&gt;Please use %4 for bigger chunks of text.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Sie können die Qt Creator-Entwickler auf dem E-Mail-Verteiler&lt;/p&gt;%1&lt;p&gt;oder dem IRC Kanal #qt-creator auf Libera.Chat&lt;/p&gt;%2&lt;p&gt;erreichen. Unseren Bugtracker finden Sie unter %3.&lt;/p&gt;&lt;p&gt;Bitte benutzen Sie %4 für längere Texte.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Sie können die Qt Creator-Entwickler auf dem E-Mail-Verteiler&lt;/p&gt;%1&lt;p&gt;oder dem IRC Kanal #qt-creator auf Libera.Chat&lt;/p&gt;%2&lt;p&gt;erreichen. Unseren Bugtracker finden Sie unter %3.&lt;/p&gt;&lt;p&gt;Bitte verwenden Sie %4 für längere Texte.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Minimize</source>
@@ -20350,7 +20350,7 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
     </message>
     <message>
         <source>Use re&amp;gular expressions</source>
-        <translation>Benutze &amp;reguläre Ausdrücke</translation>
+        <translation>Verwende &amp;reguläre Ausdrücke</translation>
     </message>
     <message>
         <source>Sco&amp;pe:</source>
@@ -20736,7 +20736,7 @@ Möchten Sie es beenden?</translation>
     </message>
     <message>
         <source>Include the filter when not using a prefix for searches.</source>
-        <translation>Diesen Filter einschließen, wenn kein Präfix benutzt wird.</translation>
+        <translation>Diesen Filter einschließen, wenn kein Präfix verwendet wird.</translation>
     </message>
     <message>
         <source>Prefix:</source>
@@ -21756,11 +21756,11 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Use &quot;Cmd&quot;, &quot;Opt&quot;, &quot;Ctrl&quot;, and &quot;Shift&quot; for modifier keys. Use &quot;Escape&quot;, &quot;Backspace&quot;, &quot;Delete&quot;, &quot;Insert&quot;, &quot;Home&quot;, and so on, for special keys. Combine individual keys with &quot;+&quot;, and combine multiple shortcuts to a shortcut sequence with &quot;,&quot;. For example, if the user must hold the Ctrl and Shift modifier keys while pressing Escape, and then release and press A, enter &quot;Ctrl+Shift+Escape,A&quot;.</source>
-        <translation>Benutzen Sie &quot;Cmd&quot;, &quot;Opt&quot;, &quot;Ctrl&quot;, und &quot;Shift&quot; für Hilfstasten. Benutzen Sie &quot;Escape&quot;, &quot;Backspace&quot;, &quot;Delete&quot;, &quot;Insert&quot;, &quot;Home&quot; und so weiter für Sondertasten. Kombinieren Sie einzelne Tasten mit &quot;+&quot; und kombinieren Sie mehrere Tastenkombinationen mit &quot;,&quot; zu einer Tastenfolge. Wenn der Benutzer etwa die Strg- und Umschalttasten gedrückt halten muss, während er Escape drückt, um danach alle Tasten zu lösen und A zu drücken, geben Sie &quot;Ctrl+Shift+Escape,A&quot; ein.</translation>
+        <translation>Verwenden Sie &quot;Cmd&quot;, &quot;Opt&quot;, &quot;Ctrl&quot;, und &quot;Shift&quot; für Hilfstasten. Verwenden Sie &quot;Escape&quot;, &quot;Backspace&quot;, &quot;Delete&quot;, &quot;Insert&quot;, &quot;Home&quot; und so weiter für Sondertasten. Kombinieren Sie einzelne Tasten mit &quot;+&quot; und kombinieren Sie mehrere Tastenkombinationen mit &quot;,&quot; zu einer Tastenfolge. Wenn der Benutzer etwa die Strg- und Umschalttasten gedrückt halten muss, während er Escape drückt, um danach alle Tasten zu lösen und A zu drücken, geben Sie &quot;Ctrl+Shift+Escape,A&quot; ein.</translation>
     </message>
     <message>
         <source>Use &quot;Ctrl&quot;, &quot;Alt&quot;, &quot;Meta&quot;, and &quot;Shift&quot; for modifier keys. Use &quot;Escape&quot;, &quot;Backspace&quot;, &quot;Delete&quot;, &quot;Insert&quot;, &quot;Home&quot;, and so on, for special keys. Combine individual keys with &quot;+&quot;, and combine multiple shortcuts to a shortcut sequence with &quot;,&quot;. For example, if the user must hold the Ctrl and Shift modifier keys while pressing Escape, and then release and press A, enter &quot;Ctrl+Shift+Escape,A&quot;.</source>
-        <translation>Benutzen Sie &quot;Ctrl&quot;, &quot;Alt&quot;, &quot;Meta&quot;, und &quot;Shift&quot; für Hilfstasten. Benutzen Sie &quot;Escape&quot;, &quot;Backspace&quot;, &quot;Delete&quot;, &quot;Insert&quot;, &quot;Home&quot; und so weiter für Sondertasten. Kombinieren Sie einzelne Tasten mit &quot;+&quot; und kombinieren Sie mehrere Tastenkombinationen mit &quot;,&quot; zu einer Tastenfolge. Wenn der Benutzer etwa die Strg- und Umschalttasten gedrückt halten muss, während er Escape drückt, um danach alle Tasten zu lösen und A zu drücken, geben Sie &quot;Ctrl+Shift+Escape,A&quot; ein.</translation>
+        <translation>Verwenden Sie &quot;Ctrl&quot;, &quot;Alt&quot;, &quot;Meta&quot;, und &quot;Shift&quot; für Hilfstasten. Verwenden Sie &quot;Escape&quot;, &quot;Backspace&quot;, &quot;Delete&quot;, &quot;Insert&quot;, &quot;Home&quot; und so weiter für Sondertasten. Kombinieren Sie einzelne Tasten mit &quot;+&quot; und kombinieren Sie mehrere Tastenkombinationen mit &quot;,&quot; zu einer Tastenfolge. Wenn der Benutzer etwa die Strg- und Umschalttasten gedrückt halten muss, während er Escape drückt, um danach alle Tasten zu lösen und A zu drücken, geben Sie &quot;Ctrl+Shift+Escape,A&quot; ein.</translation>
     </message>
     <message>
         <source>Enter key sequence as text</source>
@@ -23297,7 +23297,7 @@ Diese Präfixe werden zusätzlich zum Dateinamen beim Wechseln zwischen Header- 
     </message>
     <message>
         <source>Use type &quot;auto&quot; when creating new variables</source>
-        <translation>Typ &quot;auto&quot; beim Erstellen von neuen Variablen benutzen</translation>
+        <translation>Typ &quot;auto&quot; beim Erstellen von neuen Variablen verwenden</translation>
     </message>
     <message>
         <source>Custom Getter Setter Templates</source>
@@ -23582,11 +23582,11 @@ z.B. name = &quot;m_test_foo_&quot;:
     </message>
     <message>
         <source>Use Built-in Only</source>
-        <translation>Nur integriertes Backend benutzen</translation>
+        <translation>Nur integriertes Backend verwenden</translation>
     </message>
     <message>
         <source>Use Clangd Only</source>
-        <translation>Nur Clangd benutzen</translation>
+        <translation>Nur Clangd verwenden</translation>
     </message>
     <message>
         <source>Try Both</source>
@@ -23630,11 +23630,11 @@ z.B. name = &quot;m_test_foo_&quot;:
     </message>
     <message>
         <source>Use built-in preprocessor to show pre-processed files</source>
-        <translation>Den integrierten Präprozessor zum Anzeigen von vorverarbeiteten Dateien benutzen</translation>
+        <translation>Den integrierten Präprozessor zum Anzeigen von vorverarbeiteten Dateien verwenden</translation>
     </message>
     <message>
         <source>Uncheck this to invoke the actual compiler to show a pre-processed source file in the editor.</source>
-        <translation>Wählen Sie dies ab, um den Compiler zum Anzeigen von vorverarbeiteten Dateien zu benutzen.</translation>
+        <translation>Wählen Sie dies ab, um den Compiler zum Anzeigen von vorverarbeiteten Dateien zu verwenden.</translation>
     </message>
     <message>
         <source>Code Model</source>
@@ -23642,19 +23642,19 @@ z.B. name = &quot;m_test_foo_&quot;:
     </message>
     <message>
         <source>&lt;p&gt;If background indexing is enabled, global symbol searches will yield more accurate results, at the cost of additional CPU load when the project is first opened. The indexing result is persisted in the project&apos;s build directory. If you disable background indexing, a faster, but less accurate, built-in indexer is used instead. The thread priority for building the background index can be adjusted since clangd 15.&lt;/p&gt;&lt;p&gt;Background Priority: Minimum priority, runs on idle CPUs. May leave &apos;performance&apos; cores unused.&lt;/p&gt;&lt;p&gt;Normal Priority: Reduced priority compared to interactive work.&lt;/p&gt;&lt;p&gt;Low Priority: Same priority as other clangd work.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Wenn sie das globale Indizieren aktivieren, liefert die globale Symbolsuche genauere Ergebnisse, es erhöht aber die CPU-Last beim ersten Öffnen von Projekten. Das Ergebnis der Indizierung wird im Build-Verzeichnis des Projekts gespeichert. Wenn sie das globale Indizieren deaktivieren, wird stattdessen ein schnellerer, aber weniger genauer, integrierter Indexer benutzt. Seit Clangd 15 können Sie die Priorität für die Indizierungs-Threads anpassen.&lt;/p&gt;&lt;p&gt;Hintergrund-Priorität: Niedrigste Priorität, läuft nur auf leerlaufenden CPUs. Kann &quot;Performance&quot;-Kerne ungenutzt lassen.&lt;/p&gt;&lt;p&gt;Normale Priorität: Geringere Priorität im Vergleich zu interaktiven Aktivitäten.&lt;/p&gt;&lt;p&gt;Niedrige Priorität: Dieselbe Priorität wie andere Clangd-Aktivitäten.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Wenn Sie das globale Indizieren aktivieren, liefert die globale Symbolsuche genauere Ergebnisse, es erhöht aber die CPU-Last beim ersten Öffnen von Projekten. Das Ergebnis der Indizierung wird im Build-Verzeichnis des Projekts gespeichert. Wenn Sie das globale Indizieren deaktivieren, wird stattdessen ein schnellerer, aber weniger genauer, integrierter Indexer verwendet. Seit Clangd 15 können Sie die Priorität für die Indizierungs-Threads anpassen.&lt;/p&gt;&lt;p&gt;Hintergrund-Priorität: Niedrigste Priorität, läuft nur auf leerlaufenden CPUs. Kann &quot;Performance&quot;-Kerne ungenutzt lassen.&lt;/p&gt;&lt;p&gt;Normale Priorität: Geringere Priorität im Vergleich zu interaktiven Aktivitäten.&lt;/p&gt;&lt;p&gt;Niedrige Priorität: Dieselbe Priorität wie andere Clangd-Aktivitäten.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;The C/C++ backend to use for switching between header and source files.&lt;/p&gt;&lt;p&gt;While the clangd implementation has more capabilities than the built-in code model, it tends to find false positives.&lt;/p&gt;&lt;p&gt;When &quot;Try Both&quot; is selected, clangd is used only if the built-in variant does not find anything.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Bestimmt, welches C/C++-Backend zum Wechseln zwischen Header- und Quelldatei benutzt wird.&lt;/p&gt;&lt;p&gt;Die Clangd-Implementation hat mehr Fähigkeiten, aber auch einige Fehler, die nicht in der integrierten Variante vorhanden sind.&lt;/p&gt;&lt;p&gt;Wenn &quot;Beide versuchen&quot; ausgewählt ist, wird Clangd nur benutzt, wenn die integrierte Variant nichts findet.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Bestimmt, welches C/C++-Backend zum Wechseln zwischen Header- und Quelldatei verwendet wird.&lt;/p&gt;&lt;p&gt;Die Clangd-Implementation hat mehr Fähigkeiten, aber auch einige Fehler, die nicht in der integrierten Variante vorhanden sind.&lt;/p&gt;&lt;p&gt;Wenn &quot;Beide versuchen&quot; ausgewählt ist, wird Clangd nur verwendet, wenn die integrierte Variant nichts findet.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;Which model clangd should use to rank possible completions.&lt;/p&gt;&lt;p&gt;This determines the order of candidates in the combo box when doing code completion.&lt;/p&gt;&lt;p&gt;The &quot;%1&quot; model used by default results from (pre-trained) machine learning and provides superior results on average.&lt;/p&gt;&lt;p&gt;If you feel that its suggestions stray too much from your expectations for your code base, you can try switching to the hand-crafted &quot;%2&quot; model.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Das Modell, das Clangd für die Rangfolge der möglichen Vervollständigungen benutzen soll.&lt;/p&gt;&lt;p&gt;Dies bestimmt die Reihenfolge der Kandidaten im Drop-Down-Menü der Code-Vervollständigung.&lt;/p&gt;&lt;p&gt;Das voreingestellte Modell &quot;%1&quot; wurde durch maschinelles Lernen trainiert und bietet im Schnitt die besten Ergebnisse.&lt;/p&gt;&lt;p&gt;Falls dies für Ihren Code zu sehr von Ihren Erwartungen abweicht, können Sie auf das manuell erstellte Modell &quot;%2&quot; umstellen.&lt;p&gt;</translation>
+        <translation>&lt;p&gt;Das Modell, das Clangd für die Rangfolge der möglichen Vervollständigungen verwenden soll.&lt;/p&gt;&lt;p&gt;Dies bestimmt die Reihenfolge der Kandidaten im Drop-Down-Menü der Code-Vervollständigung.&lt;/p&gt;&lt;p&gt;Das voreingestellte Modell &quot;%1&quot; wurde durch maschinelles Lernen trainiert und bietet im Schnitt die besten Ergebnisse.&lt;/p&gt;&lt;p&gt;Falls dies für Ihren Code zu sehr von Ihren Erwartungen abweicht, können Sie auf das manuell erstellte Modell &quot;%2&quot; umstellen.&lt;p&gt;</translation>
     </message>
     <message>
         <source>Number of worker threads used by clangd. Background indexing also uses this many worker threads.</source>
-        <translation>Anzahl der Threads, die von Clangd benutzt werden. Die globale Indizierung nutzt auch diese Anzahl Threads.</translation>
+        <translation>Anzahl der Threads, die von Clangd verwendet werden. Die globale Indizierung nutzt auch diese Anzahl Threads.</translation>
     </message>
     <message>
         <source>Controls whether clangd may insert header files as part of symbol completion.</source>
@@ -23678,7 +23678,7 @@ Das integrierte Codemodell übernimmt Syntaxhervorhebung, Code-Vervollständigun
     </message>
     <message>
         <source>Use clangd</source>
-        <translation>Clangd benutzen</translation>
+        <translation>Clangd verwenden</translation>
     </message>
     <message>
         <source>Insert header files on completion</source>
@@ -23973,7 +23973,7 @@ Ziehen Sie Eintrage mit der Maus, um die Reihenfolge der Parameter zu ändern.</
     </message>
     <message>
         <source>Quick Fix settings are saved in a file. Existing settings file &quot;%1&quot; found. Should this file be used or a new one be created?</source>
-        <translation>Einstellungen für Quick Fixes werden in einer Datei gespeichert. Es wurde eine existierende Einstellungs-Datei &quot;%1&quot; gefunden. Soll diese Datei benutzt, oder eine neue Datei erstellt werden?</translation>
+        <translation>Einstellungen für Quick Fixes werden in einer Datei gespeichert. Es wurde eine existierende Einstellungs-Datei &quot;%1&quot; gefunden. Soll diese Datei verwendet oder eine neue Datei erstellt werden?</translation>
     </message>
     <message>
         <source>Switch Back to Global Settings</source>
@@ -23981,7 +23981,7 @@ Ziehen Sie Eintrage mit der Maus, um die Reihenfolge der Parameter zu ändern.</
     </message>
     <message>
         <source>Use Existing</source>
-        <translation>Existierende benutzen</translation>
+        <translation>Existierende verwenden</translation>
     </message>
     <message>
         <source>Create New</source>
@@ -23989,7 +23989,7 @@ Ziehen Sie Eintrage mit der Maus, um die Reihenfolge der Parameter zu ändern.</
     </message>
     <message>
         <source>Custom settings are saved in a file. If you use the global settings, you can delete that file.</source>
-        <translation>Benutzerdefinierte Einstellungen werden in einer Datei gespeichert. Wenn Sie die globalen Einstellungen benutzen, können Sie diese Datei löschen.</translation>
+        <translation>Benutzerdefinierte Einstellungen werden in einer Datei gespeichert. Wenn Sie die globalen Einstellungen verwenden, können Sie diese Datei löschen.</translation>
     </message>
     <message>
         <source>Delete Custom Settings File</source>
@@ -24145,7 +24145,7 @@ Flags: %3</translation>
     </message>
     <message>
         <source>Can find missing includes but makes checking slower. Use only when needed.</source>
-        <translation>Kann fehlende Includes finden, verlangsamt aber die Prüfung. Benutzen Sie dies nur, wenn es nötig ist.</translation>
+        <translation>Kann fehlende Includes finden, verlangsamt aber die Prüfung. Verwenden Sie dies nur, wenn es nötig ist.</translation>
     </message>
     <message>
         <source>Like C++ standard and language.</source>
@@ -24920,7 +24920,7 @@ Möchten Sie die Daten trotzdem anzeigen?</translation>
     </message>
     <message>
         <source>Configure Symbol paths that are used to locate debug symbol files.</source>
-        <translation>Symbolpfade konfigurieren, die benutzt werden, um Debug-Symboldateien zu finden.</translation>
+        <translation>Symbolpfade konfigurieren, die verwendet werden, um Debug-Symboldateien zu finden.</translation>
     </message>
     <message>
         <source>Log Time Stamps</source>
@@ -24980,7 +24980,7 @@ Möchten Sie die Daten trotzdem anzeigen?</translation>
     </message>
     <message>
         <source>Displays the objectName property of QObject based items. Note that this can negatively impact debugger performance even if no QObjects are present.</source>
-        <translation>Zeigt die objectName-Eigenschaft von QObject basierten Elementen an. Dies kann die Debugger-Geschwindigkeit verschlechtern, selbst wenn keine QObjects benutzt werden.</translation>
+        <translation>Zeigt die objectName-Eigenschaft von QObject basierten Elementen an. Dies kann die Debugger-Geschwindigkeit verschlechtern, selbst wenn keine QObjects verwendet werden.</translation>
     </message>
     <message>
         <source>Sort Members of Classes and Structs Alphabetically</source>
@@ -24992,7 +24992,7 @@ Möchten Sie die Daten trotzdem anzeigen?</translation>
     </message>
     <message>
         <source>Use Debugging Helpers</source>
-        <translation>Ausgabe-Hilfsbibliothek benutzen</translation>
+        <translation>Ausgabe-Hilfsbibliothek verwenden</translation>
     </message>
     <message>
         <source>Use code model</source>
@@ -25000,7 +25000,7 @@ Möchten Sie die Daten trotzdem anzeigen?</translation>
     </message>
     <message>
         <source>Selecting this causes the C++ Code Model being asked for variable scope information. This might result in slightly faster debugger operation but may fail for optimized code.</source>
-        <translation>Benutzt das Codemodell, um Informationen bezüglich des Gültigkeitsbereiches von Variablen zu erhalten. Dies kann eine etwas schnellere Anzeige der Werte bewirken, aber bei optimiertem Code auch fehlschlagen.</translation>
+        <translation>Verwendet das Codemodell, um Informationen bezüglich des Gültigkeitsbereiches von Variablen zu erhalten. Dies kann eine etwas schnellere Anzeige der Werte bewirken, aber bei optimiertem Code auch fehlschlagen.</translation>
     </message>
     <message>
         <source>Displays names of QThread based threads.</source>
@@ -25084,7 +25084,7 @@ Möchten Sie die Daten trotzdem anzeigen?</translation>
     </message>
     <message>
         <source>Use tooltips in main editor when debugging</source>
-        <translation>Tooltips im Haupt-Editor beim Debuggen benutzen</translation>
+        <translation>Tooltips im Haupt-Editor beim Debuggen verwenden</translation>
     </message>
     <message>
         <source>Configure Debugger...</source>
@@ -25561,7 +25561,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>Uses the default GDB pretty printers installed in your system or linked to the libraries your application uses.</source>
-        <translation>Verwendet die GDB-Pretty-Printers, die im System installiert sind oder gegen die Bibliotheken gelinkt sind, die die Anwendung benutzt.</translation>
+        <translation>Verwendet die GDB-Pretty-Printers, die im System installiert sind oder gegen die Bibliotheken gelinkt sind, die die Anwendung verwendet.</translation>
     </message>
     <message>
         <source>The options below give access to advanced&lt;br&gt;or experimental functions of GDB.&lt;p&gt;Enabling them may negatively impact&lt;br&gt;your debugging experience.</source>
@@ -26588,7 +26588,7 @@ Installieren Sie das Paket &quot;Qt Debug Information Files&quot; für diese Qt-
 You may be asked to share the contents of this log when reporting bugs related to debugger operation. In this case, make sure your submission does not contain data you do not want to or you are not allowed to share.
 
 </source>
-        <translation>Hinweis: Dieses Log enhält möglicherweise vertrauliche Informationen über Ihren Computer, Umgebungsvariablen, Speicherinhalte der untersuchten Prozesse oder weiteres. Es wird von %1 nie über das Internet übertragen und nur auf der Festplatte gespeichert, wenn Sie die entsprechende Option aus dem Kontextmenü aufrufen, oder durch Abläufe, die das Debugger-Plugin von %1 nicht beeinflussen kann, bespielsweise Auslagerungsdateien or andere Plugins, die Sie vielleicht benutzen.
+        <translation>Hinweis: Dieses Log enhält möglicherweise vertrauliche Informationen über Ihren Computer, Umgebungsvariablen, Speicherinhalte der untersuchten Prozesse oder weiteres. Es wird von %1 nie über das Internet übertragen und nur auf der Festplatte gespeichert, wenn Sie die entsprechende Option aus dem Kontextmenü aufrufen, oder durch Abläufe, die das Debugger-Plugin von %1 nicht beeinflussen kann, bespielsweise Auslagerungsdateien or andere Plugins, die Sie vielleicht verwenden.
 Sie werden möglicherweise gebeten, den Inhalt dieses Logs mitzuteilen, wenn Sie über Fehlfunktionen des Debugger berichten. In diesem Fall achten Sie darauf, dass Ihre Einsendung nur Daten enthält, die Sie weitergeben wollen und dürfen.
 
 </translation>
@@ -27083,7 +27083,7 @@ Soll es erneut versucht werden?</translation>
     </message>
     <message>
         <source>&lt;p&gt;Add a mapping for Qt&apos;s source folders when using an unpatched version of Qt.</source>
-        <translation>&lt;p&gt;Fügt eine Umsetzung für die Qt-Quellen hinzu, wenn eine nicht gepatchte Version von Qt benutzt wird.</translation>
+        <translation>&lt;p&gt;Fügt eine Umsetzung für die Qt-Quellen hinzu, wenn eine nicht gepatchte Version von Qt verwendet wird.</translation>
     </message>
     <message>
         <source>&lt;p&gt;The source path contained in the debug information of the executable as reported by the debugger</source>
@@ -27099,7 +27099,7 @@ Soll es erneut versucht werden?</translation>
     </message>
     <message>
         <source>&lt;p&gt;Mappings of source file folders to be used in the debugger can be entered here.&lt;/p&gt;&lt;p&gt;This is useful when using a copy of the source tree at a location different from the one at which the modules where built, for example, while doing remote debugging.&lt;/p&gt;&lt;p&gt;If source is specified as a regular expression by starting it with an open parenthesis, the paths in the ELF are matched with the regular expression to automatically determine the source path.&lt;/p&gt;&lt;p&gt;Example: &lt;b&gt;(/home/.*/Project)/KnownSubDir -&gt; D:\Project&lt;/b&gt; will substitute ELF built by any user to your local project directory.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Hier können Zuordnungen für die beim Debuggen benutzten Quelldateien festgelegt werden.&lt;/p&gt;&lt;p&gt;Das ist nützlich, wenn eine lokale Kopie des Quelldateibaums verwendet wird, der sich von der beim Erstellen der Module verwendeten unterscheidet, zum Beispiel beim Remote-Debuggen.&lt;/p&gt;&lt;p&gt;Wenn die Zuordnung durch eine öffnende Klammer am Anfang als regulärer Ausdruck angegeben wird, werden die passenden Pfade im ELF verwendet um den Quellpfad automatisch zu bestimmen.&lt;/p&gt;&lt;p&gt;Beispiel: &lt;b&gt;(/home/.*/Projekt)/BekanntesUnterverzeichnis -&gt; D:\Projekt&lt;/b&gt; wird ein von einem beliebigen Benutzer erstelltes ELF in Ihr lokales Projektverzeichnis umleiten.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Hier können Zuordnungen für die beim Debuggen verwendeten Quelldateien festgelegt werden.&lt;/p&gt;&lt;p&gt;Das ist nützlich, wenn eine lokale Kopie des Quelldateibaums verwendet wird, der sich von der beim Erstellen der Module verwendeten unterscheidet, zum Beispiel beim Remote-Debuggen.&lt;/p&gt;&lt;p&gt;Wenn die Zuordnung durch eine öffnende Klammer am Anfang als regulärer Ausdruck angegeben wird, werden die passenden Pfade im ELF verwendet um den Quellpfad automatisch zu bestimmen.&lt;/p&gt;&lt;p&gt;Beispiel: &lt;b&gt;(/home/.*/Projekt)/BekanntesUnterverzeichnis -&gt; D:\Projekt&lt;/b&gt; wird ein von einem beliebigen Benutzer erstelltes ELF in Ihr lokales Projektverzeichnis umleiten.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&amp;Target path:</source>
@@ -27392,7 +27392,7 @@ Einzelschritte in das Modul und das Setzen von Haltepunkten nach Datei und Zeile
     </message>
     <message>
         <source>Base path for external debug information and debug sources. If empty, $SYSROOT/usr/lib/debug will be chosen.</source>
-        <translation>Basispfad für Debuginformationen und Quellen. Als Vorgabe wird $SYSROOT/usr/lib/debug benutzt.</translation>
+        <translation>Basispfad für Debuginformationen und Quellen. Als Vorgabe wird $SYSROOT/usr/lib/debug verwendet.</translation>
     </message>
     <message>
         <source>&amp;Kit:</source>
@@ -27466,7 +27466,7 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>Use additional startup commands.</source>
-        <translation>Benutze zusätzliche Kommandos beim Start.</translation>
+        <translation>Verwende zusätzliche Kommandos beim Start.</translation>
     </message>
     <message>
         <source>C++ debugger:</source>
@@ -27538,7 +27538,7 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The debugger is not configured to use the public Microsoft Symbol Server.&lt;br/&gt;This is recommended for retrieval of the symbols of the operating system libraries.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Note:&lt;/span&gt; It is recommended, that if you use the Microsoft Symbol Server, to also use a local symbol cache.&lt;br/&gt;A fast internet connection is required for this to work smoothly,&lt;br/&gt;and a delay might occur when connecting for the first time and caching the symbols.&lt;/p&gt;&lt;p&gt;What would you like to set up?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Der Debugger ist nicht zur Benutzung des öffentlichen Microsoft Symbol Servers eingerichtet.&lt;br/&gt;Dies wird zur Anzeige der Symbole der Betriebssystem-Bibliotheken empfohlen.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Hinweis:&lt;/span&gt; Bei der Verwendung des Microsoft Symbol Servers wird zusätzlich die Benutzung eines lokalen Zwischenspeichers für Symbole empfohlen.&lt;br/&gt;Allerdings ist dabei eine schnelle Internetverbindung für flüssiges Arbeiten erforderlich&lt;br/&gt;und bei der ersten Verbindung zum Zwischenspeichern der Symbole können Verzögerungen auftreten.&lt;/p&gt;&lt;p&gt;Was möchten Sie einrichten?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Der Debugger ist nicht zur Verwendung des öffentlichen Microsoft Symbol Servers eingerichtet.&lt;br/&gt;Dies wird zur Anzeige der Symbole der Betriebssystem-Bibliotheken empfohlen.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Hinweis:&lt;/span&gt; Bei der Verwendung des Microsoft Symbol Servers wird zusätzlich der Einsatz eines lokalen Zwischenspeichers für Symbole empfohlen.&lt;br/&gt;Allerdings ist dabei eine schnelle Internetverbindung für flüssiges Arbeiten erforderlich&lt;br/&gt;und bei der ersten Verbindung zum Zwischenspeichern der Symbole können Verzögerungen auftreten.&lt;/p&gt;&lt;p&gt;Was möchten Sie einrichten?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Set up Symbol Paths</source>
@@ -27712,7 +27712,7 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>The debugging helpers are used to produce a nice display of objects of certain types like QString or std::map in the &amp;quot;Locals&amp;quot; and &amp;quot;Expressions&amp;quot; views.</source>
-        <translation>Die Ausgabe-Hilfsbibliothek wird benutzt um bestimmte Datentypen wie QString oder std::map in &amp;quot;Lokale Variablen&amp;quot; und &amp;quot;Ausdrücke&amp;quot; ansprechend anzuzeigen.</translation>
+        <translation>Die Ausgabe-Hilfsbibliothek wird verwendet um bestimmte Datentypen wie QString oder std::map in &amp;quot;Lokale Variablen&amp;quot; und &amp;quot;Ausdrücke&amp;quot; ansprechend anzuzeigen.</translation>
     </message>
     <message>
         <source>Extra Debugging Helper</source>
@@ -28484,7 +28484,7 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>Use alternating row colors in debug views</source>
-        <translation>Alternierende Farben für Zeilen in Debug-Ansichten benutzen</translation>
+        <translation>Alternierende Farben für Zeilen in Debug-Ansichten verwenden</translation>
     </message>
     <message>
         <source>Changes the font size in the debugger views when the font size in the main editor changes.</source>
@@ -28532,7 +28532,7 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>Use annotations in main editor when debugging</source>
-        <translation>Annotationen im Haupt-Editor beim Debuggen benutzen</translation>
+        <translation>Annotationen im Haupt-Editor beim Debuggen verwenden</translation>
     </message>
     <message>
         <source>Shows simple variable values as annotations in the main editor during debugging.</source>
@@ -30260,7 +30260,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     <name>QtC::FakeVim</name>
     <message>
         <source>Use FakeVim</source>
-        <translation>FakeVim benutzen</translation>
+        <translation>FakeVim verwenden</translation>
     </message>
     <message>
         <source>Read .vimrc from location:</source>
@@ -30348,7 +30348,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Use system encoding for :source</source>
-        <translation>System-Zeichenkodierung für :source benutzen</translation>
+        <translation>System-Zeichenkodierung für :source verwenden</translation>
     </message>
     <message>
         <source>Scroll offset:</source>
@@ -30388,7 +30388,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Use Vim-style Editing</source>
-        <translation>Vim benutzen</translation>
+        <translation>Vim verwenden</translation>
     </message>
     <message>
         <source>Mark &quot;%1&quot; not set.</source>
@@ -30413,11 +30413,11 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     <message>
         <source>Type Control-Shift-Y, Control-Shift-Y to quit FakeVim mode.</source>
         <translatorcomment>These are the names of the actual keys on my german Apple keyboard https://support.apple.com/de-de/HT201236</translatorcomment>
-        <translation>Benutzen sie Control-Umschalt-Y, Control-Umschalt-Y, um den FakeVim-Modus zu verlassen.</translation>
+        <translation>Verwenden sie Control-Umschalt-Y, Control-Umschalt-Y, um den FakeVim-Modus zu verlassen.</translation>
     </message>
     <message>
         <source>Type Alt-Y, Alt-Y to quit FakeVim mode.</source>
-        <translation>Benutzen Sie Alt-Y, Alt-Y, um den FakeVim-Modus zu verlassen.</translation>
+        <translation>Verwenden Sie Alt-Y, Alt-Y, um den FakeVim-Modus zu verlassen.</translation>
     </message>
     <message>
         <source>Unknown option:</source>
@@ -30675,7 +30675,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>SSL/TLS client identity key to use if requested by the server.</source>
-        <translation>SSL/TLS Client Identity Key, der benutzt werden soll, wenn der Server diesen anfordert.</translation>
+        <translation>Der SSL/TLS Client Identity Key, der auf Anforderung des Servers verwendet werden soll.</translation>
     </message>
     <message>
         <source>Disable auto-sync</source>
@@ -31162,7 +31162,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Imports existing projects that do not use qmake, CMake, Qbs, Meson, or Autotools. This allows you to use %1 as a code editor.</source>
-        <translation>Importiert bereits existierende Projekte, die weder qmake, CMake, Qbs, Meson oder Autotools verwenden. Dadurch kann %1 als Code-Editor benutzt werden.</translation>
+        <translation>Importiert bereits existierende Projekte, die weder qmake, CMake, Qbs, Meson oder Autotools verwenden. Dadurch kann %1 als Code-Editor verwendet werden.</translation>
     </message>
     <message>
         <source>Project Name and Location</source>
@@ -32790,8 +32790,8 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message numerus="yes">
         <source>Include branches and tags that have not been active for %n days.</source>
         <translation>
-            <numerusform>Branches und Tags einschließen, die seit einem Tag nicht benutzt wurden.</numerusform>
-            <numerusform>Branches und Tags einschließen, die seit %n Tagen nicht benutzt wurden.</numerusform>
+            <numerusform>Branches und Tags einschließen, die seit einem Tag nicht verwendet wurden.</numerusform>
+            <numerusform>Branches und Tags einschließen, die seit %n Tagen nicht verwendet wurden.</numerusform>
         </translation>
     </message>
     <message>
@@ -33502,7 +33502,7 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>Using project access token.</source>
-        <translation>Benutze das Zugriffstoken des Projekts.</translation>
+        <translation>Verwende das Zugriffstoken des Projekts.</translation>
     </message>
     <message>
         <source>Logged in as %1</source>
@@ -34507,7 +34507,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Defines how Automatic Interception Interface should handle the various processes involved in a distributed job. It is not necessary for &quot;Visual Studio&quot; or &quot;Make and Build tools&quot; builds, but can be used to provide configuration options if those builds use additional processes that are not included in those packages. It is required to configure distributable processes in &quot;Dev Tools&quot; builds.</source>
-        <translation>Bestimmt, wie das Automatic Interception Interface die in einem verteilten Job involvierten Prozesse behandelt. Benötigt, um verteilte Prozesse in Kompilierungen mit &quot;Dev Tools&quot; zu konfigurieren. Nicht für Kompilierungen mit &quot;Visual Studio&quot; oder &quot;Make and Build tools&quot; benötigt, kann aber zur Konfiguration zusätzlicher Prozesse benutzt werden, die nicht in diesen Paketen enthalten sind.</translation>
+        <translation>Bestimmt, wie das Automatic Interception Interface die in einem verteilten Job involvierten Prozesse behandelt. Benötigt, um verteilte Prozesse in Kompilierungen mit &quot;Dev Tools&quot; zu konfigurieren. Nicht für Kompilierungen mit &quot;Visual Studio&quot; oder &quot;Make and Build tools&quot; benötigt, kann aber zur Konfiguration zusätzlicher Prozesse verwendet werden, die nicht in diesen Paketen enthalten sind.</translation>
     </message>
     <message>
         <source>Avoid local task execution:</source>
@@ -34519,7 +34519,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Determines the maximum number of CPU cores that can be used in a build, regardless of the number of available Agents. It takes into account both local and remote cores, even if the Avoid Task Execution on Local Machine option is selected.</source>
-        <translation>Bestimmt unabhängig von der Anzahl verfügbarer Agents die maximale Anzahl CPU-Kerne, die beim Erstellen benutzt werden. Berücksichtigt sowohl lokale als auch entfernte Kerne, auch wenn die Option &quot;Lokales Ausführen von Aufgaben vermeiden&quot; ausgewählt ist.</translation>
+        <translation>Bestimmt unabhängig von der Anzahl verfügbarer Agents die maximale Anzahl CPU-Kerne, die beim Erstellen verwendet werden. Berücksichtigt sowohl lokale als auch entfernte Kerne, auch wenn die Option &quot;Lokales Ausführen von Aufgaben vermeiden&quot; ausgewählt ist.</translation>
     </message>
     <message>
         <source>Maximum CPUs to utilize in the build:</source>
@@ -34551,7 +34551,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Specifies a custom header line which will be displayed in the beginning of the build output text. This title will also be used for the Build History and Build Monitor displays.</source>
-        <translation>Gibt eine benutzerdefinierte Kopfzeile an, die vor der Ausgabe der Kompilierung angezeigt wird. Dieser Titel wird auch für die Anzeigen &quot;Build History&quot; und &quot;Build Monitor&quot; benutzt.</translation>
+        <translation>Gibt eine benutzerdefinierte Kopfzeile an, die vor der Ausgabe der Kompilierung angezeigt wird. Dieser Titel wird auch für die Anzeigen &quot;Build History&quot; und &quot;Build Monitor&quot; verwendet.</translation>
     </message>
     <message>
         <source>Save IncrediBuild monitor file:</source>
@@ -34559,7 +34559,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Writes a copy of the build progress file (.ib_mon) to the specified location. If only a folder name is given, a generated GUID will serve as the file name. The full path of the saved Build Monitor will be written to the end of the build output.</source>
-        <translation>Schreibt eine Kopie der Monitor-Datei (.ib_mon) an den angegebenen Ort. Wenn nur ein Verzeichnisname angegeben ist, wird eine generierte GUID als Dateiname benutzt. Der vollständige Pfad der gespeicherten Monitor-Datei wird am Ende der Ausgabe der Kompilierung angezeigt.</translation>
+        <translation>Schreibt eine Kopie der Monitor-Datei (.ib_mon) an den angegebenen Ort. Wenn nur ein Verzeichnisname angegeben ist, wird eine generierte GUID als Dateiname verwendet. Der vollständige Pfad der gespeicherten Monitor-Datei wird am Ende der Ausgabe der Kompilierung angezeigt.</translation>
     </message>
     <message>
         <source>Suppress STDOUT:</source>
@@ -34583,7 +34583,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Shows, for each file built, the command-line used by IncrediBuild to build the file.</source>
-        <translation>Zeigt für jede Datei die Kommandozeile, die von IncrediBuild zum Erstellen der Datei benutzt wird.</translation>
+        <translation>Zeigt für jede Datei die Kommandozeile, die von IncrediBuild zum Erstellen der Datei verwendet wird.</translation>
     </message>
     <message>
         <source>Show Agents in output:</source>
@@ -34591,7 +34591,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Shows the Agent used to build each file.</source>
-        <translation>Zeigt für jede Datei den Agent, der zum Erstellen der Datei benutzt wird.</translation>
+        <translation>Zeigt für jede Datei den Agent, der zum Erstellen der Datei verwendet wird.</translation>
     </message>
     <message>
         <source>Show Time in output:</source>
@@ -34615,7 +34615,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Overrides the internal Incredibuild logging level for this build. Does not affect output or any user accessible logging. Used mainly to troubleshoot issues with the help of IncrediBuild support</source>
-        <translation>Überschreibt die Stufe der internen Protokollierung von IncrediBuild für diese Kompilierung. Beeinflusst weder die Ausgabe noch die dem Benutzer zugängliche Protokollierung. Wird hauptsächlich zur Fehlerbehebung mit Hilfe des Supports von IncrediBuild benutzt</translation>
+        <translation>Überschreibt die Stufe der internen Protokollierung von IncrediBuild für diese Kompilierung. Beeinflusst weder die Ausgabe noch die dem Benutzer zugängliche Protokollierung. Wird hauptsächlich zur Fehlerbehebung mit Hilfe des Supports von IncrediBuild verwendet</translation>
     </message>
     <message>
         <source>Miscellaneous</source>
@@ -34667,11 +34667,11 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Force remote:</source>
-        <translation>&quot;--force-remote&quot; benutzen:</translation>
+        <translation>&quot;--force-remote&quot; verwenden:</translation>
     </message>
     <message>
         <source>Alternate tasks preference:</source>
-        <translation>&quot;--alternate&quot; benutzen:</translation>
+        <translation>&quot;--alternate&quot; verwenden:</translation>
     </message>
     <message>
         <source>CMake</source>
@@ -34881,7 +34881,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>To use this device you need to enable developer mode on it.</source>
-        <translation>Um dieses Gerät zu benutzen, müssen Sie darauf den Entwicklungsmodus aktivieren.</translation>
+        <translation>Um dieses Gerät zu verwenden, müssen Sie darauf den Entwicklungsmodus aktivieren.</translation>
     </message>
     <message>
         <source>%1 is not connected. Select %2?</source>
@@ -35283,7 +35283,7 @@ Ablaufdatum: %3</translation>
     </message>
     <message>
         <source>Using default development team and provisioning profile.</source>
-        <translation>Die Vorgaben für Entwicklerteam und Provisioning-Profil werden benutzt.</translation>
+        <translation>Die Vorgaben für Entwicklerteam und Provisioning-Profil werden verwendet.</translation>
     </message>
     <message>
         <source>Development team: %1 (%2)</source>
@@ -35295,7 +35295,7 @@ Ablaufdatum: %3</translation>
     </message>
     <message>
         <source>%1 not configured. Use Xcode and Apple developer account to configure the provisioning profiles and teams.</source>
-        <translation>%1 sind nicht konfiguriert. Benutzen Sie Xcode und Ihr Apple-Entwicklerkonto, um die Provisioning-Profile und Teams zu konfigurieren.</translation>
+        <translation>%1 sind nicht konfiguriert. Verwenden Sie Xcode und Ihr Apple-Entwicklerkonto, um die Provisioning-Profile und Teams zu konfigurieren.</translation>
     </message>
     <message>
         <source>Development teams</source>
@@ -35566,7 +35566,7 @@ Beispiel: *.cpp%1*.h</translation>
         <source>Additional JSON configuration sent to all running language servers for this project.
 See the documentation of the specific language server for valid settings.</source>
         <translation>Zusätzliche JSON-Konfiguration, die an alle laufenden Language Server für dieses Projekt gesendet wird.
-Für gültige Einstellungen schauen Sie in die Dokumentation des benutzten Language Servers.</translation>
+Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Language Servers.</translation>
     </message>
     <message>
         <source>&amp;Add</source>
@@ -40588,7 +40588,7 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The name of the kit suitable for generating directory names. This value is used for the variable &lt;i&gt;%1&lt;/i&gt;, which for example determines the name of the shadow build directory.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Der Name des Kits, der zum Erzeugen von Verzeichnisnamen geeignet ist. Dieser Wert wird für die Variable &lt;i&gt;%1&lt;/i&gt; benutzt, die zum Beispiel den Namen des Shadow-Build-Verzeichnisses bestimmt.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Der Name des Kits, der zum Erzeugen von Verzeichnisnamen geeignet ist. Dieser Wert wird für die Variable &lt;i&gt;%1&lt;/i&gt; verwendet, die zum Beispiel den Namen des Shadow-Build-Verzeichnisses bestimmt.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>File system name:</source>
@@ -40872,7 +40872,7 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     <message>
         <source>The process cannot access the file because it is being used by another process.
 Please close all running instances of your application before starting a build.</source>
-        <translation>Der Prozess kann nicht auf die Datei zugreifen, da sie von einem anderen Prozess benutzt wird.
+        <translation>Der Prozess kann nicht auf die Datei zugreifen, da sie von einem anderen Prozess verwendet wird.
 Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.</translation>
     </message>
     <message>
@@ -41318,7 +41318,7 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern verfügbar
 Use this &quot;compat&quot; version if you want to use other build systems than CMake or Qt versions lower than 6.</source>
         <translation>Erstellt eine Qt Quick-Anwendung, die ein leeres Fenster enthält.
 
-Nutzen Sie diese &quot;Kompatibilitätsversion&quot;, falls Sie andere Buildsysteme als CMake oder frühere Qt-Versionen als Qt 6 benutzen wollen.</translation>
+Nutzen Sie diese &quot;Kompatibilitätsversion&quot;, falls Sie andere Buildsysteme als CMake oder frühere Qt-Versionen als Qt 6 verwenden wollen.</translation>
     </message>
     <message>
         <source>Qt Quick Application (compat)</source>
@@ -41452,7 +41452,7 @@ Wahlweise können Sie ein Projekt erstellen, das in Qt Design Studio geöffnet w
         <source>You must tell Qt Creator which test framework is used inside the project.
 
 You should not mix multiple test frameworks in a project.</source>
-        <translation>Sie müssen Qt Creator mitteilen, welches Test-Framework im Projekt benutzt wird.
+        <translation>Sie müssen Qt Creator mitteilen, welches Test-Framework im Projekt verwendet wird.
 
 Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translation>
     </message>
@@ -42048,7 +42048,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>The minimum version of Qt you want to build the application for</source>
-        <translation>Die niedrigste Qt-Version, die Sie zum Bauen der Anwendung benutzen wollen</translation>
+        <translation>Die niedrigste Qt-Version, die Sie zum Bauen der Anwendung verwenden wollen</translation>
     </message>
     <message>
         <source>This wizard creates a simple unit test project using Boost.</source>
@@ -43742,11 +43742,11 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Either switches MSVC to English or keeps the language and just forces UTF-8 output (may vary depending on the used MSVC compiler).</source>
-        <translation>Stellt MSVC entweder auf Englisch um oder behält die Sprache bei und erzwingt UTF-8-Ausgabe (abhängig vom benutzen MSVC-Compiler).</translation>
+        <translation>Stellt MSVC entweder auf Englisch um oder behält die Sprache bei und erzwingt UTF-8-Ausgabe (abhängig vom verwendeten MSVC-Compiler).</translation>
     </message>
     <message>
         <source>Additional build environment settings when using this kit.</source>
-        <translation>Zusätzliche Build-Umgebungseinstellungen bei Benutzung dieses Kits.</translation>
+        <translation>Zusätzliche Build-Umgebungseinstellungen bei Verwendung dieses Kits.</translation>
     </message>
     <message>
         <source>The environment setting value is invalid.</source>
@@ -43806,7 +43806,7 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Use parsers from kit:</source>
-        <translation>Parser vom Kit benutzen:</translation>
+        <translation>Parser vom Kit verwenden:</translation>
     </message>
     <message>
         <source>Cannot Parse</source>
@@ -44051,7 +44051,7 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Use Project Default</source>
-        <translation>Projekt-Vorgabe benutzen</translation>
+        <translation>Projekt-Vorgabe verwenden</translation>
     </message>
     <message>
         <source>Default build directory:</source>
@@ -44063,7 +44063,7 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Use qmlcachegen:</source>
-        <translation>qmlcachegen benutzen:</translation>
+        <translation>qmlcachegen verwenden:</translation>
     </message>
     <message>
         <source>Default Build Properties</source>
@@ -44130,7 +44130,7 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>If available, use a different margin. For example, the ColumnLimit from the ClangFormat plugin.</source>
-        <translation>Benutzt unterschiedlichen Rand abhängig vom Kontext, falls verfügbar. Zum Beispiel das ColumnLimit vom ClangFormat Plugin.</translation>
+        <translation>Verwendet unterschiedlichen Rand abhängig vom Kontext, falls verfügbar. Zum Beispiel das ColumnLimit vom ClangFormat Plugin.</translation>
     </message>
     <message>
         <source>Files in All Project Directories</source>
@@ -44219,7 +44219,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Imports existing projects that do not use qmake, CMake, Qbs, Meson, or Autotools.&lt;p&gt;This creates a project file that allows you to use %1 as a code editor and as a launcher for debugging and analyzing tools. If you want to build the project, you might need to edit the generated project file.</source>
-        <translation>Importiert ein existierendes Projekt, dass nicht qmake, CMake, Qbs, Meson oder Autotools benutzt.&lt;p&gt;Dies erstellt eine Projektdatei, die Ihnen erlaubt, %1 als Code-Editor und zum Starten des Debuggers und von Analysewerkzeugen zu benutzen. Wenn Sie das Projekt bauen wollen, müssen Sie die generierte Datei möglicherweise anpassen.</translation>
+        <translation>Importiert ein existierendes Projekt, dass nicht qmake, CMake, Qbs, Meson oder Autotools verwendet.&lt;p&gt;Dies erstellt eine Projektdatei, die Ihnen erlaubt, %1 als Code-Editor und zum Starten des Debuggers und von Analysewerkzeugen zu verwenden. Wenn Sie das Projekt bauen wollen, müssen Sie die generierte Datei möglicherweise anpassen.</translation>
     </message>
     <message>
         <source>Unknown build system &quot;%1&quot;</source>
@@ -44361,7 +44361,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Use Python Language Server</source>
-        <translation>Python Language Server benutzen</translation>
+        <translation>Python Language Server verwenden</translation>
     </message>
     <message>
         <source>For a complete list of available options, consult the [Python LSP Server configuration documentation](%1).</source>
@@ -44409,7 +44409,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>You can install PySide from PyPi (Community OSS version) or from your Qt installation location, if you are using the Qt Installer and have a commercial license.</source>
-        <translation>Sie können PySide von PyPI (Community OSS-Version) oder, falls Sie den Qt-Installer benutzen und eine kommerzielle Lizenz besitzen, von Ihrer Qt-Installation installieren.</translation>
+        <translation>Sie können PySide von PyPI (Community OSS-Version) oder, falls Sie den Qt-Installer verwenden und eine kommerzielle Lizenz besitzen, von Ihrer Qt-Installation installieren.</translation>
     </message>
     <message>
         <source>Select which version to install:</source>
@@ -44558,7 +44558,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>An item of Python wizard page data expects a &quot;trKey&quot; field containing the UI visible string for that Python version and a &quot;value&quot; field containing an object with a &quot;PySideVersion&quot; field used for import statements in the Python files.</source>
-        <translation>Ein Eintrag in den &quot;items&quot; im Feld &quot;data&quot; einer Python-Assistenzseite erwartet ein Feld &quot;trKey&quot;, das den Anzeigenamen für diese Python-Version enthält, und ein Feld &quot;value&quot;, das ein Objekt mit einem Feld &quot;PySideVersion&quot; enthält, das für import-Anweisungen in den Python-Dateien benutzt wird.</translation>
+        <translation>Ein Eintrag in den &quot;items&quot; im Feld &quot;data&quot; einer Python-Assistenzseite erwartet ein Feld &quot;trKey&quot;, das den Anzeigenamen für diese Python-Version enthält, und ein Feld &quot;value&quot;, das ein Objekt mit einem Feld &quot;PySideVersion&quot; enthält, das für import-Anweisungen in den Python-Dateien verwendet wird.</translation>
     </message>
     <message>
         <source>PySide version:</source>
@@ -44574,7 +44574,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>The interpreter used for Python based projects.</source>
-        <translation>Der für Python-basierte Projekte benutzte Interpreter.</translation>
+        <translation>Der für Python-basierte Projekte verwendete Interpreter.</translation>
     </message>
     <message>
         <source>No Python setup.</source>
@@ -44590,7 +44590,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Python &quot;%1&quot; does not contain a usable pip. pip is needed to install Python packages from the Python Package Index, like PySide and the Python language server. To use any of that functionality ensure that pip is installed for that Python.</source>
-        <translation>Python &quot;%1&quot; enthält kein verwendbares pip. pip wird für das Installieren von Python-Paketen wie PySide und dem Python Language Server vom Python Package Index benötigt. Um diese Funktionen benutzen zu können, stellen Sie sicher, dass pip für dieses Python installiert ist.</translation>
+        <translation>Python &quot;%1&quot; enthält kein verwendbares pip. pip wird für das Installieren von Python-Paketen wie PySide und dem Python Language Server vom Python Package Index benötigt. Um diese Funktionen verwenden zu können, stellen Sie sicher, dass pip für dieses Python installiert ist.</translation>
     </message>
     <message>
         <source>Python &quot;%1&quot; does not contain a usable venv. venv is the recommended way to isolate a development environment for a project from the globally installed Python.</source>
@@ -44900,7 +44900,7 @@ fails because Clang does not understand the target architecture.</source>
     <message>
         <source>Use %1 settings directory for Qbs</source>
         <extracomment>%1 == &quot;Qt Creator&quot; or &quot;Qt Design Studio&quot;</extracomment>
-        <translation>Das Verzeichnis für Einstellungen von %1 auch für Qbs benutzen</translation>
+        <translation>Das Verzeichnis für Einstellungen von %1 auch für Qbs verwenden</translation>
     </message>
     <message>
         <source>Path to qbs executable:</source>
@@ -46261,9 +46261,9 @@ For qmlRegister... calls, make sure that you define the Module URI as a string l
 Import-Verzeichnisse:
 %2
 
-Für qmake-Projekte benutzen Sie die Variable QML_IMPORT_PATH, um Importpfade hinzuzufügen.
+Für qmake-Projekte verwenden Sie die Variable QML_IMPORT_PATH, um Importpfade hinzuzufügen.
 Für Qbs-Projekte geben Sie eine qmlImportPaths-Eigenschaft in Ihrem Produkt an, um Importpfade hinzuzufügen.
-Für qmlproject-Projekte benutzen Sie die importPaths-Eigenschaft, um Importpfade hinzuzufügen.
+Für qmlproject-Projekte verwenden Sie die importPaths-Eigenschaft, um Importpfade hinzuzufügen.
 Für CMake-Projekte stellen Sie sicher, dass die Variable QML_IMPORT_PATH in CMakeCache.txt steht.
 Für qmlRegister...-Aufrufe stellen Sie sicher, dass Sie den Modul-URI als Zeichenkettenliteral definieren.
 </translation>
@@ -46288,9 +46288,9 @@ For CMake projects, make sure QML_IMPORT_PATH variable is in CMakeCache.txt.
 Importpfade:
 %3
 
-Für qmake-Projekte benutzen Sie die Variable QML_IMPORT_PATH, um Importpfade hinzuzufügen.
+Für qmake-Projekte verwenden Sie die Variable QML_IMPORT_PATH, um Importpfade hinzuzufügen.
 Für Qbs-Projekte geben Sie eine qmlImportPaths-Eigenschaft in Ihrem Produkt an, um Importpfade hinzuzufügen.
-Für qmlproject-Projekte benutzen Sie die Eigenschaft importPaths, um Importpfade hinzuzufügen.
+Für qmlproject-Projekte verwenden Sie die Eigenschaft importPaths, um Importpfade hinzuzufügen.
 Für CMake-Projekte stellen Sie sicher, dass die Variable QML_IMPORT_PATH in CMakeCache.txt steht.
 </translation>
     </message>
@@ -46716,7 +46716,7 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
     </message>
     <message>
         <source>var &quot;%1&quot; is used before its declaration.</source>
-        <translation>Variable &quot;%1&quot; wird vor Deklaration benutzt.</translation>
+        <translation>Variable &quot;%1&quot; wird vor Deklaration verwendet.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; already is a var.</source>
@@ -46728,7 +46728,7 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
     </message>
     <message>
         <source>Function &quot;%1&quot; is used before its declaration.</source>
-        <translation>Funktion &quot;%1&quot; wird vor ihrer Deklaration benutzt.</translation>
+        <translation>Funktion &quot;%1&quot; wird vor ihrer Deklaration verwendet.</translation>
     </message>
     <message>
         <source>Could not resolve the prototype &quot;%1&quot; of &quot;%2&quot;.</source>
@@ -47041,7 +47041,7 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Use custom command instead of built-in formatter</source>
-        <translation>Benutzerdefiniertes Kommando anstatt des integrierten Formatierers benutzen</translation>
+        <translation>Benutzerdefiniertes Kommando anstatt des integrierten Formatierers verwenden</translation>
     </message>
     <message>
         <source>Command:</source>
@@ -47073,7 +47073,7 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Use customized static analyzer</source>
-        <translation>Angepasste statische Analyse benutzen</translation>
+        <translation>Angepasste statische Analyse verwenden</translation>
     </message>
     <message>
         <source>Enabled</source>
@@ -47121,11 +47121,11 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Use QML Language Server advanced features (renaming, find usages and co.) (EXPERIMENTAL!)</source>
-        <translation>Fortgeschrittene Funktionen vom QML Language Server benutzen (umbenennen, Verweise finden und weiteres) (EXPERIMENTELL!)</translation>
+        <translation>Fortgeschrittene Funktionen vom QML Language Server verwenden (umbenennen, Verweise finden und weiteres) (EXPERIMENTELL!)</translation>
     </message>
     <message>
         <source>Use QML Language Server from latest Qt version</source>
-        <translation>QML Language Server der neuesten Qt-Version benutzen</translation>
+        <translation>QML Language Server der neuesten Qt-Version verwenden</translation>
     </message>
     <message>
         <source>Features</source>
@@ -49299,7 +49299,7 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>The Qt library to use for all projects using this kit.&lt;br&gt;A Qt version is required for qmake-based projects and optional when using other build systems.</source>
-        <translation>Die für alle Projekte, die dieses Kit verwenden, zu benutzende Qt-Bibliothek.&lt;br&gt;Für qmake-basierende Projekte ist diese Angabe erforderlich, für andere Build-Systeme optional.</translation>
+        <translation>Die zu verwendende Qt-Bibliothek für alle Projekte, die dieses Kit verwenden.&lt;br&gt;Für qmake-basierende Projekte ist diese Angabe erforderlich, für andere Build-Systeme optional.</translation>
     </message>
     <message>
         <source>None</source>
@@ -49625,7 +49625,7 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; will be used for deployment, because &quot;%2&quot; and &quot;%3&quot; are not available.</source>
-        <translation>&quot;%1&quot; wird für das Deployment benutzt, da &quot;%2&quot; und &quot;%3&quot; nicht verfügbar sind.</translation>
+        <translation>&quot;%1&quot; wird für das Deployment verwendet, da &quot;%2&quot; und &quot;%3&quot; nicht verfügbar sind.</translation>
     </message>
     <message>
         <source>Checking if required commands are available...</source>
@@ -50071,11 +50071,11 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Use sftp if available. Otherwise use default transfer.</source>
-        <translation>Benutze SFTP, sofern verfügbar. Sonst verwende Standardmethode.</translation>
+        <translation>Verwende SFTP, sofern verfügbar. Sonst verwende Standardmethode.</translation>
     </message>
     <message>
         <source>Use default transfer. This might be slow.</source>
-        <translation>Benutze Standardmethode. Dies könnte langsam sein.</translation>
+        <translation>Verwende Standardmethode. Dies könnte langsam sein.</translation>
     </message>
     <message>
         <source>Unknown error occurred while trying to create remote directories</source>
@@ -50107,7 +50107,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Use rsync or sftp if available, but prefer rsync. Otherwise use default transfer.</source>
-        <translation>Benutze rsync oder sftp, sofern verfügbar, bevorzuge aber rsync. Sonst verwende Standardmethode.</translation>
+        <translation>Verwende rsync oder sftp, sofern verfügbar, bevorzuge aber rsync. Sonst verwende Standardmethode.</translation>
     </message>
     <message>
         <source>rsync is only supported for transfers between different devices.</source>
@@ -50636,7 +50636,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Last used colors</source>
-        <translation>Zuletzt benutzte Farben</translation>
+        <translation>Zuletzt verwendete Farben</translation>
     </message>
     <message>
         <source>Create New Color Theme</source>
@@ -51413,7 +51413,7 @@ Zeile: %4, Spalte: %5
     </message>
     <message>
         <source>The Symbolic Name &lt;span style=&apos;white-space: nowrap&apos;&gt;&quot;%1&quot;&lt;/span&gt; you want to remove is used in Multi Property Names. Select the action to apply to references in these Multi Property Names.</source>
-        <translation>Der symbolische Name &lt;span style=&apos;white-space: nowrap&apos;&gt;&quot;%1&quot;&lt;/span&gt;, den Sie entfernen wollen, wird in Multi-Property-Namen benutzt. Wählen Sie die Aktion, die Sie auf Referenzen in diesen Multi-Property-Namen anwenden wollen.</translation>
+        <translation>Der symbolische Name &lt;span style=&apos;white-space: nowrap&apos;&gt;&quot;%1&quot;&lt;/span&gt;, den Sie entfernen wollen, wird in Multi-Property-Namen verwendet. Wählen Sie die Aktion, die Sie auf Referenzen in diesen Multi-Property-Namen anwenden wollen.</translation>
     </message>
     <message>
         <source>Failed to write &quot;%1&quot;</source>
@@ -51477,7 +51477,7 @@ Zeile: %4, Spalte: %5
     </message>
     <message>
         <source>The properties of the Multi Property Name associated with the selected Symbolic Name. (use \\ for a literal \ in the value)</source>
-        <translation>Die Eigenschaften des Multi-Property-Namens, der mit dem ausgewählten symbolischen Namen assoziiert ist. (Benutzen Sie \\ für ein \-Literal im Wert)</translation>
+        <translation>Die Eigenschaften des Multi-Property-Namens, der mit dem ausgewählten symbolischen Namen assoziiert ist. (Verwenden Sie \\ für ein \-Literal im Wert)</translation>
     </message>
     <message>
         <source>The Hierarchical Name associated with the selected Symbolic Name.</source>
@@ -52142,7 +52142,7 @@ Warten Sie, bis er beendet ist, und versuchen Sie es dann erneut.</translation>
     </message>
     <message>
         <source>Invalid Squish settings. Configure Squish installation path inside Preferences... &gt; Squish &gt; General to use this wizard.</source>
-        <translation>Ungültige Squish-Einstellungen. Stellen Sie in Einstellungen... &gt; Squish &gt; Allgemein den Squish-Installationspfad ein, um diesen Assistenten zu benutzen.</translation>
+        <translation>Ungültige Squish-Einstellungen. Stellen Sie in Einstellungen... &gt; Squish &gt; Allgemein den Squish-Installationspfad ein, um diesen Assistenten zu verwenden.</translation>
     </message>
     <message>
         <source>Available languages:</source>
@@ -52496,7 +52496,7 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>The color used for %1.</source>
-        <translation>Die für &quot;%1&quot; benutzte Farbe.</translation>
+        <translation>Die für &quot;%1&quot; verwendete Farbe.</translation>
     </message>
     <message>
         <source>Failed to open file.</source>
@@ -52520,11 +52520,11 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Use internal terminal</source>
-        <translation>Integriertes Terminal benutzen</translation>
+        <translation>Integriertes Terminal verwenden</translation>
     </message>
     <message>
         <source>Uses the internal terminal when &quot;Run In Terminal&quot; is enabled and for &quot;Open Terminal here&quot;.</source>
-        <translation>Benutzt das integrierte Terminal, wenn &quot;Im Terminal ausführen&quot; aktiviert ist und für &quot;Terminalfenster hier öffnen&quot;.</translation>
+        <translation>Verwendet das integrierte Terminal, wenn &quot;Im Terminal ausführen&quot; aktiviert ist und für &quot;Terminalfenster hier öffnen&quot;.</translation>
     </message>
     <message>
         <source>Family:</source>
@@ -52532,7 +52532,7 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>The font family used in the terminal.</source>
-        <translation>Der Name der Zeichensatz-Familie, die im Terminal benutzt wird.</translation>
+        <translation>Der Name der Zeichensatz-Familie, die im Terminal verwendet wird.</translation>
     </message>
     <message>
         <source>Size:</source>
@@ -52540,7 +52540,7 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>The font size used in the terminal (in points).</source>
-        <translation>Die Größe des Zeichensatzes, der im Terminal benutzt wird (in Punkten).</translation>
+        <translation>Die Größe des Zeichensatzes, der im Terminal verwendet wird (in Punkten).</translation>
     </message>
     <message>
         <source>Allow blinking cursor</source>
@@ -53692,7 +53692,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>If available, use a different margin. For example, the ColumnLimit from the ClangFormat plugin.</source>
-        <translation>Benutzt einen anderen Rand, falls verfügbar. Zum Beispiel das ColumnLimit vom ClangFormat Plugin.</translation>
+        <translation>Verwendet einen anderen Rand, falls verfügbar. Zum Beispiel das ColumnLimit vom ClangFormat Plugin.</translation>
     </message>
     <message>
         <source>Animate navigation within file</source>
@@ -53894,7 +53894,7 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
 &lt;/pre&gt;
 &lt;/li&gt;
 
-&lt;li&gt;Normale Einrückung: Benutze Tabulatoren oder Leerzeichen entsprechend obiger Konfiguration.
+&lt;li&gt;Normale Einrückung: Verwende Tabulatoren oder Leerzeichen entsprechend obiger Konfiguration.
 &lt;pre&gt;
 (tab)int i = foo(a, b
 (tab)(tab)(tab)  c, d);
@@ -53912,7 +53912,7 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
     <message>
         <source>With Regular Indent</source>
-        <translation>Benutze normale Einrückung</translation>
+        <translation>Verwende normale Einrückung</translation>
     </message>
     <message>
         <source>The text editor indentation setting is used for non-code files only. See the C++ and Qt Quick coding style settings to configure indentation for code files.</source>
@@ -54746,7 +54746,7 @@ By default, &quot;@&quot; is used if the surrounding comment starts with &quot;/
 if the comment starts with &quot;/*!&quot; or &quot;//!</source>
         <translation>Doxygen erlaubt es, Befehle mit &quot;@&quot; und &quot;\&quot; zu beginnen.
 Die Vorgabe ist, mit &quot;@&quot; zu beginnen, wenn der umgebende Kommentar mit &quot;/**&quot; oder &quot;///&quot; anfängt,
-und &quot;\&quot; zu benutzen, wenn der Kommentar mit &quot;/*!&quot; oder &quot;//!&quot;.</translation>
+und &quot;\&quot; zu verwenden, wenn der Kommentar mit &quot;/*!&quot; oder &quot;//!&quot;.</translation>
     </message>
     <message>
         <source>Generate brief description</source>
@@ -54822,7 +54822,7 @@ Wird auf Zeichen angewendet, sofern keine andere Regel zutrifft.</translation>
         <source>Highlighted search results inside the editor.
 Used to mark read accesses to C++ symbols.</source>
         <translation>Hervorgehobene Suchergebnisse im Editor.
-Wird benutzt, um Lesezugriffe eines C++-Symbols zu markieren.</translation>
+Wird verwendet, um Lesezugriffe eines C++-Symbols zu markieren.</translation>
     </message>
     <message>
         <source>Search Result (Alternative 2)</source>
@@ -54832,7 +54832,7 @@ Wird benutzt, um Lesezugriffe eines C++-Symbols zu markieren.</translation>
         <source>Highlighted search results inside the editor.
 Used to mark write accesses to C++ symbols.</source>
         <translation>Hervorgehobene Suchergebnisse im Editor.
-Wird benutzt, um Schreibzugriffe eines C++-Symbols zu markieren.</translation>
+Wird verwendet, um Schreibzugriffe eines C++-Symbols zu markieren.</translation>
     </message>
     <message>
         <source>Search Result Containing function</source>
@@ -54842,7 +54842,7 @@ Wird benutzt, um Schreibzugriffe eines C++-Symbols zu markieren.</translation>
         <source>Highlighted search results inside the editor.
 Used to mark containing function of the symbol usage.</source>
         <translation>Hervorgehobene Suchergebnisse im Editor.
-Wird benutzt um die Funktion zu markieren, die ein gesuchtes Symbol benutzt.</translation>
+Wird verwendet um die Funktion zu markieren, die ein gesuchtes Symbol verwendet.</translation>
     </message>
     <message>
         <source>Search Scope</source>
@@ -54900,7 +54900,7 @@ Wird benutzt um die Funktion zu markieren, die ein gesuchtes Symbol benutzt.</tr
         <source>Occurrences of the symbol under the cursor.
 (Only the background will be applied.)</source>
         <translation>Vorkommen des unter der Einfügemarke befindlichen Symbols.
-(Nur der Hintergrund wird benutzt.)</translation>
+(Nur der Hintergrund wird verwendet.)</translation>
     </message>
     <message>
         <source>Unused Occurrence</source>
@@ -55142,7 +55142,7 @@ Wird benutzt um die Funktion zu markieren, die ein gesuchtes Symbol benutzt.</tr
         <source>Non user-defined language operators.
 To style user-defined operators, use Overloaded Operator.</source>
         <translation>Nicht benutzerdefinierte Sprachoperatoren.
-Um den Stil von benutzerdefinierten Operatoren festzulegen, benutzen Sie &quot;Überladene Operatoren&quot;.</translation>
+Um den Stil von benutzerdefinierten Operatoren festzulegen, verwenden Sie &quot;Überladene Operatoren&quot;.</translation>
     </message>
     <message>
         <source>Preprocessor</source>
@@ -56724,7 +56724,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>&lt;p&gt;No valid settings file could be found.&lt;/p&gt;&lt;p&gt;All settings files found in directory &quot;%1&quot; were unsuitable for the current version of %2, for instance because they were written by an incompatible version of %2, or because a different settings path was used.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Es konnte keine gültige Einstellungsdatei gefunden werden.&lt;/p&gt;&lt;p&gt;Alle im Verzeichnis &quot;%1&quot; gefundenen Einstellungsdateien sind für die aktuelle Version von %2 ungeeignet, zum Beispiel weil sie von einer inkompatiblen Version von %2 geschrieben wurden oder weil ein anderes Einstellungsverzeichnis benutzt wurde.&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Es konnte keine gültige Einstellungsdatei gefunden werden.&lt;/p&gt;&lt;p&gt;Alle im Verzeichnis &quot;%1&quot; gefundenen Einstellungsdateien sind für die aktuelle Version von %2 ungeeignet, zum Beispiel weil sie von einer inkompatiblen Version von %2 geschrieben wurden oder weil ein anderes Einstellungsverzeichnis verwendet wurde.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;No valid settings file could be found.&lt;/p&gt;&lt;p&gt;All settings files found in directory &quot;%1&quot; were either too new or too old to be read.&lt;/p&gt;</source>
@@ -56799,9 +56799,9 @@ Existing variables can be referenced in a VALUE with ${OTHER}.
 To clear a variable, put its name on a line with nothing else on it.
 To disable a variable, prefix the line with &quot;#&quot;.</source>
         <translation>Geben Sie eine Umgebungsvariable pro Zeile ein.
-Um eine Variable zu setzen oder zu ändern, benutzen Sie VARIABLE=WERT.
-Um einen Wert an eine Variable anzufügen, benutzen Sie VARIABLE+=WERT.
-Um einen Wert einer Variable voranzustellen, benutzen Sie VARIABLE=+WERT.
+Um eine Variable zu setzen oder zu ändern, verwenden Sie VARIABLE=WERT.
+Um einen Wert an eine Variable anzufügen, verwenden Sie VARIABLE+=WERT.
+Um einen Wert einer Variable voranzustellen, verwenden Sie VARIABLE=+WERT.
 Existierende Variablen können in einem WERT mit ${ANDERE} verwendet werden.
 Um eine Variable zu leeren, schreiben Sie nichts als ihren Namen in eine Zeile.
 Um eine Variable zu deaktivieren, stellen Sie der Zeile &quot;#&quot; voran.</translation>
@@ -57573,7 +57573,7 @@ Mit Cache-Simulation werden weitere Ereigniszähler aktiviert:
     </message>
     <message>
         <source>Use of Uninitialized Memory</source>
-        <translation>Benutzung von nicht initialisiertem Speicher</translation>
+        <translation>Verwendung von nicht initialisiertem Speicher</translation>
     </message>
     <message>
         <source>Show issues originating outside currently opened projects.</source>
@@ -57617,7 +57617,7 @@ Mit Cache-Simulation werden weitere Ereigniszähler aktiviert:
     </message>
     <message>
         <source>Valgrind Analyze Memory uses the Memcheck tool to find memory leaks.</source>
-        <translation>Die Speicheranalyse von Valgrind benutzt das Programm &quot;memcheck&quot;, um Speicherlecks zu finden.</translation>
+        <translation>Die Speicheranalyse von Valgrind verwendet das Programm &quot;memcheck&quot;, um Speicherlecks zu finden.</translation>
     </message>
     <message>
         <source>Valgrind Memory Analyzer</source>
@@ -57630,7 +57630,7 @@ Mit Cache-Simulation werden weitere Ereigniszähler aktiviert:
     <message>
         <source>Valgrind Analyze Memory with GDB uses the Memcheck tool to find memory leaks.
 When a problem is detected, the application is interrupted and can be debugged.</source>
-        <translation>Die Speicheranalyse mit Valgrind und GDB benutzt das Programm &quot;memcheck&quot;, um Speicherlecks zu finden.
+        <translation>Die Speicheranalyse mit Valgrind und GDB verwendet das Programm &quot;memcheck&quot;, um Speicherlecks zu finden.
 Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersucht werden.</translation>
     </message>
     <message>
@@ -58933,7 +58933,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>The activated version %1 is not supported by %2. Activate version %3 or higher.</source>
         <translatorcomment>%1=sdkVersion, %2=QtC-Version, %3=minVersion</translatorcomment>
-        <translation>Die aktivierte Version %1 wird von %2 nicht unterstützt. Benutzen Sie Version %3 oder höher.</translation>
+        <translation>Die aktivierte Version %1 wird von %2 nicht unterstützt. Verwenden Sie Version %3 oder höher.</translation>
     </message>
     <message>
         <source>Activated version: %1</source>
@@ -59034,7 +59034,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Would you like to take a quick UI tour? This tour highlights important user interface elements and shows how they are used. To take the tour later, select Help &gt; UI Tour.</source>
-        <translation>Wollen Sie sich kurz die Oberfläche vorführen lassen? Dabei wird gezeigt, wo die wichtigsten Bedienelemente sind und wie man sie benutzt. Sie können die Vorführung auch später über &quot;Hilfe&quot; &gt; &quot;Oberfläche vorführen&quot; starten.</translation>
+        <translation>Wollen Sie sich kurz die Oberfläche vorführen lassen? Dabei wird gezeigt, wo die wichtigsten Bedienelemente sind und wie man sie verwendet. Sie können die Vorführung auch später über &quot;Hilfe&quot; &gt; &quot;Oberfläche vorführen&quot; starten.</translation>
     </message>
     <message>
         <source>Take UI Tour</source>
