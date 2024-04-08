@@ -723,6 +723,14 @@ void EditorManagerPrivate::init()
             IEditor *editor = EditorManager::currentEditor();
             return editor ? editor->widget()->mapToGlobal(QPoint(0, 0)).y() : 0;
                                                });
+
+    connect(
+        DocumentManager::instance(),
+        &DocumentManager::allDocumentsRenamed,
+        d,
+        [](const FilePath &from, const FilePath &to) {
+            EditorManagerPrivate::handleFileRenamed(from, to);
+        });
 }
 
 void EditorManagerPrivate::extensionsInitialized()
@@ -1886,6 +1894,52 @@ void EditorManagerPrivate::updateAutoSave()
         d->m_autoSaveTimer->stop();
 }
 
+void EditorManagerPrivate::handleFileRenamed(
+    const Utils::FilePath &originalFilePath, const Utils::FilePath &newFilePath, Id originalType)
+{
+    if (!originalType.isValid()) {
+        // check if the file is open in an editor, if not, nothing to do
+        const QList<IEditor *> editorsOpenForFile = DocumentModel::editorsForFilePath(newFilePath);
+        if (editorsOpenForFile.isEmpty())
+            return;
+        originalType = editorsOpenForFile.first()->document()->id();
+    }
+
+    // If the MIME type changed, it might make more sense to re-open the file
+    // in a different editor type. (Things like undo history are not transferred then though.)
+    // If the original editor was not the default editor, try to stay with that, though.
+    // E.g. if a .md file is open in the base text editor, and then renamed to .cpp,
+    // just stay with the base text editor, because that was not the default editor and is
+    // still a valid editor for the new MIME type.
+    const MimeType originalMt = Utils::mimeTypeForFile(originalFilePath);
+    const MimeType newMt = Utils::mimeTypeForFile(newFilePath);
+    if (newMt != originalMt) {
+        const EditorFactories originalFactories = Utils::filtered(
+            IEditorFactory::preferredEditorTypes(originalFilePath),
+            &IEditorFactory::isInternalEditor);
+        const bool originalIsDefault = originalFactories.isEmpty()
+                                           ? true
+                                           : originalFactories.first()->id() == originalType;
+
+        const EditorFactories newFactories = Utils::filtered(
+            IEditorFactory::preferredEditorTypes(newFilePath), &IEditorFactory::isInternalEditor);
+        const Id newDefault = newFactories.isEmpty() ? Id() : newFactories.first()->id();
+        const bool defaultIsDifferent = newDefault != originalType;
+        const auto newContainsOriginal = [originalType, newFactories] {
+            return Utils::contains(newFactories, [originalType](IEditorFactory *f) {
+                return f->id() == originalType;
+            });
+        };
+
+        if ((originalIsDefault && defaultIsDifferent)
+            || (!originalIsDefault && !newContainsOriginal())) {
+            QMetaObject::invokeMethod(m_instance, [newFilePath] {
+                EditorManagerPrivate::openEditorWith(newFilePath, {});
+            });
+        }
+    }
+}
+
 void EditorManagerPrivate::updateMakeWritableWarning()
 {
     IDocument *document = EditorManager::currentDocument();
@@ -2379,8 +2433,9 @@ bool EditorManagerPrivate::saveDocumentAs(IDocument *document)
     if (!document)
         return false;
 
-    const FilePath absoluteFilePath = DocumentManager::getSaveAsFileName(document);
+    const FilePath originalFilePath = document->filePath();
 
+    const FilePath absoluteFilePath = DocumentManager::getSaveAsFileName(document);
     if (absoluteFilePath.isEmpty())
         return false;
 
@@ -2396,12 +2451,6 @@ bool EditorManagerPrivate::saveDocumentAs(IDocument *document)
     const bool success = DocumentManager::saveDocument(document, absoluteFilePath);
     document->checkPermissions();
 
-    // TODO: There is an issue to be treated here. The new file might be of a different mime
-    // type than the original and thus require a different editor. An alternative strategy
-    // would be to close the current editor and open a new appropriate one, but this is not
-    // a good way out either (also the undo stack would be lost). Perhaps the best is to
-    // re-think part of the editors design.
-
     if (success) {
         // if document had been temporary before (scratch buffer) - remove the temporary flag
         document->setTemporary(false);
@@ -2411,6 +2460,8 @@ bool EditorManagerPrivate::saveDocumentAs(IDocument *document)
     }
 
     updateActions();
+
+    handleFileRenamed(originalFilePath, document->filePath(), document->id());
     return success;
 }
 

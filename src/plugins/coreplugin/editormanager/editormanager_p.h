@@ -117,6 +117,11 @@ public:
 
     static void updateAutoSave();
 
+    static void handleFileRenamed(
+        const Utils::FilePath &originalFilePath,
+        const Utils::FilePath &newFilePath,
+        Utils::Id originalType = {});
+
 public slots:
     static bool saveDocument(Core::IDocument *document);
     static bool saveDocumentAs(Core::IDocument *document);
