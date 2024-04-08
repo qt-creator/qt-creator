@@ -36,21 +36,24 @@
     \list 1
 
         \li Create custom components and place all the \c .qml files in a
-           directory dedicated to your module. For example:
+           directory dedicated to your module. For example,
            \c {imports\asset_imports}.
 
-        \li For Qt Quick UI Prototype projects (.qmlproject), specify the path to
+        \if defined(qtcreator)
+        \li  For Qt Quick UI Prototype projects (.qmlproject), specify the path to
             the directory that has the module in the .qmlproject file
             of the application where you want to use the module
-            as a value of the \c importPaths variable. For example
+            as a value of the \c importPaths variable. For example,
             \c{importPaths: [ "imports", "asset_imports" ]}.
-
+        \else
+        \li Specify the path to the directory that has the module in the
+            .qmlproject file of the application where you want to use the module
+            as a value of the \c importPaths variable. For example,
+            \c{importPaths: [ "imports", "asset_imports" ]}.
+        \endif
         \li Create a \c qmldir file for your module and place it
             in the module directory. For more information, see
             \l {Module Definition qmldir Files}.
-
-        \li Create a \c qmltypes file, as instructed in
-            \l {Generating Type Description Files}.
 
         \li Create a directory named \c designer in your module directory.
 
@@ -66,23 +69,29 @@
         \if defined(qtcreator)
         \li Import the module into the project, as instructed in
             \l {Importing QML Modules}.
-        \endlist
-
-        \note If \QC cannot find the new QML module, build the project
-        and then go to \uicontrol {Tools} > \uicontrol {QML/JS} >
-        \uicontrol {Reset Code Model} to reset the code model.
-
         \else
         \li Build your module using the same Qt version and compiler as \QDS.
-            For more information, see \l {Running QML Modules in Design Mode}.
+
+        Your module and components should now appear in \uicontrol Components.
+        \endif
+
         \endlist
 
-    Your module should now appear in \uicontrol Components. Your components
-    should appear in a subsection of \uicontrol Components if a valid
-    \c .metainfo file is in place.
+    \note If \QC cannot find the new QML module, build the project
+    and then go to \uicontrol {Tools} > \uicontrol {QML/JS} >
+    \uicontrol {Reset Code Model} to reset the code model.
+    \if defined(qtdesignstudio)
+    For more information about how to show the \uicontrol {Tools} menu, see
+    \l{Customizing the Menu}.
     \endif
 
-    \section1 Generating Type Description Files
+    \if defined(qtcreator)
+    \section1 Developing with Qt 6.1 or Earlier
+
+    Since Qt 6.2, CMake generates the \c qmltypes and \c qmldir files
+    automatically.
+
+    \section2 Generating Type Description Files
 
     When \l{Defining QML Types from C++}{registering QML types}, make sure that
     the QML module has a \c{plugins.qmltypes} file. Ideally, it should be located
@@ -115,6 +124,7 @@
     \endcode
 
     The import path affects all the targets built by the CMake project.
+    \endif
 
     \if defined(qtdesignstudio)
     \section1 Running QML Modules in Design Mode

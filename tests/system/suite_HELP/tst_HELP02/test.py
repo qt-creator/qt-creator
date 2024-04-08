@@ -4,11 +4,11 @@
 source("../../shared/qtcreator.py")
 
 if platform.system() == 'Darwin':
-    keysToType = '<Command+Alt+a>'
-    expectedKeys = 'Cmd+Opt+A'
+    keysToType = '<Command+Alt+v>'
+    expectedKeys = 'Cmd+Opt+V'
 else:
-    keysToType = '<Ctrl+Alt+a>'
-    expectedKeys = 'Ctrl+Alt+A'
+    keysToType = '<Ctrl+Alt+v>'
+    expectedKeys = 'Ctrl+Alt+V'
 
 
 # test Qt Creator version information from file and dialog

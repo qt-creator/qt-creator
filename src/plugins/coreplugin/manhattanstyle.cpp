@@ -22,6 +22,7 @@
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QLabel>
+#include <QLibraryInfo>
 #include <QLineEdit>
 #include <QMenuBar>
 #include <QPainter>
@@ -480,21 +481,36 @@ static void drawPrimitiveTweakedForDarkTheme(QStyle::PrimitiveElement element,
         break;
     }
     case QStyle::PE_FrameGroupBox: {
-        // Snippet from QFusionStyle::drawPrimitive - BEGIN
-        static const int groupBoxTopMargin =  3;
+        QRect groupBoxFrame = option->rect;
         int topMargin = 0;
-        auto control = dynamic_cast<const QGroupBox *>(widget);
-        if (control && !control->isCheckable() && control->title().isEmpty()) {
-            // Shrinking the topMargin if Not checkable AND title is empty
-            topMargin = groupBoxTopMargin;
-        } else {
-            const int exclusiveIndicatorHeight = widget ? widget->style()->pixelMetric(QStyle::PM_ExclusiveIndicatorHeight) : 0;
-            topMargin = qMax(exclusiveIndicatorHeight,
-                             option->fontMetrics.height()) + groupBoxTopMargin;
+        if (widget) {
+            // Before Qt 6.6.3, QStyle::subControlRect() returned wrong QRect for SC_GroupBoxFrame
+            static const bool validSCRect = QLibraryInfo::version() >= QVersionNumber(6, 6, 3);
+            if (validSCRect) {
+                QStyleOptionGroupBox opt;
+                opt.initFrom(widget);
+                const QStyle *style = widget->style();
+                groupBoxFrame = style->subControlRect(QStyle::CC_GroupBox, &opt,
+                                                      QStyle::SC_GroupBoxFrame, widget);
+                topMargin = 1; // Tweak to resemble the pre-6.6.3 frame
+            } else {
+                // Snippet from pre-6.6.3 FusionStyle::drawPrimitive - BEGIN
+                static const int groupBoxTopMargin =  3;
+                auto control = dynamic_cast<const QGroupBox *>(widget);
+                if (!control->isCheckable() && control->title().isEmpty()) {
+                    // Shrinking the topMargin if Not checkable AND title is empty
+                    topMargin = groupBoxTopMargin;
+                } else {
+                    const int exclusiveIndicatorHeight =
+                        widget->style()->pixelMetric(QStyle::PM_ExclusiveIndicatorHeight);
+                    topMargin = qMax(exclusiveIndicatorHeight,
+                                     option->fontMetrics.height()) + groupBoxTopMargin;
+                }
+                // Snippet from pre-6.6.3 QFusionStyle::drawPrimitive - END
+            }
         }
-        // Snippet from QFusionStyle::drawPrimitive - END
 
-        const QRectF frameRectF = QRectF(option->rect).adjusted(0.5, topMargin + 0.5, -0.5, -0.5);
+        const QRectF frameRectF = QRectF(groupBoxFrame).adjusted(0.5, topMargin + 0.5, -0.5, -0.5);
         painter->setPen(framePen);
         if (isEnabled)
             painter->setOpacity(0.5);
