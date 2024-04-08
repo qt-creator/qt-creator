@@ -209,7 +209,8 @@ static bool isChildOf(const FilePath &path, const FilePaths &prefixes)
 static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
                                       const FilePath &sourceDirectory,
                                       const FilePath &buildDirectory,
-                                      bool relativeLibs)
+                                      bool relativeLibs,
+                                      const QSet<FilePath> &artifacts)
 {
     const FilePath currentBuildDir = buildDirectory.resolvePath(t.buildDir);
 
@@ -341,14 +342,17 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
                         librarySeachPaths.append(tmp);
 
                     if (buildDir.osType() == OsTypeWindows && dllName) {
-                        if (tmp.pathAppended(*dllName).exists())
+                        const auto validPath = [&artifacts](const FilePath& path) {
+                            return path.exists() || artifacts.contains(path);
+                        };
+                        if (validPath(tmp.pathAppended(*dllName)))
                             librarySeachPaths.append(tmp);
 
                         // Libraries often have their import libs in ../lib and the
                         // actual dll files in ../bin on windows. Qt is one example of that.
-                        if (tmp.fileName() == "lib" && buildDir.osType() == OsTypeWindows) {
+                        if (tmp.fileName() == "lib") {
                             const FilePath path = tmp.parentDir().pathAppended("bin");
-                            if (path.isDir() && path.pathAppended(*dllName).exists())
+                            if (path.isDir() && validPath(path.pathAppended(*dllName)))
                                 librarySeachPaths.append(path);
                         }
                     }
@@ -367,12 +371,17 @@ static QList<CMakeBuildTarget> generateBuildTargets(const QFuture<void> &cancelF
                                                     const FilePath &buildDirectory,
                                                     bool relativeLibs)
 {
+    QSet<FilePath> artifacts;
+    for (const TargetDetails &t : input.targetDetails)
+        for (const FilePath &p: t.artifacts)
+            artifacts.insert(buildDirectory.resolvePath(p));
+
     QList<CMakeBuildTarget> result;
     result.reserve(input.targetDetails.size());
     for (const TargetDetails &t : input.targetDetails) {
         if (cancelFuture.isCanceled())
             return {};
-        result.append(toBuildTarget(t, sourceDirectory, buildDirectory, relativeLibs));
+        result.append(toBuildTarget(t, sourceDirectory, buildDirectory, relativeLibs, artifacts));
     }
     return result;
 }
