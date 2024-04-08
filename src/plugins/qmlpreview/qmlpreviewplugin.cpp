@@ -166,12 +166,8 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
     runPreviewAction->setEnabled(ProjectManager::startupProject() != nullptr);
     connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged, runPreviewAction,
             &QAction::setEnabled);
-    connect(runPreviewAction, &QAction::triggered, this, [runPreviewAction, this] {
+    connect(runPreviewAction, &QAction::triggered, this, [&, runPreviewAction] {
         runPreviewAction->setEnabled(false);
-        attachToEditorManager();
-        setDirty();
-        onEditorChanged(Core::EditorManager::currentEditor());
-
         if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current())
             m_localeIsoCode = multiLanguageAspect->currentLocale();
         bool skipDeploy = false;
@@ -425,7 +421,7 @@ void QmlPreviewPluginPrivate::onEditorAboutToClose(Core::IEditor *editor)
 void QmlPreviewPluginPrivate::setDirty()
 {
     m_dirty = true;
-    QTimer::singleShot(1000, this, [this](){
+    QTimer::singleShot(1000, this, [&](){
         if (m_dirty && m_lastEditor) {
             m_dirty = false;
             checkEditor();
@@ -435,6 +431,10 @@ void QmlPreviewPluginPrivate::setDirty()
 
 void QmlPreviewPlugin::addPreview(RunControl *preview)
 {
+    d->attachToEditorManager();
+    d->setDirty();
+    d->onEditorChanged(Core::EditorManager::currentEditor());
+
     d->m_runningPreviews.append(preview);
     emit runningPreviewsChanged(d->m_runningPreviews);
 }
