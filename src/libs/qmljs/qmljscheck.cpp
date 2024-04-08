@@ -846,6 +846,30 @@ bool Check::visit(UiObjectInitializer *)
     return true;
 }
 
+bool Check::visit(AST::UiEnumDeclaration *ast)
+{
+    const Value *localLookup = _scopeChain.lookup(ast->name.toString());
+    Utils::FilePath fp;
+    int line, column;
+    if (localLookup->getSourceLocation(&fp, &line, &column)) {
+        // if it's not "us" we get shadowed by another enum declaration
+        if (ast->identifierToken.startLine != line || ast->identifierToken.startColumn != column)
+            addMessage(ErrDuplicateId, SourceLocation(0, 0, line, column));
+    }
+    return true;
+}
+
+bool Check::visit(AST::UiEnumMemberList *ast)
+{
+    QStringList names;
+    for (auto it = ast; it; it = it->next) {
+        if (names.contains(it->member)) // duplicate enum value
+            addMessage(ErrInvalidEnumValue, it->memberToken); // better a different message?
+        names.append(it->member.toString());
+    }
+    return true;
+}
+
 bool Check::visit(AST::TemplateLiteral *ast)
 {
     Node::accept(ast->expression, this);

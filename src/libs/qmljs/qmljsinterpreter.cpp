@@ -635,6 +635,52 @@ const CppComponentValue *QmlEnumValue::owner() const
     return m_owner;
 }
 
+UiEnumValue::UiEnumValue(AST::UiEnumDeclaration *ast,
+                         ValueOwner *valueOwner, const QString &originId)
+    : ObjectValue(valueOwner, originId)
+    , m_name(ast->name.toString())
+{
+    setClassName("enum");
+    m_path = Utils::FilePath::fromUserInput(originId);
+    m_line = ast->identifierToken.startLine;
+    m_column = ast->identifierToken.startColumn;
+
+    for (auto it = ast->members; it; it = it->next) {
+        const QString name = it->member.toString();
+        setMember(name, valueOwner->intValue());
+        setPropertyInfo(name, PropertyInfo(PropertyInfo::Readable|PropertyInfo::ValueType));
+        m_keys.append(name);
+        m_values.append(it->value);
+    }
+}
+
+UiEnumValue::~UiEnumValue()
+{
+}
+
+const UiEnumValue *UiEnumValue::asUiEnumValue() const
+{
+    return this;
+}
+
+bool UiEnumValue::getSourceLocation(Utils::FilePath *path, int *line, int *column) const
+{
+    *path = m_path;
+    *line = m_line;
+    *column = m_column;
+    return true;
+}
+
+QString UiEnumValue::name() const
+{
+    return m_name;
+}
+
+QStringList UiEnumValue::keys() const
+{
+    return m_keys;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // ValueVisitor
 ////////////////////////////////////////////////////////////////////////////////
@@ -787,6 +833,11 @@ const ASTObjectValue *Value::asAstObjectValue() const
 }
 
 const QmlEnumValue *Value::asQmlEnumValue() const
+{
+    return nullptr;
+}
+
+const UiEnumValue *Value::asUiEnumValue() const
 {
     return nullptr;
 }

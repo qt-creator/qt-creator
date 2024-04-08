@@ -108,10 +108,6 @@ void QmlJSHighlighter::highlightBlock(const QString &text)
                             break;
                         }
                     }
-                    if (QStringView(text).mid(token.offset, token.length) == QLatin1String("enum")) {
-                        setFormat(token.offset, token.length, formatForCategory(C_KEYWORD));
-                        break;
-                    }
                 } else if (index > 0 && maybeQmlBuiltinType(spell)) {
                     const Token &previousToken = tokens.at(index - 1);
                     if (previousToken.is(Token::Identifier)

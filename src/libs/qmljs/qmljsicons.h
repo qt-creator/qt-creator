@@ -28,6 +28,7 @@ public:
     static QIcon scriptBindingIcon();
     static QIcon publicMemberIcon();
     static QIcon functionDeclarationIcon();
+    static QIcon enumMemberIcon();
 
 private:
     Icons();

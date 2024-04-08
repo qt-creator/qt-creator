@@ -120,3 +120,8 @@ QIcon Icons::functionDeclarationIcon()
 {
     return Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::FuncPublic);
 }
+
+QIcon Icons::enumMemberIcon()
+{
+    return Utils::CodeModelIcon::iconForType(Utils::CodeModelIcon::Enum);
+}

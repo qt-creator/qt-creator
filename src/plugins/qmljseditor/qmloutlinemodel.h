@@ -91,6 +91,9 @@ private:
     QModelIndex enterPublicMember(QmlJS::AST::UiPublicMember *publicMember);
     void leavePublicMember();
 
+    QModelIndex enterEnumDeclaration(QmlJS::AST::UiEnumDeclaration *enumDecl);
+    void leaveEnumDeclaration();
+
     QModelIndex enterFunctionDeclaration(QmlJS::AST::FunctionDeclaration *functionDeclaration);
     void leaveFunctionDeclaration();
 

@@ -348,6 +348,13 @@ protected:
         return visit(static_cast<FunctionExpression *>(ast));
     }
 
+    bool visit(UiEnumMemberList *ast) override
+    {
+        for (auto it = ast; it; it = it->next)
+            addUse(it->memberToken, SemanticHighlighter::FieldType);
+        return true;
+    }
+
     bool visit(PatternElement *ast) override
     {
         if (ast->isVariableDeclaration())

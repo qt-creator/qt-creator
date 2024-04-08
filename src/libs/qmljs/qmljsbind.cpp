@@ -333,6 +333,16 @@ bool Bind::visit(UiInlineComponent *ast)
     return true;
 }
 
+bool Bind::visit(UiEnumDeclaration *ast)
+{
+    if (_currentObjectValue) {
+        UiEnumValue *value = new UiEnumValue(ast, &_valueOwner, _currentObjectValue->originId());
+        _qmlObjects.insert(ast, value);
+        _currentObjectValue->setMember(ast->name, value);
+    }
+    return true;
+}
+
 bool Bind::visit(AST::TemplateLiteral *ast)
 {
     Node::accept(ast->expression, this);
