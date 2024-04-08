@@ -16,19 +16,33 @@ Row {
 
     property color color
     property bool supportGradient: false
-    readonly property color __editColor: edit
+
+    property QtObject backendValue: QtObject {
+        property color value: edit
+        readonly property color editColor: edit
+
+        function resetValue() {
+            if (value)
+                value = ""
+        }
+
+        onValueChanged: {
+            if (editColor !== value)
+                edit = value
+        }
+    }
 
     property variant value: {
-        if (!edit)
+        if (!colorEditor.backendValue || !colorEditor.backendValue.value)
             return "white" // default color for Rectangle
 
         if (colorEditor.isVector3D) {
-            return Qt.rgba(__editColor.x,
-                           __editColor.y,
-                           __editColor.z, 1)
+            return Qt.rgba(colorEditor.backendValue.value.x,
+                           colorEditor.backendValue.value.y,
+                           colorEditor.backendValue.value.z, 1)
         }
 
-        return __editColor
+        return colorEditor.backendValue.value
     }
 
     property alias gradientPropertyName: popupDialog.gradientPropertyName
@@ -42,31 +56,17 @@ Row {
 
     property bool __block: false
 
-    function getColorFromEditValue() {
-        if (!edit)
-            return "white" // default color for Rectangle
-
-        if (colorEditor.isVector3D) {
-            return Qt.rgba(__editColor.x,
-                           __editColor.y,
-                           __editColor.z, 1)
-        }
-
-        return __editColor
-    }
-
     function resetShapeColor() {
-        if (edit)
-            edit = ""
+        colorEditor.backendValue.resetValue()
     }
 
     function writeColor() {
         if (colorEditor.isVector3D) {
-            edit = Qt.vector3d(colorEditor.color.r,
+            colorEditor.backendValue.value = Qt.vector3d(colorEditor.color.r,
                                colorEditor.color.g,
                                colorEditor.color.b)
         } else {
-            edit = colorEditor.color
+            colorEditor.backendValue.value = colorEditor.color
         }
     }
 
@@ -77,7 +77,7 @@ Row {
     // Syncing color from backend to frontend and block reflection
     function syncColor() {
         colorEditor.__block = true
-        colorEditor.color = colorEditor.getColorFromEditValue()
+        colorEditor.color = colorEditor.value
         hexTextField.syncColor()
         colorEditor.__block = false
     }
@@ -92,7 +92,7 @@ Row {
                 colorEditor.syncColor()
         }
 
-        function on__EditColorChanged() {
+        function onBackendValueChanged() {
             if (popupDialog.isSolid())
                 colorEditor.syncColor()
         }
@@ -208,7 +208,7 @@ Row {
                 if (colorEditor.supportGradient && popupDialog.loaderItem.gradientModel.hasGradient) {
                     var hexColor = convertColorToString(colorEditor.color)
                     hexTextField.text = hexColor
-                    edit = hexColor
+                    colorEditor.backendValue.value = hexColor
                     popupDialog.loaderItem.commitGradientColor()
                 }
             }
@@ -292,5 +292,5 @@ Row {
 
     Component.onCompleted: popupDialog.determineActiveColorMode()
 
-    on__EditColorChanged: popupDialog.determineActiveColorMode()
+    onBackendValueChanged: popupDialog.determineActiveColorMode()
 }
