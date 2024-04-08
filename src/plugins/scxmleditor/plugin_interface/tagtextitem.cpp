@@ -7,6 +7,7 @@
 #include <QGraphicsSceneHoverEvent>
 #include <QLabel>
 #include <QPainter>
+#include <QTextDocument>
 
 using namespace ScxmlEditor::PluginInterface;
 
@@ -17,7 +18,10 @@ TagTextItem::TagTextItem(QGraphicsItem *parent)
     setFlag(ItemIsFocusable, true);
     setFlag(ItemIsSelectable, true);
     m_textItem = new TextItem(this);
-    connect(m_textItem, &TextItem::textChanged, this, [this] { emit textChanged(); });
+    connect(m_textItem, &TextItem::textChanged, this, [this] {
+        m_textItem->setTextWidth(m_maxWidth);
+        emit textChanged();
+    });
     connect(m_textItem, &TextItem::textReady,
             this, [this](const QString &text) { emit textReady(text); });
     connect(m_textItem, &TextItem::selected, this, [this](bool sel) { emit selected(sel); });
@@ -114,4 +118,13 @@ void TagTextItem::resetMovePoint(const QPointF &point)
 QPointF TagTextItem::movePoint() const
 {
     return m_movePoint;
+}
+
+void TagTextItem::setTextMaxWidth(qreal width)
+{
+    m_maxWidth = width;
+    QTextOption opt = m_textItem->document()->defaultTextOption();
+    opt.setWrapMode(QTextOption::WordWrap);
+    m_textItem->document()->setDefaultTextOption(opt);
+    m_textItem->setTextWidth(m_maxWidth);
 }

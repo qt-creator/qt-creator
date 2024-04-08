@@ -34,6 +34,7 @@ public:
 
     void resetMovePoint(const QPointF &p = QPointF(0, 0));
     QPointF movePoint() const;
+    void setTextMaxWidth(qreal width);
 
 protected:
     void hoverEnterEvent(QGraphicsSceneHoverEvent *e) override;
@@ -54,6 +55,7 @@ private:
     QPointF m_movePoint;
     QPointF m_startPos;
     TextItem *m_textItem;
+    qreal m_maxWidth;
 };
 
 } // namespace PluginInterface

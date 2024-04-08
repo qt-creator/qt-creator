@@ -28,6 +28,7 @@ const char C_SCXML_EDITORINFO_GEOMETRY[] = "geometry";
 const char C_SCXML_EDITORINFO_SCENEGEOMETRY[] = "scenegeometry";
 const char C_SCXML_EDITORINFO_LOCALGEOMETRY[] = "localGeometry";
 const char C_SCXML_EDITORINFO_MOVEPOINT[] = "movePoint";
+const char C_SCXML_EDITORINFO_MOVEPOINT_COND[] = "movePointCond";
 const char C_SCXML_EDITORINFO_STARTTARGETFACTORS[] = "startTargetFactors";
 const char C_SCXML_EDITORINFO_ENDTARGETFACTORS[] = "endTargetFactors";
 const char C_SCXML_EDITORINFO_FONTCOLOR[] = "fontColor";
