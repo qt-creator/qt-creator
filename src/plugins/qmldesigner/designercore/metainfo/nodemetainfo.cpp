@@ -919,8 +919,11 @@ const ObjectValue *NodeMetaInfoPrivate::getObjectValue() const
 
 ContextPtr NodeMetaInfoPrivate::context() const
 {
+#ifndef QDS_USE_PROJECTSTORAGE
     if (m_model && m_model->rewriterView() && m_model->rewriterView()->scopeChain())
         return m_model->rewriterView()->scopeChain()->context();
+#endif
+
     return ContextPtr(nullptr);
 }
 

@@ -128,8 +128,6 @@ public:
 
     void setCheckSemanticErrors(bool) {}
 
-    QString pathForImport(const Import &) { return {}; }
-
     QStringList importDirectories() const { return {}; }
 
     QSet<QPair<QString, QString>> qrcMapping() const { return {}; }

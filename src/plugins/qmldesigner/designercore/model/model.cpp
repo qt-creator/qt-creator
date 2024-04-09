@@ -1758,14 +1758,22 @@ Storage::Info::ExportedTypeName Model::exportedTypeNameForMetaInfo(const NodeMet
     return {};
 }
 
-const Imports &Model::possibleImports() const
+Imports Model::possibleImports() const
 {
+#ifdef QDS_USE_PROJECTSTORAGE
+    return {};
+#else
     return d->m_possibleImportList;
+#endif
 }
 
-const Imports &Model::usedImports() const
+Imports Model::usedImports() const
 {
+#ifdef QDS_USE_PROJECTSTORAGE
+    return {};
+#else
     return d->m_usedImportList;
+#endif
 }
 
 void Model::changeImports(Imports importsToBeAdded, Imports importsToBeRemoved)
@@ -1773,6 +1781,7 @@ void Model::changeImports(Imports importsToBeAdded, Imports importsToBeRemoved)
     d->changeImports(std::move(importsToBeAdded), std::move(importsToBeRemoved));
 }
 
+#ifndef QDS_USE_PROJECTSTORAGE
 void Model::setPossibleImports(Imports possibleImports)
 {
     auto tracer = d->traceToken.begin("possible imports"_t);
@@ -1784,7 +1793,9 @@ void Model::setPossibleImports(Imports possibleImports)
         d->notifyPossibleImportsChanged(d->m_possibleImportList);
     }
 }
+#endif
 
+#ifndef QDS_USE_PROJECTSTORAGE
 void Model::setUsedImports(Imports usedImports)
 {
     auto tracer = d->traceToken.begin("used imports"_t);
@@ -1796,6 +1807,7 @@ void Model::setUsedImports(Imports usedImports)
         d->notifyUsedImportsChanged(d->m_usedImportList);
     }
 }
+#endif
 
 static bool compareVersions(const Import &import1, const Import &import2, bool allowHigherVersion)
 {
@@ -2020,14 +2032,6 @@ bool Model::isImportPossible(const Import &import, bool ignoreAlias, bool allowH
     }
 
     return false;
-}
-
-QString Model::pathForImport(const Import &import)
-{
-    if (!rewriterView())
-        return QString();
-
-    return rewriterView()->pathForImport(import);
 }
 
 QStringList Model::importPaths() const
