@@ -464,6 +464,33 @@ void addType(Storage::Synchronization::Types &types,
     tracer.end(keyValue("type", type));
 }
 
+using namespace Qt::StringLiterals;
+
+constexpr auto skipLists = std::make_tuple(
+    std::pair{"QtQuick.Templates-cppnative"sv, std::array{"QQuickItem"_L1}});
+
+std::span<const QLatin1StringView> getSkipList(std::string_view moduleName)
+{
+    static constexpr std::span<const QLatin1StringView> emptySkipList;
+    auto currentSkipList = emptySkipList;
+
+    std::apply(
+        [&](const auto &entry) {
+            if (entry.first == moduleName)
+                currentSkipList = entry.second;
+        },
+        skipLists);
+
+    return currentSkipList;
+}
+
+bool skipType(const QQmlJSExportedScope &object, std::span<const QLatin1StringView> skipList)
+{
+    return std::any_of(skipList.begin(), skipList.end(), [&](const QLatin1StringView skip) {
+        return object.scope->internalName() == skip;
+    });
+}
+
 void addTypes(Storage::Synchronization::Types &types,
               const Storage::Synchronization::ProjectData &projectData,
               const QList<QQmlJSExportedScope> &objects,
@@ -473,13 +500,19 @@ void addTypes(Storage::Synchronization::Types &types,
     NanotraceHR::Tracer tracer{"add types"_t, category()};
     types.reserve(Utils::usize(objects) + types.size());
 
-    for (const auto &object : objects)
+    const auto skipList = getSkipList(storage.moduleName(projectData.moduleId));
+
+    for (const auto &object : objects) {
+        if (skipType(object, skipList))
+            continue;
+
         addType(types,
                 projectData.sourceId,
                 projectData.moduleId,
                 object,
                 storage,
                 componentNameWithoutNamespaces);
+    }
 }
 
 } // namespace
