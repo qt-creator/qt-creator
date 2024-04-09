@@ -12,8 +12,9 @@ class ImageUtils
 public:
     ImageUtils();
 
-    static QString imageInfo(const QSize &dimensions, qint64 sizeInBytes);
-    static QString imageInfo(const QString &path);
+    static QPair<QSize, qint64> imageInfo(const QString &path);
+    static QString imageInfoString(const QString &path);
+    static QString imageInfoString(const QSize &dimensions, qint64 sizeInBytes);
 };
 
 } // namespace QmlDesigner

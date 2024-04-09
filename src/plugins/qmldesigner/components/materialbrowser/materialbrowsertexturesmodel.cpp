@@ -63,7 +63,7 @@ QVariant MaterialBrowserTexturesModel::data(const QModelIndex &index, int role) 
             return tr("Texture has no source image.");
 
         ModelNode texNode = m_textureList.at(index.row());
-        QString info = ImageUtils::imageInfo(source);
+        QString info = ImageUtils::imageInfoString(source);
 
         if (info.isEmpty())
             return tr("Texture has no data.");

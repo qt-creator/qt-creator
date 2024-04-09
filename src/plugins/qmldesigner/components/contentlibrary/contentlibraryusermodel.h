@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "nodemetainfo.h"
+#include "modelfwd.h"
 
 #include <QAbstractListModel>
 #include <QJsonObject>
@@ -16,6 +16,7 @@ class ContentLibraryEffect;
 class ContentLibraryMaterial;
 class ContentLibraryTexture;
 class ContentLibraryWidget;
+class NodeMetaInfo;
 
 namespace Internal {
 class ContentLibraryBundleImporter;
@@ -94,6 +95,7 @@ signals:
 
 private:
     void loadMaterialBundle();
+    void loadTextureBundle();
     bool isValidIndex(int idx) const;
     void createImporter(const QString &bundlePath, const QString &bundleId,
                         const QStringList &sharedFiles);

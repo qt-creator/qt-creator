@@ -1946,7 +1946,7 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
                 imageData.pixmap = originalPixmap.scaled(dim, dim, Qt::KeepAspectRatio);
                 imageData.pixmap.setDevicePixelRatio(ratio);
                 imageData.time = modified;
-                imageData.info = ImageUtils::imageInfo(imageSource);
+                imageData.info = ImageUtils::imageInfoString(imageSource);
                 m_imageDataMap.insert(imageData.id, imageData);
             }
         }

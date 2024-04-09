@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
+import Qt.labs.qmlmodels
 import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
@@ -99,17 +100,33 @@ HelperWidgets.ScrollView {
                         id: repeater
                         model: categoryItems
 
-                        delegate: ContentLibraryMaterial {
-                            width: root.cellWidth
-                            height: root.cellHeight
+                        delegate: DelegateChooser {
+                            role: "itemType"
 
-                            importerRunning: ContentLibraryBackend.userModel.importerRunning
+                            DelegateChoice {
+                                roleValue: "material"
+                                ContentLibraryMaterial {
+                                    width: root.cellWidth
+                                    height: root.cellHeight
 
-                            onShowContextMenu: ctxMenu.popupMenu(modelData)
-                            onAddToProject: ContentLibraryBackend.userModel.addToProject(modelData)
+                                    importerRunning: ContentLibraryBackend.userModel.importerRunning
 
-                            onVisibleChanged: {
-                                section.numVisibleItem += visible ? 1 : -1
+                                    onShowContextMenu: ctxMenu.popupMenu(modelData)
+                                    onAddToProject: ContentLibraryBackend.userModel.addToProject(modelData)
+
+                                    onVisibleChanged: {
+                                        section.numVisibleItem += visible ? 1 : -1
+                                    }
+                                }
+                            }
+                            DelegateChoice {
+                                roleValue: "texture"
+                                delegate: ContentLibraryTexture {
+                                    width: root.cellWidth
+                                    height: root.cellHeight
+
+                                    // onShowContextMenu: ctxMenu.popupMenu(modelData) // TODO
+                                }
                             }
                         }
 

@@ -24,12 +24,13 @@ class ContentLibraryTexture : public QObject
     Q_PROPERTY(bool textureHasUpdate WRITE setHasUpdate READ hasUpdate NOTIFY hasUpdateChanged)
     Q_PROPERTY(bool textureIsNew MEMBER m_isNew CONSTANT)
     Q_PROPERTY(QString textureKey MEMBER m_textureKey CONSTANT)
+    Q_PROPERTY(QString itemType MEMBER m_itemType CONSTANT)
 
 public:
     ContentLibraryTexture(QObject *parent, const QFileInfo &iconFileInfo, const QString &dirPath,
-                          const QString &key, const QString &textureUrl, const QString &iconUrl,
                           const QString &suffix, const QSize &dimensions, const qint64 sizeInBytes,
-                          bool hasUpdate = false, bool isNew = false);
+                          const QString &key = {}, const QString &textureUrl = {},
+                          const QString &iconUrl = {}, bool hasUpdate = false, bool isNew = false);
 
     Q_INVOKABLE bool isDownloaded() const;
     Q_INVOKABLE void setDownloaded();
@@ -71,6 +72,7 @@ private:
     bool m_visible = true;
     bool m_hasUpdate = false;
     bool m_isNew = false;
+    const QString m_itemType = "texture";
 };
 
 } // namespace QmlDesigner

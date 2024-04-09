@@ -6,9 +6,11 @@
 #include "contentlibrarybundleimporter.h"
 #include "contentlibrarymaterial.h"
 #include "contentlibrarymaterialscategory.h"
+#include "contentlibrarytexture.h"
 #include "contentlibrarywidget.h"
 
 #include <designerpaths.h>
+#include <imageutils.h>
 #include <qmldesignerplugin.h>
 
 #include <utils/algorithm.h>
@@ -16,6 +18,7 @@
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
+#include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QQmlEngine>
@@ -28,9 +31,10 @@ ContentLibraryUserModel::ContentLibraryUserModel(ContentLibraryWidget *parent)
     : QAbstractListModel(parent)
     , m_widget(parent)
 {
-    m_userCategories = {tr("Materials")/*, tr("Textures"), tr("3D"), tr("Effects"), tr("2D components")*/}; // TODO
+    m_userCategories = {tr("Materials"), tr("Textures")/*, tr("3D"), tr("Effects"), tr("2D components")*/}; // TODO
 
     loadMaterialBundle();
+    loadTextureBundle();
 }
 
 int ContentLibraryUserModel::rowCount(const QModelIndex &) const
@@ -260,6 +264,32 @@ void ContentLibraryUserModel::loadMaterialBundle()
 
     m_matBundleExists = true;
     emit matBundleExistsChanged();
+}
+
+void ContentLibraryUserModel::loadTextureBundle()
+{
+    if (!m_userTextures.isEmpty())
+        return;
+
+    QDir bundleDir{Paths::bundlesPathSetting() + "/User/textures"};
+    bundleDir.mkpath(".");
+    bundleDir.mkdir("icons");
+
+    const QFileInfoList fileInfos = bundleDir.entryInfoList(QDir::Files);
+    for (const QFileInfo &fileInfo : fileInfos) {
+        auto iconFileInfo = QFileInfo(fileInfo.path().append("/icons/").append(fileInfo.fileName()));
+        QPair<QSize, qint64> info = ImageUtils::imageInfo(fileInfo.path());
+        QString dirPath = fileInfo.path();
+        QString suffix = '.' + fileInfo.suffix();
+        QSize imgDims = info.first;
+        qint64 imgFileSize = info.second;
+
+        auto tex = new ContentLibraryTexture(this, iconFileInfo, dirPath, suffix, imgDims, imgFileSize);
+        m_userTextures.append(tex);
+    }
+
+    int texSectionIdx = 1;
+    emit dataChanged(index(texSectionIdx, 0), index(texSectionIdx, 0));
 }
 
 bool ContentLibraryUserModel::hasRequiredQuick3DImport() const

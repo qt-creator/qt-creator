@@ -21,8 +21,8 @@ void ContentLibraryTexturesCategory::addTexture(const QFileInfo &texIcon, const 
                                                 bool hasUpdate, bool isNew)
 {
     m_categoryTextures.append(new ContentLibraryTexture(
-        this, texIcon, downloadPath, key, webTextureUrl, iconUrl,
-        suffix, dimensions, sizeInBytes, hasUpdate, isNew));
+        this, texIcon, downloadPath, suffix, dimensions, sizeInBytes,
+        key, webTextureUrl, iconUrl, hasUpdate, isNew));
 }
 
 bool ContentLibraryTexturesCategory::filter(const QString &searchText)

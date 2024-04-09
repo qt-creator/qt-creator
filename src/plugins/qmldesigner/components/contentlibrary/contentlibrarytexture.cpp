@@ -12,10 +12,10 @@
 namespace QmlDesigner {
 
 ContentLibraryTexture::ContentLibraryTexture(QObject *parent, const QFileInfo &iconFileInfo,
-                                             const QString &dirPath, const QString &key,
-                                             const QString &textureUrl, const QString &iconUrl,
-                                             const QString &suffix, const QSize &dimensions,
-                                             const qint64 sizeInBytes, bool hasUpdate, bool isNew)
+                                             const QString &dirPath, const QString &suffix,
+                                             const QSize &dimensions, const qint64 sizeInBytes,
+                                             const QString &key, const QString &textureUrl,
+                                             const QString &iconUrl, bool hasUpdate, bool isNew)
     : QObject(parent)
     , m_iconPath(iconFileInfo.filePath())
     , m_dirPath(dirPath)
@@ -82,10 +82,10 @@ QString ContentLibraryTexture::resolveToolTipText()
     QString imageInfo;
 
     if (!m_isDownloaded && m_sizeInBytes > 0 && !m_dimensions.isNull()) {
-        imageInfo = ImageUtils::imageInfo(m_dimensions, m_sizeInBytes);
+        imageInfo = ImageUtils::imageInfoString(m_dimensions, m_sizeInBytes);
     } else {
         QString fullDownloadPath = m_dirPath + '/' + fileName;
-        imageInfo = ImageUtils::imageInfo(fullDownloadPath);
+        imageInfo = ImageUtils::imageInfoString(fullDownloadPath);
     }
 
     return QString("%1\n%2").arg(fileName, imageInfo);

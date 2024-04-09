@@ -11,7 +11,7 @@
 
 namespace QmlDesigner {
 
-QString ImageUtils::imageInfo(const QSize &dimensions, qint64 sizeInBytes)
+QString ImageUtils::imageInfoString(const QSize &dimensions, qint64 sizeInBytes)
 {
     return QLatin1String("%1 x %2\n%3")
             .arg(QString::number(dimensions.width()),
@@ -20,7 +20,7 @@ QString ImageUtils::imageInfo(const QSize &dimensions, qint64 sizeInBytes)
                      sizeInBytes, 2, QLocale::DataSizeTraditionalFormat));
 }
 
-QString QmlDesigner::ImageUtils::imageInfo(const QString &path)
+QPair<QSize, qint64> QmlDesigner::ImageUtils::imageInfo(const QString &path)
 {
     QFileInfo info(path);
     if (!info.exists())
@@ -52,7 +52,13 @@ QString QmlDesigner::ImageUtils::imageInfo(const QString &path)
     if (width <= 0 || height <= 0)
         return {};
 
-    return imageInfo(QSize(width, height), info.size());
+    return {QSize(width, height), info.size()};
+}
+
+QString ImageUtils::imageInfoString(const QString &path)
+{
+    QPair<QSize, qint64> info = imageInfo(path);
+    return imageInfoString(info.first, info.second);
 }
 
 } // namespace QmlDesigner
