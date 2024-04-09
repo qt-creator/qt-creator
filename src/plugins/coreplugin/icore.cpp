@@ -1035,12 +1035,57 @@ void ICore::addPreCloseListener(const std::function<bool ()> &listener)
     d->m_preCloseListeners.append(listener);
 }
 
+QString uiConfigInformation()
+{
+    QString info("UI configuration:\n\n");
+    info.append(QString("Color: %1\n").arg(StyleHelper::requestedBaseColor().name()));
+    info.append(QString("Theme: %1 \"%2\"\n").arg(creatorTheme()->id())
+                           .arg(creatorTheme()->displayName()));
+    const QString toolbarStyle =
+        StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyleCompact ? "Compact" : "Relaxed";
+    info.append(QString("Toolbar style: Utils::StyleHelper::ToolbarStyle%1\n").arg(toolbarStyle));
+    const QString policy =
+        QVariant::fromValue(QApplication::highDpiScaleFactorRoundingPolicy()).toString();
+    QString userInterfaceLanguage = ICore::userInterfaceLanguage();
+    if (userInterfaceLanguage.isEmpty())
+        userInterfaceLanguage = QLocale::system().name() + " (System Language)";
+    info.append(QString("Language: %1\n").arg(userInterfaceLanguage));
+    info.append(QString("Device pixel ratio: %1, Qt::HighDpiScaleFactorRoundingPolicy::%2\n")
+                    .arg(qApp->devicePixelRatio()).arg(policy));
+    info.append(QString("Font DPI: %1\n").arg(qApp->fontMetrics().fontDpi()));
+
+    info.append(QString("Utils::StyleHelper::UiElement:\n"));
+#define QTC_ADD_UIELEMENT_FONT(uiElement) (                                              \
+        info.append(QString("  %1: %2\n").arg(#uiElement)                                \
+                .arg(StyleHelper::uiFont(StyleHelper::UiElement##uiElement).toString())) \
+    );
+    QTC_ADD_UIELEMENT_FONT(H1);
+    QTC_ADD_UIELEMENT_FONT(H2);
+    QTC_ADD_UIELEMENT_FONT(H3);
+    QTC_ADD_UIELEMENT_FONT(H4);
+    QTC_ADD_UIELEMENT_FONT(H5);
+    QTC_ADD_UIELEMENT_FONT(H6);
+    QTC_ADD_UIELEMENT_FONT(H6Capital);
+    QTC_ADD_UIELEMENT_FONT(Body1);
+    QTC_ADD_UIELEMENT_FONT(Body2);
+    QTC_ADD_UIELEMENT_FONT(ButtonMedium);
+    QTC_ADD_UIELEMENT_FONT(ButtonSmall);
+    QTC_ADD_UIELEMENT_FONT(CaptionStrong);
+    QTC_ADD_UIELEMENT_FONT(Caption);
+    QTC_ADD_UIELEMENT_FONT(IconStandard);
+    QTC_ADD_UIELEMENT_FONT(IconActive);
+#undef QTC_ADD_UIELEMENT_FONT
+
+    return info;
+}
+
 /*!
     \internal
 */
 QString ICore::systemInformation()
 {
-    return PluginManager::systemInformation() + '\n' + aboutInformationCompact() + '\n';
+    return PluginManager::systemInformation() + '\n' + uiConfigInformation() + '\n'
+           + aboutInformationCompact() + '\n';
 }
 
 static const QString &screenShotsPath()
