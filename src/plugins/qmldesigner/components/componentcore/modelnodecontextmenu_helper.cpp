@@ -105,8 +105,10 @@ bool selectionIsImported3DAsset(const SelectionContext &selectionState)
             // Node is not a file component, so we have to check if the current doc itself is
             fileName = node.model()->fileUrl().toLocalFile();
         }
-        if (fileName.contains(Constants::QUICK_3D_ASSETS_FOLDER))
+        if (fileName.contains(Constants::OLD_QUICK_3D_ASSETS_FOLDER)
+            || fileName.contains(Constants::QUICK_3D_COMPONENTS_FOLDER)) {
             return true;
+        }
     }
     return false;
 }

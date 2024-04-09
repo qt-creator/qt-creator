@@ -448,9 +448,10 @@ Row {
         for (var j = 0; j < myModel.length; ++j) {
             let item = myModel[j]
             if (root.hideDuplicates && nameMap.has(item.fileName)) {
-                // Prefer hiding imported asset files rather than other project files
+                // Prefer hiding generated component files rather than other project files
                 let listIndex = nameMap.get(item.fileName)
-                if (comboBox.listModel.get(listIndex).absoluteFilePath.includes("/asset_imports/")) {
+                let absPath = comboBox.listModel.get(listIndex).absoluteFilePath
+                if (absPath.includes("/GeneratedComponents/") || absPath.includes("/asset_imports/")) {
                     comboBox.listModel.set(listIndex, {
                         absoluteFilePath: item.absoluteFilePath,
                         relativeFilePath: item.relativeFilePath,

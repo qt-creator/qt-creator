@@ -59,6 +59,8 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
 
+    void setEffectsTypePrefix(const QString &prefix);
+
     bool isEmpty() const { return m_isEmpty; }
     void setIsEmpty(bool val);
 
@@ -221,6 +223,7 @@ private:
     QString m_currentComposition;
     QTimer m_rebakeTimer;
     int m_extraMargin = 0;
+    QString m_effectTypePrefix;
 
     const QRegularExpression m_spaceReg = QRegularExpression("\\s+");
 };

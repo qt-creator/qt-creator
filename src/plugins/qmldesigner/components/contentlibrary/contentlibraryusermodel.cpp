@@ -7,9 +7,9 @@
 #include "contentlibrarymaterial.h"
 #include "contentlibrarymaterialscategory.h"
 #include "contentlibrarywidget.h"
-#include "qmldesignerconstants.h"
 
 #include <designerpaths.h>
+#include <qmldesignerplugin.h>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -133,7 +133,8 @@ QPair<QString, QString> ContentLibraryUserModel::getUniqueLibMaterialNameAndQml(
 
 TypeName ContentLibraryUserModel::qmlToModule(const QString &qmlName) const
 {
-    return QLatin1String("%1.%2.%3").arg(QLatin1String(Constants::COMPONENT_BUNDLES_FOLDER).mid(1),
+    return QLatin1String("%1.%2.%3").arg(QmlDesignerPlugin::instance()->documentManager()
+                                             .generatedComponentUtils().componentBundlesTypePrefix(),
                                          m_bundleId,
                                          qmlName.chopped(4)).toLatin1(); // chopped(4): remove .qml
 }

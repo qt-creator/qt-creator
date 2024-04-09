@@ -6,6 +6,7 @@
 #include "abstractview.h"
 #include "modelnode.h"
 
+#include <generatedcomponentutils.h>
 #include <coreplugin/icontext.h>
 
 #include <QPointer>
@@ -45,6 +46,7 @@ private:
 
     QPointer<EffectComposerWidget> m_widget;
     QString m_currProjectPath;
+    QmlDesigner::GeneratedComponentUtils m_componentUtils;
 };
 
 } // namespace EffectComposer

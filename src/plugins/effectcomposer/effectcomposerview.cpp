@@ -31,6 +31,7 @@ void EffectComposerContext::contextHelp(const HelpCallback &callback) const
 
 EffectComposerView::EffectComposerView(QmlDesigner::ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
+    , m_componentUtils(externalDependencies)
 {
 }
 
@@ -91,6 +92,7 @@ void EffectComposerView::modelAttached(QmlDesigner::Model *model)
     if (m_currProjectPath != currProjectPath) { // starting a new project
         m_widget->effectComposerNodesModel()->loadModel();
         m_widget->effectComposerModel()->clear(true);
+        m_widget->effectComposerModel()->setEffectsTypePrefix(m_componentUtils.composedEffectsTypePrefix());
         m_widget->effectComposerModel()->setIsEnabled(
             !QmlDesigner::DesignerMcuManager::instance().isMCUProject());
         m_widget->initView();

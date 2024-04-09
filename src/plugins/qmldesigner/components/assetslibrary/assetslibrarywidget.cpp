@@ -287,14 +287,16 @@ void AssetsLibraryWidget::handleDeleteEffects([[maybe_unused]] const QStringList
     // Remove usages of deleted effects from the current document
     m_assetsView->executeInTransaction(__FUNCTION__, [&]() {
         QList<ModelNode> allNodes = m_assetsView->allModelNodes();
-        const QString typeTemplate = "Effects.%1.%1";
-        const QString importUrlTemplate = "Effects.%1";
+        const QString typeTemplate = "%1.%2.%2";
+        const QString importUrlTemplate = "%1.%2";
         const Imports imports = m_assetsView->model()->imports();
         Imports removedImports;
+        const QString typePrefix = QmlDesignerPlugin::instance()->documentManager()
+                                       .generatedComponentUtils().composedEffectsTypePrefix();
         for (const QString &effectName : effectNames) {
             if (effectName.isEmpty())
                 continue;
-            const TypeName type = typeTemplate.arg(effectName).toUtf8();
+            const TypeName type = typeTemplate.arg(typePrefix, effectName).toUtf8();
             for (ModelNode &node : allNodes) {
                 if (node.metaInfo().typeName() == type) {
                     clearStacks = true;
@@ -302,7 +304,7 @@ void AssetsLibraryWidget::handleDeleteEffects([[maybe_unused]] const QStringList
                 }
             }
 
-            const QString importPath = importUrlTemplate.arg(effectName);
+            const QString importPath = importUrlTemplate.arg(typePrefix, effectName);
             Import removedImport = Utils::findOrDefault(imports, [&importPath](const Import &import) {
                 return import.url() == importPath;
             });

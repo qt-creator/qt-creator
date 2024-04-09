@@ -7,8 +7,8 @@
 #include "contentlibraryeffect.h"
 #include "contentlibraryeffectscategory.h"
 #include "contentlibrarywidget.h"
-#include "qmldesignerconstants.h"
 
+#include <qmldesignerplugin.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/hostosinfo.h>
@@ -187,10 +187,11 @@ void ContentLibraryEffectsModel::loadBundle()
 
             QUrl icon = QUrl::fromLocalFile(bundleDir.filePath(itemObj.value("icon").toString()));
             QString qml = itemObj.value("qml").toString();
-            TypeName type = QLatin1String("%1.%2.%3").arg(
-                                    QLatin1String(Constants::COMPONENT_BUNDLES_FOLDER).mid(1),
-                                    bundleId,
-                                    qml.chopped(4)).toLatin1(); // chopped(4): remove .qml
+            TypeName type = QLatin1String("%1.%2.%3")
+                                .arg(QmlDesignerPlugin::instance()->documentManager()
+                                         .generatedComponentUtils().componentBundlesTypePrefix(),
+                                     bundleId,
+                                     qml.chopped(4)).toLatin1(); // chopped(4): remove .qml
 
             auto bundleItem = new ContentLibraryEffect(category, item, qml, type, icon, files);
 

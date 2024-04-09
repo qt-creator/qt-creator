@@ -266,6 +266,11 @@ void DocumentManager::resetPossibleImports()
     }
 }
 
+const GeneratedComponentUtils &DocumentManager::generatedComponentUtils() const
+{
+   return m_generatedComponentUtils;
+}
+
 bool DocumentManager::goIntoComponent(const ModelNode &modelNode)
 {
     QImage image = QmlDesignerPlugin::instance()->viewManager().takeFormEditorScreenshot();

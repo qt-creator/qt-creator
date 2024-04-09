@@ -12,6 +12,7 @@
 #include <variantproperty.h>
 
 #include <theme.h>
+#include <utils/filepath.h>
 #include <utils/outputformatter.h>
 
 #include <projectexplorer/project.h>
@@ -130,43 +131,8 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(
     if (targetDir.isEmpty())
         targetDir = defaulTargetDirectory;
 
-    // Import is always done under known folder. The order of preference for folder is:
-    // 1) An existing QUICK_3D_ASSETS_FOLDER under DEFAULT_ASSET_IMPORT_FOLDER project import path
-    // 2) An existing QUICK_3D_ASSETS_FOLDER under any project import path
-    // 3) New QUICK_3D_ASSETS_FOLDER under DEFAULT_ASSET_IMPORT_FOLDER project import path
-    // 4) New QUICK_3D_ASSETS_FOLDER under any project import path
-    // 5) New QUICK_3D_ASSETS_FOLDER under new DEFAULT_ASSET_IMPORT_FOLDER under project
-    const QString defaultAssetFolder = QLatin1String(Constants::DEFAULT_ASSET_IMPORT_FOLDER);
-    const QString quick3DFolder = QLatin1String(Constants::QUICK_3D_ASSETS_FOLDER);
-    QString candidatePath = targetDir + defaultAssetFolder + quick3DFolder;
-    int candidatePriority = 5;
-
-    for (const auto &importPath : std::as_const(importPaths)) {
-        if (importPath.startsWith(targetDir)) {
-            const bool isDefaultFolder = importPath.endsWith(defaultAssetFolder);
-            const QString assetFolder = importPath + quick3DFolder;
-            const bool exists = QFileInfo::exists(assetFolder);
-            if (exists) {
-                if (isDefaultFolder) {
-                    // Priority one location, stop looking
-                    candidatePath = assetFolder;
-                    break;
-                } else if (candidatePriority > 2) {
-                    candidatePriority = 2;
-                    candidatePath = assetFolder;
-                }
-            } else {
-                if (candidatePriority > 3 && isDefaultFolder) {
-                    candidatePriority = 3;
-                    candidatePath = assetFolder;
-                } else if (candidatePriority > 4) {
-                    candidatePriority = 4;
-                    candidatePath = assetFolder;
-                }
-            }
-        }
-    }
-    m_quick3DImportPath = candidatePath;
+    m_quick3DImportPath = QmlDesignerPlugin::instance()->documentManager()
+                              .generatedComponentUtils().import3dBasePath().toString();
 
     if (!m_quick3DFiles.isEmpty()) {
         QVector<QJsonObject> groups;
@@ -294,11 +260,14 @@ void ItemLibraryAssetImportDialog::updateImport(const ModelNode &updateNode,
         QFileInfo compFileInfo{compFileName};
 
         // Find to top asset folder
-        const QString assetFolder = QLatin1String(Constants::QUICK_3D_ASSETS_FOLDER).mid(1);
+        const QString oldAssetFolder = QLatin1String(Constants::OLD_QUICK_3D_ASSETS_FOLDER);
+        QString assetFolder = QLatin1String(Constants::QUICK_3D_COMPONENTS_FOLDER);
         const QStringList parts = compFileName.split('/');
         int i = parts.size() - 1;
         int previousSize = 0;
         for (; i >= 0; --i) {
+            if (parts[i] == oldAssetFolder)
+                assetFolder = oldAssetFolder;
             if (parts[i] == assetFolder)
                 break;
             previousSize = parts[i].size();

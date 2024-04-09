@@ -94,6 +94,11 @@ bool EffectComposerModel::setData(const QModelIndex &index, const QVariant &valu
     return true;
 }
 
+void EffectComposerModel::setEffectsTypePrefix(const QString &prefix)
+{
+    m_effectTypePrefix = prefix;
+}
+
 void EffectComposerModel::setIsEmpty(bool val)
 {
     if (m_isEmpty != val) {
@@ -1059,7 +1064,7 @@ void EffectComposerModel::saveResources(const QString &name)
     Utils::FilePath qmldirPath = effectsResDir.resolvePath(qmldirFileName);
     QString qmldirContent = QString::fromUtf8(qmldirPath.fileContents().value_or(QByteArray()));
     if (qmldirContent.isEmpty()) {
-        qmldirContent.append("module Effects\n");
+        qmldirContent.append(QString("module %1\n").arg(m_effectTypePrefix));
         qmldirPath.writeFileContents(qmldirContent.toUtf8());
     }
 
@@ -1077,7 +1082,7 @@ void EffectComposerModel::saveResources(const QString &name)
     qmldirPath = effectPath.resolvePath(qmldirFileName);
     qmldirContent = QString::fromUtf8(qmldirPath.fileContents().value_or(QByteArray()));
     if (qmldirContent.isEmpty()) {
-        qmldirContent.append("module Effects.");
+        qmldirContent.append(QString("module %1.").arg(m_effectTypePrefix));
         qmldirContent.append(name);
         qmldirContent.append('\n');
         qmldirContent.append(name);
@@ -1187,7 +1192,7 @@ void EffectComposerModel::saveResources(const QString &name)
         endResetModel();
     }
 
-    emit resourcesSaved(QString("Effects.%1.%1").arg(name).toUtf8(), effectPath);
+    emit resourcesSaved(QString("%1.%2.%2").arg(m_effectTypePrefix, name).toUtf8(), effectPath);
 }
 
 void EffectComposerModel::resetEffectError(int type)

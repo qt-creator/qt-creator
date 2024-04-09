@@ -1145,11 +1145,8 @@ static QString getAssetDefaultDirectory(const QString &assetDir, const QString &
 
     Utils::FilePath assetPath = contentPath.pathAppended(assetDir);
 
-    if (!assetPath.exists()) {
-        // Create the default asset type directory if it doesn't exist
-        QDir dir(contentPath.toString());
-        dir.mkpath(assetDir);
-    }
+    if (!assetPath.exists())
+        assetPath.createDir();
 
     if (assetPath.exists() && assetPath.isDir())
         adjustedDefaultDirectory = assetPath.toString();
@@ -1727,13 +1724,12 @@ void openOldEffectMaker(const QString &filePath)
         return;
     }
 
-    Utils::FilePath projectPath = target->project()->projectDirectory();
-    QString effectName = QFileInfo(filePath).baseName();
-    QString effectResDir = QLatin1String(Constants::DEFAULT_EFFECTS_IMPORT_FOLDER)
-                           + "/" + effectName;
-    Utils::FilePath effectResPath = projectPath.pathAppended(effectResDir);
+    Utils::FilePath effectResPath = QmlDesignerPlugin::instance()->documentManager()
+                                        .generatedComponentUtils().composedEffectsBasePath()
+                                        .pathAppended(QFileInfo(filePath).baseName());
+
     if (!effectResPath.exists())
-        QDir().mkpath(effectResPath.toString());
+        effectResPath.createDir();
 
     const QtSupport::QtVersion *baseQtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
     if (baseQtVersion) {
@@ -1769,14 +1765,11 @@ void openOldEffectMaker(const QString &filePath)
 
 Utils::FilePath getEffectsImportDirectory()
 {
-    QString defaultDir = QLatin1String(Constants::DEFAULT_EFFECTS_IMPORT_FOLDER);
-    Utils::FilePath projectPath = QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath();
-    Utils::FilePath effectsPath = projectPath.pathAppended(defaultDir);
+    Utils::FilePath effectsPath = QmlDesignerPlugin::instance()->documentManager()
+                                      .generatedComponentUtils().composedEffectsBasePath();
 
-    if (!effectsPath.exists()) {
-        QDir dir(projectPath.toString());
-        dir.mkpath(effectsPath.toString());
-    }
+    if (!effectsPath.exists())
+        effectsPath.createDir();
 
     return effectsPath;
 }
@@ -1794,12 +1787,9 @@ QString getEffectsDefaultDirectory(const QString &defaultDir)
 
 QString getEffectIcon(const QString &effectPath)
 {
-    Utils::FilePath projectPath = QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath();
-    QString effectName = QFileInfo(effectPath).baseName();
-    QString effectResDir = "asset_imports/Effects/" + effectName;
-    Utils::FilePath effectResPath = projectPath.resolvePath(effectResDir + "/" + effectName + ".qml");
-
-    return effectResPath.exists() ? QString("effectExported") : QString("effectClass");
+    Utils::FilePath effectFile = QmlDesignerPlugin::instance()->documentManager()
+                                     .generatedComponentUtils().composedEffectPath(effectPath);
+    return effectFile.exists() ? QString("effectExported") : QString("effectClass");
 }
 
 bool useLayerEffect()

@@ -8,12 +8,12 @@
 #include "contentlibrarymaterialscategory.h"
 #include "contentlibrarywidget.h"
 
-#include <designerpaths.h>
+#include "designerpaths.h"
 #include "filedownloader.h"
 #include "fileextractor.h"
 #include "multifiledownloader.h"
-#include "qmldesignerconstants.h"
-#include "qmldesignerplugin.h"
+
+#include <qmldesignerplugin.h>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -286,10 +286,11 @@ void ContentLibraryMaterialsModel::loadMaterialBundle(const QDir &matBundleDir)
 
             QUrl icon = QUrl::fromLocalFile(matBundleDir.filePath(matObj.value("icon").toString()));
             QString qml = matObj.value("qml").toString();
-            TypeName type = QLatin1String("%1.%2.%3").arg(
-                                    QLatin1String(Constants::COMPONENT_BUNDLES_FOLDER).mid(1),
-                                    bundleId,
-                                    qml.chopped(4)).toLatin1(); // chopped(4): remove .qml
+            TypeName type = QLatin1String("%1.%2.%3")
+                                .arg(QmlDesignerPlugin::instance()->documentManager()
+                                         .generatedComponentUtils().componentBundlesTypePrefix(),
+                                     bundleId,
+                                     qml.chopped(4)).toLatin1(); // chopped(4): remove .qml
 
             auto bundleMat = new ContentLibraryMaterial(category, mat, qml, type, icon, files,
                                                         m_downloadPath, m_baseUrl);

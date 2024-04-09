@@ -94,6 +94,8 @@ add_qtc_library(QmlDesignerCore STATIC
   SOURCES
     rewritertransaction.cpp
     rewritertransaction.h
+    generatedcomponentutils.cpp
+    generatedcomponentutils.h
 )
 
 extend_qtc_library(QmlDesignerCore

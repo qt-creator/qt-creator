@@ -356,7 +356,8 @@ void Edit3DView::handleEntriesChanged()
     append(model()->qtQuick3DOrthographicCameraMetaInfo(), EK_cameras);
     append(model()->qtQuick3DPerspectiveCameraMetaInfo(), EK_cameras);
 
-    auto assetsModule = model()->module("Quick3DAssets");
+    auto assetsModule = model()->module(QmlDesignerPlugin::instance()->documentManager()
+                                            .generatedComponentUtils().import3dTypePrefix());
 
     for (const auto &metaInfo : model()->metaInfosForModule(assetsModule))
         append(metaInfo, EK_importedModels);
@@ -373,7 +374,8 @@ void Edit3DView::handleEntriesChanged()
         } else if (entry.typeName() == "QtQuick3D.OrthographicCamera"
                    || entry.typeName() == "QtQuick3D.PerspectiveCamera") {
             entryKey = EK_cameras;
-        } else if (entry.typeName().startsWith("Quick3DAssets.")
+        } else if (entry.typeName().startsWith(QmlDesignerPlugin::instance()->documentManager()
+                                                   .generatedComponentUtils().import3dTypePrefix().toUtf8())
                    && NodeHints::fromItemLibraryEntry(entry).canBeDroppedInView3D()) {
             entryKey = EK_importedModels;
         } else {
