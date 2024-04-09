@@ -185,3 +185,15 @@
     \externalpage https://doc-snapshots.qt.io/applicationmanager-dev/cmake-qt6-am-create-installable-package.html
     \title qt6_am_create_installable_package
 */
+/*!
+    \externalpage https://valgrind.org/info/tools.html
+    \title Valgrind's Tool Suite
+*/
+/*!
+    \externalpage https://valgrind.org/docs/manual/quick-start.html#quick-start.interpret
+    \title Interpreting Memcheck's Output
+*/
+/*!
+    \externalpage https://valgrind.org/docs/manual/manual-core.html#manual-core.suppress
+    \title Suppressing Errors
+*/

@@ -76,12 +76,6 @@
             \list
                 \li \l{Profiling QML Applications}
                 \li \l{Checking Code Coverage}
-                \li \l{Using Valgrind Code Analysis Tools}
-                \list
-                    \li \l{Detecting Memory Leaks with Memcheck}
-                    \li \l{Profiling Function Execution}
-                    \li \l{Running Valgrind Tools on External Applications}
-                \endlist
                 \li \l{Detecting Memory Leaks with Heob}
                 \li \l{Analyzing CPU Usage}
                 \li \l{Analyzing Code with Cppcheck}

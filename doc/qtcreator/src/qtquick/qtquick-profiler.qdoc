@@ -49,8 +49,8 @@
     \if defined(qtcreator)
     If frames get dropped even though JavaScript is not being run, and there are
     large, unexplained gaps in the timeline, check your custom QQuickItem
-    implementations. You can use \l{Using Valgrind Code Analysis Tools}
-    {Valgrind} or other general purpose profilers to analyze C++ code.
+    implementations. You can use \l{Profile function execution}
+    {Valgrind Callgrind} or other general purpose profilers to analyze C++ code.
 
     You can use \e {full stack tracing} to trace from the top level QML or
     JavaScript down to the C++ and all the way to the kernel space. You can

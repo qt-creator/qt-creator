@@ -13,8 +13,8 @@
     you select for a kit in \uicontrol Projects > \uicontrol {Build & Run} >
     \uicontrol Run > \uicontrol {Run Settings}.
 
-    \QC integrates \l{Analyzing Code}{Valgrind code analysis tools} for
-    detecting memory leaks and profiling function execution.
+    With \l{Valgrind's Tool Suite}, you can detect memory leaks and profile
+    function execution.
 
     To specify Valgrind settings for the current project:
 
@@ -38,11 +38,12 @@
 
     \endlist
 
-    Click \uicontrol {Restore Global} to revert to the global settings.
+    Select \uicontrol {Restore Global} to revert to the global settings.
 
     To specify global Valgrind settings, select \preferences >
     \uicontrol Analyzer.
 
-    \sa {Configuring Projects}, {Selecting Options for Memory Analysis},
-    {Selecting Profiling Options}, {Using Valgrind Code Analysis Tools}
+    \sa {Detect memory leaks with Memcheck}, {Profile function execution},
+    {Run Valgrind tools on external applications}, {Configuring Projects},
+    {Valgrind Callgrind}, {Valgrind Memcheck}
 */

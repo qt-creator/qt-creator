@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -8,92 +8,116 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-valgrind-overview.html
-    \page creator-analyzer.html
-    \nextpage creator-cache-profiler.html
+    \page creator-how-to-memcheck.html
+    \previouspage creator-how-tos.html
 
-    \title Detecting Memory Leaks with Memcheck
+    \ingroup creator-how-to-analyze
 
-    You can use the Memcheck tool included in the Valgrind tool suite to detect
-    problems that are related to memory management in applications. You can use
+    \title Detect memory leaks with Memcheck
+
+    With the Memcheck tool in \l{Valgrind's Tool Suite}, you can detect
+    problems that are related to memory management in applications. Use
     the tool together with the GDB debugger. When a problem is detected, the
     application is interrupted and you can debug it.
 
     \note You can install and run Memcheck locally on Linux. You can run
-    it on a remote host or device from any development machine. On Windows,
+    it on a remote host or device from any computer. On Windows,
     you can use the \l{Detecting Memory Leaks with Heob}{Heob} heap observer to
     receive similar results.
 
     After you download and install Valgrind tools, you can use Memcheck from
     \QC.
 
-    To analyze applications:
+    To detect memory leaks in applications:
 
     \list 1
 
-        \li In the \uicontrol Projects mode, select a debug build configuration.
+        \li Go to the \uicontrol Projects mode, and select a debug build
+            configuration.
 
-        \li Select \uicontrol Debug to open the \uicontrol Debug mode, and then
-            select \uicontrol Memcheck on the toolbar.
+        \li In the mode selector, select \uicontrol Debug > \uicontrol Memcheck.
 
-        \li Select the
-            \inlineimage icons/qtcreator-analyze-start-button.png "Start button"
-            button to start the application.
+            \image qtcreator-valgrind-memcheck.webp {Memcheck view}
+
+        \li Select \inlineimage icons/qtcreator-analyze-start-button.png
+            to start the application.
 
         \li Use the application to analyze it.
 
-        \li Select the \inlineimage icons/stop_small.png "Stop button"
-            button to view the results of the analysis in the
-            \uicontrol {Analysis} view.
+        \li Select \inlineimage icons/stop_small.png to view the results of the
+            analysis in \uicontrol {Memory Issues}.
 
     \endlist
 
-    While the application is running, Memcheck checks all reads and writes of
-    memory and intercepts calls that allocate or free memory or create or
-    delete memory blocks. The results are displayed when you stop Memcheck.
-    Click a line to view where a memory leak
-    occurred and a stack trace that shows what caused it.
+    \section1 View memory issues
 
-    As an alternative to collecting data, you can select \inlineimage icons/open.png
+    While the application is running, Memcheck does the following:
+
+    \list
+        \li Checks all reads and writes of memory.
+        \li Intercepts calls that allocate or free memory or create or
+            delete memory blocks.
+    \endlist
+
+    You can see the results when you stop Memcheck.
+
+    Select a line to see the place where a memory leak occurred and a stack trace
+    that shows what caused it.
+
+    As an alternative to collecting data, select \inlineimage icons/open.png
     to load an external log file in XML format into the \uicontrol Memcheck
     view.
-
-    \image qtcreator-valgrind-memcheck.png "Memcheck view"
 
     Move the mouse on a row to view more information about the function.
 
     To move between rows, select \inlineimage icons/prev.png
-    or \inlineimage icons/next.png
-    .
+    or \inlineimage icons/next.png.
 
-    To filter the results, select \inlineimage icons/filtericon.png
-    , and then select the types of issues to display in the view. You
+    To filter the results, select \inlineimage icons/filtericon.png, and
+    then select the types of issues to display in the view. You
     can view and hide definite and possible memory leaks, uninitialized
     values, invalid calls to \c free(), and external errors.
 
     For more information about using Memcheck, see
-    \l{http://valgrind.org/docs/manual/quick-start.html#quick-start.mcrun}
-    {Interpreting Memcheck's Output} in the Valgrind documentation.
+    \l{Interpreting Memcheck's Output} in the Valgrind documentation.
 
-    \section1 Selecting Options for Memory Analysis
+    \sa {Profile function execution},
+    {Run Valgrind tools on external applications},
+    {Specify Valgrind settings for a project}, {Valgrind Callgrind},
+    {Valgrind Memcheck}
+*/
 
-    You can specify analyzer settings either globally for all projects or
-    separately for each project in the \l{Specifying Run Settings}{run settings}
-    of the project.
+/*!
+    \page creator-preferences-memcheck.html
+    \previouspage creator-reference.html
 
-    To specify global settings for Valgrind, select \preferences >
-    \uicontrol Analyzer. The \uicontrol {Memcheck Memory Analysis Options}
-    group has Memcheck options.
+    \ingroup creator-reference-preferences-analyzer
+
+    \title Valgrind Memcheck
+
+    \brief Set preferences for Valgrind Memcheck.
+
+    Set \l{Valgrind's Tool Suite}{Valgrind} preferences either globally for all
+    projects or separately for each project in the \l{Specifying Run Settings}
+    {run settings} of the project.
+
+    To set global preferences for Valgrind, select \preferences >
+    \uicontrol Analyzer. Set Memcheck preferences in
+    \uicontrol {Memcheck Memory Analysis Options}.
+
+    \image qtcreator-valgrind-memcheck-options.png {Memory Analysis options}
 
     In \uicontrol {Extra Memcheck arguments}, specify additional arguments
     for launching the executable.
+
+    \section1 Setting Stack Trace Length
 
     Stack traces can get quite large and confusing, and therefore, reading them
     from the bottom up can help. If the stack trace is not big enough or it is
     too big, select \preferences > \uicontrol Analyzer and define the length of
     the stack trace in the \uicontrol {Backtrace frame count} field.
 
-    \image qtcreator-valgrind-memcheck-options.png "Memory Analysis options"
+    \section1 Tracking Origins of Uninitialized Memory
 
     Memcheck also reports uses of uninitialised values, most commonly with the
     message \uicontrol {Conditional jump or move depends on uninitialised value(s).}
@@ -101,12 +125,14 @@
     uninitialized memory} check box is selected by default. You can deselect it
     to make Memcheck run faster.
 
+    \section1 Viewing a Summary
+
     Memcheck searches for memory leaks when the client application finishes. To
     view the amount of leaks that occurred, select \uicontrol {Summary Only} in the
     \uicontrol {Check for leaks on finish} field. To also view details of each leak,
     select \uicontrol Full.
 
-    \section2 Showing Reachable and Indirectly Lost Blocks
+    \section1 Showing Reachable and Indirectly Lost Blocks
 
     \e Reachable blocks are blocks that are pointed at by a pointer or chain
     of pointers and that might have been freed before the application exited.
@@ -118,7 +144,7 @@
     To have them reported, select the \uicontrol {Show reachable and indirectly lost
     blocks}.
 
-    \section2 Suppressing Errors
+    \section1 Suppressing Errors
 
     Memcheck detects numerous problems in the system libraries, such as the C
     library, which come pre-installed with your OS. As you cannot easily fix
@@ -127,37 +153,40 @@
     when the system is built.
 
     You can write your own suppression files if parts of your project have
-    errors you cannot fix and you do not want to be reminded of them. Click
+    errors you cannot fix and you do not want to be reminded of them. Select
     \uicontrol Add in the \uicontrol {MemCheck Memory Analysis} dialog to add
     the suppression files.
-    For more information about writing suppression files, see
-    \l{http://valgrind.org/docs/manual/manual-core.html#manual-core.suppress}
-    {Suppressing Errors} in the Valgrind documentation.
 
+    For more information about writing suppression files, see
+    \l{Suppressing Errors} in the Valgrind documentation.
+
+    \sa {Detect memory leaks with Memcheck}, {Profile function execution},
+    {Run Valgrind tools on external applications},
+    {Specify Valgrind settings for a project}, {Valgrind Callgrind}
 */
 
 /*!
-    \previouspage creator-analyzer.html
     \page creator-cache-profiler.html
-    \nextpage creator-running-valgrind-remotely.html
+    \previouspage creator-how-tos.html
 
-    \title Profiling Function Execution
+    \ingroup creator-how-to-analyze
 
-    You can use the Callgrind tool included in the
-    \l{http://valgrind.org/info/tools.html}{Valgrind tool suite} to detect
-    problems that are related to executing functions. In addition, you
-    can load the data files generated by Callgrind into the
-    \l{https://kcachegrind.github.io/html/Home.html}{KCachegrind}
-    profile data visualization tool for browsing the performance results.
+    \title Profile function execution
+
+    With the Callgrind tool in \l{Valgrind's Tool Suite}, you can detect problems
+    that are related to executing functions. Load the data files generated by
+    Callgrind into the \l{https://kcachegrind.github.io/html/Home.html}
+    {KCachegrind} profile data visualization tool to browse the performance
+    results.
 
     After you download and install Valgrind tools and KCachegrind, you can use
     Callgrind and KCachegrind from \QC.
 
     \note You can install and run Callgrind and KCachegrind locally on Linux.
     You can run Callgrind on a remote Linux machine or device from any
-    development machine.
+    computer.
 
-    \section1 Building Apps for Profiling
+    \section1 Build apps for profiling
 
     Callgrind records the call history of functions that are executed when the
     application is run. It collects the number of instructions that are
@@ -181,28 +210,26 @@
     options for GCC are: \c{-g -O2}. It is
     advisable to use such a setup for Callgrind profiling.
 
-    \section1 Collecting Data
+    \section1 Collect data
 
     To analyze applications:
 
     \list 1
 
-        \li In the \uicontrol Projects mode, select a release build configuration.
+        \li Go to the \uicontrol Projects mode, and select a release build
+            configuration.
 
-        \li Select \uicontrol Debug to open the \uicontrol Debug mode, and then
-            select \uicontrol Callgrind on the toolbar.
+        \li In the mode selector, select \uicontrol Debug > \uicontrol Callgrind.
 
-            \image qtcreator-valgrind-callgrind-toolbar.png "Callgrind view toolbar"
+            \image qtcreator-valgrind-callgrind-toolbar.png {Callgrind view toolbar}
 
-        \li Select the
-            \inlineimage icons/qtcreator-analyze-start-button.png "Start button"
-            button to start the application.
+        \li Select \inlineimage icons/qtcreator-analyze-start-button.png
+            to start the application.
 
         \li Use the application to analyze it.
 
-        \li Select the \inlineimage icons/stop_small.png "Stop button"
-            button to view the results of the analysis in the
-            \uicontrol Functions view.
+        \li Select \inlineimage icons/stop_small.png to view the results of the
+            analysis in the \uicontrol Functions view.
 
     \endlist
 
@@ -220,7 +247,7 @@
     to view the data in KCachegrind. \QC launches KCachegrind
     and loads the data into it for visualization.
 
-    \section1 Viewing Collected Data
+    \section1 View collected data
 
     The results of the analysis are displayed in the \uicontrol Callgrind views.
     You can detach views and move them around. To revert the changes, select
@@ -261,17 +288,31 @@
     To remove template parameter lists when displaying function names, select
     \uicontrol <>.
 
-    \section1 Selecting Profiling Options
+    \sa {Detect memory leaks with Memcheck}, {Profile function execution},
+    {Run Valgrind tools on external applications},
+    {Specify Valgrind settings for a project}, {Valgrind Callgrind},
+    {Valgrind Memcheck}
+*/
 
-    You can specify analyzer settings either globally for all projects or
-    separately for each project in the \l{Specifying Run Settings}{run settings}
-    of the project.
+/*!
+    \page creator-preferences-callgrind.html
+    \previouspage creator-reference.html
 
-    To specify global settings for Valgrind, select \preferences >
-    \uicontrol Analyzer. The \uicontrol {Callgrind Profiling Options}
-    group has Callgrind options.
+    \ingroup creator-reference-preferences-analyzer
 
-    \image qtcreator-valgrind-callgrind-options.png "Valgrind options"
+    \title Valgrind Callgrind
+
+    \brief Set preferences for Valgrind Callgrind.
+
+    Set \l{Valgrind's Tool Suite}{Valgrind} preferences either globally for all
+    projects or separately for each project in the \l{Specifying Run Settings}
+    {run settings} of the project.
+
+    To set global preferences for Valgrind, select \preferences >
+    \uicontrol Analyzer. Set Callgrind preferences in
+    \uicontrol {Callgrind Profiling Options}.
+
+    \image qtcreator-valgrind-callgrind-options.png {Callgrind Profiling Options}
 
     In the \uicontrol {KCachegrind executable} field, enter the path to the
     KCachegrind executable to launch.
@@ -292,7 +333,7 @@
     global bus events of the event type \c Ge that are executed,
     select \uicontrol {Collect global bus events}.
 
-    \section2 Enabling Full Cache Simulation
+    \section1 Enabling Full Cache Simulation
 
     By default, only instruction read accesses (Ir) are counted. To fully
     simulate the cache, select the \uicontrol {Enable cache simulation} check box.
@@ -308,7 +349,7 @@
 
     \endlist
 
-    \section2 Enabling Branch Prediction Simulation
+    \section1 Enabling Branch Prediction Simulation
 
     To enable the following additional event counters, select the
     \uicontrol {Enable branch prediction simulation} check box:
@@ -323,32 +364,39 @@
 
     \endlist
 
-    \sa {Analyzing CPU Usage}, {Detach views}
+    \sa {Analyzing CPU Usage}, {Detect memory leaks with Memcheck},
+    {Detach views}, {Run Valgrind tools on external applications},
+    {Specify Valgrind settings for a project},
+    {Valgrind Memcheck}
 */
 
 /*!
-    \previouspage creator-cache-profiler.html
     \page creator-running-valgrind-remotely.html
-    \nextpage creator-clang-tools.html
+    \previouspage creator-how-tos.html
 
-    \title Running Valgrind Tools on External Applications
+    \ingroup creator-how-to-analyze
 
-    \QC integrates Valgrind code analysis tools for detecting memory
-    leaks and profiling function execution.
+    \title Run Valgrind tools on external applications
+
+    With \l{Valgrind's Tool Suite}, you can detect memory leaks and profile
+    function execution.
 
     To run the Valgrind tools to analyze external applications for which
     you do not have a \QC project:
 
     \list 1
 
-        \li Select \uicontrol Analyze > \uicontrol {Valgrind Memory Analyzer (External
+        \li Go to \uicontrol Analyze > \uicontrol {Valgrind Memory Analyzer (External
             Application)} or \uicontrol {Valgrind Function Profiler (External Application)}.
 
-            \image qtcreator-valgrind-remote-settings.png "Start Remote Analysis dialog"
+            \image qtcreator-valgrind-remote-settings.png {Start Remote Analysis dialog}
 
-        \li Specify the application to run and analyze, and the \l{glossary-buildandrun-kit}{kit}
-            to use.
+        \li Select the application to run and analyze, as well as the
+            \l{glossary-buildandrun-kit}{kit} to use.
 
     \endlist
 
+    \sa {Detect memory leaks with Memcheck}, {Profile function execution},
+    {Kits}, {Specify Valgrind settings for a project}, {Valgrind Callgrind},
+    {Valgrind Memcheck}
 */

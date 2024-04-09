@@ -49,11 +49,6 @@
             Do static code analysis and architecture analysis to detect and
             eliminate unnecessary complexity of code.
 
-        \li \l{Using Valgrind Code Analysis Tools}{Valgrind Code Analysis Tools}
-
-            Detect problems in memory management by using the Memcheck
-            tool and find cache misses in the code by using the Callgrind tool.
-
         \li \l{Clang Tools}
 
             Detect problems in C, C++, and Objective-C programs by
@@ -83,4 +78,5 @@
             built-in trace-viewer (\c{chrome://tracing}).
     \endlist
 
+    \sa {Detect memory leaks with Memcheck}, {Profile function execution}
 */
