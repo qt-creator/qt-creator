@@ -155,42 +155,11 @@
     \image qtcreator-ios-simulator-deploy.png
 
     The simulator is started automatically when you run the application.
-    To start the simulator manually, select \uicontrol Preferences >
-    \uicontrol Devices > \uicontrol iOS > \uicontrol Start.
+    To start the simulator manually, either start the Simulator application
+    directly with Spotlight, or go to \uicontrol Xcode > \uicontrol {Open Developer Tool}
+    in Xcode.
 
-    To take screenshots of the simulator, select \uicontrol Preferences >
-    \uicontrol Devices > \uicontrol iOS > \uicontrol Screenshot. The screenshots
-    are stored in the directory specified in the
-    \uicontrol {Screenshot directory} field.
-
-    \section2 Managing Simulators
-
-    The available simulators are listed in \uicontrol Preferences >
-    \uicontrol Devices > \uicontrol iOS.
-
-    \image qtcreator-ios-preferences.png
-
-    To create a new simulator instance:
-
-    \list
-
-        \li Select \uicontrol Create.
-
-        \li In the \uicontrol {Device type} field, select the device type from
-            a list of devices supported by the Xcode version set as current on
-            your local machine.
-
-        \li In the \uicontrol {OS version} field, select an OS version from a
-            list of OS versions supported by the selected device and the current
-            Xcode version.
-
-    \endlist
-
-    To rename the selected simulator, select \uicontrol Rename.
-
-    To reset the contents and settings of the selected simulators, select
-    \uicontrol Reset.
-
-    To delete the selected simulator, select \uicontrol Delete.
-
+    Manage the available simulator devices
+    \l{https://developer.apple.com/documentation/xcode/running-your-app-in-simulator-or-on-a-device/#Configure-the-list-of-simulated-devices}
+    {in Xcode}.
 */
