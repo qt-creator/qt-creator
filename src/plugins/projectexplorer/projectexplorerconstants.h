@@ -145,6 +145,8 @@ const char CUSTOM_TOOLCHAIN_TYPEID[] = "ProjectExplorer.ToolChain.Custom";
 const char DEFAULT_WORKING_DIR[] = "%{buildDir}";
 const char DEFAULT_WORKING_DIR_ALTERNATE[] = "%{sourceDir}";
 
+const char QTC_DEFAULT_BUILD_DIRECTORY_TEMPLATE[] = "QTC_DEFAULT_BUILD_DIRECTORY_TEMPLATE";
+
 // Desktop Device related ids:
 const char DESKTOP_DEVICE_ID[] = "Desktop Device";
 const char DESKTOP_DEVICE_TYPE[] = "Desktop";
