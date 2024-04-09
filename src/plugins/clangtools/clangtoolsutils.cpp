@@ -310,7 +310,10 @@ QStringList extraClangToolsAppendOptions()
 static QVersionNumber fixupVersion(const VersionAndSuffix &versionAndSuffix)
 {
     // llvm.org only does document releases for the first released version
-    QVersionNumber version = QVersionNumber(versionAndSuffix.first.majorVersion(), 0, 0);
+    // Since LLVM 18, the releases start at minor version 1.
+    const int major = versionAndSuffix.first.majorVersion();
+    const int minor = major >= 18 ? 1 : 0;
+    QVersionNumber version = QVersionNumber(major, minor, 0);
 
     if (version == QVersionNumber(0))
         version = QVersionNumber(12);
