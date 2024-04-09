@@ -93,7 +93,7 @@ signals:
     void matBundleExistsChanged();
 
 private:
-    void loadUserBundle();
+    void loadMaterialBundle();
     bool isValidIndex(int idx) const;
     void createImporter(const QString &bundlePath, const QString &bundleId,
                         const QStringList &sharedFiles);

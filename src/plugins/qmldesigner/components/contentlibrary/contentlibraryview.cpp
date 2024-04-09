@@ -533,6 +533,10 @@ void ContentLibraryView::addLibMaterial(const ModelNode &mat, const QPixmap &ico
     auto [name, qml] = m_widget->userModel()->getUniqueLibMaterialNameAndQml(
                                     mat.variantProperty("objectName").value().toString());
 
+    bundlePath.pathAppended("icons").createDir();
+    bundlePath.pathAppended("images").createDir();
+    bundlePath.pathAppended("shaders").createDir();
+
     QString iconPath = QLatin1String("icons/%1.png").arg(mat.id());
     QString fullIconPath = bundlePath.pathAppended(iconPath).toString();
 
