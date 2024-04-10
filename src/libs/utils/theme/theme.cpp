@@ -37,9 +37,25 @@ Theme *proxyTheme()
     return new Theme(m_creatorTheme);
 }
 
+static bool paletteIsDark(const QPalette &pal)
+{
+    return pal.color(QPalette::Window).lightnessF() < pal.color(QPalette::WindowText).lightnessF();
+}
+
+static bool isOverridingPalette(const Theme *theme)
+{
+    if (theme->flag(Theme::DerivePaletteFromTheme))
+        return true;
+    if (theme->flag(Theme::DerivePaletteFromThemeIfNeeded)
+        && paletteIsDark(Theme::initialPalette()) != theme->flag(Theme::DarkUserInterface)) {
+        return true;
+    }
+    return false;
+}
+
 void setThemeApplicationPalette()
 {
-    if (m_creatorTheme && m_creatorTheme->flag(Theme::DerivePaletteFromTheme))
+    if (m_creatorTheme && isOverridingPalette(m_creatorTheme))
         QApplication::setPalette(m_creatorTheme->palette());
 }
 
@@ -354,7 +370,7 @@ QPalette Theme::initialPalette()
 QPalette Theme::palette() const
 {
     QPalette pal = initialPalette();
-    if (!flag(DerivePaletteFromTheme))
+    if (!isOverridingPalette(this))
         return pal;
 
     const static struct {

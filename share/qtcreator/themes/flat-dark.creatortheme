@@ -500,7 +500,7 @@ TerminalAnsi15=ffffff
 
 [Flags]
 ComboBoxDrawTextShadow=false
-DerivePaletteFromTheme=true
+DerivePaletteFromThemeIfNeeded=true
 DrawIndicatorBranch=true
 DrawSearchResultWidgetFrame=false
 DrawTargetSelectorBottom=false

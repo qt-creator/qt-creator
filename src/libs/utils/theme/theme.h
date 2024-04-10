@@ -527,6 +527,7 @@ public:
         DrawToolBarBorders,
         ComboBoxDrawTextShadow,
         DerivePaletteFromTheme,
+        DerivePaletteFromThemeIfNeeded,
         FlatToolBars,
         FlatSideBarIcons,
         FlatProjectsMode,

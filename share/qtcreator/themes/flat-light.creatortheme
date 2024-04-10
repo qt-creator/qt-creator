@@ -1,25 +1,28 @@
 [General]
-Includes=light.figmatokens
+Includes=light.figmatokens, light-palette.inc
 ThemeName=Flat Light
 PreferredStyles=
 
 [Palette]
-shadowBackground=ffe4e4e4
-text=ff000000
-textDisabled=55000000
+shadowBackground=PaletteDark
+text=PaletteWindowText
+textDisabled=PaletteTextDisabled
 toolBarItem=a0010508
 toolBarItemDisabled=38000000
 fancyBarsNormalTextColor=ff000000
 fancyBarsBoldTextColor=a0010508
 hoverBackground=1a000000
 selectedBackground=a8ffffff
-normalBackground=ffffffff
-alternateBackground=ff515151
+normalBackground=PaletteWindow
+alternateBackground=PaletteAlternateBase
 stop_error=ffec7373
 run_success=ff52c23b
 splitter=ffbdbebf
 error=ffdf4f4f
 warning=ffecbc1c
+textColorLink=PaletteLink
+textColorLinkVisited=PaletteLinkVisited
+backgroundColorDisabled=PaletteWindowDisabled
 qmlDesignerButtonColor=fff8f8f8
 
 ;DS Theme Palette START
@@ -474,13 +477,12 @@ TerminalAnsi15=e5e5e6
 
 [Flags]
 ComboBoxDrawTextShadow=false
-DerivePaletteFromTheme=false
+DerivePaletteFromThemeIfNeeded=true
 DrawIndicatorBranch=true
 DrawSearchResultWidgetFrame=false
 DrawTargetSelectorBottom=false
 DrawToolBarHighlights=false
 DrawToolBarBorders=true
-ApplyThemePaletteGlobally=false
 FlatToolBars=true
 FlatSideBarIcons=true
 FlatProjectsMode=false
