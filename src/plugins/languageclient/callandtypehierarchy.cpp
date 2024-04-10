@@ -311,7 +311,11 @@ private:
     virtual void sendRequest(Client *client, const TextDocumentPositionParams &params,
                              const Core::IDocument *document) = 0;
 
-    virtual void onItemDoubleClicked(const QModelIndex &index) { Q_UNUSED(index) }
+    void onItemDoubleClicked(const QModelIndex &index)
+    {
+        if (const auto link = index.data(LinkRole).value<Link>(); link.hasValidTarget())
+            updateHierarchyAtCursorPosition();
+    }
 
     void onItemActivated(const QModelIndex &index)
     {
@@ -390,12 +394,6 @@ private:
             handlePrepareResponse(client, response);
         });
         client->sendMessage(request);
-    }
-
-    void onItemDoubleClicked(const QModelIndex &index) override
-    {
-        if (const auto link = index.data(LinkRole).value<Link>(); link.hasValidTarget())
-            reload();
     }
 
     void handlePrepareResponse(Client *client,
