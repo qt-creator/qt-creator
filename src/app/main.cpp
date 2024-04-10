@@ -679,10 +679,12 @@ int main(int argc, char **argv)
     setPixmapCacheLimit();
     loadFonts();
 
-    if (Utils::HostOsInfo::isWindowsHost() && !qFuzzyCompare(qApp->devicePixelRatio(), 1.0)
-        && !hasStyleOption) {
+    // On 100% or 200% scaling we can use the default 'Vista' style on Windows
+    qreal tmp;
+    const bool fractionalDpi = !qFuzzyIsNull(std::modf(qApp->devicePixelRatio(), &tmp));
+    if (Utils::HostOsInfo::isWindowsHost() && fractionalDpi && !hasStyleOption)
         QApplication::setStyle(QLatin1String("fusion"));
-    }
+
     const int threadCount = QThreadPool::globalInstance()->maxThreadCount();
     QThreadPool::globalInstance()->setMaxThreadCount(qMax(4, 2 * threadCount));
 
