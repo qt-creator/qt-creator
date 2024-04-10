@@ -15,7 +15,7 @@
 #define QTC_ASSERT_STRING(cond) qDebug("SOFT ASSERT: \"" cond"\" in file " __FILE__ ", line " QTC_ASSERT_STRINGIFY(__LINE__))
 #define QTC_ASSERT(cond, action) if (cond) {} else { QTC_ASSERT_STRING(#cond); action; } do {} while (0)
 
-static Q_LOGGING_CATEGORY(imageContainerDebug, "qtc.imagecontainer.debug", QtDebugMsg)
+static Q_LOGGING_CATEGORY(imageContainerDebug, "qtc.imagecontainer")
 
 namespace QmlDesigner {
 
@@ -194,9 +194,10 @@ static void readSharedMemory(qint32 key, ImageContainer &container)
         QImage image = QImage(imageWidth, imageHeight, QImage::Format(imageFormat));
         image.setDevicePixelRatio(pixelRatio);
 
-        if (image.isNull())
-            qCInfo(imageContainerDebug()) << Q_FUNC_INFO << "Not able to create image:" << imageWidth << imageHeight << imageFormat;
-        else
+        if (image.isNull()) {
+            if (imageWidth || imageHeight || imageFormat)
+                qCWarning(imageContainerDebug) << Q_FUNC_INFO << "Not able to create image:" << imageWidth << imageHeight << imageFormat;
+        } else
             std::memcpy(image.bits(), reinterpret_cast<const qint32*>(sharedMemory.constData()) + 6, byteCount);
 
         container.setImage(image);
