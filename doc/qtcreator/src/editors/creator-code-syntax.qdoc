@@ -66,9 +66,6 @@
 
     \section1 Set line annotation positions
 
-    To specify the position of the line annotations when looking at them in the
-    code editor, select \uicontrol {Annotation Settings} in the tooltip popup.
-
     To specify the position where the annotations are displayed, go to
     \preferences > \uicontrol {Text Editor} >
     \uicontrol Display > \uicontrol {Line annotations}, and then select
@@ -83,13 +80,7 @@
     view them.
 
     \if defined(qtcreator)
-    \section1 Inspect QML and JavaScript
-
-    To inspect QML and JavaScript properties, methods, and enums, move the
-    cursor over them and go to \uicontrol Tools > \uicontrol {QML/JS} >
-    \uicontrol {Inspect API for Element Under Cursor}.
-
-    \sa {Clangd}
+    \sa {Analyze code with Clang-Tidy and Clazy}
     \endif
 
     \sa {JavaScript and QML Checks}
@@ -760,24 +751,21 @@
 
     \section1 Resetting the Code Model
 
-    If you change the build and run kit when you have QML files open in the code
-    editor, the code model might become corrupt. The following error message
-    indicates that this might have happened: \e{Using Qt Quick 1 code model
-    instead of Qt Quick 2}.
+    If you see the following error messages after you add a new QML module,
+    try building the project and then resetting the code model:
 
-    To see the error message, move the mouse pointer over code that
+    \list
+        \li QML module not found.
+        \li Unknown Component (M300).
+    \endlist
+
+    To see an error message, move the mouse pointer over code that
     \QC underlines in the code editor or when you open a QML file in \QDS.
 
     To reset the code model, select \uicontrol Tools > \uicontrol {QML/JS} >
     \uicontrol {Reset Code Model}.
 
-    \if defined(qtcreator)
-    If this does not help, try changing the QML emulation layer to the one that
-    was built with the same Qt version as the one selected in the build and run
-    kit.
-    \endif
-
-    \sa {Check code syntax}
+    \sa {Check code syntax}, {Using QML Modules with Plugins}
 */
 
 /*!

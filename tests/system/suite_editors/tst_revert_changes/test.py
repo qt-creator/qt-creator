@@ -33,7 +33,7 @@ def main():
         __modifyFile__(fileName, modification)
     test.log("Reverting all files...")
     fileModifications = dict(zip(fileModifications.keys(),
-                                 (__builtin__.bool(v) for v in fileModifications.values())))
+                                 (builtins.bool(v) for v in fileModifications.values())))
     revertChanges(fileModifications)
     invokeMenuItem("File", "Exit")
 

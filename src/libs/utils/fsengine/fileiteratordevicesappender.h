@@ -7,10 +7,12 @@
 #include "../hostosinfo.h"
 
 #include <QtCore/private/qabstractfileengine_p.h>
+#include <QtGlobal>
 
 namespace Utils {
 namespace Internal {
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 8, 0)
 // Based on http://bloglitb.blogspot.com/2011/12/access-to-private-members-safer.htm
 template<typename Tag, typename Tag::type M>
 struct PrivateAccess
@@ -25,6 +27,7 @@ struct QAFEITag
 };
 
 template struct PrivateAccess<QAFEITag, &QAbstractFileEngineIterator::setPath>;
+#endif
 
 class FileIteratorWrapper : public QAbstractFileEngineIterator
 {
@@ -36,25 +39,47 @@ class FileIteratorWrapper : public QAbstractFileEngineIterator
     };
 
 public:
-    FileIteratorWrapper(std::unique_ptr<QAbstractFileEngineIterator> &&baseIterator,
-                        QDir::Filters filters,
-                        const QStringList &filterNames)
-        : QAbstractFileEngineIterator(filters, filterNames)
+    FileIteratorWrapper(std::unique_ptr<QAbstractFileEngineIterator> &&baseIterator)
+        : QAbstractFileEngineIterator(
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+            baseIterator->path(),
+#endif
+            baseIterator->filters(), baseIterator->nameFilters())
         , m_baseIterator(std::move(baseIterator))
-    {}
+    {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+        // Can be called in the constructor since the iterator path
+        // has already been set
+        setStatus();
+#endif
+    }
 
 public:
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+    bool advance() override
+    {
+        if (m_status == State::Ended)
+            return false;
+
+        const bool res = m_baseIterator->advance();
+        if (m_status == State::IteratingRoot && !res) {
+            // m_baseIterator finished, but we need to advance one last time, so that
+            // currentFileName() returns FilePath::specialRootPath().
+            m_status = State::Ended;
+            return true;
+        }
+
+        return res;
+    }
+#else
     QString next() override
     {
         if (m_status == State::Ended)
             return QString();
 
-        setPath();
-        checkStatus();
-
         if (m_status == State::BaseIteratorEnd) {
             m_status = State::Ended;
-            return "__qtc__devices__";
+            return FilePath::specialRootName();
         }
 
         return m_baseIterator->next();
@@ -65,62 +90,59 @@ public:
             return false;
 
         setPath();
-        checkStatus();
 
-        if (m_status == State::BaseIteratorEnd)
+        const bool res = m_baseIterator->hasNext();
+        if (m_status == State::IteratingRoot && !res) {
+            // m_baseIterator finished, but we need to advance one last time, so that
+            // e.g. next() and currentFileName() return FilePath::specialRootPath().
+            m_status = State::BaseIteratorEnd;
             return true;
+        }
 
-        return m_baseIterator->hasNext();
+        return res;
     }
+#endif
     QString currentFileName() const override
     {
-        if (m_status == State::Ended)
-            return FilePath::specialRootPath();
-
-        setPath();
-        checkStatus();
-        return m_baseIterator->currentFileName();
+        return m_status == State::Ended ? FilePath::specialRootPath()
+                                        : m_baseIterator->currentFileName();
     }
     QFileInfo currentFileInfo() const override
     {
-        if (m_status == State::Ended)
-            return QFileInfo(FilePath::specialRootPath());
-        setPath();
-        checkStatus();
-        return m_baseIterator->currentFileInfo();
+        return m_status == State::Ended ? QFileInfo(FilePath::specialRootPath())
+                                        : m_baseIterator->currentFileInfo();
     }
 
 private:
+    QString setStatus() const
+    {
+        // path() can be "/somedir/.." so we need to clean it first.
+        // We only need QDir::cleanPath here, as the path is always
+        // a fs engine path and will not contain scheme:// etc.
+        QString p = QDir::cleanPath(path());
+        if (p.compare(HostOsInfo::root().path(), Qt::CaseInsensitive) == 0)
+            m_status = State::IteratingRoot;
+        return p;
+    }
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 8, 0)
     void setPath() const
     {
         if (!m_hasSetPath) {
-            // path() can be "/somedir/.." so we need to clean it first.
-            // We only need QDir::cleanPath here, as the path is always
-            // a fs engine path and will not contain scheme:// etc.
-            const QString p = QDir::cleanPath(path());
-            if (p.compare(HostOsInfo::root().path(), Qt::CaseInsensitive) == 0)
-                m_status = State::IteratingRoot;
-
+            const QString &p = setStatus();
             ((*m_baseIterator).*get(QAFEITag()))(p);
             m_hasSetPath = true;
         }
     }
-
-    void checkStatus() const
-    {
-        if (m_status == State::NotIteratingRoot) {
-            return;
-        }
-        if (m_status == State::IteratingRoot) {
-            if (m_baseIterator->hasNext() == false) {
-                m_status = State::BaseIteratorEnd;
-            }
-        }
-    }
+#endif
 
 private:
     std::unique_ptr<QAbstractFileEngineIterator> m_baseIterator;
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 8, 0)
     mutable bool m_hasSetPath{false};
+#endif
+
     mutable State m_status{State::NotIteratingRoot};
 };
 

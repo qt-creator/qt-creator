@@ -1615,7 +1615,7 @@ private:
         }
 
         // FIXME: Use asyncCopyFile instead
-        nextFile();
+        QMetaObject::invokeMethod(this, &GenericTransferImpl::nextFile, Qt::QueuedConnection);
     }
 
     int m_currentIndex = 0;

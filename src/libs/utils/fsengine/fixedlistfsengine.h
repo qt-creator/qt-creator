@@ -9,6 +9,7 @@
 #include "../stringutils.h"
 
 #include <QtCore/private/qabstractfileengine_p.h>
+#include <QtGlobal>
 
 namespace Utils {
 namespace Internal {
@@ -63,10 +64,20 @@ public:
 
         return QAbstractFileEngine::fileName(file);
     }
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+    IteratorUniquePtr beginEntryList(const QString &path,
+                                     QDir::Filters filters,
+                                     const QStringList &filterNames) override
+    {
+        return std::make_unique<DirIterator>(m_children, path, filters, filterNames);
+    }
+#else
     Iterator *beginEntryList(QDir::Filters /*filters*/, const QStringList & /*filterNames*/) override
     {
         return new DirIterator(m_children);
     }
+#endif
 };
 
 } // namespace Internal

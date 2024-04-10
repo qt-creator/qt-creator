@@ -954,16 +954,25 @@ ComponentCompleteDisabler::~ComponentCompleteDisabler()
 class QrcEngineHandler : public QAbstractFileEngineHandler
 {
 public:
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+    std::unique_ptr<QAbstractFileEngine> create(const QString &fileName) const final;
+#else
     QAbstractFileEngine *create(const QString &fileName) const final;
+#endif
 };
 
-QAbstractFileEngine *QrcEngineHandler::create(const QString &fileName) const
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+std::unique_ptr<QAbstractFileEngine>
+#else
+QAbstractFileEngine *
+#endif
+QrcEngineHandler::create(const QString &fileName) const
 {
     if (fileName.startsWith(":/qt-project.org"))
-        return nullptr;
+        return {};
 
     if (fileName.startsWith(":/qtquickplugin"))
-        return nullptr;
+        return {};
 
     if (fileName.startsWith(":/")) {
         const QStringList searchPaths = qmlDesignerRCPath().split(';');
@@ -974,18 +983,22 @@ QAbstractFileEngine *QrcEngineHandler::create(const QString &fileName) const
                 fixedPath.replace(":" + qrcDefintion.first(), qrcDefintion.last() + '/');
 
                 if (fileName == fixedPath)
-                    return nullptr;
+                    return {};
 
                 if (QFileInfo::exists(fixedPath)) {
                     fixedPath.replace("//", "/");
                     fixedPath.replace('\\', '/');
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+                    return std::make_unique<QFSFileEngine>(fixedPath);
+#else
                     return new QFSFileEngine(fixedPath);
+#endif
                 }
             }
         }
     }
 
-    return nullptr;
+    return {};
 }
 
 static QrcEngineHandler* s_qrcEngineHandler = nullptr;

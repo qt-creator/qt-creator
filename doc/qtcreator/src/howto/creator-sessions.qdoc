@@ -60,7 +60,7 @@
 
     To manage sessions, select \uicontrol File > \uicontrol Sessions > \uicontrol Manage.
 
-    \image qtcreator-session-manager.png
+    \image qtcreator-session-manager.png {Session Manager}
 
     To save a session under a new name, select \uicontrol Clone.
 
@@ -97,7 +97,7 @@
     \key Ctrl+Alt+<number>, where \e <number> is the number of the session to
     open (available for the first nine sessions).
 
-    \image qtcreator-welcome-session.png
+    \image qtcreator-welcome-session.webp {Sessions in the Welcome mode}
 
     To view more information about a session, select the down arrow icon that
     appears when you move the mouse cursor over the session name. Select actions

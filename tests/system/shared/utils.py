@@ -71,15 +71,15 @@ def verifyEnabled(objectSpec, expectedState = True):
 # param itemName is the item to be selected in the combo box
 # returns True if selection was changed or False if the wanted value was already selected
 def selectFromCombo(objectSpec, itemName):
-    object = verifyEnabled(objectSpec)
-    if itemName == str(object.currentText):
+    comboObject = verifyEnabled(objectSpec)
+    if itemName == str(comboObject.currentText):
         return False
     else:
-        mouseClick(object)
+        mouseClick(comboObject)
         snooze(1)
         # params required here
-        mouseClick(waitForObjectItem(object, itemName.replace(".", "\\.")), 5, 5, 0, Qt.LeftButton)
-        test.verify(waitFor("str(object.currentText)==itemName", 5000),
+        mouseClick(waitForObjectItem(comboObject, itemName.replace(".", "\\.")))
+        test.verify(waitFor("str(comboObject.currentText)==itemName", 5000),
                     "Switched combo item to '%s'" % itemName)
         return True
 
@@ -110,7 +110,7 @@ def textUnderCursor(window, fromPos, toPos):
     cursor.movePosition(toPos, QTextCursor.KeepAnchor)
     returnValue = cursor.selectedText()
     cursor.setPosition(oldposition)
-    return returnValue
+    return str(returnValue)
 
 def which(program):
     # Don't use spawn.find_executable because it can't find .bat or
@@ -595,15 +595,12 @@ def getHelpTitle():
 
 
 def isString(sth):
-    if sys.version_info.major > 2:
-        return isinstance(sth, str)
-    else:
-        return isinstance(sth, (str, unicode))
+    return isinstance(sth, str)
+
 
 # helper function to ensure we get str, converts bytes if necessary
 def stringify(obj):
-    stringTypes = (str, unicode) if sys.version_info.major == 2 else (str)
-    if isinstance(obj, stringTypes):
+    if isString(obj):
         return obj
     if isinstance(obj, bytes):
         if not platform.system() in ('Microsoft', 'Windows'):

@@ -423,6 +423,12 @@
             \uicontrol {Find References to Symbol Under Cursor}.
     \endlist
 
+    \section1 Inspect QML and JavaScript
+
+    To inspect QML and JavaScript properties, methods, and enums, place the
+    cursor over them and go to \uicontrol Tools > \uicontrol {QML/JS} >
+    \uicontrol {Inspect API for Element Under Cursor}.
+
     \section1 Move between QML and C++
 
     To move to the C++ implementation of a QML type in the code editor, place the
@@ -433,7 +439,8 @@
         \li Go to \uicontrol {Follow Symbol Under Cursor} in the context menu.
     \endlist
 
-    \sa {Edit Code}{How To: Edit Code}, {Edit Mode}, {Navigate with locator}
+    \sa {Edit Code}{How To: Edit Code}, {Clangd}, {Edit Mode},
+    {Navigate with locator}
 */
 
 /*!

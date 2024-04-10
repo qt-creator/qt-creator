@@ -603,7 +603,7 @@ def __writeProjectTreeFile__(projectTree, filename):
 
 def __getTestData__(record):
     return [testData.field(record, "text"),
-            __builtin__.int(testData.field(record, "nestinglevel"))]
+            builtins.int(testData.field(record, "nestinglevel"))]
 
 def compareProjectTree(rootObject, dataset):
     root = waitForObject(rootObject)

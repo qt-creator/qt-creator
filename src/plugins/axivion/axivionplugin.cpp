@@ -238,6 +238,7 @@ public:
     std::unordered_map<IDocument *, std::unique_ptr<TaskTree>> m_docMarksTrees;
     TaskTreeRunner m_issueInfoRunner;
     FileInProjectFinder m_fileFinder; // FIXME maybe obsolete when path mapping is implemented
+    QMetaObject::Connection m_fileFinderConnection;
 };
 
 static AxivionPluginPrivate *dd = nullptr;
@@ -332,7 +333,7 @@ void AxivionPluginPrivate::onStartupProjectChanged(Project *project)
         return;
 
     if (m_project)
-        disconnect(m_project, &Project::fileListChanged, this, &AxivionPluginPrivate::handleOpenedDocs);
+        disconnect(m_fileFinderConnection);
 
     m_project = project;
     clearAllMarks();
@@ -346,7 +347,7 @@ void AxivionPluginPrivate::onStartupProjectChanged(Project *project)
     }
 
     m_fileFinder.setProjectDirectory(m_project->projectDirectory());
-    connect(m_project, &Project::fileListChanged, this, [this]{
+    m_fileFinderConnection = connect(m_project, &Project::fileListChanged, this, [this] {
         m_fileFinder.setProjectFiles(m_project->files(Project::AllFiles));
         handleOpenedDocs();
     });

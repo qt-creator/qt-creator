@@ -184,7 +184,8 @@
 
     \title Move between files
 
-    The editor toolbar shows the file that is currently open (1) in the editor.
+    The editor toolbar shows the name of the file that is currently open (1) in
+    the editor.
 
     \image qtcreator-editor-open-files.webp {Current file shown on Edit mode toolbar}
 

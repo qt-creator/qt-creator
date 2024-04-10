@@ -1,10 +1,7 @@
 # Copyright (C) 2016 The Qt Company Ltd.
 # SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-try:
-    import __builtin__                  # Python 2
-except ImportError:
-    import builtins as __builtin__      # Python 3
+import builtins
 
 # for easier re-usage (because Python hasn't an enum type)
 class Targets:
@@ -128,7 +125,7 @@ class QtPath:
 
     @staticmethod
     def toVersionTuple(versionString):
-        return tuple(map(__builtin__.int, versionString.split(".")))
+        return tuple(map(builtins.int, versionString.split(".")))
 
     @staticmethod
     def getQtVersion(target):
