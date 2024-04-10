@@ -3870,354 +3870,435 @@ void TextEditorWidgetPrivate::registerActions()
     using namespace TextEditor::Constants;
 
     m_undoAction = ActionBuilder(this, UNDO)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->undo(); })
-            .contextAction();
+                       .setContext(m_editorContext)
+                       .addOnTriggered([this] { q->undo(); })
+                       .setScriptable(true)
+                       .contextAction();
     m_redoAction = ActionBuilder(this, REDO)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->redo(); })
-            .contextAction();
+                       .setContext(m_editorContext)
+                       .addOnTriggered([this] { q->redo(); })
+                       .setScriptable(true)
+                       .contextAction();
     m_copyAction = ActionBuilder(this, COPY)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->copy(); })
-            .contextAction();
+                       .setContext(m_editorContext)
+                       .addOnTriggered([this] { q->copy(); })
+                       .setScriptable(true)
+                       .contextAction();
     m_cutAction = ActionBuilder(this, CUT)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->cut(); })
-            .contextAction();
+                      .setContext(m_editorContext)
+                      .addOnTriggered([this] { q->cut(); })
+                      .setScriptable(true)
+                      .contextAction();
     m_modifyingActions << ActionBuilder(this, PASTE)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->paste(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->paste(); })
+                              .setScriptable(true)
+                              .contextAction();
     ActionBuilder(this, SELECTALL)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->selectAll(); });
-    ActionBuilder(this, GOTO)
-            .setContext(m_editorContext)
-            .addOnTriggered([] { LocatorManager::showFilter(lineNumberFilter()); });
+        .setContext(m_editorContext)
+        .setScriptable(true)
+        .addOnTriggered([this] { q->selectAll(); });
+    ActionBuilder(this, GOTO).setContext(m_editorContext).addOnTriggered([] {
+        LocatorManager::showFilter(lineNumberFilter());
+    });
     ActionBuilder(this, PRINT)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->print(ICore::printer()); })
-            .contextAction();
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->print(ICore::printer()); })
+        .contextAction();
     m_modifyingActions << ActionBuilder(this, DELETE_LINE)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->deleteLine(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->deleteLine(); })
+                              .setScriptable(true)
+                              .contextAction();
     m_modifyingActions << ActionBuilder(this, DELETE_END_OF_LINE)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->deleteEndOfLine(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->deleteEndOfLine(); })
+                              .setScriptable(true)
+                              .contextAction();
     m_modifyingActions << ActionBuilder(this, DELETE_END_OF_WORD)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->deleteEndOfWord(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->deleteEndOfWord(); })
+                              .setScriptable(true)
+                              .contextAction();
     m_modifyingActions << ActionBuilder(this, DELETE_END_OF_WORD_CAMEL_CASE)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->deleteEndOfWordCamelCase(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->deleteEndOfWordCamelCase(); })
+                              .setScriptable(true)
+                              .contextAction();
     m_modifyingActions << ActionBuilder(this, DELETE_START_OF_LINE)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->deleteStartOfLine(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->deleteStartOfLine(); })
+                              .setScriptable(true)
+                              .contextAction();
     m_modifyingActions << ActionBuilder(this, DELETE_START_OF_WORD)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->deleteStartOfWord(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->deleteStartOfWord(); })
+                              .setScriptable(true)
+                              .contextAction();
     m_modifyingActions << ActionBuilder(this, DELETE_START_OF_WORD_CAMEL_CASE)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->deleteStartOfWordCamelCase(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->deleteStartOfWordCamelCase(); })
+                              .setScriptable(true)
+                              .contextAction();
     ActionBuilder(this, GOTO_BLOCK_START_WITH_SELECTION)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->gotoBlockStartWithSelection(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoBlockStartWithSelection(); })
+        .setScriptable(true);
     ActionBuilder(this, GOTO_BLOCK_END_WITH_SELECTION)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->gotoBlockEndWithSelection(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoBlockEndWithSelection(); })
+        .setScriptable(true);
     m_modifyingActions << ActionBuilder(this, MOVE_LINE_UP)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->moveLineUp(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->moveLineUp(); })
+                              .setScriptable(true)
+                              .contextAction();
     m_modifyingActions << ActionBuilder(this, MOVE_LINE_DOWN)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->moveLineDown(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->moveLineDown(); })
+                              .setScriptable(true)
+                              .contextAction();
     m_modifyingActions << ActionBuilder(this, COPY_LINE_UP)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->copyLineUp(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->copyLineUp(); })
+                              .setScriptable(true)
+                              .contextAction();
     m_modifyingActions << ActionBuilder(this, COPY_LINE_DOWN)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->copyLineDown(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->copyLineDown(); })
+                              .setScriptable(true)
+                              .contextAction();
     m_modifyingActions << ActionBuilder(this, JOIN_LINES)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->joinLines(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->joinLines(); })
+                              .setScriptable(true)
+                              .contextAction();
     m_modifyingActions << ActionBuilder(this, INSERT_LINE_ABOVE)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->insertLineAbove(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->insertLineAbove(); })
+                              .setScriptable(true)
+                              .contextAction();
     m_modifyingActions << ActionBuilder(this, INSERT_LINE_BELOW)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->insertLineBelow(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->insertLineBelow(); })
+                              .setScriptable(true)
+                              .contextAction();
     m_modifyingActions << ActionBuilder(this, SWITCH_UTF8BOM)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->switchUtf8bom(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->switchUtf8bom(); })
+                              .contextAction();
     m_modifyingActions << ActionBuilder(this, INDENT)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->indent(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->indent(); })
+                              .setScriptable(true)
+                              .contextAction();
     m_modifyingActions << ActionBuilder(this, UNINDENT)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->unindent(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->unindent(); })
+                              .setScriptable(true)
+                              .contextAction();
     m_followSymbolAction = ActionBuilder(this, FOLLOW_SYMBOL_UNDER_CURSOR)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->openLinkUnderCursor(); })
-            .contextAction();
+                               .setContext(m_editorContext)
+                               .addOnTriggered([this] { q->openLinkUnderCursor(); })
+                               .contextAction();
     m_followSymbolInNextSplitAction = ActionBuilder(this, FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->openLinkUnderCursorInNextSplit(); })
-            .contextAction();
+                                          .setContext(m_editorContext)
+                                          .addOnTriggered(
+                                              [this] { q->openLinkUnderCursorInNextSplit(); })
+                                          .contextAction();
     m_followToTypeAction = ActionBuilder(this, FOLLOW_SYMBOL_TO_TYPE)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->openTypeUnderCursor(); })
-            .contextAction();
+                               .setContext(m_editorContext)
+                               .addOnTriggered([this] { q->openTypeUnderCursor(); })
+                               .contextAction();
     m_followToTypeInNextSplitAction = ActionBuilder(this, FOLLOW_SYMBOL_TO_TYPE_IN_NEXT_SPLIT)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->openTypeUnderCursorInNextSplit(); })
-            .contextAction();
+                                          .setContext(m_editorContext)
+                                          .addOnTriggered(
+                                              [this] { q->openTypeUnderCursorInNextSplit(); })
+                                          .contextAction();
     m_findUsageAction = ActionBuilder(this, FIND_USAGES)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->findUsages(); })
-            .contextAction();
+                            .setContext(m_editorContext)
+                            .addOnTriggered([this] { q->findUsages(); })
+                            .contextAction();
     m_renameSymbolAction = ActionBuilder(this, RENAME_SYMBOL)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->renameSymbolUnderCursor(); })
-            .contextAction();
+                               .setContext(m_editorContext)
+                               .addOnTriggered([this] { q->renameSymbolUnderCursor(); })
+                               .contextAction();
     m_jumpToFileAction = ActionBuilder(this, JUMP_TO_FILE_UNDER_CURSOR)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->openLinkUnderCursor(); })
-            .contextAction();
+                             .setContext(m_editorContext)
+                             .addOnTriggered([this] { q->openLinkUnderCursor(); })
+                             .contextAction();
     m_jumpToFileInNextSplitAction = ActionBuilder(this, JUMP_TO_FILE_UNDER_CURSOR_IN_NEXT_SPLIT)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->openLinkUnderCursorInNextSplit(); })
-            .contextAction();
+                                        .setContext(m_editorContext)
+                                        .addOnTriggered(
+                                            [this] { q->openLinkUnderCursorInNextSplit(); })
+                                        .contextAction();
     m_openCallHierarchyAction = ActionBuilder(this, OPEN_CALL_HIERARCHY)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->openCallHierarchy(); })
-            .contextAction();
+                                    .setContext(m_editorContext)
+                                    .addOnTriggered([this] { q->openCallHierarchy(); })
+                                    .setScriptable(true)
+                                    .contextAction();
     m_openTypeHierarchyAction = ActionBuilder(this, OPEN_TYPE_HIERARCHY)
-            .setContext(m_editorContext)
-            .addOnTriggered([] {
-        updateTypeHierarchy(NavigationWidget::activateSubWidget(
-                                Constants::TYPE_HIERARCHY_FACTORY_ID, Side::Left));
-    })
-            .contextAction();
+                                    .setContext(m_editorContext)
+                                    .addOnTriggered([] {
+                                        updateTypeHierarchy(NavigationWidget::activateSubWidget(
+                                            Constants::TYPE_HIERARCHY_FACTORY_ID, Side::Left));
+                                    })
+                                    .setScriptable(true)
+                                    .contextAction();
     ActionBuilder(this, VIEW_PAGE_UP)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->viewPageUp(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->viewPageUp(); })
+        .setScriptable(true);
     ActionBuilder(this, VIEW_PAGE_DOWN)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->viewPageDown(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->viewPageDown(); })
+        .setScriptable(true);
     ActionBuilder(this, VIEW_LINE_UP)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->viewLineUp(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->viewLineUp(); })
+        .setScriptable(true);
     ActionBuilder(this, VIEW_LINE_DOWN)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->viewLineDown(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->viewLineDown(); })
+        .setScriptable(true);
 
-    ActionBuilder(this, SELECT_ENCODING)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->selectEncoding(); });
+    ActionBuilder(this, SELECT_ENCODING).setContext(m_editorContext).addOnTriggered([this] {
+        q->selectEncoding();
+    });
     m_modifyingActions << ActionBuilder(this, CIRCULAR_PASTE)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->circularPaste(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->circularPaste(); })
+                              .contextAction();
     m_modifyingActions << ActionBuilder(this, NO_FORMAT_PASTE)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->pasteWithoutFormat(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->pasteWithoutFormat(); })
+                              .setScriptable(true)
+                              .contextAction();
 
     m_autoIndentAction = ActionBuilder(this, AUTO_INDENT_SELECTION)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->autoIndent(); })
-            .contextAction();
+                             .setContext(m_editorContext)
+                             .addOnTriggered([this] { q->autoIndent(); })
+                             .setScriptable(true)
+                             .contextAction();
     m_autoFormatAction = ActionBuilder(this, AUTO_FORMAT_SELECTION)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->autoFormat(); })
-            .contextAction();
+                             .setContext(m_editorContext)
+                             .addOnTriggered([this] { q->autoFormat(); })
+                             .setScriptable(true)
+                             .contextAction();
     m_modifyingActions << ActionBuilder(this, REWRAP_PARAGRAPH)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->rewrapParagraph(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->rewrapParagraph(); })
+                              .setScriptable(true)
+                              .contextAction();
     m_visualizeWhitespaceAction = ActionBuilder(this, VISUALIZE_WHITESPACE)
-            .setContext(m_editorContext)
-            .addOnToggled(
-                this,
-                [this](bool checked) {
-        DisplaySettings ds = q->displaySettings();
-        ds.m_visualizeWhitespace = checked;
-        q->setDisplaySettings(ds);
-    })
-            .contextAction();
+                                      .setContext(m_editorContext)
+                                      .addOnToggled(
+                                          this,
+                                          [this](bool checked) {
+                                              DisplaySettings ds = q->displaySettings();
+                                              ds.m_visualizeWhitespace = checked;
+                                              q->setDisplaySettings(ds);
+                                          })
+                                      .contextAction();
     m_modifyingActions << ActionBuilder(this, CLEAN_WHITESPACE)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->cleanWhitespace(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->cleanWhitespace(); })
+                              .setScriptable(true)
+                              .contextAction();
     m_textWrappingAction = ActionBuilder(this, TEXT_WRAPPING)
-            .setContext(m_editorContext)
-            .addOnToggled(this, [this] (bool checked) {
-        DisplaySettings ds = q->displaySettings();
-        ds.m_textWrapping = checked;
-        q->setDisplaySettings(ds);
-    })
-            .contextAction();
+                               .setContext(m_editorContext)
+                               .addOnToggled(
+                                   this,
+                                   [this](bool checked) {
+                                       DisplaySettings ds = q->displaySettings();
+                                       ds.m_textWrapping = checked;
+                                       q->setDisplaySettings(ds);
+                                   })
+                               .contextAction();
     m_unCommentSelectionAction = ActionBuilder(this, UN_COMMENT_SELECTION)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->unCommentSelection(); })
-            .contextAction();
+                                     .setContext(m_editorContext)
+                                     .addOnTriggered([this] { q->unCommentSelection(); })
+                                     .setScriptable(true)
+                                     .contextAction();
     m_modifyingActions << ActionBuilder(this, CUT_LINE)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->cutLine(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->cutLine(); })
+                              .setScriptable(true)
+                              .contextAction();
     ActionBuilder(this, COPY_LINE)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->copyLine(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->copyLine(); })
+        .setScriptable(true);
     m_copyHtmlAction = ActionBuilder(this, COPY_WITH_HTML)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->copyWithHtml(); })
-            .contextAction();
+                           .setContext(m_editorContext)
+                           .addOnTriggered([this] { q->copyWithHtml(); })
+                           .setScriptable(true)
+                           .contextAction();
     ActionBuilder(this, ADD_CURSORS_TO_LINE_ENDS)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->addCursorsToLineEnds(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->addCursorsToLineEnds(); })
+        .setScriptable(true);
     ActionBuilder(this, ADD_SELECT_NEXT_FIND_MATCH)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->addSelectionNextFindMatch(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->addSelectionNextFindMatch(); })
+        .setScriptable(true);
     m_modifyingActions << ActionBuilder(this, DUPLICATE_SELECTION)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->duplicateSelection(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->duplicateSelection(); })
+                              .setScriptable(true)
+                              .contextAction();
     m_modifyingActions << ActionBuilder(this, DUPLICATE_SELECTION_AND_COMMENT)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->duplicateSelectionAndComment(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->duplicateSelectionAndComment(); })
+                              .setScriptable(true)
+                              .contextAction();
     m_modifyingActions << ActionBuilder(this, UPPERCASE_SELECTION)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->uppercaseSelection(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->uppercaseSelection(); })
+                              .setScriptable(true)
+                              .contextAction();
     m_modifyingActions << ActionBuilder(this, LOWERCASE_SELECTION)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->lowercaseSelection(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->lowercaseSelection(); })
+                              .setScriptable(true)
+                              .contextAction();
     m_modifyingActions << ActionBuilder(this, SORT_LINES)
-                          .setContext(m_editorContext)
-                          .addOnTriggered([this] { q->sortLines(); })
-                          .contextAction();
+                              .setContext(m_editorContext)
+                              .addOnTriggered([this] { q->sortLines(); })
+                              .setScriptable(true)
+                              .contextAction();
     ActionBuilder(this, FOLD)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->foldCurrentBlock(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->foldCurrentBlock(); })
+        .setScriptable(true);
     ActionBuilder(this, UNFOLD)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->unfoldCurrentBlock(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->unfoldCurrentBlock(); })
+        .setScriptable(true);
     m_unfoldAllAction = ActionBuilder(this, UNFOLD_ALL)
                             .setContext(m_editorContext)
                             .addOnTriggered([this] { q->unfoldAll(); })
+                            .setScriptable(true)
                             .contextAction();
-    ActionBuilder(this, INCREASE_FONT_SIZE)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->increaseFontZoom(); });
-    ActionBuilder(this, DECREASE_FONT_SIZE)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->decreaseFontZoom(); });
-    ActionBuilder(this, RESET_FONT_SIZE)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->zoomReset(); });
+    ActionBuilder(this, INCREASE_FONT_SIZE).setContext(m_editorContext).addOnTriggered([this] {
+        q->increaseFontZoom();
+    });
+    ActionBuilder(this, DECREASE_FONT_SIZE).setContext(m_editorContext).addOnTriggered([this] {
+        q->decreaseFontZoom();
+    });
+    ActionBuilder(this, RESET_FONT_SIZE).setContext(m_editorContext).addOnTriggered([this] {
+        q->zoomReset();
+    });
     ActionBuilder(this, GOTO_BLOCK_START)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->gotoBlockStart(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoBlockStart(); })
+        .setScriptable(true);
     ActionBuilder(this, GOTO_BLOCK_END)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->gotoBlockEnd(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoBlockEnd(); })
+        .setScriptable(true);
     ActionBuilder(this, SELECT_BLOCK_UP)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->selectBlockUp(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->selectBlockUp(); })
+        .setScriptable(true);
     ActionBuilder(this, SELECT_BLOCK_DOWN)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->selectBlockDown(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->selectBlockDown(); })
+        .setScriptable(true);
     ActionBuilder(this, SELECT_WORD_UNDER_CURSOR)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->selectWordUnderCursor(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->selectWordUnderCursor(); })
+        .setScriptable(true);
 
     ActionBuilder(this, GOTO_DOCUMENT_START)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->gotoDocumentStart(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoDocumentStart(); })
+        .setScriptable(true);
     ActionBuilder(this, GOTO_DOCUMENT_END)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->gotoDocumentEnd(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoDocumentEnd(); })
+        .setScriptable(true);
     ActionBuilder(this, GOTO_LINE_START)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->gotoLineStart(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoLineStart(); })
+        .setScriptable(true);
     ActionBuilder(this, GOTO_LINE_END)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->gotoLineEnd(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoLineEnd(); })
+        .setScriptable(true);
     ActionBuilder(this, GOTO_NEXT_LINE)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->gotoNextLine(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoNextLine(); })
+        .setScriptable(true);
     ActionBuilder(this, GOTO_PREVIOUS_LINE)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->gotoPreviousLine(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoPreviousLine(); })
+        .setScriptable(true);
     ActionBuilder(this, GOTO_PREVIOUS_CHARACTER)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->gotoPreviousCharacter(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoPreviousCharacter(); })
+        .setScriptable(true);
     ActionBuilder(this, GOTO_NEXT_CHARACTER)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->gotoNextCharacter(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoNextCharacter(); })
+        .setScriptable(true);
     ActionBuilder(this, GOTO_PREVIOUS_WORD)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->gotoPreviousWord(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoPreviousWord(); })
+        .setScriptable(true);
     ActionBuilder(this, GOTO_NEXT_WORD)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->gotoNextWord(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoNextWord(); })
+        .setScriptable(true);
     ActionBuilder(this, GOTO_PREVIOUS_WORD_CAMEL_CASE)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->gotoPreviousWordCamelCase(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoPreviousWordCamelCase(); })
+        .setScriptable(true);
     ActionBuilder(this, GOTO_NEXT_WORD_CAMEL_CASE)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->gotoNextWordCamelCase(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoNextWordCamelCase(); })
+        .setScriptable(true);
 
     ActionBuilder(this, GOTO_LINE_START_WITH_SELECTION)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->gotoLineStartWithSelection(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoLineStartWithSelection(); })
+        .setScriptable(true);
     ActionBuilder(this, GOTO_LINE_END_WITH_SELECTION)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->gotoLineEndWithSelection(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoLineEndWithSelection(); })
+        .setScriptable(true);
     ActionBuilder(this, GOTO_NEXT_LINE_WITH_SELECTION)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->gotoNextLineWithSelection(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoNextLineWithSelection(); })
+        .setScriptable(true);
     ActionBuilder(this, GOTO_PREVIOUS_LINE_WITH_SELECTION)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->gotoPreviousLineWithSelection(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoPreviousLineWithSelection(); })
+        .setScriptable(true);
     ActionBuilder(this, GOTO_PREVIOUS_CHARACTER_WITH_SELECTION)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->gotoPreviousCharacterWithSelection(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoPreviousCharacterWithSelection(); })
+        .setScriptable(true);
     ActionBuilder(this, GOTO_NEXT_CHARACTER_WITH_SELECTION)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->gotoNextCharacterWithSelection(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoNextCharacterWithSelection(); })
+        .setScriptable(true);
     ActionBuilder(this, GOTO_PREVIOUS_WORD_WITH_SELECTION)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->gotoPreviousWordWithSelection(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoPreviousWordWithSelection(); })
+        .setScriptable(true);
     ActionBuilder(this, GOTO_NEXT_WORD_WITH_SELECTION)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->gotoNextWordWithSelection(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoNextWordWithSelection(); })
+        .setScriptable(true);
     ActionBuilder(this, GOTO_PREVIOUS_WORD_CAMEL_CASE_WITH_SELECTION)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->gotoPreviousWordCamelCaseWithSelection(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoPreviousWordCamelCaseWithSelection(); })
+        .setScriptable(true);
     ActionBuilder(this, GOTO_NEXT_WORD_CAMEL_CASE_WITH_SELECTION)
-            .setContext(m_editorContext)
-            .addOnTriggered([this] { q->gotoNextWordCamelCaseWithSelection(); });
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->gotoNextWordCamelCaseWithSelection(); })
+        .setScriptable(true);
 
     // Collect additional modifying actions so we can check for them inside a readonly file
     // and disable them
