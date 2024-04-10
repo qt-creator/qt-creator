@@ -55,28 +55,21 @@ public:
 
 /**
  * @brief getCustomUrl
- * MimeType = <MainType/SubType>
  * Address = <Url|LocalFile>
  *
  * @param value The input value to be evaluated
- * @param dataType if the value is a valid url or image, the data type
+ * @param dataType if the value is a valid url, the data type
  * will be stored to this parameter, otherwise, it will be Unknown
- * @param urlResult if the value is a valid url or image, the address
+ * @param urlResult if the value is a valid url, the address
  * will be stored in this parameter, otherwise it will be empty.
- * @param subType if the value is a valid image, the image subtype
- * will be stored in this parameter, otherwise it will be empty.
- * @return true if the result is either url or image
+ * @return true if the result is url
  */
 static bool getCustomUrl(const QString &value,
                          CollectionDetails::DataType &dataType,
-                         QUrl *urlResult = nullptr,
-                         QString *subType = nullptr)
+                         QUrl *urlResult = nullptr)
 {
     static const QRegularExpression urlRegex{
-        "^(?<MimeType>"
-        "(?<MainType>image)\\/"
-        "(?<SubType>apng|avif|gif|jpeg|png|(?:svg\\+xml)|webp|xyz)\\:)?" // end of MimeType
-        "(?<Address>"
+        "^(?<Address>"
         "(?<Url>https?:\\/\\/"
         "(?:www\\.|(?!www))[A-z0-9][A-z0-9-]+[A-z0-9]\\.[^\\s]{2,}|www\\.[A-z0-9][A-z0-9-]+"
         "[A-z0-9]\\.[^\\s]{2,}|https?:\\/\\/"
@@ -87,28 +80,17 @@ static bool getCustomUrl(const QString &value,
     };
 
     const QRegularExpressionMatch match = urlRegex.match(value.trimmed());
-    if (match.hasMatch()) {
-        if (match.hasCaptured("Address")) {
-            if (match.hasCaptured("MimeType") && match.captured("MainType") == "image")
-                dataType = CollectionDetails::DataType::Image;
-            else
-                dataType = CollectionDetails::DataType::Url;
+    if (match.hasCaptured("Address")) {
+        dataType = CollectionDetails::DataType::Url;
 
-            if (urlResult)
-                urlResult->setUrl(match.captured("Address"));
+        if (urlResult)
+            urlResult->setUrl(match.captured("Address"));
 
-            if (subType)
-                *subType = match.captured("SubType");
-
-            return true;
-        }
+        return true;
     }
 
     if (urlResult)
         urlResult->clear();
-
-    if (subType)
-        subType->clear();
 
     dataType = CollectionDetails::DataType::Unknown;
     return false;
@@ -243,14 +225,8 @@ static QVariant valueToVariant(const QJsonValue &value, CollectionDetails::DataT
         return variantValue.toBool();
     case DataType::Color:
         return variantValue.value<QColor>();
-    case DataType::Image: {
-        DataType type;
-        QUrl url;
-        if (getCustomUrl(variantValue.toString(), type, &url))
-            return url;
-        return variantValue.toString();
-    }
     case DataType::Url:
+    case DataType::Image:
         return variantValue.value<QUrl>();
     default:
         return variantValue;
@@ -280,12 +256,7 @@ static QJsonValue variantToJsonValue(
         return variant.toDouble();
     case DataType::Integer:
         return variant.toInt();
-    case DataType::Image: {
-        const QUrl url(variant.toUrl());
-        if (url.isValid())
-            return QString("image/xyz:%1").arg(url.toString());
-        return {};
-    }
+    case DataType::Image:
     case DataType::String:
     case DataType::Color:
     case DataType::Url:
@@ -564,13 +535,6 @@ QVariant CollectionDetails::data(int row, int column) const
 
     const QJsonValue cellValue = d->dataRecords.at(row).at(column);
 
-    if (typeAt(column) == DataType::Image) {
-        const QUrl imageUrl = valueToVariant(cellValue, DataType::Image).toUrl();
-
-        if (imageUrl.isValid())
-            return imageUrl;
-    }
-
     return cellValue.toVariant();
 }
 
@@ -609,7 +573,10 @@ DataTypeWarning::Warning CollectionDetails::cellWarningCheck(int row, int column
     if (columnType == DataType::Unknown || isEmptyJsonValue(cellValue))
         return DataTypeWarning::Warning::None;
 
-    if (columnType == DataType::Real && cellType == DataType::Integer)
+    if ((columnType == DataType::String || columnType == DataType::Real) && cellType == DataType::Integer)
+        return DataTypeWarning::Warning::None;
+
+    if ((columnType == DataType::Url || columnType == DataType::Image) && cellType == DataType::String)
         return DataTypeWarning::Warning::None;
 
     if (columnType != cellType)
