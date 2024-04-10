@@ -1161,7 +1161,8 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
 
         if (auto array = AST::cast<AST::UiArrayBinding *>(member)) {
             const QString astPropertyName = toString(array->qualifiedId);
-            if (isPropertyChangesType(typeName) || isConnectionsType(typeName)) {
+            if (isPropertyChangesType(typeName) || isConnectionsType(typeName)
+                || modelNode.metaInfo().hasProperty(astPropertyName.toUtf8())) {
                 AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
                 QList<AST::UiObjectMember *> arrayMembers;
                 for (AST::UiArrayMemberList *iter = array->members; iter; iter = iter->next)
@@ -1379,9 +1380,9 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
     }
 
     if (isLiteralValue(script)) {
-        if (isPropertyChangesType(modelNode.type())
-                || isConnectionsType(modelNode.type())
-                || isListElementType(modelNode.type())) {
+        if (isPropertyChangesType(modelNode.type()) || isConnectionsType(modelNode.type())
+            || isListElementType(modelNode.type())
+            || modelNode.metaInfo().hasProperty(astPropertyName.toUtf8())) {
             AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
             QVariant variantValue = parsePropertyScriptBinding(script);
             if (!variantValue.isValid())
