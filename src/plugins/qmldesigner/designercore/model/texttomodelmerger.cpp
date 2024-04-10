@@ -57,7 +57,7 @@ using namespace QmlJS;
 using namespace Qt::StringLiterals;
 
 static Q_LOGGING_CATEGORY(rewriterBenchmark, "qtc.rewriter.load", QtWarningMsg)
-static Q_LOGGING_CATEGORY(texttomodelMergerDebug, "qtc.texttomodelmerger.debug", QtDebugMsg)
+static Q_LOGGING_CATEGORY(texttomodelMergerLog, "qtc.texttomodelmerger", QtWarningMsg)
 
 namespace {
 
@@ -502,8 +502,8 @@ public:
             const bool isAttached = !propertyName.isEmpty() && propertyName[0].isUpper();
             // Only list elements might have unknown properties.
             if (!node.metaInfo().isQtQuickListElement() && !isAttached) {
-                qCInfo(texttomodelMergerDebug)
-                    << Q_FUNC_INFO << "Unknown property"
+                qCInfo(texttomodelMergerLog)
+                    << Q_FUNC_INFO << "\nUnknown property"
                     << propertyPrefix + QLatin1Char('.') + toString(propertyId) << "on line"
                     << propertyId->identifierToken.startLine << "column"
                     << propertyId->identifierToken.startColumn;
@@ -1423,7 +1423,7 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
             syncExpressionProperty(modelProperty, astValue, TypeName(), differenceHandler); // TODO: parse type
             return astPropertyName.toUtf8();
         } else {
-            qWarning() << Q_FUNC_INFO << "Skipping invalid expression property" << astPropertyName
+            qCInfo(texttomodelMergerLog) << Q_FUNC_INFO << "\nSkipping invalid expression property" << astPropertyName
                     << "for node type" << modelNode.type();
             return PropertyName();
         }
