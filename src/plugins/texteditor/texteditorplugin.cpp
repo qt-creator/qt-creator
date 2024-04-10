@@ -392,7 +392,7 @@ void TextEditorPlugin::createEditorCommands()
     ActionBuilder(this, INSERT_LINE_BELOW)
         .setText(Tr::tr("Insert Line Below Current Line"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Return")));
-    ActionBuilder(this, SWITCH_UTF8BOM).setText(Tr::tr("Delete Word up to Cursor"));
+    ActionBuilder(this, SWITCH_UTF8BOM).setText(Tr::tr("Toggle UTF-8 BOM"));
     ActionBuilder(this, INDENT).setText(Tr::tr("Indent"));
     ActionBuilder(this, UNINDENT).setText(Tr::tr("Unindent"));
     ActionBuilder(this, FOLLOW_SYMBOL_UNDER_CURSOR)
