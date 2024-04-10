@@ -24,11 +24,22 @@
     simultaneously.
 
     You can use the toolbar buttons to add \uicontrol Linear, \uicontrol Step,
-    or \uicontrol Spline interpolation between two keyframes.
+    or \uicontrol Spline interpolation between keyframes.
+
+    To apply interpolation between keyframes:
+    \list 1
+        \li Select the keyframes. To select multiple keyframes, press and hold
+        \key Ctrl, and then select them.
+        \li Select \inlineimage icons/easing-curve-linear-icon.png (\uicontrol Linear),
+        \inlineimage icons/easing-curve-step-icon.png (\uicontrol Step) or
+        \inlineimage icons/easing-curve-spline.png (\uicontrol Spline) depending on
+        which interpolation method you want to use.
+    \endlist
 
     When you set interpolation to \uicontrol Spline, handles appear in
     \uicontrol {Curves} that you can use to modify the curve. Select
-    \uicontrol Unify to lock the handle on the left of a keyframe to the one
+    \inlineimage icons/easing-curve-unify.png (\uicontrol Unify) to lock the handle on the
+    left of a keyframe to the one
     on the right of it so that moving the left handle also moves the right
     handle.
 
@@ -36,11 +47,11 @@
     in \l Navigator, you can select \inlineimage icons/lockon.png
     to unlock it. You can also lock individual easing curves for editing.
 
-    To lock an animation curve, hover the mouse over the keyframe in the list,
+    To lock an animation curve, hover the mouse over the property in the list,
     and then select \inlineimage icons/lockoff.png
     .
 
-    To pin an animation curve, hover the mouse over the keyframe in the list,
+    To pin an animation curve, hover the mouse over the property in the list,
     and then select \inlineimage icons/pin.png
     .
 
@@ -55,14 +66,14 @@
             \uicontrol {Curves} to open the animation curve editor.
         \li Right-click in \uicontrol {Curves}, and select
             \uicontrol {Insert Keyframe} to add a keyframe.
-        \li Select keyframes to display the easing curves attached to them.
-            To select multiple keyframes, press and hold \key Ctrl.
+        \li Select properties in the list to display the easing curves attached to them.
+            To select multiple properties, press and hold \key Ctrl, and then select them.
     \endlist
 
     Your changes are automatically saved when you close the view.
 
     \section1 Deleting Keyframes in Curves
 
-    To delete the selected keyframe, select \uicontrol {Delete All Keyframes}
+    To delete the selected keyframe, select \uicontrol {Delete Selected Keyframes}
     in the context menu.
 */
