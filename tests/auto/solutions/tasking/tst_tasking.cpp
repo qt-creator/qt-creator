@@ -117,6 +117,7 @@ private slots:
     void storageIO();
     void storageOperators();
     void storageDestructor();
+    void storageZeroInitialization();
     void restart();
     void destructorOfTaskEmittingDone();
 };
@@ -3380,7 +3381,7 @@ void tst_Tasking::storageDestructor()
     };
     QCOMPARE(CustomStorage::instanceCount(), 0);
     {
-        Storage<CustomStorage> storage;
+        const Storage<CustomStorage> storage;
         const auto setupSleepingTask = [](TaskObject &taskObject) {
             taskObject = 1000ms;
         };
@@ -3399,6 +3400,21 @@ void tst_Tasking::storageDestructor()
     QCOMPARE(CustomStorage::instanceCount(), 0);
     QVERIFY(setupCalled);
     QVERIFY(!doneCalled);
+}
+
+// This test ensures that the storage data is zero-initialized.
+void tst_Tasking::storageZeroInitialization()
+{
+    const Storage<int> storage;
+    std::optional<int> defaultValue;
+
+    const auto onSetup = [storage, &defaultValue] { defaultValue = *storage; };
+
+    TaskTree taskTree({ storage, onGroupSetup(onSetup) });
+    taskTree.runBlocking();
+
+    QVERIFY(defaultValue);
+    QCOMPARE(defaultValue, 0);
 }
 
 void tst_Tasking::restart()

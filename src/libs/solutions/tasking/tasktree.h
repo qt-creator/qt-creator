@@ -187,7 +187,7 @@ public:
     }
 
 private:
-    static StorageConstructor ctor() { return [] { return new StorageStruct; }; }
+    static StorageConstructor ctor() { return [] { return new StorageStruct(); }; }
     static StorageDestructor dtor() {
         return [](void *storage) { delete static_cast<StorageStruct *>(storage); };
     }
