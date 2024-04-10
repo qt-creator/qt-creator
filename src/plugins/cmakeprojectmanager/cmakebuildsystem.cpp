@@ -749,14 +749,17 @@ CMakeBuildSystem::projectFileArgumentPosition(const QString &targetName, const Q
                && func.Arguments().size() > 1 && func.Arguments().front().Value == target_name;
     });
 
-    for (const auto &func : {function, targetSourcesFunc, addQmlModuleFunc}) {
+    auto setSourceFilePropFunc = findFunction(*cmakeListFile, [](const auto &func) {
+        return func.LowerCaseName() == "set_source_files_properties";
+    });
+
+    for (const auto &func : {function, targetSourcesFunc, addQmlModuleFunc, setSourceFilePropFunc}) {
         if (!func.has_value())
             continue;
-        auto filePathArgument = Utils::findOrDefault(func->Arguments(),
-                                                     [file_name = fileName.toStdString()](
-                                                         const auto &arg) {
-                                                         return arg.Value == file_name;
-                                                     });
+        auto filePathArgument = Utils::findOrDefault(
+            func->Arguments(), [file_name = fileName.toStdString()](const auto &arg) {
+                return arg.Value == file_name;
+            });
 
         if (!filePathArgument.Value.empty()) {
             return ProjectFileArgumentPosition{filePathArgument, targetCMakeFile, fileName};
@@ -925,48 +928,59 @@ bool CMakeBuildSystem::renameFile(Node *context,
 {
     if (auto n = dynamic_cast<CMakeTargetNode *>(context)) {
         const FilePath projDir = n->filePath().canonicalPath();
-        const QString newRelPathName
-            = newFilePath.canonicalPath().relativePathFrom(projDir).cleanPath().toString();
+        const FilePath newRelPath = newFilePath.canonicalPath().relativePathFrom(projDir).cleanPath();
+        const QString newRelPathName = newRelPath.toString();
+
+        // FilePath needs the file to exist on disk, the old file has already been renamed
+        const QString oldRelPathName
+            = newRelPath.parentDir().pathAppended(oldFilePath.fileName()).cleanPath().toString();
 
         const QString targetName = n->buildKey();
         const QString key
             = QStringList{projDir.path(), targetName, oldFilePath.path(), newFilePath.path()}.join(
                 ";");
 
-        auto fileToRename = m_filesToBeRenamed.take(key);
-        if (!fileToRename.cmakeFile.exists()) {
+        std::optional<CMakeBuildSystem::ProjectFileArgumentPosition> fileToRename
+            = m_filesToBeRenamed.take(key);
+        if (!fileToRename->cmakeFile.exists()) {
             qCCritical(cmakeBuildSystemLog).noquote()
-                << "File" << fileToRename.cmakeFile.path() << "does not exist.";
+                << "File" << fileToRename->cmakeFile.path() << "does not exist.";
             return false;
         }
 
-        BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(
-            Core::EditorManager::openEditorAt({fileToRename.cmakeFile,
-                                               static_cast<int>(fileToRename.argumentPosition.Line),
-                                               static_cast<int>(fileToRename.argumentPosition.Column
-                                                                - 1)},
-                                              Constants::CMAKE_EDITOR_ID,
-                                              Core::EditorManager::DoNotMakeVisible));
-        if (!editor) {
-            qCCritical(cmakeBuildSystemLog).noquote()
-                << "BaseTextEditor cannot be obtained for" << fileToRename.cmakeFile.path()
-                << fileToRename.argumentPosition.Line << int(fileToRename.argumentPosition.Column);
-            return false;
-        }
+        do {
+            BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(
+                Core::EditorManager::openEditorAt(
+                    {fileToRename->cmakeFile,
+                     static_cast<int>(fileToRename->argumentPosition.Line),
+                     static_cast<int>(fileToRename->argumentPosition.Column - 1)},
+                    Constants::CMAKE_EDITOR_ID,
+                    Core::EditorManager::DoNotMakeVisible));
+            if (!editor) {
+                qCCritical(cmakeBuildSystemLog).noquote()
+                    << "BaseTextEditor cannot be obtained for" << fileToRename->cmakeFile.path()
+                    << fileToRename->argumentPosition.Line
+                    << int(fileToRename->argumentPosition.Column);
+                return false;
+            }
 
-        // If quotes were used for the source file, skip the starting quote
-        if (fileToRename.argumentPosition.Delim == cmListFileArgument::Quoted)
-            editor->setCursorPosition(editor->position() + 1);
+            // If quotes were used for the source file, skip the starting quote
+            if (fileToRename->argumentPosition.Delim == cmListFileArgument::Quoted)
+                editor->setCursorPosition(editor->position() + 1);
 
-        if (!fileToRename.fromGlobbing)
-            editor->replace(fileToRename.relativeFileName.length(), newRelPathName);
+            if (!fileToRename->fromGlobbing)
+                editor->replace(fileToRename->relativeFileName.length(), newRelPathName);
 
-        editor->editorWidget()->autoIndent();
-        if (!Core::DocumentManager::saveDocument(editor->document())) {
-            qCCritical(cmakeBuildSystemLog).noquote()
-                << "Changes to" << fileToRename.cmakeFile.path() << "could not be saved.";
-            return false;
-        }
+            editor->editorWidget()->autoIndent();
+            if (!Core::DocumentManager::saveDocument(editor->document())) {
+                qCCritical(cmakeBuildSystemLog).noquote()
+                    << "Changes to" << fileToRename->cmakeFile.path() << "could not be saved.";
+                return false;
+            }
+
+            // Try the next occurrence. This can happen if set_source_file_properties is used
+            fileToRename = projectFileArgumentPosition(targetName, oldRelPathName);
+        } while (fileToRename);
 
         return true;
     }
