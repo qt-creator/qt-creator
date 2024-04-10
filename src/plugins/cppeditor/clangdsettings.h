@@ -159,4 +159,9 @@ private:
     bool m_blockIndexing = false;
 };
 
+namespace Internal {
+void setupClangdProjectSettingsPanel();
+void setupClangdSettingsPage();
+}
+
 } // namespace CppEditor
