@@ -41,7 +41,6 @@ private:
     QSizeF calcMinimumGeometry() const;
     void updateGeometry();
 
-    CustomIconItem *m_customIcon = nullptr;
     QGraphicsRectItem *m_shape = nullptr;
     QGraphicsRectItem *m_upperRect = nullptr;
     QGraphicsRectItem *m_lowerRect = nullptr;

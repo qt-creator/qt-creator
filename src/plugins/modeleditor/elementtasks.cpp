@@ -28,9 +28,11 @@
 #include <cppeditor/indexitem.h>
 #include <cppeditor/searchsymbols.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
 #include <QMenu>
+#include <QMessageBox>
 
 using namespace Core;
 using namespace CppEditor;
@@ -392,6 +394,68 @@ void ElementTasks::createAndOpenDiagram(const qmt::DElement *element, const qmt:
     createAndOpenDiagram(melement);
 }
 
+bool ElementTasks::hasLinkedFile(const qmt::MElement *element) const
+{
+    if (auto mobject = dynamic_cast<const qmt::MObject *>(element)) {
+        QString filename = mobject->linkedFileName();
+        if (!filename.isEmpty()) {
+            QString projectName = d->documentController->projectController()->project()->fileName();
+            Utils::FilePath relativePath = Utils::FilePath::fromString(filename);
+            Utils::FilePath projectPath = Utils::FilePath::fromString(projectName);
+            QString filepath = relativePath.resolvePath(projectPath).toString();
+            return QFileInfo::exists(filepath);
+        }
+    }
+    return false;
+}
+
+bool ElementTasks::hasLinkedFile(const qmt::DElement *element, const qmt::MDiagram *diagram) const
+{
+    Q_UNUSED(diagram)
+
+    qmt::MElement *melement = d->documentController->modelController()->findElement(element->modelUid());
+    if (!melement)
+        return false;
+    return hasLinkedFile(melement);
+}
+
+void ElementTasks::openLinkedFile(const qmt::MElement *element)
+{
+    if (auto mobject = dynamic_cast<const qmt::MObject *>(element)) {
+        QString filename = mobject->linkedFileName();
+        if (!filename.isEmpty()) {
+            QString projectName = d->documentController->projectController()->project()->fileName();
+            QString filepath;
+            if (QFileInfo(filename).isRelative())
+                filepath = QFileInfo(QFileInfo(projectName).path() + "/" + filename).canonicalFilePath();
+            else
+                filepath = filename;
+            if (QFileInfo::exists(filepath)) {
+                Core::EditorFactories list = Core::IEditorFactory::preferredEditorFactories(Utils::FilePath::fromString(filepath));
+                if (list.empty() || (list.count() <= 1 && list.at(0)->id() == "Core.BinaryEditor")) {
+                    // intentionally ignore return code
+                    (void) Core::EditorManager::instance()->openExternalEditor(Utils::FilePath::fromString(filepath), "CorePlugin.OpenWithSystemEditor");
+                } else {
+                    // intentionally ignore return code
+                    (void) Core::EditorManager::instance()->openEditor(Utils::FilePath::fromString(filepath));
+                }
+            } else {
+                QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("Opening File"), Tr::tr("File %1 does not exist.").arg(filepath));
+            }
+        }
+    }
+}
+
+void ElementTasks::openLinkedFile(const qmt::DElement *element, const qmt::MDiagram *diagram)
+{
+    Q_UNUSED(diagram)
+
+    qmt::MElement *melement = d->documentController->modelController()->findElement(element->modelUid());
+    if (!melement)
+        return;
+    openLinkedFile(melement);
+}
+
 bool ElementTasks::extendContextMenu(const qmt::DElement *delement, const qmt::MDiagram *, QMenu *menu)
 {
     bool extended = false;
@@ -402,8 +466,9 @@ bool ElementTasks::extendContextMenu(const qmt::DElement *delement, const qmt::M
     return extended;
 }
 
-bool ElementTasks::handleContextMenuAction(const qmt::DElement *element, const qmt::MDiagram *, const QString &id)
+bool ElementTasks::handleContextMenuAction(qmt::DElement *element, qmt::MDiagram *diagram, const QString &id)
 {
+    Q_UNUSED(diagram);
     if (id == "updateIncludeDependencies") {
         qmt::MPackage *mpackage = d->documentController->modelController()->findElement<qmt::MPackage>(element->modelUid());
         if (mpackage)

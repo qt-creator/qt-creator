@@ -29,9 +29,34 @@
 #include "qark/qxmlinarchive.h"
 #include "qark/serialize.h"
 
+#include <QBuffer>
+
 using namespace qmt;
 
 namespace qark {
+
+template<class Archive>
+inline void save(Archive &archive, const QImage &image)
+{
+    QByteArray a;
+    QBuffer buffer(&a);
+    buffer.open(QIODevice::WriteOnly);
+    image.save(&buffer, "PNG");
+    // TODO add write(const QByteArray &)
+    archive.write(QString::fromLatin1(a.toBase64()));
+}
+
+template<class Archive>
+inline void load(Archive &archive, QImage &image)
+{
+    QString s;
+    // TODO add read(QByteArray &)
+    archive.read(&s);
+    QByteArray a = QByteArray::fromBase64(s.toLatin1());
+    QBuffer buffer(&a);
+    buffer.open(QIODevice::ReadOnly);
+    image.load(&buffer, "PNG");
+}
 
 // DElement
 
@@ -102,7 +127,10 @@ inline void Access<Archive, DObject>::serialize(Archive &archive, DObject &objec
             || attr("visual-role", object, &visualRole, &setVisualRole)
             || attr("visual-role2", object, &DObject::visualSecondaryRole, &DObject::setVisualSecondaryRole)
             || attr("visual-emphasized", object, &DObject::isVisualEmphasized, &DObject::setVisualEmphasized)
+            || attr("linkedfile", object, &DObject::hasLinkedFile, &DObject::setLinkedFile)
             || attr("stereotype-display", object, &DObject::stereotypeDisplay, &DObject::setStereotypeDisplay)
+            || attr("image-path", object, &DObject::imagePath, &DObject::setImagePath)
+            || attr("image", object, &DObject::image, &DObject::setImage)
             // depth is not persistent
             || end;
 }

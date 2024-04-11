@@ -65,6 +65,9 @@ void DUpdateVisitor::visitMObject(const MObject *object)
     }
     if (isUpdating(object->name() != dobject->name()))
         dobject->setName(object->name());
+    bool hasLinkedFile = !object->linkedFileName().isEmpty();
+    if (isUpdating(hasLinkedFile != dobject->hasLinkedFile()))
+        dobject->setLinkedFile(hasLinkedFile);
     // TODO unlikely that this is called for all objects if hierarchy is modified
     // PERFORM remove loop
     int depth = 1;

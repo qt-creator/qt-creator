@@ -147,12 +147,30 @@ void VoidElementTasks::createAndOpenDiagram(const DElement *, const MDiagram *)
 {
 }
 
+bool VoidElementTasks::hasLinkedFile(const MElement *) const
+{
+    return false;
+}
+
+bool VoidElementTasks::hasLinkedFile(const DElement *, const MDiagram *) const
+{
+    return false;
+}
+
+void VoidElementTasks::openLinkedFile(const MElement *)
+{
+}
+
+void VoidElementTasks::openLinkedFile(const DElement *, const MDiagram *)
+{
+}
+
 bool VoidElementTasks::extendContextMenu(const DElement *, const MDiagram *, QMenu *)
 {
     return false;
 }
 
-bool VoidElementTasks::handleContextMenuAction(const DElement *, const MDiagram *, const QString &)
+bool VoidElementTasks::handleContextMenuAction(DElement *, MDiagram *, const QString &)
 {
     return false;
 }

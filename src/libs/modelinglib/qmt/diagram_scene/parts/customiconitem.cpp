@@ -57,55 +57,97 @@ void CustomIconItem::setPen(const QPen &pen)
     m_pen = pen;
 }
 
+void CustomIconItem::setImage(const QImage &image)
+{
+    m_image = image;
+}
+
 double CustomIconItem::shapeWidth() const
 {
-    return m_stereotypeIcon.width();
+    if (!m_image.isNull())
+        return m_image.width();
+    return m_stereotypeIcon.hasIconWidth() ? m_stereotypeIcon.iconWidth()
+                                           : m_stereotypeIcon.width();
 }
 
 double CustomIconItem::shapeHeight() const
 {
-    return m_stereotypeIcon.height();
+    if (!m_image.isNull())
+        return m_image.height();
+    return m_stereotypeIcon.hasIconHeight() ? m_stereotypeIcon.iconHeight()
+                                            : m_stereotypeIcon.height();
 }
 
 QRectF CustomIconItem::boundingRect() const
 {
-    ShapeSizeVisitor visitor(QPointF(0.0, 0.0), QSizeF(m_stereotypeIcon.width(), m_stereotypeIcon.height()), m_baseSize, m_actualSize);
+    if (!m_image.isNull())
+        return QRectF(QPointF(0.0, 0.0), m_actualSize) | childrenBoundingRect();
+    ShapeSizeVisitor visitor(QPointF(0.0, 0.0),
+                             QSizeF(m_stereotypeIcon.width(), m_stereotypeIcon.height()),
+                             m_baseSize,
+                             m_actualSize);
     m_stereotypeIcon.iconShape().visitShapes(&visitor);
     return visitor.boundingRect() | childrenBoundingRect();
 }
 
-void CustomIconItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void CustomIconItem::paint(QPainter *painter,
+                           const QStyleOptionGraphicsItem *option,
+                           QWidget *widget)
 {
     Q_UNUSED(option)
     Q_UNUSED(widget)
 
     painter->save();
-    painter->setBrush(m_brush);
-    painter->setPen(m_pen);
+    if (!m_image.isNull()) {
+        painter->drawImage(QRectF(QPointF(0.0, 0.0), m_actualSize), m_image);
+    } else {
+        painter->setBrush(m_brush);
+        painter->setPen(m_pen);
 #ifdef DEBUG_OUTLINE
-    ShapePolygonVisitor visitor(QPointF(0.0, 0.0), QSizeF(m_stereotypeIcon.width(), m_stereotypeIcon.height()), m_baseSize, m_actualSize);
-    IconShape shape = m_stereotypeIcon.outlineShape();
-    if (shape.isEmpty())
-        shape = m_stereotypeIcon.iconShape();
-    shape.visitShapes(&visitor);
-    painter->drawPath(visitor.path());
-    ShapePaintVisitor visitor1(painter, QPointF(0.0, 0.0), QSizeF(m_stereotypeIcon.width(), m_stereotypeIcon.height()), m_baseSize, m_actualSize);
-    m_stereotypeIcon.iconShape().visitShapes(&visitor1);
+        ShapePolygonVisitor visitor(QPointF(0.0, 0.0),
+                                    QSizeF(m_stereotypeIcon.width(), m_stereotypeIcon.height()),
+                                    m_baseSize,
+                                    m_actualSize);
+        IconShape shape = m_stereotypeIcon.outlineShape();
+        if (shape.isEmpty())
+            shape = m_stereotypeIcon.iconShape();
+        shape.visitShapes(&visitor);
+        painter->drawPath(visitor.path());
+        ShapePaintVisitor visitor1(painter,
+                                   QPointF(0.0, 0.0),
+                                   QSizeF(m_stereotypeIcon.width(), m_stereotypeIcon.height()),
+                                   m_baseSize,
+                                   m_actualSize);
+        m_stereotypeIcon.iconShape().visitShapes(&visitor1);
 #else
-    ShapePaintVisitor visitor(painter, QPointF(0.0, 0.0), QSizeF(m_stereotypeIcon.width(), m_stereotypeIcon.height()), m_baseSize, m_actualSize);
-    m_stereotypeIcon.iconShape().visitShapes(&visitor);
+        ShapePaintVisitor visitor(painter,
+                                  QPointF(0.0, 0.0),
+                                  QSizeF(m_stereotypeIcon.width(), m_stereotypeIcon.height()),
+                                  m_baseSize,
+                                  m_actualSize);
+        m_stereotypeIcon.iconShape().visitShapes(&visitor);
 #endif
+    }
     painter->restore();
 }
 
 QList<QPolygonF> CustomIconItem::outline() const
 {
-    ShapePolygonVisitor visitor(QPointF(0.0, 0.0), QSizeF(m_stereotypeIcon.width(), m_stereotypeIcon.height()), m_baseSize, m_actualSize);
-    IconShape shape = m_stereotypeIcon.outlineShape();
-    if (shape.isEmpty())
-        shape = m_stereotypeIcon.iconShape();
-    shape.visitShapes(&visitor);
-    return visitor.toPolygons();
+    if (!m_image.isNull()) {
+        QList<QPolygonF> polygons;
+        polygons.append(QPolygonF(QRectF(QPointF(0.0, 0.0), m_actualSize)));
+        return polygons;
+    } else {
+        ShapePolygonVisitor visitor(QPointF(0.0, 0.0),
+                                    QSizeF(m_stereotypeIcon.width(), m_stereotypeIcon.height()),
+                                    m_baseSize,
+                                    m_actualSize);
+        IconShape shape = m_stereotypeIcon.outlineShape();
+        if (shape.isEmpty())
+            shape = m_stereotypeIcon.iconShape();
+        shape.visitShapes(&visitor);
+        return visitor.toPolygons();
+    }
 }
 
 } // namespace qmt

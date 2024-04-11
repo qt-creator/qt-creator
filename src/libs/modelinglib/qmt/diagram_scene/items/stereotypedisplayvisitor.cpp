@@ -57,7 +57,9 @@ void StereotypeDisplayVisitor::visitDObject(const DObject *object)
     DObject::StereotypeDisplay stereotypeDisplay = object->stereotypeDisplay();
     m_stereotypeIconId = m_stereotypeController->findStereotypeIconId(m_stereotypeIconElement, object->stereotypes());
 
-    if (m_stereotypeIconId.isEmpty() && stereotypeDisplay == DObject::StereotypeIcon) {
+    if (object->hasImage() && stereotypeDisplay == DObject::StereotypeSmart) {
+        stereotypeDisplay = DObject::StereotypeLabel;
+    } else if (m_stereotypeIconId.isEmpty() && stereotypeDisplay == DObject::StereotypeIcon) {
         stereotypeDisplay = DObject::StereotypeLabel;
     } else if (!m_stereotypeIconId.isEmpty() && stereotypeDisplay == DObject::StereotypeSmart) {
         StereotypeIcon stereotypeIcon = m_stereotypeController->findStereotypeIcon(m_stereotypeIconId);

@@ -53,7 +53,6 @@ private:
     void updateGeometry();
     void updateMembers(const Style *style);
 
-    CustomIconItem *m_customIcon = nullptr;
     QGraphicsRectItem *m_shape = nullptr;
     QGraphicsSimpleTextItem *m_baseClasses = nullptr;
     QGraphicsSimpleTextItem *m_namespace = nullptr;

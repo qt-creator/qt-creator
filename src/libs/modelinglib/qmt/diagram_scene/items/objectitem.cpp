@@ -498,6 +498,7 @@ void ObjectItem::updateStereotypes(const QString &stereotypeIconId, StereotypeIc
             m_stereotypeIcon = new CustomIconItem(m_diagramSceneModel, this);
         m_stereotypeIcon->setStereotypeIconId(stereotypeIconId);
         m_stereotypeIcon->setBaseSize(QSizeF(m_stereotypeIcon->shapeWidth(), m_stereotypeIcon->shapeHeight()));
+        m_stereotypeIcon->setActualSize(QSizeF(m_stereotypeIcon->shapeWidth(), m_stereotypeIcon->shapeHeight()));
         m_stereotypeIcon->setBrush(style->fillBrush());
         m_stereotypeIcon->setPen(style->innerLinePen());
     } else if (m_stereotypeIcon) {
@@ -518,43 +519,90 @@ void ObjectItem::updateStereotypes(const QString &stereotypeIconId, StereotypeIc
     }
 }
 
-QSizeF ObjectItem::stereotypeIconMinimumSize(const StereotypeIcon &stereotypeIcon,
+QSizeF ObjectItem::customIconItemMinimumSize(const CustomIconItem *customIconItem,
                                              qreal minimumWidth, qreal minimumHeight) const
 {
     Q_UNUSED(minimumWidth)
 
     qreal width = 0.0;
     qreal height = 0.0;
-    if (stereotypeIcon.hasMinWidth() && !stereotypeIcon.hasMinHeight()) {
-        width = stereotypeIcon.minWidth();
-        if (stereotypeIcon.sizeLock() == StereotypeIcon::LockHeight || stereotypeIcon.sizeLock() == StereotypeIcon::LockSize)
-            height = stereotypeIcon.minHeight();
-        else
-            height = width * stereotypeIcon.height() / stereotypeIcon.width();
-    } else if (!stereotypeIcon.hasMinWidth() && stereotypeIcon.hasMinHeight()) {
-        height = stereotypeIcon.minHeight();
-        if (stereotypeIcon.sizeLock() == StereotypeIcon::LockWidth || stereotypeIcon.sizeLock() == StereotypeIcon::LockSize)
-            width = stereotypeIcon.minWidth();
-        else
-            width = height * stereotypeIcon.width() / stereotypeIcon.height();
-    } else if (stereotypeIcon.hasMinWidth() && stereotypeIcon.hasMinHeight()) {
-        if (stereotypeIcon.sizeLock() == StereotypeIcon::LockRatio) {
-            width = stereotypeIcon.minWidth();
-            height = width * stereotypeIcon.height() / stereotypeIcon.width();
-            if (height < stereotypeIcon.minHeight()) {
-                height = stereotypeIcon.minHeight();
-                width = height * stereotypeIcon.width() / stereotypeIcon.height();
-                QMT_CHECK(width <= stereotypeIcon.minWidth());
-            }
-        } else {
-            width = stereotypeIcon.minWidth();
-            height = stereotypeIcon.minHeight();
+    if (customIconItem->hasImage()) {
+        const QImage &image = customIconItem->image();
+        width = minimumWidth;
+        height = image.height() * width / image.width();
+        if (height < minimumHeight) {
+            height = minimumHeight;
+            width = image.width() * height / image.height();
         }
     } else {
-        height = minimumHeight;
-        width = height * stereotypeIcon.width() / stereotypeIcon.height();
+        const StereotypeIcon &stereotypeIcon = customIconItem->stereotypeIcon();
+        if (stereotypeIcon.hasMinWidth() && !stereotypeIcon.hasMinHeight()) {
+            width = stereotypeIcon.minWidth();
+            if (stereotypeIcon.sizeLock() == StereotypeIcon::LockHeight || stereotypeIcon.sizeLock() == StereotypeIcon::LockSize)
+                height = stereotypeIcon.minHeight();
+            else
+                height = width * stereotypeIcon.height() / stereotypeIcon.width();
+        } else if (!stereotypeIcon.hasMinWidth() && stereotypeIcon.hasMinHeight()) {
+            height = stereotypeIcon.minHeight();
+            if (stereotypeIcon.sizeLock() == StereotypeIcon::LockWidth || stereotypeIcon.sizeLock() == StereotypeIcon::LockSize)
+                width = stereotypeIcon.minWidth();
+            else
+                width = height * stereotypeIcon.width() / stereotypeIcon.height();
+        } else if (stereotypeIcon.hasMinWidth() && stereotypeIcon.hasMinHeight()) {
+            if (stereotypeIcon.sizeLock() == StereotypeIcon::LockRatio) {
+                width = stereotypeIcon.minWidth();
+                height = width * stereotypeIcon.height() / stereotypeIcon.width();
+                if (height < stereotypeIcon.minHeight()) {
+                    height = stereotypeIcon.minHeight();
+                    width = height * stereotypeIcon.width() / stereotypeIcon.height();
+                    QMT_CHECK(width <= stereotypeIcon.minWidth());
+                }
+            } else {
+                width = stereotypeIcon.minWidth();
+                height = stereotypeIcon.minHeight();
+            }
+        } else {
+            height = minimumHeight;
+            width = height * stereotypeIcon.width() / stereotypeIcon.height();
+        }
     }
     return QSizeF(width, height);
+}
+
+void ObjectItem::correctAutoSize(const CustomIconItem* customIconItem, qreal &width, qreal &height, qreal minimumWidth, qreal minimumHeight) const
+{
+    if (customIconItem) {
+        if (customIconItem->hasImage()) {
+            width = customIconItem->image().width();
+            height = customIconItem->image().height();
+        }
+    } else {
+        if (width < minimumWidth)
+            width = minimumWidth;
+        if (height < minimumHeight)
+            height = minimumHeight;
+    }
+}
+
+void ObjectItem::updateCustomIcon(const Style *style)
+{
+    if (object()->hasImage()) {
+        if (!m_customIcon)
+            m_customIcon = new CustomIconItem(diagramSceneModel(), this);
+        m_customIcon->setImage(object()->image());
+        m_customIcon->setZValue(SHAPE_ZVALUE);
+    } else if (!shapeIconId().isEmpty()) {
+        if (!m_customIcon)
+            m_customIcon = new CustomIconItem(diagramSceneModel(), this);
+        m_customIcon->setStereotypeIconId(shapeIconId());
+        m_customIcon->setBrush(style->fillBrush());
+        m_customIcon->setPen(style->outerLinePen());
+        m_customIcon->setZValue(SHAPE_ZVALUE);
+    } else if (m_customIcon) {
+        m_customIcon->scene()->removeItem(m_customIcon);
+        delete m_customIcon;
+        m_customIcon = nullptr;
+    }
 }
 
 bool ObjectItem::suppressTextDisplay() const
@@ -564,6 +612,7 @@ bool ObjectItem::suppressTextDisplay() const
 
 void ObjectItem::updateNameItem(const Style *style)
 {
+    QString display_name = buildDisplayName();
     if (!suppressTextDisplay()) {
         if (!m_nameItem) {
             m_nameItem = new EditableTextItem(this);
@@ -582,16 +631,18 @@ void ObjectItem::updateNameItem(const Style *style)
             QObject::connect(m_nameItem, &EditableTextItem::returnKeyPressed, m_nameItem,
                              [this] { this->m_nameItem->clearFocus(); });
         }
-        if (style->headerFont() != m_nameItem->font())
-            m_nameItem->setFont(style->headerFont());
+        QFont font = style->headerFont();
+        if (object()->hasLinkedFile())
+            font.setUnderline(true);
+        if (font != m_nameItem->font())
+            m_nameItem->setFont(font);
         if (style->textBrush().color() != m_nameItem->defaultTextColor())
             m_nameItem->setDefaultTextColor(style->textBrush().color());
         if (!m_nameItem->hasFocus()) {
-            QString name = buildDisplayName();
-            if (name != m_nameItem->toPlainText())
-                m_nameItem->setPlainText(name);
+            if (display_name != m_nameItem->toPlainText())
+                m_nameItem->setPlainText(display_name);
         }
-    } else if (m_nameItem ){
+    } else if (m_nameItem) {
         m_nameItem->scene()->removeItem(m_nameItem);
         delete m_nameItem;
         m_nameItem = nullptr;
@@ -621,30 +672,45 @@ void ObjectItem::setObjectName(const QString &objectName)
 
 void ObjectItem::updateDepth()
 {
-    setZValue(m_object->depth());
+    int depth_delta = 0;
+    switch (m_shapeIcon.depthLayer()) {
+    case StereotypeIcon::DepthBehindItems:
+        depth_delta = -1;
+        break;
+    case StereotypeIcon::DepthAmongItems:
+        depth_delta = 0;
+        break;
+    case StereotypeIcon::DepthBeforeItems:
+        depth_delta = 1;
+        break;
+    }
+    setZValue(m_object->depth() + depth_delta);
 }
 
-void ObjectItem::updateSelectionMarker(CustomIconItem *customIconItem)
+void ObjectItem::updateSelectionMarker(const CustomIconItem *customIconItem)
 {
     if (customIconItem) {
-        StereotypeIcon stereotypeIcon = customIconItem->stereotypeIcon();
         ResizeFlags resizeFlags = ResizeUnlocked;
-        switch (stereotypeIcon.sizeLock()) {
-        case StereotypeIcon::LockNone:
-            resizeFlags = ResizeUnlocked;
-            break;
-        case StereotypeIcon::LockWidth:
-            resizeFlags = ResizeLockedWidth;
-            break;
-        case StereotypeIcon::LockHeight:
-            resizeFlags = ResizeLockedHeight;
-            break;
-        case StereotypeIcon::LockSize:
-            resizeFlags = ResizeLockedSize;
-            break;
-        case StereotypeIcon::LockRatio:
+        if (customIconItem->hasImage()) {
             resizeFlags = ResizeLockedRatio;
-            break;
+        } else {
+            switch (customIconItem->stereotypeIcon().sizeLock()) {
+            case StereotypeIcon::LockNone:
+                resizeFlags = ResizeUnlocked;
+                break;
+            case StereotypeIcon::LockWidth:
+                resizeFlags = ResizeLockedWidth;
+                break;
+            case StereotypeIcon::LockHeight:
+                resizeFlags = ResizeLockedHeight;
+                break;
+            case StereotypeIcon::LockSize:
+                resizeFlags = ResizeLockedSize;
+                break;
+            case StereotypeIcon::LockRatio:
+                resizeFlags = ResizeLockedRatio;
+                break;
+            }
         }
         updateSelectionMarker(resizeFlags);
     } else {
@@ -990,6 +1056,10 @@ void ObjectItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         addSeparator = true;
     if (element_tasks->extendContextMenu(object(), diagramSceneModel()->diagram(), &menu))
         addSeparator = true;
+    if (element_tasks->hasLinkedFile(m_object, m_diagramSceneModel->diagram())) {
+        menu.addAction(new ContextMenuAction(Tr::tr("Open Linked File"), "openLinkedFile", &menu));
+        addSeparator = true;
+    }
     if (addSeparator)
         menu.addSeparator();
     menu.addAction(new ContextMenuAction(Tr::tr("Remove"), "remove",
@@ -1000,12 +1070,12 @@ void ObjectItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     QMenu alignMenu;
     alignMenu.setTitle(Tr::tr("Align Objects"));
     alignMenu.addAction(new ContextMenuAction(Tr::tr("Align Left"), "alignLeft", &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(Tr::tr("Center Vertically"), "centerVertically",
+    alignMenu.addAction(new ContextMenuAction(Tr::tr("Center Horizontally"), "centerHorizontally",
                                               &alignMenu));
     alignMenu.addAction(new ContextMenuAction(Tr::tr("Align Right"), "alignRight", &alignMenu));
     alignMenu.addSeparator();
     alignMenu.addAction(new ContextMenuAction(Tr::tr("Align Top"), "alignTop", &alignMenu));
-    alignMenu.addAction(new ContextMenuAction(Tr::tr("Center Horizontally"), "centerHorizontally",
+    alignMenu.addAction(new ContextMenuAction(Tr::tr("Center Vertically"), "centerVertically",
                                               &alignMenu));
     alignMenu.addAction(new ContextMenuAction(Tr::tr("Align Bottom"), "alignBottom", &alignMenu));
     alignMenu.addSeparator();
@@ -1035,6 +1105,8 @@ void ObjectItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                 m_diagramSceneModel->diagramSceneController()->elementTasks()->openDiagram(m_object, m_diagramSceneModel->diagram());
             } else if (action->id() == "createDiagram") {
                 m_diagramSceneModel->diagramSceneController()->elementTasks()->createAndOpenDiagram(m_object, m_diagramSceneModel->diagram());
+            } else if (action->id() == "openLinkedFile") {
+                m_diagramSceneModel->diagramSceneController()->elementTasks()->openLinkedFile(m_object, m_diagramSceneModel->diagram());
             } else if (action->id() == "remove") {
                 DSelection selection = m_diagramSceneModel->selectedElements();
                 if (selection.isEmpty())

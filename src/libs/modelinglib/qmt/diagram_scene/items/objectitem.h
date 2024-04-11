@@ -120,8 +120,12 @@ protected:
                            StereotypeIcon::Display stereotypeDisplay, const Style *style);
     StereotypesItem *stereotypesItem() const { return m_stereotypesItem; }
     CustomIconItem *stereotypeIconItem() const { return m_stereotypeIcon; }
-    QSizeF stereotypeIconMinimumSize(const StereotypeIcon &stereotypeIcon, qreal minimumWidth,
+    CustomIconItem *customIconItem() const { return m_customIcon; }
+    QSizeF customIconItemMinimumSize(const CustomIconItem* customIconItem, qreal minimumWidth,
                                      qreal minimumHeight) const;
+    void correctAutoSize(const CustomIconItem *customIconItem, qreal& width, qreal& height,
+                           qreal minimumWidth, qreal minimumHeight) const;
+    void updateCustomIcon(const Style* style);
     bool suppressTextDisplay() const;
     void updateNameItem(const Style *style);
     EditableTextItem *nameItem() const { return m_nameItem; }
@@ -130,7 +134,7 @@ protected:
     void setObjectName(const QString &objectName);
 
     void updateDepth();
-    void updateSelectionMarker(CustomIconItem *customIconItem);
+    void updateSelectionMarker(const CustomIconItem* customIconItem);
     void updateSelectionMarker(ResizeFlags resizeFlags);
     void updateSelectionMarkerGeometry(const QRectF &objectRect);
     void updateRelationStarter();
@@ -169,6 +173,7 @@ private:
     StereotypeIcon::Display m_stereotypeIconDisplay = StereotypeIcon::DisplayLabel;
     StereotypesItem *m_stereotypesItem = nullptr;
     CustomIconItem *m_stereotypeIcon = nullptr;
+    CustomIconItem *m_customIcon = nullptr;
     EditableTextItem *m_nameItem = nullptr;
     RectangularSelectionItem *m_selectionMarker = nullptr;
     RelationStarter *m_relationStarter = nullptr;

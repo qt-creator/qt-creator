@@ -59,8 +59,13 @@ public:
     virtual void createAndOpenDiagram(const MElement *) = 0;
     virtual void createAndOpenDiagram(const DElement *, const MDiagram *) = 0;
 
+    virtual bool hasLinkedFile(const MElement *) const = 0;
+    virtual bool hasLinkedFile(const DElement *, const MDiagram *) const = 0;
+    virtual void openLinkedFile(const MElement *) = 0;
+    virtual void openLinkedFile(const DElement *, const MDiagram *) = 0;
+
     virtual bool extendContextMenu(const DElement *, const MDiagram *, QMenu *) = 0;
-    virtual bool handleContextMenuAction(const DElement *, const MDiagram *, const QString &) = 0;
+    virtual bool handleContextMenuAction(DElement *, MDiagram *, const QString &) = 0;
 };
 
 } // namespace qmt

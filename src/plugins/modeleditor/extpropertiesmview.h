@@ -24,13 +24,21 @@ public:
 
     void visitMPackage(const qmt::MPackage *package) override;
 
+protected:
+    void visitMObjectBehind(const qmt::MObject *object) override;
+    void visitDObjectBefore(const qmt::DObject *object) override;
+
 private:
-    void onConfigPathChanged();
+    void onConfigPathChanged(const QString &path);
+    void onFileLinkPathChanged(const QString &path);
+    void onImagePathChanged(const QString &path);
 
 private:
     qmt::ProjectController *m_projectController = nullptr;
+    Utils::PathChooser *m_filelinkPathChooser = nullptr;
     Utils::PathChooser *m_configPath = nullptr;
     QLabel *m_configPathInfo = nullptr;
+    Utils::PathChooser *m_imagePathChooser = nullptr;
 };
 
 } // namespace Interal

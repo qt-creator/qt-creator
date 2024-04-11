@@ -78,6 +78,11 @@ public:
     void edit();
 
 protected:
+    virtual void visitMElementBehind(const MElement *element);
+    virtual void visitMObjectBehind(const MObject *object);
+    virtual void visitMDiagramBehind(const MDiagram *diagram);
+    virtual void visitDObjectBefore(const DObject *object);
+
     void onStereotypesChanged(const QString &stereotypes);
     void onObjectNameChanged(const QString &name);
     void onNamespaceChanged(const QString &umlNamespace);
@@ -250,5 +255,127 @@ protected:
     QCheckBox *m_relationVisualEmphasizedCheckbox = nullptr;
     QLabel *m_pointsLabel = nullptr;
 };
+
+template<class T, class V>
+QList<T *> PropertiesView::MView::filter(const QList<V *> &elements)
+{
+    QList<T *> filtered;
+    for (auto *element : elements) {
+        auto t = dynamic_cast<T *>(element);
+        if (t)
+            filtered.append(t);
+    }
+    return filtered;
+}
+
+template<class T, class V, class BASE>
+inline bool PropertiesView::MView::haveSameValue(const QList<BASE *> &baseElements, V (T::*getter)() const, V *value)
+{
+    QList<T *> elements = filter<T>(baseElements);
+    QMT_CHECK(!elements.isEmpty());
+    V candidate = V(); // avoid warning of reading uninitialized variable
+    bool haveCandidate = false;
+    for (const auto *element : elements) {
+        if (!haveCandidate) {
+            candidate = ((*element).*getter)();
+            haveCandidate = true;
+        } else {
+            if (candidate != ((*element).*getter)())
+                return false;
+        }
+    }
+    QMT_CHECK(haveCandidate);
+    if (!haveCandidate)
+        return false;
+    if (value)
+        *value = candidate;
+    return true;
+}
+
+template<class T, class V, class BASE>
+inline bool PropertiesView::MView::isValueChanged(const QList<BASE *> &baseElements, SelectionType selectionType,
+                                                  const V &value, V (T::*getter)() const)
+{
+    QList<T *> elements = filter<T>(baseElements);
+    if ((selectionType == SelectionSingle && elements.size() == 1) || selectionType == SelectionMulti) {
+        for (const auto *element : elements) {
+            if (value != ((*element).*getter)())
+                return true;
+        }
+    }
+    return false;
+}
+
+template<class T, class V, class BASE>
+inline void PropertiesView::MView::assignModelElement(const QList<BASE *> &baseElements, SelectionType selectionType,
+                                                      const V &value, V (T::*getter)() const, void (T::*setter)(const V &))
+{
+    QList<T *> elements = filter<T>(baseElements);
+    if ((selectionType == SelectionSingle && elements.size() == 1) || selectionType == SelectionMulti) {
+        for (auto *element : elements) {
+            if (value != ((*element).*getter)()) {
+                m_propertiesView->beginUpdate(element);
+                ((*element).*setter)(value);
+                m_propertiesView->endUpdate(element, false);
+            }
+        }
+    }
+}
+
+template<class T, class V, class BASE>
+inline void PropertiesView::MView::assignModelElement(const QList<BASE *> &baseElements, SelectionType selectionType,
+                                                      const V &value, V (T::*getter)() const, void (T::*setter)(V))
+{
+    QList<T *> elements = filter<T>(baseElements);
+    if ((selectionType == SelectionSingle && elements.size() == 1) || selectionType == SelectionMulti) {
+        for (auto *element : elements) {
+            if (value != ((*element).*getter)()) {
+                m_propertiesView->beginUpdate(element);
+                ((*element).*setter)(value);
+                m_propertiesView->endUpdate(element, false);
+            }
+        }
+    }
+}
+
+template<class T, class E, class V, class BASE>
+inline void PropertiesView::MView::assignEmbeddedModelElement(const QList<BASE *> &baseElements, SelectionType selectionType,
+                                                              const V &value, E (T::*getter)() const,
+                                                              void (T::*setter)(const E &),
+                                                              V (E::*vGetter)() const, void (E::*vSetter)(const V &))
+{
+    QList<T *> elements = filter<T>(baseElements);
+    if ((selectionType == SelectionSingle && elements.size() == 1) || selectionType == SelectionMulti) {
+        for (auto *element : elements) {
+            E embedded = ((*element).*getter)();
+            if (value != (embedded.*vGetter)()) {
+                m_propertiesView->beginUpdate(element);
+                (embedded.*vSetter)(value);
+                ((*element).*setter)(embedded);
+                m_propertiesView->endUpdate(element, false);
+            }
+        }
+    }
+}
+
+template<class T, class E, class V, class BASE>
+inline void PropertiesView::MView::assignEmbeddedModelElement(const QList<BASE *> &baseElements, SelectionType selectionType,
+                                                              const V &value, E (T::*getter)() const,
+                                                              void (T::*setter)(const E &),
+                                                              V (E::*vGetter)() const, void (E::*vSetter)(V))
+{
+    QList<T *> elements = filter<T>(baseElements);
+    if ((selectionType == SelectionSingle && elements.size() == 1) || selectionType == SelectionMulti) {
+        for (auto *element : elements) {
+            E embedded = ((*element).*getter)();
+            if (value != (embedded.*vGetter)()) {
+                m_propertiesView->beginUpdate(element);
+                (embedded.*vSetter)(value);
+                ((*element).*setter)(embedded);
+                m_propertiesView->endUpdate(element, false);
+            }
+        }
+    }
+}
 
 } // namespace qmt

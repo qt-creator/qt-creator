@@ -25,7 +25,10 @@ DObject::DObject(const DObject &rhs)
       m_visualSecondaryRole(rhs.m_visualSecondaryRole),
       m_stereotypeDisplay(rhs.m_stereotypeDisplay),
       m_isAutoSized(rhs.m_isAutoSized),
-      m_isVisualEmphasized(rhs.m_isVisualEmphasized)
+      m_isVisualEmphasized(rhs.m_isVisualEmphasized),
+      m_hasLinkedFile(rhs.m_hasLinkedFile),
+      m_imagePath(rhs.m_imagePath),
+      m_image(rhs.m_image)
 {
 }
 
@@ -49,6 +52,9 @@ DObject &DObject::operator =(const DObject &rhs)
         m_stereotypeDisplay = rhs.m_stereotypeDisplay;
         m_isAutoSized = rhs.m_isAutoSized;
         m_isVisualEmphasized = rhs.m_isVisualEmphasized;
+        m_hasLinkedFile = rhs.m_hasLinkedFile;
+        m_imagePath = rhs.m_imagePath;
+        m_image = rhs.m_image;
     }
     return *this;
 }
@@ -111,6 +117,26 @@ void DObject::setAutoSized(bool autoSized)
 void DObject::setVisualEmphasized(bool visualEmphasized)
 {
     m_isVisualEmphasized = visualEmphasized;
+}
+
+void DObject::setLinkedFile(bool linkedFile)
+{
+    m_hasLinkedFile = linkedFile;
+}
+
+bool DObject::hasImage() const
+{
+    return !m_image.isNull();
+}
+
+void DObject::setImagePath(const QString &path)
+{
+    m_imagePath = path;
+}
+
+void DObject::setImage(const QImage &image)
+{
+    m_image = image;
 }
 
 void DObject::accept(DVisitor *visitor)

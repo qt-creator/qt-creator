@@ -23,6 +23,8 @@ public:
 
     QString name() const { return m_name; }
     void setName(const QString &name);
+    QString linkedFileName() const { return m_linkedfilename; }
+    void setLinkedFileName(const QString &linkedfilename);
 
     const Handles<MObject> &children() const { return m_children; }
     void setChildren(const Handles<MObject> &children);
@@ -48,6 +50,7 @@ public:
 
 private:
     QString m_name;
+    QString m_linkedfilename;
     Handles<MObject> m_children;
     Handles<MRelation> m_relations;
 };

@@ -49,7 +49,10 @@ void DFlatAssignmentVisitor::visitDObject(const DObject *object)
     target->setVisualPrimaryRole(object->visualPrimaryRole());
     target->setVisualSecondaryRole(object->visualSecondaryRole());
     target->setVisualEmphasized(object->isVisualEmphasized());
+    target->setLinkedFile(object->hasLinkedFile());
     target->setStereotypeDisplay(object->stereotypeDisplay());
+    target->setImagePath(object->imagePath());
+    target->setImage(object->image());
 }
 
 void DFlatAssignmentVisitor::visitDPackage(const DPackage *package)

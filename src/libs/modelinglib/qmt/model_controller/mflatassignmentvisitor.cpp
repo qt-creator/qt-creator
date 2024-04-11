@@ -35,6 +35,7 @@ void MFlatAssignmentVisitor::visitMObject(const MObject *object)
     auto targetObject = dynamic_cast<MObject *>(m_target);
     QMT_ASSERT(targetObject, return);
     targetObject->setName(object->name());
+    targetObject->setLinkedFileName(object->linkedFileName());
 }
 
 void MFlatAssignmentVisitor::visitMPackage(const MPackage *package)

@@ -29,7 +29,6 @@ private:
     QSizeF calcMinimumGeometry() const;
     void updateGeometry();
 
-    CustomIconItem *m_customIcon = nullptr;
     QGraphicsPolygonItem *m_body = nullptr;
     QGraphicsPolygonItem *m_fold = nullptr;
 };

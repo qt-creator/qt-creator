@@ -52,22 +52,10 @@ void ItemItem::update()
 
     const Style *style = adaptedStyle(shapeIconId());
 
-    if (!shapeIconId().isEmpty()) {
-        if (!m_customIcon)
-            m_customIcon = new CustomIconItem(diagramSceneModel(), this);
-        m_customIcon->setStereotypeIconId(shapeIconId());
-        m_customIcon->setBaseSize(stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT));
-        m_customIcon->setBrush(style->fillBrush());
-        m_customIcon->setPen(style->outerLinePen());
-        m_customIcon->setZValue(SHAPE_ZVALUE);
-    } else if (m_customIcon) {
-        m_customIcon->scene()->removeItem(m_customIcon);
-        delete m_customIcon;
-        m_customIcon = nullptr;
-    }
+    updateCustomIcon(style);
 
     // shape
-    if (!m_customIcon) {
+    if (!customIconItem()) {
         if (!m_shape)
             m_shape = new QGraphicsRectItem(this);
         m_shape->setBrush(style->fillBrush());
@@ -100,7 +88,7 @@ void ItemItem::update()
         m_contextLabel = nullptr;
     }
 
-    updateSelectionMarker(m_customIcon);
+    updateSelectionMarker(customIconItem());
     updateRelationStarter();
     updateAlignmentButtons();
     updateGeometry();
@@ -108,8 +96,8 @@ void ItemItem::update()
 
 bool ItemItem::intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint, QLineF *intersectionLine) const
 {
-    if (m_customIcon) {
-        QList<QPolygonF> polygons = m_customIcon->outline();
+    if (customIconItem()) {
+        QList<QPolygonF> polygons = customIconItem()->outline();
         for (int i = 0; i < polygons.size(); ++i)
             polygons[i].translate(object()->pos() + object()->rect().topLeft());
         if (shapeIcon().textAlignment() == qmt::StereotypeIcon::TextalignBelow) {
@@ -152,14 +140,16 @@ QSizeF ItemItem::calcMinimumGeometry() const
 {
     double width = 0.0;
     double height = 0.0;
+    double customMinHeight = 0.0;
 
-    if (m_customIcon) {
-        QSizeF sz = stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(),
+    if (customIconItem()) {
+        QSizeF sz = customIconItemMinimumSize(customIconItem(),
                                               CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT);
         if (shapeIcon().textAlignment() != qmt::StereotypeIcon::TextalignTop
                   && shapeIcon().textAlignment() != qmt::StereotypeIcon::TextalignCenter)
             return sz;
         width = sz.width();
+        customMinHeight = sz.height();
     }
 
     height += BODY_VERT_BORDER;
@@ -181,6 +171,9 @@ QSizeF ItemItem::calcMinimumGeometry() const
 
     width = BODY_HORIZ_BORDER + width + BODY_HORIZ_BORDER;
 
+    if (height < customMinHeight)
+        height = customMinHeight;
+
     return GeometryUtilities::ensureMinimumRasterSize(QSizeF(width, height), 2 * RASTER_WIDTH, 2 * RASTER_HEIGHT);
 }
 
@@ -197,7 +190,7 @@ void ItemItem::updateGeometry()
     height = geometry.height();
 
     if (object()->isAutoSized()) {
-        // nothing
+        correctAutoSize(customIconItem(), width, height, 0, 0);
     } else {
         QRectF rect = object()->rect();
         if (rect.width() > width)
@@ -221,15 +214,15 @@ void ItemItem::updateGeometry()
     // a backup for the graphics item used for manual resized and persistency.
     object()->setRect(rect);
 
-    if (m_customIcon) {
-        m_customIcon->setPos(left, top);
-        m_customIcon->setActualSize(QSizeF(width, height));
+    if (customIconItem()) {
+        customIconItem()->setPos(left, top);
+        customIconItem()->setActualSize(QSizeF(width, height));
     }
 
     if (m_shape)
         m_shape->setRect(rect);
 
-    if (m_customIcon) {
+    if (customIconItem()) {
         switch (shapeIcon().textAlignment()) {
         case qmt::StereotypeIcon::TextalignBelow:
             y += height + BODY_VERT_BORDER;
@@ -271,7 +264,7 @@ void ItemItem::updateGeometry()
         y += nameItem()->boundingRect().height();
     }
     if (m_contextLabel) {
-        if (m_customIcon) {
+        if (customIconItem()) {
             m_contextLabel->resetMaxWidth();
         } else {
             double maxContextWidth = width - 2 * BODY_HORIZ_BORDER;
