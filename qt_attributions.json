@@ -558,6 +558,20 @@
         "Copyright": "Copyright (C) 2011-2015 Frank Osterfeld, Copyright (C) 2016 Mathias Hasselmann"
     },
     {
+        "Id": "pyprof2calltree",
+        "Name": "pyprof2calltree",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Used for converting profile data of debugger dumper execution to kcachegrind-compatible input in visualize.py",
+        "Path": "share/qtcreator/debugger",
+        "Description": "Creates python profiling output which is readable by kcachegrind",
+        "Homepage": "https://github.com/pwaller/pyprof2calltree",
+        "License": "MIT License",
+        "LicenseId": "MIT",
+        "LicenseFile": "share/qtcreator/debugger/LICENSE.MIT",
+        "Copyright": "Copyright(C) 2006-2008, David Allouche, Jp Calderone, Itamar Shtull-Trauring, Copyright(C) 2006-2017, Johan Dahlin, Copyright(C) 2008, Olivier Grisel <olivier.grisel@ensta.org>, Copyright(C) 2008, David Glick, Copyright(C) 2013, Steven Maude, Copyright(C) 2013-2018, Peter Waller <p@pwaller.net>, Copyright(C) 2013, Lukas Graf <lukas.graf@4teamwork.ch>, Copyright(C) 2013, Jamie Wong <http://jamie-wong.com>, Copyright(C) 2013, Yury V. Zaytsev <yury@shurup.com>, Copyright(C) 2014, Michael Droettboom <mdroe@stsci.edu>, Copyright(C) 2015, Zev Benjamin <zev@mit.edu>, Copyright(C) 2018, Jon Dufresne <jon.dufresne@gmail.com>"
+    },
+    {
         "Id": "lua",
         "Name": "Lua",
         "QDocModule": "qtcreator",
