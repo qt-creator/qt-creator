@@ -2417,12 +2417,20 @@ QList<std::pair<FilePath, FilePath>> ProjectExplorerPlugin::renameFiles(
 }
 
 #ifdef WITH_TESTS
-bool ProjectExplorerPlugin::renameFile(const Utils::FilePath &source, const Utils::FilePath &target)
+bool ProjectExplorerPlugin::renameFile(const Utils::FilePath &source, const Utils::FilePath &target,
+                                       Project *project)
 {
-    const bool success = Core::FileUtils::renameFile(source, target, HandleIncludeGuards::Yes);
-    if (success)
-        emit ProjectExplorerPlugin::instance()->filesRenamed({std::make_pair(source, target)});
-    return success;
+    if (!project) {
+        const bool success = Core::FileUtils::renameFile(source, target, HandleIncludeGuards::Yes);
+        if (success)
+            emit ProjectExplorerPlugin::instance()->filesRenamed({std::make_pair(source, target)});
+        return success;
+    }
+    Node * const sourceNode = const_cast<Node *>(project->nodeForFilePath(source));
+    if (!sourceNode)
+        return false;
+    return !renameFiles({std::make_pair(sourceNode, target)}).isEmpty();
+
 }
 #endif // WITH_TESTS
 

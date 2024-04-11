@@ -171,6 +171,8 @@ public:
             bool configureAsExampleProject = false,
             ProjectExplorer::Kit *kit = nullptr);
 
+    QList<ProjectExplorer::Project *> projects() const { return m_openProjects; };
+
 private:
     QList<ProjectExplorer::Project *> m_openProjects;
 };

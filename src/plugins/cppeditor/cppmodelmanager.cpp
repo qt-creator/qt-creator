@@ -77,6 +77,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QFutureWatcher>
+#include <QHash>
 #include <QMutexLocker>
 #include <QReadLocker>
 #include <QReadWriteLock>
@@ -1871,11 +1872,21 @@ QSet<QString> CppModelManager::internalTargets(const FilePath &filePath)
 //       the renamings yet, i.e. they still refer to the old file paths.
 void CppModelManager::renameIncludes(const QList<std::pair<FilePath, FilePath>> &oldAndNewPaths)
 {
+    using IncludingFile = std::pair<FilePath, FilePath>; // old and new path; might be identical
+    struct RewriteCandidate {
+        FilePath oldHeaderFilePath;
+        FilePath newHeaderFilePath;
+        QString oldHeaderFileName;
+        QString newHeaderFileName;
+        int includeLine;
+        bool isUiHeader;
+    };
+    QHash<IncludingFile, QList<RewriteCandidate>> rewriteCandidates;
+
+    const Snapshot theSnapshot = snapshot();
     for (const auto &[oldFilePath, newFilePath] : oldAndNewPaths) {
         if (oldFilePath.isEmpty() || newFilePath.isEmpty())
             continue;
-
-        const TextEditor::PlainRefactoringFileFactory changes;
 
         QString oldFileName = oldFilePath.fileName();
         QString newFileName = newFilePath.fileName();
@@ -1902,7 +1913,8 @@ void CppModelManager::renameIncludes(const QList<std::pair<FilePath, FilePath>> 
         if (isUiFile && !productNodeForUiFile)
             continue;
 
-        const QList<Snapshot::IncludeLocation> locations = snapshot().includeLocationsOfDocument(
+        // Handle locations where this file is included.
+        const QList<Snapshot::IncludeLocation> locations = theSnapshot.includeLocationsOfDocument(
             isUiFile ? FilePath::fromString(oldFileName) : oldFilePath);
         for (const Snapshot::IncludeLocation &loc : locations) {
             const FilePath includingFileOld = loc.first->filePath();
@@ -1919,32 +1931,73 @@ void CppModelManager::renameIncludes(const QList<std::pair<FilePath, FilePath>> 
             if (isUiFile && getProductNode(includingFileOld) != productNodeForUiFile)
                 continue;
 
-            TextEditor::RefactoringFilePtr file = changes.file(includingFileNew);
-            const QTextBlock &block = file->document()->findBlockByNumber(loc.second - 1);
+            rewriteCandidates[std::make_pair(includingFileOld, includingFileNew)].append(
+                {oldFilePath, newFilePath, oldFileName, newFileName, loc.second, isUiFile});
+        }
+
+        // Handle the includes of this file: If its location changed, its own local includes
+        // need to get adapted as well.
+        if (isUiFile || !moved)
+            continue;
+        const CPlusPlus::Document::Ptr cppDoc = theSnapshot.document(oldFilePath);
+        if (!cppDoc)
+            continue;
+        const auto key = std::make_pair(oldFilePath, newFilePath);
+        for (const CPlusPlus::Document::Include &include : cppDoc->resolvedIncludes()) {
+            const FilePath oldHeaderPath = include.resolvedFileName();
+            const QString oldHeaderName = oldHeaderPath.fileName();
+            const bool isUiHeader = oldHeaderName.startsWith("ui_") && oldHeaderName.endsWith(".h");
+            if (!isUiHeader && include.type() != CPlusPlus::Client::IncludeLocal)
+                continue;
+            FilePath newHeaderPath = oldHeaderPath;
+            for (const auto &pathPair : oldAndNewPaths) {
+                if (oldHeaderPath == pathPair.first) {
+                    newHeaderPath = pathPair.second;
+                    break;
+                }
+            }
+            rewriteCandidates[key].append(
+                {oldHeaderPath,
+                 newHeaderPath,
+                 oldHeaderName,
+                 newHeaderPath.fileName(),
+                 include.line(),
+                 isUiHeader});
+        }
+    }
+
+    const TextEditor::PlainRefactoringFileFactory changes;
+    for (auto it = rewriteCandidates.cbegin(); it != rewriteCandidates.cend(); ++it) {
+        const FilePath &includingFileOld = it.key().first;
+        const FilePath &includingFileNew = it.key().second;
+        TextEditor::RefactoringFilePtr file = changes.file(includingFileNew);
+        ChangeSet changeSet;
+        for (const RewriteCandidate &candidate : it.value()) {
+            const QTextBlock &block = file->document()->findBlockByNumber(
+                candidate.includeLine - 1);
             const FilePath relPathOld = FilePath::fromString(FilePath::calcRelativePath(
-                oldFilePath.toString(), includingFileOld.parentDir().toString()));
+                candidate.oldHeaderFilePath.toString(), includingFileOld.parentDir().toString()));
             const FilePath relPathNew = FilePath::fromString(FilePath::calcRelativePath(
-                newFilePath.toString(), includingFileNew.parentDir().toString()));
+                candidate.newHeaderFilePath.toString(), includingFileNew.parentDir().toString()));
             int replaceStart = block.text().indexOf(relPathOld.toString());
             QString oldString;
             QString newString;
-            if (isUiFile || replaceStart == -1) {
-                replaceStart = block.text().indexOf(oldFileName);
-                oldString = oldFileName;
-                newString = newFileName;
+            if (candidate.isUiHeader || replaceStart == -1) {
+                replaceStart = block.text().indexOf(candidate.oldHeaderFileName);
+                oldString = candidate.oldHeaderFileName;
+                newString = candidate.newHeaderFileName;
             } else {
                 oldString = relPathOld.toString();
                 newString = relPathNew.toString();
             }
             if (replaceStart > -1 && oldString != newString) {
-                ChangeSet changeSet;
                 changeSet.replace(block.position() + replaceStart,
                                   block.position() + replaceStart + oldString.length(),
                                   newString);
-                file->setChangeSet(changeSet);
-                file->apply();
             }
         }
+        file->setChangeSet(changeSet);
+        file->apply();
     }
 }
 

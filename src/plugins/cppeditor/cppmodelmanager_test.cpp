@@ -985,6 +985,30 @@ void ModelManagerTest::testRenameIncludes_data()
         << "subdir2/header2.h" << "subdir1/header2_moved.h" << false;
 }
 
+class SourceFilesRefreshGuard : public QObject
+{
+public:
+    SourceFilesRefreshGuard()
+    {
+        connect(CppModelManager::instance(), &CppModelManager::sourceFilesRefreshed, this, [this] {
+            m_refreshed = true;
+        });
+    }
+
+    void reset() { m_refreshed = false; }
+    bool wait()
+    {
+        for (int i = 0; i < 10 && !m_refreshed; ++i) {
+            CppEditor::Tests::waitForSignalOrTimeout(
+                CppModelManager::instance(), &CppModelManager::sourceFilesRefreshed, 1000);
+        }
+        return m_refreshed;
+    }
+
+private:
+    bool m_refreshed = false;
+};
+
 void ModelManagerTest::testRenameIncludes()
 {
     // Set up project.
@@ -1003,8 +1027,11 @@ void ModelManagerTest::testRenameIncludes()
     if (!kit)
         QSKIP("The test requires at least one valid kit with a valid Qt");
     const FilePath projectFile = projectDir.pathAppended(projectDir.fileName() + ".pro");
+    SourceFilesRefreshGuard refreshGuard;
     ProjectOpenerAndCloser projectMgr;
-    QVERIFY(projectMgr.open(projectFile, true, kit));
+    const ProjectInfo::ConstPtr projectInfo = projectMgr.open(projectFile, true, kit);
+    QVERIFY(projectInfo);
+    QVERIFY(refreshGuard.wait());
 
     // Verify initial code model state.
     const auto makeAbs = [&](const QStringList &relPaths) {
@@ -1014,6 +1041,7 @@ void ModelManagerTest::testRenameIncludes()
     };
     const QSet<FilePath> allSources = makeAbs({"main.cpp", "subdir1/file1.cpp", "subdir2/file2.cpp"});
     const QSet<FilePath> allHeaders = makeAbs({"header.h", "subdir1/header1.h", "subdir2/header2.h"});
+    QCOMPARE(projectInfo->sourceFiles(), allSources + allHeaders);
     CPlusPlus::Snapshot snapshot = CppModelManager::snapshot();
     for (const FilePath &srcFile : allSources) {
         QCOMPARE(snapshot.allIncludesForDocument(srcFile), allHeaders);
@@ -1025,11 +1053,11 @@ void ModelManagerTest::testRenameIncludes()
     QFETCH(bool, successExpected);
     const FilePath oldHeader = projectDir.pathAppended(oldRelPath);
     const FilePath newHeader = projectDir.pathAppended(newRelPath);
+    refreshGuard.reset();
     QVERIFY(ProjectExplorerPlugin::renameFile(oldHeader, newHeader));
 
     // Verify new code model state.
-    QVERIFY(::CppEditor::Tests::waitForSignalOrTimeout(
-        CppModelManager::instance(), &CppModelManager::sourceFilesRefreshed, 10000));
+    QVERIFY(refreshGuard.wait());
     QSet<FilePath> incompleteNewHeadersSet = allHeaders;
     incompleteNewHeadersSet.remove(oldHeader);
     QSet<FilePath> completeNewHeadersSet = incompleteNewHeadersSet;
@@ -1041,6 +1069,64 @@ void ModelManagerTest::testRenameIncludes()
             ? incompleteNewHeadersSet : completeNewHeadersSet;
         QCOMPARE(snapshot.allIncludesForDocument(srcFile), expectedHeaders);
     }
+}
+
+void ModelManagerTest::testMoveIncludingSources_data()
+{
+    QTest::addColumn<QString>("oldRelPath");
+    QTest::addColumn<QString>("newRelPath");
+
+    QTest::addRow("move up") << "subdir1/file1.cpp" << "file1_moved.cpp";
+    QTest::addRow("move down") << "main.cpp" << "subdir1/main.cpp";
+    QTest::addRow("move across") << "subdir1/file1.cpp" << "subdir2/file1_moved.cpp";
+}
+
+void ModelManagerTest::testMoveIncludingSources()
+{
+    QFETCH(QString, oldRelPath);
+    QFETCH(QString, newRelPath);
+
+    // Set up project.
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const MyTestDataDir sourceDir("testdata_renameheaders");
+    const FilePath srcFilePath = FilePath::fromString(sourceDir.path());
+    const FilePath projectDir = tmpDir.filePath().pathAppended(srcFilePath.fileName());
+    const auto copyResult = srcFilePath.copyRecursively(projectDir);
+    if (!copyResult)
+        qDebug() << copyResult.error();
+    QVERIFY(copyResult);
+    Kit * const kit  = Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
+        return k->isValid() && !k->hasWarning() && k->value("QtSupport.QtInformation").isValid();
+    });
+    if (!kit)
+        QSKIP("The test requires at least one valid kit with a valid Qt");
+    SourceFilesRefreshGuard refreshGuard;
+    const FilePath projectFile = projectDir.pathAppended(projectDir.fileName() + ".pro");
+    ProjectOpenerAndCloser projectMgr;
+    QVERIFY(projectMgr.open(projectFile, true, kit));
+    QVERIFY(refreshGuard.wait());
+
+    // Verify initial code model state.
+    const auto makeAbs = [&](const QStringList &relPaths) {
+        return Utils::transform<QSet<FilePath>>(relPaths, [&](const QString &relPath) {
+            return projectDir.pathAppended(relPath);
+        });
+    };
+    const FilePath oldSource = projectDir.pathAppended(oldRelPath);
+    QVERIFY(oldSource.exists());
+    const QSet<FilePath> includedHeaders = makeAbs(
+        {"header.h", "subdir1/header1.h", "subdir2/header2.h"});
+    QCOMPARE(CppModelManager::snapshot().allIncludesForDocument(oldSource), includedHeaders);
+
+    // Rename the source file.
+    refreshGuard.reset();
+    const FilePath newSource = projectDir.pathAppended(newRelPath);
+    QVERIFY(ProjectExplorerPlugin::renameFile(oldSource, newSource, projectMgr.projects().first()));
+
+    // Verify new code model state.
+    QVERIFY(refreshGuard.wait());
+    QCOMPARE(CppModelManager::snapshot().allIncludesForDocument(newSource), includedHeaders);
 }
 
 void ModelManagerTest::testRenameIncludesInEditor()

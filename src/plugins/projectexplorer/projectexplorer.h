@@ -131,7 +131,8 @@ public:
     renameFiles(const QList<std::pair<Node *, Utils::FilePath>> &nodesAndNewFilePaths);
 
 #ifdef WITH_TESTS
-    static bool renameFile(const Utils::FilePath &source, const Utils::FilePath &target);
+    static bool renameFile(const Utils::FilePath &source, const Utils::FilePath &target,
+                           Project *project = nullptr);
 #endif
 
     static QStringList projectFilePatterns();
