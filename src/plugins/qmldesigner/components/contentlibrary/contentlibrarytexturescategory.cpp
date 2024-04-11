@@ -14,17 +14,15 @@ namespace QmlDesigner {
 ContentLibraryTexturesCategory::ContentLibraryTexturesCategory(QObject *parent, const QString &name)
     : QObject(parent), m_name(name) {}
 
-void ContentLibraryTexturesCategory::addTexture(const QFileInfo &tex, const QString &downloadPath,
+void ContentLibraryTexturesCategory::addTexture(const QFileInfo &texIcon, const QString &downloadPath,
                                                 const QString &key, const QString &webTextureUrl,
-                                                const QString &webIconUrl, const QString &fileExt,
+                                                const QString &iconUrl, const QString &suffix,
                                                 const QSize &dimensions, const qint64 sizeInBytes,
                                                 bool hasUpdate, bool isNew)
 {
-    QUrl icon = QUrl::fromLocalFile(tex.absoluteFilePath());
-
     m_categoryTextures.append(new ContentLibraryTexture(
-        this, tex, downloadPath, icon, key, webTextureUrl, webIconUrl,
-        fileExt, dimensions, sizeInBytes, hasUpdate, isNew));
+        this, texIcon, downloadPath, key, webTextureUrl, iconUrl,
+        suffix, dimensions, sizeInBytes, hasUpdate, isNew));
 }
 
 bool ContentLibraryTexturesCategory::filter(const QString &searchText)

@@ -101,10 +101,10 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                 && m_textureToDrag->isDownloaded()) {
                 QMimeData *mimeData = new QMimeData;
                 mimeData->setData(Constants::MIME_TYPE_BUNDLE_TEXTURE,
-                                  {m_textureToDrag->downloadedTexturePath().toUtf8()});
+                                  {m_textureToDrag->texturePath().toUtf8()});
 
                 // Allows standard file drag-n-drop. As of now needed to drop on Assets view
-                mimeData->setUrls({QUrl::fromLocalFile(m_textureToDrag->downloadedTexturePath())});
+                mimeData->setUrls({QUrl::fromLocalFile(m_textureToDrag->texturePath())});
 
                 emit bundleTextureDragStarted(m_textureToDrag);
                 model->startDrag(mimeData, m_textureToDrag->icon().toLocalFile());
@@ -142,18 +142,12 @@ ContentLibraryWidget::ContentLibraryWidget()
     m_quickWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_quickWidget->setClearColor(Theme::getColor(Theme::Color::DSpanelBackground));
 
-    m_baseUrl = QmlDesignerPlugin::settings()
-                    .value(DesignerSettingsKey::DOWNLOADABLE_BUNDLES_URL).toString()
-                + "/textures";
+    m_textureBundleUrl = QmlDesignerPlugin::settings()
+                    .value(DesignerSettingsKey::DOWNLOADABLE_BUNDLES_URL).toString() + "/textures";
 
-    m_texturesUrl = m_baseUrl + "/Textures";
-    m_textureIconsUrl = m_baseUrl + "/icons/Textures";
-    m_environmentIconsUrl = m_baseUrl + "/icons/Environments";
-    m_environmentsUrl = m_baseUrl + "/Environments";
+    m_bundlePath = Paths::bundlesPathSetting();
 
-    m_downloadPath = Paths::bundlesPathSetting();
-
-    loadTextureBundle();
+    loadTextureBundles();
 
     Theme::setupTheme(m_quickWidget->engine());
     m_quickWidget->quickWidget()->installEventFilter(this);
@@ -185,33 +179,28 @@ ContentLibraryWidget::ContentLibraryWidget()
     reloadQmlSource();
 }
 
-QVariantMap ContentLibraryWidget::readBundleMetadata()
+QVariantMap ContentLibraryWidget::readTextureBundleJson()
 {
-    QVariantMap metaData;
-    QFile jsonFile(m_downloadPath + "/texture_bundle.json");
+    QVariantMap jsonData;
+    QFile jsonFile(m_bundlePath + "/texture_bundle.json");
     if (jsonFile.open(QIODevice::ReadOnly | QIODevice::Text))
-        metaData = QJsonDocument::fromJson(jsonFile.readAll()).toVariant().toMap();
+        jsonData = QJsonDocument::fromJson(jsonFile.readAll()).toVariant().toMap();
 
-    int version = metaData["version"].toInt();
+    int version = jsonData["version"].toInt();
     if (version > TextureBundleMetadataVersion) {
         qWarning() << "Unrecognized texture metadata file version: " << version;
         return {};
     }
 
-    return metaData;
+    return jsonData;
 }
 
-void ContentLibraryWidget::loadTextureBundle()
+void ContentLibraryWidget::loadTextureBundles()
 {
-    QDir bundleDir{m_downloadPath};
+    QDir bundleDir{m_bundlePath};
 
-    if (fetchTextureBundleMetadata(bundleDir) && fetchTextureBundleIcons(bundleDir)) {
-        QString bundleIconPath = m_downloadPath + "/TextureBundleIcons";
-        QVariantMap metaData = readBundleMetadata();
-        m_texturesModel->loadTextureBundle(m_texturesUrl, m_textureIconsUrl, bundleIconPath, metaData);
-        m_environmentsModel->loadTextureBundle(m_environmentsUrl, m_environmentIconsUrl,
-                                               bundleIconPath, metaData);
-    }
+    if (fetchTextureBundleJson(bundleDir) && fetchTextureBundleIcons(bundleDir))
+        populateTextureBundleModels();
 }
 
 std::tuple<QVariantMap, QVariantMap, QVariantMap> ContentLibraryWidget::compareTextureMetaFiles(
@@ -275,9 +264,9 @@ void ContentLibraryWidget::fetchNewTextureIcons(const QVariantMap &existingFiles
     });
 
     auto multidownloader = new MultiFileDownloader(this);
-    multidownloader->setBaseUrl(QString(m_baseUrl + "/icons"));
+    multidownloader->setBaseUrl(QString(m_textureBundleUrl + "/icons"));
     multidownloader->setFiles(fileList);
-    multidownloader->setTargetDirPath(m_downloadPath + "/TextureBundleIcons");
+    multidownloader->setTargetDirPath(m_bundlePath + "/TextureBundleIcons");
 
     auto downloader = new FileDownloader(this);
     downloader->setDownloadEnabled(true);
@@ -317,15 +306,8 @@ void ContentLibraryWidget::fetchNewTextureIcons(const QVariantMap &existingFiles
             existingFile.flush();
         }
 
-        if (fetchTextureBundleIcons(bundleDir)) {
-            QString bundleIconPath = m_downloadPath + "/TextureBundleIcons";
-            QVariantMap metaData = readBundleMetadata();
-            m_texturesModel->loadTextureBundle(m_texturesUrl, m_textureIconsUrl, bundleIconPath,
-                                               metaData);
-            m_environmentsModel->loadTextureBundle(m_environmentsUrl, m_environmentIconsUrl,
-                                                   bundleIconPath, metaData);
-        }
-
+        if (fetchTextureBundleIcons(bundleDir))
+            populateTextureBundleModels();
     });
 
     multidownloader->start();
@@ -436,50 +418,45 @@ QStringList ContentLibraryWidget::saveNewTextures(const QDir &bundleDir, const Q
     }
 }
 
-bool ContentLibraryWidget::fetchTextureBundleMetadata(const QDir &bundleDir)
+bool ContentLibraryWidget::fetchTextureBundleJson(const QDir &bundleDir)
 {
     QString filePath = bundleDir.filePath("texture_bundle.json");
 
     QFileInfo fi(filePath);
-    bool metaFileExists = fi.exists() && fi.size() > 0;
+    bool jsonFileExists = fi.exists() && fi.size() > 0;
 
-    QString metaFileUrl = m_baseUrl + "/texture_bundle.zip";
+    QString bundleZipUrl = m_textureBundleUrl + "/texture_bundle.zip";
     FileDownloader *downloader = new FileDownloader(this);
-    downloader->setUrl(metaFileUrl);
+    downloader->setUrl(bundleZipUrl);
     downloader->setProbeUrl(false);
     downloader->setDownloadEnabled(true);
+    downloader->start();
 
     QObject::connect(downloader, &FileDownloader::downloadFailed, this,
-                     [this, metaFileExists, bundleDir] {
-        if (metaFileExists) {
-            if (fetchTextureBundleIcons(bundleDir)) {
-                QString bundleIconPath = m_downloadPath + "/TextureBundleIcons";
-                QVariantMap metaData = readBundleMetadata();
-                m_texturesModel->loadTextureBundle(m_texturesUrl, m_textureIconsUrl, bundleIconPath,
-                                                   metaData);
-                m_environmentsModel->loadTextureBundle(m_environmentsUrl, m_environmentIconsUrl,
-                                                       bundleIconPath, metaData);
-            }
+                     [this, jsonFileExists, bundleDir] {
+        if (jsonFileExists) {
+            if (fetchTextureBundleIcons(bundleDir))
+                populateTextureBundleModels();
         }
     });
 
     QObject::connect(downloader, &FileDownloader::finishedChanged, this,
-                     [this, downloader, bundleDir, metaFileExists, filePath] {
+                     [this, downloader, bundleDir, jsonFileExists, filePath] {
         FileExtractor *extractor = new FileExtractor(this);
         extractor->setArchiveName(downloader->completeBaseName());
         extractor->setSourceFile(downloader->outputFile());
-        if (!metaFileExists)
+        if (!jsonFileExists)
             extractor->setTargetPath(bundleDir.absolutePath());
 
         extractor->setAlwaysCreateDir(false);
         extractor->setClearTargetPathContents(false);
 
         QObject::connect(extractor, &FileExtractor::finishedChanged, this,
-                         [this, downloader, bundleDir, extractor, metaFileExists, filePath] {
+                         [this, downloader, bundleDir, extractor, jsonFileExists, filePath] {
             downloader->deleteLater();
             extractor->deleteLater();
 
-            if (metaFileExists) {
+            if (jsonFileExists) {
                 QVariantMap newFiles, existing;
                 QVariantMap modifiedFilesEntries;
 
@@ -501,21 +478,24 @@ bool ContentLibraryWidget::fetchTextureBundleMetadata(const QDir &bundleDir)
                 }
             }
 
-            if (fetchTextureBundleIcons(bundleDir)) {
-                QString bundleIconPath = m_downloadPath + "/TextureBundleIcons";
-                QVariantMap metaData = readBundleMetadata();
-                m_texturesModel->loadTextureBundle(m_texturesUrl, m_textureIconsUrl, bundleIconPath,
-                                                   metaData);
-                m_environmentsModel->loadTextureBundle(m_environmentsUrl, m_environmentIconsUrl,
-                                                       bundleIconPath, metaData);
-            }
+            if (fetchTextureBundleIcons(bundleDir))
+                populateTextureBundleModels();
         });
 
         extractor->extract();
     });
 
-    downloader->start();
     return false;
+}
+
+void ContentLibraryWidget::populateTextureBundleModels()
+{
+    QVariantMap jsonData = readTextureBundleJson();
+
+    QString bundleIconPath = m_bundlePath + "/TextureBundleIcons";
+
+    m_texturesModel->loadTextureBundle(m_textureBundleUrl, bundleIconPath, jsonData);
+    m_environmentsModel->loadTextureBundle(m_textureBundleUrl, bundleIconPath, jsonData);
 }
 
 bool ContentLibraryWidget::fetchTextureBundleIcons(const QDir &bundleDir)
@@ -523,10 +503,10 @@ bool ContentLibraryWidget::fetchTextureBundleIcons(const QDir &bundleDir)
     QString iconsPath = bundleDir.filePath("TextureBundleIcons");
 
     QDir iconsDir(iconsPath);
-    if (iconsDir.exists() && iconsDir.entryList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot).length() > 0)
+    if (iconsDir.exists() && !iconsDir.isEmpty())
         return true;
 
-    QString zipFileUrl = m_baseUrl + "/icons.zip";
+    QString zipFileUrl = m_textureBundleUrl + "/icons.zip";
 
     FileDownloader *downloader = new FileDownloader(this);
     downloader->setUrl(zipFileUrl);
@@ -546,13 +526,7 @@ bool ContentLibraryWidget::fetchTextureBundleIcons(const QDir &bundleDir)
                          [this, downloader, extractor] {
             downloader->deleteLater();
             extractor->deleteLater();
-
-            QString bundleIconPath = m_downloadPath + "/TextureBundleIcons";
-            QVariantMap metaData = readBundleMetadata();
-            m_texturesModel->loadTextureBundle(m_texturesUrl, m_textureIconsUrl, bundleIconPath,
-                                               metaData);
-            m_environmentsModel->loadTextureBundle(m_environmentsUrl, m_environmentIconsUrl,
-                                                   bundleIconPath, metaData);
+            populateTextureBundleModels();
         });
 
         extractor->extract();
@@ -575,7 +549,7 @@ void ContentLibraryWidget::markTextureUpdated(const QString &textureKey)
         checksumOnServer = m_environmentsModel->removeModifiedFileEntry(textureKey);
 
     QJsonObject metaDataObj;
-    QFile jsonFile(m_downloadPath + "/texture_bundle.json");
+    QFile jsonFile(m_bundlePath + "/texture_bundle.json");
     if (jsonFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         metaDataObj = QJsonDocument::fromJson(jsonFile.readAll()).object();
         jsonFile.close();
@@ -592,7 +566,7 @@ void ContentLibraryWidget::markTextureUpdated(const QString &textureKey)
     QJsonDocument outDoc(metaDataObj);
     QByteArray data = outDoc.toJson();
 
-    QFile outFile(m_downloadPath + "/texture_bundle.json");
+    QFile outFile(m_bundlePath + "/texture_bundle.json");
     if (outFile.open(QIODeviceBase::WriteOnly | QIODeviceBase::Text)) {
         outFile.write(data);
         outFile.flush();
@@ -787,7 +761,7 @@ void ContentLibraryWidget::addImage(ContentLibraryTexture *tex)
     if (!tex->isDownloaded())
         return;
 
-    emit addTextureRequested(tex->downloadedTexturePath(), AddTextureMode::Image);
+    emit addTextureRequested(tex->texturePath(), AddTextureMode::Image);
 }
 
 void ContentLibraryWidget::addTexture(ContentLibraryTexture *tex)
@@ -795,7 +769,7 @@ void ContentLibraryWidget::addTexture(ContentLibraryTexture *tex)
     if (!tex->isDownloaded())
         return;
 
-    emit addTextureRequested(tex->downloadedTexturePath(), AddTextureMode::Texture);
+    emit addTextureRequested(tex->texturePath(), AddTextureMode::Texture);
 }
 
 void ContentLibraryWidget::addLightProbe(ContentLibraryTexture *tex)
@@ -803,7 +777,7 @@ void ContentLibraryWidget::addLightProbe(ContentLibraryTexture *tex)
     if (!tex->isDownloaded())
         return;
 
-    emit addTextureRequested(tex->downloadedTexturePath(), AddTextureMode::LightProbe);
+    emit addTextureRequested(tex->texturePath(), AddTextureMode::LightProbe);
 }
 
 void ContentLibraryWidget::updateSceneEnvState()

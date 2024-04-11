@@ -275,9 +275,9 @@ void ContentLibraryMaterialsModel::loadMaterialBundle(const QDir &matBundleDir)
         auto category = new ContentLibraryMaterialsCategory(this, cat);
 
         const QJsonObject matsObj = catsObj.value(cat).toObject();
-        const QStringList mats = matsObj.keys();
-        for (const QString &mat : mats) {
-            const QJsonObject matObj = matsObj.value(mat).toObject();
+        const QStringList matsNames = matsObj.keys();
+        for (const QString &matName : matsNames) {
+            const QJsonObject matObj = matsObj.value(matName).toObject();
 
             QStringList files;
             const QJsonArray assetsArr = matObj.value("files").toArray();
@@ -292,7 +292,7 @@ void ContentLibraryMaterialsModel::loadMaterialBundle(const QDir &matBundleDir)
                                      bundleId,
                                      qml.chopped(4)).toLatin1(); // chopped(4): remove .qml
 
-            auto bundleMat = new ContentLibraryMaterial(category, mat, qml, type, icon, files,
+            auto bundleMat = new ContentLibraryMaterial(category, matName, qml, type, icon, files,
                                                         m_downloadPath, m_baseUrl);
 
             category->addBundleMaterial(bundleMat);
