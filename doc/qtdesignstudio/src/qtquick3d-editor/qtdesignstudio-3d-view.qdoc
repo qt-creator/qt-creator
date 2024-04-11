@@ -35,8 +35,16 @@
     \image studio-qtquick-3d-components.webp "QtQuick3D components"
 
     You can now drag a \uicontrol View3D or an \uicontrol {Extended View3D} component from
-    \l Components > \uicontrol QtQuick3D \uicontrol
-    > Items to \l Navigator or to the \l {2D} view.
+    \l Components > \uicontrol QtQuick3D > \uicontrol Items to \l Navigator or to the
+    \l {2D} view.
+
+    To switch to the \uicontrol 3D view while maintaining the camera orientation of the
+    \uicontrol View3D, right-click a \uicontrol View3D or an \uicontrol {Extended View3D}
+    component in the \uicontrol Navigator or \uicontrol 2D view and select
+    \uicontrol {Edit in 3D View}. Alternatively, you can double-click a \uicontrol View3D
+    or an \uicontrol {Extended View3D} component in the \uicontrol 2D view to open the
+    \uicontrol 3D view. Double-clicking a 3D model in the \uicontrol 2D view opens the
+    \uicontrol 3D view with the 3D model selected.
 
     \image studio-navigator-view3d.png "A View 3D component in Navigator"
 
