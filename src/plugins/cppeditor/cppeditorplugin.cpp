@@ -5,7 +5,6 @@
 #include "cppautocompleter.h"
 #include "cppcodemodelinspectordialog.h"
 #include "cppcodemodelsettings.h"
-#include "cppcodemodelsettingspage.h"
 #include "cppcodestylesettingspage.h"
 #include "cppeditorconstants.h"
 #include "cppeditordocument.h"

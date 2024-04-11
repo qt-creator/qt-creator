@@ -65,8 +65,6 @@ QtcPlugin {
         "cppcodemodelinspectordumper.h",
         "cppcodemodelsettings.cpp",
         "cppcodemodelsettings.h",
-        "cppcodemodelsettingspage.cpp",
-        "cppcodemodelsettingspage.h",
         "cppcodestylepreferences.cpp",
         "cppcodestylepreferences.h",
         "cppcodestylepreferencesfactory.cpp",

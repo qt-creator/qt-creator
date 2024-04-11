@@ -108,4 +108,9 @@ private:
     bool m_useGlobalSettings = true;
 };
 
+namespace Internal {
+void setupCppCodeModelSettingsPage();
+void setupCppCodeModelProjectSettingsPanel();
+} // namespace Internal
+
 } // namespace CppEditor
