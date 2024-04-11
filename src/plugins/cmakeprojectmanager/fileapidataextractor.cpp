@@ -633,7 +633,7 @@ static FolderNode *createSourceGroupNode(const QString &sourceGroupName,
             FolderNode *existingNode = currentNode->findChildFolderNode(
                 [&p](const FolderNode *fn) { return fn->displayName() == p; });
             if (!existingNode) {
-                auto node = createCMakeVFolder(sourceDirectory, Node::DefaultFolderPriority + 5, p, true);
+                auto node = createCMakeVFolder(sourceDirectory, Node::DefaultFolderPriority + 5, p);
                 node->setListInProject(false);
                 node->setIcon([] { return Icon::fromTheme("edit-copy"); });
 
