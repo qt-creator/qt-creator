@@ -3084,6 +3084,41 @@ void tst_Tasking::testTree_data()
                         logErrorLong, 1, DoneWith::Error, 1};
     }
 
+    {
+        // This tests ensures the task done handlers are invoked in a different order
+        // than the corresponding setup handlers.
+
+        const QList<milliseconds> tasks { 1000000ms, 0ms };
+        const LoopList iterator(tasks);
+
+        const auto onSetup = [storage, iterator](TaskObject &taskObject) {
+            taskObject = *iterator;
+            storage->m_log.append({iterator.iteration(), Handler::Setup});
+        };
+
+        const auto onDone = [storage, iterator](DoneWith result) {
+            const Handler handler = result == DoneWith::Cancel ? Handler::Canceled : Handler::Error;
+            storage->m_log.append({iterator.iteration(), handler});
+            return DoneResult::Error;
+        };
+
+        const Group root {
+            storage,
+            parallel,
+            iterator,
+            TestTask(onSetup, onDone)
+        };
+
+        const Log log {
+            {0, Handler::Setup},
+            {1, Handler::Setup},
+            {1, Handler::Error},
+            {0, Handler::Canceled}
+        };
+
+        QTest::newRow("ParallelDisorder") << TestData{storage, root, log, 2, DoneWith::Error, 1};
+    }
+
     // This test checks if storage shadowing works OK.
     QTest::newRow("StorageShadowing") << storageShadowingData();
 }
