@@ -123,53 +123,6 @@ void TextEditorPlugin::initialize()
     setupMarkdownEditor();
     setupJsonEditor();
 
-    Context context(TextEditor::Constants::C_TEXTEDITOR);
-
-    // Add shortcut for invoking automatic completion
-    Command *command = nullptr;
-    ActionBuilder(this, Constants::COMPLETE_THIS)
-        .setText(Tr::tr("Trigger Completion"))
-        .setContext(context)
-        .bindCommand(&command)
-        .setDefaultKeySequence(Tr::tr("Meta+Space"), Tr::tr("Ctrl+Space"))
-        .addOnTriggered(this, [] {
-            if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
-                editor->editorWidget()->invokeAssist(Completion);
-        });
-
-    connect(command, &Command::keySequenceChanged, [command] {
-        FancyLineEdit::setCompletionShortcut(command->keySequence());
-    });
-    FancyLineEdit::setCompletionShortcut(command->keySequence());
-
-    // Add shortcut for invoking function hint completion
-    ActionBuilder(this, Constants::FUNCTION_HINT)
-        .setText(Tr::tr("Display Function Hint"))
-        .setContext(context)
-        .setDefaultKeySequence(Tr::tr("Meta+Shift+D"), Tr::tr("Ctrl+Shift+D"))
-        .addOnTriggered(this, [] {
-            if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
-                editor->editorWidget()->invokeAssist(FunctionHint);
-        });
-
-    // Add shortcut for invoking quick fix options
-    ActionBuilder(this, Constants::QUICKFIX_THIS)
-        .setText(Tr::tr("Trigger Refactoring Action"))
-        .setContext(context)
-        .setDefaultKeySequence(Tr::tr("Alt+Return"))
-        .addOnTriggered(this, [] {
-            if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
-                editor->editorWidget()->invokeAssist(QuickFix);
-        });
-
-    ActionBuilder(this, Constants::SHOWCONTEXTMENU)
-        .setText(Tr::tr("Show Context Menu"))
-        .setContext(context)
-        .addOnTriggered(this, [] {
-            if (BaseTextEditor *editor = BaseTextEditor::currentTextEditor())
-                editor->editorWidget()->showContextMenu();
-        });
-
     // Add text snippet provider.
     SnippetProvider::registerGroup(Constants::TEXT_SNIPPET_GROUP_ID,
                                     Tr::tr("Text", "SnippetProvider"));
@@ -354,6 +307,31 @@ void TextEditorPlugin::createStandardContextMenu()
 void TextEditorPlugin::createEditorCommands()
 {
     using namespace Core::Constants;
+    // Add shortcut for invoking automatic completion
+    Command *command = nullptr;
+    ActionBuilder(this, Constants::COMPLETE_THIS)
+        .setText(Tr::tr("Trigger Completion"))
+        .bindCommand(&command)
+        .setDefaultKeySequence(Tr::tr("Meta+Space"), Tr::tr("Ctrl+Space"));
+
+    connect(command, &Command::keySequenceChanged, [command] {
+        FancyLineEdit::setCompletionShortcut(command->keySequence());
+    });
+    FancyLineEdit::setCompletionShortcut(command->keySequence());
+
+    // Add shortcut for invoking function hint completion
+    ActionBuilder(this, Constants::FUNCTION_HINT)
+        .setText(Tr::tr("Display Function Hint"))
+        .setDefaultKeySequence(Tr::tr("Meta+Shift+D"), Tr::tr("Ctrl+Shift+D"));
+
+    // Add shortcut for invoking quick fix options
+    ActionBuilder(this, Constants::QUICKFIX_THIS)
+        .setText(Tr::tr("Trigger Refactoring Action"))
+        .setDefaultKeySequence(Tr::tr("Alt+Return"));
+
+    ActionBuilder(this, Constants::SHOWCONTEXTMENU)
+        .setText(Tr::tr("Show Context Menu"));
+
     ActionBuilder(this, DELETE_LINE).setText(Tr::tr("Delete &Line"));
     ActionBuilder(this, DELETE_END_OF_LINE).setText(Tr::tr("Delete Line from Cursor On"));
     ActionBuilder(this, DELETE_END_OF_WORD).setText(Tr::tr("Delete Word from Cursor On"));

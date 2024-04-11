@@ -3869,6 +3869,22 @@ void TextEditorWidgetPrivate::registerActions()
     using namespace Core::Constants;
     using namespace TextEditor::Constants;
 
+    ActionBuilder(this, Constants::COMPLETE_THIS)
+        .setContext(m_editorContext)
+        .addOnTriggered(this, [this] { q->invokeAssist(Completion); });
+
+    ActionBuilder(this, Constants::FUNCTION_HINT)
+        .setContext(m_editorContext)
+        .addOnTriggered(this, [this] { q->invokeAssist(FunctionHint); });
+
+    ActionBuilder(this, Constants::QUICKFIX_THIS)
+        .setContext(m_editorContext)
+        .addOnTriggered(this, [this] { q->invokeAssist(QuickFix); });
+
+    ActionBuilder(this, Constants::SHOWCONTEXTMENU)
+        .setContext(m_editorContext)
+        .addOnTriggered(this, [this] { q->showContextMenu(); });
+
     m_undoAction = ActionBuilder(this, UNDO)
                        .setContext(m_editorContext)
                        .addOnTriggered([this] { q->undo(); })
