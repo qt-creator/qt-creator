@@ -498,10 +498,38 @@ Rectangle {
         }
     }
 
+    ColumnLayout {
+        id: importsProblem
+
+        visible: !topRow.visible && rootView.dataStoreExists && !rootView.projectImportExists
+        width: parent.width
+        anchors.verticalCenter: parent.verticalCenter
+        clip: true
+
+        Text {
+            text: qsTr("Import the project to your design document to make the Model Editor enabled.")
+            Layout.alignment: Qt.AlignCenter
+            Layout.maximumWidth: parent.width
+            leftPadding: StudioTheme.Values.collectionItemTextPadding
+            rightPadding: StudioTheme.Values.collectionItemTextPadding
+            color: StudioTheme.Values.themeTextColor
+            font.pixelSize: StudioTheme.Values.mediumFontSize
+            wrapMode: Text.Wrap
+        }
+
+        HelperWidgets.Button {
+            text: qsTr("Enable DataStore (This will add the required import)")
+            Layout.alignment: Qt.AlignCenter
+            onClicked: rootView.addProjectImport()
+            leftPadding: StudioTheme.Values.collectionItemTextPadding
+            rightPadding: StudioTheme.Values.collectionItemTextPadding
+        }
+    }
+
     Text {
         anchors.centerIn: parent
         text: qsTr("There are no models in this project.\nAdd or import a model.")
-        visible: !topRow.visible
+        visible: !topRow.visible && !importsProblem.visible
         color: StudioTheme.Values.themeTextColor
         font.pixelSize: StudioTheme.Values.mediumFontSize
     }
