@@ -452,7 +452,9 @@ void LayoutInGridLayout::removeSpacersBySpanning(QList<ModelNode> &nodes)
 {
     for (const ModelNode &node : std::as_const(m_spacerNodes)) {
         if (int index = nodes.indexOf(node)) {
-            ModelNode before = nodes.at(index -1);
+            ModelNode before;
+            if (index > 0)
+                before = nodes.at(index - 1);
             if (m_spacerNodes.contains(before)) {
                 m_spacerNodes.removeAll(node);
                 m_layoutedNodes.removeAll(node);
