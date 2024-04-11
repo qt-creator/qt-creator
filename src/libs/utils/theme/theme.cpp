@@ -185,7 +185,7 @@ void Theme::setDisplayName(const QString &name)
 
 void Theme::readSettingsInternal(QSettings &settings)
 {
-    const QStringList includes = settings.value("Includes").toString().split(",", Qt::SkipEmptyParts);
+    const QStringList includes = settings.value("Includes").toStringList();
 
     for (const QString &include : includes) {
         FilePath path = FilePath::fromString(d->fileName);
