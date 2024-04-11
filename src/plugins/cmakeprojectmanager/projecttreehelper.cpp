@@ -18,6 +18,11 @@ using namespace ProjectExplorer;
 
 namespace CMakeProjectManager::Internal {
 
+bool sourcesOrHeadersFolder(const QString &displayName)
+{
+    return displayName == "Source Files" || displayName == "Header Files";
+}
+
 std::unique_ptr<FolderNode> createCMakeVFolder(const Utils::FilePath &basePath,
                                                int priority,
                                                const QString &displayName)
@@ -25,8 +30,7 @@ std::unique_ptr<FolderNode> createCMakeVFolder(const Utils::FilePath &basePath,
     auto newFolder = std::make_unique<VirtualFolderNode>(basePath);
     newFolder->setPriority(priority);
     newFolder->setDisplayName(displayName);
-    newFolder->setIsSourcesOrHeaders(displayName == "Source Files"
-                                  || displayName == "Header Files");
+    newFolder->setIsSourcesOrHeaders(sourcesOrHeadersFolder(displayName));
     return newFolder;
 }
 

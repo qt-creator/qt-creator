@@ -654,7 +654,6 @@ static void addCompileGroups(ProjectNode *targetRoot,
                              const FilePath &buildDirectory,
                              const TargetDetails &td)
 {
-    const bool showSourceFolders = settings().showSourceSubFolders();
     const bool inSourceBuild = (sourceDirectory == buildDirectory);
 
     QSet<FilePath> alreadyListed;
@@ -685,6 +684,9 @@ static void addCompileGroups(ProjectNode *targetRoot,
         if (isPchFile(buildDirectory, sourcePath) || isUnityFile(buildDirectory, sourcePath))
             node->setIsGenerated(true);
 
+        const bool showSourceFolders = settings().showSourceSubFolders()
+                                       && sourcesOrHeadersFolder(td.sourceGroups[si.sourceGroup]);
+
         // Where does the file node need to go?
         if (showSourceFolders && sourcePath.isChildOf(buildDirectory) && !inSourceBuild) {
             buildFileNodes.emplace_back(std::move(node));
@@ -696,6 +698,9 @@ static void addCompileGroups(ProjectNode *targetRoot,
     }
 
     for (size_t i = 0; i < sourceGroupFileNodes.size(); ++i) {
+        const bool showSourceFolders = settings().showSourceSubFolders()
+                                       && sourcesOrHeadersFolder(td.sourceGroups[i]);
+
         std::vector<std::unique_ptr<FileNode>> &current = sourceGroupFileNodes[i];
         FolderNode *insertNode = td.sourceGroups[i] == "TREE"
                                      ? targetRoot

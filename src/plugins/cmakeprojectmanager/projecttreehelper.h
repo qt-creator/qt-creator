@@ -11,6 +11,8 @@
 
 namespace CMakeProjectManager::Internal {
 
+bool sourcesOrHeadersFolder(const QString &displayName);
+
 std::unique_ptr<ProjectExplorer::FolderNode> createCMakeVFolder(const Utils::FilePath &basePath,
                                                                 int priority,
                                                                 const QString &displayName);
