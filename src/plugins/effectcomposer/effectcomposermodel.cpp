@@ -805,10 +805,22 @@ R"(
     onExtraMarginChanged: setupSourceRect()
 
     function setupSourceRect() {
-        if (rootItem.source) {
-            var width = source.width + extraMargin * 2
-            var height = source.height + extraMargin * 2
-            source.layer.sourceRect = Qt.rect(-extraMargin, -extraMargin, width, height)
+        if (source) {
+            var w = source.width + extraMargin * 2
+            var h = source.height + extraMargin * 2
+            source.layer.sourceRect = Qt.rect(-extraMargin, -extraMargin, w, h)
+        }
+    }
+
+    function connectSource(enable) {
+        if (source) {
+            if (enable) {
+                source.widthChanged.connect(setupSourceRect)
+                source.heightChanged.connect(setupSourceRect)
+            } else {
+                source.widthChanged.disconnect(setupSourceRect)
+                source.heightChanged.disconnect(setupSourceRect)
+            }
         }
     }
 )"
@@ -837,7 +849,8 @@ R"(
         if (_oldParent && _oldParent !== parent) {
             _oldParent.layer.enabled = false
             _oldParent.layer.effect = null
-            %2
+            %7
+            %4%2
             _oldParent.update()
             _oldParent = null
         }
@@ -847,8 +860,8 @@ R"(
                 parent.layer.enabled = true
                 parent.layer.effect = effectComponent
             }
-            %1
-            %3
+            %6
+            %4%1%5%3
         }
     }
 
@@ -856,36 +869,47 @@ R"(
         if (visible) {
             parent.layer.enabled = true
             parent.layer.effect = effectComponent
-            source = parent
-            %3
+            %6
+            %4%1%5%3
         } else {
             parent.layer.enabled = false
             parent.layer.effect = null
-            source = null
+            %8
+            %4%2
         }
         parent.update()
     }
+
 )"
     };
 
+    QString mipmap1;
+    QString mipmap2;
+    QString mipmap3;
     if (m_shaderFeatures.enabled(ShaderFeatures::Mipmap)) {
-        QString mipmap1{
+        mipmap1 = QString {
             R"(parent.layer.smooth = true
-            parent.layer.mipmap = true
-            %1)"
+            parent.layer.mipmap = true)"
         };
-        QString mipmap2{
+        mipmap2 = QString {
             R"(_oldParent.layer.smooth = false
-            _oldParent.layer.mipmap = false
-            %2)"
+            _oldParent.layer.mipmap = false)"
         };
-        parentChanged = parentChanged.arg(mipmap1, mipmap2);
+        mipmap3 = QString {
+            R"(parent.layer.smooth = false
+            parent.layer.mipmap = false)"
+        };
     }
 
     if (m_shaderFeatures.enabled(ShaderFeatures::Source)) {
         parentChanged = parentChanged.arg(QString("source = parent"),
                                           QString("source = null"),
-                                          m_extraMargin ? QString("setupSourceRect()") : QString());
+                                          m_extraMargin ? QString("            setupSourceRect()") : QString(),
+                                          m_extraMargin ? QString("connectSource(false)\n            ") : QString(),
+                                          m_extraMargin ? QString("\n            connectSource(true)\n") : QString(),
+                                          mipmap1,
+                                          mipmap2,
+                                          mipmap3);
     } else {
         parentChanged = parentChanged.arg(QString(), QString(), QString());
     }
