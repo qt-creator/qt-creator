@@ -32,6 +32,7 @@ public:
     virtual void removeObserver(ProjectStorageObserver *observer) = 0;
 
     virtual ModuleId moduleId(::Utils::SmallStringView name) const = 0;
+    virtual Utils::SmallString moduleName(ModuleId moduleId) const = 0;
     virtual std::optional<Storage::Info::PropertyDeclaration>
     propertyDeclaration(PropertyDeclarationId propertyDeclarationId) const = 0;
     virtual TypeId typeId(ModuleId moduleId,

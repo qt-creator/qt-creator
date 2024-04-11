@@ -91,6 +91,7 @@ inline constexpr char QtMultimedia[] = "QtMultimedia";
 inline constexpr char QtObject[] = "QtObject";
 inline constexpr char QtQml[] = "QtQml";
 inline constexpr char QtQml_Models[] = "QtQml.Models";
+inline constexpr char QtQml_XmlListModel[] = "QtQml.XmlListModel";
 inline constexpr char QtQuick3D[] = "QtQuick3D";
 inline constexpr char QtQuick3D_Particles3D[] = "QtQuick3D.Particles3D";
 inline constexpr char QtQuick3D_Particles3D_cppnative[] = "QtQuick3D.Particles3D-cppnative";
@@ -131,6 +132,7 @@ inline constexpr char Transition[] = "Transition";
 inline constexpr char UIntType[] = "uint";
 inline constexpr char View3D[] = "View3D";
 inline constexpr char Window[] = "Window";
+inline constexpr char XmlListModelRole[] = "XmlListModelRole";
 inline constexpr char color[] = "color";
 inline constexpr char date[] = "date";
 inline constexpr char font[] = "font";
@@ -176,6 +178,7 @@ class CommonTypeCache
                                    CacheType<QtMultimedia, SoundEffect>,
                                    CacheType<QtQml_Models, ListElement>,
                                    CacheType<QtQml_Models, ListModel>,
+                                   CacheType<QtQml_XmlListModel, XmlListModelRole>,
                                    CacheType<QtQuick, BorderImage>,
                                    CacheType<QtQuick, GridView>,
                                    CacheType<QtQuick, Image>,

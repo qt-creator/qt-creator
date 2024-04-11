@@ -167,6 +167,7 @@ public:
     bool isQtMultimediaSoundEffect() const;
     bool isQtObject() const;
     bool isQtQmlConnections() const;
+    bool isQtQmlModelsListElement() const;
     bool isQtQuick3DBakedLightmap() const;
     bool isQtQuick3DBuffer() const;
     bool isQtQuick3DCamera() const;
@@ -176,7 +177,6 @@ public:
     bool isQtQuick3DInstanceList() const;
     bool isQtQuick3DInstanceListEntry() const;
     bool isQtQuick3DLight() const;
-    bool isQtQuickListElement() const;
     bool isQtQuickListModel() const;
     bool isQtQuickListView() const;
     bool isQtQuick3DMaterial() const;

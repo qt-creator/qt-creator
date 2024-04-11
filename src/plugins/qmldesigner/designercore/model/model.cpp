@@ -2210,6 +2210,16 @@ NodeMetaInfo Model::qtQmlModelsListElementMetaInfo() const
     }
 }
 
+NodeMetaInfo Model::qtQmlXmlListModelXmlListModelRoleMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQml_XmlListModel, XmlListModelRole>();
+    } else {
+        return metaInfo("QtQml.XmlListModel.XmlListModelRole");
+    }
+}
+
 NodeMetaInfo Model::qmlQtObjectMetaInfo() const
 {
     if constexpr (useProjectStorage()) {

@@ -166,6 +166,7 @@ public:
     NodeMetaInfo qtQmlConnectionsMetaInfo() const;
     NodeMetaInfo qtQmlModelsListModelMetaInfo() const;
     NodeMetaInfo qtQmlModelsListElementMetaInfo() const;
+    NodeMetaInfo qtQmlXmlListModelXmlListModelRoleMetaInfo() const;
     NodeMetaInfo qtQuick3DBakedLightmapMetaInfo() const;
     NodeMetaInfo qtQuick3DDefaultMaterialMetaInfo() const;
     NodeMetaInfo qtQuick3DDirectionalLightMetaInfo() const;

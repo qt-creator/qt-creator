@@ -230,7 +230,9 @@ void DocumentManager::setCurrentDesignDocument(Core::IEditor *editor)
         auto found = m_designDocuments.find(editor);
         if (found == m_designDocuments.end()) {
             auto &inserted = m_designDocuments[editor] = std::make_unique<DesignDocument>(
-                m_projectManager.projectStorageDependencies(), m_externalDependencies);
+                editor->document()->filePath().toString(),
+                m_projectManager.projectStorageDependencies(),
+                m_externalDependencies);
             m_currentDesignDocument = inserted.get();
             m_currentDesignDocument->setEditor(editor);
         } else {

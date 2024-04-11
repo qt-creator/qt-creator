@@ -2766,7 +2766,7 @@ bool NodeMetaInfo::isQtQuick3DLight() const
     }
 }
 
-bool NodeMetaInfo::isQtQuickListElement() const
+bool NodeMetaInfo::isQtQmlModelsListElement() const
 {
     if constexpr (useProjectStorage()) {
         using namespace Storage::Info;

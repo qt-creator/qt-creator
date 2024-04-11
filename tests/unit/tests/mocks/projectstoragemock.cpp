@@ -51,6 +51,7 @@ ModuleId ProjectStorageMock::createModule(Utils::SmallStringView moduleName)
     incrementBasicId(moduleId);
 
     ON_CALL(*this, moduleId(Eq(moduleName))).WillByDefault(Return(moduleId));
+    ON_CALL(*this, moduleName(Eq(moduleId))).WillByDefault(Return(moduleName));
     ON_CALL(*this, fetchModuleIdUnguarded(Eq(moduleName))).WillByDefault(Return(moduleId));
 
     return moduleId;
@@ -120,6 +121,14 @@ void ProjectStorageMock::addExportedTypeName(QmlDesigner::TypeId typeId,
     ON_CALL(*this, fetchTypeIdByModuleIdAndExportedName(Eq(moduleId), Eq(typeName)))
         .WillByDefault(Return(typeId));
     exportedTypeName[typeId].emplace_back(moduleId, typeName);
+}
+
+void ProjectStorageMock::addExportedTypeNameBySourceId(QmlDesigner::TypeId typeId,
+                                                       QmlDesigner::ModuleId moduleId,
+                                                       Utils::SmallStringView typeName,
+                                                       QmlDesigner::SourceId sourceId)
+{
+    exportedTypeNameBySourceId[{typeId, sourceId}].emplace_back(moduleId, typeName);
 }
 
 void ProjectStorageMock::removeExportedTypeName(QmlDesigner::TypeId typeId,
@@ -363,6 +372,10 @@ ProjectStorageMock::ProjectStorageMock()
 {
     ON_CALL(*this, exportedTypeNames(_)).WillByDefault([&](TypeId id) {
         return exportedTypeName[id];
+    });
+
+    ON_CALL(*this, exportedTypeNames(_, _)).WillByDefault([&](TypeId typeId, SourceId sourceId) {
+        return exportedTypeNameBySourceId[{typeId, sourceId}];
     });
 }
 

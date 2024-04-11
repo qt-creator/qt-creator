@@ -501,7 +501,7 @@ public:
         if (!propertyMetaInfo.isValid()) {
             const bool isAttached = !propertyName.isEmpty() && propertyName[0].isUpper();
             // Only list elements might have unknown properties.
-            if (!node.metaInfo().isQtQuickListElement() && !isAttached) {
+            if (!node.metaInfo().isQtQmlModelsListElement() && !isAttached) {
                 qCInfo(texttomodelMergerLog)
                     << Q_FUNC_INFO << "\nUnknown property"
                     << propertyPrefix + QLatin1Char('.') + toString(propertyId) << "on line"

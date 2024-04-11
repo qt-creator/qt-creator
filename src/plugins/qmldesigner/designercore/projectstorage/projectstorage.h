@@ -168,7 +168,7 @@ public:
         return moduleId;
     }
 
-    Utils::SmallString moduleName(ModuleId moduleId) const
+    Utils::SmallString moduleName(ModuleId moduleId) const override
     {
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"get module name"_t,
@@ -3278,8 +3278,9 @@ private:
         auto update = [&](const TypeWithDefaultPropertyView &view,
                           const Storage::Synchronization::Type &value) {
             using NanotraceHR::keyValue;
-            NanotraceHR::Tracer tracer{"reset default properties by update"_t,
+            NanotraceHR::Tracer tracer{"synchronize default properties by update"_t,
                                        projectStorageCategory(),
+                                       keyValue("type id", value.typeId),
                                        keyValue("value", value),
                                        keyValue("view", view)};
 
@@ -3294,7 +3295,8 @@ private:
 
             updateDefaultPropertyIdStatement.write(value.typeId, valueDefaultPropertyId);
 
-            tracer.end(keyValue("updated", "yes"));
+            tracer.end(keyValue("updated", "yes"),
+                       keyValue("default property id", valueDefaultPropertyId));
 
             return Sqlite::UpdateChange::Update;
         };
@@ -3324,6 +3326,7 @@ private:
             using NanotraceHR::keyValue;
             NanotraceHR::Tracer tracer{"reset changed default properties by update"_t,
                                        projectStorageCategory(),
+                                       keyValue("type id", value.typeId),
                                        keyValue("value", value),
                                        keyValue("view", view)};
 
