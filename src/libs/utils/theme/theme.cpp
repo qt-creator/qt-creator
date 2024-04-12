@@ -39,7 +39,7 @@ Theme *proxyTheme()
 
 void setThemeApplicationPalette()
 {
-    if (m_creatorTheme && m_creatorTheme->flag(Theme::ApplyThemePaletteGlobally))
+    if (m_creatorTheme && m_creatorTheme->flag(Theme::DerivePaletteFromTheme))
         QApplication::setPalette(m_creatorTheme->palette());
 }
 

@@ -513,7 +513,6 @@ DrawSearchResultWidgetFrame=false
 DrawTargetSelectorBottom=false
 DrawToolBarHighlights=false
 DrawToolBarBorders=true
-ApplyThemePaletteGlobally=true
 FlatToolBars=true
 FlatSideBarIcons=true
 FlatProjectsMode=false
