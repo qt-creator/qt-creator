@@ -40,7 +40,7 @@ SetFrameValueDialog::SetFrameValueDialog(qreal frame, const QVariant &value,
     valueLabel->setAlignment(Qt::AlignRight);
     valueLabel->setFixedWidth(labelWidth);
 
-    m_frameControl->setRange(std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
+    m_frameControl->setRange(std::numeric_limits<int>::lowest(), std::numeric_limits<int>::max());
     m_frameControl->setValue(static_cast<int>(frame));
     m_frameControl->setAlignment(Qt::AlignRight);
 
@@ -86,7 +86,6 @@ QWidget* SetFrameValueDialog::createValueControl(const QVariant& value)
 
     switch (value.metaType().id())
     {
-
     case QMetaType::QColor: {
         auto* widget = new ColorControl(value.value<QColor>());
         m_valueGetter = [widget]() { return widget->value(); };
@@ -102,7 +101,7 @@ QWidget* SetFrameValueDialog::createValueControl(const QVariant& value)
 
     case QMetaType::Int: {
         auto* widget = new QSpinBox;
-        widget->setRange(std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
+        widget->setRange(std::numeric_limits<int>::lowest(), std::numeric_limits<int>::max());
         widget->setAlignment(Qt::AlignRight);
         widget->setValue(value.toInt());
         m_valueGetter = [widget]() { return widget->value(); };
@@ -120,7 +119,7 @@ QWidget* SetFrameValueDialog::createValueControl(const QVariant& value)
 
     case QMetaType::Float: {
         auto* widget = new QDoubleSpinBox;
-        widget->setRange(std::numeric_limits<float>::min(), std::numeric_limits<float>::max());
+        widget->setRange(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::max());
         widget->setAlignment(Qt::AlignRight);
         widget->setValue(value.toFloat());
         m_valueGetter = [widget]() { return static_cast<float>(widget->value()); };
@@ -132,7 +131,7 @@ QWidget* SetFrameValueDialog::createValueControl(const QVariant& value)
 
     default: {
         auto* widget = new QDoubleSpinBox;
-        widget->setRange(std::numeric_limits<double>::min(), std::numeric_limits<double>::max());
+        widget->setRange(std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max());
         widget->setAlignment(Qt::AlignRight);
         widget->setValue(value.toDouble());
         m_valueGetter = [widget]() { return widget->value(); };
