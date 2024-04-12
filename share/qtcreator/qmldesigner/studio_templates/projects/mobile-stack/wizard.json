@@ -17,6 +17,8 @@
         { "key": "ProjectPluginName", "value": "%{ProjectName}plugin" },
         { "key": "ProjectPluginClassName", "value": "%{ProjectName}Plugin" },
         { "key": "QmlProjectFileName", "value": "%{JS: Util.fileName('%{ProjectName}', 'qmlproject')}" },
+        { "key": "AssetDir", "value": "GeneratedComponents" },
+        { "key": "ContentDir", "value": "%{ProjectName}Content" },
         { "key": "ImportModuleName", "value": "%{ProjectName}" },
         { "key": "IsQt6Project", "value": "%{JS: value('QtQuickVersion') !== '2.15' }" },
         { "key": "QtQuickVersion", "value": "%{JS: %{TargetQtVersion}.TargetQuickVersion}" },
@@ -261,102 +263,54 @@
                     "openAsProject": true
                 },
                 {
-                    "source": "../common/CMakeLists.main.txt.tpl",
-                    "target": "%{ProjectDirectory}/CMakeLists.txt"
-                },
-                {
-                    "source": "../common/qmlmodules.tpl",
-                    "target": "%{ProjectDirectory}/qmlmodules"
-                },
-                {
-                    "source": "../common/qmlcomponents.tpl",
-                    "target": "%{ProjectDirectory}/qmlcomponents"
-                },
-                {
-                    "source": "../common/insight.tpl",
-                    "target": "%{ProjectDirectory}/insight"
-                },
-                {
-                    "source": "../common/main.qml",
-                    "target": "%{ProjectDirectory}/main.qml"
-                },
-                {
                     "source": "../common/qtquickcontrols2.conf.tpl",
                     "target": "%{ProjectDirectory}/qtquickcontrols2.conf"
                 },
                 {
-                    "source": "../common/main.cpp.tpl",
-                    "target": "%{ProjectDirectory}/src/main.cpp"
-                },
-                {
-                    "source": "../common/app_environment.h.tpl",
-                    "target": "%{ProjectDirectory}/src/app_environment.h"
-                },
-                {
-                    "source": "../common/import_qml_plugins.h.tpl",
-                    "target": "%{ProjectDirectory}/src/import_qml_plugins.h"
-                },
-                {
-                    "source": "../common/import_qml_components_plugins.h.tpl",
-                    "target": "%{ProjectDirectory}/src/import_qml_components_plugins.h"
-                },
-                {
-                    "source": "CMakeLists.content.txt.tpl",
-                    "target": "%{ProjectDirectory}/content/CMakeLists.txt"
-                },
-                {
                     "source": "App.qml.tpl",
-                    "target": "%{ProjectDirectory}/content/App.qml"
+                    "target": "%{ProjectDirectory}/%{ContentDir}/App.qml"
                 },
                 {
                     "source": "Screen01.ui.qml.tpl",
-                    "target": "%{ProjectDirectory}/content/Screen01.ui.qml",
+                    "target": "%{ProjectDirectory}/%{ContentDir}/Screen01.ui.qml",
                     "openInEditor": true
                 },
                 {
                     "source": "Screen02.ui.qml.tpl",
-                    "target": "%{ProjectDirectory}/content/Screen02.ui.qml",
+                    "target": "%{ProjectDirectory}/%{ContentDir}/Screen02.ui.qml",
                     "openInEditor": true
                 },
                 {
                     "source": "../common/fonts.txt",
-                    "target": "%{ProjectDirectory}/content/fonts/fonts.txt"
+                    "target": "%{ProjectDirectory}/%{ContentDir}/fonts/fonts.txt"
                 },
                 {
                     "source": "../common/asset_imports.txt",
-                    "target": "%{ProjectDirectory}/asset_imports/asset_imports.txt"
-                },
-                {
-                    "source": "../common/CMakeLists.imports.txt.tpl",
-                    "target": "%{ProjectDirectory}/imports/CMakeLists.txt"
-                },
-                {
-                    "source": "../shared-plugin/name/CMakeLists.importmodule.txt.tpl",
-                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/CMakeLists.txt"
+                    "target": "%{ProjectDirectory}/%{AssetDir}/%{AssetDir}.txt"
                 },
                 {
                     "source": "../shared-plugin/name/importmodule.qmldir.tpl",
-                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/qmldir"
+                    "target": "%{ProjectDirectory}/%{ImportModuleName}/qmldir"
                 },
                 {
                     "source": "../shared-plugin/name/Constants.qml.tpl",
-                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/Constants.qml"
+                    "target": "%{ProjectDirectory}/%{ImportModuleName}/Constants.qml"
                 },
                 {
                     "source": "../shared-plugin/name/DirectoryFontLoader.qml.tpl",
-                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/DirectoryFontLoader.qml"
+                    "target": "%{ProjectDirectory}/%{ImportModuleName}/DirectoryFontLoader.qml"
                 },
                 {
                     "source": "../shared-plugin/name/EventListModel.qml.tpl",
-                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/EventListModel.qml"
+                    "target": "%{ProjectDirectory}/%{ImportModuleName}/EventListModel.qml"
                 },
                 {
                     "source": "../shared-plugin/name/EventListSimulator.qml.tpl",
-                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/EventListSimulator.qml"
+                    "target": "%{ProjectDirectory}/%{ImportModuleName}/EventListSimulator.qml"
                 },
                 {
                     "source": "../shared-plugin/name/designer/plugin.metainfo",
-                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/designer/plugin.metainfo"
+                    "target": "%{ProjectDirectory}/%{ImportModuleName}/designer/plugin.metainfo"
                 }
             ]
         }
