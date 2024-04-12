@@ -898,7 +898,7 @@ EditorFactory::EditorFactory()
         return &static_cast<Editor *>(editor)->m_undoStack;
     };
 
-    setEditorCreator([this]() { return new Editor; });
+    setEditorCreator([] { return new Editor; });
 }
 
 QList<QTextEdit::ExtraSelection> AsmDocument::setCompileResult(
