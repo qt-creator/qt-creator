@@ -1194,7 +1194,8 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                 // Store Behaviours in the default property
                 defaultPropertyItems.append(member);
             } else {
-                if (isPropertyChangesType(typeName) || isConnectionsType(typeName)) {
+                if (isPropertyChangesType(typeName) || isConnectionsType(typeName)
+                    || modelNode.metaInfo().hasProperty(astPropertyName.toUtf8())) {
                     AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
                     if (context->isArrayProperty(modelProperty))
                         syncArrayProperty(modelProperty, {member}, context, differenceHandler);
@@ -1416,9 +1417,9 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
         syncVariantProperty(modelProperty, enumValue, TypeName(), differenceHandler); // TODO: parse type
         return astPropertyName.toUtf8();
     } else { // Not an enum, so:
-        if (isPropertyChangesType(modelNode.type())
-                || isConnectionsType(modelNode.type())
-                || isSupportedAttachedProperties(astPropertyName)) {
+        if (isPropertyChangesType(modelNode.type()) || isConnectionsType(modelNode.type())
+            || isSupportedAttachedProperties(astPropertyName)
+            || modelNode.metaInfo().hasProperty(astPropertyName.toUtf8())) {
             AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
             syncExpressionProperty(modelProperty, astValue, TypeName(), differenceHandler); // TODO: parse type
             return astPropertyName.toUtf8();
