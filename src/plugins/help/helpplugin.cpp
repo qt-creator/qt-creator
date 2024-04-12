@@ -102,6 +102,7 @@ public:
     void modeChanged(Id mode, Id old);
 
     void requestContextHelp();
+    void requestContextHelpFor(QList<QPointer<IContext>> contexts);
     void showContextHelp(const HelpItem &contextHelp);
     void activateIndex();
     void activateContents();
@@ -464,11 +465,32 @@ void HelpPluginPrivate::requestContextHelp()
     const HelpItem tipHelp = tipHelpValue.canConvert<HelpItem>()
                                  ? tipHelpValue.value<HelpItem>()
                                  : HelpItem(tipHelpValue.toString());
-    IContext *context = ICore::currentContextObject();
-    if (tipHelp.isEmpty() && context)
-        context->contextHelp([this](const HelpItem &item) { showContextHelp(item); });
-    else
+    const QList<IContext *> contexts = ICore::currentContextObjects();
+    if (contexts.isEmpty() && !tipHelp.isEmpty()) {
         showContextHelp(tipHelp);
+    } else {
+        requestContextHelpFor(Utils::transform(contexts, [](IContext *context) {
+            return QPointer<IContext>(context);
+        }));
+    }
+}
+
+void HelpPluginPrivate::requestContextHelpFor(QList<QPointer<IContext>> contexts)
+{
+    if (contexts.isEmpty())
+        return;
+    QPointer<IContext> context = contexts.takeFirst();
+    while (!context) {
+        if (contexts.isEmpty())
+            return;
+        context = contexts.takeFirst();
+    }
+    context->contextHelp([contexts, this](const HelpItem &item) {
+        if (!item.isEmpty())
+            showContextHelp(item);
+        else
+            requestContextHelpFor(contexts);
+    });
 }
 
 void HelpPluginPrivate::showContextHelp(const HelpItem &contextHelp)
