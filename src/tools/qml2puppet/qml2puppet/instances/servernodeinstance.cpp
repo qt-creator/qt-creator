@@ -126,8 +126,8 @@ QRectF ServerNodeInstance::effectAdjustedBoundingRect(QQuickItem *item)
         if (pItem && pItem->layer() && pItem->layer()->sourceRect().isValid()) {
             return pItem->layer()->sourceRect();
         } else if (prop.read().toBool()) {
-            prop = QQmlProperty(item, "allEffects");
-            QRectF rect = prop.read().toRectF().adjusted(-20, -20, 20, 20);
+            prop = QQmlProperty(item, "effectBoundingBox");
+            QRectF rect = prop.read().toRectF().adjusted(-40, -40, 40, 40);
             if (rect.isValid())
                 return rect;
             return item->boundingRect();
