@@ -1066,8 +1066,7 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     , m_codeAssistant(parent)
     , m_hoverHandlerRunner(parent, m_hoverHandlers)
     , m_autoCompleter(new AutoCompleter)
-    , m_editorContext(
-          Id(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID).withSuffix(QUuid::createUuid().toString()))
+    , m_editorContext(Id::fromString(QUuid::createUuid().toString()))
 {
     m_selectionHighlightOverlay->show();
     auto aggregate = new Aggregation::Aggregate;
