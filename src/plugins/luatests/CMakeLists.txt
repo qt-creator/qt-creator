@@ -1,0 +1,10 @@
+add_qtc_lua_plugin(luatests
+    SOURCES
+        luatests/luatests.lua
+        luatests/tests.lua
+        luatests/inspect.lua
+        luatests/qtctest.lua
+        luatests/tst_aspectcontainer.lua
+        luatests/tst_fetch.lua
+        luatests/tst_utils.lua
+)

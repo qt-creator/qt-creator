@@ -611,5 +611,18 @@
         "License": "MIT License",
         "LicenseFile": "src/plugins/lua/bindings/ASYNC-LICENSE.txt",
         "Copyright": "Copyright (c) 2008 Paul Evans"
+    },
+    {
+        "Id": "kikito/inspect.lua",
+        "Name": "kikito/inspect.lua",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Used for pretty printing from Lua scripts.",
+        "Path": "src/plugins/luatests/luatests",
+        "Description": "inspect.lua is a library for pretty printing complex objects in Lua.",
+        "Homepage": "https://github.com/kikito/inspect.lua",
+        "License": "MIT License",
+        "LicenseFile": "src/plugins/luatests/luatests/INSPECT-LICENSE.txt",
+        "Copyright": "Copyright (c) 2022 Enrique García Cota"
     }
 ]
