@@ -1382,8 +1382,7 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
 
     if (isLiteralValue(script)) {
         if (isPropertyChangesType(modelNode.type()) || isConnectionsType(modelNode.type())
-            || isListElementType(modelNode.type())
-            || modelNode.metaInfo().hasProperty(astPropertyName.toUtf8())) {
+            || isListElementType(modelNode.type())) {
             AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
             QVariant variantValue = parsePropertyScriptBinding(script);
             if (!variantValue.isValid())
