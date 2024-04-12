@@ -81,10 +81,19 @@ QWidget *Edit3DCanvas::busyIndicator() const
     return m_busyIndicator;
 }
 
+#ifdef Q_OS_MACOS
+extern "C" bool AXIsProcessTrusted();
+#endif
+
 void Edit3DCanvas::setFlyMode(bool enabled, const QPoint &pos)
 {
     if (m_flyMode == enabled)
         return;
+
+#ifdef Q_OS_MACOS
+    if (!AXIsProcessTrusted())
+        m_isTrusted = false;
+#endif
 
     m_flyMode = enabled;
 
@@ -190,7 +199,8 @@ void Edit3DCanvas::mouseMoveEvent(QMouseEvent *e)
             // We notify explicit camera rotation need for puppet rather than rely in mouse events,
             // as mouse isn't grabbed on puppet side and can't handle fast movements that go out of
             // edit camera mouse area. This also simplifies split view handling.
-            QPointF diff = m_hiddenCursorPos - e->globalPos();
+            QPointF diff = m_isTrusted ? (m_hiddenCursorPos - e->globalPos()) : (m_lastCursorPos - e->globalPos());
+
             if (e->buttons() == (Qt::LeftButton | Qt::RightButton)) {
                 m_parent->view()->emitView3DAction(View3DActionType::EditCameraMove,
                                                    QVector3D{float(-diff.x()), float(-diff.y()), 0.f});
@@ -201,7 +211,11 @@ void Edit3DCanvas::mouseMoveEvent(QMouseEvent *e)
             // Skip first move to avoid undesirable jump occasionally when initiating flight mode
             m_flyModeFirstUpdate = false;
         }
-        QCursor::setPos(m_hiddenCursorPos);
+
+        if (m_isTrusted)
+            QCursor::setPos(m_hiddenCursorPos);
+        else
+            m_lastCursorPos = e->globalPos();
     }
 }
 
