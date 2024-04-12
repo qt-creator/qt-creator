@@ -1147,7 +1147,27 @@ void EffectComposerModel::saveResources(const QString &name)
 
     const QString qmlString = qmlStringList.join('\n');
     QString qmlFilePath = effectsResPath + qmlFilename;
-    writeToFile(qmlString.toUtf8(), qmlFilePath, FileType::Text);
+
+    // Get exposed properties from the old qml file if it exists
+    QSet<QByteArray> oldExposedProps;
+    Utils::FilePath oldQmlFile = Utils::FilePath::fromString(qmlFilePath);
+    if (oldQmlFile.exists()) {
+        const QByteArray oldQmlContent = oldQmlFile.fileContents().value();
+        oldExposedProps = getExposedProperties(oldQmlContent);
+    }
+
+    const QByteArray qmlUtf8 = qmlString.toUtf8();
+    if (!oldExposedProps.isEmpty()) {
+        const QSet<QByteArray> newExposedProps = getExposedProperties(qmlUtf8);
+        oldExposedProps.subtract(newExposedProps);
+        if (!oldExposedProps.isEmpty()) {
+            // If there were exposed properties that are no longer exposed, those
+            // need to be removed from any instances of the effect in the scene
+            emit removePropertiesFromScene(oldExposedProps, name);
+        }
+    }
+
+    writeToFile(qmlUtf8, qmlFilePath, FileType::Text);
     newFileNames.append(qmlFilename);
 
     // Save shaders and images
@@ -1996,6 +2016,25 @@ void EffectComposerModel::updateExtraMargin()
     m_extraMargin = 0;
     for (CompositionNode *node : std::as_const(m_nodes))
         m_extraMargin = qMax(node->extraMargin(), m_extraMargin);
+}
+
+QSet<QByteArray> EffectComposerModel::getExposedProperties(const QByteArray &qmlContent)
+{
+    QSet<QByteArray> returnSet;
+    const QByteArrayList lines = qmlContent.split('\n');
+    const QByteArray propertyTag {"    property"}; // Match only toplevel exposed properties
+    for (const QByteArray &line : lines) {
+        if (line.startsWith(propertyTag)) {
+            QByteArrayList words = line.trimmed().split(' ');
+            if (words.size() >= 3) {
+                QByteArray propName = words[2];
+                if (propName.endsWith(':'))
+                    propName.chop(1);
+                returnSet.insert(propName);
+            }
+        }
+    }
+    return returnSet;
 }
 
 QString EffectComposerModel::currentComposition() const

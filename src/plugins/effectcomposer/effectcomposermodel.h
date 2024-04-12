@@ -11,6 +11,7 @@
 #include <QFileSystemWatcher>
 #include <QMap>
 #include <QRegularExpression>
+#include <QSet>
 #include <QTemporaryFile>
 #include <QTimer>
 
@@ -124,6 +125,7 @@ signals:
     void resourcesSaved(const QByteArray &type, const Utils::FilePath &path);
     void hasUnsavedChangesChanged();
     void assignToSelectedTriggered(const QString &effectPath);
+    void removePropertiesFromScene(QSet<QByteArray> props, const QString &typeName);
 
 private:
     enum Roles {
@@ -185,6 +187,7 @@ private:
 
     void connectCompositionNode(CompositionNode *node);
     void updateExtraMargin();
+    QSet<QByteArray> getExposedProperties(const QByteArray &qmlContent);
 
     QList<CompositionNode *> m_nodes;
 
