@@ -407,7 +407,7 @@ void CppModelManager::showPreprocessedFile(bool inNextSplit)
         saveAndOpen(outFilePath, content.append(preprocessedDoc->utf8Source()), inNextSplit);
     };
 
-    if (CppCodeModelSettings::settingsForFile(filePath).useBuiltinPreprocessor()) {
+    if (CppCodeModelSettings::settingsForFile(filePath).useBuiltinPreprocessor) {
         useBuiltinPreprocessor();
         return;
     }
@@ -1023,9 +1023,6 @@ CppModelManager::CppModelManager()
     connect(ICore::instance(), &ICore::coreAboutToClose,
             this, &CppModelManager::onCoreAboutToClose);
 
-    connect(&CppCodeModelSettings::globalInstance(), &CppCodeModelSettings::changed,
-            this, &CppModelManager::onSettingsChange);
-
     d->m_fallbackProjectPartTimer.setSingleShot(true);
     d->m_fallbackProjectPartTimer.setInterval(5000);
     connect(&d->m_fallbackProjectPartTimer, &QTimer::timeout,
@@ -1360,8 +1357,8 @@ QFuture<void> CppModelManager::updateSourceFiles(const QSet<FilePath> &sourceFil
         const CppCodeModelSettings settings = CppCodeModelSettings::settingsForProject(it.key());
         filteredFiles.unite(filteredFilesRemoved(it.value(),
                                                  settings.effectiveIndexerFileSizeLimitInMb(),
-                                                 settings.ignoreFiles(),
-                                                 settings.ignorePattern()));
+                                                 settings.ignoreFiles,
+                                                 settings.ignorePattern));
     }
 
     return d->m_internalIndexingSupport->refreshSourceFiles(filteredFiles, mode);
@@ -2013,7 +2010,7 @@ void CppModelManager::onCoreAboutToClose()
     d->m_enableGC = false;
 }
 
-void CppModelManager::onSettingsChange(Project *project)
+void CppModelManager::handleSettingsChange(Project *project)
 {
     ProjectInfoList info;
     if (project)
@@ -2023,7 +2020,7 @@ void CppModelManager::onSettingsChange(Project *project)
     for (const ProjectInfo::ConstPtr &pi : std::as_const(info)) {
         const CppCodeModelSettings newSettings = CppCodeModelSettings::settingsForProject(
             pi->projectFilePath());
-        if (pi->settings().data() != newSettings.data())
+        if (pi->settings() != newSettings)
             updateProjectInfo(ProjectInfo::cloneWithNewSettings(pi, newSettings));
     }
 }

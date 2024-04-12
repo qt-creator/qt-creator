@@ -37,10 +37,10 @@ BaseEditorDocumentProcessor::~BaseEditorDocumentProcessor() = default;
 void BaseEditorDocumentProcessor::run(bool projectsUpdated)
 {
     if (projectsUpdated)
-        m_settings.setData(CppCodeModelSettings::settingsForFile(m_filePath).data());
+        m_settings = CppCodeModelSettings::settingsForFile(m_filePath);
 
     const Utils::Language languagePreference
-        = m_settings.interpretAmbigiousHeadersAsC() ? Utils::Language::C : Utils::Language::Cxx;
+        = m_settings.interpretAmbigiousHeadersAsC ? Utils::Language::C : Utils::Language::Cxx;
 
     runImpl({CppModelManager::workingCopy(),
              ProjectExplorer::ProjectManager::startupProject(),

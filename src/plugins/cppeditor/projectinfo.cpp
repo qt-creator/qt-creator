@@ -33,7 +33,7 @@ bool ProjectInfo::operator ==(const ProjectInfo &other) const
         && m_projectParts == other.m_projectParts
         && m_headerPaths == other.m_headerPaths
         && m_sourceFiles == other.m_sourceFiles
-        && m_settings.data() == other.m_settings.data()
+        && m_settings == other.m_settings
         && m_defines == other.m_defines;
 }
 
@@ -50,7 +50,7 @@ bool ProjectInfo::definesChanged(const ProjectInfo &other) const
 bool ProjectInfo::configurationChanged(const ProjectInfo &other) const
 {
     return definesChanged(other) || m_headerPaths != other.m_headerPaths
-        || m_settings.data() != other.settings().data();
+        || m_settings != other.settings();
 }
 
 bool ProjectInfo::configurationOrFilesChanged(const ProjectInfo &other) const
@@ -98,7 +98,7 @@ ProjectInfo::ProjectInfo(const ProjectExplorer::ProjectUpdateInfo &updateInfo,
       m_headerPaths(getHeaderPaths(projectParts)),
       m_sourceFiles(getSourceFiles(projectParts)),
       m_defines(getDefines(projectParts)),
-      m_settings(CppCodeModelSettings::Data(updateInfo.cppSettings))
+      m_settings(updateInfo.cppSettings)
 {
 }
 
@@ -110,7 +110,7 @@ ProjectInfo::ProjectInfo(const ConstPtr &pi, const CppCodeModelSettings &setting
     m_headerPaths(pi->m_headerPaths),
     m_sourceFiles(pi->sourceFiles()),
     m_defines(pi->m_defines),
-    m_settings(settings.data())
+    m_settings(settings)
 {
 }
 

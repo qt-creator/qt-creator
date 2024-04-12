@@ -6,6 +6,7 @@
 #include "compileroptionsbuilder.h"
 #include "cppeditorconstants.h"
 #include "cppeditortr.h"
+#include "cppmodelmanager.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
@@ -49,19 +50,19 @@ static Key useBuiltinPreprocessorKey() { return Constants::CPPEDITOR_USE_BUILTIN
 static Key indexerFileSizeLimitKey() { return Constants::CPPEDITOR_INDEXER_FILE_SIZE_LIMIT; }
 static Key useGlobalSettingsKey() { return "useGlobalSettings"; }
 
-bool operator==(const CppEditor::CppCodeModelSettings::Data &s1,
-                const CppEditor::CppCodeModelSettings::Data &s2)
+bool operator==(const CppEditor::CppCodeModelSettings &s1,
+                const CppEditor::CppCodeModelSettings &s2)
 {
     return s1.pchUsage == s2.pchUsage
            && s1.interpretAmbigiousHeadersAsC == s2.interpretAmbigiousHeadersAsC
            && s1.skipIndexingBigFiles == s2.skipIndexingBigFiles
            && s1.useBuiltinPreprocessor == s2.useBuiltinPreprocessor
            && s1.indexerFileSizeLimitInMb == s2.indexerFileSizeLimitInMb
-           && s1.categorizeFindReferences == s2.categorizeFindReferences
+           && s1.m_categorizeFindReferences == s2.m_categorizeFindReferences
            && s1.ignoreFiles == s2.ignoreFiles && s1.ignorePattern == s2.ignorePattern;
 }
 
-Store CppCodeModelSettings::Data::toMap() const
+Store CppCodeModelSettings::toMap() const
 {
     Store store;
     store.insert(pchUsageKey(), pchUsage);
@@ -74,15 +75,15 @@ Store CppCodeModelSettings::Data::toMap() const
     return store;
 }
 
-void CppCodeModelSettings::Data::fromMap(const Utils::Store &store)
+void CppCodeModelSettings::fromMap(const Utils::Store &store)
 {
-    const CppCodeModelSettings::Data def;
+    const CppCodeModelSettings def;
     pchUsage = static_cast<PCHUsage>(store.value(pchUsageKey(), def.pchUsage).toInt());
-    interpretAmbigiousHeadersAsC = store
-                                       .value(interpretAmbiguousHeadersAsCHeadersKey(),
-                                              def.interpretAmbigiousHeadersAsC)
-                                       .toBool();
-    skipIndexingBigFiles = store.value(skipIndexingBigFilesKey(), def.skipIndexingBigFiles).toBool();
+    interpretAmbigiousHeadersAsC
+        = store.value(interpretAmbiguousHeadersAsCHeadersKey(), def.interpretAmbigiousHeadersAsC)
+              .toBool();
+    skipIndexingBigFiles
+        = store.value(skipIndexingBigFilesKey(), def.skipIndexingBigFiles).toBool();
     ignoreFiles = store.value(ignoreFilesKey(), def.ignoreFiles).toBool();
     ignorePattern = store.value(ignorePatternKey(), def.ignorePattern).toString();
     useBuiltinPreprocessor
@@ -93,12 +94,13 @@ void CppCodeModelSettings::Data::fromMap(const Utils::Store &store)
 
 void CppCodeModelSettings::fromSettings(QtcSettings *s)
 {
-    m_data.fromMap(storeFromSettings(Constants::CPPEDITOR_SETTINGSGROUP, s));
+    fromMap(storeFromSettings(Constants::CPPEDITOR_SETTINGSGROUP, s));
 }
 
 void CppCodeModelSettings::toSettings(QtcSettings *s)
 {
-    storeToSettingsWithDefault(Constants::CPPEDITOR_SETTINGSGROUP, s, m_data.toMap(), Data().toMap());
+    storeToSettingsWithDefault(
+        Constants::CPPEDITOR_SETTINGSGROUP, s, toMap(), CppCodeModelSettings().toMap());
 }
 
 CppCodeModelSettings &CppCodeModelSettings::globalInstance()
@@ -109,7 +111,7 @@ CppCodeModelSettings &CppCodeModelSettings::globalInstance()
 
 CppCodeModelSettings CppCodeModelSettings::settingsForProject(const ProjectExplorer::Project *project)
 {
-    return {CppCodeModelProjectSettings(const_cast<ProjectExplorer::Project *>(project)).data()};
+    return {CppCodeModelProjectSettings(const_cast<ProjectExplorer::Project *>(project)).settings()};
 }
 
 CppCodeModelSettings CppCodeModelSettings::settingsForProject(const Utils::FilePath &projectFile)
@@ -122,25 +124,25 @@ CppCodeModelSettings CppCodeModelSettings::settingsForFile(const Utils::FilePath
     return settingsForProject(ProjectManager::projectForFile(file));
 }
 
-void CppCodeModelSettings::setGlobalData(const Data &data)
+void CppCodeModelSettings::setGlobal(const CppCodeModelSettings &settings)
 {
-    if (globalInstance().m_data == data)
+    if (globalInstance() == settings)
         return;
 
-    globalInstance().m_data = data;
+    globalInstance() = settings;
     globalInstance().toSettings(Core::ICore::settings());
-    emit globalInstance().changed(nullptr);
+    CppModelManager::handleSettingsChange(nullptr);
 }
 
-CppCodeModelSettings::PCHUsage CppCodeModelSettings::pchUsage(const Project *project)
+CppCodeModelSettings::PCHUsage CppCodeModelSettings::pchUsageForProject(const Project *project)
 {
-    return CppCodeModelSettings::settingsForProject(project).pchUsage();
+    return CppCodeModelSettings::settingsForProject(project).pchUsage;
 }
 
 UsePrecompiledHeaders CppCodeModelSettings::usePrecompiledHeaders() const
 {
-    return pchUsage() == CppCodeModelSettings::PchUse_None ? UsePrecompiledHeaders::No
-                                                           : UsePrecompiledHeaders::Yes;
+    return pchUsage == CppCodeModelSettings::PchUse_None ? UsePrecompiledHeaders::No
+                                                         : UsePrecompiledHeaders::Yes;
 }
 
 UsePrecompiledHeaders CppCodeModelSettings::usePrecompiledHeaders(const Project *project)
@@ -150,17 +152,17 @@ UsePrecompiledHeaders CppCodeModelSettings::usePrecompiledHeaders(const Project 
 
 int CppCodeModelSettings::effectiveIndexerFileSizeLimitInMb() const
 {
-    return skipIndexingBigFiles() ? indexerFileSizeLimitInMb() : -1;
+    return skipIndexingBigFiles ? indexerFileSizeLimitInMb : -1;
 }
 
 bool CppCodeModelSettings::categorizeFindReferences()
 {
-    return globalInstance().m_data.categorizeFindReferences;
+    return globalInstance().m_categorizeFindReferences;
 }
 
 void CppCodeModelSettings::setCategorizeFindReferences(bool categorize)
 {
-    globalInstance().m_data.categorizeFindReferences = categorize;
+    globalInstance().m_categorizeFindReferences = categorize;
 }
 
 CppCodeModelProjectSettings::CppCodeModelProjectSettings(ProjectExplorer::Project *project)
@@ -169,23 +171,23 @@ CppCodeModelProjectSettings::CppCodeModelProjectSettings(ProjectExplorer::Projec
     loadSettings();
 }
 
-CppCodeModelSettings::Data CppCodeModelProjectSettings::data() const
+CppCodeModelSettings CppCodeModelProjectSettings::settings() const
 {
-    return m_useGlobalSettings ? CppCodeModelSettings::globalInstance().data() : m_customSettings;
+    return m_useGlobalSettings ? CppCodeModelSettings::globalInstance() : m_customSettings;
 }
 
-void CppCodeModelProjectSettings::setData(const CppCodeModelSettings::Data &data)
+void CppCodeModelProjectSettings::setSettings(const CppCodeModelSettings &settings)
 {
-    m_customSettings = data;
+    m_customSettings = settings;
     saveSettings();
-    emit CppCodeModelSettings::globalInstance().changed(m_project);
+    CppModelManager::handleSettingsChange(m_project);
 }
 
 void CppCodeModelProjectSettings::setUseGlobalSettings(bool useGlobal)
 {
     m_useGlobalSettings = useGlobal;
     saveSettings();
-    emit CppCodeModelSettings::globalInstance().changed(m_project);
+    CppModelManager::handleSettingsChange(m_project);
 }
 
 void CppCodeModelProjectSettings::loadSettings()
@@ -212,15 +214,14 @@ class CppCodeModelSettingsWidget final : public Core::IOptionsPageWidget
 {
     Q_OBJECT
 public:
-    CppCodeModelSettingsWidget(const CppCodeModelSettings::Data &data);
-
-    CppCodeModelSettings::Data data() const;
+    CppCodeModelSettingsWidget(const CppCodeModelSettings &settings);
+    CppCodeModelSettings settings() const;
 
 signals:
     void settingsDataChanged();
 
 private:
-    void apply() final { CppCodeModelSettings::globalInstance().setGlobalData(data()); }
+    void apply() final { CppCodeModelSettings::globalInstance().setGlobal(settings()); }
 
     QCheckBox *m_interpretAmbiguousHeadersAsCHeaders;
     QCheckBox *m_ignorePchCheckBox;
@@ -231,18 +232,18 @@ private:
     QPlainTextEdit *m_ignorePatternTextEdit;
 };
 
-CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(const CppCodeModelSettings::Data &data)
+CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(const CppCodeModelSettings &settings)
 {
     m_interpretAmbiguousHeadersAsCHeaders
         = new QCheckBox(Tr::tr("Interpret ambiguous headers as C headers"));
 
     m_skipIndexingBigFilesCheckBox = new QCheckBox(Tr::tr("Do not index files greater than"));
-    m_skipIndexingBigFilesCheckBox->setChecked(data.skipIndexingBigFiles);
+    m_skipIndexingBigFilesCheckBox->setChecked(settings.skipIndexingBigFiles);
 
     m_bigFilesLimitSpinBox = new QSpinBox;
     m_bigFilesLimitSpinBox->setSuffix(Tr::tr("MB"));
     m_bigFilesLimitSpinBox->setRange(1, 500);
-    m_bigFilesLimitSpinBox->setValue(data.indexerFileSizeLimitInMb);
+    m_bigFilesLimitSpinBox->setValue(settings.indexerFileSizeLimitInMb);
 
     m_ignoreFilesCheckBox = new QCheckBox(Tr::tr("Ignore files"));
     m_ignoreFilesCheckBox->setToolTip(
@@ -250,8 +251,8 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(const CppCodeModelSetting
         + Tr::tr("Ignore files that match these wildcard patterns, one wildcard per line.")
         + "</p></body></html>");
 
-    m_ignoreFilesCheckBox->setChecked(data.ignoreFiles);
-    m_ignorePatternTextEdit = new QPlainTextEdit(data.ignorePattern);
+    m_ignoreFilesCheckBox->setChecked(settings.ignoreFiles);
+    m_ignorePatternTextEdit = new QPlainTextEdit(settings.ignorePattern);
     m_ignorePatternTextEdit->setToolTip(m_ignoreFilesCheckBox->toolTip());
     m_ignorePatternTextEdit->setEnabled(m_ignoreFilesCheckBox->isChecked());
 
@@ -271,9 +272,9 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(const CppCodeModelSetting
         (Tr::tr("Uncheck this to invoke the actual compiler "
                 "to show a pre-processed source file in the editor."));
 
-    m_interpretAmbiguousHeadersAsCHeaders->setChecked(data.interpretAmbigiousHeadersAsC);
-    m_ignorePchCheckBox->setChecked(data.pchUsage == CppCodeModelSettings::PchUse_None);
-    m_useBuiltinPreprocessorCheckBox->setChecked(data.useBuiltinPreprocessor);
+    m_interpretAmbiguousHeadersAsCHeaders->setChecked(settings.interpretAmbigiousHeadersAsC);
+    m_ignorePchCheckBox->setChecked(settings.pchUsage == CppCodeModelSettings::PchUse_None);
+    m_useBuiltinPreprocessorCheckBox->setChecked(settings.useBuiltinPreprocessor);
 
     using namespace Layouting;
 
@@ -309,18 +310,18 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(const CppCodeModelSetting
             timer, qOverload<>(&QTimer::start));
 }
 
-CppCodeModelSettings::Data CppCodeModelSettingsWidget::data() const
+CppCodeModelSettings CppCodeModelSettingsWidget::settings() const
 {
-    CppCodeModelSettings::Data data;
-    data.interpretAmbigiousHeadersAsC = m_interpretAmbiguousHeadersAsCHeaders->isChecked();
-    data.skipIndexingBigFiles = m_skipIndexingBigFilesCheckBox->isChecked();
-    data.useBuiltinPreprocessor = m_useBuiltinPreprocessorCheckBox->isChecked();
-    data.ignoreFiles = m_ignoreFilesCheckBox->isChecked();
-    data.ignorePattern = m_ignorePatternTextEdit->toPlainText();
-    data.indexerFileSizeLimitInMb = m_bigFilesLimitSpinBox->value();
-    data.pchUsage = m_ignorePchCheckBox->isChecked() ? CppCodeModelSettings::PchUse_None
-                                                     : CppCodeModelSettings::PchUse_BuildSystem;
-    return data;
+    CppCodeModelSettings settings;
+    settings.interpretAmbigiousHeadersAsC = m_interpretAmbiguousHeadersAsCHeaders->isChecked();
+    settings.skipIndexingBigFiles = m_skipIndexingBigFilesCheckBox->isChecked();
+    settings.useBuiltinPreprocessor = m_useBuiltinPreprocessorCheckBox->isChecked();
+    settings.ignoreFiles = m_ignoreFilesCheckBox->isChecked();
+    settings.ignorePattern = m_ignorePatternTextEdit->toPlainText();
+    settings.indexerFileSizeLimitInMb = m_bigFilesLimitSpinBox->value();
+    settings.pchUsage = m_ignorePchCheckBox->isChecked() ? CppCodeModelSettings::PchUse_None
+                                                         : CppCodeModelSettings::PchUse_BuildSystem;
+    return settings;
 }
 
 class CppCodeModelSettingsPage final : public Core::IOptionsPage
@@ -334,7 +335,7 @@ public:
         setDisplayCategory(Tr::tr("C++"));
         setCategoryIconPath(":/projectexplorer/images/settingscategory_cpp.png");
         setWidgetCreator(
-            [] { return new CppCodeModelSettingsWidget(CppCodeModelSettings::globalInstance().data()); });
+            [] { return new CppCodeModelSettingsWidget(CppCodeModelSettings::globalInstance()); });
     }
 };
 
@@ -347,7 +348,7 @@ class CppCodeModelProjectSettingsWidget : public ProjectSettingsWidget
 {
 public:
     CppCodeModelProjectSettingsWidget(const CppCodeModelProjectSettings &settings)
-        : m_settings(settings), m_widget(settings.data())
+        : m_settings(settings), m_widget(settings.settings())
     {
         setGlobalSettingsId(Constants::CPP_CODE_MODEL_SETTINGS_ID);
         const auto layout = new QVBoxLayout(this);
@@ -361,11 +362,11 @@ public:
                     m_widget.setEnabled(!checked);
                     m_settings.setUseGlobalSettings(checked);
                     if (!checked)
-                        m_settings.setData(m_widget.data());
+                        m_settings.setSettings(m_widget.settings());
                 });
 
         connect(&m_widget, &CppCodeModelSettingsWidget::settingsDataChanged,
-                this, [this] { m_settings.setData(m_widget.data()); });
+                this, [this] { m_settings.setSettings(m_widget.settings()); });
     }
 
 private:

@@ -1283,10 +1283,9 @@ void ModelManagerTest::testSettingsChanges()
 
     // Change global settings. Only the second project should get re-indexed, as the first one
     // has its own settings, which are still the same.
-    CppCodeModelSettings::Data globalSettings
-        = CppCodeModelSettings::settingsForProject(nullptr).data();
+    CppCodeModelSettings globalSettings = CppCodeModelSettings::settingsForProject(nullptr);
     globalSettings.indexerFileSizeLimitInMb = 1;
-    CppCodeModelSettings::setGlobalData(globalSettings);
+    CppCodeModelSettings::setGlobal(globalSettings);
     if (refreshCount == 0)
         QVERIFY(waitForRefresh());
     QVERIFY(!waitForRefresh());
@@ -1295,10 +1294,10 @@ void ModelManagerTest::testSettingsChanges()
     // Change first project's settings. Only this project should get re-indexed.
     refreshCount = 0;
     refreshedFiles.clear();
-    CppCodeModelSettings::Data p1Data = p1Settings.data();
+    CppCodeModelSettings p1Data = p1Settings.settings();
     p1Data.ignoreFiles = true;
     p1Data.ignorePattern = "baz3.h";
-    p1Settings.setData(p1Data);
+    p1Settings.setSettings(p1Data);
     if (refreshCount == 0)
         QVERIFY(waitForRefresh());
     QVERIFY(!waitForRefresh());

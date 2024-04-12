@@ -24,7 +24,7 @@ public:
              CppEditor::ProjectPart::ConstPtr projectPart)
         : file(std::move(file))
         , kind(kind)
-        , settings(settings.data())
+        , settings(settings)
         , projectPart(projectPart)
     {}
 
@@ -34,7 +34,7 @@ public:
 
     Utils::FilePath file;
     CppEditor::ProjectFile::Kind kind;
-    CppEditor::CppCodeModelSettings::Data settings;
+    CppEditor::CppCodeModelSettings settings;
     CppEditor::ProjectPart::ConstPtr projectPart;
 };
 using FileInfos = std::vector<FileInfo>;

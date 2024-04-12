@@ -204,7 +204,7 @@ void CppEditorPlugin::initialize()
     setupCppQuickFixSettings();
     setupCppCodeModelSettingsPage();
     provideCppSettingsRetriever([](const Project *p) {
-        return CppCodeModelSettings::settingsForProject(p).data().toMap();
+        return CppCodeModelSettings::settingsForProject(p).toMap();
     });
     setupCppOutline();
     setupCppCodeStyleSettings();

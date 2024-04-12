@@ -151,7 +151,7 @@ BuiltinEditorDocumentProcessor::BuiltinEditorDocumentProcessor(TextEditor::TextD
     using namespace Internal;
 
     BaseEditorDocumentParser::Configuration config = m_parser->configuration();
-    config.usePrecompiledHeaders = settings().pchUsage() != CppCodeModelSettings::PchUse_None;
+    config.usePrecompiledHeaders = settings().pchUsage != CppCodeModelSettings::PchUse_None;
     m_parser->setConfiguration(config);
 
     m_semanticHighlighter->setHighlightingRunner(

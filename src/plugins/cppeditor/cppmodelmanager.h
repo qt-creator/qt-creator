@@ -110,6 +110,8 @@ public:
     static QFuture<void> updateProjectInfo(const ProjectInfo::ConstPtr &newProjectInfo,
                                            const QSet<Utils::FilePath> &additionalFiles = {});
 
+    static void handleSettingsChange(ProjectExplorer::Project *project);
+
     /// \return The project part with the given project file
     static ProjectPart::ConstPtr projectPartForId(const QString &projectPartId);
     /// \return All project parts that mention the given file name as one of the sources/headers.
@@ -288,7 +290,6 @@ private:
     static void onSourceFilesRefreshed();
     static void onCurrentEditorChanged(Core::IEditor *editor);
     static void onCoreAboutToClose();
-    static void onSettingsChange(ProjectExplorer::Project *project);
     static void setupFallbackProjectPart();
 
     static void delayedGC();
