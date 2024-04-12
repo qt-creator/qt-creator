@@ -212,14 +212,14 @@ void EffectComposerModel::clear(bool clearName)
 void EffectComposerModel::assignToSelected()
 {
     const QString effectsAssetsDir = QmlDesigner::ModelNodeOperations::getEffectsDefaultDirectory();
-    const QString path = effectsAssetsDir + QDir::separator() + m_currentComposition + ".qep";
+    const QString path = effectsAssetsDir + '/' + m_currentComposition + ".qep";
     emit assignToSelectedTriggered(path);
 }
 
 QString EffectComposerModel::getUniqueEffectName() const
 {
     const QString effectsDir = QmlDesigner::ModelNodeOperations::getEffectsDefaultDirectory();
-    const QString path = effectsDir + QDir::separator() + "Effect%1.qep";
+    const QString path = effectsDir + '/' + "Effect%1.qep";
 
     int num = 0;
 
@@ -232,7 +232,7 @@ QString EffectComposerModel::getUniqueEffectName() const
 bool EffectComposerModel::nameExists(const QString &name) const
 {
     const QString effectsDir = QmlDesigner::ModelNodeOperations::getEffectsDefaultDirectory();
-    const QString path = effectsDir + QDir::separator() + "%1" + ".qep";
+    const QString path = effectsDir + '/' + "%1" + ".qep";
 
     return QFile::exists(path.arg(name));
 }
@@ -950,7 +950,7 @@ void EffectComposerModel::saveComposition(const QString &name)
     }
 
     const QString effectsAssetsDir = QmlDesigner::ModelNodeOperations::getEffectsDefaultDirectory();
-    const QString path = effectsAssetsDir + QDir::separator() + name + ".qep";
+    const QString path = effectsAssetsDir + '/' + name + ".qep";
     auto saveFile = QFile(path);
     if (!saveFile.open(QIODevice::WriteOnly)) {
         QString error = QString("Error: Couldn't save composition file: '%1'").arg(path);
@@ -1080,7 +1080,7 @@ void EffectComposerModel::saveResources(const QString &name)
 
     // Get effects dir
     const Utils::FilePath effectsResDir = QmlDesigner::ModelNodeOperations::getEffectsImportDirectory();
-    const QString effectsResPath = effectsResDir.pathAppended(name).toString() + QDir::separator();
+    const QString effectsResPath = effectsResDir.pathAppended(name).toString() + '/';
     Utils::FilePath effectPath = Utils::FilePath::fromString(effectsResPath);
 
     // Create the qmldir for effects
