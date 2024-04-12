@@ -68,7 +68,7 @@ Section {
                     } else {
                         modelNodeBackend.createModelNode(-1, "data", "DesignEffect")
                         var effectNode = modelNodeBackend.allChildrenOfType("DesignEffect")
-                        modelNodeBackend.createModelNode(effectNode, "effects", "DesignDropShadow")
+                        modelNodeBackend.createModelNode(effectNode, "effects", "DesignDropShadow", "QtQuick.Studio.DesignEffects")
                     }
                     root.invalidate()
                 }
