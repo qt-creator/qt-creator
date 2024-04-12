@@ -7,6 +7,8 @@
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
+#include <utils/filepath.h>
+
 #include <QFile>
 #include <QList>
 #include <QCoreApplication>
@@ -307,7 +309,8 @@ int main(int argc, char *argv[])
         const QByteArray source = file.readAll();
         file.close();
 
-        Document::MutablePtr doc = Document::create(fileName, ModelManagerInterface::guessLanguageOfFile(fileName));
+        const Utils::FilePath filePath = Utils::FilePath::fromUserInput(fileName);
+        Document::MutablePtr doc = Document::create(filePath, ModelManagerInterface::guessLanguageOfFile(filePath));
         doc->setSource(QString::fromUtf8(source));
         doc->parse();
 
