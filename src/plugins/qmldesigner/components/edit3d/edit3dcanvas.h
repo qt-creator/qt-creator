@@ -52,10 +52,12 @@ private:
     qint32 m_activeScene = -1;
     QElapsedTimer m_usageTimer;
     qreal m_opacity = 1.0;
+    bool m_isTrusted = true;
     QWidget *m_busyIndicator = nullptr;
     bool m_flyMode = false;
     QPoint m_flyModeStartCursorPos;
     QPoint m_hiddenCursorPos;
+    QPoint m_lastCursorPos;
     qint64 m_flyModeStartTime = 0;
     bool m_flyModeFirstUpdate = false;
     bool m_contextMenuPending = false;
