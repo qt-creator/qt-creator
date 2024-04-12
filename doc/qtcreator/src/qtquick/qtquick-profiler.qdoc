@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -8,10 +8,145 @@
 // **********************************************************************
 
 /*!
+    \page creator-how-to-profile-qml.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-qml-performance-monitor.html
+    \nextpage studio-advanced.html
+    \else
+    \previouspage creator-how-tos.html
+    \endif
+
+    \ingroup creator-how-to-analyze
+
+    \title Profile QML applications
+
+    With QML Profiler, you can find causes for typical performance problems
+    in your applications, such as slowness and unresponsive, stuttering user
+    interfaces.
+
+    \if defined(qtdesignstudio)
+    \note In this section, you are using advanced menu items. These are not
+    visible by default. To toggle the visibility of advanced menu items, see
+    \l{Customizing the Menu}.
+    \endif
+
+
+    To collect data about a QML application:
+
+    \list 1
+        \li Set up QML debugging for the project. For more information, see
+            \l{Setting Up QML Debugging}.
+        \if defined(qtcreator)
+        \li In the \uicontrol Projects mode, select a \l{glossary-buildandrun-kit}
+            {kit} with Qt version 4.7.4 or later.
+       \endif
+            \note To profile applications on \l{glossary-device}{devices}, you
+            must install Qt libraries on them.
+        \li Go to \uicontrol Analyze > \uicontrol {QML Profiler} to profile the
+            current application.
+            \image qtcreator-qml-profiler-toolbar.webp {QML Profiler}
+        \li Select \inlineimage icons/qtcreator-analyze-start-button.png
+            (\uicontrol Start) to start the application from QML Profiler.
+    \endlist
+
+    QML Profiler immediately begins to collect data, as indicated by
+    the time running in the \uicontrol Elapsed field.
+
+    \note If data collection does not start automatically, select
+    \inlineimage icons/recordfill.png (\uicontrol {Enable Profiling}).
+
+    Data is collected until you select \inlineimage icons/recordfill.png again.
+    Data collection takes time, so expect a delay before seeing data.
+
+    Do not use application commands to exit the application because data is
+    sent to QML Profiler when you select \inlineimage icons/recordfill.png.
+    The application stops in seconds. If you exit the application, the data is
+    not sent.
+
+    Select \uicontrol {Disable Profiling} to disable the automatic start of the
+    data collection when an application is launched. Data collection starts when
+    you select the button again.
+
+    To save all the collected data, select \uicontrol Analyze >
+    \uicontrol {QML Profiler Options} > \uicontrol {Save QML Trace}. To view the saved
+    data, select \uicontrol {Load QML Trace}. You can also deliver the saved data to
+    others for examination or load data saved by them.
+
+    \section1 Flush data while profiling
+
+    Set data flushing preferences either globally for all projects or separately
+    for each project.
+
+    To set global preferences, go to \preferences >
+    \uicontrol Analyzer > \uicontrol {QML Profiler}.
+
+    To specify custom QML Profiler settings for a particular project:
+
+    \list 1
+        \li Go to \uicontrol Projects > \uicontrol Run.
+        \li In \uicontrol {QML Profiler Settings}, select \uicontrol Custom.
+            \image qml-profiler-settings.png {QML Profiler Settings}
+    \endlist
+
+    You can set the following preferences:
+
+    \table
+    \header
+        \li Setting
+        \li Value
+    \row
+        \li \uicontrol {Flush data while profiling}
+        \li Flush the data periodically instead of flushing all data when
+            profiling stops. This saves memory on the target device and shortens
+            the wait between the profiling being stopped and the data
+            being displayed.
+    \row
+        \li \uicontrol {Flush interval}
+        \li Set the flush interval in
+            milliseconds. The shorter the interval, the more often the
+            data is flushed. The longer the interval, the more data has
+            to be buffered in the target application, potentially wasting
+            memory. However, the flushing itself takes time, which can
+            distort the profiling results.
+    \row
+        \li \uicontrol {Process data only when process ends}
+        \li Aggregate data from many QML engines into one trace. Otherwise,
+            the profiling stops when one of the engines stops.
+    \endtable
+
+    To restore the global settings for the project, select
+    \uicontrol {Restore Global}.
+
+    \section1 Attach to a running Qt Quick application
+
+    You can profile a Qt Quick application that you do not run from \QC.
+    However, you must enable QML debugging and profiling for the application
+    in the project build settings. For more information, see
+    \l{Setting Up QML Debugging}.
+
+    To attach to a waiting application:
+
+    \list 1
+        \li Go to \uicontrol Analyze >
+            \uicontrol {QML Profiler (Attach to Waiting Application)}.
+            \image qml-profiler-start-dialog.png {Start QML Profiler dialog}
+         \li In \uicontrol Kit, select the kit used to build the application.
+         \li In \uicontrol Port, specify the port to listen to.
+         \li Select \uicontrol OK.
+    \endlist
+
+    \sa {Profiling QML applications}
+
+    \if defined(qtcreator)
+    \sa {Analyze}{How To: Analyze}, {Analyzers}, {Analyzing Code}
+    \endif
+*/
+
+/*!
     \page creator-qml-performance-monitor.html
     \if defined(qtdesignstudio)
     \previouspage creator-qml-debugging-example.html
-    \nextpage studio-advanced.html
+    \nextpage creator-how-to-profile-qml.html
     \else
     \previouspage creator-reference.html
     \endif
@@ -22,19 +157,25 @@
 
     \brief Improve the performance of QML applications.
 
-    You can use the QML Profiler to find causes for typical performance problems
+    \if defined(qtdesignstudio)
+    \note In this section, you are using advanced menu items. These are not
+    visible by default. To toggle the visibility of advanced menu items, see
+    \l{Customizing the Menu}.
+    \endif
+
+    With QML Profiler, you can find causes for typical performance problems
     in your applications, such as slowness and unresponsive, stuttering user
     interfaces. Typical causes include executing too much JavaScript in too few
     frames. All JavaScript must return before the GUI thread can proceed, and
     frames are delayed or dropped if the GUI thread is not ready.
 
-    Another typical cause for similar performance problems is creating,
-    painting, or updating invisible items, which takes time in the GUI thread.
+    Another typical cause for similar performance problems is creating or
+    updating invisible items, which takes time in the GUI thread.
 
     \if defined(qtcreator)
     Triggering long-running C++ functions, such as paint methods and signal
     handlers, also takes time in the GUI thread, but is more difficult to see in
-    the QML Profiler because it does not profile C++ code.
+    QML Profiler because it does not profile C++ code.
     \endif
 
     To find excessive use of JavaScript, check the frame rate in animations and
@@ -61,115 +202,6 @@
     {Chrome Trace Format Viewer}.
     \endif
 
-    \if defined(qtdesignstudio)
-    \note In this section, you are using advanced menu items. These are not
-    visible by default. To toggle the visibility of advanced menu items, see
-    \l{Customizing the Menu}.
-    \endif
-
-    \section1 Using QML Profiler
-
-    To monitor the performance of an application in the QML Profiler:
-
-    \list 1
-
-        \li To be able to profile an application, you must set up QML debugging
-            for the project. For more information, see
-            \l{Setting Up QML Debugging}.
-
-        \if defined(qtcreator)
-        \li In the \uicontrol Projects mode, select a \l{glossary-buildandrun-kit}
-            {kit} with Qt version 4.7.4 or later.
-       \endif
-
-            \note To profile applications on \l{glossary-device}{devices}, you
-            must install Qt libraries on them.
-
-        \li Select \uicontrol Analyze > \uicontrol {QML Profiler} to profile the
-            current application.
-
-        \li Select the
-            \inlineimage icons/qtcreator-analyze-start-button.png
-            (\uicontrol Start) button to start the application from the
-            QML Profiler.
-
-            \note If data collection does not start automatically, select the
-            \inlineimage icons/recordfill.png
-            (\uicontrol {Enable Profiling}) button.
-
-    \endlist
-
-    When you start analyzing an application, the application is launched, and
-    the QML Profiler immediately begins to collect data. This is indicated by
-    the time running in the \uicontrol Elapsed field.
-
-    Data is collected until you select the \uicontrol {Enable Profiling} button. Data
-    collection
-    takes time, and therefore, there might be a delay
-    before the data is displayed.
-
-    Do not use application commands to exit the application because data is
-    sent to the QML Profiler when you select the \uicontrol {Enable Profiling} button.
-    The application continues to run for some seconds, after which it is stopped
-    automatically. If you exit the application, the data is not sent.
-
-    Select the \uicontrol {Disable Profiling} button to disable the automatic
-    start of the data collection when an
-    application is launched. Data collection starts when you select the button
-    again.
-
-    To save all the collected data, select \uicontrol Analyze >
-    \uicontrol {QML Profiler Options} > \uicontrol {Save QML Trace}. To view the saved
-    data, select \uicontrol {Load QML Trace}. You can also deliver the saved data to
-    others for examination or load data saved by them.
-
-    \section1 Specifying Flushing Settings
-
-    You can specify flushing settings for the QML Profiler either globally for
-    all projects or separately for each project. To specify global settings,
-    select \preferences > \uicontrol Analyzer.
-
-    To specify custom QML Profiler settings for a particular project, select
-    \uicontrol Projects > \uicontrol Run and then select \uicontrol Custom in
-    \uicontrol {QML Profiler Settings}. To restore the global settings for the
-    project, select \uicontrol {Restore Global}.
-
-    \image qml-profiler-settings.png "QML Profiler Settings"
-
-    Select the \uicontrol {Flush data while profiling} check box to flush the
-    data periodically instead of flushing all data when profiling stops. This
-    saves memory on the target device and shortens the wait between the
-    profiling being stopped and the data being displayed.
-
-    In the \uicontrol {Flush interval} field, set the flush interval in
-    milliseconds. The shorter the interval, the more often the data is flushed.
-    The longer the interval, the more data has to be buffered in the target
-    application, potentially wasting memory. However, the flushing itself takes
-    time, which can distort the profiling results.
-
-    If you have multiple QML engines and you want to aggregate the data produced
-    by all of them into one trace, select the \uicontrol {Process data only when
-    process ends} check box. Otherwise, the profiling stops when one of the
-    engines stops.
-
-    \section1 Attaching to Running Qt Quick Applications
-
-    You can profile Qt Quick applications that are not launched by \QC.
-    However, you must enable QML debugging and profiling for the application
-    in the project build settings. For more information, see
-    \l{Setting Up QML Debugging}.
-
-    To attach to waiting applications:
-
-    \list 1
-        \li Select \uicontrol Analyze >
-            \uicontrol {QML Profiler (Attach to Waiting Application)}.
-            \image qml-profiler-start-dialog.png "Start QML Profiler dialog"
-         \li In \uicontrol Kit, select the kit used to build the application.
-         \li In \uicontrol Port, specify the port to listen to.
-         \li Select \uicontrol OK.
-    \endlist
-
     \section1 Analyzing Collected Data
 
     The \uicontrol Timeline view displays graphical representations of QML and
@@ -180,16 +212,16 @@
     Each row in the timeline (6) describes a type of QML events that were
     recorded. Move the cursor on an event on a row to see how long it takes and
     where in the source it is being called. To display the information only when
-    an event is selected, disable the \uicontrol {View Event Information on Mouseover}
-    button (4).
+    an event is selected, turn off \uicontrol {View Event Information on Mouseover}
+    (4).
 
     The outline (10) summarizes the period for which data was collected. Drag
     the zoom range (8) or click the outline to move on the outline. You can
-    also move between events by selecting the \uicontrol {Jump to Previous Event}
-    and \uicontrol {Jump to Next Event} buttons (1).
+    also move between events by selecting \uicontrol {Jump to Previous Event}
+    and \uicontrol {Jump to Next Event} (1).
 
-    Select the \uicontrol {Show Zoom Slider} button (2) to open a slider that you can
-    use to set the zoom level. You can also drag the zoom handles (9). To reset
+    Select \uicontrol {Show Zoom Slider} (2) to open a slider that sets the zoom
+    level. You can also drag the zoom handles (9). To reset
     the default zoom level, right-click the timeline to open the context menu,
     and select \uicontrol {Reset Zoom}.
 
@@ -197,16 +229,16 @@
 
     \section2 Selecting Event Ranges
 
-    You can select an event range (7) to view the frame rate of events and to
-    compare it with the frame rate of similar events. Select the
-    \uicontrol {Select Range} button (3) to activate the selection tool. Then click in
+    Select an event range (7) to view the frame rate of events and to
+    compare it with the frame rate of similar events. Select
+    \uicontrol {Select Range} (3) to activate the selection tool. Then click in
     the timeline to specify the beginning of the event range. Drag the selection
     handle to define the end of the range. The length of the range indicates the
     frame rate of the event.
 
-    You can use event ranges also to measure delays between two subsequent
-    events. Place a range between the end of the first event and the beginning
-    of the second event. The \uicontrol Duration field displays the delay between the
+    To measure delays between two subsequent events, place an event range between
+    the end of the first event and the beginning of the second event. The
+    \uicontrol Duration field displays the delay between the
     events in milliseconds.
 
     To zoom into an event range, double-click it.
@@ -225,12 +257,12 @@
     they include location in source code, duration and some relevant parts of
     the source code itself.
 
-    You can click on an event to move the cursor in the code editor to the part
+    Select an event to move the cursor in the code editor to the part
     of the code the event is associated with.
 
     The following types of events are displayed in the timeline view on one or
-    several rows. The availability of event types depends on the version of Qt
-    the application was compiled with and the version of Qt Quick it is using.
+    several rows. The availability of event types depends on the Qt version that
+    you build the application with and the Qt Quick version you use.
 
     \table
 
@@ -348,18 +380,17 @@
 
     \section2 Analyzing Scene Graph Events
 
-    In order to understand the scene graph category, it's important to
-    understand how the Qt Quick scene graph works. See
-    \l {Qt Quick Scene Graph} and \l {Qt Quick Scene Graph Default Renderer}
-    for a detailed description. The following events are reported in the
+    To understand the scene graph category, read more about how
+    Qt Quick scene graph works in \l {Qt Quick Scene Graph} and
+    \l {Qt Quick Scene Graph Default Renderer}. The following events are reported in the
     \uicontrol {Scene Graph} category. Not all events are generated by all render
     loops. In the Windows and Basic render loops everything runs in the same
     thread and the distinction between GUI thread and render thread is
     meaningless.
 
-    If you set the environment variable QSG_RENDER_TIMING, you get a textual
+    Set the environment variable QSG_RENDER_TIMING, to get a textual
     output of similar, but slightly different timings from the application
-    being profiled. For easier orientation, the differences are listed below.
+    being profiled. The differences are listed below.
 
     \table
     \header
@@ -437,7 +468,7 @@
         \li Swapping frames after rendering.
         \li The output of swap times triggered by setting QSG_RENDER_TIMING is
             incorrect for the basic render loop and versions of Qt prior to
-            Qt 5.4. The QML profiler shows the correct swap times.
+            Qt 5.4. QML Profiler shows the correct swap times.
     \row
         \li \uicontrol {Render Preprocess}
         \li Render
@@ -553,7 +584,7 @@
     Synchronize happens in scene graph synchronizing phase, while prepare and
     render happen in scene graph rendering phase.
 
-    Setting the environment variable \c QSG_RENDERER_DEBUG=render will also give
+    Set the environment variable \c QSG_RENDERER_DEBUG=render to get
     additional textual output of render call counts of different rendering passes.
     These call counts are summed up in the Render Frame event.
 
@@ -619,24 +650,24 @@
 
     The \uicontrol Statistics view displays the number of times each binding, create,
     compile, JavaScript, or signal event is triggered and the average time it
-    takes. This allows you to examine which events you need to optimize. A high
+    takes. Examine the statistics to learn which events to optimize. A high
     number of occurrences might indicate that an event is triggered
     unnecessarily. To view the median, longest, and shortest time for the
     occurrences, select \uicontrol {Extended Event Statistics} in the context menu.
 
-    Click on an event to move to it in the source code
+    Select an event to move to it in the source code
     in the code editor.
 
     \image qml-profiler-statistics.png "Statistics view"
 
-    The \uicontrol Callers and \uicontrol Callees panes show dependencies between events.
+    \uicontrol Callers and \uicontrol Callees show dependencies between events.
     They allow you to examine the internal functions of the application.
-    The \uicontrol Callers pane summarizes the QML events that trigger a binding.
+    \uicontrol Callers summarizes the QML events that trigger a binding.
     This tells you what caused a change in a binding.
-    The \uicontrol Callees pane summarizes the QML events that a binding triggers.
+    \uicontrol Callees summarizes the QML events that a binding triggers.
     This tells you which QML events are affected if you change a binding.
 
-    Click on an event to move to it in the source code in the code editor.
+    Select an event to move to it in the source code in the code editor.
 
     When you select an event in the \uicontrol Timeline view, information about
     it is displayed in the \uicontrol Statistics and \uicontrol {Flame Graph}
@@ -646,7 +677,7 @@
     \uicontrol {Copy Table} or \uicontrol {Copy Row} in the context menu.
 
     JavaScript events are shown in the \uicontrol Statistics view only for applications
-    that use Qt Quick 2 and are compiled with Qt 5.3 or later.
+    that use Qt Quick 2 and are built with Qt 5.3 or later.
 
     \section2 Visualizing Statistics as Flame Graphs
 
@@ -674,4 +705,9 @@
     suitable for analyzing per frame execution times. However, it is very easy
     to see the total impact of the various QML and JavaScript events there.
 
+    \sa {Profile QML applications}
+
+    \if defined(qtcreator)
+    \sa {Analyze}{How To: Analyze}, {Analyzers}, {Analyzing Code}
+    \endif
 */

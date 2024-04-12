@@ -214,6 +214,9 @@
                             \endlist
                         \li \l{Debugging a Qt Quick Application}
                         \li \l{Profiling QML Applications}
+                            \list
+                                \li \l{Profile QML applications}
+                            \endlist
                     \endlist
             \endlist
         \li \l{Advanced Designer Topics}

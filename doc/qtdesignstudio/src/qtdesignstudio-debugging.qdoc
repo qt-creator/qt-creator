@@ -22,8 +22,10 @@
             \uicontrol Debug mode.
         \li \l{Profiling QML Applications}
 
-            You can use the QML Profiler to find causes for typical performance
+            You can use QML Profiler to find causes for typical performance
             problems in your UIs, such as slowness, freezing, and stuttering.
-            The QML Profiler is installed and configured as part of \QDS.
+            QML Profiler is installed and configured as part of \QDS.
     \endlist
+
+    \sa {Profile QML applications}
 */

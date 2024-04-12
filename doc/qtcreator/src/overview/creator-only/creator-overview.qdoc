@@ -251,7 +251,7 @@
     function execution, analyzing CPU use, and eliminating unnecessary complexity
     of code. Other tools provide code coverage and visualize trace events.
 
-    Some tools, such as the QML Profiler and the Clang Tools, are installed with
+    Some tools, such as QML Profiler and Clang Tools, are installed with
     \QC. Install and configure the other supported tools on the computer to use
     them from \QC.
 
