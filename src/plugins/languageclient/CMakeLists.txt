@@ -36,3 +36,5 @@ add_qtc_plugin(LanguageClient
     semantichighlightsupport.cpp semantichighlightsupport.h
     snippet.cpp snippet.h
 )
+
+add_subdirectory(lualanguageclient)

@@ -140,6 +140,8 @@ public:
     static QList<BaseSettings *> pageSettings();
     static QList<BaseSettings *> changedSettings();
 
+    static QList<Utils::Store> storesBySettingsType(Utils::Id settingsTypeId);
+
     /**
      * must be called before the delayed initialize phase
      * otherwise the settings are not loaded correctly

@@ -4,8 +4,9 @@ local lsp = {}
 
 ---@class ClientOptions
 ---@field name string The name under which to register the language server.
----@field cmd string[] The command to start the language server
+---@field cmd function|string[] The command to start the language server, or a function returning a string[].
 ---@field transport? "stdio"|"localsocket" Defaults to stdio
+---@field serverName? string The socket path when transport == "localsocket"
 ---@field languageFilter LanguageFilter The language filter deciding which files to open with the language server
 ---@field startBehavior? "AlwaysOn"|"RequiresFile"|"RequiresProject"
 ---@field initializationOptions? table|string The initialization options to pass to the language server, either a json string, or a table

@@ -606,6 +606,27 @@ void LanguageClientSettings::init()
     LanguageClientManager::applySettings();
 }
 
+QList<Utils::Store> LanguageClientSettings::storesBySettingsType(Utils::Id settingsTypeId)
+{
+    QList<Utils::Store> result;
+
+    QtcSettings *settingsIn = Core::ICore::settings();
+    settingsIn->beginGroup(settingsGroupKey);
+
+    for (const QVariantList &varList :
+         {settingsIn->value(clientsKey).toList(), settingsIn->value(typedClientsKey).toList()}) {
+        for (const QVariant &var : varList) {
+            const Store store = storeFromVariant(var);
+            if (settingsTypeId == Id::fromSetting(store.value(typeIdKey)))
+                result << store;
+        }
+    }
+
+    settingsIn->endGroup();
+
+    return result;
+}
+
 QList<BaseSettings *> LanguageClientSettings::fromSettings(QtcSettings *settingsIn)
 {
     settingsIn->beginGroup(settingsGroupKey);

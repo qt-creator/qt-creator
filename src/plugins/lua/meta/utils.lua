@@ -66,4 +66,8 @@ function utils.FilePath:resolvePath(tail) end
 ---@return FilePath
 function utils.FilePath:parentDir() end
 
+---If the path targets a symlink, this function returns the target of the symlink
+---@return FilePath The resolved path
+function utils.FilePath:resolveSymlinks() end
+
 return utils

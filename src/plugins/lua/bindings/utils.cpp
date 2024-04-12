@@ -70,6 +70,8 @@ return {
             [](const FilePath &self) { return self.searchInPath(); },
             "exists",
             &FilePath::exists,
+            "resolveSymlinks",
+            &FilePath::resolveSymlinks,
             "isExecutableFile",
             &FilePath::isExecutableFile,
             "dirEntries",
