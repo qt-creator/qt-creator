@@ -8,8 +8,6 @@ local Core = require("Core")
 
 local wizard = {}
 
----@class Factory
-
 ---@class (exact) WizardFactoryOptions
 ---@field id string
 ---@field displayName string
@@ -22,7 +20,6 @@ local wizard = {}
 
 --- Registers a wizard factory.
 ---@param options WizardFactoryOptions
----@return Factory
 function wizard.registerFactory(options) end
 
 ---@class Wizard

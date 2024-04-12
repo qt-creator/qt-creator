@@ -55,6 +55,17 @@ public:
     static sol::table toTable(const sol::state_view &lua, const QJsonValue &v);
     static QJsonValue toJson(const sol::table &t);
 
+    template<class T>
+    static void checkKey(const sol::table &table, const QString &key)
+    {
+        if (table[key].template is<T>())
+            return;
+        if (!table[key].valid())
+            throw sol::error("Expected " + key.toStdString() + " to be defined");
+        throw sol::error(
+            "Expected " + key.toStdString() + " to be of type " + sol::detail::demangle<T>());
+    }
+
     static QStringList variadicToStringList(const sol::variadic_args &vargs);
 
     template<typename R, typename... Args>
