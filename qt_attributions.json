@@ -598,5 +598,18 @@
         "LicenseFile": "src/libs/3rdparty/sol2/LICENSE.txt",
         "Copyright": "Copyright (c) 2008 Paul Evans",
         "Version": "3.3.1 (revision 9c882a28)"
+    },
+    {
+        "Id": "ms-jpq-lua-async-await",
+        "Name": "ms-jpq/lua-async-await",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Used for async/await support in Lua modules.",
+        "Path": "src/plugins/lua/bindings",
+        "Description": "lua-async-await implements the async/await pattern in Lua.",
+        "Homepage": "https://github.com/ms-jpq/lua-async-await",
+        "License": "MIT License",
+        "LicenseFile": "src/plugins/lua/bindings/ASYNC-LICENSE.txt",
+        "Copyright": "Copyright (c) 2008 Paul Evans"
     }
 ]

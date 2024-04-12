@@ -2,6 +2,7 @@
 add_subdirectory(coreplugin)
 
 # Level 1: (only depends of Level 0)
+add_subdirectory(lua)
 add_subdirectory(texteditor)
 add_subdirectory(serialterminal)
 add_subdirectory(extensionmanager)
@@ -117,4 +118,3 @@ endif()
 add_subdirectory(qnx)
 add_subdirectory(mcusupport)
 add_subdirectory(qtapplicationmanager)
-

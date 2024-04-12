@@ -23,6 +23,8 @@
 #include <QJsonValue>
 #include <QPluginLoader>
 
+Q_LOGGING_CATEGORY(pluginSpecLog, "qtc.extensionsystem.plugin", QtWarningMsg)
+
 using namespace ExtensionSystem::Internal;
 using namespace Utils;
 
@@ -1120,6 +1122,8 @@ void PluginSpec::setFilePath(const QString &filePath)
 
 void PluginSpec::setError(const QString &errorString)
 {
+    qCWarning(pluginSpecLog).noquote() << "[" << name() << "]"
+                                       << "Plugin error:" << errorString;
     d->errorString = errorString;
 }
 
