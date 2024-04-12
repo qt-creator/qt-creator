@@ -891,13 +891,6 @@ EditorFactory::EditorFactory()
     setId(Constants::CE_EDITOR_ID);
     setDisplayName(Tr::tr("Compiler Explorer Editor"));
     setMimeTypes({"application/compiler-explorer"});
-
-    auto undoStackFromEditor = [](Core::IEditor *editor) -> QUndoStack * {
-        if (!editor)
-            return nullptr;
-        return &static_cast<Editor *>(editor)->m_undoStack;
-    };
-
     setEditorCreator([] { return new Editor; });
 }
 
