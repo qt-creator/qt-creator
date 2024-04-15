@@ -46,6 +46,24 @@ static const QRegularExpression &assertionRegExp()
     return theRegExp;
 }
 
+static bool onLicenseStdOut(const QString &output, bool notify, QString *licenseTextCache,
+                            AndroidSdkManager::OperationOutput &result, SdkCmdPromise &fi)
+{
+    licenseTextCache->append(output);
+    const QRegularExpressionMatch assertionMatch = assertionRegExp().match(*licenseTextCache);
+    if (assertionMatch.hasMatch()) {
+        if (notify) {
+            result.stdOutput = *licenseTextCache;
+            fi.addResult(result);
+        }
+        // Clear the current contents. The found license text is dispatched. Continue collecting the
+        // next license text.
+        licenseTextCache->clear();
+        return true;
+    }
+    return false;
+}
+
 int parseProgress(const QString &out, bool &foundAssertion)
 {
     int progress = -1;
@@ -154,7 +172,6 @@ static void sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
     }
 }
 
-
 class AndroidSdkManagerPrivate
 {
 public:
@@ -184,13 +201,10 @@ private:
     void clearUserInput();
     void reloadSdkPackages();
     void clearPackages();
-    bool onLicenseStdOut(const QString &output, bool notify,
-                         AndroidSdkManager::OperationOutput &result, SdkCmdPromise &fi);
 
     AndroidSdkManager &m_sdkManager;
     AndroidSdkPackageList m_allPackages;
     FilePath lastSdkManagerPath;
-    QString m_licenseTextCache;
     QByteArray m_licenseUserInput;
     mutable QReadWriteLock m_licenseInputLock;
 
@@ -529,11 +543,12 @@ void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdPromise &fi)
     licenseCommand.start();
     QTextCodec *codec = QTextCodec::codecForLocale();
     int inputCounter = 0, steps = -1;
+    QString licenseTextCache;
     while (!licenseCommand.waitForFinished(200ms)) {
-        QString stdOut = codec->toUnicode(licenseCommand.readAllRawStandardOutput());
+        const QString stdOut = codec->toUnicode(licenseCommand.readAllRawStandardOutput());
         bool assertionFound = false;
         if (!stdOut.isEmpty())
-            assertionFound = onLicenseStdOut(stdOut, reviewingLicenses, result, fi);
+            assertionFound = onLicenseStdOut(stdOut, reviewingLicenses, &licenseTextCache, result, fi);
 
         if (reviewingLicenses) {
             // Check user input
@@ -566,7 +581,6 @@ void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdPromise &fi)
             break;
     }
 
-    m_licenseTextCache.clear();
     result.success = licenseCommand.exitStatus() == QProcess::NormalExit;
     if (!result.success)
         result.stdError = Tr::tr("License command failed.") + "\n\n";
@@ -590,25 +604,6 @@ void AndroidSdkManagerPrivate::clearUserInput()
 {
     QWriteLocker locker(&m_licenseInputLock);
     m_licenseUserInput.clear();
-}
-
-bool AndroidSdkManagerPrivate::onLicenseStdOut(const QString &output, bool notify,
-                                               AndroidSdkManager::OperationOutput &result,
-                                               SdkCmdPromise &fi)
-{
-    m_licenseTextCache.append(output);
-    const QRegularExpressionMatch assertionMatch = assertionRegExp().match(m_licenseTextCache);
-    if (assertionMatch.hasMatch()) {
-        if (notify) {
-            result.stdOutput = m_licenseTextCache;
-            fi.addResult(result);
-        }
-        // Clear the current contents. The found license text is dispatched. Continue collecting the
-        // next license text.
-        m_licenseTextCache.clear();
-        return true;
-    }
-    return false;
 }
 
 void AndroidSdkManagerPrivate::addWatcher(const QFuture<AndroidSdkManager::OperationOutput> &future)
