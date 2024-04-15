@@ -515,13 +515,9 @@ AndroidSettingsWidget::AndroidSettingsWidget()
         updateUI();
         apply();
 
-        QMetaObject::Connection *const openSslOneShot = new QMetaObject::Connection;
-        *openSslOneShot = connect(&m_sdkManager, &AndroidSdkManager::packageReloadFinished,
-                                  this, [this, openSslOneShot] {
-                                      QObject::disconnect(*openSslOneShot);
-                                      downloadOpenSslRepo(true);
-                                      delete openSslOneShot;
-        });
+        connect(&m_sdkManager, &AndroidSdkManager::packageReloadFinished, this, [this] {
+            downloadOpenSslRepo(true);
+        }, Qt::SingleShotConnection);
     });
 
     setOnApply([] { AndroidConfigurations::setConfig(androidConfig()); });
