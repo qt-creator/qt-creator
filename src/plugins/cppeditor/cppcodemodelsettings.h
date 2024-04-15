@@ -5,14 +5,13 @@
 
 #include "cppeditor_global.h"
 
-#include <utils/filepath.h>
-#include <utils/id.h>
 #include <utils/store.h>
-#include <utils/qtcsettings.h>
-
-#include <QStringList>
 
 namespace ProjectExplorer { class Project; }
+namespace Utils {
+class FilePath;
+class QtcSettings;
+}
 
 namespace CppEditor {
 enum class UsePrecompiledHeaders;

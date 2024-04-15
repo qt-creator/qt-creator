@@ -20,8 +20,8 @@
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcsettings.h>
 #include <utils/store.h>
 
 #include <QCheckBox>
