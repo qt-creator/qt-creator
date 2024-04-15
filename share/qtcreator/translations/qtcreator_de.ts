@@ -10763,7 +10763,7 @@ in the system&apos;s browser for manual download.</source>
 Diese Bibliotheken können mit Ihrer Anwendung weitergegeben werden, falls
 diese SSL-Funktionen verwendet. Sie finden eine Checkbox unter &quot;Projekte &gt; Erstellen &gt;
 Schritte zum Erstellen &gt; Android-APK erstellen &gt; Zusätzliche Bibliotheken&quot;.
-Falls das automatische Herunterladen scheitert, wird Qt Creator vorschlagen, die URL zum
+Falls das automatische Herunterladen fehlschlägt, wird Qt Creator vorschlagen, die URL zum
 manuellen Herunterladen im Browser des System zu öffnen.</translation>
     </message>
     <message>
@@ -11148,11 +11148,11 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>Package deploy: Failed to pull &quot;%1&quot; to &quot;%2&quot;.</source>
-        <translation>Paket-Deployment: &quot;pull&quot; von &quot;%1&quot; nach &quot;%2&quot; scheiterte.</translation>
+        <translation>Paket-Deployment: &quot;pull&quot; von &quot;%1&quot; nach &quot;%2&quot; ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Install failed</source>
-        <translation>Installation gescheitert</translation>
+        <translation>Installation fehlgeschlagen</translation>
     </message>
     <message>
         <source>Android package (*.apk)</source>
@@ -11240,7 +11240,7 @@ Das Kit unterstützt &quot;%2&quot;, aber das Gerät verwendet &quot;%3&quot;.</
         <source>Deployment failed with the following errors:
 
 </source>
-        <translation>Das Deployment ist mit den folgenden Fehlern gescheitert:
+        <translation>Das Deployment ist mit den folgenden Fehlern fehlgeschlagen:
 
 </translation>
     </message>
@@ -11365,7 +11365,7 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     <message>
         <source>Android package installation failed.
 %1</source>
-        <translation>Android-Paketinstallation gescheitert.
+        <translation>Android-Paketinstallation fehlgeschlagen.
 %1</translation>
     </message>
     <message>
@@ -12483,7 +12483,7 @@ Warnung: Dies ist eine experimentelle Funktion und könnte dazu führen, dass di
     </message>
     <message>
         <source>Only for unsuccessful test runs</source>
-        <translation>Nur bei gescheiterten Tests</translation>
+        <translation>Nur bei fehlgeschlagenen Tests</translation>
     </message>
     <message>
         <source>Automatically run</source>
@@ -12617,7 +12617,7 @@ Warnung: Dies ist eine experimentelle Funktion und könnte dazu führen, dass di
         <source>Running tests failed.
  %1
 Executable: %2</source>
-        <translation>Ausführung von Tests gescheitert.
+        <translation>Ausführung von Tests fehlgeschlagen.
  %1
 Ausführbare Datei: %2</translation>
     </message>
@@ -12659,7 +12659,7 @@ Ausführbare Datei: %2</translation>
     </message>
     <message>
         <source>Expected Fail</source>
-        <translation>Erwartetes Scheitern</translation>
+        <translation>Erwartetes Fehlschlagen</translation>
     </message>
     <message>
         <source>Unexpected Pass</source>
@@ -27031,7 +27031,7 @@ Soll es erneut versucht werden?</translation>
     </message>
     <message>
         <source>QML Debugger: Connection failed.</source>
-        <translation>QML-Debugger: Verbindung gescheitert.</translation>
+        <translation>QML-Debugger: Verbindung fehlgeschlagen.</translation>
     </message>
     <message>
         <source>JS Source for %1</source>
@@ -28181,7 +28181,7 @@ Für dieses Binärformat wären GDB oder LLDB besser als Debugger geeignet.</tra
     </message>
     <message>
         <source>Reverse-execution recording failed.</source>
-        <translation>Aufzeichnung für Rückwärtsausführung gescheitert.</translation>
+        <translation>Aufzeichnung für Rückwärtsausführung fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Found.</source>
@@ -34783,7 +34783,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>The provisioning profile &quot;%1&quot; (%2) used to sign the application does not cover the device %3 (%4). Deployment to it will fail.</source>
-        <translation>Das zum Signieren der Anwendung verwendete Provisioning-Profil &quot;%1&quot; (%2) deckt das Gerät %3 (%4) nicht ab. Deployment auf dieses wird scheitern.</translation>
+        <translation>Das zum Signieren der Anwendung verwendete Provisioning-Profil &quot;%1&quot; (%2) deckt das Gerät %3 (%4) nicht ab. Deployment auf dieses wird fehlschlagen.</translation>
     </message>
     <message>
         <source>Deploy to iOS device</source>
@@ -34913,11 +34913,11 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Application install on simulator failed. Simulator not running.</source>
-        <translation>Die Installation der Anwendung im Simulator ist gescheitert. Der Simulator läuft nicht.</translation>
+        <translation>Die Installation der Anwendung im Simulator ist fehlgeschlagen. Der Simulator läuft nicht.</translation>
     </message>
     <message>
         <source>Application launch on simulator failed. Invalid bundle path %1</source>
-        <translation>Der Start der Anwendung im Simulator ist gescheitert. Der Bundle-Pfad %1 ist ungültig</translation>
+        <translation>Der Start der Anwendung im Simulator ist fehlgeschlagen. Der Bundle-Pfad %1 ist ungültig</translation>
     </message>
     <message>
         <source>Application launch on simulator failed. Simulator not running. %1</source>
@@ -34925,7 +34925,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Application install on simulator failed. %1</source>
-        <translation>Die Installation der Anwendung im Simulator ist gescheitert. %1</translation>
+        <translation>Die Installation der Anwendung im Simulator ist fehlgeschlagen. %1</translation>
     </message>
     <message>
         <source>Cannot capture console output from %1. Error redirecting output to %2.*</source>
@@ -34937,7 +34937,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Application launch on simulator failed. %1</source>
-        <translation>Der Start der Anwendung im Simulator ist gescheitert. %1</translation>
+        <translation>Der Start der Anwendung im Simulator ist fehlgeschlagen. %1</translation>
     </message>
     <message>
         <source>Invalid simulator response. Device Id mismatch. Device Id = %1 Response Id = %2</source>
@@ -41052,11 +41052,11 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
     </message>
     <message>
         <source>File Generation Failed</source>
-        <translation>Dateierzeugung gescheitert</translation>
+        <translation>Dateierzeugung fehlgeschlagen</translation>
     </message>
     <message>
         <source>The wizard failed to generate files.&lt;br&gt;The error message was: &quot;%1&quot;.</source>
-        <translation>Der Wizard scheiterte beim Erzeugen von Dateien.&lt;br&gt;Die Fehlermeldung war: &quot;%1&quot;.</translation>
+        <translation>Der Wizard konnte Dateien nicht erzeugen.&lt;br&gt;Die Fehlermeldung war: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Failed to Overwrite Files</source>
@@ -41076,7 +41076,7 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
     </message>
     <message>
         <source>Failed to Polish Files</source>
-        <translation>&quot;Polish&quot; von Dateien gescheitert</translation>
+        <translation>&quot;Polish&quot; von Dateien fehlgeschlagen</translation>
     </message>
     <message>
         <source>Failed to Open Files</source>
@@ -43340,7 +43340,7 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>A version control operation failed for the following files. Please check your repository.</source>
-        <translation>Für die folgenden Dateien ist eine Versionskontroll-Operation gescheitert. Bitte prüfen Sie Ihr Repository.</translation>
+        <translation>Für die folgenden Dateien ist eine Versionskontroll-Operation fehlgeschlagen. Bitte prüfen Sie Ihr Repository.</translation>
     </message>
     <message>
         <source>Failure Updating Project</source>
@@ -46025,7 +46025,7 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
     </message>
     <message>
         <source>Debug connection failed.</source>
-        <translation>Debug-Verbindung gescheitert.</translation>
+        <translation>Debug-Verbindung fehlgeschlagen.</translation>
     </message>
 </context>
 <context>
@@ -50095,7 +50095,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>rsync failed with exit code %1.</source>
-        <translation>rsync scheiterte mit dem Rückgabewert %1.</translation>
+        <translation>rsync ist mit dem Rückgabewert %1 fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Deploy files</source>
@@ -50720,7 +50720,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>SCXML Generation Failed</source>
-        <translation>SCXML-Erzeugung gescheitert</translation>
+        <translation>SCXML-Erzeugung fehlgeschlagen</translation>
     </message>
     <message>
         <source>Loading document...</source>
@@ -50764,7 +50764,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Export Failed</source>
-        <translation>Export gescheitert</translation>
+        <translation>Export fehlgeschlagen</translation>
     </message>
     <message>
         <source>Could not export to image.</source>
@@ -50776,7 +50776,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Saving Failed</source>
-        <translation>Speichern gescheitert</translation>
+        <translation>Speichern fehlgeschlagen</translation>
     </message>
     <message>
         <source>Could not save the screenshot.</source>
