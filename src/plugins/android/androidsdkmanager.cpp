@@ -46,22 +46,16 @@ static const QRegularExpression &assertionRegExp()
     return theRegExp;
 }
 
-static bool onLicenseStdOut(const QString &output, bool notify, QString *licenseTextCache,
-                            AndroidSdkManager::OperationOutput &result, SdkCmdPromise &fi)
+static std::optional<QString> onLicenseStdOut(const QString &output, QString *licenseTextCache)
 {
     licenseTextCache->append(output);
     const QRegularExpressionMatch assertionMatch = assertionRegExp().match(*licenseTextCache);
     if (assertionMatch.hasMatch()) {
-        if (notify) {
-            result.stdOutput = *licenseTextCache;
-            fi.addResult(result);
-        }
-        // Clear the current contents. The found license text is dispatched. Continue collecting the
-        // next license text.
+        const QString ret = *licenseTextCache;
         licenseTextCache->clear();
-        return true;
+        return ret;
     }
-    return false;
+    return {};
 }
 
 int parseProgress(const QString &out, bool &foundAssertion)
@@ -546,9 +540,14 @@ void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdPromise &fi)
     QString licenseTextCache;
     while (!licenseCommand.waitForFinished(200ms)) {
         const QString stdOut = codec->toUnicode(licenseCommand.readAllRawStandardOutput());
-        bool assertionFound = false;
-        if (!stdOut.isEmpty())
-            assertionFound = onLicenseStdOut(stdOut, reviewingLicenses, &licenseTextCache, result, fi);
+        std::optional<QString> assertion;
+        if (!stdOut.isEmpty()) {
+            assertion = onLicenseStdOut(stdOut, &licenseTextCache);
+            if (assertion && reviewingLicenses) {
+                result.stdOutput = *assertion;
+                fi.addResult(result);
+            }
+        }
 
         if (reviewingLicenses) {
             // Check user input
@@ -560,7 +559,7 @@ void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdPromise &fi)
                 if (steps != -1)
                     fi.setProgressValue(qRound((inputCounter / (double)steps) * 100));
             }
-        } else if (assertionFound) {
+        } else if (assertion) {
             // The first assertion is to start reviewing licenses. Always accept.
             reviewingLicenses = true;
             static const QRegularExpression reg(R"((\d+\sof\s)(?<steps>\d+))");
