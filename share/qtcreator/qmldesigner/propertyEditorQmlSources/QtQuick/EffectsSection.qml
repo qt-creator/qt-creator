@@ -259,7 +259,7 @@ Section {
                                        + StudioTheme.Values.actionIndicatorWidth
                         width: implicitWidth
                         typeFilter: "QtQuick.Item"
-                        backendValue: root.effectNodeWrapper.properties.background
+                        backendValue: root.effectNodeWrapper.properties.backgroundLayer
                     }
 
                     ExpandingSpacer {}
