@@ -1663,7 +1663,7 @@ private:
 
         const Group group{
             Group{
-                parallelLimit(QThread::idealThreadCount() - 1),
+                parallelIdealThreadCountLimit,
                 iteratorParentDirs,
                 AsyncTask<expected_str<void>>(onCreateDirSetup, onCreateDirDone),
             },

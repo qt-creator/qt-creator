@@ -882,6 +882,20 @@ private:
 */
 
 /*!
+    \variable parallelIdealThreadCountLimit
+    A convenient global group's element describing the parallel execution mode with a limited
+    number of tasks running simultanously. The limit is equal to the ideal number of threads
+    excluding the calling thread.
+
+    This is a shortcut to:
+    \code
+        parallelLimit(qMax(QThread::idealThreadCount() - 1, 1))
+    \endcode
+
+    \sa parallel, parallelLimit()
+*/
+
+/*!
     \variable stopOnError
     A convenient global group's element describing the StopOnError workflow policy.
 
@@ -1161,6 +1175,7 @@ const GroupItem nullItem = GroupItem({});
 
 const GroupItem sequential = parallelLimit(1);
 const GroupItem parallel = parallelLimit(0);
+const GroupItem parallelIdealThreadCountLimit = parallelLimit(qMax(QThread::idealThreadCount() - 1, 1));
 
 const GroupItem stopOnError = workflowPolicy(WorkflowPolicy::StopOnError);
 const GroupItem continueOnError = workflowPolicy(WorkflowPolicy::ContinueOnError);

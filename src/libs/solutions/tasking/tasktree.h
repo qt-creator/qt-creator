@@ -375,6 +375,7 @@ TASKING_EXPORT extern const GroupItem nullItem;
 
 TASKING_EXPORT extern const GroupItem sequential;
 TASKING_EXPORT extern const GroupItem parallel;
+TASKING_EXPORT extern const GroupItem parallelIdealThreadCountLimit;
 
 TASKING_EXPORT extern const GroupItem stopOnError;
 TASKING_EXPORT extern const GroupItem continueOnError;
