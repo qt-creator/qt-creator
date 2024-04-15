@@ -55,7 +55,7 @@ public:
                                     const QVector3D &pressPos, const QVector3D &currentPos,
                                     float zoomFactor);
     Q_INVOKABLE QVector3D moveCamera(QQuick3DCamera *camera,const QVector3D &startLookAt,
-                                     float zoomFactor, const QVector3D &moveVector);
+                                     const QVector3D &moveVector);
     Q_INVOKABLE QVector3D rotateCamera(QQuick3DCamera *camera, const QPointF &angles,
                                        const QVector3D &lookAtPoint);
 

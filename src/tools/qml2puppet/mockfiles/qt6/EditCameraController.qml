@@ -158,8 +158,7 @@ Item {
 
     function moveCamera(moveVec)
     {
-        cameraCtrl._lookAtPoint = _generalHelper.moveCamera(camera, _lookAtPoint,  _zoomFactor,
-                                                            moveVec);
+        cameraCtrl._lookAtPoint = _generalHelper.moveCamera(camera, _lookAtPoint, moveVec);
     }
 
     function getMoveVectorForKey(key) {

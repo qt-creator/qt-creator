@@ -157,7 +157,7 @@ QVector3D GeneralHelper::panCamera(QQuick3DCamera *camera, const QMatrix4x4 star
 
 // Moves camera in 3D space and returns new look-at point
 QVector3D GeneralHelper::moveCamera(QQuick3DCamera *camera, const QVector3D &startLookAt,
-                                    float zoomFactor, const QVector3D &moveVector)
+                                    const QVector3D &moveVector)
 {
 
     if (moveVector.length() < 0.001f)
@@ -171,7 +171,8 @@ QVector3D GeneralHelper::moveCamera(QQuick3DCamera *camera, const QVector3D &sta
     const QVector3D xDelta = xAxis * moveVector.x();
     const QVector3D yDelta = yAxis * moveVector.y();
     const QVector3D zDelta = zAxis * moveVector.z();
-    const QVector3D delta = (yDelta - xDelta - zDelta) * zoomFactor;
+    // Delta multiplier for nice default speed in default scene
+    const QVector3D delta = (yDelta - xDelta - zDelta) * .5f;
 
     camera->setPosition(camera->position() + delta);
 
