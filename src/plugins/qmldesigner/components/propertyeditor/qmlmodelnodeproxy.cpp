@@ -246,7 +246,7 @@ void QmlModelNodeProxy::handleInstancePropertyChanged(const ModelNode &modelNode
     const QmlObjectNode qmlObjectNode(modelNode);
 
     for (const auto &item : qAsConst(m_subselection)) {
-        if (item->isRelevantModelNode(modelNode)) {
+        if (item && item->isRelevantModelNode(modelNode)) {
             if (!modelNode.hasProperty(propertyName)
                 || modelNode.property(propertyName).isBindingProperty()) {
                 item->setValueFromModel(propertyName, qmlObjectNode.instanceValue(propertyName));
@@ -260,7 +260,7 @@ void QmlModelNodeProxy::handleInstancePropertyChanged(const ModelNode &modelNode
 void QmlModelNodeProxy::handleBindingPropertyChanged(const BindingProperty &property)
 {
     for (const auto &item : qAsConst(m_subselection)) {
-        if (item->isRelevantModelNode(property.parentModelNode())) {
+        if (item && item->isRelevantModelNode(property.parentModelNode())) {
             QmlObjectNode objectNode(item->modelNode());
             if (objectNode.modelNode().property(property.name()).isBindingProperty())
                 item->setValueFromModel(property.name(), objectNode.instanceValue(property.name()));
@@ -273,7 +273,7 @@ void QmlModelNodeProxy::handleBindingPropertyChanged(const BindingProperty &prop
 void QmlModelNodeProxy::handleVariantPropertyChanged(const VariantProperty &property)
 {
     for (const auto &item : qAsConst(m_subselection)) {
-        if (item->isRelevantModelNode(property.parentModelNode())) {
+        if (item && item->isRelevantModelNode(property.parentModelNode())) {
             QmlObjectNode objectNode(item->modelNode());
             if (objectNode.modelNode().property(property.name()).isBindingProperty())
                 item->setValueFromModel(property.name(), objectNode.instanceValue(property.name()));
@@ -286,7 +286,7 @@ void QmlModelNodeProxy::handleVariantPropertyChanged(const VariantProperty &prop
 void QmlModelNodeProxy::handlePropertiesRemoved(const AbstractProperty &property)
 {
     for (const auto &item : qAsConst(m_subselection)) {
-        if (item->isRelevantModelNode(property.parentModelNode())) {
+        if (item && item->isRelevantModelNode(property.parentModelNode())) {
             QmlObjectNode objectNode(item->modelNode());
             item->resetValue(property.name());
             item->setValueFromModel(property.name(), objectNode.instanceValue(property.name()));
