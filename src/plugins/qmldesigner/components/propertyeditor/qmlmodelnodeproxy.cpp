@@ -151,6 +151,8 @@ PropertyEditorSubSelectionWrapper *QmlModelNodeProxy::registerSubSelectionWrappe
         new PropertyEditorSubSelectionWrapper(node));
     m_subselection.append(wrapper);
 
+    QJSEngine::setObjectOwnership(wrapper.data(), QJSEngine::CppOwnership);
+
     return wrapper.data();
 }
 
