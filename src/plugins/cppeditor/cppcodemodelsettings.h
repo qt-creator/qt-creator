@@ -37,12 +37,12 @@ public:
     Utils::Store toMap() const;
     void fromMap(const Utils::Store &store);
 
-    static CppCodeModelSettings &globalInstance(); // TODO: Make inaccessible.
     static CppCodeModelSettings settingsForProject(const ProjectExplorer::Project *project);
     static CppCodeModelSettings settingsForProject(const Utils::FilePath &projectFile);
     static CppCodeModelSettings settingsForFile(const Utils::FilePath &file);
 
-    static void setGlobal(const CppCodeModelSettings &settings); // TODO: Make inaccessible.
+    static const CppCodeModelSettings &global() { return globalInstance(); }
+    static void setGlobal(const CppCodeModelSettings &settings);
 
     static PCHUsage pchUsageForProject(const ProjectExplorer::Project *project);
     UsePrecompiledHeaders usePrecompiledHeaders() const;
@@ -64,6 +64,7 @@ public:
 
 private:
     CppCodeModelSettings(Utils::QtcSettings *s) { fromSettings(s); }
+    static CppCodeModelSettings &globalInstance();
 
     void toSettings(Utils::QtcSettings *s);
     void fromSettings(Utils::QtcSettings *s);

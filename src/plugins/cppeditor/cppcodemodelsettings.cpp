@@ -173,7 +173,7 @@ CppCodeModelProjectSettings::CppCodeModelProjectSettings(ProjectExplorer::Projec
 
 CppCodeModelSettings CppCodeModelProjectSettings::settings() const
 {
-    return m_useGlobalSettings ? CppCodeModelSettings::globalInstance() : m_customSettings;
+    return m_useGlobalSettings ? CppCodeModelSettings::global() : m_customSettings;
 }
 
 void CppCodeModelProjectSettings::setSettings(const CppCodeModelSettings &settings)
@@ -221,7 +221,7 @@ signals:
     void settingsDataChanged();
 
 private:
-    void apply() final { CppCodeModelSettings::globalInstance().setGlobal(settings()); }
+    void apply() final { CppCodeModelSettings::setGlobal(settings()); }
 
     QCheckBox *m_interpretAmbiguousHeadersAsCHeaders;
     QCheckBox *m_ignorePchCheckBox;
@@ -335,7 +335,7 @@ public:
         setDisplayCategory(Tr::tr("C++"));
         setCategoryIconPath(":/projectexplorer/images/settingscategory_cpp.png");
         setWidgetCreator(
-            [] { return new CppCodeModelSettingsWidget(CppCodeModelSettings::globalInstance()); });
+            [] { return new CppCodeModelSettingsWidget(CppCodeModelSettings::global()); });
     }
 };
 
