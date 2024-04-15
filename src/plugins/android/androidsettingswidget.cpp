@@ -536,8 +536,7 @@ void AndroidSettingsWidget::showEvent(QShowEvent *event)
         validateJdk();
         // Reloading SDK packages (force) is still synchronous. Use zero timer
         // to let settings dialog open first.
-        QTimer::singleShot(0, &m_sdkManager, std::bind(&AndroidSdkManager::reloadPackages,
-                                                       &m_sdkManager, false));
+        QTimer::singleShot(0, this, [this] { m_sdkManager.reloadPackages(); });
         validateOpenSsl();
         m_isInitialReloadDone = true;
     }
