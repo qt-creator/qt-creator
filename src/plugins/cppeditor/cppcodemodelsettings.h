@@ -40,6 +40,9 @@ public:
     static CppCodeModelSettings settingsForProject(const ProjectExplorer::Project *project);
     static CppCodeModelSettings settingsForProject(const Utils::FilePath &projectFile);
     static CppCodeModelSettings settingsForFile(const Utils::FilePath &file);
+    static bool hasCustomSettings(const ProjectExplorer::Project *project);
+    static void setSettingsForProject(ProjectExplorer::Project *project,
+                                      const CppCodeModelSettings &settings);
 
     static const CppCodeModelSettings &global() { return globalInstance(); }
     static void setGlobal(const CppCodeModelSettings &settings);
@@ -68,25 +71,6 @@ private:
 
     void toSettings(Utils::QtcSettings *s);
     void fromSettings(Utils::QtcSettings *s);
-};
-
-class CppCodeModelProjectSettings
-{
-public:
-    CppCodeModelProjectSettings(ProjectExplorer::Project *project);
-
-    CppCodeModelSettings settings() const;
-    void setSettings(const CppCodeModelSettings &settings);
-    bool useGlobalSettings() const { return m_useGlobalSettings; }
-    void setUseGlobalSettings(bool useGlobal);
-
-private:
-    void loadSettings();
-    void saveSettings();
-
-    ProjectExplorer::Project * const m_project;
-    CppCodeModelSettings m_customSettings;
-    bool m_useGlobalSettings = true;
 };
 
 namespace Internal {

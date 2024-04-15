@@ -1275,9 +1275,10 @@ void ModelManagerTest::testSettingsChanges()
     // as the default values are the same.
     refreshCount = 0;
     refreshedFiles.clear();
-    CppCodeModelProjectSettings p1Settings(p1);
-    QVERIFY(p1Settings.useGlobalSettings());
-    p1Settings.setUseGlobalSettings(false);
+    QVERIFY(!CppCodeModelSettings::hasCustomSettings(p1));
+    CppCodeModelSettings p1Settings = CppCodeModelSettings::settingsForProject(p1);
+    CppCodeModelSettings::setSettingsForProject(p1, p1Settings);
+    QVERIFY(CppCodeModelSettings::hasCustomSettings(p1));
     QCOMPARE(refreshCount, 0);
     QVERIFY(!waitForRefresh());
 
@@ -1294,10 +1295,9 @@ void ModelManagerTest::testSettingsChanges()
     // Change first project's settings. Only this project should get re-indexed.
     refreshCount = 0;
     refreshedFiles.clear();
-    CppCodeModelSettings p1Data = p1Settings.settings();
-    p1Data.ignoreFiles = true;
-    p1Data.ignorePattern = "baz3.h";
-    p1Settings.setSettings(p1Data);
+    p1Settings.ignoreFiles = true;
+    p1Settings.ignorePattern = "baz3.h";
+    CppCodeModelSettings::setSettingsForProject(p1, p1Settings);
     if (refreshCount == 0)
         QVERIFY(waitForRefresh());
     QVERIFY(!waitForRefresh());

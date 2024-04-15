@@ -38,7 +38,28 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
+
 namespace CppEditor {
+namespace {
+class CppCodeModelProjectSettings
+{
+public:
+    CppCodeModelProjectSettings(ProjectExplorer::Project *project);
+
+    CppCodeModelSettings settings() const;
+    void setSettings(const CppCodeModelSettings &settings);
+    bool useGlobalSettings() const { return m_useGlobalSettings; }
+    void setUseGlobalSettings(bool useGlobal);
+
+private:
+    void loadSettings();
+    void saveSettings();
+
+    ProjectExplorer::Project * const m_project;
+    CppCodeModelSettings m_customSettings;
+    bool m_useGlobalSettings = true;
+};
+} // namespace
 
 static Key pchUsageKey() { return Constants::CPPEDITOR_MODEL_MANAGER_PCH_USAGE; }
 static Key interpretAmbiguousHeadersAsCHeadersKey()
@@ -122,6 +143,20 @@ CppCodeModelSettings CppCodeModelSettings::settingsForProject(const Utils::FileP
 CppCodeModelSettings CppCodeModelSettings::settingsForFile(const Utils::FilePath &file)
 {
     return settingsForProject(ProjectManager::projectForFile(file));
+}
+
+bool CppCodeModelSettings::hasCustomSettings(const ProjectExplorer::Project *project)
+{
+    return !CppCodeModelProjectSettings(const_cast<ProjectExplorer::Project *>(project))
+                .useGlobalSettings();
+}
+
+void CppCodeModelSettings::setSettingsForProject(
+    ProjectExplorer::Project *project, const CppCodeModelSettings &settings)
+{
+    CppCodeModelProjectSettings pSettings(project);
+    pSettings.setUseGlobalSettings(false);
+    pSettings.setSettings(settings);
 }
 
 void CppCodeModelSettings::setGlobal(const CppCodeModelSettings &settings)
