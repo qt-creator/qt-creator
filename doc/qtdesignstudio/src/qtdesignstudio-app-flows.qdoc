@@ -66,8 +66,11 @@
 
     \title Adding Flow Views
 
-    You can add a flow view to an existing project or create a new project
-    for it, as described in \l {Creating Projects}.
+    A flow view is the base component of the flow diagram that you can use to wireframe
+    the UI of your application. For more information, see \l{Designing Application Flows}.
+
+    Add a flow view to an existing project or create a new project for it, as described in
+    \l {Creating Projects}.
 
     To create the flow view, select \uicontrol File >
     \uicontrol {New File} >
@@ -76,24 +79,18 @@
 
     \image studio-flow-view-create.png "Create Flow View wizard template"
 
-    You only need to select the \uicontrol {Use Event Simulator} check box if
-    you want to add an event simulator to the flow view. The event simulator
-    needs the project to be imported to the flow view, so you also need
-    to select the \uicontrol {Use Application Import} check box. You need the
+    If you want to add an event simulator to the flow view, select the
+    \uicontrol {Use Event Simulator} checkbox. In this case, select also the
+    \uicontrol {Use Application Import} checkbox to import the project to the flow view
+    as the event simulator requires it to work correctly. You need the
     import also for access to the project \c Constants.qml file that contains
-    global settings for the project.
+    global settings for the project. For more information, see \l {Simulating Events}.
 
-    The flow view properties enable you to adjust the appearance of all
-    the items in the flow: action areas, transition lines, decisions, and
-    wildcards. You can change the global settings for all items by editing
-    flow view properties, or you can select an individual action area or
-    transition line and change the appearance of just that component, including
-    the color, line thickness, dotted or solid lines, and even the curve of
-    the line. This enables you to add extra semantics to the design
-    of the flow diagram itself.
-
-    You can \l{Adding Flow Items}{add flow items} to the flow view to design
-    the UI.
+    You can adjust the appearance of all the items in the flow: action areas,
+    transition lines, decisions, and wildcards. Change the global settings for all items
+    by editing the flow view properties. To add additional semantics to the flow diagram
+    design, select an individual action area or transition line and change the appearance
+    of just that component.
 
     \section1 Flow View Properties
 
@@ -102,12 +99,12 @@
     \l Visibility sections in the \l Properties view. Specify flow view
     properties in the \uicontrol {Flow View} section.
 
-    \image studio-flow-view-properties.png "Flow View component properties"
+    \image studio-flow-view-properties.webp "Flow View component properties"
 
     To specify the \uicontrol {Flow Item} that is currently visible in the
     flow view, set its index in the \uicontrol {Current index} field.
 
-    You can use the \l{Picking Colors}{color picker} to set colors for:
+    Use the \l{Picking Colors}{color picker} to set colors for:
 
     \list
         \li Transition lines
@@ -132,9 +129,6 @@
     For more information about changing the appearance of a particular action
     area or transition line, see \l{Flow Action Area Properties} and
     \l{Flow Transition Properties}.
-
-    In the \uicontrol Layout tab, you can use \l{Setting Anchors and Margins}
-    {anchors} to position the component.
 
     In the \uicontrol Advanced section, you can manage the more
     \l{Specifying Developer Properties}{advanced properties}
