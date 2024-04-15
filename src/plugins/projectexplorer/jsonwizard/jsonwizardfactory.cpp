@@ -214,8 +214,10 @@ QVariantMap JsonWizardFactory::loadDefaultValues(const QString &fileName)
         FilePath dir = FilePath::fromString(path.toString());
         if (!dir.exists()) {
             if (verbose())
-                verboseLog.append(Tr::tr("Path \"%1\" does not exist when checking Json wizard search paths.\n")
-                                  .arg(path.toUserOutput()));
+                verboseLog.append(
+                    Tr::tr("Path \"%1\" does not exist when checking Json wizard search paths.")
+                        .arg(path.toUserOutput())
+                    + "\n");
             continue;
         }
 
@@ -225,9 +227,11 @@ QVariantMap JsonWizardFactory::loadDefaultValues(const QString &fileName)
         while (!dirs.isEmpty()) {
             const FilePath current = dirs.takeFirst();
             if (verbose())
-                verboseLog.append(Tr::tr("Checking \"%1\" for %2.\n")
-                                  .arg(QDir::toNativeSeparators(current.absolutePath().toString()))
-                                  .arg(fileName));
+                verboseLog.append(
+                    Tr::tr("Checking \"%1\" for %2.")
+                        .arg(QDir::toNativeSeparators(current.absolutePath().toString()))
+                        .arg(fileName)
+                    + "\n");
             if (current.pathAppended(fileName).exists()) {
                 QFile configFile(current.pathAppended(fileName).toString());
                 configFile.open(QIODevice::ReadOnly);
@@ -247,10 +251,13 @@ QVariantMap JsonWizardFactory::loadDefaultValues(const QString &fileName)
                             ++column;
                         }
                     }
-                    verboseLog.append(Tr::tr("* Failed to parse \"%1\":%2:%3: %4\n")
-                                      .arg(configFile.fileName())
-                                      .arg(line).arg(column)
-                                      .arg(error.errorString()));
+                    verboseLog.append(
+                        Tr::tr("* Failed to parse \"%1\":%2:%3: %4")
+                            .arg(configFile.fileName())
+                            .arg(line)
+                            .arg(column)
+                            .arg(error.errorString())
+                        + "\n");
                     continue;
                 }
 
@@ -261,7 +268,7 @@ QVariantMap JsonWizardFactory::loadDefaultValues(const QString &fileName)
                 }
 
                 if (verbose())
-                    verboseLog.append(Tr::tr("* Configuration found and parsed.\n"));
+                    verboseLog.append(Tr::tr("* Configuration found and parsed.") + "\n");
 
                 return json.object().toVariantMap();
             }
@@ -271,7 +278,7 @@ QVariantMap JsonWizardFactory::loadDefaultValues(const QString &fileName)
                 dirs.swap(subDirs);
                 dirs.append(subDirs);
             } else if (verbose()) {
-                verboseLog.append(Tr::tr("JsonWizard: \"%1\" not found\n").arg(fileName));
+                verboseLog.append(Tr::tr("JsonWizard: \"%1\" not found.").arg(fileName) + "\n");
             }
         }
     }
@@ -448,8 +455,10 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
 
         if (!path.exists()) {
             if (verbose())
-                verboseLog.append(Tr::tr("Path \"%1\" does not exist when checking Json wizard search paths.\n")
-                                  .arg(path.toUserOutput()));
+                verboseLog.append(
+                    Tr::tr("Path \"%1\" does not exist when checking Json wizard search paths.")
+                        .arg(path.toUserOutput())
+                    + "\n");
             continue;
         }
 
@@ -475,27 +484,31 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
                         ++column;
                     }
                 }
-                verboseLog.append(Tr::tr("* Failed to parse \"%1\":%2:%3: %4\n")
-                                  .arg(currentFile.fileName())
-                                  .arg(line).arg(column)
-                                  .arg(error.errorString()));
+                verboseLog.append(
+                    Tr::tr("* Failed to parse \"%1\":%2:%3: %4")
+                        .arg(currentFile.fileName())
+                        .arg(line)
+                        .arg(column)
+                        .arg(error.errorString())
+                    + "\n");
                 continue;
             }
 
             if (!json.isObject()) {
-                verboseLog.append(Tr::tr("* Did not find a JSON object in \"%1\".\n")
-                                  .arg(currentFile.fileName()));
+                verboseLog.append(
+                    Tr::tr("* Did not find a JSON object in \"%1\".").arg(currentFile.fileName())
+                    + "\n");
                 continue;
             }
 
             if (verbose())
-                verboseLog.append(Tr::tr("* Configuration found and parsed.\n"));
+                verboseLog.append(Tr::tr("* Configuration found and parsed.") + "\n");
 
             QVariantMap data = json.object().toVariantMap();
 
             int version = data.value(QLatin1String(VERSION_KEY), 0).toInt();
             if (version < 1 || version > 1) {
-                verboseLog.append(Tr::tr("* Version %1 not supported.\n").arg(version));
+                verboseLog.append(Tr::tr("* Version %1 not supported.").arg(version) + "\n");
                 continue;
             }
 
@@ -504,7 +517,7 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
                                                              currentFile.parentDir(),
                                                              &errorMessage);
             if (!factory) {
-                verboseLog.append(Tr::tr("* Failed to create: %1\n").arg(errorMessage));
+                verboseLog.append(Tr::tr("* Failed to create: %1").arg(errorMessage) + "\n");
                 continue;
             }
 

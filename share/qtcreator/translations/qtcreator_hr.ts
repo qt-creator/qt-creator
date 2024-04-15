@@ -27563,43 +27563,35 @@ to project &quot;%2&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.
-</source>
+        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Checking &quot;%1&quot; for %2.
-</source>
+        <source>Checking &quot;%1&quot; for %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4
-</source>
+        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>* Did not find a JSON object in &quot;%1&quot;.
-</source>
+        <source>* Did not find a JSON object in &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>* Configuration found and parsed.
-</source>
+        <source>* Configuration found and parsed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>* Version %1 not supported.
-</source>
+        <source>* Version %1 not supported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>* Failed to create: %1
-</source>
+        <source>* Failed to create: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>JsonWizard: &quot;%1&quot; not found
-</source>
+        <source>JsonWizard: &quot;%1&quot; not found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

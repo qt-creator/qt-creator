@@ -7761,8 +7761,8 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation type="obsolete">Napaka: </translation>
     </message>
     <message>
-        <source>Warning: </source>
-        <translation type="obsolete">Opozorilo: </translation>
+        <source>Warning:</source>
+        <translation type="obsolete">Opozorilo:</translation>
     </message>
     <message>
         <source>Configuration name:</source>

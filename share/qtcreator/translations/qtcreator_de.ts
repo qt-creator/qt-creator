@@ -140,7 +140,7 @@
         <translation>Erweitert</translation>
     </message>
     <message>
-        <source>Toggles if the smoothing is performed using linear interpolation method. Keeping it unchecked would follow non-smooth method using nearest neighbor. It is mostly applicable on image based items. </source>
+        <source>Toggles if the smoothing is performed using linear interpolation method. Keeping it unchecked would follow non-smooth method using nearest neighbor. It is mostly applicable on image based items.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -16942,8 +16942,8 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
         <translation>Aktuelle ClangFormat-Version: %1.</translation>
     </message>
     <message>
-        <source>Warning: </source>
-        <translation>Warnung: </translation>
+        <source>Warning:</source>
+        <translation>Warnung:</translation>
     </message>
     <message>
         <source>The current ClangFormat (C++ &gt; Code Style &gt; ClangFormat) settings are not valid. Are you sure you want to apply them?</source>
@@ -34486,8 +34486,8 @@ Möchten Sie sie überschreiben?</translation>
         <translation>Geben Sie die entsprechenden Argumente für das Erstellkommando ein.</translation>
     </message>
     <message>
-        <source>Make sure the build command&apos;s multi-job parameter value is large enough (such as -j200 for the JOM or Make build tools)</source>
-        <translation>Stellen Sie sicher, dass der Wert für die Anzahl paralleler Jobs im Erstellkommando groß genug ist (wie zum Beispiel -j200 für JOM oder Make)</translation>
+        <source>Make sure the build command&apos;s multi-job parameter value is large enough (such as -j200 for the JOM or Make build tools).</source>
+        <translation>Stellen Sie sicher, dass der Wert für die Anzahl paralleler Jobs im Erstellkommando groß genug ist (wie zum Beispiel -j200 für JOM oder Make).</translation>
     </message>
     <message>
         <source>Keep original jobs number:</source>
@@ -34606,16 +34606,16 @@ Möchten Sie sie überschreiben?</translation>
         <translation>IncrediBuilds Kopfzeile in der Ausgabe verstecken:</translation>
     </message>
     <message>
-        <source>Suppresses IncrediBuild&apos;s header in the build output</source>
-        <translation>Unterdrückt die Kopfzeile von IncrediBuild in der Ausgabe der Kompilierung</translation>
+        <source>Suppresses IncrediBuild&apos;s header in the build output.</source>
+        <translation>Unterdrückt die Kopfzeile von IncrediBuild in der Ausgabe der Kompilierung.</translation>
     </message>
     <message>
         <source>Internal IncrediBuild logging level:</source>
         <translation>Stufe der internen IncrediBuild-Protokollierung:</translation>
     </message>
     <message>
-        <source>Overrides the internal Incredibuild logging level for this build. Does not affect output or any user accessible logging. Used mainly to troubleshoot issues with the help of IncrediBuild support</source>
-        <translation>Überschreibt die Stufe der internen Protokollierung von IncrediBuild für diese Kompilierung. Beeinflusst weder die Ausgabe noch die dem Benutzer zugängliche Protokollierung. Wird hauptsächlich zur Fehlerbehebung mit Hilfe des Supports von IncrediBuild verwendet</translation>
+        <source>Overrides the internal Incredibuild logging level for this build. Does not affect output or any user accessible logging. Used mainly to troubleshoot issues with the help of IncrediBuild support.</source>
+        <translation>Überschreibt die Stufe der internen Protokollierung von IncrediBuild für diese Kompilierung. Beeinflusst weder die Ausgabe noch die dem Benutzer zugängliche Protokollierung. Wird hauptsächlich zur Fehlerbehebung mit Hilfe des Supports von IncrediBuild verwendet.</translation>
     </message>
     <message>
         <source>Miscellaneous</source>
@@ -34634,16 +34634,16 @@ Möchten Sie sie überschreiben?</translation>
         <translation>Bei Fehler anhalten:</translation>
     </message>
     <message>
-        <source>When specified, the execution will stop as soon as an error is encountered. This is the default behavior in &quot;Visual Studio&quot; builds, but not the default for &quot;Make and Build tools&quot; or &quot;Dev Tools&quot; builds</source>
-        <translation>Wenn angegeben, wird die Ausführung angehalten sobald ein Fehler auftritt. Dies ist das voreingestellte Verhalten bei Kompilierungen mit &quot;Visual Studio&quot;, aber nicht für Kompilierungen mit &quot;Make and Build tools&quot; oder &quot;Dev Tools&quot;</translation>
+        <source>When specified, the execution will stop as soon as an error is encountered. This is the default behavior in &quot;Visual Studio&quot; builds, but not the default for &quot;Make and Build tools&quot; or &quot;Dev Tools&quot; builds.</source>
+        <translation>Wenn angegeben, wird die Ausführung angehalten sobald ein Fehler auftritt. Dies ist das voreingestellte Verhalten bei Kompilierungen mit &quot;Visual Studio&quot;, aber nicht für Kompilierungen mit &quot;Make and Build tools&quot; oder &quot;Dev Tools&quot;.</translation>
     </message>
     <message>
         <source>Additional Arguments:</source>
         <translation>Zusätzliche Argumente:</translation>
     </message>
     <message>
-        <source>Add additional buildconsole arguments manually. The value of this field will be concatenated to the final buildconsole command line</source>
-        <translation>Fügt zusätzliche Argumente für buildconsole manuell hinzu. Der Inhalt dieses Eingabefelds wird an die finale Kommandozeile für buildconsole angefügt</translation>
+        <source>Add additional buildconsole arguments manually. The value of this field will be concatenated to the final buildconsole command line.</source>
+        <translation>Fügt zusätzliche Argumente für buildconsole manuell hinzu. Der Inhalt dieses Eingabefelds wird an die finale Kommandozeile für buildconsole angefügt.</translation>
     </message>
     <message>
         <source>Open Build Monitor:</source>
@@ -42651,46 +42651,32 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
         <translation>Page mit typeId &quot;%1&quot; hat ungültigen &quot;index&quot;.</translation>
     </message>
     <message>
-        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.
-</source>
-        <translation>Pfad &quot;%1&quot; existiert nicht in Json-Wizard Suchpfaden.
-</translation>
+        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.</source>
+        <translation>Pfad &quot;%1&quot; existiert nicht in Json-Wizard Suchpfaden.</translation>
     </message>
     <message>
-        <source>Checking &quot;%1&quot; for %2.
-</source>
-        <translation>Prüfe &quot;%1&quot; für %2.
-</translation>
+        <source>Checking &quot;%1&quot; for %2.</source>
+        <translation>Prüfe &quot;%1&quot; für %2.</translation>
     </message>
     <message>
-        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4
-</source>
-        <translation>* Konnte &quot;%1&quot; nicht auswerten: %2:%3: %4
-</translation>
+        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4</source>
+        <translation>* Konnte &quot;%1&quot; nicht auswerten: %2:%3: %4</translation>
     </message>
     <message>
-        <source>* Did not find a JSON object in &quot;%1&quot;.
-</source>
-        <translation>* Kein JSON-Objekt in &quot;%1&quot; gefunden.
-</translation>
+        <source>* Did not find a JSON object in &quot;%1&quot;.</source>
+        <translation>* Kein JSON-Objekt in &quot;%1&quot; gefunden.</translation>
     </message>
     <message>
-        <source>* Configuration found and parsed.
-</source>
-        <translation>* Konfiguration gefunden und ausgewertet.
-</translation>
+        <source>* Configuration found and parsed.</source>
+        <translation>* Konfiguration gefunden und ausgewertet.</translation>
     </message>
     <message>
-        <source>* Version %1 not supported.
-</source>
-        <translation>* Version %1 nicht unterstützt.
-</translation>
+        <source>* Version %1 not supported.</source>
+        <translation>* Version %1 nicht unterstützt.</translation>
     </message>
     <message>
-        <source>* Failed to create: %1
-</source>
-        <translation>* Erstellen fehlgeschlagen: %1
-</translation>
+        <source>* Failed to create: %1</source>
+        <translation>* Erstellen fehlgeschlagen: %1</translation>
     </message>
     <message>
         <source>The platform selected for the wizard.</source>
@@ -42721,10 +42707,8 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
         <translation>Bilddatei &quot;%1&quot; nicht gefunden.</translation>
     </message>
     <message>
-        <source>JsonWizard: &quot;%1&quot; not found
-</source>
-        <translation>JsonWizard: &quot;%1&quot; nicht gefunden
-</translation>
+        <source>JsonWizard: &quot;%1&quot; not found.</source>
+        <translation>JsonWizard: &quot;%1&quot; nicht gefunden.</translation>
     </message>
     <message>
         <source>key not found.</source>
@@ -43565,8 +43549,8 @@ Was soll %1 tun?</translation>
         <translation>Das Build-Verzeichnis enthält das möglicherweise problematische Zeichen &quot;%1&quot;.</translation>
     </message>
     <message>
-        <source> This warning can be suppressed &lt;a href=&quot;dummy&quot;&gt;here&lt;/a&gt;.</source>
-        <translation> Diese Warnung kann &lt;a href=&quot;dummy&quot;&gt;hier&lt;/a&gt; unterdrückt werden.</translation>
+        <source>This warning can be suppressed &lt;a href=&quot;dummy&quot;&gt;here&lt;/a&gt;.</source>
+        <translation>Diese Warnung kann &lt;a href=&quot;dummy&quot;&gt;hier&lt;/a&gt; unterdrückt werden.</translation>
     </message>
     <message>
         <source>The project is currently being parsed.</source>
@@ -44605,8 +44589,8 @@ fails because Clang does not understand the target architecture.</source>
         <translation>Pfad zum Python-Interpreter</translation>
     </message>
     <message>
-        <source>No Python interpreter set for kit &quot;%1&quot;</source>
-        <translation>Kein Python-Interpreter für das Kit &quot;%1&quot; eingerichtet</translation>
+        <source>No Python interpreter set for kit &quot;%1&quot;.</source>
+        <translation>Kein Python-Interpreter für das Kit &quot;%1&quot; eingerichtet.</translation>
     </message>
 </context>
 <context>
@@ -49578,10 +49562,8 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
         <translation>Verbinde zu Gerät...</translation>
     </message>
     <message>
-        <source>Connected. Now doing extended checks.
-</source>
-        <translation>Verbunden. Führe erweiterte Überprüfungen aus.
-</translation>
+        <source>Connected. Now doing extended checks.</source>
+        <translation>Verbunden. Führe erweiterte Überprüfungen aus.</translation>
     </message>
     <message>
         <source>Basic connectivity test failed, device is considered unusable.</source>
@@ -50078,8 +50060,8 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <translation>Verwende Standardmethode. Dies könnte langsam sein.</translation>
     </message>
     <message>
-        <source>Unknown error occurred while trying to create remote directories</source>
-        <translation>Beim Erstellen von entfernten Verzeichnissen ist ein unbekannter Fehler aufgetreten</translation>
+        <source>Unknown error occurred while trying to create remote directories.</source>
+        <translation>Beim Erstellen von entfernten Verzeichnissen ist ein unbekannter Fehler aufgetreten.</translation>
     </message>
     <message>
         <source>Transfer method was downgraded from &quot;%1&quot; to &quot;%2&quot;. If this is unexpected, please re-test device &quot;%3&quot;.</source>
@@ -52659,12 +52641,12 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
         <translation>&quot;%1&quot; ist nicht ausführbar.</translation>
     </message>
     <message>
-        <source>Terminal process exited with code %1</source>
-        <translation>Der Terminalprozess wurde mit dem Rückgabewert %1 beendet</translation>
+        <source>Terminal process exited with code %1.</source>
+        <translation>Der Terminalprozess wurde mit dem Rückgabewert %1 beendet.</translation>
     </message>
     <message>
-        <source>Process exited with code: %1</source>
-        <translation>Prozess wurde mit dem Rückgabewert %1 beendet</translation>
+        <source>Process exited with code: %1.</source>
+        <translation>Prozess wurde mit dem Rückgabewert %1 beendet.</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -54743,7 +54725,7 @@ Drücken Sie zusätzlich die Umschalttaste, wird ein Escape-Zeichen an der aktue
     <message>
         <source>Doxygen allows &quot;@&quot; and &quot;\&quot; to start commands.
 By default, &quot;@&quot; is used if the surrounding comment starts with &quot;/**&quot; or &quot;///&quot;, and &quot;\&quot; is used
-if the comment starts with &quot;/*!&quot; or &quot;//!</source>
+if the comment starts with &quot;/*!&quot; or &quot;//!&quot;.</source>
         <translation>Doxygen erlaubt es, Befehle mit &quot;@&quot; und &quot;\&quot; zu beginnen.
 Die Vorgabe ist, mit &quot;@&quot; zu beginnen, wenn der umgebende Kommentar mit &quot;/**&quot; oder &quot;///&quot; anfängt,
 und &quot;\&quot; zu verwenden, wenn der Kommentar mit &quot;/*!&quot; oder &quot;//!&quot;.</translation>

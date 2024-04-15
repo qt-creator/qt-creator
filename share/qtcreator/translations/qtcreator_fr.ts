@@ -152,8 +152,8 @@
         <translation>Lissage</translation>
     </message>
     <message>
-        <source>Toggles if the smoothing is performed using linear interpolation method. Keeping it unchecked would follow non-smooth method using nearest neighbor. It is mostly applicable on image based items. </source>
-        <translation>Active/désactive l&apos;utilisation de l&apos;interpolation linéaire pour le lissage. Lorsque décoché, la méthode du plus proche voisin sera utilisée. Cela s&apos;applique principalement aux éléments images. </translation>
+        <source>Toggles if the smoothing is performed using linear interpolation method. Keeping it unchecked would follow non-smooth method using nearest neighbor. It is mostly applicable on image based items.</source>
+        <translation>Active/désactive l&apos;utilisation de l&apos;interpolation linéaire pour le lissage. Lorsque décoché, la méthode du plus proche voisin sera utilisée. Cela s&apos;applique principalement aux éléments images.</translation>
     </message>
     <message>
         <source>Antialiasing</source>
@@ -34341,8 +34341,8 @@ Souhaitez-vous les écraser&#xa0;?</translation>
         <translation>Entrez les arguments appropriés pour votre commande de construction.</translation>
     </message>
     <message>
-        <source>Make sure the build command&apos;s multi-job parameter value is large enough (such as -j200 for the JOM or Make build tools)</source>
-        <translation>Assurez vous que le paramètre multi-job de la commande de construction est assez grande (telle que -j200  pour les outils de compilation comme JOM ou Make)</translation>
+        <source>Make sure the build command&apos;s multi-job parameter value is large enough (such as -j200 for the JOM or Make build tools).</source>
+        <translation>Assurez vous que le paramètre multi-job de la commande de construction est assez grande (telle que -j200  pour les outils de compilation comme JOM ou Make).</translation>
     </message>
     <message>
         <source>Keep original jobs number:</source>
@@ -34461,16 +34461,16 @@ Souhaitez-vous les écraser&#xa0;?</translation>
         <translation>Cacher l&apos;entête IncrediBuild dans la sortie&#xa0;:</translation>
     </message>
     <message>
-        <source>Suppresses IncrediBuild&apos;s header in the build output</source>
-        <translation>Supprimer l&apos;entête d&apos;IncrediBuild de la sortie de construction</translation>
+        <source>Suppresses IncrediBuild&apos;s header in the build output.</source>
+        <translation>Supprimer l&apos;entête d&apos;IncrediBuild de la sortie de construction.</translation>
     </message>
     <message>
         <source>Internal IncrediBuild logging level:</source>
         <translation>Niveau de journalisation interne d&apos;IncrediBuild&#xa0;:</translation>
     </message>
     <message>
-        <source>Overrides the internal Incredibuild logging level for this build. Does not affect output or any user accessible logging. Used mainly to troubleshoot issues with the help of IncrediBuild support</source>
-        <translation>Écrase le niveau interne de journalisation d&apos;IncrediBuild pour cette construction. N&apos;affecte pas la sortie ou un quelconque journal accessible par l&apos;utilisateur. Utilisé principalement pour comprendre les problèmes avec l&apos;aide du support d&apos;IncrediBuild</translation>
+        <source>Overrides the internal Incredibuild logging level for this build. Does not affect output or any user accessible logging. Used mainly to troubleshoot issues with the help of IncrediBuild support.</source>
+        <translation>Écrase le niveau interne de journalisation d&apos;IncrediBuild pour cette construction. N&apos;affecte pas la sortie ou un quelconque journal accessible par l&apos;utilisateur. Utilisé principalement pour comprendre les problèmes avec l&apos;aide du support d&apos;IncrediBuild.</translation>
     </message>
     <message>
         <source>Miscellaneous</source>
@@ -34489,16 +34489,16 @@ Souhaitez-vous les écraser&#xa0;?</translation>
         <translation>Arrêter en cas d&apos;erreur&#xa0;:</translation>
     </message>
     <message>
-        <source>When specified, the execution will stop as soon as an error is encountered. This is the default behavior in &quot;Visual Studio&quot; builds, but not the default for &quot;Make and Build tools&quot; or &quot;Dev Tools&quot; builds</source>
-        <translation>Lorsque spécifié, l&apos;exécution s&apos;arrête dès qu&apos;une erreur est rencontrée. C&apos;est le comportement par défaut dans les constructions «&#xa0;Visual Studio&#xa0;», mais ce n&apos;est pas le cas pour les constructions avec «&#xa0;Make et les outils de compilation&#xa0;» ou les «&#xa0;outils de développeur&#xa0;»</translation>
+        <source>When specified, the execution will stop as soon as an error is encountered. This is the default behavior in &quot;Visual Studio&quot; builds, but not the default for &quot;Make and Build tools&quot; or &quot;Dev Tools&quot; builds.</source>
+        <translation>Lorsque spécifié, l&apos;exécution s&apos;arrête dès qu&apos;une erreur est rencontrée. C&apos;est le comportement par défaut dans les constructions «&#xa0;Visual Studio&#xa0;», mais ce n&apos;est pas le cas pour les constructions avec «&#xa0;Make et les outils de compilation&#xa0;» ou les «&#xa0;outils de développeur&#xa0;».</translation>
     </message>
     <message>
         <source>Additional Arguments:</source>
         <translation>Arguments supplémentaires&#xa0;:</translation>
     </message>
     <message>
-        <source>Add additional buildconsole arguments manually. The value of this field will be concatenated to the final buildconsole command line</source>
-        <translation>Ajouter manuellement des arguments pour buildconsole. La valeur de ce champ est concaténé à la ligne de commande finale de buildconsole</translation>
+        <source>Add additional buildconsole arguments manually. The value of this field will be concatenated to the final buildconsole command line.</source>
+        <translation>Ajouter manuellement des arguments pour buildconsole. La valeur de ce champ est concaténé à la ligne de commande finale de buildconsole.</translation>
     </message>
     <message>
         <source>Open Build Monitor:</source>
@@ -43130,8 +43130,8 @@ Activez cette option si vous envisagez de créer des binaires x86 32 bits sans u
         <translation>Le répertoire de compilation contient des caractères potentiellement problématiques «&#xa0;%1&#xa0;».</translation>
     </message>
     <message>
-        <source> This warning can be suppressed &lt;a href=&quot;dummy&quot;&gt;here&lt;/a&gt;.</source>
-        <translation> Cet avertissement peut être supprimé &lt;a href=&quot;dummy&quot;&gt;ici&lt;/a&gt;.</translation>
+        <source>This warning can be suppressed &lt;a href=&quot;dummy&quot;&gt;here&lt;/a&gt;.</source>
+        <translation>Cet avertissement peut être supprimé &lt;a href=&quot;dummy&quot;&gt;ici&lt;/a&gt;.</translation>
     </message>
     <message>
         <source>Separate debug info:</source>
@@ -43548,39 +43548,28 @@ au projet «&#xa0;%2&#xa0;».</translation>
         <translation>Le typeId «&#xa0;%1&#xa0;» du générateur est inconnu. Les typesIds pris en charge sont : «&#xa0;%2&#xa0;».</translation>
     </message>
     <message>
-        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.
-</source>
+        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.</source>
         <translation>Le chemin «&#xa0;%1&#xa0;» n’existe pas lors de la vérification des chemins de recherche de l’assistant Json.</translation>
     </message>
     <message>
-        <source>Checking &quot;%1&quot; for %2.
-</source>
-        <translation>Vérification de «&#xa0;%1&#xa0;» pour %2.
-</translation>
+        <source>Checking &quot;%1&quot; for %2.</source>
+        <translation>Vérification de «&#xa0;%1&#xa0;» pour %2.</translation>
     </message>
     <message>
-        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4
-</source>
-        <translation>* Échec de l’analyse de «&#xa0;%1&#xa0;»:%2:%3 : %4
-</translation>
+        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4</source>
+        <translation>* Échec de l’analyse de «&#xa0;%1&#xa0;»:%2:%3 : %4</translation>
     </message>
     <message>
-        <source>* Did not find a JSON object in &quot;%1&quot;.
-</source>
-        <translation>* N’a pas trouvé d’objet JSON dans «&#xa0;%1&#xa0;».
-</translation>
+        <source>* Did not find a JSON object in &quot;%1&quot;.</source>
+        <translation>* N’a pas trouvé d’objet JSON dans «&#xa0;%1&#xa0;».</translation>
     </message>
     <message>
-        <source>* Configuration found and parsed.
-</source>
-        <translation>* La configuration a été trouvée et analysée.
-</translation>
+        <source>* Configuration found and parsed.</source>
+        <translation>* La configuration a été trouvée et analysée.</translation>
     </message>
     <message>
-        <source>JsonWizard: &quot;%1&quot; not found
-</source>
-        <translation>Assistant Json : «&#xa0;%1&#xa0;» introuvable
-</translation>
+        <source>JsonWizard: &quot;%1&quot; not found</source>
+        <translation>Assistant Json : «&#xa0;%1&#xa0;» introuvable.</translation>
     </message>
     <message>
         <source>Page is not an object.</source>
@@ -43599,16 +43588,12 @@ au projet «&#xa0;%2&#xa0;».</translation>
         <translation>La page avec le typeId «&#xa0;%1&#xa0;» a un «&#xa0;index&#xa0;» invalide.</translation>
     </message>
     <message>
-        <source>* Version %1 not supported.
-</source>
-        <translation>* La version %1 n’est pas prise en charge.
-</translation>
+        <source>* Version %1 not supported.</source>
+        <translation>* La version %1 n’est pas prise en charge.</translation>
     </message>
     <message>
-        <source>* Failed to create: %1
-</source>
-        <translation>* Impossible de créer&#xa0;: %1
-</translation>
+        <source>* Failed to create: %1</source>
+        <translation>* Impossible de créer&#xa0;: %1</translation>
     </message>
     <message>
         <source>key not found.</source>
@@ -44461,8 +44446,8 @@ Ces fichiers sont préservés.</numerusform>
         <translation>Chemin de l&apos;interpréteur Python</translation>
     </message>
     <message>
-        <source>No Python interpreter set for kit &quot;%1&quot;</source>
-        <translation>Aucun interpréteur Python n&apos;est défini pour le kit «&#xa0;%1&#xa0;»</translation>
+        <source>No Python interpreter set for kit &quot;%1&quot;.</source>
+        <translation>Aucun interpréteur Python n&apos;est défini pour le kit «&#xa0;%1&#xa0;».</translation>
     </message>
 </context>
 <context>
@@ -49563,10 +49548,8 @@ Le processus de contrôle n&apos;a pas pu démarrer.</translation>
         <translation>Connexion au périphérique…</translation>
     </message>
     <message>
-        <source>Connected. Now doing extended checks.
-</source>
-        <translation>Connecté. Exécution des tests étendus.
-</translation>
+        <source>Connected. Now doing extended checks.</source>
+        <translation>Connecté. Exécution des tests étendus.</translation>
     </message>
     <message>
         <source>Basic connectivity test failed, device is considered unusable.</source>
@@ -49893,8 +49876,8 @@ Le processus de contrôle n&apos;a pas pu démarrer.</translation>
         <translation>Utiliser le transfert par défaut. Cela peut être lent.</translation>
     </message>
     <message>
-        <source>Unknown error occurred while trying to create remote directories</source>
-        <translation>Une erreur inconnue s&apos;est produite lors de la création des répertoires distants</translation>
+        <source>Unknown error occurred while trying to create remote directories.</source>
+        <translation>Une erreur inconnue s&apos;est produite lors de la création des répertoires distants.</translation>
     </message>
     <message>
         <source>Transfer method was downgraded from &quot;%1&quot; to &quot;%2&quot;. If this is unexpected, please re-test device &quot;%3&quot;.</source>
@@ -52415,12 +52398,12 @@ Impossible d&apos;ouvrir le fichier «&#xa0;%1&#xa0;».</translation>
         <translation>«&#xa0;%1&#xa0;» n&apos;est pas un exécutable.</translation>
     </message>
     <message>
-        <source>Terminal process exited with code %1</source>
-        <translation>Le processus du terminal s&apos;est terminé avec le code %1</translation>
+        <source>Terminal process exited with code %1.</source>
+        <translation>Le processus du terminal s&apos;est terminé avec le code %1.</translation>
     </message>
     <message>
-        <source>Process exited with code: %1</source>
-        <translation>Le processus s&apos;est terminé avec le code&#xa0;: %1</translation>
+        <source>Process exited with code: %1.</source>
+        <translation>Le processus s&apos;est terminé avec le code&#xa0;: %1.</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -52708,10 +52691,10 @@ En outre, Maj+Entrée insère un caractère d’échappement à la position du c
     <message>
         <source>Doxygen allows &quot;@&quot; and &quot;\&quot; to start commands.
 By default, &quot;@&quot; is used if the surrounding comment starts with &quot;/**&quot; or &quot;///&quot;, and &quot;\&quot; is used
-if the comment starts with &quot;/*!&quot; or &quot;//!</source>
+if the comment starts with &quot;/*!&quot; or &quot;//!&quot;.</source>
         <translation>Doxygen permet d&apos;utiliser «&#xa0;@&#xa0;» et «&#xa0;\&#xa0;» pour démarrer une commande.
 Par défaut, «&#xa0;@&#xa0;» est utilisé si le commentaire l&apos;englobant commence avec «&#xa0;/**&#xa0;» ou «&#xa0;///&#xa0;» et «&#xa0;\&#xa0;» est utilisé
-si le commentaire débute avec «&#xa0;/*!&#xa0;» ou «&#xa0;//!&#xa0;»</translation>
+si le commentaire débute avec «&#xa0;/*!&#xa0;» ou «&#xa0;//!&#xa0;».</translation>
     </message>
     <message>
         <source>Documentation Comments</source>

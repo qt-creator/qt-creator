@@ -39137,40 +39137,28 @@ Would you like to overwrite it?</source>
         <translation>typeId が &quot;%1&quot; のページの &quot;index&quot; が無効です。</translation>
     </message>
     <message>
-        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.
-</source>
-        <translation>Json ウィザードの検索パスを確認しましたが、パス &quot;%1&quot; は存在しません。
-</translation>
+        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.</source>
+        <translation>Json ウィザードの検索パスを確認しましたが、パス &quot;%1&quot; は存在しません。</translation>
     </message>
     <message>
-        <source>Checking &quot;%1&quot; for %2.
-</source>
-        <translation>%2 向けに &quot;%1&quot; を確認しています。
-</translation>
+        <source>Checking &quot;%1&quot; for %2.</source>
+        <translation>%2 向けに &quot;%1&quot; を確認しています。</translation>
     </message>
     <message>
-        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4
-</source>
-        <translation>・&quot;%1&quot; の解析に失敗しました:%2:%3: %4
-</translation>
+        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4</source>
+        <translation>・&quot;%1&quot; の解析に失敗しました:%2:%3: %4</translation>
     </message>
     <message>
-        <source>* Did not find a JSON object in &quot;%1&quot;.
-</source>
-        <translation>・&quot;%1&quot; に JSON オブジェクトが見つかりませんでした。
-</translation>
+        <source>* Did not find a JSON object in &quot;%1&quot;.</source>
+        <translation>・&quot;%1&quot; に JSON オブジェクトが見つかりませんでした。</translation>
     </message>
     <message>
-        <source>* Configuration found and parsed.
-</source>
-        <translation>・設定が見つかり、解析しました。
-</translation>
+        <source>* Configuration found and parsed.</source>
+        <translation>・設定が見つかり、解析しました。</translation>
     </message>
     <message>
-        <source>* Version %1 not supported.
-</source>
-        <translation>・バージョン %1 には未対応です。
-</translation>
+        <source>* Version %1 not supported.</source>
+        <translation>・バージョン %1 には未対応です。</translation>
     </message>
     <message>
         <source>The platform selected for the wizard.</source>
@@ -39201,16 +39189,12 @@ Would you like to overwrite it?</source>
         <translation>画像ファイル &quot;%1&quot; が見つかりません。</translation>
     </message>
     <message>
-        <source>* Failed to create: %1
-</source>
-        <translation>・作成に失敗しました: %1
-</translation>
+        <source>* Failed to create: %1</source>
+        <translation>・作成に失敗しました: %1</translation>
     </message>
     <message>
-        <source>JsonWizard: &quot;%1&quot; not found
-</source>
-        <translation>JsonWizard: &quot;%1&quot; が見つかりません
-</translation>
+        <source>JsonWizard: &quot;%1&quot; not found.</source>
+        <translation>JsonWizard: &quot;%1&quot; が見つかりません。</translation>
     </message>
     <message>
         <source>key not found.</source>

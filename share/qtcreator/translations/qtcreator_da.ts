@@ -24002,52 +24002,36 @@ Brug det kun hvis du prototyper. Du kan ikke oprette et fuldt program med dette.
         <translation>Page med typeId&apos;et &quot;%1&quot; har ugyldigt &quot;index&quot;.</translation>
     </message>
     <message>
-        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.
-</source>
-        <translation>Stien &quot;%1&quot; findes ikke under tjek af Json-assistentens søgestier.
-</translation>
+        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.</source>
+        <translation>Stien &quot;%1&quot; findes ikke under tjek af Json-assistentens søgestier.</translation>
     </message>
     <message>
-        <source>Checking &quot;%1&quot; for %2.
-</source>
-        <translation>Tjekker &quot;%1&quot; for %2.
-</translation>
+        <source>Checking &quot;%1&quot; for %2.</source>
+        <translation>Tjekker &quot;%1&quot; for %2.</translation>
     </message>
     <message>
-        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4
-</source>
-        <translation>* Kunne ikke parse &quot;%1&quot;:%2:%3: %4
-</translation>
+        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4</source>
+        <translation>* Kunne ikke parse &quot;%1&quot;:%2:%3: %4</translation>
     </message>
     <message>
-        <source>* Did not find a JSON object in &quot;%1&quot;.
-</source>
-        <translation>* Fandt ikke et JSON-objekt i &quot;%1&quot;.
-</translation>
+        <source>* Did not find a JSON object in &quot;%1&quot;.</source>
+        <translation>* Fandt ikke et JSON-objekt i &quot;%1&quot;.</translation>
     </message>
     <message>
-        <source>* Configuration found and parsed.
-</source>
-        <translation>* Konfiguration fundet og parset.
-</translation>
+        <source>* Configuration found and parsed.</source>
+        <translation>* Konfiguration fundet og parset.</translation>
     </message>
     <message>
-        <source>* Version %1 not supported.
-</source>
-        <translation>* Version %1 understøttes ikke.
-</translation>
+        <source>* Version %1 not supported.</source>
+        <translation>* Version %1 understøttes ikke.</translation>
     </message>
     <message>
-        <source>* Failed to create: %1
-</source>
-        <translation>* Kunne ikke oprette: %1
-</translation>
+        <source>* Failed to create: %1</source>
+        <translation>* Kunne ikke oprette: %1</translation>
     </message>
     <message>
-        <source>JsonWizard: &quot;%1&quot; not found
-</source>
-        <translation>JsonWizard: &quot;%1&quot; ikke fundet
-</translation>
+        <source>JsonWizard: &quot;%1&quot; not found.</source>
+        <translation>JsonWizard: &quot;%1&quot; ikke fundet.</translation>
     </message>
     <message>
         <source>key not found.</source>

@@ -214,7 +214,7 @@ void ClangFormatConfigWidget::initEditor(TextEditor::ICodeStylePreferences *code
             return;
         }
         m_clangFileIsCorrectText->show();
-        m_clangFileIsCorrectText->setText(Tr::tr("Warning: ") + success.error());
+        m_clangFileIsCorrectText->setText(Tr::tr("Warning:") + " " + success.error());
         m_clangFileIsCorrectText->setType(Utils::InfoLabel::Warning);
     });
 

@@ -107,7 +107,7 @@ GroupItem GenericLinuxDeviceTesterPrivate::connectionTask() const
         const bool success = task.isResultAvailable() && task.result();
         if (success) {
             // TODO: For master: move the '\n' outside of Tr().
-            emit q->progressMessage(Tr::tr("Connected. Now doing extended checks.\n"));
+            emit q->progressMessage(Tr::tr("Connected. Now doing extended checks.") + "\n");
         } else {
             emit q->errorMessage(
                 Tr::tr("Basic connectivity test failed, device is considered unusable.") + '\n');

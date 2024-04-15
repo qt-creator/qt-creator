@@ -151,7 +151,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Toggles if the smoothing is performed using linear interpolation method. Keeping it unchecked would follow non-smooth method using nearest neighbor. It is mostly applicable on image based items. </source>
+        <source>Toggles if the smoothing is performed using linear interpolation method. Keeping it unchecked would follow non-smooth method using nearest neighbor. It is mostly applicable on image based items.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -33297,7 +33297,7 @@ Czy nadpisać je?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Make sure the build command&apos;s multi-job parameter value is large enough (such as -j200 for the JOM or Make build tools)</source>
+        <source>Make sure the build command&apos;s multi-job parameter value is large enough (such as -j200 for the JOM or Make build tools).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -33425,7 +33425,7 @@ Czy nadpisać je?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Suppresses IncrediBuild&apos;s header in the build output</source>
+        <source>Suppresses IncrediBuild&apos;s header in the build output.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -33433,7 +33433,7 @@ Czy nadpisać je?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Overrides the internal Incredibuild logging level for this build. Does not affect output or any user accessible logging. Used mainly to troubleshoot issues with the help of IncrediBuild support</source>
+        <source>Overrides the internal Incredibuild logging level for this build. Does not affect output or any user accessible logging. Used mainly to troubleshoot issues with the help of IncrediBuild support.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -33449,7 +33449,7 @@ Czy nadpisać je?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>When specified, the execution will stop as soon as an error is encountered. This is the default behavior in &quot;Visual Studio&quot; builds, but not the default for &quot;Make and Build tools&quot; or &quot;Dev Tools&quot; builds</source>
+        <source>When specified, the execution will stop as soon as an error is encountered. This is the default behavior in &quot;Visual Studio&quot; builds, but not the default for &quot;Make and Build tools&quot; or &quot;Dev Tools&quot; builds.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -33457,7 +33457,7 @@ Czy nadpisać je?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Add additional buildconsole arguments manually. The value of this field will be concatenated to the final buildconsole command line</source>
+        <source>Add additional buildconsole arguments manually. The value of this field will be concatenated to the final buildconsole command line.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -41748,40 +41748,28 @@ To develop a full application, create a Qt Quick Application project instead.</s
         <translation>Strona z typeid &quot;%1&quot; posiada niepoprawny &quot;index&quot;.</translation>
     </message>
     <message>
-        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.
-</source>
-        <translation>Ścieżka &quot;%1&quot; nie istnieje podczas sprawdzania ścieżek poszukiwań kreatora Json.
-</translation>
+        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.</source>
+        <translation>Ścieżka &quot;%1&quot; nie istnieje podczas sprawdzania ścieżek poszukiwań kreatora Json.</translation>
     </message>
     <message>
-        <source>Checking &quot;%1&quot; for %2.
-</source>
-        <translation>Sprawdzanie &quot;%1&quot; dla &quot;%2&quot;.
-</translation>
+        <source>Checking &quot;%1&quot; for %2.</source>
+        <translation>Sprawdzanie &quot;%1&quot; dla &quot;%2&quot;.</translation>
     </message>
     <message>
-        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4
-</source>
-        <translation>* Nie można sparsować &quot;%1&quot;:%2:%3: %4
-</translation>
+        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4</source>
+        <translation>* Nie można sparsować &quot;%1&quot;:%2:%3: %4</translation>
     </message>
     <message>
-        <source>* Did not find a JSON object in &quot;%1&quot;.
-</source>
-        <translation>* Nie odnaleziono obiektu JSON w &quot;%1&quot;.
-</translation>
+        <source>* Did not find a JSON object in &quot;%1&quot;.</source>
+        <translation>* Nie odnaleziono obiektu JSON w &quot;%1&quot;.</translation>
     </message>
     <message>
-        <source>* Configuration found and parsed.
-</source>
-        <translation>* Konfiguracja odnaleziona i przeparsowana.
-</translation>
+        <source>* Configuration found and parsed.</source>
+        <translation>* Konfiguracja odnaleziona i przeparsowana.</translation>
     </message>
     <message>
-        <source>* Version %1 not supported.
-</source>
-        <translation>* Wersja %1 nieobsługiwana.
-</translation>
+        <source>* Version %1 not supported.</source>
+        <translation>* Wersja %1 nieobsługiwana.</translation>
     </message>
     <message>
         <source>The platform selected for the wizard.</source>
@@ -41812,10 +41800,8 @@ To develop a full application, create a Qt Quick Application project instead.</s
         <translation>Brak pliku graficznego &quot;%1&quot;.</translation>
     </message>
     <message>
-        <source>JsonWizard: &quot;%1&quot; not found
-</source>
-        <translation>JsonWizard: Nie znaleziono &quot;%1&quot;
-</translation>
+        <source>JsonWizard: &quot;%1&quot; not found.</source>
+        <translation>JsonWizard: Nie znaleziono &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>key not found.</source>
@@ -48594,7 +48580,7 @@ Błąd uruchamiania procesu kontrolnego.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Unknown error occurred while trying to create remote directories</source>
+        <source>Unknown error occurred while trying to create remote directories.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -51127,11 +51113,11 @@ Nie można otworzyć pliku &quot;%1&quot;.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Terminal process exited with code %1</source>
+        <source>Terminal process exited with code %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Process exited with code: %1</source>
+        <source>Process exited with code: %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -53843,7 +53829,7 @@ po naciśnięciu klawisza backspace</translation>
     <message>
         <source>Doxygen allows &quot;@&quot; and &quot;\&quot; to start commands.
 By default, &quot;@&quot; is used if the surrounding comment starts with &quot;/**&quot; or &quot;///&quot;, and &quot;\&quot; is used
-if the comment starts with &quot;/*!&quot; or &quot;//!</source>
+if the comment starts with &quot;/*!&quot; or &quot;//!&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

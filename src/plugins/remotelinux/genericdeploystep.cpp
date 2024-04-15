@@ -101,7 +101,7 @@ GroupItem GenericDeployStep::mkdirTask(const Storage<FilesToTransfer> &storage)
         const int numResults = async.future().resultCount();
         if (numResults == 0) {
             addErrorMessage(
-                Tr::tr("Unknown error occurred while trying to create remote directories") + '\n');
+                Tr::tr("Unknown error occurred while trying to create remote directories.") + '\n');
             return;
         }
 

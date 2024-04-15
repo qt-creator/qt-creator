@@ -22415,8 +22415,8 @@ Would you like to overwrite them?</source>
         <translation>Максимальное количество ЦП для сборки:</translation>
     </message>
     <message>
-        <source>When specified, the execution will stop as soon as an error is encountered.  This is the default behavior in &apos;Visual Studio&apos; builds, but not the default for &apos;Make and Build tools&apos; or &apos;Dev Tools&apos; builds</source>
-        <translation>Включение остановки выполнения при возникновении ошибки. Это поведение по умолчанию в сборках «Visual Studio», но не по умолчанию для сборок «Make and Build tools» или «Dev Tools»</translation>
+        <source>When specified, the execution will stop as soon as an error is encountered.  This is the default behavior in &apos;Visual Studio&apos; builds, but not the default for &apos;Make and Build tools&apos; or &apos;Dev Tools&apos; builds.</source>
+        <translation>Включение остановки выполнения при возникновении ошибки. Это поведение по умолчанию в сборках «Visual Studio», но не по умолчанию для сборок «Make and Build tools» или «Dev Tools».</translation>
     </message>
     <message>
         <source>Stop On Errors</source>
@@ -22467,7 +22467,7 @@ Would you like to overwrite them?</source>
         <translation type="unfinished">Помощник запуска:</translation>
     </message>
     <message>
-        <source>Add additional buildconsole arguments manually. The value of this field will be concatenated to the final buildconsole command line</source>
+        <source>Add additional buildconsole arguments manually. The value of this field will be concatenated to the final buildconsole command line.</source>
         <translation>Дополнительные параметры buildconsole. Значение поля будет добавлено к итоговой командной строке buildconsole.</translation>
     </message>
     <message>
@@ -22495,7 +22495,7 @@ Would you like to overwrite them?</source>
         <translation>Исходное число задач</translation>
     </message>
     <message>
-        <source>Overrides the internal Incredibuild logging level for this build. Does not affect output or any user accessible logging. Used mainly to troubleshoot issues with the help of IncrediBuild support</source>
+        <source>Overrides the internal Incredibuild logging level for this build. Does not affect output or any user accessible logging. Used mainly to troubleshoot issues with the help of IncrediBuild support.</source>
         <translation>Меняет для этой сборки уровень ведения внутреннего журнала Incredibuild. Не влияет на вывод или любые доступные пользователю журналы. В основном используется для устранения проблем через службу поддержки IncrediBuild.</translation>
     </message>
     <message>
@@ -30999,40 +30999,28 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>У страницы с typeId «%1» неверный «index».</translation>
     </message>
     <message>
-        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.
-</source>
-        <translation>При проверке путей мастера Json: путь «%1» не существует.
-</translation>
+        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.</source>
+        <translation>При проверке путей мастера Json: путь «%1» не существует.</translation>
     </message>
     <message>
-        <source>Checking &quot;%1&quot; for %2.
-</source>
-        <translation>Проверяется «%1» у %2.
-</translation>
+        <source>Checking &quot;%1&quot; for %2.</source>
+        <translation>Проверяется «%1» у %2.</translation>
     </message>
     <message>
-        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4
-</source>
-        <translation>* Не удалось разобрать «%1»:%2:%3: %4
-</translation>
+        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4</source>
+        <translation>* Не удалось разобрать «%1»:%2:%3: %4</translation>
     </message>
     <message>
-        <source>* Did not find a JSON object in &quot;%1&quot;.
-</source>
-        <translation>* Объект JSON не был найден в «%1».
-</translation>
+        <source>* Did not find a JSON object in &quot;%1&quot;.</source>
+        <translation>* Объект JSON не был найден в «%1».</translation>
     </message>
     <message>
-        <source>* Configuration found and parsed.
-</source>
-        <translation>* Конфигурация обнаружена и разобрана.
-</translation>
+        <source>* Configuration found and parsed.</source>
+        <translation>* Конфигурация обнаружена и разобрана.</translation>
     </message>
     <message>
-        <source>* Version %1 not supported.
-</source>
-        <translation>* Версия %1 не поддерживается.
-</translation>
+        <source>* Version %1 not supported.</source>
+        <translation>* Версия %1 не поддерживается.</translation>
     </message>
     <message>
         <source>The platform selected for the wizard.</source>
@@ -31063,16 +31051,12 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>Файл изображения «%1» не найден.</translation>
     </message>
     <message>
-        <source>* Failed to create: %1
-</source>
-        <translation>* Не удалось создать: %1
-</translation>
+        <source>* Failed to create: %1</source>
+        <translation>* Не удалось создать: %1</translation>
     </message>
     <message>
-        <source>JsonWizard: &quot;%1&quot; not found
-</source>
-        <translation>JsonWizard: «%1» не найден
-</translation>
+        <source>JsonWizard: &quot;%1&quot; not found.</source>
+        <translation>JsonWizard: «%1» не найден.</translation>
     </message>
     <message>
         <source>key not found.</source>

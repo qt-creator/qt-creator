@@ -197,8 +197,8 @@ QString BuildDirectoryAspect::updateProblemLabelsHelper(const QString &value)
                                  "Build directory contains potentially problematic character \"%1\".")
                                  .arg(*invalidChar);
             genericProblemLabelString
-                = genericProblem
-                  + Tr::tr(" This warning can be suppressed <a href=\"dummy\">here</a>.");
+                = genericProblem + " "
+                  + Tr::tr("This warning can be suppressed <a href=\"dummy\">here</a>.");
         }
     }
 

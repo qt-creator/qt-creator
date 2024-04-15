@@ -38747,40 +38747,28 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>Сторінка з &quot;%1&quot; має неправильний &quot;index&quot;.</translation>
     </message>
     <message>
-        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.
-</source>
-        <translation>Перевірка шляхів пошуків майстра Json: шлях &quot;%1&quot; не існує.
-</translation>
+        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.</source>
+        <translation>Перевірка шляхів пошуків майстра Json: шлях &quot;%1&quot; не існує.</translation>
     </message>
     <message>
-        <source>Checking &quot;%1&quot; for %2.
-</source>
-        <translation>Перевірка &quot;%1&quot; для %2.
-</translation>
+        <source>Checking &quot;%1&quot; for %2.</source>
+        <translation>Перевірка &quot;%1&quot; для %2.</translation>
     </message>
     <message>
-        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4
-</source>
-        <translation>* Збій розбору &quot;%1&quot;:%2:%3: %4
-</translation>
+        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4</source>
+        <translation>* Збій розбору &quot;%1&quot;:%2:%3: %4</translation>
     </message>
     <message>
-        <source>* Did not find a JSON object in &quot;%1&quot;.
-</source>
-        <translation>* Не знайдено об&apos;єкт JSON в &quot;%1&quot;.
-</translation>
+        <source>* Did not find a JSON object in &quot;%1&quot;.</source>
+        <translation>* Не знайдено об&apos;єкт JSON в &quot;%1&quot;.</translation>
     </message>
     <message>
-        <source>* Configuration found and parsed.
-</source>
-        <translation>* Конфігурацію знайдено та розібрано.
-</translation>
+        <source>* Configuration found and parsed.</source>
+        <translation>* Конфігурацію знайдено та розібрано.</translation>
     </message>
     <message>
-        <source>* Version %1 not supported.
-</source>
-        <translation>* Версія %1 не підтримується.
-</translation>
+        <source>* Version %1 not supported.</source>
+        <translation>* Версія %1 не підтримується.</translation>
     </message>
     <message>
         <source>The platform selected for the wizard.</source>
@@ -38817,16 +38805,12 @@ Preselects a desktop Qt for building the application if available.</source>
 </translation>
     </message>
     <message>
-        <source>* Failed to create: %1
-</source>
-        <translation>* Збій створення: %1
-</translation>
+        <source>* Failed to create: %1</source>
+        <translation>* Збій створення: %1</translation>
     </message>
     <message>
-        <source>JsonWizard: &quot;%1&quot; not found
-</source>
-        <translation>JsonWizard: &quot;%1&quot; не знайдено
-</translation>
+        <source>JsonWizard: &quot;%1&quot; not found.</source>
+        <translation>JsonWizard: &quot;%1&quot; не знайдено.</translation>
     </message>
     <message>
         <source>key not found.</source>
