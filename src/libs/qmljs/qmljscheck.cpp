@@ -853,7 +853,7 @@ bool Check::visit(AST::UiEnumDeclaration *ast)
     int line, column;
     if (localLookup->getSourceLocation(&fp, &line, &column)) {
         // if it's not "us" we get shadowed by another enum declaration
-        if (ast->identifierToken.startLine != line || ast->identifierToken.startColumn != column)
+        if (int(ast->identifierToken.startLine) != line || int(ast->identifierToken.startColumn) != column)
             addMessage(ErrDuplicateId, SourceLocation(0, 0, line, column));
     }
     return true;
