@@ -39137,8 +39137,8 @@ Would you like to overwrite it?</source>
         <translation>typeId が &quot;%1&quot; のページの &quot;index&quot; が無効です。</translation>
     </message>
     <message>
-        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.</source>
-        <translation>Json ウィザードの検索パスを確認しましたが、パス &quot;%1&quot; は存在しません。</translation>
+        <source>Path &quot;%1&quot; does not exist when checking JSON wizard search paths.</source>
+        <translation>JSON ウィザードの検索パスを確認しましたが、パス &quot;%1&quot; は存在しません。</translation>
     </message>
     <message>
         <source>Checking &quot;%1&quot; for %2.</source>

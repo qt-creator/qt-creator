@@ -24002,8 +24002,8 @@ Brug det kun hvis du prototyper. Du kan ikke oprette et fuldt program med dette.
         <translation>Page med typeId&apos;et &quot;%1&quot; har ugyldigt &quot;index&quot;.</translation>
     </message>
     <message>
-        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.</source>
-        <translation>Stien &quot;%1&quot; findes ikke under tjek af Json-assistentens søgestier.</translation>
+        <source>Path &quot;%1&quot; does not exist when checking JSON wizard search paths.</source>
+        <translation>Stien &quot;%1&quot; findes ikke under tjek af JSON-assistentens søgestier.</translation>
     </message>
     <message>
         <source>Checking &quot;%1&quot; for %2.</source>

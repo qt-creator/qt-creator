@@ -43548,8 +43548,8 @@ au projet «&#xa0;%2&#xa0;».</translation>
         <translation>Le typeId «&#xa0;%1&#xa0;» du générateur est inconnu. Les typesIds pris en charge sont : «&#xa0;%2&#xa0;».</translation>
     </message>
     <message>
-        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.</source>
-        <translation>Le chemin «&#xa0;%1&#xa0;» n’existe pas lors de la vérification des chemins de recherche de l’assistant Json.</translation>
+        <source>Path &quot;%1&quot; does not exist when checking JSON wizard search paths.</source>
+        <translation>Le chemin «&#xa0;%1&#xa0;» n’existe pas lors de la vérification des chemins de recherche de l’assistant JSON.</translation>
     </message>
     <message>
         <source>Checking &quot;%1&quot; for %2.</source>

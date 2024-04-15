@@ -38747,8 +38747,8 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>Сторінка з &quot;%1&quot; має неправильний &quot;index&quot;.</translation>
     </message>
     <message>
-        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.</source>
-        <translation>Перевірка шляхів пошуків майстра Json: шлях &quot;%1&quot; не існує.</translation>
+        <source>Path &quot;%1&quot; does not exist when checking JSON wizard search paths.</source>
+        <translation>Перевірка шляхів пошуків майстра JSON: шлях &quot;%1&quot; не існує.</translation>
     </message>
     <message>
         <source>Checking &quot;%1&quot; for %2.</source>

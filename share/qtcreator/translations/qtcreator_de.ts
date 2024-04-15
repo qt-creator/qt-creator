@@ -42651,8 +42651,8 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
         <translation>Page mit typeId &quot;%1&quot; hat ungültigen &quot;index&quot;.</translation>
     </message>
     <message>
-        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.</source>
-        <translation>Pfad &quot;%1&quot; existiert nicht in Json-Wizard Suchpfaden.</translation>
+        <source>Path &quot;%1&quot; does not exist when checking JSON wizard search paths.</source>
+        <translation>Pfad &quot;%1&quot; existiert nicht in JSON-Wizard Suchpfaden.</translation>
     </message>
     <message>
         <source>Checking &quot;%1&quot; for %2.</source>

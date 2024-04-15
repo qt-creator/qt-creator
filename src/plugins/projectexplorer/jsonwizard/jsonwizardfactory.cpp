@@ -215,7 +215,7 @@ QVariantMap JsonWizardFactory::loadDefaultValues(const QString &fileName)
         if (!dir.exists()) {
             if (verbose())
                 verboseLog.append(
-                    Tr::tr("Path \"%1\" does not exist when checking Json wizard search paths.")
+                    Tr::tr("Path \"%1\" does not exist when checking JSON wizard search paths.")
                         .arg(path.toUserOutput())
                     + "\n");
             continue;
@@ -456,7 +456,7 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
         if (!path.exists()) {
             if (verbose())
                 verboseLog.append(
-                    Tr::tr("Path \"%1\" does not exist when checking Json wizard search paths.")
+                    Tr::tr("Path \"%1\" does not exist when checking JSON wizard search paths.")
                         .arg(path.toUserOutput())
                     + "\n");
             continue;

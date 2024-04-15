@@ -41748,8 +41748,8 @@ To develop a full application, create a Qt Quick Application project instead.</s
         <translation>Strona z typeid &quot;%1&quot; posiada niepoprawny &quot;index&quot;.</translation>
     </message>
     <message>
-        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.</source>
-        <translation>Ścieżka &quot;%1&quot; nie istnieje podczas sprawdzania ścieżek poszukiwań kreatora Json.</translation>
+        <source>Path &quot;%1&quot; does not exist when checking JSON wizard search paths.</source>
+        <translation>Ścieżka &quot;%1&quot; nie istnieje podczas sprawdzania ścieżek poszukiwań kreatora JSON.</translation>
     </message>
     <message>
         <source>Checking &quot;%1&quot; for %2.</source>

@@ -28771,7 +28771,7 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.</source>
+        <source>Path &quot;%1&quot; does not exist when checking JSON wizard search paths.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

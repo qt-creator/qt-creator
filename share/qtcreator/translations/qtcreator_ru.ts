@@ -30999,8 +30999,8 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>У страницы с typeId «%1» неверный «index».</translation>
     </message>
     <message>
-        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.</source>
-        <translation>При проверке путей мастера Json: путь «%1» не существует.</translation>
+        <source>Path &quot;%1&quot; does not exist when checking JSON wizard search paths.</source>
+        <translation>При проверке путей мастера JSON: путь «%1» не существует.</translation>
     </message>
     <message>
         <source>Checking &quot;%1&quot; for %2.</source>
