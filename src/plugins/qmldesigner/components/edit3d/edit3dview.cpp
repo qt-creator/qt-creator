@@ -356,8 +356,12 @@ void Edit3DView::handleEntriesChanged()
     append(model()->qtQuick3DOrthographicCameraMetaInfo(), EK_cameras);
     append(model()->qtQuick3DPerspectiveCameraMetaInfo(), EK_cameras);
 
-    auto assetsModule = model()->module(QmlDesignerPlugin::instance()->documentManager()
-                                            .generatedComponentUtils().import3dTypePrefix());
+    Utils::PathString import3dTypePrefix = QmlDesignerPlugin::instance()
+                                               ->documentManager()
+                                               .generatedComponentUtils()
+                                               .import3dTypePrefix();
+
+    auto assetsModule = model()->module(import3dTypePrefix);
 
     for (const auto &metaInfo : model()->metaInfosForModule(assetsModule))
         append(metaInfo, EK_importedModels);

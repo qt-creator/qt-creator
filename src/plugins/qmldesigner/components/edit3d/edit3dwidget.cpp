@@ -766,10 +766,11 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
             QString fileName = QFileInfo(assetPath).baseName();
             fileName = fileName.at(0).toUpper() + fileName.mid(1); // capitalize first letter
             auto model = m_view->model();
-            auto metaInfo = model->metaInfo(model->module(
-                                                QmlDesignerPlugin::instance()->documentManager()
-                                                    .generatedComponentUtils().import3dTypePrefix()),
-                                            fileName.toUtf8());
+            Utils::PathString import3dTypePrefix = QmlDesignerPlugin::instance()
+                                                       ->documentManager()
+                                                       .generatedComponentUtils()
+                                                       .import3dTypePrefix();
+            auto metaInfo = model->metaInfo(model->module(import3dTypePrefix), fileName.toUtf8());
             if (auto entries = metaInfo.itemLibrariesEntries(); entries.size()) {
                 auto entry = ItemLibraryEntry{entries.front(), *model->projectStorage()};
                 QmlVisualNode::createQml3DNode(view(), entry, m_canvas->activeScene(), {}, false);

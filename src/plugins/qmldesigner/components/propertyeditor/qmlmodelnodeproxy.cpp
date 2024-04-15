@@ -182,7 +182,7 @@ void QmlModelNodeProxy::createModelNode(int internalIdParent,
             view->model()->changeImports({import}, {});
 
 #ifdef QDS_USE_PROJECTSTORAGE
-        ModelNode newNode = view->createModelNode(type);
+        ModelNode newNode = view->createModelNode(typeName.toUtf8());
 #else
         NodeMetaInfo metaInfo = modelNode.model()->metaInfo(typeName.toUtf8());
         ModelNode newNode = view->createModelNode(metaInfo.typeName(),
