@@ -17338,7 +17338,7 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Failed to start the analyzer.</source>
-        <translation>Das Analyse-Werkzeug konnte nicht gestartet werden.</translation>
+        <translation>Das Analysewerkzeug konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>All Files</source>
@@ -22828,7 +22828,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Convert to Stack Variable</source>
-        <translation>In Stack-Variable umwandeln</translation>
+        <translation>In Stackvariable umwandeln</translation>
     </message>
     <message>
         <source>Convert to Pointer</source>
@@ -24232,7 +24232,7 @@ Flags: %3</translation>
     </message>
     <message>
         <source>Stack Level %1</source>
-        <translation>Stack-Level %1</translation>
+        <translation>Stacklevel %1</translation>
     </message>
     <message>
         <source>Value</source>
@@ -24353,7 +24353,7 @@ Flags: %3</translation>
     <message>
         <source>The trace contains threads with stack depth &gt; 512.
 Do you want to display them anyway?</source>
-        <translation>Die Trace-Daten enthalten Threads mit einer Stack-Tiefe größer als 512.
+        <translation>Die Trace-Daten enthalten Threads mit einer Stacktiefe größer als 512.
 Möchten Sie die Daten trotzdem anzeigen?</translation>
     </message>
     <message>
@@ -25060,7 +25060,7 @@ Möchten Sie die Daten trotzdem anzeigen?</translation>
     </message>
     <message>
         <source>Use Tooltips in Stack View when Debugging</source>
-        <translation>Tooltips für Stack-Anzeige beim Debuggen</translation>
+        <translation>Tooltips für Stackanzeige beim Debuggen</translation>
     </message>
     <message>
         <source>Skip Known Frames</source>
@@ -25198,7 +25198,7 @@ Sie haben die Wahl zu warten oder das Debuggen abzubrechen.</numerusform>
     </message>
     <message>
         <source>Retrieving data for stack view thread %1...</source>
-        <translation>Daten der Stack-Anzeige für Thread %1 werden empfangen...</translation>
+        <translation>Daten der Stackanzeige für Thread %1 werden empfangen...</translation>
     </message>
     <message>
         <source>Application started.</source>
@@ -25298,7 +25298,7 @@ Sie haben die Wahl zu warten oder das Debuggen abzubrechen.</numerusform>
     </message>
     <message>
         <source>Retrieving data for stack view...</source>
-        <translation>Daten der Stack-Anzeige werden empfangen...</translation>
+        <translation>Daten der Stackanzeige werden empfangen...</translation>
     </message>
     <message>
         <source>The gdb process failed to start.</source>
@@ -25765,11 +25765,11 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>Memory at Frame #%1 (%2) 0x%3</source>
-        <translation>Speicher bei Stack-Frame #%1 (%2) 0x%3</translation>
+        <translation>Speicher bei Stackframe #%1 (%2) 0x%3</translation>
     </message>
     <message>
         <source>Frame #%1 (%2)</source>
-        <translation>Stack-Frame #%1 (%2)</translation>
+        <translation>Stackframe #%1 (%2)</translation>
     </message>
     <message>
         <source>Open Disassembler at 0x%1</source>
@@ -25833,15 +25833,15 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>Sources for this frame are available.&lt;br&gt;Double-click on the file name to open an editor.</source>
-        <translation>Für diesen Stack-Frame ist Quellcode vorhanden&lt;br&gt;Doppelklicken Sie auf den Dateinamen, um einen Editor zu öffnen.</translation>
+        <translation>Für diesen Stackframe ist Quellcode vorhanden&lt;br&gt;Doppelklicken Sie auf den Dateinamen, um einen Editor zu öffnen.</translation>
     </message>
     <message>
         <source>Binary debug information is not accessible for this frame. This either means the core was not compiled with debug information, or the debug information is not accessible.</source>
-        <translation>Für diesen Stack-Frame ist keine binäre Debuginformation verfügbar. Entweder stammt die Core-Datei von einer ohne Debuginformation erstellten Anwendung oder es kann nicht auf die Debuginformation zugegriffen werden.</translation>
+        <translation>Für diesen Stackframe ist keine binäre Debuginformation verfügbar. Entweder stammt die Core-Datei von einer ohne Debuginformation erstellten Anwendung oder es kann nicht auf die Debuginformation zugegriffen werden.</translation>
     </message>
     <message>
         <source>Binary debug information is accessible for this frame. However, matching sources have not been found.</source>
-        <translation>Für diesen Stack-Frame ist binäre Debuginformation verfügbar. Es konnte aber kein passender Quellcode gefunden werden.</translation>
+        <translation>Für diesen Stackframe ist binäre Debuginformation verfügbar. Es konnte aber kein passender Quellcode gefunden werden.</translation>
     </message>
     <message>
         <source>Note that most distributions ship debug information in separate packages.</source>
@@ -26076,7 +26076,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>Cannot Display Stack Layout</source>
-        <translation>Das Stack-Layout kann nicht angezeigt werden</translation>
+        <translation>Das Stacklayout kann nicht angezeigt werden</translation>
     </message>
     <message>
         <source>Could not determine a suitable address range.</source>
@@ -26204,7 +26204,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>Open Memory View Showing Stack Layout</source>
-        <translation>Speicheranzeige an Adresse des Stack-Frames öffnen</translation>
+        <translation>Speicheranzeige an Adresse des Stackframes öffnen</translation>
     </message>
     <message>
         <source>Open Memory Editor at Object&apos;s Address (0x%1)</source>
@@ -26224,7 +26224,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>Open Memory Editor Showing Stack Layout</source>
-        <translation>Speichereditor an Adresse des Stack-Frames öffnen</translation>
+        <translation>Speichereditor an Adresse des Stackframes öffnen</translation>
     </message>
     <message>
         <source>Open Memory Editor...</source>
@@ -27019,7 +27019,7 @@ Soll es erneut versucht werden?</translation>
     </message>
     <message>
         <source>Cannot evaluate %1 in current stack frame.</source>
-        <translation>%1 kann im aktuellen Stack-Frame nicht ausgewertet werden.</translation>
+        <translation>%1 kann im aktuellen Stackframe nicht ausgewertet werden.</translation>
     </message>
     <message>
         <source>Context:</source>
@@ -28620,7 +28620,7 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>Maximum stack depth:</source>
-        <translation>Maximale Stack-Tiefe:</translation>
+        <translation>Maximale Stacktiefe:</translation>
     </message>
     <message>
         <source>&lt;unlimited&gt;</source>
@@ -37347,7 +37347,7 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     <name>QtC::PerfProfiler</name>
     <message>
         <source>Stack snapshot size (kB):</source>
-        <translation>Größe des Stack-Abbilds (kB):</translation>
+        <translation>Größe des Stackabbilds (kB):</translation>
     </message>
     <message>
         <source>Call graph mode:</source>
@@ -57285,7 +57285,7 @@ in &quot;%2&quot; aus.
     </message>
     <message>
         <source>Backtrace frame count:</source>
-        <translation>Stack-Frames:</translation>
+        <translation>Stackframes:</translation>
     </message>
     <message>
         <source>Suppression files:</source>
