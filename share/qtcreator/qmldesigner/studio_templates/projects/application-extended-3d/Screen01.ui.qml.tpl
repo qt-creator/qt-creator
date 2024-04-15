@@ -19,7 +19,7 @@ Rectangle {
     color: Constants.backgroundColor
 
     View3D {
-        id: view3D
+        id: extendedView3D
         anchors.fill: parent
 
         environment: sceneEnvironment
