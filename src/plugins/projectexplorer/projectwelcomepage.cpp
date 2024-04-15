@@ -106,12 +106,12 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
     RecentProjectsEntry data = m_projects.at(index.row());
     switch (role) {
     case Qt::DisplayRole:
-        return data.second;
+        return data.displayName;
     case Qt::ToolTipRole:
     case FilePathRole:
-        return data.first.toVariant();
+        return data.filePath.toVariant();
     case PrettyFilePathRole:
-        return data.first.withTildeHomePath(); // FIXME: FilePath::displayName() ?
+        return data.filePath.withTildeHomePath(); // FIXME: FilePath::displayName() ?
     case ShortcutRole: {
         const Id projectBase = PROJECT_BASE_ID;
         if (Command *cmd = ActionManager::command(projectBase.withSuffix(index.row() + 1)))

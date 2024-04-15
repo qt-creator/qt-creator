@@ -128,6 +128,7 @@
 
 #include <utils/action.h>
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeutils.h>
@@ -262,6 +263,7 @@ const char PROJECT_OPEN_LOCATIONS_CONTEXT_MENU[]  = "Project.P.OpenLocation.CtxM
 
 const char RECENTPROJECTS_FILE_NAMES_KEY[] = "ProjectExplorer/RecentProjects/FileNames";
 const char RECENTPROJECTS_DISPLAY_NAMES_KEY[] = "ProjectExplorer/RecentProjects/DisplayNames";
+const char RECENTPROJECTS_EXISTENCE_KEY[] = "ProjectExplorer/RecentProjects/Existence";
 
 const char CUSTOM_PARSER_COUNT_KEY[] = "ProjectExplorer/Settings/CustomParserCount";
 const char CUSTOM_PARSER_PREFIX_KEY[] = "ProjectExplorer/Settings/CustomParser";
@@ -503,6 +505,7 @@ public:
     void setStartupProject(Project *project);
     bool closeAllFilesInProject(const Project *project);
 
+    void checkRecentProjectsAsync();
     void updateRecentProjectMenu();
     void clearRecentProjects();
     void openRecentProject(const FilePath &filePath);
@@ -613,6 +616,8 @@ public:
 
     QHash<QString, std::function<Project *(const FilePath &)>> m_projectCreators;
     RecentProjectsEntries m_recentProjects; // pair of filename, displayname
+    QFuture<RecentProjectsEntry> m_recentProjectsFuture;
+    QThreadPool m_recentProjectsPool;
     static const int m_maxRecentProjects = 25;
 
     FilePath m_lastOpenDirectory;
@@ -770,6 +775,24 @@ ProjectExplorerPlugin::~ProjectExplorerPlugin()
 ProjectExplorerPlugin *ProjectExplorerPlugin::instance()
 {
     return m_instance;
+}
+
+static void restoreRecentProjects(QtcSettings *s)
+{
+    const QStringList filePaths = s->value(Constants::RECENTPROJECTS_FILE_NAMES_KEY).toStringList();
+    const QStringList displayNames
+        = s->value(Constants::RECENTPROJECTS_DISPLAY_NAMES_KEY).toStringList();
+    // filename -> bool:
+    const QHash<QString, QVariant> existence
+        = s->value(Constants::RECENTPROJECTS_EXISTENCE_KEY).toHash();
+    if (QTC_GUARD(filePaths.size() == displayNames.size())) {
+        for (int i = 0; i < filePaths.size(); ++i) {
+            const bool exists = existence.value(filePaths.at(i), true).toBool();
+            dd->m_recentProjects.append(
+                {FilePath::fromUserInput(filePaths.at(i)), displayNames.at(i), exists});
+        }
+    }
+    dd->checkRecentProjectsAsync();
 }
 
 bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *error)
@@ -1139,8 +1162,11 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     mrecent->menu()->setTitle(Tr::tr("Recent P&rojects"));
     mrecent->setOnAllDisabledBehavior(ActionContainer::Show);
     mfile->addMenu(mrecent, Core::Constants::G_FILE_OPEN);
-    connect(mfile->menu(), &QMenu::aboutToShow,
-            dd, &ProjectExplorerPluginPrivate::updateRecentProjectMenu);
+    connect(
+        m_instance,
+        &ProjectExplorerPlugin::recentProjectsChanged,
+        dd,
+        &ProjectExplorerPluginPrivate::updateRecentProjectMenu);
 
     // unload action
     dd->m_unloadAction = new Action(Tr::tr("Close Project"), Tr::tr("Close Pro&ject \"%1\""),
@@ -1603,18 +1629,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::savePersistentSettings);
     connect(qApp, &QApplication::applicationStateChanged, this, [](Qt::ApplicationState state) {
         if (!PluginManager::isShuttingDown() && state == Qt::ApplicationActive)
-            dd->updateWelcomePage();
+            dd->checkRecentProjectsAsync();
     });
 
     QtcSettings *s = ICore::settings();
-    const QStringList fileNames = s->value(Constants::RECENTPROJECTS_FILE_NAMES_KEY).toStringList();
-    const QStringList displayNames = s->value(Constants::RECENTPROJECTS_DISPLAY_NAMES_KEY)
-                                         .toStringList();
-    if (fileNames.size() == displayNames.size()) {
-        for (int i = 0; i < fileNames.size(); ++i) {
-            dd->m_recentProjects.append({FilePath::fromUserInput(fileNames.at(i)), displayNames.at(i)});
-        }
-    }
+
+    restoreRecentProjects(s);
 
     const int customParserCount = s->value(Constants::CUSTOM_PARSER_COUNT_KEY).toInt();
     for (int i = 0; i < customParserCount; ++i) {
@@ -2115,6 +2135,35 @@ bool ProjectExplorerPluginPrivate::closeAllFilesInProject(const Project *project
     return EditorManager::closeDocuments(openFiles);
 }
 
+void ProjectExplorerPluginPrivate::checkRecentProjectsAsync()
+{
+    m_recentProjectsFuture.cancel();
+
+    m_recentProjectsFuture
+        = QtConcurrent::mapped(&m_recentProjectsPool, m_recentProjects, [](RecentProjectsEntry p) {
+              // check if project is available, but avoid querying devices
+              p.exists = p.filePath.needsDevice() || p.filePath.isFile();
+              return p;
+          });
+    PluginManager::futureSynchronizer()->addFuture(m_recentProjectsFuture);
+
+    onResultReady(m_recentProjectsFuture, this, [this](const RecentProjectsEntry &p) {
+        auto it = std::find_if(
+            m_recentProjects.begin(), m_recentProjects.end(), [&p](const RecentProjectsEntry &e) {
+                return p.filePath == e.filePath;
+            });
+        // nothing to do if it no longer is in the recent projects, or if the state already was
+        // correct
+        if (it == m_recentProjects.end())
+            return;
+        if (it->exists == p.exists)
+            return;
+
+        *it = p;
+        emit m_instance->recentProjectsChanged();
+    });
+}
+
 void ProjectExplorerPluginPrivate::savePersistentSettings()
 {
     if (PluginManager::isShuttingDown())
@@ -2128,17 +2177,21 @@ void ProjectExplorerPluginPrivate::savePersistentSettings()
     QtcSettings *s = ICore::settings();
     s->remove("ProjectExplorer/RecentProjects/Files");
 
-    QStringList fileNames;
+    QStringList filePaths;
     QStringList displayNames;
+    QHash<QString, QVariant> existence;
     RecentProjectsEntries::const_iterator it, end;
     end = dd->m_recentProjects.constEnd();
     for (it = dd->m_recentProjects.constBegin(); it != end; ++it) {
-        fileNames << (*it).first.toUserOutput();
-        displayNames << (*it).second;
+        const QString filePath = it->filePath.toUserOutput();
+        filePaths << filePath;
+        displayNames << it->displayName;
+        existence.insert(filePath, it->exists);
     }
 
-    s->setValueWithDefault(Constants::RECENTPROJECTS_FILE_NAMES_KEY, fileNames);
+    s->setValueWithDefault(Constants::RECENTPROJECTS_FILE_NAMES_KEY, filePaths);
     s->setValueWithDefault(Constants::RECENTPROJECTS_DISPLAY_NAMES_KEY, displayNames);
+    s->setValueWithDefault(Constants::RECENTPROJECTS_EXISTENCE_KEY, existence);
 
     buildPropertiesSettings().writeSettings(); // FIXME: Should not be needed.
 
@@ -2451,10 +2504,7 @@ void ProjectExplorerPluginPrivate::buildQueueFinished(bool success)
 
 RecentProjectsEntries ProjectExplorerPluginPrivate::recentProjects() const
 {
-    return Utils::filtered(dd->m_recentProjects, [](const RecentProjectsEntry &p) {
-        // check if project is available, but avoid querying devices
-        return p.first.needsDevice() || p.first.isFile();
-    });
+    return filtered(m_recentProjects, &RecentProjectsEntry::exists);
 }
 
 void ProjectExplorerPluginPrivate::updateActions()
@@ -3018,16 +3068,13 @@ void ProjectExplorerPluginPrivate::addToRecentProjects(const FilePath &filePath,
     if (filePath.isEmpty())
         return;
 
-    RecentProjectsEntries::iterator it;
-    for (it = m_recentProjects.begin(); it != m_recentProjects.end();)
-        if ((*it).first == filePath)
-            it = m_recentProjects.erase(it);
-        else
-            ++it;
-
-    if (m_recentProjects.count() > m_maxRecentProjects)
+    Utils::erase(m_recentProjects, [filePath](const RecentProjectsEntry &e) {
+        return e.filePath == filePath;
+    });
+    if (m_recentProjects.size() >= m_maxRecentProjects)
         m_recentProjects.removeLast();
-    m_recentProjects.push_front({filePath, displayName});
+    m_recentProjects.push_front({filePath, displayName, true});
+    checkRecentProjectsAsync();
     m_lastOpenDirectory = filePath.absolutePath();
     emit m_instance->recentProjectsChanged();
 }
@@ -3054,7 +3101,7 @@ void ProjectExplorerPluginPrivate::updateRecentProjectMenu()
     const RecentProjectsEntries projects = recentProjects();
     //projects (ignore sessions, they used to be in this list)
     for (const RecentProjectsEntry &item : projects) {
-        const FilePath &filePath = item.first;
+        const FilePath &filePath = item.filePath;
         if (filePath.endsWith(QLatin1String(".qws")))
             continue;
 
@@ -3079,13 +3126,12 @@ void ProjectExplorerPluginPrivate::updateRecentProjectMenu()
         connect(action, &QAction::triggered,
                 this, &ProjectExplorerPluginPrivate::clearRecentProjects);
     }
-    emit m_instance->recentProjectsChanged();
 }
 
 void ProjectExplorerPluginPrivate::clearRecentProjects()
 {
     m_recentProjects.clear();
-    updateWelcomePage();
+    emit m_instance->recentProjectsChanged();
 }
 
 void ProjectExplorerPluginPrivate::openRecentProject(const FilePath &filePath)
@@ -3101,8 +3147,10 @@ void ProjectExplorerPluginPrivate::removeFromRecentProjects(const FilePath &file
 {
     QTC_ASSERT(!filePath.isEmpty(), return);
     QTC_CHECK(Utils::eraseOne(m_recentProjects, [filePath](const RecentProjectsEntry &entry) {
-        return entry.first == filePath;
+        return entry.filePath == filePath;
     }));
+    checkRecentProjectsAsync();
+    emit m_instance->recentProjectsChanged();
 }
 
 void ProjectExplorerPluginPrivate::invalidateProject(Project *project)

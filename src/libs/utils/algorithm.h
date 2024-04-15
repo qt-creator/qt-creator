@@ -987,6 +987,14 @@ C filtered(const C &container, R (S::*predicate)() const)
     return out;
 }
 
+template<typename C, typename R, typename S>
+Q_REQUIRED_RESULT C filtered(const C &container, R S::*predicate)
+{
+    C out;
+    std::copy_if(std::begin(container), std::end(container), inserter(out), std::mem_fn(predicate));
+    return out;
+}
+
 //////////////////
 // filteredCast
 /////////////////

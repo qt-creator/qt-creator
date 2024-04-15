@@ -37,7 +37,14 @@ class AppOutputSettings;
 class MiniProjectTargetSelector;
 }
 
-using RecentProjectsEntry = QPair<Utils::FilePath, QString>;
+class RecentProjectsEntry
+{
+public:
+    Utils::FilePath filePath;
+    QString displayName;
+    bool exists = true;
+};
+
 using RecentProjectsEntries = QList<RecentProjectsEntry>;
 
 class PROJECTEXPLORER_EXPORT OpenProjectResult

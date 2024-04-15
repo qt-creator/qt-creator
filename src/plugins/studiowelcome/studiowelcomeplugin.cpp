@@ -455,20 +455,20 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
             ProjectExplorer::ProjectExplorerPlugin::recentProjects().at(index.row());
     switch (role) {
     case Qt::DisplayRole:
-        return data.second;
+        return data.displayName;
         break;
     case FilePathRole:
-        return data.first.toVariant();
+        return data.filePath.toVariant();
     case PrettyFilePathRole:
-        return data.first.absolutePath().withTildeHomePath();
+        return data.filePath.absolutePath().withTildeHomePath();
     case PreviewUrl:
-        return QVariant(QStringLiteral("image://project_preview/") +
-                        QmlProjectManager::ProjectFileContentTools::appQmlFile(
-                            data.first));
+        return QVariant(
+            QStringLiteral("image://project_preview/")
+            + QmlProjectManager::ProjectFileContentTools::appQmlFile(data.filePath));
     case TagData:
-        return tags(data.first);
+        return tags(data.filePath);
     case Description:
-        return description(data.first);
+        return description(data.filePath);
     default:
         return QVariant();
     }
