@@ -30,7 +30,7 @@
     If debug info is being generated, you can have it placed into separate
     files, rather than embedded into the binary, by selecting
     \uicontrol Enable in the \uicontrol {Separate debug info} field. For
-    more information, see \l{Using the Performance Analyzer}. To use default
+    more information, see \l{Analyze CPU usage}. To use default
     settings, select \uicontrol {Leave at Default}.
 
     For more information about the QML debugging options, see

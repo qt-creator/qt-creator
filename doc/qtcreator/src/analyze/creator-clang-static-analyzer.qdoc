@@ -15,22 +15,6 @@
 
     \title Analyze code with Clang-Tidy and Clazy
 
-    \QC comes with the following Clang tools for finding problems in C, C++, and
-    Objective-C source code by using static analysis:
-
-    \list
-
-        \li \l{https://clang.llvm.org/extra/clang-tidy/}{Clang-Tidy}, which
-            has diagnostics and fixes for typical programming errors,
-            such as style violations or interface misuse.
-
-        \li \l{https://github.com/KDE/clazy/blob/master/README.md}{Clazy}, which
-            helps Clang understand Qt semantics. It displays Qt related compiler
-            warnings, ranging from unnecessary memory allocation to misuse of
-            API and has refactoring actions for fixing some of the issues.
-
-    \endlist
-
     \note The Clang static analyzer checks are a part of Clang-Tidy. To use
     the checks, you must create a custom configuration for the Clang tools and
     enable them for Clang-Tidy.
@@ -107,7 +91,8 @@
     using the \c {-export fixes} option.
 
     \sa {Check code syntax}, {Configure Clang Diagnostics},
-    {Specify Clang tools settings}, {Clang Tools}
+    {Analyze}{How To: Analyze}, {Specify Clang tools settings}, {Analyzers},
+    {Clang Tools}
 */
 
 /*!

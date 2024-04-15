@@ -13,11 +13,14 @@
     \previouspage creator-qml-debugging-example.html
     \nextpage studio-advanced.html
     \else
-    \previouspage creator-analyze-mode.html
-    \nextpage creator-coco.html
+    \previouspage creator-reference.html
     \endif
 
+    \ingroup creator-reference-analyzer
+
     \title Profiling QML Applications
+
+    \brief Improve the performance of QML applications.
 
     You can use the QML Profiler to find causes for typical performance problems
     in your applications, such as slowness and unresponsive, stuttering user
@@ -54,7 +57,7 @@
 
     You can use \e {full stack tracing} to trace from the top level QML or
     JavaScript down to the C++ and all the way to the kernel space. You can
-    view the collected data in the \l{Visualizing Chrome Trace Events}
+    view the collected data in the \l{Chrome Trace Format Visualizer}
     {Chrome Trace Format Viewer}.
     \endif
 

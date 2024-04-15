@@ -73,14 +73,6 @@
                 \li \l{Troubleshooting Debugger}
             \endlist
             \li \l{Analyzing Code}
-            \list
-                \li \l{Profiling QML Applications}
-                \li \l{Checking Code Coverage}
-                \li \l{Detecting Memory Leaks with Heob}
-                \li \l{Analyzing CPU Usage}
-                \li \l{Analyzing Code with Cppcheck}
-                \li \l{Visualizing Chrome Trace Events}
-            \endlist
         \endlist
         \li \l{Tutorials}
             \generatelist creator-tutorials
@@ -136,6 +128,8 @@
             \li \l{Reference}
                 \generatelist creator-reference
                 \list
+                    \li Analyzers
+                        \generatelist creator-reference-analyzer
                     \li Build Systems
                         \generatelist creator-reference-build-systems
                         \list

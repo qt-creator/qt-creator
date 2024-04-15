@@ -81,10 +81,10 @@
     For more information about using Memcheck, see
     \l{Interpreting Memcheck's Output} in the Valgrind documentation.
 
-    \sa {Profile function execution},
+    \sa {Analyze}{How To: Analyze}, {Profile function execution},
     {Run Valgrind tools on external applications},
-    {Specify Valgrind settings for a project}, {Valgrind Callgrind},
-    {Valgrind Memcheck}
+    {Specify Valgrind settings for a project}, {Analyzers}, {Valgrind Callgrind},
+    {Valgrind Memcheck}, {Analyzing Code}
 */
 
 /*!

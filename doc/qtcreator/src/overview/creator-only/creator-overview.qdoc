@@ -244,18 +244,18 @@
 
     For more information, see \l{Debugging}.
 
-    \section1 Analyzing Source Code
+    \section1 Finding Issues in Source Code
 
     Devices have limited memory and CPU power, so you should use them carefully.
     \QC integrates code analysis tools for detecting memory leaks, profiling
     function execution, analyzing CPU use, and eliminating unnecessary complexity
     of code. Other tools provide code coverage and visualize trace events.
 
-    Install and configure the tools on your system to use them from \QC.
-    However, the QML Profiler is installed as part of \QC for profiling
-    Qt Quick applications.
+    Some tools, such as the QML Profiler and the Clang Tools, are installed with
+    \QC. Install and configure the other supported tools on the computer to use
+    them from \QC.
 
-    For more information, see \l{Analyzing Code}.
+    For more information, see \l{Analyzing Code} and \l{Analyze}{How To: Analyze}.
 
     \section1 Running Tests
 

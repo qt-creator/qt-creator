@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -8,136 +8,151 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-heob.html
-    \page creator-cpu-usage-analyzer.html
-    \nextpage creator-cppcheck.html
+    \page creator-how-to-analyze-cpu-usage.html
+    \previouspage creator-how-tos.html
 
-    \title Analyzing CPU Usage
+    \ingroup creator-how-to-analyze
 
-    \QC is integrated with the Linux Perf tool that can be
-    used to analyze the CPU and memory usage of an application on embedded
-    devices and, to a limited extent, on Linux desktop platforms. The
-    Performance Analyzer uses the Perf tool bundled with the Linux kernel to
-    take periodic snapshots of the call chain of an application and visualizes
-    them in a timeline view or as a flame graph.
+    \title Analyze CPU usage
 
-    \section1 Using the Performance Analyzer
+    With Perf, you can analyze the CPU and memory usage of an application
+    on Linux desktop and embedded devices. \l{Performance Analyzer} uses the
+    Perf tool bundled with the Linux kernel to take periodic snapshots of
+    the call chain of an application and visualizes them in a timeline view
+    or as a flame graph.
 
-    The Performance Analyzer usually needs to be able to locate debug symbols for
-    the binaries involved.
+    Usually, Performance Analyzer needs debug symbols for the profiled
+    binaries. Profile builds produce optimized binaries with separate debug
+    symbols, so use them for profiling.
 
-    Profile builds produce optimized binaries with separate debug symbols and
-    should generally be used for profiling.
+    \section1 Collect data
 
-    To manually set up a build configuration that generates separate debug
-    symbols, edit the project build settings:
-
-    \list 1
-        \li To generate debug symbols also for applications compiled in release
-            mode, select \uicontrol {Projects}, and then select
-            \uicontrol Enable in the \uicontrol {Separate debug info} field.
-
-        \li Select \uicontrol Yes to recompile the project.
-
-    \endlist
-
-    You can start the Performance Analyzer in the following ways:
+    Start Performance Analyzer in the following ways to collect data:
 
     \list
-        \li Select \uicontrol Analyze > \uicontrol {Performance Analyzer} to
+        \li Go to \uicontrol Analyze > \uicontrol {Performance Analyzer} to
             profile the current application.
 
-        \li Select the
-            \inlineimage icons/qtcreator-analyze-start-button.png
-            (\uicontrol Start) button to start the application from the
+        \li Select \inlineimage icons/qtcreator-analyze-start-button.png
+            (\uicontrol Start) to start the application from the
             \uicontrol {Performance Analyzer}.
 
             \image qtcreator-performance-analyzer-toolbar.png {Performance Analyzer toolbar}
 
     \endlist
 
-    \note If data collection does not start automatically, select the
+    \note If data collection does not start automatically, select
     \inlineimage icons/recordfill.png
-    (\uicontrol {Collect profile data}) button.
+    (\uicontrol {Collect profile data}).
 
     When you start analyzing an application, the application is launched, and
-    the Performance Analyzer immediately begins to collect data. This is indicated
-    by the time running in the \uicontrol Recorded field. However, as the data
+    Performance Analyzer immediately begins to collect data. This is indicated
+    by the time running in \uicontrol Recorded. However, as the data
     is passed through the Perf tool and an extra helper program bundled with
     \QC, and both buffer and process it on the fly, data may arrive in \QC
-    several seconds after it was generated. An estimate for this delay is given
-    in the \uicontrol {Processing delay} field.
+    several seconds after it was generated. \uicontrol {Processing delay} shows
+    an estimate of the delay.
 
-    Data is collected until you select the
-    \uicontrol {Stop collecting profile data} button or terminate the
-    application.
+    Data is collected until you select \inlineimage icons/recordfill.png
+    (\uicontrol {Stop collecting profile data}) or close the application.
 
-    Select the \uicontrol {Stop collecting profile data} button to disable the
+    Select \uicontrol {Stop collecting profile data} to turn off the
     automatic start of the data collection when an application is launched.
-    Profile data will still be generated, but \QC will discard it until you
+    Profile data is still generated, but \QC discards it until you
     select the button again.
 
-    \section1 Profiling Memory Usage on Devices
+    \section1 Profile memory usage on devices
 
-    To create trace points for profiling memory usage on a target device, select
-    \uicontrol Analyze > \uicontrol {Performance Analyzer Options} >
-    \uicontrol {Create Memory Trace Points} or select
-    \inlineimage icons/create-tracepoint.png
-    on the \uicontrol {Performance Analyzer} toolbar.
+    To create trace points for profiling memory usage on a target device:
 
-    In the \uicontrol {Create Memory Trace Points} dialog, you can modify the
+    \list
+        \li Go to \uicontrol Analyze > \uicontrol {Performance Analyzer Options}
+            > \uicontrol {Create Memory Trace Points}.
+        \li Select \inlineimage icons/create-tracepoint.png
+            on the \uicontrol {Performance Analyzer} toolbar.
+    \endlist
+
+    In the \uicontrol {Create Memory Trace Points} dialog, modify the
     script to run.
 
-    \image qtcreator-performance-analyzer-create-memory-trace-points.png "Create Memory Trace Points dialog"
+    \image qtcreator-performance-analyzer-create-memory-trace-points.png {Create Memory Trace Points dialog}
 
     If you need root privileges to run scripts as root, select the privileges to
-    use in the \uicontrol {Elevate privileges using} field.
+    use in \uicontrol {Elevate privileges using}.
 
     Select \uicontrol OK to run the script.
 
     To add events for the trace points, see \l{Choosing Event Types}.
 
-    You can record a memory trace to view usage graphs in the samples rows of
+    Record a memory trace to view usage graphs in the samples rows of
     the timeline and to view memory allocations, peaks, and releases in the
     flame graph.
 
-    \section1 Specifying Performance Analyzer Settings
+    \section1 Generate separate debug info for qmake projects
 
-    To specify global settings for the Performance Analyzer, select
-    \preferences > \uicontrol Analyzer >
-    \uicontrol {CPU Usage}. For each run configuration, you can also
-    use specialized settings. Select \uicontrol Projects > \uicontrol Run, and
-    then select \uicontrol Details next to
-    \uicontrol {Performance Analyzer Settings}.
+    To manually set up a build configuration that generates debug symbols also
+    for applications compiled for release, edit the build settings of a qmake
+    project:
 
-    \image qtcreator-performance-analyzer-settings.png
+    \list 1
+        \li Go to \uicontrol {Projects} > \uicontrol {Build Settings}.
+        \li In \uicontrol {Separate debug info}, select \uicontrol Enable.
+        \li Select \uicontrol Yes to recompile the project.
+    \endlist
 
-    To edit the settings for the current run configuration, you can also select
-    the dropdown menu next to the \uicontrol {Collect profile data} button.
+    \sa {Analyze}{How To: Analyze}, {Analyzers}, {Performance Analyzer},
+    {Analyzing Code}
+*/
 
-    \section2 Choosing Event Types
+/*!
+    \page creator-cpu-usage-analyzer.html
+    \previouspage creator-reference.html
 
-    In the \uicontrol Events table, you can specify which events should trigger
-    the Performance Analyzer to take a sample. The most common way of analyzing
+    \ingroup creator-reference-analyzer
+
+    \title Performance Analyzer
+
+    \brief Analyze the CPU and memory usage of an application on Linux desktop
+    and embedded devices.
+
+    To set global preferences for Performance Analyzer, go to \preferences >
+    \uicontrol Analyzer > \uicontrol {CPU Usage}.
+
+    To set preferences for a particular run configuration, go to
+    \uicontrol Projects > \uicontrol Run, and then select \uicontrol Details
+    next to \uicontrol {Performance Analyzer Settings}.
+
+    \image qtcreator-performance-analyzer-settings.png {Performance Analyzer Settings}
+
+    To edit the settings for the current run configuration, select the
+    drop down menu next to \inlineimage icons/recordfill.png on the
+    Performance Analyzer toolbar.
+
+    \image qtcreator-performance-analyzer-toolbar.png {Performance Analyzer toolbar}
+
+    \section1 Choosing Event Types
+
+    The events table lists the events that trigger Performance Analyzer to take
+    a sample. The most common way of analyzing
     CPU usage involves periodic sampling, driven by hardware performance
     counters that react to the number of instructions or CPU cycles executed.
-    Alternatively, a software counter that uses the CPU clock can be chosen.
+    You can also select a software counter that uses the CPU clock.
 
     Select \uicontrol {Add Event} to add events to the table.
-    In the \uicontrol {Event Type} column, you can choose the general type of
+    In \uicontrol {Event Type}, select the general type of
     event to be sampled, most commonly \uicontrol {hardware} or
-    \uicontrol {software}. In the \uicontrol {Counter} column, you can choose
-    which specific counter should be used for the sampling. For example,
+    \uicontrol {software}. In \uicontrol {Counter}, select the counter
+    for the sampling. For example,
     \uicontrol {instructions} in the \uicontrol {hardware} group or
     \uicontrol {cpu-clock} in the \uicontrol {software} group.
 
     More specialized sampling, for example by cache misses or cache hits, is
-    possible. However, support for it depends on specific features of the CPU
-    involved. For those specialized events, you can give more detailed sampling
-    instructions in the \uicontrol {Operation} and \uicontrol {Result} columns.
-    For example, you can choose a \uicontrol {cache} event for
+    possible. However, support for it depends on specific features of the CPU.
+    For those specialized events, give more detailed sampling
+    instructions in \uicontrol {Operation} and \uicontrol {Result}.
+    For example, select a \uicontrol {cache} event for
     \uicontrol {L1-dcache} on the \uicontrol {load} operation with a result
-    of \uicontrol {misses}. That would sample L1-dcache misses on reading.
+    of \uicontrol {misses} to sample L1-dcache misses on reading.
 
     Select \uicontrol {Remove Event} to remove the selected event from the
     table.
@@ -145,29 +160,28 @@
     Select \uicontrol {Use Trace Points} to replace the current selection of
     events with trace points defined on the target device and set the
     \uicontrol {Sample mode} to \uicontrol {event count} and the
-    \uicontrol {Sample period} to \c {1}. If the trace points on the target
-    were defined using the \uicontrol {Create Trace Points} option, the
-    Performance Analyzer will automatically use them to profile memory usage.
+    \uicontrol {Sample period} to \c {1}. If \uicontrol {Create Trace Points}
+    defines the trace points on the target, Performance Analyzer automatically
+    uses them to profile memory usage.
 
-    Select \uicontrol {Reset} to revert the selection of events, as well as the
+    Select \uicontrol {Reset} to revert the selection of events, as well as
     \uicontrol {Sample mode} and \uicontrol {Sample period} to the default
     values.
 
-    \section2 Choosing a Sampling Mode and Period
+    \section1 Choosing a Sampling Mode and Period
 
-    In the \uicontrol {Sample mode} and \uicontrol {Sample period} fields, you
-    can specify how samples are triggered:
+    In \uicontrol {Sample mode} and \uicontrol {Sample period}, specify how
+    samples are triggered:
 
     \list
 
         \li Sampling by \uicontrol {event count} instructs the kernel to take
             a sample every \c n times one of the chosen events has occurred,
-            where \c n is specified in the \uicontrol {Sample period} field.
+            where \c n is set in \uicontrol {Sample period}.
 
         \li Sampling by \uicontrol {frequency (Hz)} instructs the kernel to try and
             take a sample \c n times per second, by automatically adjusting the
-            sampling period. Specify \c n in the \uicontrol {Sample period}
-            field.
+            sampling period. Set \c n in \uicontrol {Sample period}.
 
     \endlist
 
@@ -178,15 +192,15 @@
     There may be a significant difference between the sampling period you
     request and the actual result.
 
-    In general, if you configure the Performance Analyzer to collect more data
+    In general, if you configure Performance Analyzer to collect more data
     than it can transmit over the connection between the target and the host
     device, the application may get blocked while Perf is trying to send the
     data, and the processing delay may grow excessively. You should then change
-    the \uicontrol {Sample period} or the \uicontrol {Stack snapshot size}.
+    the value of \uicontrol {Sample period} or \uicontrol {Stack snapshot size}.
 
-    \section2 Selecting Call Graph Mode
+    \section1 Selecting Call Graph Mode
 
-    In the \uicontrol {Call graph mode} field, you can specify how the
+    In \uicontrol {Call graph mode}, you can specify how
     Performance Analyzer recovers call chains from your application:
 
     \list
@@ -210,32 +224,32 @@
     Qt and most system libraries are compiled without frame pointers by
     default, so the frame pointer mode is only useful with customized systems.
 
-    \section2 Setting Stack Snapshot Size
+    \section1 Setting Stack Snapshot Size
 
-    The Performance Analyzer will analyze and \e unwind the stack snapshots
-    generated by Perf in dwarf mode. Set the size of the stack snapshots in the
-    \uicontrol {Stack snapshot size} field. Large stack snapshots result in a
+    Performance Analyzer analyzes and \e unwinds the stack snapshots
+    generated by Perf in dwarf mode. Set the size of the stack snapshots in
+    \uicontrol {Stack snapshot size}. Large stack snapshots result in a
     larger volume of data to be transferred and processed. Small stack
     snapshots may fail to capture call chains of highly recursive applications
     or other intense stack usage.
 
-    \section2 Adding Command-Line Options for Perf
+    \section1 Adding Command-Line Options for Perf
 
-    You can specify additional command-line options to be passed to Perf when
-    recording data in the \uicontrol {Additional arguments} field. You may want
-    to specify \c{--no-delay} or \c{--no-buffering} to reduce the processing
+    Set additional command-line options to pass to Perf when
+    recording data in \uicontrol {Additional arguments}. Set \c{--no-delay}
+    or \c{--no-buffering} to reduce the processing
     delay. However, those options are not supported by all versions of Perf and
     Perf may not start if an unsupported option is given.
 
-    \section2 Resolving Names for JIT-compiled JavaScript Functions
+    \section1 Resolving Names for JIT-compiled JavaScript Functions
 
     Since version 5.6.0, Qt can generate perf.map files with information about
-    JavaScript functions. The Performance Analyzer will read them and show the
+    JavaScript functions. Performance Analyzer will read them and show the
     function names in the \uicontrol Timeline, \uicontrol Statistics, and
     \uicontrol {Flame Graph} views. This only works if the process being
     profiled is running on the host computer, not on the target device. To
     switch on the generation of perf.map files, add the environment variable
-    \c QV4_PROFILE_WRITE_PERF_MAP to the \uicontrol {Run Environment} and set
+    \c QV4_PROFILE_WRITE_PERF_MAP to \uicontrol {Run Environment} and set
     its value to \c 1.
 
     \section1 Analyzing Collected Data
@@ -243,36 +257,35 @@
     The \uicontrol Timeline view displays a graphical representation of CPU
     usage per thread and a condensed view of all recorded events.
 
-    \image qtcreator-performance-analyzer-timeline.png "Performance Analyzer"
+    \image qtcreator-performance-analyzer-timeline.png {Performance Analyzer}
 
     Each category in the timeline describes a thread in the application. Move
     the cursor on an event (5) on a row to see how long it takes and which
     function in the source it represents. To display the information only when
-    an event is selected, disable the
-    \uicontrol {View Event Information on Mouseover} button (4).
+    an event is selected, turn off
+     \uicontrol {View Event Information on Mouseover} (4).
 
     The outline (9) summarizes the period for which data was collected. Drag
     the zoom range (7) or click the outline to move on the outline. You can
-    also move between events by selecting the
-    \uicontrol {Jump to Previous Event} and \uicontrol {Jump to Next Event}
-    buttons (1).
+    also move between events by selecting \uicontrol {Jump to Previous Event}
+    and \uicontrol {Jump to Next Event} (1).
 
-    Select the \uicontrol {Show Zoom Slider} button (2) to open a slider that
-    you can use to set the zoom level. You can also drag the zoom handles (8).
+    Select \uicontrol {Show Zoom Slider} button (2) to open a slider that
+    sets the zoom level. You can also drag the zoom handles (8).
     To reset the default zoom level, right-click the timeline to open the
     context menu, and select \uicontrol {Reset Zoom}.
 
     \section2 Selecting Event Ranges
 
-    You can select an event range (6) to view the time it represents or to zoom
-    into a specific region of the trace. Select the \uicontrol {Select Range}
-    button (3) to activate the selection tool. Then click in the timeline to
+    Select an event range (6) to view the time it represents or to zoom
+    into a specific region of the trace. Select \uicontrol {Select Range}
+    (3) to activate the selection tool. Then click in the timeline to
     specify the beginning of the event range. Drag the selection handle to
     define the end of the range.
 
-    You can use event ranges also to measure delays between two subsequent
+    Use event ranges also to measure delays between two subsequent
     events. Place a range between the end of the first event and the beginning
-    of the second event. The \uicontrol Duration field displays the delay
+    of the second event. \uicontrol Duration shows the delay
     between the events in milliseconds.
 
     To zoom into an event range, double-click it.
@@ -294,10 +307,10 @@
     events to move the cursor in the code editor to the part of the code the
     event is associated with.
 
-    As the Perf tool only collects periodic samples, the Performance Analyzer
+    As the Perf tool only collects periodic samples, Performance Analyzer
     cannot determine the exact time when a function was called or when it
     returned. You can, however, see exactly when a sample was taken in the
-    second row of each thread. The Performance Analyzer assumes that if the same
+    second row of each thread. Performance Analyzer assumes that if the same
     function is present at the same place in the call chain in multiple
     consecutive samples, then this represents a single call to the respective
     function. This is, of course, a simplification. Also, there may be other
@@ -369,7 +382,7 @@
     taken for a certain function, relative to the same aspect of all samples
     together. The nesting shows which functions were called by which other ones.
 
-    The \uicontrol {Visualize} button lets you choose what aspect to show in the
+    The \uicontrol {Visualize} button lets you select what aspect to show in the
     \uicontrol {Flame Graph}.
 
     \list
@@ -396,7 +409,7 @@
     \uicontrol {Releases} modes will only show any data if samples from memory
     trace points have been recorded.
 
-    \section2 Interaction between the views
+    \section2 Interaction between the Views
 
     When you select a stack frame in either of the \uicontrol {Timeline},
     \uicontrol {Flame Graph}, or \uicontrol {Statistics} views, information
@@ -415,7 +428,7 @@
 
     \image qtcreator-cpu-usage-analyzer-load-perf-trace.png
 
-    The Performance Analyzer needs to know the context in which the
+    Performance Analyzer needs to know the context in which the
     data was recorded to find the debug symbols. Therefore, you have to specify
     the kit that the application was built with and the folder where the
     application executable is located.
@@ -423,11 +436,11 @@
     The Perf data files are generated by calling \c {perf record}. Make sure to
     generate call graphs when recording data by starting Perf with the
     \c {--call-graph} option. Also check that the necessary debug symbols are
-    available to the Performance Analyzer, either at a standard location
+    available to Performance Analyzer, either at a standard location
     (\c /usr/lib/debug or next to the binaries), or as part of the Qt package
     you are using.
 
-    The Performance Analyzer can read Perf data files generated in either frame
+    Performance Analyzer can read Perf data files generated in either frame
     pointer or dwarf mode. However, to generate the files correctly, numerous
     preconditions have to be met. All system images for the
     \l{https://doc.qt.io/Boot2Qt/qtdc-supported-platforms.html}
@@ -447,11 +460,11 @@
 
     \section1 Troubleshooting
 
-    The Performance Analyzer might fail to record data for the following reasons:
+    Performance Analyzer might fail to record data for the following reasons:
 
     \list
         \li Perf events may be globally disabled on your system.
-            The preconfigured \l Boot2Qt images come with perf events enabled.
+            The preconfigured \l Boot2Qt images come with Perf events enabled.
             For a custom configuration you need to make sure that the file
             \c {/proc/sys/kernel/perf_event_paranoid} contains a value smaller
             than \c {2}. For maximum flexibility in recording traces you can
@@ -471,16 +484,16 @@
             the values of the \uicontrol {Stack snapshot size} or
             \uicontrol {Sample period} settings.
         \li Perf may be buffering the data forever, never sending it. Add
-            \c {--no-delay} or \c {--no-buffering} to the
-            \uicontrol {Additional arguments} field.
+            \c {--no-delay} or \c {--no-buffering} to
+            \uicontrol {Additional arguments}.
         \li Some versions of Perf will not start recording unless given a
-            certain minimum sampling frequency. Try with a
-            \uicontrol {Sample period} value of 1000.
+            certain minimum sampling frequency. Try setting
+            \uicontrol {Sample period} to 1000.
         \li On some devices, in particular various i.MX6 Boards, the hardware
             performance counters are dysfunctional and the Linux kernel may
             randomly fail to record data after some time. Perf can use different
             types of events to trigger samples. You can get a list of available
-            event types by running \c {perf list} on the device and then choose
+            event types by running \c {perf list} on the device and then select
             the respective event types in the settings. The choice of event type
             affects the performance and stability of the sampling. The
             \c {cpu-clock} \c {software} event is a safe but relatively slow
@@ -489,8 +502,7 @@
             reboot the device. The kernel may have disabled important parts of
             the performance counters system.
         \li Perf might not be installed. The way to install it depends on your
-            Linux distribution. For example, you might try the following
-            commands:
+            Linux distribution. For example, try the following commands:
 
             \list
                 \li On Ubuntu 22.04:
@@ -506,5 +518,5 @@
     The \l {Application Output} view shows some information even if the
     Performance Analyzer displays error messages.
 
-    \sa {Profile function execution}
+    \sa {Analyze}{How To: Analyze}, {Analyzers}, {Analyzing Code}
 */

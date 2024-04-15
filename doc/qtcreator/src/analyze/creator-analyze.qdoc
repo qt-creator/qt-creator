@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -17,66 +17,139 @@
     To use a code analysis tool, select it in the \uicontrol {Analyze Menu} or
     in the pull-down menu of the \inlineimage icons/qtcreator-debug-button.png
     (\uicontrol {Start Debugging of Startup Project}) button.
-    When you are in the \uicontrol Debug mode, you can switch between tools by
-    selecting them in the menu on the debugger toolbar.
+    In the \uicontrol Debug mode, switch between tools by selecting them in the
+    menu on the debugger toolbar.
 
-    You can drag and drop the views in the \uicontrol Debug mode to new
+    \image qtcreator-performance-analyzer-toolbar.png {Performance Analyzer in Debug mode}
+
+    Drag the views in the \uicontrol Debug mode to new
     positions on the screen. The size and position of views are saved for future
     sessions. Select \uicontrol View > \uicontrol Views >
     \uicontrol {Reset to Default Layout} to reset the views to their original
     sizes and positions.
 
-    You can use the following code analysis tools in the \uicontrol Debug
-    mode:
+    \section1 Improving QML Performance
+
+    \QC comes with the \l{Profiling QML Applications}{QML Profiler} for
+    inspecting binding evaluations and signal handling when running QML code.
+    This is useful for identifying potential bottlenecks, especially in the
+    evaluation of bindings.
+
+    \section1 Finding Issues in QML Code
+
+    Run \l{JavaScript and QML Checks}{static checks} on the QML and JavaScript
+    code in your project to find common problems, similarly to using
+    \l{http://www.jslint.com}{JSLint}.
+
+    \section1 Finding Issues in C++ Code with Clang Tools
+
+    \QC comes with the following Clang tools for finding problems in C, C++, and
+    Objective-C source code by using static analysis:
 
     \list
-
-        \li \l{Profiling QML Applications}{QML Profiler}
-
-            Inspect binding evaluations, signal handling, and
-            painting operations when running QML code. This is useful for
-            identifying potential bottlenecks, especially in the evaluation
-            of bindings.
-
-        \li \l{Checking Code Coverage}{Coco}
-
-            Analyze the way an application runs as part of a test suite, for
-            example, and use the results to make the tests more efficient and
-            complete.
-
-        \li \l{Prevent code erosion}{Axivion}
-
-            Do static code analysis and architecture analysis to detect and
-            eliminate unnecessary complexity of code.
-
-        \li \l{Clang Tools}
-
-            Detect problems in C, C++, and Objective-C programs by
-            using Clang-Tidy and Clazy.
-
-        \li \l{Detecting Memory Leaks with Heob}{Heob}
-
-            Use the Heob heap observer on Windows to detect buffer
-            overruns and memory leaks.
-
-        \li \l{Analyzing CPU Usage}{Performance Analyzer}
-
-            Analyze the CPU usage of embedded applications and Linux
-            desktop applications with the Performance Analyzer that integrates
-            the Linux Perf tool.
-
-        \li \l{Analyzing Code with Cppcheck}{Cppcheck}
-
-            Use the experimental Cppcheck plugin to detect undefined
-            behavior and dangerous coding constructs.
-
-        \li \l{Visualizing Chrome Trace Events}{Chrome Trace Format Visualizer}
-
-            Use the Chrome Trace Format (CTF) Visualizer to view
-            Chrome trace events. This is especially useful when viewing
-            large trace files that are difficult to visualize using the
-            built-in trace-viewer (\c{chrome://tracing}).
+        \li \l{https://clang.llvm.org/extra/clang-tidy/}{Clang-Tidy}, which
+            has diagnostics and fixes for typical programming errors,
+            such as style violations or interface misuse.
+        \li \l{https://github.com/KDE/clazy/blob/master/README.md}{Clazy}, which
+            helps Clang understand Qt semantics. It displays Qt-related compiler
+            warnings, ranging from unnecessary memory allocation to misuse of
+            API and has refactoring actions for fixing some of the issues.
     \endlist
 
-    \sa {Detect memory leaks with Memcheck}, {Profile function execution}
+    \section1 Finding Issues in C++ Code with Cppcheck
+
+    Install the \l{http://cppcheck.sourceforge.net/}{Cppcheck} static analysis
+    tool to detect undefined behavior and dangerous coding constructs in
+    C++ code. Cppcheck analyzes the source code without actually running the
+    application.
+
+    \section1 Checking Code Coverage
+
+    Install the \l{https://doc.qt.io/coco/}{Coco} code coverage tool chain for
+    Tcl, QML, C# and C/C++ programs on \macOS, Linux, or Windows to analyze the
+    way an application runs as part of a test suite, for example. Use the
+    results to make the tests more efficient and complete.
+
+    You can:
+
+    \list
+        \li Find untested code sections.
+        \li Find redundant tests which can then be eliminated. Coco can
+            identify portions of the source code that are covered by a test. It
+            can detect whether a new test covers lines in the source code that
+            the existing tests do not cover.
+        \li Find dead code by displaying code that is never executed.
+        \li Calculate the optimum test execution order so as to maximize
+            test coverage for each run. This is particularly useful for manual
+            testing.
+        \li Analyze two separate versions of an application and compare the
+            differences. This makes it possible to see which tests are affected
+            by source code modifications and also to get some measure of the
+            test coverage of a patch or hot fix.
+        \li Measure the execution time of applications and tests.
+    \endlist
+
+    \section1 Preventing Code Erosion
+
+    Install \l{https://www.axivion.com/en/products/axivion-suite/}{Axivion Suite}
+    to protect software from erosion. With static code analysis,
+    architecture analysis, and code-smells-detection, you can:
+
+    \list
+        \li Check the source code for potential runtime errors.
+        \li Use metrics to generate quantitative information about the
+            internal quality of the source code.
+        \li Run style checks to achieve compliance with coding guidelines.
+        \li Detect both duplicates and similar pieces of code in the source code.
+        \li Recognize cyclical dependencies at different levels.
+        \li Detect unreachable code.
+    \endlist
+
+    \section1 Profiling with Valgrind Tools
+
+    Install Memcheck and Callgrind from \l{Valgrind's Tool Suite} to detect
+    memory leaks and profile function execution.
+
+    You can run the Valgrind tools either \e locally on the development host or
+    \e remotely on another host. You can use them to analyze both applications
+    for which you set up a project in \QC and applications for which you do not
+    have a project.
+
+    Valgrind tools are supported locally only on Linux and \macos. However,
+    according to Valgrind.org, support on \macos 10.8 and 10.9 is experimental and
+    mostly broken. You can run the tools on a remote Linux machine or device
+    from any development host.
+
+    To run the Valgrind tools to analyze an application for which you have a
+    project, open the project in \QC and select the kit to run the project. The
+    kit specifies whether the Valgrind tools are run locally or remotely.
+
+    For more information about analyzing applications for which you do not have
+    a project, see \l{Run Valgrind tools on external applications}.
+
+    To set preferences for the Valgrind tools, select \preferences >
+    \uicontrol Analyzer. You can override the general
+    settings for each project in the \uicontrol {Run Settings} for the project.
+
+    \section1 Detecting Memory Leaks with Heob
+
+    On Windows, install the \l{https://github.com/ssbssa/heob}{Heob}
+    heap observer to detect buffer overruns and memory leaks.
+
+    \section1 Analyzing CPU Usage
+
+    On Linux, use Perf to analyze the CPU and memory usage of an application
+    on Linux desktop and embedded devices.
+
+    \l{Performance Analyzer} uses the Perf tool bundled with the Linux kernel to
+    take periodic snapshots of the call chain of an application and visualizes
+    them in a timeline view or as a flame graph.
+
+    \section1 Visualizing Chrome Trace Events
+
+    Use the \l{Chrome Trace Format Visualizer} to view Chrome trace events. This
+    is especially useful when viewing large trace files that are difficult to
+    visualize using the built-in trace-viewer (\c{chrome://tracing}).
+
+    \sa {Analyze}{How To: Analyze}, {Analyzers}
 */
