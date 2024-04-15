@@ -544,6 +544,13 @@ Utils::FilePath DocumentManager::currentResourcePath()
     if (contentFilePath.exists())
         return contentFilePath;
 
+    const auto project = ProjectManager::startupProject();
+    const QString baseName = project->rootProjectDirectory().baseName() + "Content";
+
+    contentFilePath = resourcePath.pathAppended(baseName);
+    if (contentFilePath.exists())
+        return contentFilePath;
+
     return resourcePath;
 }
 

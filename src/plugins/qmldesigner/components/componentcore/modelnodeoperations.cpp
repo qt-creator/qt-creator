@@ -1138,10 +1138,7 @@ static QString getAssetDefaultDirectory(const QString &assetDir, const QString &
 {
     QString adjustedDefaultDirectory = defaultDirectory;
 
-    Utils::FilePath contentPath = QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath();
-
-    if (contentPath.pathAppended("content").exists())
-        contentPath = contentPath.pathAppended("content");
+    Utils::FilePath contentPath = QmlDesignerPlugin::instance()->documentManager().currentResourcePath();
 
     Utils::FilePath assetPath = contentPath.pathAppended(assetDir);
 
