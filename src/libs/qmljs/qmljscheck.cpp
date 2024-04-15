@@ -863,6 +863,8 @@ bool Check::visit(AST::UiEnumMemberList *ast)
 {
     QStringList names;
     for (auto it = ast; it; it = it->next) {
+        if (!it->member.first().isUpper())
+            addMessage(ErrInvalidEnumValue, it->memberToken); // better a different message?
         if (names.contains(it->member)) // duplicate enum value
             addMessage(ErrInvalidEnumValue, it->memberToken); // better a different message?
         names.append(it->member.toString());
