@@ -270,7 +270,6 @@ extend_qtc_library(Utils
           fsengine/fsengine_impl.h
           fsengine/diriterator.h
           fsengine/fileiteratordevicesappender.h
-          fsengine/rootinjectfsengine.h
           fsengine/fixedlistfsengine.h
           fsengine/fsenginehandler.cpp
           fsengine/fsenginehandler.h
