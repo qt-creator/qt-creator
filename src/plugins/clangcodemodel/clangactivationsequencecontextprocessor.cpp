@@ -132,7 +132,7 @@ void ActivationSequenceContextProcessor::processComment()
 
 void ActivationSequenceContextProcessor::processInclude()
 {
-    if (m_token.isLiteral() && !isCompletionKindStringLiteralOrSlash())
+    if (m_token.isStringLiteral() && !isCompletionKindStringLiteralOrSlash())
         m_completionKind = CPlusPlus::T_EOF_SYMBOL;
 }
 
