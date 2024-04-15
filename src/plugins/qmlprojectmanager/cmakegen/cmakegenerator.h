@@ -5,6 +5,7 @@
 #include "cmakewriter.h"
 
 #include "utils/filepath.h"
+#include "projectexplorer/task.h"
 
 #include <QObject>
 
@@ -25,7 +26,7 @@ class CMakeGenerator : public QObject
 
 public:
     static void createMenuAction(QObject *parent);
-    static void logIssue(const QString &text);
+    static void logIssue(ProjectExplorer::Task::TaskType type, const QString &text, const Utils::FilePath &file);
 
     CMakeGenerator(QmlBuildSystem *bs, QObject *parent = nullptr);
 

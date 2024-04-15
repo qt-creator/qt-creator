@@ -240,8 +240,8 @@ void CMakeWriter::writeFile(const Utils::FilePath &path, const QString &content)
         QTextStream stream(&fileHandle);
         stream << content;
     } else {
-        QString text("Failed to write file: %1");
-        CMakeGenerator::logIssue(text.arg(path.path()));
+        QString text("Failed to write");
+        CMakeGenerator::logIssue(ProjectExplorer::Task::Error, text, path);
     }
     fileHandle.close();
 }

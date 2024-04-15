@@ -9,6 +9,7 @@
 
 #include "projectexplorer/projectmanager.h"
 #include "projectexplorer/projectnodes.h"
+#include "projectexplorer/taskhub.h"
 
 #include "utils/filenamevalidatinglineedit.h"
 
@@ -60,10 +61,11 @@ void CMakeGenerator::createMenuAction(QObject *parent)
     });
 }
 
-void CMakeGenerator::logIssue(const QString &text)
+void CMakeGenerator::logIssue(ProjectExplorer::Task::TaskType type, const QString &text, const Utils::FilePath &file)
 {
-    // TODO: Use Issues panel as soon as it is usable in DS.
-    qDebug() << text;
+    ProjectExplorer::BuildSystemTask task(type, text, file);
+    ProjectExplorer::TaskHub::addTask(task);
+    ProjectExplorer::TaskHub::requestPopup();
 }
 
 void CMakeGenerator::updateMenuAction()
@@ -173,8 +175,8 @@ void CMakeGenerator::update(const QSet<QString> &added, const QSet<QString> &rem
             if (auto module = findModuleFor(node))
                 dirtyModules.insert(module);
         } else {
-            QString text("Failed to find Folder for file: %1");
-            logIssue(text.arg(add));
+            QString text("Failed to find Folder for file");
+            logIssue(ProjectExplorer::Task::Error, text, path);
         }
     }
 
@@ -338,10 +340,8 @@ bool CMakeGenerator::findFile(const NodePtr &node, const Utils::FilePath &file) 
 void CMakeGenerator::insertFile(NodePtr &node, const Utils::FilePath &path) const
 {
     QString error;
-    if (!Utils::FileNameValidatingLineEdit::validateFileName(path.fileName(), false, &error)) {
-        QString text(path.path() + error);
-        logIssue(error);
-    }
+    if (!Utils::FileNameValidatingLineEdit::validateFileName(path.fileName(), false, &error))
+        logIssue(ProjectExplorer::Task::Error, error, path);
 
     if (path.fileName() == "qmldir") {
         readQmlDir(path, node);
@@ -485,9 +485,9 @@ void CMakeGenerator::compareWithFileSystem(const NodePtr &node) const
             files.push_back(next);
     }
 
-    const QString text("File %1 is not part of the project");
-    for (const auto& file : files)
-        logIssue(text.arg(file.path()));
+    const QString text("File is not part of the project");
+    for (const auto &file : files)
+        logIssue(ProjectExplorer::Task::Warning, text, file);
 }
 
 } // namespace GenerateCmake

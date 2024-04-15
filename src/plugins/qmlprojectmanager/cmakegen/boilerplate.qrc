@@ -9,6 +9,7 @@
         <file alias="qmlcomponents">templates/qmlcomponents.tpl</file>
         <file alias="environment_h">templates/environment_h.tpl</file>
         <file alias="import_qml_components_h">templates/import_qml_components_h.tpl</file>
+        <file alias="qtquickcontrols_conf">templates/qtquickcontrols2_conf.tpl</file>
     </qresource>
 
     <qresource prefix="/boilerplatetemplates">

@@ -21,13 +21,10 @@ CMakeWriterV0::CMakeWriterV0(CMakeGenerator *parent)
 
 bool CMakeWriterV0::isPlugin(const NodePtr &node) const
 {
-    if (CMakeWriter::isPlugin(node))
-        return true;
-
     if (node->type == Node::Type::App)
         return !node->files.empty() || !node->singletons.empty() || !node->resources.empty();
 
-    return false;
+    return CMakeWriter::isPlugin(node);
 }
 
 void CMakeWriterV0::transformNode(NodePtr &node) const
@@ -41,8 +38,8 @@ void CMakeWriterV0::transformNode(NodePtr &node) const
     } else if (node->type == Node::Type::App) {
         Utils::FilePath path = node->dir.pathAppended("main.qml");
         if (!path.exists()) {
-            QString text("Expected File %1 not found.");
-            CMakeGenerator::logIssue(text.arg(path.path()));
+            QString text("Expected File not found.");
+            CMakeGenerator::logIssue(ProjectExplorer::Task::Error, text, path);
             return;
         }
         if (!parent()->findFile(path))
@@ -53,6 +50,12 @@ void CMakeWriterV0::transformNode(NodePtr &node) const
 void CMakeWriterV0::writeRootCMakeFile(const NodePtr &node) const
 {
     QTC_ASSERT(parent(), return);
+
+    const Utils::FilePath quickControlsPath = node->dir.pathAppended("qtquickcontrols2.conf");
+    if (!quickControlsPath.exists()) {
+        const QString quickControlsTemplate = readTemplate(":/templates/qtquickcontrols_conf");
+        writeFile(quickControlsPath, quickControlsTemplate);
+    }
 
     const Utils::FilePath insightPath = node->dir.pathAppended("insight");
     if (!insightPath.exists()) {
