@@ -194,10 +194,10 @@ DeviceSettings::DeviceSettings()
     displayName.setValueAcceptor(
         [validateDisplayName](const QString &old,
                               const QString &newValue) -> std::optional<QString> {
-            if (validateDisplayName(old, newValue))
+            if (!validateDisplayName(old, newValue))
                 return std::nullopt;
 
-            return old;
+            return newValue;
         });
 }
 

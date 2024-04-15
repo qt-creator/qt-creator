@@ -11,6 +11,9 @@
     You can connect Android devices to the development PC using USB cables to
     build, run, debug, and analyze applications from \QC.
 
+    \note \QC only detects a device and connects to it after you
+    \l{Debugging on Android Devices}{enable USB debugging on it}.
+
     To develop for Android, you must install a tool chain for building
     applications for Android devices on the development PC. \QC can automatically
     download and install the tool chain and create a suitable build and run

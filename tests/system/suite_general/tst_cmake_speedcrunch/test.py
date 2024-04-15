@@ -12,8 +12,8 @@ def cmakeSupported():
         versionLine = next(iter(versionLines))
         test.log("Using " + versionLine)
         matcher = re.match("cmake version (\d+)\.(\d+)\.\d+", versionLine)
-        major = __builtin__.int(matcher.group(1))
-        minor = __builtin__.int(matcher.group(2))
+        major = builtins.int(matcher.group(1))
+        minor = builtins.int(matcher.group(2))
     except:
         return False
 

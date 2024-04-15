@@ -1,4 +1,4 @@
-// Copyright (C) 2018 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -47,13 +47,13 @@
             border on the line where the \c startNewGame() function is
             called (1).
 
-            \image qtquick-example-setting-breakpoint1.png
+            \image qtquick-example-setting-breakpoint1.webp {Breakpoint in the code editor}
 
             The red circle indicates that a breakpoint is now set on that line
             number.
 
-        \li Select \uicontrol Debug > \uicontrol {Start Debugging} >
-            \uicontrol {Start Debugging of Startup Project} or press
+        \li Go to \uicontrol Debug > \uicontrol {Start Debugging} >
+            \uicontrol {Start Debugging of Startup Project}, or press
             \key{F5}.
 
         \li Once the Same Game application starts, select \uicontrol {Puzzle}
@@ -63,26 +63,26 @@
 
         \li When the debugger hits the breakpoint, it interrupts the
             application. \QC displays the nested function calls leading to the
-            current position as a call stack trace (1).
+            current position as a call stack trace.
 
-            \image qtquick-example-setting-breakpoint2.png
+            \image qtquick-example-setting-breakpoint2.webp {Debugger view}
 
-        \li Click the \inlineimage icons/debugger_stepinto_small.png
-            (\uicontrol {Step Into}) button on the toolbar or press \key F11 to step
+        \li Select \inlineimage icons/debugger_stepinto_small.png
+            (\uicontrol {Step Into}) on the toolbar or press \key F11 to step
             into the code in the stack. The samegame.js file opens in the code
             editor at the function that starts a new game.
 
-            \image qtquick-example-stack.png
+            \image qtquick-example-stack.webp {Stack view}
 
         \li Examine the local variables in the \uicontrol Locals
             view. Step through the code to see how the information changes in
             the view.
 
         \li Add a breakpoint at the end of the \c {startNewGame()} function, and
-            click \inlineimage icons/qtcreator-debugging-continue.png
+            select \inlineimage icons/qtcreator-debugging-continue.png
             (\uicontrol Continue) to hit the breakpoint.
 
-            \image qtquick-example-setting-breakpoint3.png
+            \image qtquick-example-setting-breakpoint3.webp {Second breakpoint in the Breakpoints view}
 
         \li To execute JavaScript commands in the current context, open the
             \uicontrol {QML Debugger Console}.
@@ -97,11 +97,11 @@
 
             \image qtquick-example-qml-inspector.png
 
-        \li Select \uicontrol Debug > \uicontrol {Show Application on Top} to
+        \li Go to \uicontrol Debug > \uicontrol {Show Application on Top} to
             keep the application visible while you interact with the debugger.
 
-        \li Select \uicontrol Debug > \uicontrol Select to activate selection
-            mode and then click the \uicontrol Menu button to move into the
+        \li Go to \uicontrol Debug > \uicontrol Select to activate selection
+            mode, and then select \uicontrol Menu to move into the
             \uicontrol menuButton component in the \uicontrol Locals view and
             the code editor.
 

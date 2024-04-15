@@ -79,7 +79,11 @@
     If you hide the annotations, you can move the mouse pointer over an icon to
     view them.
 
-    \sa {Analyze code with Clang-Tidy and Clazy}, {JavaScript and QML Checks}
+    \if defined(qtcreator)
+    \sa {Analyze code with Clang-Tidy and Clazy}
+    \endif
+
+    \sa {JavaScript and QML Checks}
 */
 
 /*!
