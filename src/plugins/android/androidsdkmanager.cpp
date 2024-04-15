@@ -4,7 +4,6 @@
 #include "androidconfigurations.h"
 #include "androidsdkmanager.h"
 #include "androidtr.h"
-#include "avdmanageroutputparser.h"
 #include "sdkmanageroutputparser.h"
 
 #include <utils/algorithm.h>
@@ -44,18 +43,6 @@ static const QRegularExpression &assertionRegExp()
         QRegularExpression::CaseInsensitiveOption | QRegularExpression::MultilineOption);
 
     return theRegExp;
-}
-
-static std::optional<QString> onLicenseStdOut(const QString &output, QString *licenseTextCache)
-{
-    licenseTextCache->append(output);
-    const QRegularExpressionMatch assertionMatch = assertionRegExp().match(*licenseTextCache);
-    if (assertionMatch.hasMatch()) {
-        const QString ret = *licenseTextCache;
-        licenseTextCache->clear();
-        return ret;
-    }
-    return {};
 }
 
 int parseProgress(const QString &out, bool &foundAssertion)
@@ -540,12 +527,16 @@ void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdPromise &fi)
     QString licenseTextCache;
     while (!licenseCommand.waitForFinished(200ms)) {
         const QString stdOut = codec->toUnicode(licenseCommand.readAllRawStandardOutput());
-        std::optional<QString> assertion;
+        bool assertion = false;
         if (!stdOut.isEmpty()) {
-            assertion = onLicenseStdOut(stdOut, &licenseTextCache);
-            if (assertion && reviewingLicenses) {
-                result.stdOutput = *assertion;
-                fi.addResult(result);
+            licenseTextCache.append(stdOut);
+            assertion = assertionRegExp().match(licenseTextCache).hasMatch();
+            if (assertion) {
+                if (reviewingLicenses) {
+                    result.stdOutput = licenseTextCache;
+                    fi.addResult(result);
+                }
+                licenseTextCache.clear();
             }
         }
 
