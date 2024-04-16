@@ -1302,16 +1302,19 @@ CppLocatorData *CppModelManager::locatorData()
     return &d->m_locatorData;
 }
 
-static QSet<QString> filteredFilesRemoved(const QSet<QString> &files, int fileSizeLimitInMb,
-                                          bool ignoreFiles,
-                                          const QString& ignorePattern)
+static QSet<QString> filteredFilesRemoved(const QSet<QString> &files,
+                                          const CppCodeModelSettings &settings)
 {
-    if (fileSizeLimitInMb <= 0 && !ignoreFiles)
+    if (!settings.enableIndexing)
+        return {};
+
+    const int fileSizeLimitInMb = settings.effectiveIndexerFileSizeLimitInMb();
+    if (fileSizeLimitInMb <= 0 && !settings.ignoreFiles)
         return files;
 
     QSet<QString> result;
     QList<QRegularExpression> regexes;
-    const QStringList wildcards = ignorePattern.split('\n');
+    const QStringList wildcards = settings.ignorePattern.split('\n');
 
     for (const QString &wildcard : wildcards)
         regexes.append(QRegularExpression::fromWildcard(wildcard, Qt::CaseInsensitive,
@@ -1322,7 +1325,7 @@ static QSet<QString> filteredFilesRemoved(const QSet<QString> &files, int fileSi
         if (fileSizeLimitInMb > 0 && fileSizeExceedsLimit(filePath, fileSizeLimitInMb))
             continue;
         bool skip = false;
-        if (ignoreFiles) {
+        if (settings.ignoreFiles) {
             for (const QRegularExpression &rx: std::as_const(regexes)) {
                 QRegularExpressionMatch match = rx.match(filePath.absoluteFilePath().path());
                 if (match.hasMatch()) {
@@ -1355,11 +1358,8 @@ QFuture<void> CppModelManager::updateSourceFiles(const QSet<FilePath> &sourceFil
         sourcesPerProject[ProjectManager::projectForFile(fp)] << fp.toString();
     QSet<QString> filteredFiles;
     for (auto it = sourcesPerProject.cbegin(); it != sourcesPerProject.cend(); ++it) {
-        const CppCodeModelSettings settings = CppCodeModelSettings::settingsForProject(it.key());
-        filteredFiles.unite(filteredFilesRemoved(it.value(),
-                                                 settings.effectiveIndexerFileSizeLimitInMb(),
-                                                 settings.ignoreFiles,
-                                                 settings.ignorePattern));
+        filteredFiles.unite(
+            filteredFilesRemoved(it.value(), CppCodeModelSettings::settingsForProject(it.key())));
     }
 
     return d->m_internalIndexingSupport->refreshSourceFiles(filteredFiles, mode);
@@ -1386,14 +1386,20 @@ ProjectInfo::ConstPtr CppModelManager::projectInfo(Project *project)
 void CppModelManager::removeProjectInfoFilesAndIncludesFromSnapshot(const ProjectInfo &projectInfo)
 {
     QMutexLocker snapshotLocker(&d->m_snapshotMutex);
+    QStringList removedFiles;
     for (const ProjectPart::ConstPtr &projectPart : projectInfo.projectParts()) {
         for (const ProjectFile &cxxFile : std::as_const(projectPart->files)) {
             const QSet<FilePath> filePaths = d->m_snapshot.allIncludesForDocument(cxxFile.path);
-            for (const FilePath &filePath : filePaths)
+            for (const FilePath &filePath : filePaths) {
                 d->m_snapshot.remove(filePath);
+                removedFiles << filePath.toString();
+            }
             d->m_snapshot.remove(cxxFile.path);
+            removedFiles << cxxFile.path.toString();
         }
     }
+
+    emit m_instance->aboutToRemoveFiles(removedFiles);
 }
 
 const QList<CppEditorDocumentHandle *> CppModelManager::cppEditorDocuments()

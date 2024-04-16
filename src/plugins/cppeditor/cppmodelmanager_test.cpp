@@ -29,6 +29,8 @@
 #include <QScopeGuard>
 #include <QtTest>
 
+#include <memory>
+
 #define VERIFY_DOCUMENT_REVISION(document, expectedRevision) \
     QVERIFY(document); \
     QCOMPARE(document->revision(), expectedRevision);
@@ -1390,6 +1392,162 @@ void ModelManagerTest::testSettingsChanges()
     QSet<QString> filteredP1Sources = p1Sources;
     filteredP1Sources -= p1Dir.filePath("baz3.h").toString();
     QCOMPARE(refreshedFiles, filteredP1Sources);
+}
+
+static bool True = true;
+static bool False = false;
+
+void ModelManagerTest::testOptionalIndexing_data()
+{
+    QTest::addColumn<bool>("enableGlobally");
+    QTest::addColumn<bool *>("enableForP1");
+    QTest::addColumn<bool *>("enableForP2");
+    QTest::addColumn<bool>("foo1Present");
+    QTest::addColumn<bool>("foo2Present");
+
+    QTest::addRow("globally disabled, no custom settings")
+        << false << (bool *) nullptr << (bool *) nullptr << false << false;
+    QTest::addRow("globally disabled, redundantly disabled for project 2")
+        << false << (bool *) nullptr << &False << false << false;
+    QTest::addRow("globally disabled, enabled for project 2")
+        << false << (bool *) nullptr << &True << false << true;
+    QTest::addRow("globally disabled, redundantly disabled for project 1")
+        << false << &False << (bool *) nullptr << false << false;
+    QTest::addRow("globally disabled, redundantly disabled for both projects")
+        << false << &False << &False << false << false;
+    QTest::addRow("globally disabled, redundantly disabled for project 1, enabled for project 2")
+        << false << &False << &True << false << true;
+    QTest::addRow("globally disabled, enabled for project 1")
+        << false << &True << (bool *) nullptr << true << false;
+    QTest::addRow("globally disabled, enabled for project 1, redundantly disabled for project 2")
+        << false << &True << &False << true << false;
+    QTest::addRow("globally disabled, enabled for both project")
+        << false << &True << &True << true << true;
+    QTest::addRow("globally enabled, no custom settings")
+        << true << (bool *) nullptr << (bool *) nullptr << true << true ;
+    QTest::addRow("globally enabled, disabled for project 2")
+        << true << (bool *) nullptr << &False << true << false;
+    QTest::addRow("globally enabled, redundantly enabled for project 2")
+        << true << (bool *) nullptr << &True << true << true;
+    QTest::addRow("globally enabled, disabled for project 1")
+        << true << &False << (bool *) nullptr << false << true;
+    QTest::addRow("globally enabled, disabled for both projects")
+        << true << &False << &False << false << false;
+    QTest::addRow("globally enabled, disabled for project 1, redundantly enabled for project 2")
+        << true << &False << &True << false << true;
+    QTest::addRow("globally enabled, redundantly enabled for project 1")
+        << true << &True << (bool *) nullptr << true << true;
+    QTest::addRow("globally enabled, redundantly enabled for project 1, disabled for project 2")
+        << true << &True << &False << true << false;
+    QTest::addRow("globally enabled, redundantly enabled for both projects")
+        << true << &True << &True << true << true;
+}
+
+void ModelManagerTest::testOptionalIndexing()
+{
+    if (CppModelManager::isClangCodeModelActive())
+        QSKIP("Test only makes sense with built-in locators");
+
+    QFETCH(bool, enableGlobally);
+    QFETCH(bool *, enableForP1);
+    QFETCH(bool *, enableForP2);
+    QFETCH(bool, foo1Present);
+    QFETCH(bool, foo2Present);
+
+    // Apply global setting, if necessary. Needs to be reverted in the end.
+    class TempIndexingDisabler {
+    public:
+        TempIndexingDisabler(bool enable)
+        {
+            if (!enable)
+                reset(false);
+        }
+        ~TempIndexingDisabler() { reset(true); }
+    private:
+        void reset(bool enable)
+        {
+            CppCodeModelSettings settings = CppCodeModelSettings::global();
+            settings.enableIndexing = enable;
+            CppCodeModelSettings::setGlobal(settings);
+        }
+    };
+    const TempIndexingDisabler disabler(enableGlobally);
+
+    // Set up projects.
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const MyTestDataDir sourceDir("testdata_optionalindexing");
+    const FilePath srcFilePath = FilePath::fromString(sourceDir.path());
+    const FilePath projectDir = tmpDir.filePath().pathAppended(srcFilePath.fileName());
+    const auto copyResult = srcFilePath.copyRecursively(projectDir);
+    if (!copyResult)
+        qDebug() << copyResult.error();
+    QVERIFY(copyResult);
+    Kit * const kit  = Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
+        return k->isValid() && !k->hasWarning() && k->value("QtSupport.QtInformation").isValid();
+    });
+    if (!kit)
+        QSKIP("The test requires at least one valid kit with a valid Qt");
+    const FilePath p1ProjectFile = projectDir.pathAppended("lib1.pro");
+    auto projectMgr = std::make_unique<ProjectOpenerAndCloser>();
+    SourceFilesRefreshGuard refreshGuard;
+    QVERIFY(projectMgr->open(p1ProjectFile, true, kit));
+    QVERIFY(refreshGuard.wait());
+    refreshGuard.reset();
+    Project *p1 = projectMgr->projects().first();
+    const FilePath p2ProjectFile = projectDir.pathAppended("lib2.pro");
+    QVERIFY(projectMgr->open(p2ProjectFile, true, kit));
+    QVERIFY(refreshGuard.wait());
+    refreshGuard.reset();
+    Project *p2 = projectMgr->projects().last();
+
+    const auto applyProjectSpecificSettings = [&](Project *p, bool *enable) {
+        if (!enable)
+            return;
+        refreshGuard.reset();
+        CppCodeModelSettings settings = CppCodeModelSettings::settingsForProject(p);
+        settings.enableIndexing = *enable;
+        CppCodeModelSettings::setSettingsForProject(p, settings);
+        if (*enable != enableGlobally)
+            QVERIFY(refreshGuard.wait());
+    };
+    applyProjectSpecificSettings(p1, enableForP1);
+    applyProjectSpecificSettings(p2, enableForP2);
+
+    // Compare locator results to expectations.
+    Core::LocatorFilterEntries entries = Core::LocatorMatcher::runBlocking(
+        Core::LocatorMatcher::matchers(Core::MatcherType::Functions), "foo");
+    const auto hasEntry = [&](const QString &name) {
+        return Utils::contains(entries, [&](const Core::LocatorFilterEntry &e) {
+            return e.displayName == name + "()";
+        });
+    };
+    QCOMPARE(hasEntry("foo1"), foo1Present);
+    QCOMPARE(hasEntry("foo2"), foo2Present);
+
+    // Close and re-open projects, then check again, to see whether the settings persisted
+    // and are taking effect.
+    projectMgr.reset(nullptr);
+    projectMgr.reset(new ProjectOpenerAndCloser);
+    refreshGuard.reset();
+    QVERIFY(projectMgr->open(p1ProjectFile, true, kit));
+    p1 = projectMgr->projects().first();
+    QCOMPARE(
+        CppCodeModelSettings::settingsForProject(p1).enableIndexing,
+        enableForP1 ? *enableForP1 : enableGlobally);
+    QVERIFY(refreshGuard.wait());
+    refreshGuard.reset();
+    QVERIFY(projectMgr->open(p2ProjectFile, true, kit));
+    p2 = projectMgr->projects().last();
+    QCOMPARE(
+        CppCodeModelSettings::settingsForProject(p2).enableIndexing,
+        enableForP2 ? *enableForP2 : enableGlobally);
+    QVERIFY(refreshGuard.wait());
+
+    entries = Core::LocatorMatcher::runBlocking(
+        Core::LocatorMatcher::matchers(Core::MatcherType::Functions), "foo");
+    QCOMPARE(hasEntry("foo1"), foo1Present);
+    QCOMPARE(hasEntry("foo2"), foo2Present);
 }
 
 } // CppEditor::Internal

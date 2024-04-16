@@ -222,8 +222,10 @@ static void index(QPromise<void> &promise, const ParseParams params)
 static void parse(QPromise<void> &promise, const ParseParams &params)
 {
     const QSet<QString> &files = params.sourceFiles;
-    if (files.isEmpty())
+    if (files.isEmpty()) {
+        CppModelManager::finishedRefreshingSourceFiles(files);
         return;
+    }
 
     promise.setProgressRange(0, files.size());
 

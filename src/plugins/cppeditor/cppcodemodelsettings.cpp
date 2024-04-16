@@ -48,6 +48,7 @@ public:
 
     CppCodeModelSettings settings() const;
     void setSettings(const CppCodeModelSettings &settings);
+    void forceCustomSettingsSettings(const CppCodeModelSettings &settings);
     bool useGlobalSettings() const { return m_useGlobalSettings; }
     void setUseGlobalSettings(bool useGlobal);
 
@@ -64,6 +65,7 @@ private:
 static Key pchUsageKey() { return Constants::CPPEDITOR_MODEL_MANAGER_PCH_USAGE; }
 static Key interpretAmbiguousHeadersAsCHeadersKey()
     { return Constants::CPPEDITOR_INTERPRET_AMBIGIUOUS_HEADERS_AS_C_HEADERS; }
+static Key enableIndexingKey() { return "EnableIndexing"; }
 static Key skipIndexingBigFilesKey() { return Constants::CPPEDITOR_SKIP_INDEXING_BIG_FILES; }
 static Key ignoreFilesKey() { return Constants::CPPEDITOR_IGNORE_FILES; }
 static Key ignorePatternKey() { return Constants::CPPEDITOR_IGNORE_PATTERN; }
@@ -76,6 +78,7 @@ bool operator==(const CppEditor::CppCodeModelSettings &s1,
 {
     return s1.pchUsage == s2.pchUsage
            && s1.interpretAmbigiousHeadersAsC == s2.interpretAmbigiousHeadersAsC
+           && s1.enableIndexing == s2.enableIndexing
            && s1.skipIndexingBigFiles == s2.skipIndexingBigFiles
            && s1.useBuiltinPreprocessor == s2.useBuiltinPreprocessor
            && s1.indexerFileSizeLimitInMb == s2.indexerFileSizeLimitInMb
@@ -88,6 +91,7 @@ Store CppCodeModelSettings::toMap() const
     Store store;
     store.insert(pchUsageKey(), pchUsage);
     store.insert(interpretAmbiguousHeadersAsCHeadersKey(), interpretAmbigiousHeadersAsC);
+    store.insert(enableIndexingKey(), enableIndexing);
     store.insert(skipIndexingBigFilesKey(), skipIndexingBigFiles);
     store.insert(ignoreFilesKey(), ignoreFiles);
     store.insert(ignorePatternKey(), ignorePattern);
@@ -103,6 +107,7 @@ void CppCodeModelSettings::fromMap(const Utils::Store &store)
     interpretAmbigiousHeadersAsC
         = store.value(interpretAmbiguousHeadersAsCHeadersKey(), def.interpretAmbigiousHeadersAsC)
               .toBool();
+    enableIndexing = store.value(enableIndexingKey(), def.enableIndexing).toBool();
     skipIndexingBigFiles
         = store.value(skipIndexingBigFilesKey(), def.skipIndexingBigFiles).toBool();
     ignoreFiles = store.value(ignoreFilesKey(), def.ignoreFiles).toBool();
@@ -155,8 +160,7 @@ void CppCodeModelSettings::setSettingsForProject(
     ProjectExplorer::Project *project, const CppCodeModelSettings &settings)
 {
     CppCodeModelProjectSettings pSettings(project);
-    pSettings.setUseGlobalSettings(false);
-    pSettings.setSettings(settings);
+    pSettings.forceCustomSettingsSettings(settings);
 }
 
 void CppCodeModelSettings::setGlobal(const CppCodeModelSettings &settings)
@@ -218,6 +222,12 @@ void CppCodeModelProjectSettings::setSettings(const CppCodeModelSettings &settin
     CppModelManager::handleSettingsChange(m_project);
 }
 
+void CppCodeModelProjectSettings::forceCustomSettingsSettings(const CppCodeModelSettings &settings)
+{
+    m_useGlobalSettings = false;
+    setSettings(settings);
+}
+
 void CppCodeModelProjectSettings::setUseGlobalSettings(bool useGlobal)
 {
     m_useGlobalSettings = useGlobal;
@@ -261,6 +271,7 @@ private:
     QCheckBox *m_interpretAmbiguousHeadersAsCHeaders;
     QCheckBox *m_ignorePchCheckBox;
     QCheckBox *m_useBuiltinPreprocessorCheckBox;
+    QCheckBox *m_enableIndexingCheckBox;
     QCheckBox *m_skipIndexingBigFilesCheckBox;
     QSpinBox *m_bigFilesLimitSpinBox;
     QCheckBox *m_ignoreFilesCheckBox;
@@ -271,6 +282,12 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(const CppCodeModelSetting
 {
     m_interpretAmbiguousHeadersAsCHeaders
         = new QCheckBox(Tr::tr("Interpret ambiguous headers as C headers"));
+
+    m_enableIndexingCheckBox = new QCheckBox(Tr::tr("Enable indexing"));
+    m_enableIndexingCheckBox->setChecked(settings.enableIndexing);
+    m_enableIndexingCheckBox->setToolTip(Tr::tr(
+        "Indexing should almost always be kept enabled, as disabling it will severely limit the "
+        "capabilities of the code model."));
 
     m_skipIndexingBigFilesCheckBox = new QCheckBox(Tr::tr("Do not index files greater than"));
     m_skipIndexingBigFilesCheckBox->setChecked(settings.skipIndexingBigFiles);
@@ -320,6 +337,7 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(const CppCodeModelSetting
                    m_interpretAmbiguousHeadersAsCHeaders,
                    m_ignorePchCheckBox,
                    m_useBuiltinPreprocessorCheckBox,
+                   m_enableIndexingCheckBox,
                    Row { m_skipIndexingBigFilesCheckBox, m_bigFilesLimitSpinBox, st },
                    Row { Column { m_ignoreFilesCheckBox, st }, m_ignorePatternTextEdit },
                    }
@@ -329,6 +347,7 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(const CppCodeModelSetting
 
     for (const QCheckBox *const b : {m_interpretAmbiguousHeadersAsCHeaders,
                                      m_ignorePchCheckBox,
+                                     m_enableIndexingCheckBox,
                                      m_useBuiltinPreprocessorCheckBox,
                                      m_skipIndexingBigFilesCheckBox,
                                      m_ignoreFilesCheckBox}) {
@@ -349,6 +368,7 @@ CppCodeModelSettings CppCodeModelSettingsWidget::settings() const
 {
     CppCodeModelSettings settings;
     settings.interpretAmbigiousHeadersAsC = m_interpretAmbiguousHeadersAsCHeaders->isChecked();
+    settings.enableIndexing = m_enableIndexingCheckBox->isChecked();
     settings.skipIndexingBigFiles = m_skipIndexingBigFilesCheckBox->isChecked();
     settings.useBuiltinPreprocessor = m_useBuiltinPreprocessorCheckBox->isChecked();
     settings.ignoreFiles = m_ignoreFilesCheckBox->isChecked();

@@ -62,6 +62,7 @@ public:
     bool skipIndexingBigFiles = true;
     bool useBuiltinPreprocessor = true;
     bool ignoreFiles = false;
+    bool enableIndexing = true;
     bool m_categorizeFindReferences = false; // Ephemeral!
 
 private:
