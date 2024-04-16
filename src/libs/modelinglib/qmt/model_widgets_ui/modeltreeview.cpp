@@ -237,6 +237,10 @@ void ModelTreeView::contextMenuEvent(QContextMenuEvent *event)
             menu.addAction(new ContextMenuAction(Tr::tr("Open Diagram"), "openDiagram", &menu));
             addSeparator = true;
         }
+        if (m_elementTasks->hasLinkedFile(melement)) {
+            menu.addAction(new ContextMenuAction(Tr::tr("Open Linked File"), "openLinkedFile", &menu));
+            addSeparator = true;
+        }
         if (melement->owner()) {
             if (addSeparator)
                 menu.addSeparator();
@@ -253,6 +257,8 @@ void ModelTreeView::contextMenuEvent(QContextMenuEvent *event)
                 m_elementTasks->openClassDefinition(melement);
             } else if (action->id() == "openDiagram") {
                 m_elementTasks->openDiagram(melement);
+            } else if (action->id() == "openLinkedFile") {
+                m_elementTasks->openLinkedFile(melement);
             } else if (action->id() == "delete") {
                 MSelection selection;
                 selection.append(melement->uid(), melement->owner()->uid());
