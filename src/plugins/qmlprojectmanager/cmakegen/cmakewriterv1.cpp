@@ -70,6 +70,10 @@ void CMakeWriterV1::writeRootCMakeFile(const NodePtr &node) const
     const QString fileContent = fileTemplate.arg(appName, fileSection);
     writeFile(file, fileContent);
 
+    const Utils::FilePath sharedFile = node->dir.pathAppended("CMakeLists.txt.shared");
+    const QString sharedTemplate = readTemplate(":/templates/cmake_shared");
+    writeFile(sharedFile, sharedTemplate);
+
     const Utils::FilePath userFile = node->dir.pathAppended("qds.cmake");
     QString userFileContent(DO_NOT_EDIT_FILE);
     userFileContent.append(makeSubdirectoriesBlock(node));

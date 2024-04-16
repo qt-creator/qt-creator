@@ -10,6 +10,7 @@
         <file alias="environment_h">templates/environment_h.tpl</file>
         <file alias="import_qml_components_h">templates/import_qml_components_h.tpl</file>
         <file alias="qtquickcontrols_conf">templates/qtquickcontrols2_conf.tpl</file>
+        <file alias="cmake_shared">templates/cmakelists_txt_shared.tpl</file>
     </qresource>
 
     <qresource prefix="/boilerplatetemplates">
