@@ -251,7 +251,6 @@ QtcLibrary {
             "model_ui/treemodelmanager.h",
             "model_widgets_ui/addrelatedelementsdialog.h",
             "model_widgets_ui/addrelatedelementsdialog.cpp",
-            "model_widgets_ui/addrelatedelementsdialog.ui",
             "model_widgets_ui/classmembersedit.cpp",
             "model_widgets_ui/classmembersedit.h",
             "model_widgets_ui/modeltreefilter.cpp",

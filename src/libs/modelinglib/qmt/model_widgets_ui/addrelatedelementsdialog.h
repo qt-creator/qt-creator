@@ -17,10 +17,6 @@ class MRelation;
 class DiagramSceneController;
 }
 
-namespace Ui {
-class AddRelatedElementsDialog;
-}
-
 namespace qmt {
 
 class QMT_EXPORT AddRelatedElementsDialog : public QDialog
@@ -41,7 +37,6 @@ private:
     bool filter(qmt::DObject *dobject, qmt::MObject *mobject, qmt::MRelation *relation);
     void updateNumberOfElements();
 
-    Ui::AddRelatedElementsDialog *ui = nullptr;
     Private *d = nullptr;
 };
 

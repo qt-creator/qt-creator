@@ -133,7 +133,6 @@ add_qtc_library(Modeling
     qmt/model_ui/treemodel.cpp qmt/model_ui/treemodel.h
     qmt/model_ui/treemodelmanager.cpp qmt/model_ui/treemodelmanager.h
     qmt/model_widgets_ui/addrelatedelementsdialog.h qmt/model_widgets_ui/addrelatedelementsdialog.cpp
-    qmt/model_widgets_ui/addrelatedelementsdialog.ui
     qmt/model_widgets_ui/classmembersedit.cpp qmt/model_widgets_ui/classmembersedit.h
     qmt/model_widgets_ui/modeltreefilter.h qmt/model_widgets_ui/modeltreefilter.cpp
     qmt/model_widgets_ui/modeltreeview.cpp qmt/model_widgets_ui/modeltreeview.h

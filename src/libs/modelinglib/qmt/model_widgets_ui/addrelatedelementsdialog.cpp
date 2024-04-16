@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "addrelatedelementsdialog.h"
-#include "ui_addrelatedelementsdialog.h"
 
 #include <qmt/tasks/diagramscenecontroller.h>
 #include <qmt/diagram_controller/dselection.h>
@@ -15,8 +14,14 @@
 #include <qmt/model_controller/modelcontroller.h>
 #include <qmt/model_controller/mvoidvisitor.h>
 
-#include <QStringListModel>
+#include "../../modelinglibtr.h"
 
+#include <utils/layoutbuilder.h>
+
+#include <QComboBox>
+#include <QDialogButtonBox>
+#include <QLabel>
+#include <QStringListModel>
 
 namespace qmt {
 
@@ -270,26 +275,69 @@ public:
     QStringListModel m_elementTypeModel;
     QStringListModel m_elementStereotypesModel;
     Filter m_filter;
+
+    QComboBox *RelationTypeCombobox;
+    QComboBox *DirectionCombobox;
+    QComboBox *StereotypesCombobox;
+    QComboBox *ElementStereotypesCombobox;
+    QComboBox *ElementTypeComboBox;
+    QLabel *NumberOfMatchingElementsValue;
+    QDialogButtonBox *buttonBox;
 };
 
 AddRelatedElementsDialog::AddRelatedElementsDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::AddRelatedElementsDialog),
     d(new Private)
 {
-    ui->setupUi(this);
-    connect(ui->RelationTypeCombobox, &QComboBox::currentIndexChanged, this, &AddRelatedElementsDialog::updateNumberOfElements);
-    connect(ui->DirectionCombobox, &QComboBox::currentIndexChanged, this, &AddRelatedElementsDialog::updateNumberOfElements);
-    connect(ui->StereotypesCombobox, &QComboBox::currentTextChanged, this, &AddRelatedElementsDialog::updateNumberOfElements);
-    connect(ui->ElementTypeComboBox, &QComboBox::currentIndexChanged, this, &AddRelatedElementsDialog::updateNumberOfElements);
-    connect(ui->ElementStereotypesCombobox, &QComboBox::currentTextChanged, this, &AddRelatedElementsDialog::updateNumberOfElements);
+    setMinimumWidth(500);
+
+    d->RelationTypeCombobox = new QComboBox;
+    d->DirectionCombobox = new QComboBox;
+    d->StereotypesCombobox = new QComboBox;
+    d->StereotypesCombobox->setEditable(true);
+    d->ElementTypeComboBox = new QComboBox;
+    d->ElementStereotypesCombobox = new QComboBox;
+    d->ElementStereotypesCombobox->setEditable(true);
+    d->NumberOfMatchingElementsValue = new QLabel;
+    d->buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+
+    using namespace Layouting;
+    Column {
+        Group {
+            title(Tr::tr("Relation Attributes")),
+            Form {
+                Tr::tr("Type"), d->RelationTypeCombobox, br,
+                Tr::tr("Direction"), d->DirectionCombobox, br,
+                Tr::tr("Stereotypes"), d->StereotypesCombobox, br,
+            },
+        },
+        Group {
+            title(Tr::tr("Other Element Attributes")),
+            Form {
+                Tr::tr("Type"), d->ElementTypeComboBox, br,
+                Tr::tr("Stereotypes"), d->ElementStereotypesCombobox, br,
+            },
+        },
+        Row {
+            Tr::tr("Number of matching elements: "), d->NumberOfMatchingElementsValue, st,
+        },
+        st,
+        d->buttonBox,
+    }.attachTo(this);
+
+    connect(d->RelationTypeCombobox, &QComboBox::currentIndexChanged, this, &AddRelatedElementsDialog::updateNumberOfElements);
+    connect(d->DirectionCombobox, &QComboBox::currentIndexChanged, this, &AddRelatedElementsDialog::updateNumberOfElements);
+    connect(d->StereotypesCombobox, &QComboBox::currentTextChanged, this, &AddRelatedElementsDialog::updateNumberOfElements);
+    connect(d->ElementTypeComboBox, &QComboBox::currentIndexChanged, this, &AddRelatedElementsDialog::updateNumberOfElements);
+    connect(d->ElementStereotypesCombobox, &QComboBox::currentTextChanged, this, &AddRelatedElementsDialog::updateNumberOfElements);
+    connect(d->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(d->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     connect(this, &QDialog::accepted, this, &AddRelatedElementsDialog::onAccepted);
 }
 
 AddRelatedElementsDialog::~AddRelatedElementsDialog()
 {
     delete d;
-    delete ui;
 }
 
 void AddRelatedElementsDialog::setDiagramSceneController(qmt::DiagramSceneController *diagramSceneController)
@@ -303,19 +351,19 @@ void AddRelatedElementsDialog::setElements(const qmt::DSelection &selection, qmt
     d->m_diagramUid = diagram->uid();
     QStringList relationTypes = {"Any", "Dependency", "Association", "Inheritance"};
     d->m_relationTypeModel.setStringList(relationTypes);
-    ui->RelationTypeCombobox->setModel(&d->m_relationTypeModel);
+    d->RelationTypeCombobox->setModel(&d->m_relationTypeModel);
     QStringList relationDirections = {"Any", "Outgoing (->)", "Incoming (<-)", "Bidirectional (<->)"};
     d->m_relationDirectionModel.setStringList(relationDirections);
-    ui->DirectionCombobox->setModel(&d->m_relationDirectionModel);
+    d->DirectionCombobox->setModel(&d->m_relationDirectionModel);
     QStringList relationStereotypes = { };
     d->m_relationStereotypesModel.setStringList(relationStereotypes);
-    ui->StereotypesCombobox->setModel(&d->m_relationStereotypesModel);
+    d->StereotypesCombobox->setModel(&d->m_relationStereotypesModel);
     QStringList elementTypes = {"Any", "Package", "Component", "Class", "Diagram", "Item"};
     d->m_elementTypeModel.setStringList(elementTypes);
-    ui->ElementTypeComboBox->setModel(&d->m_elementTypeModel);
+    d->ElementTypeComboBox->setModel(&d->m_elementTypeModel);
     QStringList elementStereotypes = { };
     d->m_elementStereotypesModel.setStringList(elementStereotypes);
-    ui->ElementStereotypesCombobox->setModel(&d->m_elementStereotypesModel);
+    d->ElementStereotypesCombobox->setModel(&d->m_elementStereotypesModel);
     updateNumberOfElements();
 }
 
@@ -335,11 +383,11 @@ void AddRelatedElementsDialog::onAccepted()
 
 void AddRelatedElementsDialog::updateFilter()
 {
-    d->m_filter.setRelationType((RelationType) ui->RelationTypeCombobox->currentIndex());
-    d->m_filter.setRelationDirection((RelationDirection) ui->DirectionCombobox->currentIndex());
-    d->m_filter.setRelationStereotypes(ui->StereotypesCombobox->currentText().split(',', Qt::SkipEmptyParts));
-    d->m_filter.setElementType((ElementType) ui->ElementTypeComboBox->currentIndex());
-    d->m_filter.setElementStereotypes(ui->ElementStereotypesCombobox->currentText().split(',', Qt::SkipEmptyParts));
+    d->m_filter.setRelationType((RelationType) d->RelationTypeCombobox->currentIndex());
+    d->m_filter.setRelationDirection((RelationDirection) d->DirectionCombobox->currentIndex());
+    d->m_filter.setRelationStereotypes(d->StereotypesCombobox->currentText().split(',', Qt::SkipEmptyParts));
+    d->m_filter.setElementType((ElementType) d->ElementTypeComboBox->currentIndex());
+    d->m_filter.setElementStereotypes(d->ElementStereotypesCombobox->currentText().split(',', Qt::SkipEmptyParts));
 }
 
 bool AddRelatedElementsDialog::filter(qmt::DObject *dobject, qmt::MObject *mobject, qmt::MRelation *relation)
@@ -366,7 +414,7 @@ void AddRelatedElementsDialog::updateNumberOfElements()
     qmt::MDiagram *diagram = d->m_diagramSceneController->modelController()->findElement<qmt::MDiagram>(d->m_diagramUid);
     if (diagram) {
         updateFilter();
-        ui->NumberOfMatchingElementsValue->setText(QString::number(d->m_diagramSceneController->countRelatedElements(
+        d->NumberOfMatchingElementsValue->setText(QString::number(d->m_diagramSceneController->countRelatedElements(
             d->m_selection, diagram,
             [this](qmt::DObject *dobject, qmt::MObject *mobject, qmt::MRelation *relation) -> bool
             {
