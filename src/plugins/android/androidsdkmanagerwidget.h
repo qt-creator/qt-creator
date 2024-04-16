@@ -72,11 +72,6 @@ public:
 
     void installEssentials();
 
-signals:
-    void updatingSdk();
-    void updatingSdkFinished();
-    void licenseWorkflowStarted();
-
 private:
     void onApplyButton(const QString &extraMessage = {});
     void onUpdatePackages();

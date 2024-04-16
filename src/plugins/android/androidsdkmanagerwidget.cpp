@@ -542,22 +542,11 @@ void AndroidSdkManagerWidget::switchView(AndroidSdkManagerWidget::View view)
     if (m_currentView == PackageListing)
         m_formatter->clear();
     m_currentView = view;
-    if (m_currentView == PackageListing) {
-        // We need the buttonBox only in the main listing view, as the license and update
-        // views already have a cancel button.
-        m_buttonBox->button(QDialogButtonBox::Apply)->setVisible(true);
-        emit updatingSdkFinished();
-    } else {
-        m_buttonBox->button(QDialogButtonBox::Apply)->setVisible(false);
-        emit updatingSdk();
-    }
-
-    if (m_currentView == LicenseWorkflow)
-        emit licenseWorkflowStarted();
-
+    // We need the buttonBox only in the main listing view, as the license and update
+    // views already have a cancel button.
+    m_buttonBox->button(QDialogButtonBox::Apply)->setVisible(m_currentView == PackageListing);
     m_operationProgress->setValue(0);
-    m_viewStack->setCurrentWidget(m_currentView == PackageListing ?
-                                          m_packagesStack : m_outputStack);
+    m_viewStack->setCurrentWidget(m_currentView == PackageListing ? m_packagesStack : m_outputStack);
 }
 
 void AndroidSdkManagerWidget::runPendingCommand()
