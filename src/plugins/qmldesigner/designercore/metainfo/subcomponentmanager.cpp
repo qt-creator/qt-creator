@@ -461,8 +461,7 @@ QStringList SubComponentManager::quick3DAssetPaths() const
     const auto impPaths = importPaths();
     QStringList retPaths;
     for (const auto &impPath : impPaths) {
-        QString path3d = m_componentUtils.import3dTypePrefix();
-        path3d.replace('.', '/');
+        QString path3d = m_componentUtils.import3dTypePath();
         const QString assetPath = impPath + '/' + path3d;
         if (QFileInfo::exists(assetPath))
             retPaths << assetPath;
@@ -523,7 +522,7 @@ void SubComponentManager::update(const QUrl &filePath, const Imports &imports)
 
             // Remove old watched asset paths
             const QStringList watchPaths = m_watcher.directories();
-            const QString &quick3DAssetFolder = m_componentUtils.import3dSimplifiedTypePrefix();
+            const QString &quick3DAssetFolder = m_componentUtils.import3dTypePath();
             for (const auto &watchPath : watchPaths) {
                 if (watchPath.endsWith(quick3DAssetFolder))
                     m_watcher.removePath(watchPath);

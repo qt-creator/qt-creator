@@ -80,7 +80,8 @@ Utils::FilePath GeneratedComponentUtils::import3dBasePath() const
 bool GeneratedComponentUtils::isImport3dPath(const QString &path) const
 {
     return path.contains('/' + QLatin1String(Constants::OLD_QUICK_3D_ASSETS_FOLDER))
-           || path.contains('/' + QLatin1String(Constants::QUICK_3D_COMPONENTS_FOLDER));
+           || path.contains(QLatin1String(Constants::GENERATED_COMPONENTS_FOLDER) + '/'
+                            + QLatin1String(Constants::QUICK_3D_COMPONENTS_FOLDER));
 }
 
 bool GeneratedComponentUtils::isComposedEffectPath(const QString &path) const
@@ -108,14 +109,11 @@ QString GeneratedComponentUtils::import3dTypePrefix() const
     return Constants::OLD_QUICK_3D_ASSETS_FOLDER;
 }
 
-QString GeneratedComponentUtils::import3dSimplifiedTypePrefix() const
+QString GeneratedComponentUtils::import3dTypePath() const
 {
-    QString basePrefix = generatedComponentTypePrefix();
-
-    if (basePrefix.endsWith(Constants::QUICK_3D_COMPONENTS_FOLDER))
-        return Constants::QUICK_3D_COMPONENTS_FOLDER;
-
-    return Constants::OLD_QUICK_3D_ASSETS_FOLDER;
+    QString prefix = import3dTypePrefix();
+    prefix.replace('.', '/');
+    return prefix;
 }
 
 QString GeneratedComponentUtils::componentBundlesTypePrefix() const
