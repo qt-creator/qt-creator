@@ -665,10 +665,19 @@ void LanguageClientSettings::toSettings(QtcSettings *settings,
     auto isStdioSetting = Utils::equal(&BaseSettings::m_settingsTypeId,
                                        Utils::Id(Constants::LANGUAGECLIENT_STDIO_SETTINGS_ID));
     auto [stdioSettings, typedSettings] = Utils::partition(languageClientSettings, isStdioSetting);
-    if (!stdioSettings.isEmpty())
-        settings->setValue(clientsKey, transform(stdioSettings));
-    if (!typedSettings.isEmpty())
-        settings->setValue(typedClientsKey, transform(typedSettings));
+    settings->setValue(clientsKey, transform(stdioSettings));
+
+    // write back typed settings for unregistered client types
+    QVariantList typedSettingsVariant;
+    for (const QVariant &var : settings->value(typedClientsKey).toList()) {
+        const Store map = storeFromVariant(var);
+        Id typeId = Id::fromSetting(map.value(typeIdKey));
+        if (typeId.isValid() && !clientTypes().contains(typeId))
+            typedSettingsVariant << var;
+    }
+
+    typedSettingsVariant << transform(typedSettings);
+    settings->setValue(typedClientsKey, transform(typedSettings));
     settings->endGroup();
 }
 
