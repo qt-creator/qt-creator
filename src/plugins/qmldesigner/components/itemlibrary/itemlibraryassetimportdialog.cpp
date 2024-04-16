@@ -702,8 +702,10 @@ QGridLayout *ItemLibraryAssetImportDialog::createOptionsGrid(
                 // and move the remaining member to ungrouped options
                 // Note: <= 2 instead of < 2 because each group has group label member
                 if (i != 0 && groupWidgets.size() <= 2) {
-                    widgets[0].prepend(groupWidgets[1]);
-                    groupWidgets[0].first->hide(); // hide group label
+                    if (groupWidgets.size() == 2)
+                        widgets[0].prepend(groupWidgets[1]);
+                    if (groupWidgets.size() >= 1)
+                        groupWidgets[0].first->hide(); // hide group label
                     groupWidgets.clear();
                 }
             }
