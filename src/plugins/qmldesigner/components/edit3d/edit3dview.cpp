@@ -279,6 +279,14 @@ void Edit3DView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
 
+    QString currProjectPath = QmlDesigner::DocumentManager::currentProjectDirPath().toString();
+    if (m_currProjectPath != currProjectPath) {
+        // Opening a new project -> reset camera speeds
+        m_currProjectPath = currProjectPath;
+        m_previousCameraSpeed = -1.;
+        m_previousCameraMultiplier = -1.;
+    }
+
     syncSnapAuxPropsToSettings();
 
     rootModelNode().setAuxiliaryData(edit3dGridColorProperty,
