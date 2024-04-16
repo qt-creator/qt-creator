@@ -38,3 +38,15 @@ add_qtc_library(lua546
     src/lzio.c
 )
 
+extend_qtc_library(lua546
+  CONDITION LINUX
+  PUBLIC_DEFINES LUA_USE_LINUX
+)
+extend_qtc_library(lua546
+  CONDITION WIN32
+  PUBLIC_DEFINES LUA_USE_WINDOWS
+)
+extend_qtc_library(lua546
+  CONDITION APPLE
+  PUBLIC_DEFINES LUA_USE_MACOSX
+)
