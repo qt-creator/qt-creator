@@ -11,6 +11,9 @@
 
 #include "qmt/diagram/delement.h"
 #include "qmt/diagram/dpackage.h"
+#include "qmt/diagram_controller/dselection.h"
+#include "qmt/diagram_scene/diagramscenemodel.h"
+#include "qmt/diagram_ui/diagramsmanager.h"
 #include "qmt/document_controller/documentcontroller.h"
 #include "qmt/infrastructure/contextmenuaction.h"
 #include "qmt/model/melement.h"
@@ -19,6 +22,7 @@
 #include "qmt/model/mcanvasdiagram.h"
 #include "qmt/model/mpackage.h"
 #include "qmt/model_controller/modelcontroller.h"
+#include "qmt/model_widgets_ui/addrelatedelementsdialog.h"
 #include "qmt/tasks/finddiagramvisitor.h"
 #include "qmt/project_controller/projectcontroller.h"
 #include "qmt/project/project.h"
@@ -44,12 +48,14 @@ class ElementTasks::ElementTasksPrivate {
 public:
     qmt::DocumentController *documentController = nullptr;
     ComponentViewController *componentViewController = nullptr;
+    QScopedPointer<qmt::AddRelatedElementsDialog> addRelatedElementsDialog;
 };
 
 ElementTasks::ElementTasks(QObject *parent)
     : QObject(parent),
       d(new ElementTasksPrivate)
 {
+    d->addRelatedElementsDialog.reset(new qmt::AddRelatedElementsDialog(Core::ICore::dialogParent()));
 }
 
 ElementTasks::~ElementTasks()
@@ -60,6 +66,7 @@ ElementTasks::~ElementTasks()
 void ElementTasks::setDocumentController(qmt::DocumentController *documentController)
 {
     d->documentController = documentController;
+    d->addRelatedElementsDialog->setDiagramSceneController(documentController->diagramSceneController());
 }
 
 void ElementTasks::setComponentViewController(ComponentViewController *componentViewController)
@@ -459,6 +466,10 @@ void ElementTasks::openLinkedFile(const qmt::DElement *element, const qmt::MDiag
 bool ElementTasks::extendContextMenu(const qmt::DElement *delement, const qmt::MDiagram *, QMenu *menu)
 {
     bool extended = false;
+    if (dynamic_cast<const qmt::DObject *>(delement)) {
+        menu->addAction(new qmt::ContextMenuAction(Tr::tr("Add Related Elements..."), "addRelatedElementsDialog", menu));
+        extended = true;
+    }
     if (dynamic_cast<const qmt::DPackage *>(delement)) {
         menu->addAction(new qmt::ContextMenuAction(Tr::tr("Update Include Dependencies"), "updateIncludeDependencies", menu));
         extended = true;
@@ -468,8 +479,12 @@ bool ElementTasks::extendContextMenu(const qmt::DElement *delement, const qmt::M
 
 bool ElementTasks::handleContextMenuAction(qmt::DElement *element, qmt::MDiagram *diagram, const QString &id)
 {
-    Q_UNUSED(diagram);
-    if (id == "updateIncludeDependencies") {
+    if (id == "addRelatedElementsDialog") {
+        qmt::DSelection selection = d->documentController->diagramsManager()->diagramSceneModel(diagram)->selectedElements();
+        d->addRelatedElementsDialog->setElements(selection, diagram);
+        d->addRelatedElementsDialog->open();
+        return true;
+    } else if (id == "updateIncludeDependencies") {
         qmt::MPackage *mpackage = d->documentController->modelController()->findElement<qmt::MPackage>(element->modelUid());
         if (mpackage)
             d->componentViewController->updateIncludeDependencies(mpackage);

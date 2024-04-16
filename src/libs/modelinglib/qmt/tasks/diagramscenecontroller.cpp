@@ -421,7 +421,44 @@ void DiagramSceneController::dropNewModelElement(MObject *modelObject, MPackage 
         emit newElementCreated(element, diagram);
 }
 
-void DiagramSceneController::addRelatedElements(const DSelection &selection, MDiagram *diagram)
+int DiagramSceneController::countRelatedElements(const DSelection &selection, MDiagram *diagram, std::function<bool (qmt::DObject *, qmt::MObject *, qmt::MRelation *)> filter)
+{
+    int counter = 0;
+    const QList<DSelection::Index> indices = selection.indices();
+    for (const DSelection::Index &index : indices) {
+        DElement *delement = m_diagramController->findElement(index.elementKey(), diagram);
+        QMT_ASSERT(delement, return 0);
+        DObject *dobject = dynamic_cast<DObject *>(delement);
+        if (dobject && dobject->modelUid().isValid()) {
+            MObject *mobject = m_modelController->findElement<MObject>(delement->modelUid());
+            if (mobject) {
+                const QList<MRelation *> relations = m_modelController->findRelationsOfObject(mobject);
+                QList<MRelation *> filteredRelations;
+                const QList<MRelation *> *relationsList = nullptr;
+                if (filter) {
+                    for (MRelation *relation : relations) {
+                        if (filter(dobject, mobject, relation))
+                            filteredRelations.append(relation);
+                    }
+                    relationsList = &filteredRelations;
+                } else {
+                    relationsList = &relations;
+                }
+                for (MRelation *relation : *relationsList) {
+                    if (relation->endAUid() != mobject->uid())
+                        ++counter;
+                    else if (relation->endBUid() != mobject->uid())
+                        ++counter;
+                }
+            }
+        }
+    }
+    return counter;
+}
+
+void DiagramSceneController::addRelatedElements(
+    const DSelection &selection, MDiagram *diagram,
+    std::function<bool (qmt::DObject *dobject, qmt::MObject *mobject, qmt::MRelation *relation)> filter)
 {
     m_diagramController->undoController()->beginMergeSequence(Tr::tr("Add Related Element"));
     const QList<DSelection::Index> indices = selection.indices();
@@ -435,8 +472,19 @@ void DiagramSceneController::addRelatedElements(const DSelection &selection, MDi
                 qreal dAngle = 360.0 / 11.5;
                 qreal dRadius = 100.0;
                 const QList<MRelation *> relations = m_modelController->findRelationsOfObject(mobject);
+                QList<MRelation *> filteredRelations;
+                const QList<MRelation *> *relationsList = nullptr;
+                if (filter) {
+                    for (MRelation *relation : relations) {
+                        if (filter(dobject, mobject, relation))
+                            filteredRelations.append(relation);
+                    }
+                    relationsList = &filteredRelations;
+                } else {
+                    relationsList = &relations;
+                }
                 int count = 0;
-                for (MRelation *relation : relations) {
+                for (MRelation *relation : *relationsList) {
                     if (relation->endAUid() != mobject->uid() || relation->endBUid() != mobject->uid())
                         ++count;
                 }
@@ -446,7 +494,7 @@ void DiagramSceneController::addRelatedElements(const DSelection &selection, MDi
                 }
                 qreal radius = 200.0;
                 qreal angle = 0.0;
-                for (MRelation *relation : relations) {
+                for (MRelation *relation : *relationsList) {
                     QPointF pos(dobject->pos());
                     pos += QPointF(radius * sin(angle / 180 * M_PI), -radius * cos(angle / 180 * M_PI));
                     bool added = false;
