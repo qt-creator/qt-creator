@@ -71,6 +71,46 @@ void ModelTreeView::setElementTasks(IElementTasks *elementTasks)
     m_elementTasks = elementTasks;
 }
 
+static void StoreStatus(QTreeView *view, QSortFilterProxyModel *model, const QModelIndex &parent, QVector<QModelIndex> &expanded_items)
+{
+    for (int index = 0; index < model->rowCount(parent); ++index) {
+        auto proxy_index = model->index(index, 0, parent);
+        if (view->isExpanded(proxy_index)) {
+            auto source_index = model->mapToSource(proxy_index);
+            expanded_items.append(source_index);
+        }
+        StoreStatus(view, model, proxy_index, expanded_items);
+    }
+}
+
+static void ApplyStatus(QTreeView *view, QSortFilterProxyModel *model, QVector<QModelIndex> &expanded_items)
+{
+    for (auto source_index : expanded_items) {
+        auto proxy_index = model->mapFromSource(source_index);
+        view->setExpanded(proxy_index, true);
+    }
+}
+
+void ModelTreeView::setModelTreeViewData(const ModelTreeViewData &viewData)
+{
+    if (m_sortedTreeModel) {
+        QVector<QModelIndex> expanded_items;
+        StoreStatus(this, m_sortedTreeModel, QModelIndex(), expanded_items);
+        m_sortedTreeModel->setModelTreeViewData(viewData);
+        ApplyStatus(this, m_sortedTreeModel, expanded_items);
+    }
+}
+
+void ModelTreeView::setModelTreeFilterData(const ModelTreeFilterData &filterData)
+{
+    if (m_sortedTreeModel) {
+        QVector<QModelIndex> expanded_items;
+        StoreStatus(this, m_sortedTreeModel, QModelIndex(), expanded_items);
+        m_sortedTreeModel->setModelTreeFilterData(filterData);
+        ApplyStatus(this, m_sortedTreeModel, expanded_items);
+    }
+}
+
 QModelIndex ModelTreeView::mapToSourceModelIndex(const QModelIndex &index) const
 {
     return m_sortedTreeModel->mapToSource(index);

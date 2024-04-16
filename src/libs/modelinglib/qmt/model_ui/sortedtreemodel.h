@@ -4,6 +4,7 @@
 #pragma once
 
 #include "qmt/infrastructure/qmt_global.h"
+#include "qmt/model_ui/modeltreefilterdata.h"
 
 #include <QSortFilterProxyModel>
 #include <QTimer>
@@ -21,7 +22,11 @@ public:
     TreeModel *treeModel() const { return m_treeModel; }
     void setTreeModel(TreeModel *treeModel);
 
+    void setModelTreeViewData(const ModelTreeViewData &viewData);
+    void setModelTreeFilterData(const ModelTreeFilterData &filterData);
+
 protected:
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 
 private:
@@ -32,6 +37,8 @@ private:
     void startDelayedSortTimer();
 
     TreeModel *m_treeModel = nullptr;
+    ModelTreeViewData m_modelTreeViewData;
+    ModelTreeFilterData m_modelTreeViewFilterData;
     QTimer m_delayedSortTimer;
 };
 

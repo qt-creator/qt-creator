@@ -35,6 +35,7 @@ public:
     QAction *deleteAction = nullptr;
     QAction *selectAllAction = nullptr;
     QAction *openParentDiagramAction = nullptr;
+    QAction *toggleViewFilterAction = nullptr;
     QAction *synchronizeBrowserAction = nullptr;
     QAction *exportDiagramAction = nullptr;
     QAction *exportSelectedElementsAction = nullptr;
@@ -93,6 +94,11 @@ QAction *ActionHandler::selectAllAction() const
 QAction *ActionHandler::openParentDiagramAction() const
 {
     return d->openParentDiagramAction;
+}
+
+QAction *ActionHandler::toggleViewFilterAction() const
+{
+    return d->toggleViewFilterAction;
 }
 
 QAction *ActionHandler::synchronizeBrowserAction() const
@@ -162,6 +168,15 @@ void ActionHandler::createActions()
                     QKeySequence(), QIcon(":/modelinglib/48x48/class.png"));
     registerCommand(Constants::ACTION_ADD_CANVAS_DIAGRAM, nullptr, Core::Context(), Tr::tr("Add Canvas Diagram"),
                     QKeySequence(), QIcon(":/modelinglib/48x48/canvas-diagram.png"));
+    d->toggleViewFilterAction
+        = registerCommand(
+              Constants::ACTION_TOGGLE_VIEWFILTER,
+              &ModelEditor::toggleModelTreeFilter,
+              Core::Context(),
+              Tr::tr("Toggle View and Filter Settings"),
+              QKeySequence(Tr::tr("Ctrl+F")),
+              Utils::Icons::EYE_OPEN_TOOLBAR.icon())->action();
+    d->toggleViewFilterAction->setCheckable(true);
     d->synchronizeBrowserAction
         = registerCommand(
               Constants::ACTION_SYNC_BROWSER,

@@ -126,6 +126,7 @@ add_qtc_library(Modeling
     qmt/model/mrelation.cpp qmt/model/mrelation.h
     qmt/model/msourceexpansion.cpp qmt/model/msourceexpansion.h
     qmt/model/mvisitor.h
+    qmt/model_ui/modeltreefilterdata.h qmt/model_ui/modeltreefilterdata.cpp
     qmt/model_ui/modeltreeviewinterface.h
     qmt/model_ui/sortedtreemodel.cpp qmt/model_ui/sortedtreemodel.h
     qmt/model_ui/stereotypescontroller.cpp qmt/model_ui/stereotypescontroller.h
@@ -134,6 +135,8 @@ add_qtc_library(Modeling
     qmt/model_widgets_ui/addrelatedelementsdialog.h qmt/model_widgets_ui/addrelatedelementsdialog.cpp
     qmt/model_widgets_ui/addrelatedelementsdialog.ui
     qmt/model_widgets_ui/classmembersedit.cpp qmt/model_widgets_ui/classmembersedit.h
+    qmt/model_widgets_ui/modeltreefilter.h qmt/model_widgets_ui/modeltreefilter.cpp
+    qmt/model_widgets_ui/modeltreefilter.ui
     qmt/model_widgets_ui/modeltreeview.cpp qmt/model_widgets_ui/modeltreeview.h
     qmt/model_widgets_ui/palettebox.cpp qmt/model_widgets_ui/palettebox.h
     qmt/model_widgets_ui/propertiesview.cpp qmt/model_widgets_ui/propertiesview.h
