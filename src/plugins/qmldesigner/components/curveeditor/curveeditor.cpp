@@ -77,8 +77,8 @@ CurveEditor::CurveEditor(CurveEditorModel *model, QWidget *parent)
 
     connect(m_toolbar, &CurveEditorToolBar::currentFrameChanged, [this, model](int frame) {
         model->setCurrentFrame(frame);
+        m_view->setCurrentFrame(frame, false);
         updateStatusLine();
-        m_view->viewport()->update();
     });
 
     connect(m_toolbar, &CurveEditorToolBar::zoomChanged, [this](double zoom) {
