@@ -9,6 +9,8 @@
 
 #include <sqlitedatabase.h>
 
+#include <utils/span.h>
+
 #ifdef QDS_BUILD_QMLPARSER
 #include <private/qqmldomtop_p.h>
 #include <private/qqmljstypedescriptionreader_p.h>
@@ -469,9 +471,9 @@ using namespace Qt::StringLiterals;
 constexpr auto skipLists = std::make_tuple(
     std::pair{"QtQuick.Templates-cppnative"sv, std::array{"QQuickItem"_L1}});
 
-std::span<const QLatin1StringView> getSkipList(std::string_view moduleName)
+Utils::span<const QLatin1StringView> getSkipList(std::string_view moduleName)
 {
-    static constexpr std::span<const QLatin1StringView> emptySkipList;
+    static constexpr Utils::span<const QLatin1StringView> emptySkipList;
     auto currentSkipList = emptySkipList;
 
     std::apply(
@@ -484,7 +486,7 @@ std::span<const QLatin1StringView> getSkipList(std::string_view moduleName)
     return currentSkipList;
 }
 
-bool skipType(const QQmlJSExportedScope &object, std::span<const QLatin1StringView> skipList)
+bool skipType(const QQmlJSExportedScope &object, Utils::span<const QLatin1StringView> skipList)
 {
     return std::any_of(skipList.begin(), skipList.end(), [&](const QLatin1StringView skip) {
         return object.scope->internalName() == skip;
