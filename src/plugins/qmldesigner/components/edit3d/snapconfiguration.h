@@ -103,6 +103,7 @@ private:
     double m_scaleInterval = 0.;
     bool m_changes = false;
     QPoint m_lastPos;
+    bool m_cursorHidden = false;
 };
 
 } // namespace QmlDesigner

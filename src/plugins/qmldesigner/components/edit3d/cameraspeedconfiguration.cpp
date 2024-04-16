@@ -66,8 +66,10 @@ void CameraSpeedConfiguration::resetDefaults()
 
 void CameraSpeedConfiguration::hideCursor()
 {
-    if (QGuiApplication::overrideCursor())
+    if (m_cursorHidden)
         return;
+
+    m_cursorHidden = true;
 
     QGuiApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
 
@@ -77,8 +79,10 @@ void CameraSpeedConfiguration::hideCursor()
 
 void CameraSpeedConfiguration::restoreCursor()
 {
-    if (!QGuiApplication::overrideCursor())
+    if (!m_cursorHidden)
         return;
+
+    m_cursorHidden = false;
 
     QGuiApplication::restoreOverrideCursor();
 
@@ -88,7 +92,7 @@ void CameraSpeedConfiguration::restoreCursor()
 
 void CameraSpeedConfiguration::holdCursorInPlace()
 {
-    if (!QGuiApplication::overrideCursor())
+    if (!m_cursorHidden)
         return;
 
     if (QWindow *w = QGuiApplication::focusWindow())

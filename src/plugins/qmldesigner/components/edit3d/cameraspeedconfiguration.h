@@ -71,6 +71,7 @@ private:
     double m_multiplier = 0.;
     bool m_changes = false;
     QPoint m_lastPos;
+    bool m_cursorHidden = false;
 };
 
 } // namespace QmlDesigner
