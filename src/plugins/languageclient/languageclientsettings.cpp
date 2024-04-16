@@ -25,6 +25,7 @@
 #include <utils/delegates.h>
 #include <utils/fancylineedit.h>
 #include <utils/jsontreeitem.h>
+#include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeconstants.h>
 #include <utils/stringutils.h>
@@ -784,71 +785,70 @@ static QString startupBehaviorString(BaseSettings::StartBehavior behavior)
     return {};
 }
 
-BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *parent)
+BaseSettingsWidget::BaseSettingsWidget(
+    const BaseSettings *settings, QWidget *parent, Layouting::LayoutItems additionalItems)
     : QWidget(parent)
     , m_name(new QLineEdit(settings->m_name, this))
     , m_mimeTypes(new QLabel(settings->m_languageFilter.mimeTypes.join(filterSeparator), this))
-    , m_filePattern(new QLineEdit(settings->m_languageFilter.filePattern.join(filterSeparator), this))
+    , m_filePattern(
+          new QLineEdit(settings->m_languageFilter.filePattern.join(filterSeparator), this))
     , m_startupBehavior(new QComboBox)
     , m_initializationOptions(new Utils::FancyLineEdit(this))
 {
-    int row = 0;
-    auto *mainLayout = new QGridLayout;
+    using namespace Layouting;
 
-    mainLayout->addWidget(new QLabel(Tr::tr("Name:")), row, 0);
-    mainLayout->addWidget(m_name, row, 1);
     auto chooser = new Utils::VariableChooser(this);
     chooser->addSupportedWidget(m_name);
+    chooser->addSupportedWidget(m_initializationOptions);
 
-    mainLayout->addWidget(new QLabel(Tr::tr("Language:")), ++row, 0);
-    auto mimeLayout = new QHBoxLayout;
-    mimeLayout->addWidget(m_mimeTypes);
-    mimeLayout->addStretch();
     auto addMimeTypeButton = new QPushButton(Tr::tr("Set MIME Types..."), this);
-    mimeLayout->addWidget(addMimeTypeButton);
-    mainLayout->addLayout(mimeLayout, row, 1);
+    connect(
+        addMimeTypeButton, &QPushButton::pressed, this, &BaseSettingsWidget::showAddMimeTypeDialog);
+
     m_filePattern->setPlaceholderText(Tr::tr("File pattern"));
     m_filePattern->setToolTip(
         Tr::tr("List of file patterns.\nExample: *.cpp%1*.h").arg(filterSeparator));
-    mainLayout->addWidget(m_filePattern, ++row, 1);
 
-    mainLayout->addWidget(new QLabel(Tr::tr("Startup behavior:")), ++row, 0);
     for (int behavior = 0; behavior < BaseSettings::LastSentinel ; ++behavior)
         m_startupBehavior->addItem(startupBehaviorString(BaseSettings::StartBehavior(behavior)));
     m_startupBehavior->setCurrentIndex(settings->m_startBehavior);
-    mainLayout->addWidget(m_startupBehavior, row, 1);
 
+    m_initializationOptions->setValidationFunction(
+        [](Utils::FancyLineEdit *edit, QString *errorMessage) {
+            const QString value = Utils::globalMacroExpander()->expand(edit->text());
 
-    connect(addMimeTypeButton, &QPushButton::pressed,
-            this, &BaseSettingsWidget::showAddMimeTypeDialog);
+            if (value.isEmpty())
+                return true;
 
-    mainLayout->addWidget(new QLabel(Tr::tr("Initialization options:")), ++row, 0);
-    mainLayout->addWidget(m_initializationOptions, row, 1);
-    chooser->addSupportedWidget(m_initializationOptions);
-    m_initializationOptions->setValidationFunction([](Utils::FancyLineEdit *edit, QString *errorMessage) {
-        const QString value = Utils::globalMacroExpander()->expand(edit->text());
+            QJsonParseError parseInfo;
+            const QJsonDocument json = QJsonDocument::fromJson(value.toUtf8(), &parseInfo);
 
-        if (value.isEmpty())
+            if (json.isNull()) {
+                if (errorMessage)
+                    *errorMessage = Tr::tr("Failed to parse JSON at %1: %2")
+                                        .arg(parseInfo.offset)
+                                        .arg(parseInfo.errorString());
+                return false;
+            }
             return true;
-
-        QJsonParseError parseInfo;
-        const QJsonDocument json = QJsonDocument::fromJson(value.toUtf8(), &parseInfo);
-
-        if (json.isNull()) {
-            if (errorMessage)
-                *errorMessage = Tr::tr("Failed to parse JSON at %1: %2")
-                    .arg(parseInfo.offset)
-                    .arg(parseInfo.errorString());
-            return false;
-        }
-        return true;
-    });
+        });
     m_initializationOptions->setText(settings->m_initializationOptions);
     m_initializationOptions->setPlaceholderText(Tr::tr("Language server-specific JSON to pass via "
                                                    "\"initializationOptions\" field of \"initialize\" "
                                                    "request."));
 
-    setLayout(mainLayout);
+    // clang-format off
+    auto form = Form {
+        Tr::tr("Name:"), m_name, br,
+        Tr::tr("Language:"), Row { m_mimeTypes, st, addMimeTypeButton }, br,
+        Tr::tr("File pattern:"), m_filePattern, br,
+        Tr::tr("Startup behavior:"), m_startupBehavior, br,
+        Tr::tr("Initialization options:"), m_initializationOptions, br
+
+    };
+    form.addItems(additionalItems);
+    form.attachTo(this);
+    // clang-format on
 }
 
 QString BaseSettingsWidget::name() const
@@ -969,15 +969,17 @@ StdIOSettingsWidget::StdIOSettingsWidget(const StdIOSettings *settings, QWidget 
     , m_executable(new Utils::PathChooser(this))
     , m_arguments(new QLineEdit(settings->m_arguments, this))
 {
-    auto mainLayout = qobject_cast<QGridLayout *>(layout());
-    QTC_ASSERT(mainLayout, return);
-    const int baseRows = mainLayout->rowCount();
-    mainLayout->addWidget(new QLabel(Tr::tr("Executable:")), baseRows, 0);
-    mainLayout->addWidget(m_executable, baseRows, 1);
-    mainLayout->addWidget(new QLabel(Tr::tr("Arguments:")), baseRows + 1, 0);
+    using namespace Layouting;
+
     m_executable->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_executable->setFilePath(settings->m_executable);
-    mainLayout->addWidget(m_arguments, baseRows + 1, 1);
+
+    auto mainLayout = qobject_cast<QFormLayout *>(layout());
+    QTC_ASSERT(mainLayout, return);
+    int row = mainLayout->rowCount();
+
+    mainLayout->insertRow(row++, Tr::tr("Executable:"), m_executable);
+    mainLayout->insertRow(row++, Tr::tr("Arguments:"), m_arguments);
 
     auto chooser = new Utils::VariableChooser(this);
     chooser->addSupportedWidget(m_arguments);

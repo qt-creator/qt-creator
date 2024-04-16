@@ -7,6 +7,8 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <utils/layoutbuilder.h>
+
 #include <QAbstractItemModel>
 #include <QCoreApplication>
 #include <QJsonObject>
@@ -154,7 +156,11 @@ class LANGUAGECLIENT_EXPORT BaseSettingsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit BaseSettingsWidget(const BaseSettings* settings, QWidget *parent = nullptr);
+    explicit BaseSettingsWidget(
+        const BaseSettings *settings,
+        QWidget *parent = nullptr,
+        Layouting::LayoutItems additionalItems = {});
+
     ~BaseSettingsWidget() override = default;
 
     QString name() const;
