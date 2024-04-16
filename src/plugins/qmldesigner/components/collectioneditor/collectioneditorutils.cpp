@@ -96,13 +96,17 @@ Utils::FilePath dataStoreDir()
     if (!currentProject)
         return {};
 
-    return currentProject->projectDirectory().pathAppended("/imports/"
-                                                           + currentProject->displayName());
+    FilePath oldImportDirectory = currentProject->projectDirectory().pathAppended(
+        "imports/" + currentProject->displayName());
+    if (oldImportDirectory.exists())
+        return oldImportDirectory;
+
+    return currentProject->projectDirectory().pathAppended(currentProject->displayName());
 }
 
 inline Utils::FilePath collectionPath(const QString &filePath)
 {
-    return dataStoreDir().pathAppended("/" + filePath);
+    return dataStoreDir().pathAppended(filePath);
 }
 
 inline Utils::FilePath qmlDirFilePath()
