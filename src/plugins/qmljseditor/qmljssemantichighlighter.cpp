@@ -370,6 +370,8 @@ protected:
 
     bool visit(FieldMemberExpression *ast) override
     {
+        if (ast->name.isEmpty() || ast->name.first().isLower())
+            return true;
         // we only support IdentifierExpression.FieldMemberExpression (enum)
         const FieldMemberExpression *right = ast;
         if (const IdentifierExpression *idExp = cast<IdentifierExpression *>(ast->base)) {
