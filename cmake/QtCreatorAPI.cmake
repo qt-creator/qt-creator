@@ -1119,3 +1119,28 @@ function(qtc_add_public_header header)
     COMPONENT Devel EXCLUDE_FROM_ALL
   )
 endfunction()
+
+function (add_qtc_lua_plugin name)
+  cmake_parse_arguments(_arg "EXCLUDE_FROM_INSTALL;" "" "SOURCES;" ${ARGN})
+
+  add_custom_target(${name} ALL SOURCES ${_arg_SOURCES})
+
+  foreach(SOURCE ${_arg_SOURCES})
+    add_custom_command(TARGET ${name} POST_BUILD
+    COMMAND
+        ${CMAKE_COMMAND} -E copy
+        ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE}
+        ${CMAKE_BINARY_DIR}/${IDE_PLUGIN_PATH}/lua-plugins/${SOURCE}
+    COMMENT "Copying ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE} to ${CMAKE_BINARY_DIR}/${IDE_PLUGIN_PATH}/lua-plugins/${SOURCE}"
+    )
+
+    if (NOT _arg_EXCLUDE_FROM_INSTALL)
+      cmake_path(GET SOURCE PARENT_PATH SOURCE_DIR)
+
+      install(FILES
+      ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE}
+      DESTINATION ${IDE_PLUGIN_PATH}/lua-plugins/${SOURCE_DIR}
+      )
+    endif()
+  endforeach()
+endfunction()
