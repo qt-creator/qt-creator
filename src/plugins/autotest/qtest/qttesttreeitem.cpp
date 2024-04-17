@@ -170,6 +170,34 @@ ITestConfiguration *QtTestTreeItem::testConfiguration() const
     return config;
 }
 
+struct FunctionLocation {
+    FunctionLocation(const QString &n, const Link &l, std::optional<Link> r = std::nullopt)
+        : name(n), declaration(l), registration(r) {}
+    QString name;
+    Link declaration;
+    std::optional<Link> registration;
+};
+
+static QStringList orderedTestCases(const QList<FunctionLocation> &original)
+{
+    auto compare = [](const Link &lhs, const Link &rhs) {
+        if (lhs.targetLine == rhs.targetLine)
+            return lhs.targetColumn - rhs.targetColumn;
+        return lhs.targetLine - rhs.targetLine;
+    };
+
+    QList<FunctionLocation> locations = original;
+    Utils::sort(locations, [compare](const FunctionLocation &lhs, const FunctionLocation &rhs) {
+        if (lhs.declaration.targetFilePath != rhs.declaration.targetFilePath)
+            return lhs.declaration.targetFilePath < rhs.declaration.targetFilePath;
+        if (auto diff = compare(lhs.declaration, rhs.declaration))
+            return diff < 0;
+        return compare(lhs.registration.value_or(Link{{}, INT_MAX, INT_MAX}),
+                       rhs.registration.value_or(Link{{}, INT_MAX, INT_MAX})) < 0;
+    });
+    return Utils::transform(locations, [](const FunctionLocation &loc) { return loc.name; });
+}
+
 static void fillTestConfigurationsFromCheckState(const TestTreeItem *item,
                                                  QList<ITestConfiguration *> &testConfigurations)
 {
@@ -190,21 +218,30 @@ static void fillTestConfigurationsFromCheckState(const TestTreeItem *item,
         testConfigurations << testConfig;
         return;
     case Qt::PartiallyChecked:
-        QStringList testCases;
+        // we need the location for keeping the order while running
+        // normal test function: declaration, data tag: location of registration
+        QList<FunctionLocation> testCases;
         item->forFirstLevelChildren([&testCases](ITestTreeItem *grandChild) {
             if (grandChild->checked() == Qt::Checked) {
-                testCases << grandChild->name();
+                TestTreeItem *funcItem = static_cast<TestTreeItem *>(grandChild);
+                const Link link(funcItem->filePath(), funcItem->line(), funcItem->column());
+                testCases << FunctionLocation(funcItem->name(), link);
             } else if (grandChild->checked() == Qt::PartiallyChecked) {
-                const QString funcName = grandChild->name();
-                grandChild->forFirstLevelChildren([&testCases, &funcName](ITestTreeItem *dataTag) {
-                    if (dataTag->checked() == Qt::Checked)
-                        testCases << funcName + ':' + dataTag->name();
+                TestTreeItem *funcItem = static_cast<TestTreeItem *>(grandChild);
+                grandChild->forFirstLevelChildren([&testCases, funcItem](ITestTreeItem *dataTag) {
+                    if (dataTag->checked() == Qt::Checked) {
+                        TestTreeItem *tagItem = static_cast<TestTreeItem *>(dataTag);
+                        const Link decl(funcItem->filePath(), funcItem->line(), funcItem->column());
+                        const Link reg(tagItem->filePath(), tagItem->line(), tagItem->column());
+                        testCases << FunctionLocation(funcItem->name() + ':' + tagItem->name(),
+                                                      decl, reg);
+                    }
                 });
             }
         });
 
         testConfig = new QtTestConfiguration(item->framework());
-        testConfig->setTestCases(testCases);
+        testConfig->setTestCases(orderedTestCases(testCases));
         testConfig->setProjectFile(item->proFile());
         testConfig->setProject(ProjectExplorer::ProjectManager::startupProject());
         testConfig->setInternalTargets(
@@ -222,14 +259,24 @@ static void collectFailedTestInfo(TestTreeItem *item, QList<ITestConfiguration *
         return;
     }
     QTC_ASSERT(item->type() == TestTreeItem::TestCase, return);
-    QStringList testCases;
+    // we need the location for keeping the order while running
+    // normal test function: declaration, data tag: location of registration
+    QList<FunctionLocation> testCases;
     item->forFirstLevelChildren([&testCases](ITestTreeItem *func) {
         if (func->type() == TestTreeItem::TestFunction && func->data(0, FailedRole).toBool()) {
-            testCases << func->name();
+            TestTreeItem *funcItem = static_cast<TestTreeItem *>(func);
+            const Link link(funcItem->filePath(), funcItem->line(), funcItem->column());
+            testCases << FunctionLocation(func->name(), link);
         } else {
-            func->forFirstLevelChildren([&testCases, func](ITestTreeItem *dataTag) {
-                if (dataTag->data(0, FailedRole).toBool())
-                    testCases << func->name() + ':' + dataTag->name();
+            TestTreeItem *funcItem = static_cast<TestTreeItem *>(func);
+            func->forFirstLevelChildren([&testCases, funcItem](ITestTreeItem *dataTag) {
+                if (dataTag->data(0, FailedRole).toBool()) {
+                    TestTreeItem *tagItem = static_cast<TestTreeItem *>(dataTag);
+                    const Link decl(funcItem->filePath(), funcItem->line(), funcItem->column());
+                    const Link reg(tagItem->filePath(), tagItem->line(), tagItem->column());
+                    testCases << FunctionLocation(funcItem->name() + ':' + dataTag->name(),
+                                                  decl, reg);
+                }
             });
         }
     });
@@ -237,7 +284,7 @@ static void collectFailedTestInfo(TestTreeItem *item, QList<ITestConfiguration *
         return;
 
     QtTestConfiguration *testConfig = new QtTestConfiguration(item->framework());
-    testConfig->setTestCases(testCases);
+    testConfig->setTestCases(orderedTestCases(testCases));
     testConfig->setProjectFile(item->proFile());
     testConfig->setProject(ProjectExplorer::ProjectManager::startupProject());
     testConfig->setInternalTargets(
@@ -307,20 +354,23 @@ QList<ITestConfiguration *> QtTestTreeItem::getTestConfigurationsForFile(const F
     if (!project || type() != Root)
         return result;
 
-    QHash<TestTreeItem *, QStringList> testFunctions;
+    QHash<TestTreeItem *, QList<FunctionLocation>> testFunctions;
     forAllChildItems([&testFunctions, &fileName](TestTreeItem *node) {
         if (node->type() == Type::TestFunction && node->filePath() == fileName) {
             QTC_ASSERT(node->parentItem(), return);
             TestTreeItem *testCase = node->parentItem();
             QTC_ASSERT(testCase->type() == Type::TestCase, return);
-            testFunctions[testCase] << node->name();
+
+            // we need the declaration location for keeping the order while running
+            const Link link(node->filePath(), node->line(), node->column());
+            testFunctions[testCase] << FunctionLocation(node->name(), link);
         }
     });
 
     for (auto it = testFunctions.cbegin(), end = testFunctions.cend(); it != end; ++it) {
         TestConfiguration *tc = static_cast<TestConfiguration *>(it.key()->testConfiguration());
         QTC_ASSERT(tc, continue);
-        tc->setTestCases(it.value());
+        tc->setTestCases(orderedTestCases(it.value()));
         result << tc;
     }
 
