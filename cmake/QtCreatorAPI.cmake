@@ -1121,26 +1121,25 @@ function(qtc_add_public_header header)
 endfunction()
 
 function (add_qtc_lua_plugin name)
-  cmake_parse_arguments(_arg "EXCLUDE_FROM_INSTALL;" "" "SOURCES;" ${ARGN})
+  cmake_parse_arguments(_arg "EXCLUDE_FROM_INSTALL" "" "SOURCES" ${ARGN})
 
-  add_custom_target(${name} ALL SOURCES ${_arg_SOURCES})
+  if (${_arg_UNPARSED_ARGUMENTS})
+    message(FATAL_ERROR "add_qtc_lua_plugin had unparsed arguments!")
+  endif()
 
-  foreach(SOURCE ${_arg_SOURCES})
-    add_custom_command(TARGET ${name} POST_BUILD
-    COMMAND
-        ${CMAKE_COMMAND} -E copy
-        ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE}
-        ${CMAKE_BINARY_DIR}/${IDE_PLUGIN_PATH}/lua-plugins/${SOURCE}
-    COMMENT "Copying ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE} to ${CMAKE_BINARY_DIR}/${IDE_PLUGIN_PATH}/lua-plugins/${SOURCE}"
-    )
+  qtc_copy_to_builddir(${name}
+    FILES ${_arg_SOURCES}
+    DESTINATION ${IDE_PLUGIN_PATH}/lua-plugins
+  )
 
-    if (NOT _arg_EXCLUDE_FROM_INSTALL)
+  if (NOT _arg_EXCLUDE_FROM_INSTALL)
+    foreach(SOURCE ${_arg_SOURCES})
       get_filename_component(SOURCE_DIR "${SOURCE}" DIRECTORY)
 
-      install(FILES
-      ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE}
-      DESTINATION ${IDE_PLUGIN_PATH}/lua-plugins/${SOURCE_DIR}
+      install(
+        FILES ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE}
+        DESTINATION ${IDE_PLUGIN_PATH}/lua-plugins/${SOURCE_DIR}
       )
-    endif()
-  endforeach()
+    endforeach()
+  endif()
 endfunction()
