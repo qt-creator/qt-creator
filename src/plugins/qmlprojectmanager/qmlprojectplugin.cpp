@@ -9,8 +9,7 @@
 #include "qmlprojectmanagertr.h"
 #include "qmlprojectrunconfiguration.h"
 #include "projectfilecontenttools.h"
-#include "cmakegen/cmakeprojectconverter.h"
-#include "cmakegen/generatecmakelists.h"
+#include "cmakegen/cmakegenerator.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -389,10 +388,6 @@ void QmlProjectPlugin::initialize()
 
         GenerateCmake::CMakeGenerator::createMenuAction(this);
     }
-
-    GenerateCmake::generateMenuEntry(this);
-    if (ICore::isQtDesignStudio())
-        GenerateCmake::CmakeProjectConverter::generateMenuEntry(this);
 }
 
 void QmlProjectPlugin::displayQmlLandingPage()

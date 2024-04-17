@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #include "cmakewriterv1.h"
 #include "cmakegenerator.h"
-#include "generatecmakelistsconstants.h"
 
 #include "qmlprojectmanager/buildsystem/qmlbuildsystem.h"
 
@@ -62,7 +61,7 @@ void CMakeWriterV1::writeRootCMakeFile(const NodePtr &node) const
     const QString appName = parent()->projectName() + "App";
 
     QString fileSection = "";
-    const QString configFile = getEnvironmentVariable(Constants::ENV_VARIABLE_CONTROLCONF);
+    const QString configFile = getEnvironmentVariable(ENV_VARIABLE_CONTROLCONF);
     if (!configFile.isEmpty())
         fileSection = QString("\t\t%1").arg(configFile);
 

@@ -47,13 +47,6 @@ QtcPlugin {
         name: "CMake Generator"
         prefix: "cmakegen/"
         files: [
-            "generatecmakelists.cpp", "generatecmakelists.h",
-            "generatecmakelistsconstants.h",
-            "checkablefiletreeitem.cpp", "checkablefiletreeitem.h",
-            "cmakegeneratordialogtreemodel.cpp", "cmakegeneratordialogtreemodel.h",
-            "cmakegeneratordialog.cpp", "cmakegeneratordialog.h",
-            "cmakeprojectconverter.cpp", "cmakeprojectconverter.h",
-            "cmakeprojectconverterdialog.cpp", "cmakeprojectconverterdialog.h",
             "cmakegenerator.cpp", "cmakegenerator.h",
             "cmakewriter.cpp", "cmakewriter.h",
             "cmakewriterv0.cpp", "cmakewriterv0.h",

@@ -47,6 +47,7 @@ public:
 private:
     bool isQml(const Utils::FilePath &path) const;
     bool isResource(const Utils::FilePath &path) const;
+    bool ignoreFile(const Utils::FilePath &path) const;
 
     void createCMakeFiles(const NodePtr &node) const;
     void createSourceFiles() const;

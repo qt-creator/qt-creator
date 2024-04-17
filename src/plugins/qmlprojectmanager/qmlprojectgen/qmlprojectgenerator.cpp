@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmlprojectgenerator.h"
-#include "../cmakegen/generatecmakelists.h"
+#include "../cmakegen/cmakewriter.h"
 #include "../qmlprojectmanagertr.h"
 
 #include <coreplugin/documentmanager.h>
@@ -61,7 +61,7 @@ bool QmlProjectFileGenerator::execute()
     importDirs.removeAll("content");
     const QString importPaths = createDirArrayEntry("importPaths", importDirs);
 
-    const QString fileContent = GenerateCmake::readTemplate(QMLPROJECT_FILE_TEMPLATE_PATH)
+    const QString fileContent = GenerateCmake::CMakeWriter::readTemplate(QMLPROJECT_FILE_TEMPLATE_PATH)
             .arg(contentEntry, imageEntry, jsEntry, assetEntry, importPaths);
 
     QFile file(m_targetFile.toString());

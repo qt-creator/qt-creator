@@ -42,13 +42,6 @@ extend_qtc_plugin(QmlProjectManager
   PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/cmakegen
   SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/cmakegen
   SOURCES
-      checkablefiletreeitem.cpp checkablefiletreeitem.h
-      cmakegeneratordialog.cpp cmakegeneratordialog.h
-      cmakegeneratordialogtreemodel.cpp cmakegeneratordialogtreemodel.h
-      cmakeprojectconverter.cpp cmakeprojectconverter.h
-      cmakeprojectconverterdialog.cpp cmakeprojectconverterdialog.h
-      generatecmakelists.cpp generatecmakelists.h
-      generatecmakelistsconstants.h
       cmakegenerator.cpp cmakegenerator.h
       cmakewriter.cpp cmakewriter.h
       cmakewriterv0.cpp cmakewriterv0.h

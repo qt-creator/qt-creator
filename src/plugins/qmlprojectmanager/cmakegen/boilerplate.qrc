@@ -12,15 +12,4 @@
         <file alias="qtquickcontrols_conf">templates/qtquickcontrols2_conf.tpl</file>
         <file alias="cmake_shared">templates/cmakelists_txt_shared.tpl</file>
     </qresource>
-
-    <qresource prefix="/boilerplatetemplates">
-        <file>qmlprojectmaincpp.tpl</file>
-        <file>qmlprojectmaincppheader.tpl</file>
-        <file>qmlprojectenvheader.tpl</file>
-        <file>qmlprojectmodules.tpl</file>
-        <file>qmlprojectmaincmakelists.tpl</file>
-        <file>qmlprojectmodulecmakelists.tpl</file>
-        <file>qmlprojectmainqml.tpl</file>
-        <file>qmlprojectappmainqml.tpl</file>
-    </qresource>
 </RCC>

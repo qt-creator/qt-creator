@@ -4,7 +4,6 @@
 #include "cmakegenerator.h"
 #include "cmakewriterv0.h"
 #include "cmakewriterv1.h"
-#include "generatecmakelistsconstants.h"
 
 #include "qmlprojectmanager/qmlproject.h"
 #include "qmlprojectmanager/buildsystem/qmlbuildsystem.h"
@@ -42,6 +41,16 @@ CMakeWriter::Ptr CMakeWriter::create(CMakeGenerator *parent)
     return std::make_unique<CMakeWriterV0>(parent);
 }
 
+QString CMakeWriter::readTemplate(const QString &templatePath)
+{
+    QFile templatefile(templatePath);
+    templatefile.open(QIODevice::ReadOnly);
+    QTextStream stream(&templatefile);
+    QString content = stream.readAll();
+    templatefile.close();
+    return content;
+}
+
 CMakeWriter::CMakeWriter(CMakeGenerator *parent)
     : m_parent(parent)
 {}
@@ -60,7 +69,7 @@ bool CMakeWriter::isPlugin(const NodePtr &node) const
 
 QString CMakeWriter::sourceDirName() const
 {
-    return Constants::DIRNAME_CPP;
+    return "src";
 }
 
 void CMakeWriter::transformNode(NodePtr &) const
@@ -173,7 +182,7 @@ QString CMakeWriter::makeSetEnvironmentFn() const
     QTC_ASSERT(parent()->buildSystem(), return {});
 
     const QmlBuildSystem *buildSystem = parent()->buildSystem();
-    const QString configFile = getEnvironmentVariable(Constants::ENV_VARIABLE_CONTROLCONF);
+    const QString configFile = getEnvironmentVariable(ENV_VARIABLE_CONTROLCONF);
 
     QString out("inline void set_qt_environment() {\n");
     for (Utils::EnvironmentItem &envItem : buildSystem->environment()) {
@@ -221,16 +230,6 @@ std::tuple<QString, QString> CMakeWriter::makeResourcesBlocks(const NodePtr &nod
     }
 
     return {resourcesOut, bigResourcesOut};
-}
-
-QString CMakeWriter::readTemplate(const QString &templatePath) const
-{
-    QFile templatefile(templatePath);
-    templatefile.open(QIODevice::ReadOnly);
-    QTextStream stream(&templatefile);
-    QString content = stream.readAll();
-    templatefile.close();
-    return content;
 }
 
 void CMakeWriter::writeFile(const Utils::FilePath &path, const QString &content) const

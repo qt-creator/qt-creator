@@ -208,6 +208,12 @@ bool CMakeGenerator::isResource(const Utils::FilePath &path) const
     return suffixes.contains(path.suffix(), Qt::CaseInsensitive);
 }
 
+bool CMakeGenerator::ignoreFile(const Utils::FilePath &path) const
+{
+    static const QStringList suffixes = { "hints" };
+    return suffixes.contains(path.suffix(), Qt::CaseInsensitive);
+}
+
 void CMakeGenerator::createCMakeFiles(const NodePtr &node) const
 {
     QTC_ASSERT(m_writer, return);
@@ -481,7 +487,7 @@ void CMakeGenerator::compareWithFileSystem(const NodePtr &node) const
 
     while (iter.hasNext()) {
         auto next = Utils::FilePath::fromString(iter.next());
-        if (isResource(next) && !findFile(next))
+        if (isResource(next) && !findFile(next) && !ignoreFile(next))
             files.push_back(next);
     }
 
