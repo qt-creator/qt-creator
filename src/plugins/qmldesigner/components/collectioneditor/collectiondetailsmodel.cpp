@@ -93,6 +93,7 @@ bool CollectionDetailsModel::setData(const QModelIndex &index, const QVariant &v
             if (prevWarning != m_currentCollection.cellWarningCheck(index.row(), index.column()))
                 roles << DataTypeWarningRole;
 
+            setHasUnsavedChanges(true);
             emit dataChanged(index, index, roles);
         }
 
@@ -131,6 +132,7 @@ bool CollectionDetailsModel::insertRows(int row, int count, [[maybe_unused]] con
     beginInsertRows({}, row, row + count - 1);
     m_currentCollection.insertEmptyRows(row, count);
     endInsertRows();
+    setHasUnsavedChanges(true);
 
     return true;
 }
@@ -247,6 +249,7 @@ bool CollectionDetailsModel::addColumn(int column, const QString &name, const QS
                                      {},
                                      CollectionDataTypeModel::dataTypeFromString(propertyType));
     endInsertColumns();
+    setHasUnsavedChanges(true);
     return m_currentCollection.containsPropertyName(name);
 }
 
@@ -302,6 +305,7 @@ bool CollectionDetailsModel::setPropertyType(int column, const QString &newValue
             {Qt::DisplayRole, Qt::EditRole, DataTypeRole, DataTypeWarningRole, ColumnDataTypeRole});
     }
 
+    setHasUnsavedChanges(true);
     return changed;
 }
 
@@ -434,6 +438,7 @@ bool CollectionDetailsModel::saveDataStoreCollections()
                 if (reference != currentReference)
                     closeCollectionIfSaved(reference);
             }
+            setHasUnsavedChanges(false);
             return true;
         }
     }
@@ -609,6 +614,14 @@ void CollectionDetailsModel::setCollectionName(const QString &newCollectionName)
 QString CollectionDetailsModel::warningToString(DataTypeWarning::Warning warning) const
 {
     return DataTypeWarning::getDataTypeWarningString(warning);
+}
+
+void CollectionDetailsModel::setHasUnsavedChanges(bool val)
+{
+    if (m_hasUnsavedChanges == val)
+        return;
+    m_hasUnsavedChanges = val;
+    emit hasUnsavedChangesChanged();
 }
 
 } // namespace QmlDesigner
