@@ -79,7 +79,10 @@ protected:
     {
         m_lastPos = event->scenePos();
         QPointF delta = m_lastPos - m_startPos;
-        m_owner->moveHandle(m_pointIndex, delta, Release, m_qualifier);
+        HandleQualifier qualifier = m_qualifier;
+        if (qualifier == None && (event->modifiers() & Qt::ShiftModifier) != 0)
+            qualifier = SnapHandle;
+        m_owner->moveHandle(m_pointIndex, delta, Release, qualifier);
         clearFocus();
     }
 
@@ -267,6 +270,7 @@ void PathSelectionItem::moveHandle(int pointIndex, const QPointF &deltaMove, Han
 {
     switch (handleQualifier) {
     case None:
+    case SnapHandle:
     {
         if (handleStatus == Press) {
             m_focusHandleItem = m_handles.at(pointIndex);
@@ -275,13 +279,13 @@ void PathSelectionItem::moveHandle(int pointIndex, const QPointF &deltaMove, Han
         QPointF newPos = m_originalHandlePos + deltaMove;
         m_windable->setHandlePos(pointIndex, newPos);
         if (handleStatus == Release) {
-            m_windable->dropHandle(pointIndex, RASTER_WIDTH, RASTER_HEIGHT);
+            m_windable->dropHandle(pointIndex, handleQualifier == SnapHandle, RASTER_WIDTH, RASTER_HEIGHT);
             m_focusHandleItem = nullptr;
         }
         break;
     }
     case DeleteHandle:
-        if (handleStatus == Press)
+        if (handleStatus == Release)
             m_windable->deleteHandle(pointIndex);
         break;
     }

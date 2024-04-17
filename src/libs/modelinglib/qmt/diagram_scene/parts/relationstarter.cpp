@@ -121,11 +121,13 @@ void RelationStarter::keyPressEvent(QKeyEvent *event)
             m_currentPreviewArrowIntermediatePoints.append(p);
             // Do not update the preview arrow here because last two points are now identical which looks wired
         }
+        event->accept();
     } else if (event->key() == Qt::Key_Control) {
         if (!m_currentPreviewArrowIntermediatePoints.isEmpty()) {
             m_currentPreviewArrowIntermediatePoints.removeLast();
             updateCurrentPreviewArrow(m_currentPreviewArrow->lastLineSegment().p1());
         }
+        event->accept();
     }
 }
 

@@ -25,7 +25,8 @@ class PathSelectionItem : public QGraphicsItem
 
     enum HandleQualifier {
         None,
-        DeleteHandle
+        DeleteHandle,
+        SnapHandle
     };
 
 public:

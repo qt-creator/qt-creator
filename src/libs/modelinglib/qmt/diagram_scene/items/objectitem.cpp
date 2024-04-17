@@ -185,6 +185,8 @@ void ObjectItem::setFocusSelected(bool focusSelected)
     if (m_isFocusSelected != focusSelected) {
         m_isFocusSelected = focusSelected;
         update();
+        if (m_nameItem)
+            m_nameItem->setEditable(focusSelected);
     }
 }
 
@@ -353,9 +355,9 @@ void ObjectItem::relationDrawn(const QString &id, ObjectItem *targetItem, const 
                         elementType = targetItem->stereotypeIconId();
                     else if (!targetItem->shapeIconId().isEmpty())
                         elementType = targetItem->shapeIconId();
-                    else
-                        elementType = targetItem->elementType();
-                    if (!endItems.contains(elementType)) {
+                    if ((!elementType.isEmpty() && !endItems.contains(elementType))
+                         && !endItems.contains(targetItem->elementType()))
+                    {
                         return;
                     }
                     // create relation

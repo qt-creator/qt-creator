@@ -79,6 +79,7 @@ public:
     bool hasSelection() const;
     bool hasMultiObjectsSelection() const;
     DSelection selectedElements() const;
+    QGraphicsItem *findTopmostItem(const QPointF &scenePos) const;
     DElement *findTopmostElement(const QPointF &scenePos) const;
     DObject *findTopmostObject(const QPointF &scenePos) const;
     ObjectItem *findTopmostObjectItem(const QPointF &scenePos) const;
@@ -169,6 +170,7 @@ private:
     QGraphicsItem *m_focusItem = nullptr;
     QRectF m_sceneRect;
     QList<Uid> m_relationEndsUid;
+    bool m_mousePressed = false;
 };
 
 } // namespace qmt

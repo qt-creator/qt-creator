@@ -13,11 +13,16 @@ namespace qmt {
 EditableTextItem::EditableTextItem(QGraphicsItem *parent)
     : QGraphicsTextItem(parent)
 {
-    setTextInteractionFlags(Qt::TextEditorInteraction);
+    setTextInteractionFlags(Qt::NoTextInteraction);
 }
 
 EditableTextItem::~EditableTextItem()
 {
+}
+
+void EditableTextItem::setEditable(bool editable)
+{
+    setTextInteractionFlags(editable ? Qt::TextEditorInteraction : Qt::NoTextInteraction);
 }
 
 void EditableTextItem::setShowFocus(bool showFocus)
@@ -70,13 +75,6 @@ void EditableTextItem::keyReleaseEvent(QKeyEvent *event)
         event->accept();
     else
         QGraphicsTextItem::keyReleaseEvent(event);
-}
-
-void EditableTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-    scene()->clearSelection();
-    parentItem()->setSelected(true);
-    QGraphicsTextItem::mousePressEvent(event);
 }
 
 void EditableTextItem::focusOutEvent(QFocusEvent *event)

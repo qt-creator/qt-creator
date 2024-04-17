@@ -4,6 +4,7 @@
 #pragma once
 
 #include "parameters.h"
+#include "tag.h"
 
 #include <QList>
 #include <QHash>
