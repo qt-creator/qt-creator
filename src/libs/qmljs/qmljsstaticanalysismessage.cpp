@@ -189,8 +189,9 @@ StaticAnalysisMessages::StaticAnalysisMessages()
            Tr::tr("Maximum string value length is %1."), 1);
     newMsg(ErrInvalidArrayValueLength, Error,
            Tr::tr("%1 elements expected in array value."), 1);
-    newMsg(WarnImperativeCodeNotEditableInVisualDesigner, Warning,
-           Tr::tr("Imperative code is not supported in Qt Design Studio."));
+    newMsg(WarnImperativeCodeNotEditableInVisualDesigner,
+           Warning,
+           Tr::tr("JavaScript can break the visual tooling in Qt Design Studio."));
     newMsg(WarnUnsupportedTypeInVisualDesigner, Warning,
            Tr::tr("This type (%1) is not supported in Qt Design Studio."), 1);
     newMsg(WarnReferenceToParentItemNotSupportedByVisualDesigner, Warning,
