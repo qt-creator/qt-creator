@@ -18,6 +18,7 @@
 namespace Utils {
 
 static Theme *m_creatorTheme = nullptr;
+static std::optional<QPalette> m_initialPalette;
 
 ThemePrivate::ThemePrivate()
 {
@@ -327,7 +328,13 @@ bool Theme::systemUsesDarkMode()
     if (HostOsInfo::isMacHost())
         return macOSSystemIsDark();
 
-    return false;
+    // Avoid enforcing the initial palette.
+    // The initial palette must be set after setting the macOS appearance in setInitialPalette,
+    // but systemUsesDarkMode is used to determine the default theme, which is in turn required
+    // for the setInitialPalette call
+    if (m_initialPalette)
+        return paletteIsDark(*m_initialPalette);
+    return paletteIsDark(QApplication::palette());
 }
 
 // If you copy QPalette, default values stay at default, even if that default is different
@@ -363,8 +370,8 @@ void Theme::setHelpMenu(QMenu *menu)
 
 QPalette Theme::initialPalette()
 {
-    static QPalette palette = copyPalette(QApplication::palette());
-    return palette;
+    m_initialPalette = copyPalette(QApplication::palette());
+    return *m_initialPalette;
 }
 
 QPalette Theme::palette() const
