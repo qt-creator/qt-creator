@@ -232,7 +232,7 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidSdkManager *sdkManager, 
             args.removeAll(obsoleteArg);
             androidConfig().setSdkManagerToolArgs(args);
        }
-        m_sdkManager->reloadPackages(true);
+        m_sdkManager->reloadPackages();
     });
 
     connect(channelCheckbox, &QComboBox::currentIndexChanged, this, [this](int index) {
@@ -261,7 +261,7 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidSdkManager *sdkManager, 
                 androidConfig().setSdkManagerToolArgs(args);
             }
        }
-        m_sdkManager->reloadPackages(true);
+        m_sdkManager->reloadPackages();
     });
 }
 
@@ -511,7 +511,7 @@ void AndroidSdkManagerWidget::packageFutureFinished()
         case AndroidSdkManager::UpdatePackage:
             notifyOperationFinished();
             switchView(PackageListing);
-            m_sdkManager->reloadPackages(true);
+            m_sdkManager->reloadPackages();
             break;
         default:
             break;
@@ -520,7 +520,7 @@ void AndroidSdkManagerWidget::packageFutureFinished()
         m_currentOperation->deleteLater();
         m_currentOperation = nullptr;
         switchView(PackageListing);
-        m_sdkManager->reloadPackages(true);
+        m_sdkManager->reloadPackages();
     }
 }
 
@@ -566,7 +566,7 @@ void AndroidSdkManagerWidget::onSdkManagerOptions()
         QStringList arguments = dlg.sdkManagerArguments();
         if (arguments != androidConfig().sdkManagerToolArgs()) {
             androidConfig().setSdkManagerToolArgs(arguments);
-            m_sdkManager->reloadPackages(true);
+            m_sdkManager->reloadPackages();
         }
     }
 }

@@ -162,13 +162,12 @@ public:
     AndroidSdkPackageList filteredPackages(AndroidSdkPackage::PackageState state,
                                            AndroidSdkPackage::PackageType type)
     {
-        refreshSdkPackages();
+        m_sdkManager.refreshPackages();
         return Utils::filtered(m_allPackages, [state, type](const AndroidSdkPackage *p) {
             return p->state() & state && p->type() & type;
         });
     }
     const AndroidSdkPackageList &allPackages();
-    void refreshSdkPackages(bool forceReload = false);
 
     void parseCommonArguments(QPromise<QString> &promise);
     void updateInstalled(SdkCmdPromise &fi);
@@ -182,7 +181,6 @@ public:
 
     std::unique_ptr<QFutureWatcher<void>, decltype(&watcherDeleter)> m_activeOperation;
 
-private:
     QByteArray getUserInput() const;
     void clearUserInput();
     void reloadSdkPackages();
@@ -289,9 +287,15 @@ BuildToolsList AndroidSdkManager::filteredBuildTools(int minApiLevel,
     return result;
 }
 
-void AndroidSdkManager::reloadPackages(bool forceReload)
+void AndroidSdkManager::refreshPackages()
 {
-    m_d->refreshSdkPackages(forceReload);
+    if (androidConfig().sdkManagerToolPath() != m_d->lastSdkManagerPath)
+        reloadPackages();
+}
+
+void AndroidSdkManager::reloadPackages()
+{
+    m_d->reloadSdkPackages();
 }
 
 bool AndroidSdkManager::isBusy() const
@@ -370,7 +374,7 @@ AndroidSdkManagerPrivate::~AndroidSdkManagerPrivate()
 
 const AndroidSdkPackageList &AndroidSdkManagerPrivate::allPackages()
 {
-    refreshSdkPackages();
+    m_sdkManager.refreshPackages();
     return m_allPackages;
 }
 
@@ -400,14 +404,6 @@ void AndroidSdkManagerPrivate::reloadSdkPackages()
     }
 
     emit m_sdkManager.packageReloadFinished();
-}
-
-void AndroidSdkManagerPrivate::refreshSdkPackages(bool forceReload)
-{
-    // Sdk path changed. Updated packages.
-    // QTC updates the package listing only
-    if (androidConfig().sdkManagerToolPath() != lastSdkManagerPath || forceReload)
-        reloadSdkPackages();
 }
 
 void AndroidSdkManagerPrivate::updateInstalled(SdkCmdPromise &promise)

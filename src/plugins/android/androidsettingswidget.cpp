@@ -511,7 +511,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
                                  Tr::tr("Failed to create the SDK Tools path %1.")
                                  .arg("\n\"" + sdkPath.toUserOutput() + "\""));
         }
-        m_sdkManager.reloadPackages(true);
+        m_sdkManager.reloadPackages();
         updateUI();
         apply();
 
@@ -536,7 +536,7 @@ void AndroidSettingsWidget::showEvent(QShowEvent *event)
         validateJdk();
         // Reloading SDK packages (force) is still synchronous. Use zero timer
         // to let settings dialog open first.
-        QTimer::singleShot(0, this, [this] { m_sdkManager.reloadPackages(); });
+        QTimer::singleShot(0, &m_sdkManager, &AndroidSdkManager::refreshPackages);
         validateOpenSsl();
         m_isInitialReloadDone = true;
     }
@@ -608,7 +608,7 @@ void AndroidSettingsWidget::validateJdk()
     updateUI();
 
     if (m_isInitialReloadDone)
-        m_sdkManager.reloadPackages(true);
+        m_sdkManager.reloadPackages();
 }
 
 void AndroidSettingsWidget::validateOpenSsl()
@@ -635,7 +635,7 @@ void AndroidSettingsWidget::onSdkPathChanged()
         currentOpenSslPath = sdkPath.pathAppended("android_openssl");
     m_openSslPathChooser->setFilePath(currentOpenSslPath);
     // Package reload will trigger validateSdk.
-    m_sdkManager.reloadPackages();
+    m_sdkManager.refreshPackages();
 }
 
 void AndroidSettingsWidget::validateSdk()

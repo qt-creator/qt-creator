@@ -57,7 +57,8 @@ public:
     BuildToolsList filteredBuildTools(int minApiLevel,
                                       AndroidSdkPackage::PackageState state
                                       = AndroidSdkPackage::Installed);
-    void reloadPackages(bool forceReload = false);
+    void refreshPackages();
+    void reloadPackages();
     bool isBusy() const;
 
     bool packageListingSuccessful() const;
