@@ -160,8 +160,13 @@ public:
     ~AndroidSdkManagerPrivate();
 
     AndroidSdkPackageList filteredPackages(AndroidSdkPackage::PackageState state,
-                                           AndroidSdkPackage::PackageType type,
-                                           bool forceUpdate = false);
+                                           AndroidSdkPackage::PackageType type)
+    {
+        refreshSdkPackages();
+        return Utils::filtered(m_allPackages, [state, type](const AndroidSdkPackage *p) {
+            return p->state() & state && p->type() & type;
+        });
+    }
     const AndroidSdkPackageList &allPackages(bool forceUpdate = false);
     void refreshSdkPackages(bool forceReload = false);
 
@@ -205,8 +210,8 @@ AndroidSdkManager::~AndroidSdkManager()
 
 SdkPlatformList AndroidSdkManager::installedSdkPlatforms()
 {
-    AndroidSdkPackageList list = m_d->filteredPackages(AndroidSdkPackage::Installed,
-                                                       AndroidSdkPackage::SdkPlatformPackage);
+    const AndroidSdkPackageList list = m_d->filteredPackages(AndroidSdkPackage::Installed,
+                                                             AndroidSdkPackage::SdkPlatformPackage);
     return Utils::static_container_cast<SdkPlatform *>(list);
 }
 
@@ -222,8 +227,8 @@ AndroidSdkPackageList AndroidSdkManager::installedSdkPackages()
 
 SystemImageList AndroidSdkManager::installedSystemImages()
 {
-    AndroidSdkPackageList list = m_d->filteredPackages(AndroidSdkPackage::AnyValidState,
-                                                       AndroidSdkPackage::SdkPlatformPackage);
+    const AndroidSdkPackageList list = m_d->filteredPackages(AndroidSdkPackage::AnyValidState,
+                                                             AndroidSdkPackage::SdkPlatformPackage);
     QList<SdkPlatform *> platforms = Utils::static_container_cast<SdkPlatform *>(list);
 
     SystemImageList result;
@@ -237,8 +242,8 @@ SystemImageList AndroidSdkManager::installedSystemImages()
 
 NdkList AndroidSdkManager::installedNdkPackages()
 {
-    AndroidSdkPackageList list = m_d->filteredPackages(AndroidSdkPackage::Installed,
-                                                       AndroidSdkPackage::NDKPackage);
+    const AndroidSdkPackageList list = m_d->filteredPackages(AndroidSdkPackage::Installed,
+                                                             AndroidSdkPackage::NDKPackage);
     return Utils::static_container_cast<Ndk *>(list);
 }
 
@@ -361,16 +366,6 @@ AndroidSdkManagerPrivate::AndroidSdkManagerPrivate(AndroidSdkManager &sdkManager
 AndroidSdkManagerPrivate::~AndroidSdkManagerPrivate()
 {
     clearPackages();
-}
-
-AndroidSdkPackageList
-AndroidSdkManagerPrivate::filteredPackages(AndroidSdkPackage::PackageState state,
-                                           AndroidSdkPackage::PackageType type, bool forceUpdate)
-{
-    refreshSdkPackages(forceUpdate);
-    return Utils::filtered(m_allPackages, [state, type](const AndroidSdkPackage *p) {
-       return p->state() & state && p->type() & type;
-    });
 }
 
 const AndroidSdkPackageList &AndroidSdkManagerPrivate::allPackages(bool forceUpdate)
