@@ -158,11 +158,11 @@ QString pythonName(const FilePath &pythonPath)
     return name;
 }
 
-PythonProject *pythonProjectForFile(const FilePath &pythonFile)
+PythonProject *pythonProjectForFile(const FilePath &file)
 {
     for (Project *project : ProjectManager::projects()) {
         if (auto pythonProject = qobject_cast<PythonProject *>(project)) {
-            if (pythonProject->isKnownFile(pythonFile))
+            if (pythonProject->isKnownFile(file))
                 return pythonProject;
         }
     }

@@ -303,7 +303,7 @@ void PythonDocument::updateCurrentPython()
 void PythonDocument::updatePython(const FilePath &python)
 {
     openDocumentWithPython(python, this);
-    PySideInstaller::checkPySideInstallation(python, this);
+    PySideInstaller::instance().checkPySideInstallation(python, this);
     emit pythonUpdated(python);
 }
 

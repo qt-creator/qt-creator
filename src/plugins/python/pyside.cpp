@@ -4,9 +4,13 @@
 #include "pyside.h"
 
 #include "pipsupport.h"
+#include "pythonbuildconfiguration.h"
+#include "pythonconstants.h"
+#include "pythonproject.h"
 #include "pythontr.h"
 #include "pythonutils.h"
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/runconfigurationaspects.h>
@@ -19,8 +23,9 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/infobar.h>
-#include <utils/qtcprocess.h>
+#include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QBoxLayout>
 #include <QComboBox>
@@ -39,13 +44,13 @@ void PySideInstaller::checkPySideInstallation(const FilePath &python,
                                               TextEditor::TextDocument *document)
 {
     document->infoBar()->removeInfo(installPySideInfoBarId);
-    if (QPointer<QFutureWatcher<bool>> watcher = pySideInstaller().m_futureWatchers.value(document))
+    if (QPointer<QFutureWatcher<bool>> watcher = m_futureWatchers.value(document))
         watcher->cancel();
     if (!python.exists())
         return;
-    const QString pySide = importedPySide(document->plainText());
+    const QString pySide = usedPySide(document->plainText(), document->mimeType());
     if (pySide == "PySide2" || pySide == "PySide6")
-        pySideInstaller().runPySideChecker(python, pySide, document);
+        runPySideChecker(python, pySide, document);
 }
 
 bool PySideInstaller::missingPySideInstallation(const FilePath &pythonPath,
@@ -65,15 +70,25 @@ bool PySideInstaller::missingPySideInstallation(const FilePath &pythonPath,
     return missing;
 }
 
-QString PySideInstaller::importedPySide(const QString &text)
+QString PySideInstaller::usedPySide(const QString &text, const QString &mimeType)
 {
-    static QRegularExpression importScanner("^\\s*(import|from)\\s+(PySide\\d)",
-                                            QRegularExpression::MultilineOption);
-    const QRegularExpressionMatch match = importScanner.match(text);
-    return match.captured(2);
+    using namespace Python::Constants;
+    if (mimeType == C_PY_MIMETYPE || mimeType == C_PY3_MIMETYPE || mimeType == C_PY_GUI_MIMETYPE) {
+        static QRegularExpression
+            scanner("^\\s*(import|from)\\s+(PySide\\d)", QRegularExpression::MultilineOption);
+        const QRegularExpressionMatch match = scanner.match(text);
+        return match.captured(2);
+    }
+    if (mimeType == Utils::Constants::QML_MIMETYPE)
+        return QStringLiteral("PySide6"); // Good enough for now.
+    return {};
 }
 
-PySideInstaller::PySideInstaller() = default;
+PySideInstaller::PySideInstaller()
+{
+    connect(Core::EditorManager::instance(), &Core::EditorManager::documentOpened,
+            this, &PySideInstaller::handleDocumentOpened);
+}
 
 void PySideInstaller::installPyside(const FilePath &python,
                                     const QString &pySide,
@@ -191,6 +206,30 @@ void PySideInstaller::handlePySideMissing(const FilePath &python,
     document->infoBar()->addInfo(info);
 }
 
+void PySideInstaller::handleDocumentOpened(Core::IDocument *document)
+{
+    if (document->mimeType() != Utils::Constants::QML_MIMETYPE)
+        return;
+
+    TextEditor::TextDocument *textDocument = qobject_cast<TextEditor::TextDocument *>(document);
+    if (!textDocument)
+        return;
+    PythonProject *project = pythonProjectForFile(textDocument->filePath());
+    if (!project)
+        return;
+    Target *target = project->activeTarget();
+    if (!target)
+        return;
+    BuildConfiguration *buildConfig = target->activeBuildConfiguration();
+    if (!buildConfig)
+        return;
+    auto *pythonBuildConfig = qobject_cast<PythonBuildConfiguration *>(buildConfig);
+    if (!pythonBuildConfig)
+        return;
+
+    PySideInstaller::instance().checkPySideInstallation(pythonBuildConfig->python(), textDocument);
+}
+
 void PySideInstaller::runPySideChecker(const FilePath &python,
                                        const QString &pySide,
                                        TextEditor::TextDocument *document)
@@ -217,7 +256,7 @@ void PySideInstaller::runPySideChecker(const FilePath &python,
     m_futureWatchers[document] = watcher;
 }
 
-PySideInstaller &pySideInstaller()
+PySideInstaller &PySideInstaller::instance()
 {
     static PySideInstaller thePySideInstaller;
     return thePySideInstaller;

@@ -10,6 +10,7 @@
 #include <QPointer>
 #include <QTextDocument>
 
+namespace Core { class IDocument; }
 namespace TextEditor { class TextDocument; }
 namespace ProjectExplorer { class RunConfiguration; }
 
@@ -27,32 +28,30 @@ class PySideInstaller : public QObject
     Q_OBJECT
 
 public:
-    static void checkPySideInstallation(const Utils::FilePath &python,
-                                        TextEditor::TextDocument *document);
+    void checkPySideInstallation(const Utils::FilePath &python, TextEditor::TextDocument *document);
+    static PySideInstaller &instance();
 
 signals:
     void pySideInstalled(const Utils::FilePath &python, const QString &pySide);
 
 private:
     PySideInstaller();
-    friend PySideInstaller &pySideInstaller();
 
     void installPyside(const Utils::FilePath &python,
                        const QString &pySide, TextEditor::TextDocument *document);
     void handlePySideMissing(const Utils::FilePath &python,
                              const QString &pySide,
                              TextEditor::TextDocument *document);
+    void handleDocumentOpened(Core::IDocument *document);
 
     void runPySideChecker(const Utils::FilePath &python,
                           const QString &pySide,
                           TextEditor::TextDocument *document);
     static bool missingPySideInstallation(const Utils::FilePath &python, const QString &pySide);
-    static QString importedPySide(const QString &text);
+    static QString usedPySide(const QString &text, const QString &mimeType);
 
     QHash<Utils::FilePath, QList<TextEditor::TextDocument *>> m_infoBarEntries;
     QHash<TextEditor::TextDocument *, QPointer<QFutureWatcher<bool>>> m_futureWatchers;
 };
-
-PySideInstaller &pySideInstaller();
 
 } // Python::Internal
