@@ -391,14 +391,14 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     const CommandLine thisCommand = rc->commandLine();
     const FilePath thisWorkingDirectory = rc->workingDirectory();
     const Environment thisEnvironment = rc->environment();
-    const auto tab = std::find_if(m_runControlTabs.begin(), m_runControlTabs.end(),
-                                  [&](const RunControlTab &tab) {
-        if (!tab.runControl || tab.runControl->isRunning() || tab.runControl->isStarting())
-            return false;
-        return thisCommand == tab.runControl->commandLine()
-                && thisWorkingDirectory == tab.runControl->workingDirectory()
-                && thisEnvironment == tab.runControl->environment();
-    });
+    const auto tab = std::find_if(
+        m_runControlTabs.begin(), m_runControlTabs.end(), [&](const RunControlTab &tab) {
+            if (!tab.runControl || !tab.runControl->isStopped())
+                return false;
+            return thisCommand == tab.runControl->commandLine()
+                   && thisWorkingDirectory == tab.runControl->workingDirectory()
+                   && thisEnvironment == tab.runControl->environment();
+        });
     if (tab != m_runControlTabs.end()) {
         // Reuse this tab
         if (tab->runControl)
