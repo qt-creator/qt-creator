@@ -685,7 +685,7 @@ static void addCompileGroups(ProjectNode *targetRoot,
             node->setIsGenerated(true);
 
         const bool showSourceFolders = settings().showSourceSubFolders()
-                                       && sourcesOrHeadersFolder(td.sourceGroups[si.sourceGroup]);
+                                       && defaultCMakeSourceGroupFolder(td.sourceGroups[si.sourceGroup]);
 
         // Where does the file node need to go?
         if (showSourceFolders && sourcePath.isChildOf(buildDirectory) && !inSourceBuild) {
@@ -699,7 +699,7 @@ static void addCompileGroups(ProjectNode *targetRoot,
 
     for (size_t i = 0; i < sourceGroupFileNodes.size(); ++i) {
         const bool showSourceFolders = settings().showSourceSubFolders()
-                                       && sourcesOrHeadersFolder(td.sourceGroups[i]);
+                                       && defaultCMakeSourceGroupFolder(td.sourceGroups[i]);
 
         std::vector<std::unique_ptr<FileNode>> &current = sourceGroupFileNodes[i];
         FolderNode *insertNode = td.sourceGroups[i] == "TREE"
