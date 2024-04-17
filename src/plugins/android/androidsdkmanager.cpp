@@ -167,7 +167,7 @@ public:
             return p->state() & state && p->type() & type;
         });
     }
-    const AndroidSdkPackageList &allPackages(bool forceUpdate = false);
+    const AndroidSdkPackageList &allPackages();
     void refreshSdkPackages(bool forceReload = false);
 
     void parseCommonArguments(QPromise<QString> &promise);
@@ -368,9 +368,9 @@ AndroidSdkManagerPrivate::~AndroidSdkManagerPrivate()
     clearPackages();
 }
 
-const AndroidSdkPackageList &AndroidSdkManagerPrivate::allPackages(bool forceUpdate)
+const AndroidSdkPackageList &AndroidSdkManagerPrivate::allPackages()
 {
-    refreshSdkPackages(forceUpdate);
+    refreshSdkPackages();
     return m_allPackages;
 }
 
