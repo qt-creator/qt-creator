@@ -382,7 +382,6 @@ Column {
         Connections {
             target: effectComposerModel
             function onShadersBaked() {
-                console.log("Shaders Baked!")
                 updateTimer.restart()
             }
         }
