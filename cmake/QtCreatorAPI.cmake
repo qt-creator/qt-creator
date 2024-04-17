@@ -1135,7 +1135,7 @@ function (add_qtc_lua_plugin name)
     )
 
     if (NOT _arg_EXCLUDE_FROM_INSTALL)
-      cmake_path(GET SOURCE PARENT_PATH SOURCE_DIR)
+      get_filename_component(SOURCE_DIR "${SOURCE}" DIRECTORY)
 
       install(FILES
       ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE}
