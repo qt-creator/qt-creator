@@ -256,7 +256,6 @@ QtcLibrary {
             "model_widgets_ui/classmembersedit.h",
             "model_widgets_ui/modeltreefilter.cpp",
             "model_widgets_ui/modeltreefilter.h",
-            "model_widgets_ui/modeltreefilter.ui",
             "model_widgets_ui/modeltreeview.cpp",
             "model_widgets_ui/modeltreeview.h",
             "model_widgets_ui/palettebox.cpp",

@@ -10,10 +10,6 @@
 
 namespace qmt {
 
-namespace Ui {
-class ModelTreeFilter;
-}
-
 class QMT_EXPORT ModelTreeFilter : public QWidget
 {
     Q_OBJECT
@@ -36,7 +32,6 @@ private:
     void onFilterChanged();
 
 private:
-    Ui::ModelTreeFilter *ui = nullptr;
     Private *d = nullptr;
 };
 
