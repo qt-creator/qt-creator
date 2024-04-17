@@ -524,7 +524,7 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False, ignoreVali
         version = res.group("version")
     else:
         version = None
-    if templateName == "Qt Quick Application":
+    if templateName in ("Qt Quick 2 Extension Plugin", "Qt Quick Application"):
         result = set([Targets.DESKTOP_6_2_4])
     elif 'Supported Platforms' in text:
         supports = text[text.find('Supported Platforms'):].split(":")[1].strip().split("\n")

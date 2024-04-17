@@ -48,7 +48,8 @@ public:
     uint ownerId(FileOwner) const override;
     QString owner(FileOwner) const override;
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+    // The FileTime change in QAbstractFileEngine, in qtbase, is in since Qt 6.7.1
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 1)
     using FileTime = QFile::FileTime;
 #endif
     bool setFileTime(const QDateTime &newDate, FileTime time) override;

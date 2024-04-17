@@ -24,6 +24,21 @@
         "        <sub-class-of type='text/plain'/>",
         "        <glob pattern='*.dts' weight='80'/>",
         "    </mime-type>",
+        "    <mime-type type='text/x-yacc'>",
+        "        <comment>Yacc/Bison source files</comment>",
+        "        <sub-class-of type='text/plain'/>",
+        "        <glob pattern='*.y'/>",
+        "        <glob pattern='*.yy'/>",
+        "        <glob pattern='*.ypp'/>",
+        "        <glob pattern='*.y++'/>",
+        "    </mime-type>",
+        "    <mime-type type='text/x-lex'>",
+        "        <comment>Lex/Flex source files</comment>",
+        "        <sub-class-of type='text/plain'/>",
+        "        <glob pattern='*.l'/>",
+        "        <glob pattern='*.lex'/>",
+        "        <glob pattern='*.flex'/>",
+        "    </mime-type>",
         "</mime-info>"
     ]
 }
