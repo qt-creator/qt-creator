@@ -339,6 +339,13 @@ bool Bind::visit(UiEnumDeclaration *ast)
         UiEnumValue *value = new UiEnumValue(ast, &_valueOwner, _currentObjectValue->originId());
         _qmlObjects.insert(ast, value);
         _currentObjectValue->setMember(ast->name, value);
+        // add enum value's keys as member to its parent object
+        for (auto it = ast->members; it; it = it->next) {
+            const QString name = it->member.toString();
+            _currentObjectValue->setMember(name, _valueOwner.intValue());
+            _currentObjectValue->setPropertyInfo(
+                        name, PropertyInfo(PropertyInfo::Readable | PropertyInfo::ValueType));
+        }
     }
     return true;
 }
