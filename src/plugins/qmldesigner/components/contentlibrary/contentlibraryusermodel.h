@@ -125,7 +125,7 @@ private:
     QString m_importerBundleId;
     QStringList m_importerSharedFiles;
 
-    enum Roles { NameRole = Qt::UserRole + 1, VisibleRole, ExpandedRole, ItemsRole };
+    enum Roles { NameRole = Qt::UserRole + 1, VisibleRole, ItemsRole };
 };
 
 } // namespace QmlDesigner

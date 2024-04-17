@@ -73,16 +73,10 @@ HelperWidgets.ScrollView {
 
                 caption: categoryName
                 visible: categoryVisible
-                expanded: categoryExpanded
-                expandOnClick: false
                 category: "ContentLib_User"
 
-                onToggleExpand: categoryExpanded = !categoryExpanded
-                onExpand: categoryExpanded = true
-                onCollapse: categoryExpanded = false
-
                 function expandSection() {
-                    categoryExpanded = true
+                    section.expanded = true
                 }
 
                 property alias count: repeater.count
@@ -123,7 +117,7 @@ HelperWidgets.ScrollView {
                                 roleValue: "texture"
                                 delegate: ContentLibraryTexture {
                                     width: root.cellWidth
-                                    height: root.cellHeight
+                                    height: root.cellWidth // for textures use a square size since there is no name row
 
                                     // onShowContextMenu: ctxMenu.popupMenu(modelData) // TODO
                                 }

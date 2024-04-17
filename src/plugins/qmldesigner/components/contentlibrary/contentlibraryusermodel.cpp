@@ -64,9 +64,6 @@ QVariant ContentLibraryUserModel::data(const QModelIndex &index, int role) const
     if (role == VisibleRole)
         return true; // TODO
 
-    if (role == ExpandedRole)
-        return true; // TODO
-
     return {};
 }
 
@@ -148,7 +145,6 @@ QHash<int, QByteArray> ContentLibraryUserModel::roleNames() const
     static const QHash<int, QByteArray> roles {
         {NameRole, "categoryName"},
         {VisibleRole, "categoryVisible"},
-        {ExpandedRole, "categoryExpanded"},
         {ItemsRole, "categoryItems"}
     };
     return roles;
@@ -289,7 +285,7 @@ void ContentLibraryUserModel::loadTextureBundle()
     }
 
     int texSectionIdx = 1;
-    emit dataChanged(index(texSectionIdx, 0), index(texSectionIdx, 0));
+    emit dataChanged(index(texSectionIdx), index(texSectionIdx));
 }
 
 bool ContentLibraryUserModel::hasRequiredQuick3DImport() const
