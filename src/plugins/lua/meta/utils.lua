@@ -12,7 +12,6 @@ function utils.waitms(ms) end
 function utils.waitms_cb(ms, callback) end
 
 ---@class FilePath
----@field exists boolean True if the path exists
 utils.FilePath = {}
 
 ---@param path string The path to convert
@@ -37,6 +36,14 @@ function utils.FilePath:dirEntries(options) end
 ---Returns the FilePath as it should be displayed to the user
 ---@return string
 function utils.FilePath:toUserOutput() end
+
+---Returns whether the target exists
+---@return boolean
+function utils.FilePath:exists() end
+
+---Returns whether the target is a file and executable
+---@return boolean
+function utils.FilePath:isExecutableFile() end
 
 ---Returns the path portion of FilePath as a string in the hosts native format
 ---@return string

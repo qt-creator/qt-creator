@@ -70,6 +70,8 @@ return {
             [](const FilePath &self) { return self.searchInPath(); },
             "exists",
             &FilePath::exists,
+            "isExecutableFile",
+            &FilePath::isExecutableFile,
             "dirEntries",
             [](sol::this_state s, const FilePath &p, sol::table options) -> sol::table {
                 sol::state_view lua(s);
