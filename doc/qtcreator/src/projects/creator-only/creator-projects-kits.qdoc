@@ -145,6 +145,9 @@
             This setting is used to tell the code model which compiler is used.
             If your project type and build tool support it, \QC also tells the
             build tool to use this compiler for building the project.
+
+            \note qmake ignores the value of this field and fetches the compiler
+            information from \uicontrol {Qt mkspec}, which you can change.
     \row
         \li \uicontrol Environment
         \li Select \uicontrol Change to modify environment variable values for
