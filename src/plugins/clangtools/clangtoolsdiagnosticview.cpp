@@ -9,9 +9,15 @@
 #include "clangtoolstr.h"
 #include "clangtoolsutils.h"
 #include "diagnosticconfigswidget.h"
+#include "inlinesuppresseddiagnostics.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/manhattanstyle.h>
+
+#include <cppeditor/cppeditorwidget.h>
+#include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/cpprefactoringchanges.h>
+#include <cppeditor/cppsemanticinfo.h>
 
 #include <debugger/analyzer/diagnosticlocation.h>
 
@@ -24,6 +30,7 @@
 #include <QAction>
 #include <QApplication>
 #include <QDebug>
+#include <QHash>
 #include <QHeaderView>
 #include <QPainter>
 #include <QSet>
@@ -151,6 +158,10 @@ DiagnosticView::DiagnosticView(QWidget *parent)
     connect(m_suppressAction, &QAction::triggered,
             this, &DiagnosticView::suppressCurrentDiagnostic);
 
+    m_suppressInlineAction = new QAction(this);
+    connect(m_suppressInlineAction, &QAction::triggered,
+            this, &DiagnosticView::suppressCurrentDiagnosticInline);
+
     m_disableChecksAction = new QAction(this);
     connect(m_disableChecksAction, &QAction::triggered,
             this, &DiagnosticView::disableCheckForCurrentDiagnostic);
@@ -215,6 +226,113 @@ void DiagnosticView::suppressCurrentDiagnostic()
         ClangToolsProjectSettings::getSettings(project)->addSuppressedDiagnostics(diags);
     else
         filterModel->addSuppressedDiagnostics(diags);
+}
+
+void DiagnosticView::suppressCurrentDiagnosticInline()
+{
+    const QModelIndexList indexes = selectionModel()->selectedRows();
+
+    QHash<Utils::FilePath, QHash<int, QStringList>> diagnosticsPerFileAndLine;
+    SuppressedDiagnosticsList diags;
+    for (const QModelIndex &index : indexes) {
+        const Diagnostic diag = model()->data(index, ClangToolsDiagnosticModel::DiagnosticRole)
+                                    .value<Diagnostic>();
+        if (!diag.isValid())
+            continue;
+        const bool isApplicable
+            = model()->data(index, ClangToolsDiagnosticModel::InlineSuppressableRole).value<bool>();
+        if (!isApplicable)
+            continue;
+
+        diagnosticsPerFileAndLine[diag.location.filePath][diag.location.line] << diag.name;
+        diags << diag;
+    }
+
+    if (diags.isEmpty())
+        return;
+
+    const auto filterModel = static_cast<DiagnosticFilterModel *>(model());
+    const auto sourceModel = static_cast<ClangToolsDiagnosticModel *>(filterModel->sourceModel());
+    CppRefactoringChanges changes(CppModelManager::snapshot());
+
+    for (auto it = diagnosticsPerFileAndLine.cbegin(); it != diagnosticsPerFileAndLine.cend(); ++it) {
+        const Utils::FilePath filePath = it.key();
+        CppEditorWidget *editorWidget = nullptr;
+        const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForFilePath(filePath);
+        for (Core::IEditor *editor : editors) {
+            const auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
+            if (textEditor)
+                editorWidget = qobject_cast<CppEditorWidget *>(textEditor->editorWidget());
+            if (editorWidget)
+                break;
+        }
+        CppRefactoringFilePtr refactoringFile
+            = editorWidget ? changes.file(editorWidget, editorWidget->semanticInfo().doc)
+                           : changes.cppFile(filePath);
+        Utils::ChangeSet changeSet;
+
+        for (auto it2 = it.value().cbegin(); it2 != it.value().cend(); ++it2) {
+            const int line = it2.key();
+            const QStringList diagNames = it2.value();
+            const auto suppressedDiags = sourceModel->createInlineSuppressedDiagnostics();
+            const QList<CPlusPlus::Token> tokensForLine = refactoringFile->tokensForLine(line);
+            int replaceStart = -1;
+            int replaceEnd = -1;
+            int insertStart = -1;
+            QString prefix;
+            QString suffix;
+            const QTextDocument * const doc = refactoringFile->document();
+            if (!tokensForLine.isEmpty() && tokensForLine.last().isComment()) {
+                CPlusPlus::Token trailingComment = tokensForLine.last();
+                CPlusPlus::TranslationUnit * const tu
+                    = refactoringFile->cppDocument()->translationUnit();
+                const int tokenStart = tu->getTokenPositionInDocument(trailingComment, doc);
+                const int tokenEnd = tu->getTokenEndPositionInDocument(trailingComment, doc);
+                suppressedDiags->fromString(refactoringFile->textOf(tokenStart, tokenEnd));
+                if (suppressedDiags->hasError())
+                    continue;
+                if (suppressedDiags->parsedStartOffset() != -1) {
+                    // There was a comment, and it already contained a suppression list.
+                    replaceStart = tokenStart + suppressedDiags->parsedStartOffset();
+                    replaceEnd = tokenStart + suppressedDiags->parsedEndOffset();
+                } else {
+                    // There was a comment without a suppression list.
+                    prefix = " ";
+                    switch (trailingComment.kind()) {
+                    case CPlusPlus::T_CPP_COMMENT:
+                    case CPlusPlus::T_CPP_DOXY_COMMENT:
+                        insertStart = tokenEnd;
+                        break;
+                    case CPlusPlus::T_COMMENT:
+                    case CPlusPlus::T_DOXY_COMMENT:
+                        insertStart = tokenEnd - 2;
+                        suffix = " ";
+                        break;
+                    default:
+                        QTC_CHECK(false);
+                    }
+                }
+            } else {
+                // There was no comment.
+                const QTextBlock b = doc->findBlockByNumber(line - 1);
+                insertStart = b.position() + b.length() - 1;
+                prefix = " // ";
+            }
+            for (const QString &diagName : diagNames)
+                suppressedDiags->addDiagnostic(diagName);
+            const QString newText = prefix + suppressedDiags->toString() + suffix;
+            if (replaceStart != -1) {
+                changeSet.replace(replaceStart, replaceEnd, newText);
+            } else {
+                QTC_CHECK(insertStart != -1);
+                changeSet.insert(insertStart, newText);
+            }
+        }
+        refactoringFile->setChangeSet(changeSet);
+        refactoringFile->apply();
+    }
+
+    filterModel->addSuppressedDiagnostics(diags);
 }
 
 void DiagnosticView::disableCheckForCurrentDiagnostic()
@@ -335,6 +453,9 @@ QList<QAction *> DiagnosticView::customActions() const
     m_suppressAction->setEnabled(isDiagnosticItem || hasMultiSelection);
     m_suppressAction->setText(hasMultiSelection ? Tr::tr("Suppress Selected Diagnostics")
                                                 : Tr::tr("Suppress This Diagnostic"));
+    m_suppressInlineAction->setEnabled(isDiagnosticItem || hasMultiSelection);
+    m_suppressInlineAction->setText(hasMultiSelection ? Tr::tr("Suppress Selected Diagnostics Inline")
+                                                      : Tr::tr("Suppress This Diagnostic Inline"));
     m_disableChecksAction->setEnabled(disableChecksEnabled());
     m_disableChecksAction->setText(hasMultiSelection ? Tr::tr("Disable These Checks")
                                                      : Tr::tr("Disable This Check"));
@@ -348,6 +469,7 @@ QList<QAction *> DiagnosticView::customActions() const
         m_filterOutCurrentKind,
         m_separator2,
         m_suppressAction,
+        m_suppressInlineAction,
         m_disableChecksAction
     };
 }

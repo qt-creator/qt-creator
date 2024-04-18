@@ -277,7 +277,7 @@ public:
         diagnosticItem->setFixitOperations(replacements);
     }
 
-    void apply(ClangToolsDiagnosticModel *model)
+    void apply()
     {
         for (auto it = m_refactoringFileInfos.begin(); it != m_refactoringFileInfos.end(); ++it) {
             RefactoringFileInfo &fileInfo = it.value();
@@ -318,14 +318,12 @@ public:
             QVector<DiagnosticItem *> itemsInvalidated;
 
             fileInfo.file.setReplacements(ops);
-            model->removeWatchedPath(ops.first()->filePath);
             if (fileInfo.file.apply()) {
                 itemsApplied = itemsScheduled;
             } else {
                 itemsFailedToApply = itemsScheduled;
                 itemsInvalidated = itemsSchedulable;
             }
-            model->addWatchedPath(ops.first()->filePath);
 
             // Update DiagnosticItem state
             for (DiagnosticItem *diagnosticItem : std::as_const(itemsScheduled))
@@ -394,7 +392,7 @@ ClangTool::ClangTool(const QString &name, Id id, ClangToolType type)
     : m_name(name), m_perspective{id.toString(), name}, m_type(type)
 {
     setObjectName(name);
-    m_diagnosticModel = new ClangToolsDiagnosticModel(this);
+    m_diagnosticModel = new ClangToolsDiagnosticModel(type, this);
 
     auto action = new QAction(Tr::tr("Analyze Project with %1...").arg(name), this);
     action->setIcon(Utils::Icons::RUN_SELECTED_TOOLBAR.icon());
@@ -535,7 +533,7 @@ ClangTool::ClangTool(const QString &name, Id id, ClangToolType type)
             diagnosticItems += item;
         });
 
-        ApplyFixIts(diagnosticItems).apply(m_diagnosticModel);
+        ApplyFixIts(diagnosticItems).apply();
     });
 
     // Open Project Settings

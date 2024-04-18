@@ -29,6 +29,7 @@ namespace ClangTools {
 namespace Internal {
 
 class ClangToolsDiagnosticModel;
+class InlineSuppressedDiagnostics;
 
 class FilePathItem : public Utils::TreeItem
 {
@@ -90,7 +91,7 @@ class ClangToolsDiagnosticModel : public ClangToolsDiagnosticModelBase
     friend class DiagnosticItem;
 
 public:
-    ClangToolsDiagnosticModel(QObject *parent = nullptr);
+    ClangToolsDiagnosticModel(CppEditor::ClangToolType type, QObject *parent = nullptr);
 
     void addDiagnostics(const Diagnostics &diagnostics, bool generateMarks);
     QSet<Diagnostic> diagnostics() const;
@@ -100,6 +101,7 @@ public:
         TextRole,
         CheckBoxEnabledRole,
         DocumentationUrlRole,
+        InlineSuppressableRole,
     };
 
     QSet<QString> allChecks() const;
@@ -107,6 +109,8 @@ public:
     void clear();
     void removeWatchedPath(const Utils::FilePath &path);
     void addWatchedPath(const Utils::FilePath &path);
+
+    std::unique_ptr<InlineSuppressedDiagnostics> createInlineSuppressedDiagnostics();
 
 signals:
     void fixitStatusChanged(const QModelIndex &index, FixitStatus oldStatus, FixitStatus newStatus);
@@ -122,6 +126,7 @@ private:
     QSet<Diagnostic> m_diagnostics;
     std::map<QVector<ExplainingStep>, QVector<DiagnosticItem *>> stepsToItemsCache;
     std::unique_ptr<Utils::FileSystemWatcher> m_filesWatcher;
+    const CppEditor::ClangToolType m_type;
 };
 
 class FilterOptions {

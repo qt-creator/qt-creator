@@ -44,6 +44,8 @@ public:
     void startAndEndOf(unsigned index, int *start, int *end) const;
 
     QList<CPlusPlus::Token> tokensForCursor() const;
+    QList<CPlusPlus::Token> tokensForCursor(const QTextCursor &cursor) const;
+    QList<CPlusPlus::Token> tokensForLine(int line) const;
 
     using TextEditor::RefactoringFile::textOf;
     QString textOf(const CPlusPlus::AST *ast) const;

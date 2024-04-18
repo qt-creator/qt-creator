@@ -8,6 +8,7 @@
 #include "clangtoolstr.h"
 #include "clangtoolsutils.h"
 #include "diagnosticmark.h"
+#include "inlinesuppresseddiagnostics.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
@@ -62,9 +63,10 @@ private:
     const int m_index = 0;
 };
 
-ClangToolsDiagnosticModel::ClangToolsDiagnosticModel(QObject *parent)
+ClangToolsDiagnosticModel::ClangToolsDiagnosticModel(CppEditor::ClangToolType type, QObject *parent)
     : ClangToolsDiagnosticModelBase(parent)
     , m_filesWatcher(std::make_unique<Utils::FileSystemWatcher>())
+    , m_type(type)
 {
     setRootItem(new Utils::StaticTreeItem(QString()));
     connectFileWatcher();
@@ -178,6 +180,17 @@ void ClangToolsDiagnosticModel::removeWatchedPath(const Utils::FilePath &path)
 void ClangToolsDiagnosticModel::addWatchedPath(const Utils::FilePath &path)
 {
     m_filesWatcher->addFile(path, Utils::FileSystemWatcher::WatchAllChanges);
+}
+
+std::unique_ptr<InlineSuppressedDiagnostics> ClangToolsDiagnosticModel::createInlineSuppressedDiagnostics()
+{
+    switch (m_type) {
+    case CppEditor::ClangToolType::Tidy:
+        return std::make_unique<InlineSuppressedClangTidyDiagnostics>();
+    case CppEditor::ClangToolType::Clazy:
+        return std::make_unique<InlineSuppressedClazyDiagnostics>();
+    }
+    QTC_ASSERT(false, return {});
 }
 
 static QString lineColumnString(const Debugger::DiagnosticLocation &location)
@@ -332,6 +345,18 @@ QVariant DiagnosticItem::data(int column, int role) const
             case FixitStatus::Invalidated:
                 return false;
             case FixitStatus::Scheduled:
+            case FixitStatus::NotScheduled:
+                return true;
+            }
+            break;
+        case ClangToolsDiagnosticModel::InlineSuppressableRole:
+            switch (m_fixitStatus) {
+            case FixitStatus::Applied:
+            case FixitStatus::FailedToApply:
+            case FixitStatus::Invalidated:
+                return false;
+            case FixitStatus::Scheduled:
+            case FixitStatus::NotAvailable:
             case FixitStatus::NotScheduled:
                 return true;
             }

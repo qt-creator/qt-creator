@@ -144,13 +144,23 @@ bool CppRefactoringFile::isCursorOn(const AST *ast) const
 
 QList<Token> CppRefactoringFile::tokensForCursor() const
 {
-    QTextCursor c = cursor();
-    int pos = c.selectionStart();
-    int endPos = c.selectionEnd();
+    return tokensForCursor(cursor());
+}
+
+QList<Token> CppRefactoringFile::tokensForCursor(const QTextCursor &cursor) const
+{
+    int pos = cursor.selectionStart();
+    int endPos = cursor.selectionEnd();
     if (pos > endPos)
         std::swap(pos, endPos);
 
-    const std::vector<Token> &allTokens = m_cppDocument->translationUnit()->allTokens();
+    // Skip whitespace.
+    while (pos < endPos && document()->characterAt(pos).isSpace())
+        ++pos;
+    while (endPos > pos && document()->characterAt(endPos).isSpace())
+        --endPos;
+
+    const std::vector<Token> &allTokens = cppDocument()->translationUnit()->allTokens();
     const int firstIndex = tokenIndexForPosition(allTokens, pos, 0);
     if (firstIndex == -1)
         return {};
@@ -165,6 +175,14 @@ QList<Token> CppRefactoringFile::tokensForCursor() const
     for (int i = firstIndex; i <= lastIndex; ++i)
         result.push_back(allTokens.at(i));
     return result;
+}
+
+QList<Token> CppRefactoringFile::tokensForLine(int line) const
+{
+    const QTextBlock block = document()->findBlockByNumber(line - 1);
+    QTextCursor cursor(block);
+    cursor.select(QTextCursor::BlockUnderCursor);
+    return tokensForCursor(cursor);
 }
 
 ChangeSet::Range CppRefactoringFile::range(unsigned tokenIndex) const
@@ -250,7 +268,7 @@ Id CppRefactoringFile::indenterId() const
 int CppRefactoringFile::tokenIndexForPosition(const std::vector<CPlusPlus::Token> &tokens,
                                               int pos, int startIndex) const
 {
-    const TranslationUnit * const tu = m_cppDocument->translationUnit();
+    const TranslationUnit * const tu = cppDocument()->translationUnit();
 
     // Binary search
     for (int l = startIndex, u = int(tokens.size()) - 1; l <= u; ) {

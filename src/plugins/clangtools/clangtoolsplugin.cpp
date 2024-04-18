@@ -12,9 +12,10 @@
 #include "settingswidget.h"
 
 #ifdef WITH_TESTS
-#include "readexporteddiagnosticstest.h"
 #include "clangtoolspreconfiguredsessiontests.h"
 #include "clangtoolsunittests.h"
+#include "inlinesuppresseddiagnostics.h"
+#include "readexporteddiagnosticstest.h"
 #endif
 
 #include <utils/icon.h>
@@ -102,6 +103,7 @@ void ClangToolsPlugin::initialize()
             &ClangToolsPlugin::onCurrentEditorChanged);
 
 #ifdef WITH_TESTS
+    addTestCreator(createInlineSuppressedDiagnosticsTest);
     addTest<PreconfiguredSessionTests>();
     addTest<ClangToolsUnitTests>();
     addTest<ReadExportedDiagnosticsTest>();

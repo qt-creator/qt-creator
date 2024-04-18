@@ -39,6 +39,7 @@ private:
 
     void openEditorForCurrentIndex();
     void suppressCurrentDiagnostic();
+    void suppressCurrentDiagnosticInline();
     void disableCheckForCurrentDiagnostic();
     enum Direction { Next = 1, Previous = -1 };
     QModelIndex getIndex(const QModelIndex &index, Direction direction) const;
@@ -54,6 +55,7 @@ private:
     QAction *m_filterOutCurrentKind = nullptr;
 
     QAction *m_suppressAction = nullptr;
+    QAction *m_suppressInlineAction = nullptr;
     QAction *m_disableChecksAction = nullptr;
 
     QAction *m_separator = nullptr;
