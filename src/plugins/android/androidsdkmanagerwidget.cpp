@@ -275,14 +275,14 @@ AndroidSdkManagerWidget::~AndroidSdkManagerWidget()
 
 void AndroidSdkManagerWidget::installEssentials()
 {
-    m_sdkModel->selectMissingEssentials();
-    if (!m_sdkModel->missingEssentials().isEmpty()) {
+    const QStringList missingEssentials = m_sdkModel->selectMissingEssentials();
+    if (!missingEssentials.isEmpty()) {
         QMessageBox::warning(Core::ICore::dialogParent(),
                              Tr::tr("Android SDK Changes"),
                              Tr::tr("%1 cannot find the following essential packages: \"%2\".\n"
                                     "Install them manually after the current operation is done.\n")
                                  .arg(QGuiApplication::applicationDisplayName(),
-                                      m_sdkModel->missingEssentials().join("\", \"")));
+                                      missingEssentials.join("\", \"")));
     }
     onApplyButton(Tr::tr("Android SDK installation is missing necessary packages. "
                      "Do you want to install the missing packages?"));

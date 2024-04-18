@@ -258,7 +258,7 @@ bool AndroidSdkModel::setData(const QModelIndex &index, const QVariant &value, i
     return false;
 }
 
-void AndroidSdkModel::selectMissingEssentials()
+QStringList AndroidSdkModel::selectMissingEssentials()
 {
     resetSelection();
     QStringList pendingPkgs(androidConfig().allEssentials());
@@ -295,9 +295,9 @@ void AndroidSdkModel::selectMissingEssentials()
             break;
     }
 
-    m_missingEssentials = pendingPkgs;
-    if (!m_missingEssentials.isEmpty())
-        qCDebug(androidSdkModelLog) << "Couldn't find some essential packages:" << m_missingEssentials;
+    if (!pendingPkgs.isEmpty())
+        qCDebug(androidSdkModelLog) << "Couldn't find some essential packages:" << pendingPkgs;
+    return pendingPkgs;
 }
 
 QList<const AndroidSdkPackage *> AndroidSdkModel::userSelection() const
