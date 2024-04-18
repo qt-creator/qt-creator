@@ -359,10 +359,6 @@
             found by the code based test frameworks and are registered as test
             with the build system.
 
-    If a test takes more than a minute to execute, the default timeout might
-    stop the test execution. To increase the timeout, go to \preferences >
-    \uicontrol {Testing} > \uicontrol General.
-
     \section1 Select tests to run
 
     The \uicontrol Tests view shows all the tests found for the currently active
@@ -501,7 +497,7 @@
             the current project.
     \row
         \li \uicontrol {Timeout}
-        \li The maximum time in seconds to execute a test case.
+        \li Set a maximum time in seconds to execute a test case.
      \row
         \li \uicontrol {Reset Cached Choices}
         \li Sometimes, \QC cannot deduce which executable or run configuration to

@@ -50,8 +50,6 @@ private:
 
 TestSettingsWidget::TestSettingsWidget()
 {
-    auto timeoutLabel = new QLabel(Tr::tr("Timeout:"));
-    timeoutLabel->setToolTip(Tr::tr("Timeout used when executing each test case."));
     auto scanThreadLabel = new QLabel(Tr::tr("Scan threads:"));
     scanThreadLabel->setToolTip("Number of worker threads used when scanning for tests.");
 
@@ -98,7 +96,7 @@ TestSettingsWidget::TestSettingsWidget()
             s.displayApplication,
             s.processArgs,
             Row { Tr::tr("Automatically run"), s.runAfterBuild, st },
-            Row { timeoutLabel, s.timeout, st },
+            Row { s.useTimeout, s.timeout, st },
             Row { resetChoicesButton, st }
          }
     };

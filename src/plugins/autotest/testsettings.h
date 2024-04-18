@@ -31,6 +31,7 @@ public:
     void fromSettings();
 
     Utils::IntegerAspect scanThreadLimit{this};
+    Utils::BoolAspect useTimeout{this};
     Utils::IntegerAspect timeout{this};
     Utils::BoolAspect omitInternalMsg{this};
     Utils::BoolAspect omitRunConfigWarn{this};

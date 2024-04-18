@@ -412,8 +412,10 @@ void TestRunner::runTestsHelper()
         }
         process.setEnvironment(environment);
 
-        m_cancelTimer.setInterval(testSettings().timeout());
-        m_cancelTimer.start();
+        if (testSettings().useTimeout()) {
+            m_cancelTimer.setInterval(testSettings().timeout());
+            m_cancelTimer.start();
+        }
 
         qCInfo(runnerLog) << "Command:" << process.commandLine().executable();
         qCInfo(runnerLog) << "Arguments:" << process.commandLine().arguments();

@@ -33,13 +33,19 @@ TestSettings::TestSettings()
     scanThreadLimit.setSpecialValueText("Automatic");
     scanThreadLimit.setToolTip(Tr::tr("Number of worker threads used when scanning for tests."));
 
+    useTimeout.setSettingsKey("UseTimeout");
+    useTimeout.setDefaultValue(false);
+    useTimeout.setLabelText(Tr::tr("Timeout"));
+    useTimeout.setToolTip(Tr::tr("Use a timeout while executing test cases."));
+
     timeout.setSettingsKey("Timeout");
     timeout.setDefaultValue(defaultTimeout);
     timeout.setRange(5000, 36'000'000); // 36 Mio ms = 36'000 s = 10 h
     timeout.setSuffix(Tr::tr(" s")); // we show seconds, but store milliseconds
     timeout.setDisplayScaleFactor(1000);
     timeout.setToolTip(Tr::tr("Timeout used when executing test cases. This will apply "
-                              "for each test case on its own, not the whole project."));
+                              "for each test case on its own, not the whole project. "
+                              "Overrides test framework or build system defaults."));
 
     omitInternalMsg.setSettingsKey("OmitInternal");
     omitInternalMsg.setDefaultValue(true);
@@ -106,6 +112,7 @@ TestSettings::TestSettings()
 
     fromSettings();
 
+    timeout.setEnabler(&useTimeout);
     resultDescriptionMaxSize.setEnabler(&limitResultDescription);
     popupOnFail.setEnabler(&popupOnFinish);
 }
