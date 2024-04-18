@@ -2456,11 +2456,8 @@ bool NodeMetaInfo::usesCustomParser() const
             return false;
 
         auto type = simplifiedTypeName();
-        return type == "VisualItemModel"
-               || type == "VisualDataModel"
-               || type == "ListModel"
-               || type == "XmlListModel"
-               || type == "DesignEffect";
+        return type == "VisualItemModel" || type == "VisualDataModel" || type == "ListModel"
+               || type == "XmlListModel";
     }
 }
 
