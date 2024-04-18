@@ -1,5 +1,5 @@
 [General]
-Includes=light.figmatokens
+Includes=light.figmatokens, light-palette.inc
 ThemeName=Classic
 PreferredStyles=
 
@@ -465,7 +465,7 @@ TerminalAnsi15=e5e5e6
 
 [Flags]
 ComboBoxDrawTextShadow=true
-DerivePaletteFromTheme=false
+DerivePaletteFromThemeIfNeeded=true
 DrawIndicatorBranch=false
 DrawSearchResultWidgetFrame=true
 DrawTargetSelectorBottom=true
