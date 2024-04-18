@@ -127,7 +127,6 @@ struct ClientType {
     QString name;
     using SettingsGenerator = std::function<BaseSettings*()>;
     SettingsGenerator generator = nullptr;
-    bool userAddable = true;
 };
 
 class LANGUAGECLIENT_EXPORT LanguageClientSettings
