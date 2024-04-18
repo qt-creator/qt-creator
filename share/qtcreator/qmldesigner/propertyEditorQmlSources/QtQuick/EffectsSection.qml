@@ -66,7 +66,7 @@ Section {
                     if (root.hasDesignerEffect) {
                          root.effectNodeWrapper.deleteModelNode()
                     } else {
-                        modelNodeBackend.createModelNode(-1, "data", "DesignEffect",  "QtQuick.Studio.DesignEffects")
+                        modelNodeBackend.createModelNode(-1, "data", "DesignEffect", "QtQuick.Studio.DesignEffects")
                         var effectNode = modelNodeBackend.allChildrenOfType("DesignEffect")
                         modelNodeBackend.createModelNode(effectNode, "effects", "DesignDropShadow")
                     }
