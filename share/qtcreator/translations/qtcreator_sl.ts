@@ -7757,14 +7757,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>oznakaTežave</translation>
     </message>
     <message>
-        <source>Error: </source>
-        <translation type="obsolete">Napaka: </translation>
-    </message>
-    <message>
-        <source>Warning:</source>
-        <translation type="obsolete">Opozorilo:</translation>
-    </message>
-    <message>
         <source>Configuration name:</source>
         <translation type="obsolete">Ime nastavitev:</translation>
     </message>
