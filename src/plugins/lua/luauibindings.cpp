@@ -100,7 +100,7 @@ void qobject_index_set(QObject *obj, const char *key, sol::stack_object value)
 }
 
 template<class T>
-size_t qobject_index_size(QObject *obj)
+size_t qobject_index_size(QObject *)
 {
     return 0;
 }
