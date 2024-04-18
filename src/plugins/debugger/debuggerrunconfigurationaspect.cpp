@@ -100,10 +100,10 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
         };
         setSummaryText();
 
-        connect(&m_cppAspect, &BaseAspect::changed, this, setSummaryText);
-        connect(&m_qmlAspect, &BaseAspect::changed, this, setSummaryText);
-        connect(&m_pythonAspect, &BaseAspect::changed, this, setSummaryText);
-        connect(&m_overrideStartupAspect, &BaseAspect::changed, this, setSummaryText);
+        connect(&m_cppAspect, &BaseAspect::changed, details, setSummaryText);
+        connect(&m_qmlAspect, &BaseAspect::changed, details, setSummaryText);
+        connect(&m_pythonAspect, &BaseAspect::changed, details, setSummaryText);
+        connect(&m_overrideStartupAspect, &BaseAspect::changed, details, setSummaryText);
 
         return details;
     });
