@@ -299,6 +299,11 @@ void addSettingsModule()
 
         auto filePathAspectType = addTypedAspect<FilePathAspect>(settings, "FilePathAspect");
         filePathAspectType.set("expandedValue", sol::property(&FilePathAspect::expandedValue));
+        filePathAspectType.set(
+            "defaultPath",
+            sol::property(
+                [](FilePathAspect &self) { return FilePath::fromUserInput(self.defaultValue()); },
+                &FilePathAspect::setDefaultPathValue));
 
         addTypedAspect<IntegerAspect>(settings, "IntegerAspect");
         addTypedAspect<DoubleAspect>(settings, "DoubleAspect");

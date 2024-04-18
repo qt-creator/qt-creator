@@ -137,6 +137,7 @@ FilePathAspectCreate = {}
 
 ---@class FilePathAspect
 ---@field expandedValue FilePath The expanded value of the aspect
+---@field defaultPath FilePath The default path of the aspect
 settings.FilePathAspect = {}
 
 ---Create a new FilePathAspect
