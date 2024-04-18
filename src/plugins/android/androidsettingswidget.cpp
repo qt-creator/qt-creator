@@ -669,7 +669,7 @@ void AndroidSettingsWidget::validateSdk()
                                                         AllEssentialsInstalledRow});
     androidConfig().setSdkFullyConfigured(sdkToolsOk && componentsOk);
     if (sdkToolsOk && !componentsOk)
-        m_sdkManagerWidget->installEssentials();
+        m_sdkManagerWidget->installMissingEssentials();
 
     updateNdkList();
     updateUI();

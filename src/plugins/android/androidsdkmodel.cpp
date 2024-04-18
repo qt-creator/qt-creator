@@ -11,11 +11,6 @@
 #include <utils/utilsicons.h>
 
 #include <QIcon>
-#include <QLoggingCategory>
-
-namespace {
-static Q_LOGGING_CATEGORY(androidSdkModelLog, "qtc.android.sdkmodel", QtWarningMsg)
-}
 
 namespace Android {
 namespace Internal {
@@ -258,51 +253,19 @@ bool AndroidSdkModel::setData(const QModelIndex &index, const QVariant &value, i
     return false;
 }
 
-QStringList AndroidSdkModel::selectMissingEssentials()
+InstallationChange AndroidSdkModel::installationChange() const
 {
-    resetSelection();
-    QStringList pendingPkgs(androidConfig().allEssentials());
-    auto addTool = [this](QList<const AndroidSdkPackage *>::const_iterator itr) {
-        if ((*itr)->installedLocation().isEmpty()) {
-            m_changeState << *itr;
-            auto i = index(std::distance(m_tools.cbegin(), itr), 0, index(0, 0));
-            emit dataChanged(i, i, {Qt::CheckStateRole});
-        }
-    };
-    for (auto tool = m_tools.cbegin(); tool != m_tools.cend(); ++tool) {
-        if (!pendingPkgs.contains((*tool)->sdkStylePath()))
-            continue;
+    if (m_changeState.isEmpty())
+        return {};
 
-        addTool(tool);
-        pendingPkgs.removeOne((*tool)->sdkStylePath());
-
-        if (pendingPkgs.isEmpty())
-            break;
+    InstallationChange change;
+    for (const AndroidSdkPackage *package : m_changeState) {
+        if (package->state() == AndroidSdkPackage::Installed)
+            change.toUninstall << package->sdkStylePath();
+        else
+            change.toInstall << package->sdkStylePath();
     }
-
-    // Select SDK platform
-    for (const SdkPlatform *platform : std::as_const(m_sdkPlatforms)) {
-        if (!platform->installedLocation().isEmpty()) {
-            pendingPkgs.removeOne(platform->sdkStylePath());
-        } else if (pendingPkgs.contains(platform->sdkStylePath()) &&
-            platform->installedLocation().isEmpty()) {
-            auto i = index(0, 0, index(1, 0));
-            m_changeState << platform;
-            emit dataChanged(i, i, {Qt::CheckStateRole});
-            pendingPkgs.removeOne(platform->sdkStylePath());
-        }
-        if (pendingPkgs.isEmpty())
-            break;
-    }
-
-    if (!pendingPkgs.isEmpty())
-        qCDebug(androidSdkModelLog) << "Couldn't find some essential packages:" << pendingPkgs;
-    return pendingPkgs;
-}
-
-QList<const AndroidSdkPackage *> AndroidSdkModel::userSelection() const
-{
-    return Utils::toList(m_changeState);
+    return change;
 }
 
 void AndroidSdkModel::resetSelection()

@@ -70,10 +70,11 @@ public:
     AndroidSdkManagerWidget(AndroidSdkManager *sdkManager, QWidget *parent = nullptr);
     ~AndroidSdkManagerWidget() override;
 
-    void installEssentials();
+    void installMissingEssentials();
 
 private:
-    void onApplyButton(const QString &extraMessage = {});
+    void applyInstallationChange(const InstallationChange &change, const QString &extraMessage = {});
+    void onApplyButton();
     void onUpdatePackages();
     void onCancel();
     void onOperationResult(int index);
@@ -97,6 +98,7 @@ private:
     Utils::OutputFormatter *m_formatter = nullptr;
     QFutureWatcher<AndroidSdkManager::OperationOutput> *m_currentOperation = nullptr;
 
+    InstallationChange m_installationChange;
     QStackedWidget *m_viewStack;
     QWidget *m_packagesStack;
     QWidget *m_outputStack;

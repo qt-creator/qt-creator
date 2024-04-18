@@ -159,7 +159,7 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidSdkManager *sdkManager, 
     connect(m_sdkModel, &AndroidSdkModel::dataChanged, this, [this] {
         if (m_viewStack->currentWidget() == m_packagesStack)
             m_buttonBox->button(QDialogButtonBox::Apply)
-                ->setEnabled(!m_sdkModel->userSelection().isEmpty());
+                ->setEnabled(m_sdkModel->installationChange().count());
     });
 
     connect(m_sdkModel, &AndroidSdkModel::modelAboutToBeReset, this,
@@ -206,9 +206,8 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidSdkManager *sdkManager, 
         expandCheck->setChecked(!text.isEmpty());
     });
 
-    connect(m_buttonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked, this, [this] {
-        onApplyButton();
-    });
+    connect(m_buttonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked,
+            this, &AndroidSdkManagerWidget::onApplyButton);
     connect(m_buttonBox, &QDialogButtonBox::rejected, this, &AndroidSdkManagerWidget::onCancel);
 
     connect(optionsButton, &QPushButton::clicked,
@@ -273,19 +272,20 @@ AndroidSdkManagerWidget::~AndroidSdkManagerWidget()
     delete m_formatter;
 }
 
-void AndroidSdkManagerWidget::installEssentials()
+void AndroidSdkManagerWidget::installMissingEssentials()
 {
-    const QStringList missingEssentials = m_sdkModel->selectMissingEssentials();
-    if (!missingEssentials.isEmpty()) {
+    const QStringList notFoundEssentials = m_sdkManager->notFoundEssentialSdkPackages();
+    if (!notFoundEssentials.isEmpty()) {
         QMessageBox::warning(Core::ICore::dialogParent(),
                              Tr::tr("Android SDK Changes"),
                              Tr::tr("%1 cannot find the following essential packages: \"%2\".\n"
                                     "Install them manually after the current operation is done.\n")
                                  .arg(QGuiApplication::applicationDisplayName(),
-                                      missingEssentials.join("\", \"")));
+                                      notFoundEssentials.join("\", \"")));
     }
-    onApplyButton(Tr::tr("Android SDK installation is missing necessary packages. "
-                     "Do you want to install the missing packages?"));
+    applyInstallationChange({m_sdkManager->missingEssentialSdkPackages()},
+                            Tr::tr("Android SDK installation is missing necessary packages. "
+                                   "Do you want to install the missing packages?"));
 }
 
 void AndroidSdkManagerWidget::beginLicenseCheck()
@@ -298,45 +298,39 @@ void AndroidSdkManagerWidget::beginLicenseCheck()
     addPackageFuture(m_sdkManager->checkPendingLicenses());
 }
 
-void AndroidSdkManagerWidget::onApplyButton(const QString &extraMessage)
+void AndroidSdkManagerWidget::applyInstallationChange(const InstallationChange &change,
+                                                      const QString &extraMessage)
 {
-    QTC_ASSERT(m_currentView == PackageListing, return);
+    m_installationChange = change;
 
     if (m_sdkManager->isBusy()) {
         m_formatter->appendMessage("\n" + Tr::tr("SDK Manager is busy."), StdErrFormat);
         return;
     }
 
-    const QList<const AndroidSdkPackage *> packagesToUpdate = m_sdkModel->userSelection();
-    if (packagesToUpdate.isEmpty())
+    if (m_installationChange.count() == 0)
         return;
 
-    QStringList installPackages, uninstallPackages;
-    for (auto package : packagesToUpdate) {
-        QString str = QString("   %1").arg(package->descriptionText());
-        if (package->state() == AndroidSdkPackage::Installed)
-            uninstallPackages << str;
-        else
-            installPackages << str;
-    }
-
-    QString message = Tr::tr("%n Android SDK packages shall be updated.", "", packagesToUpdate.count());
+    QString message = Tr::tr("%n Android SDK packages shall be updated.", "", change.count());
     if (!extraMessage.isEmpty())
         message.prepend(extraMessage + "\n\n");
-    QMessageBox messageDlg(QMessageBox::Information,
-                           Tr::tr("Android SDK Changes"),
-                           message,
-                           QMessageBox::Ok | QMessageBox::Cancel,
+
+    QMessageBox messageDlg(QMessageBox::Information, Tr::tr("Android SDK Changes"),
+                           message, QMessageBox::Ok | QMessageBox::Cancel,
                            Core::ICore::dialogParent());
 
     QString details;
-    if (!uninstallPackages.isEmpty())
-        details = Tr::tr("[Packages to be uninstalled:]\n").append(uninstallPackages.join("\n"));
-
-    if (!installPackages.isEmpty()) {
-        if (!uninstallPackages.isEmpty())
+    if (!change.toUninstall.isEmpty()) {
+        QStringList toUninstall = {Tr::tr("[Packages to be uninstalled:]")};
+        toUninstall += change.toUninstall;
+        details += toUninstall.join("\n   ");
+    }
+    if (!change.toInstall.isEmpty()) {
+        if (!change.toUninstall.isEmpty())
             details.append("\n\n");
-        details.append("[Packages to be installed:]\n").append(installPackages.join("\n"));
+        QStringList toInstall = {Tr::tr("[Packages to be installed:]")};
+        toInstall += change.toInstall;
+        details += toInstall.join("\n   ");
     }
     messageDlg.setDetailedText(details);
     if (messageDlg.exec() == QMessageBox::Cancel)
@@ -348,13 +342,19 @@ void AndroidSdkManagerWidget::onApplyButton(const QString &extraMessage)
     switchView(Operations);
     m_pendingCommand = AndroidSdkManager::UpdatePackage;
     // User agreed with the selection. Check for licenses.
-    if (!installPackages.isEmpty()) {
+    if (!change.toInstall.isEmpty()) {
         // Pending license affects installtion only.
         beginLicenseCheck();
     } else {
         // Uninstall only. Go Ahead.
         beginExecution();
     }
+}
+
+void AndroidSdkManagerWidget::onApplyButton()
+{
+    QTC_ASSERT(m_currentView == PackageListing, return);
+    applyInstallationChange(m_sdkModel->installationChange());
 }
 
 void AndroidSdkManagerWidget::onUpdatePackages()
@@ -432,19 +432,11 @@ void AndroidSdkManagerWidget::addPackageFuture(const QFuture<AndroidSdkManager::
 
 void AndroidSdkManagerWidget::beginExecution()
 {
-    const QList<const AndroidSdkPackage *> packagesToUpdate = m_sdkModel->userSelection();
-    if (packagesToUpdate.isEmpty()) {
+    if (m_installationChange.count() == 0) {
         switchView(PackageListing);
         return;
     }
 
-    QStringList installSdkPaths, uninstallSdkPaths;
-    for (auto package : packagesToUpdate) {
-        if (package->state() == AndroidSdkPackage::Installed)
-            uninstallSdkPaths << package->sdkStylePath();
-        else
-            installSdkPaths << package->sdkStylePath();
-    }
     m_formatter->appendMessage(Tr::tr("Installing/Uninstalling selected packages...\n"),
                                NormalMessageFormat);
     m_formatter->appendMessage(Tr::tr("Closing the %1 dialog will cancel the running and scheduled SDK "
@@ -452,7 +444,8 @@ void AndroidSdkManagerWidget::beginExecution()
                                                            Tr::tr("preferences") : Tr::tr("options")),
                                LogMessageFormat);
 
-    addPackageFuture(m_sdkManager->update({installSdkPaths, uninstallSdkPaths}));
+    addPackageFuture(m_sdkManager->update(m_installationChange));
+    m_installationChange = {};
 }
 
 void AndroidSdkManagerWidget::beginUpdate()

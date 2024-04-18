@@ -52,6 +52,8 @@ public:
 
     SdkPlatformList installedSdkPlatforms();
     const AndroidSdkPackageList &allSdkPackages();
+    QStringList notFoundEssentialSdkPackages();
+    QStringList missingEssentialSdkPackages();
     AndroidSdkPackageList installedSdkPackages();
     SystemImageList installedSystemImages();
     NdkList installedNdkPackages();

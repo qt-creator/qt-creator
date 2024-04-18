@@ -215,6 +215,32 @@ const AndroidSdkPackageList &AndroidSdkManager::allSdkPackages()
     return m_d->allPackages();
 }
 
+QStringList AndroidSdkManager::notFoundEssentialSdkPackages()
+{
+    QStringList essentials = androidConfig().allEssentials();
+    const AndroidSdkPackageList &packages = allSdkPackages();
+    for (AndroidSdkPackage *package : packages) {
+        essentials.removeOne(package->sdkStylePath());
+        if (essentials.isEmpty())
+            return {};
+    }
+    return essentials;
+}
+
+QStringList AndroidSdkManager::missingEssentialSdkPackages()
+{
+    const QStringList essentials = androidConfig().allEssentials();
+    const AndroidSdkPackageList &packages = allSdkPackages();
+    QStringList missingPackages;
+    for (AndroidSdkPackage *package : packages) {
+        if (essentials.contains(package->sdkStylePath())
+            && package->state() != AndroidSdkPackage::Installed) {
+            missingPackages.append(package->sdkStylePath());
+        }
+    }
+    return missingPackages;
+}
+
 AndroidSdkPackageList AndroidSdkManager::installedSdkPackages()
 {
     return m_d->filteredPackages(AndroidSdkPackage::Installed, AndroidSdkPackage::AnyValidType);
