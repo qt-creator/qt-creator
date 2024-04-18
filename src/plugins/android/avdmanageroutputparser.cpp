@@ -156,8 +156,10 @@ int platformNameToApiLevel(const QString &platformName)
 
 QString convertNameToExtension(const QString &name)
 {
-    if (name.endsWith("ext4"))
-        return " Extension 4";
+    static const QRegularExpression rexEx(R"(-ext(\d+)$)");
+    const QRegularExpressionMatch match = rexEx.match(name);
+    if (match.hasMatch())
+        return " Extension " + match.captured(1);
 
     return {};
 }
