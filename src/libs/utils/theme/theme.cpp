@@ -370,7 +370,10 @@ void Theme::setHelpMenu(QMenu *menu)
 
 QPalette Theme::initialPalette()
 {
-    m_initialPalette = copyPalette(QApplication::palette());
+    if (!m_initialPalette) {
+        m_initialPalette = copyPalette(QApplication::palette());
+        QApplication::setPalette(*m_initialPalette);
+    }
     return *m_initialPalette;
 }
 
