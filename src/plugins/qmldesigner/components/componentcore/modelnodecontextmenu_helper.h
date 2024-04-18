@@ -89,7 +89,7 @@ inline bool hasCollectionAsModel(const SelectionContext &selectionState)
 
     const ModelNode singleSelectedNode = selectionState.currentSingleSelectedNode();
 
-    return singleSelectedNode.metaInfo().isQtQuickListView()
+    return singleSelectedNode.metaInfo().isListOrGridView()
            && singleSelectedNode.property("model").toBindingProperty().expression().startsWith(
                "DataStore.");
 }

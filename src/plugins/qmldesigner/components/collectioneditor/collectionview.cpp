@@ -49,6 +49,18 @@ inline void setVariantPropertyValue(const QmlDesigner::ModelNode &node,
     property.setValue(value);
 }
 
+inline void setNodePropertyValue(const QmlDesigner::ModelNode &node,
+                                 const QmlDesigner::PropertyName &propertyName,
+                                 const QmlDesigner::ModelNode &value)
+{
+    QmlDesigner::NodeProperty nodeProperty = node.nodeProperty(propertyName);
+    // Remove the old model node if is available
+    if (nodeProperty.modelNode())
+        nodeProperty.modelNode().destroy();
+
+    nodeProperty.setModelNode(value);
+}
+
 inline void setBindingPropertyExpression(const QmlDesigner::ModelNode &node,
                                          const QmlDesigner::PropertyName &propertyName,
                                          const QString &expression)
@@ -256,7 +268,6 @@ void CollectionView::assignCollectionToNode(const QString &collectionName, const
     if (!m_widget)
         return;
 
-    using DataType = CollectionDetails::DataType;
     executeInTransaction("CollectionView::assignCollectionToNode", [&]() {
         m_dataStore->assignCollectionToNode(
             this,
@@ -273,35 +284,14 @@ void CollectionView::assignCollectionToNode(const QString &collectionName, const
 
         // Create and assign a delegate to the list view item
         if (node.metaInfo().isQtQuickListView()) {
-            CollectionDetails collection = m_widget->collectionDetailsModel()->upToDateConstCollection(
-                {dataStoreNode(), collectionName});
-
-            ModelNode rowItem(createModelNode("QtQuick.Row"));
-            ::setVariantPropertyValue(rowItem, "spacing", 5);
-
-            const int columnsCount = collection.columns();
-            for (int column = 0; column < columnsCount; ++column) {
-                const DataType dataType = collection.typeAt(column);
-                const QString columnName = collection.propertyAt(column);
-                ModelNode cellItem;
-                if (dataType == DataType::Color) {
-                    cellItem = createModelNode("QtQuick.Rectangle");
-                    ::setBindingPropertyExpression(cellItem, "color", columnName);
-                    ::setVariantPropertyValue(cellItem, "height", 20);
-                } else {
-                    cellItem = createModelNode("QtQuick.Text");
-                    ::setBindingPropertyExpression(cellItem, "text", columnName);
-                }
-                ::setVariantPropertyValue(cellItem, "width", 100);
-                rowItem.defaultNodeAbstractProperty().reparentHere(cellItem);
-            }
-
-            NodeProperty delegateProperty = node.nodeProperty("delegate");
-            // Remove the old model node if is available
-            if (delegateProperty.modelNode())
-                delegateProperty.modelNode().destroy();
-
-            delegateProperty.setModelNode(rowItem);
+            ::setNodePropertyValue(node, "delegate", createListViewDelegate(collectionName));
+        } else if (node.metaInfo().isQtQuickGridView()) {
+            QSize delegateSize;
+            ::setNodePropertyValue(node,
+                                   "delegate",
+                                   createGridViewDelegate(collectionName, delegateSize));
+            ::setVariantPropertyValue(node, "cellWidth", delegateSize.width());
+            ::setVariantPropertyValue(node, "cellHeight", delegateSize.height());
         }
     });
 }
@@ -439,7 +429,7 @@ void CollectionView::onItemLibraryNodeCreated(const ModelNode &node)
     if (!m_widget)
         return;
 
-    if (node.metaInfo().isQtQuickListView()) {
+    if (node.metaInfo().isListOrGridView()) {
         addTask(QSharedPointer<CollectionTask>(
             new DropListViewTask(this, m_widget->listModel(), node)));
     }
@@ -452,6 +442,101 @@ void CollectionView::addTask(QSharedPointer<CollectionTask> task)
         task->process();
     else if (dataStoreNode())
         m_delayedTasks << task;
+}
+
+ModelNode CollectionView::createListViewDelegate(const QString &collectionName)
+{
+    using DataType = CollectionDetails::DataType;
+    using namespace Qt::StringLiterals;
+
+    CollectionDetails collection = m_widget->collectionDetailsModel()->upToDateConstCollection(
+        {dataStoreNode(), collectionName});
+
+    ModelNode rowItem(createModelNode("QtQuick.Row"));
+    ::setVariantPropertyValue(rowItem, "spacing", 5);
+
+    const int columnsCount = collection.columns();
+    for (int column = 0; column < columnsCount; ++column) {
+        const DataType dataType = collection.typeAt(column);
+        const QString columnName = collection.propertyAt(column);
+        ModelNode cellItem;
+        if (dataType == DataType::Color) {
+            cellItem = createModelNode("QtQuick.Rectangle");
+            ::setBindingPropertyExpression(cellItem, "color", columnName);
+            ::setVariantPropertyValue(cellItem, "height", 20);
+        } else {
+            cellItem = createModelNode("QtQuick.Text");
+            ::setBindingPropertyExpression(cellItem, "text", columnName);
+            ::setVariantPropertyValue(cellItem, "clip", true);
+            ::setBindingPropertyExpression(cellItem, "elide", "Text.ElideRight"_L1);
+            ::setVariantPropertyValue(cellItem, "leftPadding", 1);
+            ::setVariantPropertyValue(cellItem, "rightPadding", 1);
+        }
+        ::setVariantPropertyValue(cellItem, "width", 100);
+        rowItem.defaultNodeAbstractProperty().reparentHere(cellItem);
+    }
+    return rowItem;
+}
+
+ModelNode CollectionView::createGridViewDelegate(const QString &collectionName, QSize &delegateSize)
+{
+    using DataType = CollectionDetails::DataType;
+    using namespace Qt::StringLiterals;
+
+    CollectionDetails collection = m_widget->collectionDetailsModel()->upToDateConstCollection(
+        {dataStoreNode(), collectionName});
+
+    constexpr int spacing = 5;
+    int delegateWidth = 70;
+    int delegateHeight = 0;
+
+    ModelNode rectItem(createModelNode("QtQuick.Rectangle"));
+    ::setVariantPropertyValue(rectItem, "clip", true);
+    ::setVariantPropertyValue(rectItem, "border.color", QColor(Qt::blue));
+    ::setVariantPropertyValue(rectItem, "border.width", 1);
+
+    ModelNode colItem(createModelNode("QtQuick.Column"));
+    ::setVariantPropertyValue(colItem, "spacing", spacing);
+    ::setVariantPropertyValue(colItem, "topPadding", spacing);
+    ::setBindingPropertyExpression(colItem, "anchors.fill", "parent"_L1);
+
+    const int columnsCount = collection.columns();
+    for (int column = 0; column < columnsCount; ++column) {
+        const DataType dataType = collection.typeAt(column);
+        const QString columnName = collection.propertyAt(column);
+        ModelNode cellItem;
+        if (dataType == DataType::Color) {
+            cellItem = createModelNode("QtQuick.Rectangle");
+            ::setBindingPropertyExpression(cellItem, "color", columnName);
+            ::setVariantPropertyValue(cellItem, "width", 40);
+            ::setVariantPropertyValue(cellItem, "height", 40);
+            delegateHeight += 40;
+        } else {
+            cellItem = createModelNode("QtQuick.Text");
+            ::setBindingPropertyExpression(cellItem, "width", "parent.width"_L1);
+            ::setVariantPropertyValue(cellItem, "height", 20);
+            ::setBindingPropertyExpression(cellItem, "text", columnName);
+            ::setVariantPropertyValue(cellItem, "clip", true);
+            ::setBindingPropertyExpression(cellItem, "elide", "Text.ElideRight"_L1);
+            ::setVariantPropertyValue(cellItem, "leftPadding", 1);
+            ::setVariantPropertyValue(cellItem, "rightPadding", 1);
+            ::setBindingPropertyExpression(cellItem, "horizontalAlignment", "Text.AlignHCenter"_L1);
+            delegateHeight += 20;
+        }
+        delegateHeight += spacing;
+        ::setBindingPropertyExpression(cellItem,
+                                       "anchors.horizontalCenter",
+                                       "parent.horizontalCenter"_L1);
+        colItem.defaultNodeAbstractProperty().reparentHere(cellItem);
+    }
+
+    rectItem.defaultNodeAbstractProperty().reparentHere(colItem);
+    ::setVariantPropertyValue(rectItem, "width", delegateWidth);
+    ::setVariantPropertyValue(rectItem, "height", delegateHeight);
+    delegateSize.setWidth(delegateWidth);
+    delegateSize.setHeight(delegateHeight);
+
+    return rectItem;
 }
 
 CollectionTask::CollectionTask(CollectionView *view, CollectionListModel *listModel)

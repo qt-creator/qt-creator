@@ -3358,6 +3358,22 @@ bool NodeMetaInfo::isQtQuickListView() const
     }
 }
 
+bool QmlDesigner::NodeMetaInfo::isQtQuickGridView() const
+{
+    if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.GridView"_t, category(), keyValue("type id", m_typeId)};
+
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQuick, GridView>(m_projectStorage, m_typeId);
+    } else {
+        return isValid() && (isSubclassOf("QtQuick.GridView"));
+    }
+}
+
 bool NodeMetaInfo::isQtQuick3DInstanceList() const
 {
     if constexpr (useProjectStorage()) {

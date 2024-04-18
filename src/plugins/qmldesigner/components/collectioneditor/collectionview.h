@@ -72,6 +72,8 @@ private:
     void ensureStudioModelImport();
     void onItemLibraryNodeCreated(const ModelNode &node);
     void addTask(QSharedPointer<CollectionTask> task);
+    ModelNode createListViewDelegate(const QString &collectionName);
+    ModelNode createGridViewDelegate(const QString &collectionName, QSize &delegateSize);
 
     std::unique_ptr<DataStoreModelNode> m_dataStore;
     Utils::UniqueObjectPtr<CollectionWidget> m_widget;
