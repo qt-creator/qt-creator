@@ -52,6 +52,7 @@ using namespace std::chrono_literals;
 using namespace Aggregation;
 using namespace TextEditor;
 using namespace Utils;
+using namespace Core;
 
 namespace CompilerExplorer {
 
@@ -65,7 +66,11 @@ constexpr char SourceEditorHoverLine[] = "SourceEditor.HoveredLine";
 CodeEditorWidget::CodeEditorWidget(const std::shared_ptr<SourceSettings> &settings,
                                    QUndoStack *undoStack)
     : m_settings(settings)
-    , m_undoStack(undoStack){};
+    , m_undoStack(undoStack)
+{
+    connect(undoStack, &QUndoStack::canUndoChanged, this, [this]() { updateUndoRedoActions(); });
+    connect(undoStack, &QUndoStack::canRedoChanged, this, [this]() { updateUndoRedoActions(); });
+};
 
 void CodeEditorWidget::updateHighlighter()
 {
@@ -417,9 +422,9 @@ CompilerWidget::CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSett
     m_spinner = new SpinnerSolution::Spinner(SpinnerSolution::SpinnerSize::Large, this);
 }
 
-Core::SearchableTerminal *CompilerWidget::createTerminal()
+SearchableTerminal *CompilerWidget::createTerminal()
 {
-    m_resultTerminal = new Core::SearchableTerminal();
+    m_resultTerminal = new SearchableTerminal();
     m_resultTerminal->setAllowBlinkingCursor(false);
     std::array<QColor, 20> colors{Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi0),
                                   Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi1),
@@ -553,7 +558,7 @@ void CompilerWidget::doCompile()
             const QList<QTextEdit::ExtraSelection> links = m_asmDocument->setCompileResult(r);
             m_asmEditor->setExtraSelections(AsmEditorLinks, links);
         } catch (const std::exception &e) {
-            Core::MessageManager::writeDisrupting(
+            MessageManager::writeDisrupting(
                 Tr::tr("Failed to compile: \"%1\".").arg(QString::fromUtf8(e.what())));
         }
     });
@@ -830,25 +835,27 @@ TextEditor::TextEditorWidget *EditorWidget::focusedEditorWidget() const
 Editor::Editor()
     : m_document(new JsonSettingsDocument(&m_undoStack))
 {
-    setContext(Core::Context(Constants::CE_EDITOR_ID));
+    setContext(Context(Constants::CE_EDITOR_ID));
     setWidget(new EditorWidget(m_document, &m_undoStack));
+
+    m_undoAction = ActionBuilder(this, Core::Constants::UNDO)
+                       .setContext(m_context)
+                       .addOnTriggered([this] { m_undoStack.undo(); })
+                       .setScriptable(true)
+                       .contextAction();
+    m_redoAction = ActionBuilder(this, Core::Constants::REDO)
+                       .setContext(m_context)
+                       .addOnTriggered([this] { m_undoStack.redo(); })
+                       .setScriptable(true)
+                       .contextAction();
+
+    connect(&m_undoStack, &QUndoStack::canUndoChanged, m_undoAction, &QAction::setEnabled);
+    connect(&m_undoStack, &QUndoStack::canRedoChanged, m_redoAction, &QAction::setEnabled);
 }
 
 Editor::~Editor()
 {
     delete widget();
-}
-
-static bool childHasFocus(QWidget *parent)
-{
-    if (parent->hasFocus())
-        return true;
-
-    for (QWidget *child : parent->findChildren<QWidget *>())
-        if (childHasFocus(child))
-            return true;
-
-    return false;
 }
 
 QWidget *Editor::toolBar()

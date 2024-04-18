@@ -457,6 +457,9 @@ public:
     virtual void undo();
     virtual void redo();
 
+    virtual bool isUndoAvailable() const;
+    virtual bool isRedoAvailable() const;
+
     void openLinkUnderCursor();
     void openLinkUnderCursorInNextSplit();
     void openTypeUnderCursor();
@@ -583,6 +586,8 @@ protected:
     static QTextCursor flippedCursor(const QTextCursor &cursor);
 
     void setVisualIndentOffset(int offset);
+
+    void updateUndoRedoActions();
 
 public:
     QString selectedText() const;

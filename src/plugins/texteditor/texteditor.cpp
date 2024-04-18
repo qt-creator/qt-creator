@@ -745,8 +745,8 @@ public:
     void registerActions();
     void updateActions();
     void updateOptionalActions();
-    void updateRedoAction(bool on);
-    void updateUndoAction(bool on);
+    void updateRedoAction();
+    void updateUndoAction();
     void updateCopyAction(bool on);
 
 public:
@@ -1936,6 +1936,12 @@ void TextEditorWidget::setVisualIndentOffset(int offset)
     d->m_visualIndentOffset = qMax(0, offset);
 }
 
+void TextEditorWidget::updateUndoRedoActions()
+{
+    d->updateUndoAction();
+    d->updateRedoAction();
+}
+
 void TextEditorWidgetPrivate::updateCannotDecodeInfo()
 {
     q->setReadOnly(m_document->hasDecodingError());
@@ -2585,6 +2591,16 @@ void TextEditorWidget::redo()
 {
     doSetTextCursor(multiTextCursor().mainCursor());
     QPlainTextEdit::redo();
+}
+
+bool TextEditorWidget::isUndoAvailable() const
+{
+    return document()->isUndoAvailable();
+}
+
+bool TextEditorWidget::isRedoAvailable() const
+{
+    return document()->isRedoAvailable();
 }
 
 void TextEditorWidget::openLinkUnderCursor()
@@ -4340,8 +4356,8 @@ void TextEditorWidgetPrivate::updateActions()
     m_visualizeWhitespaceAction->setChecked(m_displaySettings.m_visualizeWhitespace);
     m_textWrappingAction->setChecked(m_displaySettings.m_textWrapping);
 
-    updateRedoAction(q->document()->isRedoAvailable());
-    updateUndoAction(q->document()->isUndoAvailable());
+    updateRedoAction();
+    updateUndoAction();
     updateCopyAction(q->textCursor().hasSelection());
 
     updateOptionalActions();
@@ -4368,14 +4384,14 @@ void TextEditorWidgetPrivate::updateOptionalActions()
     m_autoFormatAction->setEnabled(formatEnabled);
 }
 
-void TextEditorWidgetPrivate::updateRedoAction(bool on)
+void TextEditorWidgetPrivate::updateRedoAction()
 {
-    m_redoAction->setEnabled(on);
+    m_redoAction->setEnabled(q->isRedoAvailable());
 }
 
-void TextEditorWidgetPrivate::updateUndoAction(bool on)
+void TextEditorWidgetPrivate::updateUndoAction()
 {
-    m_undoAction->setEnabled(on);
+    m_undoAction->setEnabled(q->isUndoAvailable());
 }
 
 void TextEditorWidgetPrivate::updateCopyAction(bool hasCopyableText)

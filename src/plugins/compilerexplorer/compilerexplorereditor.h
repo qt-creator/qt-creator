@@ -38,6 +38,9 @@ public:
     void undo() override { m_undoStack->undo(); }
     void redo() override { m_undoStack->redo(); }
 
+    bool isUndoAvailable() const override { return m_undoStack->canUndo(); }
+    bool isRedoAvailable() const override { return m_undoStack->canRedo(); }
+
     void focusInEvent(QFocusEvent *event) override
     {
         TextEditorWidget::focusInEvent(event);
@@ -76,6 +79,7 @@ public:
     {
         TextEditorWidget::focusInEvent(event);
         emit gotFocus();
+        updateUndoRedoActions();
     }
 
     void findLinkAt(const QTextCursor &,
@@ -85,6 +89,9 @@ public:
 
     void undo() override { m_undoStack->undo(); }
     void redo() override { m_undoStack->redo(); }
+
+    bool isUndoAvailable() const override { return m_undoStack->canUndo(); }
+    bool isRedoAvailable() const override { return m_undoStack->canRedo(); }
 
 protected:
     void mouseMoveEvent(QMouseEvent *event) override;
@@ -268,6 +275,8 @@ public:
     std::shared_ptr<JsonSettingsDocument> m_document;
     QUndoStack m_undoStack;
     std::unique_ptr<QToolBar> m_toolBar;
+    QAction *m_undoAction = nullptr;
+    QAction *m_redoAction = nullptr;
 };
 
 class EditorFactory : public Core::IEditorFactory
