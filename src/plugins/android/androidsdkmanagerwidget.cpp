@@ -452,7 +452,7 @@ void AndroidSdkManagerWidget::beginExecution()
                                                            Tr::tr("preferences") : Tr::tr("options")),
                                LogMessageFormat);
 
-    addPackageFuture(m_sdkManager->update(installSdkPaths, uninstallSdkPaths));
+    addPackageFuture(m_sdkManager->update({installSdkPaths, uninstallSdkPaths}));
 }
 
 void AndroidSdkManagerWidget::beginUpdate()

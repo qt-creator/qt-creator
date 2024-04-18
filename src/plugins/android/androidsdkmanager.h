@@ -19,6 +19,13 @@ namespace Internal {
 
 class AndroidSdkManagerPrivate;
 
+struct InstallationChange
+{
+    QStringList toInstall;
+    QStringList toUninstall = {};
+    int count() const { return toInstall.count() + toUninstall.count(); }
+};
+
 class AndroidSdkManager : public QObject
 {
     Q_OBJECT
@@ -65,7 +72,7 @@ public:
 
     QFuture<QString> availableArguments() const;
     QFuture<OperationOutput> updateAll();
-    QFuture<OperationOutput> update(const QStringList &install, const QStringList &uninstall);
+    QFuture<OperationOutput> update(const InstallationChange &change);
     QFuture<OperationOutput> checkPendingLicenses();
     QFuture<OperationOutput> runLicenseCommand();
 

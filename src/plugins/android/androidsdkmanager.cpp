@@ -169,8 +169,7 @@ public:
 
     void parseCommonArguments(QPromise<QString> &promise);
     void updateInstalled(SdkCmdPromise &fi);
-    void update(SdkCmdPromise &fi, const QStringList &install,
-                const QStringList &uninstall);
+    void update(SdkCmdPromise &fi, const InstallationChange &change);
     void checkPendingLicense(SdkCmdPromise &fi);
     void getPendingLicense(SdkCmdPromise &fi);
 
@@ -321,12 +320,11 @@ QFuture<AndroidSdkManager::OperationOutput> AndroidSdkManager::updateAll()
     return future;
 }
 
-QFuture<AndroidSdkManager::OperationOutput>
-AndroidSdkManager::update(const QStringList &install, const QStringList &uninstall)
+QFuture<AndroidSdkManager::OperationOutput> AndroidSdkManager::update(const InstallationChange &change)
 {
     if (isBusy())
         return QFuture<AndroidSdkManager::OperationOutput>();
-    auto future = Utils::asyncRun(&AndroidSdkManagerPrivate::update, m_d.get(), install, uninstall);
+    auto future = Utils::asyncRun(&AndroidSdkManagerPrivate::update, m_d.get(), change);
     m_d->addWatcher(future);
     return future;
 }
@@ -426,12 +424,11 @@ void AndroidSdkManagerPrivate::updateInstalled(SdkCmdPromise &promise)
     promise.setProgressValue(100);
 }
 
-void AndroidSdkManagerPrivate::update(SdkCmdPromise &fi, const QStringList &install,
-                                      const QStringList &uninstall)
+void AndroidSdkManagerPrivate::update(SdkCmdPromise &fi, const InstallationChange &change)
 {
     fi.setProgressRange(0, 100);
     fi.setProgressValue(0);
-    double progressQuota = 100.0 / (install.count() + uninstall.count());
+    double progressQuota = 100.0 / change.count();
     int currentProgress = 0;
 
     QString installTag = Tr::tr("Installing");
@@ -459,7 +456,7 @@ void AndroidSdkManagerPrivate::update(SdkCmdPromise &fi, const QStringList &inst
 
 
     // Uninstall packages
-    for (const QString &sdkStylePath : uninstall) {
+    for (const QString &sdkStylePath : change.toUninstall) {
         // Uninstall operations are not interptible. We don't want to leave half uninstalled.
         QStringList args;
         args << "--uninstall" << sdkStylePath << androidConfig().sdkManagerToolArgs();
@@ -468,7 +465,7 @@ void AndroidSdkManagerPrivate::update(SdkCmdPromise &fi, const QStringList &inst
     }
 
     // Install packages
-    for (const QString &sdkStylePath : install) {
+    for (const QString &sdkStylePath : change.toInstall) {
         QStringList args(sdkStylePath);
         args << androidConfig().sdkManagerToolArgs();
         if (doOperation(sdkStylePath, args, true))
