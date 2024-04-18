@@ -138,7 +138,10 @@ Item {
         else
             nodes = targetNodes
 
-        _lookAtPoint = _generalHelper.alignView(camera, nodes, _lookAtPoint);
+        var newLookAtAndZoom = _generalHelper.alignView(camera, nodes, _lookAtPoint,
+                                                        _defaultCameraLookAtDistance);
+        _lookAtPoint = newLookAtAndZoom.toVector3d();
+        _zoomFactor = newLookAtAndZoom.w;
         storeCameraState(0);
     }
 

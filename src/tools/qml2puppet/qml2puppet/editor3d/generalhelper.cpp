@@ -494,12 +494,10 @@ void GeneralHelper::alignCameras(QQuick3DCamera *camera, const QVariant &nodes)
 // Aligns the camera to the first camera in nodes list.
 // Aligning means taking the position and XY rotation from the source camera. Rest of the properties
 // remain the same, as this is used to align edit cameras, which have fixed Z-rot, fov, and clips.
-// The new lookAt is set at same distance away as it was previously and scale isn't adjusted, so
-// the zoom factor of the edit camera stays the same.
-QVector3D GeneralHelper::alignView(QQuick3DCamera *camera, const QVariant &nodes,
-                                   const QVector3D &lookAtPoint)
+// The camera zoom is reset to default.
+QVector4D GeneralHelper::alignView(QQuick3DCamera *camera, const QVariant &nodes,
+                                   const QVector3D &lookAtPoint, float defaultLookAtDistance)
 {
-    float lastDistance = (lookAtPoint - camera->position()).length();
     const QVariantList varNodes = nodes.value<QVariantList>();
     QQuick3DCamera *cameraNode = nullptr;
     for (const auto &varNode : varNodes) {
@@ -509,15 +507,24 @@ QVector3D GeneralHelper::alignView(QQuick3DCamera *camera, const QVariant &nodes
     }
 
     if (cameraNode) {
+        if (auto orthoCamera = qobject_cast<QQuick3DOrthographicCamera *>(camera)) {
+            orthoCamera->setHorizontalMagnification(1.f);
+            orthoCamera->setVerticalMagnification(1.f);
+            // Force update on transform just in case position and rotation didn't change
+            float x = orthoCamera->x();
+            orthoCamera->setX(x + 1.f);
+            orthoCamera->setX(x);
+        }
         camera->setPosition(cameraNode->scenePosition());
         QVector3D newRotation = cameraNode->sceneRotation().toEulerAngles();
         newRotation.setZ(0.f);
         camera->setEulerRotation(newRotation);
+
     }
 
-    QVector3D lookAt = camera->position() + camera->forward() * lastDistance;
+    QVector3D lookAt = camera->position() + camera->forward() * defaultLookAtDistance;
 
-    return lookAt;
+    return QVector4D(lookAt, 1.f);
 }
 
 bool GeneralHelper::fuzzyCompare(double a, double b)
