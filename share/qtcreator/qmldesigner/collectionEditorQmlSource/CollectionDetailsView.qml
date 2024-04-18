@@ -83,6 +83,17 @@ Rectangle {
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                     color: StudioTheme.Values.themeTextColor
+
+                    MouseArea {
+                        anchors.fill: parent
+                        acceptedButtons: Qt.LeftButton
+                        property int order: Qt.AscendingOrder
+                        onClicked: {
+                            order = (order == Qt.AscendingOrder) ? Qt.DescendingOrder : Qt.AscendingOrder;
+                            tableView.closeEditor()
+                            tableView.model.sort(-1, order)
+                        }
+                    }
                 }
             }
 
