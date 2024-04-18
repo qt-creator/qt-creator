@@ -135,23 +135,6 @@ Item {
                 }
             }
         }
-
-        Component {
-            id: boolEditor
-
-            EditorPopup {
-
-                editor: boolField
-
-                StudioControls.CheckBox {
-                    id: boolField
-
-                    property alias editValue: boolField.checked
-
-                    actionIndicatorVisible: false
-                }
-            }
-        }
     }
 
     component EditorPopup: T.Popup {
@@ -223,15 +206,6 @@ Item {
             PropertyChanges {
                 target: editorLoader
                 sourceComponent: realEditor
-            }
-        },
-        State {
-            name: "bool"
-            when: columnType === CollectionDetails.DataType.Boolean
-
-            PropertyChanges {
-                target: editorLoader
-                sourceComponent: boolEditor
             }
         },
         State {

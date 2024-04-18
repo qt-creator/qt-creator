@@ -361,6 +361,24 @@ Rectangle {
                         }
 
                         Component {
+                            id: checkBoxComponent
+
+                            StudioControls.CheckBox {
+                                id: checkBoxDelegate
+
+                                readonly property bool editValue: edit
+
+                                text: ""
+                                actionIndicatorVisible: false
+                                checked: checkBoxDelegate.editValue
+                                onCheckedChanged: {
+                                    if (checkBoxDelegate.editValue !== checkBoxDelegate.checked)
+                                        edit = checkBoxDelegate.checked
+                                }
+                            }
+                        }
+
+                        Component {
                             id: colorEditorComponent
 
                             ColorViewDelegate {}
@@ -369,6 +387,8 @@ Rectangle {
                         function resetSource() {
                             if (columnType === CollectionDetails.DataType.Color)
                                 cellContentLoader.sourceComponent = colorEditorComponent
+                            else if (columnType === CollectionDetails.DataType.Boolean)
+                                cellContentLoader.sourceComponent = checkBoxComponent
                             else
                                 cellContentLoader.sourceComponent = cellText
                         }
