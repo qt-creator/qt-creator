@@ -677,7 +677,7 @@ void LanguageClientSettings::toSettings(QtcSettings *settings,
     }
 
     typedSettingsVariant << transform(typedSettings);
-    settings->setValue(typedClientsKey, transform(typedSettings));
+    settings->setValue(typedClientsKey, typedSettingsVariant);
     settings->endGroup();
 }
 
