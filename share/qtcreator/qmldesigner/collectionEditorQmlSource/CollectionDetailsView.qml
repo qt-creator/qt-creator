@@ -252,37 +252,35 @@ Rectangle {
 
                 function ensureRowIsVisible(row) {
                     let rows = tableView.model.rowCount()
-                    if (row < 0 || row >= rows) {
-                        tableView.targetRow = -1
-                        return
-                    }
+                    let rowIsLoaded = tableView.isRowLoaded(row)
 
-                    if (tableView.isRowLoaded(row)) {
-                        tableView.positionViewAtRow(row,  Qt.AlignLeft | Qt.AlignTop)
+                    if (row < 0 || row >= rows || rowIsLoaded) {
+                        if (rowIsLoaded)
+                            tableView.positionViewAtRow(row, Qt.AlignLeft | Qt.AlignTop)
+
                         tableView.targetRow = -1
                         return
                     }
 
                     tableView.targetRow = row
-                    verticalScrollBar.position = row / rows
+                    tableView.positionViewAtRow(row, Qt.AlignLeft | Qt.AlignTop)
                     ensureTimer.start()
                 }
 
                 function ensureColumnIsVisible(column) {
                     let columns = tableView.model.columnCount()
-                    if (column < 0 || column >= columns) {
-                        tableView.targetColumn = -1
-                        return
-                    }
+                    let columnIsLoaded = tableView.isColumnLoaded(column)
 
-                    if (tableView.isColumnLoaded(column)) {
-                        tableView.positionViewAtColumn(column,  Qt.AlignLeft | Qt.AlignTop)
+                    if (column < 0 || column >= columns || columnIsLoaded) {
+                        if (columnIsLoaded)
+                            tableView.positionViewAtColumn(column, Qt.AlignLeft | Qt.AlignTop)
+
                         tableView.targetColumn = -1
                         return
                     }
 
                     tableView.targetColumn = column
-                    horizontalScrollBar.position = column / columns
+                    tableView.positionViewAtColumn(column, Qt.AlignLeft | Qt.AlignTop)
                     ensureTimer.start()
                 }
 
