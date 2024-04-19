@@ -3,6 +3,9 @@ QtcPlugin {
 
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
+    Depends { name: "Qt.charts"; required: false }
+
+    condition: Qt.charts.present
 
     files: [
         "appstatisticsmonitorplugin.cpp",
