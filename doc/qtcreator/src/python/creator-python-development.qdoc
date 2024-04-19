@@ -25,8 +25,8 @@
         \li \l{Configure Python language servers}
         \li \l{Run Python applications}
         \li \l{Python Run Settings}
-        \li \l{PDB}
-        \li \l{Launching the Debugger}
+        \li \l{PDB versions}
+        \li \l{Supported Native Debuggers}
     \endlist
 
     For more information about developing with Qt for Python, including

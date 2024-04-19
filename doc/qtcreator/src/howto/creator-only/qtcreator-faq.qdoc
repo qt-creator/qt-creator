@@ -164,7 +164,7 @@
 
     You must use Python version 2.6 or 2.7.
 
-    For more information on setting up debugger, see \l{Setting Up Debugger}.
+    For more information, see \l{Supported Native Debuggers}.
 
     \b {How do I generate a core file in \QC?}
 

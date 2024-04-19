@@ -41,30 +41,6 @@
                 \li \l{Building Applications for the Web}
             \endlist
             \li \l{Debugging}
-            \list
-                \li \l{Setting Up Debugger}
-                \li \l{Launching the Debugger}
-                \li \l{Debug Mode Views}
-                    \list
-                        \li \l{Viewing Call Stack Trace}
-                        \li \l{Setting Breakpoints}
-                        \li \l{Viewing Threads}
-                        \li \l{Viewing Modules}
-                        \li \l{Viewing Source Files}
-                        \li \l{Local Variables and Function Parameters}
-                        \li \l{Evaluating Expressions}
-                        \li \l{Viewing and Editing Register State}
-                        \li \l{Debugger Log}
-                        \li \l{Viewing Disassembled Code}
-                    \endlist
-                \li \l{Stopping Applications}
-                \li \l{Examining Data}
-                \li \l{Remote Debugging}
-                \li \l{Debugger Preferences}
-                \li \l{Using Debugging Helpers}
-                \li \l{Debugging Qt Quick Projects}
-                \li \l{Troubleshooting Debugger}
-            \endlist
             \li \l{Analyzing Code}
         \endlist
         \li \l{Tutorials}
@@ -135,6 +111,12 @@
                                 \generatelist creator-reference-deploy-configurations
                             \li Run Configurations
                                 \generatelist creator-reference-run-configurations
+                        \endlist
+                    \li Debugger
+                        \generatelist creator-reference-debugger
+                        \list
+                            \li Debugger Views
+                                \generatelist creator-reference-debugger-views
                         \endlist
                     \li Editors
                         \generatelist creator-reference-editors

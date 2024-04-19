@@ -6,11 +6,16 @@
     \if defined(qtdesignstudio)
     \previouspage creator-debugging-qml.html
     \else
-    \previouspage creator-debug-mode.html
+    \previouspage creator-reference.html
     \endif
-    \nextpage creator-breakpoints-view.html
+
+    \ingroup creator-reference-debugger-views
+    \ingroup studio-debugger-views
 
     \title Viewing Call Stack Trace
+
+    \brief View the nested function calls leading to the current position as a
+    call stack trace.
 
     When the application being debugged is interrupted, \QC displays the nested
     function calls leading to the current position as a call stack trace. This
@@ -40,18 +45,26 @@
     from the stopped executable and prepends the frames to the C++ frames,
     should it find any. You can click a frame in the QML stack to open the QML
     file in the editor.
+
+    \if defined(qtcreator)
+    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \endif
 */
 
 /*!
     \page creator-breakpoints-view.html
-    \previouspage creator-stack-view.html
     \if defined(qtdesignstudio)
-    \nextpage creator-locals-view.html
+    \previouspage creator-debugging-qml.html
     \else
-    \nextpage creator-threads-view.html
+    \previouspage creator-reference.html
     \endif
 
+    \ingroup creator-reference-debugger-views
+    \ingroup studio-debugger-views
+
     \title Setting Breakpoints
+
+    \brief Set breakpoints to interrupt the application.
 
     You can associate breakpoints with:
 
@@ -128,7 +141,27 @@
 
     \image qtcreator-debug-breakpoints.webp {Breakpoints view}
 
-    \section1 Adding Breakpoints
+    \if defined(qtdesignstudio)
+    For more information, see:
+
+    \generatelist studio-how-to-debug
+    \else
+    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \endif
+*/
+
+/*!
+    \page creator-how-to-add-breakpoints.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-breakpoints-view.html
+    \else
+    \previouspage creator-how-tos.html
+    \endif
+
+    \ingroup creator-how-to-debug
+    \ingroup studio-how-to-debug
+
+    \title Add breakpoints
 
     To add breakpoints:
 
@@ -139,7 +172,7 @@
             \list
 
                 \li In the code editor, click the left margin or press \key F9
-                    (\key F8 on \macos) on a particular line you want the
+                    (\key F8 on \macos) on a particular line where you want the
                     application to stop.
 
                 \li In the \uicontrol {Breakpoint Preset} view or the
@@ -152,13 +185,13 @@
                     \endlist
             \endlist
 
-        \li In the \uicontrol {Breakpoint type} field, select the location in the
+        \li In \uicontrol {Breakpoint type}, select the location in the
             application code where you want the application to stop.
 
             \image qtcreator-add-breakpoint.webp {Add Breakpoints} dialog
     \endlist
 
-    Deselect the \uicontrol Enabled check box to make the breakpoint temporarily
+    Clear \uicontrol Enabled to make the breakpoint temporarily
     inoperative as if you had deleted it, but keep the information about the
     breakpoint, so that you can enable it again later.
 
@@ -216,59 +249,37 @@
     \endtable
 
     \if defined(qtcreator)
-    \section1 Specifying Breakpoint Settings
+    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \endif
+*/
 
-    You can specify settings for breakpoints in \preferences >
-    \uicontrol Debugger. For more information, see \l{Debugger Preferences}.
-
-    \image qtcreator-debugger-general-options.png {General tab in Debugger preferences}
-
-    To use a full absolute path in breakpoints, select the
-    \uicontrol {Set breakpoints using a full absolute path} check box.
-
-    GDB and CDB enable setting breakpoints on source lines for which no code
-    was generated. In such situations, the breakpoint is shifted to the next
-    source code line for which the code was actually generated. To reflect
-    such temporary changes by moving the breakpoint markers in the source code
-    editor, select \uicontrol GDB > \uicontrol {Adjust breakpoint locations}
-    or \uicontrol CDB > \uicontrol {Correct breakpoint location}.
-
-    When using GDB as backend, you can extend the ordinary GDB
-    breakpoint class by using Python. Select \uicontrol GDB >
-    \uicontrol {Use pseudo message tracepoints}.
-
-    When using CDB as backend, you can specify that the debugger should break on
-    specific events, such as C++ exceptions, thread creation or exit, loading or
-    unloading \l{Viewing Modules}{application modules}, or particular output.
-    Select the appropriate check boxes in the \uicontrol CDB >
-    \uicontrol {Break on} group. To disable first-chance break on access
-    violation exceptions, select the \uicontrol {Ignore first chance access
-    violations} check box. The second occurrence of an access violation will
-    break into the debugger.
-
-    You can automatically add breakpoints on some functions to catch error
-    and warning messages. For more information, see \l{Specifying CDB Settings}
-    and \l{Specifying GDB Settings}.
-
-    For more information on breakpoints, see
-    \l{http://sourceware.org/gdb/onlinedocs/gdb/Breakpoints.html#Breakpoints}
-    {Breakpoints, Watchpoints, and Catchpoints} in GDB documentation.
+/*!
+    \page creator-how-to-manage-breakpoints.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-breakpoints-view.html
+    \else
+    \previouspage creator-how-tos.html
     \endif
 
-    \section1 Moving Breakpoints
+    \ingroup creator-how-to-debug
+    \ingroup studio-how-to-debug
+
+    \title Manage breakpoints
+
+    \section1 Move breakpoints
 
     To move a breakpoint:
 
     \list
-        \li Drag and drop a breakpoint marker to another line
+        \li Drag a breakpoint marker to another line
             in the text editor.
         \li In the \uicontrol {Breakpoint Preset} view or the
              \uicontrol Breakpoints view, select
              \uicontrol {Edit Selected Breakpoints}, and set the
-             line number in the \uicontrol {Line number} field.
+             line number in \uicontrol {Line number}.
     \endlist
 
-    \section1 Deleting Breakpoints
+    \section1 Delete breakpoints
 
     To delete breakpoints:
 
@@ -288,9 +299,9 @@
 
     \endlist
 
-    \section1 Enabling and Disabling Breakpoints
+    \section1 Turn breakpoints on and off
 
-    To temporarily disable a breakpoint without deleting it and losing associated
+    To temporarily turn off a breakpoint without deleting it and losing associated
     data like conditions and commands:
 
     \list
@@ -316,7 +327,23 @@
     Other than data breakpoints retain their enabled or disabled state when the
     debugged application is restarted.
 
-    \section1 Setting Data Breakpoints
+    \if defined(qtcreator)
+    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \endif
+*/
+
+/*!
+    \page creator-how-to-set-data-breakpoints.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-breakpoints-view.html
+    \else
+    \previouspage creator-how-tos.html
+    \endif
+
+    \ingroup creator-how-to-debug
+    \ingroup studio-how-to-debug
+
+    \title Set data breakpoints
 
     A \e {data breakpoint} stops the application when data is read or written at the
     specified address.
@@ -328,11 +355,10 @@
         \li In the \uicontrol {Breakpoint Preset} or \uicontrol Breakpoints
             view, select \uicontrol {Add Breakpoint} in the context menu.
 
-        \li In the \uicontrol {Breakpoint type} field, select
+        \li In \uicontrol {Breakpoint type}, select
             \uicontrol {Break on data access at fixed address}.
 
-        \li In the \uicontrol Address field, specify the address of the memory
-            block.
+        \li In \uicontrol Address, specify the address of the memory block.
 
         \li Select \uicontrol OK.
 
@@ -349,20 +375,24 @@
     it manually.
 
     \if defined(qtcreator)
-    \sa {Debug CMake project files}
+    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
     \endif
 */
 
 /*!
     \page creator-locals-view.html
     \if defined(qtdesignstudio)
-    \previouspage creator-breakpoints-view.html
+    \previouspage creator-debugging-qml.html
     \else
-    \previouspage creator-source-files-view.html
+    \previouspage creator-reference.html
     \endif
-    \nextpage creator-expressions-view.html
+
+    \ingroup creator-reference-debugger-views
+    \ingroup studio-debugger-views
 
     \title Local Variables and Function Parameters
+
+    \brief Inspect local variables and function parameters.
 
     The \uicontrol {Locals} view consists of the \uicontrol Locals pane and the
     \uicontrol {Return Value} pane (hidden when empty).
@@ -388,18 +418,18 @@
     //! [0]
     \list
         \li Add and remove expression evaluators
-        \li Change \l{Changing Value Display format}{value display format}
+        \li \l{Change value display format}
         \li Expand and collapse view contents
         \li Copy view contents or expression values to the clipboard
         \li Open view contents in an editor
         \li Open memory editor
         \li Set data breakpoints
-        \li Use \l{Using Debugging Helpers}{debugging helpers}
+        \li Use \l{Debugging Helpers}{debugging helpers}
         \li Show and hide tooltips in the view when debugging
         \li Dereference pointers automatically
         \li Sort members of classes and structs alphabetically
         \li Use dynamic object type for display
-        \li Set \l{Debugger Preferences}{debugger preferences}
+        \li Set debugger preferences
     \endlist
     //! [0]
     \endif
@@ -410,18 +440,26 @@
     objects will be displayed. Select \uicontrol {Use dynamic object type for
     display} in the context menu. Keep in mind that choosing the dynamic type
     might be slower.
+
+    \if defined(qtcreator)
+    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \endif
 */
 
 /*!
     \page creator-expressions-view.html
-    \previouspage creator-locals-view.html
     \if defined(qtdesignstudio)
-    \nextpage creator-qml-debugging-example.html
+    \previouspage creator-debugging-qml.html
     \else
-    \nextpage creator-registers-view.html
+    \previouspage creator-reference.html
     \endif
 
+    \ingroup creator-reference-debugger-views
+    \ingroup studio-debugger-views
+
     \title Evaluating Expressions
+
+    \brief Compute values of arithmetic expressions or function calls.
 
     To compute values of arithmetic expressions or function calls, use
     expression evaluators in the \uicontrol Expressions view.
@@ -515,5 +553,7 @@
     appears uninitialized, its value is reported as
     \uicontrol {not in scope}. Not all uninitialized objects,
     however, can be recognized as such.
+
+    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
     \endif
 */

@@ -28,6 +28,6 @@
     When the application stops at a breakpoint, you can examine data in the
     \uicontrol Debug mode views.
 
-    \sa {Debugging},{Examining Data},{Debug Mode Views},{Setting Breakpoints},
+    \sa {Debugging}, {Debuggers}, {Debugger},{Examining Data},{Debug Mode Views},{Setting Breakpoints},
     {CMake}
 */

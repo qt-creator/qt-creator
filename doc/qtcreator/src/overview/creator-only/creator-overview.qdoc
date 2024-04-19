@@ -230,7 +230,7 @@
             to find the next one.
     \endlist
 
-    \QC integrates several external native debuggers for inspecting the state of
+    \QC integrates several native debuggers for inspecting the state of
     your application while debugging. The debugger plugin automatically selects
     a suitable native debugger for each kit from the ones it finds on the
     computer. Edit the kits to override this choice.
@@ -242,7 +242,7 @@
 
     Connect devices to your computer to debug processes running on the devices.
 
-    For more information, see \l{Debugging}.
+    For more information, see \l{Debugging} and \l{Debug}{How To: Debug}.
 
     \section1 Finding Issues in Source Code
 

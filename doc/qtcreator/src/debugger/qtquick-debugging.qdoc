@@ -13,11 +13,17 @@
     \previouspage studio-debugging.html
     \nextpage creator-stack-view.html
     \else
-    \previouspage creator-debugging-helpers.html
-    \nextpage creator-debugging-example.html
+    \previouspage creator-reference.html
     \endif
 
+    \ingroup creator-reference-debugger
+    \ingroup studio-debugger
+
     \title Debugging Qt Quick Projects
+
+    \brief Debug JavaScript functions, execute JavaScript expressions to get
+    information about the state of the UI, and inspect QML properties and
+    JavaScript variables, as well as change their values temporarily at runtime.
 
     \if defined(qtcreator)
     \note You need Qt 5.0 or later to debug Qt Quick projects.
@@ -56,8 +62,9 @@
         \list 1
 
         \li To create a build configuration that supports QML debugging,
-            select \uicontrol {Projects} > \uicontrol {Build} >
-            \uicontrol {QML debugging and profiling} > \uicontrol Enable.
+            go to \uicontrol {Projects} > \uicontrol {Build}.
+
+        \li In \uicontrol {QML debugging and profiling}, select \uicontrol Enable.
 
             \image qtcreator-build-settings-cmake-configure.webp {Build settings for a CMake project}
 
@@ -282,4 +289,8 @@
     When you change property values in the \uicontrol {QML Debugger Console} or
     in the \uicontrol Locals or \uicontrol Expression view, they are immediately
     updated in the running application, but not in the source code.
+
+    \if defined(qtcreator)
+    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \endif
 */

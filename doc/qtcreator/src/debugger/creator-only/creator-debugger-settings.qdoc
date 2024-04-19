@@ -3,20 +3,22 @@
 
 /*!
     \page creator-debugger-preferences.html
-    \previouspage creator-remote-debugging.html
-    \nextpage creator-debugging-helpers.html
+    \previouspage creator-reference.html
 
-    \title Debugger Preferences
+    \ingroup creator-reference-preferences-debugger
 
-    To specify settings for managing debugger processes, select \preferences >
-    \uicontrol Debugger. In the \uicontrol General tab,you can specify settings
+    \title General
+
+    \brief Customize debug views and map source paths.
+
+    To specify settings for managing debugger processes, go to \preferences >
+    \uicontrol Debugger. In the \uicontrol General tab, you can specify settings
     that are common to all debuggers.
 
     \image qtcreator-debugger-general-options.png "Debugger General preferences"
 
-    You can customize the appearance and behavior of the debug views,
-    \l{Specifying Breakpoint Settings}{specify settings for breakpoints},
-    and map source paths to target paths.
+    You can customize the appearance and behavior of the debug views and
+    setting breakpoints, as well as map source paths to target paths.
 
     You can view debug output in the \l {Debugger Log} view.
     However, in some Linux distributions, such as Arch Linux, debug
@@ -26,7 +28,39 @@
     application, which effectively prevents storing debug output in
     system logs.
 
-    \section1 Mapping Source Paths
+    \section1 Breakpoints
+
+    To use a full absolute path in breakpoints, select the
+    \uicontrol {Set breakpoints using a full absolute path} check box.
+
+    GDB and CDB enable setting breakpoints on source lines for which no code
+    was generated. In such situations, the breakpoint is shifted to the next
+    source code line for which the code was actually generated. To reflect
+    such temporary changes by moving the breakpoint markers in the source code
+    editor, select \uicontrol GDB > \uicontrol {Adjust breakpoint locations}
+    or \uicontrol CDB > \uicontrol {Correct breakpoint location}.
+
+    When using GDB as backend, you can extend the ordinary GDB
+    breakpoint class by using Python. Select \uicontrol GDB >
+    \uicontrol {Use pseudo message tracepoints}.
+
+    When using CDB as backend, you can specify that the debugger should break on
+    specific events, such as C++ exceptions, thread creation or exit, loading or
+    unloading \l{Viewing Modules}{application modules}, or particular output.
+    Select the appropriate check boxes in the \uicontrol CDB >
+    \uicontrol {Break on} group. To disable first-chance break on access
+    violation exceptions, select the \uicontrol {Ignore first chance access
+    violations} check box. The second occurrence of an access violation will
+    break into the debugger.
+
+    You can automatically add breakpoints on some functions to catch error
+    and warning messages. For more information, see \l{CDB} and \l{GDB}.
+
+    For more information on breakpoints, see
+    \l{http://sourceware.org/gdb/onlinedocs/gdb/Breakpoints.html#Breakpoints}
+    {Breakpoints, Watchpoints, and Catchpoints} in GDB documentation.
+
+    \section1 Source Paths Mapping
 
     To enable the debugger to step into the code and display the source code
     when using a copy of the source tree at a location different from the one
@@ -48,9 +82,20 @@
             of the source tree on the local machine.
     \endlist
 
-    \section1 Specifying GDB Settings
+    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+*/
 
-    To specify settings for managing the GDB process, select \preferences >
+/*!
+    \page creator-preferences-debugger-gdb.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-preferences-debugger
+
+    \title GDB
+
+    \brief Manage the GDB process.
+
+    To specify settings for managing the GDB process, go to \preferences >
     \uicontrol Debugger > \uicontrol GDB.
 
     \image qtcreator-preferences-debugger-gdb.webp {GDB preferences}
@@ -111,7 +156,7 @@
     To execute arbitrary Python scripts, use
     \c {python execfile('/path/to/script.py')}.
 
-    \section2 Extended GDB Settings
+    \section1 Extended GDB Settings
 
     The settings in the \uicontrol Extended group give access to advanced
     or experimental functions of GDB.
@@ -136,9 +181,20 @@
     To keep debugging all children after a fork, select the
     \uicontrol {Debug all child processes} check box.
 
-    \section1 Specifying CDB Settings
+    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+*/
 
-    To specify settings for managing the CDB process, select \preferences >
+/*!
+    \page creator-preferences-debugger-cdb.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-preferences-debugger
+
+    \title CDB
+
+    \brief Manage the CDB process.
+
+    To specify settings for managing the CDB process, go to \preferences >
     \uicontrol Debugger > \uicontrol CDB.
 
     \image qtcreator-cdb-options.png "CDB preferences"
@@ -182,14 +238,26 @@
     in \l Issues, select the check boxes
     in the \uicontrol {Add Exceptions to Issues View} group.
 
-    \section1 Setting CDB Paths on Windows
+    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+*/
+
+/*!
+    \page creator-preferences-debugger-cdb-paths.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-preferences-debugger
+
+    \title CDB Paths
+
+    \brief Add the Microsoft Symbol Server to the symbol search path of the
+    debugger.
 
     To obtain debugging information for the operating system libraries for
     debugging Windows applications, add the Microsoft Symbol Server
     to the symbol search path of the debugger:
 
     \list 1
-        \li Select \preferences > \uicontrol Debugger > \uicontrol {CDB Paths}.
+        \li Go to \preferences > \uicontrol Debugger > \uicontrol {CDB Paths}.
             \image qtcreator-debugger-cdb-paths.png
         \li In the \uicontrol {Symbol Paths} group, select \uicontrol Insert.
         \li Select the directory where you want to store the cached information.
@@ -204,4 +272,6 @@
     To use the Source Server infrastructure for fetching missing source files
     directly from version control or the web, enter the following string in
     the \uicontrol {Source Paths} field: \c srv*.
+
+    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
 */

@@ -19,6 +19,20 @@
 
     \annotatedlist creator-reference-analyzer
 
+    \section1 Debuggers
+
+    Set up and use native debuggers to debug executable binary files, as well as
+    QML, Java, and Python source code.
+
+    \annotatedlist creator-reference-debugger
+
+    \section2 Debugger Views
+
+    Inspect the state of your application while debugging in the
+    \uicontrol Debug mode.
+
+    \annotatedlist creator-reference-debugger-views
+
     \section1 Build Systems
 
     When you create projects, you can choose the build system to use for
@@ -95,6 +109,10 @@
     Preferences for editing C++ code.
 
     \annotatedlist creator-reference-preferences-cpp
+
+    \section2 Debugger
+
+    \annotatedlist creator-reference-preferences-debugger
 
     \section2 Kits
 

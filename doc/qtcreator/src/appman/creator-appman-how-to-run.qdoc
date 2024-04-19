@@ -150,5 +150,5 @@
 
     \sa {Activate kits for a project}, {Connecting Boot2Qt Devices},
     {Connecting Remote Linux Devices}, {Enable and disable plugins},
-    {Run on many platforms}, {Debugging}, {Profiling QML Applications}
+    {Run on many platforms}, {Debugging}, {Debuggers}, {Debugger}, {Profiling QML Applications}
 */

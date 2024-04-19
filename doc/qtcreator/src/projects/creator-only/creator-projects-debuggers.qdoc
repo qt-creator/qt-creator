@@ -75,5 +75,6 @@
     The debugger disappears from the list when you select \uicontrol Apply.
     Until then, you can cancel the deletion by clicking \uicontrol Restore.
 
-    \sa {Debugging}, {Setting Up Debugger}, {Troubleshooting Debugger}
+    \sa {Debugging}, {Debuggers}, {Debugger}, {Supported Native Debuggers},
+    {Troubleshooting Debugger}
 */

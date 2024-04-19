@@ -30,7 +30,7 @@
 
     \list
         \li \l{Adding Custom Debugging Helpers}{Custom debugging helpers}
-        \li \l{Specifying GDB Settings}{GDB commands} to execute after GDB
+        \li \l{GDB}{GDB commands} to execute after GDB
             has started, but before the debugged program is started or
             attached, and before the debugging helpers are initialized
     \endlist
@@ -42,5 +42,5 @@
     {enable QML debugging} either globally or in the \uicontrol {Build Settings}
     of the project.
 
-    \sa {Configuring Projects}, {Debugging}
+    \sa {Configuring Projects}, {Debugging}, {Debuggers}, {Debugger}
 */

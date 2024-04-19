@@ -132,7 +132,7 @@
 
     Each kit consists of a set of values that define one environment, such as a
     \l{glossary-device}{device}, \l{Add compilers}{compiler},
-    \l{Add debuggers}{debugger}, and \l{Add Qt versions}{Qt version}, as well
+    \l{Add debuggers}{Debugging}, and \l{Add Qt versions}{Qt version}, as well
     as steps for building, deploying, and running applications.
 
     To copy the build, deploy, and run steps from another kit, select
