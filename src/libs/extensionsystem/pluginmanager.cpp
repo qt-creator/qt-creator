@@ -42,7 +42,7 @@
 #include <QTimer>
 #include <QWriteLocker>
 
-#ifdef WITH_TESTS
+#ifdef EXTENSIONSYSTEM_WITH_TESTOPTION
 #include <utils/hostosinfo.h>
 #include <QTest>
 #include <QThread>
@@ -745,7 +745,7 @@ void PluginManager::formatOptions(QTextStream &str, int optionIndentation, int d
                  QLatin1String("Disable startup check for previously crashed instance"),
                  optionIndentation,
                  descriptionIndentation);
-#ifdef WITH_TESTS
+#ifdef EXTENSIONSYSTEM_WITH_TESTOPTION
     formatOption(str, QString::fromLatin1(OptionsParser::TEST_OPTION)
                  + QLatin1String(" <plugin>[,testfunction[:testdata]]..."), QString(),
                  QLatin1String("Run plugin's tests (by default a separate settings path is used)"),
@@ -798,7 +798,7 @@ bool PluginManager::testRunRequested()
     return !d->testSpecs.empty();
 }
 
-#ifdef WITH_TESTS
+#ifdef EXTENSIONSYSTEM_WITH_TESTOPTION
 // Called in plugin initialization, the scenario function will be called later, from main
 bool PluginManager::registerScenario(const QString &scenarioId, std::function<bool()> scenarioStarter)
 {
@@ -956,17 +956,18 @@ void PluginManagerPrivate::startDelayedInitialize()
     }
     NANOTRACE_SHUTDOWN();
     emit q->initializationDone();
-#ifdef WITH_TESTS
-        if (PluginManager::testRunRequested())
-            startTests();
-        else if (PluginManager::isScenarioRequested()) {
-            if (PluginManager::runScenario()) {
-                const QString info = QString("Successfully started scenario \"%1\"...").arg(d->m_requestedScenario);
-                qInfo("%s", qPrintable(info));
-            } else {
-                QMetaObject::invokeMethod(this, [] { emit m_instance->scenarioFinished(1); });
-            }
+#ifdef EXTENSIONSYSTEM_WITH_TESTOPTION
+    if (PluginManager::testRunRequested())
+        startTests();
+    else if (PluginManager::isScenarioRequested()) {
+        if (PluginManager::runScenario()) {
+            const QString info
+                = QString("Successfully started scenario \"%1\"...").arg(d->m_requestedScenario);
+            qInfo("%s", qPrintable(info));
+        } else {
+            QMetaObject::invokeMethod(this, [] { emit m_instance->scenarioFinished(1); });
         }
+    }
 #endif
 }
 
@@ -1068,14 +1069,15 @@ void PluginManagerPrivate::checkForDuplicatePlugins()
 
 static QHash<IPlugin *, QList<TestCreator>> g_testCreators;
 
-void PluginManagerPrivate::addTestCreator(IPlugin *plugin, const TestCreator &testCreator)
+void PluginManagerPrivate::addTestCreator(
+    [[maybe_unused]] IPlugin *plugin, [[maybe_unused]] const TestCreator &testCreator)
 {
-#ifdef WITH_TESTS
+#ifdef EXTENSIONSYSTEM_WITH_TESTOPTION
     g_testCreators[plugin].append(testCreator);
 #endif
 }
 
-#ifdef WITH_TESTS
+#ifdef EXTENSIONSYSTEM_WITH_TESTOPTION
 
 using TestPlan = QHash<QObject *, QStringList>; // Object -> selected test functions
 
@@ -1456,7 +1458,7 @@ void PluginManagerPrivate::shutdown()
         shutdownEventLoop->exec();
     }
     deleteAll();
-#ifdef WITH_TESTS
+#ifdef EXTENSIONSYSTEM_WITH_TESTOPTION
     if (PluginManager::isScenarioRunning("TestModelManagerInterface")) {
         qDebug() << "Point 2: Expect the next call to Point 3 triggers a crash";
         QThread::sleep(5);

@@ -106,7 +106,7 @@ public:
 
     static bool testRunRequested();
 
-#ifdef WITH_TESTS
+#ifdef EXTENSIONSYSTEM_WITH_TESTOPTION
     static bool registerScenario(const QString &scenarioId, std::function<bool()> scenarioStarter);
     static bool isScenarioRequested();
     static bool runScenario();

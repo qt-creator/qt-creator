@@ -64,7 +64,7 @@ bool OptionsParser::parse()
             continue;
         if (checkForNoCrashcheckOption())
             continue;
-#ifdef WITH_TESTS
+#ifdef EXTENSIONSYSTEM_WITH_TESTOPTION
         if (checkForTestOptions())
             continue;
         if (checkForScenarioOption())

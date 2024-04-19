@@ -151,7 +151,7 @@ private:
     void deleteAll();
     void checkForDuplicatePlugins();
 
-#ifdef WITH_TESTS
+#ifdef EXTENSIONSYSTEM_WITH_TESTOPTION
     void startTests();
 #endif
 };
