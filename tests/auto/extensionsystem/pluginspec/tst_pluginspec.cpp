@@ -84,7 +84,7 @@ void tst_PluginSpec::cleanupTestCase()
 
 void tst_PluginSpec::read()
 {
-    PluginSpecImpl spec;
+    CppPluginSpec spec;
     QCOMPARE(spec.state(), PluginSpec::Invalid);
     QVERIFY(spec.readMetaData(metaData("testspecs/spec1.json")));
     QVERIFY(!spec.hasError());
@@ -122,7 +122,7 @@ void tst_PluginSpec::read()
 
 void tst_PluginSpec::readError()
 {
-    PluginSpecImpl spec;
+    CppPluginSpec spec;
     QCOMPARE(spec.state(), PluginSpec::Invalid);
     QVERIFY(!spec.readMetaData(metaData("non-existing-file.json")));
     QCOMPARE(spec.state(), PluginSpec::Invalid);
@@ -185,7 +185,7 @@ void tst_PluginSpec::versionCompare()
 
 void tst_PluginSpec::provides()
 {
-    PluginSpecImpl spec;
+    CppPluginSpec spec;
     QVERIFY(spec.readMetaData(metaData("testspecs/simplespec.json")));
 
     QVERIFY(!spec.provides("SomeOtherPlugin", "2.2.3_9"));
@@ -211,7 +211,7 @@ void tst_PluginSpec::provides()
 
 void tst_PluginSpec::experimental()
 {
-    PluginSpecImpl spec;
+    CppPluginSpec spec;
     QVERIFY(spec.readMetaData(metaData("testspecs/simplespec_experimental.json")));
 
     QCOMPARE(spec.isExperimental(), true);
@@ -220,11 +220,11 @@ void tst_PluginSpec::experimental()
 
 void tst_PluginSpec::locationAndPath()
 {
-    Utils::expected_str<PluginSpec *> ps = readPluginSpec(
+    Utils::expected_str<PluginSpec *> ps = readCppPluginSpec(
         QLatin1String(PLUGIN_DIR) + QLatin1String("/testplugin/")
         + libraryName(QLatin1String("test")));
     QVERIFY(ps);
-    PluginSpecImpl *spec = static_cast<PluginSpecImpl *>(ps.value());
+    CppPluginSpec *spec = static_cast<CppPluginSpec *>(ps.value());
     QCOMPARE(spec->location(), QString(QLatin1String(PLUGIN_DIR) + QLatin1String("/testplugin")));
     QCOMPARE(spec->filePath(),
              QString(QLatin1String(PLUGIN_DIR) + QLatin1String("/testplugin/")
@@ -234,27 +234,27 @@ void tst_PluginSpec::locationAndPath()
 void tst_PluginSpec::resolveDependencies()
 {
     QVector<PluginSpec *> specs;
-    PluginSpec *spec1 = new PluginSpecImpl();
+    PluginSpec *spec1 = new CppPluginSpec();
     specs.append(spec1);
     spec1->readMetaData(metaData("testdependencies/spec1.json"));
     spec1->setState(PluginSpec::Read); // fake read state for plugin resolving
 
-    PluginSpec *spec2 = new PluginSpecImpl();
+    PluginSpec *spec2 = new CppPluginSpec();
     specs.append(spec2);
     spec2->readMetaData(metaData("testdependencies/spec2.json"));
     spec2->setState(PluginSpec::Read); // fake read state for plugin resolving
 
-    PluginSpec *spec3 = new PluginSpecImpl();
+    PluginSpec *spec3 = new CppPluginSpec();
     specs.append(spec3);
     spec3->readMetaData(metaData("testdependencies/spec3.json"));
     spec3->setState(PluginSpec::Read); // fake read state for plugin resolving
 
-    PluginSpec *spec4 = new PluginSpecImpl();
+    PluginSpec *spec4 = new CppPluginSpec();
     specs.append(spec4);
     spec4->readMetaData(metaData("testdependencies/spec4.json"));
     spec4->setState(PluginSpec::Read); // fake read state for plugin resolving
 
-    PluginSpec *spec5 = new PluginSpecImpl();
+    PluginSpec *spec5 = new CppPluginSpec();
     specs.append(spec5);
     spec5->readMetaData(metaData("testdependencies/spec5.json"));
     spec5->setState(PluginSpec::Read); // fake read state for plugin resolving
@@ -271,12 +271,12 @@ void tst_PluginSpec::resolveDependencies()
 
 void tst_PluginSpec::loadLibrary()
 {
-    Utils::expected_str<PluginSpec *> ps = readPluginSpec(
+    Utils::expected_str<PluginSpec *> ps = readCppPluginSpec(
         QLatin1String(PLUGIN_DIR) + QLatin1String("/testplugin/")
         + libraryName(QLatin1String("test")));
 
     QVERIFY(ps);
-    PluginSpecImpl *spec = static_cast<PluginSpecImpl *>(ps.value());
+    CppPluginSpec *spec = static_cast<CppPluginSpec *>(ps.value());
 
     QVERIFY(spec->resolveDependencies(QVector<PluginSpec *>()));
     QVERIFY2(spec->loadLibrary(), qPrintable(spec->errorString()));
@@ -291,11 +291,11 @@ void tst_PluginSpec::loadLibrary()
 
 void tst_PluginSpec::initializePlugin()
 {
-    Utils::expected_str<PluginSpec *> ps = readPluginSpec(
+    Utils::expected_str<PluginSpec *> ps = readCppPluginSpec(
         QLatin1String(PLUGIN_DIR) + QLatin1String("/testplugin/")
         + libraryName(QLatin1String("test")));
     QVERIFY(ps);
-    PluginSpecImpl *spec = static_cast<PluginSpecImpl *>(ps.value());
+    CppPluginSpec *spec = static_cast<CppPluginSpec *>(ps.value());
     QVERIFY(spec->resolveDependencies(QVector<PluginSpec *>()));
     QVERIFY2(spec->loadLibrary(), qPrintable(spec->errorString()));
     bool isInitialized;
@@ -316,11 +316,11 @@ void tst_PluginSpec::initializePlugin()
 
 void tst_PluginSpec::initializeExtensions()
 {
-    Utils::expected_str<PluginSpec *> ps = readPluginSpec(
+    Utils::expected_str<PluginSpec *> ps = readCppPluginSpec(
         QLatin1String(PLUGIN_DIR) + QLatin1String("/testplugin/")
         + libraryName(QLatin1String("test")));
     QVERIFY(ps);
-    PluginSpecImpl *spec = static_cast<PluginSpecImpl *>(ps.value());
+    CppPluginSpec *spec = static_cast<CppPluginSpec *>(ps.value());
     QVERIFY(spec->resolveDependencies(QVector<PluginSpec *>()));
     QVERIFY2(spec->loadLibrary(), qPrintable(spec->errorString()));
     bool isExtensionsInitialized;

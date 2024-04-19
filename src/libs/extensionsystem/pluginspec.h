@@ -169,18 +169,19 @@ private:
     std::unique_ptr<Internal::PluginSpecPrivate> d;
 };
 
-EXTENSIONSYSTEM_EXPORT Utils::expected_str<PluginSpec *> readPluginSpec(const QString &filePath);
-EXTENSIONSYSTEM_EXPORT Utils::expected_str<PluginSpec *> readPluginSpec(const QStaticPlugin &plugin);
+EXTENSIONSYSTEM_EXPORT Utils::expected_str<PluginSpec *> readCppPluginSpec(const QString &filePath);
+EXTENSIONSYSTEM_EXPORT Utils::expected_str<PluginSpec *> readCppPluginSpec(
+    const QStaticPlugin &plugin);
 
-class EXTENSIONSYSTEM_TEST_EXPORT PluginSpecImpl : public PluginSpec
+class EXTENSIONSYSTEM_TEST_EXPORT CppPluginSpec : public PluginSpec
 {
-    friend EXTENSIONSYSTEM_EXPORT Utils::expected_str<PluginSpec *> readPluginSpec(
+    friend EXTENSIONSYSTEM_EXPORT Utils::expected_str<PluginSpec *> readCppPluginSpec(
         const QString &filePath);
-    friend EXTENSIONSYSTEM_EXPORT Utils::expected_str<PluginSpec *> readPluginSpec(
+    friend EXTENSIONSYSTEM_EXPORT Utils::expected_str<PluginSpec *> readCppPluginSpec(
         const QStaticPlugin &plugin);
 
 public:
-    ~PluginSpecImpl() override;
+    ~CppPluginSpec() override;
 
     // linked plugin instance, valid after 'Loaded' state is reached
     IPlugin *plugin() const override;
@@ -195,7 +196,7 @@ public:
     Utils::expected_str<void> readMetaData(const QJsonObject &pluginMetaData) override;
 
 protected:
-    PluginSpecImpl();
+    CppPluginSpec();
 
 private:
     std::unique_ptr<Internal::PluginSpecImplPrivate> d;

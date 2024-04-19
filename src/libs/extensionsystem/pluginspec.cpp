@@ -200,7 +200,7 @@ public:
     QRegularExpression platformSpecification;
     QVector<ExtensionSystem::PluginDependency> dependencies;
 
-    PluginSpecImpl::PluginArgumentDescriptions argumentDescriptions;
+    PluginSpec::PluginArgumentDescriptions argumentDescriptions;
     QString location;
     QString filePath;
 
@@ -234,14 +234,14 @@ public:
 /*!
     \internal
 */
-PluginSpecImpl::PluginSpecImpl()
+CppPluginSpec::CppPluginSpec()
     : d(new PluginSpecImplPrivate)
 {}
 
 /*!
     \internal
 */
-PluginSpecImpl::~PluginSpecImpl() = default;
+CppPluginSpec::~CppPluginSpec() = default;
 
 /*!
     Returns the plugin name. This is valid after the PluginSpec::Read state is
@@ -578,7 +578,7 @@ bool PluginSpec::provides(const QString &pluginName, const QString &pluginVersio
     already been successfully loaded. That is, the PluginSpec::Loaded state
     is reached.
 */
-IPlugin *PluginSpecImpl::plugin() const
+IPlugin *CppPluginSpec::plugin() const
 {
     return d->plugin;
 }
@@ -692,9 +692,9 @@ namespace {
     \internal
     Returns false if the file does not represent a Qt Creator plugin.
 */
-expected_str<PluginSpec *> readPluginSpec(const QString &fileName)
+expected_str<PluginSpec *> readCppPluginSpec(const QString &fileName)
 {
-    auto spec = new PluginSpecImpl;
+    auto spec = new CppPluginSpec;
 
     QFileInfo fileInfo(fileName);
     spec->setLocation(fileInfo.absolutePath());
@@ -715,9 +715,9 @@ expected_str<PluginSpec *> readPluginSpec(const QString &fileName)
     return spec;
 }
 
-expected_str<PluginSpec *> readPluginSpec(const QStaticPlugin &plugin)
+expected_str<PluginSpec *> readCppPluginSpec(const QStaticPlugin &plugin)
 {
-    auto spec = new PluginSpecImpl;
+    auto spec = new CppPluginSpec;
 
     qCDebug(pluginLog) << "\nReading meta data of static plugin";
     spec->d->staticPlugin = plugin;
@@ -771,7 +771,7 @@ Utils::expected_str<void> PluginSpec::reportError(const QString &error)
 /*!
     \internal
 */
-expected_str<void> PluginSpecImpl::readMetaData(const QJsonObject &pluginMetaData)
+expected_str<void> CppPluginSpec::readMetaData(const QJsonObject &pluginMetaData)
 {
     qCDebug(pluginLog).noquote() << "MetaData:" << QJsonDocument(pluginMetaData).toJson();
     QJsonValue value;
@@ -1011,7 +1011,7 @@ Utils::expected_str<void> PluginSpecPrivate::readMetaData(const QJsonObject &dat
         }
     }
 
-    state = PluginSpecImpl::Read;
+    state = PluginSpec::Read;
 
     return {};
 }
@@ -1061,11 +1061,11 @@ bool PluginSpec::resolveDependencies(const QVector<PluginSpec *> &specs)
 {
     if (hasError())
         return false;
-    if (state() > PluginSpecImpl::Resolved)
+    if (state() > PluginSpec::Resolved)
         return true; // We are resolved already.
-    if (state() == PluginSpecImpl::Resolved)
-        setState(PluginSpecImpl::Read); // Go back, so we just re-resolve the dependencies.
-    if (state() != PluginSpecImpl::Read) {
+    if (state() == PluginSpec::Resolved)
+        setState(PluginSpec::Read); // Go back, so we just re-resolve the dependencies.
+    if (state() != PluginSpec::Read) {
         setError(::ExtensionSystem::Tr::tr("Resolving dependencies failed because state != Read"));
         return false;
     }
@@ -1094,7 +1094,7 @@ bool PluginSpec::resolveDependencies(const QVector<PluginSpec *> &specs)
 
     d->dependencySpecs = resolvedDependencies;
 
-    d->state = PluginSpecImpl::Resolved;
+    d->state = PluginSpec::Resolved;
 
     return true;
 }
@@ -1130,13 +1130,13 @@ void PluginSpec::setError(const QString &errorString)
 /*!
     \internal
 */
-bool PluginSpecImpl::loadLibrary()
+bool CppPluginSpec::loadLibrary()
 {
     if (hasError())
         return false;
 
-    if (state() != PluginSpecImpl::Resolved) {
-        if (state() == PluginSpecImpl::Loaded)
+    if (state() != PluginSpec::Resolved) {
+        if (state() == PluginSpec::Loaded)
             return true;
         setError(::ExtensionSystem::Tr::tr("Loading the library failed because state != Resolved"));
         return false;
@@ -1154,7 +1154,7 @@ bool PluginSpecImpl::loadLibrary()
             d->loader->unload();
         return false;
     }
-    setState(PluginSpecImpl::Loaded);
+    setState(PluginSpec::Loaded);
     d->plugin = pluginObject;
     return true;
 }
@@ -1162,13 +1162,13 @@ bool PluginSpecImpl::loadLibrary()
 /*!
     \internal
 */
-bool PluginSpecImpl::initializePlugin()
+bool CppPluginSpec::initializePlugin()
 {
     if (hasError())
         return false;
 
-    if (state() != PluginSpecImpl::Loaded) {
-        if (state() == PluginSpecImpl::Initialized)
+    if (state() != PluginSpec::Loaded) {
+        if (state() == PluginSpec::Initialized)
             return true;
         setError(
             ::ExtensionSystem::Tr::tr("Initializing the plugin failed because state != Loaded"));
@@ -1184,20 +1184,20 @@ bool PluginSpecImpl::initializePlugin()
         setError(::ExtensionSystem::Tr::tr("Plugin initialization failed: %1").arg(err));
         return false;
     }
-    setState(PluginSpecImpl::Initialized);
+    setState(PluginSpec::Initialized);
     return true;
 }
 
 /*!
     \internal
 */
-bool PluginSpecImpl::initializeExtensions()
+bool CppPluginSpec::initializeExtensions()
 {
     if (hasError())
         return false;
 
-    if (state() != PluginSpecImpl::Initialized) {
-        if (state() == PluginSpecImpl::Running)
+    if (state() != PluginSpec::Initialized) {
+        if (state() == PluginSpec::Running)
             return true;
         setError(::ExtensionSystem::Tr::tr(
             "Cannot perform extensionsInitialized because state != Initialized"));
@@ -1209,19 +1209,19 @@ bool PluginSpecImpl::initializeExtensions()
         return false;
     }
     d->plugin->extensionsInitialized();
-    setState(PluginSpecImpl::Running);
+    setState(PluginSpec::Running);
     return true;
 }
 
 /*!
     \internal
 */
-bool PluginSpecImpl::delayedInitialize()
+bool CppPluginSpec::delayedInitialize()
 {
     if (hasError())
         return true;
 
-    if (state() != PluginSpecImpl::Running)
+    if (state() != PluginSpec::Running)
         return false;
     if (!d->plugin) {
         setError(::ExtensionSystem::Tr::tr(
@@ -1235,21 +1235,21 @@ bool PluginSpecImpl::delayedInitialize()
 /*!
     \internal
 */
-IPlugin::ShutdownFlag PluginSpecImpl::stop()
+IPlugin::ShutdownFlag CppPluginSpec::stop()
 {
     if (hasError())
         return IPlugin::ShutdownFlag::SynchronousShutdown;
 
     if (!d->plugin)
         return IPlugin::SynchronousShutdown;
-    setState(PluginSpecImpl::Stopped);
+    setState(PluginSpec::Stopped);
     return d->plugin->aboutToShutdown();
 }
 
 /*!
     \internal
 */
-void PluginSpecImpl::kill()
+void CppPluginSpec::kill()
 {
     if (hasError())
         return;
@@ -1258,6 +1258,6 @@ void PluginSpecImpl::kill()
         return;
     delete d->plugin;
     d->plugin = nullptr;
-    setState(PluginSpecImpl::Deleted);
+    setState(PluginSpec::Deleted);
 }
 } // namespace ExtensionSystem
