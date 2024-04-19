@@ -540,7 +540,9 @@ void tweakObjects(QObject *object)
 
 void createNewDynamicProperty(QObject *object,  QQmlEngine *engine, const QString &name)
 {
-    QQuickDesignerSupportProperties::createNewDynamicProperty(object, engine, name);
+    QQmlProperty qmlProp(object, name, engine->contextForObject(object));
+    if (!qmlProp.isValid())
+        QQuickDesignerSupportProperties::createNewDynamicProperty(object, engine, name);
 }
 
 void registerNodeInstanceMetaObject(QObject *object, QQmlEngine *engine)
