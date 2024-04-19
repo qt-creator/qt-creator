@@ -169,8 +169,16 @@ private:
     std::unique_ptr<Internal::PluginSpecPrivate> d;
 };
 
+EXTENSIONSYSTEM_EXPORT Utils::expected_str<PluginSpec *> readPluginSpec(const QString &filePath);
+EXTENSIONSYSTEM_EXPORT Utils::expected_str<PluginSpec *> readPluginSpec(const QStaticPlugin &plugin);
+
 class EXTENSIONSYSTEM_TEST_EXPORT PluginSpecImpl : public PluginSpec
 {
+    friend EXTENSIONSYSTEM_EXPORT Utils::expected_str<PluginSpec *> readPluginSpec(
+        const QString &filePath);
+    friend EXTENSIONSYSTEM_EXPORT Utils::expected_str<PluginSpec *> readPluginSpec(
+        const QStaticPlugin &plugin);
+
 public:
     ~PluginSpecImpl() override;
 
@@ -183,9 +191,6 @@ public:
     bool delayedInitialize() override;
     IPlugin::ShutdownFlag stop() override;
     void kill() override;
-
-    static Utils::expected_str<PluginSpec *> read(const QString &filePath);
-    static Utils::expected_str<PluginSpec *> read(const QStaticPlugin &plugin);
 
     Utils::expected_str<void> readMetaData(const QJsonObject &pluginMetaData) override;
 

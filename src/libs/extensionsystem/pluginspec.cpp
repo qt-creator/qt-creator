@@ -692,7 +692,7 @@ namespace {
     \internal
     Returns false if the file does not represent a Qt Creator plugin.
 */
-expected_str<PluginSpec *> PluginSpecImpl::read(const QString &fileName)
+expected_str<PluginSpec *> readPluginSpec(const QString &fileName)
 {
     auto spec = new PluginSpecImpl;
 
@@ -715,7 +715,7 @@ expected_str<PluginSpec *> PluginSpecImpl::read(const QString &fileName)
     return spec;
 }
 
-expected_str<PluginSpec *> PluginSpecImpl::read(const QStaticPlugin &plugin)
+expected_str<PluginSpec *> readPluginSpec(const QStaticPlugin &plugin)
 {
     auto spec = new PluginSpecImpl;
 

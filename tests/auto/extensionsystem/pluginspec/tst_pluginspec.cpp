@@ -220,7 +220,7 @@ void tst_PluginSpec::experimental()
 
 void tst_PluginSpec::locationAndPath()
 {
-    Utils::expected_str<PluginSpec *> ps = PluginSpecImpl::read(
+    Utils::expected_str<PluginSpec *> ps = readPluginSpec(
         QLatin1String(PLUGIN_DIR) + QLatin1String("/testplugin/")
         + libraryName(QLatin1String("test")));
     QVERIFY(ps);
@@ -271,7 +271,7 @@ void tst_PluginSpec::resolveDependencies()
 
 void tst_PluginSpec::loadLibrary()
 {
-    Utils::expected_str<PluginSpec *> ps = PluginSpecImpl::read(
+    Utils::expected_str<PluginSpec *> ps = readPluginSpec(
         QLatin1String(PLUGIN_DIR) + QLatin1String("/testplugin/")
         + libraryName(QLatin1String("test")));
 
@@ -291,7 +291,7 @@ void tst_PluginSpec::loadLibrary()
 
 void tst_PluginSpec::initializePlugin()
 {
-    Utils::expected_str<PluginSpec *> ps = PluginSpecImpl::read(
+    Utils::expected_str<PluginSpec *> ps = readPluginSpec(
         QLatin1String(PLUGIN_DIR) + QLatin1String("/testplugin/")
         + libraryName(QLatin1String("test")));
     QVERIFY(ps);
@@ -316,7 +316,7 @@ void tst_PluginSpec::initializePlugin()
 
 void tst_PluginSpec::initializeExtensions()
 {
-    Utils::expected_str<PluginSpec *> ps = PluginSpecImpl::read(
+    Utils::expected_str<PluginSpec *> ps = readPluginSpec(
         QLatin1String(PLUGIN_DIR) + QLatin1String("/testplugin/")
         + libraryName(QLatin1String("test")));
     QVERIFY(ps);
