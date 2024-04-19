@@ -118,7 +118,7 @@
     Once the application starts running under the control of the debugger, it
     behaves and performs as usual.
 
-    To interrupt a running C++ application, select \uicontrol Debug >
+    To interrupt a running C++ application, go to \uicontrol Debug >
     \uicontrol Interrupt. The debugger automatically interrupts
     the application when it hits a \l {Setting Breakpoints}{breakpoint}.
 
@@ -581,10 +581,9 @@
 
     \endlist
 
-    By default, a non-responsive GDB process is terminated after 20 seconds.
-    To increase the timeout in \uicontrol {GDB timeout}, select
-    \preferences > \uicontrol Debugger >
-    \uicontrol GDB.
+    By default, a non-responsive GDB process is terminated after 40 seconds.
+    To increase the timeout in \uicontrol {GDB timeout}, go to \preferences >
+    \uicontrol Debugger > \uicontrol GDB.
 
     For more information about connecting with \c {target extended-remote} mode
     in GDB, see \l{https://sourceware.org/gdb/onlinedocs/gdb/Connecting.html}
@@ -795,7 +794,7 @@
 
     During debugging, the mode shows the views that you usually need to
     debug C++ or QML applications. To show other views or to hide views,
-    select \uicontrol Views.
+    go to \uicontrol Views.
 
     You can drag the views in \QC to new positions on the screen. \QC saves the
     size and position of views as a perspective for future sessions. Select
@@ -848,7 +847,7 @@
     select \uicontrol {Close Editor Tooltips} in the context menu in the
     \uicontrol Locals or \uicontrol Expressions view.
 
-    To disable tooltips for performance reasons, select \preferences >
+    To disable tooltips for performance reasons, go to \preferences >
     \uicontrol Debugger > \uicontrol General >
     \uicontrol {Use tooltips in main editor when debugging}.
 
@@ -906,7 +905,7 @@
     classes in a useful way.
 
     To change the number of array elements that are
-    requested when expanding entries, select \preferences > \uicontrol {Debugging}
+    requested when expanding entries, go to \preferences > \uicontrol {Debugging}
     > \uicontrol {Locals & Expressions} > \uicontrol {Default array size}.
 
 
@@ -1067,7 +1066,7 @@
 
     If an instance of a class is derived from QObject, you can find all other
     objects connected to this object's slots with Qt's signals and slots
-    mechanism. Select \preferences > \uicontrol {Debugging} >
+    mechanism. Go to \preferences > \uicontrol {Debugging} >
     \uicontrol {Locals & Expressions} > \uicontrol {Use Debugging Helpers}.
 
     \image qtcreator-debugging-helper-options.webp {Locals & Expressions preferences}
@@ -1197,7 +1196,7 @@
 
     When using CDB as debug backend, you can specify that the debugger should
     break when application modules are loaded or unloaded. To enable breaking
-    for the specified modules, select \preferences > \uicontrol Debugger >
+    for the specified modules, go to \preferences > \uicontrol Debugger >
     \uicontrol CDB.
 
     \image qtcreator-cdb-options.png {CDB tab in Debugger preferences}
@@ -1426,13 +1425,13 @@
     \image qtcreator-debugger-disassembler-view.webp {Disassembler view}
 
     By default, GDB shows AT&T style disassembly. To switch to the Intel style,
-    select \preferences > \uicontrol Debugger >
+    go to \preferences > \uicontrol Debugger >
     \uicontrol GDB > \uicontrol {Use Intel style disassembly}.
 
     To open the \uicontrol Disassembler view:
 
     \list
-        \li Select \uicontrol Debug > \uicontrol {Operate by Instruction} while
+        \li Go to \uicontrol Debug > \uicontrol {Operate by Instruction} while
             the debugger is running.
         \li Select the \inlineimage icons/debugger_singleinstructionmode.png
             (\uicontrol {Operate by Instruction}) tool button on the debugger
@@ -1487,7 +1486,7 @@
 
     You can have commands executed after built-in debugging helpers have
     been loaded and fully initialized. To load additional debugging helpers or
-    modify existing ones, select \preferences > \uicontrol Debugger >
+    modify existing ones, go to \preferences > \uicontrol Debugger >
     \uicontrol {Locals & Expressions}, and enter the commands in the
     \uicontrol {Debugging Helper Customization} field.
 
@@ -1509,7 +1508,7 @@
     \endcode
 
     To display a message box as soon as your application receives a signal
-    during debugging, select \preferences > \uicontrol Debugger > \uicontrol GDB >
+    during debugging, go to \preferences > \uicontrol Debugger > \uicontrol GDB >
     \uicontrol {Show a message box when receiving a signal}.
 
     \section1 Adding Custom Debugging Helpers
@@ -2111,7 +2110,7 @@
 
         \li Make sure the debugger is \l{Supported Native Debuggers}{set up properly}.
 
-        \li In the \uicontrol Debug mode, select \uicontrol View >
+        \li In the \uicontrol Debug mode, go to \uicontrol View >
             \uicontrol Views > \uicontrol {Debugger Log} to open the
             \l {Debugger Log} view. Browse the contents of the pane on
             the right hand side to find out what went wrong. Always attach the
@@ -2151,7 +2150,7 @@
 
     When using GDB as backend, you can automatically save a copy of
     its symbol index in a cache on disk and retrieve it from there
-    when loading the same binary in the future. Select \preferences >
+    when loading the same binary in the future. Go to \preferences >
     \uicontrol Debugger > \uicontrol GDB > \uicontrol {Use automatic symbol cache}.
 
     \image qtcreator-preferences-debugger-gdb.webp {GDB preferences}

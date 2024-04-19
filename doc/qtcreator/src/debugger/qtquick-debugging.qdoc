@@ -186,7 +186,7 @@
 
             \note Setting breakpoints is only possible if the application is started with block mode.
 
-        \li Select \uicontrol Debug > \uicontrol {Start Debugging} >
+        \li Go to \uicontrol Debug > \uicontrol {Start Debugging} >
             \uicontrol {Attach to QML Port}.
 
             Choose the kit configured for the device where the application to
@@ -232,7 +232,7 @@
 
         \li Select the item in the code editor.
 
-        \li Select \uicontrol Debug > \uicontrol Select to activate selection
+        \li Go to \uicontrol Debug > \uicontrol Select to activate selection
             mode and then click an item in the running application.
 
     \endlist

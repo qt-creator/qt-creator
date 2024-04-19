@@ -100,45 +100,61 @@
 
     \image qtcreator-preferences-debugger-gdb.webp {GDB preferences}
 
-    To specify a timeout for terminating non-responsive GDB processes, set the
-    number of seconds to wait in the \uicontrol {GDB timeout} field. The default
-    value of 20 seconds should be sufficient for most applications, but if
-    loading big libraries or listing source files takes much longer than
-    that on slow machines, you should increase the value.
+    The following table summarizes the preferences.
 
-    To compress several steps into one step for less noisy debugging when
-    stepping into code, select the \uicontrol {Skip known frames when stepping}
-    check box. For example, the atomic reference counting code is skipped, and
-    a single \e {Step Into} for a signal emission ends up directly in the slot
-    connected to it.
+    \table
+    \header
+        \li Setting
+        \li Value
+    \row
+        \li \uicontrol {GDB timeout}
+        \li The timeout for terminating non-responsive GDB processes in seconds
+            The default value of 40 seconds should be sufficient for most
+            applications, but if loading big libraries or listing source files
+            takes much longer than that on slow machines, increase the value.
+    \row
+        \li \uicontrol {Skip known frames when stepping}
+        \li Compresses several steps into one step for less noisy debugging when
+            stepping into code. For example, the atomic reference counting code
+            is skipped, and a single \e {Step Into} for a signal emission ends up
+            directly in the slot connected to it.
+    \row
+        \li \uicontrol {Show a message box when receiving a signal}
+        \li Shows a message box as soon as your application receives a signal,
+            such as SIGSEGV, during debugging.
+    \row
+        \li \uicontrol {Adjust breakpoint locations}
+        \li GDB allows setting breakpoints on source lines for which no code was
+            generated. In such situations, the breakpoint is shifted to the next
+            source code line for which the code was actually generated. To reflect
+            such temporary changes by moving the breakpoint markers in the source
+            code editor, select this checkbox.
+    \row
+        \li \uicontrol {Use dynamic object type for display}
+        \li Whether the dynamic or the static type of objects will be
+            displayed. Choosing the dynamic type might make debugging slower.
+    \row
+        \li \uicontrol {Load .gdbinit file on startup}
+        \li Reads the user's default .gdbinit file on debugger startup.
+    \row
+        \li \uicontrol {Load system GDB pretty printers}
+        \li Uses the default GDB pretty printers installed on the computer
+            or linked to the libraries your application uses.
+    \row
+        \li \uicontrol {Use Intel style disassembly}
+        \li Switches from the default AT&T style disassembly to the Intel style.
+    \row
+        \li \uicontrol {Use automatic symbol cache}
+        \li Automatically saves a copy of the GDB symbol index in a cache on disk
+            and retrieves it from there when loading the same binary in the
+            future.
+    \row
+        \li \uicontrol {Use debug info daemon}
+        \li Tries to automatically retrieve debug information for system
+            packages.
+    \endtable
 
-    To display a message box as soon as your application receives a signal, such
-    as SIGSEGV, during debugging, select the \uicontrol {Show a message box when
-    receiving a signal} check box.
-
-    GDB allows setting breakpoints on source lines for which no code was
-    generated. In such situations, the breakpoint is shifted to the next
-    source code line for which the code was actually generated. To reflect
-    such temporary changes by moving the breakpoint markers in the source
-    code editor, select the \uicontrol {Adjust breakpoint locations} check box.
-
-    To specify whether the dynamic or the static type of objects will be
-    displayed, select the \uicontrol {Use dynamic object type for display}
-    check box. Keep in mind that choosing the dynamic type might be slower.
-
-    To allow reading the user's default .gdbinit file on debugger startup,
-    select the \uicontrol {Load .gdbinit file on startup} check box.
-
-    To use the default GDB pretty printers installed in your system
-    or linked to the libraries your application uses, select the
-    \uicontrol {Load system GDB pretty printers} check box.
-
-    By default, GDB shows AT&T style disassembly. To switch to the Intel style,
-    select the \uicontrol {Use Intel style disassembly} check box.
-
-    To have GDB automatically save a copy of its symbol index in a cache
-    on disk and retrieve it from there when loading the same binary in the
-    future, select the \uicontrol {Use automatic symbol cache} check box.
+    \section1 Executing Additional Commands
 
     To execute GDB commands after GDB has been started, but before the debugged
     application is started or attached, and before the debugging helpers are
@@ -163,23 +179,38 @@
     Enabling them may negatively impact your debugging experience, so use
     them with care.
 
-    To use asynchronous mode to control the inferior, select the
-    respective check box.
-
-    To add common paths to locations of debug information, such as
-    \c {/usr/src/debug}, when starting GDB, select the
-    \uicontrol {Use common locations for debug information} check box.
-
-    To stop when \c qWarning, \c qFatal, or \c abort is called, select the
-    respective check box.
-
-    To enable stepping backwards, select the \uicontrol {Enable reverse
-    debugging} check box. This feature is very slow and unstable on the
-    GDB side. It exhibits unpredictable behavior when going backwards over
-    system calls and is very likely to destroy your debugging session.
-
-    To keep debugging all children after a fork, select the
-    \uicontrol {Debug all child processes} check box.
+    \table
+    \header
+        \li Setting
+        \li Value
+    \row
+        \li \uicontrol {Use asynchronous mode to control the inferior}
+        \li Execute commands in the background (asynchronous) mode.
+            GDB immediately opens a command prompt where you can issue
+            other commands while your program runs.
+    \row
+        \li \uicontrol {Use common locations for debug information}
+        \li Adds common paths to locations of debug information, such as
+            \c {/usr/src/debug}, when starting GDB.
+    \row
+        \li \uicontrol {Stop when qWarning() is called}
+        \li Adds a breakpoint on each \c qWarning() function.
+    \row
+        \li \uicontrol {Stop when qFatal() is called}
+        \li Adds a breakpoint on each \c qFatal() function.
+    \row
+        \li \uicontrol {Stop when abort() is called}
+        \li Adds a breakpoint on each \c abort() function.
+    \row
+        \li \uicontrol {Enable reverse debugging}
+        \li Enables stepping backwards. This feature is very slow and unstable
+            on the GDB side. It exhibits unpredictable behavior when steapping
+            backwards over system calls and is very likely to destroy your
+            debugging session.
+    \row
+        \li\uicontrol {Debug all child processes}
+        \li Keeps debugging all children after a fork.
+    \endtable
 
     \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
 */
@@ -199,44 +230,55 @@
 
     \image qtcreator-cdb-options.png "CDB preferences"
 
-    You can specify additional arguments for starting CDB in the
-    \uicontrol {Additional arguments} field.
+    The following table summarizes the preferences.
 
-    If a console application does not start up properly in the configured
-    console and the subsequent attach fails, you can diagnose the issue by
-    using CDB's native console. Select the \uicontrol {Use CDB console}
-    check box to override the console set in the Windows system
-    environment variables. Note that the native console does not
-    prompt on application exit.
-
-    To automatically add a breakpoint on the \c CrtCbgReport() function,
-    select the \uicontrol {Stop when CrtCbgReport() is called} check box.
-    This catches runtime error messages caused by \c assert(), for example.
-
-    In the \uicontrol {Break on} group, specify whether the debugger should
-    break on C++ exceptions, on thread creation or exit, on loading or
-    unloading the specified \l{Viewing Modules}{application modules}, or on
-    the specified output.
-
-    To disable first-chance break on access violation exceptions, select the
-    \uicontrol {Ignore first chance access violations} check box.
-    The second occurrence of an access violation will break into the debugger.
-
-    CDB enables setting breakpoints in comments or on source lines for which
-    no code was generated. In such situations, the breakpoint is shifted to
-    the next source code line for which the code was actually generated. To
-    reflect such temporary changes by moving the breakpoint markers in the
-    source code editor, select the \uicontrol {Correct breakpoint location}
-    check box. For more information, see \l{Setting Breakpoints}.
-
-    To use the abstraction layer of Python Dumper classes to create a description
-    of data items in the \uicontrol Locals and \uicontrol Expressions
-    views, select the \uicontrol {Use Python dumper} check box.
-    For more information, see \l{Debugging Helper Implementation}.
-
-    To display information about first-chance and second-chance exceptions
-    in \l Issues, select the check boxes
-    in the \uicontrol {Add Exceptions to Issues View} group.
+    \table
+    \header
+        \li Setting
+        \li Value
+    \row
+        \li \uicontrol {Additional arguments}
+        \li Additional arguments for starting CDB.
+    \row
+        \li \uicontrol {Use CDB console}
+        \li If a console application does not start up properly in the configured
+            console and the subsequent attach fails, diagnose the issue by
+            using CDB's native console. Select this checkbox to override the
+            console set in the Windows system environment variables. Note that
+            the native console does not prompt on application exit.
+    \row
+        \li \uicontrol {Ignore first chance access violations}
+        \li Disables first-chance break on access violation exceptions.
+            The second occurrence of an access violation will break into the
+            debugger.
+    \row
+        \li \uicontrol {Stop when CrtDbgReport() is called}
+        \li Automatically adds a breakpoint on the \c CrtDbgReport() function to
+            catch runtime error messages caused by \c assert(), for example.
+    \row
+        \li \uicontrol {Correct breakpoint location}
+        \li CDB enables setting breakpoints in comments or on source lines for
+            which no code was generated. In such situations, the breakpoint is
+            shifted to the next source code line for which the code was actually
+            generated. To reflect such temporary changes by moving the breakpoint
+            markers in the source code editor, select this checkbox. For more
+            information, see \l{Setting Breakpoints}.
+    \row
+        \li \uicontrol {Use Python dumper}
+        \li Uses the abstraction layer of Python Dumper classes to create a
+            description of data items in the \uicontrol Locals and
+            \uicontrol Expressions views.
+            For more information, see \l{Debugging Helper Implementation}.
+    \row
+        \li \uicontrol {Break on}
+        \li Whether the debugger should break on C++ exceptions, on thread
+            creation or exit, on loading or unloading the specified
+            \l{Viewing Modules}{application modules}, or on the specified output.
+    \row
+        \li \uicontrol {Add Exceptions to Issues View}
+        \li Shows information about first-chance and second-chance exceptions
+            in \l Issues.
+    \endtable
 
     \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
 */

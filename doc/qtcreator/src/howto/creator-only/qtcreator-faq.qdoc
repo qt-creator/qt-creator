@@ -169,7 +169,7 @@
     \b {How do I generate a core file in \QC?}
 
     To trigger the GDB command that generates a core file while debugging,
-    select \uicontrol View > \uicontrol Views > \l {Debugger Log}.
+    go to \uicontrol View > \uicontrol Views > \l {Debugger Log}.
     In the \uicontrol Command field, type \c gcore and press \key Enter. The
     core file is created in the current working directory. You can specify
     another location for the file, including a relative or absolute path, as an
