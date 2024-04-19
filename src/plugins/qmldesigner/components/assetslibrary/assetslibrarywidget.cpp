@@ -3,20 +3,22 @@
 
 #include "assetslibrarywidget.h"
 
-#include "asset.h"
 #include "assetslibraryiconprovider.h"
 #include "assetslibrarymodel.h"
 #include "assetslibraryview.h"
-#include "designeractionmanager.h"
-#include "import.h"
-#include "modelnodeoperations.h"
-#include "nodemetainfo.h"
-#include "qmldesignerconstants.h"
-#include "qmldesignerplugin.h"
-#include "theme.h"
-#include <utils3d.h>
 
+#include <asset.h>
+#include <designeractionmanager.h>
+#include <designerpaths.h>
+#include <hdrimage.h>
+#include <import.h>
+#include <modelnodeoperations.h>
+#include <nodemetainfo.h>
+#include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
 #include <studioquickwidget.h>
+#include <theme.h>
+#include <utils3d.h>
 
 #include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
@@ -376,7 +378,7 @@ QList<QToolButton *> AssetsLibraryWidget::createToolBarWidgets()
 
 void AssetsLibraryWidget::handleSearchFilterChanged(const QString &filterText)
 {
-    if (filterText == m_filterText || (!m_assetsModel->haveFiles()
+    if (filterText == m_filterText || (!m_assetsModel->hasFiles()
                                        && filterText.contains(m_filterText, Qt::CaseInsensitive)))
         return;
 
@@ -643,6 +645,17 @@ void AssetsLibraryWidget::addResources(const QStringList &files, bool showDialog
                                                       .arg(fileNames.join(' ')));
         }
     }
+}
+
+bool AssetsLibraryWidget::userBundleEnabled() const
+{
+    // TODO: this method is to be removed after user bundle implementation is complete
+    return Core::ICore::settings()->value("QML/Designer/UseExperimentalFeatures45", false).toBool();
+}
+
+void AssetsLibraryWidget::addAssetsToContentLibrary(const QStringList &assetPaths)
+{
+    m_assetsView->emitCustomNotification("add_assets_to_content_lib", {}, {assetPaths});
 }
 
 } // namespace QmlDesigner

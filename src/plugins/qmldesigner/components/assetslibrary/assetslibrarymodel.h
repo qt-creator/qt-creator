@@ -3,12 +3,13 @@
 
 #pragma once
 
-#include <QFileInfo>
-#include <QFileSystemModel>
 #include <QSortFilterProxyModel>
 
-#include <utils/filesystemwatcher.h>
-#include <utils/qtcassert.h>
+namespace Utils {
+class FileSystemWatcher;
+}
+
+QT_FORWARD_DECLARE_CLASS(QFileSystemModel)
 
 namespace QmlDesigner {
 
@@ -22,7 +23,7 @@ public:
     void setRootPath(const QString &newPath);
     void setSearchText(const QString &searchText);
 
-    Q_PROPERTY(bool haveFiles READ haveFiles NOTIFY haveFilesChanged);
+    Q_PROPERTY(bool hasFiles READ hasFiles NOTIFY hasFilesChanged)
 
     Q_INVOKABLE QString rootPath() const;
     Q_INVOKABLE QString filePath(const QModelIndex &index) const;
@@ -35,7 +36,7 @@ public:
     Q_INVOKABLE QModelIndex parentDirIndex(const QString &path) const;
     Q_INVOKABLE QModelIndex parentDirIndex(const QModelIndex &index) const;
     Q_INVOKABLE QString parentDirPath(const QString &path) const;
-    Q_INVOKABLE void syncHaveFiles();
+    Q_INVOKABLE void syncHasFiles();
 
     Q_INVOKABLE QList<QModelIndex> parentIndices(const QModelIndex &index) const;
     Q_INVOKABLE bool indexIsValid(const QModelIndex &index) const;
@@ -55,30 +56,30 @@ public:
         return std::min(result, 1);
     }
 
-    bool haveFiles() const { return m_haveFiles; }
+    bool hasFiles() const { return m_hasFiles; }
 
     QString getUniqueName(const QString &oldName);
 
 signals:
     void directoryLoaded(const QString &path);
     void rootPathChanged();
-    void haveFilesChanged();
+    void hasFilesChanged();
     void fileChanged(const QString &path);
     void effectsDeleted(const QStringList &effectNames);
 
 private:
-    void setHaveFiles(bool value);
+    void setHasFiles(bool value);
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
     void resetModel();
     void createBackendModel();
     void destroyBackendModel();
-    bool checkHaveFiles(const QModelIndex &parentIdx) const;
-    bool checkHaveFiles() const;
+    bool checkHasFiles(const QModelIndex &parentIdx) const;
+    bool checkHasFiles() const;
 
     QString m_searchText;
     QString m_rootPath;
     QFileSystemModel *m_sourceFsModel = nullptr;
-    bool m_haveFiles = false;
+    bool m_hasFiles = false;
     Utils::FileSystemWatcher *m_fileWatcher = nullptr;
 };
 

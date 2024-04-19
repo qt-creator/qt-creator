@@ -94,7 +94,30 @@ void ContentLibraryUserModel::addMaterial(const QString &name, const QString &qm
 
     m_userMaterials.append(libMat);
     int matSectionIdx = 0;
-    emit dataChanged(index(matSectionIdx, 0), index(matSectionIdx, 0));
+    emit dataChanged(index(matSectionIdx), index(matSectionIdx));
+}
+
+void ContentLibraryUserModel::addTextures(const QStringList &paths)
+{
+    QDir bundleDir{Paths::bundlesPathSetting() + "/User/textures"};
+    bundleDir.mkpath(".");
+    bundleDir.mkdir("icons");
+
+    for (const QString &path : paths) {
+        QFileInfo fileInfo(path);
+        QString suffix = '.' + fileInfo.suffix();
+        auto iconFileInfo = QFileInfo(fileInfo.path().append("/icons/").append(fileInfo.baseName() + ".png"));
+        QPair<QSize, qint64> info = ImageUtils::imageInfo(path);
+        QString dirPath = fileInfo.path();
+        QSize imgDims = info.first;
+        qint64 imgFileSize = info.second;
+
+        auto tex = new ContentLibraryTexture(this, iconFileInfo, dirPath, suffix, imgDims, imgFileSize);
+        m_userTextures.append(tex);
+    }
+
+    int texSectionIdx = 1;
+    emit dataChanged(index(texSectionIdx), index(texSectionIdx));
 }
 
 // returns unique library material's name and qml component
@@ -273,10 +296,10 @@ void ContentLibraryUserModel::loadTextureBundle()
 
     const QFileInfoList fileInfos = bundleDir.entryInfoList(QDir::Files);
     for (const QFileInfo &fileInfo : fileInfos) {
-        auto iconFileInfo = QFileInfo(fileInfo.path().append("/icons/").append(fileInfo.fileName()));
+        QString suffix = '.' + fileInfo.suffix();
+        auto iconFileInfo = QFileInfo(fileInfo.path().append("/icons/").append(fileInfo.baseName() + ".png"));
         QPair<QSize, qint64> info = ImageUtils::imageInfo(fileInfo.path());
         QString dirPath = fileInfo.path();
-        QString suffix = '.' + fileInfo.suffix();
         QSize imgDims = info.first;
         qint64 imgFileSize = info.second;
 

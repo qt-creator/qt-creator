@@ -3,7 +3,10 @@
 
 #pragma once
 
+#include <QSize>
 #include <QString>
+
+QT_FORWARD_DECLARE_CLASS(QPixmap)
 
 namespace QmlDesigner {
 
@@ -39,6 +42,7 @@ public:
     const QString id() const;
     const QString fileName() const;
     bool hasSuffix() const;
+    QPixmap pixmap(const QSize &size = {}) const;
 
     Type type() const;
     bool isImage() const;

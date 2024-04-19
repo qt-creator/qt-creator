@@ -62,6 +62,7 @@ public:
     void updateIsEmpty();
 
     void addMaterial(const QString &name, const QString &qml, const QUrl &icon, const QStringList &files);
+    void addTextures(const QStringList &paths);
 
     void setBundleObj(const QJsonObject &newBundleObj);
     QJsonObject &bundleJsonObjectRef();

@@ -98,6 +98,8 @@ public:
 
     Q_INVOKABLE void showInGraphicalShell(const QString &path);
     Q_INVOKABLE QString showInGraphicalShellMsg() const;
+    Q_INVOKABLE bool userBundleEnabled() const;
+    Q_INVOKABLE void addAssetsToContentLibrary(const QStringList &assetPaths);
 
 signals:
     void itemActivated(const QString &itemName);

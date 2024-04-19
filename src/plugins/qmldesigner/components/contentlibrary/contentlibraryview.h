@@ -55,6 +55,7 @@ private:
     void updateBundleEffectsImportedState();
     void updateBundlesQuick3DVersion();
     void addLibMaterial(const ModelNode &mat, const QPixmap &icon);
+    void addLibAssets(const QStringList &paths);
     QStringList writeLibMaterialQml(const ModelNode &mat, const QString &qml);
     QPair<QString, QSet<QString>> modelNodeToQmlString(const ModelNode &node, QStringList &depListIds,
                                                        int depth = 0);

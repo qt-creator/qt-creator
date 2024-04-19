@@ -3,7 +3,10 @@
 
 #include "asset.h"
 
+#include "hdrimage.h"
+
 #include <QImageReader>
+#include <QPixmap>
 
 namespace QmlDesigner {
 
@@ -104,6 +107,19 @@ const QSet<QString> &Asset::supportedSuffixes()
 bool Asset::isSupported(const QString &path)
 {
     return supportedSuffixes().contains(path);
+}
+
+QPixmap Asset::pixmap(const QSize &size) const
+{
+    if (!isImage() && !isHdrFile())
+        return {};
+
+    QPixmap icon = isHdrFile() ? HdrImage{m_filePath}.toPixmap() : QPixmap{m_filePath};
+
+    if (size.isValid())
+        icon = icon.scaled(size, Qt::KeepAspectRatio);
+
+    return icon;
 }
 
 Asset::Type Asset::type() const

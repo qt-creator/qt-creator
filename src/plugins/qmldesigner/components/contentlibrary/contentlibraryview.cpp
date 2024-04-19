@@ -397,6 +397,8 @@ void ContentLibraryView::customNotification(const AbstractView *view,
         QTC_ASSERT(nodeList.size() == 1 && data.size() == 1, return);
 
         addLibMaterial(nodeList.first(), data.first().value<QPixmap>());
+    } else if (identifier == "add_assets_to_content_lib") {
+        addLibAssets(data.first().toStringList());
     }
 }
 
@@ -653,6 +655,33 @@ QPair<QString, QSet<QString>> ContentLibraryView::modelNodeToQmlString(const Mod
     qml += indent + "}\n";
 
     return {qml, assets};
+}
+
+void ContentLibraryView::addLibAssets(const QStringList &paths)
+{
+    auto bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/textures");
+    QStringList pathsInBundle;
+
+    for (const QString &path : paths) {
+        Asset asset(path);
+        auto assetPath = Utils::FilePath::fromString(path);
+
+        // save icon
+        QString iconSavePath = bundlePath.pathAppended("icons/" + assetPath.baseName() + ".png").toString();
+        QPixmap icon = asset.pixmap({120, 120});
+        bool iconSaved = icon.save(iconSavePath);
+        if (!iconSaved)
+            qWarning() << __FUNCTION__ << "icon save failed";
+
+        // save asset
+        auto result = assetPath.copyFile(bundlePath.pathAppended(asset.fileName()));
+        if (!result)
+            qWarning() << __FUNCTION__ << result.error();
+
+        pathsInBundle.append(bundlePath.pathAppended(asset.fileName()).toString());
+    }
+
+    m_widget->userModel()->addTextures(pathsInBundle);
 }
 
 ModelNode ContentLibraryView::getBundleMaterialDefaultInstance(const TypeName &type)
