@@ -154,10 +154,10 @@ void CMakeGenerator::initialize(QmlProject *project)
     parseNodeTree(m_root, rootProjectNode);
     parseSourceTree();
 
-    compareWithFileSystem(m_root);
-
     createCMakeFiles(m_root);
     createSourceFiles();
+
+    compareWithFileSystem(m_root);
 }
 
 void CMakeGenerator::update(const QSet<QString> &added, const QSet<QString> &removed)
@@ -170,7 +170,7 @@ void CMakeGenerator::update(const QSet<QString> &added, const QSet<QString> &rem
     std::set<NodePtr> dirtyModules;
     for (const QString &add : added) {
         const Utils::FilePath path = Utils::FilePath::fromString(add);
-        if (auto node = findOrCreateNode(m_root, path)) {
+        if (auto node = findOrCreateNode(m_root, path.parentDir())) {
             insertFile(node, path);
             if (auto module = findModuleFor(node))
                 dirtyModules.insert(module);
@@ -182,15 +182,15 @@ void CMakeGenerator::update(const QSet<QString> &added, const QSet<QString> &rem
 
     for (const QString &remove : removed) {
         const Utils::FilePath path = Utils::FilePath::fromString(remove);
-        if (auto node = findNode(m_root, path)) {
+        if (auto node = findNode(m_root, path.parentDir())) {
             removeFile(node, path);
             if (auto module = findModuleFor(node))
                 dirtyModules.insert(module);
         }
     }
 
-    for (auto module : dirtyModules)
-        m_writer->writeModuleCMakeFile(module, m_root);
+    createCMakeFiles(m_root);
+    createSourceFiles();
 }
 
 bool CMakeGenerator::isQml(const Utils::FilePath &path) const
@@ -282,9 +282,8 @@ NodePtr CMakeGenerator::findModuleFor(const NodePtr &node) const
 
 NodePtr CMakeGenerator::findNode(NodePtr &node, const Utils::FilePath &path) const
 {
-    const Utils::FilePath parentDir = path.parentDir();
     for (NodePtr &child : node->subdirs) {
-        if (child->dir == parentDir)
+        if (child->dir == path)
             return child;
         if (path.isChildOf(child->dir))
             return findNode(child, path);
@@ -300,21 +299,34 @@ NodePtr CMakeGenerator::findOrCreateNode(NodePtr &node, const Utils::FilePath &p
     if (!path.isChildOf(node->dir))
         return nullptr;
 
-    const Utils::FilePath parentDir = path.parentDir();
-    const Utils::FilePath relative = parentDir.relativeChildPath(node->dir);
+    auto findSubDir = [](NodePtr &node, const Utils::FilePath &path) -> NodePtr {
+        for (NodePtr child : node->subdirs) {
+            if (child->dir == path)
+                return child;
+        }
+        return nullptr;
+    };
+
+    const Utils::FilePath relative = path.relativeChildPath(node->dir);
     const QChar separator = relative.pathComponentSeparator();
     const QList<QStringView> components = relative.pathView().split(separator);
 
-    NodePtr last = node;
+    NodePtr lastNode = node;
     for (const auto &comp : components) {
+
+        Utils::FilePath subPath = lastNode->dir.pathAppended(comp.toString());
+        if (NodePtr sub = findSubDir(lastNode, subPath)) {
+            lastNode = sub;
+            continue;
+        }
         NodePtr newNode = std::make_shared<Node>();
-        newNode->parent = last;
+        newNode->parent = lastNode;
         newNode->name = comp.toString();
-        newNode->dir = last->dir.pathAppended(comp.toString());
-        last->subdirs.push_back(newNode);
-        last = newNode;
+        newNode->dir = subPath;
+        lastNode->subdirs.push_back(newNode);
+        lastNode = newNode;
     }
-    return last;
+    return lastNode;
 }
 
 bool findFileWithGetter(const Utils::FilePath &file, const NodePtr &node, const FileGetter &getter)
