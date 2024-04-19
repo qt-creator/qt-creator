@@ -27,6 +27,10 @@ lsp.Client = {}
 ---Registers a message handler for the message named 'msg'
 function lsp.Client:registerMessage(msg, callback) end
 
+---@param msg table the message to send
+---Sends a message to the language server
+function lsp.Client:sendMessage(msg, callback) end
+
 ---Creates a new Language Client
 ---@param options ClientOptions
 ---@return Client

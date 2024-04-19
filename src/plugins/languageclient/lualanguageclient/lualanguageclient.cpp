@@ -318,6 +318,16 @@ public:
         }
     }
 
+    void sendMessage(const sol::table &message)
+    {
+        const QJsonValue messageValue = ::Lua::LuaEngine::toJson(message);
+        if (!messageValue.isObject())
+            throw sol::error("Message is not an object");
+        const LanguageServerProtocol::JsonRpcMessage jsonrpcmessage(messageValue.toObject());
+        for (Client *c : m_clients)
+            c->sendMessage(jsonrpcmessage);
+    }
+
     void updateOptions()
     {
         if (m_cmdLineCallback) {
@@ -472,6 +482,8 @@ static void registerLuaApi()
                 [](LuaClientWrapper *c, const sol::function &f) { c->m_onInstanceStart = f; }),
             "registerMessage",
             &LuaClientWrapper::registerMessageCallback,
+            "sendMessage",
+            &LuaClientWrapper::sendMessage,
             "create",
             [](const sol::table &options) -> std::shared_ptr<LuaClientWrapper> {
                 auto luaClient = std::make_shared<LuaClientWrapper>(options);
