@@ -769,6 +769,7 @@ private:
     std::unique_ptr<ProcessInterfaceHandler> m_processHandler;
     mutable QMutex m_mutex;
     QList<ProcessInterfaceSignal *> m_signals;
+    Guard m_guard;
 };
 
 class ProcessPrivate : public QObject
@@ -961,6 +962,10 @@ GeneralProcessBlockingImpl::GeneralProcessBlockingImpl(ProcessPrivate *parent)
 
 bool GeneralProcessBlockingImpl::waitForSignal(ProcessSignalType newSignal, QDeadlineTimer timeout)
 {
+    QTC_ASSERT(!m_guard.isLocked(), qWarning("Process::waitForSignal() called recursively. "
+                                             "The call is being ignored."); return false);
+    GuardLocker locker(m_guard);
+
     m_processHandler->setParent(nullptr);
 
     QThread thread;
