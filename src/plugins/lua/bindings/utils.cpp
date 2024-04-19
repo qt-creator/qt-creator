@@ -17,7 +17,7 @@ void addUtilsModule()
     LuaEngine::registerProvider("__utils", [](sol::state_view lua) -> sol::object {
         sol::table utils = lua.create_table();
 
-        utils.set_function("waitms_cb", [](int ms, sol::function cb) {
+        utils.set_function("waitms_cb", [](int ms, const sol::function &cb) {
             QTimer *timer = new QTimer();
             timer->setSingleShot(true);
             timer->setInterval(ms);
@@ -73,7 +73,7 @@ return {
             "isExecutableFile",
             &FilePath::isExecutableFile,
             "dirEntries",
-            [](sol::this_state s, const FilePath &p, sol::table options) -> sol::table {
+            [](sol::this_state s, const FilePath &p, const sol::table &options) -> sol::table {
                 sol::state_view lua(s);
                 sol::table result = lua.create_table();
                 const QStringList nameFilters = options.get_or<QStringList>("nameFilters", {});

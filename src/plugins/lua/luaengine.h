@@ -43,27 +43,20 @@ public:
     Utils::expected_str<LuaPluginSpec *> loadPlugin(const Utils::FilePath &path);
 
     static void registerProvider(const QString &packageName, const PackageProvider &provider);
-    static void autoRegister(std::function<void(sol::state_view)> registerFunction);
-    static void registerHook(QString name, std::function<void(sol::function)> hookProvider);
+    static void autoRegister(const std::function<void(sol::state_view)> &registerFunction);
+    static void registerHook(QString name, const std::function<void(sol::function)> &hookProvider);
 
     static Utils::expected_str<void> connectHooks(sol::state_view lua, const sol::table &hookTable);
 
     static bool isCoroutine(lua_State *state);
 
-    static sol::table toTable(sol::state_view lua, const QJsonValue &v);
+    static sol::table toTable(const sol::state_view &lua, const QJsonValue &v);
     static QJsonValue toJson(const sol::table &t);
 
-    static Utils::expected_str<int> resumeImpl(sol::this_state s, int nargs);
-
-    template<typename... Args>
-    static Utils::expected_str<int> resume(sol::this_state s, Args &&...args)
-    {
-        sol::stack::push(s, std::forward<Args>(args)...);
-        return resumeImpl(s, sizeof...(Args));
-    }
+    static QStringList variadicToStringList(const sol::variadic_args &vargs);
 
     template<typename R, typename... Args>
-    static Utils::expected_str<R> safe_call(sol::protected_function function, Args &&...args)
+    static Utils::expected_str<R> safe_call(const sol::protected_function &function, Args &&...args)
     {
         sol::protected_function_result result = function(std::forward<Args>(args)...);
         if (!result.valid()) {
@@ -78,7 +71,8 @@ public:
     }
 
     template<typename... Args>
-    static Utils::expected_str<void> void_safe_call(sol::protected_function function, Args &&...args)
+    static Utils::expected_str<void> void_safe_call(
+        const sol::protected_function &function, Args &&...args)
     {
         sol::protected_function_result result = function(std::forward<Args>(args)...);
         if (!result.valid()) {
@@ -90,7 +84,7 @@ public:
 
 protected:
     Utils::expected_str<void> connectHooks(
-        sol::state_view lua, const sol::table &table, QString path);
+        sol::state_view lua, const sol::table &table, const QString &path);
 
 private:
     std::unique_ptr<LuaEnginePrivate> d;

@@ -43,17 +43,18 @@ void LuaEngine::registerProvider(const QString &packageName, const PackageProvid
     instance().d->m_providers[packageName] = provider;
 }
 
-void LuaEngine::autoRegister(std::function<void(sol::state_view)> registerFunction)
+void LuaEngine::autoRegister(const std::function<void(sol::state_view)> &registerFunction)
 {
     instance().d->m_autoProviders.append(registerFunction);
 }
 
-void LuaEngine::registerHook(QString name, std::function<void(sol::function)> hook)
+void LuaEngine::registerHook(QString name, const std::function<void(sol::function)> &hook)
 {
     instance().d->m_hooks.insert("." + name, hook);
 }
 
-expected_str<void> LuaEngine::connectHooks(sol::state_view lua, const sol::table &table, QString path)
+expected_str<void> LuaEngine::connectHooks(
+    sol::state_view lua, const sol::table &table, const QString &path)
 {
     for (const auto &[k, v] : table) {
         if (v.get_type() == sol::type::table) {
@@ -100,21 +101,11 @@ expected_str<LuaPluginSpec *> LuaEngine::loadPlugin(const Utils::FilePath &path)
                        sol::lib::io);
 
     lua["print"] = [prefix = path.fileName()](sol::variadic_args va) {
-        QStringList strings;
-        int n = va.size();
-        int i;
-        for (i = 1; i <= n; i++) {
-            size_t l;
-            const char *s = luaL_tolstring(va.lua_state(), i, &l);
-            if (s != nullptr)
-                strings.append(QString::fromUtf8(s, l));
-        }
-
-        qDebug().noquote() << "[" << prefix << "]" << strings.join("\t");
+        qDebug().noquote() << "[" << prefix << "]" << variadicToStringList(va).join("\t");
     };
 
     for (const auto &[name, func] : d->m_providers.asKeyValueRange()) {
-        lua["package"]["preload"][name.toStdString()] = [func = func](sol::this_state s) {
+        lua["package"]["preload"][name.toStdString()] = [func = func](const sol::this_state &s) {
             return func(s);
         };
     }
@@ -165,7 +156,7 @@ static void setFromJson(sol::table &t, KeyType k, const QJsonValue &v)
         t[k] = LuaEngine::toTable(t.lua_state(), v);
 }
 
-sol::table LuaEngine::toTable(sol::state_view lua, const QJsonValue &v)
+sol::table LuaEngine::toTable(const sol::state_view &lua, const QJsonValue &v)
 {
     sol::table table(lua, sol::create);
 
@@ -186,9 +177,9 @@ sol::table LuaEngine::toTable(sol::state_view lua, const QJsonValue &v)
     return table;
 }
 
-QJsonValue toJsonValue(sol::object object);
+QJsonValue toJsonValue(const sol::object &object);
 
-QJsonValue toJsonValue(sol::table table)
+QJsonValue toJsonValue(const sol::table &table)
 {
     if (table.get<std::optional<sol::object>>(1)) {
         // Is Array
@@ -212,7 +203,7 @@ QJsonValue toJsonValue(sol::table table)
     return obj;
 }
 
-QJsonValue toJsonValue(sol::object object)
+QJsonValue toJsonValue(const sol::object &object)
 {
     switch (object.get_type()) {
     case sol::type::lua_nil:
@@ -235,15 +226,19 @@ QJsonValue LuaEngine::toJson(const sol::table &table)
     return toJsonValue(table);
 }
 
-expected_str<int> LuaEngine::resumeImpl(sol::this_state s, int nArgs)
+QStringList LuaEngine::variadicToStringList(const sol::variadic_args &vargs)
 {
-    int res;
-    auto success = lua_resume(s.lua_state(), nullptr, nArgs, &res);
+    QStringList strings;
+    int n = vargs.size();
+    int i;
+    for (i = 1; i <= n; i++) {
+        size_t l;
+        const char *s = luaL_tolstring(vargs.lua_state(), i, &l);
+        if (s != nullptr)
+            strings.append(QString::fromUtf8(s, l));
+    }
 
-    if (success == LUA_OK || success == LUA_YIELD)
-        return res;
-
-    return make_unexpected((sol::stack::pop<QString>(s.lua_state())));
+    return strings;
 }
 
 } // namespace Lua

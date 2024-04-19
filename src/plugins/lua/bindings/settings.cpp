@@ -27,7 +27,7 @@ public:
         return it->second;
     }
 
-    void dynamic_set(const std::string &key, sol::stack_object value)
+    void dynamic_set(const std::string &key, const sol::stack_object &value)
     {
         if (!value.is<BaseAspect>())
             throw std::runtime_error("AspectContainer can only contain BaseAspect instances");
@@ -50,7 +50,7 @@ public:
     std::unordered_map<std::string, sol::object> m_entries;
 };
 
-std::unique_ptr<LuaAspectContainer> aspectContainerCreate(sol::table options)
+std::unique_ptr<LuaAspectContainer> aspectContainerCreate(const sol::table &options)
 {
     auto container = std::make_unique<LuaAspectContainer>();
 
@@ -224,7 +224,7 @@ void typedAspectCreate(BoolAspect *aspect, const std::string &key, const sol::ob
 
 template<class T>
 std::unique_ptr<T> createAspectFromTable(
-    sol::table options, const std::function<void(T *, const std::string &, sol::object)> &f)
+    const sol::table &options, const std::function<void(T *, const std::string &, sol::object)> &f)
 {
     auto aspect = std::make_unique<T>();
 
@@ -265,7 +265,9 @@ sol::usertype<T> addTypedAspect(sol::table &lua, const QString &name)
     return lua.new_usertype<T>(
         name,
         "create",
-        [](sol::table options) { return createAspectFromTable<T>(options, &typedAspectCreate<T>); },
+        [](const sol::table &options) {
+            return createAspectFromTable<T>(options, &typedAspectCreate<T>);
+        },
         sol::base_classes,
         sol::bases<TypedAspect<typename T::valueType>, BaseAspect>());
 }
@@ -315,7 +317,7 @@ void addSettingsModule()
         settings.new_usertype<ToggleAspect>(
             "ToggleAspect",
             "create",
-            [](sol::table options) {
+            [](const sol::table &options) {
                 return createAspectFromTable<ToggleAspect>(
                     options,
                     [](ToggleAspect *aspect, const std::string &key, const sol::object &value) {
@@ -363,7 +365,7 @@ void addSettingsModule()
         settings.new_usertype<TriStateAspect>(
             "TriStateAspect",
             "create",
-            [](sol::table options) {
+            [](const sol::table &options) {
                 return createAspectFromTable<TriStateAspect>(
                     options,
                     [](TriStateAspect *aspect, const std::string &key, const sol::object &value) {
@@ -376,10 +378,9 @@ void addSettingsModule()
                     });
             },
             "value",
-            sol::property([](TriStateAspect *a) { return triStateToString(a->value()); },
-                          [](TriStateAspect *a, const QString &v) {
-                              a->setValue(triStateFromString(v));
-                          }),
+            sol::property(
+                [](TriStateAspect *a) { return triStateToString(a->value()); },
+                [](TriStateAspect *a, const QString &v) { a->setValue(triStateFromString(v)); }),
             "volatileValue",
             sol::property(
                 [](TriStateAspect *a) {
@@ -396,7 +397,7 @@ void addSettingsModule()
         settings.new_usertype<TextDisplay>(
             "TextDisplay",
             "create",
-            [](sol::table options) {
+            [](const sol::table &options) {
                 return createAspectFromTable<TextDisplay>(
                     options,
                     [](TextDisplay *aspect, const std::string &key, const sol::object &value) {
@@ -430,7 +431,7 @@ void addSettingsModule()
         settings.new_usertype<AspectList>(
             "AspectList",
             "create",
-            [](sol::table options) {
+            [](const sol::table &options) {
                 return createAspectFromTable<AspectList>(
                     options,
                     [](AspectList *aspect, const std::string &key, const sol::object &value) {
@@ -462,14 +463,14 @@ void addSettingsModule()
             "createAndAddItem",
             &AspectList::createAndAddItem,
             "foreach",
-            [](AspectList *a, sol::function clbk) {
+            [](AspectList *a, const sol::function &clbk) {
                 a->forEachItem<BaseAspect>([clbk](std::shared_ptr<BaseAspect> item) {
                     auto res = Lua::LuaEngine::void_safe_call(clbk, item);
                     QTC_CHECK_EXPECTED(res);
                 });
             },
             "enumerate",
-            [](AspectList *a, sol::function clbk) {
+            [](AspectList *a, const sol::function &clbk) {
                 a->forEachItem<BaseAspect>([clbk](std::shared_ptr<BaseAspect> item, int idx) {
                     auto res = Lua::LuaEngine::void_safe_call(clbk, item, idx);
                     QTC_CHECK_EXPECTED(res);
@@ -494,7 +495,7 @@ void addSettingsModule()
             }
         };
 
-        settings.new_usertype<OptionsPage>("OptionsPage", "create", [](sol::table options) {
+        settings.new_usertype<OptionsPage>("OptionsPage", "create", [](const sol::table &options) {
             return std::make_unique<OptionsPage>(options);
         });
 

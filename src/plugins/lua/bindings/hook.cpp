@@ -34,7 +34,7 @@ void addHookModule()
             "Hook",
             sol::no_constructor,
             "connect",
-            [](Hook *hook, sol::function func) -> QMetaObject::Connection {
+            [](Hook *hook, const sol::function &func) -> QMetaObject::Connection {
                 QMetaObject::Connection con
                     = QObject::connect(hook, &Hook::trigger, [func](sol::table args) {
                           auto res = LuaEngine::void_safe_call(func, args);
@@ -46,12 +46,12 @@ void addHookModule()
             [](Hook *, QMetaObject::Connection con) { QObject::disconnect(con); });
     });
 
-    LuaEngine::registerHook("editors.documentOpened", [](sol::function func) {
+    LuaEngine::registerHook("editors.documentOpened", [](const sol::function &func) {
         QObject::connect(Core::EditorManager::instance(),
                          &Core::EditorManager::documentOpened,
                          [func](Core::IDocument *document) { func(document); });
     });
-    LuaEngine::registerHook("editors.documentClosed", [](sol::function func) {
+    LuaEngine::registerHook("editors.documentClosed", [](const sol::function &func) {
         QObject::connect(Core::EditorManager::instance(),
                          &Core::EditorManager::documentClosed,
                          [func](Core::IDocument *document) { func(document); });

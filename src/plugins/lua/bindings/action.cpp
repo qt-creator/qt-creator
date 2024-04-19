@@ -24,7 +24,7 @@ void addActionModule()
                         "CA_NonConfigurable",
                         Core::Command::CA_NonConfigurable);
 
-        result["create"] = [](const std::string &actionId, sol::table options) {
+        result["create"] = [](const std::string &actionId, const sol::table &options) {
             Core::ActionBuilder b(nullptr, Id::fromString(QString::fromStdString(actionId)));
 
             for (const auto &[k, v] : options) {

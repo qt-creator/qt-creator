@@ -15,7 +15,7 @@ void addProcessModule()
     LuaEngine::registerProvider("__process", [](sol::state_view lua) -> sol::object {
         sol::table process = lua.create_table();
 
-        process["runInTerminal_cb"] = [](const QString &cmdline, sol::function cb) {
+        process["runInTerminal_cb"] = [](const QString &cmdline, const sol::function &cb) {
             Process *p = new Process;
             p->setTerminalMode(TerminalMode::Run);
             p->setCommand(CommandLine::fromUserInput((cmdline)));

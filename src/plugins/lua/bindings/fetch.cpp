@@ -53,7 +53,7 @@ void addFetchModule()
 
         static QNetworkAccessManager networkAccessManager;
 
-        fetch["fetch_cb"] = [](sol::table options, sol::function callback, sol::this_state s) {
+        fetch["fetch_cb"] = [](const sol::table &options, const sol::function &callback, const sol::this_state &thisState) {
             auto url = options.get<QString>("url");
 
             auto method = (options.get_or<QString>("method", "GET")).toLower();
@@ -77,7 +77,7 @@ void addFetchModule()
                 throw std::runtime_error("Unknown method: " + method.toStdString());
 
             if (convertToTable) {
-                QObject::connect(reply, &QNetworkReply::finished, reply, [reply, s, callback]() {
+                QObject::connect(reply, &QNetworkReply::finished, reply, [reply, thisState, callback]() {
                     reply->deleteLater();
 
                     if (reply->error() != QNetworkReply::NoError) {
@@ -93,11 +93,11 @@ void addFetchModule()
                         return;
                     }
                     if (doc.isObject()) {
-                        callback(LuaEngine::toTable(s, doc.object()));
+                        callback(LuaEngine::toTable(thisState, doc.object()));
                     } else if (doc.isArray()) {
-                        callback(LuaEngine::toTable(s, doc.array()));
+                        callback(LuaEngine::toTable(thisState, doc.array()));
                     } else {
-                        sol::state_view lua(s);
+                        sol::state_view lua(thisState);
                         callback(lua.create_table());
                     }
                 });

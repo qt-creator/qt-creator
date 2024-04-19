@@ -12,7 +12,7 @@
 namespace Lua::Internal {
 
 template<class T = QObject>
-sol::object qobject_index_get(sol::this_state s, QObject *obj, const char *key)
+sol::object qobject_index_get(const sol::this_state &s, QObject *obj, const char *key)
 {
     auto &metaObject = T::staticMetaObject;
     int iProp = metaObject.indexOfProperty(key);

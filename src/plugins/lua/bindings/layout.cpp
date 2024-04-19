@@ -13,10 +13,10 @@ using namespace Utils;
 
 namespace Lua::Internal {
 
-static void processChildren(LayoutItem *item, sol::table children)
+static void processChildren(LayoutItem *item, const sol::table &children)
 {
     for (size_t i = 1; i <= children.size(); ++i) {
-        sol::object v = children[i];
+        const sol::object v = children[i];
 
         if (v.is<LayoutItem *>()) {
             item->addItem(*v.as<LayoutItem *>());
@@ -25,7 +25,7 @@ static void processChildren(LayoutItem *item, sol::table children)
         } else if (v.is<QString>()) {
             item->addItem(v.as<QString>());
         } else if (v.is<sol::function>()) {
-            sol::function f = v.as<sol::function>();
+            const sol::function f = v.as<sol::function>();
             auto res = LuaEngine::safe_call<LayoutItem *>(f);
             QTC_ASSERT_EXPECTED(res, continue);
             item->addItem(**res);
@@ -37,7 +37,7 @@ static void processChildren(LayoutItem *item, sol::table children)
 }
 
 template<class T, typename... Args>
-static std::unique_ptr<T> construct(Args &&...args, sol::table children)
+static std::unique_ptr<T> construct(Args &&...args, const sol::table &children)
 {
     std::unique_ptr<T> item(new T(std::forward<Args>(args)..., {}));
 
@@ -157,13 +157,13 @@ void addLayoutModule()
         layout["fieldGrowthPolicy"] = &fieldGrowthPolicy;
         layout["id"] = &id;
         layout["setText"] = &setText;
-        layout["onClicked"] = [](sol::function f) {
+        layout["onClicked"] = [](const sol::function &f) {
             return onClicked([f]() {
                 auto res = LuaEngine::void_safe_call(f);
                 QTC_CHECK_EXPECTED(res);
             });
         };
-        layout["onTextChanged"] = [](sol::function f) {
+        layout["onTextChanged"] = [](const sol::function &f) {
             return onTextChanged([f](const QString &text) {
                 auto res = LuaEngine::void_safe_call(f, text);
                 QTC_CHECK_EXPECTED(res);
