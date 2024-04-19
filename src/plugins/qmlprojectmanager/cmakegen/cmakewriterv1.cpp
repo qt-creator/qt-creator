@@ -57,50 +57,53 @@ void CMakeWriterV1::writeRootCMakeFile(const NodePtr &node) const
         writeFile(componentPath, compTemplate);
     }
 
-    const Utils::FilePath file = node->dir.pathAppended("CMakeLists.txt");
-    const QString appName = parent()->projectName() + "App";
-
-    QString fileSection = "";
-    const QString configFile = getEnvironmentVariable(ENV_VARIABLE_CONTROLCONF);
-    if (!configFile.isEmpty())
-        fileSection = QString("\t\t%1").arg(configFile);
-
-    const QString fileTemplate = readTemplate(":/templates/cmakeroot_v1");
-    const QString fileContent = fileTemplate.arg(appName, fileSection);
-    writeFile(file, fileContent);
-
     const Utils::FilePath sharedFile = node->dir.pathAppended("CMakeLists.txt.shared");
-    const QString sharedTemplate = readTemplate(":/templates/cmake_shared");
-    writeFile(sharedFile, sharedTemplate);
-
-    const Utils::FilePath userFile = node->dir.pathAppended("qds.cmake");
-    QString userFileContent(DO_NOT_EDIT_FILE);
-    userFileContent.append(makeSubdirectoriesBlock(node));
-    userFileContent.append("\n");
-
-    QString pluginNames;
-    std::vector<QString> plugs = plugins(node);
-    for (size_t i = 0; i < plugs.size(); ++i) {
-        pluginNames.append("\t" + plugs[i] + "plugin");
-        if (i != plugs.size() - 1)
-            pluginNames.append("\n");
+    if (!sharedFile.exists()) {
+        const QString sharedTemplate = readTemplate(":/templates/cmake_shared");
+        writeFile(sharedFile, sharedTemplate);
     }
 
-    QString linkLibrariesTemplate(
-        "target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE\n"
-        "%1)");
+    const Utils::FilePath file = node->dir.pathAppended("CMakeLists.txt");
+    if (!file.exists()) {
+        const QString appName = parent()->projectName() + "App";
 
-    userFileContent.append(linkLibrariesTemplate.arg(pluginNames));
+        QString fileSection = "";
+        const QString configFile = getEnvironmentVariable(ENV_VARIABLE_CONTROLCONF);
+        if (!configFile.isEmpty())
+            fileSection = QString("\t\t%1").arg(configFile);
 
-    writeFile(userFile, userFileContent);
+        const QString fileTemplate = readTemplate(":/templates/cmakeroot_v1");
+        const QString fileContent = fileTemplate.arg(appName, fileSection);
+        writeFile(file, fileContent);
+    }
 }
 
 void CMakeWriterV1::writeModuleCMakeFile(const NodePtr &node, const NodePtr &) const
 {
     QTC_ASSERT(parent(), return);
 
-    if (node->type == Node::Type::App)
+    if (node->type == Node::Type::App) {
+        const Utils::FilePath userFile = node->dir.pathAppended("qds.cmake");
+        QString userFileContent(DO_NOT_EDIT_FILE);
+        userFileContent.append(makeSubdirectoriesBlock(node));
+        userFileContent.append("\n");
+
+        QString pluginNames;
+        std::vector<QString> plugs = plugins(node);
+        for (size_t i = 0; i < plugs.size(); ++i) {
+            pluginNames.append("\t" + plugs[i] + "plugin");
+            if (i != plugs.size() - 1)
+                pluginNames.append("\n");
+        }
+
+        QString linkLibrariesTemplate(
+            "target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE\n"
+            "%1)");
+
+        userFileContent.append(linkLibrariesTemplate.arg(pluginNames));
+        writeFile(userFile, userFileContent);
         return;
+    }
 
     Utils::FilePath writeToFile = node->dir.pathAppended("CMakeLists.txt");
     if (node->type == Node::Type::Folder && parent()->hasChildModule(node)) {
