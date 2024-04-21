@@ -174,7 +174,7 @@ void ActionHandler::createActions()
               &ModelEditor::toggleModelTreeFilter,
               Core::Context(),
               Tr::tr("Toggle View and Filter Settings"),
-              QKeySequence(Tr::tr("Ctrl+F")),
+              QKeySequence(Tr::tr("Ctrl+Shift+L")),
               Utils::Icons::EYE_OPEN_TOOLBAR.icon())->action();
     d->toggleViewFilterAction->setCheckable(true);
     d->synchronizeBrowserAction
