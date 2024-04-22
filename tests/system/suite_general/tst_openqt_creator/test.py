@@ -21,13 +21,13 @@ def main():
         openQmakeProject(os.path.join(pathSpeedcrunch, "src", "speedcrunch.pro"),
                          [Targets.DESKTOP_5_14_1_DEFAULT])
         # Wait for parsing to complete
-        waitFor("runButton.enabled", 30000)
+        waitFor(lambda: runButton.enabled, 30000)
         # Starting before opening, because this is where Creator froze (QTCREATORBUG-10733)
         startopening = datetime.utcnow()
         openQmakeProject(pathCreator, [Targets.DESKTOP_5_14_1_DEFAULT])
         # Wait for parsing to complete
         startreading = datetime.utcnow()
-        waitFor("runButton.enabled", 300000)
+        waitFor(lambda: runButton.enabled, 300000)
         secondsOpening = (datetime.utcnow() - startopening).seconds
         secondsReading = (datetime.utcnow() - startreading).seconds
         timeoutOpen = 45

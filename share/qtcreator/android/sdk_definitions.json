@@ -1,12 +1,12 @@
 {
     "common": {
         "sdk_tools_url": {
-            "linux": "https://dl.google.com/android/repository/commandlinetools-linux-9123335_latest.zip",
-            "linux_sha256": "0bebf59339eaa534f4217f8aa0972d14dc49e7207be225511073c661ae01da0a",
-            "windows": "https://dl.google.com/android/repository/commandlinetools-win-9123335_latest.zip",
-            "windows_sha256": "8a90e6a3deb2fa13229b2e335efd07687dcc8a55a3c544da9f40b41404993e7d",
-            "mac": "https://dl.google.com/android/repository/commandlinetools-mac-9123335_latest.zip",
-            "mac_sha256": "d0192807f7e1cd4a001d13bb1e5904fc287b691211648877258aa44d1fa88275"
+            "linux": "https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip",
+            "linux_sha256": "2d2d50857e4eb553af5a6dc3ad507a17adf43d115264b1afc116f95c92e5e258",
+            "windows": "https://dl.google.com/android/repository/commandlinetools-win-11076708_latest.zip",
+            "windows_sha256": "4d6931209eebb1bfb7c7e8b240a6a3cb3ab24479ea294f3539429574b1eec862",
+            "mac": "https://dl.google.com/android/repository/commandlinetools-mac-11076708_latest.zip",
+            "mac_sha256": "7bc5c72ba0275c80a8f19684fb92793b83a6b5c94d4d179fc5988930282d7e64"
         },
         "sdk_essential_packages": {
             "default": ["platform-tools", "platforms;android-31", "cmdline-tools;latest"],
