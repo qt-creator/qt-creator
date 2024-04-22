@@ -7,6 +7,705 @@
 
 namespace QmlDesigner {
 
+struct ProjectStorage::Statements
+{
+    Statements(Sqlite::Database &database)
+        : database{database}
+    {}
+
+    Sqlite::Database &database;
+    Sqlite::ReadWriteStatement<1, 2> insertTypeStatement{
+        "INSERT OR IGNORE INTO types(sourceId, name) VALUES(?1, ?2) RETURNING typeId", database};
+    Sqlite::WriteStatement<5> updatePrototypeAndExtensionStatement{
+        "UPDATE types SET prototypeId=?2, prototypeNameId=?3, extensionId=?4, extensionNameId=?5 "
+        "WHERE typeId=?1 AND (prototypeId IS NOT ?2 OR extensionId IS NOT ?3 AND prototypeId "
+        "IS NOT ?4 OR extensionNameId IS NOT ?5)",
+        database};
+    mutable Sqlite::ReadStatement<1, 1> selectTypeIdByExportedNameStatement{
+        "SELECT typeId FROM exportedTypeNames WHERE name=?1", database};
+    mutable Sqlite::ReadStatement<1, 2> selectTypeIdByModuleIdAndExportedNameStatement{
+        "SELECT typeId FROM exportedTypeNames "
+        "WHERE moduleId=?1 AND name=?2 "
+        "ORDER BY majorVersion DESC, minorVersion DESC "
+        "LIMIT 1",
+        database};
+    mutable Sqlite::ReadStatement<1, 3> selectTypeIdByModuleIdAndExportedNameAndMajorVersionStatement{
+        "SELECT typeId FROM exportedTypeNames "
+        "WHERE moduleId=?1 AND name=?2 AND majorVersion=?3"
+        "ORDER BY minorVersion DESC "
+        "LIMIT 1",
+        database};
+    mutable Sqlite::ReadStatement<1, 4> selectTypeIdByModuleIdAndExportedNameAndVersionStatement{
+        "SELECT typeId FROM exportedTypeNames "
+        "WHERE moduleId=?1 AND name=?2 AND majorVersion=?3 AND minorVersion<=?4"
+        "ORDER BY minorVersion DESC "
+        "LIMIT 1",
+        database};
+    mutable Sqlite::ReadStatement<3, 1> selectPropertyDeclarationResultByPropertyDeclarationIdStatement{
+        "SELECT propertyTypeId, propertyDeclarationId, propertyTraits "
+        "FROM propertyDeclarations "
+        "WHERE propertyDeclarationId=?1 "
+        "LIMIT 1",
+        database};
+    mutable Sqlite::ReadStatement<1, 1> selectSourceContextIdFromSourceContextsBySourceContextPathStatement{
+        "SELECT sourceContextId FROM sourceContexts WHERE sourceContextPath = ?", database};
+    mutable Sqlite::ReadStatement<1, 1> selectSourceContextPathFromSourceContextsBySourceContextIdStatement{
+        "SELECT sourceContextPath FROM sourceContexts WHERE sourceContextId = ?", database};
+    mutable Sqlite::ReadStatement<2> selectAllSourceContextsStatement{
+        "SELECT sourceContextPath, sourceContextId FROM sourceContexts", database};
+    Sqlite::WriteStatement<1> insertIntoSourceContextsStatement{
+        "INSERT INTO sourceContexts(sourceContextPath) VALUES (?)", database};
+    mutable Sqlite::ReadStatement<1, 2> selectSourceIdFromSourcesBySourceContextIdAndSourceNameStatement{
+        "SELECT sourceId FROM sources WHERE sourceContextId = ? AND sourceName = ?", database};
+    mutable Sqlite::ReadStatement<2, 1> selectSourceNameAndSourceContextIdFromSourcesBySourceIdStatement{
+        "SELECT sourceName, sourceContextId FROM sources WHERE sourceId = ?", database};
+    mutable Sqlite::ReadStatement<1, 1> selectSourceContextIdFromSourcesBySourceIdStatement{
+        "SELECT sourceContextId FROM sources WHERE sourceId = ?", database};
+    Sqlite::WriteStatement<2> insertIntoSourcesStatement{
+        "INSERT INTO sources(sourceContextId, sourceName) VALUES (?,?)", database};
+    mutable Sqlite::ReadStatement<3> selectAllSourcesStatement{
+        "SELECT sourceName, sourceContextId, sourceId  FROM sources", database};
+    mutable Sqlite::ReadStatement<8, 1> selectTypeByTypeIdStatement{
+        "SELECT sourceId, t.name, t.typeId, prototypeId, extensionId, traits, annotationTraits, "
+        "pd.name "
+        "FROM types AS t LEFT JOIN propertyDeclarations AS pd ON "
+        "defaultPropertyId=propertyDeclarationId "
+        "WHERE t.typeId=?",
+        database};
+    mutable Sqlite::ReadStatement<4, 1> selectExportedTypesByTypeIdStatement{
+        "SELECT moduleId, name, ifnull(majorVersion, -1), ifnull(minorVersion, -1) FROM "
+        "exportedTypeNames WHERE typeId=?",
+        database};
+    mutable Sqlite::ReadStatement<4, 2> selectExportedTypesByTypeIdAndSourceIdStatement{
+        "SELECT etn.moduleId, name, ifnull(etn.majorVersion, -1), ifnull(etn.minorVersion, -1) "
+        "FROM exportedTypeNames AS etn JOIN documentImports USING(moduleId) WHERE typeId=?1 AND "
+        "sourceId=?2",
+        database};
+    mutable Sqlite::ReadStatement<8> selectTypesStatement{
+        "SELECT sourceId, t.name, t.typeId, prototypeId, extensionId, traits, annotationTraits, "
+        "pd.name "
+        "FROM types AS t LEFT JOIN propertyDeclarations AS pd ON "
+        "defaultPropertyId=propertyDeclarationId",
+        database};
+    Sqlite::WriteStatement<2> updateTypeTraitStatement{
+        "UPDATE types SET traits = ?2 WHERE typeId=?1", database};
+    Sqlite::WriteStatement<2> updateTypeAnnotationTraitStatement{
+        "UPDATE types SET annotationTraits = ?2 WHERE typeId=?1", database};
+    Sqlite::ReadStatement<1, 2> selectNotUpdatedTypesInSourcesStatement{
+        "SELECT DISTINCT typeId FROM types WHERE (sourceId IN carray(?1) AND typeId NOT IN "
+        "carray(?2))",
+        database};
+    Sqlite::WriteStatement<1> deleteTypeNamesByTypeIdStatement{
+        "DELETE FROM exportedTypeNames WHERE typeId=?", database};
+    Sqlite::WriteStatement<1> deleteEnumerationDeclarationByTypeIdStatement{
+        "DELETE FROM enumerationDeclarations WHERE typeId=?", database};
+    Sqlite::WriteStatement<1> deletePropertyDeclarationByTypeIdStatement{
+        "DELETE FROM propertyDeclarations WHERE typeId=?", database};
+    Sqlite::WriteStatement<1> deleteFunctionDeclarationByTypeIdStatement{
+        "DELETE FROM functionDeclarations WHERE typeId=?", database};
+    Sqlite::WriteStatement<1> deleteSignalDeclarationByTypeIdStatement{
+        "DELETE FROM signalDeclarations WHERE typeId=?", database};
+    Sqlite::WriteStatement<1> deleteTypeStatement{"DELETE FROM types  WHERE typeId=?", database};
+    mutable Sqlite::ReadStatement<4, 1> selectPropertyDeclarationsByTypeIdStatement{
+        "SELECT name, propertyTypeId, propertyTraits, (SELECT name FROM "
+        "propertyDeclarations WHERE propertyDeclarationId=pd.aliasPropertyDeclarationId) FROM "
+        "propertyDeclarations AS pd WHERE typeId=?",
+        database};
+    Sqlite::ReadStatement<6, 1> selectPropertyDeclarationsForTypeIdStatement{
+        "SELECT name, propertyTraits, propertyTypeId, propertyImportedTypeNameId, "
+        "propertyDeclarationId, aliasPropertyDeclarationId FROM propertyDeclarations "
+        "WHERE typeId=? ORDER BY name",
+        database};
+    Sqlite::ReadWriteStatement<1, 5> insertPropertyDeclarationStatement{
+        "INSERT INTO propertyDeclarations(typeId, name, propertyTypeId, propertyTraits, "
+        "propertyImportedTypeNameId, aliasPropertyDeclarationId) VALUES(?1, ?2, ?3, ?4, ?5, NULL) "
+        "RETURNING propertyDeclarationId",
+        database};
+    Sqlite::WriteStatement<4> updatePropertyDeclarationStatement{
+        "UPDATE propertyDeclarations SET propertyTypeId=?2, propertyTraits=?3, "
+        "propertyImportedTypeNameId=?4, aliasPropertyDeclarationId=NULL WHERE "
+        "propertyDeclarationId=?1",
+        database};
+    Sqlite::WriteStatement<3> updatePropertyAliasDeclarationRecursivelyWithTypeAndTraitsStatement{
+        "WITH RECURSIVE "
+        "  properties(aliasPropertyDeclarationId) AS ( "
+        "    SELECT propertyDeclarationId FROM propertyDeclarations WHERE "
+        "      aliasPropertyDeclarationId=?1 "
+        "   UNION ALL "
+        "     SELECT pd.propertyDeclarationId FROM "
+        "       propertyDeclarations AS pd JOIN properties USING(aliasPropertyDeclarationId)) "
+        "UPDATE propertyDeclarations AS pd "
+        "SET propertyTypeId=?2, propertyTraits=?3 "
+        "FROM properties AS p "
+        "WHERE pd.propertyDeclarationId=p.aliasPropertyDeclarationId",
+        database};
+    Sqlite::WriteStatement<1> updatePropertyAliasDeclarationRecursivelyStatement{
+        "WITH RECURSIVE "
+        "  propertyValues(propertyTypeId, propertyTraits) AS ("
+        "    SELECT propertyTypeId, propertyTraits FROM propertyDeclarations "
+        "      WHERE propertyDeclarationId=?1), "
+        "  properties(aliasPropertyDeclarationId) AS ( "
+        "    SELECT propertyDeclarationId FROM propertyDeclarations WHERE "
+        "      aliasPropertyDeclarationId=?1 "
+        "   UNION ALL "
+        "     SELECT pd.propertyDeclarationId FROM "
+        "       propertyDeclarations AS pd JOIN properties USING(aliasPropertyDeclarationId)) "
+        "UPDATE propertyDeclarations AS pd "
+        "SET propertyTypeId=pv.propertyTypeId, propertyTraits=pv.propertyTraits "
+        "FROM properties AS p, propertyValues AS pv "
+        "WHERE pd.propertyDeclarationId=p.aliasPropertyDeclarationId",
+        database};
+    Sqlite::WriteStatement<1> deletePropertyDeclarationStatement{
+        "DELETE FROM propertyDeclarations WHERE propertyDeclarationId=?", database};
+    Sqlite::ReadStatement<3, 1> selectPropertyDeclarationsWithAliasForTypeIdStatement{
+        "SELECT name, propertyDeclarationId, aliasPropertyDeclarationId FROM propertyDeclarations "
+        "WHERE typeId=? AND aliasPropertyDeclarationId IS NOT NULL ORDER BY name",
+        database};
+    Sqlite::WriteStatement<5> updatePropertyDeclarationWithAliasAndTypeStatement{
+        "UPDATE propertyDeclarations SET propertyTypeId=?2, propertyTraits=?3, "
+        "propertyImportedTypeNameId=?4, aliasPropertyDeclarationId=?5 WHERE "
+        "propertyDeclarationId=?1",
+        database};
+    Sqlite::ReadWriteStatement<1, 2> insertAliasPropertyDeclarationStatement{
+        "INSERT INTO propertyDeclarations(typeId, name) VALUES(?1, ?2) RETURNING "
+        "propertyDeclarationId",
+        database};
+    mutable Sqlite::ReadStatement<4, 1> selectFunctionDeclarationsForTypeIdStatement{
+        "SELECT name, returnTypeName, signature, functionDeclarationId FROM "
+        "functionDeclarations WHERE typeId=? ORDER BY name, signature",
+        database};
+    mutable Sqlite::ReadStatement<3, 1> selectFunctionDeclarationsForTypeIdWithoutSignatureStatement{
+        "SELECT name, returnTypeName, functionDeclarationId FROM "
+        "functionDeclarations WHERE typeId=? ORDER BY name",
+        database};
+    mutable Sqlite::ReadStatement<3, 1> selectFunctionParameterDeclarationsStatement{
+        "SELECT json_extract(json_each.value, '$.n'), json_extract(json_each.value, '$.tn'), "
+        "json_extract(json_each.value, '$.tr') FROM functionDeclarations, "
+        "json_each(functionDeclarations.signature) WHERE functionDeclarationId=?",
+        database};
+    Sqlite::WriteStatement<4> insertFunctionDeclarationStatement{
+        "INSERT INTO functionDeclarations(typeId, name, returnTypeName, signature) VALUES(?1, ?2, "
+        "?3, ?4)",
+        database};
+    Sqlite::WriteStatement<3> updateFunctionDeclarationStatement{
+        "UPDATE functionDeclarations "
+        "SET returnTypeName=?2, signature=?3 "
+        "WHERE functionDeclarationId=?1",
+        database};
+    Sqlite::WriteStatement<1> deleteFunctionDeclarationStatement{
+        "DELETE FROM functionDeclarations WHERE functionDeclarationId=?", database};
+    mutable Sqlite::ReadStatement<3, 1> selectSignalDeclarationsForTypeIdStatement{
+        "SELECT name, signature, signalDeclarationId FROM signalDeclarations WHERE typeId=? ORDER "
+        "BY name, signature",
+        database};
+    mutable Sqlite::ReadStatement<2, 1> selectSignalDeclarationsForTypeIdWithoutSignatureStatement{
+        "SELECT name, signalDeclarationId FROM signalDeclarations WHERE typeId=? ORDER BY name",
+        database};
+    mutable Sqlite::ReadStatement<3, 1> selectSignalParameterDeclarationsStatement{
+        "SELECT json_extract(json_each.value, '$.n'), json_extract(json_each.value, '$.tn'), "
+        "json_extract(json_each.value, '$.tr') FROM signalDeclarations, "
+        "json_each(signalDeclarations.signature) WHERE signalDeclarationId=?",
+        database};
+    Sqlite::WriteStatement<3> insertSignalDeclarationStatement{
+        "INSERT INTO signalDeclarations(typeId, name, signature) VALUES(?1, ?2, ?3)", database};
+    Sqlite::WriteStatement<2> updateSignalDeclarationStatement{
+        "UPDATE signalDeclarations SET  signature=?2 WHERE signalDeclarationId=?1", database};
+    Sqlite::WriteStatement<1> deleteSignalDeclarationStatement{
+        "DELETE FROM signalDeclarations WHERE signalDeclarationId=?", database};
+    mutable Sqlite::ReadStatement<3, 1> selectEnumerationDeclarationsForTypeIdStatement{
+        "SELECT name, enumeratorDeclarations, enumerationDeclarationId FROM "
+        "enumerationDeclarations WHERE typeId=? ORDER BY name",
+        database};
+    mutable Sqlite::ReadStatement<2, 1> selectEnumerationDeclarationsForTypeIdWithoutEnumeratorDeclarationsStatement{
+        "SELECT name, enumerationDeclarationId FROM enumerationDeclarations WHERE typeId=? ORDER "
+        "BY name",
+        database};
+    mutable Sqlite::ReadStatement<3, 1> selectEnumeratorDeclarationStatement{
+        "SELECT json_each.key, json_each.value, json_each.type!='null' FROM "
+        "enumerationDeclarations, json_each(enumerationDeclarations.enumeratorDeclarations) WHERE "
+        "enumerationDeclarationId=?",
+        database};
+    Sqlite::WriteStatement<3> insertEnumerationDeclarationStatement{
+        "INSERT INTO enumerationDeclarations(typeId, name, enumeratorDeclarations) VALUES(?1, ?2, "
+        "?3)",
+        database};
+    Sqlite::WriteStatement<2> updateEnumerationDeclarationStatement{
+        "UPDATE enumerationDeclarations SET  enumeratorDeclarations=?2 WHERE "
+        "enumerationDeclarationId=?1",
+        database};
+    Sqlite::WriteStatement<1> deleteEnumerationDeclarationStatement{
+        "DELETE FROM enumerationDeclarations WHERE enumerationDeclarationId=?", database};
+    mutable Sqlite::ReadStatement<1, 1> selectModuleIdByNameStatement{
+        "SELECT moduleId FROM modules WHERE name=? LIMIT 1", database};
+    mutable Sqlite::ReadWriteStatement<1, 1> insertModuleNameStatement{
+        "INSERT INTO modules(name) VALUES(?1) RETURNING moduleId", database};
+    mutable Sqlite::ReadStatement<1, 1> selectModuleNameStatement{
+        "SELECT name FROM modules WHERE moduleId =?1", database};
+    mutable Sqlite::ReadStatement<2> selectAllModulesStatement{"SELECT name, moduleId FROM modules",
+                                                               database};
+    mutable Sqlite::ReadStatement<1, 2> selectTypeIdBySourceIdAndNameStatement{
+        "SELECT typeId FROM types WHERE sourceId=?1 and name=?2", database};
+    mutable Sqlite::ReadStatement<1, 3> selectTypeIdByModuleIdsAndExportedNameStatement{
+        "SELECT typeId FROM exportedTypeNames WHERE moduleId IN carray(?1, ?2, 'int32') AND "
+        "name=?3",
+        database};
+    mutable Sqlite::ReadStatement<4> selectAllDocumentImportForSourceIdStatement{
+        "SELECT moduleId, majorVersion, minorVersion, sourceId "
+        "FROM documentImports ",
+        database};
+    mutable Sqlite::ReadStatement<5, 2> selectDocumentImportForSourceIdStatement{
+        "SELECT importId, sourceId, moduleId, majorVersion, minorVersion "
+        "FROM documentImports WHERE sourceId IN carray(?1) AND kind=?2 ORDER BY sourceId, "
+        "moduleId, majorVersion, minorVersion",
+        database};
+    Sqlite::ReadWriteStatement<1, 5> insertDocumentImportWithoutVersionStatement{
+        "INSERT INTO documentImports(sourceId, moduleId, sourceModuleId, kind, "
+        "parentImportId) VALUES (?1, ?2, ?3, ?4, ?5) RETURNING importId",
+        database};
+    Sqlite::ReadWriteStatement<1, 6> insertDocumentImportWithMajorVersionStatement{
+        "INSERT INTO documentImports(sourceId, moduleId, sourceModuleId, kind, majorVersion, "
+        "parentImportId) VALUES (?1, ?2, ?3, ?4, ?5, ?6) RETURNING importId",
+        database};
+    Sqlite::ReadWriteStatement<1, 7> insertDocumentImportWithVersionStatement{
+        "INSERT INTO documentImports(sourceId, moduleId, sourceModuleId, kind, majorVersion, "
+        "minorVersion, parentImportId) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7) RETURNING "
+        "importId",
+        database};
+    Sqlite::WriteStatement<1> deleteDocumentImportStatement{
+        "DELETE FROM documentImports WHERE importId=?1", database};
+    Sqlite::WriteStatement<2> deleteDocumentImportsWithParentImportIdStatement{
+        "DELETE FROM documentImports WHERE sourceId=?1 AND parentImportId=?2", database};
+    Sqlite::WriteStatement<1> deleteDocumentImportsWithSourceIdsStatement{
+        "DELETE FROM documentImports WHERE sourceId IN carray(?1)", database};
+    mutable Sqlite::ReadStatement<1, 2> selectPropertyDeclarationIdByTypeIdAndNameStatement{
+        "SELECT propertyDeclarationId "
+        "FROM propertyDeclarations "
+        "WHERE typeId=?1 AND name=?2 "
+        "LIMIT 1",
+        database};
+    Sqlite::WriteStatement<2> updateAliasIdPropertyDeclarationStatement{
+        "UPDATE propertyDeclarations SET aliasPropertyDeclarationId=?2  WHERE "
+        "aliasPropertyDeclarationId=?1",
+        database};
+    Sqlite::WriteStatement<2> updateAliasPropertyDeclarationByAliasPropertyDeclarationIdStatement{
+        "UPDATE propertyDeclarations SET propertyTypeId=new.propertyTypeId, "
+        "propertyTraits=new.propertyTraits, aliasPropertyDeclarationId=?1 FROM (SELECT "
+        "propertyTypeId, propertyTraits FROM propertyDeclarations WHERE propertyDeclarationId=?1) "
+        "AS new WHERE aliasPropertyDeclarationId=?2",
+        database};
+    Sqlite::WriteStatement<1> updateAliasPropertyDeclarationToNullStatement{
+        "UPDATE propertyDeclarations SET aliasPropertyDeclarationId=NULL, propertyTypeId=NULL, "
+        "propertyTraits=NULL WHERE propertyDeclarationId=? AND (aliasPropertyDeclarationId IS NOT "
+        "NULL OR propertyTypeId IS NOT NULL OR propertyTraits IS NOT NULL)",
+        database};
+    Sqlite::ReadStatement<5, 1> selectAliasPropertiesDeclarationForPropertiesWithTypeIdStatement{
+        "SELECT alias.typeId, alias.propertyDeclarationId, alias.propertyImportedTypeNameId, "
+        "  alias.aliasPropertyDeclarationId, alias.aliasPropertyDeclarationTailId "
+        "FROM propertyDeclarations AS alias JOIN propertyDeclarations AS target "
+        "  ON alias.aliasPropertyDeclarationId=target.propertyDeclarationId OR "
+        "    alias.aliasPropertyDeclarationTailId=target.propertyDeclarationId "
+        "WHERE alias.propertyTypeId=?1 "
+        "UNION ALL "
+        "SELECT alias.typeId, alias.propertyDeclarationId, alias.propertyImportedTypeNameId, "
+        "  alias.aliasPropertyDeclarationId, alias.aliasPropertyDeclarationTailId "
+        "FROM propertyDeclarations AS alias JOIN propertyDeclarations AS target "
+        "  ON alias.aliasPropertyDeclarationId=target.propertyDeclarationId OR "
+        "    alias.aliasPropertyDeclarationTailId=target.propertyDeclarationId "
+        "WHERE target.typeId=?1 "
+        "UNION ALL "
+        "SELECT alias.typeId, alias.propertyDeclarationId, alias.propertyImportedTypeNameId, "
+        "  alias.aliasPropertyDeclarationId, alias.aliasPropertyDeclarationTailId "
+        "FROM propertyDeclarations AS alias JOIN propertyDeclarations AS target "
+        "  ON alias.aliasPropertyDeclarationId=target.propertyDeclarationId OR "
+        "    alias.aliasPropertyDeclarationTailId=target.propertyDeclarationId "
+        "WHERE  alias.propertyImportedTypeNameId IN "
+        "  (SELECT importedTypeNameId FROM exportedTypeNames JOIN importedTypeNames USING(name) "
+        "   WHERE typeId=?1)",
+        database};
+    Sqlite::ReadStatement<3, 1> selectAliasPropertiesDeclarationForPropertiesWithAliasIdStatement{
+        "WITH RECURSIVE "
+        "  properties(propertyDeclarationId, propertyImportedTypeNameId, typeId, "
+        "    aliasPropertyDeclarationId) AS ("
+        "      SELECT propertyDeclarationId, propertyImportedTypeNameId, typeId, "
+        "        aliasPropertyDeclarationId FROM propertyDeclarations WHERE "
+        "        aliasPropertyDeclarationId=?1"
+        "    UNION ALL "
+        "      SELECT pd.propertyDeclarationId, pd.propertyImportedTypeNameId, pd.typeId, "
+        "        pd.aliasPropertyDeclarationId FROM propertyDeclarations AS pd JOIN properties AS "
+        "        p ON pd.aliasPropertyDeclarationId=p.propertyDeclarationId)"
+        "SELECT propertyDeclarationId, propertyImportedTypeNameId, aliasPropertyDeclarationId "
+        "  FROM properties",
+        database};
+    Sqlite::ReadWriteStatement<3, 1> updatesPropertyDeclarationPropertyTypeToNullStatement{
+        "UPDATE propertyDeclarations SET propertyTypeId=NULL WHERE propertyTypeId=?1 AND "
+        "aliasPropertyDeclarationId IS NULL RETURNING typeId, propertyDeclarationId, "
+        "propertyImportedTypeNameId",
+        database};
+    mutable Sqlite::ReadStatement<1, 1> selectPropertyNameStatement{
+        "SELECT name FROM propertyDeclarations WHERE propertyDeclarationId=?", database};
+    Sqlite::WriteStatement<2> updatePropertyDeclarationTypeStatement{
+        "UPDATE propertyDeclarations SET propertyTypeId=?2 WHERE propertyDeclarationId=?1", database};
+    Sqlite::ReadWriteStatement<2, 1> updatePrototypeIdToNullStatement{
+        "UPDATE types SET prototypeId=NULL WHERE prototypeId=?1 RETURNING "
+        "typeId, prototypeNameId",
+        database};
+    Sqlite::ReadWriteStatement<2, 1> updateExtensionIdToNullStatement{
+        "UPDATE types SET extensionId=NULL WHERE extensionId=?1 RETURNING "
+        "typeId, extensionNameId",
+        database};
+    Sqlite::WriteStatement<2> updateTypePrototypeStatement{
+        "UPDATE types SET prototypeId=?2 WHERE typeId=?1", database};
+    Sqlite::WriteStatement<2> updateTypeExtensionStatement{
+        "UPDATE types SET extensionId=?2 WHERE typeId=?1", database};
+    mutable Sqlite::ReadStatement<1, 1> selectPrototypeAndExtensionIdsStatement{
+        "WITH RECURSIVE "
+        "  prototypes(typeId) AS (  "
+        "      SELECT prototypeId FROM types WHERE typeId=?1 "
+        "    UNION ALL "
+        "      SELECT extensionId FROM types WHERE typeId=?1 "
+        "    UNION ALL "
+        "      SELECT prototypeId FROM types JOIN prototypes USING(typeId) "
+        "    UNION ALL "
+        "      SELECT extensionId FROM types JOIN prototypes USING(typeId)) "
+        "SELECT typeId FROM prototypes WHERE typeId IS NOT NULL",
+        database};
+    Sqlite::WriteStatement<3> updatePropertyDeclarationAliasIdAndTypeNameIdStatement{
+        "UPDATE propertyDeclarations SET aliasPropertyDeclarationId=?2, "
+        "propertyImportedTypeNameId=?3 WHERE propertyDeclarationId=?1 AND "
+        "(aliasPropertyDeclarationId IS NOT ?2 OR propertyImportedTypeNameId IS NOT ?3)",
+        database};
+    Sqlite::WriteStatement<1> updatetPropertiesDeclarationValuesOfAliasStatement{
+        "WITH RECURSIVE "
+        "  properties(propertyDeclarationId, propertyTypeId, propertyTraits) AS ( "
+        "      SELECT aliasPropertyDeclarationId, propertyTypeId, propertyTraits FROM "
+        "       propertyDeclarations WHERE propertyDeclarationId=?1 "
+        "   UNION ALL "
+        "      SELECT pd.aliasPropertyDeclarationId, pd.propertyTypeId, pd.propertyTraits FROM "
+        "        propertyDeclarations AS pd JOIN properties USING(propertyDeclarationId)) "
+        "UPDATE propertyDeclarations AS pd SET propertyTypeId=p.propertyTypeId, "
+        "  propertyTraits=p.propertyTraits "
+        "FROM properties AS p "
+        "WHERE pd.propertyDeclarationId=?1 AND p.propertyDeclarationId IS NULL AND "
+        "  (pd.propertyTypeId IS NOT p.propertyTypeId OR pd.propertyTraits IS NOT "
+        "  p.propertyTraits)",
+        database};
+    Sqlite::WriteStatement<1> updatePropertyDeclarationAliasIdToNullStatement{
+        "UPDATE propertyDeclarations SET aliasPropertyDeclarationId=NULL  WHERE "
+        "propertyDeclarationId=?1",
+        database};
+    mutable Sqlite::ReadStatement<1, 1> selectPropertyDeclarationIdsForAliasChainStatement{
+        "WITH RECURSIVE "
+        "  properties(propertyDeclarationId) AS ( "
+        "    SELECT aliasPropertyDeclarationId FROM propertyDeclarations WHERE "
+        "     propertyDeclarationId=?1 "
+        "   UNION ALL "
+        "     SELECT aliasPropertyDeclarationId FROM propertyDeclarations JOIN properties "
+        "       USING(propertyDeclarationId)) "
+        "SELECT propertyDeclarationId FROM properties",
+        database};
+    mutable Sqlite::ReadStatement<3> selectAllFileStatusesStatement{
+        "SELECT sourceId, size, lastModified FROM fileStatuses ORDER BY sourceId", database};
+    mutable Sqlite::ReadStatement<3, 1> selectFileStatusesForSourceIdsStatement{
+        "SELECT sourceId, size, lastModified FROM fileStatuses WHERE sourceId IN carray(?1) ORDER "
+        "BY sourceId",
+        database};
+    mutable Sqlite::ReadStatement<3, 1> selectFileStatusesForSourceIdStatement{
+        "SELECT sourceId, size, lastModified FROM fileStatuses WHERE sourceId=?1 ORDER BY sourceId",
+        database};
+    Sqlite::WriteStatement<3> insertFileStatusStatement{
+        "INSERT INTO fileStatuses(sourceId, size, lastModified) VALUES(?1, ?2, ?3)", database};
+    Sqlite::WriteStatement<1> deleteFileStatusStatement{
+        "DELETE FROM fileStatuses WHERE sourceId=?1", database};
+    Sqlite::WriteStatement<3> updateFileStatusStatement{
+        "UPDATE fileStatuses SET size=?2, lastModified=?3 WHERE sourceId=?1", database};
+    Sqlite::ReadStatement<1, 1> selectTypeIdBySourceIdStatement{
+        "SELECT typeId FROM types WHERE sourceId=?", database};
+    mutable Sqlite::ReadStatement<1, 3> selectImportedTypeNameIdStatement{
+        "SELECT importedTypeNameId FROM importedTypeNames WHERE kind=?1 AND importOrSourceId=?2 "
+        "AND name=?3 LIMIT 1",
+        database};
+    mutable Sqlite::ReadWriteStatement<1, 3> insertImportedTypeNameIdStatement{
+        "INSERT INTO importedTypeNames(kind, importOrSourceId, name) VALUES (?1, ?2, ?3) "
+        "RETURNING importedTypeNameId",
+        database};
+    mutable Sqlite::ReadStatement<1, 2> selectImportIdBySourceIdAndModuleIdStatement{
+        "SELECT importId FROM documentImports WHERE sourceId=?1 AND moduleId=?2 AND majorVersion "
+        "IS NULL AND minorVersion IS NULL LIMIT 1",
+        database};
+    mutable Sqlite::ReadStatement<1, 3> selectImportIdBySourceIdAndModuleIdAndMajorVersionStatement{
+        "SELECT importId FROM documentImports WHERE sourceId=?1 AND moduleId=?2 AND "
+        "majorVersion=?3 AND minorVersion IS NULL LIMIT 1",
+        database};
+    mutable Sqlite::ReadStatement<1, 4> selectImportIdBySourceIdAndModuleIdAndVersionStatement{
+        "SELECT importId FROM documentImports WHERE sourceId=?1 AND moduleId=?2 AND "
+        "majorVersion=?3 AND minorVersion=?4 LIMIT 1",
+        database};
+    mutable Sqlite::ReadStatement<1, 1> selectKindFromImportedTypeNamesStatement{
+        "SELECT kind FROM importedTypeNames WHERE importedTypeNameId=?1", database};
+    mutable Sqlite::ReadStatement<1, 1> selectNameFromImportedTypeNamesStatement{
+        "SELECT name FROM importedTypeNames WHERE importedTypeNameId=?1", database};
+    mutable Sqlite::ReadStatement<1, 1> selectTypeIdForQualifiedImportedTypeNameNamesStatement{
+        "SELECT typeId FROM importedTypeNames AS itn JOIN documentImports AS di ON "
+        "importOrSourceId=di.importId JOIN documentImports AS di2 ON di.sourceId=di2.sourceId AND "
+        "di.moduleId=di2.sourceModuleId "
+        "JOIN exportedTypeNames AS etn ON di2.moduleId=etn.moduleId WHERE "
+        "itn.kind=2 AND importedTypeNameId=?1 AND itn.name=etn.name AND "
+        "(di.majorVersion IS NULL OR (di.majorVersion=etn.majorVersion AND (di.minorVersion IS "
+        "NULL OR di.minorVersion>=etn.minorVersion))) ORDER BY etn.majorVersion DESC NULLS FIRST, "
+        "etn.minorVersion DESC NULLS FIRST LIMIT 1",
+        database};
+    mutable Sqlite::ReadStatement<1, 1> selectTypeIdForImportedTypeNameNamesStatement{
+        "WITH "
+        "  importTypeNames(moduleId, name, kind, majorVersion, minorVersion) AS ( "
+        "    SELECT moduleId, name, di.kind, majorVersion, minorVersion "
+        "    FROM importedTypeNames AS itn JOIN documentImports AS di ON "
+        "      importOrSourceId=sourceId "
+        "    WHERE "
+        "      importedTypeNameId=?1 AND itn.kind=1) "
+        "SELECT typeId FROM importTypeNames AS itn "
+        "  JOIN exportedTypeNames AS etn USING(moduleId, name) "
+        "WHERE (itn.majorVersion IS NULL OR (itn.majorVersion=etn.majorVersion "
+        "  AND (itn.minorVersion IS NULL OR itn.minorVersion>=etn.minorVersion))) "
+        "ORDER BY itn.kind, etn.majorVersion DESC NULLS FIRST, etn.minorVersion DESC NULLS FIRST "
+        "LIMIT 1",
+        database};
+    Sqlite::WriteStatement<0> deleteAllSourcesStatement{"DELETE FROM sources", database};
+    Sqlite::WriteStatement<0> deleteAllSourceContextsStatement{"DELETE FROM sourceContexts", database};
+    mutable Sqlite::ReadStatement<6, 1> selectExportedTypesForSourceIdsStatement{
+        "SELECT moduleId, name, ifnull(majorVersion, -1), ifnull(minorVersion, -1), typeId, "
+        "exportedTypeNameId FROM exportedTypeNames WHERE typeId in carray(?1) ORDER BY moduleId, "
+        "name, majorVersion, minorVersion",
+        database};
+    Sqlite::WriteStatement<5> insertExportedTypeNamesWithVersionStatement{
+        "INSERT INTO exportedTypeNames(moduleId, name, majorVersion, minorVersion, typeId) "
+        "VALUES(?1, ?2, ?3, ?4, ?5)",
+        database};
+    Sqlite::WriteStatement<4> insertExportedTypeNamesWithMajorVersionStatement{
+        "INSERT INTO exportedTypeNames(moduleId, name, majorVersion, typeId) "
+        "VALUES(?1, ?2, ?3, ?4)",
+        database};
+    Sqlite::WriteStatement<3> insertExportedTypeNamesWithoutVersionStatement{
+        "INSERT INTO exportedTypeNames(moduleId, name, typeId) VALUES(?1, ?2, ?3)", database};
+    Sqlite::WriteStatement<1> deleteExportedTypeNameStatement{
+        "DELETE FROM exportedTypeNames WHERE exportedTypeNameId=?", database};
+    Sqlite::WriteStatement<2> updateExportedTypeNameTypeIdStatement{
+        "UPDATE exportedTypeNames SET typeId=?2 WHERE exportedTypeNameId=?1", database};
+    mutable Sqlite::ReadStatement<4, 1> selectProjectDatasForSourceIdsStatement{
+        "SELECT projectSourceId, sourceId, moduleId, fileType FROM projectDatas WHERE "
+        "projectSourceId IN carray(?1) ORDER BY projectSourceId, sourceId",
+        database};
+    Sqlite::WriteStatement<4> insertProjectDataStatement{
+        "INSERT INTO projectDatas(projectSourceId, sourceId, "
+        "moduleId, fileType) VALUES(?1, ?2, ?3, ?4)",
+        database};
+    Sqlite::WriteStatement<2> deleteProjectDataStatement{
+        "DELETE FROM projectDatas WHERE projectSourceId=?1 AND sourceId=?2", database};
+    Sqlite::WriteStatement<4> updateProjectDataStatement{
+        "UPDATE projectDatas SET moduleId=?3, fileType=?4 WHERE projectSourceId=?1 AND sourceId=?2",
+        database};
+    mutable Sqlite::ReadStatement<4, 1> selectProjectDatasForSourceIdStatement{
+        "SELECT projectSourceId, sourceId, moduleId, fileType FROM projectDatas WHERE "
+        "projectSourceId=?1",
+        database};
+    mutable Sqlite::ReadStatement<4, 1> selectProjectDataForSourceIdStatement{
+        "SELECT projectSourceId, sourceId, moduleId, fileType FROM projectDatas WHERE "
+        "sourceId=?1 LIMIT 1",
+        database};
+    mutable Sqlite::ReadStatement<1, 1> selectTypeIdsForSourceIdsStatement{
+        "SELECT typeId FROM types WHERE sourceId IN carray(?1)", database};
+    mutable Sqlite::ReadStatement<6, 1> selectModuleExportedImportsForSourceIdStatement{
+        "SELECT moduleExportedImportId, moduleId, exportedModuleId, ifnull(majorVersion, -1), "
+        "ifnull(minorVersion, -1), isAutoVersion FROM moduleExportedImports WHERE moduleId IN "
+        "carray(?1) ORDER BY moduleId, exportedModuleId",
+        database};
+    Sqlite::WriteStatement<3> insertModuleExportedImportWithoutVersionStatement{
+        "INSERT INTO moduleExportedImports(moduleId, exportedModuleId, isAutoVersion) "
+        "VALUES (?1, ?2, ?3)",
+        database};
+    Sqlite::WriteStatement<4> insertModuleExportedImportWithMajorVersionStatement{
+        "INSERT INTO moduleExportedImports(moduleId, exportedModuleId, isAutoVersion, "
+        "majorVersion) VALUES (?1, ?2, ?3, ?4)",
+        database};
+    Sqlite::WriteStatement<5> insertModuleExportedImportWithVersionStatement{
+        "INSERT INTO moduleExportedImports(moduleId, exportedModuleId, isAutoVersion, "
+        "majorVersion, minorVersion) VALUES (?1, ?2, ?3, ?4, ?5)",
+        database};
+    Sqlite::WriteStatement<1> deleteModuleExportedImportStatement{
+        "DELETE FROM moduleExportedImports WHERE moduleExportedImportId=?1", database};
+    mutable Sqlite::ReadStatement<3, 3> selectModuleExportedImportsForModuleIdStatement{
+        "WITH RECURSIVE "
+        "  imports(moduleId, majorVersion, minorVersion, moduleExportedImportId) AS ( "
+        "      SELECT exportedModuleId, "
+        "             iif(isAutoVersion=1, ?2, majorVersion), "
+        "             iif(isAutoVersion=1, ?3, minorVersion), "
+        "             moduleExportedImportId "
+        "        FROM moduleExportedImports WHERE moduleId=?1 "
+        "    UNION ALL "
+        "      SELECT exportedModuleId, "
+        "             iif(mei.isAutoVersion=1, i.majorVersion, mei.majorVersion), "
+        "             iif(mei.isAutoVersion=1, i.minorVersion, mei.minorVersion), "
+        "             mei.moduleExportedImportId "
+        "        FROM moduleExportedImports AS mei JOIN imports AS i USING(moduleId)) "
+        "SELECT DISTINCT moduleId, ifnull(majorVersion, -1), ifnull(minorVersion, -1) "
+        "FROM imports",
+        database};
+    mutable Sqlite::ReadStatement<1, 1> selectLocalPropertyDeclarationIdsForTypeStatement{
+        "SELECT propertyDeclarationId "
+        "FROM propertyDeclarations "
+        "WHERE typeId=? "
+        "ORDER BY propertyDeclarationId",
+        database};
+    mutable Sqlite::ReadStatement<1, 2> selectLocalPropertyDeclarationIdForTypeAndPropertyNameStatement{
+        "SELECT propertyDeclarationId "
+        "FROM propertyDeclarations "
+        "WHERE typeId=?1 AND name=?2 LIMIT 1",
+        database};
+    mutable Sqlite::ReadStatement<4, 1> selectPropertyDeclarationForPropertyDeclarationIdStatement{
+        "SELECT typeId, name, propertyTraits, propertyTypeId "
+        "FROM propertyDeclarations "
+        "WHERE propertyDeclarationId=?1 LIMIT 1",
+        database};
+    mutable Sqlite::ReadStatement<1, 1> selectSignalDeclarationNamesForTypeStatement{
+        "WITH RECURSIVE "
+        "  all_prototype_and_extension(typeId, prototypeId) AS ("
+        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
+        "    UNION ALL "
+        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
+        "  typeChain(typeId) AS ("
+        "      VALUES(?1)"
+        "    UNION ALL "
+        "      SELECT prototypeId FROM all_prototype_and_extension JOIN typeChain "
+        "        USING(typeId)) "
+        "SELECT name FROM typeChain JOIN signalDeclarations "
+        "  USING(typeId) ORDER BY name",
+        database};
+    mutable Sqlite::ReadStatement<1, 1> selectFuncionDeclarationNamesForTypeStatement{
+        "WITH RECURSIVE "
+        "  all_prototype_and_extension(typeId, prototypeId) AS ("
+        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
+        "    UNION ALL "
+        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
+        "  typeChain(typeId) AS ("
+        "      VALUES(?1)"
+        "    UNION ALL "
+        "      SELECT prototypeId FROM all_prototype_and_extension JOIN typeChain "
+        "        USING(typeId))"
+        "SELECT name FROM typeChain JOIN functionDeclarations "
+        "  USING(typeId) ORDER BY name",
+        database};
+    mutable Sqlite::ReadStatement<2> selectTypesWithDefaultPropertyStatement{
+        "SELECT typeId, defaultPropertyId FROM types ORDER BY typeId", database};
+    Sqlite::WriteStatement<2> updateDefaultPropertyIdStatement{
+        "UPDATE types SET defaultPropertyId=?2 WHERE typeId=?1", database};
+    Sqlite::WriteStatement<1> updateDefaultPropertyIdToNullStatement{
+        "UPDATE types SET defaultPropertyId=NULL WHERE defaultPropertyId=?1", database};
+    mutable Sqlite::ReadStatement<3, 1> selectInfoTypeByTypeIdStatement{
+        "SELECT sourceId, traits, annotationTraits FROM types WHERE typeId=?", database};
+    mutable Sqlite::ReadStatement<1, 1> selectDefaultPropertyDeclarationIdStatement{
+        "SELECT defaultPropertyId FROM types WHERE typeId=?", database};
+    mutable Sqlite::ReadStatement<1, 1> selectPrototypeIdsForTypeIdInOrderStatement{
+        "WITH RECURSIVE "
+        "  all_prototype_and_extension(typeId, prototypeId) AS ("
+        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
+        "    UNION ALL "
+        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
+        "  prototypes(typeId, level) AS ("
+        "       SELECT prototypeId, 0 FROM all_prototype_and_extension WHERE typeId=?"
+        "    UNION ALL "
+        "      SELECT prototypeId, p.level+1 FROM all_prototype_and_extension JOIN "
+        "        prototypes AS p USING(typeId)) "
+        "SELECT typeId FROM prototypes ORDER BY level",
+        database};
+    Sqlite::WriteStatement<2> upsertPropertyEditorPathIdStatement{
+        "INSERT INTO propertyEditorPaths(typeId, pathSourceId) VALUES(?1, ?2) ON CONFLICT DO "
+        "UPDATE SET pathSourceId=excluded.pathSourceId WHERE pathSourceId IS NOT "
+        "excluded.pathSourceId",
+        database};
+    mutable Sqlite::ReadStatement<1, 1> selectPropertyEditorPathIdStatement{
+        "SELECT pathSourceId FROM propertyEditorPaths WHERE typeId=?", database};
+    mutable Sqlite::ReadStatement<3, 1> selectPropertyEditorPathsForForSourceIdsStatement{
+        "SELECT typeId, pathSourceId, directoryId "
+        "FROM propertyEditorPaths "
+        "WHERE directoryId IN carray(?1) "
+        "ORDER BY typeId",
+        database};
+    Sqlite::WriteStatement<3> insertPropertyEditorPathStatement{
+        "INSERT INTO propertyEditorPaths(typeId, pathSourceId, directoryId) VALUES (?1, ?2, ?3)",
+        database};
+    Sqlite::WriteStatement<3> updatePropertyEditorPathsStatement{
+        "UPDATE propertyEditorPaths "
+        "SET pathSourceId=?2, directoryId=?3 "
+        "WHERE typeId=?1",
+        database};
+    Sqlite::WriteStatement<1> deletePropertyEditorPathStatement{
+        "DELETE FROM propertyEditorPaths WHERE typeId=?1", database};
+    mutable Sqlite::ReadStatement<4, 1> selectTypeAnnotationsForSourceIdsStatement{
+        "SELECT typeId, iconPath, itemLibrary, hints FROM typeAnnotations WHERE "
+        "sourceId IN carray(?1) ORDER BY typeId",
+        database};
+    Sqlite::WriteStatement<6> insertTypeAnnotationStatement{
+        "INSERT INTO "
+        "  typeAnnotations(typeId, sourceId, directorySourceId, iconPath, itemLibrary, hints) "
+        "VALUES(?1, ?2, ?3, ?4, ?5, ?6)",
+        database};
+    Sqlite::WriteStatement<4> updateTypeAnnotationStatement{
+        "UPDATE typeAnnotations SET iconPath=?2, itemLibrary=?3, hints=?4 WHERE typeId=?1", database};
+    Sqlite::WriteStatement<1> deleteTypeAnnotationStatement{
+        "DELETE FROM typeAnnotations WHERE typeId=?1", database};
+    mutable Sqlite::ReadStatement<1, 1> selectTypeIconPathStatement{
+        "SELECT iconPath FROM typeAnnotations WHERE typeId=?1", database};
+    mutable Sqlite::ReadStatement<2, 1> selectTypeHintsStatement{
+        "SELECT hints.key, hints.value "
+        "FROM typeAnnotations, json_each(typeAnnotations.hints) AS hints "
+        "WHERE typeId=?1 AND hints IS NOT NULL",
+        database};
+    mutable Sqlite::ReadStatement<1, 1> selectTypeAnnotationSourceIdsStatement{
+        "SELECT sourceId FROM typeAnnotations WHERE directorySourceId=?1 ORDER BY sourceId", database};
+    mutable Sqlite::ReadStatement<1, 0> selectTypeAnnotationDirectorySourceIdsStatement{
+        "SELECT DISTINCT directorySourceId FROM typeAnnotations ORDER BY directorySourceId", database};
+    mutable Sqlite::ReadStatement<9> selectItemLibraryEntriesStatement{
+        "SELECT typeId, i.value->>'$.name', i.value->>'$.iconPath', i.value->>'$.category', "
+        "  i.value->>'$.import', i.value->>'$.toolTip', i.value->>'$.properties', "
+        "  i.value->>'$.extraFilePaths', i.value->>'$.templatePath' "
+        "FROM typeAnnotations AS ta , json_each(ta.itemLibrary) AS i "
+        "WHERE ta.itemLibrary IS NOT NULL",
+        database};
+    mutable Sqlite::ReadStatement<9, 1> selectItemLibraryEntriesByTypeIdStatement{
+        "SELECT typeId, i.value->>'$.name', i.value->>'$.iconPath', i.value->>'$.category', "
+        "  i.value->>'$.import', i.value->>'$.toolTip', i.value->>'$.properties', "
+        "  i.value->>'$.extraFilePaths', i.value->>'$.templatePath' "
+        "FROM typeAnnotations AS ta, json_each(ta.itemLibrary) AS i "
+        "WHERE typeId=?1 AND ta.itemLibrary IS NOT NULL",
+        database};
+    mutable Sqlite::ReadStatement<9, 1> selectItemLibraryEntriesBySourceIdStatement{
+        "SELECT typeId, i.value->>'$.name', i.value->>'$.iconPath', "
+        "i.value->>'$.category', "
+        "  i.value->>'$.import', i.value->>'$.toolTip', i.value->>'$.properties', "
+        "  i.value->>'$.extraFilePaths', i.value->>'$.templatePath' "
+        "FROM typeAnnotations, json_each(typeAnnotations.itemLibrary) AS i "
+        "WHERE typeId IN (SELECT DISTINCT typeId "
+        "                 FROM documentImports AS di JOIN exportedTypeNames "
+        "                   USING(moduleId) "
+        "                 WHERE di.sourceId=?)",
+        database};
+    mutable Sqlite::ReadStatement<3, 1> selectItemLibraryPropertiesStatement{
+        "SELECT p.value->>0, p.value->>1, p.value->>2 FROM json_each(?1) AS p", database};
+    mutable Sqlite::ReadStatement<1, 1> selectItemLibraryExtraFilePathsStatement{
+        "SELECT p.value FROM json_each(?1) AS p", database};
+    mutable Sqlite::ReadStatement<1, 1> selectTypeIdsByModuleIdStatement{
+        "SELECT DISTINCT typeId FROM exportedTypeNames WHERE moduleId=?", database};
+    mutable Sqlite::ReadStatement<1, 1> selectHeirTypeIdsStatement{
+        "WITH RECURSIVE "
+        "  typeSelection(typeId) AS ("
+        "      SELECT typeId FROM types WHERE prototypeId=?1 OR extensionId=?1"
+        "    UNION ALL "
+        "      SELECT t.typeId "
+        "      FROM types AS t JOIN typeSelection AS ts "
+        "      WHERE prototypeId=ts.typeId OR extensionId=ts.typeId)"
+        "SELECT typeId FROM typeSelection",
+        database};
+};
+
 class ProjectStorage::Initializer
 {
 public:
@@ -404,6 +1103,7 @@ ProjectStorage::ProjectStorage(Database &database, bool isInitialized)
     , exclusiveTransaction{database}
     , initializer{std::make_unique<ProjectStorage::Initializer>(database, isInitialized)}
     , moduleCache{ModuleStorageAdapter{*this}}
+    , s{std::make_unique<ProjectStorage::Statements>(database)}
 {
     NanotraceHR::Tracer tracer{"initialize"_t, projectStorageCategory()};
 
@@ -552,15 +1252,15 @@ TypeId ProjectStorage::typeId(ModuleId moduleId,
     TypeId typeId;
 
     if (version.minor) {
-        typeId = selectTypeIdByModuleIdAndExportedNameAndVersionStatement.valueWithTransaction<TypeId>(
+        typeId = s->selectTypeIdByModuleIdAndExportedNameAndVersionStatement.valueWithTransaction<TypeId>(
             moduleId, exportedTypeName, version.major.value, version.minor.value);
 
     } else if (version.major) {
-        typeId = selectTypeIdByModuleIdAndExportedNameAndMajorVersionStatement
+        typeId = s->selectTypeIdByModuleIdAndExportedNameAndMajorVersionStatement
                      .valueWithTransaction<TypeId>(moduleId, exportedTypeName, version.major.value);
 
     } else {
-        typeId = selectTypeIdByModuleIdAndExportedNameStatement
+        typeId = s->selectTypeIdByModuleIdAndExportedNameStatement
                      .valueWithTransaction<TypeId>(moduleId, exportedTypeName);
     }
 
@@ -590,8 +1290,8 @@ QVarLengthArray<TypeId, 256> ProjectStorage::typeIds(ModuleId moduleId) const
                                projectStorageCategory(),
                                keyValue("module id", moduleId)};
 
-    auto typeIds = selectTypeIdsByModuleIdStatement.valuesWithTransaction<QVarLengthArray<TypeId, 256>>(
-        moduleId);
+    auto typeIds = s->selectTypeIdsByModuleIdStatement
+                       .valuesWithTransaction<QVarLengthArray<TypeId, 256>>(moduleId);
 
     tracer.end(keyValue("type ids", typeIds));
 
@@ -605,7 +1305,7 @@ Storage::Info::ExportedTypeNames ProjectStorage::exportedTypeNames(TypeId typeId
                                projectStorageCategory(),
                                keyValue("type id", typeId)};
 
-    auto exportedTypenames = selectExportedTypesByTypeIdStatement
+    auto exportedTypenames = s->selectExportedTypesByTypeIdStatement
                                  .valuesWithTransaction<Storage::Info::ExportedTypeName, 4>(typeId);
 
     tracer.end(keyValue("exported type names", exportedTypenames));
@@ -621,7 +1321,7 @@ Storage::Info::ExportedTypeNames ProjectStorage::exportedTypeNames(TypeId typeId
                                keyValue("type id", typeId),
                                keyValue("source id", sourceId)};
 
-    auto exportedTypenames = selectExportedTypesByTypeIdAndSourceIdStatement
+    auto exportedTypenames = s->selectExportedTypesByTypeIdAndSourceIdStatement
                                  .valuesWithTransaction<Storage::Info::ExportedTypeName, 4>(typeId,
                                                                                             sourceId);
 
@@ -711,7 +1411,7 @@ QVarLengthArray<PropertyDeclarationId, 128> ProjectStorage::localPropertyDeclara
                                projectStorageCategory(),
                                keyValue("type id", typeId)};
 
-    auto propertyDeclarationIds = selectLocalPropertyDeclarationIdsForTypeStatement
+    auto propertyDeclarationIds = s->selectLocalPropertyDeclarationIdsForTypeStatement
                                       .valuesWithTransaction<QVarLengthArray<PropertyDeclarationId, 128>>(
                                           typeId);
 
@@ -747,7 +1447,7 @@ PropertyDeclarationId ProjectStorage::localPropertyDeclarationId(TypeId typeId,
                                keyValue("type id", typeId),
                                keyValue("property name", propertyName)};
 
-    auto propertyDeclarationId = selectLocalPropertyDeclarationIdForTypeAndPropertyNameStatement
+    auto propertyDeclarationId = s->selectLocalPropertyDeclarationIdForTypeAndPropertyNameStatement
                                      .valueWithTransaction<PropertyDeclarationId>(typeId,
                                                                                   propertyName);
 
@@ -780,7 +1480,7 @@ std::optional<Storage::Info::PropertyDeclaration> ProjectStorage::propertyDeclar
                                projectStorageCategory(),
                                keyValue("property declaration id", propertyDeclarationId)};
 
-    auto propertyDeclaration = selectPropertyDeclarationForPropertyDeclarationIdStatement
+    auto propertyDeclaration = s->selectPropertyDeclarationForPropertyDeclarationIdStatement
                                    .optionalValueWithTransaction<Storage::Info::PropertyDeclaration>(
                                        propertyDeclarationId);
 
@@ -794,7 +1494,7 @@ std::optional<Storage::Info::Type> ProjectStorage::type(TypeId typeId) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"get type"_t, projectStorageCategory(), keyValue("type id", typeId)};
 
-    auto type = selectInfoTypeByTypeIdStatement.optionalValueWithTransaction<Storage::Info::Type>(
+    auto type = s->selectInfoTypeByTypeIdStatement.optionalValueWithTransaction<Storage::Info::Type>(
         typeId);
 
     tracer.end(keyValue("type", type));
@@ -809,7 +1509,7 @@ Utils::PathString ProjectStorage::typeIconPath(TypeId typeId) const
                                projectStorageCategory(),
                                keyValue("type id", typeId)};
 
-    auto typeIconPath = selectTypeIconPathStatement.valueWithTransaction<Utils::PathString>(typeId);
+    auto typeIconPath = s->selectTypeIconPathStatement.valueWithTransaction<Utils::PathString>(typeId);
 
     tracer.end(keyValue("type icon path", typeIconPath));
 
@@ -823,7 +1523,7 @@ Storage::Info::TypeHints ProjectStorage::typeHints(TypeId typeId) const
                                projectStorageCategory(),
                                keyValue("type id", typeId)};
 
-    auto typeHints = selectTypeHintsStatement.valuesWithTransaction<Storage::Info::TypeHints, 4>(
+    auto typeHints = s->selectTypeHintsStatement.valuesWithTransaction<Storage::Info::TypeHints, 4>(
         typeId);
 
     tracer.end(keyValue("type hints", typeHints));
@@ -838,7 +1538,7 @@ SmallSourceIds<4> ProjectStorage::typeAnnotationSourceIds(SourceId directoryId) 
                                projectStorageCategory(),
                                keyValue("source id", directoryId)};
 
-    auto sourceIds = selectTypeAnnotationSourceIdsStatement.valuesWithTransaction<SmallSourceIds<4>>(
+    auto sourceIds = s->selectTypeAnnotationSourceIdsStatement.valuesWithTransaction<SmallSourceIds<4>>(
         directoryId);
 
     tracer.end(keyValue("source ids", sourceIds));
@@ -851,7 +1551,7 @@ SmallSourceIds<64> ProjectStorage::typeAnnotationDirectorySourceIds() const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"get type annotaion source ids"_t, projectStorageCategory()};
 
-    auto sourceIds = selectTypeAnnotationDirectorySourceIdsStatement
+    auto sourceIds = s->selectTypeAnnotationDirectorySourceIdsStatement
                          .valuesWithTransaction<SmallSourceIds<64>>();
 
     tracer.end(keyValue("source ids", sourceIds));
@@ -880,12 +1580,12 @@ Storage::Info::ItemLibraryEntries ProjectStorage::itemLibraryEntries(TypeId type
                         Utils::SmallStringView templatePath) {
         auto &last = entries.emplace_back(typeId_, name, iconPath, category, import, toolTip, templatePath);
         if (properties.size())
-            selectItemLibraryPropertiesStatement.readTo(last.properties, properties);
+            s->selectItemLibraryPropertiesStatement.readTo(last.properties, properties);
         if (extraFilePaths.size())
-            selectItemLibraryExtraFilePathsStatement.readTo(last.extraFilePaths, extraFilePaths);
+            s->selectItemLibraryExtraFilePathsStatement.readTo(last.extraFilePaths, extraFilePaths);
     };
 
-    selectItemLibraryEntriesByTypeIdStatement.readCallbackWithTransaction(callback, typeId);
+    s->selectItemLibraryEntriesByTypeIdStatement.readCallbackWithTransaction(callback, typeId);
 
     tracer.end(keyValue("item library entries", entries));
 
@@ -913,12 +1613,12 @@ Storage::Info::ItemLibraryEntries ProjectStorage::itemLibraryEntries(ImportId im
                         Utils::SmallStringView templatePath) {
         auto &last = entries.emplace_back(typeId_, name, iconPath, category, import, toolTip, templatePath);
         if (properties.size())
-            selectItemLibraryPropertiesStatement.readTo(last.properties, properties);
+            s->selectItemLibraryPropertiesStatement.readTo(last.properties, properties);
         if (extraFilePaths.size())
-            selectItemLibraryExtraFilePathsStatement.readTo(last.extraFilePaths, extraFilePaths);
+            s->selectItemLibraryExtraFilePathsStatement.readTo(last.extraFilePaths, extraFilePaths);
     };
 
-    selectItemLibraryEntriesByTypeIdStatement.readCallbackWithTransaction(callback, importId);
+    s->selectItemLibraryEntriesByTypeIdStatement.readCallbackWithTransaction(callback, importId);
 
     tracer.end(keyValue("item library entries", entries));
 
@@ -946,12 +1646,12 @@ Storage::Info::ItemLibraryEntries ProjectStorage::itemLibraryEntries(SourceId so
                         Utils::SmallStringView templatePath) {
         auto &last = entries.emplace_back(typeId, name, iconPath, category, import, toolTip, templatePath);
         if (properties.size())
-            selectItemLibraryPropertiesStatement.readTo(last.properties, properties);
+            s->selectItemLibraryPropertiesStatement.readTo(last.properties, properties);
         if (extraFilePaths.size())
-            selectItemLibraryExtraFilePathsStatement.readTo(last.extraFilePaths, extraFilePaths);
+            s->selectItemLibraryExtraFilePathsStatement.readTo(last.extraFilePaths, extraFilePaths);
     };
 
-    selectItemLibraryEntriesBySourceIdStatement.readCallbackWithTransaction(callback, sourceId);
+    s->selectItemLibraryEntriesBySourceIdStatement.readCallbackWithTransaction(callback, sourceId);
 
     tracer.end(keyValue("item library entries", entries));
 
@@ -977,12 +1677,12 @@ Storage::Info::ItemLibraryEntries ProjectStorage::allItemLibraryEntries() const
                         Utils::SmallStringView templatePath) {
         auto &last = entries.emplace_back(typeId, name, iconPath, category, import, toolTip, templatePath);
         if (properties.size())
-            selectItemLibraryPropertiesStatement.readTo(last.properties, properties);
+            s->selectItemLibraryPropertiesStatement.readTo(last.properties, properties);
         if (extraFilePaths.size())
-            selectItemLibraryExtraFilePathsStatement.readTo(last.extraFilePaths, extraFilePaths);
+            s->selectItemLibraryExtraFilePathsStatement.readTo(last.extraFilePaths, extraFilePaths);
     };
 
-    selectItemLibraryEntriesStatement.readCallbackWithTransaction(callback);
+    s->selectItemLibraryEntriesStatement.readCallbackWithTransaction(callback);
 
     tracer.end(keyValue("item library entries", entries));
 
@@ -996,7 +1696,7 @@ std::vector<Utils::SmallString> ProjectStorage::signalDeclarationNames(TypeId ty
                                projectStorageCategory(),
                                keyValue("type id", typeId)};
 
-    auto signalDeclarationNames = selectSignalDeclarationNamesForTypeStatement
+    auto signalDeclarationNames = s->selectSignalDeclarationNamesForTypeStatement
                                       .valuesWithTransaction<Utils::SmallString, 32>(typeId);
 
     tracer.end(keyValue("signal names", signalDeclarationNames));
@@ -1011,7 +1711,7 @@ std::vector<Utils::SmallString> ProjectStorage::functionDeclarationNames(TypeId 
                                projectStorageCategory(),
                                keyValue("type id", typeId)};
 
-    auto functionDeclarationNames = selectFuncionDeclarationNamesForTypeStatement
+    auto functionDeclarationNames = s->selectFuncionDeclarationNamesForTypeStatement
                                         .valuesWithTransaction<Utils::SmallString, 32>(typeId);
 
     tracer.end(keyValue("function names", functionDeclarationNames));
@@ -1027,7 +1727,7 @@ std::optional<Utils::SmallString> ProjectStorage::propertyName(
                                projectStorageCategory(),
                                keyValue("property declaration id", propertyDeclarationId)};
 
-    auto propertyName = selectPropertyNameStatement.optionalValueWithTransaction<Utils::SmallString>(
+    auto propertyName = s->selectPropertyNameStatement.optionalValueWithTransaction<Utils::SmallString>(
         propertyDeclarationId);
 
     tracer.end(keyValue("property name", propertyName));
@@ -1040,8 +1740,8 @@ SmallTypeIds<16> ProjectStorage::prototypeIds(TypeId type) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"get prototypes"_t, projectStorageCategory(), keyValue("type id", type)};
 
-    auto prototypeIds = selectPrototypeAndExtensionIdsStatement.valuesWithTransaction<SmallTypeIds<16>>(
-        type);
+    auto prototypeIds = s->selectPrototypeAndExtensionIdsStatement
+                            .valuesWithTransaction<SmallTypeIds<16>>(type);
 
     tracer.end(keyValue("type ids", prototypeIds));
 
@@ -1056,7 +1756,7 @@ SmallTypeIds<16> ProjectStorage::prototypeAndSelfIds(TypeId typeId) const
     SmallTypeIds<16> prototypeAndSelfIds;
     prototypeAndSelfIds.push_back(typeId);
 
-    selectPrototypeAndExtensionIdsStatement.readToWithTransaction(prototypeAndSelfIds, typeId);
+    s->selectPrototypeAndExtensionIdsStatement.readToWithTransaction(prototypeAndSelfIds, typeId);
 
     tracer.end(keyValue("type ids", prototypeAndSelfIds));
 
@@ -1068,7 +1768,7 @@ SmallTypeIds<64> ProjectStorage::heirIds(TypeId typeId) const
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"get heirs"_t, projectStorageCategory()};
 
-    auto heirIds = selectHeirTypeIdsStatement.valuesWithTransaction<SmallTypeIds<64>>(typeId);
+    auto heirIds = s->selectHeirTypeIdsStatement.valuesWithTransaction<SmallTypeIds<64>>(typeId);
 
     tracer.end(keyValue("type ids", heirIds));
 
@@ -1124,7 +1824,7 @@ TypeId ProjectStorage::fetchTypeIdByExportedName(Utils::SmallStringView name) co
                                projectStorageCategory(),
                                keyValue("exported type name", name)};
 
-    auto typeId = selectTypeIdByExportedNameStatement.valueWithTransaction<TypeId>(name);
+    auto typeId = s->selectTypeIdByExportedNameStatement.valueWithTransaction<TypeId>(name);
 
     tracer.end(keyValue("type id", typeId));
 
@@ -1139,7 +1839,7 @@ TypeId ProjectStorage::fetchTypeIdByModuleIdsAndExportedName(ModuleIds moduleIds
                                projectStorageCategory(),
                                keyValue("module ids", NanotraceHR::array(moduleIds)),
                                keyValue("exported type name", name)};
-    auto typeId = selectTypeIdByModuleIdsAndExportedNameStatement.valueWithTransaction<TypeId>(
+    auto typeId = s->selectTypeIdByModuleIdsAndExportedNameStatement.valueWithTransaction<TypeId>(
         static_cast<void *>(moduleIds.data()), static_cast<long long>(moduleIds.size()), name);
 
     tracer.end(keyValue("type id", typeId));
@@ -1155,7 +1855,8 @@ TypeId ProjectStorage::fetchTypeIdByName(SourceId sourceId, Utils::SmallStringVi
                                keyValue("source id", sourceId),
                                keyValue("internal type name", name)};
 
-    auto typeId = selectTypeIdBySourceIdAndNameStatement.valueWithTransaction<TypeId>(sourceId, name);
+    auto typeId = s->selectTypeIdBySourceIdAndNameStatement.valueWithTransaction<TypeId>(sourceId,
+                                                                                         name);
 
     tracer.end(keyValue("type id", typeId));
 
@@ -1170,7 +1871,7 @@ Storage::Synchronization::Type ProjectStorage::fetchTypeByTypeId(TypeId typeId)
                                keyValue("type id", typeId)};
 
     auto type = Sqlite::withDeferredTransaction(database, [&] {
-        auto type = selectTypeByTypeIdStatement.value<Storage::Synchronization::Type>(typeId);
+        auto type = s->selectTypeByTypeIdStatement.value<Storage::Synchronization::Type>(typeId);
 
         type.exportedTypes = fetchExportedTypes(typeId);
         type.propertyDeclarations = fetchPropertyDeclarations(type.typeId);
@@ -1192,7 +1893,7 @@ Storage::Synchronization::Types ProjectStorage::fetchTypes()
     NanotraceHR::Tracer tracer{"fetch types"_t, projectStorageCategory()};
 
     auto types = Sqlite::withDeferredTransaction(database, [&] {
-        auto types = selectTypesStatement.values<Storage::Synchronization::Type, 64>();
+        auto types = s->selectTypesStatement.values<Storage::Synchronization::Type, 64>();
 
         for (Storage::Synchronization::Type &type : types) {
             type.exportedTypes = fetchExportedTypes(type.typeId);
@@ -1249,7 +1950,7 @@ Utils::PathString ProjectStorage::fetchSourceContextPath(SourceContextId sourceC
                                keyValue("source context id", sourceContextId)};
 
     auto path = Sqlite::withDeferredTransaction(database, [&] {
-        auto optionalSourceContextPath = selectSourceContextPathFromSourceContextsBySourceContextIdStatement
+        auto optionalSourceContextPath = s->selectSourceContextPathFromSourceContextsBySourceContextIdStatement
                                              .optionalValue<Utils::PathString>(sourceContextId);
 
         if (!optionalSourceContextPath)
@@ -1267,7 +1968,7 @@ Cache::SourceContexts ProjectStorage::fetchAllSourceContexts() const
 {
     NanotraceHR::Tracer tracer{"fetch all source contexts"_t, projectStorageCategory()};
 
-    return selectAllSourceContextsStatement.valuesWithTransaction<Cache::SourceContext, 128>();
+    return s->selectAllSourceContextsStatement.valuesWithTransaction<Cache::SourceContext, 128>();
 }
 
 SourceId ProjectStorage::fetchSourceId(SourceContextId sourceContextId,
@@ -1295,7 +1996,7 @@ Cache::SourceNameAndSourceContextId ProjectStorage::fetchSourceNameAndSourceCont
                                projectStorageCategory(),
                                keyValue("source id", sourceId)};
 
-    auto value = selectSourceNameAndSourceContextIdFromSourcesBySourceIdStatement
+    auto value = s->selectSourceNameAndSourceContextIdFromSourcesBySourceIdStatement
                      .valueWithTransaction<Cache::SourceNameAndSourceContextId>(sourceId);
 
     if (!value.sourceContextId)
@@ -1310,8 +2011,8 @@ Cache::SourceNameAndSourceContextId ProjectStorage::fetchSourceNameAndSourceCont
 void ProjectStorage::clearSources()
 {
     Sqlite::withImmediateTransaction(database, [&] {
-        deleteAllSourceContextsStatement.execute();
-        deleteAllSourcesStatement.execute();
+        s->deleteAllSourceContextsStatement.execute();
+        s->deleteAllSourcesStatement.execute();
     });
 }
 
@@ -1322,7 +2023,7 @@ SourceContextId ProjectStorage::fetchSourceContextId(SourceId sourceId) const
                                projectStorageCategory(),
                                keyValue("source id", sourceId)};
 
-    auto sourceContextId = selectSourceContextIdFromSourcesBySourceIdStatement
+    auto sourceContextId = s->selectSourceContextIdFromSourcesBySourceIdStatement
                                .valueWithTransaction<SourceContextId>(sourceId);
 
     if (!sourceContextId)
@@ -1337,7 +2038,7 @@ Cache::Sources ProjectStorage::fetchAllSources() const
 {
     NanotraceHR::Tracer tracer{"fetch all sources"_t, projectStorageCategory()};
 
-    return selectAllSourcesStatement.valuesWithTransaction<Cache::Source, 1024>();
+    return s->selectAllSourcesStatement.valuesWithTransaction<Cache::Source, 1024>();
 }
 
 SourceId ProjectStorage::fetchSourceIdUnguarded(SourceContextId sourceContextId,
@@ -1359,6 +2060,13 @@ SourceId ProjectStorage::fetchSourceIdUnguarded(SourceContextId sourceContextId,
     return sourceId;
 }
 
+FileStatuses ProjectStorage::fetchAllFileStatuses() const
+{
+    NanotraceHR::Tracer tracer{"fetch all file statuses"_t, projectStorageCategory()};
+
+    return s->selectAllFileStatusesStatement.valuesWithTransaction<FileStatus>();
+}
+
 FileStatus ProjectStorage::fetchFileStatus(SourceId sourceId) const
 {
     using NanotraceHR::keyValue;
@@ -1366,7 +2074,8 @@ FileStatus ProjectStorage::fetchFileStatus(SourceId sourceId) const
                                projectStorageCategory(),
                                keyValue("source id", sourceId)};
 
-    auto fileStatus = selectFileStatusesForSourceIdStatement.valueWithTransaction<FileStatus>(sourceId);
+    auto fileStatus = s->selectFileStatusesForSourceIdStatement.valueWithTransaction<FileStatus>(
+        sourceId);
 
     tracer.end(keyValue("file status", fileStatus));
 
@@ -1380,7 +2089,7 @@ std::optional<Storage::Synchronization::ProjectData> ProjectStorage::fetchProjec
                                projectStorageCategory(),
                                keyValue("source id", sourceId)};
 
-    auto projectData = selectProjectDataForSourceIdStatement
+    auto projectData = s->selectProjectDataForSourceIdStatement
                            .optionalValueWithTransaction<Storage::Synchronization::ProjectData>(
                                sourceId);
 
@@ -1396,7 +2105,7 @@ Storage::Synchronization::ProjectDatas ProjectStorage::fetchProjectDatas(SourceI
                                projectStorageCategory(),
                                keyValue("source id", projectSourceId)};
 
-    auto projectDatas = selectProjectDatasForSourceIdStatement
+    auto projectDatas = s->selectProjectDatasForSourceIdStatement
                             .valuesWithTransaction<Storage::Synchronization::ProjectData, 1024>(
                                 projectSourceId);
 
@@ -1413,7 +2122,7 @@ Storage::Synchronization::ProjectDatas ProjectStorage::fetchProjectDatas(
                                projectStorageCategory(),
                                keyValue("source ids", projectSourceIds)};
 
-    auto projectDatas = selectProjectDatasForSourceIdsStatement
+    auto projectDatas = s->selectProjectDatasForSourceIdsStatement
                             .valuesWithTransaction<Storage::Synchronization::ProjectData, 64>(
                                 toIntegers(projectSourceIds));
 
@@ -1426,7 +2135,7 @@ void ProjectStorage::setPropertyEditorPathId(TypeId typeId, SourceId pathId)
 {
     Sqlite::ImmediateSessionTransaction transaction{database};
 
-    upsertPropertyEditorPathIdStatement.write(typeId, pathId);
+    s->upsertPropertyEditorPathIdStatement.write(typeId, pathId);
 
     transaction.commit();
 }
@@ -1438,7 +2147,7 @@ SourceId ProjectStorage::propertyEditorPathId(TypeId typeId) const
                                projectStorageCategory(),
                                keyValue("type id", typeId)};
 
-    auto sourceId = selectPropertyEditorPathIdStatement.valueWithTransaction<SourceId>(typeId);
+    auto sourceId = s->selectPropertyEditorPathIdStatement.valueWithTransaction<SourceId>(typeId);
 
     tracer.end(keyValue("source id", sourceId));
 
@@ -1449,7 +2158,7 @@ Storage::Imports ProjectStorage::fetchDocumentImports() const
 {
     NanotraceHR::Tracer tracer{"fetch document imports"_t, projectStorageCategory()};
 
-    return selectAllDocumentImportForSourceIdStatement.valuesWithTransaction<Storage::Imports>();
+    return s->selectAllDocumentImportForSourceIdStatement.valuesWithTransaction<Storage::Imports>();
 }
 
 void ProjectStorage::resetForTestsOnly()
@@ -1499,7 +2208,7 @@ ProjectStorage::Modules ProjectStorage::fetchAllModules() const
 {
     NanotraceHR::Tracer tracer{"fetch all modules"_t, projectStorageCategory()};
 
-    return selectAllModulesStatement.valuesWithTransaction<Module, 128>();
+    return s->selectAllModulesStatement.valuesWithTransaction<Module, 128>();
 }
 
 void ProjectStorage::callRefreshMetaInfoCallback(const TypeIds &deletedTypeIds)
@@ -1538,7 +2247,7 @@ TypeIds ProjectStorage::fetchTypeIds(const SourceIds &sourceIds)
                                projectStorageCategory(),
                                keyValue("source ids", sourceIds)};
 
-    return selectTypeIdsForSourceIdsStatement.values<TypeId, 128>(toIntegers(sourceIds));
+    return s->selectTypeIdsForSourceIdsStatement.values<TypeId, 128>(toIntegers(sourceIds));
 }
 
 void ProjectStorage::unique(SourceIds &sourceIds)
@@ -1556,7 +2265,7 @@ void ProjectStorage::synchronizeTypeTraits(TypeId typeId, Storage::TypeTraits tr
                                keyValue("type id", typeId),
                                keyValue("type traits", traits)};
 
-    updateTypeAnnotationTraitStatement.write(typeId, traits.annotation);
+    s->updateTypeAnnotationTraitStatement.write(typeId, traits.annotation);
 }
 
 void ProjectStorage::updateTypeIdInTypeAnnotations(Storage::Synchronization::TypeAnnotations &typeAnnotations)
@@ -1595,7 +2304,7 @@ void ProjectStorage::synchronizeTypeAnnotations(Storage::Synchronization::TypeAn
         return first.typeId < second.typeId;
     });
 
-    auto range = selectTypeAnnotationsForSourceIdsStatement.range<TypeAnnotationView>(
+    auto range = s->selectTypeAnnotationsForSourceIdsStatement.range<TypeAnnotationView>(
         toIntegers(updatedTypeAnnotationSourceIds));
 
     auto insert = [&](const TypeAnnotation &annotation) {
@@ -1609,12 +2318,12 @@ void ProjectStorage::synchronizeTypeAnnotations(Storage::Synchronization::TypeAn
                                    projectStorageCategory(),
                                    keyValue("type annotation", annotation)};
 
-        insertTypeAnnotationStatement.write(annotation.typeId,
-                                            annotation.sourceId,
-                                            annotation.directorySourceId,
-                                            annotation.iconPath,
-                                            createEmptyAsNull(annotation.itemLibraryJson),
-                                            createEmptyAsNull(annotation.hintsJson));
+        s->insertTypeAnnotationStatement.write(annotation.typeId,
+                                               annotation.sourceId,
+                                               annotation.directorySourceId,
+                                               annotation.iconPath,
+                                               createEmptyAsNull(annotation.itemLibraryJson),
+                                               createEmptyAsNull(annotation.hintsJson));
     };
 
     auto update = [&](const TypeAnnotationView &annotationFromDatabase,
@@ -1631,10 +2340,10 @@ void ProjectStorage::synchronizeTypeAnnotations(Storage::Synchronization::TypeAn
                                                 annotationFromDatabase),
                                        keyValue("type annotation", annotation)};
 
-            updateTypeAnnotationStatement.write(annotation.typeId,
-                                                annotation.iconPath,
-                                                createEmptyAsNull(annotation.itemLibraryJson),
-                                                createEmptyAsNull(annotation.hintsJson));
+            s->updateTypeAnnotationStatement.write(annotation.typeId,
+                                                   annotation.iconPath,
+                                                   createEmptyAsNull(annotation.itemLibraryJson),
+                                                   createEmptyAsNull(annotation.hintsJson));
             return Sqlite::UpdateChange::Update;
         }
 
@@ -1649,7 +2358,7 @@ void ProjectStorage::synchronizeTypeAnnotations(Storage::Synchronization::TypeAn
                                    projectStorageCategory(),
                                    keyValue("type annotation", annotationFromDatabase)};
 
-        deleteTypeAnnotationStatement.write(annotationFromDatabase.typeId);
+        s->deleteTypeAnnotationStatement.write(annotationFromDatabase.typeId);
     };
 
     Sqlite::insertUpdateDelete(range, typeAnnotations, compareKey, insert, update, remove);
@@ -1657,7 +2366,7 @@ void ProjectStorage::synchronizeTypeAnnotations(Storage::Synchronization::TypeAn
 
 void ProjectStorage::synchronizeTypeTrait(const Storage::Synchronization::Type &type)
 {
-    updateTypeTraitStatement.write(type.typeId, type.traits.type);
+    s->updateTypeTraitStatement.write(type.typeId, type.traits.type);
 }
 
 void ProjectStorage::synchronizeTypes(Storage::Synchronization::Types &types,
@@ -1741,7 +2450,7 @@ void ProjectStorage::synchronizeProjectDatas(Storage::Synchronization::ProjectDa
                < std::tie(second.projectSourceId, second.sourceId);
     });
 
-    auto range = selectProjectDatasForSourceIdsStatement.range<Storage::Synchronization::ProjectData>(
+    auto range = s->selectProjectDatasForSourceIdsStatement.range<Storage::Synchronization::ProjectData>(
         toIntegers(updatedProjectSourceIds));
 
     auto insert = [&](const Storage::Synchronization::ProjectData &projectData) {
@@ -1755,10 +2464,10 @@ void ProjectStorage::synchronizeProjectDatas(Storage::Synchronization::ProjectDa
         if (!projectData.sourceId)
             throw ProjectDataHasInvalidSourceId{};
 
-        insertProjectDataStatement.write(projectData.projectSourceId,
-                                         projectData.sourceId,
-                                         projectData.moduleId,
-                                         projectData.fileType);
+        s->insertProjectDataStatement.write(projectData.projectSourceId,
+                                            projectData.sourceId,
+                                            projectData.moduleId,
+                                            projectData.fileType);
     };
 
     auto update = [&](const Storage::Synchronization::ProjectData &projectDataFromDatabase,
@@ -1771,10 +2480,10 @@ void ProjectStorage::synchronizeProjectDatas(Storage::Synchronization::ProjectDa
                                        keyValue("project data", projectData),
                                        keyValue("project data from database", projectDataFromDatabase)};
 
-            updateProjectDataStatement.write(projectData.projectSourceId,
-                                             projectData.sourceId,
-                                             projectData.moduleId,
-                                             projectData.fileType);
+            s->updateProjectDataStatement.write(projectData.projectSourceId,
+                                                projectData.sourceId,
+                                                projectData.moduleId,
+                                                projectData.fileType);
             return Sqlite::UpdateChange::Update;
         }
 
@@ -1787,7 +2496,7 @@ void ProjectStorage::synchronizeProjectDatas(Storage::Synchronization::ProjectDa
                                    projectStorageCategory(),
                                    keyValue("project data", projectData)};
 
-        deleteProjectDataStatement.write(projectData.projectSourceId, projectData.sourceId);
+        s->deleteProjectDataStatement.write(projectData.projectSourceId, projectData.sourceId);
     };
 
     Sqlite::insertUpdateDelete(range, projectDatas, compareKey, insert, update, remove);
@@ -1804,7 +2513,7 @@ void ProjectStorage::synchronizeFileStatuses(FileStatuses &fileStatuses,
         return first.sourceId < second.sourceId;
     });
 
-    auto range = selectFileStatusesForSourceIdsStatement.range<FileStatus>(
+    auto range = s->selectFileStatusesForSourceIdsStatement.range<FileStatus>(
         toIntegers(updatedSourceIds));
 
     auto insert = [&](const FileStatus &fileStatus) {
@@ -1815,7 +2524,9 @@ void ProjectStorage::synchronizeFileStatuses(FileStatuses &fileStatuses,
 
         if (!fileStatus.sourceId)
             throw FileStatusHasInvalidSourceId{};
-        insertFileStatusStatement.write(fileStatus.sourceId, fileStatus.size, fileStatus.lastModified);
+        s->insertFileStatusStatement.write(fileStatus.sourceId,
+                                           fileStatus.size,
+                                           fileStatus.lastModified);
     };
 
     auto update = [&](const FileStatus &fileStatusFromDatabase, const FileStatus &fileStatus) {
@@ -1827,9 +2538,9 @@ void ProjectStorage::synchronizeFileStatuses(FileStatuses &fileStatuses,
                                        keyValue("file status", fileStatus),
                                        keyValue("file status from database", fileStatusFromDatabase)};
 
-            updateFileStatusStatement.write(fileStatus.sourceId,
-                                            fileStatus.size,
-                                            fileStatus.lastModified);
+            s->updateFileStatusStatement.write(fileStatus.sourceId,
+                                               fileStatus.size,
+                                               fileStatus.lastModified);
             return Sqlite::UpdateChange::Update;
         }
 
@@ -1842,7 +2553,7 @@ void ProjectStorage::synchronizeFileStatuses(FileStatuses &fileStatuses,
                                    projectStorageCategory(),
                                    keyValue("file status", fileStatus)};
 
-        deleteFileStatusStatement.write(fileStatus.sourceId);
+        s->deleteFileStatusStatement.write(fileStatus.sourceId);
     };
 
     Sqlite::insertUpdateDelete(range, fileStatuses, compareKey, insert, update, remove);
@@ -1881,7 +2592,7 @@ void ProjectStorage::synchromizeModuleExportedImports(
                          < std::tie(second.moduleId, second.exportedModuleId);
               });
 
-    auto range = selectModuleExportedImportsForSourceIdStatement
+    auto range = s->selectModuleExportedImportsForSourceIdStatement
                      .range<Storage::Synchronization::ModuleExportedImportView>(
                          toIntegers(updatedModuleIds));
 
@@ -1903,20 +2614,20 @@ void ProjectStorage::synchromizeModuleExportedImports(
         tracer.tick("exported module"_t, keyValue("module id", import.exportedModuleId));
 
         if (import.version.minor) {
-            insertModuleExportedImportWithVersionStatement.write(import.moduleId,
-                                                                 import.exportedModuleId,
-                                                                 import.isAutoVersion,
-                                                                 import.version.major.value,
-                                                                 import.version.minor.value);
-        } else if (import.version.major) {
-            insertModuleExportedImportWithMajorVersionStatement.write(import.moduleId,
-                                                                      import.exportedModuleId,
-                                                                      import.isAutoVersion,
-                                                                      import.version.major.value);
-        } else {
-            insertModuleExportedImportWithoutVersionStatement.write(import.moduleId,
+            s->insertModuleExportedImportWithVersionStatement.write(import.moduleId,
                                                                     import.exportedModuleId,
-                                                                    import.isAutoVersion);
+                                                                    import.isAutoVersion,
+                                                                    import.version.major.value,
+                                                                    import.version.minor.value);
+        } else if (import.version.major) {
+            s->insertModuleExportedImportWithMajorVersionStatement.write(import.moduleId,
+                                                                         import.exportedModuleId,
+                                                                         import.isAutoVersion,
+                                                                         import.version.major.value);
+        } else {
+            s->insertModuleExportedImportWithoutVersionStatement.write(import.moduleId,
+                                                                       import.exportedModuleId,
+                                                                       import.isAutoVersion);
         }
     };
 
@@ -1933,7 +2644,7 @@ void ProjectStorage::synchromizeModuleExportedImports(
                                    keyValue("module id", view.moduleId)};
         tracer.tick("exported module"_t, keyValue("module id", view.exportedModuleId));
 
-        deleteModuleExportedImportStatement.write(view.moduleExportedImportId);
+        s->deleteModuleExportedImportStatement.write(view.moduleExportedImportId);
     };
 
     Sqlite::insertUpdateDelete(range, moduleExportedImports, compareKey, insert, update, remove);
@@ -1946,10 +2657,10 @@ ModuleId ProjectStorage::fetchModuleIdUnguarded(Utils::SmallStringView name) con
                                projectStorageCategory(),
                                keyValue("module name", name)};
 
-    auto moduleId = selectModuleIdByNameStatement.value<ModuleId>(name);
+    auto moduleId = s->selectModuleIdByNameStatement.value<ModuleId>(name);
 
     if (!moduleId)
-        moduleId = insertModuleNameStatement.value<ModuleId>(name);
+        moduleId = s->insertModuleNameStatement.value<ModuleId>(name);
 
     tracer.end(keyValue("module id", moduleId));
 
@@ -1963,7 +2674,7 @@ Utils::PathString ProjectStorage::fetchModuleNameUnguarded(ModuleId id) const
                                projectStorageCategory(),
                                keyValue("module id", id)};
 
-    auto moduleName = selectModuleNameStatement.value<Utils::PathString>(id);
+    auto moduleName = s->selectModuleNameStatement.value<Utils::PathString>(id);
 
     if (moduleName.empty())
         throw ModuleDoesNotExists{};
@@ -1988,11 +2699,11 @@ void ProjectStorage::handleAliasPropertyDeclarationsWithPropertyType(
                         ImportedTypeNameId propertyImportedTypeNameId,
                         PropertyDeclarationId aliasPropertyDeclarationId,
                         PropertyDeclarationId aliasPropertyDeclarationTailId) {
-        auto aliasPropertyName = selectPropertyNameStatement.value<Utils::SmallString>(
+        auto aliasPropertyName = s->selectPropertyNameStatement.value<Utils::SmallString>(
             aliasPropertyDeclarationId);
         Utils::SmallString aliasPropertyNameTail;
         if (aliasPropertyDeclarationTailId)
-            aliasPropertyNameTail = selectPropertyNameStatement.value<Utils::SmallString>(
+            aliasPropertyNameTail = s->selectPropertyNameStatement.value<Utils::SmallString>(
                 aliasPropertyDeclarationTailId);
 
         relinkableAliasPropertyDeclarations.emplace_back(TypeId{typeId_},
@@ -2001,10 +2712,10 @@ void ProjectStorage::handleAliasPropertyDeclarationsWithPropertyType(
                                                          std::move(aliasPropertyName),
                                                          std::move(aliasPropertyNameTail));
 
-        updateAliasPropertyDeclarationToNullStatement.write(propertyDeclarationId);
+        s->updateAliasPropertyDeclarationToNullStatement.write(propertyDeclarationId);
     };
 
-    selectAliasPropertiesDeclarationForPropertiesWithTypeIdStatement.readCallback(callback, typeId);
+    s->selectAliasPropertiesDeclarationForPropertiesWithTypeIdStatement.readCallback(callback, typeId);
 }
 
 void ProjectStorage::handlePropertyDeclarationWithPropertyType(
@@ -2017,8 +2728,8 @@ void ProjectStorage::handlePropertyDeclarationWithPropertyType(
                                keyValue("relinkable property declarations",
                                         relinkablePropertyDeclarations)};
 
-    updatesPropertyDeclarationPropertyTypeToNullStatement.readTo(relinkablePropertyDeclarations,
-                                                                 typeId);
+    s->updatesPropertyDeclarationPropertyTypeToNullStatement.readTo(relinkablePropertyDeclarations,
+                                                                    typeId);
 }
 
 void ProjectStorage::handlePrototypes(TypeId prototypeId, Prototypes &relinkablePrototypes)
@@ -2033,7 +2744,7 @@ void ProjectStorage::handlePrototypes(TypeId prototypeId, Prototypes &relinkable
         relinkablePrototypes.emplace_back(typeId, prototypeNameId);
     };
 
-    updatePrototypeIdToNullStatement.readCallback(callback, prototypeId);
+    s->updatePrototypeIdToNullStatement.readCallback(callback, prototypeId);
 }
 
 void ProjectStorage::handleExtensions(TypeId extensionId, Prototypes &relinkableExtensions)
@@ -2048,7 +2759,7 @@ void ProjectStorage::handleExtensions(TypeId extensionId, Prototypes &relinkable
         relinkableExtensions.emplace_back(typeId, extensionNameId);
     };
 
-    updateExtensionIdToNullStatement.readCallback(callback, extensionId);
+    s->updateExtensionIdToNullStatement.readCallback(callback, extensionId);
 }
 
 void ProjectStorage::deleteType(TypeId typeId,
@@ -2064,12 +2775,12 @@ void ProjectStorage::deleteType(TypeId typeId,
     handleAliasPropertyDeclarationsWithPropertyType(typeId, relinkableAliasPropertyDeclarations);
     handlePrototypes(typeId, relinkablePrototypes);
     handleExtensions(typeId, relinkableExtensions);
-    deleteTypeNamesByTypeIdStatement.write(typeId);
-    deleteEnumerationDeclarationByTypeIdStatement.write(typeId);
-    deletePropertyDeclarationByTypeIdStatement.write(typeId);
-    deleteFunctionDeclarationByTypeIdStatement.write(typeId);
-    deleteSignalDeclarationByTypeIdStatement.write(typeId);
-    deleteTypeStatement.write(typeId);
+    s->deleteTypeNamesByTypeIdStatement.write(typeId);
+    s->deleteEnumerationDeclarationByTypeIdStatement.write(typeId);
+    s->deletePropertyDeclarationByTypeIdStatement.write(typeId);
+    s->deleteFunctionDeclarationByTypeIdStatement.write(typeId);
+    s->deleteSignalDeclarationByTypeIdStatement.write(typeId);
+    s->deleteTypeStatement.write(typeId);
 }
 
 void ProjectStorage::relinkAliasPropertyDeclarations(AliasPropertyDeclarations &aliasPropertyDeclarations,
@@ -2097,11 +2808,11 @@ void ProjectStorage::relinkAliasPropertyDeclarations(AliasPropertyDeclarations &
             auto [propertyTypeId, aliasId, propertyTraits] = fetchPropertyDeclarationByTypeIdAndNameUngarded(
                 typeId, alias.aliasPropertyName);
 
-            updatePropertyDeclarationWithAliasAndTypeStatement.write(alias.propertyDeclarationId,
-                                                                     propertyTypeId,
-                                                                     propertyTraits,
-                                                                     alias.aliasImportedTypeNameId,
-                                                                     aliasId);
+            s->updatePropertyDeclarationWithAliasAndTypeStatement.write(alias.propertyDeclarationId,
+                                                                        propertyTypeId,
+                                                                        propertyTraits,
+                                                                        alias.aliasImportedTypeNameId,
+                                                                        aliasId);
         },
         TypeCompare<AliasPropertyDeclaration>{});
 }
@@ -2129,8 +2840,8 @@ void ProjectStorage::relinkPropertyDeclarations(PropertyDeclarations &relinkable
             if (!propertyTypeId)
                 throw TypeNameDoesNotExists{fetchImportedTypeName(property.importedTypeNameId)};
 
-            updatePropertyDeclarationTypeStatement.write(property.propertyDeclarationId,
-                                                         propertyTypeId);
+            s->updatePropertyDeclarationTypeStatement.write(property.propertyDeclarationId,
+                                                            propertyTypeId);
         },
         TypeCompare<PropertyDeclaration>{});
 }
@@ -2160,9 +2871,9 @@ void ProjectStorage::deleteNotUpdatedTypes(const TypeIds &updatedTypeIds,
                    relinkableExtensions);
     };
 
-    selectNotUpdatedTypesInSourcesStatement.readCallback(callback,
-                                                         toIntegers(updatedSourceIds),
-                                                         toIntegers(updatedTypeIds));
+    s->selectNotUpdatedTypesInSourcesStatement.readCallback(callback,
+                                                            toIntegers(updatedSourceIds),
+                                                            toIntegers(updatedTypeIds));
     for (TypeId typeIdToBeDeleted : typeIdsToBeDeleted)
         callback(typeIdToBeDeleted);
 }
@@ -2178,10 +2889,10 @@ void ProjectStorage::relink(AliasPropertyDeclarations &relinkableAliasPropertyDe
     std::sort(deletedTypeIds.begin(), deletedTypeIds.end());
 
     relinkPrototypes(relinkablePrototypes, deletedTypeIds, [&](TypeId typeId, TypeId prototypeId) {
-        updateTypePrototypeStatement.write(typeId, prototypeId);
+        s->updateTypePrototypeStatement.write(typeId, prototypeId);
     });
     relinkPrototypes(relinkableExtensions, deletedTypeIds, [&](TypeId typeId, TypeId prototypeId) {
-        updateTypeExtensionStatement.write(typeId, prototypeId);
+        s->updateTypeExtensionStatement.write(typeId, prototypeId);
     });
     relinkPropertyDeclarations(relinkablePropertyDeclarations, deletedTypeIds);
     relinkAliasPropertyDeclarations(relinkableAliasPropertyDeclarations, deletedTypeIds);
@@ -2226,7 +2937,7 @@ void ProjectStorage::linkAliasPropertyDeclarationAliasIds(const AliasPropertyDec
                                     aliasDeclaration.aliasPropertyName,
                                     aliasDeclaration.aliasPropertyNameTail);
 
-        updatePropertyDeclarationAliasIdAndTypeNameIdStatement.write(
+        s->updatePropertyDeclarationAliasIdAndTypeNameIdStatement.write(
             aliasDeclaration.propertyDeclarationId, aliasId, aliasDeclaration.aliasImportedTypeNameId);
     }
 }
@@ -2239,9 +2950,9 @@ void ProjectStorage::updateAliasPropertyDeclarationValues(const AliasPropertyDec
                                keyValue("alias property declarations", aliasDeclarations)};
 
     for (const auto &aliasDeclaration : aliasDeclarations) {
-        updatetPropertiesDeclarationValuesOfAliasStatement.write(
+        s->updatetPropertiesDeclarationValuesOfAliasStatement.write(
             aliasDeclaration.propertyDeclarationId);
-        updatePropertyAliasDeclarationRecursivelyStatement.write(
+        s->updatePropertyAliasDeclarationRecursivelyStatement.write(
             aliasDeclaration.propertyDeclarationId);
     }
 }
@@ -2298,7 +3009,7 @@ void ProjectStorage::synchronizeExportedTypes(const TypeIds &updatedTypeIds,
         return first.version < second.version;
     });
 
-    auto range = selectExportedTypesForSourceIdsStatement
+    auto range = s->selectExportedTypesForSourceIdsStatement
                      .range<Storage::Synchronization::ExportedTypeView>(toIntegers(updatedTypeIds));
 
     auto compareKey = [](const Storage::Synchronization::ExportedTypeView &view,
@@ -2330,21 +3041,21 @@ void ProjectStorage::synchronizeExportedTypes(const TypeIds &updatedTypeIds,
 
         try {
             if (type.version) {
-                insertExportedTypeNamesWithVersionStatement.write(type.moduleId,
-                                                                  type.name,
-                                                                  type.version.major.value,
-                                                                  type.version.minor.value,
-                                                                  type.typeId);
+                s->insertExportedTypeNamesWithVersionStatement.write(type.moduleId,
+                                                                     type.name,
+                                                                     type.version.major.value,
+                                                                     type.version.minor.value,
+                                                                     type.typeId);
 
             } else if (type.version.major) {
-                insertExportedTypeNamesWithMajorVersionStatement.write(type.moduleId,
-                                                                       type.name,
-                                                                       type.version.major.value,
-                                                                       type.typeId);
+                s->insertExportedTypeNamesWithMajorVersionStatement.write(type.moduleId,
+                                                                          type.name,
+                                                                          type.version.major.value,
+                                                                          type.typeId);
             } else {
-                insertExportedTypeNamesWithoutVersionStatement.write(type.moduleId,
-                                                                     type.name,
-                                                                     type.typeId);
+                s->insertExportedTypeNamesWithoutVersionStatement.write(type.moduleId,
+                                                                        type.name,
+                                                                        type.typeId);
             }
         } catch (const Sqlite::ConstraintPreventsModification &) {
             throw QmlDesigner::ExportedTypeCannotBeInserted{type.name};
@@ -2366,7 +3077,7 @@ void ProjectStorage::synchronizeExportedTypes(const TypeIds &updatedTypeIds,
                                                             relinkableAliasPropertyDeclarations);
             handlePrototypes(view.typeId, relinkablePrototypes);
             handleExtensions(view.typeId, relinkableExtensions);
-            updateExportedTypeNameTypeIdStatement.write(view.exportedTypeNameId, type.typeId);
+            s->updateExportedTypeNameTypeIdStatement.write(view.exportedTypeNameId, type.typeId);
             return Sqlite::UpdateChange::Update;
         }
         return Sqlite::UpdateChange::No;
@@ -2384,7 +3095,7 @@ void ProjectStorage::synchronizeExportedTypes(const TypeIds &updatedTypeIds,
                                                         relinkableAliasPropertyDeclarations);
         handlePrototypes(view.typeId, relinkablePrototypes);
         handleExtensions(view.typeId, relinkableExtensions);
-        deleteExportedTypeNameStatement.write(view.exportedTypeNameId);
+        s->deleteExportedTypeNameStatement.write(view.exportedTypeNameId);
     };
 
     Sqlite::insertUpdateDelete(range, exportedTypes, compareKey, insert, update, remove);
@@ -2411,7 +3122,7 @@ void ProjectStorage::synchronizePropertyDeclarationsInsertAlias(
         return Sqlite::CallbackControl::Abort;
     };
 
-    insertAliasPropertyDeclarationStatement.readCallback(callback, typeId, value.name);
+    s->insertAliasPropertyDeclarationStatement.readCallback(callback, typeId, value.name);
 }
 
 QVarLengthArray<PropertyDeclarationId, 128> ProjectStorage::fetchPropertyDeclarationIds(
@@ -2419,12 +3130,12 @@ QVarLengthArray<PropertyDeclarationId, 128> ProjectStorage::fetchPropertyDeclara
 {
     QVarLengthArray<PropertyDeclarationId, 128> propertyDeclarationIds;
 
-    selectLocalPropertyDeclarationIdsForTypeStatement.readTo(propertyDeclarationIds, baseTypeId);
+    s->selectLocalPropertyDeclarationIdsForTypeStatement.readTo(propertyDeclarationIds, baseTypeId);
 
-    auto range = selectPrototypeAndExtensionIdsStatement.range<TypeId>(baseTypeId);
+    auto range = s->selectPrototypeAndExtensionIdsStatement.range<TypeId>(baseTypeId);
 
     for (TypeId prototype : range) {
-        selectLocalPropertyDeclarationIdsForTypeStatement.readTo(propertyDeclarationIds, prototype);
+        s->selectLocalPropertyDeclarationIdsForTypeStatement.readTo(propertyDeclarationIds, prototype);
     }
 
     return propertyDeclarationIds;
@@ -2433,10 +3144,10 @@ QVarLengthArray<PropertyDeclarationId, 128> ProjectStorage::fetchPropertyDeclara
 PropertyDeclarationId ProjectStorage::fetchNextPropertyDeclarationId(
     TypeId baseTypeId, Utils::SmallStringView propertyName) const
 {
-    auto range = selectPrototypeAndExtensionIdsStatement.range<TypeId>(baseTypeId);
+    auto range = s->selectPrototypeAndExtensionIdsStatement.range<TypeId>(baseTypeId);
 
     for (TypeId prototype : range) {
-        auto propertyDeclarationId = selectPropertyDeclarationIdByTypeIdAndNameStatement
+        auto propertyDeclarationId = s->selectPropertyDeclarationIdByTypeIdAndNameStatement
                                          .value<PropertyDeclarationId>(prototype, propertyName);
 
         if (propertyDeclarationId)
@@ -2449,7 +3160,7 @@ PropertyDeclarationId ProjectStorage::fetchNextPropertyDeclarationId(
 PropertyDeclarationId ProjectStorage::fetchPropertyDeclarationId(TypeId typeId,
                                                                  Utils::SmallStringView propertyName) const
 {
-    auto propertyDeclarationId = selectPropertyDeclarationIdByTypeIdAndNameStatement
+    auto propertyDeclarationId = s->selectPropertyDeclarationIdByTypeIdAndNameStatement
                                      .value<PropertyDeclarationId>(typeId, propertyName);
 
     if (propertyDeclarationId)
@@ -2460,10 +3171,10 @@ PropertyDeclarationId ProjectStorage::fetchPropertyDeclarationId(TypeId typeId,
 
 PropertyDeclarationId ProjectStorage::fetchNextDefaultPropertyDeclarationId(TypeId baseTypeId) const
 {
-    auto range = selectPrototypeAndExtensionIdsStatement.range<TypeId>(baseTypeId);
+    auto range = s->selectPrototypeAndExtensionIdsStatement.range<TypeId>(baseTypeId);
 
     for (TypeId prototype : range) {
-        auto propertyDeclarationId = selectDefaultPropertyDeclarationIdStatement
+        auto propertyDeclarationId = s->selectDefaultPropertyDeclarationIdStatement
                                          .value<PropertyDeclarationId>(prototype);
 
         if (propertyDeclarationId)
@@ -2475,8 +3186,8 @@ PropertyDeclarationId ProjectStorage::fetchNextDefaultPropertyDeclarationId(Type
 
 PropertyDeclarationId ProjectStorage::fetchDefaultPropertyDeclarationId(TypeId typeId) const
 {
-    auto propertyDeclarationId = selectDefaultPropertyDeclarationIdStatement.value<PropertyDeclarationId>(
-        typeId);
+    auto propertyDeclarationId = s->selectDefaultPropertyDeclarationIdStatement
+                                     .value<PropertyDeclarationId>(typeId);
 
     if (propertyDeclarationId)
         return propertyDeclarationId;
@@ -2498,16 +3209,15 @@ void ProjectStorage::synchronizePropertyDeclarationsInsertProperty(
     if (!propertyTypeId)
         throw TypeNameDoesNotExists{fetchImportedTypeName(propertyImportedTypeNameId), sourceId};
 
-    auto propertyDeclarationId = insertPropertyDeclarationStatement.value<PropertyDeclarationId>(
+    auto propertyDeclarationId = s->insertPropertyDeclarationStatement.value<PropertyDeclarationId>(
         typeId, value.name, propertyTypeId, value.traits, propertyImportedTypeNameId);
 
     auto nextPropertyDeclarationId = fetchNextPropertyDeclarationId(typeId, value.name);
     if (nextPropertyDeclarationId) {
-        updateAliasIdPropertyDeclarationStatement.write(nextPropertyDeclarationId,
-                                                        propertyDeclarationId);
-        updatePropertyAliasDeclarationRecursivelyWithTypeAndTraitsStatement.write(propertyDeclarationId,
-                                                                                  propertyTypeId,
-                                                                                  value.traits);
+        s->updateAliasIdPropertyDeclarationStatement.write(nextPropertyDeclarationId,
+                                                           propertyDeclarationId);
+        s->updatePropertyAliasDeclarationRecursivelyWithTypeAndTraitsStatement
+            .write(propertyDeclarationId, propertyTypeId, value.traits);
     }
 }
 
@@ -2554,13 +3264,13 @@ Sqlite::UpdateChange ProjectStorage::synchronizePropertyDeclarationsUpdateProper
         && propertyImportedTypeNameId == view.typeNameId)
         return Sqlite::UpdateChange::No;
 
-    updatePropertyDeclarationStatement.write(view.id,
-                                             propertyTypeId,
-                                             value.traits,
-                                             propertyImportedTypeNameId);
-    updatePropertyAliasDeclarationRecursivelyWithTypeAndTraitsStatement.write(view.id,
-                                                                              propertyTypeId,
-                                                                              value.traits);
+    s->updatePropertyDeclarationStatement.write(view.id,
+                                                propertyTypeId,
+                                                value.traits,
+                                                propertyImportedTypeNameId);
+    s->updatePropertyAliasDeclarationRecursivelyWithTypeAndTraitsStatement.write(view.id,
+                                                                                 propertyTypeId,
+                                                                                 value.traits);
     propertyDeclarationIds.push_back(view.id);
 
     tracer.end(keyValue("updated", "yes"));
@@ -2582,7 +3292,7 @@ void ProjectStorage::synchronizePropertyDeclarations(
         return Sqlite::compare(first.name, second.name) < 0;
     });
 
-    auto range = selectPropertyDeclarationsForTypeIdStatement
+    auto range = s->selectPropertyDeclarationsForTypeIdStatement
                      .range<Storage::Synchronization::PropertyDeclarationView>(typeId);
 
     auto compareKey = [](const Storage::Synchronization::PropertyDeclarationView &view,
@@ -2628,12 +3338,12 @@ void ProjectStorage::synchronizePropertyDeclarations(
         auto nextPropertyDeclarationId = fetchNextPropertyDeclarationId(typeId, view.name);
 
         if (nextPropertyDeclarationId) {
-            updateAliasPropertyDeclarationByAliasPropertyDeclarationIdStatement
+            s->updateAliasPropertyDeclarationByAliasPropertyDeclarationIdStatement
                 .write(nextPropertyDeclarationId, view.id);
         }
 
-        updateDefaultPropertyIdToNullStatement.write(view.id);
-        deletePropertyDeclarationStatement.write(view.id);
+        s->updateDefaultPropertyIdToNullStatement.write(view.id);
+        s->deletePropertyDeclarationStatement.write(view.id);
         propertyDeclarationIds.push_back(view.id);
     };
 
@@ -2655,7 +3365,7 @@ void ProjectStorage::resetRemovedAliasPropertyDeclarationsToNull(
         return Sqlite::compare(first.name, second.name) < 0;
     });
 
-    auto range = selectPropertyDeclarationsWithAliasForTypeIdStatement
+    auto range = s->selectPropertyDeclarationsWithAliasForTypeIdStatement
                      .range<AliasPropertyDeclarationView>(type.typeId);
 
     auto compareKey = [](const AliasPropertyDeclarationView &view,
@@ -2676,7 +3386,7 @@ void ProjectStorage::resetRemovedAliasPropertyDeclarationsToNull(
                                    projectStorageCategory(),
                                    keyValue("alias property declaration view", view)};
 
-        updatePropertyDeclarationAliasIdToNullStatement.write(view.id);
+        s->updatePropertyDeclarationAliasIdToNullStatement.write(view.id);
         propertyDeclarationIds.push_back(view.id);
     };
 
@@ -2706,26 +3416,26 @@ ImportId ProjectStorage::insertDocumentImport(const Storage::Import &import,
                                               ImportId parentImportId)
 {
     if (import.version.minor) {
-        return insertDocumentImportWithVersionStatement.value<ImportId>(import.sourceId,
-                                                                        import.moduleId,
-                                                                        sourceModuleId,
-                                                                        importKind,
-                                                                        import.version.major.value,
-                                                                        import.version.minor.value,
-                                                                        parentImportId);
-    } else if (import.version.major) {
-        return insertDocumentImportWithMajorVersionStatement.value<ImportId>(import.sourceId,
-                                                                             import.moduleId,
-                                                                             sourceModuleId,
-                                                                             importKind,
-                                                                             import.version.major.value,
-                                                                             parentImportId);
-    } else {
-        return insertDocumentImportWithoutVersionStatement.value<ImportId>(import.sourceId,
+        return s->insertDocumentImportWithVersionStatement.value<ImportId>(import.sourceId,
                                                                            import.moduleId,
                                                                            sourceModuleId,
                                                                            importKind,
+                                                                           import.version.major.value,
+                                                                           import.version.minor.value,
                                                                            parentImportId);
+    } else if (import.version.major) {
+        return s->insertDocumentImportWithMajorVersionStatement.value<ImportId>(import.sourceId,
+                                                                                import.moduleId,
+                                                                                sourceModuleId,
+                                                                                importKind,
+                                                                                import.version.major.value,
+                                                                                parentImportId);
+    } else {
+        return s->insertDocumentImportWithoutVersionStatement.value<ImportId>(import.sourceId,
+                                                                              import.moduleId,
+                                                                              sourceModuleId,
+                                                                              importKind,
+                                                                              parentImportId);
     }
 }
 
@@ -2738,8 +3448,9 @@ void ProjectStorage::synchronizeDocumentImports(Storage::Imports &imports,
                < std::tie(second.sourceId, second.moduleId, second.version);
     });
 
-    auto range = selectDocumentImportForSourceIdStatement.range<Storage::Synchronization::ImportView>(
-        toIntegers(updatedSourceIds), importKind);
+    auto range = s->selectDocumentImportForSourceIdStatement
+                     .range<Storage::Synchronization::ImportView>(toIntegers(updatedSourceIds),
+                                                                  importKind);
 
     auto compareKey = [](const Storage::Synchronization::ImportView &view,
                          const Storage::Import &import) -> long long {
@@ -2792,10 +3503,10 @@ void ProjectStorage::synchronizeDocumentImports(Storage::Imports &imports,
             tracer.end(keyValue("import id", indirectImportId));
         };
 
-        selectModuleExportedImportsForModuleIdStatement.readCallback(callback,
-                                                                     import.moduleId,
-                                                                     import.version.major.value,
-                                                                     import.version.minor.value);
+        s->selectModuleExportedImportsForModuleIdStatement.readCallback(callback,
+                                                                        import.moduleId,
+                                                                        import.version.major.value,
+                                                                        import.version.minor.value);
         tracer.end(keyValue("import id", importId));
     };
 
@@ -2812,8 +3523,8 @@ void ProjectStorage::synchronizeDocumentImports(Storage::Imports &imports,
                                    keyValue("source id", view.sourceId),
                                    keyValue("module id", view.moduleId)};
 
-        deleteDocumentImportStatement.write(view.importId);
-        deleteDocumentImportsWithParentImportIdStatement.write(view.sourceId, view.importId);
+        s->deleteDocumentImportStatement.write(view.importId);
+        s->deleteDocumentImportsWithParentImportIdStatement.write(view.sourceId, view.importId);
     };
 
     Sqlite::insertUpdateDelete(range, imports, compareKey, insert, update, remove);
@@ -2858,7 +3569,7 @@ TypeId ProjectStorage::fetchTypeIdByModuleIdAndExportedName(ModuleId moduleId,
                                keyValue("module id", moduleId),
                                keyValue("exported name", name)};
 
-    return selectTypeIdByModuleIdAndExportedNameStatement.value<TypeId>(moduleId, name);
+    return s->selectTypeIdByModuleIdAndExportedNameStatement.value<TypeId>(moduleId, name);
 }
 
 void ProjectStorage::addTypeIdToPropertyEditorQmlPaths(
@@ -2878,7 +3589,7 @@ void ProjectStorage::synchronizePropertyEditorPaths(Storage::Synchronization::Pr
         return first.typeId < second.typeId;
     });
 
-    auto range = selectPropertyEditorPathsForForSourceIdsStatement.range<PropertyEditorQmlPathView>(
+    auto range = s->selectPropertyEditorPathsForForSourceIdsStatement.range<PropertyEditorQmlPathView>(
         toIntegers(updatedPropertyEditorQmlPathsSourceIds));
 
     auto compareKey = [](const PropertyEditorQmlPathView &view,
@@ -2893,7 +3604,7 @@ void ProjectStorage::synchronizePropertyEditorPaths(Storage::Synchronization::Pr
                                    keyValue("property editor qml path", path)};
 
         if (path.typeId)
-            insertPropertyEditorPathStatement.write(path.typeId, path.pathId, path.directoryId);
+            s->insertPropertyEditorPathStatement.write(path.typeId, path.pathId, path.directoryId);
     };
 
     auto update = [&](const PropertyEditorQmlPathView &view, const PropertyEditorQmlPath &value) {
@@ -2904,7 +3615,7 @@ void ProjectStorage::synchronizePropertyEditorPaths(Storage::Synchronization::Pr
                                    keyValue("property editor qml path view", view)};
 
         if (value.pathId != view.pathId || value.directoryId != view.directoryId) {
-            updatePropertyEditorPathsStatement.write(value.typeId, value.pathId, value.directoryId);
+            s->updatePropertyEditorPathsStatement.write(value.typeId, value.pathId, value.directoryId);
 
             tracer.end(keyValue("updated", "yes"));
 
@@ -2919,7 +3630,7 @@ void ProjectStorage::synchronizePropertyEditorPaths(Storage::Synchronization::Pr
                                    projectStorageCategory(),
                                    keyValue("property editor qml path view", view)};
 
-        deletePropertyEditorPathStatement.write(view.typeId);
+        s->deletePropertyEditorPathStatement.write(view.typeId);
     };
 
     Sqlite::insertUpdateDelete(range, paths, compareKey, insert, update, remove);
@@ -2955,7 +3666,7 @@ void ProjectStorage::synchronizeFunctionDeclarations(
                   return compare < 0;
               });
 
-    auto range = selectFunctionDeclarationsForTypeIdStatement
+    auto range = s->selectFunctionDeclarationsForTypeIdStatement
                      .range<Storage::Synchronization::FunctionDeclarationView>(typeId);
 
     auto compareKey = [](const Storage::Synchronization::FunctionDeclarationView &view,
@@ -2977,7 +3688,7 @@ void ProjectStorage::synchronizeFunctionDeclarations(
 
         Utils::PathString signature{createJson(value.parameters)};
 
-        insertFunctionDeclarationStatement.write(typeId, value.name, value.returnTypeName, signature);
+        s->insertFunctionDeclarationStatement.write(typeId, value.name, value.returnTypeName, signature);
     };
 
     auto update = [&](const Storage::Synchronization::FunctionDeclarationView &view,
@@ -2993,7 +3704,7 @@ void ProjectStorage::synchronizeFunctionDeclarations(
         if (value.returnTypeName == view.returnTypeName && signature == view.signature)
             return Sqlite::UpdateChange::No;
 
-        updateFunctionDeclarationStatement.write(view.id, value.returnTypeName, signature);
+        s->updateFunctionDeclarationStatement.write(view.id, value.returnTypeName, signature);
 
         tracer.end(keyValue("updated", "yes"));
 
@@ -3006,7 +3717,7 @@ void ProjectStorage::synchronizeFunctionDeclarations(
                                    projectStorageCategory(),
                                    keyValue("function declaration view", view)};
 
-        deleteFunctionDeclarationStatement.write(view.id);
+        s->deleteFunctionDeclarationStatement.write(view.id);
     };
 
     Sqlite::insertUpdateDelete(range, functionsDeclarations, compareKey, insert, update, remove);
@@ -3030,7 +3741,7 @@ void ProjectStorage::synchronizeSignalDeclarations(
         return compare < 0;
     });
 
-    auto range = selectSignalDeclarationsForTypeIdStatement
+    auto range = s->selectSignalDeclarationsForTypeIdStatement
                      .range<Storage::Synchronization::SignalDeclarationView>(typeId);
 
     auto compareKey = [](const Storage::Synchronization::SignalDeclarationView &view,
@@ -3052,7 +3763,7 @@ void ProjectStorage::synchronizeSignalDeclarations(
 
         Utils::PathString signature{createJson(value.parameters)};
 
-        insertSignalDeclarationStatement.write(typeId, value.name, signature);
+        s->insertSignalDeclarationStatement.write(typeId, value.name, signature);
     };
 
     auto update = [&]([[maybe_unused]] const Storage::Synchronization::SignalDeclarationView &view,
@@ -3066,7 +3777,7 @@ void ProjectStorage::synchronizeSignalDeclarations(
                                    projectStorageCategory(),
                                    keyValue("signal declaration view", view)};
 
-        deleteSignalDeclarationStatement.write(view.id);
+        s->deleteSignalDeclarationStatement.write(view.id);
     };
 
     Sqlite::insertUpdateDelete(range, signalDeclarations, compareKey, insert, update, remove);
@@ -3112,7 +3823,7 @@ void ProjectStorage::synchronizeEnumerationDeclarations(
                   return Sqlite::compare(first.name, second.name) < 0;
               });
 
-    auto range = selectEnumerationDeclarationsForTypeIdStatement
+    auto range = s->selectEnumerationDeclarationsForTypeIdStatement
                      .range<Storage::Synchronization::EnumerationDeclarationView>(typeId);
 
     auto compareKey = [](const Storage::Synchronization::EnumerationDeclarationView &view,
@@ -3128,7 +3839,7 @@ void ProjectStorage::synchronizeEnumerationDeclarations(
 
         Utils::PathString signature{createJson(value.enumeratorDeclarations)};
 
-        insertEnumerationDeclarationStatement.write(typeId, value.name, signature);
+        s->insertEnumerationDeclarationStatement.write(typeId, value.name, signature);
     };
 
     auto update = [&](const Storage::Synchronization::EnumerationDeclarationView &view,
@@ -3144,7 +3855,7 @@ void ProjectStorage::synchronizeEnumerationDeclarations(
         if (enumeratorDeclarations == view.enumeratorDeclarations)
             return Sqlite::UpdateChange::No;
 
-        updateEnumerationDeclarationStatement.write(view.id, enumeratorDeclarations);
+        s->updateEnumerationDeclarationStatement.write(view.id, enumeratorDeclarations);
 
         tracer.end(keyValue("updated", "yes"));
 
@@ -3157,7 +3868,7 @@ void ProjectStorage::synchronizeEnumerationDeclarations(
                                    projectStorageCategory(),
                                    keyValue("enumeration declaration view", view)};
 
-        deleteEnumerationDeclarationStatement.write(view.id);
+        s->deleteEnumerationDeclarationStatement.write(view.id);
     };
 
     Sqlite::insertUpdateDelete(range, enumerationDeclarations, compareKey, insert, update, remove);
@@ -3180,18 +3891,18 @@ TypeId ProjectStorage::declareType(Storage::Synchronization::Type &type)
                                keyValue("type name", type.typeName)};
 
     if (type.typeName.isEmpty()) {
-        type.typeId = selectTypeIdBySourceIdStatement.value<TypeId>(type.sourceId);
+        type.typeId = s->selectTypeIdBySourceIdStatement.value<TypeId>(type.sourceId);
 
         tracer.end(keyValue("type id", type.typeId));
 
         return type.typeId;
     }
 
-    type.typeId = insertTypeStatement.value<TypeId>(type.sourceId, type.typeName);
+    type.typeId = s->insertTypeStatement.value<TypeId>(type.sourceId, type.typeName);
 
     if (!type.typeId)
-        type.typeId = selectTypeIdBySourceIdAndNameStatement.value<TypeId>(type.sourceId,
-                                                                           type.typeName);
+        type.typeId = s->selectTypeIdBySourceIdAndNameStatement.value<TypeId>(type.sourceId,
+                                                                              type.typeName);
 
     tracer.end(keyValue("type id", type.typeId));
 
@@ -3244,7 +3955,7 @@ void ProjectStorage::syncDefaultProperties(Storage::Synchronization::Types &type
 {
     NanotraceHR::Tracer tracer{"synchronize default properties"_t, projectStorageCategory()};
 
-    auto range = selectTypesWithDefaultPropertyStatement.range<TypeWithDefaultPropertyView>();
+    auto range = s->selectTypesWithDefaultPropertyStatement.range<TypeWithDefaultPropertyView>();
 
     auto compareKey = [](const TypeWithDefaultPropertyView &view,
                          const Storage::Synchronization::Type &value) {
@@ -3273,7 +3984,7 @@ void ProjectStorage::syncDefaultProperties(Storage::Synchronization::Types &type
         if (compareInvalidAreTrue(valueDefaultPropertyId, view.defaultPropertyId))
             return Sqlite::UpdateChange::No;
 
-        updateDefaultPropertyIdStatement.write(value.typeId, valueDefaultPropertyId);
+        s->updateDefaultPropertyIdStatement.write(value.typeId, valueDefaultPropertyId);
 
         tracer.end(keyValue("updated", "yes"),
                    keyValue("default property id", valueDefaultPropertyId));
@@ -3290,7 +4001,7 @@ void ProjectStorage::resetDefaultPropertiesIfChanged(Storage::Synchronization::T
 {
     NanotraceHR::Tracer tracer{"reset changed default properties"_t, projectStorageCategory()};
 
-    auto range = selectTypesWithDefaultPropertyStatement.range<TypeWithDefaultPropertyView>();
+    auto range = s->selectTypesWithDefaultPropertyStatement.range<TypeWithDefaultPropertyView>();
 
     auto compareKey = [](const TypeWithDefaultPropertyView &view,
                          const Storage::Synchronization::Type &value) {
@@ -3321,7 +4032,7 @@ void ProjectStorage::resetDefaultPropertiesIfChanged(Storage::Synchronization::T
         if (compareInvalidAreTrue(valueDefaultPropertyId, view.defaultPropertyId))
             return Sqlite::UpdateChange::No;
 
-        updateDefaultPropertyIdStatement.write(value.typeId, Sqlite::NullValue{});
+        s->updateDefaultPropertyIdStatement.write(value.typeId, Sqlite::NullValue{});
 
         tracer.end(keyValue("updated", "yes"));
 
@@ -3345,7 +4056,7 @@ void ProjectStorage::checkForPrototypeChainCycle(TypeId typeId) const
             throw PrototypeChainCycle{};
     };
 
-    selectPrototypeAndExtensionIdsStatement.readCallback(callback, typeId);
+    s->selectPrototypeAndExtensionIdsStatement.readCallback(callback, typeId);
 }
 
 void ProjectStorage::checkForAliasChainCycle(PropertyDeclarationId propertyDeclarationId) const
@@ -3359,7 +4070,8 @@ void ProjectStorage::checkForAliasChainCycle(PropertyDeclarationId propertyDecla
             throw AliasChainCycle{};
     };
 
-    selectPropertyDeclarationIdsForAliasChainStatement.readCallback(callback, propertyDeclarationId);
+    s->selectPropertyDeclarationIdsForAliasChainStatement.readCallback(callback,
+                                                                       propertyDeclarationId);
 }
 
 std::pair<TypeId, ImportedTypeNameId> ProjectStorage::fetchImportedTypeNameIdAndTypeId(
@@ -3405,11 +4117,11 @@ void ProjectStorage::syncPrototypeAndExtension(Storage::Synchronization::Type &t
     auto [extensionId, extensionTypeNameId] = fetchImportedTypeNameIdAndTypeId(type.extension,
                                                                                type.sourceId);
 
-    updatePrototypeAndExtensionStatement.write(type.typeId,
-                                               prototypeId,
-                                               prototypeTypeNameId,
-                                               extensionId,
-                                               extensionTypeNameId);
+    s->updatePrototypeAndExtensionStatement.write(type.typeId,
+                                                  prototypeId,
+                                                  prototypeTypeNameId,
+                                                  extensionId,
+                                                  extensionTypeNameId);
 
     if (prototypeId || extensionId)
         checkForPrototypeChainCycle(type.typeId);
@@ -3448,14 +4160,14 @@ ImportId ProjectStorage::fetchImportId(SourceId sourceId, const Storage::Import 
 
     ImportId importId;
     if (import.version) {
-        importId = selectImportIdBySourceIdAndModuleIdAndVersionStatement.value<ImportId>(
+        importId = s->selectImportIdBySourceIdAndModuleIdAndVersionStatement.value<ImportId>(
             sourceId, import.moduleId, import.version.major.value, import.version.minor.value);
     } else if (import.version.major) {
-        importId = selectImportIdBySourceIdAndModuleIdAndMajorVersionStatement
+        importId = s->selectImportIdBySourceIdAndModuleIdAndMajorVersionStatement
                        .value<ImportId>(sourceId, import.moduleId, import.version.major.value);
     } else {
-        importId = selectImportIdBySourceIdAndModuleIdStatement.value<ImportId>(sourceId,
-                                                                                import.moduleId);
+        importId = s->selectImportIdBySourceIdAndModuleIdStatement.value<ImportId>(sourceId,
+                                                                                   import.moduleId);
     }
 
     tracer.end(keyValue("import id", importId));
@@ -3515,7 +4227,7 @@ TypeId ProjectStorage::fetchTypeId(ImportedTypeNameId typeNameId) const
                                projectStorageCategory(),
                                keyValue("type name id", typeNameId)};
 
-    auto kind = selectKindFromImportedTypeNamesStatement.value<Storage::Synchronization::TypeNameKind>(
+    auto kind = s->selectKindFromImportedTypeNamesStatement.value<Storage::Synchronization::TypeNameKind>(
         typeNameId);
 
     auto typeId = fetchTypeId(typeNameId, kind);
@@ -3527,7 +4239,7 @@ TypeId ProjectStorage::fetchTypeId(ImportedTypeNameId typeNameId) const
 
 Utils::SmallString ProjectStorage::fetchImportedTypeName(ImportedTypeNameId typeNameId) const
 {
-    return selectNameFromImportedTypeNamesStatement.value<Utils::SmallString>(typeNameId);
+    return s->selectNameFromImportedTypeNamesStatement.value<Utils::SmallString>(typeNameId);
 }
 
 TypeId ProjectStorage::fetchTypeId(ImportedTypeNameId typeNameId,
@@ -3541,9 +4253,9 @@ TypeId ProjectStorage::fetchTypeId(ImportedTypeNameId typeNameId,
 
     TypeId typeId;
     if (kind == Storage::Synchronization::TypeNameKind::Exported) {
-        typeId = selectTypeIdForImportedTypeNameNamesStatement.value<TypeId>(typeNameId);
+        typeId = s->selectTypeIdForImportedTypeNameNamesStatement.value<TypeId>(typeNameId);
     } else {
-        typeId = selectTypeIdForQualifiedImportedTypeNameNamesStatement.value<TypeId>(typeNameId);
+        typeId = s->selectTypeIdForQualifiedImportedTypeNameNamesStatement.value<TypeId>(typeNameId);
     }
 
     tracer.end(keyValue("type id", typeId));
@@ -3562,7 +4274,7 @@ ProjectStorage::fetchOptionalPropertyDeclarationByTypeIdAndNameUngarded(TypeId t
                                keyValue("property name", name)};
 
     auto propertyDeclarationId = fetchPropertyDeclarationId(typeId, name);
-    auto propertyDeclaration = selectPropertyDeclarationResultByPropertyDeclarationIdStatement
+    auto propertyDeclaration = s->selectPropertyDeclarationResultByPropertyDeclarationIdStatement
                                    .optionalValue<FetchPropertyDeclarationResult>(
                                        propertyDeclarationId);
 
@@ -3615,7 +4327,7 @@ SourceContextId ProjectStorage::readSourceContextId(Utils::SmallStringView sourc
                                projectStorageCategory(),
                                keyValue("source context path", sourceContextPath)};
 
-    auto sourceContextId = selectSourceContextIdFromSourceContextsBySourceContextPathStatement
+    auto sourceContextId = s->selectSourceContextIdFromSourceContextsBySourceContextPathStatement
                                .value<SourceContextId>(sourceContextPath);
 
     tracer.end(keyValue("source context id", sourceContextId));
@@ -3630,7 +4342,7 @@ SourceContextId ProjectStorage::writeSourceContextId(Utils::SmallStringView sour
                                projectStorageCategory(),
                                keyValue("source context path", sourceContextPath)};
 
-    insertIntoSourceContextsStatement.write(sourceContextPath);
+    s->insertIntoSourceContextsStatement.write(sourceContextPath);
 
     auto sourceContextId = SourceContextId::create(static_cast<int>(database.lastInsertedRowId()));
 
@@ -3648,7 +4360,7 @@ SourceId ProjectStorage::writeSourceId(SourceContextId sourceContextId,
                                keyValue("source context id", sourceContextId),
                                keyValue("source name", sourceName)};
 
-    insertIntoSourcesStatement.write(sourceContextId, sourceName);
+    s->insertIntoSourcesStatement.write(sourceContextId, sourceName);
 
     auto sourceId = SourceId::create(static_cast<int>(database.lastInsertedRowId()));
 
@@ -3666,7 +4378,7 @@ SourceId ProjectStorage::readSourceId(SourceContextId sourceContextId,
                                keyValue("source context id", sourceContextId),
                                keyValue("source name", sourceName)};
 
-    auto sourceId = selectSourceIdFromSourcesBySourceContextIdAndSourceNameStatement
+    auto sourceId = s->selectSourceIdFromSourcesBySourceContextIdAndSourceNameStatement
                         .value<SourceId>(sourceContextId, sourceName);
 
     tracer.end(keyValue("source id", sourceId));
@@ -3681,7 +4393,7 @@ Storage::Synchronization::ExportedTypes ProjectStorage::fetchExportedTypes(TypeI
                                projectStorageCategory(),
                                keyValue("type id", typeId)};
 
-    auto exportedTypes = selectExportedTypesByTypeIdStatement
+    auto exportedTypes = s->selectExportedTypesByTypeIdStatement
                              .values<Storage::Synchronization::ExportedType, 12>(typeId);
 
     tracer.end(keyValue("exported types", exportedTypes));
@@ -3696,7 +4408,7 @@ Storage::Synchronization::PropertyDeclarations ProjectStorage::fetchPropertyDecl
                                projectStorageCategory(),
                                keyValue("type id", typeId)};
 
-    auto propertyDeclarations = selectPropertyDeclarationsByTypeIdStatement
+    auto propertyDeclarations = s->selectPropertyDeclarationsByTypeIdStatement
                                     .values<Storage::Synchronization::PropertyDeclaration, 24>(typeId);
 
     tracer.end(keyValue("property declarations", propertyDeclarations));
@@ -3717,12 +4429,12 @@ Storage::Synchronization::FunctionDeclarations ProjectStorage::fetchFunctionDecl
                         Utils::SmallStringView returnType,
                         FunctionDeclarationId functionDeclarationId) {
         auto &functionDeclaration = functionDeclarations.emplace_back(name, returnType);
-        functionDeclaration.parameters = selectFunctionParameterDeclarationsStatement
+        functionDeclaration.parameters = s->selectFunctionParameterDeclarationsStatement
                                              .values<Storage::Synchronization::ParameterDeclaration, 8>(
                                                  functionDeclarationId);
     };
 
-    selectFunctionDeclarationsForTypeIdWithoutSignatureStatement.readCallback(callback, typeId);
+    s->selectFunctionDeclarationsForTypeIdWithoutSignatureStatement.readCallback(callback, typeId);
 
     tracer.end(keyValue("function declarations", functionDeclarations));
 
@@ -3740,12 +4452,12 @@ Storage::Synchronization::SignalDeclarations ProjectStorage::fetchSignalDeclarat
 
     auto callback = [&](Utils::SmallStringView name, SignalDeclarationId signalDeclarationId) {
         auto &signalDeclaration = signalDeclarations.emplace_back(name);
-        signalDeclaration.parameters = selectSignalParameterDeclarationsStatement
+        signalDeclaration.parameters = s->selectSignalParameterDeclarationsStatement
                                            .values<Storage::Synchronization::ParameterDeclaration, 8>(
                                                signalDeclarationId);
     };
 
-    selectSignalDeclarationsForTypeIdWithoutSignatureStatement.readCallback(callback, typeId);
+    s->selectSignalDeclarationsForTypeIdWithoutSignatureStatement.readCallback(callback, typeId);
 
     tracer.end(keyValue("signal declarations", signalDeclarations));
 
@@ -3765,16 +4477,68 @@ Storage::Synchronization::EnumerationDeclarations ProjectStorage::fetchEnumerati
                         EnumerationDeclarationId enumerationDeclarationId) {
         enumerationDeclarations.emplace_back(
             name,
-            selectEnumeratorDeclarationStatement
+            s->selectEnumeratorDeclarationStatement
                 .values<Storage::Synchronization::EnumeratorDeclaration, 8>(enumerationDeclarationId));
     };
 
-    selectEnumerationDeclarationsForTypeIdWithoutEnumeratorDeclarationsStatement.readCallback(callback,
-                                                                                              typeId);
+    s->selectEnumerationDeclarationsForTypeIdWithoutEnumeratorDeclarationsStatement
+        .readCallback(callback, typeId);
 
     tracer.end(keyValue("enumeration declarations", enumerationDeclarations));
 
     return enumerationDeclarations;
+}
+
+template<typename... TypeIds>
+bool ProjectStorage::isBasedOn_(TypeId typeId, TypeIds... baseTypeIds) const
+{
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"is based on"_t,
+                               projectStorageCategory(),
+                               keyValue("type id", typeId),
+                               keyValue("base type ids", NanotraceHR::array(baseTypeIds...))};
+
+    static_assert(((std::is_same_v<TypeId, TypeIds>) &&...), "Parameter must be a TypeId!");
+
+    if (((typeId == baseTypeIds) || ...)) {
+        tracer.end(keyValue("is based on", true));
+        return true;
+    }
+
+    auto range = s->selectPrototypeAndExtensionIdsStatement.rangeWithTransaction<TypeId>(typeId);
+
+    auto isBasedOn = std::any_of(range.begin(), range.end(), [&](TypeId currentTypeId) {
+        return ((currentTypeId == baseTypeIds) || ...);
+    });
+
+    tracer.end(keyValue("is based on", isBasedOn));
+
+    return isBasedOn;
+}
+
+template<typename Id>
+ImportedTypeNameId ProjectStorage::fetchImportedTypeNameId(Storage::Synchronization::TypeNameKind kind,
+                                                           Id id,
+                                                           Utils::SmallStringView typeName)
+{
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"fetch imported type name id"_t,
+                               projectStorageCategory(),
+                               keyValue("imported type name", typeName),
+                               keyValue("kind", kind)};
+
+    auto importedTypeNameId = s->selectImportedTypeNameIdStatement.value<ImportedTypeNameId>(kind,
+                                                                                             id,
+                                                                                             typeName);
+
+    if (!importedTypeNameId)
+        importedTypeNameId = s->insertImportedTypeNameIdStatement.value<ImportedTypeNameId>(kind,
+                                                                                            id,
+                                                                                            typeName);
+
+    tracer.end(keyValue("imported type name id", importedTypeNameId));
+
+    return importedTypeNameId;
 }
 
 } // namespace QmlDesigner
