@@ -4381,7 +4381,7 @@ static QColor calcBlendColor(const QColor &baseColor, int level, int count)
     if (level == count - 1)
         return color90;
 
-    const int blendFactor = level * (256 / (count - 2));
+    const int blendFactor = level * (256 / (count - 1));
 
     return blendColors(color80, color90, blendFactor);
 }
