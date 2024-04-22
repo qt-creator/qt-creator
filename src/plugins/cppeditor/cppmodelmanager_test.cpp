@@ -43,6 +43,7 @@ using CPlusPlus::Document;
 // FIXME: Clean up the namespaces
 using CppEditor::Tests::ModelManagerTestHelper;
 using CppEditor::Tests::ProjectOpenerAndCloser;
+using CppEditor::Tests::SourceFilesRefreshGuard;
 using CppEditor::Tests::TemporaryCopiedDir;
 using CppEditor::Tests::TemporaryDir;
 using CppEditor::Tests::TestCase;
@@ -986,30 +987,6 @@ void ModelManagerTest::testRenameIncludes_data()
     QTest::addRow("move across (breaks build)")
         << "subdir2/header2.h" << "subdir1/header2_moved.h" << false;
 }
-
-class SourceFilesRefreshGuard : public QObject
-{
-public:
-    SourceFilesRefreshGuard()
-    {
-        connect(CppModelManager::instance(), &CppModelManager::sourceFilesRefreshed, this, [this] {
-            m_refreshed = true;
-        });
-    }
-
-    void reset() { m_refreshed = false; }
-    bool wait()
-    {
-        for (int i = 0; i < 10 && !m_refreshed; ++i) {
-            CppEditor::Tests::waitForSignalOrTimeout(
-                CppModelManager::instance(), &CppModelManager::sourceFilesRefreshed, 1000);
-        }
-        return m_refreshed;
-    }
-
-private:
-    bool m_refreshed = false;
-};
 
 void ModelManagerTest::testRenameIncludes()
 {

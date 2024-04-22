@@ -12,6 +12,9 @@
 #include "cppsourceprocessertesthelper.h"
 #include "cpptoolssettings.h"
 
+#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectexplorer.h>
+#include <texteditor/textdocument.h>
 #include <utils/fileutils.h>
 
 #include <QDebug>
@@ -23,6 +26,7 @@
  */
 using namespace Core;
 using namespace CPlusPlus;
+using namespace ProjectExplorer;
 using namespace TextEditor;
 using namespace Utils;
 
@@ -9946,6 +9950,102 @@ void QuickfixTest::testConvertToMetaMethodInvocation()
 
     ConvertToMetaMethodCall factory;
     QuickFixOperationTest({CppTestDocument::create("file.cpp", input, expected)}, &factory);
+}
+
+void QuickfixTest::testMoveClassToOwnFile_data()
+{
+    QTest::addColumn<QString>("projectName");
+    QTest::addColumn<QString>("fileName");
+    QTest::addColumn<QString>("className");
+    QTest::addColumn<bool>("applicable");
+
+    QTest::newRow("nested") << "nested" << "main.cpp" << "Inner" << false;
+    QTest::newRow("file name match 1") << "match1" << "TheClass.h" << "TheClass" << false;
+    QTest::newRow("file name match 2") << "match2" << "theclass.h" << "TheClass" << false;
+    QTest::newRow("file name match 3") << "match3" << "the_class.h" << "TheClass" << false;
+    QTest::newRow("single") << "single" << "theheader.h" << "TheClass" << false;
+    QTest::newRow("complex") << "complex" << "theheader.h" << "TheClass" << true;
+    QTest::newRow("header only") << "header-only" << "theheader.h" << "TheClass" << true;
+    QTest::newRow("decl in source file") << "decl-in-source" << "thesource.cpp" << "TheClass" << true;
+    QTest::newRow("template") << "template" << "theheader.h" << "TheClass" << true;
+}
+
+void QuickfixTest::testMoveClassToOwnFile()
+{
+    QFETCH(QString, projectName);
+    QFETCH(QString, fileName);
+    QFETCH(QString, className);
+    QFETCH(bool, applicable);
+    using namespace CppEditor::Tests;
+
+    // Set up project.
+    Kit * const kit  = Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
+        return k->isValid() && !k->hasWarning() && k->value("QtSupport.QtInformation").isValid();
+    });
+    if (!kit)
+        QSKIP("The test requires at least one valid kit with a valid Qt");
+    const auto projectDir = std::make_unique<TemporaryCopiedDir>(
+                ":/cppeditor/testcases/move-class/" + projectName);
+    SourceFilesRefreshGuard refreshGuard;
+    ProjectOpenerAndCloser projectMgr;
+    QVERIFY(projectMgr.open(projectDir->absolutePath(projectName + ".pro"), true, kit));
+    QVERIFY(refreshGuard.wait());
+
+    // Open header file and locate class.
+    const auto headerFilePath = projectDir->absolutePath(fileName);
+    QVERIFY2(headerFilePath.exists(), qPrintable(headerFilePath.toUserOutput()));
+    const auto editor = qobject_cast<BaseTextEditor *>(EditorManager::openEditor(headerFilePath));
+    QVERIFY(editor);
+    const auto doc = qobject_cast<TextEditor::TextDocument *>(editor->document());
+    QVERIFY(doc);
+    QTextCursor classCursor = doc->document()->find("class " + className);
+    QVERIFY(!classCursor.isNull());
+    editor->setCursorPosition(classCursor.position());
+    const auto editorWidget = qobject_cast<CppEditorWidget *>(editor->editorWidget());
+    QVERIFY(editorWidget);
+    QVERIFY(TestCase::waitForRehighlightedSemanticDocument(editorWidget));
+
+    // Query factory.
+    MoveClassToOwnFile factory;
+    factory.setNonInteractive();
+    CppQuickFixInterface quickFixInterface(editorWidget, ExplicitlyInvoked);
+    QuickFixOperations operations;
+    factory.match(quickFixInterface, operations);
+    QCOMPARE(operations.isEmpty(), !applicable);
+    if (!applicable)
+        return;
+    operations.first()->perform();
+    QVERIFY(waitForSignalOrTimeout(doc, &IDocument::saved, 30000));
+    QTest::qWait(1000);
+
+    // Compare all files.
+    const FileFilter filter({"*_expected"}, QDir::Files);
+    const FilePaths expectedDocuments = projectDir->filePath().dirEntries(filter);
+    QVERIFY(!expectedDocuments.isEmpty());
+    for (const FilePath &expected : expectedDocuments) {
+        static const QString suffix = "_expected";
+        const FilePath actual = expected.parentDir()
+                .pathAppended(expected.fileName().chopped(suffix.length()));
+        QVERIFY(actual.exists());
+        const auto actualContents = actual.fileContents();
+        QVERIFY(actualContents);
+        const auto expectedContents = expected.fileContents();
+        const QByteArrayList actualLines = actualContents->split('\n');
+        const QByteArrayList expectedLines = expectedContents->split('\n');
+        if (actualLines.size() != expectedLines.size()) {
+            qDebug().noquote().nospace() << "---\n" << *expectedContents << "EOF";
+            qDebug().noquote().nospace() << "+++\n" << *actualContents << "EOF";
+        }
+        QCOMPARE(actualLines.size(), expectedLines.size());
+        for (int i = 0; i < actualLines.size(); ++i) {
+            const QByteArray actualLine = actualLines.at(i);
+            const QByteArray expectedLine = expectedLines.at(i);
+            if (actualLine != expectedLine)
+                qDebug() << "Unexpected content in line" << (i + 1) << "of file"
+                         << actual.fileName();
+            QCOMPARE(actualLine, expectedLine);
+        }
+    }
 }
 
 } // namespace CppEditor::Internal::Tests

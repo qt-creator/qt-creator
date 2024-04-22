@@ -205,5 +205,17 @@ private:
     TemporaryCopiedDir();
 };
 
+class SourceFilesRefreshGuard : public QObject
+{
+public:
+    SourceFilesRefreshGuard();
+
+    void reset() { m_refreshed = false; }
+    bool wait();
+
+private:
+    bool m_refreshed = false;
+};
+
 } // namespace Tests
 } // namespace CppEditor

@@ -1,0 +1,10 @@
+#ifndef THECLASS_H
+#define THECLASS_H
+
+class TheClass {
+    void func();
+};
+
+void TheClass::func() {}
+
+#endif // THECLASS_H

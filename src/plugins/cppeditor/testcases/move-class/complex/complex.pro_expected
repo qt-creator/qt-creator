@@ -1,0 +1,4 @@
+HEADERS = theheader.h \
+    theclass.h
+SOURCES = thesource.cpp main.cpp \
+    theclass.cpp

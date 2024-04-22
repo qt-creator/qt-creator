@@ -1,0 +1,7 @@
+#include "theclass.h"
+
+class SomeClass {
+    void func();
+};
+
+

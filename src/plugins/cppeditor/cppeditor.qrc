@@ -4,5 +4,42 @@
         <file>images/dark_qt_h.png</file>
         <file>images/dark_qt_c.png</file>
         <file>testcases/highlightingtestcase.cpp</file>
+        <file>testcases/move-class/complex/complex.pro</file>
+        <file>testcases/move-class/complex/main.cpp</file>
+        <file>testcases/move-class/complex/main.cpp_expected</file>
+        <file>testcases/move-class/complex/theclass.cpp_expected</file>
+        <file>testcases/move-class/complex/theheader.h</file>
+        <file>testcases/move-class/complex/theheader.h_expected</file>
+        <file>testcases/move-class/complex/thesource.cpp</file>
+        <file>testcases/move-class/complex/thesource.cpp_expected</file>
+        <file>testcases/move-class/complex/complex.pro_expected</file>
+        <file>testcases/move-class/nested/main.cpp</file>
+        <file>testcases/move-class/nested/nested.pro</file>
+        <file>testcases/move-class/match1/match1.pro</file>
+        <file>testcases/move-class/match1/TheClass.h</file>
+        <file>testcases/move-class/match2/match2.pro</file>
+        <file>testcases/move-class/match2/theclass.h</file>
+        <file>testcases/move-class/match3/match3.pro</file>
+        <file>testcases/move-class/match3/the_class.h</file>
+        <file>testcases/move-class/single/single.pro</file>
+        <file>testcases/move-class/single/theheader.h</file>
+        <file>testcases/move-class/header-only/header-only.pro</file>
+        <file>testcases/move-class/header-only/header-only.pro_expected</file>
+        <file>testcases/move-class/header-only/theclass.h_expected</file>
+        <file>testcases/move-class/header-only/theheader.h</file>
+        <file>testcases/move-class/header-only/thesource.cpp</file>
+        <file>testcases/move-class/header-only/theheader.h_expected</file>
+        <file>testcases/move-class/header-only/thesource.cpp_expected</file>
+        <file>testcases/move-class/decl-in-source/decl-in-source.pro</file>
+        <file>testcases/move-class/decl-in-source/decl-in-source.pro_expected</file>
+        <file>testcases/move-class/decl-in-source/theclass.h_expected</file>
+        <file>testcases/move-class/decl-in-source/thesource.cpp</file>
+        <file>testcases/move-class/decl-in-source/thesource.cpp_expected</file>
+        <file>testcases/move-class/template/template.pro</file>
+        <file>testcases/move-class/template/template.pro_expected</file>
+        <file>testcases/move-class/template/theclass.h_expected</file>
+        <file>testcases/move-class/template/theheader.h</file>
+        <file>testcases/move-class/template/theheader.h_expected</file>
+        <file>testcases/move-class/complex/theclass.h_expected</file>
     </qresource>
 </RCC>

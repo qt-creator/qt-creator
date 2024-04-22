@@ -626,5 +626,19 @@ private:
                  TextEditor::QuickFixOperations &result) override;
 };
 
+//! Move a class into a dedicates set of files.
+class MoveClassToOwnFile : public CppQuickFixFactory
+{
+#ifdef WITH_TESTS
+public:
+    void setNonInteractive() { m_interactive = false; }
+#endif
+private:
+    void doMatch(const CppQuickFixInterface &interface,
+                 TextEditor::QuickFixOperations &result) override;
+
+    bool m_interactive = true;
+};
+
 } // namespace Internal
 } // namespace CppEditor

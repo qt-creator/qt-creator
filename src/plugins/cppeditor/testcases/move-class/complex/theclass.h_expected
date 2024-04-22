@@ -1,0 +1,29 @@
+#ifndef PROJECT_INTERNAL_THECLASS_H
+#define PROJECT_INTERNAL_THECLASS_H
+
+namespace Project {
+namespace Internal {
+
+class TheClass
+{
+public:
+    TheClass() = default;
+    
+    void defined();
+    void undefined();
+    
+    template<typename T> T defaultValue() const;
+private:
+    class Private;
+    class Undefined;
+    static inline bool doesNotNeedDefinition = true;
+    static bool needsDefinition;
+    int m_value = 0;
+};
+
+template<typename T> T TheClass::defaultValue() const { return T(); }
+
+} // namespace Internal
+} // namespace Project
+
+#endif // PROJECT_INTERNAL_THECLASS_H

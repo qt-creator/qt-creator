@@ -1,0 +1,15 @@
+#include "theheader.h"
+
+namespace Project {
+namespace Internal {
+
+static void someFunction() {}
+
+
+
+
+
+
+
+}
+}

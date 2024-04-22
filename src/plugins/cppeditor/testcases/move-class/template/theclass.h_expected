@@ -1,0 +1,11 @@
+#ifndef THECLASS_H
+#define THECLASS_H
+
+template<typename T> class TheClass
+{
+    T defaultValue() const;
+};
+
+template<typename T> inline T TheClass<T>::defaultValue() const { return T(); }
+
+#endif // THECLASS_H

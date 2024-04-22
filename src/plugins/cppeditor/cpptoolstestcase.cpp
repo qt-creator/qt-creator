@@ -510,4 +510,19 @@ int clangdIndexingTimeout()
     return intervalAsInt;
 }
 
+SourceFilesRefreshGuard::SourceFilesRefreshGuard()
+{
+    connect(CppModelManager::instance(), &CppModelManager::sourceFilesRefreshed, this, [this] {
+        m_refreshed = true;
+    });
+}
+
+bool SourceFilesRefreshGuard::wait()
+{
+    for (int i = 0; i < 10 && !m_refreshed; ++i) {
+        CppEditor::Tests::waitForSignalOrTimeout(
+            CppModelManager::instance(), &CppModelManager::sourceFilesRefreshed, 1000);
+    }
+    return m_refreshed;
+}
 } // namespace CppEditor::Tests

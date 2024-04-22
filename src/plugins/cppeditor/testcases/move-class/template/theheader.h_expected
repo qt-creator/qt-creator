@@ -1,0 +1,6 @@
+#include "theclass.h"
+
+enum SomeEnum { E };
+
+
+

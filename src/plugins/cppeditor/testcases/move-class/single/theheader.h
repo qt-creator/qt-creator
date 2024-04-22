@@ -1,0 +1,2 @@
+class Private;
+class TheClass {};

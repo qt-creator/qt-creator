@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <cplusplus/CppDocument.h>
 #include <utils/fileutils.h>
 #include <utils/link.h>
 
@@ -22,15 +23,18 @@ class CursorInEditor
 {
 public:
     CursorInEditor(const QTextCursor &cursor, const Utils::FilePath &filePath,
-                 CppEditorWidget *editorWidget = nullptr,
-                 TextEditor::TextDocument *textDocument = nullptr)
+                   CppEditorWidget *editorWidget = nullptr,
+                   TextEditor::TextDocument *textDocument = nullptr,
+                   const CPlusPlus::Document::Ptr &cppDocument = {})
         : m_cursor(cursor)
         , m_filePath(filePath)
         , m_editorWidget(editorWidget)
         , m_textDocument(textDocument)
+        , m_cppDocument(cppDocument)
     {}
     CppEditorWidget *editorWidget() const { return m_editorWidget; }
     TextEditor::TextDocument *textDocument() const { return m_textDocument; }
+    CPlusPlus::Document::Ptr cppDocument() const { return m_cppDocument; }
     const QTextCursor &cursor() const { return m_cursor; }
     const Utils::FilePath &filePath() const { return m_filePath; }
 private:
@@ -38,6 +42,7 @@ private:
     Utils::FilePath m_filePath;
     CppEditorWidget *m_editorWidget = nullptr;
     TextEditor::TextDocument * const m_textDocument;
+    const CPlusPlus::Document::Ptr m_cppDocument;
 };
 
 } // namespace CppEditor
