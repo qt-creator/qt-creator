@@ -274,6 +274,8 @@ PropertyEditorValue *DynamicPropertyRow::createProxyBackendValue()
     auto *newValue = new PropertyEditorValue(this);
     m_proxyBackendValues.append(newValue);
 
+    QQmlEngine::setObjectOwnership(newValue, QJSEngine::CppOwnership);
+
     return newValue;
 }
 
