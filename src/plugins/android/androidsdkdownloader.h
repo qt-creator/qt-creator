@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "androidconfigurations.h"
-
 #include <solutions/tasking/tasktreerunner.h>
 
 QT_BEGIN_NAMESPACE
@@ -26,11 +24,8 @@ public:
 
 signals:
     void sdkExtracted();
-    void sdkDownloaderError(const QString &error);
 
 private:
-    void logError(const QString &error);
-
     std::unique_ptr<QProgressDialog> m_progressDialog;
     Tasking::TaskTreeRunner m_taskTreeRunner;
 };

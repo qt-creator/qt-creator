@@ -500,9 +500,6 @@ AndroidSettingsWidget::AndroidSettingsWidget()
             this, [this] { m_sdkManagerWidget->exec(); });
     connect(sdkToolsAutoDownloadButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::downloadSdk);
-    connect(&m_sdkDownloader, &AndroidSdkDownloader::sdkDownloaderError, this, [this](const QString &error) {
-        QMessageBox::warning(this, AndroidSdkDownloader::dialogTitle(), error);
-    });
     connect(&m_sdkDownloader, &AndroidSdkDownloader::sdkExtracted, this, [this] {
         // Make sure the sdk path is created before installing packages
         const FilePath sdkPath = androidConfig().sdkLocation();

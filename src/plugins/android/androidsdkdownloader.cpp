@@ -1,6 +1,7 @@
 // Copyright (C) 2020 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androidsdkdownloader.h"
 #include "androidtr.h"
@@ -15,6 +16,7 @@
 
 #include <QCryptographicHash>
 #include <QLoggingCategory>
+#include <QMessageBox>
 #include <QProgressDialog>
 #include <QStandardPaths>
 
@@ -24,6 +26,13 @@ using namespace Utils;
 namespace { Q_LOGGING_CATEGORY(sdkDownloaderLog, "qtc.android.sdkDownloader", QtWarningMsg) }
 
 namespace Android::Internal {
+
+static void logError(const QString &error)
+{
+    qCDebug(sdkDownloaderLog, "%s", error.toUtf8().data());
+    QMessageBox::warning(Core::ICore::dialogParent(), AndroidSdkDownloader::dialogTitle(), error);
+}
+
 /**
  * @class SdkDownloader
  * @brief Download Android SDK tools package from within Qt Creator.
@@ -123,7 +132,7 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
             });
 #if QT_CONFIG(ssl)
             connect(reply, &QNetworkReply::sslErrors,
-                    this, [this, reply](const QList<QSslError> &sslErrors) {
+                    this, [reply](const QList<QSslError> &sslErrors) {
                 for (const QSslError &error : sslErrors)
                     qCDebug(sdkDownloaderLog, "SSL error: %s\n", qPrintable(error.errorString()));
                 logError(Tr::tr("Encountered SSL errors, download is aborted."));
@@ -132,7 +141,7 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
 #endif
         });
     };
-    const auto onQueryDone = [this, storage](const NetworkQuery &query, DoneWith result) {
+    const auto onQueryDone = [storage](const NetworkQuery &query, DoneWith result) {
         QNetworkReply *reply = query.reply();
         QTC_ASSERT(reply, return);
         const QUrl url = reply->url();
@@ -195,13 +204,6 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
 QString AndroidSdkDownloader::dialogTitle()
 {
     return Tr::tr("Download SDK Tools");
-}
-
-void AndroidSdkDownloader::logError(const QString &error)
-{
-    qCDebug(sdkDownloaderLog, "%s", error.toUtf8().data());
-    QMetaObject::invokeMethod(this, [this, error] { emit sdkDownloaderError(error); },
-        Qt::QueuedConnection);
 }
 
 } // namespace Android::Internal
