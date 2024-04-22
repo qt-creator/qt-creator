@@ -3,23 +3,13 @@
 
 #pragma once
 
-#include <solutions/tasking/tasktreerunner.h>
+#include <QString>
+
+namespace Tasking { class GroupItem; }
 
 namespace Android::Internal {
 
-class AndroidSdkDownloader : public QObject
-{
-    Q_OBJECT
-
-public:
-    void downloadAndExtractSdk();
-    static QString dialogTitle();
-
-signals:
-    void sdkExtracted();
-
-private:
-    Tasking::TaskTreeRunner m_taskTreeRunner;
-};
+Tasking::GroupItem downloadSdkRecipe();
+QString dialogTitle();
 
 } // namespace Android::Internal

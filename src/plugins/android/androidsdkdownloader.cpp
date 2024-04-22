@@ -31,7 +31,7 @@ namespace Android::Internal {
 static void logError(const QString &error)
 {
     qCDebug(sdkDownloaderLog, "%s", error.toUtf8().data());
-    QMessageBox::warning(Core::ICore::dialogParent(), AndroidSdkDownloader::dialogTitle(), error);
+    QMessageBox::warning(Core::ICore::dialogParent(), dialogTitle(), error);
 }
 
 static bool isHttpRedirect(QNetworkReply *reply)
@@ -85,7 +85,7 @@ static bool verifyFileIntegrity(const FilePath fileName, const QByteArray &sha25
     return false;
 }
 
-void AndroidSdkDownloader::downloadAndExtractSdk()
+GroupItem downloadSdkRecipe()
 {
     struct StorageStruct
     {
@@ -96,6 +96,7 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
             progressDialog->setWindowTitle(dialogTitle());
             progressDialog->setFixedSize(progressDialog->sizeHint());
             progressDialog->setAutoClose(false);
+            progressDialog->show(); // TODO: Should not be needed. Investigate possible QT_BUG
         }
         std::unique_ptr<QProgressDialog> progressDialog;
         std::optional<FilePath> sdkFileName;
@@ -116,7 +117,7 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
         query.setNetworkAccessManager(NetworkAccessManager::instance());
         NetworkQuery *queryPtr = &query;
         QProgressDialog *progressDialog = storage->progressDialog.get();
-        connect(queryPtr, &NetworkQuery::started, progressDialog, [queryPtr, progressDialog] {
+        QObject::connect(queryPtr, &NetworkQuery::started, progressDialog, [queryPtr, progressDialog] {
             QNetworkReply *reply = queryPtr->reply();
             if (!reply)
                 return;
@@ -126,7 +127,7 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
                 progressDialog->setValue(received);
             });
 #if QT_CONFIG(ssl)
-            connect(reply, &QNetworkReply::sslErrors,
+            QObject::connect(reply, &QNetworkReply::sslErrors,
                     reply, [reply](const QList<QSslError> &sslErrors) {
                 for (const QSslError &error : sslErrors)
                     qCDebug(sdkDownloaderLog, "SSL error: %s\n", qPrintable(error.errorString()));
@@ -180,7 +181,7 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
         unarchiver.setDestDir(sdkFileName.parentDir());
         return SetupResult::Continue;
     };
-    const auto onUnarchiverDone = [this, storage](DoneWith result) {
+    const auto onUnarchiverDone = [storage](DoneWith result) {
         if (result == DoneWith::Cancel)
             return;
 
@@ -190,7 +191,6 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
         }
         androidConfig().setTemporarySdkToolsPath(
             storage->sdkFileName->parentDir().pathAppended(Constants::cmdlineToolsName));
-        QMetaObject::invokeMethod(this, [this] { emit sdkExtracted(); }, Qt::QueuedConnection);
     };
 
     const auto onCanceled = [storage](Barrier &barrier) {
@@ -199,7 +199,7 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
                          &barrier, &Barrier::advance, Qt::QueuedConnection);
     };
 
-    const Group root {
+    return Group {
         storage,
         parallel,
         stopOnSuccessOrError,
@@ -210,13 +210,8 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
         },
         BarrierTask(onCanceled, [] { return DoneResult::Error; })
     };
-
-    m_taskTreeRunner.start(root);
 }
 
-QString AndroidSdkDownloader::dialogTitle()
-{
-    return Tr::tr("Download SDK Tools");
-}
+QString dialogTitle() { return Tr::tr("Download SDK Tools"); }
 
 } // namespace Android::Internal

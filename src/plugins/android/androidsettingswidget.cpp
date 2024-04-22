@@ -14,6 +14,8 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/async.h>
 #include <utils/detailswidget.h>
 #include <utils/hostosinfo.h>
@@ -183,7 +185,7 @@ private:
     AndroidSdkManagerWidget *m_sdkManagerWidget = nullptr;
 
     AndroidSdkManager m_sdkManager;
-    AndroidSdkDownloader m_sdkDownloader;
+    Tasking::TaskTreeRunner m_sdkDownloader;
     bool m_isInitialReloadDone = false;
 
     SummaryWidget *m_androidSummary = nullptr;
@@ -500,11 +502,13 @@ AndroidSettingsWidget::AndroidSettingsWidget()
             this, [this] { m_sdkManagerWidget->exec(); });
     connect(sdkToolsAutoDownloadButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::downloadSdk);
-    connect(&m_sdkDownloader, &AndroidSdkDownloader::sdkExtracted, this, [this] {
+    connect(&m_sdkDownloader, &Tasking::TaskTreeRunner::done, this, [this](Tasking::DoneWith result) {
+        if (result != Tasking::DoneWith::Success)
+            return;
         // Make sure the sdk path is created before installing packages
         const FilePath sdkPath = androidConfig().sdkLocation();
         if (!sdkPath.createDir()) {
-            QMessageBox::warning(this, AndroidSdkDownloader::dialogTitle(),
+            QMessageBox::warning(this, Android::Internal::dialogTitle(),
                                  Tr::tr("Failed to create the SDK Tools path %1.")
                                  .arg("\n\"" + sdkPath.toUserOutput() + "\""));
         }
@@ -813,7 +817,7 @@ void AndroidSettingsWidget::updateUI()
 void AndroidSettingsWidget::downloadSdk()
 {
     if (androidConfig().sdkToolsOk()) {
-        QMessageBox::warning(this, AndroidSdkDownloader::dialogTitle(),
+        QMessageBox::warning(this, Android::Internal::dialogTitle(),
                              Tr::tr("The selected path already has a valid SDK Tools package."));
         validateSdk();
         return;
@@ -822,10 +826,10 @@ void AndroidSettingsWidget::downloadSdk()
     const QString message = Tr::tr("Download and install Android SDK Tools to %1?")
             .arg("\n\"" + m_sdkLocationPathChooser->filePath().cleanPath().toUserOutput()
                  + "\"");
-    auto userInput = QMessageBox::information(this, AndroidSdkDownloader::dialogTitle(),
+    auto userInput = QMessageBox::information(this, Android::Internal::dialogTitle(),
                                               message, QMessageBox::Yes | QMessageBox::No);
     if (userInput == QMessageBox::Yes)
-        m_sdkDownloader.downloadAndExtractSdk();
+        m_sdkDownloader.start({Android::Internal::downloadSdkRecipe()});
 }
 
 // AndroidSettingsPage
