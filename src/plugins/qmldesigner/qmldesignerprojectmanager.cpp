@@ -181,7 +181,7 @@ public:
               pathCache.sourceId(SourcePath{project->projectDirectory().toString() + "/."}).internalId())}
     {}
     Sqlite::Database database;
-    ProjectStorage<Sqlite::Database> storage{database, database.isInitialized()};
+    ProjectStorage storage{database, database.isInitialized()};
     PathCacheType pathCache{storage};
     FileSystem fileSystem{pathCache};
     FileStatusCache fileStatusCache{fileSystem};
@@ -282,7 +282,7 @@ AsynchronousImageCache &QmlDesignerProjectManager::asynchronousImageCache()
 }
 
 namespace {
-[[maybe_unused]] ProjectStorage<Sqlite::Database> *dummyProjectStorage()
+[[maybe_unused]] ProjectStorage *dummyProjectStorage()
 {
     return nullptr;
 }

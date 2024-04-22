@@ -210,6 +210,14 @@ public:
     struct is_container<QVarLengthArray<T, Prealloc>> : std::true_type
     {};
 
+    template<typename T>
+    struct is_small_container : std::false_type
+    {};
+
+    template<typename T, qsizetype Prealloc>
+    struct is_small_container<QVarLengthArray<T, Prealloc>> : std::true_type
+    {};
+
     template<typename Container,
              std::size_t capacity = 32,
              typename = std::enable_if_t<is_container<Container>::value>,
@@ -223,14 +231,16 @@ public:
 
         Resetter resetter{this};
         Container resultValues;
-        resultValues.reserve(std::max(capacity, m_maximumResultCount));
+        using size_tupe = typename Container::size_type;
+        if constexpr (!is_small_container<Container>::value)
+            resultValues.reserve(static_cast<size_tupe>(std::max(capacity, m_maximumResultCount)));
 
         bindValues(queryValues...);
 
         while (BaseStatement::next())
             emplaceBackValues(resultValues);
 
-        setMaximumResultCount(resultValues.size());
+        setMaximumResultCount(static_cast<std::size_t>(resultValues.size()));
 
         return resultValues;
     }

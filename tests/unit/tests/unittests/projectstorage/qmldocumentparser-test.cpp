@@ -143,8 +143,8 @@ class QmlDocumentParser : public ::testing::Test
 public:
 protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
-    QmlDesigner::ProjectStorage<Sqlite::Database> storage{database, database.isInitialized()};
-    QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage<Sqlite::Database>> sourcePathCache{
+    QmlDesigner::ProjectStorage storage{database, database.isInitialized()};
+    QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage> sourcePathCache{
         storage};
     QmlDesigner::QmlDocumentParser parser{storage, sourcePathCache};
     Storage::Imports imports;

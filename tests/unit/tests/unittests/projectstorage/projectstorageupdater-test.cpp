@@ -144,7 +144,7 @@ public:
     {
         static_database = std::make_unique<Sqlite::Database>(":memory:", Sqlite::JournalMode::Memory);
 
-        static_projectStorage = std::make_unique<QmlDesigner::ProjectStorage<Sqlite::Database>>(
+        static_projectStorage = std::make_unique<QmlDesigner::ProjectStorage>(
             *static_database, static_database->isInitialized());
     }
 
@@ -312,9 +312,9 @@ protected:
     QmlDesigner::FileStatusCache fileStatusCache{fileSystemMock};
     inline static std::unique_ptr<Sqlite::Database> static_database;
     Sqlite::Database &database = *static_database;
-    inline static std::unique_ptr<QmlDesigner::ProjectStorage<Sqlite::Database>> static_projectStorage;
-    QmlDesigner::ProjectStorage<Sqlite::Database> &storage = *static_projectStorage;
-    QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage<Sqlite::Database>> sourcePathCache{
+    inline static std::unique_ptr<QmlDesigner::ProjectStorage> static_projectStorage;
+    QmlDesigner::ProjectStorage &storage = *static_projectStorage;
+    QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage> sourcePathCache{
         storage};
     NiceMock<ProjectStoragePathWatcherMock> patchWatcherMock;
     QmlDesigner::ProjectPartId projectPartId = QmlDesigner::ProjectPartId::create(1);

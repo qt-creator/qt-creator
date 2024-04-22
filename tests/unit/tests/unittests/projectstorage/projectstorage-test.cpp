@@ -202,7 +202,7 @@ class HasNameMatcher
 public:
     using is_gtest_matcher = void;
 
-    HasNameMatcher(const QmlDesigner::ProjectStorage<Sqlite::Database> &storage,
+    HasNameMatcher(const QmlDesigner::ProjectStorage &storage,
                    Utils::SmallStringView name)
         : storage{storage}
         , name{name}
@@ -231,7 +231,7 @@ public:
     void DescribeNegationTo(std::ostream *os) const { *os << "is not '" << name << "'"; }
 
 private:
-    const QmlDesigner::ProjectStorage<Sqlite::Database> &storage;
+    const QmlDesigner::ProjectStorage &storage;
     Utils::SmallStringView name;
 };
 
@@ -271,7 +271,7 @@ protected:
     {
         static_database = std::make_unique<Sqlite::Database>(":memory:", Sqlite::JournalMode::Memory);
 
-        static_projectStorage = std::make_unique<QmlDesigner::ProjectStorage<Sqlite::Database>>(
+        static_projectStorage = std::make_unique<QmlDesigner::ProjectStorage>(
             *static_database, static_database->isInitialized());
     }
 
@@ -1136,9 +1136,9 @@ protected:
 protected:
     inline static std::unique_ptr<Sqlite::Database> static_database;
     Sqlite::Database &database = *static_database;
-    inline static std::unique_ptr<QmlDesigner::ProjectStorage<Sqlite::Database>> static_projectStorage;
-    QmlDesigner::ProjectStorage<Sqlite::Database> &storage = *static_projectStorage;
-    QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage<Sqlite::Database>> sourcePathCache{
+    inline static std::unique_ptr<QmlDesigner::ProjectStorage> static_projectStorage;
+    QmlDesigner::ProjectStorage &storage = *static_projectStorage;
+    QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage> sourcePathCache{
         storage};
     QmlDesigner::SourcePathView path1{"/path1/to"};
     QmlDesigner::SourcePathView path2{"/path2/to"};
@@ -5102,7 +5102,7 @@ TEST_F(ProjectStorage, populate_module_cache)
 {
     auto id = storage.moduleId("Qml");
 
-    QmlDesigner::ProjectStorage<Sqlite::Database> newStorage{database, database.isInitialized()};
+    QmlDesigner::ProjectStorage newStorage{database, database.isInitialized()};
 
     ASSERT_THAT(newStorage.moduleName(id), Eq("Qml"));
 }
