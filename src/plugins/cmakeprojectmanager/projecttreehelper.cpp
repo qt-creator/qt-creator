@@ -18,9 +18,12 @@ using namespace ProjectExplorer;
 
 namespace CMakeProjectManager::Internal {
 
-bool sourcesOrHeadersFolder(const QString &displayName)
+bool defaultCMakeSourceGroupFolder(const QString &displayName)
 {
-    return displayName == "Source Files" || displayName == "Header Files";
+    return displayName == "Source Files" || displayName == "Header Files"
+           || displayName == "Resources" || displayName == ""
+           || displayName == "Precompile Header File" || displayName == "CMake Rules"
+           || displayName == "Object Files";
 }
 
 std::unique_ptr<FolderNode> createCMakeVFolder(const Utils::FilePath &basePath,
@@ -30,7 +33,7 @@ std::unique_ptr<FolderNode> createCMakeVFolder(const Utils::FilePath &basePath,
     auto newFolder = std::make_unique<VirtualFolderNode>(basePath);
     newFolder->setPriority(priority);
     newFolder->setDisplayName(displayName);
-    newFolder->setIsSourcesOrHeaders(sourcesOrHeadersFolder(displayName));
+    newFolder->setIsSourcesOrHeaders(defaultCMakeSourceGroupFolder(displayName));
     return newFolder;
 }
 

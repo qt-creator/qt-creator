@@ -53,7 +53,8 @@ const char ABORT_BUILD_ALL_ON_ERROR_SETTINGS_KEY[]
     = "ProjectExplorer/Settings/AbortBuildAllOnError";
 const char LOW_BUILD_PRIORITY_SETTINGS_KEY[] = "ProjectExplorer/Settings/LowBuildPriority";
 const char APP_ENV_CHANGES_SETTINGS_KEY[] = "ProjectExplorer/Settings/AppEnvChanges";
-const char WARN_AGAINST_NON_ASCII_BUILD_DIR_SETTINGS_KEY[] = "ProjectExplorer/Settings/LowBuildPriority";
+const char WARN_AGAINST_NON_ASCII_BUILD_DIR_SETTINGS_KEY[]
+    = "ProjectExplorer/Settings/WarnAgainstNonAsciiBuildDir";
 
 } // Constants
 

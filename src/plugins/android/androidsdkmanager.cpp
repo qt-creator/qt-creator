@@ -125,10 +125,8 @@ static void sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
     bool assertionFound = false;
     proc.setStdOutCallback([offset, progressQuota, &proc, &assertionFound, &promise](const QString &out) {
         int progressPercent = parseProgress(out, assertionFound);
-        if (assertionFound) {
+        if (assertionFound)
             proc.stop();
-            proc.waitForFinished();
-        }
         if (progressPercent != -1)
             promise.setProgressValue(offset + qRound((progressPercent / 100.0) * progressQuota));
     });
