@@ -35,8 +35,13 @@ static LocatorMatcherTasks cmakeMatchers(const BuildAcceptor &acceptor)
 
     const auto onSetup = [storage, acceptor] {
         const QString input = storage->input();
+        const QRegularExpression regexp
+            = ILocatorFilter::createRegExp(input, ILocatorFilter::caseSensitivity(input));
+        if (!regexp.isValid())
+            return;
+        LocatorFilterEntries entries[int(ILocatorFilter::MatchLevel::Count)];
+
         const QList<Project *> projects = ProjectManager::projects();
-        LocatorFilterEntries entries;
         for (Project *project : projects) {
             const auto cmakeProject = qobject_cast<const CMakeProject *>(project);
             if (!cmakeProject || !cmakeProject->activeTarget())
@@ -50,8 +55,8 @@ static LocatorMatcherTasks cmakeMatchers(const BuildAcceptor &acceptor)
             for (const CMakeBuildTarget &target : buildTargets) {
                 if (CMakeBuildSystem::filteredOutTarget(target))
                     continue;
-                const int index = target.title.indexOf(input, 0, Qt::CaseInsensitive);
-                if (index >= 0) {
+                const QRegularExpressionMatch match = regexp.match(target.title);
+                if (match.hasMatch()) {
                     const FilePath projectPath = cmakeProject->projectFilePath();
                     const QString displayName = target.title;
                     LocatorFilterEntry entry;
@@ -72,14 +77,21 @@ static LocatorMatcherTasks cmakeMatchers(const BuildAcceptor &acceptor)
                     } else {
                         entry.extraInfo = projectPath.shortNativePath();
                     }
-                    entry.highlightInfo = {index, int(input.length())};
+                    entry.highlightInfo = ILocatorFilter::highlightInfo(match);
                     entry.filePath = cmakeProject->projectFilePath();
-                    if (acceptor || realTarget)
-                        entries.append(entry);
+                    if (acceptor || realTarget) {
+                        if (match.capturedStart() == 0)
+                            entries[int(ILocatorFilter::MatchLevel::Best)].append(entry);
+                        else if (match.lastCapturedIndex() == 1)
+                            entries[int(ILocatorFilter::MatchLevel::Better)].append(entry);
+                        else
+                            entries[int(ILocatorFilter::MatchLevel::Good)].append(entry);
+                    }
                 }
             }
         }
-        storage->reportOutput(entries);
+        storage->reportOutput(
+            std::accumulate(std::begin(entries), std::end(entries), LocatorFilterEntries()));
     };
     return {{Sync(onSetup), storage}};
 }
