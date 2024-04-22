@@ -6,6 +6,7 @@
 #include "androidsdkdownloader.h"
 #include "androidtr.h"
 
+#include <solutions/tasking/barrier.h>
 #include <solutions/tasking/networkquery.h>
 
 #include <utils/filepath.h>
@@ -32,17 +33,6 @@ static void logError(const QString &error)
     qCDebug(sdkDownloaderLog, "%s", error.toUtf8().data());
     QMessageBox::warning(Core::ICore::dialogParent(), AndroidSdkDownloader::dialogTitle(), error);
 }
-
-/**
- * @class SdkDownloader
- * @brief Download Android SDK tools package from within Qt Creator.
- */
-AndroidSdkDownloader::AndroidSdkDownloader()
-{
-    connect(&m_taskTreeRunner, &TaskTreeRunner::done, this, [this] { m_progressDialog.reset(); });
-}
-
-AndroidSdkDownloader::~AndroidSdkDownloader() = default;
 
 static bool isHttpRedirect(QNetworkReply *reply)
 {
@@ -102,37 +92,39 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
         return;
     }
 
-    m_progressDialog.reset(new QProgressDialog(Tr::tr("Downloading SDK Tools package..."),
-                                               Tr::tr("Cancel"), 0, 100, Core::ICore::dialogParent()));
-    m_progressDialog->setWindowModality(Qt::ApplicationModal);
-    m_progressDialog->setWindowTitle(dialogTitle());
-    m_progressDialog->setFixedSize(m_progressDialog->sizeHint());
-    m_progressDialog->setAutoClose(false);
-    connect(m_progressDialog.get(), &QProgressDialog::canceled, this, [this] {
-        m_taskTreeRunner.reset();
-        m_progressDialog.release()->deleteLater();
-    });
+    struct StorageStruct
+    {
+        StorageStruct() {
+            progressDialog.reset(new QProgressDialog(Tr::tr("Downloading SDK Tools package..."),
+                                 Tr::tr("Cancel"), 0, 100, Core::ICore::dialogParent()));
+            progressDialog->setWindowModality(Qt::ApplicationModal);
+            progressDialog->setWindowTitle(dialogTitle());
+            progressDialog->setFixedSize(progressDialog->sizeHint());
+            progressDialog->setAutoClose(false);
+        }
+        std::unique_ptr<QProgressDialog> progressDialog;
+        std::optional<FilePath> sdkFileName;
+    };
 
-    Storage<std::optional<FilePath>> storage;
+    Storage<StorageStruct> storage;
 
-    const auto onQuerySetup = [this](NetworkQuery &query) {
+    const auto onQuerySetup = [storage](NetworkQuery &query) {
         query.setRequest(QNetworkRequest(androidConfig().sdkToolsUrl()));
         query.setNetworkAccessManager(NetworkAccessManager::instance());
         NetworkQuery *queryPtr = &query;
-        connect(queryPtr, &NetworkQuery::started, this, [this, queryPtr] {
+        QProgressDialog *progressDialog = storage->progressDialog.get();
+        connect(queryPtr, &NetworkQuery::started, progressDialog, [queryPtr, progressDialog] {
             QNetworkReply *reply = queryPtr->reply();
             if (!reply)
                 return;
-            connect(reply, &QNetworkReply::downloadProgress,
-                    this, [this](qint64 received, qint64 max) {
-                if (!m_progressDialog)
-                    return;
-                m_progressDialog->setRange(0, max);
-                m_progressDialog->setValue(received);
+            QObject::connect(reply, &QNetworkReply::downloadProgress,
+                             progressDialog, [progressDialog](qint64 received, qint64 max) {
+                progressDialog->setRange(0, max);
+                progressDialog->setValue(received);
             });
 #if QT_CONFIG(ssl)
             connect(reply, &QNetworkReply::sslErrors,
-                    this, [reply](const QList<QSslError> &sslErrors) {
+                    reply, [reply](const QList<QSslError> &sslErrors) {
                 for (const QSslError &error : sslErrors)
                     qCDebug(sdkDownloaderLog, "SSL error: %s\n", qPrintable(error.errorString()));
                 logError(Tr::tr("Encountered SSL errors, download is aborted."));
@@ -142,6 +134,9 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
         });
     };
     const auto onQueryDone = [storage](const NetworkQuery &query, DoneWith result) {
+        if (result == DoneWith::Cancel)
+            return;
+
         QNetworkReply *reply = query.reply();
         QTC_ASSERT(reply, return);
         const QUrl url = reply->url();
@@ -160,15 +155,15 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
             logError(*saveResult);
             return;
         }
-        *storage = sdkFileName;
+        storage->sdkFileName = sdkFileName;
     };
 
-    const auto onUnarchiveSetup = [this, storage](Unarchiver &unarchiver) {
-        m_progressDialog->setRange(0, 0);
-        m_progressDialog->setLabelText(Tr::tr("Unarchiving SDK Tools package..."));
-        if (!*storage)
+    const auto onUnarchiveSetup = [storage](Unarchiver &unarchiver) {
+        storage->progressDialog->setRange(0, 0);
+        storage->progressDialog->setLabelText(Tr::tr("Unarchiving SDK Tools package..."));
+        if (!storage->sdkFileName)
             return SetupResult::StopWithError;
-        const FilePath sdkFileName = **storage;
+        const FilePath sdkFileName = *storage->sdkFileName;
         if (!verifyFileIntegrity(sdkFileName, androidConfig().getSdkToolsSha256())) {
             logError(Tr::tr("Verifying the integrity of the downloaded file has failed."));
             return SetupResult::StopWithError;
@@ -183,19 +178,33 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
         return SetupResult::Continue;
     };
     const auto onUnarchiverDone = [this, storage](DoneWith result) {
+        if (result == DoneWith::Cancel)
+            return;
+
         if (result != DoneWith::Success) {
             logError(Tr::tr("Unarchiving error."));
             return;
         }
         androidConfig().setTemporarySdkToolsPath(
-            (*storage)->parentDir().pathAppended(Constants::cmdlineToolsName));
+            storage->sdkFileName->parentDir().pathAppended(Constants::cmdlineToolsName));
         QMetaObject::invokeMethod(this, [this] { emit sdkExtracted(); }, Qt::QueuedConnection);
+    };
+
+    const auto onCanceled = [storage](Barrier &barrier) {
+        // Avoid deleting progress dialog from its signal handler.
+        QObject::connect(storage->progressDialog.get(), &QProgressDialog::canceled,
+                         &barrier, &Barrier::advance, Qt::QueuedConnection);
     };
 
     const Group root {
         storage,
-        NetworkQueryTask(onQuerySetup, onQueryDone),
-        UnarchiverTask(onUnarchiveSetup, onUnarchiverDone)
+        parallel,
+        stopOnSuccessOrError,
+        Group {
+            NetworkQueryTask(onQuerySetup, onQueryDone),
+            UnarchiverTask(onUnarchiveSetup, onUnarchiverDone)
+        },
+        BarrierTask(onCanceled, [] { return DoneResult::Error; })
     };
 
     m_taskTreeRunner.start(root);

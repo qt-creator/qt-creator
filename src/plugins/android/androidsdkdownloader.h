@@ -5,10 +5,6 @@
 
 #include <solutions/tasking/tasktreerunner.h>
 
-QT_BEGIN_NAMESPACE
-class QProgressDialog;
-QT_END_NAMESPACE
-
 namespace Android::Internal {
 
 class AndroidSdkDownloader : public QObject
@@ -16,9 +12,6 @@ class AndroidSdkDownloader : public QObject
     Q_OBJECT
 
 public:
-    AndroidSdkDownloader();
-    ~AndroidSdkDownloader();
-
     void downloadAndExtractSdk();
     static QString dialogTitle();
 
@@ -26,7 +19,6 @@ signals:
     void sdkExtracted();
 
 private:
-    std::unique_ptr<QProgressDialog> m_progressDialog;
     Tasking::TaskTreeRunner m_taskTreeRunner;
 };
 
