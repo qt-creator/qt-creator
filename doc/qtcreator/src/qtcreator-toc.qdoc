@@ -22,12 +22,6 @@
                 \endlist
             \li \l{Creating Projects}
             \li \l{Configuring Projects}
-            \li \l{Validating with Target Hardware}
-            \list
-                \li \l{Previewing on Desktop}
-                \li \l{Previewing on Devices}
-                \li \l{Previewing in Browsers}
-            \endlist
             \li \l{Connecting Devices}
             \list
                 \li \l{Connecting Android Devices}

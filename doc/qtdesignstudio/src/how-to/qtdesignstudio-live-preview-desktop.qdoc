@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-live-preview.html
-    \page creator-live-preview-desktop.html
+    \page studio-live-preview-desktop.html
+    \previouspage studio-live-preview.html
     \nextpage creator-live-preview-devices.html
 
     \title Previewing on Desktop
@@ -11,16 +11,9 @@
     To preview the currently active QML file on the desktop:
 
     \list
-        \if defined(qtcreator)
-        \li Select \inlineimage icons/live-preview.png (\uicontrol {Live Preview})
-            on the \l{Edit Mode}{editor} toolbar.
-            \image qtcreator-live-preview.webp {Application running on top of the editor view}
-        \li Select \uicontrol Build > \uicontrol {QML Preview}.
-    \endlist
-        \else
         \li Select the \uicontrol {Live Preview} button on the top toolbar.
         \li Press \key {Alt+P}.
-        \image studio-live-preview.webp
+            \image studio-live-preview.webp
     \endlist
 
     To preview any QML file in the project:
@@ -47,5 +40,4 @@
         \li In \uicontrol {Override device QML viewer}, select the folder where
             the preview tool executable is located.
     \endlist
-    \endif
 */

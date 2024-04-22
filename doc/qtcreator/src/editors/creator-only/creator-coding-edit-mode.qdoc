@@ -111,7 +111,7 @@
     \row
         \li \inlineimage icons/live-preview.png
         \li Preview changes to QML code live in your application.
-        \li \l {Previewing on Desktop}
+        \li \l {Preview a QML file on desktop}
     \row
         \li \inlineimage icons/debugger_singleinstructionmode.png
         \li Run Clang-Tidy or Clazy to analyze the currently open file.

@@ -1,20 +1,30 @@
-// Copyright (C) 2020 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-live-preview-desktop.html
     \page creator-live-preview-devices.html
+    \if defined (qtdesignstudio)
+    \previouspage studio-live-preview-desktop.html
     \nextpage qt-design-viewer.html
 
     \title Previewing on Devices
 
-    To preview UIs on Android devices, enable USB debugging on them
-    and connect them to your system with a USB cable.
+    \else
+    \previouspage creator-how-tos.html
 
-    To preview UIs on Boot2Qt devices, connect the devices to your
-    system with a USB cable, or a wired or wireless connection, depending on
-    the device, and configure connections to them. The necessary kits have been
-    predefined and you only need to enable them for your current project.
+    \ingroup creator-how-to-design
+
+    \title Preview Qt Quick UIs on devices
+    \endif
+
+    To preview a UI on an Android device, turn on USB debugging on the device
+    and connect it to the computer with a USB cable.
+
+    To preview a UI on a Boot2Qt device, connect the device to the computer
+    with a USB cable, or a wired or wireless connection, depending on
+    the device, and configure a connection to it. The necessary kits have been
+    predefined, but you need to select the one appropriate for your current
+    project.
 
     \e {Deploy configurations} handle the packaging and copying of the
     necessary files to a location in a device where you want to run the
@@ -27,8 +37,8 @@
 
     \list 1
         \if defined(qtcreator)
-        \li In \uicontrol Projects > \uicontrol {Build & Run}, enable the kit
-            predefined for the device type (1).
+        \li Go to \uicontrol Projects > \uicontrol {Build & Run}.
+        \li Activate the kit predefined for the device type (1).
         \li Select the kit for the device in the kit selector (2).
             \image qtcreator-kit-selector-devices.webp {Kit selector}
         \else
@@ -42,36 +52,36 @@
             press \key {Alt+P}.
     \endlist
 
-    \section2 Previewing on Android Devices
+    \section2 On Android
 
     \if defined(qtcreator)
-    With the USB debugging feature on Android devices, you can create connections
-    to the devices from \QC and run the preview utility on them.
+    Use the USB debugging feature on an Android device to create a connection
+    to the device from \QC and run the preview utility on it.
 
     Debugging is turned on in different ways on different Android devices.
     Look for \uicontrol {USB Debugging} under \uicontrol {Developer Options}.
-    On some devices, \uicontrol {Developer Options} is hidden and becomes visible
-    when you tap the \uicontrol {Build number} field in \uicontrol Settings >
-    \uicontrol About several times.
+    Tap \uicontrol {Build number} in \uicontrol Settings > \uicontrol About
+    several times to show \uicontrol {Developer Options}.
 
     After you turn on debugging, connect the Android device to the system
     with a USB cable.
 
-    The first time you preview a UI on devices, the preview utility
-    is copied to them. This might take some time. Thereafter, previewing will
-    get faster because only the UI files need to be copied to the
-    device.
+    The first time you preview a UI on a device, the preview utility
+    is copied to it, which might take some time. Thereafter, previewing
+    gets faster because only the UI files need to be copied to the device.
     \else
-    Preview your \QDS projects with \QUV. It is an application
-    that runs on your Android device.
+    Preview \QDS projects with \QUV on an Android device.
     Learn more about \l{Viewing Applications on Android}.
     \endif
 
+    \section2 On Boot2Qt
 
-    \section2 Previewing on Boot2Qt Devices
-
-    You can preview UIs on supported Boot2Qt devices that you configure as
+    Preview a UI on a supported Boot2Qt device that you configure as
     instructed in the Boot2Qt documentation.
 
     \sa {Boot2Qt: Documentation}, {Support Levels for Target Hardware}
+
+    \if defined(qtcreator)
+    \sa {Design UIs}{How To: Design UIs}, {UI Design}
+    \endif
 */

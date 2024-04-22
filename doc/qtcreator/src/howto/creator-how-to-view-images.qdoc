@@ -43,6 +43,10 @@
     Select \uicontrol {Set as Default} to use the current settings for the
     background and outline modes and fitting images to screen as default
     values for the image viewer.
+
+    \if defined(qtcreator)
+    \sa {Design UIs}{How To: Design UIs}, {UI Design}
+    \endif
 */
 
 /*!
@@ -67,4 +71,8 @@
 
     You can then use QIcon::addPixmap() to add the pixmaps to icons in
     different modes and states.
+
+    \if defined(qtcreator)
+    \sa {Design UIs}{How To: Design UIs}, {UI Design}
+    \endif
 */

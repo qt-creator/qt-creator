@@ -94,6 +94,11 @@
             Load C++ plugins for QML to simulate data.
     \endlist
 
+    Use the QML live preview to preview a QML file or an entire Qt Quick
+    application on the desktop, as well as on Android and embedded Linux
+    devices. The changes you make to the UI are instantly visible to you
+    in the preview.
+
     If you need a traditional user interface that has a clear structure and
     enforces a platform look and feel, use \l{Qt Widgets} and the integrated
     \l{\QD}.
@@ -206,15 +211,6 @@
     system of a device.
 
     For more information, see \l{Connecting Devices} and \l{Deploy Configurations}.
-
-    \section2 Previewing QML
-
-    Use the QML live preview to preview a QML file or an entire Qt Quick
-    application on the desktop, as well as on Android and embedded Linux
-    devices. The changes you make to the UI are instantly visible to you
-    in the preview.
-
-    For more information, see \l{Validating with Target Hardware}.
 
     \section1 Debugging Applications
 

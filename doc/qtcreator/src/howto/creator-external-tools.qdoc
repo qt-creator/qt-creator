@@ -209,6 +209,10 @@
     \uicontrol External > \uicontrol {Qt Quick} > \uicontrol {QML Runtime}.
 
     \sa {Use external tools}
+
+    \if defined(qtcreator)
+    \sa {Design UIs}{How To: Design UIs}, {UI Design}
+    \endif
 */
 
 /*!
