@@ -143,7 +143,7 @@ QString DynamicPropertiesProxyModel::newPropertyName() const
 {
     DynamicPropertiesModel *propsModel = dynamicPropertiesModel();
 
-    return QString::fromUtf8(uniquePropertyName("property", propsModel->singleSelectedNode()));
+    return QString::fromUtf8(uniquePropertyName("newName", propsModel->singleSelectedNode()));
 }
 
 void DynamicPropertiesProxyModel::createProperty(const QString &name, const QString &type)
