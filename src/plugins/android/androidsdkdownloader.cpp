@@ -87,11 +87,6 @@ static bool verifyFileIntegrity(const FilePath fileName, const QByteArray &sha25
 
 void AndroidSdkDownloader::downloadAndExtractSdk()
 {
-    if (androidConfig().sdkToolsUrl().isEmpty()) {
-        logError(Tr::tr("The SDK Tools download URL is empty."));
-        return;
-    }
-
     struct StorageStruct
     {
         StorageStruct() {
@@ -107,6 +102,14 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
     };
 
     Storage<StorageStruct> storage;
+
+    const auto onSetup = [] {
+        if (androidConfig().sdkToolsUrl().isEmpty()) {
+            logError(Tr::tr("The SDK Tools download URL is empty."));
+            return SetupResult::StopWithError;
+        }
+        return SetupResult::Continue;
+    };
 
     const auto onQuerySetup = [storage](NetworkQuery &query) {
         query.setRequest(QNetworkRequest(androidConfig().sdkToolsUrl()));
@@ -201,6 +204,7 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
         parallel,
         stopOnSuccessOrError,
         Group {
+            onGroupSetup(onSetup),
             NetworkQueryTask(onQuerySetup, onQueryDone),
             UnarchiverTask(onUnarchiveSetup, onUnarchiverDone)
         },
