@@ -75,9 +75,14 @@ Section {
             }
         }
 
-        PropertyLabel { text: qsTr("Visibility") }
+        PropertyLabel {
+            text: qsTr("Visibility")
+            visible: root.hasDesignerEffect
+        }
 
         SecondColumnLayout {
+            visible: root.hasDesignerEffect
+
             CheckBox {
                 text: qsTr("Visible")
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
@@ -90,6 +95,7 @@ Section {
     }
 
     Item {
+        visible: root.hasDesignerEffect
         width: 1
         height: StudioTheme.Values.sectionHeadSpacerHeight
     }
@@ -444,6 +450,7 @@ Section {
     }
 
     Item {
+        visible: root.hasDesignerEffect
         width: 1
         height: StudioTheme.Values.sectionHeadSpacerHeight
     }
