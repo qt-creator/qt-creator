@@ -213,6 +213,8 @@ Section {
                         implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                        + StudioTheme.Values.actionIndicatorWidth
                         backendValue: root.effectNodeWrapper.properties.layerBlurRadius
+                        minimumValue: 0
+                        maximumValue: 250
                     }
 
                     ExpandingSpacer {}
@@ -252,6 +254,8 @@ Section {
                         implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                        + StudioTheme.Values.actionIndicatorWidth
                         backendValue: root.effectNodeWrapper.properties.backgroundBlurRadius
+                        minimumValue: 0
+                        maximumValue: 250
                     }
 
                     ExpandingSpacer {}
@@ -376,6 +380,8 @@ Section {
                             implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                            + StudioTheme.Values.actionIndicatorWidth
                             backendValue: delegate.wrapper.properties.blur
+                            minimumValue: 0
+                            maximumValue: 250
                         }
 
                         ExpandingSpacer {}
@@ -392,6 +398,8 @@ Section {
                                            + StudioTheme.Values.actionIndicatorWidth
                             backendValue: delegate.wrapper.properties.spread
                             enabled: modelNodeBackend.isInstanceOf("Rectangle")
+                            minimumValue: -2048
+                            maximumValue: 2048
                         }
 
                         ExpandingSpacer {}
@@ -414,8 +422,8 @@ Section {
                             implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                            + StudioTheme.Values.actionIndicatorWidth
                             backendValue: delegate.wrapper.properties.offsetX
-                            maximumValue: 0xffff
                             minimumValue: -0xffff
+                            maximumValue: 0xffff
                         }
 
                         Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
@@ -431,8 +439,8 @@ Section {
                             implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                            + StudioTheme.Values.actionIndicatorWidth
                             backendValue: delegate.wrapper.properties.offsetY
-                            maximumValue: 0xffff
                             minimumValue: -0xffff
+                            maximumValue: 0xffff
                         }
 
                         Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
