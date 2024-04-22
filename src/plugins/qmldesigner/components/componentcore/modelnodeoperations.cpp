@@ -1688,7 +1688,14 @@ void editIn3dView(const SelectionContext &selectionContext)
     if (selectionContext.view() && selectionContext.hasSingleSelectedModelNode()
         && selectionContext.currentSingleSelectedNode().metaInfo().isQtQuick3DView3D()) {
         QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("Editor3D", true);
-        selectionContext.view()->emitView3DAction(View3DActionType::AlignViewToCamera, true);
+        const QPointF scenePos = selectionContext.scenePosition();
+        if (scenePos.isNull()) {
+            selectionContext.view()->emitView3DAction(View3DActionType::AlignViewToCamera, true);
+        } else {
+            selectionContext.view()->emitCustomNotification("pick_3d_node_from_2d_scene",
+                                                            {selectionContext.currentSingleSelectedNode()},
+                                                            {scenePos});
+        }
     }
 }
 
