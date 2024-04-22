@@ -506,10 +506,10 @@ void AndroidSdkManagerPrivate::checkPendingLicense(SdkCmdPromise &fi)
     fi.setProgressValue(0);
     AndroidSdkManager::OperationOutput result;
     result.type = AndroidSdkManager::LicenseCheck;
-    const QStringList args = {"--licenses", sdkRootArg(androidConfig())};
     if (!fi.isCanceled()) {
         const int timeOutS = 4; // Short timeout as workaround for QTCREATORBUG-25667
-        sdkManagerCommand(androidConfig(), args, m_sdkManager, fi, result, 100.0, true, timeOutS);
+        sdkManagerCommand(androidConfig(), {"--licenses"}, m_sdkManager, fi, result, 100.0, true,
+                          timeOutS);
     } else {
         qCDebug(sdkManagerLog) << "Update: Operation cancelled before start";
     }
