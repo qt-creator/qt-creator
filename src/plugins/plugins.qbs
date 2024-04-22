@@ -52,6 +52,7 @@ Project {
         "incredibuild/incredibuild.qbs",
         "ios/ios.qbs",
         "languageclient/languageclient.qbs",
+        "languageclient/lualanguageclient/lualanguageclient.qbs",
         "lua/lua.qbs",
         "macros/macros.qbs",
         "marketplace/marketplace.qbs",

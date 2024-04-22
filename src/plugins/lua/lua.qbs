@@ -79,4 +79,9 @@ QtcPlugin {
             "qobject.lua",
         ]
     }
+
+    Export {
+        Depends { name: "sol2" }
+        Depends { name: "lua546" }
+    }
 }
