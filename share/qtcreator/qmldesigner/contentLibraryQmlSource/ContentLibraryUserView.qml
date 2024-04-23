@@ -12,8 +12,8 @@ HelperWidgets.ScrollView {
     id: root
 
     clip: true
-    interactive: !ctxMenu.opened && !ContentLibraryBackend.rootView.isDragging
-                 && !HelperWidgets.Controller.contextMenuOpened
+    interactive: !ctxMenuMaterial.opened && !ctxMenuTexture.opened
+                 && !ContentLibraryBackend.rootView.isDragging && !HelperWidgets.Controller.contextMenuOpened
 
     property real cellWidth: 100
     property real cellHeight: 120
@@ -33,7 +33,8 @@ HelperWidgets.ScrollView {
     signal unimport(var bundleItem);
 
     function closeContextMenu() {
-        ctxMenu.close()
+        ctxMenuMaterial.close()
+        ctxMenuTexture.close()
     }
 
     function expandVisibleSections() {
@@ -46,15 +47,21 @@ HelperWidgets.ScrollView {
 
     Column {
         ContentLibraryMaterialContextMenu {
-            id: ctxMenu
+            id: ctxMenuMaterial
 
             hasModelSelection: ContentLibraryBackend.userModel.hasModelSelection
             importerRunning: ContentLibraryBackend.userModel.importerRunning
 
-            onApplyToSelected: (add) => ContentLibraryBackend.userModel.applyToSelected(ctxMenu.targetMaterial, add)
+            onApplyToSelected: (add) => ContentLibraryBackend.userModel.applyToSelected(ctxMenuMaterial.targetMaterial, add)
 
-            onUnimport: root.unimport(ctxMenu.targetMaterial)
-            onAddToProject: ContentLibraryBackend.userModel.addToProject(ctxMenu.targetMaterial)
+            onUnimport: root.unimport(ctxMenuMaterial.targetMaterial)
+            onAddToProject: ContentLibraryBackend.userModel.addToProject(ctxMenuMaterial.targetMaterial)
+        }
+
+        ContentLibraryTextureContextMenu {
+            id: ctxMenuTexture
+
+            hasSceneEnv: ContentLibraryBackend.texturesModel.hasSceneEnv
         }
 
         Repeater {
@@ -105,7 +112,7 @@ HelperWidgets.ScrollView {
 
                                     importerRunning: ContentLibraryBackend.userModel.importerRunning
 
-                                    onShowContextMenu: ctxMenu.popupMenu(modelData)
+                                    onShowContextMenu: ctxMenuMaterial.popupMenu(modelData)
                                     onAddToProject: ContentLibraryBackend.userModel.addToProject(modelData)
 
                                     onVisibleChanged: {
@@ -119,7 +126,7 @@ HelperWidgets.ScrollView {
                                     width: root.cellWidth
                                     height: root.cellWidth // for textures use a square size since there is no name row
 
-                                    // onShowContextMenu: ctxMenu.popupMenu(modelData) // TODO
+                                    onShowContextMenu: ctxMenuTexture.popupMenu(modelData)
                                 }
                             }
                         }
