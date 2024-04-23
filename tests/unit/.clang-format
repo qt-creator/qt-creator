@@ -2,6 +2,7 @@ Language:        Cpp
 AccessModifierOffset: -4
 AlignEscapedNewlines: DontAlign
 AllowShortFunctionsOnASingleLine: Inline
+AlwaysBreakTemplateDeclarations: true # use with clang 19
 BinPackArguments: false
 BinPackParameters: false
 BraceWrapping:
@@ -15,6 +16,7 @@ BreakBeforeBinaryOperators: All
 BreakBeforeBraces: Custom
 BreakConstructorInitializers: BeforeComma
 BreakInheritanceList: AfterComma
+# BreakTemplateDeclarations: Yes # use with clang 19
 ColumnLimit:    100
 IncludeCategories:
   - Regex:           'Q.*'

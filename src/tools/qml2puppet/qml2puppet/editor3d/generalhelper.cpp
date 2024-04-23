@@ -157,7 +157,7 @@ QVector3D GeneralHelper::panCamera(QQuick3DCamera *camera, const QMatrix4x4 star
 
 // Moves camera in 3D space and returns new look-at point
 QVector3D GeneralHelper::moveCamera(QQuick3DCamera *camera, const QVector3D &startLookAt,
-                                    float zoomFactor, const QVector3D &moveVector)
+                                    const QVector3D &moveVector)
 {
 
     if (moveVector.length() < 0.001f)
@@ -171,7 +171,8 @@ QVector3D GeneralHelper::moveCamera(QQuick3DCamera *camera, const QVector3D &sta
     const QVector3D xDelta = xAxis * moveVector.x();
     const QVector3D yDelta = yAxis * moveVector.y();
     const QVector3D zDelta = zAxis * moveVector.z();
-    const QVector3D delta = (yDelta - xDelta - zDelta) * zoomFactor;
+    // Delta multiplier for nice default speed in default scene
+    const QVector3D delta = (yDelta - xDelta - zDelta) * .5f;
 
     camera->setPosition(camera->position() + delta);
 
@@ -187,8 +188,14 @@ QVector3D GeneralHelper::rotateCamera(QQuick3DCamera *camera, const QPointF &ang
     if (qAbs(angles.y()) > 0.001f)
         camera->rotate(angles.y(), QVector3D(1.f, 0.f, 0.f), QQuick3DNode::LocalSpace);
     // Rotation around Y-axis is done in scene space to keep horizon level
-    if (qAbs(angles.x()) > 0.001f)
-        camera->rotate(angles.x(), QVector3D(0.f, 1.f, 0.f), QQuick3DNode::SceneSpace);
+    if (qAbs(angles.x()) > 0.001f) {
+        // Since we are rotating in scene space, adjust direction according to camera up-vector
+        float angle = angles.x();
+        if (camera->up().y() <= 0)
+            angle = -angle;
+
+        camera->rotate(angle, QVector3D(0.f, 1.f, 0.f), QQuick3DNode::SceneSpace);
+    }
 
     QMatrix4x4 m = camera->sceneTransform();
     const float *dataPtr(m.data());
@@ -391,6 +398,55 @@ QVector4D GeneralHelper::focusNodesToCamera(QQuick3DCamera *camera, float defaul
     return QVector4D(lookAt, cameraZoomFactor);
 }
 
+// Approaches the specified node without changing camera orientation
+QVector4D GeneralHelper::approachNode(
+    QQuick3DCamera *camera, float defaultLookAtDistance, QObject *node,
+    QQuick3DViewport *viewPort)
+{
+    auto node3d = qobject_cast<QQuick3DNode *>(node);
+    if (!camera || !node3d)
+        return QVector4D(0.f, 0.f, 0.f, 1.f);
+
+    QVector3D minBounds = maxVec;
+    QVector3D maxBounds = minVec;
+
+    getBounds(viewPort, node3d, minBounds, maxBounds); // Bounds are in node3d local coordinates
+
+    QVector3D extents = maxBounds - minBounds;
+    QVector3D focusLookAt = minBounds + (extents / 2.f);
+
+    if (node3d->parentNode()) {
+        QMatrix4x4 m = node3d->parentNode()->sceneTransform();
+        focusLookAt = m.map(focusLookAt);
+    }
+
+    float maxExtent = qSqrt(qreal(extents.x()) * qreal(extents.x())
+                            + qreal(extents.y()) * qreal(extents.y())
+                            + qreal(extents.z()) * qreal(extents.z()));
+
+    // Reset camera position to default zoom
+    QMatrix4x4 m = camera->sceneTransform();
+    const float *dataPtr(m.data());
+    QVector3D newLookVector(dataPtr[8], dataPtr[9], dataPtr[10]);
+    newLookVector.normalize();
+
+    // We don't want to change camera orientation, so calculate projection point on current
+    // camera look vector
+    QVector3D focusLookAtVector = focusLookAt - camera->position();
+    float dot = QVector3D::dotProduct(newLookVector, focusLookAtVector);
+    QVector3D newLookAt = camera->position() + dot * newLookVector;
+
+    newLookVector *= defaultLookAtDistance;
+    camera->setPosition(newLookAt + newLookVector);
+
+    float divisor = 1050.f;
+    float newZoomFactor = qBound(.01f, maxExtent / divisor, 100.f);
+    float cameraZoomFactor = zoomCamera(viewPort, camera, 0, defaultLookAtDistance, newLookAt,
+                                        newZoomFactor, false);
+
+    return QVector4D(newLookAt, cameraZoomFactor);
+}
+
 // This function can be used to synchronously focus camera on a node, which doesn't have to be
 // a selection box for bound calculations to work. This is used to focus the view for
 // various preview image generations, where doing things asynchronously is not good
@@ -487,12 +543,10 @@ void GeneralHelper::alignCameras(QQuick3DCamera *camera, const QVariant &nodes)
 // Aligns the camera to the first camera in nodes list.
 // Aligning means taking the position and XY rotation from the source camera. Rest of the properties
 // remain the same, as this is used to align edit cameras, which have fixed Z-rot, fov, and clips.
-// The new lookAt is set at same distance away as it was previously and scale isn't adjusted, so
-// the zoom factor of the edit camera stays the same.
-QVector3D GeneralHelper::alignView(QQuick3DCamera *camera, const QVariant &nodes,
-                                   const QVector3D &lookAtPoint)
+// The camera zoom is reset to default.
+QVector4D GeneralHelper::alignView(QQuick3DCamera *camera, const QVariant &nodes,
+                                   const QVector3D &lookAtPoint, float defaultLookAtDistance)
 {
-    float lastDistance = (lookAtPoint - camera->position()).length();
     const QVariantList varNodes = nodes.value<QVariantList>();
     QQuick3DCamera *cameraNode = nullptr;
     for (const auto &varNode : varNodes) {
@@ -502,15 +556,24 @@ QVector3D GeneralHelper::alignView(QQuick3DCamera *camera, const QVariant &nodes
     }
 
     if (cameraNode) {
+        if (auto orthoCamera = qobject_cast<QQuick3DOrthographicCamera *>(camera)) {
+            orthoCamera->setHorizontalMagnification(1.f);
+            orthoCamera->setVerticalMagnification(1.f);
+            // Force update on transform just in case position and rotation didn't change
+            float x = orthoCamera->x();
+            orthoCamera->setX(x + 1.f);
+            orthoCamera->setX(x);
+        }
         camera->setPosition(cameraNode->scenePosition());
         QVector3D newRotation = cameraNode->sceneRotation().toEulerAngles();
         newRotation.setZ(0.f);
         camera->setEulerRotation(newRotation);
+
     }
 
-    QVector3D lookAt = camera->position() + camera->forward() * lastDistance;
+    QVector3D lookAt = camera->position() + camera->forward() * defaultLookAtDistance;
 
-    return lookAt;
+    return QVector4D(lookAt, 1.f);
 }
 
 bool GeneralHelper::fuzzyCompare(double a, double b)

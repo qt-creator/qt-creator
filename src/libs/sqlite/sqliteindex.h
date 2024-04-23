@@ -40,6 +40,8 @@ public:
         return Utils::SmallString::join({"CREATE ",
                                          m_indexType == IndexType::Unique ? "UNIQUE " : "",
                                          "INDEX IF NOT EXISTS index_",
+                                         kindName(),
+                                         "_",
                                          m_tableName,
                                          "_",
                                          m_columnNames.join("_"),
@@ -62,6 +64,23 @@ public:
     {
         if (m_columnNames.empty())
             throw IndexHasNoColumns();
+    }
+
+private:
+    std::string_view kindName() const
+    {
+        using namespace std::string_view_literals;
+
+        if (m_indexType == IndexType::Unique && m_condition.hasContent())
+            return "unique_partial"sv;
+
+        if (m_indexType == IndexType::Unique)
+            return "unique"sv;
+
+        if (m_condition.hasContent())
+            return "partial"sv;
+
+        return "normal"sv;
     }
 
 private:

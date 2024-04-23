@@ -31,7 +31,7 @@ public:
         {
             std::unique_lock lock{m_mutex};
 
-            ensureThreadIsRunning(std::move(traceToken));
+            ensureThreadIsRunning(lock, std::move(traceToken));
 
             m_tasks.emplace_back(std::forward<Arguments>(arguments)...);
         }
@@ -54,6 +54,15 @@ public:
         clearTasks(oldTasks);
     }
 
+    void putThreadToSleep()
+    {
+        {
+            std::unique_lock lock{m_mutex};
+            m_sleeping = true;
+        }
+        m_condition.notify_all();
+    }
+
 private:
     void destroy()
     {
@@ -66,19 +75,20 @@ private:
     {
         using namespace std::literals::chrono_literals;
         std::unique_lock lock{m_mutex};
-        if (m_finishing)
+
+        if (m_finishing || m_sleeping)
             return {std::move(lock), true};
+
         if (m_tasks.empty()) {
             auto timedOutWithoutEntriesOrFinishing = !m_condition.wait_for(lock, 10min, [&] {
-                return m_tasks.size() || m_finishing;
+                return m_tasks.size() || m_finishing || m_sleeping;
             });
 
-            if (timedOutWithoutEntriesOrFinishing || m_finishing) {
+            if (timedOutWithoutEntriesOrFinishing)
                 m_sleeping = true;
-                return {std::move(lock), true};
-            }
         }
-        return {std::move(lock), false};
+
+        return {std::move(lock), m_finishing || m_sleeping};
     }
 
     [[nodiscard]] std::optional<Task> getTask(std::unique_lock<std::mutex> lock)
@@ -94,29 +104,38 @@ private:
         return {std::move(task)};
     }
 
-    template<typename TraceToken>
-    void ensureThreadIsRunning(TraceToken traceToken)
+    template<typename Lock, typename TraceToken>
+    void ensureThreadIsRunning(Lock &lock, TraceToken traceToken)
     {
         using namespace NanotraceHR::Literals;
 
         if (m_finishing || !m_sleeping)
             return;
 
+        if (m_sleeping) {
+            lock.unlock();
+            joinThread();
+            lock.lock();
+
+            m_sleeping = false;
+        }
+
         if (m_backgroundThread.joinable())
             return;
-
-        m_sleeping = false;
 
         auto [threadCreateToken, flowToken] = traceToken.beginDurationWithFlow(
             "thread is created in the task queue"_t);
         m_backgroundThread = std::thread{[this](auto traceToken) {
                                              auto duration = traceToken.beginDuration(
                                                  "thread is ready"_t);
+
                                              while (true) {
                                                  auto [lock, abort] = waitForTasks();
                                                  duration.end();
+
                                                  if (abort)
                                                      return;
+
                                                  auto getTaskToken = duration.beginDuration(
                                                      "get task from queue"_t);
                                                  if (auto task = getTask(std::move(lock)); task) {

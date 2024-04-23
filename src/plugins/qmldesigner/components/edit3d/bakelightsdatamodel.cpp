@@ -15,6 +15,8 @@
 #include "qmlobjectnode.h"
 #include "variantproperty.h"
 
+#include <model/modelutils.h>
+
 #include <utils3d.h>
 
 #include <utils/expected.h>
@@ -292,7 +294,7 @@ bool BakeLightsDataModel::reset()
 
             if (!hasExposedProps && node.metaInfo().isFileComponent()
                 && node.metaInfo().isQtQuick3DNode()) {
-                const QString compFile = node.metaInfo().componentFileName();
+                const QString compFile = ModelUtils::componentFilePath(node);
                 const QString projPath = m_view->externalDependencies().currentProjectDirPath();
                 if (compFile.startsWith(projPath)) {
                     // Quick and dirty scan of the component source to check if it potentially has

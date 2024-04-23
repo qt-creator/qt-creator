@@ -174,6 +174,7 @@ public:
     ModelNode targetTransition() const;
     void assignTargetFlowItem(const QmlFlowTargetNode &flowItem);
     QmlFlowItemNode flowItemParent() const;
+private:
     void destroyTarget();
 };
 

@@ -166,6 +166,7 @@ public:
     NodeMetaInfo qtQmlConnectionsMetaInfo() const;
     NodeMetaInfo qtQmlModelsListModelMetaInfo() const;
     NodeMetaInfo qtQmlModelsListElementMetaInfo() const;
+    NodeMetaInfo qtQmlXmlListModelXmlListModelRoleMetaInfo() const;
     NodeMetaInfo qtQuick3DBakedLightmapMetaInfo() const;
     NodeMetaInfo qtQuick3DDefaultMaterialMetaInfo() const;
     NodeMetaInfo qtQuick3DDirectionalLightMetaInfo() const;
@@ -218,14 +219,17 @@ public:
 
     // Imports:
     const Imports &imports() const;
-    const Imports &possibleImports() const;
-    const Imports &usedImports() const;
+    Imports possibleImports() const;
+    Imports usedImports() const;
     void changeImports(Imports importsToBeAdded, Imports importsToBeRemoved);
+#ifndef QDS_USE_PROJECTSTORAGE
     void setPossibleImports(Imports possibleImports);
+#endif
+#ifndef QDS_USE_PROJECTSTORAGE
     void setUsedImports(Imports usedImports);
+#endif
     bool hasImport(const Import &import, bool ignoreAlias = true, bool allowHigherVersion = false) const;
     bool isImportPossible(const Import &import, bool ignoreAlias = true, bool allowHigherVersion = false) const;
-    QString pathForImport(const Import &import);
     QStringList importPaths() const;
     Import highestPossibleImport(const QString &importPath);
 

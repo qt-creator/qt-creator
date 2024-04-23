@@ -83,6 +83,7 @@ public:
         binding_medium,
         bounds_small,
         branch_medium,
+        cameraSpeed_medium,
         camera_medium,
         camera_small,
         centerHorizontal,

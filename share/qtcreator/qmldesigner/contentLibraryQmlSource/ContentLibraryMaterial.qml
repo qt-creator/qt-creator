@@ -12,11 +12,14 @@ import WebFetcher
 Item {
     id: root
 
-    signal showContextMenu()
-
     // Download states: "" (ie default, not downloaded), "unavailable", "downloading", "downloaded",
     //                  "failed"
     property string downloadState: modelData.isDownloaded() ? "downloaded" : ""
+
+    property bool importerRunning: false
+
+    signal showContextMenu()
+    signal addToProject()
 
     visible: modelData.bundleMaterialVisible
 
@@ -29,7 +32,7 @@ Item {
         acceptedButtons: Qt.LeftButton | Qt.RightButton
 
         onPressed: (mouse) => {
-            if (mouse.button === Qt.LeftButton && !materialsModel.importerRunning) {
+            if (mouse.button === Qt.LeftButton && !root.importerRunning) {
                 if (root.downloadState === "downloaded")
                     ContentLibraryBackend.rootView.startDragMaterial(modelData, mapToGlobal(mouse.x, mouse.y))
             } else if (mouse.button === Qt.RightButton && root.downloadState === "downloaded") {
@@ -96,12 +99,12 @@ Item {
                 pressColor: Qt.hsla(c.hslHue, c.hslSaturation, c.hslLightness, .4)
                 anchors.right: img.right
                 anchors.bottom: img.bottom
-                enabled: !ContentLibraryBackend.materialsModel.importerRunning
+                enabled: !root.importerRunning
                 visible: root.downloadState === "downloaded"
                          && (containsMouse || mouseArea.containsMouse)
 
                 onClicked: {
-                    ContentLibraryBackend.materialsModel.addToProject(modelData)
+                    root.addToProject()
                 }
             }
 

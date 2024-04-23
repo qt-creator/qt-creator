@@ -166,7 +166,9 @@ endif()
 
 add_subdirectory(src)
 add_subdirectory(share)
-add_subdirectory(dist)
+if (NOT BUILD_DESIGNSTUDIO)
+    add_subdirectory(dist)
+endif()
 
 if (WITH_TESTS)
   add_subdirectory(tests)

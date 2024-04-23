@@ -22,6 +22,9 @@ Item {
     property alias realDragRange: spinBox.realDragRange
     property alias pixelsPerUnit: spinBox.pixelsPerUnit
 
+    property alias actionIndicatorEnabled: spinBox.actionIndicator.enabled
+    property alias actionIndicatorVisible: spinBox.actionIndicatorVisible
+
     width: 96
     implicitHeight: spinBox.height
 

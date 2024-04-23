@@ -12,20 +12,19 @@
 namespace QmlDesigner {
 
 ContentLibraryTexture::ContentLibraryTexture(QObject *parent, const QFileInfo &iconFileInfo,
-                                             const QString &downloadPath, const QUrl &icon,
-                                             const QString &key, const QString &webTextureUrl,
-                                             const QString &webIconUrl, const QString &fileExt,
+                                             const QString &dirPath, const QString &suffix,
                                              const QSize &dimensions, const qint64 sizeInBytes,
-                                             bool hasUpdate, bool isNew)
+                                             const QString &key, const QString &textureUrl,
+                                             const QString &iconUrl, bool hasUpdate, bool isNew)
     : QObject(parent)
     , m_iconPath(iconFileInfo.filePath())
-    , m_downloadPath(downloadPath)
-    , m_webTextureUrl(webTextureUrl)
-    , m_webIconUrl(webIconUrl)
+    , m_dirPath(dirPath)
+    , m_textureUrl(textureUrl)
+    , m_iconUrl(iconUrl)
     , m_baseName{iconFileInfo.baseName()}
-    , m_fileExt(fileExt)
+    , m_suffix(suffix)
     , m_textureKey(key)
-    , m_icon(icon)
+    , m_icon(QUrl::fromLocalFile(iconFileInfo.absoluteFilePath()))
     , m_dimensions(dimensions)
     , m_sizeInBytes(sizeInBytes)
     , m_hasUpdate(hasUpdate)
@@ -54,9 +53,9 @@ QString ContentLibraryTexture::iconPath() const
     return m_iconPath;
 }
 
-QString ContentLibraryTexture::resolveFileExt()
+QString ContentLibraryTexture::resolveSuffix()
 {
-    const QFileInfoList files = QDir(m_downloadPath).entryInfoList(QDir::Files);
+    const QFileInfoList files = QDir(m_dirPath).entryInfoList(QDir::Files);
     const QFileInfoList textureFiles = Utils::filtered(files, [this](const QFileInfo &fi) {
         return fi.baseName() == m_baseName;
     });
@@ -76,22 +75,20 @@ QString ContentLibraryTexture::resolveFileExt()
 
 QString ContentLibraryTexture::resolveToolTipText()
 {
-    if (m_fileExt.isEmpty()) {
-        // No supplied or resolved extension means we have just the icon and no other data
-        return m_baseName;
-    }
+    if (m_suffix.isEmpty())
+        return m_baseName; // empty suffix means we have just the icon and no other data
 
-    QString fileName = m_baseName + m_fileExt;
+    QString fileName = m_baseName + m_suffix;
     QString imageInfo;
 
     if (!m_isDownloaded && m_sizeInBytes > 0 && !m_dimensions.isNull()) {
-        imageInfo = ImageUtils::imageInfo(m_dimensions, m_sizeInBytes);
+        imageInfo = ImageUtils::imageInfoString(m_dimensions, m_sizeInBytes);
     } else {
-        QString fullDownloadPath = m_downloadPath + '/' + fileName;
-        imageInfo = ImageUtils::imageInfo(fullDownloadPath);
+        QString fullDownloadPath = m_dirPath + '/' + fileName;
+        imageInfo = ImageUtils::imageInfoString(fullDownloadPath);
     }
 
-    return QStringLiteral("%1\n%2").arg(fileName, imageInfo);
+    return QString("%1\n%2").arg(fileName, imageInfo);
 }
 
 bool ContentLibraryTexture::isDownloaded() const
@@ -99,9 +96,9 @@ bool ContentLibraryTexture::isDownloaded() const
     return m_isDownloaded;
 }
 
-QString ContentLibraryTexture::downloadedTexturePath() const
+QString ContentLibraryTexture::texturePath() const
 {
-    return m_downloadPath + '/' + m_baseName + m_fileExt;
+    return m_dirPath + '/' + m_baseName + m_suffix;
 }
 
 void ContentLibraryTexture::setDownloaded()
@@ -116,16 +113,16 @@ void ContentLibraryTexture::setDownloaded()
 
 void ContentLibraryTexture::doSetDownloaded()
 {
-    if (m_fileExt.isEmpty())
-        m_fileExt = resolveFileExt();
+    if (m_suffix.isEmpty())
+        m_suffix = resolveSuffix();
 
-    m_isDownloaded = QFileInfo::exists(downloadedTexturePath());
+    m_isDownloaded = QFileInfo::exists(texturePath());
     m_toolTip = resolveToolTipText();
 }
 
 QString ContentLibraryTexture::parentDirPath() const
 {
-    return m_downloadPath;
+    return m_dirPath;
 }
 
 QString ContentLibraryTexture::textureKey() const

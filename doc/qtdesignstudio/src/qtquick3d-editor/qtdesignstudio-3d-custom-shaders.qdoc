@@ -29,7 +29,7 @@
     \uicontrol {Custom Material} components, in
     \uicontrol Components > \uicontrol {Qt Quick3D} > \uicontrol {Qt Quick 3D}.
 
-    \image studio-qtquick-3d-components.png "Effect and Custom Material Components in Components"
+    \image studio-qtquick-3d-components.webp "Effect and Custom Material Components in Components"
 
     \note In Qt 5 the \uicontrol Effect component is located in
     \uicontrol {Qt Quick 3D Effects} >
@@ -218,7 +218,7 @@
 
     \row
         \li \l Blending
-        \li \inlineimage ok.png
+        \li
         \li A pass command that specifies the source blending function.
 
             The \uicontrol Source property specifies the source blending

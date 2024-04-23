@@ -5,6 +5,7 @@
 
 #include <utils/span.h>
 
+#include <nanotrace/nanotracehr.h>
 #include <type_traits>
 #include <vector>
 
@@ -64,6 +65,15 @@ public:
 
     [[noreturn, deprecated]] InternalIntegerType operator&() const { throw std::exception{}; }
 
+    template<typename String>
+    friend void convertToString(String &string, BasicId id)
+    {
+        if (id.isValid())
+            NanotraceHR::convertToString(string, id.internalId());
+        else
+            NanotraceHR::convertToString(string, "invalid");
+    }
+
 private:
     InternalIntegerType id = 0;
 };
@@ -88,4 +98,5 @@ struct hash<Sqlite::BasicId<Type, InternalIntegerType>>
         return std::hash<InternalIntegerType>{}(id.internalId());
     }
 };
+
 } // namespace std

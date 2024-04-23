@@ -941,6 +941,33 @@ TEST(SmallString, append_empty_initializer_list)
     ASSERT_THAT(text, Eq("some text"));
 }
 
+TEST(SmallString, append_int)
+{
+    SmallString text("some text");
+
+    text += 123;
+
+    ASSERT_THAT(text, Eq("some text123"));
+}
+
+TEST(SmallString, append_float)
+{
+    SmallString text("some text");
+
+    text += 123.456;
+
+    ASSERT_THAT(text, Eq("some text123.456"));
+}
+
+TEST(SmallString, append_character)
+{
+    SmallString text("some text");
+
+    text += 'x';
+
+    ASSERT_THAT(text, Eq("some textx"));
+}
+
 TEST(SmallString, to_byte_array)
 {
     SmallString text("some text");
@@ -1297,6 +1324,19 @@ TEST(SmallString, starts_with_string_view)
     ASSERT_FALSE(text.startsWith("col"));
     ASSERT_TRUE(text.startsWith('$'));
     ASSERT_FALSE(text.startsWith('@'));
+}
+
+TEST(SmallString, starts_with_qstringview)
+{
+    using namespace Qt::StringLiterals;
+    SmallString text("$column");
+
+    ASSERT_FALSE(text.startsWith(u"$columnxxx"_s));
+    ASSERT_TRUE(text.startsWith(u"$column"_s));
+    ASSERT_TRUE(text.startsWith(u"$col"_s));
+    ASSERT_FALSE(text.startsWith(u"col"_s));
+    ASSERT_TRUE(text.startsWith(u"$"_s));
+    ASSERT_FALSE(text.startsWith(u"@"_s));
 }
 
 TEST(SmallString, ends_with)
@@ -1839,6 +1879,8 @@ TEST(SmallString, number_to_string)
     ASSERT_THAT(SmallString::number(std::numeric_limits<long long int>::min()), "-9223372036854775808");
     ASSERT_THAT(SmallString::number(1.2), "1.2");
     ASSERT_THAT(SmallString::number(-1.2), "-1.2");
+    ASSERT_THAT(SmallString::number(1.2f), "1.2");
+    ASSERT_THAT(SmallString::number(-1.2f), "-1.2");
 }
 
 TEST(SmallString, string_view_plus_operator)

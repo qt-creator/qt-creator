@@ -66,8 +66,11 @@
 
     \title Adding Flow Views
 
-    You can add a flow view to an existing project or create a new project
-    for it, as described in \l {Creating Projects}.
+    A flow view is the base component of the flow diagram that you can use to wireframe
+    the UI of your application. For more information, see \l{Designing Application Flows}.
+
+    Add a flow view to an existing project or create a new project for it, as described in
+    \l {Creating Projects}.
 
     To create the flow view, select \uicontrol File >
     \uicontrol {New File} >
@@ -76,24 +79,18 @@
 
     \image studio-flow-view-create.png "Create Flow View wizard template"
 
-    You only need to select the \uicontrol {Use Event Simulator} check box if
-    you want to add an event simulator to the flow view. The event simulator
-    needs the project to be imported to the flow view, so you also need
-    to select the \uicontrol {Use Application Import} check box. You need the
+    If you want to add an event simulator to the flow view, select the
+    \uicontrol {Use Event Simulator} checkbox. In this case, select also the
+    \uicontrol {Use Application Import} checkbox to import the project to the flow view
+    as the event simulator requires it to work correctly. You need the
     import also for access to the project \c Constants.qml file that contains
-    global settings for the project.
+    global settings for the project. For more information, see \l {Simulating Events}.
 
-    The flow view properties enable you to adjust the appearance of all
-    the items in the flow: action areas, transition lines, decisions, and
-    wildcards. You can change the global settings for all items by editing
-    flow view properties, or you can select an individual action area or
-    transition line and change the appearance of just that component, including
-    the color, line thickness, dotted or solid lines, and even the curve of
-    the line. This enables you to add extra semantics to the design
-    of the flow diagram itself.
-
-    You can \l{Adding Flow Items}{add flow items} to the flow view to design
-    the UI.
+    You can adjust the appearance of all the items in the flow: action areas,
+    transition lines, decisions, and wildcards. Change the global settings for all items
+    by editing the flow view properties. To add additional semantics to the flow diagram
+    design, select an individual action area or transition line and change the appearance
+    of just that component.
 
     \section1 Flow View Properties
 
@@ -102,12 +99,12 @@
     \l Visibility sections in the \l Properties view. Specify flow view
     properties in the \uicontrol {Flow View} section.
 
-    \image studio-flow-view-properties.png "Flow View component properties"
+    \image studio-flow-view-properties.webp "Flow View component properties"
 
     To specify the \uicontrol {Flow Item} that is currently visible in the
     flow view, set its index in the \uicontrol {Current index} field.
 
-    You can use the \l{Picking Colors}{color picker} to set colors for:
+    Use the \l{Picking Colors}{color picker} to set colors for:
 
     \list
         \li Transition lines
@@ -133,9 +130,6 @@
     area or transition line, see \l{Flow Action Area Properties} and
     \l{Flow Transition Properties}.
 
-    In the \uicontrol Layout tab, you can use \l{Setting Anchors and Margins}
-    {anchors} to position the component.
-
     In the \uicontrol Advanced section, you can manage the more
     \l{Specifying Developer Properties}{advanced properties}
     of components.
@@ -148,29 +142,26 @@
 
     \title Adding Flow Items
 
-    After you create a \l{Adding Flow Views}{Flow View} component, you can
-    use a project wizard template to add a \uicontrol {Flow Item} component
-    for each screen in the UI.
+    After you create a \l{Adding Flow Views}{Flow View} component, use a project wizard
+    template to add a \uicontrol {Flow Item} component for each screen in the UI.
 
     If you \l{Importing 2D Assets}{imported} your screen designs from a
     design tool as individual \l{glossary-component}{components}
-    (\e {.ui.qml} files), you can use them as content for flow items.
+    (\e {.ui.qml} files), you can use them as content for flow items like any other components.
     The imported components are listed in \uicontrol Components
     > \uicontrol {My Components}.
 
-    If you are building your UI from scratch in \QDS, you must first add
-    components to the flow items to create the screens as you would any
-    components. For more information, see \l {Using Components}. The
-    flow items that you attach the components to are listed under
+    If you are building your UI from scratch in \QDS, add components to the flow items
+    first to create the screens as you would any components. For more information, see
+    \l {Using Components}. The flow items that you attach the components to are listed under
     \uicontrol {My Components}.
 
-    \image studio-flow-item.png "Custom Flow Item in Components"
+    \image studio-flow-item.webp "Custom Flow Item in Components"
 
     \note You must use the wizard to create the flow items. After you create
     a flow view, the \uicontrol {Flow View} module is added to
-    \uicontrol Components. It contains a \uicontrol {Flow Item} component that
-    you can use to \l{Applying States in Flows}{apply states to flow items}, and
-    that you should use solely for that purpose.
+    \uicontrol Components. It contains the \uicontrol {Flow Item} component for
+    \l{Applying States in Flows}{applying states to flow items}, and solely for that purpose.
 
     To add flow items:
 
@@ -181,7 +172,7 @@
             to create flow items for each screen in the UI.
         \li Add content to the flow item in one of the following ways:
             \list
-                \li Drag-and-drop components from \uicontrol Components to a
+                \li Drag components from \uicontrol Components to a
                     flow item in the \l {2D} view or \l Navigator.
                 \li Drag a screen from \uicontrol Components
                     > \uicontrol {My Components} to a flow item in
@@ -190,10 +181,9 @@
         \li In \l Properties, edit the properties of each flow item.
     \endlist
 
-    You can now drag the flow items from \uicontrol Components
-    > \uicontrol {My Components} to the flow view in the \uicontrol {2D}
-    or \uicontrol Navigator view. When you have all the flow items in place, you can
-    \l{Adding Action Areas and Transitions}{add action areas} to them to create
+    Now, drag the flow items from \uicontrol Components > \uicontrol {My Components} to the
+    flow view in the \uicontrol {2D} or \uicontrol Navigator view. When you have all the flow
+    items in place, \l{Adding Action Areas and Transitions}{add action areas} to them to create
     transitions between them.
 
     \section1 Flow Item Properties
@@ -209,22 +199,19 @@
     properties are used to \l{Applying States in Flows}{apply states}
     in flows.
 
-    To include another flow view into a flow view, select the UI file (.ui.qml)
+    To include another flow view as a flow item into a flow view, select the UI file (.ui.qml)
     that specifies the flow view in the \uicontrol {Loader source} field.
 
     Usually, a flow item is inactive and invisible when it is not currently
     selected in the flow. Especially, all events from the flow item are ignored.
     To make a flow item always active, so that another flow item within it
     can respond to events and trigger the opening of a dialog, for example,
-    select the \uicontrol {Force active} check box.
+    select the \uicontrol {Force active} checkbox.
 
-    By default, transitions are drawn from action areas to the target flow item.
+    In the flow view, transitions are drawn from action areas to the target flow item by default.
     To draw the transitions from the edges of flow items instead, select the
-    \uicontrol {Join lines} check box in the \uicontrol {Transition Lines}
+    \uicontrol {Join lines} checkbox in the \uicontrol {Transition Lines}
     section.
-
-    In the \uicontrol Layout tab, you can use \l{Setting Anchors and Margins}
-    {anchors} to position the component.
 
     In the \uicontrol Advanced section, you can manage the more
     \l{Specifying Developer Properties}{advanced properties} of components.

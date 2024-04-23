@@ -5,32 +5,36 @@ import QmlProject 1.1
 @endif
 
 Project {
-    mainFile: "content/App.qml"
-    mainUiFile: "content/Screen01.ui.qml"
+    mainFile: "%{ContentDir}/App.qml"
+    mainUiFile: "%{ContentDir}/Screen01.ui.qml"
 
     /* Include .qml, .js, and image files from current directory and subdirectories */
     QmlFiles {
-        directory: "content"
+        directory: "%{ProjectName}"
     }
 
     QmlFiles {
-        directory: "imports"
+        directory: "%{ContentDir}"
+    }
+
+    QmlFiles {
+        directory: "%{AssetDir}"
     }
 
     JavaScriptFiles {
-        directory: "content"
+        directory: "%{ProjectName}"
     }
 
     JavaScriptFiles {
-        directory: "imports"
+        directory: "%{ProjectName}"
     }
 
     ImageFiles {
-        directory: "content"
+        directory: "%{ContentDir}"
     }
     
     ImageFiles {
-        directory: "asset_imports"
+        directory: "%{AssetDir}"
     }
 
     Files {
@@ -69,17 +73,12 @@ Project {
 
     Files {
         filter: "*.mesh"
-        directory: "asset_imports"
+        directory: "%{AssetDir}"
     }
 
     Files {
         filter: "*.qad"
-        directory: "asset_imports"
-    }
-
-    Files {
-        filter: "*.qml"
-        directory: "asset_imports"
+        directory: "%{AssetDir}"
     }
 
     Environment {
@@ -109,7 +108,7 @@ Project {
 @endif
 
     /* List of plugin directories passed to QML runtime */
-    importPaths: [ "imports", "asset_imports" ]
+    importPaths: [ "." ]
 
     /* Required for deployment */
     targetDirectory: "/opt/%{ProjectName}"
@@ -125,10 +124,10 @@ Project {
     /* args: Specifies command line arguments for qsb tool to generate shaders.
        files: Specifies target files for qsb tool. If path is included, it must be relative to this file.
               Wildcard '*' can be used in the file name part of the path.
-              e.g. files: [ "content/shaders/*.vert", "*.frag" ]  */
+              e.g. files: [ "%{ContentDir}/shaders/*.vert", "*.frag" ]  */
     ShaderTool {
         args: "-s --glsl \\\"100 es,120,150\\\" --hlsl 50 --msl 12"
-        files: [ "content/shaders/*" ]
+        files: [ "%{ContentDir}/shaders/*" ]
     }
 @endif
 

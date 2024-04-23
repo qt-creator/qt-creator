@@ -84,7 +84,7 @@
         \li \l{Connecting Components to Signals}
     \row
         \li Formatting connections
-        \li \l{Adding Actions and Assignments}
+        \li \l{Actions and Conditions}
     \row
         \li Dynamically changing the behavior of a component
         \li \l{Adding Bindings Between Properties}

@@ -1,12 +1,18 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
     \page qtquick-connection-view.html
     \previouspage qtquick-properties-view.html
     \nextpage qtquick-states-view.html
+    \sa {Working with Connections}
+
+    \ingroup studio-views
 
     \title Connections
+
+    \brief Add functionality to the UI by creating connections between components,
+    signals, and component properties.
 
     The \uicontrol {Connections} view is a collection of views that enable you
     to create connections between components and the application, to bind
@@ -36,29 +42,4 @@
     {preset properties} that you can specify values for. You can add
     custom properties that would not otherwise exist for a particular
     \l{Component Types}{component type}.
-
-    \section1 Summary of the Connections View Tabs
-
-    \table
-    \header
-        \li Tab
-        \li Purpose
-        \li Read More
-    \row
-        \li \uicontrol Connections
-        \li Create connections between components and the application logic
-            by accessing signals outside of the components that emit them.
-        \li \l{Connecting Components to Signals}
-    \row
-        \li \uicontrol Bindings
-        \li Dynamically change the behavior of a component by creating a
-            binding between the properties of two components.
-        \li \l{Adding Bindings Between Properties}
-        \row
-        \li \uicontrol Properties
-        \li Add custom properties that would not otherwise exist for a
-            particular preset component or your own custom component.
-        \li \l{Specifying Custom Properties}
-
-    \endtable
 */

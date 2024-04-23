@@ -365,7 +365,7 @@ ColumnLayout {
     Connections {
         id: dragConnection
         target: root.draggedSec
-        onYChanged: root.handleDragMove()
+        function onYChanged() { root.handleDragMove() }
     }
 
     Timer {

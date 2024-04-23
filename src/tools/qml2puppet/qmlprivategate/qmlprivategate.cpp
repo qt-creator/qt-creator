@@ -10,6 +10,7 @@
 #include <QQmlComponent>
 #include <QFileInfo>
 #include <QProcessEnvironment>
+#include <QJsonValue>
 
 #include <private/qabstractfileengine_p.h>
 #include <private/qfsfileengine_p.h>
@@ -35,15 +36,483 @@
 #include <private/qquickanimation_p.h>
 #include <private/qqmlmetatype_p.h>
 #include <private/qqmltimer_p.h>
+#include <private/qqmlanybinding_p.h>
 
 #ifdef QUICK3D_MODULE
 #include <private/qquick3dobject_p.h>
 #include <private/qquick3drepeater_p.h>
 #endif
 
+
+
 namespace QmlDesigner {
 
 namespace Internal {
+
+static void addToPropertyNameListIfNotBlackListed(QQuickDesignerSupport::PropertyNameList *propertyNameList,
+                                                  const QQuickDesignerSupport::PropertyName &propertyName)
+{
+    if (!QQuickDesignerSupportProperties::isPropertyBlackListed(propertyName))
+        propertyNameList->append(propertyName);
+}
+
+static QQuickDesignerSupport::PropertyNameList propertyNameListForWritablePropertiesInternal(QObject *object,
+                                                       const QQuickDesignerSupport::PropertyName &baseName,
+                                                       QObjectList *inspectedObjects,
+                                                       int depth = 0)
+{
+    QQuickDesignerSupport::PropertyNameList propertyNameList;
+
+    if (depth > 2)
+        return propertyNameList;
+
+    if (!inspectedObjects->contains(object))
+        inspectedObjects->append(object);
+
+    const QMetaObject *metaObject = object->metaObject();
+    for (int index = 0; index < metaObject->propertyCount(); ++index) {
+        QMetaProperty metaProperty = metaObject->property(index);
+        QQmlProperty declarativeProperty(object, QString::fromUtf8(metaProperty.name()));
+        if (declarativeProperty.isValid() && !declarativeProperty.isWritable() && declarativeProperty.propertyTypeCategory() == QQmlProperty::Object) {
+            if (declarativeProperty.name() != QLatin1String("parent")) {
+                QObject *childObject = QQmlMetaType::toQObject(declarativeProperty.read());
+                if (childObject)
+                    propertyNameList.append(propertyNameListForWritablePropertiesInternal(childObject,
+                                                                                  baseName +  QQuickDesignerSupport::PropertyName(metaProperty.name())
+                                                                                  + '.', inspectedObjects,
+                                                                                  depth + 1));
+            }
+        } else if (QQmlGadgetPtrWrapper *valueType
+                   = QQmlGadgetPtrWrapper::instance(qmlEngine(object), metaProperty.metaType())) {
+
+
+            const QVariant value = metaProperty.read(object);
+            QMetaType jsType = QMetaType::fromType<QJSValue>();
+            int userType = value.userType();
+
+            //qDebug() << jsType << jsType.id();
+            //qDebug() << "tp" << value.typeName();
+            //qDebug() << "ut" << userType;
+
+            if (userType == jsType.id()) {
+                qDebug() << "js value found";
+                //QJSValue jsValue = value.value<QJSValue>(); //crashes
+                //qDebug() << jsValue.isObject();
+                //qDebug() << jsValue.isQObject();
+            } else {
+
+
+
+                valueType->setValue(value);
+                propertyNameList.append(propertyNameListForWritablePropertiesInternal(valueType,
+                                                                                      baseName +  QQuickDesignerSupport::PropertyName(metaProperty.name())
+                                                                                      + '.', inspectedObjects,
+                                                                                      depth + 1));
+            }
+
+        }
+
+        if (metaProperty.isReadable() && metaProperty.isWritable()) {
+            addToPropertyNameListIfNotBlackListed(&propertyNameList,
+                                                  baseName + QQuickDesignerSupport::PropertyName(metaProperty.name()));
+        }
+    }
+
+    return propertyNameList;
+}
+
+static QQuickDesignerSupport::PropertyNameList propertyNameListForWritablePropertiesFork(QObject *object)
+{
+    QObjectList localObjectList;
+    return propertyNameListForWritablePropertiesInternal(object, {}, &localObjectList);
+}
+
+static QQuickDesignerSupport::PropertyNameList allPropertyNamesFork(QObject *object,
+                                  const QQuickDesignerSupport::PropertyName &baseName = QQuickDesignerSupport::PropertyName(),
+                                  QObjectList *inspectedObjects = nullptr,
+                                  int depth = 0)
+{
+    QQuickDesignerSupport::PropertyNameList propertyNameList;
+
+    QObjectList localObjectList;
+
+    if (inspectedObjects == nullptr)
+        inspectedObjects = &localObjectList;
+
+    if (depth > 2)
+        return propertyNameList;
+
+    if (!inspectedObjects->contains(object))
+        inspectedObjects->append(object);
+
+    const QMetaObject *metaObject = object->metaObject();
+
+    QStringList deferredPropertyNames;
+    const int namesIndex = metaObject->indexOfClassInfo("DeferredPropertyNames");
+    if (namesIndex != -1) {
+        QMetaClassInfo classInfo = metaObject->classInfo(namesIndex);
+        deferredPropertyNames = QString::fromUtf8(classInfo.value()).split(QLatin1Char(','));
+    }
+
+    for (int index = 0; index < metaObject->propertyCount(); ++index) {
+        QMetaProperty metaProperty = metaObject->property(index);
+        QQmlProperty declarativeProperty(object, QString::fromUtf8(metaProperty.name()));
+        if (declarativeProperty.isValid() && declarativeProperty.propertyTypeCategory() == QQmlProperty::Object) {
+            if (declarativeProperty.name() != QLatin1String("parent")
+                    && !deferredPropertyNames.contains(declarativeProperty.name())) {
+                QObject *childObject = QQmlMetaType::toQObject(declarativeProperty.read());
+                if (childObject)
+                    propertyNameList.append(allPropertyNamesFork(childObject,
+                                                             baseName
+                                                             + QQuickDesignerSupport::PropertyName(metaProperty.name())
+                                                             + '.', inspectedObjects,
+                                                             depth + 1));
+            }
+        } else if (QQmlGadgetPtrWrapper *valueType
+                   = QQmlGadgetPtrWrapper::instance(qmlEngine(object), metaProperty.metaType())) {
+
+            const QVariant value = metaProperty.read(object);
+            propertyNameList.append(baseName + QQuickDesignerSupport::PropertyName(metaProperty.name()));
+            const QJsonValue jsonValue = value.toJsonValue();
+
+            if (!jsonValue.isNull()) {
+                qDebug() << "llokhere";
+                qDebug() << "name" << metaProperty.name();
+                qDebug() << "value" << value;
+                qDebug() << jsonValue;
+            }
+
+            if (value.isValid() && jsonValue.isNull()) {
+                //qDebug() << "llokhere crash";
+                //qDebug() << "name" << metaProperty.name();
+                //qDebug() << "value" << value;
+                //qDebug() << jsonValue;
+
+
+                QMetaType jsType = QMetaType::fromType<QJSValue>();
+
+                int userType = value.userType();
+
+                //qDebug() << jsType << jsType.id();
+                //qDebug() << "tp" << value.typeName();
+                //qDebug() << "ut" << userType;
+
+                if (userType == jsType.id()) {
+                    qDebug() << "js value found";
+                    //QJSValue jsValue = value.value<QJSValue>(); //crashes
+                    //qDebug() << jsValue.isObject();
+                    //qDebug() << jsValue.isQObject();
+                } else {
+
+
+                    valueType->setValue(value);
+                    propertyNameList.append(allPropertyNamesFork(valueType,
+                                                                 baseName
+                                                                 + QQuickDesignerSupport::PropertyName(metaProperty.name())
+                                                                 + '.', inspectedObjects,
+                                                                 depth + 1));
+                }
+
+
+            }
+        } else  {
+            addToPropertyNameListIfNotBlackListed(&propertyNameList,
+                                                  baseName + QQuickDesignerSupport::PropertyName(metaProperty.name()));
+        }
+    }
+
+    return propertyNameList;
+}
+
+class DesignerCustomObjectDataFork
+{
+public:
+    static void registerData(QObject *object);
+    static DesignerCustomObjectDataFork *get(QObject *object);
+    static QVariant getResetValue(QObject *object, const QQuickDesignerSupport::PropertyName &propertyName);
+    static void doResetProperty(QObject *object, QQmlContext *context, const QQuickDesignerSupport::PropertyName &propertyName);
+    static bool hasValidResetBinding(QObject *object, const QQuickDesignerSupport::PropertyName &propertyName);
+    static bool hasBindingForProperty(QObject *object,
+                                      QQmlContext *context,
+                                      const QQuickDesignerSupport::PropertyName &propertyName,
+                                      bool *hasChanged);
+    static void setPropertyBinding(QObject *object,
+                                   QQmlContext *context,
+                                   const QQuickDesignerSupport::PropertyName &propertyName,
+                                   const QString &expression);
+    static void keepBindingFromGettingDeleted(QObject *object,
+                                              QQmlContext *context,
+                                              const QQuickDesignerSupport::PropertyName &propertyName);
+    void handleDestroyed();
+
+private:
+    DesignerCustomObjectDataFork(QObject *object);
+    void populateResetHashes();
+    QObject *object() const;
+    QVariant getResetValue(const QQuickDesignerSupport::PropertyName &propertyName) const;
+    void doResetProperty(QQmlContext *context, const QQuickDesignerSupport::PropertyName &propertyName);
+    bool hasValidResetBinding(const QQuickDesignerSupport::PropertyName &propertyName) const;
+    QQmlAnyBinding getResetBinding(const QQuickDesignerSupport::PropertyName &propertyName) const;
+    bool hasBindingForProperty(QQmlContext *context, const QQuickDesignerSupport::PropertyName &propertyName, bool *hasChanged) const;
+    void setPropertyBinding(QQmlContext *context, const QQuickDesignerSupport::PropertyName &propertyName, const QString &expression);
+    void keepBindingFromGettingDeleted(QQmlContext *context, const QQuickDesignerSupport::PropertyName &propertyName);
+
+    QObject *m_object;
+    QHash<QQuickDesignerSupport::PropertyName, QVariant> m_resetValueHash;
+    QHash<QQuickDesignerSupport::PropertyName, QQmlAnyBinding> m_resetBindingHash;
+    mutable QHash<QQuickDesignerSupport::PropertyName, bool> m_hasBindingHash;
+};
+
+typedef QHash<QObject*, DesignerCustomObjectDataFork*> CustomObjectDataHash;
+Q_GLOBAL_STATIC(CustomObjectDataHash, s_designerObjectToDataHash)
+
+struct HandleDestroyedFunctor {
+  DesignerCustomObjectDataFork *data;
+  void operator()() { data->handleDestroyed(); }
+};
+
+using namespace Qt::StringLiterals;
+
+DesignerCustomObjectDataFork::DesignerCustomObjectDataFork(QObject *object)
+    : m_object(object)
+{
+    if (object) {
+        populateResetHashes();
+        s_designerObjectToDataHash()->insert(object, this);
+
+        HandleDestroyedFunctor functor;
+        functor.data = this;
+        QObject::connect(object, &QObject::destroyed, functor);
+    }
+}
+
+void DesignerCustomObjectDataFork::registerData(QObject *object)
+{
+    new DesignerCustomObjectDataFork(object);
+}
+
+DesignerCustomObjectDataFork *DesignerCustomObjectDataFork::get(QObject *object)
+{
+    return s_designerObjectToDataHash()->value(object);
+}
+
+QVariant DesignerCustomObjectDataFork::getResetValue(QObject *object, const QQuickDesignerSupport::PropertyName &propertyName)
+{
+    DesignerCustomObjectDataFork* data = get(object);
+
+    if (data)
+        return data->getResetValue(propertyName);
+
+    return QVariant();
+}
+
+void DesignerCustomObjectDataFork::doResetProperty(QObject *object, QQmlContext *context, const QQuickDesignerSupport::PropertyName &propertyName)
+{
+    DesignerCustomObjectDataFork* data = get(object);
+
+    if (data)
+        data->doResetProperty(context, propertyName);
+}
+
+bool DesignerCustomObjectDataFork::hasValidResetBinding(QObject *object, const QQuickDesignerSupport::PropertyName &propertyName)
+{
+    DesignerCustomObjectDataFork* data = get(object);
+
+    if (data)
+        return data->hasValidResetBinding(propertyName);
+
+    return false;
+}
+
+bool DesignerCustomObjectDataFork::hasBindingForProperty(QObject *object,
+                                                     QQmlContext *context,
+                                                     const QQuickDesignerSupport::PropertyName &propertyName,
+                                                     bool *hasChanged)
+{
+    DesignerCustomObjectDataFork* data = get(object);
+
+    if (data)
+        return data->hasBindingForProperty(context, propertyName, hasChanged);
+
+    return false;
+}
+
+void DesignerCustomObjectDataFork::setPropertyBinding(QObject *object,
+                                                  QQmlContext *context,
+                                                  const QQuickDesignerSupport::PropertyName &propertyName,
+                                                  const QString &expression)
+{
+    DesignerCustomObjectDataFork* data = get(object);
+
+    if (data)
+        data->setPropertyBinding(context, propertyName, expression);
+}
+
+void DesignerCustomObjectDataFork::keepBindingFromGettingDeleted(QObject *object,
+                                                             QQmlContext *context,
+                                                             const QQuickDesignerSupport::PropertyName &propertyName)
+{
+    DesignerCustomObjectDataFork* data = get(object);
+
+    if (data)
+        data->keepBindingFromGettingDeleted(context, propertyName);
+}
+
+void DesignerCustomObjectDataFork::populateResetHashes()
+{
+    const QQuickDesignerSupport::PropertyNameList propertyNameList =
+            propertyNameListForWritablePropertiesFork(object());
+
+    const QMetaObject *mo = object()->metaObject();
+    QByteArrayList deferredPropertyNames;
+    const int namesIndex = mo->indexOfClassInfo("DeferredPropertyNames");
+    if (namesIndex != -1) {
+        QMetaClassInfo classInfo = mo->classInfo(namesIndex);
+        deferredPropertyNames = QByteArray(classInfo.value()).split(',');
+    }
+
+    for (const QQuickDesignerSupport::PropertyName &propertyName : propertyNameList) {
+
+        if (deferredPropertyNames.contains(propertyName))
+            continue;
+
+        QQmlProperty property(object(), QString::fromUtf8(propertyName), QQmlEngine::contextForObject(object()));
+
+        auto binding = QQmlAnyBinding::ofProperty(property);
+
+        if (binding) {
+            m_resetBindingHash.insert(propertyName, binding);
+        } else if (property.isWritable()) {
+            m_resetValueHash.insert(propertyName, property.read());
+        }
+    }
+}
+
+QObject *DesignerCustomObjectDataFork::object() const
+{
+    return m_object;
+}
+
+QVariant DesignerCustomObjectDataFork::getResetValue(const QQuickDesignerSupport::PropertyName &propertyName) const
+{
+    return m_resetValueHash.value(propertyName);
+}
+
+void DesignerCustomObjectDataFork::doResetProperty(QQmlContext *context, const QQuickDesignerSupport::PropertyName &propertyName)
+{
+    QQmlProperty property(object(), QString::fromUtf8(propertyName), context);
+
+    if (!property.isValid())
+        return;
+
+    // remove existing binding
+    QQmlAnyBinding::takeFrom(property);
+
+
+    if (hasValidResetBinding(propertyName)) {
+        QQmlAnyBinding binding = getResetBinding(propertyName);
+        binding.installOn(property);
+
+        if (binding.isAbstractPropertyBinding()) {
+            // for new style properties, we will evaluate during setBinding anyway
+            static_cast<QQmlBinding *>(binding.asAbstractBinding())->update();
+        }
+
+    } else if (property.isResettable()) {
+        property.reset();
+    } else if (property.propertyTypeCategory() == QQmlProperty::List) {
+        QQmlListReference list = qvariant_cast<QQmlListReference>(property.read());
+
+        if (!QQuickDesignerSupportProperties::hasFullImplementedListInterface(list)) {
+            qWarning() << "Property list interface not fully implemented for Class " << property.property().typeName() << " in property " << property.name() << "!";
+            return;
+        }
+
+        list.clear();
+    } else if (property.isWritable()) {
+        if (property.read() == getResetValue(propertyName))
+            return;
+
+        property.write(getResetValue(propertyName));
+    }
+}
+
+bool DesignerCustomObjectDataFork::hasValidResetBinding(const QQuickDesignerSupport::PropertyName &propertyName) const
+{
+    return m_resetBindingHash.contains(propertyName) &&  m_resetBindingHash.value(propertyName);
+}
+
+QQmlAnyBinding DesignerCustomObjectDataFork::getResetBinding(const QQuickDesignerSupport::PropertyName &propertyName) const
+{
+    return m_resetBindingHash.value(propertyName);
+}
+
+bool DesignerCustomObjectDataFork::hasBindingForProperty(QQmlContext *context,
+                                                     const QQuickDesignerSupport::PropertyName &propertyName,
+                                                     bool *hasChanged) const
+{
+    if (QQuickDesignerSupportProperties::isPropertyBlackListed(propertyName))
+        return false;
+
+    QQmlProperty property(object(), QString::fromUtf8(propertyName), context);
+
+    bool hasBinding = QQmlAnyBinding::ofProperty(property);
+
+    if (hasChanged) {
+        *hasChanged = hasBinding != m_hasBindingHash.value(propertyName, false);
+        if (*hasChanged)
+            m_hasBindingHash.insert(propertyName, hasBinding);
+    }
+
+    return hasBinding;
+}
+
+void DesignerCustomObjectDataFork::setPropertyBinding(QQmlContext *context,
+                                                  const QQuickDesignerSupport::PropertyName &propertyName,
+                                                  const QString &expression)
+{
+    QQmlProperty property(object(), QString::fromUtf8(propertyName), context);
+
+    if (!property.isValid())
+        return;
+
+    if (property.isProperty()) {
+        QString url = u"@designer"_s;
+        int lineNumber = 0;
+        QQmlAnyBinding binding = QQmlAnyBinding::createFromCodeString(property,
+                                                                      expression, object(), QQmlContextData::get(context), url, lineNumber);
+
+        binding.installOn(property);
+        if (binding.isAbstractPropertyBinding()) {
+            // for new style properties, we will evaluate during setBinding anyway
+            static_cast<QQmlBinding *>(binding.asAbstractBinding())->update();
+        }
+
+        if (binding.hasError()) {
+            if (property.property().userType() == QMetaType::QString)
+                property.write(QVariant(QLatin1Char('#') + expression + QLatin1Char('#')));
+        }
+
+    } else {
+        qWarning() << Q_FUNC_INFO << ": Cannot set binding for property" << propertyName << ": property is unknown for type";
+    }
+}
+
+void DesignerCustomObjectDataFork::keepBindingFromGettingDeleted(QQmlContext *context,
+                                                             const QQuickDesignerSupport::PropertyName &propertyName)
+{
+    //Refcounting is taking care
+    Q_UNUSED(context);
+    Q_UNUSED(propertyName);
+}
+
+void DesignerCustomObjectDataFork::handleDestroyed()
+{
+    s_designerObjectToDataHash()->remove(m_object);
+    delete this;
+}
+
+
 
 namespace QmlPrivateGate {
 
@@ -54,12 +523,14 @@ bool isPropertyBlackListed(const QmlDesigner::PropertyName &propertyName)
 
 PropertyNameList allPropertyNames(QObject *object)
 {
-    return QQuickDesignerSupportProperties::allPropertyNames(object);
+    return allPropertyNamesFork(object);
+    //return QQuickDesignerSupportProperties::allPropertyNames(object);
 }
 
 PropertyNameList propertyNameListForWritableProperties(QObject *object)
 {
-    return QQuickDesignerSupportProperties::propertyNameListForWritableProperties(object);
+    return propertyNameListForWritablePropertiesFork(object);
+    //return QQuickDesignerSupportProperties::propertyNameListForWritableProperties(object);
 }
 
 void tweakObjects(QObject *object)
@@ -69,7 +540,9 @@ void tweakObjects(QObject *object)
 
 void createNewDynamicProperty(QObject *object,  QQmlEngine *engine, const QString &name)
 {
-    QQuickDesignerSupportProperties::createNewDynamicProperty(object, engine, name);
+    QQmlProperty qmlProp(object, name, engine->contextForObject(object));
+    if (!qmlProp.isValid())
+        QQuickDesignerSupportProperties::createNewDynamicProperty(object, engine, name);
 }
 
 void registerNodeInstanceMetaObject(QObject *object, QQmlEngine *engine)
@@ -187,7 +660,8 @@ bool hasFullImplementedListInterface(const QQmlListReference &list)
 
 void registerCustomData(QObject *object)
 {
-    QQuickDesignerSupportProperties::registerCustomData(object);
+     DesignerCustomObjectDataFork::registerData(object);
+    //QQuickDesignerSupportProperties::registerCustomData(object);
 }
 
 QVariant getResetValue(QObject *object, const PropertyName &propertyName)
@@ -201,7 +675,8 @@ QVariant getResetValue(QObject *object, const PropertyName &propertyName)
     else if (propertyName == "Layout.fillWidth")
         return false;
     else
-        return QQuickDesignerSupportProperties::getResetValue(object, propertyName);
+         return DesignerCustomObjectDataFork::getResetValue(object, propertyName);
+        //return QQuickDesignerSupportProperties::getResetValue(object, propertyName);
 }
 
 static void setProperty(QObject *object, QQmlContext *context, const PropertyName &propertyName, const QVariant &value)
@@ -221,7 +696,9 @@ void doResetProperty(QObject *object, QQmlContext *context, const PropertyName &
     else if (propertyName == "Layout.fillWidth")
         setProperty(object, context, propertyName, getResetValue(object, propertyName));
     else
-        QQuickDesignerSupportProperties::doResetProperty(object, context, propertyName);
+        DesignerCustomObjectDataFork::doResetProperty(object, context, propertyName);
+
+       //QQuickDesignerSupportProperties::doResetProperty(object, context, propertyName);
 }
 
 bool hasValidResetBinding(QObject *object, const PropertyName &propertyName)
@@ -234,17 +711,22 @@ bool hasValidResetBinding(QObject *object, const PropertyName &propertyName)
         return true;
     else if (propertyName == "Layout.fillWidth")
         return true;
-    return QQuickDesignerSupportProperties::hasValidResetBinding(object, propertyName);
+    return
+            DesignerCustomObjectDataFork::hasValidResetBinding(object, propertyName);
+            //QQuickDesignerSupportProperties::hasValidResetBinding(object, propertyName);
 }
 
 bool hasBindingForProperty(QObject *object, QQmlContext *context, const PropertyName &propertyName, bool *hasChanged)
 {
-    return QQuickDesignerSupportProperties::hasBindingForProperty(object, context, propertyName, hasChanged);
+    return DesignerCustomObjectDataFork::hasBindingForProperty(object, context, propertyName, hasChanged);
+    //return QQuickDesignerSupportProperties::hasBindingForProperty(object, context, propertyName, hasChanged);
 }
 
 void setPropertyBinding(QObject *object, QQmlContext *context, const PropertyName &propertyName, const QString &expression)
 {
-    QQuickDesignerSupportProperties::setPropertyBinding(object, context, propertyName, expression);
+    DesignerCustomObjectDataFork::setPropertyBinding(object, context, propertyName, expression);
+
+    //QQuickDesignerSupportProperties::setPropertyBinding(object, context, propertyName, expression);
 }
 
 void emitComponentComplete(QObject *item)
@@ -317,7 +799,8 @@ void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInsta
 
 void keepBindingFromGettingDeleted(QObject *object, QQmlContext *context, const PropertyName &propertyName)
 {
-    QQuickDesignerSupportProperties::keepBindingFromGettingDeleted(object, context, propertyName);
+    DesignerCustomObjectDataFork::keepBindingFromGettingDeleted(object, context, propertyName);
+    //QQuickDesignerSupportProperties::keepBindingFromGettingDeleted(object, context, propertyName);
 }
 
 bool objectWasDeleted(QObject *object)

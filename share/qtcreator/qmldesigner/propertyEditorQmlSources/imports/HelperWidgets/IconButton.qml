@@ -8,9 +8,9 @@ import StudioTheme as StudioTheme
 Rectangle {
     id: root
 
-    signal clicked()
-    signal pressed()
-    signal released()
+    signal clicked(mouse: var)
+    signal pressed(mouse: var)
+    signal released(mouse: var)
 
     property alias icon: icon.text
     property alias tooltip: toolTip.text
@@ -30,18 +30,17 @@ Rectangle {
     property color hoverColor: root.transparentBg ? "transparent" : StudioTheme.Values.themeControlBackgroundHover
     property color pressColor: root.transparentBg ? "transparent" : StudioTheme.Values.themeControlBackgroundInteraction
 
-    width: buttonSize
-    height: buttonSize
+    width: root.buttonSize
+    height: root.buttonSize
 
-    color: !enabled ? normalColor
-                    : mouseArea.pressed ? pressColor
-                                        : mouseArea.containsMouse ? hoverColor
-                                                                  : normalColor
+    color: !root.enabled ? root.normalColor
+                         : mouseArea.pressed ? root.pressColor
+                                             : mouseArea.containsMouse ? root.hoverColor
+                                                                       : root.normalColor
 
     Text {
         id: icon
         anchors.centerIn: root
-
         color: root.enabled ? StudioTheme.Values.themeTextColor : StudioTheme.Values.themeTextColorDisabled
         font.family: StudioTheme.Constants.iconFont.family
         font.pixelSize: StudioTheme.Values.baseIconFontSize
@@ -49,30 +48,29 @@ Rectangle {
 
     MouseArea {
         id: mouseArea
-
         anchors.fill: parent
         hoverEnabled: root.visible
-        onClicked: {
+        onClicked: function(mouse) {
             // We need to keep mouse area enabled even when button is disabled to make tooltip work
             if (root.enabled)
-                root.clicked()
+                root.clicked(mouse)
         }
 
-        onPressed: {
+        onPressed: function(mouse) {
             if (root.enabled)
-                root.pressed()
+                root.pressed(mouse)
         }
 
-        onReleased: {
+        onReleased: function(mouse) {
             if (root.enabled)
-                root.released()
+                root.released(mouse)
         }
     }
 
     ToolTip {
         id: toolTip
 
-        visible: mouseArea.containsMouse && text !== ""
+        visible: mouseArea.containsMouse && toolTip.text !== ""
         delay: 1000
     }
 }

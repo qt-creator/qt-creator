@@ -5,16 +5,22 @@
 
 #include "nanotraceglobals.h"
 
+#include "staticstring.h"
+
 #include <utils/smallstring.h>
 #include <utils/span.h>
 
 #include <QByteArrayView>
+#include <QList>
+#include <QMap>
 #include <QStringView>
+#include <QVarLengthArray>
 #include <QVariant>
 
 #include <array>
 #include <atomic>
 #include <chrono>
+#include <exception>
 #include <fstream>
 #include <future>
 #include <mutex>
@@ -41,7 +47,7 @@ enum class Tracing { IsDisabled, IsEnabled };
 #  define NO_UNIQUE_ADDRESS
 #endif
 
-using ArgumentsString = Utils::BasicSmallString<510>;
+using ArgumentsString = StaticString<3700>;
 
 namespace Literals {
 struct TracerLiteral
@@ -80,44 +86,41 @@ struct IsDictonary
 
 inline constexpr IsDictonary isDictonary;
 
-namespace Internal {
-
 template<typename String>
 void convertToString(String &string, std::string_view text)
 {
-    string.append(R"(")");
+    string.append('\"');
     string.append(text);
-    string.append(R"(")");
+    string.append('\"');
 }
 
 template<typename String>
 void convertToString(String &string, const QImage &image);
 
-extern template NANOTRACE_EXPORT void convertToString(std::string &string, const QImage &image);
 extern template NANOTRACE_EXPORT void convertToString(ArgumentsString &string, const QImage &image);
 
 template<typename String, std::size_t size>
 void convertToString(String &string, const char (&text)[size])
 {
-    string.append(R"(")");
-    string.append(text);
-    string.append(R"(")");
+    string.append('\"');
+    string.append(std::string_view{text, size - 1});
+    string.append('\"');
 }
 
 template<typename String>
 void convertToString(String &string, QStringView text)
 {
-    string.append(R"(")");
+    string.append('\"');
     string.append(Utils::PathString{text});
-    string.append(R"(")");
+    string.append('\"');
 }
 
 template<typename String>
 void convertToString(String &string, const QByteArray &text)
 {
-    string.append(R"(")");
+    string.append('\"');
     string.append(std::string_view(text.data(), Utils::usize(text)));
-    string.append(R"(")");
+    string.append('\"');
 }
 
 template<typename String>
@@ -129,28 +132,29 @@ void convertToString(String &string, bool isTrue)
         string.append("false");
 }
 
-template<typename String, typename Callable, typename = std::enable_if_t<std::is_invocable_v<Callable>>>
+template<typename String, typename Callable, typename std::enable_if_t<std::is_invocable_v<Callable>, bool> = true>
 void convertToString(String &string, Callable &&callable)
 {
     convertToString(string, callable());
 }
 
-template<typename String>
-void convertToString(String &string, int number)
+template<typename String, typename Number, typename std::enable_if_t<std::is_arithmetic_v<Number>, bool> = true>
+void convertToString(String &string, Number number)
 {
-    string.append(Utils::SmallString::number(number));
+    string.append(number);
 }
 
-template<typename String>
-void convertToString(String &string, long long number)
+template<typename Enumeration>
+constexpr std::underlying_type_t<Enumeration> to_underlying(Enumeration enumeration) noexcept
 {
-    string.append(Utils::SmallString::number(number));
+    static_assert(std::is_enum_v<Enumeration>, "to_underlying expect an enumeration");
+    return static_cast<std::underlying_type_t<Enumeration>>(enumeration);
 }
 
-template<typename String>
-void convertToString(String &string, double number)
+template<typename String, typename Enumeration, typename std::enable_if_t<std::is_enum_v<Enumeration>, bool> = true>
+void convertToString(String &string, Enumeration enumeration)
 {
-    string.append(Utils::SmallString::number(number));
+    string.append(to_underlying(enumeration));
 }
 
 template<typename String>
@@ -165,14 +169,14 @@ void convertToString(String &string, const QVariant &value)
     convertToString(string, value.toString());
 }
 
-template<typename String, typename... Arguments>
-void convertToString(String &string, const std::tuple<const IsDictonary &, Arguments...> &dictonary);
-
-template<typename String, typename... Arguments>
-void convertToString(String &string, const std::tuple<const IsArray &, Arguments...> &list);
-
-template<typename String, template<typename...> typename Container, typename... Arguments>
-void convertToString(String &string, const Container<Arguments...> &container);
+template<typename String, typename Type>
+void convertToString(String &string, const std::optional<Type> &value)
+{
+    if (value)
+        convertToString(string, *value);
+    else
+        convertToString(string, "empty optional");
+}
 
 template<typename String, typename Value>
 void convertArrayEntryToString(String &string, const Value &value)
@@ -184,15 +188,15 @@ void convertArrayEntryToString(String &string, const Value &value)
 template<typename String, typename... Entries>
 void convertArrayToString(String &string, const IsArray &, Entries &...entries)
 {
-    string.append(R"([)");
+    string.append('[');
     (convertArrayEntryToString(string, entries), ...);
     if (sizeof...(entries))
         string.pop_back();
-    string.append("]");
+    string.append(']');
 }
 
 template<typename String, typename... Arguments>
-void convertToString(String &string, const std::tuple<const IsArray &, Arguments...> &list)
+void convertToString(String &string, const std::tuple<IsArray, Arguments...> &list)
 {
     std::apply([&](auto &&...entries) { convertArrayToString(string, entries...); }, list);
 }
@@ -202,55 +206,107 @@ void convertDictonaryEntryToString(String &string, const std::tuple<Key, Value> 
 {
     const auto &[key, value] = argument;
     convertToString(string, key);
-    string.append(":");
+    string.append(':');
     convertToString(string, value);
-    string.append(",");
+    string.append(',');
 }
 
 template<typename String, typename... Entries>
 void convertDictonaryToString(String &string, const IsDictonary &, Entries &...entries)
 {
-    string.append(R"({)");
+    string.append('{');
     (convertDictonaryEntryToString(string, entries), ...);
     if (sizeof...(entries))
         string.pop_back();
-    string.append("}");
+    string.append('}');
 }
 
 template<typename String, typename... Arguments>
-void convertToString(String &string, const std::tuple<const IsDictonary &, Arguments...> &dictonary)
+void convertToString(String &string, const std::tuple<IsDictonary, Arguments...> &dictonary)
 {
     std::apply([&](auto &&...entries) { convertDictonaryToString(string, entries...); }, dictonary);
 }
 
-template<typename String, template<typename...> typename Container, typename... Arguments>
-void convertToString(String &string, const Container<Arguments...> &container)
+template<typename T>
+struct is_container : std::false_type
+{};
+
+template<typename... Arguments>
+struct is_container<std::vector<Arguments...>> : std::true_type
+{};
+
+template<typename... Arguments>
+struct is_container<QList<Arguments...>> : std::true_type
+{};
+
+template<typename T, qsizetype Prealloc>
+struct is_container<QVarLengthArray<T, Prealloc>> : std::true_type
+{};
+
+template<typename String, typename Container, typename std::enable_if_t<is_container<Container>::value, bool> = true>
+void convertToString(String &string, const Container &values)
 {
-    string.append("[");
-    for (const auto &entry : container) {
-        convertToString(string, entry);
-        string.append(",");
+    string.append('[');
+
+    for (const auto &value : values) {
+        convertToString(string, value);
+        string.append(',');
     }
 
-    if (container.size())
+    if (values.size())
         string.pop_back();
 
-    string.append("]");
+    string.append(']');
 }
 
-template<typename String, typename... Arguments>
-String toArguments(Arguments &&...arguments)
+template<typename T>
+struct is_map : std::false_type
+{};
+
+template<typename... Arguments>
+struct is_map<QtPrivate::QKeyValueRange<Arguments...>> : std::true_type
+{};
+
+template<typename... Arguments>
+struct is_map<std::map<Arguments...>> : std::true_type
+{};
+
+template<typename String, typename Map, typename std::enable_if_t<is_map<Map>::value, bool> = true>
+void convertToString(String &string, const Map &map)
 {
-    String text;
+    string.append('{');
+
+    for (const auto &[key, value] : map) {
+        convertToString(string, key);
+        string.append(':');
+        convertToString(string, value);
+        string.append(',');
+    }
+
+    if (map.begin() != map.end())
+        string.pop_back();
+
+    string.append('}');
+}
+
+template<typename String, typename Key, typename Value>
+void convertToString(String &string, const QMap<Key, Value> &dictonary)
+{
+    convertToString(string, dictonary.asKeyValueRange());
+}
+
+namespace Internal {
+
+template<typename String, typename... Arguments>
+void toArguments(String &text, Arguments &&...arguments)
+{
     constexpr auto argumentCount = sizeof...(Arguments);
-    text.append("{");
+    text.append('{');
     (convertDictonaryEntryToString(text, arguments), ...);
     if (argumentCount)
         text.pop_back();
 
-    text.append("}");
-
-    return text;
+    text.append('}');
 }
 
 inline std::string_view toArguments(std::string_view arguments)
@@ -259,48 +315,58 @@ inline std::string_view toArguments(std::string_view arguments)
 }
 
 template<typename String>
-void appendArguments(String &eventArguments)
+void setArguments(String &eventArguments)
 {
-    eventArguments = {};
+    if constexpr (std::is_same_v<String, std::string_view>)
+        eventArguments = {};
+    else
+        eventArguments.clear();
 }
 
 template<typename String>
-void appendArguments(String &eventArguments, TracerLiteral arguments)
+void setArguments(String &eventArguments, TracerLiteral arguments)
 {
     eventArguments = arguments;
 }
 
 template<typename String, typename... Arguments>
-[[maybe_unused]] void appendArguments(String &eventArguments, Arguments &&...arguments)
+[[maybe_unused]] void setArguments(String &eventArguments, Arguments &&...arguments)
 {
     static_assert(
         !std::is_same_v<String, std::string_view>,
         R"(The arguments type of the tracing event queue is a string view. You can only provide trace token arguments as TracerLiteral (""_t).)");
 
-    eventArguments = Internal::toArguments<String>(std::forward<Arguments>(arguments)...);
+    if constexpr (std::is_same_v<String, std::string_view>)
+        eventArguments = {};
+    else
+        eventArguments.clear();
+    Internal::toArguments(eventArguments, std::forward<Arguments>(arguments)...);
 }
 
 } // namespace Internal
 
 template<typename Key, typename Value>
-auto keyValue(Key &&key, Value &&value)
+auto keyValue(const Key &key, Value &&value)
 {
-    return std::forward_as_tuple(std::forward<Key>(key), std::forward<Value>(value));
+    if constexpr (std::is_lvalue_reference_v<Value>)
+        return std::tuple<const Key &, const Value &>(key, value);
+    else
+        return std::tuple<const Key &, std::decay_t<Value>>(key, value);
 }
 
 template<typename... Entries>
 auto dictonary(Entries &&...entries)
 {
-    return std::forward_as_tuple(isDictonary, std::forward<Entries>(entries)...);
+    return std::make_tuple(isDictonary, std::forward<Entries>(entries)...);
 }
 
 template<typename... Entries>
 auto array(Entries &&...entries)
 {
-    return std::forward_as_tuple(isArray, std::forward<Entries>(entries)...);
+    return std::make_tuple(isArray, std::forward<Entries>(entries)...);
 }
 
-enum class IsFlow : std::size_t { No = 0, Out = 1 << 0, In = 1 << 1, InOut = In | Out };
+enum class IsFlow : char { No = 0, Out = 1 << 0, In = 1 << 1, InOut = In | Out };
 
 inline bool operator&(IsFlow first, IsFlow second)
 {
@@ -309,7 +375,7 @@ inline bool operator&(IsFlow first, IsFlow second)
 }
 
 template<typename String, typename ArgumentsString>
-struct TraceEvent
+struct alignas(4096) TraceEvent
 {
     using StringType = String;
     using ArgumentType = std::conditional_t<std::is_same_v<String, std::string_view>, TracerLiteral, String>;
@@ -324,13 +390,13 @@ struct TraceEvent
 
     String name;
     String category;
-    ArgumentsString arguments;
     TimePoint time;
     Duration duration;
     std::size_t id = 0;
-    std::size_t bindId : 62;
-    IsFlow flow : 2;
+    std::size_t bindId = 0;
+    IsFlow flow = IsFlow::No;
     char type = ' ';
+    ArgumentsString arguments;
 };
 
 using StringViewTraceEvent = TraceEvent<std::string_view, std::string_view>;
@@ -413,6 +479,8 @@ class EventQueue
 {
 public:
     using IsActive = std::false_type;
+
+    template<typename TraceFile> EventQueue(TraceFile &) {}
 };
 
 namespace Internal {
@@ -423,7 +491,13 @@ class EventQueueTracker
     using Queue = EventQueue<TraceEvent, Tracing::IsEnabled>;
 
 public:
-    EventQueueTracker() = default;
+    EventQueueTracker()
+    {
+        terminateHandler = std::get_terminate();
+
+        std::set_terminate([]() { EventQueueTracker::get().terminate(); });
+    }
+
     EventQueueTracker(const EventQueueTracker &) = delete;
     EventQueueTracker(EventQueueTracker &&) = delete;
     EventQueueTracker &operator=(const EventQueueTracker &) = delete;
@@ -457,8 +531,25 @@ public:
     }
 
 private:
+    void terminate()
+    {
+        flushAll();
+        if (terminateHandler)
+            terminateHandler();
+    }
+
+    void flushAll()
+    {
+        std::lock_guard lock{mutex};
+
+        for (auto queue : queues)
+            queue->flush();
+    }
+
+private:
     std::mutex mutex;
     std::vector<Queue *> queues;
+    std::terminate_handler terminateHandler = nullptr;
 };
 } // namespace Internal
 
@@ -466,11 +557,12 @@ template<typename TraceEvent>
 class EventQueue<TraceEvent, Tracing::IsEnabled>
 {
     using TraceEventsSpan = Utils::span<TraceEvent>;
+    using TraceEvents = std::array<TraceEvent, 1000>;
 
 public:
     using IsActive = std::true_type;
 
-    EventQueue(EnabledTraceFile *file);
+    EventQueue(EnabledTraceFile &file);
 
     ~EventQueue();
 
@@ -483,7 +575,9 @@ public:
     EventQueue &operator=(const EventQueue &) = delete;
     EventQueue &operator=(EventQueue &&) = delete;
 
-    EnabledTraceFile *file = nullptr;
+    EnabledTraceFile &file;
+    std::unique_ptr<TraceEvents> eventArrayOne = std::make_unique<TraceEvents>();
+    std::unique_ptr<TraceEvents> eventArrayTwo = std::make_unique<TraceEvents>();
     TraceEventsSpan eventsOne;
     TraceEventsSpan eventsTwo;
     TraceEventsSpan currentEvents;
@@ -504,35 +598,6 @@ extern template class NANOTRACE_EXPORT_EXTERN_TEMPLATE EventQueue<StringViewTrac
 extern template class NANOTRACE_EXPORT_EXTERN_TEMPLATE EventQueue<StringTraceEvent, Tracing::IsEnabled>;
 extern template class NANOTRACE_EXPORT_EXTERN_TEMPLATE
     EventQueue<StringViewWithStringArgumentsTraceEvent, Tracing::IsEnabled>;
-
-template<typename TraceEvent, std::size_t eventCount, Tracing isEnabled>
-class EventQueueData : public EventQueue<TraceEvent, isEnabled>
-{
-public:
-    using IsActive = std::true_type;
-
-    EventQueueData(TraceFile<Tracing::IsDisabled> &) {}
-};
-
-template<typename TraceEvent, std::size_t eventCount>
-class EventQueueData<TraceEvent, eventCount, Tracing::IsEnabled>
-    : public EventQueue<TraceEvent, Tracing::IsEnabled>
-{
-    using TraceEvents = std::array<TraceEvent, eventCount>;
-    using Base = EventQueue<TraceEvent, Tracing::IsEnabled>;
-
-public:
-    using IsActive = std::true_type;
-
-    EventQueueData(EnabledTraceFile &file)
-        : Base{&file}
-    {
-        Base::setEventsSpans(*eventsOne.get(), *eventsTwo.get());
-    }
-
-    std::unique_ptr<TraceEvents> eventsOne = std::make_unique<TraceEvents>();
-    std::unique_ptr<TraceEvents> eventsTwo = std::make_unique<TraceEvents>();
-};
 
 template<typename TraceEvent>
 TraceEvent &getTraceEvent(EnabledEventQueue<TraceEvent> &eventQueue)
@@ -1150,6 +1215,10 @@ public:
         return std::pair<TracerType, FlowTokenType>();
     }
 
+    template<typename... Arguments>
+    void threadEvent(ArgumentType, Arguments &&...)
+    {}
+
     static constexpr bool isActive() { return false; }
 };
 
@@ -1237,6 +1306,24 @@ public:
                 std::forward_as_tuple(PrivateTag{}, traceName, bindId, m_self)};
     }
 
+    template<typename... Arguments>
+    void threadEvent(ArgumentType traceName, Arguments &&...arguments)
+    {
+        if (isEnabled == IsEnabled::No)
+            return;
+
+        auto &traceEvent = getTraceEvent(m_eventQueue);
+
+        traceEvent.time = Clock::now();
+        traceEvent.name = std::move(traceName);
+        traceEvent.category = traceName;
+        traceEvent.type = 'i';
+        traceEvent.id = 0;
+        traceEvent.bindId = 0;
+        traceEvent.flow = IsFlow::No;
+        Internal::setArguments(traceEvent.arguments, std::forward<Arguments>(arguments)...);
+    }
+
     EnabledEventQueue<TraceEvent> &eventQueue() const { return m_eventQueue; }
 
     std::string_view name() const { return m_name; }
@@ -1270,7 +1357,7 @@ private:
         traceEvent.id = id;
         traceEvent.bindId = bindId;
         traceEvent.flow = flow;
-        Internal::appendArguments(traceEvent.arguments, std::forward<Arguments>(arguments)...);
+        Internal::setArguments(traceEvent.arguments, std::forward<Arguments>(arguments)...);
         traceEvent.time = Clock::now();
     }
 
@@ -1296,7 +1383,7 @@ private:
         traceEvent.id = id;
         traceEvent.bindId = bindId;
         traceEvent.flow = flow;
-        Internal::appendArguments(traceEvent.arguments, std::forward<Arguments>(arguments)...);
+        Internal::setArguments(traceEvent.arguments, std::forward<Arguments>(arguments)...);
     }
 
     template<typename... Arguments>
@@ -1316,8 +1403,10 @@ private:
         traceEvent.id = id;
         traceEvent.bindId = 0;
         traceEvent.flow = IsFlow::No;
-        Internal::appendArguments(traceEvent.arguments, std::forward<Arguments>(arguments)...);
+        Internal::setArguments(traceEvent.arguments, std::forward<Arguments>(arguments)...);
     }
+
+    CategoryFunctionPointer self() { return m_self; }
 
 private:
     StringType m_name;
@@ -1403,11 +1492,8 @@ class Tracer<Category, std::true_type>
         , flow{flow}
         , m_category{category}
     {
-        if (category().isEnabled == IsEnabled::Yes) {
-            Internal::appendArguments<ArgumentsStringType>(m_arguments,
-                                                           std::forward<Arguments>(arguments)...);
-            m_start = Clock::now();
-        }
+        if (category().isEnabled == IsEnabled::Yes)
+            sendBeginTrace(std::forward<Arguments>(arguments)...);
     }
 
 public:
@@ -1426,12 +1512,14 @@ public:
         : m_name{name}
         , m_category{category}
     {
-        if (category().isEnabled == IsEnabled::Yes) {
-            Internal::appendArguments<ArgumentsStringType>(m_arguments,
-                                                           std::forward<Arguments>(arguments)...);
-            m_start = Clock::now();
-        }
+        if (category().isEnabled == IsEnabled::Yes)
+            sendBeginTrace(std::forward<Arguments>(arguments)...);
     }
+
+    template<typename... Arguments>
+    [[nodiscard]] Tracer(ArgumentType name, Category &category, Arguments &&...arguments)
+        : Tracer(std::move(name), category.self(), std::forward<Arguments>(arguments)...)
+    {}
 
     Tracer(const Tracer &) = delete;
     Tracer &operator=(const Tracer &) = delete;
@@ -1440,7 +1528,7 @@ public:
 
     TokenType createToken() { return {0, m_category}; }
 
-    ~Tracer() { sendTrace(); }
+    ~Tracer() { sendEndTrace(); }
 
     template<typename... Arguments>
     Tracer beginDuration(ArgumentType name, Arguments &&...arguments)
@@ -1457,44 +1545,52 @@ public:
     template<typename... Arguments>
     void end(Arguments &&...arguments)
     {
-        sendTrace(std::forward<Arguments>(arguments)...);
+        sendEndTrace(std::forward<Arguments>(arguments)...);
         m_name = {};
     }
 
 private:
     template<typename... Arguments>
-    void sendTrace(Arguments &&...arguments)
+    void sendBeginTrace(Arguments &&...arguments)
+    {
+        auto &category = m_category();
+        if (category.isEnabled == IsEnabled::Yes) {
+            auto &traceEvent = getTraceEvent(category.eventQueue());
+            traceEvent.name = m_name;
+            traceEvent.category = category.name();
+            traceEvent.bindId = m_bindId;
+            traceEvent.flow = flow;
+            traceEvent.type = 'B';
+            Internal::setArguments<ArgumentsStringType>(traceEvent.arguments,
+                                                        std::forward<Arguments>(arguments)...);
+            traceEvent.time = Clock::now();
+        }
+    }
+
+    template<typename... Arguments>
+    void sendEndTrace(Arguments &&...arguments)
     {
         if (m_name.size()) {
-            auto category = m_category();
+            auto &category = m_category();
             if (category.isEnabled == IsEnabled::Yes) {
-                auto duration = Clock::now() - m_start;
+                auto end = Clock::now();
                 auto &traceEvent = getTraceEvent(category.eventQueue());
-                traceEvent.name = m_name;
+                traceEvent.name = std::move(m_name);
                 traceEvent.category = category.name();
-                traceEvent.time = m_start;
-                traceEvent.duration = duration;
+                traceEvent.time = end;
                 traceEvent.bindId = m_bindId;
                 traceEvent.flow = flow;
-                traceEvent.type = 'X';
-                if (sizeof...(arguments)) {
-                    m_arguments.clear();
-                    Internal::appendArguments<ArgumentsStringType>(traceEvent.arguments,
-                                                                   std::forward<Arguments>(
-                                                                       arguments)...);
-                } else {
-                    traceEvent.arguments = m_arguments;
-                }
+                traceEvent.type = 'E';
+                Internal::setArguments<ArgumentsStringType>(traceEvent.arguments,
+                                                            std::forward<Arguments>(arguments)...);
             }
         }
     }
 
 private:
-    TimePoint m_start;
     StringType m_name;
-    ArgumentsStringType m_arguments;
-    std::size_t m_bindId;
-    IsFlow flow;
+    std::size_t m_bindId = 0;
+    IsFlow flow = IsFlow::No;
     CategoryFunctionPointer m_category;
 };
 

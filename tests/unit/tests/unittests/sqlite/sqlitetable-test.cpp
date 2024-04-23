@@ -60,9 +60,9 @@ TEST_F(SqliteTable, add_index)
 
     auto index = table.addIndex({column, column2});
 
-    ASSERT_THAT(
-        Utils::SmallStringView(index.sqlStatement()),
-        Eq("CREATE INDEX IF NOT EXISTS index_testTable_name_value ON testTable(name, value)"));
+    ASSERT_THAT(Utils::SmallStringView(index.sqlStatement()),
+                Eq("CREATE INDEX IF NOT EXISTS index_normal_testTable_name_value ON "
+                   "testTable(name, value)"));
 }
 
 TEST_F(SqliteTable, initialize_table)
@@ -92,10 +92,11 @@ TEST_F(SqliteTable, initialize_table_with_index)
 
     EXPECT_CALL(databaseMock, execute(Eq("CREATE TABLE testTable(name, value)")));
     EXPECT_CALL(databaseMock,
-                execute(Eq("CREATE INDEX IF NOT EXISTS index_testTable_name ON testTable(name)")));
+                execute(Eq(
+                    "CREATE INDEX IF NOT EXISTS index_normal_testTable_name ON testTable(name)")));
     EXPECT_CALL(databaseMock,
-                execute(Eq("CREATE INDEX IF NOT EXISTS index_testTable_value ON testTable(value) "
-                           "WHERE value IS NOT NULL")));
+                execute(Eq("CREATE INDEX IF NOT EXISTS index_partial_testTable_value ON "
+                           "testTable(value) WHERE value IS NOT NULL")));
 
     table.initialize(databaseMock);
 }
@@ -110,13 +111,13 @@ TEST_F(SqliteTable, initialize_table_with_unique_index)
     table.addUniqueIndex({column2}, "value IS NOT NULL");
 
     EXPECT_CALL(databaseMock, execute(Eq("CREATE TABLE testTable(name, value)")));
+    EXPECT_CALL(
+        databaseMock,
+        execute(Eq(
+            "CREATE UNIQUE INDEX IF NOT EXISTS index_unique_testTable_name ON testTable(name)")));
     EXPECT_CALL(databaseMock,
-                execute(Eq(
-                    "CREATE UNIQUE INDEX IF NOT EXISTS index_testTable_name ON testTable(name)")));
-    EXPECT_CALL(databaseMock,
-                execute(Eq(
-                    "CREATE UNIQUE INDEX IF NOT EXISTS index_testTable_value ON testTable(value) "
-                    "WHERE value IS NOT NULL")));
+                execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_unique_partial_testTable_value "
+                           "ON testTable(value) WHERE value IS NOT NULL")));
 
     table.initialize(databaseMock);
 }
@@ -351,8 +352,8 @@ TEST_F(StrictSqliteTable, add_index)
     auto index = table.addIndex({column, column2});
 
     ASSERT_THAT(Utils::SmallStringView(index.sqlStatement()),
-                Eq("CREATE INDEX IF NOT EXISTS index_testTable_name_value ON testTable(name, "
-                   "value)"));
+                Eq("CREATE INDEX IF NOT EXISTS index_normal_testTable_name_value ON "
+                   "testTable(name, value)"));
 }
 
 TEST_F(StrictSqliteTable, initialize_table)
@@ -382,10 +383,11 @@ TEST_F(StrictSqliteTable, initialize_table_with_index)
 
     EXPECT_CALL(databaseMock, execute(Eq("CREATE TABLE testTable(name ANY, value ANY) STRICT")));
     EXPECT_CALL(databaseMock,
-                execute(Eq("CREATE INDEX IF NOT EXISTS index_testTable_name ON testTable(name)")));
+                execute(Eq(
+                    "CREATE INDEX IF NOT EXISTS index_normal_testTable_name ON testTable(name)")));
     EXPECT_CALL(databaseMock,
-                execute(Eq("CREATE INDEX IF NOT EXISTS index_testTable_value ON testTable(value) "
-                           "WHERE value IS NOT NULL")));
+                execute(Eq("CREATE INDEX IF NOT EXISTS index_partial_testTable_value ON "
+                           "testTable(value) WHERE value IS NOT NULL")));
 
     table.initialize(databaseMock);
 }
@@ -400,13 +402,13 @@ TEST_F(StrictSqliteTable, initialize_table_with_unique_index)
     table.addUniqueIndex({column2}, "value IS NOT NULL");
 
     EXPECT_CALL(databaseMock, execute(Eq("CREATE TABLE testTable(name ANY, value ANY) STRICT")));
+    EXPECT_CALL(
+        databaseMock,
+        execute(Eq(
+            "CREATE UNIQUE INDEX IF NOT EXISTS index_unique_testTable_name ON testTable(name)")));
     EXPECT_CALL(databaseMock,
-                execute(Eq(
-                    "CREATE UNIQUE INDEX IF NOT EXISTS index_testTable_name ON testTable(name)")));
-    EXPECT_CALL(databaseMock,
-                execute(Eq(
-                    "CREATE UNIQUE INDEX IF NOT EXISTS index_testTable_value ON testTable(value) "
-                    "WHERE value IS NOT NULL")));
+                execute(Eq("CREATE UNIQUE INDEX IF NOT EXISTS index_unique_partial_testTable_value "
+                           "ON testTable(value) WHERE value IS NOT NULL")));
 
     table.initialize(databaseMock);
 }

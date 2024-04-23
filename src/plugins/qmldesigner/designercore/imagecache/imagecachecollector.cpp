@@ -76,8 +76,10 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
                                 AbortCallback abortCallback,
                                 ImageCache::TraceToken traceToken)
 {
+#ifdef QDS_USE_PROJECTSTORAGE
     if (!m_projectStorage || !m_pathCache)
         return;
+#endif
 
     using namespace NanotraceHR::Literals;
     auto [collectorTraceToken, flowtoken] = traceToken.beginDurationWithFlow(

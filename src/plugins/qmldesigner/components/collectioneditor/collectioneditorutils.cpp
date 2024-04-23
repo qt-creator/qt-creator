@@ -3,6 +3,7 @@
 
 #include "collectioneditorutils.h"
 
+#include "collectiondatatypemodel.h"
 #include "model.h"
 #include "nodemetainfo.h"
 #include "propertymetainfo.h"
@@ -95,13 +96,17 @@ Utils::FilePath dataStoreDir()
     if (!currentProject)
         return {};
 
-    return currentProject->projectDirectory().pathAppended("/imports/"
-                                                           + currentProject->displayName());
+    FilePath oldImportDirectory = currentProject->projectDirectory().pathAppended(
+        "imports/" + currentProject->displayName());
+    if (oldImportDirectory.exists())
+        return oldImportDirectory;
+
+    return currentProject->projectDirectory().pathAppended(currentProject->displayName());
 }
 
 inline Utils::FilePath collectionPath(const QString &filePath)
 {
-    return dataStoreDir().pathAppended("/" + filePath);
+    return dataStoreDir().pathAppended(filePath);
 }
 
 inline Utils::FilePath qmlDirFilePath()
@@ -288,7 +293,7 @@ QJsonObject defaultCollection()
     QJsonArray columns;
     QJsonObject defaultColumn;
     defaultColumn.insert("name", "Column 1");
-    defaultColumn.insert("type", "string");
+    defaultColumn.insert("type", CollectionDataTypeModel::dataTypeToString(DataType::String));
     columns.append(defaultColumn);
 
     QJsonArray collectionData;

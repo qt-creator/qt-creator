@@ -1,4 +1,4 @@
-// Copyright (C) 2020 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,31 +6,43 @@
     \previouspage studio-3d-camera.html
     \nextpage studio-3d-morph-target.html
 
-    \title Scene Environment
+    \title Scene Environments
 
-    You can use the \uicontrol {Scene Environment} component to specify
-    how a scene is rendered globally. You can specify settings for antialiasing,
-    scene background, ambient occlusion, and image-based lighting in the
-    \l Properties view. The \uicontrol {Scene Environment} component is available
-    in \uicontrol Components > \uicontrol {Qt Quick 3D}. It is
-    automatically included under the 3D view component in \l{Creating Projects}
-    {projects created} using the \uicontrol {Qt Quick 3D Application} wizard
-    template.
+    The \uicontrol {Scene Environment} and the \uicontrol {Extended Scene Environment}
+    components define how a scene is rendered globally.
 
-    \note If you select \uicontrol {Qt 5} as the \uicontrol {Target Qt Version}
-    when \l {Creating Projects}{creating your project}, the available properties
-    for this component will be slightly different. The properties may also be
-    situated differently in the \uicontrol Properties view.
+    \note The available properties for the scene environments and their location in the
+    \uicontrol Properties view vary according to \uicontrol {Target Qt Version} that
+    you select when \l {Creating Projects}{creating your project}.
+
+    \note \uicontrol {Extended Scene Environment} is available in projects created with
+    Qt 6.5 or higher as the \uicontrol {Target Qt Version}.
+
+    \section1 Adding Scene Environments to Projects
+
+    Add the scene environment components to projects by selecting a suitable preset when
+    \l{Creating Projects}{creating your project}.
+
+    Use the \uicontrol {3D} preset to create a project with a \uicontrol View3D
+    component that includes a scene environment. If you need to add it manually, it is
+    available in \uicontrol Components > \uicontrol {Qt Quick 3D}.
+
+    Use the \uicontrol {Extended 3D} preset to create a project with a 3D view
+    component that includes an extended scene environment. It is also
+    available in \uicontrol Components > \uicontrol {Qt Quick 3D Helpers}.
 
     \section1 Setting the Scene Environment
 
-    In the \uicontrol {Scene Environment} section of the \uicontrol Properties
-    view, you can specify whether and how the background of the scene should be
-    cleared, specify whether you wish to perform depth-tests on the scene,
-    apply post-processing effects to the scene, and define how colors are
-    tonemapped before the scene is rendered.
+    To define properties for the scene environment, select \uicontrol {Scene Environment}
+    in \uicontrol Navigator and specify its properties in the \uicontrol Properties view.
 
-    \image studio-3d-scene-environment-properties.png "The Scene Environment properties"
+    Set the properties in the \uicontrol {Scene Environment} section of the
+    \uicontrol Properties view to specify whether and how the background
+    of the scene should be cleared, to apply post-processing effects to the scene,
+    to define how colors are tonemapped before the scene is rendered, and to
+    specify fog settings.
+
+    \image studio-3d-scene-environment-properties.webp "The Scene Environment properties"
 
     The \uicontrol {Clear color} property specifies which color will be used to
     clear the background of the scene if \uicontrol {Background mode} is defined
@@ -64,23 +76,22 @@
                     image as a \uicontrol SkyBox using the
                     \uicontrol Image property in the \uicontrol {Light probe}
                     section (In Qt 5, the \uicontrol {Light Probe} property in
-                    the \uicontrol {Image-Based Lighting} group.
+                    the \uicontrol {Image-Based Lighting} group).
+            \row
+                \li SkyBoxCubeMap
+                \li The scene will not be cleared, but instead a
+                    \uicontrol SkyBox or Skydome that uses a \uicontrol CubeMapTexture
+                    will be rendered. A cube map texture has six faces
+                    (X+, X-, Y+, Y-, Z+, and Z-), where each face is an individual
+                    2D image. Selecting this mode allows custom materials and post-processing
+                    effects to work with cube map textures in their shaders.
         \endtable
 
     To leave the scene uncleared, select \uicontrol {Unspecified} as the
     \uicontrol {Background mode}.
 
-    You can perform depth tests to optimize the scene environment. To skip the
-    depth tests, deselect the \uicontrol {Enable depth test} checkbox. Note that
-    skipping the tests can cause rendering errors.
-
-    To have the renderer write to the depth buffer as part of the color pass,
-    deselect the \uicontrol {Enable depth prepass} checkbox. Deselecting the
-    checkbox disables the depth prepass on any GPU that uses tiled rendering
-    architecture.
-
-    The \uicontrol Effect property defines a post-processing effect to the
-    scene. Use the dropdown menu to select one of the effects that will be
+    The \uicontrol Effects property defines post-processing effects applied
+    to the scene. Use the dropdown menu to select one of the effects that will be
     applied to the entire scene. The order of the effects is significant since
     the result of each effect is fed to the next.
 
@@ -92,14 +103,21 @@
     tonemapping, or \uicontrol ToneMapModeFilmic to apply filmic tonemapping.
     \note The \uicontrol {Tonemap mode} property is not available in Qt 5.
 
+    The \uicontrol Fog property defines settings for fog applied to the
+    scene. When the \uicontrol Fog property of a scene environment is set to a
+    valid \uicontrol Fog object, the properties are used to configure the
+    rendering of fog. The simple fog provided by this type is implemented by
+    the materials. Use the dropdown menu to select a \uicontrol Fog object for
+    your scene.
+
     \section1 Applying Antialiasing
 
-    Antialiasing is used to make curved lines smoother on the screen. In the
+    Use antialiasing to make curved lines smoother on the screen. In the
     \uicontrol Antialiasing section of the \uicontrol Properties view, you can
     specify the mode and quality of antialiasing and also enable temporal
     antialiasing and define its strength.
 
-    \image studio-3d-scene-environment-antialiasing.png "The Antialiasing properties"
+    \image studio-3d-scene-environment-antialiasing.webp "The antialiasing properties"
 
     The \uicontrol {Antialiasing mode} property specifies the mode of
     antialiasing applied when the scene is rendered. Select one of the following
@@ -174,11 +192,12 @@
     animations stop.
 
     The \uicontrol {Temporal AA strength} property modifies the amount of
-    temporal movement in antialiasing. This property only has an effect when
+    temporal movement in antialiasing. This property is only available when
     the \uicontrol {Temporal AA} property is set to true.
 
-    \note In Qt 5, the antialiasing properties are located in
-    \uicontrol Properties > \uicontrol {Scene Environment}.
+    The \uicontrol {Specular AA} property enables specular antialiasing. Specular
+    aliasing is often visible in form of bright dots and flickering when moving the
+    camera around.
 
     \section1 Applying Ambient Occlusion
 
@@ -188,14 +207,17 @@
     \uicontrol {Sample rate}, and \uicontrol Bias properties in the
     \uicontrol {Ambient Occlusion} section of the \uicontrol Properties view.
 
-    \image studio-3d-scene-environment-ambient-occlusion.png "The Ambient Occlusion properties"
+    \image studio-3d-scene-environment-ambient-occlusion.webp "The ambient occlusion properties"
 
-    You can set the strength of the shadows using the \uicontrol Strength
-    property, which defines the amount of ambient occlusion applied. A value of
-    100 causes full darkness shadows, while lower values cause the shadowing to
-    appear lighter. A value of 0 disables ambient occlusion entirely, thus
-    improving performance at a cost to the visual realism of 3D objects rendered
-    in the scene. All values other than 0 have the same impact on performance.
+    In \uicontrol Properties > \uicontrol {Ambient Occlusion}, select the
+    \uicontrol Enabled checkbox to define settings for ambient occlusion.
+
+    Set the strength of the shadows using the \uicontrol Strength property,
+    which defines the amount of ambient occlusion applied. A value of 100 causes
+    full darkness shadows, while lower values cause the shadowing to appear lighter.
+    A value of 0 disables ambient occlusion entirely, thus improving performance at
+    a cost to the visual realism of 3D objects rendered in the scene. All values other
+    than 0 have the same impact on performance.
 
     The \uicontrol Distance property defines roughly how far the ambient occlusion
     shadows spread away from objects. Greater distances cause increasing impact
@@ -213,7 +235,7 @@
     occlusion, try adjusting the value in the \uicontrol {Clip far} field in
     the \l{Cameras}{scene camera} properties.
 
-    The \uicontrol {Sample rate} property specifies the number of shades of gray,
+    The \uicontrol {Sample Rate} property specifies the number of shades of gray,
     thus defining the quality of ambient occlusion at the expense of performance.
 
     The \uicontrol Bias property defines a cutoff distance preventing objects
@@ -227,15 +249,15 @@
     differently: \uicontrol {AO strength}, \uicontrol {AO distance},
     \uicontrol {AO softness}, \uicontrol {AO dither}, and \uicontrol {AO bias}.
 
-    \section1 Setting the Light Probe
+    \section1 Setting Image Based Lighting
 
-    In the \uicontrol {Light Probe} section of the \uicontrol Properties view,
-    you can set the \uicontrol Image, \uicontrol Exposure, \uicontrol Horizon,
+    In the \uicontrol {Image Based Lighting} section of the \uicontrol Properties view,
+    you can set the \uicontrol {HDR Image}, \uicontrol Exposure, \uicontrol Horizon,
     and \uicontrol Orientation properties for image-based lighting.
 
-    \image studio-3d-scene-environment-light-probe.png "The Light Probe properties"
+    \image studio-3d-scene-environment-image-based-lighting.webp "Image based lighting properties"
 
-    The \uicontrol Image property defines an image used to light the scene
+    The \uicontrol {HDR Image} property defines an image used to light the scene
     instead of or in addition to standard lights. The image is preferably a
     high-dynamic range image or a pre-generated cubemap. Pre-baking provides
     significant performance improvements at run time because no time is spent on
@@ -286,4 +308,45 @@
 
     The value of the \uicontrol {Probe FOV} property sets the angle of the
     image source field of view when using a camera source as the IBL probe.
+
+    \section2 Advanced Scene Environment settings
+
+    You can perform depth tests to optimize the scene environment. To skip the
+    depth tests, clear the \uicontrol {Enable depth test} checkbox. Note that
+    skipping the tests can cause rendering errors.
+
+    To have the renderer write to the depth buffer as part of the color pass,
+    clear the \uicontrol {Enable depth prepass} checkbox. Clearing the
+    checkbox disables the depth prepass on any GPU that uses tiled rendering
+    architecture.
+
+    To specify additional render settings for debugging scenes, define
+    \uicontrol {Debug Settings}.
+
+    To define lightmap baking settings for direct and indirect lighting, use
+    the \uicontrol {Light Mapper} property to specify a lightmapper object.
+    These settings are not relevant at other times, such as when using already
+    generated lightmaps to render a scene.
+
+    \section1 Setting the Extended Scene Environment
+
+    In addition to properties described above, in the extended scene environment
+    you can apply effects to your scene by defining them as properties. When enabling
+    one or more of these effects, the result is similar to manually adding
+    \l {3D Effects}{effects} to \uicontrol {Scene Environment}.
+
+    Use \uicontrol {Extended Scene Environment} instead of \uicontrol {Scene Environment}
+    to add multiple and complex effects to your scene. Because the \uicontrol
+    {Extended Scene Environment} combines the effects that are enabled, the number of
+    render passes is reduced, which results in significantly better performance
+    than applying individual post-processing effects to the scene.
+
+    For the extended scene environment, you can also define \uicontrol {Local Custom Properties}.
+
+    \image studio-ext-scene-environment.webp "Properties of Extended Scene Environment"
+
+    \note If additional post-processing effects are manually added to
+    \uicontrol {Scene Environment}, those effects will be applied before the effects
+    defined in the properties of \uicontrol {Extended Scene Environment}.
+
 */

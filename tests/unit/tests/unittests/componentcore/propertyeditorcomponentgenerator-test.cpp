@@ -18,7 +18,7 @@ class PropertyEditorComponentGenerator : public ::testing::Test
 {
 protected:
     QmlDesigner::NodeMetaInfo createType(Utils::SmallStringView name,
-                                         QmlDesigner::TypeIds baseTypeIds = {})
+                                         const QmlDesigner::SmallTypeIds<16> &baseTypeIds = {})
     {
         auto typeId = projectStorageMock.createValue(qtQuickModuleId, name, baseTypeIds);
 

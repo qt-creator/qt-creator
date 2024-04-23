@@ -168,8 +168,8 @@ class QmlTypesParser : public ::testing::Test
 public:
 protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
-    QmlDesigner::ProjectStorage<Sqlite::Database> storage{database, database.isInitialized()};
-    QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage<Sqlite::Database>> sourcePathCache{
+    QmlDesigner::ProjectStorage storage{database, database.isInitialized()};
+    QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage> sourcePathCache{
         storage};
     QmlDesigner::QmlTypesParser parser{storage};
     Storage::Imports imports;
@@ -836,6 +836,41 @@ TEST_F(QmlTypesParser, uses_no_custom_parser)
     parser.parse(source, imports, types, projectData);
 
     ASSERT_THAT(types, ElementsAre(IsTypeTrait(UsesCustomParser(false))));
+}
+
+TEST_F(QmlTypesParser, default_property)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QObject"
+                                    defaultProperty: "children" }})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types,
+                ElementsAre(Field(&Synchronization::Type::defaultPropertyName, Eq("children"))));
+}
+
+TEST_F(QmlTypesParser, skip_template_item)
+{
+    ModuleId moduleId = storage.moduleId("QtQuick.Templates-cppnative");
+    Synchronization::ProjectData projectData{qmltypesFileSourceId,
+                                             qmltypesFileSourceId,
+                                             moduleId,
+                                             Synchronization::FileType::QmlTypes};
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QQuickItem"}
+                        Component { name: "QQmlComponent"}})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types,
+                UnorderedElementsAre(IsType("QQmlComponent",
+                                            Synchronization::ImportedType{},
+                                            Synchronization::ImportedType{},
+                                            Storage::TypeTraitsKind::Reference,
+                                            qmltypesFileSourceId)));
 }
 
 } // namespace

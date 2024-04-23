@@ -50,6 +50,8 @@ public:
 
     SqliteDatabaseMock &database() { return *m_databaseMock; }
 
+    MOCK_METHOD(std::uintptr_t, handle, (), (const));
+
 private:
     SqliteDatabaseMock *m_databaseMock = nullptr;
 };

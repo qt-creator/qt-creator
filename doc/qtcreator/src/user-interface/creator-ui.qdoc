@@ -95,7 +95,7 @@
     \endif
 
     \if defined(qtdesignstudio)
-    \section1 Customizing the Menu
+    \section1 Customizing the Menu Bar
 
     By default, top-level menu items \uicontrol Build, \uicontrol Debug, and
     \uicontrol Analyze are not visible. These menu items have options for
@@ -112,6 +112,9 @@
     \image studio-menu-item-visibility.png
 
     You need to restart \QDS to apply changes made to these settings.
+
+    \note To show or hide the \uicontrol {Menu Bar}, select \uicontrol View >
+    \uicontrol {Show Menu Bar}, or use \key {Ctrl+Alt+M}.
 
     \section1 Customizing the UI
 

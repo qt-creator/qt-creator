@@ -1,6 +1,7 @@
 // Copyright (C) 2019 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #include "itemlibraryassetimporter.h"
+
 #include "assetimportupdatedialog.h"
 #include "qmldesignerplugin.h"
 #include "qmldesignerconstants.h"
@@ -329,12 +330,15 @@ void ItemLibraryAssetImporter::postParseQuick3DAsset(ParseData &pd)
             if (qmldirFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
                 QString qmlInfo;
                 qmlInfo.append("module ");
-                qmlInfo.append(m_importPath.split('/').last());
+                qmlInfo.append(QmlDesignerPlugin::instance()->documentManager()
+                                   .generatedComponentUtils().import3dTypePrefix());
                 qmlInfo.append(".");
                 qmlInfo.append(pd.assetName);
                 qmlInfo.append('\n');
                 m_requiredImports.append(
-                    QStringLiteral("%1.%2").arg(pd.targetDir.dirName(), pd.assetName));
+                    QStringLiteral("%1.%2").arg(QmlDesignerPlugin::instance()->documentManager()
+                                                    .generatedComponentUtils().import3dTypePrefix(),
+                                                pd.assetName));
                 while (qmlIt.hasNext()) {
                     qmlIt.next();
                     QFileInfo fi = QFileInfo(qmlIt.filePath());

@@ -43,6 +43,8 @@ HelperWidgets.Section {
 
             EffectCompositionNodeUniform {
                 width: root.width
+
+                onReset: nodeUniformsModel.resetData(index)
             }
         }
     }

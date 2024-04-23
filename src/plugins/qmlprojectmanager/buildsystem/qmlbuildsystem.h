@@ -83,6 +83,9 @@ public:
     QString primaryLanguage() const;
     void setPrimaryLanguage(QString language);
 
+    bool enableCMakeGeneration() const;
+    void setEnableCMakeGeneration(bool enable);
+
     bool forceFreeType() const;
     bool widgetApp() const;
 

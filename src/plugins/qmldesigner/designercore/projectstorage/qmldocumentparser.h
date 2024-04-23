@@ -15,7 +15,7 @@ class SourcePathCache;
 class QmlDocumentParser final : public QmlDocumentParserInterface
 {
 public:
-    using ProjectStorage = QmlDesigner::ProjectStorage<Sqlite::Database>;
+    using ProjectStorage = QmlDesigner::ProjectStorage;
     using PathCache = QmlDesigner::SourcePathCache<ProjectStorage, NonLockingMutex>;
 
 #ifdef QDS_BUILD_QMLPARSER

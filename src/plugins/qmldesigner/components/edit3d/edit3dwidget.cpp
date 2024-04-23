@@ -766,7 +766,11 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
             QString fileName = QFileInfo(assetPath).baseName();
             fileName = fileName.at(0).toUpper() + fileName.mid(1); // capitalize first letter
             auto model = m_view->model();
-            auto metaInfo = model->metaInfo(model->module("Quick3DAssets"), fileName.toUtf8());
+            Utils::PathString import3dTypePrefix = QmlDesignerPlugin::instance()
+                                                       ->documentManager()
+                                                       .generatedComponentUtils()
+                                                       .import3dTypePrefix();
+            auto metaInfo = model->metaInfo(model->module(import3dTypePrefix), fileName.toUtf8());
             if (auto entries = metaInfo.itemLibrariesEntries(); entries.size()) {
                 auto entry = ItemLibraryEntry{entries.front(), *model->projectStorage()};
                 QmlVisualNode::createQml3DNode(view(), entry, m_canvas->activeScene(), {}, false);
@@ -780,7 +784,9 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
         for (const QString &assetPath : added3DAssets) {
             QString fileName = QFileInfo(assetPath).baseName();
             fileName = fileName.at(0).toUpper() + fileName.mid(1); // capitalize first letter
-            QString type = QString("Quick3DAssets.%1.%1").arg(fileName);
+            QString type = QString("%1.%2.%2").arg(QmlDesignerPlugin::instance()->documentManager()
+                                                       .generatedComponentUtils().import3dTypePrefix(),
+                                                   fileName);
             QList<ItemLibraryEntry> entriesForType = itemLibInfo->entriesForType(type.toUtf8());
             if (!entriesForType.isEmpty()) { // should always be true, but just in case
                 QmlVisualNode::createQml3DNode(view(),

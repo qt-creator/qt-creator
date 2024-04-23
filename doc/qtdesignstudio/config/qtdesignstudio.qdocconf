@@ -120,4 +120,9 @@ macro.function                  = "\\fn"
 macro.QMLD                      = "Qt Design Studio"
 
 navigation.landingpage = "$IDE_DISPLAY_NAME Manual"
+
+# Auto-generate navigation linking based on "All Topics":
+navigation.toctitles = "All Topics"
+navigation.toctitles.inclusive = false
+
 buildversion = "$IDE_DISPLAY_NAME Manual $QTC_VERSION"

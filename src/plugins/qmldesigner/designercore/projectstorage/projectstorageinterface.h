@@ -32,6 +32,7 @@ public:
     virtual void removeObserver(ProjectStorageObserver *observer) = 0;
 
     virtual ModuleId moduleId(::Utils::SmallStringView name) const = 0;
+    virtual Utils::SmallString moduleName(ModuleId moduleId) const = 0;
     virtual std::optional<Storage::Info::PropertyDeclaration>
     propertyDeclaration(PropertyDeclarationId propertyDeclarationId) const = 0;
     virtual TypeId typeId(ModuleId moduleId,
@@ -54,7 +55,10 @@ public:
     virtual PropertyDeclarationId propertyDeclarationId(TypeId typeId,
                                                         ::Utils::SmallStringView propertyName) const
         = 0;
+    virtual PropertyDeclarationId defaultPropertyDeclarationId(TypeId typeId) const = 0;
     virtual std::optional<Storage::Info::Type> type(TypeId typeId) const = 0;
+    virtual SmallSourceIds<4> typeAnnotationSourceIds(SourceId directoryId) const = 0;
+    virtual SmallSourceIds<64> typeAnnotationDirectorySourceIds() const = 0;
     virtual Utils::PathString typeIconPath(TypeId typeId) const = 0;
     virtual Storage::Info::TypeHints typeHints(TypeId typeId) const = 0;
     virtual Storage::Info::ItemLibraryEntries itemLibraryEntries(TypeId typeId) const = 0;
@@ -64,9 +68,9 @@ public:
     virtual std::vector<::Utils::SmallString> functionDeclarationNames(TypeId typeId) const = 0;
     virtual std::optional<::Utils::SmallString>
     propertyName(PropertyDeclarationId propertyDeclarationId) const = 0;
-    virtual TypeIds prototypeAndSelfIds(TypeId type) const = 0;
-    virtual TypeIds prototypeIds(TypeId type) const = 0;
-    virtual TypeIds heirIds(TypeId typeId) const = 0;
+    virtual SmallTypeIds<16> prototypeAndSelfIds(TypeId type) const = 0;
+    virtual SmallTypeIds<16> prototypeIds(TypeId type) const = 0;
+    virtual SmallTypeIds<64> heirIds(TypeId typeId) const = 0;
     virtual bool isBasedOn(TypeId, TypeId) const = 0;
     virtual bool isBasedOn(TypeId, TypeId, TypeId) const = 0;
     virtual bool isBasedOn(TypeId, TypeId, TypeId, TypeId) const = 0;
@@ -80,7 +84,7 @@ public:
     virtual std::optional<Storage::Synchronization::ProjectData> fetchProjectData(SourceId sourceId) const = 0;
 
     virtual SourceId propertyEditorPathId(TypeId typeId) const = 0;
-    virtual const Storage::Info::CommonTypeCache<ProjectStorageInterface> &commonTypeCache() const = 0;
+    virtual const Storage::Info::CommonTypeCache<ProjectStorageType> &commonTypeCache() const = 0;
 
     template<const char *moduleName, const char *typeName>
     TypeId commonTypeId() const

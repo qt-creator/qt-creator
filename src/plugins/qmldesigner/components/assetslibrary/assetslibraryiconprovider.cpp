@@ -2,9 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "assetslibraryiconprovider.h"
-#include "asset.h"
-#include "modelnodeoperations.h"
 
+#include <modelnodeoperations.h>
 #include <theme.h>
 #include <utils/hdrimage.h>
 #include <utils/ktximage.h>

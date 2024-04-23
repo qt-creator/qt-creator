@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,21 +6,25 @@
     \previouspage qtquick-navigator.html
     \nextpage qtquick-connection-view.html
 
+    \ingroup studio-views
+
     \title Properties
+
+    \brief Modify the properties of the selected component.
 
     The \uicontrol Properties view displays all the properties of the selected
     \l{glossary-component}{component}. The properties are grouped by type. The
     top part of the view displays properties that are common to all components,
     such as component type, ID, name, geometry, and visibility.
 
-    \image qtquick-item-properties-common.png "Basic component properties"
+    \image qtquick-item-properties-common.webp "Basic component properties"
 
     The bottom part of the view displays properties that have been defined for
     the component type. For example, the following image displays the predefined
     properties you can set for \l{basic-rectangle}{Rectangle} and \l Text
     components.
 
-    \image qmldesigner-element-properties.png "Rectangle and Text properties"
+    \image qmldesigner-element-properties.webp "Rectangle and Text properties"
 
     \section1 Custom Properties
 
@@ -41,46 +45,6 @@
     \endtable
 
     \image custom-properties.png
-
-    \section1 Summary of Properties View Buttons
-
-    The following table lists the \uicontrol Properties view buttons:
-
-    \table
-    \header
-        \li Icon
-        \li Tooltip
-        \li Read More
-    \row
-        \li \inlineimage icons/alias.png
-        \li Adds a property alias that you can use from outside of the
-            component for the root component. You can use a menu item
-            in the actions menu to add property aliases for property
-            values of child components.
-        \li \l{Adding Property Aliases}
-    \row
-        \li \inlineimage icons/action-icon.png
-        \li Opens a menu with actions for:
-            \list
-                \li Resetting property values to their default values
-                \li Setting property bindings
-                \li Creating property aliases
-                \li Inserting keyframes for timeline animations
-            \endlist
-        \li
-        \list
-                \li \l{Viewing Changes in Properties}
-                \li \l{Adding Bindings Between Properties}
-                \li \l{Adding Property Aliases}
-                \li \l{Setting Keyframe Values}
-        \endlist
-    \row
-        \li \inlineimage icons/action-icon-binding.png
-        \li Indicates that the value of the property is bound to the value
-            of another property. Opens the same menu as the action icon.
-        \li \l{Adding Bindings Between Properties}
-
-    \endtable
 
     \section1 Viewing Changes in Properties
 

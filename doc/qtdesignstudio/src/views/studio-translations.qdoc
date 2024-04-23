@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,7 +6,11 @@
     \previouspage qtquick-states-view.html
     \nextpage qtquick-timeline-view.html
 
+    \ingroup studio-views
+
     \title Translations
+
+    \brief Handle translations and multi-language support.
 
     The \uicontrol Translations view is included in the
     \l{https://www.qt.io/pricing}{Qt Design Studio Enterprise license}.
@@ -15,49 +19,6 @@
     \uicontrol {Translations} view.
 
     \image studio-translations-view.png "Translations view"
-
-    \section1 Summary of Translations View Buttons
-
-    The \uicontrol {Translations} view contains the following buttons.
-
-    \table
-    \header
-        \li Button
-        \li Function
-        \li Read More
-    \row
-        \li \inlineimage icons/select-languages.png
-        \li Select which languages you want your project to support.
-        \li
-    \row
-        \li \inlineimage icons/export-json-translations.png
-        \li Export all your translations to a JSON file.
-        \li \l{Importing and Exporting Translations}
-    \row
-        \li \inlineimage icons/import-json-translations.png
-        \li Import translations from a JSON file.
-        \li \l{Importing and Exporting Translations}
-    \row
-        \li \inlineimage icons/generate-translation-files.png
-        \li Generate Qt compiled translation source files (\e{.qm})
-        and Qt translation source files (\e{.ts}).
-        \li \l{Generating Qt Translation Source Files}
-    \row
-        \li \inlineimage icons/project-translation-test.png
-        \li Run translation test for several documents and create a test report.
-        \li \l{Running Translation Test for Several Documents}
-    \row
-        \li \inlineimage icons/qml-translation-test.png
-        \li Run translation test for the currently open document. This test
-        shows translation warnings in the \uicontrol{2D} view and creates a
-        test report.
-        \li \l{Running Translation Test for a Single Document}
-    \row
-        \li \inlineimage icons/export-translations.png
-        \li Export all translations used in your project or all translations
-        currently visible in your UI.
-        \li \l{Exporting Translations in Other Ways}
-    \endtable
 
     \section1 Importing and Exporting Translations
 

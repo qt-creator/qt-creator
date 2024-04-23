@@ -4,9 +4,13 @@
 /*!
     \page qtquick-effect-composer-view.html
     \previouspage studio-qt-insight.html
-    \nextpage creator-project-managing-workspaces.html
+    \nextpage studio-model-editor.html
+
+    \ingroup studio-views
 
     \title Effect Composer
+
+    \brief Compose custom effects.
 
     Use \uicontrol {Effect Composer} to create post-processing effects that
     can be applied to 2D or 3D components. The effects created with \uicontrol {Effect Composer}
@@ -86,4 +90,4 @@
     \uicontrol Navigator, and in \uicontrol Properties >
     \uicontrol {Exposed Custom Properties}, select or clear the
     \uicontrol timeRunning checkbox.
-
+*/

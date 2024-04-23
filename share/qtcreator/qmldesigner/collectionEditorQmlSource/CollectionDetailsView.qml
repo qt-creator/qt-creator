@@ -21,11 +21,19 @@ Rectangle {
     color: StudioTheme.Values.themeControlBackground
 
     function closeDialogs() {
-        editPropertyDialog.close()
+        editPropertyDialog.reject()
+        deleteColumnDialog.reject()
+        toolbar.closeDialogs()
+    }
+
+    MouseArea {
+        anchors.fill: parent
+        onClicked: tableView.model.deselectAll()
     }
 
     Column {
         id: topRow
+        readonly property real maxAvailableHeight: root.height
 
         visible: root.model.collectionName !== ""
         width: parent.width
@@ -39,6 +47,11 @@ Rectangle {
         }
 
         GridLayout {
+            id: gridLayout
+            readonly property real maxAvailableHeight: topRow.maxAvailableHeight
+                                                       - topRow.spacing
+                                                       - toolbar.height
+
             columns: 3
             rowSpacing: 1
             columnSpacing: 1
@@ -92,7 +105,8 @@ Rectangle {
                         id: topHeaderMouseArea
 
                         anchors.fill: parent
-                        anchors.margins: 5
+                        anchors.leftMargin: StudioTheme.Values.borderHover
+                        anchors.rightMargin: StudioTheme.Values.borderHover
                         acceptedButtons: Qt.LeftButton | Qt.RightButton
                         hoverEnabled: true
                         onClicked: (mouse) => {
@@ -147,12 +161,18 @@ Rectangle {
 
                     StudioControls.MenuItem {
                         text: qsTr("Sort Ascending")
-                        onTriggered: sortedModel.sort(headerMenu.clickedHeaderIndex, Qt.AscendingOrder)
+                        onTriggered: {
+                            tableView.closeEditor()
+                            tableView.model.sort(headerMenu.clickedHeaderIndex, Qt.AscendingOrder)
+                        }
                     }
 
                     StudioControls.MenuItem {
                         text: qsTr("Sort Descending")
-                        onTriggered: sortedModel.sort(headerMenu.clickedHeaderIndex, Qt.DescendingOrder)
+                        onTriggered: {
+                            tableView.closeEditor()
+                            tableView.model.sort(headerMenu.clickedHeaderIndex, Qt.DescendingOrder)
+                        }
                     }
                 }
             }
@@ -174,7 +194,8 @@ Rectangle {
 
                     MouseArea {
                         anchors.fill: parent
-                        anchors.margins: 5
+                        anchors.topMargin: StudioTheme.Values.borderHover
+                        anchors.bottomMargin: StudioTheme.Values.borderHover
                         acceptedButtons: Qt.LeftButton
                         onClicked: tableView.model.selectRow(index)
                     }
@@ -187,15 +208,29 @@ Rectangle {
                 model: root.sortedModel
                 clip: true
 
-                property point tableStart: tableTopLeftCorner.mapToItem(root, Qt.point(x, y));
+                readonly property real maxAvailableHeight: gridLayout.maxAvailableHeight
+                                                           - addRowButton.height
+                                                           - headerView.height
+                                                           - (2 * gridLayout.rowSpacing)
+                readonly property real maxAvailableWidth: gridLayout.width
+                                                          - StudioTheme.Values.collectionTableHorizontalMargin
+                                                          - rowIdView.width
+                                                          - addColumnButton.width
+                                                          - gridLayout.columnSpacing
+
+                property real childrenWidth: tableView.contentItem.childrenRect.width
+                property real childrenHeight: tableView.contentItem.childrenRect.height
+
+                property int targetRow
+                property int targetColumn
 
                 Layout.alignment: Qt.AlignTop + Qt.AlignLeft
                 Layout.preferredWidth: tableView.contentWidth
                 Layout.preferredHeight: tableView.contentHeight
                 Layout.minimumWidth: 100
                 Layout.minimumHeight: 20
-                Layout.maximumWidth: root.width - (tableStart.x + addColumnContainer.width)
-                Layout.maximumHeight: root.height - (tableStart.y + addRowContainer.height)
+                Layout.maximumWidth: maxAvailableWidth
+                Layout.maximumHeight: maxAvailableHeight
 
                 columnWidthProvider: function(column) {
                     if (!isColumnLoaded(column))
@@ -214,6 +249,45 @@ Rectangle {
                         h = implicitRowHeight(row)
                     return Math.max(h, StudioTheme.Values.collectionCellMinimumHeight)
                 }
+
+                function ensureRowIsVisible(row) {
+                    let rows = tableView.model.rowCount()
+                    let rowIsLoaded = tableView.isRowLoaded(row)
+
+                    if (row < 0 || row >= rows || rowIsLoaded) {
+                        if (rowIsLoaded)
+                            tableView.positionViewAtRow(row, Qt.AlignLeft | Qt.AlignTop)
+
+                        tableView.targetRow = -1
+                        return
+                    }
+
+                    tableView.targetRow = row
+                    tableView.positionViewAtRow(row, Qt.AlignLeft | Qt.AlignTop)
+                    ensureTimer.start()
+                }
+
+                function ensureColumnIsVisible(column) {
+                    let columns = tableView.model.columnCount()
+                    let columnIsLoaded = tableView.isColumnLoaded(column)
+
+                    if (column < 0 || column >= columns || columnIsLoaded) {
+                        if (columnIsLoaded)
+                            tableView.positionViewAtColumn(column, Qt.AlignLeft | Qt.AlignTop)
+
+                        tableView.targetColumn = -1
+                        return
+                    }
+
+                    tableView.targetColumn = column
+                    tableView.positionViewAtColumn(column, Qt.AlignLeft | Qt.AlignTop)
+                    ensureTimer.start()
+                }
+
+                onMaxAvailableHeightChanged: resetSizeTimer.start()
+                onMaxAvailableWidthChanged: resetSizeTimer.start()
+                onChildrenWidthChanged: resetSizeTimer.start()
+                onChildrenHeightChanged: resetSizeTimer.start()
 
                 delegate: Rectangle {
                     id: itemCell
@@ -264,7 +338,7 @@ Rectangle {
                             Text {
                                 text: display ?? ""
                                 color: itemSelected ? StudioTheme.Values.themeInteraction
-                                                    : StudioTheme.Values.themePlaceholderTextColorInteraction
+                                                    : StudioTheme.Values.themeTextColor
                                 leftPadding: 5
                                 topPadding: 3
                                 bottomPadding: 3
@@ -297,15 +371,70 @@ Rectangle {
                             top: itemCell.top
                             left: itemCell.left
                         }
+                        Component.onCompleted: tableView.model.deselectAll()
+                    }
+                }
+
+                Timer {
+                    id: resetSizeTimer
+
+                    interval: 100
+                    repeat: false
+                    onTriggered: {
+                        let cWidth = Math.min(tableView.maxAvailableWidth, tableView.childrenWidth)
+                        let cHeight = Math.min(tableView.maxAvailableHeight, tableView.childrenHeight)
+
+                        if (tableView.contentWidth !== cWidth || tableView.contentHeight !== cHeight)
+                            tableView.returnToBounds()
+                    }
+                }
+
+                Timer {
+                    id: ensureTimer
+
+                    interval: 100
+                    repeat: false
+                    onTriggered: {
+                        tableView.ensureRowIsVisible(tableView.targetRow)
+                        tableView.ensureColumnIsVisible(tableView.targetColumn)
+                    }
+                }
+
+                Connections {
+                    target: tableView.model
+
+                    function onModelReset() {
+                        root.closeDialogs()
+                        tableView.clearColumnWidths()
+                        tableView.clearRowHeights()
                     }
 
-                    Connections {
-                        target: tableView.model
+                    function onRowsInserted(parent, first, last) {
+                        tableView.closeEditor()
+                        tableView.model.selectRow(first)
+                        tableView.ensureRowIsVisible(first)
+                    }
 
-                        function onModelReset() {
-                            tableView.clearColumnWidths()
-                            tableView.clearRowHeights()
-                        }
+                    function onColumnsInserted(parent, first, last) {
+                        tableView.closeEditor()
+                        tableView.model.selectColumn(first)
+                        tableView.ensureColumnIsVisible(first)
+                    }
+
+                    function onRowsRemoved(parent, first, last) {
+                        let nextRow = first - 1
+                        if (nextRow < 0 && tableView.model.rowCount(parent) > 0)
+                            nextRow = 0
+
+                        tableView.model.selectRow(nextRow)
+                    }
+
+                    function onColumnsRemoved(parent, first, last) {
+                        let nextColumn = first - 1
+                        if (nextColumn < 0 && tableView.model.columnCount(parent) > 0)
+                            nextColumn = 0
+
+                        tableView.model.selectColumn(nextColumn)
                     }
                 }
 
@@ -331,7 +460,7 @@ Rectangle {
             }
 
             HelperWidgets.IconButton {
-                id: addColumnContainer
+                id: addColumnButton
 
                 iconSize:16
                 Layout.preferredWidth: 24
@@ -346,7 +475,7 @@ Rectangle {
             }
 
             HelperWidgets.IconButton {
-                id: addRowContainer
+                id: addRowButton
 
                 iconSize:16
                 Layout.preferredWidth: tableView.width
@@ -367,10 +496,38 @@ Rectangle {
         }
     }
 
+    ColumnLayout {
+        id: importsProblem
+
+        visible: !topRow.visible && rootView.dataStoreExists && !rootView.projectImportExists
+        width: parent.width
+        anchors.verticalCenter: parent.verticalCenter
+        clip: true
+
+        Text {
+            text: qsTr("Import the project to your design document to make the Model Editor enabled.")
+            Layout.alignment: Qt.AlignCenter
+            Layout.maximumWidth: parent.width
+            leftPadding: StudioTheme.Values.collectionItemTextPadding
+            rightPadding: StudioTheme.Values.collectionItemTextPadding
+            color: StudioTheme.Values.themeTextColor
+            font.pixelSize: StudioTheme.Values.mediumFontSize
+            wrapMode: Text.Wrap
+        }
+
+        HelperWidgets.Button {
+            text: qsTr("Enable DataStore (This will add the required import)")
+            Layout.alignment: Qt.AlignCenter
+            onClicked: rootView.addProjectImport()
+            leftPadding: StudioTheme.Values.collectionItemTextPadding
+            rightPadding: StudioTheme.Values.collectionItemTextPadding
+        }
+    }
+
     Text {
         anchors.centerIn: parent
-        text: qsTr("Select a model to continue")
-        visible: !topRow.visible
+        text: qsTr("There are no models in this project.\nAdd or import a model.")
+        visible: !topRow.visible && !importsProblem.visible
         color: StudioTheme.Values.themeTextColor
         font.pixelSize: StudioTheme.Values.mediumFontSize
     }

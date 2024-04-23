@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -15,7 +15,11 @@
 
     \title File System
 
+    \if defined(qtdesignstudio)
+    \brief View all the files in the current directory.
+    \else
     \brief Shows all the files in the current directory.
+    \endif
 
     \if defined(qtcreator)
     \note Usually, \l{Navigate with locator}{searching with the locator}
@@ -25,7 +29,7 @@
 
     \image qtcreator-filesystem-view.webp {File System view in the sidebar}
     \else
-    \image qtcreator-filesystem-view-design.webp {File System view}
+    \image filesystem-view-design.webp {File System view}
     \endif
 
     To go to the root directory of the file system, select \uicontrol Computer
@@ -52,6 +56,7 @@
     The view displays the path to the active file as bread crumbs. You can move
     to any directory along the path by clicking it.
 
+    \if defined(qtcreator)
     \section1 File System Context Menu
 
     Use the context menu functions to:
@@ -64,34 +69,24 @@
             that has the file. To specify the terminal to use on Linux and
             \macos, select \preferences > \uicontrol Environment >
             \uicontrol System.
-            \if defined(qtcreator)
             To use an \l{Terminal} {internal terminal}, select \preferences >
             \uicontrol Terminal > \uicontrol {Use internal terminal}.
-            \endif
         \li Search in the selected directory.
         \li View file properties, such as name, path, MIME type, default editor,
             line endings, indentation, owner, size, last read and modified
             dates, and permissions.
-        \li Create new files. For more information, see
-            \if defined(qtdesignstudio)
-            \l{Adding Files to Projects}.
-            \else
-            \l{Create files}.
-            \endif
+        \li Create new files. For more information, see {Create files}.
         \li Rename existing files. To move the file to another directory, enter
             the relative or absolute path to its new location in addition to the
             new filename.
         \li Remove existing files.
         \li Create new folders.
-        \if defined(qtcreator)
         \li Compare the selected file with the currently open file in the diff
             editor. For more information, see \l{Compare files}.
-        \endif
         \li Display the contents of a particular directory in the view.
         \li Collapse all open folders.
     \endlist
 
-    \if defined(qtcreator)
     \section1 File System View Toolbar
 
     The toolbar in the \uicontrol {File System} view has additional

@@ -27,9 +27,11 @@ QT_END_NAMESPACE
 #  define DEPRECATED_VERSION_NUMBER \
       [[deprecated( \
           "In most cases you don't need them anymore because the import is setting them!")]]
+#  define DEPRECATED_COMPONENT_FILE_NAME [[deprecated("Use sourceId() instead.")]]
 #else
 #  define DEPRECATED_TYPENAME
 #  define DEPRECATED_VERSION_NUMBER
+#  define DEPRECATED_COMPONENT_FILE_NAME
 #endif
 
 namespace QmlDesigner {
@@ -116,7 +118,7 @@ public:
     Storage::Info::ItemLibraryEntries itemLibrariesEntries() const;
 
     SourceId sourceId() const;
-    QString componentFileName() const;
+    DEPRECATED_COMPONENT_FILE_NAME QString componentFileName() const;
 
     bool isBasedOn(const NodeMetaInfo &metaInfo) const;
     bool isBasedOn(const NodeMetaInfo &metaInfo1, const NodeMetaInfo &metaInfo2) const;
@@ -167,6 +169,7 @@ public:
     bool isQtMultimediaSoundEffect() const;
     bool isQtObject() const;
     bool isQtQmlConnections() const;
+    bool isQtQmlModelsListElement() const;
     bool isQtQuick3DBakedLightmap() const;
     bool isQtQuick3DBuffer() const;
     bool isQtQuick3DCamera() const;
@@ -176,7 +179,6 @@ public:
     bool isQtQuick3DInstanceList() const;
     bool isQtQuick3DInstanceListEntry() const;
     bool isQtQuick3DLight() const;
-    bool isQtQuickListElement() const;
     bool isQtQuickListModel() const;
     bool isQtQuickListView() const;
     bool isQtQuick3DMaterial() const;
@@ -265,12 +267,14 @@ public:
 
 private:
     const Storage::Info::Type &typeData() const;
+    PropertyDeclarationId defaultPropertyDeclarationId() const;
     bool isSubclassOf(const TypeName &type, int majorVersion = -1, int minorVersion = -1) const;
 
 private:
     TypeId m_typeId;
     NotNullPointer<const ProjectStorageType> m_projectStorage = {};
     mutable std::optional<Storage::Info::Type> m_typeData;
+    mutable std::optional<PropertyDeclarationId> m_defaultPropertyId;
     std::shared_ptr<NodeMetaInfoPrivate> m_privateData;
 };
 

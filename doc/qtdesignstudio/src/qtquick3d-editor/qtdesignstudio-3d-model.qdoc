@@ -27,11 +27,14 @@
       \note You can not create \uicontrol Empty models this way.
     \endlist
 
+    Double-clicking a 3D model in \uicontrol 2D view opens the \uicontrol 3D view with
+    the 3D model selected.
+
     If you cannot find the model components in \uicontrol {Components}, add the
     \uicontrol QtQuick3D module to your project, as described in
     \l {Adding and Removing Modules}.
 
-    \image studio-qtquick-3d-components.png "The Qt Quick 3D section in Components"
+    \image studio-qtquick-3d-components.webp "The Qt Quick 3D section in Components"
 
     \section1 Model Properties
 

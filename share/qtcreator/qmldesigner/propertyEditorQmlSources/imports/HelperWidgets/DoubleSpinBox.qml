@@ -53,5 +53,6 @@ Item {
         decimals: 2
 
         onRealValueModified: wrapper.valueModified()
+        onCompressedRealValueModified: wrapper.valueModified()
     }
 }

@@ -9,6 +9,10 @@ QT_BEGIN_NAMESPACE
 class QCryptographicHash;
 QT_END_NAMESPACE
 
+#include <QStringView>
+
+#include <limits>
+
 namespace LanguageUtils {
 
 class LANGUAGEUTILS_EXPORT ComponentVersion
@@ -17,25 +21,56 @@ class LANGUAGEUTILS_EXPORT ComponentVersion
     int _minor;
 
 public:
-    static const int NoVersion;
-    static const int MaxVersion;
+    static constexpr int NoVersion = -1;
+    static constexpr int MaxVersion = std::numeric_limits<int>::max();
 
-    ComponentVersion();
-    ComponentVersion(int major, int minor);
-    explicit ComponentVersion(const QString &versionString);
-    ~ComponentVersion();
+    ComponentVersion()
+        : _major(NoVersion)
+        , _minor(NoVersion)
+    {}
+
+    ComponentVersion(int major, int minor)
+        : _major(major)
+        , _minor(minor)
+    {}
+
+    explicit ComponentVersion(QStringView versionString);
+    ~ComponentVersion() = default;
 
     int majorVersion() const { return _major; }
     int minorVersion() const { return _minor; }
 
-    friend bool LANGUAGEUTILS_EXPORT operator<(const ComponentVersion &lhs, const ComponentVersion &rhs);
-    friend bool LANGUAGEUTILS_EXPORT operator<=(const ComponentVersion &lhs, const ComponentVersion &rhs);
-    friend bool LANGUAGEUTILS_EXPORT operator>(const ComponentVersion &lhs, const ComponentVersion &rhs);
-    friend bool LANGUAGEUTILS_EXPORT operator>=(const ComponentVersion &lhs, const ComponentVersion &rhs);
-    friend bool LANGUAGEUTILS_EXPORT operator==(const ComponentVersion &lhs, const ComponentVersion &rhs);
-    friend bool LANGUAGEUTILS_EXPORT operator!=(const ComponentVersion &lhs, const ComponentVersion &rhs);
+    friend bool operator<(const ComponentVersion &lhs, const ComponentVersion &rhs)
+    {
+        return std::tie(lhs._major, lhs._minor) < std::tie(rhs._major, rhs._minor);
+    }
 
-    bool isValid() const;
+    friend bool operator<=(const ComponentVersion &lhs, const ComponentVersion &rhs)
+    {
+        return std::tie(lhs._major, lhs._minor) <= std::tie(rhs._major, rhs._minor);
+    }
+
+    friend bool operator>(const ComponentVersion &lhs, const ComponentVersion &rhs)
+    {
+        return rhs < lhs;
+    }
+
+    friend bool operator>=(const ComponentVersion &lhs, const ComponentVersion &rhs)
+    {
+        return rhs <= lhs;
+    }
+
+    friend bool operator==(const ComponentVersion &lhs, const ComponentVersion &rhs)
+    {
+        return lhs.majorVersion() == rhs.majorVersion() && lhs.minorVersion() == rhs.minorVersion();
+    }
+
+    friend bool operator!=(const ComponentVersion &lhs, const ComponentVersion &rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    bool isValid() const { return _major >= 0 && _minor >= 0; }
     QString toString() const;
     void addToHash(QCryptographicHash &hash) const;
 };

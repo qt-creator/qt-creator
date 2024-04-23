@@ -10,6 +10,8 @@
 
 #include <sqlitedatabase.h>
 
+#include <tracing/qmldesignertracing.h>
+
 #ifdef QDS_BUILD_QMLPARSER
 #include <private/qqmldomtop_p.h>
 #endif
@@ -20,6 +22,10 @@
 namespace QmlDesigner {
 
 #ifdef QDS_BUILD_QMLPARSER
+
+constexpr auto category = ProjectStorageTracing::projectStorageUpdaterCategory;
+using NanotraceHR::keyValue;
+using Tracer = ProjectStorageTracing::Category::TracerType;
 
 namespace QmlDom = QQmlJS::Dom;
 namespace Synchronization = Storage::Synchronization;
@@ -84,6 +90,11 @@ QualifiedImports createQualifiedImports(const QList<QmlDom::Import> &qmlImports,
                                         Utils::SmallStringView directoryPath,
                                         QmlDocumentParser::ProjectStorage &storage)
 {
+    NanotraceHR::Tracer tracer{"create qualified imports"_t,
+                               category(),
+                               keyValue("sourceId", sourceId),
+                               keyValue("directoryPath", directoryPath)};
+
     QualifiedImports qualifiedImports;
 
     for (const QmlDom::Import &qmlImport : qmlImports) {
@@ -91,6 +102,8 @@ QualifiedImports createQualifiedImports(const QList<QmlDom::Import> &qmlImports,
             qualifiedImports.try_emplace(qmlImport.importId,
                                          createImport(qmlImport, sourceId, directoryPath, storage));
     }
+
+    tracer.end(keyValue("qualified imports", qualifiedImports));
 
     return qualifiedImports;
 }
@@ -280,6 +293,11 @@ Storage::Synchronization::Type QmlDocumentParser::parse(const QString &sourceCon
                                                         SourceId sourceId,
                                                         Utils::SmallStringView directoryPath)
 {
+    NanotraceHR::Tracer tracer{"qml document parser parse"_t,
+                               category(),
+                               keyValue("sourceId", sourceId),
+                               keyValue("directoryPath", directoryPath)};
+
     Storage::Synchronization::Type type;
 
     using Option = QmlDom::DomEnvironment::Option;
@@ -335,7 +353,7 @@ Storage::Synchronization::Type QmlDocumentParser::parse(const QString &sourceCon
                                                          m_storage);
 
     type.prototype = createImportedTypeName(qmlObject.name(), qualifiedImports);
-
+    type.defaultPropertyName = qmlObject.localDefaultPropertyName();
     addImports(imports, qmlFile->imports(), sourceId, directoryPath, m_storage);
 
     addPropertyDeclarations(type, qmlObject, qualifiedImports, file);

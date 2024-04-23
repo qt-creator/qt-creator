@@ -41,7 +41,7 @@
 
     Now you have added a particle system to your scene.
 
-    \image rain-snow-tutorial-particle-system
+    \image rain-snow-tutorial-particle-system.png
 
     \section2 Adjusting the Behavior and Apperance of the Particle System
     Next, you adjust the position, behavior, and apperance of the particle

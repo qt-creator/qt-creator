@@ -102,6 +102,23 @@ Item {
         storeCameraState(0);
     }
 
+    function approachObject()
+    {
+        if (!camera)
+            return;
+
+        var pickResult = _generalHelper.pickViewAt(view3d, width / 2, height / 2);
+        var resolvedResult = _generalHelper.resolvePick(pickResult.objectHit);
+
+        if (resolvedResult) {
+            var newLookAtAndZoom = _generalHelper.approachNode(camera, _defaultCameraLookAtDistance,
+                                                               resolvedResult, view3D);
+            _lookAtPoint = newLookAtAndZoom.toVector3d();
+            _zoomFactor = newLookAtAndZoom.w;
+            storeCameraState(0);
+        }
+    }
+
     function jumpToRotation(rotation)
     {
         let distance = camera.scenePosition.minus(_lookAtPoint).length()
@@ -138,7 +155,10 @@ Item {
         else
             nodes = targetNodes
 
-        _lookAtPoint = _generalHelper.alignView(camera, nodes, _lookAtPoint);
+        var newLookAtAndZoom = _generalHelper.alignView(camera, nodes, _lookAtPoint,
+                                                        _defaultCameraLookAtDistance);
+        _lookAtPoint = newLookAtAndZoom.toVector3d();
+        _zoomFactor = newLookAtAndZoom.w;
         storeCameraState(0);
     }
 
@@ -158,8 +178,7 @@ Item {
 
     function moveCamera(moveVec)
     {
-        cameraCtrl._lookAtPoint = _generalHelper.moveCamera(camera, _lookAtPoint,  _zoomFactor,
-                                                            moveVec);
+        cameraCtrl._lookAtPoint = _generalHelper.moveCamera(camera, _lookAtPoint, moveVec);
     }
 
     function getMoveVectorForKey(key) {
@@ -238,6 +257,13 @@ Item {
         }
     }
 
+    Image {
+        anchors.centerIn: parent
+        source: "qrc:///qtquickplugin/mockfiles/images/crosshair.png"
+        visible: cameraCtrl.flyMode && viewRoot.activeSplit === cameraCtrl.splitId
+        opacity: 0.7
+    }
+
     MouseArea {
         id: mouseHandler
         acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
@@ -302,7 +328,10 @@ Item {
 
     Keys.onPressed: (event) => {
         event.accepted = true;
-        _generalHelper.startCameraMove(cameraCtrl.camera, cameraCtrl.getMoveVectorForKey(event.key));
+        if (cameraCtrl.flyMode && event.key === Qt.Key_Space)
+            approachObject();
+        else
+            _generalHelper.startCameraMove(cameraCtrl.camera, cameraCtrl.getMoveVectorForKey(event.key));
     }
 
     Keys.onReleased: (event) => {

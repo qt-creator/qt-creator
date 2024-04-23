@@ -18,6 +18,7 @@ public:
     void completeComponent(const CompleteComponentCommand &command) override;
     void removeSharedMemory(const RemoveSharedMemoryCommand &command) override;
     void changePropertyValues(const ChangeValuesCommand &command) override;
+    void changePropertyBindings(const ChangeBindingsCommand &command) override;
 
 protected:
     void collectItemChangesAndSendChangeCommands() override;

@@ -9,8 +9,7 @@
 #include "qmlprojectmanagertr.h"
 #include "qmlprojectrunconfiguration.h"
 #include "projectfilecontenttools.h"
-#include "cmakegen/cmakeprojectconverter.h"
-#include "cmakegen/generatecmakelists.h"
+#include "cmakegen/cmakegenerator.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -386,11 +385,9 @@ void QmlProjectPlugin::initialize()
                         mainUifileAction->setEnabled(buildSystem->mainUiFilePath()
                                                      != fileNode->filePath());
                 });
-    }
 
-    GenerateCmake::generateMenuEntry(this);
-    if (ICore::isQtDesignStudio())
-        GenerateCmake::CmakeProjectConverter::generateMenuEntry(this);
+        GenerateCmake::CMakeGenerator::createMenuAction(this);
+    }
 }
 
 void QmlProjectPlugin::displayQmlLandingPage()

@@ -23,6 +23,7 @@ Item {
         texturesView.closeContextMenu()
         environmentsView.closeContextMenu()
         effectsView.closeContextMenu()
+        userView.closeContextMenu()
         HelperWidgets.Controller.closeContextMenu()
     }
 
@@ -113,10 +114,18 @@ Item {
                     id: tabBar
                     width: parent.width
                     height: StudioTheme.Values.toolbarHeight
-                    tabsModel: [{name: qsTr("Materials"),    icon: StudioTheme.Constants.material_medium},
-                                {name: qsTr("Textures"),     icon: StudioTheme.Constants.textures_medium},
-                                {name: qsTr("Environments"), icon: StudioTheme.Constants.languageList_medium},
-                                {name: qsTr("Effects"),      icon: StudioTheme.Constants.effects}]
+
+                    Component.onCompleted: {
+                        var tabs = [
+                            { name: qsTr("Materials"),    icon: StudioTheme.Constants.material_medium },
+                            { name: qsTr("Textures"),     icon: StudioTheme.Constants.textures_medium },
+                            { name: qsTr("Environments"), icon: StudioTheme.Constants.languageList_medium },
+                            { name: qsTr("Effects"),      icon: StudioTheme.Constants.effects }
+                        ];
+                        if (ContentLibraryBackend.rootView.userBundleEnabled())
+                            tabs.push({ name: qsTr("User Assets"), icon: StudioTheme.Constants.effects });
+                        tabBar.tabsModel = tabs;
+                    }
                 }
             }
         }
@@ -148,7 +157,8 @@ Item {
 
                 onUnimport: (bundleMat) => {
                     confirmUnimportDialog.targetBundleItem = bundleMat
-                    confirmUnimportDialog.targetBundleType = "material"
+                    confirmUnimportDialog.targetBundleLabel = "material"
+                    confirmUnimportDialog.targetBundleModel = ContentLibraryBackend.materialsModel
                     confirmUnimportDialog.open()
                 }
 
@@ -208,7 +218,31 @@ Item {
 
                 onUnimport: (bundleItem) => {
                     confirmUnimportDialog.targetBundleItem = bundleItem
-                    confirmUnimportDialog.targetBundleType = "effect"
+                    confirmUnimportDialog.targetBundleLabel = "effect"
+                    confirmUnimportDialog.targetBundleModel = ContentLibraryBackend.effectsModel
+                    confirmUnimportDialog.open()
+                }
+
+                onCountChanged: root.responsiveResize(stackLayout.width, stackLayout.height)
+            }
+
+            ContentLibraryUserView {
+                id: userView
+
+                adsFocus: root.adsFocus
+                width: root.width
+
+                cellWidth: root.thumbnailSize
+                cellHeight: root.thumbnailSize + 20
+                numColumns: root.numColumns
+                hideHorizontalScrollBar: true
+
+                searchBox: searchBox
+
+                onUnimport: (bundleItem) => {
+                    confirmUnimportDialog.targetBundleItem = bundleItem
+                    confirmUnimportDialog.targetBundleLabel = "material"
+                    confirmUnimportDialog.targetBundleModel = ContentLibraryBackend.userModel
                     confirmUnimportDialog.open()
                 }
 

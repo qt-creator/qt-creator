@@ -56,6 +56,13 @@ public:
         m_pixmaps.insert(node.internalId(), pixmap);
     }
 
+    QPixmap getPixmap(const ModelNode &node)
+    {
+        QTC_ASSERT(node, return {});
+
+        return m_pixmaps.value(node.internalId());
+    }
+
     void clearPixmapCache()
     {
         m_pixmaps.clear();
@@ -357,6 +364,13 @@ void MaterialBrowserWidget::focusMaterialSection(bool focusMatSec)
     }
 }
 
+void MaterialBrowserWidget::addMaterialToContentLibrary()
+{
+    ModelNode mat = m_materialBrowserModel->selectedMaterial();
+    m_materialBrowserView->emitCustomNotification("add_material_to_content_lib", {mat},
+                                                  {m_previewImageProvider->getPixmap(mat)});
+}
+
 QString MaterialBrowserWidget::qmlSourcesPath()
 {
 #ifdef SHARE_QML_PATH
@@ -418,6 +432,12 @@ QPointer<MaterialBrowserModel> MaterialBrowserWidget::materialBrowserModel() con
 QPointer<MaterialBrowserTexturesModel> MaterialBrowserWidget::materialBrowserTexturesModel() const
 {
     return m_materialBrowserTexturesModel;
+}
+
+bool MaterialBrowserWidget::userBundleEnabled() const
+{
+    // TODO: this method is to be removed after user bundle implementation is complete
+    return Core::ICore::settings()->value("QML/Designer/UseExperimentalFeatures45", false).toBool();
 }
 
 } // namespace QmlDesigner

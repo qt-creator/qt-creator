@@ -662,7 +662,7 @@ def addCPlusPlusFile(name, template, projectName, forceOverwrite=False, addToVCS
             test.compare(str(waitForObject("{name='HdrFileName' type='QLineEdit' visible='1'}").text),
                          expectedHeaderName)
     clickButton(waitForObject(":Next_QPushButton"))
-    projectComboBox = waitForObjectExists(":projectComboBox_Utils::TreeViewComboBox")
+    projectComboBox = waitForObjectExists(":projectComboBox_QComboBox")
     test.compare(projectComboBox.enabled, projectName != None,
                  "Project combo box must be enabled when a project is open")
     projectNameToDisplay = "<None>"

@@ -9,6 +9,8 @@
 #include <projectstorage/projectstorage.h>
 #include <projectstorage/sourcepathcache.h>
 
+#include <coreplugin/messagebox.h>
+
 #include <utils/expected.h>
 #include <utils/ranges.h>
 
@@ -107,19 +109,19 @@ PropertyMetaInfo metainfo(const ModelNode &node, const PropertyName &propertyNam
     return node.metaInfo().property(propertyName);
 }
 
-QString componentFilePath(const PathCacheType &pathCache, const NodeMetaInfo &metaInfo)
+QString componentFilePath([[maybe_unused]] const PathCacheType &pathCache, const NodeMetaInfo &metaInfo)
 {
-    if constexpr (useProjectStorage()) {
-        auto typeSourceId = metaInfo.sourceId();
+#ifdef QDS_USE_PROJECTSTORAGE
+    auto typeSourceId = metaInfo.sourceId();
 
-        if (typeSourceId && metaInfo.isFileComponent()) {
-            return pathCache.sourcePath(typeSourceId).toQString();
-        }
-    } else {
-        return metaInfo.componentFileName();
+    if (typeSourceId && metaInfo.isFileComponent()) {
+        return pathCache.sourcePath(typeSourceId).toQString();
     }
 
     return {};
+#else
+    return metaInfo.componentFileName();
+#endif
 }
 
 QString componentFilePath(const ModelNode &node)

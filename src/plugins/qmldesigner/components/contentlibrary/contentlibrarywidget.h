@@ -24,6 +24,7 @@ class ContentLibraryMaterial;
 class ContentLibraryMaterialsModel;
 class ContentLibraryTexture;
 class ContentLibraryTexturesModel;
+class ContentLibraryUserModel;
 
 class ContentLibraryWidget : public QFrame
 {
@@ -65,6 +66,7 @@ public:
     QPointer<ContentLibraryTexturesModel> texturesModel() const;
     QPointer<ContentLibraryTexturesModel> environmentsModel() const;
     QPointer<ContentLibraryEffectsModel> effectsModel() const;
+    QPointer<ContentLibraryUserModel> userModel() const;
 
     Q_INVOKABLE void startDragEffect(QmlDesigner::ContentLibraryEffect *eff, const QPointF &mousePos);
     Q_INVOKABLE void startDragMaterial(QmlDesigner::ContentLibraryMaterial *mat, const QPointF &mousePos);
@@ -74,6 +76,7 @@ public:
     Q_INVOKABLE void addLightProbe(QmlDesigner::ContentLibraryTexture *tex);
     Q_INVOKABLE void updateSceneEnvState();
     Q_INVOKABLE void markTextureUpdated(const QString &textureKey);
+    Q_INVOKABLE bool userBundleEnabled() const;
 
     QSize sizeHint() const override;
 
@@ -97,21 +100,23 @@ private:
     void updateSearch();
     void setIsDragging(bool val);
     QString findTextureBundlePath();
-    void loadTextureBundle();
-    QVariantMap readBundleMetadata();
-    bool fetchTextureBundleMetadata(const QDir &bundleDir);
+    void loadTextureBundles();
+    QVariantMap readTextureBundleJson();
+    bool fetchTextureBundleJson(const QDir &bundleDir);
     bool fetchTextureBundleIcons(const QDir &bundleDir);
     void fetchNewTextureIcons(const QVariantMap &existingFiles, const QVariantMap &newFiles,
                               const QString &existingMetaFilePath, const QDir &bundleDir);
     std::tuple<QVariantMap, QVariantMap, QVariantMap> compareTextureMetaFiles(
         const QString &existingMetaFile, const QString downloadedMetaFile);
     QStringList saveNewTextures(const QDir &bundleDir, const QStringList &newFiles);
+    void populateTextureBundleModels();
 
     QScopedPointer<StudioQuickWidget> m_quickWidget;
     QPointer<ContentLibraryMaterialsModel> m_materialsModel;
     QPointer<ContentLibraryTexturesModel> m_texturesModel;
     QPointer<ContentLibraryTexturesModel> m_environmentsModel;
     QPointer<ContentLibraryEffectsModel> m_effectsModel;
+    QPointer<ContentLibraryUserModel> m_userModel;
 
     QShortcut *m_qmlSourceUpdateShortcut = nullptr;
 
@@ -127,12 +132,8 @@ private:
     bool m_hasQuick3DImport = false;
     bool m_isDragging = false;
     bool m_isQt6Project = false;
-    QString m_baseUrl;
-    QString m_texturesUrl;
-    QString m_textureIconsUrl;
-    QString m_environmentIconsUrl;
-    QString m_environmentsUrl;
-    QString m_downloadPath;
+    QString m_textureBundleUrl;
+    QString m_bundlePath;
 };
 
 } // namespace QmlDesigner

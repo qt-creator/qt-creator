@@ -7,6 +7,7 @@
 
 #  include "qmldesignercorelib_global.h"
 
+#  include <generatedcomponentutils.h>
 #  include <import.h>
 
 #  include <QObject>
@@ -62,6 +63,7 @@ private: // variables
     QDir m_filePathDir;
     QPointer<Model> m_model;
     ExternalDependenciesInterface &m_externalDependencies;
+    GeneratedComponentUtils m_componentUtils;
 };
 
 } // namespace QmlDesigner

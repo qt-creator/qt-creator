@@ -21,6 +21,9 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
+
+#include <texteditor/textdocument.h>
+
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -301,6 +304,20 @@ ToolBarBackend::ToolBarBackend(QObject *parent)
             &Core::EditorManager::currentEditorChanged,
             this,
             &ToolBarBackend::documentIndexChanged);
+
+    connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged, this, [this]() {
+        static QMetaObject::Connection *lastConnection = nullptr;
+        delete lastConnection;
+
+        if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(
+                Core::EditorManager::currentDocument())) {
+            connect(textDocument->document(),
+                    &QTextDocument::modificationChanged,
+                    this,
+                    &ToolBarBackend::isDocumentDirtyChanged);
+            emit isDocumentDirtyChanged();
+        }
+    });
 
     connect(Core::EditorManager::instance(),
             &Core::EditorManager::currentEditorChanged,
@@ -738,6 +755,12 @@ bool ToolBarBackend::projectOpened() const
 bool ToolBarBackend::isSharingEnabled()
 {
     return QmlDesigner::checkEnterpriseLicense();
+}
+
+bool ToolBarBackend::isDocumentDirty() const
+{
+    return Core::EditorManager::currentDocument()
+           && Core::EditorManager::currentDocument()->isModified();
 }
 
 void ToolBarBackend::launchGlobalAnnotations()

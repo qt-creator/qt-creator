@@ -222,6 +222,10 @@ bool createQmlrcFile(const FilePath &qmlrcFilePath)
     rccProcess.setWorkingDirectory(project->projectDirectory());
 
     const QStringList arguments = {"--binary",
+                                   "--compress",
+                                   "9",
+                                   "--threshold",
+                                   "30",
                                    "--output",
                                    qmlrcFilePath.toString(),
                                    tempQrcFile.toString()};

@@ -95,37 +95,37 @@ QHash<int, QByteArray> ContentLibraryTexturesModel::roleNames() const
 /**
  * @brief Load the bundle categorized icons. Actual textures are downloaded on demand
  *
- * @param bundlePath local path to the bundle folder and icons
- * @param metaData bundle textures metadata
+ * @param textureBundleUrl remote url to the texture bundle
+ * @param bundleIconPath local path to the texture bundle icons folder
+ * @param jsonData bundle textures information from the bundle json
  */
-void ContentLibraryTexturesModel::loadTextureBundle(const QString &remoteUrl, const QString &iconsUrl,
+void ContentLibraryTexturesModel::loadTextureBundle(const QString &textureBundleUrl,
                                                     const QString &bundleIconPath,
-                                                    const QVariantMap &metaData)
+                                                    const QVariantMap &jsonData)
 {
     if (!m_bundleCategories.isEmpty())
         return;
 
     QDir bundleDir = QString("%1/%2").arg(bundleIconPath, m_category);
-    if (!bundleDir.exists()) {
-        qWarning() << __FUNCTION__ << "textures bundle folder doesn't exist." << bundleDir.absolutePath();
-        return;
-    }
+    QTC_ASSERT(bundleDir.exists(), return);
 
-    const QVariantMap imageItems = metaData.value("image_items").toMap();
+    const QVariantMap imageItems = jsonData.value("image_items").toMap();
 
     const QFileInfoList dirs = bundleDir.entryInfoList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
     for (const QFileInfo &dir : dirs) {
         auto category = new ContentLibraryTexturesCategory(this, dir.fileName());
-        const QFileInfoList texFiles = QDir(dir.filePath()).entryInfoList(QDir::Files);
-        for (const QFileInfo &tex : texFiles) {
-            QString textureUrl = QString("%1/%2/%3.zip").arg(remoteUrl, dir.fileName(), tex.baseName());
-            QString iconUrl = QString("%1/%2/%3.png").arg(iconsUrl, dir.fileName(), tex.baseName());
+        const QFileInfoList texIconFiles = QDir(dir.filePath()).entryInfoList(QDir::Files);
+        for (const QFileInfo &texIcon : texIconFiles) {
+            QString textureUrl = QString("%1/%2/%3/%4.zip").arg(textureBundleUrl, m_category,
+                                                                dir.fileName(), texIcon.baseName());
+            QString iconUrl = QString("%1/icons/%2/%3/%4.png").arg(textureBundleUrl, m_category,
+                                                                   dir.fileName(), texIcon.baseName());
 
-            QString localDownloadPath = QString("%1/%2/%3")
+            QString texturePath = QString("%1/%2/%3")
                                             .arg(Paths::bundlesPathSetting(),
                                                  m_category,
                                                  dir.fileName());
-            QString key = QString("%1/%2/%3").arg(m_category, dir.fileName(), tex.baseName());
+            QString key = QString("%1/%2/%3").arg(m_category, dir.fileName(), texIcon.baseName());
             QString fileExt;
             QSize dimensions;
             qint64 sizeInBytes = -1;
@@ -141,7 +141,7 @@ void ContentLibraryTexturesModel::loadTextureBundle(const QString &remoteUrl, co
                 isNew = m_newFiles.contains(key);
             }
 
-            category->addTexture(tex, localDownloadPath, key, textureUrl, iconUrl, fileExt,
+            category->addTexture(texIcon, texturePath, key, textureUrl, iconUrl, fileExt,
                                  dimensions, sizeInBytes, hasUpdate, isNew);
         }
         m_bundleCategories.append(category);

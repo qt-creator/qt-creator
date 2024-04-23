@@ -318,11 +318,12 @@ ModelNode TransitionEditorView::addNewTransition()
 
 TransitionEditorWidget *TransitionEditorView::createWidget()
 {
-    if (!m_transitionEditorWidget)
+    if (!m_transitionEditorWidget) {
         m_transitionEditorWidget = new TransitionEditorWidget(this);
 
-    auto *transitionContext = new TransitionContext(m_transitionEditorWidget);
-    Core::ICore::addContextObject(transitionContext);
+        auto *transitionContext = new TransitionContext(m_transitionEditorWidget);
+        Core::ICore::addContextObject(transitionContext);
+    }
 
     return m_transitionEditorWidget;
 }

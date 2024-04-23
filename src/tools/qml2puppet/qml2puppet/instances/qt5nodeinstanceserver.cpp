@@ -436,9 +436,17 @@ QQuickItem *Qt5NodeInstanceServer::parentEffectItem(QQuickItem *item)
     return nullptr;
 }
 
-static bool isEffectItem(QQuickItem *item, QQuickShaderEffectSource *sourceItem)
+static bool isEffectItem(QQuickItem *item, QQuickShaderEffectSource *sourceItem, QQuickItem *target)
 {
     QQuickItemPrivate *pItem = QQuickItemPrivate::get(sourceItem);
+
+    if (item) {
+         QQmlProperty prop(item, "__effect");
+         if (prop.read().toBool()) {
+             prop = QQmlProperty(item, "source");
+             return prop.read().value<QQuickItem *>() == target;
+         }
+    }
 
     if (!pItem || !pItem->layer())
         return false;
@@ -477,7 +485,7 @@ QImage Qt5NodeInstanceServer::grabItem([[maybe_unused]] QQuickItem *item)
             if (auto parent = item->parentItem()) {
                 const auto siblings = parent->childItems();
                 for (auto sibling : siblings) {
-                    if (isEffectItem(sibling, pItem->layer()->effectSource()))
+                    if (isEffectItem(sibling, pItem->layer()->effectSource(), item))
                         return grabItem(sibling);
                 }
             }

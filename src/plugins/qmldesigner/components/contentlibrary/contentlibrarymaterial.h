@@ -3,9 +3,8 @@
 
 #pragma once
 
-#include "qmldesignercorelib_global.h"
+#include "nodeinstanceglobal.h"
 
-#include <QDataStream>
 #include <QObject>
 #include <QUrl>
 
@@ -22,6 +21,7 @@ class ContentLibraryMaterial : public QObject
     Q_PROPERTY(QString bundleMaterialBaseWebUrl MEMBER m_baseWebUrl CONSTANT)
     Q_PROPERTY(QString bundleMaterialParentPath READ parentDirPath CONSTANT)
     Q_PROPERTY(QStringList bundleMaterialFiles READ allFiles CONSTANT)
+    Q_PROPERTY(QString itemType MEMBER m_itemType CONSTANT)
 
 public:
     ContentLibraryMaterial(QObject *parent,
@@ -31,7 +31,7 @@ public:
                            const QUrl &icon,
                            const QStringList &files,
                            const QString &downloadPath,
-                           const QString &baseWebUrl);
+                           const QString &baseWebUrl = {});
 
     bool filter(const QString &searchText);
 
@@ -66,6 +66,7 @@ private:
     QString m_downloadPath;
     QString m_baseWebUrl;
     QStringList m_allFiles;
+    const QString m_itemType = "material";
 };
 
 } // namespace QmlDesigner

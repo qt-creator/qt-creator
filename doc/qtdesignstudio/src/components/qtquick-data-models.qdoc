@@ -142,17 +142,17 @@
     To edit list models:
 
     \list 1
-        \li Drag-and-drop a \uicontrol {Grid View} or \uicontrol {List View}
+        \li Drag a \uicontrol {Grid View} or \uicontrol {List View}
             from \uicontrol Components >
             \uicontrol {Default Components} > \uicontrol Views to the
             \uicontrol Navigator or \uicontrol {2D} view.
         \li Right-click the view in \uicontrol Navigator, and select
-            \uicontrol {Edit List Model} in the context-menu to open
-            the list model editor:
-            \image qtquick-designer-edit-list-model.png "List view in model editor"
-        \li Double-click the column headings and cells to change their values.
-        \li Use the toolbar buttons to add, remove, or move rows and columns.
-            In a list, each column represents a property and each row adds a
+            \uicontrol {Edit Model} in the context-menu to open the
+            \uicontrol {Model Editor} view.
+            \image edit-list-model-model-editor.webp "List view in Model Editor"
+        \li Double-click a cell to edit its value.
+        \li Use the toolbar buttons to add or remove rows and columns.
+            In a list, each column represents a property, and each row adds a
             list item.
     \endlist
 

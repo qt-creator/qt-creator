@@ -62,6 +62,12 @@ bool CollectionDetailsSortFilterModel::selectColumn(int column)
     return m_source->selectColumn(mapToSource(index(0, column)).column());
 }
 
+void CollectionDetailsSortFilterModel::deselectAll()
+{
+    QTC_ASSERT(m_source, return);
+    m_source->deselectAll();
+}
+
 CollectionDetailsSortFilterModel::~CollectionDetailsSortFilterModel() = default;
 
 bool CollectionDetailsSortFilterModel::filterAcceptsRow(int sourceRow,

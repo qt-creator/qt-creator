@@ -28,7 +28,7 @@
     to upload the draw primitives to the graphics hardware.
 
     The frames-per-second (FPS) refresh rate of animations is displayed in the
-    \uicontrol FPS field on the \l{Summary of Main Toolbar Actions}{toolbar}
+    \uicontrol FPS field on the toolbar
     in the \uicontrol Design mode.
 
     To improve the FPS rate, application developers should:

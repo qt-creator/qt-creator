@@ -143,8 +143,8 @@ class QmlDocumentParser : public ::testing::Test
 public:
 protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
-    QmlDesigner::ProjectStorage<Sqlite::Database> storage{database, database.isInitialized()};
-    QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage<Sqlite::Database>> sourcePathCache{
+    QmlDesigner::ProjectStorage storage{database, database.isInitialized()};
+    QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage> sourcePathCache{
         storage};
     QmlDesigner::QmlDocumentParser parser{storage, sourcePathCache};
     Storage::Imports imports;
@@ -516,4 +516,16 @@ TEST_F(QmlDocumentParser, qualified_list_property)
                     Storage::PropertyDeclarationTraits::IsList)));
 }
 
+TEST_F(QmlDocumentParser, default_property)
+{
+    auto type = parser.parse(R"(import Example 2.1 as Example
+                                Item{
+                                    default property list<Example.Foo> foos
+                                })",
+                             imports,
+                             qmlFileSourceId,
+                             directoryPath);
+
+    ASSERT_THAT(type.defaultPropertyName, Eq("foos"));
+}
 } // namespace

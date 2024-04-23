@@ -141,7 +141,7 @@ TEST_F(ModelUtils, find_lowest_common_ancestor_when_one_of_the_nodes_is_parent)
     ASSERT_THAT(commonAncestor, parentNode);
 }
 
-TEST_F(ModelUtils, lowest_common_ancestor_for_uncle_and_nephew_should_return_the_grandFather)
+TEST_F(ModelUtils, lowest_common_ancestor_for_uncle_and_nephew_should_return_the_grandfather)
 {
     auto grandFatherNode = model.createModelNode("Item");
     auto fatherNode = model.createModelNode("Item");

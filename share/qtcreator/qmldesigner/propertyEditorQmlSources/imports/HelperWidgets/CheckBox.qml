@@ -22,17 +22,25 @@ StudioControls.CheckBox {
 
     labelColor: colorLogic.textColor
 
+    property bool __block: false
+
     ColorLogic {
         id: colorLogic
         backendValue: checkBox.backendValue
         onValueFromBackendChanged: {
+            checkBox.__block = true
             if (colorLogic.valueFromBackend !== undefined
                     && checkBox.checked !== colorLogic.valueFromBackend)
                 checkBox.checked = colorLogic.valueFromBackend
+            checkBox.__block = false
         }
+
     }
 
     onCheckedChanged: {
+        if (checkBox.__block)
+            return
+
         if (backendValue.value !== checkBox.checked)
             backendValue.value = checkBox.checked
     }

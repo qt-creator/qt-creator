@@ -41,7 +41,8 @@ class QMLDESIGNERCOMPONENTS_EXPORT DesignDocument : public QObject
     Q_OBJECT
 
 public:
-    DesignDocument(ProjectStorageDependencies projectStorageDependencies,
+    DesignDocument(const QUrl &filePath,
+                   ProjectStorageDependencies projectStorageDependencies,
                    ExternalDependenciesInterface &externalDependencies);
     ~DesignDocument() override;
 

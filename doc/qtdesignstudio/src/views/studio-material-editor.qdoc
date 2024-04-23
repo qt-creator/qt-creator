@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,8 +6,11 @@
     \previouspage studio-3d-editor.html
     \nextpage quick-components-view.html
 
+    \ingroup studio-views
 
     \title Material Editor and Browser
+
+    \brief Create and manage materials and textures.
 
     In the \uicontrol {Material Editor} and \uicontrol {Material Browser} views,
     you create and manage materials and textures.
@@ -21,7 +24,8 @@
     To create a new material, do one of the following:
 
     \list
-      \li In \uicontrol {Material Browser}, select \inlineimage icons/plus.png
+      \li In \uicontrol {Material Browser}, select \inlineimage icons/add_material.png
+      \inlineimage icons/plus.png
       .
       \li In \uicontrol {Material Editor}, select \inlineimage icons/plus.png
       .
@@ -67,7 +71,7 @@
       \li In \uicontrol{Properties}, select
       \inlineimage icons/close.png
       next to the material.
-      \image materials-remove-material.png
+      \image materials-remove-material.webp "Remove a material in model properties"
     \endlist
 
    \section2 Copying and Pasting Material Properties
@@ -82,7 +86,7 @@
       want to copy properties from.
       \li Select \uicontrol {Copy properties} and then
       \uicontrol All or a property group.
-      \image material-copy-properties.png
+      \image material-copy-properties.png "Copy material properties in Material Browser"
       \li Right-click the material that you want to copy the properties to.
       \li Select \uicontrol {Paste properties}.
     \endlist
@@ -114,11 +118,10 @@
       \li From \uicontrol{Assets}, drag an image to
       \uicontrol{Reflection Map}.
       \li In \uicontrol {Navigator}, select
-      \inlineimage icons/filtericon.png
-      and then clear \uicontrol {Show Only Visible Components}. Now the
+      \inlineimage {icons/visibilityon.png}. Now the
       texture you just added to the material is visible in
       \uicontrol {Navigator}.
-      \image navigator-material-texture.png
+      \image navigator-material-texture.webp "Materials visible in Navigator"
       \li In \uicontrol {Navigator}, select the texture.
       \li In \uicontrol {Properties}, set \uicontrol {Texture Mapping} to
       \uicontrol {Environment}.
@@ -276,8 +279,8 @@
     To create a new texture, do one of the following in
     \uicontrol {Material Browser}:
     \list
-      \li Select \inlineimage icons/plus.png
-      in the \uicontrol Textures section.
+      \li Select \inlineimage icons/add_texture.png \inlineimage icons/plus.png
+      .
       \li Right-click anywhere in the \uicontrol Textures section and select
       \uicontrol {Create new texture}.
     \endlist

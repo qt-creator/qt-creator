@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -263,7 +263,7 @@
         be transparent in the \uicontrol {Background Mode} field of the
         \uicontrol {Scene Environment} component. Otherwise, the clear color of
         the background hides the blur. For more information, see
-        \l {Scene Environment}.
+        \l {Scene Environments}.
 
         The \uicontrol {Fade Amount} property defines the fade speed of the
         trail.

@@ -44,4 +44,22 @@ using AsynchronousToken = Category::AsynchronousTokenType;
 [[gnu::pure]] QMLDESIGNERCORE_EXPORT Category &category();
 
 } // namespace ModelTracing
+
+namespace ProjectStorageTracing {
+constexpr NanotraceHR::Tracing projectStorageTracingStatus()
+{
+#ifdef ENABLE_PROJECT_STORAGE_TRACING
+    return NanotraceHR::Tracing::IsEnabled;
+#else
+    return NanotraceHR::Tracing::IsDisabled;
+#endif
+}
+
+using Category = NanotraceHR::StringViewWithStringArgumentsCategory<projectStorageTracingStatus()>;
+
+[[gnu::pure]] Category &projectStorageCategory();
+
+[[gnu::pure]] Category &projectStorageUpdaterCategory();
+
+} // namespace ProjectStorageTracing
 } // namespace QmlDesigner

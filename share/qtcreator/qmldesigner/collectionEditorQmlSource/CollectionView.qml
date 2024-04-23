@@ -28,6 +28,12 @@ Item {
         print("TODO: deleteSelectedCollection")
     }
 
+    function closeDialogs() {
+        importDialog.reject()
+        newCollection.reject()
+        warningDialog.reject()
+    }
+
     ImportDialog {
         id: importDialog
 
@@ -147,6 +153,8 @@ Item {
             }
 
             CollectionListView { // Model Groups
+                id: collectionListView
+
                 Layout.fillWidth: true
                 Layout.minimumHeight: bottomSpacer.isExpanded ? 150 : 0
                 Layout.fillHeight: !bottomSpacer.isExpanded
@@ -185,6 +193,14 @@ Item {
             sortedModel: root.collectionDetailsSortFilterModel
             SplitView.fillHeight: true
             SplitView.fillWidth: true
+        }
+    }
+
+    Connections {
+        target: root.model
+
+        function onModelReset() {
+            root.closeDialogs()
         }
     }
 }

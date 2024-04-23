@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -16,29 +16,30 @@
                             \list
                                 \li \l{2D}
                                 \li \l{3D}
-                                \li \l{Material Editor and Browser}
-                                \li \l{Components}
                                 \li \l{Assets}
-                                \li \l{Navigator}
-                                \li \l{Properties}
-                                \li \l{Connections}
-                                \li \l{States}
-                                \li \l{Translations}
-                                \li \l{Transitions}
-                                \li \l{Timeline}
-                                \li \l{Curves}
                                 \li \l{Code}
                                     \generatelist studio-how-to-code
                                     \generatelist studio-how-to-refactor-code
                                     \generatelist studio-how-to-search
                                     \generatelist studio-preferences-code
-                                \li \l{Projects}
-                                \li \l{File System}
-                                \li \l{Open Documents}
+                                \li \l{Components}
+                                \li \l{Connections}
                                 \li \l{Content Library}
-                                \li \l{Texture Editor}
-                                \li \l{Qt Insight}
+                                \li \l{Curves}
                                 \li \l{Effect Composer}
+                                \li \l{File System}
+                                \li \l{Material Editor and Browser}
+                                \li \l{Model Editor}
+                                \li \l{Navigator}
+                                \li \l{Open Documents}
+                                \li \l{Projects}
+                                \li \l{Properties}
+                                \li \l{Qt Insight}
+                                \li \l{States}
+                                \li \l{Texture Editor}
+                                \li \l{Timeline}
+                                \li \l{Transitions}
+                                \li \l{Translations}
                            \endlist
                         \li \l{Managing Workspaces}
                         \li \l{Manage sessions}
@@ -89,7 +90,7 @@
                                 \li \l{Custom Effects and Materials}
                                 \li \l{Lights}
                                 \li \l{Cameras}
-                                \li \l{Scene Environment}
+                                \li \l{Scene Environments}
                                 \li \l{Morph Target}
                                 \li \l{Repeater3D}
                                 \li \l{Loader3D}
@@ -264,7 +265,6 @@
                         \li \l {Search from documentation}
                         \li \l {Select the help start page}
                     \endlist
-                \li \l{Frequently Asked Questions}
                 \li \l{Supported Platforms}
             \endlist
         \li \l{Technical Support}

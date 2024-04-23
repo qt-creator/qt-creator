@@ -11,8 +11,7 @@
     \table
         \row
             \li \image qds-front-help.png
-            \li Learn more about using the \uicontrol Help mode, frequently
-                asked questions, and supported platforms.
+            \li Learn more about using the \uicontrol Help mode and supported platforms.
     \endtable
 
     \list
@@ -23,9 +22,6 @@
             and index functions to find particular topics in the helps, or
             request context-sensitive help by pressing \key F1 in the Design
             mode.
-        \li \l{Frequently Asked Questions}
-
-            Contains answers to some frequently asked questions about \QDS.
         \li \l{Supported Platforms}
 
             You can install and run \QDS on several operating systems to design

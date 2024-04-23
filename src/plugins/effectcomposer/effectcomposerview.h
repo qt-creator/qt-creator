@@ -4,7 +4,9 @@
 #pragma once
 
 #include "abstractview.h"
+#include "modelnode.h"
 
+#include <generatedcomponentutils.h>
 #include <coreplugin/icontext.h>
 
 #include <QPointer>
@@ -35,6 +37,8 @@ public:
     // AbstractView
     void modelAttached(QmlDesigner::Model *model) override;
     void modelAboutToBeDetached(QmlDesigner::Model *model) override;
+    void selectedNodesChanged(const QList<QmlDesigner::ModelNode> &selectedNodeList,
+                              const QList<QmlDesigner::ModelNode> &lastSelectedNodeList) override;
 
 private:
     void customNotification(const AbstractView *view, const QString &identifier,
@@ -42,6 +46,7 @@ private:
 
     QPointer<EffectComposerWidget> m_widget;
     QString m_currProjectPath;
+    QmlDesigner::GeneratedComponentUtils m_componentUtils;
 };
 
 } // namespace EffectComposer

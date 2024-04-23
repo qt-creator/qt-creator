@@ -202,7 +202,7 @@ class HasNameMatcher
 public:
     using is_gtest_matcher = void;
 
-    HasNameMatcher(const QmlDesigner::ProjectStorage<Sqlite::Database> &storage,
+    HasNameMatcher(const QmlDesigner::ProjectStorage &storage,
                    Utils::SmallStringView name)
         : storage{storage}
         , name{name}
@@ -231,7 +231,7 @@ public:
     void DescribeNegationTo(std::ostream *os) const { *os << "is not '" << name << "'"; }
 
 private:
-    const QmlDesigner::ProjectStorage<Sqlite::Database> &storage;
+    const QmlDesigner::ProjectStorage &storage;
     Utils::SmallStringView name;
 };
 
@@ -253,17 +253,15 @@ MATCHER(StringsAreSorted, std::string(negation ? "isn't sorted" : "is sorted"))
     });
 }
 
-MATCHER_P3(IsInfoType,
-           defaultPropertyId,
+MATCHER_P2(IsInfoType,
            sourceId,
            traits,
            std::string(negation ? "isn't " : "is ")
-               + PrintToString(Storage::Info::Type{defaultPropertyId, sourceId, traits}))
+               + PrintToString(Storage::Info::Type{sourceId, traits}))
 {
     const Storage::Info::Type &type = arg;
 
-    return type.defaultPropertyId == defaultPropertyId && type.sourceId == sourceId
-           && type.traits == traits;
+    return type.sourceId == sourceId && type.traits == traits;
 }
 
 class ProjectStorage : public testing::Test
@@ -273,7 +271,7 @@ protected:
     {
         static_database = std::make_unique<Sqlite::Database>(":memory:", Sqlite::JournalMode::Memory);
 
-        static_projectStorage = std::make_unique<QmlDesigner::ProjectStorage<Sqlite::Database>>(
+        static_projectStorage = std::make_unique<QmlDesigner::ProjectStorage>(
             *static_database, static_database->isInitialized());
     }
 
@@ -998,10 +996,10 @@ protected:
 
         package.updatedSourceIds = {sourceId1, sourceId2, sourceId3};
 
-        package.propertyEditorQmlPaths.emplace_back(qtQuickModuleId, "QtObject", sourceId1, sourceIdPath);
-        package.propertyEditorQmlPaths.emplace_back(qtQuickModuleId, "Item", sourceId2, sourceIdPath);
-        package.propertyEditorQmlPaths.emplace_back(qtQuickModuleId, "Item3D", sourceId3, sourceIdPath);
-        package.updatedPropertyEditorQmlPathSourceIds.emplace_back(sourceIdPath);
+        package.propertyEditorQmlPaths.emplace_back(qtQuickModuleId, "QtObject", sourceId1, sourceIdPath6);
+        package.propertyEditorQmlPaths.emplace_back(qtQuickModuleId, "Item", sourceId2, sourceIdPath6);
+        package.propertyEditorQmlPaths.emplace_back(qtQuickModuleId, "Item3D", sourceId3, sourceIdPath6);
+        package.updatedPropertyEditorQmlPathSourceIds.emplace_back(sourceIdPath6);
 
         return package;
     }
@@ -1015,6 +1013,7 @@ protected:
         traits.visibleInLibrary = FlagIs::True;
 
         annotations.emplace_back(sourceId4,
+                                 sourceIdPath6,
                                  "Object",
                                  qmlModuleId,
                                  "/path/to/icon.png",
@@ -1036,6 +1035,32 @@ protected:
                                         "properties":[["color", "color", "#blue"]]}])xy");
 
         annotations.emplace_back(sourceId5,
+                                 sourceIdPath6,
+                                 "Item",
+                                 qtQuickModuleId,
+                                 "/path/to/quick.png",
+                                 traits,
+                                 R"xy({"canBeContainer": "true", "forceClip": "false"})xy",
+                                 R"xy([{"name":"Item",
+                                        "iconPath":"/path/icon3",
+                                        "category":"Advanced Items",
+                                        "import":"QtQuick",
+                                        "toolTip":"Item is an Object",
+                                        "properties":[["x", "double", 1], ["y", "double", 2]]}])xy");
+
+        return annotations;
+    }
+
+    auto createExtendedTypeAnnotations() const
+    {
+        auto annotations = createTypeAnnotions();
+        annotations.pop_back();
+        TypeTraits traits{TypeTraitsKind::Reference};
+        traits.canBeContainer = FlagIs::True;
+        traits.visibleInLibrary = FlagIs::True;
+
+        annotations.emplace_back(sourceId5,
+                                 sourceIdPath1,
                                  "Item",
                                  qtQuickModuleId,
                                  "/path/to/quick.png",
@@ -1111,10 +1136,9 @@ protected:
 protected:
     inline static std::unique_ptr<Sqlite::Database> static_database;
     Sqlite::Database &database = *static_database;
-    //Sqlite::Database database{"/tmp/aaaaa.db", Sqlite::JournalMode::Wal};
-    inline static std::unique_ptr<QmlDesigner::ProjectStorage<Sqlite::Database>> static_projectStorage;
-    QmlDesigner::ProjectStorage<Sqlite::Database> &storage = *static_projectStorage;
-    QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage<Sqlite::Database>> sourcePathCache{
+    inline static std::unique_ptr<QmlDesigner::ProjectStorage> static_projectStorage;
+    QmlDesigner::ProjectStorage &storage = *static_projectStorage;
+    QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage> sourcePathCache{
         storage};
     QmlDesigner::SourcePathView path1{"/path1/to"};
     QmlDesigner::SourcePathView path2{"/path2/to"};
@@ -1122,14 +1146,16 @@ protected:
     QmlDesigner::SourcePathView path4{"/path4/to"};
     QmlDesigner::SourcePathView path5{"/path5/to"};
     QmlDesigner::SourcePathView path6{"/path6/to"};
-    QmlDesigner::SourcePathView pathPath{"/path6/."};
+    QmlDesigner::SourcePathView pathPath1{"/path1/."};
+    QmlDesigner::SourcePathView pathPath6{"/path6/."};
     SourceId sourceId1{sourcePathCache.sourceId(path1)};
     SourceId sourceId2{sourcePathCache.sourceId(path2)};
     SourceId sourceId3{sourcePathCache.sourceId(path3)};
     SourceId sourceId4{sourcePathCache.sourceId(path4)};
     SourceId sourceId5{sourcePathCache.sourceId(path5)};
     SourceId sourceId6{sourcePathCache.sourceId(path6)};
-    SourceId sourceIdPath{sourcePathCache.sourceId(path6)};
+    SourceId sourceIdPath1{sourcePathCache.sourceId(pathPath1)};
+    SourceId sourceIdPath6{sourcePathCache.sourceId(pathPath6)};
     SourceId qmlProjectSourceId{sourcePathCache.sourceId("/path1/qmldir")};
     SourceId qtQuickProjectSourceId{sourcePathCache.sourceId("/path2/qmldir")};
     ModuleId qmlModuleId{storage.moduleId("Qml")};
@@ -5076,7 +5102,7 @@ TEST_F(ProjectStorage, populate_module_cache)
 {
     auto id = storage.moduleId("Qml");
 
-    QmlDesigner::ProjectStorage<Sqlite::Database> newStorage{database, database.isInitialized()};
+    QmlDesigner::ProjectStorage newStorage{database, database.isInitialized()};
 
     ASSERT_THAT(newStorage.moduleName(id), Eq("Qml"));
 }
@@ -6683,12 +6709,10 @@ TEST_F(ProjectStorage, get_type)
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
     auto typeId = fetchTypeId(sourceId1, "QQuickItem");
-    auto defaultPropertyName = storage.fetchTypeByTypeId(typeId).defaultPropertyName;
-    auto defaultPropertyId = storage.propertyDeclarationId(typeId, defaultPropertyName);
 
     auto type = storage.type(typeId);
 
-    ASSERT_THAT(type, Optional(IsInfoType(defaultPropertyId, sourceId1, TypeTraitsKind::Reference)));
+    ASSERT_THAT(type, Optional(IsInfoType(sourceId1, TypeTraitsKind::Reference)));
 }
 
 TEST_F(ProjectStorage, dont_get_type_for_invalid_id)
@@ -6699,6 +6723,58 @@ TEST_F(ProjectStorage, dont_get_type_for_invalid_id)
     auto type = storage.type(TypeId());
 
     ASSERT_THAT(type, Eq(std::nullopt));
+}
+
+TEST_F(ProjectStorage, get_default_property_declarartion_id)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QQuickItem");
+    auto defaultPropertyName = storage.fetchTypeByTypeId(typeId).defaultPropertyName;
+    auto defaultPropertyId = storage.propertyDeclarationId(typeId, defaultPropertyName);
+
+    auto propertyId = storage.defaultPropertyDeclarationId(typeId);
+
+    ASSERT_THAT(propertyId, defaultPropertyId);
+}
+
+TEST_F(ProjectStorage, get_default_property_declarartion_id_in_base_type)
+{
+    auto package{createSynchronizationPackageWithAliases()};
+    storage.synchronize(package);
+    auto baseTypeId = fetchTypeId(sourceId1, "QQuickItem");
+    auto defaultPropertyName = storage.fetchTypeByTypeId(baseTypeId).defaultPropertyName;
+    auto defaultPropertyId = storage.propertyDeclarationId(baseTypeId, defaultPropertyName);
+    auto typeId = fetchTypeId(sourceId3, "QAliasItem");
+
+    auto propertyId = storage.defaultPropertyDeclarationId(typeId);
+
+    ASSERT_THAT(propertyId, defaultPropertyId);
+}
+
+TEST_F(ProjectStorage, do_not_get_default_property_declarartion_id_wrong_type_in_property_chain)
+{
+    auto package{createSynchronizationPackageWithAliases()};
+    package.types[1].defaultPropertyName = "objects";
+    storage.synchronize(package);
+    auto baseTypeId = fetchTypeId(sourceId1, "QQuickItem");
+    auto defaultPropertyName = storage.fetchTypeByTypeId(baseTypeId).defaultPropertyName;
+    auto defaultPropertyId = storage.propertyDeclarationId(baseTypeId, defaultPropertyName);
+    auto typeId = fetchTypeId(sourceId3, "QAliasItem");
+
+    auto propertyId = storage.defaultPropertyDeclarationId(typeId);
+
+    ASSERT_THAT(propertyId, defaultPropertyId);
+}
+
+TEST_F(ProjectStorage, get_invalid_default_property_declarartion_id_for_invalid_type)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+
+    auto propertyId = storage.defaultPropertyDeclarationId(TypeId());
+
+    ASSERT_FALSE(propertyId);
 }
 
 TEST_F(ProjectStorage, get_common_type)
@@ -7228,7 +7304,7 @@ TEST_F(ProjectStorage, synchronize_property_editor_adds_path)
     auto package{createPropertyEditorPathsSynchronizationPackage()};
     package.propertyEditorQmlPaths.pop_back();
     storage.synchronize(package);
-    package.propertyEditorQmlPaths.emplace_back(qtQuickModuleId, "Item3D", sourceId3, sourceIdPath);
+    package.propertyEditorQmlPaths.emplace_back(qtQuickModuleId, "Item3D", sourceId3, sourceIdPath6);
 
     storage.synchronize(package);
 
@@ -7240,7 +7316,7 @@ TEST_F(ProjectStorage, synchronize_property_editor_adds_path)
 TEST_F(ProjectStorage, synchronize_property_editor_with_non_existing_type_name)
 {
     auto package{createPropertyEditorPathsSynchronizationPackage()};
-    package.propertyEditorQmlPaths.emplace_back(qtQuickModuleId, "Item4D", sourceId4, sourceIdPath);
+    package.propertyEditorQmlPaths.emplace_back(qtQuickModuleId, "Item4D", sourceId4, sourceIdPath6);
 
     storage.synchronize(package);
 
@@ -7258,6 +7334,21 @@ TEST_F(ProjectStorage, call_remove_type_ids_in_observer_after_synchronization)
     EXPECT_CALL(observerMock, removedTypeIds(_));
 
     storage.synchronize(package);
+}
+
+TEST_F(ProjectStorage, do_not_synchronize_type_annotations_without_type)
+{
+    SynchronizationPackage package;
+    package.typeAnnotations = createTypeAnnotions();
+    package.updatedTypeAnnotationSourceIds = createUpdatedTypeAnnotionSourceIds(
+        package.typeAnnotations);
+    TypeTraits traits{TypeTraitsKind::Reference};
+    traits.canBeContainer = FlagIs::True;
+    traits.visibleInLibrary = FlagIs::True;
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.allItemLibraryEntries(), IsEmpty());
 }
 
 TEST_F(ProjectStorage, synchronize_type_annotation_type_traits)
@@ -7414,6 +7505,18 @@ TEST_F(ProjectStorage, synchronize_removes_type_hints)
 TEST_F(ProjectStorage, return_empty_type_hints_if_no_type_hints_exists)
 {
     auto package{createSimpleSynchronizationPackage()};
+    package.typeAnnotations = createTypeAnnotions();
+    package.typeAnnotations[0].hintsJson.clear();
+    storage.synchronize(package);
+
+    auto typeHints = storage.typeHints(fetchTypeId(sourceId2, "QObject"));
+
+    ASSERT_THAT(typeHints, IsEmpty());
+}
+
+TEST_F(ProjectStorage, return_empty_type_hints_if_no_type_annotaion_exists)
+{
+    auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
 
     auto typeHints = storage.typeHints(fetchTypeId(sourceId2, "QObject"));
@@ -7486,7 +7589,7 @@ TEST_F(ProjectStorage, synchronize_removes_item_library_entries)
     ASSERT_THAT(storage.allItemLibraryEntries(), IsEmpty());
 }
 
-TEST_F(ProjectStorage, synchronize_udpates_item_library_entries)
+TEST_F(ProjectStorage, synchronize_updates_item_library_entries)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.typeAnnotations = createTypeAnnotions();
@@ -7510,6 +7613,59 @@ TEST_F(ProjectStorage, synchronize_udpates_item_library_entries)
                                        UnorderedElementsAre(IsItemLibraryProperty("x", "double", 32.1),
                                                             IsItemLibraryProperty("y", "double", 12.3)),
                                        IsEmpty())));
+}
+
+TEST_F(ProjectStorage, synchronize_updates_item_library_entries_with_empty_entries)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.typeAnnotations = createTypeAnnotions();
+    package.updatedTypeAnnotationSourceIds = createUpdatedTypeAnnotionSourceIds(
+        package.typeAnnotations);
+    storage.synchronize(package);
+    package.typeAnnotations[0].itemLibraryJson.clear();
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.itemLibraryEntries(fetchTypeId(sourceId2, "QObject")), IsEmpty());
+}
+
+TEST_F(ProjectStorage, synchronize_type_annotation_directory_source_id)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.typeAnnotations = createTypeAnnotions();
+    package.updatedTypeAnnotationSourceIds = createUpdatedTypeAnnotionSourceIds(
+        package.typeAnnotations);
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.typeAnnotationSourceIds(sourceIdPath6),
+                UnorderedElementsAre(sourceId4, sourceId5));
+}
+
+TEST_F(ProjectStorage, get_type_annotation_source_ids)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.typeAnnotations = createTypeAnnotions();
+    package.updatedTypeAnnotationSourceIds = createUpdatedTypeAnnotionSourceIds(
+        package.typeAnnotations);
+    storage.synchronize(package);
+
+    auto sourceIds = storage.typeAnnotationSourceIds(sourceIdPath6);
+
+    ASSERT_THAT(sourceIds, UnorderedElementsAre(sourceId4, sourceId5));
+}
+
+TEST_F(ProjectStorage, get_type_annotation_directory_source_ids)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.typeAnnotations = createExtendedTypeAnnotations();
+    package.updatedTypeAnnotationSourceIds = createUpdatedTypeAnnotionSourceIds(
+        package.typeAnnotations);
+    storage.synchronize(package);
+
+    auto sourceIds = storage.typeAnnotationDirectorySourceIds();
+
+    ASSERT_THAT(sourceIds, ElementsAre(sourceIdPath1, sourceIdPath6));
 }
 
 TEST_F(ProjectStorage, get_all_item_library_entries)
@@ -7555,6 +7711,31 @@ TEST_F(ProjectStorage, get_all_item_library_entries)
                                UnorderedElementsAre(IsItemLibraryProperty("x", "double", 1),
                                                     IsItemLibraryProperty("y", "double", 2)),
                                IsEmpty())));
+}
+
+TEST_F(ProjectStorage, get_all_item_library_entries_handles_no_entries)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.typeAnnotations = createTypeAnnotions();
+    package.typeAnnotations[0].itemLibraryJson.clear();
+    package.updatedTypeAnnotationSourceIds = createUpdatedTypeAnnotionSourceIds(
+        package.typeAnnotations);
+    storage.synchronize(package);
+
+    auto entries = storage.allItemLibraryEntries();
+
+    ASSERT_THAT(entries,
+                UnorderedElementsAre(
+                    IsItemLibraryEntry(fetchTypeId(sourceId1, "QQuickItem"),
+                                       "Item",
+                                       "/path/icon3",
+                                       "Advanced Items",
+                                       "QtQuick",
+                                       "Item is an Object",
+                                       "",
+                                       UnorderedElementsAre(IsItemLibraryProperty("x", "double", 1),
+                                                            IsItemLibraryProperty("y", "double", 2)),
+                                       IsEmpty())));
 }
 
 TEST_F(ProjectStorage, get_item_library_entries_by_type_id)
@@ -7606,6 +7787,21 @@ TEST_F(ProjectStorage, get_no_item_library_entries_if_type_id_is_invalid)
     ASSERT_THAT(entries, IsEmpty());
 }
 
+TEST_F(ProjectStorage, get_no_item_library_entries_by_type_id_for_no_entries)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.typeAnnotations = createTypeAnnotions();
+    package.typeAnnotations[0].itemLibraryJson.clear();
+    package.updatedTypeAnnotationSourceIds = createUpdatedTypeAnnotionSourceIds(
+        package.typeAnnotations);
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId2, "QObject");
+
+    auto entries = storage.itemLibraryEntries(typeId);
+
+    ASSERT_THAT(entries, IsEmpty());
+}
+
 TEST_F(ProjectStorage, get_item_library_entries_by_source_id)
 {
     auto package{createSimpleSynchronizationPackage()};
@@ -7639,6 +7835,20 @@ TEST_F(ProjectStorage, get_item_library_entries_by_source_id)
                                "",
                                UnorderedElementsAre(IsItemLibraryProperty("color", "color", "#blue")),
                                IsEmpty())));
+}
+
+TEST_F(ProjectStorage, get_no_item_library_entries_by_source_id_for_no_entries)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.typeAnnotations = createTypeAnnotions();
+    package.typeAnnotations[0].itemLibraryJson.clear();
+    package.updatedTypeAnnotationSourceIds = createUpdatedTypeAnnotionSourceIds(
+        package.typeAnnotations);
+    storage.synchronize(package);
+
+    auto entries = storage.itemLibraryEntries(sourceId2);
+
+    ASSERT_THAT(entries, IsEmpty());
 }
 
 TEST_F(ProjectStorage, return_type_ids_for_module_id)

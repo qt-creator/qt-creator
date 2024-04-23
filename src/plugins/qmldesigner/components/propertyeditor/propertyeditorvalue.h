@@ -14,6 +14,43 @@ namespace QmlDesigner {
 
 class PropertyEditorValue;
 
+class PropertyEditorSubSelectionWrapper : public QObject
+{
+    Q_OBJECT
+
+    Q_PROPERTY(QQmlPropertyMap *properties READ properties NOTIFY propertiesChanged)
+
+signals:
+    void propertiesChanged();
+
+public:
+    QQmlPropertyMap *properties();
+    PropertyEditorSubSelectionWrapper(const ModelNode &modelNode);
+    ModelNode modelNode() const;
+
+    Q_INVOKABLE void deleteModelNode();
+
+    void setValueFromModel(const PropertyName &name, const QVariant &value);
+    void resetValue(const PropertyName &name);
+
+    bool isRelevantModelNode(const ModelNode &modelNode) const;
+
+private:
+    void changeValue(const QString &name);
+    void changeExpression(const QString &propertyName);
+    void createPropertyEditorValue(const QmlObjectNode &qmlObjectNode, const PropertyName &name, const QVariant &value);
+    void exportPropertyAsAlias(const QString &name);
+    void removeAliasExport(const QString &name);
+    bool locked() const;
+
+    ModelNode m_modelNode;
+    QQmlPropertyMap m_valuesPropertyMap;
+    bool m_locked = false;
+    void removePropertyFromModel(const PropertyName &propertyName);
+    void commitVariantValueToModel(const PropertyName &propertyName, const QVariant &value);
+    AbstractView *view() const;
+};
+
 class PropertyEditorNodeWrapper : public QObject
 {
     Q_OBJECT
@@ -126,11 +163,14 @@ public:
     bool isIdList() const;
 
     Q_INVOKABLE QStringList getExpressionAsList() const;
+    Q_INVOKABLE QVector<double> getExpressionAsVector() const;
     Q_INVOKABLE bool idListAdd(const QString &value);
     Q_INVOKABLE bool idListRemove(int idx);
     Q_INVOKABLE bool idListReplace(int idx, const QString &value);
     Q_INVOKABLE void commitDrop(const QString &dropData);
     Q_INVOKABLE void openMaterialEditor(int idx);
+
+    Q_INVOKABLE void setForceBound(bool b);
 
 public slots:
     void resetValue();
@@ -142,6 +182,8 @@ signals:
 
     void expressionChanged(const QString &name); // HACK - We use the same notifer for the backend and frontend.
                                                  // If name is empty the signal is used for QML.
+
+    void expressionChangedQml();
 
     void exportPropertyAsAliasRequested(const QString &name);
     void removeAliasExportRequested(const QString &name);
@@ -168,6 +210,7 @@ private:
     bool m_hasActiveDrag = false;
     bool m_isValid = false; // if the property value belongs to a non-existing complexProperty it is invalid
     PropertyEditorNodeWrapper *m_complexNode;
+    bool m_forceBound = false;
 };
 
 } // namespace QmlDesigner

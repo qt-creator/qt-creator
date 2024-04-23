@@ -88,7 +88,17 @@ Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 hover: hoverHandler.hovered
-                model: ExamplesModel { id: examplesModel}
+
+                Component.onCompleted: {
+                    // remove items with old versions from the examples model
+                    for (let i = examplesModel.count - 1; i >= 0; --i) {
+                        if (!projectModel.exampleVersionOk(examplesModel.get(i).minQDSVersion))
+                            examplesModel.remove(i)
+                    }
+                }
+
+                model: ExamplesModelV2 { id: examplesModel }
+
                 delegate: ThumbnailDelegate {
                     type: ThumbnailDelegate.Type.Example
                     downloadable: showDownload

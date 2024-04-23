@@ -13,8 +13,9 @@ Item {
     id: root
 
     height: layout.implicitHeight
-
     visible: !uniformUseCustomValue
+
+    signal reset()
 
     Component.onCompleted: {
         if (uniformType === "int") {
@@ -49,10 +50,11 @@ Item {
     RowLayout {
         id: layout
 
-        spacing: 20
         anchors.fill: parent
 
         Text {
+            id: textName
+
             text: uniformDisplayName
             color: StudioTheme.Values.themeTextColor
             font.pixelSize: StudioTheme.Values.baseFontSize
@@ -63,9 +65,36 @@ Item {
             elide: Text.ElideRight
 
             HelperWidgets.ToolTipArea {
+                id: tooltipArea
+
                 anchors.fill: parent
                 tooltip: uniformDescription
             }
+        }
+
+        Item {
+            Layout.preferredHeight: 30
+            Layout.preferredWidth: 30
+
+            MouseArea {
+                id: mouseArea
+
+                anchors.fill: parent
+                hoverEnabled: true
+            }
+
+            HelperWidgets.IconButton {
+                id: iconButton
+
+                buttonSize: 24
+                icon: StudioTheme.Constants.reload_medium
+                iconSize: 16
+                anchors.centerIn: parent
+                visible: mouseArea.containsMouse || iconButton.containsMouse
+                tooltip: qsTr("Reset value")
+                onClicked: root.reset()
+            }
+
         }
 
         Loader {

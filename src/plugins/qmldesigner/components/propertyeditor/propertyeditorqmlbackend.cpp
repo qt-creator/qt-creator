@@ -284,6 +284,27 @@ void PropertyEditorQmlBackend::setupAuxiliaryProperties(const QmlObjectNode &qml
     }
 }
 
+void PropertyEditorQmlBackend::handleInstancePropertyChangedInModelNodeProxy(
+    const ModelNode &modelNode, const PropertyName &propertyName)
+{
+    m_backendModelNode.handleInstancePropertyChanged(modelNode, propertyName);
+}
+
+void PropertyEditorQmlBackend::handleVariantPropertyChangedInModelNodeProxy(const VariantProperty &property)
+{
+    m_backendModelNode.handleVariantPropertyChanged(property);
+}
+
+void PropertyEditorQmlBackend::handleBindingPropertyChangedInModelNodeProxy(const BindingProperty &property)
+{
+    m_backendModelNode.handleBindingPropertyChanged(property);
+}
+
+void PropertyEditorQmlBackend::handlePropertiesRemovedInModelNodeProxy(const AbstractProperty &property)
+{
+    m_backendModelNode.handlePropertiesRemoved(property);
+}
+
 void PropertyEditorQmlBackend::createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
                                                          const PropertyName &name,
                                                          const QVariant &value,

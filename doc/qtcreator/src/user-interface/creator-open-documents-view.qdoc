@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -16,13 +16,26 @@
 
     \title Open Documents
 
+    \if defined(qtdesignstudio)
+    \brief View currently open files.
+    \else
     \brief Shows currently open files.
+    \endif
 
+    \if defined(qtdesignstudio)
+    \image open-documents-view.webp {Open Documents view}
+    \else
     \image qtcreator-open-documents-view.png {Open Documents view}
+    \endif
 
     You can use the context menu to apply some of the functions also available
-    in the \uicontrol File menu and in the \l {File System Context Menu}
-    {File System} view to the file that you select in the view.
+    in the \uicontrol File menu and in the
+    \if defined(qtcreator)
+    \l {File System Context Menu}{File System}
+    \else
+    \uicontrol {File System}
+    \endif
+    view to the file that you select in the view.
 
     In addition, you can:
 
