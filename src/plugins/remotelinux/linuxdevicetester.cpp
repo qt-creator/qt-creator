@@ -5,6 +5,7 @@
 
 #include "linuxdevice.h"
 #include "remotelinuxtr.h"
+#include "utils/async.h"
 
 #include <extensionsystem/pluginmanager.h>
 

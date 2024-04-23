@@ -10,6 +10,8 @@
 #include <QObject>
 #include <QPointer>
 
+QT_FORWARD_DECLARE_CLASS(QPixmap)
+
 namespace QmlDesigner {
 
 class ContentLibraryEffect;
@@ -46,10 +48,18 @@ public:
                               const QVariant &data) override;
 
 private:
+    void connectUserBundle();
     void active3DSceneChanged(qint32 sceneId);
     void updateBundleMaterialsImportedState();
+    void updateBundleUserMaterialsImportedState();
     void updateBundleEffectsImportedState();
     void updateBundlesQuick3DVersion();
+    void addLibMaterial(const ModelNode &mat, const QPixmap &icon);
+    void addLibAssets(const QStringList &paths);
+    QStringList writeLibMaterialQml(const ModelNode &mat, const QString &qml);
+    QPair<QString, QSet<QString>> modelNodeToQmlString(const ModelNode &node, QStringList &depListIds,
+                                                       int depth = 0);
+
 #ifdef QDS_USE_PROJECTSTORAGE
     void applyBundleMaterialToDropTarget(const ModelNode &bundleMat, const TypeName &typeName = {});
 #else

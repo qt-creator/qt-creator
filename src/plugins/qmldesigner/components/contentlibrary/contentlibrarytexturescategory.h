@@ -28,7 +28,7 @@ public:
     ContentLibraryTexturesCategory(QObject *parent, const QString &name);
 
     void addTexture(const QFileInfo &tex, const QString &subPath, const QString &key,
-                    const QString &webTextureUrl, const QString &webIconUrl, const QString &fileExt,
+                    const QString &webTextureUrl, const QString &iconUrl, const QString &suffix,
                     const QSize &dimensions, const qint64 sizeInBytes, bool hasUpdate, bool isNew);
     bool filter(const QString &searchText);
 

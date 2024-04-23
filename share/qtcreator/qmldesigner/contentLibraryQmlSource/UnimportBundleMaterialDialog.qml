@@ -12,24 +12,27 @@ import ContentLibraryBackend
 StudioControls.Dialog {
     id: root
 
-    title: qsTr("Bundle material might be in use")
+    property var targetBundleItem
+    property var targetBundleLabel // "effect" or "material"
+    property var targetBundleModel
+
+    title: qsTr("Bundle %1 might be in use").arg(root.targetBundleLabel)
     anchors.centerIn: parent
     closePolicy: Popup.CloseOnEscape
     implicitWidth: 300
     modal: true
 
-    property var targetBundleType // "effect" or "material"
-    property var targetBundleItem
+    onOpened: warningText.forceActiveFocus()
 
     contentItem: Column {
         spacing: 20
         width: parent.width
 
         Text {
-            id: folderNotEmpty
+            id: warningText
 
-            text: qsTr("If the %1 you are removing is in use, it might cause the project to malfunction.\n\nAre you sure you want to remove the %1?")
-                        .arg(root.targetBundleType)
+            text: qsTr("If the %1 you are removing is in use, it might cause the project to malfunction.\n\nAre you sure you want to remove it?")
+                        .arg(root.targetBundleLabel)
             color: StudioTheme.Values.themeTextColor
             wrapMode: Text.WordWrap
             anchors.right: parent.right
@@ -49,11 +52,7 @@ StudioControls.Dialog {
                 text: qsTr("Remove")
 
                 onClicked: {
-                    if (root.targetBundleType === "material")
-                        ContentLibraryBackend.materialsModel.removeFromProject(root.targetBundleItem)
-                    else if (root.targetBundleType === "effect")
-                        ContentLibraryBackend.effectsModel.removeFromProject(root.targetBundleItem)
-
+                    root.targetBundleModel.removeFromProject(root.targetBundleItem)
                     root.accept()
                 }
             }
@@ -64,6 +63,4 @@ StudioControls.Dialog {
             }
         }
     }
-
-    onOpened: folderNotEmpty.forceActiveFocus()
 }

@@ -112,6 +112,9 @@
             \li  Previous open document in history
             \li  \key{Ctrl+Tab}
         \row
+            \li  Toggle \uicontrol {Menu Bar} visibility
+            \li  \key{Ctrl+Alt+M}
+        \row
             \li  Switch to \uicontrol Welcome mode
             \li  \key{Ctrl+1}
         \row
@@ -201,7 +204,10 @@
             \li  Action
             \li  Keyboard shortcut
         \row
-            \li  Open the QML file that defines the selected component
+            \li  Open the project with \uicontrol {Live Preview}.
+            \li  \key{Alt+P} (\key{Opt+P} on \macos)
+        \row
+            \li  Open the QML file that defines the selected component.
             \li  \key{F2}
         \row
             \li  Jump to the \uicontrol {Code} view.

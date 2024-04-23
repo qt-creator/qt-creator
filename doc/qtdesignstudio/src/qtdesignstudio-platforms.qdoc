@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -11,20 +11,20 @@
     You can install and run \QDS on several operating systems to create
     applications for multiple desktop, embedded, and mobile device platforms.
 
-    \section1 Development Platforms
+    \section1 Host Platforms
 
     \QDS is available in binary packages for the following operating systems:
 
     \list
-        \li \macOS 11.0
-        \li Linux:
-            \list
-                \li CentOS 8.1
-                \li openSUSE Leap 15.1
-                \li SUSE Linux Enterprise Server 15 (SLES 15)
-                \li Ubuntu 20.04
-            \endlist
-        \li Windows 10, version 2004
+        \li Windows 11
+        \li Windows 10 64-bit
+        \li \macOS 12, 13
+        \list
+            \li ARM-based Mac
+            \li Intel Mac
+        \endlist
+        \li Linux Ubuntu 22.04 (latest LTS)
+        \li Linux Ubuntu 20.04
     \endlist
 
     \note For a good user experience on Windows 10, we recommend the following
@@ -36,9 +36,9 @@
     \QB is available for the following design tools:
 
     \list
-        \li Adobe Photoshop version 24.0
-        \li Adobe XD version 55.0.12
-        \li Figma version 116.4
-        \li Sketch version 90.0
+        \li Adobe Photoshop 25.0
+        \li Adobe XD 57.1.12.2
+        \li Figma 116.15.15
+        \li Sketch 99.1
     \endlist
 */

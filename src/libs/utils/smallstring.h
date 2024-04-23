@@ -93,7 +93,7 @@ public:
                            static_cast<std::size_t>(std::distance(begin, end))}
     {}
 
-    template<typename Type, typename = std::enable_if_t<std::is_pointer<Type>::value>>
+    template<typename Type, typename std::enable_if_t<std::is_pointer<Type>::value, bool> = true>
     BasicSmallString(Type characterPointer) noexcept
         : BasicSmallString(characterPointer, std::char_traits<char>::length(characterPointer))
     {
@@ -118,7 +118,7 @@ public:
 
     template<typename BeginIterator,
              typename EndIterator,
-             typename = std::enable_if_t<std::is_same<BeginIterator, EndIterator>::value>>
+             typename std::enable_if_t<std::is_same<BeginIterator, EndIterator>::value, bool> = true>
     BasicSmallString(BeginIterator begin, EndIterator end) noexcept
         : BasicSmallString(&(*begin), size_type(end - begin))
     {}
@@ -354,6 +354,14 @@ public:
         return false;
     }
 
+    bool startsWith(QStringView subStringToSearch) const noexcept
+    {
+        if (size() >= Utils::usize(subStringToSearch))
+            return subStringToSearch == QLatin1StringView{data(), subStringToSearch.size()};
+
+        return false;
+    }
+
     bool startsWith(char characterToSearch) const noexcept
     {
         return data()[0] == characterToSearch;
@@ -423,11 +431,53 @@ public:
         size_type oldSize = size();
         size_type newSize = oldSize + string.size();
 
-        reserve(optimalCapacity(newSize));
+        if (fitsNotInCapacity(newSize))
+            reserve(optimalCapacity(newSize));
+
         std::char_traits<char>::copy(std::next(data(), static_cast<std::ptrdiff_t>(oldSize)),
                                      string.data(),
                                      string.size());
         setSize(newSize);
+    }
+
+    void append(char character) noexcept
+    {
+        size_type oldSize = size();
+        size_type newSize = oldSize + 1;
+
+        if (fitsNotInCapacity(newSize))
+            reserve(optimalCapacity(newSize));
+
+        auto current = std::next(data(), static_cast<std::ptrdiff_t>(oldSize));
+        *current = character;
+        setSize(newSize);
+    }
+
+    template<typename Type, typename std::enable_if_t<std::is_arithmetic_v<Type>, bool> = true>
+    void append(Type number)
+    {
+#if defined(__cpp_lib_to_chars) && (__cpp_lib_to_chars >= 201611L)
+        // 2 bytes for the sign and because digits10 returns the floor
+        char buffer[std::numeric_limits<Type>::digits10 + 2];
+        auto result = std::to_chars(buffer, buffer + sizeof(buffer), number);
+        auto endOfConversionString = result.ptr;
+
+        append({buffer, endOfConversionString});
+#else
+        if constexpr (std::is_floating_point_v<Type>) {
+            QLocale locale{QLocale::Language::C};
+            append(locale.toString(number));
+            return;
+        } else {
+            // 2 bytes for the sign and because digits10 returns the floor
+            char buffer[std::numeric_limits<Type>::digits10 + 2];
+            auto result = std::to_chars(buffer, buffer + sizeof(buffer), number);
+            auto endOfConversionString = result.ptr;
+
+            append({buffer, endOfConversionString});
+        }
+
+#endif
     }
 
     void append(QStringView string) noexcept
@@ -469,9 +519,24 @@ public:
         return *this;
     }
 
+    BasicSmallString &operator+=(char character) noexcept
+    {
+        append(character);
+
+        return *this;
+    }
+
     BasicSmallString &operator+=(QStringView string) noexcept
     {
         append(string);
+
+        return *this;
+    }
+
+    template<typename Type, typename std::enable_if_t<std::is_arithmetic_v<Type>, bool> = true>
+    BasicSmallString &operator+=(Type number) noexcept
+    {
+        append(number);
 
         return *this;
     }
@@ -580,37 +645,12 @@ public:
         return joinedString;
     }
 
-    static
-    BasicSmallString number(int number)
+    template<typename Type, typename std::enable_if_t<std::is_arithmetic_v<Type>, bool> = true>
+    static BasicSmallString number(Type number)
     {
-        // 2 bytes for the sign and because digits10 returns the floor
-        char buffer[std::numeric_limits<int>::digits10 + 2];
-        auto result = std::to_chars(buffer, buffer + sizeof(buffer), number);
-        auto endOfConversionString = result.ptr;
-        return BasicSmallString(buffer, endOfConversionString);
-    }
-
-    static BasicSmallString number(long long int number) noexcept
-    {
-        // 2 bytes for the sign and because digits10 returns the floor
-        char buffer[std::numeric_limits<long long int>::digits10 + 2];
-        auto result = std::to_chars(buffer, buffer + sizeof(buffer), number);
-        auto endOfConversionString = result.ptr;
-        return BasicSmallString(buffer, endOfConversionString);
-    }
-
-    static BasicSmallString number(double number) noexcept
-    {
-#if defined(__cpp_lib_to_chars) && (__cpp_lib_to_chars >= 201611L)
-        // 2 bytes for the sign and because digits10 returns the floor
-        char buffer[std::numeric_limits<double>::digits10 + 2];
-        auto result = std::to_chars(buffer, buffer + sizeof(buffer), number);
-        auto endOfConversionString = result.ptr;
-        return BasicSmallString(buffer, endOfConversionString);
-#else
-        QLocale locale{QLocale::Language::C};
-        return BasicSmallString{locale.toString(number)};
-#endif
+        BasicSmallString string;
+        string.append(number);
+        return string;
     }
 
     char &operator[](std::size_t index) noexcept { return *(data() + index); }
@@ -655,7 +695,6 @@ public:
     friend BasicSmallString operator+(const BasicSmallString &first,
                                       const char (&second)[ArraySize]) noexcept
     {
-
         return operator+(first, SmallStringView(second));
     }
 
@@ -687,8 +726,10 @@ unittest_public:
 
     bool fitsNotInCapacity(size_type capacity) const noexcept
     {
-        return (isShortString() && capacity > shortStringCapacity())
-               || (!isShortString() && capacity > m_data.reference.capacity);
+        if (isShortString())
+            return capacity > shortStringCapacity();
+
+        return capacity > m_data.reference.capacity;
     }
 
     static size_type optimalHeapCapacity(const size_type size) noexcept

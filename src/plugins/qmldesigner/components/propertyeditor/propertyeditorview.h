@@ -84,6 +84,16 @@ public:
 
     void refreshMetaInfos(const TypeIds &deletedTypeIds) override;
 
+    static void setExpressionOnObjectNode(const QmlObjectNode &objectNode,
+                                          const PropertyName &name,
+                                          const QString &expression);
+
+    static void generateAliasForProperty(const ModelNode &modelNode,
+                                         const QString &propertyName);
+
+    static void removeAliasForProperty(const ModelNode &modelNode,
+                                         const QString &propertyName);
+
 protected:
     void timerEvent(QTimerEvent *event) override;
     void setupPane(const TypeName &typeName);

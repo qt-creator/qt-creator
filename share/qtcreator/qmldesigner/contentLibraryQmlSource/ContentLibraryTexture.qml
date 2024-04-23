@@ -148,7 +148,7 @@ Item {
         visible: root.delegateVisible && root.downloadState != "downloading"
         cache: false
 
-        property string webUrl: modelData.textureWebUrl
+        property string textureUrl: modelData.textureUrl
 
         IconButton {
             id: downloadIcon
@@ -279,7 +279,7 @@ Item {
 
     FileDownloader {
         id: textureDownloader
-        url: image.webUrl
+        url: image.textureUrl
         probeUrl: false
         downloadEnabled: true
         onDownloadStarting: {
@@ -333,7 +333,7 @@ Item {
 
     FileDownloader {
         id: iconDownloader
-        url: modelData.textureWebIconUrl
+        url: modelData.textureIconUrl
         probeUrl: false
         downloadEnabled: true
         targetFilePath: modelData.textureIconPath

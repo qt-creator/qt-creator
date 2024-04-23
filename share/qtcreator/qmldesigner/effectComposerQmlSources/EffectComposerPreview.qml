@@ -21,6 +21,7 @@ Column {
     readonly property int updateDelay: 100
 
     readonly property int previewMargin: 5
+    readonly property int extraMargin: 200
 
     property real previewScale: 1
 
@@ -246,6 +247,8 @@ Column {
             layer.enabled: true
             layer.mipmap: true
             layer.smooth: true
+            layer.sourceRect: Qt.rect(-root.extraMargin, -root.extraMargin,
+                                      width + root.extraMargin * 2, height + root.extraMargin * 2)
             visible: false
 
             Image {
@@ -347,10 +350,6 @@ Column {
                 width: source.width
                 height: source.height
                 anchors.centerIn: parent
-                // Cache the layer. This way heavy shaders rendering doesn't
-                // slow down code editing & rest of the UI.
-                layer.enabled: true
-                layer.smooth: true
             }
         }
 
@@ -383,7 +382,6 @@ Column {
         Connections {
             target: effectComposerModel
             function onShadersBaked() {
-                console.log("Shaders Baked!")
                 updateTimer.restart()
             }
         }

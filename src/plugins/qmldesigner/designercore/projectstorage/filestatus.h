@@ -50,6 +50,18 @@ public:
 
     explicit operator bool() const { return isValid(); }
 
+    template<typename String>
+    friend void convertToString(String &string, const FileStatus &fileStatus)
+    {
+        using NanotraceHR::dictonary;
+        using NanotraceHR::keyValue;
+        auto dict = dictonary(keyValue("source id", fileStatus.sourceId),
+                              keyValue("size", fileStatus.size),
+                              keyValue("last modified", fileStatus.lastModified));
+
+        convertToString(string, dict);
+    }
+
 public:
     SourceId sourceId;
     long long size = -1;

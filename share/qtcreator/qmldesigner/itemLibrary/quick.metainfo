@@ -1,0 +1,569 @@
+MetaInfo {
+
+    Type {
+        name: "QtQuick.Item"
+        icon: "images/item-icon16.png"
+
+       Hints {
+           visibleNonDefaultProperties: "layer.effect"
+       }
+
+        ItemLibraryEntry {
+            name: "Item"
+            category: "a.Qt Quick - Basic"
+            libraryIcon: "images/item-icon.png"
+            version: "2.0"
+
+            Property { name: "width"; type: "int"; value: 200; }
+            Property { name: "height"; type: "int"; value: 200; }
+            toolTip: qsTr("Groups several visual items.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.Rectangle"
+        icon: "images/rect-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Rectangle"
+            category: "a.Qt Quick - Basic"
+            libraryIcon: "images/rect-icon.png"
+            version: "2.0"
+
+            Property { name: "width"; type: "int"; value: 200; }
+            Property { name: "height"; type: "int"; value: 200; }
+            Property { name: "color"; type: "QColor"; value: "#ffffff"; }
+            toolTip: qsTr("A rectangle with an optional border.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.Text"
+        icon: "images/text-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Text"
+            category: "a.Qt Quick - Basic"
+            libraryIcon: "images/text-icon.png"
+            version: "2.0"
+
+            Property { name: "font.pixelSize"; type: "int"; value: 12; }
+            Property { name: "text"; type: "binding"; value: "qsTr(\"Text\")"; }
+            toolTip: qsTr("A read-only text label.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.TextEdit"
+        icon: "images/text-edit-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Text Edit"
+            category: "a.Qt Quick - Basic"
+            libraryIcon: "images/text-edit-icon.png"
+            version: "2.0"
+
+            Property { name: "width"; type: "int"; value: 80; }
+            Property { name: "height"; type: "int"; value: 20; }
+            Property { name: "font.pixelSize"; type: "int"; value: 12; }
+            Property { name: "text"; type: "binding"; value: "qsTr(\"Text Edit\")"; }
+            toolTip: qsTr("A multi-line block of editable text.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.TextInput"
+        icon: "images/text-input-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Text Input"
+            category: "a.Qt Quick - Basic"
+            libraryIcon: "images/text-input-icon.png"
+            version: "2.0"
+
+            Property { name: "width"; type: "int"; value: 80; }
+            Property { name: "height"; type: "int"; value: 20; }
+            Property { name: "font.pixelSize"; type: "int"; value: 12; }
+            Property { name: "text"; type: "binding"; value: "qsTr(\"Text Input\")"; }
+            toolTip: qsTr("An editable line of text.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.MouseArea"
+        icon: "images/mouse-area-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Mouse Area"
+            category: "a.Qt Quick - Basic"
+            libraryIcon: "images/mouse-area-icon.png"
+            version: "2.0"
+
+            Property { name: "width"; type: "int"; value: 100; }
+            Property { name: "height"; type: "int"; value: 100; }
+            toolTip: qsTr("An area with mouse functionality.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.Image"
+        icon: "images/image-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Image"
+            category: "a.Qt Quick - Basic"
+            libraryIcon: "images/image-icon.png"
+            version: "2.0"
+
+            Property { name: "width"; type: "int"; value: 100; }
+            Property { name: "height"; type: "int"; value: 100; }
+            Property { name: "source"; type: "QUrl"; value:"qrcimages/template_image.png"; }
+            Property { name: "fillMode"; type: "enum"; value: "Image.PreserveAspectFit"; }
+            toolTip: qsTr("Displays an image.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.AnimatedImage"
+        icon: "images/animated-image-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Animated Image"
+            category: "a.Qt Quick - Basic"
+            libraryIcon: "images/animated-image-icon.png"
+            version: "2.0"
+
+            Property { name: "width"; type: "int"; value: 100; }
+            Property { name: "height"; type: "int"; value: 100; }
+            Property { name: "source"; type: "QUrl"; value:"qrcimages/template_image.png"; }
+            toolTip: qsTr("Animates a series of images.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.AnimatedSprite"
+        icon: "images/animated-image-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Animated Sprite"
+            category: "a.Qt Quick - Basic"
+            libraryIcon: "images/animated-image-icon.png"
+            version: "2.0"
+
+            Property { name: "frameWidth"; type: "int"; value: 64; }
+            Property { name: "frameHeight"; type: "int"; value: 64; }
+            Property { name: "frameCount"; type: "int"; value: 4; }
+            Property { name: "frameDuration"; type: "int"; value: 500; }
+            Property { name: "source"; type: "QUrl"; value:"animatedsprite-loading.png"; }
+            ExtraFile { source: "images/animatedsprite-loading.png" }
+            toolTip: qsTr("Draws a sprite animation.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.BorderImage"
+        icon: "images/border-image-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Border Image"
+            category: "a.Qt Quick - Basic"
+            libraryIcon: "images/border-image-icon.png"
+            version: "2.0"
+
+            Property { name: "width"; type: "int"; value: 100; }
+            Property { name: "height"; type: "int"; value: 100; }
+            Property { name: "source"; type: "QUrl"; value:"qrcimages/template_image.png"; }
+            toolTip: qsTr("A responsive border based on an image.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.Flickable"
+        icon: "images/flickable-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Flickable"
+            category: "a.Qt Quick - Basic"
+            libraryIcon: "images/flickable-icon.png"
+            version: "2.0"
+
+            Property { name: "width"; type: "int"; value: 300; }
+            Property { name: "height"; type: "int"; value: 300; }
+            toolTip: qsTr("An area for keeping dragable objects.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.GridView"
+        icon: "images/gridview-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Grid View"
+            category: "b.Qt Quick - Views"
+            libraryIcon: "images/gridview-icon.png"
+            version: "2.0"
+
+            QmlSource { source: "source/gridviewv2.qml" }
+            toolTip: qsTr("Organizes dynamic data sets in a grid.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.ListView"
+        icon: "images/listview-icon16.png"
+
+        ItemLibraryEntry {
+            name: "List View"
+            category: "b.Qt Quick - Views"
+            libraryIcon: "images/listview-icon.png"
+            version: "2.0"
+
+            QmlSource { source: "source/listviewv2.qml" }
+            toolTip: qsTr("Organizes dynamic data sets in a list.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.PathView"
+        icon: "images/pathview-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Path View"
+            category: "b.Qt Quick - Views"
+            libraryIcon: "images/pathview-icon.png"
+            version: "2.0"
+
+            QmlSource { source: "source/pathviewv2.qml" }
+            toolTip: qsTr("Organizes dynamic data sets along a path.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.FocusScope"
+        icon: "images/focusscope-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Focus Scope"
+            category: "a.Qt Quick - Basic"
+            libraryIcon: "images/focusscope-icon.png"
+            version: "2.0"
+
+            Property { name: "width"; type: "int"; value: 100; }
+            Property { name: "height"; type: "int"; value: 100; }
+            toolTip: qsTr("A scope to focus on a specific text element.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.Column"
+        icon: "images/column-positioner-icon-16px.png"
+
+        ItemLibraryEntry {
+            name: "Column"
+            category: "c.Qt Quick - Positioner"
+            libraryIcon: "images/column-positioner-icon.png"
+            version: "2.0"
+
+            Property { name: "width"; type: "int"; value: 200; }
+            Property { name: "height"; type: "int"; value: 400; }
+
+            toolTip: qsTr("Organizes items in a column.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.Row"
+        icon: "images/row-positioner-icon-16px.png"
+
+        ItemLibraryEntry {
+            name: "Row"
+            category: "c.Qt Quick - Positioner"
+            libraryIcon: "images/row-positioner-icon.png"
+            version: "2.0"
+            toolTip: qsTr("Organizes items in a row.")
+
+            Property { name: "width"; type: "int"; value: 200; }
+            Property { name: "height"; type: "int"; value: 400; }
+        }
+    }
+
+    Type {
+        name: "QtQuick.Grid"
+        icon: "images/grid-positioner-icon-16px.png"
+
+        ItemLibraryEntry {
+            name: "Grid"
+            category: "c.Qt Quick - Positioner"
+            libraryIcon: "images/grid-positioner-icon.png"
+            version: "2.0"
+
+            Property { name: "width"; type: "int"; value: 400; }
+            Property { name: "height"; type: "int"; value: 400; }
+            toolTip: qsTr("Organizes items in a fixed grid.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.Flow"
+        icon: "images/flow-positioner-icon-16px.png"
+
+        ItemLibraryEntry {
+            name: "Flow"
+            category: "c.Qt Quick - Positioner"
+            libraryIcon: "images/flow-positioner-icon.png"
+            version: "2.0"
+
+            Property { name: "width"; type: "int"; value: 400; }
+            Property { name: "height"; type: "int"; value: 400; }
+            toolTip: qsTr("Organizes items in free-flowing rows.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.Timeline.Timeline"
+        icon: "images/timeline-16px.png"
+
+        Hints {
+            visibleNonDefaultProperties: "animations"
+            visibleInLibrary: false
+            visibleInNavigator: true
+        }
+        ItemLibraryEntry {
+            name: "Timeline"
+            category: "none"
+            version: "1.0"
+        }
+    }
+
+    Type {
+        name: "QtQuick.Timeline.TimelineAnimation"
+        icon: "images/timeline-animation-16px.png"
+
+        Hints {
+            visibleInLibrary: false
+            visibleInNavigator: true
+        }
+        ItemLibraryEntry {
+            name: "Animation"
+            category: "none"
+            version: "1.0"
+        }
+    }
+
+    Type {
+        name: "QtQuick.Timeline.Keyframe"
+        icon: "images/keyframe-16px.png"
+
+        ItemLibraryEntry {
+            name: "Keyframe"
+            category: "none"
+            version: "1.0"
+            requiredImport: "none"
+        }
+    }
+
+    Type {
+        name: "QtQuick.Timeline.KeyframeGroup"
+        icon: "images/keyframe-16px.png"
+
+        ItemLibraryEntry {
+            name: "KeyframeGroup"
+            category: "none"
+            version: "1.0"
+            requiredImport: "none"
+        }
+    }
+
+    Type {
+        name: "QtQuick.PropertyAnimation"
+        icon: "images/item-icon16.png"
+
+        Hints {
+           visibleInNavigator: true
+           canBeDroppedInNavigator: true
+           canBeDroppedInFormEditor: false
+           canBeContainer: false
+       }
+
+        ItemLibraryEntry {
+            name: "Property Animation"
+            category: "d.Qt Quick - Animation"
+            libraryIcon: "images/item-icon.png"
+            version: "2.0"
+            toolTip: qsTr("Animates changes in property values.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.PauseAnimation"
+        icon: "images/item-icon16.png"
+
+    Hints {
+           visibleInNavigator: true
+           canBeDroppedInNavigator: true
+           canBeDroppedInFormEditor: false
+           canBeContainer: false
+       }
+
+        ItemLibraryEntry {
+            name: "Pause Animation"
+            category: "d.Qt Quick - Animation"
+            libraryIcon: "images/item-icon.png"
+            version: "2.0"
+            toolTip: qsTr("Provides a pause between animations.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.SequentialAnimation"
+        icon: "images/item-icon16.png"
+
+        Hints {
+           visibleInNavigator: true
+           canBeDroppedInNavigator: true
+           canBeDroppedInFormEditor: false
+       }
+
+        ItemLibraryEntry {
+            name: "Sequential Animation"
+            category: "d.Qt Quick - Animation"
+            libraryIcon: "images/item-icon.png"
+            version: "2.0"
+            toolTip: qsTr("Runs animations one after the other.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.ParallelAnimation"
+        icon: "images/item-icon16.png"
+
+        Hints {
+           visibleInNavigator: true
+           canBeDroppedInNavigator: true
+           canBeDroppedInFormEditor: false
+       }
+
+        ItemLibraryEntry {
+            name: "Parallel Animation"
+            category: "d.Qt Quick - Animation"
+            libraryIcon: "images/item-icon.png"
+            version: "2.0"
+            toolTip: qsTr("Runs animations together at the same time.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.PropertyAction"
+        icon: "images/item-icon16.png"
+
+        Hints {
+           visibleInNavigator: true
+           canBeDroppedInNavigator: true
+           canBeDroppedInFormEditor: false
+           canBeContainer: false
+       }
+
+        ItemLibraryEntry {
+            name: "Property Action"
+            category: "d.Qt Quick - Animation"
+            libraryIcon: "images/item-icon.png"
+            version: "2.0"
+            toolTip: qsTr("Provides an immediate property change during animations.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.ScriptAction"
+        icon: "images/item-icon16.png"
+
+        Hints {
+           visibleInNavigator: true
+           canBeDroppedInNavigator: true
+           canBeDroppedInFormEditor: false
+           canBeContainer: false
+       }
+
+        ItemLibraryEntry {
+            name: "Script Action"
+            category: "d.Qt Quick - Animation"
+            libraryIcon: "images/item-icon.png"
+            version: "2.0"
+            toolTip: qsTr("Runs a script during animation.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.ColorAnimation"
+        icon: "images/item-icon16.png"
+
+        Hints {
+           visibleInNavigator: true
+           canBeDroppedInNavigator: true
+           canBeDroppedInFormEditor: false
+           canBeContainer: false
+       }
+
+        ItemLibraryEntry {
+            name: "Color Animation"
+            category: "d.Qt Quick - Animation"
+            libraryIcon: "images/item-icon.png"
+            version: "2.0"
+            toolTip: qsTr("Animates the color of an item.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.NumberAnimation"
+        icon: "images/item-icon16.png"
+
+        Hints {
+            visibleInNavigator: true
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+            canBeContainer: false
+        }
+
+        ItemLibraryEntry {
+            name: "Number Animation"
+            category: "d.Qt Quick - Animation"
+            libraryIcon: "images/item-icon.png"
+            version: "2.0"
+            Property { name: "to"; type: "int"; value: 0; }
+            Property { name: "from"; type: "int"; value: 0; }
+            toolTip: qsTr("Animates a numerical property of an item.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.Loader"
+        icon: "images/loader-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Loader"
+            category: "e.Qt Quick - Instancers"
+            libraryIcon: "images/loader-icon.png"
+            version: "2.0"
+            Property { name: "width"; type: "int"; value: 200; }
+            Property { name: "height"; type: "int"; value: 200; }
+            toolTip: qsTr("Allows you to load components dynamically.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.Repeater"
+        icon: "images/repeater-icon16.png"
+
+        Hints {
+            canBeDroppedInFormEditor: false
+            hasFormEditorItem: false
+        }
+
+        ItemLibraryEntry {
+            name: "Repeater"
+            category: "e.Qt Quick - Instancers"
+            libraryIcon: "images/repeater-icon.png"
+            version: "2.0"
+            toolTip: qsTr("Creates a number of copies of the same item.")
+        }
+    }
+}

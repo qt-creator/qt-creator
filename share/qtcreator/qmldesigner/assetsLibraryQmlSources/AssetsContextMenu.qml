@@ -83,7 +83,7 @@ StudioControls.Menu {
         root.__selectedAssetPathsList = selectedAssetPathsList
         root.__fileIndex = fileIndex
         root.__dirIndex = dirModelIndex
-        root.__dirPath = AssetsLibraryBackend.assetsModel.filePath(dirModelIndex)
+        root.__dirPath = root.assetsModel.filePath(dirModelIndex)
         root.__isDirectory = false
         root.popup()
     }
@@ -124,9 +124,9 @@ StudioControls.Menu {
         id: addTexturesItem
         text: qsTr("Add Texture")
         enabled: rootView.hasMaterialLibrary
-        visible: root.__fileIndex && AssetsLibraryBackend.assetsModel.allFilePathsAreTextures(root.__selectedAssetPathsList)
+        visible: root.__fileIndex && root.assetsModel.allFilePathsAreTextures(root.__selectedAssetPathsList)
         height: addTexturesItem.visible ? addTexturesItem.implicitHeight : 0
-        onTriggered: AssetsLibraryBackend.rootView.addTextures(root.__selectedAssetPathsList)
+        onTriggered: root.rootView.addTextures(root.__selectedAssetPathsList)
     }
 
     StudioControls.MenuItem {
@@ -134,7 +134,7 @@ StudioControls.Menu {
         text: qsTr("Add Light Probe")
         enabled: rootView.hasMaterialLibrary && rootView.hasSceneEnv
         visible: root.__fileIndex && root.__selectedAssetPathsList.length === 1
-                 && AssetsLibraryBackend.assetsModel.allFilePathsAreTextures(root.__selectedAssetPathsList)
+                 && root.assetsModel.allFilePathsAreTextures(root.__selectedAssetPathsList)
         height: addLightProbes.visible ? addLightProbes.implicitHeight : 0
         onTriggered: rootView.addLightProbe(root.__selectedAssetPathsList[0])
     }
@@ -145,7 +145,7 @@ StudioControls.Menu {
         visible: root.__fileIndex
         height: deleteFileItem.visible ? deleteFileItem.implicitHeight : 0
         onTriggered: {
-            let deleted = AssetsLibraryBackend.assetsModel.requestDeleteFiles(root.__selectedAssetPathsList)
+            let deleted = root.assetsModel.requestDeleteFiles(root.__selectedAssetPathsList)
             if (!deleted)
                 confirmDeleteFiles.open()
         }
@@ -182,7 +182,7 @@ StudioControls.Menu {
 
     StudioControls.MenuItem {
         text: qsTr("New Folder")
-        visible: AssetsLibraryBackend.assetsModel.haveFiles
+        visible: root.assetsModel.hasFiles
         height: visible ? implicitHeight : 0
 
         NewFolderDialog {
@@ -209,11 +209,11 @@ StudioControls.Menu {
         }
 
         onTriggered: {
-            if (!AssetsLibraryBackend.assetsModel.hasChildren(root.__dirIndex)) {
+            if (!root.assetsModel.hasChildren(root.__dirIndex)) {
                 // NOTE: the folder may still not be empty -- it doesn't have files visible to the
                 // user, but that doesn't mean that there are no other files (e.g. files of unknown
                 // types) on disk in this directory.
-                AssetsLibraryBackend.assetsModel.deleteFolderRecursively(root.__dirIndex)
+                root.assetsModel.deleteFolderRecursively(root.__dirIndex)
             } else {
                 confirmDeleteFolderDialog.open()
             }
@@ -222,7 +222,7 @@ StudioControls.Menu {
 
     StudioControls.MenuItem {
         text: qsTr("New Effect")
-        visible: rootView.canCreateEffects()
+        visible: root.rootView.canCreateEffects()
         height: visible ? implicitHeight : 0
 
         NewEffectDialog {
@@ -235,15 +235,22 @@ StudioControls.Menu {
     }
 
     StudioControls.MenuItem {
-        text: rootView.showInGraphicalShellMsg()
+        text: root.rootView.showInGraphicalShellMsg()
 
         enabled: root.__showInGraphicalShellEnabled
 
         onTriggered: {
             if (!root.__fileIndex || root.__selectedAssetPathsList.length > 1)
-                rootView.showInGraphicalShell(root.__dirPath)
+                root.rootView.showInGraphicalShell(root.__dirPath)
             else
-                rootView.showInGraphicalShell(root.__selectedAssetPathsList[0])
+                root.rootView.showInGraphicalShell(root.__selectedAssetPathsList[0])
         }
+    }
+
+    StudioControls.MenuItem {
+        text: qsTr("Add to Content Library")
+        visible: root.rootView.userBundleEnabled() && root.__fileIndex && root.assetsModel.allFilePathsAreTextures(root.__selectedAssetPathsList)
+        height: visible ? implicitHeight : 0
+        onTriggered: root.rootView.addAssetsToContentLibrary(root.__selectedAssetPathsList)
     }
 }

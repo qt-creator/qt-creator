@@ -35,7 +35,7 @@ def main():
     test.verify(" files changed, 229938 insertions(+)" in commitDetails,
                 "Summary in details view?")
     clickButton(waitForObject(":Select a Git Commit.Show_QPushButton"))
-    changedEdit = waitForObject(":Qt Creator_DiffEditor::SideDiffEditorWidget")
+    changedEdit = waitForObject(":Qt Creator_DiffEditor::SideDiffEditorWidgetChanged")
     waitFor("len(str(changedEdit.plainText)) > 0 and "
             "str(changedEdit.plainText) != 'Waiting for data...'", 40000)
     diffPlainText = str(changedEdit.plainText)

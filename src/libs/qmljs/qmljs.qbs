@@ -28,7 +28,6 @@ QtcLibrary {
             "qmljsfindexportedcpptypes.cpp", "qmljsfindexportedcpptypes.h",
             "qmljsicons.cpp", "qmljsicons.h",
             "qmljsimportdependencies.cpp", "qmljsimportdependencies.h",
-            "qmljsindenter.cpp", "qmljsindenter.h",
             "qmljsinterpreter.cpp", "qmljsinterpreter.h",
             "qmljsdialect.cpp", "qmljsdialect.h",
             "qmljslineinfo.cpp", "qmljslineinfo.h",

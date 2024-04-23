@@ -1,0 +1,84 @@
+MetaInfo {
+    Type {
+        name: "QtMultimedia.MediaPlayer"
+        icon: "images/media-player-16px.png"
+
+        Hints {
+            visibleInNavigator: true
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+            canBeContainer: false
+        }
+
+        ItemLibraryEntry {
+            name: "Media Player"
+            category: "f.Qt Quick - Multimedia"
+            libraryIcon: "images/media-player-24px.png"
+            version: "6.0"
+            requiredImport: "QtMultimedia"
+        }
+    }
+
+    Type {
+        name: "QtMultimedia.AudioOutput"
+        icon: "images/audio-output-16px.png"
+
+        Hints {
+            visibleInNavigator: true
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+            canBeContainer: false
+        }
+
+        ItemLibraryEntry {
+            name: "Audio Output"
+            category: "f.Qt Quick - Multimedia"
+            libraryIcon: "images/audio-output-24px.png"
+            version: "6.0"
+            requiredImport: "QtMultimedia"
+        }
+    }
+
+    Type {
+        name: "QtMultimedia.VideoOutput"
+        icon: "images/video-output-16px.png"
+
+        Hints {
+            visibleInNavigator: true
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+            canBeContainer: false
+        }
+
+        ItemLibraryEntry {
+            name: "Video Output"
+            category: "f.Qt Quick - Multimedia"
+            libraryIcon: "images/video-output-24px.png"
+            version: "6.0"
+            requiredImport: "QtMultimedia"
+        }
+    }
+
+    Type {
+        name: "QtMultimedia.Video"
+        icon: "images/video-16px.png"
+
+        Hints {
+            visibleInNavigator: true
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: true
+            canBeContainer: false
+        }
+
+        ItemLibraryEntry {
+            name: "Video"
+            category: "f.Qt Quick - Multimedia"
+            libraryIcon: "images/video-24px.png"
+            version: "6.0"
+            requiredImport: "QtMultimedia"
+
+            Property { name: "width"; type: "int"; value: 200; }
+            Property { name: "height"; type: "int"; value: 200; }
+        }
+    }
+}

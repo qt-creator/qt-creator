@@ -1,0 +1,53 @@
+MetaInfo {
+
+    Type {
+        name: "QML.Component"
+        icon: "images/component-icon16.png"
+
+        Hints {
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+        }
+
+        ItemLibraryEntry {
+            name: "Component"
+            category: "e.Qt Quick - Instancers"
+            libraryIcon: "images/component-icon.png"
+            version: "1.0"
+
+            QmlSource { source: "source/component.qml" }
+            toolTip: qsTr("Allows you to define components inline, within a QML document.")
+        }
+
+        ItemLibraryEntry {
+            name: "Component 3D"
+            category: "Instancers"
+            libraryIcon: "images/component-icon.png"
+            version: "1.0"
+            requiredImport: "QtQuick3D"
+
+            QmlSource { source: "source/component3d.qml" }
+            toolTip: qsTr("Allows you to define 3D components inline, within a QML document.")
+        }
+    }
+
+Type {
+    name: "QtQml.Base.Timer"
+    icon: "images/timer-16px.png"
+
+    Hints {
+        visibleInNavigator: true
+        canBeDroppedInNavigator: true
+        canBeDroppedInFormEditor: false
+        canBeContainer: false
+    }
+
+    ItemLibraryEntry {
+        name: "Timer"
+        category: "d.Qt Quick - Animation"
+        libraryIcon: "images/timer-24px.png"
+        version: "2.0"
+        toolTip: qsTr(" Triggers an action at a given time.")
+    }
+}
+}

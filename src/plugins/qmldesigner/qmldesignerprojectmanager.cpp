@@ -41,6 +41,7 @@
 
 #include <QDirIterator>
 #include <QFileSystemWatcher>
+#include <QLibraryInfo>
 #include <QQmlEngine>
 
 using namespace std::chrono;
@@ -180,7 +181,7 @@ public:
               pathCache.sourceId(SourcePath{project->projectDirectory().toString() + "/."}).internalId())}
     {}
     Sqlite::Database database;
-    ProjectStorage<Sqlite::Database> storage{database, database.isInitialized()};
+    ProjectStorage storage{database, database.isInitialized()};
     PathCacheType pathCache{storage};
     FileSystem fileSystem{pathCache};
     FileStatusCache fileStatusCache{fileSystem};
@@ -281,7 +282,7 @@ AsynchronousImageCache &QmlDesignerProjectManager::asynchronousImageCache()
 }
 
 namespace {
-[[maybe_unused]] ProjectStorage<Sqlite::Database> *dummyProjectStorage()
+[[maybe_unused]] ProjectStorage *dummyProjectStorage()
 {
     return nullptr;
 }
@@ -374,6 +375,10 @@ void collectQmldirPaths(const QString &path, QStringList &qmldirPaths)
 {
     QDirIterator dirIterator{path, QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::Subdirectories};
 
+    QString rootQmldirPath = path + "/qmldir";
+    if (!skipPath(path) && QFileInfo::exists(rootQmldirPath))
+        qmldirPaths.push_back(path);
+
     while (dirIterator.hasNext()) {
         auto directoryPath = dirIterator.next();
 
@@ -401,17 +406,16 @@ void collectQmldirPaths(const QString &path, QStringList &qmldirPaths)
         collectQmldirPaths(qmlPath(target).toString(), qmldirPaths);
 }
 
-[[maybe_unused]] void qtQmldirPathsForLiteDesigner(::ProjectExplorer::Target *target,
-                                                   QStringList &qmldirPaths)
+[[maybe_unused]] void qtQmldirPathsForLiteDesigner(QStringList &qmldirPaths)
 {
     if constexpr (useProjectStorage()) {
-        auto qmlRootPath = qmlPath(target).toString();
+        auto qmlRootPath = QLibraryInfo::path(QLibraryInfo::QmlImportsPath);
         collectQmldirPaths(qmlRootPath + "/QtQml", qmldirPaths);
         collectQmldirPaths(qmlRootPath + "/QtQuick", qmldirPaths);
     }
 }
 
-QStringList directories(::ProjectExplorer::Target *target)
+[[maybe_unused]] QStringList directories(::ProjectExplorer::Target *target)
 {
     if (!target)
         return {};
@@ -419,12 +423,8 @@ QStringList directories(::ProjectExplorer::Target *target)
     QStringList qmldirPaths;
     qmldirPaths.reserve(100);
 
-    if constexpr (isUsingQmlDesignerLite()) {
-        qtQmldirPathsForLiteDesigner(target, qmldirPaths);
-    } else {
-        qtQmldirPaths(target, qmldirPaths);
-        projectQmldirPaths(target, qmldirPaths);
-    }
+    qtQmldirPaths(target, qmldirPaths);
+    projectQmldirPaths(target, qmldirPaths);
 
     std::sort(qmldirPaths.begin(), qmldirPaths.end());
     qmldirPaths.erase(std::unique(qmldirPaths.begin(), qmldirPaths.end()), qmldirPaths.end());
@@ -432,7 +432,20 @@ QStringList directories(::ProjectExplorer::Target *target)
     return qmldirPaths;
 }
 
-QStringList qmlTypes(::ProjectExplorer::Target *target)
+[[maybe_unused]] QStringList directoriesForLiteDesigner()
+{
+    QStringList qmldirPaths;
+    qmldirPaths.reserve(100);
+
+    qtQmldirPathsForLiteDesigner(qmldirPaths);
+
+    std::sort(qmldirPaths.begin(), qmldirPaths.end());
+    qmldirPaths.erase(std::unique(qmldirPaths.begin(), qmldirPaths.end()), qmldirPaths.end());
+
+    return qmldirPaths;
+}
+
+[[maybe_unused]] QStringList qmlTypes(::ProjectExplorer::Target *target)
 {
     if (!target)
         return {};
@@ -440,10 +453,26 @@ QStringList qmlTypes(::ProjectExplorer::Target *target)
     QStringList qmldirPaths;
     qmldirPaths.reserve(2);
 
-    const QString installDirectory = qmlPath(target).toString();
+    const QString qmlRootPath = qmlPath(target).toString();
 
-    qmldirPaths.append(installDirectory + "/builtins.qmltypes");
-    qmldirPaths.append(installDirectory + "/jsroot.qmltypes");
+    qmldirPaths.append(qmlRootPath + "/builtins.qmltypes");
+    qmldirPaths.append(qmlRootPath + "/jsroot.qmltypes");
+
+    qmldirPaths.append(
+        Core::ICore::resourcePath("qmldesigner/projectstorage/fake.qmltypes").toString());
+
+    return qmldirPaths;
+}
+
+[[maybe_unused]] QStringList qmlTypesForLiteDesigner()
+{
+    QStringList qmldirPaths;
+    qmldirPaths.reserve(2);
+
+    const auto qmlRootPath = QLibraryInfo::path(QLibraryInfo::QmlImportsPath);
+
+    qmldirPaths.append(qmlRootPath + "/builtins.qmltypes");
+    qmldirPaths.append(qmlRootPath + "/jsroot.qmltypes");
 
     qmldirPaths.append(
         Core::ICore::resourcePath("qmldesigner/projectstorage/fake.qmltypes").toString());
@@ -459,6 +488,11 @@ QString propertyEditorResourcesPath()
     }
 #endif
     return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
+}
+
+QString qtCreatorItemLibraryPath()
+{
+    return Core::ICore::resourcePath("qmldesigner/itemLibrary").toString();
 }
 
 } // namespace
@@ -594,9 +628,17 @@ void QmlDesignerProjectManager::update()
     if (!m_projectData || !m_projectData->projectStorageData)
         return;
 
-    m_projectData->projectStorageData->updater.update(directories(m_projectData->activeTarget),
-                                                      qmlTypes(m_projectData->activeTarget),
-                                                      propertyEditorResourcesPath());
+    if constexpr (isUsingQmlDesignerLite()) {
+        m_projectData->projectStorageData->updater.update(directoriesForLiteDesigner(),
+                                                          qmlTypesForLiteDesigner(),
+                                                          propertyEditorResourcesPath(),
+                                                          {qtCreatorItemLibraryPath()});
+    } else {
+        m_projectData->projectStorageData->updater.update(directories(m_projectData->activeTarget),
+                                                          qmlTypes(m_projectData->activeTarget),
+                                                          propertyEditorResourcesPath(),
+                                                          {qtCreatorItemLibraryPath()});
+    }
 }
 
 } // namespace QmlDesigner

@@ -296,15 +296,16 @@ void ItemLibraryModel::setSearchText(const QString &searchText)
 
 Import ItemLibraryModel::entryToImport(const ItemLibraryEntry &entry)
 {
+#ifndef QDS_USE_PROJECTSTORAGE
     if (entry.majorVersion() == -1 && entry.minorVersion() == -1)
         return Import::createFileImport(entry.requiredImport());
-
+#endif
     return Import::createLibraryImport(entry.requiredImport(), QString::number(entry.majorVersion()) + QLatin1Char('.') +
                                                                QString::number(entry.minorVersion()));
 
 }
 
-void ItemLibraryModel::update([[maybe_unused]] ItemLibraryInfo *itemLibraryInfo, Model *model)
+void ItemLibraryModel::update(Model *model)
 {
     if (!model)
         return;
@@ -312,9 +313,12 @@ void ItemLibraryModel::update([[maybe_unused]] ItemLibraryInfo *itemLibraryInfo,
     beginResetModel();
     clearSections();
 
+    GeneratedComponentUtils compUtils = QmlDesignerPlugin::instance()->documentManager()
+                                            .generatedComponentUtils();
+
     QStringList excludedImports {
-        QLatin1String(Constants::COMPONENT_BUNDLES_FOLDER).mid(1) + ".MaterialBundle",
-        QLatin1String(Constants::COMPONENT_BUNDLES_FOLDER).mid(1) + ".EffectBundle"
+        compUtils.componentBundlesTypePrefix() + ".MaterialBundle",
+        compUtils.componentBundlesTypePrefix() + ".EffectBundle"
     };
 
     // create import sections
@@ -323,10 +327,12 @@ void ItemLibraryModel::update([[maybe_unused]] ItemLibraryInfo *itemLibraryInfo,
     QHash<QString, ItemLibraryImport *> importHash;
     for (const Import &import : model->imports()) {
         if (import.url() != projectName) {
-            if (excludedImports.contains(import.url()) || import.url().startsWith("Effects."))
+            if (excludedImports.contains(import.url())
+                || import.url().startsWith(compUtils.composedEffectsTypePrefix())) {
                 continue;
+            }
             bool addNew = true;
-            bool isQuick3DAsset = import.url().startsWith("Quick3DAssets.");
+            bool isQuick3DAsset = import.url().startsWith(compUtils.import3dTypePrefix());
             QString importUrl = import.url();
             if (isQuick3DAsset)
                 importUrl = ItemLibraryImport::quick3DAssetsTitle();

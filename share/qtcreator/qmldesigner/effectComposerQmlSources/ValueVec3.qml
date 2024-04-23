@@ -15,6 +15,10 @@ RowLayout {
     HelperWidgets.DoubleSpinBox {
         id: vX
 
+        // value: uniformValue binding can get overwritten by normal operation of the control
+        property double resetValue: uniformValue.x
+        onResetValueChanged: value = resetValue
+
         Layout.fillWidth: true
         Layout.minimumWidth: 30
         Layout.maximumWidth: 60
@@ -26,7 +30,7 @@ RowLayout {
         value: uniformValue.x
         stepSize: .01
         decimals: 2
-        onValueChanged: uniformValue.x = value
+        onValueModified: uniformValue.x = value
     }
 
     Item { // spacer
@@ -51,6 +55,10 @@ RowLayout {
     HelperWidgets.DoubleSpinBox {
         id: vY
 
+        // value: uniformValue binding can get overwritten by normal operation of the control
+        property double resetValue: uniformValue.y
+        onResetValueChanged: value = resetValue
+
         Layout.fillWidth: true
         Layout.minimumWidth: 30
         Layout.maximumWidth: 60
@@ -62,7 +70,7 @@ RowLayout {
         value: uniformValue.y
         stepSize: .01
         decimals: 2
-        onValueChanged: uniformValue.y = value
+        onValueModified: uniformValue.y = value
     }
 
     Item { // spacer
@@ -87,6 +95,10 @@ RowLayout {
     HelperWidgets.DoubleSpinBox {
         id: vZ
 
+        // value: uniformValue binding can get overwritten by normal operation of the control
+        property double resetValue: uniformValue.z
+        onResetValueChanged: value = resetValue
+
         Layout.fillWidth: true
         Layout.minimumWidth: 30
         Layout.maximumWidth: 60
@@ -98,7 +110,7 @@ RowLayout {
         value: uniformValue.z
         stepSize: .01
         decimals: 2
-        onValueChanged: uniformValue.z = value
+        onValueModified: uniformValue.z = value
     }
 
     Item { // spacer

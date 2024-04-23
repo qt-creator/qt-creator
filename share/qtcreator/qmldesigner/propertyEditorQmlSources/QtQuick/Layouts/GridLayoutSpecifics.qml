@@ -12,7 +12,10 @@ Section {
     caption: qsTr("Grid Layout")
 
     SectionLayout {
-        PropertyLabel { text: qsTr("Columns & Rows") }
+        PropertyLabel {
+            text: qsTr("Columns & Rows")
+            tooltip: qsTr("Sets the number of columns and rows in the <b>Grid Layout</b>.")
+        }
 
         SecondColumnLayout {
             SpinBox {
@@ -49,7 +52,10 @@ Section {
             ExpandingSpacer {}
         }
 
-        PropertyLabel { text: qsTr("Spacing") }
+        PropertyLabel {
+            text: qsTr("Spacing")
+            tooltip: qsTr("Sets the space between the items in pixels in the rows and columns in the <b>Grid Layout</b>.")
+        }
 
         SecondColumnLayout {
             SpinBox {
@@ -86,7 +92,10 @@ Section {
             ExpandingSpacer {}
         }
 
-        PropertyLabel { text: qsTr("Flow") }
+        PropertyLabel {
+            text: qsTr("Flow")
+            tooltip: qsTr("Set the direction of dynamic items to flow in rows or columns in the <b>Grid Layout</b>.")
+        }
 
         SecondColumnLayout {
             ComboBox {
@@ -100,7 +109,11 @@ Section {
             ExpandingSpacer {}
         }
 
-        PropertyLabel { text: qsTr("Layout direction") }
+        PropertyLabel {
+            text: qsTr("Layout direction")
+            tooltip: qsTr("Sets the direction of the dynamic items left to right or right to left in the <b>Grid Layout</b>.")
+
+        }
 
         SecondColumnLayout {
             ComboBox {

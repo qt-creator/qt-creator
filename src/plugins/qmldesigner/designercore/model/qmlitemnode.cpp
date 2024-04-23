@@ -9,8 +9,9 @@
 #include "bindingproperty.h"
 #include "qmlanchors.h"
 
-#include <model.h>
 #include <abstractview.h>
+#include <generatedcomponentutils.h>
+#include <model.h>
 
 #include <coreplugin/icore.h>
 
@@ -196,7 +197,9 @@ QmlItemNode QmlItemNode::createQmlItemNodeForEffect(AbstractView *view,
 
     auto createEffectNode = [=, &newQmlItemNode, &parentProperty]() {
         const QString effectName = QFileInfo(effectPath).baseName();
-        Import import = Import::createLibraryImport("Effects." + effectName, "1.0");
+        Import import = Import::createLibraryImport(GeneratedComponentUtils(view->externalDependencies())
+                                                            .composedEffectsTypePrefix()
+                                                        + '.' + effectName, "1.0");
         try {
             if (!view->model()->hasImport(import, true, true))
                 view->model()->changeImports({import}, {});
@@ -748,7 +751,6 @@ void QmlFlowActionAreaNode::assignTargetFlowItem(const QmlFlowTargetNode &flowIt
 
      ModelNode transition = flowView.addTransition(flowParent.modelNode(),
                                                    flowItem.modelNode());
-
      modelNode().bindingProperty("target").setExpression(transition.validId());
 }
 

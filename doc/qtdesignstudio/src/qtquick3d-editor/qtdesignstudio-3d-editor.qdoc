@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,7 +6,11 @@
     \page studio-3d-editor.html
     \nextpage studio-material-editor.html
 
+    \ingroup studio-views
+
     \title 3D
+
+    \brief Edit a 3D scene.
 
     When editing a 3D scene, you view the scene in the \uicontrol{3D}
     view. You can change the projection of the view by switching between
@@ -25,7 +29,7 @@
     components from \uicontrol Components > \inlineimage icons/plus.png
     > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D}.
 
-    You can use the \l{Summary of the 3D View Toolbar Buttons}{toolbar buttons}
+    You can use the toolbar buttons
     to \e transform 3D components and manipulate the 3D scene. Transformation
     refers to moving, rotating, or scaling of a component. The \e pivot of the
     component is used as the origin for transformations. You can set a
@@ -56,7 +60,7 @@
       \li Delete components
     \endlist
 
-    \image 3d-view-context-menu.png
+    \image 3d-view-context-menu.webp "The context menu in the 3D view"
 
     To refresh the contents of the \uicontrol{3D} view, press \key P or
     select the \inlineimage icons/reset.png
@@ -71,6 +75,8 @@
 
     \section1 Controlling the 3D View Camera
 
+    \section2 Toggling Camera Mode
+
     To switch to perspective camera mode, select
     \inlineimage perspective_camera.png
     (\uicontrol {Toggle Perspective/Orthographic Edit Camera}).
@@ -78,14 +84,16 @@
     \inlineimage orthographic_camera.png
     . You can also Toggle the camera mode by using the keyboard shortcut \key T.
 
+    \section2 Navigating in the 3D Scene
+
     You can navigate the scene by panning, rotating, and zooming the 3D view
     camera:
 
     \list
         \li To pan, press \key Alt (or \key Option on \macos) and use the
             middle mouse button to click and drag anywhere in the rendered
-            view to slide the view around.
-            \note It is not possible to pan using Magic Mouse.
+            view to slide the view around. Alternatively, press and hold \key {right mouse
+            button} and \key {left mouse button} and drag anywhere in the view to pan.
         \li To orbit, press \key Alt and click and drag anywhere in the rendered
             view to rotate the view.
         \li To zoom, use the mouse wheel or press \key Alt and right-click
@@ -104,6 +112,17 @@
     selected, the camera is pointed at the world origin. This does not affect
     the camera zoom level.
 
+    \image studio-3d-editor-axis-helper.webp "Axis helper in the 3D view"
+
+    You can use scene cameras (2) to view the \uicontrol View3D component from a
+    specific angle in the \l {2D} view while editing scenes. Different types of
+    cameras are available in \uicontrol Components
+    > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D}. For more information
+    about using cameras in the scene, the available camera types, and their
+    properties, see \l{Cameras}.
+
+    \section2 Using Split View
+
     To view the scene in a split view of four different point of views, select
     \inlineimage icons/split-view.png.
 
@@ -114,14 +133,44 @@
     independently. Navigate each split by panning, rotating, and zooming, as
     described above.
 
-    \image studio-3d-editor-axis-helper.webp "Axis helper in the 3D view"
+    \section2 Using Fly Mode
 
-    You can use scene cameras (2) to view the \uicontrol View3D component from a
-    specific angle in the \l {2D} view while editing scenes. Different types of
-    cameras are available in \uicontrol Components
-    > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D}. For more information
-    about using cameras in the scene, the available camera types, and their
-    properties, see \l{Cameras}.
+    You can move around freely in the 3D scene with fly mode. To navigate the scene with
+    fly mode, keep the \key {right mouse button} pressed and use the listed keys to move
+    around the scene.
+
+    \table
+    \header
+        \li Key
+        \li Action
+    \row
+        \li \key W or \key {Up arrow}
+        \li Move forward.
+    \row
+        \li \key S or \key {Down arrow}
+        \li Move backward.
+    \row
+        \li \key A or \key {Left arrow}
+        \li Move left.
+    \row
+        \li \key D or \key {Right arrow}
+        \li Move right.
+    \row
+        \li \key E or \key {Page up}
+        \li Move up.
+    \row
+        \li \key Q or \key {Page down}
+        \li Move down.
+    \endtable
+
+    To adjust the movement speed, select \inlineimage icons/camera_speed.png in the
+    \uicontrol 3D view toolbar to open the configuration dialog.
+
+    In the configuration dialog, you can:
+    \list
+        \li Adjust the movement speed of the camera with a slider.
+        \li Set a value multiplier for the speed slider.
+    \endlist
 
     \section1 Using Global and Local Orientation
 
@@ -422,121 +471,5 @@
 
     Select \uicontrol{Reset All Viewports} to reset the shading of the scene in all of the
     splits.
-
-    \section1 Summary of the 3D View Toolbar Buttons
-
-    The \uicontrol{3D} view toolbar contains the following buttons:
-
-    \table
-    \header
-        \li Button
-        \li Tooltip
-        \li Keyboard Shortcut
-        \li Read More
-    \row
-        \li \inlineimage icons/select_group.png
-            \inlineimage icons/select_item.png
-        \li Toggle Group/Single Selection Mode
-        \li \key Q
-        \li \l{Selecting Components}
-    \row
-        \li \inlineimage icons/move_off.png
-        \li Activate the Move Tool
-        \li \key W
-        \li \l{moving components 3d view}{Moving Components}
-    \row
-        \li \inlineimage icons/rotate_off.png
-        \li Activate Rotate Tool
-        \li \key E
-        \li \l{Rotating Components}
-    \row
-        \li \inlineimage icons/scale_off.png
-        \li Activate Scale Tool
-        \li \key R
-        \li \l{Scaling Components}
-    \row
-        \li \inlineimage icons/fit_selected.png
-        \li Fit Selected Object to View
-        \li \key F
-        \li \l{Controlling the 3D View Camera}
-    \row
-        \li  \inlineimage icons/perspective_camera.png
-             \inlineimage icons/orthographic_camera.png
-        \li Toggle Perspective/Orthographic Edit Camera
-        \li \key T
-        \li \l{Controlling the 3D View Camera}
-    \row
-        \li \inlineimage icons/global.png
-        \li Toggle Global/Local Orientation
-        \li \key Y
-        \li \l{Using Global and Local Orientation}
-    \row
-        \li \inlineimage icons/edit_light_off.png
-            \inlineimage icons/edit_light_on.png
-        \li Toggle Edit Light On/Off
-        \li \key U
-        \li \l{Using Edit Light}
-    \row
-        \li \inlineimage icons/snapping-3d.png
-        \li Toggle Snapping During Node Drag
-        \li \key Shift + \key Tab
-        \li \l{Snapping}
-    \row
-        \li \inlineimage icons/snapping-3d-conf.png
-        \li Open Snap Configuration Dialog
-        \li
-        \li \l{Configuring Snapping}
-    \row
-        \li \inlineimage icons/align-camera-on.png
-        \li Align Selected Cameras to View
-        \li
-        \li\l{Aligning Views and Cameras}
-    \row
-        \li \inlineimage icons/align-view-on.png
-        \li Align View to Selected Camera
-        \li
-        \li \l{Aligning Views and Cameras}
-    \row
-        \li \inlineimage icons/visibilityon.png
-        \li Visibility Toggles
-        \li
-        \li \l{Toggling Visibility}
-    \row
-        \li \inlineimage icons/3d-background-color.png
-        \li Background Color Actions
-        \li
-        \li \l{Changing Colors}
-    \row
-        \li \inlineimage icons/split-view.png
-        \li Toggle Split View On/Off
-        \li \key Ctrl + \key Alt + \key Q
-        \li \l{Using Split View}
-    \row
-        \li \inlineimage icons/particles-seek.png
-        \li Seek Particle System Time
-        \li
-        \li \l{Particle Editor}
-    \row
-        \li \inlineimage icons/particle-animation-on.png
-        \li Toggle Particle Animation
-        \li \key V
-        \li \l{Particle Editor}
-    \row
-        \li \inlineimage icons/particle-play.png
-            \inlineimage icons/particle-pause.png
-        \li Play/Pause Particles
-        \li \key ,
-        \li \l{Particle Editor}
-    \row
-        \li \inlineimage icons/particle-restart.png
-        \li Restart Particles
-        \li \key /
-        \li \l{Particle Editor}
-    \row
-        \li \inlineimage icons/reset.png
-        \li Reset View
-        \li \key P
-        \li
-    \endtable
 
 */

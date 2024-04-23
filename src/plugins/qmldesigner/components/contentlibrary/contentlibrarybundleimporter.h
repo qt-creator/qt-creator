@@ -46,10 +46,10 @@ private:
     void handleImportTimer();
     QVariantHash loadAssetRefMap(const Utils::FilePath &bundlePath);
     void writeAssetRefMap(const Utils::FilePath &bundlePath, const QVariantHash &assetRefMap);
+    QString moduleName();
 
     Utils::FilePath m_bundleDir;
     QString m_bundleId;
-    QString m_moduleName;
     QStringList m_sharedFiles;
     QTimer m_importTimer;
     int m_importTimerCount = 0;

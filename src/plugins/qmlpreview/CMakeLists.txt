@@ -4,7 +4,7 @@ add_qtc_plugin(QmlPreview
   DEPENDS QmlJS Qt::QmlPrivate
   PLUGIN_DEPENDS
     Core ProjectExplorer QmlJSTools QtSupport
-    ResourceEditor QmlProjectManager
+    ResourceEditor QmlProjectManager TextEditor
   SOURCES
     qmlpreviewclient.cpp qmlpreviewclient.h
     qmlpreviewconnectionmanager.cpp qmlpreviewconnectionmanager.h

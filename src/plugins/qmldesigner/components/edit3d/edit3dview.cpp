@@ -279,6 +279,14 @@ void Edit3DView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
 
+    QString currProjectPath = QmlDesigner::DocumentManager::currentProjectDirPath().toString();
+    if (m_currProjectPath != currProjectPath) {
+        // Opening a new project -> reset camera speeds
+        m_currProjectPath = currProjectPath;
+        m_previousCameraSpeed = -1.;
+        m_previousCameraMultiplier = -1.;
+    }
+
     syncSnapAuxPropsToSettings();
 
     rootModelNode().setAuxiliaryData(edit3dGridColorProperty,
@@ -356,7 +364,12 @@ void Edit3DView::handleEntriesChanged()
     append(model()->qtQuick3DOrthographicCameraMetaInfo(), EK_cameras);
     append(model()->qtQuick3DPerspectiveCameraMetaInfo(), EK_cameras);
 
-    auto assetsModule = model()->module("Quick3DAssets");
+    Utils::PathString import3dTypePrefix = QmlDesignerPlugin::instance()
+                                               ->documentManager()
+                                               .generatedComponentUtils()
+                                               .import3dTypePrefix();
+
+    auto assetsModule = model()->module(import3dTypePrefix);
 
     for (const auto &metaInfo : model()->metaInfosForModule(assetsModule))
         append(metaInfo, EK_importedModels);
@@ -373,7 +386,8 @@ void Edit3DView::handleEntriesChanged()
         } else if (entry.typeName() == "QtQuick3D.OrthographicCamera"
                    || entry.typeName() == "QtQuick3D.PerspectiveCamera") {
             entryKey = EK_cameras;
-        } else if (entry.typeName().startsWith("Quick3DAssets.")
+        } else if (entry.typeName().startsWith(QmlDesignerPlugin::instance()->documentManager()
+                                                   .generatedComponentUtils().import3dTypePrefix().toUtf8())
                    && NodeHints::fromItemLibraryEntry(entry).canBeDroppedInView3D()) {
             entryKey = EK_importedModels;
         } else {

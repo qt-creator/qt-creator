@@ -6,7 +6,11 @@
     \previouspage studio-texture-editor.html
     \nextpage qtquick-effect-composer-view.html
 
+    \ingroup studio-views
+
     \title Qt Insight
+
+    \brief Manage your Qt Insight.
 
     In the \uicontrol {Qt Insight} view, you manage your Qt Insight.
 

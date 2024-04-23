@@ -93,6 +93,7 @@ QmlBuildSystem::QmlBuildSystem(Target *target)
     connect(target->project(), &Project::projectFileIsDirty, this, [this] {
         refresh(RefreshOptions::Project);
         m_cmakeGen->initialize(qmlProject());
+        m_cmakeGen->updateMenuAction();
         updateMcuBuildStep(project()->activeTarget(), qtForMCUs());
     });
 
@@ -499,6 +500,17 @@ void QmlBuildSystem::setSupportedLanguages(QStringList languages)
 void QmlBuildSystem::setPrimaryLanguage(QString language)
 {
         m_projectItem->setPrimaryLanguage(language);
+}
+
+bool QmlBuildSystem::enableCMakeGeneration() const
+{
+    return m_projectItem->enableCMakeGeneration();
+}
+
+void QmlBuildSystem::setEnableCMakeGeneration(bool enable)
+{
+    if (enable != enableCMakeGeneration())
+        m_projectItem->setEnableCMakeGeneration(enable);
 }
 
 void QmlBuildSystem::refreshFiles(const QSet<QString> & /*added*/, const QSet<QString> &removed)

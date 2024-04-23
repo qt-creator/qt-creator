@@ -116,11 +116,11 @@ protected:
     NiceMock<SourcePathCacheMockWithPaths> pathCacheMock{"/path/foo.qml"};
     NiceMock<ProjectStorageMockWithQtQtuick> projectStorageMock{pathCacheMock.sourceId};
     NiceMock<ModelResourceManagementMock> resourceManagementMock;
+    QmlDesigner::Imports imports = {QmlDesigner::Import::createLibraryImport("QtQuick")};
     QmlDesigner::Model model{{projectStorageMock, pathCacheMock},
                              "Item",
-                             -1,
-                             -1,
-                             nullptr,
+                             imports,
+                             pathCacheMock.path.toQString(),
                              std::make_unique<ModelResourceManagementMockWrapper>(
                                  resourceManagementMock)};
     NiceMock<AbstractViewMock> viewMock;
@@ -541,7 +541,10 @@ TEST_F(Model, by_default_remove_properties_removes_property)
 TEST_F(Model, by_default_remove_model_node_in_factory_method_calls_removes_node)
 {
     model.detachView(&viewMock);
-    auto newModel = QmlDesigner::Model::create({projectStorageMock, pathCacheMock}, "QtQuick.Item");
+    auto newModel = QmlDesigner::Model::create({projectStorageMock, pathCacheMock},
+                                               "Item",
+                                               imports,
+                                               pathCacheMock.path.toQString());
     newModel->attachView(&viewMock);
     auto node = createNodeWithParent(viewMock.rootModelNode());
 
@@ -553,7 +556,10 @@ TEST_F(Model, by_default_remove_model_node_in_factory_method_calls_removes_node)
 TEST_F(Model, by_default_remove_properties_in_factory_method_calls_remove_property)
 {
     model.detachView(&viewMock);
-    auto newModel = QmlDesigner::Model::create({projectStorageMock, pathCacheMock}, "QtQuick.Item");
+    auto newModel = QmlDesigner::Model::create({projectStorageMock, pathCacheMock},
+                                               "Item",
+                                               imports,
+                                               pathCacheMock.path.toQString());
     newModel->attachView(&viewMock);
     rootNode = viewMock.rootModelNode();
     auto property = createProperty(rootNode, "yi");

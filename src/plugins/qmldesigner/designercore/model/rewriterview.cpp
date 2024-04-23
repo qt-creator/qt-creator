@@ -933,10 +933,12 @@ bool RewriterView::renameId(const QString& oldId, const QString& newId)
     return false;
 }
 
+#ifndef QDS_USE_PROJECTSTORAGE
 const QmlJS::ScopeChain *RewriterView::scopeChain() const
 {
     return textToModelMerger()->scopeChain();
 }
+#endif
 
 const QmlJS::Document *RewriterView::document() const
 {
@@ -987,25 +989,6 @@ QString RewriterView::convertTypeToImportAlias(const QString &type) const
     result += simplifiedType;
 
     return result;
-}
-
-QString RewriterView::pathForImport(const Import &import)
-{
-    if (scopeChain() && scopeChain()->context() && document()) {
-        const QString importStr = import.isFileImport() ? import.file() : import.url();
-        const QmlJS::Imports *imports = scopeChain()->context()->imports(document());
-
-        QmlJS::ImportInfo importInfo;
-
-        for (const QmlJS::Import &qmljsImport : imports->all()) {
-            if (qmljsImport.info.name() == importStr)
-                importInfo = qmljsImport.info;
-        }
-        const QString importPath = importInfo.path();
-        return importPath;
-    }
-
-    return QString();
 }
 
 QStringList RewriterView::importDirectories() const

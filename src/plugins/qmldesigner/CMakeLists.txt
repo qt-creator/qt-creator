@@ -8,7 +8,6 @@ if (APPLE)
   set(QmlDesignerPluginInstallPrefix "${IDE_PLUGIN_PATH}/QmlDesigner")
 endif()
 
-add_compile_options("$<$<COMPILE_LANG_AND_ID:CXX,Clang,GNU>:-Wno-error=maybe-uninitialized>")
 
 set(BUILD_NOT_DESIGNSTUDIO NOT ${BUILD_NOT_DESIGNSTUDIO})
 option(QTC_USE_QML_DESIGNER_LITE "Use Qml Designer Lite" ${BUILD_NOT_DESIGNSTUDIO})
@@ -45,6 +44,10 @@ add_qtc_library(QmlDesignerUtils STATIC
     imageutils.cpp imageutils.h
     qmldesignerutils_global.h
 )
+
+
+target_compile_options(QmlDesignerUtils PUBLIC $<$<COMPILE_LANG_AND_ID:CXX,Clang,GNU>:-Wno-error=maybe-uninitialized>)
+target_compile_options(QmlDesignerUtils PUBLIC $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unneeded-internal-declaration>)
 
 extend_qtc_library(QmlDesignerUtils
     CONDITION ENABLE_COMPILE_WARNING_AS_ERROR
@@ -91,6 +94,8 @@ add_qtc_library(QmlDesignerCore STATIC
   SOURCES
     rewritertransaction.cpp
     rewritertransaction.h
+    generatedcomponentutils.cpp
+    generatedcomponentutils.h
 )
 
 extend_qtc_library(QmlDesignerCore
@@ -631,6 +636,7 @@ extend_qtc_plugin(QmlDesigner
     svgpasteaction.cpp svgpasteaction.h
     viewmanager.cpp viewmanager.h
     utils3d.cpp utils3d.h
+    dialogutils.cpp dialogutils.h
 )
 
 extend_qtc_plugin(QmlDesigner
@@ -822,6 +828,7 @@ extend_qtc_plugin(QmlDesigner
     contentlibraryeffect.cpp contentlibraryeffect.h
     contentlibraryeffectscategory.cpp contentlibraryeffectscategory.h
     contentlibraryeffectsmodel.cpp contentlibraryeffectsmodel.h
+    contentlibraryusermodel.cpp contentlibraryusermodel.h
 )
 
 extend_qtc_plugin(QmlDesigner

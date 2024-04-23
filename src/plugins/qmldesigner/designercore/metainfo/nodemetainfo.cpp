@@ -919,8 +919,11 @@ const ObjectValue *NodeMetaInfoPrivate::getObjectValue() const
 
 ContextPtr NodeMetaInfoPrivate::context() const
 {
+#ifndef QDS_USE_PROJECTSTORAGE
     if (m_model && m_model->rewriterView() && m_model->rewriterView()->scopeChain())
         return m_model->rewriterView()->scopeChain()->context();
+#endif
+
     return ContextPtr(nullptr);
 }
 
@@ -1832,7 +1835,7 @@ PropertyName NodeMetaInfo::defaultPropertyName() const
 {
     if constexpr (useProjectStorage()) {
         if (isValid()) {
-            if (auto name = m_projectStorage->propertyName(typeData().defaultPropertyId)) {
+            if (auto name = m_projectStorage->propertyName(defaultPropertyDeclarationId())) {
                 return name->toQByteArray();
             }
         }
@@ -1848,7 +1851,7 @@ PropertyMetaInfo NodeMetaInfo::defaultProperty() const
 {
     if constexpr (useProjectStorage()) {
         if (isValid()) {
-            return PropertyMetaInfo(typeData().defaultPropertyId, m_projectStorage);
+            return PropertyMetaInfo(defaultPropertyDeclarationId(), m_projectStorage);
         }
     } else {
         return property(defaultPropertyName());
@@ -1859,7 +1862,7 @@ PropertyMetaInfo NodeMetaInfo::defaultProperty() const
 bool NodeMetaInfo::hasDefaultProperty() const
 {
     if constexpr (useProjectStorage())
-        return isValid() && bool(typeData().defaultPropertyId);
+        return isValid() && bool(defaultPropertyDeclarationId());
     else
         return !defaultPropertyName().isEmpty();
 }
@@ -2084,6 +2087,14 @@ const Storage::Info::Type &NodeMetaInfo::typeData() const
         m_typeData = m_projectStorage->type(m_typeId);
 
     return *m_typeData;
+}
+
+PropertyDeclarationId NodeMetaInfo::defaultPropertyDeclarationId() const
+{
+    if (!m_defaultPropertyId)
+        m_defaultPropertyId.emplace(m_projectStorage->defaultPropertyDeclarationId(m_typeId));
+
+    return *m_defaultPropertyId;
 }
 
 bool NodeMetaInfo::isSubclassOf(const TypeName &type, int majorVersion, int minorVersion) const
@@ -2444,12 +2455,9 @@ bool NodeMetaInfo::usesCustomParser() const
         if (!isValid())
             return false;
 
-        auto type = typeName();
-        return type == "QtQuick.VisualItemModel" || type == "Qt.VisualItemModel"
-               || type == "QtQuick.VisualDataModel" || type == "Qt.VisualDataModel"
-               || type == "QtQuick.ListModel" || type == "Qt.ListModel"
-               || type == "QtQml.Models.ListModel" || type == "QtQuick.XmlListModel"
-               || type == "Qt.XmlListModel" || type == "QtQml.XmlListModel.XmlListModel";
+        auto type = simplifiedTypeName();
+        return type == "VisualItemModel" || type == "VisualDataModel" || type == "ListModel"
+               || type == "XmlListModel";
     }
 }
 
@@ -2763,7 +2771,7 @@ bool NodeMetaInfo::isQtQuick3DLight() const
     }
 }
 
-bool NodeMetaInfo::isQtQuickListElement() const
+bool NodeMetaInfo::isQtQmlModelsListElement() const
 {
     if constexpr (useProjectStorage()) {
         using namespace Storage::Info;

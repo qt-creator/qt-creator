@@ -16,7 +16,7 @@
 #include <utils/smallstring.h>
 
 namespace {
-using SourcePathCache = QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage<Sqlite::Database>>;
+using SourcePathCache = QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage>;
 using Watcher = QmlDesigner::ProjectStoragePathWatcher<NiceMock<MockQFileSytemWatcher>,
                                                        NiceMock<MockTimer>,
                                                        SourcePathCache>;
@@ -43,7 +43,7 @@ protected:
     {
         static_database = std::make_unique<Sqlite::Database>(":memory:", Sqlite::JournalMode::Memory);
 
-        static_projectStorage = std::make_unique<QmlDesigner::ProjectStorage<Sqlite::Database>>(
+        static_projectStorage = std::make_unique<QmlDesigner::ProjectStorage>(
             *static_database, static_database->isInitialized());
     }
 
@@ -81,8 +81,8 @@ protected:
     NiceMock<FileSystemMock> mockFileSystem;
     inline static std::unique_ptr<Sqlite::Database> static_database;
     Sqlite::Database &database = *static_database;
-    inline static std::unique_ptr<QmlDesigner::ProjectStorage<Sqlite::Database>> static_projectStorage;
-    QmlDesigner::ProjectStorage<Sqlite::Database> &storage = *static_projectStorage;
+    inline static std::unique_ptr<QmlDesigner::ProjectStorage> static_projectStorage;
+    QmlDesigner::ProjectStorage &storage = *static_projectStorage;
     SourcePathCache pathCache{storage};
     Watcher watcher{pathCache, mockFileSystem, &notifier};
     NiceMock<MockQFileSytemWatcher> &mockQFileSytemWatcher = watcher.fileSystemWatcher();

@@ -64,6 +64,8 @@
 #include <qmlitemnode.h>
 #include <rewriterview.h>
 
+#include <projectstorage/projectstorage.h>
+
 #include <utils/hdrimage.h>
 
 #include <coreplugin/messagemanager.h>
@@ -205,22 +207,17 @@ NodeInstanceView::~NodeInstanceView()
 
 static bool isSkippedRootNode(const ModelNode &node)
 {
-    static const PropertyNameList skipList({"Qt.ListModel", "QtQuick.ListModel", "Qt.ListModel", "QtQuick.ListModel"});
-
-    if (skipList.contains(node.type()))
-        return true;
-
-    return false;
+    return node.metaInfo().isQtQuickListModel();
 }
 
 static bool isSkippedNode(const ModelNode &node)
 {
-    static const PropertyNameList skipList({"QtQuick.XmlRole", "Qt.XmlRole", "QtQuick.ListElement", "Qt.ListElement"});
+    auto model = node.model();
 
-    if (skipList.contains(node.type()))
-        return true;
+    auto listElement = model->qtQmlModelsListElementMetaInfo();
+    auto xmlRole = model->qtQmlXmlListModelXmlListModelRoleMetaInfo();
 
-    return false;
+    return node.metaInfo().isBasedOn(listElement, xmlRole);
 }
 
 static bool parentTakesOverRendering(const ModelNode &modelNode)
@@ -644,7 +641,7 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
                                              TypeName(),
                                              key.type};
             m_nodeInstanceServer->changeAuxiliaryValues({{container}});
-        };
+        }
         break;
 
     case AuxiliaryDataType::NodeInstanceAuxiliary:
@@ -656,7 +653,7 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
                                              TypeName(),
                                              key.type};
             m_nodeInstanceServer->changeAuxiliaryValues({{container}});
-        };
+        }
         break;
 
     case AuxiliaryDataType::NodeInstancePropertyOverwrite:
@@ -991,6 +988,8 @@ QRectF NodeInstanceView::sceneRect() const
     return {};
 }
 
+namespace {
+
 QList<ModelNode> filterNodesForSkipItems(const QList<ModelNode> &nodeList)
 {
     QList<ModelNode> filteredNodeList;
@@ -1003,14 +1002,12 @@ QList<ModelNode> filterNodesForSkipItems(const QList<ModelNode> &nodeList)
 
     return filteredNodeList;
 }
-namespace {
 bool shouldSendAuxiliary(const AuxiliaryDataKey &key)
 {
     return key.type == AuxiliaryDataType::NodeInstancePropertyOverwrite
            || key.type == AuxiliaryDataType::NodeInstanceAuxiliary || key == invisibleProperty
            || key == lockedProperty;
 }
-} // namespace
 
 bool parentIsBehavior(ModelNode node)
 {
@@ -1023,6 +1020,31 @@ bool parentIsBehavior(ModelNode node)
 
     return false;
 }
+
+TypeName createQualifiedTypeName(const ModelNode &node)
+{
+    if (!node)
+        return {};
+
+#ifdef QDS_USE_PROJECTSTORAGE
+    auto model = node.model();
+    auto exportedTypes = node.metaInfo().exportedTypeNamesForSourceId(model->fileUrlSourceId());
+    if (exportedTypes.size()) {
+        const auto &exportedType = exportedTypes.front();
+        Utils::PathString typeName = model->projectStorage()->moduleName(exportedType.moduleId);
+        typeName += '/';
+        typeName += exportedType.name;
+
+        return typeName.toQByteArray();
+    }
+
+    return {};
+#else
+    return node.type();
+#endif
+}
+
+} // namespace
 
 CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
 {
@@ -1079,8 +1101,9 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
             nodeFlags |= InstanceContainer::ParentTakesOverRendering;
 
         const auto modelNode = instance.modelNode();
+
         InstanceContainer container(instance.instanceId(),
-                                    modelNode.type(),
+                                    createQualifiedTypeName(modelNode),
                                     modelNode.majorVersion(),
                                     modelNode.minorVersion(),
                                     ModelUtils::componentFilePath(modelNode),
@@ -1243,7 +1266,7 @@ CreateInstancesCommand NodeInstanceView::createCreateInstancesCommand(const QLis
 
         const auto modelNode = instance.modelNode();
         InstanceContainer container(instance.instanceId(),
-                                    modelNode.type(),
+                                    createQualifiedTypeName(modelNode),
                                     modelNode.majorVersion(),
                                     modelNode.minorVersion(),
                                     ModelUtils::componentFilePath(modelNode),
@@ -1850,7 +1873,7 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
 
     ModelNodePreviewImageData imageData;
     imageData.id = modelNode.id();
-    imageData.type = QString::fromLatin1(modelNode.type());
+    imageData.type = QString::fromUtf8(createQualifiedTypeName(modelNode));
     const double ratio = m_externalDependencies.formEditorDevicePixelRatio();
 
     if (imageSource.isEmpty() && modelNode.metaInfo().isQtQuick3DTexture()) {
@@ -1923,7 +1946,7 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
                 imageData.pixmap = originalPixmap.scaled(dim, dim, Qt::KeepAspectRatio);
                 imageData.pixmap.setDevicePixelRatio(ratio);
                 imageData.time = modified;
-                imageData.info = ImageUtils::imageInfo(imageSource);
+                imageData.info = ImageUtils::imageInfoString(imageSource);
                 m_imageDataMap.insert(imageData.id, imageData);
             }
         }
@@ -1958,7 +1981,7 @@ QVariant NodeInstanceView::previewImageDataForGenericNode(const ModelNode &model
     if (m_imageDataMap.contains(id)) {
         imageData = m_imageDataMap[id];
     } else {
-        imageData.type = QString::fromLatin1(modelNode.type());
+        imageData.type = QString::fromLatin1(createQualifiedTypeName(modelNode));
         imageData.id = id;
         m_imageDataMap.insert(id, imageData);
     }

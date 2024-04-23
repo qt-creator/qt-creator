@@ -515,8 +515,7 @@ struct BindingFilter
 struct TargetFilter
 {
     TargetFilter(NodeDependencies &dependencies, Model *model)
-        : flowViewFlowActionAreaMetaInfo{model->flowViewFlowActionAreaMetaInfo()}
-        , flowViewFlowTransitionMetaInfo{model->flowViewFlowTransitionMetaInfo()}
+        : flowViewFlowTransitionMetaInfo{model->flowViewFlowTransitionMetaInfo()}
         , qtQuickPropertyChangesMetaInfo{model->qtQuickPropertyChangesMetaInfo()}
         , qtQuickTimelineKeyframeGroupMetaInfo{model->qtQuickTimelineKeyframeGroupMetaInfo()}
         , qtQuickPropertyAnimationMetaInfo{model->qtQuickPropertyAnimationMetaInfo()}

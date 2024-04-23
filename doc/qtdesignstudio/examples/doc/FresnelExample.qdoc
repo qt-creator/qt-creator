@@ -1,0 +1,90 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page fresnel-effect-example.html
+    \ingroup studioexamples
+
+    \title Fresnel Example
+    \brief Illustrates how to work with the fresnel effect.
+
+    \image fresnel-example.webp
+
+    The \e{Fresnel} example illustrates how to add and adjust a fresnel effect on
+    a 3D model.
+
+    The fresnel effect affects how materials reflect light at different viewing angles. Imagine the
+    water on a lake. If you look down at the water from straight above, you can see through the
+    water, but if you look from a lower angle, the reflections are stronger.
+
+    \image fresnel-angle.webp
+
+    \section1 Running the Example
+
+    To run the example in \QDS, go to the \uicontrol Welcome screen and select the example
+    from the \uicontrol Examples tab.
+
+    \section1 The 3D Scene
+
+    The example project consists of a basic 3D scene with the following components:
+
+    \list
+      \li A 3D model.
+      \li A directional light.
+      \li An HDR image used to light the scene (image-based lighting).
+    \endlist
+
+    \section1 The Material
+
+    The material on the 3D model in this example is a principled material with a
+    clearcoat.
+
+    \section2 Clearcoat
+
+    A clearcoat is an additional specular layer applied to the surface of a material. The
+    clearcoating is transparent and doesn't add any color to the material, but it affects
+    how light interacts with the material.
+
+    You adjust clearcoat properties independently from the base material.
+
+    \section2 Fresnel Properties
+
+    The following properties affect how the fresnel effect renders. These properties are
+    available both for the base material and the clearcoat layer. Adjusting the settings for the
+    clearcoat has a bigger visual effect.
+
+    \table
+      \header
+        \li Property
+        \li Description
+      \row
+        \li Fresnel power
+        \li Increasing the fresnel power decreases the head-on reflections (steep viewing angle)
+            while maintaining the reflections seen from more shallow viewing angles.
+      \row
+        \li Enable scale and bias
+        \li Takes the scale and bias properties into account.
+      \row
+        \li Scale
+        \li Determines the rate of change in reflection intensity as the viewing angle varies. A
+        large scale value results in a gentler transition between weak and strong reflections, while
+        a smaller scale creates a more abrupt shift in reflection intensity.
+      \row
+        \li Bias
+        \li Controls the offset for the fresnel power property and determines how quickly the
+        reflection transitions from weak to strong as the viewing
+        angle changes. A larger bias value shifts the transition point toward steeper angles.
+    \endtable
+
+    \section3 Adjusting the Fresnel Settings
+
+    To adjust the settings:
+
+    \list 1
+      \li In \uicontrol {Material Browser}, double-click \e {Monkey Material}.
+      \li In \uicontrol {Material Editor}, find the properties under
+      \uicontrol {Clearcoat} and \uicontrol {Fresnel} respectively.
+    \endlist
+
+    \note You see the changes live as you edit them in the \uicontrol 2D view.
+*/

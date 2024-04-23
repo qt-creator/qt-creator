@@ -97,6 +97,7 @@ class ToolBarBackend : public QObject
     Q_PROPERTY(bool isMCUs READ isMCUs NOTIFY isMCUsChanged)
     Q_PROPERTY(bool projectOpened READ projectOpened NOTIFY projectOpenedChanged)
     Q_PROPERTY(bool isSharingEnabled READ isSharingEnabled NOTIFY isSharingEnabledChanged)
+    Q_PROPERTY(bool isDocumentDirty READ isDocumentDirty NOTIFY isDocumentDirtyChanged)
 
 public:
     ToolBarBackend(QObject *parent  = nullptr);
@@ -147,6 +148,8 @@ public:
 
     bool isSharingEnabled();
 
+    bool isDocumentDirty() const;
+
     static void launchGlobalAnnotations();
 
 signals:
@@ -167,6 +170,7 @@ signals:
     void isMCUsChanged();
     void projectOpenedChanged();
     void isSharingEnabledChanged();
+    void isDocumentDirtyChanged();
 
 private:
     void setupWorkspaces();

@@ -64,13 +64,14 @@ namespace QmlDesigner {
   DesignDocument acts as a facade to a model representing a qml document,
   and the different views/widgets accessing it.
   */
-DesignDocument::DesignDocument(ProjectStorageDependencies projectStorageDependencies,
+DesignDocument::DesignDocument([[maybe_unused]] const QUrl &filePath,
+                               ProjectStorageDependencies projectStorageDependencies,
                                ExternalDependenciesInterface &externalDependencies)
 #ifdef QDS_USE_PROJECTSTORAGE
     : m_documentModel(Model::create(projectStorageDependencies,
                                     "Item",
                                     {Import::createLibraryImport("QtQuick")},
-                                    {},
+                                    filePath,
                                     std::make_unique<ModelResourceManagement>()))
 #else
     : m_documentModel(

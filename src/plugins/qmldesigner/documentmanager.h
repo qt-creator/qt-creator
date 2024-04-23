@@ -5,6 +5,8 @@
 
 #include "qmldesigner_global.h"
 
+#include <generatedcomponentutils.h>
+
 #include <QObject>
 #include <QList>
 #include <QLoggingCategory>
@@ -31,6 +33,7 @@ public:
                     ExternalDependenciesInterface &externalDependencies)
         : m_projectManager{projectManager}
         , m_externalDependencies{externalDependencies}
+        , m_generatedComponentUtils(externalDependencies)
     {}
 
     void setCurrentDesignDocument(Core::IEditor *editor);
@@ -40,6 +43,8 @@ public:
     void removeEditors(const QList<Core::IEditor *> &editors);
 
     void resetPossibleImports();
+
+    const GeneratedComponentUtils &generatedComponentUtils() const;
 
     static bool goIntoComponent(const ModelNode &modelNode);
     static void goIntoComponent(const QString &fileName);
@@ -64,6 +69,7 @@ private:
     QPointer<DesignDocument> m_currentDesignDocument;
     QmlDesignerProjectManager &m_projectManager;
     ExternalDependenciesInterface &m_externalDependencies;
+    GeneratedComponentUtils m_generatedComponentUtils;
 };
 
 } // namespace QmlDesigner

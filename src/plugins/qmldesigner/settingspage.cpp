@@ -135,7 +135,7 @@ SettingsPageWidget::SettingsPageWidget(ExternalDependencies &externalDependencie
 
     m_useDefaultPuppetRadioButton = new QRadioButton(tr("Use fallback QML emulation layer"));
     m_useDefaultPuppetRadioButton->setToolTip(
-        tr("If you select this radio button, Qt Quick Designer always uses the "
+        tr("If you select this radio button, Qt Design Studio always uses the "
            "QML emulation layer (QML Puppet) located at the following path."));
     m_useDefaultPuppetRadioButton->setChecked(true);
 
@@ -167,7 +167,7 @@ SettingsPageWidget::SettingsPageWidget(ExternalDependencies &externalDependencie
     m_designerWarningsCheckBox = new QCheckBox(
         tr("Warn about unsupported features in .ui.qml files"));
     m_designerWarningsCheckBox->setToolTip(
-        tr("Warns about QML features that are not properly supported by the Qt Quick Designer."));
+        tr("Warns about QML features that are not properly supported by the Qt Design Studio."));
 
     m_designerWarningsUiQmlfiles = new QCheckBox(
         tr("Warn about using .qml files instead of .ui.qml files"));

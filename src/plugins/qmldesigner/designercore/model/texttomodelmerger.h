@@ -37,15 +37,19 @@ public:
     bool isActive() const;
 
     void setupImports(const QmlJS::Document::Ptr &doc, DifferenceHandler &differenceHandler);
+#ifndef QDS_USE_PROJECTSTORAGE
     void setupPossibleImports();
+#endif
     void setupUsedImports();
     bool load(const QString &data, DifferenceHandler &differenceHandler);
 
     RewriterView *view() const
     { return m_rewriterView; }
 
+#ifndef QDS_USE_PROJECTSTORAGE
     const QmlJS::ScopeChain *scopeChain() const
     { return m_scopeChain.data(); }
+#endif
 
     const QmlJS::Document *document() const
     { return m_document.data(); }
@@ -141,7 +145,9 @@ private:
 private:
     RewriterView *m_rewriterView;
     bool m_isActive;
+#ifndef QDS_USE_PROJECTSTORAGE
     QSharedPointer<const QmlJS::ScopeChain> m_scopeChain;
+#endif
     QmlJS::Document::Ptr m_document;
     QTimer m_setupTimer;
     QSet<ModelNode> m_setupComponentList;

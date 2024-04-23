@@ -54,8 +54,7 @@ QString getPreferredCollectionName(const QUrl &url, const QString &collectionNam
 
 namespace QmlDesigner {
 CollectionWidget::CollectionWidget(CollectionView *view)
-    : QFrame()
-    , m_view(view)
+    : m_view(view)
     , m_listModel(new CollectionListModel)
     , m_collectionDetailsModel(new CollectionDetailsModel)
     , m_collectionDetailsSortFilterModel(std::make_unique<CollectionDetailsSortFilterModel>())
@@ -103,6 +102,8 @@ CollectionWidget::CollectionWidget(CollectionView *view)
 
     QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_MODELEDITOR_TIME);
 }
+
+CollectionWidget::~CollectionWidget() = default;
 
 void CollectionWidget::contextHelp(const Core::IContext::HelpCallback &callback) const
 {
@@ -250,6 +251,11 @@ bool CollectionWidget::importFile(const QString &collectionName,
     return false;
 }
 
+void CollectionWidget::addProjectImport()
+{
+    m_view->addProjectImport();
+}
+
 void CollectionWidget::addCollectionToDataStore(const QString &collectionName)
 {
     m_view->addNewCollection(collectionName, CollectionEditorUtils::defaultCollection());
@@ -286,6 +292,24 @@ void CollectionWidget::setTargetNodeSelected(bool selected)
 
     m_targetNodeSelected = selected;
     emit targetNodeSelectedChanged(m_targetNodeSelected);
+}
+
+void CollectionWidget::setProjectImportExists(bool exists)
+{
+    if (m_projectImportExists == exists)
+        return;
+
+    m_projectImportExists = exists;
+    emit projectImportExistsChanged(m_projectImportExists);
+}
+
+void CollectionWidget::setDataStoreExists(bool exists)
+{
+    if (m_dataStoreExists == exists)
+        return;
+
+    m_dataStoreExists = exists;
+    emit dataStoreExistsChanged(m_dataStoreExists);
 }
 
 void CollectionWidget::deleteSelectedCollection()

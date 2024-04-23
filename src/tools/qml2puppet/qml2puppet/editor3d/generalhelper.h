@@ -55,7 +55,7 @@ public:
                                     const QVector3D &pressPos, const QVector3D &currentPos,
                                     float zoomFactor);
     Q_INVOKABLE QVector3D moveCamera(QQuick3DCamera *camera,const QVector3D &startLookAt,
-                                     float zoomFactor, const QVector3D &moveVector);
+                                     const QVector3D &moveVector);
     Q_INVOKABLE QVector3D rotateCamera(QQuick3DCamera *camera, const QPointF &angles,
                                        const QVector3D &lookAtPoint);
 
@@ -70,12 +70,14 @@ public:
                                              const QVariant &nodes, QQuick3DViewport *viewPort,
                                              float oldZoom, bool updateZoom = true,
                                              bool closeUp = false);
+    Q_INVOKABLE QVector4D approachNode(QQuick3DCamera *camera, float defaultLookAtDistance,
+                                       QObject *node, QQuick3DViewport *viewPort);
     Q_INVOKABLE void calculateNodeBoundsAndFocusCamera(QQuick3DCamera *camera, QQuick3DNode *node,
                                                        QQuick3DViewport *viewPort,
                                                        float defaultLookAtDistance, bool closeUp);
     Q_INVOKABLE void alignCameras(QQuick3DCamera *camera, const QVariant &nodes);
-    Q_INVOKABLE QVector3D alignView(QQuick3DCamera *camera, const QVariant &nodes,
-                                    const QVector3D &lookAtPoint);
+    Q_INVOKABLE QVector4D alignView(QQuick3DCamera *camera, const QVariant &nodes,
+                                    const QVector3D &lookAtPoint, float defaultLookAtDistance);
     Q_INVOKABLE bool fuzzyCompare(double a, double b);
     Q_INVOKABLE void delayedPropertySet(QObject *obj, int delay, const QString &property,
                                         const QVariant& value);

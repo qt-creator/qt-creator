@@ -374,7 +374,6 @@ MetaInfo {
             name: "Keyframe"
             category: "none"
             version: "1.0"
-            requiredImport: "none"
         }
     }
 
@@ -386,7 +385,6 @@ MetaInfo {
             name: "KeyframeGroup"
             category: "none"
             version: "1.0"
-            requiredImport: "none"
         }
     }
 

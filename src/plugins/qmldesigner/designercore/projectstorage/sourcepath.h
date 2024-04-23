@@ -117,6 +117,12 @@ public:
 
     std::ptrdiff_t slashIndex() const { return m_slashIndex; }
 
+    template<typename String>
+    friend void convertToString(String &string, const SourcePath &path)
+    {
+        convertToString(string, path.toStringView());
+    }
+
 private:
     std::ptrdiff_t m_slashIndex = -1;
 };

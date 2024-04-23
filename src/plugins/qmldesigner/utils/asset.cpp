@@ -1,15 +1,19 @@
 // Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include <QImageReader>
-
 #include "asset.h"
+
+#include "hdrimage.h"
+
+#include <QImageReader>
+#include <QPixmap>
 
 namespace QmlDesigner {
 
 Asset::Asset(const QString &filePath)
     : m_filePath(filePath)
 {
+    m_fileName = filePath.split('/').last();
     const QStringList split = filePath.split('.');
     if (split.size() > 1)
         m_suffix = "*." + split.last().toLower();
@@ -105,6 +109,19 @@ bool Asset::isSupported(const QString &path)
     return supportedSuffixes().contains(path);
 }
 
+QPixmap Asset::pixmap(const QSize &size) const
+{
+    if (!isImage() && !isHdrFile())
+        return {};
+
+    QPixmap icon = isHdrFile() ? HdrImage{m_filePath}.toPixmap() : QPixmap{m_filePath};
+
+    if (size.isValid())
+        icon = icon.scaled(size, Qt::KeepAspectRatio);
+
+    return icon;
+}
+
 Asset::Type Asset::type() const
 {
     return m_type;
@@ -173,6 +190,11 @@ const QString Asset::suffix() const
 const QString Asset::id() const
 {
     return m_filePath;
+}
+
+const QString Asset::fileName() const
+{
+    return m_fileName;
 }
 
 bool Asset::isSupported() const

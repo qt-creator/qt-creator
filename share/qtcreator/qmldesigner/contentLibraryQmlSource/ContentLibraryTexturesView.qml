@@ -27,9 +27,6 @@ HelperWidgets.ScrollView {
         root.count = c
     }
 
-    property var currMaterialItem: null
-    property var rootItem: null
-
     required property var searchBox
     required property var model
     required property string sectionCategory

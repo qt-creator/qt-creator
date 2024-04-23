@@ -130,7 +130,7 @@ static void openComponentSourcePropertyOfLoader(const ModelNode &modelNode)
     }
 
     Core::EditorManager::openEditor(FilePath::fromString(
-                                        componentModelNode.metaInfo().componentFileName()),
+                                        ModelUtils::componentFilePath(componentModelNode)),
                                     Utils::Id(),
                                     Core::EditorManager::DoNotMakeVisible);
 }
@@ -230,7 +230,9 @@ void DocumentManager::setCurrentDesignDocument(Core::IEditor *editor)
         auto found = m_designDocuments.find(editor);
         if (found == m_designDocuments.end()) {
             auto &inserted = m_designDocuments[editor] = std::make_unique<DesignDocument>(
-                m_projectManager.projectStorageDependencies(), m_externalDependencies);
+                editor->document()->filePath().toString(),
+                m_projectManager.projectStorageDependencies(),
+                m_externalDependencies);
             m_currentDesignDocument = inserted.get();
             m_currentDesignDocument->setEditor(editor);
         } else {
@@ -264,6 +266,11 @@ void DocumentManager::resetPossibleImports()
         if (RewriterView *view = value->rewriterView())
             view->resetPossibleImports();
     }
+}
+
+const GeneratedComponentUtils &DocumentManager::generatedComponentUtils() const
+{
+   return m_generatedComponentUtils;
 }
 
 bool DocumentManager::goIntoComponent(const ModelNode &modelNode)
@@ -534,6 +541,13 @@ Utils::FilePath DocumentManager::currentResourcePath()
         return currentFilePath().absolutePath();
 
     FilePath contentFilePath = resourcePath.pathAppended("content");
+    if (contentFilePath.exists())
+        return contentFilePath;
+
+    const auto project = ProjectManager::startupProject();
+    const QString baseName = project->rootProjectDirectory().baseName() + "Content";
+
+    contentFilePath = resourcePath.pathAppended(baseName);
     if (contentFilePath.exists())
         return contentFilePath;
 

@@ -192,6 +192,7 @@ private:
 
     double m_previousCameraSpeed = -1.;
     double m_previousCameraMultiplier = -1.;
+    QString m_currProjectPath;
 
     friend class Edit3DAction;
 };

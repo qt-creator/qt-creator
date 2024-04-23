@@ -6,7 +6,12 @@
     \previouspage creator-open-documents-view.html
     \nextpage studio-texture-editor.html
 
+    \ingroup studio-views
+
     \title Content Library
+
+    \brief Select material, texture, and environment bundles with assets to
+    use in your application.
 
     \note The \uicontrol {Content Library} view is included in the
     \l{https://www.qt.io/pricing}{Qt Design Studio Enterprise license}.

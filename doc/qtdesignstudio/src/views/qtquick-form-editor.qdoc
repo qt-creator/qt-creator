@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,13 +6,17 @@
     \previouspage creator-using-qt-quick-designer.html
     \nextpage studio-3d-editor.html
 
+    \ingroup studio-views
+
     \title 2D
+
+    \brief Design 2D UIs.
 
     You design applications in the \uicontrol {2D} view by opening
     component files and placing instances of \l{Component Types}{2D components}
     and \l{Assets}{assets} into them.
 
-    \image qmldesigner-form-editor.png "The 2D view"
+    \image qmldesigner-form-editor.webp "The 2D view"
 
     When you select component instances in the \uicontrol {2D} view, markers
     appear around their edges and in their corners. Depending on the shape of
@@ -25,60 +29,12 @@
         \li \l{Rotating 2D Components}{Rotate}
     \endlist
 
-    \section1 Summary of 2D View Buttons
-
-    The \uicontrol {2D} view toolbar contains the following buttons and
-    fields.
-
-    \table
-    \header
-        \li Button/Field
-        \li Tooltip
-        \li Read More
-    \row
-        \li \uicontrol {Override Width}
-        \li Shows a preview of the component using the specified width.
-        \li \l{Previewing Component Size}
-    \row
-        \li \uicontrol {Override Height}
-        \li Shows a preview of the component using the specified height.
-        \li \l{Previewing Component Size}
-    \row
-        \li \inlineimage icons/canvas-color.png
-        \li Sets the color of the \uicontrol {2D} view working area.
-        \li \l{Setting Canvas Color}
-    \row
-        \li \inlineimage icons/zoomIn.png
-        \li Zooms in.
-        \li \l{Zooming}
-    \row
-        \li \inlineimage icons/zoomOut.png
-        \li Zooms out.
-        \li \l{Zooming}
-    \row
-        \li Zoom level
-        \li Sets the zoom level that you select from the list.
-        \li \l{Zooming}
-    \row
-        \li \inlineimage icons/zoomAll.png
-        \li Zooms to fit all content.
-        \li \l{Zooming}
-    \row
-        \li \inlineimage icons/zoomSelection.png
-        \li Zooms to fit the current selection.
-        \li \l{Zooming}
-    \row
-        \li \inlineimage icons/reset.png
-        \li Refreshes the contents of the \uicontrol {2D} view.
-        \li \l{Refreshing 2D View Contents}
-    \endtable
-
     \section1 Moving Components
 
     When the move cursor is displayed, you can move the selected component
     instance to any position in the \uicontrol {2D} view.
 
-    \image qmldesigner-form-editor-move-cursor.png "Move cursor in the 2D view"
+    \image qmldesigner-form-editor-move-cursor.webp "Move cursor in the 2D view"
 
     For more information about alternative ways of positioning component
     instances in UIs, see \l{Scalable Layouts}.
@@ -88,7 +44,7 @@
     When the resize cursor is displayed, you can drag the markers to resize
     component instances.
 
-    \image qtquick-designer-scaling-items.png "The 2D view"
+    \image qtquick-designer-scaling-items.webp "The 2D view"
 
     To have the resizing done from the center of the selected component instance
     rather than from its edges, press \key Alt (or \key Opt on \macos).
@@ -110,7 +66,7 @@
     clockwise or counter-clockwise to freely rotate the component instance
     around its origin.
 
-    \image qtquick-designer-rotating-items.png "2D rotation tool"
+    \image qtquick-designer-rotating-items.webp "2D rotation tool"
 
     Additionally, press \key Shift or \key Alt (or \key Opt on \macos)
     to rotate component instances in steps of 5 or 45 degrees, respectively.
@@ -152,9 +108,9 @@
     \image qtquick-designer-options.png "Qt Quick Designer preferences"
 
     The following image shows the snapping lines (1) when
-    \uicontrol {Parent component padding} is set to 5 pixels.
+    \uicontrol {Parent component padding} is set to 10 pixels.
 
-    \image qmldesigner-snap-margins.png "Snapping lines on canvas"
+    \image qmldesigner-snap-margins.webp "Snapping lines on canvas"
 
     For alternative ways of aligning and distributing component instances by
     using the \l Properties view, see \l{Aligning and Distributing Components}.
@@ -181,7 +137,7 @@
     values are not changed permanently in the UI file. You can permanently
     change the property values in the \uicontrol Properties view (4).
 
-    \image qmldesigner-preview-size.png "Component width and height"
+    \image qmldesigner-preview-size.webp "Component width and height"
 
     To set the initial size of the root component, select \uicontrol Edit >
     \uicontrol Preferences > \uicontrol {Qt Quick} > \uicontrol {Qt Quick Designer}
@@ -204,7 +160,7 @@
     not affect the background color of your root component or component
     instances in any way.
 
-    \image qmldesigner-canvas-color.png "Transparent canvas color for a transparent component instance"
+    \image qmldesigner-canvas-color.webp "Transparent canvas color for a transparent component instance"
 
     \section1 Refreshing 2D View Contents
 
@@ -219,6 +175,4 @@
     To refresh the contents of the \uicontrol {2D} view, press \key R or
     select the \inlineimage icons/reset.png
     (\uicontrol {Reset View}) button.
-
-    \include qtquick-component-context-menu.qdocinc context-menu
 */

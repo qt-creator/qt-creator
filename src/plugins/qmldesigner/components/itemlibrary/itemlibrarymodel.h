@@ -37,7 +37,7 @@ public:
     QString searchText() const;
     ItemLibraryImport *importByUrl(const QString &importName) const;
 
-    void update(ItemLibraryInfo *itemLibraryInfo, Model *model);
+    void update(Model *model);
     void updateUsedImports(const Imports &usedImports);
 
     QMimeData *getMimeData(const ItemLibraryEntry &itemLibraryEntry);

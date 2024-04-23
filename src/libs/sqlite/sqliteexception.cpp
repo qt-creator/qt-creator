@@ -3,13 +3,19 @@
 
 #include "sqliteexception.h"
 
+#include "sqlitetracing.h"
+
 #include <utils/smallstringio.h>
+
+#include <nanotrace/nanotracehr.h>
 
 #include <sqlite.h>
 
 #include <QDebug>
 
 namespace Sqlite {
+
+using NanotraceHR::keyValue;
 
 const char *Exception::what() const noexcept
 {
@@ -18,12 +24,22 @@ const char *Exception::what() const noexcept
 
 const char *ExceptionWithMessage::what() const noexcept
 {
-    return "Sqlite::ExceptionWithMessage";
+    static Utils::SmallString text = Utils::SmallString::join(
+        {"Sqlite::ExceptionWithMessage", m_sqliteErrorMessage});
+
+    return text.data();
 }
 
 void ExceptionWithMessage::printWarning() const
 {
     qWarning() << what() << m_sqliteErrorMessage;
+}
+
+StatementIsBusy::StatementIsBusy(Utils::SmallString &&sqliteErrorMessage)
+    : ExceptionWithMessage{std::move(sqliteErrorMessage)}
+{
+    sqliteHighLevelCategory().threadEvent("StatementIsBusy"_t,
+                                          keyValue("error message", std::string_view{what()}));
 }
 
 const char *StatementIsBusy::what() const noexcept
@@ -36,9 +52,19 @@ const char *DatabaseIsBusy::what() const noexcept
     return "Sqlite::DatabaseIsBusy";
 }
 
+StatementHasError::StatementHasError(Utils::SmallString &&sqliteErrorMessage)
+    : ExceptionWithMessage{std::move(sqliteErrorMessage)}
+{
+    sqliteHighLevelCategory().threadEvent("StatementHasError"_t,
+                                          keyValue("error message", std::string_view{what()}));
+}
+
 const char *StatementHasError::what() const noexcept
 {
-    return "Sqlite::StatementHasError";
+    static Utils::SmallString text = Utils::SmallString::join(
+        {"Sqlite::StatementHasError: ", message()});
+
+    return text.data();
 }
 
 const char *StatementIsMisused::what() const noexcept

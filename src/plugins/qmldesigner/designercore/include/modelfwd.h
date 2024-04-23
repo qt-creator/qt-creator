@@ -77,7 +77,7 @@ constexpr bool useProjectStorage()
 using ProjectStorageType = ProjectStorageInterface;
 using PathCacheType = SourcePathCacheInterface;
 #else
-using ProjectStorageType = ProjectStorage<Sqlite::Database>;
+using ProjectStorageType = ProjectStorage;
 using PathCacheType = SourcePathCache<ProjectStorageType, NonLockingMutex>;
 #endif
 

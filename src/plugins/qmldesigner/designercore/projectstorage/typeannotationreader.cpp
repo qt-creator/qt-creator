@@ -27,11 +27,11 @@ constexpr auto propertyElementName = "Property"_L1;
 constexpr auto extraFileElementName = "ExtraFile"_L1;
 } // namespace
 
-Synchronization::TypeAnnotations TypeAnnotationReader::parseTypeAnnotation(const QString &content,
-                                                                           const QString &directoryPath,
-                                                                           SourceId sourceId)
+Synchronization::TypeAnnotations TypeAnnotationReader::parseTypeAnnotation(
+    const QString &content, const QString &directoryPath, SourceId sourceId, SourceId directorySourceId)
 {
     m_sourceId = sourceId;
+    m_directorySourceId = directorySourceId;
     m_directoryPath = directoryPath;
     m_parserState = ParsingDocument;
     if (!SimpleAbstractStreamReader::readFromSource(content)) {
@@ -178,7 +178,7 @@ TypeAnnotationReader::ParserSate TypeAnnotationReader::readDocument(const QStrin
 TypeAnnotationReader::ParserSate TypeAnnotationReader::readMetaInfoRootElement(const QString &name)
 {
     if (name == typeElementName) {
-        m_typeAnnotations.emplace_back(m_sourceId);
+        m_typeAnnotations.emplace_back(m_sourceId, m_directorySourceId);
         m_itemLibraryEntries = json::array();
         return ParsingType;
     } else {
@@ -277,7 +277,7 @@ void TypeAnnotationReader::readItemLibraryEntryProperty(QStringView name, const 
     } else if (name == "category"_L1) {
         m_itemLibraryEntries.back()["category"] = value;
     } else if (name == "libraryIcon"_L1) {
-        m_itemLibraryEntries.back()["iconPath"] = value;
+        m_itemLibraryEntries.back()["iconPath"] = absoluteFilePathForDocument(variant.toString());
     } else if (name == "version"_L1) {
         //   setVersion(value.toString());
     } else if (name == "requiredImport"_L1) {
@@ -427,8 +427,8 @@ void TypeAnnotationReader::setVersion(const QString &versionNumber)
     int minor = 0;
 
     if (!versionNumber.isEmpty()) {
-        int val;
-        bool ok;
+        int val = -1;
+        bool ok = false;
         if (versionNumber.contains('.'_L1)) {
             val = versionNumber.split('.'_L1).constFirst().toInt(&ok);
             major = ok ? val : major;

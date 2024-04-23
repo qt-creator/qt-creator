@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -26,7 +26,7 @@
         \li Group
         \li \l{Organizing Components}
     \row
-        \li Position
+        \li Positioner
         \li \l{Using Positioners}
     \row
         \li Layout
@@ -53,8 +53,8 @@
         \li Move Component Instances into Separate Files
         \li \l{Turning Component Instances into Custom Components}
     \row
-        \li Add New Signal Handler
-        \li \l{Adding Signal Handlers}
+        \li Connecting Components to Signals
+        \li \l{Connecting Components to Signals in the Connection View}
     \row
         \li Go to Implementation
         \li \l{Using UI Files}

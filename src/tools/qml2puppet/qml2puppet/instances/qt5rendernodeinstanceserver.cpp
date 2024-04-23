@@ -146,7 +146,9 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
             && !changedPropertyList().isEmpty()
             && nodeInstanceClient()->bytesToWrite() < 10000) {
 
-            Internal::QuickItemNodeInstance::updateDirtyNode(rootNodeInstance().contentItem());
+            QQuickItem *rootItem = rootNodeInstance().contentItem();
+            QQuickDesignerSupport::addDirty(rootItem, QQuickDesignerSupport::Content);
+            QQuickDesignerSupport::updateDirtyNode(rootItem);
             nodeInstanceClient()->pixmapChanged(createPixmapChangedCommand({rootNodeInstance()}));
         }
 
@@ -239,6 +241,24 @@ void Qt5RenderNodeInstanceServer::changePropertyValues(const ChangeValuesCommand
 
             if (instance.hasParent() && instance.propertyNames().contains("_isEffectItem"))
                 makeDirtyRecursive(instance.parent());
+        } else if (container.isDynamic() && hasInstanceForId(container.instanceId())) {
+            // Changes to dynamic properties are not always noticed by normal signal spy mechanism
+            addChangedProperty(InstancePropertyPair(instanceForId(container.instanceId()),
+                                                    container.name()));
+        }
+    }
+}
+
+void Qt5RenderNodeInstanceServer::changePropertyBindings(const ChangeBindingsCommand &command)
+{
+    Qt5NodeInstanceServer::changePropertyBindings(command);
+
+    const QVector<PropertyBindingContainer> changes = command.bindingChanges;
+    for (const PropertyBindingContainer &container : changes) {
+        if (container.isDynamic() && hasInstanceForId(container.instanceId())) {
+            // Changes to dynamic properties are not always noticed by normal signal spy mechanism
+            addChangedProperty(InstancePropertyPair(instanceForId(container.instanceId()),
+                                                    container.name()));
         }
     }
 }

@@ -129,6 +129,8 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
     m_currentSpin->setFrame(false);
 
     connect(m_currentSpin, &QSpinBox::valueChanged, this, &CurveEditorToolBar::currentFrameChanged);
+    connect(model, &CurveEditorModel::commitCurrentFrame,
+            this, [this](int frame) { m_currentSpin->setValue(frame); });
 
     addSpacer();
 

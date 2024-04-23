@@ -126,7 +126,7 @@ void PuppetEnvironmentBuilder::addRendering() const
 {
     m_environment.set("QML_BAD_GUI_RENDER_LOOP", "true");
     m_environment.set("QML_PUPPET_MODE", "true");
-    m_environment.set("QML_DISABLE_DISK_CACHE", "true");
+    //m_environment.set("QML_DISABLE_DISK_CACHE", "true");
     m_environment.set("QMLPUPPET_RENDER_EFFECTS", "true");
     if (!m_environment.hasKey("QT_SCREEN_SCALE_FACTORS") && !m_environment.hasKey("QT_SCALE_FACTOR"))
         m_environment.set("QT_AUTO_SCREEN_SCALE_FACTOR", "1");

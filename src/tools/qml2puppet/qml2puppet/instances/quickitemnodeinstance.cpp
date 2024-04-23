@@ -277,13 +277,27 @@ static bool layerEnabledAndEffect(QQuickItem *item)
     return false;
 }
 
+static QRectF getBoundingRectForEffect(QQuickItem *item)
+{
+    const auto siblings = item->parentItem()->childItems();
+    for (auto sibling : siblings) {
+        QQmlProperty prop(sibling, "__effect");
+        if (prop.read().toBool()) {
+            prop = QQmlProperty(sibling, "source");
+            if (prop.read().value<QQuickItem *>() == item)
+                return ServerNodeInstance::effectAdjustedBoundingRect(sibling);
+        }
+    }
+    return ServerNodeInstance::effectAdjustedBoundingRect(item);
+}
+
 QRectF QuickItemNodeInstance::boundingRect() const
 {
     if (quickItem()) {
-        if (quickItem()->clip()) {
+        if (layerEnabledAndEffect(quickItem()) && quickItem()->parentItem()) {
+            return getBoundingRectForEffect(quickItem());
+        } else if (quickItem()->clip()) {
             return quickItem()->boundingRect();
-        } else if (layerEnabledAndEffect(quickItem())) {
-            return ServerNodeInstance::effectAdjustedBoundingRect(quickItem());
         } else {
             QSize maximumSize(4000, 4000);
             auto isValidSize = [maximumSize] (const QRectF& rect) {

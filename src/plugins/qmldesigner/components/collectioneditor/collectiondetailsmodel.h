@@ -20,6 +20,7 @@ class CollectionDetailsModel : public QAbstractTableModel
     Q_PROPERTY(int selectedColumn READ selectedColumn WRITE selectColumn NOTIFY selectedColumnChanged)
     Q_PROPERTY(int selectedRow READ selectedRow WRITE selectRow NOTIFY selectedRowChanged)
     Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
+    Q_PROPERTY(bool hasUnsavedChanges MEMBER m_hasUnsavedChanges WRITE setHasUnsavedChanges NOTIFY hasUnsavedChangesChanged)
 
 public:
     enum DataRoles { SelectedRole = Qt::UserRole + 1, DataTypeRole, ColumnDataTypeRole, DataTypeWarningRole };
@@ -70,12 +71,14 @@ public:
     const CollectionDetails upToDateConstCollection(const CollectionReference &reference) const;
     bool collectionHasColumn(const CollectionReference &reference, const QString &columnName) const;
     QString getFirstColumnName(const CollectionReference &reference) const;
+    void setHasUnsavedChanges(bool val);
 
 signals:
     void collectionNameChanged(const QString &collectionName);
     void selectedColumnChanged(int);
     void selectedRowChanged(int);
     void isEmptyChanged(bool);
+    void hasUnsavedChangesChanged();
     void warning(const QString &title, const QString &body);
 
 private slots:
@@ -93,6 +96,7 @@ private:
     QHash<CollectionReference, CollectionDetails> m_openedCollections;
     CollectionDetails m_currentCollection;
     bool m_isEmpty = true;
+    bool m_hasUnsavedChanges = false;
     int m_selectedColumn = -1;
     int m_selectedRow = -1;
 

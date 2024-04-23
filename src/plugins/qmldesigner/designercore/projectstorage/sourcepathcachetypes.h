@@ -125,4 +125,6 @@ public:
     SourceContextId sourceContextId;
 };
 
+using SourceNameAndSourceContextIds = std::vector<SourceNameAndSourceContextId>;
+
 } // namespace QmlDesigner::Cache

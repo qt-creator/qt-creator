@@ -143,7 +143,7 @@ QString DynamicPropertiesProxyModel::newPropertyName() const
 {
     DynamicPropertiesModel *propsModel = dynamicPropertiesModel();
 
-    return QString::fromUtf8(uniquePropertyName("property", propsModel->singleSelectedNode()));
+    return QString::fromUtf8(uniquePropertyName("newName", propsModel->singleSelectedNode()));
 }
 
 void DynamicPropertiesProxyModel::createProperty(const QString &name, const QString &type)
@@ -167,6 +167,10 @@ void DynamicPropertiesProxyModel::createProperty(const QString &name, const QStr
                     QVariant value = defaultValueForType(typeName);
                     VariantProperty variantProp = modelNode.variantProperty(name.toUtf8());
                     variantProp.setDynamicTypeNameAndValue(typeName, value);
+                } else if (type == "signal") {
+                    SignalDeclarationProperty signalDeclarationProperty
+                        = modelNode.signalDeclarationProperty(name.toUtf8());
+                    signalDeclarationProperty.setSignature("()");
                 } else {
                     QString expression = defaultExpressionForType(typeName);
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -58,7 +58,7 @@
         \li \l {Custom Effects and Materials}
         \li \l {Lights}
         \li \l {Cameras}
-        \li \l {Scene Environment}
+        \li \l {Scene Environments}
         \li \l {Morph Target}
         \li \l {Repeater3D}
         \li \l {Loader3D}

@@ -19,17 +19,18 @@ class ContentLibraryTexture : public QObject
     Q_PROPERTY(QString textureToolTip MEMBER m_toolTip NOTIFY textureToolTipChanged)
     Q_PROPERTY(QUrl textureIcon MEMBER m_icon CONSTANT)
     Q_PROPERTY(bool textureVisible MEMBER m_visible NOTIFY textureVisibleChanged)
-    Q_PROPERTY(QString textureWebUrl MEMBER m_webTextureUrl CONSTANT)
-    Q_PROPERTY(QString textureWebIconUrl MEMBER m_webIconUrl CONSTANT)
+    Q_PROPERTY(QString textureUrl MEMBER m_textureUrl CONSTANT)
+    Q_PROPERTY(QString textureIconUrl MEMBER m_iconUrl CONSTANT)
     Q_PROPERTY(bool textureHasUpdate WRITE setHasUpdate READ hasUpdate NOTIFY hasUpdateChanged)
     Q_PROPERTY(bool textureIsNew MEMBER m_isNew CONSTANT)
     Q_PROPERTY(QString textureKey MEMBER m_textureKey CONSTANT)
+    Q_PROPERTY(QString itemType MEMBER m_itemType CONSTANT)
 
 public:
-    ContentLibraryTexture(QObject *parent, const QFileInfo &iconFileInfo, const QString &downloadPath,
-                          const QUrl &icon, const QString &key, const QString &webTextureUrl,
-                          const QString &webIconUrl, const QString &fileExt, const QSize &dimensions,
-                          const qint64 sizeInBytes, bool hasUpdate, bool isNew);
+    ContentLibraryTexture(QObject *parent, const QFileInfo &iconFileInfo, const QString &dirPath,
+                          const QString &suffix, const QSize &dimensions, const qint64 sizeInBytes,
+                          const QString &key = {}, const QString &textureUrl = {},
+                          const QString &iconUrl = {}, bool hasUpdate = false, bool isNew = false);
 
     Q_INVOKABLE bool isDownloaded() const;
     Q_INVOKABLE void setDownloaded();
@@ -38,7 +39,7 @@ public:
 
     QUrl icon() const;
     QString iconPath() const;
-    QString downloadedTexturePath() const;
+    QString texturePath() const;
     QString parentDirPath() const;
     QString textureKey() const;
 
@@ -51,17 +52,17 @@ signals:
     void hasUpdateChanged();
 
 private:
-    QString resolveFileExt();
+    QString resolveSuffix();
     QString resolveToolTipText();
     void doSetDownloaded();
 
     QString m_iconPath;
-    QString m_downloadPath;
-    QString m_webTextureUrl;
-    QString m_webIconUrl;
+    QString m_dirPath;
+    QString m_textureUrl;
+    QString m_iconUrl;
     QString m_toolTip;
     QString m_baseName;
-    QString m_fileExt;
+    QString m_suffix;
     QString m_textureKey;
     QUrl m_icon;
     QSize m_dimensions;
@@ -71,6 +72,7 @@ private:
     bool m_visible = true;
     bool m_hasUpdate = false;
     bool m_isNew = false;
+    const QString m_itemType = "texture";
 };
 
 } // namespace QmlDesigner

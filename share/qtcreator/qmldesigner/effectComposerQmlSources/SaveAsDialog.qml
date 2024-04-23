@@ -50,11 +50,13 @@ StudioControls.Dialog {
                         if (/[^A-Za-z0-9_]+/.test(text))
                             errMsg = qsTr("Name contains invalid characters.")
                         else if (!/^[A-Z]/.test(text))
-                            errMsg = qsTr("Name must start with a capital letter")
+                            errMsg = qsTr("Name must start with a capital letter.")
                         else if (text.length < 3)
-                            errMsg = qsTr("Name must have at least 3 characters")
+                            errMsg = qsTr("Name must have at least 3 characters.")
                         else if (/\s/.test(text))
-                            errMsg = qsTr("Name cannot contain white space")
+                            errMsg = qsTr("Name cannot contain white space.")
+                        else if (EffectComposerBackend.effectComposerModel.nameExists(text))
+                            errMsg = qsTr("Name is already taken.")
 
                         emptyText.text = errMsg
                         btnSave.enabled = errMsg.length === 0

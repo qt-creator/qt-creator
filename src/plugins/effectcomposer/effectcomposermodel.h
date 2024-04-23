@@ -11,6 +11,7 @@
 #include <QFileSystemWatcher>
 #include <QMap>
 #include <QRegularExpression>
+#include <QSet>
 #include <QTemporaryFile>
 #include <QTimer>
 
@@ -48,6 +49,7 @@ class EffectComposerModel : public QAbstractListModel
     Q_PROPERTY(bool hasUnsavedChanges MEMBER m_hasUnsavedChanges WRITE setHasUnsavedChanges NOTIFY hasUnsavedChangesChanged)
     Q_PROPERTY(bool shadersUpToDate READ shadersUpToDate WRITE setShadersUpToDate NOTIFY shadersUpToDateChanged)
     Q_PROPERTY(bool isEnabled READ isEnabled WRITE setIsEnabled NOTIFY isEnabledChanged)
+    Q_PROPERTY(bool hasValidTarget READ hasValidTarget WRITE setHasValidTarget NOTIFY hasValidTargetChanged)
     Q_PROPERTY(QString currentComposition READ currentComposition WRITE setCurrentComposition NOTIFY currentCompositionChanged)
 
 public:
@@ -57,6 +59,8 @@ public:
     int rowCount(const QModelIndex & parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
+
+    void setEffectsTypePrefix(const QString &prefix);
 
     bool isEmpty() const { return m_isEmpty; }
     void setIsEmpty(bool val);
@@ -70,12 +74,16 @@ public:
     Q_INVOKABLE void clear(bool clearName = false);
     Q_INVOKABLE void assignToSelected();
     Q_INVOKABLE QString getUniqueEffectName() const;
+    Q_INVOKABLE bool nameExists(const QString &name) const;
 
     bool shadersUpToDate() const;
     void setShadersUpToDate(bool newShadersUpToDate);
 
     bool isEnabled() const;
     void setIsEnabled(bool enabled);
+
+    bool hasValidTarget() const;
+    void setHasValidTarget(bool validTarget);
 
     QString fragmentShader() const;
     void setFragmentShader(const QString &newFragmentShader);
@@ -110,12 +118,14 @@ signals:
     void effectErrorChanged();
     void shadersUpToDateChanged();
     void isEnabledChanged();
+    void hasValidTargetChanged();
     void shadersBaked();
     void currentCompositionChanged();
     void nodesChanged();
     void resourcesSaved(const QByteArray &type, const Utils::FilePath &path);
     void hasUnsavedChangesChanged();
     void assignToSelectedTriggered(const QString &effectPath);
+    void removePropertiesFromScene(QSet<QByteArray> props, const QString &typeName);
 
 private:
     enum Roles {
@@ -176,6 +186,8 @@ private:
     QString getDesignerSpecifics() const;
 
     void connectCompositionNode(CompositionNode *node);
+    void updateExtraMargin();
+    QSet<QByteArray> getExposedProperties(const QByteArray &qmlContent);
 
     QList<CompositionNode *> m_nodes;
 
@@ -210,8 +222,11 @@ private:
     QString m_qmlComponentString;
     bool m_loadComponentImages = true;
     bool m_isEnabled = true;
+    bool m_hasValidTarget = false;
     QString m_currentComposition;
     QTimer m_rebakeTimer;
+    int m_extraMargin = 0;
+    QString m_effectTypePrefix;
 
     const QRegularExpression m_spaceReg = QRegularExpression("\\s+");
 };

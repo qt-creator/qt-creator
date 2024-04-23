@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,7 +6,11 @@
     \previouspage quick-assets.html
     \nextpage qtquick-properties-view.html
 
+    \ingroup studio-views
+
     \title Navigator
+
+    \brief View the composition of the current component file as a tree structure.
 
     The \uicontrol Navigator view displays the components in the current
     component file and their relationships. \l{glossary-component}{Components}
@@ -36,57 +40,11 @@
     you can change the source of an Image component by selecting
     \uicontrol {Change Source URL} in the context menu.
 
-    \section1 Summary of Navigator Buttons
-
-    The following table lists the \uicontrol Navigator buttons:
-
-    \table
-    \header
-        \li Icon
-        \li Tooltip
-        \li Read More
-    \row
-        \li \inlineimage icons/arrowleft.png
-        \li Moves the component one level up in the component tree, so that
-            it becomes the last sibling of its current parent.
-        \li \l{Arranging Components}
-    \row
-        \li \inlineimage icons/arrowright.png
-        \li Moves the component one level down in the component tree, so that it
-            becomes the child of its last sibling.
-        \li \l{Arranging Components}
-    \row
-        \li \inlineimage icons/navigator-arrowdown.png
-        \li Moves the component down within its parent.
-        \li \l{Arranging Components}
-    \row
-        \li \inlineimage icons/navigator-arrowup.png
-        \li Moves the component up within its parent.
-        \li \l{Arranging Components}
-    \row
-        \li \inlineimage icons/filtericon.png
-        \li Shows and hides invisible components in \uicontrol Navigator.
-        \li \l{Showing and Hiding Components}
-    \row
-        \li \inlineimage icons/alias.png
-        \li Adds a property alias that you can use from outside of the
-            component.
-        \li \l{Adding Property Aliases}
-    \row
-        \li \inlineimage icons/visibilityon.png
-        \li Shows and hides components in the \uicontrol {2D} view.
-        \li \l{Showing and Hiding Components}
-    \row
-        \li \inlineimage icons/lockon.png
-        \li Locks components in all views.
-        \li \l{Locking Components}
-    \endtable
-
     \section1 Showing and Hiding Components
 
     To show and hide components in the \uicontrol {2D} view when focusing on
-    specific parts of the application, click \inlineimage icons/visibilityon.png
-    in \uicontrol Navigator.
+    specific parts of the application, select \inlineimage icons/eye_open.png and
+    \inlineimage icons/visibility-off.png in \uicontrol Navigator.
 
     To change the visibility of a component in the application code, select the
     \uicontrol Visibility check box in the \uicontrol Properties view or select
@@ -99,10 +57,8 @@
     component. To hide or show child components, edit the properties of the
     parent component.
 
-    To hide invisible components in \uicontrol Navigator, click
-    \inlineimage icons/filtericon.png
-    (\uicontrol {Filter Tree}) and select
-    \uicontrol {Show Only Visible Components}.
+    To show and hide invisible components in \uicontrol Navigator, select
+    \inlineimage {icons/visibilityon.png}.
 
     \section1 Locking Components
 
@@ -141,9 +97,8 @@
     By default, components that are located at the top of the file are listed at
     the bottom of the \uicontrol Navigator tree and behind overlapping
     components in the \uicontrol {2D} view. To list the components in the order
-    in which they appear in the file, as some other tools do, click
-    \inlineimage icons/filtericon.png
-    (\uicontrol {Filter Tree}), and select \uicontrol {Reverse Component Order}.
+    in which they appear in the file, as some other tools do, select
+    \inlineimage {icons/reverse_order.png}.
 
     To move a component to the top or bottom of the tree within its parent,
     right-click it in the \uicontrol Navigator or \uicontrol {2D} view
@@ -156,20 +111,18 @@
 
     \image qtquick-designer-navigator-arrange.gif "Reversing component order"
 
-    You can also drag-and-drop the component to another position in the tree or
-    use the arrow buttons to move the component in the tree. You can use the
-    left and right arrow buttons to change the parent of the component.
+    You can also drag the component to another position in the tree or use the
+    \inlineimage {icons/navigator-arrowup.png} and \inlineimage {icons/navigator-arrowdown.png}
+    buttons to move the component in the tree. You can use the \inlineimage {icons/arrowleft.png}
+    and \inlineimage {icons/arrowright.png} buttons to change the parent of the component.
 
     \image qmldesigner-navigator-arrows.png "Navigator buttons"
 
-    When you drag-and-drop instances of components to the \uicontrol {2D} view,
+    When you drag instances of components to the \uicontrol {2D} view,
     the new component is added as a child of the component
     beneath it. When you move the components, it is not possible to determine
     whether you want to adjust their position or attach them to a new parent component.
-    Therefore, the parent component is not automatically changed. To change the
-    parent of the component, press down the \key Shift key before you drag-and-drop
-    the component into a new position. The topmost component under the cursor becomes the
-    new parent of the component.
+    Therefore, the parent component is not automatically changed.
 
     \section1 Adding Property Aliases
 
@@ -236,5 +189,4 @@
 
     \image qmldesigner-breadcrumbs.png "Component hierarchy"
 
-    \include qtquick-component-context-menu.qdocinc context-menu
 */

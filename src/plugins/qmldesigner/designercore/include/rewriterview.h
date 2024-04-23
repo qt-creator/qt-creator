@@ -123,7 +123,10 @@ public:
     bool renameId(const QString& oldId, const QString& newId);
 
     const QmlJS::Document *document() const;
+
+#ifndef QDS_USE_PROJECTSTORAGE
     const QmlJS::ScopeChain *scopeChain() const;
+#endif
 
     QString convertTypeToImportAlias(const QString &type) const;
 
@@ -134,8 +137,6 @@ public:
     bool checkLinkErrors() const { return m_checkLinkErrors; }
 
     void setCheckLinkErrors(bool b) { m_checkLinkErrors = b; }
-
-    QString pathForImport(const Import &import);
 
     QStringList importDirectories() const;
 

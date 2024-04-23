@@ -46,6 +46,11 @@ public:
                              QmlDesigner::ModuleId moduleId,
                              Utils::SmallStringView typeName);
 
+    void addExportedTypeNameBySourceId(QmlDesigner::TypeId typeId,
+                                       QmlDesigner::ModuleId moduleId,
+                                       Utils::SmallStringView typeName,
+                                       QmlDesigner::SourceId sourceId);
+
     void removeExportedTypeName(QmlDesigner::TypeId typeId,
                                 QmlDesigner::ModuleId moduleId,
                                 Utils::SmallStringView typeName);
@@ -56,7 +61,7 @@ public:
                                    QmlDesigner::Storage::PropertyDeclarationTraits defaultPropertyTraits,
                                    QmlDesigner::TypeId defaultPropertyTypeId,
                                    QmlDesigner::Storage::TypeTraits typeTraits,
-                                   QmlDesigner::TypeIds baseTypeIds = {},
+                                   const QmlDesigner::SmallTypeIds<16> &baseTypeIds = {},
                                    QmlDesigner::SourceId sourceId = QmlDesigner::SourceId{});
 
     void removeType(QmlDesigner::ModuleId moduleId, Utils::SmallStringView typeName);
@@ -64,27 +69,26 @@ public:
     QmlDesigner::TypeId createType(QmlDesigner::ModuleId moduleId,
                                    Utils::SmallStringView typeName,
                                    QmlDesigner::Storage::TypeTraits typeTraits,
-                                   QmlDesigner::TypeIds baseTypeIds = {},
+                                   const QmlDesigner::SmallTypeIds<16> &baseTypeIds = {},
                                    QmlDesigner::SourceId sourceId = QmlDesigner::SourceId{});
-
-    QmlDesigner::TypeId createObject(
-        QmlDesigner::ModuleId moduleId,
-        Utils::SmallStringView typeName,
-        Utils::SmallStringView defaultPropertyName,
-        QmlDesigner::Storage::PropertyDeclarationTraits defaultPropertyTraits,
-        QmlDesigner::TypeId defaultPropertyTypeId,
-        QmlDesigner::TypeIds baseTypeIds = {},
-        QmlDesigner::SourceId sourceId = QmlDesigner::SourceId{});
 
     QmlDesigner::TypeId createObject(QmlDesigner::ModuleId moduleId,
                                      Utils::SmallStringView typeName,
-                                     QmlDesigner::TypeIds baseTypeIds = {});
+                                     Utils::SmallStringView defaultPropertyName,
+                                     QmlDesigner::Storage::PropertyDeclarationTraits defaultPropertyTraits,
+                                     QmlDesigner::TypeId defaultPropertyTypeId,
+                                     const QmlDesigner::SmallTypeIds<16> &baseTypeIds = {},
+                                     QmlDesigner::SourceId sourceId = QmlDesigner::SourceId{});
+
+    QmlDesigner::TypeId createObject(QmlDesigner::ModuleId moduleId,
+                                     Utils::SmallStringView typeName,
+                                     const QmlDesigner::SmallTypeIds<16> &baseTypeIds = {});
 
     QmlDesigner::TypeId createValue(QmlDesigner::ModuleId moduleId,
                                     Utils::SmallStringView typeName,
-                                    QmlDesigner::TypeIds baseTypeIds = {});
+                                    const QmlDesigner::SmallTypeIds<16> &baseTypeIds = {});
 
-    void setHeirs(QmlDesigner::TypeId typeId, QmlDesigner::TypeIds heirIds);
+    void setHeirs(QmlDesigner::TypeId typeId, const QmlDesigner::SmallTypeIds<64> &heirIds);
 
     QmlDesigner::PropertyDeclarationId createProperty(
         QmlDesigner::TypeId typeId,
@@ -123,6 +127,7 @@ public:
     MOCK_METHOD(void, removeObserver, (QmlDesigner::ProjectStorageObserver *), (override));
 
     MOCK_METHOD(QmlDesigner::ModuleId, moduleId, (::Utils::SmallStringView), (const, override));
+    MOCK_METHOD(Utils::SmallString, moduleName, (QmlDesigner::ModuleId), (const, override));
 
     MOCK_METHOD(std::optional<QmlDesigner::Storage::Info::PropertyDeclaration>,
                 propertyDeclaration,
@@ -182,10 +187,19 @@ public:
                 propertyDeclarationId,
                 (QmlDesigner::TypeId typeId, ::Utils::SmallStringView propertyName),
                 (const, override));
+    MOCK_METHOD(QmlDesigner::PropertyDeclarationId,
+                defaultPropertyDeclarationId,
+                (QmlDesigner::TypeId typeId),
+                (const, override));
     MOCK_METHOD(std::optional<QmlDesigner::Storage::Info::Type>,
                 type,
                 (QmlDesigner::TypeId typeId),
                 (const, override));
+    MOCK_METHOD(QmlDesigner::SmallSourceIds<4>,
+                typeAnnotationSourceIds,
+                (QmlDesigner::SourceId directoryId),
+                (const, override));
+    MOCK_METHOD(QmlDesigner::SmallSourceIds<64>, typeAnnotationDirectorySourceIds, (), (const, override));
     MOCK_METHOD(Utils::PathString, typeIconPath, (QmlDesigner::TypeId typeId), (const, override));
     MOCK_METHOD(QmlDesigner::Storage::Info::TypeHints,
                 typeHints,
@@ -215,9 +229,15 @@ public:
                 propertyName,
                 (QmlDesigner::PropertyDeclarationId propertyDeclarationId),
                 (const, override));
-    MOCK_METHOD(QmlDesigner::TypeIds, prototypeAndSelfIds, (QmlDesigner::TypeId type), (const, override));
-    MOCK_METHOD(QmlDesigner::TypeIds, prototypeIds, (QmlDesigner::TypeId type), (const, override));
-    MOCK_METHOD(QmlDesigner::TypeIds, heirIds, (QmlDesigner::TypeId type), (const, override));
+    MOCK_METHOD(QmlDesigner::SmallTypeIds<16>,
+                prototypeAndSelfIds,
+                (QmlDesigner::TypeId type),
+                (const, override));
+    MOCK_METHOD(QmlDesigner::SmallTypeIds<16>,
+                prototypeIds,
+                (QmlDesigner::TypeId type),
+                (const, override));
+    MOCK_METHOD(QmlDesigner::SmallTypeIds<64>, heirIds, (QmlDesigner::TypeId type), (const, override));
     MOCK_METHOD(bool, isBasedOn, (QmlDesigner::TypeId typeId, QmlDesigner::TypeId), (const, override));
     MOCK_METHOD(bool,
                 isBasedOn,
@@ -326,6 +346,8 @@ public:
 
     QmlDesigner::Storage::Info::CommonTypeCache<QmlDesigner::ProjectStorageInterface> typeCache{*this};
     std::map<QmlDesigner::TypeId, QmlDesigner::Storage::Info::ExportedTypeNames> exportedTypeName;
+    std::map<std::pair<QmlDesigner::TypeId, QmlDesigner::SourceId>, QmlDesigner::Storage::Info::ExportedTypeNames>
+        exportedTypeNameBySourceId;
 };
 
 class ProjectStorageMockWithQtQtuick : public ProjectStorageMock

@@ -219,7 +219,7 @@
             }
         },
         "CameraSpeedConfigIcon": {
-            "iconName": "camera_medium"
+            "iconName": "cameraSpeed_medium"
         },
         "EditColorIcon": {
             "iconName": "colorSelection_medium"

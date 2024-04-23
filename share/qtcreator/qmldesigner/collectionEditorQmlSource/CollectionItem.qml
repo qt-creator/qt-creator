@@ -16,9 +16,17 @@ Item {
     implicitHeight: boundingRect.height + 3
 
     property color textColor
+    readonly property string name: collectionName ?? ""
+    readonly property bool isSelected: collectionIsSelected
+    readonly property int id: index
+
+    function rename(newName) {
+        collectionName = newName
+    }
 
     signal selectItem(int itemIndex)
     signal deleteItem()
+    signal contextMenuRequested()
 
     Item {
         id: boundingRect
@@ -90,153 +98,10 @@ Item {
                 MouseArea {
                     anchors.fill: parent
                     acceptedButtons: Qt.RightButton | Qt.LeftButton
-                    onClicked: collectionMenu.popup()
+                    onClicked: contextMenuRequested()
                 }
             }
         }
-    }
-
-    StudioControls.Menu {
-        id: collectionMenu
-
-        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-
-        StudioControls.MenuItem {
-            text: qsTr("Delete")
-            shortcut: StandardKey.Delete
-            onTriggered: deleteDialog.open()
-        }
-
-        StudioControls.MenuItem {
-            text: qsTr("Rename")
-            shortcut: StandardKey.Replace
-            onTriggered: renameDialog.open()
-        }
-
-        StudioControls.MenuItem {
-            text: qsTr("Assign to the selected node")
-            enabled: CollectionEditorBackend.rootView.targetNodeSelected
-            onTriggered: rootView.assignCollectionToSelectedNode(collectionName)
-        }
-    }
-
-    component Spacer: Item {
-        implicitWidth: 1
-        implicitHeight: StudioTheme.Values.columnGap
-    }
-
-    StudioControls.Dialog {
-        id: deleteDialog
-
-        title: qsTr("Deleting the model")
-        clip: true
-        implicitWidth: 300
-
-        contentItem: ColumnLayout {
-            spacing: 2
-
-            Text {
-                Layout.fillWidth: true
-
-                wrapMode: Text.WordWrap
-                color: StudioTheme.Values.themeTextColor
-                text: qsTr("Are you sure that you want to delete model \"%1\"?"
-                           + "\nThe model will be deleted permanently.").arg(collectionName)
-
-            }
-
-            Spacer {}
-
-            RowLayout {
-                spacing: StudioTheme.Values.sectionRowSpacing
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-
-                HelperWidgets.Button {
-                    text: qsTr("Delete")
-                    onClicked: root.deleteItem()
-                }
-
-                HelperWidgets.Button {
-                    text: qsTr("Cancel")
-                    onClicked: deleteDialog.reject()
-                }
-            }
-        }
-    }
-
-    StudioControls.Dialog {
-        id: renameDialog
-
-        title: qsTr("Rename model")
-
-        onAccepted: {
-            if (newNameField.text !== "")
-                collectionName = newNameField.text
-        }
-
-        onOpened: {
-            newNameField.text = collectionName
-        }
-
-        contentItem: ColumnLayout {
-            spacing: 2
-
-            Text {
-                text: qsTr("Previous name: " + collectionName)
-                color: StudioTheme.Values.themeTextColor
-            }
-
-            Spacer {}
-
-            Text {
-                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
-                text: qsTr("New name:")
-                color: StudioTheme.Values.themeTextColor
-            }
-
-            StudioControls.TextField {
-                id: newNameField
-
-                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
-                Layout.fillWidth: true
-
-                actionIndicator.visible: false
-                translationIndicator.visible: false
-                validator: newNameValidator
-
-                Keys.onEnterPressed: renameDialog.accept()
-                Keys.onReturnPressed: renameDialog.accept()
-                Keys.onEscapePressed: renameDialog.reject()
-
-                onTextChanged: {
-                    btnRename.enabled = newNameField.text !== ""
-                }
-            }
-
-            Spacer {}
-
-            RowLayout {
-                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                spacing: StudioTheme.Values.sectionRowSpacing
-
-                HelperWidgets.Button {
-                    id: btnRename
-
-                    text: qsTr("Rename")
-                    onClicked: renameDialog.accept()
-                }
-
-                HelperWidgets.Button {
-                    text: qsTr("Cancel")
-                    onClicked: renameDialog.reject()
-                }
-            }
-        }
-    }
-
-    RegularExpressionValidator {
-        id: newNameValidator
-        regularExpression: /^\w+$/
     }
 
     states: [

@@ -3,9 +3,12 @@
 
 #pragma once
 
-#include "abstractview.h"
 #include "datastoremodelnode.h"
-#include "modelnode.h"
+
+#include <abstractview.h>
+#include <modelnode.h>
+
+#include <utils/uniqueobjectptr.h>
 
 #include <QJsonObject>
 
@@ -27,6 +30,7 @@ class CollectionView : public AbstractView
 
 public:
     explicit CollectionView(ExternalDependenciesInterface &externalDependencies);
+    ~CollectionView();
 
     bool hasWidget() const override;
     WidgetInfo widgetInfo() override;
@@ -37,6 +41,8 @@ public:
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
 
+    void importsChanged(const Imports &addedImports, const Imports &removedImports) override;
+
     void customNotification(const AbstractView *view,
                             const QString &identifier,
                             const QList<ModelNode> &nodeList,
@@ -44,6 +50,7 @@ public:
 
     void addResource(const QUrl &url, const QString &name);
 
+    void addProjectImport();
     void assignCollectionToNode(const QString &collectionName, const ModelNode &node);
     void assignCollectionToSelectedNode(const QString &collectionName);
     void addNewCollection(const QString &collectionName, const QJsonObject &localCollection);
@@ -61,17 +68,14 @@ private:
     friend class CollectionTask;
 
     NodeMetaInfo jsonCollectionMetaInfo() const;
+    void unloadDataStore();
     void ensureStudioModelImport();
     void onItemLibraryNodeCreated(const ModelNode &node);
-    void onDocumentUpdated(const QSharedPointer<const QmlJS::Document> &doc);
     void addTask(QSharedPointer<CollectionTask> task);
 
-    QPointer<CollectionWidget> m_widget;
     std::unique_ptr<DataStoreModelNode> m_dataStore;
-    QSet<Utils::FilePath> m_expectedDocumentUpdates;
+    Utils::UniqueObjectPtr<CollectionWidget> m_widget;
     QList<QSharedPointer<CollectionTask>> m_delayedTasks;
-    QMetaObject::Connection m_documentUpdateConnection;
-    bool m_libraryInfoIsUpdated = false;
     bool m_dataStoreTypeFound = false;
     bool m_rewriterAmended = false;
     int m_reloadCounter = 0;

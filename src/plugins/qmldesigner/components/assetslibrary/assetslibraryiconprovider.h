@@ -3,11 +3,10 @@
 
 #pragma once
 
+#include <asset.h>
 #include <synchronousimagecache.h>
 
 #include <QQuickImageProvider>
-
-#include "asset.h"
 
 namespace QmlDesigner {
 

@@ -11,7 +11,6 @@ namespace QmlDesigner {
 class ProjectStorageInterface;
 class SourcePathCacheInterface;
 
-template<typename Database>
 class ProjectStorage;
 
 template<typename Type>

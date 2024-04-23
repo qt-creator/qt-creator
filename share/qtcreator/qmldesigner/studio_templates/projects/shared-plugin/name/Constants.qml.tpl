@@ -26,7 +26,7 @@ QtObject {
 
 @if %{IsQt6Project}
     property StudioApplication application: StudioApplication {
-        fontPath: Qt.resolvedUrl("../../content/" + relativeFontDirectory)
+        fontPath: Qt.resolvedUrl("../../%{ContentDir}/" + relativeFontDirectory)
     }
 @else
     property DirectoryFontLoader directoryFontLoader: DirectoryFontLoader {

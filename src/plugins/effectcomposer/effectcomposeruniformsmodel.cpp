@@ -59,7 +59,9 @@ bool EffectComposerUniformsModel::setData(const QModelIndex &index, const QVaria
         int idx = value.toString().indexOf("file:");
 
         QString path = idx > 0 ? updatedValue.right(updatedValue.size() - idx - 5) : updatedValue;
-        updatedValue = QUrl::fromLocalFile(path).toString();
+
+        if (idx == -1)
+            updatedValue = QUrl::fromLocalFile(path).toString();
 
         uniform->setValue(updatedValue);
         g_propertyData.insert(uniform->name(), updatedValue);
@@ -71,6 +73,14 @@ bool EffectComposerUniformsModel::setData(const QModelIndex &index, const QVaria
     emit dataChanged(index, index, {role});
 
     return true;
+}
+
+bool EffectComposerUniformsModel::resetData(int row)
+{
+    QModelIndex idx = index(row, 0);
+    QTC_ASSERT(idx.isValid(), return false);
+
+    return setData(idx, idx.data(DefaultValueRole), ValueRole);
 }
 
 void EffectComposerUniformsModel::resetModel()
