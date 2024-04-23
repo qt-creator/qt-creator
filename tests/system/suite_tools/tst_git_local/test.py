@@ -82,7 +82,8 @@ def __clickCommit__(count):
     test.verify(waitFor('str(fileName.currentText) == expected', 5000),
                 "Verifying editor switches to Git Show.")
     description = waitForObject(":Qt Creator_DiffEditor::Internal::DescriptionEditorWidget")
-    waitFor('len(str(description.plainText)) != 0', 5000)
+    waitFor('len(str(description.plainText)) != 0 '
+            'and str(description.plainText) != "Waiting for data..."', 5000)
     show = str(description.plainText)
     id = "Nobody <nobody@nowhere\.com>"
     time = "\w{3} \w{3} \d{1,2} \d{2}:\d{2}:\d{2} \d{4}.* seconds ago\)"
@@ -104,8 +105,8 @@ def verifyClickCommit():
     for i in range(1, 3):
         if not __clickCommit__(i):
             continue
-        changed = waitForObject(":Qt Creator_DiffEditor::SideDiffEditorWidget")
-        original = waitForObject(":Qt Creator_DiffEditor::SideDiffEditorWidget2")
+        changed = waitForObject(":Qt Creator_DiffEditor::SideDiffEditorWidgetChanged")
+        original = waitForObject(":Qt Creator_DiffEditor::SideDiffEditorWidgetOriginal")
         waitFor('str(changed.plainText) != "Waiting for data..." '
                 'and str(original.plainText) != "Waiting for data..."', 5000)
         # content of diff editors is merge of modified files
@@ -201,7 +202,7 @@ def main():
         type(gitEditor, "<Right>")
     rect = gitEditor.cursorRect(gitEditor.textCursor())
     mouseClick(gitEditor, rect.x+rect.width/2, rect.y+rect.height/2, 0, Qt.LeftButton)
-    changed = waitForObject(":Qt Creator_DiffEditor::SideDiffEditorWidget")
+    changed = waitForObject(":Qt Creator_DiffEditor::SideDiffEditorWidgetChanged")
     waitFor('str(changed.plainText) != "Waiting for data..."', 5000)
     test.compare(str(changed.plainText), "Retrieving data failed.",
                  "Showing an invalid commit can't succeed but Creator survived.")

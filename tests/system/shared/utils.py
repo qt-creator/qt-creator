@@ -81,6 +81,14 @@ def selectFromCombo(objectSpec, itemName):
         mouseClick(waitForObjectItem(comboObject, itemName.replace(".", "\\.")))
         test.verify(waitFor("str(comboObject.currentText)==itemName", 5000),
                     "Switched combo item to '%s'" % itemName)
+        def __collapsed__():
+            try:
+                waitForObject("{container='%s' type='QModelIndex'}" % objectSpec, 100)
+                return False
+            except:
+                return True
+
+        waitFor(__collapsed__, 1000)
         return True
 
 def selectFromLocator(filter, itemName = None):

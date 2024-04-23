@@ -60,18 +60,29 @@ using namespace Tasking;
 
 namespace Ios::Internal {
 
+static QString identifierForRunControl(RunControl *runControl)
+{
+    const IosDeviceTypeAspect::Data *data = runControl->aspect<IosDeviceTypeAspect>();
+    return data ? data->deviceType.identifier : QString();
+}
+
 static void stopRunningRunControl(RunControl *runControl)
 {
     static QMap<Id, QPointer<RunControl>> activeRunControls;
 
+    // clean up deleted
+    Utils::erase(activeRunControls, [](const QPointer<RunControl> &rc) { return !rc; });
+
     Target *target = runControl->target();
-    Id devId = DeviceKitAspect::deviceId(target->kit());
+    const Id devId = DeviceKitAspect::deviceId(target->kit());
+    const QString identifier = identifierForRunControl(runControl);
 
     // The device can only run an application at a time, if an app is running stop it.
-    if (activeRunControls.contains(devId)) {
-        if (QPointer<RunControl> activeRunControl = activeRunControls[devId])
+    if (QPointer<RunControl> activeRunControl = activeRunControls[devId]) {
+        if (identifierForRunControl(activeRunControl) == identifier) {
             activeRunControl->initiateStop();
-        activeRunControls.remove(devId);
+            activeRunControls.remove(devId);
+        }
     }
 
     if (devId.isValid())

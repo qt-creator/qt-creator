@@ -524,7 +524,7 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False, ignoreVali
         version = res.group("version")
     else:
         version = None
-    if templateName == "Qt Quick Application":
+    if templateName in ("Qt Quick 2 Extension Plugin", "Qt Quick Application"):
         result = set([Targets.DESKTOP_6_2_4])
     elif 'Supported Platforms' in text:
         supports = text[text.find('Supported Platforms'):].split(":")[1].strip().split("\n")
@@ -662,7 +662,7 @@ def addCPlusPlusFile(name, template, projectName, forceOverwrite=False, addToVCS
             test.compare(str(waitForObject("{name='HdrFileName' type='QLineEdit' visible='1'}").text),
                          expectedHeaderName)
     clickButton(waitForObject(":Next_QPushButton"))
-    projectComboBox = waitForObjectExists(":projectComboBox_Utils::TreeViewComboBox")
+    projectComboBox = waitForObjectExists(":projectComboBox_QComboBox")
     test.compare(projectComboBox.enabled, projectName != None,
                  "Project combo box must be enabled when a project is open")
     projectNameToDisplay = "<None>"

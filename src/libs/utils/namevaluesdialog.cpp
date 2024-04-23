@@ -45,7 +45,11 @@ signals:
     void lostFocus();
 
 private:
-    void focusOutEvent(QFocusEvent *) override { emit lostFocus(); }
+    void focusOutEvent(QFocusEvent *e) override
+    {
+        QPlainTextEdit::focusOutEvent(e);
+        emit lostFocus();
+    }
 };
 
 } // namespace Internal

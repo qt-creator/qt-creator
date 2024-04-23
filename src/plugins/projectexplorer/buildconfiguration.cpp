@@ -617,7 +617,15 @@ FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectD
                          [buildType] { return buildTypeName(buildType); });
     exp.registerSubProvider([kit] { return kit->macroExpander(); });
 
-    FilePath buildDir = FilePath::fromUserInput(buildPropertiesSettings().buildDirectoryTemplate());
+    auto project = ProjectManager::projectWithProjectFilePath(mainFilePath);
+    auto environment = Environment::systemEnvironment();
+    // This adds the environment variables from the <project>.shared file
+    if (project)
+        environment.modify(project->additionalEnvironment());
+
+    FilePath buildDir = FilePath::fromUserInput(environment.value_or(
+        Constants::QTC_DEFAULT_BUILD_DIRECTORY_TEMPLATE,
+        buildPropertiesSettings().buildDirectoryTemplate()));
     qCDebug(bcLog) << "build dir template:" << buildDir.toUserOutput();
     buildDir = exp.expand(buildDir);
     qCDebug(bcLog) << "expanded build:" << buildDir.toUserOutput();

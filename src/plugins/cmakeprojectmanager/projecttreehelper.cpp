@@ -18,15 +18,22 @@ using namespace ProjectExplorer;
 
 namespace CMakeProjectManager::Internal {
 
+bool defaultCMakeSourceGroupFolder(const QString &displayName)
+{
+    return displayName == "Source Files" || displayName == "Header Files"
+           || displayName == "Resources" || displayName == ""
+           || displayName == "Precompile Header File" || displayName == "CMake Rules"
+           || displayName == "Object Files";
+}
+
 std::unique_ptr<FolderNode> createCMakeVFolder(const Utils::FilePath &basePath,
                                                int priority,
-                                               const QString &displayName,
-                                               bool sourcesOrHeaders)
+                                               const QString &displayName)
 {
     auto newFolder = std::make_unique<VirtualFolderNode>(basePath);
     newFolder->setPriority(priority);
     newFolder->setDisplayName(displayName);
-    newFolder->setIsSourcesOrHeaders(sourcesOrHeaders);
+    newFolder->setIsSourcesOrHeaders(defaultCMakeSourceGroupFolder(displayName));
     return newFolder;
 }
 
@@ -35,14 +42,13 @@ void addCMakeVFolder(FolderNode *base,
                      int priority,
                      const QString &displayName,
                      std::vector<std::unique_ptr<FileNode>> &&files,
-                     bool sourcesOrHeaders,
                      bool listInProject)
 {
     if (files.size() == 0)
         return;
     FolderNode *folder = base;
     if (!displayName.isEmpty()) {
-        auto newFolder = createCMakeVFolder(basePath, priority, displayName, sourcesOrHeaders);
+        auto newFolder = createCMakeVFolder(basePath, priority, displayName);
         folder = newFolder.get();
         base->addNode(std::move(newFolder));
     }
@@ -90,7 +96,6 @@ void addCMakeInputs(FolderNode *root,
                     10,
                     Tr::tr("<Other Locations>"),
                     removeKnownNodes(knownFiles, std::move(rootInputs)),
-                    /*sourcesOrHeaders=*/false,
                     /*listInProject=*/false);
 
     root->addNode(std::move(cmakeVFolder));

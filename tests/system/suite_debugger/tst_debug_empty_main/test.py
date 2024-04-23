@@ -14,8 +14,7 @@ def addFileToProject(projectPath, category, fileTemplate, fileName):
                         projectPath, "Verifying whether path is correct."):
         replaceEditorContent(pathLineEdit, projectPath)
     clickButton(waitForObject(":Next_QPushButton"))
-    projCombo = findObject("{buddy={name='projectLabel' text='Add to project:' type='QLabel' "
-                           "visible='1'} name='projectComboBox' type='QComboBox' visible='1'}")
+    projCombo = waitForObjectExists(":projectComboBox_QComboBox", 1000)
     proFileName = os.path.basename(projectPath) + ".pro"
     test.verify(not selectFromCombo(projCombo, proFileName), "Verifying project is selected.")
     __createProjectHandleLastPage__()

@@ -353,7 +353,9 @@ void DiagramSceneModel::selectAllElements()
 void DiagramSceneModel::selectElement(DElement *element)
 {
     QGraphicsItem *selectItem = m_elementToItemMap.value(element);
-    for (QGraphicsItem *item : std::as_const(m_selectedItems)) {
+    // We have to create a copy since "setSelected" may modify m_selectedItems
+    const QSet<QGraphicsItem *> copy = m_selectedItems;
+    for (QGraphicsItem *item : copy) {
         if (item != selectItem)
             item->setSelected(false);
     }

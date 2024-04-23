@@ -8,6 +8,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <utils/environment.h>
 #include <utils/layoutbuilder.h>
 
 using namespace Utils;
@@ -16,7 +17,9 @@ namespace ProjectExplorer {
 
 static QString defaultBuildDirectoryTemplate()
 {
-    return "./build/%{Asciify:%{Kit:FileSystemName}-%{BuildConfig:Name}}";
+    return qtcEnvironmentVariable(
+        Constants::QTC_DEFAULT_BUILD_DIRECTORY_TEMPLATE,
+        "./build/%{Asciify:%{Kit:FileSystemName}-%{BuildConfig:Name}}");
 }
 
 BuildPropertiesSettings &buildPropertiesSettings()

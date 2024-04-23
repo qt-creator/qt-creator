@@ -8,10 +8,10 @@
 
     \title Previewing on Devices
 
-    To preview UIs on Android devices, you need to enable USB debugging on them
+    To preview UIs on Android devices, enable USB debugging on them
     and connect them to your system with a USB cable.
 
-    To preview UIs on Boot2Qt devices, you need to connect the devices to your
+    To preview UIs on Boot2Qt devices, connect the devices to your
     system with a USB cable, or a wired or wireless connection, depending on
     the device, and configure connections to them. The necessary kits have been
     predefined and you only need to enable them for your current project.
@@ -20,8 +20,8 @@
     necessary files to a location in a device where you want to run the
     executable at.
 
-    \note To preview on a wirelessly connected device, select \preferences > \uicontrol Devices
-    and connect the device.
+    \note To preview on a wirelessly connected device, go to \preferences >
+    \uicontrol Devices and connect the device.
 
     To preview a UI on a device:
 
@@ -48,13 +48,13 @@
     The USB debugging feature on Android devices enables creating connections
     to the devices from \QDS and running the preview utility on them.
 
-    Debugging is enabled in different ways on different Android devices.
+    Debugging is turned on in different ways on different Android devices.
     Look for \uicontrol {USB Debugging} under \uicontrol {Developer Options}.
-    On some devices \uicontrol {Developer Options} is hidden and becomes visible
+    On some devices, \uicontrol {Developer Options} is hidden and becomes visible
     when you tap the \uicontrol {Build number} field in \uicontrol Settings >
     \uicontrol About several times.
 
-    After you have enabled debugging, connect the Android device to the system
+    After you turn on debugging, connect the Android device to the system
     with a USB cable.
 
     The first time you preview a UI on devices, the preview utility
@@ -70,17 +70,8 @@
 
     \section2 Previewing on Boot2Qt Devices
 
-    You can preview UIs on Boot2Qt devices. For a list of supported devices, see
-    \l{https://doc.qt.io/Boot2Qt/qtdc-supported-platforms.html}
-    {Boot2Qt: Supported Target Devices and Development Hosts}.
+    You can preview UIs on supported Boot2Qt devices that you configure as
+    instructed in the Boot2Qt documentation.
 
-    You must configure the device as instructed in the
-    \l{https://doc.qt.io/Boot2Qt/b2qt-installation-guides.html}
-    {Boot2Qt: Installation Guides}.
-
-    \note At the time of this writing, \macos is not supported as a development
-    host for Boot2Qt. This means that you cannot preview UIs on
-    devices if you are using \QC on \macos. For more information, see
-    \l {https://doc.qt.io/Boot2Qt/qtdc-supported-platforms.html#supported-development-hosts}
-    {Boot2Qt: Supported Development Hosts}.
+    \sa {Boot2Qt: Documentation}, {Support Levels for Target Hardware}
 */
