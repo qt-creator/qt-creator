@@ -1988,8 +1988,8 @@ void DesignerActionManager::createDefaultDesignerActions()
                           QKeySequence(),
                           44,
                           &editMaterial,
-                          &modelHasMaterial,
-                          &isModel));
+                          &hasEditableMaterial,
+                          &isModelOrMaterial));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           mergeTemplateCommandId,

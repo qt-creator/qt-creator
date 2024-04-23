@@ -817,21 +817,25 @@ void editMaterial(const SelectionContext &selectionContext)
 
     QTC_ASSERT(modelNode.isValid(), return);
 
-    BindingProperty prop = modelNode.bindingProperty("materials");
-    if (!prop.exists())
-        return;
-
     AbstractView *view = selectionContext.view();
 
     ModelNode material;
 
-    if (view->hasId(prop.expression())) {
-        material = view->modelNodeForId(prop.expression());
+    if (modelNode.metaInfo().isQtQuick3DMaterial()) {
+        material = modelNode;
     } else {
-        QList<ModelNode> materials = prop.resolveToModelNodeList();
+        BindingProperty prop = modelNode.bindingProperty("materials");
+        if (!prop.exists())
+            return;
 
-        if (materials.size() > 0)
-            material = materials.first();
+        if (view->hasId(prop.expression())) {
+            material = view->modelNodeForId(prop.expression());
+        } else {
+            QList<ModelNode> materials = prop.resolveToModelNodeList();
+
+            if (materials.size() > 0)
+                material = materials.first();
+        }
     }
 
     if (material.isValid()) {
