@@ -137,8 +137,8 @@ expected_str<LuaPluginSpec *> LuaEngine::loadPlugin(const Utils::FilePath &path)
 
 bool LuaEngine::isCoroutine(lua_State *state)
 {
-            bool ismain = lua_pushthread(state) == 1;
-            return !ismain;
+    bool ismain = lua_pushthread(state) == 1;
+    return !ismain;
 }
 
 template<typename KeyType>
@@ -162,16 +162,12 @@ sol::table LuaEngine::toTable(const sol::state_view &lua, const QJsonValue &v)
 
     if (v.isObject()) {
         QJsonObject o = v.toObject();
-
-        for (auto it = o.constBegin(); it != o.constEnd(); ++it) {
-            setFromJson(table, it.key().toStdString(), it.value());
-        }
-
+        for (auto it = o.constBegin(); it != o.constEnd(); ++it)
+            setFromJson(table, it.key(), it.value());
     } else if (v.isArray()) {
         int i = 1;
-        for (const auto &v : v.toArray()) {
+        for (const auto &v : v.toArray())
             setFromJson(table, i++, v);
-        }
     }
 
     return table;
