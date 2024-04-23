@@ -6,14 +6,18 @@
 #include "androidsdkdownloader.h"
 #include "androidtr.h"
 
+#include <coreplugin/icore.h>
+
+#include <extensionsystem/pluginmanager.h>
+
 #include <solutions/tasking/barrier.h>
 #include <solutions/tasking/networkquery.h>
 
+#include <utils/async.h>
 #include <utils/filepath.h>
+#include <utils/futuresynchronizer.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/unarchiver.h>
-
-#include <coreplugin/icore.h>
 
 #include <QCryptographicHash>
 #include <QLoggingCategory>
@@ -73,16 +77,16 @@ static std::optional<QString> saveToDisk(const FilePath &filename, QIODevice *da
     return {};
 }
 
-// TODO: Make it a separate async task in a chain?
-static bool verifyFileIntegrity(const FilePath fileName, const QByteArray &sha256)
+static void validateFileIntegrity(QPromise<void> &promise, const FilePath &fileName,
+                                  const QByteArray &sha256)
 {
     QFile file(fileName.toString());
     if (file.open(QFile::ReadOnly)) {
         QCryptographicHash hash(QCryptographicHash::Sha256);
-        if (hash.addData(&file))
-            return hash.result() == sha256;
+        if (hash.addData(&file) && hash.result() == sha256)
+            return;
     }
-    return false;
+    promise.future().cancel();
 }
 
 GroupItem downloadSdkRecipe()
@@ -161,17 +165,25 @@ GroupItem downloadSdkRecipe()
         }
         storage->sdkFileName = sdkFileName;
     };
-
+    const auto onValidationSetup = [storage](Async<void> &async) {
+        if (!storage->sdkFileName)
+            return SetupResult::StopWithError;
+        async.setConcurrentCallData(validateFileIntegrity, *storage->sdkFileName,
+                                    androidConfig().getSdkToolsSha256());
+        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
+        storage->progressDialog->setRange(0, 0);
+        storage->progressDialog->setLabelText(Tr::tr("Verifying package integrity..."));
+        return SetupResult::Continue;
+    };
+    const auto onValidationDone = [](DoneWith result) {
+        if (result != DoneWith::Error)
+            return;
+        logError(Tr::tr("Verifying the integrity of the downloaded file has failed."));
+    };
     const auto onUnarchiveSetup = [storage](Unarchiver &unarchiver) {
         storage->progressDialog->setRange(0, 0);
         storage->progressDialog->setLabelText(Tr::tr("Unarchiving SDK Tools package..."));
-        if (!storage->sdkFileName)
-            return SetupResult::StopWithError;
         const FilePath sdkFileName = *storage->sdkFileName;
-        if (!verifyFileIntegrity(sdkFileName, androidConfig().getSdkToolsSha256())) {
-            logError(Tr::tr("Verifying the integrity of the downloaded file has failed."));
-            return SetupResult::StopWithError;
-        }
         const auto sourceAndCommand = Unarchiver::sourceAndCommand(sdkFileName);
         if (!sourceAndCommand) {
             logError(sourceAndCommand.error());
@@ -206,6 +218,7 @@ GroupItem downloadSdkRecipe()
         Group {
             onGroupSetup(onSetup),
             NetworkQueryTask(onQuerySetup, onQueryDone),
+            AsyncTask<void>(onValidationSetup, onValidationDone),
             UnarchiverTask(onUnarchiveSetup, onUnarchiverDone)
         },
         BarrierTask(onCanceled, [] { return DoneResult::Error; })
