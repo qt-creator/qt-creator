@@ -490,9 +490,9 @@ void Qt5InformationNodeInstanceServer::getNodeAtMainScenePos(
     auto viewObj = qobject_cast<QQuick3DViewport *>(view.internalObject());
 
     if (viewObj) {
-        // Render the main view to make sure everything is up to date
+        // Render the target View3D to make sure everything is up to date
         updateNodesRecursive(viewObj);
-        renderWindow();
+        grabItem(viewObj);
 
         QPointF viewPos = viewObj->mapFromScene(pos);
 
