@@ -24,8 +24,9 @@ void addActionModule()
                         "CA_NonConfigurable",
                         Core::Command::CA_NonConfigurable);
 
-        result["create"] = [](const std::string &actionId, const sol::table &options) {
-            Core::ActionBuilder b(nullptr, Id::fromString(QString::fromStdString(actionId)));
+        result["create"] = [parent = std::make_unique<QObject>()](
+                               const std::string &actionId, const sol::table &options) mutable {
+            Core::ActionBuilder b(parent.get(), Id::fromString(QString::fromStdString(actionId)));
 
             for (const auto &[k, v] : options) {
                 QString key = k.as<QString>();
