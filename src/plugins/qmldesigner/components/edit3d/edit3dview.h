@@ -189,6 +189,7 @@ private:
     QList<SplitToolState> m_splitToolStates;
     QList<Edit3DAction *> m_flyModeDisabledActions;
     ModelNode m_contextMenuPendingNode;
+    ModelNode m_pickView3dNode;
 
     double m_previousCameraSpeed = -1.;
     double m_previousCameraMultiplier = -1.;
