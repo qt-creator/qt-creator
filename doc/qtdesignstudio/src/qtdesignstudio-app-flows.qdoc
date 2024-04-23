@@ -376,13 +376,13 @@
 
     \title Applying Effects to Transitions
 
-    You can apply effects, such as fade, move, or push to
+    You can apply effects, such as fade, move, or push, to
     \l{Adding Action Areas and Transitions}{transitions} between
     \l{Adding Flow Items}{flow items}. A fade effect makes the first
     flow item appear to fade out, while the next flow item fades in.
     A move effect makes the second flow item appear to move in over the
-    first flow item, while the push effect appears to make a flow item
-    push out the previous one. You can also design and use custom effects.
+    first flow item. The push effect makes a flow item appear to push out the previous one.
+    You can also use your own custom effects that you have created with some other tool.
 
     The transition direction determines the direction the new flow item appears
     from: left, right, top, bottom. You can set the duration of the effect and
@@ -392,34 +392,42 @@
 
     \list 1
         \li Select a transition line in the \l {2D} view.
-        \li In the context menu, select \uicontrol {Flow} >
-            \uicontrol {Assign Flow Effects}, and then select the effect
-            to apply.
+        \li Right-click the transition line to open the context menu, select \uicontrol {Flow} >
+            \uicontrol {Flow Effects}, and then select the effect to apply.
         \li In \l Properties, modify the properties of the effect.
     \endlist
 
-    To edit effect properties later, select a transition, and then select
-    \uicontrol {Flow} > \uicontrol {Select Effect} in the context menu.
+    To edit effect properties later, select a transition, open the context menu, and then select
+    \uicontrol {Flow} > \uicontrol {Select Effect}.
+
+    To use your own custom effects, select a transition, open the context menu, and then select
+    \uicontrol {Flow} > \uicontrol {Flow Effects} > \uicontrol {Assign Custom FlowEffect}.
+    Then specify the path to your custom effect file.
+
+    To remove the current effect from a transition, select a transition, open the context menu,
+    and then select \uicontrol {Flow} > \uicontrol {Flow Effects} >
+    \uicontrol {Assign FlowEffect None}.
 
     \section1 Flow Effect Properties
 
-    You can specify basic properties for a \uicontrol {Flow Effect}
-    component in the \l Type and \l ID fields in the \uicontrol Component
-    section in the \uicontrol Properties view.
+    Specify basic properties for a \uicontrol {Flow Effect} component in the \l Type and
+    \l ID fields in the \uicontrol Component section in the \uicontrol Properties view.
 
     \image studio-flow-effect-properties.png "Flow Effect properties"
 
-    You can set the duration and easing curve of all flow effects:
+    Set the duration and easing curve of flow effects in the \uicontrol {Transition Effect}
+    section:
 
     \list
         \li In the \uicontrol Duration field, specify the duration of the
             effect.
         \li Select the \inlineimage icons/curve_editor.png
-            button to open \uicontrol {Easing Curve Editor} for attaching an
+            button to open \uicontrol {Easing Curve Editor} to attach an
             \l{Editing Easing Curves}{easing curve} to the effect.
     \endlist
 
-    For a move or push effect, you can set some additional properties:
+    Set some additional properties for a move or push effect in the \uicontrol {Push Effect}
+    or \uicontrol {Move Effect} section:
 
     \image studio-flow-effect-push-properties.png "Flow Push Effect properties"
 
@@ -431,7 +439,7 @@
         \li In the \uicontrol {Incoming opacity} and
             \uicontrol {Outgoing opacity} fields, specify the opacity of
             the effect as a number between 0 and 1.
-        \li Select the \uicontrol Reveal check box to reveal the
+        \li Select the \uicontrol Reveal checkbox to reveal the
             \uicontrol {Flow Item} where the transition starts.
     \endlist
 */
