@@ -11,6 +11,8 @@ QT_END_NAMESPACE
 
 #include <QStringView>
 
+#include <limits>
+
 namespace LanguageUtils {
 
 class LANGUAGEUTILS_EXPORT ComponentVersion
@@ -19,8 +21,8 @@ class LANGUAGEUTILS_EXPORT ComponentVersion
     int _minor;
 
 public:
-    static const int NoVersion = -1;
-    static const int MaxVersion = -1;
+    static constexpr int NoVersion = -1;
+    static constexpr int MaxVersion = std::numeric_limits<int>::max();
 
     ComponentVersion()
         : _major(NoVersion)
