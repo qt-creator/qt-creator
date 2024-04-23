@@ -92,7 +92,6 @@
 :JsonWizard_ProjectExplorer::JsonFieldPage	{type='ProjectExplorer::JsonFieldPage' unnamed='1' visible='1' window=':New_ProjectExplorer::JsonWizard'}
 :Kits_QtVersion_QComboBox	{container=':qt_tabwidget_stackedwidget_QWidget' leftWidget=':QtVersionLabel_KitPage' type='QComboBox' unnamed='1' visible='1'}
 :Locals and Expressions_Debugger::Internal::WatchTreeView	{container=':Debugger.Docks.LocalsAndWatchersDockWidget.Inspector_QFrame' name='WatchWindow' type='Debugger::Internal::WatchTreeView' visible='1'}
-:New Text File.Add to project:_QLabel	{name='projectLabel' text='Add to project:' type='QLabel' visible='1' window=':New_ProjectExplorer::JsonWizard'}
 :New Text File.nameLineEdit_Utils::FileNameValidatingLineEdit	{name='nameLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1' window=':New_ProjectExplorer::JsonWizard'}
 :New.comboBox_QComboBox	{type='QComboBox' unnamed='1' visible='1' window=':New_Core::Internal::NewDialog'}
 :New.templateCategoryView_QTreeView	{name='templateCategoryView' type='QTreeView' visible='1' window=':New_Core::Internal::NewDialog'}
@@ -205,8 +204,7 @@
 :headerFileLineEdit_Utils::FileNameValidatingLineEdit	{name='HdrFileName' type='Utils::FancyLineEdit' visible='1' window=':New_ProjectExplorer::JsonWizard'}
 :popupFrame_Proposal_QListView	{container=':popupFrame_TextEditor::GenericProposalWidget' type='QListView' unnamed='1' visible='1'}
 :popupFrame_TextEditor::GenericProposalWidget	{name='m_popupFrame' type='TextEditor::GenericProposalWidget' visible='1'}
-:projectComboBox_QComboBox	{buddy=':New Text File.Add to project:_QLabel' name='projectComboBox' type='QComboBox' visible='1'}
-:projectComboBox_Utils::TreeViewComboBox	{buddy=':New Text File.Add to project:_QLabel' name='projectComboBox' type='QComboBox' visible='1'}
+:projectComboBox_QComboBox	{name='projectComboBox' type='QComboBox' visible='1'}
 :qdesigner_internal::WidgetBoxCategoryListView	{container=':Widget Box_qdesigner_internal::WidgetBoxTreeWidget' occurrence='3' type='qdesigner_internal::WidgetBoxCategoryListView' unnamed='1' visible='1'}
 :qt_tabwidget_stackedwidget.QtSupport__Internal__QtVersionManager_QtSupport::Internal::QtOptionsPageWidget	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' type='QScrollArea' unnamed='1' visible='1'}
 :qt_tabwidget_stackedwidget_QScrollArea	{container=':Options.qt_tabwidget_stackedwidget_QStackedWidget' type='QScrollArea' unnamed='1' visible='1'}
