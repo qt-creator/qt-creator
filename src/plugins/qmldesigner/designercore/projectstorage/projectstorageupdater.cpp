@@ -191,6 +191,11 @@ void addModuleExportedImport(Storage::Synchronization::ModuleExportedImports &im
     imports.emplace_back(moduleId, exportedModuleId, version, isAutoVersion);
 }
 
+bool isOptionalImport(QmlDirParser::Import::Flags flags)
+{
+    return flags & QmlDirParser::Import::Optional && !(flags & QmlDirParser::Import::OptionalDefault);
+}
+
 void addModuleExportedImports(Storage::Synchronization::ModuleExportedImports &imports,
                               ModuleId moduleId,
                               ModuleId cppModuleId,
@@ -205,6 +210,9 @@ void addModuleExportedImports(Storage::Synchronization::ModuleExportedImports &i
                                keyValue("module id", moduleId)};
 
     for (const QmlDirParser::Import &qmldirImport : qmldirImports) {
+        if (isOptionalImport(qmldirImport.flags))
+            continue;
+
         Utils::PathString exportedModuleName{qmldirImport.module};
         ModuleId exportedModuleId = projectStorage.moduleId(exportedModuleName);
         addModuleExportedImport(imports,
