@@ -177,10 +177,12 @@ private:
                               Storage::Synchronization::SynchronizationPackage &package);
     void updatePropertyEditorPath(const QString &path,
                                   Storage::Synchronization::SynchronizationPackage &package,
-                                  SourceId directorySourceId);
+                                  SourceId directorySourceId,
+                                  long long pathOffset);
     void updatePropertyEditorFilePath(const QString &filePath,
                                       Storage::Synchronization::SynchronizationPackage &package,
-                                      SourceId directorySourceId);
+                                      SourceId directorySourceId,
+                                      long long pathOffset);
     void parseTypeInfos(const QStringList &typeInfos,
                         const QList<QmlDirParser::Import> &qmldirDependencies,
                         const QList<QmlDirParser::Import> &qmldirImports,

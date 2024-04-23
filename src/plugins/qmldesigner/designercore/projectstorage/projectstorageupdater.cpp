@@ -517,8 +517,12 @@ void ProjectStorageUpdater::updatePropertyEditorPaths(
 
         auto state = fileState(directorySourceId, package, notUpdatedSourceIds);
 
-        if (state == FileState::Changed)
-            updatePropertyEditorPath(pathInfo.filePath(), package, directorySourceId);
+        if (state == FileState::Changed) {
+            updatePropertyEditorPath(pathInfo.filePath(),
+                                     package,
+                                     directorySourceId,
+                                     propertyEditorResourcesPath.size() + 1);
+        }
     }
 }
 
@@ -655,7 +659,8 @@ void ProjectStorageUpdater::updateTypeAnnotation(const QString &directoryPath,
 void ProjectStorageUpdater::updatePropertyEditorPath(
     const QString &directoryPath,
     Storage::Synchronization::SynchronizationPackage &package,
-    SourceId directorySourceId)
+    SourceId directorySourceId,
+    long long pathOffset)
 {
     NanotraceHR::Tracer tracer{"update property editor path"_t,
                                category(),
@@ -668,27 +673,29 @@ void ProjectStorageUpdater::updatePropertyEditorPath(
     auto dir = QDir{directoryPath};
     const auto fileInfos = dir.entryInfoList({"*Pane.qml", "*Specifics.qml"}, QDir::Files);
     for (const auto &fileInfo : fileInfos)
-        updatePropertyEditorFilePath(fileInfo.filePath(), package, directorySourceId);
+        updatePropertyEditorFilePath(fileInfo.filePath(), package, directorySourceId, pathOffset);
 }
 
 void ProjectStorageUpdater::updatePropertyEditorFilePath(
     const QString &path,
     Storage::Synchronization::SynchronizationPackage &package,
-    SourceId directorySourceId)
+    SourceId directorySourceId,
+    long long pathOffset)
 {
     NanotraceHR::Tracer tracer{"update property editor file path"_t,
                                category(),
                                keyValue("directory path", path),
                                keyValue("directory source id", directorySourceId)};
 
-    QRegularExpression regex{R"xo(.+\/(\w+)\/(\w+)(Specifics|Pane).qml)xo"};
-    auto match = regex.match(path);
+    QRegularExpression regex{R"xo((.+)\/(\w+)(Specifics|Pane).qml)xo"};
+    auto match = regex.match(QStringView{path}.mid(pathOffset));
     QString oldModuleName;
     ModuleId moduleId;
     if (match.hasMatch()) {
-        auto moduleName = match.capturedView(1);
+        auto moduleName = match.capturedView(1).toString();
+        moduleName.replace('/', '.');
         if (oldModuleName != moduleName) {
-            oldModuleName = moduleName.toString();
+            oldModuleName = moduleName;
             moduleId = m_projectStorage.moduleId(Utils::SmallString{moduleName});
         }
         Storage::TypeNameString typeName{match.capturedView(2)};

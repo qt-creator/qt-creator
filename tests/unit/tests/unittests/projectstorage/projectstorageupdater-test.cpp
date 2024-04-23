@@ -3533,19 +3533,26 @@ TEST_F(ProjectStorageUpdater, update_property_editor_specifics)
     ON_CALL(projectStorageMock, fetchFileStatus(_)).WillByDefault([](SourceId sourceId) {
         return FileStatus{sourceId, 1, 21};
     });
-    auto sourceId = sourcePathCache.sourceId(
+    auto textSourceId = sourcePathCache.sourceId(
         QmlDesigner::SourcePath{propertyEditorQmlPath + "/QtQuick/TextSpecifics.qml"});
-    auto directoryId = sourcePathCache.sourceId(
+    auto qtQuickDirectoryId = sourcePathCache.sourceId(
         QmlDesigner::SourcePath{propertyEditorQmlPath + "/QtQuick/."});
-    setFilesChanged({directoryId});
+    auto buttonSourceId = sourcePathCache.sourceId(
+        QmlDesigner::SourcePath{propertyEditorQmlPath + "/QtQuick/Controls/ButtonSpecifics.qml"});
+    auto controlsDirectoryId = sourcePathCache.sourceId(
+        QmlDesigner::SourcePath{propertyEditorQmlPath + "/QtQuick/Controls/."});
+    setFilesChanged({qtQuickDirectoryId, controlsDirectoryId});
     auto qtQuickModuleId = storage.moduleId("QtQuick");
+    auto controlsModuleId = storage.moduleId("QtQuick.Controls");
 
     EXPECT_CALL(projectStorageMock,
-                synchronize(
-                    AllOf(Field(&SynchronizationPackage::propertyEditorQmlPaths,
-                                Contains(IsPropertyEditorQmlPath(qtQuickModuleId, "Text", sourceId))),
-                          Field(&SynchronizationPackage::updatedPropertyEditorQmlPathSourceIds,
-                                ElementsAre(directoryId)))));
+                synchronize(AllOf(
+                    Field(&SynchronizationPackage::propertyEditorQmlPaths,
+                          IsSupersetOf(
+                              {IsPropertyEditorQmlPath(qtQuickModuleId, "Text", textSourceId),
+                               IsPropertyEditorQmlPath(controlsModuleId, "Button", buttonSourceId)})),
+                    Field(&SynchronizationPackage::updatedPropertyEditorQmlPathSourceIds,
+                          ElementsAre(qtQuickDirectoryId, controlsDirectoryId)))));
 
     updater.update({}, {}, propertyEditorQmlPath, {});
 }
