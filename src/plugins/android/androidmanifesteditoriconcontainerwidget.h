@@ -3,8 +3,8 @@
 
 #pragma once
 
+#include <QList>
 #include <QString>
-#include <QVector>
 #include <QWidget>
 
 #include <QCoreApplication>
@@ -30,7 +30,7 @@ public:
     void loadIcons();
     bool hasIcons() const;
 private:
-    QVector<AndroidManifestEditorIconWidget *> m_iconButtons;
+    QList<AndroidManifestEditorIconWidget *> m_iconButtons;
     QString m_iconFileName = QLatin1String("icon");
     bool m_hasIcons = false;
 signals:

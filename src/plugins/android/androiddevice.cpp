@@ -666,7 +666,7 @@ void AndroidDeviceManager::HandleAvdsListChange()
 {
     DeviceManager *const devMgr = DeviceManager::instance();
 
-    QVector<Id> existingAvds;
+    QList<Id> existingAvds;
     for (int i = 0; i < devMgr->deviceCount(); ++i) {
         const IDevice::ConstPtr dev = devMgr->deviceAt(i);
         const bool isEmulator = dev->machineType() == IDevice::Emulator;
@@ -674,7 +674,7 @@ void AndroidDeviceManager::HandleAvdsListChange()
             existingAvds.append(dev->id());
     }
 
-    QVector<Id> connectedDevs;
+    QList<Id> connectedDevs;
     for (const AndroidDeviceInfo &item : m_avdsFutureWatcher.result()) {
         const Id deviceId = AndroidDevice::idFromDeviceInfo(item);
         const QString displayName = AndroidDevice::displayNameFromInfo(item);

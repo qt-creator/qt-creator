@@ -607,9 +607,9 @@ FilePath AndroidConfig::keytoolPath() const
     return openJDKBinPath().pathAppended(keytoolName).withExecutableSuffix();
 }
 
-QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(QString *error) const
+QList<AndroidDeviceInfo> AndroidConfig::connectedDevices(QString *error) const
 {
-    QVector<AndroidDeviceInfo> devices;
+    QList<AndroidDeviceInfo> devices;
     Process adbProc;
     CommandLine cmd{adbToolPath(), {"devices"}};
     adbProc.setCommand(cmd);
@@ -664,7 +664,7 @@ QVector<AndroidDeviceInfo> AndroidConfig::connectedDevices(QString *error) const
 
 bool AndroidConfig::isConnected(const QString &serialNumber) const
 {
-    const QVector<AndroidDeviceInfo> devices = connectedDevices();
+    const QList<AndroidDeviceInfo> devices = connectedDevices();
     for (const AndroidDeviceInfo &device : devices) {
         if (device.serialNumber == serialNumber)
             return true;
@@ -1225,7 +1225,7 @@ void AndroidConfigurations::removeUnusedDebuggers()
         return v->type() == Constants::ANDROID_QT_TYPE;
     });
 
-    QVector<FilePath> uniqueNdks;
+    QList<FilePath> uniqueNdks;
     for (const QtVersion *qt : qtVersions) {
         FilePath ndkLocation = androidConfig().ndkLocation(qt);
         if (!uniqueNdks.contains(ndkLocation))

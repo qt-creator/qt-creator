@@ -273,7 +273,7 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
 
 QString AndroidAvdManager::findAvd(const QString &avdName) const
 {
-    const QVector<AndroidDeviceInfo> devices = androidConfig().connectedDevices();
+    const QList<AndroidDeviceInfo> devices = androidConfig().connectedDevices();
     for (const AndroidDeviceInfo &device : devices) {
         if (device.type != ProjectExplorer::IDevice::Emulator)
             continue;

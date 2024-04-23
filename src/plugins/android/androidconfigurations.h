@@ -9,14 +9,14 @@
 #include "androidsdkpackage.h"
 
 #include <projectexplorer/toolchain.h>
+
 #include <qtsupport/qtversionmanager.h>
 
 #include <utils/filepath.h>
 
-#include <QStringList>
-#include <QVector>
 #include <QHash>
 #include <QMap>
+#include <QStringList>
 #include <QVersionNumber>
 
 namespace ProjectExplorer { class Abi; }
@@ -114,7 +114,7 @@ public:
 
     Utils::FilePath keytoolPath() const;
 
-    QVector<AndroidDeviceInfo> connectedDevices(QString *error = nullptr) const;
+    QList<AndroidDeviceInfo> connectedDevices(QString *error = nullptr) const;
 
     QString bestNdkPlatformMatch(int target, const QtSupport::QtVersion *qtVersion) const;
 

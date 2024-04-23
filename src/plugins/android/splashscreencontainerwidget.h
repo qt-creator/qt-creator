@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <QVector>
+#include <QList>
 #include <QStackedWidget>
 
 QT_BEGIN_NAMESPACE
@@ -48,9 +48,9 @@ private:
     void clearAll();
 
     TextEditor::TextEditorWidget *m_textEditorWidget = nullptr;
-    QVector<SplashScreenWidget *> m_imageWidgets;
-    QVector<SplashScreenWidget *> m_portraitImageWidgets;
-    QVector<SplashScreenWidget *> m_landscapeImageWidgets;
+    QList<SplashScreenWidget *> m_imageWidgets;
+    QList<SplashScreenWidget *> m_portraitImageWidgets;
+    QList<SplashScreenWidget *> m_landscapeImageWidgets;
     bool m_splashScreenSticky = false;
     QColor m_splashScreenBackgroundColor;
     QCheckBox *m_stickyCheck = nullptr;
