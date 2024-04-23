@@ -4,6 +4,8 @@
 #include "../luaengine.h"
 #include "../luaqttypes.h"
 
+#include <utils/networkaccessmanager.h>
+
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QNetworkAccessManager>
@@ -51,8 +53,6 @@ void addFetchModule()
                     .arg(r->error());
             });
 
-        static QNetworkAccessManager networkAccessManager;
-
         fetch["fetch_cb"] = [](const sol::table &options, const sol::function &callback, const sol::this_state &thisState) {
             auto url = options.get<QString>("url");
 
@@ -70,9 +70,9 @@ void addFetchModule()
 
             QNetworkReply *reply = nullptr;
             if (method == "get")
-                reply = networkAccessManager.get(request);
+                reply = Utils::NetworkAccessManager::instance()->get(request);
             else if (method == "post")
-                reply = networkAccessManager.post(request, data.toUtf8());
+                reply = Utils::NetworkAccessManager::instance()->post(request, data.toUtf8());
             else
                 throw std::runtime_error("Unknown method: " + method.toStdString());
 
