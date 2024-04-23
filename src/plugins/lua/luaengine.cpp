@@ -88,33 +88,9 @@ expected_str<LuaPluginSpec *> LuaEngine::loadPlugin(const Utils::FilePath &path)
 
     sol::state lua;
 
-    // TODO: Only open libraries requested by the plugin
-    lua.open_libraries(sol::lib::base,
-                       sol::lib::package,
-                       sol::lib::coroutine,
-                       sol::lib::string,
-                       sol::lib::os,
-                       sol::lib::math,
-                       sol::lib::table,
-                       sol::lib::debug,
-                       sol::lib::bit32,
-                       sol::lib::io);
-
     lua["print"] = [prefix = path.fileName()](sol::variadic_args va) {
         qDebug().noquote() << "[" << prefix << "]" << variadicToStringList(va).join("\t");
     };
-
-    for (const auto &[name, func] : d->m_providers.asKeyValueRange()) {
-        lua["package"]["preload"][name.toStdString()] = [func = func](const sol::this_state &s) {
-            return func(s);
-        };
-    }
-
-    for (const auto &func : d->m_autoProviders)
-        func(lua);
-
-    const QString searchPath = (path.parentDir() / "?.lua").toUserOutput();
-    lua["package"]["path"] = searchPath.toStdString();
 
     auto result = lua.safe_script(
         std::string_view(contents->data(), contents->size()),
@@ -133,6 +109,43 @@ expected_str<LuaPluginSpec *> LuaEngine::loadPlugin(const Utils::FilePath &path)
     if (!pluginInfo.valid())
         return make_unexpected(QString("Script did not return a table with plugin info"));
     return LuaPluginSpec::create(path, std::move(lua), pluginInfo);
+}
+
+expected_str<void> LuaEngine::prepareSetup(
+    sol::state_view &lua, const LuaPluginSpec &pluginSpec, sol::optional<sol::table> hookTable)
+{
+    // TODO: Only open libraries requested by the plugin
+    lua.open_libraries(
+        sol::lib::base,
+        sol::lib::bit32,
+        sol::lib::coroutine,
+        sol::lib::debug,
+        sol::lib::io,
+        sol::lib::math,
+        sol::lib::os,
+        sol::lib::package,
+        sol::lib::string,
+        sol::lib::table,
+        sol::lib::utf8);
+
+    const QString searchPath
+        = (FilePath::fromUserInput(pluginSpec.filePath()).parentDir() / "?.lua").toUserOutput();
+    lua["package"]["path"] = searchPath.toStdString();
+
+    // TODO: only register what the plugin requested
+    for (const auto &[name, func] : d->m_providers.asKeyValueRange()) {
+        lua["package"]["preload"][name.toStdString()] = [func = func](const sol::this_state &s) {
+            return func(s);
+        };
+    }
+
+    for (const auto &func : d->m_autoProviders)
+        func(lua);
+
+    if (hookTable)
+        return LuaEngine::connectHooks(lua, *hookTable);
+
+    return {};
 }
 
 bool LuaEngine::isCoroutine(lua_State *state)

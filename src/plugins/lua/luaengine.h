@@ -41,6 +41,8 @@ public:
     static LuaEngine &instance();
 
     Utils::expected_str<LuaPluginSpec *> loadPlugin(const Utils::FilePath &path);
+    Utils::expected_str<void> prepareSetup(
+        sol::state_view &lua, const LuaPluginSpec &pluginSpec, sol::optional<sol::table> hookTable);
 
     static void registerProvider(const QString &packageName, const PackageProvider &provider);
     static void autoRegister(const std::function<void(sol::state_view)> &registerFunction);

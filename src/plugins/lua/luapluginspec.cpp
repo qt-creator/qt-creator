@@ -94,14 +94,15 @@ bool LuaPluginSpec::loadLibrary()
 }
 bool LuaPluginSpec::initializePlugin()
 {
-    std::optional<sol::table> hookTable = d->pluginTable.get<std::optional<sol::table>>("hooks");
-    if (hookTable) {
-        auto res = LuaEngine::connectHooks(d->lua, *hookTable);
-        if (!res) {
-            setError(Lua::Tr::tr("Failed to connect hooks: %1").arg(res.error()));
-            return false;
-        }
+    expected_str<void> setupResult
+        = LuaEngine::instance()
+              .prepareSetup(d->lua, *this, d->pluginTable.get<sol::optional<sol::table>>("hooks"));
+
+    if (!setupResult) {
+        setError(Lua::Tr::tr("Failed to prepare plugin setup: %1").arg(setupResult.error()));
+        return false;
     }
+
     auto result = d->setupFunction.call();
 
     if (result.get_type() == sol::type::boolean && result.get<bool>() == false) {
