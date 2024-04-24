@@ -107,18 +107,15 @@ static bool getCustomUrl(const QString &value,
     if (urlResult)
         urlResult->clear();
 
-    if (subType)
-        subType->clear();
-
-    dataType = CollectionDetails::DataType::Unknown;
+    dataType = CollectionDetails::DataType::String;
     return false;
 }
 
 /**
  * @brief dataTypeFromString
  * @param value The string value to be evaluated
- * @return Unknown if the string is empty, But returns Bool, Color, Integer,
- * Real, Url, Image if these types are detected within the non-empty string,
+ * @return Bool, Color, Integer, Real, Url,
+ * Image if these types are detected within the non-empty string,
  * Otherwise it returns String.
  * If the value is integer, but it's out of the int range, it will be
  * considered as a Real.
@@ -144,7 +141,7 @@ static CollectionDetails::DataType dataTypeFromString(const QString &value)
         }({boolIndex, colorIndex, integerIndex, realIndex});
 
     if (value.isEmpty())
-        return DataType::Unknown;
+        return DataType::String;
 
     const QString trimmedValue = value.trimmed();
     QRegularExpressionMatch match = validator.match(trimmedValue);
@@ -176,7 +173,7 @@ static CollectionProperty::DataType dataTypeFromJsonValue(const QJsonValue &valu
     switch (value.type()) {
     case JsonType::Null:
     case JsonType::Undefined:
-        return DataType::Unknown;
+        return DataType::String;
     case JsonType::Bool:
         return DataType::Boolean;
     case JsonType::Double: {
@@ -187,7 +184,7 @@ static CollectionProperty::DataType dataTypeFromJsonValue(const QJsonValue &valu
     case JsonType::String:
         return dataTypeFromString(value.toString());
     default:
-        return DataType::Unknown;
+        return DataType::String;
     }
 }
 
@@ -208,9 +205,7 @@ static QList<CollectionProperty> getColumnsFromImportedJsonArray(const QJsonArra
                 const QString propertyName = element.key();
                 if (resultSet.contains(propertyName)) {
                     CollectionProperty &property = result[resultSet.value(propertyName)];
-                    if (property.type == DataType::Unknown) {
-                        property.type = dataTypeFromJsonValue(element.value());
-                    } else if (property.type == DataType::Integer) {
+                    if (property.type == DataType::Integer) {
                         const DataType currentCellDataType = dataTypeFromJsonValue(element.value());
                         if (currentCellDataType == DataType::Real)
                             property.type = currentCellDataType;
@@ -258,20 +253,9 @@ static QVariant valueToVariant(const QJsonValue &value, CollectionDetails::DataT
 }
 
 static QJsonValue variantToJsonValue(
-    const QVariant &variant, CollectionDetails::DataType type = CollectionDetails::DataType::Unknown)
+    const QVariant &variant, CollectionDetails::DataType type = CollectionDetails::DataType::String)
 {
-    using VariantType = QVariant::Type;
     using DataType = CollectionDetails::DataType;
-
-    if (type == CollectionDetails::DataType::Unknown) {
-        static const QHash<VariantType, DataType> typeMap = {{VariantType::Bool, DataType::Boolean},
-                                                             {VariantType::Double, DataType::Real},
-                                                             {VariantType::Int, DataType::Integer},
-                                                             {VariantType::String, DataType::String},
-                                                             {VariantType::Color, DataType::Color},
-                                                             {VariantType::Url, DataType::Url}};
-        type = typeMap.value(variant.type(), DataType::Unknown);
-    }
 
     switch (type) {
     case DataType::Boolean:
@@ -606,7 +590,7 @@ DataTypeWarning::Warning CollectionDetails::cellWarningCheck(int row, int column
     const DataType columnType = typeAt(column);
     const DataType cellType = typeAt(row, column);
 
-    if (columnType == DataType::Unknown || isEmptyJsonValue(cellValue))
+    if (isEmptyJsonValue(cellValue))
         return DataTypeWarning::Warning::None;
 
     if (columnType == DataType::Real && cellType == DataType::Integer)

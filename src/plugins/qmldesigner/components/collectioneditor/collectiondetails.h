@@ -90,7 +90,7 @@ public:
     void insertColumn(const QString &propertyName,
                       int colIdx = -1,
                       const QVariant &defaultValue = {},
-                      DataType type = DataType::Unknown);
+                      DataType type = DataType::String);
     bool removeColumns(int colIdx, int count = 1);
 
     void insertEmptyRows(int row = 0, int count = 1);
