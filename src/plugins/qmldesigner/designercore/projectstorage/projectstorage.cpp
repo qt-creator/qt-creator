@@ -2277,12 +2277,6 @@ void ProjectStorage::updateTypeIdInTypeAnnotations(Storage::Synchronization::Typ
                                                                  annotation.typeName);
     }
 
-    for (auto &annotation : typeAnnotations) {
-        if (!annotation.typeId)
-            qWarning() << moduleName(annotation.moduleId).toQString()
-                       << annotation.typeName.toQString();
-    }
-
     typeAnnotations.erase(std::remove_if(typeAnnotations.begin(),
                                          typeAnnotations.end(),
                                          [](const auto &annotation) { return !annotation.typeId; }),
