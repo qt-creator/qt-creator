@@ -23,7 +23,6 @@ const QList<CollectionDataTypeModel::Details> CollectionDataTypeModel::m_ordered
     {DataType::Color, "Color", "HEX value"},
     {DataType::Url, "Url", "Resource locator"},
     {DataType::Boolean, "Boolean", "True/false"},
-    {DataType::Unknown, "Unknown", "Unknown data type"},
 };
 
 CollectionDataTypeModel::CollectionDataTypeModel(QObject *parent)
@@ -76,7 +75,7 @@ CollectionDetails::DataType CollectionDataTypeModel::dataTypeFromString(const QS
     if (stringTypeHash.contains(dataType))
         return stringTypeHash.value(dataType);
 
-    return DataType::Unknown;
+    return DataType::String;
 }
 
 void CollectionDataTypeModel::registerDeclarativeType()

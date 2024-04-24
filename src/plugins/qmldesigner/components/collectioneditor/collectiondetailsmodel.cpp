@@ -197,7 +197,7 @@ QVariant CollectionDetailsModel::headerData(int section, Qt::Orientation orienta
 
 CollectionDetails::DataType CollectionDetailsModel::propertyDataType(int column) const
 {
-    QTC_ASSERT(m_currentCollection.hasValidReference(), return CollectionDetails::DataType::Unknown);
+    QTC_ASSERT(m_currentCollection.hasValidReference(), return CollectionDetails::DataType::String);
 
     return m_currentCollection.typeAt(column);
 }
