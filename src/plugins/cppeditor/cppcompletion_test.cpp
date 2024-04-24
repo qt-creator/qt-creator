@@ -2889,6 +2889,16 @@ void CompletionTest::testCompletionMemberAccessOperator_data()
         ) << _("p->") << QStringList({"S", "m"})
         << false
         << false;
+    QTest::newRow("dot to arrow: template + reference + double typedef")
+        << _("template <typename T> struct C {\n"
+             "    using ref = T &;\n"
+             "    ref operator[](int i);\n"
+             "};\n"
+             "struct S { int m; };\n"
+             "template<typename T> using CS = C<T>;\n"
+             "CS<S *> v;\n"
+             "@\n")
+        << _("v[0].") << QStringList({"S", "m"}) << false << true;
 }
 
 } // namespace CppEditor::Internal
