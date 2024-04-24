@@ -121,6 +121,21 @@ void ContentLibraryUserModel::addTextures(const QStringList &paths)
     emit dataChanged(index(texSectionIdx), index(texSectionIdx));
 }
 
+void ContentLibraryUserModel::removeTexture(ContentLibraryTexture *tex)
+{
+    // remove resources
+    Utils::FilePath::fromString(tex->texturePath()).removeFile();
+    Utils::FilePath::fromString(tex->iconPath()).removeFile();
+
+    // remove from model
+    m_userTextures.removeOne(tex);
+    tex->deleteLater();
+
+    // update model
+    int texSectionIdx = 1;
+    emit dataChanged(index(texSectionIdx), index(texSectionIdx));
+}
+
 // returns unique library material's name and qml component
 QPair<QString, QString> ContentLibraryUserModel::getUniqueLibMaterialNameAndQml(const QString &matName) const
 {

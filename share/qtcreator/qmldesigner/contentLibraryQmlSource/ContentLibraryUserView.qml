@@ -61,6 +61,7 @@ HelperWidgets.ScrollView {
         ContentLibraryTextureContextMenu {
             id: ctxMenuTexture
 
+            enableRemove: true
             hasSceneEnv: ContentLibraryBackend.texturesModel.hasSceneEnv
         }
 

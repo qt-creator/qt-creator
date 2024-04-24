@@ -72,6 +72,7 @@ public:
     Q_INVOKABLE void applyToSelected(QmlDesigner::ContentLibraryMaterial *mat, bool add = false);
     Q_INVOKABLE void addToProject(QmlDesigner::ContentLibraryMaterial *mat);
     Q_INVOKABLE void removeFromProject(QmlDesigner::ContentLibraryMaterial *mat);
+    Q_INVOKABLE void removeTexture(QmlDesigner::ContentLibraryTexture *tex);
 
 signals:
     void isEmptyChanged();
