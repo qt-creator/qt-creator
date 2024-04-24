@@ -10,6 +10,8 @@
 #include "qmlmodelnodeproxy.h"
 #include "quick2propertyeditorview.h"
 
+#include <utils/uniqueobjectptr.h>
+
 #include <nodemetainfo.h>
 
 #include <QQmlPropertyMap>
@@ -100,10 +102,13 @@ private:
     static TypeName fixTypeNameForPanes(const TypeName &typeName);
 
 private:
-    Quick2PropertyEditorView *m_view;
+    // to avoid a crash while destructing DesignerPropertyMap in the QQmlData
+    // this needs be destructed after m_quickWidget->engine() is destructed
+    DesignerPropertyMap m_backendValuesPropertyMap;
+
+    Utils::UniqueObjectPtr<Quick2PropertyEditorView> m_view = nullptr;
     QmlAnchorBindingProxy m_backendAnchorBinding;
     QmlModelNodeProxy m_backendModelNode;
-    DesignerPropertyMap m_backendValuesPropertyMap;
     QScopedPointer<PropertyEditorTransaction> m_propertyEditorTransaction;
     QScopedPointer<PropertyEditorValue> m_dummyPropertyEditorValue;
     QScopedPointer<PropertyEditorContextObject> m_contextObject;

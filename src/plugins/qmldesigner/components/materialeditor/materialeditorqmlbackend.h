@@ -60,10 +60,13 @@ private:
                                    MaterialEditorView *materialEditor);
     PropertyName auxNamePostFix(const PropertyName &propertyName);
 
+    // to avoid a crash while destructing DesignerPropertyMap in the QQmlData
+    // this needs be destructed after m_quickWidget->engine() is destructed
+    DesignerPropertyMap m_backendValuesPropertyMap;
+
     Utils::UniqueObjectPtr<QQuickWidget> m_quickWidget = nullptr;
     QmlAnchorBindingProxy m_backendAnchorBinding;
     QmlModelNodeProxy m_backendModelNode;
-    DesignerPropertyMap m_backendValuesPropertyMap;
     QScopedPointer<MaterialEditorTransaction> m_materialEditorTransaction;
     QScopedPointer<MaterialEditorContextObject> m_contextObject;
     QPointer<MaterialEditorImageProvider> m_materialEditorImageProvider;
