@@ -1724,6 +1724,8 @@ void EditorManagerPrivate::setCurrentEditor(IEditor *editor, bool ignoreNavigati
 
     updateActions();
 
+    if (QTC_GUARD(!d->m_currentView.isEmpty()) && d->m_currentView.constFirst() != previousView)
+        emit d->currentViewChanged();
     if (d->m_currentEditor != previousEditor)
         emit m_instance->currentEditorChanged(d->m_currentEditor);
 }
@@ -1742,6 +1744,8 @@ void EditorManagerPrivate::setCurrentView(EditorView *view)
             previousView->update();
         if (d->m_currentView.constFirst())
             view->update();
+
+        emit d->currentViewChanged();
     }
 
     setCurrentEditor(view->currentEditor());
@@ -1869,6 +1873,8 @@ void EditorManagerPrivate::addEditorArea(EditorArea *area)
             // If we didn't find a better view, so be it
         },
         Qt::QueuedConnection);
+    connect(area, &SplitterOrView::splitStateChanged, d, &EditorManagerPrivate::viewCountChanged);
+    emit d->viewCountChanged();
 }
 
 void EditorManagerPrivate::splitNewWindow(EditorView *view)
@@ -2280,31 +2286,33 @@ void EditorManagerPrivate::editorAreaDestroyed(QObject *area)
         }
     }
     // check if the destroyed editor area had the current view or current editor
-    if (currentEditorView())
-        return;
-    // we need to set a new current editor or view
-    if (!newActiveArea) {
-        // some window managers behave weird and don't activate another window
-        // or there might be a Qt Creator toplevel activated that doesn't have editor windows
-        newActiveArea = d->m_editorAreas.first();
-    }
+    if (!currentEditorView()) {
+        // we need to set a new current editor or view
+        if (!newActiveArea) {
+            // some window managers behave weird and don't activate another window
+            // or there might be a Qt Creator toplevel activated that doesn't have editor windows
+            newActiveArea = d->m_editorAreas.first();
+        }
 
-    // check if the focusWidget points to some view
-    SplitterOrView *focusSplitterOrView = nullptr;
-    QWidget *candidate = newActiveArea->focusWidget();
-    while (candidate && candidate != newActiveArea) {
-        if ((focusSplitterOrView = qobject_cast<SplitterOrView *>(candidate)))
-            break;
-        candidate = candidate->parentWidget();
+        // check if the focusWidget points to some view
+        SplitterOrView *focusSplitterOrView = nullptr;
+        QWidget *candidate = newActiveArea->focusWidget();
+        while (candidate && candidate != newActiveArea) {
+            if ((focusSplitterOrView = qobject_cast<SplitterOrView *>(candidate)))
+                break;
+            candidate = candidate->parentWidget();
+        }
+        // focusWidget might have been 0
+        if (!focusSplitterOrView)
+            focusSplitterOrView = newActiveArea->findFirstView()->parentSplitterOrView();
+        QTC_ASSERT(focusSplitterOrView, focusSplitterOrView = newActiveArea);
+        EditorView *focusView
+            = focusSplitterOrView->findFirstView(); // can be just focusSplitterOrView
+        QTC_ASSERT(focusView, focusView = newActiveArea->findFirstView());
+        if (QTC_GUARD(focusView))
+            EditorManagerPrivate::activateView(focusView);
     }
-    // focusWidget might have been 0
-    if (!focusSplitterOrView)
-        focusSplitterOrView = newActiveArea->findFirstView()->parentSplitterOrView();
-    QTC_ASSERT(focusSplitterOrView, focusSplitterOrView = newActiveArea);
-    EditorView *focusView = focusSplitterOrView->findFirstView(); // can be just focusSplitterOrView
-    QTC_ASSERT(focusView, focusView = newActiveArea->findFirstView());
-    QTC_ASSERT(focusView, return);
-    EditorManagerPrivate::activateView(focusView);
+    emit viewCountChanged();
 }
 
 void EditorManagerPrivate::autoSave()
@@ -2663,6 +2671,14 @@ QList<EditorView *> EditorManagerPrivate::allEditorViews()
         }
     }
     return views;
+}
+
+bool EditorManagerPrivate::hasMoreThanOneview()
+{
+    if (d->m_editorAreas.size() > 1)
+        return true;
+    QTC_ASSERT(d->m_editorAreas.size() > 0, return false);
+    return d->m_editorAreas.constFirst()->isSplitter();
 }
 
 /*!

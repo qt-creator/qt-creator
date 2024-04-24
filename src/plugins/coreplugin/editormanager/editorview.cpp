@@ -14,10 +14,11 @@
 
 #include <utils/algorithm.h>
 #include <utils/infobar.h>
-#include <utils/qtcassert.h>
-#include <utils/theme/theme.h>
 #include <utils/layoutbuilder.h>
 #include <utils/link.h>
+#include <utils/overlaywidget.h>
+#include <utils/qtcassert.h>
+#include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
 #include <QFileInfo>
@@ -125,6 +126,33 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent) :
             this, &EditorView::openDroppedFiles);
 
     updateNavigatorActions();
+
+    auto currentViewOverlay = new OverlayWidget;
+    currentViewOverlay->attachToWidget(this);
+    currentViewOverlay->setPaintFunction([this](QWidget *w, QPainter &p, QPaintEvent *) {
+        const int width = 2;
+        const QPoint margin{0, width};
+        p.setPen({w->palette().color(QPalette::Highlight), width});
+        p.drawLine(
+            m_toolBar->geometry().bottomLeft() + margin,
+            m_toolBar->geometry().bottomRight() + margin);
+    });
+    currentViewOverlay->setVisible(false);
+    const auto updateCurrentViewOverlay = [this, currentViewOverlay] {
+        currentViewOverlay->setVisible(
+            EditorManagerPrivate::hasMoreThanOneview()
+            && EditorManagerPrivate::currentEditorView() == this);
+    };
+    connect(
+        EditorManagerPrivate::instance(),
+        &EditorManagerPrivate::currentViewChanged,
+        currentViewOverlay,
+        updateCurrentViewOverlay);
+    connect(
+        EditorManagerPrivate::instance(),
+        &EditorManagerPrivate::viewCountChanged,
+        currentViewOverlay,
+        updateCurrentViewOverlay);
 }
 
 EditorView::~EditorView() = default;

@@ -61,6 +61,7 @@ public:
     static EditorArea *mainEditorArea();
     static EditorView *currentEditorView();
     static QList<EditorView *> allEditorViews();
+    static bool hasMoreThanOneview();
     static void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);
     static IEditor *openEditor(EditorView *view,
                                const Utils::FilePath &filePath,
@@ -137,6 +138,8 @@ public slots:
 
 signals:
     void placeholderTextChanged(const QString &text);
+    void currentViewChanged();
+    void viewCountChanged();
 
 private:
     static void gotoNextDocHistory();
