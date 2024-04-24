@@ -28,10 +28,14 @@ QT_END_NAMESPACE
       [[deprecated( \
           "In most cases you don't need them anymore because the import is setting them!")]]
 #  define DEPRECATED_COMPONENT_FILE_NAME [[deprecated("Use sourceId() instead.")]]
+#  define DEPRECATED_IMPORT_DIRECTORY_PATH [[deprecated("Use allExportedTypeNames().")]]
+#  define DEPRECATED_REQUIRED_IMPORT_STRING [[deprecated("Use allExportedTypeNames().")]]
 #else
 #  define DEPRECATED_TYPENAME
 #  define DEPRECATED_VERSION_NUMBER
 #  define DEPRECATED_COMPONENT_FILE_NAME
+#  define DEPRECATED_IMPORT_DIRECTORY_PATH
+#  define DEPRECATED_REQUIRED_IMPORT_STRING
 #endif
 
 namespace QmlDesigner {
@@ -237,8 +241,8 @@ public:
     bool usesCustomParser() const;
 
     bool isEnumeration() const;
-    QString importDirectoryPath() const;
-    QString requiredImportString() const;
+    DEPRECATED_IMPORT_DIRECTORY_PATH QString importDirectoryPath() const;
+    DEPRECATED_REQUIRED_IMPORT_STRING QString requiredImportString() const;
 
     friend bool operator==(const NodeMetaInfo &first, const NodeMetaInfo &second)
     {

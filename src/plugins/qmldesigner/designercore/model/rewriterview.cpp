@@ -16,12 +16,14 @@
 #include <filemanager/objectlengthcalculator.h>
 #include <modelnode.h>
 #include <modelnodepositionstorage.h>
+#include <nodemetainfo.h>
 #include <nodeproperty.h>
+#include <projectstorage/projectstorage.h>
+#include <qmlobjectnode.h>
+#include <qmltimelinekeyframegroup.h>
 #include <rewritingexception.h>
 #include <signalhandlerproperty.h>
 #include <variantproperty.h>
-#include <qmlobjectnode.h>
-#include <qmltimelinekeyframegroup.h>
 
 #include <qmljs/parser/qmljsengine_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -1004,6 +1006,45 @@ QSet<QPair<QString, QString> > RewriterView::qrcMapping() const
     return m_textToModelMerger->qrcMapping();
 }
 
+namespace {
+#ifdef QDS_USE_PROJECTSTORAGE
+
+ModuleIds generateModuleIds(const ModelNodes &nodes)
+{
+    ModuleIds moduleIds;
+    moduleIds.reserve(Utils::usize(nodes));
+    for (const auto &node : nodes) {
+        auto exportedNames = node.metaInfo().allExportedTypeNames();
+        if (exportedNames.size())
+            moduleIds.push_back(exportedNames.front().moduleId);
+    }
+
+    std::sort(moduleIds.begin(), moduleIds.end());
+    moduleIds.erase(std::unique(moduleIds.begin(), moduleIds.end()), moduleIds.end());
+
+    return moduleIds;
+}
+
+QStringList generateImports(ModuleIds moduleIds, const ProjectStorageType &projectStorage)
+{
+    return Utils::transform<QStringList>(moduleIds, [&](auto id) {
+        return "import " + projectStorage.moduleName(id).toQString();
+    });
+}
+
+QStringList generateImports(const ModelNodes &nodes)
+{
+    if (nodes.empty())
+        return {};
+
+    auto moduleIds = generateModuleIds(nodes);
+
+    return generateImports(moduleIds, *nodes.front().model()->projectStorage());
+}
+
+#endif
+} // namespace
+
 void RewriterView::moveToComponent(const ModelNode &modelNode)
 {
     if (!modelNode.isValid())
@@ -1012,20 +1053,26 @@ void RewriterView::moveToComponent(const ModelNode &modelNode)
     int offset = nodeOffset(modelNode);
 
     const QList<ModelNode> nodes = modelNode.allSubModelNodesAndThisNode();
-    QSet<QString> directPaths;
+#ifdef QDS_USE_PROJECTSTORAGE
+    auto directPaths = generateImports(nodes);
+#else
+    QSet<QString> directPathsSet;
 
     // Always add QtQuick import
     QString quickImport = model()->qtQuickItemMetaInfo().requiredImportString();
     if (!quickImport.isEmpty())
-        directPaths.insert(quickImport);
+        directPathsSet.insert(quickImport);
 
     for (const ModelNode &partialNode : nodes) {
         QString importStr = partialNode.metaInfo().requiredImportString();
         if (importStr.size())
-            directPaths << importStr;
+            directPathsSet << importStr;
     }
 
-    QString importData = Utils::sorted(directPaths.values()).join(QChar::LineFeed);
+    auto directPaths = directPathsSet.values();
+#endif
+
+    QString importData = Utils::sorted(directPaths).join(QChar::LineFeed);
     if (importData.size())
         importData.append(QString(2, QChar::LineFeed));
 
