@@ -76,7 +76,7 @@ Section {
         }
 
         PropertyLabel {
-            text: qsTr("Visibility")
+            text: qsTr("Visible")
             visible: root.hasDesignerEffect
         }
 
@@ -84,7 +84,6 @@ Section {
             visible: root.hasDesignerEffect
 
             CheckBox {
-                text: qsTr("Visible")
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
                 backendValue: root.effectNodeWrapper.properties.visible
@@ -193,11 +192,10 @@ Section {
 
             SectionLayout {
 
-                PropertyLabel { text: qsTr("Visibility") }
+                PropertyLabel { text: qsTr("Visible") }
 
                 SecondColumnLayout {
                     CheckBox {
-                        text: qsTr("Visible")
                         implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                        + StudioTheme.Values.actionIndicatorWidth
                         backendValue: root.effectNodeWrapper.properties.layerBlurVisible
@@ -234,11 +232,10 @@ Section {
 
             SectionLayout {
 
-                PropertyLabel { text: qsTr("Visibility") }
+                PropertyLabel { text: qsTr("Visible") }
 
                 SecondColumnLayout {
                     CheckBox {
-                        text: qsTr("Visible")
                         implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                        + StudioTheme.Values.actionIndicatorWidth
                         backendValue: root.effectNodeWrapper.properties.backgroundBlurVisible
@@ -346,7 +343,10 @@ Section {
                     anchors.verticalCenter: parent.verticalCenter
 
                     // When an item is selected, update the backend.
-                    onActivated: modelNodeBackend.changeType(modelData, shadowComboBox.currentValue)
+                    onActivated: {
+                        delegate.wrapper.properties.showBehind.resetValue()
+                        modelNodeBackend.changeType(modelData, shadowComboBox.currentValue)
+                    }
                     // Set the initial currentIndex to the value stored in the backend.
                     Component.onCompleted: {
                         shadowComboBox.currentIndex = shadowComboBox.indexOfValue(modelNodeBackend.simplifiedTypeName(modelData))
@@ -359,12 +359,13 @@ Section {
                 }
 
                 SectionLayout {
+                    id: controlContainer
+                    property bool isDropShadow: shadowComboBox.currentValue === "DesignDropShadow"
 
-                    PropertyLabel { text: qsTr("Visibility") }
+                    PropertyLabel { text: qsTr("Visible") }
 
                     SecondColumnLayout {
                         CheckBox {
-                            text: qsTr("Visible")
                             implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                            + StudioTheme.Values.actionIndicatorWidth
                             backendValue: delegate.wrapper.properties.visible
@@ -448,6 +449,24 @@ Section {
                         ControlLabel {
                             text: "Y"
                             tooltip: qsTr("Y-coordinate")
+                        }
+
+                        ExpandingSpacer {}
+                    }
+
+
+                    PropertyLabel {
+                        visible: controlContainer.isDropShadow
+                        text: qsTr("Show behind")
+                    }
+
+                    SecondColumnLayout {
+                        visible: controlContainer.isDropShadow
+
+                        CheckBox {
+                            implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                           + StudioTheme.Values.actionIndicatorWidth
+                            backendValue: delegate.wrapper.properties.showBehind
                         }
 
                         ExpandingSpacer {}
