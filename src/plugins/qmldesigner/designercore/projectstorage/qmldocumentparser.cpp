@@ -66,23 +66,32 @@ Storage::Import createImport(const QmlDom::Import &qmlImport,
                              Utils::SmallStringView directoryPath,
                              QmlDocumentParser::ProjectStorage &storage)
 {
+    using Storage::ModuleKind;
     using QmlUriKind = QQmlJS::Dom::QmlUri::Kind;
 
     auto &&uri = qmlImport.uri;
 
-    if (uri.kind() == QmlUriKind::RelativePath) {
-        auto path = createNormalizedPath(directoryPath, uri.localPath());
-        auto moduleId = storage.moduleId(createNormalizedPath(directoryPath, uri.localPath()));
-        return Storage::Import(moduleId, Storage::Version{}, sourceId);
-    }
-
-    if (uri.kind() == QmlUriKind::ModuleUri) {
-        auto moduleId = storage.moduleId(Utils::PathString{uri.moduleUri()});
+    switch (uri.kind()) {
+    case QmlUriKind::AbsolutePath:
+    case QmlUriKind::DirectoryUrl: {
+        auto moduleId = storage.moduleId(Utils::PathString{uri.toString()}, ModuleKind::PathLibrary);
         return Storage::Import(moduleId, convertVersion(qmlImport.version), sourceId);
     }
+    case QmlUriKind::RelativePath: {
+        auto path = createNormalizedPath(directoryPath, uri.localPath());
+        auto moduleId = storage.moduleId(createNormalizedPath(directoryPath, uri.localPath()),
+                                         ModuleKind::PathLibrary);
+        return Storage::Import(moduleId, Storage::Version{}, sourceId);
+    }
+    case QmlUriKind::ModuleUri: {
+        auto moduleId = storage.moduleId(Utils::PathString{uri.moduleUri()}, ModuleKind::QmlLibrary);
+        return Storage::Import(moduleId, convertVersion(qmlImport.version), sourceId);
+    }
+    case QmlUriKind::Invalid:
+        return Storage::Import{};
+    }
 
-    auto moduleId = storage.moduleId(Utils::PathString{uri.toString()});
-    return Storage::Import(moduleId, convertVersion(qmlImport.version), sourceId);
+    return Storage::Import{};
 }
 
 QualifiedImports createQualifiedImports(const QList<QmlDom::Import> &qmlImports,
@@ -122,11 +131,13 @@ void addImports(Storage::Imports &imports,
         }
     }
 
-    auto localDirectoryModuleId = storage.moduleId(directoryPath);
+    using Storage::ModuleKind;
+
+    auto localDirectoryModuleId = storage.moduleId(directoryPath, ModuleKind::PathLibrary);
     imports.emplace_back(localDirectoryModuleId, Storage::Version{}, sourceId);
     ++importCount;
 
-    auto qmlModuleId = storage.moduleId("QML");
+    auto qmlModuleId = storage.moduleId("QML", ModuleKind::QmlLibrary);
     imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId);
     ++importCount;
 

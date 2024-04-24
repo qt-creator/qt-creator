@@ -369,7 +369,7 @@ void Edit3DView::handleEntriesChanged()
                                                .generatedComponentUtils()
                                                .import3dTypePrefix();
 
-    auto assetsModule = model()->module(import3dTypePrefix);
+    auto assetsModule = model()->module(import3dTypePrefix, Storage::ModuleKind::QmlLibrary);
 
     for (const auto &metaInfo : model()->metaInfosForModule(assetsModule))
         append(metaInfo, EK_importedModels);

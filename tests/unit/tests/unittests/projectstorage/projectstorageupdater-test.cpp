@@ -27,6 +27,7 @@ using QmlDesigner::SourceId;
 namespace Storage = QmlDesigner::Storage;
 using QmlDesigner::IdPaths;
 using QmlDesigner::Storage::Import;
+using QmlDesigner::Storage::ModuleKind;
 using QmlDesigner::Storage::Synchronization::FileType;
 using QmlDesigner::Storage::Synchronization::IsAutoVersion;
 using QmlDesigner::Storage::Synchronization::ModuleExportedImport;
@@ -180,8 +181,8 @@ public:
 
         setQmlFileNames(u"/path", {"First.qml", "First2.qml", "Second.qml"});
 
-        ON_CALL(projectStorageMock, moduleId(_)).WillByDefault([&](const auto &name) {
-            return storage.moduleId(name);
+        ON_CALL(projectStorageMock, moduleId(_, _)).WillByDefault([&](const auto &name, const auto &kind) {
+            return storage.moduleId(name, kind);
         });
 
         firstType.prototype = Storage::Synchronization::ImportedType{"Object"};
@@ -302,7 +303,10 @@ public:
         EXPECT_CALL(fileSystemMock, contentAsQString(Eq(path))).WillRepeatedly(Return(content));
     }
 
-    auto moduleId(Utils::SmallStringView name) const { return storage.moduleId(name); }
+    auto moduleId(Utils::SmallStringView name, ModuleKind kind) const
+    {
+        return storage.moduleId(name, kind);
+    }
 
 protected:
     NiceMock<FileSystemMock> fileSystemMock;
@@ -341,16 +345,16 @@ protected:
         QmlDesigner::SourcePath{itemLibraryPath + "/."});
     SourceId qmlImportsPathSourceId = sourcePathCache.sourceId(
         QmlDesigner::SourcePath{qmlImportsPath + "/."});
-    ModuleId qmlModuleId{storage.moduleId("Qml")};
-    ModuleId qmlCppNativeModuleId{storage.moduleId("Qml-cppnative")};
-    ModuleId exampleModuleId{storage.moduleId("Example")};
-    ModuleId exampleCppNativeModuleId{storage.moduleId("Example-cppnative")};
-    ModuleId builtinModuleId{storage.moduleId("QML")};
-    ModuleId builtinCppNativeModuleId{storage.moduleId("QML-cppnative")};
-    ModuleId quickModuleId{storage.moduleId("Quick")};
-    ModuleId quickCppNativeModuleId{storage.moduleId("Quick-cppnative")};
-    ModuleId pathModuleId{storage.moduleId("/path")};
-    ModuleId subPathQmlModuleId{storage.moduleId("/path/qml")};
+    ModuleId qmlModuleId{storage.moduleId("Qml", ModuleKind::QmlLibrary)};
+    ModuleId qmlCppNativeModuleId{storage.moduleId("Qml", ModuleKind::CppLibrary)};
+    ModuleId exampleModuleId{storage.moduleId("Example", ModuleKind::QmlLibrary)};
+    ModuleId exampleCppNativeModuleId{storage.moduleId("Example", ModuleKind::CppLibrary)};
+    ModuleId builtinModuleId{storage.moduleId("QML", ModuleKind::QmlLibrary)};
+    ModuleId builtinCppNativeModuleId{storage.moduleId("QML", ModuleKind::CppLibrary)};
+    ModuleId quickModuleId{storage.moduleId("Quick", ModuleKind::QmlLibrary)};
+    ModuleId quickCppNativeModuleId{storage.moduleId("Quick", ModuleKind::CppLibrary)};
+    ModuleId pathModuleId{storage.moduleId("/path", ModuleKind::PathLibrary)};
+    ModuleId subPathQmlModuleId{storage.moduleId("/path/qml", ModuleKind::PathLibrary)};
     Storage::Synchronization::Type objectType{
         "QObject",
         Storage::Synchronization::ImportedType{},
@@ -500,9 +504,9 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_types)
             imports.push_back(import);
         });
 
-    EXPECT_CALL(projectStorageMock, moduleId(Eq("Example")));
-    EXPECT_CALL(projectStorageMock, moduleId(Eq("Example-cppnative")));
-    EXPECT_CALL(projectStorageMock, moduleId(Eq("/path")));
+    EXPECT_CALL(projectStorageMock, moduleId(Eq("Example"), ModuleKind::QmlLibrary));
+    EXPECT_CALL(projectStorageMock, moduleId(Eq("Example"), ModuleKind::CppLibrary));
+    EXPECT_CALL(projectStorageMock, moduleId(Eq("/path"), ModuleKind::PathLibrary));
     EXPECT_CALL(projectStorageMock,
                 synchronize(
                     AllOf(Field(&SynchronizationPackage::imports, ElementsAre(import)),
@@ -3509,7 +3513,7 @@ TEST_F(ProjectStorageUpdater, update_property_editor_panes)
     auto directoryId = sourcePathCache.sourceId(
         QmlDesigner::SourcePath{propertyEditorQmlPath + "/QML/."});
     setFilesChanged({directoryId});
-    auto qmlModuleId = storage.moduleId("QML");
+    auto qmlModuleId = storage.moduleId("QML", ModuleKind::QmlLibrary);
 
     EXPECT_CALL(projectStorageMock,
                 synchronize(
@@ -3542,8 +3546,8 @@ TEST_F(ProjectStorageUpdater, update_property_editor_specifics)
     auto controlsDirectoryId = sourcePathCache.sourceId(
         QmlDesigner::SourcePath{propertyEditorQmlPath + "/QtQuick/Controls/."});
     setFilesChanged({qtQuickDirectoryId, controlsDirectoryId});
-    auto qtQuickModuleId = storage.moduleId("QtQuick");
-    auto controlsModuleId = storage.moduleId("QtQuick.Controls");
+    auto qtQuickModuleId = storage.moduleId("QtQuick", ModuleKind::QmlLibrary);
+    auto controlsModuleId = storage.moduleId("QtQuick.Controls", ModuleKind::QmlLibrary);
 
     EXPECT_CALL(projectStorageMock,
                 synchronize(AllOf(
@@ -3579,8 +3583,8 @@ TEST_F(ProjectStorageUpdater, update_type_annotations)
     auto buttonSourceId = sourcePathCache.sourceId(
         QmlDesigner::SourcePath{itemLibraryPath + "/qtquickcontrols2.metainfo"});
     setFilesChanged({itemLibraryPathSourceId, itemSourceId, buttonSourceId});
-    auto qtQuickModuleId = moduleId("QtQuick");
-    auto qtQuickControlsModuleId = moduleId("QtQuick.Controls.Basic");
+    auto qtQuickModuleId = moduleId("QtQuick", ModuleKind::QmlLibrary);
+    auto qtQuickControlsModuleId = moduleId("QtQuick.Controls.Basic", ModuleKind::QmlLibrary);
     QmlDesigner::Storage::TypeTraits itemTraits;
     itemTraits.canBeContainer = QmlDesigner::FlagIs::True;
 
@@ -3616,8 +3620,8 @@ TEST_F(ProjectStorageUpdater, update_changed_type_annotation)
         QmlDesigner::SourcePath{itemLibraryPath + "/qtquickcontrols2.metainfo"});
     setFilesDontChanged({itemLibraryPathSourceId});
     setFilesChanged({itemSourceId, buttonSourceId});
-    auto qtQuickModuleId = moduleId("QtQuick");
-    auto qtQuickControlsModuleId = moduleId("QtQuick.Controls.Basic");
+    auto qtQuickModuleId = moduleId("QtQuick", ModuleKind::QmlLibrary);
+    auto qtQuickControlsModuleId = moduleId("QtQuick.Controls.Basic", ModuleKind::QmlLibrary);
     QmlDesigner::Storage::TypeTraits itemTraits;
     itemTraits.canBeContainer = QmlDesigner::FlagIs::True;
 

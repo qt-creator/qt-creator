@@ -235,14 +235,14 @@ struct ProjectStorage::Statements
         database};
     Sqlite::WriteStatement<1> deleteEnumerationDeclarationStatement{
         "DELETE FROM enumerationDeclarations WHERE enumerationDeclarationId=?", database};
-    mutable Sqlite::ReadStatement<1, 1> selectModuleIdByNameStatement{
-        "SELECT moduleId FROM modules WHERE name=? LIMIT 1", database};
-    mutable Sqlite::ReadWriteStatement<1, 1> insertModuleNameStatement{
-        "INSERT INTO modules(name) VALUES(?1) RETURNING moduleId", database};
-    mutable Sqlite::ReadStatement<1, 1> selectModuleNameStatement{
-        "SELECT name FROM modules WHERE moduleId =?1", database};
-    mutable Sqlite::ReadStatement<2> selectAllModulesStatement{"SELECT name, moduleId FROM modules",
-                                                               database};
+    mutable Sqlite::ReadStatement<1, 2> selectModuleIdByNameStatement{
+        "SELECT moduleId FROM modules WHERE kind=?1 AND name=?2 LIMIT 1", database};
+    mutable Sqlite::ReadWriteStatement<1, 2> insertModuleNameStatement{
+        "INSERT INTO modules(kind, name) VALUES(?1, ?2) RETURNING moduleId", database};
+    mutable Sqlite::ReadStatement<2, 1> selectModuleStatement{
+        "SELECT name, kind FROM modules WHERE moduleId =?1", database};
+    mutable Sqlite::ReadStatement<3> selectAllModulesStatement{
+        "SELECT name, kind, moduleId FROM modules", database};
     mutable Sqlite::ReadStatement<1, 2> selectTypeIdBySourceIdAndNameStatement{
         "SELECT typeId FROM types WHERE sourceId=?1 and name=?2", database};
     mutable Sqlite::ReadStatement<1, 3> selectTypeIdByModuleIdsAndExportedNameStatement{
@@ -942,9 +942,10 @@ public:
         auto &modelIdColumn = table.addColumn("moduleId",
                                               Sqlite::StrictColumnType::Integer,
                                               {Sqlite::PrimaryKey{}});
+        auto &kindColumn = table.addColumn("kind", Sqlite::StrictColumnType::Integer);
         auto &nameColumn = table.addColumn("name", Sqlite::StrictColumnType::Text);
 
-        table.addUniqueIndex({nameColumn});
+        table.addUniqueIndex({kindColumn, nameColumn});
 
         table.initialize(database);
 
@@ -1207,21 +1208,21 @@ void ProjectStorage::removeObserver(ProjectStorageObserver *observer)
     observers.removeOne(observer);
 }
 
-ModuleId ProjectStorage::moduleId(Utils::SmallStringView moduleName) const
+ModuleId ProjectStorage::moduleId(Utils::SmallStringView moduleName, Storage::ModuleKind kind) const
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"get module id"_t,
                                projectStorageCategory(),
                                keyValue("module name", moduleName)};
 
-    auto moduleId = moduleCache.id(moduleName);
+    auto moduleId = moduleCache.id({moduleName, kind});
 
     tracer.end(keyValue("module id", moduleId));
 
     return moduleId;
 }
 
-Utils::SmallString ProjectStorage::moduleName(ModuleId moduleId) const
+Storage::Module ProjectStorage::module(ModuleId moduleId) const
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"get module name"_t,
@@ -1231,11 +1232,12 @@ Utils::SmallString ProjectStorage::moduleName(ModuleId moduleId) const
     if (!moduleId)
         throw ModuleDoesNotExists{};
 
-    auto moduleName = moduleCache.value(moduleId);
+    auto module = moduleCache.value(moduleId);
 
-    tracer.end(keyValue("module name", moduleName));
+    tracer.end(keyValue("module name", module.name));
+    tracer.end(keyValue("module kind", module.kind));
 
-    return moduleName;
+    return {module.name, module.kind};
 }
 
 TypeId ProjectStorage::typeId(ModuleId moduleId,
@@ -2168,20 +2170,17 @@ void ProjectStorage::resetForTestsOnly()
     moduleCache.clearForTestOnly();
 }
 
-bool ProjectStorage::moduleNameLess(Utils::SmallStringView first, Utils::SmallStringView second) noexcept
-{
-    return first < second;
-}
-
-ModuleId ProjectStorage::fetchModuleId(Utils::SmallStringView moduleName)
+ModuleId ProjectStorage::fetchModuleId(Utils::SmallStringView moduleName,
+                                       Storage::ModuleKind moduleKind)
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch module id"_t,
                                projectStorageCategory(),
-                               keyValue("module name", moduleName)};
+                               keyValue("module name", moduleName),
+                               keyValue("module kind", moduleKind)};
 
     auto moduleId = Sqlite::withDeferredTransaction(database, [&] {
-        return fetchModuleIdUnguarded(moduleName);
+        return fetchModuleIdUnguarded(moduleName, moduleKind);
     });
 
     tracer.end(keyValue("module id", moduleId));
@@ -2189,26 +2188,26 @@ ModuleId ProjectStorage::fetchModuleId(Utils::SmallStringView moduleName)
     return moduleId;
 }
 
-Utils::PathString ProjectStorage::fetchModuleName(ModuleId id)
+Storage::Module ProjectStorage::fetchModule(ModuleId id)
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch module name"_t,
                                projectStorageCategory(),
                                keyValue("module id", id)};
 
-    auto moduleName = Sqlite::withDeferredTransaction(database,
-                                                      [&] { return fetchModuleNameUnguarded(id); });
+    auto module = Sqlite::withDeferredTransaction(database, [&] { return fetchModuleUnguarded(id); });
 
-    tracer.end(keyValue("module name", moduleName));
+    tracer.end(keyValue("module name", module.name));
+    tracer.end(keyValue("module name", module.kind));
 
-    return moduleName;
+    return module;
 }
 
-ProjectStorage::Modules ProjectStorage::fetchAllModules() const
+ProjectStorage::ModuleCacheEntries ProjectStorage::fetchAllModules() const
 {
     NanotraceHR::Tracer tracer{"fetch all modules"_t, projectStorageCategory()};
 
-    return s->selectAllModulesStatement.valuesWithTransaction<Module, 128>();
+    return s->selectAllModulesStatement.valuesWithTransaction<ModuleCacheEntry, 128>();
 }
 
 void ProjectStorage::callRefreshMetaInfoCallback(const TypeIds &deletedTypeIds)
@@ -2644,38 +2643,41 @@ void ProjectStorage::synchromizeModuleExportedImports(
     Sqlite::insertUpdateDelete(range, moduleExportedImports, compareKey, insert, update, remove);
 }
 
-ModuleId ProjectStorage::fetchModuleIdUnguarded(Utils::SmallStringView name) const
+ModuleId ProjectStorage::fetchModuleIdUnguarded(Utils::SmallStringView name,
+                                                Storage::ModuleKind kind) const
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch module id ungarded"_t,
                                projectStorageCategory(),
-                               keyValue("module name", name)};
+                               keyValue("module name", name),
+                               keyValue("module kind", kind)};
 
-    auto moduleId = s->selectModuleIdByNameStatement.value<ModuleId>(name);
+    auto moduleId = s->selectModuleIdByNameStatement.value<ModuleId>(kind, name);
 
     if (!moduleId)
-        moduleId = s->insertModuleNameStatement.value<ModuleId>(name);
+        moduleId = s->insertModuleNameStatement.value<ModuleId>(kind, name);
 
     tracer.end(keyValue("module id", moduleId));
 
     return moduleId;
 }
 
-Utils::PathString ProjectStorage::fetchModuleNameUnguarded(ModuleId id) const
+Storage::Module ProjectStorage::fetchModuleUnguarded(ModuleId id) const
 {
     using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"fetch module name ungarded"_t,
+    NanotraceHR::Tracer tracer{"fetch module ungarded"_t,
                                projectStorageCategory(),
                                keyValue("module id", id)};
 
-    auto moduleName = s->selectModuleNameStatement.value<Utils::PathString>(id);
+    auto module = s->selectModuleStatement.value<Storage::Module>(id);
 
-    if (moduleName.empty())
+    if (!module)
         throw ModuleDoesNotExists{};
 
-    tracer.end(keyValue("module name", moduleName));
+    tracer.end(keyValue("module name", module.name));
+    tracer.end(keyValue("module name", module.kind));
 
-    return moduleName;
+    return module;
 }
 
 void ProjectStorage::handleAliasPropertyDeclarationsWithPropertyType(

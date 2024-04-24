@@ -179,7 +179,7 @@ std::optional<PropertyComponentGenerator::Entry> createEntry(QmlJS::SimpleReader
     if (moduleName.isEmpty())
         return {};
 
-    auto module = model->module(moduleName);
+    auto module = model->module(moduleName, Storage::ModuleKind::QmlLibrary);
 
     auto typeName = getProperty<QByteArray>(node, "typeNames");
 

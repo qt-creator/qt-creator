@@ -1031,8 +1031,20 @@ TypeName createQualifiedTypeName(const ModelNode &node)
     auto exportedTypes = node.metaInfo().exportedTypeNamesForSourceId(model->fileUrlSourceId());
     if (exportedTypes.size()) {
         const auto &exportedType = exportedTypes.front();
-        Utils::PathString typeName = model->projectStorage()->moduleName(exportedType.moduleId);
-        typeName += '/';
+        using Storage::ModuleKind;
+        auto module = model->projectStorage()->module(exportedType.moduleId);
+        Utils::PathString typeName;
+        switch (module.kind) {
+        case ModuleKind::QmlLibrary:
+            typeName += module.name;
+            typeName += '/';
+            break;
+        case ModuleKind::PathLibrary:
+            break;
+        case ModuleKind::CppLibrary:
+            break;
+        }
+
         typeName += exportedType.name;
 
         return typeName.toQByteArray();

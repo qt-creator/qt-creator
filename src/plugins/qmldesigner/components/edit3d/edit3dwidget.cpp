@@ -770,7 +770,8 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
                                                        ->documentManager()
                                                        .generatedComponentUtils()
                                                        .import3dTypePrefix();
-            auto metaInfo = model->metaInfo(model->module(import3dTypePrefix), fileName.toUtf8());
+            auto moduleId = model->module(import3dTypePrefix, Storage::ModuleKind::QmlLibrary);
+            auto metaInfo = model->metaInfo(moduleId, fileName.toUtf8());
             if (auto entries = metaInfo.itemLibrariesEntries(); entries.size()) {
                 auto entry = ItemLibraryEntry{entries.front(), *model->projectStorage()};
                 QmlVisualNode::createQml3DNode(view(), entry, m_canvas->activeScene(), {}, false);

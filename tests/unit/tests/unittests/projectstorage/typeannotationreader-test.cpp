@@ -30,7 +30,10 @@ protected:
         static_database.reset();
     }
 
-    auto moduleId(Utils::SmallStringView name) const { return storage.moduleId(name); }
+    auto moduleId(Utils::SmallStringView name) const
+    {
+        return storage.moduleId(name, QmlDesigner::Storage::ModuleKind::QmlLibrary);
+    }
 
 protected:
     inline static std::unique_ptr<Sqlite::Database> static_database;

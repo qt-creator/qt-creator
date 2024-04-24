@@ -11,6 +11,7 @@
 #include <propertycomponentgenerator.h>
 
 using namespace Qt::StringLiterals;
+using QmlDesigner::Storage::ModuleKind;
 
 namespace QmlDesigner {
 
@@ -182,7 +183,7 @@ protected:
                                  resourceManagementMock)};
     QmlDesigner::PropertyComponentGenerator generator{QString{sourcesPath}, &model};
     QmlDesigner::NodeMetaInfo itemMetaInfo = model.qtQuickItemMetaInfo();
-    QmlDesigner::ModuleId qmlModuleId = projectStorageMock.createModule("QML");
+    QmlDesigner::ModuleId qmlModuleId = projectStorageMock.createModule("QML", ModuleKind::QmlLibrary);
 };
 
 TEST_F(PropertyComponentGenerator,
@@ -345,7 +346,8 @@ TEST_F(PropertyComponentGenerator, after_refresh_meta_infos_type_was_deleted)
     auto xProperty = itemMetaInfo.property("x");
     auto doubleMetaInfo = model.doubleMetaInfo();
     projectStorageMock.removeExportedTypeName(doubleMetaInfo.id(),
-                                              projectStorageMock.createModule("QML"),
+                                              projectStorageMock.createModule("QML",
+                                                                              ModuleKind::QmlLibrary),
                                               "real");
 
     generator.refreshMetaInfos({doubleMetaInfo.id()});
@@ -359,11 +361,13 @@ TEST_F(PropertyComponentGenerator, after_refresh_meta_infos_type_was_added)
     auto xProperty = itemMetaInfo.property("x");
     auto doubleMetaInfo = model.doubleMetaInfo();
     projectStorageMock.removeExportedTypeName(doubleMetaInfo.id(),
-                                              projectStorageMock.createModule("QML"),
+                                              projectStorageMock.createModule("QML",
+                                                                              ModuleKind::QmlLibrary),
                                               "real");
     generator.refreshMetaInfos({doubleMetaInfo.id()});
     projectStorageMock.addExportedTypeName(doubleMetaInfo.id(),
-                                           projectStorageMock.createModule("QML"),
+                                           projectStorageMock.createModule("QML",
+                                                                           ModuleKind::QmlLibrary),
                                            "real");
 
     generator.refreshMetaInfos({});

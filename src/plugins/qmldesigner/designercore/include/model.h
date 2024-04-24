@@ -147,7 +147,7 @@ public:
     void setMetaInfo(const MetaInfo &metaInfo);
 #endif
 
-    Module module(Utils::SmallStringView moduleName);
+    Module module(Utils::SmallStringView moduleName, Storage::ModuleKind moduleKind);
     NodeMetaInfo metaInfo(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1) const;
     NodeMetaInfo metaInfo(Module module,
                           Utils::SmallStringView typeName,

@@ -50,9 +50,9 @@ public:
 
     void removeObserver(ProjectStorageObserver *observer) override;
 
-    ModuleId moduleId(Utils::SmallStringView moduleName) const override;
+    ModuleId moduleId(Utils::SmallStringView moduleName, Storage::ModuleKind kind) const override;
 
-    Utils::SmallString moduleName(ModuleId moduleId) const override;
+    Storage::Module module(ModuleId moduleId) const override;
 
     TypeId typeId(ModuleId moduleId,
                   Utils::SmallStringView exportedTypeName,
@@ -116,7 +116,7 @@ public:
         return commonTypeCache_;
     }
 
-    template<const char *moduleName, const char *typeName>
+    template<const char *moduleName, const char *typeName, Storage::ModuleKind moduleKind = Storage::ModuleKind::QmlLibrary>
     TypeId commonTypeId() const
     {
         using NanotraceHR::keyValue;
@@ -125,7 +125,7 @@ public:
                                    keyValue("module name", std::string_view{moduleName}),
                                    keyValue("type name", std::string_view{typeName})};
 
-        auto typeId = commonTypeCache_.typeId<moduleName, typeName>();
+        auto typeId = commonTypeCache_.typeId<moduleName, typeName, moduleKind>();
 
         tracer.end(keyValue("type id", typeId));
 
@@ -244,50 +244,90 @@ public:
     void resetForTestsOnly();
 
 private:
+    struct ModuleView
+    {
+        ModuleView() = default;
+
+        ModuleView(Utils::SmallStringView name, Storage::ModuleKind kind)
+            : name{name}
+            , kind{kind}
+        {}
+
+        ModuleView(const Storage::Module &module)
+            : name{module.name}
+            , kind{module.kind}
+        {}
+
+        Utils::SmallStringView name;
+        Storage::ModuleKind kind;
+
+        friend bool operator<(ModuleView first, ModuleView second)
+        {
+            return std::tie(first.kind, first.name) < std::tie(second.kind, second.name);
+        }
+
+        friend bool operator==(const Storage::Module &first, ModuleView second)
+        {
+            return first.name == second.name && first.kind == second.kind;
+        }
+
+        friend bool operator==(ModuleView first, const Storage::Module &second)
+        {
+            return second == first;
+        }
+    };
+
     class ModuleStorageAdapter
     {
     public:
-        auto fetchId(const Utils::SmallStringView name) { return storage.fetchModuleId(name); }
+        auto fetchId(ModuleView module) { return storage.fetchModuleId(module.name, module.kind); }
 
-        auto fetchValue(ModuleId id) { return storage.fetchModuleName(id); }
+        auto fetchValue(ModuleId id) { return storage.fetchModule(id); }
 
         auto fetchAll() { return storage.fetchAllModules(); }
 
         ProjectStorage &storage;
     };
 
-    class Module : public StorageCacheEntry<Utils::PathString, Utils::SmallStringView, ModuleId>
+    friend ModuleStorageAdapter;
+
+    static bool moduleNameLess(ModuleView first, ModuleView second) noexcept
     {
-        using Base = StorageCacheEntry<Utils::PathString, Utils::SmallStringView, ModuleId>;
+        return first < second;
+    }
+
+    class ModuleCacheEntry : public StorageCacheEntry<Storage::Module, ModuleView, ModuleId>
+    {
+        using Base = StorageCacheEntry<Storage::Module, ModuleView, ModuleId>;
 
     public:
         using Base::Base;
 
-        friend bool operator==(const Module &first, const Module &second)
+        ModuleCacheEntry(Utils::SmallStringView name, Storage::ModuleKind kind, ModuleId moduleId)
+            : Base{{name, kind}, moduleId}
+        {}
+
+        friend bool operator==(const ModuleCacheEntry &first, const ModuleCacheEntry &second)
         {
             return &first == &second && first.value == second.value;
         }
+
+        friend bool operator==(const ModuleCacheEntry &first, ModuleView second)
+        {
+            return first.value.name == second.name && first.value.kind == second.kind;
+        }
     };
 
-    using Modules = std::vector<Module>;
+    using ModuleCacheEntries = std::vector<ModuleCacheEntry>;
 
-    friend ModuleStorageAdapter;
+    using ModuleCache
+        = StorageCache<Storage::Module, ModuleView, ModuleId, ModuleStorageAdapter, NonLockingMutex, moduleNameLess, ModuleCacheEntry>;
 
-    static bool moduleNameLess(Utils::SmallStringView first, Utils::SmallStringView second) noexcept;
+    ModuleId fetchModuleId(Utils::SmallStringView moduleName, Storage::ModuleKind moduleKind);
 
-    using ModuleCache = StorageCache<Utils::PathString,
-                                     Utils::SmallStringView,
-                                     ModuleId,
-                                     ModuleStorageAdapter,
-                                     NonLockingMutex,
-                                     moduleNameLess,
-                                     Module>;
+    Storage::Module fetchModule(ModuleId id);
 
-    ModuleId fetchModuleId(Utils::SmallStringView moduleName);
-
-    Utils::PathString fetchModuleName(ModuleId id);
-
-    Modules fetchAllModules() const;
+    ModuleCacheEntries fetchAllModules() const;
 
     void callRefreshMetaInfoCallback(const TypeIds &deletedTypeIds);
 
@@ -532,9 +572,10 @@ private:
         Storage::Synchronization::ModuleExportedImports &moduleExportedImports,
         const ModuleIds &updatedModuleIds);
 
-    ModuleId fetchModuleIdUnguarded(Utils::SmallStringView name) const override;
+    ModuleId fetchModuleIdUnguarded(Utils::SmallStringView name,
+                                    Storage::ModuleKind moduleKind) const override;
 
-    Utils::PathString fetchModuleNameUnguarded(ModuleId id) const;
+    Storage::Module fetchModuleUnguarded(ModuleId id) const;
 
     void handleAliasPropertyDeclarationsWithPropertyType(
         TypeId typeId, AliasPropertyDeclarations &relinkableAliasPropertyDeclarations);

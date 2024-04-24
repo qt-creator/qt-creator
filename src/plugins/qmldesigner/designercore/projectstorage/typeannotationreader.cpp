@@ -258,7 +258,8 @@ void TypeAnnotationReader::readTypeProperty(QStringView name, const QVariant &va
         auto [moduleName, typeName] = decomposeTypePath(fullTypeName);
 
         m_typeAnnotations.back().typeName = typeName;
-        m_typeAnnotations.back().moduleId = m_projectStorage.moduleId(moduleName);
+        m_typeAnnotations.back().moduleId = m_projectStorage.moduleId(moduleName,
+                                                                      ModuleKind::QmlLibrary);
 
     } else if (name == "icon"_L1) {
         m_typeAnnotations.back().iconPath = absoluteFilePathForDocument(value.toString());

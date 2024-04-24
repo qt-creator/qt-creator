@@ -17,6 +17,7 @@ namespace Synchronization = QmlDesigner::Storage::Synchronization;
 using QmlDesigner::ModuleId;
 using QmlDesigner::SourceContextId;
 using QmlDesigner::SourceId;
+using QmlDesigner::Storage::ModuleKind;
 
 MATCHER_P3(IsImport,
            moduleId,
@@ -175,13 +176,12 @@ protected:
     Storage::Imports imports;
     Synchronization::Types types;
     SourceId qmltypesFileSourceId{sourcePathCache.sourceId("path/to/types.qmltypes")};
-    ModuleId qtQmlNativeModuleId = storage.moduleId("QtQml-cppnative");
+    ModuleId qtQmlNativeModuleId = storage.moduleId("QtQml", ModuleKind::CppLibrary);
     Synchronization::ProjectData projectData{qmltypesFileSourceId,
                                              qmltypesFileSourceId,
                                              qtQmlNativeModuleId,
                                              Synchronization::FileType::QmlTypes};
     SourceContextId qmltypesFileSourceContextId{sourcePathCache.sourceContextId(qmltypesFileSourceId)};
-    ModuleId directoryModuleId{storage.moduleId("path/to/")};
 };
 
 TEST_F(QmlTypesParser, imports)
@@ -194,19 +194,19 @@ TEST_F(QmlTypesParser, imports)
     parser.parse(source, imports, types, projectData);
 
     ASSERT_THAT(imports,
-                UnorderedElementsAre(IsImport(storage.moduleId("QML-cppnative"),
+                UnorderedElementsAre(IsImport(storage.moduleId("QML", ModuleKind::CppLibrary),
                                               QmlDesigner::Storage::Version{},
                                               qmltypesFileSourceId),
-                                     IsImport(storage.moduleId("QtQml-cppnative"),
+                                     IsImport(storage.moduleId("QtQml", ModuleKind::CppLibrary),
                                               QmlDesigner::Storage::Version{},
                                               qmltypesFileSourceId),
-                                     IsImport(storage.moduleId("QtQuick-cppnative"),
+                                     IsImport(storage.moduleId("QtQuick", ModuleKind::CppLibrary),
                                               QmlDesigner::Storage::Version{},
                                               qmltypesFileSourceId),
-                                     IsImport(storage.moduleId("QtQuick.Window-cppnative"),
+                                     IsImport(storage.moduleId("QtQuick.Window", ModuleKind::CppLibrary),
                                               QmlDesigner::Storage::Version{},
                                               qmltypesFileSourceId),
-                                     IsImport(storage.moduleId("QtFoo-cppnative"),
+                                     IsImport(storage.moduleId("QtFoo", ModuleKind::CppLibrary),
                                               QmlDesigner::Storage::Version{},
                                               qmltypesFileSourceId)));
 }
@@ -286,8 +286,8 @@ TEST_F(QmlTypesParser, exported_types)
                         Component { name: "QObject"
                           exports: ["QML/QtObject 1.0", "QtQml/QtObject 2.1"]
                       }})"};
-    ModuleId qmlModuleId = storage.moduleId("QML");
-    ModuleId qtQmlModuleId = storage.moduleId("QtQml");
+    ModuleId qmlModuleId = storage.moduleId("QML", ModuleKind::QmlLibrary);
+    ModuleId qtQmlModuleId = storage.moduleId("QtQml", ModuleKind::QmlLibrary);
 
     parser.parse(source, imports, types, projectData);
 
@@ -853,7 +853,7 @@ TEST_F(QmlTypesParser, default_property)
 
 TEST_F(QmlTypesParser, skip_template_item)
 {
-    ModuleId moduleId = storage.moduleId("QtQuick.Templates-cppnative");
+    ModuleId moduleId = storage.moduleId("QtQuick.Templates", ModuleKind::CppLibrary);
     Synchronization::ProjectData projectData{qmltypesFileSourceId,
                                              qmltypesFileSourceId,
                                              moduleId,

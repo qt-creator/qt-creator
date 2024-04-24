@@ -28,6 +28,7 @@ using QmlDesigner::PropertyDeclarationId;
 using QmlDesigner::SourceContextId;
 using QmlDesigner::SourceId;
 using QmlDesigner::SourceIds;
+using QmlDesigner::Storage::ModuleKind;
 using QmlDesigner::Storage::Synchronization::SynchronizationPackage;
 using QmlDesigner::Storage::Synchronization::TypeAnnotations;
 using QmlDesigner::Storage::TypeTraits;
@@ -46,6 +47,12 @@ Storage::Imports operator+(const Storage::Imports &first,
     imports.insert(imports.end(), second.begin(), second.end());
 
     return imports;
+}
+
+auto IsModule(Utils::SmallStringView name, ModuleKind kind)
+{
+    return AllOf(Field(&QmlDesigner::Storage::Module::name, name),
+                 Field(&QmlDesigner::Storage::Module::kind, kind));
 }
 
 MATCHER_P2(IsSourceContext,
@@ -1158,15 +1165,15 @@ protected:
     SourceId sourceIdPath6{sourcePathCache.sourceId(pathPath6)};
     SourceId qmlProjectSourceId{sourcePathCache.sourceId("/path1/qmldir")};
     SourceId qtQuickProjectSourceId{sourcePathCache.sourceId("/path2/qmldir")};
-    ModuleId qmlModuleId{storage.moduleId("Qml")};
-    ModuleId qmlNativeModuleId{storage.moduleId("Qml-cppnative")};
-    ModuleId qtQuickModuleId{storage.moduleId("QtQuick")};
-    ModuleId qtQuickNativeModuleId{storage.moduleId("QtQuick-cppnative")};
-    ModuleId pathToModuleId{storage.moduleId("/path/to")};
-    ModuleId qtQuick3DModuleId{storage.moduleId("QtQuick3D")};
-    ModuleId myModuleModuleId{storage.moduleId("MyModule")};
-    ModuleId QMLModuleId{storage.moduleId("QML")};
-    ModuleId QMLNativeModuleId{storage.moduleId("QML-cppnative")};
+    ModuleId qmlModuleId{storage.moduleId("Qml", ModuleKind::QmlLibrary)};
+    ModuleId qmlNativeModuleId{storage.moduleId("Qml", ModuleKind::CppLibrary)};
+    ModuleId qtQuickModuleId{storage.moduleId("QtQuick", ModuleKind::QmlLibrary)};
+    ModuleId qtQuickNativeModuleId{storage.moduleId("QtQuick", ModuleKind::CppLibrary)};
+    ModuleId pathToModuleId{storage.moduleId("/path/to", ModuleKind::PathLibrary)};
+    ModuleId qtQuick3DModuleId{storage.moduleId("QtQuick3D", ModuleKind::QmlLibrary)};
+    ModuleId myModuleModuleId{storage.moduleId("MyModule", ModuleKind::QmlLibrary)};
+    ModuleId QMLModuleId{storage.moduleId("QML", ModuleKind::QmlLibrary)};
+    ModuleId QMLNativeModuleId{storage.moduleId("QML", ModuleKind::CppLibrary)};
     Storage::Imports importsSourceId1;
     Storage::Imports importsSourceId2;
     Storage::Imports importsSourceId3;
@@ -2915,7 +2922,7 @@ TEST_F(ProjectStorage, fetch_invalid_type_id_by_impor_ids_and_exported_name_if_n
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
-    auto qtQuickModuleId = storage.moduleId("QtQuick");
+    auto qtQuickModuleId = storage.moduleId("QtQuick", ModuleKind::QmlLibrary);
 
     auto typeId = storage.fetchTypeIdByModuleIdsAndExportedName({qtQuickModuleId}, "Object");
 
@@ -5065,46 +5072,55 @@ TEST_F(ProjectStorage, minimal_updates)
 
 TEST_F(ProjectStorage, get_module_id)
 {
-    auto id = storage.moduleId("Qml");
+    auto id = storage.moduleId("Qml", ModuleKind::QmlLibrary);
 
     ASSERT_TRUE(id);
 }
 
 TEST_F(ProjectStorage, get_same_module_id_again)
 {
-    auto initialId = storage.moduleId("Qml");
+    auto initialId = storage.moduleId("Qml", ModuleKind::QmlLibrary);
 
-    auto id = storage.moduleId("Qml");
+    auto id = storage.moduleId("Qml", ModuleKind::QmlLibrary);
 
     ASSERT_THAT(id, Eq(initialId));
 }
 
-TEST_F(ProjectStorage, module_name_throws_if_id_is_invalid)
+TEST_F(ProjectStorage, different_module_kind_returns_different_id)
 {
-    ASSERT_THROW(storage.moduleName(ModuleId{}), QmlDesigner::ModuleDoesNotExists);
+    auto qmlId = storage.moduleId("Qml", ModuleKind::QmlLibrary);
+
+    auto cppId = storage.moduleId("Qml", ModuleKind::CppLibrary);
+
+    ASSERT_THAT(cppId, Ne(qmlId));
 }
 
-TEST_F(ProjectStorage, module_name_throws_if_id_does_not_exists)
+TEST_F(ProjectStorage, module_throws_if_id_is_invalid)
 {
-    ASSERT_THROW(storage.moduleName(ModuleId::create(222)), QmlDesigner::ModuleDoesNotExists);
+    ASSERT_THROW(storage.module(ModuleId{}), QmlDesigner::ModuleDoesNotExists);
 }
 
-TEST_F(ProjectStorage, get_module_name)
+TEST_F(ProjectStorage, module_throws_if_id_does_not_exists)
 {
-    auto id = storage.moduleId("Qml");
+    ASSERT_THROW(storage.module(ModuleId::create(222)), QmlDesigner::ModuleDoesNotExists);
+}
 
-    auto name = storage.moduleName(id);
+TEST_F(ProjectStorage, get_module)
+{
+    auto id = storage.moduleId("Qml", ModuleKind::QmlLibrary);
 
-    ASSERT_THAT(name, Eq("Qml"));
+    auto module = storage.module(id);
+
+    ASSERT_THAT(module, IsModule("Qml", ModuleKind::QmlLibrary));
 }
 
 TEST_F(ProjectStorage, populate_module_cache)
 {
-    auto id = storage.moduleId("Qml");
+    auto id = storage.moduleId("Qml", ModuleKind::QmlLibrary);
 
     QmlDesigner::ProjectStorage newStorage{database, database.isInitialized()};
 
-    ASSERT_THAT(newStorage.moduleName(id), Eq("Qml"));
+    ASSERT_THAT(newStorage.module(id), IsModule("Qml", ModuleKind::QmlLibrary));
 }
 
 TEST_F(ProjectStorage, add_project_dataes)
@@ -5468,7 +5484,7 @@ TEST_F(ProjectStorage, module_exported_import_with_indirect_different_versions)
 TEST_F(ProjectStorage,
        module_exported_import_prevent_collision_if_module_is_indirectly_reexported_multiple_times)
 {
-    ModuleId qtQuick4DModuleId{storage.moduleId("QtQuick4D")};
+    ModuleId qtQuick4DModuleId{storage.moduleId("QtQuick4D", ModuleKind::QmlLibrary)};
     auto package{createModuleExportedImportSynchronizationPackage()};
     package.imports.emplace_back(qtQuickModuleId, Storage::Version{1}, sourceId5);
     package.moduleExportedImports.emplace_back(qtQuick4DModuleId,
@@ -5524,8 +5540,8 @@ TEST_F(ProjectStorage,
 
 TEST_F(ProjectStorage, distinguish_between_import_kinds)
 {
-    ModuleId qml1ModuleId{storage.moduleId("Qml1")};
-    ModuleId qml11ModuleId{storage.moduleId("Qml11")};
+    ModuleId qml1ModuleId{storage.moduleId("Qml1", ModuleKind::QmlLibrary)};
+    ModuleId qml11ModuleId{storage.moduleId("Qml11", ModuleKind::QmlLibrary)};
     auto package{createSimpleSynchronizationPackage()};
     package.moduleDependencies.emplace_back(qmlModuleId, Storage::Version{}, sourceId1);
     package.moduleDependencies.emplace_back(qml1ModuleId, Storage::Version{1}, sourceId1);

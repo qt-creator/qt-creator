@@ -26,6 +26,7 @@ using QmlDesigner::AbstractProperty;
 using QmlDesigner::ModelNode;
 using QmlDesigner::ModelNodes;
 using QmlDesigner::ModelResourceSet;
+using QmlDesigner::Storage::ModuleKind;
 
 MATCHER(IsSorted, std::string(negation ? "isn't sorted" : "is sorted"))
 {
@@ -125,10 +126,10 @@ protected:
                                  resourceManagementMock)};
     NiceMock<AbstractViewMock> viewMock;
     QmlDesigner::SourceId filePathId = pathCacheMock.sourceId;
-    QmlDesigner::TypeId itemTypeId = projectStorageMock.typeId(projectStorageMock.moduleId(
-                                                                   "QtQuick"),
-                                                               "Item",
-                                                               QmlDesigner::Storage::Version{});
+    QmlDesigner::TypeId itemTypeId = projectStorageMock.typeId(
+        projectStorageMock.moduleId("QtQuick", ModuleKind::QmlLibrary),
+        "Item",
+        QmlDesigner::Storage::Version{});
     QmlDesigner::ImportedTypeNameId itemTypeNameId = projectStorageMock.createImportedTypeNameId(
         filePathId, "Item", itemTypeId);
     ModelNode rootNode;
@@ -759,8 +760,8 @@ TEST_F(Model, change_imports_is_synchronizing_imports_with_project_storage)
 {
     QmlDesigner::SourceId directoryPathId = QmlDesigner::SourceId::create(2);
     ON_CALL(pathCacheMock, sourceId(Eq("/path/foo/."))).WillByDefault(Return(directoryPathId));
-    auto qtQuickModuleId = projectStorageMock.moduleId("QtQuick");
-    auto qtQmlModelsModuleId = projectStorageMock.moduleId("QtQml.Models");
+    auto qtQuickModuleId = projectStorageMock.moduleId("QtQuick", ModuleKind::QmlLibrary);
+    auto qtQmlModelsModuleId = projectStorageMock.moduleId("QtQml.Models", ModuleKind::QmlLibrary);
     auto qtQuickImport = QmlDesigner::Import::createLibraryImport("QtQuick", "2.1");
     auto qtQmlModelsImport = QmlDesigner::Import::createLibraryImport("QtQml.Models");
     auto directoryImport = QmlDesigner::Import::createFileImport("foo");
@@ -793,8 +794,8 @@ TEST_F(Model, change_imports_is_adding_import_in_project_storage)
 {
     QmlDesigner::SourceId directoryPathId = QmlDesigner::SourceId::create(2);
     ON_CALL(pathCacheMock, sourceId(Eq("/path/foo/."))).WillByDefault(Return(directoryPathId));
-    auto qtQuickModuleId = projectStorageMock.moduleId("QtQuick");
-    auto qtQmlModelsModuleId = projectStorageMock.moduleId("QtQml.Models");
+    auto qtQuickModuleId = projectStorageMock.moduleId("QtQuick", ModuleKind::QmlLibrary);
+    auto qtQmlModelsModuleId = projectStorageMock.moduleId("QtQml.Models", ModuleKind::QmlLibrary);
     auto qtQuickImport = QmlDesigner::Import::createLibraryImport("QtQuick", "2.1");
     auto qtQmlModelsImport = QmlDesigner::Import::createLibraryImport("QtQml.Models");
     auto directoryImport = QmlDesigner::Import::createFileImport("foo");
@@ -813,7 +814,7 @@ TEST_F(Model, change_imports_is_removing_import_in_project_storage)
 {
     QmlDesigner::SourceId directoryPathId = QmlDesigner::SourceId::create(2);
     ON_CALL(pathCacheMock, sourceId(Eq("/path/foo/."))).WillByDefault(Return(directoryPathId));
-    auto qtQmlModelsModuleId = projectStorageMock.moduleId("QtQml.Models");
+    auto qtQmlModelsModuleId = projectStorageMock.moduleId("QtQml.Models", ModuleKind::QmlLibrary);
     auto qtQuickImport = QmlDesigner::Import::createLibraryImport("QtQuick", "2.1");
     auto qtQmlModelsImport = QmlDesigner::Import::createLibraryImport("QtQml.Models");
     auto directoryImport = QmlDesigner::Import::createFileImport("foo");
@@ -846,8 +847,8 @@ TEST_F(Model, change_imports_is_changing_import_version_with_project_storage)
 {
     QmlDesigner::SourceId directoryPathId = QmlDesigner::SourceId::create(2);
     ON_CALL(pathCacheMock, sourceId(Eq("/path/foo/."))).WillByDefault(Return(directoryPathId));
-    auto qtQuickModuleId = projectStorageMock.moduleId("QtQuick");
-    auto qtQmlModelsModuleId = projectStorageMock.moduleId("QtQml.Models");
+    auto qtQuickModuleId = projectStorageMock.moduleId("QtQuick", ModuleKind::QmlLibrary);
+    auto qtQmlModelsModuleId = projectStorageMock.moduleId("QtQml.Models", ModuleKind::QmlLibrary);
     auto qtQuickImport = QmlDesigner::Import::createLibraryImport("QtQuick", "2.1");
     auto qtQmlModelsImport = QmlDesigner::Import::createLibraryImport("QtQml.Models");
     auto directoryImport = QmlDesigner::Import::createFileImport("foo");
@@ -873,7 +874,7 @@ TEST_F(Model, create_model_node_has_meta_info)
 TEST_F(Model, create_qualified_model_node_has_meta_info)
 {
     auto qtQmlModelsImport = QmlDesigner::Import::createLibraryImport("QtQml.Models", "", "Foo");
-    auto qtQmlModelsModulesId = projectStorageMock.moduleId("QtQml.Models");
+    auto qtQmlModelsModulesId = projectStorageMock.moduleId("QtQml.Models", ModuleKind::QmlLibrary);
     auto importId = projectStorageMock.createImportId(qtQmlModelsModulesId, filePathId);
     auto listModelTypeId = projectStorageMock.typeId(qtQmlModelsModulesId,
                                                      "ListModel",
@@ -913,23 +914,23 @@ TEST_F(Model, meta_info_of_not_existing_type_is_invalid)
 
 TEST_F(Model, module_is_valid)
 {
-    auto module = model.module("QML");
+    auto module = model.module("QML", ModuleKind::QmlLibrary);
 
     ASSERT_THAT(module, IsTrue());
 }
 
 TEST_F(Model, module_returns_always_the_same)
 {
-    auto oldModule = model.module("QML");
+    auto oldModule = model.module("QML", ModuleKind::QmlLibrary);
 
-    auto module = model.module("QML");
+    auto module = model.module("QML", ModuleKind::QmlLibrary);
 
     ASSERT_THAT(module, oldModule);
 }
 
 TEST_F(Model, get_meta_info_by_module)
 {
-    auto module = model.module("QML");
+    auto module = model.module("QML", ModuleKind::QmlLibrary);
 
     auto metaInfo = model.metaInfo(module, "QtObject");
 
@@ -938,7 +939,7 @@ TEST_F(Model, get_meta_info_by_module)
 
 TEST_F(Model, get_invalid_meta_info_by_module_for_wrong_name)
 {
-    auto module = model.module("QML");
+    auto module = model.module("QML", ModuleKind::QmlLibrary);
 
     auto metaInfo = model.metaInfo(module, "Object");
 
@@ -947,7 +948,7 @@ TEST_F(Model, get_invalid_meta_info_by_module_for_wrong_name)
 
 TEST_F(Model, get_invalid_meta_info_by_module_for_wrong_module)
 {
-    auto module = model.module("Qml");
+    auto module = model.module("Qml", ModuleKind::QmlLibrary);
 
     auto metaInfo = model.metaInfo(module, "Object");
 
@@ -986,8 +987,8 @@ TEST_F(Model, refresh_callback_is_calling_abstract_view)
 
 TEST_F(Model, meta_infos_for_mdoule)
 {
-    projectStorageMock.createModule("Foo");
-    auto module = model.module("Foo");
+    projectStorageMock.createModule("Foo", ModuleKind::QmlLibrary);
+    auto module = model.module("Foo", ModuleKind::QmlLibrary);
     auto typeId = projectStorageMock.createObject(module.id(), "Bar");
     ON_CALL(projectStorageMock, typeIds(module.id()))
         .WillByDefault(Return(QVarLengthArray<QmlDesigner::TypeId, 256>{typeId}));

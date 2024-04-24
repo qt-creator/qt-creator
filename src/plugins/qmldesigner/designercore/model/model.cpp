@@ -170,10 +170,10 @@ Storage::Imports createStorageImports(const Imports &imports,
                                       SourceId fileId)
 {
     return Utils::transform<Storage::Imports>(imports, [&](const Import &import) {
-        return Storage::Import{projectStorage.moduleId(Utils::SmallString{import.url()}),
-                               import.majorVersion(),
-                               import.minorVersion(),
-                               fileId};
+        using Storage::ModuleKind;
+        auto moduleKind = import.isLibraryImport() ? ModuleKind::QmlLibrary : ModuleKind::PathLibrary;
+        auto moduleId = projectStorage.moduleId(Utils::SmallString{import.url()}, moduleKind);
+        return Storage::Import{moduleId, import.majorVersion(), import.minorVersion(), fileId};
     });
 }
 
@@ -390,7 +390,11 @@ ImportedTypeNameId ModelPrivate::importedTypeNameId(Utils::SmallStringView typeN
                 return import.alias() == aliasName;
             });
             if (found != m_imports.end()) {
-                ModuleId moduleId = projectStorage->moduleId(Utils::PathString{found->url()});
+                using Storage::ModuleKind;
+                auto moduleKind = found->isLibraryImport() ? ModuleKind::QmlLibrary
+                                                           : ModuleKind::PathLibrary;
+                ModuleId moduleId = projectStorage->moduleId(Utils::PathString{found->url()},
+                                                             moduleKind);
                 ImportId importId = projectStorage->importId(
                     Storage::Import{moduleId, found->majorVersion(), found->minorVersion(), m_sourceId});
                 return projectStorage->importedTypeNameId(importId, shortTypeName);
@@ -2623,11 +2627,10 @@ MetaInfo Model::metaInfo()
 }
 #endif
 
-Module Model::module(Utils::SmallStringView moduleName)
+Module Model::module(Utils::SmallStringView moduleName, Storage::ModuleKind moduleKind)
 {
-    if constexpr (useProjectStorage()) {
-        return Module(d->projectStorage->moduleId(moduleName), d->projectStorage);
-    }
+    if constexpr (useProjectStorage())
+        return Module(d->projectStorage->moduleId(moduleName, moduleKind), d->projectStorage);
 
     return {};
 }

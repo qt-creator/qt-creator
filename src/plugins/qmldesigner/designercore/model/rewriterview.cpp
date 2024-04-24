@@ -1027,9 +1027,25 @@ ModuleIds generateModuleIds(const ModelNodes &nodes)
 
 QStringList generateImports(ModuleIds moduleIds, const ProjectStorageType &projectStorage)
 {
-    return Utils::transform<QStringList>(moduleIds, [&](auto id) {
-        return "import " + projectStorage.moduleName(id).toQString();
-    });
+    QStringList imports;
+    imports.reserve(std::ssize(moduleIds));
+
+    for (auto moduleId : moduleIds) {
+        using Storage::ModuleKind;
+        auto module = projectStorage.module(moduleId);
+        switch (module.kind) {
+        case ModuleKind::QmlLibrary:
+            imports.push_back("import " + module.name.toQString());
+            break;
+        case ModuleKind::PathLibrary:
+            imports.push_back("import \"" + module.name.toQString() + "\"");
+            break;
+        case ModuleKind::CppLibrary:
+            break;
+        }
+    }
+
+    return imports;
 }
 
 QStringList generateImports(const ModelNodes &nodes)

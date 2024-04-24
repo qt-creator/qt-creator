@@ -42,6 +42,34 @@ void convertToString(String &string, const FlagIs &flagIs)
 
 namespace QmlDesigner::Storage {
 
+enum class ModuleKind { QmlLibrary, CppLibrary, PathLibrary };
+
+struct Module
+{
+    Module() = default;
+
+    Module(Utils::SmallStringView name, Storage::ModuleKind kind)
+        : name{name}
+        , kind{kind}
+    {}
+
+    template<typename ModuleType>
+    Module(const ModuleType &module)
+        : name{module.name}
+        , kind{module.kind}
+    {}
+
+    Utils::PathString name;
+    Storage::ModuleKind kind = Storage::ModuleKind::QmlLibrary;
+
+    friend bool operator==(const Module &first, const Module &second)
+    {
+        return first.name == second.name && first.kind == second.kind;
+    }
+
+    explicit operator bool() const { return name.size(); }
+};
+
 enum class PropertyDeclarationTraits : int {
     None = 0,
     IsReadOnly = 1 << 0,

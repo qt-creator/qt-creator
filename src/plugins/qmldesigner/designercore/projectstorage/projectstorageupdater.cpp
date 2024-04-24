@@ -164,8 +164,8 @@ void addDependencies(Storage::Imports &dependencies,
                      Tracer &tracer)
 {
     for (const QmlDirParser::Import &qmldirDependency : qmldirDependencies) {
-        ModuleId moduleId = projectStorage.moduleId(Utils::PathString{qmldirDependency.module}
-                                                    + "-cppnative");
+        ModuleId moduleId = projectStorage.moduleId(Utils::PathString{qmldirDependency.module},
+                                                    Storage::ModuleKind::CppLibrary);
         auto &import = dependencies.emplace_back(moduleId, Storage::Version{}, sourceId);
         tracer.tick(message, keyValue("import", import));
     }
@@ -177,6 +177,7 @@ void addModuleExportedImport(Storage::Synchronization::ModuleExportedImports &im
                              Storage::Version version,
                              Storage::Synchronization::IsAutoVersion isAutoVersion,
                              std::string_view moduleName,
+                             Storage::ModuleKind moduleKind,
                              std::string_view exportedModuleName)
 {
     NanotraceHR::Tracer tracer{"add module exported imports"_t,
@@ -186,6 +187,7 @@ void addModuleExportedImport(Storage::Synchronization::ModuleExportedImports &im
                                keyValue("version", version),
                                keyValue("is auto version", isAutoVersion),
                                keyValue("module name", moduleName),
+                               keyValue("module kind", moduleKind),
                                keyValue("exported module name", exportedModuleName)};
 
     imports.emplace_back(moduleId, exportedModuleId, version, isAutoVersion);
@@ -200,7 +202,6 @@ void addModuleExportedImports(Storage::Synchronization::ModuleExportedImports &i
                               ModuleId moduleId,
                               ModuleId cppModuleId,
                               std::string_view moduleName,
-                              std::string_view cppModuleName,
                               const QList<QmlDirParser::Import> &qmldirImports,
                               ProjectStorageInterface &projectStorage)
 {
@@ -214,23 +215,27 @@ void addModuleExportedImports(Storage::Synchronization::ModuleExportedImports &i
             continue;
 
         Utils::PathString exportedModuleName{qmldirImport.module};
-        ModuleId exportedModuleId = projectStorage.moduleId(exportedModuleName);
+        using Storage::ModuleKind;
+        ModuleId exportedModuleId = projectStorage.moduleId(exportedModuleName,
+                                                            ModuleKind::QmlLibrary);
         addModuleExportedImport(imports,
                                 moduleId,
                                 exportedModuleId,
                                 convertVersion(qmldirImport.version),
                                 convertToIsAutoVersion(qmldirImport.flags),
                                 moduleName,
+                                ModuleKind::QmlLibrary,
                                 exportedModuleName);
 
-        exportedModuleName += "-cppnative";
-        ModuleId exportedCppModuleId = projectStorage.moduleId(exportedModuleName);
+        ModuleId exportedCppModuleId = projectStorage.moduleId(exportedModuleName,
+                                                               ModuleKind::CppLibrary);
         addModuleExportedImport(imports,
                                 cppModuleId,
                                 exportedCppModuleId,
                                 Storage::Version{},
                                 Storage::Synchronization::IsAutoVersion::No,
-                                cppModuleName,
+                                moduleName,
+                                ModuleKind::CppLibrary,
                                 exportedModuleName);
     }
 }
@@ -297,7 +302,7 @@ void ProjectStorageUpdater::updateQmlTypes(const QStringList &qmlTypesPaths,
 
     NanotraceHR::Tracer tracer{"update qmltypes file"_t, category()};
 
-    ModuleId moduleId = m_projectStorage.moduleId("QML-cppnative");
+    ModuleId moduleId = m_projectStorage.moduleId("QML", Storage::ModuleKind::CppLibrary);
 
     for (const QString &qmlTypesPath : qmlTypesPaths) {
         SourceId sourceId = m_pathCache.sourceId(SourcePath{qmlTypesPath});
@@ -360,11 +365,11 @@ void ProjectStorageUpdater::updateDirectoryChanged(std::string_view directoryPat
         package.updatedSourceIds.push_back(qmldirSourceId);
     }
 
+    using Storage::ModuleKind;
     Utils::PathString moduleName{parser.typeNamespace()};
-    ModuleId moduleId = m_projectStorage.moduleId(moduleName);
-    Utils::PathString cppModuleName = moduleName + "-cppnative";
-    ModuleId cppModuleId = m_projectStorage.moduleId(cppModuleName);
-    ModuleId pathModuleId = m_projectStorage.moduleId(directoryPath);
+    ModuleId moduleId = m_projectStorage.moduleId(moduleName, ModuleKind::QmlLibrary);
+    ModuleId cppModuleId = m_projectStorage.moduleId(moduleName, ModuleKind::CppLibrary);
+    ModuleId pathModuleId = m_projectStorage.moduleId(directoryPath, ModuleKind::PathLibrary);
 
     auto imports = filterMultipleEntries(parser.imports());
 
@@ -372,7 +377,6 @@ void ProjectStorageUpdater::updateDirectoryChanged(std::string_view directoryPat
                              moduleId,
                              cppModuleId,
                              moduleName,
-                             cppModuleName,
                              imports,
                              m_projectStorage);
     tracer.tick("append updated module id"_t, keyValue("module id", moduleId));
@@ -696,7 +700,8 @@ void ProjectStorageUpdater::updatePropertyEditorFilePath(
         moduleName.replace('/', '.');
         if (oldModuleName != moduleName) {
             oldModuleName = moduleName;
-            moduleId = m_projectStorage.moduleId(Utils::SmallString{moduleName});
+            moduleId = m_projectStorage.moduleId(Utils::SmallString{moduleName},
+                                                 Storage::ModuleKind::QmlLibrary);
         }
         Storage::TypeNameString typeName{match.capturedView(2)};
         SourceId pathId = m_pathCache.sourceId(SourcePath{path});

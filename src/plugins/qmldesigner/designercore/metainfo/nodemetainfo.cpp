@@ -53,6 +53,8 @@ NodeMetaInfo object will result in an InvalidMetaInfoException being thrown.
 
 namespace {
 
+using Storage::ModuleKind;
+
 auto category = MetaInfoTracing::category;
 
 struct TypeDescription
@@ -2123,13 +2125,13 @@ NodeMetaInfos NodeMetaInfo::prototypes() const
 }
 
 namespace {
-template<const char *moduleName, const char *typeName>
+template<const char *moduleName, const char *typeName, ModuleKind moduleKind = ModuleKind::QmlLibrary>
 bool isBasedOnCommonType(NotNullPointer<const ProjectStorageType> projectStorage, TypeId typeId)
 {
     if (!typeId)
         return false;
 
-    auto base = projectStorage->commonTypeId<moduleName, typeName>();
+    auto base = projectStorage->commonTypeId<moduleName, typeName, moduleKind>();
 
     return projectStorage->isBasedOn(typeId, base);
 }
@@ -3441,7 +3443,7 @@ bool NodeMetaInfo::isQtQuick3DParticlesAbstractShape() const
                                    keyValue("type id", m_typeId)};
 
         using namespace Storage::Info;
-        return isBasedOnCommonType<QtQuick3D_Particles3D_cppnative, QQuick3DParticleAbstractShape>(
+        return isBasedOnCommonType<QtQuick3D_Particles3D, QQuick3DParticleAbstractShape, ModuleKind::CppLibrary>(
             m_projectStorage, m_typeId);
     } else {
         return isValid() && isSubclassOf("QQuick3DParticleAbstractShape");
@@ -3578,8 +3580,8 @@ bool NodeMetaInfo::isQtQuickStateOperation() const
                                    keyValue("type id", m_typeId)};
 
         using namespace Storage::Info;
-        return isBasedOnCommonType<QtQuick_cppnative, QQuickStateOperation>(m_projectStorage,
-                                                                            m_typeId);
+        return isBasedOnCommonType<QtQuick, QQuickStateOperation, ModuleKind::CppLibrary>(m_projectStorage,
+                                                                                          m_typeId);
     } else {
         return isValid() && isSubclassOf("<cpp>.QQuickStateOperation");
     }
@@ -4333,8 +4335,6 @@ PropertyName PropertyMetaInfo::name() const
     } else {
         return propertyName();
     }
-
-    return {};
 }
 
 bool PropertyMetaInfo::isWritable() const
