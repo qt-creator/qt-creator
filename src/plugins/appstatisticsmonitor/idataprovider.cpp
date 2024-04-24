@@ -15,6 +15,11 @@
 #include <unistd.h>
 #endif
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#include <psapi.h>
+#endif
+
 using namespace Utils;
 
 namespace AppStatisticsMonitor::Internal {
@@ -175,35 +180,71 @@ class WindowsDataProvider : public IDataProvider
 public:
     WindowsDataProvider(qint64 pid, QObject *parent = nullptr)
         : IDataProvider(pid, parent)
-    {}
-
-    double getMemoryConsumption() { return 0; }
-
-    double getCpuConsumption() { return 0; }
-
-#if 0
-    double getMemoryConsumptionWindows(qint64 pid)
     {
-            HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid);
-        if (hProcess == NULL) {
-            std::cerr << "Failed to open process. Error code: " << GetLastError() << std::endl;
-            return 1;
-        }
+        MEMORYSTATUSEX memoryStatus;
+        memoryStatus.dwLength = sizeof(memoryStatus);
+        GlobalMemoryStatusEx(&memoryStatus);
 
-        PROCESS_MEMORY_COUNTERS_EX pmc;
-        if (!GetProcessMemoryInfo(hProcess, (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc))) {
-            std::cerr << "Failed to retrieve process memory information. Error code: " << GetLastError() << std::endl;
-            CloseHandle(hProcess);
-            return 1;
-        }
-
-        std::cout << "Process ID: " << pid << std::endl;
-        std::cout << "Memory consumption: " << pmc.PrivateUsage << " bytes" << std::endl;
-
-        CloseHandle(hProcess);
-        return pmc.PrivateUsage;
+        m_totalMemory = memoryStatus.ullTotalPhys;
     }
-#endif
+
+    double getMemoryConsumption()
+    {
+        HANDLE process = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, m_pid);
+
+        PROCESS_MEMORY_COUNTERS pmc;
+        SIZE_T memoryUsed = 0;
+        if (GetProcessMemoryInfo(process, &pmc, sizeof(pmc))) {
+            memoryUsed = pmc.WorkingSetSize;
+            // Can be used in the future for the process lifetime statistics
+            //double memoryUsedMB = static_cast<double>(memoryUsed) / (1024.0 * 1024.0);
+        }
+
+        CloseHandle(process);
+        return static_cast<double>(memoryUsed) / static_cast<double>(m_totalMemory) * 100.0;
+    }
+
+    double getCpuConsumption()
+    {
+        ULARGE_INTEGER sysKernel, sysUser, procKernel, procUser;
+        HANDLE process = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, m_pid);
+
+        FILETIME creationTime, exitTime, kernelTime, userTime;
+        GetProcessTimes(process, &creationTime, &exitTime, &kernelTime, &userTime);
+        procKernel.LowPart = kernelTime.dwLowDateTime;
+        procKernel.HighPart = kernelTime.dwHighDateTime;
+        procUser.LowPart = userTime.dwLowDateTime;
+        procUser.HighPart = userTime.dwHighDateTime;
+
+        SYSTEMTIME sysTime;
+        GetSystemTime(&sysTime);
+        SystemTimeToFileTime(&sysTime, &kernelTime);
+        SystemTimeToFileTime(&sysTime, &userTime);
+        sysKernel.LowPart = kernelTime.dwLowDateTime;
+        sysKernel.HighPart = kernelTime.dwHighDateTime;
+        sysUser.LowPart = userTime.dwLowDateTime;
+        sysUser.HighPart = userTime.dwHighDateTime;
+
+        const double sysElapsedTime = sysKernel.QuadPart + sysUser.QuadPart
+                                      - m_lastSysKernel.QuadPart - m_lastSysUser.QuadPart;
+        const double procElapsedTime = procKernel.QuadPart + procUser.QuadPart
+                                       - m_lastProcKernel.QuadPart - m_lastProcUser.QuadPart;
+        const double cpuUsagePercent = (procElapsedTime / sysElapsedTime) * 100.0;
+
+        m_lastProcKernel = procKernel;
+        m_lastProcUser = procUser;
+        m_lastSysKernel = sysKernel;
+        m_lastSysUser = sysUser;
+
+        CloseHandle(process);
+        return cpuUsagePercent;
+    }
+
+private:
+    ULARGE_INTEGER m_lastSysKernel = {{0, 0}}, m_lastSysUser = {{0, 0}},
+                   m_lastProcKernel = {{0, 0}}, m_lastProcUser = {{0, 0}};
+
+    DWORDLONG m_totalMemory = 0;
 };
 #endif
 
