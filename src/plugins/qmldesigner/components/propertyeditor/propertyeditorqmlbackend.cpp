@@ -82,10 +82,10 @@ namespace QmlDesigner {
 
 PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyEditor,
                                                    AsynchronousImageCache &imageCache)
-    : m_view(new Quick2PropertyEditorView(imageCache))
+    : m_view(Utils::makeUniqueObjectPtr<Quick2PropertyEditorView>(imageCache))
     , m_propertyEditorTransaction(new PropertyEditorTransaction(propertyEditor))
     , m_dummyPropertyEditorValue(new PropertyEditorValue())
-    , m_contextObject(new PropertyEditorContextObject(m_view))
+    , m_contextObject(new PropertyEditorContextObject(m_view.get()))
 {
     m_view->engine()->setOutputWarningsToStandardError(QmlDesignerPlugin::instance()
         ->settings().value(DesignerSettingsKey::SHOW_PROPERTYEDITOR_WARNINGS).toBool());
@@ -407,7 +407,7 @@ PropertyEditorContextObject *PropertyEditorQmlBackend::contextObject()
 
 QQuickWidget *PropertyEditorQmlBackend::widget()
 {
-    return m_view;
+    return m_view.get();
 }
 
 void PropertyEditorQmlBackend::setSource(const QUrl &url)

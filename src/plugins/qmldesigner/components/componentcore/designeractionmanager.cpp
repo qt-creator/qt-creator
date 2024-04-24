@@ -61,11 +61,6 @@ inline static QString captionForModelNode(const ModelNode &modelNode)
     return modelNode.id();
 }
 
-inline static bool contains(const QmlItemNode &node, const QPointF &position)
-{
-    return node.isValid() && node.instanceSceneTransform().mapRect(node.instanceBoundingRect()).contains(position);
-}
-
 DesignerActionManagerView *DesignerActionManager::view()
 {
     return m_designerActionManagerView;
@@ -438,8 +433,8 @@ public:
             }
             for (const ModelNode &node : selectionContext().view()->allModelNodes()) {
                 if (node != selectionContext().currentSingleSelectedNode() && node != parentNode
-                    && contains(node, selectionContext().scenePosition()) && !node.isRootNode()
-                    && !ModelUtils::isThisOrAncestorLocked(node)) {
+                    && SelectionContextHelpers::contains(node, selectionContext().scenePosition())
+                    && !node.isRootNode() && !ModelUtils::isThisOrAncestorLocked(node)) {
                     selectionContext().setTargetNode(node);
                     QString what = QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select: %1")).arg(captionForModelNode(node));
                     ActionTemplate *selectionAction = new ActionTemplate("SELECT", what, &ModelNodeOperations::select);
@@ -1971,7 +1966,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           QKeySequence(),
                           Priorities::ComponentActions + 1,
                           &editIn3dView,
-                          &singleSelectionView3D,
+                          &SelectionContextFunctors::always, // If action is visible, it is usable
                           &singleSelectionView3D));
 
     addDesignerAction(new ModelNodeContextMenuAction(

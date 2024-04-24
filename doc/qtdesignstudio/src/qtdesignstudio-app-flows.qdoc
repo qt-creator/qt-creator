@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -224,26 +224,19 @@
 
     \title Adding Action Areas and Transitions
 
-    \e {Action areas} can act as clickable areas that initiate transitions
-    between flow items or they can \l{Connecting and Releasing Signals}
-    {create connections} to any signal from any component in a
+    \e {Action areas} are clickable areas that initiate transitions between flow items or
+    \l{Connecting and Releasing Signals}{create connections} to any signal from any component in a
     \l{Adding Flow Items}{flow item}. For example, you could connect an
     action to the \c onPressed signal of a button in your flow item to
     determine what should happen when users press the button.
 
-    \image studio-flow-action-area.png "Flow Action Area in the 2D view"
+    \image studio-flow-action-area.webp "Flow Action Area in the 2D view"
 
-    \note To connect components to \l{Connecting and Releasing Signals}
-    {signals}, you must first export the components as
-    \l{Adding Property Aliases}{aliases} in \l Navigator.
-    To create and release connections, select
-    \uicontrol {Open Signal Dialog} in the context menu.
+    Select the type of the mouse or touch input to use for triggering
+    events, such as click, double-click, flick, pinch, or long press.
 
-    You can select the type of the mouse or touch input to use for triggering
-    events, such as click, double-click, flick, pinch, or press.
-
-    Typically, a flow item can be connected to several other flow items in the
-    flow with two-way connections. To avoid clutter, you can set an action area
+    Typically, a flow item is connected to several other flow items in the
+    flow with two-way connections. To avoid clutter, set an action area
     as \e {go back} instead of adding explicit transition lines to and from
     every potentially connected flow item. When the \uicontrol {Go back} option
     is enabled, the transition will always take the user back to the previous
@@ -257,7 +250,7 @@
     To create action areas:
 
     \list 1
-        \li Right-click the flow item in the \l {2D} view and select
+        \li Select the flow item in the \l {2D} view, then right-click it, and select
             \uicontrol {Flow} > \uicontrol {Create Flow Action} in
             the context menu.
         \li Drag the action area to the UI control that you want to connect
@@ -275,29 +268,29 @@
 
     \section1 Common Properties
 
-    You can specify basic properties for \uicontrol {Flow Action Area}
+    Specify basic properties for \uicontrol {Flow Action Area}
     and \uicontrol {Flow Transition} components in the \l {Type}{Component},
     \l {2D Geometry}{Geometry - 2D}, and \l Visibility sections in the
     \uicontrol Properties view.
 
-    In the \uicontrol Layout tab, you can use \l{Setting Anchors and Margins}
-    {anchors} to position the component.
+    Use \l{Setting Anchors and Margins}{anchors} in the \uicontrol Layout tab to position
+    the component.
 
-    In the \uicontrol Advanced section, you can manage the more
-    \l{Specifying Developer Properties}{advanced properties} of components.
+    Manage the more \l{Specifying Developer Properties}{advanced properties} of components
+    in the \uicontrol Advanced section.
 
     \section1 Flow Action Area Properties
 
-    In the \uicontrol {Flow Action Area} section, you can use the
-    \l{Picking Colors}{color picker} to set line and fill color.
+    Use the \l{Picking Colors}{color picker} in the \uicontrol {Flow Action Area} section
+    to set line and fill color.
 
-    \image studio-flow-action-area-properties.png "Flow Action Area properties"
+    \image studio-flow-action-area-properties.webp "Flow Action Area properties"
 
-    In the \uicontrol {Flow Action} and \uicontrol {Action Area} sections,
-    specify additional properties for action areas:
+    Specify additional properties for action areas in the \uicontrol {Flow Action} and
+    \uicontrol {Action Area} sections:
 
     \list
-        \li Select the \uicontrol {Go back} check box to specify that the
+        \li Select the \uicontrol {Go back} checkbox to specify that the
             transition will always take the user back to the previous flow item.
         \li In the \uicontrol {Event IDs} field, specify the IDs of the
             events to connect to, such as mouse, touch or keyboard events.
@@ -305,22 +298,22 @@
             mouse or touch input to use for triggering events.
         \li In the \uicontrol {Line width} field, set the width of the
             action area outline.
-        \li Select the \uicontrol {Dashed line} check box to draw a dashed
+        \li Select the \uicontrol {Dashed line} checkbox to draw a dashed
             action area outline.
-        \li Select the \uicontrol Enabled check box to enable interaction
+        \li Select the \uicontrol Enabled checkbox to enable interaction
             with the action area during preview.
     \endlist
 
     \section1 Flow Transition Properties
 
-    In the \uicontrol Transition section, specify additional properties for
-    transitions between \l{Adding Flow Items}{flow items}:
+    Specify additional properties for transitions between \l{Adding Flow Items}{flow items}
+    in the \uicontrol Transition section:
 
-    \image studio-flow-transition-properties.png "Flow Transition properties"
+    \image studio-flow-transition-properties.webp "Flow Transition properties"
 
     \list
         \li Select the \uicontrol Condition checkbox to activate the
-            transition. You can select \inlineimage icons/action-icon.png
+            transition. Select \inlineimage icons/action-icon.png
             to \l{Adding Bindings Between Properties}{bind} a condition
             to the transition.
         \li In the \uicontrol Question field, enter the text that will appear
@@ -335,10 +328,10 @@
             ends.
     \endlist
 
-    You can specify the following properties to change the appearance of
-    transition lines in the \uicontrol {2D} view:
+    Specify the following properties to change the appearance of transition lines in
+    the \uicontrol {2D} view:
 
-    \image studio-flow-transition-line-properties.png "Flow Transition Line properties"
+    \image studio-flow-transition-line-properties.webp "Flow Transition Line properties"
 
     \list
         \li In the \uicontrol {Line width} field, set the width of the
@@ -347,7 +340,7 @@
             the start point (\uicontrol Out) or end point (\uicontrol In) of a
             transition line or a break to the specified offset. This enables
             you to move them up and down or left and right.
-        \li Select the \uicontrol {Dashed line} check box to draw a dashed line.
+        \li Select the \uicontrol {Dashed line} checkbox to draw a dashed line.
         \li In the \uicontrol Type field, select \uicontrol Bezier to draw
             transition lines as bezier curves.
         \li In the \uicontrol Radius field, specify the corner radius for
@@ -358,19 +351,19 @@
         \li In the \uicontrol {Label position} field, set the position of
             the value of the \uicontrol Question field in respect to the
             transition start point.
-        \li Select the \uicontrol {Label flip side} check box to move the
+        \li Select the \uicontrol {Label flip side} checkbox to move the
             \uicontrol Question value to the opposite side of the transition
             line.
     \endlist
 
     \section1 Connecting and Releasing Signals
 
-    To connect a component to a \l{Connecting Components to Signals}{signal},
-    select \uicontrol {Open Signal Dialog} in the context menu. The
-    \uicontrol {Signal List} dialog displays the signals for all components
-    that you export as \l{Adding Property Aliases}{aliases} in \l Navigator.
+    To connect components to \l{Connecting Components to Signals}{signals}, export the
+    components first as \l{Adding Property Aliases}{aliases} in \l Navigator. To create
+    and release connections, select \uicontrol {Open Signal Dialog} in the context menu.
+    The \uicontrol {Signal List} dialog displays the signals for all components.
 
-    \image studio-flow-signal-list.png "Signal List dialog"
+    \image studio-flow-signal-list.webp "Signal List dialog"
 
     To connect a component to a signal, select \uicontrol Connect next to one
     in the list. To release a connected signal, select \uicontrol Release.

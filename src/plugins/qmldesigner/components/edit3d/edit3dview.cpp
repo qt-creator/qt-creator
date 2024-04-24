@@ -462,6 +462,7 @@ void Edit3DView::customNotification([[maybe_unused]] const AbstractView *view,
             self->emitView3DAction(View3DActionType::GetNodeAtMainScenePos,
                                    QVariantList{data[0], nodeList[0].internalId()});
             self->m_nodeAtPosReqType = NodeAtPosReqType::MainScenePick;
+            self->m_pickView3dNode = nodeList[0];
         });
     }
 }
@@ -514,6 +515,8 @@ void Edit3DView::nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::MainScenePick) {
         if (modelNode.isValid())
             setSelectedModelNode(modelNode);
+        else if (m_pickView3dNode.isValid() && !m_pickView3dNode.isSelected())
+            setSelectedModelNode(m_pickView3dNode);
         emitView3DAction(View3DActionType::AlignViewToCamera, true);
     }
 

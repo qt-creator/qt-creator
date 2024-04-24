@@ -1685,16 +1685,37 @@ void updateImported3DAsset(const SelectionContext &selectionContext)
 
 void editIn3dView(const SelectionContext &selectionContext)
 {
-    if (selectionContext.view() && selectionContext.hasSingleSelectedModelNode()
+    if (!selectionContext.view())
+        return;
+
+    ModelNode targetNode;
+
+    if (selectionContext.hasSingleSelectedModelNode()
         && selectionContext.currentSingleSelectedNode().metaInfo().isQtQuick3DView3D()) {
+        targetNode = selectionContext.currentSingleSelectedNode();
+    }
+
+    const QPointF scenePos = selectionContext.scenePosition();
+    if (!targetNode.isValid() && !scenePos.isNull()) {
+        // If currently selected node is not View3D, check if there is a View3D under the cursor.
+        // Assumption is that last match in allModelNodes() list is the topmost one.
+        const QList<ModelNode> allNodes = selectionContext.view()->allModelNodes();
+        for (int i = allNodes.size() - 1; i >= 0; --i) {
+            if (SelectionContextHelpers::contains(allNodes[i], selectionContext.scenePosition())) {
+                if (allNodes[i].metaInfo().isQtQuick3DView3D())
+                    targetNode = allNodes[i];
+                break;
+            }
+        }
+    }
+
+    if (targetNode.isValid()) {
         QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("Editor3D", true);
-        const QPointF scenePos = selectionContext.scenePosition();
         if (scenePos.isNull()) {
             selectionContext.view()->emitView3DAction(View3DActionType::AlignViewToCamera, true);
         } else {
             selectionContext.view()->emitCustomNotification("pick_3d_node_from_2d_scene",
-                                                            {selectionContext.currentSingleSelectedNode()},
-                                                            {scenePos});
+                                                            {targetNode}, {scenePos});
         }
     }
 }

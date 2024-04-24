@@ -25,6 +25,16 @@ namespace QmlDesigner {
 using SelectionContextPredicate = std::function<bool (const SelectionContext&)>;
 using SelectionContextOperation = std::function<void (const SelectionContext&)>;
 
+namespace SelectionContextHelpers {
+
+inline bool contains(const QmlItemNode &node, const QPointF &position)
+{
+    return node.isValid()
+           && node.instanceSceneTransform().mapRect(node.instanceBoundingRect()).contains(position);
+}
+
+} // namespace SelectionContextHelpers
+
 namespace SelectionContextFunctors {
 
 inline bool always(const SelectionContext &)
@@ -99,8 +109,22 @@ inline bool singleSelectionNotRoot(const SelectionContext &selectionState)
 
 inline bool singleSelectionView3D(const SelectionContext &selectionState)
 {
-    return selectionState.singleNodeIsSelected()
-           && selectionState.currentSingleSelectedNode().metaInfo().isQtQuick3DView3D();
+    if (selectionState.singleNodeIsSelected()
+        && selectionState.currentSingleSelectedNode().metaInfo().isQtQuick3DView3D()) {
+        return true;
+    }
+
+    // If currently selected node is not View3D, check if there is a View3D under the cursor.
+    if (!selectionState.scenePosition().isNull()) {
+        // Assumption is that last match in allModelNodes() list is the topmost one.
+        const QList<ModelNode> allNodes = selectionState.view()->allModelNodes();
+        for (int i = allNodes.size() - 1; i >= 0; --i) {
+            if (SelectionContextHelpers::contains(allNodes[i], selectionState.scenePosition()))
+                return allNodes[i].metaInfo().isQtQuick3DView3D();
+        }
+    }
+
+    return false;
 }
 
 inline bool selectionHasProperty(const SelectionContext &selectionState, const char *property)

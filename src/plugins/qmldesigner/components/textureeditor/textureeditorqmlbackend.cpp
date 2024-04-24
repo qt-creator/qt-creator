@@ -43,17 +43,17 @@ static QObject *variantToQObject(const QVariant &value)
 namespace QmlDesigner {
 
 TextureEditorQmlBackend::TextureEditorQmlBackend(TextureEditorView *textureEditor, AsynchronousImageCache &imageCache)
-    : m_view(new QQuickWidget)
+    : m_quickWidget(new QQuickWidget)
     , m_textureEditorTransaction(new TextureEditorTransaction(textureEditor))
-    , m_contextObject(new TextureEditorContextObject(m_view->rootContext()))
+    , m_contextObject(new TextureEditorContextObject(m_quickWidget->rootContext()))
 {
     QImage defaultImage;
     defaultImage.load(Utils::StyleHelper::dpiSpecificImageFile(":/textureeditor/images/texture_default.png"));
     m_textureEditorImageProvider = new AssetImageProvider(imageCache, defaultImage);
-    m_view->setResizeMode(QQuickWidget::SizeRootObjectToView);
-    m_view->setObjectName(Constants::OBJECT_NAME_TEXTURE_EDITOR);
-    m_view->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
-    m_view->engine()->addImageProvider("qmldesigner_thumbnails", m_textureEditorImageProvider);
+    m_quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    m_quickWidget->setObjectName(Constants::OBJECT_NAME_TEXTURE_EDITOR);
+    m_quickWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
+    m_quickWidget->engine()->addImageProvider("qmldesigner_thumbnails", m_textureEditorImageProvider);
     m_contextObject->setBackendValues(&m_backendValuesPropertyMap);
     m_contextObject->setModel(textureEditor->model());
     context()->setContextObject(m_contextObject.data());
@@ -154,7 +154,7 @@ void TextureEditorQmlBackend::setValue(const QmlObjectNode &, const PropertyName
 
 QQmlContext *TextureEditorQmlBackend::context() const
 {
-    return m_view->rootContext();
+    return m_quickWidget->rootContext();
 }
 
 TextureEditorContextObject *TextureEditorQmlBackend::contextObject() const
@@ -164,12 +164,12 @@ TextureEditorContextObject *TextureEditorQmlBackend::contextObject() const
 
 QQuickWidget *TextureEditorQmlBackend::widget() const
 {
-    return m_view;
+    return m_quickWidget.get();
 }
 
 void TextureEditorQmlBackend::setSource(const QUrl &url)
 {
-    m_view->setSource(url);
+    m_quickWidget->setSource(url);
 }
 
 QmlAnchorBindingProxy &TextureEditorQmlBackend::backendAnchorBinding()

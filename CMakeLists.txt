@@ -78,8 +78,12 @@ find_package(Qt6
   REQUIRED
 )
 
-option(WITH_QMLDESIGNER "Build QmlDesigner" ${ENV_QTC_WITH_QMLDESIGNER})
-add_feature_info("Build QmlDesigner and related code" ${WITH_QMLDESIGNER} "")
+if (Qt6_VERSION VERSION_GREATER_EQUAL 6.5.4)
+    option(WITH_QMLDESIGNER "Build QmlDesigner" ${ENV_QTC_WITH_QMLDESIGNER})
+else()
+    option(WITH_QMLDESIGNER "Build QmlDesigner" OFF)
+endif()
+add_feature_info("Build QmlDesigner and related code (only if Qt is 6.5.4 or newer)" ${WITH_QMLDESIGNER} "")
 
 # hack for Qbs which still supports Qt5 and Qt6
 if (TARGET Qt6::Core5CompatPrivate)

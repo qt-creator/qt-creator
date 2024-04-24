@@ -4,6 +4,7 @@
 #include "contentlibraryusermodel.h"
 
 #include "contentlibrarybundleimporter.h"
+#include "contentlibraryeffect.h"
 #include "contentlibrarymaterial.h"
 #include "contentlibrarymaterialscategory.h"
 #include "contentlibrarytexture.h"

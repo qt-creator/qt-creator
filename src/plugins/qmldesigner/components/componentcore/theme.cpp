@@ -10,6 +10,7 @@
 
 #include <utils/stylehelper.h>
 
+#include <qqml.h>
 #include <QApplication>
 #include <QMainWindow>
 #include <QPointer>
@@ -18,7 +19,7 @@
 #include <QQmlProperty>
 #include <QRegularExpression>
 #include <QScreen>
-#include <qqml.h>
+#include <QWindow>
 
 static Q_LOGGING_CATEGORY(themeLog, "qtc.qmldesigner.theme", QtWarningMsg)
 
@@ -140,7 +141,9 @@ bool Theme::highPixelDensity() const
 
 QWindow *Theme::mainWindowHandle() const
 {
-    return Core::ICore::mainWindow()->windowHandle();
+    QWindow *handle = Core::ICore::mainWindow()->windowHandle();
+    QQmlEngine::setObjectOwnership(handle, QJSEngine::CppOwnership);
+    return handle;
 }
 
 QPixmap Theme::getPixmap(const QString &id)
