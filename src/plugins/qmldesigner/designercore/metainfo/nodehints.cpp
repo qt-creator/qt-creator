@@ -320,6 +320,14 @@ bool NodeHints::visibleInNavigator() const
     return evaluateBooleanExpression("visibleInNavigator", false);
 }
 
+bool NodeHints::hideInNavigator() const
+{
+    if (!isValid())
+        return false;
+
+    return evaluateBooleanExpression("hideInNavigator", false);
+}
+
 bool NodeHints::visibleInLibrary() const
 {
     auto flagIs = m_modelNode.metaInfo().visibleInLibrary();
