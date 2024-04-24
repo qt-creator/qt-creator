@@ -153,6 +153,7 @@ bool CollectionDetailsModel::removeColumns(int column, int count, const QModelIn
         removeRows(0, rowCount(parent), parent);
 
     ensureSingleCell();
+    setHasUnsavedChanges(true);
     return columnsRemoved;
 }
 
@@ -169,6 +170,7 @@ bool CollectionDetailsModel::removeRows(int row, int count, const QModelIndex &p
     endRemoveRows();
 
     ensureSingleCell();
+    setHasUnsavedChanges(true);
     return rowsRemoved;
 }
 
