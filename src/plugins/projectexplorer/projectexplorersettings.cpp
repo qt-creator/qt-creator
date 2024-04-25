@@ -433,6 +433,7 @@ ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
     s.lowBuildPriority = m_lowBuildPriorityCheckBox->isChecked();
     s.warnAgainstNonAsciiBuildDir = m_warnAgainstNonAsciiBuildDirCheckBox->isChecked();
     s.appEnvChanges = m_appEnvChanges;
+    s.environmentId = projectExplorerSettings().environmentId;
     return s;
 }
 
