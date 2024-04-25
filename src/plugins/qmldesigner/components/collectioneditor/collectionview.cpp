@@ -365,6 +365,7 @@ void CollectionView::resetDataStoreNode()
     if (dataStoreSingletonFound) {
         m_widget->listModel()->setDataStoreNode(dataStore);
         m_dataStoreTypeFound = true;
+        resetPuppet();
 
         while (!m_delayedTasks.isEmpty())
             m_delayedTasks.takeFirst()->process();
