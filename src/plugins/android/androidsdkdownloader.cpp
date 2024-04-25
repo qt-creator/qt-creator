@@ -204,24 +204,17 @@ GroupItem downloadSdkRecipe()
         androidConfig().setTemporarySdkToolsPath(
             storage->sdkFileName->parentDir().pathAppended(Constants::cmdlineToolsName));
     };
-
-    const auto onCanceled = [storage](Barrier &barrier) {
-        // Avoid deleting progress dialog from its signal handler.
-        QObject::connect(storage->progressDialog.get(), &QProgressDialog::canceled,
-                         &barrier, &Barrier::advance, Qt::QueuedConnection);
-    };
+    const auto onCancelSetup = [storage] { return std::make_pair(storage->progressDialog.get(),
+                                                                 &QProgressDialog::canceled); };
 
     return Group {
         storage,
-        parallel,
-        stopOnSuccessOrError,
         Group {
             onGroupSetup(onSetup),
             NetworkQueryTask(onQuerySetup, onQueryDone),
             AsyncTask<void>(onValidationSetup, onValidationDone),
             UnarchiverTask(onUnarchiveSetup, onUnarchiverDone)
-        },
-        BarrierTask(onCanceled, [] { return DoneResult::Error; })
+        }.withCancel(onCancelSetup)
     };
 }
 
