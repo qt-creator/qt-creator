@@ -689,7 +689,7 @@ void EditorManagerPrivate::init()
             this, &EditorManagerPrivate::updateWindowTitle);
     connect(mainEditorArea, &QObject::destroyed, this, &EditorManagerPrivate::editorAreaDestroyed);
     m_editorAreas.append(mainEditorArea);
-    m_currentView = mainEditorArea->view();
+    setCurrentView(mainEditorArea->view());
 
     updateActions();
 
@@ -1462,7 +1462,6 @@ bool EditorManagerPrivate::activateEditorForEntry(EditorView *view, DocumentMode
     if (!entry) { // no document
         view->setCurrentEditor(nullptr);
         setCurrentView(view);
-        setCurrentEditor(nullptr);
         return false;
     }
     IDocument *document = entry->document;
@@ -1637,11 +1636,6 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
                                     flags = EditorManager::DoNotSwitchToDesignMode;
                                 activateEditorForDocument(view, document, flags);
                             }
-                        } else {
-                            // no documents left - set current view since view->removeEditor can
-                            // trigger a focus change, context change, and updateActions, which
-                            // requests the current EditorView
-                            setCurrentView(currentView);
                         }
                     }
                 }
@@ -1652,12 +1646,10 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
 
     emit m_instance->editorsClosed(Utils::toList(acceptedEditors));
 
-    if (focusView) {
+    if (focusView)
         activateView(focusView);
-    } else {
+    else
         setCurrentView(currentView);
-        setCurrentEditor(currentView->currentEditor());
-    }
 
     qDeleteAll(acceptedEditors);
 
@@ -1672,14 +1664,8 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
 void EditorManagerPrivate::activateView(EditorView *view)
 {
     QTC_ASSERT(view, return);
-    QWidget *focusWidget;
-    if (IEditor *editor = view->currentEditor()) {
-        setCurrentEditor(editor, true);
-        focusWidget = editor->widget();
-    } else {
-        setCurrentView(view);
-        focusWidget = view;
-    }
+    setCurrentView(view);
+    QWidget *focusWidget = view->currentEditor() ? view->currentEditor()->widget() : view;
     focusWidget->setFocus();
     ICore::raiseWindow(focusWidget);
 }
@@ -1708,40 +1694,47 @@ int EditorManagerPrivate::visibleDocumentsCount()
 
 void EditorManagerPrivate::setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory)
 {
-    if (editor)
-        setCurrentView(nullptr);
+    IEditor *previousEditor = d->m_currentEditor;
+    EditorView *previousView = d->m_currentView;
+    EditorView *view = editor ? viewForEditor(editor) : previousView;
 
-    if (d->m_currentEditor == editor)
-        return;
+    if (editor != previousEditor) {
+        emit m_instance->currentEditorAboutToChange(d->m_currentEditor);
 
-    emit m_instance->currentEditorAboutToChange(d->m_currentEditor);
+        if (d->m_currentEditor && !ignoreNavigationHistory)
+            EditorManager::addCurrentPositionToNavigationHistory();
 
-    if (d->m_currentEditor && !ignoreNavigationHistory)
-        EditorManager::addCurrentPositionToNavigationHistory();
-
-    d->m_currentEditor = editor;
-    if (editor) {
-        if (EditorView *view = viewForEditor(editor))
-            view->setCurrentEditor(editor);
+        d->m_currentEditor = editor;
         // update global history
-        EditorView::updateEditorHistory(editor, d->m_globalHistory);
+        if (editor)
+            EditorView::updateEditorHistory(editor, d->m_globalHistory);
     }
+
+    if (QTC_GUARD(view)) { // we should always have a view
+        d->m_currentView = view;
+        view->setCurrentEditor(editor);
+    }
+
     updateActions();
-    emit m_instance->currentEditorChanged(editor);
+
+    if (d->m_currentEditor != previousEditor)
+        emit m_instance->currentEditorChanged(d->m_currentEditor);
 }
 
 void EditorManagerPrivate::setCurrentView(EditorView *view)
 {
-    if (view == d->m_currentView)
-        return;
+    QTC_ASSERT(view, return); // view should always have a view
+    if (view != d->m_currentView) {
+        EditorView *previousView = d->m_currentView;
+        d->m_currentView = view;
 
-    EditorView *old = d->m_currentView;
-    d->m_currentView = view;
+        if (previousView)
+            previousView->update();
+        if (d->m_currentView)
+            view->update();
+    }
 
-    if (old)
-        old->update();
-    if (view)
-        view->update();
+    setCurrentEditor(view->currentEditor());
 }
 
 EditorArea *EditorManagerPrivate::findEditorArea(const EditorView *view, int *areaIndex)
@@ -2244,7 +2237,7 @@ void EditorManagerPrivate::editorAreaDestroyed(QObject *area)
         }
     }
     // check if the destroyed editor area had the current view or current editor
-    if (d->m_currentEditor || (d->m_currentView && d->m_currentView->parentSplitterOrView() != area))
+    if (currentEditorView())
         return;
     // we need to set a new current editor or view
     if (!newActiveArea) {
@@ -2607,24 +2600,7 @@ void EditorManagerPrivate::setCurrentEditorFromContextChange()
 
 EditorView *EditorManagerPrivate::currentEditorView()
 {
-    EditorView *view = d->m_currentView;
-    if (!view) {
-        if (d->m_currentEditor) {
-            view = EditorManagerPrivate::viewForEditor(d->m_currentEditor);
-            QTC_ASSERT(view, view = d->m_editorAreas.first()->findFirstView());
-        }
-        QTC_CHECK(view);
-        if (!view) { // should not happen, we should always have either currentview or currentdocument
-            for (const EditorArea *area : std::as_const(d->m_editorAreas)) {
-                if (area->window()->isActiveWindow()) {
-                    view = area->findFirstView();
-                    break;
-                }
-            }
-            QTC_ASSERT(view, view = d->m_editorAreas.first()->findFirstView());
-        }
-    }
-    return view;
+    return d->m_currentView;
 }
 
 QList<EditorView *> EditorManagerPrivate::allEditorViews()
