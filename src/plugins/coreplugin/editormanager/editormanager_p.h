@@ -100,6 +100,7 @@ public:
                                            Qt::CaseSensitivity sensitivity);
 
     static EditorWindow *createEditorWindow();
+    static void addEditorArea(EditorArea *area);
     static void splitNewWindow(Internal::EditorView *view);
     static void closeView(Internal::EditorView *view);
     static const QList<IEditor *> emptyView(Internal::EditorView *view);
@@ -197,7 +198,7 @@ private:
     QList<EditorArea *> m_editorAreas;
     QPointer<IEditor> m_currentEditor;
     QPointer<IEditor> m_scheduledCurrentEditor;
-    QPointer<EditorView> m_currentView;
+    QList<QPointer<EditorView>> m_currentView;
     QTimer *m_autoSaveTimer = nullptr;
 
     // actions
