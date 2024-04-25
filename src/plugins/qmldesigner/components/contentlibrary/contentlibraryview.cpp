@@ -290,7 +290,6 @@ void ContentLibraryView::modelAttached(Model *model)
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
 
     updateBundlesQuick3DVersion();
-    updateBundleMaterialsImportedState();
 
     const bool hasLibrary = Utils3D::materialLibraryNode(this).isValid();
     m_widget->setHasMaterialLibrary(hasLibrary);
@@ -302,11 +301,16 @@ void ContentLibraryView::modelAttached(Model *model)
     m_widget->setHasActive3DScene(m_sceneId != -1);
     m_widget->clearSearchFilter();
 
+    // bundles loading has to happen here, otherwise project path is not ready which will
+    // cause bundle items types to resolve incorrectly
+    m_widget->materialsModel()->loadBundle();
     m_widget->effectsModel()->loadBundle();
-    updateBundleEffectsImportedState();
-
     m_widget->userModel()->loadMaterialBundle();
     m_widget->userModel()->loadTextureBundle();
+
+    updateBundleMaterialsImportedState();
+    updateBundleEffectsImportedState();
+    updateBundleUserMaterialsImportedState();
 }
 
 void ContentLibraryView::modelAboutToBeDetached(Model *model)

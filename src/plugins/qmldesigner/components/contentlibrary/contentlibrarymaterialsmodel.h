@@ -51,6 +51,7 @@ public:
 
     void resetModel();
     void updateIsEmpty();
+    void loadBundle();
 
     Internal::ContentLibraryBundleImporter *bundleImporter() const;
 

@@ -40,7 +40,10 @@ ContentLibraryMaterialsModel::ContentLibraryMaterialsModel(ContentLibraryWidget 
 
     qmlRegisterType<QmlDesigner::FileDownloader>("WebFetcher", 1, 0, "FileDownloader");
     qmlRegisterType<QmlDesigner::MultiFileDownloader>("WebFetcher", 1, 0, "MultiFileDownloader");
+}
 
+void ContentLibraryMaterialsModel::loadBundle()
+{
     QDir bundleDir{m_downloadPath};
     if (fetchBundleMetadata(bundleDir) && fetchBundleIcons(bundleDir))
         loadMaterialBundle(bundleDir);
