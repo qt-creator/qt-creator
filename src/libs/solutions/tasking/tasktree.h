@@ -290,10 +290,25 @@ public:
     ExecutableItem withTimeout(std::chrono::milliseconds timeout,
                                const std::function<void()> &handler = {}) const;
     ExecutableItem withLog(const QString &logName) const;
+    template <typename SenderSignalPairGetter>
+    ExecutableItem withCancel(SenderSignalPairGetter &&getter) const
+    {
+        const auto connectWrapper = [getter](QObject *guard, const std::function<void()> &trigger) {
+            const auto senderSignalPair = getter();
+            QObject::connect(senderSignalPair.first, senderSignalPair.second, guard, [trigger] {
+                trigger();
+            }, static_cast<Qt::ConnectionType>(Qt::QueuedConnection | Qt::SingleShotConnection));
+        };
+        return withCancelImpl(connectWrapper);
+    }
 
 protected:
     ExecutableItem() = default;
     ExecutableItem(const TaskHandler &handler) : GroupItem(handler) {}
+
+private:
+    ExecutableItem withCancelImpl(
+        const std::function<void(QObject *, const std::function<void()> &)> &connectWrapper) const;
 };
 
 class TASKING_EXPORT Group : public ExecutableItem

@@ -3,6 +3,8 @@
 
 #include "tasktree.h"
 
+#include "barrier.h"
+
 #include <QDebug>
 #include <QEventLoop>
 #include <QFutureWatcher>
@@ -1485,6 +1487,23 @@ ExecutableItem ExecutableItem::withLog(const QString &logName) const
             qDebug().noquote().nospace() << header() << " finished " << syncType << " with "
                 << doneWithEnum.valueToKey(int(result)) << " within " << elapsed.count() << "ms.";
         })
+    };
+}
+
+ExecutableItem ExecutableItem::withCancelImpl(
+    const std::function<void(QObject *, const std::function<void()> &)> &connectWrapper) const
+{
+    const auto onSetup = [connectWrapper](Barrier &barrier) {
+        connectWrapper(&barrier, [barrierPtr = &barrier] { barrierPtr->advance(); });
+    };
+    return Group {
+        parallel,
+        stopOnSuccessOrError,
+        Group {
+            finishAllAndError,
+            BarrierTask(onSetup)
+        },
+        *this
     };
 }
 
