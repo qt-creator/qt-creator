@@ -304,6 +304,9 @@ void ContentLibraryView::modelAttached(Model *model)
 
     m_widget->effectsModel()->loadBundle();
     updateBundleEffectsImportedState();
+
+    m_widget->userModel()->loadMaterialBundle();
+    m_widget->userModel()->loadTextureBundle();
 }
 
 void ContentLibraryView::modelAboutToBeDetached(Model *model)

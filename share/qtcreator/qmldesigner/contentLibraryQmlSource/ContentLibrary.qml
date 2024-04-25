@@ -130,8 +130,12 @@ Item {
             }
         }
 
-        UnimportBundleMaterialDialog {
+        UnimportBundleItemDialog {
             id: confirmUnimportDialog
+        }
+
+        DeleteBundleItemDialog {
+            id: confirmDeleteDialog
         }
 
         StackLayout {
@@ -244,6 +248,12 @@ Item {
                     confirmUnimportDialog.targetBundleLabel = "material"
                     confirmUnimportDialog.targetBundleModel = ContentLibraryBackend.userModel
                     confirmUnimportDialog.open()
+                }
+
+                onRemoveFromContentLib: (bundleItem) => {
+                    confirmDeleteDialog.targetBundleItem = bundleItem
+                    confirmDeleteDialog.targetBundleLabel = "material"
+                    confirmDeleteDialog.open()
                 }
 
                 onCountChanged: root.responsiveResize(stackLayout.width, stackLayout.height)

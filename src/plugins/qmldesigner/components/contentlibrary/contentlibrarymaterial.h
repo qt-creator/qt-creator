@@ -37,6 +37,7 @@ public:
 
     Q_INVOKABLE bool isDownloaded() const;
 
+    QString name() const;
     QUrl icon() const;
     QString qml() const;
     TypeName type() const;

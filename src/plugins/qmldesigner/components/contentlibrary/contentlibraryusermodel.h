@@ -67,12 +67,16 @@ public:
     void setBundleObj(const QJsonObject &newBundleObj);
     QJsonObject &bundleJsonObjectRef();
 
+    void loadMaterialBundle();
+    void loadTextureBundle();
+
     Internal::ContentLibraryBundleImporter *bundleImporter() const;
 
     Q_INVOKABLE void applyToSelected(QmlDesigner::ContentLibraryMaterial *mat, bool add = false);
     Q_INVOKABLE void addToProject(QmlDesigner::ContentLibraryMaterial *mat);
     Q_INVOKABLE void removeFromProject(QmlDesigner::ContentLibraryMaterial *mat);
     Q_INVOKABLE void removeTexture(QmlDesigner::ContentLibraryTexture *tex);
+    Q_INVOKABLE void removeFromContentLib(QmlDesigner::ContentLibraryMaterial *mat);
 
 signals:
     void isEmptyChanged();
@@ -96,8 +100,6 @@ signals:
     void matBundleExistsChanged();
 
 private:
-    void loadMaterialBundle();
-    void loadTextureBundle();
     bool isValidIndex(int idx) const;
     void createImporter(const QString &bundlePath, const QString &bundleId,
                         const QStringList &sharedFiles);

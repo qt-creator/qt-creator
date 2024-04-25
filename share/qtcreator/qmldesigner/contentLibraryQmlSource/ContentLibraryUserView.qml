@@ -31,6 +31,7 @@ HelperWidgets.ScrollView {
     required property var searchBox
 
     signal unimport(var bundleItem);
+    signal removeFromContentLib(var bundleItem);
 
     function closeContextMenu() {
         ctxMenuMaterial.close()
@@ -49,6 +50,7 @@ HelperWidgets.ScrollView {
         ContentLibraryMaterialContextMenu {
             id: ctxMenuMaterial
 
+            enableRemove: true
             hasModelSelection: ContentLibraryBackend.userModel.hasModelSelection
             importerRunning: ContentLibraryBackend.userModel.importerRunning
 
@@ -56,6 +58,7 @@ HelperWidgets.ScrollView {
 
             onUnimport: root.unimport(ctxMenuMaterial.targetMaterial)
             onAddToProject: ContentLibraryBackend.userModel.addToProject(ctxMenuMaterial.targetMaterial)
+            onRemoveFromContentLib: root.removeFromContentLib(ctxMenuMaterial.targetMaterial)
         }
 
         ContentLibraryTextureContextMenu {

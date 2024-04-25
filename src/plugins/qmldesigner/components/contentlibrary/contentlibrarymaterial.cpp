@@ -32,6 +32,11 @@ bool ContentLibraryMaterial::filter(const QString &searchText)
     return m_visible;
 }
 
+QString ContentLibraryMaterial::name() const
+{
+    return m_name;
+}
+
 QUrl ContentLibraryMaterial::icon() const
 {
     return m_icon;

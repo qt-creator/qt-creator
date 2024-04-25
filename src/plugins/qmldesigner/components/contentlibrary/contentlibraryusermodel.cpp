@@ -33,9 +33,6 @@ ContentLibraryUserModel::ContentLibraryUserModel(ContentLibraryWidget *parent)
     , m_widget(parent)
 {
     m_userCategories = {tr("Materials"), tr("Textures")/*, tr("3D"), tr("Effects"), tr("2D components")*/}; // TODO
-
-    loadMaterialBundle();
-    loadTextureBundle();
 }
 
 int ContentLibraryUserModel::rowCount(const QModelIndex &) const
@@ -134,6 +131,44 @@ void ContentLibraryUserModel::removeTexture(ContentLibraryTexture *tex)
     // update model
     int texSectionIdx = 1;
     emit dataChanged(index(texSectionIdx), index(texSectionIdx));
+}
+
+void ContentLibraryUserModel::removeFromContentLib(ContentLibraryMaterial *mat)
+{
+    auto bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/materials/");
+
+    QJsonObject matsObj = m_bundleObj.value("materials").toObject();
+
+    // remove qml and icon files
+    Utils::FilePath::fromString(mat->qmlFilePath()).removeFile();
+    Utils::FilePath::fromUrl(mat->icon()).removeFile();
+
+    // remove from the bundle json file
+    matsObj.remove(mat->name());
+    m_bundleObj.insert("materials", matsObj);
+    auto result = bundlePath.pathAppended("user_materials_bundle.json")
+                      .writeFileContents(QJsonDocument(m_bundleObj).toJson());
+    if (!result)
+        qWarning() << __FUNCTION__ << result.error();
+
+    // delete dependency files if they are only used by the deleted material
+    QStringList allFiles;
+    for (const QJsonValueConstRef &mat : std::as_const(matsObj))
+         allFiles.append(mat.toObject().value("files").toVariant().toStringList());
+
+    const QStringList matFiles = mat->files();
+    for (const QString &matFile : matFiles) {
+        if (allFiles.count(matFile) == 0) // only used by the deleted material
+            bundlePath.pathAppended(matFile).removeFile();
+    }
+
+    // remove from model
+    m_userMaterials.removeOne(mat);
+    mat->deleteLater();
+
+    // update model
+    int matSectionIdx = 0;
+    emit dataChanged(index(matSectionIdx), index(matSectionIdx));
 }
 
 // returns unique library material's name and qml component

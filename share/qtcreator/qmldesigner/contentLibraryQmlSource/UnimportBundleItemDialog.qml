@@ -13,8 +13,8 @@ StudioControls.Dialog {
     id: root
 
     property var targetBundleItem
-    property var targetBundleLabel // "effect" or "material"
     property var targetBundleModel
+    property string targetBundleLabel // "effect" or "material"
 
     title: qsTr("Bundle %1 might be in use").arg(root.targetBundleLabel)
     anchors.centerIn: parent

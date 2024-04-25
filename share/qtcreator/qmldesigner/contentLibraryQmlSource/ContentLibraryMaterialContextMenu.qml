@@ -12,12 +12,14 @@ StudioControls.Menu {
     property var targetMaterial: null
     property bool hasModelSelection: false
     property bool importerRunning: false
+    property bool enableRemove: false // true: adds an option to remove targetMaterial
 
     readonly property bool targetAvailable: targetMaterial && !importerRunning
 
     signal unimport();
     signal addToProject()
     signal applyToSelected(bool add)
+    signal removeFromContentLib()
 
     function popupMenu(targetMaterial = null)
     {
@@ -55,5 +57,12 @@ StudioControls.Menu {
         text: qsTr("Remove from project")
 
         onTriggered: root.unimport()
+    }
+
+    StudioControls.MenuItem {
+        text: qsTr("Remove from Content Library")
+        visible: root.enableRemove && root.targetAvailable
+        height: visible ? implicitHeight : 0
+        onTriggered: root.removeFromContentLib()
     }
 }
