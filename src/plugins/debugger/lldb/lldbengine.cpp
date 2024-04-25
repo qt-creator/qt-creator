@@ -30,6 +30,7 @@
 
 #include <projectexplorer/runcontrol.h>
 
+#include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/process.h>
 #include <utils/processinterface.h>
@@ -328,6 +329,16 @@ void LldbEngine::handleLldbStarted()
                 runEngine();
             };
             runCommand(cmd3);
+
+            // Execute post attach commands
+            QStringList commands = settings().gdbPostAttachCommands().split('\n');
+            commands = Utils::filtered(commands, [](const QString line) {
+                const QString trimmed = line.trimmed();
+                return !trimmed.isEmpty() && !trimmed.startsWith('#');
+            });
+            for (const QString &cmd : commands) {
+                executeDebuggerCommand(cmd);
+            }
         } else {
             notifyEngineSetupFailed();
         }
