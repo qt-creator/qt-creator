@@ -16,8 +16,19 @@
 #endif
 
 #ifdef Q_OS_WIN
-#include <windows.h>
 #include <psapi.h>
+#include <windows.h>
+#endif
+
+#ifdef Q_OS_MACOS
+#include <sys/types.h>
+#include <sys/proc_info.h>
+#include <sys/sysctl.h>
+
+#include <chrono>
+#include <unistd.h>
+#include <libproc.h>
+#include <mach/mach_time.h>
 #endif
 
 using namespace Utils;
@@ -258,9 +269,63 @@ public:
         : IDataProvider(pid, parent)
     {}
 
-    double getMemoryConsumption() { return 0; }
+    double getCpuConsumption()
+    {
+        proc_taskallinfo taskAllInfo = {};
 
-    double getCpuConsumption() { return 0; }
+        const int result
+            = proc_pidinfo(m_pid, PROC_PIDTASKALLINFO, 0, &taskAllInfo, sizeof(taskAllInfo));
+        if (result == -1) {
+            return 0;
+        }
+
+        mach_timebase_info_data_t sTimebase;
+        mach_timebase_info(&sTimebase);
+        double timebase_to_ns = (double) sTimebase.numer / (double) sTimebase.denom;
+
+        const double currentTotalCpuTime = ((double) taskAllInfo.ptinfo.pti_total_user
+                                            + (double) taskAllInfo.ptinfo.pti_total_system)
+                                           * timebase_to_ns / 1e9;
+
+        const double cpuUsageDelta = currentTotalCpuTime - m_prevCpuUsage;
+
+        const auto elapsedTime = std::chrono::steady_clock::now() - m_prevTime;
+        const double elapsedTimeSeconds
+            = std::chrono::duration_cast<std::chrono::milliseconds>(elapsedTime).count() / 1000.0;
+
+        m_prevCpuUsage = currentTotalCpuTime;
+        m_prevTime = std::chrono::steady_clock::now();
+
+        return (cpuUsageDelta / elapsedTimeSeconds) * 100.0;
+    }
+
+    double getTotalPhysicalMemory()
+    {
+        int mib[2];
+        size_t length;
+        long long physicalMemory;
+
+        mib[0] = CTL_HW;
+        mib[1] = HW_MEMSIZE;
+        length = sizeof(physicalMemory);
+        sysctl(mib, 2, &physicalMemory, &length, NULL, 0);
+
+        return physicalMemory;
+    }
+
+    double getMemoryConsumption()
+    {
+        proc_taskinfo taskInfo;
+        int result = proc_pidinfo(m_pid, PROC_PIDTASKINFO, 0, &taskInfo, sizeof(taskInfo));
+        if (result == -1)
+            return 0;
+
+        return (taskInfo.pti_resident_size / getTotalPhysicalMemory()) * 100.0;
+    }
+
+private:
+    std::chrono::steady_clock::time_point m_prevTime = std::chrono::steady_clock::now();
+    double m_prevCpuUsage = 0;
 };
 #endif
 
