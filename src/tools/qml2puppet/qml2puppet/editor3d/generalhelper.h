@@ -221,6 +221,7 @@ private:
     double m_snapRotationInterval = 5.;
     double m_snapScaleInterval = .1;
     double m_cameraSpeed = 10.;
+    double m_cameraSpeedModifier = 1.;
 
     QVariant m_bgColor;
 };

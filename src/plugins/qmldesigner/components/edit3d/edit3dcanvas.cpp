@@ -51,6 +51,8 @@ Edit3DCanvas::Edit3DCanvas(Edit3DWidget *parent)
     setAcceptDrops(true);
     setFocusPolicy(Qt::ClickFocus);
     m_busyIndicator->show();
+
+    installEventFilter(this);
 }
 
 void Edit3DCanvas::updateRenderImage(const QImage &img)
@@ -130,6 +132,23 @@ void Edit3DCanvas::setFlyMode(bool enabled, const QPoint &pos)
     }
 
     m_parent->view()->setFlyMode(enabled);
+}
+
+bool Edit3DCanvas::eventFilter(QObject *obj, QEvent *event)
+{
+    if (m_flyMode && event->type() == QEvent::ShortcutOverride) {
+        // Suppress shortcuts that conflict with fly mode keys
+        const QList<int> controlKeys = { Qt::Key_W, Qt::Key_A, Qt::Key_S,
+                                        Qt::Key_D, Qt::Key_Q, Qt::Key_E,
+                                        Qt::Key_Up, Qt::Key_Down, Qt::Key_Left,
+                                        Qt::Key_Right, Qt::Key_PageDown, Qt::Key_PageUp,
+                                        Qt::Key_Alt, Qt::Key_Shift };
+        auto ke = static_cast<QKeyEvent *>(event);
+        if (controlKeys.contains(ke->key()))
+            event->accept();
+   }
+
+    return QObject::eventFilter(obj, event);
 }
 
 void Edit3DCanvas::mousePressEvent(QMouseEvent *e)

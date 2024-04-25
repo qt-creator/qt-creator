@@ -187,7 +187,6 @@ private:
     int m_activeSplit = 0;
 
     QList<SplitToolState> m_splitToolStates;
-    QList<Edit3DAction *> m_flyModeDisabledActions;
     ModelNode m_contextMenuPendingNode;
     ModelNode m_pickView3dNode;
 

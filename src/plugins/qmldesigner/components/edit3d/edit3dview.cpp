@@ -736,32 +736,6 @@ void Edit3DView::showContextMenu()
 void Edit3DView::setFlyMode(bool enabled)
 {
     emitView3DAction(View3DActionType::FlyModeToggle, enabled);
-
-    // Disable any actions with conflicting hotkeys
-    if (enabled) {
-        m_flyModeDisabledActions.clear();
-        const QList<QKeySequence> controlKeys = { Qt::Key_W, Qt::Key_A, Qt::Key_S,
-                                                 Qt::Key_D, Qt::Key_Q, Qt::Key_E,
-                                                 Qt::Key_Up, Qt::Key_Down, Qt::Key_Left,
-                                                 Qt::Key_Right, Qt::Key_PageDown, Qt::Key_PageUp};
-        for (auto i = m_edit3DActions.cbegin(), end = m_edit3DActions.cend(); i != end; ++i) {
-            for (const QKeySequence &controlKey : controlKeys) {
-                if (Core::Command *cmd = m_edit3DWidget->actionToCommandHash().value(i.value()->action())) {
-                    if (cmd->keySequence().matches(controlKey) == QKeySequence::ExactMatch) {
-                        if (i.value()->action()->isEnabled()) {
-                            m_flyModeDisabledActions.append(i.value());
-                            i.value()->action()->setEnabled(false);
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-    } else {
-        for (Edit3DAction *action : std::as_const(m_flyModeDisabledActions))
-            action->action()->setEnabled(true);
-        m_flyModeDisabledActions.clear();
-    }
 }
 
 void Edit3DView::syncSnapAuxPropsToSettings()

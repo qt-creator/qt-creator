@@ -30,6 +30,7 @@ public:
     bool isFlyMode() const { return m_flyMode; }
 
 protected:
+    bool eventFilter(QObject *obj, QEvent *event) override;
     void mousePressEvent(QMouseEvent *e) override;
     void mouseReleaseEvent(QMouseEvent *e) override;
     void mouseDoubleClickEvent(QMouseEvent *e) override;

@@ -29,6 +29,7 @@ Item {
     readonly property real _keyPanAmount: _generalHelper.cameraSpeed
     property bool ignoreToolState: false
     property bool flyMode: viewRoot.flyMode
+    property real _cameraSpeedModifier: 1
 
     z: 10
     anchors.fill: parent
@@ -244,6 +245,7 @@ Item {
             cameraCtrl.storeCameraState(0);
         }
         _generalHelper.stopAllCameraMoves()
+        cameraCtrl._cameraSpeedModifier = 1
     }
 
     Connections {
@@ -251,7 +253,7 @@ Item {
         enabled: viewRoot.activeSplit === cameraCtrl.splitId
         function onRequestCameraMove(camera, moveVec) {
             if (camera === cameraCtrl.camera) {
-                cameraCtrl.moveCamera(moveVec);
+                cameraCtrl.moveCamera(moveVec.times(_cameraSpeedModifier));
                 _generalHelper.requestRender();
             }
         }
@@ -326,7 +328,17 @@ Item {
         }
     }
 
+    function setCameraSpeed(event) {
+        if (event.modifiers === Qt.AltModifier)
+            cameraCtrl._cameraSpeedModifier = 0.5
+        else if (event.modifiers === Qt.ShiftModifier)
+            cameraCtrl._cameraSpeedModifier = 2
+        else
+            cameraCtrl._cameraSpeedModifier = 1
+    }
+
     Keys.onPressed: (event) => {
+        setCameraSpeed(event)
         event.accepted = true;
         if (cameraCtrl.flyMode && event.key === Qt.Key_Space)
             approachObject();
@@ -335,6 +347,7 @@ Item {
     }
 
     Keys.onReleased: (event) => {
+        setCameraSpeed(event)
         event.accepted = true;
         _generalHelper.stopCameraMove(cameraCtrl.getMoveVectorForKey(event.key));
     }
