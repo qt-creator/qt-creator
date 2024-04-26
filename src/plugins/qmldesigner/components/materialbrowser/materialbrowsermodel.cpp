@@ -434,22 +434,20 @@ void MaterialBrowserModel::copyMaterialProperties(int idx, const QString &sectio
         QJsonObject propsSpecObj = m_propertyGroupsObj.value(m_copiedMaterialType).toObject();
         if (propsSpecObj.contains(section)) { // should always be true
            const QJsonArray propNames = propsSpecObj.value(section).toArray();
-           // auto == QJsonValueConstRef after 04dc959d49e5e3 / Qt 6.4, QJsonValueRef before
-           for (const auto &propName : propNames)
+           for (const QJsonValueConstRef &propName : propNames)
                copiedProps.append(propName.toString().toLatin1());
 
            if (section == "Base") { // add QtQuick3D.Material base props as well
                QJsonObject propsMatObj = m_propertyGroupsObj.value("Material").toObject();
                const QJsonArray propNames = propsMatObj.value("Base").toArray();
-               // auto == QJsonValueConstRef after 04dc959d49e5e3 / Qt 6.4, QJsonValueRef before
-               for (const auto &propName : propNames)
+               for (const QJsonValueConstRef &propName : propNames)
                    copiedProps.append(propName.toString().toLatin1());
            }
         }
     }
 
     m_copiedMaterialProps.clear();
-    for (const auto &propName : copiedProps) {
+    for (const PropertyName &propName : copiedProps) {
         PropertyCopyData data;
         data.name = propName;
         data.isValid = m_allPropsCopied || validProps.contains(propName);

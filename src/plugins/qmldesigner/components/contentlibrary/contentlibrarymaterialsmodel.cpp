@@ -284,7 +284,7 @@ void ContentLibraryMaterialsModel::loadMaterialBundle(const QDir &matBundleDir)
 
             QStringList files;
             const QJsonArray assetsArr = matObj.value("files").toArray();
-            for (const auto /*QJson{Const,}ValueRef*/ &asset : assetsArr)
+            for (const QJsonValueConstRef &asset : assetsArr)
                 files.append(asset.toString());
 
             QUrl icon = QUrl::fromLocalFile(matBundleDir.filePath(matObj.value("icon").toString()));
@@ -305,7 +305,7 @@ void ContentLibraryMaterialsModel::loadMaterialBundle(const QDir &matBundleDir)
 
     QStringList sharedFiles;
     const QJsonArray sharedFilesArr = m_matBundleObj.value("sharedFiles").toArray();
-    for (const auto /*QJson{Const,}ValueRef*/ &file : sharedFilesArr)
+    for (const QJsonValueConstRef &file : sharedFilesArr)
         sharedFiles.append(file.toString());
 
     QStringList missingSharedFiles;
