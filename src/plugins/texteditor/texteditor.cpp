@@ -7471,7 +7471,8 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
                 }
             }
         } else if (typingSettings.m_smartBackspaceBehavior == TypingSettings::BackspaceUnindents) {
-            if (c.positionInBlock() > TabSettings::firstNonSpace(c.block().text())) {
+            if (c.positionInBlock() == 0
+                || c.positionInBlock() > TabSettings::firstNonSpace(c.block().text())) {
                 if (cursorWithinSnippet)
                     c.beginEditBlock();
                 c.deletePreviousChar();

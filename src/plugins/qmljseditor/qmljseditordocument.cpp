@@ -750,6 +750,9 @@ static Utils::FilePath qmllsForFile(const Utils::FilePath &file,
 
 void QmlJSEditorDocumentPrivate::settingsChanged()
 {
+    if (q->isTemporary())
+        return;
+
     Utils::FilePath newQmlls = qmllsForFile(q->filePath(), ModelManagerInterface::instance());
     if (m_qmllsStatus.qmllsPath == newQmlls)
         return;
