@@ -6,6 +6,7 @@
 #include "autotestconstants.h"
 #include "autotestplugin.h"
 #include "autotesttr.h"
+#include "testcodeparser.h"
 #include "testprojectsettings.h"
 #include "testtreemodel.h"
 
@@ -13,10 +14,12 @@
 #include <projectexplorer/projectsettingswidget.h>
 
 #include <utils/algorithm.h>
+#include <utils/aspects.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
 #include <QComboBox>
+#include <QPushButton>
 #include <QTimer>
 #include <QTreeWidget>
 
@@ -37,10 +40,13 @@ public:
 private:
     void populateFrameworks(const QHash<Autotest::ITestFramework *, bool> &frameworks,
                             const QHash<Autotest::ITestTool *, bool> &testTools);
+    void populatePathFilters(const QStringList &filters);
     void onActiveFrameworkChanged(QTreeWidgetItem *item, int column);
     TestProjectSettings *m_projectSettings;
     QTreeWidget *m_activeFrameworks = nullptr;
     QComboBox *m_runAfterBuild = nullptr;
+    Utils::BoolAspect m_applyFilter;
+    QTreeWidget *m_pathFilters = nullptr;
     QTimer m_syncTimer;
     int m_syncType = 0;
 };
@@ -59,6 +65,14 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
     m_runAfterBuild->addItem(Tr::tr("All"));
     m_runAfterBuild->addItem(Tr::tr("Selected"));
     m_runAfterBuild->setCurrentIndex(int(m_projectSettings->runAfterBuild()));
+    m_applyFilter.setToolTip(Tr::tr("Apply path filters before scanning for tests."));
+    m_pathFilters = new QTreeWidget;
+    m_pathFilters->setHeaderHidden(true);
+    m_pathFilters->setRootIsDecorated(false);
+    QLabel *filterLabel = new QLabel(Tr::tr("Wildcard expressions for filtering"), this);
+    QPushButton *addFilter = new QPushButton(Tr::tr("Add"), this);
+    QPushButton *removeFilter = new QPushButton(Tr::tr("Remove"), this);
+    removeFilter->setEnabled(false);
 
     using namespace Layouting;
     Column {
@@ -80,6 +94,19 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
                 noMargin(),
             },
         },
+        Row { // explicitly outside of the global settings
+            Group {
+                title(Tr::tr("Limit files to path patterns")),
+                m_applyFilter.groupChecker(),
+                Column {
+                    filterLabel,
+                    Row {
+                        Column { m_pathFilters },
+                        Column { addFilter, removeFilter, st },
+                    },
+                },
+            },
+        },
         noMargin(),
     }.attachTo(this);
 
@@ -88,7 +115,9 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
     populateFrameworks(m_projectSettings->activeFrameworks(),
                        m_projectSettings->activeTestTools());
 
+    populatePathFilters(m_projectSettings->pathFilters());
     setUseGlobalSettings(m_projectSettings->useGlobalSettings());
+    m_applyFilter.setValue(m_projectSettings->limitToFilters());
     connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged,
             this, [this, generalWidget](bool useGlobalSettings) {
                 generalWidget->setEnabled(!useGlobalSettings);
@@ -101,6 +130,56 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
             this, &ProjectTestSettingsWidget::onActiveFrameworkChanged);
     connect(m_runAfterBuild, &QComboBox::currentIndexChanged, this, [this](int index) {
         m_projectSettings->setRunAfterBuild(RunAfterBuildMode(index));
+    });
+
+    auto itemsToStringList = [this] {
+        QStringList items;
+        const QTreeWidgetItem *rootItem = m_pathFilters->invisibleRootItem();
+        for (int i = 0, count = rootItem->childCount(); i < count; ++i) {
+            auto expr = rootItem->child(i)->data(0, Qt::DisplayRole).toString();
+            items.append(expr);
+        }
+        return items;
+    };
+    auto triggerRescan = [this] {
+        TestCodeParser *parser = TestTreeModel::instance()->parser();
+        parser->emitUpdateTestTree();
+    };
+
+    connect(&m_applyFilter, &Utils::BoolAspect::changed,
+            this, [this, triggerRescan] {
+        m_projectSettings->setLimitToFilter(m_applyFilter.value());
+        triggerRescan();
+    });
+    connect(m_pathFilters, &QTreeWidget::itemSelectionChanged,
+            this, [this, removeFilter] {
+        removeFilter->setEnabled(!m_pathFilters->selectedItems().isEmpty());
+    });
+    connect(m_pathFilters->model(), &QAbstractItemModel::dataChanged,
+            this, [this, itemsToStringList, triggerRescan]
+            (const QModelIndex &tl, const QModelIndex &br, const QList<int> &roles) {
+        if (!roles.contains(Qt::DisplayRole))
+            return;
+        if (tl != br)
+            return;
+        m_projectSettings->setPathFilters(itemsToStringList());
+        triggerRescan();
+    });
+    connect(addFilter, &QPushButton::clicked, this, [this] {
+        m_projectSettings->addPathFilter("*");
+        populatePathFilters(m_projectSettings->pathFilters());
+        const QTreeWidgetItem *root = m_pathFilters->invisibleRootItem();
+        QTreeWidgetItem *lastChild =  root->child(root->childCount() - 1);
+        const QModelIndex index = m_pathFilters->indexFromItem(lastChild, 0);
+        m_pathFilters->edit(index);
+    });
+    connect(removeFilter, &QPushButton::clicked, this, [this, itemsToStringList, triggerRescan] {
+        const QList<QTreeWidgetItem *> selected = m_pathFilters->selectedItems();
+        QTC_ASSERT(selected.size() == 1, return);
+        m_pathFilters->invisibleRootItem()->removeChild(selected.first());
+        delete selected.first();
+        m_projectSettings->setPathFilters(itemsToStringList());
+        triggerRescan();
     });
     m_syncTimer.setSingleShot(true);
     connect(&m_syncTimer, &QTimer::timeout, this, [this] {
@@ -134,6 +213,16 @@ void ProjectTestSettingsWidget::populateFrameworks(const QHash<ITestFramework *,
     auto end = testTools.cend();
     for (auto it = testTools.cbegin(); it != end; ++it)
         generateItem(it.key(), it.value());
+}
+
+void ProjectTestSettingsWidget::populatePathFilters(const QStringList &filters)
+{
+    m_pathFilters->clear();
+    for (const QString &filter : filters) {
+        auto item = new QTreeWidgetItem(m_pathFilters, {filter});
+        item->setData(0, Qt::ToolTipRole, filter);
+        item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable);
+    }
 }
 
 void ProjectTestSettingsWidget::onActiveFrameworkChanged(QTreeWidgetItem *item, int column)

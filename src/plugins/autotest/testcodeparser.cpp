@@ -4,7 +4,9 @@
 #include "testcodeparser.h"
 
 #include "autotestconstants.h"
+#include "autotestplugin.h"
 #include "autotesttr.h"
+#include "testprojectsettings.h"
 #include "testsettings.h"
 #include "testtreemodel.h"
 
@@ -334,6 +336,38 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
         }
     } else {
         emit requestRemoval(files);
+    }
+
+    const TestProjectSettings *settings = projectSettings(project);
+    if (settings->limitToFilters()) {
+        qCDebug(LOG) << "Applying project path filters - currently" << files.size() << "files";
+        const QStringList filters = settings->pathFilters();
+        if (!filters.isEmpty()) {
+            // we cannot rely on QRegularExpression::fromWildcard() as we want handle paths
+            const QList<QRegularExpression> regexes
+                    = Utils::transform(filters, [] (const QString &filter) {
+                return QRegularExpression(wildcardPatternFromString(filter));
+            });
+
+            files = Utils::filtered(files, [&regexes](const FilePath &fn) {
+                for (const QRegularExpression &regex : regexes) {
+                    if (!regex.isValid()) {
+                        qCDebug(LOG) << "Skipping invalid pattern? Pattern:" << regex.pattern();
+                        continue;
+                    }
+                    if (regex.match(fn.path()).hasMatch())
+                        return true;
+                }
+                return false;
+            });
+        }
+        qCDebug(LOG) << "After applying filters" << files.size() << "files";
+
+        if (files.isEmpty()) {
+            qCDebug(LOG) << "No filter matched a file - canceling scan immediately";
+            onFinished(true);
+            return;
+        }
     }
 
     QTC_ASSERT(!(isFullParse && files.isEmpty()), onFinished(true); return);

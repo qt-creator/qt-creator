@@ -31,15 +31,22 @@ public:
     QHash<ITestTool *, bool> activeTestTools() const { return m_activeTestTools; }
     void activateTestTool(const Utils::Id &id, bool activate);
     Internal::ItemDataCache<Qt::CheckState> *checkStateCache() { return &m_checkStateCache; }
+    bool limitToFilters() const { return m_limitToFilter; }
+    void setLimitToFilter(bool enable) { m_limitToFilter = enable; }
+    const QStringList pathFilters() const { return m_pathFilters; }
+    void setPathFilters(const QStringList &filters) { m_pathFilters = filters; }
+    void addPathFilter(const QString &filter) { m_pathFilters.append(filter); }
 private:
     void load();
     void save();
 
     ProjectExplorer::Project *m_project;
     bool m_useGlobalSettings = true;
+    bool m_limitToFilter = false;
     RunAfterBuildMode m_runAfterBuild = RunAfterBuildMode::None;
     QHash<ITestFramework *, bool> m_activeTestFrameworks;
     QHash<ITestTool *, bool> m_activeTestTools;
+    QStringList m_pathFilters;
     Internal::ItemDataCache<Qt::CheckState> m_checkStateCache;
 };
 
