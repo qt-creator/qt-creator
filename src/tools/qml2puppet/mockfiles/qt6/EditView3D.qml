@@ -38,6 +38,7 @@ Item {
     property bool syncEnvBackground: false
     property bool splitView: false
     property bool flyMode: false
+    property bool showCameraSpeed: false
 
     enum SelectionMode { Item, Group }
     enum TransformMode { Move, Rotate, Scale }
@@ -353,10 +354,13 @@ Item {
                 cameraControls[i].restoreDefaultState();
         }
 
-        if ("flyMode" in toolStates)
+        if ("flyMode" in toolStates) {
             flyMode = toolStates.flyMode;
-        else if (resetToDefault)
+            viewRoot.showCameraSpeed = false;
+        } else if (resetToDefault) {
             flyMode = false;
+            viewRoot.showCameraSpeed = false;
+        }
 
         if ("splitView" in toolStates)
             splitView = toolStates.splitView;
@@ -638,7 +642,6 @@ Item {
         {
             for (var i = 0; i < 4; ++i)
                 overlayViews[i].handleHiddenStateChange(node);
-
         }
 
         function onUpdateDragTooltip()
@@ -650,6 +653,18 @@ Item {
         function onSceneEnvDataChanged()
         {
             updateEnvBackground();
+        }
+
+        function onCameraSpeedChanged() {
+            _generalHelper.requestTimerEvent("hideSpeed", 1000);
+            viewRoot.showCameraSpeed = true
+        }
+
+        function onRequestedTimerEvent(timerId) {
+            if (timerId === "hideSpeed") {
+                viewRoot.showCameraSpeed = false;
+                _generalHelper.requestRender();
+            }
         }
     }
 
@@ -1057,6 +1072,38 @@ Item {
             font.pixelSize: 12
             color: "white"
             visible: viewRoot.fps > 0
+        }
+
+        Rectangle {
+            id: cameraSpeedLabel
+            width: 120
+            height: 65
+            anchors.centerIn: parent
+            opacity: 0.6
+            radius: 10
+            color: "white"
+            visible: flyMode && viewRoot.showCameraSpeed
+            enabled: false
+
+            Column {
+                anchors.fill: parent
+                anchors.margins: 8
+                spacing: 2
+                Text {
+                    width: parent.width
+                    horizontalAlignment: Text.AlignHCenter
+                    text: "Camera Speed"
+                    font.pixelSize: 16
+                }
+                Text {
+                    width: parent.width
+                    height: 20
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    font.pixelSize: 20
+                    text: _generalHelper.cameraSpeed.toLocaleString(Qt.locale(), 'f', 1)
+                }
+            }
         }
     }
 

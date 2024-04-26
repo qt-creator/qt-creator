@@ -139,6 +139,7 @@ public:
     void setSnapRotationInterval(double interval) { m_snapRotationInterval = interval; }
     void setSnapScaleInterval(double interval) { m_snapScaleInterval = interval / 100.; }
     void setCameraSpeed(double speed);
+    Q_INVOKABLE void setCameraSpeedModifier(double modifier);
 
     Q_INVOKABLE QString snapPositionDragTooltip(const QVector3D &pos) const;
     Q_INVOKABLE QString snapRotationDragTooltip(double angle) const;
@@ -154,6 +155,8 @@ public:
     Q_INVOKABLE bool compareVectors(const QVector3D &v1, const QVector3D &v2) const;
     Q_INVOKABLE bool compareQuaternions(const QQuaternion &q1, const QQuaternion &q2) const;
 
+    Q_INVOKABLE void requestTimerEvent(const QString &timerId, qint64 delay);
+
 signals:
     void overlayUpdateNeeded();
     void toolStateChanged(const QString &sceneId, const QString &tool, const QVariant &toolState);
@@ -167,6 +170,7 @@ signals:
     void requestCameraMove(QQuick3DCamera *camera, const QVector3D &moveVector);
     void requestRender();
     void cameraSpeedChanged();
+    void requestedTimerEvent(const QString &timerId);
 
 private:
     void handlePendingToolStateUpdate();
@@ -224,6 +228,7 @@ private:
     double m_cameraSpeedModifier = 1.;
 
     QVariant m_bgColor;
+    QHash<QString, QTimer *> m_eventTimers;
 };
 
 }

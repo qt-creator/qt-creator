@@ -207,7 +207,16 @@ void Edit3DCanvas::mouseMoveEvent(QMouseEvent *e)
 
 void Edit3DCanvas::wheelEvent(QWheelEvent *e)
 {
-    m_parent->view()->sendInputEvent(e);
+    if (m_flyMode) {
+        // In fly mode, wheel controls the camera speed slider (value range 1-100)
+        double speed;
+        double mult;
+        m_parent->view()->getCameraSpeedAuxData(speed, mult);
+        speed = qMin(100., qMax(1., speed + double(e->angleDelta().y()) / 40.));
+        m_parent->view()->setCameraSpeedAuxData(speed, mult);
+    } else {
+        m_parent->view()->sendInputEvent(e);
+    }
     QWidget::wheelEvent(e);
 }
 

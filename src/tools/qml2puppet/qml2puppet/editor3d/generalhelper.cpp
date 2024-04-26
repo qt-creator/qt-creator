@@ -163,16 +163,17 @@ QVector3D GeneralHelper::moveCamera(QQuick3DCamera *camera, const QVector3D &sta
     if (moveVector.length() < 0.001f)
         return startLookAt;
 
+    QVector3D speedVector = moveVector * m_cameraSpeed * m_cameraSpeedModifier;
+
     QMatrix4x4 m = camera->sceneTransform(); // Works because edit camera is at scene root
     const float *dataPtr(m.data());
     const QVector3D xAxis = QVector3D(dataPtr[0], dataPtr[1], dataPtr[2]).normalized();
     const QVector3D yAxis = QVector3D(dataPtr[4], dataPtr[5], dataPtr[6]).normalized();
     const QVector3D zAxis = QVector3D(dataPtr[8], dataPtr[9], dataPtr[10]).normalized();
-    const QVector3D xDelta = xAxis * moveVector.x();
-    const QVector3D yDelta = yAxis * moveVector.y();
-    const QVector3D zDelta = zAxis * moveVector.z();
-    // Delta multiplier for nice default speed in default scene
-    const QVector3D delta = (yDelta - xDelta - zDelta) * .5f;
+    const QVector3D xDelta = xAxis * speedVector.x();
+    const QVector3D yDelta = yAxis * speedVector.y();
+    const QVector3D zDelta = zAxis * speedVector.z();
+    const QVector3D delta = (yDelta - xDelta - zDelta);
 
     camera->setPosition(camera->position() + delta);
 
@@ -1187,6 +1188,11 @@ void GeneralHelper::setCameraSpeed(double speed)
     }
 }
 
+void GeneralHelper::setCameraSpeedModifier(double modifier)
+{
+    m_cameraSpeedModifier = modifier;
+}
+
 QString GeneralHelper::formatVectorDragTooltip(const QVector3D &vec, const QString &suffix) const
 {
     return QObject::tr("x:%L1 y:%L2 z:%L3%L4")
@@ -1412,6 +1418,25 @@ bool GeneralHelper::compareQuaternions(const QQuaternion &q1, const QQuaternion 
 {
     return qFuzzyCompare(q1.x(), q2.x()) && qFuzzyCompare(q1.y(), q2.y())
            && qFuzzyCompare(q1.z(), q2.z()) && qFuzzyCompare(q1.scalar(), q2.scalar());
+}
+
+void GeneralHelper::requestTimerEvent(const QString &timerId, qint64 delay)
+{
+    if (m_eventTimers.contains(timerId)) {
+        m_eventTimers[timerId]->start(delay);
+    } else {
+        auto timer = new QTimer;
+        timer->setInterval(delay);
+        timer->setSingleShot(true);
+        connect(timer, &QTimer::timeout, this, [this, timerId]() {
+            if (m_eventTimers.contains(timerId)) {
+                QTimer *timer = m_eventTimers.take(timerId);
+                timer->deleteLater();
+            }
+            emit requestedTimerEvent(timerId);
+        });
+        m_eventTimers[timerId] = timer;
+    }
 }
 
 }

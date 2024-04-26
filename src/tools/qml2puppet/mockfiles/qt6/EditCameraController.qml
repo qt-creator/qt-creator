@@ -26,10 +26,9 @@ Item {
     readonly property vector3d _defaultCameraPosition: Qt.vector3d(0, 600, 600)
     readonly property vector3d _defaultCameraRotation: Qt.vector3d(-45, 0, 0)
     readonly property real _defaultCameraLookAtDistance: _defaultCameraPosition.length()
-    readonly property real _keyPanAmount: _generalHelper.cameraSpeed
+    readonly property real _keyPanAmount: 1.0
     property bool ignoreToolState: false
     property bool flyMode: viewRoot.flyMode
-    property real _cameraSpeedModifier: 1
 
     z: 10
     anchors.fill: parent
@@ -245,15 +244,16 @@ Item {
             cameraCtrl.storeCameraState(0);
         }
         _generalHelper.stopAllCameraMoves()
-        cameraCtrl._cameraSpeedModifier = 1
+        _generalHelper.setCameraSpeedModifier(1.0);
     }
 
     Connections {
         target: _generalHelper
         enabled: viewRoot.activeSplit === cameraCtrl.splitId
+
         function onRequestCameraMove(camera, moveVec) {
             if (camera === cameraCtrl.camera) {
-                cameraCtrl.moveCamera(moveVec.times(_cameraSpeedModifier));
+                cameraCtrl.moveCamera(moveVec);
                 _generalHelper.requestRender();
             }
         }
@@ -319,7 +319,7 @@ Item {
         onWheel: (wheel) => {
             if (cameraCtrl.flyMode && cameraCtrl.splitId !== viewRoot.activeSplit)
                 return;
-            viewRoot.activeSplit = cameraCtrl.splitId
+            viewRoot.activeSplit = cameraCtrl.splitId;
             if (cameraCtrl.camera) {
                 // Empirically determined divisor for nice zoom
                 cameraCtrl.zoomRelative(wheel.angleDelta.y / -40);
@@ -330,11 +330,11 @@ Item {
 
     function setCameraSpeed(event) {
         if (event.modifiers === Qt.AltModifier)
-            cameraCtrl._cameraSpeedModifier = 0.5
+            _generalHelper.setCameraSpeedModifier(0.5);
         else if (event.modifiers === Qt.ShiftModifier)
-            cameraCtrl._cameraSpeedModifier = 2
+            _generalHelper.setCameraSpeedModifier(2.0);
         else
-            cameraCtrl._cameraSpeedModifier = 1
+            _generalHelper.setCameraSpeedModifier(1.0);
     }
 
     Keys.onPressed: (event) => {
