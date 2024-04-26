@@ -380,6 +380,18 @@ class Dumper(DumperBase):
 
         self.type_nativetype_cache[typeid] = nativeType
 
+        if code == gdb.TYPE_CODE_STRUCT:
+            self.type_qobject_based_cache[typeid] = self.is_qobject_based(nativeType)
+            #res = self.is_qobject_based(nativeType)
+            #if res == False:
+            #    self.warn("RECOGNIZED AS NON-QOBJECT: %s" % nativeType)
+            #elif res == True:
+            #    self.warn("RECOGNIZED AS   QOBJECT: %s" % nativeType)
+            #else:
+            #    self.warn("UNRECOGNIZED: %s" % nativeType)
+        elif code != gdb.TYPE_CODE_TYPEDEF:
+            self.type_qobject_based_cache[typeid] = False
+
 # FIXME: Field offset caching (or later extraction?) broken
 #       if code == gdb.TYPE_CODE_STRUCT:
 #           field_type_name = self.type_name_cache.get(typeid, '')
@@ -412,6 +424,16 @@ class Dumper(DumperBase):
         self.typeid_from_typekey[str(nativeType)] = typeid
 
         return typeid
+
+    def is_qobject_based(self, nativeType):
+        if str(nativeType) == self.qtNamespace() + 'QObject':
+            return True
+        fields = nativeType.fields()
+        if len(fields) == 0:
+            return None  # No info, can't drill deeper
+        if not fields[0].is_base_class:
+            return False
+        return self.is_qobject_based(fields[0].type)
 
     def nativeTemplateParameter(self, typeid, index, nativeType):
         try:

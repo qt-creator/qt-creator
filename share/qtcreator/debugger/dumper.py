@@ -491,7 +491,7 @@ class DumperBase():
         self.type_alignment_cache[typeid] = self.type_alignment_cache[target_typeid]
         return typeid
 
-    def register_struct(self, name, p5=0, p6=0, s=0):
+    def register_struct(self, name, p5=0, p6=0, s=0, qobject_based=False):
         # p5 = n  -> n * ptrsize for Qt 5
         # p6 = n  -> n * ptrsize for Qt 6
         #if self.qtVersion() >= 0x060000:   # FIXME: Qt 5, ptrSize()
@@ -499,6 +499,7 @@ class DumperBase():
         typeid = self.typeid_for_string(name)
         self.type_code_cache[typeid] = TypeCode.Struct
         self.type_size_cache[typeid] = size
+        self.type_qobject_based_cache[typeid] = qobject_based
         self.type_alignment_cache[typeid] = 8
         return typeid
 
@@ -562,7 +563,7 @@ class DumperBase():
 
         self.register_enum('@Qt::ItemDataRole', 4)
 
-        self.register_struct('@QObject', p5=2, p6=2)
+        self.register_struct('@QObject', p5=2, p6=2, qobject_based=True)
         self.register_struct('@QObjectPrivate', p5=10, p6=10) # FIXME: Not exact
 
         self.register_struct('@QByteArray', p5=1, p6=3)
@@ -1580,6 +1581,12 @@ class DumperBase():
         pass
 
     def putQObjectNameValue(self, value):
+        is_qobject_based = self.type_qobject_based_cache.get(value.typeid, None)
+        if is_qobject_based == False:
+            #self.warn("SKIP TEST OBJNAME: %s" % self.type_name(value.typeid))
+            return
+
+        #self.warn("TEST OBJNAME: %s" % self.type_name(value.typeid))
         self.fetchInternalFunctions()
 
         try:
@@ -3253,6 +3260,7 @@ typename))
         self.type_nativetype_cache = {}
         self.type_modulename_cache = {}
         self.type_encoding_cache = {}
+        self.type_qobject_based_cache = {}
         self.typeid_cache = {}   # internal typename -> id
         self.typeid_current = 100
         self.typeid_from_typekey = {}   # typename -> id
