@@ -113,7 +113,7 @@ Item {
 
         if (resolvedResult) {
             var newLookAtAndZoom = _generalHelper.approachNode(camera, _defaultCameraLookAtDistance,
-                                                               resolvedResult, view3D);
+                                                               resolvedResult, view3d);
             _lookAtPoint = newLookAtAndZoom.toVector3d();
             _zoomFactor = newLookAtAndZoom.w;
             storeCameraState(0);
