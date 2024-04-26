@@ -172,9 +172,11 @@ class DumperBase():
         self.qtCustomEventFunc = 0
         self.qtCustomEventPltFunc = 0
         self.qtPropertyFunc = 0
-        self.fallbackQtVersion = 0x60200
+        self.qtversion = None
+        self.qtns = None
         self.passExceptions = False
         self.isTesting = False
+        self.qtLoaded = False
 
         self.isBigEndian = False
         self.packCode = '<'
@@ -231,6 +233,8 @@ class DumperBase():
         self.useTimeStamps = int(args.get('timestamps', '0'))
         self.partialVariable = args.get('partialvar', '')
         self.uninitialized = args.get('uninitialized', [])
+        self.qtversion = args.get('qtversion', 0x060602)
+        self.qtnamespace = args.get('qtnamespace', '')
         self.uninitialized = list(map(lambda x: self.hexdecode(x), self.uninitialized))
         #self.warn('NAMESPACE: "%s"' % self.qtNamespace())
         #self.warn('EXPANDED INAMES: %s' % self.expandedINames)
@@ -252,9 +256,11 @@ class DumperBase():
         args['partialvar'] = ''
         self.fetchVariables(args)
 
-    def setFallbackQtVersion(self, args):
-        version = int(args.get('version', self.fallbackQtVersion))
-        self.fallbackQtVersion = version
+    def qtVersion(self):
+        return self.qtversion
+
+    def qtNamespace(self):
+        return self.qtnamespace
 
     def resetPerStepCaches(self):
         self.perStepCache = {}
@@ -1566,7 +1572,16 @@ class DumperBase():
         if address is not None:
             self.put('origaddr="0x%x",' % address)
 
+    def wantQObjectNames(self):
+        return self.showQObjectNames and self.qtLoaded
+
+    def fetchInternalFunctions(self):
+        # Overrridden
+        pass
+
     def putQObjectNameValue(self, value):
+        self.fetchInternalFunctions()
+
         try:
             # dd = value['d_ptr']['d'] is just behind the vtable.
             (vtable, dd) = self.split('pp', value)
@@ -3022,7 +3037,7 @@ typename))
         self.putExpandable()
         self.putEmptyValue()
         #self.warn('STRUCT GUTS: %s  ADDRESS: 0x%x ' % (value.name, value.address()))
-        if self.showQObjectNames:
+        if self.wantQObjectNames():
             #with self.timer(self.currentIName):
             self.putQObjectNameValue(value)
         if self.isExpanded():
@@ -3030,7 +3045,7 @@ typename))
                 self.putField('sortable', 1)
             with Children(self, 1, childType=None):
                 self.putFields(value)
-                if self.showQObjectNames:
+                if self.wantQObjectNames():
                     self.tryPutQObjectGuts(value)
 
     def symbolAddress(self, symbolName):

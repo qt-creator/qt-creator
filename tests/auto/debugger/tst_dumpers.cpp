@@ -1200,7 +1200,28 @@ void tst_Dumpers::initTestCase()
     if (qEnvironmentVariableIntValue("QTC_USE_CMAKE_FOR_TEST"))
         m_buildSystem = BuildSystem::CMake;
 
+    QProcess qmake;
+    qmake.start(m_qmakeBinary, {"--version"});
+    QVERIFY(qmake.waitForFinished());
+    QByteArray output = qmake.readAllStandardOutput();
+    QByteArray error = qmake.readAllStandardError();
+    int pos0 = output.indexOf("Qt version");
+    if (pos0 == -1) {
+        qCDebug(lcDumpers).noquote() << "Output: " << output;
+        qCDebug(lcDumpers).noquote() << "Error: " << error;
+        QVERIFY(false);
+    }
+    pos0 += 11;
+    int pos1 = output.indexOf('.', pos0 + 1);
+    int major = output.mid(pos0, pos1++ - pos0).toInt();
+    int pos2 = output.indexOf('.', pos1 + 1);
+    int minor = output.mid(pos1, pos2++ - pos1).toInt();
+    int pos3 = output.indexOf(' ', pos2 + 1);
+    int patch = output.mid(pos2, pos3++ - pos2).toInt();
+    m_qtVersion = 0x10000 * major + 0x100 * minor + patch;
+
     qCDebug(lcDumpers) << "QMake              : " << m_qmakeBinary;
+    qCDebug(lcDumpers) << "Qt Version         : " << m_qtVersion;
     qCDebug(lcDumpers) << "Use CMake          : " << (m_buildSystem == BuildSystem::CMake) << int(m_buildSystem);
 
     m_useGLibCxxDebug = qgetenv("QTC_USE_GLIBCXXDEBUG_FOR_TEST").toInt();
@@ -1381,27 +1402,6 @@ void tst_Dumpers::dumper()
     QByteArray error;
 
     if (data.neededQtVersion.isRestricted) {
-        QProcess qmake;
-        qmake.setWorkingDirectory(t->buildPath);
-        qmake.start(m_qmakeBinary, {"--version"});
-        QVERIFY(qmake.waitForFinished());
-        output = qmake.readAllStandardOutput();
-        error = qmake.readAllStandardError();
-        int pos0 = output.indexOf("Qt version");
-        if (pos0 == -1) {
-            qCDebug(lcDumpers).noquote() << "Output: " << output;
-            qCDebug(lcDumpers).noquote() << "Error: " << error;
-            QVERIFY(false);
-        }
-        pos0 += 11;
-        int pos1 = output.indexOf('.', pos0 + 1);
-        int major = output.mid(pos0, pos1++ - pos0).toInt();
-        int pos2 = output.indexOf('.', pos1 + 1);
-        int minor = output.mid(pos1, pos2++ - pos1).toInt();
-        int pos3 = output.indexOf(' ', pos2 + 1);
-        int patch = output.mid(pos2, pos3++ - pos2).toInt();
-        m_qtVersion = 0x10000 * major + 0x100 * minor + patch;
-
         if (data.neededQtVersion.min > m_qtVersion)
             MSKIP_SINGLE(QByteArray("Need minimum Qt version "
                 + QByteArray::number(data.neededQtVersion.min, 16)));
@@ -1793,6 +1793,7 @@ void tst_Dumpers::dumper()
                 "python theDumper.fetchVariables({" + dumperOptions +
                     "'token':2,'fancy':1,'forcens':1,"
                     "'autoderef':1,'dyntype':1,'passexceptions':1,"
+                    "'qtversion':" + QString::number(m_qtVersion) + ",'qtnamespace':'',"
                     "'testing':1,'qobjectnames':1,"
                     "'expanded':{" + expandedq + "}})\n";
 
@@ -1816,6 +1817,7 @@ void tst_Dumpers::dumper()
                 "'token':2,'fancy':1,'forcens':1,"
                 "'autoderef':1,'dyntype':1,'passexceptions':0,"
                 "'testing':1,'qobjectnames':1,"
+                "'qtversion':" + QString::number(m_qtVersion) + ",'qtnamespace':'',"
                 "'expanded':{" + expandedq + "}})\n"
                 "q\n";
     } else if (m_debuggerEngine == LldbEngine) {
@@ -1840,6 +1842,7 @@ void tst_Dumpers::dumper()
                     "'fancy':1,'forcens':1,"
                     "'autoderef':1,'dyntype':1,'passexceptions':1,"
                     "'testing':1,'qobjectnames':1,"
+                    "'qtversion':" + QString::number(m_qtVersion) + ",'qtnamespace':'',"
                     "'expanded':{" + expandedq + "}})\n"
                "quit\n";
 

@@ -1042,6 +1042,8 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
         cmd.arg("partialvar", updateParameters.partialVariable);
         cmd.arg("qobjectnames", s.showQObjectNames());
         cmd.arg("timestamps", s.logTimeStamps());
+        cmd.arg("qtversion", runParameters().qtVersion);
+        cmd.arg("qtnamespace", runParameters().qtNamespace);
 
         StackFrame frame = stackHandler()->currentFrame();
         cmd.arg("context", frame.context);
@@ -2808,10 +2810,6 @@ void CdbEngine::setupScripting(const DebuggerResponse &response)
         for (const auto &command : commands.split('\n', Qt::SkipEmptyParts))
             runCommand({command, ScriptCommand});
     }
-
-    DebuggerCommand cmd0("theDumper.setFallbackQtVersion", ScriptCommand);
-    cmd0.arg("version", runParameters().fallbackQtVersion);
-    runCommand(cmd0);
 
     runCommand({"theDumper.loadDumpers(None)", ScriptCommand,
                 [this](const DebuggerResponse &response) {

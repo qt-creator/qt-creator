@@ -852,37 +852,6 @@ class Dumper(DumperBase):
         except:
             return '0x%x' % address
 
-    def qtVersionString(self):
-        try:
-            return str(gdb.lookup_symbol('qVersion')[0].value()())
-        except:
-            pass
-        try:
-            ns = self.qtNamespace()
-            return str(gdb.parse_and_eval("((const char*(*)())'%sqVersion')()" % ns))
-        except:
-            pass
-        return None
-
-    def qtVersion(self):
-        try:
-            # Only available with Qt 5.3+
-            qtversion = int(str(gdb.parse_and_eval('((void**)&qtHookData)[2]')), 16)
-            self.qtVersion = lambda: qtversion
-            return qtversion
-        except:
-            pass
-
-        try:
-            version = self.qtVersionString()
-            (major, minor, patch) = version[version.find('"') + 1:version.rfind('"')].split('.')
-            qtversion = 0x10000 * int(major) + 0x100 * int(minor) + int(patch)
-            self.qtVersion = lambda: qtversion
-            return qtversion
-        except:
-            # Use fallback until we have a better answer.
-            return self.fallbackQtVersion
-
     def createSpecialBreakpoints(self, args):
         self.specialBreakpoints = []
 
@@ -1008,10 +977,6 @@ class Dumper(DumperBase):
         for obj in gdb.objfiles():
             self.importPlainDumpersForObj(obj)
 
-    def qtNamespace(self):
-        # This function is replaced by handleQtCoreLoaded()
-        return ''
-
     def findSymbol(self, symbolName):
         try:
             return int(gdb.parse_and_eval("(size_t)&'%s'" % symbolName))
@@ -1044,41 +1009,38 @@ class Dumper(DumperBase):
             pass
 
     def handleQtCoreLoaded(self, objfile):
-        fd, tmppath = tempfile.mkstemp()
-        os.close(fd)
-        cmd = 'maint print msymbols -objfile "%s" -- %s' % (objfile.filename, tmppath)
-        symbols = gdb.execute(cmd, to_string=True)
-        ns = ''
-        with open(tmppath) as f:
-            ns1re = re.compile(r'_ZN?(\d*)(\w*)L17msgHandlerGrabbedE? ')
-            ns2re = re.compile(r'_ZN?(\d*)(\w*)L17currentThreadDataE? ')
-            for line in f:
-                if 'msgHandlerGrabbed ' in line:
-                    # [11] b 0x7ffff683c000 _ZN4MynsL17msgHandlerGrabbedE
-                    # section .tbss Myns::msgHandlerGrabbed  qlogging.cpp
-                    ns = ns1re.split(line)[2]
-                    if len(ns):
-                        ns += '::'
-                    break
-                if 'currentThreadData ' in line:
-                    # [ 0] b 0x7ffff67d3000 _ZN2UUL17currentThreadDataE
-                    # section .tbss  UU::currentThreadData qthread_unix.cpp\\n
-                    ns = ns2re.split(line)[2]
-                    if len(ns):
-                        ns += '::'
-                    break
-        os.remove(tmppath)
+        self.qtLoaded = True
+        # FIXME: Namespace auto-detection. Is it worth the price?
+        #       fd, tmppath = tempfile.mkstemp()
+        #       os.close(fd)
+        #       cmd = 'maint print msymbols -objfile "%s" -- %s' % (objfile.filename, tmppath)
+        #       symbols = gdb.execute(cmd, to_string=True)
+        #       ns = ''
+        #       with open(tmppath) as f:
+        #           ns1re = re.compile(r'_ZN?(\d*)(\w*)L17msgHandlerGrabbedE? ')
+        #           ns2re = re.compile(r'_ZN?(\d*)(\w*)L17currentThreadDataE? ')
+        #           for line in f:
+        #               if 'msgHandlerGrabbed ' in line:
+        #                   # [11] b 0x7ffff683c000 _ZN4MynsL17msgHandlerGrabbedE
+        #                   # section .tbss Myns::msgHandlerGrabbed  qlogging.cpp
+        #                   ns = ns1re.split(line)[2]
+        #                   if len(ns):
+        #                       ns += '::'
+        #                   break
+        #               if 'currentThreadData ' in line:
+        #                   # [ 0] b 0x7ffff67d3000 _ZN2UUL17currentThreadDataE
+        #                   # section .tbss  UU::currentThreadData qthread_unix.cpp\\n
+        #                   ns = ns2re.split(line)[2]
+        #                   if len(ns):
+        #                       ns += '::'
+        #                   break
+        #       os.remove(tmppath)
 
+    def fetchInternalFunctions(self):
+        ns = self.qtNamespace()
         lenns = len(ns)
         strns = ('%d%s' % (lenns - 2, ns[:lenns - 2])) if lenns else ''
-
         if lenns:
-            # This might be wrong, but we can't do better: We found
-            # a libQt5Core and could not extract a namespace.
-            # The best guess is that there isn't any.
-            self.qtNamespaceToReport = ns
-            self.qtNamespace = lambda: ns
-
             sym = '_ZN%s7QObject11customEventEPNS_6QEventE' % strns
         else:
             sym = '_ZN7QObject11customEventEP6QEvent'
@@ -1090,6 +1052,8 @@ class Dumper(DumperBase):
         sym = '_ZNK%s7QObject8propertyEPKc' % strns
         if not self.isWindowsTarget(): # prevent calling the property function on windows
             self.qtPropertyFunc = self.findSymbol(sym)
+
+        self.fetchInternalFunctions = lambda: None
 
     def assignValue(self, args):
         type_name = self.hexdecode(args['type'])

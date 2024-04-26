@@ -768,80 +768,7 @@ class Dumper(DumperBase):
             symbol = funcs[0].GetSymbol()
             self.qtPropertyFunc = symbol.GetStartAddress().GetLoadAddress(self.target)
 
-    def fetchQtVersionAndNamespace(self):
-        for func in self.target.FindFunctions('qVersion'):
-            name = func.GetSymbol().GetName()
-            if name == None:
-                continue
-            if name.endswith('()'):
-                name = name[:-2]
-            if name.count(':') > 2:
-                continue
-
-            qtNamespace = name[:name.find('qVersion')]
-            self.qtNamespace = lambda: qtNamespace
-
-            options = lldb.SBExpressionOptions()
-            res = self.target.EvaluateExpression(name + '()', options)
-
-            if not res.IsValid() or not res.GetType().IsPointerType():
-                exp = '((const char*())%s)()' % name
-                res = self.target.EvaluateExpression(exp, options)
-
-            if not res.IsValid() or not res.GetType().IsPointerType():
-                exp = '((const char*())_Z8qVersionv)()'
-                res = self.target.EvaluateExpression(exp, options)
-
-            if not res.IsValid() or not res.GetType().IsPointerType():
-                continue
-
-            version = str(res)
-            if version.count('.') != 2:
-                continue
-
-            version.replace("'", '"')  # Both seem possible
-            version = version[version.find('"') + 1:version.rfind('"')]
-
-            (major, minor, patch) = version.split('.')
-            qtVersion = 0x10000 * int(major) + 0x100 * int(minor) + int(patch)
-            self.qtVersion = lambda: qtVersion
-
-            return (qtNamespace, qtVersion)
-
-        try:
-            versionValue = self.target.EvaluateExpression('qtHookData[2]').GetNonSyntheticValue()
-            if versionValue.IsValid():
-                return ('', versionValue.unsigned)
-        except:
-            pass
-
-        return ('', self.fallbackQtVersion)
-
-    def qtVersionAndNamespace(self):
-        qtVersionAndNamespace = None
-        try:
-            qtVersionAndNamespace = self.fetchQtVersionAndNamespace()
-            self.report("Detected Qt Version: 0x%0x (namespace='%s')" %
-                        (qtVersionAndNamespace[1], qtVersionAndNamespace[0] or "no namespace"))
-        except Exception as e:
-            DumperBase.warn('[lldb] Error detecting Qt version: %s' % e)
-
-        try:
-            self.fetchInternalFunctions()
-            self.report('Found function QObject::property: 0x%0x' % self.qtPropertyFunc)
-            self.report('Found function QObject::customEvent: 0x%0x' % self.qtCustomEventFunc)
-        except Exception as e:
-            DumperBase.warn('[lldb] Error fetching internal Qt functions: %s' % e)
-
-        # Cache version information by overriding this function.
-        self.qtVersionAndNamespace = lambda: qtVersionAndNamespace
-        return qtVersionAndNamespace
-
-    def qtNamespace(self):
-        return self.qtVersionAndNamespace()[0]
-
-    def qtVersion(self):
-        return self.qtVersionAndNamespace()[1]
+        self.fetchInternalFunctions = lambda: None
 
     def handleCommand(self, command):
         result = lldb.SBCommandReturnObject()
@@ -1359,6 +1286,9 @@ class Dumper(DumperBase):
         #    return
 
         self.setVariableFetchingOptions(args)
+
+        self.qtLoaded = True # FIXME: Do that elsewhere
+
 
         # Reset certain caches whenever a step over / into / continue
         # happens.
