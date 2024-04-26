@@ -46,7 +46,7 @@ void InlineSuppressedDiagnostics::fromString(const QString &input)
                 break;
             }
         }
-    } catch (const ParseError &e) {
+    } catch (const ParseError &) {
         m_parsedStartOffset = -1;
         m_parsedEndOffset = -1;
         m_parseError = true;
