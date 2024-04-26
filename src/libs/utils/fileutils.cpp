@@ -197,7 +197,8 @@ FileSaver::FileSaver(const FilePath &filePath, QIODevice::OpenMode mode)
         m_file.reset(tf);
     } else {
         const bool readOnlyOrAppend = mode & (QIODevice::ReadOnly | QIODevice::Append);
-        m_isSafe = !readOnlyOrAppend && !filePath.hasHardLinks();
+        m_isSafe = !readOnlyOrAppend && !filePath.hasHardLinks()
+                   && !qtcEnvironmentVariableIsSet("QTC_DISABLE_ATOMICSAVE");
         if (m_isSafe)
             m_file.reset(new SaveFile(filePath));
         else
