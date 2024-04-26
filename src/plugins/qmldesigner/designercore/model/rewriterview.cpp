@@ -106,6 +106,7 @@ void RewriterView::modelAttached(Model *model)
         m_modelAttachPending = true;
         QTimer::singleShot(1000, this, [this, model](){
             modelAttached(model);
+            restoreAuxiliaryData();
         });
     }
 }
