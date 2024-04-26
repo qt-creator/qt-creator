@@ -42,7 +42,6 @@
                 \li \l{Connecting Boot2Qt Devices}
                 \li \l{Adding Docker Devices}
                 \li \l{Connecting iOS Devices}
-                \li \l{Connecting MCUs}
                 \li \l{Connecting QNX Devices}
                 \li \l{Connecting Remote Linux Devices}
                 \li \l{Building Applications for the Web}
@@ -109,6 +108,11 @@
                 \generatelist creator-how-to-debug
             \li Design UIs
                 \generatelist creator-how-to-design
+            \li Develop for Devices
+                \list
+                    \li MCUs
+                        \generatelist creator-how-to-mcu
+                \endlist
             \li Edit Code
                 \generatelist creator-how-to-edit
                 \list
@@ -148,6 +152,10 @@
                         \list
                             \li Build Configurations
                                 \generatelist creator-reference-build-configurations
+                        \endlist
+                    \li Devices
+                        \generatelist creator-reference-devices
+                        \list
                             \li Run Configurations
                                 \generatelist creator-reference-run-configurations
                         \endlist
