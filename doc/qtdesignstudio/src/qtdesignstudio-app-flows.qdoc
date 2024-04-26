@@ -461,7 +461,7 @@
     keyboard shortcuts to simulate these events when you preview the UI.
 
     When you use the wizard to create a \uicontrol {Flow View} component, select
-    the \uicontrol {Use event simulator} check box to add an event simulator to
+    the \uicontrol {Use event simulator} checkbox to add an event simulator to
     the flow view.
 
     You can create an event list where you assign keyboard shortcuts to events,
@@ -478,9 +478,8 @@
         \li In the \uicontrol {Event List} dialog, select \inlineimage icons/plus.png
             to add a keyboard shortcut for triggering an event to the list.
             \image studio-flow-event-list.png "Event List dialog"
-        \li In the \uicontrol {Event ID} field, enter an identifier for the
-            event. You can search for existing events by entering search
-            criteria in the \uicontrol Filter field.
+        \li In the \uicontrol {Event ID} field, enter an identifier for the event. To search
+            for existing events, enter search criteria in the \uicontrol Filter field.
         \li In the \uicontrol Description field, describe the keyboard shortcut.
         \li In the \uicontrol Shortcut field, press the keyboard key that will
             trigger the event, and then select \uicontrol R to record the
@@ -494,24 +493,22 @@
     To assign events to actions:
 
     \list 1
+        \li Select \uicontrol eventListSimulator in \uicontrol Navigator, and in
+            \uicontrol Properties > \uicontrol {Exposed Custom Properties}, select the
+            \uicontrol active checkbox. If \uicontrol eventListSimulator is not visible
+            in the \uicontrol Navigator, select \inlineimage icons/visibilityon.png.
         \li In \uicontrol Navigator, select an action area or transition line.
         \li In the context menu, select \uicontrol {Event List} >
             \uicontrol {Assign Events to Actions}.
-            \image studio-flow-events-assign.png "Assign Events to Actions dialog"
-        \li In the \uicontrol ID field, select a transition or an action area
-            \inlineimage icons/flow-action-icon.png
-            . You can search for events by entering search criteria in the
-            \uicontrol Filter field.
+            \image studio-flow-events-assign.webp "Assign Events to Actions dialog"
         \li To connect an event, select \uicontrol Connect next to an event in
             the list. To release a connected event, select \uicontrol Release.
         \li Press \key {Alt+P} to preview the UI.
         \li Select action areas in the preview, double-click events in the
             event list, or use the keyboard shortcuts to trigger events.
-            \image studio-flow-decision-preview.png "Event list in preview"
+            \image studio-flow-events-event-list.webp "Event list in Live Preview"
     \endlist
 
-    If the event triggers a \l{Simulating Conditions}{flow decision}, you
-    can select the path to take to the next flow item.
 */
 
 /*!
