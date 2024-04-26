@@ -127,5 +127,8 @@
         <file>images/extended-view3d-16px.png</file>
         <file>images/extended-view3d-24px.png</file>
         <file>images/extended-view3d-24px@2x.png</file>
+        <file>images/frame-animation-16px.png</file>
+        <file>images/frame-animation-24px.png</file>
+        <file>images/frame-animation-24px@2x.png</file>
     </qresource>
 </RCC>
