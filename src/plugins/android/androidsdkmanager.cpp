@@ -6,14 +6,21 @@
 #include "androidtr.h"
 #include "sdkmanageroutputparser.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/layoutbuilder.h>
+#include <utils/outputformatter.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
 #include <QFutureWatcher>
+#include <QDialogButtonBox>
 #include <QLoggingCategory>
+#include <QPlainTextEdit>
+#include <QProgressBar>
 #include <QReadWriteLock>
 #include <QRegularExpression>
 #include <QTextCodec>
@@ -30,6 +37,83 @@ using namespace std::chrono_literals;
 
 namespace Android {
 namespace Internal {
+
+class QuestionProgressDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    QuestionProgressDialog(QWidget *parent)
+        : QDialog(parent)
+        , m_outputTextEdit(new QPlainTextEdit)
+        , m_questionLabel(new QLabel(Tr::tr("Do you want to accept the Android SDK license?")))
+        , m_answerButtonBox(new QDialogButtonBox)
+        , m_progressBar(new QProgressBar)
+        , m_dialogButtonBox(new QDialogButtonBox)
+        , m_formatter(new OutputFormatter)
+    {
+        setWindowTitle(Tr::tr("Android SDK Manager"));
+        m_outputTextEdit->setReadOnly(true);
+        m_questionLabel->setAlignment(Qt::AlignRight | Qt::AlignTrailing | Qt::AlignVCenter);
+        m_answerButtonBox->setStandardButtons(QDialogButtonBox::No | QDialogButtonBox::Yes);
+        m_dialogButtonBox->setStandardButtons(QDialogButtonBox::Cancel);
+        m_formatter->setPlainTextEdit(m_outputTextEdit);
+        m_formatter->setParent(this);
+
+        using namespace Layouting;
+
+        Column {
+            m_outputTextEdit,
+            Row { m_questionLabel, m_answerButtonBox },
+            m_progressBar,
+            m_dialogButtonBox
+        }.attachTo(this);
+
+        setQuestionVisible(false);
+        setQuestionEnabled(false);
+
+        connect(m_answerButtonBox, &QDialogButtonBox::rejected, this, [this] {
+            emit answerClicked(false);
+        });
+        connect(m_answerButtonBox, &QDialogButtonBox::accepted, this, [this] {
+            emit answerClicked(true);
+        });
+        connect(m_dialogButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+        // GUI tuning
+        setModal(true);
+        resize(800, 600);
+        show();
+    }
+
+    void setQuestionEnabled(bool enable)
+    {
+        m_questionLabel->setEnabled(enable);
+        m_answerButtonBox->setEnabled(enable);
+    }
+    void setQuestionVisible(bool visible)
+    {
+        m_questionLabel->setVisible(visible);
+        m_answerButtonBox->setVisible(visible);
+    }
+    void appendMessage(const QString &text, OutputFormat format)
+    {
+        m_formatter->appendMessage(text, format);
+        m_outputTextEdit->ensureCursorVisible();
+    }
+    void setProgress(int value) { m_progressBar->setValue(value); }
+
+signals:
+    void answerClicked(bool accepted);
+
+private:
+    QPlainTextEdit *m_outputTextEdit = nullptr;
+    QLabel *m_questionLabel = nullptr;
+    QDialogButtonBox *m_answerButtonBox = nullptr;
+    QProgressBar *m_progressBar = nullptr;
+    QDialogButtonBox *m_dialogButtonBox = nullptr;
+    OutputFormatter *m_formatter = nullptr;
+};
 
 const int sdkManagerCmdTimeoutS = 60;
 const int sdkManagerOperationTimeoutS = 600;
@@ -645,3 +729,5 @@ void AndroidSdkManagerPrivate::clearPackages()
 
 } // namespace Internal
 } // namespace Android
+
+#include "androidsdkmanager.moc"
