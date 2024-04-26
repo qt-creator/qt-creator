@@ -47,7 +47,7 @@ public:
 private:
     bool isQml(const Utils::FilePath &path) const;
     bool isResource(const Utils::FilePath &path) const;
-    bool ignoreFile(const Utils::FilePath &path) const;
+    bool ignore(const Utils::FilePath &path) const;
 
     void createCMakeFiles(const NodePtr &node) const;
     void createSourceFiles() const;
@@ -70,12 +70,12 @@ private:
     void compareWithFileSystem(const NodePtr &node) const;
 
     bool m_enabled = false;
+    QmlBuildSystem *m_buildSystem = nullptr;
     CMakeWriter::Ptr m_writer = {};
 
     QString m_projectName = {};
     NodePtr m_root = {};
     QStringList m_moduleNames = {};
-    QmlBuildSystem *m_buildSystem = nullptr;
 };
 
 } // namespace GenerateCmake

@@ -17,8 +17,9 @@
 #include "coreplugin/actionmanager/actioncontainer.h"
 
 #include <QDirIterator>
-#include <QRegularExpression>
+#include <QFileInfo>
 #include <QMenu>
+#include <QRegularExpression>
 
 #include <set>
 
@@ -87,8 +88,8 @@ void CMakeGenerator::updateMenuAction()
 
 CMakeGenerator::CMakeGenerator(QmlBuildSystem *bs, QObject *parent)
     : QObject(parent)
-    , m_root(std::make_shared<Node>())
     , m_buildSystem(bs)
+    , m_root(std::make_shared<Node>())
 {}
 
 const QmlProject *CMakeGenerator::qmlProject() const
@@ -170,6 +171,9 @@ void CMakeGenerator::update(const QSet<QString> &added, const QSet<QString> &rem
     std::set<NodePtr> dirtyModules;
     for (const QString &add : added) {
         const Utils::FilePath path = Utils::FilePath::fromString(add);
+        if (ignore(path.parentDir()))
+            continue;
+
         if (auto node = findOrCreateNode(m_root, path.parentDir())) {
             insertFile(node, path);
             if (auto module = findModuleFor(node))
@@ -208,10 +212,28 @@ bool CMakeGenerator::isResource(const Utils::FilePath &path) const
     return suffixes.contains(path.suffix(), Qt::CaseInsensitive);
 }
 
-bool CMakeGenerator::ignoreFile(const Utils::FilePath &path) const
+bool CMakeGenerator::ignore(const Utils::FilePath &path) const
 {
-    static const QStringList suffixes = { "hints" };
-    return suffixes.contains(path.suffix(), Qt::CaseInsensitive);
+    if (path.isFile()) {
+        static const QStringList suffixes = { "hints" };
+        return suffixes.contains(path.suffix(), Qt::CaseInsensitive);
+    } else if (path.isDir()) {
+        if (!m_root->dir.exists())
+            return true;
+
+        static const QStringList fileNames = { "CMakeCache.txt", "build.ninja" };
+
+        Utils::FilePath dir = path;
+        while (dir.isChildOf(m_root->dir)) {
+            for (const QString& fileName : fileNames) {
+                Utils::FilePath checkFile = dir.pathAppended(fileName);
+                if (checkFile.exists())
+                    return true;
+            }
+            dir = dir.parentDir();
+        }
+    }
+    return false;
 }
 
 void CMakeGenerator::createCMakeFiles(const NodePtr &node) const
@@ -445,6 +467,9 @@ void CMakeGenerator::parseNodeTree(NodePtr &generatorNode,
 {
     for (const auto *childNode : folderNode->nodes()) {
         if (const auto *subFolderNode = childNode->asFolderNode()) {
+            if (ignore(subFolderNode->filePath()))
+                continue;
+
             NodePtr childGeneratorNode = std::make_shared<Node>();
             childGeneratorNode->parent = generatorNode;
             childGeneratorNode->dir = subFolderNode->filePath();
@@ -499,7 +524,10 @@ void CMakeGenerator::compareWithFileSystem(const NodePtr &node) const
 
     while (iter.hasNext()) {
         auto next = Utils::FilePath::fromString(iter.next());
-        if (isResource(next) && !findFile(next) && !ignoreFile(next))
+        if (ignore(next.parentDir()))
+            continue;
+
+        if (isResource(next) && !findFile(next) && !ignore(next))
             files.push_back(next);
     }
 
