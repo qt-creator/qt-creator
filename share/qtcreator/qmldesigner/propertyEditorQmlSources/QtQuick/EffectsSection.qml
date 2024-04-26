@@ -33,7 +33,7 @@ Section {
         if (!root.hasDesignerEffect)
             return
 
-        root.model = modelNodeBackend.allChildren(effect[0]) //ids for all effects
+        root.model = modelNodeBackend.allChildren(effect[0]) // ids for all effects
     }
 
     leftPadding: 0
@@ -50,6 +50,8 @@ Section {
     }
 
     SectionLayout {
+        x: StudioTheme.Values.sectionLeftPadding
+
         PropertyLabel {}
 
         SecondColumnLayout {
@@ -483,6 +485,7 @@ Section {
     }
 
     SectionLayout {
+        x: StudioTheme.Values.sectionLeftPadding
         visible: root.hasDesignerEffect
 
         PropertyLabel {}
@@ -504,6 +507,8 @@ Section {
                     root.invalidate()
                 }
             }
+
+            ExpandingSpacer {}
         }
     }
 }
