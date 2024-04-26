@@ -230,7 +230,8 @@ bool ContentLibraryView::isMaterialBundle(const QString &bundleId) const
 bool ContentLibraryView::isEffectBundle(const QString &bundleId) const
 {
     auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-    return bundleId == compUtils.effectsBundleId() || bundleId == compUtils.userEffectsBundleId();
+    return bundleId == compUtils.effectsBundleId() || bundleId == compUtils.userEffectsBundleId()
+        || bundleId == compUtils.user3DBundleId();
 }
 
 void ContentLibraryView::modelAttached(Model *model)
@@ -255,8 +256,7 @@ void ContentLibraryView::modelAttached(Model *model)
     // cause bundle items types to resolve incorrectly
     m_widget->materialsModel()->loadBundle();
     m_widget->effectsModel()->loadBundle();
-    m_widget->userModel()->loadMaterialBundle();
-    m_widget->userModel()->loadTextureBundle();
+    m_widget->userModel()->loadBundles();
 
     auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
     m_widget->updateImportedState(compUtils.materialsBundleId());
@@ -348,8 +348,14 @@ void ContentLibraryView::customNotification(const AbstractView *view,
     } else if (identifier == "drop_bundle_effect") {
         QTC_ASSERT(nodeList.size() == 1, return);
 
+        auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+        bool is3D = m_draggedBundleEffect->type().startsWith(compUtils.user3DBundleType().toLatin1());
+
         m_bundleEffectPos = data.size() == 1 ? data.first() : QVariant();
-        m_widget->effectsModel()->addInstance(m_draggedBundleEffect);
+        if (is3D)
+            m_widget->userModel()->add3DInstance(m_draggedBundleEffect);
+        else
+            m_widget->effectsModel()->addInstance(m_draggedBundleEffect);
         m_bundleEffectTarget = nodeList.first() ? nodeList.first() : Utils3D::active3DSceneNode(this);
     } else if (identifier == "add_material_to_content_lib") {
         QTC_ASSERT(nodeList.size() == 1 && data.size() == 1, return);

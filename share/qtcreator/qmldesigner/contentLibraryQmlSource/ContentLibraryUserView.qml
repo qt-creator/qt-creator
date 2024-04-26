@@ -133,6 +133,15 @@ HelperWidgets.ScrollView {
                                     onShowContextMenu: ctxMenuTexture.popupMenu(modelData)
                                 }
                             }
+                            DelegateChoice {
+                                roleValue: "item"
+                                delegate: ContentLibraryEffect {
+                                    width: root.cellWidth
+                                    height: root.cellHeight
+
+                                    // onShowContextMenu: ctxMenuTexture.popupMenu(modelData) // TODO
+                                }
+                            }
                         }
 
                         onCountChanged: root.assignMaxCount()

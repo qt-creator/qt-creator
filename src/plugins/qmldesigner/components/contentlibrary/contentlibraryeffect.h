@@ -19,6 +19,7 @@ class ContentLibraryEffect : public QObject
     Q_PROPERTY(QStringList bundleItemFiles READ allFiles CONSTANT)
     Q_PROPERTY(bool bundleItemVisible MEMBER m_visible NOTIFY itemVisibleChanged)
     Q_PROPERTY(bool bundleItemImported READ imported WRITE setImported NOTIFY itemImportedChanged)
+    Q_PROPERTY(QString itemType MEMBER m_itemType CONSTANT)
 
 public:
     ContentLibraryEffect(QObject *parent,
@@ -56,6 +57,7 @@ private:
     bool m_imported = false;
 
     QStringList m_allFiles;
+    const QString m_itemType = "item";
 };
 
 } // namespace QmlDesigner
