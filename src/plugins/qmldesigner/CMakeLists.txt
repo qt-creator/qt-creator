@@ -45,9 +45,10 @@ add_qtc_library(QmlDesignerUtils STATIC
     qmldesignerutils_global.h
 )
 
-
-target_compile_options(QmlDesignerUtils PUBLIC $<$<COMPILE_LANG_AND_ID:CXX,Clang,GNU>:-Wno-error=maybe-uninitialized>)
-target_compile_options(QmlDesignerUtils PUBLIC $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unneeded-internal-declaration>)
+if (TARGET QmlDesignerUtils)
+    target_compile_options(QmlDesignerUtils PUBLIC $<$<COMPILE_LANG_AND_ID:CXX,Clang,GNU>:-Wno-error=maybe-uninitialized>)
+    target_compile_options(QmlDesignerUtils PUBLIC $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unneeded-internal-declaration>)
+endif()
 
 extend_qtc_library(QmlDesignerUtils
     CONDITION ENABLE_COMPILE_WARNING_AS_ERROR
