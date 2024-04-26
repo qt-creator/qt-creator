@@ -29,7 +29,7 @@
         \li \l{Connecting Bare Metal Devices}{Bare Metal}
         \li \l{Boot2Qt: Documentation}{Boot2Q} (commercial only)
         \li \l{Adding Docker Devices}{Docker} (experimental)
-        \li \l{Connecting iOS Devices}{iOS}
+        \li \l{Developing for iOS}{iOS}
         \li iOS Simulator
         \li \l{Connecting MCUs}{MCU} (commercial only)
         \li \l{Connecting QNX Devices}{QNX}

@@ -2,19 +2,20 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-adding-docker-devices.html
     \page creator-developing-ios.html
-    \nextpage creator-developing-mcu.html
+    \previouspage creator-reference.html
 
-    \title Connecting iOS Devices
+    \ingroup creator-reference-devices
 
-    You can connect iOS devices to your local machine with a USB cable to
-    run applications built for them from \QC.
+    \title Developing for iOS
 
-    To be able to use \QC on \macos, you must install Xcode, and therefore,
+    \brief Connect iOS devices to your local machine with a USB cable to
+    run applications on them.
+
+    To use \QC on \macos, you must install Xcode, and therefore,
     you already have the tool chain for building applications for iOS. \QC
     automatically detects the tool chain and creates the necessary
-    \l{glossary-buildandrun-kit}{kits} to build applications for and run them on
+    \l{Kits}{kits} to build applications for and run them on
     configured iOS devices.
 
     You only need Qt libraries that are built for iOS. You can install them as
@@ -28,95 +29,6 @@
     output, debugging, and profiling. However, these features are not supported for
     physical devices with iOS 17 or later because of limitations of the Apple tool for
     accessing these devices.
-
-    \section1 Configuring Devices
-
-    The connections between \QC and an iOS device are protected by using a
-    certificate that you receive from Apple when you
-    \l{https://developer.apple.com/programs/enroll/}
-    {enroll in the Apple Developer Program}. The certificate is copied to
-    the device when you configure the device.
-
-    The first time you connect the device to your local machine, you are asked to enable
-    developer mode on the device. The next time you connect the device, \QC
-    detects it automatically. To disable automatic connections to a device that
-    you do not use for development, select \uicontrol Preferences >
-    \uicontrol iOS, and deselect the \uicontrol {Ask about devices not in
-    developer mode} check box.
-
-    \note The process of configuring devices and the UI varies slightly
-    depending on the Xcode version that you use. We recommend that you use the
-    latest available Xcode version.
-
-    To configure connections between \QC and an iOS device:
-
-    \list 1
-
-        \li Make sure that you have Xcode and Qt for iOS installed.
-
-        \li Connect the device to your local machine with a USB cable.
-
-        \li Start Xcode to configure the device.
-
-            For example, in Xcode version 15, select \uicontrol Window >
-            \uicontrol Devices and Simulators > \uicontrol Devices >
-            \uicontrol + to add the connected device.
-
-        \li To specify build settings:
-
-        \list 1
-
-            \li Open a project for an application you want to develop for the
-                device.
-
-            \li Select \uicontrol Projects > \uicontrol {Build & Run} to select
-                the kit for building applications for and running them on iOS.
-
-                \image qtcreator-ios-add-kit.png "Build & Run Settings"
-
-            \li In \uicontrol {iOS Settings}, select the development team to use
-                for signing and provisioning applications. You must configure
-                development teams and provisioning profiles in Xcode using an
-                Apple developer account.
-
-                \image qtcreator-build-settings-ios.png "iOS build settings"
-
-            \li Select the \uicontrol {Automatically manage signing} check box
-                to automatically select the provisioning profile and signing
-                certificate on your local machine that matches the entitlements
-                and the bundle identifier of the iOS device.
-
-        \endlist
-
-        \li Select \uicontrol Run to specify run settings.
-
-            Usually, you can use the default settings.
-
-    When you run the project, \QC uses Xcode to deploy the application to the
-    device.
-
-    Your signing certificate is used to sign application packages for deployment
-    to the device.
-
-    \endlist
-
-    \note If you cannot deploy applications because a provisioning profile is
-    missing, check that provisioning profiles are listed in Xcode by selecting
-    \uicontrol Xcode > \uicontrol Preferences > \uicontrol Accounts. For more
-    information about how to acquire and install a provisioning profile, see
-    Apple documentation.
-
-    \section1 Viewing Device Connection Status
-
-    When you connect an iOS device to your local machine with USB, \QC
-    automatically detects the device if you have configured it by using Xcode.
-    To view information about the connected device, select \uicontrol Preferences >
-    \uicontrol Devices.
-
-    \image qtcreator-ios-device-configurations.png "Devices dialog"
-
-    If the current device state is \uicontrol Connected, (the traffic light icon is
-    orange), you need to configure the device using Xcode.
 
     \section1 Specifying Supported iOS Versions
 
@@ -138,9 +50,115 @@
     actual build system code reflects the minimum iOS version that is actually
     required.
 
-    For more information, see \l{Expressing Supported iOS Versions}.
+    \sa {iOS}{How To: Develop for iOS}, {Expressing Supported iOS Versions}
+*/
 
-    \section1 Testing on Simulator
+/*!
+    \page creator-how-to-connect-ios-devices.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-ios
+
+    \title Connect iOS devices
+
+    The connections between \QC and an iOS device are protected by using a
+    certificate that you receive from Apple when you
+    \l{https://developer.apple.com/programs/enroll/}
+    {enroll in the Apple Developer Program}. The certificate is copied to
+    the device when you configure the device.
+
+    The first time you connect the device to your local machine, you are asked to enable
+    developer mode on the device. The next time you connect the device, \QC
+    detects it automatically. To disable automatic connections to a device that
+    you do not use for development, go to preferences > \uicontrol iOS
+    and clear \uicontrol {Ask about devices not in developer mode}.
+
+    \note The process of configuring devices and the UI varies slightly
+    depending on the Xcode version that you use. We recommend that you use the
+    latest available Xcode version.
+
+    \section1 Create a connection to an iOS device
+
+    To configure connections between \QC and an iOS device:
+
+    \list 1
+
+        \li Check that you installed Xcode and \l{Qt for iOS}.
+
+        \li Connect the device to your local machine with a USB cable.
+
+        \li Start Xcode to configure the device.
+
+            For example, in Xcode version 15, go to \uicontrol Window >
+            \uicontrol Devices and Simulators > \uicontrol Devices, and select
+            \uicontrol + to add the connected device.
+
+        \li To specify build settings:
+
+        \list 1
+
+            \li Open a project for an application you want to develop for the
+                device.
+
+            \li Go to \uicontrol Projects > \uicontrol {Build & Run} to select
+                the kit for building applications for and running them on iOS.
+
+                \image qtcreator-ios-add-kit.png "Build & Run Settings"
+
+            \li In \uicontrol {iOS Settings}, select the development team to use
+                for signing and provisioning applications. You must configure
+                development teams and provisioning profiles in Xcode using an
+                Apple developer account.
+
+                \image qtcreator-build-settings-ios.png "iOS build settings"
+
+            \li Select \uicontrol {Automatically manage signing}
+                to automatically select the provisioning profile and signing
+                certificate on your local machine that matches the entitlements
+                and the bundle identifier of the iOS device.
+
+        \endlist
+
+        \li Select \uicontrol Run to specify run settings.
+
+            Usually, you can use the default settings.
+
+    When you run the project, \QC uses Xcode to deploy the application to the
+    device.
+
+    Your signing certificate is used to sign application packages for deployment
+    to the device.
+
+    \endlist
+
+    \note If you cannot deploy applications because a provisioning profile is
+    missing, check that provisioning profiles are listed in Xcode by going to
+    \uicontrol Xcode > \uicontrol Preferences > \uicontrol Accounts. For more
+    information about how to acquire and install a provisioning profile, see
+    Apple documentation.
+
+    \section1 View device connection status
+
+    When you connect an iOS device to your local machine with USB, \QC
+    automatically detects the device if you have configured it by using Xcode.
+    To view information about the connected device, go to \uicontrol Preferences >
+    \uicontrol Devices.
+
+    \image qtcreator-ios-device-configurations.png {Devices dialog}
+
+    If the current device state is \uicontrol Connected, (the traffic light icon is
+    orange), you need to configure the device using Xcode.
+
+    \sa {iOS}{How To: Develop for iOS}, {Developing for iOS}
+*/
+
+/*!
+    \page creator-how-to-test-on-ios-simulator.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-ios
+
+    \title Test on iOS Simulator
 
     If you do not have an iOS device or you do not want to create an account,
     you can test applications on
@@ -149,12 +167,12 @@
     simulates a predefined set of hardware devices and software versions.
 
     You can change the simulated hardware and software version in the run
-    settings for the project. Select \uicontrol Projects > \uicontrol Run, and then select
+    settings for the project. Go to \uicontrol Projects > \uicontrol Run, and then select
     the device to simulate in the \uicontrol {Device type} field.
 
     \image qtcreator-ios-simulator-deploy.png
 
-    The simulator is started automatically when you run the application.
+    The simulator starts automatically when you run the application.
     To start the simulator manually, either start the Simulator application
     directly with Spotlight, or go to \uicontrol Xcode > \uicontrol {Open Developer Tool}
     in Xcode.
@@ -162,4 +180,6 @@
     Manage the available simulator devices
     \l{https://developer.apple.com/documentation/xcode/running-your-app-in-simulator-or-on-a-device/#Configure-the-list-of-simulated-devices}
     {in Xcode}.
+
+    \sa {iOS}{How To: Develop for iOS}, {Developing for iOS}
 */

@@ -23,7 +23,7 @@
 
     To run an example application on an Android or iOS device, you must set up
     the development environment for Android or iOS. For more information, see
-    \l{Connecting Android Devices} and \l{Connecting iOS Devices}.
+    \l{Developing for Android} and \l{Developing for iOS}.
 
     To run an example application on a Boot2Qt device, you must set up
     Boot2Qt on the development host and create connections
@@ -79,6 +79,6 @@
     \endlist
 
     \sa {Add compilers}, {Add kits}, {Add Qt versions},
-    {Connecting Android Devices}, {Connecting iOS Devices},
+    {Developing for Android}, {Developing for iOS},
     {Compile Output}, {Boot2Qt: Documentation}, {Qt Design Studio Manual}
 */

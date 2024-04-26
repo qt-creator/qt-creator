@@ -88,6 +88,12 @@
     kit with the toolchain and the Qt version for the device's architecture.
     When possible, \QOI creates suitable kits for you.
 
+    \section2 iOS
+
+    Install \l {Qt for iOS} and Xcode.
+
+    \generatelist creator-how-to-ios
+
     \section2 MCUs
 
     Install \l {Qt for MCUs} and connect devices to the computer to run and

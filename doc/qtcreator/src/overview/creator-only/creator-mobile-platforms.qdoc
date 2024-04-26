@@ -15,7 +15,7 @@
 
     \list
         \li \l Android
-        \li \l iOS
+        \li \l iOS Devices
     \endlist
 
     You must install the tool chain for building applications for the targeted
@@ -50,7 +50,7 @@
         \li \l{Qt for Android}
     \endlist
 
-    \section1 iOS
+    \section1 iOS Devices
 
     \note Deployment, running, and debugging on iOS 17 devices are not supported.
 
@@ -63,7 +63,7 @@
     for iOS devices:
 
     \list
-        \li \l{Connecting iOS Devices}
+        \li \l{Developing for iOs}
         \li \l{Run on many platforms}
         \li \l{Creating a Mobile Application}
         \li \l{Qt for iOS}

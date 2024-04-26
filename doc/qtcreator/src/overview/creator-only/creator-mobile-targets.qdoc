@@ -55,7 +55,7 @@
             Create Docker devices from Docker images and use them to build, run,
             and debug applications from \QC.
 
-        \li \l{Connecting iOS Devices}
+        \li \l{Developing for iOS}
 
             You use the tools delivered with Xcode to connect devices to \QC.
             \QC detects the tools and configured devices automatically and uses

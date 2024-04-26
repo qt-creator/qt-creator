@@ -37,7 +37,7 @@
     To develop for iOS devices, you must install Xcode and use it to configure
     a device. For this, you need an Apple developer account and iOS Developer
     Program certificate that you receive from Apple. For more information, see
-    \l{Connecting iOS Devices}.
+    \l{Developing for iOS}.
 
     \include qtquick-tutorial-create-empty-project.qdocinc qtquick empty application
 

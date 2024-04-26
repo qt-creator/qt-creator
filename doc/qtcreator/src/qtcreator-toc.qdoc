@@ -28,7 +28,6 @@
                 \li \l{Connecting Bare Metal Devices}
                 \li \l{Connecting Boot2Qt Devices}
                 \li \l{Adding Docker Devices}
-                \li \l{Connecting iOS Devices}
                 \li \l{Connecting QNX Devices}
                 \li \l{Connecting Remote Linux Devices}
                 \li \l{Building Applications for the Web}
@@ -58,6 +57,8 @@
                 \generatelist creator-how-to-design
             \li Develop for Devices
                 \list
+                    \li iOS
+                        \generatelist creator-how-to-ios
                     \li MCUs
                         \generatelist creator-how-to-mcu
                 \endlist
