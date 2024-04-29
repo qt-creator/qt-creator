@@ -74,6 +74,7 @@
 #include <QtQuick3D/private/qquick3dscenerootnode_p.h>
 #include <QtQuick3D/private/qquick3drepeater_p.h>
 #include <QtQuick3D/private/qquick3dloader_p.h>
+#include <QtQuick3D/private/qquick3dreflectionprobe_p.h>
 #include <QtQuick3D/private/qquick3dsceneenvironment_p.h>
 #if defined(QUICK3D_ASSET_UTILS_MODULE)
 #include <private/qquick3druntimeloader_p.h>
@@ -979,6 +980,9 @@ void Qt5InformationNodeInstanceServer::handleNode3DDestroyed([[maybe_unused]] QO
         QMetaObject::invokeMethod(m_editView3DData.rootItem, "releaseParticleEmitterGizmo",
                                   Q_ARG(QVariant, objectToVariant(obj)));
 #endif
+    } else if (qobject_cast<QQuick3DReflectionProbe *>(obj)) {
+        QMetaObject::invokeMethod(m_editView3DData.rootItem, "releaseReflectionProbeGizmo",
+                                  Q_ARG(QVariant, objectToVariant(obj)));
     }
     removeNode3D(obj);
 #endif
@@ -1112,6 +1116,10 @@ void Qt5InformationNodeInstanceServer::resolveSceneRoots()
                                           Q_ARG(QVariant, objectToVariant(newRoot)),
                                           Q_ARG(QVariant, objectToVariant(node)));
 #endif
+            } else if (qobject_cast<QQuick3DReflectionProbe *>(node)) {
+                QMetaObject::invokeMethod(m_editView3DData.rootItem, "updateReflectionProbeGizmoScene",
+                                          Q_ARG(QVariant, objectToVariant(newRoot)),
+                                          Q_ARG(QVariant, objectToVariant(node)));
             }
         }
         ++it;
@@ -1599,7 +1607,7 @@ QList<ServerNodeInstance> Qt5InformationNodeInstanceServer::createInstances(
     if (m_editView3DSetupDone) {
         add3DViewPorts(createdInstances);
         add3DScenes(createdInstances);
-        createCameraAndLightGizmos(createdInstances);
+        createGizmos(createdInstances);
     }
 
     render3DEditView();
@@ -1652,13 +1660,14 @@ void Qt5InformationNodeInstanceServer::handleDynamicAddObjectTimeout()
     m_dynamicObjectConstructors.clear();
 }
 
-void Qt5InformationNodeInstanceServer::createCameraAndLightGizmos(
+void Qt5InformationNodeInstanceServer::createGizmos(
         const QList<ServerNodeInstance> &instanceList) const
 {
     QHash<QObject *, QObjectList> cameras;
     QHash<QObject *, QObjectList> lights;
     QHash<QObject *, QObjectList> particleSystems;
     QHash<QObject *, QObjectList> particleEmitters;
+    QHash<QObject *, QObjectList> reflectionProbes;
 
     for (const ServerNodeInstance &instance : instanceList) {
         if (instance.isSubclassOf("QQuick3DCamera")) {
@@ -1671,6 +1680,8 @@ void Qt5InformationNodeInstanceServer::createCameraAndLightGizmos(
                     || instance.isSubclassOf("QQuick3DParticleAttractor"))
                    && !instance.isSubclassOf("QQuick3DParticleTrailEmitter")) {
             particleEmitters[find3DSceneRoot(instance)] << instance.internalObject();
+        } else if (instance.isSubclassOf("QQuick3DReflectionProbe")) {
+            reflectionProbes[find3DSceneRoot(instance)] << instance.internalObject();
         }
     }
 
@@ -1714,6 +1725,17 @@ void Qt5InformationNodeInstanceServer::createCameraAndLightGizmos(
                                       Q_ARG(QVariant, objectToVariant(obj)));
         }
         ++emitterIt;
+    }
+
+    auto refProbeIt = reflectionProbes.constBegin();
+    while (refProbeIt != reflectionProbes.constEnd()) {
+        const auto refProbeObjs = refProbeIt.value();
+        for (auto &obj : refProbeObjs) {
+            QMetaObject::invokeMethod(m_editView3DData.rootItem, "addReflectionProbeGizmo",
+                                      Q_ARG(QVariant, objectToVariant(refProbeIt.key())),
+                                      Q_ARG(QVariant, objectToVariant(obj)));
+        }
+        ++refProbeIt;
     }
 }
 
@@ -1977,7 +1999,7 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(
 
     updateActiveSceneToEditView3D();
 
-    createCameraAndLightGizmos(instanceList);
+    createGizmos(instanceList);
 
     // Queue two renders to make sure icon gizmos update properly
     render3DEditView(2);

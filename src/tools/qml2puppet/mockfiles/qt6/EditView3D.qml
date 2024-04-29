@@ -523,6 +523,12 @@ Item {
             overlayViews[i].addParticleEmitterGizmo(scene, obj);
     }
 
+    function addReflectionProbeGizmo(scene, obj)
+    {
+        for (var i = 0; i < 4; ++i)
+            overlayViews[i].addReflectionProbeGizmo(scene, obj);
+    }
+
     function releaseLightGizmo(obj)
     {
         for (var i = 0; i < 4; ++i)
@@ -547,6 +553,12 @@ Item {
             overlayViews[i].releaseParticleEmitterGizmo(obj);
     }
 
+    function releaseReflectionProbeGizmo(obj)
+    {
+        for (var i = 0; i < 4; ++i)
+            overlayViews[i].releaseReflectionProbeGizmo(obj);
+    }
+
     function updateLightGizmoScene(scene, obj)
     {
         for (var i = 0; i < 4; ++i)
@@ -569,6 +581,12 @@ Item {
     {
         for (var i = 0; i < 4; ++i)
             overlayViews[i].updateParticleEmitterGizmoScene(scene, obj);
+    }
+
+    function updateReflectionProbeGizmoScene(scene, obj)
+    {
+        for (var i = 0; i < 4; ++i)
+            overlayViews[i].updateReflectionProbeGizmoScene(scene, obj);
     }
 
     function resolveSplitPoint(x, y)
