@@ -469,7 +469,6 @@ public:
 
     QSet<QString> m_expandedINames;
     QHash<QString, int> m_maxArrayCount;
-    QTimer m_requestUpdateTimer;
     QTimer m_localsWindowsTimer;
 
     QHash<QString, TypeInfo> m_reportedTypeInfo;
@@ -512,10 +511,6 @@ WatchModel::WatchModel(WatchHandler *handler, DebuggerEngine *engine)
     root->appendChild(m_returnRoot);
     root->appendChild(m_tooltipRoot);
     setRootItem(root);
-
-    m_requestUpdateTimer.setSingleShot(true);
-    connect(&m_requestUpdateTimer, &QTimer::timeout,
-        this, &WatchModel::updateStarted);
 
     m_localsWindowsTimer.setSingleShot(true);
     m_localsWindowsTimer.setInterval(50);
@@ -2310,7 +2305,7 @@ void WatchHandler::notifyUpdateStarted(const UpdateParameters &updateParameters)
         }
     }
 
-    m_model->m_requestUpdateTimer.start(80);
+    emit m_model->updateStarted();
     m_model->m_contentsValid = false;
     updateLocalsWindow();
 }
@@ -2350,7 +2345,6 @@ void WatchHandler::notifyUpdateFinished()
     m_model->m_contentsValid = true;
     updateLocalsWindow();
     m_model->reexpandItems();
-    m_model->m_requestUpdateTimer.stop();
     emit m_model->updateFinished();
 }
 

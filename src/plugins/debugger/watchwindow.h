@@ -5,6 +5,8 @@
 
 #include <utils/basetreeview.h>
 
+#include <QTimer>
+
 namespace Debugger {
 namespace Internal {
 
@@ -26,6 +28,8 @@ public:
     void watchExpression(const QString &exp);
     void watchExpression(const QString &exp, const QString &name);
     void handleItemIsExpanded(const QModelIndex &idx);
+    void handleUpdateStarted();
+    void handleUpdateFinished();
 
 signals:
     void currentIndexChanged(const QModelIndex &currentIndex);
@@ -42,6 +46,9 @@ private:
 
     WatchType m_type;
     int m_sliderPosition = 0;
+    QStringList m_selectedInames;
+    QString m_currentIname;
+    QTimer m_progressDelayTimer;
 };
 
 } // namespace Internal
