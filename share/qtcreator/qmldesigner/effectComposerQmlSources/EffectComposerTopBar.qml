@@ -89,8 +89,8 @@ Rectangle {
 2. Adjust the effect nodes properties
 3. Change the order of the effects, if you like
 4. See the preview
-5. Save in the library, if you wish to reuse the effect later") // TODO: revise with doc engineer
+5. Save in the assets library, if you wish to reuse the effect later")
 
-        onClicked: Qt.openUrlExternally("https://doc.qt.io/qtdesignstudio/qt-using-effect-maker-effects.html")
+        onClicked: Qt.openUrlExternally("https://doc.qt.io/qtdesignstudio/qtquick-effect-composer-view.html")
     }
 }
