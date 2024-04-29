@@ -502,7 +502,10 @@ Rectangle {
                 icon: StudioTheme.Constants.create_medium
                 tooltip: "Add Column"
 
-                onClicked: toolbar.addNewColumn()
+                onClicked: {
+                    tableView.closeEditor()
+                    toolbar.addNewColumn()
+                }
             }
 
             HelperWidgets.IconButton {
@@ -517,7 +520,10 @@ Rectangle {
                 icon: StudioTheme.Constants.create_medium
                 tooltip: "Add Row"
 
-                onClicked: toolbar.addNewRow()
+                onClicked: {
+                    tableView.closeEditor()
+                    toolbar.addNewRow()
+                }
             }
 
             Item {
