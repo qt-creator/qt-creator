@@ -209,7 +209,7 @@ TypeName ContentLibraryUserModel::qmlToModule(const QString &qmlName) const
 {
     return QLatin1String("%1.%2.%3").arg(QmlDesignerPlugin::instance()->documentManager()
                                              .generatedComponentUtils().componentBundlesTypePrefix(),
-                                         m_bundleId,
+                                         m_bundleIdMaterial,
                                          qmlName.chopped(4)).toLatin1(); // chopped(4): remove .qml
 }
 
@@ -233,8 +233,10 @@ void ContentLibraryUserModel::createImporter()
             [&](const QmlDesigner::TypeName &typeName) {
                 m_importerRunning = false;
                 emit importerRunningChanged();
-                if (typeName.size())
+                if (typeName.size()) {
                     emit bundleMaterialImported(typeName);
+                    updateImportedState();
+                }
             });
 #else
     connect(m_importer,
@@ -243,8 +245,10 @@ void ContentLibraryUserModel::createImporter()
             [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
                 m_importerRunning = false;
                 emit importerRunningChanged();
-                if (metaInfo.isValid())
+                if (metaInfo.isValid()) {
                     emit bundleMaterialImported(metaInfo);
+                    updateImportedState();
+                }
             });
 #endif
 
@@ -254,6 +258,7 @@ void ContentLibraryUserModel::createImporter()
                 m_importerRunning = false;
                 emit importerRunningChanged();
                 emit bundleMaterialUnimported(metaInfo);
+                updateImportedState();
             });
 
     resetModel();
@@ -299,7 +304,7 @@ void ContentLibraryUserModel::loadMaterialBundle()
         }
     }
 
-    m_bundleId = m_bundleObj.value("id").toString();
+    m_bundleIdMaterial = m_bundleObj.value("id").toString();
 
     // parse materials
     const QJsonObject matsObj = m_bundleObj.value("materials").toObject();
@@ -390,15 +395,28 @@ void ContentLibraryUserModel::setSearchText(const QString &searchText)
     updateIsEmpty();
 }
 
-void ContentLibraryUserModel::updateImportedState(const QStringList &importedMats)
+void ContentLibraryUserModel::updateImportedState()
 {
+    if (!m_importer)
+        return;
+
+    QString bundleId = m_bundleObj.value("id").toString();
+    Utils::FilePath bundlePath = m_importer->resolveBundleImportPath(bundleId);
+
+    QStringList importedItems;
+    if (bundlePath.exists()) {
+        importedItems = transform(bundlePath.dirEntries({{"*.qml"}, QDir::Files}),
+                                  [](const Utils::FilePath &f) { return f.baseName(); });
+    }
+
     bool changed = false;
-
     for (ContentLibraryMaterial *mat : std::as_const(m_userMaterials))
-        changed |= mat->setImported(importedMats.contains(mat->qml().chopped(4)));
+        changed |= mat->setImported(importedItems.contains(mat->qml().chopped(4)));
 
-    if (changed)
-        resetModel();
+    if (changed) {
+        int matSectionIdx = 0;
+        emit dataChanged(index(matSectionIdx), index(matSectionIdx));
+    }
 }
 
 void ContentLibraryUserModel::setQuick3DImportVersion(int major, int minor)

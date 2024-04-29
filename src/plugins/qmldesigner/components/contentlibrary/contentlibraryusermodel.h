@@ -41,7 +41,7 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     void setSearchText(const QString &searchText);
-    void updateImportedState(const QStringList &importedMats);
+    void updateImportedState();
 
     QPair<QString, QString> getUniqueLibMaterialNameAndQml(const QString &matName) const;
     TypeName qmlToModule(const QString &qmlName) const;
@@ -102,7 +102,7 @@ private:
 
     ContentLibraryWidget *m_widget = nullptr;
     QString m_searchText;
-    QString m_bundleId;
+    QString m_bundleIdMaterial;
 
     QList<ContentLibraryMaterial *> m_userMaterials;
     QList<ContentLibraryTexture *> m_userTextures;

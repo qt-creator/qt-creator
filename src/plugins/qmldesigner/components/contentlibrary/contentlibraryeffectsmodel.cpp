@@ -98,8 +98,10 @@ void ContentLibraryEffectsModel::createImporter()
             [&](const QmlDesigner::TypeName &typeName) {
                 m_importerRunning = false;
                 emit importerRunningChanged();
-                if (typeName.size())
+                if (typeName.size()) {
                     emit bundleItemImported(typeName);
+                    updateImportedState();
+                }
             });
 #else
     connect(m_importer,
@@ -108,8 +110,10 @@ void ContentLibraryEffectsModel::createImporter()
             [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
                 m_importerRunning = false;
                 emit importerRunningChanged();
-                if (metaInfo.isValid())
+                if (metaInfo.isValid()) {
                     emit bundleItemImported(metaInfo);
+                    updateImportedState();
+                }
             });
 #endif
 
@@ -119,6 +123,7 @@ void ContentLibraryEffectsModel::createImporter()
                 m_importerRunning = false;
                 emit importerRunningChanged();
                 emit bundleItemUnimported(metaInfo);
+                updateImportedState();
             });
 
     resetModel();
@@ -244,8 +249,20 @@ void ContentLibraryEffectsModel::setSearchText(const QString &searchText)
     updateIsEmpty();
 }
 
-void ContentLibraryEffectsModel::updateImportedState(const QStringList &importedItems)
+void ContentLibraryEffectsModel::updateImportedState()
 {
+    if (!m_importer)
+        return;
+
+    QString bundleId = m_bundleObj.value("id").toString();
+    Utils::FilePath bundlePath = m_importer->resolveBundleImportPath(bundleId);
+
+    QStringList importedItems;
+    if (bundlePath.exists()) {
+        importedItems = transform(bundlePath.dirEntries({{"*.qml"}, QDir::Files}),
+                                  [](const Utils::FilePath &f) { return f.baseName(); });
+    }
+
     bool changed = false;
     for (ContentLibraryEffectsCategory *cat : std::as_const(m_bundleCategories))
         changed |= cat->updateImportedState(importedItems);

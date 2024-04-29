@@ -217,8 +217,10 @@ void ContentLibraryMaterialsModel::createImporter()
             [&](const QmlDesigner::TypeName &typeName) {
                 m_importerRunning = false;
                 emit importerRunningChanged();
-                if (typeName.size())
+                if (typeName.size()) {
                     emit bundleMaterialImported(typeName);
+                    updateImportedState();
+                }
             });
 #else
     connect(m_importer,
@@ -227,8 +229,10 @@ void ContentLibraryMaterialsModel::createImporter()
             [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
                 m_importerRunning = false;
                 emit importerRunningChanged();
-                if (metaInfo.isValid())
+                if (metaInfo.isValid()) {
                     emit bundleMaterialImported(metaInfo);
+                    updateImportedState();
+                }
             });
 #endif
 
@@ -238,6 +242,7 @@ void ContentLibraryMaterialsModel::createImporter()
                 m_importerRunning = false;
                 emit importerRunningChanged();
                 emit bundleMaterialUnimported(metaInfo);
+                updateImportedState();
             });
 
     resetModel();
@@ -355,11 +360,23 @@ void ContentLibraryMaterialsModel::setSearchText(const QString &searchText)
     updateIsEmpty();
 }
 
-void ContentLibraryMaterialsModel::updateImportedState(const QStringList &importedMats)
+void ContentLibraryMaterialsModel::updateImportedState()
 {
+    if (!m_importer)
+        return;
+
+    QString bundleId = m_matBundleObj.value("id").toString();
+    Utils::FilePath bundlePath = m_importer->resolveBundleImportPath(bundleId);
+
+    QStringList importedItems;
+    if (bundlePath.exists()) {
+        importedItems = transform(bundlePath.dirEntries({{"*.qml"}, QDir::Files}),
+                                  [](const Utils::FilePath &f) { return f.baseName(); });
+    }
+
     bool changed = false;
     for (ContentLibraryMaterialsCategory *cat : std::as_const(m_bundleCategories))
-        changed |= cat->updateImportedState(importedMats);
+        changed |= cat->updateImportedState(importedItems);
 
     if (changed)
         resetModel();

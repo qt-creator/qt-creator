@@ -35,7 +35,7 @@ public:
 
     void loadBundle();
     void setSearchText(const QString &searchText);
-    void updateImportedState(const QStringList &importedItems);
+    void updateImportedState();
 
     void setQuick3DImportVersion(int major, int minor);
 

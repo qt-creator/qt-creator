@@ -114,7 +114,6 @@ WidgetInfo ContentLibraryView::widgetInfo()
                 this,
                 [&](const QmlDesigner::TypeName &typeName) {
                     applyBundleMaterialToDropTarget({}, typeName);
-                    updateBundleMaterialsImportedState();
                 });
 #else
         connect(materialsModel,
@@ -122,7 +121,6 @@ WidgetInfo ContentLibraryView::widgetInfo()
                 this,
                 [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
                     applyBundleMaterialToDropTarget({}, metaInfo);
-                    updateBundleMaterialsImportedState();
                 });
 #endif
 
@@ -140,9 +138,6 @@ WidgetInfo ContentLibraryView::widgetInfo()
                 });
             });
         });
-
-        connect(materialsModel, &ContentLibraryMaterialsModel::bundleMaterialUnimported, this,
-                &ContentLibraryView::updateBundleMaterialsImportedState);
 
         ContentLibraryEffectsModel *effectsModel = m_widget->effectsModel().data();
 
@@ -167,7 +162,6 @@ WidgetInfo ContentLibraryView::widgetInfo()
                         selectModelNode(newEffNode);
                     });
 
-                    updateBundleEffectsImportedState();
                     m_bundleEffectTarget = {};
                     m_bundleEffectPos = {};
                 });
@@ -196,7 +190,6 @@ WidgetInfo ContentLibraryView::widgetInfo()
                         selectModelNode(newEffNode);
                     });
 
-                    updateBundleEffectsImportedState();
                     m_bundleEffectTarget = {};
                     m_bundleEffectPos = {};
                 });
@@ -211,9 +204,6 @@ WidgetInfo ContentLibraryView::widgetInfo()
                             eff.destroy();
                     });
                 });
-
-        connect(effectsModel, &ContentLibraryEffectsModel::bundleItemUnimported, this,
-                &ContentLibraryView::updateBundleEffectsImportedState);
 
         connectUserBundle();
     }
@@ -252,7 +242,6 @@ void ContentLibraryView::connectUserBundle()
             this,
             [&](const QmlDesigner::TypeName &typeName) {
                 applyBundleMaterialToDropTarget({}, typeName);
-                updateBundleUserMaterialsImportedState();
             });
 #else
     connect(userModel,
@@ -260,7 +249,6 @@ void ContentLibraryView::connectUserBundle()
             this,
             [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
                 applyBundleMaterialToDropTarget({}, metaInfo);
-                updateBundleUserMaterialsImportedState();
             });
 #endif
 
@@ -278,9 +266,6 @@ void ContentLibraryView::connectUserBundle()
                     });
                 });
             });
-
-    connect(userModel, &ContentLibraryUserModel::bundleMaterialUnimported, this,
-            &ContentLibraryView::updateBundleUserMaterialsImportedState);
 }
 
 void ContentLibraryView::modelAttached(Model *model)
@@ -308,9 +293,9 @@ void ContentLibraryView::modelAttached(Model *model)
     m_widget->userModel()->loadMaterialBundle();
     m_widget->userModel()->loadTextureBundle();
 
-    updateBundleMaterialsImportedState();
-    updateBundleEffectsImportedState();
-    updateBundleUserMaterialsImportedState();
+    m_widget->materialsModel()->updateImportedState();
+    m_widget->effectsModel()->updateImportedState();
+    m_widget->userModel()->updateImportedState();
 }
 
 void ContentLibraryView::modelAboutToBeDetached(Model *model)
@@ -768,65 +753,6 @@ ModelNode ContentLibraryView::createMaterial(const NodeMetaInfo &metaInfo)
     return newMatNode;
 }
 #endif
-
-void ContentLibraryView::updateBundleMaterialsImportedState()
-{
-    using namespace Utils;
-
-    if (!m_widget->materialsModel()->bundleImporter())
-        return;
-
-    QStringList importedBundleMats;
-
-    // TODO: this will be refactored next: no need for the round trip from model to view then back to model
-    // (same applies for the similar cases for effects and user material bundles)
-    FilePath materialBundlePath = m_widget->materialsModel()->bundleImporter()->resolveBundleImportPath("MaterialBundle");
-
-    if (materialBundlePath.exists()) {
-        importedBundleMats = transform(materialBundlePath.dirEntries({{"*.qml"}, QDir::Files}),
-                                       [](const FilePath &f) { return f.fileName().chopped(4); });
-    }
-
-    m_widget->materialsModel()->updateImportedState(importedBundleMats);
-}
-
-void ContentLibraryView::updateBundleUserMaterialsImportedState()
-{
-    using namespace Utils;
-
-    if (!m_widget->userModel()->bundleImporter())
-        return;
-
-    QStringList importedBundleMats;
-
-    FilePath bundlePath = m_widget->userModel()->bundleImporter()->resolveBundleImportPath("UserMaterialBundle");
-
-    if (bundlePath.exists()) {
-        importedBundleMats = transform(bundlePath.dirEntries({{"*.qml"}, QDir::Files}),
-                                       [](const FilePath &f) { return f.fileName().chopped(4); });
-    }
-
-    m_widget->userModel()->updateImportedState(importedBundleMats);
-}
-
-void ContentLibraryView::updateBundleEffectsImportedState()
-{
-    using namespace Utils;
-
-    if (!m_widget->effectsModel()->bundleImporter())
-        return;
-
-    QStringList importedBundleEffs;
-
-    FilePath bundlePath = m_widget->effectsModel()->bundleImporter()->resolveBundleImportPath("EffectBundle");
-
-    if (bundlePath.exists()) {
-        importedBundleEffs = transform(bundlePath.dirEntries({{"*.qml"}, QDir::Files}),
-                                       [](const FilePath &f) { return f.fileName().chopped(4); });
-    }
-
-    m_widget->effectsModel()->updateImportedState(importedBundleEffs);
-}
 
 void ContentLibraryView::updateBundlesQuick3DVersion()
 {

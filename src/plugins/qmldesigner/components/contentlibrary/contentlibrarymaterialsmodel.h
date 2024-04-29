@@ -35,7 +35,7 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     void setSearchText(const QString &searchText);
-    void updateImportedState(const QStringList &importedMats);
+    void updateImportedState();
 
     void setQuick3DImportVersion(int major, int minor);
 

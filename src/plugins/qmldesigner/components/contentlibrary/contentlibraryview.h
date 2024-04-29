@@ -50,9 +50,6 @@ public:
 private:
     void connectUserBundle();
     void active3DSceneChanged(qint32 sceneId);
-    void updateBundleMaterialsImportedState();
-    void updateBundleUserMaterialsImportedState();
-    void updateBundleEffectsImportedState();
     void updateBundlesQuick3DVersion();
     void addLibMaterial(const ModelNode &mat, const QPixmap &icon);
     void addLibAssets(const QStringList &paths);
