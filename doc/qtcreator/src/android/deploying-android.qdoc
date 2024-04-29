@@ -30,7 +30,7 @@
 
             All Qt versions do not support AABs. Qt 6.3.0 and later support
             multi-abi builds for applications that you build with CMake. For
-            more information, see \l{Qt for Android - Building User Projects}.
+            more information, see \l{Deploying an Application on Android}.
     \endlist
 
     \note Since \QC 4.12, Ministro is not supported.
@@ -208,7 +208,8 @@
 
     To add OpenSSL libraries, select \uicontrol {Include prebuilt OpenSSL libraries}
     in the \uicontrol {Additional Libraries} group. This will add the OpenSSL
-    include project defined in \l{Specifying Android Device Settings}{device settings}
+    include project defined in \l{Set up Android development environment}
+    {device settings}
     in \uicontrol {Android OpenSSL} group. This can be used for qmake and CMake
     projects.
 
@@ -497,7 +498,7 @@
 
     To add a permission, select it from the list, and then click \uicontrol Add.
 
-    \sa {Build and Run}{How To: Build and Run}, {Connecting Android Devices},
-    {Android Run Settings}
+    \sa {Build and Run}{How To: Build and Run},
+    {Android}{How To: Develop for Android}, {Android Run Settings}
 */
 

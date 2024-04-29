@@ -32,7 +32,7 @@
 
     To develop for Android devices, you must install \l{Qt for Android}
     and set up the development environment, as instructed in
-    \l{Connecting Android Devices}.
+    \l{Developing for Android}.
 
     To develop for iOS devices, you must install Xcode and use it to configure
     a device. For this, you need an Apple developer account and iOS Developer

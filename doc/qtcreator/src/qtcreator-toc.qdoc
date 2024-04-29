@@ -24,7 +24,6 @@
             \li \l{Configuring Projects}
             \li \l{Connecting Devices}
             \list
-                \li \l{Connecting Android Devices}
                 \li \l{Connecting Bare Metal Devices}
                 \li \l{Connecting Boot2Qt Devices}
                 \li \l{Adding Docker Devices}
@@ -57,6 +56,8 @@
                 \generatelist creator-how-to-design
             \li Develop for Devices
                 \list
+                    \li Android
+                        \generatelist creator-how-to-android
                     \li iOS
                         \generatelist creator-how-to-ios
                     \li MCUs

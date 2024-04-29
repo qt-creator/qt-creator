@@ -59,7 +59,7 @@
             \endlist
 
         \li In the \uicontrol ABIs field, select the ABIs for
-            the \l{Connecting Android Devices}{Android} device
+            the \l{Developing for Android}{Android} device
             architectures to build the project for.
 
         \li In the \uicontrol {Parallel jobs} field, specify the number of

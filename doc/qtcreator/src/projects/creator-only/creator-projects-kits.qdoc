@@ -25,7 +25,7 @@
     You can add kits for the desktop and for the following types of devices:
 
     \list
-        \li \l{Connecting Android Devices}{Android}
+        \li \l{Developing for Android}{Android}
         \li \l{Connecting Bare Metal Devices}{Bare Metal}
         \li \l{Boot2Qt: Documentation}{Boot2Q} (commercial only)
         \li \l{Adding Docker Devices}{Docker} (experimental)

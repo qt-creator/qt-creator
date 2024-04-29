@@ -17,7 +17,7 @@
 
     To run and debug an application on an Android device, you must create
     connections from the development host to the device, as instructed in
-    \l {Connecting Android Devices}.
+    \l {Developing for Android}.
 
     \section1 am Start Options
 
@@ -66,5 +66,5 @@
     \endcode
 
     \sa {Activate kits for a project}, {Configure projects for running},
-    {Connecting Android Devices}
+    {Android}{How To: Develop for Android}
 */

@@ -198,19 +198,35 @@
     For more information, see \l{Build and Run}{How To: Build and Run},
     \l{Build Systems}, \l{Build Configurations}, and \l{Run Configurations}.
 
-    \section2 On Devices
+    \section2 Mobile Platforms
 
-    When you install tool chains for device types as part of a Qt distribution,
-    the build and run configurations for the devices might be set up
-    automatically. However, you might need to install and configure some
-    additional software on the devices to be able to connect to them
-    from the computer.
+    You can develop applications for the following mobile platforms:
+
+    \list
+        \li \l Android
+        \li \l iOS
+    \endlist
+
+    Install the tool chain for building applications for the targeted mobile
+    platform on the computer, and then use \QOI to install Qt libraries that are
+    built for the platform. Add a kit with the tool chain and the Qt version for
+    the device's architecture. When possible, \QOI creates suitable kits for you.
+
+    You can connect mobile devices to the computer and select the
+    appropriate kit to build, run, debug, and analyze applications from \QC.
 
     \e {Deploy configurations} handle the packaging and copying of the necessary
     files to a location you want to run the executable at, such as the file
     system of a device.
 
-    For more information, see \l{Connecting Devices} and \l{Deploy Configurations}.
+    Before starting application development, analyze and define the requirements,
+    scope, and functionality of the application to ensure efficient functionality
+    and a smooth user experience on mobile devices.
+
+    For more information, see
+    \l{Develop for Devices}{How To: Develop for Devices},
+    \l{Optimizing Applications for Mobile Devices}, \l {Supported Platforms}, and
+    \l{Deploy Configurations}.
 
     \section1 Debugging Applications
 

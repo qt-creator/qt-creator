@@ -40,7 +40,7 @@
 
     If you have connected \l{Mobile Platforms}{mobile devices} or
     \l{Embedded Platforms}{embedded devices} to the computer
-    or added virtual devices, such as \l{Managing Android Virtual Devices (AVD)}
+    or added virtual devices, such as \l{Manage AVDs}
     {Android Virtual Devices (AVD)}, you can select them in the kit selector.
 
     Select \uicontrol Manage to manage device settings. For example, you can add

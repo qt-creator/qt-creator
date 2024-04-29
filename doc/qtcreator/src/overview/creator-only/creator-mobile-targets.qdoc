@@ -29,16 +29,10 @@
 
     \list
 
-        \li \l{Connecting Android Devices}
+        \li \l{Developing for Android}
 
-            Qt applications for Android are compiled as \c {shared objects} that
-            are loaded by a Java launcher that is part of Qt.
-            This is totally transparent to users. As Qt is composed of libraries
-            referencing each other, Qt 5 applications are only supported on
-            Android version 4.1 (API level 16), or later, and Qt 6 applications
-            on Android version 6.0 (API level 23), or later. You must install a
-            Qt version targeting Android and the Android SDK and NDK to develop
-            for Android devices.
+            Connect Android devices to the computer to develop Qt applications
+            for them.
 
         \li \l{Connecting Bare Metal Devices}
 

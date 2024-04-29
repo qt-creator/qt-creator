@@ -71,7 +71,7 @@
 
     \image qtcreator-language-server-json.webp {Prompt to install JSON language server}
 
-    Add a Java language server for \l{Connecting Android Devices}
+    Add a Java language server for \l{Developing for Android}
     {Android development}. For other languages, add generic stdIO language
     servers.
 
