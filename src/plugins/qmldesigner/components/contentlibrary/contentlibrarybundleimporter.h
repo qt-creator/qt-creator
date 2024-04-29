@@ -10,7 +10,7 @@
 #include <QTimer>
 #include <QVariantHash>
 
-namespace QmlDesigner::Internal {
+namespace QmlDesigner {
 
 class ContentLibraryBundleImporter : public QObject
 {
@@ -48,4 +48,4 @@ private:
     QHash<TypeName, bool> m_pendingTypes; // <type, isImport>
 };
 
-} // namespace QmlDesigner::Internal
+} // namespace QmlDesigner

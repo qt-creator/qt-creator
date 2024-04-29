@@ -90,10 +90,10 @@ QHash<int, QByteArray> ContentLibraryEffectsModel::roleNames() const
 
 void ContentLibraryEffectsModel::createImporter()
 {
-    m_importer = new Internal::ContentLibraryBundleImporter();
+    m_importer = new ContentLibraryBundleImporter();
 #ifdef QDS_USE_PROJECTSTORAGE
     connect(m_importer,
-            &Internal::ContentLibraryBundleImporter::importFinished,
+            &ContentLibraryBundleImporter::importFinished,
             this,
             [&](const QmlDesigner::TypeName &typeName) {
                 m_importerRunning = false;
@@ -103,7 +103,7 @@ void ContentLibraryEffectsModel::createImporter()
             });
 #else
     connect(m_importer,
-            &Internal::ContentLibraryBundleImporter::importFinished,
+            &ContentLibraryBundleImporter::importFinished,
             this,
             [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
                 m_importerRunning = false;
@@ -113,7 +113,7 @@ void ContentLibraryEffectsModel::createImporter()
             });
 #endif
 
-    connect(m_importer, &Internal::ContentLibraryBundleImporter::unimportFinished, this,
+    connect(m_importer, &ContentLibraryBundleImporter::unimportFinished, this,
             [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
                 Q_UNUSED(metaInfo)
                 m_importerRunning = false;
@@ -220,7 +220,7 @@ bool ContentLibraryEffectsModel::bundleExists() const
     return m_bundleExists;
 }
 
-Internal::ContentLibraryBundleImporter *ContentLibraryEffectsModel::bundleImporter() const
+ContentLibraryBundleImporter *ContentLibraryEffectsModel::bundleImporter() const
 {
     return m_importer;
 }

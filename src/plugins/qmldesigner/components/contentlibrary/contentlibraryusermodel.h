@@ -12,15 +12,12 @@ QT_FORWARD_DECLARE_CLASS(QUrl)
 
 namespace QmlDesigner {
 
+class ContentLibraryBundleImporter;
 class ContentLibraryEffect;
 class ContentLibraryMaterial;
 class ContentLibraryTexture;
 class ContentLibraryWidget;
 class NodeMetaInfo;
-
-namespace Internal {
-class ContentLibraryBundleImporter;
-}
 
 class ContentLibraryUserModel : public QAbstractListModel
 {
@@ -70,7 +67,7 @@ public:
     void loadMaterialBundle();
     void loadTextureBundle();
 
-    Internal::ContentLibraryBundleImporter *bundleImporter() const;
+    ContentLibraryBundleImporter *bundleImporter() const;
 
     Q_INVOKABLE void applyToSelected(QmlDesigner::ContentLibraryMaterial *mat, bool add = false);
     Q_INVOKABLE void addToProject(QmlDesigner::ContentLibraryMaterial *mat);
@@ -114,7 +111,7 @@ private:
     QStringList m_userCategories;
 
     QJsonObject m_bundleObj;
-    Internal::ContentLibraryBundleImporter *m_importer = nullptr;
+    ContentLibraryBundleImporter *m_importer = nullptr;
 
     bool m_isEmpty = true;
     bool m_matBundleExists = false;

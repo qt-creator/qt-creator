@@ -11,13 +11,10 @@
 
 namespace QmlDesigner {
 
+class ContentLibraryBundleImporter;
 class ContentLibraryEffect;
 class ContentLibraryEffectsCategory;
 class ContentLibraryWidget;
-
-namespace Internal {
-class ContentLibraryBundleImporter;
-}
 
 class ContentLibraryEffectsModel : public QAbstractListModel
 {
@@ -49,7 +46,7 @@ public:
     void resetModel();
     void updateIsEmpty();
 
-    Internal::ContentLibraryBundleImporter *bundleImporter() const;
+    ContentLibraryBundleImporter *bundleImporter() const;
 
     Q_INVOKABLE void addInstance(QmlDesigner::ContentLibraryEffect *bundleItem);
     Q_INVOKABLE void removeFromProject(QmlDesigner::ContentLibraryEffect *bundleItem);
@@ -77,7 +74,7 @@ private:
     QStringList m_importerSharedFiles;
     QList<ContentLibraryEffectsCategory *> m_bundleCategories;
     QJsonObject m_bundleObj;
-    Internal::ContentLibraryBundleImporter *m_importer = nullptr;
+    ContentLibraryBundleImporter *m_importer = nullptr;
 
     bool m_isEmpty = true;
     bool m_bundleExists = false;

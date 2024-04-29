@@ -18,7 +18,7 @@
 
 using namespace Utils;
 
-namespace QmlDesigner::Internal {
+namespace QmlDesigner {
 
 ContentLibraryBundleImporter::ContentLibraryBundleImporter(QObject *parent)
     : QObject(parent)
@@ -336,4 +336,4 @@ FilePath ContentLibraryBundleImporter::resolveBundleImportPath(const QString &bu
     return bundleImportPath.resolvePath(bundleId);
 }
 
-} // namespace QmlDesigner::Internal
+} // namespace QmlDesigner

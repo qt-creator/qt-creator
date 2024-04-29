@@ -11,13 +11,10 @@
 
 namespace QmlDesigner {
 
+class ContentLibraryBundleImporter;
 class ContentLibraryMaterial;
 class ContentLibraryMaterialsCategory;
 class ContentLibraryWidget;
-
-namespace Internal {
-class ContentLibraryBundleImporter;
-}
 
 class ContentLibraryMaterialsModel : public QAbstractListModel
 {
@@ -53,7 +50,7 @@ public:
     void updateIsEmpty();
     void loadBundle();
 
-    Internal::ContentLibraryBundleImporter *bundleImporter() const;
+    ContentLibraryBundleImporter *bundleImporter() const;
 
     Q_INVOKABLE void applyToSelected(QmlDesigner::ContentLibraryMaterial *mat, bool add = false);
     Q_INVOKABLE void addToProject(QmlDesigner::ContentLibraryMaterial *mat);
@@ -87,7 +84,7 @@ private:
     QString m_searchText;
     QList<ContentLibraryMaterialsCategory *> m_bundleCategories;
     QJsonObject m_matBundleObj;
-    Internal::ContentLibraryBundleImporter *m_importer = nullptr;
+    ContentLibraryBundleImporter *m_importer = nullptr;
 
     bool m_isEmpty = true;
     bool m_matBundleExists = false;

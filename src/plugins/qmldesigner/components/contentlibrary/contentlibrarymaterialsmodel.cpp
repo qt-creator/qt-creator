@@ -209,10 +209,10 @@ void ContentLibraryMaterialsModel::downloadSharedFiles(const QDir &targetDir, co
 
 void ContentLibraryMaterialsModel::createImporter()
 {
-    m_importer = new Internal::ContentLibraryBundleImporter();
+    m_importer = new ContentLibraryBundleImporter();
 #ifdef QDS_USE_PROJECTSTORAGE
     connect(m_importer,
-            &Internal::ContentLibraryBundleImporter::importFinished,
+            &ContentLibraryBundleImporter::importFinished,
             this,
             [&](const QmlDesigner::TypeName &typeName) {
                 m_importerRunning = false;
@@ -222,7 +222,7 @@ void ContentLibraryMaterialsModel::createImporter()
             });
 #else
     connect(m_importer,
-            &Internal::ContentLibraryBundleImporter::importFinished,
+            &ContentLibraryBundleImporter::importFinished,
             this,
             [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
                 m_importerRunning = false;
@@ -232,7 +232,7 @@ void ContentLibraryMaterialsModel::createImporter()
             });
 #endif
 
-    connect(m_importer, &Internal::ContentLibraryBundleImporter::unimportFinished, this,
+    connect(m_importer, &ContentLibraryBundleImporter::unimportFinished, this,
             [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
                 Q_UNUSED(metaInfo)
                 m_importerRunning = false;
@@ -331,7 +331,7 @@ bool ContentLibraryMaterialsModel::matBundleExists() const
     return m_matBundleExists;
 }
 
-Internal::ContentLibraryBundleImporter *ContentLibraryMaterialsModel::bundleImporter() const
+ContentLibraryBundleImporter *ContentLibraryMaterialsModel::bundleImporter() const
 {
     return m_importer;
 }
