@@ -101,8 +101,7 @@ signals:
 
 private:
     bool isValidIndex(int idx) const;
-    void createImporter(const QString &bundlePath, const QString &bundleId,
-                        const QStringList &sharedFiles);
+    void createImporter();
 
     ContentLibraryWidget *m_widget = nullptr;
     QString m_searchText;

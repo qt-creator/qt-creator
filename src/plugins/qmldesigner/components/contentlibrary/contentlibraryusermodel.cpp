@@ -4,7 +4,6 @@
 #include "contentlibraryusermodel.h"
 
 #include "contentlibrarybundleimporter.h"
-#include "contentlibraryeffect.h"
 #include "contentlibrarymaterial.h"
 #include "contentlibrarymaterialscategory.h"
 #include "contentlibrarytexture.h"
@@ -224,10 +223,9 @@ QHash<int, QByteArray> ContentLibraryUserModel::roleNames() const
     return roles;
 }
 
-void ContentLibraryUserModel::createImporter(const QString &bundlePath, const QString &bundleId,
-                                             const QStringList &sharedFiles)
+void ContentLibraryUserModel::createImporter()
 {
-    m_importer = new Internal::ContentLibraryBundleImporter(bundlePath, bundleId, sharedFiles);
+    m_importer = new Internal::ContentLibraryBundleImporter();
 #ifdef QDS_USE_PROJECTSTORAGE
     connect(m_importer,
             &Internal::ContentLibraryBundleImporter::importFinished,
@@ -325,12 +323,12 @@ void ContentLibraryUserModel::loadMaterialBundle()
         m_userMaterials.append(userMat);
     }
 
-    QStringList sharedFiles;
+    m_importerSharedFiles.clear();
     const QJsonArray sharedFilesArr = m_bundleObj.value("sharedFiles").toArray();
     for (const QJsonValueConstRef &file : sharedFilesArr)
-        sharedFiles.append(file.toString());
+        m_importerSharedFiles.append(file.toString());
 
-    createImporter(bundleDir.path(), m_bundleId, sharedFiles);
+    createImporter();
 
     m_matBundleExists = true;
     emit matBundleExistsChanged();
@@ -433,7 +431,8 @@ void ContentLibraryUserModel::applyToSelected(ContentLibraryMaterial *mat, bool 
 
 void ContentLibraryUserModel::addToProject(ContentLibraryMaterial *mat)
 {
-    QString err = m_importer->importComponent(mat->qml(), mat->files());
+    QString err = m_importer->importComponent(mat->dirPath(), mat->type(), mat->qml(),
+                                              mat->files() + m_importerSharedFiles);
 
     if (err.isEmpty()) {
         m_importerRunning = true;
@@ -447,7 +446,7 @@ void ContentLibraryUserModel::removeFromProject(ContentLibraryMaterial *mat)
 {
     emit bundleMaterialAboutToUnimport(mat->type());
 
-     QString err = m_importer->unimportComponent(mat->qml());
+    QString err = m_importer->unimportComponent(mat->type(), mat->qml());
 
     if (err.isEmpty()) {
         m_importerRunning = true;

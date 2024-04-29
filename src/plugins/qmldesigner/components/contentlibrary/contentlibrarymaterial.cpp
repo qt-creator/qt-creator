@@ -89,7 +89,7 @@ QString ContentLibraryMaterial::qmlFilePath() const
     return m_downloadPath + "/" + m_qml;
 }
 
-QString ContentLibraryMaterial::parentDirPath() const
+QString ContentLibraryMaterial::dirPath() const
 {
     return m_downloadPath;
 }

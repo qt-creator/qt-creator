@@ -88,10 +88,9 @@ QHash<int, QByteArray> ContentLibraryEffectsModel::roleNames() const
     return roles;
 }
 
-void ContentLibraryEffectsModel::createImporter(const QString &bundlePath, const QString &bundleId,
-                                                const QStringList &sharedFiles)
+void ContentLibraryEffectsModel::createImporter()
 {
-    m_importer = new Internal::ContentLibraryBundleImporter(bundlePath, bundleId, sharedFiles);
+    m_importer = new Internal::ContentLibraryBundleImporter();
 #ifdef QDS_USE_PROJECTSTORAGE
     connect(m_importer,
             &Internal::ContentLibraryBundleImporter::importFinished,
@@ -200,13 +199,13 @@ void ContentLibraryEffectsModel::loadBundle()
         m_bundleCategories.append(category);
     }
 
-    QStringList sharedFiles;
+    m_importerSharedFiles.clear();
     const QJsonArray sharedFilesArr = m_bundleObj.value("sharedFiles").toArray();
     for (const QJsonValueConstRef &file : sharedFilesArr)
-        sharedFiles.append(file.toString());
+        m_importerSharedFiles.append(file.toString());
 
-    createImporter(bundleDir.path(), bundleId, sharedFiles);
-
+    createImporter();
+    m_bundlePath = bundleDir.path();
     m_bundleExists = true;
     emit bundleExistsChanged();
 }
@@ -280,7 +279,8 @@ void ContentLibraryEffectsModel::resetModel()
 
 void ContentLibraryEffectsModel::addInstance(ContentLibraryEffect *bundleItem)
 {
-    QString err = m_importer->importComponent(bundleItem->qml(), bundleItem->files());
+    QString err = m_importer->importComponent(m_bundlePath, bundleItem->type(), bundleItem->qml(),
+                                              bundleItem->files() + m_importerSharedFiles);
 
     if (err.isEmpty()) {
         m_importerRunning = true;
@@ -294,7 +294,7 @@ void ContentLibraryEffectsModel::removeFromProject(ContentLibraryEffect *bundleI
 {
     emit bundleItemAboutToUnimport(bundleItem->type());
 
-     QString err = m_importer->unimportComponent(bundleItem->qml());
+    QString err = m_importer->unimportComponent(bundleItem->type(), bundleItem->qml());
 
     if (err.isEmpty()) {
         m_importerRunning = true;

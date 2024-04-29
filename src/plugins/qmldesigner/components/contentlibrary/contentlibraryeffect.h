@@ -39,7 +39,6 @@ public:
 
     bool setImported(bool imported);
     bool imported() const;
-    QString parentDirPath() const;
     QStringList allFiles() const;
 
 signals:

@@ -81,8 +81,7 @@ private:
     bool fetchBundleMetadata(const QDir &bundleDir);
     bool isValidIndex(int idx) const;
     void downloadSharedFiles(const QDir &targetDir, const QStringList &files);
-    void createImporter(const QString &bundlePath, const QString &bundleId,
-                        const QStringList &sharedFiles);
+    void createImporter();
 
     ContentLibraryWidget *m_widget = nullptr;
     QString m_searchText;
@@ -101,8 +100,6 @@ private:
     QString m_downloadPath;
     QString m_baseUrl;
 
-    QString m_importerBundlePath;
-    QString m_importerBundleId;
     QStringList m_importerSharedFiles;
 };
 

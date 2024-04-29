@@ -3,8 +3,6 @@
 
 #include "contentlibraryeffect.h"
 
-#include <QFileInfo>
-
 namespace QmlDesigner {
 
 ContentLibraryEffect::ContentLibraryEffect(QObject *parent,

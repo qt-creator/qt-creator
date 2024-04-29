@@ -3,15 +3,12 @@
 
 #pragma once
 
-#include <utils/filepath.h>
+#include <nodemetainfo.h>
 
-#include "nodemetainfo.h"
+#include <utils/filepath.h>
 
 #include <QTimer>
 #include <QVariantHash>
-
-QT_BEGIN_NAMESPACE
-QT_END_NAMESPACE
 
 namespace QmlDesigner::Internal {
 
@@ -20,16 +17,13 @@ class ContentLibraryBundleImporter : public QObject
     Q_OBJECT
 
 public:
-    ContentLibraryBundleImporter(const QString &bundleDir,
-                                 const QString &bundleId,
-                                 const QStringList &sharedFiles,
-                                 QObject *parent = nullptr);
+    ContentLibraryBundleImporter(QObject *parent = nullptr);
     ~ContentLibraryBundleImporter() = default;
 
-    QString importComponent(const QString &qmlFile,
+    QString importComponent(const QString &bundleDir, const TypeName &type, const QString &qmlFile,
                             const QStringList &files);
-    QString unimportComponent(const QString &qmlFile);
-    Utils::FilePath resolveBundleImportPath();
+    QString unimportComponent(const TypeName &type, const QString &qmlFile);
+    Utils::FilePath resolveBundleImportPath(const QString &bundleId);
 
 signals:
     // The metaInfo parameter will be invalid if an error was encountered during
@@ -46,16 +40,12 @@ private:
     void handleImportTimer();
     QVariantHash loadAssetRefMap(const Utils::FilePath &bundlePath);
     void writeAssetRefMap(const Utils::FilePath &bundlePath, const QVariantHash &assetRefMap);
-    QString moduleName();
 
-    Utils::FilePath m_bundleDir;
-    QString m_bundleId;
-    QStringList m_sharedFiles;
     QTimer m_importTimer;
     int m_importTimerCount = 0;
-    bool m_importAddPending = false;
+    QString m_pendingImport;
     bool m_fullReset = false;
-    QHash<QString, bool> m_pendingTypes; // <type, isImport>
+    QHash<TypeName, bool> m_pendingTypes; // <type, isImport>
 };
 
 } // namespace QmlDesigner::Internal

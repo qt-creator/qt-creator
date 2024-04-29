@@ -186,7 +186,7 @@ Item {
         baseUrl: modelData.bundleMaterialBaseWebUrl
         files: modelData.bundleMaterialFiles
 
-        targetDirPath: modelData.bundleMaterialParentPath
+        targetDirPath: modelData.bundleMaterialDirPath
 
         onDownloadStarting: {
             root.downloadState = "downloading"

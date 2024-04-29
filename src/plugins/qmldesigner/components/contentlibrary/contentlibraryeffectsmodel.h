@@ -69,11 +69,12 @@ signals:
 
 private:
     bool isValidIndex(int idx) const;
-    void createImporter(const QString &bundlePath, const QString &bundleId,
-                        const QStringList &sharedFiles);
+    void createImporter();
 
     ContentLibraryWidget *m_widget = nullptr;
     QString m_searchText;
+    QString m_bundlePath;
+    QStringList m_importerSharedFiles;
     QList<ContentLibraryEffectsCategory *> m_bundleCategories;
     QJsonObject m_bundleObj;
     Internal::ContentLibraryBundleImporter *m_importer = nullptr;
@@ -85,10 +86,6 @@ private:
 
     int m_quick3dMajorVersion = -1;
     int m_quick3dMinorVersion = -1;
-
-    QString m_importerBundlePath;
-    QString m_importerBundleId;
-    QStringList m_importerSharedFiles;
 };
 
 } // namespace QmlDesigner

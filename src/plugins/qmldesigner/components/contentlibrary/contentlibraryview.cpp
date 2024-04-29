@@ -778,7 +778,9 @@ void ContentLibraryView::updateBundleMaterialsImportedState()
 
     QStringList importedBundleMats;
 
-    FilePath materialBundlePath = m_widget->materialsModel()->bundleImporter()->resolveBundleImportPath();
+    // TODO: this will be refactored next: no need for the round trip from model to view then back to model
+    // (same applies for the similar cases for effects and user material bundles)
+    FilePath materialBundlePath = m_widget->materialsModel()->bundleImporter()->resolveBundleImportPath("MaterialBundle");
 
     if (materialBundlePath.exists()) {
         importedBundleMats = transform(materialBundlePath.dirEntries({{"*.qml"}, QDir::Files}),
@@ -797,7 +799,7 @@ void ContentLibraryView::updateBundleUserMaterialsImportedState()
 
     QStringList importedBundleMats;
 
-    FilePath bundlePath = m_widget->userModel()->bundleImporter()->resolveBundleImportPath();
+    FilePath bundlePath = m_widget->userModel()->bundleImporter()->resolveBundleImportPath("UserMaterialBundle");
 
     if (bundlePath.exists()) {
         importedBundleMats = transform(bundlePath.dirEntries({{"*.qml"}, QDir::Files}),
@@ -816,7 +818,7 @@ void ContentLibraryView::updateBundleEffectsImportedState()
 
     QStringList importedBundleEffs;
 
-    FilePath bundlePath = m_widget->effectsModel()->bundleImporter()->resolveBundleImportPath();
+    FilePath bundlePath = m_widget->effectsModel()->bundleImporter()->resolveBundleImportPath("EffectBundle");
 
     if (bundlePath.exists()) {
         importedBundleEffs = transform(bundlePath.dirEntries({{"*.qml"}, QDir::Files}),

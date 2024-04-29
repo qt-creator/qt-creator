@@ -198,8 +198,7 @@ void ContentLibraryMaterialsModel::downloadSharedFiles(const QDir &targetDir, co
         QObject::connect(extractor, &FileExtractor::finishedChanged, this, [this, downloader, extractor]() {
             downloader->deleteLater();
             extractor->deleteLater();
-
-            createImporter(m_importerBundlePath, m_importerBundleId, m_importerSharedFiles);
+            createImporter();
         });
 
         extractor->extract();
@@ -208,10 +207,9 @@ void ContentLibraryMaterialsModel::downloadSharedFiles(const QDir &targetDir, co
     downloader->start();
 }
 
-void ContentLibraryMaterialsModel::createImporter(const QString &bundlePath, const QString &bundleId,
-                                                  const QStringList &sharedFiles)
+void ContentLibraryMaterialsModel::createImporter()
 {
-    m_importer = new Internal::ContentLibraryBundleImporter(bundlePath, bundleId, sharedFiles);
+    m_importer = new Internal::ContentLibraryBundleImporter();
 #ifdef QDS_USE_PROJECTSTORAGE
     connect(m_importer,
             &Internal::ContentLibraryBundleImporter::importFinished,
@@ -303,27 +301,21 @@ void ContentLibraryMaterialsModel::loadMaterialBundle(const QDir &matBundleDir)
         m_bundleCategories.append(category);
     }
 
-    QStringList sharedFiles;
+    m_importerSharedFiles.clear();
     const QJsonArray sharedFilesArr = m_matBundleObj.value("sharedFiles").toArray();
     for (const QJsonValueConstRef &file : sharedFilesArr)
-        sharedFiles.append(file.toString());
+        m_importerSharedFiles.append(file.toString());
 
     QStringList missingSharedFiles;
-    for (const QString &s : std::as_const(sharedFiles)) {
-        const QString fullSharedFilePath = matBundleDir.filePath(s);
-
-        if (!QFileInfo::exists(fullSharedFilePath))
+    for (const QString &s : std::as_const(m_importerSharedFiles)) {
+        if (!QFileInfo::exists(matBundleDir.filePath(s)))
             missingSharedFiles.push_back(s);
     }
 
-    if (missingSharedFiles.length() > 0) {
-        m_importerBundlePath = matBundleDir.path();
-        m_importerBundleId = bundleId;
-        m_importerSharedFiles = sharedFiles;
+    if (missingSharedFiles.length() > 0)
         downloadSharedFiles(matBundleDir, missingSharedFiles);
-    } else {
-        createImporter(matBundleDir.path(), bundleId, sharedFiles);
-    }
+    else
+        createImporter();
 
     m_matBundleExists = true;
     emit matBundleExistsChanged();
@@ -403,7 +395,8 @@ void ContentLibraryMaterialsModel::applyToSelected(ContentLibraryMaterial *mat, 
 
 void ContentLibraryMaterialsModel::addToProject(ContentLibraryMaterial *mat)
 {
-    QString err = m_importer->importComponent(mat->qml(), mat->files());
+    QString err = m_importer->importComponent(mat->dirPath(), mat->type(),
+                                              mat->qml(), mat->files() + m_importerSharedFiles);
 
     if (err.isEmpty()) {
         m_importerRunning = true;
@@ -417,7 +410,7 @@ void ContentLibraryMaterialsModel::removeFromProject(ContentLibraryMaterial *mat
 {
     emit bundleMaterialAboutToUnimport(mat->type());
 
-     QString err = m_importer->unimportComponent(mat->qml());
+    QString err = m_importer->unimportComponent(mat->type(), mat->qml());
 
     if (err.isEmpty()) {
         m_importerRunning = true;
