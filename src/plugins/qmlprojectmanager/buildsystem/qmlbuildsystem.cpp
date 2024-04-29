@@ -37,6 +37,8 @@
 #include "projectnode/qmlprojectnodes.h"
 
 #include "utils/algorithm.h"
+#include "utils/filepath.h"
+#include "utils/filesystemwatcher.h"
 #include "utils/qtcassert.h"
 
 #include "texteditor/textdocument.h"
@@ -220,17 +222,56 @@ void QmlBuildSystem::refresh(RefreshOptions options)
 void QmlBuildSystem::initProjectItem()
 {
     m_projectItem.reset(new QmlProjectItem{projectFilePath()});
-    connect(m_projectItem.get(),
-            &QmlProjectItem::qmlFilesChanged,
-            this,
-            &QmlBuildSystem::refreshFiles);
 
-    connect(m_projectItem.get(),
-            &QmlProjectItem::qmlFilesChanged,
+    connect(m_projectItem.data(), &QmlProjectItem::filesChanged, this, &QmlBuildSystem::refreshFiles);
+    connect(m_projectItem.data(),
+            &QmlProjectItem::filesChanged,
             m_cmakeGen,
             &GenerateCmake::CMakeGenerator::update);
 
     m_cmakeGen->setEnabled(m_projectItem->enableCMakeGeneration());
+
+    initMcuProjectItems();
+}
+
+void QmlBuildSystem::initMcuProjectItems()
+{
+    m_mcuProjectItems.clear();
+    m_mcuProjectFilesWatcher.clear();
+
+    Utils::FilePath projectDir = projectFilePath().parentDir();
+    // traverse the project dir and find all other mcu projects (.qmlproject files) in the project tree
+    // and add them to the m_mcuProjectItems vector
+    QDirIterator it(projectDir.toString(), QDir::Files, QDirIterator::Subdirectories);
+    while (it.hasNext()) {
+        it.next();
+        if (it.fileInfo().suffix() == "qmlproject" && it.filePath() != projectFilePath().toString()) {
+            auto qmlProjectItem = QSharedPointer<QmlProjectItem>(
+                new QmlProjectItem{Utils::FilePath::fromString(it.filePath())});
+
+            m_mcuProjectItems.append(qmlProjectItem);
+            connect(qmlProjectItem.data(),
+                    &QmlProjectItem::filesChanged,
+                    this,
+                    &QmlBuildSystem::refreshFiles);
+            connect(qmlProjectItem.data(),
+                    &QmlProjectItem::filesChanged,
+                    m_cmakeGen,
+                    &GenerateCmake::CMakeGenerator::update);
+
+            m_mcuProjectFilesWatcher.addFile(it.filePath(),
+                                             Utils::FileSystemWatcher::WatchModifiedDate);
+
+            connect(&m_mcuProjectFilesWatcher,
+                    &Utils::FileSystemWatcher::fileChanged,
+                    this,
+                    [this](const QString &file) {
+                        Q_UNUSED(file)
+                        initMcuProjectItems();
+                        refresh(RefreshOptions::Files);
+                    });
+        }
+    }
 }
 
 void QmlBuildSystem::parseProjectFiles()
@@ -238,7 +279,6 @@ void QmlBuildSystem::parseProjectFiles()
     if (auto modelManager = QmlJS::ModelManagerInterface::instance()) {
         modelManager->updateSourceFiles(m_projectItem->files(), true);
     }
-
 
     const QString mainFileName = m_projectItem->mainFile();
     if (!mainFileName.isEmpty()) {
@@ -264,6 +304,16 @@ void QmlBuildSystem::generateProjectTree()
                 ? FileType::Project
                 : FileNode::fileTypeForFileName(file);
         newRoot->addNestedNode(std::make_unique<FileNode>(file, fileType));
+    }
+
+    for (const auto &mcuProjectItem : m_mcuProjectItems) {
+        for (const auto &file : mcuProjectItem->files()) {
+            // newRoot->addNestedNode(std::make_unique<FileNode>(file, FileType::Project));
+            const FileType fileType = (file == projectFilePath())
+                                          ? FileType::Project
+                                          : FileNode::fileTypeForFileName(file);
+            newRoot->addNestedNode(std::make_unique<FileNode>(file, fileType));
+        }
     }
     newRoot->addNestedNode(std::make_unique<FileNode>(projectFilePath(), FileType::Project));
 
@@ -690,11 +740,6 @@ QStringList QmlBuildSystem::absoluteImportPaths()
             return (projectDirectory() / importPath).toString();
         return projectDirectory().resolvePath(importPath).toString();
     });
-}
-
-Utils::FilePaths QmlBuildSystem::files() const
-{
-    return m_projectItem->files();
 }
 
 QString QmlBuildSystem::versionQt() const

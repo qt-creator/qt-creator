@@ -7,8 +7,11 @@
 
 #include "../qmlprojectmanager_global.h"
 #include <projectexplorer/buildsystem.h>
+#include <QtCore/qfilesystemwatcher.h>
 
 #include "qmlprojectmanager/cmakegen/cmakegenerator.h"
+
+#include "utils/filesystemwatcher.h"
 
 namespace QmlProjectManager {
 
@@ -91,7 +94,6 @@ public:
 
     QStringList shaderToolArgs() const;
     QStringList shaderToolFiles() const;
-    Utils::FilePaths files() const;
 
     QString versionQt() const;
     QString versionQtQuick() const;
@@ -117,10 +119,15 @@ private:
                                      const Utils::FilePath &mainFilePath,
                                      const QString &oldFile);
 
+    // this is the main project item
     QSharedPointer<QmlProjectItem> m_projectItem;
+    // these are the mcu project items which can be found in the project tree
+    QVector<QSharedPointer<QmlProjectItem>> m_mcuProjectItems;
+    Utils::FileSystemWatcher m_mcuProjectFilesWatcher;
     bool m_blockFilesUpdate = false;
 
     void initProjectItem();
+    void initMcuProjectItems();
     void parseProjectFiles();
     void generateProjectTree();
 
