@@ -89,12 +89,10 @@ QTCREATOR_UTILS_EXPORT FileDeletedPromptAnswer
                                "Do you want to save it under a different name, or close "
                                "the editor?").arg(QDir::toNativeSeparators(fileName));
     QMessageBox box(QMessageBox::Question, title, msg, QMessageBox::NoButton, parent);
-    QPushButton *close =
-            box.addButton(Tr::tr("&Close"), QMessageBox::RejectRole);
+    QPushButton *saveas = box.addButton(Tr::tr("Save &as..."), QMessageBox::ActionRole);
+    QPushButton *close = box.addButton(Tr::tr("&Close"), QMessageBox::RejectRole);
     QPushButton *closeAll =
             box.addButton(Tr::tr("C&lose All"), QMessageBox::RejectRole);
-    QPushButton *saveas =
-            box.addButton(Tr::tr("Save &as..."), QMessageBox::ActionRole);
     QPushButton *save =
             box.addButton(Tr::tr("&Save"), QMessageBox::AcceptRole);
     box.setDefaultButton(saveas);
