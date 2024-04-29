@@ -250,8 +250,7 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
 
     NodeAbstractProperty parentProperty = parentQmlItemNode.defaultNodeAbstractProperty();
 
-
-    NodeHints hints = NodeHints::fromItemLibraryEntry(itemLibraryEntry);
+    NodeHints hints = NodeHints::fromItemLibraryEntry(itemLibraryEntry, view->model());
     const PropertyName forceNonDefaultProperty = hints.forceNonDefaultProperty().toUtf8();
 
     QmlObjectNode newNode = QmlItemNode::createQmlObjectNode(view,
@@ -329,7 +328,7 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
 {
     QmlObjectNode newQmlObjectNode;
 
-    NodeHints hints = NodeHints::fromItemLibraryEntry(itemLibraryEntry);
+    NodeHints hints = NodeHints::fromItemLibraryEntry(itemLibraryEntry, view->model());
 
     auto createNodeFunc = [=, &newQmlObjectNode, &parentProperty]() {
 #ifndef QDS_USE_PROJECTSTORAGE
@@ -361,13 +360,17 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
             propertyPairList.append(position.propertyPairList());
 
             ModelNode::NodeSourceType nodeSourceType = ModelNode::NodeWithoutSource;
-            if (itemLibraryEntry.typeName() == "QtQml.Component")
-                nodeSourceType = ModelNode::NodeWithComponentSource;
 
 #ifdef QDS_USE_PROJECTSTORAGE
+            NodeMetaInfo metaInfo{itemLibraryEntry.typeId(), view->model()->projectStorage()};
+            if (metaInfo.isQmlComponent())
+                nodeSourceType = ModelNode::NodeWithComponentSource;
             newQmlObjectNode = QmlObjectNode(view->createModelNode(
                 itemLibraryEntry.typeName(), propertyPairList, {}, {}, nodeSourceType));
 #else
+            if (itemLibraryEntry.typeName() == "QtQml.Component")
+                nodeSourceType = ModelNode::NodeWithComponentSource;
+
             newQmlObjectNode = QmlObjectNode(view->createModelNode(itemLibraryEntry.typeName(),
                                                                    majorVersion,
                                                                    minorVersion,

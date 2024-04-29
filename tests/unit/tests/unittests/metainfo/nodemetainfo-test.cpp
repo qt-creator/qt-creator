@@ -3182,6 +3182,7 @@ TEST_F(NodeMetaInfo, item_library_entries)
 {
     projectStorageMock.setItemLibraryEntries(objectMetaInfo.id(),
                                              {{objectMetaInfo.id(),
+                                               "QtObject",
                                                "Object",
                                                "/icon/path",
                                                "Basic",
@@ -3193,6 +3194,7 @@ TEST_F(NodeMetaInfo, item_library_entries)
 
     ASSERT_THAT(entries,
                 ElementsAre(IsItemLibraryEntry(objectMetaInfo.id(),
+                                               "QtObject",
                                                "Object",
                                                "/icon/path",
                                                "Basic",

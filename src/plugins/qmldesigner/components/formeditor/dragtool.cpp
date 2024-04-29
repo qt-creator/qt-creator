@@ -206,9 +206,16 @@ static ItemLibraryEntry itemLibraryEntryFromMimeData(const QMimeData *mimeData)
     return itemLibraryEntry;
 }
 
-static bool canBeDropped(const QMimeData *mimeData)
+static bool canBeDropped(const QMimeData *mimeData, Model *model)
 {
-    return NodeHints::fromItemLibraryEntry(itemLibraryEntryFromMimeData(mimeData)).canBeDroppedInFormEditor();
+#ifdef QDS_USE_PROJECTSTORAGE
+    auto itemLibraryEntry = itemLibraryEntryFromMimeData(mimeData);
+    NodeMetaInfo metaInfo{itemLibraryEntry.typeId(), model->projectStorage()};
+    return metaInfo.canBeDroppedInFormEditor() == FlagIs::True;
+#else
+    return NodeHints::fromItemLibraryEntry(itemLibraryEntryFromMimeData(mimeData), model)
+        .canBeDroppedInFormEditor();
+#endif
 }
 
 static bool hasItemLibraryInfo(const QMimeData *mimeData)
@@ -218,7 +225,7 @@ static bool hasItemLibraryInfo(const QMimeData *mimeData)
 
 void DragTool::dropEvent(const QList<QGraphicsItem *> &itemList, QGraphicsSceneDragDropEvent *event)
 {
-    if (canBeDropped(event->mimeData())) {
+    if (canBeDropped(event->mimeData(), view()->model())) {
         event->accept();
         end(generateUseSnapping(event->modifiers()));
 
@@ -290,7 +297,7 @@ void DragTool::dropEvent(const QList<QGraphicsItem *> &itemList, QGraphicsSceneD
 
 void DragTool::dragEnterEvent(const QList<QGraphicsItem *> &/*itemList*/, QGraphicsSceneDragDropEvent *event)
 {
-    if (canBeDropped(event->mimeData())) {
+    if (canBeDropped(event->mimeData(), view()->model())) {
         m_blockMove = false;
 
         if (hasItemLibraryInfo(event->mimeData())) {
@@ -306,7 +313,7 @@ void DragTool::dragEnterEvent(const QList<QGraphicsItem *> &/*itemList*/, QGraph
 
 void DragTool::dragLeaveEvent(const QList<QGraphicsItem *> &/*itemList*/, QGraphicsSceneDragDropEvent *event)
 {
-    if (canBeDropped(event->mimeData())) {
+    if (canBeDropped(event->mimeData(), view()->model())) {
         event->accept();
 
         m_moveManipulator.end();
@@ -363,10 +370,8 @@ void DragTool::dragMoveEvent(const QList<QGraphicsItem *> &itemList, QGraphicsSc
                                                      ->data(Constants::MIME_TYPE_ASSETS)).split(',');
     QString assetType = AssetsLibraryWidget::getAssetTypeAndData(assetPaths[0]).first;
 
-    if (!m_blockMove
-            && !m_isAborted
-            && canBeDropped(event->mimeData())
-            && assetType != Constants::MIME_TYPE_ASSET_EFFECT) {
+    if (!m_blockMove && !m_isAborted && canBeDropped(event->mimeData(), view()->model())
+        && assetType != Constants::MIME_TYPE_ASSET_EFFECT) {
         event->accept();
         if (!m_dragNodes.isEmpty()) {
             if (targetContainerItem) {

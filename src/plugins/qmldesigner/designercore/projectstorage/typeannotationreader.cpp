@@ -178,8 +178,10 @@ TypeAnnotationReader::ParserSate TypeAnnotationReader::readDocument(const QStrin
 TypeAnnotationReader::ParserSate TypeAnnotationReader::readMetaInfoRootElement(const QString &name)
 {
     if (name == typeElementName) {
-        m_typeAnnotations.emplace_back(m_sourceId, m_directorySourceId);
+        auto &annotation = m_typeAnnotations.emplace_back(m_sourceId, m_directorySourceId);
+        annotation.traits.canBeDroppedInFormEditor = FlagIs::True;
         m_itemLibraryEntries = json::array();
+
         return ParsingType;
     } else {
         addErrorInvalidType(name);

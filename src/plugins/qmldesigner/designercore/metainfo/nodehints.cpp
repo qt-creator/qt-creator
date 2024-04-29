@@ -106,14 +106,15 @@ QmlDesigner::NodeHints::NodeHints(const ModelNode &node)
 }
 
 NodeHints::NodeHints(const NodeMetaInfo &metaInfo)
+    : m_metaInfo{metaInfo}
 {
     for (const auto &[name, expression] : metaInfo.typeHints())
         m_hints.insert(name.toQString(), expression.toQString());
 }
 
-NodeHints::NodeHints(const ItemLibraryEntry &entry)
+NodeHints::NodeHints(const ItemLibraryEntry &entry, [[maybe_unused]] Model *model)
 #ifdef QDS_USE_PROJECTSTORAGE
-    : NodeHints{entry.metaInfo()}
+    : NodeHints{NodeMetaInfo{entry.typeId(), model->projectStorage()}}
 #endif
 {
     if constexpr (!useProjectStorage())
@@ -135,7 +136,7 @@ bool NodeHints::canBeContainerFor(const ModelNode &potenialChild) const
     if (!isValid())
         return true;
 
-    auto flagIs = m_modelNode.metaInfo().canBeContainer();
+    auto flagIs = m_metaInfo.canBeContainer();
 
     if (flagIs != FlagIs::Set)
         return convert(flagIs);
@@ -151,7 +152,7 @@ bool NodeHints::forceClip() const
     if (isSwipeView(modelNode()))
         return true;
 
-    auto flagIs = m_modelNode.metaInfo().forceClip();
+    auto flagIs = m_metaInfo.forceClip();
 
     if (flagIs != FlagIs::Set)
         return convert(flagIs);
@@ -167,7 +168,7 @@ bool NodeHints::doesLayoutChildren() const
     if (isSwipeView(modelNode()))
         return true;
 
-    auto flagIs = m_modelNode.metaInfo().doesLayoutChildren();
+    auto flagIs = m_metaInfo.doesLayoutChildren();
 
     if (flagIs != FlagIs::Set)
         return convert(flagIs);
@@ -177,7 +178,7 @@ bool NodeHints::doesLayoutChildren() const
 
 bool NodeHints::canBeDroppedInFormEditor() const
 {
-    auto flagIs = m_modelNode.metaInfo().canBeDroppedInFormEditor();
+    auto flagIs = m_metaInfo.canBeDroppedInFormEditor();
 
     if (flagIs != FlagIs::Set)
         return convert(flagIs);
@@ -187,7 +188,7 @@ bool NodeHints::canBeDroppedInFormEditor() const
 
 bool NodeHints::canBeDroppedInNavigator() const
 {
-    auto flagIs = m_modelNode.metaInfo().canBeDroppedInNavigator();
+    auto flagIs = m_metaInfo.canBeDroppedInNavigator();
 
     if (flagIs != FlagIs::Set)
         return convert(flagIs);
@@ -197,7 +198,7 @@ bool NodeHints::canBeDroppedInNavigator() const
 
 bool NodeHints::canBeDroppedInView3D() const
 {
-    auto flagIs = m_modelNode.metaInfo().canBeDroppedInView3D();
+    auto flagIs = m_metaInfo.canBeDroppedInView3D();
 
     if (flagIs != FlagIs::Set)
         return convert(flagIs);
@@ -210,7 +211,7 @@ bool NodeHints::isMovable() const
     if (!isValid())
         return true;
 
-    auto flagIs = m_modelNode.metaInfo().isMovable();
+    auto flagIs = m_metaInfo.isMovable();
 
     if (flagIs != FlagIs::Set)
         return convert(flagIs);
@@ -223,7 +224,7 @@ bool NodeHints::isResizable() const
     if (!isValid())
         return true;
 
-    auto flagIs = m_modelNode.metaInfo().isResizable();
+    auto flagIs = m_metaInfo.isResizable();
 
     if (flagIs != FlagIs::Set)
         return convert(flagIs);
@@ -236,7 +237,7 @@ bool NodeHints::hasFormEditorItem() const
     if (!isValid())
         return true;
 
-    auto flagIs = m_modelNode.metaInfo().hasFormEditorItem();
+    auto flagIs = m_metaInfo.hasFormEditorItem();
 
     if (flagIs != FlagIs::Set)
         return convert(flagIs);
@@ -252,7 +253,7 @@ bool NodeHints::isStackedContainer() const
     if (isSwipeView(modelNode()))
         return true;
 
-    auto flagIs = m_modelNode.metaInfo().isStackedContainer();
+    auto flagIs = m_metaInfo.isStackedContainer();
 
     if (flagIs != FlagIs::Set)
         return convert(flagIs);
@@ -299,7 +300,7 @@ bool NodeHints::takesOverRenderingOfChildren() const
     if (!isValid())
         return false;
 
-    auto flagIs = m_modelNode.metaInfo().takesOverRenderingOfChildren();
+    auto flagIs = m_metaInfo.takesOverRenderingOfChildren();
 
     if (flagIs != FlagIs::Set)
         return convert(flagIs);
@@ -312,7 +313,7 @@ bool NodeHints::visibleInNavigator() const
     if (!isValid())
         return false;
 
-    auto flagIs = m_modelNode.metaInfo().visibleInNavigator();
+    auto flagIs = m_metaInfo.visibleInNavigator();
 
     if (flagIs != FlagIs::Set)
         return convert(flagIs);
@@ -322,7 +323,7 @@ bool NodeHints::visibleInNavigator() const
 
 bool NodeHints::visibleInLibrary() const
 {
-    auto flagIs = m_modelNode.metaInfo().visibleInLibrary();
+    auto flagIs = m_metaInfo.visibleInLibrary();
 
     if (flagIs != FlagIs::Set)
         return convert(flagIs);
@@ -391,9 +392,9 @@ NodeHints NodeHints::fromModelNode(const ModelNode &modelNode)
     return NodeHints(modelNode);
 }
 
-NodeHints NodeHints::fromItemLibraryEntry(const ItemLibraryEntry &entry)
+NodeHints NodeHints::fromItemLibraryEntry(const ItemLibraryEntry &entry, Model *model)
 {
-    return NodeHints(entry);
+    return NodeHints(entry, model);
 }
 
 const ModelNode &NodeHints::modelNode() const

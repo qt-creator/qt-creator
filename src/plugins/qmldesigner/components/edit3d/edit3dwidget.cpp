@@ -694,7 +694,7 @@ void Edit3DWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
         if (!data.isEmpty()) {
             QDataStream stream(data);
             stream >> m_draggedEntry;
-            if (NodeHints::fromItemLibraryEntry(m_draggedEntry).canBeDroppedInView3D())
+            if (NodeHints::fromItemLibraryEntry(m_draggedEntry, view()->model()).canBeDroppedInView3D())
                 dragEnterEvent->acceptProposedAction();
         }
     }
@@ -773,7 +773,7 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
             auto moduleId = model->module(import3dTypePrefix, Storage::ModuleKind::QmlLibrary);
             auto metaInfo = model->metaInfo(moduleId, fileName.toUtf8());
             if (auto entries = metaInfo.itemLibrariesEntries(); entries.size()) {
-                auto entry = ItemLibraryEntry{entries.front(), *model->projectStorage()};
+                auto entry = ItemLibraryEntry{entries.front()};
                 QmlVisualNode::createQml3DNode(view(), entry, m_canvas->activeScene(), {}, false);
             }
         }

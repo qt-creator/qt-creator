@@ -695,10 +695,10 @@ std::ostream &operator<<(std::ostream &out, const ItemLibraryProperty &property)
 
 std::ostream &operator<<(std::ostream &out, const ItemLibraryEntry &entry)
 {
-    return out << R"((")" << entry.name << R"(", ")" << entry.iconPath << R"(", ")"
-               << entry.category << R"(", ")" << entry.import << R"(", ")" << entry.toolTip
-               << R"(", ")" << entry.templatePath << R"(", )" << entry.properties << ", "
-               << entry.extraFilePaths << ")";
+    return out << R"((")" << entry.typeName << R"(", ")" << entry.name << R"(", ")"
+               << entry.iconPath << R"(", ")" << entry.category << R"(", ")" << entry.import
+               << R"(", ")" << entry.toolTip << R"(", ")" << entry.templatePath << R"(", )"
+               << entry.properties << ", " << entry.extraFilePaths << ")";
 }
 
 } // namespace Storage::Info

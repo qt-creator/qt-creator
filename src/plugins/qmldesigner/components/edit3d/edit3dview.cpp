@@ -350,11 +350,10 @@ void Edit3DView::handleEntriesChanged()
         {EK_importedModels, {tr("Imported Models"), contextIcon(DesignerIcons::ImportedModelsIcon)}}};
 
 #ifdef QDS_USE_PROJECTSTORAGE
-    const auto &projectStorage = *model()->projectStorage();
     auto append = [&](const NodeMetaInfo &metaInfo, ItemLibraryEntryKeys key) {
         auto entries = metaInfo.itemLibrariesEntries();
         if (entries.size())
-            entriesMap[key].entryList.append(toItemLibraryEntries(entries, projectStorage));
+            entriesMap[key].entryList.append(toItemLibraryEntries(entries));
     };
 
     append(model()->qtQuick3DModelMetaInfo(), EK_primitives);
@@ -386,9 +385,12 @@ void Edit3DView::handleEntriesChanged()
         } else if (entry.typeName() == "QtQuick3D.OrthographicCamera"
                    || entry.typeName() == "QtQuick3D.PerspectiveCamera") {
             entryKey = EK_cameras;
-        } else if (entry.typeName().startsWith(QmlDesignerPlugin::instance()->documentManager()
-                                                   .generatedComponentUtils().import3dTypePrefix().toUtf8())
-                   && NodeHints::fromItemLibraryEntry(entry).canBeDroppedInView3D()) {
+        } else if (entry.typeName().startsWith(QmlDesignerPlugin::instance()
+                                                   ->documentManager()
+                                                   .generatedComponentUtils()
+                                                   .import3dTypePrefix()
+                                                   .toUtf8())
+                   && NodeHints::fromItemLibraryEntry(entry, model()).canBeDroppedInView3D()) {
             entryKey = EK_importedModels;
         } else {
             continue;

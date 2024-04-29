@@ -705,7 +705,7 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
     const ItemLibraryEntry itemLibraryEntry =
         createItemLibraryEntryFromMimeData(mimeData->data(Constants::MIME_TYPE_ITEM_LIBRARY_INFO));
 
-    const NodeHints hints = NodeHints::fromItemLibraryEntry(itemLibraryEntry);
+    const NodeHints hints = NodeHints::fromItemLibraryEntry(itemLibraryEntry, m_view->model());
 
     const QString targetPropertyName = hints.forceNonDefaultProperty();
 

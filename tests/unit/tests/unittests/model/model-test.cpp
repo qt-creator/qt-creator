@@ -36,7 +36,8 @@ MATCHER(IsSorted, std::string(negation ? "isn't sorted" : "is sorted"))
 }
 
 template<typename PropertiesMatcher, typename ExtraFilePathsMatcher>
-auto IsItemLibraryEntry(const QmlDesigner::NodeMetaInfo &metaInfo,
+auto IsItemLibraryEntry(QmlDesigner::TypeId typeId,
+                        QByteArrayView typeName,
                         QStringView name,
                         QStringView iconPath,
                         QStringView category,
@@ -47,7 +48,8 @@ auto IsItemLibraryEntry(const QmlDesigner::NodeMetaInfo &metaInfo,
                         ExtraFilePathsMatcher extraFilePathsMatcher)
 {
     using QmlDesigner::ItemLibraryEntry;
-    return AllOf(Property("metaInfo", &ItemLibraryEntry::metaInfo, metaInfo),
+    return AllOf(Property("typeId", &ItemLibraryEntry::typeId, typeId),
+                 Property("typeName", &ItemLibraryEntry::typeName, typeName),
                  Property("name", &ItemLibraryEntry::name, name),
                  Property("libraryEntryIconPath", &ItemLibraryEntry::libraryEntryIconPath, iconPath),
                  Property("category", &ItemLibraryEntry::category, category),
@@ -1001,18 +1003,24 @@ TEST_F(Model, meta_infos_for_mdoule)
 TEST_F(Model, item_library_entries)
 {
     using namespace Qt::StringLiterals;
-    QmlDesigner::Storage::Info::ItemLibraryEntries storageEntries{
-        {itemTypeId, "Item", "/path/to/icon", "basic category", "QtQuick", "It's a item", "/path/to/template"}};
+    QmlDesigner::Storage::Info::ItemLibraryEntries storageEntries{{itemTypeId,
+                                                                   "Item",
+                                                                   "Item",
+                                                                   "/path/to/icon",
+                                                                   "basic category",
+                                                                   "QtQuick",
+                                                                   "It's a item",
+                                                                   "/path/to/template"}};
     storageEntries.front().properties.emplace_back("x", "double", Sqlite::ValueView::create(1));
     storageEntries.front().extraFilePaths.emplace_back("/extra/file/path");
     projectStorageMock.setItemLibraryEntries(pathCacheMock.sourceId, storageEntries);
-    QmlDesigner::NodeMetaInfo metaInfo{itemTypeId, &projectStorageMock};
 
     auto entries = model.itemLibraryEntries();
 
     ASSERT_THAT(entries,
                 ElementsAre(
-                    IsItemLibraryEntry(metaInfo,
+                    IsItemLibraryEntry(itemTypeId,
+                                       "Item",
                                        u"Item",
                                        u"/path/to/icon",
                                        u"basic category",

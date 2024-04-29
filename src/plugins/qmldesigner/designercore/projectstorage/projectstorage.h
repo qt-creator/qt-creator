@@ -501,10 +501,12 @@ private:
     {
     public:
         TypeAnnotationView(TypeId typeId,
+                           Utils::SmallStringView typeName,
                            Utils::SmallStringView iconPath,
                            Utils::SmallStringView itemLibraryJson,
                            Utils::SmallStringView hintsJson)
             : typeId{typeId}
+            , typeName{typeName}
             , iconPath{iconPath}
             , itemLibraryJson{itemLibraryJson}
             , hintsJson{hintsJson}
@@ -516,6 +518,7 @@ private:
             using NanotraceHR::dictonary;
             using NanotraceHR::keyValue;
             auto dict = dictonary(keyValue("type id", typeAnnotationView.typeId),
+                                  keyValue("type name", typeAnnotationView.typeName),
                                   keyValue("icon path", typeAnnotationView.iconPath),
                                   keyValue("item library json", typeAnnotationView.itemLibraryJson),
                                   keyValue("hints json", typeAnnotationView.hintsJson));
@@ -525,6 +528,7 @@ private:
 
     public:
         TypeId typeId;
+        Utils::SmallStringView typeName;
         Utils::SmallStringView iconPath;
         Utils::SmallStringView itemLibraryJson;
         Utils::PathString hintsJson;

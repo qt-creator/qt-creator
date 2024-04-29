@@ -376,7 +376,7 @@ void ItemLibraryModel::update(Model *model)
         NodeMetaInfo metaInfo;
 
         if constexpr (useProjectStorage())
-            metaInfo = entry.metaInfo();
+            metaInfo = NodeMetaInfo{entry.typeId(), model->projectStorage()};
         else
             metaInfo = model->metaInfo(entry.typeName());
 
@@ -388,7 +388,8 @@ void ItemLibraryModel::update(Model *model)
                          || metaInfo.majorVersion() < 0);
 #endif
         bool isItem = valid && metaInfo.isQtQuickItem();
-        bool forceVisibility = valid && NodeHints::fromItemLibraryEntry(entry).visibleInLibrary();
+        bool forceVisibility = valid
+                               && NodeHints::fromItemLibraryEntry(entry, model).visibleInLibrary();
 
         if (m_flowMode) {
             isItem = metaInfo.isFlowViewItem();

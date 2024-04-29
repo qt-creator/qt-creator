@@ -12,10 +12,12 @@
 
 namespace {
 
+using QmlDesigner::FlagIs;
 
 class TypeAnnotationReader : public testing::Test
 {
 protected:
+    TypeAnnotationReader() { traits.canBeDroppedInFormEditor = FlagIs::True; }
     static void SetUpTestSuite()
     {
         static_database = std::make_unique<Sqlite::Database>(":memory:", Sqlite::JournalMode::Memory);
@@ -43,6 +45,7 @@ protected:
     QmlDesigner::Storage::TypeAnnotationReader reader{storage};
     QmlDesigner::SourceId sourceId = QmlDesigner::SourceId::create(33);
     QmlDesigner::SourceId directorySourceId = QmlDesigner::SourceId::create(77);
+    QmlDesigner::Storage::TypeTraits traits;
 };
 
 TEST_F(TypeAnnotationReader, parse_type)
@@ -58,7 +61,6 @@ TEST_F(TypeAnnotationReader, parse_type)
             icon: "images/item-icon16.png"
         }
     })xy"};
-    QmlDesigner::Storage::TypeTraits traits;
 
     auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
@@ -95,7 +97,6 @@ TEST_F(TypeAnnotationReader, parse_true_canBeContainer)
             }
         }
     })xy"};
-    QmlDesigner::Storage::TypeTraits traits;
     traits.canBeContainer = FlagIs::True;
 
     auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
@@ -125,7 +126,6 @@ TEST_F(TypeAnnotationReader, parse_true_forceClip)
             }
         }
     })xy"};
-    QmlDesigner::Storage::TypeTraits traits;
     traits.forceClip = FlagIs::True;
 
     auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
@@ -155,7 +155,6 @@ TEST_F(TypeAnnotationReader, parse_true_doesLayoutChildren)
             }
         }
     })xy"};
-    QmlDesigner::Storage::TypeTraits traits;
     traits.doesLayoutChildren = FlagIs::True;
 
     auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
@@ -181,12 +180,11 @@ TEST_F(TypeAnnotationReader, parse_true_canBeDroppedInFormEditor)
             icon: "images/frame-icon16.png"
 
             Hints {
-                canBeDroppedInFormEditor: true
+                canBeDroppedInFormEditor: false
             }
         }
     })xy"};
-    QmlDesigner::Storage::TypeTraits traits;
-    traits.canBeDroppedInFormEditor = FlagIs::True;
+    traits.canBeDroppedInFormEditor = FlagIs::False;
 
     auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
@@ -215,7 +213,6 @@ TEST_F(TypeAnnotationReader, parse_true_canBeDroppedInNavigator)
             }
         }
     })xy"};
-    QmlDesigner::Storage::TypeTraits traits;
     traits.canBeDroppedInNavigator = FlagIs::True;
 
     auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
@@ -245,7 +242,6 @@ TEST_F(TypeAnnotationReader, parse_true_canBeDroppedInView3D)
             }
         }
     })xy"};
-    QmlDesigner::Storage::TypeTraits traits;
     traits.canBeDroppedInView3D = FlagIs::True;
 
     auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
@@ -275,7 +271,6 @@ TEST_F(TypeAnnotationReader, parse_true_isMovable)
             }
         }
     })xy"};
-    QmlDesigner::Storage::TypeTraits traits;
     traits.isMovable = FlagIs::True;
 
     auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
@@ -305,7 +300,6 @@ TEST_F(TypeAnnotationReader, parse_true_isResizable)
             }
         }
     })xy"};
-    QmlDesigner::Storage::TypeTraits traits;
     traits.isResizable = FlagIs::True;
 
     auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
@@ -335,7 +329,6 @@ TEST_F(TypeAnnotationReader, parse_true_hasFormEditorItem)
             }
         }
     })xy"};
-    QmlDesigner::Storage::TypeTraits traits;
     traits.hasFormEditorItem = FlagIs::True;
 
     auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
@@ -365,7 +358,6 @@ TEST_F(TypeAnnotationReader, parse_true_isStackedContainer)
             }
         }
     })xy"};
-    QmlDesigner::Storage::TypeTraits traits;
     traits.isStackedContainer = FlagIs::True;
 
     auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
@@ -395,7 +387,6 @@ TEST_F(TypeAnnotationReader, parse_true_takesOverRenderingOfChildren)
             }
         }
     })xy"};
-    QmlDesigner::Storage::TypeTraits traits;
     traits.takesOverRenderingOfChildren = FlagIs::True;
 
     auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
@@ -425,7 +416,6 @@ TEST_F(TypeAnnotationReader, parse_true_visibleInNavigator)
             }
         }
     })xy"};
-    QmlDesigner::Storage::TypeTraits traits;
     traits.visibleInNavigator = FlagIs::True;
 
     auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
@@ -455,7 +445,6 @@ TEST_F(TypeAnnotationReader, parse_true_visibleInLibrary)
             }
         }
     })xy"};
-    QmlDesigner::Storage::TypeTraits traits;
     traits.visibleInLibrary = FlagIs::True;
 
     auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
@@ -485,7 +474,7 @@ TEST_F(TypeAnnotationReader, parse_false)
             }
         }
     })xy"};
-    QmlDesigner::Storage::TypeTraits traits;
+    traits.canBeDroppedInFormEditor = FlagIs::True;
 
     auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
@@ -524,9 +513,9 @@ TEST_F(TypeAnnotationReader, parse_complex_expression)
             }
         }
     })xy"};
-    QmlDesigner::Storage::TypeTraits frameTraits;
+    QmlDesigner::Storage::TypeTraits frameTraits = traits;
     frameTraits.isMovable = QmlDesigner::FlagIs::Set;
-    QmlDesigner::Storage::TypeTraits itemTraits;
+    QmlDesigner::Storage::TypeTraits itemTraits = traits;
     itemTraits.canBeContainer = QmlDesigner::FlagIs::True;
 
     auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
@@ -576,7 +565,6 @@ TEST_F(TypeAnnotationReader, parse_item_library_entry)
             }
         }
     })xy"};
-    QmlDesigner::Storage::TypeTraits traits;
 
     auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
@@ -633,7 +621,6 @@ TEST_F(TypeAnnotationReader, parse_item_library_entry_with_properties)
             }
         }
     })xy"};
-    QmlDesigner::Storage::TypeTraits traits;
 
     auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
@@ -684,7 +671,6 @@ TEST_F(TypeAnnotationReader, parse_item_library_entry_template_path)
             }
         }
     })xy"};
-    QmlDesigner::Storage::TypeTraits traits;
 
     auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
@@ -737,7 +723,6 @@ TEST_F(TypeAnnotationReader, parse_item_library_entry_extra_file_paths)
             }
         }
     })xy"};
-    QmlDesigner::Storage::TypeTraits traits;
 
     auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 

@@ -380,6 +380,7 @@ using ToolTipString = Utils::BasicSmallString<94>;
 struct ItemLibraryEntry
 {
     ItemLibraryEntry(TypeId typeId,
+                     Utils::SmallStringView typeName,
                      Utils::SmallStringView name,
                      Utils::SmallStringView iconPath,
                      Utils::SmallStringView category,
@@ -387,6 +388,7 @@ struct ItemLibraryEntry
                      Utils::SmallStringView toolTip,
                      Utils::SmallStringView templatePath)
         : typeId{typeId}
+        , typeName{typeName}
         , name{name}
         , iconPath{iconPath}
         , category{category}
@@ -396,6 +398,7 @@ struct ItemLibraryEntry
     {}
 
     ItemLibraryEntry(TypeId typeId,
+                     Utils::SmallStringView typeName,
                      Utils::SmallStringView name,
                      Utils::SmallStringView iconPath,
                      Utils::SmallStringView category,
@@ -403,6 +406,7 @@ struct ItemLibraryEntry
                      Utils::SmallStringView toolTip,
                      ItemLibraryProperties properties)
         : typeId{typeId}
+        , typeName{typeName}
         , name{name}
         , iconPath{iconPath}
         , category{category}
@@ -417,6 +421,7 @@ struct ItemLibraryEntry
         using NanotraceHR::dictonary;
         using NanotraceHR::keyValue;
         auto dict = dictonary(keyValue("type id", entry.typeId),
+                              keyValue("type name", entry.typeName),
                               keyValue("name", entry.name),
                               keyValue("icon path", entry.iconPath),
                               keyValue("category", entry.category),
@@ -430,6 +435,7 @@ struct ItemLibraryEntry
     }
 
     TypeId typeId;
+    Utils::SmallString typeName;
     Utils::SmallString name;
     Utils::PathString iconPath;
     Utils::SmallString category;

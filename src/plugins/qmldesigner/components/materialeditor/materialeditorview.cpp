@@ -716,7 +716,7 @@ void MaterialEditorView::updatePossibleTypes()
     auto heirs = model()->qtQuick3DMaterialMetaInfo().heirs();
     heirs.push_back(model()->qtQuick3DMaterialMetaInfo());
     auto entries = Utils::transform<ItemLibraryEntries>(heirs, [&](const auto &heir) {
-        return toItemLibraryEntries(heir.itemLibrariesEntries(), *model()->projectStorage());
+        return toItemLibraryEntries(heir.itemLibrariesEntries());
     });
 
     // I am unsure about the code intention here

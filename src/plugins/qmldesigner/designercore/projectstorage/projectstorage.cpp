@@ -639,17 +639,21 @@ struct ProjectStorage::Statements
         database};
     Sqlite::WriteStatement<1> deletePropertyEditorPathStatement{
         "DELETE FROM propertyEditorPaths WHERE typeId=?1", database};
-    mutable Sqlite::ReadStatement<4, 1> selectTypeAnnotationsForSourceIdsStatement{
-        "SELECT typeId, iconPath, itemLibrary, hints FROM typeAnnotations WHERE "
+    mutable Sqlite::ReadStatement<5, 1> selectTypeAnnotationsForSourceIdsStatement{
+        "SELECT typeId, typeName, iconPath, itemLibrary, hints FROM typeAnnotations WHERE "
         "sourceId IN carray(?1) ORDER BY typeId",
         database};
-    Sqlite::WriteStatement<6> insertTypeAnnotationStatement{
+    Sqlite::WriteStatement<7> insertTypeAnnotationStatement{
         "INSERT INTO "
-        "  typeAnnotations(typeId, sourceId, directorySourceId, iconPath, itemLibrary, hints) "
-        "VALUES(?1, ?2, ?3, ?4, ?5, ?6)",
+        "  typeAnnotations(typeId, sourceId, directorySourceId, typeName, iconPath, itemLibrary, "
+        "  hints) "
+        "VALUES(?1, ?2, ?3, ?4, ?5, ?6, ?7)",
         database};
-    Sqlite::WriteStatement<4> updateTypeAnnotationStatement{
-        "UPDATE typeAnnotations SET iconPath=?2, itemLibrary=?3, hints=?4 WHERE typeId=?1", database};
+    Sqlite::WriteStatement<5> updateTypeAnnotationStatement{
+        "UPDATE typeAnnotations "
+        "SET typeName=?2, iconPath=?3, itemLibrary=?4, hints=?5 "
+        "WHERE typeId=?1",
+        database};
     Sqlite::WriteStatement<1> deleteTypeAnnotationStatement{
         "DELETE FROM typeAnnotations WHERE typeId=?1", database};
     mutable Sqlite::ReadStatement<1, 1> selectTypeIconPathStatement{
@@ -663,22 +667,22 @@ struct ProjectStorage::Statements
         "SELECT sourceId FROM typeAnnotations WHERE directorySourceId=?1 ORDER BY sourceId", database};
     mutable Sqlite::ReadStatement<1, 0> selectTypeAnnotationDirectorySourceIdsStatement{
         "SELECT DISTINCT directorySourceId FROM typeAnnotations ORDER BY directorySourceId", database};
-    mutable Sqlite::ReadStatement<9> selectItemLibraryEntriesStatement{
-        "SELECT typeId, i.value->>'$.name', i.value->>'$.iconPath', i.value->>'$.category', "
-        "  i.value->>'$.import', i.value->>'$.toolTip', i.value->>'$.properties', "
-        "  i.value->>'$.extraFilePaths', i.value->>'$.templatePath' "
+    mutable Sqlite::ReadStatement<10> selectItemLibraryEntriesStatement{
+        "SELECT typeId, typeName, i.value->>'$.name', i.value->>'$.iconPath', "
+        "  i.value->>'$.category',  i.value->>'$.import', i.value->>'$.toolTip', "
+        "  i.value->>'$.properties', i.value->>'$.extraFilePaths', i.value->>'$.templatePath' "
         "FROM typeAnnotations AS ta , json_each(ta.itemLibrary) AS i "
         "WHERE ta.itemLibrary IS NOT NULL",
         database};
-    mutable Sqlite::ReadStatement<9, 1> selectItemLibraryEntriesByTypeIdStatement{
-        "SELECT typeId, i.value->>'$.name', i.value->>'$.iconPath', i.value->>'$.category', "
-        "  i.value->>'$.import', i.value->>'$.toolTip', i.value->>'$.properties', "
-        "  i.value->>'$.extraFilePaths', i.value->>'$.templatePath' "
+    mutable Sqlite::ReadStatement<10, 1> selectItemLibraryEntriesByTypeIdStatement{
+        "SELECT typeId, typeName, i.value->>'$.name', i.value->>'$.iconPath', "
+        "  i.value->>'$.category', i.value->>'$.import', i.value->>'$.toolTip', "
+        "  i.value->>'$.properties', i.value->>'$.extraFilePaths', i.value->>'$.templatePath' "
         "FROM typeAnnotations AS ta, json_each(ta.itemLibrary) AS i "
         "WHERE typeId=?1 AND ta.itemLibrary IS NOT NULL",
         database};
-    mutable Sqlite::ReadStatement<9, 1> selectItemLibraryEntriesBySourceIdStatement{
-        "SELECT typeId, i.value->>'$.name', i.value->>'$.iconPath', "
+    mutable Sqlite::ReadStatement<10, 1> selectItemLibraryEntriesBySourceIdStatement{
+        "SELECT typeId, typeName, i.value->>'$.name', i.value->>'$.iconPath', "
         "i.value->>'$.category', "
         "  i.value->>'$.import', i.value->>'$.toolTip', i.value->>'$.properties', "
         "  i.value->>'$.extraFilePaths', i.value->>'$.templatePath' "
@@ -1087,7 +1091,7 @@ public:
         auto &sourceIdColumn = table.addColumn("sourceId", Sqlite::StrictColumnType::Integer);
         auto &directorySourceIdColumn = table.addColumn("directorySourceId",
                                                         Sqlite::StrictColumnType::Integer);
-
+        table.addColumn("typeName", Sqlite::StrictColumnType::Text);
         table.addColumn("iconPath", Sqlite::StrictColumnType::Text);
         table.addColumn("itemLibrary", Sqlite::StrictColumnType::Text);
         table.addColumn("hints", Sqlite::StrictColumnType::Text);
@@ -1572,6 +1576,7 @@ Storage::Info::ItemLibraryEntries ProjectStorage::itemLibraryEntries(TypeId type
     Storage::Info::ItemLibraryEntries entries;
 
     auto callback = [&](TypeId typeId_,
+                        Utils::SmallStringView typeName,
                         Utils::SmallStringView name,
                         Utils::SmallStringView iconPath,
                         Utils::SmallStringView category,
@@ -1580,7 +1585,8 @@ Storage::Info::ItemLibraryEntries ProjectStorage::itemLibraryEntries(TypeId type
                         Utils::SmallStringView properties,
                         Utils::SmallStringView extraFilePaths,
                         Utils::SmallStringView templatePath) {
-        auto &last = entries.emplace_back(typeId_, name, iconPath, category, import, toolTip, templatePath);
+        auto &last = entries.emplace_back(
+            typeId_, typeName, name, iconPath, category, import, toolTip, templatePath);
         if (properties.size())
             s->selectItemLibraryPropertiesStatement.readTo(last.properties, properties);
         if (extraFilePaths.size())
@@ -1605,6 +1611,7 @@ Storage::Info::ItemLibraryEntries ProjectStorage::itemLibraryEntries(ImportId im
     Storage::Info::ItemLibraryEntries entries;
 
     auto callback = [&](TypeId typeId_,
+                        Utils::SmallStringView typeName,
                         Utils::SmallStringView name,
                         Utils::SmallStringView iconPath,
                         Utils::SmallStringView category,
@@ -1613,7 +1620,8 @@ Storage::Info::ItemLibraryEntries ProjectStorage::itemLibraryEntries(ImportId im
                         Utils::SmallStringView properties,
                         Utils::SmallStringView extraFilePaths,
                         Utils::SmallStringView templatePath) {
-        auto &last = entries.emplace_back(typeId_, name, iconPath, category, import, toolTip, templatePath);
+        auto &last = entries.emplace_back(
+            typeId_, typeName, name, iconPath, category, import, toolTip, templatePath);
         if (properties.size())
             s->selectItemLibraryPropertiesStatement.readTo(last.properties, properties);
         if (extraFilePaths.size())
@@ -1638,6 +1646,7 @@ Storage::Info::ItemLibraryEntries ProjectStorage::itemLibraryEntries(SourceId so
     Storage::Info::ItemLibraryEntries entries;
 
     auto callback = [&](TypeId typeId,
+                        Utils::SmallStringView typeName,
                         Utils::SmallStringView name,
                         Utils::SmallStringView iconPath,
                         Utils::SmallStringView category,
@@ -1646,7 +1655,8 @@ Storage::Info::ItemLibraryEntries ProjectStorage::itemLibraryEntries(SourceId so
                         Utils::SmallStringView properties,
                         Utils::SmallStringView extraFilePaths,
                         Utils::SmallStringView templatePath) {
-        auto &last = entries.emplace_back(typeId, name, iconPath, category, import, toolTip, templatePath);
+        auto &last = entries.emplace_back(
+            typeId, typeName, name, iconPath, category, import, toolTip, templatePath);
         if (properties.size())
             s->selectItemLibraryPropertiesStatement.readTo(last.properties, properties);
         if (extraFilePaths.size())
@@ -1669,6 +1679,7 @@ Storage::Info::ItemLibraryEntries ProjectStorage::allItemLibraryEntries() const
     Storage::Info::ItemLibraryEntries entries;
 
     auto callback = [&](TypeId typeId,
+                        Utils::SmallStringView typeName,
                         Utils::SmallStringView name,
                         Utils::SmallStringView iconPath,
                         Utils::SmallStringView category,
@@ -1677,7 +1688,8 @@ Storage::Info::ItemLibraryEntries ProjectStorage::allItemLibraryEntries() const
                         Utils::SmallStringView properties,
                         Utils::SmallStringView extraFilePaths,
                         Utils::SmallStringView templatePath) {
-        auto &last = entries.emplace_back(typeId, name, iconPath, category, import, toolTip, templatePath);
+        auto &last = entries.emplace_back(
+            typeId, typeName, name, iconPath, category, import, toolTip, templatePath);
         if (properties.size())
             s->selectItemLibraryPropertiesStatement.readTo(last.properties, properties);
         if (extraFilePaths.size())
@@ -2314,6 +2326,7 @@ void ProjectStorage::synchronizeTypeAnnotations(Storage::Synchronization::TypeAn
         s->insertTypeAnnotationStatement.write(annotation.typeId,
                                                annotation.sourceId,
                                                annotation.directorySourceId,
+                                               annotation.typeName,
                                                annotation.iconPath,
                                                createEmptyAsNull(annotation.itemLibraryJson),
                                                createEmptyAsNull(annotation.hintsJson));
@@ -2323,7 +2336,8 @@ void ProjectStorage::synchronizeTypeAnnotations(Storage::Synchronization::TypeAn
                       const TypeAnnotation &annotation) {
         synchronizeTypeTraits(annotation.typeId, annotation.traits);
 
-        if (annotationFromDatabase.iconPath != annotation.iconPath
+        if (annotationFromDatabase.typeName != annotation.typeName
+            || annotationFromDatabase.iconPath != annotation.iconPath
             || annotationFromDatabase.itemLibraryJson != annotation.itemLibraryJson
             || annotationFromDatabase.hintsJson != annotation.hintsJson) {
             using NanotraceHR::keyValue;
@@ -2334,6 +2348,7 @@ void ProjectStorage::synchronizeTypeAnnotations(Storage::Synchronization::TypeAn
                                        keyValue("type annotation", annotation)};
 
             s->updateTypeAnnotationStatement.write(annotation.typeId,
+                                                   annotation.typeName,
                                                    annotation.iconPath,
                                                    createEmptyAsNull(annotation.itemLibraryJson),
                                                    createEmptyAsNull(annotation.hintsJson));

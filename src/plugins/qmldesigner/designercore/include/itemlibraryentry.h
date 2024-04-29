@@ -42,13 +42,16 @@ class QMLDESIGNERCORE_EXPORT ItemLibraryEntry
 
 public:
     ItemLibraryEntry();
-    explicit ItemLibraryEntry(const Storage::Info::ItemLibraryEntry &entry,
-                              const ProjectStorageType &projectStorage);
-    ~ItemLibraryEntry() = default;
+    ItemLibraryEntry(const ItemLibraryEntry &) = default;
+    ItemLibraryEntry &operator=(const ItemLibraryEntry &) = default;
+    ItemLibraryEntry(ItemLibraryEntry &&) = default;
+    ItemLibraryEntry &operator=(ItemLibraryEntry &&) = default;
+    explicit ItemLibraryEntry(const Storage::Info::ItemLibraryEntry &entry);
+    ~ItemLibraryEntry();
 
     QString name() const;
     TypeName typeName() const;
-    const NodeMetaInfo &metaInfo() const;
+    TypeId typeId() const;
     QIcon typeIcon() const;
     QString libraryEntryIconPath() const;
     int majorVersion() const;
@@ -86,7 +89,7 @@ private:
 using ItemLibraryEntries = QList<ItemLibraryEntry>;
 
 QMLDESIGNERCORE_EXPORT QList<ItemLibraryEntry> toItemLibraryEntries(
-    const Storage::Info::ItemLibraryEntries &entries, const ProjectStorageType &projectStorage);
+    const Storage::Info::ItemLibraryEntries &entries);
 
 } // namespace QmlDesigner
 
