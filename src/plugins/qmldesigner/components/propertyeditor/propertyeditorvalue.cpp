@@ -549,6 +549,23 @@ void PropertyEditorValue::setForceBound(bool b)
     emit isBoundChanged();
 }
 
+void PropertyEditorValue::insertKeyframe()
+{
+    if (!m_modelNode.isValid())
+        return;
+
+    /*If we add more code here we have to forward the property editor view */
+    AbstractView *view = m_modelNode.view();
+
+    QmlTimeline timeline = view->currentTimeline();
+
+    QTC_ASSERT(timeline.isValid(), return );
+    QTC_ASSERT(m_modelNode.isValid(), return );
+
+    view->executeInTransaction("PropertyEditorContextObject::insertKeyframe",
+                               [&] { timeline.insertKeyframe(m_modelNode, name()); });
+}
+
 QStringList PropertyEditorValue::generateStringList(const QString &string) const
 {
     QString copy = string;
