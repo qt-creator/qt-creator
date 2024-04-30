@@ -119,8 +119,12 @@ void TerminalWidget::setupPty()
     Environment env = m_openParameters.environment.value_or(Environment{})
                           .appliedToEnvironment(shellCommand.executable().deviceEnvironment());
 
+    // Some OS/Distros set a default value for TERM such as "dumb", which then breaks
+    // command line tools such as "clear" which try to figure out what terminal they are
+    // running in. Therefore we have to force-set our own TERM value here.
+    env.set("TERM", "xterm-256color");
+
     // Set some useful defaults
-    env.setFallback("TERM", "xterm-256color");
     env.setFallback("TERM_PROGRAM", QCoreApplication::applicationName());
     env.setFallback("COLORTERM", "truecolor");
     env.setFallback("COMMAND_MODE", "unix2003");
