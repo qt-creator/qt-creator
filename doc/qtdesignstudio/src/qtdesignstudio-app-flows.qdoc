@@ -604,32 +604,34 @@
 
     \title Applying States in Flows
 
-    You can use \l{Working with States}{states} in flows to modify the appearance
-    of \l{glossary-component}{components} in flow items in response to user
-    interaction, for example. For this purpose, you use the
-    \uicontrol {Flow Item} components available in
-    \uicontrol Components > \uicontrol {Flow View}.
+    Use \l{Working with States}{states} in flows to modify how the \l{glossary-component}
+    {component} properties change in flow items. For this purpose, use the \uicontrol {Flow Item}
+    component available in \uicontrol Components > \uicontrol {Flow View}.
+
+    To apply states in flows:
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New File} >
             \uicontrol {Qt Quick Files} >
             \uicontrol {Flow Item} to create a flow item.
-        \li In \l States, add states to the flow item.
-        \li Open the .ui.qml file that contains the \l{Adding Flow Views}
-            {flow view} in the \l {2D} view and drag the flow item to the
-            flow view in the \l Navigator or \l {2D} view.
-        \li Drag an empty \uicontrol {Flow Item} component from
-            \uicontrol Components > \uicontrol {Flow View}
-            to the flow for each state that you added.
-        \li In \l Properties, in the \uicontrol {State change target}
-            field, select the flow item that you created using the wizard.
-            \image studio-flow-item-properties.png "Flow Item properties"
-        \li In the \uicontrol {Target state} field, select the state to
-            apply to the flow item.
+        \li In the \l States view, add states to the flow item.
+        \li In the \l Projects view, open the .ui.qml file that contains the \l{Adding Flow Views}
+            {flow view}, and drag the flow item from \uicontrol Components >
+            \uicontrol {My Components} to the flow view in the \l Navigator or \l 2D view.
+        \li From \uicontrol Components > \uicontrol {Flow View}, drag an empty
+            \uicontrol {Flow Item} component (1) to the flow view for each state that you added.
+            \image studio-flow-item-component.webp "Flow Item in the Components view."
+        \li In the \uicontrol Navigator or \uicontrol 2D view, select an empty
+            \uicontrol {Flow Item} to open the \l Properties view.
+        \li In the \uicontrol {State change target} field, select the flow item that you created
+            using the wizard.
+        \li In the \uicontrol {Target state} field, select the state to apply to the flow item.
+            \image studio-flow-states-item-properties.webp "Flow Item properties"
     \endlist
 
-    You can now add \l{Adding Action Areas and Transitions}{action areas} and
-    \l{Simulating Conditions}{flow decisions} to apply the different states.
+    To apply the different states to your application flow, add
+    \l{Adding Action Areas and Transitions}{action areas} and
+    \l{Simulating Conditions}{flow decisions} to the flow items.
 */
 
 /*!
