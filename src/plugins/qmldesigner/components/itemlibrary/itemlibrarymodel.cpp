@@ -315,9 +315,12 @@ void ItemLibraryModel::update([[maybe_unused]] ItemLibraryInfo *itemLibraryInfo,
     GeneratedComponentUtils compUtils = QmlDesignerPlugin::instance()->documentManager()
                                             .generatedComponentUtils();
 
+    const QString compBundlePrefix = compUtils.componentBundlesTypePrefix();
     QStringList excludedImports {
-        compUtils.componentBundlesTypePrefix() + ".MaterialBundle",
-        compUtils.componentBundlesTypePrefix() + ".EffectBundle"
+        compBundlePrefix + '.' + QLatin1String(Constants::COMPONENT_BUNDLES_MATERIAL_BUNDLE_TYPE),
+        compBundlePrefix + '.' + QLatin1String(Constants::COMPONENT_BUNDLES_EFFECT_BUNDLE_TYPE),
+        compBundlePrefix + '.' + QLatin1String(Constants::OLD_COMPONENT_BUNDLES_MATERIAL_BUNDLE_TYPE),
+        compBundlePrefix + '.' + QLatin1String(Constants::OLD_COMPONENT_BUNDLES_EFFECT_BUNDLE_TYPE)
     };
 
     // create import sections

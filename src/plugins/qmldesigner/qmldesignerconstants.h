@@ -78,8 +78,10 @@ inline constexpr char EDIT3D_SNAP_CONFIG[] = "QmlDesigner.Editor3D.SnapConfig";
 inline constexpr char EDIT3D_CAMERA_SPEED_CONFIG[] = "QmlDesigner.Editor3D.CameraSpeedConfig";
 
 inline constexpr char QML_DESIGNER_SUBFOLDER[] = "/designer/";
-inline constexpr char COMPONENT_BUNDLES_TYPE[] = "ComponentBundles";
-inline constexpr char GENERATED_COMPONENTS_FOLDER[] = "GeneratedComponents";
+inline constexpr char COMPONENT_BUNDLES_TYPE[] = "Bundles";
+inline constexpr char COMPONENT_BUNDLES_MATERIAL_BUNDLE_TYPE[] = "Materials";
+inline constexpr char COMPONENT_BUNDLES_EFFECT_BUNDLE_TYPE[] = "Effects";
+inline constexpr char GENERATED_COMPONENTS_FOLDER[] = "Generated";
 inline constexpr char COMPONENT_BUNDLES_ASSET_REF_FILE[] = "_asset_ref.json";
 inline constexpr char OLD_QUICK_3D_ASSETS_FOLDER[] = "Quick3DAssets";
 inline constexpr char QUICK_3D_COMPONENTS_FOLDER[] = "QtQuick3D";
@@ -90,6 +92,9 @@ inline constexpr char QUICK_3D_ASSET_IMPORT_DATA_SOURCE_KEY[] = "source_scene";
 inline constexpr char OLD_ASSET_IMPORT_FOLDER[] = "asset_imports";
 inline constexpr char OLD_EFFECTS_IMPORT_FOLDER[] = "/asset_imports/Effects";
 inline constexpr char OLD_EFFECTS_FOLDER[] = "Effects";
+inline constexpr char OLD_COMPONENT_BUNDLES_TYPE[] = "ComponentBundles";
+inline constexpr char OLD_COMPONENT_BUNDLES_MATERIAL_BUNDLE_TYPE[] = "MaterialBundle";
+inline constexpr char OLD_COMPONENT_BUNDLES_EFFECT_BUNDLE_TYPE[] = "EffectBundle";
 inline constexpr char COMPOSED_EFFECTS_TYPE[] = "ComposedEffects";
 inline constexpr char MATERIAL_LIB_ID[] = "__materialLibrary__";
 

@@ -220,7 +220,7 @@ void ContentLibraryUserModel::loadMaterialBundle()
         auto jsonFilePath = Utils::FilePath::fromString(bundleDir.filePath("user_materials_bundle.json"));
         if (!jsonFilePath.exists()) {
             QString jsonContent = "{\n";
-            jsonContent += "    \"id\": \"UserMaterialBundle\",\n";
+            jsonContent += "    \"id\": \"UserMaterials\",\n";
             jsonContent += "    \"materials\": {\n";
             jsonContent += "    }\n";
             jsonContent += "}";
@@ -242,7 +242,10 @@ void ContentLibraryUserModel::loadMaterialBundle()
         }
     }
 
-    m_bundleId = m_bundleObj.value("id").toString();
+    m_bundleId = "UserMaterials";
+
+    // Substitute correct id to avoid issues with old bundles
+    m_bundleObj["id"] = m_bundleId;
 
     // parse materials
     const QJsonObject matsObj = m_bundleObj.value("materials").toObject();

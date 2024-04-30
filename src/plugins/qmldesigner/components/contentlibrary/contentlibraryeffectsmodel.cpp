@@ -168,7 +168,12 @@ void ContentLibraryEffectsModel::loadBundle()
         }
     }
 
-    QString bundleId = m_bundleObj.value("id").toString();
+    QString bundleType = QmlDesignerPlugin::instance()->documentManager()
+                             .generatedComponentUtils().effectsBundleType();
+
+    // Substitute correct id to avoid issues with old bundles
+    const QString bundleId = bundleType.split('.').last();
+    m_bundleObj["id"] = bundleId;
 
     const QJsonObject catsObj = m_bundleObj.value("categories").toObject();
     const QStringList categories = catsObj.keys();
@@ -187,11 +192,8 @@ void ContentLibraryEffectsModel::loadBundle()
 
             QUrl icon = QUrl::fromLocalFile(bundleDir.filePath(itemObj.value("icon").toString()));
             QString qml = itemObj.value("qml").toString();
-            TypeName type = QLatin1String("%1.%2.%3")
-                                .arg(QmlDesignerPlugin::instance()->documentManager()
-                                         .generatedComponentUtils().componentBundlesTypePrefix(),
-                                     bundleId,
-                                     qml.chopped(4)).toLatin1(); // chopped(4): remove .qml
+            TypeName type = QLatin1String("%1.%2")
+                                .arg(bundleType, qml.chopped(4)).toLatin1(); // chopped(4): remove .qml
 
             auto bundleItem = new ContentLibraryEffect(category, item, qml, type, icon, files);
 

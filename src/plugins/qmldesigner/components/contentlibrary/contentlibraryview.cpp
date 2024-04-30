@@ -23,6 +23,7 @@
 #include "utils3d.h"
 
 #include <designerpaths.h>
+#include <qmldesignerplugin.h>
 
 #include <coreplugin/messagebox.h>
 #include <enumeration.h>
@@ -290,7 +291,6 @@ void ContentLibraryView::modelAttached(Model *model)
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
 
     updateBundlesQuick3DVersion();
-    updateBundleMaterialsImportedState();
 
     const bool hasLibrary = Utils3D::materialLibraryNode(this).isValid();
     m_widget->setHasMaterialLibrary(hasLibrary);
@@ -302,7 +302,10 @@ void ContentLibraryView::modelAttached(Model *model)
     m_widget->setHasActive3DScene(m_sceneId != -1);
     m_widget->clearSearchFilter();
 
+    m_widget->materialsModel()->loadBundle();
     m_widget->effectsModel()->loadBundle();
+
+    updateBundleMaterialsImportedState();
     updateBundleEffectsImportedState();
 }
 

@@ -60,7 +60,10 @@ Utils::FilePath GeneratedComponentUtils::componentBundlesBasePath() const
     if (basePath.isEmpty())
         return {};
 
-    return basePath.resolvePath(QLatin1String(Constants::COMPONENT_BUNDLES_TYPE));
+    if (basePath.endsWith(Constants::GENERATED_COMPONENTS_FOLDER))
+        return basePath.resolvePath(QLatin1String(Constants::COMPONENT_BUNDLES_TYPE));
+
+    return basePath.resolvePath(QLatin1String(Constants::OLD_COMPONENT_BUNDLES_TYPE));
 }
 
 Utils::FilePath GeneratedComponentUtils::import3dBasePath() const
@@ -75,6 +78,32 @@ Utils::FilePath GeneratedComponentUtils::import3dBasePath() const
         return basePath.resolvePath(QLatin1String(Constants::OLD_QUICK_3D_ASSETS_FOLDER));
 
     return basePath.resolvePath(QLatin1String(Constants::QUICK_3D_COMPONENTS_FOLDER));
+}
+
+Utils::FilePath GeneratedComponentUtils::materialBundlePath() const
+{
+    Utils::FilePath basePath = componentBundlesBasePath();
+
+    if (basePath.isEmpty())
+        return {};
+
+    if (basePath.endsWith(Constants::OLD_COMPONENT_BUNDLES_TYPE))
+        return basePath.resolvePath(QLatin1String(Constants::OLD_COMPONENT_BUNDLES_MATERIAL_BUNDLE_TYPE));
+
+    return basePath.resolvePath(QLatin1String(Constants::COMPONENT_BUNDLES_MATERIAL_BUNDLE_TYPE));
+}
+
+Utils::FilePath GeneratedComponentUtils::effectBundlePath() const
+{
+    Utils::FilePath basePath = componentBundlesBasePath();
+
+    if (basePath.isEmpty())
+        return {};
+
+    if (basePath.endsWith(Constants::OLD_COMPONENT_BUNDLES_TYPE))
+        return basePath.resolvePath(QLatin1String(Constants::OLD_COMPONENT_BUNDLES_EFFECT_BUNDLE_TYPE));
+
+    return basePath.resolvePath(QLatin1String(Constants::COMPONENT_BUNDLES_EFFECT_BUNDLE_TYPE));
 }
 
 bool GeneratedComponentUtils::isImport3dPath(const QString &path) const
@@ -123,7 +152,7 @@ QString GeneratedComponentUtils::componentBundlesTypePrefix() const
     if (basePrefix.endsWith(Constants::GENERATED_COMPONENTS_FOLDER))
         return basePrefix + '.' + QLatin1String(Constants::COMPONENT_BUNDLES_TYPE);
 
-    return Constants::COMPONENT_BUNDLES_TYPE;
+    return Constants::OLD_COMPONENT_BUNDLES_TYPE;
 }
 
 QString GeneratedComponentUtils::composedEffectsTypePrefix() const
@@ -134,6 +163,26 @@ QString GeneratedComponentUtils::composedEffectsTypePrefix() const
         return basePrefix + '.' + QLatin1String(Constants::COMPOSED_EFFECTS_TYPE);
 
     return Constants::OLD_EFFECTS_FOLDER;
+}
+
+QString GeneratedComponentUtils::materialsBundleType() const
+{
+    QString basePrefix = componentBundlesTypePrefix();
+
+    if (basePrefix.endsWith(Constants::OLD_COMPONENT_BUNDLES_TYPE))
+        return basePrefix + '.' + QLatin1String(Constants::OLD_COMPONENT_BUNDLES_MATERIAL_BUNDLE_TYPE);
+
+    return basePrefix + '.' + QLatin1String(Constants::COMPONENT_BUNDLES_MATERIAL_BUNDLE_TYPE);
+}
+
+QString GeneratedComponentUtils::effectsBundleType() const
+{
+    QString basePrefix = componentBundlesTypePrefix();
+
+    if (basePrefix.endsWith(Constants::OLD_COMPONENT_BUNDLES_TYPE))
+        return basePrefix + '.' + QLatin1String(Constants::OLD_COMPONENT_BUNDLES_EFFECT_BUNDLE_TYPE);
+
+    return basePrefix + '.' + QLatin1String(Constants::COMPONENT_BUNDLES_EFFECT_BUNDLE_TYPE);
 }
 
 } // namespace QmlDesigner
