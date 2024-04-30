@@ -1312,6 +1312,8 @@ class Dumper(DumperBase):
             self.reportResult('error="No frame"', args)
             return
 
+        self.isArmMac = frame.module.triple.startswith('arm64-apple')
+
         self.output = []
         isPartial = len(self.partialVariable) > 0
 

@@ -5,6 +5,7 @@ from stdtypes import qdump__std__array, qdump__std__complex, qdump__std__once_fl
 from utils import DisplayFormat
 from dumper import Children, DumperBase
 
+import struct
 
 def qform__std____1__array():
     return [DisplayFormat.ArrayPlot]
@@ -163,231 +164,114 @@ def qdump__std____1__stack(d, value):
     d.putBetterType(value.type)
 
 
-def GetChildMemberWithName(value, name):
-    members = value.members(True)
 
-    for member in members:
-        if member.name == name:
-            return member
-    return None
-
-
-def GetIndexOfChildWithName(value, name):
-    members = value.members(True)
-
-    for i, member in enumerate(members):
-        if member.name == name:
-            return i
-    return None
-
-
-class StringLayout:
-    CSD = 0
-    DSC = 1
-
-
-def std_1_string_dumper_v2(d, value):
-    charType = value['__l']['__data_'].dereference().type
-
-    R = GetChildMemberWithName(value, "__r_")
-    if not R:
-        raise Exception("Could not find __r_")
-
-    # __r_ is a compressed_pair of the actual data and the allocator. The data we
-    # want is in the first base class.
-    R_Base_SP = R[0]
-
-    if not R_Base_SP:
-        raise Exception("Could not find R_Base_SP")
-
-    Rep_Sp = GetChildMemberWithName(R_Base_SP, "__value_")
-
-    if not Rep_Sp:
-        raise Exception("Could not find __value_")
-
-    # Our layout seems a little different
-    Rep_Sp = Rep_Sp[0]
-
-    if not Rep_Sp:
-        raise Exception("Could not find Rep_Sp")
-
-    L = GetChildMemberWithName(Rep_Sp, "__l")
-
-    if not L:
-        raise Exception("Could not find __l")
-
-    layout = StringLayout.CSD
-    if GetIndexOfChildWithName(L, "__data_") == 0:
-        layout = StringLayout.DSC
-
-    short_mode = False
-    using_bitmasks = True
-    size = 0
-    size_mode_value = 0
-
-    Short_Sp = GetChildMemberWithName(Rep_Sp, "__s")
-    if not Short_Sp:
-        raise Exception("Could not find __s")
-
-    Is_Long = GetChildMemberWithName(Short_Sp, "__is_long_")
-    Size_Sp = GetChildMemberWithName(Short_Sp, "__size_")
-    if not Size_Sp:
-        raise Exception("Could not find __size_")
-
-    if Is_Long:
-        using_bitmasks = False
-        short_mode = Is_Long.integer() == 0
-        size = Size_Sp.integer()
-    else:
-        size_mode_value = Size_Sp.integer()
-        mode_mask = 1
-        if layout == StringLayout.DSC:
-            mode_mask = 0x80
-        short_mode = (size_mode_value & mode_mask) == 0
-
-    if short_mode:
-        Location_Sp = GetChildMemberWithName(Short_Sp, "__data_")
-
-        if using_bitmasks:
-            size = ((size_mode_value >> 1) % 256)
-            if layout == StringLayout.DSC:
-                size = size_mode_value
-
-        # The string is most likely not initialized yet
-        if size > 100 or not Location_Sp:
-            raise Exception("Probably not initialized yet")
-
-        d.putCharArrayHelper(d.extractPointer(Location_Sp), size,
-                             charType, d.currentItemFormat())
-        return
-
-    Location_Sp = GetChildMemberWithName(L, "__data_")
-    Size_Vo = GetChildMemberWithName(L, "__size_")
-    Capacity_Vo = GetChildMemberWithName(L, "__cap_")
-
-    if not Location_Sp or not Size_Vo or not Capacity_Vo:
-        raise Exception("Could not find Location_Sp, Size_Vo or Capacity_Vo")
-
-    size = Size_Vo.integer()
-    capacity = Capacity_Vo.integer()
-    if not using_bitmasks and layout == StringLayout.CSD:
-        capacity *= 2
-    if capacity < size:
-        raise Exception("Capacity is less than size")
-
-    d.putCharArrayHelper(d.extractPointer(Location_Sp), size,
-                         charType, d.currentItemFormat())
-
-
-def std_1_string_dumper_v1(d, value):
-    charType = value['__l']['__data_'].dereference().type
-    D = None
-
-    if d.isLldb:
-        D = value[0][0][0][0]
-    elif d.isGdb:
-        D = value["__r_"].members(True)[0][0][0]
-    else:
-        raise Exception("Unknown debugger (neither gdb nor lldb)")
-
-    layoutDecider = D[0][0]
-    if not layoutDecider:
-        raise Exception("Could not find layoutDecider")
-
-    size = 0
-    size_mode_value = 0
-    short_mode = False
-    libcxx_version = 14
-
-    layoutModeIsDSC = layoutDecider.name == '__data_'
-    if (layoutModeIsDSC):
-        size_mode = D[1][1][0]
-        if not size_mode:
-            raise Exception("Could not find size_mode")
-        if not size_mode.name == '__size_':
-            size_mode = D[1][1][1]
-            if not size_mode:
-                raise Exception("Could not find size_mode")
-
-        size_mode_value = size_mode.integer()
-        short_mode = ((size_mode_value & 0x80) == 0)
-    else:
-        size_mode = D[1][0][0]
-        if not size_mode:
-            raise Exception("Could not find size_mode")
-
-        if size_mode.name == '__is_long_':
-            libcxx_version = 15
-            short_mode = (size_mode.integer() == 0)
-
-            size_mode = D[1][0][1]
-            size_mode_value = size_mode.integer()
-        else:
-            size_mode_value = size_mode.integer()
-            short_mode = ((size_mode_value & 1) == 0)
-
-    if short_mode:
-        s = D[1]
-
-        if not s:
-            raise Exception("Could not find s")
-
-        if libcxx_version == 14:
-            location_sp = s[0] if layoutModeIsDSC else s[1]
-            size = size_mode_value if layoutModeIsDSC else ((size_mode_value >> 1) % 256)
-        elif libcxx_version == 15:
-            location_sp = s[0] if layoutModeIsDSC else s[2]
-            size = size_mode_value
-
-    else:
-        l = D[0]
-        if not l:
-            raise Exception("Could not find l")
-
-        # we can use the layout_decider object as the data pointer
-        location_sp = layoutDecider if layoutModeIsDSC else l[2]
-        size_vo = l[1]
-        if not size_vo or not location_sp:
-            raise Exception("Could not find size_vo or location_sp")
-        size = size_vo.integer()
-
-    if short_mode and location_sp:
-        d.putCharArrayHelper(d.extractPointer(location_sp), size,
-                             charType, d.currentItemFormat())
-    else:
-        d.putCharArrayHelper(location_sp.integer(),
-                             size, charType, d.currentItemFormat())
-
-    return
+# Examples for std::__1::string layouts for libcxx version 16
+#
+#   std::string b = "asd"
+#
+#   b = {
+#       static __endian_factor = 2,
+#       __r_ = {
+#           <std::__1::__compressed_pair_elem<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >::__rep, 0, false>> = {
+#               __value_ = {{
+#                   __l = {
+#                       {__is_long_ = 0, __cap_ = 842641539},
+#                       __size_ = 140737353746888,
+#                       __data_ = 0x7ffff7fa0a20 <std::__1::codecvt<wchar_t, char, __mbstate_t>::id> \"\\377\\377\\377\\377\\377\\377\\377\\377\\006\"
+#                   },
+#                   __s = {
+#                       {__is_long_ = 0 '\\000', __size_ = 3 '\\003'},
+#                       __padding_ = 0x7fffffffd859 \"asd\",
+#                       __data_ = \"asd\\000\\000\\000\\000\\310\\t\\372\\367\\377\\177\\000\\000 \\n\\372\\367\\377\\177\\000\"
+#                   },
+#                   __r = {
+#                       __words = {1685283078, 140737353746888, 140737353746976}
+#                   }
+#               }}
+#           },
+#           <std::__1::__compressed_pair_elem<std::__1::allocator<char>, 1, true>> = {
+#               <std::__1::allocator<char>> = {
+#                   <std::__1::__non_trivial_if<true, std::__1::allocator<char> >> = {
+#                       <No data fields>
+#                   },
+#                   <No data fields>
+#               },
+#               <No data fields>
+#           },
+#           <No data fields>
+#       },
+#       static npos = 18446744073709551615
+#   }
+#
+#
+#   std::string c = "asdlonasdlongstringasdlongstringasdlongstringasdlongstringgstring"
+#
+#   c = {
+#       static __endian_factor = 2,
+#       __r_ = {
+#           <std::__1::__compressed_pair_elem<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >::__rep, 0, false>> = {
+#               __value_ = {{
+#                   __l = {
+#                       {__is_long_ = 1, __cap_ = 40},   #  size_type: __cap_
+#                       __size_ = 65,
+#                       __data_ = 0x5555555592a0 \"asdlonasdlongstringasdlongstringasdlongstringasdlongstringgstring\"
+#                   },
+#                   __s = {
+#                       {__is_long_ = 1 '\\001', __size_ = 40 '('},
+#                       __padding_ = 0x7fffffffd831 \"\", __data_ = \"\\000\\000\\000\\000\\000\\000\\000A\\000\\000\\000\\000\\000\\000\\000\\240\\222UUUU\\000\"
+#                   },
+#                   __r = {
+#                       __words = {81, 65, 93824992252576}
+#                   }
+#               }}
+#           },
+#           <std::__1::__compressed_pair_elem<std::__1::allocator<char>, 1, true>> = {
+#               <std::__1::allocator<char>> = {
+#                   <std::__1::__non_trivial_if<true, std::__1::allocator<char> >> = {
+#                       <No data fields>
+#                   },
+#                   <No data fields>
+#               },
+#               <No data fields
+#           >},
+#           <No data fields>
+#       },
+#       static npos = 18446744073709551615
+#   }"
 
 def qdump__std____1__string(d, value):
-    try:
-        std_1_string_dumper_v2(d, value)
-    except Exception as eV2:
-        try:
-            std_1_string_dumper_v1(d, value)
-        except Exception as eV1:
-            d.putValue("Could not parse: %s, %s" % (eV1, eV2))
-
-
-def qdump__std____1__wstring(d, value):
-    try:
-        std_1_string_dumper_v2(d, value)
-    except Exception as eV2:
-        try:
-            std_1_string_dumper_v1(d, value)
-        except Exception as eV1:
-            d.putValue("Could not parse: %s, %s" % (eV1, eV2))
-
-
-def qdump__std____1__basic_string(d, value):
-    innerType = value.type[0].name
-    if innerType in ("char", "char8_t", "char16_t"):
-        qdump__std____1__string(d, value)
-    elif innerType in ("wchar_t", "char32_t"):
-        qdump__std____1__wstring(d, value)
+    charType = value.type[0]
+    blob = bytes(value.data())
+    r0, r1, r2 = struct.unpack(d.packCode + 'QQQ', blob)
+    if d.isLldb and d.isArmMac:
+        is_long = r2 >> 63
+        if is_long:
+            # [---------------- data ptr ---------------]  63:0
+            # [------------------ size  ----------------]
+            # [?----------------  alloc ----------------]
+            data = r0
+            size = r1
+        else:
+            # [------------------- data ----------------]  63:0
+            # [------------------- data ----------------]
+            # [?ssss-------------- data ----------------]
+            data = value.laddress
+            size = (r2 >> 56) &  255
     else:
-        d.warn("UNKNOWN INNER TYPE %s" % innerType)
+        is_long = r0 & 1
+        if is_long:
+            # [------------------ alloc ---------------?]  63:0
+            # [------------------- size ----------------]
+            # [----------------- data ptr --------------]
+            data = r2
+            size = r1
+        else:
+            # [------------------- data ----------sssss?]  63:0
+            # [------------------- data ----------------]
+            # [------------------- data ----------------]
+            data = value.laddress + charType.size()
+            size = (r0 & 255) // 2
+    d.putCharArrayHelper(data, size, charType)
 
 
 def qdump__std____1__shared_ptr(d, value):
