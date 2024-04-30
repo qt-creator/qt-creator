@@ -50,7 +50,7 @@ HelperWidgets.ScrollView {
             id: ctxMenu
 
             hasModelSelection: root.materialsModel.hasModelSelection
-            importerRunning: root.materialsModel.importerRunning
+            importerRunning: ContentLibraryBackend.rootView.importerRunning
 
             onApplyToSelected: (add) => root.materialsModel.applyToSelected(ctxMenu.targetMaterial, add)
 
@@ -103,7 +103,7 @@ HelperWidgets.ScrollView {
                             width: root.cellWidth
                             height: root.cellHeight
 
-                            importerRunning: root.materialsModel.importerRunning
+                            importerRunning: ContentLibraryBackend.rootView.importerRunning
 
                             onShowContextMenu: ctxMenu.popupMenu(modelData)
                             onAddToProject: root.materialsModel.addToProject(modelData)

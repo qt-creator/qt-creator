@@ -3,6 +3,7 @@
 
 #include "contentlibrarywidget.h"
 
+#include "contentlibrarybundleimporter.h"
 #include "contentlibraryeffect.h"
 #include "contentlibraryeffectsmodel.h"
 #include "contentlibrarymaterial.h"
@@ -18,6 +19,7 @@
 
 #include <coreplugin/icore.h>
 #include <designerpaths.h>
+#include <nodemetainfo.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 
@@ -40,7 +42,6 @@
 #include <QQuickWidget>
 #include <QRegularExpression>
 #include <QShortcut>
-#include <QStandardPaths>
 #include <QVBoxLayout>
 
 namespace QmlDesigner {
@@ -177,6 +178,65 @@ ContentLibraryWidget::ContentLibraryWidget()
                         {"userModel",         QVariant::fromValue(m_userModel.data())}});
 
     reloadQmlSource();
+    createImporter();
+}
+
+void ContentLibraryWidget::createImporter()
+{
+    m_importer = new ContentLibraryBundleImporter();
+#ifdef QDS_USE_PROJECTSTORAGE
+    connect(m_importer,
+            &ContentLibraryBundleImporter::importFinished,
+            this,
+            [&](const QmlDesigner::TypeName &typeName, const QString &bundleId) {
+                setImporterRunning(false);
+                if (typeName.size())
+                    updateImportedState(bundleId);
+            });
+#else
+    connect(m_importer,
+            &ContentLibraryBundleImporter::importFinished,
+            this,
+            [&](const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId) {
+                setImporterRunning(false);
+                if (metaInfo.isValid())
+                    updateImportedState(bundleId);
+            });
+#endif
+
+    connect(m_importer, &ContentLibraryBundleImporter::unimportFinished, this,
+            [&](const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId) {
+                Q_UNUSED(metaInfo)
+                setImporterRunning(false);
+                updateImportedState(bundleId);
+    });
+}
+
+void ContentLibraryWidget::updateImportedState(const QString &bundleId)
+{
+    if (!m_importer)
+        return;
+
+    Utils::FilePath bundlePath = m_importer->resolveBundleImportPath(bundleId);
+
+    QStringList importedItems;
+    if (bundlePath.exists()) {
+        importedItems = transform(bundlePath.dirEntries({{"*.qml"}, QDir::Files}),
+                                  [](const Utils::FilePath &f) { return f.baseName(); });
+    }
+
+    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+    if (bundleId == compUtils.materialsBundleId())
+        m_materialsModel->updateImportedState(importedItems);
+    else if (bundleId == compUtils.effectsBundleId())
+        m_effectsModel->updateImportedState(importedItems);
+    else if (bundleId == compUtils.userMaterialsBundleId())
+        m_userModel->updateImportedState(importedItems);
+}
+
+ContentLibraryBundleImporter *ContentLibraryWidget::importer() const
+{
+    return m_importer;
 }
 
 QVariantMap ContentLibraryWidget::readTextureBundleJson()
@@ -681,6 +741,20 @@ void ContentLibraryWidget::setIsQt6Project(bool b)
 
     m_isQt6Project = b;
     emit isQt6ProjectChanged();
+}
+
+bool ContentLibraryWidget::importerRunning() const
+{
+    return m_importerRunning;
+}
+
+void ContentLibraryWidget::setImporterRunning(bool b)
+{
+    if (m_importerRunning == b)
+        return;
+
+    m_importerRunning = b;
+    emit importerRunningChanged();
 }
 
 void ContentLibraryWidget::reloadQmlSource()

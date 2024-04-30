@@ -35,6 +35,12 @@ public:
     QString materialsBundleType() const;
     QString effectsBundleType() const;
 
+    QString materialsBundleId() const;
+    QString effectsBundleId() const;
+    QString userMaterialsBundleId() const;
+    QString userEffectsBundleId() const;
+    QString user3DBundleId() const;
+
 private:
     ExternalDependenciesInterface &m_externalDependencies;
 };

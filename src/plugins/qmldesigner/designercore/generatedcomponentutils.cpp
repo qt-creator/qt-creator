@@ -186,4 +186,35 @@ QString GeneratedComponentUtils::effectsBundleType() const
     return basePrefix + '.' + QLatin1String(Constants::COMPONENT_BUNDLES_EFFECT_BUNDLE_TYPE);
 }
 
+QString GeneratedComponentUtils::materialsBundleId() const
+{
+    bool isNewImportDir = generatedComponentTypePrefix().endsWith(Constants::GENERATED_COMPONENTS_FOLDER);
+
+    return QLatin1String(isNewImportDir ? Constants::COMPONENT_BUNDLES_MATERIAL_BUNDLE_TYPE
+                                        : Constants::OLD_COMPONENT_BUNDLES_MATERIAL_BUNDLE_TYPE);
+}
+
+QString GeneratedComponentUtils::effectsBundleId() const
+{
+    bool isNewImportDir = generatedComponentTypePrefix().endsWith(Constants::GENERATED_COMPONENTS_FOLDER);
+
+    return QLatin1String(isNewImportDir ? Constants::COMPONENT_BUNDLES_EFFECT_BUNDLE_TYPE
+                                        : Constants::OLD_COMPONENT_BUNDLES_EFFECT_BUNDLE_TYPE);
+}
+
+QString GeneratedComponentUtils::userMaterialsBundleId() const
+{
+    return QLatin1String(Constants::COMPONENT_BUNDLES_USER_MATERIAL_BUNDLE_TYPE);
+}
+
+QString GeneratedComponentUtils::userEffectsBundleId() const
+{
+    return QLatin1String(Constants::COMPONENT_BUNDLES_USER_EFFECT_BUNDLE_TYPE);
+}
+
+QString GeneratedComponentUtils::user3DBundleId() const
+{
+    return QLatin1String(Constants::COMPONENT_BUNDLES_USER_3D_BUNDLE_TYPE);
+}
+
 } // namespace QmlDesigner

@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <nodemetainfo.h>
+#include <modelfwd.h>
 
 #include <utils/filepath.h>
 
@@ -11,6 +11,8 @@
 #include <QVariantHash>
 
 namespace QmlDesigner {
+
+class NodeMetaInfo;
 
 class ContentLibraryBundleImporter : public QObject
 {
@@ -30,11 +32,12 @@ signals:
     // asynchronous part of the import. In this case all remaining pending imports have been
     // terminated, and will not receive separate importFinished notifications.
 #ifdef QDS_USE_PROJECTSTORAGE
-    void importFinished(const QmlDesigner::TypeName &typeName);
+    void importFinished(const QmlDesigner::TypeName &typeName, const QString &bundleId);
 #else
-    void importFinished(const QmlDesigner::NodeMetaInfo &metaInfo);
+    void importFinished(const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId);
 #endif
-    void unimportFinished(const QmlDesigner::NodeMetaInfo &metaInfo);
+    void unimportFinished(const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId);
+    void aboutToUnimport(const TypeName &type, const QString &bundleId);
 
 private:
     void handleImportTimer();
@@ -44,6 +47,7 @@ private:
     QTimer m_importTimer;
     int m_importTimerCount = 0;
     QString m_pendingImport;
+    QString m_bundleId;
     bool m_fullReset = false;
     QHash<TypeName, bool> m_pendingTypes; // <type, isImport>
 };

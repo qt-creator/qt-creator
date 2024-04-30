@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include "abstractview.h"
-#include "createtexture.h"
-#include "nodemetainfo.h"
+#include <abstractview.h>
+#include <createtexture.h>
+#include <nodemetainfo.h>
 
 #include <QObject>
 #include <QPointer>
@@ -48,7 +48,9 @@ public:
                               const QVariant &data) override;
 
 private:
-    void connectUserBundle();
+    void connectImporter();
+    bool isMaterialBundle(const QString &bundleId) const;
+    bool isEffectBundle(const QString &bundleId) const;
     void active3DSceneChanged(qint32 sceneId);
     void updateBundlesQuick3DVersion();
     void addLibMaterial(const ModelNode &mat, const QPixmap &icon);

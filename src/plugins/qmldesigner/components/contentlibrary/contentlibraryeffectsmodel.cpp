@@ -63,6 +63,11 @@ bool ContentLibraryEffectsModel::isValidIndex(int idx) const
     return idx > -1 && idx < rowCount();
 }
 
+QString ContentLibraryEffectsModel::bundleId() const
+{
+    return m_bundleId;
+}
+
 void ContentLibraryEffectsModel::updateIsEmpty()
 {
     bool anyCatVisible = Utils::anyOf(m_bundleCategories, [&](ContentLibraryEffectsCategory *cat) {
@@ -86,48 +91,6 @@ QHash<int, QByteArray> ContentLibraryEffectsModel::roleNames() const
         {Qt::UserRole + 4, "bundleCategoryItems"}
     };
     return roles;
-}
-
-void ContentLibraryEffectsModel::createImporter()
-{
-    m_importer = new ContentLibraryBundleImporter();
-#ifdef QDS_USE_PROJECTSTORAGE
-    connect(m_importer,
-            &ContentLibraryBundleImporter::importFinished,
-            this,
-            [&](const QmlDesigner::TypeName &typeName) {
-                m_importerRunning = false;
-                emit importerRunningChanged();
-                if (typeName.size()) {
-                    emit bundleItemImported(typeName);
-                    updateImportedState();
-                }
-            });
-#else
-    connect(m_importer,
-            &ContentLibraryBundleImporter::importFinished,
-            this,
-            [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
-                m_importerRunning = false;
-                emit importerRunningChanged();
-                if (metaInfo.isValid()) {
-                    emit bundleItemImported(metaInfo);
-                    updateImportedState();
-                }
-            });
-#endif
-
-    connect(m_importer, &ContentLibraryBundleImporter::unimportFinished, this,
-            [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
-                Q_UNUSED(metaInfo)
-                m_importerRunning = false;
-                emit importerRunningChanged();
-                emit bundleItemUnimported(metaInfo);
-                updateImportedState();
-            });
-
-    resetModel();
-    updateIsEmpty();
 }
 
 void ContentLibraryEffectsModel::loadBundle()
@@ -172,11 +135,9 @@ void ContentLibraryEffectsModel::loadBundle()
         }
     }
 
-    QString bundleType = QmlDesignerPlugin::instance()->documentManager()
-                             .generatedComponentUtils().effectsBundleType();
-
-    // Substitute correct id to avoid issues with old bundles
-    m_bundleObj["id"] = bundleType.split('.').last();
+    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+    QString bundleType = compUtils.effectsBundleType();
+    m_bundleId = compUtils.effectsBundleId();
 
     const QJsonObject catsObj = m_bundleObj.value("categories").toObject();
     const QStringList categories = catsObj.keys();
@@ -205,12 +166,13 @@ void ContentLibraryEffectsModel::loadBundle()
         m_bundleCategories.append(category);
     }
 
-    m_importerSharedFiles.clear();
+    m_bundleSharedFiles.clear();
     const QJsonArray sharedFilesArr = m_bundleObj.value("sharedFiles").toArray();
     for (const QJsonValueConstRef &file : sharedFilesArr)
-        m_importerSharedFiles.append(file.toString());
+        m_bundleSharedFiles.append(file.toString());
 
-    createImporter();
+    resetModel();
+    updateIsEmpty();
     m_bundlePath = bundleDir.path();
     m_bundleExists = true;
     emit bundleExistsChanged();
@@ -224,11 +186,6 @@ bool ContentLibraryEffectsModel::hasRequiredQuick3DImport() const
 bool ContentLibraryEffectsModel::bundleExists() const
 {
     return m_bundleExists;
-}
-
-ContentLibraryBundleImporter *ContentLibraryEffectsModel::bundleImporter() const
-{
-    return m_importer;
 }
 
 void ContentLibraryEffectsModel::setSearchText(const QString &searchText)
@@ -250,20 +207,8 @@ void ContentLibraryEffectsModel::setSearchText(const QString &searchText)
     updateIsEmpty();
 }
 
-void ContentLibraryEffectsModel::updateImportedState()
+void ContentLibraryEffectsModel::updateImportedState(const QStringList &importedItems)
 {
-    if (!m_importer)
-        return;
-
-    QString bundleId = m_bundleObj.value("id").toString();
-    Utils::FilePath bundlePath = m_importer->resolveBundleImportPath(bundleId);
-
-    QStringList importedItems;
-    if (bundlePath.exists()) {
-        importedItems = transform(bundlePath.dirEntries({{"*.qml"}, QDir::Files}),
-                                  [](const Utils::FilePath &f) { return f.baseName(); });
-    }
-
     bool changed = false;
     for (ContentLibraryEffectsCategory *cat : std::as_const(m_bundleCategories))
         changed |= cat->updateImportedState(importedItems);
@@ -297,29 +242,24 @@ void ContentLibraryEffectsModel::resetModel()
 
 void ContentLibraryEffectsModel::addInstance(ContentLibraryEffect *bundleItem)
 {
-    QString err = m_importer->importComponent(m_bundlePath, bundleItem->type(), bundleItem->qml(),
-                                              bundleItem->files() + m_importerSharedFiles);
+    QString err = m_widget->importer()->importComponent(m_bundlePath, bundleItem->type(),
+                                                        bundleItem->qml(),
+                                                        bundleItem->files() + m_bundleSharedFiles);
 
-    if (err.isEmpty()) {
-        m_importerRunning = true;
-        emit importerRunningChanged();
-    } else {
+    if (err.isEmpty())
+        m_widget->setImporterRunning(true);
+    else
         qWarning() << __FUNCTION__ << err;
-    }
 }
 
 void ContentLibraryEffectsModel::removeFromProject(ContentLibraryEffect *bundleItem)
 {
-    emit bundleItemAboutToUnimport(bundleItem->type());
+    QString err = m_widget->importer()->unimportComponent(bundleItem->type(), bundleItem->qml());
 
-    QString err = m_importer->unimportComponent(bundleItem->type(), bundleItem->qml());
-
-    if (err.isEmpty()) {
-        m_importerRunning = true;
-        emit importerRunningChanged();
-    } else {
+    if (err.isEmpty())
+        m_widget->setImporterRunning(true);
+    else
         qWarning() << __FUNCTION__ << err;
-    }
 }
 
 } // namespace QmlDesigner

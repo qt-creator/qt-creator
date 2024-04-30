@@ -3,8 +3,6 @@
 
 #include "contentlibraryview.h"
 
-#include "asset.h"
-#include "bindingproperty.h"
 #include "contentlibrarybundleimporter.h"
 #include "contentlibraryeffect.h"
 #include "contentlibraryeffectsmodel.h"
@@ -14,19 +12,20 @@
 #include "contentlibrarytexturesmodel.h"
 #include "contentlibraryusermodel.h"
 #include "contentlibrarywidget.h"
-#include "documentmanager.h"
-#include "externaldependenciesinterface.h"
-#include "nodelistproperty.h"
-#include "qmldesignerconstants.h"
-#include "qmlobjectnode.h"
-#include "variantproperty.h"
-#include "utils3d.h"
 
+#include <asset.h>
+#include <bindingproperty.h>
 #include <designerpaths.h>
-#include <qmldesignerplugin.h>
-
-#include <coreplugin/messagebox.h>
+#include <documentmanager.h>
 #include <enumeration.h>
+#include <externaldependenciesinterface.h>
+#include <nodelistproperty.h>
+#include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
+#include <qmlobjectnode.h>
+#include <variantproperty.h>
+#include <utils3d.h>
+
 #include <utils/algorithm.h>
 
 #ifndef QMLDESIGNER_TEST
@@ -90,65 +89,61 @@ WidgetInfo ContentLibraryView::widgetInfo()
             m_widget->environmentsModel()->setHasSceneEnv(sceneEnvExists);
         });
 
-        ContentLibraryMaterialsModel *materialsModel = m_widget->materialsModel().data();
-
-        connect(materialsModel,
+        connect(m_widget->materialsModel(),
                 &ContentLibraryMaterialsModel::applyToSelectedTriggered,
                 this,
                 [&](ContentLibraryMaterial *bundleMat, bool add) {
-                    if (m_selectedModels.isEmpty())
-                        return;
+            if (m_selectedModels.isEmpty())
+                return;
 
-                    m_bundleMaterialTargets = m_selectedModels;
-                    m_bundleMaterialAddToSelected = add;
+            m_bundleMaterialTargets = m_selectedModels;
+            m_bundleMaterialAddToSelected = add;
 
-                    ModelNode defaultMat = getBundleMaterialDefaultInstance(bundleMat->type());
-                    if (defaultMat.isValid())
-                        applyBundleMaterialToDropTarget(defaultMat);
-                    else
-                        m_widget->materialsModel()->addToProject(bundleMat);
-                });
-
-#ifdef QDS_USE_PROJECTSTORAGE
-        connect(materialsModel,
-                &ContentLibraryMaterialsModel::bundleMaterialImported,
-                this,
-                [&](const QmlDesigner::TypeName &typeName) {
-                    applyBundleMaterialToDropTarget({}, typeName);
-                });
-#else
-        connect(materialsModel,
-                &ContentLibraryMaterialsModel::bundleMaterialImported,
-                this,
-                [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
-                    applyBundleMaterialToDropTarget({}, metaInfo);
-                });
-#endif
-
-        connect(materialsModel, &ContentLibraryMaterialsModel::bundleMaterialAboutToUnimport, this,
-                [&] (const QmlDesigner::TypeName &type) {
-            // delete instances of the bundle material that is about to be unimported
-            executeInTransaction("ContentLibraryView::widgetInfo", [&] {
-                ModelNode matLib = Utils3D::materialLibraryNode(this);
-                if (!matLib.isValid())
-                    return;
-
-                Utils::reverseForeach(matLib.directSubModelNodes(), [&](const ModelNode &mat) {
-                    if (mat.isValid() && mat.type() == type)
-                        QmlObjectNode(mat).destroy();
-                });
-            });
+            ModelNode defaultMat = getBundleMaterialDefaultInstance(bundleMat->type());
+            if (defaultMat.isValid())
+                applyBundleMaterialToDropTarget(defaultMat);
+            else
+                m_widget->materialsModel()->addToProject(bundleMat);
         });
 
-        ContentLibraryEffectsModel *effectsModel = m_widget->effectsModel().data();
-
-#ifdef QDS_USE_PROJECTSTORAGE
-        connect(effectsModel,
-                &ContentLibraryEffectsModel::bundleItemImported,
+        connect(m_widget->userModel(),
+                &ContentLibraryUserModel::applyToSelectedTriggered,
                 this,
-                [&](const QmlDesigner::TypeName &typeName) {
-                    QTC_ASSERT(typeName.size(), return);
+                [&](ContentLibraryMaterial *bundleMat, bool add) {
+            if (m_selectedModels.isEmpty())
+                return;
 
+            m_bundleMaterialTargets = m_selectedModels;
+            m_bundleMaterialAddToSelected = add;
+
+            ModelNode defaultMat = getBundleMaterialDefaultInstance(bundleMat->type());
+            if (defaultMat.isValid())
+                applyBundleMaterialToDropTarget(defaultMat);
+            else
+                m_widget->userModel()->addToProject(bundleMat);
+        });
+
+        connectImporter();
+    }
+
+    return createWidgetInfo(m_widget.data(),
+                            "ContentLibrary",
+                            WidgetInfo::LeftPane,
+                            0,
+                            tr("Content Library"));
+}
+
+void ContentLibraryView::connectImporter()
+{
+#ifdef QDS_USE_PROJECTSTORAGE
+    connect(m_widget->importer(),
+            &ContentLibraryBundleImporter::importFinished,
+            this,
+            [&](const QmlDesigner::TypeName &typeName, const QString &bundleId) {
+                QTC_ASSERT(typeName.size(), return);
+                if (isMaterialBundle(bundleId)) {
+                    applyBundleMaterialToDropTarget({}, typeName);
+                } else if (isEffectBundle(bundleId)) {
                     if (!m_bundleEffectTarget)
                         m_bundleEffectTarget = Utils3D::active3DSceneNode(this);
 
@@ -165,20 +160,23 @@ WidgetInfo ContentLibraryView::widgetInfo()
 
                     m_bundleEffectTarget = {};
                     m_bundleEffectPos = {};
-                });
+                }
+            });
 #else
-        connect(effectsModel,
-                &ContentLibraryEffectsModel::bundleItemImported,
-                this,
-                [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
-                    QTC_ASSERT(metaInfo.isValid(), return);
-
+    connect(m_widget->importer(),
+            &ContentLibraryBundleImporter::importFinished,
+            this,
+            [&](const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId) {
+                QTC_ASSERT(metaInfo.isValid(), return);
+                if (isMaterialBundle(bundleId)) {
+                    applyBundleMaterialToDropTarget({}, metaInfo);
+                } else if (isEffectBundle(bundleId)) {
                     if (!m_bundleEffectTarget)
                         m_bundleEffectTarget = Utils3D::active3DSceneNode(this);
 
                     QTC_ASSERT(m_bundleEffectTarget, return);
 
-                    executeInTransaction("ContentLibraryView::widgetInfo", [&] {
+                    executeInTransaction("ContentLibraryView::connectImporter", [&] {
                         QVector3D pos = m_bundleEffectPos.value<QVector3D>();
                         ModelNode newEffNode = createModelNode(metaInfo.typeName(),
                                                                metaInfo.majorVersion(),
@@ -193,80 +191,46 @@ WidgetInfo ContentLibraryView::widgetInfo()
 
                     m_bundleEffectTarget = {};
                     m_bundleEffectPos = {};
-                });
+                }
+            });
 #endif
-        connect(effectsModel, &ContentLibraryEffectsModel::bundleItemAboutToUnimport, this,
-                [&] (const QmlDesigner::TypeName &type) {
-                    // delete instances of the bundle effect that is about to be unimported
-                    executeInTransaction("ContentLibraryView::widgetInfo", [&] {
-                        NodeMetaInfo metaInfo = model()->metaInfo(type);
-                        QList<ModelNode> effects = allModelNodesOfType(metaInfo);
-                        for (ModelNode &eff : effects)
-                            eff.destroy();
-                    });
-                });
 
-        connectUserBundle();
-    }
-
-    return createWidgetInfo(m_widget.data(),
-                            "ContentLibrary",
-                            WidgetInfo::LeftPane,
-                            0,
-                            tr("Content Library"));
-}
-
-void ContentLibraryView::connectUserBundle()
-{
-    ContentLibraryUserModel *userModel = m_widget->userModel().data();
-
-    connect(userModel,
-            &ContentLibraryUserModel::applyToSelectedTriggered,
-            this,
-            [&](ContentLibraryMaterial *bundleMat, bool add) {
-                if (m_selectedModels.isEmpty())
+    connect(m_widget->importer(), &ContentLibraryBundleImporter::aboutToUnimport, this,
+            [&] (const QmlDesigner::TypeName &type, const QString &bundleId) {
+        if (isMaterialBundle(bundleId)) {
+            // delete instances of the bundle material that is about to be unimported
+            executeInTransaction("ContentLibraryView::connectImporter", [&] {
+                ModelNode matLib = Utils3D::materialLibraryNode(this);
+                if (!matLib.isValid())
                     return;
 
-                m_bundleMaterialTargets = m_selectedModels;
-                m_bundleMaterialAddToSelected = add;
-
-                ModelNode defaultMat = getBundleMaterialDefaultInstance(bundleMat->type());
-                if (defaultMat.isValid())
-                    applyBundleMaterialToDropTarget(defaultMat);
-                else
-                    m_widget->userModel()->addToProject(bundleMat);
-            });
-
-#ifdef QDS_USE_PROJECTSTORAGE
-    connect(userModel,
-            &ContentLibraryUserModel::bundleMaterialImported,
-            this,
-            [&](const QmlDesigner::TypeName &typeName) {
-                applyBundleMaterialToDropTarget({}, typeName);
-            });
-#else
-    connect(userModel,
-            &ContentLibraryUserModel::bundleMaterialImported,
-            this,
-            [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
-                applyBundleMaterialToDropTarget({}, metaInfo);
-            });
-#endif
-
-    connect(userModel, &ContentLibraryUserModel::bundleMaterialAboutToUnimport, this,
-            [&] (const QmlDesigner::TypeName &type) {
-                // delete instances of the bundle material that is about to be unimported
-                executeInTransaction("ContentLibraryView::connectUserModel", [&] {
-                    ModelNode matLib = Utils3D::materialLibraryNode(this);
-                    if (!matLib.isValid())
-                        return;
-
-                    Utils::reverseForeach(matLib.directSubModelNodes(), [&](const ModelNode &mat) {
-                        if (mat.isValid() && mat.type() == type)
-                            QmlObjectNode(mat).destroy();
-                    });
+                Utils::reverseForeach(matLib.directSubModelNodes(), [&](const ModelNode &mat) {
+                    if (mat.isValid() && mat.type() == type)
+                        QmlObjectNode(mat).destroy();
                 });
             });
+        } else if (isEffectBundle(bundleId)) {
+            // delete instances of the bundle effect that is about to be unimported
+            executeInTransaction("ContentLibraryView::connectImporter", [&] {
+                NodeMetaInfo metaInfo = model()->metaInfo(type);
+                QList<ModelNode> effects = allModelNodesOfType(metaInfo);
+                for (ModelNode &eff : effects)
+                    eff.destroy();
+            });
+        }
+    });
+}
+
+bool ContentLibraryView::isMaterialBundle(const QString &bundleId) const
+{
+    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+    return bundleId == compUtils.materialsBundleId() || bundleId == compUtils.userMaterialsBundleId();
+}
+
+bool ContentLibraryView::isEffectBundle(const QString &bundleId) const
+{
+    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+    return bundleId == compUtils.effectsBundleId() || bundleId == compUtils.userEffectsBundleId();
 }
 
 void ContentLibraryView::modelAttached(Model *model)
@@ -294,9 +258,10 @@ void ContentLibraryView::modelAttached(Model *model)
     m_widget->userModel()->loadMaterialBundle();
     m_widget->userModel()->loadTextureBundle();
 
-    m_widget->materialsModel()->updateImportedState();
-    m_widget->effectsModel()->updateImportedState();
-    m_widget->userModel()->updateImportedState();
+    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+    m_widget->updateImportedState(compUtils.materialsBundleId());
+    m_widget->updateImportedState(compUtils.effectsBundleId());
+    m_widget->updateImportedState(compUtils.userMaterialsBundleId());
 }
 
 void ContentLibraryView::modelAboutToBeDetached(Model *model)

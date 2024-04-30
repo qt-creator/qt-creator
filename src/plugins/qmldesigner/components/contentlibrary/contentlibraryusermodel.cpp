@@ -14,15 +14,11 @@
 #include <qmldesignerplugin.h>
 
 #include <utils/algorithm.h>
-#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
-#include <QCoreApplication>
 #include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
-#include <QQmlEngine>
-#include <QStandardPaths>
 #include <QUrl>
 
 namespace QmlDesigner {
@@ -223,48 +219,6 @@ QHash<int, QByteArray> ContentLibraryUserModel::roleNames() const
     return roles;
 }
 
-void ContentLibraryUserModel::createImporter()
-{
-    m_importer = new ContentLibraryBundleImporter();
-#ifdef QDS_USE_PROJECTSTORAGE
-    connect(m_importer,
-            &ContentLibraryBundleImporter::importFinished,
-            this,
-            [&](const QmlDesigner::TypeName &typeName) {
-                m_importerRunning = false;
-                emit importerRunningChanged();
-                if (typeName.size()) {
-                    emit bundleMaterialImported(typeName);
-                    updateImportedState();
-                }
-            });
-#else
-    connect(m_importer,
-            &ContentLibraryBundleImporter::importFinished,
-            this,
-            [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
-                m_importerRunning = false;
-                emit importerRunningChanged();
-                if (metaInfo.isValid()) {
-                    emit bundleMaterialImported(metaInfo);
-                    updateImportedState();
-                }
-            });
-#endif
-
-    connect(m_importer, &ContentLibraryBundleImporter::unimportFinished, this,
-            [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
-                Q_UNUSED(metaInfo)
-                m_importerRunning = false;
-                emit importerRunningChanged();
-                emit bundleMaterialUnimported(metaInfo);
-                updateImportedState();
-            });
-
-    resetModel();
-    updateIsEmpty();
-}
-
 QJsonObject &ContentLibraryUserModel::bundleJsonObjectRef()
 {
     return m_bundleObj;
@@ -304,10 +258,8 @@ void ContentLibraryUserModel::loadMaterialBundle()
         }
     }
 
-    m_bundleIdMaterial = "UserMaterials";
-
-    // Substitute correct id to avoid issues with old bundles
-    m_bundleObj["id"] = m_bundleIdMaterial;
+    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+    m_bundleObj["id"] = compUtils.userMaterialsBundleId();
 
     // parse materials
     const QJsonObject matsObj = m_bundleObj.value("materials").toObject();
@@ -331,12 +283,10 @@ void ContentLibraryUserModel::loadMaterialBundle()
         m_userMaterials.append(userMat);
     }
 
-    m_importerSharedFiles.clear();
+    m_bundleSharedFiles.clear();
     const QJsonArray sharedFilesArr = m_bundleObj.value("sharedFiles").toArray();
     for (const QJsonValueConstRef &file : sharedFilesArr)
-        m_importerSharedFiles.append(file.toString());
-
-    createImporter();
+        m_bundleSharedFiles.append(file.toString());
 
     m_matBundleExists = true;
     emit matBundleExistsChanged();
@@ -378,11 +328,6 @@ bool ContentLibraryUserModel::matBundleExists() const
     return m_matBundleExists;
 }
 
-ContentLibraryBundleImporter *ContentLibraryUserModel::bundleImporter() const
-{
-    return m_importer;
-}
-
 void ContentLibraryUserModel::setSearchText(const QString &searchText)
 {
     QString lowerSearchText = searchText.toLower();
@@ -398,20 +343,8 @@ void ContentLibraryUserModel::setSearchText(const QString &searchText)
     updateIsEmpty();
 }
 
-void ContentLibraryUserModel::updateImportedState()
+void ContentLibraryUserModel::updateImportedState(const QStringList &importedItems)
 {
-    if (!m_importer)
-        return;
-
-    QString bundleId = m_bundleObj.value("id").toString();
-    Utils::FilePath bundlePath = m_importer->resolveBundleImportPath(bundleId);
-
-    QStringList importedItems;
-    if (bundlePath.exists()) {
-        importedItems = transform(bundlePath.dirEntries({{"*.qml"}, QDir::Files}),
-                                  [](const Utils::FilePath &f) { return f.baseName(); });
-    }
-
     bool changed = false;
     for (ContentLibraryMaterial *mat : std::as_const(m_userMaterials))
         changed |= mat->setImported(importedItems.contains(mat->qml().chopped(4)));
@@ -452,29 +385,23 @@ void ContentLibraryUserModel::applyToSelected(ContentLibraryMaterial *mat, bool 
 
 void ContentLibraryUserModel::addToProject(ContentLibraryMaterial *mat)
 {
-    QString err = m_importer->importComponent(mat->dirPath(), mat->type(), mat->qml(),
-                                              mat->files() + m_importerSharedFiles);
+    QString err = m_widget->importer()->importComponent(mat->dirPath(), mat->type(), mat->qml(),
+                                              mat->files() + m_bundleSharedFiles);
 
-    if (err.isEmpty()) {
-        m_importerRunning = true;
-        emit importerRunningChanged();
-    } else {
+    if (err.isEmpty())
+        m_widget->setImporterRunning(true);
+    else
         qWarning() << __FUNCTION__ << err;
-    }
 }
 
 void ContentLibraryUserModel::removeFromProject(ContentLibraryMaterial *mat)
 {
-    emit bundleMaterialAboutToUnimport(mat->type());
+    QString err = m_widget->importer()->unimportComponent(mat->type(), mat->qml());
 
-    QString err = m_importer->unimportComponent(mat->type(), mat->qml());
-
-    if (err.isEmpty()) {
-        m_importerRunning = true;
-        emit importerRunningChanged();
-    } else {
+    if (err.isEmpty())
+        m_widget->setImporterRunning(true);
+    else
         qWarning() << __FUNCTION__ << err;
-    }
 }
 
 bool ContentLibraryUserModel::hasModelSelection() const

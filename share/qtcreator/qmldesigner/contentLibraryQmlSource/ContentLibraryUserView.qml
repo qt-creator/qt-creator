@@ -52,7 +52,7 @@ HelperWidgets.ScrollView {
 
             enableRemove: true
             hasModelSelection: ContentLibraryBackend.userModel.hasModelSelection
-            importerRunning: ContentLibraryBackend.userModel.importerRunning
+            importerRunning: ContentLibraryBackend.rootView.importerRunning
 
             onApplyToSelected: (add) => ContentLibraryBackend.userModel.applyToSelected(ctxMenuMaterial.targetMaterial, add)
 
@@ -114,7 +114,7 @@ HelperWidgets.ScrollView {
                                     width: root.cellWidth
                                     height: root.cellHeight
 
-                                    importerRunning: ContentLibraryBackend.userModel.importerRunning
+                                    importerRunning: ContentLibraryBackend.rootView.importerRunning
 
                                     onShowContextMenu: ctxMenuMaterial.popupMenu(modelData)
                                     onAddToProject: ContentLibraryBackend.userModel.addToProject(modelData)

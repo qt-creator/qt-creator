@@ -12,7 +12,6 @@ QT_FORWARD_DECLARE_CLASS(QUrl)
 
 namespace QmlDesigner {
 
-class ContentLibraryBundleImporter;
 class ContentLibraryEffect;
 class ContentLibraryMaterial;
 class ContentLibraryTexture;
@@ -27,7 +26,6 @@ class ContentLibraryUserModel : public QAbstractListModel
     Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
     Q_PROPERTY(bool hasRequiredQuick3DImport READ hasRequiredQuick3DImport NOTIFY hasRequiredQuick3DImportChanged)
     Q_PROPERTY(bool hasModelSelection READ hasModelSelection NOTIFY hasModelSelectionChanged)
-    Q_PROPERTY(bool importerRunning MEMBER m_importerRunning NOTIFY importerRunningChanged)
     Q_PROPERTY(QList<ContentLibraryMaterial *> userMaterials MEMBER m_userMaterials NOTIFY userMaterialsChanged)
     Q_PROPERTY(QList<ContentLibraryTexture *> userTextures MEMBER m_userTextures NOTIFY userTexturesChanged)
     Q_PROPERTY(QList<ContentLibraryEffect *> user3DItems MEMBER m_user3DItems NOTIFY user3DItemsChanged)
@@ -41,7 +39,7 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     void setSearchText(const QString &searchText);
-    void updateImportedState();
+    void updateImportedState(const QStringList &importedItems);
 
     QPair<QString, QString> getUniqueLibMaterialNameAndQml(const QString &matName) const;
     TypeName qmlToModule(const QString &qmlName) const;
@@ -67,8 +65,6 @@ public:
     void loadMaterialBundle();
     void loadTextureBundle();
 
-    ContentLibraryBundleImporter *bundleImporter() const;
-
     Q_INVOKABLE void applyToSelected(QmlDesigner::ContentLibraryMaterial *mat, bool add = false);
     Q_INVOKABLE void addToProject(QmlDesigner::ContentLibraryMaterial *mat);
     Q_INVOKABLE void removeFromProject(QmlDesigner::ContentLibraryMaterial *mat);
@@ -86,23 +82,16 @@ signals:
 
     void applyToSelectedTriggered(QmlDesigner::ContentLibraryMaterial *mat, bool add = false);
 
-#ifdef QDS_USE_PROJECTSTORAGE
-    void bundleMaterialImported(const QmlDesigner::TypeName &typeName);
-#else
-    void bundleMaterialImported(const QmlDesigner::NodeMetaInfo &metaInfo);
-#endif
-    void bundleMaterialAboutToUnimport(const QmlDesigner::TypeName &type);
-    void bundleMaterialUnimported(const QmlDesigner::NodeMetaInfo &metaInfo);
-    void importerRunningChanged();
+
     void matBundleExistsChanged();
 
 private:
     bool isValidIndex(int idx) const;
-    void createImporter();
 
     ContentLibraryWidget *m_widget = nullptr;
     QString m_searchText;
     QString m_bundleIdMaterial;
+    QStringList m_bundleSharedFiles;
 
     QList<ContentLibraryMaterial *> m_userMaterials;
     QList<ContentLibraryTexture *> m_userTextures;
@@ -111,19 +100,14 @@ private:
     QStringList m_userCategories;
 
     QJsonObject m_bundleObj;
-    ContentLibraryBundleImporter *m_importer = nullptr;
 
     bool m_isEmpty = true;
     bool m_matBundleExists = false;
     bool m_hasModelSelection = false;
-    bool m_importerRunning = false;
 
     int m_quick3dMajorVersion = -1;
     int m_quick3dMinorVersion = -1;
 
-    QString m_importerBundlePath;
-    QString m_importerBundleId;
-    QStringList m_importerSharedFiles;
 
     enum Roles { NameRole = Qt::UserRole + 1, VisibleRole, ItemsRole };
 };

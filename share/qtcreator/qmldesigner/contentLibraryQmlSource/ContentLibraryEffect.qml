@@ -23,7 +23,7 @@ Item {
         acceptedButtons: Qt.LeftButton | Qt.RightButton
 
         onPressed: (mouse) => {
-            if (mouse.button === Qt.LeftButton && !ContentLibraryBackend.effectsModel.importerRunning)
+            if (mouse.button === Qt.LeftButton && !ContentLibraryBackend.rootView.importerRunning)
                 ContentLibraryBackend.rootView.startDragEffect(modelData, mapToGlobal(mouse.x, mouse.y))
             else if (mouse.button === Qt.RightButton)
                 root.showContextMenu()

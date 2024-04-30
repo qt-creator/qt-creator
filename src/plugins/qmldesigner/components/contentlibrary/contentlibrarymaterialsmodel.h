@@ -3,15 +3,13 @@
 
 #pragma once
 
-#include "nodemetainfo.h"
-
 #include <QAbstractListModel>
-#include <QDir>
 #include <QJsonObject>
+
+QT_FORWARD_DECLARE_CLASS(QDir)
 
 namespace QmlDesigner {
 
-class ContentLibraryBundleImporter;
 class ContentLibraryMaterial;
 class ContentLibraryMaterialsCategory;
 class ContentLibraryWidget;
@@ -24,7 +22,6 @@ class ContentLibraryMaterialsModel : public QAbstractListModel
     Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
     Q_PROPERTY(bool hasRequiredQuick3DImport READ hasRequiredQuick3DImport NOTIFY hasRequiredQuick3DImportChanged)
     Q_PROPERTY(bool hasModelSelection READ hasModelSelection NOTIFY hasModelSelectionChanged)
-    Q_PROPERTY(bool importerRunning MEMBER m_importerRunning NOTIFY importerRunningChanged)
 
 public:
     ContentLibraryMaterialsModel(ContentLibraryWidget *parent = nullptr);
@@ -35,7 +32,7 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     void setSearchText(const QString &searchText);
-    void updateImportedState();
+    void updateImportedState(const QStringList &importedItems);
 
     void setQuick3DImportVersion(int major, int minor);
 
@@ -50,11 +47,11 @@ public:
     void updateIsEmpty();
     void loadBundle();
 
-    ContentLibraryBundleImporter *bundleImporter() const;
-
     Q_INVOKABLE void applyToSelected(QmlDesigner::ContentLibraryMaterial *mat, bool add = false);
     Q_INVOKABLE void addToProject(QmlDesigner::ContentLibraryMaterial *mat);
     Q_INVOKABLE void removeFromProject(QmlDesigner::ContentLibraryMaterial *mat);
+
+    QString bundleId() const;
 
 signals:
     void isEmptyChanged();
@@ -62,14 +59,6 @@ signals:
     void hasModelSelectionChanged();
     void materialVisibleChanged();
     void applyToSelectedTriggered(QmlDesigner::ContentLibraryMaterial *mat, bool add = false);
-#ifdef QDS_USE_PROJECTSTORAGE
-    void bundleMaterialImported(const QmlDesigner::TypeName &typeName);
-#else
-    void bundleMaterialImported(const QmlDesigner::NodeMetaInfo &metaInfo);
-#endif
-    void bundleMaterialAboutToUnimport(const QmlDesigner::TypeName &type);
-    void bundleMaterialUnimported(const QmlDesigner::NodeMetaInfo &metaInfo);
-    void importerRunningChanged();
     void matBundleExistsChanged();
 
 private:
@@ -78,26 +67,23 @@ private:
     bool fetchBundleMetadata(const QDir &bundleDir);
     bool isValidIndex(int idx) const;
     void downloadSharedFiles(const QDir &targetDir, const QStringList &files);
-    void createImporter();
 
     ContentLibraryWidget *m_widget = nullptr;
     QString m_searchText;
+    QString m_bundleId;
+    QStringList m_bundleSharedFiles;
     QList<ContentLibraryMaterialsCategory *> m_bundleCategories;
     QJsonObject m_matBundleObj;
-    ContentLibraryBundleImporter *m_importer = nullptr;
 
     bool m_isEmpty = true;
     bool m_matBundleExists = false;
     bool m_hasModelSelection = false;
-    bool m_importerRunning = false;
 
     int m_quick3dMajorVersion = -1;
     int m_quick3dMinorVersion = -1;
 
     QString m_downloadPath;
     QString m_baseUrl;
-
-    QStringList m_importerSharedFiles;
 };
 
 } // namespace QmlDesigner

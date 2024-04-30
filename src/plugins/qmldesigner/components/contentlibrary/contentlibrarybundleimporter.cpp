@@ -3,12 +3,13 @@
 
 #include "contentlibrarybundleimporter.h"
 
-#include "documentmanager.h"
-#include "import.h"
-#include "model.h"
-#include "qmldesignerconstants.h"
-#include "qmldesignerplugin.h"
-#include "rewritingexception.h"
+#include <documentmanager.h>
+#include <import.h>
+#include <model.h>
+#include <nodemetainfo.h>
+#include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
+#include <rewritingexception.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
@@ -37,10 +38,10 @@ QString ContentLibraryBundleImporter::importComponent(const QString &bundleDir,
                                                       const QStringList &files)
 {
     QString module = QString::fromLatin1(type.left(type.lastIndexOf('.')));
-    QString bundleId = module.mid(module.lastIndexOf('.') + 1);
+    m_bundleId = module.mid(module.lastIndexOf('.') + 1);
 
     FilePath bundleDirPath = FilePath::fromString(bundleDir); // source dir
-    FilePath bundleImportPath = resolveBundleImportPath(bundleId); // target dir
+    FilePath bundleImportPath = resolveBundleImportPath(m_bundleId); // target dir
 
     if (bundleImportPath.isEmpty())
         return "Failed to resolve bundle import folder";
@@ -145,9 +146,11 @@ void ContentLibraryBundleImporter::handleImportTimer()
         for (const TypeName &pendingType : pendingTypes) {
             m_pendingTypes.remove(pendingType);
             if (m_pendingTypes.value(pendingType))
-                emit importFinished({});
+                emit importFinished({}, m_bundleId);
             else
-                emit unimportFinished({});
+                emit unimportFinished({}, m_bundleId);
+
+            m_bundleId.clear();
         }
     };
 
@@ -193,12 +196,14 @@ void ContentLibraryBundleImporter::handleImportTimer()
             m_pendingTypes.remove(pendingType);
             if (isImport)
 #ifdef QDS_USE_PROJECTSTORAGE
-                emit importFinished(pendingType);
+                emit importFinished(pendingType, m_bundleId);
 #else
-                emit importFinished(metaInfo);
+                emit importFinished(metaInfo, m_bundleId);
 #endif
             else
-                emit unimportFinished(metaInfo);
+                emit unimportFinished(metaInfo, m_bundleId);
+
+            m_bundleId.clear();
         }
     }
 
@@ -208,10 +213,10 @@ void ContentLibraryBundleImporter::handleImportTimer()
     }
 }
 
-QVariantHash ContentLibraryBundleImporter::loadAssetRefMap(const Utils::FilePath &bundlePath)
+QVariantHash ContentLibraryBundleImporter::loadAssetRefMap(const FilePath &bundlePath)
 {
     FilePath assetRefPath = bundlePath.resolvePath(QLatin1String(Constants::COMPONENT_BUNDLES_ASSET_REF_FILE));
-    const Utils::expected_str<QByteArray> content = assetRefPath.fileContents();
+    const expected_str<QByteArray> content = assetRefPath.fileContents();
     if (content) {
         QJsonParseError error;
         QJsonDocument bundleDataJsonDoc = QJsonDocument::fromJson(*content, &error);
@@ -225,7 +230,7 @@ QVariantHash ContentLibraryBundleImporter::loadAssetRefMap(const Utils::FilePath
     return {};
 }
 
-void ContentLibraryBundleImporter::writeAssetRefMap(const Utils::FilePath &bundlePath,
+void ContentLibraryBundleImporter::writeAssetRefMap(const FilePath &bundlePath,
                                                     const QVariantHash &assetRefMap)
 {
     FilePath assetRefPath = bundlePath.resolvePath(QLatin1String(Constants::COMPONENT_BUNDLES_ASSET_REF_FILE));
@@ -239,9 +244,11 @@ void ContentLibraryBundleImporter::writeAssetRefMap(const Utils::FilePath &bundl
 QString ContentLibraryBundleImporter::unimportComponent(const TypeName &type, const QString &qmlFile)
 {
     QString module = QString::fromLatin1(type.left(type.lastIndexOf('.')));
-    QString bundleId = module.mid(module.lastIndexOf('.') + 1);
+    m_bundleId = module.mid(module.lastIndexOf('.') + 1);
 
-    FilePath bundleImportPath = resolveBundleImportPath(bundleId);
+    emit aboutToUnimport(type, m_bundleId);
+
+    FilePath bundleImportPath = resolveBundleImportPath(m_bundleId);
     if (bundleImportPath.isEmpty())
         return QStringLiteral("Failed to resolve bundle import folder for: '%1'").arg(qmlFile);
 
