@@ -85,7 +85,7 @@
 
     \list
         \li \l{Connecting MCUs}
-        \li \l{Running Applications on MCUs}
+        \li \l{MCUs}{How To: Develop for MCUs}
         \li \l{https://doc.qt.io/QtForMCUs/index.html}{\QMCU}
     \endlist
 
@@ -107,5 +107,5 @@
         \li \l{Qt for QNX}
     \endlist
 
-    \sa {Supported Platforms}
+    \sa {Develop for Devices}{How To: Develop for Devices}, {Supported Platforms}
 */

@@ -288,9 +288,11 @@ void ToolTip::hideTipWithDelay()
 void ToolTip::hideTipImmediately()
 {
     if (m_tip) {
-        m_tip->close();
-        m_tip->deleteLater();
-        m_tip = nullptr;
+        TipLabel *tip = m_tip.data();
+        m_tip.clear();
+
+        tip->close();
+        tip->deleteLater();
     }
     m_showTimer.stop();
     m_hideDelayTimer.stop();

@@ -61,7 +61,7 @@
             \QC detects the tools and configured devices automatically and uses
             the tools to build, deploy, and run applications.
 
-        \li \l{Connecting MCUs}
+        \li \l{Developing for MCUs}
 
             You can connect MCU boards to a development host to deploy, run, and
             debug applications on them from \QC.

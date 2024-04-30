@@ -136,6 +136,8 @@ Internal::PresetsData CMakeProject::combinePresets(Internal::PresetsData &cmakeP
                                                && left.inherits.value().contains(right.name);
 
                 const bool inheritsGreater = left.inherits && right.inherits
+                                             && !left.inherits.value().isEmpty()
+                                             && !right.inherits.value().isEmpty()
                                              && left.inherits.value().first()
                                                     > right.inherits.value().first();
 

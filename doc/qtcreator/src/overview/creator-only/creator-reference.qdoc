@@ -57,6 +57,8 @@
     as Android or QNX, the build and run configurations for the development
     targets might be set up automatically in \QC.
 
+    \annotatedlist creator-reference-devices
+
     \section2 Deploy Configurations
 
     Deploy configurations handle the packaging of the application as an

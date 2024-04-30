@@ -26,6 +26,10 @@
     \title \QMCU - Supported Target Platforms
 */
 /*!
+    \externalpage https://doc.qt.io/QtForMCUs/qtul-prerequisites.html
+    \title \QMCU - Prerequisites
+*/
+/*!
     \externalpage https://doc.qt.io/QtForMCUs/qtul-getting-started-renesas.html
     \title Getting Started on Renesas
 */
@@ -36,6 +40,10 @@
 /*!
     \externalpage https://doc.qt.io/QtForMCUs/qtul-getting-started-on-nxp.html
     \title Getting Started on NXP
+*/
+/*!
+    \externalpage https://doc.qt.io/QtForMCUs/qtul-getting-started-on-infineon.html
+    \title Getting Started on Infineon
 */
 /*!
     \externalpage https://doc.qt.io/QtForMCUs/qtul-getting-started-windows.html

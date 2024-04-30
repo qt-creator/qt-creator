@@ -287,7 +287,7 @@ static const QPixmap &searchBoxIcon()
 }
 
 SearchBox::SearchBox(QWidget *parent)
-    : QLineEdit(parent)
+    : Utils::FancyLineEdit(parent)
 {
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setAutoFillBackground(false);
@@ -301,10 +301,9 @@ SearchBox::SearchBox(QWidget *parent)
     pal.setColor(QPalette::Text, searchBoxTextTF.color());
     setPalette(pal);
 
-    const QSize iconSize = searchBoxIcon().deviceIndependentSize().toSize();
-    setContentsMargins({HPaddingXs, ExPaddingGapM,
-                        HPaddingXs + iconSize.width() + HPaddingXs, ExPaddingGapM});
+    setContentsMargins({HPaddingXs, ExPaddingGapM, 0, ExPaddingGapM});
     setFixedHeight(ExPaddingGapM + searchBoxTextTF.lineHeight() + ExPaddingGapM);
+    setFiltering(true);
 }
 
 QSize SearchBox::minimumSizeHint() const
@@ -351,10 +350,12 @@ void SearchBox::paintEvent(QPaintEvent *event)
     QPainter p(this);
 
     paintCommonBackground(&p, rect(), this);
-    const QPixmap icon = searchBoxIcon();
-    const QSize iconS = icon.deviceIndependentSize().toSize();
-    const QPoint iconPos(width() - HPaddingXs - iconS.width(), (height() - iconS.height()) / 2);
-    p.drawPixmap(iconPos, icon);
+    if (text().isEmpty()) {
+        const QPixmap icon = searchBoxIcon();
+        const QSize iconS = icon.deviceIndependentSize().toSize();
+        const QPoint iconPos(width() - HPaddingXs - iconS.width(), (height() - iconS.height()) / 2);
+        p.drawPixmap(iconPos, icon);
+    }
 
     QLineEdit::paintEvent(event);
 }
