@@ -23,6 +23,7 @@
 #include "utils3d.h"
 
 #include <designerpaths.h>
+#include <qmldesignerplugin.h>
 
 #include <coreplugin/messagebox.h>
 #include <enumeration.h>

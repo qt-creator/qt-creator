@@ -18,7 +18,7 @@
         { "key": "ProjectPluginClassName", "value": "%{ProjectName}Plugin" },
         { "key": "QmlProjectFileName", "value": "%{JS: Util.fileName('%{ProjectName}', 'qmlproject')}" },
         { "key": "IsQt6Project", "value": "%{JS: value('QtQuickVersion') !== '2.15' }" },
-        { "key": "AssetDir", "value": "GeneratedComponents" },
+        { "key": "AssetDir", "value": "Generated" },
         { "key": "ContentDir", "value": "%{ProjectName}Content" },
         { "key": "ImportModuleName", "value": "%{ProjectName}" },
         { "key": "UIClassName", "value": "Screen01" },

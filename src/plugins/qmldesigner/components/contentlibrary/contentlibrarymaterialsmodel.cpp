@@ -273,7 +273,11 @@ void ContentLibraryMaterialsModel::loadMaterialBundle(const QDir &matBundleDir)
         }
     }
 
-    QString bundleId = m_matBundleObj.value("id").toString();
+    QString bundleType = QmlDesignerPlugin::instance()->documentManager()
+        .generatedComponentUtils().materialsBundleType();
+
+    // Substitute correct id to avoid issues with old bundles
+    m_matBundleObj["id"] = bundleType.split('.').last();
 
     const QJsonObject catsObj = m_matBundleObj.value("categories").toObject();
     const QStringList categories = catsObj.keys();
@@ -292,11 +296,8 @@ void ContentLibraryMaterialsModel::loadMaterialBundle(const QDir &matBundleDir)
 
             QUrl icon = QUrl::fromLocalFile(matBundleDir.filePath(matObj.value("icon").toString()));
             QString qml = matObj.value("qml").toString();
-            TypeName type = QLatin1String("%1.%2.%3")
-                                .arg(QmlDesignerPlugin::instance()->documentManager()
-                                         .generatedComponentUtils().componentBundlesTypePrefix(),
-                                     bundleId,
-                                     qml.chopped(4)).toLatin1(); // chopped(4): remove .qml
+            TypeName type = QLatin1String("%1.%2")
+                                .arg(bundleType, qml.chopped(4)).toLatin1(); // chopped(4): remove .qml
 
             auto bundleMat = new ContentLibraryMaterial(category, matName, qml, type, icon, files,
                                                         m_downloadPath, m_baseUrl);

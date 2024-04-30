@@ -21,6 +21,8 @@ public:
     Utils::FilePath composedEffectPath(const QString &effectPath) const;
     Utils::FilePath componentBundlesBasePath() const;
     Utils::FilePath import3dBasePath() const;
+    Utils::FilePath materialBundlePath() const;
+    Utils::FilePath effectBundlePath() const;
 
     bool isImport3dPath(const QString &path) const;
     bool isComposedEffectPath(const QString &path) const;
@@ -30,6 +32,8 @@ public:
     QString import3dTypePath() const;
     QString componentBundlesTypePrefix() const;
     QString composedEffectsTypePrefix() const;
+    QString materialsBundleType() const;
+    QString effectsBundleType() const;
 
 private:
     ExternalDependenciesInterface &m_externalDependencies;
