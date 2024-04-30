@@ -21,6 +21,8 @@ Qtc = {}
 ---@field DisabledByDefault? boolean Whether the plugin is disabled by default or not. ( Default: true )
 ---@field setup function The setup function of the plugin.
 ---@field hooks? Hooks The hooks of the plugin.
+---@field Mimetypes? string XML MIME-info for registering additional or adapting built-in MIME types.
+---@field JsonWizardPaths? string[] A list of paths relative to the plugin location or paths to the Qt resource system that are searched for template-based wizards.
 QtcPlugin = {}
 
 ---@class QtcPluginDependency

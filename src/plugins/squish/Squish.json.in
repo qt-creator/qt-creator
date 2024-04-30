@@ -26,5 +26,6 @@ ${IDE_PLUGIN_DEPENDENCIES},
     "        <glob pattern='objects.map'/>",
     "    </mime-type>",
     "</mime-info>"
-]
+],
+"JsonWizardPaths" : [":/squish/wizard/"]
 }

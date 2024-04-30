@@ -37,8 +37,6 @@ public:
         FileIconProvider::registerIconForMimeType(QIcon(":/compilerexplorer/logos/ce.ico"),
                                                   "application/compiler-explorer");
 
-        ProjectExplorer::JsonWizardFactory::addWizardPath(":/compilerexplorer/wizard/");
-
         const Id menuId = "Tools.CompilerExplorer";
         MenuBuilder(menuId)
             .setTitle(Tr::tr("Compiler Explorer"))

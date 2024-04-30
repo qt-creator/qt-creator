@@ -16,5 +16,7 @@
     "Category" : "Version Control",
     "Description" : "Fossil SCM integration.",
     "Url" : "http://www.qt.io",
-    ${IDE_PLUGIN_DEPENDENCIES}
+    ${IDE_PLUGIN_DEPENDENCIES},
+
+    "JsonWizardPaths" : [":/fossil/wizard"]
 }

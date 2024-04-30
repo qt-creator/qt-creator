@@ -16,5 +16,7 @@
     "Category" : "Device Support",
     "Description" : "Helper plugin for Qt Safe Renderer projects.",
     "Url" : "https://www.qt.io",
-    ${IDE_PLUGIN_DEPENDENCIES}
+    ${IDE_PLUGIN_DEPENDENCIES},
+
+    "JsonWizardPaths" : [":/saferenderer/wizards/"]
 }

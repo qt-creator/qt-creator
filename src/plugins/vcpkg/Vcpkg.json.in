@@ -27,5 +27,6 @@
         "        <glob pattern='vcpkg.json' weight='71'/>",
         "    </mime-type>",
         "</mime-info>"
-    ]
+    ],
+    "JsonWizardPaths" : [":/vcpkg/wizards/"]
 }

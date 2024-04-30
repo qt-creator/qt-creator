@@ -827,6 +827,11 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     setupJsonWizardPages();
     setupJsonWizardFileGenerator();
     setupJsonWizardScannerGenerator();
+    // new plugins might add new paths via the plugin spec
+    connect(
+        PluginManager::instance(),
+        &PluginManager::pluginsChanged,
+        &JsonWizardFactory::resetSearchPaths);
 
     dd->extendFolderNavigationWidgetFactory();
 

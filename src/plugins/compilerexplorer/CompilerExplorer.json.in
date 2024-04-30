@@ -26,5 +26,6 @@
         "        <glob pattern='*.qtce'/>",
         "    </mime-type>",
         "</mime-info>"
-    ]
+    ],
+    "JsonWizardPaths" : [":/compilerexplorer/wizard/"]
 }

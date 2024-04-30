@@ -69,6 +69,7 @@ private:
                                                   const Utils::FilePath &baseDir,
                                                   QString *errorMessage);
     static Utils::FilePaths &searchPaths();
+    static void resetSearchPaths();
 
     static void setVerbose(int level);
     static int verbose();

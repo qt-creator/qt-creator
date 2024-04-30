@@ -16,6 +16,7 @@
 #include <coreplugin/messagemanager.h>
 
 #include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
@@ -28,6 +29,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QJSEngine>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
@@ -35,6 +37,7 @@
 #include <QUuid>
 
 using namespace Utils;
+using namespace ExtensionSystem;
 
 namespace ProjectExplorer {
 
@@ -564,12 +567,13 @@ static QStringList environmentTemplatesPaths()
     return paths;
 }
 
+static bool s_searchPathsInitialized = false;
+
 FilePaths &JsonWizardFactory::searchPaths()
 {
     static FilePaths m_searchPaths;
-    static bool searchPathsInitialized = false;
-    if (!searchPathsInitialized) {
-        searchPathsInitialized = true;
+    if (!s_searchPathsInitialized) {
+        s_searchPathsInitialized = true;
         m_searchPaths = {Core::ICore::userResourcePath(WIZARD_PATH),
                          Core::ICore::resourcePath(WIZARD_PATH)};
         for (const QString &environmentTemplateDirName : environmentTemplatesPaths())
@@ -577,9 +581,27 @@ FilePaths &JsonWizardFactory::searchPaths()
         m_searchPaths << Utils::transform(
             Core::ICore::settings()->value("Wizards/SearchPaths").toStringList(),
             [](const QString &s) { return FilePath::fromUserInput(s); });
+        // add paths from enabled plugin meta data
+        for (PluginSpec *plugin : PluginManager::plugins()) {
+            if (plugin->state() == PluginSpec::Running) {
+                const auto base = FilePath::fromString(plugin->filePath()).parentDir();
+                const auto values = plugin->metaData().value("JsonWizardPaths").toArray();
+                for (const QJsonValue &v : values) {
+                    const auto path = FilePath::fromString(v.toString());
+                    if (!path.isEmpty() && !path.needsDevice()) {
+                        m_searchPaths << base.resolvePath(path);
+                    }
+                }
+            }
+        }
     }
 
     return m_searchPaths;
+}
+
+void JsonWizardFactory::resetSearchPaths()
+{
+    s_searchPathsInitialized = false;
 }
 
 void JsonWizardFactory::addWizardPath(const FilePath &path)

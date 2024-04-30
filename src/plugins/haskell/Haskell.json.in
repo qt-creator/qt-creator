@@ -19,5 +19,6 @@
         "        <glob pattern='*.cabal'/>",
         "    </mime-type>",
         "</mime-info>"
-    ]
+    ],
+    "JsonWizardPaths" : [ ":/haskell/share/wizards/" ]
 }
