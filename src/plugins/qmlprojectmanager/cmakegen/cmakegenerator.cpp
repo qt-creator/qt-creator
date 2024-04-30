@@ -330,8 +330,7 @@ NodePtr CMakeGenerator::findOrCreateNode(NodePtr &node, const Utils::FilePath &p
     };
 
     const Utils::FilePath relative = path.relativeChildPath(node->dir);
-    const QChar separator = relative.pathComponentSeparator();
-    const QList<QStringView> components = relative.pathView().split(separator);
+    const QList<QStringView> components = relative.pathView().split('/');
 
     NodePtr lastNode = node;
     for (const auto &comp : components) {
