@@ -116,7 +116,8 @@ bool GeneratedComponentUtils::isImport3dPath(const QString &path) const
 bool GeneratedComponentUtils::isComposedEffectPath(const QString &path) const
 {
     return path.contains(Constants::OLD_EFFECTS_IMPORT_FOLDER)
-           || path.contains('/' + QLatin1String(Constants::COMPOSED_EFFECTS_TYPE));
+           || path.contains(QLatin1String(Constants::GENERATED_COMPONENTS_FOLDER) + '/'
+                            + QLatin1String(Constants::COMPOSED_EFFECTS_TYPE));
 }
 
 QString GeneratedComponentUtils::generatedComponentTypePrefix() const

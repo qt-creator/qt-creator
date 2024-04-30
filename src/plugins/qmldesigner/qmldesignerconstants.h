@@ -95,7 +95,7 @@ inline constexpr char OLD_EFFECTS_FOLDER[] = "Effects";
 inline constexpr char OLD_COMPONENT_BUNDLES_TYPE[] = "ComponentBundles";
 inline constexpr char OLD_COMPONENT_BUNDLES_MATERIAL_BUNDLE_TYPE[] = "MaterialBundle";
 inline constexpr char OLD_COMPONENT_BUNDLES_EFFECT_BUNDLE_TYPE[] = "EffectBundle";
-inline constexpr char COMPOSED_EFFECTS_TYPE[] = "ComposedEffects";
+inline constexpr char COMPOSED_EFFECTS_TYPE[] = "Effects";
 inline constexpr char MATERIAL_LIB_ID[] = "__materialLibrary__";
 
 inline constexpr char MIME_TYPE_ITEM_LIBRARY_INFO[]
