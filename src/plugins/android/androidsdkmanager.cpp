@@ -8,6 +8,8 @@
 
 #include <coreplugin/icore.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/layoutbuilder.h>
@@ -30,6 +32,7 @@ Q_LOGGING_CATEGORY(sdkManagerLog, "qtc.android.sdkManager", QtWarningMsg)
 const char commonArgsKey[] = "Common Arguments:";
 }
 
+using namespace Tasking;
 using namespace Utils;
 
 using namespace std::chrono;
@@ -115,10 +118,10 @@ private:
     OutputFormatter *m_formatter = nullptr;
 };
 
-const int sdkManagerCmdTimeoutS = 60;
-const int sdkManagerOperationTimeoutS = 600;
-
-using SdkCmdPromise = QPromise<AndroidSdkManager::OperationOutput>;
+static QString sdkRootArg(const AndroidConfig &config)
+{
+    return "--sdk_root=" + config.sdkLocation().toString();
+}
 
 static const QRegularExpression &assertionRegExp()
 {
@@ -128,6 +131,108 @@ static const QRegularExpression &assertionRegExp()
 
     return theRegExp;
 }
+
+static std::optional<int> parseProgress(const QString &out)
+{
+    if (out.isEmpty())
+        return {};
+
+    static const QRegularExpression reg("(?<progress>\\d*)%");
+    static const QRegularExpression regEndOfLine("[\\n\\r]");
+    const QStringList lines = out.split(regEndOfLine, Qt::SkipEmptyParts);
+    std::optional<int> progress;
+    for (const QString &line : lines) {
+        QRegularExpressionMatch match = reg.match(line);
+        if (match.hasMatch()) {
+            const int parsedProgress = match.captured("progress").toInt();
+            if (parsedProgress >= 0 && parsedProgress <= 100)
+                progress = parsedProgress;
+        }
+    }
+    return progress;
+}
+
+struct DialogStorage
+{
+    DialogStorage() { m_dialog.reset(new QuestionProgressDialog(Core::ICore::dialogParent())); };
+    std::unique_ptr<QuestionProgressDialog> m_dialog;
+};
+
+static GroupItem licensesRecipe(const Storage<DialogStorage> &dialogStorage)
+{
+    struct OutputData
+    {
+        QString buffer;
+        int current = 0;
+        int total = 0;
+    };
+
+    const Storage<OutputData> outputStorage;
+
+    const auto onLicenseSetup = [dialogStorage, outputStorage](Process &process) {
+        QuestionProgressDialog *dialog = dialogStorage->m_dialog.get();
+        dialog->setProgress(0);
+        dialog->appendMessage(Tr::tr("Checking pending licenses...") + "\n", NormalMessageFormat);
+        dialog->appendMessage(Tr::tr("The installation of Android SDK packages may fail if the "
+                                     "respective licenses are not accepted.") + "\n\n",
+                              LogMessageFormat);
+        process.setProcessMode(ProcessMode::Writer);
+        process.setEnvironment(androidConfig().toolsEnvironment());
+        process.setCommand(CommandLine(androidConfig().sdkManagerToolPath(),
+                                       {"--licenses", sdkRootArg(androidConfig())}));
+        process.setUseCtrlCStub(true);
+
+        Process *processPtr = &process;
+        OutputData *outputPtr = outputStorage.activeStorage();
+        QObject::connect(processPtr, &Process::readyReadStandardOutput, dialog,
+                         [processPtr, outputPtr, dialog] {
+            QTextCodec *codec = QTextCodec::codecForLocale();
+            const QString stdOut = codec->toUnicode(processPtr->readAllRawStandardOutput());
+            outputPtr->buffer += stdOut;
+            dialog->appendMessage(stdOut, StdOutFormat);
+            const auto progress = parseProgress(stdOut);
+            if (progress)
+                dialog->setProgress(*progress);
+            if (assertionRegExp().match(outputPtr->buffer).hasMatch()) {
+                dialog->setQuestionVisible(true);
+                dialog->setQuestionEnabled(true);
+                if (outputPtr->total == 0) {
+                    // Example output to match:
+                    //   5 of 6 SDK package licenses not accepted.
+                    //   Review licenses that have not been accepted (y/N)?
+                    static const QRegularExpression reg(R"(((?<steps>\d+)\sof\s)\d+)");
+                    const QRegularExpressionMatch match = reg.match(outputPtr->buffer);
+                    if (match.hasMatch()) {
+                        outputPtr->total = match.captured("steps").toInt();
+                        const QByteArray reply = "y\n";
+                        dialog->appendMessage(QString::fromUtf8(reply), NormalMessageFormat);
+                        processPtr->writeRaw(reply);
+                        dialog->setProgress(0);
+                    }
+                }
+                outputPtr->buffer.clear();
+            }
+        });
+
+        QObject::connect(dialog, &QuestionProgressDialog::answerClicked, processPtr,
+                         [processPtr, outputPtr, dialog](bool accepted) {
+            dialog->setQuestionEnabled(false);
+            const QByteArray reply = accepted ? "y\n" : "n\n";
+            dialog->appendMessage(QString::fromUtf8(reply), NormalMessageFormat);
+            processPtr->writeRaw(reply);
+            ++outputPtr->current;
+            if (outputPtr->total != 0)
+                dialog->setProgress(outputPtr->current * 100.0 / outputPtr->total);
+        });
+    };
+
+    return Group { outputStorage, ProcessTask(onLicenseSetup) };
+}
+
+const int sdkManagerCmdTimeoutS = 60;
+const int sdkManagerOperationTimeoutS = 600;
+
+using SdkCmdPromise = QPromise<AndroidSdkManager::OperationOutput>;
 
 int parseProgress(const QString &out, bool &foundAssertion)
 {
@@ -161,10 +266,6 @@ void watcherDeleter(QFutureWatcher<void> *watcher)
     delete watcher;
 }
 
-static QString sdkRootArg(const AndroidConfig &config)
-{
-    return "--sdk_root=" + config.sdkLocation().toString();
-}
 /*!
     Runs the \c sdkmanger tool with arguments \a args. Returns \c true if the command is
     successfully executed. Output is copied into \a output. The function blocks the calling thread.
