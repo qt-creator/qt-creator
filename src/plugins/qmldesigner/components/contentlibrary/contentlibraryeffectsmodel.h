@@ -86,8 +86,8 @@ private:
     int m_quick3dMajorVersion = -1;
     int m_quick3dMinorVersion = -1;
 
-    QString m_importerBundlePath;
-    QString m_importerBundleId;
+    QString m_bundlePath;
+    QString m_bundleId;
     QStringList m_importerSharedFiles;
 };
 

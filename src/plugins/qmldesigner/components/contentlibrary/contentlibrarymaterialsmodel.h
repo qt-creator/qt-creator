@@ -87,11 +87,12 @@ private:
     ContentLibraryWidget *m_widget = nullptr;
     QString m_searchText;
     QList<ContentLibraryMaterialsCategory *> m_bundleCategories;
-    QJsonObject m_matBundleObj;
     Internal::ContentLibraryBundleImporter *m_importer = nullptr;
+    QJsonObject m_bundleObj;
+    QString m_bundleId;
 
     bool m_isEmpty = true;
-    bool m_matBundleExists = false;
+    bool m_bundleExists = false;
     bool m_hasModelSelection = false;
     bool m_importerRunning = false;
 
