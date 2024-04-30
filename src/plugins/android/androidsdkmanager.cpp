@@ -229,6 +229,82 @@ static GroupItem licensesRecipe(const Storage<DialogStorage> &dialogStorage)
     return Group { outputStorage, ProcessTask(onLicenseSetup) };
 }
 
+static void setupSdkProcess(const QStringList &args, Process *process,
+                            QuestionProgressDialog *dialog, int current, int total)
+{
+    process->setEnvironment(androidConfig().toolsEnvironment());
+    process->setCommand({androidConfig().sdkManagerToolPath(),
+                         args + androidConfig().sdkManagerToolArgs()});
+    QObject::connect(process, &Process::readyReadStandardOutput, dialog,
+                     [process, dialog, current, total] {
+        QTextCodec *codec = QTextCodec::codecForLocale();
+        const auto progress = parseProgress(codec->toUnicode(process->readAllRawStandardOutput()));
+        if (!progress)
+            return;
+        dialog->setProgress((current * 100.0 + *progress) / total);
+    });
+};
+
+static GroupItem installationRecipe(const Storage<DialogStorage> &dialogStorage,
+                                    const InstallationChange &change)
+{
+    const auto onSetup = [dialogStorage] {
+        dialogStorage->m_dialog->appendMessage(
+            Tr::tr("Installing / Uninstalling selected packages...") + '\n', NormalMessageFormat);
+        const QString optionsMessage = HostOsInfo::isMacHost()
+            ? Tr::tr("Closing the preferences dialog will cancel the running and scheduled SDK "
+                     "operations.")
+            : Tr::tr("Closing the options dialog will cancel the running and scheduled SDK "
+                     "operations.");
+        dialogStorage->m_dialog->appendMessage(optionsMessage + '\n', LogMessageFormat);
+    };
+
+    const int total = change.count();
+    const LoopList uninstallIterator(change.toUninstall);
+    const auto onUninstallSetup = [dialogStorage, uninstallIterator, total](Process &process) {
+        const QStringList args = {"--uninstall", *uninstallIterator, sdkRootArg(androidConfig())};
+        QuestionProgressDialog *dialog = dialogStorage->m_dialog.get();
+        setupSdkProcess(args, &process, dialog, uninstallIterator.iteration(), total);
+        dialog->appendMessage(Tr::tr("Uninstalling %1...").arg(*uninstallIterator) + '\n',
+                              StdOutFormat);
+        dialog->setProgress(uninstallIterator.iteration() * 100.0 / total);
+    };
+
+    const LoopList installIterator(change.toInstall);
+    const int offset = change.toUninstall.count();
+    const auto onInstallSetup = [dialogStorage, installIterator, offset, total](Process &process) {
+        const QStringList args = {*installIterator, sdkRootArg(androidConfig())};
+        QuestionProgressDialog *dialog = dialogStorage->m_dialog.get();
+        setupSdkProcess(args, &process, dialog, offset + installIterator.iteration(), total);
+        dialog->appendMessage(Tr::tr("Installing %1...").arg(*installIterator) + '\n',
+                              StdOutFormat);
+        dialog->setProgress((offset + installIterator.iteration()) * 100.0 / total);
+    };
+
+    const auto onDone = [dialogStorage](DoneWith result) {
+        if (result == DoneWith::Success) {
+            dialogStorage->m_dialog->appendMessage(Tr::tr("Finished successfully") + "\n\n",
+                                                   StdOutFormat);
+        } else {
+            dialogStorage->m_dialog->appendMessage(Tr::tr("Failed") + "\n\n", StdErrFormat);
+        }
+    };
+
+    return Group {
+        onGroupSetup(onSetup),
+        Group {
+            finishAllAndSuccess,
+            uninstallIterator,
+            ProcessTask(onUninstallSetup, onDone)
+        },
+        Group {
+            finishAllAndSuccess,
+            installIterator,
+            ProcessTask(onInstallSetup, onDone)
+        }
+    };
+}
+
 const int sdkManagerCmdTimeoutS = 60;
 const int sdkManagerOperationTimeoutS = 600;
 
