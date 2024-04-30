@@ -212,35 +212,43 @@ QString ContentLibraryMaterialsModel::bundleId() const
     return m_bundleId;
 }
 
-void ContentLibraryMaterialsModel::loadMaterialBundle(const QDir &matBundleDir)
+void ContentLibraryMaterialsModel::loadMaterialBundle(const QDir &bundleDir)
 {
-    if (m_matBundleExists)
+    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+
+    if (m_bundleExists && m_bundleId == compUtils.materialsBundleId())
         return;
 
-    QString matBundlePath = matBundleDir.filePath("material_bundle.json");
+    // clean up
+    qDeleteAll(m_bundleCategories);
+    m_bundleCategories.clear();
+    m_bundleExists = false;
+    m_isEmpty = true;
+    m_bundleObj = {};
+    m_bundleId.clear();
 
-    if (m_matBundleObj.isEmpty()) {
-        QFile matPropsFile(matBundlePath);
+    QString bundlePath = bundleDir.filePath("material_bundle.json");
 
-        if (!matPropsFile.open(QIODevice::ReadOnly)) {
-            qWarning("Couldn't open material_bundle.json");
-            return;
-        }
-
-        QJsonDocument matBundleJsonDoc = QJsonDocument::fromJson(matPropsFile.readAll());
-        if (matBundleJsonDoc.isNull()) {
-            qWarning("Invalid material_bundle.json file");
-            return;
-        } else {
-            m_matBundleObj = matBundleJsonDoc.object();
-        }
+    QFile bundleFile(bundlePath);
+    if (!bundleFile.open(QIODevice::ReadOnly)) {
+        qWarning("Couldn't open material_bundle.json");
+        resetModel();
+        return;
     }
 
-    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+    QJsonDocument bundleJsonDoc = QJsonDocument::fromJson(bundleFile.readAll());
+    if (bundleJsonDoc.isNull()) {
+        qWarning("Invalid material_bundle.json file");
+        resetModel();
+        return;
+    }
+
+    m_bundleObj = bundleJsonDoc.object();
+
     QString bundleType = compUtils.materialsBundleType();
     m_bundleId = compUtils.materialsBundleId();
 
-    const QJsonObject catsObj = m_matBundleObj.value("categories").toObject();
+    const QJsonObject catsObj = m_bundleObj.value("categories").toObject();
     const QStringList categories = catsObj.keys();
     for (const QString &cat : categories) {
         auto category = new ContentLibraryMaterialsCategory(this, cat);
@@ -255,7 +263,7 @@ void ContentLibraryMaterialsModel::loadMaterialBundle(const QDir &matBundleDir)
             for (const QJsonValueConstRef &asset : assetsArr)
                 files.append(asset.toString());
 
-            QUrl icon = QUrl::fromLocalFile(matBundleDir.filePath(matObj.value("icon").toString()));
+            QUrl icon = QUrl::fromLocalFile(bundleDir.filePath(matObj.value("icon").toString()));
             QString qml = matObj.value("qml").toString();
             TypeName type = QLatin1String("%1.%2")
                                 .arg(bundleType, qml.chopped(4)).toLatin1(); // chopped(4): remove .qml
@@ -269,23 +277,22 @@ void ContentLibraryMaterialsModel::loadMaterialBundle(const QDir &matBundleDir)
     }
 
     m_bundleSharedFiles.clear();
-    const QJsonArray sharedFilesArr = m_matBundleObj.value("sharedFiles").toArray();
+    const QJsonArray sharedFilesArr = m_bundleObj.value("sharedFiles").toArray();
     for (const QJsonValueConstRef &file : sharedFilesArr)
         m_bundleSharedFiles.append(file.toString());
 
     QStringList missingSharedFiles;
     for (const QString &s : std::as_const(m_bundleSharedFiles)) {
-        if (!QFileInfo::exists(matBundleDir.filePath(s)))
+        if (!QFileInfo::exists(bundleDir.filePath(s)))
             missingSharedFiles.push_back(s);
     }
 
     if (missingSharedFiles.length() > 0)
-        downloadSharedFiles(matBundleDir, missingSharedFiles);
+        downloadSharedFiles(bundleDir, missingSharedFiles);
 
-    resetModel();
+    m_bundleExists = true;
     updateIsEmpty();
-    m_matBundleExists = true;
-    emit matBundleExistsChanged();
+    resetModel();
 }
 
 bool ContentLibraryMaterialsModel::hasRequiredQuick3DImport() const
@@ -295,7 +302,7 @@ bool ContentLibraryMaterialsModel::hasRequiredQuick3DImport() const
 
 bool ContentLibraryMaterialsModel::matBundleExists() const
 {
-    return m_matBundleExists;
+    return m_bundleExists;
 }
 
 void ContentLibraryMaterialsModel::setSearchText(const QString &searchText)

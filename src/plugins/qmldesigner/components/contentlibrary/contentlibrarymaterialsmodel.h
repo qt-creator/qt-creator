@@ -73,10 +73,10 @@ private:
     QString m_bundleId;
     QStringList m_bundleSharedFiles;
     QList<ContentLibraryMaterialsCategory *> m_bundleCategories;
-    QJsonObject m_matBundleObj;
+    QJsonObject m_bundleObj;
 
     bool m_isEmpty = true;
-    bool m_matBundleExists = false;
+    bool m_bundleExists = false;
     bool m_hasModelSelection = false;
 
     int m_quick3dMajorVersion = -1;

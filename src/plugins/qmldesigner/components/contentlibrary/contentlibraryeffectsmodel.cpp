@@ -95,8 +95,20 @@ QHash<int, QByteArray> ContentLibraryEffectsModel::roleNames() const
 
 void ContentLibraryEffectsModel::loadBundle()
 {
-    if (m_bundleExists || m_probeBundleDir)
+    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+
+    if (m_probeBundleDir || (m_bundleExists && m_bundleId == compUtils.effectsBundleId()))
         return;
+
+    // clean up
+    qDeleteAll(m_bundleCategories);
+    m_bundleCategories.clear();
+    m_bundleExists = false;
+    m_isEmpty = true;
+    m_probeBundleDir = false;
+    m_bundleObj = {};
+    m_bundleId.clear();
+    m_bundlePath.clear();
 
     QDir bundleDir;
 
@@ -112,30 +124,30 @@ void ContentLibraryEffectsModel::loadBundle()
         while (!bundleDir.cd("effect_bundle") && bundleDir.cdUp())
             ; // do nothing
 
-        if (bundleDir.dirName() != "effect_bundle") // bundlePathDir not found
+        if (bundleDir.dirName() != "effect_bundle") { // bundlePathDir not found
+            resetModel();
             return;
+        }
     }
 
     QString bundlePath = bundleDir.filePath("effect_bundle.json");
 
-    if (m_bundleObj.isEmpty()) {
-        QFile propsFile(bundlePath);
-
-        if (!propsFile.open(QIODevice::ReadOnly)) {
-            qWarning("Couldn't open effect_bundle.json");
-            return;
-        }
-
-        QJsonDocument bundleJsonDoc = QJsonDocument::fromJson(propsFile.readAll());
-        if (bundleJsonDoc.isNull()) {
-            qWarning("Invalid effect_bundle.json file");
-            return;
-        } else {
-            m_bundleObj = bundleJsonDoc.object();
-        }
+    QFile bundleFile(bundlePath);
+    if (!bundleFile.open(QIODevice::ReadOnly)) {
+        qWarning("Couldn't open effect_bundle.json");
+        resetModel();
+        return;
     }
 
-    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+    QJsonDocument bundleJsonDoc = QJsonDocument::fromJson(bundleFile.readAll());
+    if (bundleJsonDoc.isNull()) {
+        qWarning("Invalid effect_bundle.json file");
+        resetModel();
+        return;
+    }
+
+    m_bundleObj = bundleJsonDoc.object();
+
     QString bundleType = compUtils.effectsBundleType();
     m_bundleId = compUtils.effectsBundleId();
 
@@ -145,9 +157,9 @@ void ContentLibraryEffectsModel::loadBundle()
         auto category = new ContentLibraryEffectsCategory(this, cat);
 
         const QJsonObject itemsObj = catsObj.value(cat).toObject();
-        const QStringList items = itemsObj.keys();
-        for (const QString &item : items) {
-            const QJsonObject itemObj = itemsObj.value(item).toObject();
+        const QStringList itemsNames = itemsObj.keys();
+        for (const QString &itemName : itemsNames) {
+            const QJsonObject itemObj = itemsObj.value(itemName).toObject();
 
             QStringList files;
             const QJsonArray assetsArr = itemObj.value("files").toArray();
@@ -159,7 +171,7 @@ void ContentLibraryEffectsModel::loadBundle()
             TypeName type = QLatin1String("%1.%2")
                                 .arg(bundleType, qml.chopped(4)).toLatin1(); // chopped(4): remove .qml
 
-            auto bundleItem = new ContentLibraryEffect(category, item, qml, type, icon, files);
+            auto bundleItem = new ContentLibraryEffect(category, itemName, qml, type, icon, files);
 
             category->addBundleItem(bundleItem);
         }
@@ -171,11 +183,10 @@ void ContentLibraryEffectsModel::loadBundle()
     for (const QJsonValueConstRef &file : sharedFilesArr)
         m_bundleSharedFiles.append(file.toString());
 
-    resetModel();
-    updateIsEmpty();
     m_bundlePath = bundleDir.path();
     m_bundleExists = true;
-    emit bundleExistsChanged();
+    updateIsEmpty();
+    resetModel();
 }
 
 bool ContentLibraryEffectsModel::hasRequiredQuick3DImport() const

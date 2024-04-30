@@ -226,39 +226,49 @@ QJsonObject &ContentLibraryUserModel::bundleJsonObjectRef()
 
 void ContentLibraryUserModel::loadMaterialBundle()
 {
-    if (m_matBundleExists)
+    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+
+    if (m_matBundleExists && m_bundleIdMaterial == compUtils.userMaterialsBundleId())
         return;
+
+    // clean up
+    qDeleteAll(m_userMaterials);
+    m_userMaterials.clear();
+    m_matBundleExists = false;
+    m_isEmpty = true;
+    m_bundleObj = {};
+    m_bundleIdMaterial.clear();
+
+    int matSectionIdx = 0;
 
     QDir bundleDir{Paths::bundlesPathSetting() + "/User/materials"};
     bundleDir.mkpath(".");
 
-    if (m_bundleObj.isEmpty()) {
-        auto jsonFilePath = Utils::FilePath::fromString(bundleDir.filePath("user_materials_bundle.json"));
-        if (!jsonFilePath.exists()) {
-            QString jsonContent = "{\n";
-            jsonContent += "    \"id\": \"UserMaterials\",\n";
-            jsonContent += "    \"materials\": {\n";
-            jsonContent += "    }\n";
-            jsonContent += "}";
-            jsonFilePath.writeFileContents(jsonContent.toLatin1());
-        }
-
-        QFile jsonFile(jsonFilePath.path());
-        if (!jsonFile.open(QIODevice::ReadOnly)) {
-            qWarning("Couldn't open user_materials_bundle.json");
-            return;
-        }
-
-        QJsonDocument matBundleJsonDoc = QJsonDocument::fromJson(jsonFile.readAll());
-        if (matBundleJsonDoc.isNull()) {
-            qWarning("Invalid user_materials_bundle.json file");
-            return;
-        } else {
-            m_bundleObj = matBundleJsonDoc.object();
-        }
+    auto jsonFilePath = Utils::FilePath::fromString(bundleDir.filePath("user_materials_bundle.json"));
+    if (!jsonFilePath.exists()) {
+        QString jsonContent = "{\n";
+        jsonContent += "    \"id\": \"UserMaterials\",\n";
+        jsonContent += "    \"materials\": {\n";
+        jsonContent += "    }\n";
+        jsonContent += "}";
+        jsonFilePath.writeFileContents(jsonContent.toLatin1());
     }
 
-    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+    QFile jsonFile(jsonFilePath.path());
+    if (!jsonFile.open(QIODevice::ReadOnly)) {
+        qWarning("Couldn't open user_materials_bundle.json");
+        emit dataChanged(index(matSectionIdx), index(matSectionIdx));
+        return;
+    }
+
+    QJsonDocument matBundleJsonDoc = QJsonDocument::fromJson(jsonFile.readAll());
+    if (matBundleJsonDoc.isNull()) {
+        qWarning("Invalid user_materials_bundle.json file");
+        emit dataChanged(index(matSectionIdx), index(matSectionIdx));
+        return;
+    }
+
+    m_bundleObj = matBundleJsonDoc.object();
     m_bundleObj["id"] = compUtils.userMaterialsBundleId();
 
     // parse materials
@@ -290,6 +300,7 @@ void ContentLibraryUserModel::loadMaterialBundle()
 
     m_matBundleExists = true;
     emit matBundleExistsChanged();
+    emit dataChanged(index(matSectionIdx), index(matSectionIdx));
 }
 
 void ContentLibraryUserModel::loadTextureBundle()
