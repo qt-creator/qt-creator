@@ -325,27 +325,6 @@ static GroupItem updateRecipe(const Storage<DialogStorage> &dialogStorage)
     return ProcessTask(onUpdateSetup, onDone);
 }
 
-/*!
-    Runs the \c sdkmanger tool with arguments \a args. Returns \c true if the command is
-    successfully executed. Output is copied into \a output. The function blocks the calling thread.
- */
-static bool sdkManagerCommand(const AndroidConfig &config, const QStringList &args, QString *output)
-{
-    QStringList newArgs = args;
-    newArgs.append(sdkRootArg(config));
-    qCDebug(sdkManagerLog).noquote() << "Running SDK Manager command (sync):"
-                                     << CommandLine(config.sdkManagerToolPath(), newArgs)
-                                        .toUserOutput();
-    Process proc;
-    proc.setEnvironment(config.toolsEnvironment());
-    proc.setTimeOutMessageBoxEnabled(true);
-    proc.setCommand({config.sdkManagerToolPath(), newArgs});
-    proc.runBlocking(60s, EventLoopMode::On);
-    if (output)
-        *output = proc.allOutput();
-    return proc.result() == ProcessResult::FinishedWithSuccess;
-}
-
 class AndroidSdkManagerPrivate
 {
 public:
@@ -361,8 +340,6 @@ public:
         });
     }
     const AndroidSdkPackageList &allPackages();
-
-    void parseCommonArguments(QPromise<QString> &promise);
 
     void reloadSdkPackages();
 
@@ -500,9 +477,50 @@ bool AndroidSdkManager::packageListingSuccessful() const
     return m_d->m_packageListingSuccessful;
 }
 
+/*!
+    Runs the \c sdkmanger tool with arguments \a args. Returns \c true if the command is
+    successfully executed. Output is copied into \a output. The function blocks the calling thread.
+ */
+static bool sdkManagerCommand(const AndroidConfig &config, const QStringList &args, QString *output)
+{
+    QStringList newArgs = args;
+    newArgs.append(sdkRootArg(config));
+    qCDebug(sdkManagerLog).noquote() << "Running SDK Manager command (sync):"
+                                     << CommandLine(config.sdkManagerToolPath(), newArgs)
+                                            .toUserOutput();
+    Process proc;
+    proc.setEnvironment(config.toolsEnvironment());
+    proc.setTimeOutMessageBoxEnabled(true);
+    proc.setCommand({config.sdkManagerToolPath(), newArgs});
+    proc.runBlocking(60s, EventLoopMode::On);
+    if (output)
+        *output = proc.allOutput();
+    return proc.result() == ProcessResult::FinishedWithSuccess;
+}
+
+static void parseCommonArguments(QPromise<QString> &promise)
+{
+    QString argumentDetails;
+    QString output;
+    sdkManagerCommand(androidConfig(), QStringList("--help"), &output);
+    bool foundTag = false;
+    const auto lines = output.split('\n');
+    for (const QString& line : lines) {
+        if (promise.isCanceled())
+            break;
+        if (foundTag)
+            argumentDetails.append(line + "\n");
+        else if (line.startsWith(commonArgsKey))
+            foundTag = true;
+    }
+
+    if (!promise.isCanceled())
+        promise.addResult(argumentDetails);
+}
+
 QFuture<QString> AndroidSdkManager::availableArguments() const
 {
-    return Utils::asyncRun(&AndroidSdkManagerPrivate::parseCommonArguments, m_d.get());
+    return Utils::asyncRun(parseCommonArguments);
 }
 
 AndroidSdkManagerPrivate::AndroidSdkManagerPrivate(AndroidSdkManager &sdkManager)
@@ -547,26 +565,6 @@ void AndroidSdkManagerPrivate::reloadSdkPackages()
     }
 
     emit m_sdkManager.packageReloadFinished();
-}
-
-void AndroidSdkManagerPrivate::parseCommonArguments(QPromise<QString> &promise)
-{
-    QString argumentDetails;
-    QString output;
-    sdkManagerCommand(androidConfig(), QStringList("--help"), &output);
-    bool foundTag = false;
-    const auto lines = output.split('\n');
-    for (const QString& line : lines) {
-        if (promise.isCanceled())
-            break;
-        if (foundTag)
-            argumentDetails.append(line + "\n");
-        else if (line.startsWith(commonArgsKey))
-            foundTag = true;
-    }
-
-    if (!promise.isCanceled())
-        promise.addResult(argumentDetails);
 }
 
 void AndroidSdkManagerPrivate::runDialogRecipe(const Storage<DialogStorage> &dialogStorage,
