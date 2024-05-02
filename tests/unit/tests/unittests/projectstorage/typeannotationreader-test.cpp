@@ -17,7 +17,15 @@ using QmlDesigner::FlagIs;
 class TypeAnnotationReader : public testing::Test
 {
 protected:
-    TypeAnnotationReader() { traits.canBeDroppedInFormEditor = FlagIs::True; }
+    TypeAnnotationReader()
+    {
+        traits.canBeDroppedInFormEditor = FlagIs::True;
+        traits.canBeDroppedInNavigator = FlagIs::True;
+        traits.isMovable = FlagIs::True;
+        traits.isResizable = FlagIs::True;
+        traits.hasFormEditorItem = FlagIs::True;
+        traits.visibleInLibrary = FlagIs::True;
+    }
     static void SetUpTestSuite()
     {
         static_database = std::make_unique<Sqlite::Database>(":memory:", Sqlite::JournalMode::Memory);
@@ -170,7 +178,7 @@ TEST_F(TypeAnnotationReader, parse_true_doesLayoutChildren)
                                              IsEmpty())));
 }
 
-TEST_F(TypeAnnotationReader, parse_true_canBeDroppedInFormEditor)
+TEST_F(TypeAnnotationReader, parse_false_canBeDroppedInFormEditor)
 {
     using QmlDesigner::FlagIs;
     auto content = QString{R"xy(
@@ -199,7 +207,7 @@ TEST_F(TypeAnnotationReader, parse_true_canBeDroppedInFormEditor)
                                              IsEmpty())));
 }
 
-TEST_F(TypeAnnotationReader, parse_true_canBeDroppedInNavigator)
+TEST_F(TypeAnnotationReader, parse_false_canBeDroppedInNavigator)
 {
     using QmlDesigner::FlagIs;
     auto content = QString{R"xy(
@@ -209,11 +217,11 @@ TEST_F(TypeAnnotationReader, parse_true_canBeDroppedInNavigator)
             icon: "images/frame-icon16.png"
 
             Hints {
-                canBeDroppedInNavigator: true
+                canBeDroppedInNavigator: false
             }
         }
     })xy"};
-    traits.canBeDroppedInNavigator = FlagIs::True;
+    traits.canBeDroppedInNavigator = FlagIs::False;
 
     auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
@@ -257,7 +265,7 @@ TEST_F(TypeAnnotationReader, parse_true_canBeDroppedInView3D)
                                              IsEmpty())));
 }
 
-TEST_F(TypeAnnotationReader, parse_true_isMovable)
+TEST_F(TypeAnnotationReader, parse_false_isMovable)
 {
     using QmlDesigner::FlagIs;
     auto content = QString{R"xy(
@@ -267,11 +275,11 @@ TEST_F(TypeAnnotationReader, parse_true_isMovable)
             icon: "images/frame-icon16.png"
 
             Hints {
-                isMovable: true
+                isMovable: false
             }
         }
     })xy"};
-    traits.isMovable = FlagIs::True;
+    traits.isMovable = FlagIs::False;
 
     auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
@@ -286,7 +294,7 @@ TEST_F(TypeAnnotationReader, parse_true_isMovable)
                                              IsEmpty())));
 }
 
-TEST_F(TypeAnnotationReader, parse_true_isResizable)
+TEST_F(TypeAnnotationReader, parse_false_isResizable)
 {
     using QmlDesigner::FlagIs;
     auto content = QString{R"xy(
@@ -296,11 +304,11 @@ TEST_F(TypeAnnotationReader, parse_true_isResizable)
             icon: "images/frame-icon16.png"
 
             Hints {
-                isResizable: true
+                isResizable: false
             }
         }
     })xy"};
-    traits.isResizable = FlagIs::True;
+    traits.isResizable = FlagIs::False;
 
     auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
@@ -315,7 +323,7 @@ TEST_F(TypeAnnotationReader, parse_true_isResizable)
                                              IsEmpty())));
 }
 
-TEST_F(TypeAnnotationReader, parse_true_hasFormEditorItem)
+TEST_F(TypeAnnotationReader, parse_false_hasFormEditorItem)
 {
     using QmlDesigner::FlagIs;
     auto content = QString{R"xy(
@@ -325,11 +333,11 @@ TEST_F(TypeAnnotationReader, parse_true_hasFormEditorItem)
             icon: "images/frame-icon16.png"
 
             Hints {
-                hasFormEditorItem: true
+                hasFormEditorItem: false
             }
         }
     })xy"};
-    traits.hasFormEditorItem = FlagIs::True;
+    traits.hasFormEditorItem = FlagIs::False;
 
     auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
@@ -431,7 +439,7 @@ TEST_F(TypeAnnotationReader, parse_true_visibleInNavigator)
                                              IsEmpty())));
 }
 
-TEST_F(TypeAnnotationReader, parse_true_visibleInLibrary)
+TEST_F(TypeAnnotationReader, parse_false_visibleInLibrary)
 {
     using QmlDesigner::FlagIs;
     auto content = QString{R"xy(
@@ -441,11 +449,11 @@ TEST_F(TypeAnnotationReader, parse_true_visibleInLibrary)
             icon: "images/frame-icon16.png"
 
             Hints {
-                visibleInLibrary: true
+                visibleInLibrary: false
             }
         }
     })xy"};
-    traits.visibleInLibrary = FlagIs::True;
+    traits.visibleInLibrary = FlagIs::False;
 
     auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 
@@ -470,11 +478,10 @@ TEST_F(TypeAnnotationReader, parse_false)
             icon: "images/frame-icon16.png"
 
             Hints {
-                isMovable: false
+                isMovable: true
             }
         }
     })xy"};
-    traits.canBeDroppedInFormEditor = FlagIs::True;
 
     auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
 

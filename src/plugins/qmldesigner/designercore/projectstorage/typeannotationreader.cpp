@@ -180,6 +180,11 @@ TypeAnnotationReader::ParserSate TypeAnnotationReader::readMetaInfoRootElement(c
     if (name == typeElementName) {
         auto &annotation = m_typeAnnotations.emplace_back(m_sourceId, m_directorySourceId);
         annotation.traits.canBeDroppedInFormEditor = FlagIs::True;
+        annotation.traits.canBeDroppedInNavigator = FlagIs::True;
+        annotation.traits.isMovable = FlagIs::True;
+        annotation.traits.isResizable = FlagIs::True;
+        annotation.traits.hasFormEditorItem = FlagIs::True;
+        annotation.traits.visibleInLibrary = FlagIs::True;
         m_itemLibraryEntries = json::array();
 
         return ParsingType;
