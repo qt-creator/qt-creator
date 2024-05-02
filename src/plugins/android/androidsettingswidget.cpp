@@ -34,6 +34,7 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QGroupBox>
+#include <QGuiApplication>
 #include <QList>
 #include <QListWidget>
 #include <QLoggingCategory>

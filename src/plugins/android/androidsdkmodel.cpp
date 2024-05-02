@@ -292,18 +292,14 @@ void AndroidSdkModel::refreshData()
             m_tools << p;
     }
     Utils::sort(m_sdkPlatforms, [](const SdkPlatform *p1, const SdkPlatform *p2) {
-       return p1->apiLevel() > p2->apiLevel();
+        return p1->apiLevel() > p2->apiLevel();
     });
 
     Utils::sort(m_tools, [](const AndroidSdkPackage *p1, const AndroidSdkPackage *p2) {
-       if (p1->state() == p2->state()) {
-           if (p1->type() ==  p2->type())
-               return p1->revision() > p2->revision();
-           else
-               return p1->type() > p2->type();
-       } else {
-           return p1->state() < p2->state();
-       }
+        if (p1->state() == p2->state())
+            return p1->type() == p2->type() ? p1->revision() > p2->revision() : p1->type() > p2->type();
+        else
+            return p1->state() < p2->state();
     });
 }
 
