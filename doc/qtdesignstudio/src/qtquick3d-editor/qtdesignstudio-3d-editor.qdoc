@@ -161,6 +161,9 @@
     \row
         \li \key Q or \key {Page down}
         \li Move down.
+    \row
+        \li \key Spacebar
+        \li Move to an object in the crosshairs.
     \endtable
 
     To adjust the movement speed, select \inlineimage icons/camera_speed.png in the
