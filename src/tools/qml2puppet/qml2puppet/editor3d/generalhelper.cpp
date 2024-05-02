@@ -1436,6 +1436,7 @@ void GeneralHelper::requestTimerEvent(const QString &timerId, qint64 delay)
             emit requestedTimerEvent(timerId);
         });
         m_eventTimers[timerId] = timer;
+        timer->start(delay);
     }
 }
 
