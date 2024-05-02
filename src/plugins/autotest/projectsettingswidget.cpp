@@ -141,7 +141,7 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
         }
         return items;
     };
-    auto triggerRescan = [this] {
+    auto triggerRescan = [] {
         TestCodeParser *parser = TestTreeModel::instance()->parser();
         parser->emitUpdateTestTree();
     };
