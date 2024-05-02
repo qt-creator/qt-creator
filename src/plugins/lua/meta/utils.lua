@@ -28,7 +28,7 @@ function utils.FilePath:searchInPath() end
 ---@field fileFilters? integer The filters to use (combination of QDir.Filters.*), defaults to QDir.Filters.NoFilter
 ---@field flags? integer The iterator flags (combination of QDirIterator.Flags.*), defaults to QDirIterator.Flags.NoIteratorFlags
 
----Returns all entries in the directory
+---Returns all entries in the directory. Call `a.wait` on the returned value to get the result.
 ---@param options DirEntriesOptions
 ---@return FilePath[]
 function utils.FilePath:dirEntries(options) end
