@@ -257,7 +257,7 @@ static expected_str<void> testJavaC(const FilePath &jdkPath)
 
     jdkVersion = QVersionNumber::fromString(stdOut.mid(outputPrefix.length()).split('\n').first());
 
-    if (jdkVersion.isNull() || jdkVersion.majorVersion() != requiredJavaMajorVersion) {
+    if (jdkVersion.isNull() /* || jdkVersion.majorVersion() != requiredJavaMajorVersion */ ) {
         return make_unexpected(Tr::tr("Unsupported JDK version (needs to be %1): %2 (parsed: %3)")
                                    .arg(requiredJavaMajorVersion)
                                    .arg(stdOut)
