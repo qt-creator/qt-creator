@@ -12,38 +12,30 @@ namespace Lua::Internal {
 
 void addProcessModule()
 {
-    LuaEngine::registerProvider("__process", [](sol::state_view lua) -> sol::object {
-        sol::table process = lua.create_table();
+    LuaEngine::registerProvider(
+        "Process", [](sol::state_view lua) -> sol::object {
+            sol::table async = lua.script("return require('async')", "_process_").get<sol::table>();
+            sol::function wrap = async["wrap"];
 
-        process["runInTerminal_cb"] = [](const QString &cmdline, const sol::function &cb) {
-            Process *p = new Process;
-            p->setTerminalMode(TerminalMode::Run);
-            p->setCommand(CommandLine::fromUserInput((cmdline)));
-            p->setEnvironment(Environment::systemEnvironment());
+            sol::table process = lua.create_table();
 
-            QObject::connect(p, &Process::done, [p, cb]() { cb(p->exitCode()); });
+            process["runInTerminal_cb"] = [](const QString &cmdline, const sol::function &cb) {
+                Process *p = new Process;
+                p->setTerminalMode(TerminalMode::Run);
+                p->setCommand(CommandLine::fromUserInput((cmdline)));
+                p->setEnvironment(Environment::systemEnvironment());
 
-            p->start();
-        };
+                QObject::connect(p, &Process::done, &LuaEngine::instance(), [p, cb]() {
+                    cb(p->exitCode());
+                });
 
-        return process;
-    });
+                p->start();
+            };
 
-    LuaEngine::registerProvider("Process", [](sol::state_view lua) -> sol::object {
-        return lua
-            .script(
-                R"(
-local p = require("__process")
-local a = require("async")
+            process["runInTerminal"] = wrap(process["runInTerminal_cb"]);
 
-return {
-    runInTerminal_cb = p.runInTerminal_cb,
-    runInTerminal = a.wrap(p.runInTerminal_cb)
-}
-)",
-                "_process_")
-            .get<sol::table>();
-    });
+            return process;
+        });
 }
 
 } // namespace Lua::Internal
