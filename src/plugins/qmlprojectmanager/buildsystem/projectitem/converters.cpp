@@ -14,7 +14,11 @@ const static QStringList imageFilesFilter{QStringLiteral("*.jpeg"),
                                           QStringLiteral("*.png"),
                                           QStringLiteral("*.svg"),
                                           QStringLiteral("*.hdr"),
-                                          QStringLiteral("*.ktx")};
+                                          QStringLiteral("*.ktx"),
+                                          QStringLiteral("*.bmp"),
+                                          QStringLiteral("*.ttf"),
+                                          QStringLiteral("*.tiff"),
+                                          QStringLiteral("*.webp")};
 
 QString jsonValueToString(const QJsonValue &val, int indentationLevel, bool indented);
 
