@@ -169,9 +169,9 @@ public:
 
     void parseCommonArguments(QPromise<QString> &promise);
     void updateInstalled(SdkCmdPromise &fi);
-    void update(SdkCmdPromise &fi, const InstallationChange &change);
-    void checkPendingLicense(SdkCmdPromise &fi);
-    void getPendingLicense(SdkCmdPromise &fi);
+    void updatePackages(SdkCmdPromise &fi, const InstallationChange &change);
+    void licenseCheck(SdkCmdPromise &fi);
+    void licenseWorkflow(SdkCmdPromise &fi);
 
     void addWatcher(const QFuture<AndroidSdkManager::OperationOutput> &future);
     void setLicenseInput(bool acceptLicense);
@@ -336,7 +336,7 @@ QFuture<QString> AndroidSdkManager::availableArguments() const
     return Utils::asyncRun(&AndroidSdkManagerPrivate::parseCommonArguments, m_d.get());
 }
 
-QFuture<AndroidSdkManager::OperationOutput> AndroidSdkManager::updateAll()
+QFuture<AndroidSdkManager::OperationOutput> AndroidSdkManager::updateInstalled()
 {
     if (isBusy()) {
         return QFuture<AndroidSdkManager::OperationOutput>();
@@ -346,29 +346,29 @@ QFuture<AndroidSdkManager::OperationOutput> AndroidSdkManager::updateAll()
     return future;
 }
 
-QFuture<AndroidSdkManager::OperationOutput> AndroidSdkManager::update(const InstallationChange &change)
+QFuture<AndroidSdkManager::OperationOutput> AndroidSdkManager::updatePackages(const InstallationChange &change)
 {
     if (isBusy())
         return QFuture<AndroidSdkManager::OperationOutput>();
-    auto future = Utils::asyncRun(&AndroidSdkManagerPrivate::update, m_d.get(), change);
+    auto future = Utils::asyncRun(&AndroidSdkManagerPrivate::updatePackages, m_d.get(), change);
     m_d->addWatcher(future);
     return future;
 }
 
-QFuture<AndroidSdkManager::OperationOutput> AndroidSdkManager::checkPendingLicenses()
+QFuture<AndroidSdkManager::OperationOutput> AndroidSdkManager::licenseCheck()
 {
     if (isBusy())
         return QFuture<AndroidSdkManager::OperationOutput>();
-    auto future = Utils::asyncRun(&AndroidSdkManagerPrivate::checkPendingLicense, m_d.get());
+    auto future = Utils::asyncRun(&AndroidSdkManagerPrivate::licenseCheck, m_d.get());
     m_d->addWatcher(future);
     return future;
 }
 
-QFuture<AndroidSdkManager::OperationOutput> AndroidSdkManager::runLicenseCommand()
+QFuture<AndroidSdkManager::OperationOutput> AndroidSdkManager::licenseWorkflow()
 {
     if (isBusy())
         return QFuture<AndroidSdkManager::OperationOutput>();
-    auto future = Utils::asyncRun(&AndroidSdkManagerPrivate::getPendingLicense, m_d.get());
+    auto future = Utils::asyncRun(&AndroidSdkManagerPrivate::licenseWorkflow, m_d.get());
     m_d->addWatcher(future);
     return future;
 }
@@ -433,7 +433,7 @@ void AndroidSdkManagerPrivate::updateInstalled(SdkCmdPromise &promise)
     promise.setProgressRange(0, 100);
     promise.setProgressValue(0);
     AndroidSdkManager::OperationOutput result;
-    result.type = AndroidSdkManager::UpdateAll;
+    result.type = AndroidSdkManager::UpdateInstalled;
     result.stdOutput = Tr::tr("Updating installed packages.");
     promise.addResult(result);
     QStringList args("--update");
@@ -450,7 +450,7 @@ void AndroidSdkManagerPrivate::updateInstalled(SdkCmdPromise &promise)
     promise.setProgressValue(100);
 }
 
-void AndroidSdkManagerPrivate::update(SdkCmdPromise &fi, const InstallationChange &change)
+void AndroidSdkManagerPrivate::updatePackages(SdkCmdPromise &fi, const InstallationChange &change)
 {
     fi.setProgressRange(0, 100);
     fi.setProgressValue(0);
@@ -463,7 +463,7 @@ void AndroidSdkManagerPrivate::update(SdkCmdPromise &fi, const InstallationChang
     auto doOperation = [&](const QString& packagePath, const QStringList& args,
             bool isInstall) {
         AndroidSdkManager::OperationOutput result;
-        result.type = AndroidSdkManager::UpdatePackage;
+        result.type = AndroidSdkManager::UpdatePackages;
         result.stdOutput = QString("%1 %2").arg(isInstall ? installTag : uninstallTag)
                 .arg(packagePath);
         fi.addResult(result);
@@ -500,7 +500,7 @@ void AndroidSdkManagerPrivate::update(SdkCmdPromise &fi, const InstallationChang
     fi.setProgressValue(100);
 }
 
-void AndroidSdkManagerPrivate::checkPendingLicense(SdkCmdPromise &fi)
+void AndroidSdkManagerPrivate::licenseCheck(SdkCmdPromise &fi)
 {
     fi.setProgressRange(0, 100);
     fi.setProgressValue(0);
@@ -518,7 +518,7 @@ void AndroidSdkManagerPrivate::checkPendingLicense(SdkCmdPromise &fi)
     fi.setProgressValue(100);
 }
 
-void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdPromise &fi)
+void AndroidSdkManagerPrivate::licenseWorkflow(SdkCmdPromise &fi)
 {
     fi.setProgressRange(0, 100);
     fi.setProgressValue(0);

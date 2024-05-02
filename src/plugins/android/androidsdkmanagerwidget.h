@@ -75,16 +75,16 @@ public:
 private:
     void applyInstallationChange(const InstallationChange &change, const QString &extraMessage = {});
     void onApplyButton();
-    void onUpdatePackages();
+    void onUpdateInstalled();
     void onCancel();
     void onOperationResult(int index);
     void onLicenseCheckResult(const AndroidSdkManager::OperationOutput &output);
     void onSdkManagerOptions();
     void addPackageFuture(const QFuture<AndroidSdkManager::OperationOutput> &future);
-    void beginLicenseCheck();
-    void beginExecution();
-    void beginUpdate();
-    void beginLicenseWorkflow();
+    void licenseCheck();
+    void updatePackages();
+    void updateInstalled();
+    void licenseWorkflow();
     void notifyOperationFinished();
     void packageFutureFinished();
     void cancelPendingOperations();

@@ -33,8 +33,8 @@ public:
     enum CommandType
     {
         None,
-        UpdateAll,
-        UpdatePackage,
+        UpdateInstalled,
+        UpdatePackages,
         LicenseCheck,
         LicenseWorkflow
     };
@@ -73,10 +73,10 @@ public:
     bool packageListingSuccessful() const;
 
     QFuture<QString> availableArguments() const;
-    QFuture<OperationOutput> updateAll();
-    QFuture<OperationOutput> update(const InstallationChange &change);
-    QFuture<OperationOutput> checkPendingLicenses();
-    QFuture<OperationOutput> runLicenseCommand();
+    QFuture<OperationOutput> updateInstalled();
+    QFuture<OperationOutput> updatePackages(const InstallationChange &change);
+    QFuture<OperationOutput> licenseCheck();
+    QFuture<OperationOutput> licenseWorkflow();
 
     void cancelOperatons();
     void acceptSdkLicense(bool accept);

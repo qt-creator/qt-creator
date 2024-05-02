@@ -177,7 +177,7 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidSdkManager *sdkManager, 
             packagesView->collapseAll();
     });
     connect(updateInstalledButton, &QPushButton::clicked,
-            this, &AndroidSdkManagerWidget::onUpdatePackages);
+            this, &AndroidSdkManagerWidget::onUpdateInstalled);
     connect(showAllRadio, &QRadioButton::toggled, this, [this, proxyModel](bool checked) {
         if (checked) {
             proxyModel->setAcceptedPackageState(AndroidSdkPackage::AnyValidState);
@@ -288,14 +288,14 @@ void AndroidSdkManagerWidget::installMissingEssentials()
                                    "Do you want to install the missing packages?"));
 }
 
-void AndroidSdkManagerWidget::beginLicenseCheck()
+void AndroidSdkManagerWidget::licenseCheck()
 {
     m_formatter->appendMessage(Tr::tr("Checking pending licenses...") + "\n", NormalMessageFormat);
     m_formatter->appendMessage(Tr::tr("The installation of Android SDK packages may fail if the "
                                       "respective licenses are not accepted.")
                                    + "\n",
                                LogMessageFormat);
-    addPackageFuture(m_sdkManager->checkPendingLicenses());
+    addPackageFuture(m_sdkManager->licenseCheck());
 }
 
 void AndroidSdkManagerWidget::applyInstallationChange(const InstallationChange &change,
@@ -340,14 +340,14 @@ void AndroidSdkManagerWidget::applyInstallationChange(const InstallationChange &
     show();
 
     switchView(Operations);
-    m_pendingCommand = AndroidSdkManager::UpdatePackage;
+    m_pendingCommand = AndroidSdkManager::UpdatePackages;
     // User agreed with the selection. Check for licenses.
     if (!change.toInstall.isEmpty()) {
         // Pending license affects installtion only.
-        beginLicenseCheck();
+        licenseCheck();
     } else {
         // Uninstall only. Go Ahead.
-        beginExecution();
+        updatePackages();
     }
 }
 
@@ -357,15 +357,15 @@ void AndroidSdkManagerWidget::onApplyButton()
     applyInstallationChange(m_sdkModel->installationChange());
 }
 
-void AndroidSdkManagerWidget::onUpdatePackages()
+void AndroidSdkManagerWidget::onUpdateInstalled()
 {
     if (m_sdkManager->isBusy()) {
         m_formatter->appendMessage("\n" + Tr::tr("SDK Manager is busy."), StdErrFormat);
         return;
     }
     switchView(Operations);
-    m_pendingCommand = AndroidSdkManager::UpdateAll;
-    beginLicenseCheck();
+    m_pendingCommand = AndroidSdkManager::UpdateInstalled;
+    licenseCheck();
 }
 
 void AndroidSdkManagerWidget::onCancel()
@@ -400,7 +400,7 @@ void AndroidSdkManagerWidget::onLicenseCheckResult(const AndroidSdkManager::Oper
         runPendingCommand();
     } else {
         // Run license workflow.
-        beginLicenseWorkflow();
+        licenseWorkflow();
     }
 }
 
@@ -430,7 +430,7 @@ void AndroidSdkManagerWidget::addPackageFuture(const QFuture<AndroidSdkManager::
     }
 }
 
-void AndroidSdkManagerWidget::beginExecution()
+void AndroidSdkManagerWidget::updatePackages()
 {
     if (m_installationChange.count() == 0) {
         switchView(PackageListing);
@@ -444,24 +444,24 @@ void AndroidSdkManagerWidget::beginExecution()
                                                            Tr::tr("preferences") : Tr::tr("options")),
                                LogMessageFormat);
 
-    addPackageFuture(m_sdkManager->update(m_installationChange));
+    addPackageFuture(m_sdkManager->updatePackages(m_installationChange));
     m_installationChange = {};
 }
 
-void AndroidSdkManagerWidget::beginUpdate()
+void AndroidSdkManagerWidget::updateInstalled()
 {
     m_formatter->appendMessage(Tr::tr("Updating installed packages...\n"), NormalMessageFormat);
     m_formatter->appendMessage(Tr::tr("Closing the %1 dialog will cancel the running and scheduled SDK "
                                   "operations.\n").arg(HostOsInfo::isMacHost() ?
                                                            Tr::tr("preferences") : Tr::tr("options")),
                                LogMessageFormat);
-    addPackageFuture(m_sdkManager->updateAll());
+    addPackageFuture(m_sdkManager->updateInstalled());
 }
 
-void AndroidSdkManagerWidget::beginLicenseWorkflow()
+void AndroidSdkManagerWidget::licenseWorkflow()
 {
     switchView(LicenseWorkflow);
-    addPackageFuture(m_sdkManager->runLicenseCommand());
+    addPackageFuture(m_sdkManager->licenseWorkflow());
 }
 
 void AndroidSdkManagerWidget::notifyOperationFinished()
@@ -500,8 +500,8 @@ void AndroidSdkManagerWidget::packageFutureFinished()
             m_sdkLicenseLabel->hide();
             runPendingCommand();
             break;
-        case AndroidSdkManager::UpdateAll:
-        case AndroidSdkManager::UpdatePackage:
+        case AndroidSdkManager::UpdateInstalled:
+        case AndroidSdkManager::UpdatePackages:
             notifyOperationFinished();
             switchView(PackageListing);
             m_sdkManager->reloadPackages();
@@ -544,10 +544,10 @@ void AndroidSdkManagerWidget::switchView(AndroidSdkManagerWidget::View view)
 
 void AndroidSdkManagerWidget::runPendingCommand()
 {
-    if (m_pendingCommand == AndroidSdkManager::UpdatePackage)
-        beginExecution(); // License workflow can only start when updating packages.
-    else if (m_pendingCommand == AndroidSdkManager::UpdateAll)
-        beginUpdate();
+    if (m_pendingCommand == AndroidSdkManager::UpdatePackages)
+        updatePackages(); // License workflow can only start when updating packages.
+    else if (m_pendingCommand == AndroidSdkManager::UpdateInstalled)
+        updateInstalled();
     else
         QTC_ASSERT(false, qCDebug(androidSdkMgrUiLog) << "Unexpected state: No pending command.");
 }
