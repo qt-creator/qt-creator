@@ -11,7 +11,6 @@
 
 #include <QWidget>
 #include <QMainWindow>
-#include <QScopedPointer>
 
 #include <advanceddockingsystem/dockmanager.h>
 #include <annotationeditor/globalannotationeditor.h>

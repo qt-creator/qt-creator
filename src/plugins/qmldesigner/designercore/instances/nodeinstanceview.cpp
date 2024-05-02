@@ -91,7 +91,6 @@
 #include <QMultiHash>
 #include <QPainter>
 #include <QPicture>
-#include <QScopedPointer>
 #include <QTimerEvent>
 #include <QUrl>
 

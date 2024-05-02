@@ -24,6 +24,8 @@
 #include <QDir>
 #include <QRandomGenerator>
 
+#include <memory>
+
 namespace QmlDesigner {
 
 static char imagePlaceHolder[] = "qrc:/qtquickplugin/images/template_image.png";
@@ -288,17 +290,17 @@ static QmlObjectNode createQmlObjectNodeFromSource(AbstractView *view,
     textEdit.setPlainText(source);
     NotIndentingTextEditModifier modifier(&textEdit);
 
-    QScopedPointer<RewriterView> rewriterView(
-        new RewriterView(view->externalDependencies(), RewriterView::Amend));
+    std::unique_ptr<RewriterView> rewriterView = std::make_unique<RewriterView>(
+        view->externalDependencies(), RewriterView::Amend);
     rewriterView->setCheckSemanticErrors(false);
     rewriterView->setTextModifier(&modifier);
     rewriterView->setAllowComponentRoot(true);
     rewriterView->setPossibleImportsEnabled(false);
-    inputModel->setRewriterView(rewriterView.data());
+    inputModel->setRewriterView(rewriterView.get());
 
     if (rewriterView->errors().isEmpty() && rewriterView->rootModelNode().isValid()) {
         ModelNode rootModelNode = rewriterView->rootModelNode();
-        inputModel->detachView(rewriterView.data());
+        inputModel->detachView(rewriterView.get());
         QmlVisualNode(rootModelNode).setPosition(position);
         ModelMerger merger(view);
         return merger.insertModel(rootModelNode);

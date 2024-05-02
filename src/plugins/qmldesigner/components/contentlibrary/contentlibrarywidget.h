@@ -4,7 +4,11 @@
 #pragma once
 
 #include "createtexture.h"
+
 #include <modelfwd.h>
+
+#include <utils/uniqueobjectptr.h>
+
 #include <QFrame>
 #include <QPointer>
 
@@ -122,7 +126,7 @@ private:
     void populateTextureBundleModels();
     void createImporter();
 
-    QScopedPointer<StudioQuickWidget> m_quickWidget;
+    Utils::UniqueObjectPtr<StudioQuickWidget> m_quickWidget;
     QPointer<ContentLibraryMaterialsModel> m_materialsModel;
     QPointer<ContentLibraryTexturesModel> m_texturesModel;
     QPointer<ContentLibraryTexturesModel> m_environmentsModel;

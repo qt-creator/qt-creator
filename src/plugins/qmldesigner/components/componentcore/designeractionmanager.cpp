@@ -2193,7 +2193,8 @@ void DesignerActionManager::addCustomTransitionEffectAction()
 
 void DesignerActionManager::setupIcons()
 {
-    m_designerIcons.reset(new DesignerIcons("qtds_propertyIconFont.ttf", designerIconResourcesPath()));
+    m_designerIcons = std::make_unique<DesignerIcons>("qtds_propertyIconFont.ttf",
+                                                      designerIconResourcesPath());
 }
 
 QString DesignerActionManager::designerIconResourcesPath() const

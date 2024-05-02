@@ -94,7 +94,7 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFon
     , m_assetsModel{new AssetsLibraryModel(this)}
     , m_assetsView{view}
     , m_createTextures{view}
-    , m_assetsWidget{new StudioQuickWidget(this)}
+    , m_assetsWidget{Utils::makeUniqueObjectPtr<StudioQuickWidget>(this)}
 {
     setWindowTitle(tr("Assets Library", "Title of assets library widget"));
     setMinimumWidth(250);
@@ -130,7 +130,7 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFon
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins({});
     layout->setSpacing(0);
-    layout->addWidget(m_assetsWidget.data());
+    layout->addWidget(m_assetsWidget.get());
 
     updateSearch();
 

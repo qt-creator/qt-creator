@@ -138,7 +138,7 @@ private:
     QList<AddResourceHandler> m_addResourceHandler;
     QList<ModelNodePreviewImageHandler> m_modelNodePreviewImageHandlers;
     ExternalDependenciesInterface &m_externalDependencies;
-    QScopedPointer<DesignerIcons> m_designerIcons;
+    std::unique_ptr<DesignerIcons> m_designerIcons;
     QList<ActionAddedInterface> m_callBacks;
 };
 

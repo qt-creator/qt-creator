@@ -7,6 +7,8 @@
 
 #include <coreplugin/icontext.h>
 
+#include <utils/uniqueobjectptr.h>
+
 class StudioQuickWidget;
 
 namespace QmlDesigner {
@@ -73,7 +75,7 @@ private:
     QPointer<CollectionDetailsModel> m_collectionDetailsModel;
     QPointer<Core::IContext> m_iContext;
     std::unique_ptr<CollectionDetailsSortFilterModel> m_collectionDetailsSortFilterModel;
-    QScopedPointer<StudioQuickWidget> m_quickWidget;
+    Utils::UniqueObjectPtr<StudioQuickWidget> m_quickWidget;
     bool m_targetNodeSelected = false;
     bool m_projectImportExists = false;
     bool m_dataStoreExists = false;

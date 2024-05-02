@@ -150,7 +150,7 @@ MaterialBrowserWidget::MaterialBrowserWidget(AsynchronousImageCache &imageCache,
     : m_materialBrowserView(view)
     , m_materialBrowserModel(new MaterialBrowserModel(view, this))
     , m_materialBrowserTexturesModel(new MaterialBrowserTexturesModel(view, this))
-    , m_quickWidget(new StudioQuickWidget(this))
+    , m_quickWidget(Utils::makeUniqueObjectPtr<StudioQuickWidget>(this))
     , m_previewImageProvider(new PreviewImageProvider())
 {
     QImage defaultImage;
@@ -179,7 +179,7 @@ MaterialBrowserWidget::MaterialBrowserWidget(AsynchronousImageCache &imageCache,
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins({});
     layout->setSpacing(0);
-    layout->addWidget(m_quickWidget.data());
+    layout->addWidget(m_quickWidget.get());
 
     updateSearch();
 
@@ -411,7 +411,7 @@ void MaterialBrowserWidget::setIsDragging(bool val)
 
 StudioQuickWidget *MaterialBrowserWidget::quickWidget() const
 {
-    return m_quickWidget.data();
+    return m_quickWidget.get();
 }
 
 void MaterialBrowserWidget::clearPreviewCache()

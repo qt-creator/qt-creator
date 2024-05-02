@@ -22,7 +22,6 @@
 #include <utils/qtcassert.h>
 
 #include <QRegularExpression>
-#include <QScopedPointer>
 #include <QUrl>
 
 namespace QmlDesigner {

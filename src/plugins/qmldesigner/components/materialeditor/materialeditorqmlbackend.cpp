@@ -80,8 +80,8 @@ public:
 
 MaterialEditorQmlBackend::MaterialEditorQmlBackend(MaterialEditorView *materialEditor)
     : m_quickWidget(Utils::makeUniqueObjectPtr<QQuickWidget>())
-    , m_materialEditorTransaction(new MaterialEditorTransaction(materialEditor))
-    , m_contextObject(new MaterialEditorContextObject(m_quickWidget.get()))
+    , m_materialEditorTransaction(std::make_unique<MaterialEditorTransaction>(materialEditor))
+    , m_contextObject(std::make_unique<MaterialEditorContextObject>(m_quickWidget.get()))
     , m_materialEditorImageProvider(new MaterialEditorImageProvider())
 {
     m_quickWidget->setObjectName(Constants::OBJECT_NAME_MATERIAL_EDITOR);
@@ -90,7 +90,7 @@ MaterialEditorQmlBackend::MaterialEditorQmlBackend(MaterialEditorView *materialE
     m_quickWidget->engine()->addImageProvider("materialEditor", m_materialEditorImageProvider);
     m_contextObject->setBackendValues(&m_backendValuesPropertyMap);
     m_contextObject->setModel(materialEditor->model());
-    context()->setContextObject(m_contextObject.data());
+    context()->setContextObject(m_contextObject.get());
 
     QObject::connect(&m_backendValuesPropertyMap, &DesignerPropertyMap::valueChanged,
                      materialEditor, &MaterialEditorView::changeValue);
@@ -193,7 +193,7 @@ QQmlContext *MaterialEditorQmlBackend::context() const
 
 MaterialEditorContextObject *MaterialEditorQmlBackend::contextObject() const
 {
-    return m_contextObject.data();
+    return m_contextObject.get();
 }
 
 QQuickWidget *MaterialEditorQmlBackend::widget() const
@@ -224,7 +224,7 @@ DesignerPropertyMap &MaterialEditorQmlBackend::backendValuesPropertyMap()
 
 MaterialEditorTransaction *MaterialEditorQmlBackend::materialEditorTransaction() const
 {
-    return m_materialEditorTransaction.data();
+    return m_materialEditorTransaction.get();
 }
 
 PropertyEditorValue *MaterialEditorQmlBackend::propertyValueForName(const QString &propertyName)
@@ -267,12 +267,9 @@ void MaterialEditorQmlBackend::setup(const QmlObjectNode &selectedMaterialNode, 
 
         // anchors
         m_backendAnchorBinding.setup(selectedMaterialNode.modelNode());
-        context()->setContextProperties(
-            QVector<QQmlContext::PropertyPair>{
-                {{"anchorBackend"}, QVariant::fromValue(&m_backendAnchorBinding)},
-                {{"transaction"}, QVariant::fromValue(m_materialEditorTransaction.data())}
-            }
-        );
+        context()->setContextProperties(QVector<QQmlContext::PropertyPair>{
+            {{"anchorBackend"}, QVariant::fromValue(&m_backendAnchorBinding)},
+            {{"transaction"}, QVariant::fromValue(m_materialEditorTransaction.get())}});
 
         contextObject()->setSpecificsUrl(qmlSpecificsFile);
         contextObject()->setStateName(stateName);

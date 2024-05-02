@@ -59,7 +59,7 @@ CollectionWidget::CollectionWidget(CollectionView *view)
     , m_listModel(new CollectionListModel)
     , m_collectionDetailsModel(new CollectionDetailsModel)
     , m_collectionDetailsSortFilterModel(std::make_unique<CollectionDetailsSortFilterModel>())
-    , m_quickWidget(new StudioQuickWidget(this))
+    , m_quickWidget(Utils::makeUniqueObjectPtr<StudioQuickWidget>(this))
 {
     setWindowTitle(tr("Model Editor", "Title of model editor widget"));
 
@@ -84,7 +84,7 @@ CollectionWidget::CollectionWidget(CollectionView *view)
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins({});
     layout->setSpacing(0);
-    layout->addWidget(m_quickWidget.data());
+    layout->addWidget(m_quickWidget.get());
 
     qmlRegisterAnonymousType<CollectionWidget>("CollectionEditorBackend", 1);
     auto map = m_quickWidget->registerPropertyMap("CollectionEditorBackend");

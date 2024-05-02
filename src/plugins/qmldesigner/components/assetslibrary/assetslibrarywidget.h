@@ -8,6 +8,8 @@
 
 #include <coreplugin/icontext.h>
 
+#include <utils/uniqueobjectptr.h>
+
 #include <QFrame>
 #include <QQmlPropertyMap>
 #include <QQuickWidget>
@@ -137,7 +139,7 @@ private:
     AssetsLibraryView *m_assetsView = nullptr;
     CreateTextures m_createTextures = nullptr;
 
-    QScopedPointer<StudioQuickWidget> m_assetsWidget;
+    Utils::UniqueObjectPtr<StudioQuickWidget> m_assetsWidget;
     std::unique_ptr<PreviewTooltipBackend> m_fontPreviewTooltipBackend;
 
     QShortcut *m_qmlSourceUpdateShortcut = nullptr;

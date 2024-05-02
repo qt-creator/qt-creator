@@ -43,7 +43,6 @@
 #include <QFileInfo>
 #include <QQuickWidget>
 #include <QQuickItem>
-#include <QScopedPointer>
 #include <QStackedWidget>
 #include <QShortcut>
 #include <QTimer>

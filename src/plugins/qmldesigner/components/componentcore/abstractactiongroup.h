@@ -5,9 +5,10 @@
 
 #include "actioninterface.h"
 
+#include <utils/uniqueobjectptr.h>
+
 #include <QAction>
 #include <QMenu>
-#include <QScopedPointer>
 
 namespace QmlDesigner {
 
@@ -29,7 +30,7 @@ public:
 private:
     const QString m_displayName;
     SelectionContext m_selectionContext;
-    QScopedPointer<QMenu> m_menu;
+    Utils::UniqueObjectPtr<QMenu> m_menu;
     QAction *m_action;
 };
 

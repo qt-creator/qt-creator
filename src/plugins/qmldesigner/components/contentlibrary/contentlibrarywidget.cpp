@@ -123,7 +123,7 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 }
 
 ContentLibraryWidget::ContentLibraryWidget()
-    : m_quickWidget(new StudioQuickWidget(this))
+    : m_quickWidget(Utils::makeUniqueObjectPtr<StudioQuickWidget>(this))
     , m_materialsModel(new ContentLibraryMaterialsModel(this))
     , m_texturesModel(new ContentLibraryTexturesModel("Textures", this))
     , m_environmentsModel(new ContentLibraryTexturesModel("Environments", this))
@@ -156,7 +156,7 @@ ContentLibraryWidget::ContentLibraryWidget()
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins({});
     layout->setSpacing(0);
-    layout->addWidget(m_quickWidget.data());
+    layout->addWidget(m_quickWidget.get());
 
     updateSearch();
 

@@ -6,7 +6,8 @@
 #include "actioninterface.h"
 
 #include <QAction>
-#include <QScopedPointer>
+
+#include <memory>
 
 namespace QmlDesigner {
 
@@ -58,7 +59,7 @@ protected:
     SelectionContext selectionContext() const;
 
 private:
-    QScopedPointer<PureActionInterface> m_pureAction;
+    std::unique_ptr<PureActionInterface> m_pureAction;
     SelectionContext m_selectionContext;
 };
 

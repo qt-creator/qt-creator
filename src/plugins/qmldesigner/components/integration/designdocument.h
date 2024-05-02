@@ -16,8 +16,9 @@
 
 #include <QObject>
 #include <QString>
-
 #include <QStackedWidget>
+
+#include <memory>
 
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
@@ -143,12 +144,12 @@ private: // variables
     ModelPointer m_documentModel;
     ModelPointer m_inFileComponentModel;
     QPointer<Core::IEditor> m_textEditor;
-    QScopedPointer<BaseTextEditModifier> m_documentTextModifier;
-    QScopedPointer<ComponentTextModifier> m_inFileComponentTextModifier;
+    std::unique_ptr<BaseTextEditModifier> m_documentTextModifier;
+    std::unique_ptr<ComponentTextModifier> m_inFileComponentTextModifier;
 #ifndef QDS_USE_PROJECTSTORAGE
-    QScopedPointer<SubComponentManager> m_subComponentManager;
+    std::unique_ptr<SubComponentManager> m_subComponentManager;
 #endif
-    QScopedPointer<RewriterView> m_rewriterView;
+    std::unique_ptr<RewriterView> m_rewriterView;
     bool m_documentLoaded;
     ProjectExplorer::Target *m_currentTarget;
     ProjectStorageDependencies m_projectStorageDependencies;

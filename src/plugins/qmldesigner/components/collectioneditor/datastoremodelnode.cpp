@@ -31,7 +31,8 @@
 #include <QPlainTextEdit>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
-#include <QScopedPointer>
+
+#include <memory>
 
 namespace {
 
@@ -104,14 +105,14 @@ void setQmlContextToModel(QmlDesigner::Model *model, const QString &qmlContext)
     using namespace QmlDesigner;
     Q_ASSERT(model);
 
-    QScopedPointer<QPlainTextEdit> textEdit(new QPlainTextEdit);
-    QScopedPointer<NotIndentingTextEditModifier> modifier(
-        new NotIndentingTextEditModifier(textEdit.data()));
+    std::unique_ptr<QPlainTextEdit> textEdit = std::make_unique<QPlainTextEdit>();
+    std::unique_ptr<NotIndentingTextEditModifier> modifier = std::make_unique<NotIndentingTextEditModifier>(
+        textEdit.get());
     textEdit->hide();
     textEdit->setPlainText(qmlContext);
     QmlDesigner::ExternalDependencies externalDependencies{QmlDesignerBasePlugin::settings()};
-    QScopedPointer<RewriterView> rewriter(
-        new RewriterView(externalDependencies, QmlDesigner::RewriterView::Validate));
+    std::unique_ptr<RewriterView> rewriter = std::make_unique<RewriterView>(
+        externalDependencies, QmlDesigner::RewriterView::Validate);
 
     rewriter->setParent(model);
     rewriter->setTextModifier(modifier.get());

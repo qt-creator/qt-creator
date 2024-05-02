@@ -58,9 +58,9 @@ RewriterView::RewriterView(ExternalDependenciesInterface &externalDependencies,
                            DifferenceHandling differenceHandling)
     : AbstractView{externalDependencies}
     , m_differenceHandling(differenceHandling)
-    , m_positionStorage(new ModelNodePositionStorage)
-    , m_modelToTextMerger(new Internal::ModelToTextMerger(this))
-    , m_textToModelMerger(new Internal::TextToModelMerger(this))
+    , m_positionStorage(std::make_unique<ModelNodePositionStorage>())
+    , m_modelToTextMerger(std::make_unique<Internal::ModelToTextMerger>(this))
+    , m_textToModelMerger(std::make_unique<Internal::TextToModelMerger>(this))
 {
     m_amendTimer.setSingleShot(true);
 
@@ -80,12 +80,12 @@ RewriterView::~RewriterView() = default;
 
 Internal::ModelToTextMerger *RewriterView::modelToTextMerger() const
 {
-    return m_modelToTextMerger.data();
+    return m_modelToTextMerger.get();
 }
 
 Internal::TextToModelMerger *RewriterView::textToModelMerger() const
 {
-    return m_textToModelMerger.data();
+    return m_textToModelMerger.get();
 }
 
 void RewriterView::modelAttached(Model *model)
@@ -94,7 +94,7 @@ void RewriterView::modelAttached(Model *model)
 
     AbstractView::modelAttached(model);
 
-    ModelAmender differenceHandler(m_textToModelMerger.data());
+    ModelAmender differenceHandler(m_textToModelMerger.get());
     const QString qmlSource = m_textModifier->text();
     if (m_textToModelMerger->load(qmlSource, differenceHandler))
         m_lastCorrectQmlSource = qmlSource;
@@ -495,7 +495,7 @@ void RewriterView::amendQmlText()
 
     const QString newQmlText = m_textModifier->text();
 
-    ModelAmender differenceHandler(m_textToModelMerger.data());
+    ModelAmender differenceHandler(m_textToModelMerger.get());
     if (m_textToModelMerger->load(newQmlText, differenceHandler))
         m_lastCorrectQmlSource = newQmlText;
     emitCustomNotification(EndRewriterAmend);
@@ -701,7 +701,7 @@ void RewriterView::forceAmend()
 
 Internal::ModelNodePositionStorage *RewriterView::positionStorage() const
 {
-    return m_positionStorage.data();
+    return m_positionStorage.get();
 }
 
 QList<DocumentMessage> RewriterView::warnings() const
@@ -758,7 +758,7 @@ void RewriterView::resetToLastCorrectQml()
 {
     m_textModifier->textDocument()->undo();
     m_textModifier->textDocument()->clearUndoRedoStacks(QTextDocument::RedoStack);
-    ModelAmender differenceHandler(m_textToModelMerger.data());
+    ModelAmender differenceHandler(m_textToModelMerger.get());
     Internal::WriteLocker::unlock(model());
     m_textToModelMerger->load(m_textModifier->text(), differenceHandler);
     Internal::WriteLocker::lock(model());
@@ -1155,7 +1155,7 @@ void RewriterView::qmlTextChanged()
 
         switch (m_differenceHandling) {
         case Validate: {
-            ModelValidator differenceHandler(m_textToModelMerger.data());
+            ModelValidator differenceHandler(m_textToModelMerger.get());
             if (m_textToModelMerger->load(newQmlText, differenceHandler))
                 m_lastCorrectQmlSource = newQmlText;
             break;

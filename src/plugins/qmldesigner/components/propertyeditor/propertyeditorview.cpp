@@ -38,7 +38,6 @@
 #include <QFileSystemWatcher>
 #include <QQuickItem>
 #include <QScopeGuard>
-#include <QScopedPointer>
 #include <QShortcut>
 #include <QTimer>
 
