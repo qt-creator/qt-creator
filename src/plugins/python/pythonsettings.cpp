@@ -404,7 +404,6 @@ static const QStringList &plugins()
                                      "pydocstyle",
                                      "pyflakes",
                                      "pylint",
-                                     "rope_completion",
                                      "yapf"};
     return plugins;
 }
@@ -610,7 +609,6 @@ static QString defaultPylsConfiguration()
         plugins.insert("pydocstyle", disabled);
         plugins.insert("pyflakes", enabled);
         plugins.insert("pylint", disabled);
-        plugins.insert("rope_completion", enabled);
         plugins.insert("yapf", enabled);
         QJsonObject pylsp;
         pylsp.insert("plugins", plugins);
