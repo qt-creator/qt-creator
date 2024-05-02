@@ -243,7 +243,19 @@ static void setupSdkProcess(const QStringList &args, Process *process,
             return;
         dialog->setProgress((current * 100.0 + *progress) / total);
     });
+    QObject::connect(process, &Process::readyReadStandardError, dialog, [process, dialog] {
+        QTextCodec *codec = QTextCodec::codecForLocale();
+        dialog->appendMessage(codec->toUnicode(process->readAllRawStandardError()), StdErrFormat);
+    });
 };
+
+static void handleSdkProcess(QuestionProgressDialog *dialog, DoneWith result)
+{
+    if (result == DoneWith::Success)
+        dialog->appendMessage(Tr::tr("Finished successfully.") + "\n\n", StdOutFormat);
+    else
+        dialog->appendMessage(Tr::tr("Failed.") + "\n\n", StdErrFormat);
+}
 
 static GroupItem installationRecipe(const Storage<DialogStorage> &dialogStorage,
                                     const InstallationChange &change)
@@ -282,12 +294,7 @@ static GroupItem installationRecipe(const Storage<DialogStorage> &dialogStorage,
     };
 
     const auto onDone = [dialogStorage](DoneWith result) {
-        if (result == DoneWith::Success) {
-            dialogStorage->m_dialog->appendMessage(Tr::tr("Finished successfully") + "\n\n",
-                                                   StdOutFormat);
-        } else {
-            dialogStorage->m_dialog->appendMessage(Tr::tr("Failed") + "\n\n", StdErrFormat);
-        }
+        handleSdkProcess(dialogStorage->m_dialog.get(), result);
     };
 
     return Group {
@@ -303,6 +310,22 @@ static GroupItem installationRecipe(const Storage<DialogStorage> &dialogStorage,
             ProcessTask(onInstallSetup, onDone)
         }
     };
+}
+
+static GroupItem updateRecipe(const Storage<DialogStorage> &dialogStorage)
+{
+    const auto onUpdateSetup = [dialogStorage](Process &process) {
+        const QStringList args = {"--update", sdkRootArg(androidConfig())};
+        QuestionProgressDialog *dialog = dialogStorage->m_dialog.get();
+        setupSdkProcess(args, &process, dialog, 0, 1);
+        dialog->appendMessage(Tr::tr("Updating installed packages....") + '\n', NormalMessageFormat);
+        dialog->setProgress(0);
+    };
+    const auto onDone = [dialogStorage](DoneWith result) {
+        handleSdkProcess(dialogStorage->m_dialog.get(), result);
+    };
+
+    return ProcessTask(onUpdateSetup, onDone);
 }
 
 const int sdkManagerCmdTimeoutS = 60;
