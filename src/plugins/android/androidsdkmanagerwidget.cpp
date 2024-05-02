@@ -17,7 +17,6 @@
 
 #include <QAbstractButton>
 #include <QDialogButtonBox>
-#include <QGridLayout>
 #include <QGuiApplication>
 #include <QLabel>
 #include <QLineEdit>
@@ -632,12 +631,13 @@ OptionsDialog::OptionsDialog(AndroidSdkManager *sdkManager, const QStringList &a
     m_argumentsEdit = new QLineEdit(this);
     m_argumentsEdit->setText(args.join(" "));
 
-    auto gridLayout = new QGridLayout(this);
-    gridLayout->addWidget(new QLabel(Tr::tr("SDK manager arguments:"), this), 0, 0, 1, 1);
-    gridLayout->addWidget(m_argumentsEdit, 0, 1, 1, 1);
-    gridLayout->addWidget(new QLabel(Tr::tr("Available arguments:"), this), 1, 0, 1, 2);
-    gridLayout->addWidget(m_argumentDetailsEdit, 2, 0, 1, 2);
-    gridLayout->addWidget(dialogButtons, 3, 0, 1, 2);
+    using namespace Layouting;
+    Column {
+        Form { Tr::tr("SDK manager arguments:"), m_argumentsEdit, br },
+        Tr::tr("Available arguments:"),
+        m_argumentDetailsEdit,
+        dialogButtons,
+    }.attachTo(this);
 }
 
 OptionsDialog::~OptionsDialog()
