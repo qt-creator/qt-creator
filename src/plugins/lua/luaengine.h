@@ -24,14 +24,20 @@ namespace Lua {
 class LuaEnginePrivate;
 class LuaPluginSpec;
 
+namespace Internal {
+class LuaPlugin;
+}
+
 struct CoroutineState
 {
     bool isMainThread;
 };
 
-class LUA_EXPORT LuaEngine
+class LUA_EXPORT LuaEngine final : public QObject
 {
-private:
+    friend class Internal::LuaPlugin;
+
+protected:
     LuaEngine();
 
 public:

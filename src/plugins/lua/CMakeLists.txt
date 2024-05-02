@@ -4,12 +4,12 @@ add_qtc_plugin(Lua
   PUBLIC_DEPENDS lua546 sol2
   PUBLIC_DEFINES LUA_AVAILABLE
   SOURCES
-    bindings/inheritance.h
-    bindings/async.cpp
     bindings/action.cpp
-    bindings/hook.cpp
+    bindings/async.cpp
     bindings/core.cpp
     bindings/fetch.cpp
+    bindings/hook.cpp
+    bindings/inheritance.h
     bindings/layout.cpp
     bindings/messagemanager.cpp
     bindings/qtcprocess.cpp

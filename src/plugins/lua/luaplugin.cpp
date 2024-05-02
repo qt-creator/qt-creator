@@ -1,6 +1,7 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "luaengine.h"
 #include "luapluginloader.h"
 
 #include <coreplugin/coreconstants.h>
@@ -34,8 +35,13 @@ class LuaPlugin : public ExtensionSystem::IPlugin
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Lua.json")
 
+private:
+    std::unique_ptr<LuaEngine> m_luaEngine;
+
 public:
-    LuaPlugin() = default;
+    LuaPlugin()
+        : m_luaEngine(new LuaEngine())
+    {}
     ~LuaPlugin() override = default;
 
     void initialize() final

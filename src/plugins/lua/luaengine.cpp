@@ -25,17 +25,24 @@ public:
     QMap<QString, std::function<void(sol::function)>> m_hooks;
 };
 
+static LuaEngine *s_instance = nullptr;
+
 LuaEngine &LuaEngine::instance()
 {
-    static LuaEngine luaEngine;
-    return luaEngine;
+    Q_ASSERT(s_instance);
+    return *s_instance;
 }
 
 LuaEngine::LuaEngine()
     : d(new LuaEnginePrivate())
-{}
+{
+    s_instance = this;
+}
 
-LuaEngine::~LuaEngine() = default;
+LuaEngine::~LuaEngine()
+{
+    s_instance = nullptr;
+}
 
 void LuaEngine::registerProvider(const QString &packageName, const PackageProvider &provider)
 {
