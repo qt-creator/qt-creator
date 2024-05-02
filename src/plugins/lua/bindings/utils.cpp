@@ -24,14 +24,7 @@ void addUtilsModule()
             sol::table utils = lua.create_table();
 
             utils.set_function("waitms_cb", [](int ms, const sol::function &cb) {
-                QTimer *timer = new QTimer();
-                timer->setSingleShot(true);
-                timer->setInterval(ms);
-                QObject::connect(timer, &QTimer::timeout, &LuaEngine::instance(), [cb, timer]() {
-                    cb();
-                    timer->deleteLater();
-                });
-                timer->start();
+                QTimer::singleShot(ms, &LuaEngine::instance(), [cb]() { cb(); });
             });
 
             auto dirEntries_cb =
