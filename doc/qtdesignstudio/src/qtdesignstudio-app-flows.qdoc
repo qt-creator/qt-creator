@@ -256,8 +256,9 @@
         \li Drag the action area to the UI control that you want to connect
             to the other flow item. For example, to a button that opens another
             flow item when clicked.
-        \li Double-click the action area and drag the transition line to the
-            flow item you want to connect to.
+        \li Double-click the action area and drag the transition line to the flow item you want to
+            connect to. Alternatively, select the action area, right-click it to open the
+            context-menu, and then select \uicontrol Connect and the flow item from the list.
         \li In \l Properties, modify the properties of the action area
             and transition line.
     \endlist
@@ -646,11 +647,10 @@
     time, based on a conditional event. For example, push notifications
     appear on mobile devices and incoming call screens on a car's HMI.
 
-    You can use the \uicontrol {Flow Wildcard} component to model this type of
-    screens in your \l{Adding Flow Views}{flow view} using real or simulated
-    \l{Connecting and Releasing Signals}{signals} and \l{Simulating Conditions}
-    {conditions}. You can add \l{Adding Flow Items}{flow items} to a positive
-    list to prioritize them or to a negative list to stop some screens from
+    Use the \uicontrol {Flow Wildcard} component to model this type of
+    screens in your \l{Adding Flow Views}{flow view} using real or simulated events.
+    Add \l{Adding Flow Items}{flow items} to an \uicontrol {Allow
+    list} to prioritize them or to a \uicontrol {Block list} to stop some screens from
     appearing on others. For example, you could block the incoming call screen
     from appearing on a warning screen for the engine if you consider the
     warning more important.
@@ -659,42 +659,46 @@
 
     \list 1
         \li Drag a \uicontrol {Flow Wildcard} component from
-            \uicontrol Components > \uicontrol {Flow View} to an
-            \l{Adding Action Areas and Transitions}{action area} in
-            the \l Navigator or \l {2D} view.
-        \li In \l Properties, select flow items to add them to the
-            positive and negative list of the action area.
+            \uicontrol Components > \uicontrol {Flow View} to the \l {2D} view.
+        \li To connect the wildcard to a flow item with a \l{Adding Action Areas and Transitions}
+            {transition line}, double-click the wildcard and drag the transition line to the flow
+            item.
+        \li To add logic to the \uicontrol {Flow Wildcard} component, use
+            \l{Simulating Events}{events}, \l{Simulating Conditions}{Flow Decision} components,
+            or \l{Connecting and Releasing Signals}{signals}.
+        \li To manage the priority of your flow items, add flow items to
+            \uicontrol {Allow list} or \uicontrol {Block list} in \l Properties.
+            \image studio-flow-wildcard.webp "The wildcard component in 2D view."
     \endlist
 
     \section1 Flow Wildcard Properties
 
-    You can specify basic properties for a \uicontrol {Flow Wildcard} component
+    Specify basic properties for a \uicontrol {Flow Wildcard} component
     in the \l Type and \l ID fields in the \uicontrol Component section in the
     \uicontrol Properties view. Specify properties for flow wildcards in the
     \uicontrol {Flow Wildcard} section.
 
-    \image studio-flow-wildcard-properties.png "Flow Wildcard properties"
+    \image studio-flow-wildcard-properties.webp "Flow Wildcard properties"
 
     In the \uicontrol {Event IDs} field, specify the IDs of the events to
     connect to, such as mouse, touch or keyboard events.
 
-    Select the \uicontrol {Global wildcard} check box to enable triggering
+    Select the \uicontrol {Global wildcard} checkbox to enable triggering
     the wildcard from several flows.
 
     To give flow items high priority, select them in the
     \uicontrol {Allow list} field. To block flow items,
     select them in the \uicontrol {Block list} field.
 
-    You can specify the following properties to change the appearance of the
-    wildcard icon \inlineimage icons/flow-wildcard-icon.png
-    :
+    Specify the following properties to change the appearance of the
+    wildcard icon \inlineimage icons/flow-wildcard-icon.png:
 
     \list
+        \li To set the outline and fill color of the wildcard icon, use the
+            \l{Picking Colors}{color picker}.
         \li In the \uicontrol Size field, specify the size of the wildcard icon.
         \li In the \uicontrol Radius field, specify the radius of the wildcard
             icon corners.
     \endlist
 
-    You can use the \l{Picking Colors}{color picker} to set the outline and
-    fill color of the wildcard icon.
 */
