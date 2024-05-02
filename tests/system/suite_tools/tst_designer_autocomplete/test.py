@@ -77,9 +77,12 @@ def main():
             snooze(1)
             if test.verify(waitFor(proposalExists, 4000),
                            "Verify that GenericProposalWidget is being shown."):
+                singleProposal = lambda: (object.exists(':popupFrame_Proposal_QListView')
+                                          and findObject(':popupFrame_Proposal_QListView').model().rowCount() == 1)
+                waitFor(singleProposal, 4000)
                 type(proposalListView, "<Return>")
                 lineCorrect = lambda: str(lineUnderCursor(editor)).strip() == "ui->%s" % buttonName
-                test.verify(waitFor(lineCorrect, 1000),
+                test.verify(waitFor(lineCorrect, 4000),
                             ('Comparing line "%s" to expected "%s"'
                              % (lineUnderCursor(editor), "ui->%s" % buttonName)))
                 type(editor, "<Shift+Delete>") # Delete line
