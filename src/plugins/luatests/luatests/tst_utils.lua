@@ -20,7 +20,15 @@ local function testSearchInPath()
     print("Hostname found at:", result)
 end
 
+local function testWaitMs()
+    local u = require("Utils")
+    print("Starting to wait ...")
+    a.wait(u.waitms(1000))
+    print("About a second should have elapsed now.")
+end
+
 return {
     testDirEntries = testDirEntries,
     testSearchInPath = testSearchInPath,
+    testWaitMs = testWaitMs,
 }
