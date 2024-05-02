@@ -563,7 +563,10 @@ DataTypeWarning::Warning CollectionDetails::cellWarningCheck(int row, int column
     if ((columnType == DataType::String || columnType == DataType::Real) && cellType == DataType::Integer)
         return DataTypeWarning::Warning::None;
 
-    if ((columnType == DataType::Url || columnType == DataType::Image) && cellType == DataType::String)
+    if (columnType == DataType::Url && cellType == DataType::String)
+        return DataTypeWarning::Warning::None;
+
+    if (columnType == DataType::Image && (cellType == DataType::Url || cellType == DataType::String))
         return DataTypeWarning::Warning::None;
 
     if (columnType != cellType)
