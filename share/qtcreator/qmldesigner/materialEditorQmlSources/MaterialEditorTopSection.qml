@@ -214,6 +214,7 @@ Column {
                     model: possibleTypes
                     showExtendedFunctionButton: false
                     implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                    enabled: possibleTypes.length > 1
 
                     onActivated: changeTypeName(currentValue)
                 }

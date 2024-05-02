@@ -109,12 +109,10 @@ private:
     bool noValidSelection() const;
 
     void initPreviewData();
-    void delayedTypeUpdate();
     void updatePossibleTypes();
 
     ModelNode m_selectedMaterial;
     QTimer m_ensureMatLibTimer;
-    QTimer m_typeUpdateTimer;
     QShortcut *m_updateShortcut = nullptr;
     int m_timerId = 0;
     QStackedWidget *m_stackedWidget = nullptr;
