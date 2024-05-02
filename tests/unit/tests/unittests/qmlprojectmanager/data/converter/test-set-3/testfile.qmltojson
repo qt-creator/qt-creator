@@ -75,7 +75,11 @@
                 "*.png",
                 "*.svg",
                 "*.hdr",
-                "*.ktx"
+                "*.ktx",
+                "*.bmp",
+                "*.ttf",
+                "*.tiff",
+                "*.webp"
             ],
             "mcuProperties": {
             },
@@ -93,7 +97,11 @@
                 "*.png",
                 "*.svg",
                 "*.hdr",
-                "*.ktx"
+                "*.ktx",
+                "*.bmp",
+                "*.ttf",
+                "*.tiff",
+                "*.webp"
             ],
             "mcuProperties": {
             },
