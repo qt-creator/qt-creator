@@ -1252,6 +1252,14 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
                                             return project->projectFilePath();
                                         return {};
                                     });
+    expander->registerVariable(fullPrefix + "ProjectDirectory",
+                               //: %1 is something like "Active project"
+                               ::PE::Tr::tr("%1: Full path to Project Directory.").arg(descriptor),
+                               [projectGetter]() -> QString {
+                                   if (const Project *const project = projectGetter())
+                                       return project->projectDirectory().toUserOutput();
+                                   return {};
+                               });
     expander->registerVariable(fullPrefix + "Kit:Name",
                                //: %1 is something like "Active project"
                                ::PE::Tr::tr("%1: The name of the active kit.").arg(descriptor),

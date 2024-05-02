@@ -37,6 +37,13 @@
         "        <glob pattern='*.tasks'/>",
         "        <glob pattern='*.tasks.txt'/>",
         "    </mime-type>",
+
+        "    <mime-type type='text/x-workspace-project'>",
+        "        <sub-class-of type='application/json'/>",
+        "        <comment>Workspace Qt Creator Project file</comment>",
+        "        <glob pattern='project.json' weight='100'/>",
+        "    </mime-type>",
+
         "</mime-info>"
     ]
 }

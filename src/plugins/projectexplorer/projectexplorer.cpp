@@ -80,6 +80,7 @@
 #include "toolchainmanager.h"
 #include "toolchainoptionspage.h"
 #include "vcsannotatetaskhandler.h"
+#include "workspaceproject.h"
 
 #ifdef Q_OS_WIN
 #include "windebuginterface.h"
@@ -197,6 +198,7 @@ const int  P_MODE_SESSION         = 85;
 
 // Actions
 const char LOAD[]                 = "ProjectExplorer.Load";
+const char LOADWORKSPACE[]        = "ProjectExplorer.LoadWorkspace";
 const char UNLOAD[]               = "ProjectExplorer.Unload";
 const char UNLOADCM[]             = "ProjectExplorer.UnloadCM";
 const char UNLOADOTHERSCM[]       = "ProjectExplorer.UnloadOthersCM";
@@ -479,6 +481,7 @@ public:
     void buildQueueFinished(bool success);
 
     void loadAction();
+    void openWorkspaceAction();
     void handleUnloadProject();
     void unloadProjectContextMenu();
     void unloadOtherProjectsContextMenu();
@@ -543,6 +546,7 @@ public:
 
     QAction *m_newAction;
     QAction *m_loadAction;
+    QAction *m_loadWorkspaceAction;
     Action *m_unloadAction;
     Action *m_unloadActionContextMenu;
     Action *m_unloadOthersActionContextMenu;
@@ -1097,6 +1101,12 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd = ActionManager::registerAction(dd->m_loadAction, Constants::LOAD);
     if (!HostOsInfo::isMacHost())
         cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Shift+O")));
+    msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
+
+    // load workspace action
+    dd->m_loadWorkspaceAction = new QAction(Tr::tr("Open Workspace..."), this);
+    cmd = ActionManager::registerAction(dd->m_loadWorkspaceAction, Constants::LOADWORKSPACE);
+    mfile->addAction(cmd, Core::Constants::G_FILE_OPEN);
     msessionContextMenu->addAction(cmd, Constants::G_SESSION_FILES);
 
     // Default open action
@@ -1659,6 +1669,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPlugin::openNewProjectDialog);
     connect(dd->m_loadAction, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::loadAction);
+    connect(dd->m_loadWorkspaceAction, &QAction::triggered,
+            dd, &ProjectExplorerPluginPrivate::openWorkspaceAction);
     connect(dd->m_buildProjectOnlyAction, &QAction::triggered, dd, [] {
         BuildManager::buildProjectWithoutDependencies(ProjectManager::startupProject());
     });
@@ -1887,6 +1899,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     DeviceManager::instance()->addDevice(IDevice::Ptr(new DesktopDevice));
 
+    setupWorkspaceProject(this);
+
 #ifdef WITH_TESTS
     addTestCreator(&createSanitizerOutputParserTest);
 #endif
@@ -1909,6 +1923,30 @@ void ProjectExplorerPluginPrivate::loadAction()
                                                           Tr::tr("Load Project"),
                                                           dir,
                                                           dd->projectFilterString());
+    if (filePath.isEmpty())
+        return;
+
+    OpenProjectResult result = ProjectExplorerPlugin::openProject(filePath);
+    if (!result)
+        ProjectExplorerPlugin::showOpenProjectError(result);
+
+    updateActions();
+}
+
+void ProjectExplorerPluginPrivate::openWorkspaceAction()
+{
+    FilePath dir = dd->m_lastOpenDirectory;
+
+    // for your special convenience, we preselect a pro file if it is
+    // the current file
+    if (const IDocument *document = EditorManager::currentDocument()) {
+        const FilePath fn = document->filePath();
+        const bool isProject = dd->m_profileMimeTypes.contains(document->mimeType());
+        dir = isProject ? fn : fn.absolutePath();
+    }
+
+    FilePath filePath = Utils::FileUtils::getExistingDirectory(
+        ICore::dialogParent(), Tr::tr("Open Workspace"), dir);
     if (filePath.isEmpty())
         return;
 
@@ -2282,10 +2320,7 @@ OpenProjectResult ProjectExplorerPlugin::openProjects(const FilePaths &filePaths
 
         MimeType mt = Utils::mimeTypeForFile(filePath);
         if (ProjectManager::canOpenProjectForMimeType(mt)) {
-            if (!filePath.isFile()) {
-                appendError(errorString,
-                            Tr::tr("Failed opening project \"%1\": Project is not a file.").arg(filePath.toUserOutput()));
-            } else if (Project *pro = ProjectManager::openProject(mt, filePath)) {
+            if (Project *pro = ProjectManager::openProject(mt, filePath)) {
                 QString restoreError;
                 Project::RestoreResult restoreResult = pro->restoreSettings(&restoreError);
                 if (restoreResult == Project::RestoreResult::Ok) {
