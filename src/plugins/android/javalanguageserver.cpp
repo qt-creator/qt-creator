@@ -19,12 +19,12 @@
 #include <qtsupport/qtkitaspect.h>
 
 #include <utils/environment.h>
+#include <utils/layoutbuilder.h>
 #include <utils/mimeconstants.h>
 #include <utils/pathchooser.h>
 #include <utils/temporarydirectory.h>
 #include <utils/variablechooser.h>
 
-#include <QGridLayout>
 #include <QLineEdit>
 #include <QXmlStreamWriter>
 
@@ -57,26 +57,23 @@ JLSSettingsWidget::JLSSettingsWidget(const JLSSettings *settings, QWidget *paren
     , m_java(new PathChooser(this))
     , m_ls(new PathChooser(this))
 {
-    int row = 0;
-    auto *mainLayout = new QGridLayout;
-    mainLayout->addWidget(new QLabel(Tr::tr("Name:")), row, 0);
-    mainLayout->addWidget(m_name, row, 1);
     auto chooser = new VariableChooser(this);
     chooser->addSupportedWidget(m_name);
 
-    mainLayout->addWidget(new QLabel(Tr::tr("Java:")), ++row, 0);
     m_java->setExpectedKind(PathChooser::ExistingCommand);
     m_java->setFilePath(settings->m_executable);
-    mainLayout->addWidget(m_java, row, 1);
 
-    mainLayout->addWidget(new QLabel(Tr::tr("Java Language Server:")), ++row, 0);
     m_ls->setExpectedKind(PathChooser::File);
     m_ls->lineEdit()->setPlaceholderText(Tr::tr("Path to equinox launcher jar"));
     m_ls->setPromptDialogFilter("org.eclipse.equinox.launcher_*.jar");
     m_ls->setFilePath(settings->m_languageServer);
-    mainLayout->addWidget(m_ls, row, 1);
 
-    setLayout(mainLayout);
+    using namespace Layouting;
+    Form {
+        Tr::tr("Name:"), m_name, br,
+        Tr::tr("Java:"), m_java, br,
+        Tr::tr("Java Language Server:"), m_ls, br,
+    }.attachTo(this);
 }
 
 JLSSettings::JLSSettings()
