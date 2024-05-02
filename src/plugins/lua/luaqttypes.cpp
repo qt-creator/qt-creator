@@ -246,17 +246,17 @@ namespace Lua::Internal {
 void addQtModule()
 {
     LuaEngine::registerProvider("Qt", [](sol::state_view lua) {
-        sol::table t(lua, sol::create);
+        sol::table qt(lua, sol::create);
 
         // clang-format off
-        lua["TextElideMode"] = lua.create_table_with(
+        qt["TextElideMode"] = lua.create_table_with(
             "ElideLeft", Qt::ElideLeft,
             "ElideRight", Qt::ElideRight,
             "ElideMiddle", Qt::ElideMiddle,
             "ElideNone", Qt::ElideNone
         );
 
-        lua["QDirIterator"] = lua.create_table_with(
+        qt["QDirIterator"] = lua.create_table_with(
             "IteratorFlag", lua.create_table_with(
                 "NoIteratorFlags", QDirIterator::NoIteratorFlags,
                 "FollowSymlinks", QDirIterator::FollowSymlinks,
@@ -264,7 +264,7 @@ void addQtModule()
             )
         );
 
-        lua["QDir"] = lua.create_table_with(
+        qt["QDir"] = lua.create_table_with(
             // QDir::Filters
             "Filters", lua.create_table_with(
                 "Dirs", QDir::Dirs,
@@ -307,7 +307,7 @@ void addQtModule()
         );
         // clang-format on
 
-        return t;
+        return qt;
     });
 }
 
