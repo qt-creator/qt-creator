@@ -20,7 +20,7 @@ utils.FilePath = {}
 function utils.FilePath.fromUserInput(path) end
 
 ---@return FilePath The new absolute path
----Searches for the path inside the PATH environment variable
+---Searches for the path inside the PATH environment variable. Call `a.wait` on the returned value to get the result.
 function utils.FilePath:searchInPath() end
 
 ---@class (exact) DirEntriesOptions

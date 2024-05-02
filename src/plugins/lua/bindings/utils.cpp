@@ -34,40 +34,52 @@ void addUtilsModule()
                 timer->start();
             });
 
-            auto dirEntries_cb = [&futureSync](
-                                     const FilePath &p,
-                                     const sol::table &options,
-                                     const sol::function &cb) {
-                const QStringList nameFilters = options.get_or<QStringList>("nameFilters", {});
-                QDir::Filters fileFilters
-                    = (QDir::Filters) options.get_or<int>("fileFilters", QDir::NoFilter);
-                QDirIterator::IteratorFlags flags
-                    = (QDirIterator::IteratorFlags)
-                          options.get_or<int>("flags", QDirIterator::NoIteratorFlags);
+            auto dirEntries_cb =
+                [&futureSync](const FilePath &p, const sol::table &options, const sol::function &cb) {
+                    const QStringList nameFilters = options.get_or<QStringList>("nameFilters", {});
+                    QDir::Filters fileFilters
+                        = (QDir::Filters) options.get_or<int>("fileFilters", QDir::NoFilter);
+                    QDirIterator::IteratorFlags flags
+                        = (QDirIterator::IteratorFlags)
+                              options.get_or<int>("flags", QDirIterator::NoIteratorFlags);
 
-                FileFilter filter(nameFilters, fileFilters, flags);
+                    FileFilter filter(nameFilters, fileFilters, flags);
 
-                QFuture<FilePath> future = Utils::asyncRun([p, filter](QPromise<FilePath> &promise) {
-                    p.iterateDirectory(
-                        [&promise](const FilePath &item) {
-                            if (promise.isCanceled())
-                                return IterationPolicy::Stop;
+                    QFuture<FilePath> future = Utils::asyncRun(
+                        [p, filter](QPromise<FilePath> &promise) {
+                            p.iterateDirectory(
+                                [&promise](const FilePath &item) {
+                                    if (promise.isCanceled())
+                                        return IterationPolicy::Stop;
 
-                            promise.addResult(item);
-                            return IterationPolicy::Continue;
-                        },
-                        filter);
-                });
+                                    promise.addResult(item);
+                                    return IterationPolicy::Continue;
+                                },
+                                filter);
+                        });
+
+                    futureSync.addFuture<FilePath>(future);
+
+                    Utils::onFinished<FilePath>(
+                        future, &LuaEngine::instance(), [cb](const QFuture<FilePath> &future) {
+                            cb(future.results());
+                        });
+                };
+
+            auto searchInPath_cb = [&futureSync](const FilePath &p, const sol::function &cb) {
+                QFuture<FilePath> future = Utils::asyncRun(
+                    [p](QPromise<FilePath> &promise) { promise.addResult(p.searchInPath()); });
 
                 futureSync.addFuture<FilePath>(future);
 
                 Utils::onFinished<FilePath>(
                     future, &LuaEngine::instance(), [cb](const QFuture<FilePath> &future) {
-                        cb(future.results());
+                        cb(future.result());
                     });
             };
 
             utils.set_function("__dirEntries_cb__", dirEntries_cb);
+            utils.set_function("__searchInPath_cb__", searchInPath_cb);
 
             sol::function wrap = async["wrap"].get<sol::function>();
 
@@ -96,8 +108,6 @@ void addUtilsModule()
                 &FilePath::toUserOutput,
                 "fromUserInput",
                 &FilePath::fromUserInput,
-                "searchInPath",
-                [](const FilePath &self) { return self.searchInPath(); },
                 "exists",
                 &FilePath::exists,
                 "resolveSymlinks",
@@ -123,6 +133,9 @@ void addUtilsModule()
 
             utils["FilePath"]["dirEntries_cb"] = utils["__dirEntries_cb__"];
             utils["FilePath"]["dirEntries"] = wrap(utils["__dirEntries_cb__"]);
+
+            utils["FilePath"]["searchInPath_cb"] = utils["__searchInPath_cb__"];
+            utils["FilePath"]["searchInPath"] = wrap(utils["__searchInPath_cb__"]);
 
             return utils;
         });

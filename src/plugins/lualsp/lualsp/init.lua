@@ -146,15 +146,15 @@ local function setup(parameters)
   print("Setting up Lua Language Server ...")
   setupAspect()
   local serverPath = Utils.FilePath.fromUserInput("lua-language-server")
-  local absolute = serverPath:searchInPath():resolveSymlinks()
+  local absolute = a.wait(serverPath:searchInPath()):resolveSymlinks()
   if absolute:isExecutableFile() == true then
     Settings.binary.defaultPath = absolute
   else
-    a.sync(installServer)()
+    installServer()
   end
   setupClient()
 end
 
 return {
-  setup = setup,
+  setup = function() a.sync(setup)() end,
 }
