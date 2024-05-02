@@ -16,6 +16,10 @@ local pong = function(func, callback)
     local step = nil
     step = function(...)
         local stat, ret = co.resume(thread, ...)
+        if not stat then
+            print(ret)
+            print(debug.traceback(thread))
+        end
         assert(stat, ret)
         if co.status(thread) == "dead" then
             (callback or function() end)(ret)
@@ -65,7 +69,7 @@ local join = function(thunks)
 end
 -- sugar over coroutine
 local await = function(defer)
-    assert(type(defer) == "function", "type error :: expected func")
+    assert(type(defer) == "function", "type error :: expected func :: was: " .. type(defer))
     return co.yield(defer)
 end
 local await_all = function(defer)
