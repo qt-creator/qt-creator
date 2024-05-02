@@ -90,7 +90,19 @@ struct ProjectStorage::Statements
     Sqlite::WriteStatement<2> updateTypeTraitStatement{
         "UPDATE types SET traits = ?2 WHERE typeId=?1", database};
     Sqlite::WriteStatement<2> updateTypeAnnotationTraitStatement{
-        "UPDATE types SET annotationTraits = ?2 WHERE typeId=?1", database};
+        "WITH RECURSIVE "
+        "  typeSelection(typeId) AS ("
+        "      VALUES(?1) "
+        "    UNION ALL "
+        "      SELECT t.typeId "
+        "      FROM types AS t JOIN typeSelection AS ts "
+        "      WHERE prototypeId=ts.typeId "
+        "        AND t.typeId NOT IN (SELECT typeId FROM typeAnnotations)) "
+        "UPDATE types AS t "
+        "SET annotationTraits = ?2 "
+        "FROM typeSelection ts "
+        "WHERE t.typeId=ts.typeId",
+        database};
     Sqlite::ReadStatement<1, 2> selectNotUpdatedTypesInSourcesStatement{
         "SELECT DISTINCT typeId FROM types WHERE (sourceId IN carray(?1) AND typeId NOT IN "
         "carray(?2))",
@@ -601,6 +613,11 @@ struct ProjectStorage::Statements
         "UPDATE types SET defaultPropertyId=NULL WHERE defaultPropertyId=?1", database};
     mutable Sqlite::ReadStatement<3, 1> selectInfoTypeByTypeIdStatement{
         "SELECT sourceId, traits, annotationTraits FROM types WHERE typeId=?", database};
+    mutable Sqlite::ReadStatement<1, 1> selectPrototypeAnnotationTraitsByTypeIdStatement{
+        "SELECT  annotationTraits "
+        "FROM types "
+        "WHERE typeId=(SELECT prototypeId FROM types WHERE typeId=?)",
+        database};
     mutable Sqlite::ReadStatement<1, 1> selectDefaultPropertyDeclarationIdStatement{
         "SELECT defaultPropertyId FROM types WHERE typeId=?", database};
     mutable Sqlite::ReadStatement<1, 1> selectPrototypeIdsForTypeIdInOrderStatement{
@@ -2316,7 +2333,6 @@ void ProjectStorage::synchronizeTypeAnnotations(Storage::Synchronization::TypeAn
         if (!annotation.sourceId)
             throw TypeAnnotationHasInvalidSourceId{};
 
-        synchronizeTypeTraits(annotation.typeId, annotation.traits);
 
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"insert type annotations"_t,
@@ -2330,11 +2346,12 @@ void ProjectStorage::synchronizeTypeAnnotations(Storage::Synchronization::TypeAn
                                                annotation.iconPath,
                                                createEmptyAsNull(annotation.itemLibraryJson),
                                                createEmptyAsNull(annotation.hintsJson));
+
+        synchronizeTypeTraits(annotation.typeId, annotation.traits);
     };
 
     auto update = [&](const TypeAnnotationView &annotationFromDatabase,
                       const TypeAnnotation &annotation) {
-        synchronizeTypeTraits(annotation.typeId, annotation.traits);
 
         if (annotationFromDatabase.typeName != annotation.typeName
             || annotationFromDatabase.iconPath != annotation.iconPath
@@ -2352,21 +2369,29 @@ void ProjectStorage::synchronizeTypeAnnotations(Storage::Synchronization::TypeAn
                                                    annotation.iconPath,
                                                    createEmptyAsNull(annotation.itemLibraryJson),
                                                    createEmptyAsNull(annotation.hintsJson));
+
+            synchronizeTypeTraits(annotation.typeId, annotation.traits);
+
             return Sqlite::UpdateChange::Update;
         }
+
+        synchronizeTypeTraits(annotation.typeId, annotation.traits);
 
         return Sqlite::UpdateChange::No;
     };
 
     auto remove = [&](const TypeAnnotationView &annotationFromDatabase) {
-        synchronizeTypeTraits(annotationFromDatabase.typeId, Storage::TypeTraits{});
-
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"remove type annotations"_t,
                                    projectStorageCategory(),
                                    keyValue("type annotation", annotationFromDatabase)};
 
+        auto prototypeAnnotationTraits = s->selectPrototypeAnnotationTraitsByTypeIdStatement
+                                             .value<long long>(annotationFromDatabase.typeId);
         s->deleteTypeAnnotationStatement.write(annotationFromDatabase.typeId);
+
+        s->updateTypeAnnotationTraitStatement.write(annotationFromDatabase.typeId,
+                                                    prototypeAnnotationTraits);
     };
 
     Sqlite::insertUpdateDelete(range, typeAnnotations, compareKey, insert, update, remove);

@@ -7358,9 +7358,6 @@ TEST_F(ProjectStorage, do_not_synchronize_type_annotations_without_type)
     package.typeAnnotations = createTypeAnnotions();
     package.updatedTypeAnnotationSourceIds = createUpdatedTypeAnnotionSourceIds(
         package.typeAnnotations);
-    TypeTraits traits{TypeTraitsKind::Reference};
-    traits.canBeContainer = FlagIs::True;
-    traits.visibleInLibrary = FlagIs::True;
 
     storage.synchronize(package);
 
@@ -7382,13 +7379,29 @@ TEST_F(ProjectStorage, synchronize_type_annotation_type_traits)
     ASSERT_THAT(storage.type(fetchTypeId(sourceId2, "QObject"))->traits, traits);
 }
 
+TEST_F(ProjectStorage, synchronize_type_annotation_type_traits_for_prototype_heirs)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.typeAnnotations = createTypeAnnotions();
+    package.typeAnnotations.pop_back();
+    package.updatedTypeAnnotationSourceIds = createUpdatedTypeAnnotionSourceIds(
+        package.typeAnnotations);
+    TypeTraits traits{TypeTraitsKind::Reference};
+    traits.canBeContainer = FlagIs::True;
+    traits.visibleInLibrary = FlagIs::True;
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.type(fetchTypeId(sourceId1, "QQuickItem"))->traits, traits);
+}
+
 TEST_F(ProjectStorage, synchronize_updates_type_annotation_type_traits)
 {
     auto package{createSimpleSynchronizationPackage()};
     storage.synchronize(package);
     SynchronizationPackage annotationPackage;
     annotationPackage.typeAnnotations = createTypeAnnotions();
-    package.updatedTypeAnnotationSourceIds = createUpdatedTypeAnnotionSourceIds(
+    annotationPackage.updatedTypeAnnotationSourceIds = createUpdatedTypeAnnotionSourceIds(
         package.typeAnnotations);
     TypeTraits traits{TypeTraitsKind::Reference};
     traits.canBeContainer = FlagIs::True;
@@ -7399,25 +7412,47 @@ TEST_F(ProjectStorage, synchronize_updates_type_annotation_type_traits)
     ASSERT_THAT(storage.type(fetchTypeId(sourceId2, "QObject"))->traits, traits);
 }
 
+TEST_F(ProjectStorage, synchronize_updates_type_annotation_type_traits_for_prototype_heirs)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    SynchronizationPackage annotationPackage;
+    annotationPackage.typeAnnotations = createTypeAnnotions();
+    annotationPackage.typeAnnotations.pop_back();
+    annotationPackage.updatedTypeAnnotationSourceIds = createUpdatedTypeAnnotionSourceIds(
+        package.typeAnnotations);
+    TypeTraits traits{TypeTraitsKind::Reference};
+    traits.canBeContainer = FlagIs::True;
+    traits.visibleInLibrary = FlagIs::True;
+
+    storage.synchronize(annotationPackage);
+
+    ASSERT_THAT(storage.type(fetchTypeId(sourceId1, "QQuickItem"))->traits, traits);
+}
+
 TEST_F(ProjectStorage, synchronize_clears_annotation_type_traits_if_annotation_was_removed)
+{
+
+}
+
+TEST_F(ProjectStorage,
+       synchronize_clears_annotation_type_traits_if_annotation_was_removed_for_prototype_heirs)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.typeAnnotations = createTypeAnnotions();
     package.updatedTypeAnnotationSourceIds = createUpdatedTypeAnnotionSourceIds(
         package.typeAnnotations);
-    storage.synchronize(package);
     package.typeAnnotations[0].traits.isStackedContainer = FlagIs::True;
-    TypeTraits traits{TypeTraitsKind::Reference};
-    traits.canBeContainer = FlagIs::True;
-    traits.visibleInLibrary = FlagIs::True;
-    traits.isStackedContainer = FlagIs::True;
+    storage.synchronize(package);
+    package.typeAnnotations.pop_back();
 
     storage.synchronize(package);
 
-    ASSERT_THAT(storage.type(fetchTypeId(sourceId2, "QObject"))->traits, traits);
+    ASSERT_THAT(storage.type(fetchTypeId(sourceId1, "QQuickItem"))->traits,
+                package.typeAnnotations[0].traits);
 }
 
-TEST_F(ProjectStorage, synchronize_updatesannotation_type_traits)
+TEST_F(ProjectStorage, synchronize_updates_annotation_type_traits)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.typeAnnotations = createTypeAnnotions();
