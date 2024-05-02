@@ -393,17 +393,6 @@ void AndroidSdkManagerWidget::onOperationResult(int index)
     m_outputEdit->ensureCursorVisible();
 }
 
-void AndroidSdkManagerWidget::onLicenseCheckResult(const AndroidSdkManager::OperationOutput& output)
-{
-    if (output.success) {
-        // No assertion was found. Looks like all license are accepted. Go Ahead.
-        runPendingCommand();
-    } else {
-        // Run license workflow.
-        licenseWorkflow();
-    }
-}
-
 void AndroidSdkManagerWidget::addPackageFuture(const QFuture<AndroidSdkManager::OperationOutput>
                                                &future)
 {
@@ -493,12 +482,24 @@ void AndroidSdkManagerWidget::packageFutureFinished()
         m_currentOperation = nullptr;
         switch (type) {
         case AndroidSdkManager::LicenseCheck:
-            onLicenseCheckResult(output);
+            if (output.success) {
+                // No assertion was found. Looks like all license are accepted. Go Ahead.
+                if (m_pendingCommand == AndroidSdkManager::UpdatePackages)
+                    updatePackages(); // License workflow can only start when updating packages.
+                else if (m_pendingCommand == AndroidSdkManager::UpdateInstalled)
+                    updateInstalled();
+            } else {
+                // Run license workflow.
+                licenseWorkflow();
+            }
             break;
         case AndroidSdkManager::LicenseWorkflow:
             m_sdkLicenseButtonBox->hide();
             m_sdkLicenseLabel->hide();
-            runPendingCommand();
+            if (m_pendingCommand == AndroidSdkManager::UpdatePackages)
+                updatePackages(); // License workflow can only start when updating packages.
+            else if (m_pendingCommand == AndroidSdkManager::UpdateInstalled)
+                updateInstalled();
             break;
         case AndroidSdkManager::UpdateInstalled:
         case AndroidSdkManager::UpdatePackages:
@@ -540,16 +541,6 @@ void AndroidSdkManagerWidget::switchView(AndroidSdkManagerWidget::View view)
     m_buttonBox->button(QDialogButtonBox::Apply)->setVisible(m_currentView == PackageListing);
     m_operationProgress->setValue(0);
     m_viewStack->setCurrentWidget(m_currentView == PackageListing ? m_packagesStack : m_outputStack);
-}
-
-void AndroidSdkManagerWidget::runPendingCommand()
-{
-    if (m_pendingCommand == AndroidSdkManager::UpdatePackages)
-        updatePackages(); // License workflow can only start when updating packages.
-    else if (m_pendingCommand == AndroidSdkManager::UpdateInstalled)
-        updateInstalled();
-    else
-        QTC_ASSERT(false, qCDebug(androidSdkMgrUiLog) << "Unexpected state: No pending command.");
 }
 
 void AndroidSdkManagerWidget::onSdkManagerOptions()

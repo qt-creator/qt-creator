@@ -78,7 +78,6 @@ private:
     void onUpdateInstalled();
     void onCancel();
     void onOperationResult(int index);
-    void onLicenseCheckResult(const AndroidSdkManager::OperationOutput &output);
     void onSdkManagerOptions();
     void addPackageFuture(const QFuture<AndroidSdkManager::OperationOutput> &future);
     void licenseCheck();
@@ -89,7 +88,6 @@ private:
     void packageFutureFinished();
     void cancelPendingOperations();
     void switchView(View view);
-    void runPendingCommand();
 
     AndroidSdkManager::CommandType m_pendingCommand = AndroidSdkManager::None;
     View m_currentView = PackageListing;
