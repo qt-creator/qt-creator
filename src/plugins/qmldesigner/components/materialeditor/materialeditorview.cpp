@@ -877,7 +877,8 @@ void MaterialEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNo
             m_selectedModels.append(node);
     }
 
-    m_qmlBackEnd->contextObject()->setHasModelSelection(!m_selectedModels.isEmpty());
+    if (m_qmlBackEnd)
+        m_qmlBackEnd->contextObject()->setHasModelSelection(!m_selectedModels.isEmpty());
 }
 
 void MaterialEditorView::currentStateChanged(const ModelNode &node)

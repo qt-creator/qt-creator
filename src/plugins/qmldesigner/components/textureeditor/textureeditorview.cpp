@@ -698,7 +698,8 @@ void TextureEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNod
         m_selectedModel = selectedNodeList.at(0);
 
     bool hasValidSelection = QmlObjectNode(m_selectedModel).hasBindingProperty("materials");
-    m_qmlBackEnd->contextObject()->setHasSingleModelSelection(hasValidSelection);
+    if (m_qmlBackEnd)
+        m_qmlBackEnd->contextObject()->setHasSingleModelSelection(hasValidSelection);
 }
 
 void TextureEditorView::currentStateChanged(const ModelNode &node)
