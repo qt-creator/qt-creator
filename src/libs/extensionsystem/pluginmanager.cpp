@@ -641,11 +641,13 @@ void PluginManager::remoteArguments(const QString &serializedArgument, QObject *
     for (const PluginSpec *ps : plugins()) {
         if (ps->state() == PluginSpec::Running) {
             const QStringList pluginOptions = subList(serializedArguments, QLatin1Char(':') + ps->name());
-            QObject *socketParent = ps->plugin()->remoteCommand(pluginOptions, workingDirectory,
-                                                                arguments);
-            if (socketParent && socket) {
-                socket->setParent(socketParent);
-                socket = nullptr;
+            if (IPlugin *plugin = ps->plugin()) {
+                QObject *socketParent
+                    = plugin->remoteCommand(pluginOptions, workingDirectory, arguments);
+                if (socketParent && socket) {
+                    socket->setParent(socketParent);
+                    socket = nullptr;
+                }
             }
         }
     }
