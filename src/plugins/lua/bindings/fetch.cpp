@@ -36,100 +36,98 @@ static QString opToString(QNetworkAccessManager::Operation op)
 
 void addFetchModule()
 {
-    LuaEngine::registerProvider("__fetch", [](sol::state_view lua) -> sol::object {
-        sol::table fetch = lua.create_table();
+    LuaEngine::registerProvider(
+        "Fetch", [](sol::state_view lua) -> sol::object {
+            sol::table async = lua.script("return require('async')", "_fetch_").get<sol::table>();
+            sol::function wrap = async["wrap"];
 
-        auto networkReplyType = lua.new_usertype<QNetworkReply>(
-            "QNetworkReply",
-            "error",
-            sol::property([](QNetworkReply *self) -> int { return self->error(); }),
-            "readAll",
-            [](QNetworkReply *r) { return r->readAll().toStdString(); },
-            "__tostring",
-            [](QNetworkReply *r) {
-                return QString("QNetworkReply(%1 \"%2\") => %3")
-                    .arg(opToString(r->operation()))
-                    .arg(r->url().toString())
-                    .arg(r->error());
-            });
+            sol::table fetch = lua.create_table();
 
-        fetch["fetch_cb"] = [](const sol::table &options, const sol::function &callback, const sol::this_state &thisState) {
-            auto url = options.get<QString>("url");
+            auto networkReplyType = lua.new_usertype<QNetworkReply>(
+                "QNetworkReply",
+                "error",
+                sol::property([](QNetworkReply *self) -> int { return self->error(); }),
+                "readAll",
+                [](QNetworkReply *r) { return r->readAll().toStdString(); },
+                "__tostring",
+                [](QNetworkReply *r) {
+                    return QString("QNetworkReply(%1 \"%2\") => %3")
+                        .arg(opToString(r->operation()))
+                        .arg(r->url().toString())
+                        .arg(r->error());
+                });
 
-            auto method = (options.get_or<QString>("method", "GET")).toLower();
-            auto headers = options.get_or<sol::table>("headers", {});
-            auto data = options.get_or<QString>("body", {});
-            bool convertToTable = options.get<std::optional<bool>>("convertToTable").value_or(false);
+            fetch["fetch_cb"] = [](const sol::table &options,
+                                   const sol::function &callback,
+                                   const sol::this_state &thisState) {
+                auto url = options.get<QString>("url");
 
-            QNetworkRequest request((QUrl(url)));
-            if (headers && !headers.empty()) {
-                for (const auto &[k, v] : headers) {
-                    request.setRawHeader(k.as<QString>().toUtf8(), v.as<QString>().toUtf8());
+                auto method = (options.get_or<QString>("method", "GET")).toLower();
+                auto headers = options.get_or<sol::table>("headers", {});
+                auto data = options.get_or<QString>("body", {});
+                bool convertToTable
+                    = options.get<std::optional<bool>>("convertToTable").value_or(false);
+
+                QNetworkRequest request((QUrl(url)));
+                if (headers && !headers.empty()) {
+                    for (const auto &[k, v] : headers)
+                        request.setRawHeader(k.as<QString>().toUtf8(), v.as<QString>().toUtf8());
                 }
-            }
 
-            QNetworkReply *reply = nullptr;
-            if (method == "get")
-                reply = Utils::NetworkAccessManager::instance()->get(request);
-            else if (method == "post")
-                reply = Utils::NetworkAccessManager::instance()->post(request, data.toUtf8());
-            else
-                throw std::runtime_error("Unknown method: " + method.toStdString());
+                QNetworkReply *reply = nullptr;
+                if (method == "get")
+                    reply = Utils::NetworkAccessManager::instance()->get(request);
+                else if (method == "post")
+                    reply = Utils::NetworkAccessManager::instance()->post(request, data.toUtf8());
+                else
+                    throw std::runtime_error("Unknown method: " + method.toStdString());
 
-            if (convertToTable) {
-                QObject::connect(reply, &QNetworkReply::finished, reply, [reply, thisState, callback]() {
-                    reply->deleteLater();
+                if (convertToTable) {
+                    QObject::connect(
+                        reply,
+                        &QNetworkReply::finished,
+                        &LuaEngine::instance(),
+                        [reply, thisState, callback]() {
+                            reply->deleteLater();
 
-                    if (reply->error() != QNetworkReply::NoError) {
-                        callback(QString("%1 (%2)").arg(reply->errorString()).arg(reply->error()));
-                        return;
-                    }
+                            if (reply->error() != QNetworkReply::NoError) {
+                                callback(
+                                    QString("%1 (%2)").arg(reply->errorString()).arg(reply->error()));
+                                return;
+                            }
 
-                    QByteArray data = reply->readAll();
-                    QJsonParseError error;
-                    QJsonDocument doc = QJsonDocument::fromJson(data, &error);
-                    if (error.error != QJsonParseError::NoError) {
-                        callback(error.errorString());
-                        return;
-                    }
-                    if (doc.isObject()) {
-                        callback(LuaEngine::toTable(thisState, doc.object()));
-                    } else if (doc.isArray()) {
-                        callback(LuaEngine::toTable(thisState, doc.array()));
-                    } else {
-                        sol::state_view lua(thisState);
-                        callback(lua.create_table());
-                    }
-                });
+                            QByteArray data = reply->readAll();
+                            QJsonParseError error;
+                            QJsonDocument doc = QJsonDocument::fromJson(data, &error);
+                            if (error.error != QJsonParseError::NoError) {
+                                callback(error.errorString());
+                                return;
+                            }
+                            if (doc.isObject()) {
+                                callback(LuaEngine::toTable(thisState, doc.object()));
+                            } else if (doc.isArray()) {
+                                callback(LuaEngine::toTable(thisState, doc.array()));
+                            } else {
+                                sol::state_view lua(thisState);
+                                callback(lua.create_table());
+                            }
+                        });
 
-            } else {
-                QObject::connect(reply, &QNetworkReply::finished, reply, [reply, callback]() {
-                    // We don't want the network reply to be deleted by the manager, but
-                    // by the Lua GC
-                    reply->setParent(nullptr);
-                    callback(std::unique_ptr<QNetworkReply>(reply));
-                });
-            }
-        };
+                } else {
+                    QObject::connect(
+                        reply, &QNetworkReply::finished, &LuaEngine::instance(), [reply, callback]() {
+                            // We don't want the network reply to be deleted by the manager, but
+                            // by the Lua GC
+                            reply->setParent(nullptr);
+                            callback(std::unique_ptr<QNetworkReply>(reply));
+                        });
+                }
+            };
 
-        return fetch;
-    });
+            fetch["fetch"] = wrap(fetch["fetch_cb"]);
 
-    LuaEngine::registerProvider("Fetch", [](sol::state_view lua) -> sol::object {
-        return lua
-            .script(
-                R"(
-local f = require("__fetch")
-local a = require("async")
-
-return {
-    fetch_cb = f.fetch_cb,
-    fetch = a.wrap(f.fetch_cb)
-}
-)",
-                "_fetch_")
-            .get<sol::table>();
-    });
+            return fetch;
+        });
 }
 
 } // namespace Lua::Internal
