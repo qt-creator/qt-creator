@@ -64,7 +64,7 @@ static FilePath shadowBuildDirectory(const FilePath &projectFilePath,
 
     const QString projectName = projectFilePath.parentDir().fileName();
     return MesonBuildConfiguration::buildDirectoryFromTemplate(
-        Project::projectDirectory(projectFilePath), projectFilePath,
+        projectFilePath.absolutePath(), projectFilePath,
         projectName, k, bcName, buildType, "meson");
 }
 

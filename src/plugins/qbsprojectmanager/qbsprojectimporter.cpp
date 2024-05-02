@@ -74,8 +74,13 @@ static FilePath buildDir(const FilePath &projectFilePath, const Kit *k)
 {
     const QString projectName = projectFilePath.completeBaseName();
     return BuildConfiguration::buildDirectoryFromTemplate(
-                Project::projectDirectory(projectFilePath),
-                projectFilePath, projectName, k, QString(), BuildConfiguration::Unknown, "qbs");
+        projectFilePath.absolutePath(),
+        projectFilePath,
+        projectName,
+        k,
+        QString(),
+        BuildConfiguration::Unknown,
+        "qbs");
 }
 
 static bool hasBuildGraph(const FilePath &dir)

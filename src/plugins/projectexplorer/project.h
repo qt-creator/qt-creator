@@ -70,7 +70,6 @@ public:
 
     Utils::FilePath projectFilePath() const;
     Utils::FilePath projectDirectory() const;
-    static Utils::FilePath projectDirectory(const Utils::FilePath &top);
 
     // This does not affect nodes, only the root path.
     void changeRootProjectDirectory();

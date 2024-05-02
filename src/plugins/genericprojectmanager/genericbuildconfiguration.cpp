@@ -62,7 +62,7 @@ public:
         setBuildGenerator([](const Kit *, const FilePath &projectPath, bool forSetup) {
             BuildInfo info;
             info.typeName = ProjectExplorer::Tr::tr("Build");
-            info.buildDirectory = forSetup ? Project::projectDirectory(projectPath) : projectPath;
+            info.buildDirectory = forSetup ? projectPath.absolutePath() : projectPath;
 
             if (forSetup)  {
                 //: The name of the build configuration created by default for a generic project.

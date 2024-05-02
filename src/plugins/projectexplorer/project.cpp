@@ -793,20 +793,7 @@ void Project::toMap(Store &map) const
 
 FilePath Project::projectDirectory() const
 {
-    return projectDirectory(projectFilePath());
-}
-
-/*!
-    Returns the directory that contains the file \a top.
-
-    This includes the absolute path.
-*/
-
-FilePath Project::projectDirectory(const FilePath &top)
-{
-    if (top.isEmpty())
-        return {};
-    return top.absolutePath();
+    return projectFilePath().absolutePath();
 }
 
 void Project::changeRootProjectDirectory()

@@ -1593,9 +1593,8 @@ FilePath CMakeBuildConfiguration::shadowBuildDirectory(const FilePath &projectFi
         return {};
 
     const QString projectName = projectFilePath.parentDir().fileName();
-    const FilePath projectDir = Project::projectDirectory(projectFilePath);
-    FilePath buildPath = buildDirectoryFromTemplate(projectDir, projectFilePath, projectName, k,
-                                                    bcName, buildType, "cmake");
+    FilePath buildPath = buildDirectoryFromTemplate(
+        projectFilePath.absolutePath(), projectFilePath, projectName, k, bcName, buildType, "cmake");
 
     if (CMakeGeneratorKitAspect::isMultiConfigGenerator(k)) {
         const QString path = buildPath.path();
@@ -1905,8 +1904,6 @@ CMakeBuildConfigurationFactory::CMakeBuildConfigurationFactory()
 
     setBuildGenerator([](const Kit *k, const FilePath &projectPath, bool forSetup) {
         QList<BuildInfo> result;
-
-        FilePath path = forSetup ? Project::projectDirectory(projectPath) : projectPath;
 
         // Skip the default shadow build directories for build types if we have presets
         const CMakeConfigItem presetItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(k);
