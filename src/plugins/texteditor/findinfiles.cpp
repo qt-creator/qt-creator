@@ -198,7 +198,7 @@ void FindInFiles::writeSettings(QtcSettings *settings)
 void FindInFiles::readSettings(QtcSettings *settings)
 {
     settings->beginGroup("FindInFiles");
-    readCommonSettings(settings, "*.cpp,*.h", "*/.git/*,*/.cvs/*,*/.svn/*,*.autosave");
+    readCommonSettings(settings, "*.cpp,*.h", "*/.git/*,*/.cvs/*,*/.svn/*,*.autosave,*/build/*");
     settings->endGroup();
 }
 

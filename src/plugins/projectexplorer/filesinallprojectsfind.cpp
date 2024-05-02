@@ -43,7 +43,7 @@ void FilesInAllProjectsFind::readSettings(QtcSettings *settings)
     readCommonSettings(
         settings,
         "CMakeLists.txt,*.cmake,*.pro,*.pri,*.qbs,*.cpp,*.h,*.mm,*.qml,*.md,*.txt,*.qdoc",
-        "*/.git/*,*/.cvs/*,*/.svn/*,*.autosave");
+        "*/.git/*,*/.cvs/*,*/.svn/*,*.autosave,*/build/*");
     settings->endGroup();
 }
 

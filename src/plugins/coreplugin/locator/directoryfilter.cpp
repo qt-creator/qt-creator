@@ -41,7 +41,7 @@ const char kFilesKey[] = "files";
 const char kExclusionFiltersKey[] = "exclusionFilters";
 
 const QStringList kFiltersDefault = {"*.h", "*.cpp", "*.ui", "*.qrc"};
-const QStringList kExclusionFiltersDefault = {"*/.git/*", "*/.cvs/*", "*/.svn/*"};
+const QStringList kExclusionFiltersDefault = {"*/.git/*", "*/.cvs/*", "*/.svn/*", "*/build/*"};
 
 static QString defaultDisplayName()
 {
