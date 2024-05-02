@@ -10,6 +10,7 @@
 #include "androidtr.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
@@ -669,8 +670,20 @@ void AndroidSettingsWidget::validateSdk()
                                                         PlatformSdkInstalledRow,
                                                         AllEssentialsInstalledRow});
     androidConfig().setSdkFullyConfigured(sdkToolsOk && componentsOk);
-    if (sdkToolsOk && !componentsOk)
-        m_sdkManagerWidget->installMissingEssentials();
+    if (sdkToolsOk && !componentsOk) {
+        const QStringList notFoundEssentials = m_sdkManager.notFoundEssentialSdkPackages();
+        if (!notFoundEssentials.isEmpty()) {
+            QMessageBox::warning(Core::ICore::dialogParent(),
+                Tr::tr("Android SDK Changes"),
+                Tr::tr("%1 cannot find the following essential packages: \"%2\".\n"
+                       "Install them manually after the current operation is done.\n")
+                    .arg(QGuiApplication::applicationDisplayName(),
+                         notFoundEssentials.join("\", \"")));
+        }
+        m_sdkManager.runInstallationChange({m_sdkManager.missingEssentialSdkPackages()},
+            Tr::tr("Android SDK installation is missing necessary packages. "
+                   "Do you want to install the missing packages?"));
+    }
 
     updateNdkList();
     updateUI();

@@ -21,6 +21,7 @@
 #include <QFutureWatcher>
 #include <QDialogButtonBox>
 #include <QLoggingCategory>
+#include <QMessageBox>
 #include <QPlainTextEdit>
 #include <QProgressBar>
 #include <QReadWriteLock>
@@ -467,14 +468,16 @@ public:
     void reloadSdkPackages();
     void clearPackages();
 
+    void runDialogRecipe(const Storage<DialogStorage> &dialogStorage,
+                         const GroupItem &licenseRecipe, const GroupItem &continuationRecipe);
+
     AndroidSdkManager &m_sdkManager;
     AndroidSdkPackageList m_allPackages;
     FilePath lastSdkManagerPath;
     QByteArray m_licenseUserInput;
     mutable QReadWriteLock m_licenseInputLock;
-
-public:
     bool m_packageListingSuccessful = false;
+    TaskTreeRunner m_taskTreeRunner;
 };
 
 AndroidSdkManager::AndroidSdkManager()
@@ -925,6 +928,67 @@ void AndroidSdkManagerPrivate::clearPackages()
     for (AndroidSdkPackage *p : std::as_const(m_allPackages))
         delete p;
     m_allPackages.clear();
+}
+
+void AndroidSdkManagerPrivate::runDialogRecipe(const Storage<DialogStorage> &dialogStorage,
+                                               const GroupItem &licensesRecipe,
+                                               const GroupItem &continuationRecipe)
+{
+    const auto onCancelSetup = [dialogStorage] {
+        return std::make_pair(dialogStorage->m_dialog.get(), &QDialog::rejected);
+    };
+    const Group root {
+        dialogStorage,
+        Group {
+            licensesRecipe,
+            Sync([dialogStorage] { dialogStorage->m_dialog->setQuestionVisible(false); }),
+            continuationRecipe
+        }.withCancel(onCancelSetup)
+    };
+    m_taskTreeRunner.start(root, {}, [this](DoneWith) {
+        QMetaObject::invokeMethod(&m_sdkManager, &AndroidSdkManager::reloadPackages,
+                                  Qt::QueuedConnection);
+    });
+}
+
+void AndroidSdkManager::runInstallationChange(const InstallationChange &change,
+                                              const QString &extraMessage)
+{
+    QString message = Tr::tr("%n Android SDK packages shall be updated.", "", change.count());
+    if (!extraMessage.isEmpty())
+        message.prepend(extraMessage + "\n\n");
+
+    QMessageBox messageDlg(QMessageBox::Information, Tr::tr("Android SDK Changes"),
+                           message, QMessageBox::Ok | QMessageBox::Cancel,
+                           Core::ICore::dialogParent());
+
+    QString details;
+    if (!change.toUninstall.isEmpty()) {
+        QStringList toUninstall = {Tr::tr("[Packages to be uninstalled:]")};
+        toUninstall += change.toUninstall;
+        details += toUninstall.join("\n   ");
+    }
+    if (!change.toInstall.isEmpty()) {
+        if (!change.toUninstall.isEmpty())
+            details.append("\n\n");
+        QStringList toInstall = {Tr::tr("[Packages to be installed:]")};
+        toInstall += change.toInstall;
+        details += toInstall.join("\n   ");
+    }
+    messageDlg.setDetailedText(details);
+    if (messageDlg.exec() == QMessageBox::Cancel)
+        return;
+
+    const Storage<DialogStorage> dialogStorage;
+    m_d->runDialogRecipe(dialogStorage,
+        change.toInstall.count() ? licensesRecipe(dialogStorage) : nullItem,
+        installationRecipe(dialogStorage, change));
+}
+
+void AndroidSdkManager::runUpdate()
+{
+    const Storage<DialogStorage> dialogStorage;
+    m_d->runDialogRecipe(dialogStorage, licensesRecipe(dialogStorage), updateRecipe(dialogStorage));
 }
 
 } // namespace Internal

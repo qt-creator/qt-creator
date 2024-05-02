@@ -70,12 +70,7 @@ public:
     AndroidSdkManagerWidget(AndroidSdkManager *sdkManager, QWidget *parent = nullptr);
     ~AndroidSdkManagerWidget() override;
 
-    void installMissingEssentials();
-
 private:
-    void applyInstallationChange(const InstallationChange &change, const QString &extraMessage = {});
-    void onApplyButton();
-    void onUpdateInstalled();
     void onCancel();
     void onOperationResult(int index);
     void onSdkManagerOptions();

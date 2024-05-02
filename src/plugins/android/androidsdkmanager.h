@@ -81,6 +81,9 @@ public:
     void cancelOperatons();
     void acceptSdkLicense(bool accept);
 
+    void runInstallationChange(const InstallationChange &change, const QString &extraMessage = {});
+    void runUpdate();
+
 signals:
     void packageReloadBegin();
     void packageReloadFinished();
@@ -90,7 +93,6 @@ private:
     friend class AndroidSdkManagerPrivate;
     std::unique_ptr<AndroidSdkManagerPrivate> m_d;
 };
-
 
 int parseProgress(const QString &out, bool &foundAssertion);
 } // namespace Internal

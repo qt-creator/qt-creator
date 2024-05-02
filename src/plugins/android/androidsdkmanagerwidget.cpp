@@ -176,7 +176,7 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidSdkManager *sdkManager, 
             packagesView->collapseAll();
     });
     connect(updateInstalledButton, &QPushButton::clicked,
-            this, &AndroidSdkManagerWidget::onUpdateInstalled);
+            m_sdkManager, &AndroidSdkManager::runUpdate);
     connect(showAllRadio, &QRadioButton::toggled, this, [this, proxyModel](bool checked) {
         if (checked) {
             proxyModel->setAcceptedPackageState(AndroidSdkPackage::AnyValidState);
@@ -205,8 +205,9 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidSdkManager *sdkManager, 
         expandCheck->setChecked(!text.isEmpty());
     });
 
-    connect(m_buttonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked,
-            this, &AndroidSdkManagerWidget::onApplyButton);
+    connect(m_buttonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked, this, [this] {
+        m_sdkManager->runInstallationChange(m_sdkModel->installationChange());
+    });
     connect(m_buttonBox, &QDialogButtonBox::rejected, this, &AndroidSdkManagerWidget::onCancel);
 
     connect(optionsButton, &QPushButton::clicked,
@@ -271,22 +272,6 @@ AndroidSdkManagerWidget::~AndroidSdkManagerWidget()
     delete m_formatter;
 }
 
-void AndroidSdkManagerWidget::installMissingEssentials()
-{
-    const QStringList notFoundEssentials = m_sdkManager->notFoundEssentialSdkPackages();
-    if (!notFoundEssentials.isEmpty()) {
-        QMessageBox::warning(Core::ICore::dialogParent(),
-                             Tr::tr("Android SDK Changes"),
-                             Tr::tr("%1 cannot find the following essential packages: \"%2\".\n"
-                                    "Install them manually after the current operation is done.\n")
-                                 .arg(QGuiApplication::applicationDisplayName(),
-                                      notFoundEssentials.join("\", \"")));
-    }
-    applyInstallationChange({m_sdkManager->missingEssentialSdkPackages()},
-                            Tr::tr("Android SDK installation is missing necessary packages. "
-                                   "Do you want to install the missing packages?"));
-}
-
 void AndroidSdkManagerWidget::licenseCheck()
 {
     m_formatter->appendMessage(Tr::tr("Checking pending licenses...") + "\n", NormalMessageFormat);
@@ -295,76 +280,6 @@ void AndroidSdkManagerWidget::licenseCheck()
                                    + "\n",
                                LogMessageFormat);
     addPackageFuture(m_sdkManager->licenseCheck());
-}
-
-void AndroidSdkManagerWidget::applyInstallationChange(const InstallationChange &change,
-                                                      const QString &extraMessage)
-{
-    m_installationChange = change;
-
-    if (m_sdkManager->isBusy()) {
-        m_formatter->appendMessage("\n" + Tr::tr("SDK Manager is busy."), StdErrFormat);
-        return;
-    }
-
-    if (m_installationChange.count() == 0)
-        return;
-
-    QString message = Tr::tr("%n Android SDK packages shall be updated.", "", change.count());
-    if (!extraMessage.isEmpty())
-        message.prepend(extraMessage + "\n\n");
-
-    QMessageBox messageDlg(QMessageBox::Information, Tr::tr("Android SDK Changes"),
-                           message, QMessageBox::Ok | QMessageBox::Cancel,
-                           Core::ICore::dialogParent());
-
-    QString details;
-    if (!change.toUninstall.isEmpty()) {
-        QStringList toUninstall = {Tr::tr("[Packages to be uninstalled:]")};
-        toUninstall += change.toUninstall;
-        details += toUninstall.join("\n   ");
-    }
-    if (!change.toInstall.isEmpty()) {
-        if (!change.toUninstall.isEmpty())
-            details.append("\n\n");
-        QStringList toInstall = {Tr::tr("[Packages to be installed:]")};
-        toInstall += change.toInstall;
-        details += toInstall.join("\n   ");
-    }
-    messageDlg.setDetailedText(details);
-    if (messageDlg.exec() == QMessageBox::Cancel)
-        return;
-
-    // Open the SDK Manager dialog after accepting to continue with the installation
-    show();
-
-    switchView(Operations);
-    m_pendingCommand = AndroidSdkManager::UpdatePackages;
-    // User agreed with the selection. Check for licenses.
-    if (!change.toInstall.isEmpty()) {
-        // Pending license affects installtion only.
-        licenseCheck();
-    } else {
-        // Uninstall only. Go Ahead.
-        updatePackages();
-    }
-}
-
-void AndroidSdkManagerWidget::onApplyButton()
-{
-    QTC_ASSERT(m_currentView == PackageListing, return);
-    applyInstallationChange(m_sdkModel->installationChange());
-}
-
-void AndroidSdkManagerWidget::onUpdateInstalled()
-{
-    if (m_sdkManager->isBusy()) {
-        m_formatter->appendMessage("\n" + Tr::tr("SDK Manager is busy."), StdErrFormat);
-        return;
-    }
-    switchView(Operations);
-    m_pendingCommand = AndroidSdkManager::UpdateInstalled;
-    licenseCheck();
 }
 
 void AndroidSdkManagerWidget::onCancel()
