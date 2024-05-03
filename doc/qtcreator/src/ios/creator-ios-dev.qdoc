@@ -12,10 +12,8 @@
     \brief Connect iOS devices to your local machine with a USB cable to
     run applications on them.
 
-    To use \QC on \macos, you must install Xcode, and therefore,
-    you already have the tool chain for building applications for iOS. \QC
-    automatically detects the tool chain and creates the necessary
-    \l{Kits}{kits} to build applications for and run them on
+    After you install Xcode, \QC automatically detects the tool chain and creates
+    the necessary \l{Kits}{kits} to build applications for and run them on
     configured iOS devices.
 
     You only need Qt libraries that are built for iOS. You can install them as
