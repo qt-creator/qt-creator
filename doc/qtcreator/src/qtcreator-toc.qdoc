@@ -24,7 +24,6 @@
             \li \l{Configuring Projects}
             \li \l{Connecting Devices}
             \list
-                \li \l{Connecting Bare Metal Devices}
                 \li \l{Connecting Boot2Qt Devices}
                 \li \l{Adding Docker Devices}
                 \li \l{Connecting QNX Devices}

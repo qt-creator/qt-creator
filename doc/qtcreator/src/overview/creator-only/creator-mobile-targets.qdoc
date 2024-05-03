@@ -34,7 +34,7 @@
             Connect Android devices to the computer to develop Qt applications
             for them.
 
-        \li \l{Connecting Bare Metal Devices}
+        \li \l{Developing for Bare Metal Devices}
 
             You can connect bare metal devices to the development PC and use \QC
             to debug applications on them with GDB or a hardware debugger.

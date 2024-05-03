@@ -31,15 +31,6 @@
     You can connect embedded devices to the development PC to run, debug, and
     analyze applications built for them from \QC.
 
-    \section1 Bare Metal
-
-    You can run and debug applications on small devices that are not supported
-    by the remote Linux device plugin by using GDB or a hardware
-    debugger.
-
-    For more information about developing applications for Bare Metal devices,
-    see \l{Connecting Bare Metal Devices}.
-
     \section1 Boot2Qt
 
     The Boot2Qt stack runs on a variety of hardware. License holders can use

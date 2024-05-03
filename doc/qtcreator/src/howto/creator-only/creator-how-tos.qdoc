@@ -94,6 +94,10 @@
 
     \generatelist creator-how-to-android
 
+    \section2 Bare Metal
+
+    \generatelist creator-how-to-bare-metal
+
     \section2 iOS
 
     Install \l {Qt for iOS} and Xcode.

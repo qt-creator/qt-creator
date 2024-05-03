@@ -169,7 +169,7 @@
     You can use the shell link to run the tools in the third-party tool chains.
 
     \sa {Compilers}, {Add Nim compilers}, {Add custom compilers},
-    {Connecting Bare Metal Devices}, {Supported Platforms}
+    {Developing for Bare Metal Devices}, {Supported Platforms}
 */
 
 /*!
