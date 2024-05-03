@@ -34,12 +34,10 @@ private:
     Utils::Process m_process;
 };
 
-class AndroidSdkManagerWidget : public QDialog
+class AndroidSdkManagerDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
-    AndroidSdkManagerWidget(AndroidSdkManager *sdkManager, QWidget *parent = nullptr);
+    AndroidSdkManagerDialog(AndroidSdkManager *sdkManager, QWidget *parent = nullptr);
 
 private:
     AndroidSdkManager *m_sdkManager = nullptr;

@@ -5,7 +5,7 @@
 #include "androidconstants.h"
 #include "androidsdkdownloader.h"
 #include "androidsdkmanager.h"
-#include "androidsdkmanagerwidget.h"
+#include "androidsdkmanagerdialog.h"
 #include "androidsettingswidget.h"
 #include "androidtr.h"
 
@@ -495,7 +495,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
         m_androidProgress->show();
     });
     connect(sdkManagerToolButton, &QAbstractButton::clicked, this, [this] {
-        AndroidSdkManagerWidget dialog(&m_sdkManager, this);
+        AndroidSdkManagerDialog dialog(&m_sdkManager, this);
         dialog.exec();
     });
     connect(sdkToolsAutoDownloadButton, &QAbstractButton::clicked,

@@ -3,7 +3,7 @@
 
 #include "androidconfigurations.h"
 #include "androidsdkmanager.h"
-#include "androidsdkmanagerwidget.h"
+#include "androidsdkmanagerdialog.h"
 #include "androidsdkmodel.h"
 #include "androidtr.h"
 
@@ -39,7 +39,7 @@ private:
     QString m_searchText;
 };
 
-AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidSdkManager *sdkManager, QWidget *parent)
+AndroidSdkManagerDialog::AndroidSdkManagerDialog(AndroidSdkManager *sdkManager, QWidget *parent)
     : QDialog(parent)
     , m_sdkManager(sdkManager)
     , m_sdkModel(new AndroidSdkModel(m_sdkManager, this))
@@ -156,7 +156,7 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidSdkManager *sdkManager, 
     connect(m_buttonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked, this, [this] {
         m_sdkManager->runInstallationChange(m_sdkModel->installationChange());
     });
-    connect(m_buttonBox, &QDialogButtonBox::rejected, this, &AndroidSdkManagerWidget::reject);
+    connect(m_buttonBox, &QDialogButtonBox::rejected, this, &AndroidSdkManagerDialog::reject);
 
     connect(optionsButton, &QPushButton::clicked, this, [this] {
         OptionsDialog dlg(m_sdkManager, androidConfig().sdkManagerToolArgs(), this);
@@ -289,8 +289,8 @@ OptionsDialog::OptionsDialog(AndroidSdkManager *sdkManager, const QStringList &a
     });
     m_process.start();
 
-    auto dialogButtons = new QDialogButtonBox(this);
-    dialogButtons->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+    auto dialogButtons = new QDialogButtonBox;
+    dialogButtons->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
     connect(dialogButtons, &QDialogButtonBox::accepted, this, &OptionsDialog::accept);
     connect(dialogButtons, &QDialogButtonBox::rejected, this, &OptionsDialog::reject);
 
@@ -308,7 +308,7 @@ OptionsDialog::OptionsDialog(AndroidSdkManager *sdkManager, const QStringList &a
 
 QStringList OptionsDialog::sdkManagerArguments() const
 {
-    QString userInput = m_argumentsEdit->text().simplified();
+    const QString userInput = m_argumentsEdit->text().simplified();
     return userInput.isEmpty() ? QStringList() : userInput.split(' ');
 }
 
