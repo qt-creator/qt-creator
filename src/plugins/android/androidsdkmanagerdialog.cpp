@@ -139,9 +139,9 @@ AndroidSdkManagerDialog::AndroidSdkManagerDialog(AndroidSdkManager *sdkManager, 
 
     auto expandCheck = new QCheckBox(Tr::tr("Expand All"));
 
-    m_buttonBox = new QDialogButtonBox;
-    m_buttonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel);
-    m_buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
+    auto buttonBox = new QDialogButtonBox;
+    buttonBox->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel);
+    buttonBox->button(QDialogButtonBox::Apply)->setEnabled(false);
 
     auto proxyModel = new PackageFilterModel(m_sdkModel);
     packagesView->setModel(proxyModel);
@@ -172,11 +172,11 @@ AndroidSdkManagerDialog::AndroidSdkManagerDialog(AndroidSdkManager *sdkManager, 
                 optionsButton,
             }, br,
         },
-        m_buttonBox,
+        buttonBox,
     }.attachTo(this);
 
-    connect(m_sdkModel, &AndroidSdkModel::dataChanged, this, [this] {
-        m_buttonBox->button(QDialogButtonBox::Apply)
+    connect(m_sdkModel, &AndroidSdkModel::dataChanged, this, [this, buttonBox] {
+        buttonBox->button(QDialogButtonBox::Apply)
             ->setEnabled(m_sdkModel->installationChange().count());
     });
 
@@ -215,10 +215,10 @@ AndroidSdkManagerDialog::AndroidSdkManagerDialog(AndroidSdkManager *sdkManager, 
         expandCheck->setChecked(!text.isEmpty());
     });
 
-    connect(m_buttonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked, this, [this] {
+    connect(buttonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked, this, [this] {
         m_sdkManager->runInstallationChange(m_sdkModel->installationChange());
     });
-    connect(m_buttonBox, &QDialogButtonBox::rejected, this, &AndroidSdkManagerDialog::reject);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &AndroidSdkManagerDialog::reject);
 
     connect(optionsButton, &QPushButton::clicked, this, [this] {
         OptionsDialog dlg(m_sdkManager, this);

@@ -6,10 +6,6 @@
 
 #include <QDialog>
 
-QT_BEGIN_NAMESPACE
-class QDialogButtonBox;
-QT_END_NAMESPACE
-
 namespace Android::Internal {
 
 class AndroidSdkManager;
@@ -23,7 +19,6 @@ public:
 private:
     AndroidSdkManager *m_sdkManager = nullptr;
     AndroidSdkModel *m_sdkModel = nullptr;
-    QDialogButtonBox *m_buttonBox = nullptr;
 };
 
 } // Android::Internal
