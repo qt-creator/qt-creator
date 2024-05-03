@@ -44,8 +44,8 @@
     If you need to display animated images, such as GIFs, use the
     \l {Animated Image} component.
 
-    \note Currently, the supported image formats include \b{jpeg, jpg, png, svg,
-        hdr, ktx, bmp, ttf, tiff, webp,} and \b{gif}.
+    \note Currently, the supported image formats include JPEG, JPG, PNG, SVG,
+        HDR, KTX, BMP, TTF, TIFF, WEBP, and GIF.
 
     \section1 Image Size
 
