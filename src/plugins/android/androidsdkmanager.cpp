@@ -483,13 +483,12 @@ static bool sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
 {
     QStringList newArgs = args;
     newArgs.append(sdkRootArg(config));
-    qCDebug(sdkManagerLog).noquote() << "Running SDK Manager command (sync):"
-                                     << CommandLine(config.sdkManagerToolPath(), newArgs)
-                                            .toUserOutput();
     Process proc;
     proc.setEnvironment(config.toolsEnvironment());
     proc.setTimeOutMessageBoxEnabled(true);
     proc.setCommand({config.sdkManagerToolPath(), newArgs});
+    qCDebug(sdkManagerLog).noquote() << "Running SDK Manager command (sync):"
+                                     << proc.commandLine().toUserOutput();
     proc.runBlocking(60s, EventLoopMode::On);
     if (output)
         *output = proc.allOutput();
