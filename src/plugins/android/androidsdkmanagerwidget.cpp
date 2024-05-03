@@ -275,14 +275,13 @@ OptionsDialog::OptionsDialog(AndroidSdkManager *sdkManager, const QStringList &a
     m_process.setCommand({androidConfig().sdkManagerToolPath(),
                           {"--help", "--sdk_root=" + androidConfig().sdkLocation().toString()}});
     connect(&m_process, &Process::done, this, [this] {
+        const QString output = m_process.allOutput();
         QString argumentDetails;
-        bool foundTag = false;
-        const QStringList lines = m_process.allOutput().split('\n');
-        for (const QString &line : lines) {
-            if (foundTag)
-                argumentDetails.append(line + "\n");
-            else if (line.startsWith("Common Arguments:"))
-                foundTag = true;
+        const int tagIndex = output.indexOf("Common Arguments:");
+        if (tagIndex >= 0) {
+            const int detailsIndex = output.indexOf('\n', tagIndex);
+            if (detailsIndex >= 0)
+                argumentDetails = output.mid(detailsIndex + 1);
         }
         if (argumentDetails.isEmpty())
             argumentDetails = Tr::tr("Cannot load available arguments for \"sdkmanager\" command.");
