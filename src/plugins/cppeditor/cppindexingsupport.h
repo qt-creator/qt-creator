@@ -11,6 +11,8 @@
 
 #include <QFuture>
 
+#include <functional>
+
 namespace Utils { class SearchResultItem; }
 
 namespace CppEditor {
@@ -59,8 +61,10 @@ class CPPEDITOR_EXPORT CppIndexingSupport
 public:
     static bool isFindErrorsIndexingActive();
 
-    QFuture<void> refreshSourceFiles(const QSet<QString> &sourceFiles,
-                                     CppModelManager::ProgressNotificationMode mode);
+    QFuture<void> refreshSourceFiles(
+        const std::function<QSet<QString>()> &sourceFiles,
+        CppModelManager::ProgressNotificationMode mode);
+
 private:
     Utils::FutureSynchronizer m_synchronizer;
 };

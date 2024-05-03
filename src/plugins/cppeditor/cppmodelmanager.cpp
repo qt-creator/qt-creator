@@ -90,6 +90,7 @@
 #include <QWriteLocker>
 
 #include <memory>
+#include <unordered_map>
 
 #if defined(QTCREATOR_WITH_DUMP_AST) && defined(Q_CC_GNU)
 #define WITH_AST_DUMP
@@ -1353,15 +1354,25 @@ QFuture<void> CppModelManager::updateSourceFiles(const QSet<FilePath> &sourceFil
     if (sourceFiles.isEmpty() || !d->m_indexerEnabled)
         return QFuture<void>();
 
-    QHash<Project *, QSet<QString>> sourcesPerProject; // TODO: Work with QList from here on?
+    std::unordered_map<Project *, QSet<QString>> sourcesPerProject;
     for (const FilePath &fp : sourceFiles)
         sourcesPerProject[ProjectManager::projectForFile(fp)] << fp.toString();
-    QSet<QString> filteredFiles;
-    for (auto it = sourcesPerProject.cbegin(); it != sourcesPerProject.cend(); ++it) {
-        filteredFiles.unite(
-            filteredFilesRemoved(it.value(), CppCodeModelSettings::settingsForProject(it.key())));
+    std::vector<std::pair<QSet<QString>, CppCodeModelSettings>> sourcesAndSettings;
+    for (const auto &it : sourcesPerProject) {
+        sourcesAndSettings
+            .emplace_back(it.second, CppCodeModelSettings::settingsForProject(it.first));
     }
 
+    const auto filteredFiles = [sourcesAndSettings = std::move(sourcesAndSettings)] {
+        QSet<QString> result;
+        for (const auto &it : sourcesAndSettings)
+            result.unite(filteredFilesRemoved(it.first, it.second));
+        return result;
+    };
+
+    // "ReservedProgressNotification" should be shown if there is more than one source file.
+    if (sourceFiles.size() > 1)
+        mode = ForcedProgressNotification;
     return d->m_internalIndexingSupport->refreshSourceFiles(filteredFiles, mode);
 }
 

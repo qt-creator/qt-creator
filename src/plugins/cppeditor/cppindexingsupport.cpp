@@ -219,23 +219,22 @@ static void index(QPromise<void> &promise, const ParseParams params)
     qCDebug(indexerLog) << "Indexing finished.";
 }
 
-static void parse(QPromise<void> &promise, const ParseParams &params)
+static void parse(
+    QPromise<void> &promise,
+    const std::function<QSet<QString>()> &sourceFiles,
+    const ProjectExplorer::HeaderPaths &headerPaths,
+    const WorkingCopy &workingCopy)
 {
-    const QSet<QString> &files = params.sourceFiles;
-    if (files.isEmpty()) {
-        CppModelManager::finishedRefreshingSourceFiles(files);
-        return;
-    }
-
-    promise.setProgressRange(0, files.size());
+    ParseParams params{headerPaths, workingCopy, sourceFiles()};
+    promise.setProgressRange(0, params.sourceFiles.size());
 
     if (CppIndexingSupport::isFindErrorsIndexingActive())
         indexFindErrors(promise, params);
     else
         index(promise, params);
 
-    promise.setProgressValue(files.size());
-    CppModelManager::finishedRefreshingSourceFiles(files);
+    promise.setProgressValue(params.sourceFiles.size());
+    CppModelManager::finishedRefreshingSourceFiles(params.sourceFiles);
 }
 
 } // anonymous namespace
@@ -302,18 +301,19 @@ bool CppIndexingSupport::isFindErrorsIndexingActive()
     return Utils::qtcEnvironmentVariable("QTC_FIND_ERRORS_INDEXING") == "1";
 }
 
-QFuture<void> CppIndexingSupport::refreshSourceFiles(const QSet<QString> &sourceFiles,
-                                                     CppModelManager::ProgressNotificationMode mode)
+QFuture<void> CppIndexingSupport::refreshSourceFiles(
+    const std::function<QSet<QString>()> &sourceFiles,
+    CppModelManager::ProgressNotificationMode mode)
 {
-    ParseParams params;
-    params.headerPaths = CppModelManager::headerPaths();
-    params.workingCopy = CppModelManager::workingCopy();
-    params.sourceFiles = sourceFiles;
-
-    QFuture<void> result = Utils::asyncRun(CppModelManager::sharedThreadPool(), parse, params);
+    QFuture<void> result = Utils::asyncRun(
+        CppModelManager::sharedThreadPool(),
+        parse,
+        sourceFiles,
+        CppModelManager::headerPaths(),
+        CppModelManager::workingCopy());
     m_synchronizer.addFuture(result);
 
-    if (mode == CppModelManager::ForcedProgressNotification || sourceFiles.count() > 1) {
+    if (mode == CppModelManager::ForcedProgressNotification) {
         Core::ProgressManager::addTask(result, Tr::tr("Parsing C/C++ Files"),
                                        CppEditor::Constants::TASK_INDEX);
     }
