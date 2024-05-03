@@ -49,7 +49,8 @@
                 "*.bmp",
                 "*.ttf",
                 "*.tiff",
-                "*.webp"
+                "*.webp",
+                "*.gif"
             ],
             "mcuProperties": {
             },
