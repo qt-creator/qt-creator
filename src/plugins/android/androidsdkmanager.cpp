@@ -11,7 +11,6 @@
 #include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/algorithm.h>
-#include <utils/async.h>
 #include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcprocess.h>
@@ -27,7 +26,6 @@
 
 namespace {
 Q_LOGGING_CATEGORY(sdkManagerLog, "qtc.android.sdkManager", QtWarningMsg)
-const char commonArgsKey[] = "Common Arguments:";
 }
 
 using namespace Tasking;
@@ -496,31 +494,6 @@ static bool sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
     if (output)
         *output = proc.allOutput();
     return proc.result() == ProcessResult::FinishedWithSuccess;
-}
-
-static void parseCommonArguments(QPromise<QString> &promise)
-{
-    QString argumentDetails;
-    QString output;
-    sdkManagerCommand(androidConfig(), QStringList("--help"), &output);
-    bool foundTag = false;
-    const auto lines = output.split('\n');
-    for (const QString& line : lines) {
-        if (promise.isCanceled())
-            break;
-        if (foundTag)
-            argumentDetails.append(line + "\n");
-        else if (line.startsWith(commonArgsKey))
-            foundTag = true;
-    }
-
-    if (!promise.isCanceled())
-        promise.addResult(argumentDetails);
-}
-
-QFuture<QString> AndroidSdkManager::availableArguments() const
-{
-    return Utils::asyncRun(parseCommonArguments);
 }
 
 AndroidSdkManagerPrivate::AndroidSdkManagerPrivate(AndroidSdkManager &sdkManager)

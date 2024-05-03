@@ -7,7 +7,6 @@
 #include "androidsdkmodel.h"
 #include "androidtr.h"
 
-#include <utils/async.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
@@ -270,16 +269,24 @@ OptionsDialog::OptionsDialog(AndroidSdkManager *sdkManager, const QStringList &a
     m_argumentDetailsEdit = new QPlainTextEdit(this);
     m_argumentDetailsEdit->setReadOnly(true);
 
-    auto populateOptions = [this](const QString& options) {
-        if (options.isEmpty()) {
-            m_argumentDetailsEdit->setPlainText(Tr::tr("Cannot load available arguments for "
-                                                       "\"sdkmanager\" command."));
-        } else {
-            m_argumentDetailsEdit->setPlainText(options);
+    m_process.setEnvironment(androidConfig().toolsEnvironment());
+    m_process.setCommand({androidConfig().sdkManagerToolPath(),
+                          {"--help", "--sdk_root=" + androidConfig().sdkLocation().toString()}});
+    connect(&m_process, &Process::done, this, [this] {
+        QString argumentDetails;
+        bool foundTag = false;
+        const QStringList lines = m_process.allOutput().split('\n');
+        for (const QString &line : lines) {
+            if (foundTag)
+                argumentDetails.append(line + "\n");
+            else if (line.startsWith("Common Arguments:"))
+                foundTag = true;
         }
-    };
-    m_optionsFuture = sdkManager->availableArguments();
-    Utils::onResultReady(m_optionsFuture, this, populateOptions);
+        if (argumentDetails.isEmpty())
+            argumentDetails = Tr::tr("Cannot load available arguments for \"sdkmanager\" command.");
+        m_argumentDetailsEdit->setPlainText(argumentDetails);
+    });
+    m_process.start();
 
     auto dialogButtons = new QDialogButtonBox(this);
     dialogButtons->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
@@ -296,12 +303,6 @@ OptionsDialog::OptionsDialog(AndroidSdkManager *sdkManager, const QStringList &a
         m_argumentDetailsEdit,
         dialogButtons,
     }.attachTo(this);
-}
-
-OptionsDialog::~OptionsDialog()
-{
-    m_optionsFuture.cancel();
-    m_optionsFuture.waitForFinished();
 }
 
 QStringList OptionsDialog::sdkManagerArguments() const

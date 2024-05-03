@@ -4,6 +4,8 @@
 
 #include "androidsdkmanager.h"
 
+#include <utils/qtcprocess.h>
+
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
@@ -23,14 +25,13 @@ class OptionsDialog : public QDialog
 {
 public:
     OptionsDialog(AndroidSdkManager *sdkManager, const QStringList &args, QWidget *parent = nullptr);
-    ~OptionsDialog() override;
 
     QStringList sdkManagerArguments() const;
 
 private:
     QPlainTextEdit *m_argumentDetailsEdit = nullptr;
     QLineEdit *m_argumentsEdit = nullptr;
-    QFuture<QString> m_optionsFuture;
+    Utils::Process m_process;
 };
 
 class AndroidSdkManagerWidget : public QDialog

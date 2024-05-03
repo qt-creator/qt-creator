@@ -7,7 +7,6 @@
 #include <utils/filepath.h>
 
 #include <QObject>
-#include <QFuture>
 
 #include <memory>
 
@@ -54,8 +53,6 @@ public:
     void reloadPackages();
 
     bool packageListingSuccessful() const;
-
-    QFuture<QString> availableArguments() const;
 
     void runInstallationChange(const InstallationChange &change, const QString &extraMessage = {});
     void runUpdate();
