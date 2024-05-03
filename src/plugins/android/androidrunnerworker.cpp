@@ -20,20 +20,15 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 
-#include <utils/async.h>
-#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
-#include <utils/stringutils.h>
-#include <utils/temporaryfile.h>
 #include <utils/url.h>
 
 #include <QDate>
 #include <QLoggingCategory>
-#include <QScopeGuard>
 #include <QRegularExpression>
+#include <QScopeGuard>
 #include <QTcpServer>
-#include <QThread>
 
 #include <chrono>
 
@@ -57,17 +52,6 @@ static const QRegularExpression userIdPattern("u(\\d+)_a");
 
 static const std::chrono::milliseconds s_jdbTimeout = 5s;
 
-static int APP_START_TIMEOUT = 45000;
-static bool isTimedOut(const chrono::high_resolution_clock::time_point &start,
-                            int msecs = APP_START_TIMEOUT)
-{
-    bool timedOut = false;
-    auto end = chrono::high_resolution_clock::now();
-    if (chrono::duration_cast<chrono::milliseconds>(end-start).count() > msecs)
-        timedOut = true;
-    return timedOut;
-}
-
 static qint64 extractPID(const QString &output, const QString &packageName)
 {
     qint64 pid = -1;
@@ -80,67 +64,6 @@ static qint64 extractPID(const QString &output, const QString &packageName)
         }
     }
     return pid;
-}
-
-static void findProcessPIDAndUser(QPromise<PidUserPair> &promise,
-                                  const QStringList &selector,
-                                  const QString &packageName,
-                                  bool preNougat)
-{
-    if (packageName.isEmpty())
-        return;
-
-    static const QString pidScript = "pidof -s '%1'";
-    static const QString pidScriptPreNougat = QStringLiteral("for p in /proc/[0-9]*; "
-                                                    "do cat <$p/cmdline && echo :${p##*/}; done");
-    QStringList args = {selector};
-    FilePath adbPath = androidConfig().adbToolPath();
-    args.append("shell");
-    args.append(preNougat ? pidScriptPreNougat : pidScript.arg(packageName));
-
-    qint64 processPID = -1;
-    chrono::high_resolution_clock::time_point start = chrono::high_resolution_clock::now();
-    do {
-        QThread::msleep(200);
-        Process proc;
-        proc.setCommand({adbPath, args});
-        proc.runBlocking();
-        const QString out = proc.allOutput();
-        if (preNougat) {
-            processPID = extractPID(out, packageName);
-        } else {
-            if (!out.isEmpty())
-                processPID = out.trimmed().toLongLong();
-        }
-    } while ((processPID == -1 || processPID == 0) && !isTimedOut(start) && !promise.isCanceled());
-
-    qCDebug(androidRunWorkerLog) << "PID found:" << processPID << ", PreNougat:" << preNougat;
-
-    qint64 processUser = 0;
-    if (processPID > 0 && !promise.isCanceled()) {
-        args = {selector};
-        args.append({"shell", "ps", "-o", "user", "-p"});
-        args.append(QString::number(processPID));
-        Process proc;
-        proc.setCommand({adbPath, args});
-        proc.runBlocking();
-        const QString out = proc.allOutput();
-        if (!out.isEmpty()) {
-            QRegularExpressionMatch match;
-            qsizetype matchPos = out.indexOf(userIdPattern, 0, &match);
-            if (matchPos >= 0 && match.capturedLength(1) > 0) {
-                bool ok = false;
-                processUser = match.captured(1).toInt(&ok);
-                if (!ok)
-                    processUser = 0;
-            }
-        }
-    }
-
-    qCDebug(androidRunWorkerLog) << "USER found:" << processUser;
-
-    if (!promise.isCanceled())
-        promise.addResult(PidUserPair(processPID, processUser));
 }
 
 static QString gdbServerArch(const QString &androidAbi)
@@ -288,9 +211,6 @@ AndroidRunnerWorker::~AndroidRunnerWorker()
 {
     if (m_processPID != -1)
         forceStop();
-
-    if (!m_pidFinder.isFinished())
-        m_pidFinder.cancel();
 }
 
 bool AndroidRunnerWorker::runAdb(const QStringList &args, QString *stdOut,
@@ -707,19 +627,70 @@ void AndroidRunnerWorker::asyncStart()
 {
     asyncStartHelper();
 
-    m_pidFinder = Utils::onResultReady(Utils::asyncRun(findProcessPIDAndUser,
-                                                       selector(),
-                                                       m_packageName,
-                                                       m_isPreNougat),
-                                       this,
-                                       bind(&AndroidRunnerWorker::onProcessIdChanged, this, _1));
+    using namespace Tasking;
+
+    const Storage<PidUserPair> pidStorage;
+    const LoopUntil iterator([pidStorage](int) { return pidStorage->first <= 0; });
+
+    const FilePath adbPath = androidConfig().adbToolPath();
+    const QStringList args = selector();
+
+    const auto onPidSetup = [adbPath, args, packageName = m_packageName,
+                             isPreNougat = m_isPreNougat](Process &process) {
+        const QString pidScript = isPreNougat
+            ? QString("for p in /proc/[0-9]*; do cat <$p/cmdline && echo :${p##*/}; done")
+            : QString("pidof -s '%1'").arg(packageName);
+        process.setCommand({adbPath, args + QStringList{"shell", pidScript}});
+    };
+    const auto onPidDone = [pidStorage, packageName = m_packageName,
+                            isPreNougat = m_isPreNougat](const Process &process) {
+        const QString out = process.allOutput();
+        if (isPreNougat)
+            pidStorage->first = extractPID(out, packageName);
+        else if (!out.isEmpty())
+            pidStorage->first = out.trimmed().toLongLong();
+    };
+
+    const auto onUserSetup = [pidStorage, adbPath, args](Process &process) {
+        process.setCommand({adbPath, args
+            + QStringList{"shell", "ps", "-o", "user", "-p", QString::number(pidStorage->first)}});
+    };
+    const auto onUserDone = [pidStorage](const Process &process) {
+        const QString out = process.allOutput();
+        if (out.isEmpty())
+            return DoneResult::Error;
+
+        QRegularExpressionMatch match;
+        qsizetype matchPos = out.indexOf(userIdPattern, 0, &match);
+        if (matchPos >= 0 && match.capturedLength(1) > 0) {
+            bool ok = false;
+            const qint64 processUser = match.captured(1).toInt(&ok);
+            if (ok) {
+                pidStorage->second = processUser;
+                return DoneResult::Success;
+            }
+        }
+        return DoneResult::Error;
+    };
+
+    const Group root {
+        pidStorage,
+        onGroupSetup([pidStorage] { *pidStorage = {-1, 0}; }),
+        Group {
+            iterator,
+            ProcessTask(onPidSetup, onPidDone, CallDoneIf::Success),
+            TimeoutTask([](std::chrono::milliseconds &timeout) { timeout = 200ms; })
+        }.withTimeout(45s),
+        ProcessTask(onUserSetup, onUserDone, CallDoneIf::Success),
+        onGroupDone([pidStorage, this] { onProcessIdChanged(*pidStorage); })
+    };
+
+    m_pidRunner.start(root);
 }
 
 void AndroidRunnerWorker::asyncStop()
 {
-    if (!m_pidFinder.isFinished())
-        m_pidFinder.cancel();
-
+    m_pidRunner.reset();
     if (m_processPID != -1)
         forceStop();
 
@@ -820,8 +791,6 @@ void AndroidRunnerWorker::removeForwardPort(const QString &port)
 
 void AndroidRunnerWorker::onProcessIdChanged(const PidUserPair &pidUser)
 {
-    // Don't write to m_psProc from a different thread
-    QTC_ASSERT(QThread::currentThread() == thread(), return);
     qCDebug(androidRunWorkerLog) << "Process ID changed from:" << m_processPID
                                  << "to:" << pidUser.first;
     m_processPID = pidUser.first;

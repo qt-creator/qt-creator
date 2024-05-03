@@ -6,11 +6,10 @@
 
 #include <qmldebug/qmldebugcommandlinearguments.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/environment.h>
 #include <utils/port.h>
-
-#include <QFuture>
-#include <utility>
 
 namespace Utils {
 class FilePath;
@@ -90,7 +89,7 @@ private:
     std::unique_ptr<Utils::Process> m_psIsAlive;
     QByteArray m_stdoutBuffer;
     QByteArray m_stderrBuffer;
-    QFuture<PidUserPair> m_pidFinder;
+    Tasking::TaskTreeRunner m_pidRunner;
     bool m_useCppDebugger = false;
     bool m_useLldb = false; // FIXME: Un-implemented currently.
     QmlDebug::QmlDebugServicesPreset m_qmlDebugServices;
