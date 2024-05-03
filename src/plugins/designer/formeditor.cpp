@@ -370,7 +370,7 @@ void FormEditorData::fullInit()
     initDesignerSubWindows();
     m_integration = new QtCreatorIntegration(m_formeditor, this);
     m_formeditor->setIntegration(m_integration);
-    // Connect Qt Designer help request to HelpManager.
+    // Connect Qt Widgets Designer help request to HelpManager.
     QObject::connect(m_integration, &QtCreatorIntegration::creatorHelpRequested,
                      HelpManager::Signals::instance(),
                      [](const QUrl &url) { HelpManager::showHelpUrl(url, HelpManager::HelpModeAlways); });
@@ -657,7 +657,7 @@ void FormEditorData::setupActions()
                   QString(), Core::Constants::G_DEFAULT_THREE);
 
     mformtools->addSeparator(m_contexts, Core::Constants::G_DEFAULT_THREE);
-    m_actionAboutPlugins = new QAction(Tr::tr("About Qt Designer Plugins..."), d);
+    m_actionAboutPlugins = new QAction(Tr::tr("About Qt Widgets Designer Plugins..."), d);
     addToolAction(m_actionAboutPlugins, m_contexts, "FormEditor.AboutPlugins", mformtools,
                   QString(), Core::Constants::G_DEFAULT_THREE);
     QObject::connect(m_actionAboutPlugins, &QAction::triggered,

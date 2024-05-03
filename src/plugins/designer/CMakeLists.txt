@@ -5,12 +5,12 @@ if(Qt6_VERSION VERSION_GREATER_EQUAL 6.7.0)
     {
         \"Name\" : \"-designer-qt-pluginpath\",
         \"Parameter\" : \"path\",
-        \"Description\" : \"Override the default search path for Qt Designer plugins\"
+        \"Description\" : \"Override the default search path for Qt Widgets Designer plugins\"
     },
     {
         \"Name\" : \"-designer-pluginpath\",
         \"Parameter\" : \"path\",
-        \"Description\" : \"Add a custom search path for Qt Designer plugins\"
+        \"Description\" : \"Add a custom search path for Qt Widgets Designer plugins\"
     }
     ],")
 else()
@@ -19,7 +19,7 @@ else()
     {
         \"Name\" : \"-designer-qt-pluginpath\",
         \"Parameter\" : \"path\",
-        \"Description\" : \"Override the default search path for Qt Designer plugins\"
+        \"Description\" : \"Override the default search path for Qt Widgets Designer plugins\"
     }
     ],")
 endif()

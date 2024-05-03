@@ -158,11 +158,11 @@
 
     \section3 Writing Tooltips in Design Mode
 
-    In Qt Designer, use plain text for tooltips. For extra formatting, write
+    In \QD, use plain text for tooltips. For extra formatting, write
     short, canonical HTML in the source tab of the rich text editor:
     \c {<html><head/><body><b>Note:</b> text.}
 
-    Qt Designer has a feature that simplifies the rich text (on by default),
+    \QD has a feature that simplifies the rich text (on by default),
     but still, you should verify by looking at the \uicontrol Source tab.
 
     \section2 Writing Messages

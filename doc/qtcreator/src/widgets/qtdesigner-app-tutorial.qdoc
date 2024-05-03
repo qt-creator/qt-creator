@@ -197,7 +197,7 @@
     \endlist
 
     For more information about designing forms with \QD, see the
-    \l{Qt Designer Manual}.
+    \l{\QD Manual}.
 
     \section2 Completing the Header File
 

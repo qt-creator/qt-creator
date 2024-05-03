@@ -29,7 +29,7 @@
     Furthermore, features such as widget promotion and custom plugins
     allow you to use your own widgets with \QD.
 
-    For more information about \QD, see the \l{Qt Designer Manual}.
+    For more information about \QD, see the \l{\QD Manual}.
 
     Generally, the integrated \QD has the same functions as the standalone
     \QD. The following sections describe the differences.
@@ -62,7 +62,7 @@
     \uicontrol {Follow Symbol Under Cursor} in the context menu
     or press \key F2 when the cursor is over a string literal.
 
-    \section1 Specifying Settings for Qt Designer
+    \section1 Specifying Settings for \QD
 
     You can drag and drop the views in \QD to new positions on the screen.
 
@@ -102,7 +102,7 @@
     \list 1
 
         \li \preferences > \uicontrol Designer.
-            \image qtdesigner-embedded-design.png "Qt Designer Embedded Design preferences"
+            \image qtdesigner-embedded-design.png "Qt Widgets Designer Embedded Design preferences"
         \li In \uicontrol {Embedded Design}, select \inlineimage icons/plus.png
             to open the \uicontrol {Add Profile} dialog.
             \image qtdesigner-add-profile.png "Add Profile dialog"
@@ -119,5 +119,5 @@
     To import device profiles from .qdp files, select \uicontrol Open. To save
     them as .qdp files, select \uicontrol Save.
 
-    \sa {Creating a Qt Widget Based Application}, {Adding Qt Designer Plugins}
+    \sa {Creating a Qt Widget Based Application}, {Adding \QD Plugins}
 */

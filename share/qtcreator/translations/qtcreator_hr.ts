@@ -15304,8 +15304,8 @@ Check the test environment.</source>
         <translation>Python uređivač</translation>
     </message>
     <message>
-        <source>Qt Designer</source>
-        <translation>Qt Designer</translation>
+        <source>Qt Widgets Designer</source>
+        <translation>Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Qt Linguist</source>
@@ -20900,8 +20900,8 @@ Rebuilding the project might help.</source>
         <translation>Alt+Shift+R</translation>
     </message>
     <message>
-        <source>About Qt Designer Plugins...</source>
-        <translation>O Qt Designer dodacima …</translation>
+        <source>About Qt Widgets Designer Plugins...</source>
+        <translation>O Qt Widgets Designer dodacima …</translation>
     </message>
     <message>
         <source>Preview in</source>

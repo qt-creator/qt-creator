@@ -261,7 +261,7 @@ void CodegenTest::testProtectedBetweenPublicAndPrivate()
     Should insert at line 18, column 1, with "private slots:\n" as prefix and "\n"
     as suffix.
 
-    This is the typical Qt Designer case, with test-input like what the integration
+    This is the typical \QD case, with test-input like what the integration
     generates.
  */
 void CodegenTest::testQtdesignerIntegration()

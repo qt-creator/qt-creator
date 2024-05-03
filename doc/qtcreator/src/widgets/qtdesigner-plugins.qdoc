@@ -26,7 +26,7 @@
     and to change the default plugin path, see \l{How to Create Qt Plugins}.
 
     For more information about how to create plugins for \QD, see
-    \l{Using Custom Widgets with Qt Designer}.
+    \l{Using Custom Widgets with \QD}.
 
     \section1 Locating \QD Plugins
 
@@ -42,7 +42,7 @@
 
     To check which plugins were loaded successfully and which failed, choose
     \uicontrol Tools > \uicontrol {Form Editor} >
-    \uicontrol {About Qt Designer Plugins}.
+    \uicontrol {About \QD Plugins}.
 
     The standalone \QD is part of the Qt library used for building projects,
     located in \c {<Qt_version>\<compiler>\bin} in the Qt installation

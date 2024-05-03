@@ -27,7 +27,7 @@ FormClassWizardDialog::FormClassWizardDialog(const Core::BaseFileWizardFactory *
     m_formPage(new FormTemplateWizardPage),
     m_classPage(new FormClassWizardPage)
 {
-    setWindowTitle(Tr::tr("Qt Designer Form Class"));
+    setWindowTitle(Tr::tr("Qt Widgets Designer Form Class"));
 
     setPage(FormPageId, m_formPage);
     setPage(ClassPageId, m_classPage);

@@ -13547,8 +13547,8 @@ Det hjælper måske at genbygge projektet.</translation>
         <translation>Designer</translation>
     </message>
     <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Qt Designer-udformningsklasse</translation>
+        <source>Qt Widgets Designer Form Class</source>
+        <translation>Qt Widgets Designer-udformningsklasse</translation>
     </message>
     <message>
         <source>Choose a Class Name</source>
@@ -13571,8 +13571,8 @@ Det hjælper måske at genbygge projektet.</translation>
         <translation>Skift kilde/udformning</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt Widget Project.</source>
-        <translation>Opretter en Qt Designer-udformning sammen med en matchende klasse (C++-header og kildefil) til implementeringsformål. Du kan tilføje udformningen og klassen til et eksisterende Qt widget-projekt.</translation>
+        <source>Creates a Qt Widgets Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt Widget Project.</source>
+        <translation>Opretter en Qt Widgets Designer-udformning sammen med en matchende klasse (C++-header og kildefil) til implementeringsformål. Du kan tilføje udformningen og klassen til et eksisterende Qt widget-projekt.</translation>
     </message>
     <message>
         <source>For&amp;m Editor</source>
@@ -14990,8 +14990,8 @@ når de ikke kræves, hvilket i de fleste tilfælde vil forbedre ydelsen.</trans
         <translation>Alt+Skift+R</translation>
     </message>
     <message>
-        <source>About Qt Designer Plugins...</source>
-        <translation>Om Qt Designer-plugins...</translation>
+        <source>About Qt Widgets Designer Plugins...</source>
+        <translation>Om Qt Widgets Designer-plugins...</translation>
     </message>
     <message>
         <source>Preview in</source>
@@ -19970,8 +19970,8 @@ Fejl: %5</translation>
         <translation>Python-redigering</translation>
     </message>
     <message>
-        <source>Qt Designer</source>
-        <translation>Qt Designer</translation>
+        <source>Qt Widgets Designer</source>
+        <translation>Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Qt Linguist</source>
@@ -23386,12 +23386,12 @@ til projektet &quot;%2&quot;.</translation>
         <translation>Udformningsskabelon</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.</source>
-        <translation>Opretter en Qt Designer-udformning som du kan tilføje til et Qt widget-projekt. Dette er nyttigt hvis du allerede har en eksisterende klasse til brugerflade travlhedslogik.</translation>
+        <source>Creates a Qt Widgets Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.</source>
+        <translation>Opretter en Qt Widgets Designer-udformning som du kan tilføje til et Qt widget-projekt. Dette er nyttigt hvis du allerede har en eksisterende klasse til brugerflade travlhedslogik.</translation>
     </message>
     <message>
-        <source>Qt Designer Form</source>
-        <translation>Qt Designer-udformning</translation>
+        <source>Qt Widgets Designer Form</source>
+        <translation>Qt Widgets Designer-udformning</translation>
     </message>
     <message>
         <source>Creates a Java file with boilerplate code.</source>
@@ -26266,12 +26266,12 @@ Opdater venligst dit kit eller vælg en mkspec for qmake som matcher dit mål-mi
         <translation>Opretter et Qt brugerdefineret Designer-widget eller en brugerdefineret widget-samling.</translation>
     </message>
     <message>
-        <source>This wizard generates a Qt Designer Custom Widget or a Qt Designer Custom Widget Collection project.</source>
-        <translation>Denne assistent genererer en Qt Designer brugerdefineret widget eller et Qt Designer brugerdefineret widget-samling-projekt.</translation>
+        <source>This wizard generates a Qt Widgets Designer Custom Widget or a Qt Widgets Designer Custom Widget Collection project.</source>
+        <translation>Denne assistent genererer en Qt Widgets Designer brugerdefineret widget eller et Qt Widgets Designer brugerdefineret widget-samling-projekt.</translation>
     </message>
     <message>
-        <source>Qt Designer is not responding (%1).</source>
-        <translation>Qt Designer svarer ikke (%1).</translation>
+        <source>Qt Widgets Designer is not responding (%1).</source>
+        <translation>Qt Widgets Designer svarer ikke (%1).</translation>
     </message>
     <message>
         <source>Unable to create server socket: %1</source>
@@ -26342,10 +26342,10 @@ Opdater venligst dit kit eller vælg en mkspec for qmake som matcher dit mål-mi
         <translation>Qt widgets-program</translation>
     </message>
     <message>
-        <source>Creates a Qt application for the desktop. Includes a Qt Designer-based main window.
+        <source>Creates a Qt application for the desktop. Includes a Qt Widgets Designer-based main window.
 
 Preselects a desktop Qt for building the application if available.</source>
-        <translation>Opretter et Qt-program til desktop. Inkluderer et Qt Designer-baseret hovedvindue.
+        <translation>Opretter et Qt-program til desktop. Inkluderer et Qt Widgets Designer-baseret hovedvindue.
 
 Prævælger en desktop Qt til bygning af programmet, hvis tilgængeligt.</translation>
     </message>

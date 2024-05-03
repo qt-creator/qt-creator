@@ -19,10 +19,13 @@ class IDocument;
 
 struct EditorToolBarPrivate;
 
-/**
-  * Fakes an IEditor-like toolbar for design mode widgets such as Qt Designer and Bauhaus.
-  * Creates a combobox for open files and lock and close buttons on the right.
-  */
+/*!
+    \class Core::EditorToolBar
+    \inmodule QtCreator
+
+    Implements the editor toolbar for editor views and for design mode widgets such as
+    \QD and \QMLD. Creates a combobox for open files and lock and close buttons on the right.
+*/
 class CORE_EXPORT EditorToolBar : public Utils::StyledBar
 {
     Q_OBJECT

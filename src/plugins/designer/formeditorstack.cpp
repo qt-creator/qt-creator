@@ -24,6 +24,19 @@
 #include <QDebug>
 #include <QRect>
 
+/*!
+    \class Designer::Internal::FormEditorStack
+    \inmodule QtCreator
+    \internal
+
+    \brief The FormEditorStack class maintains a stack of \QD form windows embedded
+    into a scroll area and their associated XML editors.
+
+    Takes care of updating the XML editor once design mode is left.
+    Also updates the mainc ontainer resize handles when the active form
+    window changes.
+*/
+
 namespace Designer {
 namespace Internal {
 

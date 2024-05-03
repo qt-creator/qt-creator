@@ -3,7 +3,7 @@
     "supportedProjectTypes": [ "PythonProject" ],
     "id": "F.QtForPythonApplicationWindowWidget",
     "category": "F.ApplicationPySide",
-    "trDescription": "Creates a Qt for Python application that includes a Qt Designer-based widget (ui file). Requires .ui to Python conversion.",
+    "trDescription": "Creates a Qt for Python application that includes a Qt Widgets Designer-based widget (ui file). Requires .ui to Python conversion.",
     "trDisplayName": "Window UI",
     "trDisplayCategory": "Application (Qt for Python)",
     "icon": "../icons/icon.png",

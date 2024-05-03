@@ -6843,8 +6843,8 @@ Rebuilding the project might help.</source>
         <translation type="vanished">Додавати версію Qt в #ifdef для імен модулів</translation>
     </message>
     <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Клас форми Qt Designer</translation>
+        <source>Qt Widgets Designer Form Class</source>
+        <translation>Клас форми Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Choose a Class Name</source>
@@ -6883,8 +6883,8 @@ Rebuilding the project might help.</source>
         <translation type="vanished">Створює форму Qt Designer, яку ви можете додати до проекту Qt Widget. Це корисно, якщо ви вже маєте існуючий клас для бізнес-логіки UI.</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt Widget Project.</source>
-        <translation>Створює форму Qt Designer разом з відповідним класом (файли заголовку та коду C++) з метою реалізації.. Ви можете додати форму та клас до існуючого проекту Qt Widget.</translation>
+        <source>Creates a Qt Widgets Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt Widget Project.</source>
+        <translation>Створює форму Qt Widgets Designer разом з відповідним класом (файли заголовку та коду C++) з метою реалізації.. Ви можете додати форму та клас до існуючого проекту Qt Widget.</translation>
     </message>
     <message>
         <source>Location</source>
@@ -11142,8 +11142,8 @@ Ids must begin with a lowercase letter.</source>
         <translation>Редактор QMLJS</translation>
     </message>
     <message>
-        <source>Qt Designer</source>
-        <translation>Qt Designer</translation>
+        <source>Qt Widgets Designer</source>
+        <translation>Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Qt Linguist</source>
@@ -15626,19 +15626,19 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <source>Qt Custom Designer Widget</source>
-        <translation>Користувацький віджет Qt Designer</translation>
+        <translation>Користувацький віджет Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Creates a Qt Custom Designer Widget or a Custom Widget Collection.</source>
-        <translation>Створює користувацький віджет Qt Designer або колекцію користувацьких віджетів.</translation>
+        <translation>Створює користувацький віджет Qt Widgets Designer або колекцію користувацьких віджетів.</translation>
     </message>
     <message>
-        <source>This wizard generates a Qt Designer Custom Widget or a Qt Designer Custom Widget Collection project.</source>
-        <translation>Цей майстер генерує проект користувацького віджета Qt Designer або колекції користувацьких віджетів Qt Designer.</translation>
+        <source>This wizard generates a Qt Widgets Designer Custom Widget or a Qt Widgets Designer Custom Widget Collection project.</source>
+        <translation>Цей майстер генерує проект користувацького віджета Qt Widgets Designer або колекції користувацьких віджетів Qt Widgets Designer.</translation>
     </message>
     <message>
-        <source>Qt Designer is not responding (%1).</source>
-        <translation>Qt Designer не відповідає (%1).</translation>
+        <source>Qt Widgets Designer is not responding (%1).</source>
+        <translation>Qt Widgets Designer не відповідає (%1).</translation>
     </message>
     <message>
         <source>Unable to create server socket: %1</source>
@@ -15717,10 +15717,10 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>Програма Qt Widgets</translation>
     </message>
     <message>
-        <source>Creates a Qt application for the desktop. Includes a Qt Designer-based main window.
+        <source>Creates a Qt application for the desktop. Includes a Qt Widgets Designer-based main window.
 
 Preselects a desktop Qt for building the application if available.</source>
-        <translation>Створює програму Qt для стаціонарного комп&apos;ютера. Включає головне вікно на основі Qt Designer.
+        <translation>Створює програму Qt для стаціонарного комп&apos;ютера. Включає головне вікно на основі Qt Widgets Designer.
 
 Обирає Qt для стільниці для збірки програми, якщо доступно.</translation>
     </message>
@@ -37378,8 +37378,8 @@ The statements may not contain &apos;{&apos; nor &apos;}&apos; characters.</sour
         <translation>Alt+Shift+R</translation>
     </message>
     <message>
-        <source>About Qt Designer Plugins...</source>
-        <translation>Про додатки Qt Designer....</translation>
+        <source>About Qt Widgets Designer Plugins...</source>
+        <translation>Про додатки Qt Widgets Designer....</translation>
     </message>
     <message>
         <source>Preview in</source>
@@ -37719,12 +37719,12 @@ The statements may not contain &apos;{&apos; nor &apos;}&apos; characters.</sour
         <translation>Шаблон форми</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.</source>
-        <translation>Створює форму Qt Designer, яку ви можете додати до проекту Qt Widget. Це корисно, якщо ви вже маєте існуючий клас для бізнес-логіки UI.</translation>
+        <source>Creates a Qt Widgets Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.</source>
+        <translation>Створює форму Qt Widgets Designer, яку ви можете додати до проекту Qt Widget. Це корисно, якщо ви вже маєте існуючий клас для бізнес-логіки UI.</translation>
     </message>
     <message>
-        <source>Qt Designer Form</source>
-        <translation>Форма Qt Designer</translation>
+        <source>Qt Widgets Designer Form</source>
+        <translation>Форма Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Creates a Java file with boilerplate code.</source>

@@ -3532,8 +3532,8 @@ Morda lahko pomaga ponovna gradnja projekta.</translation>
         <translation type="obsolete">Urejevalnik XML</translation>
     </message>
     <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Razred obrazca Qt Designer</translation>
+        <source>Qt Widgets Designer Form Class</source>
+        <translation>Razred obrazca Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Form Template</source>
@@ -3560,8 +3560,8 @@ Morda lahko pomaga ponovna gradnja projekta.</translation>
         <translation type="obsolete">Nastavitve …</translation>
     </message>
     <message>
-        <source>Qt Designer Form</source>
-        <translation>Obrazec Qt Designer</translation>
+        <source>Qt Widgets Designer Form</source>
+        <translation>Obrazec Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Creates a Qt Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.</source>
@@ -3676,8 +3676,8 @@ Morda lahko pomaga ponovna gradnja projekta.</translation>
         <translation>Urejevalnik signalov in rež</translation>
     </message>
     <message>
-        <source>About Qt Designer plugins....</source>
-        <translation>O vstavkih za Qt Designer …</translation>
+        <source>About Qt Widgets Designer plugins....</source>
+        <translation>O vstavkih za Qt Widgets Designer …</translation>
     </message>
     <message>
         <source>Preview in</source>
@@ -10725,8 +10725,8 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <translation>Urejevalniku QMLJS</translation>
     </message>
     <message>
-        <source>Qt Designer</source>
-        <translation>Qt Designerju</translation>
+        <source>Qt Widgets Designer</source>
+        <translation>Qt Widgets Designerju</translation>
     </message>
     <message>
         <source>Qt Linguist</source>
@@ -11571,15 +11571,15 @@ Razlog: %2</translation>
     </message>
     <message>
         <source>Qt Custom Designer Widget</source>
-        <translation>Gradnik za Qt Designer po meri</translation>
+        <translation>Gradnik za Qt Widgets Designer po meri</translation>
     </message>
     <message>
         <source>Creates a Qt Custom Designer Widget or a Custom Widget Collection.</source>
-        <translation>Ustvari gradnik za Qt Designer po meri ali pa zbirko gradnikov po meri</translation>
+        <translation>Ustvari gradnik za Qt Widgets Designer po meri ali pa zbirko gradnikov po meri</translation>
     </message>
     <message>
         <source>This wizard generates a Qt4 Designer Custom Widget or a Qt4 Designer Custom Widget Collection project.</source>
-        <translation>Ta čarovnik ustvari projekt gradnika po meri za Qt Designer ali pa projekt zbirke gradnikov po meri za Qt Designer.</translation>
+        <translation>Ta čarovnik ustvari projekt gradnika po meri za Qt Widgets Designer ali pa projekt zbirke gradnikov po meri za Qt Widgets Designer.</translation>
     </message>
     <message>
         <source>Custom Widgets</source>
@@ -11610,8 +11610,8 @@ Razlog: %2</translation>
         <translation>Programa »%1« ni bilo moč najti.</translation>
     </message>
     <message>
-        <source>Qt Designer is not responding (%1).</source>
-        <translation>Qt Designer se ne odziva (%1).</translation>
+        <source>Qt Widgets Designer is not responding (%1).</source>
+        <translation>Qt Widgets Designer se ne odziva (%1).</translation>
     </message>
     <message>
         <source>Unable to create server socket: %1</source>
@@ -16004,8 +16004,8 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
         <translation>Predloga pošiljanja za CVS</translation>
     </message>
     <message>
-        <source>Qt Designer file</source>
-        <translation>Datoteka za Qt Designer</translation>
+        <source>Qt Widgets Designer file</source>
+        <translation>Datoteka za Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Generic Qt Creator Project file</source>

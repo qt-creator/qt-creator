@@ -80,9 +80,9 @@ How To add translations to Qt Creator
 *Note:* `.qm` files are generated as part of the regular build. They are not
 submitted to the repository.
 
-*Note:* QmlDesigner contains code from the Gradient Editor of Qt Designer. If an
-official translation of Qt for your language exists, you can re-use the
-translation of those messages by merging Qt Creator's and Qt Designer's
+*Note:* QmlDesigner contains code from the Gradient Editor of Qt Widgets Designer.
+If an official translation of Qt for your language exists, you can re-use the
+translation of those messages by merging Qt Creator's and Qt Widgets Designer's
 translation using `lconvert`:
 
     lconvert qtcreator_<LANG>.ts $QTDIR/translations/designer_<LANG>.ts > temp.ts
@@ -91,6 +91,6 @@ Move the temporary file back to `qtcreator_<LANG>.ts`, complete the Gradient
 Editor's translations and update the file, passing the additional option
 `-noobsolete` to `lupdate` (by temporarily modifying
 `<qtcreator>/cmake/QtCreatorTranslations.cmake`). This will remove the now
-redundant messages originating from Qt Designer.
+redundant messages originating from Qt Widgets Designer.
 
 [1]: https://lists.qt-project.org/listinfo/localization

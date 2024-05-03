@@ -16950,8 +16950,8 @@ Rebuilding the project might help.</source>
 Пересборка проекта может помочь.</translation>
     </message>
     <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Класс формы Qt Designer</translation>
+        <source>Qt Widgets Designer Form Class</source>
+        <translation>Класс формы Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Class Details</source>
@@ -16982,7 +16982,7 @@ Rebuilding the project might help.</source>
         <translation>Shift+F4</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt Widget Project.</source>
+        <source>Creates a Qt Widgets Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt Widget Project.</source>
         <translation>Создание формы дизайнера Qt и соответствующего класса (исходный и заголовочный файлы C++) для реализации. Их можно будет добавить к существующему проекту Qt Widget.</translation>
     </message>
     <message>
@@ -18681,8 +18681,8 @@ when they are not required, which will improve performance in most cases.</sourc
         <translation>Alt+Shift+R</translation>
     </message>
     <message>
-        <source>About Qt Designer Plugins...</source>
-        <translation>О модулях Qt Designer...</translation>
+        <source>About Qt Widgets Designer Plugins...</source>
+        <translation>О модулях Qt Widgets Designer...</translation>
     </message>
     <message>
         <source>Preview in</source>
@@ -25534,8 +25534,8 @@ If set to false, the target will be moved straight to the current mouse position
         <translation>Редактор QMLJS</translation>
     </message>
     <message>
-        <source>Qt Designer</source>
-        <translation>Qt Designer</translation>
+        <source>Qt Widgets Designer</source>
+        <translation>Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Qt Linguist</source>
@@ -29867,12 +29867,12 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
         <translation>Шаблон формы</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.</source>
-        <translation>Создание формы Qt Designer, которую можно добавить в проект Qt Widget. Имеет смысл, если у вас уже есть класс с бизнес-логикой.</translation>
+        <source>Creates a Qt Widgets Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.</source>
+        <translation>Создание формы Qt Widgets Designer, которую можно добавить в проект Qt Widget. Имеет смысл, если у вас уже есть класс с бизнес-логикой.</translation>
     </message>
     <message>
-        <source>Qt Designer Form</source>
-        <translation>Форма Qt Designer</translation>
+        <source>Qt Widgets Designer Form</source>
+        <translation>Форма Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Creates a Java file with boilerplate code.</source>
@@ -30627,7 +30627,7 @@ Use this only if you are prototyping. You cannot create a full application with 
         <translation>Информация о классе</translation>
     </message>
     <message>
-        <source>Creates a Qt application for the desktop. Includes a Qt Designer-based main window.
+        <source>Creates a Qt application for the desktop. Includes a Qt Widgets Designer-based main window.
 
 Preselects a desktop Qt for building the application if available.</source>
         <translation>Создание приложения Qt для настольных компьютеров. Включает основное окно в виде формы дизайнера Qt.
@@ -30707,8 +30707,8 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>Qt для Python - Приложение Qt Quick - Пустое</translation>
     </message>
     <message>
-        <source>Creates a Qt for Python application that includes a Qt Designer-based widget (ui file)</source>
-        <translation>Создание приложения на Qt для Python, включающее виджет Qt Designer (файл ui)</translation>
+        <source>Creates a Qt for Python application that includes a Qt Widgets Designer-based widget (ui file)</source>
+        <translation>Создание приложения на Qt для Python, включающее виджет Qt Widgets Designer (файл ui)</translation>
     </message>
     <message>
         <source>Qt for Python - Window (UI file)</source>
@@ -33657,19 +33657,19 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
     </message>
     <message>
         <source>Qt Custom Designer Widget</source>
-        <translation>Пользовательский виджет Qt Designer</translation>
+        <translation>Пользовательский виджет Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Creates a Qt Custom Designer Widget or a Custom Widget Collection.</source>
-        <translation>Создание пользовательского виджета Qt Designer или набора пользовательских виджетов.</translation>
+        <translation>Создание пользовательского виджета Qt Widgets Designer или набора пользовательских виджетов.</translation>
     </message>
     <message>
-        <source>This wizard generates a Qt Designer Custom Widget or a Qt Designer Custom Widget Collection project.</source>
-        <translation>Этот мастер создаст пользовательский виджет или набор пользовательских виджетов для Qt Designer.</translation>
+        <source>This wizard generates a Qt Widgets Designer Custom Widget or a Qt Widgets Designer Custom Widget Collection project.</source>
+        <translation>Этот мастер создаст пользовательский виджет или набор пользовательских виджетов для Qt Widgets Designer.</translation>
     </message>
     <message>
-        <source>Qt Designer is not responding (%1).</source>
-        <translation>Qt Designer не отвечает (%1).</translation>
+        <source>Qt Widgets Designer is not responding (%1).</source>
+        <translation>Qt Widgets Designer не отвечает (%1).</translation>
     </message>
     <message>
         <source>Unable to create server socket: %1</source>
@@ -35211,7 +35211,7 @@ Neither the path to the library nor the path to its includes is added to the .pr
     </message>
     <message>
         <source>Warn about unsupported features of Qt Quick Designer in the code editor</source>
-        <translation>Предупреждать о неподдерживаемых особенностях Qt Designer в редакторе кода</translation>
+        <translation>Предупреждать о неподдерживаемых особенностях Qt Quick Designer в редакторе кода</translation>
     </message>
     <message>
         <source>Debugging</source>

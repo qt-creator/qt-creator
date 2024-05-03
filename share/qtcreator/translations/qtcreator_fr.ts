@@ -20440,8 +20440,8 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Éditeur QMLJS</translation>
     </message>
     <message>
-        <source>Qt Designer</source>
-        <translation>Qt Designer</translation>
+        <source>Qt Widgets Designer</source>
+        <translation>Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Qt Linguist</source>
@@ -28811,8 +28811,8 @@ L’accès au module ou la mise en place de points d’arrêt par fichier et par
         <translation>Éditeur d’interface graphique</translation>
     </message>
     <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Classe d’interface graphique Qt Designer</translation>
+        <source>Qt Widgets Designer Form Class</source>
+        <translation>Classe d’interface graphique Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Form Template</source>
@@ -28835,12 +28835,12 @@ L’accès au module ou la mise en place de points d’arrêt par fichier et par
         <translation>Sélectionner un nom de classe</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt Widget Project.</source>
-        <translation>Crée un formulaire Qt Designer avec une classe correspondante (en-tête C++ et fichier source) pour implémentation. Vous pouvez ajouter le formulaire et la classe à un projet Qt Widget existant.</translation>
+        <source>Creates a Qt Widgets Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt Widget Project.</source>
+        <translation>Crée un formulaire Qt Widgets Designer avec une classe correspondante (en-tête C++ et fichier source) pour implémentation. Vous pouvez ajouter le formulaire et la classe à un projet Qt Widget existant.</translation>
     </message>
     <message>
         <source>Widget Box</source>
-        <translatorcomment>this translation must coherent with the translation of Qt Designer</translatorcomment>
+        <translatorcomment>this translation must coherent with the translation of Qt Widgets Designer</translatorcomment>
         <translation>Boite de widget</translation>
     </message>
     <message>
@@ -28937,8 +28937,8 @@ L’accès au module ou la mise en place de points d’arrêt par fichier et par
         <translation>Maj+F4</translation>
     </message>
     <message>
-        <source>About Qt Designer Plugins...</source>
-        <translation>À propos des greffons de Qt Designer…</translation>
+        <source>About Qt Widgets Designer Plugins...</source>
+        <translation>À propos des greffons de Qt Widgets Designer…</translation>
     </message>
     <message>
         <source>Signals &amp;&amp; Slots Editor</source>
@@ -40386,8 +40386,8 @@ Présélectionne un Qt optimisé pour le bureau pour compiler l&apos;application
         <translation>Définir l&apos;interpréteur Python</translation>
     </message>
     <message>
-        <source>Creates a Qt for Python application that includes a Qt Designer-based widget (ui file). Requires .ui to Python conversion.</source>
-        <translation>Génère une application Qt pour Python qui inclût un widget basé sur Qt Designer (fichier ui). Nécessite une conversion de .ui vers Python.</translation>
+        <source>Creates a Qt for Python application that includes a Qt Widgets Designer-based widget (ui file). Requires .ui to Python conversion.</source>
+        <translation>Génère une application Qt pour Python qui inclût un widget basé sur Qt Widgets Designer (fichier ui). Nécessite une conversion de .ui vers Python.</translation>
     </message>
     <message>
         <source>Creates a Qt Quick UI project for previewing and prototyping designs.
@@ -40910,10 +40910,10 @@ Utilisez cette version «&#xa0;de compatibilité&#xa0;» si vous souhaitez utili
         <translation>Application Qt Quick (compatibilité)</translation>
     </message>
     <message>
-        <source>Creates a widget-based Qt application that contains a Qt Designer-based main window and C++ source and header files to implement the application logic.
+        <source>Creates a widget-based Qt application that contains a Qt Widgets Designer-based main window and C++ source and header files to implement the application logic.
 
 Preselects a desktop Qt for building the application if available.</source>
-        <translation>Génère une application basée sur les widgets qui contient une fenêtre principale basée sur Qt Designer et un ensemble de fichiers d&apos;entêtes et de sources C++ pour implémenter la logique de l&apos;application.
+        <translation>Génère une application basée sur les widgets qui contient une fenêtre principale basée sur Qt Widgets Designer et un ensemble de fichiers d&apos;entêtes et de sources C++ pour implémenter la logique de l&apos;application.
 
 Sélectionne un Qt optimisé pour bureaux pour compiler l&apos;application, si disponible.</translation>
     </message>
@@ -41254,12 +41254,12 @@ Sélectionne un Qt optimisé pour bureaux pour compiler l&apos;application, si d
         <translation>Modèle d’interface graphique</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.</source>
-        <translation>Crée un formulaire Qt Designer que l’on peut ajouter à un projet Qt Widget. Ceci est utile si vous utilisez déjà une classe pour la logique métier de l’interface.</translation>
+        <source>Creates a Qt Widgets Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.</source>
+        <translation>Crée un formulaire Qt Widgets Designer que l’on peut ajouter à un projet Qt Widget. Ceci est utile si vous utilisez déjà une classe pour la logique métier de l’interface.</translation>
     </message>
     <message>
-        <source>Qt Designer Form</source>
-        <translation>Interface graphique Qt Designer</translation>
+        <source>Qt Widgets Designer Form</source>
+        <translation>Interface graphique Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Creates a source file that you can add to a C/C++ project.</source>
@@ -45032,8 +45032,8 @@ Les fichiers affectés sont :
 <context>
     <name>QtC::QmakeProjectManager</name>
     <message>
-        <source>Qt Designer is not responding (%1).</source>
-        <translation>Qt Designer ne répond pas (%1).</translation>
+        <source>Qt Widgets Designer is not responding (%1).</source>
+        <translation>Qt Widgets Designer ne répond pas (%1).</translation>
     </message>
     <message>
         <source>Unable to create server socket: %1</source>
@@ -45404,9 +45404,9 @@ Les fichiers affectés sont :
         <translation>Crée un widget personnalisé ou une collection de widgets personnalisés pour Qt4 Designer.</translation>
     </message>
     <message>
-        <source>This wizard generates a Qt Designer Custom Widget or a Qt Designer Custom Widget Collection project.</source>
-        <translatorcomment>lourd ? &quot;contenant un widget ou une collection de widgets, personnalisé pour Qt Designer&quot; ?</translatorcomment>
-        <translation>Cet assistant génère un projet contenant un widget ou une collection de widgets personnalisés pour Qt Designer.</translation>
+        <source>This wizard generates a Qt Widgets Designer Custom Widget or a Qt Widgets Designer Custom Widget Collection project.</source>
+        <translatorcomment>lourd ? &quot;contenant un widget ou une collection de widgets, personnalisé pour Qt Widgets Designer&quot; ?</translatorcomment>
+        <translation>Cet assistant génère un projet contenant un widget ou une collection de widgets personnalisés pour Qt Widgets Designer.</translation>
     </message>
     <message>
         <source>Custom Widgets</source>

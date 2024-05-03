@@ -19523,8 +19523,8 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
         <translation>QMLJS-Editor</translation>
     </message>
     <message>
-        <source>Qt Designer</source>
-        <translation>Qt Designer</translation>
+        <source>Qt Widgets Designer</source>
+        <translation>Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Qt Linguist</source>
@@ -28977,8 +28977,8 @@ Rebuilding the project might help.</source>
 Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Qt-Designer-Formularklasse</translation>
+        <source>Qt Widgets Designer Form Class</source>
+        <translation>Qt-Widgets-Designer-Formularklasse</translation>
     </message>
     <message>
         <source>Class Details</source>
@@ -29009,8 +29009,8 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <translation>Shift+F4</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt Widget Project.</source>
-        <translation>Erstellt ein Qt-Designer-Formular mit zugehörigem Klassenrumpf (bestehend aus C++-Header- und -Quelldatei) für Implementierungszwecke. Sie können Formular und Klasse zu einem existierenden Qt-Widget-Projekt hinzufügen.</translation>
+        <source>Creates a Qt Widgets Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt Widget Project.</source>
+        <translation>Erstellt ein Qt-Widgets-Designer-Formular mit zugehörigem Klassenrumpf (bestehend aus C++-Header- und -Quelldatei) für Implementierungszwecke. Sie können Formular und Klasse zu einem existierenden Qt-Widget-Projekt hinzufügen.</translation>
     </message>
     <message>
         <source>Choose a Form Template</source>
@@ -29161,8 +29161,8 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <translation>Alt+Shift+R</translation>
     </message>
     <message>
-        <source>About Qt Designer Plugins...</source>
-        <translation>Über Qt Designer-Plugins...</translation>
+        <source>About Qt Widgets Designer Plugins...</source>
+        <translation>Über Qt Widgets Designer-Plugins...</translation>
     </message>
     <message>
         <source>Preview in</source>
@@ -41285,10 +41285,10 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
         <translation>Pfad</translation>
     </message>
     <message>
-        <source>Creates a widget-based Qt application that contains a Qt Designer-based main window and C++ source and header files to implement the application logic.
+        <source>Creates a widget-based Qt application that contains a Qt Widgets Designer-based main window and C++ source and header files to implement the application logic.
 
 Preselects a desktop Qt for building the application if available.</source>
-        <translation>Erstellt eine Widget-basierte Qt-Anwendung mit einem Qt Designer-basierten Hauptfenster und C++-Quell- und Headerdateien zur Implementierung der Applikationslogik.
+        <translation>Erstellt eine Widget-basierte Qt-Anwendung mit einem Qt Widgets Designer-basierten Hauptfenster und C++-Quell- und Headerdateien zur Implementierung der Applikationslogik.
 
 Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern verfügbar.</translation>
     </message>
@@ -41381,11 +41381,11 @@ Wahlweise können Sie ein Projekt erstellen, das in Qt Design Studio geöffnet w
         <translation>Formularvorlage</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.</source>
-        <translation>Erstellt ein Qt-Designer-Formular, das Sie zu einem Qt Widget-Projekt hinzufügen können. Dies ist nützlich, wenn Sie bereits eine Klasse für die Anwendungslogik haben.</translation>
+        <source>Creates a Qt Widgets Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.</source>
+        <translation>Erstellt ein Qt-Widgets-Designer-Formular, das Sie zu einem Qt Widget-Projekt hinzufügen können. Dies ist nützlich, wenn Sie bereits eine Klasse für die Anwendungslogik haben.</translation>
     </message>
     <message>
-        <source>Qt Designer Form</source>
+        <source>Qt Widgets Designer Form</source>
         <translation>Qt-Designer-Formular</translation>
     </message>
     <message>
@@ -41899,8 +41899,8 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
         <translation>Leeres Fenster</translation>
     </message>
     <message>
-        <source>Creates a Qt for Python application that includes a Qt Designer-based widget (ui file). Requires .ui to Python conversion.</source>
-        <translation>Erstellt eine Qt for Python-Anwendung, die ein Qt Designer-basiertes Widget (ui-Datei) enthält. Erfordert Umwandlung von .ui nach Python.</translation>
+        <source>Creates a Qt for Python application that includes a Qt Widgets Designer-based widget (ui file). Requires .ui to Python conversion.</source>
+        <translation>Erstellt eine Qt for Python-Anwendung, die ein Qt Widgets Designer-basiertes Widget (ui-Datei) enthält. Erfordert Umwandlung von .ui nach Python.</translation>
     </message>
     <message>
         <source>Window UI</source>
@@ -45526,15 +45526,15 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
     <message>
         <source>Qt Custom Designer Widget</source>
-        <translation>Benutzerdefiniertes Widget für Qt Designer</translation>
+        <translation>Benutzerdefiniertes Widget für Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Creates a Qt Custom Designer Widget or a Custom Widget Collection.</source>
-        <translation>Erstellt ein oder mehrere benutzerdefinierte Widgets für Qt Designer.</translation>
+        <translation>Erstellt ein oder mehrere benutzerdefinierte Widgets für Qt Widgets Designer.</translation>
     </message>
     <message>
-        <source>This wizard generates a Qt Designer Custom Widget or a Qt Designer Custom Widget Collection project.</source>
-        <translation>Dieser Assistent erstellt ein Projekt mit einem oder mehreren benutzerdefinierten Widgets für Qt Designer.</translation>
+        <source>This wizard generates a Qt Widgets Designer Custom Widget or a Qt Widgets Designer Custom Widget Collection project.</source>
+        <translation>Dieser Assistent erstellt ein Projekt mit einem oder mehreren benutzerdefinierten Widgets für Qt Widgets Designer.</translation>
     </message>
     <message>
         <source>Creating multiple widget libraries (%1, %2) in one project (%3) is not supported.</source>
@@ -45553,8 +45553,8 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
         <translation>Die Anwendung &quot;%1&quot; konnte nicht gefunden werden.</translation>
     </message>
     <message>
-        <source>Qt Designer is not responding (%1).</source>
-        <translation>Qt Designer antwortet nicht (%1).</translation>
+        <source>Qt Widgets Designer is not responding (%1).</source>
+        <translation>Qt Widgets Designer antwortet nicht (%1).</translation>
     </message>
     <message>
         <source>Unable to create server socket: %1</source>

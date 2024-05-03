@@ -263,7 +263,7 @@ public:
     explicit ExternalDesignerFactory(QObject *guard)
     {
         setId("Qt.Designer");
-        setDisplayName(::Core::Tr::tr("Qt Designer"));
+        setDisplayName(::Core::Tr::tr("Qt Widgets Designer"));
         setMimeTypes({Utils::Constants::FORM_MIMETYPE});
 
         setEditorStarter([guard](const FilePath &filePath, QString *errorMessage) {
@@ -276,7 +276,7 @@ public:
             if (HostOsInfo::isMacHost())
                 return startEditorProcess(data, errorMessage);
 
-            /* Qt Designer on the remaining platforms: Uses Designer's own
+            /* Qt Widgets Designer on the remaining platforms: Uses Designer's own
             * Tcp-based communication mechanism to ensure all files are opened
             * in one instance (per version). */
 
@@ -288,7 +288,8 @@ public:
                     qDebug() << Q_FUNC_INFO << "\nWriting to socket:" << data.binary << filePath;
                 QTcpSocket *socket = it.value();
                 if (!socket->write(filePath.toString().toUtf8() + '\n')) {
-                    *errorMessage = Tr::tr("Qt Designer is not responding (%1).").arg(socket->errorString());
+                    *errorMessage = Tr::tr("Qt Widgets Designer is not responding (%1).")
+                                        .arg(socket->errorString());
                     return false;
                 }
                 return true;

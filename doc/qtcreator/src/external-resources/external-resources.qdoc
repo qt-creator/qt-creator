@@ -6,6 +6,14 @@
     \title Perforce: P4CONFIG
 */
 /*!
+    \externalpage https://doc.qt.io/qt-6/qtdesigner-manual.html
+    \title Qt Widgets Designer Manual
+*/
+/*!
+    \externalpage https://doc.qt.io/qt-6/designer-using-custom-widgets.html
+    \title Using Custom Widgets with Qt Widgets Designer
+*/
+/*!
     \externalpage https://doc.qt.io/Boot2Qt/index.html
     \title \B2Q: Documentation
 */

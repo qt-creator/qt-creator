@@ -17866,8 +17866,8 @@ Otherwise you need to specify the path to the %2 file from the Copilot neovim pl
         <translation>Edytor QMLJS</translation>
     </message>
     <message>
-        <source>Qt Designer</source>
-        <translation>Qt Designer</translation>
+        <source>Qt Widgets Designer</source>
+        <translation>Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Qt Linguist</source>
@@ -27865,8 +27865,8 @@ Please select a 64 bit Debugger in the kit settings for this kit.</source>
         <translation>Podaj nazwę klasy</translation>
     </message>
     <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Klasa formularza Qt Designer</translation>
+        <source>Qt Widgets Designer Form Class</source>
+        <translation>Klasa formularza Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Designer</source>
@@ -27901,8 +27901,8 @@ Spróbuj ponownie przebudować projekt.</translation>
         <translation>Shift+F4</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt Widget Project.</source>
-        <translation>Tworzy formularz Qt Designera wraz z klasą implementującą (plik nagłówkowy i źródłowy C++). Utworzony formularz i klasę można dodać do istniejącego projektu Qt Widget.</translation>
+        <source>Creates a Qt Widgets Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt Widget Project.</source>
+        <translation>Tworzy formularz Qt Widgets Designera wraz z klasą implementującą (plik nagłówkowy i źródłowy C++). Utworzony formularz i klasę można dodać do istniejącego projektu Qt Widget.</translation>
     </message>
     <message>
         <source>Choose a Form Template</source>
@@ -28053,8 +28053,8 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
         <translation>Alt+Shift+R</translation>
     </message>
     <message>
-        <source>About Qt Designer Plugins...</source>
-        <translation>Informacje o wtyczkach Qt Designera...</translation>
+        <source>About Qt Widgets Designer Plugins...</source>
+        <translation>Informacje o wtyczkach Qt Widgets Designera...</translation>
     </message>
     <message>
         <source>Preview in</source>
@@ -40741,10 +40741,10 @@ You can select an option to create a project that you can open in Qt Design Stud
         <translation>Informacje o klasie</translation>
     </message>
     <message>
-        <source>Creates a widget-based Qt application that contains a Qt Designer-based main window and C++ source and header files to implement the application logic.
+        <source>Creates a widget-based Qt application that contains a Qt Widgets Designer-based main window and C++ source and header files to implement the application logic.
 
 Preselects a desktop Qt for building the application if available.</source>
-        <translation>Tworzy aplikację Qt bazującą na widżetach, zawierającą główne okno do edycji w Qt Designerze wraz z plikami: źródłowym oraz nagłówkowym C++, przeznaczonymi do zaimplementowania logiki aplikacji.
+        <translation>Tworzy aplikację Qt bazującą na widżetach, zawierającą główne okno do edycji w Qt Widgets Designerze wraz z plikami: źródłowym oraz nagłówkowym C++, przeznaczonymi do zaimplementowania logiki aplikacji.
 
 Wstępnie wybiera platformę desktopową Qt do budowania aplikacji, jeśli jest ona dostępna.</translation>
     </message>
@@ -41115,12 +41115,12 @@ You should not mix multiple test frameworks in a project.</source>
         <translation>Szablon formularza</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.</source>
-        <translation>Tworzy formularz Qt Designer, który można dodać do projektu typu Qt Widget. Jest to przydatne w sytuacji, kiedy istnieje już klasa zarządzająca logiką UI.</translation>
+        <source>Creates a Qt Widgets Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.</source>
+        <translation>Tworzy formularz Qt Widgets Designer, który można dodać do projektu typu Qt Widget. Jest to przydatne w sytuacji, kiedy istnieje już klasa zarządzająca logiką UI.</translation>
     </message>
     <message>
-        <source>Qt Designer Form</source>
-        <translation>Formularz Qt Designer</translation>
+        <source>Qt Widgets Designer Form</source>
+        <translation>Formularz Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Creates a Java file with boilerplate code.</source>
@@ -43958,15 +43958,15 @@ The affected files are:
     </message>
     <message>
         <source>Qt Custom Designer Widget</source>
-        <translation>Własny widżet Qt Designera</translation>
+        <translation>Własny widżet Qt Widgets Designera</translation>
     </message>
     <message>
         <source>Creates a Qt Custom Designer Widget or a Custom Widget Collection.</source>
-        <translation>Tworzy własny widżet Qt Designera lub kolekcję własnych widżetów.</translation>
+        <translation>Tworzy własny widżet Qt Widgets Designera lub kolekcję własnych widżetów.</translation>
     </message>
     <message>
-        <source>This wizard generates a Qt Designer Custom Widget or a Qt Designer Custom Widget Collection project.</source>
-        <translation>Ten kreator generuje projekt własnego widżetu Qt Designera lub projekt kolekcji własnych widżetów Qt4 Designera.</translation>
+        <source>This wizard generates a Qt Widgets Designer Custom Widget or a Qt Widgets Designer Custom Widget Collection project.</source>
+        <translation>Ten kreator generuje projekt własnego widżetu Qt Widgets Designera lub projekt kolekcji własnych widżetów Qt4 Widget Designera.</translation>
     </message>
     <message>
         <source>Creating multiple widget libraries (%1, %2) in one project (%3) is not supported.</source>
@@ -43985,8 +43985,8 @@ The affected files are:
         <translation>Nie można odnaleźć aplikacji &quot;%1&quot;.</translation>
     </message>
     <message>
-        <source>Qt Designer is not responding (%1).</source>
-        <translation>Qt Designer nie odpowiada (%1).</translation>
+        <source>Qt Widgets Designer is not responding (%1).</source>
+        <translation>Qt Widgets Designer nie odpowiada (%1).</translation>
     </message>
     <message>
         <source>Unable to create server socket: %1</source>

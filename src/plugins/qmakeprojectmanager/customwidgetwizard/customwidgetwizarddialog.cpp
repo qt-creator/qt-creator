@@ -28,8 +28,8 @@ CustomWidgetWizardDialog::CustomWidgetWizardDialog(const Core::BaseFileWizardFac
     setWindowIcon(icon);
     setWindowTitle(templateName);
 
-    setIntroDescription(Tr::tr("This wizard generates a Qt Designer Custom Widget "
-                               "or a Qt Designer Custom Widget Collection project."));
+    setIntroDescription(Tr::tr("This wizard generates a Qt Widgets Designer Custom Widget "
+                               "or a Qt Widgets Designer Custom Widget Collection project."));
 
     if (!parameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS)))
         addTargetSetupPage();
