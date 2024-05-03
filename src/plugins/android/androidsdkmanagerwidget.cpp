@@ -89,26 +89,28 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidSdkManager *sdkManager, 
     packagesView->header()->setStretchLastSection(false);
 
     using namespace Layouting;
-    Grid {
-        searchField, expandCheck, br,
-        Span(2, packagesView),
-        Column {
-            updateInstalledButton,
-            st,
-            Group {
-                title(Tr::tr("Show Packages")),
-                Column {
-                    Row { Tr::tr("Channel:"), channelCheckbox },
-                    obsoleteCheckBox,
-                    hr,
-                    showAvailableRadio,
-                    showInstalledRadio,
-                    showAllRadio,
-                }
-            },
-            optionsButton
-        }, br,
-        Span(3, m_buttonBox)
+    Column {
+        Grid {
+            Row {searchField, expandCheck}, br,
+            packagesView,
+            Column {
+                updateInstalledButton,
+                st,
+                Group {
+                    title(Tr::tr("Show Packages")),
+                    Column {
+                        Row { Tr::tr("Channel:"), channelCheckbox },
+                        obsoleteCheckBox,
+                        hr,
+                        showAvailableRadio,
+                        showInstalledRadio,
+                        showAllRadio,
+                    }
+                },
+                optionsButton,
+            }, br,
+        },
+        m_buttonBox,
     }.attachTo(this);
 
     connect(m_sdkModel, &AndroidSdkModel::dataChanged, this, [this] {
