@@ -7,6 +7,7 @@
 #include <qmlprivategate.h>
 
 #include <QDebug>
+#include <QDir>
 #include <QEvent>
 #include <QQmlContext>
 #include <QQmlError>
@@ -627,8 +628,8 @@ QVariant ObjectNodeInstance::property(const PropertyName &name) const
             return QVariant();
 
         if (url.scheme() == "file") {
-            int basePathLength = nodeInstanceServer()->fileUrl().toLocalFile().lastIndexOf('/');
-            return QUrl(url.toLocalFile().mid(basePathLength + 1));
+            QFileInfo fi{nodeInstanceServer()->fileUrl().toLocalFile()};
+            return QUrl{fi.absoluteDir().relativeFilePath(url.toLocalFile())};
         }
     }
 
