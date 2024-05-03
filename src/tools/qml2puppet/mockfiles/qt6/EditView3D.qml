@@ -35,7 +35,7 @@ Item {
     property color backgroundGradientColorStart: "#222222"
     property color backgroundGradientColorEnd: "#999999"
     property color gridColor: "#cccccc"
-    property bool syncEnvBackground: false
+    property bool syncEnvBackground: true
     property bool splitView: false
     property bool flyMode: false
     property bool showCameraSpeed: false
@@ -302,7 +302,7 @@ Item {
             syncEnvBackground = toolStates.syncEnvBackground;
             updateEnvBackground();
         } else if (resetToDefault) {
-            syncEnvBackground = false;
+            syncEnvBackground = true;
             updateEnvBackground();
         }
 
