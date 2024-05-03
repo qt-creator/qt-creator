@@ -143,7 +143,7 @@ void PropertyEditorValue::setValue(const QVariant &value)
 
 QString PropertyEditorValue::enumeration() const
 {
-    return m_value.value<Enumeration>().nameToString();
+    return m_value.value<Enumeration>().nameToString().split('.').last();
 }
 
 QString PropertyEditorValue::expression() const
