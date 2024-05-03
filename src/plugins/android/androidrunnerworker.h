@@ -75,7 +75,7 @@ private:
         Waiting,
         Settled
     };
-    void onProcessIdChanged(PidUserPair pidUser);
+    void onProcessIdChanged(const PidUserPair &pidUser);
 
     // Create the processes and timer in the worker thread, for correct thread affinity
     bool m_isPreNougat = false;

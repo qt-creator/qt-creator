@@ -83,7 +83,7 @@ static qint64 extractPID(const QString &output, const QString &packageName)
 }
 
 static void findProcessPIDAndUser(QPromise<PidUserPair> &promise,
-                                  QStringList selector,
+                                  const QStringList &selector,
                                   const QString &packageName,
                                   bool preNougat)
 {
@@ -821,7 +821,7 @@ void AndroidRunnerWorker::removeForwardPort(const QString &port)
     }
 }
 
-void AndroidRunnerWorker::onProcessIdChanged(PidUserPair pidUser)
+void AndroidRunnerWorker::onProcessIdChanged(const PidUserPair &pidUser)
 {
     // Don't write to m_psProc from a different thread
     QTC_ASSERT(QThread::currentThread() == thread(), return);
