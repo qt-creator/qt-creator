@@ -9,6 +9,7 @@
 
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QCheckBox>
 #include <QDialogButtonBox>
@@ -24,6 +25,67 @@ using namespace Utils;
 using namespace std::placeholders;
 
 namespace Android::Internal {
+
+class OptionsDialog : public QDialog
+{
+public:
+    OptionsDialog(AndroidSdkManager *sdkManager, QWidget *parent)
+        : QDialog(parent)
+    {
+        QTC_CHECK(sdkManager);
+        resize(800, 480);
+        setWindowTitle(Tr::tr("SDK Manager Arguments"));
+
+        m_argumentDetailsEdit = new QPlainTextEdit;
+        m_argumentDetailsEdit->setReadOnly(true);
+
+        m_process.setEnvironment(androidConfig().toolsEnvironment());
+        m_process.setCommand({androidConfig().sdkManagerToolPath(),
+                              {"--help", "--sdk_root=" + androidConfig().sdkLocation().toString()}});
+        connect(&m_process, &Process::done, this, [this] {
+            const QString output = m_process.allOutput();
+            QString argumentDetails;
+            const int tagIndex = output.indexOf("Common Arguments:");
+            if (tagIndex >= 0) {
+                const int detailsIndex = output.indexOf('\n', tagIndex);
+                if (detailsIndex >= 0)
+                    argumentDetails = output.mid(detailsIndex + 1);
+            }
+            if (argumentDetails.isEmpty())
+                argumentDetails = Tr::tr("Cannot load available arguments for \"sdkmanager\" command.");
+            m_argumentDetailsEdit->setPlainText(argumentDetails);
+        });
+        m_process.start();
+
+        auto dialogButtons = new QDialogButtonBox;
+        dialogButtons->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
+        connect(dialogButtons, &QDialogButtonBox::accepted, this, &OptionsDialog::accept);
+        connect(dialogButtons, &QDialogButtonBox::rejected, this, &OptionsDialog::reject);
+
+        m_argumentsEdit = new QLineEdit;
+        m_argumentsEdit->setText(androidConfig().sdkManagerToolArgs().join(" "));
+
+        using namespace Layouting;
+
+        Column {
+            Form { Tr::tr("SDK manager arguments:"), m_argumentsEdit, br },
+            Tr::tr("Available arguments:"),
+            m_argumentDetailsEdit,
+            dialogButtons,
+        }.attachTo(this);
+    }
+
+    QStringList sdkManagerArguments() const
+    {
+        const QString userInput = m_argumentsEdit->text().simplified();
+        return userInput.isEmpty() ? QStringList() : userInput.split(' ');
+    }
+
+private:
+    QPlainTextEdit *m_argumentDetailsEdit = nullptr;
+    QLineEdit *m_argumentsEdit = nullptr;
+    Process m_process;
+};
 
 class PackageFilterModel : public QSortFilterProxyModel
 {
@@ -159,7 +221,7 @@ AndroidSdkManagerDialog::AndroidSdkManagerDialog(AndroidSdkManager *sdkManager, 
     connect(m_buttonBox, &QDialogButtonBox::rejected, this, &AndroidSdkManagerDialog::reject);
 
     connect(optionsButton, &QPushButton::clicked, this, [this] {
-        OptionsDialog dlg(m_sdkManager, androidConfig().sdkManagerToolArgs(), this);
+        OptionsDialog dlg(m_sdkManager, this);
         if (dlg.exec() == QDialog::Accepted) {
             QStringList arguments = dlg.sdkManagerArguments();
             if (arguments != androidConfig().sdkManagerToolArgs()) {
@@ -258,58 +320,6 @@ bool PackageFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sour
     }
 
     return showTopLevel || ((packageState(srcIndex) & m_packageState) && packageFound(srcIndex));
-}
-
-OptionsDialog::OptionsDialog(AndroidSdkManager *sdkManager, const QStringList &args,
-                             QWidget *parent)
-    : QDialog(parent)
-{
-    QTC_CHECK(sdkManager);
-    resize(800, 480);
-    setWindowTitle(Tr::tr("SDK Manager Arguments"));
-
-    m_argumentDetailsEdit = new QPlainTextEdit(this);
-    m_argumentDetailsEdit->setReadOnly(true);
-
-    m_process.setEnvironment(androidConfig().toolsEnvironment());
-    m_process.setCommand({androidConfig().sdkManagerToolPath(),
-                          {"--help", "--sdk_root=" + androidConfig().sdkLocation().toString()}});
-    connect(&m_process, &Process::done, this, [this] {
-        const QString output = m_process.allOutput();
-        QString argumentDetails;
-        const int tagIndex = output.indexOf("Common Arguments:");
-        if (tagIndex >= 0) {
-            const int detailsIndex = output.indexOf('\n', tagIndex);
-            if (detailsIndex >= 0)
-                argumentDetails = output.mid(detailsIndex + 1);
-        }
-        if (argumentDetails.isEmpty())
-            argumentDetails = Tr::tr("Cannot load available arguments for \"sdkmanager\" command.");
-        m_argumentDetailsEdit->setPlainText(argumentDetails);
-    });
-    m_process.start();
-
-    auto dialogButtons = new QDialogButtonBox;
-    dialogButtons->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
-    connect(dialogButtons, &QDialogButtonBox::accepted, this, &OptionsDialog::accept);
-    connect(dialogButtons, &QDialogButtonBox::rejected, this, &OptionsDialog::reject);
-
-    m_argumentsEdit = new QLineEdit(this);
-    m_argumentsEdit->setText(args.join(" "));
-
-    using namespace Layouting;
-    Column {
-        Form { Tr::tr("SDK manager arguments:"), m_argumentsEdit, br },
-        Tr::tr("Available arguments:"),
-        m_argumentDetailsEdit,
-        dialogButtons,
-    }.attachTo(this);
-}
-
-QStringList OptionsDialog::sdkManagerArguments() const
-{
-    const QString userInput = m_argumentsEdit->text().simplified();
-    return userInput.isEmpty() ? QStringList() : userInput.split(' ');
 }
 
 } // Android::Internal
