@@ -42,7 +42,9 @@ Project {
             "Controls",
             "ControlsTemplates",
             "Timeline",
-            "Shapes"
+            "Shapes",
+            "Profiling",
+            "StudioComponents"
         ]
     }
 
@@ -55,8 +57,8 @@ Project {
     QDS.qtForMCUs: true
     QDS.qt6Project: true
 
-    QDS.qdsVersion: "4.3"
-    QDS.quickVersion: "6.5"
+    QDS.qdsVersion: "4.5"
+    QDS.quickVersion: "6.7"
 
     /* List of plugin directories passed to QML runtime */
     importPaths: [ "imports" ]
