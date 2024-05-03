@@ -16,6 +16,10 @@ Column {
 
     property bool supportGradient: false
     property bool shapeGradients: false
+
+    //for now, gradients on MCUs are limited to Basic and Shape Linear Gradient:
+    property bool mcuGradients: false
+
     property alias gradientLine: gradientLine
     property alias popupHexTextField: popupHexTextField
     property alias gradientPropertyName: root.gradientModel.gradientPropertyName
@@ -224,12 +228,12 @@ Column {
         ceMode.items.append({
                                 value: "RadialGradient",
                                 text: qsTr("Radial"),
-                                enabled: root.supportGradient && root.shapeGradients
+                                enabled: root.supportGradient && root.shapeGradients && !root.mcuGradients
                             })
         ceMode.items.append({
                                 value: "ConicalGradient",
                                 text: qsTr("Conical"),
-                                enabled: root.supportGradient && root.shapeGradients
+                                enabled: root.supportGradient && root.shapeGradients && !root.mcuGradients
                             })
     }
 

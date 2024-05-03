@@ -38,6 +38,10 @@ SecondColumnLayout {
     property alias showHexTextField: hexTextField.visible
 
     property bool shapeGradients: false
+
+    //for now, gradients on MCUs are limited to Basic and Shape Linear Gradient:
+    property bool mcuGradients: false
+
     property color originalColor
     property bool isVector3D: false
 
@@ -235,6 +239,7 @@ SecondColumnLayout {
 
                 sourceComponent: ColorEditorPopup {
                     shapeGradients: colorEditor.shapeGradients
+                    mcuGradients: colorEditor.mcuGradients
                     supportGradient: colorEditor.supportGradient
                     width: popupDialog.contentWidth
                     visible: popupDialog.visible
