@@ -162,7 +162,6 @@ class AndroidSettingsWidget final : public Core::IOptionsPageWidget
 public:
     // Todo: This would be so much simpler if it just used Utils::PathChooser!!!
     AndroidSettingsWidget();
-    ~AndroidSettingsWidget() final;
 
 private:
     void showEvent(QShowEvent *event) override;
@@ -183,8 +182,6 @@ private:
     void addCustomNdkItem();
     bool isDefaultNdkSelected() const;
     void validateOpenSsl();
-
-    AndroidSdkManagerWidget *m_sdkManagerWidget = nullptr;
 
     AndroidSdkManager m_sdkManager;
     Tasking::TaskTreeRunner m_sdkDownloader;
@@ -340,9 +337,6 @@ AndroidSettingsWidget::AndroidSettingsWidget()
                        "Build Android APK > Additional Libraries\".\n"
                        "If the automatic download fails, Qt Creator proposes to open the download URL\n"
                        "in the system's browser for manual download."));
-
-
-    m_sdkManagerWidget = new AndroidSdkManagerWidget(&m_sdkManager, this);
 
     const QMap<int, QString> androidValidationPoints = {
         { JavaPathExistsAndWritableRow, Tr::tr("JDK path exists and is writable.") },
@@ -500,8 +494,10 @@ AndroidSettingsWidget::AndroidSettingsWidget()
         m_androidSummary->setInProgressText("Retrieving packages information");
         m_androidProgress->show();
     });
-    connect(sdkManagerToolButton, &QAbstractButton::clicked,
-            this, [this] { m_sdkManagerWidget->exec(); });
+    connect(sdkManagerToolButton, &QAbstractButton::clicked, this, [this] {
+        AndroidSdkManagerWidget dialog(&m_sdkManager, this);
+        dialog.exec();
+    });
     connect(sdkToolsAutoDownloadButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::downloadSdk);
     connect(&m_sdkDownloader, &Tasking::TaskTreeRunner::done, this, [this](Tasking::DoneWith result) {
@@ -524,12 +520,6 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     });
 
     setOnApply([] { AndroidConfigurations::setConfig(androidConfig()); });
-}
-
-AndroidSettingsWidget::~AndroidSettingsWidget()
-{
-    // Deleting m_sdkManagerWidget will cancel all ongoing and pending sdkmanager operations.
-    delete m_sdkManagerWidget;
 }
 
 void AndroidSettingsWidget::showEvent(QShowEvent *event)

@@ -30,6 +30,9 @@ AndroidSdkModel::AndroidSdkModel(AndroidSdkManager *sdkManager, QObject *parent)
         refreshData();
         endResetModel();
     });
+    beginResetModel();
+    refreshData();
+    endResetModel();
 }
 
 QVariant AndroidSdkModel::headerData(int section, Qt::Orientation orientation, int role) const
