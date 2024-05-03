@@ -32,14 +32,18 @@ public:
     QString import3dTypePath() const;
     QString componentBundlesTypePrefix() const;
     QString composedEffectsTypePrefix() const;
-    QString materialsBundleType() const;
-    QString effectsBundleType() const;
 
     QString materialsBundleId() const;
     QString effectsBundleId() const;
     QString userMaterialsBundleId() const;
     QString userEffectsBundleId() const;
     QString user3DBundleId() const;
+
+    QString materialsBundleType() const;
+    QString effectsBundleType() const;
+    QString userMaterialsBundleType() const;
+    QString userEffectsBundleType() const;
+    QString user3DBundleType() const;
 
 private:
     ExternalDependenciesInterface &m_externalDependencies;

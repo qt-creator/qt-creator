@@ -166,26 +166,6 @@ QString GeneratedComponentUtils::composedEffectsTypePrefix() const
     return Constants::OLD_EFFECTS_FOLDER;
 }
 
-QString GeneratedComponentUtils::materialsBundleType() const
-{
-    QString basePrefix = componentBundlesTypePrefix();
-
-    if (basePrefix.endsWith(Constants::OLD_COMPONENT_BUNDLES_TYPE))
-        return basePrefix + '.' + QLatin1String(Constants::OLD_COMPONENT_BUNDLES_MATERIAL_BUNDLE_TYPE);
-
-    return basePrefix + '.' + QLatin1String(Constants::COMPONENT_BUNDLES_MATERIAL_BUNDLE_TYPE);
-}
-
-QString GeneratedComponentUtils::effectsBundleType() const
-{
-    QString basePrefix = componentBundlesTypePrefix();
-
-    if (basePrefix.endsWith(Constants::OLD_COMPONENT_BUNDLES_TYPE))
-        return basePrefix + '.' + QLatin1String(Constants::OLD_COMPONENT_BUNDLES_EFFECT_BUNDLE_TYPE);
-
-    return basePrefix + '.' + QLatin1String(Constants::COMPONENT_BUNDLES_EFFECT_BUNDLE_TYPE);
-}
-
 QString GeneratedComponentUtils::materialsBundleId() const
 {
     bool isNewImportDir = generatedComponentTypePrefix().endsWith(Constants::GENERATED_COMPONENTS_FOLDER);
@@ -215,6 +195,31 @@ QString GeneratedComponentUtils::userEffectsBundleId() const
 QString GeneratedComponentUtils::user3DBundleId() const
 {
     return QLatin1String(Constants::COMPONENT_BUNDLES_USER_3D_BUNDLE_TYPE);
+}
+
+QString GeneratedComponentUtils::materialsBundleType() const
+{
+    return componentBundlesTypePrefix() + '.' + materialsBundleId();
+}
+
+QString GeneratedComponentUtils::effectsBundleType() const
+{
+    return componentBundlesTypePrefix() + '.' + effectsBundleId();
+}
+
+QString GeneratedComponentUtils::userMaterialsBundleType() const
+{
+    return componentBundlesTypePrefix() + '.' + userMaterialsBundleId();
+}
+
+QString GeneratedComponentUtils::userEffectsBundleType() const
+{
+    return componentBundlesTypePrefix() + '.' + userEffectsBundleId();
+}
+
+QString GeneratedComponentUtils::user3DBundleType() const
+{
+    return componentBundlesTypePrefix() + '.' + user3DBundleId();
 }
 
 } // namespace QmlDesigner
