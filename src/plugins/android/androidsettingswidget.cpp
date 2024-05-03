@@ -495,8 +495,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
         m_androidProgress->show();
     });
     connect(sdkManagerToolButton, &QAbstractButton::clicked, this, [this] {
-        AndroidSdkManagerDialog dialog(&m_sdkManager, this);
-        dialog.exec();
+        executeAndroidSdkManagerDialog(&m_sdkManager, this);
     });
     connect(sdkToolsAutoDownloadButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::downloadSdk);

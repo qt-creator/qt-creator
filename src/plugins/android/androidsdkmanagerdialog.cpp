@@ -12,6 +12,7 @@
 #include <utils/qtcprocess.h>
 
 #include <QCheckBox>
+#include <QDialog>
 #include <QDialogButtonBox>
 #include <QHeaderView>
 #include <QLineEdit>
@@ -99,6 +100,16 @@ public:
 private:
     AndroidSdkPackage::PackageState m_packageState = AndroidSdkPackage::AnyValidState;
     QString m_searchText;
+};
+
+class AndroidSdkManagerDialog : public QDialog
+{
+public:
+    AndroidSdkManagerDialog(AndroidSdkManager *sdkManager, QWidget *parent);
+
+private:
+    AndroidSdkManager *m_sdkManager = nullptr;
+    AndroidSdkModel *m_sdkModel = nullptr;
 };
 
 AndroidSdkManagerDialog::AndroidSdkManagerDialog(AndroidSdkManager *sdkManager, QWidget *parent)
@@ -320,6 +331,12 @@ bool PackageFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sour
     }
 
     return showTopLevel || ((packageState(srcIndex) & m_packageState) && packageFound(srcIndex));
+}
+
+void executeAndroidSdkManagerDialog(AndroidSdkManager *sdkManager, QWidget *parent)
+{
+    AndroidSdkManagerDialog dialog(sdkManager, parent);
+    dialog.exec();
 }
 
 } // Android::Internal

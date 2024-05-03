@@ -2,23 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #pragma once
 
-#include "androidsdkmanager.h"
-
-#include <QDialog>
+#include <QWidget>
 
 namespace Android::Internal {
 
 class AndroidSdkManager;
-class AndroidSdkModel;
 
-class AndroidSdkManagerDialog : public QDialog
-{
-public:
-    AndroidSdkManagerDialog(AndroidSdkManager *sdkManager, QWidget *parent = nullptr);
-
-private:
-    AndroidSdkManager *m_sdkManager = nullptr;
-    AndroidSdkModel *m_sdkModel = nullptr;
-};
+void executeAndroidSdkManagerDialog(AndroidSdkManager *sdkManager, QWidget *parent);
 
 } // Android::Internal
