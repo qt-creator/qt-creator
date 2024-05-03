@@ -212,7 +212,6 @@ bool CollectionWidget::importFile(const QString &collectionName,
 
     FilePath fileInfo = FilePath::fromUserInput(url.isLocalFile() ? url.toLocalFile()
                                                                   : url.toString());
-    CollectionDetails loadedCollection;
     QByteArray fileContent;
 
     auto loadUrlContent = [&]() -> bool {
@@ -231,24 +230,40 @@ bool CollectionWidget::importFile(const QString &collectionName,
             return false;
 
         QJsonParseError parseError;
-        loadedCollection = CollectionDetails::fromImportedJson(fileContent, &parseError);
+        const QList<CollectionDetails> loadedCollections = CollectionDetails::fromImportedJson(
+            fileContent, &parseError);
         if (parseError.error != QJsonParseError::NoError) {
             warn(tr("Json file Import error"),
                  tr("Cannot parse json content\n%1").arg(parseError.errorString()));
+            return false;
+        }
+        if (loadedCollections.size() > 1) {
+            for (const CollectionDetails &loadedCollection : loadedCollections) {
+                m_view->addNewCollection(loadedCollection.reference().name,
+                                         loadedCollection.toLocalJson());
+            }
+            return true;
+        } else if (loadedCollections.size() == 1) {
+            m_view->addNewCollection(collectionName, loadedCollections.first().toLocalJson());
+            return true;
+        } else {
+            warn(tr("Can not add a model to the JSON file"),
+                 tr("The imported model is empty or is not supported."));
         }
     } else if (fileInfo.suffix() == "csv") {
+        CollectionDetails loadedCollection;
         if (!loadUrlContent())
             return false;
         loadedCollection = CollectionDetails::fromImportedCsv(fileContent, firstRowIsHeader);
+        if (loadedCollection.columns()) {
+            m_view->addNewCollection(collectionName, loadedCollection.toLocalJson());
+            return true;
+        } else {
+            warn(tr("Can not add a model to the JSON file"),
+                 tr("The imported model is empty or is not supported."));
+        }
     }
 
-    if (loadedCollection.columns()) {
-        m_view->addNewCollection(collectionName, loadedCollection.toLocalJson());
-        return true;
-    } else {
-        warn(tr("Can not add a model to the JSON file"),
-             tr("The imported model is empty or is not supported."));
-    }
     return false;
 }
 

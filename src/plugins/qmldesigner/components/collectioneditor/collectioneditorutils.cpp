@@ -315,18 +315,25 @@ QJsonObject defaultColorCollection()
 
     FileReader fileReader;
     if (!fileReader.fetch(templatePath)) {
-        qWarning() << Q_FUNC_INFO << __LINE__ << "Can't read the content of the file" << templatePath;
+        qWarning() << __FUNCTION__ << "Can't read the content of the file" << templatePath;
         return {};
     }
 
     QJsonParseError parseError;
-    const CollectionDetails collection = CollectionDetails::fromImportedJson(fileReader.data(),
-                                                                             &parseError);
+    const QList<CollectionDetails> collections = CollectionDetails::fromImportedJson(fileReader.data(),
+                                                                                     &parseError);
+
     if (parseError.error != QJsonParseError::NoError) {
-        qWarning() << Q_FUNC_INFO << __LINE__ << "Error in template file" << parseError.errorString();
+        qWarning() << __FUNCTION__ << "Error in template file" << parseError.errorString();
         return {};
     }
 
+    if (!collections.size()) {
+        qWarning() << __FUNCTION__ << "Can not generate collections from template file!";
+        return {};
+    }
+
+    const CollectionDetails collection = collections.first();
     return collection.toLocalJson();
 }
 

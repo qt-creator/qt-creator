@@ -856,6 +856,7 @@ extend_qtc_plugin(QmlDesigner
     collectiondetailssortfiltermodel.cpp collectiondetailssortfiltermodel.h
     collectioneditorconstants.h
     collectioneditorutils.cpp collectioneditorutils.h
+    collectionjsonparser.cpp collectionjsonparser.h
     collectionlistmodel.cpp collectionlistmodel.h
     collectionview.cpp collectionview.h
     collectionwidget.cpp collectionwidget.h

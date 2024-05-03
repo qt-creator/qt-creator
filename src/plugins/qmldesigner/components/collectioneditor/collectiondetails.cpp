@@ -5,12 +5,11 @@
 
 #include "collectiondatatypemodel.h"
 #include "collectioneditorutils.h"
+#include "collectionjsonparser.h"
 
-#include <utils/span.h>
-#include <qmljs/parser/qmljsast_p.h>
-#include <qmljs/parser/qmljsastvisitor_p.h>
-#include <qmljs/qmljsdocument.h>
 #include <qqml.h>
+#include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -278,47 +277,6 @@ QStringList csvReadLine(const QString &line)
     }
     return result;
 }
-
-class PropertyOrderFinder : public QmlJS::AST::Visitor
-{
-public:
-    static QStringList parse(const QString &jsonContent)
-    {
-        PropertyOrderFinder finder;
-        QmlJS::Document::MutablePtr jsonDoc = QmlJS::Document::create(Utils::FilePath::fromString(
-                                                                          "<expression>"),
-                                                                      QmlJS::Dialect::Json);
-
-        jsonDoc->setSource(jsonContent);
-        jsonDoc->parseJavaScript();
-
-        if (!jsonDoc->isParsedCorrectly())
-            return {};
-
-        jsonDoc->ast()->accept(&finder);
-        return finder.m_orderedList;
-    }
-
-protected:
-    bool visit(QmlJS::AST::PatternProperty *patternProperty) override
-    {
-        const QString propertyName = patternProperty->name->asString();
-        if (!m_propertySet.contains(propertyName)) {
-            m_propertySet.insert(propertyName);
-            m_orderedList.append(propertyName);
-        }
-        return true;
-    }
-
-    void throwRecursionDepthError() override
-    {
-        qWarning() << Q_FUNC_INFO << __LINE__ << "Recursion depth error";
-    };
-
-private:
-    QSet<QString> m_propertySet;
-    QStringList m_orderedList;
-};
 
 QString CollectionParseError::errorString() const
 {
@@ -757,63 +715,24 @@ CollectionDetails CollectionDetails::fromImportedCsv(const QByteArray &document,
     return fromImportedJson(importedArray, headers);
 }
 
-CollectionDetails CollectionDetails::fromImportedJson(const QByteArray &json, QJsonParseError *error)
+QList<CollectionDetails> CollectionDetails::fromImportedJson(const QByteArray &jsonContent,
+                                                             QJsonParseError *error)
 {
-    QJsonArray importedCollection;
-    auto refineJsonArray = [](const QJsonArray &array) -> QJsonArray {
-        QJsonArray resultArray;
-        for (const QJsonValue &collectionData : array) {
-            if (collectionData.isObject()) {
-                QJsonObject rowObject = collectionData.toObject();
-                const QStringList rowKeys = rowObject.keys();
-                for (const QString &key : rowKeys) {
-                    const QJsonValue cellValue = rowObject.value(key);
-                    if (cellValue.isArray())
-                        rowObject.remove(key);
-                }
-                resultArray.push_back(rowObject);
-            }
-        }
-        return resultArray;
-    };
-
     QJsonParseError parseError;
-    QJsonDocument document = QJsonDocument::fromJson(json, &parseError);
+
+    QList<CollectionObject> collectionObjects = JsonCollectionParser::parseCollectionObjects(jsonContent,
+                                                                                             error);
+
     if (error)
         *error = parseError;
 
     if (parseError.error != QJsonParseError::NoError)
-        return CollectionDetails{};
-
-    if (document.isArray()) {
-        importedCollection = refineJsonArray(document.array());
-    } else if (document.isObject()) {
-        QJsonObject documentObject = document.object();
-        const QStringList mainKeys = documentObject.keys();
-
-        bool arrayFound = false;
-        for (const QString &key : mainKeys) {
-            const QJsonValue value = documentObject.value(key);
-            if (value.isArray()) {
-                arrayFound = true;
-                importedCollection = refineJsonArray(value.toArray());
-                break;
-            }
-        }
-
-        if (!arrayFound) {
-            QJsonObject singleObject;
-            for (const QString &key : mainKeys) {
-                const QJsonValue value = documentObject.value(key);
-
-                if (!value.isObject())
-                    singleObject.insert(key, value);
-            }
-            importedCollection.push_back(singleObject);
-        }
-    }
-
-    return fromImportedJson(importedCollection, PropertyOrderFinder::parse(QLatin1String(json)));
+        return {};
+    return Utils::transform(collectionObjects, [](const CollectionObject &object) {
+        CollectionDetails result = fromImportedJson(object.array, object.propertyOrder);
+        result.d->reference.name = object.name;
+        return result;
+    });
 }
 
 CollectionDetails CollectionDetails::fromLocalJson(const QJsonDocument &document,
