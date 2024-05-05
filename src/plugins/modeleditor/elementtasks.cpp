@@ -401,17 +401,22 @@ void ElementTasks::createAndOpenDiagram(const qmt::DElement *element, const qmt:
     createAndOpenDiagram(melement);
 }
 
+Utils::FilePath ElementTasks::linkedFile(const qmt::MObject *mobject) const
+{
+    Utils::FilePath filepath = Utils::FilePath::fromString(mobject->linkedFileName());
+    if (!filepath.isEmpty()) {
+        Utils::FilePath projectName = d->documentController->projectController()->project()->fileName();
+        filepath = projectName.absolutePath().resolvePath(filepath).canonicalPath();
+    }
+    return filepath;
+}
+
 bool ElementTasks::hasLinkedFile(const qmt::MElement *element) const
 {
     if (auto mobject = dynamic_cast<const qmt::MObject *>(element)) {
-        QString filename = mobject->linkedFileName();
-        if (!filename.isEmpty()) {
-            QString projectName = d->documentController->projectController()->project()->fileName();
-            Utils::FilePath relativePath = Utils::FilePath::fromString(filename);
-            Utils::FilePath projectPath = Utils::FilePath::fromString(projectName);
-            QString filepath = relativePath.resolvePath(projectPath).toString();
-            return QFileInfo::exists(filepath);
-        }
+        Utils::FilePath filepath = linkedFile(mobject);
+        if (!filepath.isEmpty())
+            return filepath.exists();
     }
     return false;
 }
@@ -429,25 +434,20 @@ bool ElementTasks::hasLinkedFile(const qmt::DElement *element, const qmt::MDiagr
 void ElementTasks::openLinkedFile(const qmt::MElement *element)
 {
     if (auto mobject = dynamic_cast<const qmt::MObject *>(element)) {
-        QString filename = mobject->linkedFileName();
-        if (!filename.isEmpty()) {
-            QString projectName = d->documentController->projectController()->project()->fileName();
-            QString filepath;
-            if (QFileInfo(filename).isRelative())
-                filepath = QFileInfo(QFileInfo(projectName).path() + "/" + filename).canonicalFilePath();
-            else
-                filepath = filename;
-            if (QFileInfo::exists(filepath)) {
-                Core::EditorFactories list = Core::IEditorFactory::preferredEditorFactories(Utils::FilePath::fromString(filepath));
+        Utils::FilePath filepath = linkedFile(mobject);
+        if (!filepath.isEmpty()) {
+            if (filepath.exists()) {
+                Core::EditorFactories list = Core::IEditorFactory::preferredEditorFactories(filepath);
                 if (list.empty() || (list.count() <= 1 && list.at(0)->id() == "Core.BinaryEditor")) {
                     // intentionally ignore return code
-                    (void) Core::EditorManager::instance()->openExternalEditor(Utils::FilePath::fromString(filepath), "CorePlugin.OpenWithSystemEditor");
+                    (void) Core::EditorManager::instance()->openExternalEditor(filepath, "CorePlugin.OpenWithSystemEditor");
                 } else {
                     // intentionally ignore return code
-                    (void) Core::EditorManager::instance()->openEditor(Utils::FilePath::fromString(filepath));
+                    (void) Core::EditorManager::instance()->openEditor(filepath);
                 }
             } else {
-                QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("Opening File"), Tr::tr("File %1 does not exist.").arg(filepath));
+                QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("Opening File"),
+                                      Tr::tr("File %1 does not exist.").arg(filepath.toUserOutput()));
             }
         }
     }

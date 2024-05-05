@@ -19,9 +19,6 @@
 #include <utils/id.h>
 #include <utils/fileutils.h>
 
-#include <QFileInfo>
-#include <QDir>
-
 namespace ModelEditor {
 namespace Internal {
 
@@ -51,7 +48,7 @@ Core::IDocument::OpenResult ModelDocument::open(QString *errorString,
 {
     Q_UNUSED(filePath)
 
-    OpenResult result = load(errorString, realFilePath.toString());
+    OpenResult result = load(errorString, realFilePath);
     return result;
 }
 
@@ -62,7 +59,7 @@ bool ModelDocument::saveImpl(QString *errorString, const Utils::FilePath &filePa
         return false;
     }
 
-    d->documentController->projectController()->setFileName(filePath.toString());
+    d->documentController->projectController()->setFileName(filePath);
     try {
         d->documentController->projectController()->save();
     } catch (const qmt::Exception &ex) {
@@ -73,7 +70,7 @@ bool ModelDocument::saveImpl(QString *errorString, const Utils::FilePath &filePa
     if (autoSave) {
         d->documentController->projectController()->setModified();
     } else {
-        setFilePath(Utils::FilePath::fromString(d->documentController->projectController()->project()->fileName()));
+        setFilePath(d->documentController->projectController()->project()->fileName());
         emit changed();
     }
 
@@ -102,12 +99,13 @@ bool ModelDocument::reload(QString *errorString, Core::IDocument::ReloadFlag fla
     if (flag == FlagIgnore)
         return true;
     try {
-        d->documentController->loadProject(filePath().toString());
+        d->documentController->loadProject(filePath());
     } catch (const qmt::FileNotFoundException &ex) {
         *errorString = ex.errorMessage();
         return false;
     } catch (const qmt::Exception &ex) {
-        *errorString = Tr::tr("Could not open \"%1\" for reading: %2.").arg(filePath().toString()).arg(ex.errorMessage());
+        *errorString = Tr::tr("Could not open \"%1\" for reading: %2.")
+                           .arg(filePath().toUserOutput(), ex.errorMessage());
         return false;
     }
     emit contentSet();
@@ -119,25 +117,25 @@ ExtDocumentController *ModelDocument::documentController() const
     return d->documentController;
 }
 
-Core::IDocument::OpenResult ModelDocument::load(QString *errorString, const QString &fileName)
+Core::IDocument::OpenResult ModelDocument::load(QString *errorString, const Utils::FilePath &fileName)
 {
     d->documentController = ModelEditorPlugin::modelsManager()->createModel(this);
     connect(d->documentController, &qmt::DocumentController::changed, this, &IDocument::changed);
 
     try {
         d->documentController->loadProject(fileName);
-        setFilePath(Utils::FilePath::fromString(d->documentController->projectController()->project()->fileName()));
+        setFilePath(d->documentController->projectController()->project()->fileName());
     } catch (const qmt::FileNotFoundException &ex) {
         *errorString = ex.errorMessage();
         return OpenResult::ReadError;
     } catch (const qmt::Exception &ex) {
-        *errorString = Tr::tr("Could not open \"%1\" for reading: %2.").arg(fileName).arg(ex.errorMessage());
+        *errorString = Tr::tr("Could not open \"%1\" for reading: %2.").arg(fileName.toUserOutput(), ex.errorMessage());
         return OpenResult::CannotHandle;
     }
 
-    QString configPath = d->documentController->projectController()->project()->configPath();
+    Utils::FilePath configPath = d->documentController->projectController()->project()->configPath();
     if (!configPath.isEmpty()) {
-        QString canonicalPath = QFileInfo(QDir(QFileInfo(fileName).path()).filePath(configPath)).canonicalFilePath();
+        Utils::FilePath canonicalPath =fileName.absolutePath().resolvePath(configPath);
         if (!canonicalPath.isEmpty()) {
             // TODO error output on reading definition files
             d->documentController->configController()->readStereotypeDefinitions(canonicalPath);

@@ -48,11 +48,11 @@ ProjectSerializer::~ProjectSerializer()
 {
 }
 
-void ProjectSerializer::save(const QString &fileName, const Project *project)
+void ProjectSerializer::save(const Utils::FilePath &fileName, const Project *project)
 {
     QMT_ASSERT(project, return);
 
-    QFile file(fileName);
+    QFile file(fileName.toString());
     if (!file.open(QIODevice::WriteOnly))
         throw FileCreationException(fileName);
 
@@ -84,11 +84,11 @@ QByteArray ProjectSerializer::save(const Project *project)
     return buffer;
 }
 
-void ProjectSerializer::load(const QString &fileName, Project *project)
+void ProjectSerializer::load(const Utils::FilePath &fileName, Project *project)
 {
     QMT_ASSERT(project, return);
 
-    QFile file(fileName);
+    QFile file(fileName.toString());
     if (!file.open(QIODevice::ReadOnly))
         throw FileNotFoundException(fileName);
 

@@ -6,6 +6,8 @@
 #include "qmt/infrastructure/exceptions.h"
 #include "qmt/infrastructure/qmt_global.h"
 
+#include <utils/filepath.h>
+
 #include <QObject>
 #include <QString>
 
@@ -35,19 +37,19 @@ public:
 
 signals:
     void changed();
-    void fileNameChanged(const QString &fileName);
+    void fileNameChanged(const Utils::FilePath &fileName);
 
 public:
     Project *project() const { return m_project.data(); }
     bool isModified() const { return m_isModified; }
 
-    void newProject(const QString &fileName);
-    void setFileName(const QString &fileName);
+    void newProject(const Utils::FilePath &fileName);
+    void setFileName(const Utils::FilePath &fileName);
     void setModified();
 
     void load();
     void save();
-    void saveAs(const QString &fileName);
+    void saveAs(const Utils::FilePath &fileName);
 
 private:
     QScopedPointer<Project> m_project;

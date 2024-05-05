@@ -3,7 +3,6 @@
 
 #include "namecontroller.h"
 
-#include <QFileInfo>
 #include <QDebug>
 
 namespace qmt {
@@ -17,10 +16,9 @@ NameController::~NameController()
 {
 }
 
-QString NameController::convertFileNameToElementName(const QString &fileName)
+QString NameController::convertFileNameToElementName(const Utils::FilePath &fileName)
 {
-    QFileInfo fileInfo(fileName);
-    QString baseName = fileInfo.baseName().trimmed();
+    QString baseName = fileName.baseName().trimmed();
     QString elementName;
     bool makeTitlecase = true;
     bool insertSpace = false;
@@ -65,13 +63,19 @@ QString NameController::convertElementNameToBaseFileName(const QString &elementN
     return baseFileName;
 }
 
-QString NameController::calcRelativePath(const QString &absoluteFileName, const QString &anchorPath)
+Utils::FilePath NameController::calcRelativePath(const Utils::FilePath &absoluteFileName,
+                                                 const Utils::FilePath &anchorPath)
 {
+    // TODO try using Utils::FilePath::relativePath
+    QString absoluteFilePath = absoluteFileName.toString();
+    QString anchorPathString = anchorPath.toString();
     int secondLastSlashIndex = -1;
     int slashIndex = -1;
     int i = 0;
-    while (i < absoluteFileName.size() && i < anchorPath.size() && absoluteFileName.at(i) == anchorPath.at(i)) {
-        if (absoluteFileName.at(i) == QLatin1Char('/')) {
+    while (i < absoluteFilePath.size() && i < anchorPathString.size()
+           && absoluteFilePath.at(i) == anchorPathString.at(i))
+    {
+        if (absoluteFilePath.at(i) == QLatin1Char('/')) {
             secondLastSlashIndex = slashIndex;
             slashIndex = i;
         }
@@ -81,22 +85,22 @@ QString NameController::calcRelativePath(const QString &absoluteFileName, const 
     QString relativePath;
 
     if (slashIndex < 0) {
-        relativePath = absoluteFileName;
-    } else if (i >= absoluteFileName.size()) {
+        relativePath = absoluteFilePath;
+    } else if (i >= absoluteFilePath.size()) {
         // absoluteFileName is a substring of anchor path.
         if (slashIndex == i - 1) {
             if (secondLastSlashIndex < 0)
-                relativePath = absoluteFileName;
+                relativePath = absoluteFilePath;
             else
-                relativePath = absoluteFileName.mid(secondLastSlashIndex + 1);
+                relativePath = absoluteFilePath.mid(secondLastSlashIndex + 1);
         } else {
-            relativePath = absoluteFileName.mid(slashIndex + 1);
+            relativePath = absoluteFilePath.mid(slashIndex + 1);
         }
     } else {
-        relativePath = absoluteFileName.mid(slashIndex + 1);
+        relativePath = absoluteFilePath.mid(slashIndex + 1);
     }
 
-    return relativePath;
+    return Utils::FilePath::fromString(relativePath);
 }
 
 QString NameController::calcElementNameSearchId(const QString &elementName)
@@ -109,16 +113,17 @@ QString NameController::calcElementNameSearchId(const QString &elementName)
     return searchId;
 }
 
-QStringList NameController::buildElementsPath(const QString &filePath, bool ignoreLastFilePathPart)
+QStringList NameController::buildElementsPath(const Utils::FilePath &filePath,
+                                              bool ignoreLastFilePathPart)
 {
     QList<QString> relativeElements;
 
-    QStringList split = filePath.split("/");
+    QStringList split = filePath.toString().split("/");
     QStringList::const_iterator splitEnd = split.constEnd();
     if (ignoreLastFilePathPart || split.last().isEmpty())
         --splitEnd;
     for (auto it = split.constBegin(); it != splitEnd; ++it) {
-        QString packageName = qmt::NameController::convertFileNameToElementName(*it);
+        QString packageName = qmt::NameController::convertFileNameToElementName(Utils::FilePath::fromString(*it));
         relativeElements.append(packageName);
     }
     return relativeElements;

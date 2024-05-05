@@ -62,7 +62,6 @@
 #include <QAction>
 #include <QActionGroup>
 #include <QComboBox>
-#include <QDir>
 #include <QEvent>
 #include <QFileDialog>
 #include <QFileInfo>

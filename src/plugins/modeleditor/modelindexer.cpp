@@ -275,7 +275,7 @@ void ModelIndexer::IndexerThread::onFilesQueued()
             qmt::ProjectSerializer projectSerializer;
             qmt::Project project;
             try {
-                projectSerializer.load(queuedFile.file(), &project);
+                projectSerializer.load(Utils::FilePath::fromString(queuedFile.file()), &project);
             } catch (const qmt::Exception &e) {
                 qWarning() << e.errorMessage();
                 return;

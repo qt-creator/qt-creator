@@ -23,7 +23,7 @@ bool Project::hasFileName() const
     return !m_fileName.isEmpty();
 }
 
-void Project::setFileName(const QString &fileName)
+void Project::setFileName(const Utils::FilePath &fileName)
 {
     m_fileName = fileName;
 }
@@ -33,7 +33,7 @@ void Project::setRootPackage(MPackage *rootPackage)
     m_rootPackage = rootPackage;
 }
 
-void Project::setConfigPath(const QString &configPath)
+void Project::setConfigPath(const Utils::FilePath &configPath)
 {
     m_configPath = configPath;
 }

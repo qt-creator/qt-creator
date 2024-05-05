@@ -5,6 +5,8 @@
 
 #include <QObject>
 
+#include <utils/filepath.h>
+
 namespace ModelEditor {
 namespace Internal {
 
@@ -15,7 +17,7 @@ class JsExtension : public QObject
 public:
     JsExtension() {}
 
-    Q_INVOKABLE QString fileNameToElementName(const QString &file);
+    Q_INVOKABLE QString fileNameToElementName(const Utils::FilePath &file);
     Q_INVOKABLE QString elementNameToFileName(const QString &element);
 };
 

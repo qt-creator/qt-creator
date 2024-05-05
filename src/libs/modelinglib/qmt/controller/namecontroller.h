@@ -6,6 +6,8 @@
 #include <QObject>
 #include "qmt/infrastructure/qmt_global.h"
 
+#include <utils/filepath.h>
+
 #include <QString>
 #include <QStringList>
 
@@ -18,12 +20,12 @@ private:
     ~NameController() override;
 
 public:
-    static QString convertFileNameToElementName(const QString &fileName);
+    static QString convertFileNameToElementName(const Utils::FilePath &fileName);
     static QString convertElementNameToBaseFileName(const QString &elementName);
-    // TODO use Utils::FilePath instead
-    static QString calcRelativePath(const QString &absoluteFileName, const QString &anchorPath);
+    static Utils::FilePath calcRelativePath(const Utils::FilePath &absoluteFileName,
+                                            const Utils::FilePath &anchorPath);
     static QString calcElementNameSearchId(const QString &elementName);
-    static QStringList buildElementsPath(const QString &filePath, bool ignoreLastFilePathPart);
+    static QStringList buildElementsPath(const Utils::FilePath &filePath, bool ignoreLastFilePathPart);
     static bool parseClassName(const QString &fullClassName, QString *umlNamespace,
                                QString *className, QStringList *templateParameters);
 };

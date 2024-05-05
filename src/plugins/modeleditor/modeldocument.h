@@ -4,6 +4,7 @@
 #pragma once
 
 #include <coreplugin/idocument.h>
+#include <utils/filepath.h>
 
 namespace qmt { class Uid; }
 
@@ -36,7 +37,7 @@ public:
 
     ExtDocumentController *documentController() const;
 
-    OpenResult load(QString *errorString, const QString &fileName);
+    OpenResult load(QString *errorString, const Utils::FilePath &fileName);
 
 protected:
     bool saveImpl(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override;

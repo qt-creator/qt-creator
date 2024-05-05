@@ -42,8 +42,6 @@
 #include "../../modelinglibtr.h"
 
 #include <QMenu>
-#include <QFileInfo>
-#include <QDir>
 #include <QQueue>
 #include <QPair>
 

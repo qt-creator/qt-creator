@@ -5,6 +5,8 @@
 
 #include "qmt/document_controller/documentcontroller.h"
 
+#include <utils/filepath.h>
+
 namespace ModelEditor {
 namespace Internal {
 
@@ -25,7 +27,7 @@ public:
     PxNodeController *pxNodeController() const;
 
 private:
-    void onProjectFileNameChanged(const QString &fileName);
+    void onProjectFileNameChanged(const Utils::FilePath &fileName);
 
 private:
     ExtDocumentControllerPrivate *d;

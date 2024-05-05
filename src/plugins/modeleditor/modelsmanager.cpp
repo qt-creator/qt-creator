@@ -38,8 +38,6 @@
 #include <projectexplorer/projecttree.h>
 #include <utils/fileutils.h>
 
-#include <QFileInfo>
-#include <QDir>
 #include <QTimer>
 #include <QAction>
 
@@ -121,7 +119,7 @@ ExtDocumentController *ModelsManager::createModel(ModelDocument *modelDocument)
     auto documentController = new ExtDocumentController(this);
     // TODO error output on reading definition files
     documentController->configController()->readStereotypeDefinitions(
-        Core::ICore::resourcePath("modeleditor").toString());
+        Core::ICore::resourcePath("modeleditor"));
 
     d->managedModels.append(ManagedModel(documentController, modelDocument));
     return documentController;

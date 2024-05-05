@@ -31,7 +31,7 @@ ProjectController::~ProjectController()
 {
 }
 
-void ProjectController::newProject(const QString &fileName)
+void ProjectController::newProject(const Utils::FilePath &fileName)
 {
     m_project.reset(new Project());
     auto rootPackage = new MPackage();
@@ -43,7 +43,7 @@ void ProjectController::newProject(const QString &fileName)
     emit changed();
 }
 
-void ProjectController::setFileName(const QString &fileName)
+void ProjectController::setFileName(const Utils::FilePath &fileName)
 {
     if (fileName != m_project->fileName()) {
         m_project->setFileName(fileName);
@@ -82,7 +82,7 @@ void ProjectController::save()
     emit changed();
 }
 
-void ProjectController::saveAs(const QString &fileName)
+void ProjectController::saveAs(const Utils::FilePath &fileName)
 {
     setFileName(fileName);
     save();

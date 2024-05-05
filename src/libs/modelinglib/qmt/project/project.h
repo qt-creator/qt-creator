@@ -5,6 +5,8 @@
 
 #include "qmt/infrastructure/uid.h"
 
+#include <utils/filepath.h>
+
 #include <QString>
 
 namespace qmt {
@@ -20,18 +22,18 @@ public:
     Uid uid() const { return m_uid; }
     void setUid(const Uid &uid);
     bool hasFileName() const;
-    QString fileName() const { return m_fileName; }
-    void setFileName(const QString &fileName);
+    Utils::FilePath fileName() const { return m_fileName; }
+    void setFileName(const Utils::FilePath &fileName);
     MPackage *rootPackage() const { return m_rootPackage; }
     void setRootPackage(MPackage *rootPackage);
-    QString configPath() const { return m_configPath; }
-    void setConfigPath(const QString &configPath);
+    Utils::FilePath configPath() const { return m_configPath; }
+    void setConfigPath(const Utils::FilePath &configPath);
 
 private:
     Uid m_uid;
-    QString m_fileName;
+    Utils::FilePath m_fileName;
     MPackage *m_rootPackage = nullptr;
-    QString m_configPath;
+    Utils::FilePath m_configPath;
 };
 
 } // namespace qmt

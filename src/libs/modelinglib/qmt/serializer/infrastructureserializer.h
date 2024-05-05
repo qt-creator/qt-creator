@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include "qmt/infrastructure/handle.h"
 #include "qmt/infrastructure/handles.h"
 #include "qmt/infrastructure/uid.h"
@@ -49,6 +51,22 @@ inline void serialize(Archive &archive, qmt::Handles<T> &handles)
     archive || tag("handles", handles)
             || attr("handles", handles, &qmt::Handles<T>::get, &qmt::Handles<T>::set)
             || end;
+}
+
+// Utils::FilePath
+
+template<class Archive>
+inline void save(Archive &archive, const Utils::FilePath &filePath)
+{
+    archive.write(filePath.toString());
+}
+
+template<class Archive>
+inline void load(Archive &archive, Utils::FilePath &filePath)
+{
+    QString s;
+    archive.read(&s);
+    filePath = Utils::FilePath::fromString(s);
 }
 
 } // namespace qark

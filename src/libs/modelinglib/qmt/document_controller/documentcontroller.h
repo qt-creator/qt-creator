@@ -7,6 +7,8 @@
 #include "qmt/infrastructure/qmt_global.h"
 #include "qmt/model_controller/modelcontroller.h"
 
+#include <utils/filepath.h>
+
 namespace qmt {
 
 class ProjectController;
@@ -77,8 +79,8 @@ public:
     MDiagram *findRootDiagram();
     MDiagram *findOrCreateRootDiagram();
 
-    void createNewProject(const QString &fileName);
-    void loadProject(const QString &fileName);
+    void createNewProject(const Utils::FilePath &fileName);
+    void loadProject(const Utils::FilePath &fileName);
 
 private:
     ProjectController *m_projectController = nullptr;

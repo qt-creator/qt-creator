@@ -5,6 +5,8 @@
 
 #include "qmt/infrastructure/qmt_global.h"
 
+#include <utils/filepath.h>
+
 #include <QString>
 
 QT_BEGIN_NAMESPACE
@@ -21,9 +23,9 @@ public:
     ProjectSerializer();
     ~ProjectSerializer();
 
-    void save(const QString &fileName, const Project *project);
+    void save(const Utils::FilePath &fileName, const Project *project);
     QByteArray save(const Project *project);
-    void load(const QString &fileName, Project *project);
+    void load(const Utils::FilePath &fileName, Project *project);
 
 private:
     void write(QXmlStreamWriter *writer, const Project *project);

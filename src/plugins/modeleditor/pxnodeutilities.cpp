@@ -51,7 +51,8 @@ QString PxNodeUtilities::calcRelativePath(const ProjectExplorer::Node *node,
             ? node->filePath().toFileInfo().path()
             : node->filePath().toString();
 
-    return qmt::NameController::calcRelativePath(nodePath, anchorFolder);
+    return qmt::NameController::calcRelativePath(Utils::FilePath::fromString(nodePath),
+                                                 Utils::FilePath::fromString(anchorFolder)).toString();
 }
 
 QString PxNodeUtilities::calcRelativePath(const QString &filePath, const QString &anchorFolder)
@@ -63,7 +64,8 @@ QString PxNodeUtilities::calcRelativePath(const QString &filePath, const QString
         path = fileInfo.path();
     else
         path = filePath;
-    return qmt::NameController::calcRelativePath(path, anchorFolder);
+    return qmt::NameController::calcRelativePath(Utils::FilePath::fromString(path),
+                                                 Utils::FilePath::fromString(anchorFolder)).toString();
 }
 
 qmt::MPackage *PxNodeUtilities::createBestMatchingPackagePath(
