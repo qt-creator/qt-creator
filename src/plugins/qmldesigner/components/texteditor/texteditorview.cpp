@@ -96,7 +96,8 @@ void TextEditorView::modelAboutToBeDetached(Model *model)
 {
     AbstractView::modelAboutToBeDetached(model);
 
-    m_widget->setTextEditor(nullptr);
+    if (m_widget)
+        m_widget->setTextEditor(nullptr);
 
     // in case the user closed it explicit we do not want to do anything with the editor
     if (Core::ModeManager::currentModeId() == Core::Constants::MODE_DESIGN) {
