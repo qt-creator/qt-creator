@@ -303,8 +303,8 @@ HoverContent::HoverContent(const QJsonValue &value)
 
 bool HoverContent::isValid() const
 {
-    if (std::holds_alternative<MarkedString>(*this))
-        return std::get<MarkedString>(*this).isValid();
+    if (const auto s = std::get_if<MarkedString>(this))
+        return s->isValid();
     return true;
 }
 

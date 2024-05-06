@@ -93,7 +93,8 @@ private:
 template<typename T, typename V>
 JsonObject::iterator JsonObject::insertVariant(const Key key, const V &variant)
 {
-    return std::holds_alternative<T>(variant) ? insert(key, std::get<T>(variant)) : end();
+    const auto v = std::get_if<T>(&variant);
+    return v ? insert(key, *v) : end();
 }
 
 template<typename T1, typename T2, typename... Args, typename V>

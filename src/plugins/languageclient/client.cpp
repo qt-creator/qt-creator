@@ -903,7 +903,8 @@ void ClientPrivate::requestDocumentHighlightsNow(TextEditor::TextEditorWidget *w
             = m_serverCapabilities.documentHighlightProvider();
         if (!provider.has_value())
             return;
-        if (std::holds_alternative<bool>(*provider) && !std::get<bool>(*provider))
+        const auto boolvalue = std::get_if<bool>(&*provider);
+        if (boolvalue && !*boolvalue)
             return;
     }
 
@@ -935,7 +936,8 @@ void ClientPrivate::requestDocumentHighlightsNow(TextEditor::TextEditorWidget *w
             const QTextCharFormat &format =
                 widget->textDocument()->fontSettings().toTextCharFormat(TextEditor::C_OCCURRENCES);
             QTextDocument *document = widget->document();
-            for (const auto &highlight : std::get<QList<DocumentHighlight>>(*result)) {
+            const auto highlights = std::get_if<QList<DocumentHighlight>>(&*result);
+            for (const auto &highlight : *highlights) {
                 QTextEdit::ExtraSelection selection{widget->textCursor(), format};
                 const int &start = highlight.range().start().toPositionInDocument(document);
                 const int &end = highlight.range().end().toPositionInDocument(document);
@@ -1435,7 +1437,8 @@ void Client::requestCodeActions(const CodeActionRequest &request)
     } else {
         std::variant<bool, CodeActionOptions> provider
             = d->m_serverCapabilities.codeActionProvider().value_or(false);
-        if (!(std::holds_alternative<CodeActionOptions>(provider) || std::get<bool>(provider)))
+        const auto boolvalue = std::get_if<bool>(&provider);
+        if (boolvalue && !*boolvalue)
             return;
     }
 
@@ -1661,8 +1664,8 @@ bool Client::supportsDocumentSymbols(const TextEditor::TextDocument *doc) const
         = capabilities().documentSymbolProvider();
     if (!provider.has_value())
         return false;
-    if (std::holds_alternative<bool>(*provider))
-        return std::get<bool>(*provider);
+    if (const auto boolvalue = std::get_if<bool>(&*provider))
+        return *boolvalue;
     return true;
 }
 
@@ -2233,10 +2236,10 @@ bool ClientPrivate::sendWorkspceFolderChanges() const
         if (auto folder = workspace->workspaceFolders()) {
             if (folder->supported().value_or(false)) {
                 // holds either the Id for deregistration or whether it is registered
-                auto notification = folder->changeNotifications().value_or(false);
-                return std::holds_alternative<QString>(notification)
-                       || (std::holds_alternative<bool>(notification)
-                           && std::get<bool>(notification));
+                const std::variant<QString, bool> notification
+                    = folder->changeNotifications().value_or(false);
+                const auto boolvalue = std::get_if<bool>(&notification);
+                return !boolvalue || *boolvalue;
             }
         }
     }

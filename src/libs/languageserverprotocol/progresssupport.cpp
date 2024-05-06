@@ -21,9 +21,9 @@ ProgressToken::ProgressToken(const QJsonValue &value)
 
 ProgressToken::operator QJsonValue() const
 {
-    if (std::holds_alternative<QString>(*this))
-        return QJsonValue(std::get<QString>(*this));
-    return QJsonValue(std::get<int>(*this));
+    if (const auto s = std::get_if<QString>(this))
+        return QJsonValue(*s);
+    return QJsonValue(*std::get_if<int>(this));
 }
 
 ProgressParams::ProgressType ProgressParams::value() const

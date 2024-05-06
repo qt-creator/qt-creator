@@ -89,15 +89,16 @@ public:
 
     QList<T> toListOrEmpty() const
     {
-        if (std::holds_alternative<QList<T>>(*this))
-            return std::get<QList<T>>(*this);
+        if (const auto l = std::get_if<QList<T>>(this))
+            return *l;
         return {};
     }
 
     QList<T> toList() const
     {
-        QTC_ASSERT(std::holds_alternative<QList<T>>(*this), return {});
-        return std::get<QList<T>>(*this);
+        const auto l = std::get_if<QList<T>>(this);
+        QTC_ASSERT(l, return {});
+        return *l;
     }
     bool isNull() const { return std::holds_alternative<std::nullptr_t>(*this); }
 };
@@ -127,15 +128,17 @@ public:
 
     T value(const T &defaultValue = T()) const
     {
-        QTC_ASSERT(std::holds_alternative<T>(*this), return defaultValue);
-        return std::get<T>(*this);
+        const auto t = std::get_if<T>(this);
+        QTC_ASSERT(t, return defaultValue);
+        return *t;
     }
 
     template<typename Type>
     LanguageClientValue<Type> transform()
     {
-        QTC_ASSERT(!std::holds_alternative<T>(*this), return LanguageClientValue<Type>());
-        return Type(std::get<T>(*this));
+        const auto t = std::get_if<T>(this);
+        QTC_ASSERT(t, return LanguageClientValue<Type>());
+        return Type(*t);
     }
 
     bool isNull() const { return std::holds_alternative<std::nullptr_t>(*this); }

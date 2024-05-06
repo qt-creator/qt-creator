@@ -100,9 +100,8 @@ static MessageId sendTextDocumentPositionParamsRequest(Client *client,
             sendMessage = supportedFile;
     } else {
         const auto provider = std::mem_fn(member)(serverCapability);
-        sendMessage = provider.has_value();
-        if (sendMessage && std::holds_alternative<bool>(*provider))
-            sendMessage = std::get<bool>(*provider);
+        const bool *boolvalue = provider.has_value() ? std::get_if<bool>(&*provider) : nullptr;
+        sendMessage = provider.has_value() && (!boolvalue || *boolvalue);
     }
     if (sendMessage) {
         client->sendMessage(request);
@@ -191,9 +190,8 @@ bool SymbolSupport::supportsFindLink(TextEditor::TextDocument *document, LinkTar
         else
             supported = m_client->isSupportedUri(uri);
     } else {
-        supported = provider.has_value();
-        if (supported && std::holds_alternative<bool>(*provider))
-            supported = std::get<bool>(*provider);
+        const bool *boolvalue = provider.has_value() ? std::get_if<bool>(&*provider) : nullptr;
+        supported = provider.has_value() && (!boolvalue || *boolvalue);
     }
     return supported;
 }
@@ -259,8 +257,8 @@ bool SymbolSupport::supportsFindUsages(TextEditor::TextDocument *document) const
             return false;
         }
     } else if (auto referencesProvider = m_client->capabilities().referencesProvider()) {
-        if (std::holds_alternative<bool>(*referencesProvider)) {
-            if (!std::get<bool>(*referencesProvider))
+        if (const auto b = std::get_if<bool>(&*referencesProvider)) {
+            if (!*b)
                 return false;
         }
     } else {
@@ -447,13 +445,11 @@ static bool supportsRename(Client *client,
         }
     }
     if (auto renameProvider = client->capabilities().renameProvider()) {
-        if (std::holds_alternative<bool>(*renameProvider)) {
-            if (!std::get<bool>(*renameProvider))
+        if (const auto b = std::get_if<bool>(&*renameProvider)) {
+            if (!*b)
                 return false;
-        } else if (std::holds_alternative<ServerCapabilities::RenameOptions>(*renameProvider)) {
-            prepareSupported = std::get<ServerCapabilities::RenameOptions>(*renameProvider)
-                                   .prepareProvider()
-                                   .value_or(false);
+        } else if (const auto opt = std::get_if<ServerCapabilities::RenameOptions>(&*renameProvider)) {
+            prepareSupported = opt->prepareProvider().value_or(false);
         }
     } else {
         return false;
@@ -524,19 +520,17 @@ void SymbolSupport::requestPrepareRename(TextEditor::TextDocument *document,
 
         const std::optional<PrepareRenameResult> &result = response.result();
         if (result.has_value()) {
-            if (std::holds_alternative<PlaceHolderResult>(*result)) {
-                auto placeHolderResult = std::get<PlaceHolderResult>(*result);
-                startRenameSymbol(params,
-                                  placeholder.isEmpty() ? placeHolderResult.placeHolder()
-                                                        : placeholder,
-                                  oldSymbolName,
-                                  callback,
-                                  preferLowerCaseFileNames);
-            } else if (std::holds_alternative<Range>(*result)) {
-                auto range = std::get<Range>(*result);
+            if (const auto placeHolderResult = std::get_if<PlaceHolderResult>(&*result)) {
+                startRenameSymbol(
+                    params,
+                    placeholder.isEmpty() ? placeHolderResult->placeHolder() : placeholder,
+                    oldSymbolName,
+                    callback,
+                    preferLowerCaseFileNames);
+            } else if (const auto range = std::get_if<Range>(&*result)) {
                 if (document) {
-                    const int start = range.start().toPositionInDocument(document->document());
-                    const int end = range.end().toPositionInDocument(document->document());
+                    const int start = range->start().toPositionInDocument(document->document());
+                    const int end = range->end().toPositionInDocument(document->document());
                     const QString reportedSymbolName = document->textAt(start, end - start);
                     startRenameSymbol(params,
                                       derivePlaceholder(reportedSymbolName, placeholder),
@@ -586,28 +580,24 @@ Utils::SearchResultItems generateReplaceItems(const WorkspaceEdit &edits,
     const DocumentUri::PathMapper &pathMapper = client->hostPathMapper();
     if (!documentChanges.isEmpty()) {
         for (const DocumentChange &documentChange : std::as_const(documentChanges)) {
-            if (std::holds_alternative<TextDocumentEdit>(documentChange)) {
-                const TextDocumentEdit edit = std::get<TextDocumentEdit>(documentChange);
-                rangesInDocument[edit.textDocument().uri().toFilePath(pathMapper)] = convertEdits(
-                    edit.edits());
+            if (const auto edit = std::get_if<TextDocumentEdit>(&documentChange)) {
+                rangesInDocument[edit->textDocument().uri().toFilePath(pathMapper)] = convertEdits(
+                    edit->edits());
             } else {
                 Utils::SearchResultItem item;
 
-                if (std::holds_alternative<CreateFileOperation>(documentChange)) {
-                    auto op = std::get<CreateFileOperation>(documentChange);
-                    item.setLineText(op.message(pathMapper));
-                    item.setFilePath(op.uri().toFilePath(pathMapper));
-                    item.setUserData(QVariant(op));
-                } else if (std::holds_alternative<RenameFileOperation>(documentChange)) {
-                    auto op = std::get<RenameFileOperation>(documentChange);
-                    item.setLineText(op.message(pathMapper));
-                    item.setFilePath(op.oldUri().toFilePath(pathMapper));
-                    item.setUserData(QVariant(op));
-                } else if (std::holds_alternative<DeleteFileOperation>(documentChange)) {
-                    auto op = std::get<DeleteFileOperation>(documentChange);
-                    item.setLineText(op.message(pathMapper));
-                    item.setFilePath(op.uri().toFilePath(pathMapper));
-                    item.setUserData(QVariant(op));
+                if (const auto op = std::get_if<CreateFileOperation>(&documentChange)) {
+                    item.setLineText(op->message(pathMapper));
+                    item.setFilePath(op->uri().toFilePath(pathMapper));
+                    item.setUserData(QVariant(*op));
+                } else if (const auto op = std::get_if<RenameFileOperation>(&documentChange)) {
+                    item.setLineText(op->message(pathMapper));
+                    item.setFilePath(op->oldUri().toFilePath(pathMapper));
+                    item.setUserData(QVariant(*op));
+                } else if (const auto op = std::get_if<DeleteFileOperation>(&documentChange)) {
+                    item.setLineText(op->message(pathMapper));
+                    item.setFilePath(op->uri().toFilePath(pathMapper));
+                    item.setUserData(QVariant(*op));
                 }
 
                 items << item;

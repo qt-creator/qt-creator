@@ -101,10 +101,10 @@ MarkupOrString::MarkupOrString(const QJsonValue &val)
 
 QJsonValue MarkupOrString::toJson() const
 {
-    if (std::holds_alternative<QString>(*this))
-        return std::get<QString>(*this);
-    if (std::holds_alternative<MarkupContent>(*this))
-        return QJsonValue(std::get<MarkupContent>(*this));
+    if (const auto s = std::get_if<QString>(this))
+        return *s;
+    if (const auto c = std::get_if<MarkupContent>(this))
+        return QJsonValue(*c);
     return {};
 }
 

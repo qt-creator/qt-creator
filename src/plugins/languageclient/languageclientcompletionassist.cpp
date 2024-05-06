@@ -123,11 +123,11 @@ QString LanguageClientCompletionItem::detail() const
     if (auto _doc = m_item.documentation()) {
         auto doc = *_doc;
         QString detailDocText;
-        if (std::holds_alternative<QString>(doc)) {
-            detailDocText = std::get<QString>(doc);
-        } else if (std::holds_alternative<MarkupContent>(doc)) {
+        if (const auto s = std::get_if<QString>(&doc)) {
+            detailDocText = *s;
+        } else if (const auto m = std::get_if<MarkupContent>(&doc)) {
             // TODO markdown parser?
-            detailDocText = std::get<MarkupContent>(doc).content();
+            detailDocText = m->content();
         }
         if (!detailDocText.isEmpty())
             return detailDocText;
@@ -495,12 +495,10 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
     }
 
     QList<CompletionItem> items;
-    if (std::holds_alternative<CompletionList>(*result)) {
-        const auto &list = std::get<CompletionList>(*result);
-        items = list.items().value_or(QList<CompletionItem>());
-    } else if (std::holds_alternative<QList<CompletionItem>>(*result)) {
-        items = std::get<QList<CompletionItem>>(*result);
-    }
+    if (const auto list = std::get_if<CompletionList>(&*result))
+        items = list->items().value_or(QList<CompletionItem>());
+    else if (const auto l = std::get_if<QList<CompletionItem>>(&*result))
+        items = *l;
     auto proposalItems = generateCompletionItems(items);
     if (!m_snippetsGroup.isEmpty()) {
         proposalItems << TextEditor::SnippetAssistCollector(m_snippetsGroup,

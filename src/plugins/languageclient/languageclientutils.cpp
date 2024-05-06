@@ -349,13 +349,12 @@ bool applyDocumentChange(const Client *client, const DocumentChange &change)
     if (!client)
         return false;
 
-    if (std::holds_alternative<TextDocumentEdit>(change)) {
-        return applyTextDocumentEdit(client, std::get<TextDocumentEdit>(change));
-    } else if (std::holds_alternative<CreateFileOperation>(change)) {
-        const auto createOperation = std::get<CreateFileOperation>(change);
-        const FilePath filePath = createOperation.uri().toFilePath(client->hostPathMapper());
+    if (const auto e = std::get_if<TextDocumentEdit>(&change)) {
+        return applyTextDocumentEdit(client, *e);
+    } else if (const auto createOperation = std::get_if<CreateFileOperation>(&change)) {
+        const FilePath filePath = createOperation->uri().toFilePath(client->hostPathMapper());
         if (filePath.exists()) {
-            if (const std::optional<CreateFileOptions> options = createOperation.options()) {
+            if (const std::optional<CreateFileOptions> options = createOperation->options()) {
                 if (options->overwrite().value_or(false)) {
                     if (!filePath.removeFile())
                         return false;
@@ -365,16 +364,15 @@ bool applyDocumentChange(const Client *client, const DocumentChange &change)
             }
         }
         return filePath.ensureExistingFile();
-    } else if (std::holds_alternative<RenameFileOperation>(change)) {
-        const RenameFileOperation renameOperation = std::get<RenameFileOperation>(change);
-        const FilePath oldPath = renameOperation.oldUri().toFilePath(client->hostPathMapper());
+    } else if (const auto renameOperation = std::get_if<RenameFileOperation>(&change)) {
+        const FilePath oldPath = renameOperation->oldUri().toFilePath(client->hostPathMapper());
         if (!oldPath.exists())
             return false;
-        const FilePath newPath = renameOperation.newUri().toFilePath(client->hostPathMapper());
+        const FilePath newPath = renameOperation->newUri().toFilePath(client->hostPathMapper());
         if (oldPath == newPath)
             return true;
         if (newPath.exists()) {
-            if (const std::optional<CreateFileOptions> options = renameOperation.options()) {
+            if (const std::optional<CreateFileOptions> options = renameOperation->options()) {
                 if (options->overwrite().value_or(false)) {
                     if (!newPath.removeFile())
                         return false;
@@ -384,10 +382,9 @@ bool applyDocumentChange(const Client *client, const DocumentChange &change)
             }
         }
         return oldPath.renameFile(newPath);
-    } else if (std::holds_alternative<DeleteFileOperation>(change)) {
-        const auto deleteOperation = std::get<DeleteFileOperation>(change);
-        const FilePath filePath = deleteOperation.uri().toFilePath(client->hostPathMapper());
-        if (const std::optional<DeleteFileOptions> options = deleteOperation.options()) {
+    } else if (const auto deleteOperation = std::get_if<DeleteFileOperation>(&change)) {
+        const FilePath filePath = deleteOperation->uri().toFilePath(client->hostPathMapper());
+        if (const std::optional<DeleteFileOptions> options = deleteOperation->options()) {
             if (!filePath.exists())
                 return options->ignoreIfNotExists().value_or(false);
             if (filePath.isDir() && options->recursive().value_or(false))
