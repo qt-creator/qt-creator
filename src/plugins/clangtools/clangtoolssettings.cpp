@@ -28,7 +28,6 @@ const char parallelJobsKey[] = "ParallelJobs";
 const char preferConfigFileKey[] = "PreferConfigFile";
 const char buildBeforeAnalysisKey[] = "BuildBeforeAnalysis";
 const char analyzeOpenFilesKey[] = "AnalyzeOpenFiles";
-const char oldDiagnosticConfigIdKey[] = "diagnosticConfigId";
 
 static Id defaultDiagnosticId()
 {
