@@ -7,7 +7,7 @@ instructions:
         variableValue: "RelWithDebInfo"
       - type: EnvironmentVariable
         variableName: LLVM_BASE_URL
-        variableValue: https://ci-files02-hki.ci.qt.io/packages/jenkins/qtcreator_libclang/libclang-release_17.0.1-based
+        variableValue: https://ci-files02-hki.ci.qt.io/packages/jenkins/qtcreator_libclang/libclang-release_18.1.5-based
       - type: EnvironmentVariable
         variableName: QTC_QT_BASE_URL
         variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/archive/qt/6.6/6.6.2-released/Qt"
