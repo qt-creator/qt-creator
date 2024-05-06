@@ -52,6 +52,9 @@ public:
     bool delayedInitialize() override;
     ExtensionSystem::IPlugin::ShutdownFlag stop() override;
     void kill() override;
+
+public:
+    bool printToOutputPane() const;
 };
 
 } // namespace Lua

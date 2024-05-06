@@ -138,4 +138,9 @@ ExtensionSystem::IPlugin::ShutdownFlag LuaPluginSpec::stop()
 
 void LuaPluginSpec::kill() {}
 
+bool LuaPluginSpec::printToOutputPane() const
+{
+    return d->pluginTable.get_or("printToOutputPane", false);
+}
+
 } // namespace Lua

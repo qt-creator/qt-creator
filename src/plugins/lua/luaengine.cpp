@@ -5,7 +5,11 @@
 
 #include "luapluginspec.h"
 
+#include <coreplugin/messagemanager.h>
+
 #include <utils/algorithm.h>
+#include <utils/stringutils.h>
+#include <utils/theme/theme.h>
 
 #include <QJsonArray>
 #include <QJsonObject>
@@ -95,10 +99,6 @@ expected_str<LuaPluginSpec *> LuaEngine::loadPlugin(const Utils::FilePath &path)
 
     sol::state lua;
 
-    lua["print"] = [prefix = path.fileName()](sol::variadic_args va) {
-        qDebug().noquote() << "[" << prefix << "]" << variadicToStringList(va).join("\t");
-    };
-
     auto result = lua.safe_script(
         std::string_view(contents->data(), contents->size()),
         sol::script_pass_on_error,
@@ -134,6 +134,19 @@ expected_str<void> LuaEngine::prepareSetup(
         sol::lib::string,
         sol::lib::table,
         sol::lib::utf8);
+
+    const bool printToOutputPane = pluginSpec.printToOutputPane();
+    const QString prefix = pluginSpec.filePath().fileName();
+    lua["print"] = [prefix, printToOutputPane](sol::variadic_args va) {
+        const QString msg = variadicToStringList(va).join("\t");
+
+        qDebug().noquote() << "[" << prefix << "]" << msg;
+        if (printToOutputPane) {
+            static const QString p
+                = ansiColoredText("[" + prefix + "]", creatorTheme()->color(Theme::Token_Text_Muted));
+            Core::MessageManager::writeSilently(QString("%1 %2").arg(p, msg));
+        }
+    };
 
     const QString searchPath = (pluginSpec.location() / "?.lua").toUserOutput();
     lua["package"]["path"] = searchPath.toStdString();

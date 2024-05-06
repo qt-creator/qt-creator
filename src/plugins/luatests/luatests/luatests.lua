@@ -17,4 +17,5 @@ return {
         { Name = "Lua",  Version = "13.0.82", Required = true }
     },
     setup = function() require 'tests'.setup() end,
+    printToOutputPane = true,
 } --[[@as QtcPlugin]]

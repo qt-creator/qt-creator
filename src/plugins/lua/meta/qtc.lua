@@ -23,6 +23,7 @@ Qtc = {}
 ---@field hooks? Hooks The hooks of the plugin.
 ---@field Mimetypes? string XML MIME-info for registering additional or adapting built-in MIME types.
 ---@field JsonWizardPaths? string[] A list of paths relative to the plugin location or paths to the Qt resource system that are searched for template-based wizards.
+---@field printToOutputPane? boolean Whether the `print(...)` function should print to the output pane or not. ( Default: false )
 QtcPlugin = {}
 
 ---@class QtcPluginDependency
