@@ -127,7 +127,11 @@ public:
     /// Gets real path of \p Path e.g. collapse all . and .. patterns, resolve
     /// symlinks. For real file system, this uses `llvm::sys::fs::real_path`.
     /// This returns errc::operation_not_permitted if not implemented by subclass.
-    std::error_code getRealPath(const Twine &Path, SmallVectorImpl<char> &Output) const override
+    std::error_code getRealPath(const Twine &Path, SmallVectorImpl<char> &Output)
+#if LLVM_VERSION_MAJOR < 19
+        const
+#endif
+        override
     {
         Q_UNUSED(Path);
         Q_UNUSED(Output);

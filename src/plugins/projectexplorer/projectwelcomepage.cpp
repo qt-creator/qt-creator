@@ -47,10 +47,9 @@ const char PROJECT_BASE_ID[] = "Welcome.OpenRecentProject";
 namespace ProjectExplorer {
 namespace Internal {
 
-constexpr TextFormat projectNameTF {Theme::Token_Text_Accent, StyleHelper::UiElementH6};
-constexpr TextFormat projectPathTF {Theme::Token_Text_Muted, StyleHelper::UiElementCaptionStrong};
-constexpr TextFormat sessionNameTF = {projectNameTF.themeColor, projectNameTF.uiElement,
-                                      Qt::AlignVCenter | Qt::TextDontClip};
+constexpr TextFormat projectNameTF {Theme::Token_Text_Accent, StyleHelper::UiElementH5};
+constexpr TextFormat projectPathTF {Theme::Token_Text_Muted, StyleHelper::UiElementH6};
+constexpr TextFormat sessionNameTF = projectNameTF;
 constexpr TextFormat sessionProjectNameTF {Theme::Token_Text_Default, projectNameTF.uiElement};
 constexpr TextFormat shortcutNumberTF {Theme::Token_Text_Default,
                                       StyleHelper::UiElementCaptionStrong,
@@ -59,7 +58,7 @@ constexpr TextFormat actionTF {Theme::Token_Text_Default, StyleHelper::UiElement
                               Qt::AlignCenter | Qt::TextDontClip};
 constexpr TextFormat actionDisabledTF {Theme::Token_Text_Subtle, actionTF.uiElement,
                                       actionTF.drawTextFlags};
-constexpr int shortcutNumberWidth = 16;
+constexpr int shortcutNumberWidth = 6;
 constexpr int actionSepWidth = 1;
 constexpr int sessionScrollBarGap = HPaddingXs;
 
@@ -316,36 +315,36 @@ public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &idx) const final
     {
-        //                                        visible on withIcon()         Gap + arrow visible on hover   Extra margin right of project item
-        //                                                  |                                 |                               |
-        //                                      +-----------+----------+             +--------+-------+            +----------+----------+
-        //                                      |                      |             |                |            |                     |
+        //                                       visible on withIcon()        Gap + arrow visible on hover   Extra margin right of project item
+        //                                                |                                 |                               |
+        //                                     +----------+----------+             +--------+-------+            +----------+----------+
+        //                                     |                     |             |                |            |                     |
         //
-        //      +------------+--------+---------+------------+---------+-------------+--------+-------+------------+---------------------+  --+
-        //      |            |        |         |(VPaddingXs)|         |(VPaddingXs) |        |       |            |                     |    |
-        //      |            |        |         +------------+         +-------------+        |       |            |                     |    |
-        //      |(HPaddingXs)|<number>|(HGapXxs)|   <icon>   |(HGapXxs)|<sessionName>|(HGapXs)|<arrow>|            |                     |    +-- Header
-        //      |            |(16x16) |         +------------+         +-------------+        |       |            |                     |    |
-        //      |            |        |         |(VPaddingXs)|         |(VPaddingXs) |        |       |            |                     |    |
-        //      |------------+--------+---------+------------+---------+-------------+--------+-------+            |                     |  --+
-        //      |                                                 +--  |         (VPaddingXxs)        |            |                     |    |
-        //      |                                                 |    +------------------------------+(HPaddingXs)|                     |    |
-        //      |                                                 |    |         <projectName>        |            |                     |    |
-        //      |                                                 |    +------------------------------+            |                     |    |
-        //      |                        Per project in session --+    |        (ExPaddingGapS)       |            |(sessionScrollBarGap)|    |
-        //      |                                                 |    +------------------------------+            |                     |    |
-        //      |                                                 |    |         <projectPath>        |            |                     |    |
-        //      |                                                 |    +------------------------------+            |                     |    +-- Expansion
-        //      |                                                 +--  |         (VPaddingXxs)        |            |                     |    |
-        //      +------------------------------------------------------+------------------------------+------------+                     |    |
-        //      |                                           (VPaddingXs)                                           |                     |    |
-        //      +-----------------------------------------+--------------+-----------------------------------------+                     |    |
-        // +--  |                            <cloneButton>|<renameButton>|<deleteButton>                           |                     |    |
-        // |    +-----------------------------------------+--------------+-----------------------------------------+                     |    |
-        // |    |                                           (VPaddingXs)                                           |                     |    |
-        // |    +--------------------------------------------------------------------------------------------------+---------------------+  --+
-        // |    |                                                         (VGapL)                                                        |    +-- Gap between session items
-        // |    +------------------------------------------------------------------------------------------------------------------------+  --+
+        //      +------------+--------+--------+------------+--------+-------------+--------+-------+------------+---------------------+  --+
+        //      |            |        |        |(VPaddingXs)|        |(VPaddingXs) |        |       |            |                     |    |
+        //      |            |        |        +------------+        +-------------+        |       |            |                     |    |
+        //      |(HPaddingXs)|<number>|(HGapXs)|   <icon>   |(HGapXs)|<sessionName>|(HGapXs)|<arrow>|            |                     |    +-- Header
+        //      |            |(w:6)   |        +------------+        +-------------+        |       |            |                     |    |
+        //      |            |        |        |(VPaddingXs)|        |(VPaddingXs) |        |       |            |                     |    |
+        //      |------------+--------+--------+------------+--------+-------------+--------+-------+            |                     |  --+
+        //      |                                               +--  |         (VPaddingXxs)        |            |                     |    |
+        //      |                                               |    +------------------------------+(HPaddingXs)|                     |    |
+        //      |                                               |    |         <projectName>        |            |                     |    |
+        //      |                                               |    +------------------------------+            |                     |    |
+        //      |                      Per project in session --+    |        (ExPaddingGapS)       |            |(sessionScrollBarGap)|    |
+        //      |                                               |    +------------------------------+            |                     |    |
+        //      |                                               |    |         <projectPath>        |            |                     |    |
+        //      |                                               |    +------------------------------+            |                     |    +-- Expansion
+        //      |                                               +--  |         (VPaddingXxs)        |            |                     |    |
+        //      +----------------------------------------------------+------------------------------+------------+                     |    |
+        //      |                                          (VPaddingXs)                                          |                     |    |
+        //      +---------------------------------------+--------------+-----------------------------------------+                     |    |
+        // +--  |                           <cloneButton>|<renameButton>|<deleteButton>                          |                     |    |
+        // |    +---------------------------------------+--------------+-----------------------------------------+                     |    |
+        // |    |                                          (VPaddingXs)                                          |                     |    |
+        // |    +------------------------------------------------------------------------------------------------+---------------------+  --+
+        // |    |                                                        (VGapL)                                                       |    +-- Gap between session items
+        // |    +----------------------------------------------------------------------------------------------------------------------+  --+
         // |
         // \    session action "buttons" and dividers
         // +-----------------------------------------------+--------+---------+--------+
@@ -381,11 +380,11 @@ public:
         const int y = bgR.y();
 
         const int numberX = x + s(HPaddingXs);
-        const int iconX = numberX + shortcutNumberWidth + s(HGapXxs);
+        const int iconX = numberX + shortcutNumberWidth + s(HGapXs);
         const int arrowX = bgR.right() - s(HPaddingXs) - arrowS.width();
         const QRect arrowHoverR(arrowX - s(HGapXs) + 1, y,
                                 s(HGapXs) + arrowS.width() + s(HPaddingXs), hdR.height());
-        const int textX = withIcon() ? iconX + iconS.width() + s(HGapXxs) : iconX;
+        const int textX = withIcon() ? iconX + iconS.width() + s(HGapXs) : iconX;
 
         const int iconY = y + (hdR.height() - iconS.height()) / 2;
         const int arrowY = y + (hdR.height() - arrowS.height()) / 2;
@@ -622,24 +621,24 @@ class ProjectDelegate : public BaseDelegate
 public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &idx) const final
     {
-        //                               visible on with Icon()               Extra margin right of project item
-        //                                          |                                         |
-        //                                 +--------+-------+                          +------+-----+
-        //                                 |                |                          |            |
+        //                              visible on with Icon()               Extra margin right of project item
+        //                                         |                                         |
+        //                                +--------+-------+                          +------+-----+
+        //                                |                |                          |            |
         //
-        // +------------+--------+---------+------+---------+-------------+------------+------------+
-        // |            |        |         |      |         | (VPaddingXs)|            |            |
-        // |            |        |         |      |         +-------------+            |            |
-        // |            |        |         |      |         |<projectName>|            |            |
-        // |            |        |         |      |         +-------------+            |            |
-        // |(HPaddingXs)|<number>|(HGapXxs)|<icon>|(HGapXxs)|   (VGapXs)  |(HPaddingXs)|(HPaddingXs)|
-        // |            |(16x16) |         |      |         +-------------+            |            |
-        // |            |        |         |      |         |<projectPath>|            |            |
-        // |            |        |         |      |         +-------------+            |            |
-        // |            |        |         |      |         | (VPaddingXs)|            |            |
-        // +------------+--------+---------+------+---------+-------------+------------+------------+  --+
-        // |                                          (VGapL)                                       |    +-- Gap between project items
-        // +----------------------------------------------------------------------------------------+  --+
+        // +------------+--------+--------+------+---------+-------------+------------+------------+
+        // |            |        |        |      |         | (VPaddingXs)|            |            |
+        // |            |        |        |      |         +-------------+            |            |
+        // |            |        |        |      |         |<projectName>|            |            |
+        // |            |        |        |      |         +-------------+            |            |
+        // |(HPaddingXs)|<number>|(HGapXs)|<icon>|(HGapXxs)|   (VGapXs)  |(HPaddingXs)|(HPaddingXs)|
+        // |            |(w:6)   |        |      |         +-------------+            |            |
+        // |            |        |        |      |         |<projectPath>|            |            |
+        // |            |        |        |      |         +-------------+            |            |
+        // |            |        |        |      |         | (VPaddingXs)|            |            |
+        // +------------+--------+--------+------+---------+-------------+------------+------------+  --+
+        // |                                        (VGapL)                                        |    +-- Gap between project items
+        // +---------------------------------------------------------------------------------------+  --+
 
         const bool hovered = option.widget->isActiveWindow()
                              && option.state & QStyle::State_MouseOver;
@@ -651,9 +650,9 @@ public:
 
         const int x = bgR.x();
         const int numberX = x + s(HPaddingXs);
-        const int iconX = numberX + shortcutNumberWidth + s(HGapXxs);
+        const int iconX = numberX + shortcutNumberWidth + s(HGapXs);
         const int iconWidth = iconS.width();
-        const int textX = withIcon() ? iconX + iconWidth + s(HGapXxs) : iconX;
+        const int textX = withIcon() ? iconX + iconWidth + s(HGapXs) : iconX;
         const int textWidth = bgR.width() - s(HPaddingXs) - textX;
 
         const int y = bgR.y();

@@ -113,10 +113,7 @@ def handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms,
         return
 
     fixedBuildSystems = list(availableBuildSystems)
-    if template == 'Qt Quick Application':
-        fixedBuildSystems.remove('qmake')
-        test.log("Skipped qmake (not supported).")
-    elif template == 'Qt Quick 2 Extension Plugin':
+    if template == 'Qt Quick 2 Extension Plugin':
         fixedBuildSystems.remove('Qbs')
         test.log("Skipped Qbs (not supported).")
 
@@ -126,7 +123,7 @@ def handleBuildSystemVerifyKits(category, template, kits, displayedPlatforms,
         clickButton(waitForObject(":Next_QPushButton"))
         if specialHandlingFunc:
             specialHandlingFunc(displayedPlatforms, *args)
-        if not ('Plain C' in template or template == 'Qt Quick Application'):
+        if not ('Plain C' in template):
             __createProjectHandleTranslationSelection__()
         verifyKitCheckboxes(kits, displayedPlatforms)
         safeClickButton("Cancel")

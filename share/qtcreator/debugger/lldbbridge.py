@@ -1456,6 +1456,21 @@ class Dumper(DumperBase):
             if bp is not None:
                 self.reportBreakpointUpdate(bp)
 
+    def wantAutoContinue(self, frame):
+        if self.platform_ != 'remote-android':
+            return False
+        funcname = frame.GetFunctionName()
+        if funcname and funcname.startswith('java.'):
+            return True
+        module = frame.GetModule()
+        filespec = module.GetPlatformFileSpec() # Not GetFileSpec
+        filename = filespec.GetFilename()
+        if filename == 'libart.so':
+            return True
+        if funcname == None and not frame.line_entry.file.IsValid() and filename == None:
+            return True
+        return False
+
     def handleEvent(self, event):
         if lldb.SBBreakpoint.EventIsBreakpointEvent(event):
             self.handleBreakpointEvent(event)
@@ -1490,8 +1505,12 @@ class Dumper(DumperBase):
             if state == lldb.eStateStopped:
                 stoppedThread = self.firstStoppedThread()
                 if stoppedThread:
-                    #self.report("STOPPED THREAD: %s" % stoppedThread)
                     frame = stoppedThread.GetFrameAtIndex(0)
+                    if self.wantAutoContinue(frame):
+                        #self.warn("AUTO CONTINUE")
+                        error = self.process.Continue()
+                        return
+
                     #self.report("FRAME: %s" % frame)
                     function = frame.GetFunction()
                     functionName = function.GetName()

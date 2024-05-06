@@ -813,6 +813,7 @@ void AndroidSettingsWidget::updateUI()
         }
     }
 
+    m_makeDefaultNdkButton->setEnabled(m_ndkListWidget->count() > 0);
     m_makeDefaultNdkButton->setText(isDefaultNdkSelected() ? Tr::tr("Unset Default")
                                                            : Tr::tr("Make Default"));
 }

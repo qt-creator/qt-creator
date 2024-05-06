@@ -1010,7 +1010,13 @@ QFont StyleHelper::uiFont(UiElement element)
     const qreal qrealPointSize = metrics.pixelSize * pixelsToPointSizeFactor;
     font.setPointSizeF(qrealPointSize);
 
-    font.setWeight(metrics.weight);
+    // Intermediate font weights can produce blurry rendering and are harder to read.
+    // For "non-retina" screens, apply the weight only for some fonts.
+    static const bool isHighDpi = qApp->devicePixelRatio() >= 2;
+    const bool setWeight = isHighDpi || element == UiElementCaptionStrong
+                           || element <= UiElementH4;
+    if (setWeight)
+        font.setWeight(metrics.weight);
 
     return font;
 }

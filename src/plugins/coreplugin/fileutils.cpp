@@ -32,9 +32,27 @@
 #include <QTextStream>
 #include <QTextCodec>
 
+#ifdef Q_OS_WIN
+#ifdef QTCREATOR_PCH_H
+#define CALLBACK WINAPI
+#endif
+#include <qt_windows.h>
+#include <shlobj.h>
+#endif
+
 using namespace Utils;
 
 namespace Core {
+
+static FilePath windowsDirectory()
+{
+#ifdef Q_OS_WIN
+    wchar_t str[UNICODE_STRING_MAX_CHARS] = {};
+    if (SUCCEEDED(SHGetFolderPath(nullptr, CSIDL_WINDOWS, nullptr, 0, str)))
+        return FilePath::fromUserInput(QString::fromUtf16(reinterpret_cast<char16_t *>(str)));
+#endif
+    return {};
+}
 
 // Show error with option to open settings.
 static void showGraphicalShellError(QWidget *parent, const QString &app, const QString &error)
@@ -56,13 +74,7 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const FilePath &pathIn)
     const QFileInfo fileInfo = pathIn.toFileInfo();
     // Mac, Windows support folder or file.
     if (HostOsInfo::isWindowsHost()) {
-        const FilePath explorer = FilePath("explorer.exe").searchInPath();
-        if (explorer.isEmpty()) {
-            QMessageBox::warning(parent,
-                                 Tr::tr("Launching Windows Explorer Failed"),
-                                 Tr::tr("Could not find explorer.exe in path to launch Windows Explorer."));
-            return;
-        }
+        const FilePath explorer = windowsDirectory().pathAppended("explorer.exe");
         QStringList param;
         if (!pathIn.isDir())
             param += QLatin1String("/select,");

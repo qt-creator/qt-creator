@@ -20,7 +20,13 @@ Token_Foreground_Subtle=ff2A2A2A
 Token_Text_Default=ffF8F8F8
 Token_Text_Muted=ffAEAEAE
 Token_Text_Subtle=ff595959
-Token_Text_Accent=ff23B26A
+
+; Token_Text_Accent value from Figma is still too dark. Therefore, it is modified, here.
+; Text (consisting of thin lines) needs to be substantially brighter than accent colors used for
+; larger-area elements like the filled button.
+
+; Token_Text_Accent=ff23B26A
+Token_Text_Accent=ff30C06A
 
 Token_Stroke_Strong=ffeeeeee
 Token_Stroke_Muted=ff727272
