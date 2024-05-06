@@ -402,23 +402,32 @@ const QList<FormattedText> OutputFormatter::linkifiedText(
         }
 
         for (int nextLocalTextPos = 0; nextLocalTextPos < t.text.size(); ) {
-
-            // There are no more links in this part, so copy the rest of the text as-is.
-            if (nextLinkSpecIndex >= linkSpecs.size()) {
+            const auto copyRestOfSegmentAsIs = [&] {
                 linkified << FormattedText(t.text.mid(nextLocalTextPos), t.format);
                 totalTextLengthSoFar += t.text.length() - nextLocalTextPos;
+            };
+
+            // We are out of links.
+            if (nextLinkSpecIndex >= linkSpecs.size()) {
+                copyRestOfSegmentAsIs();
                 break;
             }
 
             const OutputLineParser::LinkSpec &linkSpec = linkSpecs.at(nextLinkSpecIndex);
             const int localLinkStartPos = linkSpec.startPos - totalPreviousTextLength;
+
+            // There are more links, but not in this segment.
+            if (localLinkStartPos >= t.text.size()) {
+                copyRestOfSegmentAsIs();
+                break;
+            }
+
             ++nextLinkSpecIndex;
 
             // We ignore links that would cross format boundaries.
             if (localLinkStartPos < nextLocalTextPos
                     || localLinkStartPos + linkSpec.length > t.text.length()) {
-                linkified << FormattedText(t.text.mid(nextLocalTextPos), t.format);
-                totalTextLengthSoFar += t.text.length() - nextLocalTextPos;
+                copyRestOfSegmentAsIs();
                 break;
             }
 
