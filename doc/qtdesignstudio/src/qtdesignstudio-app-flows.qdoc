@@ -8,25 +8,25 @@
 
     \title Designing Application Flows
 
-    \image studio-flow-view.png "Application flow in the 2D view"
+    \image studio-flow-view.webp "Application flow in the 2D view"
 
     In \QDS, a \e {flow view} represents a schematic diagram. It consists of
     \e {flow items} that represent the screens in the UI and \e {transition
     lines} that connect them, thus illustrating the possible user pathways
-    through the UI. You use \e {action areas} as starting points for transition
-    lines. You can attach effects to transition lines, such as fade or push,
+    through the UI. \e {Action areas} are clickable starting points for transition
+    lines. Attach effects to transition lines, such as fade or push,
     to determine what users see when one flow item changes into another.
 
-    You can use \e {flow decisions} to set up alternative pathways between
-    flow items in the UI. For example, if user input determines which flow item
-    should open next, you can test the different scenarios in the prototype
-    by having a dialog pop up where you can select which flow item to show next.
+    Use \e {flow decisions} to set up alternative pathways between flow items in the UI. For
+    example, if user input determines which flow item should open next, test the different
+    scenarios in the prototype with the decision dialog where you can select which flow item to
+    show next.
 
     Especially on mobile and embedded platforms, the application might need to
     react to external events from the platform, such as notifications or other
-    applications requiring the users' attention. You can use \e {flow wildcards}
-    to determine the priority of flow items by adding them to positive and
-    negative lists.
+    applications requiring the users' attention. Use \e {flow wildcards}
+    to determine the priority of flow items by adding them to allow and
+    block lists.
 
     To design application flows:
 
@@ -40,14 +40,17 @@
             \l{Adding Flow Items}.
         \li Use context menu commands to add action areas and transitions,
             as described in \l{Adding Action Areas and Transitions}.
+    \endlist
+
+    Additionally, to create a more advanced application flow:
+
+    \list
         \li Use context menu commands to apply effects to transitions,
             as described in \l{Applying Effects to Transitions}.
-        \li When you are ready for production, use the event list simulator
-            to replace transition lines with connections to real signals
-            from UI controls, as described in \l{Simulating Events}.
-        \li To set up alternative pathways between flow items, use
-            \uicontrol {Flow Decision} components from
-            \uicontrol Components > \uicontrol {Flow View}, as described in
+        \li Use the event list simulator to replace transition lines with connections to real
+            signals from UI controls, as described in \l{Simulating Events}.
+        \li Use \uicontrol {Flow Decision} components from \uicontrol Components > \uicontrol {Flow
+            View} to set up alternative pathways between flow items, as described in
             \l{Simulating Conditions}.
         \li Use \l{Working with States}{states} in flows to modify the appearance
             of components on screens in response to user interaction, as
