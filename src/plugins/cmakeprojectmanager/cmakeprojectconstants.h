@@ -11,6 +11,7 @@ const char RUN_CMAKE[] = "CMakeProject.RunCMake";
 const char RUN_CMAKE_PROFILER[] = "CMakeProject.RunCMakeProfiler";
 const char RUN_CMAKE_DEBUGGER[] = "CMakeProject.RunCMakeDebugger";
 const char CLEAR_CMAKE_CACHE[] = "CMakeProject.ClearCache";
+const char CLEAR_CMAKE_CACHE_CONTEXT_MENU[] = "CMakeProject.ClearCacheContextMenu";
 const char RESCAN_PROJECT[] = "CMakeProject.RescanProject";
 const char RUN_CMAKE_CONTEXT_MENU[] = "CMakeProject.RunCMakeContextMenu";
 const char BUILD_FILE_CONTEXT_MENU[] = "CMakeProject.BuildFileContextMenu";

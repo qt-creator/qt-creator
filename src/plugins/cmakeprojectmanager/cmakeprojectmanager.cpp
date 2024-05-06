@@ -110,6 +110,14 @@ CMakeManager::CMakeManager()
         .addToContainer(PEC::M_PROJECTCONTEXT, PEC::G_PROJECT_BUILD)
         .addOnTriggered(this, [this] { runCMake(ProjectTree::currentBuildSystem()); });
 
+    ActionBuilder(this, Constants::CLEAR_CMAKE_CACHE_CONTEXT_MENU)
+        .setText(Tr::tr("Clear CMake Configuration"))
+        .setContext(projectContext)
+        .bindContextAction(&m_clearCMakeCacheAction)
+        .setCommandAttribute(Command::CA_Hide)
+        .addToContainer(PEC::M_PROJECTCONTEXT, PEC::G_PROJECT_REBUILD)
+        .addOnTriggered(this, [this] { clearCMakeCache(ProjectManager::startupBuildSystem()); });
+
     ActionBuilder(this, Constants::BUILD_FILE_CONTEXT_MENU)
         .setText(Tr::tr("Build"))
         .bindContextAction(&m_buildFileContextMenu)
