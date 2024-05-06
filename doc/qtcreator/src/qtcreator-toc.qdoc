@@ -56,6 +56,8 @@
                 \list
                     \li Android
                         \generatelist creator-how-to-android
+                    \li Bare Metal
+                        \generatelist creator-how-to-bare-metal
                     \li iOS
                         \generatelist creator-how-to-ios
                     \li MCUs
