@@ -134,13 +134,13 @@ SourceIds filterNotUpdatedSourceIds(SourceIds updatedSourceIds, SourceIds notUpd
 }
 
 void addSourceIds(SourceIds &sourceIds,
-                  const Storage::Synchronization::ProjectDatas &projectDatas,
+                  const Storage::Synchronization::DirectoryInfos &directoryInfos,
                   TracerLiteral message,
                   Tracer &tracer)
 {
-    for (const auto &projectData : projectDatas) {
-        tracer.tick(message, keyValue("source id", projectData.sourceId));
-        sourceIds.push_back(projectData.sourceId);
+    for (const auto &directoryInfo : directoryInfos) {
+        tracer.tick(message, keyValue("source id", directoryInfo.sourceId));
+        sourceIds.push_back(directoryInfo.sourceId);
     }
 }
 
@@ -311,19 +311,17 @@ void ProjectStorageUpdater::updateQmlTypes(const QStringList &qmlTypesPaths,
                     keyValue("source id", sourceId),
                     keyValue("qml types path", qmlTypesPath));
 
-        Storage::Synchronization::ProjectData projectData{sourceId,
-                                                          sourceId,
-                                                          moduleId,
-                                                          Storage::Synchronization::FileType::QmlTypes};
+        Storage::Synchronization::DirectoryInfo directoryInfo{
+            sourceId, sourceId, moduleId, Storage::Synchronization::FileType::QmlTypes};
 
-        FileState state = parseTypeInfo(projectData,
+        FileState state = parseTypeInfo(directoryInfo,
                                         Utils::PathString{qmlTypesPath},
                                         package,
                                         notUpdatedSourceIds);
 
         if (state == FileState::Changed) {
-            tracer.tick("append project data"_t, keyValue("project data", projectData));
-            package.projectDatas.push_back(std::move(projectData));
+            tracer.tick("append project data"_t, keyValue("project data", directoryInfo));
+            package.directoryInfos.push_back(std::move(directoryInfo));
             tracer.tick("append updated project source ids"_t, keyValue("source id", sourceId));
             package.updatedProjectSourceIds.push_back(sourceId);
         }
@@ -382,10 +380,10 @@ void ProjectStorageUpdater::updateDirectoryChanged(std::string_view directoryPat
     tracer.tick("append updated module id"_t, keyValue("module id", moduleId));
     package.updatedModuleIds.push_back(moduleId);
 
-    const auto qmlProjectDatas = m_projectStorage.fetchProjectDatas(directorySourceId);
-    addSourceIds(package.updatedSourceIds, qmlProjectDatas, "append updated source id"_t, tracer);
+    const auto qmlDirectoryInfos = m_projectStorage.fetchDirectoryInfos(directorySourceId);
+    addSourceIds(package.updatedSourceIds, qmlDirectoryInfos, "append updated source id"_t, tracer);
     addSourceIds(package.updatedFileStatusSourceIds,
-                 qmlProjectDatas,
+                 qmlDirectoryInfos,
                  "append updated file status source id"_t,
                  tracer);
 
@@ -463,10 +461,10 @@ void ProjectStorageUpdater::updateDirectory(const Utils::PathString &directoryPa
     case FileState::NotChanged: {
         tracer.tick("update directory not changed"_t);
 
-        parseProjectDatas(m_projectStorage.fetchProjectDatas(directorySourceId),
-                          package,
-                          notUpdatedSourceIds,
-                          watchedSourceIdsIds);
+        parseDirectoryInfos(m_projectStorage.fetchDirectoryInfos(directorySourceId),
+                            package,
+                            notUpdatedSourceIds,
+                            watchedSourceIdsIds);
         break;
     }
     case FileState::NotExists: {
@@ -476,13 +474,13 @@ void ProjectStorageUpdater::updateDirectory(const Utils::PathString &directoryPa
         package.updatedFileStatusSourceIds.push_back(qmldirSourceId);
         package.updatedProjectSourceIds.push_back(directorySourceId);
         package.updatedSourceIds.push_back(qmldirSourceId);
-        auto qmlProjectDatas = m_projectStorage.fetchProjectDatas(directorySourceId);
-        for (const Storage::Synchronization::ProjectData &projectData : qmlProjectDatas) {
-            tracer.tick("append updated source id"_t, keyValue("source id", projectData.sourceId));
-            package.updatedSourceIds.push_back(projectData.sourceId);
+        auto qmlDirectoryInfos = m_projectStorage.fetchDirectoryInfos(directorySourceId);
+        for (const Storage::Synchronization::DirectoryInfo &directoryInfo : qmlDirectoryInfos) {
+            tracer.tick("append updated source id"_t, keyValue("source id", directoryInfo.sourceId));
+            package.updatedSourceIds.push_back(directoryInfo.sourceId);
             tracer.tick("append updated file status source id"_t,
-                        keyValue("source id", projectData.sourceId));
-            package.updatedFileStatusSourceIds.push_back(projectData.sourceId);
+                        keyValue("source id", directoryInfo.sourceId));
+            package.updatedFileStatusSourceIds.push_back(directoryInfo.sourceId);
         }
 
         break;
@@ -802,9 +800,9 @@ void ProjectStorageUpdater::pathsWithIdsChanged(const std::vector<IdPaths> &chan
         for (SourceId sourceId : filterUniqueSourceIds(std::move(qmltypesSourceIds))) {
             if (!contains(directorySourceContextIds, m_pathCache.sourceContextId(sourceId))) {
                 auto qmltypesPath = m_pathCache.sourcePath(sourceId);
-                auto projectData = m_projectStorage.fetchProjectData(sourceId);
-                if (projectData)
-                    parseTypeInfo(*projectData, qmltypesPath, package, notUpdatedSourceIds);
+                auto directoryInfo = m_projectStorage.fetchDirectoryInfo(sourceId);
+                if (directoryInfo)
+                    parseTypeInfo(*directoryInfo, qmltypesPath, package, notUpdatedSourceIds);
             }
         }
     } catch (const QmlDesigner::CannotParseQmlTypesFile &) {
@@ -869,41 +867,42 @@ void ProjectStorageUpdater::parseTypeInfos(const QStringList &typeInfos,
         tracer.tick("append module dependenct source source id"_t, keyValue("source id", sourceId));
         package.updatedModuleDependencySourceIds.push_back(sourceId);
 
-        auto projectData = package.projectDatas.emplace_back(
+        auto directoryInfo = package.directoryInfos.emplace_back(
             directorySourceId, sourceId, moduleId, Storage::Synchronization::FileType::QmlTypes);
         tracer.tick("append project data"_t, keyValue("source id", sourceId));
 
-        parseTypeInfo(projectData, qmltypesPath, package, notUpdatedSourceIds);
+        parseTypeInfo(directoryInfo, qmltypesPath, package, notUpdatedSourceIds);
     }
 }
 
-void ProjectStorageUpdater::parseProjectDatas(const Storage::Synchronization::ProjectDatas &projectDatas,
-                                              Storage::Synchronization::SynchronizationPackage &package,
-                                              NotUpdatedSourceIds &notUpdatedSourceIds,
-                                              WatchedSourceIdsIds &watchedSourceIds)
+void ProjectStorageUpdater::parseDirectoryInfos(
+    const Storage::Synchronization::DirectoryInfos &directoryInfos,
+    Storage::Synchronization::SynchronizationPackage &package,
+    NotUpdatedSourceIds &notUpdatedSourceIds,
+    WatchedSourceIdsIds &watchedSourceIds)
 {
     NanotraceHR::Tracer tracer{"parse project datas"_t, category()};
 
-    for (const Storage::Synchronization::ProjectData &projectData : projectDatas) {
-        switch (projectData.fileType) {
+    for (const Storage::Synchronization::DirectoryInfo &directoryInfo : directoryInfos) {
+        switch (directoryInfo.fileType) {
         case Storage::Synchronization::FileType::QmlTypes: {
-            watchedSourceIds.qmltypesSourceIds.push_back(projectData.sourceId);
+            watchedSourceIds.qmltypesSourceIds.push_back(directoryInfo.sourceId);
 
-            auto qmltypesPath = m_pathCache.sourcePath(projectData.sourceId);
-            parseTypeInfo(projectData, qmltypesPath, package, notUpdatedSourceIds);
+            auto qmltypesPath = m_pathCache.sourcePath(directoryInfo.sourceId);
+            parseTypeInfo(directoryInfo, qmltypesPath, package, notUpdatedSourceIds);
             break;
         }
         case Storage::Synchronization::FileType::QmlDocument: {
-            watchedSourceIds.qmlSourceIds.push_back(projectData.sourceId);
+            watchedSourceIds.qmlSourceIds.push_back(directoryInfo.sourceId);
 
-            parseQmlComponent(projectData.sourceId, package, notUpdatedSourceIds);
+            parseQmlComponent(directoryInfo.sourceId, package, notUpdatedSourceIds);
             break;
         }
         }
     }
 }
 
-auto ProjectStorageUpdater::parseTypeInfo(const Storage::Synchronization::ProjectData &projectData,
+auto ProjectStorageUpdater::parseTypeInfo(const Storage::Synchronization::DirectoryInfo &directoryInfo,
                                           Utils::SmallStringView qmltypesPath,
                                           Storage::Synchronization::SynchronizationPackage &package,
                                           NotUpdatedSourceIds &notUpdatedSourceIds) -> FileState
@@ -912,19 +911,19 @@ auto ProjectStorageUpdater::parseTypeInfo(const Storage::Synchronization::Projec
                                category(),
                                keyValue("qmltypes path", qmltypesPath)};
 
-    auto state = fileState(projectData.sourceId, package, notUpdatedSourceIds);
+    auto state = fileState(directoryInfo.sourceId, package, notUpdatedSourceIds);
     switch (state) {
     case FileState::Changed: {
-        tracer.tick("append updated source ids"_t, keyValue("source id", projectData.sourceId));
-        package.updatedSourceIds.push_back(projectData.sourceId);
+        tracer.tick("append updated source ids"_t, keyValue("source id", directoryInfo.sourceId));
+        package.updatedSourceIds.push_back(directoryInfo.sourceId);
 
         const auto content = m_fileSystem.contentAsQString(QString{qmltypesPath});
-        m_qmlTypesParser.parse(content, package.imports, package.types, projectData);
+        m_qmlTypesParser.parse(content, package.imports, package.types, directoryInfo);
         break;
     }
     case FileState::NotChanged: {
-        tracer.tick("append not updated source ids"_t, keyValue("source id", projectData.sourceId));
-        notUpdatedSourceIds.sourceIds.push_back(projectData.sourceId);
+        tracer.tick("append not updated source ids"_t, keyValue("source id", directoryInfo.sourceId));
+        notUpdatedSourceIds.sourceIds.push_back(directoryInfo.sourceId);
         break;
     }
     case FileState::NotExists:
@@ -971,9 +970,9 @@ void ProjectStorageUpdater::parseQmlComponent(Utils::SmallStringView relativeFil
             tracer.tick("append not updated source id"_t, keyValue("source id", sourceId));
             notUpdatedSourceIds.sourceIds.emplace_back(sourceId);
 
-            const auto &projectData = package.projectDatas.emplace_back(
+            const auto &directoryInfo = package.directoryInfos.emplace_back(
                 directorySourceId, sourceId, ModuleId{}, Storage::Synchronization::FileType::QmlDocument);
-            tracer.tick("append project data"_t, keyValue("project data", projectData));
+            tracer.tick("append project data"_t, keyValue("project data", directoryInfo));
 
             return;
         }
@@ -987,9 +986,9 @@ void ProjectStorageUpdater::parseQmlComponent(Utils::SmallStringView relativeFil
         break;
     }
 
-    const auto &projectData = package.projectDatas.emplace_back(
+    const auto &directoryInfo = package.directoryInfos.emplace_back(
         directorySourceId, sourceId, ModuleId{}, Storage::Synchronization::FileType::QmlDocument);
-    tracer.tick("append project data"_t, keyValue("project data", projectData));
+    tracer.tick("append project data"_t, keyValue("project data", directoryInfo));
 
     tracer.tick("append updated source id"_t, keyValue("source id", sourceId));
     package.updatedSourceIds.push_back(sourceId);

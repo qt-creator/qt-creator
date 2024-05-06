@@ -495,7 +495,7 @@ bool skipType(const QQmlJSExportedScope &object, Utils::span<const QLatin1String
 }
 
 void addTypes(Storage::Synchronization::Types &types,
-              const Storage::Synchronization::ProjectData &projectData,
+              const Storage::Synchronization::DirectoryInfo &directoryInfo,
               const QList<QQmlJSExportedScope> &objects,
               QmlTypesParser::ProjectStorage &storage,
               const ComponentWithoutNamespaces &componentNameWithoutNamespaces)
@@ -503,15 +503,15 @@ void addTypes(Storage::Synchronization::Types &types,
     NanotraceHR::Tracer tracer{"add types"_t, category()};
     types.reserve(Utils::usize(objects) + types.size());
 
-    const auto skipList = getSkipList(storage.module(projectData.moduleId));
+    const auto skipList = getSkipList(storage.module(directoryInfo.moduleId));
 
     for (const auto &object : objects) {
         if (skipType(object, skipList))
             continue;
 
         addType(types,
-                projectData.sourceId,
-                projectData.moduleId,
+                directoryInfo.sourceId,
+                directoryInfo.moduleId,
                 object,
                 storage,
                 componentNameWithoutNamespaces);
@@ -523,7 +523,7 @@ void addTypes(Storage::Synchronization::Types &types,
 void QmlTypesParser::parse(const QString &sourceContent,
                            Storage::Imports &imports,
                            Storage::Synchronization::Types &types,
-                           const Storage::Synchronization::ProjectData &projectData)
+                           const Storage::Synchronization::DirectoryInfo &directoryInfo)
 {
     NanotraceHR::Tracer tracer{"qmltypes parser parse"_t, category()};
 
@@ -536,8 +536,8 @@ void QmlTypesParser::parse(const QString &sourceContent,
 
     auto componentNameWithoutNamespaces = createComponentNameWithoutNamespaces(components);
 
-    addImports(imports, projectData.sourceId, dependencies, m_storage, projectData.moduleId);
-    addTypes(types, projectData, components, m_storage, componentNameWithoutNamespaces);
+    addImports(imports, directoryInfo.sourceId, dependencies, m_storage, directoryInfo.moduleId);
+    addTypes(types, directoryInfo, components, m_storage, componentNameWithoutNamespaces);
 }
 
 #else
@@ -545,7 +545,7 @@ void QmlTypesParser::parse(const QString &sourceContent,
 void QmlTypesParser::parse([[maybe_unused]] const QString &sourceContent,
                            [[maybe_unused]] Storage::Imports &imports,
                            [[maybe_unused]] Storage::Synchronization::Types &types,
-                           [[maybe_unused]] const Storage::Synchronization::ProjectData &projectData)
+                           [[maybe_unused]] const Storage::Synchronization::DirectoryInfo &directoryInfo)
 {}
 
 #endif

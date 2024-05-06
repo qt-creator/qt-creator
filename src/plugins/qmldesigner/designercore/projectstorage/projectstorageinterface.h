@@ -80,8 +80,8 @@ public:
     virtual bool isBasedOn(TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId) const = 0;
 
     virtual FileStatus fetchFileStatus(SourceId sourceId) const = 0;
-    virtual Storage::Synchronization::ProjectDatas fetchProjectDatas(SourceId sourceId) const = 0;
-    virtual std::optional<Storage::Synchronization::ProjectData> fetchProjectData(SourceId sourceId) const = 0;
+    virtual Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(SourceId sourceId) const = 0;
+    virtual std::optional<Storage::Synchronization::DirectoryInfo> fetchDirectoryInfo(SourceId sourceId) const = 0;
 
     virtual SourceId propertyEditorPathId(TypeId typeId) const = 0;
     virtual const Storage::Info::CommonTypeCache<ProjectStorageType> &commonTypeCache() const = 0;

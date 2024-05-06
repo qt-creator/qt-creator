@@ -300,13 +300,13 @@ public:
                 (QmlDesigner::SourceId sourceId),
                 (const, override));
 
-    MOCK_METHOD(QmlDesigner::Storage::Synchronization::ProjectDatas,
-                fetchProjectDatas,
+    MOCK_METHOD(QmlDesigner::Storage::Synchronization::DirectoryInfos,
+                fetchDirectoryInfos,
                 (QmlDesigner::SourceId sourceId),
                 (const, override));
 
-    MOCK_METHOD(std::optional<QmlDesigner::Storage::Synchronization::ProjectData>,
-                fetchProjectData,
+    MOCK_METHOD(std::optional<QmlDesigner::Storage::Synchronization::DirectoryInfo>,
+                fetchDirectoryInfo,
                 (QmlDesigner::SourceId sourceId),
                 (const, override));
 

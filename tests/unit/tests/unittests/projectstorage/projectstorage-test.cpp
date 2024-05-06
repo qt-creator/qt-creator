@@ -5123,220 +5123,220 @@ TEST_F(ProjectStorage, populate_module_cache)
     ASSERT_THAT(newStorage.module(id), IsModule("Qml", ModuleKind::QmlLibrary));
 }
 
-TEST_F(ProjectStorage, add_project_dataes)
+TEST_F(ProjectStorage, add_directory_infoes)
 {
-    Storage::Synchronization::ProjectData projectData1{qmlProjectSourceId,
+    Storage::Synchronization::DirectoryInfo directoryInfo1{qmlProjectSourceId,
                                                        sourceId1,
                                                        qmlModuleId,
                                                        Storage::Synchronization::FileType::QmlDocument};
-    Storage::Synchronization::ProjectData projectData2{qmlProjectSourceId,
+    Storage::Synchronization::DirectoryInfo directoryInfo2{qmlProjectSourceId,
                                                        sourceId2,
                                                        qmlModuleId,
                                                        Storage::Synchronization::FileType::QmlDocument};
-    Storage::Synchronization::ProjectData projectData3{qtQuickProjectSourceId,
+    Storage::Synchronization::DirectoryInfo directoryInfo3{qtQuickProjectSourceId,
                                                        sourceId3,
                                                        qtQuickModuleId,
                                                        Storage::Synchronization::FileType::QmlTypes};
 
     storage.synchronize(SynchronizationPackage{{qmlProjectSourceId, qtQuickProjectSourceId},
-                                               {projectData1, projectData2, projectData3}});
+                                               {directoryInfo1, directoryInfo2, directoryInfo3}});
 
-    ASSERT_THAT(storage.fetchProjectDatas({qmlProjectSourceId, qtQuickProjectSourceId}),
-                UnorderedElementsAre(projectData1, projectData2, projectData3));
+    ASSERT_THAT(storage.fetchDirectoryInfos({qmlProjectSourceId, qtQuickProjectSourceId}),
+                UnorderedElementsAre(directoryInfo1, directoryInfo2, directoryInfo3));
 }
 
-TEST_F(ProjectStorage, remove_project_data)
+TEST_F(ProjectStorage, remove_directory_info)
 {
-    Storage::Synchronization::ProjectData projectData1{qmlProjectSourceId,
+    Storage::Synchronization::DirectoryInfo directoryInfo1{qmlProjectSourceId,
                                                        sourceId1,
                                                        qmlModuleId,
                                                        Storage::Synchronization::FileType::QmlDocument};
-    Storage::Synchronization::ProjectData projectData2{qmlProjectSourceId,
+    Storage::Synchronization::DirectoryInfo directoryInfo2{qmlProjectSourceId,
                                                        sourceId2,
                                                        qmlModuleId,
                                                        Storage::Synchronization::FileType::QmlDocument};
-    Storage::Synchronization::ProjectData projectData3{qtQuickProjectSourceId,
+    Storage::Synchronization::DirectoryInfo directoryInfo3{qtQuickProjectSourceId,
                                                        sourceId3,
                                                        qtQuickModuleId,
                                                        Storage::Synchronization::FileType::QmlTypes};
     storage.synchronize(SynchronizationPackage{{qmlProjectSourceId, qtQuickProjectSourceId},
-                                               {projectData1, projectData2, projectData3}});
+                                               {directoryInfo1, directoryInfo2, directoryInfo3}});
 
     storage.synchronize(
-        SynchronizationPackage{{qmlProjectSourceId, qtQuickProjectSourceId}, {projectData1}});
+        SynchronizationPackage{{qmlProjectSourceId, qtQuickProjectSourceId}, {directoryInfo1}});
 
-    ASSERT_THAT(storage.fetchProjectDatas({qmlProjectSourceId, qtQuickProjectSourceId}),
-                UnorderedElementsAre(projectData1));
+    ASSERT_THAT(storage.fetchDirectoryInfos({qmlProjectSourceId, qtQuickProjectSourceId}),
+                UnorderedElementsAre(directoryInfo1));
 }
 
-TEST_F(ProjectStorage, update_project_data_file_type)
+TEST_F(ProjectStorage, update_directory_info_file_type)
 {
-    Storage::Synchronization::ProjectData projectData1{qmlProjectSourceId,
+    Storage::Synchronization::DirectoryInfo directoryInfo1{qmlProjectSourceId,
                                                        sourceId1,
                                                        qmlModuleId,
                                                        Storage::Synchronization::FileType::QmlDocument};
-    Storage::Synchronization::ProjectData projectData2{qmlProjectSourceId,
+    Storage::Synchronization::DirectoryInfo directoryInfo2{qmlProjectSourceId,
                                                        sourceId2,
                                                        qmlModuleId,
                                                        Storage::Synchronization::FileType::QmlDocument};
-    Storage::Synchronization::ProjectData projectData2b{qmlProjectSourceId,
+    Storage::Synchronization::DirectoryInfo directoryInfo2b{qmlProjectSourceId,
                                                         sourceId2,
                                                         qmlModuleId,
                                                         Storage::Synchronization::FileType::QmlTypes};
-    Storage::Synchronization::ProjectData projectData3{qtQuickProjectSourceId,
+    Storage::Synchronization::DirectoryInfo directoryInfo3{qtQuickProjectSourceId,
                                                        sourceId3,
                                                        qtQuickModuleId,
                                                        Storage::Synchronization::FileType::QmlTypes};
     storage.synchronize(SynchronizationPackage{{qmlProjectSourceId, qtQuickProjectSourceId},
-                                               {projectData1, projectData2, projectData3}});
+                                               {directoryInfo1, directoryInfo2, directoryInfo3}});
 
-    storage.synchronize(SynchronizationPackage{{qmlProjectSourceId}, {projectData1, projectData2b}});
+    storage.synchronize(SynchronizationPackage{{qmlProjectSourceId}, {directoryInfo1, directoryInfo2b}});
 
-    ASSERT_THAT(storage.fetchProjectDatas({qmlProjectSourceId, qtQuickProjectSourceId}),
-                UnorderedElementsAre(projectData1, projectData2b, projectData3));
+    ASSERT_THAT(storage.fetchDirectoryInfos({qmlProjectSourceId, qtQuickProjectSourceId}),
+                UnorderedElementsAre(directoryInfo1, directoryInfo2b, directoryInfo3));
 }
 
-TEST_F(ProjectStorage, update_project_data_module_id)
+TEST_F(ProjectStorage, update_directory_info_module_id)
 {
-    Storage::Synchronization::ProjectData projectData1{qmlProjectSourceId,
+    Storage::Synchronization::DirectoryInfo directoryInfo1{qmlProjectSourceId,
                                                        sourceId1,
                                                        qmlModuleId,
                                                        Storage::Synchronization::FileType::QmlDocument};
-    Storage::Synchronization::ProjectData projectData2{qmlProjectSourceId,
+    Storage::Synchronization::DirectoryInfo directoryInfo2{qmlProjectSourceId,
                                                        sourceId3,
                                                        qmlModuleId,
                                                        Storage::Synchronization::FileType::QmlDocument};
-    Storage::Synchronization::ProjectData projectData2b{qmlProjectSourceId,
+    Storage::Synchronization::DirectoryInfo directoryInfo2b{qmlProjectSourceId,
                                                         sourceId3,
                                                         qtQuickModuleId,
                                                         Storage::Synchronization::FileType::QmlDocument};
-    Storage::Synchronization::ProjectData projectData3{qtQuickProjectSourceId,
+    Storage::Synchronization::DirectoryInfo directoryInfo3{qtQuickProjectSourceId,
                                                        sourceId2,
                                                        qtQuickModuleId,
                                                        Storage::Synchronization::FileType::QmlTypes};
     storage.synchronize(SynchronizationPackage{{qmlProjectSourceId, qtQuickProjectSourceId},
-                                               {projectData1, projectData2, projectData3}});
+                                               {directoryInfo1, directoryInfo2, directoryInfo3}});
 
-    storage.synchronize(SynchronizationPackage{{qmlProjectSourceId}, {projectData1, projectData2b}});
+    storage.synchronize(SynchronizationPackage{{qmlProjectSourceId}, {directoryInfo1, directoryInfo2b}});
 
-    ASSERT_THAT(storage.fetchProjectDatas({qmlProjectSourceId, qtQuickProjectSourceId}),
-                UnorderedElementsAre(projectData1, projectData2b, projectData3));
+    ASSERT_THAT(storage.fetchDirectoryInfos({qmlProjectSourceId, qtQuickProjectSourceId}),
+                UnorderedElementsAre(directoryInfo1, directoryInfo2b, directoryInfo3));
 }
 
-TEST_F(ProjectStorage, throw_for_invalid_source_id_in_project_data)
+TEST_F(ProjectStorage, throw_for_invalid_source_id_in_directory_info)
 {
-    Storage::Synchronization::ProjectData projectData1{qmlProjectSourceId,
+    Storage::Synchronization::DirectoryInfo directoryInfo1{qmlProjectSourceId,
                                                        SourceId{},
                                                        qmlModuleId,
                                                        Storage::Synchronization::FileType::QmlDocument};
 
-    ASSERT_THROW(storage.synchronize(SynchronizationPackage{{qmlProjectSourceId}, {projectData1}}),
-                 QmlDesigner::ProjectDataHasInvalidSourceId);
+    ASSERT_THROW(storage.synchronize(SynchronizationPackage{{qmlProjectSourceId}, {directoryInfo1}}),
+                 QmlDesigner::DirectoryInfoHasInvalidSourceId);
 }
 
-TEST_F(ProjectStorage, insert_project_data_with_invalid_module_id)
+TEST_F(ProjectStorage, insert_directory_info_with_invalid_module_id)
 {
-    Storage::Synchronization::ProjectData projectData1{qmlProjectSourceId,
+    Storage::Synchronization::DirectoryInfo directoryInfo1{qmlProjectSourceId,
                                                        sourceId1,
                                                        ModuleId{},
                                                        Storage::Synchronization::FileType::QmlDocument};
 
-    storage.synchronize(SynchronizationPackage{{qmlProjectSourceId}, {projectData1}});
+    storage.synchronize(SynchronizationPackage{{qmlProjectSourceId}, {directoryInfo1}});
 
-    ASSERT_THAT(storage.fetchProjectDatas({qmlProjectSourceId, qtQuickProjectSourceId}),
-                UnorderedElementsAre(projectData1));
+    ASSERT_THAT(storage.fetchDirectoryInfos({qmlProjectSourceId, qtQuickProjectSourceId}),
+                UnorderedElementsAre(directoryInfo1));
 }
 
-TEST_F(ProjectStorage, update_project_data_with_invalid_module_id)
+TEST_F(ProjectStorage, update_directory_info_with_invalid_module_id)
 {
-    Storage::Synchronization::ProjectData projectData1{qmlProjectSourceId,
+    Storage::Synchronization::DirectoryInfo directoryInfo1{qmlProjectSourceId,
                                                        sourceId1,
                                                        qmlModuleId,
                                                        Storage::Synchronization::FileType::QmlDocument};
-    storage.synchronize(SynchronizationPackage{{qmlProjectSourceId}, {projectData1}});
-    projectData1.moduleId = ModuleId{};
+    storage.synchronize(SynchronizationPackage{{qmlProjectSourceId}, {directoryInfo1}});
+    directoryInfo1.moduleId = ModuleId{};
 
-    storage.synchronize(SynchronizationPackage{{qmlProjectSourceId}, {projectData1}});
+    storage.synchronize(SynchronizationPackage{{qmlProjectSourceId}, {directoryInfo1}});
 
-    ASSERT_THAT(storage.fetchProjectDatas({qmlProjectSourceId, qtQuickProjectSourceId}),
-                UnorderedElementsAre(projectData1));
+    ASSERT_THAT(storage.fetchDirectoryInfos({qmlProjectSourceId, qtQuickProjectSourceId}),
+                UnorderedElementsAre(directoryInfo1));
 }
 
-TEST_F(ProjectStorage, throw_for_updating_with_invalid_project_source_id_in_project_data)
+TEST_F(ProjectStorage, throw_for_updating_with_invalid_project_source_id_in_directory_info)
 {
-    Storage::Synchronization::ProjectData projectData1{SourceId{},
+    Storage::Synchronization::DirectoryInfo directoryInfo1{SourceId{},
                                                        sourceId1,
                                                        qmlModuleId,
                                                        Storage::Synchronization::FileType::QmlDocument};
 
-    ASSERT_THROW(storage.synchronize(SynchronizationPackage{{qmlProjectSourceId}, {projectData1}}),
-                 QmlDesigner::ProjectDataHasInvalidProjectSourceId);
+    ASSERT_THROW(storage.synchronize(SynchronizationPackage{{qmlProjectSourceId}, {directoryInfo1}}),
+                 QmlDesigner::DirectoryInfoHasInvalidProjectSourceId);
 }
 
-TEST_F(ProjectStorage, fetch_project_datas_by_directory_source_ids)
+TEST_F(ProjectStorage, fetch_directory_infos_by_directory_source_ids)
 {
-    Storage::Synchronization::ProjectData projectData1{qmlProjectSourceId,
+    Storage::Synchronization::DirectoryInfo directoryInfo1{qmlProjectSourceId,
                                                        sourceId1,
                                                        qmlModuleId,
                                                        Storage::Synchronization::FileType::QmlDocument};
-    Storage::Synchronization::ProjectData projectData2{qmlProjectSourceId,
+    Storage::Synchronization::DirectoryInfo directoryInfo2{qmlProjectSourceId,
                                                        sourceId2,
                                                        qmlModuleId,
                                                        Storage::Synchronization::FileType::QmlDocument};
-    Storage::Synchronization::ProjectData projectData3{qtQuickProjectSourceId,
+    Storage::Synchronization::DirectoryInfo directoryInfo3{qtQuickProjectSourceId,
                                                        sourceId3,
                                                        qtQuickModuleId,
                                                        Storage::Synchronization::FileType::QmlTypes};
     storage.synchronize(SynchronizationPackage{{qmlProjectSourceId, qtQuickProjectSourceId},
-                                               {projectData1, projectData2, projectData3}});
+                                               {directoryInfo1, directoryInfo2, directoryInfo3}});
 
-    auto projectDatas = storage.fetchProjectDatas({qmlProjectSourceId, qtQuickProjectSourceId});
+    auto directoryInfos = storage.fetchDirectoryInfos({qmlProjectSourceId, qtQuickProjectSourceId});
 
-    ASSERT_THAT(projectDatas, UnorderedElementsAre(projectData1, projectData2, projectData3));
+    ASSERT_THAT(directoryInfos, UnorderedElementsAre(directoryInfo1, directoryInfo2, directoryInfo3));
 }
 
-TEST_F(ProjectStorage, fetch_project_datas_by_directory_source_id)
+TEST_F(ProjectStorage, fetch_directory_infos_by_directory_source_id)
 {
-    Storage::Synchronization::ProjectData projectData1{qmlProjectSourceId,
+    Storage::Synchronization::DirectoryInfo directoryInfo1{qmlProjectSourceId,
                                                        sourceId1,
                                                        qmlModuleId,
                                                        Storage::Synchronization::FileType::QmlDocument};
-    Storage::Synchronization::ProjectData projectData2{qmlProjectSourceId,
+    Storage::Synchronization::DirectoryInfo directoryInfo2{qmlProjectSourceId,
                                                        sourceId2,
                                                        qmlModuleId,
                                                        Storage::Synchronization::FileType::QmlDocument};
-    Storage::Synchronization::ProjectData projectData3{qtQuickProjectSourceId,
+    Storage::Synchronization::DirectoryInfo directoryInfo3{qtQuickProjectSourceId,
                                                        sourceId3,
                                                        qtQuickModuleId,
                                                        Storage::Synchronization::FileType::QmlTypes};
     storage.synchronize(SynchronizationPackage{{qmlProjectSourceId, qtQuickProjectSourceId},
-                                               {projectData1, projectData2, projectData3}});
+                                               {directoryInfo1, directoryInfo2, directoryInfo3}});
 
-    auto projectData = storage.fetchProjectDatas(qmlProjectSourceId);
+    auto directoryInfo = storage.fetchDirectoryInfos(qmlProjectSourceId);
 
-    ASSERT_THAT(projectData, UnorderedElementsAre(projectData1, projectData2));
+    ASSERT_THAT(directoryInfo, UnorderedElementsAre(directoryInfo1, directoryInfo2));
 }
 
-TEST_F(ProjectStorage, fetch_project_data_by_source_ids)
+TEST_F(ProjectStorage, fetch_directory_info_by_source_ids)
 {
-    Storage::Synchronization::ProjectData projectData1{qmlProjectSourceId,
+    Storage::Synchronization::DirectoryInfo directoryInfo1{qmlProjectSourceId,
                                                        sourceId1,
                                                        qmlModuleId,
                                                        Storage::Synchronization::FileType::QmlDocument};
-    Storage::Synchronization::ProjectData projectData2{qmlProjectSourceId,
+    Storage::Synchronization::DirectoryInfo directoryInfo2{qmlProjectSourceId,
                                                        sourceId2,
                                                        qmlModuleId,
                                                        Storage::Synchronization::FileType::QmlDocument};
-    Storage::Synchronization::ProjectData projectData3{qtQuickProjectSourceId,
+    Storage::Synchronization::DirectoryInfo directoryInfo3{qtQuickProjectSourceId,
                                                        sourceId3,
                                                        qtQuickModuleId,
                                                        Storage::Synchronization::FileType::QmlTypes};
     storage.synchronize(SynchronizationPackage{{qmlProjectSourceId, qtQuickProjectSourceId},
-                                               {projectData1, projectData2, projectData3}});
+                                               {directoryInfo1, directoryInfo2, directoryInfo3}});
 
-    auto projectData = storage.fetchProjectData({sourceId2});
+    auto directoryInfo = storage.fetchDirectoryInfo({sourceId2});
 
-    ASSERT_THAT(projectData, Eq(projectData2));
+    ASSERT_THAT(directoryInfo, Eq(directoryInfo2));
 }
 
 TEST_F(ProjectStorage, exclude_exported_types)

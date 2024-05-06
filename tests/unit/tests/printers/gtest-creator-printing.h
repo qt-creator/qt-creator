@@ -207,7 +207,7 @@ class EnumeratorDeclaration;
 enum class ImportKind : char;
 enum class IsAutoVersion : char;
 enum class IsQualified : int;
-class ProjectData;
+class DirectoryInfo;
 class SynchronizationPackage;
 enum class FileType : char;
 enum class ChangeLevel : char;
@@ -227,7 +227,7 @@ std::ostream &operator<<(std::ostream &out, const EnumerationDeclaration &enumer
 std::ostream &operator<<(std::ostream &out, const EnumeratorDeclaration &enumeratorDeclaration);
 std::ostream &operator<<(std::ostream &out, const ImportKind &importKind);
 std::ostream &operator<<(std::ostream &out, IsQualified isQualified);
-std::ostream &operator<<(std::ostream &out, const ProjectData &data);
+std::ostream &operator<<(std::ostream &out, const DirectoryInfo &data);
 std::ostream &operator<<(std::ostream &out, const SynchronizationPackage &package);
 std::ostream &operator<<(std::ostream &out, FileType fileType);
 std::ostream &operator<<(std::ostream &out, ChangeLevel changeLevel);

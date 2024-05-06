@@ -792,7 +792,7 @@ std::ostream &operator<<(std::ostream &out, const SynchronizationPackage &packag
                << ", fileStatuses: " << package.fileStatuses
                << ", updatedFileStatusSourceIds: " << package.updatedFileStatusSourceIds
                << ", updatedProjectSourceIds: " << package.updatedProjectSourceIds
-               << ", projectDatas: " << package.projectDatas
+               << ", directoryInfos: " << package.directoryInfos
                << ", propertyEditorQmlPaths: " << package.propertyEditorQmlPaths
                << ", updatedPropertyEditorQmlPathSourceIds: "
                << package.updatedPropertyEditorQmlPathSourceIds
@@ -801,9 +801,9 @@ std::ostream &operator<<(std::ostream &out, const SynchronizationPackage &packag
                << ")";
 }
 
-std::ostream &operator<<(std::ostream &out, const ProjectData &data)
+std::ostream &operator<<(std::ostream &out, const DirectoryInfo &data)
 {
-    return out << "(" << data.projectSourceId << ", " << data.sourceId << ", " << data.moduleId
+    return out << "(" << data.directorySourceId << ", " << data.sourceId << ", " << data.moduleId
                << ", " << data.fileType << ")";
 }
 

@@ -229,11 +229,11 @@ public:
 
     FileStatus fetchFileStatus(SourceId sourceId) const override;
 
-    std::optional<Storage::Synchronization::ProjectData> fetchProjectData(SourceId sourceId) const override;
+    std::optional<Storage::Synchronization::DirectoryInfo> fetchDirectoryInfo(SourceId sourceId) const override;
 
-    Storage::Synchronization::ProjectDatas fetchProjectDatas(SourceId projectSourceId) const override;
+    Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(SourceId directorySourceId) const override;
 
-    Storage::Synchronization::ProjectDatas fetchProjectDatas(const SourceIds &projectSourceIds) const;
+    Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(const SourceIds &directorySourceIds) const;
 
     void setPropertyEditorPathId(TypeId typeId, SourceId pathId);
 
@@ -560,7 +560,7 @@ private:
                           Prototypes &relinkableExtensions,
                           const SourceIds &updatedSourceIds);
 
-    void synchronizeProjectDatas(Storage::Synchronization::ProjectDatas &projectDatas,
+    void synchronizeDirectoryInfos(Storage::Synchronization::DirectoryInfos &directoryInfos,
                                  const SourceIds &updatedProjectSourceIds);
 
     void synchronizeFileStatuses(FileStatuses &fileStatuses, const SourceIds &updatedSourceIds);

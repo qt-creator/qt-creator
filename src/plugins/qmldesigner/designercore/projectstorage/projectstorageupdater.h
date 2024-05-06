@@ -192,11 +192,11 @@ private:
                         Storage::Synchronization::SynchronizationPackage &package,
                         NotUpdatedSourceIds &notUpdatedSourceIds,
                         WatchedSourceIdsIds &watchedSourceIdsIds);
-    void parseProjectDatas(const Storage::Synchronization::ProjectDatas &projectDatas,
-                           Storage::Synchronization::SynchronizationPackage &package,
-                           NotUpdatedSourceIds &notUpdatedSourceIds,
-                           WatchedSourceIdsIds &watchedSourceIdsIds);
-    FileState parseTypeInfo(const Storage::Synchronization::ProjectData &projectData,
+    void parseDirectoryInfos(const Storage::Synchronization::DirectoryInfos &directoryInfos,
+                             Storage::Synchronization::SynchronizationPackage &package,
+                             NotUpdatedSourceIds &notUpdatedSourceIds,
+                             WatchedSourceIdsIds &watchedSourceIdsIds);
+    FileState parseTypeInfo(const Storage::Synchronization::DirectoryInfo &directoryInfo,
                             Utils::SmallStringView qmltypesPath,
                             Storage::Synchronization::SynchronizationPackage &package,
                             NotUpdatedSourceIds &notUpdatedSourceIds);

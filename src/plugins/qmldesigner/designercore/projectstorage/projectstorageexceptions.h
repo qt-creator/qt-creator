@@ -130,24 +130,24 @@ public:
     const char *what() const noexcept override;
 };
 
-class QMLDESIGNERCORE_EXPORT ProjectDataHasInvalidProjectSourceId : public ProjectStorageError
+class QMLDESIGNERCORE_EXPORT DirectoryInfoHasInvalidProjectSourceId : public ProjectStorageError
 {
 public:
-    ProjectDataHasInvalidProjectSourceId();
+    DirectoryInfoHasInvalidProjectSourceId();
     const char *what() const noexcept override;
 };
 
-class QMLDESIGNERCORE_EXPORT ProjectDataHasInvalidSourceId : public ProjectStorageError
+class QMLDESIGNERCORE_EXPORT DirectoryInfoHasInvalidSourceId : public ProjectStorageError
 {
 public:
-    ProjectDataHasInvalidSourceId();
+    DirectoryInfoHasInvalidSourceId();
     const char *what() const noexcept override;
 };
 
-class QMLDESIGNERCORE_EXPORT ProjectDataHasInvalidModuleId : public ProjectStorageError
+class QMLDESIGNERCORE_EXPORT DirectoryInfoHasInvalidModuleId : public ProjectStorageError
 {
 public:
-    ProjectDataHasInvalidModuleId();
+    DirectoryInfoHasInvalidModuleId();
     const char *what() const noexcept override;
 };
 

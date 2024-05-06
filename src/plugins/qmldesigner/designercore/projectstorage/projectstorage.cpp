@@ -502,25 +502,25 @@ struct ProjectStorage::Statements
         "DELETE FROM exportedTypeNames WHERE exportedTypeNameId=?", database};
     Sqlite::WriteStatement<2> updateExportedTypeNameTypeIdStatement{
         "UPDATE exportedTypeNames SET typeId=?2 WHERE exportedTypeNameId=?1", database};
-    mutable Sqlite::ReadStatement<4, 1> selectProjectDatasForSourceIdsStatement{
-        "SELECT projectSourceId, sourceId, moduleId, fileType FROM projectDatas WHERE "
-        "projectSourceId IN carray(?1) ORDER BY projectSourceId, sourceId",
+    mutable Sqlite::ReadStatement<4, 1> selectDirectoryInfosForSourceIdsStatement{
+        "SELECT directorySourceId, sourceId, moduleId, fileType FROM directoryInfos WHERE "
+        "directorySourceId IN carray(?1) ORDER BY directorySourceId, sourceId",
         database};
-    Sqlite::WriteStatement<4> insertProjectDataStatement{
-        "INSERT INTO projectDatas(projectSourceId, sourceId, "
+    Sqlite::WriteStatement<4> insertDirectoryInfoStatement{
+        "INSERT INTO directoryInfos(directorySourceId, sourceId, "
         "moduleId, fileType) VALUES(?1, ?2, ?3, ?4)",
         database};
-    Sqlite::WriteStatement<2> deleteProjectDataStatement{
-        "DELETE FROM projectDatas WHERE projectSourceId=?1 AND sourceId=?2", database};
-    Sqlite::WriteStatement<4> updateProjectDataStatement{
-        "UPDATE projectDatas SET moduleId=?3, fileType=?4 WHERE projectSourceId=?1 AND sourceId=?2",
+    Sqlite::WriteStatement<2> deleteDirectoryInfoStatement{
+        "DELETE FROM directoryInfos WHERE directorySourceId=?1 AND sourceId=?2", database};
+    Sqlite::WriteStatement<4> updateDirectoryInfoStatement{
+        "UPDATE directoryInfos SET moduleId=?3, fileType=?4 WHERE directorySourceId=?1 AND sourceId=?2",
         database};
-    mutable Sqlite::ReadStatement<4, 1> selectProjectDatasForSourceIdStatement{
-        "SELECT projectSourceId, sourceId, moduleId, fileType FROM projectDatas WHERE "
-        "projectSourceId=?1",
+    mutable Sqlite::ReadStatement<4, 1> selectDirectoryInfosForSourceIdStatement{
+        "SELECT directorySourceId, sourceId, moduleId, fileType FROM directoryInfos WHERE "
+        "directorySourceId=?1",
         database};
-    mutable Sqlite::ReadStatement<4, 1> selectProjectDataForSourceIdStatement{
-        "SELECT projectSourceId, sourceId, moduleId, fileType FROM projectDatas WHERE "
+    mutable Sqlite::ReadStatement<4, 1> selectDirectoryInfoForSourceIdStatement{
+        "SELECT directorySourceId, sourceId, moduleId, fileType FROM directoryInfos WHERE "
         "sourceId=?1 LIMIT 1",
         database};
     mutable Sqlite::ReadStatement<1, 1> selectTypeIdsForSourceIdsStatement{
@@ -745,7 +745,7 @@ public:
             createModuleExportedImportsTable(database, moduleIdColumn);
             createDocumentImportsTable(database, moduleIdColumn);
             createFileStatusesTable(database);
-            createProjectDatasTable(database);
+            createDirectoryInfosTable(database);
             createPropertyEditorPathsTable(database);
             createTypeAnnotionsTable(database);
         }
@@ -1063,19 +1063,19 @@ public:
         table.initialize(database);
     }
 
-    void createProjectDatasTable(Database &database)
+    void createDirectoryInfosTable(Database &database)
     {
         Sqlite::StrictTable table;
         table.setUseIfNotExists(true);
         table.setUseWithoutRowId(true);
-        table.setName("projectDatas");
-        auto &projectSourceIdColumn = table.addColumn("projectSourceId",
+        table.setName("directoryInfos");
+        auto &directorySourceIdColumn = table.addColumn("directorySourceId",
                                                       Sqlite::StrictColumnType::Integer);
         auto &sourceIdColumn = table.addColumn("sourceId", Sqlite::StrictColumnType::Integer);
         table.addColumn("moduleId", Sqlite::StrictColumnType::Integer);
         table.addColumn("fileType", Sqlite::StrictColumnType::Integer);
 
-        table.addPrimaryKeyContraint({projectSourceIdColumn, sourceIdColumn});
+        table.addPrimaryKeyContraint({directorySourceIdColumn, sourceIdColumn});
         table.addUniqueIndex({sourceIdColumn});
 
         table.initialize(database);
@@ -1196,7 +1196,7 @@ void ProjectStorage::synchronize(Storage::Synchronization::SynchronizationPackag
 
         linkAliases(insertedAliasPropertyDeclarations, updatedAliasPropertyDeclarations);
 
-        synchronizeProjectDatas(package.projectDatas, package.updatedProjectSourceIds);
+        synchronizeDirectoryInfos(package.directoryInfos, package.updatedProjectSourceIds);
 
         commonTypeCache_.resetTypeIds();
     });
@@ -2113,53 +2113,53 @@ FileStatus ProjectStorage::fetchFileStatus(SourceId sourceId) const
     return fileStatus;
 }
 
-std::optional<Storage::Synchronization::ProjectData> ProjectStorage::fetchProjectData(SourceId sourceId) const
+std::optional<Storage::Synchronization::DirectoryInfo> ProjectStorage::fetchDirectoryInfo(SourceId sourceId) const
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch project data"_t,
                                projectStorageCategory(),
                                keyValue("source id", sourceId)};
 
-    auto projectData = s->selectProjectDataForSourceIdStatement
-                           .optionalValueWithTransaction<Storage::Synchronization::ProjectData>(
+    auto directoryInfo = s->selectDirectoryInfoForSourceIdStatement
+                           .optionalValueWithTransaction<Storage::Synchronization::DirectoryInfo>(
                                sourceId);
 
-    tracer.end(keyValue("project data", projectData));
+    tracer.end(keyValue("project data", directoryInfo));
 
-    return projectData;
+    return directoryInfo;
 }
 
-Storage::Synchronization::ProjectDatas ProjectStorage::fetchProjectDatas(SourceId projectSourceId) const
+Storage::Synchronization::DirectoryInfos ProjectStorage::fetchDirectoryInfos(SourceId directorySourceId) const
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch project datas by source id"_t,
                                projectStorageCategory(),
-                               keyValue("source id", projectSourceId)};
+                               keyValue("source id", directorySourceId)};
 
-    auto projectDatas = s->selectProjectDatasForSourceIdStatement
-                            .valuesWithTransaction<Storage::Synchronization::ProjectData, 1024>(
-                                projectSourceId);
+    auto directoryInfos = s->selectDirectoryInfosForSourceIdStatement
+                            .valuesWithTransaction<Storage::Synchronization::DirectoryInfo, 1024>(
+                                directorySourceId);
 
-    tracer.end(keyValue("project datas", projectDatas));
+    tracer.end(keyValue("project datas", directoryInfos));
 
-    return projectDatas;
+    return directoryInfos;
 }
 
-Storage::Synchronization::ProjectDatas ProjectStorage::fetchProjectDatas(
-    const SourceIds &projectSourceIds) const
+Storage::Synchronization::DirectoryInfos ProjectStorage::fetchDirectoryInfos(
+    const SourceIds &directorySourceIds) const
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch project datas by source ids"_t,
                                projectStorageCategory(),
-                               keyValue("source ids", projectSourceIds)};
+                               keyValue("source ids", directorySourceIds)};
 
-    auto projectDatas = s->selectProjectDatasForSourceIdsStatement
-                            .valuesWithTransaction<Storage::Synchronization::ProjectData, 64>(
-                                toIntegers(projectSourceIds));
+    auto directoryInfos = s->selectDirectoryInfosForSourceIdsStatement
+                            .valuesWithTransaction<Storage::Synchronization::DirectoryInfo, 64>(
+                                toIntegers(directorySourceIds));
 
-    tracer.end(keyValue("project datas", projectDatas));
+    tracer.end(keyValue("project datas", directoryInfos));
 
-    return projectDatas;
+    return directoryInfos;
 }
 
 void ProjectStorage::setPropertyEditorPathId(TypeId typeId, SourceId pathId)
@@ -2465,74 +2465,74 @@ void ProjectStorage::synchronizeTypes(Storage::Synchronization::Types &types,
     syncDefaultProperties(types);
 }
 
-void ProjectStorage::synchronizeProjectDatas(Storage::Synchronization::ProjectDatas &projectDatas,
+void ProjectStorage::synchronizeDirectoryInfos(Storage::Synchronization::DirectoryInfos &directoryInfos,
                                              const SourceIds &updatedProjectSourceIds)
 {
     NanotraceHR::Tracer tracer{"synchronize project datas"_t, projectStorageCategory()};
 
     auto compareKey = [](auto &&first, auto &&second) {
-        auto projectSourceIdDifference = first.projectSourceId - second.projectSourceId;
-        if (projectSourceIdDifference != 0)
-            return projectSourceIdDifference;
+        auto directorySourceIdDifference = first.directorySourceId - second.directorySourceId;
+        if (directorySourceIdDifference != 0)
+            return directorySourceIdDifference;
 
         return first.sourceId - second.sourceId;
     };
 
-    std::sort(projectDatas.begin(), projectDatas.end(), [&](auto &&first, auto &&second) {
-        return std::tie(first.projectSourceId, first.sourceId)
-               < std::tie(second.projectSourceId, second.sourceId);
+    std::sort(directoryInfos.begin(), directoryInfos.end(), [&](auto &&first, auto &&second) {
+        return std::tie(first.directorySourceId, first.sourceId)
+               < std::tie(second.directorySourceId, second.sourceId);
     });
 
-    auto range = s->selectProjectDatasForSourceIdsStatement.range<Storage::Synchronization::ProjectData>(
+    auto range = s->selectDirectoryInfosForSourceIdsStatement.range<Storage::Synchronization::DirectoryInfo>(
         toIntegers(updatedProjectSourceIds));
 
-    auto insert = [&](const Storage::Synchronization::ProjectData &projectData) {
+    auto insert = [&](const Storage::Synchronization::DirectoryInfo &directoryInfo) {
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"insert project data"_t,
                                    projectStorageCategory(),
-                                   keyValue("project data", projectData)};
+                                   keyValue("project data", directoryInfo)};
 
-        if (!projectData.projectSourceId)
-            throw ProjectDataHasInvalidProjectSourceId{};
-        if (!projectData.sourceId)
-            throw ProjectDataHasInvalidSourceId{};
+        if (!directoryInfo.directorySourceId)
+            throw DirectoryInfoHasInvalidProjectSourceId{};
+        if (!directoryInfo.sourceId)
+            throw DirectoryInfoHasInvalidSourceId{};
 
-        s->insertProjectDataStatement.write(projectData.projectSourceId,
-                                            projectData.sourceId,
-                                            projectData.moduleId,
-                                            projectData.fileType);
+        s->insertDirectoryInfoStatement.write(directoryInfo.directorySourceId,
+                                            directoryInfo.sourceId,
+                                            directoryInfo.moduleId,
+                                            directoryInfo.fileType);
     };
 
-    auto update = [&](const Storage::Synchronization::ProjectData &projectDataFromDatabase,
-                      const Storage::Synchronization::ProjectData &projectData) {
-        if (projectDataFromDatabase.fileType != projectData.fileType
-            || !compareInvalidAreTrue(projectDataFromDatabase.moduleId, projectData.moduleId)) {
+    auto update = [&](const Storage::Synchronization::DirectoryInfo &directoryInfoFromDatabase,
+                      const Storage::Synchronization::DirectoryInfo &directoryInfo) {
+        if (directoryInfoFromDatabase.fileType != directoryInfo.fileType
+            || !compareInvalidAreTrue(directoryInfoFromDatabase.moduleId, directoryInfo.moduleId)) {
             using NanotraceHR::keyValue;
             NanotraceHR::Tracer tracer{"update project data"_t,
                                        projectStorageCategory(),
-                                       keyValue("project data", projectData),
-                                       keyValue("project data from database", projectDataFromDatabase)};
+                                       keyValue("project data", directoryInfo),
+                                       keyValue("project data from database", directoryInfoFromDatabase)};
 
-            s->updateProjectDataStatement.write(projectData.projectSourceId,
-                                                projectData.sourceId,
-                                                projectData.moduleId,
-                                                projectData.fileType);
+            s->updateDirectoryInfoStatement.write(directoryInfo.directorySourceId,
+                                                directoryInfo.sourceId,
+                                                directoryInfo.moduleId,
+                                                directoryInfo.fileType);
             return Sqlite::UpdateChange::Update;
         }
 
         return Sqlite::UpdateChange::No;
     };
 
-    auto remove = [&](const Storage::Synchronization::ProjectData &projectData) {
+    auto remove = [&](const Storage::Synchronization::DirectoryInfo &directoryInfo) {
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"remove project data"_t,
                                    projectStorageCategory(),
-                                   keyValue("project data", projectData)};
+                                   keyValue("project data", directoryInfo)};
 
-        s->deleteProjectDataStatement.write(projectData.projectSourceId, projectData.sourceId);
+        s->deleteDirectoryInfoStatement.write(directoryInfo.directorySourceId, directoryInfo.sourceId);
     };
 
-    Sqlite::insertUpdateDelete(range, projectDatas, compareKey, insert, update, remove);
+    Sqlite::insertUpdateDelete(range, directoryInfos, compareKey, insert, update, remove);
 }
 
 void ProjectStorage::synchronizeFileStatuses(FileStatuses &fileStatuses,
