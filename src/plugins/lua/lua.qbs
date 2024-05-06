@@ -15,8 +15,6 @@ QtcPlugin {
         "luaengine.cpp",
         "luaengine.h",
         "luaplugin.cpp",
-        "luapluginloader.cpp",
-        "luapluginloader.h",
         "luapluginspec.cpp",
         "luapluginspec.h",
         "luaqttypes.cpp",
