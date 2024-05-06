@@ -82,7 +82,7 @@ void convertToString(String &string, const TypeNameKind &kind)
     }
 }
 
-enum class FileType : char { QmlTypes, QmlDocument };
+enum class FileType : char { QmlTypes, QmlDocument, Directory };
 
 template<typename String>
 void convertToString(String &string, const FileType &type)
@@ -93,6 +93,9 @@ void convertToString(String &string, const FileType &type)
         break;
     case FileType::QmlDocument:
         convertToString(string, "QmlDocument");
+        break;
+    case FileType::Directory:
+        convertToString(string, "Directory");
         break;
     }
 }
@@ -1291,9 +1294,9 @@ public:
         , fileStatuses(std::move(fileStatuses))
     {}
 
-    SynchronizationPackage(SourceIds updatedProjectSourceIds, DirectoryInfos directoryInfos)
+    SynchronizationPackage(SourceIds updatedDirectoryInfoSourceIds, DirectoryInfos directoryInfos)
         : directoryInfos(std::move(directoryInfos))
-        , updatedProjectSourceIds(std::move(updatedProjectSourceIds))
+        , updatedDirectoryInfoSourceIds(std::move(updatedDirectoryInfoSourceIds))
     {}
 
 public:
@@ -1303,7 +1306,7 @@ public:
     SourceIds updatedFileStatusSourceIds;
     FileStatuses fileStatuses;
     DirectoryInfos directoryInfos;
-    SourceIds updatedProjectSourceIds;
+    SourceIds updatedDirectoryInfoSourceIds;
     Imports moduleDependencies;
     SourceIds updatedModuleDependencySourceIds;
     ModuleExportedImports moduleExportedImports;

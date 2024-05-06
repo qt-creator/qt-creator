@@ -81,7 +81,11 @@ public:
 
     virtual FileStatus fetchFileStatus(SourceId sourceId) const = 0;
     virtual Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(SourceId sourceId) const = 0;
+    virtual Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(
+        SourceId directorySourceId, Storage::Synchronization::FileType) const
+        = 0;
     virtual std::optional<Storage::Synchronization::DirectoryInfo> fetchDirectoryInfo(SourceId sourceId) const = 0;
+    virtual SmallSourceIds<32> fetchSubdirectorySourceIds(SourceId directorySourceId) const = 0;
 
     virtual SourceId propertyEditorPathId(TypeId typeId) const = 0;
     virtual const Storage::Info::CommonTypeCache<ProjectStorageType> &commonTypeCache() const = 0;

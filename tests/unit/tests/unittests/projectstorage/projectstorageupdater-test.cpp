@@ -119,8 +119,9 @@ MATCHER(PackageIsEmpty, std::string(negation ? "isn't empty" : "is empty"))
 
     return package.imports.empty() && package.types.empty() && package.fileStatuses.empty()
            && package.updatedSourceIds.empty() && package.directoryInfos.empty()
-           && package.updatedFileStatusSourceIds.empty() && package.updatedProjectSourceIds.empty()
-           && package.moduleDependencies.empty() && package.updatedModuleDependencySourceIds.empty()
+           && package.updatedFileStatusSourceIds.empty()
+           && package.updatedDirectoryInfoSourceIds.empty() && package.moduleDependencies.empty()
+           && package.updatedModuleDependencySourceIds.empty()
            && package.moduleExportedImports.empty() && package.updatedModuleIds.empty()
            && package.propertyEditorQmlPaths.empty()
            && package.updatedPropertyEditorQmlPathSourceIds.empty()
@@ -303,6 +304,18 @@ public:
         EXPECT_CALL(fileSystemMock, contentAsQString(Eq(path))).WillRepeatedly(Return(content));
     }
 
+    void setSubdirectoryPaths(QStringView directoryPath, const QStringList &subdirectoryPaths)
+    {
+        ON_CALL(fileSystemMock, subdirectories(Eq(directoryPath))).WillByDefault(Return(subdirectoryPaths));
+    }
+
+    void setSubdirectorySourceIds(SourceId directorySourceId,
+                                  const QmlDesigner::SmallSourceIds<32> &subdirectorySourceId)
+    {
+        ON_CALL(projectStorageMock, fetchSubdirectorySourceIds(Eq(directorySourceId)))
+            .WillByDefault(Return(subdirectorySourceId));
+    }
+
     auto moduleId(Utils::SmallStringView name, ModuleKind kind) const
     {
         return storage.moduleId(name, kind);
@@ -430,10 +443,42 @@ TEST_F(ProjectStorageUpdater, get_content_for_qml_dir_paths_if_file_status_is_di
     updater.update(directories, {}, {}, {});
 }
 
+TEST_F(ProjectStorageUpdater,
+       get_content_for_qml_dir_paths_if_file_status_is_different_for_subdirectories)
+{
+    SourceId qmlDir1PathSourceId = sourcePathCache.sourceId("/path/one/qmldir");
+    SourceId qmlDir2PathSourceId = sourcePathCache.sourceId("/path/two/qmldir");
+    SourceId qmlDir3PathSourceId = sourcePathCache.sourceId("/path/three/qmldir");
+    SourceId path3SourceId = sourcePathCache.sourceId("/path/three/.");
+    QStringList directories = {"/path/one"};
+    setSubdirectoryPaths(u"/path/one", {"/path/two", "/path/three"});
+    setFilesChanged({qmlDir1PathSourceId, qmlDir2PathSourceId});
+    setFilesDontChanged({qmlDir3PathSourceId, path3SourceId});
+
+    EXPECT_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/one/qmldir"))));
+    EXPECT_CALL(fileSystemMock, contentAsQString(Eq(QString("/path/two/qmldir"))));
+
+    updater.update(directories, {}, {}, {});
+}
+
 TEST_F(ProjectStorageUpdater, request_file_status_from_file_system)
 {
     EXPECT_CALL(fileSystemMock, fileStatus(Ne(directoryPathSourceId))).Times(AnyNumber());
 
+    EXPECT_CALL(fileSystemMock, fileStatus(Eq(directoryPathSourceId)));
+
+    updater.update(directories, {}, {}, {});
+}
+
+TEST_F(ProjectStorageUpdater, request_file_status_from_file_system_for_subdirectories)
+{
+    EXPECT_CALL(fileSystemMock,
+                fileStatus(AllOf(Ne(directoryPathSourceId), Ne(path1SourceId), Ne(path2SourceId))))
+        .Times(AnyNumber());
+    setSubdirectoryPaths(u"/path", {"/path/one", "/path/two"});
+
+    EXPECT_CALL(fileSystemMock, fileStatus(Eq(path1SourceId)));
+    EXPECT_CALL(fileSystemMock, fileStatus(Eq(path2SourceId)));
     EXPECT_CALL(fileSystemMock, fileStatus(Eq(directoryPathSourceId)));
 
     updater.update(directories, {}, {}, {});
@@ -483,9 +528,47 @@ TEST_F(ProjectStorageUpdater, parse_qml_types)
     updater.update(directories, {}, {}, {});
 }
 
+TEST_F(ProjectStorageUpdater, parse_qml_types_in_subdirectories)
+{
+    QString qmldir{R"(module Example
+                      typeinfo example.qmltypes
+                      typeinfo example2.qmltypes)"};
+    setContent(u"/path/qmldir", qmldir);
+    QString qmltypes{"Module {\ndependencies: []}"};
+    QString qmltypes2{"Module {\ndependencies: [foo]}"};
+    setContent(u"/path/example.qmltypes", qmltypes);
+    setContent(u"/path/example2.qmltypes", qmltypes2);
+    QStringList directories = {"/root"};
+    setSubdirectoryPaths(u"/root", {"/path"});
+
+    EXPECT_CALL(qmlTypesParserMock,
+                parse(qmltypes, _, _, Field(&DirectoryInfo::moduleId, exampleCppNativeModuleId)));
+    EXPECT_CALL(qmlTypesParserMock,
+                parse(qmltypes2, _, _, Field(&DirectoryInfo::moduleId, exampleCppNativeModuleId)));
+
+    updater.update(directories, {}, {}, {});
+}
+
 TEST_F(ProjectStorageUpdater, synchronize_is_empty_for_no_change)
 {
     setFilesDontChanged({qmltypesPathSourceId, qmltypes2PathSourceId, qmlDirPathSourceId});
+
+    EXPECT_CALL(projectStorageMock, synchronize(PackageIsEmpty()));
+
+    updater.update(directories, {}, {}, {});
+}
+
+TEST_F(ProjectStorageUpdater, synchronize_is_empty_for_no_change_in_subdirectory)
+{
+    SourceId qmlDirRootPathSourceId = sourcePathCache.sourceId("/root/qmldir");
+    SourceId rootPathSourceId = sourcePathCache.sourceId("/root/.");
+    setFilesDontChanged({qmltypesPathSourceId,
+                         qmltypes2PathSourceId,
+                         qmlDirPathSourceId,
+                         qmlDirRootPathSourceId,
+                         rootPathSourceId});
+    QStringList directories = {"/root"};
+    setSubdirectoryPaths(u"/root", {"/path"});
 
     EXPECT_CALL(projectStorageMock, synchronize(PackageIsEmpty()));
 
@@ -521,8 +604,79 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_types)
                                                                      qmltypesPathSourceId,
                                                                      exampleCppNativeModuleId,
                                                                      FileType::QmlTypes))),
-                          Field(&SynchronizationPackage::updatedProjectSourceIds,
+                          Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                                 UnorderedElementsAre(directoryPathSourceId)))));
+
+    updater.update(directories, {}, {}, {});
+}
+
+TEST_F(ProjectStorageUpdater, synchronize_subdircectories)
+{
+    QStringList directories = {"/root"};
+    setSubdirectoryPaths(u"/root", {"/path/one", "/path/two"});
+    setSubdirectoryPaths(u"/path/one", {"/path/three"});
+    SourceId rootDirectoryPathSourceId = sourcePathCache.sourceId("/root/.");
+    setFilesChanged({rootDirectoryPathSourceId, path1SourceId, path2SourceId, path3SourceId});
+
+    EXPECT_CALL(
+        projectStorageMock,
+        synchronize(AllOf(
+            Field(&SynchronizationPackage::directoryInfos,
+                  UnorderedElementsAre(
+                      IsDirectoryInfo(rootDirectoryPathSourceId, path1SourceId, ModuleId{}, FileType::Directory),
+                      IsDirectoryInfo(rootDirectoryPathSourceId, path2SourceId, ModuleId{}, FileType::Directory),
+                      IsDirectoryInfo(path1SourceId, path3SourceId, ModuleId{}, FileType::Directory))),
+            Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
+                  UnorderedElementsAre(
+                      rootDirectoryPathSourceId, path1SourceId, path2SourceId, path3SourceId)))));
+
+    updater.update(directories, {}, {}, {});
+}
+
+TEST_F(ProjectStorageUpdater, synchronize_subdircectories_even_for_no_changes)
+{
+    QStringList directories = {"/root"};
+    setSubdirectoryPaths(u"/root", {"/path/one", "/path/two"});
+    setSubdirectoryPaths(u"/path/one", {"/path/three"});
+    SourceId rootDirectoryPathSourceId = sourcePathCache.sourceId("/root/.");
+    setFilesChanged({path1SourceId, path2SourceId, path3SourceId});
+    setFilesDontChanged({rootDirectoryPathSourceId});
+
+    EXPECT_CALL(projectStorageMock,
+                synchronize(
+                    AllOf(Field(&SynchronizationPackage::directoryInfos,
+                                UnorderedElementsAre(IsDirectoryInfo(
+                                    path1SourceId, path3SourceId, ModuleId{}, FileType::Directory))),
+                          Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
+                                UnorderedElementsAre(path1SourceId, path2SourceId, path3SourceId)))));
+
+    updater.update(directories, {}, {}, {});
+}
+
+TEST_F(ProjectStorageUpdater, synchronize_subdircectories_for_deleted_subdirecties)
+{
+    QStringList directories = {"/root"};
+    setSubdirectoryPaths(u"/root", {"/path/two"});
+    SourceId rootDirectoryPathSourceId = sourcePathCache.sourceId("/root/.");
+    setFilesChanged({rootDirectoryPathSourceId});
+    setFilesDontExists({
+        path1SourceId,
+        path3SourceId,
+    });
+    setSubdirectorySourceIds(rootDirectoryPathSourceId, {path1SourceId, path2SourceId});
+    setSubdirectorySourceIds(path1SourceId, {path3SourceId});
+
+    EXPECT_CALL(projectStorageMock,
+                synchronize(AllOf(Field(&SynchronizationPackage::directoryInfos,
+                                        UnorderedElementsAre(IsDirectoryInfo(rootDirectoryPathSourceId,
+                                                                             path2SourceId,
+                                                                             ModuleId{},
+                                                                             FileType::Directory))),
+                                  Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
+                                        UnorderedElementsAre(rootDirectoryPathSourceId,
+                                                             path1SourceId,
+                                                             path2SourceId,
+                                                             path3SourceId)))));
 
     updater.update(directories, {}, {}, {});
 }
@@ -653,7 +807,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_documents)
                                        IsFileStatus(qmlDocumentSourceId1, 1, 21),
                                        IsFileStatus(qmlDocumentSourceId2, 1, 21),
                                        IsFileStatus(qmlDocumentSourceId3, 1, 21))),
-            Field(&SynchronizationPackage::updatedProjectSourceIds,
+            Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                   UnorderedElementsAre(directoryPathSourceId)),
             Field(&SynchronizationPackage::directoryInfos,
                   UnorderedElementsAre(IsDirectoryInfo(directoryPathSourceId,
@@ -713,7 +867,7 @@ TEST_F(ProjectStorageUpdater, synchronize_add_only_qml_document_in_directory)
                     Field(&SynchronizationPackage::fileStatuses,
                           UnorderedElementsAre(IsFileStatus(qmlDocumentSourceId2, 1, 21),
                                                IsFileStatus(directoryPathSourceId, 1, 21))),
-                    Field(&SynchronizationPackage::updatedProjectSourceIds,
+                    Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                           UnorderedElementsAre(directoryPathSourceId)),
                     Field(&SynchronizationPackage::directoryInfos,
                           UnorderedElementsAre(IsDirectoryInfo(directoryPathSourceId,
@@ -777,7 +931,7 @@ TEST_F(ProjectStorageUpdater, synchronize_removes_qml_document)
                           UnorderedElementsAre(qmlDirPathSourceId, qmlDocumentSourceId3)),
                     Field(&SynchronizationPackage::fileStatuses,
                           UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 1, 21))),
-                    Field(&SynchronizationPackage::updatedProjectSourceIds,
+                    Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                           UnorderedElementsAre(directoryPathSourceId)),
                     Field(&SynchronizationPackage::directoryInfos,
                           UnorderedElementsAre(IsDirectoryInfo(directoryPathSourceId,
@@ -832,7 +986,7 @@ TEST_F(ProjectStorageUpdater, synchronize_removes_qml_document_in_qmldir_only)
                   UnorderedElementsAre(qmlDirPathSourceId)),
             Field(&SynchronizationPackage::fileStatuses,
                   UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 1, 21))),
-            Field(&SynchronizationPackage::updatedProjectSourceIds,
+            Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                   UnorderedElementsAre(directoryPathSourceId)),
             Field(&SynchronizationPackage::directoryInfos,
                   UnorderedElementsAre(IsDirectoryInfo(directoryPathSourceId,
@@ -890,7 +1044,7 @@ TEST_F(ProjectStorageUpdater, synchronize_add_qml_document_to_qmldir)
                   UnorderedElementsAre(qmlDirPathSourceId)),
             Field(&SynchronizationPackage::fileStatuses,
                   UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 1, 21))),
-            Field(&SynchronizationPackage::updatedProjectSourceIds,
+            Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                   UnorderedElementsAre(directoryPathSourceId)),
             Field(&SynchronizationPackage::directoryInfos,
                   UnorderedElementsAre(IsDirectoryInfo(directoryPathSourceId,
@@ -945,7 +1099,7 @@ TEST_F(ProjectStorageUpdater, synchronize_remove_qml_document_from_qmldir)
                   UnorderedElementsAre(qmlDirPathSourceId)),
             Field(&SynchronizationPackage::fileStatuses,
                   UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 1, 21))),
-            Field(&SynchronizationPackage::updatedProjectSourceIds,
+            Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                   UnorderedElementsAre(directoryPathSourceId)),
             Field(&SynchronizationPackage::directoryInfos,
                   UnorderedElementsAre(IsDirectoryInfo(directoryPathSourceId,
@@ -1011,7 +1165,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_documents_dont_update_if_up_to_dat
                                        IsFileStatus(qmlDocumentSourceId2, 1, 21))),
             Field(&SynchronizationPackage::updatedFileStatusSourceIds,
                   UnorderedElementsAre(qmlDirPathSourceId, qmlDocumentSourceId1, qmlDocumentSourceId2)),
-            Field(&SynchronizationPackage::updatedProjectSourceIds,
+            Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                   UnorderedElementsAre(directoryPathSourceId)),
             Field(&SynchronizationPackage::directoryInfos,
                   UnorderedElementsAre(IsDirectoryInfo(directoryPathSourceId,
@@ -1193,7 +1347,7 @@ TEST_F(ProjectStorageUpdater, update_qml_types_files_is_empty)
                           Field(&SynchronizationPackage::fileStatuses, IsEmpty()),
                           Field(&SynchronizationPackage::updatedFileStatusSourceIds, IsEmpty()),
                           Field(&SynchronizationPackage::directoryInfos, IsEmpty()),
-                          Field(&SynchronizationPackage::updatedProjectSourceIds, IsEmpty()))));
+                          Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds, IsEmpty()))));
 
     updater.update({}, {}, {}, {});
 }
@@ -1220,7 +1374,7 @@ TEST_F(ProjectStorageUpdater, update_qml_types_files)
                                                                qmltypes2PathSourceId,
                                                                builtinCppNativeModuleId,
                                                                FileType::QmlTypes))),
-                    Field(&SynchronizationPackage::updatedProjectSourceIds,
+                    Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                           UnorderedElementsAre(qmltypesPathSourceId, qmltypes2PathSourceId)))));
 
     updater.update({}, {"/path/example.qmltypes", "/path/example2.qmltypes"}, {}, {});
@@ -1245,7 +1399,7 @@ TEST_F(ProjectStorageUpdater, dont_update_qml_types_files_if_unchanged)
                                                                      qmltypesPathSourceId,
                                                                      builtinCppNativeModuleId,
                                                                      FileType::QmlTypes))),
-                          Field(&SynchronizationPackage::updatedProjectSourceIds,
+                          Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                                 UnorderedElementsAre(qmltypesPathSourceId)))));
 
     updater.update({}, {"/path/example.qmltypes", "/path/example2.qmltypes"}, {}, {});
@@ -1283,7 +1437,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_documents_with_different_version_b
                           Field(&SynchronizationPackage::fileStatuses,
                                 UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 1, 21),
                                                      IsFileStatus(qmlDocumentSourceId1, 1, 21))),
-                          Field(&SynchronizationPackage::updatedProjectSourceIds,
+                          Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                                 UnorderedElementsAre(directoryPathSourceId)),
                           Field(&SynchronizationPackage::directoryInfos,
                                 UnorderedElementsAre(IsDirectoryInfo(directoryPathSourceId,
@@ -1324,7 +1478,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_documents_with_different_type_name
                           Field(&SynchronizationPackage::fileStatuses,
                                 UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 1, 21),
                                                      IsFileStatus(qmlDocumentSourceId1, 1, 21))),
-                          Field(&SynchronizationPackage::updatedProjectSourceIds,
+                          Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                                 UnorderedElementsAre(directoryPathSourceId)),
                           Field(&SynchronizationPackage::directoryInfos,
                                 UnorderedElementsAre(IsDirectoryInfo(directoryPathSourceId,
@@ -1926,7 +2080,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_documents_without_qmldir)
                                        IsFileStatus(qmlDocumentSourceId1, 1, 21),
                                        IsFileStatus(qmlDocumentSourceId2, 1, 21),
                                        IsFileStatus(qmlDocumentSourceId3, 1, 21))),
-            Field(&SynchronizationPackage::updatedProjectSourceIds,
+            Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                   UnorderedElementsAre(directoryPathSourceId)),
             Field(&SynchronizationPackage::directoryInfos,
                   UnorderedElementsAre(IsDirectoryInfo(directoryPathSourceId,
@@ -1977,7 +2131,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_documents_without_qmldir_throws_if
                                                              qmlDocumentSourceId2,
                                                              qmlDocumentSourceId3)),
                                   Field(&SynchronizationPackage::fileStatuses, IsEmpty()),
-                                  Field(&SynchronizationPackage::updatedProjectSourceIds,
+                                  Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                                         UnorderedElementsAre(directoryPathSourceId)),
                                   Field(&SynchronizationPackage::directoryInfos, IsEmpty()))));
 
@@ -2014,7 +2168,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_documents_without_qmldir_add_qml_d
             Field(&SynchronizationPackage::fileStatuses,
                   UnorderedElementsAre(IsFileStatus(directoryPathSourceId, 1, 21),
                                        IsFileStatus(qmlDocumentSourceId3, 1, 21))),
-            Field(&SynchronizationPackage::updatedProjectSourceIds,
+            Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                   UnorderedElementsAre(directoryPathSourceId)),
             Field(&SynchronizationPackage::directoryInfos,
                   UnorderedElementsAre(IsDirectoryInfo(directoryPathSourceId,
@@ -2058,7 +2212,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_documents_without_qmldir_removes_q
                                                      qmlDocumentSourceId3)),
                           Field(&SynchronizationPackage::fileStatuses,
                                 UnorderedElementsAre(IsFileStatus(directoryPathSourceId, 1, 21))),
-                          Field(&SynchronizationPackage::updatedProjectSourceIds,
+                          Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                                 UnorderedElementsAre(directoryPathSourceId)),
                           Field(&SynchronizationPackage::directoryInfos,
                                 UnorderedElementsAre(IsDirectoryInfo(directoryPathSourceId,
@@ -2126,7 +2280,7 @@ TEST_F(ProjectStorageUpdater, watcher_updates_directories)
                                        IsFileStatus(qmlDocumentSourceId1, 1, 21),
                                        IsFileStatus(qmlDocumentSourceId2, 1, 21),
                                        IsFileStatus(qmlDocumentSourceId3, 1, 21))),
-            Field(&SynchronizationPackage::updatedProjectSourceIds,
+            Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                   UnorderedElementsAre(directoryPathSourceId)),
             Field(&SynchronizationPackage::directoryInfos,
                   UnorderedElementsAre(IsDirectoryInfo(directoryPathSourceId,
@@ -2143,6 +2297,74 @@ TEST_F(ProjectStorageUpdater, watcher_updates_directories)
                                                        FileType::QmlDocument))))));
 
     updater.pathsWithIdsChanged({{directoryProjectChunkId, {directoryPathSourceId}}});
+}
+
+TEST_F(ProjectStorageUpdater, watcher_updates_subdirectories)
+{
+    QString qmldir{R"(module Example
+                      FirstType 1.0 First.qml
+                      FirstType 2.2 First2.qml
+                      SecondType 2.2 Second.qml)"};
+    setContent(u"/path/qmldir", qmldir);
+    SourceId rootPathSourceId = sourcePathCache.sourceId("/root/.");
+    SourceId rootQmldirPathSourceId = sourcePathCache.sourceId("/root/qmldir");
+    setFilesChanged({directoryPathSourceId, rootPathSourceId});
+    setFilesDontChanged({qmlDirPathSourceId, rootQmldirPathSourceId});
+    setSubdirectoryPaths(u"/root", {"/path"});
+    setSubdirectorySourceIds(rootPathSourceId, {directoryPathSourceId});
+
+    EXPECT_CALL(
+        projectStorageMock,
+        synchronize(AllOf(
+            Field(&SynchronizationPackage::imports, UnorderedElementsAre(import1, import2, import3)),
+            Field(
+                &SynchronizationPackage::types,
+                UnorderedElementsAre(
+                    AllOf(IsStorageType("First.qml",
+                                        Storage::Synchronization::ImportedType{"Object"},
+                                        TypeTraitsKind::Reference,
+                                        qmlDocumentSourceId1,
+                                        Storage::Synchronization::ChangeLevel::Full),
+                          Field(&Storage::Synchronization::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(exampleModuleId, "FirstType", 1, 0),
+                                                     IsExportedType(pathModuleId, "First", -1, -1)))),
+                    AllOf(IsStorageType("First2.qml",
+                                        Storage::Synchronization::ImportedType{"Object2"},
+                                        TypeTraitsKind::Reference,
+                                        qmlDocumentSourceId2,
+                                        Storage::Synchronization::ChangeLevel::Full),
+                          Field(&Storage::Synchronization::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(exampleModuleId, "FirstType", 2, 2),
+                                                     IsExportedType(pathModuleId, "First2", -1, -1)))),
+                    AllOf(IsStorageType("Second.qml",
+                                        Storage::Synchronization::ImportedType{"Object3"},
+                                        TypeTraitsKind::Reference,
+                                        qmlDocumentSourceId3,
+                                        Storage::Synchronization::ChangeLevel::Full),
+                          Field(&Storage::Synchronization::Type::exportedTypes,
+                                UnorderedElementsAre(IsExportedType(exampleModuleId, "SecondType", 2, 2),
+                                                     IsExportedType(pathModuleId, "Second", -1, -1)))))),
+            Field(&SynchronizationPackage::updatedSourceIds,
+                  UnorderedElementsAre(qmlDocumentSourceId1, qmlDocumentSourceId2, qmlDocumentSourceId3)),
+            Field(&SynchronizationPackage::directoryInfos,
+                  UnorderedElementsAre(IsDirectoryInfo(directoryPathSourceId,
+                                                       qmlDocumentSourceId1,
+                                                       ModuleId{},
+                                                       FileType::QmlDocument),
+                                       IsDirectoryInfo(directoryPathSourceId,
+                                                       qmlDocumentSourceId2,
+                                                       ModuleId{},
+                                                       FileType::QmlDocument),
+                                       IsDirectoryInfo(directoryPathSourceId,
+                                                       qmlDocumentSourceId3,
+                                                       ModuleId{},
+                                                       FileType::QmlDocument),
+                                       IsDirectoryInfo(rootPathSourceId,
+                                                       directoryPathSourceId,
+                                                       ModuleId{},
+                                                       FileType::Directory))))));
+
+    updater.pathsWithIdsChanged({{directoryProjectChunkId, {rootPathSourceId, directoryPathSourceId}}});
 }
 
 TEST_F(ProjectStorageUpdater, watcher_updates_removed_directory)
@@ -2173,7 +2395,7 @@ TEST_F(ProjectStorageUpdater, watcher_updates_removed_directory)
                                                              qmlDocumentSourceId2,
                                                              qmlDocumentSourceId3)),
                                   Field(&SynchronizationPackage::fileStatuses, UnorderedElementsAre()),
-                                  Field(&SynchronizationPackage::updatedProjectSourceIds,
+                                  Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                                         UnorderedElementsAre(directoryPathSourceId)),
                                   Field(&SynchronizationPackage::directoryInfos, IsEmpty()))));
 
@@ -2275,7 +2497,7 @@ TEST_F(ProjectStorageUpdater, watcher_updates_directories_and_qmldir)
                                        IsFileStatus(qmlDocumentSourceId1, 1, 21),
                                        IsFileStatus(qmlDocumentSourceId2, 1, 21),
                                        IsFileStatus(qmlDocumentSourceId3, 1, 21))),
-            Field(&SynchronizationPackage::updatedProjectSourceIds,
+            Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                   UnorderedElementsAre(directoryPathSourceId)),
             Field(&SynchronizationPackage::directoryInfos,
                   UnorderedElementsAre(IsDirectoryInfo(directoryPathSourceId,
@@ -2372,7 +2594,7 @@ TEST_F(ProjectStorageUpdater, watcher_updates_add_only_qml_document_in_directory
                     Field(&SynchronizationPackage::fileStatuses,
                           UnorderedElementsAre(IsFileStatus(qmlDocumentSourceId2, 1, 21),
                                                IsFileStatus(directoryPathSourceId, 1, 21))),
-                    Field(&SynchronizationPackage::updatedProjectSourceIds,
+                    Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                           UnorderedElementsAre(directoryPathSourceId)),
                     Field(&SynchronizationPackage::directoryInfos,
                           UnorderedElementsAre(IsDirectoryInfo(directoryPathSourceId,
@@ -2436,7 +2658,7 @@ TEST_F(ProjectStorageUpdater, watcher_updates_removes_qml_document)
                           UnorderedElementsAre(qmlDirPathSourceId, qmlDocumentSourceId3)),
                     Field(&SynchronizationPackage::fileStatuses,
                           UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 1, 21))),
-                    Field(&SynchronizationPackage::updatedProjectSourceIds,
+                    Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                           UnorderedElementsAre(directoryPathSourceId)),
                     Field(&SynchronizationPackage::directoryInfos,
                           UnorderedElementsAre(IsDirectoryInfo(directoryPathSourceId,
@@ -2491,7 +2713,7 @@ TEST_F(ProjectStorageUpdater, watcher_updates_removes_qml_document_in_qmldir_onl
                   UnorderedElementsAre(qmlDirPathSourceId)),
             Field(&SynchronizationPackage::fileStatuses,
                   UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 1, 21))),
-            Field(&SynchronizationPackage::updatedProjectSourceIds,
+            Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                   UnorderedElementsAre(directoryPathSourceId)),
             Field(&SynchronizationPackage::directoryInfos,
                   UnorderedElementsAre(IsDirectoryInfo(directoryPathSourceId,
@@ -2549,7 +2771,7 @@ TEST_F(ProjectStorageUpdater, watcher_updates_directories_add_qml_document_to_qm
                   UnorderedElementsAre(qmlDirPathSourceId)),
             Field(&SynchronizationPackage::fileStatuses,
                   UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 1, 21))),
-            Field(&SynchronizationPackage::updatedProjectSourceIds,
+            Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                   UnorderedElementsAre(directoryPathSourceId)),
             Field(&SynchronizationPackage::directoryInfos,
                   UnorderedElementsAre(IsDirectoryInfo(directoryPathSourceId,
@@ -2604,7 +2826,7 @@ TEST_F(ProjectStorageUpdater, watcher_updates_directories_remove_qml_document_fr
                   UnorderedElementsAre(qmlDirPathSourceId)),
             Field(&SynchronizationPackage::fileStatuses,
                   UnorderedElementsAre(IsFileStatus(qmlDirPathSourceId, 1, 21))),
-            Field(&SynchronizationPackage::updatedProjectSourceIds,
+            Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                   UnorderedElementsAre(directoryPathSourceId)),
             Field(&SynchronizationPackage::directoryInfos,
                   UnorderedElementsAre(IsDirectoryInfo(directoryPathSourceId,
@@ -2670,7 +2892,7 @@ TEST_F(ProjectStorageUpdater, watcher_updates_directories_dont_update_qml_docume
                                        IsFileStatus(qmlDocumentSourceId2, 1, 21))),
             Field(&SynchronizationPackage::updatedFileStatusSourceIds,
                   UnorderedElementsAre(qmlDirPathSourceId, qmlDocumentSourceId1, qmlDocumentSourceId2)),
-            Field(&SynchronizationPackage::updatedProjectSourceIds,
+            Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                   UnorderedElementsAre(directoryPathSourceId)),
             Field(&SynchronizationPackage::directoryInfos,
                   UnorderedElementsAre(IsDirectoryInfo(directoryPathSourceId,
@@ -2740,7 +2962,7 @@ TEST_F(ProjectStorageUpdater, watcher_updates_qmldirs_dont_update_qml_documents_
                                        IsFileStatus(qmlDocumentSourceId2, 1, 21))),
             Field(&SynchronizationPackage::updatedFileStatusSourceIds,
                   UnorderedElementsAre(qmlDirPathSourceId, qmlDocumentSourceId1, qmlDocumentSourceId2)),
-            Field(&SynchronizationPackage::updatedProjectSourceIds,
+            Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                   UnorderedElementsAre(directoryPathSourceId)),
             Field(&SynchronizationPackage::directoryInfos,
                   UnorderedElementsAre(IsDirectoryInfo(directoryPathSourceId,
@@ -3053,7 +3275,7 @@ TEST_F(ProjectStorageUpdater, watcher_updates_directories_and_but_not_included_q
                                        IsFileStatus(qmlDocumentSourceId1, 1, 21),
                                        IsFileStatus(qmlDocumentSourceId2, 1, 21),
                                        IsFileStatus(qmlDocumentSourceId3, 1, 21))),
-            Field(&SynchronizationPackage::updatedProjectSourceIds,
+            Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                   UnorderedElementsAre(directoryPathSourceId)),
             Field(&SynchronizationPackage::directoryInfos,
                   UnorderedElementsAre(IsDirectoryInfo(directoryPathSourceId,
@@ -3130,7 +3352,7 @@ TEST_F(ProjectStorageUpdater, watcher_updates_qmldir_and_but_not_included_qml_do
                                        IsFileStatus(qmlDocumentSourceId1, 1, 21),
                                        IsFileStatus(qmlDocumentSourceId2, 1, 21),
                                        IsFileStatus(qmlDocumentSourceId3, 1, 21))),
-            Field(&SynchronizationPackage::updatedProjectSourceIds,
+            Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                   UnorderedElementsAre(directoryPathSourceId)),
             Field(&SynchronizationPackage::directoryInfos,
                   UnorderedElementsAre(IsDirectoryInfo(directoryPathSourceId,
@@ -3229,7 +3451,7 @@ TEST_F(ProjectStorageUpdater, watcher_updates_qmldir_and_but_not_included_qmltyp
                                        IsFileStatus(qmlDocumentSourceId1, 1, 21),
                                        IsFileStatus(qmlDocumentSourceId2, 1, 21),
                                        IsFileStatus(qmlDocumentSourceId3, 1, 21))),
-            Field(&SynchronizationPackage::updatedProjectSourceIds,
+            Field(&SynchronizationPackage::updatedDirectoryInfoSourceIds,
                   UnorderedElementsAre(directoryPathSourceId)),
             Field(&SynchronizationPackage::directoryInfos,
                   UnorderedElementsAre(IsDirectoryInfo(directoryPathSourceId,

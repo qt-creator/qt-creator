@@ -31,6 +31,7 @@ public:
     long long lastModified(SourceId sourceId) const override;
     FileStatus fileStatus(SourceId sourceId) const override;
     QString contentAsQString(const QString &filePath) const override;
+    QStringList subdirectories(const QString &directoryPath) const override;
 
     void remove(const SourceIds &sourceIds) override;
 

@@ -143,9 +143,17 @@ private:
                            WatchedSourceIdsIds &watchedSourceIdsIds);
 
     void updateDirectory(const Utils::PathString &directory,
+                         const SourceContextIds &subdirecoriesToIgnore,
                          Storage::Synchronization::SynchronizationPackage &package,
                          NotUpdatedSourceIds &notUpdatedSourceIds,
                          WatchedSourceIdsIds &watchedSourceIdsIds);
+    void updateSubdirectories(const Utils::PathString &directory,
+                              SourceId directorySourceId,
+                              FileState directoryFileState,
+                              const SourceContextIds &subdirecoriesToIgnore,
+                              Storage::Synchronization::SynchronizationPackage &package,
+                              NotUpdatedSourceIds &notUpdatedSourceIds,
+                              WatchedSourceIdsIds &watchedSourceIdsIds);
     void updateDirectoryChanged(std::string_view directoryPath,
                                 FileState qmldirState,
                                 SourcePath qmldirSourcePath,

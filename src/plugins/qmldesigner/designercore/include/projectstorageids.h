@@ -48,6 +48,8 @@ using EnumerationDeclarationIds = std::vector<EnumerationDeclarationId>;
 
 using SourceContextId = Sqlite::BasicId<BasicIdType::SourceContext, int>;
 using SourceContextIds = std::vector<SourceContextId>;
+template<std::size_t size>
+using SmallSourceContextIds = QVarLengthArray<SourceContextId, size>;
 
 using SourceId = Sqlite::BasicId<BasicIdType::Source, int>;
 using SourceIds = std::vector<SourceId>;

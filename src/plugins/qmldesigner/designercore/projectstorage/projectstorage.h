@@ -232,8 +232,10 @@ public:
     std::optional<Storage::Synchronization::DirectoryInfo> fetchDirectoryInfo(SourceId sourceId) const override;
 
     Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(SourceId directorySourceId) const override;
-
+    Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(
+        SourceId directorySourceId, Storage::Synchronization::FileType fileType) const override;
     Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(const SourceIds &directorySourceIds) const;
+    SmallSourceIds<32> fetchSubdirectorySourceIds(SourceId directorySourceId) const override;
 
     void setPropertyEditorPathId(TypeId typeId, SourceId pathId);
 
@@ -561,7 +563,7 @@ private:
                           const SourceIds &updatedSourceIds);
 
     void synchronizeDirectoryInfos(Storage::Synchronization::DirectoryInfos &directoryInfos,
-                                 const SourceIds &updatedProjectSourceIds);
+                                 const SourceIds &updatedDirectoryInfoSourceIds);
 
     void synchronizeFileStatuses(FileStatuses &fileStatuses, const SourceIds &updatedSourceIds);
 

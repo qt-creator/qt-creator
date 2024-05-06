@@ -341,81 +341,32 @@ Utils::FilePath qmlPath(::ProjectExplorer::Target *target)
     return {};
 }
 
-template<typename... Path>
-bool skipDirectoriesWith(const QStringView directoryPath, const Path &...paths)
-{
-    return (directoryPath.contains(paths) || ...);
-}
-
-template<typename... Path>
-bool skipDirectoriesEndsWith(const QStringView directoryPath, const Path &...paths)
-{
-    return (directoryPath.endsWith(paths) || ...);
-}
-
-bool skipPath(const QString &directoryPath)
-{
-    return skipDirectoriesWith(directoryPath,
-                               u"QtApplicationManager",
-                               u"QtInterfaceFramework",
-                               u"QtOpcUa",
-                               u"Qt3D",
-                               u"Scene2D",
-                               u"Scene3D",
-                               u"QtWayland",
-                               u"Qt5Compat",
-                               u"QtCharts",
-                               u"QtLocation",
-                               u"QtPositioning",
-                               u"MaterialEditor",
-                               u"QtTextToSpeech",
-                               u"QtWebEngine",
-                               u"Qt/labs",
-                               u"QtDataVisualization")
-           || skipDirectoriesEndsWith(directoryPath, u"designer");
-}
-
-void collectQmldirPaths(const QString &path, QStringList &qmldirPaths)
-{
-    QDirIterator dirIterator{path, QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::Subdirectories};
-
-    QString rootQmldirPath = path + "/qmldir";
-    if (!skipPath(path) && QFileInfo::exists(rootQmldirPath))
-        qmldirPaths.push_back(path);
-
-    while (dirIterator.hasNext()) {
-        auto directoryPath = dirIterator.next();
-
-        QString qmldirPath = directoryPath + "/qmldir";
-        if (!skipPath(directoryPath) && QFileInfo::exists(qmldirPath))
-            qmldirPaths.push_back(directoryPath);
-    }
-}
-
 [[maybe_unused]] void projectQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPaths)
 {
     ::QmlProjectManager::QmlBuildSystem *buildSystem = getQmlBuildSystem(target);
 
     const Utils::FilePath projectDirectoryPath = buildSystem->canonicalProjectDir();
-    const QStringList importPaths = buildSystem->importPaths();
-    const QDir projectDirectory(projectDirectoryPath.toString());
 
-    for (const QString &importPath : importPaths)
-        collectQmldirPaths(importPath, qmldirPaths);
+    qmldirPaths.push_back(projectDirectoryPath.path());
 }
 
 [[maybe_unused]] void qtQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPaths)
 {
-    if constexpr (useProjectStorage())
-        collectQmldirPaths(qmlPath(target).toString(), qmldirPaths);
+    if constexpr (useProjectStorage()) {
+        auto qmlRootPath = qmlPath(target).toString();
+        qmldirPaths.push_back(qmlRootPath + "/QtQml");
+        qmldirPaths.push_back(qmlRootPath + "/QtQuick");
+        qmldirPaths.push_back(qmlRootPath + "/QtQuick3D");
+        qmldirPaths.push_back(qmlRootPath + "/Qt5Compat");
+    }
 }
 
 [[maybe_unused]] void qtQmldirPathsForLiteDesigner(QStringList &qmldirPaths)
 {
     if constexpr (useProjectStorage()) {
         auto qmlRootPath = QLibraryInfo::path(QLibraryInfo::QmlImportsPath);
-        collectQmldirPaths(qmlRootPath + "/QtQml", qmldirPaths);
-        collectQmldirPaths(qmlRootPath + "/QtQuick", qmldirPaths);
+        qmldirPaths.push_back(qmlRootPath + "/QtQml");
+        qmldirPaths.push_back(qmlRootPath + "/QtQuick");
     }
 }
 

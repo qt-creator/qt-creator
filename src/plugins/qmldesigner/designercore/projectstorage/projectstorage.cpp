@@ -519,6 +519,12 @@ struct ProjectStorage::Statements
         "SELECT directorySourceId, sourceId, moduleId, fileType FROM directoryInfos WHERE "
         "directorySourceId=?1",
         database};
+    mutable Sqlite::ReadStatement<4, 2> selectDirectoryInfosForSourceIdAndFileTypeStatement{
+        "SELECT directorySourceId, sourceId, moduleId, fileType FROM directoryInfos WHERE "
+        "directorySourceId=?1 AND fileType=?2",
+        database};
+    mutable Sqlite::ReadStatement<1, 2> selectDirectoryInfosSourceIdsForSourceIdAndFileTypeStatement{
+        "SELECT sourceId FROM directoryInfos WHERE directorySourceId=?1 AND fileType=?2", database};
     mutable Sqlite::ReadStatement<4, 1> selectDirectoryInfoForSourceIdStatement{
         "SELECT directorySourceId, sourceId, moduleId, fileType FROM directoryInfos WHERE "
         "sourceId=?1 LIMIT 1",
@@ -1073,10 +1079,11 @@ public:
                                                       Sqlite::StrictColumnType::Integer);
         auto &sourceIdColumn = table.addColumn("sourceId", Sqlite::StrictColumnType::Integer);
         table.addColumn("moduleId", Sqlite::StrictColumnType::Integer);
-        table.addColumn("fileType", Sqlite::StrictColumnType::Integer);
+        auto &fileTypeColumn = table.addColumn("fileType", Sqlite::StrictColumnType::Integer);
 
         table.addPrimaryKeyContraint({directorySourceIdColumn, sourceIdColumn});
         table.addUniqueIndex({sourceIdColumn});
+        table.addIndex({directorySourceIdColumn, fileTypeColumn});
 
         table.initialize(database);
     }
@@ -1196,7 +1203,7 @@ void ProjectStorage::synchronize(Storage::Synchronization::SynchronizationPackag
 
         linkAliases(insertedAliasPropertyDeclarations, updatedAliasPropertyDeclarations);
 
-        synchronizeDirectoryInfos(package.directoryInfos, package.updatedProjectSourceIds);
+        synchronizeDirectoryInfos(package.directoryInfos, package.updatedDirectoryInfoSourceIds);
 
         commonTypeCache_.resetTypeIds();
     });
@@ -2116,7 +2123,7 @@ FileStatus ProjectStorage::fetchFileStatus(SourceId sourceId) const
 std::optional<Storage::Synchronization::DirectoryInfo> ProjectStorage::fetchDirectoryInfo(SourceId sourceId) const
 {
     using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"fetch project data"_t,
+    NanotraceHR::Tracer tracer{"fetch directory info"_t,
                                projectStorageCategory(),
                                keyValue("source id", sourceId)};
 
@@ -2124,7 +2131,7 @@ std::optional<Storage::Synchronization::DirectoryInfo> ProjectStorage::fetchDire
                            .optionalValueWithTransaction<Storage::Synchronization::DirectoryInfo>(
                                sourceId);
 
-    tracer.end(keyValue("project data", directoryInfo));
+    tracer.end(keyValue("directory info", directoryInfo));
 
     return directoryInfo;
 }
@@ -2132,7 +2139,7 @@ std::optional<Storage::Synchronization::DirectoryInfo> ProjectStorage::fetchDire
 Storage::Synchronization::DirectoryInfos ProjectStorage::fetchDirectoryInfos(SourceId directorySourceId) const
 {
     using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"fetch project datas by source id"_t,
+    NanotraceHR::Tracer tracer{"fetch directory infos by source id"_t,
                                projectStorageCategory(),
                                keyValue("source id", directorySourceId)};
 
@@ -2140,7 +2147,25 @@ Storage::Synchronization::DirectoryInfos ProjectStorage::fetchDirectoryInfos(Sou
                             .valuesWithTransaction<Storage::Synchronization::DirectoryInfo, 1024>(
                                 directorySourceId);
 
-    tracer.end(keyValue("project datas", directoryInfos));
+    tracer.end(keyValue("directory infos", directoryInfos));
+
+    return directoryInfos;
+}
+
+Storage::Synchronization::DirectoryInfos ProjectStorage::fetchDirectoryInfos(
+    SourceId directorySourceId, Storage::Synchronization::FileType fileType) const
+{
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"fetch directory infos by source id and file type"_t,
+                               projectStorageCategory(),
+                               keyValue("source id", directorySourceId),
+                               keyValue("file type", fileType)};
+
+    auto directoryInfos = s->selectDirectoryInfosForSourceIdAndFileTypeStatement
+                              .valuesWithTransaction<Storage::Synchronization::DirectoryInfo, 16>(
+                                  directorySourceId, fileType);
+
+    tracer.end(keyValue("directory infos", directoryInfos));
 
     return directoryInfos;
 }
@@ -2149,7 +2174,7 @@ Storage::Synchronization::DirectoryInfos ProjectStorage::fetchDirectoryInfos(
     const SourceIds &directorySourceIds) const
 {
     using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"fetch project datas by source ids"_t,
+    NanotraceHR::Tracer tracer{"fetch directory infos by source ids"_t,
                                projectStorageCategory(),
                                keyValue("source ids", directorySourceIds)};
 
@@ -2157,9 +2182,25 @@ Storage::Synchronization::DirectoryInfos ProjectStorage::fetchDirectoryInfos(
                             .valuesWithTransaction<Storage::Synchronization::DirectoryInfo, 64>(
                                 toIntegers(directorySourceIds));
 
-    tracer.end(keyValue("project datas", directoryInfos));
+    tracer.end(keyValue("directory infos", directoryInfos));
 
     return directoryInfos;
+}
+
+SmallSourceIds<32> ProjectStorage::fetchSubdirectorySourceIds(SourceId directorySourceId) const
+{
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"fetch subdirectory source ids"_t,
+                               projectStorageCategory(),
+                               keyValue("source id", directorySourceId)};
+
+    auto sourceIds = s->selectDirectoryInfosSourceIdsForSourceIdAndFileTypeStatement
+                         .valuesWithTransaction<SmallSourceIds<32>>(
+                             directorySourceId, Storage::Synchronization::FileType::Directory);
+
+    tracer.end(keyValue("source ids", sourceIds));
+
+    return sourceIds;
 }
 
 void ProjectStorage::setPropertyEditorPathId(TypeId typeId, SourceId pathId)
@@ -2466,9 +2507,9 @@ void ProjectStorage::synchronizeTypes(Storage::Synchronization::Types &types,
 }
 
 void ProjectStorage::synchronizeDirectoryInfos(Storage::Synchronization::DirectoryInfos &directoryInfos,
-                                             const SourceIds &updatedProjectSourceIds)
+                                             const SourceIds &updatedDirectoryInfoSourceIds)
 {
-    NanotraceHR::Tracer tracer{"synchronize project datas"_t, projectStorageCategory()};
+    NanotraceHR::Tracer tracer{"synchronize directory infos"_t, projectStorageCategory()};
 
     auto compareKey = [](auto &&first, auto &&second) {
         auto directorySourceIdDifference = first.directorySourceId - second.directorySourceId;
@@ -2484,13 +2525,13 @@ void ProjectStorage::synchronizeDirectoryInfos(Storage::Synchronization::Directo
     });
 
     auto range = s->selectDirectoryInfosForSourceIdsStatement.range<Storage::Synchronization::DirectoryInfo>(
-        toIntegers(updatedProjectSourceIds));
+        toIntegers(updatedDirectoryInfoSourceIds));
 
     auto insert = [&](const Storage::Synchronization::DirectoryInfo &directoryInfo) {
         using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"insert project data"_t,
+        NanotraceHR::Tracer tracer{"insert directory info"_t,
                                    projectStorageCategory(),
-                                   keyValue("project data", directoryInfo)};
+                                   keyValue("directory info", directoryInfo)};
 
         if (!directoryInfo.directorySourceId)
             throw DirectoryInfoHasInvalidProjectSourceId{};
@@ -2508,10 +2549,11 @@ void ProjectStorage::synchronizeDirectoryInfos(Storage::Synchronization::Directo
         if (directoryInfoFromDatabase.fileType != directoryInfo.fileType
             || !compareInvalidAreTrue(directoryInfoFromDatabase.moduleId, directoryInfo.moduleId)) {
             using NanotraceHR::keyValue;
-            NanotraceHR::Tracer tracer{"update project data"_t,
+            NanotraceHR::Tracer tracer{"update directory info"_t,
                                        projectStorageCategory(),
-                                       keyValue("project data", directoryInfo),
-                                       keyValue("project data from database", directoryInfoFromDatabase)};
+                                       keyValue("directory info", directoryInfo),
+                                       keyValue("directory info from database",
+                                                directoryInfoFromDatabase)};
 
             s->updateDirectoryInfoStatement.write(directoryInfo.directorySourceId,
                                                 directoryInfo.sourceId,
@@ -2525,9 +2567,9 @@ void ProjectStorage::synchronizeDirectoryInfos(Storage::Synchronization::Directo
 
     auto remove = [&](const Storage::Synchronization::DirectoryInfo &directoryInfo) {
         using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"remove project data"_t,
+        NanotraceHR::Tracer tracer{"remove directory info"_t,
                                    projectStorageCategory(),
-                                   keyValue("project data", directoryInfo)};
+                                   keyValue("directory info", directoryInfo)};
 
         s->deleteDirectoryInfoStatement.write(directoryInfo.directorySourceId, directoryInfo.sourceId);
     };

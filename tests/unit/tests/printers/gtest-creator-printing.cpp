@@ -754,6 +754,8 @@ const char *fileTypeToText(FileType fileType)
         return "QmlDocument";
     case FileType::QmlTypes:
         return "QmlTypes";
+    case FileType::Directory:
+        return "Directory";
     }
 
     return "";
@@ -791,7 +793,7 @@ std::ostream &operator<<(std::ostream &out, const SynchronizationPackage &packag
                << ", updatedSourceIds: " << package.updatedSourceIds
                << ", fileStatuses: " << package.fileStatuses
                << ", updatedFileStatusSourceIds: " << package.updatedFileStatusSourceIds
-               << ", updatedProjectSourceIds: " << package.updatedProjectSourceIds
+               << ", updatedDirectoryInfoSourceIds: " << package.updatedDirectoryInfoSourceIds
                << ", directoryInfos: " << package.directoryInfos
                << ", propertyEditorQmlPaths: " << package.propertyEditorQmlPaths
                << ", updatedPropertyEditorQmlPathSourceIds: "

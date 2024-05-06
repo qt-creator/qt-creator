@@ -8,12 +8,17 @@
 #include <sqlite/sqlitevalue.h>
 #include <utils/smallstring.h>
 
+#include <QVarLengthArray>
+
 #include <array>
 #include <tuple>
 #include <variant>
 #include <vector>
 
 namespace QmlDesigner {
+
+template<std::size_t size>
+using SmallPathStrings = QVarLengthArray<Utils::PathString, size>;
 
 template<typename Enumeration>
 constexpr std::underlying_type_t<Enumeration> to_underlying(Enumeration enumeration) noexcept

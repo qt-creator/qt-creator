@@ -11,6 +11,7 @@
 
 #include <QDateTime>
 #include <QDir>
+#include <QDirIterator>
 #include <QFileInfo>
 
 namespace QmlDesigner {
@@ -67,6 +68,18 @@ QString FileSystem::contentAsQString(const QString &filePath) const
         return QString::fromUtf8(file.readAll());
 
     return {};
+}
+
+QStringList FileSystem::subdirectories(const QString &directoryPath) const
+{
+    QStringList directoryPaths;
+    directoryPaths.reserve(100);
+    QDirIterator directoryIterator{directoryPath, QDir::Dirs | QDir::NoDotAndDotDot};
+
+    while (directoryIterator.hasNext())
+        directoryPaths.push_back(directoryIterator.next());
+
+    return directoryPaths;
 }
 
 void FileSystem::remove(const SourceIds &sourceIds)

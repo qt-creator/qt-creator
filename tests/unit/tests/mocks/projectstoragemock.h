@@ -305,6 +305,16 @@ public:
                 (QmlDesigner::SourceId sourceId),
                 (const, override));
 
+    MOCK_METHOD(QmlDesigner::Storage::Synchronization::DirectoryInfos,
+                fetchDirectoryInfos,
+                (QmlDesigner::SourceId sourceId, QmlDesigner::Storage::Synchronization::FileType),
+                (const, override));
+
+    MOCK_METHOD(QmlDesigner::SmallSourceIds<32>,
+                fetchSubdirectorySourceIds,
+                (QmlDesigner::SourceId sourceId),
+                (const, override));
+
     MOCK_METHOD(std::optional<QmlDesigner::Storage::Synchronization::DirectoryInfo>,
                 fetchDirectoryInfo,
                 (QmlDesigner::SourceId sourceId),

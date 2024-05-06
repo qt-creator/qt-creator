@@ -20,6 +20,7 @@ public:
     virtual FileStatus fileStatus(SourceId sourceId) const = 0;
     virtual void remove(const SourceIds &sourceIds) = 0;
     virtual QString contentAsQString(const QString &filePath) const = 0;
+    virtual QStringList subdirectories(const QString &directoryPath) const = 0;
 
 protected:
     ~FileSystemInterface() = default;

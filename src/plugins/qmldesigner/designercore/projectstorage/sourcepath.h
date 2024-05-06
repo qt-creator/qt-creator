@@ -7,6 +7,8 @@
 
 #include <utils/smallstring.h>
 
+#include <QVarLengthArray>
+
 namespace QmlDesigner {
 
 class SourcePath : public Utils::PathString
@@ -128,5 +130,6 @@ private:
 };
 
 using SourcePaths = std::vector<SourcePath>;
-
+template<std::size_t size>
+using SmallSourcePaths = QVarLengthArray<SourcePath, size>;
 } // namespace QmlDesigner
