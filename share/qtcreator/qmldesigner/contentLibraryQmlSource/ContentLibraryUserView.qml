@@ -135,7 +135,7 @@ HelperWidgets.ScrollView {
                             }
                             DelegateChoice {
                                 roleValue: "item"
-                                delegate: ContentLibraryEffect {
+                                delegate: ContentLibraryItem {
                                     width: root.cellWidth
                                     height: root.cellHeight
 

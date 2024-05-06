@@ -8,7 +8,7 @@
 
 namespace QmlDesigner {
 
-class ContentLibraryEffect;
+class ContentLibraryItem;
 class ContentLibraryEffectsCategory;
 class ContentLibraryWidget;
 
@@ -41,8 +41,8 @@ public:
     void resetModel();
     void updateIsEmpty();
 
-    Q_INVOKABLE void addInstance(QmlDesigner::ContentLibraryEffect *bundleItem);
-    Q_INVOKABLE void removeFromProject(QmlDesigner::ContentLibraryEffect *bundleItem);
+    Q_INVOKABLE void addInstance(QmlDesigner::ContentLibraryItem *bundleItem);
+    Q_INVOKABLE void removeFromProject(QmlDesigner::ContentLibraryItem *bundleItem);
 
     QString bundleId() const;
 

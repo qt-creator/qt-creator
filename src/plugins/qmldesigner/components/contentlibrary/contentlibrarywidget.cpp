@@ -4,8 +4,8 @@
 #include "contentlibrarywidget.h"
 
 #include "contentlibrarybundleimporter.h"
-#include "contentlibraryeffect.h"
 #include "contentlibraryeffectsmodel.h"
+#include "contentlibraryitem.h"
 #include "contentlibrarymaterial.h"
 #include "contentlibrarymaterialsmodel.h"
 #include "contentlibrarytexture.h"
@@ -68,18 +68,18 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
         Model *model = document->currentModel();
         QTC_ASSERT(model, return false);
 
-        if (m_effectToDrag) {
+        if (m_itemToDrag) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
             if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 20) {
                 QByteArray data;
                 QMimeData *mimeData = new QMimeData;
                 QDataStream stream(&data, QIODevice::WriteOnly);
-                stream << m_effectToDrag->type();
-                mimeData->setData(Constants::MIME_TYPE_BUNDLE_EFFECT, data);
+                stream << m_itemToDrag->type();
+                mimeData->setData(Constants::MIME_TYPE_BUNDLE_ITEM, data);
 
-                emit bundleEffectDragStarted(m_effectToDrag);
-                model->startDrag(mimeData, m_effectToDrag->icon().toLocalFile());
-                m_effectToDrag = nullptr;
+                emit bundleItemDragStarted(m_itemToDrag);
+                model->startDrag(mimeData, m_itemToDrag->icon().toLocalFile());
+                m_itemToDrag = nullptr;
             }
         } else if (m_materialToDrag) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
@@ -113,7 +113,7 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
             }
         }
     } else if (event->type() == QMouseEvent::MouseButtonRelease) {
-        m_effectToDrag = nullptr;
+        m_itemToDrag = nullptr;
         m_materialToDrag = nullptr;
         m_textureToDrag = nullptr;
         setIsDragging(false);
@@ -697,6 +697,8 @@ void ContentLibraryWidget::setHasQuick3DImport(bool b)
 
     m_materialsModel->updateIsEmpty();
     m_effectsModel->updateIsEmpty();
+    m_userModel->updateIsEmptyMaterials();
+    m_userModel->updateIsEmpty3D();
 }
 
 bool ContentLibraryWidget::hasMaterialLibrary() const
@@ -713,6 +715,8 @@ void ContentLibraryWidget::setHasMaterialLibrary(bool b)
     emit hasMaterialLibraryChanged();
 
     m_materialsModel->updateIsEmpty();
+    m_userModel->updateIsEmptyMaterials();
+    m_userModel->updateIsEmpty3D();
 }
 
 bool ContentLibraryWidget::hasActive3DScene() const
@@ -806,10 +810,9 @@ QString ContentLibraryWidget::findTextureBundlePath()
     return texBundleDir.path();
 }
 
-void ContentLibraryWidget::startDragEffect(QmlDesigner::ContentLibraryEffect *eff,
-                                           const QPointF &mousePos)
+void ContentLibraryWidget::startDragItem(QmlDesigner::ContentLibraryItem *item, const QPointF &mousePos)
 {
-    m_effectToDrag = eff;
+    m_itemToDrag = item;
     m_dragStartPoint = mousePos.toPoint();
     setIsDragging(true);
 }

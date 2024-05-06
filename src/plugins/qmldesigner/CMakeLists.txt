@@ -830,7 +830,7 @@ extend_qtc_plugin(QmlDesigner
     contentlibrarymaterialscategory.cpp contentlibrarymaterialscategory.h
     contentlibrarymaterial.cpp contentlibrarymaterial.h
     contentlibraryiconprovider.cpp contentlibraryiconprovider.h
-    contentlibraryeffect.cpp contentlibraryeffect.h
+    contentlibraryitem.cpp contentlibraryitem.h
     contentlibraryeffectscategory.cpp contentlibraryeffectscategory.h
     contentlibraryeffectsmodel.cpp contentlibraryeffectsmodel.h
     contentlibraryusermodel.cpp contentlibraryusermodel.h

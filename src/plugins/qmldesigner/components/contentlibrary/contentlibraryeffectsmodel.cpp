@@ -4,8 +4,8 @@
 #include "contentlibraryeffectsmodel.h"
 
 #include "contentlibrarybundleimporter.h"
-#include "contentlibraryeffect.h"
 #include "contentlibraryeffectscategory.h"
+#include "contentlibraryitem.h"
 #include "contentlibrarywidget.h"
 
 #include <qmldesignerplugin.h>
@@ -171,7 +171,7 @@ void ContentLibraryEffectsModel::loadBundle()
             TypeName type = QLatin1String("%1.%2")
                                 .arg(bundleType, qml.chopped(4)).toLatin1(); // chopped(4): remove .qml
 
-            auto bundleItem = new ContentLibraryEffect(category, itemName, qml, type, icon, files);
+            auto bundleItem = new ContentLibraryItem(category, itemName, qml, type, icon, files);
 
             category->addBundleItem(bundleItem);
         }
@@ -251,7 +251,7 @@ void ContentLibraryEffectsModel::resetModel()
     endResetModel();
 }
 
-void ContentLibraryEffectsModel::addInstance(ContentLibraryEffect *bundleItem)
+void ContentLibraryEffectsModel::addInstance(ContentLibraryItem *bundleItem)
 {
     QString err = m_widget->importer()->importComponent(m_bundlePath, bundleItem->type(),
                                                         bundleItem->qml(),
@@ -263,7 +263,7 @@ void ContentLibraryEffectsModel::addInstance(ContentLibraryEffect *bundleItem)
         qWarning() << __FUNCTION__ << err;
 }
 
-void ContentLibraryEffectsModel::removeFromProject(ContentLibraryEffect *bundleItem)
+void ContentLibraryEffectsModel::removeFromProject(ContentLibraryItem *bundleItem)
 {
     QString err = m_widget->importer()->unimportComponent(bundleItem->type(), bundleItem->qml());
 

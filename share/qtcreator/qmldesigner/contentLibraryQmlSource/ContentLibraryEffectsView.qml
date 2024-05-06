@@ -91,7 +91,7 @@ HelperWidgets.ScrollView {
                         id: repeater
                         model: bundleCategoryItems
 
-                        delegate: ContentLibraryEffect {
+                        delegate: ContentLibraryItem {
                             width: root.cellWidth
                             height: root.cellHeight
 

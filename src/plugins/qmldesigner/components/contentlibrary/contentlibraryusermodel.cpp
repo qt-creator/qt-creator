@@ -4,7 +4,7 @@
 #include "contentlibraryusermodel.h"
 
 #include "contentlibrarybundleimporter.h"
-#include "contentlibraryeffect.h"
+#include "contentlibraryitem.h"
 #include "contentlibrarymaterial.h"
 #include "contentlibrarymaterialscategory.h"
 #include "contentlibrarytexture.h"
@@ -82,7 +82,7 @@ void ContentLibraryUserModel::updateIsEmptyMaterials()
 
 void ContentLibraryUserModel::updateIsEmpty3D()
 {
-    bool anyItemVisible = Utils::anyOf(m_user3DItems, [&](ContentLibraryEffect *item) {
+    bool anyItemVisible = Utils::anyOf(m_user3DItems, [&](ContentLibraryItem *item) {
         return item->visible();
     });
 
@@ -90,7 +90,7 @@ void ContentLibraryUserModel::updateIsEmpty3D()
 
     if (newEmpty != m_isEmpty3D) {
         m_isEmpty3D = newEmpty;
-        emit isEmptyMaterialsChanged();
+        emit isEmpty3DChanged();
     }
 }
 
@@ -132,7 +132,7 @@ void ContentLibraryUserModel::addTextures(const QStringList &paths)
     emit dataChanged(index(texSectionIdx), index(texSectionIdx));
 }
 
-void ContentLibraryUserModel::add3DInstance(ContentLibraryEffect *bundleItem)
+void ContentLibraryUserModel::add3DInstance(ContentLibraryItem *bundleItem)
 {
         QString err = m_widget->importer()->importComponent(m_bundlePath3D.path(), bundleItem->type(),
                                                             bundleItem->qml(),
@@ -408,7 +408,7 @@ void ContentLibraryUserModel::load3DBundle()
         QString qml = itemObj.value("qml").toString();
         TypeName type = QLatin1String("%1.%2").arg(typePrefix, qml.chopped(4)).toLatin1();
 
-        auto bundleItem = new ContentLibraryEffect(nullptr, itemName, qml, type, icon, files);
+        auto bundleItem = new ContentLibraryItem(nullptr, itemName, qml, type, icon, files);
 
         m_user3DItems.append(bundleItem);
     }

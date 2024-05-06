@@ -507,7 +507,7 @@ void Edit3DView::nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::BundleMaterialDrop) {
         emitCustomNotification("drop_bundle_material", {modelNode}); // To ContentLibraryView
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::BundleEffectDrop) {
-        emitCustomNotification("drop_bundle_effect", {modelNode}, {pos3d}); // To ContentLibraryView
+        emitCustomNotification("drop_bundle_item", {modelNode}, {pos3d}); // To ContentLibraryView
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::TextureDrop) {
         emitCustomNotification("apply_texture_to_model3D", {modelNode, m_droppedModelNode});
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::AssetDrop) {

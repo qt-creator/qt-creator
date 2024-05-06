@@ -24,7 +24,7 @@ Item {
 
         onPressed: (mouse) => {
             if (mouse.button === Qt.LeftButton && !ContentLibraryBackend.rootView.importerRunning)
-                ContentLibraryBackend.rootView.startDragEffect(modelData, mapToGlobal(mouse.x, mouse.y))
+                ContentLibraryBackend.rootView.startDragItem(modelData, mapToGlobal(mouse.x, mouse.y))
             else if (mouse.button === Qt.RightButton)
                 root.showContextMenu()
         }
@@ -43,7 +43,7 @@ Item {
             source: modelData.bundleItemIcon
             cache: false
 
-            Rectangle { // circular indicator for imported bundle effect
+            Rectangle { // circular indicator for imported bundle item
                 width: 10
                 height: 10
                 radius: 5
@@ -57,7 +57,7 @@ Item {
 
                 ToolTip {
                     visible: indicatorMouseArea.containsMouse
-                    text: qsTr("Effect is imported to project")
+                    text: qsTr("Item is imported to the project")
                     delay: 1000
                 }
 

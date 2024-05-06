@@ -4,7 +4,7 @@
 #include "contentlibraryview.h"
 
 #include "contentlibrarybundleimporter.h"
-#include "contentlibraryeffect.h"
+#include "contentlibraryitem.h"
 #include "contentlibraryeffectsmodel.h"
 #include "contentlibrarymaterial.h"
 #include "contentlibrarymaterialsmodel.h"
@@ -70,9 +70,9 @@ WidgetInfo ContentLibraryView::widgetInfo()
                 [&] (QmlDesigner::ContentLibraryTexture *tex) {
             m_draggedBundleTexture = tex;
         });
-        connect(m_widget, &ContentLibraryWidget::bundleEffectDragStarted, this,
-                [&] (QmlDesigner::ContentLibraryEffect *eff) {
-            m_draggedBundleEffect = eff;
+        connect(m_widget, &ContentLibraryWidget::bundleItemDragStarted, this,
+                [&] (QmlDesigner::ContentLibraryItem *item) {
+            m_draggedBundleItem = item;
         });
 
         connect(m_widget, &ContentLibraryWidget::addTextureRequested, this,
@@ -143,23 +143,23 @@ void ContentLibraryView::connectImporter()
                 QTC_ASSERT(typeName.size(), return);
                 if (isMaterialBundle(bundleId)) {
                     applyBundleMaterialToDropTarget({}, typeName);
-                } else if (isEffectBundle(bundleId)) {
-                    if (!m_bundleEffectTarget)
-                        m_bundleEffectTarget = Utils3D::active3DSceneNode(this);
+                } else if (isItemBundle(bundleId)) {
+                    if (!m_bundleItemTarget)
+                        m_bundleItemTarget = Utils3D::active3DSceneNode(this);
 
-                    QTC_ASSERT(m_bundleEffectTarget, return);
+                    QTC_ASSERT(m_bundleItemTarget, return);
 
                     executeInTransaction("ContentLibraryView::widgetInfo", [&] {
-                        QVector3D pos = m_bundleEffectPos.value<QVector3D>();
-                        ModelNode newEffNode = createModelNode(
+                        QVector3D pos = m_bundleItemPos.value<QVector3D>();
+                        ModelNode newNode = createModelNode(
                             typeName, -1, -1, {{"x", pos.x()}, {"y", pos.y()}, {"z", pos.z()}});
-                        m_bundleEffectTarget.defaultNodeListProperty().reparentHere(newEffNode);
+                        m_bundleItemTarget.defaultNodeListProperty().reparentHere(newNode);
                         clearSelectedModelNodes();
-                        selectModelNode(newEffNode);
+                        selectModelNode(newNode);
                     });
 
-                    m_bundleEffectTarget = {};
-                    m_bundleEffectPos = {};
+                    m_bundleItemTarget = {};
+                    m_bundleItemPos = {};
                 }
             });
 #else
@@ -170,27 +170,27 @@ void ContentLibraryView::connectImporter()
                 QTC_ASSERT(metaInfo.isValid(), return);
                 if (isMaterialBundle(bundleId)) {
                     applyBundleMaterialToDropTarget({}, metaInfo);
-                } else if (isEffectBundle(bundleId)) {
-                    if (!m_bundleEffectTarget)
-                        m_bundleEffectTarget = Utils3D::active3DSceneNode(this);
+                } else if (isItemBundle(bundleId)) {
+                    if (!m_bundleItemTarget)
+                        m_bundleItemTarget = Utils3D::active3DSceneNode(this);
 
-                    QTC_ASSERT(m_bundleEffectTarget, return);
+                    QTC_ASSERT(m_bundleItemTarget, return);
 
                     executeInTransaction("ContentLibraryView::connectImporter", [&] {
-                        QVector3D pos = m_bundleEffectPos.value<QVector3D>();
-                        ModelNode newEffNode = createModelNode(metaInfo.typeName(),
+                        QVector3D pos = m_bundleItemPos.value<QVector3D>();
+                        ModelNode newNode = createModelNode(metaInfo.typeName(),
                                                                metaInfo.majorVersion(),
                                                                metaInfo.minorVersion(),
                                                                {{"x", pos.x()},
                                                                 {"y", pos.y()},
                                                                 {"z", pos.z()}});
-                        m_bundleEffectTarget.defaultNodeListProperty().reparentHere(newEffNode);
+                        m_bundleItemTarget.defaultNodeListProperty().reparentHere(newNode);
                         clearSelectedModelNodes();
-                        selectModelNode(newEffNode);
+                        selectModelNode(newNode);
                     });
 
-                    m_bundleEffectTarget = {};
-                    m_bundleEffectPos = {};
+                    m_bundleItemTarget = {};
+                    m_bundleItemPos = {};
                 }
             });
 #endif
@@ -209,13 +209,13 @@ void ContentLibraryView::connectImporter()
                         QmlObjectNode(mat).destroy();
                 });
             });
-        } else if (isEffectBundle(bundleId)) {
-            // delete instances of the bundle effect that is about to be unimported
+        } else if (isItemBundle(bundleId)) {
+            // delete instances of the bundle item that is about to be unimported
             executeInTransaction("ContentLibraryView::connectImporter", [&] {
                 NodeMetaInfo metaInfo = model()->metaInfo(type);
-                QList<ModelNode> effects = allModelNodesOfType(metaInfo);
-                for (ModelNode &eff : effects)
-                    eff.destroy();
+                QList<ModelNode> nodes = allModelNodesOfType(metaInfo);
+                for (ModelNode &node : nodes)
+                    node.destroy();
             });
         }
     });
@@ -227,7 +227,8 @@ bool ContentLibraryView::isMaterialBundle(const QString &bundleId) const
     return bundleId == compUtils.materialsBundleId() || bundleId == compUtils.userMaterialsBundleId();
 }
 
-bool ContentLibraryView::isEffectBundle(const QString &bundleId) const
+// item bundle includes effects and 3D components
+bool ContentLibraryView::isItemBundle(const QString &bundleId) const
 {
     auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
     return bundleId == compUtils.effectsBundleId() || bundleId == compUtils.userEffectsBundleId()
@@ -345,18 +346,18 @@ void ContentLibraryView::customNotification(const AbstractView *view,
         m_widget->addTexture(m_draggedBundleTexture);
 
         m_draggedBundleTexture = nullptr;
-    } else if (identifier == "drop_bundle_effect") {
+    } else if (identifier == "drop_bundle_item") {
         QTC_ASSERT(nodeList.size() == 1, return);
 
         auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-        bool is3D = m_draggedBundleEffect->type().startsWith(compUtils.user3DBundleType().toLatin1());
+        bool is3D = m_draggedBundleItem->type().startsWith(compUtils.user3DBundleType().toLatin1());
 
-        m_bundleEffectPos = data.size() == 1 ? data.first() : QVariant();
+        m_bundleItemPos = data.size() == 1 ? data.first() : QVariant();
         if (is3D)
-            m_widget->userModel()->add3DInstance(m_draggedBundleEffect);
+            m_widget->userModel()->add3DInstance(m_draggedBundleItem);
         else
-            m_widget->effectsModel()->addInstance(m_draggedBundleEffect);
-        m_bundleEffectTarget = nodeList.first() ? nodeList.first() : Utils3D::active3DSceneNode(this);
+            m_widget->effectsModel()->addInstance(m_draggedBundleItem);
+        m_bundleItemTarget = nodeList.first() ? nodeList.first() : Utils3D::active3DSceneNode(this);
     } else if (identifier == "add_material_to_content_lib") {
         QTC_ASSERT(nodeList.size() == 1 && data.size() == 1, return);
 
@@ -760,6 +761,7 @@ void ContentLibraryView::updateBundlesQuick3DVersion()
 #endif
     m_widget->materialsModel()->setQuick3DImportVersion(major, minor);
     m_widget->effectsModel()->setQuick3DImportVersion(major, minor);
+    m_widget->userModel()->setQuick3DImportVersion(major, minor);
 }
 
 } // namespace QmlDesigner

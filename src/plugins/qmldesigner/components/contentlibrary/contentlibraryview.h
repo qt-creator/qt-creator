@@ -14,7 +14,7 @@ QT_FORWARD_DECLARE_CLASS(QPixmap)
 
 namespace QmlDesigner {
 
-class ContentLibraryEffect;
+class ContentLibraryItem;
 class ContentLibraryMaterial;
 class ContentLibraryTexture;
 class ContentLibraryWidget;
@@ -50,7 +50,7 @@ public:
 private:
     void connectImporter();
     bool isMaterialBundle(const QString &bundleId) const;
-    bool isEffectBundle(const QString &bundleId) const;
+    bool isItemBundle(const QString &bundleId) const;
     void active3DSceneChanged(qint32 sceneId);
     void updateBundlesQuick3DVersion();
     void addLibMaterial(const ModelNode &mat, const QPixmap &icon);
@@ -73,12 +73,12 @@ private:
 #endif
     QPointer<ContentLibraryWidget> m_widget;
     QList<ModelNode> m_bundleMaterialTargets;
-    ModelNode m_bundleEffectTarget; // target of the dropped bundle effect
-    QVariant m_bundleEffectPos; // pos of the dropped bundle effect
+    ModelNode m_bundleItemTarget; // target of the dropped bundle item
+    QVariant m_bundleItemPos; // pos of the dropped bundle item
     QList<ModelNode> m_selectedModels; // selected 3D model nodes
     ContentLibraryMaterial *m_draggedBundleMaterial = nullptr;
     ContentLibraryTexture *m_draggedBundleTexture = nullptr;
-    ContentLibraryEffect *m_draggedBundleEffect = nullptr;
+    ContentLibraryItem *m_draggedBundleItem = nullptr;
     bool m_bundleMaterialAddToSelected = false;
     bool m_hasQuick3DImport = false;
     qint32 m_sceneId = -1;

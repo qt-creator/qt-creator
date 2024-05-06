@@ -685,7 +685,7 @@ void Edit3DWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
     } else if (actionManager.externalDragHasSupportedAssets(dragEnterEvent->mimeData())
                || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_MATERIAL)
                || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)
-               || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_EFFECT)
+               || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM)
                || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_TEXTURE)) {
         if (Utils3D::active3DSceneNode(m_view).isValid())
             dragEnterEvent->acceptProposedAction();
@@ -730,8 +730,8 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
         return;
     }
 
-    // handle dropping bundle effects
-    if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_EFFECT)) {
+    // handle dropping bundle items
+    if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM)) {
         m_view->dropBundleEffect(pos);
         m_view->model()->endDrag();
         return;

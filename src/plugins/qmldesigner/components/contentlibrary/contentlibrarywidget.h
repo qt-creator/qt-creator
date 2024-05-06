@@ -23,8 +23,8 @@ class StudioQuickWidget;
 namespace QmlDesigner {
 
 class ContentLibraryBundleImporter;
-class ContentLibraryEffect;
 class ContentLibraryEffectsModel;
+class ContentLibraryItem;
 class ContentLibraryMaterial;
 class ContentLibraryMaterialsModel;
 class ContentLibraryTexture;
@@ -79,7 +79,7 @@ public:
     QPointer<ContentLibraryEffectsModel> effectsModel() const;
     QPointer<ContentLibraryUserModel> userModel() const;
 
-    Q_INVOKABLE void startDragEffect(QmlDesigner::ContentLibraryEffect *eff, const QPointF &mousePos);
+    Q_INVOKABLE void startDragItem(QmlDesigner::ContentLibraryItem *item, const QPointF &mousePos);
     Q_INVOKABLE void startDragMaterial(QmlDesigner::ContentLibraryMaterial *mat, const QPointF &mousePos);
     Q_INVOKABLE void startDragTexture(QmlDesigner::ContentLibraryTexture *tex, const QPointF &mousePos);
     Q_INVOKABLE void addImage(QmlDesigner::ContentLibraryTexture *tex);
@@ -94,7 +94,7 @@ public:
     ContentLibraryBundleImporter *importer() const;
 
 signals:
-    void bundleEffectDragStarted(QmlDesigner::ContentLibraryEffect *bundleEff);
+    void bundleItemDragStarted(QmlDesigner::ContentLibraryItem *item);
     void bundleMaterialDragStarted(QmlDesigner::ContentLibraryMaterial *bundleMat);
     void bundleTextureDragStarted(QmlDesigner::ContentLibraryTexture *bundleTex);
     void addTextureRequested(const QString texPath, QmlDesigner::AddTextureMode mode);
@@ -134,12 +134,11 @@ private:
     QPointer<ContentLibraryUserModel> m_userModel;
 
     ContentLibraryBundleImporter *m_importer = nullptr;
-
     QShortcut *m_qmlSourceUpdateShortcut = nullptr;
 
     QString m_filterText;
 
-    ContentLibraryEffect *m_effectToDrag = nullptr;
+    ContentLibraryItem *m_itemToDrag = nullptr;
     ContentLibraryMaterial *m_materialToDrag = nullptr;
     ContentLibraryTexture *m_textureToDrag = nullptr;
     QPoint m_dragStartPoint;

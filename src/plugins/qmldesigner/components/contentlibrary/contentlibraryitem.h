@@ -10,7 +10,7 @@
 
 namespace QmlDesigner {
 
-class ContentLibraryEffect : public QObject
+class ContentLibraryItem : public QObject
 {
     Q_OBJECT
 
@@ -22,12 +22,12 @@ class ContentLibraryEffect : public QObject
     Q_PROPERTY(QString itemType MEMBER m_itemType CONSTANT)
 
 public:
-    ContentLibraryEffect(QObject *parent,
-                         const QString &name,
-                         const QString &qml,
-                         const TypeName &type,
-                         const QUrl &icon,
-                         const QStringList &files);
+    ContentLibraryItem(QObject *parent,
+                       const QString &name,
+                       const QString &qml,
+                       const TypeName &type,
+                       const QUrl &icon,
+                       const QStringList &files);
 
     bool filter(const QString &searchText);
 

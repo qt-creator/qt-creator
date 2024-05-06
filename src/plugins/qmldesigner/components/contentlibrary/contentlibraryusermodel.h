@@ -12,7 +12,7 @@ QT_FORWARD_DECLARE_CLASS(QUrl)
 
 namespace QmlDesigner {
 
-class ContentLibraryEffect;
+class ContentLibraryItem;
 class ContentLibraryMaterial;
 class ContentLibraryTexture;
 class ContentLibraryWidget;
@@ -30,8 +30,8 @@ class ContentLibraryUserModel : public QAbstractListModel
     Q_PROPERTY(bool hasModelSelection READ hasModelSelection NOTIFY hasModelSelectionChanged)
     Q_PROPERTY(QList<ContentLibraryMaterial *> userMaterials MEMBER m_userMaterials NOTIFY userMaterialsChanged)
     Q_PROPERTY(QList<ContentLibraryTexture *> userTextures MEMBER m_userTextures NOTIFY userTexturesChanged)
-    Q_PROPERTY(QList<ContentLibraryEffect *> user3DItems MEMBER m_user3DItems NOTIFY user3DItemsChanged)
-    Q_PROPERTY(QList<ContentLibraryEffect *> userEffects MEMBER m_userEffects NOTIFY userEffectsChanged)
+    Q_PROPERTY(QList<ContentLibraryItem *> user3DItems MEMBER m_user3DItems NOTIFY user3DItemsChanged)
+    Q_PROPERTY(QList<ContentLibraryItem *> userEffects MEMBER m_userEffects NOTIFY userEffectsChanged)
 
 public:
     ContentLibraryUserModel(ContentLibraryWidget *parent = nullptr);
@@ -61,7 +61,7 @@ public:
     void addMaterial(const QString &name, const QString &qml, const QUrl &icon, const QStringList &files);
     void addTextures(const QStringList &paths);
 
-    void add3DInstance(ContentLibraryEffect *bundleItem);
+    void add3DInstance(ContentLibraryItem *bundleItem);
 
     void setBundleObj(const QJsonObject &newBundleObj);
     QJsonObject &bundleJsonObjectRef();
@@ -86,7 +86,6 @@ signals:
 
     void applyToSelectedTriggered(QmlDesigner::ContentLibraryMaterial *mat, bool add = false);
 
-
     void matBundleExistsChanged();
     void bundle3DExistsChanged();
 
@@ -106,8 +105,8 @@ private:
 
     QList<ContentLibraryMaterial *> m_userMaterials;
     QList<ContentLibraryTexture *> m_userTextures;
-    QList<ContentLibraryEffect *> m_userEffects;
-    QList<ContentLibraryEffect *> m_user3DItems;
+    QList<ContentLibraryItem *> m_userEffects;
+    QList<ContentLibraryItem *> m_user3DItems;
     QStringList m_userCategories;
 
     QJsonObject m_bundleObjMaterial;
