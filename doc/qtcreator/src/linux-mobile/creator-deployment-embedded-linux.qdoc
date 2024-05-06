@@ -113,5 +113,5 @@
     uploads the tarball to the device and extracts it.
 
     \sa {Build and Run}{How To: Build and Run},
-    {Connecting Remote Linux Devices}, {Remote Linux Run Settings}
+    {Remote Linux}{How To: Develop for remote Linux}, {Remote Linux Run Settings}
 */

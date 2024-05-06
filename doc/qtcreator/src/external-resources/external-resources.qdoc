@@ -213,3 +213,7 @@
     \externalpage https://valgrind.org/docs/manual/manual-core.html#manual-core.suppress
     \title Suppressing Errors
 */
+/*!
+    \externalpage https://www.openssh.com/
+    \title OpenSSH
+*/

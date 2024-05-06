@@ -86,30 +86,41 @@
     embedded or mobile platform on the computer, and use \QOI to
     install Qt libraries that are built for the platform. Then add a
     kit with the toolchain and the Qt version for the device's architecture.
-    When possible, \QOI creates suitable kits for you.
+    When possible, \QOI creates suitable kits for you. Connect the devices
+    to the computer to run, debug, and analyze applications on them.
 
     \section2 Android
 
-    Install \l {Qt for Android} and Android tools.
+    Install \l {Qt for Android} and Android tools, and connect Android devices to
+    the computer.
 
     \generatelist creator-how-to-android
 
     \section2 Bare Metal
 
+    Run and debug applications on small Linux devices that are not supported
+    by the remote Linux device plugin by using GDB or a hardware debugger.
+
     \generatelist creator-how-to-bare-metal
 
     \section2 iOS
 
-    Install \l {Qt for iOS} and Xcode.
+    Install \l {Qt for iOS} and Xcode, and connect iOS devices to the computer.
 
     \generatelist creator-how-to-ios
 
     \section2 MCUs
 
-    Install \l {Qt for MCUs} and connect devices to the computer to run and
-    debug applications on them.
+    Install \l {Qt for MCUs}, and connect microcontrollers to the computer.
 
     \generatelist creator-how-to-mcu
+
+    \section2 Remote Linux
+
+    Add kits for toolchains for building applications for generic Linux
+    devices, and connect the devices to the computer.
+
+    \generatelist creator-how-to-remote-linux
 
     \section1 Edit Code
 
@@ -146,7 +157,7 @@
 
     \QC groups build and run specific settings as kits to make cross-platform
     development easier. Each kit consists of a set of values that define one
-    environment, such as a device, tool chain, Qt version, and debugger command
+    environment, such as a device, toolchain, Qt version, and debugger command
     to use.
 
     \generatelist creator-how-to-manage-kits

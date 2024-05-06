@@ -1,0 +1,82 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-configure-ssh.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-remote-linux
+
+    \title Configure SSH connections
+
+    To protect the connections between \QC and a device, install the \l{OpenSSH}
+    suite, which includes the \c ssh, \c sftp, and \c ssh-keygen tools on the
+    computer.
+
+    SSH connections are established via an OpenSSH client running in master
+    mode, if possible. By default, multiple sessions are shared over a single SSH
+    onnection. Establishing a connection once and then re-using it for subsequent
+    run and deploy procedures reduces connection setup overhead particularly
+    with embedded devices. Because connection sharing is not supported on
+    Windows, a new SSH connection is created for each deploy or run procedure.
+
+    To set the paths to the directories where the tools are installed:
+
+    \list 1
+        \li Go to \preferences > \uicontrol Devices > \uicontrol SSH.
+            \image qtcreator-ssh-options.png "SSH preferences"
+        \li Clear \uicontrol {Enable connection sharing} to
+            create a new SSH connection for each deploy and run procedure. This
+            option is grayed on Windows, where connection sharing is not
+            supported.
+        \li In \uicontrol {Connection sharing timeout}, specify the
+            timeout for reusing the SSH connection in minutes.
+        \li In \uicontrol {Path to ssh executable}, enter the path
+            to the directory where the OpenSSH executable is installed.
+        \li In \uicontrol {Path to sftp executable}, enter the path
+            to the directory where the SFTP executable is installed.
+        \li In \uicontrol {Path to ssh-askpass executable}, enter the
+            path to the directory where the ssh-askpass executable is installed.
+            Usually, you can use the default path that points to the
+            implementation of the tool delivered with \QC, qtc-askpass.
+        \li In \uicontrol {Path to ssh-keygen executable}, enter the
+            path to the directory where the ssh-keygen executable is installed.
+    \endlist
+
+    \sa {Remote Linux}{How To: Develop for remote Linux},
+    {Developing for Remote Linux Devices}
+*/
+
+/*!
+    \page creator-how-to-generate-ssh-keys.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-remote-linux
+
+    \title Generate SSH Keys
+
+    To protect the connections between \QC and a device, use \l{OpenSSH}.
+
+    If you do not have an SSH public and private key pair, you can generate it
+    in \QC. The connection wizard can create the key pair for you, or you can
+    create it separately.
+
+    You can specify key length and the key algorithm, RSA or ECDSA.
+    If you only use the keys to protect connections to the emulator or
+    device, you can use the default values.
+
+    \list 1
+        \li Go to \preferences > \uicontrol Devices > \uicontrol Devices
+        \li Select \uicontrol {Create New}.
+            \image qtcreator-ssh-key-configuration.png {SSH Key Configuration dialog}
+        \li In \uicontrol {Private key file}, select the location to save
+            the private key.
+            \uicontrol {Public key file} displays the location to save the
+            corresponding public key.
+        \li Select \uicontrol {Generate And Save Key Pair} to generate and save the
+            keys at the specified locations.
+    \endlist
+
+    \sa {Remote Linux}{How To: Develop for remote Linux},
+    {Developing for remote Linux devices}
+*/

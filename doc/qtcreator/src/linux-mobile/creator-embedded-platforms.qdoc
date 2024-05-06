@@ -14,17 +14,17 @@
     You can develop applications for the following embedded platforms:
 
     \list
-        \li \l {Bare Metal}
+        \li Bare Metal
         \li \l {Boot2Qt}
-        \li \l {Remote Linux}
-        \li \l {Microcontroller Units (MCU)}
+        \li Remote Linux
+        \li Microcontrollers (MCU)
         \li \l QNX
     \endlist
 
-    You must install the tool chain for building applications for the targeted
+    You must install the toolchain for building applications for the targeted
     embedded platform on the development PC and use \QMT to
     install Qt libraries that are built for the platform. You can then add a
-    \l{glossary-buildandrun-kit}{kit} with the tool chain and the Qt version
+    \l{glossary-buildandrun-kit}{kit} with the toolchain and the Qt version
     for the device's architecture. When possible, \QMT creates
     suitable kits for you.
 
@@ -48,38 +48,6 @@
         \li \l{Run in Qt Application Manager}
     \endlist
 
-    \section1 Remote Linux
-
-    You must have a tool chain for building applications for embedded Linux
-    devices installed on the development PC.
-
-    The following topics have more information about developing applications
-    for remote Linux devices:
-
-    \list
-        \li \l{Adding Docker Devices}
-        \li \l{Connecting Remote Linux Devices}
-        \li \l{Remote Linux Deploy Configuration}
-        \li \l{Remote Linux Run Settings}
-        \li \l{Run on remote Linux devices}
-        \li \l{Run in Qt Application Manager}
-    \endlist
-
-    \section1 Microcontroller Units (MCU)
-
-    You need the GNU Arm Embedded GCC compiler, libraries, and other GNU tools
-    necessary for bare metal software development on devices based on the Arm
-    Cortex-M processors.
-
-    The following topics have more information about developing applications
-    for MCUs:
-
-    \list
-        \li \l{Connecting MCUs}
-        \li \l{MCUs}{How To: Develop for MCUs}
-        \li \l{https://doc.qt.io/QtForMCUs/index.html}{\QMCU}
-    \endlist
-
     \section1 QNX
 
     The QNX Neutrino RTOS has more command-line tools
@@ -98,5 +66,6 @@
         \li \l{Qt for QNX}
     \endlist
 
-    \sa {Develop for Devices}{How To: Develop for Devices}, {Supported Platforms}
+    \sa {Develop for Devices}{How To: Develop for Devices}, {Devices},
+    {Supported Platforms}
 */

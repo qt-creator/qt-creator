@@ -149,6 +149,6 @@
     in-process runtime as an individual process.
 
     \sa {Activate kits for a project}, {Connecting Boot2Qt Devices},
-    {Connecting Remote Linux Devices}, {Enable and disable plugins},
+    {Remote Linux}{How To: Develop for remote Linux}, {Enable and disable plugins},
     {Run on many platforms}, {Debugging}, {Debuggers}, {Debugger}, {Profiling QML Applications}
 */

@@ -17,8 +17,8 @@
 
     \section1 Adding a QNX Neutrino Device in \QC
 
-    Adding a QNX Neutrino device is very similar to
-    \l{Connecting Remote Linux Devices}, except that
+    Adding a QNX Neutrino device is very similar to adding a
+    \l{Add remote Linux devices}{remote Linux device}, except that
     you need to select \uicontrol {QNX Device} in the
     \uicontrol {Device Configuration} wizard.
 

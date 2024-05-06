@@ -43,17 +43,12 @@
             \li \image ok.png
             \li \image ok.png
         \row
-            \li \l{Remote Linux}
-            \li \image ok.png
-            \li \image ok.png
-            \li \image ok.png
-        \row
             \li \l iOS
             \li
             \li \image ok.png
             \li
         \row
-            \li \l{Microcontroller Units (MCU)}{MCUs}
+            \li \l{MCUs}
             \li \image ok.png
             \li
             \li \image ok.png
@@ -62,6 +57,11 @@
             \li \image ok.png
             \li \image ok.png
             \li \inlineimage ok.png
+        \row
+            \li \l{Remote Linux}
+            \li \image ok.png
+            \li \image ok.png
+            \li \image ok.png
         \row
             \li \l{Building Applications for the Web}{WebAssembly}
             \li \image ok.png
@@ -74,5 +74,6 @@
     \QC automatically runs scheduled checks for updates based on the settings
     specified in \preferences > \uicontrol Environment > \uicontrol Update.
 
-    \sa {Desktop Platforms}, {Embedded Platforms}, {Mobile Platforms}
+    \sa {Develop for Devices}{How To: Develop for Devices}, {Desktop Platforms},
+    {Devices}
 */

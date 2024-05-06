@@ -19,7 +19,7 @@
     connections from the development host to the device and add the device
     configurations to kits. Select \uicontrol {Manage Kits} to add devices
     to kits. For more information, see
-    \l {Connecting Remote Linux Devices}.
+    \l {Remote Linux}{How To: Develop for remote Linux}.
 
     When you run the application, \QC copies the files to the connected device.
 
@@ -38,5 +38,5 @@
     running X11 client on a local display.
 
     \sa {Activate kits for a project}, {Configure projects for running}, {kits-tab}{Kits},
-    {Connecting Remote Linux Devices}
+    {Remote Linux}{How To: Develop for remote Linux}
 */

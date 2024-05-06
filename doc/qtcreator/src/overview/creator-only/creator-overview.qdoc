@@ -198,6 +198,34 @@
     For more information, see \l{Build and Run}{How To: Build and Run},
     \l{Build Systems}, \l{Build Configurations}, and \l{Run Configurations}.
 
+    \section1 Embedded Platforms
+
+    You can develop applications for the following embedded platforms:
+
+    \list
+        \li \l {Developing for Bare Metal Devices}{Bare Metal}
+        \li \l {Boot2Qt}
+        \li \l {Remote Linux}
+        \li \l {Developing for MCUs}{Microcontrollers (MCU)}
+        \li \l {Connecting QNX Devices}{QNX}
+    \endlist
+
+    Install the toolchain for building applications for the targeted
+    embedded platform on the computer, and then use \QOI to install Qt
+    libraries that are built for the platform. Add a kit with the toolchain and
+    the Qt version for the device's architecture. When possible, \QOI creates
+    suitable kits for you.
+
+    You can connect embedded devices to the computer and select the appropriate
+    kit to run, debug, and analyze applications built for them from \QC.
+
+    \e {Deploy configurations} handle the packaging and copying of the necessary
+    files to a location you want to run the executable at, such as the file
+    system of a device.
+
+    For more information, see \l{Develop for Devices}{How To: Develop for Devices}
+    and \l{Devices}.
+
     \section2 Mobile Platforms
 
     You can develop applications for the following mobile platforms:
@@ -207,17 +235,13 @@
         \li \l iOS
     \endlist
 
-    Install the tool chain for building applications for the targeted mobile
+    Install the toolchain for building applications for the targeted mobile
     platform on the computer, and then use \QOI to install Qt libraries that are
-    built for the platform. Add a kit with the tool chain and the Qt version for
+    built for the platform. Add a kit with the toolchain and the Qt version for
     the device's architecture. When possible, \QOI creates suitable kits for you.
 
     You can connect mobile devices to the computer and select the
     appropriate kit to build, run, debug, and analyze applications from \QC.
-
-    \e {Deploy configurations} handle the packaging and copying of the necessary
-    files to a location you want to run the executable at, such as the file
-    system of a device.
 
     Before starting application development, analyze and define the requirements,
     scope, and functionality of the application to ensure efficient functionality

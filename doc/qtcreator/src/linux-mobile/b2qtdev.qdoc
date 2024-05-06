@@ -60,15 +60,15 @@
     \section2 Protecting Connections
 
     You can protect the connections between \QC and a device by using an
-    \l{https://www.openssh.com/}{OpenSSH} connection. OpenSSH is a
+    \l{OpenSSH} connection. OpenSSH is a
     connectivity tool for remote login using the SSH protocol. The OpenSSH
     suite is not delivered with \QC, so you must download it and install it
     on the development PC. Then, you must configure the paths to the tools in
-    \QC. For more information, see \l {Configuring SSH Connections}.
+    \QC. For more information, see \l {Configure SSH connections}.
 
     You need either a password or an SSH public and private key pair for
     authentication. If you do not have an SSH key, you can use the \c ssh-keygen
-    tool to create it in \QC. For more information, see \l {Generating SSH Keys}.
+    tool to create it in \QC. For more information, see \l {Generate SSH keys}.
 
     \QC does not store passwords. If you use password authentication, you may
     need to enter the password upon every connection to the device, or if

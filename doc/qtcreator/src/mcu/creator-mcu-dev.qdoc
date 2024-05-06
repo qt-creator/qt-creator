@@ -91,7 +91,8 @@
         \li 1.0
     \endtable
 
-    \sa {Enable and disable plugins}, {MCUs}{How To: Develop for MCUs}
+    \sa {Enable and disable plugins}, {MCUs}{How To: Develop for MCUs},
+    {Developing for MCUs}, {\QMCU}
 */
 
 /*!
@@ -157,7 +158,7 @@
 
     \QC automatically adds a default MCU device when you select
     \uicontrol Apply in the \uicontrol MCU tab after configuring the
-    MCU tool chain.
+    MCU toolchain.
 
     \image qtcreator-mcu-device.png {MCU devices}
 

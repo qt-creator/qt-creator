@@ -5,7 +5,7 @@
     \page creator-how-to-run-on-remote-linux.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-run
+    \ingroup creator-how-to-remote-linux
 
     \title Run on remote Linux devices
 
@@ -19,7 +19,7 @@
 
         \endlist
 
-    \QC uses the compiler from the kit (tool chain) to build the application.
+    \QC uses the compiler from the kit (toolchain) to build the application.
 
     \QC copies the application files to the connected device and runs the
     application. The application views are
@@ -34,6 +34,6 @@
     Debugging works transparently if GDB server is installed on the device and
     it is compatible with the GDB on the host.
 
-    \sa {Connecting Remote Linux Devices}, {Run on many platforms}, {Compilers},
+    \sa {Remote Linux}{How To: Develop for remote Linux}, {Run on many platforms}, {Compilers},
     {Embedded Platforms}, {kit-preferences}{Kits}
 */
