@@ -136,8 +136,8 @@
     \section2 Using Fly Mode
 
     You can move around freely in the 3D scene with fly mode. To navigate the scene with
-    fly mode, keep the \key {right mouse button} pressed and use the listed keys to move
-    around the scene.
+    fly mode, right-click and hold in the \uicontrol 3D view, and use the keyboard shortcuts
+    to move around the scene:
 
     \table
     \header
