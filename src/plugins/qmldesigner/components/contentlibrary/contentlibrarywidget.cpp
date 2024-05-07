@@ -788,28 +788,6 @@ void ContentLibraryWidget::setIsDragging(bool val)
     }
 }
 
-QString ContentLibraryWidget::findTextureBundlePath()
-{
-    QDir texBundleDir;
-
-    if (!qEnvironmentVariable("TEXTURE_BUNDLE_PATH").isEmpty())
-        texBundleDir.setPath(qEnvironmentVariable("TEXTURE_BUNDLE_PATH"));
-    else if (Utils::HostOsInfo::isMacHost())
-        texBundleDir.setPath(QCoreApplication::applicationDirPath() + "/../Resources/texture_bundle");
-
-    // search for matBundleDir from exec dir and up
-    if (texBundleDir.dirName() == ".") {
-        texBundleDir.setPath(QCoreApplication::applicationDirPath());
-        while (!texBundleDir.cd("texture_bundle") && texBundleDir.cdUp())
-            ; // do nothing
-
-        if (texBundleDir.dirName() != "texture_bundle") // bundlePathDir not found
-            return {};
-    }
-
-    return texBundleDir.path();
-}
-
 void ContentLibraryWidget::startDragItem(QmlDesigner::ContentLibraryItem *item, const QPointF &mousePos)
 {
     m_itemToDrag = item;

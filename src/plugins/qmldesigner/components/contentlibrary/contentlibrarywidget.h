@@ -113,7 +113,6 @@ private:
     void reloadQmlSource();
     void updateSearch();
     void setIsDragging(bool val);
-    QString findTextureBundlePath();
     void loadTextureBundles();
     QVariantMap readTextureBundleJson();
     bool fetchTextureBundleJson(const QDir &bundleDir);
