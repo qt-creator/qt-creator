@@ -33,6 +33,8 @@ Column {
 
     property alias gradientModel: gradientModel
 
+    property Window parentWindow: null
+
     property bool isInValidState: false
 
     readonly property real twoColumnWidth: (colorColumn.width - StudioTheme.Values.controlGap) * 0.5

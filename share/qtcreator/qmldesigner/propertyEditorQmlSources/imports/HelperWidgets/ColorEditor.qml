@@ -246,6 +246,7 @@ SecondColumnLayout {
                     supportGradient: colorEditor.supportGradient
                     width: popupDialog.contentWidth
                     visible: popupDialog.visible
+                    parentWindow: popupDialog.window
                 }
 
                 onLoaded: {
