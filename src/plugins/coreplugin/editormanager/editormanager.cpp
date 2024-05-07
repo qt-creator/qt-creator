@@ -1473,6 +1473,7 @@ bool EditorManagerPrivate::activateEditorForEntry(EditorView *view, DocumentMode
 void EditorManagerPrivate::closeEditorOrDocument(IEditor *editor)
 {
     QTC_ASSERT(editor, return);
+    EditorManager::addCurrentPositionToNavigationHistory();
     QList<IEditor *> visible = EditorManager::visibleEditors();
     if (Utils::contains(visible,
                         [&editor](IEditor *other) {
@@ -2690,7 +2691,6 @@ void EditorManager::slotCloseCurrentEditorOrDocument()
 {
     if (!d->m_currentEditor)
         return;
-    addCurrentPositionToNavigationHistory();
     d->closeEditorOrDocument(d->m_currentEditor);
 }
 

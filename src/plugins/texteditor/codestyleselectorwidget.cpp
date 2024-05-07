@@ -216,9 +216,11 @@ void CodeStyleSelectorWidget::slotImportClicked()
 void CodeStyleSelectorWidget::slotExportClicked()
 {
     ICodeStylePreferences *currentPreferences = m_codeStyle->currentPreferences();
-    const FilePath filePath = FileUtils::getSaveFilePath(this, Tr::tr("Export Code Style"),
-                             FilePath::fromString(QString::fromUtf8(currentPreferences->id() + ".xml")),
-                             Tr::tr("Code styles (*.xml);;All files (*)"));
+    const FilePath filePath = FileUtils::getSaveFilePath(
+        this,
+        Tr::tr("Export Code Style"),
+        FileUtils::homePath().pathAppended(QString::fromUtf8(currentPreferences->id() + ".xml")),
+        Tr::tr("Code styles (*.xml);;All files (*)"));
     if (!filePath.isEmpty()) {
         CodeStylePool *codeStylePool = m_codeStyle->delegatingPool();
         codeStylePool->exportCodeStyle(filePath, currentPreferences);

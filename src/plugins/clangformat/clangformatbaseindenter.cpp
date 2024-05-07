@@ -65,7 +65,11 @@ static void adjustFormatStyleForLineBreak(clang::format::FormatStyle &style,
 
 static llvm::StringRef clearExtraNewline(llvm::StringRef text)
 {
+#if LLVM_VERSION_MAJOR >= 16
+    while (text.starts_with("\n\n"))
+#else
     while (text.startswith("\n\n"))
+#endif
         text = text.drop_front();
     return text;
 }

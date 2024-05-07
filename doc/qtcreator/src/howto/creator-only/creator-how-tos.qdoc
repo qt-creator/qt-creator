@@ -80,6 +80,21 @@
 
     \generatelist creator-how-to-design
 
+    \section1 Develop for Devices
+
+    Install the toolchain for building applications for the targeted
+    embedded or mobile platform on the computer, and use \QOI to
+    install Qt libraries that are built for the platform. Then add a
+    kit with the toolchain and the Qt version for the device's architecture.
+    When possible, \QOI creates suitable kits for you.
+
+    \section2 MCUs
+
+    Install \l {Qt for MCUs} and connect devices to the computer to run and
+    debug applications on them.
+
+    \generatelist creator-how-to-mcu
+
     \section1 Edit Code
 
     The code editor offers useful features for editing C++ and QML code, such

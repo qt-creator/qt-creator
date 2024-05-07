@@ -25,7 +25,9 @@ def main():
             openContextMenu(waitForObject("{container=':*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack'"
                                           "text='PushButton' type='QPushButton' visible='1'}"), 5, 5, 1)
             activateItem(waitForObjectItem("{type='QMenu' unnamed='1' visible='1'}", "Change objectName..."))
-            typeLines(waitForObject(":FormEditorStack_qdesigner_internal::PropertyLineEdit"), buttonName)
+            buttonNameEdit = waitForObject(":FormEditorStack_qdesigner_internal::PropertyLineEdit")
+            replaceEditorContent(buttonNameEdit, buttonName)
+            type(buttonNameEdit, "<Return>")
         else:
             # Verify that everything works without ever changing the name
             buttonName = "pushButton"

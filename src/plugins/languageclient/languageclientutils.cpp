@@ -235,8 +235,8 @@ void updateEditorToolBar(Core::IEditor *editor)
     TextDocument *document = textEditor->textDocument();
     Client *client = LanguageClientManager::clientForDocument(textEditor->textDocument());
 
-    ClientExtras *extras = widget->findChild<ClientExtras *>(clientExtrasName,
-                                                             Qt::FindDirectChildrenOnly);
+    ClientExtras *extras = dynamic_cast<ClientExtras *>(
+        widget->findChild<QObject *>(clientExtrasName, Qt::FindDirectChildrenOnly));
     if (!extras) {
         if (!client)
             return;

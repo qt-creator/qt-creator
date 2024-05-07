@@ -25,8 +25,6 @@
 #include <functional>
 #include <optional>
 
-namespace Utils { class FancyLineEdit; }
-
 namespace Core {
 
 namespace WelcomePageHelpers {
@@ -113,7 +111,7 @@ private:
     const Role m_role = Primary;
 };
 
-class CORE_EXPORT SearchBox : public QLineEdit
+class CORE_EXPORT SearchBox : public Utils::FancyLineEdit
 {
 public:
     explicit SearchBox(QWidget *parent = nullptr);
