@@ -27,7 +27,7 @@
     \list
         \li \l{Developing for Android}{Android}
         \li \l{Developing for Bare Metal Devices}{Bare Metal}
-        \li \l{Boot2Qt: Documentation}{Boot2Q} (commercial only)
+        \li \l{\B2Q: Documentation}{\B2Q} (commercial only)
         \li \l{Adding Docker Devices}{Docker} (experimental)
         \li \l{Developing for iOS}{iOS}
         \li iOS Simulator
@@ -134,7 +134,7 @@
             cross-compiling, leave this field empty.
     \row
         \li \uicontrol {Emulator skin}
-        \li Skin to use for the \l {Emulator}{Boot2Qt Emulator Device}.
+        \li Skin to use for the \l {Emulator}{\B2Q Emulator Device}.
     \row
         \li \uicontrol {Compiler}
         \li C or C++ compiler that you use to build the project. You can add

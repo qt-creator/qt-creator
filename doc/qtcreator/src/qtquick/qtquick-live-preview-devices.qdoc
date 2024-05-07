@@ -20,7 +20,7 @@
     To preview a UI on an Android device, turn on USB debugging on the device
     and connect it to the computer with a USB cable.
 
-    To preview a UI on a Boot2Qt device, connect the device to the computer
+    To preview a UI on a \B2Q device, connect the device to the computer
     with a USB cable, or a wired or wireless connection, depending on
     the device, and configure a connection to it. The necessary kits have been
     predefined, but you need to select the one appropriate for your current
@@ -74,12 +74,12 @@
     Learn more about \l{Viewing Applications on Android}.
     \endif
 
-    \section2 On Boot2Qt
+    \section2 On \B2Q
 
-    Preview a UI on a supported Boot2Qt device that you configure as
-    instructed in the Boot2Qt documentation.
+    Preview a UI on a supported \B2Q device that you configure as
+    instructed in the \B2Q documentation.
 
-    \sa {Boot2Qt: Documentation}, {Support Levels for Target Hardware}
+    \sa {\B2Q: Documentation}, {Support Levels for Target Hardware}
 
     \if defined(qtcreator)
     \sa {Design UIs}{How To: Design UIs}, {UI Design}

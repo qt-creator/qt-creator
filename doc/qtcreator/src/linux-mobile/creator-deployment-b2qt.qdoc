@@ -7,15 +7,15 @@
 
     \ingroup creator-reference-deploy-configurations
 
-    \title Boot2Qt Deploy Configuration
+    \title \B2Q Deploy Configuration
 
-    \brief Copy application files to Boot2Qt devices.
+    \brief Copy application files to \B2Q devices.
 
-    Specify settings for deploying applications to \l{Boot2Qt} devices
-    in the project configuration file and in \uicontrol Projects >
-    \uicontrol {Run Settings} > \uicontrol Deployment.
+    Specify settings for deploying applications to \l{\B2Q: Documentation}
+    {\B2Q} devices in the project configuration file and in \uicontrol Projects
+    > \uicontrol {Run Settings} > \uicontrol Deployment.
 
-    \image qtcreator-boot2qt-deployment-steps.png "Boot2Qt deployment steps"
+    \image qtcreator-boot2qt-deployment-steps.png {Boot to Qt deployment steps}
 
     The deployment process is described in more detail in
     \l{Remote Linux Deploy Configuration}.
@@ -26,5 +26,7 @@
     \uicontrol {Add Deploy Step} > \uicontrol {Change default application}
     > \uicontrol {Set this application to start by default}.
 
-    \sa {Build and Run}{How To: Build and Run}, {Boot2Qt Run Settings}
+    \sa {Build and Run}{How To: Build and Run},
+    {\B2Q}{How To: Develop for \B2Q}, {\B2Q Run Settings},
+    {Developing for \B2Q Devices}
 */

@@ -39,9 +39,9 @@
             You can connect bare metal devices to the development PC and use \QC
             to debug applications on them with GDB or a hardware debugger.
 
-        \li \l{Connecting Boot2Qt Devices}
+        \li \l{Developing for \B2Q Devices}
 
-            You can connect \l{Boot2Qt} devices to the development PC to run,
+            You can connect \B2Q devices to the development PC to run,
             debug, and analyze applications built for them from \QC.
 
         \li \l {Adding Docker Devices}

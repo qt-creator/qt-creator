@@ -103,6 +103,13 @@
 
     \generatelist creator-how-to-bare-metal
 
+    \section2 \B2Q
+
+    Run, debug, and analyze applications on \l{\B2Q: Documentation}{\B2Q}
+    devices.
+
+    \generatelist creator-how-to-b2qt
+
     \section2 iOS
 
     Install \l {Qt for iOS} and Xcode, and connect iOS devices to the computer.

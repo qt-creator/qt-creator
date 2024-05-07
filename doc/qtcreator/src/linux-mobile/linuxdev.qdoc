@@ -22,6 +22,7 @@
 
     \image qtcreator-preferences-devices-remote-linux.webp {Remote Linux Device in Devices}
 
+    //! [openssh]
     \section1 Protecting Device Connections
 
     To protect the connections between \QC and a device, use \l{OpenSSH} for
@@ -36,6 +37,17 @@
     \note \QC does not store passwords, so if you use password authentication,
     you may need to enter the password on every connection to the device,
     or, if caching is enabled, at every \QC restart.
+
+    If you frequently run into the timeout, consider using key-based
+    authentication. Create an SSH key in \QC with the \c ssh-keygen tool.
+
+    On \macos and Linux, go to \preferences > \uicontrol Devices > \uicontrol SSH
+    and increase the time (in minutes) for sharing an SSH connection in the
+    \uicontrol {Connection sharing timeout} field. Windows does not support
+    shared connections.
+
+    \image qtcreator-ssh-options.png {SSH preferences}
+    //! [openssh]
 
     \sa {Adding Docker Devices}, {Remote Linux}{How To: Develop for remote Linux},
     {Run in Qt Application Manager}, {Remote Linux Deploy Configuration},

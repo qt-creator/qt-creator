@@ -204,7 +204,7 @@
 
     \list
         \li \l {Developing for Bare Metal Devices}{Bare Metal}
-        \li \l {Boot2Qt}
+        \li \l {\B2Q}
         \li \l {Remote Linux}
         \li \l {Developing for MCUs}{Microcontrollers (MCU)}
         \li \l {Connecting QNX Devices}{QNX}

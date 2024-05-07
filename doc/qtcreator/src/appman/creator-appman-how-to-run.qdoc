@@ -11,7 +11,7 @@
 
     If you have set up \l{Qt Application Manager}, you can deploy, run, and
     debug applications on the desktop, remote generic SSH Linux targets, or
-    \l{Boot2Qt}{Boot2Qt devices}. The applications can be either
+    \B2Q devices. The applications can be either
     \e {built-in applications} or \e {third-party applications}. The former
     are part of the System UI or the base installation, while the latter
     are dynamically installed, updated, and uninstalled.
@@ -118,7 +118,7 @@
         \li The path to the controller that installs the application package into
             the target system.
 
-            When you run applications on a Boot2Qt device, you can see the device
+            When you run applications on a \B2Q device, you can see the device
             ID here.
     \row
         \li \uicontrol {Application ID}
@@ -148,7 +148,10 @@
     slowness and unresponsive, stuttering user interfaces. You cannot profile an
     in-process runtime as an individual process.
 
-    \sa {Activate kits for a project}, {Connecting Boot2Qt Devices},
-    {Remote Linux}{How To: Develop for remote Linux}, {Enable and disable plugins},
-    {Run on many platforms}, {Debugging}, {Debuggers}, {Debugger}, {Profiling QML Applications}
+    \sa {Activate kits for a project}, {Enable and disable plugins},
+    {\B2Q}{How To: Develop for \B2Q},
+    {Remote Linux}{How To: Develop for remote Linux},
+    {Run on many platforms}, {Debugging}, {Debuggers}, {Debugger},
+    {Developing for \B2Q Devices}, {Developing for Remote Linux Devices},
+    {Profiling QML Applications}
 */

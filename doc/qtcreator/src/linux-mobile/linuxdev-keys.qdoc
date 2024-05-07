@@ -53,7 +53,7 @@
 
     \ingroup creator-how-to-remote-linux
 
-    \title Generate SSH Keys
+    \title Generate SSH keys
 
     To protect the connections between \QC and a device, use \l{OpenSSH}.
 

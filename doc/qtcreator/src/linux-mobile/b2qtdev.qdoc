@@ -1,143 +1,79 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
     /*!
     \page creator-developing-b2qt.html
-    \previouspage creator-developing-baremetal.html
-    \nextpage creator-adding-docker-devices.html
+    \previouspage creator-reference.html
 
-    \title Connecting Boot2Qt Devices
+    \ingroup creator-reference-devices
 
-    You can connect \l{Boot2Qt} devices to the development PC to run, debug,
-    and analyze applications built for them from \QC. For this, you need the
-    appropriate \l{http://qt.io/licensing/}{Qt license}.
+    \title Developing for \B2Q Devices
 
-    If you have a tool chain for building applications for Boot2Qt devices
-    installed on the development PC, you can add it to \QC. You can then
-    select a \l{glossary-buildandrun-kit}{kit} with the \uicontrol Boot2Qt
-    device type to build applications for and run them on the devices.
+    \brief Connect \B2Q devices to the computer to run,
+    debug, and analyze applications built for them from \QC.
 
-    To be able to run and debug applications on Boot2Qt devices,
-    you must add devices and select them in the \QC
-    \l{kits-tab}{kit}.
+    The \l{\B2Q: Documentation}{\B2Q} stack runs on a variety of hardware.
+    \l{http://qt.io/licensing/}{Qt license} holders can customize the contents of
+    the stack and take it into production hardware.
 
-    \section1 Enabling the Boot2Qt Plugin
+    \note Enable the \B2Q plugin to use it.
 
-    To enable the Boot2Qt plugin:
-
-    \list 1
-        \li Select \uicontrol Help > \uicontrol {About Plugins} >
-            \uicontrol {Device Support} > \uicontrol Boot2Qt to
-            enable the plugin.
-        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
-    \endlist
-
-    \section1 Adding Boot2Qt Devices
-
-    If \QC does not automatically detect a device you connected with USB, select
-    \preferences > \uicontrol Devices >
-    \uicontrol Devices > \uicontrol Add > \uicontrol {Boot2Qt Device} to create
-    either a network connection or a USB connection to it.
+    If you have a toolchain for building applications for \B2Q devices
+    installed on the computer, add it to a \l{Kits}{kit} with the
+    \uicontrol \B2Q device type to build applications for and run them on
+    the devices.
 
     \image qtcreator-boot2qt-device-configurations.webp {Devices tab in Preferences}
 
-    To add a device without using a wizard, select \uicontrol {Boot2Qt Device} in
-    the pull-down menu of the \uicontrol Add button.
+    \include linuxdev.qdoc openssh
 
-    \note On Ubuntu Linux, the development user account must have access to the
-    plugged-in devices. To grant them access to the device via USB, create a new
-    \c udev rule, as described in
-    \l{Boot2Qt: Setting Up USB Access to Embedded Devices}.
+    \sa {\B2Q}{How To: Develop for \B2Q},
+    {Manage Kits}{How To: Manage Kits}, {Run in Qt Application Manager},
+    {\B2Q Deploy Configuration}, {\B2Q Run Settings},
+    {\B2Q: Documentation}
+*/
 
-    You can edit the settings later in \preferences >
-    \uicontrol Devices > \uicontrol Devices.
+/*!
+    \page creator-how-to-connect-b2qt.html
+    \previouspage creator-how-tos.html
 
-    To reboot the selected device, select \uicontrol {Reboot Device}.
+    \ingroup creator-how-to-b2qt
 
-    To restore the default application to the device, select
-    \uicontrol {Restore Default App}.
+    \title Connect \B2Q devices
 
-    \section2 Protecting Connections
+    Create connections between \l{\B2Q: Documentation}{\B2Q} devices and
+    \QC to run, debug, and analyze applications on them.
 
-    You can protect the connections between \QC and a device by using an
-    \l{OpenSSH} connection. OpenSSH is a
-    connectivity tool for remote login using the SSH protocol. The OpenSSH
-    suite is not delivered with \QC, so you must download it and install it
-    on the development PC. Then, you must configure the paths to the tools in
-    \QC. For more information, see \l {Configure SSH connections}.
+    \note Enable the \B2Q plugin to use it.
 
-    You need either a password or an SSH public and private key pair for
-    authentication. If you do not have an SSH key, you can use the \c ssh-keygen
-    tool to create it in \QC. For more information, see \l {Generate SSH keys}.
-
-    \QC does not store passwords. If you use password authentication, you may
-    need to enter the password upon every connection to the device, or if
-    caching is enabled, at every \QC restart. If you frequently run into the
-    timeout, consider using key-based authentication. On \macos and Linux, you
-    can also select \preferences > \uicontrol Devices > \uicontrol SSH
-    and increase the time (in minutes) to use the same SSH connection in the
-    \uicontrol {Connection sharing timeout} field. Windows does not support
-    shared connections.
-
-    \image qtcreator-ssh-options.png {SSH preferences}
-
-    \section1 Flashing Boot2Qt Devices
-
-    To flash the Boot2Qt image to an SD card with Flashing Wizard, select
-    \uicontrol Tools > \uicontrol {Flash Boot to Qt Device} and follow the
-    instructions of the wizard.
-
-    \image qtcreator-boot2qt-flashing-wizard.png {Boot2Qt Flashing Wizard}
-
-    \section1 Configuring Connections
-
-    To configure connections between \QC and a Boot2Qt device and to
-    specify build and run settings for the device:
+    To configure connections between \QC and a \B2Q device:
 
     \list 1
         \li Check that you can reach the IP address of the device, or use USB to
             connect it.
-        \li Select \preferences > \uicontrol Kits > \uicontrol {Qt Versions} >
-            \uicontrol Add to add the Qt version for Boot2Qt.
-        \li Select \preferences > \uicontrol Kits >
-            \uicontrol Compilers > \uicontrol Add to add the compiler for
-            building the applications.
-        \li Select \uicontrol Tools > \uicontrol {Flash Boot to Qt Device}
-            to flash the Boot2Qt image to an SD card with Flashing Wizard.
-        \li To deploy applications and run them remotely on devices, specify
-            parameters for connecting to the devices over the network (\QC
-            automatically detects devices connected with USB):
-            \list 1
-                \li Select \preferences > \uicontrol Devices >
-                    \uicontrol Devices > \uicontrol Add > \uicontrol Boot2Qt.
-                    \image qtcreator-devices-boot2qt.png {Boot2Qt Network Device Setup wizard}
-                \li In the \uicontrol {Device name} field, enter a name for
-                    the connection.
-                \li In the \uicontrol {Device address} field, enter the host
-                    name or IP address of the device. This value will be
-                    available in the \c %{Device:HostAddress} variable.
-                \li Click \uicontrol {Finish} to test the connection and
-                    add the device.
+        \li Go to \preferences > \uicontrol Kits > \uicontrol {Qt Versions}.
+        \li Select \uicontrol Add to add the Qt version for \B2Q.
+        \li Go to \preferences > \uicontrol Kits > \uicontrol Compilers.
+        \li Select \uicontrol Add to add the compiler for building the
+            applications.
+        \li Go to \uicontrol Tools > \uicontrol {Flash \B2Q}
+            to flash the \B2Q image to an SD card with \B2Q Flashing Wizard.
+            \image qtcreator-boot2qt-flashing-wizard.png {\B2Q Flashing Wizard}
+        \li Follow the instructions of the wizard to flash the image to the SD
+            card.
+        \li Go to \preferences > \uicontrol Devices > \uicontrol Devices.
+        \li Select \uicontrol Add to add a \B2Q device.
 
-                    You can edit the connection parameters in the
-                    \uicontrol Devices tab. The wizard does not show
-                    parameters that have sensible default values. One of
-                    these is the SSH port number, which is available in
-                    the variable \c %{Device:SshPort}.
-
-                    To add a device without using the wizard, select
-                    \uicontrol {Boot2Qt Device} in the pull-down menu of the
-                    \uicontrol Add button.
-            \endlist
-        \li Select \preferences > \uicontrol Kits >
-            \uicontrol Add to add a kit for building applications for the
-            device. Select the Qt version, compiler, and device that you
-            added above, and choose \uicontrol Boot2Qt as the device type.
+            \QC automatically detects devices connected with USB.
+        \li Go to \preferences > \uicontrol Kits.
+        \li Select \uicontrol Add to add a kit for building for the device.
+        \li Select the Qt version, compiler, and device that you added above.
+        \li In \uicontrol {Run device type}, select \uicontrol {Boot2Qt Device}.
         \li To specify build settings:
         \list 1
             \li Open a project for an application you want to develop for the
                 device.
-            \li Select \uicontrol Projects > \uicontrol {Build & Run} to enable
+            \li Go to \uicontrol Projects > \uicontrol {Build & Run} to activate
                 the kit that you specified above.
         \endlist
         \li Select \uicontrol Run to specify run settings. Usually, you can use
@@ -145,9 +81,62 @@
 
             When you run the project, \QC deploys the application as
             specified by the deploy steps. By default, \QC copies the
-            application files to the device. For more information, see
-            \l{Boot2Qt Run Settings}.
+            application files to the device.
     \endlist
 
-    \sa {Boot2Qt: Setting Up USB Access to Embedded Devices}
+    \sa {Configure SSH connections}, {Generate SSH keys},
+    {Enable and disable plugins}, {\B2Q}{How To: Develop for \B2Q},
+    {Manage Kits}{How To: Manage Kits}, {\B2Q Deploy Configuration},
+    {\B2Q Run Settings}, {Developing for \B2Q Devices}
+*/
+
+/*!
+    \page creator-how-to-add-b2qt.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-b2qt
+
+    \title Add \B2Q devices
+
+    \note Enable the \B2Q plugin to use it.
+
+    If \QC does not automatically detect a \l{\B2Q: Documentation}{\B2Q}
+    device you connect with USB:
+
+    \list 1
+        \li Go to \preferences > \uicontrol Devices > \uicontrol Devices.
+            \image qtcreator-boot2qt-device-configurations.webp {Devices tab in Preferences}
+        \li Select \uicontrol Add > \uicontrol {Boot2Qt Device} to create
+            either a network connection or a USB connection to the device.
+            \image qtcreator-devices-boot2qt.png {Boot to Qt Network Device Setup wizard}
+        \li In \uicontrol {Device name}, enter a name for the connection.
+        \li In \uicontrol {Device address}, enter the host
+            name or IP address of the device. This value becomes the value of the
+            \c %{Device:HostAddress} variable.
+        \li Select \uicontrol {Finish} to test the connection and add the device.
+    \endlist
+
+    The wizard does not show parameters that have sensible default values, such
+    as the SSH port number. It is available in the variable \c %{Device:SshPort}.
+
+    To add a device without using a wizard, select \uicontrol {Boot2Qt Device} in
+    the pull-down menu of the \uicontrol Add button.
+
+    \note On Ubuntu Linux, the development user account must have access to the
+    plugged-in devices. To grant them access to the device via USB, create a new
+    \c udev rule, as described in
+    \l{\B2Q: Setting Up USB Access to Embedded Devices}.
+
+    \section1 Reboot devices
+
+    To reboot the selected device, select \uicontrol {Reboot Device}.
+
+    \section1 Restore default applications
+
+    To restore the default application to the device, select
+    \uicontrol {Restore Default App}.
+
+    \sa {Enable and disable plugins}, {\B2Q}{How To: Develop for \B2Q},
+    {Developing for \B2Q Devices},
+    {\B2Q: Setting Up USB Access to Embedded Devices}
 */
