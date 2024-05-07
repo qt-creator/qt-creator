@@ -55,7 +55,8 @@ enum class View3DActionType {
     EditCameraRotation,
     EditCameraMove,
     EditCameraStopAllMoves,
-    SetLastSceneEnvData
+    SetLastSceneEnvData,
+    Import3dUpdatePreviewImage
 };
 
 constexpr bool isNanotraceEnabled()

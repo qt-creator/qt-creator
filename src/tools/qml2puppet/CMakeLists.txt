@@ -140,6 +140,7 @@ extend_qtc_executable(qml2puppet
     qmltransitionnodeinstance.cpp qmltransitionnodeinstance.h
     qt3dpresentationnodeinstance.cpp qt3dpresentationnodeinstance.h
     qt5bakelightsnodeinstanceserver.cpp qt5bakelightsnodeinstanceserver.h
+    qt5import3dnodeinstanceserver.cpp qt5import3dnodeinstanceserver.h
     qt5informationnodeinstanceserver.cpp qt5informationnodeinstanceserver.h
     qt5nodeinstanceclientproxy.cpp qt5nodeinstanceclientproxy.h
     qt5nodeinstanceserver.cpp qt5nodeinstanceserver.h

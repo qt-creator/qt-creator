@@ -164,7 +164,7 @@ void ItemLibraryView::updateImport3DSupport(const QVariantMap &supportMap)
             auto importDlg = new ItemLibraryAssetImportDialog(fileNames, defaultDir,
                                                               m_importableExtensions3DMap,
                                                               m_importOptions3DMap, {}, {},
-                                                              Core::ICore::dialogParent());
+                                                              this, Core::ICore::dialogParent());
             int result = importDlg->exec();
 
             return result == QDialog::Accepted ? AddFilesResult::succeeded() : AddFilesResult::cancelled();
@@ -198,7 +198,7 @@ void ItemLibraryView::customNotification(const AbstractView *view, const QString
                                          const QList<ModelNode> &nodeList, const QList<QVariant> &data)
 {
     if (identifier == "UpdateImported3DAsset" && nodeList.size() > 0) {
-        ItemLibraryAssetImportDialog::updateImport(nodeList[0],
+        ItemLibraryAssetImportDialog::updateImport(this, nodeList[0],
                                                    m_importableExtensions3DMap,
                                                    m_importOptions3DMap);
 

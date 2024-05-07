@@ -741,6 +741,8 @@ extend_qtc_plugin(QmlDesigner
     assetimportupdatetreeitemdelegate.cpp assetimportupdatetreeitemdelegate.h
     assetimportupdatetreemodel.cpp assetimportupdatetreemodel.h
     assetimportupdatetreeview.cpp assetimportupdatetreeview.h
+    import3dcanvas.cpp import3dcanvas.h
+    import3dconnectionmanager.cpp import3dconnectionmanager.h
     itemlibrary.qrc
     itemlibraryconstants.h
     itemlibraryimageprovider.cpp itemlibraryimageprovider.h

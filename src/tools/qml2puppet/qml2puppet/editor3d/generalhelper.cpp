@@ -462,9 +462,9 @@ QVector4D GeneralHelper::approachNode(
 // a selection box for bound calculations to work. This is used to focus the view for
 // various preview image generations, where doing things asynchronously is not good
 // and recalculating bounds for every frame is not a problem.
-void GeneralHelper::calculateNodeBoundsAndFocusCamera(
-        QQuick3DCamera *camera, QQuick3DNode *node, QQuick3DViewport *viewPort,
-        float defaultLookAtDistance, bool closeUp)
+QVector3D GeneralHelper::calculateNodeBoundsAndFocusCamera(
+    QQuick3DCamera *camera, QQuick3DNode *node, QQuick3DViewport *viewPort,
+    float defaultLookAtDistance, bool closeUp)
 {
     QVector3D minBounds;
     QVector3D maxBounds;
@@ -505,8 +505,9 @@ void GeneralHelper::calculateNodeBoundsAndFocusCamera(
             perspectiveCamera->setClipNear(minDist * 0.99);
             perspectiveCamera->setClipFar(maxDist * 1.01);
         }
-
     }
+
+    return extents;
 }
 
 // Aligns any cameras found in nodes list to a camera.
