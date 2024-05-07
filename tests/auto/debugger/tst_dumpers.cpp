@@ -6243,15 +6243,19 @@ void tst_Dumpers::dumper_data()
     QTest::newRow("Bitfields")
             << Data("",
 
+                    "typedef int gint;\n"
+                    "typedef unsigned int guint;\n"
                     "enum E { V1, V2 };\n"
                     "struct S\n"
                     "{\n"
-                    "    S() : front(13), x(2), y(3), z(39), e(V2), c(1), b(0), f(5),"
+                    "    S() : front(13), x(2), y(3), z(39), t1(1), t2(1), e(V2), c(1), b(0), f(5),"
                     "          g(46), h(47), d(6), i(7) {}\n"
                     "    unsigned int front;\n"
                     "    unsigned int x : 3;\n"
                     "    unsigned int y : 4;\n"
                     "    unsigned int z : 18;\n"
+                    "    gint t1 : 2;\n"
+                    "    guint t2 : 2;\n"
                     "    E e : 3;\n"
                     "    bool c : 1;\n"
                     "    bool b;\n"
@@ -6284,7 +6288,7 @@ void tst_Dumpers::dumper_data()
                + Check("s.e", "V2 (1)", TypePattern("main::[a-zA-Z0-9_]*::E")) % CdbEngine
 
                // checks for the "Expressions" view, GDB-only for now
-               + Watcher("watch.1", "s;s.b;s.c;s.f;s.d;s.i;s.x;s.y;s.z;s.e;s.g;s.h;s.front")
+               + Watcher("watch.1", "s;s.b;s.c;s.f;s.d;s.i;s.x;s.y;s.z;s.e;s.g;s.h;s.front;s.t1;s.t2")
                + Check("watch.1.0", "s", "", "S") % GdbEngine
                + Check("watch.1.1", "s.b", "0", "bool")  % GdbEngine
                + Check("watch.1.2", "s.c", "1", "bool") % GdbEngine
@@ -6297,7 +6301,9 @@ void tst_Dumpers::dumper_data()
                + Check("watch.1.9", "s.e", "V2 (1)", "E") % GdbEngine
                + Check("watch.1.10", "s.g", "46", "char") % GdbEngine
                + Check("watch.1.11", "s.h", "47", "char") % GdbEngine
-               + Check("watch.1.12", "s.front", "13", "unsigned int") % GdbEngine;
+               + Check("watch.1.12", "s.front", "13", "unsigned int") % GdbEngine
+               + Check("watch.1.13", "s.t1", "1", "gint") % GdbEngine
+               + Check("watch.1.14", "s.t2", "1", "guint") % GdbEngine;
 
 
     QTest::newRow("Bitfield2")

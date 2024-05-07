@@ -265,6 +265,12 @@ class Dumper(DumperBase):
             except:
                 # GDB only support converting integers of max. 64 bits to Python int as of now
                 pass
+        elif code == gdb.TYPE_CODE_TYPEDEF:
+            targetType = nativeType.strip_typedefs().unqualified()
+            if targetType.code in [gdb.TYPE_CODE_BOOL, gdb.TYPE_CODE_INT]:
+                typeid = val.typeid
+                val = self.fromNativeValue(nativeValue.cast(targetType))
+                val.typeid = typeid
         #elif code == gdb.TYPE_CODE_ARRAY:
         #    val.type.ltarget = nativeValue[0].type.unqualified()
         return val
