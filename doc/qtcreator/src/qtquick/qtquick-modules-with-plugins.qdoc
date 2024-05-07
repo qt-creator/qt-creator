@@ -82,7 +82,7 @@
     \uicontrol {Reset Code Model} to reset the code model.
     \if defined(qtdesignstudio)
     For more information about how to show the \uicontrol {Tools} menu, see
-    \l{Customizing the Menu}.
+    \l{Customizing the Menu Bar}.
     \endif
 
     \if defined(qtcreator)
