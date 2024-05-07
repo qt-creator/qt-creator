@@ -47,9 +47,9 @@ class MyClass11 : public MyClass1
     Q_OBJECT
 };
 
-static QString pluginFolder(const QLatin1String &folder)
+static Utils::FilePath pluginFolder(const QLatin1String &folder)
 {
-    return QLatin1String(PLUGINMANAGER_TESTS_DIR) + QLatin1String("/") + folder;
+    return Utils::FilePath::fromUserInput(QLatin1String(PLUGINMANAGER_TESTS_DIR)) / folder;
 }
 
 void tst_PluginManager::init()
@@ -138,7 +138,7 @@ void tst_PluginManager::getObject()
 
 void tst_PluginManager::circularPlugins()
 {
-    PluginManager::setPluginPaths(QStringList() << pluginFolder(QLatin1String("circularplugins")));
+    PluginManager::setPluginPaths({pluginFolder(QLatin1String("circularplugins"))});
     PluginManager::loadPlugins();
     const QVector<PluginSpec *> plugins = PluginManager::plugins();
     QCOMPARE(plugins.count(), 3);
@@ -160,7 +160,7 @@ void tst_PluginManager::circularPlugins()
 
 void tst_PluginManager::correctPlugins1()
 {
-    PluginManager::setPluginPaths(QStringList() << pluginFolder(QLatin1String("correctplugins1")));
+    PluginManager::setPluginPaths({pluginFolder(QLatin1String("correctplugins1"))});
     PluginManager::loadPlugins();
     bool specError = false;
     bool runError = false;

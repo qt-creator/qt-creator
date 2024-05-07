@@ -119,7 +119,7 @@ public:
                     toolTip = Tr::tr("Path: %1\nPlugin is disabled by command line argument.");
                 else
                     toolTip = Tr::tr("Path: %1");
-                return toolTip.arg(QDir::toNativeSeparators(m_spec->filePath()));
+                return toolTip.arg(m_spec->filePath().toUserOutput());
             }
             if (role == Qt::DecorationRole) {
                 bool ok = !m_spec->hasError();

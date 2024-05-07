@@ -625,12 +625,14 @@ void QmlDesignerPlugin::enforceDelayedInitialize()
         return;
 
     // adding default path to item library plugins
-    const QString postfix = Utils::HostOsInfo::isMacHost() ? QString("/QmlDesigner")
-                                                           : QString("/qmldesigner");
-    const QStringList pluginPaths = Utils::transform(ExtensionSystem::PluginManager::pluginPaths(),
-                                                     [postfix](const QString &p) {
-                                                         return QString(p + postfix);
-                                                     });
+    const QString postfix = Utils::HostOsInfo::isMacHost()
+                                ? QString("QmlDesigner")
+                                : QString("qmldesigner");
+    const QStringList pluginPaths =
+        Utils::transform(ExtensionSystem::PluginManager::pluginPaths(),
+                         [postfix](const Utils::FilePath &p) {
+                           return (p / postfix).toFSPathString();
+                         });
 
 #ifndef QDS_USE_PROJECTSTORAGE
     MetaInfo::initializeGlobal(pluginPaths, d->externalDependencies);

@@ -6,6 +6,7 @@
 #include "extensionsystem_global.h"
 
 #include <aggregation/aggregate.h>
+#include <utils/filepath.h>
 #include <utils/qtcsettings.h>
 
 #include <QObject>
@@ -69,8 +70,8 @@ public:
     static QVector<PluginSpec *> loadQueue();
     static void loadPlugins();
     static void loadPluginsAtRuntime(const QSet<PluginSpec *> &plugins);
-    static QStringList pluginPaths();
-    static void setPluginPaths(const QStringList &paths);
+    static Utils::FilePaths pluginPaths();
+    static void setPluginPaths(const Utils::FilePaths &paths);
     static QString pluginIID();
     static void setPluginIID(const QString &iid);
     static const QVector<PluginSpec *> plugins();

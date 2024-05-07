@@ -4,6 +4,8 @@ QtcAutotest {
     name: "ExtensionSystem pluginspec autotest"
     Depends { name: "Aggregation" }
     Depends { name: "ExtensionSystem" }
+    Depends { name: "Utils" }
+
     Group {
         name: "Sources"
         files: "tst_pluginspec.cpp"

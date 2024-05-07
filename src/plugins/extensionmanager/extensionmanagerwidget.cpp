@@ -153,7 +153,7 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current,
                                    "of the extensions that are part of pack ") + data.name
                    : extension->longDescription();
         longDescription.replace("\n", "<br/>");
-        const QString location = isPack ? extension->location() : extension->filePath();
+        const FilePath location = isPack ? extension->location() : extension->filePath();
 
         QString description = htmlStart;
 
@@ -217,7 +217,7 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current,
            .arg(Tr::tr("Version"))
            .arg(extension->version())
            .arg(Tr::tr("Location"))
-           .arg(location));
+           .arg(location.toUserOutput()));
 
         description.append(htmlEnd);
         m_primaryDescription->setText(description);

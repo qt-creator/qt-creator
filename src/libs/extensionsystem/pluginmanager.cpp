@@ -443,7 +443,7 @@ FutureSynchronizer *PluginManager::futureSynchronizer()
 
     \sa setPluginPaths()
 */
-QStringList PluginManager::pluginPaths()
+FilePaths PluginManager::pluginPaths()
 {
     return d->pluginPaths;
 }
@@ -455,7 +455,7 @@ QStringList PluginManager::pluginPaths()
     \sa pluginPaths()
     \sa loadPlugins()
 */
-void PluginManager::setPluginPaths(const QStringList &paths)
+void PluginManager::setPluginPaths(const FilePaths &paths)
 {
     d->setPluginPaths(paths);
 }
@@ -1732,7 +1732,7 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
 /*!
     \internal
 */
-void PluginManagerPrivate::setPluginPaths(const QStringList &paths)
+void PluginManagerPrivate::setPluginPaths(const FilePaths &paths)
 {
     qCDebug(pluginLog) << "Plugin search paths:" << paths;
     qCDebug(pluginLog) << "Required IID:" << pluginIID;
@@ -1741,17 +1741,18 @@ void PluginManagerPrivate::setPluginPaths(const QStringList &paths)
     readPluginPaths();
 }
 
-static const QStringList pluginFiles(const QStringList &pluginPaths)
+static const FilePaths pluginFiles(const FilePaths &pluginPaths)
 {
-    QStringList pluginFiles;
-    QStringList searchPaths = pluginPaths;
+    FilePaths pluginFiles;
+    FilePaths searchPaths = pluginPaths;
     while (!searchPaths.isEmpty()) {
-        const QDir dir(searchPaths.takeFirst());
-        const QFileInfoList files = dir.entryInfoList(QDir::Files | QDir::NoSymLinks);
-        const QStringList absoluteFilePaths = Utils::transform(files, &QFileInfo::absoluteFilePath);
-        pluginFiles += Utils::filtered(absoluteFilePaths, [](const QString &path) { return QLibrary::isLibrary(path); });
-        const QFileInfoList dirs = dir.entryInfoList(QDir::Dirs|QDir::NoDotAndDotDot);
-        searchPaths += Utils::transform(dirs, &QFileInfo::absoluteFilePath);
+        const FilePath dir = searchPaths.takeFirst().absoluteFilePath();
+        const FilePaths files = dir.dirEntries(QDir::Files | QDir::NoSymLinks);
+        pluginFiles += Utils::filtered(files, [](const FilePath &path) {
+            return QLibrary::isLibrary(path.toFSPathString());
+        });
+        const FilePaths dirs = dir.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+        searchPaths += dirs;
     }
     return pluginFiles;
 }
@@ -1793,11 +1794,12 @@ void PluginManagerPrivate::readPluginPaths()
     QVector<PluginSpec *> newSpecs;
 
     // from the file system
-    for (const QString &pluginFile : pluginFiles(pluginPaths)) {
+    for (const FilePath &pluginFile : pluginFiles(pluginPaths)) {
         expected_str<PluginSpec *> spec = readCppPluginSpec(pluginFile);
         if (!spec) {
-            qCInfo(pluginLog).noquote()
-                << QString("Ignoring plugin \"%1\" because: %2").arg(pluginFile).arg(spec.error());
+            qCInfo(pluginLog).noquote() << QString("Ignoring plugin \"%1\" because: %2")
+                                               .arg(pluginFile.toUserOutput())
+                                               .arg(spec.error());
             continue;
         }
         newSpecs.append(*spec);

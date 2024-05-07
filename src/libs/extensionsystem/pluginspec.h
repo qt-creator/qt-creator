@@ -8,6 +8,7 @@
 #include "iplugin.h"
 
 #include <utils/expected.h>
+#include <utils/filepath.h>
 
 #include <QHash>
 #include <QStaticPlugin>
@@ -120,8 +121,8 @@ public:
     virtual QJsonObject metaData() const;
     virtual PerformanceData &performanceData() const;
     virtual PluginArgumentDescriptions argumentDescriptions() const;
-    virtual QString location() const;
-    virtual QString filePath() const;
+    virtual Utils::FilePath location() const;
+    virtual Utils::FilePath filePath() const;
     virtual QStringList arguments() const;
     virtual void setArguments(const QStringList &arguments);
     virtual void addArgument(const QString &argument);
@@ -160,8 +161,8 @@ protected:
 protected:
     virtual void setState(State state);
 
-    virtual void setLocation(const QString &location);
-    virtual void setFilePath(const QString &filePath);
+    virtual void setLocation(const Utils::FilePath &location);
+    virtual void setFilePath(const Utils::FilePath &filePath);
     virtual Utils::expected_str<void> readMetaData(const QJsonObject &metaData);
     Utils::expected_str<void> reportError(const QString &error);
 
@@ -169,14 +170,15 @@ private:
     std::unique_ptr<Internal::PluginSpecPrivate> d;
 };
 
-EXTENSIONSYSTEM_EXPORT Utils::expected_str<PluginSpec *> readCppPluginSpec(const QString &filePath);
+EXTENSIONSYSTEM_EXPORT Utils::expected_str<PluginSpec *> readCppPluginSpec(
+    const Utils::FilePath &filePath);
 EXTENSIONSYSTEM_EXPORT Utils::expected_str<PluginSpec *> readCppPluginSpec(
     const QStaticPlugin &plugin);
 
 class EXTENSIONSYSTEM_TEST_EXPORT CppPluginSpec : public PluginSpec
 {
     friend EXTENSIONSYSTEM_EXPORT Utils::expected_str<PluginSpec *> readCppPluginSpec(
-        const QString &filePath);
+        const Utils::FilePath &filePath);
     friend EXTENSIONSYSTEM_EXPORT Utils::expected_str<PluginSpec *> readCppPluginSpec(
         const QStaticPlugin &plugin);
 

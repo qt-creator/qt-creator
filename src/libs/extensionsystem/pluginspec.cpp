@@ -201,8 +201,8 @@ public:
     QVector<ExtensionSystem::PluginDependency> dependencies;
 
     PluginSpec::PluginArgumentDescriptions argumentDescriptions;
-    QString location;
-    QString filePath;
+    FilePath location;
+    FilePath filePath;
 
     bool experimental{false};
     bool deprecated{false};
@@ -491,7 +491,7 @@ PluginSpec::PluginArgumentDescriptions PluginSpec::argumentDescriptions() const
 /*!
     Returns the absolute path to the directory containing the plugin.
 */
-QString PluginSpec::location() const
+FilePath PluginSpec::location() const
 {
     return d->location;
 }
@@ -499,7 +499,7 @@ QString PluginSpec::location() const
 /*!
     Returns the absolute path to the plugin.
 */
-QString PluginSpec::filePath() const
+FilePath PluginSpec::filePath() const
 {
     return d->filePath;
 }
@@ -692,19 +692,20 @@ namespace {
     \internal
     Returns false if the file does not represent a Qt Creator plugin.
 */
-expected_str<PluginSpec *> readCppPluginSpec(const QString &fileName)
+expected_str<PluginSpec *> readCppPluginSpec(const FilePath &fileName)
 {
     auto spec = new CppPluginSpec;
 
-    QFileInfo fileInfo(fileName);
-    spec->setLocation(fileInfo.absolutePath());
-    spec->setFilePath(fileInfo.absoluteFilePath());
+    const FilePath absPath = fileName.absoluteFilePath();
+
+    spec->setLocation(absPath.parentDir());
+    spec->setFilePath(absPath);
     spec->d->loader.emplace();
 
     if (Utils::HostOsInfo::isMacHost())
         spec->d->loader->setLoadHints(QLibrary::ExportExternalSymbolsHint);
 
-    spec->d->loader->setFileName(fileInfo.absoluteFilePath());
+    spec->d->loader->setFileName(absPath.toFSPathString());
     if (spec->d->loader->fileName().isEmpty())
         return make_unexpected(::ExtensionSystem::Tr::tr("Cannot open file"));
 
@@ -1110,12 +1111,12 @@ void PluginSpec::setState(State state)
     d->state = state;
 }
 
-void PluginSpec::setLocation(const QString &location)
+void PluginSpec::setLocation(const FilePath &location)
 {
     d->location = location;
 }
 
-void PluginSpec::setFilePath(const QString &filePath)
+void PluginSpec::setFilePath(const FilePath &filePath)
 {
     d->filePath = filePath;
 }
@@ -1142,8 +1143,7 @@ bool CppPluginSpec::loadLibrary()
         return false;
     }
     if (d->loader && !d->loader->load()) {
-        setError(QDir::toNativeSeparators(filePath()) + QString::fromLatin1(": ")
-                 + d->loader->errorString());
+        setError(filePath().toUserOutput() + QString::fromLatin1(": ") + d->loader->errorString());
         return false;
     }
     auto *pluginObject = d->loader ? qobject_cast<IPlugin *>(d->loader->instance())

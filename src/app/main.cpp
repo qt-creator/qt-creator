@@ -765,7 +765,7 @@ int main(int argc, char **argv)
     // Load
     const QStringList pluginPaths = getPluginPaths() + installPluginPaths
                                     + options.customPluginPaths;
-    PluginManager::setPluginPaths(pluginPaths);
+    PluginManager::setPluginPaths(Utils::transform(pluginPaths, &Utils::FilePath::fromUserInput));
     QMap<QString, QString> foundAppOptions;
     if (pluginArguments.size() > 1) {
         QMap<QString, bool> appOptions;

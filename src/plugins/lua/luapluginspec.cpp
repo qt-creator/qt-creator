@@ -71,8 +71,8 @@ expected_str<LuaPluginSpec *> LuaPluginSpec::create(const FilePath &filePath,
     if (!r)
         return make_unexpected(r.error());
 
-    pluginSpec->setFilePath(filePath.toUserOutput());
-    pluginSpec->setLocation(filePath.parentDir().toUserOutput());
+    pluginSpec->setFilePath(filePath);
+    pluginSpec->setLocation(filePath.parentDir());
 
     pluginSpec->d->pluginScriptPath = filePath;
 

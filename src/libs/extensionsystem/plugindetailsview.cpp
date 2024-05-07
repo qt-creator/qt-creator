@@ -146,7 +146,7 @@ void PluginDetailsView::update(PluginSpec *spec)
     d->vendor->setText(spec->vendor());
     d->component->setText(spec->category().isEmpty() ? Tr::tr("None") : spec->category());
     d->url->setText(QString::fromLatin1("<a href=\"%1\">%1</a>").arg(spec->url()));
-    d->location->setText(QDir::toNativeSeparators(spec->filePath()));
+    d->location->setText(spec->filePath().toUserOutput());
     const QString pattern = spec->platformSpecification().pattern();
     const QString platform = pattern.isEmpty() ? Tr::tr("All") : pattern;
     const QString platformString = Tr::tr("%1 (current: \"%2\")")

@@ -14,6 +14,8 @@
 
 using namespace ExtensionSystem;
 
+static const Utils::FilePath PLUGIN_DIR_PATH = Utils::FilePath::fromUserInput(PLUGIN_DIR);
+
 static QJsonObject metaData(const QString &fileName)
 {
     QFile f(fileName);
@@ -221,14 +223,11 @@ void tst_PluginSpec::experimental()
 void tst_PluginSpec::locationAndPath()
 {
     Utils::expected_str<PluginSpec *> ps = readCppPluginSpec(
-        QLatin1String(PLUGIN_DIR) + QLatin1String("/testplugin/")
-        + libraryName(QLatin1String("test")));
+        PLUGIN_DIR_PATH / "testplugin" / libraryName(QLatin1String("test")));
     QVERIFY(ps);
     CppPluginSpec *spec = static_cast<CppPluginSpec *>(ps.value());
-    QCOMPARE(spec->location(), QString(QLatin1String(PLUGIN_DIR) + QLatin1String("/testplugin")));
-    QCOMPARE(spec->filePath(),
-             QString(QLatin1String(PLUGIN_DIR) + QLatin1String("/testplugin/")
-                     + libraryName(QLatin1String("test"))));
+    QCOMPARE(spec->location(), PLUGIN_DIR_PATH / "testplugin");
+    QCOMPARE(spec->filePath(), PLUGIN_DIR_PATH / "testplugin" / libraryName(QLatin1String("test")));
 }
 
 void tst_PluginSpec::resolveDependencies()
@@ -272,8 +271,7 @@ void tst_PluginSpec::resolveDependencies()
 void tst_PluginSpec::loadLibrary()
 {
     Utils::expected_str<PluginSpec *> ps = readCppPluginSpec(
-        QLatin1String(PLUGIN_DIR) + QLatin1String("/testplugin/")
-        + libraryName(QLatin1String("test")));
+        PLUGIN_DIR_PATH / "testplugin" / libraryName(QLatin1String("test")));
 
     QVERIFY(ps);
     CppPluginSpec *spec = static_cast<CppPluginSpec *>(ps.value());
@@ -292,8 +290,7 @@ void tst_PluginSpec::loadLibrary()
 void tst_PluginSpec::initializePlugin()
 {
     Utils::expected_str<PluginSpec *> ps = readCppPluginSpec(
-        QLatin1String(PLUGIN_DIR) + QLatin1String("/testplugin/")
-        + libraryName(QLatin1String("test")));
+        PLUGIN_DIR_PATH / "testplugin" / libraryName(QLatin1String("test")));
     QVERIFY(ps);
     CppPluginSpec *spec = static_cast<CppPluginSpec *>(ps.value());
     QVERIFY(spec->resolveDependencies(QVector<PluginSpec *>()));
@@ -317,8 +314,7 @@ void tst_PluginSpec::initializePlugin()
 void tst_PluginSpec::initializeExtensions()
 {
     Utils::expected_str<PluginSpec *> ps = readCppPluginSpec(
-        QLatin1String(PLUGIN_DIR) + QLatin1String("/testplugin/")
-        + libraryName(QLatin1String("test")));
+        PLUGIN_DIR_PATH / "testplugin" / libraryName(QLatin1String("test")));
     QVERIFY(ps);
     CppPluginSpec *spec = static_cast<CppPluginSpec *>(ps.value());
     QVERIFY(spec->resolveDependencies(QVector<PluginSpec *>()));

@@ -53,7 +53,7 @@ public:
     void addPlugins(const QVector<PluginSpec *> &specs);
 
     void shutdown();
-    void setPluginPaths(const QStringList &paths);
+    void setPluginPaths(const Utils::FilePaths &paths);
     const QVector<ExtensionSystem::PluginSpec *> loadQueue();
     void loadPlugin(PluginSpec *spec, PluginSpec::State destState);
     void resolveDependencies();
@@ -91,7 +91,7 @@ public:
     QHash<QString, QVector<PluginSpec *>> pluginCategories;
     QVector<PluginSpec *> pluginSpecs;
     std::vector<TestSpec> testSpecs;
-    QStringList pluginPaths;
+    Utils::FilePaths pluginPaths;
     QString pluginIID;
     QVector<QObject *> allObjects;      // ### make this a QVector<QPointer<QObject> > > ?
     QStringList defaultDisabledPlugins; // Plugins/Ignored from install settings

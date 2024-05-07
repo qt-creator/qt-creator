@@ -584,7 +584,7 @@ FilePaths &JsonWizardFactory::searchPaths()
         // add paths from enabled plugin meta data
         for (PluginSpec *plugin : PluginManager::plugins()) {
             if (plugin->state() == PluginSpec::Running) {
-                const auto base = FilePath::fromString(plugin->filePath()).parentDir();
+                const auto base = plugin->location();
                 const auto values = plugin->metaData().value("JsonWizardPaths").toArray();
                 for (const QJsonValue &v : values) {
                     const auto path = FilePath::fromString(v.toString());

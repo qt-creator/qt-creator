@@ -154,7 +154,7 @@ void checkContents(QPromise<ArchiveIssue> &promise, const FilePath &tempDir)
         if (promise.isCanceled())
             return;
         it.next();
-        expected_str<PluginSpec *> spec = readCppPluginSpec(it.filePath());
+        expected_str<PluginSpec *> spec = readCppPluginSpec(FilePath::fromUserInput(it.filePath()));
         if (spec) {
             // Is a Qt Creator plugin. Let's see if we find a Core dependency and check the
             // version

@@ -135,8 +135,7 @@ expected_str<void> LuaEngine::prepareSetup(
         sol::lib::table,
         sol::lib::utf8);
 
-    const QString searchPath
-        = (FilePath::fromUserInput(pluginSpec.filePath()).parentDir() / "?.lua").toUserOutput();
+    const QString searchPath = (pluginSpec.location() / "?.lua").toUserOutput();
     lua["package"]["path"] = searchPath.toStdString();
 
     // TODO: only register what the plugin requested
