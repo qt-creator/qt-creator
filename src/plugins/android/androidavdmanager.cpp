@@ -64,14 +64,6 @@ static bool checkForTimeout(const chrono::steady_clock::time_point &start,
 static CreateAvdInfo createAvdCommand(const CreateAvdInfo &info)
 {
     CreateAvdInfo result = info;
-
-    if (!result.isValid()) {
-        qCDebug(avdManagerLog) << "AVD Create failed. Invalid CreateAvdInfo" << result.name
-                               << result.systemImage->displayText() << result.systemImage->apiLevel();
-        result.error = Tr::tr("Cannot create AVD. Invalid input.");
-        return result;
-    }
-
     CommandLine avdManager(androidConfig().avdManagerToolPath(), {"create", "avd", "-n", result.name});
     avdManager.addArgs({"-k", result.systemImage->sdkStylePath()});
 

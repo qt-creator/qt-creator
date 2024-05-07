@@ -8,6 +8,8 @@
 #include "androiddevice.h"
 #include "androidsdkmanager.h"
 
+#include <coreplugin/icore.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/algorithm.h>
@@ -24,6 +26,7 @@
 #include <QKeyEvent>
 #include <QLineEdit>
 #include <QLoggingCategory>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QSpinBox>
 #include <QToolTip>
@@ -126,6 +129,12 @@ int AvdDialog::exec()
         result.sdcardSize = sdcardSize();
         result.overwrite = m_overwriteCheckBox->isChecked();
 
+        if (!result.isValid()) {
+            QMessageBox::warning(Core::ICore::dialogParent(),
+                Tr::tr("Create new AVD"), Tr::tr("Cannot create AVD. Invalid input."));
+            return QDialog::Rejected;
+        }
+
         const AndroidAvdManager avdManager;
         QFutureWatcher<CreateAvdInfo> createAvdFutureWatcher;
 
@@ -139,7 +148,13 @@ int AvdDialog::exec()
 
         const QFuture<CreateAvdInfo> future = createAvdFutureWatcher.future();
         if (future.isResultReadyAt(0)) {
-            m_createdAvdInfo = future.result();
+            const CreateAvdInfo &info = future.result();
+            if (!info.error.isEmpty()) {
+                QMessageBox::warning(Core::ICore::dialogParent(),
+                    Tr::tr("Create new AVD"), info.error);
+                return QDialog::Rejected;
+            }
+            m_createdAvdInfo = info;
             AndroidDeviceManager::instance()->updateAvdsList();
         }
     }
