@@ -31,6 +31,7 @@
 #include <QSpinBox>
 #include <QToolTip>
 
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Android::Internal {
@@ -121,19 +122,21 @@ int AvdDialog::exec()
 {
     const int execResult = QDialog::exec();
     if (execResult == QDialog::Accepted) {
+        const SystemImage *si = systemImage();
+        if (!si || !si->isValid() || name().isEmpty()) {
+            QMessageBox::warning(Core::ICore::dialogParent(),
+                Tr::tr("Create new AVD"), Tr::tr("Cannot create AVD. Invalid input."));
+            return QDialog::Rejected;
+        }
+
         CreateAvdInfo result;
-        result.systemImage = systemImage();
+        result.sdkStylePath = si->sdkStylePath();
+        result.apiLevel = si->apiLevel();
         result.name = name();
         result.abi = abi();
         result.deviceDefinition = deviceDefinition();
         result.sdcardSize = sdcardSize();
         result.overwrite = m_overwriteCheckBox->isChecked();
-
-        if (!result.isValid()) {
-            QMessageBox::warning(Core::ICore::dialogParent(),
-                Tr::tr("Create new AVD"), Tr::tr("Cannot create AVD. Invalid input."));
-            return QDialog::Rejected;
-        }
 
         const AndroidAvdManager avdManager;
         QFutureWatcher<CreateAvdInfo> createAvdFutureWatcher;
@@ -167,22 +170,21 @@ bool AvdDialog::isValid() const
     return !name().isEmpty() && systemImage() && systemImage()->isValid() && !abi().isEmpty();
 }
 
-ProjectExplorer::IDevice::Ptr AvdDialog::device() const
+IDevice::Ptr AvdDialog::device() const
 {
-    if (!m_createdAvdInfo.systemImage) {
+    if (m_createdAvdInfo.apiLevel < 0) {
         qCWarning(avdDialogLog) << "System image of the created AVD is nullptr";
         return IDevice::Ptr();
     }
-    AndroidDevice *dev = new AndroidDevice();
+    AndroidDevice *dev = new AndroidDevice;
     const Utils::Id deviceId = AndroidDevice::idFromAvdInfo(m_createdAvdInfo);
-    using namespace ProjectExplorer;
     dev->setupId(IDevice::AutoDetected, deviceId);
     dev->setMachineType(IDevice::Emulator);
     dev->settings()->displayName.setValue(m_createdAvdInfo.name);
     dev->setDeviceState(IDevice::DeviceConnected);
     dev->setExtraData(Constants::AndroidAvdName, m_createdAvdInfo.name);
     dev->setExtraData(Constants::AndroidCpuAbi, {m_createdAvdInfo.abi});
-    dev->setExtraData(Constants::AndroidSdk, m_createdAvdInfo.systemImage->apiLevel());
+    dev->setExtraData(Constants::AndroidSdk, m_createdAvdInfo.apiLevel);
     return IDevice::Ptr(dev);
 }
 

@@ -28,8 +28,8 @@ namespace Internal { class AndroidSdkManager; }
 class CreateAvdInfo
 {
 public:
-    bool isValid() const { return systemImage && systemImage->isValid() && !name.isEmpty(); }
-    const SystemImage *systemImage = nullptr;
+    QString sdkStylePath;
+    int apiLevel = -1;
     QString name;
     QString abi;
     QString deviceDefinition;

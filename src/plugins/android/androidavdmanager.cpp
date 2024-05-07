@@ -65,7 +65,7 @@ static CreateAvdInfo createAvdCommand(const CreateAvdInfo &info)
 {
     CreateAvdInfo result = info;
     CommandLine avdManager(androidConfig().avdManagerToolPath(), {"create", "avd", "-n", result.name});
-    avdManager.addArgs({"-k", result.systemImage->sdkStylePath()});
+    avdManager.addArgs({"-k", result.sdkStylePath});
 
     if (result.sdcardSize > 0)
         avdManager.addArgs({"-c", QString("%1M").arg(result.sdcardSize)});
