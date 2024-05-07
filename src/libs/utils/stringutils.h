@@ -138,4 +138,6 @@ private:
     QBrush m_codeBgBrush;
 };
 
+QTCREATOR_UTILS_EXPORT QString ansiColoredText(const QString &text, const QColor color);
+
 } // namespace Utils
