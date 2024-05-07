@@ -70,4 +70,15 @@ function utils.FilePath:parentDir() end
 ---@return FilePath The resolved path
 function utils.FilePath:resolveSymlinks() end
 
+---Returns the suffix of the path (e.g. "test.ui.qml" -> ".qml")
+---@return string
+function utils.FilePath:suffix() end
+
+---Returns the complete suffix of the path (e.g. "test.ui.qml" -> "ui.qml")
+---@return string
+function utils.FilePath:completeSuffix() end
+
+---Returns whether the path is absolute
+---@return boolean
+function utils.FilePath:isAbsolutePath() end
 return utils

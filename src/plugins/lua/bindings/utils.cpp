@@ -119,6 +119,12 @@ void addUtilsModule()
                 &FilePath::currentWorkingPath,
                 "parentDir",
                 &FilePath::parentDir,
+                "suffix",
+                &FilePath::suffix,
+                "completeSuffix",
+                &FilePath::completeSuffix,
+                "isAbsolutePath",
+                &FilePath::isAbsolutePath,
                 "resolvePath",
                 sol::overload(
                     [](const FilePath &p, const QString &path) { return p.resolvePath(path); },
