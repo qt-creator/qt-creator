@@ -18,7 +18,7 @@
         \li Select \inlineimage icons/run_small.png (\uicontrol Run).
     \endlist
 
-    \QC uses the compiler specified in the QNX tool chain to build the
+    \QC uses the compiler specified in the QNX toolchain to build the
     application.
 
     \note Debugging is currently only fully supported on Linux and \macos.

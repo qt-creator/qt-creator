@@ -77,7 +77,7 @@
             \li \QC groups build and run specific settings as kits to make
                 cross-platform development easier. Each kit consists of a set
                 of values that define one environment, such as a \e {device},
-                tool chain, Qt version, and debugger command to use. Configure kits at
+                toolchain, Qt version, and debugger command to use. Configure kits at
                 \preferences > \uicontrol Kits.
 
         \row

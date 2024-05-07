@@ -103,7 +103,7 @@
         \li Other than the listed compilers and remote compilers.
     \endtable
 
-    The emscripten compiler is tool chain for compiling to
+    The emscripten compiler is toolchain for compiling to
     \l{Building Applications for the Web}{WebAssembly}.
 
     \section2 Bare-metal compilers
@@ -145,10 +145,10 @@
     \endcode
 
     If these commands show paths, they have been added to the global PATH
-    variable during the installation of a tool chain based on Cygwin or \MinGW,
+    variable during the installation of a toolchain based on Cygwin or \MinGW,
     even though this is against Windows conventions.
 
-    To keep working with the third-party tool chain, create a new shell link
+    To keep working with the third-party toolchain, create a new shell link
     that adds the required paths (as Visual Studio and Qt do). The shell link
     must point to cmd.exe:
 
@@ -157,16 +157,16 @@
     where the /K parameter carries out the command specified in the bat file.
 
     Create the myenv.bat file at \e path_to, which should be in a convenient
-    location. In the file, specify the paths to the tool chains. For example,
+    location. In the file, specify the paths to the toolchains. For example,
 
     \c  {set PATH=C:\path1;C:\path2;%PATH%}
 
-    where \e path1 and \e path2 are paths to the tool chains.
+    where \e path1 and \e path2 are paths to the toolchains.
 
     Finally, remove the paths from the global PATH, reboot the computer, and
     run the \c where commands again to verify that the global PATH is now clean.
 
-    You can use the shell link to run the tools in the third-party tool chains.
+    You can use the shell link to run the tools in the third-party toolchains.
 
     \sa {Compilers}, {Add Nim compilers}, {Add custom compilers},
     {Developing for Bare Metal Devices}, {Supported Platforms}

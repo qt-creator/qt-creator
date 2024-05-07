@@ -56,7 +56,7 @@
 
     \QC offers to automatically install all the necessary packages and tools and
     to set up your \l{Qt for Android} development environment by creating
-    debuggers, tool chains, and kits.
+    debuggers, toolchains, and kits.
 
     Use \QC to:
 
@@ -184,7 +184,7 @@
     \section1 Add NDK paths
 
     To add custom NDK paths manually to the global list of NDKs, select
-    \uicontrol Add. This creates custom tool chains and debuggers associated
+    \uicontrol Add. This creates custom toolchains and debuggers associated
     to that NDK.
 
     You have to manually create a kit that uses the custom NDK.

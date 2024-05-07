@@ -65,7 +65,7 @@
 
     \section1 Checking Code Coverage
 
-    Install the \l{https://doc.qt.io/coco/}{Coco} code coverage tool chain for
+    Install the \l{https://doc.qt.io/coco/}{Coco} code coverage toolchain for
     Tcl, QML, C# and C/C++ programs on \macOS, Linux, or Windows to analyze the
     way an application runs as part of a test suite, for example. Use the
     results to make the tests more efficient and complete.

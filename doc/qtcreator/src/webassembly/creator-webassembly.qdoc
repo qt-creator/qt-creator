@@ -24,7 +24,7 @@
     \note Enable the WebAssembly plugin to use it.
 
     To build applications for the web and run them in a web browser, you need to
-    install Qt for WebAssembly and the tool chain for compiling to WebAssembly.
+    install Qt for WebAssembly and the toolchain for compiling to WebAssembly.
 
     \section1 Requirements
 
@@ -35,12 +35,12 @@
         \li Qt for WebAssembly 5.15, or later
         \li On Windows: \l{http://wiki.qt.io/MinGW}{\MinGW} 7.3.0, or later
         \li \l{https://emscripten.org/docs/introducing_emscripten/index.html}
-            {emscripten} tool chain for compiling to WebAssembly
+            {emscripten} toolchain for compiling to WebAssembly
     \endlist
 
     \section1 Setting Up the Development Environment
 
-    You need to install and configure Qt for WebAssembly and the tool chain for
+    You need to install and configure Qt for WebAssembly and the toolchain for
     compiling to WebAssembly. \QOI automatically adds a build and
     run kit to \QC.
 

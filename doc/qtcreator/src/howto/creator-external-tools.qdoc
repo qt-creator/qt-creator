@@ -77,7 +77,7 @@
             {build environment} or \l {Specify the run environment}
             {run environment} of the active project. Select the build or run
             environment if the system environment does not have the necessary
-            PATH settings to find the tool chain, for example.
+            PATH settings to find the toolchain, for example.
         \else
         \li In the \uicontrol {Base environment} field, use the default settings.
         \endif

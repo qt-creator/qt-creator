@@ -138,7 +138,7 @@
 
     Most software projects and development processes require various external
     tools. Several external tools, such as popular version control systems and
-    build tool chains are integrated into \QC. However, it is impossible for a
+    build toolchains are integrated into \QC. However, it is impossible for a
     single tool to cover all the use cases, and therefore you can integrate
     additional tools to \QC.
 

@@ -20,7 +20,7 @@
 
     \QC supports native debuggers for debugging compiled code.
     On most supported platforms, you can use the GNU Symbolic Debugger (GDB).
-    On Microsoft Windows, when using the Microsoft tool chain, you need the
+    On Microsoft Windows, when using the Microsoft toolchain, you need the
     Microsoft Console Debugger (CDB). On \macos and Linux, you can use the LLDB
     debugger.
 

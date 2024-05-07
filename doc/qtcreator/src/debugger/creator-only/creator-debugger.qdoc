@@ -438,7 +438,7 @@
             used for building the binary for which the core file was created.
             If the core file stems from a binary not built by \QC or a process
             not initiated by \QC, select a kit that matches the setup used as
-            closely as possible, in respect to the specified device, tool chain,
+            closely as possible, in respect to the specified device, toolchain,
             debugger, and sysroot.
         \li In \uicontrol {Core file}, specify the core file to inspect.
         \li In \uicontrol {Executable of symbol file}, specify

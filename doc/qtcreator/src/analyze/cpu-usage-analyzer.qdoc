@@ -456,7 +456,7 @@
     \uicontrol {Performance Analyzer Options}. This format is self-contained, and
     therefore loading it does not require you to specify the recording
     environment. You can transfer such trace files to a different computer
-    without any tool chain or debug symbols and analyze them there.
+    without any toolchain or debug symbols and analyze them there.
 
     \section1 Troubleshooting
 

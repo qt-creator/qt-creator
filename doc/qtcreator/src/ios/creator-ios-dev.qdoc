@@ -12,7 +12,7 @@
     \brief Connect iOS devices to your local machine with a USB cable to
     run applications on them.
 
-    After you install Xcode, \QC automatically detects the tool chain and creates
+    After you install Xcode, \QC automatically detects the toolchain and creates
     the necessary \l{Kits}{kits} to build applications for and run them on
     configured iOS devices.
 

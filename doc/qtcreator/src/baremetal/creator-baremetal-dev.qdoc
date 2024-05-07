@@ -9,7 +9,7 @@
 
     \title Developing for Bare Metal Devices
 
-    \brief Create kits to use Bare Metal tool chains installed on the computer
+    \brief Create kits to use Bare Metal toolchains installed on the computer
     to build applications for and run and debug them on connected Bare Metal
     devices.
 
@@ -18,14 +18,14 @@
 
     \note Enable the Bare Metal plugin to use it.
 
-    Install Bare Metal tool chains on the computer to build applications for
+    Install Bare Metal toolchains on the computer to build applications for
     Bare Metal devices. Connect the devices to the computer to run and debug
     applications on them.
 
     \note If you use qmake to build the project and the device does not have
     Qt libraries, you need a fake Qt installation.
 
-    The following tool chains are supported for building applications:
+    The following toolchains are supported for building applications:
 
     \list
         \li GCC: Microchip Technology (AVR, AVR32, PIC16, PIC32),
