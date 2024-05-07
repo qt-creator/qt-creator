@@ -372,7 +372,7 @@ void OutlineComboBox::updateModel(const DocumentUri &resultUri, const DocumentSy
     if (const auto i = std::get_if<QList<SymbolInformation>>(&result))
         m_model.setInfo(*i);
     else if (const auto s = std::get_if<QList<DocumentSymbol>>(&result))
-        m_model.setInfo(*i);
+        m_model.setInfo(*s);
     else
         m_model.clear();
 
