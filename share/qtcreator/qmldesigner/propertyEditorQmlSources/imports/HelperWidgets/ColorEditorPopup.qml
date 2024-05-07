@@ -12,6 +12,12 @@ import QtQuickDesignerColorPalette
 Column {
     id: root
 
+    // There seems to be an issue on Windows and MacOS with ColorPickers
+    // Canvases not being painted on initialization
+    // because ColorEditorPopup is invisible at init time,
+    // so we use this signal to explicitly pass visibility status
+    signal aboutToBeShown
+
     property bool eyeDropperActive: ColorPaletteBackend.eyeDropperActive
 
     property bool supportGradient: false
@@ -432,6 +438,13 @@ Column {
                 hsvSaturationSpinBox.value = colorPicker.saturationHSV
                 hsvValueSpinBox.value = colorPicker.value
                 hsvAlphaSpinBox.value = colorPicker.alpha
+            }
+
+            Connections {
+                target: root
+                onAboutToBeShown: {
+                    colorPicker.aboutToBeShown()
+                }
             }
         }
 

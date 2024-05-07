@@ -223,7 +223,10 @@ SecondColumnLayout {
 
             function open() {
                 popupDialog.ensureLoader()
+
                 popupDialog.show(preview)
+
+                popupDialog.loaderItem.aboutToBeShown() //need it for now
             }
 
             function determineActiveColorMode() {
