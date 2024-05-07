@@ -630,3 +630,13 @@ class GitClone:
 
     def __exit__(self, exc_type, exc_value, traceback):
         deleteDirIfExists(self.localPath)
+
+
+def setReloadBehavior(to):
+    # QC 14 changed the default, so change the preferences
+    invokeMenuItem("Edit", "Preferences...")
+    mouseClick(waitForObjectItem(":Options_QListView", "Environment"))
+    clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "System")
+    selectFromCombo("{type='QComboBox' unnamed='1' leftWidget={type='QLabel' "
+                    "text='When files are externally modified:'}}", to)
+    clickButton(":Options.OK_QPushButton")
