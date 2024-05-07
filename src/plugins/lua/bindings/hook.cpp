@@ -46,15 +46,21 @@ void addHookModule()
             [](Hook *, QMetaObject::Connection con) { QObject::disconnect(con); });
     });
 
-    LuaEngine::registerHook("editors.documentOpened", [](const sol::function &func) {
-        QObject::connect(Core::EditorManager::instance(),
-                         &Core::EditorManager::documentOpened,
-                         [func](Core::IDocument *document) { func(document); });
+    LuaEngine::registerHook("editors.documentOpened", [](const sol::protected_function &func) {
+        QObject::connect(
+            Core::EditorManager::instance(),
+            &Core::EditorManager::documentOpened,
+            [func](Core::IDocument *document) {
+                QTC_CHECK_EXPECTED(LuaEngine::void_safe_call(func, document));
+            });
     });
-    LuaEngine::registerHook("editors.documentClosed", [](const sol::function &func) {
-        QObject::connect(Core::EditorManager::instance(),
-                         &Core::EditorManager::documentClosed,
-                         [func](Core::IDocument *document) { func(document); });
+    LuaEngine::registerHook("editors.documentClosed", [](const sol::protected_function &func) {
+        QObject::connect(
+            Core::EditorManager::instance(),
+            &Core::EditorManager::documentClosed,
+            [func](Core::IDocument *document) {
+                QTC_CHECK_EXPECTED(LuaEngine::void_safe_call(func, document));
+            });
     });
 }
 
