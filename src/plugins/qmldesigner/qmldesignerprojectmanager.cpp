@@ -210,10 +210,10 @@ std::unique_ptr<ProjectStorageData> createProjectStorageData(::ProjectExplorer::
 }
 } // namespace
 
-class QmlDesignerProjectManager::QmlDesignerProjectManagerDirectoryInfo
+class QmlDesignerProjectManager::QmlDesignerProjectManagerProjectData
 {
 public:
-    QmlDesignerProjectManagerDirectoryInfo(ImageCacheStorage<Sqlite::Database> &storage,
+    QmlDesignerProjectManagerProjectData(ImageCacheStorage<Sqlite::Database> &storage,
                                          ::ProjectExplorer::Project *project,
                                          ExternalDependenciesInterface &externalDependencies)
         : collector{connectionManager,
@@ -238,30 +238,34 @@ QmlDesignerProjectManager::QmlDesignerProjectManager(ExternalDependenciesInterfa
     , m_externalDependencies{externalDependencies}
 {
     auto editorManager = ::Core::EditorManager::instance();
-    QObject::connect(editorManager, &::Core::EditorManager::editorOpened, [&](auto *editor) {
+    QObject::connect(editorManager, &::Core::EditorManager::editorOpened, &dummy, [&](auto *editor) {
         editorOpened(editor);
     });
-    QObject::connect(editorManager, &::Core::EditorManager::currentEditorChanged, [&](auto *editor) {
-        currentEditorChanged(editor);
-    });
-    QObject::connect(editorManager, &::Core::EditorManager::editorsClosed, [&](const auto &editors) {
-        editorsClosed(editors);
-    });
+    QObject::connect(editorManager,
+                     &::Core::EditorManager::currentEditorChanged,
+                     &dummy,
+                     [&](auto *editor) { currentEditorChanged(editor); });
+    QObject::connect(editorManager,
+                     &::Core::EditorManager::editorsClosed,
+                     &dummy,
+                     [&](const auto &editors) { editorsClosed(editors); });
     auto sessionManager = ::ProjectExplorer::ProjectManager::instance();
     QObject::connect(sessionManager,
                      &::ProjectExplorer::ProjectManager::projectAdded,
+                     &dummy,
                      [&](auto *project) { projectAdded(project); });
     QObject::connect(sessionManager,
                      &::ProjectExplorer::ProjectManager::aboutToRemoveProject,
+                     &dummy,
                      [&](auto *project) { aboutToRemoveProject(project); });
     QObject::connect(sessionManager,
                      &::ProjectExplorer::ProjectManager::projectRemoved,
+                     &dummy,
                      [&](auto *project) { projectRemoved(project); });
 
-    QObject::connect(&m_previewImageCacheData->timer,
-                     &QTimer::timeout,
-                     this,
-                     &QmlDesignerProjectManager::generatePreview);
+    QObject::connect(&m_previewImageCacheData->timer, &QTimer::timeout, &dummy, [&]() {
+        generatePreview();
+    });
 }
 
 QmlDesignerProjectManager::~QmlDesignerProjectManager() = default;
@@ -297,8 +301,8 @@ namespace {
 ProjectStorageDependencies QmlDesignerProjectManager::projectStorageDependencies()
 {
     if constexpr (useProjectStorage()) {
-        return {m_directoryInfo->projectStorageData->storage,
-                m_directoryInfo->projectStorageData->pathCache};
+        return {m_projectData->projectStorageData->storage,
+                m_projectData->projectStorageData->pathCache};
     } else {
         return {*dummyProjectStorage(), *dummyPathCache()};
     }
@@ -499,10 +503,10 @@ QString qtCreatorItemLibraryPath()
 
 void QmlDesignerProjectManager::projectAdded(::ProjectExplorer::Project *project)
 {
-    m_directoryInfo = std::make_unique<QmlDesignerProjectManagerDirectoryInfo>(m_previewImageCacheData->storage,
+    m_projectData = std::make_unique<QmlDesignerProjectManagerProjectData>(m_previewImageCacheData->storage,
                                                                            project,
                                                                            m_externalDependencies);
-    m_directoryInfo->activeTarget = project->activeTarget();
+    m_projectData->activeTarget = project->activeTarget();
 
     QObject::connect(project, &::ProjectExplorer::Project::fileListChanged, [&]() {
         fileListChanged();
@@ -522,9 +526,9 @@ void QmlDesignerProjectManager::projectAdded(::ProjectExplorer::Project *project
 
 void QmlDesignerProjectManager::aboutToRemoveProject(::ProjectExplorer::Project *)
 {
-    if (m_directoryInfo) {
-        m_previewImageCacheData->collector.setTarget(m_directoryInfo->activeTarget);
-        m_directoryInfo.reset();
+    if (m_projectData) {
+        m_previewImageCacheData->collector.setTarget(m_projectData->activeTarget);
+        m_projectData.reset();
     }
 }
 
@@ -532,14 +536,14 @@ void QmlDesignerProjectManager::projectRemoved(::ProjectExplorer::Project *) {}
 
 void QmlDesignerProjectManager::generatePreview()
 {
-    if (!m_directoryInfo || !m_directoryInfo->activeTarget)
+    if (!m_projectData || !m_projectData->activeTarget)
         return;
 
     ::QmlProjectManager::QmlBuildSystem *qmlBuildSystem = getQmlBuildSystem(
-        m_directoryInfo->activeTarget);
+        m_projectData->activeTarget);
 
     if (qmlBuildSystem) {
-        m_previewImageCacheData->collector.setTarget(m_directoryInfo->activeTarget);
+        m_previewImageCacheData->collector.setTarget(m_projectData->activeTarget);
         m_previewImageCacheData->factory.generate(qmlBuildSystem->mainFilePath().toString().toUtf8());
     }
 }
@@ -567,12 +571,12 @@ QmlDesignerProjectManager::ImageCacheData *QmlDesignerProjectManager::imageCache
             m_imageCacheData->nodeInstanceCollector.setTarget(project->activeTarget());
             QObject::connect(project,
                              &ProjectExplorer::Project::activeTargetChanged,
-                             this,
+                             &dummy,
                              setTargetInImageCache);
         }
         QObject::connect(ProjectExplorer::ProjectManager::instance(),
                          &ProjectExplorer::ProjectManager::startupProjectChanged,
-                         this,
+                         &dummy,
                          [=](ProjectExplorer::Project *project) {
                              setTargetInImageCache(activeTarget(project));
                          });
@@ -587,12 +591,12 @@ void QmlDesignerProjectManager::fileListChanged()
 
 void QmlDesignerProjectManager::activeTargetChanged(ProjectExplorer::Target *target)
 {
-    if (!m_directoryInfo || !m_directoryInfo->projectStorageData)
+    if (!m_projectData || !m_projectData->projectStorageData)
         return;
 
-    QObject::disconnect(m_directoryInfo->activeTarget, nullptr, nullptr, nullptr);
+    QObject::disconnect(m_projectData->activeTarget, nullptr, nullptr, nullptr);
 
-    m_directoryInfo->activeTarget = target;
+    m_projectData->activeTarget = target;
 
     if (target) {
         QObject::connect(target, &::ProjectExplorer::Target::kitChanged, [&]() { kitChanged(); });
@@ -625,17 +629,17 @@ void QmlDesignerProjectManager::projectChanged()
 
 void QmlDesignerProjectManager::update()
 {
-    if (!m_directoryInfo || !m_directoryInfo->projectStorageData)
+    if (!m_projectData || !m_projectData->projectStorageData)
         return;
 
     if constexpr (isUsingQmlDesignerLite()) {
-        m_directoryInfo->projectStorageData->updater.update(directoriesForLiteDesigner(),
+        m_projectData->projectStorageData->updater.update(directoriesForLiteDesigner(),
                                                           qmlTypesForLiteDesigner(),
                                                           propertyEditorResourcesPath(),
                                                           {qtCreatorItemLibraryPath()});
     } else {
-        m_directoryInfo->projectStorageData->updater.update(directories(m_directoryInfo->activeTarget),
-                                                          qmlTypes(m_directoryInfo->activeTarget),
+        m_projectData->projectStorageData->updater.update(directories(m_projectData->activeTarget),
+                                                          qmlTypes(m_projectData->activeTarget),
                                                           propertyEditorResourcesPath(),
                                                           {qtCreatorItemLibraryPath()});
     }
