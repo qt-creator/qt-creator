@@ -672,7 +672,7 @@ void MarkdownHighlighter::highlightBlock(const QString &text)
     }
 }
 
-QString ansiColoredText(const QString &text, const QColor color)
+QString ansiColoredText(const QString &text, const QColor &color)
 {
     static const QString formatString("\033[38;2;%1;%2;%3m%4\033[0m");
     return formatString.arg(color.red()).arg(color.green()).arg(color.blue()).arg(text);
