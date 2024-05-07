@@ -103,7 +103,7 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
                     Utils::writeIncludeFileDirective("QtGui/" + formBaseClass, true, headerStr);
                     headerStr << "#endif\n";
                 } else {
-                    Utils::writeIncludeFileDirective("QtGui/" + formBaseClass, true, headerStr);
+                    Utils::writeIncludeFileDirective("QtWidgets/" + formBaseClass, true, headerStr);
                 }
             } else {
                 Utils::writeIncludeFileDirective(formBaseClass, true, headerStr);
