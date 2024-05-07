@@ -92,9 +92,6 @@ protected:
     BaseSettings(BaseSettings &&other) = default;
     BaseSettings &operator=(const BaseSettings &other) = default;
     BaseSettings &operator=(BaseSettings &&other) = default;
-
-private:
-    bool canStart(QList<const Core::IDocument *> documents) const;
 };
 
 class LANGUAGECLIENT_EXPORT StdIOSettings : public BaseSettings
