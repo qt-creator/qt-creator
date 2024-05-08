@@ -347,6 +347,16 @@ void EditorToolBar::setCanGoForward(bool canGoForward)
     d->m_goForwardAction->setEnabled(canGoForward);
 }
 
+void EditorToolBar::setGoBackMenu(QMenu *menu)
+{
+    d->m_backButton->setMenu(menu);
+}
+
+void EditorToolBar::setGoForwardMenu(QMenu *menu)
+{
+    d->m_forwardButton->setMenu(menu);
+}
+
 void EditorToolBar::updateActionShortcuts()
 {
     d->m_closeEditorButton->setToolTip(ActionManager::command(Constants::CLOSE)->stringWithAppendedShortcut(Tr::tr("Close Document")));

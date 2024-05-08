@@ -42,6 +42,8 @@ public:
     static EditLocation load(const QByteArray &data);
     static EditLocation forEditor(const IEditor *editor, const QByteArray &saveState = {});
 
+    QString displayName() const;
+
     QPointer<IDocument> document;
     Utils::FilePath filePath;
     Utils::Id id;
@@ -125,6 +127,8 @@ private:
     void checkProjectLoaded(IEditor *editor);
 
     void updateCurrentPositionInNavigationHistory();
+    bool openEditorFromNavigationHistory(int index);
+    void goToNavigationHistory(int index);
 
     SplitterOrView *m_parentSplitterOrView;
     EditorToolBar *m_toolBar;
@@ -141,6 +145,8 @@ private:
     QLabel *m_emptyViewLabel;
 
     QList<EditLocation> m_navigationHistory;
+    QMenu *m_backMenu;
+    QMenu *m_forwardMenu;
     QList<EditLocation> m_editorHistory;
     int m_currentNavigationHistoryPosition = 0;
 };

@@ -56,6 +56,8 @@ public:
     void setNavigationVisible(bool isVisible);
     void setCanGoBack(bool canGoBack);
     void setCanGoForward(bool canGoForward);
+    void setGoBackMenu(QMenu *menu);
+    void setGoForwardMenu(QMenu *menu);
     void removeToolbarForEditor(IEditor *editor);
     void setCloseSplitEnabled(bool enable);
     void setCloseSplitIcon(const QIcon &icon);
