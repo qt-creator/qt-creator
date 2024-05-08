@@ -32,16 +32,16 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
-#include "projectexplorer/projectmanager.h"
-#include "projectitem/qmlprojectitem.h"
-#include "projectnode/qmlprojectnodes.h"
+#include <projectexplorer/projectmanager.h>
+#include <projectitem/qmlprojectitem.h>
+#include <projectnode/qmlprojectnodes.h>
 
-#include "utils/algorithm.h"
-#include "utils/filepath.h"
-#include "utils/filesystemwatcher.h"
-#include "utils/qtcassert.h"
+#include <utils/algorithm.h>
+#include <utils/filepath.h>
+#include <utils/filesystemwatcher.h>
+#include <utils/qtcassert.h>
 
-#include "texteditor/textdocument.h"
+#include <texteditor/textdocument.h>
 
 #include <QAction>
 
@@ -242,7 +242,7 @@ void QmlBuildSystem::initMcuProjectItems()
     Utils::FilePath projectDir = projectFilePath().parentDir();
     // traverse the project dir and find all other mcu projects (.qmlproject files) in the project tree
     // and add them to the m_mcuProjectItems vector
-    QDirIterator it(projectDir.toString(), QDir::Files, QDirIterator::Subdirectories);
+    QDirIterator it(projectDir.toFSPathString(), QDir::Files, QDirIterator::Subdirectories);
     while (it.hasNext()) {
         it.next();
         if (it.fileInfo().suffix() == "qmlproject" && it.filePath() != projectFilePath().toString()) {
