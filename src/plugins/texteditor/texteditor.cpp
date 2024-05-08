@@ -1262,14 +1262,14 @@ TextEditorWidget::TextEditorWidget(QWidget *parent)
 {
     // "Needed", as the creation below triggers ChildEvents that are
     // passed to this object's event() which uses 'd'.
-    d = nullptr;
-    d = new TextEditorWidgetPrivate(this);
-
+    d = std::make_unique<Internal::TextEditorWidgetPrivate>(this);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     setLayoutDirection(Qt::LeftToRight);
     viewport()->setMouseTracking(true);
     setFrameStyle(QFrame::NoFrame);
 }
+
+TextEditorWidget::~TextEditorWidget() = default;
 
 void TextEditorWidget::setTextDocument(const QSharedPointer<TextDocument> &doc)
 {
@@ -1447,12 +1447,6 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
     q->updateTextCodecLabel();
     q->updateTextLineEndingLabel();
     setupFromDefinition(currentDefinition());
-}
-
-TextEditorWidget::~TextEditorWidget()
-{
-    delete d;
-    d = nullptr;
 }
 
 void TextEditorWidget::print(QPrinter *printer)
@@ -5796,7 +5790,7 @@ void TextEditorWidgetPrivate::paintRevisionMarker(QPainter &painter,
 
 void TextEditorWidget::extraAreaPaintEvent(QPaintEvent *e)
 {
-    ExtraAreaPaintEventData data(this, d);
+    ExtraAreaPaintEventData data(this, d.get());
     QTC_ASSERT(data.documentLayout, return);
 
     QPainter painter(d->m_extraArea);
@@ -9402,7 +9396,7 @@ void TextEditorWidget::setupGenericHighlighter()
     setLineSeparatorsAllowed(true);
 
     connect(textDocument(), &IDocument::filePathChanged,
-            d, &TextEditorWidgetPrivate::reconfigure);
+            d.get(), &TextEditorWidgetPrivate::reconfigure);
 }
 
 //
