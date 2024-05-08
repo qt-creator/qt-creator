@@ -69,10 +69,14 @@ local join = function(thunks)
 end
 -- sugar over coroutine
 local await = function(defer)
+    local _, isMain = coroutine.running()
+    assert(not isMain, "a.wait was called outside of a running coroutine. You need to start one using a.sync(my_function)() first")
     assert(type(defer) == "function", "type error :: expected func :: was: " .. type(defer))
     return co.yield(defer)
 end
 local await_all = function(defer)
+    local _, isMain = coroutine.running()
+    assert(not isMain, "a.wait_all was called outside of a running coroutine. You need to start one using a.sync(my_function)() first")
     assert(type(defer) == "table", "type error :: expected table")
     return co.yield(join(defer))
 end
