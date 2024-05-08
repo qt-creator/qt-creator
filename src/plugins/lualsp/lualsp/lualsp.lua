@@ -21,10 +21,4 @@ It will try to install it if it is not found.
     setup = function()
         require 'init'.setup()
     end,
-    hooks = {
-        editors = {
-            documentOpened = function(doc) print("documentOpened", doc) end,
-            documentClosed = function(doc) print("documentClosed", doc) end,
-        }
-    }
 } --[[@as QtcPlugin]]

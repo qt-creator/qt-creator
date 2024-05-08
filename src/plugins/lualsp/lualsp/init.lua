@@ -24,6 +24,30 @@ local function createCommand()
 
   return cmd
 end
+local function installServer()
+  print("Lua Language Server not found, installing ...")
+  local cmds = {
+    mac = "brew install lua-language-server",
+    windows = "winget install lua-language-server",
+    linux = "sudo apt install lua-language-server"
+  }
+
+  if a.wait(Process.runInTerminal(cmds[Utils.HostOsInfo.os])) == 0 then
+    print("Lua Language Server installed!")
+    local binary = a.wait(Utils.FilePath.fromUserInput("lua-language-server"):searchInPath())
+    if binary:isExecutableFile() == false then
+      mm.writeFlashing("Lua Language Server was installed, but I could not find it in your PATH")
+      return false
+    end
+
+    Settings.binary.value = binary:toUserOutput()
+    Settings:apply()
+    return true
+  end
+
+  mm.writeFlashing("Lua Language Server installation failed!")
+  return false
+end
 local function setupClient()
   Client = LSP.Client.create({
     name = 'Lua Language Server',
@@ -35,6 +59,11 @@ local function setupClient()
     },
     settings = Settings,
     startBehavior = "RequiresFile",
+    onStartFailed = function(ask)
+      a.sync(function()
+        installServer()
+      end)()
+    end
   })
 
   Client.on_instance_start = function()
@@ -44,24 +73,6 @@ local function setupClient()
   Client:registerMessage("$/status/report", function(params)
     mm.writeFlashing(params.params.text .. ": " .. params.params.tooltip);
   end)
-end
-
-local function installServer()
-  print("Lua Language Server not found, installing ...")
-  local cmds = {
-    mac = "brew install lua-language-server",
-    windows = "winget install lua-language-server",
-    linux = "sudo apt install lua-language-server"
-  }
-  if a.wait(Process.runInTerminal(cmds[Utils.HostOsInfo.os])) == 0 then
-    print("Lua Language Server installed!")
-    Settings.binary.defaultPath = Utils.FilePath.fromUserInput("lua-language-server"):resolveSymlinks()
-    Settings:apply()
-    return true
-  end
-
-  print("Lua Language Server installation failed!")
-  return false
 end
 
 local function using(tbl)
@@ -112,8 +123,14 @@ local function setupAspect()
     labelText = "Binary:",
     toolTip = "The path to the lua-language-server binary.",
     expectedKind = S.Kind.ExistingCommand,
-    defaultPath = Utils.FilePath.fromUserInput("lua-language-server"):resolveSymlinks(),
+    defaultPath = Utils.FilePath.fromUserInput("lua-language-server"),
   })
+  -- Search for the binary in the PATH
+  local serverPath = Settings.binary.defaultPath
+  local absolute = a.wait(serverPath:searchInPath()):resolveSymlinks()
+  if absolute:isExecutableFile() == true then
+    Settings.binary.defaultPath = absolute
+  end
   Settings.developMode = S.BoolAspect.create({
     settingsKey = "LuaCopilot.DevelopMode",
     displayName = "Enable Develop Mode",
@@ -143,15 +160,7 @@ local function setupAspect()
   return Settings
 end
 local function setup(parameters)
-  print("Setting up Lua Language Server ...")
   setupAspect()
-  local serverPath = Utils.FilePath.fromUserInput("lua-language-server")
-  local absolute = a.wait(serverPath:searchInPath()):resolveSymlinks()
-  if absolute:isExecutableFile() == true then
-    Settings.binary.defaultPath = absolute
-  else
-    installServer()
-  end
   setupClient()
 end
 

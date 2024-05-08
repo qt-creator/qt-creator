@@ -1,9 +1,12 @@
 // Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include <coreplugin/editormanager/editormanager.h>
+
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
 #include <languageclient/languageclientsettings.h>
+#include <languageclient/languageclienttr.h>
 
 #include <lua/bindings/inheritance.h>
 #include <lua/luaengine.h>
@@ -26,6 +29,19 @@ using namespace ProjectExplorer;
 namespace LanguageClient::Lua {
 
 static void registerLuaApi();
+
+class LuaClient : public LanguageClient::Client
+{
+    Q_OBJECT
+
+public:
+    Utils::Id m_settingsId;
+
+    LuaClient(BaseClientInterface *interface, Utils::Id settingsId)
+        : LanguageClient::Client(interface)
+        , m_settingsId(settingsId)
+    {}
+};
 
 class LuaLanguageClientPlugin final : public ExtensionSystem::IPlugin
 {
@@ -135,6 +151,8 @@ public:
     BaseSettings *copy() const override { return new LuaClientSettings(*this); }
 
 protected:
+    Client *createClient(BaseClientInterface *interface) const final;
+
     BaseClientInterface *createInterface(ProjectExplorer::Project *project) const override;
 };
 enum class TransportType { StdIO, LocalSocket };
@@ -154,6 +172,7 @@ public:
     BaseSettings::StartBehavior m_startBehavior = BaseSettings::RequiresFile;
 
     std::optional<sol::protected_function> m_onInstanceStart;
+    std::optional<sol::protected_function> m_startFailedCallback;
     QMap<QString, sol::protected_function> m_messageCallbacks;
 
     QList<Client *> m_clients;
@@ -189,6 +208,8 @@ public:
 
         m_startBehavior = startBehaviorFromString(
             options.get_or<QString>("startBehavior", "AlwaysOn"));
+
+        m_startFailedCallback = options.get<sol::protected_function>("onStartFailed");
 
         QString transportType = options.get_or<QString>("transport", "stdio");
         if (transportType == "stdio")
@@ -231,35 +252,45 @@ public:
         // get<sol::optional<>> because on MSVC, get_or(..., nullptr) fails to compile
         m_aspects = options.get<sol::optional<AspectContainer *>>("settings").value_or(nullptr);
 
+        if (m_aspects) {
+            connect(m_aspects, &AspectContainer::applied, this, [this] {
+                updateOptions();
+                LanguageClientManager::applySettings();
+            });
+        }
+
         connect(
             LanguageClientManager::instance(),
             &LanguageClientManager::clientInitialized,
             this,
             [this](Client *c) {
-                if (m_onInstanceStart) {
-                    if (auto settings = LanguageClientManager::settingForClient(c)) {
-                        if (settings->m_settingsTypeId == m_settingsTypeId) {
-                            auto result = m_onInstanceStart->call();
+                auto luaClient = qobject_cast<LuaClient *>(c);
+                if (luaClient && luaClient->m_settingsId == m_settingsTypeId && m_onInstanceStart) {
+                    QTC_CHECK(::Lua::LuaEngine::void_safe_call(*m_onInstanceStart, c));
 
-                            if (!result.valid()) {
-                                qWarning() << "Error calling instance start callback:"
-                                           << (result.get<sol::error>().what());
-                            }
-
-                            m_clients.push_back(c);
-                            updateMessageCallbacks();
-                        }
-                    }
+                    m_clients.push_back(c);
+                    updateMessageCallbacks();
                 }
             });
+
         connect(
             LanguageClientManager::instance(),
             &LanguageClientManager::clientRemoved,
             this,
-            [this](Client *c) {
-                if (m_clients.contains(c))
-                    m_clients.removeOne(c);
-            });
+            &LuaClientWrapper::onClientRemoved);
+    }
+
+    void onClientRemoved(Client *c, bool unexpected)
+    {
+        auto luaClient = qobject_cast<LuaClient *>(c);
+        if (!luaClient || luaClient->m_settingsId != m_settingsTypeId)
+            return;
+
+        if (m_clients.contains(c))
+            m_clients.removeOne(c);
+
+        if (unexpected && m_startFailedCallback)
+            sol::protected_function_result result = m_startFailedCallback->call();
     }
 
     // TODO: Unregister Client settings from LanguageClientManager
@@ -455,6 +486,12 @@ QWidget *LuaClientSettings::createSettingsWidget(QWidget *parent) const
             return new BaseSettingsWidget(this, parent, layout->subItems);
 
     return new BaseSettingsWidget(this, parent);
+}
+
+Client *LuaClientSettings::createClient(BaseClientInterface *interface) const
+{
+    Client *client = new LuaClient(interface, m_settingsTypeId);
+    return client;
 }
 
 BaseClientInterface *LuaClientSettings::createInterface(ProjectExplorer::Project *project) const

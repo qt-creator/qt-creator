@@ -11,6 +11,7 @@ local lsp = {}
 ---@field startBehavior? "AlwaysOn"|"RequiresFile"|"RequiresProject"
 ---@field initializationOptions? table|string The initialization options to pass to the language server, either a json string, or a table
 ---@field settings? AspectContainer
+---@field onStartFailed? function This callback is called when client failed to start.
 local ClientOptions = {}
 
 ---@class LanguageFilter
