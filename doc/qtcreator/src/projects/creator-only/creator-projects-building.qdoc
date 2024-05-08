@@ -105,7 +105,7 @@
     \uicontrol Projects view.
 
     \sa {Configure projects for building}, {Build and Run}{How To: Build and Run},
-    {Adding Docker Devices}, {Specifying Build Settings}
+    {Add Docker devices}, {Specifying Build Settings}
 */
 
 /*!

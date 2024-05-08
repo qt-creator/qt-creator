@@ -49,7 +49,7 @@
     \image qtcreator-ssh-options.png {SSH preferences}
     //! [openssh]
 
-    \sa {Adding Docker Devices}, {Remote Linux}{How To: Develop for remote Linux},
+    \sa {Add Docker devices}, {Remote Linux}{How To: Develop for remote Linux},
     {Run in Qt Application Manager}, {Remote Linux Deploy Configuration},
     {Remote Linux Run Settings}
 */

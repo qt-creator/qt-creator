@@ -110,6 +110,13 @@
 
     \generatelist creator-how-to-b2qt
 
+    \section2 Docker
+
+    Create \e {Docker devices} from \e {Docker images} and use them to build,
+    run, and debug applications.
+
+    \generatelist creator-how-to-docker
+
     \section2 iOS
 
     Install \l {Qt for iOS} and Xcode, and connect iOS devices to the computer.

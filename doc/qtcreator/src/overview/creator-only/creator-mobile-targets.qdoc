@@ -44,7 +44,7 @@
             You can connect \B2Q devices to the development PC to run,
             debug, and analyze applications built for them from \QC.
 
-        \li \l {Adding Docker Devices}
+        \li \l {Add Docker images}
 
             Create Docker devices from Docker images and use them to build, run,
             and debug applications from \QC.

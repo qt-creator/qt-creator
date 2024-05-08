@@ -24,7 +24,6 @@
             \li \l{Configuring Projects}
             \li \l{Connecting Devices}
             \list
-                \li \l{Adding Docker Devices}
                 \li \l{Building Applications for the Web}
             \endlist
             \li \l{Debugging}
@@ -58,6 +57,8 @@
                         \generatelist creator-how-to-bare-metal
                     \li \B2Q
                         \generatelist creator-how-to-b2qt
+                    \li Docker
+                        \generatelist creator-how-to-docker
                     \li iOS
                         \generatelist creator-how-to-ios
                     \li MCUs

@@ -28,7 +28,7 @@
         \li \l{Developing for Android}{Android}
         \li \l{Developing for Bare Metal Devices}{Bare Metal}
         \li \l{\B2Q: Documentation}{\B2Q} (commercial only)
-        \li \l{Adding Docker Devices}{Docker} (experimental)
+        \li \l{Add Docker devices}{Docker} (experimental)
         \li \l{Developing for iOS}{iOS}
         \li iOS Simulator
         \li \l{Developing for MCUs}{MCU} (commercial only)
