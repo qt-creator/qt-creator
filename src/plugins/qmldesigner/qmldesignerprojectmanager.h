@@ -28,10 +28,8 @@ namespace QmlDesigner {
 
 class ExternalDependenciesInterface;
 
-class QmlDesignerProjectManager : public QObject
+class QmlDesignerProjectManager
 {
-    Q_OBJECT
-
     class QmlDesignerProjectManagerProjectData;
     class PreviewImageCacheData;
     class ImageCacheData;
@@ -70,5 +68,6 @@ private:
     std::unique_ptr<PreviewImageCacheData> m_previewImageCacheData;
     std::unique_ptr<QmlDesignerProjectManagerProjectData> m_projectData;
     ExternalDependenciesInterface &m_externalDependencies;
+    QObject dummy;
 };
 } // namespace QmlDesigner

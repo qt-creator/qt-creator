@@ -238,30 +238,34 @@ QmlDesignerProjectManager::QmlDesignerProjectManager(ExternalDependenciesInterfa
     , m_externalDependencies{externalDependencies}
 {
     auto editorManager = ::Core::EditorManager::instance();
-    QObject::connect(editorManager, &::Core::EditorManager::editorOpened, [&](auto *editor) {
+    QObject::connect(editorManager, &::Core::EditorManager::editorOpened, &dummy, [&](auto *editor) {
         editorOpened(editor);
     });
-    QObject::connect(editorManager, &::Core::EditorManager::currentEditorChanged, [&](auto *editor) {
-        currentEditorChanged(editor);
-    });
-    QObject::connect(editorManager, &::Core::EditorManager::editorsClosed, [&](const auto &editors) {
-        editorsClosed(editors);
-    });
+    QObject::connect(editorManager,
+                     &::Core::EditorManager::currentEditorChanged,
+                     &dummy,
+                     [&](auto *editor) { currentEditorChanged(editor); });
+    QObject::connect(editorManager,
+                     &::Core::EditorManager::editorsClosed,
+                     &dummy,
+                     [&](const auto &editors) { editorsClosed(editors); });
     auto sessionManager = ::ProjectExplorer::ProjectManager::instance();
     QObject::connect(sessionManager,
                      &::ProjectExplorer::ProjectManager::projectAdded,
+                     &dummy,
                      [&](auto *project) { projectAdded(project); });
     QObject::connect(sessionManager,
                      &::ProjectExplorer::ProjectManager::aboutToRemoveProject,
+                     &dummy,
                      [&](auto *project) { aboutToRemoveProject(project); });
     QObject::connect(sessionManager,
                      &::ProjectExplorer::ProjectManager::projectRemoved,
+                     &dummy,
                      [&](auto *project) { projectRemoved(project); });
 
-    QObject::connect(&m_previewImageCacheData->timer,
-                     &QTimer::timeout,
-                     this,
-                     &QmlDesignerProjectManager::generatePreview);
+    QObject::connect(&m_previewImageCacheData->timer, &QTimer::timeout, &dummy, [&]() {
+        generatePreview();
+    });
 }
 
 QmlDesignerProjectManager::~QmlDesignerProjectManager() = default;
@@ -562,12 +566,12 @@ QmlDesignerProjectManager::ImageCacheData *QmlDesignerProjectManager::imageCache
             m_imageCacheData->nodeInstanceCollector.setTarget(project->activeTarget());
             QObject::connect(project,
                              &ProjectExplorer::Project::activeTargetChanged,
-                             this,
+                             &dummy,
                              setTargetInImageCache);
         }
         QObject::connect(ProjectExplorer::ProjectManager::instance(),
                          &ProjectExplorer::ProjectManager::startupProjectChanged,
-                         this,
+                         &dummy,
                          [=](ProjectExplorer::Project *project) {
                              setTargetInImageCache(activeTarget(project));
                          });
