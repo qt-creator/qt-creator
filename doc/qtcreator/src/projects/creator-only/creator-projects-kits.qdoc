@@ -32,7 +32,7 @@
         \li \l{Developing for iOS}{iOS}
         \li iOS Simulator
         \li \l{Developing for MCUs}{MCU} (commercial only)
-        \li \l{Connecting QNX Devices}{QNX}
+        \li \l{Add a QNX Neutrino device}{QNX}
         \li \l{Developing for Remote Linux Devices}{Remote Linux}
         \li \l{Building Applications for the Web}{WebAssembly Runtime}
     \endlist

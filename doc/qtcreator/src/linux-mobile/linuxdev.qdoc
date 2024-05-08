@@ -129,65 +129,13 @@
 
     \title Add remote Linux devices
 
-    Create connections between \QC and generic Linux devices to run, debug, and
+    Create connections between generic Linux devices and \QC to run, debug, and
     analyze applications on them.
 
-    \section1 Use a wizard to add a device
+    \image qtcreator-preferences-devices-remote-linux.webp {Remote Linux Device in Devices}
+    \caption Remote Linux Device preferences
 
-    To use a wizard to add a remote Linux device:
-
-     \list 1
-
-        \li Go to \preferences > \uicontrol Devices > \uicontrol Devices.
-
-        \li Select \uicontrol Add > \uicontrol {Remote Linux Device}
-            > \uicontrol {Start Wizard}.
-
-            \image qtcreator-preferences-devices-remote-linux-connection.webp {Connection Data wizard}
-
-         \li In \uicontrol {The name to identify this configuration},
-             enter a name for the connection.
-
-         \li In \uicontrol {The device's host name or IP address},
-             enter the host name or IP address of the device.
-             This value will be available in the variable \c %{Device:HostAddress}.
-
-         \li In \uicontrol {The device's SSH port number}, enter the port
-             number to use for SSH connections. This value will be
-             available in the variable \c %{Device:SshPort}.
-         \li In \uicontrol {The username to log into the device},
-             enter the username to log into the device and run the
-             application as.
-             This value will be available in the variable \c %{Device:UserName}.
-
-         \li Select \uicontrol {Next} to open the
-             \uicontrol {Key Deployment} dialog.
-
-             \image qtcreator-preferences-devices-remote-linux-key-deployment.webp "Key Deployment dialog"
-
-         \li In \uicontrol {Private key file}, select a private key file
-             to use for authentication. This value will be available in
-             the variable \c %{Device:PrivateKeyFile}.
-
-         \li If you do not have a public-private key pair, select
-             \uicontrol {Create New Key Pair}. For more information,
-             see \l{Generate SSH keys}.
-
-         \li Select \uicontrol {Deploy Public Key} to copy the public
-             key to the device.
-
-         \li  Select \uicontrol {Next} to create the connection.
-
-     \endlist
-
-    You can change the preferences later, as well as additional ones that the
-    wizard does not show because they have sensible default values.
-
-    \section1 Manually add a device
-
-    To add a device without using the wizard, select
-    \uicontrol {Add Remote Linux Device} in the pull-down
-    menu of the \uicontrol Add button.
+    \include qtcreator-add-linux-device.qdocinc {add linux device} {Remote Linux Device}
 
     \sa {Remote Linux}{How To: Develop for remote Linux},
     {Developing for Remote Linux Devices},

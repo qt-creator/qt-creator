@@ -1,0 +1,47 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+//! [add linux device]
+
+    \section1 Use a wizard to add a device
+
+    To use a wizard to add \uicontrol {\1}:
+
+     \list 1
+        \li Go to \preferences > \uicontrol Devices > \uicontrol Devices.
+        \li Select \uicontrol Add > \uicontrol {\1} > \uicontrol {Start Wizard}.
+            \image qtcreator-preferences-devices-remote-linux-connection.webp {Connection Data wizard}
+        \li In \uicontrol {The name to identify this configuration},
+            enter a name for the connection.
+        \li In \uicontrol {The device's host name or IP address},
+            enter the host name or IP address of the device.
+            This becomes the value of the \c %{Device:HostAddress} variable.
+        \li In \uicontrol {The device's SSH port number}, enter the port
+            number for SSH connections. This becomes the value of the
+            \c %{Device:SshPort} variable.
+        \li In \uicontrol {The username to log into the device}, enter the
+            username to log into the device and run the application. This
+            becomes the value of the \c %{Device:UserName} variable.
+        \li Select \uicontrol {Next} to open the \uicontrol {Key Deployment}
+            dialog.
+            \image qtcreator-preferences-devices-remote-linux-key-deployment.webp {Key Deployment dialog}
+        \li In \uicontrol {Private key file}, select a private key file
+            for authentication. This becomes the value of the
+            \c %{Device:PrivateKeyFile} variable.
+        \li If you don't have a public-private key pair, select
+            \uicontrol {Create New Key Pair}. For more information,
+            see \l{Generate SSH keys}.
+        \li Select \uicontrol {Deploy Public Key} to copy the public
+            key to the device.
+        \li Select \uicontrol {Next} to create the connection.
+     \endlist
+
+    To change device preferences, go to \preferences > \uicontrol Devices >
+    \uicontrol Devices and select a device in \uicontrol Device.
+
+    \section1 Manually add a device
+
+    To add a device without using the wizard, select \uicontrol {\1} in the
+    pull-down menu of the \uicontrol Add button.
+
+//! [add linux device]

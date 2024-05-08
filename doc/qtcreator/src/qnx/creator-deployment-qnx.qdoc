@@ -32,7 +32,7 @@
     The \uicontrol {Check for a configured device} deployment step looks for a
     device that is ready for deployment.
 
-    \sa {Build and Run}{How To: Build and Run}, {Connecting QNX Devices},
+    \sa {Build and Run}{How To: Build and Run}, {QNX Neutrino}{How To: Develop for QNX},
     {QNX Run Settings}, {Remote Linux Deploy Configuration},
     {Remote Linux Run Settings}
 */

@@ -122,6 +122,12 @@
 
     \generatelist creator-how-to-mcu
 
+    \section2 QNX Neutrino
+
+    Install \l {Qt for QNX}, and connect QNX Neutrino devices to the computer.
+
+    \generatelist creator-how-to-qnx
+
     \section2 Remote Linux
 
     Add kits for toolchains for building applications for generic Linux

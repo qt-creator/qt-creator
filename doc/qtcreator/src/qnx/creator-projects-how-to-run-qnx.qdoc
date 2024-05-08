@@ -5,15 +5,17 @@
     \page creator-how-to-run-on-qnx.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-run
+    \ingroup creator-how-to-qnx
 
     \title Run on QNX devices
 
     To build an application and run it on a device:
 
     \list 1
-        \li Connect the device to the computer or to the Wi-Fi network.
-        \li Configure the device and specify a connection to it.
+        \li Connect the device to the computer or to a network.
+        \li Go to \preferences > \uicontrol Devices > \uicontrol Devices,
+            and add a QNX device.
+            \image qtcreator-devices-qnx.webp {QNX device preferences}
         \li Make sure that your kit has your QNX device set.
         \li Select \inlineimage icons/run_small.png (\uicontrol Run).
     \endlist
@@ -32,7 +34,7 @@
 
     \section2 Debug output cannot be shown
 
-    For the command-line output to show up in the \uicontrol{Application Output},
+    For the command-line output to show up in \l {Application Output},
     \QC has to create an SSH connection to the device.
     This is only possible if QNX Momentics is not running, and the SSH key
     configured for the device is a 4096-bit key.
@@ -48,6 +50,6 @@
     \c printf, \c ps, \c read, \c sed, \c sleep, \c uname, \c slog2info, and
     \c cat.
 
-    \sa {Connecting QNX Devices}, {Run on many platforms}, {Compilers},
-    {Embedded Platforms}, {kit-preferences}{Kits}
+    \sa {QNX Neutrino}{How To: Develop for QNX}, {Run on many platforms},
+    {Compilers}, {kit-preferences}{Kits}
 */

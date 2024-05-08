@@ -25,7 +25,6 @@
             \li \l{Connecting Devices}
             \list
                 \li \l{Adding Docker Devices}
-                \li \l{Connecting QNX Devices}
                 \li \l{Building Applications for the Web}
             \endlist
             \li \l{Debugging}
@@ -63,6 +62,8 @@
                         \generatelist creator-how-to-ios
                     \li MCUs
                         \generatelist creator-how-to-mcu
+                    \li QNX Neutrino
+                        \generatelist creator-how-to-qnx
                     \li Remote Linux
                         \generatelist creator-how-to-remote-linux
                 \endlist

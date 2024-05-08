@@ -60,7 +60,7 @@
             You can connect MCU boards to a development host to deploy, run, and
             debug applications on them from \QC.
 
-        \li \l{Connecting QNX Devices}
+        \li \l{Add a QNX Neutrino device}
 
             You can connect QNX devices to the development PC to deploy, run and
             debug applications on them from within \QC. This is currently only

@@ -1,32 +1,51 @@
 // Copyright (C) 2018 Blackberry
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-developing-mcu.html
     \page creator-developing-qnx.html
-    \nextpage creator-developing-generic-linux.html
+    \previouspage creator-how-tos.html
 
-    \title Connecting QNX Devices
+    \ingroup creator-how-to-qnx
 
-    You can connect QNX devices to the development PC to deploy, run and debug
-    applications on them from within \QC. The QNX Neutrino RTOS has additional
+    \title Add a QNX Neutrino device
+
+    Create a connection between \QC and a QNX Neutrino device to run, debug, and
+    analyze applications on the device. The QNX Neutrino RTOS has additional
     command-line tools and services, as described in \l {Qt for QNX}.
 
-    \note In Qt 6, \QC support for QNX is considered experimental.
+    \image qtcreator-devices-qnx.webp {QNX device preferences}
+    \caption QNX device preferences
 
-    \section1 Adding a QNX Neutrino Device in \QC
+    \include qtcreator-add-linux-device.qdocinc {add linux device} {QNX Device}
 
-    Adding a QNX Neutrino device is very similar to adding a
-    \l{Add remote Linux devices}{remote Linux device}, except that
-    you need to select \uicontrol {QNX Device} in the
-    \uicontrol {Device Configuration} wizard.
+    \sa {QNX Neutrino}{How To: Develop for QNX},
+    {Remote Linux}{How To: Develop for remote Linux},
+    {Manage Kits}{How To: Manage Kits}
+*/
 
-    \section1 Add kits for QNX Devices
+/*!
+    \page creator-how-to-create-qnx-kits.html
+    \previouspage creator-how-tos.html
 
-    To view QNX device settings, select \preferences >
-    \uicontrol Devices > \uicontrol QNX. Select the \uicontrol {Generate kits}
-    check box to allow \QC to generate kits for QNX development.
+    \ingroup creator-how-to-qnx
 
-    \sa {Add kits}
+    \title Create kits for QNX Neutrino devices
+
+    To generate a build and run \l {Kits}{kit} for QNX Neutrino devices:
+
+    \list 1
+        \li Go to \preferences > \uicontrol Devices > \uicontrol Devices.
+        \li Select \uicontrol Add > \uicontrol {QNX Device} >
+            \uicontrol {Start Wizard} to add a QNX Neutrino device.
+        \li Select \uicontrol Apply to fetch the information needed for
+            creating kits.
+        \li Go to \preferences > \uicontrol Devices > \uicontrol QNX.
+        \li Select \uicontrol {Create Kit} to create a kit for a particular
+            platform.
+            \image qtcreator-preferences-qnx.webp {QNX Preferences}
+        \li Activate the kit for your project.
+    \endlist
+
+    \sa {QNX Neutrino}{How To: Develop for QNX}, {Activate kits for a project}
 */

@@ -198,16 +198,16 @@
     For more information, see \l{Build and Run}{How To: Build and Run},
     \l{Build Systems}, \l{Build Configurations}, and \l{Run Configurations}.
 
-    \section1 Embedded Platforms
+    \section2 Embedded Platforms
 
     You can develop applications for the following embedded platforms:
 
     \list
-        \li \l {Developing for Bare Metal Devices}{Bare Metal}
+        \li \l {Bare Metal}
         \li \l {\B2Q}
+        \li \l {MCUs}
+        \li \l {QNX Neutrino}
         \li \l {Remote Linux}
-        \li \l {Developing for MCUs}{Microcontrollers (MCU)}
-        \li \l {Connecting QNX Devices}{QNX}
     \endlist
 
     Install the toolchain for building applications for the targeted

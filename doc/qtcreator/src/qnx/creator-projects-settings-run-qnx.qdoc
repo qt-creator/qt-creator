@@ -15,13 +15,14 @@
     you select for a kit in \uicontrol Projects > \uicontrol {Build & Run} >
     \uicontrol Run > \uicontrol {Run Settings}.
 
-    To run and debug an application on a QNX device, you must
-    create connections from the development PC to the device. Select
-    \uicontrol {Manage device configurations} to create a connection.
+    To run and debug an application on a QNX device, select
+    \uicontrol {Manage device configurations} to create a
+    connection between \QC and the device.
 
     Settings for QNX Neutrino devices are very similar to those for remote linux
     devices.
 
-    \sa {Remote Linux Run Settings}, {Activate kits for a project},
-    {Configure projects for running}, {kits-tab}{Kits}, {Connecting QNX Devices}
+    \sa {QNX Neutrino}{How To: Develop for QNX}, {Manage Kits}{How To: Manage Kits},
+    {Remote Linux Run Settings}, {Configure projects for running},
+    {kits-tab}{Kits}
 */
