@@ -264,6 +264,11 @@ bool EditorView::canGoBack() const
     return m_currentNavigationHistoryPosition > 0;
 }
 
+bool EditorView::canReopen() const
+{
+    return !m_closedEditorHistory.isEmpty();
+}
+
 void EditorView::updateEditorHistory(IEditor *editor, QList<EditLocation> &history)
 {
     IDocument *document = editor ? editor->document() : nullptr;
@@ -505,6 +510,21 @@ void EditorView::addCurrentPositionToNavigationHistory(const QByteArray &saveSta
     updateNavigatorActions();
 }
 
+void EditorView::addClosedEditorToCloseHistory(IEditor *editor)
+{
+    static const int MAX_ITEMS = 20;
+
+    if (!editor || !editor->document())
+        return;
+
+    EditLocation location = EditLocation::forEditor(editor);
+
+    m_closedEditorHistory.push_back(location);
+
+    if (m_closedEditorHistory.size() > MAX_ITEMS)
+        m_closedEditorHistory.removeFirst();
+}
+
 void EditorView::cutForwardNavigationHistory()
 {
     while (m_currentNavigationHistoryPosition < m_navigationHistory.size() - 1)
@@ -634,6 +654,13 @@ void EditorView::goForwardInNavigationHistory()
     if (m_currentNavigationHistoryPosition >= m_navigationHistory.size())
         m_currentNavigationHistoryPosition = qMax<int>(m_navigationHistory.size() - 1, 0);
     updateNavigatorActions();
+}
+
+void EditorView::reopenLastClosedDocument()
+{
+    if (m_closedEditorHistory.isEmpty())
+        return;
+    goToEditLocation(m_closedEditorHistory.takeLast());
 }
 
 void EditorView::goToEditLocation(const EditLocation &location)

@@ -124,6 +124,8 @@ public:
         const Utils::FilePath &newFilePath,
         Utils::Id originalType = {});
 
+    static void addClosedDocumentToCloseHistory(IEditor *editor);
+
 public slots:
     static bool saveDocument(Core::IDocument *document);
     static bool saveDocumentAs(Core::IDocument *document);
@@ -132,6 +134,8 @@ public slots:
     static void removeAllSplits();
     static void gotoPreviousSplit();
     static void gotoNextSplit();
+
+    static void reopenLastClosedDocument();
 
     void handleDocumentStateChange(Core::IDocument *document);
     void editorAreaDestroyed(QObject *area);
@@ -216,6 +220,7 @@ private:
     QAction *m_gotoPreviousDocHistoryAction = nullptr;
     QAction *m_goBackAction = nullptr;
     QAction *m_goForwardAction = nullptr;
+    QAction *m_reopenLastClosedDocumenAction = nullptr;
     QAction *m_gotoLastEditAction = nullptr;
     QAction *m_splitAction = nullptr;
     QAction *m_splitSideBySideAction = nullptr;

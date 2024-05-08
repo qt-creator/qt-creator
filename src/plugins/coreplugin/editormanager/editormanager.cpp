@@ -596,6 +596,14 @@ void EditorManagerPrivate::init()
     goForward.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_NAVIGATE);
     goForward.addOnTriggered(this, &EditorManager::goForwardInNavigationHistory);
 
+    // Reopen last closed document
+    ActionBuilder reopenLastClosedDocument(this, Constants::REOPEN_CLOSED_EDITOR);
+    reopenLastClosedDocument.setText(::Core::Tr::tr("Reopen Last Closed Document"));
+    reopenLastClosedDocument.bindContextAction(&m_reopenLastClosedDocumenAction);
+    reopenLastClosedDocument.setContext(editDesignContext);
+    reopenLastClosedDocument.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_NAVIGATE);
+    reopenLastClosedDocument.addOnTriggered(this, &EditorManagerPrivate::reopenLastClosedDocument);
+
     // Go to last edit
     ActionBuilder gotoLastEdit(this, Constants::GOTOLASTEDIT);
     gotoLastEdit.setText(::Core::Tr::tr("Go to Last Edit"));
@@ -2075,6 +2083,7 @@ void EditorManagerPrivate::updateActions()
     EditorView *view  = currentEditorView();
     d->m_goBackAction->setEnabled(view ? view->canGoBack() : false);
     d->m_goForwardAction->setEnabled(view ? view->canGoForward() : false);
+    d->m_reopenLastClosedDocumenAction->setEnabled(view ? view->canReopen() : false);
 
     SplitterOrView *viewParent = (view ? view->parentSplitterOrView() : nullptr);
     SplitterOrView *parentSplitter = (viewParent ? viewParent->findParentSplitter() : nullptr);
@@ -2225,6 +2234,22 @@ void EditorManagerPrivate::gotoPreviousSplit()
 
     if (QTC_GUARD(prevView))
         activateView(prevView);
+}
+
+void EditorManagerPrivate::addClosedDocumentToCloseHistory(IEditor *editor)
+{
+    EditorView *view = EditorManagerPrivate::viewForEditor(editor);
+    QTC_ASSERT(view, return);
+    view->addClosedEditorToCloseHistory(editor);
+    EditorManagerPrivate::updateActions();
+}
+
+void EditorManagerPrivate::reopenLastClosedDocument()
+{
+    EditorView *view = EditorManagerPrivate::currentEditorView();
+    QTC_ASSERT(view, return);
+    view->reopenLastClosedDocument();
+    EditorManagerPrivate::updateActions();
 }
 
 void EditorManagerPrivate::makeCurrentEditorWritable()
@@ -3031,6 +3056,9 @@ bool EditorManager::closeDocuments(const QList<DocumentModel::Entry *> &entries)
 */
 bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool askAboutModifiedEditors)
 {
+    for (IEditor *editor : editorsToClose)
+        EditorManagerPrivate::addClosedDocumentToCloseHistory(editor);
+
     return EditorManagerPrivate::closeEditors(editorsToClose,
                                               askAboutModifiedEditors ? EditorManagerPrivate::CloseFlag::CloseWithAsking
                                                                       : EditorManagerPrivate::CloseFlag::CloseWithoutAsking);

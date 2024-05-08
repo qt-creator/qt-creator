@@ -85,13 +85,17 @@ public:
 
     bool canGoForward() const;
     bool canGoBack() const;
+    bool canReopen() const;
 
     void goBackInNavigationHistory();
     void goForwardInNavigationHistory();
 
+    void reopenLastClosedDocument();
+
     void goToEditLocation(const EditLocation &location);
 
     void addCurrentPositionToNavigationHistory(const QByteArray &saveState = QByteArray());
+    void addClosedEditorToCloseHistory(IEditor *editor);
     void cutForwardNavigationHistory();
 
     QList<EditLocation> editorHistory() const { return m_editorHistory; }
@@ -148,6 +152,7 @@ private:
     QMenu *m_backMenu;
     QMenu *m_forwardMenu;
     QList<EditLocation> m_editorHistory;
+    QList<EditLocation> m_closedEditorHistory;
     int m_currentNavigationHistoryPosition = 0;
 };
 
