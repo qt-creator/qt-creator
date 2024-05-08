@@ -33,7 +33,7 @@ public:
     explicit AvdDialog(QWidget *parent = nullptr);
     int exec() override;
 
-    enum DeviceType { Phone, Tablet, Automotive, TV, Wear, PhoneOrTablet };
+    enum DeviceType { Phone, Tablet, Automotive, TV, Wear, Desktop, PhoneOrTablet };
 
     ProjectExplorer::IDevice::Ptr device() const;
 

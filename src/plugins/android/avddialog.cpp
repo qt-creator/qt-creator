@@ -111,6 +111,7 @@ AvdDialog::AvdDialog(QWidget *parent)
     m_deviceTypeToStringMap.insert(AvdDialog::Automotive, "Automotive");
     m_deviceTypeToStringMap.insert(AvdDialog::TV, "TV");
     m_deviceTypeToStringMap.insert(AvdDialog::Wear, "Wear");
+    m_deviceTypeToStringMap.insert(AvdDialog::Desktop, "Desktop");
 
     parseDeviceDefinitionsList();
     for (const QString &type : m_deviceTypeToStringMap)
@@ -211,6 +212,8 @@ AvdDialog::DeviceType AvdDialog::tagToDeviceType(const QString &type_tag)
         return AvdDialog::TV;
     else if (type_tag.contains("android-automotive"))
         return AvdDialog::Automotive;
+    else if (type_tag.contains("android-desktop"))
+        return AvdDialog::Desktop;
     else
         return AvdDialog::PhoneOrTablet;
 }
@@ -224,6 +227,29 @@ void AvdDialog::parseDeviceDefinitionsList()
                               << androidConfig().sdkToolsVersion();
         return;
     }
+
+    /* Example output:
+Available devices definitions:
+id: 0 or "automotive_1024p_landscape"
+    Name: Automotive (1024p landscape)
+    OEM : Google
+    Tag : android-automotive-playstore
+---------
+id: 1 or "automotive_1080p_landscape"
+    Name: Automotive (1080p landscape)
+    OEM : Google
+    Tag : android-automotive
+---------
+id: 2 or "Galaxy Nexus"
+    Name: Galaxy Nexus
+    OEM : Google
+---------
+id: 3 or "desktop_large"
+    Name: Large Desktop
+    OEM : Google
+    Tag : android-desktop
+...
+     */
 
     QStringList avdDeviceInfo;
 
