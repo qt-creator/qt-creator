@@ -43,7 +43,8 @@ public:
     void setSearchText(const QString &searchText);
     void updateImportedState(const QStringList &importedItems);
 
-    QPair<QString, QString> getUniqueLibMaterialNameAndQml(const QString &matName) const;
+    QPair<QString, QString> getUniqueLibMaterialNameAndQml(const QString &defaultName = {}) const;
+    QString getUniqueLib3DQmlName(const QString &defaultName = {}) const;
 
     void setQuick3DImportVersion(int major, int minor);
 
@@ -59,12 +60,15 @@ public:
     void updateIsEmpty3D();
 
     void addMaterial(const QString &name, const QString &qml, const QUrl &icon, const QStringList &files);
+    void add3DItem(const QString &name, const QString &qml, const QUrl &icon, const QStringList &files);
+    void refresh3DSection();
     void addTextures(const QStringList &paths);
 
     void add3DInstance(ContentLibraryItem *bundleItem);
 
     void setBundleObj(const QJsonObject &newBundleObj);
-    QJsonObject &bundleJsonObjectRef();
+    QJsonObject &bundleJsonMaterialObjectRef();
+    QJsonObject &bundleJson3DObjectRef();
 
     void loadBundles();
 

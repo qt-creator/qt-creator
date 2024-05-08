@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <asynchronousimagecache.h>
 #include <abstractview.h>
 #include <createtexture.h>
 #include <nodemetainfo.h>
@@ -25,7 +26,8 @@ class ContentLibraryView : public AbstractView
     Q_OBJECT
 
 public:
-    ContentLibraryView(ExternalDependenciesInterface &externalDependencies);
+    ContentLibraryView(AsynchronousImageCache &imageCache,
+                       ExternalDependenciesInterface &externalDependencies);
     ~ContentLibraryView() override;
 
     bool hasWidget() const override;
@@ -55,7 +57,9 @@ private:
     void updateBundlesQuick3DVersion();
     void addLibMaterial(const ModelNode &mat, const QPixmap &icon);
     void addLibAssets(const QStringList &paths);
-    QStringList writeLibMaterialQml(const ModelNode &mat, const QString &qml);
+    void addLib3DItem(const ModelNode &node);
+    void genAndSaveIcon(const QString &qmlPath, const QString &iconPath);
+    QStringList writeLibItemQml(const ModelNode &node, const QString &qml);
     QPair<QString, QSet<QString>> modelNodeToQmlString(const ModelNode &node, QStringList &depListIds,
                                                        int depth = 0);
 
@@ -79,6 +83,7 @@ private:
     ContentLibraryMaterial *m_draggedBundleMaterial = nullptr;
     ContentLibraryTexture *m_draggedBundleTexture = nullptr;
     ContentLibraryItem *m_draggedBundleItem = nullptr;
+    AsynchronousImageCache &m_imageCache;
     bool m_bundleMaterialAddToSelected = false;
     bool m_hasQuick3DImport = false;
     qint32 m_sceneId = -1;

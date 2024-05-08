@@ -98,15 +98,33 @@ void ContentLibraryUserModel::addMaterial(const QString &name, const QString &qm
                                           const QUrl &icon, const QStringList &files)
 {
     auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+
     QString typePrefix = compUtils.userMaterialsBundleType();
     TypeName type = QLatin1String("%1.%2").arg(typePrefix, qml.chopped(4)).toLatin1();
 
     auto libMat = new ContentLibraryMaterial(this, name, qml, type, icon, files,
                                              Paths::bundlesPathSetting().append("/User/materials"));
-
     m_userMaterials.append(libMat);
+
     int matSectionIdx = 0;
     emit dataChanged(index(matSectionIdx), index(matSectionIdx));
+}
+
+void ContentLibraryUserModel::add3DItem(const QString &name, const QString &qml,
+                                        const QUrl &icon, const QStringList &files)
+{
+    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+
+    QString typePrefix = compUtils.user3DBundleType();
+    TypeName type = QLatin1String("%1.%2").arg(typePrefix, qml.chopped(4)).toLatin1();
+
+    m_user3DItems.append(new ContentLibraryItem(this, name, qml, type, icon, files));
+}
+
+void ContentLibraryUserModel::refresh3DSection()
+{
+    int sectionIdx = 2;
+    emit dataChanged(index(sectionIdx), index(sectionIdx));
 }
 
 void ContentLibraryUserModel::addTextures(const QStringList &paths)
@@ -198,7 +216,7 @@ void ContentLibraryUserModel::removeFromContentLib(ContentLibraryMaterial *mat)
 }
 
 // returns unique library material's name and qml component
-QPair<QString, QString> ContentLibraryUserModel::getUniqueLibMaterialNameAndQml(const QString &matName) const
+QPair<QString, QString> ContentLibraryUserModel::getUniqueLibMaterialNameAndQml(const QString &defaultName) const
 {
     QTC_ASSERT(!m_bundleObjMaterial.isEmpty(), return {});
 
@@ -209,10 +227,9 @@ QPair<QString, QString> ContentLibraryUserModel::getUniqueLibMaterialNameAndQml(
     for (const QString &matName : matNames)
         matQmls.append(matsObj.value(matName).toObject().value("qml").toString().chopped(4)); // remove .qml
 
-    QString retName = matName.isEmpty() ? "Material" : matName;
-    retName = retName.trimmed();
-
+    QString retName = defaultName.isEmpty() ? "Material" : defaultName.trimmed();
     QString retQml = retName;
+
     retQml.remove(' ');
     if (retQml.at(0).isLower())
         retQml[0] = retQml.at(0).toUpper();
@@ -232,6 +249,32 @@ QPair<QString, QString> ContentLibraryUserModel::getUniqueLibMaterialNameAndQml(
     return {retName, retQml + ".qml"};
 }
 
+QString ContentLibraryUserModel::getUniqueLib3DQmlName(const QString &defaultName) const
+{
+    QTC_ASSERT(!m_bundleObj3D.isEmpty(), return {});
+
+    const QJsonArray itemsArr = m_bundleObj3D.value("items").toArray();
+
+    QStringList itemQmls;
+    for (const QJsonValueConstRef &itemRef : itemsArr)
+        itemQmls.append(itemRef.toObject().value("qml").toString().chopped(4)); // remove .qml
+
+    QString baseQml = defaultName.isEmpty() ? "Item" : defaultName.trimmed();
+    baseQml.remove(' ');
+    baseQml[0] = baseQml.at(0).toUpper();
+    baseQml.prepend("My");
+
+    QString uniqueQml = baseQml;
+
+    int counter = 1;
+    while (itemQmls.contains(uniqueQml)) {
+        uniqueQml = QString("%1%2").arg(uniqueQml).arg(counter);
+        ++counter;
+    }
+
+    return uniqueQml + ".qml";
+}
+
 QHash<int, QByteArray> ContentLibraryUserModel::roleNames() const
 {
     static const QHash<int, QByteArray> roles {
@@ -242,9 +285,14 @@ QHash<int, QByteArray> ContentLibraryUserModel::roleNames() const
     return roles;
 }
 
-QJsonObject &ContentLibraryUserModel::bundleJsonObjectRef()
+QJsonObject &ContentLibraryUserModel::bundleJsonMaterialObjectRef()
 {
     return m_bundleObjMaterial;
+}
+
+QJsonObject &ContentLibraryUserModel::bundleJson3DObjectRef()
+{
+    return m_bundleObj3D;
 }
 
 void ContentLibraryUserModel::loadBundles()
@@ -356,15 +404,15 @@ void ContentLibraryUserModel::load3DBundle()
     int section3DIdx = 2;
 
     m_bundlePath3D = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/3d");
-    m_bundlePath3D.createDir();
+    m_bundlePath3D.ensureWritableDir();
+    m_bundlePath3D.pathAppended("icons").ensureWritableDir();
 
     auto jsonFilePath = m_bundlePath3D.pathAppended("user_3d_bundle.json");
 
     if (!jsonFilePath.exists()) {
         QByteArray jsonContent = "{\n";
         jsonContent += "    \"id\": \"User3D\",\n";
-        jsonContent += "    \"items\": {\n";
-        jsonContent += "    }\n";
+        jsonContent += "    \"items\": []\n";
         jsonContent += "}";
         Utils::expected_str<qint64> res = jsonFilePath.writeFileContents(jsonContent);
         if (!res.has_value()) {
@@ -393,24 +441,21 @@ void ContentLibraryUserModel::load3DBundle()
     m_bundleObj3D["id"] = m_bundleId3D;
 
     // parse 3d items
-    const QJsonObject itemsObj = m_bundleObj3D.value("items").toObject();
-    const QStringList itemNames = itemsObj.keys();
     QString typePrefix = compUtils.user3DBundleType();
-    for (const QString &itemName : itemNames) {
-        const QJsonObject itemObj = itemsObj.value(itemName).toObject();
+    const QJsonArray itemsArr = m_bundleObj3D.value("items").toArray();
+    for (const QJsonValueConstRef &itemRef : itemsArr) {
+        const QJsonObject itemObj = itemRef.toObject();
 
+        QString name = itemObj.value("name").toString();
+        QString qml = itemObj.value("qml").toString();
+        TypeName type = QLatin1String("%1.%2").arg(typePrefix, qml.chopped(4)).toLatin1();
+        QUrl icon = m_bundlePath3D.pathAppended(itemObj.value("icon").toString()).toUrl();
         QStringList files;
         const QJsonArray assetsArr = itemObj.value("files").toArray();
         for (const QJsonValueConstRef &asset : assetsArr)
             files.append(asset.toString());
 
-        QUrl icon = m_bundlePath3D.pathAppended(itemObj.value("icon").toString()).toUrl();
-        QString qml = itemObj.value("qml").toString();
-        TypeName type = QLatin1String("%1.%2").arg(typePrefix, qml.chopped(4)).toLatin1();
-
-        auto bundleItem = new ContentLibraryItem(nullptr, itemName, qml, type, icon, files);
-
-        m_user3DItems.append(bundleItem);
+        m_user3DItems.append(new ContentLibraryItem(nullptr, name, qml, type, icon, files));
     }
 
     m_bundle3DSharedFiles.clear();

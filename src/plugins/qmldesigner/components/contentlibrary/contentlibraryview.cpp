@@ -44,8 +44,10 @@
 
 namespace QmlDesigner {
 
-ContentLibraryView::ContentLibraryView(ExternalDependenciesInterface &externalDependencies)
+ContentLibraryView::ContentLibraryView(AsynchronousImageCache &imageCache,
+                                       ExternalDependenciesInterface &externalDependencies)
     : AbstractView(externalDependencies)
+    , m_imageCache(imageCache)
     , m_createTexture(this)
 {}
 
@@ -364,6 +366,8 @@ void ContentLibraryView::customNotification(const AbstractView *view,
         addLibMaterial(nodeList.first(), data.first().value<QPixmap>());
     } else if (identifier == "add_assets_to_content_lib") {
         addLibAssets(data.first().toStringList());
+    } else if (identifier == "add_3d_to_content_lib") {
+        addLib3DItem(nodeList.first());
     }
 }
 
@@ -513,10 +517,10 @@ void ContentLibraryView::addLibMaterial(const ModelNode &mat, const QPixmap &ico
         qWarning() << __FUNCTION__ << "icon save failed";
 
     // generate and save material Qml file
-    const QStringList depAssets = writeLibMaterialQml(mat, qml);
+    const QStringList depAssets = writeLibItemQml(mat, qml);
 
     // add the material to the bundle json
-    QJsonObject &jsonRef = m_widget->userModel()->bundleJsonObjectRef();
+    QJsonObject &jsonRef = m_widget->userModel()->bundleJsonMaterialObjectRef();
     QJsonObject matsObj = jsonRef.value("materials").toObject();
     QJsonObject matObj;
     matObj.insert("qml", qml);
@@ -554,14 +558,16 @@ void ContentLibraryView::addLibMaterial(const ModelNode &mat, const QPixmap &ico
     m_widget->userModel()->addMaterial(name, qml, QUrl::fromLocalFile(fullIconPath), depAssets);
 }
 
-QStringList ContentLibraryView::writeLibMaterialQml(const ModelNode &mat, const QString &qml)
+QStringList ContentLibraryView::writeLibItemQml(const ModelNode &node, const QString &qml)
 {
     QStringList depListIds;
-    auto [qmlString, assets] = modelNodeToQmlString(mat, depListIds);
+    auto [qmlString, assets] = modelNodeToQmlString(node, depListIds);
 
     qmlString.prepend("import QtQuick\nimport QtQuick3D\n\n");
 
-    auto qmlPath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/materials/" + qml);
+    QString itemType = QLatin1String(node.metaInfo().isQtQuick3DMaterial() ? "material" : "3d");
+    auto qmlPath = Utils::FilePath::fromString(QLatin1String("%1/User/%2/%3")
+                                                   .arg(Paths::bundlesPathSetting(), itemType, qml));
     auto result = qmlPath.writeFileContents(qmlString.toUtf8());
     if (!result)
         qWarning() << __FUNCTION__ << result.error();
@@ -584,16 +590,24 @@ QPair<QString, QSet<QString>> ContentLibraryView::modelNodeToQmlString(const Mod
 
     qml += indent + "id: " + (depth == 0 ? "root" : node.id()) + " \n\n";
 
+    const QList<PropertyName> excludedProps = {"x", "y", "z", "eulerRotation.x", "eulerRotation.y",
+                                               "eulerRotation.z", "scale.x", "scale.y", "scale.z",
+                                               "pivot.x", "pivot.y", "pivot.z"};
     const QList<AbstractProperty> matProps = node.properties();
     for (const AbstractProperty &p : matProps) {
+        if (excludedProps.contains(p.name()))
+            continue;
+
         if (p.isVariantProperty()) {
             QVariant pValue = p.toVariantProperty().value();
             QString val;
             if (strcmp(pValue.typeName(), "QString") == 0 || strcmp(pValue.typeName(), "QColor") == 0) {
                 val = QLatin1String("\"%1\"").arg(pValue.toString());
             } else if (strcmp(pValue.typeName(), "QUrl") == 0) {
-                val = QLatin1String("\"%1\"").arg(pValue.toString());
-                assets.insert(pValue.toString());
+                QString pValueStr = pValue.toString();
+                val = QLatin1String("\"%1\"").arg(pValueStr);
+                if (!pValueStr.startsWith("#"))
+                    assets.insert(pValue.toString());
             } else if (strcmp(pValue.typeName(), "QmlDesigner::Enumeration") == 0) {
                 val = pValue.value<QmlDesigner::Enumeration>().toString();
             } else {
@@ -647,6 +661,82 @@ void ContentLibraryView::addLibAssets(const QStringList &paths)
     }
 
     m_widget->userModel()->addTextures(pathsInBundle);
+}
+
+void ContentLibraryView::addLib3DItem(const ModelNode &node)
+{
+    auto bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/3d/");
+
+    QString name = node.variantProperty("objectName").value().toString();
+    QString qml = m_widget->userModel()->getUniqueLib3DQmlName(node.id());
+    QString iconPath = QLatin1String("icons/%1.png").arg(node.id()); // TODO: make sure path is unique
+
+    // generate and save item Qml file
+    const QStringList depAssets = writeLibItemQml(node, qml);
+
+    // generate and save icon
+    QString qmlPath = QLatin1String("%1/User/3d/%2").arg(Paths::bundlesPathSetting(), qml);
+    QString fullIconPath = bundlePath.pathAppended(iconPath).toString();
+    genAndSaveIcon(qmlPath, fullIconPath);
+
+    // add the item to the bundle json
+    QJsonObject &jsonRef = m_widget->userModel()->bundleJson3DObjectRef();
+    QJsonArray itemsArr = jsonRef.value("items").toArray();
+    QJsonObject itemObj;
+    itemObj.insert("name", name);
+    itemObj.insert("qml", qml);
+    itemObj.insert("icon", iconPath);
+    QJsonArray filesArr;
+    for (const QString &assetPath : depAssets)
+        filesArr.append(assetPath);
+    itemObj.insert("files", filesArr);
+
+    itemsArr.append(itemObj);
+    jsonRef["items"] = itemsArr;
+
+    auto result = bundlePath.pathAppended("user_3d_bundle.json")
+                      .writeFileContents(QJsonDocument(jsonRef).toJson());
+    if (!result)
+        qWarning() << __FUNCTION__ << result.error();
+
+    // copy item's assets to bundle folder
+    for (const QString &assetPath : depAssets) {
+        Utils::FilePath assetPathSource = DocumentManager::currentResourcePath().pathAppended(assetPath);
+        Utils::FilePath assetPathTarget = bundlePath.pathAppended(assetPath);
+        assetPathTarget.parentDir().ensureWritableDir();
+
+        auto result = assetPathSource.copyFile(assetPathTarget);
+        if (!result)
+            qWarning() << __FUNCTION__ << result.error();
+    }
+
+    m_widget->userModel()->add3DItem(name, qml, QUrl::fromLocalFile(fullIconPath), depAssets);
+}
+
+/**
+ * @brief Generates an icon image from a qml component
+ * @param qmlPath path to the qml component file to be rendered
+ * @param iconPath output save path of the generated icon
+ */
+void ContentLibraryView::genAndSaveIcon(const QString &qmlPath, const QString &iconPath)
+{
+    m_imageCache.requestSmallImage(
+        Utils::PathString{qmlPath},
+        [&, qmlPath, iconPath](const QImage &image) {
+            bool iconSaved = image.save(iconPath);
+            if (iconSaved)
+                m_widget->userModel()->refresh3DSection();
+            else
+                qWarning() << "ContentLibraryView::genAndSaveIcon(): icon save failed";
+        },
+        [](ImageCache::AbortReason abortReason) {
+            if (abortReason == ImageCache::AbortReason::Abort)
+                qWarning() << "ContentLibraryView::genAndSaveIcon(): icon generation aborted, reason: Abort";
+            else if (abortReason == ImageCache::AbortReason::Failed)
+                qWarning() << "ContentLibraryView::genAndSaveIcon(): icon generation aborted, reason: Failed";
+            else if (abortReason == ImageCache::AbortReason::NoEntry)
+                qWarning() << "ContentLibraryView::genAndSaveIcon(): icon generation aborted, reason: NoEntry";
+        });
 }
 
 ModelNode ContentLibraryView::getBundleMaterialDefaultInstance(const TypeName &type)

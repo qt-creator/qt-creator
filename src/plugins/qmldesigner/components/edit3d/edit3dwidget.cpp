@@ -359,6 +359,14 @@ void Edit3DWidget::createContextMenu()
     resetAction->setToolTip(tr("Reset all shading options for all viewports."));
 
     m_contextMenu->addSeparator();
+
+    m_addToContentLibAction = m_contextMenu->addAction(
+        contextIcon(DesignerIcons::CreateIcon),  // TODO: placeholder icon
+        tr("Add to Content Library"), [&] {
+            view()->emitCustomNotification("add_3d_to_content_lib", {m_contextMenuTarget});
+        });
+
+    m_contextMenu->addSeparator();
 }
 
 bool Edit3DWidget::isPasteAvailable() const
@@ -612,6 +620,7 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
     m_contextMenuPos3d = pos3d;
 
     const bool isModel = modelNode.metaInfo().isQtQuick3DModel();
+    const bool isNode = modelNode.metaInfo().isQtQuick3DNode();
     const bool allowAlign = view()->edit3DAction(View3DActionType::AlignCamerasToView)->action()->isEnabled();
     const bool isSingleComponent = view()->hasSingleSelectedModelNode() && modelNode.isComponent();
     const bool anyNodeSelected = view()->hasSelectedModelNodes();
@@ -633,6 +642,7 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
     m_toggleGroupAction->setEnabled(true);
     m_bakeLightsAction->setVisible(view()->bakeLightsAction()->action()->isVisible());
     m_bakeLightsAction->setEnabled(view()->bakeLightsAction()->action()->isEnabled());
+    m_addToContentLibAction->setEnabled(isNode);
 
     if (m_view) {
         int idx = m_view->activeSplit();

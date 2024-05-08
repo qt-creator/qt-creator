@@ -65,7 +65,7 @@ public:
                            externalDependencies,
                            true)
         , collectionView{externalDependencies}
-        , contentLibraryView{externalDependencies}
+        , contentLibraryView{imageCache, externalDependencies}
         , componentView{externalDependencies}
 #ifndef QTC_USE_QML_DESIGNER_LITE
         , edit3DView{externalDependencies}
