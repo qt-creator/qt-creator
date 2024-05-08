@@ -194,7 +194,7 @@ void LanguageClientManager::clientFinished(Client *client)
             openDocumentWithClient(document, nullptr);
     }
 
-    deleteClient(client);
+    deleteClient(client, unexpectedFinish);
     if (isShutdownFinished())
         emit managerInstance->shutdownFinished();
 }
@@ -234,7 +234,7 @@ void LanguageClientManager::shutdownClient(Client *client)
         deleteClient(client);
 }
 
-void LanguageClientManager::deleteClient(Client *client)
+void LanguageClientManager::deleteClient(Client *client, bool unexpected)
 {
     QTC_ASSERT(managerInstance, return);
     QTC_ASSERT(client, return);
@@ -252,7 +252,7 @@ void LanguageClientManager::deleteClient(Client *client)
     managerInstance->trackClientDeletion(client);
 
     if (!PluginManager::isShuttingDown())
-        emit instance()->clientRemoved(client);
+        emit instance()->clientRemoved(client, unexpected);
 }
 
 void LanguageClientManager::shutdown()

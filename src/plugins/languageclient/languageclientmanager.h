@@ -41,7 +41,7 @@ public:
     static void restartClient(Client *client);
 
     static void shutdownClient(Client *client);
-    static void deleteClient(Client *client);
+    static void deleteClient(Client *client, bool unexpected = false);
 
     static void shutdown();
     static bool isShutdownFinished();
@@ -87,7 +87,7 @@ public slots:
 signals:
     void clientAdded(Client *client);
     void clientInitialized(Client *client);
-    void clientRemoved(Client *client);
+    void clientRemoved(Client *client, bool unexpected);
     void shutdownFinished();
     void openCallHierarchy();
 
