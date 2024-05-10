@@ -587,6 +587,9 @@ static bool forceDownLoad()
 
 static bool showSplashScreen()
 {
+    // some error dialog is maybe open, be silent to avoid focus problems (macOS had some)
+    if (Core::ICore::mainWindow() != Core::ICore::dialogParent())
+        return false;
     const Key lastQDSVersionEntry = "QML/Designer/lastQDSVersion";
 
     QtcSettings *settings = Core::ICore::settings();
