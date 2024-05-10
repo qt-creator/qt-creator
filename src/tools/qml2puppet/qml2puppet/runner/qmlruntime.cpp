@@ -13,6 +13,10 @@
 #include <QDirIterator>
 #include <QFontDatabase>
 #include <QIcon>
+#include <QLibraryInfo>
+#include <QStandardPaths>
+#include <QSurfaceFormat>
+#include <QTranslator>
 
 #define FILE_OPEN_EVENT_WAIT_TIME 3000 // ms
 #define QSL QStringLiteral
@@ -242,12 +246,12 @@ void QmlRuntime::initQmlRunner()
         if (translator.load(translationFile)) {
             m_coreApp->installTranslator(&translator);
             if (m_verboseMode)
-                qInfo() << "qml: Loaded translation file %s\n",
-                    qPrintable(QDir::toNativeSeparators(translationFile));
+                qInfo() << "qml: Loaded translation file "
+                        << qPrintable(QDir::toNativeSeparators(translationFile));
         } else {
             if (!m_quietMode)
-                qInfo() << "qml: Could not load the translation file %s\n",
-                    qPrintable(QDir::toNativeSeparators(translationFile));
+                qInfo() << "qml: Could not load the translation file "
+                        << qPrintable(QDir::toNativeSeparators(translationFile));
         }
     }
 #else
@@ -278,7 +282,7 @@ void QmlRuntime::initQmlRunner()
     for (const QString &path : std::as_const(files)) {
         QUrl url = QUrl::fromUserInput(path, QDir::currentPath(), QUrl::AssumeLocalFile);
         if (m_verboseMode)
-            qInfo() << "qml: loading %s\n", qPrintable(url.toString());
+            qInfo() << "qml: loading " << qPrintable(url.toString());
         m_qmlEngine->load(url);
     }
 
@@ -318,8 +322,8 @@ void QmlRuntime::loadConf(const QString &override, bool quiet) // Terminates app
             else
                 fi.setFile(override);
             if (!fi.exists()) {
-                qCritical() << "qml: Couldn't find required configuration file: %s\n",
-                    qPrintable(QDir::toNativeSeparators(fi.absoluteFilePath()));
+                qCritical() << "qml: Couldn't find required configuration file:"
+                            << qPrintable(QDir::toNativeSeparators(fi.absoluteFilePath()));
                 exit(1);
             }
             settingsUrl = QQmlImports::urlFromLocalFileOrQrcOrUrl(fi.absoluteFilePath());
@@ -327,13 +331,14 @@ void QmlRuntime::loadConf(const QString &override, bool quiet) // Terminates app
     }
 
     if (!quiet) {
-        qInfo() << "qml: %s\n", QLibraryInfo::build();
+        qInfo() << "qml:" << QLibraryInfo::build();
         if (builtIn) {
-            qInfo() << "qml: Using built-in configuration: %s\n",
-                qPrintable(override.isEmpty() ? defaultFileName : override);
+            qInfo() << "qml: Using built-in configuration:"
+                    << qPrintable(override.isEmpty() ? defaultFileName : override);
         } else {
-            qInfo() << "qml: Using configuration: %s\n",
-                qPrintable(settingsUrl.isLocalFile()
+            qInfo() << "qml: Using configuration:"
+                    << qPrintable(
+                           settingsUrl.isLocalFile()
                                ? QDir::toNativeSeparators(settingsUrl.toLocalFile())
                                : settingsUrl.toString());
         }
@@ -345,18 +350,19 @@ void QmlRuntime::loadConf(const QString &override, bool quiet) // Terminates app
     m_conf.reset(qobject_cast<Config *>(c2.create()));
 
     if (!m_conf) {
-        qCritical() << "qml: Error loading configuration file: %s\n", qPrintable(c2.errorString());
+        qCritical() << "qml: Error loading configuration file:" << qPrintable(c2.errorString());
         exit(1);
     }
 }
 
 void QmlRuntime::listConfFiles()
 {
+    qDebug() << "qml: Built-in configurations:";
     const QDir confResourceDir(m_confResourcePath);
-    qInfo() << "%s\n", qPrintable(QCoreApplication::translate("main", "Built-in configurations:"));
+    qInfo() << qPrintable(QCoreApplication::translate("main", "Built-in configurations:"));
     for (const QFileInfo &fi : confResourceDir.entryInfoList(QDir::Files))
-        qInfo() << "  %s\n", qPrintable(fi.baseName());
-    qInfo() << "%s\n", qPrintable(QCoreApplication::translate("main", "Other configurations:"));
+        qInfo() << qPrintable(fi.baseName());
+    qInfo() << qPrintable(QCoreApplication::translate("main", "Other configurations:"));
     bool foundOther = false;
     const QStringList otherLocations = QStandardPaths::standardLocations(
         QStandardPaths::AppConfigLocation);
@@ -365,16 +371,16 @@ void QmlRuntime::listConfFiles()
         for (const QFileInfo &fi : confDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {
             foundOther = true;
             if (m_verboseMode)
-                qInfo() << "  %s\n", qPrintable(fi.absoluteFilePath());
+                qInfo() << qPrintable(fi.absoluteFilePath());
             else
-                qInfo() << "  %s\n", qPrintable(fi.baseName());
+                qInfo() << qPrintable(fi.baseName());
         }
     }
     if (!foundOther)
-        qInfo() << "  %s\n", qPrintable(QCoreApplication::translate("main", "none"));
+        qInfo() << qPrintable(QCoreApplication::translate("main", "none"));
     if (m_verboseMode) {
-        qInfo() << "%s\n", qPrintable(QCoreApplication::translate("main", "Checked in:"));
+        qInfo() << qPrintable(QCoreApplication::translate("main", "Checked in:"));
         for (const auto &confDirPath : otherLocations)
-            qInfo() << "  %s\n", qPrintable(confDirPath);
+            qInfo() << qPrintable(confDirPath);
     }
 }

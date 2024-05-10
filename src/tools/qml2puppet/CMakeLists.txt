@@ -38,38 +38,19 @@ add_qtc_executable(qml2puppet
   DEPENDS
     Qt::CorePrivate Qt::Widgets Qt::QmlPrivate
     Qt::QuickPrivate Qt::Network Qt::GuiPrivate
+    app_version
     QmlPuppetCommunication
   INCLUDES
     ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}
   SOURCES
     qml2puppet/qml2puppetmain.cpp
     qml2puppet/qmlbase.h
-    qml2puppet/appmetadata.cpp qml2puppet/appmetadata.h
-    qml2puppet/qmlpuppet.h qml2puppet/qmlpuppet.cpp qml2puppet/configcrashpad.h
+    qml2puppet/qmlpuppet.h qml2puppet/qmlpuppet.cpp
+    qml2puppet/configcrashpad.h
     qmlpuppet.qrc
   PROPERTIES
     OUTPUT_NAME qml2puppet-${IDE_VERSION}
 )
-
-if (TARGET qml2puppet)
-  execute_process(
-      COMMAND git describe --tags --always --dirty=+
-      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-      RESULT_VARIABLE GIT_SHA_RESULT
-      OUTPUT_VARIABLE GIT_SHA
-      ERROR_VARIABLE GIT_SHA_ERROR
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
-
-  #if we are not a git repository use the .tag file
-  if(NOT GIT_SHA)
-      file(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/../../../.tag GIT_SHA LIMIT_COUNT 1)
-  endif()
-
-  set(IDE_REVISION_STR ${GIT_SHA})
-
-  configure_file(../../app/app_version.h.cmakein app/app_version.h ESCAPE_QUOTES)
-endif()
 
 extend_qtc_executable(qml2puppet
   CONDITION Qt6_VERSION
