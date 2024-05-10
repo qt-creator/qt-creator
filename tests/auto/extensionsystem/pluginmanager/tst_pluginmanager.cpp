@@ -140,7 +140,7 @@ void tst_PluginManager::circularPlugins()
 {
     PluginManager::setPluginPaths({pluginFolder(QLatin1String("circularplugins"))});
     PluginManager::loadPlugins();
-    const QVector<PluginSpec *> plugins = PluginManager::plugins();
+    const PluginSpecs plugins = PluginManager::plugins();
     QCOMPARE(plugins.count(), 3);
     for (PluginSpec *spec : plugins) {
         if (spec->name() == "plugin1") {
@@ -164,7 +164,7 @@ void tst_PluginManager::correctPlugins1()
     PluginManager::loadPlugins();
     bool specError = false;
     bool runError = false;
-    const QVector<PluginSpec *> plugins = PluginManager::plugins();
+    const PluginSpecs plugins = PluginManager::plugins();
     for (PluginSpec *spec : plugins) {
         if (spec->hasError()) {
             qDebug() << spec->filePath();

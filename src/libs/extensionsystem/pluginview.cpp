@@ -198,7 +198,7 @@ public:
 class CollectionItem : public TreeItem
 {
 public:
-    CollectionItem(const QString &name, const QVector<PluginSpec *> &plugins, PluginView *view)
+    CollectionItem(const QString &name, const PluginSpecs &plugins, PluginView *view)
         : m_name(name)
         , m_plugins(plugins)
         , m_view(view)
@@ -238,7 +238,7 @@ public:
     bool setData(int column, const QVariant &data, int role) override
     {
         if (column == LoadedColumn && role == Qt::CheckStateRole) {
-            const QVector<PluginSpec *> affectedPlugins
+            const PluginSpecs affectedPlugins
                 = Utils::filtered(m_plugins, [](PluginSpec *spec) { return !spec->isRequired(); });
             if (m_view->setPluginsEnabled(toSet(affectedPlugins), data.toBool())) {
                 update();
@@ -258,7 +258,7 @@ public:
 
 public:
     QString m_name;
-    const QVector<PluginSpec *> m_plugins;
+    const PluginSpecs m_plugins;
     PluginView *m_view; // Not owned.
 };
 
@@ -346,7 +346,7 @@ void PluginView::updatePlugins()
     // Model.
     m_model->clear();
 
-    const QHash<QString, QVector<PluginSpec *>> pluginCollections
+    const QHash<QString, PluginSpecs> pluginCollections
         = PluginManager::pluginCollections();
     std::vector<CollectionItem *> collections;
     const auto end = pluginCollections.cend();

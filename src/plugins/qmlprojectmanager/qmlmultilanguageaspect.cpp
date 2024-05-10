@@ -21,7 +21,7 @@ namespace QmlProjectManager {
 
 static bool isMultilanguagePresent()
 {
-    const QVector<ExtensionSystem::PluginSpec *> &specs = ExtensionSystem::PluginManager::plugins();
+    const ExtensionSystem::PluginSpecs &specs = ExtensionSystem::PluginManager::plugins();
     return std::find_if(specs.cbegin(), specs.cend(),
                         [](ExtensionSystem::PluginSpec *spec) {
                             return spec->name() == "MultiLanguage";
@@ -41,7 +41,7 @@ static FilePath getMultilanguageDatabaseFilePath(ProjectExplorer::Target *target
 
 static QObject *getPreviewPlugin()
 {
-    const QVector<ExtensionSystem::PluginSpec *> &specs = ExtensionSystem::PluginManager::plugins();
+    const ExtensionSystem::PluginSpecs &specs = ExtensionSystem::PluginManager::plugins();
     const auto pluginIt = std::find_if(specs.cbegin(), specs.cend(),
                                  [](const ExtensionSystem::PluginSpec *p) {
                                      return p->name() == "QmlPreview";

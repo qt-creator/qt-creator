@@ -78,6 +78,8 @@ struct EXTENSIONSYSTEM_EXPORT PerformanceData
     }
 };
 
+using PluginSpecs = QList<class PluginSpec *>;
+
 class EXTENSIONSYSTEM_EXPORT PluginSpec
 {
     friend class ::tst_PluginSpec;
@@ -130,8 +132,8 @@ public:
 
     virtual bool provides(const QString &pluginName, const QString &pluginVersion) const;
     virtual bool requiresAny(const QSet<PluginSpec *> &plugins) const;
-    virtual QVector<PluginSpec *> enableDependenciesIndirectly(bool enableTestDependencies);
-    virtual bool resolveDependencies(const QVector<PluginSpec *> &pluginSpecs);
+    virtual PluginSpecs enableDependenciesIndirectly(bool enableTestDependencies);
+    virtual bool resolveDependencies(const PluginSpecs &pluginSpecs);
 
     virtual IPlugin *plugin() const = 0;
     virtual State state() const;

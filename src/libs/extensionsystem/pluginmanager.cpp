@@ -50,6 +50,7 @@
 
 #include <functional>
 #include <memory>
+#include <type_traits>
 
 Q_LOGGING_CATEGORY(pluginLog, "qtc.extensionsystem", QtWarningMsg)
 
@@ -327,7 +328,7 @@ void PluginManager::loadPluginsAtRuntime(const QSet<PluginSpec *> &plugins)
     d->loadPluginsAtRuntime(plugins);
 }
 
-void PluginManager::addPlugins(const QVector<PluginSpec *> &specs)
+void PluginManager::addPlugins(const PluginSpecs &specs)
 {
     d->addPlugins(specs);
 }
@@ -556,12 +557,12 @@ QStringList PluginManager::argumentsForRestart()
 
     \sa setPluginPaths()
 */
-const QVector<PluginSpec *> PluginManager::plugins()
+const PluginSpecs PluginManager::plugins()
 {
     return d->pluginSpecs;
 }
 
-QHash<QString, QVector<PluginSpec *>> PluginManager::pluginCollections()
+QHash<QString, PluginSpecs> PluginManager::pluginCollections()
 {
     return d->pluginCategories;
 }
@@ -903,8 +904,10 @@ PluginManager::ProcessData PluginManager::creatorProcessData()
 /*!
     Returns a list of plugins in load order.
 */
-QVector<PluginSpec *> PluginManager::loadQueue()
+PluginSpecs PluginManager::loadQueue()
 {
+    // Ensure order preservation
+    static_assert(std::is_same<PluginSpecs, QList<class PluginSpec *> >::value);
     return d->loadQueue();
 }
 
@@ -1034,7 +1037,7 @@ void PluginManagerPrivate::stopAll()
     m_isShuttingDown = true;
     delayedInitializeTimer.stop();
 
-    const QVector<PluginSpec *> queue = loadQueue();
+    const PluginSpecs queue = loadQueue();
     for (PluginSpec *spec : queue)
         loadPlugin(spec, PluginSpec::Stopped);
 }
@@ -1371,7 +1374,7 @@ void PluginManagerPrivate::loadPlugins()
     if (m_profilingVerbosity > 0)
         qDebug("Profiling started");
 
-    const QVector<PluginSpec *> queue = loadQueue();
+    const PluginSpecs queue = loadQueue();
     Utils::setMimeStartupPhase(MimeStartupPhase::PluginsLoading);
     {
         NANOTRACE_SCOPE("ExtensionSystem", "Load");
@@ -1477,11 +1480,11 @@ void PluginManagerPrivate::shutdown()
 /*!
     \internal
 */
-const QVector<PluginSpec *> PluginManagerPrivate::loadQueue()
+const PluginSpecs PluginManagerPrivate::loadQueue()
 {
-    QVector<PluginSpec *> queue;
+    PluginSpecs queue;
     for (PluginSpec *spec : std::as_const(pluginSpecs)) {
-        QVector<PluginSpec *> circularityCheckQueue;
+        PluginSpecs circularityCheckQueue;
         loadQueue(spec, queue, circularityCheckQueue);
     }
     return queue;
@@ -1491,8 +1494,8 @@ const QVector<PluginSpec *> PluginManagerPrivate::loadQueue()
     \internal
 */
 bool PluginManagerPrivate::loadQueue(PluginSpec *spec,
-                                     QVector<PluginSpec *> &queue,
-                                     QVector<PluginSpec *> &circularityCheckQueue)
+                                     PluginSpecs &queue,
+                                     PluginSpecs &circularityCheckQueue)
 {
     if (queue.contains(spec))
         return true;
@@ -1757,7 +1760,7 @@ static const FilePaths pluginFiles(const FilePaths &pluginPaths)
     return pluginFiles;
 }
 
-void PluginManagerPrivate::addPlugins(const QVector<PluginSpec *> &specs)
+void PluginManagerPrivate::addPlugins(const PluginSpecs &specs)
 {
     pluginSpecs += specs;
 
@@ -1791,7 +1794,7 @@ void PluginManagerPrivate::addPlugins(const QVector<PluginSpec *> &specs)
 */
 void PluginManagerPrivate::readPluginPaths()
 {
-    QVector<PluginSpec *> newSpecs;
+    PluginSpecs newSpecs;
 
     // from the file system
     for (const FilePath &pluginFile : pluginFiles(pluginPaths)) {
@@ -1826,7 +1829,7 @@ void PluginManagerPrivate::enableDependenciesIndirectly()
     for (PluginSpec *spec : std::as_const(pluginSpecs))
         spec->setEnabledIndirectly(false);
     // cannot use reverse loadQueue here, because test dependencies can introduce circles
-    QVector<PluginSpec *> queue = Utils::filtered(pluginSpecs, &PluginSpec::isEffectivelyEnabled);
+    PluginSpecs queue = Utils::filtered(pluginSpecs, &PluginSpec::isEffectivelyEnabled);
     while (!queue.isEmpty()) {
         PluginSpec *spec = queue.takeFirst();
         queue += spec->enableDependenciesIndirectly(containsTestSpec(spec));
@@ -1900,11 +1903,11 @@ void PluginManagerPrivate::profilingReport(const char *what, const PluginSpec *s
 QString PluginManagerPrivate::profilingSummary(qint64 *totalOut) const
 {
     QString summary;
-    const QVector<PluginSpec *> specs = Utils::sorted(pluginSpecs,
-                                                      [](PluginSpec *s1, PluginSpec *s2) {
-                                                          return s1->performanceData().total()
-                                                                 < s2->performanceData().total();
-                                                      });
+    const PluginSpecs specs = Utils::sorted(pluginSpecs,
+                                            [](PluginSpec *s1, PluginSpec *s2) {
+                                                return s1->performanceData().total()
+                                                       < s2->performanceData().total();
+                                            });
     const qint64 total
         = std::accumulate(specs.constBegin(), specs.constEnd(), 0, [](qint64 t, PluginSpec *s) {
               return t + s->performanceData().total();

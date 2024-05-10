@@ -37,7 +37,6 @@ namespace ExtensionManager::Internal {
 
 Q_LOGGING_CATEGORY(browserLog, "qtc.extensionmanager.browser", QtWarningMsg)
 
-using PluginSpecList = QList<const PluginSpec *>;
 using Tags = QStringList;
 
 constexpr QSize itemSize = {330, 86};

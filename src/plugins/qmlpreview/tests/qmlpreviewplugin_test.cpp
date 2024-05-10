@@ -29,7 +29,7 @@ private slots:
 
 static ExtensionSystem::IPlugin *getPlugin()
 {
-    const QVector<ExtensionSystem::PluginSpec *> plugins = ExtensionSystem::PluginManager::plugins();
+    const ExtensionSystem::PluginSpecs plugins = ExtensionSystem::PluginManager::plugins();
     auto it = std::find_if(plugins.begin(), plugins.end(), [](ExtensionSystem::PluginSpec *spec) {
         return spec->name() == "QmlPreview";
     });

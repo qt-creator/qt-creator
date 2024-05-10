@@ -91,8 +91,6 @@ const char PLUGINPATH_OPTION[] = "-pluginpath";
 const char LANGUAGE_OPTION[] = "-language";
 const char USER_LIBRARY_PATH_OPTION[] = "-user-library-path"; // hidden option for qtcreator.sh
 
-using PluginSpecSet = QVector<PluginSpec *>;
-
 // Helpers for displaying messages. Note that there is no console on Windows.
 
 // Format as <pre> HTML
@@ -795,7 +793,7 @@ int main(int argc, char **argv)
             settingspath};
     PluginManager::setCreatorProcessData(processData);
 
-    const PluginSpecSet plugins = PluginManager::plugins();
+    const PluginSpecs plugins = PluginManager::plugins();
     PluginSpec *coreplugin = nullptr;
     for (PluginSpec *spec : plugins) {
         if (spec->name() == QLatin1String(corePluginNameC)) {

@@ -1722,7 +1722,7 @@ void editIn3dView(const SelectionContext &selectionContext)
 
 bool isEffectComposerActivated()
 {
-    const QVector<ExtensionSystem::PluginSpec *> specs = ExtensionSystem::PluginManager::plugins();
+    const ExtensionSystem::PluginSpecs specs = ExtensionSystem::PluginManager::plugins();
     return std::find_if(specs.begin(), specs.end(),
                         [](ExtensionSystem::PluginSpec *spec) {
                             return spec->name() == "EffectComposer" && spec->isEffectivelyEnabled();

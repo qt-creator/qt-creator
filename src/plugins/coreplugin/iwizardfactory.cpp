@@ -401,7 +401,7 @@ QSet<Id> IWizardFactory::pluginFeatures()
 {
     if (s_plugins.isEmpty()) {
         // Implicitly create a feature for each plugin loaded:
-        const QVector<ExtensionSystem::PluginSpec *> pluginVector = ExtensionSystem::PluginManager::plugins();
+        const ExtensionSystem::PluginSpecs pluginVector = ExtensionSystem::PluginManager::plugins();
         for (const ExtensionSystem::PluginSpec *s : pluginVector) {
             if (s->state() == ExtensionSystem::PluginSpec::Running)
                 s_plugins.insert(Id::fromString(s->name()));

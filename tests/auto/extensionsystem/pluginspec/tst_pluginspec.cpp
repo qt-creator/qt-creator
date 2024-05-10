@@ -232,7 +232,7 @@ void tst_PluginSpec::locationAndPath()
 
 void tst_PluginSpec::resolveDependencies()
 {
-    QVector<PluginSpec *> specs;
+    PluginSpecs specs;
     PluginSpec *spec1 = new CppPluginSpec();
     specs.append(spec1);
     spec1->readMetaData(metaData("testdependencies/spec1.json"));
@@ -276,7 +276,7 @@ void tst_PluginSpec::loadLibrary()
     QVERIFY(ps);
     CppPluginSpec *spec = static_cast<CppPluginSpec *>(ps.value());
 
-    QVERIFY(spec->resolveDependencies(QVector<PluginSpec *>()));
+    QVERIFY(spec->resolveDependencies({}));
     QVERIFY2(spec->loadLibrary(), qPrintable(spec->errorString()));
     QVERIFY(spec->plugin() != 0);
     QVERIFY(QLatin1String(spec->plugin()->metaObject()->className())
@@ -293,7 +293,7 @@ void tst_PluginSpec::initializePlugin()
         PLUGIN_DIR_PATH / "testplugin" / libraryName(QLatin1String("test")));
     QVERIFY(ps);
     CppPluginSpec *spec = static_cast<CppPluginSpec *>(ps.value());
-    QVERIFY(spec->resolveDependencies(QVector<PluginSpec *>()));
+    QVERIFY(spec->resolveDependencies({}));
     QVERIFY2(spec->loadLibrary(), qPrintable(spec->errorString()));
     bool isInitialized;
     QMetaObject::invokeMethod(spec->plugin(),
@@ -317,7 +317,7 @@ void tst_PluginSpec::initializeExtensions()
         PLUGIN_DIR_PATH / "testplugin" / libraryName(QLatin1String("test")));
     QVERIFY(ps);
     CppPluginSpec *spec = static_cast<CppPluginSpec *>(ps.value());
-    QVERIFY(spec->resolveDependencies(QVector<PluginSpec *>()));
+    QVERIFY(spec->resolveDependencies({}));
     QVERIFY2(spec->loadLibrary(), qPrintable(spec->errorString()));
     bool isExtensionsInitialized;
     QVERIFY(spec->initializePlugin());

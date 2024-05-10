@@ -635,12 +635,12 @@ void PluginSpec::setForceEnabled(bool value)
 }
 
 // returns the plugins that it actually indirectly enabled
-QVector<PluginSpec *> PluginSpec::enableDependenciesIndirectly(bool enableTestDependencies)
+PluginSpecs PluginSpec::enableDependenciesIndirectly(bool enableTestDependencies)
 {
     if (!isEffectivelyEnabled()) // plugin not enabled, nothing to do
         return {};
 
-    QVector<PluginSpec *> enabled;
+    PluginSpecs enabled;
     for (auto it = d->dependencySpecs.cbegin(), end = d->dependencySpecs.cend(); it != end; ++it) {
         if (it.key().type != PluginDependency::Required
             && (!enableTestDependencies || it.key().type != PluginDependency::Test))
@@ -1058,7 +1058,7 @@ int PluginSpec::versionCompare(const QString &version1, const QString &version2)
 /*!
     \internal
 */
-bool PluginSpec::resolveDependencies(const QVector<PluginSpec *> &specs)
+bool PluginSpec::resolveDependencies(const PluginSpecs &specs)
 {
     if (hasError())
         return false;
