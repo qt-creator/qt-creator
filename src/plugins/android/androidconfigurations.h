@@ -34,9 +34,6 @@ public:
     QString abi;
     QString deviceDefinition;
     int sdcardSize = 0;
-    QString error; // only used in the return value of createAVD
-    bool overwrite = false;
-    bool cancelled = false;
 };
 
 struct SdkForQtVersions

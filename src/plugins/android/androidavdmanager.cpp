@@ -2,31 +2,24 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "androidavdmanager.h"
+#include "androidconfigurations.h"
 #include "androidtr.h"
 #include "avdmanageroutputparser.h"
 
 #include <coreplugin/icore.h>
 
-#include <projectexplorer/projectexplorerconstants.h>
-
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/qtcprocess.h>
-#include <utils/qtcassert.h>
 
 #include <QLoggingCategory>
 #include <QMainWindow>
 #include <QMessageBox>
 
-#include <chrono>
-
 using namespace Utils;
-using namespace std;
 using namespace std::chrono_literals;
 
 namespace Android::Internal {
-
-const int avdCreateTimeoutMs = 30000;
 
 static Q_LOGGING_CATEGORY(avdManagerLog, "qtc.android.avdManager", QtWarningMsg)
 
@@ -49,85 +42,6 @@ bool AndroidAvdManager::avdManagerCommand(const QStringList &args, QString *outp
         return true;
     }
     return false;
-}
-
-static bool checkForTimeout(const chrono::steady_clock::time_point &start,
-                            int msecs = 3000)
-{
-    bool timedOut = false;
-    auto end = chrono::steady_clock::now();
-    if (chrono::duration_cast<chrono::milliseconds>(end-start).count() > msecs)
-        timedOut = true;
-    return timedOut;
-}
-
-static CreateAvdInfo createAvdCommand(const CreateAvdInfo &info)
-{
-    CreateAvdInfo result = info;
-    CommandLine avdManager(androidConfig().avdManagerToolPath(), {"create", "avd", "-n", result.name});
-    avdManager.addArgs({"-k", result.sdkStylePath});
-
-    if (result.sdcardSize > 0)
-        avdManager.addArgs({"-c", QString("%1M").arg(result.sdcardSize)});
-
-    if (!result.deviceDefinition.isEmpty() && result.deviceDefinition != "Custom")
-        avdManager.addArgs({"-d", QString("%1").arg(result.deviceDefinition)});
-
-    if (result.overwrite)
-        avdManager.addArg("-f");
-
-    qCDebug(avdManagerLog).noquote() << "Running AVD Manager command:" << avdManager.toUserOutput();
-    Process proc;
-    proc.setProcessMode(ProcessMode::Writer);
-    proc.setEnvironment(androidConfig().toolsEnvironment());
-    proc.setCommand(avdManager);
-    proc.start();
-    if (!proc.waitForStarted()) {
-        result.error = Tr::tr("Could not start process \"%1\".").arg(avdManager.toUserOutput());
-        return result;
-    }
-    QTC_CHECK(proc.isRunning());
-    proc.write("yes\n"); // yes to "Do you wish to create a custom hardware profile"
-
-    auto start = chrono::steady_clock::now();
-    QString errorOutput;
-    QByteArray question;
-    while (errorOutput.isEmpty()) {
-        proc.waitForReadyRead(500ms);
-        question += proc.readAllRawStandardOutput();
-        if (question.endsWith(QByteArray("]:"))) {
-            // truncate to last line
-            int index = question.lastIndexOf(QByteArray("\n"));
-            if (index != -1)
-                question = question.mid(index);
-            if (question.contains("hw.gpu.enabled"))
-                proc.write("yes\n");
-            else
-                proc.write("\n");
-            question.clear();
-        }
-        // The exit code is always 0, so we need to check stderr
-        // For now assume that any output at all indicates a error
-        errorOutput = QString::fromLocal8Bit(proc.readAllRawStandardError());
-        if (!proc.isRunning())
-            break;
-
-        // For a sane input and command, process should finish before timeout.
-        if (checkForTimeout(start, avdCreateTimeoutMs))
-            result.error = Tr::tr("Cannot create AVD. Command timed out.");
-    }
-
-    result.error = errorOutput;
-    return result;
-}
-
-AndroidAvdManager::AndroidAvdManager() = default;
-
-AndroidAvdManager::~AndroidAvdManager() = default;
-
-QFuture<CreateAvdInfo> AndroidAvdManager::createAvd(CreateAvdInfo info) const
-{
-    return Utils::asyncRun(&createAvdCommand, info);
 }
 
 static void avdConfigEditManufacturerTag(const FilePath &avdPath, bool recoverMode = false)
