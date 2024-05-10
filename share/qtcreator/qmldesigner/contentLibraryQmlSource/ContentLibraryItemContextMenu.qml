@@ -1,43 +1,50 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-import QtQuick 2.15
-import HelperWidgets 2.0
-import StudioControls 1.0 as StudioControls
-import StudioTheme 1.0 as StudioTheme
+import QtQuick
+import StudioControls as StudioControls
+import StudioTheme as StudioTheme
+import ContentLibraryBackend
 
 StudioControls.Menu {
     id: root
 
-    property var targetMaterial: null
-    property bool hasModelSelection: false
-    property bool importerRunning: false
-    property bool enableRemove: false // true: adds an option to remove targetMaterial
+    property var targetItem: null
+    property bool enableRemove: false // true: adds an option to remove targetItem
 
-    readonly property bool targetAvailable: targetMaterial && !importerRunning
+    readonly property bool targetAvailable: targetItem && !ContentLibraryBackend.rootView.importerRunning
 
     signal unimport();
     signal addToProject()
     signal applyToSelected(bool add)
     signal removeFromContentLib()
 
-    function popupMenu(targetMaterial = null)
+    function popupMenu(item = null)
     {
-        this.targetMaterial = targetMaterial
+        root.targetItem = item
+
+        let isMaterial = root.targetItem.itemType === "material"
+        applyToSelectedReplace.visible = isMaterial
+        applyToSelectedAdd.visible = isMaterial
+
         popup()
     }
 
     closePolicy: StudioControls.Menu.CloseOnEscape | StudioControls.Menu.CloseOnPressOutside
 
     StudioControls.MenuItem {
+        id: applyToSelectedReplace
         text: qsTr("Apply to selected (replace)")
-        enabled: root.targetAvailable && root.hasModelSelection
+        height: visible ? implicitHeight : 0
+        enabled: root.targetAvailable && ContentLibraryBackend.rootView.hasModelSelection
         onTriggered: root.applyToSelected(false)
     }
 
     StudioControls.MenuItem {
+        id: applyToSelectedAdd
         text: qsTr("Apply to selected (add)")
-        enabled: root.targetAvailable && root.hasModelSelection
+        height: visible ? implicitHeight : 0
+        enabled: root.targetAvailable && ContentLibraryBackend.rootView.hasModelSelection
         onTriggered: root.applyToSelected(true)
     }
 
@@ -46,16 +53,12 @@ StudioControls.Menu {
     StudioControls.MenuItem {
         enabled: root.targetAvailable
         text: qsTr("Add an instance to project")
-
-        onTriggered: {
-            root.addToProject()
-        }
+        onTriggered: root.addToProject()
     }
 
     StudioControls.MenuItem {
-        enabled: root.targetAvailable && root.targetMaterial.bundleMaterialImported
+        enabled: root.targetAvailable && root.targetItem.bundleItemImported
         text: qsTr("Remove from project")
-
         onTriggered: root.unimport()
     }
 

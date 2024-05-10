@@ -177,7 +177,15 @@ void ContentLibraryUserModel::removeTexture(ContentLibraryTexture *tex)
     emit dataChanged(index(texSectionIdx), index(texSectionIdx));
 }
 
-void ContentLibraryUserModel::removeFromContentLib(ContentLibraryMaterial *mat)
+void ContentLibraryUserModel::removeFromContentLib(QObject *item)
+{
+    if (auto mat = qobject_cast<ContentLibraryMaterial *>(item))
+        removeMaterialFromContentLib(mat);
+    else if (auto itm = qobject_cast<ContentLibraryItem *>(item))
+        remove3DFromContentLib(itm);
+}
+
+void ContentLibraryUserModel::removeMaterialFromContentLib(ContentLibraryMaterial *mat)
 {
     auto bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/materials/");
 
@@ -213,6 +221,48 @@ void ContentLibraryUserModel::removeFromContentLib(ContentLibraryMaterial *mat)
     // update model
     int matSectionIdx = 0;
     emit dataChanged(index(matSectionIdx), index(matSectionIdx));
+}
+
+void ContentLibraryUserModel::remove3DFromContentLib(ContentLibraryItem *item)
+{
+    QJsonArray itemsArr = m_bundleObj3D.value("items").toArray();
+
+    // remove qml and icon files
+    m_bundlePath3D.pathAppended(item->qml()).removeFile();
+    Utils::FilePath::fromUrl(item->icon()).removeFile();
+
+    // remove from the bundle json file
+    for (int i = 0; i < itemsArr.size(); ++i) {
+        if (itemsArr.at(i).toObject().value("qml") == item->qml()) {
+            itemsArr.removeAt(i);
+            break;
+        }
+    }
+    m_bundleObj3D.insert("items", itemsArr);
+
+    auto result = m_bundlePath3D.pathAppended("user_3d_bundle.json")
+                      .writeFileContents(QJsonDocument(m_bundleObj3D).toJson());
+    if (!result)
+        qWarning() << __FUNCTION__ << result.error();
+
+    // delete dependency files if they are only used by the deleted item
+    QStringList allFiles;
+    for (const QJsonValueConstRef &itemRef : std::as_const(itemsArr))
+        allFiles.append(itemRef.toObject().value("files").toVariant().toStringList());
+
+    const QStringList itemFiles = item->files();
+    for (const QString &file : itemFiles) {
+        if (allFiles.count(file) == 0) // only used by the deleted item
+            m_bundlePath3D.pathAppended(file).removeFile();
+    }
+
+    // remove from model
+    m_user3DItems.removeOne(item);
+    item->deleteLater();
+
+    // update model
+    int sectionIdx = 2;
+    emit dataChanged(index(sectionIdx), index(sectionIdx));
 }
 
 // returns unique library material's name and qml component
@@ -520,7 +570,7 @@ void ContentLibraryUserModel::setSearchText(const QString &searchText)
     updateIsEmpty3D();
 }
 
-void ContentLibraryUserModel::updateImportedState(const QStringList &importedItems)
+void ContentLibraryUserModel::updateMaterialsImportedState(const QStringList &importedItems)
 {
     bool changed = false;
     for (ContentLibraryMaterial *mat : std::as_const(m_userMaterials))
@@ -529,6 +579,18 @@ void ContentLibraryUserModel::updateImportedState(const QStringList &importedIte
     if (changed) {
         int matSectionIdx = 0;
         emit dataChanged(index(matSectionIdx), index(matSectionIdx));
+    }
+}
+
+void ContentLibraryUserModel::update3DImportedState(const QStringList &importedItems)
+{
+    bool changed = false;
+    for (ContentLibraryItem *item : std::as_const(m_user3DItems))
+        changed |= item->setImported(importedItems.contains(item->qml().chopped(4)));
+
+    if (changed) {
+        int sectionIdx = 2;
+        emit dataChanged(index(sectionIdx), index(sectionIdx));
     }
 }
 
@@ -561,39 +623,56 @@ void ContentLibraryUserModel::applyToSelected(ContentLibraryMaterial *mat, bool 
     emit applyToSelectedTriggered(mat, add);
 }
 
-void ContentLibraryUserModel::addToProject(ContentLibraryMaterial *mat)
+void ContentLibraryUserModel::addToProject(QObject *item)
 {
-    QString err = m_widget->importer()->importComponent(mat->dirPath(), mat->type(), mat->qml(),
-                                                        mat->files() + m_bundleMaterialSharedFiles);
-
-    if (err.isEmpty())
-        m_widget->setImporterRunning(true);
-    else
-        qWarning() << __FUNCTION__ << err;
-}
-
-void ContentLibraryUserModel::removeFromProject(ContentLibraryMaterial *mat)
-{
-    QString err = m_widget->importer()->unimportComponent(mat->type(), mat->qml());
-
-    if (err.isEmpty())
-        m_widget->setImporterRunning(true);
-    else
-        qWarning() << __FUNCTION__ << err;
-}
-
-bool ContentLibraryUserModel::hasModelSelection() const
-{
-    return m_hasModelSelection;
-}
-
-void ContentLibraryUserModel::setHasModelSelection(bool b)
-{
-    if (b == m_hasModelSelection)
+    QString bundleDir;
+    TypeName type;
+    QString qmlFile;
+    QStringList files;
+    if (auto mat = qobject_cast<ContentLibraryMaterial *>(item)) {
+        bundleDir = mat->dirPath();
+        type = mat->type();
+        qmlFile = mat->qml();
+        files = mat->files() + m_bundleMaterialSharedFiles;
+    } else if (auto itm = qobject_cast<ContentLibraryItem *>(item)) {
+        bundleDir = m_bundlePath3D.toString();
+        type = itm->type();
+        qmlFile = itm->qml();
+        files = itm->files() + m_bundle3DSharedFiles;
+    } else {
+        qWarning() << __FUNCTION__ << "Unsupported Item";
         return;
+    }
 
-    m_hasModelSelection = b;
-    emit hasModelSelectionChanged();
+    QString err = m_widget->importer()->importComponent(bundleDir, type, qmlFile, files);
+
+    if (err.isEmpty())
+        m_widget->setImporterRunning(true);
+    else
+        qWarning() << __FUNCTION__ << err;
+}
+
+void ContentLibraryUserModel::removeFromProject(QObject *item)
+{
+    TypeName type;
+    QString qml;
+    if (auto mat = qobject_cast<ContentLibraryMaterial *>(item)) {
+        type = mat->type();
+        qml = mat->qml();
+    } else if (auto itm = qobject_cast<ContentLibraryItem *>(item)) {
+        type = itm->type();
+        qml = itm->qml();
+    } else {
+        qWarning() << __FUNCTION__ << "Unsupported Item";
+        return;
+    }
+
+    QString err = m_widget->importer()->unimportComponent(type, qml);
+
+    if (err.isEmpty())
+        m_widget->setImporterRunning(true);
+    else
+        qWarning() << __FUNCTION__ << err;
 }
 
 } // namespace QmlDesigner

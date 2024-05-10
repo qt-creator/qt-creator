@@ -231,7 +231,9 @@ void ContentLibraryWidget::updateImportedState(const QString &bundleId)
     else if (bundleId == compUtils.effectsBundleId())
         m_effectsModel->updateImportedState(importedItems);
     else if (bundleId == compUtils.userMaterialsBundleId())
-        m_userModel->updateImportedState(importedItems);
+        m_userModel->updateMaterialsImportedState(importedItems);
+    else if (bundleId == compUtils.user3DBundleId())
+        m_userModel->update3DImportedState(importedItems);
 }
 
 ContentLibraryBundleImporter *ContentLibraryWidget::importer() const
@@ -863,6 +865,20 @@ QPointer<ContentLibraryEffectsModel> ContentLibraryWidget::effectsModel() const
 QPointer<ContentLibraryUserModel> ContentLibraryWidget::userModel() const
 {
     return m_userModel;
+}
+
+bool ContentLibraryWidget::hasModelSelection() const
+{
+    return m_hasModelSelection;
+}
+
+void ContentLibraryWidget::setHasModelSelection(bool b)
+{
+    if (b == m_hasModelSelection)
+        return;
+
+    m_hasModelSelection = b;
+    emit hasModelSelectionChanged();
 }
 
 } // namespace QmlDesigner

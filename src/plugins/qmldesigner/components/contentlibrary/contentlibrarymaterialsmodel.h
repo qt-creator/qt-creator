@@ -21,7 +21,6 @@ class ContentLibraryMaterialsModel : public QAbstractListModel
     Q_PROPERTY(bool matBundleExists READ matBundleExists NOTIFY matBundleExistsChanged)
     Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
     Q_PROPERTY(bool hasRequiredQuick3DImport READ hasRequiredQuick3DImport NOTIFY hasRequiredQuick3DImportChanged)
-    Q_PROPERTY(bool hasModelSelection READ hasModelSelection NOTIFY hasModelSelectionChanged)
 
 public:
     ContentLibraryMaterialsModel(ContentLibraryWidget *parent = nullptr);
@@ -33,15 +32,10 @@ public:
 
     void setSearchText(const QString &searchText);
     void updateImportedState(const QStringList &importedItems);
-
     void setQuick3DImportVersion(int major, int minor);
 
     bool hasRequiredQuick3DImport() const;
-
     bool matBundleExists() const;
-
-    bool hasModelSelection() const;
-    void setHasModelSelection(bool b);
 
     void resetModel();
     void updateIsEmpty();
@@ -56,7 +50,6 @@ public:
 signals:
     void isEmptyChanged();
     void hasRequiredQuick3DImportChanged();
-    void hasModelSelectionChanged();
     void materialVisibleChanged();
     void applyToSelectedTriggered(QmlDesigner::ContentLibraryMaterial *mat, bool add = false);
     void matBundleExistsChanged();
@@ -77,7 +70,6 @@ private:
 
     bool m_isEmpty = true;
     bool m_bundleExists = false;
-    bool m_hasModelSelection = false;
 
     int m_quick3dMajorVersion = -1;
     int m_quick3dMinorVersion = -1;

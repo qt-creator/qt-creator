@@ -41,6 +41,7 @@ class ContentLibraryWidget : public QFrame
     Q_PROPERTY(bool hasActive3DScene READ hasActive3DScene WRITE setHasActive3DScene NOTIFY hasActive3DSceneChanged)
     Q_PROPERTY(bool isQt6Project READ isQt6Project NOTIFY isQt6ProjectChanged)
     Q_PROPERTY(bool importerRunning READ importerRunning WRITE setImporterRunning NOTIFY importerRunningChanged)
+    Q_PROPERTY(bool hasModelSelection READ hasModelSelection NOTIFY hasModelSelectionChanged)
 
     // Needed for a workaround for a bug where after drag-n-dropping an item, the ScrollView scrolls to a random position
     Q_PROPERTY(bool isDragging MEMBER m_isDragging NOTIFY isDraggingChanged)
@@ -68,7 +69,8 @@ public:
     bool importerRunning() const;
     void setImporterRunning(bool b);
 
-    Q_INVOKABLE void handleSearchFilterChanged(const QString &filterText);
+    bool hasModelSelection() const;
+    void setHasModelSelection(bool b);
 
     void setMaterialsModel(QPointer<ContentLibraryMaterialsModel> newMaterialsModel);
     void updateImportedState(const QString &bundleId);
@@ -79,6 +81,7 @@ public:
     QPointer<ContentLibraryEffectsModel> effectsModel() const;
     QPointer<ContentLibraryUserModel> userModel() const;
 
+    Q_INVOKABLE void handleSearchFilterChanged(const QString &filterText);
     Q_INVOKABLE void startDragItem(QmlDesigner::ContentLibraryItem *item, const QPointF &mousePos);
     Q_INVOKABLE void startDragMaterial(QmlDesigner::ContentLibraryMaterial *mat, const QPointF &mousePos);
     Q_INVOKABLE void startDragTexture(QmlDesigner::ContentLibraryTexture *tex, const QPointF &mousePos);
@@ -105,6 +108,7 @@ signals:
     void isDraggingChanged();
     void isQt6ProjectChanged();
     void importerRunningChanged();
+    void hasModelSelectionChanged();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -148,6 +152,7 @@ private:
     bool m_isDragging = false;
     bool m_isQt6Project = false;
     bool m_importerRunning = false;
+    bool m_hasModelSelection = false;
     QString m_textureBundleUrl;
     QString m_bundlePath;
 };

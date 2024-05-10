@@ -383,18 +383,4 @@ void ContentLibraryMaterialsModel::removeFromProject(ContentLibraryMaterial *mat
         qWarning() << __FUNCTION__ << err;
 }
 
-bool ContentLibraryMaterialsModel::hasModelSelection() const
-{
-    return m_hasModelSelection;
-}
-
-void ContentLibraryMaterialsModel::setHasModelSelection(bool b)
-{
-    if (b == m_hasModelSelection)
-        return;
-
-    m_hasModelSelection = b;
-    emit hasModelSelectionChanged();
-}
-
 } // namespace QmlDesigner

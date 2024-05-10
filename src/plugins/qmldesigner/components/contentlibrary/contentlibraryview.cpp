@@ -306,8 +306,7 @@ void ContentLibraryView::selectedNodesChanged(const QList<ModelNode> &selectedNo
         return node.metaInfo().isQtQuick3DModel();
     });
 
-    m_widget->materialsModel()->setHasModelSelection(!m_selectedModels.isEmpty());
-    m_widget->userModel()->setHasModelSelection(!m_selectedModels.isEmpty());
+    m_widget->setHasModelSelection(!m_selectedModels.isEmpty());
 }
 
 void ContentLibraryView::customNotification(const AbstractView *view,
@@ -565,7 +564,7 @@ QStringList ContentLibraryView::writeLibItemQml(const ModelNode &node, const QSt
 
     qmlString.prepend("import QtQuick\nimport QtQuick3D\n\n");
 
-    QString itemType = QLatin1String(node.metaInfo().isQtQuick3DMaterial() ? "material" : "3d");
+    QString itemType = QLatin1String(node.metaInfo().isQtQuick3DMaterial() ? "materials" : "3d");
     auto qmlPath = Utils::FilePath::fromString(QLatin1String("%1/User/%2/%3")
                                                    .arg(Paths::bundlesPathSetting(), itemType, qml));
     auto result = qmlPath.writeFileContents(qmlString.toUtf8());

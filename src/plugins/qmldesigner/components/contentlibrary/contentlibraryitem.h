@@ -36,7 +36,6 @@ public:
     TypeName type() const;
     QStringList files() const;
     bool visible() const;
-    QString qmlFilePath() const;
 
     bool setImported(bool imported);
     bool imported() const;

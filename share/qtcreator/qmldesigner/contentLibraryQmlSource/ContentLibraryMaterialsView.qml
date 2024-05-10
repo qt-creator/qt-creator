@@ -46,16 +46,13 @@ HelperWidgets.ScrollView {
     }
 
     Column {
-        ContentLibraryMaterialContextMenu {
+        ContentLibraryItemContextMenu {
             id: ctxMenu
 
-            hasModelSelection: root.materialsModel.hasModelSelection
-            importerRunning: ContentLibraryBackend.rootView.importerRunning
+            onApplyToSelected: (add) => root.materialsModel.applyToSelected(ctxMenu.targetItem, add)
 
-            onApplyToSelected: (add) => root.materialsModel.applyToSelected(ctxMenu.targetMaterial, add)
-
-            onUnimport: root.unimport(ctxMenu.targetMaterial)
-            onAddToProject: root.materialsModel.addToProject(ctxMenu.targetMaterial)
+            onUnimport: root.unimport(ctxMenu.targetItem)
+            onAddToProject: root.materialsModel.addToProject(ctxMenu.targetItem)
         }
 
         Repeater {
@@ -102,8 +99,6 @@ HelperWidgets.ScrollView {
                         delegate: ContentLibraryMaterial {
                             width: root.cellWidth
                             height: root.cellHeight
-
-                            importerRunning: ContentLibraryBackend.rootView.importerRunning
 
                             onShowContextMenu: ctxMenu.popupMenu(modelData)
                             onAddToProject: root.materialsModel.addToProject(modelData)

@@ -27,7 +27,6 @@ class ContentLibraryUserModel : public QAbstractListModel
     Q_PROPERTY(bool isEmptyMaterials MEMBER m_isEmptyMaterials NOTIFY isEmptyMaterialsChanged)
     Q_PROPERTY(bool isEmpty3D MEMBER m_isEmpty3D NOTIFY isEmpty3DChanged)
     Q_PROPERTY(bool hasRequiredQuick3DImport READ hasRequiredQuick3DImport NOTIFY hasRequiredQuick3DImportChanged)
-    Q_PROPERTY(bool hasModelSelection READ hasModelSelection NOTIFY hasModelSelectionChanged)
     Q_PROPERTY(QList<ContentLibraryMaterial *> userMaterials MEMBER m_userMaterials NOTIFY userMaterialsChanged)
     Q_PROPERTY(QList<ContentLibraryTexture *> userTextures MEMBER m_userTextures NOTIFY userTexturesChanged)
     Q_PROPERTY(QList<ContentLibraryItem *> user3DItems MEMBER m_user3DItems NOTIFY user3DItemsChanged)
@@ -41,7 +40,8 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     void setSearchText(const QString &searchText);
-    void updateImportedState(const QStringList &importedItems);
+    void updateMaterialsImportedState(const QStringList &importedItems);
+    void update3DImportedState(const QStringList &importedItems);
 
     QPair<QString, QString> getUniqueLibMaterialNameAndQml(const QString &defaultName = {}) const;
     QString getUniqueLib3DQmlName(const QString &defaultName = {}) const;
@@ -51,9 +51,6 @@ public:
     bool hasRequiredQuick3DImport() const;
 
     bool matBundleExists() const;
-
-    bool hasModelSelection() const;
-    void setHasModelSelection(bool b);
 
     void resetModel();
     void updateIsEmptyMaterials();
@@ -73,23 +70,20 @@ public:
     void loadBundles();
 
     Q_INVOKABLE void applyToSelected(QmlDesigner::ContentLibraryMaterial *mat, bool add = false);
-    Q_INVOKABLE void addToProject(QmlDesigner::ContentLibraryMaterial *mat);
-    Q_INVOKABLE void removeFromProject(QmlDesigner::ContentLibraryMaterial *mat);
+    Q_INVOKABLE void addToProject(QObject *item);
+    Q_INVOKABLE void removeFromProject(QObject *item);
     Q_INVOKABLE void removeTexture(QmlDesigner::ContentLibraryTexture *tex);
-    Q_INVOKABLE void removeFromContentLib(QmlDesigner::ContentLibraryMaterial *mat);
+    Q_INVOKABLE void removeFromContentLib(QObject *item);
 
 signals:
     void isEmptyMaterialsChanged();
     void isEmpty3DChanged();
     void hasRequiredQuick3DImportChanged();
-    void hasModelSelectionChanged();
     void userMaterialsChanged();
     void userTexturesChanged();
     void user3DItemsChanged();
     void userEffectsChanged();
-
     void applyToSelectedTriggered(QmlDesigner::ContentLibraryMaterial *mat, bool add = false);
-
     void matBundleExistsChanged();
     void bundle3DExistsChanged();
 
@@ -98,6 +92,8 @@ private:
     void load3DBundle();
     void loadTextureBundle();
     bool isValidIndex(int idx) const;
+    void removeMaterialFromContentLib(ContentLibraryMaterial *mat);
+    void remove3DFromContentLib(ContentLibraryItem *item);
 
     ContentLibraryWidget *m_widget = nullptr;
     QString m_searchText;
@@ -120,7 +116,6 @@ private:
     bool m_isEmpty3D = true;
     bool m_matBundleExists = false;
     bool m_bundle3DExists = false;
-    bool m_hasModelSelection = false;
 
     int m_quick3dMajorVersion = -1;
     int m_quick3dMinorVersion = -1;
