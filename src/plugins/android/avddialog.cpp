@@ -138,7 +138,7 @@ int AvdDialog::exec()
 
         const QString deviceDef = deviceDefinition();
         if (!deviceDef.isEmpty() && deviceDef != "Custom")
-            cmd.addArgs({"-d", QString("%1").arg(deviceDef)});
+            cmd.addArgs({"-d", deviceDef});
 
         if (m_overwriteCheckBox->isChecked())
             cmd.addArg("-f");
@@ -155,7 +155,7 @@ int AvdDialog::exec()
             buffer += process.readAllRawStandardOutput();
             if (buffer.endsWith(QByteArray("]:"))) {
                 // truncate to last line
-                const int index = buffer.lastIndexOf(QByteArray("\n"));
+                const int index = buffer.lastIndexOf('\n');
                 if (index != -1)
                     buffer = buffer.mid(index);
                 if (buffer.contains("hw.gpu.enabled"))
