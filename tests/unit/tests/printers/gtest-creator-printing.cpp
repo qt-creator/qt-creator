@@ -157,7 +157,7 @@ void PrintTo(const Utils::SmallString &text, ::std::ostream *os)
     *os << "\"" << text << "\"";
 }
 
-void PrintTo(const Utils::BasicSmallString<94> &text, ::std::ostream *os)
+void PrintTo(const Utils::BasicSmallString<96> &text, ::std::ostream *os)
 {
     *os << "\"" << text << "\"";
 }

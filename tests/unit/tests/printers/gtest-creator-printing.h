@@ -93,7 +93,7 @@ void PrintTo(const std::optional<Type> &optional, ::std::ostream *os)
 
 void PrintTo(Utils::SmallStringView text, ::std::ostream *os);
 void PrintTo(const Utils::SmallString &text, ::std::ostream *os);
-void PrintTo(const Utils::BasicSmallString<94> &text, ::std::ostream *os);
+void PrintTo(const Utils::BasicSmallString<96> &text, ::std::ostream *os);
 void PrintTo(const Utils::PathString &text, ::std::ostream *os);
 
 } // namespace Utils

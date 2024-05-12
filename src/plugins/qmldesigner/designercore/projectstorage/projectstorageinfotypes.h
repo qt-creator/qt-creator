@@ -242,7 +242,7 @@ struct TypeTraits
 static_assert(sizeof(TypeTraits) == sizeof(unsigned int) * 2,
               "TypeTraits must be of size unsigned long long!");
 
-using TypeNameString = ::Utils::BasicSmallString<63>;
+using TypeNameString = ::Utils::BasicSmallString<64>;
 
 class VersionNumber
 {
@@ -374,7 +374,7 @@ struct ItemLibraryProperty
 
 using ItemLibraryProperties = QVarLengthArray<ItemLibraryProperty, 5>;
 
-using ToolTipString = Utils::BasicSmallString<94>;
+using ToolTipString = Utils::BasicSmallString<96>;
 
 struct ItemLibraryEntry
 {

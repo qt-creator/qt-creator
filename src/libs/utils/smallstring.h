@@ -47,7 +47,7 @@ public:
     using size_type = std::size_t;
 
     static_assert(Size < 64 ? sizeof(Internal::StringDataLayout<Size>) == Size + 1
-                            : sizeof(Internal::StringDataLayout<Size>) == Size + 2,
+                            : sizeof(Internal::StringDataLayout<Size>) == Size + 16,
                   "Size is wrong");
 
     BasicSmallString() noexcept = default;
@@ -63,16 +63,8 @@ public:
     {}
 
     BasicSmallString(const char *string, size_type size, size_type capacity) noexcept
-    {
-        if (Q_LIKELY(capacity <= shortStringCapacity())) {
-            m_data.control = Internal::ControlBlock<Size>(size, false, false);
-            std::char_traits<char>::copy(m_data.shortString, string, size);
-        } else {
-            auto pointer = Memory::allocate(capacity);
-            std::char_traits<char>::copy(pointer, string, size);
-            initializeLongString(pointer, size, capacity);
-        }
-    }
+        : m_data{string, size, capacity}
+    {}
 
     explicit BasicSmallString(SmallStringView stringView) noexcept
         : BasicSmallString(stringView.data(), stringView.size(), stringView.size())
@@ -126,7 +118,7 @@ public:
     ~BasicSmallString() noexcept
     {
         if (Q_UNLIKELY(hasAllocatedMemory()))
-            Memory::deallocate(m_data.reference.pointer);
+            Memory::deallocate(m_data.data());
     }
 
     BasicSmallString(const BasicSmallString &other) noexcept
@@ -170,17 +162,6 @@ public:
     }
 
     BasicSmallString take() noexcept { return std::move(*this); }
-    BasicSmallString clone() const noexcept
-    {
-        BasicSmallString clonedString(m_data);
-
-        if (Q_UNLIKELY(hasAllocatedMemory()))
-            new (&clonedString) BasicSmallString{m_data.reference.pointer,
-                                                 m_data.reference.size,
-                                                 m_data.reference.capacity};
-
-        return clonedString;
-    }
 
     friend void swap(BasicSmallString &first, BasicSmallString &second) noexcept
     {
@@ -229,8 +210,8 @@ public:
     {
         if (fitsNotInCapacity(newCapacity)) {
             if (Q_UNLIKELY(hasAllocatedMemory())) {
-                m_data.reference.pointer = Memory::reallocate(m_data.reference.pointer, newCapacity);
-                m_data.reference.capacity = newCapacity;
+                m_data.setPointer(Memory::reallocate(m_data.data(), newCapacity));
+                m_data.setAllocatedCapacity(newCapacity);
             } else {
                 auto oldSize = size();
                 new (this) BasicSmallString{data(), oldSize, std::max(newCapacity, oldSize)};
@@ -252,15 +233,9 @@ public:
         m_data = Internal::StringDataLayout<Size>();
     }
 
-    char *data() noexcept
-    {
-        return Q_LIKELY(isShortString()) ? m_data.shortString : m_data.reference.pointer;
-    }
+    char *data() noexcept { return m_data.data(); }
 
-    const char *data() const noexcept
-    {
-        return Q_LIKELY(isShortString()) ? m_data.shortString : m_data.reference.pointer;
-    }
+    const char *data() const noexcept { return m_data.data(); }
 
     iterator begin() noexcept
     {
@@ -387,21 +362,9 @@ public:
         return at(size() - 1) == character;
     }
 
-    size_type size() const noexcept
-    {
-        if (!isShortString())
-            return m_data.reference.size;
+    size_type size() const noexcept { return m_data.size(); }
 
-        return m_data.control.shortStringSize();
-    }
-
-    size_type capacity() const noexcept
-    {
-        if (!isShortString())
-            return m_data.reference.capacity;
-
-        return shortStringCapacity();
-    }
+    size_type capacity() const noexcept { return m_data.capacity(); }
 
     bool isEmpty() const noexcept
     {
@@ -608,11 +571,6 @@ public:
         return size;
     }
 
-    constexpr size_type shortStringSize() const noexcept
-    {
-        return m_data.control.shortStringSize();
-    }
-
     static BasicSmallString join(std::initializer_list<SmallStringView> list,
                                  Utils::SmallStringView separator) noexcept
     {
@@ -708,17 +666,12 @@ public:
     }
 
 unittest_public:
-    constexpr
-    bool isShortString() const noexcept
+    constexpr bool isShortString() const noexcept
     {
-        return m_data.control.isShortString();
+        return m_data.isShortString();
     }
 
-    constexpr
-    bool isReadOnlyReference() const noexcept
-    {
-        return m_data.control.isReadOnlyReference();
-    }
+    constexpr bool isReadOnlyReference() const noexcept { return m_data.isReadOnlyReference(); }
 
     constexpr
     bool hasAllocatedMemory() const noexcept
@@ -728,10 +681,7 @@ unittest_public:
 
     bool fitsNotInCapacity(size_type capacity) const noexcept
     {
-        if (isShortString())
-            return capacity > shortStringCapacity();
-
-        return capacity > m_data.reference.capacity;
+        return capacity > m_data.capacity();
     }
 
     static size_type optimalHeapCapacity(const size_type size) noexcept
@@ -790,13 +740,6 @@ private:
         }
     }
 
-    constexpr void initializeLongString(char *pointer, size_type size, size_type capacity) noexcept
-    {
-        m_data.control = Internal::ControlBlock<Size>(0, false, true);
-        m_data.reference.pointer = pointer;
-        m_data.reference.size = size;
-        m_data.reference.capacity = capacity;
-    }
 
     char &at(size_type index) noexcept { return *(data() + index); }
 
@@ -922,13 +865,7 @@ private:
         }
     }
 
-    void setSize(size_type size) noexcept
-    {
-        if (isShortString())
-            m_data.control.setShortStringSize(size);
-        else
-            m_data.reference.size = size;
-    }
+    void setSize(size_type size) noexcept { m_data.setSize(size); }
 
 private:
     Internal::StringDataLayout<Size> m_data;
@@ -962,7 +899,7 @@ Type clone(const Type &vector)
 }
 
 using SmallString = BasicSmallString<31>;
-using PathString = BasicSmallString<190>;
+using PathString = BasicSmallString<176>;
 
 inline SmallString operator+(SmallStringView first, SmallStringView second) noexcept
 {

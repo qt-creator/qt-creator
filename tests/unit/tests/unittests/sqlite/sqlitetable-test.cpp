@@ -40,7 +40,7 @@ TEST_F(SqliteTable, column_is_added_to_table)
 
 TEST_F(SqliteTable, set_table_name)
 {
-    table.setName(tableName.clone());
+    table.setName(tableName);
 
     ASSERT_THAT(table.name(), tableName);
 }
@@ -54,7 +54,7 @@ TEST_F(SqliteTable, set_use_without_rowid)
 
 TEST_F(SqliteTable, add_index)
 {
-    table.setName(tableName.clone());
+    table.setName(tableName);
     auto &column = table.addColumn("name");
     auto &column2 = table.addColumn("value");
 
@@ -67,7 +67,7 @@ TEST_F(SqliteTable, add_index)
 
 TEST_F(SqliteTable, initialize_table)
 {
-    table.setName(tableName.clone());
+    table.setName(tableName);
     table.setUseIfNotExists(true);
     table.setUseTemporaryTable(true);
     table.setUseWithoutRowId(true);
@@ -84,7 +84,7 @@ TEST_F(SqliteTable, initialize_table)
 TEST_F(SqliteTable, initialize_table_with_index)
 {
     InSequence sequence;
-    table.setName(tableName.clone());
+    table.setName(tableName);
     auto &column = table.addColumn("name");
     auto &column2 = table.addColumn("value");
     table.addIndex({column});
@@ -104,7 +104,7 @@ TEST_F(SqliteTable, initialize_table_with_index)
 TEST_F(SqliteTable, initialize_table_with_unique_index)
 {
     InSequence sequence;
-    table.setName(tableName.clone());
+    table.setName(tableName);
     auto &column = table.addColumn("name");
     auto &column2 = table.addColumn("value");
     table.addUniqueIndex({column});
@@ -302,7 +302,7 @@ TEST_F(SqliteTable, add_foreign_key_column_with_column_and_not_null)
 
 TEST_F(SqliteTable, add_primary_table_contraint)
 {
-    table.setName(tableName.clone());
+    table.setName(tableName);
     const auto &idColumn = table.addColumn("id");
     const auto &nameColumn = table.addColumn("name");
     table.addPrimaryKeyContraint({idColumn, nameColumn});
@@ -331,7 +331,7 @@ TEST_F(StrictSqliteTable, column_is_added_to_table)
 
 TEST_F(StrictSqliteTable, set_table_name)
 {
-    table.setName(tableName.clone());
+    table.setName(tableName);
 
     ASSERT_THAT(table.name(), tableName);
 }
@@ -345,7 +345,7 @@ TEST_F(StrictSqliteTable, set_use_without_rowid)
 
 TEST_F(StrictSqliteTable, add_index)
 {
-    table.setName(tableName.clone());
+    table.setName(tableName);
     auto &column = table.addColumn("name");
     auto &column2 = table.addColumn("value");
 
@@ -358,7 +358,7 @@ TEST_F(StrictSqliteTable, add_index)
 
 TEST_F(StrictSqliteTable, initialize_table)
 {
-    table.setName(tableName.clone());
+    table.setName(tableName);
     table.setUseIfNotExists(true);
     table.setUseTemporaryTable(true);
     table.setUseWithoutRowId(true);
@@ -375,7 +375,7 @@ TEST_F(StrictSqliteTable, initialize_table)
 TEST_F(StrictSqliteTable, initialize_table_with_index)
 {
     InSequence sequence;
-    table.setName(tableName.clone());
+    table.setName(tableName);
     auto &column = table.addColumn("name");
     auto &column2 = table.addColumn("value");
     table.addIndex({column});
@@ -395,7 +395,7 @@ TEST_F(StrictSqliteTable, initialize_table_with_index)
 TEST_F(StrictSqliteTable, initialize_table_with_unique_index)
 {
     InSequence sequence;
-    table.setName(tableName.clone());
+    table.setName(tableName);
     auto &column = table.addColumn("name");
     auto &column2 = table.addColumn("value");
     table.addUniqueIndex({column});
@@ -599,7 +599,7 @@ TEST_F(StrictSqliteTable, add_foreign_key_column_with_column_and_not_null)
 
 TEST_F(StrictSqliteTable, add_primary_table_contraint)
 {
-    table.setName(tableName.clone());
+    table.setName(tableName);
     const auto &idColumn = table.addColumn("id");
     const auto &nameColumn = table.addColumn("name");
     table.addPrimaryKeyContraint({idColumn, nameColumn});

@@ -145,7 +145,7 @@ public:
     {
         CreateTableSqlStatementBuilder<ColumnType> builder;
 
-        builder.setTableName(m_tableName.clone());
+        builder.setTableName(m_tableName);
         builder.setUseWithoutRowId(m_withoutRowId);
         builder.setUseIfNotExists(m_useIfNotExists);
         builder.setUseTemporaryTable(m_useTemporaryTable);

@@ -19,11 +19,11 @@ public:
         : m_sqlStatementBuilder(templateText())
     {}
 
-    void setTableName(Utils::SmallString &&tableName)
+    void setTableName(Utils::SmallStringView tableName)
     {
         m_sqlStatementBuilder.clear();
 
-        this->m_tableName = std::move(tableName);
+        this->m_tableName = tableName;
     }
 
     void addColumn(Utils::SmallStringView columnName,
@@ -291,7 +291,7 @@ private:
 
     void bindAll() const
     {
-        m_sqlStatementBuilder.bind("$table", m_tableName.clone());
+        m_sqlStatementBuilder.bind("$table", m_tableName);
 
         bindTemporary();
         bindIfNotExists();

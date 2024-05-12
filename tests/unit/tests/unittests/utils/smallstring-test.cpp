@@ -17,12 +17,12 @@ using Utils::SmallStringLiteral;
 using Utils::SmallStringView;
 
 static_assert(32 == sizeof(Utils::BasicSmallString<31>));
-static_assert(64 == sizeof(Utils::BasicSmallString<63>));
-static_assert(192 == sizeof(Utils::BasicSmallString<190>));
+static_assert(80 == sizeof(Utils::BasicSmallString<64>));
+static_assert(192 == sizeof(Utils::BasicSmallString<176>));
 
 static_assert(16 == alignof(Utils::BasicSmallString<31>));
-static_assert(16 == alignof(Utils::BasicSmallString<63>));
-static_assert(16 == alignof(Utils::BasicSmallString<190>));
+static_assert(16 == alignof(Utils::BasicSmallString<64>));
+static_assert(16 == alignof(Utils::BasicSmallString<192>));
 
 TEST(SmallString, basic_string_equal)
 {
@@ -135,33 +135,6 @@ TEST(SmallString, long_const_expression_small_string_is_reference)
     ASSERT_TRUE(longText.isReadOnlyReference());
 }
 
-TEST(SmallString, clone_short_small_string)
-{
-    SmallString shortText("short string");
-
-    auto clonedText = shortText.clone();
-
-    ASSERT_THAT(clonedText, Eq("short string"));
-}
-
-TEST(SmallString, clone_long_small_string)
-{
-    SmallString longText = SmallString::fromUtf8("very very very very very very very very very very very long string");
-
-    auto clonedText = longText.clone();
-
-    ASSERT_THAT(clonedText, Eq("very very very very very very very very very very very long string"));
-}
-
-TEST(SmallString, cloned_long_small_string_data_pointer_is_different)
-{
-    SmallString longText = SmallString::fromUtf8("very very very very very very very very very very very long string");
-
-    auto clonedText = longText.clone();
-
-    ASSERT_THAT(clonedText.data(), Ne(longText.data()));
-}
-
 TEST(SmallString, copy_short_const_expression_small_string_is_short_small_string)
 {
     SmallString shortText("short string");
@@ -252,13 +225,6 @@ TEST(SmallString, long_data_access)
     auto longText = SmallString::fromUtf8(longCString);
 
     ASSERT_THAT(longText, StrEq(longCString));
-}
-
-TEST(SmallString, long_small_string_has_short_small_string_size_zero)
-{
-    auto longText = SmallString::fromUtf8("very very very very very very very very very very very long string");
-
-    ASSERT_THAT(longText.shortStringSize(), 0);
 }
 
 TEST(SmallString, small_string_begin_is_equal_end_for_empty_small_string)
@@ -1922,7 +1888,7 @@ TEST(SmallString, string_plus_operator_reverse_order)
 TEST(SmallString, short_string_capacity)
 {
     ASSERT_THAT(SmallString().shortStringCapacity(), 31);
-    ASSERT_THAT(PathString().shortStringCapacity(), 190);
+    ASSERT_THAT(PathString().shortStringCapacity(), 176);
 }
 
 TEST(SmallString, to_view)

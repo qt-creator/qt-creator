@@ -19,10 +19,10 @@ public:
     SqlStatementBuilder(Utils::SmallStringView m_sqlTemplate);
 
     void bindEmptyText(Utils::SmallString &&name);
-    void bind(Utils::SmallString &&name, Utils::SmallString &&text);
-    void bind(Utils::SmallString &&name, const Utils::SmallStringVector &textVector);
-    void bind(Utils::SmallString &&name, int value);
-    void bind(Utils::SmallString &&name, const std::vector<int> &integerVector);
+    void bind(Utils::SmallStringView name, Utils::SmallStringView text);
+    void bind(Utils::SmallStringView name, const Utils::SmallStringVector &textVector);
+    void bind(Utils::SmallStringView name, int value);
+    void bind(Utils::SmallStringView name, const std::vector<int> &integerVector);
     void bindWithInsertTemplateParameters(Utils::SmallString &&name,
                                           const Utils::SmallStringVector &columns);
     void bindWithUpdateTemplateParameters(Utils::SmallString &&name,
@@ -56,8 +56,8 @@ protected:
                                           Utils::SmallString sqlTemplate);
 
 private:
-    Utils::BasicSmallString<510> m_sqlTemplate;
-    mutable Utils::BasicSmallString<510> m_sqlStatement;
+    Utils::BasicSmallString<496> m_sqlTemplate;
+    mutable Utils::BasicSmallString<496> m_sqlStatement;
     mutable std::vector<BindingPair> m_bindings;
 };
 
