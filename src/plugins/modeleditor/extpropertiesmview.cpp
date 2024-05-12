@@ -21,6 +21,8 @@
 #include <QMimeDatabase>
 #include <QImageReader>
 
+using Utils::FilePath;
+
 namespace ModelEditor {
 namespace Internal {
 
@@ -52,7 +54,7 @@ static QString imageNameFilterString()
 
 /// Constructs an absolute FilePath from \a relativePath which
 /// is interpreted as being relative to \a anchor.
-Utils::FilePath absoluteFromRelativePath(const Utils::FilePath &relativePath,
+FilePath absoluteFromRelativePath(const Utils::FilePath &relativePath,
                                          const Utils::FilePath &anchor)
 {
     QDir anchorDir = QFileInfo(anchor.path()).absoluteDir();
@@ -122,13 +124,13 @@ void ExtPropertiesMView::visitMObjectBehind(const qmt::MObject *object)
     }
     if (isSingleSelection) {
         if (!m_filelinkPathChooser->hasFocus()) {
-            QString path = object->linkedFileName();
+            Utils::FilePath path = object->linkedFileName();
             if (path.isEmpty()) {
                 m_filelinkPathChooser->setPath(QString());
             } else {
-                Utils::FilePath relativePath = Utils::FilePath::fromString(path);
+                Utils::FilePath relativePath = path;
                 Utils::FilePath projectPath = project->fileName();
-                QString filePath = absoluteFromRelativePath(relativePath, projectPath).toString();
+                QString filePath = absoluteFromRelativePath(relativePath, projectPath).toFSPathString();
                 m_filelinkPathChooser->setPath(filePath);
             }
         }
@@ -157,12 +159,12 @@ void ExtPropertiesMView::visitDObjectBefore(const qmt::DObject *object)
     }
     if (isSingleSelection) {
         if (!m_imagePathChooser->hasFocus()) {
-            QString path = object->imagePath();
+            Utils::FilePath path = object->imagePath();
             if (path.isEmpty()) {
                 m_imagePathChooser->setPath(QString());
             } else {
-                Utils::FilePath relativePath = Utils::FilePath::fromString(path);
-                QString filePath = absoluteFromRelativePath(relativePath, project->fileName()).toString();
+                Utils::FilePath relativePath = path;
+                QString filePath = absoluteFromRelativePath(relativePath, project->fileName()).toFSPathString();
                 m_imagePathChooser->setPath(filePath);
             }
         }
@@ -202,16 +204,24 @@ void ExtPropertiesMView::onFileLinkPathChanged(const QString &path)
 {
     qmt::Project *project = m_projectController->project();
     if (path.isEmpty()) {
-        assignModelElement<qmt::MObject, QString>(m_modelElements, SelectionSingle, QString(),
-                                                  &qmt::MObject::linkedFileName, &qmt::MObject::setLinkedFileName);
+        assignModelElement<qmt::MObject, Utils::FilePath>(
+            m_modelElements,
+            SelectionSingle,
+            {},
+            &qmt::MObject::linkedFileName,
+            &qmt::MObject::setLinkedFileName);
     } else {
         // make path relative to current project's directory
         Utils::FilePath filePath = Utils::FilePath::fromString(path);
         Utils::FilePath projectPath = project->fileName().absolutePath();
-        QString relativeFilePath = filePath.relativePathFrom(projectPath).toString();
+        Utils::FilePath relativeFilePath = filePath.relativePathFrom(projectPath);
         if (!relativeFilePath.isEmpty()) {
-            assignModelElement<qmt::MObject, QString>(m_modelElements, SelectionSingle, relativeFilePath,
-                                                      &qmt::MObject::linkedFileName, &qmt::MObject::setLinkedFileName);
+            assignModelElement<qmt::MObject, Utils::FilePath>(
+                m_modelElements,
+                SelectionSingle,
+                relativeFilePath,
+                &qmt::MObject::linkedFileName,
+                &qmt::MObject::setLinkedFileName);
         }
     }
 }
@@ -220,23 +230,30 @@ void ExtPropertiesMView::onImagePathChanged(const QString &path)
 {
     qmt::Project *project = m_projectController->project();
     if (path.isEmpty()) {
-        assignModelElement<qmt::DObject, QString>(m_diagramElements, SelectionSingle, QString(),
-                                                  &qmt::DObject::imagePath, &qmt::DObject::setImagePath);
+        assignModelElement<qmt::DObject, Utils::FilePath>(
+            m_diagramElements,
+            SelectionSingle,
+            {},
+            &qmt::DObject::imagePath,
+            &qmt::DObject::setImagePath);
         assignModelElement<qmt::DObject, QImage>(m_diagramElements, SelectionSingle, QImage(),
                                                  &qmt::DObject::image, &qmt::DObject::setImage);
     } else {
         // make path relative to current project's directory
         Utils::FilePath filePath = Utils::FilePath::fromString(path);
         Utils::FilePath projectPath = project->fileName().absolutePath();
-        QString relativeFilePath = filePath.relativePathFrom(projectPath).toString();
+        Utils::FilePath relativeFilePath = filePath.relativePathFrom(projectPath);
         if (!relativeFilePath.isEmpty()
-             && isValueChanged<qmt::DObject, QString>(m_diagramElements, SelectionSingle, relativeFilePath,
-                                                      &qmt::DObject::imagePath))
-        {
+            && isValueChanged<qmt::DObject, Utils::FilePath>(
+                m_diagramElements, SelectionSingle, relativeFilePath, &qmt::DObject::imagePath)) {
             QImage image;
             if (image.load(path)) {
-                assignModelElement<qmt::DObject, QString>(m_diagramElements, SelectionSingle, relativeFilePath,
-                                                          &qmt::DObject::imagePath, &qmt::DObject::setImagePath);
+                assignModelElement<qmt::DObject, Utils::FilePath>(
+                    m_diagramElements,
+                    SelectionSingle,
+                    relativeFilePath,
+                    &qmt::DObject::imagePath,
+                    &qmt::DObject::setImagePath);
                 assignModelElement<qmt::DObject, QImage>(m_diagramElements, SelectionSingle, image,
                                                          &qmt::DObject::image, &qmt::DObject::setImage);
             } else {

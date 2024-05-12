@@ -5,6 +5,8 @@
 
 #include <QDebug>
 
+using Utils::FilePath;
+
 namespace qmt {
 
 NameController::NameController(QObject *parent)
@@ -16,7 +18,7 @@ NameController::~NameController()
 {
 }
 
-QString NameController::convertFileNameToElementName(const Utils::FilePath &fileName)
+QString NameController::convertFileNameToElementName(const FilePath &fileName)
 {
     QString baseName = fileName.baseName().trimmed();
     QString elementName;
@@ -63,12 +65,12 @@ QString NameController::convertElementNameToBaseFileName(const QString &elementN
     return baseFileName;
 }
 
-Utils::FilePath NameController::calcRelativePath(const Utils::FilePath &absoluteFileName,
-                                                 const Utils::FilePath &anchorPath)
+FilePath NameController::calcRelativePath(const FilePath &absoluteFileName,
+                                          const FilePath &anchorPath)
 {
     // TODO try using Utils::FilePath::relativePath
-    QString absoluteFilePath = absoluteFileName.toString();
-    QString anchorPathString = anchorPath.toString();
+    QString absoluteFilePath = absoluteFileName.path();
+    QString anchorPathString = anchorPath.path();
     int secondLastSlashIndex = -1;
     int slashIndex = -1;
     int i = 0;
@@ -100,7 +102,7 @@ Utils::FilePath NameController::calcRelativePath(const Utils::FilePath &absolute
         relativePath = absoluteFilePath.mid(slashIndex + 1);
     }
 
-    return Utils::FilePath::fromString(relativePath);
+    return FilePath::fromString(relativePath);
 }
 
 QString NameController::calcElementNameSearchId(const QString &elementName)
@@ -113,7 +115,7 @@ QString NameController::calcElementNameSearchId(const QString &elementName)
     return searchId;
 }
 
-QStringList NameController::buildElementsPath(const Utils::FilePath &filePath,
+QStringList NameController::buildElementsPath(const FilePath &filePath,
                                               bool ignoreLastFilePathPart)
 {
     QList<QString> relativeElements;
@@ -123,7 +125,7 @@ QStringList NameController::buildElementsPath(const Utils::FilePath &filePath,
     if (ignoreLastFilePathPart || split.last().isEmpty())
         --splitEnd;
     for (auto it = split.constBegin(); it != splitEnd; ++it) {
-        QString packageName = qmt::NameController::convertFileNameToElementName(Utils::FilePath::fromString(*it));
+        QString packageName = qmt::NameController::convertFileNameToElementName(FilePath::fromString(*it));
         relativeElements.append(packageName);
     }
     return relativeElements;

@@ -9,6 +9,8 @@
 #include "qmt/project_controller/projectcontroller.h"
 #include "qmt/tasks/diagramscenecontroller.h"
 
+using Utils::FilePath;
+
 namespace ModelEditor {
 namespace Internal {
 
@@ -49,7 +51,7 @@ PxNodeController *ExtDocumentController::pxNodeController() const
     return d->pxNodeController;
 }
 
-void ExtDocumentController::onProjectFileNameChanged(const Utils::FilePath &fileName)
+void ExtDocumentController::onProjectFileNameChanged(const FilePath &fileName)
 {
     d->pxNodeController->setAnchorFolder(fileName.path());
 }

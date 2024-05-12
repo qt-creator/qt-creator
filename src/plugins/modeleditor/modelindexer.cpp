@@ -36,6 +36,8 @@
 #include <QPointer>
 
 using namespace ProjectExplorer;
+using Utils::FilePath;
+using Utils::FilePaths;
 
 namespace ModelEditor {
 namespace Internal {
@@ -275,7 +277,7 @@ void ModelIndexer::IndexerThread::onFilesQueued()
             qmt::ProjectSerializer projectSerializer;
             qmt::Project project;
             try {
-                projectSerializer.load(Utils::FilePath::fromString(queuedFile.file()), &project);
+                projectSerializer.load(FilePath::fromString(queuedFile.file()), &project);
             } catch (const qmt::Exception &e) {
                 qWarning() << e.errorMessage();
                 return;
@@ -375,13 +377,13 @@ void ModelIndexer::scanProject(ProjectExplorer::Project *project)
         return;
 
     // TODO harmonize following code with findFirstModel()?
-    const Utils::FilePaths files = project->files(ProjectExplorer::Project::SourceFiles);
+    const FilePaths files = project->files(ProjectExplorer::Project::SourceFiles);
     QQueue<QueuedFile> filesQueue;
     QSet<QueuedFile> filesSet;
 
     const Utils::MimeType modelMimeType = Utils::mimeTypeForName(Constants::MIME_TYPE_MODEL);
     if (modelMimeType.isValid()) {
-        for (const Utils::FilePath &file : files) {
+        for (const FilePath &file : files) {
             if (modelMimeType.suffixes().contains(file.completeSuffix())) {
                 QueuedFile queuedFile(file.toString(), project, file.lastModified());
                 filesQueue.append(queuedFile);
@@ -466,10 +468,10 @@ QString ModelIndexer::findFirstModel(ProjectExplorer::FolderNode *folderNode,
 
 void ModelIndexer::forgetProject(ProjectExplorer::Project *project)
 {
-    const Utils::FilePaths files = project->files(ProjectExplorer::Project::SourceFiles);
+    const FilePaths files = project->files(ProjectExplorer::Project::SourceFiles);
 
     QMutexLocker locker(&d->indexerMutex);
-    for (const Utils::FilePath &file : files) {
+    for (const FilePath &file : files) {
         const QString fileString = file.toString();
         // remove file from queue
         QueuedFile queuedFile(fileString, project);

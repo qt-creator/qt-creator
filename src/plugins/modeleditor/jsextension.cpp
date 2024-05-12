@@ -5,7 +5,9 @@
 
 #include <qmt/controller/namecontroller.h>
 
-QString ModelEditor::Internal::JsExtension::fileNameToElementName(const Utils::FilePath &file)
+using Utils::FilePath;
+
+QString ModelEditor::Internal::JsExtension::fileNameToElementName(const FilePath &file)
 {
     return qmt::NameController::convertFileNameToElementName(file);
 }

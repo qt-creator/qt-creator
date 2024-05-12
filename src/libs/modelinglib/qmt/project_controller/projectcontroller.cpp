@@ -10,6 +10,8 @@
 
 #include "../../modelinglibtr.h"
 
+using Utils::FilePath;
+
 namespace qmt {
 
 NoFileNameException::NoFileNameException()
@@ -31,7 +33,7 @@ ProjectController::~ProjectController()
 {
 }
 
-void ProjectController::newProject(const Utils::FilePath &fileName)
+void ProjectController::newProject(const FilePath &fileName)
 {
     m_project.reset(new Project());
     auto rootPackage = new MPackage();
@@ -43,7 +45,7 @@ void ProjectController::newProject(const Utils::FilePath &fileName)
     emit changed();
 }
 
-void ProjectController::setFileName(const Utils::FilePath &fileName)
+void ProjectController::setFileName(const FilePath &fileName)
 {
     if (fileName != m_project->fileName()) {
         m_project->setFileName(fileName);
@@ -82,7 +84,7 @@ void ProjectController::save()
     emit changed();
 }
 
-void ProjectController::saveAs(const Utils::FilePath &fileName)
+void ProjectController::saveAs(const FilePath &fileName)
 {
     setFileName(fileName);
     save();

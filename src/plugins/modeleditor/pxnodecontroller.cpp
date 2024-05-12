@@ -30,7 +30,7 @@
 #include <QMenu>
 #include <QQueue>
 
-using namespace Utils;
+using Utils::FilePath;
 
 namespace ModelEditor {
 namespace Internal {
@@ -146,7 +146,7 @@ void PxNodeController::addFileSystemEntry(const QString &filePath, int line, int
 {
     QMT_ASSERT(diagram, return);
 
-    QString elementName = qmt::NameController::convertFileNameToElementName(Utils::FilePath::fromString(filePath));
+    QString elementName = qmt::NameController::convertFileNameToElementName(FilePath::fromString(filePath));
 
     QFileInfo fileInfo(filePath);
     if (fileInfo.exists() && fileInfo.isFile()) {
@@ -212,7 +212,7 @@ qmt::MDiagram *PxNodeController::findDiagramForExplorerNode(const ProjectExplore
         return nullptr;
 
     QStringList relativeElements = qmt::NameController::buildElementsPath(
-        Utils::FilePath::fromString(d->pxnodeUtilities->calcRelativePath(node, d->anchorFolder)), false);
+        FilePath::fromString(d->pxnodeUtilities->calcRelativePath(node, d->anchorFolder)), false);
 
     QQueue<qmt::MPackage *> roots;
     roots.append(d->diagramSceneController->modelController()->rootPackage());
@@ -322,7 +322,7 @@ void PxNodeController::onMenuActionTriggered(PxNodeController::MenuAction *actio
             package->setStereotypes({action->stereotype});
         d->diagramSceneController->modelController()->undoController()->beginMergeSequence(Tr::tr("Create Component Model"));
         QStringList relativeElements = qmt::NameController::buildElementsPath(
-            Utils::FilePath::fromString(d->pxnodeUtilities->calcRelativePath(filePath, d->anchorFolder)), true);
+            FilePath::fromString(d->pxnodeUtilities->calcRelativePath(filePath, d->anchorFolder)), true);
         if (qmt::MObject *existingObject = d->pxnodeUtilities->findSameObject(relativeElements, package)) {
             delete package;
             package = dynamic_cast<qmt::MPackage *>(existingObject);
@@ -346,8 +346,8 @@ void PxNodeController::onMenuActionTriggered(PxNodeController::MenuAction *actio
         item->setName(action->elementName);
         item->setVariety(action->stereotype);
         item->setVarietyEditable(false);
-        Utils::FilePath filePath = Utils::FilePath::fromString(action->filePath);
-        item->setLinkedFileName(filePath.relativePathFrom(Utils::FilePath::fromString(d->anchorFolder)).toString());
+        FilePath filePath = FilePath::fromString(action->filePath);
+        item->setLinkedFileName(filePath.relativePathFrom(FilePath::fromString(d->anchorFolder)));
         newObject = item;
         dropInCurrentDiagram = true;
         break;
@@ -363,7 +363,7 @@ void PxNodeController::onMenuActionTriggered(PxNodeController::MenuAction *actio
         } else {
             qmt::MObject *parentForDiagram = nullptr;
             QStringList relativeElements = qmt::NameController::buildElementsPath(
-                Utils::FilePath::fromString(
+                FilePath::fromString(
                     d->pxnodeUtilities->calcRelativePath(filePath, d->anchorFolder)),
                 dynamic_cast<qmt::MPackage *>(newObject) != nullptr);
             if (qmt::MObject *existingObject = d->pxnodeUtilities->findSameObject(relativeElements, newObject)) {

@@ -58,7 +58,7 @@ inline void serialize(Archive &archive, qmt::Handles<T> &handles)
 template<class Archive>
 inline void save(Archive &archive, const Utils::FilePath &filePath)
 {
-    archive.write(filePath.toString());
+    archive.write(filePath.toFSPathString());
 }
 
 template<class Archive>
@@ -66,7 +66,7 @@ inline void load(Archive &archive, Utils::FilePath &filePath)
 {
     QString s;
     archive.read(&s);
-    filePath = Utils::FilePath::fromString(s);
+    filePath = Utils::FilePath::fromUserInput(s);
 }
 
 } // namespace qark

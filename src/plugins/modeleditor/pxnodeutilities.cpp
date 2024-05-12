@@ -20,6 +20,8 @@
 
 #include <typeinfo>
 
+using Utils::FilePath;
+
 namespace ModelEditor {
 namespace Internal {
 
@@ -51,8 +53,8 @@ QString PxNodeUtilities::calcRelativePath(const ProjectExplorer::Node *node,
             ? node->filePath().toFileInfo().path()
             : node->filePath().toString();
 
-    return qmt::NameController::calcRelativePath(Utils::FilePath::fromString(nodePath),
-                                                 Utils::FilePath::fromString(anchorFolder)).toString();
+    return qmt::NameController::calcRelativePath(FilePath::fromString(nodePath),
+                                                 FilePath::fromString(anchorFolder)).toString();
 }
 
 QString PxNodeUtilities::calcRelativePath(const QString &filePath, const QString &anchorFolder)
@@ -64,8 +66,8 @@ QString PxNodeUtilities::calcRelativePath(const QString &filePath, const QString
         path = fileInfo.path();
     else
         path = filePath;
-    return qmt::NameController::calcRelativePath(Utils::FilePath::fromString(path),
-                                                 Utils::FilePath::fromString(anchorFolder)).toString();
+    return qmt::NameController::calcRelativePath(FilePath::fromString(path),
+                                                 FilePath::fromString(anchorFolder)).toString();
 }
 
 qmt::MPackage *PxNodeUtilities::createBestMatchingPackagePath(
@@ -220,7 +222,7 @@ bool PxNodeUtilities::isProxyHeader(const QString &file) const
 {
     CPlusPlus::Snapshot snapshot = CppEditor::CppModelManager::snapshot();
 
-    CPlusPlus::Document::Ptr document = snapshot.document(Utils::FilePath::fromString(file));
+    CPlusPlus::Document::Ptr document = snapshot.document(FilePath::fromString(file));
     if (document) {
         QList<CPlusPlus::Document::Include> includes = document->resolvedIncludes();
         if (includes.count() != 1)

@@ -10,7 +10,9 @@
 #include "qmt/stereotype/stereotypecontroller.h"
 
 #include <QDebug>
-#include <QFile>
+
+using Utils::FilePath;
+using Utils::FilePaths;
 
 namespace qmt {
 
@@ -36,7 +38,7 @@ void ConfigController::setStereotypeController(StereotypeController *stereotypeC
     d->m_stereotypeController = stereotypeController;
 }
 
-void ConfigController::readStereotypeDefinitions(const Utils::FilePath &path)
+void ConfigController::readStereotypeDefinitions(const FilePath &path)
 {
     if (path.isEmpty()) {
         // TODO add error handling
@@ -51,7 +53,7 @@ void ConfigController::readStereotypeDefinitions(const Utils::FilePath &path)
     connect(&parser, &StereotypeDefinitionParser::toolbarParsed,
             this, &ConfigController::onToolbarParsed);
 
-    Utils::FilePaths paths;
+    FilePaths paths;
     if (path.isFile()) {
         paths.append(path);
     } else if (path.isDir()) {
@@ -60,11 +62,10 @@ void ConfigController::readStereotypeDefinitions(const Utils::FilePath &path)
         // TODO add error handling
         return;
     }
-    for (const auto &filePath : std::as_const(paths)) {
-        QFile file(filePath.toString());
-        if (file.open(QIODevice::ReadOnly)) {
-            QString text = QString::fromUtf8(file.readAll());
-            file.close();
+    for (const FilePath &filePath : std::as_const(paths)) {
+        auto data = filePath.fileContents();
+        if (data.has_value()) {
+            QString text = QString::fromUtf8(data.value());
             StringTextSource source;
             source.setSourceId(1);
             source.setText(text);

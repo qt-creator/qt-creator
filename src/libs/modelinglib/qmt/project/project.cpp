@@ -3,6 +3,8 @@
 
 #include "project.h"
 
+using Utils::FilePath;
+
 namespace qmt {
 
 Project::Project()
@@ -23,7 +25,7 @@ bool Project::hasFileName() const
     return !m_fileName.isEmpty();
 }
 
-void Project::setFileName(const Utils::FilePath &fileName)
+void Project::setFileName(const FilePath &fileName)
 {
     m_fileName = fileName;
 }
@@ -33,7 +35,7 @@ void Project::setRootPackage(MPackage *rootPackage)
     m_rootPackage = rootPackage;
 }
 
-void Project::setConfigPath(const Utils::FilePath &configPath)
+void Project::setConfigPath(const FilePath &configPath)
 {
     m_configPath = configPath;
 }

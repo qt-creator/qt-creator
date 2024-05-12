@@ -40,6 +40,7 @@
 
 using namespace Core;
 using namespace CppEditor;
+using Utils::FilePath;
 
 namespace ModelEditor {
 namespace Internal {
@@ -401,11 +402,11 @@ void ElementTasks::createAndOpenDiagram(const qmt::DElement *element, const qmt:
     createAndOpenDiagram(melement);
 }
 
-Utils::FilePath ElementTasks::linkedFile(const qmt::MObject *mobject) const
+FilePath ElementTasks::linkedFile(const qmt::MObject *mobject) const
 {
-    Utils::FilePath filepath = Utils::FilePath::fromString(mobject->linkedFileName());
+    FilePath filepath = mobject->linkedFileName();
     if (!filepath.isEmpty()) {
-        Utils::FilePath projectName = d->documentController->projectController()->project()->fileName();
+        FilePath projectName = d->documentController->projectController()->project()->fileName();
         filepath = projectName.absolutePath().resolvePath(filepath).canonicalPath();
     }
     return filepath;
@@ -414,7 +415,7 @@ Utils::FilePath ElementTasks::linkedFile(const qmt::MObject *mobject) const
 bool ElementTasks::hasLinkedFile(const qmt::MElement *element) const
 {
     if (auto mobject = dynamic_cast<const qmt::MObject *>(element)) {
-        Utils::FilePath filepath = linkedFile(mobject);
+        FilePath filepath = linkedFile(mobject);
         if (!filepath.isEmpty())
             return filepath.exists();
     }
@@ -434,16 +435,16 @@ bool ElementTasks::hasLinkedFile(const qmt::DElement *element, const qmt::MDiagr
 void ElementTasks::openLinkedFile(const qmt::MElement *element)
 {
     if (auto mobject = dynamic_cast<const qmt::MObject *>(element)) {
-        Utils::FilePath filepath = linkedFile(mobject);
+        FilePath filepath = linkedFile(mobject);
         if (!filepath.isEmpty()) {
             if (filepath.exists()) {
                 Core::EditorFactories list = Core::IEditorFactory::preferredEditorFactories(filepath);
                 if (list.empty() || (list.count() <= 1 && list.at(0)->id() == "Core.BinaryEditor")) {
                     // intentionally ignore return code
-                    (void) Core::EditorManager::instance()->openExternalEditor(filepath, "CorePlugin.OpenWithSystemEditor");
+                    (void) Core::EditorManager::openExternalEditor(filepath, "CorePlugin.OpenWithSystemEditor");
                 } else {
                     // intentionally ignore return code
-                    (void) Core::EditorManager::instance()->openEditor(filepath);
+                    (void) Core::EditorManager::openEditor(filepath);
                 }
             } else {
                 QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("Opening File"),

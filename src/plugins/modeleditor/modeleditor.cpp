@@ -615,7 +615,7 @@ void ModelEditor::exportToImage(bool selectedElements)
         QString fileName = FileUtils::getSaveFilePath(
                     nullptr,
                     selectedElements ? Tr::tr("Export Selected Elements") : Tr::tr("Export Diagram"),
-                    FilePath::fromString(d->lastExportDirPath), filter).toString();
+                    FilePath::fromString(d->lastExportDirPath), filter).toFSPathString();
         if (!fileName.isEmpty()) {
             qmt::DocumentController *documentController = d->document->documentController();
             qmt::DiagramSceneModel *sceneModel = documentController->diagramsManager()->diagramSceneModel(diagram);
@@ -1150,8 +1150,13 @@ void ModelEditor::initToolbars()
                 if (!tool.m_stereotype.isEmpty() && stereotypeIconElement != qmt::StereotypeIcon::ElementAny) {
                     const qmt::Style *style = documentController->styleController()->adaptStyle(styleEngineElementType);
                     icon = stereotypeController->createIcon(
-                                stereotypeIconElement, {tool.m_stereotype},
-                                QString(), style, QSize(128, 128), QMarginsF(6.0, 4.0, 6.0, 8.0), 8.0);
+                        stereotypeIconElement,
+                        {tool.m_stereotype},
+                        {},
+                        style,
+                        QSize(128, 128),
+                        QMarginsF(6.0, 4.0, 6.0, 8.0),
+                        8.0);
                     if (!icon.isNull()) {
                         QString stereotypeIconId = stereotypeController->findStereotypeIconId(
                                     stereotypeIconElement, {tool.m_stereotype});

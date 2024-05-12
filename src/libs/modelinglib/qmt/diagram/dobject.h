@@ -7,6 +7,8 @@
 
 #include "qmt/infrastructure/uid.h"
 
+#include <utils/filepath.h>
+
 #include <QImage>
 #include <QList>
 #include <QPointF>
@@ -81,8 +83,8 @@ public:
     void setVisualEmphasized(bool visualEmphasized);
     bool hasLinkedFile() const { return m_hasLinkedFile; }
     void setLinkedFile(bool linkedFile);
-    QString imagePath() const { return m_imagePath; }
-    void setImagePath(const QString &path);
+    Utils::FilePath imagePath() const { return m_imagePath; }
+    void setImagePath(const Utils::FilePath &path);
     bool hasImage() const;
     QImage image() const { return m_image; }
     void setImage(const QImage &image);
@@ -104,7 +106,7 @@ private:
     bool m_isAutoSized = true;
     bool m_isVisualEmphasized = false;
     bool m_hasLinkedFile = false;
-    QString m_imagePath;
+    Utils::FilePath m_imagePath;
     QImage m_image;
 };
 

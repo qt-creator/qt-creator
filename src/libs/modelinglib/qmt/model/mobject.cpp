@@ -8,6 +8,8 @@
 #include "mvisitor.h"
 #include "mconstvisitor.h"
 
+using Utils::FilePath;
+
 namespace qmt {
 
 MObject::MObject()
@@ -46,7 +48,7 @@ void MObject::setName(const QString &name)
     m_name = name;
 }
 
-void MObject::setLinkedFileName(const QString &linkedfilename)
+void MObject::setLinkedFileName(const FilePath &linkedfilename)
 {
     m_linkedfilename = linkedfilename;
 }

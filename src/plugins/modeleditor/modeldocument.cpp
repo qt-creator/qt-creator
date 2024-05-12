@@ -19,6 +19,8 @@
 #include <utils/id.h>
 #include <utils/fileutils.h>
 
+using Utils::FilePath;
+
 namespace ModelEditor {
 namespace Internal {
 
@@ -43,8 +45,8 @@ ModelDocument::~ModelDocument()
 }
 
 Core::IDocument::OpenResult ModelDocument::open(QString *errorString,
-                                                const Utils::FilePath &filePath,
-                                                const Utils::FilePath &realFilePath)
+                                                const FilePath &filePath,
+                                                const FilePath &realFilePath)
 {
     Q_UNUSED(filePath)
 
@@ -52,7 +54,7 @@ Core::IDocument::OpenResult ModelDocument::open(QString *errorString,
     return result;
 }
 
-bool ModelDocument::saveImpl(QString *errorString, const Utils::FilePath &filePath, bool autoSave)
+bool ModelDocument::saveImpl(QString *errorString, const FilePath &filePath, bool autoSave)
 {
     if (!d->documentController) {
         *errorString = Tr::tr("No model loaded. Cannot save.");
@@ -117,7 +119,7 @@ ExtDocumentController *ModelDocument::documentController() const
     return d->documentController;
 }
 
-Core::IDocument::OpenResult ModelDocument::load(QString *errorString, const Utils::FilePath &fileName)
+Core::IDocument::OpenResult ModelDocument::load(QString *errorString, const FilePath &fileName)
 {
     d->documentController = ModelEditorPlugin::modelsManager()->createModel(this);
     connect(d->documentController, &qmt::DocumentController::changed, this, &IDocument::changed);
@@ -133,9 +135,9 @@ Core::IDocument::OpenResult ModelDocument::load(QString *errorString, const Util
         return OpenResult::CannotHandle;
     }
 
-    Utils::FilePath configPath = d->documentController->projectController()->project()->configPath();
+    FilePath configPath = d->documentController->projectController()->project()->configPath();
     if (!configPath.isEmpty()) {
-        Utils::FilePath canonicalPath =fileName.absolutePath().resolvePath(configPath);
+        FilePath canonicalPath =fileName.absolutePath().resolvePath(configPath);
         if (!canonicalPath.isEmpty()) {
             // TODO error output on reading definition files
             d->documentController->configController()->readStereotypeDefinitions(canonicalPath);

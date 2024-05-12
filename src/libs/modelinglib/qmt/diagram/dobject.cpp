@@ -6,11 +6,11 @@
 #include "dvisitor.h"
 #include "dconstvisitor.h"
 
+using Utils::FilePath;
+
 namespace qmt {
 
-DObject::DObject()
-{
-}
+DObject::DObject() {}
 
 DObject::DObject(const DObject &rhs)
     : DElement(rhs),
@@ -129,7 +129,7 @@ bool DObject::hasImage() const
     return !m_image.isNull();
 }
 
-void DObject::setImagePath(const QString &path)
+void DObject::setImagePath(const FilePath &path)
 {
     m_imagePath = path;
 }

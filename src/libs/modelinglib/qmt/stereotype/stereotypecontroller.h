@@ -5,6 +5,8 @@
 
 #include "stereotypeicon.h"
 
+#include <utils/filepath.h>
+
 #include <QMarginsF>
 #include <QObject>
 
@@ -34,9 +36,13 @@ public:
     StereotypeIcon findStereotypeIcon(const QString &stereotypeIconId) const;
     CustomRelation findCustomRelation(const QString &customRelationId) const;
     CustomRelation findCustomRelationByStereotype(const QString &steoreotype) const;
-    QIcon createIcon(StereotypeIcon::Element element, const QList<QString> &stereotypes,
-                     const QString &defaultIconPath, const Style *style,
-                     const QSize &size, const QMarginsF &margins, qreal lineWidth);
+    QIcon createIcon(StereotypeIcon::Element element,
+                     const QList<QString> &stereotypes,
+                     const Utils::FilePath &defaultIconPath,
+                     const Style *style,
+                     const QSize &size,
+                     const QMarginsF &margins,
+                     qreal lineWidth);
 
     void addStereotypeIcon(const StereotypeIcon &stereotypeIcon);
     void addCustomRelation(const CustomRelation &customRelation);
