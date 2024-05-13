@@ -1173,7 +1173,7 @@ void Client::documentContentsSaved(TextEditor::TextDocument *document)
                 includeText = saveOptions->includeText().value_or(includeText);
         }
     }
-    if (!send)
+    if (!send || !shouldSendDidSave(document))
         return;
     DidSaveTextDocumentParams params(
                 TextDocumentIdentifier(hostPathToServerUri(document->filePath())));

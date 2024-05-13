@@ -235,6 +235,7 @@ private:
                                       const Utils::FilePath &candidate);
     virtual QList<Utils::Text::Range> additionalDocumentHighlights(
         TextEditor::TextEditorWidget *, const QTextCursor &) { return {}; }
+    virtual bool shouldSendDidSave(const TextEditor::TextDocument *) const { return true; }
 };
 
 } // namespace LanguageClient

@@ -46,6 +46,7 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
@@ -765,6 +766,15 @@ QList<Text::Range> ClangdClient::additionalDocumentHighlights(
 {
     return CppEditor::symbolOccurrencesInDeclarationComments(
         qobject_cast<CppEditor::CppEditorWidget *>(editorWidget), cursor);
+}
+
+bool ClangdClient::shouldSendDidSave(const TextEditor::TextDocument *doc) const
+{
+    for (const Project * const p : ProjectManager::projects()) {
+        if (const Node * const n  = p->nodeForFilePath(doc->filePath()))
+            return n->asFileNode() && n->asFileNode()->fileType() == FileType::Header;
+    }
+    return CppEditor::ProjectFile::isHeader(doc->filePath());
 }
 
 RefactoringFilePtr ClangdClient::createRefactoringFile(const FilePath &filePath) const
