@@ -176,13 +176,9 @@ void AssetsLibraryWidget::deleteSelectedAssets()
 QString AssetsLibraryWidget::getUniqueEffectPath(const QString &parentFolder, const QString &effectName)
 {
     QString effectsDir = ModelNodeOperations::getEffectsDefaultDirectory(parentFolder);
-    QString effectPathTemplate = effectsDir + QLatin1String("/%1.qep");
+    QString effectPath = QLatin1String("%1/%2.qep").arg(effectsDir, effectName);
 
-    QString uniqueName = UniqueName::get(effectName, [&] (const QString &name) {
-        return !QFile::exists(effectPathTemplate.arg(name));
-    });
-
-    return effectPathTemplate.arg(uniqueName);
+    return UniqueName::getPath(effectPath);
 }
 
 bool AssetsLibraryWidget::createNewEffect(const QString &effectPath, bool openInEffectComposer)

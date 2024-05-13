@@ -154,20 +154,15 @@ bool AssetsLibraryModel::renameFolder(const QString &folderPath, const QString &
 
 QString AssetsLibraryModel::addNewFolder(const QString &folderPath)
 {
-    Utils::FilePath dir = Utils::FilePath::fromString(folderPath);
-    Utils::FilePath parentDir = dir.parentDir();
+    Utils::FilePath uniqueDirPath = Utils::FilePath::fromString(UniqueName::getPath(folderPath));
 
-    QString uniqueFolderName = UniqueName::get(dir.fileName(), [&] (const QString &folderName) {
-        return !parentDir.pathAppended(folderName).exists();
-    });
-
-    auto res = parentDir.pathAppended(uniqueFolderName).ensureWritableDir();
+    auto res = uniqueDirPath.ensureWritableDir();
     if (!res.has_value()) {
         qWarning() << __FUNCTION__ << res.error();
         return {};
     }
 
-    return uniqueFolderName;
+    return uniqueDirPath.path();
 }
 
 bool AssetsLibraryModel::urlPathExistsInModel(const QUrl &url) const

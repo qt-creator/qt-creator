@@ -11,6 +11,7 @@ class UniqueName
 {
 public:
     static QString get(const QString &oldName, std::function<bool(const QString &)> predicate);
+    static QString getPath(const QString &oldName);
 
 private:
     static QString nextName(const QString &oldName);
