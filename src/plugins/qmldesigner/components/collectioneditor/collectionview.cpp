@@ -17,6 +17,7 @@
 #include "qmldesignerplugin.h"
 #include "variantproperty.h"
 
+#include <designercore/generatedcomponentutils.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
@@ -77,8 +78,7 @@ CollectionView::CollectionView(ExternalDependenciesInterface &externalDependenci
     : AbstractView(externalDependencies)
     , m_dataStore(std::make_unique<DataStoreModelNode>())
 
-{
-}
+{}
 
 CollectionView::~CollectionView() = default;
 
@@ -330,7 +330,8 @@ void CollectionView::resetDataStoreNode()
     if (!m_widget)
         return;
 
-    m_dataStore->reloadModel();
+    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+    m_dataStore->reloadModel(compUtils.projectModulePath());
 
     ModelNode dataStore = dataStoreNode();
     m_widget->setDataStoreExists(dataStore.isValid());
@@ -354,6 +355,7 @@ void CollectionView::resetDataStoreNode()
 
     if (dataStoreSingletonFound) {
         m_widget->listModel()->setDataStoreNode(dataStore);
+        m_widget->collectionDetailsModel()->setJsonFilePath(m_dataStore->jsonFilePath());
         m_dataStoreTypeFound = true;
         resetPuppet();
 
@@ -374,7 +376,7 @@ ModelNode CollectionView::dataStoreNode() const
 void CollectionView::ensureDataStoreExists()
 {
     bool filesJustCreated = false;
-    bool filesExist = CollectionEditorUtils::ensureDataStoreExists(filesJustCreated);
+    bool filesExist = createDataStore(filesJustCreated);
     if (filesExist && filesJustCreated) {
         // Force code model reset to notice changes to existing module
         if (auto modelManager = QmlJS::ModelManagerInterface::instance())
@@ -409,6 +411,103 @@ void CollectionView::unloadDataStore()
         m_widget->setDataStoreExists(dataStoreNode().isValid());
         m_widget->listModel()->setDataStoreNode();
     }
+}
+
+bool CollectionView::createDataStore(bool &justCreated) const
+{
+    using Utils::FilePath;
+    using Utils::FileReader;
+    using Utils::FileSaver;
+    using namespace Qt::StringLiterals;
+
+    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+    FilePath projectModulePath = compUtils.projectModulePath(true);
+
+    FilePath qmlTargetPath = projectModulePath.resolvePath(
+        CollectionEditorConstants::DEFAULT_DATASTORE_QML_FILENAME.toString());
+    justCreated = false;
+
+    auto extractDependency = [&justCreated](const FilePath &filePath) -> bool {
+        if (filePath.exists())
+            return true;
+
+        const QString templateFileName = filePath.fileName() + u".tpl";
+        const FilePath templatePath = CollectionEditorUtils::findFile(Core::ICore::resourcePath(),
+                                                                      templateFileName);
+        if (!templatePath.exists()) {
+            qWarning() << Q_FUNC_INFO << __LINE__ << templateFileName << "does not exist";
+            return false;
+        }
+
+        if (!filePath.parentDir().ensureWritableDir()) {
+            qWarning() << Q_FUNC_INFO << __LINE__ << "Cannot create directory"
+                       << filePath.parentDir();
+            return false;
+        }
+
+        if (templatePath.copyFile(filePath)) {
+            justCreated = true;
+            return true;
+        }
+
+        qWarning() << Q_FUNC_INFO << __LINE__ << "Cannot copy" << templateFileName << "to" << filePath;
+        return false;
+    };
+
+    if (!extractDependency(projectModulePath.resolvePath(
+            CollectionEditorConstants::DEFAULT_MODELS_JSON_FILENAME.toString()))) {
+        return false;
+    }
+
+    if (!extractDependency(projectModulePath.resolvePath(
+            CollectionEditorConstants::DEFAULT_DATA_JSON_FILENAME.toString()))) {
+        return false;
+    }
+
+    if (!extractDependency(projectModulePath.resolvePath(
+            CollectionEditorConstants::DEFAULT_JSONDATA_QML_FILENAME.toString()))) {
+        return false;
+    }
+
+    if (!qmlTargetPath.exists()) {
+        if (qmlTargetPath.ensureExistingFile()) {
+            justCreated = true;
+        } else {
+            qWarning() << Q_FUNC_INFO << __LINE__ << "Can't create DataStore Qml File";
+            return false;
+        }
+    }
+
+    FilePath qmlDirPath = projectModulePath.resolvePath("qmldir"_L1);
+    qmlDirPath.ensureExistingFile();
+
+    FileReader qmlDirReader;
+    if (!qmlDirReader.fetch(qmlDirPath)) {
+        qWarning() << Q_FUNC_INFO << __LINE__ << "Can't read the content of the qmldir";
+        return false;
+    }
+
+    QByteArray qmlDirContent = qmlDirReader.data();
+    const QList<QByteArray> qmlDirLines = qmlDirContent.split('\n');
+    for (const QByteArray &line : qmlDirLines) {
+        if (line.startsWith("singleton DataStore "))
+            return true;
+    }
+
+    if (!qmlDirContent.isEmpty() && qmlDirContent.back() != '\n')
+        qmlDirContent.append("\n");
+    qmlDirContent.append("singleton DataStore 1.0 DataStore.qml\n");
+
+    FileSaver qmlDirSaver(qmlDirPath);
+    qmlDirSaver.write(qmlDirContent);
+
+    if (qmlDirSaver.finalize()) {
+        justCreated = true;
+        return true;
+    }
+
+    qWarning() << Q_FUNC_INFO << __LINE__ << "Can't write to the qmldir file";
+    return false;
 }
 
 void CollectionView::ensureStudioModelImport()

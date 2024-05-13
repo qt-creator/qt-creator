@@ -2,10 +2,35 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "generatedcomponentutils.h"
-
 #include <qmldesignerconstants.h>
 
 namespace QmlDesigner {
+
+bool couldBeProjectModule(const Utils::FilePath &path, const QString &projectName)
+{
+    if (!path.exists())
+        return false;
+
+    Utils::FilePath qmlDirPath = path.pathAppended("qmldir");
+    if (qmlDirPath.exists()) {
+        Utils::expected_str<QByteArray> qmldirContents = qmlDirPath.fileContents();
+        if (!qmldirContents.has_value())
+            return false;
+
+        const QString expectedLine = QLatin1String("module %1").arg(projectName);
+        QByteArray fileContents = qmldirContents.value();
+        QTextStream stream(fileContents);
+        while (!stream.atEnd()) {
+            QString lineData = stream.readLine().trimmed();
+            if (lineData.startsWith(u"module "))
+                return lineData == expectedLine;
+        }
+    }
+    if (path.endsWith(projectName))
+        return true;
+
+    return false;
+}
 
 GeneratedComponentUtils::GeneratedComponentUtils(ExternalDependenciesInterface &externalDependencies)
     : m_externalDependencies(externalDependencies)
@@ -104,6 +129,36 @@ Utils::FilePath GeneratedComponentUtils::effectBundlePath() const
         return basePath.resolvePath(QLatin1String(Constants::OLD_COMPONENT_BUNDLES_EFFECT_BUNDLE_TYPE));
 
     return basePath.resolvePath(QLatin1String(Constants::COMPONENT_BUNDLES_EFFECT_BUNDLE_TYPE));
+}
+
+Utils::FilePath GeneratedComponentUtils::projectModulePath(bool generateIfNotExists) const
+{
+    using Utils::FilePath;
+    FilePath projectPath = FilePath::fromString(m_externalDependencies.currentProjectDirPath());
+
+    if (projectPath.isEmpty())
+        return {};
+
+    const QString projectName = m_externalDependencies.projectName();
+
+    FilePath newImportDirectory = projectPath.pathAppended(projectName);
+    if (couldBeProjectModule(newImportDirectory, projectName))
+        return newImportDirectory;
+
+    FilePath oldImportDirectory = projectPath.resolvePath(QLatin1String("imports/") + projectName);
+    if (couldBeProjectModule(oldImportDirectory, projectName))
+        return oldImportDirectory;
+
+    for (const QString &path : m_externalDependencies.projectModulePaths()) {
+        FilePath dir = FilePath::fromString(path);
+        if (couldBeProjectModule(dir, projectName))
+            return dir;
+    }
+
+    if (generateIfNotExists)
+        newImportDirectory.createDir();
+
+    return newImportDirectory;
 }
 
 bool GeneratedComponentUtils::isImport3dPath(const QString &path) const

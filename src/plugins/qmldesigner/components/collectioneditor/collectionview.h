@@ -23,6 +23,7 @@ class CollectionListModel;
 class CollectionTask;
 class CollectionWidget;
 class DataStoreModelNode;
+class GeneratedComponentUtils;
 
 class CollectionView : public AbstractView
 {
@@ -69,6 +70,7 @@ private:
 
     NodeMetaInfo jsonCollectionMetaInfo() const;
     void unloadDataStore();
+    bool createDataStore(bool &justCreated) const;
     void ensureStudioModelImport();
     void onItemLibraryNodeCreated(const ModelNode &node);
     void addTask(QSharedPointer<CollectionTask> task);

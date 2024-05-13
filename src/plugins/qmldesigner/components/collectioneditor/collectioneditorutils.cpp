@@ -4,9 +4,11 @@
 #include "collectioneditorutils.h"
 
 #include "collectiondatatypemodel.h"
+#include "collectioneditorconstants.h"
 #include "model.h"
 #include "nodemetainfo.h"
 #include "propertymetainfo.h"
+#include "variantproperty.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
@@ -73,47 +75,6 @@ struct LessThanVisitor
     }
 };
 
-Utils::FilePath findFile(const Utils::FilePath &path, const QString &fileName)
-{
-    QDirIterator it(path.toString(), QDirIterator::Subdirectories);
-
-    while (it.hasNext()) {
-        QFileInfo file(it.next());
-        if (file.isDir())
-            continue;
-
-        if (file.fileName() == fileName)
-            return Utils::FilePath::fromFileInfo(file);
-    }
-    return {};
-}
-
-Utils::FilePath dataStoreDir()
-{
-    using Utils::FilePath;
-    ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectManager::startupProject();
-
-    if (!currentProject)
-        return {};
-
-    FilePath oldImportDirectory = currentProject->projectDirectory().pathAppended(
-        "imports/" + currentProject->displayName());
-    if (oldImportDirectory.exists())
-        return oldImportDirectory;
-
-    return currentProject->projectDirectory().pathAppended(currentProject->displayName());
-}
-
-inline Utils::FilePath collectionPath(const QString &filePath)
-{
-    return dataStoreDir().pathAppended(filePath);
-}
-
-inline Utils::FilePath qmlDirFilePath()
-{
-    return collectionPath("qmldir");
-}
-
 } // namespace
 
 namespace QmlDesigner::CollectionEditorUtils {
@@ -121,25 +82,6 @@ namespace QmlDesigner::CollectionEditorUtils {
 bool variantIslessThan(const QVariant &a, const QVariant &b, DataType type)
 {
     return std::visit(LessThanVisitor{}, valueToVariant(a, type), valueToVariant(b, type));
-}
-
-QString getSourceCollectionType(const ModelNode &node)
-{
-    using namespace QmlDesigner;
-    if (node.type() == CollectionEditorConstants::JSONCOLLECTIONMODEL_TYPENAME)
-        return "json";
-
-    return {};
-}
-
-Utils::FilePath dataStoreJsonFilePath()
-{
-    return collectionPath("models.json");
-}
-
-Utils::FilePath dataStoreQmlFilePath()
-{
-    return collectionPath("DataStore.qml");
 }
 
 bool canAcceptCollectionAsModel(const ModelNode &node)
@@ -176,114 +118,23 @@ QString getSourceCollectionPath(const ModelNode &dataStoreNode)
     if (!dataStoreNode.isValid())
         return {};
 
-    const FilePath expectedFile = dataStoreJsonFilePath();
+    const QUrl dataStoreUrl = dataStoreNode.model()->fileUrl();
+    QUrl sourceValue = dataStoreNode.property("source").toVariantProperty().value().toUrl();
 
-    if (expectedFile.exists())
+    QUrl sourceUrl = sourceValue.isRelative() ? dataStoreUrl.resolved(sourceValue) : sourceValue;
+
+    const FilePath expectedFile = FilePath::fromUrl(sourceUrl);
+
+    if (expectedFile.isFile() && expectedFile.exists())
         return expectedFile.toFSPathString();
 
+    const FilePath defaultJsonFile = FilePath::fromUrl(
+        dataStoreUrl.resolved(CollectionEditorConstants::DEFAULT_MODELS_JSON_FILENAME.toString()));
+
+    if (defaultJsonFile.exists())
+        return defaultJsonFile.toFSPathString();
+
     return {};
-}
-
-bool isDataStoreNode(const ModelNode &dataStoreNode)
-{
-    using Utils::FilePath;
-
-    if (!dataStoreNode.isValid())
-        return false;
-
-    const FilePath expectedFile = dataStoreQmlFilePath();
-
-    if (!expectedFile.exists())
-        return false;
-
-    FilePath modelPath = FilePath::fromUserInput(dataStoreNode.model()->fileUrl().toLocalFile());
-
-    return modelPath.isSameFile(expectedFile);
-}
-
-bool ensureDataStoreExists(bool &justCreated)
-{
-    using Utils::FilePath;
-    using Utils::FileReader;
-    using Utils::FileSaver;
-
-    FilePath qmlDestinationPath = dataStoreQmlFilePath();
-    justCreated = false;
-
-    auto extractDependency = [&justCreated](const FilePath &filePath) -> bool {
-        if (filePath.exists())
-            return true;
-
-        const QString templateFileName = filePath.fileName() + u".tpl";
-        const FilePath templatePath = findFile(Core::ICore::resourcePath(), templateFileName);
-        if (!templatePath.exists()) {
-            qWarning() << Q_FUNC_INFO << __LINE__ << templateFileName << "does not exist";
-            return false;
-        }
-
-        if (!filePath.parentDir().ensureWritableDir()) {
-            qWarning() << Q_FUNC_INFO << __LINE__ << "Cannot create directory"
-                       << filePath.parentDir();
-            return false;
-        }
-
-        if (templatePath.copyFile(filePath)) {
-            justCreated = true;
-            return true;
-        }
-
-        qWarning() << Q_FUNC_INFO << __LINE__ << "Cannot copy" << templateFileName << "to" << filePath;
-        return false;
-    };
-
-    if (!extractDependency(dataStoreJsonFilePath()))
-        return false;
-
-    if (!extractDependency(collectionPath("data.json")))
-        return false;
-
-    if (!extractDependency(collectionPath("JsonData.qml")))
-        return false;
-
-    if (!qmlDestinationPath.exists()) {
-        if (qmlDestinationPath.ensureExistingFile()) {
-            justCreated = true;
-        } else {
-            qWarning() << Q_FUNC_INFO << __LINE__ << "Can't create DataStore Qml File";
-            return false;
-        }
-    }
-
-    FilePath qmlDirPath = qmlDirFilePath();
-    qmlDirPath.ensureExistingFile();
-
-    FileReader qmlDirReader;
-    if (!qmlDirReader.fetch(qmlDirPath)) {
-        qWarning() << Q_FUNC_INFO << __LINE__ << "Can't read the content of the qmldir";
-        return false;
-    }
-
-    QByteArray qmlDirContent = qmlDirReader.data();
-    const QList<QByteArray> qmlDirLines = qmlDirContent.split('\n');
-    for (const QByteArray &line : qmlDirLines) {
-        if (line.startsWith("singleton DataStore "))
-            return true;
-    }
-
-    if (!qmlDirContent.isEmpty() && qmlDirContent.back() != '\n')
-        qmlDirContent.append("\n");
-    qmlDirContent.append("singleton DataStore 1.0 DataStore.qml\n");
-
-    FileSaver qmlDirSaver(qmlDirPath);
-    qmlDirSaver.write(qmlDirContent);
-
-    if (qmlDirSaver.finalize()) {
-        justCreated = true;
-        return true;
-    }
-
-    qWarning() << Q_FUNC_INFO << __LINE__ << "Can't write to the qmldir file";
-    return false;
 }
 
 QJsonObject defaultCollection()
@@ -335,6 +186,21 @@ QJsonObject defaultColorCollection()
 
     const CollectionDetails collection = collections.first();
     return collection.toLocalJson();
+}
+
+Utils::FilePath findFile(const Utils::FilePath &path, const QString &fileName)
+{
+    QDirIterator it(path.toString(), QDirIterator::Subdirectories);
+
+    while (it.hasNext()) {
+        QFileInfo file(it.next());
+        if (file.isDir())
+            continue;
+
+        if (file.fileName() == fileName)
+            return Utils::FilePath::fromFileInfo(file);
+    }
+    return {};
 }
 
 bool writeToJsonDocument(const Utils::FilePath &path, const QJsonDocument &document, QString *errorString)

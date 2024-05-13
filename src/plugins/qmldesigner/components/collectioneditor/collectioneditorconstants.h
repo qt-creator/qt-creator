@@ -16,4 +16,9 @@ inline constexpr char JSONCOLLECTIONMODEL_TYPENAME[]        = "QtQuick.Studio.Ut
 inline constexpr char JSONCOLLECTIONCHILDMODEL_TYPENAME[]   = "QtQuick.Studio.Utils.ChildListModel";
 inline constexpr char JSONBACKEND_TYPENAME[]                = "JsonData";
 
+inline constexpr QStringView DEFAULT_DATA_JSON_FILENAME     = u"data.json";
+inline constexpr QStringView DEFAULT_MODELS_JSON_FILENAME   = u"models.json";
+inline constexpr QStringView DEFAULT_DATASTORE_QML_FILENAME = u"DataStore.qml";
+inline constexpr QStringView DEFAULT_JSONDATA_QML_FILENAME  = u"JsonData.qml";
+
 } // namespace QmlDesigner::CollectionEditorConstants

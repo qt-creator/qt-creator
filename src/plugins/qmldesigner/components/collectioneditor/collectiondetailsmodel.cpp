@@ -407,16 +407,14 @@ void CollectionDetailsModel::renameCollection(const ModelNode &sourceNode,
 bool CollectionDetailsModel::saveDataStoreCollections()
 {
     const ModelNode node = m_currentCollection.reference().node;
-    const Utils::FilePath path = CollectionEditorUtils::dataStoreJsonFilePath();
-    Utils::FileReader fileData;
-
-    if (!fileData.fetch(path)) {
-        qWarning() << Q_FUNC_INFO << "Cannot read the json file:" << fileData.errorString();
+    Utils::expected_str<QByteArray> jsonContents = m_jsonFilePath.fileContents();
+    if (!jsonContents.has_value()) {
+        qWarning() << __FUNCTION__ << jsonContents.error();
         return false;
     }
 
     QJsonParseError jpe;
-    QJsonDocument document = QJsonDocument::fromJson(fileData.data(), &jpe);
+    QJsonDocument document = QJsonDocument::fromJson(jsonContents.value(), &jpe);
 
     if (jpe.error == QJsonParseError::NoError) {
         QJsonObject obj = document.object();
@@ -432,7 +430,7 @@ bool CollectionDetailsModel::saveDataStoreCollections()
 
         document.setObject(obj);
 
-        if (CollectionEditorUtils::writeToJsonDocument(path, document)) {
+        if (CollectionEditorUtils::writeToJsonDocument(m_jsonFilePath, document)) {
             const CollectionReference currentReference = m_currentCollection.reference();
             for (CollectionDetails &collection : collectionsToBeSaved) {
                 collection.markSaved();
@@ -616,6 +614,11 @@ void CollectionDetailsModel::setCollectionName(const QString &newCollectionName)
 QString CollectionDetailsModel::warningToString(DataTypeWarning::Warning warning) const
 {
     return DataTypeWarning::getDataTypeWarningString(warning);
+}
+
+void CollectionDetailsModel::setJsonFilePath(const Utils::FilePath &filePath)
+{
+    m_jsonFilePath = filePath;
 }
 
 void CollectionDetailsModel::setHasUnsavedChanges(bool val)

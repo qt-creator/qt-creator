@@ -21,6 +21,7 @@ public:
     QString qmlPuppetFallbackDirectory() const override;
     QString defaultPuppetToplevelBuildDirectory() const override;
     QUrl projectUrl() const override;
+    QString projectName() const override;
     QString currentProjectDirPath() const override;
     QUrl currentResourcePath() const override;
     void parseItemLibraryDescriptions() override;

@@ -23,6 +23,7 @@ public:
     Utils::FilePath import3dBasePath() const;
     Utils::FilePath materialBundlePath() const;
     Utils::FilePath effectBundlePath() const;
+    Utils::FilePath projectModulePath(bool generateIfNotExists = false) const;
 
     bool isImport3dPath(const QString &path) const;
     bool isComposedEffectPath(const QString &path) const;

@@ -5,6 +5,8 @@
 
 #include "collectiondetails.h"
 
+#include <utils/fileutils.h>
+
 #include <QAbstractTableModel>
 #include <QHash>
 
@@ -60,6 +62,7 @@ public:
     Q_INVOKABLE void deselectAll();
     Q_INVOKABLE QString warningToString(DataTypeWarning::Warning warning) const;
 
+    void setJsonFilePath(const Utils::FilePath &filePath);
     void loadCollection(const ModelNode &sourceNode, const QString &collection);
     void removeCollection(const ModelNode &sourceNode, const QString &collection);
     void removeAllCollections();
@@ -93,6 +96,7 @@ private:
     void ensureSingleCell();
     QJsonDocument readJsonFile(const QUrl &url);
 
+    Utils::FilePath m_jsonFilePath;
     QHash<CollectionReference, CollectionDetails> m_openedCollections;
     CollectionDetails m_currentCollection;
     bool m_isEmpty = true;

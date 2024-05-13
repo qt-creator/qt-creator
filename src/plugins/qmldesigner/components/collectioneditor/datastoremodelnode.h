@@ -24,11 +24,12 @@ public:
 
     DataStoreModelNode();
 
-    void reloadModel();
+    void reloadModel(const Utils::FilePath &projectModulePath);
     QStringList collectionNames() const;
 
     Model *model() const;
     ModelNode modelNode() const;
+    Utils::FilePath jsonFilePath() const;
 
     void setCollectionNames(const QStringList &newCollectionNames);
     void addCollection(const QString &collectionName);

@@ -149,6 +149,7 @@ public:
     QString defaultPuppetToplevelBuildDirectory() const override { return {}; }
     QString qmlPuppetFallbackDirectory() const override { return {}; }
     QUrl projectUrl() const override { return {}; }
+    QString projectName() const override { return {}; }
     void parseItemLibraryDescriptions() override {}
     const QmlDesigner::DesignerSettings &designerSettings() const override { return settings; }
     void undoOnCurrentDesignDocument() override {}

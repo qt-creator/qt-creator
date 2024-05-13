@@ -3,6 +3,7 @@
 
 #include "collectionlistmodel.h"
 
+#include "collectioneditorconstants.h"
 #include "collectioneditorutils.h"
 
 #include <utils/algorithm.h>

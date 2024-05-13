@@ -21,9 +21,7 @@
 #include <qmljstools/qmljstoolssettings.h>
 
 #include <coreplugin/documentmanager.h>
-#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectmanager.h>
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -114,7 +112,6 @@ void setQmlContextToModel(QmlDesigner::Model *model, const QString &qmlContext)
     std::unique_ptr<RewriterView> rewriter = std::make_unique<RewriterView>(
         externalDependencies, QmlDesigner::RewriterView::Validate);
 
-    rewriter->setParent(model);
     rewriter->setTextModifier(modifier.get());
     rewriter->setCheckSemanticErrors(false);
 
@@ -126,22 +123,21 @@ void setQmlContextToModel(QmlDesigner::Model *model, const QString &qmlContext)
 
 namespace QmlDesigner {
 
-DataStoreModelNode::DataStoreModelNode()
-{
-    reloadModel();
-}
+DataStoreModelNode::DataStoreModelNode() = default;
 
-void DataStoreModelNode::reloadModel()
+void DataStoreModelNode::reloadModel(const Utils::FilePath &projectModulePath)
 {
     using Utils::FilePath;
-    if (!ProjectExplorer::ProjectManager::startupProject()) {
+    if (!projectModulePath.exists()) {
         reset();
         return;
     }
     bool forceUpdate = false;
 
-    const FilePath dataStoreQmlPath = CollectionEditorUtils::dataStoreQmlFilePath();
-    const FilePath dataStoreJsonPath = CollectionEditorUtils::dataStoreJsonFilePath();
+    const FilePath dataStoreQmlPath = projectModulePath.resolvePath(
+        CollectionEditorConstants::DEFAULT_DATASTORE_QML_FILENAME.toString());
+    const FilePath dataStoreJsonPath = projectModulePath.resolvePath(
+        CollectionEditorConstants::DEFAULT_MODELS_JSON_FILENAME.toString());
     QUrl dataStoreQmlUrl = dataStoreQmlPath.toUrl();
 
     if (dataStoreQmlPath.exists() && dataStoreJsonPath.exists()) {
@@ -194,6 +190,15 @@ ModelNode DataStoreModelNode::modelNode() const
     if (!m_model.get())
         return {};
     return m_model->rootModelNode();
+}
+
+Utils::FilePath DataStoreModelNode::jsonFilePath() const
+{
+    QUrl modelUrl = m_model->fileUrl();
+    return Utils::FilePath::fromUserInput(modelUrl.isLocalFile() ? modelUrl.toLocalFile()
+                                                                 : modelUrl.toString())
+        .parentDir()
+        .resolvePath(CollectionEditorConstants::DEFAULT_MODELS_JSON_FILENAME.toString());
 }
 
 QString DataStoreModelNode::getModelQmlText()

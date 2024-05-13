@@ -4,7 +4,6 @@
 #pragma once
 
 #include "collectiondetails.h"
-#include "collectioneditorconstants.h"
 
 QT_BEGIN_NAMESPACE
 class QJsonArray;
@@ -19,21 +18,13 @@ namespace QmlDesigner::CollectionEditorUtils {
 
 bool variantIslessThan(const QVariant &a, const QVariant &b, CollectionDetails::DataType type);
 
-QString getSourceCollectionType(const QmlDesigner::ModelNode &node);
-
 QString getSourceCollectionPath(const QmlDesigner::ModelNode &dataStoreNode);
 
-Utils::FilePath dataStoreJsonFilePath();
-
-Utils::FilePath dataStoreQmlFilePath();
+Utils::FilePath findFile(const Utils::FilePath &path, const QString &fileName);
 
 bool writeToJsonDocument(const Utils::FilePath &path,
                          const QJsonDocument &document,
                          QString *errorString = nullptr);
-
-bool isDataStoreNode(const ModelNode &dataStoreNode);
-
-bool ensureDataStoreExists(bool &justCreated);
 
 bool canAcceptCollectionAsModel(const ModelNode &node);
 

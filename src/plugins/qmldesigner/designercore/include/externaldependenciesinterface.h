@@ -28,6 +28,7 @@ public:
     virtual QString qmlPuppetFallbackDirectory() const = 0;
     virtual QString defaultPuppetToplevelBuildDirectory() const = 0;
     virtual QUrl projectUrl() const = 0;
+    virtual QString projectName() const = 0;
     virtual QString currentProjectDirPath() const = 0;
     virtual QUrl currentResourcePath() const = 0;
     virtual void parseItemLibraryDescriptions() = 0;
