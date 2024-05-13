@@ -86,10 +86,10 @@ static std::optional<AndroidDeviceInfo> parseAvd(const QStringList &deviceInfo)
     return {};
 }
 
-AndroidDeviceInfoList parseAvdList(const QString &output, Utils::FilePaths *avdErrorPaths)
+ParsedAvdList parseAvdList(const QString &output)
 {
-    QTC_CHECK(avdErrorPaths);
     AndroidDeviceInfoList avdList;
+    Utils::FilePaths errorPaths;
     QStringList avdInfo;
     using ErrorPath = Utils::FilePath;
     using AvdResult = std::variant<std::monostate, AndroidDeviceInfo, ErrorPath>;
@@ -120,14 +120,14 @@ AndroidDeviceInfoList parseAvdList(const QString &output, Utils::FilePaths *avdE
             if (auto info = std::get_if<AndroidDeviceInfo>(&result))
                 avdList << *info;
             else if (auto errorPath = std::get_if<ErrorPath>(&result))
-                *avdErrorPaths << *errorPath;
+                errorPaths << *errorPath;
             avdInfo.clear();
         } else {
             avdInfo << line;
         }
     }
 
-    return Utils::sorted(std::move(avdList));
+    return {Utils::sorted(std::move(avdList)), errorPaths};
 }
 
 int platformNameToApiLevel(const QString &platformName)

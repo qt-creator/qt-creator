@@ -10,7 +10,13 @@ namespace Internal {
 
 const char avdManufacturerError[] = "no longer exists as a device";
 
-AndroidDeviceInfoList parseAvdList(const QString &output, Utils::FilePaths *avdErrorPaths);
+struct ParsedAvdList
+{
+    AndroidDeviceInfoList avdList;
+    Utils::FilePaths errorPaths;
+};
+
+ParsedAvdList parseAvdList(const QString &output);
 int platformNameToApiLevel(const QString &platformName);
 QString convertNameToExtension(const QString &name);
 

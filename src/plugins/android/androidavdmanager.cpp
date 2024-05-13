@@ -72,8 +72,6 @@ static void avdConfigEditManufacturerTag(const FilePath &avdPath, bool recoverMo
 
 static AndroidDeviceInfoList listVirtualDevices()
 {
-    QString output;
-    AndroidDeviceInfoList avdList;
     /*
         Currenly avdmanager tool fails to parse some AVDs because the correct
         device definitions at devices.xml does not have some of the newest devices.
@@ -83,26 +81,25 @@ static AndroidDeviceInfoList listVirtualDevices()
         aim to keep support for Qt Creator and Android Studio.
     */
     FilePaths allAvdErrorPaths;
-    FilePaths avdErrorPaths;
-
-    do {
+    while (true) {
+        QString output;
         if (!AndroidAvdManager::avdManagerCommand({"list", "avd"}, &output)) {
             qCDebug(avdManagerLog)
                 << "Avd list command failed" << output << androidConfig().sdkToolsVersion();
             return {};
         }
 
-        avdErrorPaths.clear();
-        avdList = parseAvdList(output, &avdErrorPaths);
-        allAvdErrorPaths << avdErrorPaths;
-        for (const FilePath &avdPath : std::as_const(avdErrorPaths))
+        const auto parsedAvdList = parseAvdList(output);
+        if (parsedAvdList.errorPaths.isEmpty()) {
+            for (const FilePath &avdPath : std::as_const(allAvdErrorPaths))
+                avdConfigEditManufacturerTag(avdPath, true); // re-add manufacturer tag
+            return parsedAvdList.avdList;
+        }
+        allAvdErrorPaths << parsedAvdList.errorPaths;
+        for (const FilePath &avdPath : parsedAvdList.errorPaths)
             avdConfigEditManufacturerTag(avdPath); // comment out manufacturer tag
-    } while (!avdErrorPaths.isEmpty());            // try again
-
-    for (const FilePath &avdPath : std::as_const(allAvdErrorPaths))
-        avdConfigEditManufacturerTag(avdPath, true); // re-add manufacturer tag
-
-    return avdList;
+    }
+    return {};
 }
 
 QFuture<AndroidDeviceInfoList> AndroidAvdManager::avdList() const

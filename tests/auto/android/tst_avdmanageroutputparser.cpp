@@ -80,10 +80,9 @@ void tst_AvdManagerOutputParser::parse()
     QFETCH(AndroidDeviceInfoList, output);
     QFETCH(Utils::FilePaths, errorPaths);
 
-    Utils::FilePaths avdErrorPaths;
-    const auto result = parseAvdList(input, &avdErrorPaths);
-    QCOMPARE(result, output);
-    QCOMPARE(avdErrorPaths, errorPaths);
+    const auto result = parseAvdList(input);
+    QCOMPARE(result.avdList, output);
+    QCOMPARE(result.errorPaths, errorPaths);
 }
 
 QTEST_GUILESS_MAIN(tst_AvdManagerOutputParser)
