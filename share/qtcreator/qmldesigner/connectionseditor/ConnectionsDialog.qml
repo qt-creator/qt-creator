@@ -11,6 +11,8 @@ StudioControls.PopupDialog {
 
     property alias backend: form.backend
 
+    keepOpen: form.keepOpen
+
     titleBar: Row {
         spacing: 30 // TODO
         anchors.fill: parent
@@ -42,6 +44,8 @@ StudioControls.PopupDialog {
 
     ConnectionsDialogForm {
         id: form
+
+        parentWindow: root.window
 
         Connections {
             target: root.backend

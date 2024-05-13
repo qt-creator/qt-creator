@@ -16,6 +16,9 @@ Column {
 
     property var backend
 
+    property bool keepOpen: expressionDialogLoader.visible
+    property Window parentWindow: null
+
     width: parent.width
     spacing: root.verticalSpacing
 
@@ -267,9 +270,7 @@ Column {
                 horizontalAlignment: code.lineCount === 1 ? Text.AlignHCenter : Text.AlignLeft
                 verticalAlignment: Text.AlignVCenter
                 elide: Text.ElideRight
-
             }
-
 
             Loader {
                 id: expressionDialogLoader
@@ -297,19 +298,19 @@ Column {
                         id: bindingEditor
 
                         onRejected: {
-                            hideWidget()
+                            bindingEditor.hideWidget()
                             expressionDialogLoader.visible = false
                         }
 
                         onAccepted: {
                             backend.setNewSource(bindingEditor.text)
-                            hideWidget()
+                            bindingEditor.hideWidget()
                             expressionDialogLoader.visible = false
                         }
                     }
                 }
-            } // loader
-        } // rect
-    } //col 2
-}//col1
+            }
+        }
+    }
+}
 
