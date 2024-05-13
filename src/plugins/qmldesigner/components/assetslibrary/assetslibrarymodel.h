@@ -58,8 +58,6 @@ public:
 
     bool hasFiles() const { return m_hasFiles; }
 
-    QString getUniqueName(const QString &oldName);
-
 signals:
     void directoryLoaded(const QString &path);
     void rootPathChanged();

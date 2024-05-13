@@ -7,7 +7,6 @@
 #include "assetslibrarymodel.h"
 #include "assetslibraryview.h"
 
-#include <asset.h>
 #include <designeractionmanager.h>
 #include <designerpaths.h>
 #include <hdrimage.h>
@@ -25,9 +24,11 @@
 #include <coreplugin/messagebox.h>
 
 #include <utils/algorithm.h>
+#include <utils/asset.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>
+#include <utils/uniquename.h>
 
 #include <QFileDialog>
 #include <QFileInfo>
@@ -174,23 +175,14 @@ void AssetsLibraryWidget::deleteSelectedAssets()
 
 QString AssetsLibraryWidget::getUniqueEffectPath(const QString &parentFolder, const QString &effectName)
 {
-    auto genEffectPath = [&parentFolder](const QString &name) {
-        QString effectsDir = ModelNodeOperations::getEffectsDefaultDirectory(parentFolder);
-        return QLatin1String("%1/%2.qep").arg(effectsDir, name);
-    };
+    QString effectsDir = ModelNodeOperations::getEffectsDefaultDirectory(parentFolder);
+    QString effectPathTemplate = effectsDir + QLatin1String("/%1.qep");
 
-    QString uniqueName = effectName;
-    QString path = genEffectPath(uniqueName);
-    QFileInfo file{path};
+    QString uniqueName = UniqueName::get(effectName, [&] (const QString &name) {
+        return !QFile::exists(effectPathTemplate.arg(name));
+    });
 
-    while (file.exists()) {
-        uniqueName = m_assetsModel->getUniqueName(uniqueName);
-
-        path = genEffectPath(uniqueName);
-        file.setFile(path);
-    }
-
-    return path;
+    return effectPathTemplate.arg(uniqueName);
 }
 
 bool AssetsLibraryWidget::createNewEffect(const QString &effectPath, bool openInEffectComposer)
