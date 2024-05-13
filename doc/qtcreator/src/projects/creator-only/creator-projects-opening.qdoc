@@ -63,15 +63,15 @@
     To re-configure projects:
 
     \list 1
-        \li In the \uicontrol {Configure Project} tab, select
+        \li In \uicontrol {Configure Project}, select
             \l{glossary-buildandrun-kit}{kits} for building
             and running your project.
-            \image qtcreator-open-project-kits.png {Configure Project tab}
+            \image qtcreator-configure-project.webp {Configure Project view}
         \li Select \uicontrol {Configure Project}.
     \endlist
 
-    The \uicontrol {Configure Project} tab displays a list of kits that you
-    install on the development PC and configure in \preferences > \uicontrol Kits.
+    \uicontrol {Configure Project} shows a list of kits that you
+    install on the computer and configure in \preferences > \uicontrol Kits.
 
     Even if you do not intend to build the project, the C++ and QML code models
     need a Qt version and compiler to offer code completion. To specify them,
