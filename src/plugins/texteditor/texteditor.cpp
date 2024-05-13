@@ -6861,7 +6861,6 @@ void TextEditorWidget::mouseReleaseEvent(QMouseEvent *e)
 {
     const Qt::MouseButton button = e->button();
     if (d->m_linkPressed && d->isMouseNavigationEvent(e) && button == Qt::LeftButton) {
-        EditorManager::addCurrentPositionToNavigationHistory();
         bool inNextSplit = ((e->modifiers() & Qt::AltModifier) && !alwaysOpenLinksInNextSplit())
                 || (alwaysOpenLinksInNextSplit() && !(e->modifiers() & Qt::AltModifier));
 
