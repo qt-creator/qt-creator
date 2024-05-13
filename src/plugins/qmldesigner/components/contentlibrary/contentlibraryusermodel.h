@@ -43,8 +43,8 @@ public:
     void updateMaterialsImportedState(const QStringList &importedItems);
     void update3DImportedState(const QStringList &importedItems);
 
-    QPair<QString, QString> getUniqueLibMaterialNameAndQml(const QString &defaultName = {}) const;
-    QString getUniqueLib3DQmlName(const QString &defaultName = {}) const;
+    QPair<QString, QString> getUniqueLibMaterialNames(const QString &defaultName = "Material") const;
+    QPair<QString, QString> getUniqueLib3DNames(const QString &defaultName = "Item") const;
 
     void setQuick3DImportVersion(int major, int minor);
 
@@ -94,6 +94,8 @@ private:
     bool isValidIndex(int idx) const;
     void removeMaterialFromContentLib(ContentLibraryMaterial *mat);
     void remove3DFromContentLib(ContentLibraryItem *item);
+    QPair<QString, QString> getUniqueLibItemNames(const QString &defaultName,
+                                                  const QJsonObject &bundleObj) const;
 
     ContentLibraryWidget *m_widget = nullptr;
     QString m_searchText;
@@ -101,6 +103,7 @@ private:
     QString m_bundleId3D;
     QStringList m_bundleMaterialSharedFiles;
     QStringList m_bundle3DSharedFiles;
+    Utils::FilePath m_bundlePathMaterial;
     Utils::FilePath m_bundlePath3D;
 
     QList<ContentLibraryMaterial *> m_userMaterials;

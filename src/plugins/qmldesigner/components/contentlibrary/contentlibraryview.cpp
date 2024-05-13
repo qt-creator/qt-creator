@@ -496,41 +496,39 @@ void ContentLibraryView::applyBundleMaterialToDropTarget(const ModelNode &bundle
 #endif
 
 // Add a project material to Content Library's user tab
-void ContentLibraryView::addLibMaterial(const ModelNode &mat, const QPixmap &icon)
+void ContentLibraryView::addLibMaterial(const ModelNode &node, const QPixmap &iconPixmap)
 {
     auto bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/materials/");
 
-    auto [name, qml] = m_widget->userModel()->getUniqueLibMaterialNameAndQml(
-                                    mat.variantProperty("objectName").value().toString());
+    QString name = node.variantProperty("objectName").value().toString();
+    auto [qml, icon] = m_widget->userModel()->getUniqueLibMaterialNames(node.id());
 
-    bundlePath.pathAppended("icons").createDir();
-    bundlePath.pathAppended("images").createDir();
-    bundlePath.pathAppended("shaders").createDir();
-
-    QString iconPath = QLatin1String("icons/%1.png").arg(mat.id());
+    QString iconPath = QLatin1String("icons/%1").arg(icon);
     QString fullIconPath = bundlePath.pathAppended(iconPath).toString();
 
     // save icon
-    bool iconSaved = icon.save(fullIconPath);
+    bool iconSaved = iconPixmap.save(fullIconPath);
     if (!iconSaved)
         qWarning() << __FUNCTION__ << "icon save failed";
 
     // generate and save material Qml file
-    const QStringList depAssets = writeLibItemQml(mat, qml);
+    const QStringList depAssets = writeLibItemQml(node, qml);
 
     // add the material to the bundle json
     QJsonObject &jsonRef = m_widget->userModel()->bundleJsonMaterialObjectRef();
-    QJsonObject matsObj = jsonRef.value("materials").toObject();
-    QJsonObject matObj;
-    matObj.insert("qml", qml);
-    matObj.insert("icon", iconPath);
+    QJsonArray itemsArr = jsonRef.value("items").toArray();
+    QJsonObject itemObj;
+    itemObj.insert("name", name);
+    itemObj.insert("qml", qml);
+    itemObj.insert("icon", iconPath);
     QJsonArray filesArr;
     for (const QString &assetPath : depAssets)
         filesArr.append(assetPath);
-    matObj.insert("files", filesArr);
+    itemObj.insert("files", filesArr);
 
-    matsObj.insert(name, matObj);
-    jsonRef.insert("materials", matsObj);
+    itemsArr.append(itemObj);
+    jsonRef["items"] = itemsArr;
+
     auto result = bundlePath.pathAppended("user_materials_bundle.json")
                       .writeFileContents(QJsonDocument(jsonRef).toJson());
     if (!result)
@@ -538,16 +536,9 @@ void ContentLibraryView::addLibMaterial(const ModelNode &mat, const QPixmap &ico
 
     // copy material assets to bundle folder
     for (const QString &assetPath : depAssets) {
-        Asset asset(assetPath);
-        QString subDir;
-        if (asset.isImage())
-            subDir = "images";
-        else if (asset.isShader())
-            subDir = "shaders";
-
         Utils::FilePath assetPathSource = DocumentManager::currentResourcePath().pathAppended(assetPath);
-        Utils::FilePath assetPathTarget = bundlePath.pathAppended(QString("%1/%2")
-                                                            .arg(subDir, "/" + asset.fileName()));
+        Utils::FilePath assetPathTarget = bundlePath.pathAppended(assetPath);
+        assetPathTarget.parentDir().ensureWritableDir();
 
         auto result = assetPathSource.copyFile(assetPathTarget);
         if (!result)
@@ -667,8 +658,8 @@ void ContentLibraryView::addLib3DItem(const ModelNode &node)
     auto bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/3d/");
 
     QString name = node.variantProperty("objectName").value().toString();
-    QString qml = m_widget->userModel()->getUniqueLib3DQmlName(node.id());
-    QString iconPath = QLatin1String("icons/%1.png").arg(node.id()); // TODO: make sure path is unique
+    auto [qml, icon] = m_widget->userModel()->getUniqueLib3DNames(node.id());
+    QString iconPath = QLatin1String("icons/%1").arg(icon);
 
     // generate and save item Qml file
     const QStringList depAssets = writeLibItemQml(node, qml);

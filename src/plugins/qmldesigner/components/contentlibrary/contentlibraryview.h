@@ -55,7 +55,7 @@ private:
     bool isItemBundle(const QString &bundleId) const;
     void active3DSceneChanged(qint32 sceneId);
     void updateBundlesQuick3DVersion();
-    void addLibMaterial(const ModelNode &mat, const QPixmap &icon);
+    void addLibMaterial(const ModelNode &node, const QPixmap &iconPixmap);
     void addLibAssets(const QStringList &paths);
     void addLib3DItem(const ModelNode &node);
     void genAndSaveIcon(const QString &qmlPath, const QString &iconPath);
