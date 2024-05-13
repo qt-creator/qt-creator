@@ -30,7 +30,7 @@ bool ClientWorkspaceSymbolRequest::preStartCheck()
     if (!capability.has_value())
         return false;
     const auto boolvalue = std::get_if<bool>(&*capability);
-    if (boolvalue && !boolvalue)
+    if (boolvalue && !*boolvalue)
         return false;
 
     return true;
