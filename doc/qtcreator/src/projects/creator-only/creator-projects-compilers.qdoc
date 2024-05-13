@@ -104,7 +104,7 @@
     \endtable
 
     The emscripten compiler is toolchain for compiling to
-    \l{Building Applications for the Web}{WebAssembly}.
+    \l{Build applications for the web}{WebAssembly}.
 
     \section2 Bare-metal compilers
 

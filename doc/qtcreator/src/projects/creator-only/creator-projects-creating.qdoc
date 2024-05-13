@@ -66,7 +66,7 @@
     The installers create \l{glossary-buildandrun-kit}{kits} and specify build
     and run settings for the installed device types. However, you might need to
     install and configure some additional software on the devices to be able to
-    \l{Connecting Devices}{connect} to them from the development PC.
+    \l{Develop for Devices}{connect} to them from the computer.
 
     \sa {Manage Projects}{How To: Manage Projects}, {Custom Wizards}
 */

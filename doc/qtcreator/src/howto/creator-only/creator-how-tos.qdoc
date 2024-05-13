@@ -142,6 +142,13 @@
 
     \generatelist creator-how-to-remote-linux
 
+    \section2 WebAssembly
+
+    Install \l{Qt for WebAssembly} to build applications for the web and run them
+    in a web browser.
+
+    \generatelist creator-how-to-webassembly
+
     \section1 Edit Code
 
     The code editor offers useful features for editing C++ and QML code, such

@@ -22,10 +22,6 @@
                 \endlist
             \li \l{Creating Projects}
             \li \l{Configuring Projects}
-            \li \l{Connecting Devices}
-            \list
-                \li \l{Building Applications for the Web}
-            \endlist
             \li \l{Debugging}
             \li \l{Analyzing Code}
         \endlist
@@ -67,6 +63,8 @@
                         \generatelist creator-how-to-qnx
                     \li Remote Linux
                         \generatelist creator-how-to-remote-linux
+                    \li WebAssembly
+                        \generatelist creator-how-to-webassembly
                 \endlist
             \li Edit Code
                 \generatelist creator-how-to-edit
