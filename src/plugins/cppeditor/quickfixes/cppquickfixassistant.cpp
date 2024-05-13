@@ -3,10 +3,10 @@
 
 #include "cppquickfixassistant.h"
 
-#include "cppeditorwidget.h"
-#include "cppmodelmanager.h"
+#include "../cppeditorwidget.h"
+#include "../cppmodelmanager.h"
+#include "../cpprefactoringchanges.h"
 #include "cppquickfix.h"
-#include "cpprefactoringchanges.h"
 
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/iassistprocessor.h>

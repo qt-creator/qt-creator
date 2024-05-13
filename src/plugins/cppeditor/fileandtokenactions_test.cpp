@@ -4,13 +4,13 @@
 #include "fileandtokenactions_test.h"
 
 #include "cppeditorwidget.h"
-#include "cppquickfix.h"
-#include "cppquickfixassistant.h"
-#include "cppinsertvirtualmethods.h"
 #include "cppmodelmanager.h"
 #include "cpptoolstestcase.h"
 #include "cppworkingcopy.h"
 #include "projectinfo.h"
+#include "quickfixes/cppquickfix.h"
+#include "quickfixes/cppquickfixassistant.h"
+#include "quickfixes/cppinsertvirtualmethods.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/project.h>

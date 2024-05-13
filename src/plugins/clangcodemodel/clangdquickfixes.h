@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <cppeditor/cppquickfix.h>
+#include <cppeditor/quickfixes/cppquickfix.h>
 #include <languageclient/languageclientquickfix.h>
 
 namespace ClangCodeModel {

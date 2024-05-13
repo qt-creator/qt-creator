@@ -3,8 +3,8 @@
 
 #include "cppquickfixprojectsettings.h"
 
-#include "cppeditorconstants.h"
-#include "cppeditortr.h"
+#include "../cppeditorconstants.h"
+#include "../cppeditortr.h"
 
 #include <coreplugin/icore.h>
 

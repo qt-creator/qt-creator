@@ -14,11 +14,11 @@
 #include "cpplocalrenaming.h"
 #include "cppmodelmanager.h"
 #include "cpppreprocessordialog.h"
-#include "cppquickfixassistant.h"
 #include "cppselectionchanger.h"
 #include "cppsemanticinfo.h"
 #include "cppuseselectionsupdater.h"
 #include "doxygengenerator.h"
+#include "quickfixes/cppquickfixassistant.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>

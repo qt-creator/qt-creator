@@ -3,8 +3,8 @@
 
 #include "cppquickfixsettings.h"
 
-#include "cppcodestylesettings.h"
-#include "cppeditorconstants.h"
+#include "../cppcodestylesettings.h"
+#include "../cppeditorconstants.h"
 
 #include <coreplugin/icore.h>
 

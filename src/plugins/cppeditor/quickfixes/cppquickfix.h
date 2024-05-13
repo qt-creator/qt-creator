@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "cppeditor_global.h"
+#include "../cppeditor_global.h"
 #include "cppquickfixassistant.h"
 
 #include <texteditor/quickfix.h>

@@ -3,7 +3,7 @@
 
 #include "cppquickfixsettingswidget.h"
 
-#include "cppeditortr.h"
+#include "../cppeditortr.h"
 #include "cppquickfixsettings.h"
 
 #include <utils/layoutbuilder.h>

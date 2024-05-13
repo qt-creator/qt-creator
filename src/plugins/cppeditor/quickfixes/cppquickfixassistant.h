@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "cppsemanticinfo.h"
+#include "../cppsemanticinfo.h"
 
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/iassistprovider.h>

@@ -53,7 +53,6 @@ add_qtc_plugin(CppEditor
     cppincludehierarchy.cpp cppincludehierarchy.h
     cppincludesfilter.cpp cppincludesfilter.h
     cppindexingsupport.cpp cppindexingsupport.h
-    cppinsertvirtualmethods.cpp cppinsertvirtualmethods.h
     cpplocalrenaming.cpp cpplocalrenaming.h
     cpplocalsymbols.cpp cpplocalsymbols.h
     cpplocatordata.cpp cpplocatordata.h
@@ -71,14 +70,6 @@ add_qtc_plugin(CppEditor
     cppprojectpartchooser.cpp cppprojectpartchooser.h
     cppprojectupdater.cpp cppprojectupdater.h
     cppqtstyleindenter.cpp cppqtstyleindenter.h
-    cppquickfix.cpp cppquickfix.h
-    cppquickfixassistant.cpp cppquickfixassistant.h
-    cppquickfixes.cpp cppquickfixes.h
-    cppquickfixprojectsettings.cpp cppquickfixprojectsettings.h
-    cppquickfixprojectsettingswidget.cpp cppquickfixprojectsettingswidget.h
-    cppquickfixsettings.cpp cppquickfixsettings.h
-    cppquickfixsettingspage.cpp cppquickfixsettingspage.h
-    cppquickfixsettingswidget.cpp cppquickfixsettingswidget.h
     cpprefactoringchanges.cpp cpprefactoringchanges.h
     cppselectionchanger.cpp cppselectionchanger.h
     cppsemanticinfo.h
@@ -104,6 +95,15 @@ add_qtc_plugin(CppEditor
     insertionpointlocator.cpp insertionpointlocator.h
     projectinfo.cpp projectinfo.h
     projectpart.cpp projectpart.h
+    quickfixes/cppinsertvirtualmethods.cpp quickfixes/cppinsertvirtualmethods.h
+    quickfixes/cppquickfix.cpp quickfixes/cppquickfix.h
+    quickfixes/cppquickfixassistant.cpp quickfixes/cppquickfixassistant.h
+    quickfixes/cppquickfixes.cpp quickfixes/cppquickfixes.h
+    quickfixes/cppquickfixprojectsettings.cpp quickfixes/cppquickfixprojectsettings.h
+    quickfixes/cppquickfixprojectsettingswidget.cpp quickfixes/cppquickfixprojectsettingswidget.h
+    quickfixes/cppquickfixsettings.cpp quickfixes/cppquickfixsettings.h
+    quickfixes/cppquickfixsettingspage.cpp quickfixes/cppquickfixsettingspage.h
+    quickfixes/cppquickfixsettingswidget.cpp quickfixes/cppquickfixsettingswidget.h
     resourcepreviewhoverhandler.cpp resourcepreviewhoverhandler.h
     searchsymbols.cpp searchsymbols.h
     semantichighlighter.cpp semantichighlighter.h
@@ -112,7 +112,7 @@ add_qtc_plugin(CppEditor
     typehierarchybuilder.cpp typehierarchybuilder.h
     wrappablelineedit.cpp wrappablelineedit.h
    EXPLICIT_MOC
-     cppquickfixsettingswidget.h
+     quickfixes/cppquickfixsettingswidget.h
 )
 
 extend_qtc_plugin(CppEditor
@@ -127,7 +127,6 @@ extend_qtc_plugin(CppEditor
     cpplocatorfilter_test.cpp cpplocatorfilter_test.h
     cppmodelmanager_test.cpp cppmodelmanager_test.h
     cpppointerdeclarationformatter_test.cpp cpppointerdeclarationformatter_test.h
-    cppquickfix_test.cpp cppquickfix_test.h
     cpprenaming_test.cpp cpprenaming_test.h
     cppsourceprocessertesthelper.cpp cppsourceprocessertesthelper.h
     cppsourceprocessor_test.cpp cppsourceprocessor_test.h
@@ -137,9 +136,10 @@ extend_qtc_plugin(CppEditor
     followsymbol_switchmethoddecldef_test.cpp followsymbol_switchmethoddecldef_test.h
     modelmanagertesthelper.cpp modelmanagertesthelper.h
     projectinfo_test.cpp projectinfo_test.h
+    quickfixes/cppquickfix_test.cpp quickfixes/cppquickfix_test.h
     symbolsearcher_test.cpp symbolsearcher_test.h
     typehierarchybuilder_test.cpp typehierarchybuilder_test.h
   EXPLICIT_MOC
     cppdoxygen_test.h
-    cppquickfix_test.h
+    quickfixes/cppquickfix_test.h
 )

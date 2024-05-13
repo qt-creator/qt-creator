@@ -11,7 +11,7 @@
 #include "cppeditorconstants.h"
 #include "cppeditortr.h"
 #include "cpphighlighter.h"
-#include "cppquickfixassistant.h"
+#include "quickfixes/cppquickfixassistant.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/session.h>

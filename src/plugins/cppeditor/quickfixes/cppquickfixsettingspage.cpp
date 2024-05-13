@@ -3,8 +3,8 @@
 
 #include "cppquickfixsettingspage.h"
 
-#include "cppeditorconstants.h"
-#include "cppeditortr.h"
+#include "../cppeditorconstants.h"
+#include "../cppeditortr.h"
 #include "cppquickfixsettingswidget.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>

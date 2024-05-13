@@ -3,12 +3,12 @@
 
 #include "cppinsertvirtualmethods.h"
 
-#include "cppcodestylesettings.h"
-#include "cppeditortr.h"
+#include "../cppcodestylesettings.h"
+#include "../cppeditortr.h"
+#include "../cpptoolsreuse.h"
+#include "../functionutils.h"
+#include "../insertionpointlocator.h"
 #include "cppquickfixassistant.h"
-#include "cpptoolsreuse.h"
-#include "functionutils.h"
-#include "insertionpointlocator.h"
 
 #include <coreplugin/icore.h>
 #include <texteditor/fontsettings.h>

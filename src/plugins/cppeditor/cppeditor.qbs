@@ -119,8 +119,6 @@ QtcPlugin {
         "cppincludesfilter.h",
         "cppindexingsupport.cpp",
         "cppindexingsupport.h",
-        "cppinsertvirtualmethods.cpp",
-        "cppinsertvirtualmethods.h",
         "cpplocalrenaming.cpp",
         "cpplocalrenaming.h",
         "cpplocalsymbols.cpp",
@@ -153,22 +151,6 @@ QtcPlugin {
         "cppprojectinfogenerator.h",
         "cppprojectupdater.cpp",
         "cppprojectupdater.h",
-        "cppquickfix.cpp",
-        "cppquickfix.h",
-        "cppquickfixassistant.cpp",
-        "cppquickfixassistant.h",
-        "cppquickfixes.cpp",
-        "cppquickfixes.h",
-        "cppquickfixprojectsettings.cpp",
-        "cppquickfixprojectsettings.h",
-        "cppquickfixprojectsettingswidget.cpp",
-        "cppquickfixprojectsettingswidget.h",
-        "cppquickfixsettings.cpp",
-        "cppquickfixsettings.h",
-        "cppquickfixsettingspage.cpp",
-        "cppquickfixsettingspage.h",
-        "cppquickfixsettingswidget.cpp",
-        "cppquickfixsettingswidget.h",
         "cppqtstyleindenter.cpp",
         "cppqtstyleindenter.h",
         "cpprefactoringchanges.cpp",
@@ -234,6 +216,31 @@ QtcPlugin {
     ]
 
     Group {
+        name: "Quickfixes"
+        prefix: "quickfixes/"
+        files: [
+            "cppinsertvirtualmethods.cpp",
+            "cppinsertvirtualmethods.h",
+            "cppquickfix.cpp",
+            "cppquickfix.h",
+            "cppquickfixassistant.cpp",
+            "cppquickfixassistant.h",
+            "cppquickfixes.cpp",
+            "cppquickfixes.h",
+            "cppquickfixprojectsettings.cpp",
+            "cppquickfixprojectsettings.h",
+            "cppquickfixprojectsettingswidget.cpp",
+            "cppquickfixprojectsettingswidget.h",
+            "cppquickfixsettings.cpp",
+            "cppquickfixsettings.h",
+            "cppquickfixsettingspage.cpp",
+            "cppquickfixsettingspage.h",
+            "cppquickfixsettingswidget.cpp",
+            "cppquickfixsettingswidget.h",
+        ]
+    }
+
+    Group {
         name: "TestCase"
         condition: qtc.withPluginTests || qtc.withAutotests
         files: [
@@ -244,6 +251,16 @@ QtcPlugin {
 
     QtcTestFiles {
         cpp.defines: outer.concat(['SRCDIR="' + FileInfo.path(filePath) + '"'])
+
+        Group {
+            name: "Quickfix tests"
+            prefix: "quickfixes/"
+            files: [
+                "cppquickfix_test.cpp",
+                "cppquickfix_test.h",
+            ]
+        }
+
         files: [
             "compileroptionsbuilder_test.cpp",
             "compileroptionsbuilder_test.h",
@@ -263,8 +280,6 @@ QtcPlugin {
             "cppmodelmanager_test.h",
             "cpppointerdeclarationformatter_test.cpp",
             "cpppointerdeclarationformatter_test.h",
-            "cppquickfix_test.cpp",
-            "cppquickfix_test.h",
             "cpprenaming_test.cpp",
             "cpprenaming_test.h",
             "cppsourceprocessor_test.cpp",

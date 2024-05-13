@@ -3,8 +3,8 @@
 
 #pragma once
 
+#include "../cpptoolstestcase.h"
 #include "cppquickfix.h"
-#include "cpptoolstestcase.h"
 
 #include <projectexplorer/headerpath.h>
 

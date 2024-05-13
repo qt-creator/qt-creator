@@ -15,9 +15,9 @@
 #include "cppfilesettingspage.h"
 #include "cpphighlighter.h"
 #include "cppqtstyleindenter.h"
-#include "cppquickfixassistant.h"
 #include "cpprefactoringchanges.h"
 #include "projectinfo.h"
+#include "quickfixes/cppquickfixassistant.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>

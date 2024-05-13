@@ -8,8 +8,8 @@
 #include "cppeditortr.h"
 #include "cppeditorwidget.h"
 #include "cpplocalsymbols.h"
-#include "cppquickfixassistant.h"
 #include "cpptoolsreuse.h"
+#include "quickfixes/cppquickfixassistant.h"
 #include "symbolfinder.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>

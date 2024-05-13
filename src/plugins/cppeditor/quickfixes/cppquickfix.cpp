@@ -3,8 +3,8 @@
 
 #include "cppquickfix.h"
 
+#include "../cpprefactoringchanges.h"
 #include "cppquickfixassistant.h"
-#include "cpprefactoringchanges.h"
 
 using namespace CPlusPlus;
 using namespace TextEditor;

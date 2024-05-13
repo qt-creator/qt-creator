@@ -3,8 +3,8 @@
 
 #include "cppquickfixprojectsettingswidget.h"
 
-#include "cppeditorconstants.h"
-#include "cppeditortr.h"
+#include "../cppeditorconstants.h"
+#include "../cppeditortr.h"
 #include "cppquickfixprojectsettings.h"
 #include "cppquickfixsettingswidget.h"
 

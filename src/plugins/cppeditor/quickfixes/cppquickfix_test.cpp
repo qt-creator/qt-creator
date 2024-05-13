@@ -3,14 +3,14 @@
 
 #include "cppquickfix_test.h"
 
-#include "cppcodestylepreferences.h"
-#include "cppeditorwidget.h"
-#include "cppmodelmanager.h"
+#include "../cppcodestylepreferences.h"
+#include "../cppeditorwidget.h"
+#include "../cppmodelmanager.h"
+#include "../cppsourceprocessertesthelper.h"
+#include "../cpptoolssettings.h"
 #include "cppquickfixassistant.h"
 #include "cppquickfixes.h"
 #include "cppquickfixsettings.h"
-#include "cppsourceprocessertesthelper.h"
-#include "cpptoolssettings.h"
 
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
