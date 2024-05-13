@@ -46,9 +46,9 @@ add_qtc_library(QmlDesignerUtils STATIC
     hdrimage.cpp hdrimage.h
     ktximage.cpp ktximage.h
     imageutils.cpp imageutils.h
+    uniquename.cpp uniquename.h
     qmldesignerutils_global.h
 )
-
 
 target_compile_options(QmlDesignerUtils PUBLIC $<$<COMPILE_LANG_AND_ID:CXX,Clang,GNU>:-Wno-error=maybe-uninitialized>)
 target_compile_options(QmlDesignerUtils PUBLIC $<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-unneeded-internal-declaration>)

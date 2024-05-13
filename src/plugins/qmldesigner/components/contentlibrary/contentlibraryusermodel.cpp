@@ -16,6 +16,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/uniquename.h>
 
 #include <QFileInfo>
 #include <QJsonArray>
@@ -314,13 +315,9 @@ QString ContentLibraryUserModel::getUniqueLib3DQmlName(const QString &defaultNam
     baseQml[0] = baseQml.at(0).toUpper();
     baseQml.prepend("My");
 
-    QString uniqueQml = baseQml;
-
-    int counter = 1;
-    while (itemQmls.contains(uniqueQml)) {
-        uniqueQml = QString("%1%2").arg(uniqueQml).arg(counter);
-        ++counter;
-    }
+    QString uniqueQml = UniqueName::get(baseQml, [&] (const QString &name) {
+        return !itemQmls.contains(name);
+    });
 
     return uniqueQml + ".qml";
 }
