@@ -78,6 +78,7 @@ public:
     IDevice::DeviceState getDeviceState(const QString &serial, IDevice::MachineType type) const;
     void updateDeviceState(const ProjectExplorer::IDevice::ConstPtr &device);
 
+    Utils::expected_str<void> createAvd(const CreateAvdInfo &info, bool force);
     void startAvd(const ProjectExplorer::IDevice::Ptr &device, QWidget *parent = nullptr);
     void eraseAvd(const ProjectExplorer::IDevice::Ptr &device, QWidget *parent = nullptr);
     void setupWifiForDevice(const ProjectExplorer::IDevice::Ptr &device, QWidget *parent = nullptr);

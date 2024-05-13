@@ -441,6 +441,50 @@ void AndroidDeviceManager::updateDeviceState(const ProjectExplorer::IDevice::Con
         devMgr->setDeviceState(id, IDevice::DeviceConnected);
 }
 
+expected_str<void> AndroidDeviceManager::createAvd(const CreateAvdInfo &info, bool force)
+{
+    CommandLine cmd(androidConfig().avdManagerToolPath(), {"create", "avd", "-n", info.name});
+    cmd.addArgs({"-k", info.sdkStylePath});
+    if (info.sdcardSize > 0)
+        cmd.addArgs({"-c", QString("%1M").arg(info.sdcardSize)});
+
+    const QString deviceDef = info.deviceDefinition;
+    if (!deviceDef.isEmpty() && deviceDef != "Custom")
+        cmd.addArgs({"-d", deviceDef});
+
+    if (force)
+        cmd.addArg("-f");
+
+    Process process;
+    process.setProcessMode(ProcessMode::Writer);
+    process.setEnvironment(androidConfig().toolsEnvironment());
+    process.setCommand(cmd);
+    process.setWriteData("yes\n"); // yes to "Do you wish to create a custom hardware profile"
+
+    QByteArray buffer;
+    QObject::connect(&process, &Process::readyReadStandardOutput, &process, [&process, &buffer] {
+        // This interaction is needed only if there is no "-d" arg for the avdmanager command.
+        buffer += process.readAllRawStandardOutput();
+        if (buffer.endsWith(QByteArray("]:"))) {
+            // truncate to last line
+            const int index = buffer.lastIndexOf('\n');
+            if (index != -1)
+                buffer = buffer.mid(index);
+            if (buffer.contains("hw.gpu.enabled"))
+                process.write("yes\n");
+            else
+                process.write("\n");
+            buffer.clear();
+        }
+    });
+
+    using namespace std::chrono_literals;
+    process.runBlocking();
+    if (process.result() != ProcessResult::FinishedWithSuccess)
+        return Utils::make_unexpected(process.exitMessage());
+    return {};
+}
+
 void AndroidDeviceManager::startAvd(const ProjectExplorer::IDevice::Ptr &device, QWidget *parent)
 {
     Q_UNUSED(parent)

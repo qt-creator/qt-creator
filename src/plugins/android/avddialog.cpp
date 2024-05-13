@@ -131,53 +131,18 @@ int AvdDialog::exec()
             return QDialog::Rejected;
         }
 
-        CommandLine cmd(androidConfig().avdManagerToolPath(), {"create", "avd", "-n", name()});
-        cmd.addArgs({"-k", si->sdkStylePath()});
-        if (sdcardSize() > 0)
-            cmd.addArgs({"-c", QString("%1M").arg(sdcardSize())});
-
-        const QString deviceDef = deviceDefinition();
-        if (!deviceDef.isEmpty() && deviceDef != "Custom")
-            cmd.addArgs({"-d", deviceDef});
-
-        if (m_overwriteCheckBox->isChecked())
-            cmd.addArg("-f");
-
-        Process process;
-        process.setProcessMode(ProcessMode::Writer);
-        process.setEnvironment(androidConfig().toolsEnvironment());
-        process.setCommand(cmd);
-        process.setWriteData("yes\n"); // yes to "Do you wish to create a custom hardware profile"
-
-        QByteArray buffer;
-        QObject::connect(&process, &Process::readyReadStandardOutput, &process, [&process, &buffer] {
-            // This interaction is needed only if there is no "-d" arg for the avdmanager command.
-            buffer += process.readAllRawStandardOutput();
-            if (buffer.endsWith(QByteArray("]:"))) {
-                // truncate to last line
-                const int index = buffer.lastIndexOf('\n');
-                if (index != -1)
-                    buffer = buffer.mid(index);
-                if (buffer.contains("hw.gpu.enabled"))
-                    process.write("yes\n");
-                else
-                    process.write("\n");
-                buffer.clear();
-            }
-        });
-
-        using namespace std::chrono_literals;
-        process.runBlocking(10s, EventLoopMode::On);
-        if (process.result() != ProcessResult::FinishedWithSuccess) {
+        const CreateAvdInfo avdInfo{si->sdkStylePath(), si->apiLevel(), name(), abi(),
+                                    deviceDefinition(), sdcardSize()};
+        const auto result = AndroidDeviceManager::instance()->createAvd(
+            avdInfo, m_overwriteCheckBox->isChecked());
+        if (!result) {
             QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("Create new AVD"),
-                                 process.exitMessage());
+                                 result.error());
             return QDialog::Rejected;
         }
-        m_createdAvdInfo = {si->sdkStylePath(), si->apiLevel(), name(), abi(), deviceDef,
-                            sdcardSize()};
+        m_createdAvdInfo = avdInfo;
         AndroidDeviceManager::instance()->updateAvdsList();
     }
-
     return execResult;
 }
 
