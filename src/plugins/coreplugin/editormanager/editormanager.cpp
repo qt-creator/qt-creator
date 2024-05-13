@@ -3444,18 +3444,7 @@ void EditorManager::addCurrentPositionToNavigationHistory(const QByteArray &save
 */
 void EditorManager::setLastEditLocation(const IEditor* editor)
 {
-    IDocument *document = editor->document();
-    if (!document)
-        return;
-
-    const QByteArray &state = editor->saveState();
-    EditLocation location;
-    location.document = document;
-    location.filePath = document->filePath();
-    location.id = document->id();
-    location.state = state;
-
-    d->m_globalLastEditLocation = location;
+    d->m_globalLastEditLocation = EditLocation::forEditor(editor);
 }
 
 /*!

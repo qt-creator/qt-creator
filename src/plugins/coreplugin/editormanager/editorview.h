@@ -40,6 +40,7 @@ class EditLocation
 public:
     QByteArray save() const;
     static EditLocation load(const QByteArray &data);
+    static EditLocation forEditor(const IEditor *editor, const QByteArray &saveState = {});
 
     QPointer<IDocument> document;
     Utils::FilePath filePath;

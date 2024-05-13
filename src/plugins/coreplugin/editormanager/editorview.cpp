@@ -262,20 +262,10 @@ bool EditorView::canGoBack() const
 
 void EditorView::updateEditorHistory(IEditor *editor, QList<EditLocation> &history)
 {
-    if (!editor)
-        return;
-    IDocument *document = editor->document();
+    IDocument *document = editor ? editor->document() : nullptr;
+    QTC_ASSERT(document, return);
 
-    if (!document)
-        return;
-
-    QByteArray state = editor->saveState();
-
-    EditLocation location;
-    location.document = document;
-    location.filePath = document->filePath();
-    location.id = document->id();
-    location.state = state;
+    const auto location = EditLocation::forEditor(editor);
 
     for (int i = 0; i < history.size(); ++i) {
         const EditLocation &item = history.at(i);
@@ -491,24 +481,11 @@ constexpr int navigationHistorySize = 100;
 void EditorView::addCurrentPositionToNavigationHistory(const QByteArray &saveState)
 {
     IEditor *editor = currentEditor();
-    if (!editor)
-        return;
-    IDocument *document = editor->document();
 
-    if (!document)
+    if (!editor || !editor->document())
         return;
 
-    QByteArray state;
-    if (saveState.isNull())
-        state = editor->saveState();
-    else
-        state = saveState;
-
-    EditLocation location;
-    location.document = document;
-    location.filePath = document->filePath();
-    location.id = document->id();
-    location.state = state;
+    const auto location = EditLocation::forEditor(editor, saveState);
     m_currentNavigationHistoryPosition = qMin(m_currentNavigationHistoryPosition, m_navigationHistory.size()); // paranoia
     m_navigationHistory.insert(m_currentNavigationHistoryPosition, location);
     ++m_currentNavigationHistoryPosition;
@@ -552,7 +529,6 @@ void EditorView::updateCurrentPositionInNavigationHistory()
     if (!editor || !editor->document())
         return;
 
-    IDocument *document = editor->document();
     EditLocation *location;
     if (m_currentNavigationHistoryPosition < m_navigationHistory.size()) {
         location = &m_navigationHistory[m_currentNavigationHistoryPosition];
@@ -560,10 +536,7 @@ void EditorView::updateCurrentPositionInNavigationHistory()
         m_navigationHistory.append(EditLocation());
         location = &m_navigationHistory[m_navigationHistory.size()-1];
     }
-    location->document = document;
-    location->filePath = document->filePath();
-    location->id = document->id();
-    location->state = editor->saveState();
+    *location = EditLocation::forEditor(editor);
 }
 
 static bool fileNameWasRemoved(const FilePath &filePath)
@@ -1031,6 +1004,24 @@ EditLocation EditLocation::load(const QByteArray &data)
     stream >> loc.id;
     stream >> loc.state;
     return loc;
+}
+
+EditLocation EditLocation::forEditor(const IEditor *editor, const QByteArray &saveState)
+{
+    QTC_ASSERT(editor, return EditLocation());
+
+    IDocument *document = editor->document();
+    QTC_ASSERT(document, return EditLocation());
+
+    const QByteArray &state = saveState.isEmpty() ? editor->saveState() : saveState;
+
+    EditLocation location;
+    location.document = document;
+    location.filePath = document->filePath();
+    location.id = document->id();
+    location.state = state;
+
+    return location;
 }
 
 } // Core::Internal
