@@ -74,9 +74,8 @@ public:
     Utils::EnvironmentItems environment() const;
 
     QStringList importPaths() const;
-    QStringList absoluteImportPaths();
-    QStringList customImportPaths() const;
-    QStringList customFileSelectors() const;
+    QStringList absoluteImportPaths() const;
+    QStringList fileSelectors() const;
 
     bool multilanguageSupport() const;
     QStringList supportedLanguages() const;

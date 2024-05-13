@@ -143,8 +143,6 @@ void QmlBuildSystem::registerMenuButtons()
 //wip:
 bool QmlBuildSystem::updateProjectFile()
 {
-    qDebug() << "debug#1-mainfilepath" << mainFilePath();
-
     QFile file(mainFilePath().fileName().append("project-test"));
     if (!file.open(QIODevice::ReadWrite | QIODevice::Truncate)) {
         qCritical() << "Cannot open Qml Project file for editing!";
@@ -584,7 +582,7 @@ void QmlBuildSystem::refreshFiles(const QSet<QString> & /*added*/, const QSet<QS
 QVariant QmlBuildSystem::additionalData(Utils::Id id) const
 {
     if (id == Constants::customFileSelectorsData)
-        return customFileSelectors();
+        return fileSelectors();
     if (id == Constants::supportedLanguagesData)
         return supportedLanguages();
     if (id == Constants::primaryLanguageData)
@@ -597,8 +595,6 @@ QVariant QmlBuildSystem::additionalData(Utils::Id id) const
         return qt6Project();
     if (id == Constants::mainFilePath)
         return mainFilePath().toString();
-    if (id == Constants::customImportPaths)
-        return customImportPaths();
     if (id == Constants::canonicalProjectDir)
         return canonicalProjectDir().toString();
     return {};
@@ -682,12 +678,7 @@ Utils::EnvironmentItems QmlBuildSystem::environment() const
     return m_projectItem->environment();
 }
 
-QStringList QmlBuildSystem::customImportPaths() const
-{
-    return m_projectItem->importPaths();
-}
-
-QStringList QmlBuildSystem::customFileSelectors() const
+QStringList QmlBuildSystem::fileSelectors() const
 {
     return m_projectItem->fileSelectors();
 }
@@ -732,7 +723,7 @@ QStringList QmlBuildSystem::importPaths() const
     return m_projectItem->importPaths();
 }
 
-QStringList QmlBuildSystem::absoluteImportPaths()
+QStringList QmlBuildSystem::absoluteImportPaths() const
 {
     return Utils::transform<QStringList>(m_projectItem->importPaths(), [&](const QString &importPath) {
         Utils::FilePath filePath = Utils::FilePath::fromString(importPath);
