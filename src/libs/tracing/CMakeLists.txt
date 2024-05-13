@@ -105,3 +105,7 @@ qt_add_qml_module(Tracing
   SOURCES
     ${TRACING_CPP_SOURCES}
 )
+extend_qtc_library(Tracing
+  INCLUDES
+    ../utils/theme
+)
