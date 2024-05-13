@@ -11,6 +11,8 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
+#include <utils/guard.h>
+
 #include <QFutureWatcher>
 #include <QFileSystemWatcher>
 #include <QSettings>
@@ -99,6 +101,7 @@ private:
     QFutureWatcher<AndroidDeviceInfoList> m_avdsFutureWatcher;
     std::unique_ptr<Utils::Process> m_removeAvdProcess;
     QFileSystemWatcher m_avdFileSystemWatcher;
+    Utils::Guard m_avdPathGuard;
     std::unique_ptr<Utils::Process> m_adbDeviceWatcherProcess;
     AndroidAvdManager m_avdManager;
 
