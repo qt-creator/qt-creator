@@ -265,6 +265,7 @@ void ContentLibraryView::modelAttached(Model *model)
     m_widget->updateImportedState(compUtils.materialsBundleId());
     m_widget->updateImportedState(compUtils.effectsBundleId());
     m_widget->updateImportedState(compUtils.userMaterialsBundleId());
+    m_widget->updateImportedState(compUtils.user3DBundleId());
 }
 
 void ContentLibraryView::modelAboutToBeDetached(Model *model)
