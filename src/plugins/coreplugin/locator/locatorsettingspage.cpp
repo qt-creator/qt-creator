@@ -274,11 +274,9 @@ public:
         m_refreshInterval->setSingleStep(5);
         m_refreshInterval->setValue(60);
 
-        auto relativePathsLabel = new QLabel(Tr::tr("Show Paths in Relation to Active Project:"));
-        relativePathsLabel->setToolTip(Tr::tr("Locator filters show relative paths to the active project when possible."));
-
-        m_relativePaths = new QCheckBox;
-        m_relativePaths->setToolTip(relativePathsLabel->toolTip());
+        m_relativePaths = new QCheckBox(Tr::tr("Show Paths in Relation to Active Project"));
+        m_relativePaths->setToolTip(
+            Tr::tr("Locator filters show relative paths to the active project when possible."));
 
         auto filterEdit = new FancyLineEdit;
         filterEdit->setFiltering(true);
@@ -322,15 +320,14 @@ public:
 
         Column buttons{addButton, m_removeButton, m_editButton, st};
 
-        Grid{filterEdit,
-             br,
-             m_filterList,
-             buttons,
-             br,
-             Span(2, Row{refreshIntervalLabel, m_refreshInterval, st}),
-             br,
-             Span(2, Row{relativePathsLabel, m_relativePaths, st})}
-            .attachTo(this);
+        // clang-format off
+        Grid {
+            filterEdit, br,
+            m_filterList, buttons, br,
+            Span(2, Row{refreshIntervalLabel, m_refreshInterval, st}), br,
+            Span(2, Row{m_relativePaths, st})
+        }.attachTo(this);
+        // clang-format on
 
         connect(filterEdit, &FancyLineEdit::filterChanged, this, &LocatorSettingsWidget::setFilter);
         connect(m_filterList->selectionModel(),
