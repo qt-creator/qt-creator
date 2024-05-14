@@ -204,7 +204,7 @@ bool JsonCollectionParser::visit([[maybe_unused]] QmlJS::AST::PatternElementList
 
 void JsonCollectionParser::endVisit([[maybe_unused]] QmlJS::AST::PatternElementList *patternElementList)
 {
-    if (auto curIndex = std::get_if<int>(&keyStack.top()))
+    if (std::get_if<int>(&keyStack.top()))
         keyStack.pop();
 }
 
@@ -220,7 +220,7 @@ void JsonCollectionParser::checkPropertyUpdates(QStack<JsonKey> stack,
 {
     bool shouldUpdate = collectionPaths.contains(stack);
     if (!shouldUpdate && !stack.isEmpty()) {
-        if (auto lastIndex = std::get_if<int>(&stack.top())) {
+        if (std::get_if<int>(&stack.top())) {
             stack.pop();
             shouldUpdate = collectionPaths.contains(stack);
         }
