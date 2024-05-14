@@ -14,8 +14,9 @@
 
     \title Getting Started
 
-    To learn the basics of \QC, take the \e {Getting Started with Qt Creator}
-    course in \l{https://www.qt.io/courses/}{Qt Learning}.
+    To learn the basics of \QC, take the
+    \l{https://www.qt.io/academy/course-catalog#getting-started-with-qt-creator}
+    {Getting Started with Qt Creator} course in Qt Academy.
 
     For more information about installing \QC, see \l{Install \QC}.
 
