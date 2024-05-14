@@ -175,6 +175,17 @@ bool GeneratedComponentUtils::isComposedEffectPath(const QString &path) const
                             + QLatin1String(Constants::COMPOSED_EFFECTS_TYPE));
 }
 
+bool GeneratedComponentUtils::isBundlePath(const QString &path) const
+{
+    return path.contains(componentBundlesTypePrefix().replace('.', '/'));
+}
+
+bool GeneratedComponentUtils::isGeneratedPath(const QString &path) const
+{
+    return path.startsWith(generatedComponentsPath().toFSPathString());
+}
+
+
 QString GeneratedComponentUtils::generatedComponentTypePrefix() const
 {
     Utils::FilePath basePath = generatedComponentsPath();

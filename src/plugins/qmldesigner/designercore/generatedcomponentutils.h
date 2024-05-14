@@ -27,6 +27,8 @@ public:
 
     bool isImport3dPath(const QString &path) const;
     bool isComposedEffectPath(const QString &path) const;
+    bool isBundlePath(const QString &path) const;
+    bool isGeneratedPath(const QString &path) const;
 
     QString generatedComponentTypePrefix() const;
     QString import3dTypePrefix() const;
