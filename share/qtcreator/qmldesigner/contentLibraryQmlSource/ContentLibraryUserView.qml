@@ -81,7 +81,7 @@ HelperWidgets.ScrollView {
                 bottomPadding: StudioTheme.Values.sectionPadding
 
                 caption: categoryName
-                visible: categoryVisible
+                visible: categoryVisible && infoText.text === ""
                 category: "ContentLib_User"
 
                 function expandSection() {
