@@ -265,7 +265,6 @@ def selectFromFileDialog(fileName, waitForFile=False, ignoreFinalSnooze=False):
 def addHelpDocumentation(which):
     invokeMenuItem("Edit", "Preferences...")
     mouseClick(waitForObjectItem(":Options_QListView", "Help"))
-    waitForObject("{container=':Options.qt_tabwidget_tabbar_QTabBar' type='TabItem' text='Documentation'}")
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Documentation")
     # get rid of all docs already registered
     listWidget = waitForObject("{type='QListView' name='docsListView' visible='1'}")
@@ -293,7 +292,6 @@ def addCurrentCreatorDocumentation():
         return
     invokeMenuItem("Edit", "Preferences...")
     mouseClick(waitForObjectItem(":Options_QListView", "Help"))
-    waitForObject("{container=':Options.qt_tabwidget_tabbar_QTabBar' type='TabItem' text='Documentation'}")
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Documentation")
     clickButton(waitForObject("{type='QPushButton' name='addButton' visible='1' text='Add...'}"))
     selectFromFileDialog(docPath)
@@ -540,6 +538,7 @@ def clickOnTab(tabBarStr, tabText, timeout=5000):
         test.log("Using workaround for Mac and Windows.")
         setWindowState(tabBar, WindowState.Normal)
         tabBar = waitForObject(tabBarStr, 2000)
+    waitForObject("{container='%s' type='TabItem' text='%s'}" % (tabBarStr, tabText))
     clickTab(tabBar, tabText)
     waitFor("str(tabBar.tabText(tabBar.currentIndex)) == '%s'" % tabText, timeout)
 

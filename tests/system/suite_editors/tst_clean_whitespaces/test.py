@@ -111,8 +111,6 @@ def isIgnoredFile(fileName, ignoredFiles):
 def ignoredFilesFromSettings():
     invokeMenuItem("Edit", "Preferences...")
     mouseClick(waitForObjectItem(":Options_QListView", "Text Editor"))
-    waitForObject("{container=':Options.qt_tabwidget_tabbar_QTabBar' type='TabItem' "
-                  "text='Behavior'}")
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Behavior")
     cleanWhiteSpaceCB = "{type='QCheckBox' text='Skip clean whitespace for file types:'}"
     ensureChecked(cleanWhiteSpaceCB)
