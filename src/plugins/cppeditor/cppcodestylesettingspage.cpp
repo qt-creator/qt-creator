@@ -244,7 +244,7 @@ public:
 
         sizePolicy.setVerticalPolicy(QSizePolicy::Preferred);
         m_statementMacros->setToolTip(
-            Tr::tr("Macros that can be used as statements without a trailing semicolon"));
+            Tr::tr("Macros that can be used as statements without a trailing semicolon."));
         m_statementMacros->setSizePolicy(sizePolicy);
         const Group statementMacrosGroup {
             title(Tr::tr("Statement macros")),
