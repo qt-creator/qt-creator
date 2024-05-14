@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #pragma once
 
-#include "androiddeviceinfo.h"
-
 #include <QFuture>
 
 #include <optional>
@@ -13,8 +11,6 @@ namespace Android::Internal {
 class AndroidAvdManager
 {
 public:
-    QFuture<AndroidDeviceInfoList> avdList() const;
-
     QString startAvd(const QString &name) const;
     bool startAvdAsync(const QString &avdName) const;
     QString findAvd(const QString &avdName) const;

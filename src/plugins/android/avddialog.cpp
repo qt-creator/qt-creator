@@ -141,7 +141,7 @@ int AvdDialog::exec()
             return QDialog::Rejected;
         }
         m_createdAvdInfo = avdInfo;
-        AndroidDeviceManager::instance()->updateAvdsList();
+        AndroidDeviceManager::instance()->updateAvdList();
     }
     return execResult;
 }

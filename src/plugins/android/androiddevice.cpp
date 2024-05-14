@@ -2,14 +2,16 @@
 // Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "androiddevice.h"
+
 #include "androidavdmanager.h"
 #include "androidconfigurations.h"
 #include "androidconstants.h"
-#include "androiddevice.h"
 #include "androidmanager.h"
 #include "androidsignaloperation.h"
 #include "androidtr.h"
 #include "avddialog.h"
+#include "avdmanageroutputparser.h"
 
 #include <coreplugin/icore.h>
 
@@ -20,6 +22,8 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
+
+#include <solutions/tasking/tasktree.h>
 
 #include <utils/async.h>
 #include <utils/qtcprocess.h>
@@ -410,10 +414,10 @@ void AndroidDevice::initAvdSettings()
     m_avdSettings.reset(new QSettings(configPath.toUserOutput(), QSettings::IniFormat));
 }
 
-void AndroidDeviceManager::updateAvdsList()
+void AndroidDeviceManager::updateAvdList()
 {
-    if (!m_avdsFutureWatcher.isRunning() && androidConfig().adbToolPath().exists())
-        m_avdsFutureWatcher.setFuture(m_avdManager.avdList());
+    if (androidConfig().adbToolPath().exists())
+        m_avdListRunner.start(m_avdListRecipe);
 }
 
 IDevice::DeviceState AndroidDeviceManager::getDeviceState(const QString &serial,
@@ -687,7 +691,7 @@ void AndroidDeviceManager::setupDevicesWatcher()
     m_adbDeviceWatcherProcess->setStdErrLineCallback([](const QString &error) {
         qCDebug(androidDeviceLog) << "ADB device watcher error" << error; });
     m_adbDeviceWatcherProcess->setStdOutLineCallback([this](const QString &output) {
-        HandleDevicesListChange(output);
+        handleDevicesListChange(output);
     });
 
     const CommandLine command{androidConfig().adbToolPath(), {"track-devices"}};
@@ -699,17 +703,12 @@ void AndroidDeviceManager::setupDevicesWatcher()
     // Setup AVD filesystem watcher to listen for changes when an avd is created/deleted,
     // or started/stopped
     m_avdFileSystemWatcher.addPath(avdFilePath().toString());
-    connect(&m_avdsFutureWatcher, &QFutureWatcherBase::finished,
-            this, &AndroidDeviceManager::HandleAvdsListChange);
     connect(&m_avdFileSystemWatcher, &QFileSystemWatcher::directoryChanged, this, [this] {
-        if (m_avdPathGuard.isLocked())
-            return;
-        // If the avd list upate command is running no need to call it again.
-        if (!m_avdsFutureWatcher.isRunning())
-            updateAvdsList();
+        if (!m_avdPathGuard.isLocked())
+            updateAvdList();
     });
     // Call initial update
-    updateAvdsList();
+    updateAvdList();
 }
 
 IDevice::Ptr AndroidDeviceManager::createDeviceFromInfo(const CreateAvdInfo &info)
@@ -731,7 +730,7 @@ IDevice::Ptr AndroidDeviceManager::createDeviceFromInfo(const CreateAvdInfo &inf
     return IDevice::Ptr(dev);
 }
 
-void AndroidDeviceManager::HandleAvdsListChange()
+void AndroidDeviceManager::handleAvdListChange(const AndroidDeviceInfoList &avdList)
 {
     DeviceManager *const devMgr = DeviceManager::instance();
 
@@ -744,7 +743,7 @@ void AndroidDeviceManager::HandleAvdsListChange()
     }
 
     QList<Id> connectedDevs;
-    for (const AndroidDeviceInfo &item : m_avdsFutureWatcher.result()) {
+    for (const AndroidDeviceInfo &item : avdList) {
         const Id deviceId = AndroidDevice::idFromDeviceInfo(item);
         const QString displayName = AndroidDevice::displayNameFromInfo(item);
         IDevice::ConstPtr dev = devMgr->find(deviceId);
@@ -803,7 +802,7 @@ void AndroidDeviceManager::HandleAvdsListChange()
     }
 }
 
-void AndroidDeviceManager::HandleDevicesListChange(const QString &serialNumber)
+void AndroidDeviceManager::handleDevicesListChange(const QString &serialNumber)
 {
     DeviceManager *const devMgr = DeviceManager::instance();
     const QStringList serialBits = serialNumber.split('\t');
@@ -879,16 +878,93 @@ AndroidDeviceManager *AndroidDeviceManager::instance()
     return s_instance;
 }
 
+enum TagModification { CommentOut, Uncomment };
+
+static void modifyManufacturerTag(const FilePath &avdPath, TagModification modification)
+{
+    if (!avdPath.exists())
+        return;
+
+    const FilePath configFilePath = avdPath / "config.ini";
+    FileReader reader;
+    if (!reader.fetch(configFilePath, QIODevice::ReadOnly | QIODevice::Text))
+        return;
+
+    FileSaver saver(configFilePath);
+    QTextStream textStream(reader.data());
+    while (!textStream.atEnd()) {
+        QString line = textStream.readLine();
+        if (line.contains("hw.device.manufacturer")) {
+            if (modification == Uncomment)
+                line.replace("#", "");
+            else
+                line.prepend("#");
+        }
+        line.append("\n");
+        saver.write(line.toUtf8());
+    }
+    saver.finalize();
+}
+
 AndroidDeviceManager::AndroidDeviceManager(QObject *parent)
     : QObject(parent)
+    , m_avdListRecipe{}
 {
     QTC_ASSERT(!s_instance, return);
     s_instance = this;
+
+    using namespace Tasking;
+
+    const Storage<FilePaths> storage;
+
+    const LoopUntil iterator([storage](int iteration) {
+        return iteration == 0 || storage->count() > 0;
+    });
+
+    const auto onProcessSetup = [](Process &process) {
+        const CommandLine cmd(androidConfig().avdManagerToolPath(), {"list", "avd"});
+        qCDebug(androidDeviceLog).noquote() << "Running AVD Manager command:" << cmd.toUserOutput();
+        process.setEnvironment(androidConfig().toolsEnvironment());
+        process.setCommand(cmd);
+    };
+    const auto onProcessDone = [this, storage](const Process &process, DoneWith result) {
+        const QString output = process.allOutput();
+        if (result != DoneWith::Success) {
+            qCDebug(androidDeviceLog)
+                << "Avd list command failed" << output << androidConfig().sdkToolsVersion();
+            return DoneResult::Error;
+        }
+
+        const auto parsedAvdList = parseAvdList(output);
+        if (parsedAvdList.errorPaths.isEmpty()) {
+            for (const FilePath &avdPath : *storage)
+                modifyManufacturerTag(avdPath, Uncomment);
+            storage->clear(); // Don't repeat anymore
+            handleAvdListChange(parsedAvdList.avdList);
+        } else {
+            for (const FilePath &avdPath : parsedAvdList.errorPaths)
+                modifyManufacturerTag(avdPath, CommentOut);
+            storage->append(parsedAvdList.errorPaths);
+        }
+        return DoneResult::Success; // Repeat
+    };
+
+    // Currenly avdmanager tool fails to parse some AVDs because the correct
+    // device definitions at devices.xml does not have some of the newest devices.
+    // Particularly, failing because of tag "hw.device.manufacturer", thus removing
+    // it would make paring successful. However, it has to be returned afterwards,
+    // otherwise, Android Studio would give an error during parsing also. So this fix
+    // aim to keep support for Qt Creator and Android Studio.
+
+    m_avdListRecipe = Group {
+        storage,
+        iterator,
+        ProcessTask(onProcessSetup, onProcessDone)
+    };
 }
 
 AndroidDeviceManager::~AndroidDeviceManager()
 {
-    m_avdsFutureWatcher.waitForFinished();
     QTC_ASSERT(s_instance == this, return);
     s_instance = nullptr;
 }

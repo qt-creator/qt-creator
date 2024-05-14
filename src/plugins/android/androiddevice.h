@@ -11,9 +11,10 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/guard.h>
 
-#include <QFutureWatcher>
 #include <QFileSystemWatcher>
 #include <QSettings>
 
@@ -76,7 +77,7 @@ class AndroidDeviceManager : public QObject
 public:
     static AndroidDeviceManager *instance();
     void setupDevicesWatcher();
-    void updateAvdsList();
+    void updateAvdList();
     IDevice::DeviceState getDeviceState(const QString &serial, IDevice::MachineType type) const;
     void updateDeviceState(const ProjectExplorer::IDevice::ConstPtr &device);
 
@@ -95,12 +96,13 @@ private:
     explicit AndroidDeviceManager(QObject *parent);
     ~AndroidDeviceManager();
 
-    void HandleDevicesListChange(const QString &serialNumber);
-    void HandleAvdsListChange();
+    void handleDevicesListChange(const QString &serialNumber);
+    void handleAvdListChange(const AndroidDeviceInfoList &avdList);
 
     QString emulatorName(const QString &serialNumber) const;
 
-    QFutureWatcher<AndroidDeviceInfoList> m_avdsFutureWatcher;
+    Tasking::Group m_avdListRecipe;
+    Tasking::TaskTreeRunner m_avdListRunner;
     std::unique_ptr<Utils::Process> m_removeAvdProcess;
     QFileSystemWatcher m_avdFileSystemWatcher;
     Utils::Guard m_avdPathGuard;

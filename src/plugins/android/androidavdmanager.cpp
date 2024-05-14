@@ -4,7 +4,6 @@
 #include "androidavdmanager.h"
 #include "androidconfigurations.h"
 #include "androidtr.h"
-#include "avdmanageroutputparser.h"
 
 #include <coreplugin/icore.h>
 
@@ -42,71 +41,6 @@ bool AndroidAvdManager::avdManagerCommand(const QStringList &args, QString *outp
         return true;
     }
     return false;
-}
-
-enum TagModification { CommentOut, Uncomment };
-
-static void modifyManufacturerTag(const FilePath &avdPath, TagModification modification)
-{
-    if (!avdPath.exists())
-        return;
-
-    const FilePath configFilePath = avdPath / "config.ini";
-    FileReader reader;
-    if (!reader.fetch(configFilePath, QIODevice::ReadOnly | QIODevice::Text))
-        return;
-
-    FileSaver saver(configFilePath);
-    QTextStream textStream(reader.data());
-    while (!textStream.atEnd()) {
-        QString line = textStream.readLine();
-        if (line.contains("hw.device.manufacturer")) {
-            if (modification == Uncomment)
-                line.replace("#", "");
-            else
-                line.prepend("#");
-        }
-        line.append("\n");
-        saver.write(line.toUtf8());
-    }
-    saver.finalize();
-}
-
-static AndroidDeviceInfoList listVirtualDevices()
-{
-    /*
-        Currenly avdmanager tool fails to parse some AVDs because the correct
-        device definitions at devices.xml does not have some of the newest devices.
-        Particularly, failing because of tag "hw.device.manufacturer", thus removing
-        it would make paring successful. However, it has to be returned afterwards,
-        otherwise, Android Studio would give an error during parsing also. So this fix
-        aim to keep support for Qt Creator and Android Studio.
-    */
-    FilePaths allAvdErrorPaths;
-    while (true) {
-        QString output;
-        if (!AndroidAvdManager::avdManagerCommand({"list", "avd"}, &output)) {
-            qCDebug(avdManagerLog)
-                << "Avd list command failed" << output << androidConfig().sdkToolsVersion();
-            return {};
-        }
-
-        const auto parsedAvdList = parseAvdList(output);
-        if (parsedAvdList.errorPaths.isEmpty()) {
-            for (const FilePath &avdPath : std::as_const(allAvdErrorPaths))
-                modifyManufacturerTag(avdPath, Uncomment);
-            return parsedAvdList.avdList;
-        }
-        allAvdErrorPaths << parsedAvdList.errorPaths;
-        for (const FilePath &avdPath : parsedAvdList.errorPaths)
-            modifyManufacturerTag(avdPath, CommentOut);
-    }
-    return {};
-}
-
-QFuture<AndroidDeviceInfoList> AndroidAvdManager::avdList() const
-{
-    return Utils::asyncRun(listVirtualDevices);
 }
 
 QString AndroidAvdManager::startAvd(const QString &name) const
