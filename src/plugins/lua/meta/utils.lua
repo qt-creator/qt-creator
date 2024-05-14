@@ -81,4 +81,9 @@ function utils.FilePath:completeSuffix() end
 ---Returns whether the path is absolute
 ---@return boolean
 function utils.FilePath:isAbsolutePath() end
+
+---@class HostOsInfo
+---@field os "mac"|"windows"|"linux" The current host operating system
+---@field architecture "unknown"|"x86"|"x86_64"|"itanium"|"arm"|"arm64" The current host architecture
+utils.HostOsInfo = {}
 return utils

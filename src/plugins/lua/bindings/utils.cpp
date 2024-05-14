@@ -92,6 +92,24 @@ void addUtilsModule()
                 else
                     return "unknown";
             }());
+            hostOsInfoType["architecture"] = sol::var([]() {
+                switch (HostOsInfo::hostArchitecture()) {
+                case OsArchUnknown:
+                    return "unknown";
+                case OsArchX86:
+                    return "x86";
+                case OsArchAMD64:
+                    return "x86_64";
+                case OsArchItanium:
+                    return "itanium";
+                case OsArchArm:
+                    return "arm";
+                case OsArchArm64:
+                    return "arm64";
+                default:
+                    return "unknown";
+                }
+            }());
 
             sol::usertype<FilePath> filePathType = utils.new_usertype<FilePath>(
                 "FilePath",
