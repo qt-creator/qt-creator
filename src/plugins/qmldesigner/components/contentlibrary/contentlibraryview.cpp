@@ -631,19 +631,28 @@ void ContentLibraryView::addLibAssets(const QStringList &paths)
     auto bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/textures");
     QStringList pathsInBundle;
 
+    const QStringList existingTextures = Utils::transform(bundlePath.dirEntries(QDir::Files),
+                                                    [](const Utils::FilePath &path) {
+        return path.fileName();
+    });
+
     for (const QString &path : paths) {
+        auto assetFilePath = Utils::FilePath::fromString(path);
+        if (existingTextures.contains(assetFilePath.fileName()))
+            continue;
+
         Asset asset(path);
-        auto assetPath = Utils::FilePath::fromString(path);
 
         // save icon
-        QString iconSavePath = bundlePath.pathAppended("icons/" + assetPath.baseName() + ".png").toString();
+        QString iconSavePath = bundlePath.pathAppended("icons/" + assetFilePath.baseName() + ".png")
+                                   .toString();
         QPixmap icon = asset.pixmap({120, 120});
         bool iconSaved = icon.save(iconSavePath);
         if (!iconSaved)
             qWarning() << __FUNCTION__ << "icon save failed";
 
         // save asset
-        auto result = assetPath.copyFile(bundlePath.pathAppended(asset.fileName()));
+        auto result = assetFilePath.copyFile(bundlePath.pathAppended(asset.fileName()));
         if (!result)
             qWarning() << __FUNCTION__ << result.error();
 
