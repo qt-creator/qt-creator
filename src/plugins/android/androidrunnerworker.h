@@ -35,24 +35,11 @@ public:
     AndroidRunnerWorker(ProjectExplorer::RunWorker *runner, const QString &packageName);
     ~AndroidRunnerWorker() override;
 
-    bool runAdb(const QStringList &args, QString *stdOut = nullptr, QString *stdErr = nullptr,
-                const QByteArray &writeData = {});
-    void adbKill(qint64 pid);
-    QStringList selector() const;
-    void forceStop();
-    void logcatReadStandardError();
-    void logcatReadStandardOutput();
-    void logcatProcess(const QByteArray &text, QByteArray &buffer, bool onlyError);
     void setAndroidDeviceInfo(const AndroidDeviceInfo &info);
-    void setIsPreNougat(bool isPreNougat) { m_isPreNougat = isPreNougat; }
-    void setIntentName(const QString &intentName) { m_intentName = intentName; }
-
     void asyncStart();
     void asyncStop();
-    void handleJdbWaiting();
-    void handleJdbSettled();
-
-    void removeForwardPort(const QString &port);
+    void setIsPreNougat(bool isPreNougat) { m_isPreNougat = isPreNougat; }
+    void setIntentName(const QString &intentName) { m_intentName = intentName; }
 
 signals:
     void remoteProcessStarted(Utils::Port debugServerPort, const QUrl &qmlServer, qint64 pid);
@@ -62,6 +49,20 @@ signals:
     void remoteErrorOutput(const QString &output);
 
 private:
+    bool runAdb(const QStringList &args, QString *stdOut = nullptr, QString *stdErr = nullptr,
+                const QByteArray &writeData = {});
+    void adbKill(qint64 pid);
+    QStringList selector() const;
+    void forceStop();
+    void logcatReadStandardError();
+    void logcatReadStandardOutput();
+    void logcatProcess(const QByteArray &text, QByteArray &buffer, bool onlyError);
+
+    void handleJdbWaiting();
+    void handleJdbSettled();
+
+    void removeForwardPort(const QString &port);
+
     void asyncStartHelper();
     void startNativeDebugging();
     bool startDebuggerServer(const QString &packageDir, const QString &debugServerFile, QString *errorStr = nullptr);
