@@ -354,6 +354,7 @@ public:
     BaseTextEditorPrivate() = default;
 
     TextEditorFactoryPrivate *m_origin = nullptr;
+    QByteArray m_savedNavigationState;
 };
 
 class HoverHandlerRunner
@@ -772,7 +773,6 @@ public:
     QSharedPointer<TextDocument> m_document;
     QList<QMetaObject::Connection> m_documentConnections;
     QByteArray m_tempState;
-    QByteArray m_tempNavigationState;
 
     bool m_parenthesesMatchingEnabled = false;
     QTimer m_parenthesesMatchingTimer;
@@ -6498,7 +6498,7 @@ void TextEditorWidgetPrivate::slotUpdateRequest(const QRect &r, int dy)
 void TextEditorWidgetPrivate::saveCurrentCursorPositionForNavigation()
 {
     m_lastCursorChangeWasInteresting = true;
-    m_tempNavigationState = q->saveState();
+    emit q->saveCurrentStateForNavigationHistory();
 }
 
 void TextEditorWidgetPrivate::updateCurrentLineHighlight()
@@ -6554,8 +6554,7 @@ void TextEditorWidget::slotCursorPositionChanged()
             << "indent:" << BaseTextDocumentLayout::userData(textCursor().block())->foldingIndent();
 #endif
     if (!d->m_contentsChanged && d->m_lastCursorChangeWasInteresting) {
-        if (EditorManager::currentEditor() && EditorManager::currentEditor()->widget() == this)
-            EditorManager::addCurrentPositionToNavigationHistory(d->m_tempNavigationState);
+        emit addSavedStateToNavigationHistory();
         d->m_lastCursorChangeWasInteresting = false;
     } else if (d->m_contentsChanged) {
         d->saveCurrentCursorPositionForNavigation();
@@ -7588,7 +7587,7 @@ bool TextEditorWidget::openLink(const Utils::Link &link, bool inNextSplit)
     }
 
     if (!inNextSplit && textDocument()->filePath() == link.targetFilePath) {
-        EditorManager::addCurrentPositionToNavigationHistory();
+        emit addCurrentStateToNavigationHistory();
         gotoLine(link.targetLine, link.targetColumn, true, true);
         setFocus();
         return true;
@@ -9604,6 +9603,23 @@ void BaseTextEditor::select(int toPos)
     editorWidget()->setTextCursor(tc);
 }
 
+void BaseTextEditor::saveCurrentStateForNavigationHistory()
+{
+    d->m_savedNavigationState = saveState();
+}
+
+void BaseTextEditor::addSavedStateToNavigationHistory()
+{
+    if (EditorManager::currentEditor() == this)
+        EditorManager::addCurrentPositionToNavigationHistory(d->m_savedNavigationState);
+}
+
+void BaseTextEditor::addCurrentStateToNavigationHistory()
+{
+    if (EditorManager::currentEditor() == this)
+        EditorManager::addCurrentPositionToNavigationHistory();
+}
+
 void TextEditorWidgetPrivate::updateCursorPosition()
 {
     m_contextHelpItem = HelpItem();
@@ -10235,6 +10251,21 @@ BaseTextEditor *TextEditorFactoryPrivate::createEditorHelper(const TextDocumentP
                      [editor](EditorManager::OpenEditorFlags flags) {
                          EditorManager::activateEditor(editor, flags);
                      });
+    QObject::connect(
+        textEditorWidget,
+        &TextEditorWidget::saveCurrentStateForNavigationHistory,
+        editor,
+        &BaseTextEditor::saveCurrentStateForNavigationHistory);
+    QObject::connect(
+        textEditorWidget,
+        &TextEditorWidget::addSavedStateToNavigationHistory,
+        editor,
+        &BaseTextEditor::addSavedStateToNavigationHistory);
+    QObject::connect(
+        textEditorWidget,
+        &TextEditorWidget::addCurrentStateToNavigationHistory,
+        editor,
+        &BaseTextEditor::addCurrentStateToNavigationHistory);
 
     if (m_useGenericHighlighter)
         textEditorWidget->setupGenericHighlighter();

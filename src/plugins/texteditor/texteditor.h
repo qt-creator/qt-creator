@@ -169,6 +169,11 @@ public:
 private:
     friend class TextEditorFactory;
     friend class Internal::TextEditorFactoryPrivate;
+
+    void saveCurrentStateForNavigationHistory();
+    void addSavedStateToNavigationHistory();
+    void addCurrentStateToNavigationHistory();
+
     Internal::BaseTextEditorPrivate *d;
 };
 
@@ -531,6 +536,11 @@ signals:
     void requestRename(const QTextCursor &cursor);
     void requestCallHierarchy(const QTextCursor &cursor);
     void toolbarOutlineChanged(QWidget *newOutline);
+
+    // used by the IEditor
+    void saveCurrentStateForNavigationHistory();
+    void addSavedStateToNavigationHistory();
+    void addCurrentStateToNavigationHistory();
 
 protected:
     QTextBlock blockForVisibleRow(int row) const;
