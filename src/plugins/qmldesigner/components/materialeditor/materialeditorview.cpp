@@ -740,7 +740,8 @@ void MaterialEditorView::modelAboutToBeDetached(Model *model)
 {
     AbstractView::modelAboutToBeDetached(model);
     m_dynamicPropertiesModel->reset();
-    m_qmlBackEnd->materialEditorTransaction()->end();
+    if (auto transaction = m_qmlBackEnd->materialEditorTransaction())
+        transaction->end();
     m_qmlBackEnd->contextObject()->setHasMaterialLibrary(false);
     m_selectedMaterial = {};
 }
