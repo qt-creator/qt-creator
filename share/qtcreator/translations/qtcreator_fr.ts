@@ -22450,7 +22450,7 @@ devraient être gérés par le même processus clangd, ajoutez-les ici.</transla
         <translation>Convertir en Camel Case</translation>
     </message>
     <message>
-        <source>Add forward declaration for %1</source>
+        <source>Add Forward Declaration for %1</source>
         <translation>Ajouter la déclaration préalable pour %1</translation>
     </message>
     <message>

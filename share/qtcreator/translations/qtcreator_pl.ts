@@ -21537,7 +21537,7 @@ managed by the same clangd process, add them here.</source>
         <translation>Skonwertuj do pliku binarnego</translation>
     </message>
     <message>
-        <source>Add forward declaration for %1</source>
+        <source>Add Forward Declaration for %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

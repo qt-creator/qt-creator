@@ -1903,7 +1903,7 @@ AddForwardDeclForUndefinedIdentifierOp::AddForwardDeclForUndefinedIdentifierOp(
         int symbolPos)
     : CppQuickFixOperation(interface, priority), m_className(fqClassName), m_symbolPos(symbolPos)
 {
-    setDescription(Tr::tr("Add forward declaration for %1").arg(m_className));
+    setDescription(Tr::tr("Add Forward Declaration for %1").arg(m_className));
 }
 
 void AddForwardDeclForUndefinedIdentifierOp::perform()
@@ -9910,7 +9910,7 @@ public:
     ConvertToMetaMethodCallOp(const CppQuickFixInterface &interface, CallAST *callAst)
         : CppQuickFixOperation(interface), m_callAst(callAst)
     {
-        setDescription(Tr::tr("Convert function call to Qt meta-method invocation"));
+        setDescription(Tr::tr("Convert Function Call to Qt Meta-Method Invocation"));
     }
 
 private:
@@ -10048,7 +10048,7 @@ public:
         : CppQuickFixOperation(interface)
         , m_state(std::make_shared<State>())
     {
-        setDescription(Tr::tr("Move class to a dedicated set of source files"));
+        setDescription(Tr::tr("Move Class to a Dedicated Set of Source Files"));
         m_state->originalFilePath = interface.currentFile()->filePath();
         m_state->classAst = classAst;
         m_state->namespacePath = namespacePath;

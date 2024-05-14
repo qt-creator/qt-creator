@@ -14319,7 +14319,7 @@ to version control (%2)
         <translation>#include %1 を追加</translation>
     </message>
     <message>
-        <source>Add forward declaration for %1</source>
+        <source>Add Forward Declaration for %1</source>
         <translation>%1 の前方宣言を追加する</translation>
     </message>
     <message>

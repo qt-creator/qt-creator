@@ -22427,7 +22427,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
         <translation>#include %1 hinzufügen</translation>
     </message>
     <message>
-        <source>Add forward declaration for %1</source>
+        <source>Add Forward Declaration for %1</source>
         <translation>Vorwärtsdeklaration für %1 hinzufügen</translation>
     </message>
     <message>

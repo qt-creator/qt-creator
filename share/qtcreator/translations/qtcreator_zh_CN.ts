@@ -12511,7 +12511,7 @@ Flags: %3</source>
         <translation type="unfinished">添加#include %1</translation>
     </message>
     <message>
-        <source>Add forward declaration for %1</source>
+        <source>Add Forward Declaration for %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -11815,7 +11815,7 @@ Flags: %3</source>
         <translation>Добавить #include %1</translation>
     </message>
     <message>
-        <source>Add forward declaration for %1</source>
+        <source>Add Forward Declaration for %1</source>
         <translation>Добавление предъобъявления %1</translation>
     </message>
     <message>
