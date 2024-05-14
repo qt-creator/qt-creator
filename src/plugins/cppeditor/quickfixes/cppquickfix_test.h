@@ -229,9 +229,6 @@ private slots:
 
     void testConvertToMetaMethodInvocation_data();
     void testConvertToMetaMethodInvocation();
-
-    void testMoveClassToOwnFile_data();
-    void testMoveClassToOwnFile();
 };
 
 } // namespace Tests

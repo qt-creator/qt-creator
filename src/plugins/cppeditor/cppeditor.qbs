@@ -227,6 +227,8 @@ QtcPlugin {
             "cppquickfixassistant.h",
             "cppquickfixes.cpp",
             "cppquickfixes.h",
+            "cppquickfixhelpers.cpp",
+            "cppquickfixhelpers.h",
             "cppquickfixprojectsettings.cpp",
             "cppquickfixprojectsettings.h",
             "cppquickfixprojectsettingswidget.cpp",
@@ -237,6 +239,8 @@ QtcPlugin {
             "cppquickfixsettingspage.h",
             "cppquickfixsettingswidget.cpp",
             "cppquickfixsettingswidget.h",
+            "moveclasstoownfile.cpp",
+            "moveclasstoownfile.h",
         ]
     }
 

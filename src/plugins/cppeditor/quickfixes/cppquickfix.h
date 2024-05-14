@@ -17,9 +17,6 @@ namespace CppEditor {
 namespace Internal {
 class CppQuickFixInterface;
 
-// These are generated functions that should not be offered in quickfixes.
-const QStringList magicQObjectFunctions();
-
 class CppQuickFixOperation
     : public TextEditor::QuickFixOperation,
       public Internal::CppQuickFixInterface

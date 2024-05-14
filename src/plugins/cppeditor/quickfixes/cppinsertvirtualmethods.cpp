@@ -9,6 +9,7 @@
 #include "../functionutils.h"
 #include "../insertionpointlocator.h"
 #include "cppquickfixassistant.h"
+#include "cppquickfixhelpers.h"
 
 #include <coreplugin/icore.h>
 #include <texteditor/fontsettings.h>
