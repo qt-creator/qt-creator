@@ -106,6 +106,9 @@ QString anyToSimpleString(const Dto::Any &any)
         value = anyMap.find("name");
         if (value != anyMap.end())
             return anyToSimpleString(value->second);
+        value = anyMap.find("tag");
+        if (value != anyMap.end())
+            return anyToSimpleString(value->second);
     }
     return {};
 }
