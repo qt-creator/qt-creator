@@ -151,22 +151,9 @@ bool AvdDialog::isValid() const
     return !name().isEmpty() && systemImage() && systemImage()->isValid() && !abi().isEmpty();
 }
 
-IDevice::Ptr AvdDialog::device() const
+CreateAvdInfo AvdDialog::avdInfo() const
 {
-    if (m_createdAvdInfo.apiLevel < 0) {
-        qCWarning(avdDialogLog) << "System image of the created AVD is nullptr";
-        return IDevice::Ptr();
-    }
-    AndroidDevice *dev = new AndroidDevice;
-    const Utils::Id deviceId = AndroidDevice::idFromAvdInfo(m_createdAvdInfo);
-    dev->setupId(IDevice::AutoDetected, deviceId);
-    dev->setMachineType(IDevice::Emulator);
-    dev->settings()->displayName.setValue(m_createdAvdInfo.name);
-    dev->setDeviceState(IDevice::DeviceConnected);
-    dev->setExtraData(Constants::AndroidAvdName, m_createdAvdInfo.name);
-    dev->setExtraData(Constants::AndroidCpuAbi, {m_createdAvdInfo.abi});
-    dev->setExtraData(Constants::AndroidSdk, m_createdAvdInfo.apiLevel);
-    return IDevice::Ptr(dev);
+    return m_createdAvdInfo;
 }
 
 AvdDialog::DeviceType AvdDialog::tagToDeviceType(const QString &type_tag)

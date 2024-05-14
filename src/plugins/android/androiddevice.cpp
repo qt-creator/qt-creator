@@ -644,6 +644,18 @@ QString AndroidDeviceManager::getRunningAvdsSerialNumber(const QString &name) co
     return {};
 }
 
+static FilePath avdFilePath()
+{
+    QString avdEnvVar = qtcEnvironmentVariable("ANDROID_AVD_HOME");
+    if (avdEnvVar.isEmpty()) {
+        avdEnvVar = qtcEnvironmentVariable("ANDROID_SDK_HOME");
+        if (avdEnvVar.isEmpty())
+            avdEnvVar = qtcEnvironmentVariable("HOME");
+        avdEnvVar.append("/.android/avd");
+    }
+    return FilePath::fromUserInput(avdEnvVar);
+}
+
 void AndroidDeviceManager::setupDevicesWatcher()
 {
     if (!androidConfig().adbToolPath().exists()) {
@@ -686,15 +698,7 @@ void AndroidDeviceManager::setupDevicesWatcher()
 
     // Setup AVD filesystem watcher to listen for changes when an avd is created/deleted,
     // or started/stopped
-    QString avdEnvVar = qtcEnvironmentVariable("ANDROID_AVD_HOME");
-    if (avdEnvVar.isEmpty()) {
-        avdEnvVar = qtcEnvironmentVariable("ANDROID_SDK_HOME");
-        if (avdEnvVar.isEmpty())
-            avdEnvVar = qtcEnvironmentVariable("HOME");
-        avdEnvVar.append("/.android/avd");
-    }
-    const FilePath avdPath = FilePath::fromUserInput(avdEnvVar);
-    m_avdFileSystemWatcher.addPath(avdPath.toString());
+    m_avdFileSystemWatcher.addPath(avdFilePath().toString());
     connect(&m_avdsFutureWatcher, &QFutureWatcherBase::finished,
             this, &AndroidDeviceManager::HandleAvdsListChange);
     connect(&m_avdFileSystemWatcher, &QFileSystemWatcher::directoryChanged, this, [this] {
@@ -706,6 +710,25 @@ void AndroidDeviceManager::setupDevicesWatcher()
     });
     // Call initial update
     updateAvdsList();
+}
+
+IDevice::Ptr AndroidDeviceManager::createDeviceFromInfo(const CreateAvdInfo &info)
+{
+    if (info.apiLevel < 0) {
+        qCWarning(androidDeviceLog) << "System image of the created AVD is nullptr";
+        return IDevice::Ptr();
+    }
+    AndroidDevice *dev = new AndroidDevice;
+    const Utils::Id deviceId = AndroidDevice::idFromAvdInfo(info);
+    dev->setupId(IDevice::AutoDetected, deviceId);
+    dev->setMachineType(IDevice::Emulator);
+    dev->settings()->displayName.setValue(info.name);
+    dev->setDeviceState(IDevice::DeviceConnected);
+    dev->setAvdPath(avdFilePath() / (info.name + ".avd"));
+    dev->setExtraData(Constants::AndroidAvdName, info.name);
+    dev->setExtraData(Constants::AndroidCpuAbi, {info.abi});
+    dev->setExtraData(Constants::AndroidSdk, info.apiLevel);
+    return IDevice::Ptr(dev);
 }
 
 void AndroidDeviceManager::HandleAvdsListChange()
@@ -892,16 +915,15 @@ public:
             if (dialog.exec() != QDialog::Accepted)
                 return IDevice::Ptr();
 
-            const IDevice::Ptr dev = dialog.device();
+            const IDevice::Ptr dev = AndroidDeviceManager::createDeviceFromInfo(dialog.avdInfo());
             if (const auto androidDev = static_cast<AndroidDevice *>(dev.get())) {
                 qCDebug(androidDeviceLog, "Created new Android AVD id \"%s\".",
                         qPrintable(androidDev->avdName()));
-            } else {
-                AndroidDeviceWidget::criticalDialog(
-                    Tr::tr("The device info returned from AvdDialog is invalid."));
+                return dev;
             }
-
-            return IDevice::Ptr(dev);
+            AndroidDeviceWidget::criticalDialog(
+                Tr::tr("The device info returned from AvdDialog is invalid."));
+            return IDevice::Ptr();
         });
     }
 };

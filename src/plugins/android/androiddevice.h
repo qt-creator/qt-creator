@@ -89,6 +89,8 @@ public:
 
     QString getRunningAvdsSerialNumber(const QString &name) const;
 
+    static ProjectExplorer::IDevice::Ptr createDeviceFromInfo(const CreateAvdInfo &info);
+
 private:
     explicit AndroidDeviceManager(QObject *parent);
     ~AndroidDeviceManager();

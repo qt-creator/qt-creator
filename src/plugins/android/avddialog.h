@@ -35,7 +35,7 @@ public:
 
     enum DeviceType { Phone, Tablet, Automotive, TV, Wear, Desktop, PhoneOrTablet };
 
-    ProjectExplorer::IDevice::Ptr device() const;
+    CreateAvdInfo avdInfo() const;
 
     const SystemImage *systemImage() const;
     QString name() const;
