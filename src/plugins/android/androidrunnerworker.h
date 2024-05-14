@@ -51,7 +51,6 @@ signals:
 private:
     bool runAdb(const QStringList &args, QString *stdOut = nullptr, QString *stdErr = nullptr,
                 const QByteArray &writeData = {});
-    void adbKill(qint64 pid);
     QStringList selector() const;
     void forceStop();
     void logcatReadStandardError();
