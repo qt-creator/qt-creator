@@ -5,6 +5,7 @@
 
 #include "luapluginspec.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
 #include <utils/algorithm.h>
@@ -13,6 +14,7 @@
 
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QStandardPaths>
 
 using namespace Utils;
 
@@ -150,6 +152,16 @@ expected_str<void> LuaEngine::prepareSetup(
 
     const QString searchPath = (pluginSpec.location() / "?.lua").toUserOutput();
     lua["package"]["path"] = searchPath.toStdString();
+
+    const FilePath appDataPath = Core::ICore::userResourcePath() / "plugin-data" / "lua"
+                                 / pluginSpec.location().fileName();
+
+    sol::environment env(lua, sol::create, lua.globals());
+
+    lua.new_usertype<ScriptPluginSpec>(
+        "PluginSpec", sol::no_constructor, "name", sol::readonly(&ScriptPluginSpec::name));
+
+    lua["PluginSpec"] = ScriptPluginSpec{pluginSpec.name(), appDataPath};
 
     // TODO: only register what the plugin requested
     for (const auto &[name, func] : d->m_providers.asKeyValueRange()) {

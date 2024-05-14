@@ -33,6 +33,12 @@ struct CoroutineState
     bool isMainThread;
 };
 
+struct ScriptPluginSpec
+{
+    QString name;
+    Utils::FilePath appDataPath;
+};
+
 class LUA_EXPORT LuaEngine final : public QObject
 {
     friend class Internal::LuaPlugin;

@@ -3,10 +3,10 @@
 local LSP = require('LSP')
 local mm = require('MessageManager')
 local Utils = require('Utils')
-local Process = require('Process')
 local S = require('Settings')
 local Layout = require('Layout')
 local a = require('async')
+local fetch = require('Fetch').fetch
 
 Settings = {}
 
@@ -24,30 +24,78 @@ local function createCommand()
 
   return cmd
 end
-local function installServer()
-  print("Lua Language Server not found, installing ...")
-  local cmds = {
-    mac = "brew install lua-language-server",
-    windows = "winget install lua-language-server",
-    linux = "sudo apt install lua-language-server"
-  }
+local function filter(tbl, callback)
+  for i = #tbl, 1, -1 do
+    if not callback(tbl[i]) then
+      table.remove(tbl, i)
+    end
+  end
+end
 
-  if a.wait(Process.runInTerminal(cmds[Utils.HostOsInfo.os])) == 0 then
-    print("Lua Language Server installed!")
-    local binary = a.wait(Utils.FilePath.fromUserInput("lua-language-server"):searchInPath())
-    if binary:isExecutableFile() == false then
-      mm.writeFlashing("Lua Language Server was installed, but I could not find it in your PATH")
-      return false
+local function installOrUpdateServer()
+  local data = a.wait(fetch({
+    url = "https://api.github.com/repos/LuaLS/lua-language-server/releases?per_page=1",
+    convertToTable = true,
+    headers = {
+      Accept = "application/vnd.github.v3+json",
+      ["X-GitHub-Api-Version"] = "2022-11-28"
+    }
+  }))
+
+  if type(data) == "table" and #data > 0 then
+    local r = data[1]
+    Install = require('Install')
+    local lspPkgInfo = Install.packageInfo("lua-language-server")
+    if not lspPkgInfo or lspPkgInfo.version ~= r.tag_name then
+      local osTr = { mac = "darwin", windows = "win32", linux = "linux" }
+      local archTr = { unknown = "", x86 = "ia32", x86_64 = "x64", itanium = "", arm = "", arm64 = "arm64" }
+      local os = osTr[Utils.HostOsInfo.os]
+      local arch = archTr[Utils.HostOsInfo.architecture]
+
+      local expectedFileName = "lua-language-server-" .. r.tag_name .. "-" .. os .. "-" .. arch
+
+      filter(r.assets, function(asset)
+        return string.find(asset.name, expectedFileName, 1, true) == 1
+      end)
+
+      if #r.assets == 0 then
+        print("No assets found for this platform")
+        return
+      end
+      local res, err = a.wait(Install.install(
+        "Do you want to install the lua-language-server?", {
+        name = "lua-language-server",
+        url = r.assets[1].browser_download_url,
+        version = r.tag_name
+      }))
+
+      if not res then
+        mm.writeFlashing("Failed to install lua-language-server: " .. err)
+        return
+      end
+
+      lspPkgInfo = Install.packageInfo("lua-language-server")
+      print("Installed:", lspPkgInfo.name, "version:", lspPkgInfo.version, "at", lspPkgInfo.path)
     end
 
-    Settings.binary.value = binary:toUserOutput()
+    local binary = "bin/lua-language-server"
+    if Utils.HostOsInfo.isWindowsHost() then
+      binary = "bin/lua-language-server.exe"
+    end
+
+    Settings.binary.defaultPath = lspPkgInfo.path:resolvePath(binary)
     Settings:apply()
-    return true
+    return
   end
 
-  mm.writeFlashing("Lua Language Server installation failed!")
-  return false
+  if type(data) == "string" then
+    print("Failed to fetch:", data)
+  else
+    print("No lua-language-server release found.")
+  end
 end
+IsTryingToInstall = false
+
 local function setupClient()
   Client = LSP.Client.create({
     name = 'Lua Language Server',
@@ -59,9 +107,15 @@ local function setupClient()
     },
     settings = Settings,
     startBehavior = "RequiresFile",
-    onStartFailed = function(ask)
+    onStartFailed = function()
       a.sync(function()
-        installServer()
+        if IsTryingToInstall == true then
+          mm.writeFlashing("RECURSION!");
+          return
+        end
+        IsTryingToInstall = true
+        installOrUpdateServer()
+        IsTryingToInstall = false
       end)()
     end
   })
@@ -92,7 +146,7 @@ local function layoutSettings()
       Row {
         PushButton {
           text("Try to install lua language server"),
-          onClicked(function() a.sync(installServer)() end),
+          onClicked(function() a.sync(installOrUpdateServer)() end),
           br,
         },
         st

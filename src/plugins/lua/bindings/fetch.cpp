@@ -92,11 +92,12 @@ void addFetchModule()
                             reply->deleteLater();
 
                             if (reply->error() != QNetworkReply::NoError) {
-                                callback(QString("%1 (%2)")
+                                callback(QString("%1 (%2):\n%3")
                                              .arg(reply->errorString())
                                              .arg(QString::fromLatin1(
                                                  QMetaEnum::fromType<QNetworkReply::NetworkError>()
-                                                     .valueToKey(reply->error()))));
+                                                     .valueToKey(reply->error())))
+                                             .arg(QString::fromUtf8(reply->readAll())));
                                 return;
                             }
 

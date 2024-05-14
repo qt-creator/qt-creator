@@ -10,6 +10,7 @@ add_qtc_plugin(Lua
     bindings/fetch.cpp
     bindings/hook.cpp
     bindings/inheritance.h
+    bindings/install.cpp
     bindings/layout.cpp
     bindings/messagemanager.cpp
     bindings/qtcprocess.cpp

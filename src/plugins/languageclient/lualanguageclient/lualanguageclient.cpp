@@ -289,8 +289,9 @@ public:
         if (m_clients.contains(c))
             m_clients.removeOne(c);
 
-        if (unexpected && m_startFailedCallback)
-            sol::protected_function_result result = m_startFailedCallback->call();
+        if (unexpected && m_startFailedCallback) {
+            QTC_CHECK_EXPECTED(::Lua::LuaEngine::void_safe_call(*m_startFailedCallback));
+        }
     }
 
     // TODO: Unregister Client settings from LanguageClientManager
