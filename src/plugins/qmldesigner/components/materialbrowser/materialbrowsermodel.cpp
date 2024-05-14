@@ -366,6 +366,9 @@ void MaterialBrowserModel::selectMaterial(int idx, bool force)
     if (idx != m_selectedIndex || force) {
         m_selectedIndex = idx;
         emit selectedIndexChanged(idx);
+
+        m_selectedMaterialIsComponent = selectedMaterial().isComponent();
+        emit selectedMaterialIsComponentChanged();
     }
 }
 

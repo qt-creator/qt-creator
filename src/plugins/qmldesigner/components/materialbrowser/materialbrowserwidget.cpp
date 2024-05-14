@@ -434,10 +434,4 @@ QPointer<MaterialBrowserTexturesModel> MaterialBrowserWidget::materialBrowserTex
     return m_materialBrowserTexturesModel;
 }
 
-bool MaterialBrowserWidget::userBundleEnabled() const
-{
-    // TODO: this method is to be removed after user bundle implementation is complete
-    return Core::ICore::settings()->value("QML/Designer/UseExperimentalFeatures45", false).toBool();
-}
-
 } // namespace QmlDesigner

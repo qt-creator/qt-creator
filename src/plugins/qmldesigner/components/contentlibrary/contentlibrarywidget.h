@@ -90,7 +90,6 @@ public:
     Q_INVOKABLE void addLightProbe(QmlDesigner::ContentLibraryTexture *tex);
     Q_INVOKABLE void updateSceneEnvState();
     Q_INVOKABLE void markTextureUpdated(const QString &textureKey);
-    Q_INVOKABLE bool userBundleEnabled() const;
 
     QSize sizeHint() const override;
 

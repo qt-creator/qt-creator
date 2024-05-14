@@ -635,12 +635,6 @@ void AssetsLibraryWidget::addResources(const QStringList &files, bool showDialog
     }
 }
 
-bool AssetsLibraryWidget::userBundleEnabled() const
-{
-    // TODO: this method is to be removed after user bundle implementation is complete
-    return Core::ICore::settings()->value("QML/Designer/UseExperimentalFeatures45", false).toBool();
-}
-
 void AssetsLibraryWidget::addAssetsToContentLibrary(const QStringList &assetPaths)
 {
     m_assetsView->emitCustomNotification("add_assets_to_content_lib", {}, {assetPaths});
