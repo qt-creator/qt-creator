@@ -40,6 +40,7 @@
 #include <QDialogButtonBox>
 #include <QDir>
 #include <QFileInfo>
+#include <QFormLayout>
 #include <QGroupBox>
 #include <QHeaderView>
 #include <QJsonDocument>
@@ -817,8 +818,8 @@ static QString startupBehaviorString(BaseSettings::StartBehavior behavior)
     return {};
 }
 
-BaseSettingsWidget::BaseSettingsWidget(
-    const BaseSettings *settings, QWidget *parent, Layouting::LayoutItems additionalItems)
+BaseSettingsWidget::BaseSettingsWidget(const BaseSettings *settings, QWidget *parent,
+                                       Layouting::LayoutModifier additionalItems)
     : QWidget(parent)
     , m_name(new QLineEdit(settings->m_name, this))
     , m_mimeTypes(new QLabel(settings->m_languageFilter.mimeTypes.join(filterSeparator), this))
@@ -878,7 +879,10 @@ BaseSettingsWidget::BaseSettingsWidget(
         Tr::tr("Initialization options:"), m_initializationOptions, br
 
     };
-    form.addItems(additionalItems);
+
+    if (additionalItems)
+        additionalItems(&form);
+
     form.attachTo(this);
     // clang-format on
 }

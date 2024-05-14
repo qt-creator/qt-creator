@@ -19,6 +19,7 @@
 #include <utils/utilsicons.h>
 
 #include <QLabel>
+#include <QLayout>
 #include <QPushButton>
 #include <QSpinBox>
 

@@ -110,7 +110,8 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
     using namespace Layouting;
 
     Form {
-        Tr::tr("Name:"), d->m_nameLineEdit, br,
+        Tr::tr("Name:"), d->m_nameLineEdit,
+                br,
         d->m_projectLabel, d->m_projectComboBox, br,
         Column { Space(12) }, br,
         Tr::tr("Create in:"), d->m_pathChooser, br,

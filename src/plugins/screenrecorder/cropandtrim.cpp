@@ -324,7 +324,7 @@ CropWidget::CropWidget(QWidget *parent)
             saveImageButton,
             copyImageToClipboardButton,
         },
-        noMargin(),
+        noMargin,
     }.attachTo(this);
 
     connect(m_xSpinBox, &QSpinBox::valueChanged, this, &CropWidget::onSpinBoxChanged);
@@ -526,19 +526,19 @@ TrimWidget::TrimWidget(const ClipInfo &clip, QWidget *parent)
 
     using namespace Layouting;
     Column {
-        Row { m_frameSlider, m_currentTime, "/", m_clipDuration },
+        Row { m_frameSlider, m_currentTime, QString("/"), m_clipDuration },
         Group {
             title(Tr::tr("Trimming")),
             Row {
                 m_trimStart.button, m_trimStart.timeLabel,
                 Space(20),
                 m_trimEnd.button, m_trimEnd.timeLabel,
-                Stretch(), Space(20),
+                st, Space(20),
                 Tr::tr("Range:"), m_trimRange,
                 m_trimResetButton,
             },
         },
-        noMargin(),
+        noMargin,
     }.attachTo(this);
 
     connect(m_frameSlider, &QSlider::valueChanged, this, [this] {
@@ -652,7 +652,7 @@ CropAndTrimDialog::CropAndTrimDialog(const ClipInfo &clip, QWidget *parent)
     using namespace Layouting;
     Column {
         Group {
-            title("Cropping"),
+            title(Tr::tr("Cropping")),
             Column { m_cropWidget },
         },
         Space(16),
@@ -760,7 +760,7 @@ CropAndTrimWidget::CropAndTrimWidget(QWidget *parent)
     Row {
         m_button,
         m_cropSizeWarningIcon,
-        noMargin(), spacing(0),
+        noMargin, spacing(0),
     }.attachTo(this);
 
     connect(m_button, &QPushButton::clicked, this, [this] {

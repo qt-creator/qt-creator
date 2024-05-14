@@ -102,7 +102,7 @@ GitLabServerWidget::GitLabServerWidget(Mode m, QWidget *parent)
             m_token, br,
             m_port, br,
             m_secure,
-            m == Edit ? normalMargin : noMargin
+            m == Edit ? &Layout::normalMargin : &Layout::noMargin
         },
     }.attachTo(this);
 }

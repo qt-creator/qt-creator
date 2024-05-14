@@ -201,13 +201,13 @@ bool RunConfiguration::isEnabled(Utils::Id) const
 QWidget *RunConfiguration::createConfigurationWidget()
 {
     Layouting::Form form;
+    form.noMargin();
     for (BaseAspect *aspect : std::as_const(*this)) {
         if (aspect->isVisible()) {
             form.addItem(aspect);
-            form.addItem(Layouting::br);
+            form.flush();
         }
     }
-    form.addItem(Layouting::noMargin);
     auto widget = form.emerge();
 
     VariableChooser::addSupportForChildWidgets(widget, &m_expander);

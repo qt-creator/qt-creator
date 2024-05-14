@@ -19,6 +19,7 @@
 
 #include <QComboBox>
 #include <QLabel>
+#include <QLayout>
 #include <QStackedWidget>
 
 using namespace TextEditor;

@@ -63,13 +63,13 @@ TerminalAspect::TerminalAspect(AspectContainer *container)
 /*!
     \reimp
 */
-void TerminalAspect::addToLayout(LayoutItem &parent)
+void TerminalAspect::addToLayout(Layout &parent)
 {
     QTC_CHECK(!m_checkBox);
     m_checkBox = createSubWidget<QCheckBox>(Tr::tr("Run in terminal"));
     m_checkBox->setChecked(m_useTerminal);
     m_checkBox->setEnabled(isEnabled());
-    parent.addItems({empty(), m_checkBox.data()});
+    parent.addItems({empty, m_checkBox.data()});
     connect(m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
         m_userSet = true;
         m_useTerminal = m_checkBox->isChecked();
@@ -174,7 +174,7 @@ void WorkingDirectoryAspect::setEnvironment(EnvironmentAspect *envAspect)
 /*!
     \reimp
 */
-void WorkingDirectoryAspect::addToLayout(LayoutItem &builder)
+void WorkingDirectoryAspect::addToLayout(Layout &builder)
 {
     QTC_CHECK(!m_chooser);
     m_chooser = new PathChooser;
@@ -451,7 +451,7 @@ QWidget *ArgumentsAspect::setupChooser()
 /*!
     \reimp
 */
-void ArgumentsAspect::addToLayout(LayoutItem &builder)
+void ArgumentsAspect::addToLayout(Layout &builder)
 {
     QTC_CHECK(!m_chooser && !m_multiLineChooser && !m_multiLineButton);
 
@@ -643,11 +643,13 @@ FilePath ExecutableAspect::executable() const
 /*!
     \reimp
 */
-void ExecutableAspect::addToLayout(LayoutItem &builder)
+void ExecutableAspect::addToLayout(Layout &builder)
 {
     builder.addItem(m_executable);
-    if (m_alternativeExecutable)
-        builder.addItems({br, m_alternativeExecutable});
+    if (m_alternativeExecutable) {
+        builder.flush();
+        builder.addItem(m_alternativeExecutable);
+    }
 }
 
 /*!

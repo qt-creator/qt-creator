@@ -144,7 +144,7 @@ ExportWidget::ExportWidget(QWidget *parent)
     exportButton->setText(Tr::tr("Export..."));
 
     using namespace Layouting;
-    Row { st, new StyledSeparator, exportButton, noMargin(), spacing(0) }.attachTo(this);
+    Row { st, new StyledSeparator, exportButton, noMargin, spacing(0) }.attachTo(this);
 
     connect(exportButton, &QToolButton::clicked, this, [this] {
         FilePathAspect &lastDir = Internal::settings().exportLastDirectory;

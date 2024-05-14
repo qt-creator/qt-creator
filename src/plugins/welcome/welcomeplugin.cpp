@@ -165,7 +165,7 @@ public:
                 customMargin({HPaddingM, VPaddingM, HPaddingM, VPaddingM}),
             },
             createRule(Qt::Horizontal),
-            noMargin(), spacing(0),
+            noMargin, spacing(0),
         }.attachTo(this);
     }
 };
@@ -194,7 +194,7 @@ public:
         m_essentials = new QWidget;
         Column essentials {
             spacing(0),
-            noMargin(),
+            noMargin,
         };
 
         {
@@ -232,7 +232,7 @@ public:
         mainColumn.addItem(st);
 
         {
-            auto label = new Label(Tr::tr("Explore more"), Label::Secondary);
+            auto label = new Core::Label(Tr::tr("Explore more"), Core::Label::Secondary);
             label->setContentsMargins(HPaddingXxs, 0, 0, 0); // Is indented in Figma design
 
             Column linksLayout {
@@ -275,7 +275,7 @@ public:
         Row {
             mainColumn,
             createRule(Qt::Vertical),
-            noMargin(), spacing(0),
+            noMargin, spacing(0),
         }.attachTo(mainWidget);
 
         setWidget(mainWidget);
@@ -342,7 +342,7 @@ WelcomeMode::WelcomeMode()
             m_sideArea,
             m_pageStack,
         },
-        noMargin(),
+        noMargin,
         spacing(0),
     }.attachTo(m_modeWidget);
 

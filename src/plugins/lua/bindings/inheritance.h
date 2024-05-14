@@ -72,43 +72,47 @@ SOL_DERIVED_CLASSES(
     Utils::AspectList);
 
 namespace Layouting {
-class LayoutItem;
+class Object;
+
+class Layout;
 class Column;
-class Row;
 class Flow;
-class Grid;
 class Form;
+class Grid;
+
 class Widget;
-class Stack;
-class Tab;
 class Group;
-class TextEdit;
 class PushButton;
+class Row;
 class SpinBox;
 class Splitter;
-class ToolBar;
+class Stack;
+class Tab;
 class TabWidget;
-class Group;
+class TextEdit;
+class ToolBar;
 } // namespace Layouting
 
-SOL_BASE_CLASSES(Layouting::Column, Layouting::LayoutItem);
-SOL_BASE_CLASSES(Layouting::Row, Layouting::LayoutItem);
-SOL_BASE_CLASSES(Layouting::Flow, Layouting::LayoutItem);
-SOL_BASE_CLASSES(Layouting::Grid, Layouting::LayoutItem);
-SOL_BASE_CLASSES(Layouting::Form, Layouting::LayoutItem);
-SOL_BASE_CLASSES(Layouting::Widget, Layouting::LayoutItem);
-SOL_BASE_CLASSES(Layouting::Stack, Layouting::LayoutItem);
-SOL_BASE_CLASSES(Layouting::Tab, Layouting::LayoutItem);
-SOL_BASE_CLASSES(Layouting::Group, Layouting::LayoutItem);
-SOL_BASE_CLASSES(Layouting::TextEdit, Layouting::LayoutItem);
-SOL_BASE_CLASSES(Layouting::PushButton, Layouting::LayoutItem);
-SOL_BASE_CLASSES(Layouting::SpinBox, Layouting::LayoutItem);
-SOL_BASE_CLASSES(Layouting::Splitter, Layouting::LayoutItem);
-SOL_BASE_CLASSES(Layouting::ToolBar, Layouting::LayoutItem);
-SOL_BASE_CLASSES(Layouting::TabWidget, Layouting::LayoutItem);
+SOL_BASE_CLASSES(Layouting::Layout, Layouting::Object);
+SOL_BASE_CLASSES(Layouting::Column, Layouting::Layout);
+SOL_BASE_CLASSES(Layouting::Row, Layouting::Layout);
+SOL_BASE_CLASSES(Layouting::Flow, Layouting::Layout);
+SOL_BASE_CLASSES(Layouting::Grid, Layouting::Layout);
+SOL_BASE_CLASSES(Layouting::Form, Layouting::Layout);
+SOL_BASE_CLASSES(Layouting::Widget, Layouting::Widget);
+SOL_BASE_CLASSES(Layouting::Stack, Layouting::Widget);
+SOL_BASE_CLASSES(Layouting::Tab, Layouting::Widget);
+SOL_BASE_CLASSES(Layouting::Group, Layouting::Widget);
+SOL_BASE_CLASSES(Layouting::TextEdit, Layouting::Widget);
+SOL_BASE_CLASSES(Layouting::PushButton, Layouting::Widget);
+SOL_BASE_CLASSES(Layouting::SpinBox, Layouting::Widget);
+SOL_BASE_CLASSES(Layouting::Splitter, Layouting::Widget);
+SOL_BASE_CLASSES(Layouting::ToolBar, Layouting::Widget);
+SOL_BASE_CLASSES(Layouting::TabWidget, Layouting::Widget);
 
 SOL_DERIVED_CLASSES(
-    Layouting::LayoutItem,
+    Layouting::Object,
+    Layouting::Layout,
     Layouting::Column,
     Layouting::Row,
     Layouting::Flow,
@@ -124,3 +128,4 @@ SOL_DERIVED_CLASSES(
     Layouting::Splitter,
     Layouting::ToolBar,
     Layouting::TabWidget);
+

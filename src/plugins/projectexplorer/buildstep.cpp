@@ -113,11 +113,13 @@ QWidget *BuildStep::doCreateConfigWidget()
 QWidget *BuildStep::createConfigWidget()
 {
     Layouting::Form form;
+    form.noMargin();
     for (BaseAspect *aspect : std::as_const(*this)) {
-        if (aspect->isVisible())
-            form.addItems({aspect, Layouting::br()});
+        if (aspect->isVisible()) {
+            form.addItem(aspect);
+            form.flush();
+        }
     }
-    form.addItem(Layouting::noMargin);
     auto widget = form.emerge();
 
     if (m_addMacroExpander)

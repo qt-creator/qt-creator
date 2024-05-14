@@ -21,6 +21,7 @@
 #include <utils/pathchooser.h>
 #include <utils/utilsicons.h>
 
+#include <QGroupBox>
 #include <QTextBrowser>
 #include <QTimer>
 

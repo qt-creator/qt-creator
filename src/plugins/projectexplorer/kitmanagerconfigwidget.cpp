@@ -200,7 +200,7 @@ QString KitManagerConfigWidget::validityMessage() const
     return m_modifiedKit->toHtml(tmp);
 }
 
-void KitManagerConfigWidget::addAspectToWorkingCopy(Layouting::LayoutItem &parent, KitAspectFactory *factory)
+void KitManagerConfigWidget::addAspectToWorkingCopy(Layouting::Layout &parent, KitAspectFactory *factory)
 {
     QTC_ASSERT(factory, return);
     KitAspect *aspect = factory->createKitAspect(workingCopy());

@@ -23,6 +23,7 @@
 #include <utils/qtcassert.h>
 
 #include <QComboBox>
+#include <QFormLayout>
 #include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
@@ -91,7 +92,7 @@ private:
     QPushButton *m_defaultDeviceButton;
     QVBoxLayout *m_buttonsLayout;
     QWidget *m_deviceNameEditWidget;
-    QFormLayout *m_generalFormLayout;
+    QLayout *m_generalFormLayout;
 };
 
 DeviceSettingsWidget::DeviceSettingsWidget()
@@ -338,7 +339,7 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
         return;
     }
 
-    Layouting::Column item{Layouting::noMargin()};
+    Layouting::Column item{Layouting::noMargin};
     device->settings()->displayName.addToLayout(item);
     QWidget *newEdit = item.emerge();
     QLayoutItem *oldItem = m_generalFormLayout->replaceWidget(m_deviceNameEditWidget, newEdit);

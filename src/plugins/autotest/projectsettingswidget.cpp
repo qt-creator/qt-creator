@@ -92,13 +92,13 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
                     m_runAfterBuild,
                     st,
                 },
-                noMargin(),
+                noMargin,
             },
         },
         Row { // explicitly outside of the global settings
             Group {
                 title(Tr::tr("Limit Files to Path Patterns")),
-                m_applyFilter.groupChecker(),
+                groupChecker(m_applyFilter.groupChecker()),
                 Column {
                     filterLabel,
                     Row {
@@ -108,7 +108,7 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
                 },
             },
         },
-        noMargin(),
+        noMargin,
     }.attachTo(this);
     // clang-format on
 

@@ -75,7 +75,7 @@ TestSettingsWidget::TestSettingsWidget()
 
     PushButton resetChoicesButton {
         text(Tr::tr("Reset Cached Choices")),
-        tooltip(Tr::tr("Clear all cached choices of run configurations for "
+        Layouting::toolTip(Tr::tr("Clear all cached choices of run configurations for "
                        "tests where the executable could not be deduced.")),
         onClicked(&clearChoiceCache, this)
     };

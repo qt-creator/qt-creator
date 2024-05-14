@@ -461,7 +461,7 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
     QVBoxLayout *vlayout;
 
     using namespace Layouting;
-    Row { fancyButton, noMargin() }.attachTo(bar);
+    Row { fancyButton, noMargin }.attachTo(bar);
     Row {
         Widget {
             bindTo(&m_selectionWidget),
@@ -471,13 +471,13 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
                 st,
                 Widget {
                     bindTo(&m_cornerWidgetContainer),
-                    Column { st, spacing(0), noMargin() },
+                    Column { st, spacing(0), noMargin },
                 },
-                spacing(0),  noMargin(),
+                spacing(0), noMargin,
             },
         },
         Column { bindTo(&vlayout), m_modesStack, m_statusBar, spacing(0) },
-        spacing(1), noMargin(),
+        spacing(1), noMargin,
     }.attachTo(this);
 
     m_selectionWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);

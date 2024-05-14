@@ -31,7 +31,7 @@ public:
 
     void fromMap(const Utils::Store &map) override;
     void toMap(Utils::Store &map) const override;
-    void addToLayout(Layouting::LayoutItem &parent) override;
+    void addToLayout(Layouting::Layout &parent) override;
 
     IosDeviceType deviceType() const;
     void setDeviceType(const IosDeviceType &deviceType);

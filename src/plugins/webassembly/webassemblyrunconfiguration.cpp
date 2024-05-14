@@ -131,7 +131,7 @@ public:
         addDataExtractor(this, &WebBrowserSelectionAspect::currentBrowser, &Data::currentBrowser);
     }
 
-    void addToLayout(Layouting::LayoutItem &parent) override
+    void addToLayout(Layouting::Layout &parent) override
     {
         QTC_CHECK(!m_webBrowserComboBox);
         m_webBrowserComboBox = new QComboBox;

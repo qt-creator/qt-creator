@@ -326,13 +326,13 @@ NamedWidget *BuildConfiguration::createConfigWidget()
     }
 
     Layouting::Form form;
+    form.noMargin();
     for (BaseAspect *aspect : aspects()) {
         if (aspect->isVisible()) {
             form.addItem(aspect);
-            form.addItem(Layouting::br);
+            form.flush();
         }
     }
-    form.addItem(Layouting::noMargin);
     form.attachTo(widget);
 
     return named;

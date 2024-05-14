@@ -29,6 +29,7 @@
 #include <coreplugin/icore.h>
 
 #include <QDialog>
+#include <QLayout>
 
 using namespace Utils;
 using namespace Core;
@@ -56,7 +57,7 @@ public:
         Column {
             m_recordWidget,
             Row { m_cropAndTrimStatusWidget, m_exportWidget },
-            noMargin(), spacing(0),
+            noMargin, spacing(0),
         }.attachTo(this);
 
         auto setLowerRowEndabled = [this] (bool enabled) {

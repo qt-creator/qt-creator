@@ -159,7 +159,7 @@ public:
     explicit BaseSettingsWidget(
         const BaseSettings *settings,
         QWidget *parent = nullptr,
-        Layouting::LayoutItems additionalItems = {});
+        Layouting::LayoutModifier additionalItems = {});
 
     ~BaseSettingsWidget() override = default;
 

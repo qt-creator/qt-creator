@@ -467,7 +467,7 @@ bool SourcePathMapAspect::isDirty()
     return m_internal != m_buffer;
 }
 
-void SourcePathMapAspect::addToLayout(Layouting::LayoutItem &parent)
+void SourcePathMapAspect::addToLayout(Layouting::Layout &parent)
 {
     QTC_CHECK(!d->m_widget);
     d->m_widget = createSubWidget<DebuggerSourcePathMappingWidget>();

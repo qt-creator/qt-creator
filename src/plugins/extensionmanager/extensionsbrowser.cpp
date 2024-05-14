@@ -457,7 +457,7 @@ ExtensionsBrowser::ExtensionsBrowser()
         Row { m_searchBox, st, m_updateButton, Space(extraListViewWidth() + gapSize) },
         Space(gapSize),
         m_extensionsView,
-        noMargin(), spacing(0),
+        noMargin, spacing(0),
     }.attachTo(this);
 
     WelcomePageHelpers::setBackgroundColor(this, Theme::Token_Background_Default);

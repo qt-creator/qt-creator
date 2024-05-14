@@ -342,7 +342,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
                 Column {
                     cmakeConfiguration,
                     Row {
-                        bc->initialCMakeArguments, br,
+                        bc->initialCMakeArguments,
                         bc->additionalCMakeOptions
                     },
                     m_reconfigureButton,

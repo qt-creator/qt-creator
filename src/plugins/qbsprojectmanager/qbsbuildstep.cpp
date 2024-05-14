@@ -60,7 +60,7 @@ ArchitecturesAspect::ArchitecturesAspect(AspectContainer *container)
     setAllValues(m_abisToArchMap.keys());
 }
 
-void ArchitecturesAspect::addToLayout(Layouting::LayoutItem &parent)
+void ArchitecturesAspect::addToLayout(Layouting::Layout &parent)
 {
     MultiSelectionAspect::addToLayout(parent);
     const auto changeHandler = [this] {

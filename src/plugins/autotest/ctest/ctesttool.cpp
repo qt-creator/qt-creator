@@ -43,15 +43,15 @@ CTestTool::CTestTool()
             outputMode, br,
             Group {
                 title(Tr::tr("Repeat Tests")),
-                repeat.groupChecker(),
+                groupChecker(repeat.groupChecker()),
                 Row { repetitionMode, repetitionCount},
             }, br,
             Group {
                 title(Tr::tr("Run in Parallel")),
-                parallel.groupChecker(),
+                groupChecker(parallel.groupChecker()),
                 Column {
                     Row { jobs }, br,
-                    Row { testLoad, threshold}
+                    Row { testLoad, threshold }
                 }
             }
         }, st };

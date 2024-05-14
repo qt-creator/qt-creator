@@ -24,9 +24,9 @@ int main(int argc, char *argv[])
     };
 
     Row {
-        PushButton { text("-"), onClicked(minusClick) },
+        PushButton { text("-"), onClicked(minusClick, nullptr) },
         lineEdit,
-        PushButton { text("+"), onClicked(plusClick) },
+        PushButton { text("+"), onClicked(plusClick, nullptr) },
         Group {
             title("Splitter in Group"),
             Column {
@@ -52,8 +52,8 @@ int main(int argc, char *argv[])
 
     Splitter {
         windowTitle("Splitter with sub layouts"),
-        Column {"First Widget"},
-        Row {"Second Widget"},
+        Column { QString("First Widget") },
+        Row { QString("Second Widget") },
     }.emerge()->show();
 
     return app.exec();

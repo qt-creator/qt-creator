@@ -50,7 +50,7 @@ GeneralSettings::GeneralSettings()
         return Column {
             Group {
                 title(Tr::tr("Automatic Formatting on File Save")),
-                autoFormatOnSave.groupChecker(),
+                groupChecker(autoFormatOnSave.groupChecker()),
                 Form {
                     autoFormatTools, br,
                     autoFormatMime, br,

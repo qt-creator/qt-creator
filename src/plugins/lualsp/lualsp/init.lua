@@ -145,9 +145,8 @@ local function layoutSettings()
       "Language server not found:",
       Row {
         PushButton {
-          text("Try to install lua language server"),
-          onClicked(function() a.sync(installOrUpdateServer)() end),
-          br,
+          text = "Try to install lua language server",
+          onClicked = function() a.sync(installServer)() end,
         },
         st
       }

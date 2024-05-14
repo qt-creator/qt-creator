@@ -157,7 +157,7 @@ CommonSettings::CommonSettings()
         };
 
         return Column {
-            Group { title("Behavior"), Row { col1, col2, st } },
+            Group { title(Tr::tr("Behavior")), Row { col1, col2, st } },
             sourcePathMap,
             st
         };

@@ -73,24 +73,24 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     Row {
         WelcomePageHelpers::createRule(Qt::Vertical),
         m_secondaryDescription,
-        noMargin(), spacing(0),
+        noMargin, spacing(0),
     }.attachTo(m_secondarDescriptionWidget);
 
     Row {
         WelcomePageHelpers::createRule(Qt::Vertical),
         Row {
             m_primaryDescription,
-            noMargin(),
+            noMargin,
         },
         m_secondarDescriptionWidget,
-        noMargin(), spacing(0),
+        noMargin, spacing(0),
     }.attachTo(descriptionColumns);
 
     Row {
         Space(StyleHelper::SpacingTokens::ExVPaddingGapXl),
         m_leftColumn,
         descriptionColumns,
-        noMargin(), spacing(0),
+        noMargin, spacing(0),
     }.attachTo(this);
 
     WelcomePageHelpers::setBackgroundColor(this, Theme::Token_Background_Default);

@@ -552,7 +552,7 @@ int SelectorView::padding()
 /////////
 // KitAreaWidget
 /////////
-void doLayout(KitAspect *aspect, Layouting::LayoutItem &builder)
+void doLayout(KitAspect *aspect, Layouting::Layout &builder)
 {
     aspect->addToLayout(builder);
 }
@@ -586,7 +586,8 @@ public:
             if (k && k->isMutable(factory->id())) {
                 KitAspect *aspect = factory->createKitAspect(k);
                 m_kitAspects << aspect;
-                grid.addItems({aspect, Layouting::br});
+                grid.addItem(aspect);
+                grid.flush();
             }
         }
         m_gridWidget = grid.emerge();

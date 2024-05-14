@@ -151,7 +151,7 @@ GitSettings::GitSettings()
 
             Group {
                 title(Tr::tr("Instant Blame")),
-                instantBlame.groupChecker(),
+                groupChecker(instantBlame.groupChecker()),
                 Row { instantBlameIgnoreSpaceChanges, instantBlameIgnoreLineMoves, st },
             },
 

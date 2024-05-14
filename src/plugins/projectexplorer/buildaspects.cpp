@@ -123,7 +123,7 @@ void BuildDirectoryAspect::fromMap(const Store &map)
     }
 }
 
-void BuildDirectoryAspect::addToLayout(Layouting::LayoutItem &parent)
+void BuildDirectoryAspect::addToLayout(Layouting::Layout &parent)
 {
     FilePathAspect::addToLayout(parent);
     d->genericProblemSpacer = new QLabel;

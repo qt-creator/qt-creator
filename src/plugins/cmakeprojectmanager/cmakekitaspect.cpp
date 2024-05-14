@@ -148,7 +148,7 @@ private:
     // KitAspectWidget interface
     void makeReadOnly() override { m_comboBox->setEnabled(false); }
 
-    void addToLayoutImpl(Layouting::LayoutItem &builder) override
+    void addToLayoutImpl(Layouting::Layout &builder) override
     {
         addMutableAction(m_comboBox);
         builder.addItem(m_comboBox);
@@ -376,7 +376,7 @@ private:
     // KitAspectWidget interface
     void makeReadOnly() override { m_changeButton->setEnabled(false); }
 
-    void addToLayoutImpl(Layouting::LayoutItem &parent) override
+    void addToLayoutImpl(Layouting::Layout &parent) override
     {
         addMutableAction(m_label);
         parent.addItem(m_label);
@@ -875,7 +875,7 @@ public:
 
 private:
     // KitAspectWidget interface
-    void addToLayoutImpl(Layouting::LayoutItem &parent) override
+    void addToLayoutImpl(Layouting::Layout &parent) override
     {
         addMutableAction(m_summaryLabel);
         parent.addItem(m_summaryLabel);

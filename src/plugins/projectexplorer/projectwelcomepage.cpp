@@ -789,7 +789,7 @@ public:
 
         auto sessions = new QWidget;
         {
-            auto sessionsLabel = new Label(Tr::tr("Sessions"), Label::Primary);
+            auto sessionsLabel = new Core::Label(Tr::tr("Sessions"), Core::Label::Primary);
             auto manageSessionsButton = new Button(Tr::tr("Manage..."), Button::MediumSecondary);
             auto sessionsList = new TreeView(this, "Sessions");
             sessionsList->setModel(projectWelcomePage->m_sessionModel);
@@ -816,7 +816,7 @@ public:
 
         auto projects = new QWidget;
         {
-            auto projectsLabel = new Label(Tr::tr("Projects"), Label::Primary);
+            auto projectsLabel = new Core::Label(Tr::tr("Projects"), Core::Label::Primary);
             auto projectsList = new TreeView(this, "Recent Projects");
             projectsList->setUniformRowHeights(true);
             projectsList->setModel(projectWelcomePage->m_projectModel);
@@ -840,7 +840,7 @@ public:
             sessions,
             projects,
             spacing(0),
-            noMargin(),
+            noMargin,
         }.attachTo(this);
     }
 

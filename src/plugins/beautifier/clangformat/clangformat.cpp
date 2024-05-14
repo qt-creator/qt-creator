@@ -270,7 +270,8 @@ public:
                 title(Tr::tr("Options")),
                 bindTo(&options),
                 Form {
-                    s.usePredefinedStyle.adoptButton(predefinedStyleButton), predefinedBlob, br,
+                    s.usePredefinedStyle.adoptButton(predefinedStyleButton),
+                    predefinedBlob, br,
                     customizedStyleButton, configurations,
                 },
             },

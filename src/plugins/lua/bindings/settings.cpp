@@ -62,8 +62,8 @@ std::unique_ptr<LuaAspectContainer> aspectContainerCreate(const sol::table &opti
             } else if (key == "layouter") {
                 if (v.is<sol::function>())
                     container->setLayouter(
-                        [func = v.as<sol::function>()]() -> Layouting::LayoutItem {
-                            auto res = Lua::LuaEngine::safe_call<Layouting::LayoutItem>(func);
+                        [func = v.as<sol::function>()]() -> Layouting::Layout {
+                            auto res = Lua::LuaEngine::safe_call<Layouting::Layout>(func);
                             QTC_ASSERT_EXPECTED(res, return {});
                             return *res;
                         });

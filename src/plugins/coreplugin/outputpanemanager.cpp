@@ -410,14 +410,14 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
         m_opToolBarWidgets,
         minMaxButton,
         closeButton,
-        spacing(0), noMargin(),
+        spacing(0), noMargin,
     }.attachTo(toolBar);
 
     Column {
         toolBar,
         m_outputWidgetPane,
         new FindToolBarPlaceHolder(this),
-        spacing(0), noMargin(),
+        spacing(0), noMargin,
     }.attachTo(this);
 
     Row {
@@ -503,7 +503,7 @@ void OutputPaneManager::initialize()
 
         QWidget *toolButtonsContainer = new QWidget(m_instance->m_opToolBarWidgets);
         using namespace Layouting;
-        Row toolButtonsRow { spacing(0), noMargin() };
+        Row toolButtonsRow { spacing(0), noMargin };
         const QList<QWidget *> toolBarWidgets = outPane->toolBarWidgets();
         for (QWidget *toolButton : toolBarWidgets)
             toolButtonsRow.addItem(toolButton);

@@ -379,7 +379,7 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget()
     // clang-format off
     using namespace Layouting;
     Form {
-        fieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow),
+        fieldGrowthPolicy(int(QFormLayout::AllNonFixedFieldsGrow)),
         Tr::tr("Name:"), m_displayNameLineEdit, br,
         Tr::tr("Path:"), m_binaryChooser, br,
         m_cdbLabel, br,

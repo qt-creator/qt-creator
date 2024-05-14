@@ -191,7 +191,7 @@ public:
         Column {
             noMargin,
             Form {
-                 Tr::tr("Parameters:"), parametersLineEdit, br,
+                Tr::tr("Parameters:"), parametersLineEdit, br,
                 buildCfg->buildDirectoryAspect(), br
             },
             optionsFilterLineEdit,

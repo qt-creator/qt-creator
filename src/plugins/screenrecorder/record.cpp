@@ -21,6 +21,7 @@
 #include <QAction>
 #include <QDialogButtonBox>
 #include <QGuiApplication>
+#include <QLayout>
 #include <QLoggingCategory>
 #include <QMessageBox>
 #include <QScreen>
@@ -224,7 +225,7 @@ RecordWidget::RecordWidget(const FilePath &recordFile, QWidget *parent)
         st,
         progressLabel,
         Space(6),
-        noMargin(), spacing(0),
+        noMargin, spacing(0),
     }.attachTo(this);
 
     connect(settingsButton, &QToolButton::clicked, this, [this] {

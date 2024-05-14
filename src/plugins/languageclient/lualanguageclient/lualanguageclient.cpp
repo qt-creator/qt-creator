@@ -320,10 +320,10 @@ public:
             m_aspects->toMap(map);
     }
 
-    std::optional<Layouting::LayoutItem> settingsLayout()
+    Layouting::LayoutModifier settingsLayout()
     {
-        if (m_aspects && m_aspects->layouter())
-            return m_aspects->layouter()();
+        if (m_aspects)
+            return [this](Layouting::Layout *iface) { m_aspects->addToLayout(*iface); };
         return {};
     }
 
@@ -483,8 +483,7 @@ QWidget *LuaClientSettings::createSettingsWidget(QWidget *parent) const
     using namespace Layouting;
 
     if (auto w = m_wrapper.lock())
-        if (std::optional<LayoutItem> layout = w->settingsLayout())
-            return new BaseSettingsWidget(this, parent, layout->subItems);
+        return new BaseSettingsWidget(this, parent, w->settingsLayout());
 
     return new BaseSettingsWidget(this, parent);
 }

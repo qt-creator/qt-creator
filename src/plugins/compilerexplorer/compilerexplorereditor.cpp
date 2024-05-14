@@ -264,7 +264,7 @@ SourceEditorWidget::SourceEditorWidget(const std::shared_ptr<SourceSettings> &se
     Column {
         toolBar,
         m_codeEditor,
-        noMargin(), spacing(0),
+        noMargin, spacing(0),
     }.attachTo(this);
     // clang-format on
 
@@ -370,7 +370,6 @@ CompilerWidget::CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSett
     connect(m_asmEditor, &AsmEditorWidget::gotFocus, this, &CompilerWidget::gotFocus);
 
     auto advButton = new QToolButton;
-    QSplitter *splitter{nullptr};
 
     auto advDlg = new QAction;
     advDlg->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
@@ -400,7 +399,6 @@ CompilerWidget::CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSett
     });
 
     // clang-format off
-
     Row {
         m_compilerSettings->compiler,
         advButton,
@@ -411,11 +409,10 @@ CompilerWidget::CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSett
     Column {
         toolBar,
         Splitter {
-            bindTo(&splitter),
             m_asmEditor,
             createTerminal()
         },
-        noMargin(), spacing(0),
+        noMargin, spacing(0),
     }.attachTo(this);
     // clang-format on
 

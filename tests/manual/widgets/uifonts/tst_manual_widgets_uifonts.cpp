@@ -67,18 +67,20 @@ int main(int argc, char *argv[])
     }
     html.append("</table></body></html>");
 
-    Column {
-        windowTitle("Utils::StyleHelper::uiFont"),
-        Group {
-            title("As QFont in QLabel"),
-            fontLabels,
-        },
-        Group {
-            title("As inline CSS in HTML elements"),
-            Row { html },
-        },
-        st,
-    }.emerge()->show();
+    Widget {
+        windowTitle(QString("Utils::StyleHelper::uiFont")),
+        Column {
+            Group {
+                title(QString("As QFont in QLabel")),
+                fontLabels,
+            },
+            Group {
+                title(QString("As inline CSS in HTML elements")),
+                Row { html },
+            },
+            st,
+        }
+    }.show();
 
     return app.exec();
 }

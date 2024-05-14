@@ -600,7 +600,7 @@ QWidget *CMakeBuildStep::createConfigWidget()
     if (!isCleanStep() && !m_buildPreset.isEmpty())
         createAndAddEnvironmentWidgets(builder);
 
-    builder.addItem(Layouting::noMargin);
+    builder.noMargin();
     auto widget = builder.emerge();
 
     updateDetails();

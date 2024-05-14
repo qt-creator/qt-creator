@@ -27,6 +27,7 @@
 #include <QDebug>
 #include <QGroupBox>
 #include <QLabel>
+#include <QLayout>
 #include <QLineEdit>
 #include <QListWidget>
 #include <QPaintEvent>
@@ -279,14 +280,14 @@ QLabel *BaseAspect::createLabel()
     return label;
 }
 
-void BaseAspect::addLabeledItem(LayoutItem &parent, QWidget *widget)
+void BaseAspect::addLabeledItem(Layout &parent, QWidget *widget)
 {
     if (QLabel *l = createLabel()) {
         l->setBuddy(widget);
         parent.addItem(l);
-        parent.addItem(Span(std::max(d->m_spanX - 1, 1), LayoutItem(widget)));
+        parent.addItem(Span(std::max(d->m_spanX - 1, 1), widget));
     } else {
-        parent.addItem(LayoutItem(widget));
+        parent.addItem(widget);
     }
 }
 
@@ -532,20 +533,19 @@ AspectContainer *BaseAspect::container() const
     Adds the visual representation of this aspect to the layout with the
     specified \a parent using a layout builder.
 */
-void BaseAspect::addToLayout(LayoutItem &)
+void BaseAspect::addToLayout(Layout &)
 {
 }
 
-void createItem(Layouting::LayoutItem *item, const BaseAspect &aspect)
+void addToLayout(Layouting::Layout *iface, BaseAspect &aspect)
 {
-    const_cast<BaseAspect &>(aspect).addToLayout(*item);
+    aspect.addToLayout(*iface);
 }
 
-void createItem(Layouting::LayoutItem *item, const BaseAspect *aspect)
+void addToLayout(Layouting::Layout *item, BaseAspect *aspect)
 {
-    const_cast<BaseAspect *>(aspect)->addToLayout(*item);
+    aspect->addToLayout(*item);
 }
-
 
 /*!
     Updates this aspect's value from user-initiated changes in the widget.
@@ -858,15 +858,15 @@ public:
         aspect->bufferToGui();
     }
 
-    void addToLayoutFirst(LayoutItem &parent)
+    void addToLayoutFirst(Layout &parent)
     {
         if (m_checked && m_checkBoxPlacement == CheckBoxPlacement::Top) {
             m_checked->addToLayout(parent);
-            parent.addItem(br);
+            parent.flush();
         }
     }
 
-    void addToLayoutLast(LayoutItem &parent)
+    void addToLayoutLast(Layout &parent)
     {
         if (m_checked && m_checkBoxPlacement == CheckBoxPlacement::Right)
             m_checked->addToLayout(parent);
@@ -1140,7 +1140,7 @@ void StringAspect::setAutoApplyOnEditingFinished(bool applyOnEditingFinished)
     d->m_autoApplyOnEditingFinished = applyOnEditingFinished;
 }
 
-void StringAspect::addToLayout(LayoutItem &parent)
+void StringAspect::addToLayout(Layout &parent)
 {
     d->m_checkerImpl.addToLayoutFirst(parent);
 
@@ -1551,7 +1551,7 @@ PathChooser *FilePathAspect::pathChooser() const
     return d->m_pathChooserDisplay.data();
 }
 
-void FilePathAspect::addToLayout(Layouting::LayoutItem &parent)
+void FilePathAspect::addToLayout(Layouting::Layout &parent)
 {
     d->m_checkerImpl.addToLayoutFirst(parent);
 
@@ -1769,7 +1769,7 @@ ColorAspect::ColorAspect(AspectContainer *container)
 
 ColorAspect::~ColorAspect() = default;
 
-void ColorAspect::addToLayout(Layouting::LayoutItem &parent)
+void ColorAspect::addToLayout(Layouting::Layout &parent)
 {
     QTC_CHECK(!d->m_colorButton);
     d->m_colorButton = createSubWidget<QtColorButton>();
@@ -1946,7 +1946,7 @@ BoolAspect::BoolAspect(AspectContainer *container)
 */
 BoolAspect::~BoolAspect() = default;
 
-void BoolAspect::addToLayoutHelper(Layouting::LayoutItem &parent, QAbstractButton *button)
+void BoolAspect::addToLayoutHelper(Layouting::Layout &parent, QAbstractButton *button)
 {
     switch (d->m_labelPlacement) {
     case LabelPlacement::Compact:
@@ -1955,7 +1955,7 @@ void BoolAspect::addToLayoutHelper(Layouting::LayoutItem &parent, QAbstractButto
         break;
     case LabelPlacement::AtCheckBox:
         button->setText(labelText());
-        parent.addItem(empty());
+        parent.addItem(empty);
         parent.addItem(button);
         break;
     case LabelPlacement::InExtraLabel:
@@ -1973,20 +1973,18 @@ void BoolAspect::addToLayoutHelper(Layouting::LayoutItem &parent, QAbstractButto
     });
 }
 
-LayoutItem BoolAspect::adoptButton(QAbstractButton *button)
+std::function<void(Layouting::Layout *)> BoolAspect::adoptButton(QAbstractButton *button)
 {
-    LayoutItem parent;
-
-    addToLayoutHelper(parent, button);
-
-    bufferToGui();
-    return parent;
+    return [this, button](Layouting::Layout *layout) {
+        addToLayoutHelper(*layout, button);
+        bufferToGui();
+    };
 }
 
 /*!
     \reimp
 */
-void BoolAspect::addToLayout(Layouting::LayoutItem &parent)
+void BoolAspect::addToLayout(Layouting::Layout &parent)
 {
     QCheckBox *checkBox = createSubWidget<QCheckBox>();
     addToLayoutHelper(parent, checkBox);
@@ -2092,7 +2090,7 @@ SelectionAspect::~SelectionAspect() = default;
 /*!
     \reimp
 */
-void SelectionAspect::addToLayout(Layouting::LayoutItem &parent)
+void SelectionAspect::addToLayout(Layouting::Layout &parent)
 {
     QTC_CHECK(d->m_buttonGroup == nullptr);
     QTC_CHECK(!d->m_comboBox);
@@ -2266,7 +2264,7 @@ MultiSelectionAspect::~MultiSelectionAspect() = default;
 /*!
     \reimp
 */
-void MultiSelectionAspect::addToLayout(LayoutItem &builder)
+void MultiSelectionAspect::addToLayout(Layout &builder)
 {
     QTC_CHECK(d->m_listView == nullptr);
     if (d->m_allValues.isEmpty())
@@ -2375,7 +2373,7 @@ IntegerAspect::~IntegerAspect() = default;
 /*!
     \reimp
 */
-void IntegerAspect::addToLayout(Layouting::LayoutItem &parent)
+void IntegerAspect::addToLayout(Layouting::Layout &parent)
 {
     QTC_CHECK(!d->m_spinBox);
     d->m_spinBox = createSubWidget<QSpinBox>();
@@ -2477,7 +2475,7 @@ DoubleAspect::~DoubleAspect() = default;
 /*!
     \reimp
 */
-void DoubleAspect::addToLayout(LayoutItem &builder)
+void DoubleAspect::addToLayout(Layout &builder)
 {
     QTC_CHECK(!d->m_spinBox);
     d->m_spinBox = createSubWidget<QDoubleSpinBox>();
@@ -2634,7 +2632,7 @@ StringListAspect::~StringListAspect() = default;
 /*!
     \reimp
 */
-void StringListAspect::addToLayout(LayoutItem &parent)
+void StringListAspect::addToLayout(Layout &parent)
 {
     Q_UNUSED(parent)
     // TODO - when needed.
@@ -2710,7 +2708,7 @@ void FilePathListAspect::bufferToGui()
     d->undoable.setWithoutUndo(m_buffer);
 }
 
-void FilePathListAspect::addToLayout(LayoutItem &parent)
+void FilePathListAspect::addToLayout(Layout &parent)
 {
     d->undoable.setSilently(value());
 
@@ -2804,7 +2802,7 @@ IntegersAspect::~IntegersAspect() = default;
 /*!
     \reimp
 */
-void IntegersAspect::addToLayout(Layouting::LayoutItem &parent)
+void IntegersAspect::addToLayout(Layouting::Layout &parent)
 {
     Q_UNUSED(parent)
     // TODO - when needed.
@@ -2841,7 +2839,7 @@ TextDisplay::~TextDisplay() = default;
 /*!
     \reimp
 */
-void TextDisplay::addToLayout(LayoutItem &parent)
+void TextDisplay::addToLayout(Layout &parent)
 {
     if (!d->m_label) {
         d->m_label = createSubWidget<InfoLabel>(d->m_message, d->m_type);
@@ -2893,7 +2891,7 @@ public:
     QList<BaseAspect *> m_items; // Both owned and non-owned.
     QList<BaseAspect *> m_ownedItems; // Owned only.
     QStringList m_settingsGroup;
-    std::function<Layouting::LayoutItem ()> m_layouter;
+    std::function<Layouting::Layout()> m_layouter;
 };
 
 AspectContainer::AspectContainer()
@@ -2906,6 +2904,11 @@ AspectContainer::AspectContainer()
 AspectContainer::~AspectContainer()
 {
     qDeleteAll(d->m_ownedItems);
+}
+
+void AspectContainer::addToLayout(Layouting::Layout &parent)
+{
+    parent.addItem(layouter()());
 }
 
 /*!
@@ -2945,12 +2948,12 @@ AspectContainer::const_iterator AspectContainer::end() const
     return d->m_items.cend();
 }
 
-void AspectContainer::setLayouter(const std::function<Layouting::LayoutItem ()> &layouter)
+void AspectContainer::setLayouter(const std::function<Layouting::Layout ()> &layouter)
 {
     d->m_layouter = layouter;
 }
 
-std::function<LayoutItem ()> AspectContainer::layouter() const
+std::function<Layout ()> AspectContainer::layouter() const
 {
     return d->m_layouter;
 }
@@ -3447,7 +3450,7 @@ private:
     int m_index;
 };
 
-void AspectList::addToLayout(Layouting::LayoutItem &parent)
+void AspectList::addToLayout(Layouting::Layout &parent)
 {
     using namespace Layouting;
 
@@ -3466,7 +3469,7 @@ void AspectList::addToLayout(Layouting::LayoutItem &parent)
             addItem(d->createItem());
         });
 
-        Column column{noMargin()};
+        Column column{noMargin};
 
         forEachItem<BaseAspect>([&column, this](const std::shared_ptr<BaseAspect> &item, int idx) {
             auto removeBtn = new IconButton;
@@ -3557,7 +3560,7 @@ bool StringSelectionAspect::guiToBuffer()
     return oldBuffer != m_buffer;
 }
 
-void StringSelectionAspect::addToLayout(Layouting::LayoutItem &parent)
+void StringSelectionAspect::addToLayout(Layouting::Layout &parent)
 {
     QTC_ASSERT(m_fillCallback, return);
 
@@ -3630,4 +3633,4 @@ void StringSelectionAspect::addToLayout(Layouting::LayoutItem &parent)
     return addLabeledItem(parent, comboBox);
 }
 
-} // namespace Utils
+} // Utils
