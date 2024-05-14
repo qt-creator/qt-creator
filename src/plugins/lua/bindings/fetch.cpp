@@ -8,6 +8,7 @@
 
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QMetaEnum>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 
@@ -91,8 +92,11 @@ void addFetchModule()
                             reply->deleteLater();
 
                             if (reply->error() != QNetworkReply::NoError) {
-                                callback(
-                                    QString("%1 (%2)").arg(reply->errorString()).arg(reply->error()));
+                                callback(QString("%1 (%2)")
+                                             .arg(reply->errorString())
+                                             .arg(QString::fromLatin1(
+                                                 QMetaEnum::fromType<QNetworkReply::NetworkError>()
+                                                     .valueToKey(reply->error()))));
                                 return;
                             }
 
