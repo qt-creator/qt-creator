@@ -6,6 +6,7 @@
 #include "../cppeditor_global.h"
 #include "cppquickfixassistant.h"
 
+#include <extensionsystem/iplugin.h>
 #include <texteditor/quickfix.h>
 
 #include <QVersionNumber>
@@ -59,6 +60,14 @@ public:
     std::optional<QVersionNumber> clangdReplacement() const { return m_clangdReplacement; }
     void setClangdReplacement(const QVersionNumber &version) { m_clangdReplacement = version; }
 
+    template<class Factory> static void registerFactory()
+    {
+        new Factory;
+#ifdef WITH_TESTS
+        cppEditor()->addTestCreator(Factory::createTest);
+#endif
+    }
+
 private:
     /*!
         Implement this function to doMatch and create the appropriate
@@ -66,6 +75,8 @@ private:
      */
     virtual void doMatch(const Internal::CppQuickFixInterface &interface,
                          QuickFixOperations &result) = 0;
+
+    static ExtensionSystem::IPlugin *cppEditor();
 
     std::optional<QVersionNumber> m_clangdReplacement;
 };

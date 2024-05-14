@@ -3,13 +3,33 @@
 
 #include "cppquickfix.h"
 
-#include "../cpprefactoringchanges.h"
 #include "cppquickfixassistant.h"
+
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
 
 using namespace CPlusPlus;
 using namespace TextEditor;
 
-namespace CppEditor::Internal {
+namespace CppEditor {
+
+static ExtensionSystem::IPlugin *getCppEditor()
+{
+    using namespace ExtensionSystem;
+    for (PluginSpec * const spec : PluginManager::plugins()) {
+        if (spec->name() == "CppEditor")
+            return spec->plugin();
+    }
+    QTC_ASSERT(false, return nullptr);
+}
+
+ExtensionSystem::IPlugin *CppQuickFixFactory::cppEditor()
+{
+    static ExtensionSystem::IPlugin *plugin = getCppEditor();
+    return plugin;
+}
+
+namespace Internal {
 
 const QStringList magicQObjectFunctions()
 {
@@ -23,4 +43,5 @@ CppQuickFixOperation::CppQuickFixOperation(const CppQuickFixInterface &interface
 
 CppQuickFixOperation::~CppQuickFixOperation() = default;
 
-} // namespace CppEditor::Internal
+} // namespace Internal
+} // namespace CppEditor

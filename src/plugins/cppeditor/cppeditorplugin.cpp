@@ -43,7 +43,6 @@
 #include "functionutils.h"
 #include "includeutils.h"
 #include "projectinfo_test.h"
-#include "quickfixes/cppinsertvirtualmethods.h"
 #include "quickfixes/cppquickfix_test.h"
 #include "symbolsearcher_test.h"
 #include "typehierarchybuilder_test.h"
@@ -514,7 +513,6 @@ void CppEditorPlugin::registerTests()
     addTest<Tests::FileAndTokenActionsTest>();
     addTest<Tests::FollowSymbolTest>();
     addTest<Tests::IncludeHierarchyTest>();
-    addTest<Tests::InsertVirtualMethodsTest>();
     addTest<Tests::QuickfixTest>();
     addTest<Tests::GlobalRenamingTest>();
     addTest<Tests::SelectionsTest>();

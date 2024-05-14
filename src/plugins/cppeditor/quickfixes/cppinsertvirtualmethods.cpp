@@ -116,6 +116,11 @@ public:
     QSortFilterProxyModel *classFunctionFilterModel;
 };
 
+void registerInsertVirtualMethodsQuickfix()
+{
+    CppQuickFixFactory::registerFactory<InsertVirtualMethods>();
+}
+
 } // namespace Internal
 } // namespace CppEditor
 
@@ -1269,6 +1274,17 @@ public:
     void saveSettings() override { }
 };
 
+class InsertVirtualMethodsTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void test_data();
+    void test();
+    void testImplementationFile();
+    void testBaseClassInNamespace();
+};
+
 void InsertVirtualMethodsTest::test_data()
 {
     QTest::addColumn<InsertVirtualMethodsDialog::ImplementationMode>("implementationMode");
@@ -1967,6 +1983,11 @@ InsertVirtualMethods *InsertVirtualMethods::createTestFactory()
 {
     return new InsertVirtualMethods(new Tests::InsertVirtualMethodsDialogTest(
                                         InsertVirtualMethodsDialog::ModeOutsideClass, true, false));
+}
+
+QObject *InsertVirtualMethods::createTest()
+{
+    return new Tests::InsertVirtualMethodsTest;
 }
 
 #endif // WITH_TESTS

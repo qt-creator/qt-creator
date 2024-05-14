@@ -19,6 +19,7 @@ public:
     void doMatch(const CppQuickFixInterface &interface,
                  TextEditor::QuickFixOperations &result) override;
 #ifdef WITH_TESTS
+    static QObject *createTest();
     static InsertVirtualMethods *createTestFactory();
 #endif
 
@@ -26,20 +27,7 @@ private:
     InsertVirtualMethodsDialog *m_dialog;
 };
 
-#ifdef WITH_TESTS
-namespace Tests {
-class InsertVirtualMethodsTest : public QObject
-{
-    Q_OBJECT
-
-private slots:
-    void test_data();
-    void test();
-    void testImplementationFile();
-    void testBaseClassInNamespace();
-};
-} // namespace Tests
-#endif // WITH_TESTS
+void registerInsertVirtualMethodsQuickfix();
 
 } // namespace Internal
 } // namespace CppEditor

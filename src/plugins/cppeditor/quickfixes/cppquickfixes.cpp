@@ -33,8 +33,6 @@
 #include <cplusplus/TypeOfExpression.h>
 #include <cplusplus/TypePrettyPrinter.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
@@ -10647,7 +10645,7 @@ void createCppQuickFixes()
 
     new AssignToLocalVariable;
 
-    new InsertVirtualMethods;
+    registerInsertVirtualMethodsQuickfix();
 
     new OptimizeForLoop;
 
