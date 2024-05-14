@@ -342,15 +342,6 @@ void CMakeToolManager::restoreCMakeTools()
     updateDocumentation();
 
     emit m_instance->cmakeToolsLoaded();
-
-    // Store the default CMake tool "Autorun CMake" value globally
-    // TODO: Remove in Qt Creator 13
-    Internal::CMakeSpecificSettings &s = Internal::settings();
-    if (s.autorunCMake() == s.autorunCMake.defaultValue()) {
-        CMakeTool *cmake = defaultCMakeTool();
-        s.autorunCMake.setValue(cmake ? cmake->isAutoRun() : true);
-        s.writeSettings();
-    }
 }
 
 void CMakeToolManager::updateDocumentation()
