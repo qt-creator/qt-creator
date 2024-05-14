@@ -219,6 +219,8 @@ QtcPlugin {
         name: "Quickfixes"
         prefix: "quickfixes/"
         files: [
+            "cppcodegenerationquickfixes.cpp",
+            "cppcodegenerationquickfixes.h",
             "cppinsertvirtualmethods.cpp",
             "cppinsertvirtualmethods.h",
             "cppquickfix.cpp",

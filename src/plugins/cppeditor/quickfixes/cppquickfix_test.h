@@ -5,6 +5,7 @@
 
 #include "../cpptoolstestcase.h"
 #include "cppquickfix.h"
+#include "cppquickfixsettings.h"
 
 #include <projectexplorer/headerpath.h>
 
@@ -21,6 +22,15 @@ class CppCodeStylePreferences;
 
 namespace Internal {
 namespace Tests {
+
+class QuickFixSettings
+{
+    const CppQuickFixSettings original = *CppQuickFixSettings::instance();
+
+public:
+    CppQuickFixSettings *operator->() { return CppQuickFixSettings::instance(); }
+    ~QuickFixSettings() { *CppQuickFixSettings::instance() = original; }
+};
 
 class BaseQuickFixTestCase : public CppEditor::Tests::TestCase
 {
@@ -45,6 +55,17 @@ private:
 
     ProjectExplorer::HeaderPaths m_headerPathsToRestore;
     bool m_restoreHeaderPaths;
+};
+
+/// Tests the offered operations provided by a given CppQuickFixFactory
+class QuickFixOfferedOperationsTest : public BaseQuickFixTestCase
+{
+public:
+    QuickFixOfferedOperationsTest(const QList<TestDocumentPtr> &testDocuments,
+                                  CppQuickFixFactory *factory,
+                                  const ProjectExplorer::HeaderPaths &headerPaths
+                                  = ProjectExplorer::HeaderPaths(),
+                                  const QStringList &expectedOperations = QStringList());
 };
 
 /// Tests a concrete QuickFixOperation of a given CppQuickFixFactory
@@ -75,34 +96,6 @@ class QuickfixTest : public QObject
 private slots:
     void testGeneric_data();
     void testGeneric();
-
-    void testGenerateGetterSetterNamespaceHandlingCreate_data();
-    void testGenerateGetterSetterNamespaceHandlingCreate();
-    void testGenerateGetterSetterNamespaceHandlingAddUsing_data();
-    void testGenerateGetterSetterNamespaceHandlingAddUsing();
-    void testGenerateGetterSetterNamespaceHandlingFullyQualify_data();
-    void testGenerateGetterSetterNamespaceHandlingFullyQualify();
-    void testGenerateGetterSetterCustomNames_data();
-    void testGenerateGetterSetterCustomNames();
-    void testGenerateGetterSetterValueTypes_data();
-    void testGenerateGetterSetterValueTypes();
-    void testGenerateGetterSetterCustomTemplate();
-    void testGenerateGetterSetterNeedThis();
-    void testGenerateGetterSetterOfferedFixes_data();
-    void testGenerateGetterSetterOfferedFixes();
-    void testGenerateGetterSetterGeneralTests_data();
-    void testGenerateGetterSetterGeneralTests();
-    void testGenerateGetterSetterOnlyGetter();
-    void testGenerateGetterSetterOnlySetter();
-    void testGenerateGetterSetterAnonymousClass();
-    void testGenerateGetterSetterInlineInHeaderFile();
-    void testGenerateGetterSetterOnlySetterHeaderFileWithIncludeGuard();
-    void testGenerateGetterFunctionAsTemplateArg();
-    void testGenerateGettersSetters_data();
-    void testGenerateGettersSetters();
-
-    void testInsertQtPropertyMembers_data();
-    void testInsertQtPropertyMembers();
 
     void testInsertMemberFromUse_data();
     void testInsertMemberFromUse();
@@ -217,9 +210,6 @@ private slots:
     void testRemoveUsingNamespaceSimple_data();
     void testRemoveUsingNamespaceSimple();
     void testRemoveUsingNamespaceDifferentSymbols();
-
-    void testGenerateConstructor_data();
-    void testGenerateConstructor();
 
     void testChangeCommentType_data();
     void testChangeCommentType();

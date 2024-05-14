@@ -454,39 +454,6 @@ public:
 };
 
 /*!
-  Adds getter and setter functions for a member variable
- */
-class GenerateGetterSetter : public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
-};
-
-/*!
-  Adds getter and setter functions for several member variables
- */
-class GenerateGettersSettersForClass : public CppQuickFixFactory
-{
-protected:
-    void setTest() { m_test = true; }
-
-private:
-    void doMatch(const CppQuickFixInterface &interface,
-                 TextEditor::QuickFixOperations &result) override;
-
-    bool m_test = false;
-};
-
-/*!
-  Adds missing members for a Q_PROPERTY
- */
-class InsertQtPropertyMembers : public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
-};
-
-/*!
   Converts a Qt 4 QObject::connect() to Qt 5 style.
  */
 class ConvertQt4Connect : public CppQuickFixFactory
@@ -584,21 +551,6 @@ public:
 
 private:
     void doMatch(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
-};
-
-/*!
-  Generate constructor
- */
-class GenerateConstructor : public CppQuickFixFactory
-{
-protected:
-    void setTest() { m_test = true; }
-
-private:
-    void doMatch(const CppQuickFixInterface &interface,
-               TextEditor::QuickFixOperations &result) override;
-
-    bool m_test = false;
 };
 
 //! Converts C-style to C++-style comments and vice versa
