@@ -212,7 +212,7 @@ OptionsDialog::OptionsDialog()
             }
         },
         Group {
-            title(Tr::tr("Scanning scope")),
+            title(Tr::tr("Scanning Scope")),
             Column {
                 m_scanInProjectRadioButton,
                 m_scanInCurrentFileRadioButton,

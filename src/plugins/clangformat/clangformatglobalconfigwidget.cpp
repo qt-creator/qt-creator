@@ -106,9 +106,10 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(ICodeStylePreferenc
 
     QWidget *globalSettingsGroupBoxWidget = nullptr;
 
+    // clang-format off
     Group globalSettingsGroupBox {
         bindTo(&globalSettingsGroupBoxWidget),
-        title(Tr::tr("ClangFormat settings:")),
+        title(Tr::tr("ClangFormat Settings:")),
         Column {
             m_useGlobalSettings,
             Form {
@@ -127,6 +128,7 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(ICodeStylePreferenc
         globalSettingsGroupBox,
         noMargin
     }.attachTo(this);
+    // clang-format on
 
     initCheckBoxes();
     initIndentationOrFormattingCombobox();

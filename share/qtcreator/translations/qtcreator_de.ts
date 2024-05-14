@@ -10495,7 +10495,7 @@ Locked components cannot be modified or selected.</source>
         <translation>Pfad des JDK existiert und ist schreibbar.</translation>
     </message>
     <message>
-        <source>Android OpenSSL settings (Optional)</source>
+        <source>Android OpenSSL Settings (Optional)</source>
         <translation>OpenSSL-Einstellungen für Android (optional)</translation>
     </message>
     <message>
@@ -13108,7 +13108,7 @@ Dies könnte Probleme während der Ausführung verursachen.
         <translation>Tests wiederholen</translation>
     </message>
     <message>
-        <source>Run in parallel</source>
+        <source>Run in Parallel</source>
         <translation>Parallel ausführen</translation>
     </message>
     <message>
@@ -16992,8 +16992,8 @@ Das integrierte Codemodell übernimmt das Einrücken.</translation>
         <translation>Beachten Sie, dass das aktuelle Projekt eine .clang-format-Datei enthält, welche für das Einrücken und die Formatierung von Code verwendet werden wird.</translation>
     </message>
     <message>
-        <source>ClangFormat settings:</source>
-        <translation>Einstellungen für ClangFormat:</translation>
+        <source>ClangFormat Settings</source>
+        <translation>Einstellungen für ClangFormat</translation>
     </message>
     <message>
         <source>Indenting only</source>
@@ -23349,9 +23349,9 @@ Diese Präfixe werden zusätzlich zum Dateinamen beim Wechseln zwischen Header- 
         <translation>Normalerweise werden Argumente als konstante Referenz übergeben. Das Argument wird als Wert übergeben, wenn der Typ einer der folgenden ist. Namensräume und Vorlagenargumente werden entfernt. Der wirkliche Typ muss den angegebenen Typ enthalten. Zum Beispiel passt &quot;int&quot; zu &quot;int32_t&quot;, aber nicht zu &quot;vector&lt;int&gt;&quot;. &quot;vector&quot; passt zu &quot;std::pmr::vector&lt;int&gt;&quot;, aber nicht zu &quot;std::optional&lt;vector&lt;int&gt;&gt;&quot;</translation>
     </message>
     <message>
-        <source>Value types:</source>
+        <source>Value Types</source>
         <translatorcomment>https://learn.microsoft.com/de-de/cpp/cpp/value-types-modern-cpp</translatorcomment>
-        <translation>Werttypen:</translation>
+        <translation>Werttypen</translation>
     </message>
     <message>
         <source>Return non-value types by const reference</source>
@@ -23725,7 +23725,7 @@ Das integrierte Codemodell übernimmt Syntaxhervorhebung, Code-Vervollständigun
         <translation>Zeitabstand für das Aktualisieren von Dokumenten:</translation>
     </message>
     <message>
-        <source>Sessions with a single clangd instance</source>
+        <source>Sessions with a Single Clangd Instance</source>
         <translation>Sitzungen mit einer einzigen Clangd-Instanz</translation>
     </message>
     <message>
@@ -53709,7 +53709,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
         <translation>Rechtsbündig</translation>
     </message>
     <message>
-        <source>Line annotations</source>
+        <source>Line Annotations</source>
         <translation>Zeilenannotationen</translation>
     </message>
     <message>
@@ -54643,7 +54643,7 @@ Drücken Sie zusätzlich die Umschalttaste, wird ein Escape-Zeichen an der aktue
         <translation>Zeichenketten automatisch teilen</translation>
     </message>
     <message>
-        <source>&amp;Automatically insert matching characters</source>
+        <source>&amp;Automatically Insert Matching Characters</source>
         <translation>&amp;Passende Zeichen automatisch einfügen</translation>
     </message>
     <message>
@@ -55682,7 +55682,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
         <translation>Zurücksetzen</translation>
     </message>
     <message>
-        <source>Scanning scope</source>
+        <source>Scanning Scope</source>
         <translation>Suchbereich</translation>
     </message>
     <message>

@@ -246,10 +246,12 @@ public:
         m_statementMacros->setToolTip(
             Tr::tr("Macros that can be used as statements without a trailing semicolon."));
         m_statementMacros->setSizePolicy(sizePolicy);
+        // clang-format off
         const Group statementMacrosGroup {
-            title(Tr::tr("Statement macros")),
+            title(Tr::tr("Statement Macros")),
             Column { m_statementMacros}
         };
+        // clang-format on
         QObject::connect(m_statementMacros, &QPlainTextEdit::textChanged, q, [this] {
             m_handlingStatementMacroChange = true;
             q->slotCodeStyleSettingsChanged();

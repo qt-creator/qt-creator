@@ -770,7 +770,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     if (!isForProject) {
         m_sessionsModel.setStringList(settingsData.sessionsWithOneClangd);
         m_sessionsModel.sort(0);
-        m_sessionsGroupBox = new QGroupBox(Tr::tr("Sessions with a single clangd instance"));
+        m_sessionsGroupBox = new QGroupBox(Tr::tr("Sessions with a Single Clangd Instance"));
         const auto sessionsView = new Utils::ListView;
         sessionsView->setModel(&m_sessionsModel);
         sessionsView->setToolTip(

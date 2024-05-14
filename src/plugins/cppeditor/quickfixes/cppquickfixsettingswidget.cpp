@@ -215,6 +215,7 @@ e.g. name = "m_test_foo_":
 
     using namespace Layouting;
 
+    // clang-format off
     Grid {
         empty, ulLabel(Tr::tr("Generate Setters")), ulLabel(Tr::tr("Generate Getters")), br,
         Tr::tr("Inside class:"), Tr::tr("Default"), Tr::tr("Default"), br,
@@ -274,7 +275,7 @@ e.g. name = "m_test_foo_":
             },
         },
         Group {
-            title(Tr::tr("Value types:")),
+            title(Tr::tr("Value Types")),
             Row {
                 m_valueTypes,
                 Column { pushButton_addValueType, pushButton_removeValueType, st, },
@@ -282,6 +283,7 @@ e.g. name = "m_test_foo_":
         },
         m_returnByConstRefCheckBox,
     }.attachTo(this);
+    // clang-format on
 
     // connect controls to settingsChanged signal
     auto then = [this] {

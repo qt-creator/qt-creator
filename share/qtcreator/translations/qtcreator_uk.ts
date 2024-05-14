@@ -3153,7 +3153,7 @@ to version control (%2)
         <translation type="vanished">Автоматично вставляти крапки з комами, закриваючі квадратні, круглі, фігурні дужки та лапки, коли необхідно.</translation>
     </message>
     <message>
-        <source>&amp;Automatically insert matching characters</source>
+        <source>&amp;Automatically Insert Matching Characters</source>
         <translation>&amp;Автоматично вставляти парні символи</translation>
     </message>
     <message>
@@ -21894,7 +21894,7 @@ Influences the indentation of continuation lines.
         <translation>Скинути</translation>
     </message>
     <message>
-        <source>Scanning scope</source>
+        <source>Scanning Scope</source>
         <translation>Область пошуку</translation>
     </message>
     <message>

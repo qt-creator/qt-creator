@@ -10730,7 +10730,7 @@ dans le navigateur système pour un téléchargement manuel.</translation>
         <translation>Liste des NDK Android&#xa0;:</translation>
     </message>
     <message>
-        <source>Android OpenSSL settings (Optional)</source>
+        <source>Android OpenSSL Settings (Optional)</source>
         <translation>Paramètres Android d&apos;OpenSSL (optionnel)</translation>
     </message>
     <message>
@@ -12712,7 +12712,7 @@ Exécutable&#xa0;: %2</translation>
         <translation>Répétition des tests</translation>
     </message>
     <message>
-        <source>Run in parallel</source>
+        <source>Run in Parallel</source>
         <translation>Exécuter en parallèle</translation>
     </message>
     <message>
@@ -22228,7 +22228,7 @@ Le modèle de code intégré gèrera le surlignage, la complétion, etc.</transl
         <translation>Seuil de mise à jour du document :</translation>
     </message>
     <message>
-        <source>Sessions with a single clangd instance</source>
+        <source>Sessions with a Single Clangd Instance</source>
         <translation>Sessions avec une seule instance de clangd</translation>
     </message>
     <message>
@@ -22982,8 +22982,8 @@ p.ex. nom = «&#xa0;m_test_toto_&#xa0;» :
         <translation>Modèles de getters et setters personnalisés</translation>
     </message>
     <message>
-        <source>Value types:</source>
-        <translation>Types de valeur :</translation>
+        <source>Value Types</source>
+        <translation>Types de valeur</translation>
     </message>
     <message>
         <source>Projects only</source>
@@ -52717,7 +52717,7 @@ si le commentaire débute avec «&#xa0;/*!&#xa0;» ou «&#xa0;//!&#xa0;».</tran
         <translation>À la demande</translation>
     </message>
     <message>
-        <source>&amp;Automatically insert matching characters</source>
+        <source>&amp;Automatically Insert Matching Characters</source>
         <translation>Insérer &amp;automatiquement les caractères correspondants</translation>
     </message>
     <message>
@@ -54974,7 +54974,7 @@ francis : en effet, une erreur de ma part --&gt; validé.</translatorcomment>
         <translation>Entre les lignes</translation>
     </message>
     <message>
-        <source>Line annotations</source>
+        <source>Line Annotations</source>
         <translation>Annotations de ligne</translation>
     </message>
     <message>
@@ -55417,7 +55417,7 @@ Influence l’indentation des lignes de continuation.
         <translation>Scanner le sous-projet actuel</translation>
     </message>
     <message>
-        <source>Scanning scope</source>
+        <source>Scanning Scope</source>
         <translation>Portée de la recherche</translation>
     </message>
     <message>

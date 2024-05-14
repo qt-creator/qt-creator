@@ -33804,7 +33804,7 @@ Derudover indsætter Skift+Enter et undvigetegn ved markørens placering og flyt
         <translation>Opdel strenge automatisk</translation>
     </message>
     <message>
-        <source>&amp;Automatically insert matching characters</source>
+        <source>&amp;Automatically Insert Matching Characters</source>
         <translation>&amp;Indsæt automatisk matchende tegn</translation>
     </message>
     <message>
@@ -33984,7 +33984,7 @@ Derudover indsætter Skift+Enter et undvigetegn ved markørens placering og flyt
         <translation>Justeret til højre side</translation>
     </message>
     <message>
-        <source>Line annotations</source>
+        <source>Line Annotations</source>
         <translation>Linjeannotationer</translation>
     </message>
     <message>
@@ -35591,7 +35591,7 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
         <translation>Nulstil</translation>
     </message>
     <message>
-        <source>Scanning scope</source>
+        <source>Scanning Scope</source>
         <translation>Skanningsområde</translation>
     </message>
     <message>

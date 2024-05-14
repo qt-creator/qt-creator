@@ -435,7 +435,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
             }
         },
         Group {
-            title(Tr::tr("Android OpenSSL settings (Optional)")),
+            title(Tr::tr("Android OpenSSL Settings (Optional)")),
             Grid {
                 Tr::tr("OpenSSL binaries location:"),
                 m_openSslPathChooser,

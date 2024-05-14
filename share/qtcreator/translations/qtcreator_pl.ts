@@ -9917,7 +9917,7 @@ in the system&apos;s browser for manual download.</source>
         <translation>Lista Android NDK:</translation>
     </message>
     <message>
-        <source>Android OpenSSL settings (Optional)</source>
+        <source>Android OpenSSL Settings (Optional)</source>
         <translation>Ustawienia Android OpenSSL (opcjonalne)</translation>
     </message>
     <message>
@@ -12496,7 +12496,7 @@ See also Google Test settings.</source>
         <translation>Powtarzanie testów</translation>
     </message>
     <message>
-        <source>Run in parallel</source>
+        <source>Run in Parallel</source>
         <translation>Uruchomianie równoległe</translation>
     </message>
     <message>
@@ -15958,8 +15958,8 @@ tylko przez wbudowane narzędzie.</translation>
         <translation>Użyj globalnych ustawień</translation>
     </message>
     <message>
-        <source>ClangFormat settings:</source>
-        <translation>Ustawienia ClangFormat:</translation>
+        <source>ClangFormat Settings</source>
+        <translation>Ustawienia ClangFormat</translation>
     </message>
     <message>
         <source>Indenting only</source>
@@ -21384,7 +21384,7 @@ The built-in code model will handle highlighting, completion and so on.</source>
         <translation>Próg uaktualniania dokumentu:</translation>
     </message>
     <message>
-        <source>Sessions with a single clangd instance</source>
+        <source>Sessions with a Single Clangd Instance</source>
         <translation>Sesje z pojedynczą instancją clangd</translation>
     </message>
     <message>
@@ -22069,8 +22069,8 @@ e.g. name = &quot;m_test_foo_&quot;:
         <translation>Własne szablony pobieraczy i ustawiaczy</translation>
     </message>
     <message>
-        <source>Value types:</source>
-        <translation>Typy wartości:</translation>
+        <source>Value Types</source>
+        <translation>Typy wartości</translation>
     </message>
     <message>
         <source>Projects only</source>
@@ -52771,7 +52771,7 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
         <translation>Pomiędzy liniami</translation>
     </message>
     <message>
-        <source>Line annotations</source>
+        <source>Line Annotations</source>
         <translation>Adnotacje linii</translation>
     </message>
     <message>
@@ -53749,7 +53749,7 @@ po naciśnięciu klawisza Enter</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Automatically insert matching characters</source>
+        <source>&amp;Automatically Insert Matching Characters</source>
         <translation>&amp;Automatyczne wstawianie znaków</translation>
     </message>
     <message>
@@ -54144,7 +54144,7 @@ if the comment starts with &quot;/*!&quot; or &quot;//!&quot;.</source>
         <translation>Zresetuj</translation>
     </message>
     <message>
-        <source>Scanning scope</source>
+        <source>Scanning Scope</source>
         <translation>Zakres skanowania</translation>
     </message>
     <message>

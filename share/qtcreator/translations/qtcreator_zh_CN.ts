@@ -1900,7 +1900,7 @@ in the system&apos;s browser for manual download.</source>
         <translation>安卓 NDK 列表：</translation>
     </message>
     <message>
-        <source>Android OpenSSL settings (Optional)</source>
+        <source>Android OpenSSL Settings (Optional)</source>
         <translation>安卓 OpenSSL 设置（可选）</translation>
     </message>
     <message>
@@ -2714,7 +2714,7 @@ Executable: %2</source>
         <translation>重复测试</translation>
     </message>
     <message>
-        <source>Run in parallel</source>
+        <source>Run in Parallel</source>
         <translation>并行运行</translation>
     </message>
     <message>
@@ -11600,7 +11600,7 @@ The built-in code model will handle highlighting, completion and so on.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Sessions with a single clangd instance</source>
+        <source>Sessions with a Single Clangd Instance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -12767,7 +12767,7 @@ Flags: %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Value types:</source>
+        <source>Value Types:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -42591,7 +42591,7 @@ Specifies how backspace interacts with indentation.
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Line annotations</source>
+        <source>Line Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -42978,7 +42978,7 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Automatically insert matching characters</source>
+        <source>&amp;Automatically Insert Matching Characters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -44774,7 +44774,7 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>重置</translation>
     </message>
     <message>
-        <source>Scanning scope</source>
+        <source>Scanning Scope</source>
         <translation>扫描范围</translation>
     </message>
     <message>

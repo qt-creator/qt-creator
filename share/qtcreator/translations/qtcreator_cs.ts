@@ -764,7 +764,7 @@
         <translation type="obsolete">Automaticky vkládat středníky a uzavírající závorky, kulaté závorky, složené závorky a uvozovky, když je to vhodné.</translation>
     </message>
     <message>
-        <source>&amp;Automatically insert matching characters</source>
+        <source>&amp;Automatically Insert Matching Characters</source>
         <translation type="obsolete">&amp;Automaticky vložit odpovídající znaky</translation>
     </message>
     <message>
@@ -2008,7 +2008,7 @@ Chcete je nechat přepsat?</translation>
         <translation>Když je to vhodné, automaticky vkládat středníky a uzavírající závorky, kulaté závorky, složené závorky a uvozovky.</translation>
     </message>
     <message>
-        <source>&amp;Automatically insert matching characters</source>
+        <source>&amp;Automatically Insert Matching Characters</source>
         <translation>&amp;Automaticky vložit odpovídající znaky</translation>
     </message>
     <message>
@@ -40550,7 +40550,7 @@ Určuje chování odsazení se zřetelem k navazujícím řádkům.
         <translation>Nastavit znovu</translation>
     </message>
     <message>
-        <source>Scanning scope</source>
+        <source>Scanning Scope</source>
         <translation>Oblast prohledávání</translation>
     </message>
     <message>

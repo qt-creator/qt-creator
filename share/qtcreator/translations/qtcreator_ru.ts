@@ -2169,7 +2169,7 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
         <translation>Настроить SDK</translation>
     </message>
     <message>
-        <source>Android OpenSSL settings (Optional)</source>
+        <source>Android OpenSSL Settings (Optional)</source>
         <translation>Настройки Android OpenSSL (опционально)</translation>
     </message>
     <message>
@@ -43125,7 +43125,7 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <translation>Автоматически разделять строки</translation>
     </message>
     <message>
-        <source>&amp;Automatically insert matching characters</source>
+        <source>&amp;Automatically Insert Matching Characters</source>
         <translation>&amp;Автоматически вставлять парные символы</translation>
     </message>
     <message>
@@ -43309,7 +43309,7 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <translation>Прижать к правому краю</translation>
     </message>
     <message>
-        <source>Line annotations</source>
+        <source>Line Annotations</source>
         <translation>Построчная аннотация</translation>
     </message>
     <message>
@@ -45131,7 +45131,7 @@ The trace data is lost.</source>
         <translation>Сбросить</translation>
     </message>
     <message>
-        <source>Scanning scope</source>
+        <source>Scanning Scope</source>
         <translation>Область поиска</translation>
     </message>
     <message>

@@ -214,7 +214,7 @@ CompletionSettingsPageWidget::CompletionSettingsPageWidget(CompletionSettingsPag
             }
         },
         Group {
-            title(Tr::tr("&Automatically insert matching characters")),
+            title(Tr::tr("&Automatically Insert Matching Characters")),
             Row {
                 Column {
                     m_insertBrackets,

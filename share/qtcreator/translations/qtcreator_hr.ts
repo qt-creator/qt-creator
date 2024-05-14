@@ -8025,7 +8025,7 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <translation>Automatski rastavi znakovne nizove</translation>
     </message>
     <message>
-        <source>&amp;Automatically insert matching characters</source>
+        <source>&amp;Automatically Insert Matching Characters</source>
         <translation>&amp;Automatski umetni poklapajuće znakove</translation>
     </message>
     <message>
@@ -8193,7 +8193,7 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <translation>Označi promjene u &amp;tekstu</translation>
     </message>
     <message>
-        <source>Line annotations</source>
+        <source>Line Annotations</source>
         <translation>Napomene za retke</translation>
     </message>
     <message>
@@ -8443,7 +8443,7 @@ Utječe na uvlačenje neprekinutih redaka.
         <translation>Resetiraj</translation>
     </message>
     <message>
-        <source>Scanning scope</source>
+        <source>Scanning Scope</source>
         <translation>Raspon pretrage</translation>
     </message>
     <message>

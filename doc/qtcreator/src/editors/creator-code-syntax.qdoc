@@ -68,7 +68,7 @@
 
     To specify the position where the annotations are displayed, go to
     \preferences > \uicontrol {Text Editor} >
-    \uicontrol Display > \uicontrol {Line annotations}, and then select
+    \uicontrol Display > \uicontrol {Line Annotations}, and then select
     whether to display the annotations directly next to the code, aligned
     to the right of the code, or in the right margin. Showing annotations
     between lines can be useful if there is usually not enough space to

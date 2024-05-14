@@ -34,6 +34,7 @@ CTestTool::CTestTool()
     setId("AutoTest.Framework.CTest");
     setDisplayName(Tr::tr("CTest"));
 
+    // clang-format off
     setLayouter([this] {
         return Row { Form {
             outputOnFail, br,
@@ -41,12 +42,12 @@ CTestTool::CTestTool()
             stopOnFailure, br,
             outputMode, br,
             Group {
-                title(Tr::tr("Repeat tests")),
+                title(Tr::tr("Repeat Tests")),
                 repeat.groupChecker(),
                 Row { repetitionMode, repetitionCount},
             }, br,
             Group {
-                title(Tr::tr("Run in parallel")),
+                title(Tr::tr("Run in Parallel")),
                 parallel.groupChecker(),
                 Column {
                     Row { jobs }, br,
@@ -55,6 +56,7 @@ CTestTool::CTestTool()
             }
         }, st };
     });
+    // clang-format on
 
     outputOnFail.setSettingsKey("OutputOnFail");
     outputOnFail.setLabelText(Tr::tr("Output on failure"));

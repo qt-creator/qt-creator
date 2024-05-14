@@ -747,7 +747,7 @@
         \li Re-run tests, as determined by \uicontrol {Repetition mode}. Set the
             maximum number of times for repeating a test in \uicontrol {Count}.
     \row
-        \li \uicontrol {Run in parallel}
+        \li \uicontrol {Run in Parallel}
         \li Run the tests in parallel using the specified number of
             \uicontrol {Jobs}. In \uicontrol {Test load}, limit the parallel
             execution. CTest will not start a new test if it would cause the

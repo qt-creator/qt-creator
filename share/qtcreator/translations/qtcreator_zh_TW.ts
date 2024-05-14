@@ -1715,7 +1715,7 @@
         <translation>在適當的時候自動插入分號、結束的括號、大括號與引號等等。</translation>
     </message>
     <message>
-        <source>&amp;Automatically insert matching characters</source>
+        <source>&amp;Automatically Insert Matching Characters</source>
         <translation>自動插入對應的字元(&amp;A)</translation>
     </message>
     <message>
@@ -25376,7 +25376,7 @@ Influences the indentation of continuation lines.
         <translation>重置</translation>
     </message>
     <message>
-        <source>Scanning scope</source>
+        <source>Scanning Scope</source>
         <translation>掃描範圍</translation>
     </message>
     <message>

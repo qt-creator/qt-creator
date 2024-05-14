@@ -785,7 +785,7 @@
         <translation>SDK のセットアップ</translation>
     </message>
     <message>
-        <source>Android OpenSSL settings (Optional)</source>
+        <source>Android OpenSSL Settings (Optional)</source>
         <translation>Android OpenSSL の設定 (オプション)</translation>
     </message>
     <message>
@@ -1895,7 +1895,7 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <translation>文字列を自動的に分割する</translation>
     </message>
     <message>
-        <source>&amp;Automatically insert matching characters</source>
+        <source>&amp;Automatically Insert Matching Characters</source>
         <translation>マッチング文字を自動的に挿入する(&amp;A)</translation>
     </message>
     <message>
@@ -6322,7 +6322,7 @@ Backspace キーが押された時のインデントの動作を指定します�
         <translation>ファイル内のナビゲーションをアニメーション化する</translation>
     </message>
     <message>
-        <source>Line annotations</source>
+        <source>Line Annotations</source>
         <translation>ラインアノテーション</translation>
     </message>
     <message>
@@ -6678,7 +6678,7 @@ Influences the indentation of continuation lines.
         <translation>リセット</translation>
     </message>
     <message>
-        <source>Scanning scope</source>
+        <source>Scanning Scope</source>
         <translation>スキャンする範囲</translation>
     </message>
     <message>
