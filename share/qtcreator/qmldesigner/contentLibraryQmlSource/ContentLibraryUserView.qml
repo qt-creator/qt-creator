@@ -92,8 +92,6 @@ HelperWidgets.ScrollView {
 
                 onCountChanged: root.assignMaxCount()
 
-                property int numVisibleItem: 1 // initially, the tab is invisible so this will be 0
-
                 Grid {
                     width: section.width - section.leftPadding - section.rightPadding
                     spacing: StudioTheme.Values.sectionGridSpacing
@@ -114,10 +112,6 @@ HelperWidgets.ScrollView {
 
                                     onShowContextMenu: ctxMenuItem.popupMenu(modelData)
                                     onAddToProject: ContentLibraryBackend.userModel.addToProject(modelData)
-
-                                    onVisibleChanged: {
-                                        section.numVisibleItem += visible ? 1 : -1
-                                    }
                                 }
                             }
                             DelegateChoice {
@@ -149,7 +143,7 @@ HelperWidgets.ScrollView {
                     color: StudioTheme.Values.themeTextColor
                     font.pixelSize: StudioTheme.Values.baseFontSize
                     leftPadding: 10
-                    visible: !searchBox.isEmpty() && section.numVisibleItem === 0
+                    visible: infoText.text === "" && !searchBox.isEmpty() && categoryNoMatch
                 }
             }
         }
@@ -157,9 +151,7 @@ HelperWidgets.ScrollView {
         Text {
             id: infoText
             text: {
-                if (!ContentLibraryBackend.effectsModel.bundleExists)
-                    qsTr("User bundle couldn't be found.")
-                else if (!ContentLibraryBackend.rootView.isQt6Project)
+                if (!ContentLibraryBackend.rootView.isQt6Project)
                     qsTr("<b>Content Library</b> is not supported in Qt5 projects.")
                 else if (!ContentLibraryBackend.rootView.hasQuick3DImport)
                     qsTr("To use <b>Content Library</b>, first add the QtQuick3D module in the <b>Components</b> view.")
@@ -172,7 +164,7 @@ HelperWidgets.ScrollView {
             font.pixelSize: StudioTheme.Values.baseFontSize
             topPadding: 10
             leftPadding: 10
-            visible: ContentLibraryBackend.effectsModel.isEmpty
+            visible: infoText.text !== ""
         }
     }
 }

@@ -699,8 +699,6 @@ void ContentLibraryWidget::setHasQuick3DImport(bool b)
 
     m_materialsModel->updateIsEmpty();
     m_effectsModel->updateIsEmpty();
-    m_userModel->updateIsEmptyMaterials();
-    m_userModel->updateIsEmpty3D();
 }
 
 bool ContentLibraryWidget::hasMaterialLibrary() const
@@ -717,8 +715,6 @@ void ContentLibraryWidget::setHasMaterialLibrary(bool b)
     emit hasMaterialLibraryChanged();
 
     m_materialsModel->updateIsEmpty();
-    m_userModel->updateIsEmptyMaterials();
-    m_userModel->updateIsEmpty3D();
 }
 
 bool ContentLibraryWidget::hasActive3DScene() const

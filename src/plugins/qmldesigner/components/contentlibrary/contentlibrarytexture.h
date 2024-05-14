@@ -46,6 +46,8 @@ public:
     void setHasUpdate(bool value);
     bool hasUpdate() const;
 
+    bool visible() const;
+
 signals:
     void textureVisibleChanged();
     void textureToolTipChanged();

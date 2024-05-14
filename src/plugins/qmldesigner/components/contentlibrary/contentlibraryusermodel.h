@@ -24,8 +24,6 @@ class ContentLibraryUserModel : public QAbstractListModel
 
     Q_PROPERTY(bool matBundleExists READ matBundleExists NOTIFY matBundleExistsChanged)
     Q_PROPERTY(bool bundle3DExists MEMBER m_bundle3DExists NOTIFY bundle3DExistsChanged)
-    Q_PROPERTY(bool isEmptyMaterials MEMBER m_isEmptyMaterials NOTIFY isEmptyMaterialsChanged)
-    Q_PROPERTY(bool isEmpty3D MEMBER m_isEmpty3D NOTIFY isEmpty3DChanged)
     Q_PROPERTY(bool hasRequiredQuick3DImport READ hasRequiredQuick3DImport NOTIFY hasRequiredQuick3DImportChanged)
     Q_PROPERTY(QList<ContentLibraryMaterial *> userMaterials MEMBER m_userMaterials NOTIFY userMaterialsChanged)
     Q_PROPERTY(QList<ContentLibraryTexture *> userTextures MEMBER m_userTextures NOTIFY userTexturesChanged)
@@ -53,8 +51,9 @@ public:
     bool matBundleExists() const;
 
     void resetModel();
-    void updateIsEmptyMaterials();
-    void updateIsEmpty3D();
+    void updateNoMatchMaterials();
+    void updateNoMatchTextures();
+    void updateNoMatch3D();
 
     void addMaterial(const QString &name, const QString &qml, const QUrl &icon, const QStringList &files);
     void add3DItem(const QString &name, const QString &qml, const QUrl &icon, const QStringList &files);
@@ -76,8 +75,6 @@ public:
     Q_INVOKABLE void removeFromContentLib(QObject *item);
 
 signals:
-    void isEmptyMaterialsChanged();
-    void isEmpty3DChanged();
     void hasRequiredQuick3DImportChanged();
     void userMaterialsChanged();
     void userTexturesChanged();
@@ -88,6 +85,11 @@ signals:
     void bundle3DExistsChanged();
 
 private:
+    enum SectionIndex { MaterialsSectionIdx = 0,
+                        TexturesSectionIdx,
+                        Items3DSectionIdx,
+                        EffectsSectionIdx };
+
     void loadMaterialBundle();
     void load3DBundle();
     void loadTextureBundle();
@@ -115,15 +117,17 @@ private:
     QJsonObject m_bundleObjMaterial;
     QJsonObject m_bundleObj3D;
 
-    bool m_isEmptyMaterials = true;
-    bool m_isEmpty3D = true;
+    bool m_noMatchMaterials = true;
+    bool m_noMatchTextures = true;
+    bool m_noMatch3D = true;
+    bool m_noMatchEffects = true;
     bool m_matBundleExists = false;
     bool m_bundle3DExists = false;
 
     int m_quick3dMajorVersion = -1;
     int m_quick3dMinorVersion = -1;
 
-    enum Roles { NameRole = Qt::UserRole + 1, VisibleRole, ItemsRole };
+    enum Roles { NameRole = Qt::UserRole + 1, VisibleRole, ItemsRole, NoMatchRole };
 };
 
 } // namespace QmlDesigner
