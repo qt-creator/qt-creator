@@ -107,6 +107,7 @@ add_qtc_plugin(CppEditor
     quickfixes/cppquickfixsettingspage.cpp quickfixes/cppquickfixsettingspage.h
     quickfixes/cppquickfixsettingswidget.cpp quickfixes/cppquickfixsettingswidget.h
     quickfixes/moveclasstoownfile.cpp quickfixes/moveclasstoownfile.h
+    quickfixes/removeusingnamespace.cpp quickfixes/removeusingnamespace.h
     resourcepreviewhoverhandler.cpp resourcepreviewhoverhandler.h
     searchsymbols.cpp searchsymbols.h
     semantichighlighter.cpp semantichighlighter.h

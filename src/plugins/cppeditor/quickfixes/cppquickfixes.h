@@ -540,19 +540,6 @@ public:
     void doMatch(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
 };
 
-/*!
-  Removes a using directive (using namespace xyz).
-
-*/
-class RemoveUsingNamespace : public CppQuickFixFactory
-{
-public:
-    RemoveUsingNamespace() { setClangdReplacement({10}); }
-
-private:
-    void doMatch(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
-};
-
 //! Converts C-style to C++-style comments and vice versa
 class ConvertCommentStyle : public CppQuickFixFactory
 {

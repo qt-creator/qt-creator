@@ -205,12 +205,6 @@ private slots:
     void testAddCurlyBraces_data();
     void testAddCurlyBraces();
 
-    void testRemoveUsingNamespace_data();
-    void testRemoveUsingNamespace();
-    void testRemoveUsingNamespaceSimple_data();
-    void testRemoveUsingNamespaceSimple();
-    void testRemoveUsingNamespaceDifferentSymbols();
-
     void testChangeCommentType_data();
     void testChangeCommentType();
 
