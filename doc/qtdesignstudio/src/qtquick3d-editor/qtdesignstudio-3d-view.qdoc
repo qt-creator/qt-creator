@@ -17,7 +17,7 @@
 
     To create a project with many complex effects, use the \uicontrol {Extended 3D} preset
     that creates a project with an \uicontrol {Extended View3D} component.
-    The extended 3D view includes an {Extended Scene Environment}
+    The extended 3D view includes an \uicontrol{Extended Scene Environment}
     component that enables using various effects by defining them as properties.
 
     \note The extended 3D view is available in projects created with Qt 6.5
