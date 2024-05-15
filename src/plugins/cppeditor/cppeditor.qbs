@@ -219,6 +219,8 @@ QtcPlugin {
         name: "Quickfixes"
         prefix: "quickfixes/"
         files: [
+            "bringidentifierintoscope.cpp",
+            "bringidentifierintoscope.h",
             "convertqt4connect.cpp",
             "convertqt4connect.h",
             "cppcodegenerationquickfixes.cpp",

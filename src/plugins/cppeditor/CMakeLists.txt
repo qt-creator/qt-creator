@@ -95,6 +95,7 @@ add_qtc_plugin(CppEditor
     insertionpointlocator.cpp insertionpointlocator.h
     projectinfo.cpp projectinfo.h
     projectpart.cpp projectpart.h
+    quickfixes/bringidentifierintoscope.cpp quickfixes/bringidentifierintoscope.h
     quickfixes/cppcodegenerationquickfixes.cpp quickfixes/cppcodegenerationquickfixes.h
     quickfixes/cppinsertvirtualmethods.cpp quickfixes/cppinsertvirtualmethods.h
     quickfixes/cppquickfix.cpp quickfixes/cppquickfix.h

@@ -106,13 +106,6 @@ private slots:
     void testInsertDeclFromDefTemplateReturnType();
     void testInsertDeclFromDefNotTriggeredForTemplateFunc();
 
-    void testAddIncludeForUndefinedIdentifier_data();
-    void testAddIncludeForUndefinedIdentifier();
-    void testAddIncludeForUndefinedIdentifierNoDoubleQtHeaderInclude();
-
-    void testAddForwardDeclForUndefinedIdentifier_data();
-    void testAddForwardDeclForUndefinedIdentifier();
-
     void testAssignToLocalVariableTemplates();
 
     void testExtractFunction_data();

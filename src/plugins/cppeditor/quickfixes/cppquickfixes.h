@@ -29,43 +29,6 @@ public:
 };
 
 /*!
-  Adds an include for an undefined identifier or only forward declared identifier.
-
-  Activates on: the undefined identifier
-*/
-class AddIncludeForUndefinedIdentifier : public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
-};
-
-// Exposed for tests
-class AddIncludeForUndefinedIdentifierOp: public CppQuickFixOperation
-{
-public:
-    AddIncludeForUndefinedIdentifierOp(const CppQuickFixInterface &interface, int priority,
-                                       const QString &include);
-    void perform() override;
-
-    QString include() const { return m_include; }
-
-private:
-    QString m_include;
-};
-
-class AddForwardDeclForUndefinedIdentifierOp: public CppQuickFixOperation
-{
-public:
-    AddForwardDeclForUndefinedIdentifierOp(const CppQuickFixInterface &interface, int priority,
-                                           const QString &fqClassName, int symbolPos);
-private:
-    void perform() override;
-
-    const QString m_className;
-    const int m_symbolPos;
-};
-
-/*!
   Rewrite
     a op b
 
