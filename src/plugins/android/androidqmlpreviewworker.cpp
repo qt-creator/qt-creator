@@ -42,7 +42,17 @@ namespace Android::Internal {
 class ApkInfo
 {
 public:
-    ApkInfo();
+    ApkInfo()
+        : abis{ProjectExplorer::Constants::ANDROID_ABI_X86,
+               ProjectExplorer::Constants::ANDROID_ABI_X86_64,
+               ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A,
+               ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A}
+        , appId(APP_ID)
+        , uploadDir("/data/local/tmp/" APP_ID "/")
+        // TODO Add possibility to run Qt5 built version of Qt Design Viewer
+        , activityId(APP_ID "/org.qtproject.qt.android.bindings.QtActivity")
+        , name("Qt Design Viewer")
+    {}
     const QStringList abis;
     const QString appId;
     const QString uploadDir;
@@ -50,18 +60,6 @@ public:
     const QString name;
 };
 
-ApkInfo::ApkInfo() :
-    abis({ProjectExplorer::Constants::ANDROID_ABI_X86,
-            ProjectExplorer::Constants::ANDROID_ABI_X86_64,
-            ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A,
-            ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A}),
-    appId(APP_ID),
-    uploadDir("/data/local/tmp/" APP_ID "/"),
-    // TODO Add possibility to run Qt5 built version of Qt Design Viewer
-    activityId(APP_ID "/org.qtproject.qt.android.bindings.QtActivity"),
-    name("Qt Design Viewer")
-{
-}
 
 Q_GLOBAL_STATIC(ApkInfo, apkInfo)
 
@@ -103,15 +101,15 @@ private:
     bool startPreviewApp();
     bool stopPreviewApp();
 
-    Utils::FilePath designViewerApkPath(const QString &abi) const;
-    Utils::FilePath createQmlrcFile(const Utils::FilePath &workFolder, const QString &basename);
+    FilePath designViewerApkPath(const QString &abi) const;
+    FilePath createQmlrcFile(const FilePath &workFolder, const QString &basename);
 
     RunControl *m_rc = nullptr;
     QString m_serialNumber;
     QStringList m_avdAbis;
     int m_viewerPid = -1;
     TaskTreeRunner m_pidRunner;
-    Utils::Process m_logcatProcess;
+    Process m_logcatProcess;
     QString m_logcatStartTimeStamp;
     UploadInfo m_uploadInfo;
 };
