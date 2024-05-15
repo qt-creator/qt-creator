@@ -10,7 +10,12 @@ namespace Utils {
 
 bool isMainThread()
 {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+    // TODO: Remove threadutils.h and replace all usages with:
+    return QThread::isMainThread();
+#else
     return QThread::currentThread() == qApp->thread();
+#endif
 }
 
 } // namespace Utils
