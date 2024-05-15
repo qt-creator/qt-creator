@@ -104,6 +104,10 @@
             \li -language <locale>
             \li Set the UI language.
 
+                Use a lowercase, two-letter
+                \l {https://www.iso.org/iso-639-language-codes.html}
+                {ISO 639 language code}, such as \e de, \e en, or \e fr.
+
        \row
             \li -test <plugin>[,testfunction[:testdata]] ...
             \li For \QC plugin developers: run the plugin's tests using a

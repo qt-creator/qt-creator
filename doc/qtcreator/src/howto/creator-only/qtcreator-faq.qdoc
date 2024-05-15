@@ -33,15 +33,6 @@
     This is especially relevant for the \macos where \c {/usr/local/bin} might
     not be in the path when \QC is started.
 
-    \b {How do I change the interface language for \QC?}
-
-    \QC has been localized into several languages. If the system
-    language is one of the supported languages, it is automatically selected.
-    To change the language, select \preferences >
-    \uicontrol Environment and select a language in the \uicontrol Language
-    field. Select \uicontrol {Restart Now} to restart \QC and have the change
-    take effect.
-
     \b {Has a reported issue been addressed?}
 
     You can look up any issue in the
