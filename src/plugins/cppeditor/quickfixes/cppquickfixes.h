@@ -72,22 +72,6 @@ public:
     void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
 };
 
-/*!
-  Replace
-     "abcd"
-     QLatin1String("abcd")
-     QLatin1Literal("abcd")
-
-  With
-     @"abcd"
-
-  Activates on: the string literal, if the file type is a Objective-C(++) file.
-*/
-class ConvertCStringToNSString: public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
-};
 
 /*!
   Base class for converting numeric literals between decimal, octal and hex.
@@ -109,47 +93,6 @@ public:
   Activates on: numeric literals
 */
 class ConvertNumericLiteral: public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
-};
-
-/*!
-  Replace
-    "abcd"
-
-  With
-    tr("abcd") or
-    QCoreApplication::translate("CONTEXT", "abcd") or
-    QT_TRANSLATE_NOOP("GLOBAL", "abcd")
-
-  depending on what is available.
-
-  Activates on: the string literal
-*/
-class TranslateStringLiteral: public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
-};
-
-/*!
-  Replace
-    "abcd"  -> QLatin1String("abcd")
-    @"abcd" -> QLatin1String("abcd") (Objective C)
-    'a'     -> QLatin1Char('a')
-    'a'     -> "a"
-    "a"     -> 'a' or QLatin1Char('a') (Single character string constants)
-    "\n"    -> '\n', QLatin1Char('\n')
-
-  Except if they are already enclosed in
-    QLatin1Char, QT_TRANSLATE_NOOP, tr,
-    trUtf8, QLatin1Literal, QLatin1String
-
-  Activates on: the string or character literal
-*/
-
-class WrapStringLiteral: public CppQuickFixFactory
 {
 public:
     void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
@@ -408,19 +351,6 @@ public:
   or predecrement operators in the expression of the for loop.
  */
 class OptimizeForLoop : public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
-};
-
-/*!
-  Escapes or unescapes a string literal as UTF-8.
-
-  Escapes non-ASCII characters in a string literal to hexadecimal escape sequences.
-  Unescapes octal or hexadecimal escape sequences in a string literal.
-  String literals are handled as UTF-8 even if file's encoding is not UTF-8.
- */
-class EscapeStringLiteral : public CppQuickFixFactory
 {
 public:
     void doMatch(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;

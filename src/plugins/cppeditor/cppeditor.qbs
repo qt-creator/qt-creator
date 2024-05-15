@@ -223,6 +223,8 @@ QtcPlugin {
             "bringidentifierintoscope.h",
             "convertqt4connect.cpp",
             "convertqt4connect.h",
+            "convertstringliteral.cpp",
+            "convertstringliteral.h",
             "cppcodegenerationquickfixes.cpp",
             "cppcodegenerationquickfixes.h",
             "cppinsertvirtualmethods.cpp",

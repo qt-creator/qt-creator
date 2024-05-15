@@ -96,6 +96,8 @@ add_qtc_plugin(CppEditor
     projectinfo.cpp projectinfo.h
     projectpart.cpp projectpart.h
     quickfixes/bringidentifierintoscope.cpp quickfixes/bringidentifierintoscope.h
+    quickfixes/convertqt4connect.cpp quickfixes/convertqt4connect.h
+    quickfixes/convertstringliteral.cpp quickfixes/convertstringliteral.h
     quickfixes/cppcodegenerationquickfixes.cpp quickfixes/cppcodegenerationquickfixes.h
     quickfixes/cppinsertvirtualmethods.cpp quickfixes/cppinsertvirtualmethods.h
     quickfixes/cppquickfix.cpp quickfixes/cppquickfix.h
@@ -107,7 +109,6 @@ add_qtc_plugin(CppEditor
     quickfixes/cppquickfixsettings.cpp quickfixes/cppquickfixsettings.h
     quickfixes/cppquickfixsettingspage.cpp quickfixes/cppquickfixsettingspage.h
     quickfixes/cppquickfixsettingswidget.cpp quickfixes/cppquickfixsettingswidget.h
-    quickfixes/convertqt4connect.cpp quickfixes/convertqt4connect.h
     quickfixes/insertfunctiondefinition.cpp quickfixes/insertfunctiondefinition.h
     quickfixes/moveclasstoownfile.cpp quickfixes/moveclasstoownfile.h
     quickfixes/movefunctiondefinition.cpp quickfixes/movefunctiondefinition.h
