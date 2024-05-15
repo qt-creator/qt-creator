@@ -251,47 +251,6 @@ private:
 };
 
 /*!
-  Adds a declarations to a definition
- */
-class InsertDeclFromDef: public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
-};
-
-class AddDeclarationForUndeclaredIdentifier : public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface,
-               TextEditor::QuickFixOperations &result) override;
-
-#ifdef WITH_TESTS
-    void setMembersOnly() { m_membersOnly = true; }
-#endif
-
-private:
-    void collectOperations(const CppQuickFixInterface &interface,
-                           TextEditor::QuickFixOperations &result);
-    void handleCall(const CPlusPlus::CallAST *call, const CppQuickFixInterface &interface,
-                    TextEditor::QuickFixOperations &result);
-
-    // Returns whether to still do other checks.
-    bool checkForMemberInitializer(const CppQuickFixInterface &interface,
-                                   TextEditor::QuickFixOperations &result);
-
-    void maybeAddMember(const CppQuickFixInterface &interface, CPlusPlus::Scope *scope,
-                        const QByteArray &classTypeExpr, const TypeOrExpr &typeOrExpr,
-                        const CPlusPlus::CallAST *call, TextEditor::QuickFixOperations &result);
-
-    void maybeAddStaticMember(
-        const CppQuickFixInterface &interface, const CPlusPlus::QualifiedNameAST *qualName,
-        const TypeOrExpr &typeOrExpr, const CPlusPlus::CallAST *call,
-        TextEditor::QuickFixOperations &result);
-
-    bool m_membersOnly = false;
-};
-
-/*!
   Extracts the selected code and puts it to a function
  */
 class ExtractFunction : public CppQuickFixFactory

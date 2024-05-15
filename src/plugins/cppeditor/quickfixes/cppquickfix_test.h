@@ -97,15 +97,6 @@ private slots:
     void testGeneric_data();
     void testGeneric();
 
-    void testInsertMemberFromUse_data();
-    void testInsertMemberFromUse();
-
-    void testInsertDeclFromDef();
-    void testInsertDeclFromDefTemplateFuncTypename();
-    void testInsertDeclFromDefTemplateFuncInt();
-    void testInsertDeclFromDefTemplateReturnType();
-    void testInsertDeclFromDefNotTriggeredForTemplateFunc();
-
     void testAssignToLocalVariableTemplates();
 
     void testExtractFunction_data();

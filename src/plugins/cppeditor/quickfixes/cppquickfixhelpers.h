@@ -4,6 +4,7 @@
 #pragma once
 
 #include "../cpprefactoringchanges.h"
+#include "cppquickfixes.h"
 
 #include <QStringList>
 
@@ -35,5 +36,13 @@ CPlusPlus::Class *isMemberFunction(
 
 CPlusPlus::Namespace *isNamespaceFunction(
     const CPlusPlus::LookupContext &context, CPlusPlus::Function *function);
+
+QString nameString(const CPlusPlus::NameAST *name);
+
+CPlusPlus::FullySpecifiedType typeOfExpr(
+    const CPlusPlus::ExpressionAST *expr,
+    const CppRefactoringFilePtr &file,
+    const CPlusPlus::Snapshot &snapshot,
+    const CPlusPlus::LookupContext &context);
 
 } // namespace CppEditor::Internal

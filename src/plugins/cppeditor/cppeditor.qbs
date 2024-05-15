@@ -247,6 +247,8 @@ QtcPlugin {
             "cppquickfixsettingspage.h",
             "cppquickfixsettingswidget.cpp",
             "cppquickfixsettingswidget.h",
+            "createdeclarationfromuse.cpp",
+            "createdeclarationfromuse.h",
             "insertfunctiondefinition.cpp",
             "insertfunctiondefinition.h",
             "moveclasstoownfile.cpp",

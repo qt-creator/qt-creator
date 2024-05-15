@@ -3,9 +3,14 @@
 
 #include "cppquickfixhelpers.h"
 
+#include "../cppcodestylesettings.h"
 #include "../cppprojectfile.h"
 #include "../includeutils.h"
 #include "cppquickfixassistant.h"
+
+#include <cplusplus/CppRewriter.h>
+#include <cplusplus/Overview.h>
+#include <cplusplus/TypeOfExpression.h>
 
 using namespace CPlusPlus;
 using namespace Utils;
@@ -151,6 +156,38 @@ CPlusPlus::Namespace *isNamespaceFunction(
     }
 
     return nullptr;
+}
+
+QString nameString(const CPlusPlus::NameAST *name)
+{
+    return CppCodeStyleSettings::currentProjectCodeStyleOverview().prettyName(name->name);
+}
+
+CPlusPlus::FullySpecifiedType typeOfExpr(
+    const ExpressionAST *expr,
+    const CppRefactoringFilePtr &file,
+    const Snapshot &snapshot,
+    const LookupContext &context)
+{
+    TypeOfExpression typeOfExpression;
+    typeOfExpression.init(file->cppDocument(), snapshot, context.bindings());
+    Scope *scope = file->scopeAt(expr->firstToken());
+    const QList<LookupItem> result
+        = typeOfExpression(file->textOf(expr).toUtf8(), scope, TypeOfExpression::Preprocess);
+    if (result.isEmpty())
+        return {};
+
+    SubstitutionEnvironment env;
+    env.setContext(context);
+    env.switchScope(result.first().scope());
+    ClassOrNamespace *con = typeOfExpression.context().lookupType(scope);
+    if (!con)
+        con = typeOfExpression.context().globalNamespace();
+    UseMinimalNames q(con);
+    env.enter(&q);
+
+    Control *control = context.bindings()->control().get();
+    return rewriteType(result.first().type(), &env, control);
 }
 
 } // namespace CppEditor::Internal
