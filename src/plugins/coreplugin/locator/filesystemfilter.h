@@ -11,7 +11,6 @@ class FileSystemFilter : public ILocatorFilter
 {
 public:
     FileSystemFilter();
-    void restoreState(const QByteArray &state) final;
     bool openConfigDialog(QWidget *parent, bool &needsRefresh) final;
 
 protected:

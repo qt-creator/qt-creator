@@ -392,25 +392,4 @@ void FileSystemFilter::restoreState(const QJsonObject &object)
     m_includeHidden = object.value(kIncludeHiddenKey).toBool(s_includeHiddenDefault);
 }
 
-void FileSystemFilter::restoreState(const QByteArray &state)
-{
-    if (isOldSetting(state)) {
-        // TODO read old settings, remove some time after Qt Creator 4.15
-        QDataStream in(state);
-        in >> m_includeHidden;
-
-        // An attempt to prevent setting this on old configuration
-        if (!in.atEnd()) {
-            QString shortcut;
-            bool defaultFilter;
-            in >> shortcut;
-            in >> defaultFilter;
-            setShortcutString(shortcut);
-            setIncludedByDefault(defaultFilter);
-        }
-    } else {
-        ILocatorFilter::restoreState(state);
-    }
-}
-
 } // namespace Core::Internal

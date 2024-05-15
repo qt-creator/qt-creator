@@ -226,8 +226,8 @@ public:
     std::optional<QString> defaultSearchText() const;
     void setDefaultSearchText(const QString &defaultSearchText);
 
-    virtual QByteArray saveState() const;
-    virtual void restoreState(const QByteArray &state);
+    QByteArray saveState() const;
+    void restoreState(const QByteArray &state);
 
     virtual bool openConfigDialog(QWidget *parent, bool &needsRefresh);
     bool isConfigurable() const;
@@ -271,8 +271,6 @@ protected:
 
     void setRefreshRecipe(const std::optional<Tasking::GroupItem> &recipe);
     std::optional<Tasking::GroupItem> refreshRecipe() const;
-
-    static bool isOldSetting(const QByteArray &state);
 
 private:
     virtual LocatorMatcherTasks matchers() = 0;

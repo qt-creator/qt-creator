@@ -150,42 +150,6 @@ void DirectoryFilter::restoreState(const QJsonObject &object)
             .toArray(QJsonArray::fromStringList(kExclusionFiltersDefault)));
 }
 
-void DirectoryFilter::restoreState(const QByteArray &state)
-{
-    if (isOldSetting(state)) {
-        // TODO read old settings, remove some time after Qt Creator 4.15
-        QString name;
-        QStringList directories;
-        QString shortcut;
-        bool defaultFilter;
-        QStringList files;
-
-        QDataStream in(state);
-        in >> name;
-        in >> directories;
-        in >> m_filters;
-        in >> shortcut;
-        in >> defaultFilter;
-        in >> files;
-        m_cache.setFilePaths(FileUtils::toFilePathList(files));
-        if (!in.atEnd()) // Qt Creator 4.3 and later
-            in >> m_exclusionFilters;
-        else
-            m_exclusionFilters.clear();
-
-        if (m_isCustomFilter) {
-            m_directories = Utils::transform(directories, [](const QString &d) {
-                return FilePath::fromString(d);
-            });
-        }
-        setDisplayName(name);
-        setShortcutString(shortcut);
-        setIncludedByDefault(defaultFilter);
-    } else {
-        ILocatorFilter::restoreState(state);
-    }
-}
-
 class DirectoryFilterOptions : public QDialog
 {
 public:

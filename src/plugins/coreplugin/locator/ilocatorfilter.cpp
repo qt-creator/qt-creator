@@ -671,15 +671,6 @@ void ILocatorFilter::restoreState(const QByteArray &state)
         setShortcutString(obj.value(kShortcutStringKey).toString(m_defaultShortcut));
         setIncludedByDefault(obj.value(kIncludedByDefaultKey).toBool(m_defaultIncludedByDefault));
         restoreState(obj);
-    } else {
-        // TODO read old settings, remove some time after Qt Creator 4.15
-        m_shortcut = m_defaultShortcut;
-        m_includedByDefault = m_defaultIncludedByDefault;
-
-        // TODO this reads legacy settings from Qt Creator < 4.15
-        QDataStream in(state);
-        in >> m_shortcut;
-        in >> m_includedByDefault;
     }
 }
 
@@ -1058,17 +1049,6 @@ void ILocatorFilter::saveState(QJsonObject &object) const
 void ILocatorFilter::restoreState(const QJsonObject &object)
 {
     Q_UNUSED(object)
-}
-
-/*!
-    Returns if \a state must be restored via pre-4.15 settings reading.
-*/
-bool ILocatorFilter::isOldSetting(const QByteArray &state)
-{
-    if (state.isEmpty())
-        return false;
-    const QJsonDocument doc = QJsonDocument::fromJson(state);
-    return !doc.isObject();
 }
 
 /*!
