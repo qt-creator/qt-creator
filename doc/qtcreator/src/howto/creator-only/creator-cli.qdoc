@@ -93,7 +93,7 @@
         \row
             \li -installsettingspath <path>
             \li Override the default path from where user-independent settings are read
-                (for example written by the installer).
+                (for example, those written by the installer).
 
         \row
             \li -temporarycleansettings, -tcs

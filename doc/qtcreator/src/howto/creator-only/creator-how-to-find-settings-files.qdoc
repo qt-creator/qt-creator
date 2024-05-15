@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -7,9 +7,9 @@
 
     \ingroup creator-how-to-use
 
-    \title Find settings files
+    \title Reset \QC settings
 
-    \QC creates the following files and directories:
+    To reset all \QC settings, remove the settings files that it creates:
 
     \list
         \li QtCreator.db
@@ -29,4 +29,32 @@
         \li On Windows, look in
             \c {%appdata%\QtProject} and \c {%localappdata%\QtProject}.
     \endlist
+
+    To check whether the settings are causing a problem before resetting them,
+    start \QC from the command line with options.
+
+    \section1 Override the default settings path
+
+    To override the default path where user settings are stored, enter:
+
+    \badcode
+    qtcreator -settingspath <path>
+    \endcode
+
+    To override the default path from where user-independent settings are read
+    (for example, those written by the installer), enter:
+
+    \badcode
+    qtcreator -installsettingspath <path>
+    \endcode
+
+    \section1 Start \QC with temporary clean settings
+
+    To use clean settings that are deleted when you quit \QC, enter:
+
+    \badcode
+    qtcreator -tcs
+    \endcode
+
+    \sa {Run Qt Creator from the command line}
 */

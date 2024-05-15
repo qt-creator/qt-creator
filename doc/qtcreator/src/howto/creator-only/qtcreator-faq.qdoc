@@ -18,14 +18,6 @@
 
     \section1 General Questions
 
-
-    \b {How do I reset all \QC settings?}
-
-    Remove the settings files created by \QC.
-
-    For more information about where the files are located on each supported
-    platform, see \l {Find settings files}.
-
     \b {\QC comes with \MinGW, should I use this version with Qt?}
 
     Use the version that was built against the Qt version.
