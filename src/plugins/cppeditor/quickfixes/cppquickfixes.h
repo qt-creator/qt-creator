@@ -463,43 +463,6 @@ public:
 };
 
 /*!
- Moves the definition of a member function outside the class or moves the definition of a member
- function or a normal function to the implementation file.
- */
-class MoveFuncDefOutside: public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
-};
-
-/*!
- Moves all member function definitions outside the class or to the implementation file.
- */
-class MoveAllFuncDefOutside: public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
-};
-
-/*!
- Moves the definition of a function to its declaration, with the cursor on the definition.
- */
-class MoveFuncDefToDeclPush : public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
-};
-
-/*!
- Moves the definition of a function to its declaration, with the cursor on the declaration.
- */
-class MoveFuncDefToDeclPull : public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
-};
-
-/*!
   Assigns the return value of a function call or a new expression to a local variable
  */
 class AssignToLocalVariable : public CppQuickFixFactory

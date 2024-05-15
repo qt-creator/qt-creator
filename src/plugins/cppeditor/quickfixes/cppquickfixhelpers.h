@@ -25,4 +25,15 @@ void insertNewIncludeDirective(
 // correspond to an AST of its own, i.e. on "empty space".
 CPlusPlus::ClassSpecifierAST *astForClassOperations(const CppQuickFixInterface &interface);
 
+bool nameIncludesOperatorName(const CPlusPlus::Name *name);
+
+QString inlinePrefix(const Utils::FilePath &targetFile,
+                     const std::function<bool()> &extraCondition = {});
+
+CPlusPlus::Class *isMemberFunction(
+    const CPlusPlus::LookupContext &context, CPlusPlus::Function *function);
+
+CPlusPlus::Namespace *isNamespaceFunction(
+    const CPlusPlus::LookupContext &context, CPlusPlus::Function *function);
+
 } // namespace CppEditor::Internal

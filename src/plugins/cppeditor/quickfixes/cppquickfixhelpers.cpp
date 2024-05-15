@@ -3,6 +3,7 @@
 
 #include "cppquickfixhelpers.h"
 
+#include "../cppprojectfile.h"
 #include "../includeutils.h"
 #include "cppquickfixassistant.h"
 
@@ -62,6 +63,93 @@ ClassSpecifierAST *astForClassOperations(const CppQuickFixInterface &interface)
         return nullptr;
     if (const auto classSpec = path.at(path.size() - 2)->asClassSpecifier())
         return classSpec;
+    return nullptr;
+}
+
+bool nameIncludesOperatorName(const Name *name)
+{
+    return name->asOperatorNameId()
+           || (name->asQualifiedNameId() && name->asQualifiedNameId()->name()->asOperatorNameId());
+}
+
+QString inlinePrefix(const FilePath &targetFile, const std::function<bool()> &extraCondition)
+{
+    if (ProjectFile::isHeader(ProjectFile::classify(targetFile.path()))
+        && (!extraCondition || extraCondition())) {
+        return "inline ";
+    }
+    return {};
+}
+
+Class *isMemberFunction(const CPlusPlus::LookupContext &context, CPlusPlus::Function *function)
+{
+    QTC_ASSERT(function, return nullptr);
+
+    Scope *enclosingScope = function->enclosingScope();
+    while (!(enclosingScope->asNamespace() || enclosingScope->asClass()))
+        enclosingScope = enclosingScope->enclosingScope();
+    QTC_ASSERT(enclosingScope != nullptr, return nullptr);
+
+    const Name *functionName = function->name();
+    if (!functionName)
+        return nullptr;
+
+    if (!functionName->asQualifiedNameId())
+        return nullptr; // trying to add a declaration for a global function
+
+    const QualifiedNameId *q = functionName->asQualifiedNameId();
+    if (!q->base())
+        return nullptr;
+
+    if (ClassOrNamespace *binding = context.lookupType(q->base(), enclosingScope)) {
+        const QList<Symbol *> symbols = binding->symbols();
+        for (Symbol *s : symbols) {
+            if (Class *matchingClass = s->asClass())
+                return matchingClass;
+        }
+    }
+
+    return nullptr;
+}
+
+CPlusPlus::Namespace *isNamespaceFunction(
+    const CPlusPlus::LookupContext &context, CPlusPlus::Function *function)
+{
+    QTC_ASSERT(function, return nullptr);
+    if (isMemberFunction(context, function))
+        return nullptr;
+
+    Scope *enclosingScope = function->enclosingScope();
+    while (!(enclosingScope->asNamespace() || enclosingScope->asClass()))
+        enclosingScope = enclosingScope->enclosingScope();
+    QTC_ASSERT(enclosingScope != nullptr, return nullptr);
+
+    const Name *functionName = function->name();
+    if (!functionName)
+        return nullptr;
+
+    // global namespace
+    if (!functionName->asQualifiedNameId()) {
+        const QList<Symbol *> symbols = context.globalNamespace()->symbols();
+        for (Symbol *s : symbols) {
+            if (Namespace *matchingNamespace = s->asNamespace())
+                return matchingNamespace;
+        }
+        return nullptr;
+    }
+
+    const QualifiedNameId *q = functionName->asQualifiedNameId();
+    if (!q->base())
+        return nullptr;
+
+    if (ClassOrNamespace *binding = context.lookupType(q->base(), enclosingScope)) {
+        const QList<Symbol *> symbols = binding->symbols();
+        for (Symbol *s : symbols) {
+            if (Namespace *matchingNamespace = s->asNamespace())
+                return matchingNamespace;
+        }
+    }
+
     return nullptr;
 }
 

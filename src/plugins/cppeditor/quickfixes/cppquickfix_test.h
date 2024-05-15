@@ -152,40 +152,6 @@ private slots:
     void testAddForwardDeclForUndefinedIdentifier_data();
     void testAddForwardDeclForUndefinedIdentifier();
 
-    void testMoveFuncDefOutsideMemberFuncToCpp();
-    void testMoveFuncDefOutsideMemberFuncToCppInsideNS();
-    void testMoveFuncDefOutsideMemberFuncOutside1();
-    void testMoveFuncDefOutsideMemberFuncOutside2();
-    void testMoveFuncDefOutsideMemberFuncToCppNS();
-    void testMoveFuncDefOutsideMemberFuncToCppNSUsing();
-    void testMoveFuncDefOutsideMemberFuncOutsideWithNs();
-    void testMoveFuncDefOutsideFreeFuncToCpp();
-    void testMoveFuncDefOutsideFreeFuncToCppNS();
-    void testMoveFuncDefOutsideCtorWithInitialization1();
-    void testMoveFuncDefOutsideCtorWithInitialization2();
-    void testMoveFuncDefOutsideAfterClass();
-    void testMoveFuncDefOutsideRespectWsInOperatorNames1();
-    void testMoveFuncDefOutsideRespectWsInOperatorNames2();
-    void testMoveFuncDefOutsideMacroUses();
-    void testMoveFuncDefOutsideTemplate();
-    void testMoveFuncDefOutsideMemberFunctionTemplate();
-    void testMoveFuncDefOutsideTemplateSpecializedClass();
-    void testMoveFuncDefOutsideUnnamedTemplate();
-    void testMoveFuncDefOutsideMemberFuncToCppStatic();
-    void testMoveFuncDefOutsideMemberFuncToCppWithInlinePartOfName();
-    void testMoveFuncDefOutsideMixedQualifiers();
-
-    void testMoveAllFuncDefOutsideMemberFuncToCpp();
-    void testMoveAllFuncDefOutsideMemberFuncOutside();
-    void testMoveAllFuncDefOutsideDoNotTriggerOnBaseClass();
-    void testMoveAllFuncDefOutsideClassWithBaseClass();
-    void testMoveAllFuncDefOutsideIgnoreMacroCode();
-
-    void testMoveFuncDefToDecl_data();
-    void testMoveFuncDefToDecl();
-
-    void testMoveFuncDefToDeclMacroUses();
-
     void testAssignToLocalVariableTemplates();
 
     void testExtractFunction_data();

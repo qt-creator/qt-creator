@@ -245,6 +245,8 @@ QtcPlugin {
             "cppquickfixsettingswidget.h",
             "moveclasstoownfile.cpp",
             "moveclasstoownfile.h",
+            "movefunctiondefinition.cpp",
+            "movefunctiondefinition.h",
             "removeusingnamespace.cpp",
             "removeusingnamespace.h",
         ]
