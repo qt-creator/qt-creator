@@ -12,15 +12,16 @@
 #include <projectstorage/filesystem.h>
 #include <projectstorage/nonlockingmutex.h>
 #include <projectstorage/projectstorage.h>
+#include <projectstorage/projectstorageerrornotifier.h>
 #include <projectstorage/projectstoragepathwatcher.h>
 #include <projectstorage/projectstorageupdater.h>
 #include <projectstorage/qmldocumentparser.h>
 #include <projectstorage/qmltypesparser.h>
 #include <projectstorage/sourcepathcache.h>
-#include <sqlitedatabase.h>
 #include <qmlprojectmanager/qmlproject.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
+#include <sqlitedatabase.h>
 
 #include <asynchronousexplicitimagecache.h>
 #include <asynchronousimagecache.h>
@@ -181,7 +182,8 @@ public:
               pathCache.sourceId(SourcePath{project->projectDirectory().toString() + "/."}).internalId())}
     {}
     Sqlite::Database database;
-    ProjectStorage storage{database, database.isInitialized()};
+    ProjectStorageErrorNotifier errorNotifier{pathCache};
+    ProjectStorage storage{database, errorNotifier, database.isInitialized()};
     PathCacheType pathCache{storage};
     FileSystem fileSystem{pathCache};
     FileStatusCache fileStatusCache{fileSystem};

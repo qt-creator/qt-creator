@@ -3,11 +3,12 @@
 
 #include "../utils/googletest.h"
 
-#include "../mocks/filesystemmock.h"
-#include "../mocks/projectstoragemock.h"
-#include "../mocks/projectstoragepathwatchermock.h"
-#include "../mocks/qmldocumentparsermock.h"
-#include "../mocks/qmltypesparsermock.h"
+#include <filesystemmock.h>
+#include <projectstorageerrornotifiermock.h>
+#include <projectstoragemock.h>
+#include <projectstoragepathwatchermock.h>
+#include <qmldocumentparsermock.h>
+#include <qmltypesparsermock.h>
 
 #include <projectstorage-matcher.h>
 
@@ -142,19 +143,16 @@ auto IsPropertyEditorQmlPath(const ModuleIdMatcher &moduleIdMatcher,
 class ProjectStorageUpdater : public testing::Test
 {
 public:
-    static void SetUpTestSuite()
+    struct StaticData
     {
-        static_database = std::make_unique<Sqlite::Database>(":memory:", Sqlite::JournalMode::Memory);
+        Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
+        NiceMock<ProjectStorageErrorNotifierMock> errorNotifierMock;
+        QmlDesigner::ProjectStorage storage{database, errorNotifierMock, database.isInitialized()};
+    };
 
-        static_projectStorage = std::make_unique<QmlDesigner::ProjectStorage>(
-            *static_database, static_database->isInitialized());
-    }
+    static void SetUpTestSuite() { staticData = std::make_unique<StaticData>(); }
 
-    static void TearDownTestSuite()
-    {
-        static_projectStorage.reset();
-        static_database.reset();
-    }
+    static void TearDownTestSuite() { staticData.reset(); }
 
     ProjectStorageUpdater()
     {
@@ -228,7 +226,7 @@ public:
             });
     }
 
-    ~ProjectStorageUpdater() { static_projectStorage->resetForTestsOnly(); }
+    ~ProjectStorageUpdater() { storage.resetForTestsOnly(); }
 
     void setFilesDontChanged(const QmlDesigner::SourceIds &sourceIds)
     {
@@ -327,10 +325,9 @@ protected:
     NiceMock<QmlTypesParserMock> qmlTypesParserMock;
     NiceMock<QmlDocumentParserMock> qmlDocumentParserMock;
     QmlDesigner::FileStatusCache fileStatusCache{fileSystemMock};
-    inline static std::unique_ptr<Sqlite::Database> static_database;
-    Sqlite::Database &database = *static_database;
-    inline static std::unique_ptr<QmlDesigner::ProjectStorage> static_projectStorage;
-    QmlDesigner::ProjectStorage &storage = *static_projectStorage;
+    inline static std::unique_ptr<StaticData> staticData;
+    Sqlite::Database &database = staticData->database;
+    QmlDesigner::ProjectStorage &storage = staticData->storage;
     QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage> sourcePathCache{
         storage};
     NiceMock<ProjectStoragePathWatcherMock> patchWatcherMock;

@@ -3,6 +3,8 @@
 
 #include "../utils/googletest.h"
 
+#include <projectstorageerrornotifiermock.h>
+
 #include <sqlitedatabase.h>
 
 #include <projectstorage/projectstorage.h>
@@ -144,7 +146,8 @@ class QmlDocumentParser : public ::testing::Test
 public:
 protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
-    QmlDesigner::ProjectStorage storage{database, database.isInitialized()};
+    ProjectStorageErrorNotifierMock errorNotifierMock;
+    QmlDesigner::ProjectStorage storage{database, errorNotifierMock, database.isInitialized()};
     QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage> sourcePathCache{
         storage};
     QmlDesigner::QmlDocumentParser parser{storage, sourcePathCache};

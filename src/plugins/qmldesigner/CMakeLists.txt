@@ -465,6 +465,8 @@ extend_qtc_library(QmlDesignerCore
     projectstoragetypes.h
     projectstorageupdater.cpp projectstorageupdater.h
     projectstorage.cpp projectstorage.h
+    projectstorageerrornotifierinterface.h
+    projectstorageerrornotifier.cpp projectstorageerrornotifier.h
     sourcepath.h
     sourcepathcache.h
     sourcepathcacheinterface.h

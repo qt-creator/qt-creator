@@ -5,7 +5,8 @@
 
 #include <matchers/info_exportedtypenames-matcher.h>
 #include <matchers/projectstorage-matcher.h>
-#include <mocks/projectstorageobservermock.h>
+#include <projectstorageerrornotifiermock.h>
+#include <projectstorageobservermock.h>
 
 #include <modelnode.h>
 #include <projectstorage/projectstorage.h>
@@ -274,21 +275,18 @@ MATCHER_P2(IsInfoType,
 class ProjectStorage : public testing::Test
 {
 protected:
-    static void SetUpTestSuite()
+    struct StaticData
     {
-        static_database = std::make_unique<Sqlite::Database>(":memory:", Sqlite::JournalMode::Memory);
+        Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
+        NiceMock<ProjectStorageErrorNotifierMock> errorNotifierMock;
+        QmlDesigner::ProjectStorage storage{database, errorNotifierMock, database.isInitialized()};
+    };
 
-        static_projectStorage = std::make_unique<QmlDesigner::ProjectStorage>(
-            *static_database, static_database->isInitialized());
-    }
+    static void SetUpTestSuite() { staticData = std::make_unique<StaticData>(); }
 
-    static void TearDownTestSuite()
-    {
-        static_projectStorage.reset();
-        static_database.reset();
-    }
+    static void TearDownTestSuite() { staticData.reset(); }
 
-    ~ProjectStorage() { static_projectStorage->resetForTestsOnly(); }
+    ~ProjectStorage() { storage.resetForTestsOnly(); }
 
     template<typename Range>
     static auto toValues(Range &&range)
@@ -1141,12 +1139,11 @@ protected:
     }
 
 protected:
-    inline static std::unique_ptr<Sqlite::Database> static_database;
-    Sqlite::Database &database = *static_database;
-    inline static std::unique_ptr<QmlDesigner::ProjectStorage> static_projectStorage;
-    QmlDesigner::ProjectStorage &storage = *static_projectStorage;
-    QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage> sourcePathCache{
-        storage};
+    inline static std::unique_ptr<StaticData> staticData;
+    Sqlite::Database &database = staticData->database;
+    QmlDesigner::ProjectStorage &storage = staticData->storage;
+    ProjectStorageErrorNotifierMock &errorNotifierMock = staticData->errorNotifierMock;
+    QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage> sourcePathCache{storage};
     QmlDesigner::SourcePathView path1{"/path1/to"};
     QmlDesigner::SourcePathView path2{"/path2/to"};
     QmlDesigner::SourcePathView path3{"/path3/to"};
@@ -5118,7 +5115,7 @@ TEST_F(ProjectStorage, populate_module_cache)
 {
     auto id = storage.moduleId("Qml", ModuleKind::QmlLibrary);
 
-    QmlDesigner::ProjectStorage newStorage{database, database.isInitialized()};
+    QmlDesigner::ProjectStorage newStorage{database, errorNotifierMock, database.isInitialized()};
 
     ASSERT_THAT(newStorage.module(id), IsModule("Qml", ModuleKind::QmlLibrary));
 }

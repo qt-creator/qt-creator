@@ -4,6 +4,7 @@
 #include "../utils/googletest.h"
 
 #include <projectstorage-matcher.h>
+#include <projectstorageerrornotifiermock.h>
 #include <strippedstring-matcher.h>
 
 #include <projectstorage/projectstorage.h>
@@ -26,19 +27,19 @@ protected:
         traits.hasFormEditorItem = FlagIs::True;
         traits.visibleInLibrary = FlagIs::True;
     }
-    static void SetUpTestSuite()
-    {
-        static_database = std::make_unique<Sqlite::Database>(":memory:", Sqlite::JournalMode::Memory);
 
-        static_projectStorage = std::make_unique<QmlDesigner::ProjectStorage>(
-            *static_database, static_database->isInitialized());
-    }
+    ~TypeAnnotationReader() { storage.resetForTestsOnly(); }
 
-    static void TearDownTestSuite()
+    struct StaticData
     {
-        static_projectStorage.reset();
-        static_database.reset();
-    }
+        Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
+        ProjectStorageErrorNotifierMock errorNotifierMock;
+        QmlDesigner::ProjectStorage storage{database, errorNotifierMock, database.isInitialized()};
+    };
+
+    static void SetUpTestSuite() { staticData = std::make_unique<StaticData>(); }
+
+    static void TearDownTestSuite() { staticData.reset(); }
 
     auto moduleId(Utils::SmallStringView name) const
     {
@@ -46,10 +47,9 @@ protected:
     }
 
 protected:
-    inline static std::unique_ptr<Sqlite::Database> static_database;
-    Sqlite::Database &database = *static_database;
-    inline static std::unique_ptr<QmlDesigner::ProjectStorage> static_projectStorage;
-    QmlDesigner::ProjectStorage &storage = *static_projectStorage;
+    inline static std::unique_ptr<StaticData> staticData;
+    Sqlite::Database &database = staticData->database;
+    QmlDesigner::ProjectStorage &storage = staticData->storage;
     QmlDesigner::Storage::TypeAnnotationReader reader{storage};
     QmlDesigner::SourceId sourceId = QmlDesigner::SourceId::create(33);
     QmlDesigner::SourceId directorySourceId = QmlDesigner::SourceId::create(77);

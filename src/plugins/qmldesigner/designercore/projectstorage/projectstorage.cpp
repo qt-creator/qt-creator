@@ -1127,8 +1127,11 @@ public:
     }
 };
 
-ProjectStorage::ProjectStorage(Database &database, bool isInitialized)
+ProjectStorage::ProjectStorage(Database &database,
+                               ProjectStorageErrorNotifierInterface &errorNotifier,
+                               bool isInitialized)
     : database{database}
+    , errorNotifier{errorNotifier}
     , exclusiveTransaction{database}
     , initializer{std::make_unique<ProjectStorage::Initializer>(database, isInitialized)}
     , moduleCache{ModuleStorageAdapter{*this}}

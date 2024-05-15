@@ -4,6 +4,7 @@
 #pragma once
 
 #include "commontypecache.h"
+#include "projectstorageerrornotifier.h"
 #include "projectstorageexceptions.h"
 #include "projectstorageinterface.h"
 #include "projectstoragetypes.h"
@@ -39,7 +40,9 @@ class ProjectStorage final : public ProjectStorageInterface
     friend Storage::Info::CommonTypeCache<ProjectStorageType>;
 
 public:
-    ProjectStorage(Database &database, bool isInitialized);
+    ProjectStorage(Database &database,
+                   ProjectStorageErrorNotifierInterface &errorNotifier,
+                   bool isInitialized);
     ~ProjectStorage();
 
     void synchronize(Storage::Synchronization::SynchronizationPackage package) override;
@@ -967,6 +970,7 @@ private:
 
 public:
     Database &database;
+    ProjectStorageErrorNotifierInterface &errorNotifier;
     Sqlite::ExclusiveNonThrowingDestructorTransaction<Database> exclusiveTransaction;
     std::unique_ptr<Initializer> initializer;
     mutable ModuleCache moduleCache{ModuleStorageAdapter{*this}};

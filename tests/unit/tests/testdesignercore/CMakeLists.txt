@@ -125,6 +125,8 @@ add_qtc_library(TestDesignerCore OBJECT
     projectstorage/projectstorageinterface.h
     projectstorage/projectstorageobserver.h
     projectstorage/projectstorage.cpp projectstorage/projectstorage.h
+    projectstorage/projectstorageerrornotifierinterface.h
+    projectstorage/projectstorageerrornotifier.cpp projectstorage/projectstorageerrornotifier.h
     projectstorage/projectstoragepathwatcher.h
     projectstorage/projectstoragepathwatcherinterface.h
     projectstorage/projectstoragepathwatchernotifierinterface.h
