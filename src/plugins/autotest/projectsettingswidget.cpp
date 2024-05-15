@@ -74,6 +74,7 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
     QPushButton *removeFilter = new QPushButton(Tr::tr("Remove"), this);
     removeFilter->setEnabled(false);
 
+    // clang-format off
     using namespace Layouting;
     Column {
         Widget {
@@ -81,7 +82,7 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
             Column {
                 Row {
                     Group {
-                        title(Tr::tr("Active frameworks:")),
+                        title(Tr::tr("Active Test Frameworks")),
                         Column { m_activeFrameworks },
                     },
                     st,
@@ -96,7 +97,7 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
         },
         Row { // explicitly outside of the global settings
             Group {
-                title(Tr::tr("Limit files to path patterns")),
+                title(Tr::tr("Limit Files to Path Patterns")),
                 m_applyFilter.groupChecker(),
                 Column {
                     filterLabel,
@@ -109,6 +110,7 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
         },
         noMargin(),
     }.attachTo(this);
+    // clang-format on
 
     generalWidget->setDisabled(m_projectSettings->useGlobalSettings());
 
