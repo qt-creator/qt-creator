@@ -133,13 +133,13 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)
 
     auto currentViewOverlay = new OverlayWidget;
     currentViewOverlay->attachToWidget(this);
-    currentViewOverlay->setPaintFunction([this](QWidget *w, QPainter &p, QPaintEvent *) {
-        const int width = 2;
-        const QPoint margin{0, width};
-        p.setPen({w->palette().color(QPalette::Highlight), width});
-        p.drawLine(
-            m_toolBar->geometry().bottomLeft() + margin,
-            m_toolBar->geometry().bottomRight() + margin);
+    currentViewOverlay->setAttribute(Qt::WA_OpaquePaintEvent);
+    currentViewOverlay->setResizeFunction([this](QWidget *w, const QSize &) {
+        const QRect toolbarRect = m_toolBar->geometry();
+        w->setGeometry(toolbarRect.x(), toolbarRect.bottom() - 1, toolbarRect.width(), 2);
+    });
+    currentViewOverlay->setPaintFunction([](QWidget *w, QPainter &p, QPaintEvent *) {
+        p.fillRect(w->rect(), w->palette().color(QPalette::Highlight));
     });
     currentViewOverlay->setVisible(false);
     const auto updateCurrentViewOverlay = [this, currentViewOverlay] {
