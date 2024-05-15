@@ -495,8 +495,8 @@ void AndroidDeviceManager::startAvd(const ProjectExplorer::IDevice::Ptr &device,
     const AndroidDevice *androidDev = static_cast<const AndroidDevice *>(device.get());
     const QString name = androidDev->avdName();
     qCDebug(androidDeviceLog, "Starting Android AVD id \"%s\".", qPrintable(name));
-    auto future = Utils::asyncRun([this, name, device] {
-        const QString serialNumber = m_avdManager.startAvd(name);
+    auto future = Utils::asyncRun([name, device] {
+        const QString serialNumber = AndroidAvdManager::startAvd(name);
         // Mark the AVD as ReadyToUse once we know it's started
         if (!serialNumber.isEmpty()) {
             DeviceManager *const devMgr = DeviceManager::instance();

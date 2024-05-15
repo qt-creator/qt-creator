@@ -6,20 +6,12 @@
 
 #include <optional>
 
-namespace Android::Internal {
+namespace Android::Internal::AndroidAvdManager {
 
-class AndroidAvdManager
-{
-public:
-    QString startAvd(const QString &name) const;
-    bool startAvdAsync(const QString &avdName) const;
-    QString findAvd(const QString &avdName) const;
-    QString waitForAvd(const QString &avdName, const std::optional<QFuture<void>> &future = {}) const;
-    bool isAvdBooted(const QString &device) const;
-    static bool avdManagerCommand(const QStringList &args, QString *output);
+QString startAvd(const QString &name);
+bool startAvdAsync(const QString &avdName);
+QString findAvd(const QString &avdName);
+QString waitForAvd(const QString &avdName, const std::optional<QFuture<void>> &future = {});
+bool isAvdBooted(const QString &device);
 
-private:
-    bool waitForBooted(const QString &serialNumber, const std::optional<QFuture<void>> &future = {}) const;
-};
-
-} // Android::Internal
+} // namespace Android::Internal::AndroidAvdManager

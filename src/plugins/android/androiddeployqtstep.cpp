@@ -334,10 +334,9 @@ bool AndroidDeployQtStep::init()
 
     m_adbPath = androidConfig().adbToolPath();
 
-    AndroidAvdManager avdManager;
     // Start the AVD if not running.
-    if (!m_avdName.isEmpty() && avdManager.findAvd(m_avdName).isEmpty())
-        avdManager.startAvdAsync(m_avdName);
+    if (!m_avdName.isEmpty() && AndroidAvdManager::findAvd(m_avdName).isEmpty())
+        AndroidAvdManager::startAvdAsync(m_avdName);
     return true;
 }
 
@@ -480,7 +479,7 @@ void AndroidDeployQtStep::slotAskForUninstall(DeployErrorCode errorCode)
 void AndroidDeployQtStep::runImpl(QPromise<void> &promise)
 {
     if (!m_avdName.isEmpty()) {
-        const QString serialNumber = AndroidAvdManager().waitForAvd(m_avdName, promise.future());
+        const QString serialNumber = AndroidAvdManager::waitForAvd(m_avdName, promise.future());
         qCDebug(deployStepLog) << "Deploying to AVD:" << m_avdName << serialNumber;
         if (serialNumber.isEmpty()) {
             reportWarningOrError(Tr::tr("The deployment AVD \"%1\" cannot be started.")

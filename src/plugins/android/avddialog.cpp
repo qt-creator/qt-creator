@@ -3,9 +3,7 @@
 
 #include "avddialog.h"
 #include "androidtr.h"
-#include "androidavdmanager.h"
 #include "androidconfigurations.h"
-#include "androidconstants.h"
 #include "androiddevice.h"
 #include "androidsdkmanager.h"
 
@@ -166,15 +164,30 @@ AvdDialog::DeviceType AvdDialog::tagToDeviceType(const QString &type_tag)
         return AvdDialog::Automotive;
     else if (type_tag.contains("android-desktop"))
         return AvdDialog::Desktop;
-    else
-        return AvdDialog::PhoneOrTablet;
+    return AvdDialog::PhoneOrTablet;
+}
+
+static bool avdManagerCommand(const QStringList &args, QString *output)
+{
+    CommandLine cmd(androidConfig().avdManagerToolPath(), args);
+    Process proc;
+    proc.setEnvironment(androidConfig().toolsEnvironment());
+    qCDebug(avdDialogLog).noquote() << "Running AVD Manager command:" << cmd.toUserOutput();
+    proc.setCommand(cmd);
+    proc.runBlocking();
+    if (proc.result() == ProcessResult::FinishedWithSuccess) {
+        if (output)
+            *output = proc.allOutput();
+        return true;
+    }
+    return false;
 }
 
 void AvdDialog::parseDeviceDefinitionsList()
 {
     QString output;
 
-    if (!AndroidAvdManager::avdManagerCommand({"list", "device"}, &output)) {
+    if (!avdManagerCommand({"list", "device"}, &output)) {
         qCDebug(avdDialogLog) << "Avd list command failed" << output
                               << androidConfig().sdkToolsVersion();
         return;

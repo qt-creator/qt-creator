@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "androidavdmanager.h"
 #include "androidconfigurations.h"
 #include "androiddeviceinfo.h"
 
@@ -107,7 +106,6 @@ private:
     QFileSystemWatcher m_avdFileSystemWatcher;
     Utils::Guard m_avdPathGuard;
     std::unique_ptr<Utils::Process> m_adbDeviceWatcherProcess;
-    AndroidAvdManager m_avdManager;
 
     friend void setupAndroidDeviceManager(QObject *guard);
 };

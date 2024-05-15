@@ -264,13 +264,12 @@ void AndroidQmlPreviewWorker::stop()
 
 bool AndroidQmlPreviewWorker::ensureAvdIsRunning()
 {
-    AndroidAvdManager avdMananager;
     QString devSN = AndroidManager::deviceSerialNumber(m_rc->target());
 
     if (devSN.isEmpty())
         devSN = m_serialNumber;
 
-    if (!avdMananager.isAvdBooted(devSN)) {
+    if (!AndroidAvdManager::isAvdBooted(devSN)) {
         const IDevice *dev = DeviceKitAspect::device(m_rc->target()->kit()).get();
         if (!dev) {
             appendMessage(Tr::tr("Selected device is invalid."), ErrorMessageFormat);
@@ -285,7 +284,7 @@ bool AndroidQmlPreviewWorker::ensureAvdIsRunning()
         if (devInfoLocal.isValid()) {
             if (dev->machineType() == IDevice::Emulator) {
                 appendMessage(Tr::tr("Launching AVD."), NormalMessageFormat);
-                devInfoLocal.serialNumber = avdMananager.startAvd(devInfoLocal.avdName);
+                devInfoLocal.serialNumber = AndroidAvdManager::startAvd(devInfoLocal.avdName);
             }
             if (devInfoLocal.serialNumber.isEmpty()) {
                 appendMessage(Tr::tr("Could not start AVD."), ErrorMessageFormat);
