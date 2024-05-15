@@ -46,7 +46,6 @@ add_qtc_library(QmlDesignerUtils STATIC
     hdrimage.cpp hdrimage.h
     ktximage.cpp ktximage.h
     imageutils.cpp imageutils.h
-    uniquename.cpp uniquename.h
     qmldesignerutils_global.h
 )
 
@@ -96,10 +95,9 @@ add_qtc_library(QmlDesignerCore STATIC
     ${CMAKE_CURRENT_LIST_DIR}/designercore/include
   SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore
   SOURCES
-    rewritertransaction.cpp
-    rewritertransaction.h
-    generatedcomponentutils.cpp
-    generatedcomponentutils.h
+    rewritertransaction.cpp rewritertransaction.h
+    generatedcomponentutils.cpp generatedcomponentutils.h
+    uniquename.cpp uniquename.h
 )
 
 extend_qtc_library(QmlDesignerCore

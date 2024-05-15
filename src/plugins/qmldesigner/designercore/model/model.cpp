@@ -9,7 +9,6 @@
 #include "../projectstorage/sourcepath.h"
 #include "../projectstorage/sourcepathcache.h"
 #include "abstractview.h"
-#include "auxiliarydataproperties.h"
 #include "internalbindingproperty.h"
 #include "internalnodeabstractproperty.h"
 #include "internalnodelistproperty.h"
@@ -33,6 +32,8 @@
 #include "signalhandlerproperty.h"
 #include "variantproperty.h"
 
+#include <uniquename.h>
+
 #include <projectstorage/projectstorage.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -45,8 +46,6 @@
 #include <QPointer>
 #include <QRegularExpression>
 #include <qcompilerdetection.h>
-
-#include <string>
 
 /*!
 \defgroup CoreModel
@@ -1864,90 +1863,22 @@ bool Model::hasImport(const QString &importUrl) const
     });
 }
 
-static QString firstCharToLower(const QString &string)
-{
-    QString resultString = string;
-
-    if (!resultString.isEmpty())
-        resultString[0] = resultString.at(0).toLower();
-
-    return resultString;
-}
-
-QString Model::generateNewId(const QString &prefixName,
-                             const QString &fallbackPrefix,
+QString Model::generateNewId(const QString &prefixName, const QString &fallbackPrefix,
                              std::optional<std::function<bool(const QString &)>> isDuplicate) const
 {
-    // First try just the prefixName without number as postfix, then continue with 2 and further
-    // as postfix until id does not already exist.
-    // Properties of the root node are not allowed for ids, because they are available in the
-    // complete context without qualification.
+    QString newId = prefixName;
 
-    int counter = 0;
+    if (newId.isEmpty())
+        newId = fallbackPrefix;
 
-    static const QRegularExpression nonWordCharsRegex("\\W");
-    QString newBaseId = firstCharToLower(prefixName);
-    newBaseId.remove(nonWordCharsRegex);
-
-    if (!newBaseId.isEmpty()) {
-        QChar firstChar = newBaseId.at(0);
-        if (firstChar.isDigit())
-            newBaseId.prepend('_');
-    } else {
-        newBaseId = fallbackPrefix;
-    }
-
-    QString newId = newBaseId;
-
-    if (!isDuplicate.has_value())
+    if (!isDuplicate.has_value()) // TODO: to be removed separately to not break build
         isDuplicate = std::bind(&Model::hasId, this, std::placeholders::_1);
 
-    while (!ModelNode::isValidId(newId) || isDuplicate.value()(newId)
-           || d->rootNode()->property(newId.toUtf8())) {
-        ++counter;
-        newId = QStringView(u"%1%2").arg(firstCharToLower(newBaseId)).arg(counter);
-    }
-
-    return newId;
-}
-
-// Generate a unique camelCase id from a name
-// note: this methods does the same as generateNewId(). The 2 methods should be merged into one
-QString Model::generateIdFromName(const QString &name, const QString &fallbackId) const
-{
-    QString newId;
-    if (name.isEmpty()) {
-        newId = fallbackId;
-    } else {
-        // convert to camel case
-        QStringList nameWords = name.split(" ");
-        nameWords[0] = nameWords[0].at(0).toLower() + nameWords[0].mid(1);
-        for (int i = 1; i < nameWords.size(); ++i)
-            nameWords[i] = nameWords[i].at(0).toUpper() + nameWords[i].mid(1);
-        newId = nameWords.join("");
-
-        // if id starts with a number prepend an underscore
-        if (newId.at(0).isDigit())
-            newId.prepend('_');
-    }
-
-    // If the new id is not valid (e.g. qml keyword match), try fixing it by prepending underscore
-    if (!ModelNode::isValidId(newId))
-        newId.prepend("_");
-
-    QRegularExpression rgx("\\d+$"); // matches a number at the end of a string
-    while (hasId(newId)) { // id exists
-        QRegularExpressionMatch match = rgx.match(newId);
-        if (match.hasMatch()) { // ends with a number, increment it
-            QString numStr = match.captured();
-            int num = numStr.toInt() + 1;
-            newId = newId.mid(0, match.capturedStart()) + QString::number(num);
-        } else {
-            newId.append('1');
-        }
-    }
-
-    return newId;
+    return UniqueName::getId(prefixName, [&] (const QString &id) {
+        // Properties of the root node are not allowed for ids, because they are available in the
+        // complete context without qualification.
+        return isDuplicate.value()(id) || d->rootNode()->property(id.toUtf8());
+    });
 }
 
 void Model::startDrag(QMimeData *mimeData, const QPixmap &icon)

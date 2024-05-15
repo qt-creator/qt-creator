@@ -961,7 +961,7 @@ void MaterialEditorView::renameMaterial(ModelNode &material, const QString &newN
         return;
 
     executeInTransaction(__FUNCTION__, [&] {
-        material.setIdWithRefactoring(model()->generateIdFromName(newName, "material"));
+        material.setIdWithRefactoring(model()->generateNewId(newName, "material"));
 
         VariantProperty objNameProp = material.variantProperty("objectName");
         objNameProp.setValue(newName);
@@ -998,7 +998,7 @@ void MaterialEditorView::duplicateMaterial(const ModelNode &material)
         QString newName = sourceMat.modelNode().variantProperty("objectName").value().toString() + " copy";
         VariantProperty objNameProp = duplicateMatNode.variantProperty("objectName");
         objNameProp.setValue(newName);
-        duplicateMatNode.setIdWithoutRefactoring(model()->generateIdFromName(newName, "material"));
+        duplicateMatNode.setIdWithoutRefactoring(model()->generateNewId(newName, "material"));
 
         // sync properties. Only the base state is duplicated.
         const QList<AbstractProperty> props = material.properties();

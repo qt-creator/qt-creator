@@ -13,10 +13,10 @@
 #include <designerpaths.h>
 #include <imageutils.h>
 #include <qmldesignerplugin.h>
+#include <uniquename.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
-#include <utils/uniquename.h>
 
 #include <QFileInfo>
 #include <QJsonArray>
@@ -318,11 +318,11 @@ QPair<QString, QString> ContentLibraryUserModel::getUniqueLibItemNames(const QSt
     baseQml.prepend("My");
 
     QString uniqueQml = UniqueName::get(baseQml, [&] (const QString &name) {
-        return !itemQmls.contains(name);
+        return itemQmls.contains(name);
     });
 
     QString uniqueIcon = UniqueName::get(defaultName, [&] (const QString &name) {
-        return !itemIcons.contains(name);
+        return itemIcons.contains(name);
     });
 
     return {uniqueQml + ".qml", uniqueIcon + ".png"};

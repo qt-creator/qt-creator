@@ -255,10 +255,8 @@ public:
     bool hasId(const QString &id) const;
     bool hasImport(const QString &importUrl) const;
 
-    QString generateNewId(const QString &prefixName,
-                          const QString &fallbackPrefix = "element",
+    QString generateNewId(const QString &prefixName, const QString &fallbackPrefix = "element",
                           std::optional<std::function<bool(const QString &)>> isDuplicate = {}) const;
-    QString generateIdFromName(const QString &name, const QString &fallbackId = "element") const;
 
     void startDrag(QMimeData *mimeData, const QPixmap &icon);
     void endDrag();

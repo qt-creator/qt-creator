@@ -17,6 +17,7 @@
 #include <qmldesignerplugin.h>
 #include <studioquickwidget.h>
 #include <theme.h>
+#include <uniquename.h>
 #include <utils3d.h>
 
 #include <coreplugin/fileutils.h>
@@ -28,7 +29,6 @@
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>
-#include <utils/uniquename.h>
 
 #include <QFileDialog>
 #include <QFileInfo>

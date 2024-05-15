@@ -147,6 +147,8 @@ add_qtc_library(TestDesignerCore OBJECT
     tracing/qmldesignertracing.cpp tracing/qmldesignertracing.h
     rewritertransaction.cpp
     rewritertransaction.h
+    uniquename.cpp
+    uniquename.h
 )
 
 extend_qtc_library(TestDesignerCore

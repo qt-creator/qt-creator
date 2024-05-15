@@ -242,7 +242,7 @@ void CollectionView::addResource(const QUrl &url, const QString &name)
         VariantProperty nameProperty = resourceNode.variantProperty("objectName");
         sourceProperty.setValue(sourceAddress);
         nameProperty.setValue(name);
-        resourceNode.setIdWithoutRefactoring(model()->generateIdFromName(name, "model"));
+        resourceNode.setIdWithoutRefactoring(model()->generateNewId(name, "model"));
         rootModelNode().defaultNodeAbstractProperty().reparentHere(resourceNode);
     });
 }

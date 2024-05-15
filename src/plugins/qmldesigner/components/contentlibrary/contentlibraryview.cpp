@@ -779,7 +779,7 @@ ModelNode ContentLibraryView::createMaterial(const TypeName &typeName)
     QString newName = QString::fromUtf8(typeName).replace(rgx, " \\1\\2").trimmed();
     if (newName.endsWith(" Material"))
         newName.chop(9); // remove trailing " Material"
-    QString newId = model()->generateIdFromName(newName, "material");
+    QString newId = model()->generateNewId(newName, "material");
     newMatNode.setIdWithRefactoring(newId);
 
     VariantProperty objNameProp = newMatNode.variantProperty("objectName");
@@ -805,7 +805,7 @@ ModelNode ContentLibraryView::createMaterial(const NodeMetaInfo &metaInfo)
     QString newName = QString::fromLatin1(metaInfo.simplifiedTypeName()).replace(rgx, " \\1\\2").trimmed();
     if (newName.endsWith(" Material"))
         newName.chop(9); // remove trailing " Material"
-    QString newId = model()->generateIdFromName(newName, "material");
+    QString newId = model()->generateNewId(newName, "material");
     newMatNode.setIdWithRefactoring(newId);
 
     VariantProperty objNameProp = newMatNode.variantProperty("objectName");

@@ -5,6 +5,7 @@
 
 #include <modelnodeoperations.h>
 #include <qmldesignerplugin.h>
+#include <uniquename.h>
 
 #include <coreplugin/icore.h>
 
@@ -12,7 +13,6 @@
 #include <utils/asset.h>
 #include <utils/filepath.h>
 #include <utils/filesystemwatcher.h>
-#include <utils/uniquename.h>
 
 #include <QFileInfo>
 #include <QFileSystemModel>
