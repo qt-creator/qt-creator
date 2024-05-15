@@ -100,11 +100,6 @@ private slots:
     void testInsertMemberFromUse_data();
     void testInsertMemberFromUse();
 
-    void testConvertQt4ConnectConnectOutOfClass();
-    void testConvertQt4ConnectConnectWithinClass_data();
-    void testConvertQt4ConnectConnectWithinClass();
-    void testConvertQt4ConnectDifferentNamespace();
-
     void testInsertDefFromDeclAfterClass();
     void testInsertDefFromDeclHeaderSourceBasic1();
     void testInsertDefFromDeclHeaderSourceBasic2();
