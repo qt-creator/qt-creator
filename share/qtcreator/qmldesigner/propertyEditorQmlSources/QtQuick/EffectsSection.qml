@@ -78,7 +78,6 @@ Section {
         }
 
         PropertyLabel {
-
             text: qsTr("Visible")
             tooltip: qsTr("Toggles the visibility of visual effects on the component.")
             visible: root.hasDesignerEffect
@@ -260,8 +259,8 @@ Section {
                 PropertyLabel {
                     text: qsTr("Blur")
                     tooltip: qsTr("Sets the intensity of blur on the selected background component.\n"
-                               + "The foreground component should be transparent, and the background "
-                               + "component should be solid.")
+                            + "The foreground component should be transparent, and the background "
+                            + "component should be opaque.")
                 }
 
                 SecondColumnLayout {
@@ -402,7 +401,8 @@ Section {
 
                     PropertyLabel {
                         text: qsTr("Blur")
-                        tooltip: qsTr("Sets the intensity of the component shadow.")
+                        tooltip: qsTr("Sets the softness of the component shadow. A larger value"
+                                + " causes the edges of the shadow to appear more blurry.")
                     }
 
                     SecondColumnLayout {
@@ -419,7 +419,9 @@ Section {
 
                     PropertyLabel {
                         text: qsTr("Spread")
-                        tooltip: qsTr("Resizes the base shadow of the component by pixels.")
+                        tooltip: modelNodeBackend.isInstanceOf("Rectangle")
+                                    ? qsTr("Resizes the base shadow of the component by pixels.")
+                                    : qsTr("Only supported for Rectangles.")
                         enabled: modelNodeBackend.isInstanceOf("Rectangle")
                     }
 
