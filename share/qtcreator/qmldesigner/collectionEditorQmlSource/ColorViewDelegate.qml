@@ -10,170 +10,59 @@ import StudioTheme as StudioTheme
 import StudioControls as StudioControls
 import QtQuickDesignerTheme
 import QtQuickDesignerColorPalette
+import StudioHelpers
 
-Row {
-    id: colorEditor
+Item {
+    id: root
 
-    property color color
-    property bool supportGradient: false
+    property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
 
-    property QtObject backendValue: QtObject {
-        property color value: edit
-        readonly property color editColor: edit
+    property alias color: colorBackend.color
 
-        function resetValue() {
-            if (value)
-                value = ""
-        }
+    property alias actionIndicatorVisible: actionIndicator.visible
+    property real __actionIndicatorWidth: root.style.actionIndicatorSize.width
+    property real __actionIndicatorHeight: root.style.actionIndicatorSize.height
 
-        onValueChanged: {
-            if (editColor !== value)
-                edit = value
-        }
+    property alias showHexTextField: hexTextField.visible
+
+    readonly property real padding: 2
+    readonly property real innerItemsHeight: root.height - 2 * root.padding
+
+    width: root.style.controlSize.width
+    height: root.style.controlSize.height
+
+    clip: true
+
+    signal editorOpened(var item, var editorPopup)
+
+    function closeEditor() {
+        loader.close()
     }
 
-    property variant value: {
-        if (!colorEditor.backendValue || !colorEditor.backendValue.value)
-            return "white" // default color for Rectangle
-
-        if (colorEditor.isVector3D) {
-            return Qt.rgba(colorEditor.backendValue.value.x,
-                           colorEditor.backendValue.value.y,
-                           colorEditor.backendValue.value.z, 1)
-        }
-
-        return colorEditor.backendValue.value
+    ColorBackend {
+        id: colorBackend
     }
 
-    property alias gradientPropertyName: popupDialog.gradientPropertyName
-
-    property alias gradientThumbnail: gradientThumbnail
-    property alias shapeGradientThumbnail: shapeGradientThumbnail
-
-    property bool shapeGradients: false
-    property bool isVector3D: false
-    property color originalColor
-
-    property bool __block: false
-
-    function resetShapeColor() {
-        colorEditor.backendValue.resetValue()
-    }
-
-    function writeColor() {
-        if (colorEditor.isVector3D) {
-            colorEditor.backendValue.value = Qt.vector3d(colorEditor.color.r,
-                               colorEditor.color.g,
-                               colorEditor.color.b)
-        } else {
-            colorEditor.backendValue.value = colorEditor.color
-        }
-    }
-
-    function initEditor() {
-        colorEditor.syncColor()
-    }
-
-    // Syncing color from backend to frontend and block reflection
-    function syncColor() {
-        colorEditor.__block = true
-        colorEditor.color = colorEditor.value
-        hexTextField.syncColor()
-        colorEditor.__block = false
-    }
-
-    Connections {
-        id: backendConnection
-
-        target: colorEditor
-
-        function onValueChanged() {
-            if (popupDialog.isSolid())
-                colorEditor.syncColor()
-        }
-
-        function onBackendValueChanged() {
-            if (popupDialog.isSolid())
-                colorEditor.syncColor()
-        }
-    }
-
-    Timer {
-        id: colorEditorTimer
-
-        repeat: false
-        interval: 100
-        running: false
-        onTriggered: {
-            backendConnection.enabled = false
-            colorEditor.writeColor()
-            hexTextField.syncColor()
-            backendConnection.enabled = true
-        }
-    }
-
-    onColorChanged: {
-        if (colorEditor.__block)
-            return
-
-        if (!popupDialog.isInValidState)
-            return
-
-        popupDialog.commitToGradient()
-
-        // Delay setting the color to keep ui responsive
-        if (popupDialog.isSolid())
-            colorEditorTimer.restart()
+    StudioControls.ActionIndicator {
+        id: actionIndicator
+        style: root.style
+        __parentControl: root
+        x: root.padding
+        y: root.padding
+        width: actionIndicator.visible ? root.__actionIndicatorWidth : 0
+        height: actionIndicator.visible ? root.__actionIndicatorHeight : 0
     }
 
     Rectangle {
         id: preview
-
-        implicitWidth: StudioTheme.Values.twoControlColumnWidth
-        implicitHeight: StudioTheme.Values.height
-        color: colorEditor.color
-        border.color: StudioTheme.Values.themeControlOutline
-        border.width: StudioTheme.Values.border
-
-        Rectangle {
-            id: gradientThumbnail
-
-            anchors.fill: parent
-            anchors.margins: StudioTheme.Values.border
-            visible: !popupDialog.isSolid()
-                     && !colorEditor.shapeGradients
-                     && popupDialog.isLinearGradient()
-        }
-
-        Shape {
-            id: shape
-
-            anchors.fill: parent
-            anchors.margins: StudioTheme.Values.border
-            visible: !popupDialog.isSolid() && colorEditor.shapeGradients
-
-            ShapePath {
-                id: shapeGradientThumbnail
-
-                startX: shape.x - 1
-                startY: shape.y - 1
-                strokeWidth: -1
-                strokeColor: "green"
-
-                PathLine {
-                    x: shape.x - 1
-                    y: shape.height
-                }
-                PathLine {
-                    x: shape.width
-                    y: shape.height
-                }
-                PathLine {
-                    x: shape.width
-                    y: shape.y - 1
-                }
-            }
-        }
+        x: root.padding + actionIndicator.width
+        y: root.padding
+        z: previewMouseArea.containsMouse ? 10 : 0
+        implicitWidth: root.innerItemsHeight
+        implicitHeight: root.innerItemsHeight
+        color: root.color
+        border.color: previewMouseArea.containsMouse ? root.style.border.hover : root.style.border.idle
+        border.width: root.style.borderWidth
 
         Image {
             anchors.fill: parent
@@ -183,114 +72,111 @@ Row {
         }
 
         MouseArea {
+            id: previewMouseArea
             anchors.fill: parent
+            hoverEnabled: true
             onClicked: {
-                popupDialog.visibility ? popupDialog.close() : popupDialog.open()
-                forceActiveFocus()
+                loader.toggle()
+                previewMouseArea.forceActiveFocus()
             }
         }
 
-        StudioControls.PopupDialog {
-            id: popupDialog
-
-            property bool isInValidState: loader.active ? popupDialog.loaderItem.isInValidState : true
-            property QtObject loaderItem: loader.item
-            property string gradientPropertyName
-
-            keepOpen: loader.item?.eyeDropperActive ?? false
-
-            width: 260
-
-            function commitToGradient() {
-                if (!loader.active)
-                    return
-
-                if (colorEditor.supportGradient && popupDialog.loaderItem.gradientModel.hasGradient) {
-                    var hexColor = convertColorToString(colorEditor.color)
-                    hexTextField.text = hexColor
-                    colorEditor.backendValue.value = hexColor
-                    popupDialog.loaderItem.commitGradientColor()
-                }
-            }
-
-            function isSolid() {
-                if (!loader.active)
-                    return true
-
-                return popupDialog.loaderItem.isSolid()
-            }
-
-            function isLinearGradient(){
-                if (!loader.active)
-                    return false
-
-                return popupDialog.loaderItem.isLinearGradient()
-            }
+        Loader {
+            id: loader
 
             function ensureLoader() {
                 if (!loader.active)
                     loader.active = true
+                if (loader.sourceComponent === null)
+                    loader.sourceComponent = popupDialogComponent
             }
 
             function open() {
-                popupDialog.ensureLoader()
-                popupDialog.loaderItem.initEditor()
-                popupDialog.show(preview)
+                loader.ensureLoader()
+                loader.item.show(preview)
+
+                if (loader.status === Loader.Ready)
+                    loader.item.originalColor = root.color
             }
 
-            function determineActiveColorMode() {
-                if (loader.active && popupDialog.loaderItem)
-                    popupDialog.loaderItem.determineActiveColorMode()
+            function close() {
+                if (loader.item)
+                    loader.item.close()
+            }
+
+            function toggle() {
+                if (loader.item)
+                    loader.close()
                 else
-                    colorEditor.syncColor()
+                    loader.open()
             }
 
-            Loader {
-                id: loader
+            Component {
+                id: popupDialogComponent
 
-                active: colorEditor.supportGradient
 
-                sourceComponent: HelperWidgets.ColorEditorPopup {
-                    shapeGradients: colorEditor.shapeGradients
-                    supportGradient: colorEditor.supportGradient
-                    width: popupDialog.contentWidth
+                StudioControls.PopupDialog {
+                    id: popupDialog
+
+                    property alias color: popup.color
+                    property alias originalColor: popup.originalColor
+                    titleBar: popup.titleBarContent
+
+                    width: 260
+
+                    StudioControls.ColorEditorPopup {
+                        id: popup
+                        width: popupDialog.contentWidth
+
+                        onActivateColor: function(color) {
+                            colorBackend.activateColor(color)
+                        }
+                    }
+
+                    onClosing: {
+                        loader.sourceComponent = null
+                    }
                 }
+            }
 
-                onLoaded: {
-                    popupDialog.loaderItem.initEditor()
-                    popupDialog.titleBar = loader.item.titleBarContent
-                }
+            sourceComponent: null
+
+            Binding {
+                target: loader.item
+                property: "color"
+                value: root.color
+                when: loader.status === Loader.Ready
+            }
+
+            onLoaded: {
+                loader.item.originalColor = root.color
+                root.editorOpened(root, loader.item)
             }
         }
     }
 
-    HelperWidgets.LineEdit {
+    StudioControls.TextField {
         id: hexTextField
-        implicitWidth: StudioTheme.Values.twoControlColumnWidth
-                       + StudioTheme.Values.actionIndicatorWidth
-        width: hexTextField.implicitWidth
-        enabled: popupDialog.isSolid()
-        writeValueManually: true
+        style: root.style
+        x: root.padding + actionIndicator.width + preview.width - preview.border.width
+        y: root.padding
+        width: root.width - hexTextField.x - 2 * root.padding
+        height: root.innerItemsHeight
+        text: root.color
+        actionIndicatorVisible: false
+        translationIndicatorVisible: false
+        indicatorVisible: true
+        indicator.icon.text: StudioTheme.Constants.copy_small
+        indicator.onClicked: {
+            hexTextField.selectAll()
+            hexTextField.copy()
+            hexTextField.deselect()
+        }
+
         validator: RegularExpressionValidator {
             regularExpression: /#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?/g
         }
-        showTranslateCheckBox: false
-        showExtendedFunctionButton: false
-        indicatorVisible: false
 
-        onAccepted: colorEditor.color = hexTextField.text
-        onCommitData: {
-            colorEditor.color = hexTextField.text
-            if (popupDialog.isSolid())
-                colorEditor.writeColor()
-        }
-
-        function syncColor() {
-            hexTextField.text = colorEditor.color
-        }
+        onAccepted: colorBackend.activateColor(colorFromString(hexTextField.text))
     }
-
-    Component.onCompleted: popupDialog.determineActiveColorMode()
-
-    onBackendValueChanged: popupDialog.determineActiveColorMode()
 }

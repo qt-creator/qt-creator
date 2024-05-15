@@ -90,7 +90,7 @@ Rectangle {
                         property int order: Qt.AscendingOrder
                         onClicked: {
                             order = (order == Qt.AscendingOrder) ? Qt.DescendingOrder : Qt.AscendingOrder;
-                            tableView.closeEditor()
+                            tableView.closeEditors()
                             tableView.model.sort(-1, order)
                         }
                     }
@@ -173,7 +173,7 @@ Rectangle {
                     StudioControls.MenuItem {
                         text: qsTr("Sort Ascending")
                         onTriggered: {
-                            tableView.closeEditor()
+                            tableView.closeEditors()
                             tableView.model.sort(headerMenu.clickedHeaderIndex, Qt.AscendingOrder)
                         }
                     }
@@ -181,7 +181,7 @@ Rectangle {
                     StudioControls.MenuItem {
                         text: qsTr("Sort Descending")
                         onTriggered: {
-                            tableView.closeEditor()
+                            tableView.closeEditors()
                             tableView.model.sort(headerMenu.clickedHeaderIndex, Qt.DescendingOrder)
                         }
                     }
@@ -235,6 +235,8 @@ Rectangle {
                 property int targetRow
                 property int targetColumn
 
+                property Item popupEditingItem
+
                 Layout.alignment: Qt.AlignTop + Qt.AlignLeft
                 Layout.preferredWidth: tableView.contentWidth
                 Layout.preferredHeight: tableView.contentHeight
@@ -259,6 +261,24 @@ Rectangle {
                     if (h < 0)
                         h = implicitRowHeight(row)
                     return Math.max(h, StudioTheme.Values.collectionCellMinimumHeight)
+                }
+
+                function closePopupEditor() {
+                    if (tableView.popupEditingItem)
+                        tableView.popupEditingItem.closeEditor()
+                    tableView.popupEditingItem = null
+                }
+
+                function openNewPopupEditor(item, editor) {
+                    if (tableView.popupEditingItem !== item) {
+                        closePopupEditor()
+                        tableView.popupEditingItem = item
+                    }
+                }
+
+                function closeEditors() {
+                    closeEditor()
+                    closePopupEditor()
                 }
 
                 function ensureRowIsVisible(row) {
@@ -381,7 +401,36 @@ Rectangle {
                         Component {
                             id: colorEditorComponent
 
-                            ColorViewDelegate {}
+                            ColorViewDelegate {
+                                id: colorEditorItem
+
+                                readonly property color editValue: edit
+                                readonly property color displayValue: display
+                                property string _frontColorStr
+                                property string _backendColorStr
+
+                                actionIndicatorVisible: false
+
+                                onColorChanged: {
+                                    _frontColorStr = colorEditorItem.color.toString()
+                                    if (_frontColorStr != _backendColorStr)
+                                        edit = colorEditorItem.color
+                                }
+
+                                Component.onCompleted: {
+                                    colorEditorItem.color = display
+                                }
+
+                                onDisplayValueChanged: {
+                                    _backendColorStr = colorEditorItem.displayValue.toString()
+                                    if (_frontColorStr != _backendColorStr)
+                                        colorEditorItem.color = colorEditorItem.displayValue
+                                }
+
+                                onEditorOpened: (item, editor) => {
+                                    tableView.openNewPopupEditor(item, editor)
+                                }
+                            }
                         }
 
                         function resetSource() {
@@ -441,13 +490,13 @@ Rectangle {
                     }
 
                     function onRowsInserted(parent, first, last) {
-                        tableView.closeEditor()
+                        tableView.closeEditors()
                         tableView.model.selectRow(first)
                         tableView.ensureRowIsVisible(first)
                     }
 
                     function onColumnsInserted(parent, first, last) {
-                        tableView.closeEditor()
+                        tableView.closeEditors()
                         tableView.model.selectColumn(first)
                         tableView.ensureColumnIsVisible(first)
                     }
@@ -503,7 +552,7 @@ Rectangle {
                 tooltip: "Add Column"
 
                 onClicked: {
-                    tableView.closeEditor()
+                    tableView.closeEditors()
                     toolbar.addNewColumn()
                 }
             }
@@ -521,7 +570,7 @@ Rectangle {
                 tooltip: "Add Row"
 
                 onClicked: {
-                    tableView.closeEditor()
+                    tableView.closeEditors()
                     toolbar.addNewRow()
                 }
             }
