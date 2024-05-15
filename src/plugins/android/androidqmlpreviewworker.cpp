@@ -14,29 +14,26 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/buildsystem.h>
-#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/environmentaspect.h>
-#include <projectexplorer/kit.h>
-#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <qmlprojectmanager/qmlprojectconstants.h>
 
-#include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 
-#include <utils/async.h>
 #include <utils/qtcprocess.h>
 
 #include <QDateTime>
-#include <QDeadlineTimer>
-#include <QFutureWatcher>
-#include <QThread>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
+
+using namespace std::chrono_literals;
 
 namespace Android::Internal {
 
@@ -82,7 +79,6 @@ class AndroidQmlPreviewWorker : public RunWorker
     Q_OBJECT
 public:
     AndroidQmlPreviewWorker(RunControl *runControl);
-    ~AndroidQmlPreviewWorker();
 
 signals:
     void previewPidChanged();
@@ -96,10 +92,9 @@ private:
     bool preparePreviewArtefacts();
     bool uploadPreviewArtefacts();
 
+    CommandLine adbCommand(const QStringList &arguments) const;
     SdkToolResult runAdbCommand(const QStringList &arguments) const;
     SdkToolResult runAdbShellCommand(const QStringList &arguments) const;
-    int pidofPreview() const;
-    bool isPreviewRunning(int lastKnownPid = -1) const;
 
     void startPidWatcher();
     void startLogcat();
@@ -115,7 +110,7 @@ private:
     QString m_serialNumber;
     QStringList m_avdAbis;
     int m_viewerPid = -1;
-    QFutureWatcher<void> m_pidFutureWatcher;
+    TaskTreeRunner m_pidRunner;
     Utils::Process m_logcatProcess;
     QString m_logcatStartTimeStamp;
     UploadInfo m_uploadInfo;
@@ -133,6 +128,16 @@ FilePath AndroidQmlPreviewWorker::designViewerApkPath(const QString &abi) const
     return {};
 }
 
+CommandLine AndroidQmlPreviewWorker::adbCommand(const QStringList &arguments) const
+{
+    CommandLine cmd{androidConfig().adbToolPath()};
+    if (!m_serialNumber.isEmpty())
+        cmd.addArgs(AndroidDeviceInfo::adbSelector(m_serialNumber));
+    cmd.addArg("shell");
+    cmd.addArgs(arguments);
+    return cmd;
+}
+
 SdkToolResult AndroidQmlPreviewWorker::runAdbCommand(const QStringList &arguments) const
 {
     QStringList args;
@@ -147,44 +152,49 @@ SdkToolResult AndroidQmlPreviewWorker::runAdbShellCommand(const QStringList &arg
     return runAdbCommand(QStringList() << "shell" << arguments);
 }
 
-int AndroidQmlPreviewWorker::pidofPreview() const
-{
-    const QStringList command{"pidof", apkInfo()->appId};
-    const SdkToolResult res = runAdbShellCommand(command);
-    return res.success() ? res.stdOut().toInt() : -1;
-}
-
-bool AndroidQmlPreviewWorker::isPreviewRunning(int lastKnownPid) const
-{
-    const int pid = pidofPreview();
-    return (lastKnownPid > 1) ? lastKnownPid == pid : pid > 1;
-}
-
 void AndroidQmlPreviewWorker::startPidWatcher()
 {
-    m_pidFutureWatcher.setFuture(Utils::asyncRun([this] {
-        // wait for started
-        const int sleepTimeMs = 2000;
-        QDeadlineTimer deadline(20000);
-        while (!m_pidFutureWatcher.isCanceled() && !deadline.hasExpired()) {
-            if (m_viewerPid == -1) {
-                m_viewerPid = pidofPreview();
-                if (m_viewerPid > 0) {
-                    emit previewPidChanged();
-                    break;
-                }
-            }
-            QThread::msleep(sleepTimeMs);
-        }
+    const LoopUntil pidIterator([this](int) { return m_viewerPid <= 0; });
+    const LoopUntil alivePidIterator([this](int) { return m_viewerPid > 0; });
 
-        while (!m_pidFutureWatcher.isCanceled()) {
-            if (!isPreviewRunning(m_viewerPid)) {
-                stop();
-                break;
-            }
-            QThread::msleep(sleepTimeMs);
+    const auto onPidSetup = [this](Process &process) {
+        process.setCommand(adbCommand({"pidof", apkInfo()->appId}));
+    };
+    const auto onPidDone = [this](const Process &process) {
+        bool ok = false;
+        const int pid = process.cleanedStdOut().trimmed().toInt(&ok);
+        if (ok && pid > 0) {
+            m_viewerPid = pid;
+            // TODO: make a continuation task (logcat)
+            emit previewPidChanged();
         }
-    }));
+    };
+
+    const auto onAlivePidDone = [this](const Process &process) {
+        bool ok = false;
+        const int pid = process.cleanedStdOut().trimmed().toInt(&ok);
+        if (!ok || pid != m_viewerPid) {
+            m_viewerPid = -1;
+            stop();
+        }
+    };
+
+    const TimeoutTask timeout([](std::chrono::milliseconds &timeout) { timeout = 2s; });
+
+    const Group root {
+        Group {
+            pidIterator,
+            ProcessTask(onPidSetup, onPidDone, CallDoneIf::Success),
+            timeout
+        }.withTimeout(20s),
+        Group {
+            alivePidIterator,
+            ProcessTask(onPidSetup, onAlivePidDone),
+            timeout
+        }
+    };
+
+    m_pidRunner.start(root);
 }
 
 void AndroidQmlPreviewWorker::startLogcat()
@@ -220,7 +230,7 @@ AndroidQmlPreviewWorker::AndroidQmlPreviewWorker(RunControl *runControl)
       m_rc(runControl)
 {
     connect(this, &RunWorker::started, this, &AndroidQmlPreviewWorker::startPidWatcher);
-    connect(this, &RunWorker::stopped, &m_pidFutureWatcher, &QFutureWatcher<void>::cancel);
+    connect(this, &RunWorker::stopped, &m_pidRunner, &TaskTreeRunner::reset);
     connect(this, &AndroidQmlPreviewWorker::previewPidChanged,
             this, &AndroidQmlPreviewWorker::startLogcat);
 
@@ -228,12 +238,6 @@ AndroidQmlPreviewWorker::AndroidQmlPreviewWorker(RunControl *runControl)
     m_logcatProcess.setStdOutCallback([this](const QString &stdOut) {
         filterLogcatAndAppendMessage(stdOut);
     });
-}
-
-AndroidQmlPreviewWorker::~AndroidQmlPreviewWorker()
-{
-    m_pidFutureWatcher.cancel();
-    m_pidFutureWatcher.waitForFinished();
 }
 
 void AndroidQmlPreviewWorker::start()
@@ -254,7 +258,7 @@ void AndroidQmlPreviewWorker::start()
 
 void AndroidQmlPreviewWorker::stop()
 {
-    if (!isPreviewRunning(m_viewerPid) || stopPreviewApp())
+    if (m_viewerPid <= 0 || stopPreviewApp())
         appendMessage(Tr::tr("%1 has been stopped.").arg(apkInfo()->name), NormalMessageFormat);
     m_viewerPid = -1;
     reportStopped();
