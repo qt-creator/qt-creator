@@ -353,16 +353,6 @@ public:
     void doMatch(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
 };
 
-/*!
-  Adds a definition for a declaration.
- */
-class InsertDefFromDecl: public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
-    bool m_defPosOutsideClass = false;
-};
-
 class AddDeclarationForUndeclaredIdentifier : public CppQuickFixFactory
 {
 public:
@@ -393,27 +383,6 @@ private:
         TextEditor::QuickFixOperations &result);
 
     bool m_membersOnly = false;
-};
-
-/*!
-  Adds a definition for any number of member function declarations.
- */
-class InsertDefsFromDecls : public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface,
-                 TextEditor::QuickFixOperations &result) override;
-
-    enum class Mode {
-            Off,         // Testing: simulates user canceling the dialog
-            Impl,        // Testing: simulates user choosing cpp file for every function
-            Alternating, // Testing: simulates user choosing a different DefPos for every function
-            User         // Normal interactive mode
-    };
-    void setMode(Mode mode) { m_mode = mode; }
-
-private:
-    Mode m_mode = Mode::User;
 };
 
 /*!

@@ -100,45 +100,6 @@ private slots:
     void testInsertMemberFromUse_data();
     void testInsertMemberFromUse();
 
-    void testInsertDefFromDeclAfterClass();
-    void testInsertDefFromDeclHeaderSourceBasic1();
-    void testInsertDefFromDeclHeaderSourceBasic2();
-    void testInsertDefFromDeclHeaderSourceBasic3();
-    void testInsertDefFromDeclHeaderSourceNamespace1();
-    void testInsertDefFromDeclHeaderSourceNamespace2();
-    void testInsertDefFromDeclInsideClass();
-    void testInsertDefFromDeclNotTriggeringWhenDefinitionExists();
-    void testInsertDefFromDeclFindRightImplementationFile();
-    void testInsertDefFromDeclIgnoreSurroundingGeneratedDeclarations();
-    void testInsertDefFromDeclRespectWsInOperatorNames1();
-    void testInsertDefFromDeclRespectWsInOperatorNames2();
-    void testInsertDefFromDeclNoexceptSpecifier();
-    void testInsertDefFromDeclMacroUsesAtEndOfFile1();
-    void testInsertDefFromDeclMacroUsesAtEndOfFile2();
-    void testInsertDefFromDeclErroneousStatementAtEndOfFile();
-    void testInsertDefFromDeclRvalueReference();
-    void testInsertDefFromDeclFunctionTryBlock();
-    void testInsertDefFromDeclUsingDecl();
-    void testInsertDefFromDeclFindImplementationFile();
-    void testInsertDefFromDeclUnicodeIdentifier();
-    void testInsertDefFromDeclTemplateClass();
-    void testInsertDefFromDeclTemplateClassWithValueParam();
-    void testInsertDefFromDeclTemplateFunction();
-    void testInsertDefFromDeclTemplateClassAndTemplateFunction();
-    void testInsertDefFromDeclTemplateClassAndFunctionInsideNamespace();
-    void testInsertDefFromDeclFunctionWithSignedUnsignedArgument();
-    void testInsertDefFromDeclNotTriggeredForFriendFunc();
-    void testInsertDefFromDeclMinimalFunctionParameterType();
-    void testInsertDefFromDeclAliasTemplateAsReturnType();
-    void testInsertDefsFromDecls_data();
-    void testInsertDefsFromDecls();
-    void testInsertAndFormatDefsFromDecls();
-
-    void testInsertDefOutsideFromDeclTemplateClassAndTemplateFunction();
-    void testInsertDefOutsideFromDeclTemplateClass();
-    void testInsertDefOutsideFromDeclTemplateFunction();
-    void testInsertDefOutsideFromDeclFunction();
-
     void testInsertDeclFromDef();
     void testInsertDeclFromDefTemplateFuncTypename();
     void testInsertDeclFromDefTemplateFuncInt();

@@ -107,6 +107,7 @@ add_qtc_plugin(CppEditor
     quickfixes/cppquickfixsettingspage.cpp quickfixes/cppquickfixsettingspage.h
     quickfixes/cppquickfixsettingswidget.cpp quickfixes/cppquickfixsettingswidget.h
     quickfixes/convertqt4connect.cpp quickfixes/convertqt4connect.h
+    quickfixes/insertfunctiondefinition.cpp quickfixes/insertfunctiondefinition.h
     quickfixes/moveclasstoownfile.cpp quickfixes/moveclasstoownfile.h
     quickfixes/movefunctiondefinition.cpp quickfixes/movefunctiondefinition.h
     quickfixes/removeusingnamespace.cpp quickfixes/removeusingnamespace.h
