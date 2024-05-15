@@ -29,4 +29,4 @@ void AppStatisticsMonitorPlugin::initialize()
 
 } // namespace AppStatisticsMonitor::Internal
 
-#include <appstatisticsmonitorplugin.moc>
+#include "appstatisticsmonitorplugin.moc"
