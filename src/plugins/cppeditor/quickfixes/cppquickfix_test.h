@@ -97,8 +97,6 @@ private slots:
     void testGeneric_data();
     void testGeneric();
 
-    void testAssignToLocalVariableTemplates();
-
     void testConvertToMetaMethodInvocation_data();
     void testConvertToMetaMethodInvocation();
 };

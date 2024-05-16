@@ -134,15 +134,6 @@ public:
     void doMatch(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
 };
 
-/*!
-  Assigns the return value of a function call or a new expression to a local variable
- */
-class AssignToLocalVariable : public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
-};
-
 //! Converts a normal function call into a meta method invocation, if the functions is
 //! marked as invokable.
 class ConvertToMetaMethodCall : public CppQuickFixFactory

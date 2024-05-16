@@ -219,6 +219,8 @@ QtcPlugin {
         name: "Quickfixes"
         prefix: "quickfixes/"
         files: [
+            "assigntolocalvariable.cpp",
+            "assigntolocalvariable.h",
             "bringidentifierintoscope.cpp",
             "bringidentifierintoscope.h",
             "convertfromandtopointer.cpp",
