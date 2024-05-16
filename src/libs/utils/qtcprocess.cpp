@@ -1360,7 +1360,7 @@ QString Process::toStandaloneCommandLine() const
     parts.append("/usr/bin/env");
     if (!d->m_setup.m_workingDirectory.isEmpty()) {
         parts.append("-C");
-        d->m_setup.m_workingDirectory.path();
+        parts.append(d->m_setup.m_workingDirectory.path());
     }
     parts.append("-i");
     if (d->m_setup.m_environment.hasChanges()) {
