@@ -86,4 +86,18 @@ function utils.FilePath:isAbsolutePath() end
 ---@field os "mac"|"windows"|"linux" The current host operating system
 ---@field architecture "unknown"|"x86"|"x86_64"|"itanium"|"arm"|"arm64" The current host architecture
 utils.HostOsInfo = {}
+
+---Returns whether the host operating system is windows
+---@return boolean
+function utils.HostOsInfo.isWindowsHost() end
+
+---Returns whether the host operating system is mac
+---@return boolean
+function utils.HostOsInfo.isMacHost() end
+
+---Returns whether the host operating system is linux
+---@return boolean
+function utils.HostOsInfo.isLinuxHost() end
+
+
 return utils
