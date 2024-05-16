@@ -1425,6 +1425,19 @@ CommandLine::CommandLine(const FilePath &exe, const QStringList &args)
     addArgs(args);
 }
 
+CommandLine::CommandLine(const FilePath &exe, std::initializer_list<ArgRef> args)
+    : m_executable(exe)
+{
+    for (const ArgRef &arg : args) {
+        if (const auto ptr = std::get_if<const char *>(&arg.m_arg))
+            addArg(QString::fromUtf8(*ptr));
+        else if (const auto ptr = std::get_if<std::reference_wrapper<const QString>>(&arg.m_arg))
+            addArg(*ptr);
+        else if (const auto ptr = std::get_if<std::reference_wrapper<const QStringList>>(&arg.m_arg))
+            addArgs(*ptr);
+    }
+}
+
 CommandLine::CommandLine(const FilePath &exe, const QStringList &args, OsType osType)
     : m_executable(exe)
 {
