@@ -99,12 +99,6 @@ private slots:
 
     void testAssignToLocalVariableTemplates();
 
-    void testExtractLiteralAsParameterTypeDeduction_data();
-    void testExtractLiteralAsParameterTypeDeduction();
-    void testExtractLiteralAsParameterFreeFunctionSeparateFiles();
-    void testExtractLiteralAsParameterMemberFunctionSeparateFiles();
-    void testExtractLiteralAsParameterNotTriggeringForInvalidCode();
-
     void testConvertToMetaMethodInvocation_data();
     void testConvertToMetaMethodInvocation();
 };

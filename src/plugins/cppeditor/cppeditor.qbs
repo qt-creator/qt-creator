@@ -251,6 +251,8 @@ QtcPlugin {
             "createdeclarationfromuse.h",
             "extractfunction.cpp",
             "extractfunction.h",
+            "extractliteralasparameter.cpp",
+            "extractliteralasparameter.h",
             "insertfunctiondefinition.cpp",
             "insertfunctiondefinition.h",
             "logicaloperationquickfixes.cpp",

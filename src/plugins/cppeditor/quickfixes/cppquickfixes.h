@@ -126,17 +126,6 @@ private:
 };
 
 /*!
-  Extracts the selected constant and converts it to a parameter of the current function.
-
-  Activates on numeric, bool, character, or string literal in the function body.
- */
-class ExtractLiteralAsParameter : public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
-};
-
-/*!
   Converts the selected variable to a pointer if it is a stack variable or reference, or vice versa.
 
   Activates on variable declarations.
