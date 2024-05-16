@@ -275,6 +275,8 @@ QtcPlugin {
             "rewritecomment.h",
             "rewritecontrolstatements.cpp",
             "rewritecontrolstatements.h",
+            "splitsimpledeclaration.cpp",
+            "splitsimpledeclaration.h",
         ]
     }
 

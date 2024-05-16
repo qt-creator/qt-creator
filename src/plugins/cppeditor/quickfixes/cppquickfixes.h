@@ -71,22 +71,6 @@ private:
 };
 
 /*!
-  Rewrite
-    int *a, b;
-
-  As
-    int *a;
-    int b;
-
-  Activates on: the type or the variable names.
-*/
-class SplitSimpleDeclaration: public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
-};
-
-/*!
   Switches places of the parameter declaration under cursor
   with the next or the previous one in the parameter declaration list
 

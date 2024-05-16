@@ -123,6 +123,7 @@ add_qtc_plugin(CppEditor
     quickfixes/removeusingnamespace.cpp quickfixes/removeusingnamespace.h
     quickfixes/rewritecomment.cpp quickfixes/rewritecomment.cpp
     quickfixes/rewritecontrolstatements.cpp quickfixes/rewritecontrolstatements.h
+    quickfixes/splitsimpledeclaration.cpp quickfixes/splitsimpledeclaration.h
     resourcepreviewhoverhandler.cpp resourcepreviewhoverhandler.h
     searchsymbols.cpp searchsymbols.h
     semantichighlighter.cpp semantichighlighter.h

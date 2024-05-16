@@ -12,7 +12,6 @@
 #include "../cpprefactoringchanges.h"
 #include "../cpptoolsreuse.h"
 #include "../insertionpointlocator.h"
-#include "../symbolfinder.h"
 #include "assigntolocalvariable.h"
 #include "bringidentifierintoscope.h"
 #include "completeswitchstatement.h"
@@ -34,6 +33,7 @@
 #include "removeusingnamespace.h"
 #include "rewritecomment.h"
 #include "rewritecontrolstatements.h"
+#include "splitsimpledeclaration.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -133,113 +133,6 @@ const QList<CppQuickFixFactory *> &CppQuickFixFactory::cppQuickFixFactories()
 }
 
 namespace Internal {
-
-static bool checkDeclarationForSplit(SimpleDeclarationAST *declaration)
-{
-    if (!declaration->semicolon_token)
-        return false;
-
-    if (!declaration->decl_specifier_list)
-        return false;
-
-    for (SpecifierListAST *it = declaration->decl_specifier_list; it; it = it->next) {
-        SpecifierAST *specifier = it->value;
-        if (specifier->asEnumSpecifier() || specifier->asClassSpecifier())
-            return false;
-    }
-
-    return declaration->declarator_list && declaration->declarator_list->next;
-}
-
-namespace {
-
-class SplitSimpleDeclarationOp: public CppQuickFixOperation
-{
-public:
-    SplitSimpleDeclarationOp(const CppQuickFixInterface &interface, int priority,
-                             SimpleDeclarationAST *decl)
-        : CppQuickFixOperation(interface, priority)
-        , declaration(decl)
-    {
-        setDescription(Tr::tr("Split Declaration"));
-    }
-
-    void perform() override
-    {
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
-
-        ChangeSet changes;
-
-        SpecifierListAST *specifiers = declaration->decl_specifier_list;
-        int declSpecifiersStart = currentFile->startOf(specifiers->firstToken());
-        int declSpecifiersEnd = currentFile->endOf(specifiers->lastToken() - 1);
-        int insertPos = currentFile->endOf(declaration->semicolon_token);
-
-        DeclaratorAST *prevDeclarator = declaration->declarator_list->value;
-
-        for (DeclaratorListAST *it = declaration->declarator_list->next; it; it = it->next) {
-            DeclaratorAST *declarator = it->value;
-
-            changes.insert(insertPos, QLatin1String("\n"));
-            changes.copy(declSpecifiersStart, declSpecifiersEnd, insertPos);
-            changes.insert(insertPos, QLatin1String(" "));
-            changes.move(currentFile->range(declarator), insertPos);
-            changes.insert(insertPos, QLatin1String(";"));
-
-            const int prevDeclEnd = currentFile->endOf(prevDeclarator);
-            changes.remove(prevDeclEnd, currentFile->startOf(declarator));
-
-            prevDeclarator = declarator;
-        }
-
-        currentFile->setChangeSet(changes);
-        currentFile->apply();
-    }
-
-private:
-    SimpleDeclarationAST *declaration;
-};
-
-} // anonymous namespace
-
-void SplitSimpleDeclaration::doMatch(const CppQuickFixInterface &interface,
-                                     QuickFixOperations &result)
-{
-    CoreDeclaratorAST *core_declarator = nullptr;
-    const QList<AST *> &path = interface.path();
-    CppRefactoringFilePtr file = interface.currentFile();
-    const int cursorPosition = file->cursor().selectionStart();
-
-    for (int index = path.size() - 1; index != -1; --index) {
-        AST *node = path.at(index);
-
-        if (CoreDeclaratorAST *coreDecl = node->asCoreDeclarator()) {
-            core_declarator = coreDecl;
-        } else if (SimpleDeclarationAST *simpleDecl = node->asSimpleDeclaration()) {
-            if (checkDeclarationForSplit(simpleDecl)) {
-                SimpleDeclarationAST *declaration = simpleDecl;
-
-                const int startOfDeclSpecifier = file->startOf(declaration->decl_specifier_list->firstToken());
-                const int endOfDeclSpecifier = file->endOf(declaration->decl_specifier_list->lastToken() - 1);
-
-                if (cursorPosition >= startOfDeclSpecifier && cursorPosition <= endOfDeclSpecifier) {
-                    // the AST node under cursor is a specifier.
-                    result << new SplitSimpleDeclarationOp(interface, index, declaration);
-                    return;
-                }
-
-                if (core_declarator && interface.isCursorOn(core_declarator)) {
-                    // got a core-declarator under the text cursor.
-                    result << new SplitSimpleDeclarationOp(interface, index, declaration);
-                    return;
-                }
-            }
-
-            return;
-        }
-    }
-}
 
 namespace {
 
@@ -747,8 +640,6 @@ void createCppQuickFixes()
 
     new ConvertNumericLiteral;
 
-    new SplitSimpleDeclaration;
-
     new RearrangeParamDeclarationList;
     new ReformatPointerDeclaration;
 
@@ -773,6 +664,7 @@ void createCppQuickFixes()
     registerAssignToLocalVariableQuickfix();
     registerCompleteSwitchStatementQuickfix();
     registerConvertToMetaMethodCallQuickfix();
+    registerSplitSimpleDeclarationQuickfix();
 
     new ExtraRefactoringOperations;
 }
