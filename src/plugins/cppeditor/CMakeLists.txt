@@ -111,6 +111,7 @@ add_qtc_plugin(CppEditor
     quickfixes/cppquickfixsettingswidget.cpp quickfixes/cppquickfixsettingswidget.h
     quickfixes/createdeclarationfromuse.cpp quickfixes/createdeclarationfromuse.h
     quickfixes/insertfunctiondefinition.cpp quickfixes/insertfunctiondefinition.h
+    quickfixes/logicaloperationquickfixes.cpp quickfixes/logicaloperationquickfixes.h
     quickfixes/moveclasstoownfile.cpp quickfixes/moveclasstoownfile.h
     quickfixes/movefunctiondefinition.cpp quickfixes/movefunctiondefinition.h
     quickfixes/removeusingnamespace.cpp quickfixes/removeusingnamespace.h

@@ -29,51 +29,6 @@ public:
 };
 
 /*!
-  Rewrite
-    a op b
-
-  As
-    b flipop a
-
-  Activates on: <= < > >= == != && ||
-*/
-class FlipLogicalOperands: public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
-};
-
-/*!
-  Rewrite
-    a op b -> !(a invop b)
-    (a op b) -> !(a invop b)
-    !(a op b) -> (a invob b)
-
-  Activates on: <= < > >= == !=
-*/
-class InverseLogicalComparison: public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
-};
-
-/*!
-  Rewrite
-    !a && !b
-
-  As
-    !(a || b)
-
-  Activates on: &&
-*/
-class RewriteLogicalAnd: public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
-};
-
-
-/*!
   Base class for converting numeric literals between decimal, octal and hex.
   Does the base check for the specific ones and parses the number.
 

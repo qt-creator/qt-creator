@@ -251,6 +251,8 @@ QtcPlugin {
             "createdeclarationfromuse.h",
             "insertfunctiondefinition.cpp",
             "insertfunctiondefinition.h",
+            "logicaloperationquickfixes.cpp",
+            "logicaloperationquickfixes.h",
             "moveclasstoownfile.cpp",
             "moveclasstoownfile.h",
             "movefunctiondefinition.cpp",
