@@ -71,67 +71,6 @@ private:
 };
 
 /*!
-  Replace
-    if (Type name = foo()) {...}
-
-  With
-    Type name = foo();
-    if (name) {...}
-
-  Activates on: the name of the introduced variable
-*/
-class MoveDeclarationOutOfIf: public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
-};
-
-/*!
-  Replace
-    while (Type name = foo()) {...}
-
-  With
-    Type name;
-    while ((name = foo()) != 0) {...}
-
-  Activates on: the name of the introduced variable
-*/
-class MoveDeclarationOutOfWhile: public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
-};
-
-/*!
-  Replace
-     if (something && something_else) {
-     }
-
-  with
-     if (something)
-        if (something_else) {
-        }
-     }
-
-  and
-    if (something || something_else)
-      x;
-
-  with
-    if (something)
-      x;
-    else if (something_else)
-      x;
-
-    Activates on: && or ||
-*/
-class SplitIfStatement: public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
-};
-
-/*!
   Rewrite
     int *a, b;
 
@@ -142,25 +81,6 @@ public:
   Activates on: the type or the variable names.
 */
 class SplitSimpleDeclaration: public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
-};
-
-/*!
-  Add curly braces to a control statement that doesn't already contain a
-  compound statement. I.e.
-
-  if (a)
-      b;
-  becomes
-  if (a) {
-      b;
-  }
-
-  Activates on: the keyword
-*/
-class AddBracesToControlStatement : public CppQuickFixFactory
 {
 public:
     void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
@@ -255,16 +175,6 @@ public:
   Assigns the return value of a function call or a new expression to a local variable
  */
 class AssignToLocalVariable : public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
-};
-
-/*!
-  Optimizes a for loop to avoid permanent condition check and forces to use preincrement
-  or predecrement operators in the expression of the for loop.
- */
-class OptimizeForLoop : public CppQuickFixFactory
 {
 public:
     void doMatch(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;

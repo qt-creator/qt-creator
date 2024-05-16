@@ -259,6 +259,8 @@ QtcPlugin {
             "movefunctiondefinition.h",
             "removeusingnamespace.cpp",
             "removeusingnamespace.h",
+            "rewritecontrolstatements.cpp",
+            "rewritecontrolstatements.h",
         ]
     }
 

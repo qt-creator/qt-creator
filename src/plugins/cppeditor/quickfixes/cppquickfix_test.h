@@ -108,9 +108,6 @@ private slots:
     void testExtractLiteralAsParameterMemberFunctionSeparateFiles();
     void testExtractLiteralAsParameterNotTriggeringForInvalidCode();
 
-    void testAddCurlyBraces_data();
-    void testAddCurlyBraces();
-
     void testChangeCommentType_data();
     void testChangeCommentType();
 
