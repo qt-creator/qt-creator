@@ -4,6 +4,8 @@
 #include "luaengine.h"
 #include "luapluginspec.h"
 
+#include <coreplugin/icore.h>
+#include <coreplugin/jsexpander.h>
 #include <coreplugin/messagemanager.h>
 
 #include <extensionsystem/iplugin.h>
@@ -30,6 +32,21 @@ void addLayoutModule();
 void addQtModule();
 void addCoreModule();
 void addHookModule();
+
+class LuaJsExtension : public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit LuaJsExtension(QObject *parent = nullptr)
+        : QObject(parent)
+    {}
+
+    Q_INVOKABLE QString metaFolder() const
+    {
+        return Core::ICore::resourcePath("lua/meta").toFSPathString();
+    }
+};
 
 class LuaPlugin : public IPlugin
 {
@@ -58,6 +75,8 @@ public:
         addQtModule();
         addCoreModule();
         addHookModule();
+
+        Core::JsExpander::registerGlobalObject("Lua", [] { return new LuaJsExtension(); });
     }
 
     bool delayedInitialize() final
