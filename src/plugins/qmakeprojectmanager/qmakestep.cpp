@@ -188,7 +188,7 @@ bool QMakeStep::init()
     else
         workingDirectory = qmakeBc->buildDirectory();
 
-    m_qmakeCommand = CommandLine{qtVersion->qmakeFilePath(), allArguments(qtVersion), CommandLine::Raw};
+    m_qmakeCommand = {qtVersion->qmakeFilePath(), allArguments(qtVersion), CommandLine::Raw};
     m_runMakeQmake = (qtVersion->qtVersion() >= QVersionNumber(5, 0 ,0));
 
     // The Makefile is used by qmake and make on the build device, from that
@@ -216,7 +216,7 @@ bool QMakeStep::init()
                            OutputFormat::ErrorMessage);
             return false;
         }
-        m_makeCommand = CommandLine{make, makeArguments(makeFile.path()), CommandLine::Raw};
+        m_makeCommand = {make, makeArguments(makeFile.path()), CommandLine::Raw};
     } else {
         m_makeCommand = {};
     }

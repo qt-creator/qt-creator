@@ -133,7 +133,7 @@ void ShellIntegration::onOsc(int cmd, std::string_view str, bool initial, bool f
         qCDebug(integrationLog) << "OSC 133:" << data;
     } else if (cmd == 633 && command.length() == 1) {
         if (command[0] == 'E') {
-            CommandLine cmdLine = CommandLine::fromUserInput(data.toString());
+            const CommandLine cmdLine = CommandLine::fromUserInput(data.toString());
             emit commandChanged(cmdLine);
         } else if (command[0] == 'D') {
             emit commandChanged({});
@@ -174,12 +174,10 @@ void ShellIntegration::prepareProcess(Utils::Process &process)
             m_tempDir.filePath(filesToCopy.bash.rcFile.fileName()));
         rcPath.copyFile(tmpRc);
 
-        CommandLine newCmd = {cmd.executable(), {"--init-file", tmpRc.nativePath()}};
-
         if (cmd.arguments() == "-l")
             env.set("VSCODE_SHELL_LOGIN", "1");
 
-        cmd = newCmd;
+        cmd = {cmd.executable(), {"--init-file", tmpRc.nativePath()}};
     } else if (cmd.executable().baseName() == "zsh") {
         for (const FileToCopy &file : filesToCopy.zsh.files) {
             const auto copyResult = file.source.copyFile(

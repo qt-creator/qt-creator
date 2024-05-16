@@ -83,7 +83,7 @@ void TerminalWidget::setupPty()
 {
     m_process = std::make_unique<Process>();
 
-    CommandLine shellCommand = m_openParameters.shellCommand.value_or(
+    const CommandLine shellCommand = m_openParameters.shellCommand.value_or(
         CommandLine{settings().shell(), settings().shellArguments(), CommandLine::Raw});
 
     if (shellCommand.executable().isRootPath()) {

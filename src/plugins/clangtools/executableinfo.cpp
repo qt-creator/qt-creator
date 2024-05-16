@@ -106,15 +106,14 @@ static ClazyChecks querySupportedClazyChecks(const FilePath &executablePath)
     };
 
     static const QString queryFlag = "-supported-checks-json";
-    DataFromProcess<ClazyChecks>::Parameters params(CommandLine(executablePath, {queryFlag}),
-                                                    parser);
+    DataFromProcess<ClazyChecks>::Parameters params({executablePath, {queryFlag}}, parser);
     params.environment.setupEnglishOutput();
     params.errorHandler = handleProcessError;
     auto checks = DataFromProcess<ClazyChecks>::getData(params);
     if (!checks) {
         // Some clazy 1.6.x versions have a bug where they expect an argument after the
         // option.
-        params.commandLine = CommandLine(executablePath, {queryFlag, "dummy"});
+        params.commandLine = {executablePath, {queryFlag, "dummy"}};
         checks = DataFromProcess<ClazyChecks>::getData(params);
     }
     if (checks)

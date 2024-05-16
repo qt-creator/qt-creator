@@ -733,7 +733,8 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
 
     const QString openSslRepo("https://github.com/KDAB/android_openssl.git");
     Process *gitCloner = new Process(this);
-    CommandLine gitCloneCommand("git", {"clone", "--depth=1", openSslRepo, openSslPath.toString()});
+    const CommandLine gitCloneCommand("git", {"clone", "--depth=1", openSslRepo,
+                                              openSslPath.toString()});
     gitCloner->setCommand(gitCloneCommand);
 
     qCDebug(androidsettingswidget) << "Cloning OpenSSL repo: " << gitCloneCommand.toUserOutput();

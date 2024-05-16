@@ -121,11 +121,9 @@ void openPythonRepl(QObject *parent, const FilePath &file, ReplType type)
         return file.absolutePath();
     };
 
-    const auto args = QStringList{"-i"} + replImportArgs(file, type);
     const FilePath pythonCommand = detectPython(file);
-
     Process process;
-    process.setCommand({pythonCommand, args});
+    process.setCommand({pythonCommand, {"-i", replImportArgs(file, type)}});
     process.setWorkingDirectory(workingDir(file));
     process.setTerminalMode(TerminalMode::Detached);
     process.start();
@@ -201,7 +199,7 @@ static bool isUsableHelper(QHash<FilePath, bool> *cache, const QString &keyStrin
     if (it == cache->end()) {
         const Key key = keyFromString(keyString);
         Process process;
-        process.setCommand({python, QStringList{"-m", commandArg, "-h"}});
+        process.setCommand({python, {"-m", commandArg, "-h"}});
         process.runBlocking();
         const bool usable = process.result() == ProcessResult::FinishedWithSuccess;
         it = cache->insert(python, usable);

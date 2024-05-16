@@ -210,10 +210,8 @@ ProjectExplorer::RunWorker *UvscServerProvider::targetRunner(RunControl *runCont
 {
     // Get uVision executable path.
     const ProcessRunData uv = DebuggerKitAspect::runnable(runControl->kit());
-    CommandLine server(uv.command.executable());
-    server.addArg("-j0");
-    server.addArg(QStringLiteral("-s%1").arg(m_channel.port()));
-
+    const CommandLine server{uv.command.executable(),
+                             {"-j0", QStringLiteral("-s%1").arg(m_channel.port())}};
     ProcessRunData r;
     r.command = server;
     return new UvscServerProviderRunner(runControl, r);

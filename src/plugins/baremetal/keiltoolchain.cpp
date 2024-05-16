@@ -246,11 +246,7 @@ static Macros dumpArmPredefinedMacros(const FilePath &compiler, const QStringLis
 {
     Process cpp;
     cpp.setEnvironment(env);
-
-    QStringList args = extraArgs;
-    args.push_back("-E");
-    args.push_back("--list-macros");
-    cpp.setCommand({compiler, args});
+    cpp.setCommand({compiler, {extraArgs, "-E", "--list-macros"}});
 
     cpp.runBlocking();
     if (cpp.result() != ProcessResult::FinishedWithSuccess) {

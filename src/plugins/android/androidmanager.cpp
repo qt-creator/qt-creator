@@ -639,8 +639,8 @@ bool checkCertificateExists(const FilePath &keystorePath, const QString &keystor
                             const QString &alias)
 {
     // assumes that the keystore password is correct
-    QStringList arguments = { "-list", "-keystore", keystorePath.toUserOutput(),
-                              "--storepass", keystorePasswd, "-alias", alias };
+    const QStringList arguments = {"-list", "-keystore", keystorePath.toUserOutput(),
+                                   "--storepass", keystorePasswd, "-alias", alias};
 
     Process proc;
     proc.setCommand({androidConfig().keytoolPath(), arguments});

@@ -169,7 +169,7 @@ bool AndroidDeployQtStep::init()
         return false;
     }
 
-    m_androiddeployqtArgs = CommandLine();
+    m_androiddeployqtArgs = {};
 
     m_androidABIs = AndroidManager::applicationAbis(target());
     if (m_androidABIs.isEmpty()) {
@@ -371,8 +371,7 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy(QPromise<voi
             qCDebug(deployStepLog) << msg;
             emit addOutput(msg, OutputFormat::NormalMessage);
             runCommand({m_adbPath,
-                       AndroidDeviceInfo::adbSelector(m_serialNumber)
-                       << "uninstall" << packageName});
+                        {AndroidDeviceInfo::adbSelector(m_serialNumber), "uninstall", packageName}});
         }
 
         cmd.addArgs(AndroidDeviceInfo::adbSelector(m_serialNumber));
@@ -519,9 +518,8 @@ void AndroidDeployQtStep::runImpl(QPromise<void> &promise)
             reportWarningOrError(error, Task::Error);
         }
 
-        runCommand({m_adbPath,
-                   AndroidDeviceInfo::adbSelector(m_serialNumber)
-                   << "pull" << itr.key() << itr.value().nativePath()});
+        runCommand({m_adbPath, {AndroidDeviceInfo::adbSelector(m_serialNumber), "pull", itr.key(),
+                                itr.value().nativePath()}});
         if (!itr.value().exists()) {
             const QString error = Tr::tr("Package deploy: Failed to pull \"%1\" to \"%2\".")
                     .arg(itr.key())

@@ -187,9 +187,9 @@ void ValgrindMemcheckParserTest::initTest(const QString &testfile, const QString
     QVERIFY2(fileInfo.isExecutable(), qPrintable(fakeValgrind));
     QVERIFY2(!fileInfo.isDir(), qPrintable(fakeValgrind));
 
-    const QStringList args = {QString("--xml-socket=127.0.0.1:%1").arg(m_server->serverPort()),
-                              "-i", testfile};
-    m_process->setCommand({FilePath::fromString(fakeValgrind), args + otherArgs});
+    m_process->setCommand({FilePath::fromString(fakeValgrind),
+                           {QString("--xml-socket=127.0.0.1:%1").arg(m_server->serverPort()),
+                            "-i", testfile, otherArgs}});
     m_process->start();
 
     using namespace std::chrono_literals;

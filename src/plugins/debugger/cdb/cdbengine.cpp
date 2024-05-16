@@ -282,7 +282,7 @@ void CdbEngine::setupEngine()
     DebuggerRunParameters sp = runParameters();
     if (terminal()) {
         m_effectiveStartMode = AttachToLocalProcess;
-        sp.inferior.command = CommandLine();
+        sp.inferior.command = {};
         sp.attachPID = ProcessHandle(terminal()->applicationPid());
         sp.startMode = AttachToLocalProcess;
         sp.useTerminal = false; // Force no terminal.

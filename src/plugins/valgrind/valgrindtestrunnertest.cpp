@@ -93,11 +93,8 @@ QString ValgrindTestRunnerTest::runTestBinary(const QString &binary, const QStri
     debuggee.command.setExecutable(Utils::FilePath::fromString(binPath));
     debuggee.environment = Utils::Environment::systemEnvironment();
 
-    CommandLine valgrind{"valgrind", {"--num-callers=50", "--track-origins=yes"}};
-    valgrind.addArgs(vArgs);
-
     m_runner->setLocalServerAddress(QHostAddress::LocalHost);
-    m_runner->setValgrindCommand(valgrind);
+    m_runner->setValgrindCommand({"valgrind", {"--num-callers=50", "--track-origins=yes", vArgs}});
     m_runner->setDebuggee(debuggee);
     m_runner->runBlocking();
     return binPath;

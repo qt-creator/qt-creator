@@ -698,7 +698,7 @@ void CropAndTrimDialog::startFrameFetch()
     if (m_nextFetchFrame == -1)
         return;
 
-    const CommandLine cl = {
+    const CommandLine cl{
         Internal::settings().ffmpegTool(),
         {
             "-v", "error",

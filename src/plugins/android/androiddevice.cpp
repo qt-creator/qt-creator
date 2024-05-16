@@ -690,7 +690,7 @@ void AndroidDeviceManager::setupDevicesWatcher()
         HandleDevicesListChange(output);
     });
 
-    const CommandLine command = CommandLine(androidConfig().adbToolPath(), {"track-devices"});
+    const CommandLine command{androidConfig().adbToolPath(), {"track-devices"}};
     m_adbDeviceWatcherProcess->setCommand(command);
     m_adbDeviceWatcherProcess->setWorkingDirectory(command.executable().parentDir());
     m_adbDeviceWatcherProcess->setEnvironment(androidConfig().toolsEnvironment());

@@ -470,12 +470,10 @@ qint64 SshProcessInterface::processId() const
 ProcessResult SshProcessInterface::runInShell(const CommandLine &command, const QByteArray &data)
 {
     Process process;
-    CommandLine cmd = {d->m_device->filePath("/bin/sh"), {"-c"}};
     QString tmp;
     ProcessArgs::addArg(&tmp, command.executable().path());
     ProcessArgs::addArgs(&tmp, command.arguments());
-    cmd.addArg(tmp);
-    process.setCommand(cmd);
+    process.setCommand({d->m_device->filePath("/bin/sh"), {"-c", tmp}});
     process.setWriteData(data);
     using namespace std::chrono_literals;
     process.runBlocking(2s);
@@ -524,7 +522,7 @@ void SshProcessInterface::handleSendControlSignal(ControlSignal controlSignal)
     QTC_ASSERT(pid, return); // TODO: try sending a signal based on process name
     const QString args = QString::fromLatin1("-%1 -%2")
             .arg(controlSignalToInt(controlSignal)).arg(pid);
-    const CommandLine command = { "kill", args, CommandLine::Raw };
+    const CommandLine command{"kill", args, CommandLine::Raw};
 
     // Killing by using the pid as process group didn't work
     // Fallback to killing the pid directly
@@ -532,7 +530,7 @@ void SshProcessInterface::handleSendControlSignal(ControlSignal controlSignal)
     if (runInShell(command, {}) != ProcessResult::FinishedWithSuccess) {
         const QString args = QString::fromLatin1("-%1 %2")
                                  .arg(controlSignalToInt(controlSignal)).arg(pid);
-        const CommandLine command = { "kill" , args, CommandLine::Raw };
+        const CommandLine command{"kill" , args, CommandLine::Raw};
         runInShell(command, {});
     }
 }
@@ -1487,7 +1485,7 @@ private:
             if (file.m_targetPermissions == FilePermissions::ForceExecutable)
                 batchData += "chmod 1775 " + target + '\n';
         }
-        process().setCommand({sftpBinary, fullConnectionOptions() << "-b" << "-" << host()});
+        process().setCommand({sftpBinary, {fullConnectionOptions(), "-b", "-", host()}});
         process().setWriteData(batchData);
         process().start();
     }

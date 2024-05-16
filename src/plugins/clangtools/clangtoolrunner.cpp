@@ -161,13 +161,9 @@ GroupItem clangToolTask(const AnalyzeUnits &units,
         process.setWorkingDirectory(input.outputDirPath); // Current clang-cl puts log file into working dir.
 
         const ClangToolStorage &data = *storage;
-
-        const QStringList args = checksArguments(unit, input)
-                                 + mainToolArguments(data)
-                                 + QStringList{"--"}
-                                 + clangArguments(unit, input);
-        const CommandLine commandLine = {data.executable, args};
-
+        const CommandLine commandLine{data.executable, {checksArguments(unit, input),
+                                                        mainToolArguments(data), "--",
+                                                        clangArguments(unit, input)}};
         qCDebug(LOG).noquote() << "Starting" << commandLine.toUserOutput();
         process.setCommand(commandLine);
     };

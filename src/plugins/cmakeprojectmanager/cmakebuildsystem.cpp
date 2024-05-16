@@ -2056,19 +2056,17 @@ const QList<TestCaseInfo> CMakeBuildSystem::testcasesInfo() const
 CommandLine CMakeBuildSystem::commandLineForTests(const QList<QString> &tests,
                                                   const QStringList &options) const
 {
-    QStringList args = options;
     const QSet<QString> testsSet = Utils::toSet(tests);
-    auto current = Utils::transform<QSet<QString>>(m_testNames, &TestCaseInfo::name);
+    const auto current = Utils::transform<QSet<QString>>(m_testNames, &TestCaseInfo::name);
     if (tests.isEmpty() || current == testsSet)
-        return {m_ctestPath, args};
+        return {m_ctestPath, options};
 
     QString testNumbers("0,0,0"); // start, end, stride
     for (const TestCaseInfo &info : m_testNames) {
         if (testsSet.contains(info.name))
             testNumbers += QString(",%1").arg(info.number);
     }
-    args << "-I" << testNumbers;
-    return {m_ctestPath, args};
+    return {m_ctestPath, {options, "-I", testNumbers}};
 }
 
 DeploymentData CMakeBuildSystem::deploymentDataFromFile() const

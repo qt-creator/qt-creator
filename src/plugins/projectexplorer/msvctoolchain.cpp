@@ -1793,11 +1793,7 @@ Macros ClangClToolchain::msvcPredefinedMacros(const QStringList &cxxflags,
     Process cpp;
     cpp.setEnvironment(env);
     cpp.setWorkingDirectory(Utils::TemporaryDirectory::masterDirectoryFilePath());
-
-    QStringList arguments = cxxflags;
-    arguments.append(gccPredefinedMacrosOptions(language()));
-    arguments.append("-");
-    cpp.setCommand({compilerCommand(), arguments});
+    cpp.setCommand({compilerCommand(), {cxxflags, gccPredefinedMacrosOptions(language()), "-"}});
     cpp.runBlocking();
     if (cpp.result() != ProcessResult::FinishedWithSuccess) {
         // Show the warning but still parse the output.

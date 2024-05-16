@@ -1766,13 +1766,11 @@ VcsCommand *GitPluginPrivate::createInitialCheckoutCommand(const QString &url,
                                                            const QString &localName,
                                                            const QStringList &extraArgs)
 {
-    QStringList args = {"clone", "--progress"};
-    args << extraArgs << url << localName;
-
     auto command = VcsBaseClient::createVcsCommand(this, baseDirectory,
                                                    gitClient().processEnvironment(baseDirectory));
     command->addFlags(RunFlags::SuppressStdErr);
-    command->addJob({gitClient().vcsBinary(baseDirectory), args}, -1);
+    command->addJob({gitClient().vcsBinary(baseDirectory),
+                     {"clone", "--progress", extraArgs, url, localName}}, -1);
     return command;
 }
 

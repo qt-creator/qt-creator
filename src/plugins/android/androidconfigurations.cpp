@@ -675,11 +675,9 @@ bool AndroidConfig::isConnected(const QString &serialNumber) const
 QString AndroidConfig::getDeviceProperty(const QString &device, const QString &property)
 {
     // workaround for '????????????' serial numbers
-    CommandLine cmd(androidConfig().adbToolPath(), AndroidDeviceInfo::adbSelector(device));
-    cmd.addArgs({"shell", "getprop", property});
-
     Process adbProc;
-    adbProc.setCommand(cmd);
+    adbProc.setCommand({androidConfig().adbToolPath(),
+                        {AndroidDeviceInfo::adbSelector(device), "shell", "getprop", property}});
     adbProc.runBlocking();
     if (adbProc.result() != ProcessResult::FinishedWithSuccess)
         return {};
@@ -752,10 +750,9 @@ QStringList AndroidConfig::getAbis(const QString &device)
     const FilePath adbTool = androidConfig().adbToolPath();
     QStringList result;
     // First try via ro.product.cpu.abilist
-    QStringList arguments = AndroidDeviceInfo::adbSelector(device);
-    arguments << "shell" << "getprop" << "ro.product.cpu.abilist";
     Process adbProc;
-    adbProc.setCommand({adbTool, arguments});
+    adbProc.setCommand({adbTool,
+        {AndroidDeviceInfo::adbSelector(device), "shell", "getprop", "ro.product.cpu.abilist"}});
     adbProc.runBlocking();
     if (adbProc.result() != ProcessResult::FinishedWithSuccess)
         return result;
@@ -769,15 +766,13 @@ QStringList AndroidConfig::getAbis(const QString &device)
 
     // Fall back to ro.product.cpu.abi, ro.product.cpu.abi2 ...
     for (int i = 1; i < 6; ++i) {
-        QStringList arguments = AndroidDeviceInfo::adbSelector(device);
-        arguments << QLatin1String("shell") << QLatin1String("getprop");
+        CommandLine cmd{adbTool, {AndroidDeviceInfo::adbSelector(device), "shell", "getprop"}};
         if (i == 1)
-            arguments << QLatin1String("ro.product.cpu.abi");
+            cmd.addArg("ro.product.cpu.abi");
         else
-            arguments << QString::fromLatin1("ro.product.cpu.abi%1").arg(i);
-
+            cmd.addArg(QString::fromLatin1("ro.product.cpu.abi%1").arg(i));
         Process abiProc;
-        abiProc.setCommand({adbTool, arguments});
+        abiProc.setCommand(cmd);
         abiProc.runBlocking();
         if (abiProc.result() != ProcessResult::FinishedWithSuccess)
             return result;

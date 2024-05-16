@@ -379,7 +379,7 @@ void ProcessExtraCompiler::runInThread(QPromise<FileNameToContentsHash> &promise
     process.setEnvironment(env);
     if (!workDir.isEmpty())
         process.setWorkingDirectory(workDir);
-    process.setCommand({ cmd, args });
+    process.setCommand({cmd, args});
     process.setWriteData(sourceContents);
     process.start();
     if (!process.waitForStarted())

@@ -93,7 +93,7 @@ QList<ITestConfiguration *> CTestTreeItem::testConfigurationsFor(const QStringLi
                 << QString::number(testSettings().timeout() / 1000);
     }
     options << theCTestTool().activeSettingsAsOptions();
-    CommandLine command = buildSystem->commandLineForTests(selected, options);
+    const CommandLine command = buildSystem->commandLineForTests(selected, options);
     if (command.executable().isEmpty())
         return {};
 

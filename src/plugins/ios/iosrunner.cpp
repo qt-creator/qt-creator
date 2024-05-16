@@ -237,17 +237,17 @@ GroupItem DeviceCtlRunner::launchTask(const QString &bundleIdentifier)
             return SetupResult::StopWithError;
         }
         process.setCommand({FilePath::fromString("/usr/bin/xcrun"),
-                            QStringList{"devicectl",
-                                        "device",
-                                        "process",
-                                        "launch",
-                                        "--device",
-                                        m_device->uniqueInternalDeviceId(),
-                                        "--quiet",
-                                        "--json-output",
-                                        "-",
-                                        bundleIdentifier}
-                                + m_arguments});
+                            {"devicectl",
+                             "device",
+                             "process",
+                             "launch",
+                             "--device",
+                             m_device->uniqueInternalDeviceId(),
+                             "--quiet",
+                             "--json-output",
+                             "-",
+                             bundleIdentifier,
+                             m_arguments}});
         return SetupResult::Continue;
     };
     const auto onDone = [this](const Process &process, DoneWith result) {
