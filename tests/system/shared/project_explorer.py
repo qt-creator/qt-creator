@@ -24,6 +24,9 @@ def iterateConfiguredKits():
     kitIndices = dumpIndices(treeView.model(), waitForObject(bAndRIndex))
     configuredKitNames = map(lambda t: str(t.data(0)),
                              filter(__kitIsActivated__, kitIndices))
+    # Remove hide/show entries which are in tree but not kits
+    configuredKitNames = filter(lambda n: n != "Hide Inactive Kits" and n != "Show All Kits",
+                                configuredKitNames)
     return map(Targets.getIdForTargetName, configuredKitNames)
 
 
