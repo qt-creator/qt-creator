@@ -125,6 +125,31 @@ private slots:
         QCOMPARE(actual, expected);
     }
 
+    void testConstructor_data()
+    {
+        QTest::addColumn<CommandLine>("command");
+        QTest::addColumn<FilePath>("executable");
+        QTest::addColumn<QStringList>("arguments");
+
+        const FilePath filePath("some_path");
+        const QString arg("-arg");
+        const QStringList args{"-a", "-b", "-c"};
+
+        QTest::newRow("mixed-strings") << CommandLine{filePath, {"-A", arg, args}}
+                                       << filePath << (QStringList{"-A"} << arg << args);
+    }
+
+    void testConstructor()
+    {
+        QFETCH(CommandLine, command);
+        QFETCH(FilePath, executable);
+        QFETCH(QStringList, arguments);
+
+        QCOMPARE(command.executable(), executable);
+        QCOMPARE(command.arguments(), arguments.join(' '));
+        QCOMPARE(command.splitArguments(), arguments);
+    }
+
     void testFromUserInput_data()
     {
         QTest::addColumn<QString>("input");
