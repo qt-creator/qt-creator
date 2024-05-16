@@ -33,3 +33,31 @@ if (MSVC)
     # Prevent fatal error C1128
     set_property(SOURCE bindings/settings.cpp PROPERTY COMPILE_FLAGS /bigobj)
 endif()
+
+set(META_FILES
+  meta/action.lua
+  meta/async.lua
+  meta/core.lua
+  meta/fetch.lua
+  meta/layout.lua
+  meta/lsp.lua
+  meta/messagemanager.lua
+  meta/process.lua
+  meta/qt.lua
+  meta/qtc.lua
+  meta/settings.lua
+  meta/simpletypes.lua
+  meta/utils.lua
+  meta/widgets.lua
+  meta/wizard.lua
+)
+
+qtc_copy_to_builddir(copy_lua_meta_files
+  DESTINATION ${IDE_DATA_PATH}/lua
+  FILES ${META_FILES}
+)
+
+install(
+  FILES ${META_FILES}
+  DESTINATION ${IDE_DATA_PATH}/lua
+)
