@@ -1464,7 +1464,6 @@ LocatorMatcherTask LocatorFileCache::matcher() const
                                              // no provider is set or it returned empty generator
         that->bumpExecutionId();
 
-        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(&filter, *storage, *that);
         return SetupResult::Continue;
     };

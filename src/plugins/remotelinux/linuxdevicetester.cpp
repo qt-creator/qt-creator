@@ -7,8 +7,6 @@
 #include "remotelinuxtr.h"
 #include "utils/async.h"
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -102,7 +100,6 @@ GroupItem GenericLinuxDeviceTesterPrivate::connectionTask() const
     const auto onSetup = [this](Async<bool> &task) {
         emit q->progressMessage(Tr::tr("Connecting to device..."));
         task.setConcurrentCallData([device = m_device] { return device->tryToConnect(); });
-        task.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
     };
     const auto onDone = [this](const Async<bool> &task) {
         const bool success = task.isResultAvailable() && task.result();

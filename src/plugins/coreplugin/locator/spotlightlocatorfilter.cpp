@@ -6,8 +6,6 @@
 #include "../coreplugintr.h"
 #include "../messagemanager.h"
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/commandline.h>
@@ -198,7 +196,6 @@ LocatorMatcherTasks SpotlightLocatorFilter::matchers()
                            ? insensArgs : sensArgs;
         const CommandLine cmd(FilePath::fromString(command), expander->expand(args),
                               CommandLine::Raw);
-        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(matches, *storage, cmd, sortResults);
         return SetupResult::Continue;
     };

@@ -7,6 +7,7 @@
 
 #include "futuresynchronizer.h"
 #include "qtcassert.h"
+#include "threadutils.h"
 
 #include <solutions/tasking/tasktree.h>
 
@@ -130,7 +131,9 @@ template <typename ResultType>
 class Async : public AsyncBase
 {
 public:
-    Async() {
+    Async()
+        : m_synchronizer(isMainThread() ? futureSynchronizer() : nullptr)
+    {
         connect(&m_watcher, &QFutureWatcherBase::finished, this, &AsyncBase::done);
         connect(&m_watcher, &QFutureWatcherBase::resultReadyAt, this, &AsyncBase::resultReadyAt);
     }

@@ -12,8 +12,6 @@
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <texteditor/displaysettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
@@ -868,7 +866,6 @@ void SideBySideDiffEditorWidget::restoreState()
 void SideBySideDiffEditorWidget::showDiff()
 {
     m_asyncTask.reset(new Async<SideBySideShowResults>());
-    m_asyncTask->setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
     m_controller.setBusyShowing(true);
 
     connect(m_asyncTask.get(), &AsyncBase::done, this, [this] {

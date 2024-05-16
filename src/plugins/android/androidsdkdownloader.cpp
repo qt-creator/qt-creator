@@ -8,14 +8,11 @@
 
 #include <coreplugin/icore.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <solutions/tasking/barrier.h>
 #include <solutions/tasking/networkquery.h>
 
 #include <utils/async.h>
 #include <utils/filepath.h>
-#include <utils/futuresynchronizer.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/unarchiver.h>
 
@@ -170,7 +167,6 @@ GroupItem downloadSdkRecipe()
             return SetupResult::StopWithError;
         async.setConcurrentCallData(validateFileIntegrity, *storage->sdkFileName,
                                     androidConfig().getSdkToolsSha256());
-        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         storage->progressDialog->setRange(0, 0);
         storage->progressDialog->setLabelText(Tr::tr("Verifying package integrity..."));
         return SetupResult::Continue;

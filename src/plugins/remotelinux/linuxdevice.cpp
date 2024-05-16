@@ -15,8 +15,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/devicesupport/filetransferinterface.h>
@@ -1622,8 +1620,6 @@ private:
 
         const auto onCreateDirSetup = [iteratorParentDirs](Async<expected_str<void>> &async) {
             async.setConcurrentCallData(createDir, *iteratorParentDirs);
-            if (Utils::isMainThread())
-                async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         };
 
         const auto onCreateDirDone = [this,
@@ -1641,8 +1637,6 @@ private:
 
         const auto onCopySetup = [iterator](Async<expected_str<void>> &async) {
             async.setConcurrentCallData(copyFile, *iterator);
-            if (Utils::isMainThread())
-                async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         };
 
         const auto onCopyDone = [this, iterator, counterStorage](

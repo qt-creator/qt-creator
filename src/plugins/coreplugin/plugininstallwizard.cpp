@@ -242,7 +242,6 @@ public:
                 return SetupResult::StopWithError;
 
             async.setConcurrentCallData(checkContents, m_tempDir->path());
-            async.setFutureSynchronizer(PluginManager::futureSynchronizer());
             return SetupResult::Continue;
         };
         const auto onCheckerDone = [this](const Async<ArchiveIssue> &async) {

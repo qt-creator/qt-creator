@@ -42,4 +42,6 @@ private:
     bool m_cancelOnWait = true;
 };
 
+QTCREATOR_UTILS_EXPORT FutureSynchronizer *futureSynchronizer();
+
 } // namespace Utils

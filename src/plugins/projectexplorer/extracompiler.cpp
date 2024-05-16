@@ -11,8 +11,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/idocument.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/async.h>
@@ -326,7 +324,6 @@ GroupItem ProcessExtraCompiler::taskItemImpl(const ContentProvider &provider)
     const auto onSetup = [this, provider](Async<FileNameToContentsHash> &async) {
         async.setThreadPool(extraCompilerThreadPool());
         // The passed synchronizer has cancelOnWait set to true by default.
-        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(&ProcessExtraCompiler::runInThread, this, command(),
                                     workingDirectory(), arguments(), provider, buildEnvironment());
     };

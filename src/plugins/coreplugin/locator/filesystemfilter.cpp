@@ -10,8 +10,6 @@
 #include "../vcsmanager.h"
 #include "locatormanager.h"
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/checkablemessagebox.h>
@@ -312,7 +310,6 @@ LocatorMatcherTasks FileSystemFilter::matchers()
 
     const auto onSetup = [storage, includeHidden = m_includeHidden, shortcut = shortcutString()]
         (Async<void> &async) {
-        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(matches, *storage, shortcut,
                                     DocumentManager::fileDialogInitialDirectory(), includeHidden);
     };

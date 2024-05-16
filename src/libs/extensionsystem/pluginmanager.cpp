@@ -17,8 +17,8 @@
 #include <utils/futuresynchronizer.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimeutils.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/qtcsettings.h>
 #include <utils/threadutils.h>
 
@@ -436,7 +436,7 @@ QString PluginManager::systemInformation()
 
 FutureSynchronizer *PluginManager::futureSynchronizer()
 {
-    return d->m_futureSynchronizer.get();
+    return Utils::futureSynchronizer();
 }
 
 /*!
@@ -981,10 +981,7 @@ void PluginManagerPrivate::startDelayedInitialize()
 */
 PluginManagerPrivate::PluginManagerPrivate(PluginManager *pluginManager) :
     q(pluginManager)
-{
-    m_futureSynchronizer.reset(new FutureSynchronizer);
-}
-
+{}
 
 /*!
     \internal
@@ -1047,7 +1044,11 @@ void PluginManagerPrivate::stopAll()
 */
 void PluginManagerPrivate::deleteAll()
 {
-    m_futureSynchronizer.reset(); // Synchronize all futures from all plugins
+    // Guard against someone playing with the setting
+    QTC_ASSERT(
+        Utils::futureSynchronizer()->isCancelOnWait(),
+        Utils::futureSynchronizer()->cancelAllFutures());
+    Utils::futureSynchronizer()->waitForFinished(); // Synchronize all futures from all plugins
     Utils::reverseForeach(loadQueue(), [this](PluginSpec *spec) {
         loadPlugin(spec, PluginSpec::Deleted);
     });

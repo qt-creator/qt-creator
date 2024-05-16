@@ -3,6 +3,9 @@
 
 #include "futuresynchronizer.h"
 
+#include "qtcassert.h"
+#include "threadutils.h"
+
 /*!
   \class Utils::FutureSynchronizer
   \inmodule QtCreator
@@ -60,6 +63,20 @@ void FutureSynchronizer::flushFinishedFutures()
             newFutures.append(future);
     }
     m_futures = newFutures;
+}
+
+Q_GLOBAL_STATIC(FutureSynchronizer, s_futureSynchronizer);
+
+/*!
+    Returns a global FutureSynchronizer.
+    The application should cancel and wait for the tasks in this synchronizer before actually
+    unloading any libraries. This is for example done by the plugin manager in Qt Creator.
+    May only be accessed by the main thread.
+*/
+FutureSynchronizer *futureSynchronizer()
+{
+    QTC_ASSERT(isMainThread(), return nullptr);
+    return s_futureSynchronizer;
 }
 
 } // namespace Utils

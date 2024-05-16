@@ -136,7 +136,6 @@ public:
     QWaitCondition m_scenarioWaitCondition;
 
     PluginManager::ProcessData m_creatorProcessData;
-    std::unique_ptr<Utils::FutureSynchronizer> m_futureSynchronizer;
 
 private:
     PluginManager *q;

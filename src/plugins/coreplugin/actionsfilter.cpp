@@ -10,8 +10,6 @@
 #include "icore.h"
 #include "locator/locatormanager.h"
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/fuzzymatcher.h>
@@ -192,7 +190,6 @@ LocatorMatcherTasks ActionsFilter::matchers()
             storage->reportOutput(m_entries);
             return SetupResult::StopWithSuccess;
         }
-        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(matches, *storage, m_entries);
         return SetupResult::Continue;
     };

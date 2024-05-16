@@ -14,8 +14,6 @@
 #include <cppeditor/cppprojectfile.h>
 #include <cppeditor/cpptoolsreuse.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/async.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
@@ -208,7 +206,6 @@ GroupItem clangToolTask(const AnalyzeUnits &units,
         data.setConcurrentCallData(&parseDiagnostics,
                                    storage->outputFilePath,
                                    input.diagnosticsFilter);
-        data.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
     };
     const auto onReadDone = [storage, input, outputHandler, iterator](
                                 const Async<expected_str<Diagnostics>> &data, DoneWith result) {

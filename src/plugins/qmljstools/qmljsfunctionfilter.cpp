@@ -5,8 +5,6 @@
 #include "qmljslocatordata.h"
 #include "qmljstoolstr.h"
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/algorithm.h>
 #include <utils/async.h>
 
@@ -81,7 +79,6 @@ LocatorMatcherTasks QmlJSFunctionsFilter::matchers()
     Storage<LocatorStorage> storage;
 
     const auto onSetup = [storage, entries = m_data->entries()](Async<void> &async) {
-        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(matches, *storage, entries);
     };
 

@@ -19,7 +19,6 @@
 #include <coreplugin/navigationwidget.h>
 
 #include <extensionsystem/iplugin.h>
-#include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
@@ -496,7 +495,6 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
         const auto deserialize = [](QPromise<expected_str<DtoType>> &promise, const QByteArray &input) {
             promise.addResult(DtoType::deserializeExpected(input));
         };
-        task.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         task.setConcurrentCallData(deserialize, **storage);
         return SetupResult::Continue;
     };
