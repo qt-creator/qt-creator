@@ -108,12 +108,6 @@ private slots:
     void testExtractLiteralAsParameterMemberFunctionSeparateFiles();
     void testExtractLiteralAsParameterNotTriggeringForInvalidCode();
 
-    void testChangeCommentType_data();
-    void testChangeCommentType();
-
-    void testMoveComments_data();
-    void testMoveComments();
-
     void testConvertToMetaMethodInvocation_data();
     void testConvertToMetaMethodInvocation();
 };

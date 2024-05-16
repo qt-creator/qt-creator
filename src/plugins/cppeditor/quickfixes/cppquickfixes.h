@@ -180,22 +180,6 @@ public:
     void doMatch(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
 };
 
-//! Converts C-style to C++-style comments and vice versa
-class ConvertCommentStyle : public CppQuickFixFactory
-{
-private:
-    void doMatch(const CppQuickFixInterface &interface,
-               TextEditor::QuickFixOperations &result) override;
-};
-
-//! Moves function documentation between declaration and implementation.
-class MoveFunctionComments : public CppQuickFixFactory
-{
-private:
-    void doMatch(const CppQuickFixInterface &interface,
-                 TextEditor::QuickFixOperations &result) override;
-};
-
 //! Converts a normal function call into a meta method invocation, if the functions is
 //! marked as invokable.
 class ConvertToMetaMethodCall : public CppQuickFixFactory
