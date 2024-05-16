@@ -223,6 +223,8 @@ QtcPlugin {
             "assigntolocalvariable.h",
             "bringidentifierintoscope.cpp",
             "bringidentifierintoscope.h",
+            "completeswitchstatement.cpp",
+            "completeswitchstatement.h",
             "convertfromandtopointer.cpp",
             "convertfromandtopointer.h",
             "convertqt4connect.cpp",

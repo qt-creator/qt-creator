@@ -114,18 +114,6 @@ public:
 };
 
 /*!
-  Adds missing case statements for "switch (enumVariable)"
- */
-class CompleteSwitchCaseStatement: public CppQuickFixFactory
-{
-public:
-    CompleteSwitchCaseStatement() { setClangdReplacement({12}); }
-
-private:
-    void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
-};
-
-/*!
  Applies function signature changes
  */
 class ApplyDeclDefLinkChanges: public CppQuickFixFactory
