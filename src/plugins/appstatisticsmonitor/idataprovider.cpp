@@ -11,6 +11,10 @@
 #include <QRegularExpression>
 #include <QString>
 
+#ifdef Q_OS_LINUX
+#include <unistd.h>
+#endif
+
 using namespace Utils;
 
 namespace AppStatisticsMonitor::Internal {
