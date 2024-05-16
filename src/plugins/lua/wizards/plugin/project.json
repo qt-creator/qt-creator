@@ -1,0 +1,15 @@
+{
+    "targets": [
+        {
+            "name": "Qt Creator",
+            "executable": "%\{IDE:Executable:FilePath\}",
+            "arguments": [
+                "-tcs",
+                "-load",
+                "Lua",
+                "-loadluaplugin",
+                "%\{ActiveProject:ProjectDirectory\}"
+            ]
+        }
+    ]
+}

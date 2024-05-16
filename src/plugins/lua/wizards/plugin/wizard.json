@@ -1,0 +1,163 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [
+        "Qt4ProjectManager.Qt4Project"
+    ],
+    "id": "R.QtCreatorLuaPlugin",
+    "category": "G.Library",
+    "trDescription": "Creates a custom Qt Creator Lua plugin.",
+    "trDisplayName": "Qt Creator Lua Plugin",
+    "trDisplayCategory": "Library",
+    "iconText": "LuaP",
+    "featuresRequired": [
+        "QtSupport.Wizards.FeatureQt",
+        "QtSupport.Wizards.FeatureDesktop"
+    ],
+    "enabled": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0}",
+    "options": [
+        {
+            "key": "ProjectFile",
+            "value": "%{ProjectDirectory}/.qtcreator/project.json"
+        },
+        {
+            "key": "PluginNameLower",
+            "value": "%{JS: value('PluginName').toLowerCase()}"
+        },
+        {
+            "key": "PluginSpecFile",
+            "value": "%{JS: Util.fileName(value('PluginName').toLowerCase(), Util.preferredSuffix('text/x-lua'))}"
+        },
+        {
+            "key": "SrcFileName",
+            "value": "init.lua"
+        },
+        {
+            "key": "CN",
+            "value": "%{JS: Cpp.className(value('PluginName') + 'Plugin')}"
+        },
+        {
+            "key": "HasTranslation",
+            "value": "%{JS: value('TsFileName') !== ''}"
+        }
+    ],
+    "pages": [
+        {
+            "trDisplayName": "Project Location",
+            "trShortTitle": "Location",
+            "typeId": "Project",
+            "data": {
+                "trDescription": "This wizard creates a custom Qt Creator lua plugin."
+            }
+        },
+        {
+            "trDisplayName": "Define Project Details",
+            "trShortTitle": "Details",
+            "typeId": "Fields",
+            "data": [
+                {
+                    "name": "ClassPageDescription",
+                    "type": "Label",
+                    "data": {
+                        "trText": "Specify details about your custom Qt Creator lua plugin.",
+                        "wordWrap": true
+                    }
+                },
+                {
+                    "name": "PluginName",
+                    "trDisplayName": "Plugin name:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data": {
+                        "validator": "[a-zA-Z_][a-zA-Z_0-9]*",
+                        "text": "%{JS: value('ProjectName').charAt(0).toUpperCase() + value('ProjectName').slice(1)}"
+                    }
+                },
+                {
+                    "name": "VendorName",
+                    "persistenceKey": "VendorName",
+                    "trDisplayName": "Vendor name:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data": {
+                        "trText": "MyCompany"
+                    }
+                },
+                {
+                    "name": "Copyright",
+                    "trDisplayName": "Copyright:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data": {
+                        "trText": "(C) %{VendorName}"
+                    }
+                },
+                {
+                    "name": "License",
+                    "trDisplayName": "License:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data": {
+                        "trText": "Put short license information here"
+                    }
+                },
+                {
+                    "name": "Description",
+                    "trDisplayName": "Description:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data": {
+                        "trText": "Put a short description of your plugin here"
+                    }
+                },
+                {
+                    "name": "Url",
+                    "persistenceKey": "VendorUrl",
+                    "trDisplayName": "URL:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data": {
+                        "text": "https://www.%{JS: encodeURIComponent(value('VendorName').toLowerCase())}.com"
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Kit Selection",
+            "trShortTitle": "Kits",
+            "typeId": "Kits",
+            "enabled": "%{JS: !value('IsSubproject')}",
+            "data": {
+                "projectFilePath": "%{ProjectFile}"
+            }
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators": [
+        {
+            "typeId": "File",
+            "data": [
+                {
+                    "source": "project.json",
+                    "target": "%{ProjectFile}",
+                    "openAsProject": true
+                },
+                {
+                    "source": "init.lua.tpl",
+                    "target": "%{SrcFileName}"
+                },
+                {
+                    "source": ".luarc.json"
+                },
+                {
+                    "source": "plugin.lua.tpl",
+                    "target": "%{PluginSpecFile}",
+                    "openInEditor": true
+                }
+            ]
+        }
+    ]
+}
