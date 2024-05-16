@@ -166,6 +166,13 @@ void InstantBlame::setup()
 
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, setupBlameForEditor);
+    connect(EditorManager::instance(), &EditorManager::documentClosed,
+            this, [this](IDocument *doc) {
+        if (m_document != doc)
+            return;
+        disconnect(m_documentChangedConn);
+        m_document = nullptr;
+    });
 }
 
 // Porcelain format of git blame output
