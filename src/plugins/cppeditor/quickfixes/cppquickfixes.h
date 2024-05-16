@@ -126,21 +126,6 @@ private:
 };
 
 /*!
-  Extracts the selected code and puts it to a function
- */
-class ExtractFunction : public CppQuickFixFactory
-{
-public:
-    using FunctionNameGetter = std::function<QString()>;
-
-    ExtractFunction(FunctionNameGetter functionNameGetter = FunctionNameGetter());
-    void doMatch(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
-
-private:
-    FunctionNameGetter m_functionNameGetter; // For tests to avoid GUI pop-up.
-};
-
-/*!
   Extracts the selected constant and converts it to a parameter of the current function.
 
   Activates on numeric, bool, character, or string literal in the function body.

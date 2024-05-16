@@ -249,6 +249,8 @@ QtcPlugin {
             "cppquickfixsettingswidget.h",
             "createdeclarationfromuse.cpp",
             "createdeclarationfromuse.h",
+            "extractfunction.cpp",
+            "extractfunction.h",
             "insertfunctiondefinition.cpp",
             "insertfunctiondefinition.h",
             "logicaloperationquickfixes.cpp",

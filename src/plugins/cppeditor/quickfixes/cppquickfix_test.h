@@ -99,9 +99,6 @@ private slots:
 
     void testAssignToLocalVariableTemplates();
 
-    void testExtractFunction_data();
-    void testExtractFunction();
-
     void testExtractLiteralAsParameterTypeDeduction_data();
     void testExtractLiteralAsParameterTypeDeduction();
     void testExtractLiteralAsParameterFreeFunctionSeparateFiles();
