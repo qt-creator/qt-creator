@@ -44,7 +44,9 @@ bool AndroidAvdManager::avdManagerCommand(const QStringList &args, QString *outp
     return false;
 }
 
-static void avdConfigEditManufacturerTag(const FilePath &avdPath, bool recoverMode = false)
+enum TagModification { CommentOut, Uncomment };
+
+static void modifyManufacturerTag(const FilePath &avdPath, TagModification modification)
 {
     if (!avdPath.exists())
         return;
@@ -59,7 +61,7 @@ static void avdConfigEditManufacturerTag(const FilePath &avdPath, bool recoverMo
     while (!textStream.atEnd()) {
         QString line = textStream.readLine();
         if (line.contains("hw.device.manufacturer")) {
-            if (recoverMode)
+            if (modification == Uncomment)
                 line.replace("#", "");
             else
                 line.prepend("#");
@@ -92,12 +94,12 @@ static AndroidDeviceInfoList listVirtualDevices()
         const auto parsedAvdList = parseAvdList(output);
         if (parsedAvdList.errorPaths.isEmpty()) {
             for (const FilePath &avdPath : std::as_const(allAvdErrorPaths))
-                avdConfigEditManufacturerTag(avdPath, true); // re-add manufacturer tag
+                modifyManufacturerTag(avdPath, Uncomment);
             return parsedAvdList.avdList;
         }
         allAvdErrorPaths << parsedAvdList.errorPaths;
         for (const FilePath &avdPath : parsedAvdList.errorPaths)
-            avdConfigEditManufacturerTag(avdPath); // comment out manufacturer tag
+            modifyManufacturerTag(avdPath, CommentOut);
     }
     return {};
 }
