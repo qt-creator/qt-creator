@@ -45,6 +45,9 @@ public:
     // Setup filter for ignored files
     void setFilter(FileFilter filter);
 
+    // Setup dir filters for scanned folders
+    void setDirFilter(QDir::Filters dirFilter);
+
     // Setup factory for file types
     void setTypeFactory(FileTypeFactory factory);
 
@@ -69,11 +72,15 @@ signals:
     void finished();
 
 private:
-    static void scanForFiles(Promise &fi, const Utils::FilePath &directory,
-                             const FileFilter &filter, const FileTypeFactory &factory);
+    static void scanForFiles(Promise &fi,
+        const Utils::FilePath &directory,
+        const FileFilter &filter,
+        const QDir::Filters &dirFilter,
+        const FileTypeFactory &factory);
 
 private:
     FileFilter m_filter;
+    QDir::Filters m_dirFilter = QDir::AllEntries | QDir::NoDotAndDotDot;
     FileTypeFactory m_factory;
 
     FutureWatcher m_futureWatcher;

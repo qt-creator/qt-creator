@@ -43,9 +43,10 @@ bool TreeScanner::asyncScanForFiles(const Utils::FilePath &directory)
         return false;
 
     m_scanFuture = Utils::asyncRun(
-        [directory, filter = m_filter, factory = m_factory] (Promise &promise) {
-        TreeScanner::scanForFiles(promise, directory, filter, factory);
-    });
+        [directory, filter = m_filter, dirFilter = m_dirFilter, factory = m_factory](
+            Promise &promise) {
+            TreeScanner::scanForFiles(promise, directory, filter, dirFilter, factory);
+        });
     m_futureWatcher.setFuture(m_scanFuture);
 
     return true;
@@ -55,6 +56,12 @@ void TreeScanner::setFilter(TreeScanner::FileFilter filter)
 {
     if (isFinished())
         m_filter = filter;
+}
+
+void TreeScanner::setDirFilter(QDir::Filters dirFilter)
+{
+    if (isFinished())
+        m_dirFilter = dirFilter;
 }
 
 void TreeScanner::setTypeFactory(TreeScanner::FileTypeFactory factory)
@@ -139,24 +146,28 @@ static std::unique_ptr<FolderNode> createFolderNode(const Utils::FilePath &direc
     return fileSystemNode;
 }
 
-void TreeScanner::scanForFiles(Promise &promise, const Utils::FilePath& directory,
-                               const FileFilter &filter, const FileTypeFactory &factory)
+void TreeScanner::scanForFiles(
+    Promise &promise,
+    const Utils::FilePath &directory,
+    const FileFilter &filter,
+    const QDir::Filters &dirFilter,
+    const FileTypeFactory &factory)
 {
-    QList<FileNode *> nodes = ProjectExplorer::scanForFiles(promise, directory,
-                           [&filter, &factory](const Utils::FilePath &fn) -> FileNode * {
-        const Utils::MimeType mimeType = Utils::mimeTypeForFile(fn);
+    QList<FileNode *> nodes = ProjectExplorer::scanForFiles(
+        promise, directory, dirFilter, [&filter, &factory](const Utils::FilePath &fn) -> FileNode * {
+            const Utils::MimeType mimeType = Utils::mimeTypeForFile(fn);
 
-        // Skip some files during scan.
-        if (filter && filter(mimeType, fn))
-            return nullptr;
+            // Skip some files during scan.
+            if (filter && filter(mimeType, fn))
+                return nullptr;
 
-        // Type detection
-        FileType type = FileType::Unknown;
-        if (factory)
-            type = factory(mimeType, fn);
+            // Type detection
+            FileType type = FileType::Unknown;
+            if (factory)
+                type = factory(mimeType, fn);
 
-        return new FileNode(fn, type);
-    });
+            return new FileNode(fn, type);
+        });
 
     Utils::sort(nodes, ProjectExplorer::Node::sortByPath);
 

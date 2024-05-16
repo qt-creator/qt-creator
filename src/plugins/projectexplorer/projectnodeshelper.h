@@ -14,11 +14,6 @@
 #include <QPromise>
 
 namespace ProjectExplorer {
-
-template<typename Result>
-QList<FileNode *> scanForFiles(QPromise<Result> &promise, const Utils::FilePath &directory,
-                               const std::function<FileNode *(const Utils::FilePath &)> factory);
-
 namespace Internal {
 
 template<typename Result>
@@ -27,6 +22,7 @@ QList<FileNode *> scanForFilesRecursively(
     double progressStart,
     double progressRange,
     const Utils::FilePath &directory,
+    const QDir::Filters &filter,
     const std::function<FileNode *(const Utils::FilePath &)> factory,
     QSet<QString> &visited,
     const QList<Core::IVersionControl *> &versionControls)
@@ -41,8 +37,7 @@ QList<FileNode *> scanForFilesRecursively(
     if (visitedCount == visited.count())
         return result;
 
-    const QFileInfoList entries = baseDir.entryInfoList(QStringList(),
-                                                        QDir::AllEntries | QDir::NoDotAndDotDot);
+    const QFileInfoList entries = baseDir.entryInfoList(QStringList(), filter);
     double progress = 0;
     const double progressIncrement = progressRange / static_cast<double>(entries.count());
     int lastIntProgress = 0;
@@ -59,6 +54,7 @@ QList<FileNode *> scanForFilesRecursively(
                                                       progress,
                                                       progressIncrement,
                                                       entryName,
+                                                      filter,
                                                       factory,
                                                       visited,
                                                       versionControls));
@@ -80,8 +76,11 @@ QList<FileNode *> scanForFilesRecursively(
 } // namespace Internal
 
 template<typename Result>
-QList<FileNode *> scanForFiles(QPromise<Result> &promise, const Utils::FilePath &directory,
-                               const std::function<FileNode *(const Utils::FilePath &)> factory)
+QList<FileNode *> scanForFiles(
+    QPromise<Result> &promise,
+    const Utils::FilePath &directory,
+    const QDir::Filters &filter,
+    const std::function<FileNode *(const Utils::FilePath &)> factory)
 {
     QSet<QString> visited;
     promise.setProgressRange(0, 1000000);
@@ -89,6 +88,7 @@ QList<FileNode *> scanForFiles(QPromise<Result> &promise, const Utils::FilePath 
                                              0.0,
                                              1000000.0,
                                              directory,
+                                             filter,
                                              factory,
                                              visited,
                                              Core::VcsManager::versionControls());
