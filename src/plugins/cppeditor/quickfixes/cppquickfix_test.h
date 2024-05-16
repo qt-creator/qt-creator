@@ -96,9 +96,6 @@ class QuickfixTest : public QObject
 private slots:
     void testGeneric_data();
     void testGeneric();
-
-    void testConvertToMetaMethodInvocation_data();
-    void testConvertToMetaMethodInvocation();
 };
 
 } // namespace Tests

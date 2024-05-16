@@ -231,6 +231,8 @@ QtcPlugin {
             "convertqt4connect.h",
             "convertstringliteral.cpp",
             "convertstringliteral.h",
+            "converttometamethodcall.cpp",
+            "converttometamethodcall.h",
             "cppcodegenerationquickfixes.cpp",
             "cppcodegenerationquickfixes.h",
             "cppinsertvirtualmethods.cpp",

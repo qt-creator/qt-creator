@@ -122,14 +122,5 @@ public:
     void doMatch(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
 };
 
-//! Converts a normal function call into a meta method invocation, if the functions is
-//! marked as invokable.
-class ConvertToMetaMethodCall : public CppQuickFixFactory
-{
-private:
-    void doMatch(const CppQuickFixInterface &interface,
-                 TextEditor::QuickFixOperations &result) override;
-};
-
 } // namespace Internal
 } // namespace CppEditor

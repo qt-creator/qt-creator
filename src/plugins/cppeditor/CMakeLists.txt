@@ -100,6 +100,7 @@ add_qtc_plugin(CppEditor
     quickfixes/completeswitchstatement.cpp quickfixes/completeswitchstatement.h
     quickfixes/convertqt4connect.cpp quickfixes/convertqt4connect.h
     quickfixes/convertstringliteral.cpp quickfixes/convertstringliteral.h
+    quickfixes/converttometamethodcall.cpp quickfixes/converttometamethodcall.h
     quickfixes/cppcodegenerationquickfixes.cpp quickfixes/cppcodegenerationquickfixes.h
     quickfixes/cppinsertvirtualmethods.cpp quickfixes/cppinsertvirtualmethods.h
     quickfixes/cppquickfix.cpp quickfixes/cppquickfix.h
