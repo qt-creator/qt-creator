@@ -32,6 +32,5 @@ def main():
         except:
             test.fail("Creator seems to be missing %s translation" % languageName)
             sendEvent("QCloseEvent", ":Qt Creator_Core::Internal::MainWindow")
-        waitForCleanShutdown()
         __removeTestingDir__()
         copySettingsToTmpDir()
