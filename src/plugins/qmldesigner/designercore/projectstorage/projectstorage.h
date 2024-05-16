@@ -39,6 +39,8 @@ class ProjectStorage final : public ProjectStorageInterface
     using Database = Sqlite::Database;
     friend Storage::Info::CommonTypeCache<ProjectStorageType>;
 
+    enum class Relink { No, Yes };
+
 public:
     ProjectStorage(Database &database,
                    ProjectStorageErrorNotifierInterface &errorNotifier,
@@ -48,6 +50,11 @@ public:
     void synchronize(Storage::Synchronization::SynchronizationPackage package) override;
 
     void synchronizeDocumentImports(Storage::Imports imports, SourceId sourceId) override;
+
+    void setErrorNotifier(ProjectStorageErrorNotifierInterface &errorNotifier)
+    {
+        this->errorNotifier = &errorNotifier;
+    }
 
     void addObserver(ProjectStorageObserver *observer) override;
 
@@ -443,6 +450,11 @@ private:
             return first.typeId < second.typeId;
         }
 
+        friend bool operator==(Prototype first, Prototype second)
+        {
+            return first.typeId == second.typeId;
+        }
+
         template<typename String>
         friend void convertToString(String &string, const Prototype &prototype)
         {
@@ -575,7 +587,9 @@ private:
                             Storage::Imports &moduleDependencies,
                             const SourceIds &updatedModuleDependencySourceIds,
                             Storage::Synchronization::ModuleExportedImports &moduleExportedImports,
-                            const ModuleIds &updatedModuleIds);
+                            const ModuleIds &updatedModuleIds,
+                            Prototypes &relinkablePrototypes,
+                            Prototypes &relinkableExtensions);
 
     void synchromizeModuleExportedImports(
         Storage::Synchronization::ModuleExportedImports &moduleExportedImports,
@@ -593,9 +607,14 @@ private:
                                                    PropertyDeclarations &relinkablePropertyDeclarations);
 
     void handlePrototypes(TypeId prototypeId, Prototypes &relinkablePrototypes);
+    void handlePrototypesWithExportedTypeNameAndTypeId(Utils::SmallStringView exportedTypeName,
+                                                       TypeId typeId,
+                                                       Prototypes &relinkablePrototypes);
 
     void handleExtensions(TypeId extensionId, Prototypes &relinkableExtensions);
-
+    void handleExtensionsWithExportedTypeNameAndTypeId(Utils::SmallStringView exportedTypeName,
+                                                       TypeId typeId,
+                                                       Prototypes &relinkableExtensions);
     void deleteType(TypeId typeId,
                     AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                     PropertyDeclarations &relinkablePropertyDeclarations,
@@ -611,32 +630,7 @@ private:
     template<typename Callable>
     void relinkPrototypes(Prototypes &relinkablePrototypes,
                           const TypeIds &deletedTypeIds,
-                          Callable updateStatement)
-    {
-        using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"relink prototypes"_t,
-                                   projectStorageCategory(),
-                                   keyValue("relinkable prototypes", relinkablePrototypes),
-                                   keyValue("deleted type ids", deletedTypeIds)};
-
-        std::sort(relinkablePrototypes.begin(), relinkablePrototypes.end());
-
-        Utils::set_greedy_difference(
-            relinkablePrototypes.cbegin(),
-            relinkablePrototypes.cend(),
-            deletedTypeIds.begin(),
-            deletedTypeIds.end(),
-            [&](const Prototype &prototype) {
-                TypeId prototypeId = fetchTypeId(prototype.prototypeNameId);
-
-                if (!prototypeId)
-                    throw TypeNameDoesNotExists{fetchImportedTypeName(prototype.prototypeNameId)};
-
-                updateStatement(prototype.typeId, prototypeId);
-                checkForPrototypeChainCycle(prototype.typeId);
-            },
-            TypeCompare<Prototype>{});
-    }
+                          Callable updateStatement);
 
     void deleteNotUpdatedTypes(const TypeIds &updatedTypeIds,
                                const SourceIds &updatedSourceIds,
@@ -751,14 +745,32 @@ private:
         Storage::Synchronization::Types &types,
         AliasPropertyDeclarations &relinkableAliasPropertyDeclarations);
 
+    void handlePrototypesWithSourceIdAndPrototypeId(SourceId sourceId,
+                                                    TypeId prototypeId,
+                                                    Prototypes &relinkablePrototypes);
+    void handlePrototypesAndExtensionsWithSourceId(SourceId sourceId,
+                                                   TypeId prototypeId,
+                                                   TypeId extensionId,
+                                                   Prototypes &relinkablePrototypes,
+                                                   Prototypes &relinkableExtensions);
+    void handleExtensionsWithSourceIdAndExtensionId(SourceId sourceId,
+                                                    TypeId extensionId,
+                                                    Prototypes &relinkableExtensions);
+
     ImportId insertDocumentImport(const Storage::Import &import,
                                   Storage::Synchronization::ImportKind importKind,
                                   ModuleId sourceModuleId,
-                                  ImportId parentImportId);
+                                  ImportId parentImportId,
+                                  Relink forceRelink,
+                                  Prototypes &relinkablePrototypes,
+                                  Prototypes &relinkableExtensions);
 
     void synchronizeDocumentImports(Storage::Imports &imports,
                                     const SourceIds &updatedSourceIds,
-                                    Storage::Synchronization::ImportKind importKind);
+                                    Storage::Synchronization::ImportKind importKind,
+                                    Relink forceRelink,
+                                    Prototypes &relinkablePrototypes,
+                                    Prototypes &relinkableExtensions);
 
     static Utils::PathString createJson(const Storage::Synchronization::ParameterDeclarations &parameters);
 
@@ -904,6 +916,7 @@ private:
     TypeId fetchTypeId(ImportedTypeNameId typeNameId) const;
 
     Utils::SmallString fetchImportedTypeName(ImportedTypeNameId typeNameId) const;
+    SourceId fetchTypeSourceId(TypeId typeId) const;
 
     TypeId fetchTypeId(ImportedTypeNameId typeNameId,
                        Storage::Synchronization::TypeNameKind kind) const;
@@ -970,7 +983,7 @@ private:
 
 public:
     Database &database;
-    ProjectStorageErrorNotifierInterface &errorNotifier;
+    ProjectStorageErrorNotifierInterface *errorNotifier = nullptr; // cannot be null
     Sqlite::ExclusiveNonThrowingDestructorTransaction<Database> exclusiveTransaction;
     std::unique_ptr<Initializer> initializer;
     mutable ModuleCache moduleCache{ModuleStorageAdapter{*this}};

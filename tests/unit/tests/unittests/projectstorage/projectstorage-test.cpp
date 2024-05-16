@@ -205,6 +205,23 @@ MATCHER_P4(IsInfoPropertyDeclaration,
            && propertyDeclaration.traits == traits;
 }
 
+auto IsUnresolvedTypeId()
+{
+    return Property(&QmlDesigner::TypeId::internalId, -1);
+}
+
+template<typename Matcher>
+auto IsPrototypeId(const Matcher &matcher)
+{
+    return Field(&Storage::Synchronization::Type::prototypeId, matcher);
+}
+
+template<typename Matcher>
+auto IsExtensionId(const Matcher &matcher)
+{
+    return Field(&Storage::Synchronization::Type::extensionId, matcher);
+}
+
 class HasNameMatcher
 {
 public:
@@ -286,6 +303,8 @@ protected:
 
     static void TearDownTestSuite() { staticData.reset(); }
 
+    ProjectStorage() { storage.setErrorNotifier(errorNotifierMock); }
+
     ~ProjectStorage() { storage.resetForTestsOnly(); }
 
     template<typename Range>
@@ -310,6 +329,32 @@ protected:
         storage.fetchSourceId(sourceContextId3, "bar");
         storage.fetchSourceId(sourceContextId1, "bar");
         storage.fetchSourceId(sourceContextId3, "bar");
+    }
+
+    auto createVerySimpleSynchronizationPackage()
+    {
+        SynchronizationPackage package;
+
+        package.types.push_back(Storage::Synchronization::Type{
+            "QQuickItem",
+            Storage::Synchronization::ImportedType{},
+            Storage::Synchronization::ImportedType{},
+            TypeTraitsKind::Reference,
+            sourceId1,
+            {Storage::Synchronization::ExportedType{qtQuickModuleId, "Item"},
+             Storage::Synchronization::ExportedType{qtQuickNativeModuleId, "QQuickItem"}}});
+        package.types.push_back(Storage::Synchronization::Type{
+            "QObject",
+            Storage::Synchronization::ImportedType{},
+            Storage::Synchronization::ImportedType{},
+            TypeTraitsKind::Reference,
+            sourceId2,
+            {Storage::Synchronization::ExportedType{qmlModuleId, "Object"},
+             Storage::Synchronization::ExportedType{qmlNativeModuleId, "QObject"}}});
+
+        package.updatedSourceIds = {sourceId1, sourceId2};
+
+        return package;
     }
 
     auto createSimpleSynchronizationPackage()
@@ -1142,7 +1187,7 @@ protected:
     inline static std::unique_ptr<StaticData> staticData;
     Sqlite::Database &database = staticData->database;
     QmlDesigner::ProjectStorage &storage = staticData->storage;
-    ProjectStorageErrorNotifierMock &errorNotifierMock = staticData->errorNotifierMock;
+    NiceMock<ProjectStorageErrorNotifierMock> errorNotifierMock;
     QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage> sourcePathCache{storage};
     QmlDesigner::SourcePathView path1{"/path1/to"};
     QmlDesigner::SourcePathView path2{"/path2/to"};
@@ -1486,21 +1531,192 @@ TEST_F(ProjectStorage, synchronize_types_adds_new_types_with_exported_extension_
                                                                     "QQuickItem"))))));
 }
 
-TEST_F(ProjectStorage, synchronize_types_adds_new_types_throws_with_wrong_prototype_name)
+TEST_F(ProjectStorage,
+       synchronize_types_adds_unknown_prototype_which_notifies_about_unresolved_type_name)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].prototype = Storage::Synchronization::ImportedType{"Objec"};
 
-    ASSERT_THROW(storage.synchronize(std::move(package)), QmlDesigner::TypeNameDoesNotExists);
+    EXPECT_CALL(errorNotifierMock, typeNameCannotBeResolved(Eq("Objec"), sourceId1));
+
+    storage.synchronize(std::move(package));
 }
 
-TEST_F(ProjectStorage, synchronize_types_adds_new_types_throws_with_wrong_extension_name)
+TEST_F(ProjectStorage, synchronize_types_adds_unknown_prototype_as_unresolved_type_id)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].prototype = Storage::Synchronization::ImportedType{"Objec"};
+
+    storage.synchronize(std::move(package));
+
+    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+                IsPrototypeId(IsUnresolvedTypeId()));
+}
+
+TEST_F(ProjectStorage, synchronize_types_updates_unresolved_prototype_after_exported_type_name_is_added)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].prototype = Storage::Synchronization::ImportedType{"Objec"};
+    storage.synchronize(package);
+    package.types[1].exportedTypes.emplace_back(qmlNativeModuleId, "Objec");
+
+    storage.synchronize(std::move(package));
+
+    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+                IsPrototypeId(fetchTypeId(sourceId2, "QObject")));
+}
+
+TEST_F(ProjectStorage,
+       synchronize_types_updates_prototype_to_unresolved_after_exported_type_name_is_removed)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].prototype = Storage::Synchronization::ImportedType{"Objec"};
+    package.types[1].exportedTypes.emplace_back(qmlNativeModuleId, "Objec");
+    storage.synchronize(package);
+    package.types[1].exportedTypes.pop_back();
+
+    storage.synchronize(std::move(package));
+
+    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+                IsPrototypeId(IsUnresolvedTypeId()));
+}
+
+TEST_F(ProjectStorage,
+       synchronize_types_updates_unresolved_prototype_indirectly_after_exported_type_name_is_added)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].prototype = Storage::Synchronization::ImportedType{"Objec"};
+    storage.synchronize(package);
+    package.types[1].exportedTypes.emplace_back(qmlNativeModuleId, "Objec");
+    package.types.erase(package.types.begin());
+    package.updatedSourceIds = {sourceId2};
+
+    storage.synchronize(std::move(package));
+
+    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+                IsPrototypeId(fetchTypeId(sourceId2, "QObject")));
+}
+
+TEST_F(ProjectStorage,
+       synchronize_types_updates_prototype_indirectly_to_unresolved_after_exported_type_name_is_removed)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].prototype = Storage::Synchronization::ImportedType{"Objec"};
+    package.types[1].exportedTypes.emplace_back(qmlNativeModuleId, "Objec");
+    storage.synchronize(package);
+    package.types[1].exportedTypes.pop_back();
+    package.types.erase(package.types.begin());
+    package.updatedSourceIds = {sourceId2};
+
+    storage.synchronize(std::move(package));
+
+    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+                IsPrototypeId(IsUnresolvedTypeId()));
+}
+
+TEST_F(ProjectStorage,
+       synchronize_types_updates_prototype_indirectly_to_unresolved_after_exported_type_name_is_removed_notifies_type_name_cannot_be_resolved)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].prototype = Storage::Synchronization::ImportedType{"Objec"};
+    package.types[1].exportedTypes.emplace_back(qmlNativeModuleId, "Objec");
+    storage.synchronize(package);
+    package.types[1].exportedTypes.pop_back();
+    package.types.erase(package.types.begin());
+    package.updatedSourceIds = {sourceId2};
+
+    EXPECT_CALL(errorNotifierMock, typeNameCannotBeResolved(Eq("Objec"), sourceId1));
+
+    storage.synchronize(std::move(package));
+}
+
+TEST_F(ProjectStorage, synchronize_types_updates_unresolved_extension_after_exported_type_name_is_added)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].extension = Storage::Synchronization::ImportedType{"Objec"};
+    storage.synchronize(package);
+    package.types[1].exportedTypes.emplace_back(qmlNativeModuleId, "Objec");
+
+    storage.synchronize(std::move(package));
+
+    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+                IsExtensionId(fetchTypeId(sourceId2, "QObject")));
+}
+
+TEST_F(ProjectStorage,
+       synchronize_types_updates_extension_to_unresolved_after_exported_type_name_is_removed)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].extension = Storage::Synchronization::ImportedType{"Objec"};
+    package.types[1].exportedTypes.emplace_back(qmlNativeModuleId, "Objec");
+    storage.synchronize(package);
+    package.types[1].exportedTypes.pop_back();
+
+    storage.synchronize(std::move(package));
+
+    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+                IsExtensionId(IsUnresolvedTypeId()));
+}
+
+TEST_F(ProjectStorage,
+       synchronize_types_updates_unresolved_extension_indirectly_after_exported_type_name_is_added)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].extension = Storage::Synchronization::ImportedType{"Objec"};
+    storage.synchronize(package);
+    package.types[1].exportedTypes.emplace_back(qmlNativeModuleId, "Objec");
+    package.types.erase(package.types.begin());
+    package.updatedSourceIds = {sourceId2};
+
+    storage.synchronize(std::move(package));
+
+    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+                IsExtensionId(fetchTypeId(sourceId2, "QObject")));
+}
+
+TEST_F(ProjectStorage,
+       synchronize_types_updates_invalid_extension_indirectly_after_exported_type_name_is_removed)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].extension = Storage::Synchronization::ImportedType{"Objec"};
+    package.types[1].exportedTypes.emplace_back(qmlNativeModuleId, "Objec");
+    storage.synchronize(package);
+    package.types[1].exportedTypes.pop_back();
+    package.types.erase(package.types.begin());
+    package.updatedSourceIds = {sourceId2};
+
+    storage.synchronize(std::move(package));
+
+    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+                IsExtensionId(IsUnresolvedTypeId()));
+}
+
+TEST_F(ProjectStorage,
+       synchronize_types_updates_extension_indirectly_to_unresolved_after_exported_type_name_is_removed_notifies_type_name_cannot_be_resolved)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types[0].extension = Storage::Synchronization::ImportedType{"Objec"};
+    package.types[1].exportedTypes.emplace_back(qmlNativeModuleId, "Objec");
+    storage.synchronize(package);
+    package.types[1].exportedTypes.pop_back();
+    package.types.erase(package.types.begin());
+    package.updatedSourceIds = {sourceId2};
+
+    EXPECT_CALL(errorNotifierMock, typeNameCannotBeResolved(Eq("Objec"), sourceId1));
+
+    storage.synchronize(std::move(package));
+}
+
+TEST_F(ProjectStorage, synchronize_types_adds_extension_which_notifies_about_unresolved_type_name)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].extension = Storage::Synchronization::ImportedType{"Objec"};
 
-    ASSERT_THROW(storage.synchronize(std::move(package)), QmlDesigner::TypeNameDoesNotExists);
+    EXPECT_CALL(errorNotifierMock, typeNameCannotBeResolved(Eq("Objec"), sourceId1));
+
+    storage.synchronize(std::move(package));
 }
+
 
 TEST_F(ProjectStorage, synchronize_types_adds_new_types_with_missing_module)
 {
@@ -1774,7 +1990,7 @@ TEST_F(ProjectStorage, synchronize_types_add_qualified_extension)
                                              IsExportedType(qtQuickNativeModuleId, "QQuickItem"))))));
 }
 
-TEST_F(ProjectStorage, synchronize_types_throws_for_missing_prototype)
+TEST_F(ProjectStorage, synchronize_types_notifies_cannot_resolve_for_missing_prototype)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types = {Storage::Synchronization::Type{
@@ -1786,10 +2002,12 @@ TEST_F(ProjectStorage, synchronize_types_throws_for_missing_prototype)
         {Storage::Synchronization::ExportedType{qtQuickModuleId, "Item"},
          Storage::Synchronization::ExportedType{qtQuickNativeModuleId, "QQuickItem"}}}};
 
-    ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
+    EXPECT_CALL(errorNotifierMock, typeNameCannotBeResolved(Eq("QObject"), sourceId1));
+
+    storage.synchronize(package);
 }
 
-TEST_F(ProjectStorage, synchronize_types_throws_for_missing_extension)
+TEST_F(ProjectStorage, synchronize_types_notifies_cannot_resolve_for_missing_extension)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types = {Storage::Synchronization::Type{
@@ -1801,7 +2019,9 @@ TEST_F(ProjectStorage, synchronize_types_throws_for_missing_extension)
         {Storage::Synchronization::ExportedType{qtQuickModuleId, "Item"},
          Storage::Synchronization::ExportedType{qtQuickNativeModuleId, "QQuickItem"}}}};
 
-    ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
+    EXPECT_CALL(errorNotifierMock, typeNameCannotBeResolved(Eq("QObject"), sourceId1));
+
+    storage.synchronize(package);
 }
 
 TEST_F(ProjectStorage, synchronize_types_throws_for_invalid_module)
@@ -3670,7 +3890,8 @@ TEST_F(ProjectStorage, change_extension_type_module_id)
                                        TypeTraitsKind::Reference)));
 }
 
-TEST_F(ProjectStorage, change_qualified_prototype_type_module_id_throws)
+TEST_F(ProjectStorage,
+       change_qualified_prototype_type_module_id_notifies_that_type_name_cannot_be_resolved)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].prototype = Storage::Synchronization::QualifiedImportedType{
@@ -3678,12 +3899,12 @@ TEST_F(ProjectStorage, change_qualified_prototype_type_module_id_throws)
     storage.synchronize(package);
     package.types[1].exportedTypes[0].moduleId = qtQuickModuleId;
 
-    ASSERT_THROW(storage.synchronize(
-                     SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}}),
-                 QmlDesigner::TypeNameDoesNotExists);
+    EXPECT_CALL(errorNotifierMock, typeNameCannotBeResolved(Eq("Object"), sourceId1));
+
+    storage.synchronize(SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}});
 }
 
-TEST_F(ProjectStorage, change_qualified_extension_type_module_id_throws)
+TEST_F(ProjectStorage, change_qualified_extension_type_module_id_notifies_cannot_resolve)
 {
     auto package{createSimpleSynchronizationPackage()};
     std::swap(package.types.front().extension, package.types.front().prototype);
@@ -3692,9 +3913,9 @@ TEST_F(ProjectStorage, change_qualified_extension_type_module_id_throws)
     storage.synchronize(package);
     package.types[1].exportedTypes[0].moduleId = qtQuickModuleId;
 
-    ASSERT_THROW(storage.synchronize(
-                     SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}}),
-                 QmlDesigner::TypeNameDoesNotExists);
+    EXPECT_CALL(errorNotifierMock, typeNameCannotBeResolved(Eq("Object"), sourceId1));
+
+    storage.synchronize(SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}});
 }
 
 TEST_F(ProjectStorage, change_qualified_prototype_type_module_id)
@@ -3798,9 +4019,9 @@ TEST_F(ProjectStorage, change_prototype_type_name_throws_for_wrong_native_protot
     package.types[1].exportedTypes[2].name = "QObject3";
     package.types[1].typeName = "QObject3";
 
-    ASSERT_THROW(storage.synchronize(
-                     SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}}),
-                 QmlDesigner::TypeNameDoesNotExists);
+    EXPECT_CALL(errorNotifierMock, typeNameCannotBeResolved(Eq("QObject"), sourceId1));
+
+    storage.synchronize(SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}});
 }
 
 TEST_F(ProjectStorage, change_extension_type_name_throws_for_wrong_native_extension_type_name)
@@ -3813,9 +4034,9 @@ TEST_F(ProjectStorage, change_extension_type_name_throws_for_wrong_native_extens
     package.types[1].exportedTypes[2].name = "QObject3";
     package.types[1].typeName = "QObject3";
 
-    ASSERT_THROW(storage.synchronize(
-                     SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}}),
-                 QmlDesigner::TypeNameDoesNotExists);
+    EXPECT_CALL(errorNotifierMock, typeNameCannotBeResolved(Eq("QObject"), sourceId1));
+
+    storage.synchronize(SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}});
 }
 
 TEST_F(ProjectStorage, throw_for_prototype_chain_cycles)
@@ -4117,23 +4338,29 @@ TEST_F(ProjectStorage, qualified_extension)
                                        TypeTraitsKind::Reference)));
 }
 
-TEST_F(ProjectStorage, qualified_prototype_upper_down_the_module_chain_throws)
+TEST_F(ProjectStorage,
+       qualified_prototype_upper_down_the_module_chain_notifies_type_name_cannot_be_resolved)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].prototype = Storage::Synchronization::QualifiedImportedType{
         "Object", Storage::Import{qtQuickModuleId, Storage::Version{}, sourceId1}};
 
-    ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
+    EXPECT_CALL(errorNotifierMock, typeNameCannotBeResolved(Eq("Object"), sourceId1));
+
+    storage.synchronize(package);
 }
 
-TEST_F(ProjectStorage, qualified_extension_upper_down_the_module_chain_throws)
+TEST_F(ProjectStorage,
+       qualified_extension_upper_down_the_module_chain_notifies_type_name_cannot_be_resolved)
 {
     auto package{createSimpleSynchronizationPackage()};
     std::swap(package.types.front().extension, package.types.front().prototype);
     package.types[0].extension = Storage::Synchronization::QualifiedImportedType{
         "Object", Storage::Import{qtQuickModuleId, Storage::Version{}, sourceId1}};
 
-    ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
+    EXPECT_CALL(errorNotifierMock, typeNameCannotBeResolved(Eq("Object"), sourceId1));
+
+    storage.synchronize(package);
 }
 
 TEST_F(ProjectStorage, qualified_prototype_upper_in_the_module_chain)
@@ -4189,7 +4416,7 @@ TEST_F(ProjectStorage, qualified_extension_upper_in_the_module_chain)
                                        TypeTraitsKind::Reference)));
 }
 
-TEST_F(ProjectStorage, qualified_prototype_with_wrong_version_throws)
+TEST_F(ProjectStorage, qualified_prototype_with_wrong_version_notifies_type_name_cannot_be_resolved)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].prototype = Storage::Synchronization::QualifiedImportedType{
@@ -4205,10 +4432,12 @@ TEST_F(ProjectStorage, qualified_prototype_with_wrong_version_throws)
     package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
     package.updatedSourceIds.push_back(sourceId3);
 
-    ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
+    EXPECT_CALL(errorNotifierMock, typeNameCannotBeResolved(Eq("Object"), sourceId1));
+
+    storage.synchronize(package);
 }
 
-TEST_F(ProjectStorage, qualified_extension_with_wrong_version_throws)
+TEST_F(ProjectStorage, qualified_extension_with_wrong_version_notifies_type_name_cannot_be_resolved)
 {
     auto package{createSimpleSynchronizationPackage()};
     std::swap(package.types.front().extension, package.types.front().prototype);
@@ -4225,7 +4454,9 @@ TEST_F(ProjectStorage, qualified_extension_with_wrong_version_throws)
     package.imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId3);
     package.updatedSourceIds.push_back(sourceId3);
 
-    ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
+    EXPECT_CALL(errorNotifierMock, typeNameCannotBeResolved(Eq("Object"), sourceId1));
+
+    storage.synchronize(package);
 }
 
 TEST_F(ProjectStorage, qualified_prototype_with_version)
@@ -4338,23 +4569,29 @@ TEST_F(ProjectStorage, qualified_extension_with_version_in_the_proto_type_chain)
                                        TypeTraitsKind::Reference)));
 }
 
-TEST_F(ProjectStorage, qualified_prototype_with_version_down_the_proto_type_chain_throws)
+TEST_F(ProjectStorage,
+       qualified_prototype_with_version_down_the_proto_type_chain_notifies_type_name_cannot_be_resolved)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types[0].prototype = Storage::Synchronization::QualifiedImportedType{
         "Object", Storage::Import{qtQuickModuleId, Storage::Version{2}, sourceId1}};
 
-    ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
+    EXPECT_CALL(errorNotifierMock, typeNameCannotBeResolved(Eq("Object"), sourceId1));
+
+    storage.synchronize(package);
 }
 
-TEST_F(ProjectStorage, qualified_extension_with_version_down_the_proto_type_chain_throws)
+TEST_F(ProjectStorage,
+       qualified_extension_with_version_down_the_proto_type_chain_notifies_type_name_cannot_be_resolved)
 {
     auto package{createSimpleSynchronizationPackage()};
     std::swap(package.types.front().extension, package.types.front().prototype);
     package.types[0].extension = Storage::Synchronization::QualifiedImportedType{
         "Object", Storage::Import{qtQuickModuleId, Storage::Version{2}, sourceId1}};
 
-    ASSERT_THROW(storage.synchronize(package), QmlDesigner::TypeNameDoesNotExists);
+    EXPECT_CALL(errorNotifierMock, typeNameCannotBeResolved(Eq("Object"), sourceId1));
+
+    storage.synchronize(package);
 }
 
 TEST_F(ProjectStorage, qualified_property_declaration_type_name)
@@ -4659,7 +4896,7 @@ TEST_F(ProjectStorage, fetch_by_major_version_and_minor_version_for_qualified_im
 }
 
 TEST_F(ProjectStorage,
-       fetch_by_major_version_and_minor_version_for_imported_type_if_minor_version_is_not_exported_throws)
+       fetch_by_major_version_and_minor_version_for_imported_type_if_minor_version_is_not_exported_notifies_type_name_cannot_be_resolved)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -4673,12 +4910,13 @@ TEST_F(ProjectStorage,
                                                                                 Storage::Version{}}}};
     Storage::Import import{qmlModuleId, Storage::Version{1, 1}, sourceId2};
 
-    ASSERT_THROW(storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}}),
-                 QmlDesigner::TypeNameDoesNotExists);
+    EXPECT_CALL(errorNotifierMock, typeNameCannotBeResolved(Eq("Object"), sourceId2));
+
+    storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 }
 
 TEST_F(ProjectStorage,
-       fetch_by_major_version_and_minor_version_for_qualified_imported_type_if_minor_version_is_not_exported_throws)
+       fetch_by_major_version_and_minor_version_for_qualified_imported_type_if_minor_version_is_not_exported_notifies_type_name_cannot_be_resolved)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -4691,11 +4929,12 @@ TEST_F(ProjectStorage,
         sourceId2,
         {Storage::Synchronization::ExportedType{qtQuickModuleId, "Item", Storage::Version{}}}};
 
-    ASSERT_THROW(storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}}),
-                 QmlDesigner::TypeNameDoesNotExists);
+    EXPECT_CALL(errorNotifierMock, typeNameCannotBeResolved(Eq("Object"), sourceId2));
+
+    storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 }
 
-TEST_F(ProjectStorage, fetch_low_minor_version_for_imported_type_throws)
+TEST_F(ProjectStorage, fetch_low_minor_version_for_imported_type_notifies_type_name_cannot_be_resolved)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -4709,11 +4948,13 @@ TEST_F(ProjectStorage, fetch_low_minor_version_for_imported_type_throws)
                                                                                 Storage::Version{}}}};
     Storage::Import import{qmlModuleId, Storage::Version{1, 1}, sourceId2};
 
-    ASSERT_THROW(storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}}),
-                 QmlDesigner::TypeNameDoesNotExists);
+    EXPECT_CALL(errorNotifierMock, typeNameCannotBeResolved(Eq("Obj"), sourceId2));
+
+    storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 }
 
-TEST_F(ProjectStorage, fetch_low_minor_version_for_qualified_imported_type_throws)
+TEST_F(ProjectStorage,
+       fetch_low_minor_version_for_qualified_imported_type_notifies_type_name_cannot_be_resolved)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -4726,8 +4967,9 @@ TEST_F(ProjectStorage, fetch_low_minor_version_for_qualified_imported_type_throw
         sourceId2,
         {Storage::Synchronization::ExportedType{qtQuickModuleId, "Item", Storage::Version{}}}};
 
-    ASSERT_THROW(storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}}),
-                 QmlDesigner::TypeNameDoesNotExists);
+    EXPECT_CALL(errorNotifierMock, typeNameCannotBeResolved(Eq("Obj"), sourceId2));
+
+    storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 }
 
 TEST_F(ProjectStorage, fetch_higher_minor_version_for_imported_type)
@@ -4775,7 +5017,8 @@ TEST_F(ProjectStorage, fetch_higher_minor_version_for_qualified_imported_type)
                                        TypeTraitsKind::Reference)));
 }
 
-TEST_F(ProjectStorage, fetch_different_major_version_for_imported_type_throws)
+TEST_F(ProjectStorage,
+       fetch_different_major_version_for_imported_type_notifies_type_name_cannot_be_resolved)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -4789,11 +5032,13 @@ TEST_F(ProjectStorage, fetch_different_major_version_for_imported_type_throws)
                                                                                 Storage::Version{}}}};
     Storage::Import import{qmlModuleId, Storage::Version{3, 1}, sourceId2};
 
-    ASSERT_THROW(storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}}),
-                 QmlDesigner::TypeNameDoesNotExists);
+    EXPECT_CALL(errorNotifierMock, typeNameCannotBeResolved(Eq("Obj"), sourceId2));
+
+    storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 }
 
-TEST_F(ProjectStorage, fetch_different_major_version_for_qualified_imported_type_throws)
+TEST_F(ProjectStorage,
+       fetch_different_major_version_for_qualified_imported_type_notifies_type_name_cannot_be_resolved)
 {
     auto package{createSynchronizationPackageWithVersions()};
     storage.synchronize(package);
@@ -4806,8 +5051,9 @@ TEST_F(ProjectStorage, fetch_different_major_version_for_qualified_imported_type
         sourceId2,
         {Storage::Synchronization::ExportedType{qtQuickModuleId, "Item", Storage::Version{}}}};
 
-    ASSERT_THROW(storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}}),
-                 QmlDesigner::TypeNameDoesNotExists);
+    EXPECT_CALL(errorNotifierMock, typeNameCannotBeResolved(Eq("Obj"), sourceId2));
+
+    storage.synchronize(SynchronizationPackage{{import}, {type}, {sourceId2}});
 }
 
 TEST_F(ProjectStorage, fetch_other_type_by_different_version_for_imported_type)
@@ -7248,6 +7494,46 @@ TEST_F(ProjectStorage, synchronize_document_imports_adds_import)
     ASSERT_TRUE(storage.importId(imports.back()));
 }
 
+TEST_F(ProjectStorage,
+       synchronize_document_imports_removes_import_notifies_that_type_name_cannot_be_resolved)
+{
+    auto package{createVerySimpleSynchronizationPackage()};
+    package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId1);
+    package.types[0].prototype = Storage::Synchronization::ImportedType{"Object"};
+    storage.synchronize(package);
+
+    EXPECT_CALL(errorNotifierMock, typeNameCannotBeResolved(Eq("Object"), sourceId1));
+
+    storage.synchronizeDocumentImports({}, sourceId1);
+}
+
+TEST_F(ProjectStorage, synchronize_document_imports_removes_import_which_makes_prototype_unresolved)
+{
+    auto package{createVerySimpleSynchronizationPackage()};
+    package.imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId1);
+    package.types[0].prototype = Storage::Synchronization::ImportedType{"Object"};
+    storage.synchronize(package);
+
+    storage.synchronizeDocumentImports({}, sourceId1);
+
+    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+                IsPrototypeId(IsUnresolvedTypeId()));
+}
+
+TEST_F(ProjectStorage, synchronize_document_imports_adds_import_which_makes_prototype_resolved)
+{
+    auto package{createVerySimpleSynchronizationPackage()};
+    package.types[0].prototype = Storage::Synchronization::ImportedType{"Object"};
+    storage.synchronize(package);
+    Storage::Imports imports;
+    imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId1);
+
+    storage.synchronizeDocumentImports(imports, sourceId1);
+
+    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+                IsPrototypeId(fetchTypeId(sourceId2, "QObject")));
+}
+
 TEST_F(ProjectStorage, get_exported_type_names)
 {
     auto package{createSimpleSynchronizationPackage()};
@@ -7996,4 +8282,105 @@ TEST_F(ProjectStorage, get_no_hair_ids_for_invalid_type_id)
 
     ASSERT_THAT(heirIds, IsEmpty());
 }
+
+TEST_F(ProjectStorage,
+       removed_document_import_notifies_for_prototypes_that_type_name_cannot_be_resolved)
+{
+    auto package{createVerySimpleSynchronizationPackage()};
+    package.moduleDependencies.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId1);
+    package.types[0].prototype = Storage::Synchronization::ImportedType{"QObject"};
+    storage.synchronize(package);
+    package.moduleDependencies.clear();
+    package.types.clear();
+    package.updatedSourceIds.clear();
+    package.updatedModuleDependencySourceIds = {sourceId1};
+
+    EXPECT_CALL(errorNotifierMock, typeNameCannotBeResolved(Eq("QObject"), sourceId1));
+
+    storage.synchronize(package);
+}
+
+TEST_F(ProjectStorage,
+       removed_document_import_notifies_for_extensions_that_type_name_cannot_be_resolved)
+{
+    auto package{createVerySimpleSynchronizationPackage()};
+    package.moduleDependencies.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId1);
+    package.types[0].extension = Storage::Synchronization::ImportedType{"QObject"};
+    storage.synchronize(package);
+    package.moduleDependencies.clear();
+    package.types.clear();
+    package.updatedSourceIds.clear();
+    package.updatedModuleDependencySourceIds = {sourceId1};
+
+    EXPECT_CALL(errorNotifierMock, typeNameCannotBeResolved(Eq("QObject"), sourceId1));
+
+    storage.synchronize(package);
+}
+
+TEST_F(ProjectStorage, removed_document_import_changes_prototype_to_unresolved)
+{
+    auto package{createVerySimpleSynchronizationPackage()};
+    package.moduleDependencies.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId1);
+    package.types[0].prototype = Storage::Synchronization::ImportedType{"QObject"};
+    storage.synchronize(package);
+    package.moduleDependencies.clear();
+    package.types.clear();
+    package.updatedSourceIds.clear();
+    package.updatedModuleDependencySourceIds = {sourceId1};
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+                Field(&Storage::Synchronization::Type::prototypeId, IsUnresolvedTypeId()));
+}
+
+TEST_F(ProjectStorage, removed_document_import_changes_extension_to_unresolved)
+{
+    auto package{createVerySimpleSynchronizationPackage()};
+    package.moduleDependencies.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId1);
+    package.types[0].extension = Storage::Synchronization::ImportedType{"QObject"};
+    storage.synchronize(package);
+    package.moduleDependencies.clear();
+    package.types.clear();
+    package.updatedSourceIds.clear();
+    package.updatedModuleDependencySourceIds = {sourceId1};
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+                Field(&Storage::Synchronization::Type::extensionId, IsUnresolvedTypeId()));
+}
+
+TEST_F(ProjectStorage, added_document_import_fixes_unresolved_prototype)
+{
+    auto package{createVerySimpleSynchronizationPackage()};
+    package.types[0].prototype = Storage::Synchronization::ImportedType{"QObject"};
+    storage.synchronize(package);
+    package.moduleDependencies.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId1);
+    package.types.clear();
+    package.updatedSourceIds.clear();
+    package.updatedModuleDependencySourceIds = {sourceId1};
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+                IsPrototypeId(fetchTypeId(sourceId2, "QObject")));
+}
+
+TEST_F(ProjectStorage, added_document_import_fixes_unresolved_extension)
+{
+    auto package{createVerySimpleSynchronizationPackage()};
+    package.types[0].extension = Storage::Synchronization::ImportedType{"QObject"};
+    storage.synchronize(package);
+    package.moduleDependencies.emplace_back(qmlNativeModuleId, Storage::Version{}, sourceId1);
+    package.types.clear();
+    package.updatedSourceIds.clear();
+    package.updatedModuleDependencySourceIds = {sourceId1};
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+                IsExtensionId(fetchTypeId(sourceId2, "QObject")));
+}
+
 } // namespace

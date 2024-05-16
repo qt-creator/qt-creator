@@ -36,13 +36,6 @@ class DatabaseBackend;
 
 enum class Type : char { Invalid, Integer, Float, Text, Blob, Null };
 
-template<typename Enumeration>
-constexpr static std::underlying_type_t<Enumeration> to_underlying(Enumeration enumeration) noexcept
-{
-    static_assert(std::is_enum_v<Enumeration>, "to_underlying expect an enumeration");
-    return static_cast<std::underlying_type_t<Enumeration>>(enumeration);
-}
-
 class SQLITE_EXPORT BaseStatement
 {
 public:
@@ -87,7 +80,7 @@ public:
     template<typename Type, typename = std::enable_if_t<Type::IsBasicId::value>>
     void bind(int index, Type id)
     {
-        if (id)
+        if (!id.isNull())
             bind(index, id.internalId());
         else
             bindNull(index);

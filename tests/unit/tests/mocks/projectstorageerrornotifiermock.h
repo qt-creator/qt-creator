@@ -9,6 +9,7 @@
 
 class ProjectStorageErrorNotifierMock : public QmlDesigner::ProjectStorageErrorNotifierInterface
 {
+public:
     MOCK_METHOD(void,
                 typeNameCannotBeResolved,
                 (Utils::SmallStringView typeName, QmlDesigner::SourceId souceId),

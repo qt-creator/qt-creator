@@ -11,6 +11,13 @@
 
 namespace Sqlite {
 
+template<typename Enumeration>
+static constexpr std::underlying_type_t<Enumeration> to_underlying(Enumeration enumeration) noexcept
+{
+    static_assert(std::is_enum_v<Enumeration>, "to_underlying expect an enumeration");
+    return static_cast<std::underlying_type_t<Enumeration>>(enumeration);
+}
+
 template<auto Type, typename InternalIntegerType = long long>
 class BasicId
 {
@@ -27,7 +34,15 @@ public:
         return id;
     }
 
-    constexpr friend bool compareInvalidAreTrue(BasicId first, BasicId second)
+    template<typename Enumeration>
+    static constexpr BasicId createSpecialState(Enumeration specialState)
+    {
+        BasicId id;
+        id.id = ::Sqlite::to_underlying(specialState);
+        return id;
+    }
+
+    friend constexpr bool compareInvalidAreTrue(BasicId first, BasicId second)
     {
         return first.id == second.id;
     }
@@ -57,6 +72,14 @@ public:
 
     constexpr bool isValid() const { return id > 0; }
 
+    constexpr bool isNull() const { return id == 0; }
+
+    template<typename Enumeration>
+    constexpr bool hasSpecialState(Enumeration specialState) const
+    {
+        return id == ::Sqlite::to_underlying(specialState);
+    }
+
     explicit operator bool() const { return isValid(); }
 
     explicit operator std::size_t() const { return static_cast<std::size_t>(id); }
@@ -68,13 +91,13 @@ public:
     template<typename String>
     friend void convertToString(String &string, BasicId id)
     {
-        if (id.isValid())
-            NanotraceHR::convertToString(string, id.internalId());
+        if (id.isNull())
+            NanotraceHR::convertToString(string, "invalid null");
         else
-            NanotraceHR::convertToString(string, "invalid");
+            NanotraceHR::convertToString(string, id.internalId());
     }
 
-private:
+protected:
     InternalIntegerType id = 0;
 };
 
