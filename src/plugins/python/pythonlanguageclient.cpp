@@ -151,7 +151,7 @@ PyLSClient *clientForPython(const FilePath &python)
     if (auto client = pythonClients()[python])
         return client;
     auto interface = new PyLSInterface;
-    interface->setCommandLine(CommandLine(python, {"-m", "pylsp"}));
+    interface->setCommandLine({python, {"-m", "pylsp"}});
     auto client = new PyLSClient(interface);
     client->setName(Tr::tr("Python Language Server (%1)").arg(python.toUserOutput()));
     client->setActivateDocumentAutomatically(true);

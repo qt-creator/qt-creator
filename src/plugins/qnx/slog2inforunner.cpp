@@ -35,7 +35,7 @@ void Slog2InfoRunner::start()
     QTC_CHECK(!m_taskTreeRunner.isRunning());
 
     const auto onTestSetup = [this](Process &process) {
-        process.setCommand({device()->filePath("slog2info"), {}});
+        process.setCommand(CommandLine{device()->filePath("slog2info")});
     };
     const auto onTestDone = [this](DoneWith result) {
         if (result == DoneWith::Success) {

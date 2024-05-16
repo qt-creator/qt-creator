@@ -115,7 +115,7 @@ void TerminalPane::openTerminal(const OpenTerminalParameters &parameters)
         if (!shell.isExecutableFile())
             parametersCopy.workingDirectory.reset();
         else
-            parametersCopy.shellCommand = CommandLine{shell, {}};
+            parametersCopy.shellCommand = CommandLine{shell};
     }
 
     const auto terminalWidget = new TerminalWidget(&m_tabWidget, parametersCopy);

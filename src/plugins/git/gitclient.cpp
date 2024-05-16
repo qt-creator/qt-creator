@@ -2531,7 +2531,7 @@ bool GitClient::launchGitBash(const FilePath &workingDirectory)
         success = false;
     } else {
         const FilePath gitBash = git.absolutePath().parentDir() / "git-bash.exe";
-        success = Process::startDetached({gitBash, {}}, workingDirectory);
+        success = Process::startDetached(CommandLine{gitBash}, workingDirectory);
     }
 
     if (!success)

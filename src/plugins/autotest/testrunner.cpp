@@ -383,7 +383,7 @@ void TestRunner::runTestsHelper()
         connect(testStorage->m_outputReader.get(), &TestOutputReader::newOutputLineAvailable,
                 TestResultsPane::instance(), &TestResultsPane::addOutputLine);
 
-        CommandLine command{config->testExecutable(), {}};
+        CommandLine command{config->testExecutable()};
         if (config->testBase()->type() == ITestBase::Framework) {
             TestConfiguration *current = static_cast<TestConfiguration *>(config);
             QStringList omitted;

@@ -181,7 +181,7 @@ expected_str<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData
         process->setProcessMode(ProcessMode::Writer);
     } else {
         QString extraArgsFromOptions = terminal.executeArgs;
-        CommandLine cmdLine = {terminal.command, {}};
+        CommandLine cmdLine{terminal.command};
         if (!extraArgsFromOptions.isEmpty())
             cmdLine.addArgs(extraArgsFromOptions, CommandLine::Raw);
         cmdLine.addCommandLineAsArgs(setupData.m_commandLine, CommandLine::Raw);

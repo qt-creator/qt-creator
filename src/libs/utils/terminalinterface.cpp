@@ -402,7 +402,7 @@ void TerminalInterface::start()
                                     m_setup.m_commandLine.executable().fileName());
 
     if (m_setup.m_runAsRoot && !HostOsInfo::isWindowsHost()) {
-        CommandLine rootCommand("sudo", {});
+        CommandLine rootCommand("sudo");
         rootCommand.addCommandLineAsArgs(cmd);
         stubSetupData.m_commandLine = rootCommand;
     } else {

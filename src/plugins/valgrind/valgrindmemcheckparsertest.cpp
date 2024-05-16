@@ -545,7 +545,7 @@ void ValgrindMemcheckParserTest::testRealValgrind()
     debuggee.command.setExecutable(FilePath::fromString(executable));
     debuggee.environment = sysEnv;
     ValgrindProcess runner;
-    runner.setValgrindCommand({"valgrind", {}});
+    runner.setValgrindCommand(CommandLine{"valgrind"});
     runner.setDebuggee(debuggee);
     RunnerDumper dumper(&runner);
     runner.runBlocking();

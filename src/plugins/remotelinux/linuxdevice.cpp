@@ -367,7 +367,7 @@ Environment LinuxDevicePrivate::getEnvironment()
         return m_environmentCache.value();
 
     Process getEnvProc;
-    getEnvProc.setCommand({q->filePath("env"), {}});
+    getEnvProc.setCommand(CommandLine{q->filePath("env")});
     getEnvProc.runBlocking();
 
     const QString remoteOutput = getEnvProc.cleanedStdOut();
@@ -1041,7 +1041,7 @@ LinuxDevice::LinuxDevice()
         // specify the shell executable.
         const QString shell = env.hasChanges() ? env.value_or("SHELL", "/bin/sh") : QString();
 
-        proc->setCommand({filePath(shell), {}});
+        proc->setCommand(CommandLine{filePath(shell)});
         proc->setTerminalMode(TerminalMode::Run);
         proc->setEnvironment(env);
         proc->setWorkingDirectory(workingDir);

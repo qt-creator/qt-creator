@@ -114,7 +114,7 @@ private slots:
         QCOMPARE(qproc.exitCode(), 0);
 
         Process proc;
-        proc.setCommand({envPath, {}});
+        proc.setCommand(CommandLine{envPath});
         proc.runBlocking();
         QCOMPARE(proc.exitCode(), 0);
         const QByteArray output = proc.rawStdOut() + proc.rawStdErr();
@@ -1138,8 +1138,7 @@ void tst_Process::notRunningAfterStartingNonExistingProgram()
     QFETCH(ProcessSignalType, signalType);
 
     Process process;
-    process.setCommand({ FilePath::fromString(
-              "there_is_a_big_chance_that_executable_with_that_name_does_not_exists"), {} });
+    process.setCommand(CommandLine{"there_is_a_big_chance_that_executable_with_that_name_does_not_exists"});
 
     int doneCount = 0;
     QObject::connect(&process, &Process::done, [&process, &doneCount]() {
@@ -1556,7 +1555,7 @@ void tst_Process::stdinToShell()
         QSKIP("Skipping env test on Windows");
 
     Process proc;
-    proc.setCommand({"sh", {}});
+    proc.setCommand(CommandLine{"sh"});
     proc.setWriteData("echo hallo");
     proc.runBlocking();
 
@@ -1595,8 +1594,8 @@ void tst_Process::eventLoopMode()
 
     {
         Process process;
-        process.setCommand({FilePath::fromString(
-                "there_is_a_big_chance_that_executable_with_that_name_does_not_exists"), {} });
+        process.setCommand(
+            CommandLine{"there_is_a_big_chance_that_executable_with_that_name_does_not_exists"});
         process.setProcessImpl(processImpl);
         process.runBlocking(10s, eventLoopMode);
         QCOMPARE(process.result(), ProcessResult::StartFailed);

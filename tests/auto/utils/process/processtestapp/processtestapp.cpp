@@ -84,7 +84,7 @@ void SubProcessConfig::setupSubProcess(Process *subProcess) const
     subProcess->setEnvironment(m_environment);
     const FilePath filePath = FilePath::fromString(s_pathToProcessTestApp
                             + QLatin1String("/processtestapp")).withExecutableSuffix();
-    subProcess->setCommand(CommandLine(filePath, {}));
+    subProcess->setCommand(CommandLine{filePath});
 }
 
 void SubProcessConfig::setupSubProcess(QProcess *subProcess) const

@@ -43,7 +43,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
     serverUrl.setPath("invalid");
 
     runControl = new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    runControl->setCommandLine({"\\-/|\\-/", {}});
+    runControl->setCommandLine(CommandLine{"\\-/|\\-/"});
 
     profiler = new LocalQmlProfilerSupport(runControl, serverUrl);
 
@@ -109,7 +109,7 @@ void LocalQmlProfilerRunnerTest::testRunner()
     serverUrl.clear();
     serverUrl = Utils::urlFromLocalHostAndFreePort();
     runControl = new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    runControl->setCommandLine({app, {}});
+    runControl->setCommandLine(CommandLine{app});
     profiler = new LocalQmlProfilerSupport(runControl, serverUrl);
     connectRunner();
     runControl->initiateStart();

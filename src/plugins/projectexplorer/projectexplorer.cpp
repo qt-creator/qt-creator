@@ -3616,7 +3616,7 @@ void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env
     }
 
     if (buildDevice->rootPath().needsDevice())
-        Terminal::Hooks::instance().openTerminal({CommandLine{*shell, {}}, workingDir, environment});
+        Terminal::Hooks::instance().openTerminal({CommandLine{*shell}, workingDir, environment});
     else
         Terminal::Hooks::instance().openTerminal({workingDir, environment});
 }
@@ -3656,8 +3656,8 @@ void ProjectExplorerPluginPrivate::openTerminalHereWithRunEnv()
     }
 
     if (device->rootPath().needsDevice()) {
-        Terminal::Hooks::instance().openTerminal(
-            {CommandLine{*shell, {}}, workingDir, runnable.environment});
+        Terminal::Hooks::instance().openTerminal({CommandLine{*shell}, workingDir,
+                                                  runnable.environment});
     } else {
         Terminal::Hooks::instance().openTerminal({workingDir, runnable.environment});
     }

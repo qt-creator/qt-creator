@@ -605,7 +605,7 @@ DockerDevice::DockerDevice(std::unique_ptr<DockerDeviceSettings> deviceSettings)
         proc.setTerminalMode(TerminalMode::Detached);
         proc.setEnvironment(env);
         proc.setWorkingDirectory(workingDir);
-        proc.setCommand({*shell, {}});
+        proc.setCommand(CommandLine{*shell});
         proc.start();
 
         return {};
@@ -1057,13 +1057,13 @@ expected_str<void> DockerDevicePrivate::fetchSystemEnviroment()
     QString stdErr;
 
     if (m_shell && m_shell->state() == DeviceShell::State::Succeeded) {
-        const RunResult result = runInShell({"env", {}});
+        const RunResult result = runInShell(CommandLine{"env"});
         const QString out = QString::fromUtf8(result.stdOut);
         m_cachedEnviroment = Environment(out.split('\n', Qt::SkipEmptyParts), q->osType());
         stdErr = QString::fromUtf8(result.stdErr);
     } else {
         Process proc;
-        proc.setCommand(withDockerExecCmd({"env", {}}));
+        proc.setCommand(withDockerExecCmd(CommandLine{"env"}));
         proc.start();
         proc.waitForFinished();
         const QString remoteOutput = proc.cleanedStdOut();

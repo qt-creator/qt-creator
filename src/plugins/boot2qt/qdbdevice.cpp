@@ -111,7 +111,7 @@ QdbDevice::QdbDevice()
     setType(Constants::QdbLinuxOsType);
 
     addDeviceAction({Tr::tr("Reboot Device"), [](const IDevice::Ptr &device, QWidget *) {
-        (void) new DeviceApplicationObserver(device, {device->filePath("reboot"), {}});
+        (void) new DeviceApplicationObserver(device, CommandLine{device->filePath("reboot")});
     }});
 
     addDeviceAction({Tr::tr("Restore Default App"), [](const IDevice::Ptr &device, QWidget *) {
