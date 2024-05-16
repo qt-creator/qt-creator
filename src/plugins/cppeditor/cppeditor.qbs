@@ -221,6 +221,8 @@ QtcPlugin {
         files: [
             "bringidentifierintoscope.cpp",
             "bringidentifierintoscope.h",
+            "convertfromandtopointer.cpp",
+            "convertfromandtopointer.h",
             "convertqt4connect.cpp",
             "convertqt4connect.h",
             "convertstringliteral.cpp",

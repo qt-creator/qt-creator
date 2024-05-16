@@ -109,6 +109,7 @@ add_qtc_plugin(CppEditor
     quickfixes/cppquickfixsettings.cpp quickfixes/cppquickfixsettings.h
     quickfixes/cppquickfixsettingspage.cpp quickfixes/cppquickfixsettingspage.h
     quickfixes/cppquickfixsettingswidget.cpp quickfixes/cppquickfixsettingswidget.h
+    quickfixes/convertfromandtopointer.cpp quickfixes/convertfromandtopointer.h
     quickfixes/createdeclarationfromuse.cpp quickfixes/createdeclarationfromuse.h
     quickfixes/extractfunction.cpp quickfixes/extractfunction.h
     quickfixes/extractliteralasparameter.cpp quickfixes/extractliteralasparameter.h

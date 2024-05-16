@@ -126,17 +126,6 @@ private:
 };
 
 /*!
-  Converts the selected variable to a pointer if it is a stack variable or reference, or vice versa.
-
-  Activates on variable declarations.
- */
-class ConvertFromAndToPointer : public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
-};
-
-/*!
  Applies function signature changes
  */
 class ApplyDeclDefLinkChanges: public CppQuickFixFactory
