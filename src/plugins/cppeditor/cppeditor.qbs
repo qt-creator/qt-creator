@@ -227,6 +227,8 @@ QtcPlugin {
             "completeswitchstatement.h",
             "convertfromandtopointer.cpp",
             "convertfromandtopointer.h",
+            "convertnumericliteral.cpp",
+            "convertnumericliteral.h",
             "convertqt4connect.cpp",
             "convertqt4connect.h",
             "convertstringliteral.cpp",

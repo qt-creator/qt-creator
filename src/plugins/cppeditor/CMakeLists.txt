@@ -98,6 +98,7 @@ add_qtc_plugin(CppEditor
     quickfixes/assigntolocalvariable.cpp quickfixes/assigntolocalvariable.h
     quickfixes/bringidentifierintoscope.cpp quickfixes/bringidentifierintoscope.h
     quickfixes/completeswitchstatement.cpp quickfixes/completeswitchstatement.h
+    quickfixes/convertnumericliteral.cpp quickfixes/convertnumericliteral.h
     quickfixes/convertqt4connect.cpp quickfixes/convertqt4connect.h
     quickfixes/convertstringliteral.cpp quickfixes/convertstringliteral.h
     quickfixes/converttometamethodcall.cpp quickfixes/converttometamethodcall.h

@@ -29,31 +29,6 @@ public:
 };
 
 /*!
-  Base class for converting numeric literals between decimal, octal and hex.
-  Does the base check for the specific ones and parses the number.
-
-  Test cases:
-    0xFA0Bu;
-    0X856A;
-    298.3;
-    199;
-    074;
-    199L;
-    074L;
-    -199;
-    -017;
-    0783; // invalid octal
-    0; // border case, allow only hex<->decimal
-
-  Activates on: numeric literals
-*/
-class ConvertNumericLiteral: public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
-};
-
-/*!
   Turns "an_example_symbol" into "anExampleSymbol" and
   "AN_EXAMPLE_SYMBOL" into "AnExampleSymbol".
 
