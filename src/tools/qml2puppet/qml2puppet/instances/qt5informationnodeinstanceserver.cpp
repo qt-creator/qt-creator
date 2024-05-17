@@ -1963,6 +1963,8 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(
             if (toolStates[helper->globalStateId()].contains(helper->lastSceneIdKey()))
                 lastSceneId = toolStates[helper->globalStateId()][helper->lastSceneIdKey()].toString();
         }
+        if (toolStates.contains(helper->projectStateId()))
+            helper->setLastSceneEnvironmentData(toolStates[helper->projectStateId()][helper->lastSceneEnvKey()].toMap());
     }
 
     // Find a scene to show
@@ -2607,6 +2609,12 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
     case View3DActionType::MaterialOverride:
         updatedToolState.insert("matOverride", command.value().toList());
         break;
+    case View3DActionType::SetLastSceneEnvData: {
+        auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
+        if (helper)
+            helper->setLastSceneEnvironmentData(command.value().toMap());
+        break;
+    }
 
     default:
         break;

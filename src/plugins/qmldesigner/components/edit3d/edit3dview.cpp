@@ -20,9 +20,11 @@
 #include "nodeinstanceview.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
+#include "qmlitemnode.h"
 #include "qmlvisualnode.h"
 #include "seekerslider.h"
 #include "snapconfiguration.h"
+#include "variantproperty.h"
 
 #include <auxiliarydataproperties.h>
 #include <model/modelutils.h>
@@ -235,36 +237,10 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
             state.showWireframe = false;
     }
 
-    // Syncing background color only makes sense for children of View3D instances
-    bool syncValue = false;
-    bool syncEnabled = false;
-    bool desiredSyncValue = false;
     if (sceneState.contains(syncEnvBgKey))
-        desiredSyncValue = sceneState[syncEnvBgKey].toBool();
-    ModelNode checkNode = Utils3D::active3DSceneNode(this);
-    const bool activeSceneValid = checkNode.isValid();
-
-    while (checkNode.isValid()) {
-        if (checkNode.metaInfo().isQtQuick3DView3D()) {
-            syncValue = desiredSyncValue;
-            syncEnabled = true;
-            break;
-        }
-        if (checkNode.hasParentProperty())
-            checkNode = checkNode.parentProperty().parentModelNode();
-        else
-            break;
-    }
-
-    if (activeSceneValid && syncValue != desiredSyncValue) {
-        // Update actual toolstate as well if we overrode it.
-        QTimer::singleShot(0, this, [this, syncValue]() {
-            emitView3DAction(View3DActionType::SyncEnvBackground, syncValue);
-        });
-    }
-
-    m_syncEnvBackgroundAction->action()->setChecked(syncValue);
-    m_syncEnvBackgroundAction->action()->setEnabled(syncEnabled);
+        m_syncEnvBackgroundAction->action()->setChecked(sceneState[syncEnvBgKey].toBool());
+    else
+        m_syncEnvBackgroundAction->action()->setChecked(false);
 
     // Selection context change updates visible and enabled states
     SelectionContext selectionContext(this);
@@ -273,6 +249,8 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
         m_bakeLightsAction->currentContextChanged(selectionContext);
 
     syncCameraSpeedToNewView();
+
+    storeCurrentSceneEnvironment();
 }
 
 void Edit3DView::modelAttached(Model *model)
@@ -542,6 +520,21 @@ void Edit3DView::nodeRemoved(const ModelNode &,
     updateAlignActionStates();
 }
 
+void Edit3DView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
+{
+    maybeStoreCurrentSceneEnvironment(propertyList);
+}
+
+void Edit3DView::bindingPropertiesChanged(const QList<BindingProperty> &propertyList, PropertyChangeFlags)
+{
+    maybeStoreCurrentSceneEnvironment(propertyList);
+}
+
+void Edit3DView::variantPropertiesChanged(const QList<VariantProperty> &propertyList, PropertyChangeFlags)
+{
+    maybeStoreCurrentSceneEnvironment(propertyList);
+}
+
 void Edit3DView::sendInputEvent(QEvent *e) const
 {
     if (nodeInstanceView())
@@ -718,6 +711,30 @@ QPoint Edit3DView::resolveToolbarPopupPos(Edit3DAction *action) const
     return pos;
 }
 
+template<typename T, typename>
+void Edit3DView::maybeStoreCurrentSceneEnvironment(const QList<T> &propertyList)
+{
+    QSet<qint32> handledNodes;
+    QmlObjectNode sceneEnv;
+    for (const AbstractProperty &prop : propertyList) {
+        ModelNode node = prop.parentModelNode();
+        const qint32 id = node.internalId();
+        if (handledNodes.contains(id))
+            continue;
+
+        handledNodes.insert(id);
+        if (!node.metaInfo().isQtQuick3DSceneEnvironment())
+            continue;
+
+        if (!sceneEnv.isValid())
+            sceneEnv = currentSceneEnv();
+        if (sceneEnv == node) {
+            storeCurrentSceneEnvironment();
+            break;
+        }
+    }
+}
+
 void Edit3DView::showContextMenu()
 {
     // If request for context menu is still pending, skip for now
@@ -805,6 +822,75 @@ void Edit3DView::syncCameraSpeedToNewView()
     }
 
     setCameraSpeedAuxData(speed, multiplier);
+}
+
+QmlObjectNode Edit3DView::currentSceneEnv()
+{
+    PropertyName envProp{"environment"};
+    ModelNode checkNode = Utils3D::active3DSceneNode(this);
+    while (checkNode.isValid()) {
+        if (checkNode.metaInfo().isQtQuick3DView3D()) {
+            QmlObjectNode sceneEnvNode = QmlItemNode(checkNode).bindingProperty(envProp)
+                                             .resolveToModelNode();
+            if (sceneEnvNode.isValid())
+                return sceneEnvNode;
+            break;
+        }
+        if (checkNode.hasParentProperty())
+            checkNode = checkNode.parentProperty().parentModelNode();
+        else
+            break;
+    }
+    return {};
+}
+
+void Edit3DView::storeCurrentSceneEnvironment()
+{
+    // If current active scene has scene environment, store relevant properties
+    QmlObjectNode sceneEnvNode = currentSceneEnv();
+    if (sceneEnvNode.isValid()) {
+        QVariantMap lastSceneEnvData;
+
+        auto insertPropValue = [](const PropertyName prop, const QmlObjectNode &node,
+                                  QVariantMap &map) {
+            if (!node.hasProperty(prop))
+                return;
+
+            map.insert(QString::fromUtf8(prop), node.modelValue(prop));
+        };
+
+        auto insertTextureProps = [&](const PropertyName prop) {
+            // For now we just grab the absolute path of texture source for simplicity
+            if (!sceneEnvNode.hasProperty(prop))
+                return;
+
+            QmlObjectNode bindNode = QmlItemNode(sceneEnvNode).bindingProperty(prop)
+                                         .resolveToModelNode();
+            if (bindNode.isValid()) {
+                QVariantMap props;
+                const PropertyName sourceProp = "source";
+                if (bindNode.hasProperty(sourceProp)) {
+                    Utils::FilePath qmlPath = Utils::FilePath::fromUrl(
+                        model()->fileUrl()).absolutePath();
+                    Utils::FilePath sourcePath = Utils::FilePath::fromUrl(
+                        bindNode.modelValue(sourceProp).toUrl());
+
+                    sourcePath = qmlPath.resolvePath(sourcePath);
+
+                    props.insert(QString::fromUtf8(sourceProp),
+                                 sourcePath.absoluteFilePath().toUrl());
+                }
+                lastSceneEnvData.insert(QString::fromUtf8(prop), props);
+            }
+        };
+
+        insertPropValue("backgroundMode", sceneEnvNode, lastSceneEnvData);
+        insertPropValue("clearColor", sceneEnvNode, lastSceneEnvData);
+        insertTextureProps("lightProbe");
+        insertTextureProps("skyBoxCubeMap");
+
+        emitView3DAction(View3DActionType::SetLastSceneEnvData, lastSceneEnvData);
+    }
 }
 
 const QList<Edit3DView::SplitToolState> &Edit3DView::splitToolStates() const

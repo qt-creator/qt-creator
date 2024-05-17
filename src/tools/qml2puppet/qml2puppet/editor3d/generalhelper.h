@@ -96,7 +96,9 @@ public:
     Q_INVOKABLE void enableItemUpdate(QQuickItem *item, bool enable);
     Q_INVOKABLE QVariantMap getToolStates(const QString &sceneId);
     QString globalStateId() const;
+    QString projectStateId() const;
     QString lastSceneIdKey() const;
+    QString lastSceneEnvKey() const;
     QString rootSizeKey() const;
 
     Q_INVOKABLE void setMultiSelectionTargets(QQuick3DNode *multiSelectRootNode,
@@ -109,12 +111,18 @@ public:
     Q_INVOKABLE void rotateMultiSelection(bool commit);
 
     void setSceneEnvironmentData(const QString &sceneId, QQuick3DSceneEnvironment *env);
+    Q_INVOKABLE bool hasSceneEnvironmentData(const QString &sceneId) const;
     Q_INVOKABLE QQuick3DSceneEnvironment::QQuick3DEnvironmentBackgroundTypes sceneEnvironmentBgMode(
         const QString &sceneId) const;
     Q_INVOKABLE QColor sceneEnvironmentColor(const QString &sceneId) const;
     Q_INVOKABLE QQuick3DTexture *sceneEnvironmentLightProbe(const QString &sceneId) const;
     Q_INVOKABLE QQuick3DCubeMapTexture *sceneEnvironmentSkyBoxCubeMap(const QString &sceneId) const;
+    Q_INVOKABLE void updateSceneEnvToLast(QQuick3DSceneEnvironment *env, QQuick3DTexture *lightProbe,
+                                          QQuick3DCubeMapTexture *cubeMap);
+    Q_INVOKABLE bool sceneHasLightProbe(const QString &sceneId);
+
     void clearSceneEnvironmentData();
+    void setLastSceneEnvironmentData(const QVariantMap &data);
 
     bool isMacOS() const;
 
@@ -202,6 +210,7 @@ private:
         QPointer<QQuick3DCubeMapTexture> skyBoxCubeMap;
     };
     QHash<QString, SceneEnvData> m_sceneEnvironmentData;
+    QVariantMap m_lastSceneEnvData;
 
     struct MultiSelData {
         QVector3D startScenePos;

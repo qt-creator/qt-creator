@@ -166,7 +166,7 @@ Item {
                             break;
                         }
                     }
-                    showEditLight = !hasSceneLight;
+                    showEditLight = !hasSceneLight && !_generalHelper.sceneHasLightProbe(sceneId);
 
                     // Don't inherit camera angles from the previous scene
                     for (let i = 0; i < 4; ++i)
@@ -265,16 +265,22 @@ Item {
 
         for (var i = 0; i < 4; ++i) {
             if (syncEnvBackground) {
-                let bgMode = _generalHelper.sceneEnvironmentBgMode(sceneId);
-                if ((!_generalHelper.sceneEnvironmentLightProbe(sceneId) && bgMode === SceneEnvironment.SkyBox)
-                    || (!_generalHelper.sceneEnvironmentSkyBoxCubeMap(sceneId) && bgMode === SceneEnvironment.SkyBoxCubeMap)) {
-                    editViews[i].sceneEnv.backgroundMode = SceneEnvironment.Color;
-                } else {
-                    editViews[i].sceneEnv.backgroundMode = bgMode;
+                if (_generalHelper.hasSceneEnvironmentData(sceneId)) {
+                    let bgMode = _generalHelper.sceneEnvironmentBgMode(sceneId);
+                    if ((!_generalHelper.sceneEnvironmentLightProbe(sceneId) && bgMode === SceneEnvironment.SkyBox)
+                        || (!_generalHelper.sceneEnvironmentSkyBoxCubeMap(sceneId) && bgMode === SceneEnvironment.SkyBoxCubeMap)) {
+                        editViews[i].sceneEnv.backgroundMode = SceneEnvironment.Color;
+                    } else {
+                        editViews[i].sceneEnv.backgroundMode = bgMode;
+                    }
+                    editViews[i].sceneEnv.lightProbe = _generalHelper.sceneEnvironmentLightProbe(sceneId);
+                    editViews[i].sceneEnv.skyBoxCubeMap = _generalHelper.sceneEnvironmentSkyBoxCubeMap(sceneId);
+                    editViews[i].sceneEnv.clearColor = _generalHelper.sceneEnvironmentColor(sceneId);
+                } else if (activeScene) {
+                    _generalHelper.updateSceneEnvToLast(editViews[i].sceneEnv,
+                                                        editViews[i].defaultLightProbe,
+                                                        editViews[i].defaultCubeMap);
                 }
-                editViews[i].sceneEnv.lightProbe = _generalHelper.sceneEnvironmentLightProbe(sceneId);
-                editViews[i].sceneEnv.skyBoxCubeMap = _generalHelper.sceneEnvironmentSkyBoxCubeMap(sceneId);
-                editViews[i].sceneEnv.clearColor = _generalHelper.sceneEnvironmentColor(sceneId);
             } else {
                 editViews[i].sceneEnv.backgroundMode = SceneEnvironment.Transparent;
                 editViews[i].sceneEnv.lightProbe = null;

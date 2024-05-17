@@ -54,7 +54,8 @@ enum class View3DActionType {
     FlyModeToggle,
     EditCameraRotation,
     EditCameraMove,
-    EditCameraStopAllMoves
+    EditCameraStopAllMoves,
+    SetLastSceneEnvData
 };
 
 constexpr bool isNanotraceEnabled()

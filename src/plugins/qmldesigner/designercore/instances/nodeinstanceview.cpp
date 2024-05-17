@@ -1216,6 +1216,13 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     if (stateNode.isValid() && stateNode.metaInfo().isQtQuickState())
         stateInstanceId = stateNode.internalId();
 
+    QHash<QString, QVariantMap> sceneStates = m_edit3DToolStates[model()->fileUrl()];
+    QHash<QString, QVariantMap> projectStates = m_edit3DToolStates[
+        QUrl::fromLocalFile(m_externalDependencies.currentProjectDirPath())];
+    const QString ptsId = "@PTS";
+    if (projectStates.contains(ptsId))
+        sceneStates.insert(ptsId, projectStates[ptsId]);
+
     return CreateSceneCommand(instanceContainerList,
                               reparentContainerList,
                               idContainerList,
@@ -1226,7 +1233,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
                               mockupTypesVector,
                               model()->fileUrl(),
                               m_externalDependencies.currentResourcePath(),
-                              m_edit3DToolStates[model()->fileUrl()],
+                              sceneStates,
                               lastUsedLanguage,
                               m_captureImageMinimumSize,
                               m_captureImageMaximumSize,
@@ -1744,7 +1751,12 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
             auto data = qvariant_cast<QVariantList>(command.data());
             if (data.size() == 3) {
                 QString qmlId = data[0].toString();
-                m_edit3DToolStates[model()->fileUrl()][qmlId].insert(data[1].toString(), data[2]);
+                QUrl mainKey;
+                if (qmlId == "@PTS") // Project tool state
+                    mainKey = QUrl::fromLocalFile(m_externalDependencies.currentProjectDirPath());
+                else
+                    mainKey = model()->fileUrl();
+                m_edit3DToolStates[mainKey][qmlId].insert(data[1].toString(), data[2]);
             }
         }
     } else if (command.type() == PuppetToCreatorCommand::Render3DView) {

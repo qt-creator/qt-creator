@@ -6,6 +6,8 @@
 
 #include "selectionboxgeometry.h"
 
+#include <enumeration.h>
+
 #include <QGuiApplication>
 #include <QtQuick3D/qquick3dobject.h>
 #include <QtQuick3D/private/qquick3dorthographiccamera_p.h>
@@ -42,9 +44,17 @@
 namespace QmlDesigner {
 namespace Internal {
 
-const QString _globalStateId = QStringLiteral("@GTS"); // global tool state
+const QString _globalStateId = QStringLiteral("@GTS"); // global tool state (within document)
+const QString _projectStateId = QStringLiteral("@PTS"); // project wide tool state
 const QString _lastSceneIdKey = QStringLiteral("lastSceneId");
 const QString _rootSizeKey = QStringLiteral("rootSize");
+const QString _lastSceneEnvKey = QStringLiteral("lastSceneEnv");
+
+const QString _lightProbeProp = QStringLiteral("lightProbe");
+const QString _sourceProp = QStringLiteral("source");
+const QString _cubeProp = QStringLiteral("skyBoxCubeMap");
+const QString _bgProp = QStringLiteral("backgroundMode");
+const QString _colorProp = QStringLiteral("clearColor");
 
 static const float floatMin = std::numeric_limits<float>::lowest();
 static const float floatMax = std::numeric_limits<float>::max();
@@ -739,6 +749,11 @@ void GeneralHelper::setSceneEnvironmentData(const QString &sceneId,
     }
 }
 
+bool GeneralHelper::hasSceneEnvironmentData(const QString &sceneId) const
+{
+    return m_sceneEnvironmentData.contains(sceneId);
+}
+
 QQuick3DSceneEnvironment::QQuick3DEnvironmentBackgroundTypes GeneralHelper::sceneEnvironmentBgMode(
     const QString &sceneId) const
 {
@@ -760,6 +775,69 @@ QQuick3DCubeMapTexture *GeneralHelper::sceneEnvironmentSkyBoxCubeMap(const QStri
     return m_sceneEnvironmentData[sceneId].skyBoxCubeMap.data();
 }
 
+void GeneralHelper::updateSceneEnvToLast(QQuick3DSceneEnvironment *env, QQuick3DTexture *lightProbe,
+                                         QQuick3DCubeMapTexture *cubeMap)
+{
+    if (!env)
+        return;
+
+    if (m_lastSceneEnvData.contains(_bgProp)) {
+        Enumeration enumeration = m_lastSceneEnvData[_bgProp].value<Enumeration>();
+        QMetaEnum me = QMetaEnum::fromType<QQuick3DSceneEnvironment::QQuick3DEnvironmentBackgroundTypes>();
+        int intValue = me.keyToValue(enumeration.toName());
+        env->setBackgroundMode(QQuick3DSceneEnvironment::QQuick3DEnvironmentBackgroundTypes(intValue));
+    } else {
+        env->setBackgroundMode(QQuick3DSceneEnvironment::Transparent);
+    }
+
+    if (m_lastSceneEnvData.contains(_colorProp))
+        env->setClearColor(m_lastSceneEnvData[_colorProp].value<QColor>());
+    else
+        env->setClearColor(Qt::transparent);
+
+    if (lightProbe) {
+        if (m_lastSceneEnvData.contains(_lightProbeProp)) {
+            QVariantMap props = m_lastSceneEnvData[_lightProbeProp].toMap();
+            if (props.contains(_sourceProp))
+                lightProbe->setSource(props[_sourceProp].toUrl());
+            else
+                lightProbe->setSource({});
+            env->setLightProbe(lightProbe);
+        } else {
+            env->setLightProbe(nullptr);
+        }
+    }
+
+    if (cubeMap) {
+        if (m_lastSceneEnvData.contains(_cubeProp)) {
+            QVariantMap props = m_lastSceneEnvData[_cubeProp].toMap();
+            if (props.contains(_sourceProp))
+                cubeMap->setSource(props[_sourceProp].toUrl());
+            else
+                cubeMap->setSource({});
+            env->setSkyBoxCubeMap(cubeMap);
+        } else {
+            env->setSkyBoxCubeMap(nullptr);
+        }
+    }
+}
+
+bool GeneralHelper::sceneHasLightProbe(const QString &sceneId)
+{
+    // From editor perspective, a scene is considered to have a light probe if scene itself
+    // has a light probe or scene has no env data and last scene had a light probe
+    if (m_sceneEnvironmentData.contains(sceneId)) {
+        return bool(m_sceneEnvironmentData[sceneId].lightProbe);
+    } else {
+        if (m_lastSceneEnvData.contains(_lightProbeProp)) {
+            QVariantMap props = m_lastSceneEnvData[_sourceProp].toMap();
+            if (props.contains(_sourceProp))
+                return !props[_sourceProp].toUrl().isEmpty();
+        }
+    }
+    return false;
+}
+
 void GeneralHelper::clearSceneEnvironmentData()
 {
     for (const SceneEnvData &data : std::as_const(m_sceneEnvironmentData)) {
@@ -771,6 +849,12 @@ void GeneralHelper::clearSceneEnvironmentData()
 
     m_sceneEnvironmentData.clear();
     emit sceneEnvDataChanged();
+}
+
+void GeneralHelper::setLastSceneEnvironmentData(const QVariantMap &data)
+{
+    m_lastSceneEnvData = data;
+    storeToolState(_projectStateId, _lastSceneEnvKey, m_lastSceneEnvData);
 }
 
 void GeneralHelper::initToolStates(const QString &sceneId, const QVariantMap &toolStates)
@@ -797,9 +881,19 @@ QString GeneralHelper::globalStateId() const
     return _globalStateId;
 }
 
+QString GeneralHelper::projectStateId() const
+{
+    return _projectStateId;
+}
+
 QString GeneralHelper::lastSceneIdKey() const
 {
     return _lastSceneIdKey;
+}
+
+QString GeneralHelper::lastSceneEnvKey() const
+{
+    return _lastSceneEnvKey;
 }
 
 QString GeneralHelper::rootSizeKey() const
