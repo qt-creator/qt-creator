@@ -308,7 +308,8 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
 
                 std::optional<QString> dllName;
                 if (buildDir.osType() == OsTypeWindows && (f.role == "libraries")) {
-                    part = FilePath::fromUserInput(part).fileName();
+                    const auto partAsFilePath = FilePath::fromUserInput(part);
+                    part = partAsFilePath.fileName();
 
                     // Skip object libraries on Windows. This case can happen with static qml plugins
                     if (part.endsWith(".obj") || part.endsWith(".o"))
@@ -322,12 +323,15 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
                     }
 
                     // MinGW has libQt6Core.a -> Qt6Core.dll
+                    // but libFoo.dll.a was already handled above
                     const QString mingwPrefix("lib");
-                    const QString mingwSuffix(".a");
-                    if (part.startsWith(mingwPrefix) && part.endsWith(mingwSuffix))
-                        dllName = part.chopped(mingwSuffix.length())
+                    const QString mingwSuffix("a");
+                    const QString completeSuffix = partAsFilePath.completeSuffix();
+                    if (part.startsWith(mingwPrefix) && completeSuffix == mingwSuffix) {
+                        dllName = part.chopped(mingwSuffix.length() + 1/*the '.'*/)
                                       .sliced(mingwPrefix.length())
                                       .append(".dll");
+                    }
                 }
 
                 if (!tmp.isEmpty() && tmp.isDir()) {

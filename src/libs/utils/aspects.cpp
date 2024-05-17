@@ -116,6 +116,17 @@ public:
 */
 
 /*!
+    \enum Utils::BaseAspect::Announcement
+
+    Whether to emit a signal when a value changes.
+
+    \value DoEmit
+           Emit a signal.
+    \value BeQuiet
+           Don't emit a signal.
+*/
+
+/*!
     Constructs a base aspect.
 
     If \a container is non-null, the aspect is made known to the container.
@@ -159,7 +170,9 @@ QVariant BaseAspect::variantValue() const
 /*!
     Sets \a value.
 
-    Prefer the typed setValue() of derived classes.
+    If \a howToAnnounce is set to \c DoEmit, emits the \c valueChanged signal.
+
+    Prefer the typed \c setValue() of the derived classes.
 */
 void BaseAspect::setVariantValue(const QVariant &value, Announcement howToAnnounce)
 {
@@ -939,9 +952,6 @@ public:
              Based on QTextEdit, used for user-editable strings that often
              do not fit on a line.
 
-      \value PathChooserDisplay
-             Based on Utils::PathChooser.
-
       \value PasswordLineEditDisplay
              Based on QLineEdit, used for password strings
 
@@ -1416,7 +1426,10 @@ FilePath FilePathAspect::operator()() const
 
 FilePath FilePathAspect::expandedValue() const
 {
-    return FilePath::fromUserInput(TypedAspect::value());
+    const auto value = TypedAspect::value();
+    if (!value.isEmpty() && d->m_expanderProvider)
+        return FilePath::fromUserInput(d->m_expanderProvider()->expand(value));
+    return FilePath::fromUserInput(value);
 }
 
 QString FilePathAspect::value() const
@@ -1425,7 +1438,9 @@ QString FilePathAspect::value() const
 }
 
 /*!
-    Sets the value of this file path aspect to \a value.
+    Sets the value of this file path aspect to \a filePath.
+
+    If \a howToAnnounce is set to \c DoEmit, emits the \c valueChanged signal.
 
     \note This does not use any check that the value is actually
     a file path.
@@ -2781,8 +2796,8 @@ void IntegersAspect::addToLayout(Layouting::LayoutItem &parent)
 */
 
 /*!
-    Constructs a text display showing the \a message with an icon representing
-    type \a type.
+    Constructs a text display with the parent \a container. The display shows
+    \a message and an icon representing the type \a type.
  */
 TextDisplay::TextDisplay(AspectContainer *container, const QString &message, InfoLabel::InfoType type)
     : BaseAspect(container), d(new Internal::TextDisplayPrivate)

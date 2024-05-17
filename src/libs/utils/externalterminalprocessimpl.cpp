@@ -190,8 +190,6 @@ expected_str<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData
     process->setEnvironment(
         setupData.m_environment.appliedToEnvironment(Environment::systemEnvironment()));
 
-    process->setEnvironment(setupData.m_environment);
-
     process->start();
     process->waitForStarted();
     if (process->error() != QProcess::UnknownError) {

@@ -614,7 +614,7 @@ bool checkKeystorePassword(const FilePath &keystorePath, const QString &keystore
                            "--storepass", keystorePasswd});
     Process proc;
     proc.setCommand(cmd);
-    proc.runBlocking(10s, EventLoopMode::On);
+    proc.runBlocking(10s);
     return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
@@ -631,7 +631,7 @@ bool checkCertificatePassword(const FilePath &keystorePath, const QString &keyst
 
     Process proc;
     proc.setCommand({androidConfig().keytoolPath(), arguments});
-    proc.runBlocking(10s, EventLoopMode::On);
+    proc.runBlocking(10s);
     return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
@@ -644,7 +644,7 @@ bool checkCertificateExists(const FilePath &keystorePath, const QString &keystor
 
     Process proc;
     proc.setCommand({androidConfig().keytoolPath(), arguments});
-    proc.runBlocking(10s, EventLoopMode::On);
+    proc.runBlocking(10s);
     return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 

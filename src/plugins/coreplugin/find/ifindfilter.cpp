@@ -30,7 +30,7 @@ using namespace Utils;
     and \uicontrol {Files in File System} where the user provides a directory and file
     patterns to search.
 
-    \image qtcreator-search-filesystem.png
+    \image qtcreator-search-reg-exp.webp {Search Results view with search criteria}
 
     To make your find scope available to the user, you need to implement this
     class, and register an instance of your subclass in the plugin manager.
@@ -38,7 +38,7 @@ using namespace Utils;
     A common way to present the search results to the user, is to use the
     shared \uicontrol{Search Results} pane.
 
-    \image qtcreator-search-results.webp {Search Results view}
+    \image qtcreator-search-results-reg-exp.webp {Search Results view with search results}
 
     If you want to implement a find filter that is doing a file based text
     search, you should use \l Core::BaseTextFind, which already implements all
@@ -178,13 +178,13 @@ using namespace Utils;
 */
 
 /*!
-    \fn void Core::IFindFilter::writeSettings(QSettings *settings)
+    \fn void Core::IFindFilter::writeSettings(Utils::QtcSettings *settings)
     Called at shutdown to write the state of the additional options
     for this find filter to the \a settings.
 */
 
 /*!
-    \fn void Core::IFindFilter::readSettings(QSettings *settings)
+    \fn void Core::IFindFilter::readSettings(Utils::QtcSettings *settings)
     Called at startup to read the state of the additional options
     for this find filter from the \a settings.
 */
