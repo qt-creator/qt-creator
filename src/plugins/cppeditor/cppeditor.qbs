@@ -273,6 +273,8 @@ QtcPlugin {
             "moveclasstoownfile.h",
             "movefunctiondefinition.cpp",
             "movefunctiondefinition.h",
+            "rearrangeparamdeclarationlist.cpp",
+            "rearrangeparamdeclarationlist.h",
             "removeusingnamespace.cpp",
             "removeusingnamespace.h",
             "rewritecomment.cpp",

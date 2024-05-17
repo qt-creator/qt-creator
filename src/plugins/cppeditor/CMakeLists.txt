@@ -122,6 +122,7 @@ add_qtc_plugin(CppEditor
     quickfixes/logicaloperationquickfixes.cpp quickfixes/logicaloperationquickfixes.h
     quickfixes/moveclasstoownfile.cpp quickfixes/moveclasstoownfile.h
     quickfixes/movefunctiondefinition.cpp quickfixes/movefunctiondefinition.h
+    quickfixes/rearrangeparamdeclarationlist.cpp quickfixes/rearrangeparamdeclarationlist.h
     quickfixes/removeusingnamespace.cpp quickfixes/removeusingnamespace.h
     quickfixes/rewritecomment.cpp quickfixes/rewritecomment.cpp
     quickfixes/rewritecontrolstatements.cpp quickfixes/rewritecontrolstatements.h

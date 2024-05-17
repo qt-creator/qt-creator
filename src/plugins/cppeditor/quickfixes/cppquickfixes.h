@@ -29,18 +29,6 @@ public:
 };
 
 /*!
-  Switches places of the parameter declaration under cursor
-  with the next or the previous one in the parameter declaration list
-
-  Activates on: parameter declarations
-*/
-class RearrangeParamDeclarationList : public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
-};
-
-/*!
   Reformats a pointer, reference or rvalue reference type/declaration.
 
   Works also with selections (except when the cursor is not on any AST).

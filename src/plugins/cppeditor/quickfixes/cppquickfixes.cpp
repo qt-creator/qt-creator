@@ -31,6 +31,7 @@
 #include "logicaloperationquickfixes.h"
 #include "moveclasstoownfile.h"
 #include "movefunctiondefinition.h"
+#include "rearrangeparamdeclarationlist.h"
 #include "removeusingnamespace.h"
 #include "rewritecomment.h"
 #include "rewritecontrolstatements.h"
@@ -132,87 +133,6 @@ const QList<CppQuickFixFactory *> &CppQuickFixFactory::cppQuickFixFactories()
 }
 
 namespace Internal {
-
-namespace {
-
-class RearrangeParamDeclarationListOp: public CppQuickFixOperation
-{
-public:
-    enum Target { TargetPrevious, TargetNext };
-
-    RearrangeParamDeclarationListOp(const CppQuickFixInterface &interface, AST *currentParam,
-                                    AST *targetParam, Target target)
-        : CppQuickFixOperation(interface)
-        , m_currentParam(currentParam)
-        , m_targetParam(targetParam)
-    {
-        QString targetString;
-        if (target == TargetPrevious)
-            targetString = Tr::tr("Switch with Previous Parameter");
-        else
-            targetString = Tr::tr("Switch with Next Parameter");
-        setDescription(targetString);
-    }
-
-    void perform() override
-    {
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
-
-        int targetEndPos = currentFile->endOf(m_targetParam);
-        ChangeSet changes;
-        changes.flip(currentFile->startOf(m_currentParam), currentFile->endOf(m_currentParam),
-                     currentFile->startOf(m_targetParam), targetEndPos);
-        currentFile->setChangeSet(changes);
-        currentFile->setOpenEditor(false, targetEndPos);
-        currentFile->apply();
-    }
-
-private:
-    AST *m_currentParam;
-    AST *m_targetParam;
-};
-
-} // anonymous namespace
-
-void RearrangeParamDeclarationList::doMatch(const CppQuickFixInterface &interface,
-                                          QuickFixOperations &result)
-{
-    const QList<AST *> path = interface.path();
-
-    ParameterDeclarationAST *paramDecl = nullptr;
-    int index = path.size() - 1;
-    for (; index != -1; --index) {
-        paramDecl = path.at(index)->asParameterDeclaration();
-        if (paramDecl)
-            break;
-    }
-
-    if (index < 1)
-        return;
-
-    ParameterDeclarationClauseAST *paramDeclClause = path.at(index-1)->asParameterDeclarationClause();
-    QTC_ASSERT(paramDeclClause && paramDeclClause->parameter_declaration_list, return);
-
-    ParameterDeclarationListAST *paramListNode = paramDeclClause->parameter_declaration_list;
-    ParameterDeclarationListAST *prevParamListNode = nullptr;
-    while (paramListNode) {
-        if (paramDecl == paramListNode->value)
-            break;
-        prevParamListNode = paramListNode;
-        paramListNode = paramListNode->next;
-    }
-
-    if (!paramListNode)
-        return;
-
-    if (prevParamListNode)
-        result << new RearrangeParamDeclarationListOp(interface, paramListNode->value,
-                                                      prevParamListNode->value, RearrangeParamDeclarationListOp::TargetPrevious);
-    if (paramListNode->next)
-        result << new RearrangeParamDeclarationListOp(interface, paramListNode->value,
-                                                      paramListNode->next->value, RearrangeParamDeclarationListOp::TargetNext);
-}
 
 namespace {
 
@@ -384,7 +304,6 @@ void ExtraRefactoringOperations::doMatch(const CppQuickFixInterface &interface,
 
 void createCppQuickFixes()
 {
-    new RearrangeParamDeclarationList;
     new ReformatPointerDeclaration;
 
     new ApplyDeclDefLinkChanges;
@@ -411,6 +330,7 @@ void createCppQuickFixes()
     registerSplitSimpleDeclarationQuickfix();
     registerConvertNumericLiteralQuickfix();
     registerConvertToCamelCaseQuickfix();
+    registerRearrangeParamDeclarationListQuickfix();
 
     new ExtraRefactoringOperations;
 }
