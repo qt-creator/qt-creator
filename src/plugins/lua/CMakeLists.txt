@@ -59,5 +59,5 @@ qtc_copy_to_builddir(copy_lua_meta_files
 
 install(
   FILES ${META_FILES}
-  DESTINATION ${IDE_DATA_PATH}/lua
+  DESTINATION ${IDE_DATA_PATH}/lua/meta
 )
