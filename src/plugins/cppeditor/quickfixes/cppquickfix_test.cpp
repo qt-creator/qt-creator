@@ -257,29 +257,6 @@ typedef QSharedPointer<CppQuickFixFactory> CppQuickFixFactoryPtr;
 
 namespace CppEditor::Internal::Tests {
 
-void QuickfixTest::testGeneric_data()
-{
-    QTest::addColumn<CppQuickFixFactoryPtr>("factory");
-    QTest::addColumn<QByteArray>("original");
-    QTest::addColumn<QByteArray>("expected");
-
-    // Check: Just a basic test since the main functionality is tested in
-    // cpppointerdeclarationformatter_test.cpp
-    QTest::newRow("ReformatPointerDeclaration")
-        << CppQuickFixFactoryPtr(new ReformatPointerDeclaration)
-        << _("char@*s;")
-        << _("char *s;");
-}
-
-void QuickfixTest::testGeneric()
-{
-    QFETCH(CppQuickFixFactoryPtr, factory);
-    QFETCH(QByteArray, original);
-    QFETCH(QByteArray, expected);
-
-    QuickFixOperationTest(singleDocument(original, expected), factory.data());
-}
-
 class CppCodeStyleSettingsChanger {
 public:
     CppCodeStyleSettingsChanger(const CppCodeStyleSettings &settings);

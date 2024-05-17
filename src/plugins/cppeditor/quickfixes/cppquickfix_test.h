@@ -89,15 +89,6 @@ public:
 QList<TestDocumentPtr> singleDocument(const QByteArray &original,
                                                 const QByteArray &expected);
 
-class QuickfixTest : public QObject
-{
-    Q_OBJECT
-
-private slots:
-    void testGeneric_data();
-    void testGeneric();
-};
-
 } // namespace Tests
 } // namespace Internal
 } // namespace CppEditor

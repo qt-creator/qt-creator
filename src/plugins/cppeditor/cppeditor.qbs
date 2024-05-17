@@ -275,6 +275,8 @@ QtcPlugin {
             "movefunctiondefinition.h",
             "rearrangeparamdeclarationlist.cpp",
             "rearrangeparamdeclarationlist.h",
+            "reformatpointerdeclaration.cpp",
+            "reformatpointerdeclaration.h",
             "removeusingnamespace.cpp",
             "removeusingnamespace.h",
             "rewritecomment.cpp",

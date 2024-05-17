@@ -29,21 +29,6 @@ public:
 };
 
 /*!
-  Reformats a pointer, reference or rvalue reference type/declaration.
-
-  Works also with selections (except when the cursor is not on any AST).
-
-  Activates on: simple declarations, parameters and return types of function
-                declarations and definitions, control flow statements (if,
-                while, for, foreach) with declarations.
-*/
-class ReformatPointerDeclaration : public CppQuickFixFactory
-{
-public:
-    void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
-};
-
-/*!
  Applies function signature changes
  */
 class ApplyDeclDefLinkChanges: public CppQuickFixFactory
