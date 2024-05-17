@@ -288,10 +288,13 @@ using namespace Core::Internal;
     This enum type specifies whether the search results should be sorted or
     ordered:
 
-    \value AddSorted
-           The search results are sorted.
+    \value AddSortedByContent
+           The search results are sorted alphabetically.
+    \value AddSortedByPosition
+           The search results are sorted by the search results' reported line
+           numbers.
     \value AddOrdered
-           The search results are ordered.
+           The search results are ordered as they are reported.
 */
 
 /*!
@@ -331,7 +334,7 @@ using namespace Core::Internal;
     \brief The SearchResultWindow class is the implementation of a commonly
     shared \uicontrol{Search Results} output pane.
 
-    \image qtcreator-search-results.webp {Search Results view}
+    \image qtcreator-search-results-reg-exp.webp {Search Results view with search results}
 
     Whenever you want to show the user a list of search results, or want
     to present UI for a global search and replace, use the single instance

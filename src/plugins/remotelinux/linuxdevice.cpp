@@ -1531,7 +1531,8 @@ private:
         const QString sshCmdLine = ProcessArgs::joinArgs(
                     QStringList{SshSettings::sshFilePath().toUserOutput()}
                     << fullConnectionOptions(), OsTypeLinux);
-        QStringList options{"-e", sshCmdLine, m_setup.m_rsyncFlags};
+        QStringList options{"-e", sshCmdLine};
+        options << ProcessArgs::splitArgs(m_setup.m_rsyncFlags, HostOsInfo::hostOs());
 
         if (!m_batches.isEmpty()) { // NormalRun
             const auto batchIt = m_batches.begin();

@@ -35,11 +35,29 @@
     Set workspace details in \uicontrol {P4 user}, \uicontrol {P4 client}, and
     \uicontrol {P4 port}.
 
+    \section1 Using Configuration Files
+
     To specify the details individually for several projects, use configuration
-    files instead. Create a \c {p4config.txt} configuration file for each
-    project in the top level project directory, and run
-    \c{p4 set P4CONFIG=p4config.txt} once. You must deselect the
-    \uicontrol {Environment Variables} check box.
+    files:
+
+    \list 1
+        \li Create a \c {p4config.txt} configuration file for each project in the
+            top level project directory.
+        \li Go to \preferences > \uicontrol {Version Control} >
+            \uicontrol Perforce.
+        \li Clear \uicontrol {Environment Variables}.
+        \li Run the following command from the command line once:
+            \list
+                \li On Windows:
+                    \badcode
+                    p4 set P4CONFIG=p4config.txt
+                    \endcode
+                \li On Linux
+                    \badcode
+                    export P4CONFIG=<path-to-p4config.txt>
+                    \endcode
+            \endlist
+    \endlist
 
     \section1 Editing Files
 

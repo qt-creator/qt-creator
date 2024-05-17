@@ -1416,7 +1416,10 @@ FilePath FilePathAspect::operator()() const
 
 FilePath FilePathAspect::expandedValue() const
 {
-    return FilePath::fromUserInput(TypedAspect::value());
+    const auto value = TypedAspect::value();
+    if (!value.isEmpty() && d->m_expanderProvider)
+        return FilePath::fromUserInput(d->m_expanderProvider()->expand(value));
+    return FilePath::fromUserInput(value);
 }
 
 QString FilePathAspect::value() const

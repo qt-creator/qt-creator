@@ -50,8 +50,9 @@
 */
 
 /*!
-    \fn void ExtensionSystem::PluginView::pluginSettingsChanged(ExtensionSystem::PluginSpec *spec)
-    The settings for the plugin list entry corresponding to \a spec changed.
+    \fn void ExtensionSystem::PluginView::pluginsChanged(const QSet<ExtensionSystem::PluginSpec *> &spec, bool enabled)
+    The value of \a enabled for the plugin list entry corresponding to \a spec
+    changed.
 */
 
 using namespace Utils;

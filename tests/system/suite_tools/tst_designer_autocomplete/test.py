@@ -48,12 +48,15 @@ def main():
                 snooze(1)
                 type(editor, ">")
             snooze(1)
+            proposalExists = lambda: object.exists(':popupFrame_TextEditor::GenericProposalWidget')
             nativeType("%s" % buttonName[0])
-            test.verify(waitFor("object.exists(':popupFrame_TextEditor::GenericProposalWidget')", 1500),
-                        "Verify that GenericProposalWidget is being shown.")
-            nativeType("<Return>")
-            test.verify(waitFor('str(lineUnderCursor(editor)).strip() == "ui->%s" % buttonName', 1000),
-                        'Comparing line "%s" to expected "%s"' % (lineUnderCursor(editor), "ui->%s" % buttonName))
+            if test.verify(waitFor(proposalExists, 4000),
+                           "Verify that GenericProposalWidget is being shown."):
+                nativeType("<Return>")
+                lineCorrect = lambda: str(lineUnderCursor(editor)).strip() == "ui->%s" % buttonName
+                test.verify(waitFor(lineCorrect, 1000),
+                            ('Comparing line "%s" to expected "%s"'
+                             % (lineUnderCursor(editor), "ui->%s" % buttonName)))
             type(editor, "<Shift+Delete>") # Delete line
         selectFromLocator("mainwindow.ui")
     saveAndExit()
