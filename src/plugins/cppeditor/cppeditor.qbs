@@ -245,8 +245,6 @@ QtcPlugin {
             "cppquickfix.h",
             "cppquickfixassistant.cpp",
             "cppquickfixassistant.h",
-            "cppquickfixes.cpp",
-            "cppquickfixes.h",
             "cppquickfixhelpers.cpp",
             "cppquickfixhelpers.h",
             "cppquickfixprojectsettings.cpp",

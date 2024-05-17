@@ -4,7 +4,6 @@
 #pragma once
 
 #include "../cpprefactoringchanges.h"
-#include "cppquickfixes.h"
 
 #include <QStringList>
 

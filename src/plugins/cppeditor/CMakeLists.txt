@@ -107,7 +107,6 @@ add_qtc_plugin(CppEditor
     quickfixes/cppinsertvirtualmethods.cpp quickfixes/cppinsertvirtualmethods.h
     quickfixes/cppquickfix.cpp quickfixes/cppquickfix.h
     quickfixes/cppquickfixassistant.cpp quickfixes/cppquickfixassistant.h
-    quickfixes/cppquickfixes.cpp quickfixes/cppquickfixes.h
     quickfixes/cppquickfixhelpers.h quickfixes/cppquickfixhelpers.cpp
     quickfixes/cppquickfixprojectsettings.cpp quickfixes/cppquickfixprojectsettings.h
     quickfixes/cppquickfixprojectsettingswidget.cpp quickfixes/cppquickfixprojectsettingswidget.h

@@ -9,7 +9,6 @@
 #include "../cppsourceprocessertesthelper.h"
 #include "../cpptoolssettings.h"
 #include "cppquickfixassistant.h"
-#include "cppquickfixes.h"
 
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
@@ -31,8 +30,6 @@ using namespace Utils;
 
 using CppEditor::Tests::TemporaryDir;
 using CppEditor::Tests::Internal::TestIncludePaths;
-
-typedef QByteArray _;
 
 namespace CppEditor {
 namespace Internal {
@@ -250,48 +247,5 @@ void QuickFixOperationTest::run(const QList<TestDocumentPtr> &testDocuments,
 
 } // namespace Tests
 } // namespace Internal
-
-typedef QSharedPointer<CppQuickFixFactory> CppQuickFixFactoryPtr;
-
 } // namespace CppEditor
 
-namespace CppEditor::Internal::Tests {
-
-class CppCodeStyleSettingsChanger {
-public:
-    CppCodeStyleSettingsChanger(const CppCodeStyleSettings &settings);
-    ~CppCodeStyleSettingsChanger(); // Restore original
-
-    static CppCodeStyleSettings currentSettings();
-
-private:
-    void setSettings(const CppCodeStyleSettings &settings);
-
-    CppCodeStyleSettings m_originalSettings;
-};
-
-CppCodeStyleSettingsChanger::CppCodeStyleSettingsChanger(const CppCodeStyleSettings &settings)
-{
-    m_originalSettings = currentSettings();
-    setSettings(settings);
-}
-
-CppCodeStyleSettingsChanger::~CppCodeStyleSettingsChanger()
-{
-    setSettings(m_originalSettings);
-}
-
-void CppCodeStyleSettingsChanger::setSettings(const CppCodeStyleSettings &settings)
-{
-    QVariant variant;
-    variant.setValue(settings);
-
-    CppToolsSettings::cppCodeStyle()->currentDelegate()->setValue(variant);
-}
-
-CppCodeStyleSettings CppCodeStyleSettingsChanger::currentSettings()
-{
-    return CppToolsSettings::cppCodeStyle()->currentDelegate()->value().value<CppCodeStyleSettings>();
-}
-
-} // namespace CppEditor::Internal::Tests

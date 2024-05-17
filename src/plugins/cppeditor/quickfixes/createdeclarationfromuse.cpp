@@ -9,7 +9,7 @@
 #include "../cpprefactoringchanges.h"
 #include "../insertionpointlocator.h"
 #include "../symbolfinder.h"
-#include "cppquickfixes.h"
+#include "cppquickfix.h"
 #include "cppquickfixhelpers.h"
 #include "cppquickfixprojectsettings.h"
 
@@ -25,6 +25,8 @@
 #include <QtTest>
 #endif
 
+#include <variant>
+
 using namespace CPlusPlus;
 using namespace ProjectExplorer;
 using namespace TextEditor;
@@ -32,6 +34,8 @@ using namespace Utils;
 
 namespace CppEditor::Internal {
 namespace {
+
+using TypeOrExpr = std::variant<const CPlusPlus::ExpressionAST *, CPlusPlus::FullySpecifiedType>;
 
 // FIXME: Needs to consider the scope at the insertion site.
 static QString declFromExpr(

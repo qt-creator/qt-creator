@@ -22,9 +22,14 @@ class CppQuickFixOperation
       public Internal::CppQuickFixInterface
 {
 public:
-    explicit CppQuickFixOperation(const CppQuickFixInterface &interface, int priority = -1);
+    explicit CppQuickFixOperation(const CppQuickFixInterface &interface, int priority = -1)
+        : QuickFixOperation(priority), CppQuickFixInterface(interface)
+    {}
     ~CppQuickFixOperation() override;
 };
+
+void createCppQuickFixFactories();
+void destroyCppQuickFixFactories();
 
 } // namespace Internal
 
@@ -67,8 +72,11 @@ public:
 
 private:
     /*!
-        Implement this function to doMatch and create the appropriate
+        Implement this function to match and create the appropriate
         CppQuickFixOperation objects.
+        Make sure that the function is "cheap". Otherwise, since the match()
+        functions are also called to generate context menu entries,
+        the user might experience a delay opening the context menu.
      */
     virtual void doMatch(const Internal::CppQuickFixInterface &interface,
                          QuickFixOperations &result) = 0;

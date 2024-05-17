@@ -19,7 +19,7 @@
 #include "cpptoolsreuse.h"
 #include "cpptoolssettings.h"
 #include "cpptypehierarchy.h"
-#include "quickfixes/cppquickfixes.h"
+#include "quickfixes/cppquickfix.h"
 #include "quickfixes/cppquickfixprojectsettingswidget.h"
 #include "quickfixes/cppquickfixsettingspage.h"
 #include "resourcepreviewhoverhandler.h"
@@ -175,7 +175,7 @@ class CppEditorPlugin final : public ExtensionSystem::IPlugin
 public:
     ~CppEditorPlugin() final
     {
-        destroyCppQuickFixes();
+        destroyCppQuickFixFactories();
         delete d;
         d = nullptr;
     }
@@ -212,7 +212,7 @@ void CppEditorPlugin::initialize()
 
     setupMenus();
     registerVariables();
-    createCppQuickFixes();
+    createCppQuickFixFactories();
     registerTests();
 
     SnippetProvider::registerGroup(Constants::CPP_SNIPPETS_GROUP_ID, Tr::tr("C++", "SnippetProvider"),

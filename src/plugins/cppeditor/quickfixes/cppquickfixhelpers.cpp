@@ -190,4 +190,10 @@ CPlusPlus::FullySpecifiedType typeOfExpr(
     return rewriteType(result.first().type(), &env, control);
 }
 
+const QStringList magicQObjectFunctions()
+{
+    static QStringList list{"metaObject", "qt_metacast", "qt_metacall", "qt_static_metacall"};
+    return list;
+}
+
 } // namespace CppEditor::Internal
