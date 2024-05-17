@@ -33,6 +33,7 @@
 #include "rewritecomment.h"
 #include "rewritecontrolstatements.h"
 #include "splitsimpledeclaration.h"
+#include "synchronizememberfunctionorder.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
@@ -135,6 +136,7 @@ void createCppQuickFixFactories()
     registerRewriteCommentQuickfixes();
     registerRewriteControlStatementQuickfixes();
     registerSplitSimpleDeclarationQuickfix();
+    registerSynchronizeMemberFunctionOrderQuickfix();
 }
 
 static QList<CppQuickFixFactory *> g_cppQuickFixFactories;

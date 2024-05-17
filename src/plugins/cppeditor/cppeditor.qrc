@@ -41,5 +41,21 @@
         <file>testcases/move-class/template/theheader.h</file>
         <file>testcases/move-class/template/theheader.h_expected</file>
         <file>testcases/move-class/complex/theclass.h_expected</file>
+        <file>testcases/reorder-member-impls/different-locations/different-locations.pro</file>
+        <file>testcases/reorder-member-impls/different-locations/header.h</file>
+        <file>testcases/reorder-member-impls/different-locations/header.h_expected</file>
+        <file>testcases/reorder-member-impls/different-locations/impl1.cpp</file>
+        <file>testcases/reorder-member-impls/different-locations/impl1.cpp_expected</file>
+        <file>testcases/reorder-member-impls/different-locations/impl2.cpp</file>
+        <file>testcases/reorder-member-impls/different-locations/impl2.cpp_expected</file>
+        <file>testcases/reorder-member-impls/already-sorted/already-sorted.pro</file>
+        <file>testcases/reorder-member-impls/already-sorted/header.h</file>
+        <file>testcases/reorder-member-impls/no-out-of-line/header.h</file>
+        <file>testcases/reorder-member-impls/no-out-of-line/no-out-of-line.pro</file>
+        <file>testcases/reorder-member-impls/already-sorted/header.h_expected</file>
+        <file>testcases/reorder-member-impls/no-out-of-line/header.h_expected</file>
+        <file>testcases/reorder-member-impls/templates/header.h</file>
+        <file>testcases/reorder-member-impls/templates/header.h_expected</file>
+        <file>testcases/reorder-member-impls/templates/templates.pro</file>
     </qresource>
 </RCC>

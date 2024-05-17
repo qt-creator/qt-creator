@@ -127,6 +127,7 @@ add_qtc_plugin(CppEditor
     quickfixes/rewritecomment.cpp quickfixes/rewritecomment.cpp
     quickfixes/rewritecontrolstatements.cpp quickfixes/rewritecontrolstatements.h
     quickfixes/splitsimpledeclaration.cpp quickfixes/splitsimpledeclaration.h
+    quickfixes/synchronizememberfunctionorder.cpp quickfixes/synchronizememberfunctionorder.h
     resourcepreviewhoverhandler.cpp resourcepreviewhoverhandler.h
     searchsymbols.cpp searchsymbols.h
     semantichighlighter.cpp semantichighlighter.h

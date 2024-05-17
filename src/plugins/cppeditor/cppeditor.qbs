@@ -283,6 +283,8 @@ QtcPlugin {
             "rewritecontrolstatements.h",
             "splitsimpledeclaration.cpp",
             "splitsimpledeclaration.h",
+            "synchronizememberfunctionorder.cpp",
+            "synchronizememberfunctionorder.h",
         ]
     }
 
