@@ -6,7 +6,6 @@
 #include "../cppcodestylesettings.h"
 #include "../cppeditortr.h"
 #include "../cpprefactoringchanges.h"
-#include "../cpptoolstestcase.h"
 #include "../insertionpointlocator.h"
 #include "cppquickfix.h"
 #include "cppquickfixhelpers.h"

@@ -7,12 +7,12 @@
 #include "../cppprojectfile.h"
 #include "../cpprefactoringchanges.h"
 #include "cppquickfix.h"
-#include "cppquickfix_test.h"
 
 #include <cplusplus/Overview.h>
 #include <projectexplorer/projectmanager.h>
 
 #ifdef WITH_TESTS
+#include "cppquickfix_test.h"
 #include <QtTest>
 #endif
 
