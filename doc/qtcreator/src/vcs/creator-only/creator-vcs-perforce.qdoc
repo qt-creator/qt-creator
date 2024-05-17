@@ -37,8 +37,8 @@
 
     \section1 Using Configuration Files
 
-    To specify the details individually for several projects, use configuration
-    files:
+    To specify workspace details individually for several projects, use
+    configuration files:
 
     \list 1
         \li Create a \c {p4config.txt} configuration file for each project in the
@@ -46,18 +46,15 @@
         \li Go to \preferences > \uicontrol {Version Control} >
             \uicontrol Perforce.
         \li Clear \uicontrol {Environment Variables}.
-        \li Run the following command from the command line once:
-            \list
-                \li On Windows:
-                    \badcode
-                    p4 set P4CONFIG=p4config.txt
-                    \endcode
-                \li On Linux
-                    \badcode
-                    export P4CONFIG=<path-to-p4config.txt>
-                    \endcode
-            \endlist
+        \li To set \c P4CONFIG to use the file that you created, run the
+            following command from the command line once:
+            \badcode
+            p4 set P4CONFIG=p4config.txt
+            \endcode
     \endlist
+
+    For more information about using the \c P4CONFIG variable, see
+    \l{Perforce: P4CONFIG}.
 
     \section1 Editing Files
 
