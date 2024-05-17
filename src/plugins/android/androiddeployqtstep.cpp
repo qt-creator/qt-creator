@@ -444,35 +444,21 @@ void AndroidDeployQtStep::slotAskForUninstall(DeployErrorCode errorCode)
 {
     Q_ASSERT(errorCode > 0);
 
-    QString uninstallMsg = Tr::tr("Deployment failed with the following errors:\n\n");
-    uint errorCodeFlags = errorCode;
-    uint mask = 1;
-    while (errorCodeFlags) {
-      switch (errorCodeFlags & mask) {
-      case DeployErrorCode::PermissionModelDowngrade:
-          uninstallMsg += InstallFailedPermissionModelDowngrade+"\n";
-          break;
-      case InconsistentCertificates:
-          uninstallMsg += InstallFailedInconsistentCertificatesString+"\n";
-          break;
-      case UpdateIncompatible:
-          uninstallMsg += InstallFailedUpdateIncompatible+"\n";
-          break;
-      case VersionDowngrade:
-          uninstallMsg += InstallFailedVersionDowngrade+"\n";
-          break;
-      default:
-          break;
-      }
-      errorCodeFlags &= ~mask;
-      mask <<= 1;
-    }
+    QString uninstallMsg = Tr::tr("Deployment failed with the following errors:") + "\n\n";
+    if (errorCode & InconsistentCertificates)
+        uninstallMsg += InstallFailedInconsistentCertificatesString + '\n';
+    if (errorCode & UpdateIncompatible)
+        uninstallMsg += InstallFailedUpdateIncompatible + '\n';
+    if (errorCode & PermissionModelDowngrade)
+        uninstallMsg += InstallFailedPermissionModelDowngrade + '\n';
+    if (errorCode & VersionDowngrade)
+        uninstallMsg += InstallFailedVersionDowngrade + '\n';
+    uninstallMsg += '\n';
+    uninstallMsg.append(Tr::tr("Uninstalling the installed package may solve the issue.") + '\n');
+    uninstallMsg.append(Tr::tr("Do you want to uninstall the existing package?"));
 
-    uninstallMsg.append(Tr::tr("\nUninstalling the installed package may solve the issue.\n"
-                               "Do you want to uninstall the existing package?"));
-    int button = QMessageBox::critical(nullptr, Tr::tr("Install failed"), uninstallMsg,
-                                       QMessageBox::Yes, QMessageBox::No);
-    m_askForUninstall = button == QMessageBox::Yes;
+    m_askForUninstall = QMessageBox::critical(nullptr, Tr::tr("Install failed"), uninstallMsg,
+                        QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes;
 }
 
 // TODO: This implementation is not thread safe.
