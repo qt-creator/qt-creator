@@ -101,6 +101,7 @@ add_qtc_plugin(CppEditor
     quickfixes/convertnumericliteral.cpp quickfixes/convertnumericliteral.h
     quickfixes/convertqt4connect.cpp quickfixes/convertqt4connect.h
     quickfixes/convertstringliteral.cpp quickfixes/convertstringliteral.h
+    quickfixes/converttocamelcase.cpp quickfixes/converttocamelcase.h
     quickfixes/converttometamethodcall.cpp quickfixes/converttometamethodcall.h
     quickfixes/cppcodegenerationquickfixes.cpp quickfixes/cppcodegenerationquickfixes.h
     quickfixes/cppinsertvirtualmethods.cpp quickfixes/cppinsertvirtualmethods.h

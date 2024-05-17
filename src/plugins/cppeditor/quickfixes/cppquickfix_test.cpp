@@ -269,39 +269,6 @@ void QuickfixTest::testGeneric_data()
         << CppQuickFixFactoryPtr(new ReformatPointerDeclaration)
         << _("char@*s;")
         << _("char *s;");
-
-    QTest::newRow("convert to camel case: normal")
-        << CppQuickFixFactoryPtr(new ConvertToCamelCase(true))
-        << _("void @lower_case_function();\n")
-        << _("void lowerCaseFunction();\n");
-    QTest::newRow("convert to camel case: already camel case")
-        << CppQuickFixFactoryPtr(new ConvertToCamelCase(true))
-        << _("void @camelCaseFunction();\n")
-        << _();
-    QTest::newRow("convert to camel case: no underscores (lower case)")
-        << CppQuickFixFactoryPtr(new ConvertToCamelCase(true))
-        << _("void @lowercasefunction();\n")
-        << _();
-    QTest::newRow("convert to camel case: no underscores (upper case)")
-        << CppQuickFixFactoryPtr(new ConvertToCamelCase(true))
-        << _("void @UPPERCASEFUNCTION();\n")
-        << _();
-    QTest::newRow("convert to camel case: non-applicable underscore")
-        << CppQuickFixFactoryPtr(new ConvertToCamelCase(true))
-        << _("void @m_a_member;\n")
-        << _("void m_aMember;\n");
-    QTest::newRow("convert to camel case: upper case")
-        << CppQuickFixFactoryPtr(new ConvertToCamelCase(true))
-        << _("void @UPPER_CASE_FUNCTION();\n")
-        << _("void upperCaseFunction();\n");
-    QTest::newRow("convert to camel case: partially camel case already")
-        << CppQuickFixFactoryPtr(new ConvertToCamelCase(true))
-        << _("void mixed@_andCamelCase();\n")
-        << _("void mixedAndCamelCase();\n");
-    QTest::newRow("convert to camel case: wild mix")
-        << CppQuickFixFactoryPtr(new ConvertToCamelCase(true))
-        << _("void @WhAt_TODO_hErE();\n")
-        << _("void WhAtTODOHErE();\n");
 }
 
 void QuickfixTest::testGeneric()

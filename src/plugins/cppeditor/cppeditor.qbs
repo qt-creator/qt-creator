@@ -233,6 +233,8 @@ QtcPlugin {
             "convertqt4connect.h",
             "convertstringliteral.cpp",
             "convertstringliteral.h",
+            "converttocamelcase.cpp",
+            "converttocamelcase.h",
             "converttometamethodcall.cpp",
             "converttometamethodcall.h",
             "cppcodegenerationquickfixes.cpp",

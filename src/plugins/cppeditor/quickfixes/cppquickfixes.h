@@ -29,23 +29,6 @@ public:
 };
 
 /*!
-  Turns "an_example_symbol" into "anExampleSymbol" and
-  "AN_EXAMPLE_SYMBOL" into "AnExampleSymbol".
-
-  Activates on: identifiers
-*/
-class ConvertToCamelCase : public CppQuickFixFactory
-{
-public:
-    ConvertToCamelCase(bool test = false) : CppQuickFixFactory(), m_test(test) {}
-
-    void doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result) override;
-
-private:
-    const bool m_test;
-};
-
-/*!
   Switches places of the parameter declaration under cursor
   with the next or the previous one in the parameter declaration list
 

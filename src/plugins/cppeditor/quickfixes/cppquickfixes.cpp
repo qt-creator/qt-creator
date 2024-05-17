@@ -11,19 +11,19 @@
 #include "../cpppointerdeclarationformatter.h"
 #include "../cpprefactoringchanges.h"
 #include "../cpptoolsreuse.h"
-#include "../insertionpointlocator.h"
 #include "assigntolocalvariable.h"
 #include "bringidentifierintoscope.h"
 #include "completeswitchstatement.h"
 #include "convertfromandtopointer.h"
 #include "convertnumericliteral.h"
+#include "convertqt4connect.h"
+#include "convertstringliteral.h"
+#include "converttocamelcase.h"
 #include "converttometamethodcall.h"
 #include "cppcodegenerationquickfixes.h"
 #include "cppinsertvirtualmethods.h"
 #include "cppquickfixassistant.h"
 #include "cppquickfixhelpers.h"
-#include "convertqt4connect.h"
-#include "convertstringliteral.h"
 #include "createdeclarationfromuse.h"
 #include "extractfunction.h"
 #include "extractliteralasparameter.h"
@@ -91,9 +91,7 @@
 #include <QTextCursor>
 #include <QVBoxLayout>
 
-#include <bitset>
 #include <cctype>
-#include <limits>
 
 using namespace CPlusPlus;
 using namespace ProjectExplorer;
@@ -134,96 +132,6 @@ const QList<CppQuickFixFactory *> &CppQuickFixFactory::cppQuickFixFactories()
 }
 
 namespace Internal {
-
-namespace {
-
-class ConvertToCamelCaseOp: public CppQuickFixOperation
-{
-public:
-    ConvertToCamelCaseOp(const CppQuickFixInterface &interface, const QString &name,
-                         const AST *nameAst, bool test)
-        : CppQuickFixOperation(interface, -1)
-        , m_name(name)
-        , m_nameAst(nameAst)
-        , m_isAllUpper(name.isUpper())
-        , m_test(test)
-    {
-        setDescription(Tr::tr("Convert to Camel Case"));
-    }
-
-    void perform() override
-    {
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
-
-        QString newName = m_isAllUpper ? m_name.toLower() : m_name;
-        for (int i = 1; i < newName.length(); ++i) {
-            const QChar c = newName.at(i);
-            if (c.isUpper() && m_isAllUpper) {
-                newName[i] = c.toLower();
-            } else if (i < newName.length() - 1 && isConvertibleUnderscore(newName, i)) {
-                newName.remove(i, 1);
-                newName[i] = newName.at(i).toUpper();
-            }
-        }
-        if (m_test) {
-            ChangeSet changeSet;
-            changeSet.replace(currentFile->range(m_nameAst), newName);
-            currentFile->setChangeSet(changeSet);
-            currentFile->apply();
-        } else {
-            editor()->renameUsages(newName);
-        }
-    }
-
-    static bool isConvertibleUnderscore(const QString &name, int pos)
-    {
-        return name.at(pos) == QLatin1Char('_') && name.at(pos+1).isLetter()
-                && !(pos == 1 && name.at(0) == QLatin1Char('m'));
-    }
-
-private:
-    const QString m_name;
-    const AST * const m_nameAst;
-    const bool m_isAllUpper;
-    const bool m_test;
-};
-
-} // anonymous namespace
-
-void ConvertToCamelCase::doMatch(const CppQuickFixInterface &interface, QuickFixOperations &result)
-{
-    const QList<AST *> &path = interface.path();
-
-    if (path.isEmpty())
-        return;
-
-    AST * const ast = path.last();
-    const Name *name = nullptr;
-    const AST *astForName = nullptr;
-    if (const NameAST * const nameAst = ast->asName()) {
-        if (nameAst->name && nameAst->name->asNameId()) {
-            astForName = nameAst;
-            name = nameAst->name;
-        }
-    } else if (const NamespaceAST * const namespaceAst = ast->asNamespace()) {
-        astForName = namespaceAst;
-        name = namespaceAst->symbol->name();
-    }
-
-    if (!name)
-        return;
-
-    QString nameString = QString::fromUtf8(name->identifier()->chars());
-    if (nameString.length() < 3)
-        return;
-    for (int i = 1; i < nameString.length() - 1; ++i) {
-        if (ConvertToCamelCaseOp::isConvertibleUnderscore(nameString, i)) {
-            result << new ConvertToCamelCaseOp(interface, nameString, astForName, m_test);
-            return;
-        }
-    }
-}
 
 namespace {
 
@@ -476,8 +384,6 @@ void ExtraRefactoringOperations::doMatch(const CppQuickFixInterface &interface,
 
 void createCppQuickFixes()
 {
-    new ConvertToCamelCase;
-
     new RearrangeParamDeclarationList;
     new ReformatPointerDeclaration;
 
@@ -504,6 +410,7 @@ void createCppQuickFixes()
     registerConvertToMetaMethodCallQuickfix();
     registerSplitSimpleDeclarationQuickfix();
     registerConvertNumericLiteralQuickfix();
+    registerConvertToCamelCaseQuickfix();
 
     new ExtraRefactoringOperations;
 }
