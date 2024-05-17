@@ -516,6 +516,7 @@ add_qtc_plugin(QmlDesigner
     ${CMAKE_CURRENT_LIST_DIR}/components/propertyeditor
     ${CMAKE_CURRENT_LIST_DIR}/components/stateseditor
     ${CMAKE_CURRENT_LIST_DIR}/components/texteditor
+    ${CMAKE_CURRENT_LIST_DIR}/components/designsystem
   PUBLIC_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}
     ${CMAKE_CURRENT_LIST_DIR}/designercore #can not be a public dependency -> EXCLUDE_FROM_INSTALL in QmlDesignerCore
@@ -1155,6 +1156,14 @@ extend_qtc_plugin(QmlDesigner
     toolbar.h
     toolbarbackend.cpp
     toolbarbackend.h
+)
+
+extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/designsystem
+  SOURCES
+  dsconstants.h
+  dsthememanager.h dsthememanager.cpp
+  dsthemegroup.cpp dsthemegroup.h
 )
 
 add_qtc_plugin(assetexporterplugin
