@@ -619,7 +619,8 @@ QVariant ObjectNodeInstance::property(const PropertyName &name) const
     QQmlProperty property(object(), QString::fromUtf8(name), context());
     if (property.property().isEnumType()) {
         QVariant value = property.read();
-        return property.property().enumerator().valueToKey(value.toInt());
+        QMetaEnum me = property.property().enumerator();
+        return QVariant::fromValue<Enumeration>(Enumeration(me.scope(), me.valueToKey(value.toInt())));
     }
 
     if (property.propertyType() == QVariant::Url) {
