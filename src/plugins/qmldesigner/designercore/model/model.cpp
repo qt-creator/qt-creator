@@ -1874,7 +1874,7 @@ QString Model::generateNewId(const QString &prefixName, const QString &fallbackP
     if (!isDuplicate.has_value()) // TODO: to be removed separately to not break build
         isDuplicate = std::bind(&Model::hasId, this, std::placeholders::_1);
 
-    return UniqueName::getId(prefixName, [&] (const QString &id) {
+    return UniqueName::generateId(prefixName, [&] (const QString &id) {
         // Properties of the root node are not allowed for ids, because they are available in the
         // complete context without qualification.
         return isDuplicate.value()(id) || d->rootNode()->property(id.toUtf8());

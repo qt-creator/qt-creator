@@ -154,7 +154,7 @@ bool AssetsLibraryModel::renameFolder(const QString &folderPath, const QString &
 
 QString AssetsLibraryModel::addNewFolder(const QString &folderPath)
 {
-    Utils::FilePath uniqueDirPath = Utils::FilePath::fromString(UniqueName::getPath(folderPath));
+    Utils::FilePath uniqueDirPath = Utils::FilePath::fromString(UniqueName::generatePath(folderPath));
 
     auto res = uniqueDirPath.ensureWritableDir();
     if (!res.has_value()) {

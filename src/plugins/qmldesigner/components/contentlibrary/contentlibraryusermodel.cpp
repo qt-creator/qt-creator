@@ -317,11 +317,11 @@ QPair<QString, QString> ContentLibraryUserModel::getUniqueLibItemNames(const QSt
     baseQml[0] = baseQml.at(0).toUpper();
     baseQml.prepend("My");
 
-    QString uniqueQml = UniqueName::get(baseQml, [&] (const QString &name) {
+    QString uniqueQml = UniqueName::generate(baseQml, [&] (const QString &name) {
         return itemQmls.contains(name);
     });
 
-    QString uniqueIcon = UniqueName::get(defaultName, [&] (const QString &name) {
+    QString uniqueIcon = UniqueName::generate(defaultName, [&] (const QString &name) {
         return itemIcons.contains(name);
     });
 

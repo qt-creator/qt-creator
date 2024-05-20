@@ -3,10 +3,58 @@
 
 #include "uniquename.h"
 
+#include <utils/span.h>
+
 #include <QFileInfo>
 #include <QRegularExpression>
 
-namespace QmlDesigner {
+namespace QmlDesigner::UniqueName {
+
+using namespace Qt::Literals;
+
+constexpr QLatin1StringView keywords[] {
+    "anchors"_L1,        "as"_L1,         "baseState"_L1,
+    "border"_L1,         "bottom"_L1,     "break"_L1,
+    "case"_L1,           "catch"_L1,      "clip"_L1,
+    "color"_L1,          "continue"_L1,   "data"_L1,
+    "debugger"_L1,       "default"_L1,    "delete"_L1,
+    "do"_L1,             "else"_L1,       "enabled"_L1,
+    "finally"_L1,        "flow"_L1,       "focus"_L1,
+    "font"_L1,           "for"_L1,        "function"_L1,
+    "height"_L1,         "if"_L1,         "import"_L1,
+    "in"_L1,             "instanceof"_L1, "item"_L1,
+    "layer"_L1,          "left"_L1,       "margin"_L1,
+    "new"_L1,            "opacity"_L1,    "padding"_L1,
+    "parent"_L1,         "print"_L1,      "rect"_L1,
+    "return"_L1,         "right"_L1,      "scale"_L1,
+    "shaderInfo"_L1,     "source"_L1,     "sprite"_L1,
+    "spriteSequence"_L1, "state"_L1,      "switch"_L1,
+    "text"_L1,           "this"_L1,       "throw"_L1,
+    "top"_L1,            "try"_L1,        "typeof"_L1,
+    "var"_L1,            "visible"_L1,    "void"_L1,
+    "while"_L1,          "with"_L1,       "x"_L1,
+    "y"_L1
+};
+
+namespace {
+
+QString toCamelCase(const QString &input)
+{
+    QString result = input.at(0).toLower();
+    bool capitalizeNext = false;
+
+    for (const QChar &c : Utils::span{input}.subspan(1)) {
+        bool isValidChar = c.isLetterOrNumber() || c == '_';
+        if (isValidChar)
+            result += capitalizeNext ? c.toUpper() : c;
+
+        capitalizeNext = !isValidChar;
+    }
+
+    return result;
+}
+
+} // namespace
 
 /**
  * @brief Generates a unique name based on the provided name.
@@ -19,7 +67,7 @@ namespace QmlDesigner {
  *        false if name is unique.
  * @return A unique name derived from the provided name.
  */
-QString UniqueName::get(const QString &name, std::function<bool(const QString &)> predicate)
+QString generate(const QString &name, std::function<bool(const QString &)> predicate)
 {
     if (!predicate(name))
         return name;
@@ -61,7 +109,7 @@ QString UniqueName::get(const QString &name, std::function<bool(const QString &)
  * @param path The original path to be made unique.
  * @return A unique path derived from the provided path.
  */
-QString UniqueName::getPath(const QString &path)
+QString generatePath(const QString &path)
 {
     // Remove the trailing slash if it exists (otherwise QFileInfo::path() returns empty)
     QString adjustedPath = path;
@@ -77,8 +125,8 @@ QString UniqueName::getPath(const QString &path)
     QString parentDir = fileInfo.path();
     QString pathTemplate = parentDir + "/%1" + suffix;
 
-    QString uniqueBaseName = UniqueName::get(baseName, [&] (const QString &currName) {
-        return !QFileInfo::exists(pathTemplate.arg(currName));
+    QString uniqueBaseName = UniqueName::generate(baseName, [&] (const QString &currName) {
+        return QFileInfo::exists(pathTemplate.arg(currName));
     });
 
     return pathTemplate.arg(uniqueBaseName);
@@ -97,25 +145,18 @@ QString UniqueName::getPath(const QString &path)
  * @param id The original id to be made unique.
  * @return A unique Id (when predicate() returns false)
  */
-QString UniqueName::getId(const QString &id, std::function<bool(const QString &)> predicate)
+QString generateId(const QString &id, std::function<bool(const QString &)> predicate)
 {
-    // remove non word (non A-Z, a-z, 0-9) characters
-    static const QRegularExpression nonWordCharsRgx("\\W");
-    QString newId = id.simplified();
-    newId.remove(nonWordCharsRgx);
+    // remove non word (non A-Z, a-z, 0-9) or space characters
+    QString newId = id.trimmed();
 
-    // convert to camel case
-    QStringList idParts = newId.split(" ");
-    idParts[0] = idParts[0].at(0).toLower() + idParts[0].mid(1);
-    for (int i = 1; i < idParts.size(); ++i)
-        idParts[i] = idParts[i].at(0).toUpper() + idParts[i].mid(1);
-    newId = idParts.join("");
+    newId = toCamelCase(newId);
 
     // prepend _ if starts with a digit or invalid id (such as reserved words)
-    if (newId.at(0).isDigit() || std::binary_search(keywords.begin(), keywords.end(), newId))
+    if (newId.at(0).isDigit() || std::binary_search(std::begin(keywords), std::end(keywords), newId))
         newId.prepend('_');
 
-    return UniqueName::get(newId, predicate);
+    return UniqueName::generate(newId, predicate);
 }
 
-} // namespace QmlDesigner
+} // namespace QmlDesigner::UniqueName

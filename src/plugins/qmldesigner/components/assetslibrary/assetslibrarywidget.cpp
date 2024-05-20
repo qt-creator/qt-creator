@@ -178,7 +178,7 @@ QString AssetsLibraryWidget::getUniqueEffectPath(const QString &parentFolder, co
     QString effectsDir = ModelNodeOperations::getEffectsDefaultDirectory(parentFolder);
     QString effectPath = QLatin1String("%1/%2.qep").arg(effectsDir, effectName);
 
-    return UniqueName::getPath(effectPath);
+    return UniqueName::generatePath(effectPath);
 }
 
 bool AssetsLibraryWidget::createNewEffect(const QString &effectPath, bool openInEffectComposer)
