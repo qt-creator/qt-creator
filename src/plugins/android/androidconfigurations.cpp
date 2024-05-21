@@ -180,11 +180,23 @@ static QString getDeviceProperty(const QString &device, const QString &property)
     return {};
 }
 
-//////////////////////////////////
-// AndroidConfig
-//////////////////////////////////
+static QLatin1String toolsPrefix(const Abi &abi)
+{
+    switch (abi.architecture()) {
+    case Abi::ArmArchitecture:
+        if (abi.wordWidth() == 64)
+            return AArch64ToolsPrefix;
+        return ArmToolsPrefix;
+    case Abi::X86Architecture:
+        if (abi.wordWidth() == 64)
+            return X86_64ToolsPrefix;
+        return X86ToolsPrefix;
+    default:
+        return Unknown;
+    }
+}
 
-QLatin1String AndroidConfig::toolchainPrefix(const Abi &abi)
+static QLatin1String toolchainPrefix(const Abi &abi)
 {
     switch (abi.architecture()) {
     case Abi::ArmArchitecture:
@@ -200,21 +212,9 @@ QLatin1String AndroidConfig::toolchainPrefix(const Abi &abi)
     }
 }
 
-QLatin1String AndroidConfig::toolsPrefix(const Abi &abi)
-{
-    switch (abi.architecture()) {
-    case Abi::ArmArchitecture:
-        if (abi.wordWidth() == 64)
-            return AArch64ToolsPrefix;
-        return ArmToolsPrefix;
-    case Abi::X86Architecture:
-        if (abi.wordWidth() == 64)
-            return X86_64ToolsPrefix;
-        return X86ToolsPrefix;
-    default:
-        return Unknown;
-    }
-}
+//////////////////////////////////
+// AndroidConfig
+//////////////////////////////////
 
 QLatin1String AndroidConfig::displayName(const Abi &abi)
 {
@@ -407,7 +407,7 @@ static QList<int> availableNdkPlatformsV21Plus(const FilePath &ndkLocation, cons
     if (abis.isEmpty())
         return {};
 
-    const QString abi = AndroidConfig::toolsPrefix(abis.first());
+    const QString abi = toolsPrefix(abis.first());
     const FilePath libPath =
             AndroidConfig::toolchainPathFromNdk(ndkLocation, hostOs) / "sysroot/usr/lib" / abi;
     const FilePaths dirEntries = libPath.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
