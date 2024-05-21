@@ -145,7 +145,6 @@ private:
     static QString getDeviceProperty(const QString &device, const QString &property);
 
     Utils::FilePath openJDKBinPath() const;
-    static QString getAvdName(const QString &serialnumber);
 
     void parseDependenciesJson();
 
