@@ -425,15 +425,12 @@ void LocatorMatcher::start()
     QTC_ASSERT(!isRunning(), return);
     d->m_output = {};
 
-    struct CollectorStorage
-    {
-        ResultsCollector *m_collector = nullptr;
-    };
-    Storage<CollectorStorage> collectorStorage;
+    const Storage<ResultsCollector *> collectorStorage;
+    const LoopList iterator(d->m_tasks);
 
-    const int filterCount = d->m_tasks.size();
-    const auto onCollectorSetup = [this, filterCount, collectorStorage](ResultsCollector &collector) {
-        collectorStorage->m_collector = &collector;
+    const auto onCollectorSetup = [this, filterCount = d->m_tasks.size(), collectorStorage](
+                                      ResultsCollector &collector) {
+        *collectorStorage = &collector;
         collector.setFilterCount(filterCount);
         connect(&collector, &ResultsCollector::serialOutputDataReady,
                 this, [this](const LocatorFilterEntries &serialOutputData) {
@@ -441,42 +438,31 @@ void LocatorMatcher::start()
             emit serialOutputDataReady(serialOutputData);
         });
     };
-    const auto onCollectorDone = [collectorStorage] {
-        collectorStorage->m_collector = nullptr;
-    };
+    const auto onCollectorDone = [collectorStorage] { *collectorStorage = nullptr; };
 
-    QList<GroupItem> parallelTasks {parallelLimit(d->m_parallelLimit)};
-
-    const auto onSetup = [this, collectorStorage](const Storage<LocatorStorage> &storage,
-                                                    int index) {
-        return [this, collectorStorage, storage, index] {
-            ResultsCollector *collector = collectorStorage->m_collector;
-            QTC_ASSERT(collector, return);
-            *storage = std::make_shared<LocatorStoragePrivate>(d->m_input, index,
-                                                               collector->deduplicator());
+    const auto onTaskTreeSetup = [iterator, input = d->m_input, collectorStorage](TaskTree &taskTree) {
+        const std::shared_ptr<ResultsDeduplicator> deduplicator = (*collectorStorage)->deduplicator();
+        const Storage<LocatorStorage> storage = iterator->storage;
+        const auto onSetup = [storage, input, index = iterator.iteration(), deduplicator] {
+            *storage = std::make_shared<LocatorStoragePrivate>(input, index, deduplicator);
         };
-    };
-
-    int index = 0;
-    for (const LocatorMatcherTask &task : std::as_const(d->m_tasks)) {
-        const auto storage = task.storage;
-        const Group group {
+        taskTree.setRecipe({
             finishAllAndSuccess,
             storage,
-            onGroupSetup(onSetup(storage, index)),
-            onGroupDone([storage] { storage->finalize(); }),
-            task.task
-        };
-        parallelTasks << group;
-        ++index;
-    }
+            onGroupSetup(onSetup),
+            iterator->task,
+            onGroupDone([storage] { storage->finalize(); })
+        });
+    };
 
     const Group root {
         parallel,
         collectorStorage,
         ResultsCollectorTask(onCollectorSetup, onCollectorDone),
         Group {
-            parallelTasks
+            parallelLimit(d->m_parallelLimit),
+            iterator,
+            TaskTreeTask(onTaskTreeSetup)
         }
     };
     d->m_taskTreeRunner.start(root, {}, [this](DoneWith result) {
