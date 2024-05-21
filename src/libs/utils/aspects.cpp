@@ -103,16 +103,21 @@ public:
     \brief The \c BaseAspect class provides a common base for classes implementing
     aspects.
 
-    An aspect is a hunk of data like a property or collection of related
+    An \e aspect is a hunk of data like a property or collection of related
     properties of some object, together with a description of its behavior
     for common operations like visualizing or persisting.
 
-    Simple aspects are for example a boolean property represented by a QCheckBox
+    Simple aspects are, for example, a boolean property represented by a QCheckBox
     in the user interface, or a string property represented by a PathChooser,
-    selecting directories in the filesystem.
+    for selecting directories in the filesystem.
 
-    While aspects implementations usually have the ability to visualize and to persist
+    While aspects implementations usually can visualize and persist
     their data, or use an ID, neither of these is mandatory.
+
+    The derived classes can implement addToLayout() to create a UI.
+
+    Implement \c guiToBuffer() and \c bufferToGui() to synchronize the UI with
+    the internal data.
 */
 
 /*!
@@ -198,7 +203,20 @@ QVariant BaseAspect::defaultVariantValue() const
 }
 
 /*!
-    \fn TypedAspect::setDefaultValue(const ValueType &value)
+    \class Utils::TypedAspect
+    \inheaderfile utils/aspects.h
+    \inmodule QtCreator
+
+    \brief The \c TypedAspect class is a helper class for implementing a simple
+    aspect.
+
+    A typed aspect contains a single piece of data that is of the type
+    \c ValueType.
+*/
+
+
+/*!
+    \fn template <typename ValueType> void Utils::TypedAspect<ValueType>::setDefaultValue(const ValueType &value)
 
     Sets a default \a value and the current value for this aspect.
 
