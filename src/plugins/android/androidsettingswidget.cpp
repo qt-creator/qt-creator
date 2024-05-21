@@ -518,7 +518,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
         }, Qt::SingleShotConnection);
     });
 
-    setOnApply([] { AndroidConfigurations::setConfig(androidConfig()); });
+    setOnApply([] { AndroidConfigurations::applyConfig(); });
 }
 
 void AndroidSettingsWidget::showEvent(QShowEvent *event)

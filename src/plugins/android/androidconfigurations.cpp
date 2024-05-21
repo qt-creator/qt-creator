@@ -1144,11 +1144,9 @@ AndroidConfigurations::AndroidConfigurations()
     m_instance = this;
 }
 
-void AndroidConfigurations::setConfig(const AndroidConfig &devConfigs)
+void AndroidConfigurations::applyConfig()
 {
     emit m_instance->aboutToUpdate();
-    androidConfig() = devConfigs;
-
     m_instance->save();
     updateAndroidDevice();
     registerNewToolchains();

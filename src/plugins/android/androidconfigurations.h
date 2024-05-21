@@ -169,7 +169,7 @@ class AndroidConfigurations : public QObject
 
 public:
     static Internal::AndroidSdkManager *sdkManager();
-    static void setConfig(const AndroidConfig &config);
+    static void applyConfig();
     static AndroidConfigurations *instance();
 
     static void registerNewToolchains();
