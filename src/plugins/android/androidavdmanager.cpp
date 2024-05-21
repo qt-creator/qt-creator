@@ -89,12 +89,25 @@ bool startAvdAsync(const QString &avdName)
 
 QString findAvd(const QString &avdName)
 {
-    const QList<AndroidDeviceInfo> devices = AndroidConfig::connectedDevices();
-    for (const AndroidDeviceInfo &device : devices) {
-        if (device.type != ProjectExplorer::IDevice::Emulator)
+    Process adbProcess;
+    adbProcess.setCommand({AndroidConfig::adbToolPath(), {"devices"}});
+    adbProcess.runBlocking();
+    if (adbProcess.result() != ProcessResult::FinishedWithSuccess)
+        return {};
+
+    // mid(1) - remove "List of devices attached" header line
+    const QStringList lines = adbProcess.allOutput().split('\n', Qt::SkipEmptyParts).mid(1);
+    for (const QString &line : lines) {
+        // skip the daemon logs
+        if (line.startsWith("* daemon"))
             continue;
-        if (device.avdName == avdName)
-            return device.serialNumber;
+
+        const QString serialNumber = line.left(line.indexOf('\t')).trimmed();
+        if (!serialNumber.startsWith("emulator"))
+            continue;
+
+        if (AndroidConfig::getAvdName(serialNumber) == avdName)
+            return serialNumber;
     }
     return {};
 }

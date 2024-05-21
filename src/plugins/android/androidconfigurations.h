@@ -38,6 +38,7 @@ public:
 
 namespace AndroidConfig {
 
+QString getAvdName(const QString &serialnumber);
 QStringList apiLevelNamesFor(const SdkPlatformList &platforms);
 QString apiLevelNameFor(const SdkPlatform *platform);
 

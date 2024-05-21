@@ -141,33 +141,6 @@ static QString buildToolsPackageMarker()
     return QLatin1String(Constants::buildToolsPackageName) + ";";
 }
 
-static QString getAvdName(const QString &serialnumber)
-{
-    const int index = serialnumber.indexOf(QLatin1String("-"));
-    if (index == -1)
-        return {};
-    bool ok;
-    const int port = serialnumber.mid(index + 1).toInt(&ok);
-    if (!ok)
-        return {};
-
-    QTcpSocket tcpSocket;
-    tcpSocket.connectToHost(QHostAddress(QHostAddress::LocalHost), port);
-    if (!tcpSocket.waitForConnected(100)) // Don't wait more than 100ms for a local connection
-        return {};
-
-    tcpSocket.write("avd name\nexit\n");
-    tcpSocket.waitForDisconnected(500);
-
-    const QByteArrayList response = tcpSocket.readAll().split('\n');
-    // The input "avd name" might not be echoed as-is, but contain ASCII control sequences.
-    for (int i = response.size() - 1; i > 1; --i) {
-        if (response.at(i).startsWith("OK"))
-            return QString::fromLatin1(response.at(i - 1)).trimmed();
-    }
-    return {};
-}
-
 static QString getDeviceProperty(const QString &device, const QString &property)
 {
     // workaround for '????????????' serial numbers
@@ -310,6 +283,33 @@ static FilePath ndkSubPathFromQtVersion(const QtVersion &version)
 //////////////////////////////////
 // AndroidConfig
 //////////////////////////////////
+
+QString getAvdName(const QString &serialnumber)
+{
+    const int index = serialnumber.indexOf(QLatin1String("-"));
+    if (index == -1)
+        return {};
+    bool ok;
+    const int port = serialnumber.mid(index + 1).toInt(&ok);
+    if (!ok)
+        return {};
+
+    QTcpSocket tcpSocket;
+    tcpSocket.connectToHost(QHostAddress(QHostAddress::LocalHost), port);
+    if (!tcpSocket.waitForConnected(100)) // Don't wait more than 100ms for a local connection
+        return {};
+
+    tcpSocket.write("avd name\nexit\n");
+    tcpSocket.waitForDisconnected(500);
+
+    const QByteArrayList response = tcpSocket.readAll().split('\n');
+    // The input "avd name" might not be echoed as-is, but contain ASCII control sequences.
+    for (int i = response.size() - 1; i > 1; --i) {
+        if (response.at(i).startsWith("OK"))
+            return QString::fromLatin1(response.at(i - 1)).trimmed();
+    }
+    return {};
+}
 
 QLatin1String displayName(const Abi &abi)
 {
