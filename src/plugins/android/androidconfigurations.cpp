@@ -674,61 +674,6 @@ FilePath keytoolPath()
     return openJDKBinPath().pathAppended(keytoolName).withExecutableSuffix();
 }
 
-QList<AndroidDeviceInfo> connectedDevices(QString *error)
-{
-    QList<AndroidDeviceInfo> devices;
-    Process adbProc;
-    CommandLine cmd{adbToolPath(), {"devices"}};
-    adbProc.setCommand(cmd);
-    using namespace std::chrono_literals;
-    adbProc.runBlocking(30s);
-    if (adbProc.result() != ProcessResult::FinishedWithSuccess) {
-        if (error)
-            *error = Tr::tr("Could not run: %1").arg(cmd.toUserOutput());
-        return devices;
-    }
-    QStringList adbDevs = adbProc.allOutput().split('\n', Qt::SkipEmptyParts);
-    if (adbDevs.empty())
-        return devices;
-
-    for (const QString &line : adbDevs) // remove the daemon logs
-        if (line.startsWith("* daemon"))
-            adbDevs.removeOne(line);
-    adbDevs.removeFirst(); // remove "List of devices attached" header line
-
-    // workaround for '????????????' serial numbers:
-    // can use "adb -d" when only one usb device attached
-    for (const QString &device : std::as_const(adbDevs)) {
-        const QString serialNo = device.left(device.indexOf('\t')).trimmed();
-        const QString deviceType = device.mid(device.indexOf('\t')).trimmed();
-        AndroidDeviceInfo dev;
-        dev.serialNumber = serialNo;
-        dev.type = serialNo.startsWith(QLatin1String("emulator")) ? IDevice::Emulator
-                                                                  : IDevice::Hardware;
-        dev.sdk = getSDKVersion(dev.serialNumber);
-        dev.cpuAbi = getAbis(dev.serialNumber);
-        if (deviceType == QLatin1String("unauthorized"))
-            dev.state = IDevice::DeviceConnected;
-        else if (deviceType == QLatin1String("offline"))
-            dev.state = IDevice::DeviceDisconnected;
-        else
-            dev.state = IDevice::DeviceReadyToUse;
-
-        if (dev.type == IDevice::Emulator) {
-            dev.avdName = getAvdName(dev.serialNumber);
-            if (dev.avdName.isEmpty())
-                dev.avdName = serialNo;
-        }
-
-        devices.push_back(dev);
-    }
-
-    Utils::sort(devices);
-    if (devices.isEmpty() && error)
-        *error = Tr::tr("No devices found in output of: %1").arg(cmd.toUserOutput());
-    return devices;
-}
-
 bool isConnected(const QString &serialNumber)
 {
     Process adbProcess;

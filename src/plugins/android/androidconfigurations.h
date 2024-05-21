@@ -89,8 +89,6 @@ Utils::FilePath makePathFromNdk(const Utils::FilePath &ndkLocation);
 
 Utils::FilePath keytoolPath();
 
-QList<AndroidDeviceInfo> connectedDevices(QString *error = nullptr);
-
 QString bestNdkPlatformMatch(int target, const QtSupport::QtVersion *qtVersion);
 
 QLatin1String displayName(const ProjectExplorer::Abi &abi);
