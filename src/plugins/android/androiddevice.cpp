@@ -860,8 +860,8 @@ void AndroidDeviceManager::handleDevicesListChange(const QString &serialNumber)
             newDev->setDeviceState(state);
 
             newDev->setExtraData(Constants::AndroidSerialNumber, serial);
-            newDev->setExtraData(Constants::AndroidCpuAbi, androidConfig().getAbis(serial));
-            newDev->setExtraData(Constants::AndroidSdk, androidConfig().getSDKVersion(serial));
+            newDev->setExtraData(Constants::AndroidCpuAbi, AndroidConfig::getAbis(serial));
+            newDev->setExtraData(Constants::AndroidSdk, AndroidConfig::getSDKVersion(serial));
 
             qCDebug(androidDeviceLog, "Registering new Android device id \"%s\".",
                     newDev->id().toString().toUtf8().data());

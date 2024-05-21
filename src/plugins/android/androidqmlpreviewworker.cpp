@@ -290,7 +290,7 @@ bool AndroidQmlPreviewWorker::ensureAvdIsRunning()
                 appendMessage(Tr::tr("Could not start AVD."), ErrorMessageFormat);
             } else {
                 m_serialNumber = devInfoLocal.serialNumber;
-                m_avdAbis = androidConfig().getAbis(m_serialNumber);
+                m_avdAbis = AndroidConfig::getAbis(m_serialNumber);
             }
             return !devInfoLocal.serialNumber.isEmpty();
         } else {
@@ -298,7 +298,7 @@ bool AndroidQmlPreviewWorker::ensureAvdIsRunning()
         }
         return false;
     }
-    m_avdAbis = androidConfig().getAbis(m_serialNumber);
+    m_avdAbis = AndroidConfig::getAbis(m_serialNumber);
     return true;
 }
 
