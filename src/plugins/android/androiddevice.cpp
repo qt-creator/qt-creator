@@ -633,17 +633,30 @@ void AndroidDeviceManager::setEmulatorArguments(QWidget *parent)
 
 QString AndroidDeviceManager::getRunningAvdsSerialNumber(const QString &name) const
 {
-    for (const AndroidDeviceInfo &dev : AndroidConfig::connectedDevices()) {
-        if (!dev.serialNumber.startsWith("emulator"))
+    Process adbProcess;
+    adbProcess.setCommand({AndroidConfig::adbToolPath(), {"devices"}});
+    adbProcess.runBlocking();
+    if (adbProcess.result() != ProcessResult::FinishedWithSuccess)
+        return {};
+
+    // mid(1) - remove "List of devices attached" header line
+    const QStringList lines = adbProcess.allOutput().split('\n', Qt::SkipEmptyParts).mid(1);
+    for (const QString &line : lines) {
+        // skip the daemon logs
+        if (line.startsWith("* daemon"))
             continue;
-        const QString stdOut = emulatorName(dev.serialNumber);
+
+        const QString serialNumber = line.left(line.indexOf('\t')).trimmed();
+        if (!serialNumber.startsWith("emulator"))
+            continue;
+
+        const QString stdOut = emulatorName(serialNumber);
         if (stdOut.isEmpty())
             continue; // Not an avd
-        const QStringList outputLines = stdOut.split('\n');
-        if (outputLines.size() > 1 && outputLines.first() == name)
-            return dev.serialNumber;
-    }
 
+        if (stdOut.left(stdOut.indexOf('\n')) == name)
+            return serialNumber;
+    }
     return {};
 }
 
