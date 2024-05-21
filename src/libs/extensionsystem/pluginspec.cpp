@@ -560,7 +560,7 @@ QString PluginSpec::errorString() const
 
 /*!
     Returns whether this plugin can be used to fill in a dependency of the given
-    \a pluginName and \a version.
+    \a pluginName and \a pluginVersion.
 
         \sa PluginSpec::dependencies()
 */
