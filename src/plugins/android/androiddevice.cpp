@@ -51,6 +51,12 @@ static constexpr char ipRegexStr[] = "(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}
 static const QRegularExpression ipRegex = QRegularExpression(ipRegexStr);
 static constexpr char wifiDevicePort[] = "5555";
 
+static QString displayNameFromInfo(const AndroidDeviceInfo &info)
+{
+    return info.type == IDevice::Hardware ? androidConfig().getProductModel(info.serialNumber)
+                                          : info.avdName;
+}
+
 class AndroidDeviceWidget : public IDeviceWidget
 {
 public:
@@ -243,13 +249,6 @@ AndroidDeviceInfo AndroidDevice::androidDeviceInfoFromIDevice(const IDevice *dev
     info.type = dev->machineType();
 
     return info;
-}
-
-QString AndroidDevice::displayNameFromInfo(const AndroidDeviceInfo &info)
-{
-    return info.type == IDevice::Hardware
-            ? androidConfig().getProductModel(info.serialNumber)
-            : info.avdName;
 }
 
 Id AndroidDevice::idFromDeviceInfo(const AndroidDeviceInfo &info)
@@ -745,7 +744,7 @@ void AndroidDeviceManager::handleAvdListChange(const AndroidDeviceInfoList &avdL
     QList<Id> connectedDevs;
     for (const AndroidDeviceInfo &item : avdList) {
         const Id deviceId = AndroidDevice::idFromDeviceInfo(item);
-        const QString displayName = AndroidDevice::displayNameFromInfo(item);
+        const QString displayName = displayNameFromInfo(item);
         IDevice::ConstPtr dev = devMgr->find(deviceId);
         if (dev) {
             const auto androidDev = static_cast<const AndroidDevice *>(dev.get());

@@ -29,7 +29,6 @@ public:
     static IDevice::Ptr create();
     static AndroidDeviceInfo androidDeviceInfoFromIDevice(const IDevice *dev);
 
-    static QString displayNameFromInfo(const AndroidDeviceInfo &info);
     static Utils::Id idFromDeviceInfo(const AndroidDeviceInfo &info);
     static Utils::Id idFromAvdInfo(const CreateAvdInfo &info);
 
