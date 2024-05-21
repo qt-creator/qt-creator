@@ -62,7 +62,8 @@
 
     \section1 Adding Language Servers
 
-    \QC adds a Python language server by default.
+    \QC adds a \l{Configure Python language servers}{Python language server} by
+    default.
 
     Also, it offers to install language servers for JSON and YAML files
     when you open them in the editor if it can find the
@@ -71,17 +72,21 @@
 
     \image qtcreator-language-server-json.webp {Prompt to install JSON language server}
 
-    Add a Java language server for \l{Developing for Android}
-    {Android development}. For other languages, add generic stdIO language
-    servers.
+    \l{Add a Java language server} for  \l{Developing for Android}
+    {Android development}. For other languages,
+    \l{Add generic language servers}{add generic stdIO language servers}.
 
     To add language servers, go to \preferences > \uicontrol {Language Client}
     and select \uicontrol Add.
 
     \image qtcreator-language-client-options-java.png {Java language server preferences}
 
-    To enable a language server, select the check box next to the language
+    To enable a language server, select the checkbox next to the language
     server name and set server preferences.
+
+    To turn on \l{Turn on \QMLLS}{\QMLLS}, go to
+    \preferences > \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing} and
+    select \uicontrol {Enable \QMLLS}.
 
     To remove language servers from the list, select \uicontrol Delete.
 
@@ -218,23 +223,23 @@
 
     \ingroup creator-how-to-lsp
 
-    \title Turn on QML Language Server
+    \title Turn on \QMLLS
 
-    Since Qt 6.4, the QML language server offers code completion and
+    Since Qt 6.4, \QMLLS offers code completion and
     issues warnings for QML. To use it, go to \preferences >
     \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing} and select
-    \uicontrol {Enable QML Language Server}.
+    \uicontrol {Enable \QMLLS}.
 
-    By default, enabling the QML language server will only enable warning messages
+    By default, enabling \QMLLS will only enable warning messages
     and code completion, while advanced features such as renaming and finding usages
     will be handled by the embedded code model.
-    To disable the embedded code model and use the QML language server for everything,
-    select \uicontrol {Use QML Language Server advanced features}.
+    To disable the embedded code model and use \QMLLS for everything,
+    select \uicontrol {Use \QMLLS advanced features}.
 
-    Also, \QC tries to use the QML language server shipped with
-    the Qt version in your current kit. To override that behavior and always use the
-    QML language server of the highest registered Qt version, select
-    \uicontrol {Use QML Language Server from latest Qt version}.
+    Also, \QC tries to use \QMLLS shipped with
+    the Qt version in your current kit. To override that behavior and always use
+    \QMLLS of the highest registered Qt version, select
+    \uicontrol {Use \QMLLS from latest Qt version}.
 
     \image qtcreator-qml-js-editing.webp {QML/JS Editing preferences}
 
