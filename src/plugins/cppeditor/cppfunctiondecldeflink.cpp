@@ -21,8 +21,6 @@
 #include <cplusplus/Overview.h>
 #include <cplusplus/TypeOfExpression.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <texteditor/refactoroverlay.h>
 #include <texteditor/texteditorconstants.h>
 
@@ -239,7 +237,7 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
     m_watcher.reset(new QFutureWatcher<std::shared_ptr<FunctionDeclDefLink> >());
     connect(m_watcher.get(), &QFutureWatcherBase::finished, this, &FunctionDeclDefLinkFinder::onFutureDone);
     m_watcher->setFuture(Utils::asyncRun(findLinkHelper, result, refactoringChanges));
-    ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(m_watcher->future());
+    Utils::futureSynchronizer()->addFuture(m_watcher->future());
 }
 
 bool FunctionDeclDefLink::isValid() const

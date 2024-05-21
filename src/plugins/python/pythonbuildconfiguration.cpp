@@ -30,8 +30,6 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/algorithm.h>
 #include <utils/commandline.h>
 #include <utils/detailswidget.h>
@@ -110,7 +108,7 @@ void PySideBuildStep::checkForPySide(const FilePath &python, const QString &pySi
     });
     const auto future = Pip::instance(python)->info(package);
     m_watcher->setFuture(future);
-    ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(future);
+    Utils::futureSynchronizer()->addFuture(future);
 }
 
 void PySideBuildStep::handlePySidePackageInfo(const PipPackageInfo &pySideInfo,

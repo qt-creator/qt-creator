@@ -8,8 +8,6 @@
 
 #include <coreplugin/progressmanager/progressmanager.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <projectexplorer/treescanner.h>
 
 #include <utils/async.h>
@@ -190,7 +188,7 @@ void CompilationDbParser::start()
                                    "CompilationDatabase.Parse");
     ++m_runningParserJobs;
     m_parserWatcher.setFuture(future);
-    ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(future);
+    Utils::futureSynchronizer()->addFuture(future);
 }
 
 void CompilationDbParser::stop()

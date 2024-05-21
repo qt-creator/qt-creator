@@ -5,8 +5,6 @@
 
 #include "../coreplugintr.h"
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/algorithm.h>
@@ -277,8 +275,8 @@ ResultsCollector::~ResultsCollector()
         return;
 
     m_deduplicator->cancel();
-    if (ExtensionSystem::PluginManager::futureSynchronizer()) {
-        ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(m_watcher->future());
+    if (Utils::futureSynchronizer()) {
+        Utils::futureSynchronizer()->addFuture(m_watcher->future());
         return;
     }
     m_watcher->future().waitForFinished();

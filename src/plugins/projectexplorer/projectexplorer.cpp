@@ -2187,7 +2187,7 @@ void ProjectExplorerPluginPrivate::checkRecentProjectsAsync()
               p.exists = p.filePath.needsDevice() || p.filePath.isFile();
               return p;
           });
-    PluginManager::futureSynchronizer()->addFuture(m_recentProjectsFuture);
+    Utils::futureSynchronizer()->addFuture(m_recentProjectsFuture);
 
     onResultReady(m_recentProjectsFuture, this, [this](const RecentProjectsEntry &p) {
         auto it = std::find_if(

@@ -9,8 +9,6 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/TranslationUnit.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/async.h>
 #include <utils/futuresynchronizer.h>
 #include <utils/qtcassert.h>
@@ -143,7 +141,7 @@ void SemanticInfoUpdater::updateDetached(const SemanticInfo::Source &source)
     });
     const auto future = Utils::asyncRun(CppModelManager::sharedThreadPool(), doUpdate, source);
     d->m_watcher->setFuture(future);
-    ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(future);
+    Utils::futureSynchronizer()->addFuture(future);
 }
 
 SemanticInfo SemanticInfoUpdater::semanticInfo() const

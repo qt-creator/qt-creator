@@ -12,8 +12,6 @@
 
 #include <coreplugin/messagemanager.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <projectexplorer/projectexplorer.h>
 
 #include <utils/algorithm.h>
@@ -172,7 +170,7 @@ void FileApiReader::stop()
 
     if (m_future) {
         m_future->cancel();
-        ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(*m_future);
+        Utils::futureSynchronizer()->addFuture(*m_future);
     }
     m_future = {};
     m_isParsing = false;

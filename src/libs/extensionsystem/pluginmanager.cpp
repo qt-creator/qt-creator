@@ -434,11 +434,6 @@ QString PluginManager::systemInformation()
     return result;
 }
 
-FutureSynchronizer *PluginManager::futureSynchronizer()
-{
-    return Utils::futureSynchronizer();
-}
-
 /*!
     The list of paths were the plugin manager searches for plugins.
 

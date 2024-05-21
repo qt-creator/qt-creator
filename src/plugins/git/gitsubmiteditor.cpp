@@ -11,7 +11,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <extensionsystem/pluginmanager.h>
 #include <utils/async.h>
 #include <utils/qtcassert.h>
 #include <vcsbase/submitfilemodel.h>
@@ -210,7 +209,7 @@ void GitSubmitEditor::updateFileModel()
     Core::ProgressManager::addTask(m_fetchWatcher.future(), Tr::tr("Refreshing Commit Data"),
                                    TASK_UPDATE_COMMIT);
 
-    ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(m_fetchWatcher.future());
+    Utils::futureSynchronizer()->addFuture(m_fetchWatcher.future());
 }
 
 void GitSubmitEditor::forceUpdateFileModel()

@@ -9,8 +9,6 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitoptionspage.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -488,7 +486,7 @@ void DebuggerItemConfigWidget::binaryPathHasChanged()
                 tmp.reinitializeFromFile();
                 return tmp;
             }));
-            ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(m_updateWatcher.future());
+            Utils::futureSynchronizer()->addFuture(m_updateWatcher.future());
         } else {
             const DebuggerItem tmp;
             setAbis(tmp.abiNames());
