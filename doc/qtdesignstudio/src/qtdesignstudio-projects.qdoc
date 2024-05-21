@@ -113,8 +113,8 @@
                 \li In \uicontrol {Target Qt Version}, select the Qt
                 version to use for developing the application. While you can
                 change the Qt version later in the \uicontrol {Run Settings}
-                of the project, keep in mind that the two versions are not fully
-                compatible.
+                of the project, as described in \l {Overriding the Preview Tool},
+                keep in mind that the two versions are not fully compatible.
             \endlist
         \li In the \uicontrol {Style} tab, select one of
             the predefined \l{Styling Qt Quick Controls}{UI styles} to use.
