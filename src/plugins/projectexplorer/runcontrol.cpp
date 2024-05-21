@@ -418,7 +418,7 @@ void RunControl::setDevice(const IDevice::ConstPtr &device)
     QTC_CHECK(!d->device);
     d->device = device;
 #ifdef WITH_JOURNALD
-    if (!device.isNull() && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+    if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         JournaldWatcher::instance()->subscribe(this, [this](const JournaldWatcher::LogEntry &entry) {
 
             if (entry.value("_MACHINE_ID") != JournaldWatcher::instance()->machineId())
