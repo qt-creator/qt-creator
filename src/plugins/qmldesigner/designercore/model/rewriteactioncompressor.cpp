@@ -58,7 +58,6 @@ void RewriteActionCompressor::compressImports(QList<RewriteAction *> &actions) c
                 actionsToRemove.append(action);
                 actionsToRemove.append(addImportAction);
                 addedImports.remove(import);
-                delete addImportAction;
             } else {
                 removedImports.insert(import, action);
             }
@@ -67,13 +66,11 @@ void RewriteActionCompressor::compressImports(QList<RewriteAction *> &actions) c
             if (RewriteAction *duplicateAction = addedImports.value(import, 0)) {
                 actionsToRemove.append(duplicateAction);
                 addedImports.remove(import);
-                delete duplicateAction;
                 addedImports.insert(import, action);
             } else if (RewriteAction *removeAction = removedImports.value(import, 0)) {
                 actionsToRemove.append(action);
                 actionsToRemove.append(removeAction);
                 removedImports.remove(import);
-                delete removeAction;
             } else {
                 addedImports.insert(import, action);
             }
