@@ -142,8 +142,6 @@ public:
     Utils::Environment toolsEnvironment() const;
 
 private:
-    static QString getDeviceProperty(const QString &device, const QString &property);
-
     Utils::FilePath openJDKBinPath() const;
 
     void parseDependenciesJson();

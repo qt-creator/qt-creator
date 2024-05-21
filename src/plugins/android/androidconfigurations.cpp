@@ -168,6 +168,18 @@ static QString getAvdName(const QString &serialnumber)
     return {};
 }
 
+static QString getDeviceProperty(const QString &device, const QString &property)
+{
+    // workaround for '????????????' serial numbers
+    Process adbProc;
+    adbProc.setCommand({androidConfig().adbToolPath(),
+                        {AndroidDeviceInfo::adbSelector(device), "shell", "getprop", property}});
+    adbProc.runBlocking();
+    if (adbProc.result() == ProcessResult::FinishedWithSuccess)
+        return adbProc.allOutput();
+    return {};
+}
+
 //////////////////////////////////
 // AndroidConfig
 //////////////////////////////////
@@ -699,25 +711,10 @@ bool AndroidConfig::isConnected(const QString &serialNumber) const
     return false;
 }
 
-QString AndroidConfig::getDeviceProperty(const QString &device, const QString &property)
-{
-    // workaround for '????????????' serial numbers
-    Process adbProc;
-    adbProc.setCommand({androidConfig().adbToolPath(),
-                        {AndroidDeviceInfo::adbSelector(device), "shell", "getprop", property}});
-    adbProc.runBlocking();
-    if (adbProc.result() != ProcessResult::FinishedWithSuccess)
-        return {};
-
-    return adbProc.allOutput();
-}
-
 int AndroidConfig::getSDKVersion(const QString &device)
 {
-    QString tmp = getDeviceProperty(device, "ro.build.version.sdk");
-    if (tmp.isEmpty())
-        return -1;
-    return tmp.trimmed().toInt();
+    const QString tmp = getDeviceProperty(device, "ro.build.version.sdk");
+    return tmp.isEmpty() ? -1 : tmp.trimmed().toInt();
 }
 
 //!
@@ -730,7 +727,7 @@ QString AndroidConfig::getProductModel(const QString &device) const
     if (m_serialNumberToDeviceName.contains(device))
         return m_serialNumberToDeviceName.value(device);
 
-    QString model = getDeviceProperty(device, "ro.product.model").trimmed();
+    const QString model = getDeviceProperty(device, "ro.product.model").trimmed();
     if (model.isEmpty())
         return device;
 
