@@ -212,6 +212,29 @@ static QLatin1String toolchainPrefix(const Abi &abi)
     }
 }
 
+static FilePath gdbPathFromNdk(const Abi &abi, const FilePath &ndkLocation)
+{
+    const FilePath path = ndkLocation.pathAppended(
+        QString("prebuilt/%1/bin/gdb%2").arg(AndroidConfig::toolchainHostFromNdk(ndkLocation),
+                                             QString(QTC_HOST_EXE_SUFFIX)));
+    if (path.exists())
+        return path;
+    // fallback for old NDKs (e.g. 10e)
+    return ndkLocation.pathAppended(QString("toolchains/%1-4.9/prebuilt/%2/bin/%3-gdb%4")
+                                        .arg(toolchainPrefix(abi),
+                                             AndroidConfig::toolchainHostFromNdk(ndkLocation),
+                                             toolsPrefix(abi),
+                                             QString(QTC_HOST_EXE_SUFFIX)));
+}
+
+static FilePath lldbPathFromNdk(const FilePath &ndkLocation)
+{
+    const FilePath path = ndkLocation.pathAppended(
+        QString("toolchains/llvm/prebuilt/%1/bin/lldb%2")
+            .arg(AndroidConfig::toolchainHostFromNdk(ndkLocation), QString(QTC_HOST_EXE_SUFFIX)));
+    return path.exists() ? path : FilePath();
+}
+
 //////////////////////////////////
 // AndroidConfig
 //////////////////////////////////
@@ -599,31 +622,6 @@ FilePath AndroidConfig::clangPathFromNdk(const FilePath &ndkLocation)
 FilePath AndroidConfig::gdbPath(const Abi &abi, const QtVersion *qtVersion) const
 {
     return gdbPathFromNdk(abi, ndkLocation(qtVersion));
-}
-
-FilePath AndroidConfig::gdbPathFromNdk(const Abi &abi, const FilePath &ndkLocation)
-{
-    const FilePath path = ndkLocation.pathAppended(
-        QString("prebuilt/%1/bin/gdb%2").arg(toolchainHostFromNdk(ndkLocation),
-                                             QString(QTC_HOST_EXE_SUFFIX)));
-    if (path.exists())
-        return path;
-    // fallback for old NDKs (e.g. 10e)
-    return ndkLocation.pathAppended(QString("toolchains/%1-4.9/prebuilt/%2/bin/%3-gdb%4")
-                                                   .arg(toolchainPrefix(abi),
-                                                        toolchainHostFromNdk(ndkLocation),
-                                                        toolsPrefix(abi),
-                                                        QString(QTC_HOST_EXE_SUFFIX)));
-}
-
-FilePath AndroidConfig::lldbPathFromNdk(const FilePath &ndkLocation)
-{
-    const FilePath path = ndkLocation.pathAppended(
-        QString("toolchains/llvm/prebuilt/%1/bin/lldb%2").arg(toolchainHostFromNdk(ndkLocation),
-                                              QString(QTC_HOST_EXE_SUFFIX)));
-    if (path.exists())
-        return path;
-    return {};
 }
 
 FilePath AndroidConfig::makePathFromNdk(const FilePath &ndkLocation)
@@ -1283,14 +1281,14 @@ static QVariant findOrRegisterDebugger(Toolchain *tc,
                                        bool customDebugger = false)
 {
     const FilePath ndk = static_cast<AndroidToolchain *>(tc)->ndkLocation();
-    const FilePath lldbCommand = androidConfig().lldbPathFromNdk(ndk);
+    const FilePath lldbCommand = lldbPathFromNdk(ndk);
     const Debugger::DebuggerItem *existingLldb = existingDebugger(lldbCommand,
                                                                   Debugger::LldbEngineType);
     // Return existing debugger with same command - prefer lldb (limit to sdk/ndk min version?)
     if (existingLldb)
         return existingLldb->id();
 
-    const FilePath gdbCommand = androidConfig().gdbPathFromNdk(tc->targetAbi(), ndk);
+    const FilePath gdbCommand = gdbPathFromNdk(tc->targetAbi(), ndk);
 
     // check if the debugger is already registered, but ignoring the display name
     const Debugger::DebuggerItem *existingGdb = existingDebugger(gdbCommand,
