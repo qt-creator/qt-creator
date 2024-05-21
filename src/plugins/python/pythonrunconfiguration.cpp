@@ -3,14 +3,8 @@
 
 #include "pythonrunconfiguration.h"
 
-#include "pyside.h"
-#include "pythonbuildconfiguration.h"
 #include "pythonconstants.h"
-#include "pythoneditor.h"
-#include "pythonkitaspect.h"
-#include "pythonlanguageclient.h"
 #include "pythonproject.h"
-#include "pythonsettings.h"
 #include "pythontr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -18,31 +12,15 @@
 
 #include <debugger/debuggerruncontrol.h>
 
-#include <extensionsystem/pluginmanager.h>
-
-#include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/buildsystem.h>
-#include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
-#include <texteditor/textdocument.h>
-
 #include <utils/aspects.h>
 #include <utils/fileutils.h>
-#include <utils/futuresynchronizer.h>
-#include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
-#include <utils/qtcassert.h>
-#include <utils/theme/theme.h>
-
-#include <QComboBox>
-#include <QPlainTextEdit>
-#include <QPushButton>
 
 using namespace ProjectExplorer;
 using namespace Utils;
