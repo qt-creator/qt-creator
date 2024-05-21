@@ -619,11 +619,6 @@ FilePath AndroidConfig::clangPathFromNdk(const FilePath &ndkLocation)
     return path.pathAppended("bin/clang").withExecutableSuffix();
 }
 
-FilePath AndroidConfig::gdbPath(const Abi &abi, const QtVersion *qtVersion) const
-{
-    return gdbPathFromNdk(abi, ndkLocation(qtVersion));
-}
-
 FilePath AndroidConfig::makePathFromNdk(const FilePath &ndkLocation)
 {
     return ndkLocation.pathAppended(

@@ -68,7 +68,6 @@ public:
 
     QUrl sdkToolsUrl() const { return m_sdkToolsUrl; }
     QByteArray getSdkToolsSha256() const { return m_sdkToolsSha256; }
-    Utils::FilePath ndkSubPathFromQtVersion(const QtSupport::QtVersion &version) const; // relative!
 
     QStringList defaultEssentials() const;
     QStringList essentialsFromQtVersion(const QtSupport::QtVersion &version) const;
@@ -78,8 +77,6 @@ public:
 
     Utils::FilePath openJDKLocation() const;
     void setOpenJDKLocation(const Utils::FilePath &openJDKLocation);
-
-    Utils::FilePath keystoreLocation() const;
 
     QString toolchainHost(const QtSupport::QtVersion *qtVersion) const;
     static QString toolchainHostFromNdk(const Utils::FilePath &ndkPath);
@@ -103,7 +100,6 @@ public:
                                                 Utils::OsType hostOs = Utils::HostOsInfo::hostOs());
     static Utils::FilePath clangPathFromNdk(const Utils::FilePath &ndkLocation);
 
-    Utils::FilePath gdbPath(const ProjectExplorer::Abi &abi, const QtSupport::QtVersion *qtVersion) const;
     static Utils::FilePath makePathFromNdk(const Utils::FilePath &ndkLocation);
 
     Utils::FilePath keytoolPath() const;
@@ -138,6 +134,7 @@ public:
 
 private:
     Utils::FilePath openJDKBinPath() const;
+    Utils::FilePath ndkSubPathFromQtVersion(const QtSupport::QtVersion &version) const; // relative!
 
     void parseDependenciesJson();
 
