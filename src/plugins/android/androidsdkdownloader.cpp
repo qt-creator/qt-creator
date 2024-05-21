@@ -106,7 +106,7 @@ GroupItem downloadSdkRecipe()
     Storage<StorageStruct> storage;
 
     const auto onSetup = [] {
-        if (androidConfig().sdkToolsUrl().isEmpty()) {
+        if (AndroidConfig::sdkToolsUrl().isEmpty()) {
             logError(Tr::tr("The SDK Tools download URL is empty."));
             return SetupResult::StopWithError;
         }
@@ -114,7 +114,7 @@ GroupItem downloadSdkRecipe()
     };
 
     const auto onQuerySetup = [storage](NetworkQuery &query) {
-        query.setRequest(QNetworkRequest(androidConfig().sdkToolsUrl()));
+        query.setRequest(QNetworkRequest(AndroidConfig::sdkToolsUrl()));
         query.setNetworkAccessManager(NetworkAccessManager::instance());
         NetworkQuery *queryPtr = &query;
         QProgressDialog *progressDialog = storage->progressDialog.get();
@@ -166,7 +166,7 @@ GroupItem downloadSdkRecipe()
         if (!storage->sdkFileName)
             return SetupResult::StopWithError;
         async.setConcurrentCallData(validateFileIntegrity, *storage->sdkFileName,
-                                    androidConfig().getSdkToolsSha256());
+                                    AndroidConfig::getSdkToolsSha256());
         storage->progressDialog->setRange(0, 0);
         storage->progressDialog->setLabelText(Tr::tr("Verifying package integrity..."));
         return SetupResult::Continue;
@@ -197,7 +197,7 @@ GroupItem downloadSdkRecipe()
             logError(Tr::tr("Unarchiving error."));
             return;
         }
-        androidConfig().setTemporarySdkToolsPath(
+        AndroidConfig::setTemporarySdkToolsPath(
             storage->sdkFileName->parentDir().pathAppended(Constants::cmdlineToolsName));
     };
     const auto onCancelSetup = [storage] { return std::make_pair(storage->progressDialog.get(),

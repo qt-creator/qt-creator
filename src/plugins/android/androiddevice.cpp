@@ -53,7 +53,7 @@ static constexpr char wifiDevicePort[] = "5555";
 
 static QString displayNameFromInfo(const AndroidDeviceInfo &info)
 {
-    return info.type == IDevice::Hardware ? androidConfig().getProductModel(info.serialNumber)
+    return info.type == IDevice::Hardware ? AndroidConfig::getProductModel(info.serialNumber)
                                           : info.avdName;
 }
 
@@ -415,7 +415,7 @@ void AndroidDevice::initAvdSettings()
 
 void AndroidDeviceManager::updateAvdList()
 {
-    if (androidConfig().adbToolPath().exists())
+    if (AndroidConfig::adbToolPath().exists())
         m_avdListRunner.start(m_avdListRecipe);
 }
 
@@ -446,7 +446,7 @@ void AndroidDeviceManager::updateDeviceState(const ProjectExplorer::IDevice::Con
 
 expected_str<void> AndroidDeviceManager::createAvd(const CreateAvdInfo &info, bool force)
 {
-    CommandLine cmd(androidConfig().avdManagerToolPath(), {"create", "avd", "-n", info.name});
+    CommandLine cmd(AndroidConfig::avdManagerToolPath(), {"create", "avd", "-n", info.name});
     cmd.addArgs({"-k", info.sdkStylePath});
     if (info.sdcardSize > 0)
         cmd.addArgs({"-c", QString("%1M").arg(info.sdcardSize)});
@@ -460,7 +460,7 @@ expected_str<void> AndroidDeviceManager::createAvd(const CreateAvdInfo &info, bo
 
     Process process;
     process.setProcessMode(ProcessMode::Writer);
-    process.setEnvironment(androidConfig().toolsEnvironment());
+    process.setEnvironment(AndroidConfig::toolsEnvironment());
     process.setCommand(cmd);
     process.setWriteData("yes\n"); // yes to "Do you wish to create a custom hardware profile"
 
@@ -521,9 +521,9 @@ void AndroidDeviceManager::eraseAvd(const IDevice::Ptr &device, QWidget *parent)
 
     qCDebug(androidDeviceLog) << QString("Erasing Android AVD \"%1\" from the system.").arg(name);
     m_removeAvdProcess.reset(new Process);
-    const CommandLine command(androidConfig().avdManagerToolPath(), {"delete", "avd", "-n", name});
+    const CommandLine command(AndroidConfig::avdManagerToolPath(), {"delete", "avd", "-n", name});
     qCDebug(androidDeviceLog).noquote() << "Running command (removeAvd):" << command.toUserOutput();
-    m_removeAvdProcess->setEnvironment(androidConfig().toolsEnvironment());
+    m_removeAvdProcess->setEnvironment(AndroidConfig::toolsEnvironment());
     m_removeAvdProcess->setCommand(command);
     connect(m_removeAvdProcess.get(), &Process::done, this, [this, device] {
         const QString name = device->displayName();
@@ -618,7 +618,7 @@ void AndroidDeviceManager::setEmulatorArguments(QWidget *parent)
     dialog.setLabelText(Tr::tr("Emulator command-line startup options "
                                           "(<a href=\"%1\">Help Web Page</a>):")
                             .arg(helpUrl));
-    dialog.setTextValue(androidConfig().emulatorArgs());
+    dialog.setTextValue(AndroidConfig::emulatorArgs());
 
     if (auto label = dialog.findChild<QLabel*>()) {
         label->setOpenExternalLinks(true);
@@ -628,12 +628,12 @@ void AndroidDeviceManager::setEmulatorArguments(QWidget *parent)
     if (dialog.exec() != QDialog::Accepted)
         return;
 
-    androidConfig().setEmulatorArgs(dialog.textValue());
+    AndroidConfig::setEmulatorArgs(dialog.textValue());
 }
 
 QString AndroidDeviceManager::getRunningAvdsSerialNumber(const QString &name) const
 {
-    for (const AndroidDeviceInfo &dev : androidConfig().connectedDevices()) {
+    for (const AndroidDeviceInfo &dev : AndroidConfig::connectedDevices()) {
         if (!dev.serialNumber.startsWith("emulator"))
             continue;
         const QString stdOut = emulatorName(dev.serialNumber);
@@ -661,7 +661,7 @@ static FilePath avdFilePath()
 
 void AndroidDeviceManager::setupDevicesWatcher()
 {
-    if (!androidConfig().adbToolPath().exists()) {
+    if (!AndroidConfig::adbToolPath().exists()) {
         qCDebug(androidDeviceLog) << "Cannot start ADB device watcher"
                                   <<  "because adb path does not exist.";
         return;
@@ -693,10 +693,10 @@ void AndroidDeviceManager::setupDevicesWatcher()
         handleDevicesListChange(output);
     });
 
-    const CommandLine command{androidConfig().adbToolPath(), {"track-devices"}};
+    const CommandLine command{AndroidConfig::adbToolPath(), {"track-devices"}};
     m_adbDeviceWatcherProcess->setCommand(command);
     m_adbDeviceWatcherProcess->setWorkingDirectory(command.executable().parentDir());
-    m_adbDeviceWatcherProcess->setEnvironment(androidConfig().toolsEnvironment());
+    m_adbDeviceWatcherProcess->setEnvironment(AndroidConfig::toolsEnvironment());
     m_adbDeviceWatcherProcess->start();
 
     // Setup AVD filesystem watcher to listen for changes when an avd is created/deleted,
@@ -838,7 +838,7 @@ void AndroidDeviceManager::handleDevicesListChange(const QString &serialNumber)
         devMgr->setDeviceState(avdId, state);
     } else {
         const Id id = Id(Constants::ANDROID_DEVICE_ID).withSuffix(':' + serial);
-        QString displayName = androidConfig().getProductModel(serial);
+        QString displayName = AndroidConfig::getProductModel(serial);
         // Check if the device is connected via WiFi. A sample serial of such devices can be
         // like: "192.168.1.190:5555"
         static const auto ipRegex = QRegularExpression(ipRegexStr + QStringLiteral(":(\\d{1,5})"));
@@ -921,16 +921,16 @@ AndroidDeviceManager::AndroidDeviceManager(QObject *parent)
     });
 
     const auto onProcessSetup = [](Process &process) {
-        const CommandLine cmd(androidConfig().avdManagerToolPath(), {"list", "avd"});
+        const CommandLine cmd(AndroidConfig::avdManagerToolPath(), {"list", "avd"});
         qCDebug(androidDeviceLog).noquote() << "Running AVD Manager command:" << cmd.toUserOutput();
-        process.setEnvironment(androidConfig().toolsEnvironment());
+        process.setEnvironment(AndroidConfig::toolsEnvironment());
         process.setCommand(cmd);
     };
     const auto onProcessDone = [this, storage](const Process &process, DoneWith result) {
         const QString output = process.allOutput();
         if (result != DoneWith::Success) {
             qCDebug(androidDeviceLog)
-                << "Avd list command failed" << output << androidConfig().sdkToolsVersion();
+                << "Avd list command failed" << output << AndroidConfig::sdkToolsVersion();
             return DoneResult::Error;
         }
 
@@ -981,7 +981,7 @@ public:
                         ":/android/images/androiddevice.png");
         setConstructionFunction(&AndroidDevice::create);
         setCreator([] {
-            if (!androidConfig().sdkToolsOk()) {
+            if (!AndroidConfig::sdkToolsOk()) {
                 AndroidDeviceWidget::infoDialog(Tr::tr("Android support is not yet configured."));
                 return IDevice::Ptr();
             }

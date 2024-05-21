@@ -113,9 +113,9 @@ private:
     OutputFormatter *m_formatter = nullptr;
 };
 
-static QString sdkRootArg(const AndroidConfig &config)
+static QString sdkRootArg()
 {
-    return "--sdk_root=" + config.sdkLocation().toString();
+    return "--sdk_root=" + AndroidConfig::sdkLocation().toString();
 }
 
 const QRegularExpression &assertionRegExp()
@@ -172,9 +172,9 @@ static GroupItem licensesRecipe(const Storage<DialogStorage> &dialogStorage)
                                      "respective licenses are not accepted.") + "\n\n",
                               LogMessageFormat);
         process.setProcessMode(ProcessMode::Writer);
-        process.setEnvironment(androidConfig().toolsEnvironment());
-        process.setCommand(CommandLine(androidConfig().sdkManagerToolPath(),
-                                       {"--licenses", sdkRootArg(androidConfig())}));
+        process.setEnvironment(AndroidConfig::toolsEnvironment());
+        process.setCommand(CommandLine(AndroidConfig::sdkManagerToolPath(),
+                                       {"--licenses", sdkRootArg()}));
         process.setUseCtrlCStub(true);
 
         Process *processPtr = &process;
@@ -227,9 +227,9 @@ static GroupItem licensesRecipe(const Storage<DialogStorage> &dialogStorage)
 static void setupSdkProcess(const QStringList &args, Process *process,
                             QuestionProgressDialog *dialog, int current, int total)
 {
-    process->setEnvironment(androidConfig().toolsEnvironment());
-    process->setCommand({androidConfig().sdkManagerToolPath(),
-                         args + androidConfig().sdkManagerToolArgs()});
+    process->setEnvironment(AndroidConfig::toolsEnvironment());
+    process->setCommand({AndroidConfig::sdkManagerToolPath(),
+                         args + AndroidConfig::sdkManagerToolArgs()});
     QObject::connect(process, &Process::readyReadStandardOutput, dialog,
                      [process, dialog, current, total] {
         QTextCodec *codec = QTextCodec::codecForLocale();
@@ -269,7 +269,7 @@ static GroupItem installationRecipe(const Storage<DialogStorage> &dialogStorage,
     const int total = change.count();
     const LoopList uninstallIterator(change.toUninstall);
     const auto onUninstallSetup = [dialogStorage, uninstallIterator, total](Process &process) {
-        const QStringList args = {"--uninstall", *uninstallIterator, sdkRootArg(androidConfig())};
+        const QStringList args = {"--uninstall", *uninstallIterator, sdkRootArg()};
         QuestionProgressDialog *dialog = dialogStorage->m_dialog.get();
         setupSdkProcess(args, &process, dialog, uninstallIterator.iteration(), total);
         dialog->appendMessage(Tr::tr("Uninstalling %1...").arg(*uninstallIterator) + '\n',
@@ -280,7 +280,7 @@ static GroupItem installationRecipe(const Storage<DialogStorage> &dialogStorage,
     const LoopList installIterator(change.toInstall);
     const int offset = change.toUninstall.count();
     const auto onInstallSetup = [dialogStorage, installIterator, offset, total](Process &process) {
-        const QStringList args = {*installIterator, sdkRootArg(androidConfig())};
+        const QStringList args = {*installIterator, sdkRootArg()};
         QuestionProgressDialog *dialog = dialogStorage->m_dialog.get();
         setupSdkProcess(args, &process, dialog, offset + installIterator.iteration(), total);
         dialog->appendMessage(Tr::tr("Installing %1...").arg(*installIterator) + '\n',
@@ -310,7 +310,7 @@ static GroupItem installationRecipe(const Storage<DialogStorage> &dialogStorage,
 static GroupItem updateRecipe(const Storage<DialogStorage> &dialogStorage)
 {
     const auto onUpdateSetup = [dialogStorage](Process &process) {
-        const QStringList args = {"--update", sdkRootArg(androidConfig())};
+        const QStringList args = {"--update", sdkRootArg()};
         QuestionProgressDialog *dialog = dialogStorage->m_dialog.get();
         setupSdkProcess(args, &process, dialog, 0, 1);
         dialog->appendMessage(Tr::tr("Updating installed packages....") + '\n', NormalMessageFormat);
@@ -369,7 +369,7 @@ const AndroidSdkPackageList &AndroidSdkManager::allSdkPackages()
 
 QStringList AndroidSdkManager::notFoundEssentialSdkPackages()
 {
-    QStringList essentials = androidConfig().allEssentials();
+    QStringList essentials = AndroidConfig::allEssentials();
     const AndroidSdkPackageList &packages = allSdkPackages();
     for (AndroidSdkPackage *package : packages) {
         essentials.removeOne(package->sdkStylePath());
@@ -381,7 +381,7 @@ QStringList AndroidSdkManager::notFoundEssentialSdkPackages()
 
 QStringList AndroidSdkManager::missingEssentialSdkPackages()
 {
-    const QStringList essentials = androidConfig().allEssentials();
+    const QStringList essentials = AndroidConfig::allEssentials();
     const AndroidSdkPackageList &packages = allSdkPackages();
     QStringList missingPackages;
     for (AndroidSdkPackage *package : packages) {
@@ -461,7 +461,7 @@ BuildToolsList AndroidSdkManager::filteredBuildTools(int minApiLevel,
 
 void AndroidSdkManager::refreshPackages()
 {
-    if (androidConfig().sdkManagerToolPath() != m_d->lastSdkManagerPath)
+    if (AndroidConfig::sdkManagerToolPath() != m_d->lastSdkManagerPath)
         reloadPackages();
 }
 
@@ -479,14 +479,14 @@ bool AndroidSdkManager::packageListingSuccessful() const
     Runs the \c sdkmanger tool with arguments \a args. Returns \c true if the command is
     successfully executed. Output is copied into \a output. The function blocks the calling thread.
  */
-static bool sdkManagerCommand(const AndroidConfig &config, const QStringList &args, QString *output)
+static bool sdkManagerCommand(const QStringList &args, QString *output)
 {
     QStringList newArgs = args;
-    newArgs.append(sdkRootArg(config));
+    newArgs.append(sdkRootArg());
     Process proc;
-    proc.setEnvironment(config.toolsEnvironment());
+    proc.setEnvironment(AndroidConfig::toolsEnvironment());
     proc.setTimeOutMessageBoxEnabled(true);
-    proc.setCommand({config.sdkManagerToolPath(), newArgs});
+    proc.setCommand({AndroidConfig::sdkManagerToolPath(), newArgs});
     qCDebug(sdkManagerLog).noquote() << "Running SDK Manager command (sync):"
                                      << proc.commandLine().toUserOutput();
     proc.runBlocking(60s, EventLoopMode::On);
@@ -516,10 +516,10 @@ void AndroidSdkManagerPrivate::reloadSdkPackages()
     qDeleteAll(m_allPackages);
     m_allPackages.clear();
 
-    lastSdkManagerPath = androidConfig().sdkManagerToolPath();
+    lastSdkManagerPath = AndroidConfig::sdkManagerToolPath();
     m_packageListingSuccessful = false;
 
-    if (androidConfig().sdkToolsVersion().isNull()) {
+    if (AndroidConfig::sdkToolsVersion().isNull()) {
         // Configuration has invalid sdk path or corrupt installation.
         emit m_sdkManager.packageReloadFinished();
         return;
@@ -527,8 +527,8 @@ void AndroidSdkManagerPrivate::reloadSdkPackages()
 
     QString packageListing;
     QStringList args({"--list", "--verbose"});
-    args << androidConfig().sdkManagerToolArgs();
-    m_packageListingSuccessful = sdkManagerCommand(androidConfig(), args, &packageListing);
+    args << AndroidConfig::sdkManagerToolArgs();
+    m_packageListingSuccessful = sdkManagerCommand(args, &packageListing);
     if (m_packageListingSuccessful) {
         SdkManagerOutputParser parser(m_allPackages);
         parser.parsePackageListing(packageListing);

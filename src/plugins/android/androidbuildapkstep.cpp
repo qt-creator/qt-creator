@@ -415,7 +415,7 @@ bool AndroidBuildApkWidget::isOpenSslLibsIncluded()
 
 QString AndroidBuildApkWidget::openSslIncludeFileContent(const FilePath &projectPath)
 {
-    QString openSslPath = androidConfig().openSslLocation().toString();
+    QString openSslPath = AndroidConfig::openSslLocation().toString();
     if (projectPath.endsWith(".pro"))
         return "android: include(" + openSslPath + "/openssl.pri)";
     if (projectPath.endsWith("CMakeLists.txt"))
@@ -541,7 +541,7 @@ bool AndroidBuildApkStep::init()
     QStringList arguments = {"--input", m_inputFile.path(),
                              "--output", outputDir.path(),
                              "--android-platform", m_buildTargetSdk,
-                             "--jdk", androidConfig().openJDKLocation().path()};
+                             "--jdk", AndroidConfig::openJDKLocation().path()};
 
     if (verboseOutput())
         arguments << "--verbose";
@@ -929,17 +929,16 @@ QVariant AndroidBuildApkStep::data(Utils::Id id) const
 {
     if (id == Constants::AndroidNdkPlatform) {
         if (auto qtVersion = QtKitAspect::qtVersion(kit()))
-            return androidConfig()
-                .bestNdkPlatformMatch(AndroidManager::minimumSDK(target()), qtVersion);
+            return AndroidConfig::bestNdkPlatformMatch(AndroidManager::minimumSDK(target()), qtVersion);
         return {};
     }
     if (id == Constants::NdkLocation) {
         if (auto qtVersion = QtKitAspect::qtVersion(kit()))
-            return QVariant::fromValue(androidConfig().ndkLocation(qtVersion));
+            return QVariant::fromValue(AndroidConfig::ndkLocation(qtVersion));
         return {};
     }
     if (id == Constants::SdkLocation)
-        return QVariant::fromValue(androidConfig().sdkLocation());
+        return QVariant::fromValue(AndroidConfig::sdkLocation());
 
     if (id == Constants::AndroidMkSpecAbis)
         return AndroidManager::applicationAbis(target());
@@ -1000,7 +999,7 @@ QAbstractItemModel *AndroidBuildApkStep::keystoreCertificates()
         "-storepass", m_keystorePasswd, "-J-Duser.language=en"};
 
     Process keytoolProc;
-    keytoolProc.setCommand({androidConfig().keytoolPath(), params});
+    keytoolProc.setCommand({AndroidConfig::keytoolPath(), params});
     using namespace std::chrono_literals;
     keytoolProc.runBlocking(30s);
     if (keytoolProc.result() > ProcessResult::FinishedWithError)

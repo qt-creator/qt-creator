@@ -77,7 +77,7 @@ bool AndroidToolchain::isValid() const
     }
 
     const bool isChildofNdk = compilerCommand().isChildOf(m_ndkLocation);
-    const bool isChildofSdk = compilerCommand().isChildOf(androidConfig().sdkLocation());
+    const bool isChildofSdk = compilerCommand().isChildOf(AndroidConfig::sdkLocation());
 
     return GccToolchain::isValid() && typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID
            && targetAbi().isValid() && (isChildofNdk || isChildofSdk)
@@ -86,9 +86,8 @@ bool AndroidToolchain::isValid() const
 
 void AndroidToolchain::addToEnvironment(Environment &env) const
 {
-    const AndroidConfig &config = androidConfig();
     env.set(QLatin1String("ANDROID_NDK_HOST"), AndroidConfig::toolchainHostFromNdk(m_ndkLocation));
-    const FilePath javaHome = config.openJDKLocation();
+    const FilePath javaHome = AndroidConfig::openJDKLocation();
     if (javaHome.exists()) {
         env.set(Constants::JAVA_HOME_ENV_VAR, javaHome.toUserOutput());
         const FilePath javaBin = javaHome.pathAppended("bin");
@@ -97,8 +96,8 @@ void AndroidToolchain::addToEnvironment(Environment &env) const
         if (!currentJavaFilePath.isChildOf(javaBin))
             env.prependOrSetPath(javaBin);
     }
-    env.set(QLatin1String("ANDROID_HOME"), config.sdkLocation().toUserOutput());
-    env.set(QLatin1String("ANDROID_SDK_ROOT"), config.sdkLocation().toUserOutput());
+    env.set(QLatin1String("ANDROID_HOME"), AndroidConfig::sdkLocation().toUserOutput());
+    env.set(QLatin1String("ANDROID_SDK_ROOT"), AndroidConfig::sdkLocation().toUserOutput());
 }
 
 void AndroidToolchain::fromMap(const Store &data)
@@ -147,7 +146,7 @@ static FilePaths uniqueNdksForCurrentQtVersions()
 
     FilePaths uniqueNdks;
     for (const QtSupport::QtVersion *version : androidQtVersions) {
-        FilePath ndk = androidConfig().ndkLocation(version);
+        FilePath ndk = AndroidConfig::ndkLocation(version);
         if (!uniqueNdks.contains(ndk))
             uniqueNdks.append(ndk);
     }
@@ -161,8 +160,6 @@ ToolchainList autodetectToolchainsFromNdks(
     const bool isCustom)
 {
     QList<Toolchain *> result;
-    const AndroidConfig config = androidConfig();
-
     const Id LanguageIds[] {
         ProjectExplorer::Constants::CXX_LANGUAGE_ID,
         ProjectExplorer::Constants::C_LANGUAGE_ID

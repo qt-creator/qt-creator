@@ -297,7 +297,7 @@ bool AndroidDeployQtStep::init()
         m_apkPath = FilePath::fromString(node->data(Constants::AndroidApk).toString());
         if (!m_apkPath.isEmpty()) {
             m_manifestName = FilePath::fromString(node->data(Constants::AndroidManifest).toString());
-            m_command = androidConfig().adbToolPath();
+            m_command = AndroidConfig::adbToolPath();
             AndroidManager::setManifestPath(target(), m_manifestName);
         } else {
             QString jsonFile = AndroidQtVersion::androidDeploymentSettings(target()).toString();
@@ -335,13 +335,13 @@ bool AndroidDeployQtStep::init()
         }
     } else {
         m_uninstallPreviousPackageRun = true;
-        m_command = androidConfig().adbToolPath();
+        m_command = AndroidConfig::adbToolPath();
         m_apkPath = AndroidManager::packagePath(target());
         m_workingDirectory = bc ? AndroidManager::buildDirectory(target()): FilePath();
     }
     m_environment = bc ? bc->environment() : Environment();
 
-    m_adbPath = androidConfig().adbToolPath();
+    m_adbPath = AndroidConfig::adbToolPath();
 
     // Start the AVD if not running.
     if (!m_avdName.isEmpty() && AndroidAvdManager::findAvd(m_avdName).isEmpty())

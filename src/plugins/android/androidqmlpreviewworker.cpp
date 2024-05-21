@@ -128,7 +128,7 @@ FilePath AndroidQmlPreviewWorker::designViewerApkPath(const QString &abi) const
 
 CommandLine AndroidQmlPreviewWorker::adbCommand(const QStringList &arguments) const
 {
-    CommandLine cmd{androidConfig().adbToolPath()};
+    CommandLine cmd{AndroidConfig::adbToolPath()};
     if (!m_serialNumber.isEmpty())
         cmd.addArgs(AndroidDeviceInfo::adbSelector(m_serialNumber));
     cmd.addArg("shell");
@@ -200,7 +200,7 @@ void AndroidQmlPreviewWorker::startLogcat()
     QString args = QString("logcat --pid=%1").arg(m_viewerPid);
     if (!m_logcatStartTimeStamp.isEmpty())
         args += QString(" -T '%1'").arg(m_logcatStartTimeStamp);
-    CommandLine cmd(androidConfig().adbToolPath());
+    CommandLine cmd(AndroidConfig::adbToolPath());
     cmd.setArguments(args);
     m_logcatProcess.setCommand(cmd);
     m_logcatProcess.setUseCtrlCStub(true);

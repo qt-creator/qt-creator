@@ -184,7 +184,7 @@ void AndroidRunner::checkAVD()
         m_checkAVDTimer.stop();
         AndroidManager::setDeviceSerialNumber(m_target, serialNumber);
         emit asyncStart();
-    } else if (!androidConfig().isConnected(serialNumber)) {
+    } else if (!AndroidConfig::isConnected(serialNumber)) {
         // device was disconnected
         m_checkAVDTimer.stop();
     }

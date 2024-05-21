@@ -93,11 +93,9 @@ static FilePath debugServer(bool useLldb, const Target *target)
     QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
     QString preferredAbi = AndroidManager::apkDevicePreferredAbi(target);
 
-    const AndroidConfig &config = androidConfig();
-
     if (useLldb) {
         // Search suitable lldb-server binary.
-        const FilePath prebuilt = config.ndkLocation(qtVersion) / "toolchains/llvm/prebuilt";
+        const FilePath prebuilt = AndroidConfig::ndkLocation(qtVersion) / "toolchains/llvm/prebuilt";
         const QString abiNeedle = lldbServerArch2(preferredAbi);
 
         // The new, built-in LLDB.
@@ -117,7 +115,7 @@ static FilePath debugServer(bool useLldb, const Target *target)
             return lldbServer;
     } else {
         // Search suitable gdbserver binary.
-        const FilePath path = config.ndkLocation(qtVersion)
+        const FilePath path = AndroidConfig::ndkLocation(qtVersion)
                 .pathAppended(QString("prebuilt/android-%1/gdbserver/gdbserver")
                               .arg(gdbServerArch(preferredAbi)));
         if (path.exists())
@@ -429,7 +427,7 @@ void Android::Internal::AndroidRunnerWorker::asyncStartLogcat()
     }
 
     const QStringList logcatArgs = selector() << "logcat" << timeArg;
-    const FilePath adb = androidConfig().adbToolPath();
+    const FilePath adb = AndroidConfig::adbToolPath();
     qCDebug(androidRunWorkerLog).noquote() << "Running logcat command (async):"
                                            << CommandLine(adb, logcatArgs).toUserOutput();
     m_adbLogcatProcess->setCommand({adb, logcatArgs});
@@ -632,7 +630,7 @@ void AndroidRunnerWorker::asyncStart()
     const Storage<PidUserPair> pidStorage;
     const LoopUntil iterator([pidStorage](int) { return pidStorage->first <= 0; });
 
-    const FilePath adbPath = androidConfig().adbToolPath();
+    const FilePath adbPath = AndroidConfig::adbToolPath();
     const QStringList args = selector();
 
     const auto onPidSetup = [adbPath, args, packageName = m_packageName,
@@ -710,7 +708,7 @@ void AndroidRunnerWorker::handleJdbWaiting()
     }
     m_afterFinishAdbCommands.push_back(removeForward.join(' '));
 
-    const FilePath jdbPath = androidConfig().openJDKLocation()
+    const FilePath jdbPath = AndroidConfig::openJDKLocation()
             .pathAppended("bin/jdb").withExecutableSuffix();
 
     QStringList jdbArgs("-connect");

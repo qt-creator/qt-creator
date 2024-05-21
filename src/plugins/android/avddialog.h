@@ -20,7 +20,6 @@ QT_END_NAMESPACE
 namespace Utils { class InfoLabel; }
 
 namespace Android {
-class AndroidConfig;
 class SdkPlatform;
 
 namespace Internal {

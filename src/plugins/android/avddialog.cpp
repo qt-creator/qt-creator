@@ -169,9 +169,9 @@ AvdDialog::DeviceType AvdDialog::tagToDeviceType(const QString &type_tag)
 
 static bool avdManagerCommand(const QStringList &args, QString *output)
 {
-    CommandLine cmd(androidConfig().avdManagerToolPath(), args);
+    CommandLine cmd(AndroidConfig::avdManagerToolPath(), args);
     Process proc;
-    proc.setEnvironment(androidConfig().toolsEnvironment());
+    proc.setEnvironment(AndroidConfig::toolsEnvironment());
     qCDebug(avdDialogLog).noquote() << "Running AVD Manager command:" << cmd.toUserOutput();
     proc.setCommand(cmd);
     proc.runBlocking();
@@ -189,7 +189,7 @@ void AvdDialog::parseDeviceDefinitionsList()
 
     if (!avdManagerCommand({"list", "device"}, &output)) {
         qCDebug(avdDialogLog) << "Avd list command failed" << output
-                              << androidConfig().sdkToolsVersion();
+                              << AndroidConfig::sdkToolsVersion();
         return;
     }
 
