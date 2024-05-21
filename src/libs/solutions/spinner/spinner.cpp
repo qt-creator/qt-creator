@@ -247,7 +247,7 @@ void Spinner::setSize(SpinnerSize size)
 }
 
 /*!
-    Sets the color of the spinner to the given color.
+    Sets the color of the spinner to \a color.
 */
 void Spinner::setColor(const QColor &color)
 {
