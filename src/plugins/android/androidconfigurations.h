@@ -120,7 +120,7 @@ public:
     bool sdkFullyConfigured() const { return m_sdkFullyConfigured; }
     void setSdkFullyConfigured(bool allEssentialsInstalled) { m_sdkFullyConfigured = allEssentialsInstalled; }
 
-    bool isValidNdk(const QString &ndkLocation) const;
+    static bool isValidNdk(const QString &ndkLocation);
     QStringList getCustomNdkList() const;
     void addCustomNdk(const QString &customNdk);
     void removeCustomNdk(const QString &customNdk);

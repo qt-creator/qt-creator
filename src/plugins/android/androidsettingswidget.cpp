@@ -545,7 +545,7 @@ void AndroidSettingsWidget::updateNdkList()
 
     const auto customNdks = androidConfig().getCustomNdkList();
     for (const QString &ndk : customNdks) {
-        if (androidConfig().isValidNdk(ndk)) {
+        if (AndroidConfig::isValidNdk(ndk)) {
             m_ndkListWidget->addItem(new QListWidgetItem(Icons::UNLOCKED.icon(), ndk));
         } else {
             androidConfig().removeCustomNdk(ndk);
@@ -563,7 +563,7 @@ void AndroidSettingsWidget::addCustomNdkItem()
             .constFirst();
     const QString ndkPath = QFileDialog::getExistingDirectory(this, Tr::tr("Select an NDK"), homePath);
 
-    if (androidConfig().isValidNdk(ndkPath)) {
+    if (AndroidConfig::isValidNdk(ndkPath)) {
         androidConfig().addCustomNdk(ndkPath);
         if (m_ndkListWidget->findItems(ndkPath, Qt::MatchExactly).size() == 0) {
             m_ndkListWidget->addItem(new QListWidgetItem(Icons::UNLOCKED.icon(), ndkPath));

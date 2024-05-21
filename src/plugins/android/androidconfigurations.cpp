@@ -774,17 +774,14 @@ QStringList AndroidConfig::getAbis(const QString &device)
     return result;
 }
 
-bool AndroidConfig::isValidNdk(const QString &ndkLocation) const
+bool AndroidConfig::isValidNdk(const QString &ndkLocation)
 {
-    auto ndkPath = Utils::FilePath::fromUserInput(ndkLocation);
+    const FilePath ndkPath = FilePath::fromUserInput(ndkLocation);
 
-    if (!ndkPath.exists())
+    if (!ndkPath.exists() || !ndkPath.pathAppended("toolchains").exists())
         return false;
 
-    if (!ndkPath.pathAppended("toolchains").exists())
-        return false;
-
-    const QVersionNumber version = ndkVersion(ndkPath);
+    const QVersionNumber version = AndroidConfig::ndkVersion(ndkPath);
     if (version.isNull())
         return false;
 
@@ -792,7 +789,6 @@ bool AndroidConfig::isValidNdk(const QString &ndkLocation) const
     if (version.majorVersion() <= 22
             && (!ndkPlatformsDir.exists() || ndkPlatformsDir.toString().contains(' ')))
         return false;
-
     return true;
 }
 
