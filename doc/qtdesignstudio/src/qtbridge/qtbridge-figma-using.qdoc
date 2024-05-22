@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -247,4 +247,6 @@
             \uicontrol Home tab) to default values. This means that you
             will lose all your changes to the settings.
     \endtable
+
+    \include qtdesignstudio-qt-academy.qdocinc qt-academy-using-qt-bridge-for-figma
 */

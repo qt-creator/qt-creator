@@ -47,7 +47,9 @@
 
     \youtube SsFWyUeAA_4
 
-    \section1 Usingn the Context Menu in the 3D View
+    \include qtdesignstudio-qt-academy.qdocinc qt-academy-3D-with-qt-design-studio
+
+    \section1 Using the Context Menu in the 3D View
 
     There is a context menu in the \uicontrol 3D view. To open it, right-click
     in the \uicontrol 3D view. From the context menu you can, for example:
