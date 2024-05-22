@@ -50,13 +50,13 @@ BuildDirParameters::BuildDirParameters(CMakeBuildSystem *buildSystem)
                                                 });
     const Target *t = bc->target();
     const Kit *k = t->kit();
-    const Project *p = t->project();
 
-    projectName = p->displayName();
+    project = t->project();
+    projectName = project->displayName();
 
     sourceDirectory = bc->sourceDirectory();
     if (sourceDirectory.isEmpty())
-        sourceDirectory = p->projectDirectory();
+        sourceDirectory = project->projectDirectory();
     buildDirectory = bc->buildDirectory();
 
     cmakeBuildType = buildSystem->cmakeBuildType();

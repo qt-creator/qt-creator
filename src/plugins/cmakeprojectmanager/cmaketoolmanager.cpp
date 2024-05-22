@@ -436,7 +436,7 @@ QString CMakeToolManager::toolTipForRstHelpFile(const FilePath &helpFile)
     return tooltip;
 }
 
-FilePath CMakeToolManager::mappedFilePath(const FilePath &path)
+FilePath CMakeToolManager::mappedFilePath(Project *project, const FilePath &path)
 {
     if (!HostOsInfo::isWindowsHost())
         return path;
@@ -444,16 +444,14 @@ FilePath CMakeToolManager::mappedFilePath(const FilePath &path)
     if (path.needsDevice())
         return path;
 
-    auto project = ProjectManager::startupProject();
     auto environment = Environment::systemEnvironment();
     if (project)
         environment.modify(project->additionalEnvironment());
     const bool enableJunctions
-        = QVariant(
-              environment.value_or("QTC_CMAKE_USE_JUNCTIONS",
-                                   Internal::settings().useJunctionsForSourceAndBuildDirectories()
-                                       ? "1"
-                                       : "0"))
+        = QVariant(environment.value_or(
+                       "QTC_CMAKE_USE_JUNCTIONS",
+                       Internal::settings(project).useJunctionsForSourceAndBuildDirectories() ? "1"
+                                                                                              : "0"))
               .toBool();
 
     if (!enableJunctions)

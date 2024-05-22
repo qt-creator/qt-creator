@@ -103,7 +103,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     }
 
     // Copy the "package-manager" CMake code from the ${IDE:ResourcePath} to the build directory
-    if (settings().packageManagerAutoSetup()) {
+    if (settings(parameters.project).packageManagerAutoSetup()) {
         const FilePath localPackageManagerDir = buildDirectory.pathAppended(Constants::PACKAGE_MANAGER_DIR);
         const FilePath idePackageManagerDir = FilePath::fromString(
             parameters.expander->expand(QStringLiteral("%{IDE:ResourcePath}/package-manager")));
@@ -149,10 +149,11 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     });
 
     CommandLine commandLine(cmakeExecutable);
-    commandLine.addArgs({"-S",
-                         CMakeToolManager::mappedFilePath(sourceDirectory).path(),
-                         "-B",
-                         CMakeToolManager::mappedFilePath(buildDirectory).path()});
+    commandLine.addArgs(
+        {"-S",
+         CMakeToolManager::mappedFilePath(parameters.project, sourceDirectory).path(),
+         "-B",
+         CMakeToolManager::mappedFilePath(parameters.project, buildDirectory).path()});
     commandLine.addArgs(arguments);
 
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);

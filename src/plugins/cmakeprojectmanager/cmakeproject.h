@@ -4,6 +4,7 @@
 #pragma once
 
 #include "cmake_global.h"
+#include "cmakespecificsettings.h"
 #include "presetsparser.h"
 
 #include <projectexplorer/project.h>
@@ -34,6 +35,8 @@ public:
     void setOldPresetKits(const QList<ProjectExplorer::Kit *> &presetKits) const;
     QList<ProjectExplorer::Kit *> oldPresetKits() const;
 
+    Internal::CMakeSpecificSettings &settings();
+
 protected:
     bool setupTarget(ProjectExplorer::Target *t) final;
 
@@ -50,6 +53,7 @@ private:
 
     ProjectExplorer::Tasks m_issues;
     Internal::PresetsData m_presetsData;
+    Internal::CMakeSpecificSettings m_settings;
 };
 
 } // namespace CMakeProjectManager

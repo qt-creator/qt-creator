@@ -5,12 +5,20 @@
 
 #include <utils/aspects.h>
 
+namespace ProjectExplorer {
+class Project;
+}
+
 namespace CMakeProjectManager::Internal {
 
 class CMakeSpecificSettings final : public Utils::AspectContainer
 {
+    ProjectExplorer::Project *project{nullptr};
 public:
-    CMakeSpecificSettings();
+    CMakeSpecificSettings(ProjectExplorer::Project *project, bool autoApply);
+
+    void readSettings() final;
+    void writeSettings() const final;
 
     Utils::BoolAspect autorunCMake{this};
     Utils::FilePathAspect ninjaPath{this};
@@ -20,8 +28,10 @@ public:
     Utils::BoolAspect showSourceSubFolders{this};
     Utils::BoolAspect showAdvancedOptionsByDefault{this};
     Utils::BoolAspect useJunctionsForSourceAndBuildDirectories{this};
+
+    bool useGlobalSettings{true};
 };
 
-CMakeSpecificSettings &settings();
+CMakeSpecificSettings &settings(ProjectExplorer::Project *project);
 
 } // CMakeProjectManager::Internal

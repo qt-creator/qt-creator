@@ -41,10 +41,11 @@ const char CMAKE_BUILDCONFIGURATION_ID[] = "CMakeProjectManager.CMakeBuildConfig
 const char M_CONTEXT[] = "CMakeEditor.ContextMenu";
 
 namespace Settings {
-const char GENERAL_ID[] = "CMakeSpecifcSettings";
+const char GENERAL_ID[] = "CMakeSpecificSettings";
 const char TOOLS_ID[] = "K.CMake.Tools";
 const char FORMATTER_ID[] = "K.CMake.Formatter";
 const char CATEGORY[] = "K.CMake";
+const char USE_GLOBAL_SETTINGS[] = "UseGlobalSettings";
 } // namespace Settings
 
 // Snippets

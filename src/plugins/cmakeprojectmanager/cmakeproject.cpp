@@ -34,6 +34,7 @@ namespace CMakeProjectManager {
 */
 CMakeProject::CMakeProject(const FilePath &fileName)
     : Project(Utils::Constants::CMAKE_MIMETYPE, fileName)
+    , m_settings(this, true)
 {
     setId(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
@@ -230,6 +231,11 @@ void CMakeProject::setupBuildPresets(Internal::PresetsData &presetsData)
                       .environment;
         }
     }
+}
+
+Internal::CMakeSpecificSettings &CMakeProject::settings()
+{
+    return m_settings;
 }
 
 void CMakeProject::readPresets()

@@ -349,12 +349,16 @@ void CMakeManager::enableBuildFileMenus(Node *node)
 
 void CMakeManager::reloadCMakePresets()
 {
+    CMakeProject *project = qobject_cast<CMakeProject *>(ProjectTree::currentProject());
+    if (!project)
+        return;
+
     QMessageBox::StandardButton clickedButton = CheckableMessageBox::question(
         Core::ICore::dialogParent(),
         Tr::tr("Reload CMake Presets"),
         Tr::tr("Re-generates the kits that were created for CMake presets. All manual "
                "modifications to the CMake project settings will be lost."),
-        settings().askBeforePresetsReload.askAgainCheckableDecider(),
+        settings(project).askBeforePresetsReload.askAgainCheckableDecider(),
         QMessageBox::Yes | QMessageBox::Cancel,
         QMessageBox::Yes,
         QMessageBox::Yes,
@@ -362,13 +366,9 @@ void CMakeManager::reloadCMakePresets()
             {QMessageBox::Yes, Tr::tr("Reload")},
         });
 
-    settings().writeSettings();
+    settings(project).writeSettings();
 
     if (clickedButton == QMessageBox::Cancel)
-        return;
-
-    CMakeProject *project = static_cast<CMakeProject *>(ProjectTree::currentProject());
-    if (!project)
         return;
 
     const QSet<QString> oldPresets = Utils::transform<QSet>(project->presetsData().configurePresets,

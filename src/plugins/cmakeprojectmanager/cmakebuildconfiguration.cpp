@@ -42,6 +42,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
@@ -297,7 +298,8 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_batchEditButton->setToolTip(Tr::tr("Set or reset multiple values in the CMake configuration."));
 
     m_showAdvancedCheckBox = new QCheckBox(Tr::tr("Advanced"));
-    m_showAdvancedCheckBox->setChecked(settings().showAdvancedOptionsByDefault());
+    m_showAdvancedCheckBox->setChecked(
+        settings(m_buildConfig->project()).showAdvancedOptionsByDefault());
 
     connect(m_configView->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, [this](const QItemSelection &, const QItemSelection &) {
@@ -586,11 +588,11 @@ void CMakeBuildSettingsWidget::reconfigureWithInitialParameters()
         Core::ICore::dialogParent(),
         Tr::tr("Re-configure with Initial Parameters"),
         Tr::tr("Clear CMake configuration and configure with initial parameters?"),
-        settings().askBeforeReConfigureInitialParams.askAgainCheckableDecider(),
+        settings(m_buildConfig->project()).askBeforeReConfigureInitialParams.askAgainCheckableDecider(),
         QMessageBox::Yes | QMessageBox::No,
         QMessageBox::Yes);
 
-    settings().writeSettings();
+    settings(m_buildConfig->project()).writeSettings();
 
     if (reply != QMessageBox::Yes)
         return;
@@ -1127,7 +1129,7 @@ static CommandLine defaultInitialCMakeCommand(const Kit *k, const QString &build
         cmd.addArg("-DCMAKE_BUILD_TYPE:STRING=" + buildType);
 
     // Package manager auto setup
-    if (settings().packageManagerAutoSetup()) {
+    if (settings(ProjectTree::currentProject()).packageManagerAutoSetup()) {
         cmd.addArg(QString("-DCMAKE_PROJECT_INCLUDE_BEFORE:FILEPATH="
                            "%{BuildConfig:BuildDirectory:NativeFilePath}/%1/auto-setup.cmake")
                        .arg(Constants::PACKAGE_MANAGER_DIR));
@@ -2038,7 +2040,7 @@ void CMakeBuildConfiguration::addToEnvironment(Utils::Environment &env) const
     if (tool && tool->cmakeExecutable().needsDevice())
         return;
 
-    const FilePath ninja = settings().ninjaPath();
+    const FilePath ninja = settings(nullptr).ninjaPath();
     if (!ninja.isEmpty())
         env.appendOrSetPath(ninja.isFile() ? ninja.parentDir() : ninja);
 }

@@ -1643,7 +1643,7 @@ void CMakeBuildSystem::wireUpConnections()
     connect(project(), &Project::projectFileIsDirty, this, [this] {
         const bool isBuilding = BuildManager::isBuilding(project());
         if (buildConfiguration()->isActive() && !isParsing() && !isBuilding) {
-            if (settings().autorunCMake()) {
+            if (settings(project()).autorunCMake()) {
                 qCDebug(cmakeBuildSystemLog) << "Requesting parse due to dirty project file";
                 reparse(CMakeBuildSystem::REPARSE_FORCE_CMAKE_RUN);
             }
@@ -2300,11 +2300,14 @@ MakeInstallCommand CMakeBuildSystem::makeInstallCommand(const FilePath &installR
         installTarget = "INSTALL";
 
     FilePath buildDirectory = ".";
-    if (auto bc = buildConfiguration())
+    Project *project = nullptr;
+    if (auto bc = buildConfiguration()) {
         buildDirectory = bc->buildDirectory();
+        project = bc->project();
+    }
 
     cmd.command.addArg("--build");
-    cmd.command.addArg(CMakeToolManager::mappedFilePath(buildDirectory).path());
+    cmd.command.addArg(CMakeToolManager::mappedFilePath(project, buildDirectory).path());
     cmd.command.addArg("--target");
     cmd.command.addArg(installTarget);
 

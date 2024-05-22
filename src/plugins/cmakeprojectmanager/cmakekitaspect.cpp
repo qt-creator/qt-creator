@@ -665,7 +665,7 @@ QVariant CMakeGeneratorKitAspectFactory::defaultValue(const Kit *k) const
     });
     if (it != known.constEnd()) {
         const bool hasNinja = [k, tool] {
-            if (Internal::settings().ninjaPath().isEmpty()) {
+            if (Internal::settings(nullptr).ninjaPath().isEmpty()) {
                 auto findNinja = [](const Environment &env) -> bool {
                     return !env.searchInPath("ninja").isEmpty();
                 };

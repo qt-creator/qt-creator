@@ -14,6 +14,10 @@
 
 #include <memory>
 
+namespace ProjectExplorer {
+class Project;
+}
+
 namespace CMakeProjectManager {
 
 class CMAKE_EXPORT CMakeToolManager : public QObject
@@ -44,7 +48,7 @@ public:
 
     static QString toolTipForRstHelpFile(const Utils::FilePath &helpFile);
 
-    static Utils::FilePath mappedFilePath(const Utils::FilePath &path);
+    static Utils::FilePath mappedFilePath(ProjectExplorer::Project *project, const Utils::FilePath &path);
 
 public slots:
     QList<Utils::Id> autoDetectCMakeForDevice(const Utils::FilePaths &searchPaths,
