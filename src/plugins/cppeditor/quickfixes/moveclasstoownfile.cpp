@@ -455,14 +455,10 @@ private:
             headerContent.append("\n#endif // " + headerGuard + '\n');
 
         headerFilePath.ensureExistingFile();
-        ChangeSet headerChanges;
-        headerChanges.insert(0, headerContent);
-        state->factory.cppFile(headerFilePath)->apply(headerChanges);
+        state->factory.cppFile(headerFilePath)->apply(ChangeSet::makeInsert(0, headerContent));
         if (hasSourceContent || mustCreateSourceFile) {
             sourceFilePath.ensureExistingFile();
-            ChangeSet sourceChanges;
-            sourceChanges.insert(0, sourceContent);
-            state->factory.cppFile(sourceFilePath)->apply(sourceChanges);
+            state->factory.cppFile(sourceFilePath)->apply(ChangeSet::makeInsert(0, sourceContent));
         }
 
         if (!projectNode)

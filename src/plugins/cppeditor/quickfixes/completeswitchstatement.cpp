@@ -82,12 +82,10 @@ public:
 
     void perform() override
     {
-        ChangeSet changes;
-        int start = currentFile()->endOf(compoundStatement->lbrace_token);
-        changes.insert(start, QLatin1String("\ncase ")
-                                  + values.join(QLatin1String(":\nbreak;\ncase "))
-                                  + QLatin1String(":\nbreak;"));
-        currentFile()->apply(changes);
+        currentFile()->apply(ChangeSet::makeInsert(
+            currentFile()->endOf(compoundStatement->lbrace_token),
+            QLatin1String("\ncase ") + values.join(QLatin1String(":\nbreak;\ncase "))
+                + QLatin1String(":\nbreak;")));
     }
 
     CompoundStatementAST *compoundStatement;

@@ -38,11 +38,12 @@ public:
     void perform() override
     {
         int targetEndPos = currentFile()->endOf(m_targetParam);
-        Utils::ChangeSet changes;
-        changes.flip(currentFile()->startOf(m_currentParam), currentFile()->endOf(m_currentParam),
-                     currentFile()->startOf(m_targetParam), targetEndPos);
         currentFile()->setOpenEditor(false, targetEndPos);
-        currentFile()->apply(changes);
+        currentFile()->apply(Utils::ChangeSet::makeFlip(
+            currentFile()->startOf(m_currentParam),
+            currentFile()->endOf(m_currentParam),
+            currentFile()->startOf(m_targetParam),
+            targetEndPos));
     }
 
 private:

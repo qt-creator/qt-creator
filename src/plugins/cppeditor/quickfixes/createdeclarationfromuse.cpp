@@ -202,10 +202,8 @@ private:
         QTC_ASSERT(loc.isValid(), return);
 
         CppRefactoringFilePtr targetFile = refactoring.cppFile(filePath);
-        const int targetPosition = targetFile->position(loc.line(), loc.column());
-        ChangeSet target;
-        target.insert(targetPosition, loc.prefix() + decl + ";\n");
-        targetFile->apply(target);
+        targetFile->apply(ChangeSet::makeInsert(
+            targetFile->position(loc.line(), loc.column()), loc.prefix() + decl + ";\n"));
     }
 
     const Class * const m_class;
@@ -236,11 +234,10 @@ public:
         QString declaration = getDeclaration();
 
         if (!declaration.isEmpty()) {
-            ChangeSet changes;
-            changes.replace(currentFile()->startOf(binaryAST),
-                            currentFile()->endOf(simpleNameAST),
-                            declaration);
-            currentFile()->apply(changes);
+            currentFile()->apply(ChangeSet::makeReplace(
+                currentFile()->startOf(binaryAST),
+                currentFile()->endOf(simpleNameAST),
+                declaration));
         }
     }
 

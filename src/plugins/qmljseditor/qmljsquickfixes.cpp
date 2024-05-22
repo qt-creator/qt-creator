@@ -116,10 +116,9 @@ public:
                         const QmlJSRefactoringChanges &,
                         const QString &) override
     {
-        Utils::ChangeSet changes;
-        const int insertLoc = _message.location.begin() - _message.location.startColumn + 1;
-        changes.insert(insertLoc, QString::fromLatin1("// %1\n").arg(_message.suppressionString()));
-        currentFile->apply(changes);
+        currentFile->apply(Utils::ChangeSet::makeInsert(
+            _message.location.begin() - _message.location.startColumn + 1,
+            QString::fromLatin1("// %1\n").arg(_message.suppressionString())));
     }
 };
 

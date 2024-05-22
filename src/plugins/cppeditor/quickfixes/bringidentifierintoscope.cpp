@@ -290,9 +290,7 @@ private:
             insertion.prepend('\n');
         if (file->charAt(insertPos) != QChar::ParagraphSeparator)
             insertion.append('\n');
-        ChangeSet s;
-        s.insert(insertPos, insertion);
-        file->apply(s);
+        file->apply(ChangeSet::makeInsert(insertPos, insertion));
     }
 
     const QString m_className;

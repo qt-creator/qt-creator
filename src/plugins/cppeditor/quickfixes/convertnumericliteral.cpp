@@ -28,9 +28,7 @@ public:
 
     void perform() override
     {
-        ChangeSet changes;
-        changes.replace(start, end, replacement);
-        currentFile()->apply(changes);
+        currentFile()->apply(ChangeSet::makeReplace(start, end, replacement));
     }
 
 private:

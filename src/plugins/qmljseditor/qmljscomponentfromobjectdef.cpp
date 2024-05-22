@@ -187,9 +187,7 @@ public:
         for (const QString &property : std::as_const(result))
             replacement += property + QLatin1String(": ") + propertyReader.readAstValue(property) + QLatin1Char('\n');
 
-        Utils::ChangeSet changes;
-        changes.replace(start, end, replacement);
-        currentFile->apply(changes);
+        currentFile->apply(ChangeSet::makeReplace(start, end, replacement));
 
         Core::IVersionControl *versionControl = Core::VcsManager::findVersionControlForDirectory(
             path);

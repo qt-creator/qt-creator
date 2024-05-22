@@ -627,9 +627,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
         const RefactoringFilePtr file = refactoring.file(location.filePath());
         const int insertionPos = Utils::Text::positionInText(file->document(),
                                                              location.line(), location.column());
-        ChangeSet changeSet;
-        changeSet.insert(insertionPos, definition);
-        file->apply(changeSet);
+        file->apply(ChangeSet::makeInsert(insertionPos, definition));
         const int indentationPos = file->document()->toPlainText().indexOf('}', insertionPos) - 1;
         QTextCursor cursor(editor->textDocument()->document());
         cursor.setPosition(indentationPos);

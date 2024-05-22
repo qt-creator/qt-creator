@@ -274,11 +274,8 @@ private:
             toTarget.remove(m_fromRange);
         toFile->setOpenEditor(true, m_toRange.start);
         toFile->apply(toTarget);
-        if (m_toFilePath != m_fromFilePath) {
-            ChangeSet fromTarget;
-            fromTarget.remove(m_fromRange);
-            fromFile->apply(fromTarget);
-        }
+        if (m_toFilePath != m_fromFilePath)
+            fromFile->apply(ChangeSet::makeRemove(m_fromRange));
     }
 
     void ensureFuncDefAstAndRange(CppRefactoringFile &defFile)

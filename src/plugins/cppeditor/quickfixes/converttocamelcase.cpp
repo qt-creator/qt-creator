@@ -52,13 +52,10 @@ private:
                 newName[i] = newName.at(i).toUpper();
             }
         }
-        if (m_test) {
-            ChangeSet changeSet;
-            changeSet.replace(currentFile()->range(m_nameAst), newName);
-            currentFile()->apply(changeSet);
-        } else {
+        if (m_test)
+            currentFile()->apply(ChangeSet::makeReplace(currentFile()->range(m_nameAst), newName));
+        else
             editor()->renameUsages(newName);
-        }
     }
 
     const QString m_name;

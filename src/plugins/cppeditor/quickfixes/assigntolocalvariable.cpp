@@ -52,9 +52,7 @@ private:
         const QString varName = constructVarName();
         const QString insertString = type.replace(type.length() - origNameLength, origNameLength,
                                                   varName + QLatin1String(" = "));
-        ChangeSet changes;
-        changes.insert(m_insertPos, insertString);
-        m_file->apply(changes);
+        m_file->apply(ChangeSet::makeInsert(m_insertPos, insertString));
 
         // move cursor to new variable name
         QTextCursor c = m_file->cursor();

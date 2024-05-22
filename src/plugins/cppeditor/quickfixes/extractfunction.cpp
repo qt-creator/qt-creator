@@ -211,10 +211,9 @@ public:
             const InsertionLocation &location =
                 locator.methodDeclarationInClass(filePath, matchingClass, options.access);
             CppRefactoringFilePtr declFile = refactoring.cppFile(filePath);
-            change.clear();
-            position = declFile->position(location.line(), location.column());
-            change.insert(position, location.prefix() + funcDecl + location.suffix());
-            declFile->apply(change);
+            declFile->apply(ChangeSet::makeInsert(
+                declFile->position(location.line(), location.column()),
+                location.prefix() + funcDecl + location.suffix()));
         }
     }
 
