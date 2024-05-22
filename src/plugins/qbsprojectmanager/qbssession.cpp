@@ -135,12 +135,14 @@ public:
     QbsLanguageClient *languageClient = nullptr;
     PacketReader *packetReader = nullptr;
     QJsonObject currentRequest;
+    QList<QJsonObject> queuedFileUpdateRequests;
     QJsonObject projectData;
     QEventLoop eventLoop;
     QJsonObject reply;
     QHash<QString, QStringList> generatedFilesForSources;
     std::optional<Error> lastError;
     State state = State::Inactive;
+    bool fileUpdatePossible = true;
 };
 
 QbsSession::QbsSession(QbsBuildSystem *buildSystem) : QObject(buildSystem), d(new Private)
@@ -465,6 +467,8 @@ void QbsSession::handlePacket(const QJsonObject &packet)
     } else if (type == "project-resolved") {
         setProjectDataFromReply(packet, true);
         emit projectResolved(getErrorInfo(packet));
+        d->fileUpdatePossible = true;
+        sendNextPendingFileUpdateRequest();
     } else if (type == "project-built") {
         setProjectDataFromReply(packet, false);
         emit projectBuilt(getErrorInfo(packet));
@@ -586,17 +590,21 @@ FileChangeResult QbsSession::updateFileList(const char *action, const QStringLis
 {
     if (d->state != State::Active)
         return FileChangeResult(files, Tr::tr("The qbs session is not in a valid state."));
-    sendRequestNow(QJsonObject{
+    const QJsonObject fileUpdateRequest{
         {"type", QLatin1String(action)},
         {"files", QJsonArray::fromStringList(files)},
         {"product", product},
-        {"group", group}
-    });
+        {"group", group}};
+    if (d->fileUpdatePossible)
+        sendFileUpdateRequest(fileUpdateRequest);
+    else
+        d->queuedFileUpdateRequests << fileUpdateRequest;
     return FileChangeResult(QStringList());
 }
 
 void QbsSession::handleFileListUpdated(const QJsonObject &reply)
 {
+    QTC_CHECK(!d->fileUpdatePossible);
     setProjectDataFromReply(reply, false);
     const QStringList failedFiles = arrayToStringList(reply.value("failed-files"));
     if (!failedFiles.isEmpty()) {
@@ -604,8 +612,22 @@ void QbsSession::handleFileListUpdated(const QJsonObject &reply)
             Tr::tr("Failed to update files in Qbs project: %1.\n"
                "The affected files are: \n\t%2")
                 .arg(getErrorInfo(reply).toString(), failedFiles.join("\n\t")));
+        d->fileUpdatePossible = true;
+        sendNextPendingFileUpdateRequest();
     }
     emit fileListUpdated();
+}
+
+void QbsSession::sendNextPendingFileUpdateRequest()
+{
+    if (!d->queuedFileUpdateRequests.isEmpty())
+        sendFileUpdateRequest(d->queuedFileUpdateRequests.takeFirst());
+}
+
+void QbsSession::sendFileUpdateRequest(const QJsonObject &request)
+{
+    d->fileUpdatePossible = false;
+    sendRequestNow(request);
 }
 
 ErrorInfoItem::ErrorInfoItem(const QJsonObject &data)

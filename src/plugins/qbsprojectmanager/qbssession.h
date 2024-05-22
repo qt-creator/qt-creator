@@ -173,6 +173,8 @@ private:
     FileChangeResult updateFileList(const char *action, const QStringList &files,
                                     const QString &product, const QString &group);
     void handleFileListUpdated(const QJsonObject &reply);
+    void sendNextPendingFileUpdateRequest();
+    void sendFileUpdateRequest(const QJsonObject &request);
 
     class Private;
     Private * const d;
