@@ -13,6 +13,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/stringutils.h>
 
+#include <QComboBox>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QJsonArray>
@@ -167,21 +168,17 @@ void AxivionSettings::disableCertificateValidation(const Utils::Id &id)
     m_allServers[index].validateCert = false;
 }
 
-void AxivionSettings::modifyDashboardServer(const Utils::Id &id, const AxivionServer &other)
+void AxivionSettings::updateDashboardServers(const QList<AxivionServer> &other)
 {
-    const int index = Utils::indexOf(m_allServers, [&id](const AxivionServer &server) {
-        return id == server.id;
-    });
-    if (index == -1 && !id.isValid() && m_allServers.isEmpty()) { // temporary? hack
-        m_allServers.append(other);
-        m_defaultServerId = other.id;
-        emit changed();
-    }
-    if (index == -1)
+    if (m_allServers == other)
         return;
 
-    m_allServers.replace(index, other);
-    emit changed();
+    if (!Utils::anyOf(other, [this](const AxivionServer &s) { return s.id == m_defaultServerId; })) {
+        if (QTC_GUARD(!m_defaultServerId.isValid() && other.size() == 1))
+            m_defaultServerId = other.first().id;
+    }
+    m_allServers = other;
+    emit changed(); // should we be more detailed? (id)
 }
 
 // AxivionSettingsPage
@@ -212,8 +209,7 @@ static bool isUrlValid(const QString &in)
 class DashboardSettingsWidget : public QWidget
 {
 public:
-    enum Mode { Display, Edit };
-    explicit DashboardSettingsWidget(Mode m, QWidget *parent, QPushButton *ok = nullptr);
+    explicit DashboardSettingsWidget(QWidget *parent, QPushButton *ok = nullptr);
 
     AxivionServer dashboardServer() const;
     void setDashboardServer(const AxivionServer &server);
@@ -221,26 +217,23 @@ public:
     bool isValid() const;
 
 private:
-    Mode m_mode = Display;
     Id m_id;
     StringAspect m_dashboardUrl;
     StringAspect m_username;
     BoolAspect m_valid;
 };
 
-DashboardSettingsWidget::DashboardSettingsWidget(Mode mode, QWidget *parent, QPushButton *ok)
+DashboardSettingsWidget::DashboardSettingsWidget(QWidget *parent, QPushButton *ok)
     : QWidget(parent)
-    , m_mode(mode)
 {
-    auto labelStyle = mode == Display ? StringAspect::LabelDisplay : StringAspect::LineEditDisplay;
     m_dashboardUrl.setLabelText(Tr::tr("Dashboard URL:"));
-    m_dashboardUrl.setDisplayStyle(labelStyle);
+    m_dashboardUrl.setDisplayStyle(StringAspect::LineEditDisplay);
     m_dashboardUrl.setValidationFunction([](FancyLineEdit *edit, QString *) {
         return isUrlValid(edit->text());
     });
 
     m_username.setLabelText(Tr::tr("Username:"));
-    m_username.setDisplayStyle(labelStyle);
+    m_username.setDisplayStyle(StringAspect::LineEditDisplay);
     m_username.setPlaceHolderText(Tr::tr("User name"));
 
     using namespace Layouting;
@@ -251,15 +244,13 @@ DashboardSettingsWidget::DashboardSettingsWidget(Mode mode, QWidget *parent, QPu
         noMargin
     }.attachTo(this);
 
-    if (mode == Edit) {
-        QTC_ASSERT(ok, return);
-        auto checkValidity = [this, ok] {
-            m_valid.setValue(isValid());
-            ok->setEnabled(m_valid());
-        };
-        connect(&m_dashboardUrl, &BaseAspect::changed, this, checkValidity);
-        connect(&m_username, &BaseAspect::changed, this, checkValidity);
-    }
+    QTC_ASSERT(ok, return);
+    auto checkValidity = [this, ok] {
+        m_valid.setValue(isValid());
+        ok->setEnabled(m_valid());
+    };
+    connect(&m_dashboardUrl, &BaseAspect::changed, this, checkValidity);
+    connect(&m_username, &BaseAspect::changed, this, checkValidity);
 }
 
 AxivionServer DashboardSettingsWidget::dashboardServer() const
@@ -268,7 +259,7 @@ AxivionServer DashboardSettingsWidget::dashboardServer() const
     if (m_id.isValid())
         result.id = m_id;
     else
-        result.id = m_mode == Edit ? Id::fromName(QUuid::createUuid().toByteArray()) : m_id;
+        result.id = Id::fromName(QUuid::createUuid().toByteArray());
     result.dashboard = fixUrl(m_dashboardUrl());
     result.username = m_username();
     return result;
@@ -295,8 +286,9 @@ public:
 
 private:
     void showEditServerDialog();
+    void updateDashboardServers();
 
-    DashboardSettingsWidget *m_dashboardDisplay = nullptr;
+    QComboBox *m_dashboardServers = nullptr;
     QPushButton *m_edit = nullptr;
 };
 
@@ -304,13 +296,15 @@ AxivionSettingsWidget::AxivionSettingsWidget()
 {
     using namespace Layouting;
 
-    m_dashboardDisplay = new DashboardSettingsWidget(DashboardSettingsWidget::Display, this);
-    m_dashboardDisplay->setDashboardServer(settings().defaultServer());
+    m_dashboardServers = new QComboBox(this);
+    m_dashboardServers->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    updateDashboardServers();
+
     m_edit = new QPushButton(Tr::tr("Edit..."), this);
     Column {
         Row {
             Form {
-                m_dashboardDisplay, br
+                Tr::tr("Default dashboard server"), m_dashboardServers, br
             }, st,
             Column { m_edit },
         },
@@ -323,23 +317,32 @@ AxivionSettingsWidget::AxivionSettingsWidget()
 
 void AxivionSettingsWidget::apply()
 {
-    settings().modifyDashboardServer(settings().defaultDashboardId(),
-                                     m_dashboardDisplay->dashboardServer());
+    QList<AxivionServer> servers;
+    for (int i = 0, end = m_dashboardServers->count(); i < end; ++i)
+        servers.append(m_dashboardServers->itemData(i).value<AxivionServer>());
+    settings().updateDashboardServers(servers);
     settings().toSettings();
+}
+
+void AxivionSettingsWidget::updateDashboardServers()
+{
+    m_dashboardServers->clear();
+    for (const AxivionServer &server : settings().allAvailableServers())
+        m_dashboardServers->addItem(server.displayString(), QVariant::fromValue(server));
 }
 
 void AxivionSettingsWidget::showEditServerDialog()
 {
-    const AxivionServer old = m_dashboardDisplay->dashboardServer();
+    const AxivionServer old = m_dashboardServers->currentData().value<AxivionServer>();
     QDialog d;
     d.setWindowTitle(Tr::tr("Edit Dashboard Configuration"));
     QVBoxLayout *layout = new QVBoxLayout;
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Ok, this);
     auto ok = buttons->button(QDialogButtonBox::Ok);
-    auto dashboardWidget = new DashboardSettingsWidget(DashboardSettingsWidget::Edit, this, ok);
+    auto dashboardWidget = new DashboardSettingsWidget(this, ok);
     dashboardWidget->setDashboardServer(old);
     layout->addWidget(dashboardWidget);
-    ok->setEnabled(m_dashboardDisplay->isValid());
+    ok->setEnabled(dashboardWidget->isValid());
     connect(buttons->button(QDialogButtonBox::Cancel), &QPushButton::clicked, &d, &QDialog::reject);
     connect(ok, &QPushButton::clicked, &d, &QDialog::accept);
     layout->addWidget(buttons);
@@ -350,8 +353,16 @@ void AxivionSettingsWidget::showEditServerDialog()
         return;
     if (dashboardWidget->isValid()) {
         const AxivionServer server = dashboardWidget->dashboardServer();
-        if (server != old)
-            m_dashboardDisplay->setDashboardServer(server);
+        if (server != old) {
+            if (m_dashboardServers->currentIndex() == -1) { // temporary hack
+                m_dashboardServers->addItem(server.displayString(), QVariant::fromValue(server));
+            } else {
+                m_dashboardServers->setItemData(m_dashboardServers->currentIndex(),
+                                                QVariant::fromValue(server));
+                m_dashboardServers->setItemData(m_dashboardServers->currentIndex(),
+                                                server.displayString(), Qt::DisplayRole);
+            }
+        }
     }
 }
 

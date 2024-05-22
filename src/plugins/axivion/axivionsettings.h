@@ -17,6 +17,7 @@ namespace Axivion::Internal {
 class AxivionServer
 {
 public:
+    QString displayString() const { return username + " @ " + dashboard; }
     bool operator==(const AxivionServer &other) const;
     bool operator!=(const AxivionServer &other) const;
 
@@ -43,7 +44,8 @@ public:
     const AxivionServer defaultServer() const;
     const AxivionServer serverForId(const Utils::Id &id) const;
     void disableCertificateValidation(const Utils::Id &id);
-    void modifyDashboardServer(const Utils::Id &id, const AxivionServer &other);
+    const QList<AxivionServer> allAvailableServers() const { return allServers; };
+    void updateDashboardServers(const QList<AxivionServer> &other);
 
     Utils::BoolAspect highlightMarks{this};
 private:
