@@ -176,42 +176,41 @@ public:
         FunctionDeclaratorAST *functionDeclaratorOfDefinition
             = functionDeclarator(m_functionDefinition);
         const CppRefactoringChanges refactoring(snapshot());
-        const CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
-        deduceTypeNameOfLiteral(currentFile->cppDocument());
+        deduceTypeNameOfLiteral(currentFile()->cppDocument());
 
         ChangeSet changes;
         if (NumericLiteralAST *concreteLiteral = m_literal->asNumericLiteral()) {
-            m_literalInfo = ReplaceLiterals<NumericLiteralAST>(currentFile, &changes,
+            m_literalInfo = ReplaceLiterals<NumericLiteralAST>(currentFile(), &changes,
                                                                concreteLiteral)
                                 .apply(m_functionDefinition->function_body);
         } else if (StringLiteralAST *concreteLiteral = m_literal->asStringLiteral()) {
-            m_literalInfo = ReplaceLiterals<StringLiteralAST>(currentFile, &changes,
+            m_literalInfo = ReplaceLiterals<StringLiteralAST>(currentFile(), &changes,
                                                               concreteLiteral)
                                 .apply(m_functionDefinition->function_body);
         } else if (BoolLiteralAST *concreteLiteral = m_literal->asBoolLiteral()) {
-            m_literalInfo = ReplaceLiterals<BoolLiteralAST>(currentFile, &changes,
+            m_literalInfo = ReplaceLiterals<BoolLiteralAST>(currentFile(), &changes,
                                                             concreteLiteral)
                                 .apply(m_functionDefinition->function_body);
         }
         const FoundDeclaration functionDeclaration
             = findDeclaration(refactoring, m_functionDefinition);
-        appendFunctionParameter(functionDeclaratorOfDefinition, currentFile, &changes,
+        appendFunctionParameter(functionDeclaratorOfDefinition, currentFile(), &changes,
                                 !functionDeclaration.ast);
         if (functionDeclaration.ast) {
-            if (currentFile->filePath() != functionDeclaration.file->filePath()) {
+            if (currentFile()->filePath() != functionDeclaration.file->filePath()) {
                 ChangeSet declChanges;
                 appendFunctionParameter(functionDeclaration.ast, functionDeclaration.file, &declChanges,
                                         true);
                 functionDeclaration.file->setChangeSet(declChanges);
                 functionDeclaration.file->apply();
             } else {
-                appendFunctionParameter(functionDeclaration.ast, currentFile, &changes,
+                appendFunctionParameter(functionDeclaration.ast, currentFile(), &changes,
                                         true);
             }
         }
-        currentFile->setChangeSet(changes);
-        currentFile->apply();
-        QTextCursor c = currentFile->cursor();
+        currentFile()->setChangeSet(changes);
+        currentFile()->apply();
+        QTextCursor c = currentFile()->cursor();
         c.setPosition(c.position() - parameterName().length());
         editor()->setTextCursor(c);
         editor()->renameSymbolUnderCursor();

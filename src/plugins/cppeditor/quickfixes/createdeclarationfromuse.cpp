@@ -235,33 +235,29 @@ public:
 
     void perform() override
     {
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
         QString declaration = getDeclaration();
 
         if (!declaration.isEmpty()) {
             ChangeSet changes;
-            changes.replace(currentFile->startOf(binaryAST),
-                            currentFile->endOf(simpleNameAST),
+            changes.replace(currentFile()->startOf(binaryAST),
+                            currentFile()->endOf(simpleNameAST),
                             declaration);
-            currentFile->setChangeSet(changes);
-            currentFile->apply();
+            currentFile()->setChangeSet(changes);
+            currentFile()->apply();
         }
     }
 
 private:
     QString getDeclaration()
     {
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
         Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
         const auto settings = CppQuickFixProjectsSettings::getQuickFixSettings(
             ProjectTree::currentProject());
 
-        if (currentFile->cppDocument()->languageFeatures().cxx11Enabled && settings->useAuto)
+        if (currentFile()->cppDocument()->languageFeatures().cxx11Enabled && settings->useAuto)
             return "auto " + oo.prettyName(simpleNameAST->name);
         return declFromExpr(binaryAST->right_expression, nullptr, simpleNameAST, snapshot(),
-                            context(), currentFile, false);
+                            context(), currentFile(), false);
     }
 
     const BinaryExpressionAST *binaryAST;

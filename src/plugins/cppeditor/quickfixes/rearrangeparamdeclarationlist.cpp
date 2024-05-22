@@ -37,16 +37,13 @@ public:
 
     void perform() override
     {
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
-
-        int targetEndPos = currentFile->endOf(m_targetParam);
+        int targetEndPos = currentFile()->endOf(m_targetParam);
         Utils::ChangeSet changes;
-        changes.flip(currentFile->startOf(m_currentParam), currentFile->endOf(m_currentParam),
-                     currentFile->startOf(m_targetParam), targetEndPos);
-        currentFile->setChangeSet(changes);
-        currentFile->setOpenEditor(false, targetEndPos);
-        currentFile->apply();
+        changes.flip(currentFile()->startOf(m_currentParam), currentFile()->endOf(m_currentParam),
+                     currentFile()->startOf(m_targetParam), targetEndPos);
+        currentFile()->setChangeSet(changes);
+        currentFile()->setOpenEditor(false, targetEndPos);
+        currentFile()->apply();
     }
 
 private:

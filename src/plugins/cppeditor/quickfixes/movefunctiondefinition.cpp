@@ -469,7 +469,7 @@ private:
             return;
 
         const CppRefactoringChanges refactoring(interface.snapshot());
-        const CppRefactoringFilePtr defFile = refactoring.cppFile(interface.filePath());
+        const CppRefactoringFilePtr defFile = interface.currentFile();
         const ChangeSet::Range defRange = defFile->range(completeDefAST);
 
         // Determine declaration (file, range, text);

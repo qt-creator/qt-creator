@@ -43,15 +43,12 @@ public:
 
     void perform() override
     {
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
-
         ChangeSet changes;
 
         SpecifierListAST *specifiers = declaration->decl_specifier_list;
-        int declSpecifiersStart = currentFile->startOf(specifiers->firstToken());
-        int declSpecifiersEnd = currentFile->endOf(specifiers->lastToken() - 1);
-        int insertPos = currentFile->endOf(declaration->semicolon_token);
+        int declSpecifiersStart = currentFile()->startOf(specifiers->firstToken());
+        int declSpecifiersEnd = currentFile()->endOf(specifiers->lastToken() - 1);
+        int insertPos = currentFile()->endOf(declaration->semicolon_token);
 
         DeclaratorAST *prevDeclarator = declaration->declarator_list->value;
 
@@ -61,17 +58,17 @@ public:
             changes.insert(insertPos, QLatin1String("\n"));
             changes.copy(declSpecifiersStart, declSpecifiersEnd, insertPos);
             changes.insert(insertPos, QLatin1String(" "));
-            changes.move(currentFile->range(declarator), insertPos);
+            changes.move(currentFile()->range(declarator), insertPos);
             changes.insert(insertPos, QLatin1String(";"));
 
-            const int prevDeclEnd = currentFile->endOf(prevDeclarator);
-            changes.remove(prevDeclEnd, currentFile->startOf(declarator));
+            const int prevDeclEnd = currentFile()->endOf(prevDeclarator);
+            changes.remove(prevDeclEnd, currentFile()->startOf(declarator));
 
             prevDeclarator = declarator;
         }
 
-        currentFile->setChangeSet(changes);
-        currentFile->apply();
+        currentFile()->setChangeSet(changes);
+        currentFile()->apply();
     }
 
 private:

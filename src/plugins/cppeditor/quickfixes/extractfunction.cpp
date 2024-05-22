@@ -75,9 +75,8 @@ public:
     void perform() override
     {
         QTC_ASSERT(!m_funcReturn || !m_relevantDecls.isEmpty(), return);
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
 
+        CppRefactoringChanges refactoring(snapshot());
         ExtractFunctionOptions options;
         if (m_functionNameGetter)
             options.funcName = m_functionNameGetter();
@@ -172,7 +171,7 @@ public:
             funcDecl.append(QLatin1String(" const"));
         }
         funcDef.append(QLatin1String("\n{\n"));
-        QString extract = currentFile->textOf(m_extractionStart, m_extractionEnd);
+        QString extract = currentFile()->textOf(m_extractionStart, m_extractionEnd);
         extract.replace(QChar::ParagraphSeparator, QLatin1String("\n"));
         if (!extract.endsWith(QLatin1Char('\n')) && m_funcReturn)
             extract.append(QLatin1Char('\n'));
@@ -187,24 +186,24 @@ public:
         }
         funcDef.append(QLatin1String("\n}\n\n"));
         funcDef.replace(QChar::ParagraphSeparator, QLatin1String("\n"));
-        funcDef.prepend(inlinePrefix(currentFile->filePath()));
+        funcDef.prepend(inlinePrefix(currentFile()->filePath()));
         funcCall.append(QLatin1Char(';'));
 
         // Do not insert right between the function and an associated comment.
-        int position = currentFile->startOf(m_refFuncDef);
+        int position = currentFile()->startOf(m_refFuncDef);
         const QList<Token> functionDoc = commentsForDeclaration(
-            m_refFuncDef->symbol, m_refFuncDef, *currentFile->document(),
-            currentFile->cppDocument());
+            m_refFuncDef->symbol, m_refFuncDef, *currentFile()->document(),
+            currentFile()->cppDocument());
         if (!functionDoc.isEmpty()) {
-            position = currentFile->cppDocument()->translationUnit()->getTokenPositionInDocument(
-                functionDoc.first(), currentFile->document());
+            position = currentFile()->cppDocument()->translationUnit()->getTokenPositionInDocument(
+                functionDoc.first(), currentFile()->document());
         }
 
         ChangeSet change;
         change.insert(position, funcDef);
         change.replace(m_extractionStart, m_extractionEnd, funcCall);
-        currentFile->setChangeSet(change);
-        currentFile->apply();
+        currentFile()->setChangeSet(change);
+        currentFile()->apply();
 
         // Write declaration, if necessary.
         if (matchingClass) {

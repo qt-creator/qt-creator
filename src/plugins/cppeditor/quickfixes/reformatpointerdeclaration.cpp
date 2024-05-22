@@ -41,10 +41,8 @@ public:
 
     void perform() override
     {
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
-        currentFile->setChangeSet(m_change);
-        currentFile->apply();
+        currentFile()->setChangeSet(m_change);
+        currentFile()->apply();
     }
 
 private:

@@ -35,10 +35,8 @@ public:
 private:
     void perform() override
     {
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
-        currentFile->setChangeSet(m_changes);
-        currentFile->apply();
+        currentFile()->setChangeSet(m_changes);
+        currentFile()->apply();
     }
 
     const ChangeSet m_changes;

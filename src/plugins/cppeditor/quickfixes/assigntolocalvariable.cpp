@@ -37,7 +37,7 @@ public:
         , m_name(name)
         , m_oo(CppCodeStyleSettings::currentProjectCodeStyleOverview())
         , m_originalName(m_oo.prettyName(m_name))
-        , m_file(CppRefactoringChanges(snapshot()).cppFile(filePath()))
+        , m_file(interface.currentFile())
     {
         setDescription(Tr::tr("Assign to Local Variable"));
     }

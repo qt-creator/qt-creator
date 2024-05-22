@@ -42,9 +42,6 @@ public:
 private:
     void perform() override
     {
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
-
         QString newName = m_isAllUpper ? m_name.toLower() : m_name;
         for (int i = 1; i < newName.length(); ++i) {
             const QChar c = newName.at(i);
@@ -57,9 +54,9 @@ private:
         }
         if (m_test) {
             ChangeSet changeSet;
-            changeSet.replace(currentFile->range(m_nameAst), newName);
-            currentFile->setChangeSet(changeSet);
-            currentFile->apply();
+            changeSet.replace(currentFile()->range(m_nameAst), newName);
+            currentFile()->setChangeSet(changeSet);
+            currentFile()->apply();
         } else {
             editor()->renameUsages(newName);
         }

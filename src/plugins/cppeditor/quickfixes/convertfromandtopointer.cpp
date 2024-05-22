@@ -41,7 +41,7 @@ public:
         , m_identifierAST(identifierAST)
         , m_symbol(symbol)
         , m_refactoring(snapshot())
-        , m_file(m_refactoring.cppFile(filePath()))
+        , m_file(currentFile())
         , m_document(interface.semanticInfo().doc)
     {
         setDescription(

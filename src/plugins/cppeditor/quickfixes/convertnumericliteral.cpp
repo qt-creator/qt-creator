@@ -28,13 +28,10 @@ public:
 
     void perform() override
     {
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
-
         ChangeSet changes;
         changes.replace(start, end, replacement);
-        currentFile->setChangeSet(changes);
-        currentFile->apply();
+        currentFile()->setChangeSet(changes);
+        currentFile()->apply();
     }
 
 private:

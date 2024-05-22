@@ -248,8 +248,7 @@ private:
         QTC_ASSERT(!parts.isEmpty(), return);
         const QStringList namespaces = parts.mid(0, parts.length() - 1);
 
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr file = refactoring.cppFile(filePath());
+        CppRefactoringFilePtr file = currentFile();
 
         NSVisitor visitor(file.data(), namespaces, m_symbolPos);
         visitor.accept(file->cppDocument()->translationUnit()->ast());
@@ -311,8 +310,7 @@ AddIncludeForUndefinedIdentifierOp::AddIncludeForUndefinedIdentifierOp(
 
 void AddIncludeForUndefinedIdentifierOp::perform()
 {
-    CppRefactoringChanges refactoring(snapshot());
-    CppRefactoringFilePtr file = refactoring.cppFile(filePath());
+    CppRefactoringFilePtr file = currentFile();
 
     ChangeSet changes;
     insertNewIncludeDirective(m_include, file, semanticInfo().doc, changes);

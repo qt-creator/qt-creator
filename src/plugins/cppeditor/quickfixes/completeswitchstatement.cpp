@@ -82,16 +82,13 @@ public:
 
     void perform() override
     {
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
-
         ChangeSet changes;
-        int start = currentFile->endOf(compoundStatement->lbrace_token);
+        int start = currentFile()->endOf(compoundStatement->lbrace_token);
         changes.insert(start, QLatin1String("\ncase ")
                                   + values.join(QLatin1String(":\nbreak;\ncase "))
                                   + QLatin1String(":\nbreak;"));
-        currentFile->setChangeSet(changes);
-        currentFile->apply();
+        currentFile()->setChangeSet(changes);
+        currentFile()->apply();
     }
 
     CompoundStatementAST *compoundStatement;

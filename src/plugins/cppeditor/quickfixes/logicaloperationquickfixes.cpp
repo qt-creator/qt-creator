@@ -35,17 +35,14 @@ public:
 
     void perform() override
     {
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
-
         ChangeSet changes;
-        changes.flip(currentFile->range(binary->left_expression),
-                     currentFile->range(binary->right_expression));
+        changes.flip(currentFile()->range(binary->left_expression),
+                     currentFile()->range(binary->right_expression));
         if (!replacement.isEmpty())
-            changes.replace(currentFile->range(binary->binary_op_token), replacement);
+            changes.replace(currentFile()->range(binary->binary_op_token), replacement);
 
-        currentFile->setChangeSet(changes);
-        currentFile->apply();
+        currentFile()->setChangeSet(changes);
+        currentFile()->apply();
     }
 
 private:
@@ -86,22 +83,19 @@ public:
 
     void perform() override
     {
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
-
         ChangeSet changes;
         if (negation) {
             // can't remove parentheses since that might break precedence
-            changes.remove(currentFile->range(negation->unary_op_token));
+            changes.remove(currentFile()->range(negation->unary_op_token));
         } else if (nested) {
-            changes.insert(currentFile->startOf(nested), QLatin1String("!"));
+            changes.insert(currentFile()->startOf(nested), QLatin1String("!"));
         } else {
-            changes.insert(currentFile->startOf(binary), QLatin1String("!("));
-            changes.insert(currentFile->endOf(binary), QLatin1String(")"));
+            changes.insert(currentFile()->startOf(binary), QLatin1String("!("));
+            changes.insert(currentFile()->endOf(binary), QLatin1String(")"));
         }
-        changes.replace(currentFile->range(binary->binary_op_token), replacement);
-        currentFile->setChangeSet(changes);
-        currentFile->apply();
+        changes.replace(currentFile()->range(binary->binary_op_token), replacement);
+        currentFile()->setChangeSet(changes);
+        currentFile()->apply();
     }
 
 private:
@@ -131,20 +125,17 @@ public:
 
     void perform() override
     {
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
-
         ChangeSet changes;
-        changes.replace(currentFile->range(pattern->binary_op_token), QLatin1String("||"));
-        changes.remove(currentFile->range(left->unary_op_token));
-        changes.remove(currentFile->range(right->unary_op_token));
-        const int start = currentFile->startOf(pattern);
-        const int end = currentFile->endOf(pattern);
+        changes.replace(currentFile()->range(pattern->binary_op_token), QLatin1String("||"));
+        changes.remove(currentFile()->range(left->unary_op_token));
+        changes.remove(currentFile()->range(right->unary_op_token));
+        const int start = currentFile()->startOf(pattern);
+        const int end = currentFile()->endOf(pattern);
         changes.insert(start, QLatin1String("!("));
         changes.insert(end, QLatin1String(")"));
 
-        currentFile->setChangeSet(changes);
-        currentFile->apply();
+        currentFile()->setChangeSet(changes);
+        currentFile()->apply();
     }
 };
 

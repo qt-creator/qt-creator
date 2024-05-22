@@ -241,15 +241,12 @@ private:
 public:
     void perform() override
     {
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
-
-        const int startPos = currentFile->startOf(m_literal);
-        const int endPos = currentFile->endOf(m_literal);
+        const int startPos = currentFile()->startOf(m_literal);
+        const int endPos = currentFile()->endOf(m_literal);
 
         StringLiteralAST *stringLiteral = m_literal->asStringLiteral();
         QTC_ASSERT(stringLiteral, return);
-        const QByteArray oldContents(currentFile->tokenAt(stringLiteral->literal_token).
+        const QByteArray oldContents(currentFile()->tokenAt(stringLiteral->literal_token).
                                      identifier->chars());
         QByteArrayList newContents;
         if (m_escape)
@@ -278,8 +275,8 @@ public:
                 changes.insert(endPos, "\"" + str + "\"");
             replace = false;
         }
-        currentFile->setChangeSet(changes);
-        currentFile->apply();
+        currentFile()->setChangeSet(changes);
+        currentFile()->apply();
     }
 
 private:
@@ -302,13 +299,10 @@ public:
 
     void perform() override
     {
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
-
         ChangeSet changes;
 
-        const int startPos = currentFile->startOf(m_literal);
-        const int endPos = currentFile->endOf(m_literal);
+        const int startPos = currentFile()->startOf(m_literal);
+        const int endPos = currentFile()->endOf(m_literal);
 
         // kill leading '@'. No need to adapt endPos, that is done by ChangeSet
         if (m_actions & RemoveObjectiveCAction)
@@ -326,7 +320,7 @@ public:
         if (m_actions & ConvertEscapeSequencesToCharAction) {
             StringLiteralAST *stringLiteral = m_literal->asStringLiteral();
             QTC_ASSERT(stringLiteral, return ;);
-            const QByteArray oldContents(currentFile->tokenAt(stringLiteral->literal_token).identifier->chars());
+            const QByteArray oldContents(currentFile()->tokenAt(stringLiteral->literal_token).identifier->chars());
             const QByteArray newContents = stringToCharEscapeSequences(oldContents);
             QTC_ASSERT(!newContents.isEmpty(), return ;);
             if (oldContents != newContents)
@@ -337,7 +331,7 @@ public:
         if (m_actions & ConvertEscapeSequencesToStringAction) {
             NumericLiteralAST *charLiteral = m_literal->asNumericLiteral(); // char 'c' constants are numerical.
             QTC_ASSERT(charLiteral, return ;);
-            const QByteArray oldContents(currentFile->tokenAt(charLiteral->literal_token).identifier->chars());
+            const QByteArray oldContents(currentFile()->tokenAt(charLiteral->literal_token).identifier->chars());
             const QByteArray newContents = charToStringEscapeSequences(oldContents);
             QTC_ASSERT(!newContents.isEmpty(), return ;);
             if (oldContents != newContents)
@@ -358,8 +352,8 @@ public:
             changes.insert(startPos, leading);
         }
 
-        currentFile->setChangeSet(changes);
-        currentFile->apply();
+        currentFile()->setChangeSet(changes);
+        currentFile()->apply();
     }
 
 private:
@@ -382,21 +376,18 @@ public:
 
     void perform() override
     {
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
-
         ChangeSet changes;
 
         if (qlatin1Call) {
-            changes.replace(currentFile->startOf(qlatin1Call), currentFile->startOf(stringLiteral),
+            changes.replace(currentFile()->startOf(qlatin1Call), currentFile()->startOf(stringLiteral),
                             QLatin1String("@"));
-            changes.remove(currentFile->endOf(stringLiteral), currentFile->endOf(qlatin1Call));
+            changes.remove(currentFile()->endOf(stringLiteral), currentFile()->endOf(qlatin1Call));
         } else {
-            changes.insert(currentFile->startOf(stringLiteral), QLatin1String("@"));
+            changes.insert(currentFile()->startOf(stringLiteral), QLatin1String("@"));
         }
 
-        currentFile->setChangeSet(changes);
-        currentFile->apply();
+        currentFile()->setChangeSet(changes);
+        currentFile()->apply();
     }
 
 private:

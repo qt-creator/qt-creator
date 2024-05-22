@@ -77,36 +77,33 @@ public:
 
     void perform() override
     {
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
-
         ChangeSet changes;
         for (Statement * const statement : m_statements) {
-            const int start = currentFile->endOf(tokenToInsertOpeningBraceAfter(statement));
+            const int start = currentFile()->endOf(tokenToInsertOpeningBraceAfter(statement));
             changes.insert(start, QLatin1String(" {"));
             if constexpr (std::is_same_v<Statement, DoStatementAST>) {
-                const int end = currentFile->startOf(statement->while_token);
+                const int end = currentFile()->startOf(statement->while_token);
                 changes.insert(end, QLatin1String("} "));
             } else if constexpr (std::is_same_v<Statement, IfStatementAST>) {
                 if (statement->else_statement) {
-                    changes.insert(currentFile->startOf(statement->else_token), "} ");
+                    changes.insert(currentFile()->startOf(statement->else_token), "} ");
                 } else {
-                    changes.insert(currentFile->endOf(statement->statement->lastToken() - 1),
+                    changes.insert(currentFile()->endOf(statement->statement->lastToken() - 1),
                                    "\n}");
                 }
 
             } else {
-                const int end = currentFile->endOf(statement->statement->lastToken() - 1);
+                const int end = currentFile()->endOf(statement->statement->lastToken() - 1);
                 changes.insert(end, QLatin1String("\n}"));
             }
         }
         if (m_elseStatement) {
-            changes.insert(currentFile->endOf(m_elseToken), " {");
-            changes.insert(currentFile->endOf(m_elseStatement->lastToken() - 1), "\n}");
+            changes.insert(currentFile()->endOf(m_elseToken), " {");
+            changes.insert(currentFile()->endOf(m_elseStatement->lastToken() - 1), "\n}");
         }
 
-        currentFile->setChangeSet(changes);
-        currentFile->apply();
+        currentFile()->setChangeSet(changes);
+        currentFile()->apply();
     }
 
 private:
@@ -174,19 +171,16 @@ public:
 
     void perform() override
     {
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
-
         ChangeSet changes;
 
-        changes.copy(currentFile->range(core), currentFile->startOf(condition));
+        changes.copy(currentFile()->range(core), currentFile()->startOf(condition));
 
-        int insertPos = currentFile->startOf(pattern);
-        changes.move(currentFile->range(condition), insertPos);
+        int insertPos = currentFile()->startOf(pattern);
+        changes.move(currentFile()->range(condition), insertPos);
         changes.insert(insertPos, QLatin1String(";\n"));
 
-        currentFile->setChangeSet(changes);
-        currentFile->apply();
+        currentFile()->setChangeSet(changes);
+        currentFile()->apply();
     }
 
     ASTMatcher matcher;
@@ -214,22 +208,19 @@ public:
 
     void perform() override
     {
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
-
         ChangeSet changes;
 
-        changes.insert(currentFile->startOf(condition), QLatin1String("("));
-        changes.insert(currentFile->endOf(condition), QLatin1String(") != 0"));
+        changes.insert(currentFile()->startOf(condition), QLatin1String("("));
+        changes.insert(currentFile()->endOf(condition), QLatin1String(") != 0"));
 
-        int insertPos = currentFile->startOf(pattern);
-        const int conditionStart = currentFile->startOf(condition);
-        changes.move(conditionStart, currentFile->startOf(core), insertPos);
-        changes.copy(currentFile->range(core), insertPos);
+        int insertPos = currentFile()->startOf(pattern);
+        const int conditionStart = currentFile()->startOf(condition);
+        changes.move(conditionStart, currentFile()->startOf(core), insertPos);
+        changes.copy(currentFile()->range(core), insertPos);
         changes.insert(insertPos, QLatin1String(";\n"));
 
-        currentFile->setChangeSet(changes);
-        currentFile->apply();
+        currentFile()->setChangeSet(changes);
+        currentFile()->apply();
     }
 
     ASTMatcher matcher;
@@ -253,60 +244,57 @@ public:
 
     void perform() override
     {
-        CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
-
-        const Token binaryToken = currentFile->tokenAt(condition->binary_op_token);
+        const Token binaryToken = currentFile()->tokenAt(condition->binary_op_token);
 
         if (binaryToken.is(T_AMPER_AMPER))
-            splitAndCondition(currentFile);
+            splitAndCondition();
         else
-            splitOrCondition(currentFile);
+            splitOrCondition();
     }
 
-    void splitAndCondition(CppRefactoringFilePtr currentFile) const
+    void splitAndCondition() const
     {
         ChangeSet changes;
 
-        int startPos = currentFile->startOf(pattern);
+        int startPos = currentFile()->startOf(pattern);
         changes.insert(startPos, QLatin1String("if ("));
-        changes.move(currentFile->range(condition->left_expression), startPos);
+        changes.move(currentFile()->range(condition->left_expression), startPos);
         changes.insert(startPos, QLatin1String(") {\n"));
 
-        const int lExprEnd = currentFile->endOf(condition->left_expression);
-        changes.remove(lExprEnd, currentFile->startOf(condition->right_expression));
-        changes.insert(currentFile->endOf(pattern), QLatin1String("\n}"));
+        const int lExprEnd = currentFile()->endOf(condition->left_expression);
+        changes.remove(lExprEnd, currentFile()->startOf(condition->right_expression));
+        changes.insert(currentFile()->endOf(pattern), QLatin1String("\n}"));
 
-        currentFile->setChangeSet(changes);
-        currentFile->apply();
+        currentFile()->setChangeSet(changes);
+        currentFile()->apply();
     }
 
-    void splitOrCondition(CppRefactoringFilePtr currentFile) const
+    void splitOrCondition() const
     {
         ChangeSet changes;
 
         StatementAST *ifTrueStatement = pattern->statement;
         CompoundStatementAST *compoundStatement = ifTrueStatement->asCompoundStatement();
 
-        int insertPos = currentFile->endOf(ifTrueStatement);
+        int insertPos = currentFile()->endOf(ifTrueStatement);
         if (compoundStatement)
             changes.insert(insertPos, QLatin1String(" "));
         else
             changes.insert(insertPos, QLatin1String("\n"));
         changes.insert(insertPos, QLatin1String("else if ("));
 
-        const int rExprStart = currentFile->startOf(condition->right_expression);
-        changes.move(rExprStart, currentFile->startOf(pattern->rparen_token), insertPos);
+        const int rExprStart = currentFile()->startOf(condition->right_expression);
+        changes.move(rExprStart, currentFile()->startOf(pattern->rparen_token), insertPos);
         changes.insert(insertPos, QLatin1String(")"));
 
-        const int rParenEnd = currentFile->endOf(pattern->rparen_token);
-        changes.copy(rParenEnd, currentFile->endOf(pattern->statement), insertPos);
+        const int rParenEnd = currentFile()->endOf(pattern->rparen_token);
+        changes.copy(rParenEnd, currentFile()->endOf(pattern->statement), insertPos);
 
-        const int lExprEnd = currentFile->endOf(condition->left_expression);
-        changes.remove(lExprEnd, currentFile->startOf(condition->right_expression));
+        const int lExprEnd = currentFile()->endOf(condition->left_expression);
+        changes.remove(lExprEnd, currentFile()->startOf(condition->right_expression));
 
-        currentFile->setChangeSet(changes);
-        currentFile->apply();
+        currentFile()->setChangeSet(changes);
+        currentFile()->apply();
     }
 
 private:
@@ -333,9 +321,7 @@ public:
     {
         QTC_ASSERT(m_forAst, return);
 
-        const Utils::FilePath filePath = currentFile()->filePath();
-        const CppRefactoringChanges refactoring(snapshot());
-        const CppRefactoringFilePtr file = refactoring.cppFile(filePath);
+        const CppRefactoringFilePtr file = currentFile();
         ChangeSet change;
 
         // Optimize post (in|de)crement operator to pre (in|de)crement operator

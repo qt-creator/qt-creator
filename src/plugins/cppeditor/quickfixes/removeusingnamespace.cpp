@@ -483,12 +483,11 @@ private:
     void perform() override
     {
         CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
         if (m_removeAllAtGlobalScope) {
             removeAllUsingsAtGlobalScope(refactoring);
-        } else if (refactorFile(currentFile,
+        } else if (refactorFile(currentFile(),
                                 refactoring.snapshot(),
-                                currentFile->endOf(m_usingDirective),
+                                currentFile()->endOf(m_usingDirective),
                                 true)) {
             processIncludes(refactoring, filePath());
         }
@@ -505,7 +504,7 @@ private:
      * @param removeUsing if the using directive is in this file, remove it
      * @return true if the using statement is global and there is no other global using namespace
      */
-    bool refactorFile(CppRefactoringFilePtr &file,
+    bool refactorFile(const CppRefactoringFilePtr &file,
                       const Snapshot &snapshot,
                       int startSymbol,
                       bool removeUsing = false)
