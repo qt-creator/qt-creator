@@ -209,12 +209,11 @@ static BaseClientInterface *clientInterface(Project *project, const Utils::FileP
                             "--clang-tidy=0"}};
     if (settings.workerThreadLimit() != 0)
         cmd.addArg("-j=" + QString::number(settings.workerThreadLimit()));
-    if (indexingEnabled && Utils::clangdVersion(clangdExePath) >= QVersionNumber(15)) {
+    if (indexingEnabled) {
         cmd.addArg("--background-index-priority="
                    + ClangdSettings::priorityToString(indexingPriority));
     }
-    if (Utils::clangdVersion(clangdExePath) >= QVersionNumber(16))
-        cmd.addArg("--rename-file-limit=0");
+    cmd.addArg("--rename-file-limit=0");
     if (!jsonDbDir.isEmpty())
         cmd.addArg("--compile-commands-dir=" + clangdExePath.withNewMappedPath(jsonDbDir).path());
     if (clangdLogServer().isDebugEnabled())
@@ -558,9 +557,7 @@ void ClangdClient::findUsages(const CppEditor::CursorInEditor &cursor,
     if (searchTerm.isEmpty())
         return;
 
-    if (replacement && versionNumber() >= QVersionNumber(16)
-        && Utils::qtcEnvironmentVariable("QTC_CLANGD_RENAMING") != "0") {
-
+    if (replacement && Utils::qtcEnvironmentVariable("QTC_CLANGD_RENAMING") != "0") {
         // If we have up-to-date highlighting data, we can prevent giving clangd
         // macros or namespaces to rename, which it can't cope with.
         // TODO: Fix this upstream for macros; see https://github.com/clangd/clangd/issues/729.
@@ -1523,7 +1520,7 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
         return;
     }
     force = force || isTesting;
-    const auto data = highlightingData.find(doc);
+    auto data = highlightingData.find(doc);
     if (data != highlightingData.end()) {
         if (!force && data->previousTokens.first == tokens
                 && data->previousTokens.second == version) {
@@ -1533,61 +1530,50 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
         data->previousTokens.first = tokens;
         data->previousTokens.second = version;
     } else {
-        highlightingData.insert(doc, {{tokens, version}, {}});
+        data = highlightingData.insert(doc, {{tokens, version}, {}});
     }
     for (const ExpandedSemanticToken &t : tokens)
         qCDebug(clangdLogHighlight()) << '\t' << t.line << t.column << t.length << t.type
                                       << t.modifiers;
 
-    const auto astHandler = [this, tokens, doc, version](const ClangdAstNode &ast, const MessageId &) {
-        FinalizingSubtaskTimer t(highlightingTimer);
-        if (!q->documentOpen(doc))
-            return;
-        if (version != q->documentVersion(doc->filePath())) {
-            qCInfo(clangdLogHighlight) << "AST not up to date; aborting highlighting procedure"
-                                        << version << q->documentVersion(doc->filePath());
-            return;
+    FinalizingSubtaskTimer ft(highlightingTimer);
+    if (!q->documentOpen(doc))
+        return;
+    if (version != q->documentVersion(doc->filePath())) {
+        qCInfo(clangdLogHighlight) << "AST not up to date; aborting highlighting procedure"
+                                   << version << q->documentVersion(doc->filePath());
+        return;
+    }
+
+    const auto runner = [tokens, filePath = doc->filePath(),
+                         text = doc->document()->toPlainText(),
+                         rev = doc->document()->revision(), this] {
+        try {
+            return Utils::asyncRun(doSemanticHighlighting, filePath, tokens, text,
+                                   rev, highlightingTimer);
+        } catch (const std::exception &e) {
+            qWarning() << "caught" << e.what() << "in main highlighting thread";
+            return QFuture<HighlightingResult>();
         }
-        if (clangdLogAst().isDebugEnabled())
-            ast.print();
-
-        const auto runner = [tokens, filePath = doc->filePath(),
-                             text = doc->document()->toPlainText(), ast,
-                             doc = QPointer(doc), rev = doc->document()->revision(),
-                             clangdVersion = q->versionNumber(),
-                             this] {
-            try {
-                return Utils::asyncRun(doSemanticHighlighting, filePath, tokens, text, ast, doc,
-                                       rev, clangdVersion, highlightingTimer);
-            } catch (const std::exception &e) {
-                qWarning() << "caught" << e.what() << "in main highlighting thread";
-                return QFuture<HighlightingResult>();
-            }
-        };
-
-        if (isTesting) {
-            const auto watcher = new QFutureWatcher<HighlightingResult>(q);
-            connect(watcher, &QFutureWatcher<HighlightingResult>::finished,
-                    q, [this, watcher, fp = doc->filePath()] {
-                emit q->highlightingResultsReady(watcher->future().results(), fp);
-                watcher->deleteLater();
-            });
-            watcher->setFuture(runner());
-            return;
-        }
-
-        auto &data = highlightingData[doc];
-        if (!data.highlighter)
-            data.highlighter = new CppEditor::SemanticHighlighter(doc);
-        else
-            data.highlighter->updateFormatMapFromFontSettings();
-        data.highlighter->setHighlightingRunner(runner);
-        data.highlighter->run();
     };
-    if (q->versionNumber().majorVersion() >= 17)
-        astHandler({}, {});
+
+    if (isTesting) {
+        const auto watcher = new QFutureWatcher<HighlightingResult>(q);
+        connect(watcher, &QFutureWatcher<HighlightingResult>::finished,
+                q, [this, watcher, fp = doc->filePath()] {
+            emit q->highlightingResultsReady(watcher->future().results(), fp);
+            watcher->deleteLater();
+        });
+        watcher->setFuture(runner());
+        return;
+    }
+
+    if (!data->highlighter)
+        data->highlighter = new CppEditor::SemanticHighlighter(doc);
     else
-        getAndHandleAst(doc, astHandler, AstCallbackMode::SyncIfPossible);
+        data->highlighter->updateFormatMapFromFontSettings();
+    data->highlighter->setHighlightingRunner(runner);
+    data->highlighter->run();
 }
 
 std::optional<QList<CodeAction> > ClangdDiagnostic::codeActions() const

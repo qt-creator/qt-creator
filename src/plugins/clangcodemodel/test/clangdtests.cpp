@@ -1107,8 +1107,7 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("call to function pointer alias") << 344 << 5 << 344 << 13
         << QList<int>{C_TYPE} << 0;
     QTest::newRow("friend class declaration") << 350 << 18 << 350 << 27
-        << (client()->versionNumber().majorVersion() >= 16
-            ? QList<int>{C_TYPE, C_DECLARATION}: QList<int>{C_TYPE}) << 0;
+        << QList<int>{C_TYPE, C_DECLARATION} << 0;
     QTest::newRow("friend class reference") << 351 << 34 << 351 << 43
         << QList<int>{C_TYPE} << 0;
     QTest::newRow("function parameter of friend class type") << 351 << 45 << 351 << 50
@@ -1374,10 +1373,6 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
     QTest::newRow("macro in struct") << 795 << 9 << 795 << 14
         << QList<int>{C_MACRO, C_DECLARATION} << 0;
-    if (client()->versionNumber() < QVersionNumber(17)) {
-        QTest::newRow("#ifdef'ed out code") << 800 << 1 << 800 << 17
-                                            << QList<int>{C_DISABLED_CODE} << 0;
-    }
     QTest::newRow("static function call (object)") << 819 << 5 << 819 << 6
         << QList<int>{C_LOCAL} << 0;
     QTest::newRow("static function call (argument)") << 819 << 18 << 819 << 19

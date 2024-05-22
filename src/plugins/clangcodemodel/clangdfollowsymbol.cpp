@@ -459,8 +459,6 @@ void ClangdFollowSymbol::Private::handleGotoImplementationResult(
     //         Make a symbol info request for each link to get the class names.
     //         Also get the AST for the base declaration, so we can find out whether it's
     //         pure virtual and mark it accordingly.
-    //         In addition, we need to follow all override links, because for these, clangd
-    //         gives us the declaration instead of the definition (until clangd 16).
     for (const Link &link : std::as_const(allLinks)) {
         if (!client->documentForFilePath(link.targetFilePath) && addOpenFile(link.targetFilePath))
             client->openExtraFile(link.targetFilePath);
@@ -487,42 +485,6 @@ void ClangdFollowSymbol::Private::handleGotoImplementationResult(
 
         if (link == defLink)
             continue;
-
-        if (client->versionNumber().majorVersion() >= 17)
-            continue;
-
-        const TextDocumentIdentifier doc(client->hostPathToServerUri(link.targetFilePath));
-        const TextDocumentPositionParams params(doc, pos);
-        GotoDefinitionRequest defReq(params);
-        defReq.setResponseCallback(
-            [this, link, transformLink, sentinel = QPointer(q), reqId = defReq.id()](
-                const GotoDefinitionRequest::Response &response) {
-                qCDebug(clangdLog) << "handling additional go to definition reply for"
-                                   << link.targetFilePath << link.targetLine;
-                if (!sentinel)
-                    return;
-                Link newLink;
-                if (std::optional<GotoResult> _result = response.result()) {
-                    const GotoResult result = _result.value();
-                    if (const auto ploc = std::get_if<Location>(&result)) {
-                        newLink = transformLink(*ploc);
-                    } else if (const auto plloc = std::get_if<QList<Location>>(&result)) {
-                        if (!plloc->isEmpty())
-                            newLink = transformLink(plloc->value(0));
-                    }
-                }
-                qCDebug(clangdLog) << "def link is" << newLink.targetFilePath << newLink.targetLine;
-                declDefMap.insert(link, newLink);
-                pendingGotoDefRequests.removeOne(reqId);
-                if (pendingSymbolInfoRequests.isEmpty() && pendingGotoDefRequests.isEmpty()
-                    && defLinkNode.isValid()) {
-                    handleDocumentInfoResults();
-                }
-            });
-        pendingGotoDefRequests << defReq.id();
-        qCDebug(clangdLog) << "sending additional go to definition request"
-                           << link.targetFilePath << link.targetLine;
-        client->sendMessage(defReq, ClangdClient::SendDocUpdates::Ignore);
     }
 
     const FilePath defLinkFilePath = defLink.targetFilePath;
