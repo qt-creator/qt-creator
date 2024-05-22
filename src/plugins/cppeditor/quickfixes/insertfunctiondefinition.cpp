@@ -462,7 +462,7 @@ private:
     }
 
     ClassSpecifierAST *m_classAST = nullptr;
-    InsertDefsFromDeclsMode m_mode;
+    InsertDefsFromDeclsMode m_mode = InsertDefsFromDeclsMode::User;
     QList<Symbol *> m_declarations;
 };
 
