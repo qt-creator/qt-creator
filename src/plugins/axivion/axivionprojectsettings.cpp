@@ -15,10 +15,12 @@
 
 #include <solutions/tasking/tasktreerunner.h>
 
+#include <utils/algorithm.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
+#include <QComboBox>
 #include <QPushButton>
 #include <QTreeWidget>
 #include <QVBoxLayout>
@@ -104,13 +106,16 @@ public:
 private:
     void fetchProjects();
     void onSettingsChanged();
+    void onServerChanged();
     void linkProject();
     void unlinkProject();
     void updateUi();
     void updateEnabledStates();
+    void updateServers();
 
     AxivionProjectSettings *m_projectSettings = nullptr;
     QLabel *m_linkedProject = nullptr;
+    QComboBox *m_dashboardServers = nullptr;
     QTreeWidget *m_dashboardProjects = nullptr;
     QPushButton *m_fetchProjects = nullptr;
     QPushButton *m_link = nullptr;
@@ -127,6 +132,10 @@ AxivionProjectSettingsWidget::AxivionProjectSettingsWidget(Project *project)
     setGlobalSettingsId("Axivion.Settings.General"); // FIXME move id to constants
 
     m_linkedProject = new QLabel(this);
+
+    m_dashboardServers = new QComboBox(this);
+    m_dashboardServers->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    updateServers();
 
     m_dashboardProjects = new QTreeWidget(this);
     m_dashboardProjects->setHeaderHidden(true);
@@ -146,6 +155,7 @@ AxivionProjectSettingsWidget::AxivionProjectSettingsWidget(Project *project)
     using namespace Layouting;
     Column {
         noMargin,
+        m_dashboardServers,
         m_linkedProject,
         Tr::tr("Dashboard projects:"),
         Core::ItemViewFind::createSearchableWrapper(m_dashboardProjects),
@@ -153,6 +163,8 @@ AxivionProjectSettingsWidget::AxivionProjectSettingsWidget(Project *project)
         Row { m_fetchProjects, m_link, m_unlink, st }
     }.attachTo(this);
 
+    connect(m_dashboardServers, &QComboBox::currentIndexChanged,
+            this, &AxivionProjectSettingsWidget::onServerChanged);
     connect(m_dashboardProjects, &QTreeWidget::itemSelectionChanged,
             this, &AxivionProjectSettingsWidget::updateEnabledStates);
     connect(m_fetchProjects, &QPushButton::clicked,
@@ -198,6 +210,17 @@ void AxivionProjectSettingsWidget::onSettingsChanged()
         m_projectSettings->setDashboardId(serverId);
         switchActiveDashboardId(serverId);
     }
+    updateServers();
+    updateUi();
+}
+
+void AxivionProjectSettingsWidget::onServerChanged()
+{
+    m_dashboardProjects->clear();
+    m_infoLabel->setVisible(false);
+    const Id id = m_dashboardServers->currentData().value<AxivionServer>().id;
+    m_projectSettings->setDashboardId(id);
+    switchActiveDashboardId(id);
     updateUi();
 }
 
@@ -242,6 +265,7 @@ void AxivionProjectSettingsWidget::updateEnabledStates()
     const bool linkable = m_dashboardProjects->topLevelItemCount()
             && !m_dashboardProjects->selectedItems().isEmpty();
 
+    m_dashboardServers->setEnabled(!linked);
     m_fetchProjects->setEnabled(hasDashboardSettings);
     m_link->setEnabled(!linked && linkable);
     m_unlink->setEnabled(linked);
@@ -251,6 +275,20 @@ void AxivionProjectSettingsWidget::updateEnabledStates()
         m_infoLabel->setType(InfoLabel::NotOk);
         m_infoLabel->setVisible(true);
     }
+}
+
+void AxivionProjectSettingsWidget::updateServers()
+{
+    const QList<AxivionServer> available = settings().allAvailableServers();
+    m_dashboardServers->clear();
+    for (const AxivionServer &server : available)
+        m_dashboardServers->addItem(server.displayString(), QVariant::fromValue(server));
+    const Id id = m_projectSettings->dashboardId();
+    const int index = Utils::indexOf(available, [&id](const AxivionServer &s) {
+        return s.id == id;
+    });
+    if (index != -1)
+        m_dashboardServers->setCurrentIndex(index);
 }
 
 class AxivionProjectPanelFactory : public ProjectPanelFactory
