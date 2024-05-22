@@ -26,10 +26,7 @@ if (NOT QT_CREATOR_API_DEFINED)
     COMPONENTS Concurrent Core Gui Network PrintSupport Qml Quick Sql Widgets Xml
     REQUIRED
   )
-endif()
-
-if (NOT TARGET QmlPuppetCommunication)
-  include(../../libs/qmlpuppetcommunication/QmlPuppetCommunication.cmake)
+  set(IS_STAND_ALONE_PUPPET_BUILD ON)
 endif()
 
 add_qtc_executable(qml2puppet
@@ -38,7 +35,6 @@ add_qtc_executable(qml2puppet
   DEPENDS
     Qt::CorePrivate Qt::Widgets Qt::QmlPrivate
     Qt::QuickPrivate Qt::Network Qt::GuiPrivate
-    app_version
     QmlPuppetCommunication
   INCLUDES
     ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}
@@ -51,6 +47,15 @@ add_qtc_executable(qml2puppet
   PROPERTIES
     OUTPUT_NAME qml2puppet-${IDE_VERSION}
 )
+
+if (IS_STAND_ALONE_PUPPET_BUILD)
+    include(../../libs/qmlpuppetcommunication/QmlPuppetCommunication.cmake)
+    configure_file(../../app/app_version.h.cmakein app/app_version.h ESCAPE_QUOTES)
+else()
+    extend_qtc_executable(qml2puppet
+      DEPENDS app_version
+    )
+endif()
 
 extend_qtc_executable(qml2puppet
   CONDITION Qt6_VERSION
