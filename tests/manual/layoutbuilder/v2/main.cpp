@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
                     st,
                     PushButton {
                         text("Quit"),
-                        onClicked(QApplication::quit)
+                        onClicked(QApplication::quit, nullptr)
                     }
                 }
             }
