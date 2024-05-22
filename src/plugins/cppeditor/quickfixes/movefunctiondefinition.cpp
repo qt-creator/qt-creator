@@ -135,10 +135,8 @@ public:
 
     void applyChanges()
     {
-        if (!m_toFileChangeSet.isEmpty())
-            m_toFile->apply(m_toFileChangeSet);
-        if (!m_fromFileChangeSet.isEmpty())
-            m_fromFile->apply(m_fromFileChangeSet);
+        m_toFile->apply(m_toFileChangeSet);
+        m_fromFile->apply(m_fromFileChangeSet);
     }
 
 private:

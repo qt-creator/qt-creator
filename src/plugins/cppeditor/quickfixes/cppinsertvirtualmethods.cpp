@@ -920,8 +920,7 @@ public:
                 implementationChangeSet.insert(insertPos,  QLatin1String("\n\n") + defText);
             }
 
-            if (!implementationChangeSet.isEmpty())
-                implementationFile->apply(implementationChangeSet);
+            implementationFile->apply(implementationChangeSet);
         }
     }
 

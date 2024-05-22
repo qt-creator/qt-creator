@@ -214,6 +214,9 @@ void RefactoringFile::setOpenEditor(bool activate, int pos)
 
 bool RefactoringFile::apply()
 {
+    if (m_changes.isEmpty())
+        return true;
+
     // test file permissions
     if (!m_filePath.isWritableFile()) {
         ReadOnlyFilesDialog roDialog(m_filePath, ICore::dialogParent());

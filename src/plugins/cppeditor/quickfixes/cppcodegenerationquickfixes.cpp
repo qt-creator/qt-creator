@@ -307,10 +307,8 @@ public:
             insertAndIndent(m_sourceFile, m_sourceFileInsertionPoint, m_sourceFileCode);
         }
 
-        if (!m_headerFileChangeSet.isEmpty())
-            m_headerFile->apply(m_headerFileChangeSet);
-        if (!m_sourceFileChangeSet.isEmpty())
-            m_sourceFile->apply(m_sourceFileChangeSet);
+        m_headerFile->apply(m_headerFileChangeSet);
+        m_sourceFile->apply(m_sourceFileChangeSet);
     }
 
     bool hasSourceFile() const { return m_headerFile != m_sourceFile; }
