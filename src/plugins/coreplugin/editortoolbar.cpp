@@ -39,6 +39,24 @@ enum {
 
 namespace Core {
 
+class ButtonWithMenu : public QToolButton
+{
+public:
+    ButtonWithMenu(QWidget *parent = nullptr)
+        : QToolButton(parent)
+    {}
+
+protected:
+    void mousePressEvent(QMouseEvent *e) override
+    {
+        if (e->button() == Qt::RightButton) {
+            showMenu();
+            return;
+        }
+        QToolButton::mousePressEvent(e);
+    }
+};
+
 struct EditorToolBarPrivate
 {
     explicit EditorToolBarPrivate(QWidget *parent, EditorToolBar *q);
@@ -51,8 +69,8 @@ struct EditorToolBarPrivate
     EditorToolBar::MenuProvider m_menuProvider;
     QAction *m_goBackAction;
     QAction *m_goForwardAction;
-    QToolButton *m_backButton;
-    QToolButton *m_forwardButton;
+    ButtonWithMenu *m_backButton;
+    ButtonWithMenu *m_forwardButton;
     QToolButton *m_splitButton;
     QAction *m_horizontalSplitAction;
     QAction *m_verticalSplitAction;
@@ -68,27 +86,27 @@ struct EditorToolBarPrivate
     bool m_isStandalone;
 };
 
-EditorToolBarPrivate::EditorToolBarPrivate(QWidget *parent, EditorToolBar *q) :
-    m_editorList(new QComboBox(q)),
-    m_closeEditorButton(new QToolButton(q)),
-    m_lockButton(new QToolButton(q)),
-    m_dragHandle(new QToolButton(q)),
-    m_dragHandleMenu(nullptr),
-    m_goBackAction(new QAction(Utils::Icons::PREV_TOOLBAR.icon(), Tr::tr("Go Back"), parent)),
-    m_goForwardAction(new QAction(Utils::Icons::NEXT_TOOLBAR.icon(), Tr::tr("Go Forward"), parent)),
-    m_backButton(new QToolButton(q)),
-    m_forwardButton(new QToolButton(q)),
-    m_splitButton(new QToolButton(q)),
-    m_horizontalSplitAction(new QAction(Utils::Icons::SPLIT_HORIZONTAL.icon(),
-                                        Tr::tr("Split"), parent)),
-    m_verticalSplitAction(new QAction(Utils::Icons::SPLIT_VERTICAL.icon(),
-                                      Tr::tr("Split Side by Side"), parent)),
-    m_splitNewWindowAction(new QAction(Tr::tr("Open in New Window"), parent)),
-    m_closeSplitButton(new QToolButton(q)),
-    m_activeToolBar(nullptr),
-    m_toolBarPlaceholder(new QWidget(q)),
-    m_defaultToolBar(new QWidget(q)),
-    m_isStandalone(false)
+EditorToolBarPrivate::EditorToolBarPrivate(QWidget *parent, EditorToolBar *q)
+    : m_editorList(new QComboBox(q))
+    , m_closeEditorButton(new QToolButton(q))
+    , m_lockButton(new QToolButton(q))
+    , m_dragHandle(new QToolButton(q))
+    , m_dragHandleMenu(nullptr)
+    , m_goBackAction(new QAction(Utils::Icons::PREV_TOOLBAR.icon(), Tr::tr("Go Back"), parent))
+    , m_goForwardAction(new QAction(Utils::Icons::NEXT_TOOLBAR.icon(), Tr::tr("Go Forward"), parent))
+    , m_backButton(new ButtonWithMenu(q))
+    , m_forwardButton(new ButtonWithMenu(q))
+    , m_splitButton(new QToolButton(q))
+    , m_horizontalSplitAction(
+          new QAction(Utils::Icons::SPLIT_HORIZONTAL.icon(), Tr::tr("Split"), parent))
+    , m_verticalSplitAction(
+          new QAction(Utils::Icons::SPLIT_VERTICAL.icon(), Tr::tr("Split Side by Side"), parent))
+    , m_splitNewWindowAction(new QAction(Tr::tr("Open in New Window"), parent))
+    , m_closeSplitButton(new QToolButton(q))
+    , m_activeToolBar(nullptr)
+    , m_toolBarPlaceholder(new QWidget(q))
+    , m_defaultToolBar(new QWidget(q))
+    , m_isStandalone(false)
 {
 }
 
