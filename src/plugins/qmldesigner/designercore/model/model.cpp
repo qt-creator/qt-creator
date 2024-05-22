@@ -1863,21 +1863,17 @@ bool Model::hasImport(const QString &importUrl) const
     });
 }
 
-QString Model::generateNewId(const QString &prefixName, const QString &fallbackPrefix,
-                             std::optional<std::function<bool(const QString &)>> isDuplicate) const
+QString Model::generateNewId(const QString &prefixName, const QString &fallbackPrefix) const
 {
     QString newId = prefixName;
 
     if (newId.isEmpty())
         newId = fallbackPrefix;
 
-    if (!isDuplicate.has_value()) // TODO: to be removed separately to not break build
-        isDuplicate = std::bind(&Model::hasId, this, std::placeholders::_1);
-
     return UniqueName::generateId(prefixName, [&] (const QString &id) {
         // Properties of the root node are not allowed for ids, because they are available in the
         // complete context without qualification.
-        return isDuplicate.value()(id) || d->rootNode()->property(id.toUtf8());
+        return hasId(id) || d->rootNode()->property(id.toUtf8());
     });
 }
 
