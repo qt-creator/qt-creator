@@ -333,6 +333,10 @@ void LocatorMatcher::start()
     QTC_ASSERT(!isRunning(), return);
     d->m_output = {};
 
+    const int filterCount = d->m_tasks.size();
+    if (filterCount <= 0)
+        return;
+
     struct ResultsCollector
     {
         ~ResultsCollector() {
@@ -345,7 +349,7 @@ void LocatorMatcher::start()
     const Storage<ResultsCollector> collectorStorage;
     const LoopList iterator(d->m_tasks);
 
-    const auto onCollectorSetup = [this, filterCount = d->m_tasks.size(), collectorStorage](
+    const auto onCollectorSetup = [this, filterCount, collectorStorage](
                                       Async<LocatorFilterEntries> &async) {
         const std::shared_ptr<ResultsDeduplicator> deduplicator(new ResultsDeduplicator(filterCount));
         collectorStorage->m_deduplicator = deduplicator;
