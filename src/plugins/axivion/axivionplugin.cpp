@@ -1063,6 +1063,9 @@ void switchActiveDashboardId(const Id &toDashboardId)
 {
     QTC_ASSERT(dd, return);
     dd->m_dashboardServerId = toDashboardId;
+    dd->m_serverAccess = ServerAccess::Unknown;
+    dd->m_apiToken.reset();
+    dd->m_dashboardInfo.reset();
 }
 
 const std::optional<DashboardInfo> currentDashboardInfo()

@@ -8,12 +8,14 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
+#include <utils/algorithm.h>
 #include <utils/id.h>
 #include <utils/layoutbuilder.h>
 #include <utils/stringutils.h>
 
 #include <QDialog>
 #include <QDialogButtonBox>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QPushButton>
@@ -72,16 +74,19 @@ static FilePath tokensFilePath()
             .pathAppended("qtcreator/axivion.json");
 }
 
-static void writeTokenFile(const FilePath &filePath, const AxivionServer &server)
+static void writeTokenFile(const FilePath &filePath, const QList<AxivionServer> &servers)
 {
     QJsonDocument doc;
-    doc.setObject(server.toJson());
+    QJsonArray serverArray;
+    for (const AxivionServer &server : servers)
+        serverArray.append(server.toJson());
+    doc.setArray(serverArray);
     // FIXME error handling?
     filePath.writeFileContents(doc.toJson());
     filePath.setPermissions(QFile::ReadUser | QFile::WriteUser);
 }
 
-static AxivionServer readTokenFile(const FilePath &filePath)
+static QList<AxivionServer> readTokenFile(const FilePath &filePath)
 {
     if (!filePath.exists())
         return {};
@@ -89,9 +94,19 @@ static AxivionServer readTokenFile(const FilePath &filePath)
     if (!contents)
         return {};
     const QJsonDocument doc = QJsonDocument::fromJson(*contents);
-    if (!doc.isObject())
+    if (doc.isObject()) // old approach
+        return { AxivionServer::fromJson(doc.object()) };
+    if (!doc.isArray())
         return {};
-    return AxivionServer::fromJson(doc.object());
+
+    QList<AxivionServer> result;
+    const QJsonArray serverArray = doc.array();
+    for (const auto &serverValue : serverArray) {
+        if (!serverValue.isObject())
+            continue;
+        result.append(AxivionServer::fromJson(serverValue.toObject()));
+    }
+    return result;
 }
 
 // AxivionSetting
@@ -112,18 +127,21 @@ AxivionSettings::AxivionSettings()
     highlightMarks.setDefaultValue(false);
     AspectContainer::readSettings();
 
-    m_server = readTokenFile(tokensFilePath());
+    m_allServers = readTokenFile(tokensFilePath());
+
+    if (m_allServers.size() == 1 && !m_defaultServerId.isValid()) // handle settings transition
+        m_defaultServerId = m_allServers.first().id;
 }
 
 void AxivionSettings::toSettings() const
 {
-    writeTokenFile(tokensFilePath(), m_server);
+    writeTokenFile(tokensFilePath(), m_allServers);
     AspectContainer::writeSettings();
 }
 
 Id AxivionSettings::defaultDashboardId() const
 {
-    return m_server.id;
+    return m_defaultServerId;
 }
 
 const AxivionServer AxivionSettings::defaultServer() const
@@ -133,23 +151,37 @@ const AxivionServer AxivionSettings::defaultServer() const
 
 const AxivionServer AxivionSettings::serverForId(const Utils::Id &id) const
 {
-    if (m_server.id == id)
-        return m_server;
-    return {};
+    return Utils::findOrDefault(m_allServers, [&id](const AxivionServer &server) {
+        return id == server.id;
+    });
 }
 
 void AxivionSettings::disableCertificateValidation(const Utils::Id &id)
 {
-    if (m_server.id == id)
-        m_server.validateCert = false;
+    const int index = Utils::indexOf(m_allServers, [&id](const AxivionServer &server) {
+        return id == server.id;
+    });
+    if (index == -1)
+        return;
+
+    m_allServers[index].validateCert = false;
 }
 
 void AxivionSettings::modifyDashboardServer(const Utils::Id &id, const AxivionServer &other)
 {
-    if (m_server.id == id) {
-        m_server = other;
+    const int index = Utils::indexOf(m_allServers, [&id](const AxivionServer &server) {
+        return id == server.id;
+    });
+    if (index == -1 && !id.isValid() && m_allServers.isEmpty()) { // temporary? hack
+        m_allServers.append(other);
+        m_defaultServerId = other.id;
         emit changed();
     }
+    if (index == -1)
+        return;
+
+    m_allServers.replace(index, other);
+    emit changed();
 }
 
 // AxivionSettingsPage

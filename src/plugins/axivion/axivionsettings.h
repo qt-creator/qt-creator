@@ -47,7 +47,8 @@ public:
 
     Utils::BoolAspect highlightMarks{this};
 private:
-    AxivionServer m_server; // shall we have more than one?
+    Utils::Id m_defaultServerId; // holds the current selected
+    QList<AxivionServer> m_allServers;
 };
 
 AxivionSettings &settings();
