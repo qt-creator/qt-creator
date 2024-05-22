@@ -44,12 +44,12 @@ public:
     const AxivionServer defaultServer() const;
     const AxivionServer serverForId(const Utils::Id &id) const;
     void disableCertificateValidation(const Utils::Id &id);
-    const QList<AxivionServer> allAvailableServers() const { return allServers; };
+    const QList<AxivionServer> allAvailableServers() const { return m_allServers; };
     void updateDashboardServers(const QList<AxivionServer> &other);
 
     Utils::BoolAspect highlightMarks{this};
 private:
-    Utils::Id m_defaultServerId; // holds the current selected
+    Utils::StringAspect m_defaultServerId{this};
     QList<AxivionServer> m_allServers;
 };
 

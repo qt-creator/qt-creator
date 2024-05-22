@@ -19,6 +19,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QUuid>
@@ -126,12 +127,13 @@ AxivionSettings::AxivionSettings()
     highlightMarks.setLabelText(Tr::tr("Highlight marks"));
     highlightMarks.setToolTip(Tr::tr("Marks issues on the scroll bar."));
     highlightMarks.setDefaultValue(false);
+    m_defaultServerId.setSettingsKey("DefaultDashboardId");
     AspectContainer::readSettings();
 
     m_allServers = readTokenFile(tokensFilePath());
 
-    if (m_allServers.size() == 1 && !m_defaultServerId.isValid()) // handle settings transition
-        m_defaultServerId = m_allServers.first().id;
+    if (m_allServers.size() == 1 && m_defaultServerId().isEmpty()) // handle settings transition
+        m_defaultServerId.setValue(m_allServers.first().id.toString());
 }
 
 void AxivionSettings::toSettings() const
@@ -142,7 +144,7 @@ void AxivionSettings::toSettings() const
 
 Id AxivionSettings::defaultDashboardId() const
 {
-    return m_defaultServerId;
+    return Id::fromString(m_defaultServerId());
 }
 
 const AxivionServer AxivionSettings::defaultServer() const
@@ -173,10 +175,10 @@ void AxivionSettings::updateDashboardServers(const QList<AxivionServer> &other)
     if (m_allServers == other)
         return;
 
-    if (!Utils::anyOf(other, [this](const AxivionServer &s) { return s.id == m_defaultServerId; })) {
-        if (QTC_GUARD(!m_defaultServerId.isValid() && other.size() == 1))
-            m_defaultServerId = other.first().id;
-    }
+    const Id oldDefault = defaultDashboardId();
+    if (!Utils::anyOf(other, [&oldDefault](const AxivionServer &s) { return s.id == oldDefault; }))
+        m_defaultServerId.setValue(other.isEmpty() ? QString{} : other.first().id.toString());
+
     m_allServers = other;
     emit changed(); // should we be more detailed? (id)
 }
@@ -285,11 +287,14 @@ public:
     void apply() override;
 
 private:
-    void showEditServerDialog();
+    void showServerDialog(bool add);
+    void removeCurrentServerConfig();
     void updateDashboardServers();
+    void updateEnabledStates();
 
     QComboBox *m_dashboardServers = nullptr;
     QPushButton *m_edit = nullptr;
+    QPushButton *m_remove = nullptr;
 };
 
 AxivionSettingsWidget::AxivionSettingsWidget()
@@ -300,19 +305,30 @@ AxivionSettingsWidget::AxivionSettingsWidget()
     m_dashboardServers->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     updateDashboardServers();
 
+    auto addButton = new QPushButton(Tr::tr("Add..."), this);
     m_edit = new QPushButton(Tr::tr("Edit..."), this);
+    m_remove = new QPushButton(Tr::tr("Remove"), this);
     Column {
         Row {
             Form {
                 Tr::tr("Default dashboard server"), m_dashboardServers, br
             }, st,
-            Column { m_edit },
+            Column { addButton, m_edit, st, m_remove },
         },
         Space(10), br,
         Row { settings().highlightMarks }, st
     }.attachTo(this);
 
-    connect(m_edit, &QPushButton::clicked, this, &AxivionSettingsWidget::showEditServerDialog);
+    connect(addButton, &QPushButton::clicked, this, [this] {
+        // add an empty item unconditionally
+        m_dashboardServers->addItem(Tr::tr("unset"), QVariant::fromValue(AxivionServer()));
+        m_dashboardServers->setCurrentIndex(m_dashboardServers->count() - 1);
+        showServerDialog(true);
+    });
+    connect(m_edit, &QPushButton::clicked, this, [this] { showServerDialog(false); });
+    connect(m_remove, &QPushButton::clicked,
+            this, &AxivionSettingsWidget::removeCurrentServerConfig);
+    updateEnabledStates();
 }
 
 void AxivionSettingsWidget::apply()
@@ -331,11 +347,32 @@ void AxivionSettingsWidget::updateDashboardServers()
         m_dashboardServers->addItem(server.displayString(), QVariant::fromValue(server));
 }
 
-void AxivionSettingsWidget::showEditServerDialog()
+void AxivionSettingsWidget::updateEnabledStates()
+{
+    const bool enabled = m_dashboardServers->count();
+    m_edit->setEnabled(enabled);
+    m_remove->setEnabled(enabled);
+}
+
+void AxivionSettingsWidget::removeCurrentServerConfig()
+{
+    const QString config = m_dashboardServers->currentData().value<AxivionServer>().displayString();
+    if (QMessageBox::question(ICore::dialogParent(), Tr::tr("Remove Server Configuration"),
+                              Tr::tr("Do you really want to remove the server configuration "
+                                     "\"%1\"?").arg(config))
+            != QMessageBox::Yes) {
+        return;
+    }
+    m_dashboardServers->removeItem(m_dashboardServers->currentIndex());
+    updateEnabledStates();
+}
+
+void AxivionSettingsWidget::showServerDialog(bool add)
 {
     const AxivionServer old = m_dashboardServers->currentData().value<AxivionServer>();
     QDialog d;
-    d.setWindowTitle(Tr::tr("Edit Dashboard Configuration"));
+    d.setWindowTitle(add ? Tr::tr("Add Dashboard Configuration")
+                         : Tr::tr("Edit Dashboard Configuration"));
     QVBoxLayout *layout = new QVBoxLayout;
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Ok, this);
     auto ok = buttons->button(QDialogButtonBox::Ok);
@@ -349,21 +386,23 @@ void AxivionSettingsWidget::showEditServerDialog()
     d.setLayout(layout);
     d.resize(500, 200);
 
-    if (d.exec() != QDialog::Accepted)
+    if (d.exec() != QDialog::Accepted) {
+        if (add) { // if we canceled an add, remove the canceled item
+            m_dashboardServers->removeItem(m_dashboardServers->currentIndex());
+            updateEnabledStates();
+        }
         return;
+    }
     if (dashboardWidget->isValid()) {
         const AxivionServer server = dashboardWidget->dashboardServer();
         if (server != old) {
-            if (m_dashboardServers->currentIndex() == -1) { // temporary hack
-                m_dashboardServers->addItem(server.displayString(), QVariant::fromValue(server));
-            } else {
-                m_dashboardServers->setItemData(m_dashboardServers->currentIndex(),
-                                                QVariant::fromValue(server));
-                m_dashboardServers->setItemData(m_dashboardServers->currentIndex(),
-                                                server.displayString(), Qt::DisplayRole);
-            }
+            m_dashboardServers->setItemData(m_dashboardServers->currentIndex(),
+                                            QVariant::fromValue(server));
+            m_dashboardServers->setItemData(m_dashboardServers->currentIndex(),
+                                            server.displayString(), Qt::DisplayRole);
         }
     }
+    updateEnabledStates();
 }
 
 // AxivionSettingsPage

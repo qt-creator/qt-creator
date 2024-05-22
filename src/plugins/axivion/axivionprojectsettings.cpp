@@ -231,9 +231,6 @@ void AxivionProjectSettingsWidget::linkProject()
 
     const QString projectName = selected.first()->text(0);
     m_projectSettings->setDashboardProjectName(projectName);
-    const Id serverId = settings().defaultDashboardId();
-    m_projectSettings->setDashboardId(serverId);
-    switchActiveDashboardId(serverId);
     updateUi();
     fetchProjectInfo(projectName);
 }
