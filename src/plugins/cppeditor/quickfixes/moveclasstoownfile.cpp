@@ -223,20 +223,8 @@ private:
     static CppRefactoringFilePtr getRefactoringFile(const FilePath &filePath, const State::Ptr &state)
     {
         CppRefactoringFilePtr &refactoringFile = state->perFileState[filePath].refactoringFile;
-        if (refactoringFile)
-            return refactoringFile;
-        CppEditorWidget *editorWidget = nullptr;
-        const QList<IEditor *> editors = DocumentModel::editorsForFilePath(filePath);
-        for (IEditor *editor : editors) {
-            const auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
-            if (textEditor)
-                editorWidget = qobject_cast<CppEditorWidget *>(textEditor->editorWidget());
-            if (editorWidget)
-                break;
-        }
-        refactoringFile = editorWidget
-                              ? state->factory.file(editorWidget, editorWidget->semanticInfo().doc)
-                              : state->factory.cppFile(filePath);
+        if (!refactoringFile)
+            refactoringFile = state->factory.cppFile(filePath);
         return refactoringFile;
     }
 

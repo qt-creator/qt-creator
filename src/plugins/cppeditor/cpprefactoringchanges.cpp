@@ -4,6 +4,8 @@
 #include "cpprefactoringchanges.h"
 
 #include "cppeditorconstants.h"
+#include "cppeditorwidget.h"
+#include "cppsemanticinfo.h"
 #include "cppworkingcopy.h"
 
 #include <projectexplorer/editorconfiguration.h>
@@ -19,6 +21,7 @@
 
 #include <utility>
 
+using namespace Core;
 using namespace CPlusPlus;
 using namespace Utils;
 
@@ -41,10 +44,15 @@ CppRefactoringChanges::CppRefactoringChanges(const Snapshot &snapshot)
 {
 }
 
-CppRefactoringFilePtr CppRefactoringChanges::file(TextEditor::TextEditorWidget *editor, const Document::Ptr &document)
+CppRefactoringFilePtr CppRefactoringChanges::file(
+    TextEditor::TextEditorWidget *editor, const Document::Ptr &document)
 {
     CppRefactoringFilePtr result(new CppRefactoringFile(editor));
     result->setCppDocument(document);
+    if (const auto cppEditorWidget = qobject_cast<CppEditorWidget *>(editor)) {
+        result->m_data = QSharedPointer<CppRefactoringChangesData>::create(
+            cppEditorWidget->semanticInfo().snapshot);
+    }
     return result;
 }
 
@@ -55,6 +63,18 @@ TextEditor::RefactoringFilePtr CppRefactoringChanges::file(const FilePath &fileP
 
 CppRefactoringFilePtr CppRefactoringChanges::cppFile(const Utils::FilePath &filePath) const
 {
+    // Prefer documents from editors, as these are already parsed and up to date with regards to
+    // unsaved changes.
+    const QList<IEditor *> editors = DocumentModel::editorsForFilePath(filePath);
+    for (IEditor *editor : editors) {
+        if (const auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor)) {
+            if (const auto editorWidget = qobject_cast<CppEditorWidget *>(
+                    textEditor->editorWidget())) {
+                return file(editorWidget, editorWidget->semanticInfo().doc);
+            }
+        }
+    }
+
     return CppRefactoringFilePtr(new CppRefactoringFile(filePath, m_data));
 }
 

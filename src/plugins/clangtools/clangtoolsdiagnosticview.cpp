@@ -14,10 +14,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/manhattanstyle.h>
 
-#include <cppeditor/cppeditorwidget.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cpprefactoringchanges.h>
-#include <cppeditor/cppsemanticinfo.h>
 
 #include <debugger/analyzer/diagnosticlocation.h>
 
@@ -256,19 +254,7 @@ void DiagnosticView::suppressCurrentDiagnosticInline()
     CppRefactoringChanges changes(CppModelManager::snapshot());
 
     for (auto it = diagnosticsPerFileAndLine.cbegin(); it != diagnosticsPerFileAndLine.cend(); ++it) {
-        const Utils::FilePath filePath = it.key();
-        CppEditorWidget *editorWidget = nullptr;
-        const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForFilePath(filePath);
-        for (Core::IEditor *editor : editors) {
-            const auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
-            if (textEditor)
-                editorWidget = qobject_cast<CppEditorWidget *>(textEditor->editorWidget());
-            if (editorWidget)
-                break;
-        }
-        CppRefactoringFilePtr refactoringFile
-            = editorWidget ? changes.file(editorWidget, editorWidget->semanticInfo().doc)
-                           : changes.cppFile(filePath);
+        const CppRefactoringFilePtr refactoringFile = changes.cppFile(it.key());
         Utils::ChangeSet changeSet;
 
         for (auto it2 = it.value().cbegin(); it2 != it.value().cend(); ++it2) {

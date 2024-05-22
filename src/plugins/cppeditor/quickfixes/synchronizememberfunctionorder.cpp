@@ -127,32 +127,9 @@ private:
         }
     }
 
-    // TODO: Move to some central place for re-use
-    static CppEditorWidget *getEditorWidget(const FilePath &filePath)
-    {
-        CppEditorWidget *editorWidget = nullptr;
-        const QList<IEditor *> editors = DocumentModel::editorsForFilePath(filePath);
-        for (IEditor *editor : editors) {
-            const auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
-            if (textEditor)
-                editorWidget = qobject_cast<CppEditorWidget *>(textEditor->editorWidget());
-            if (editorWidget)
-                return editorWidget;
-        }
-        return nullptr;
-    }
-
     static void finish(const State::Ptr &state)
     {
         CppRefactoringChanges factory{CppModelManager::snapshot()};
-
-        // TODO: Move to some central place for re-use.
-        const auto createRefactoringFile = [&factory](const FilePath &filePath)
-        {
-            CppEditorWidget * const editorWidget = getEditorWidget(filePath);
-            return editorWidget ? factory.file(editorWidget, editorWidget->semanticInfo().doc)
-                                : factory.cppFile(filePath);
-        };
 
         const auto findAstRange = [](const CppRefactoringFile &file, const Link &pos) {
             const QList<AST *> astPath = ASTPath(
@@ -180,7 +157,7 @@ private:
             if (defLocsExpectedOrder == defLocsActualOrder)
                 continue;
 
-            CppRefactoringFilePtr file = createRefactoringFile(it.key());
+            CppRefactoringFilePtr file = factory.cppFile(it.key());
             ChangeSet changes;
             for (int i = 0; i < defLocsActualOrder.size(); ++i) {
                 const DefLocation &actualLoc = defLocsActualOrder[i];
