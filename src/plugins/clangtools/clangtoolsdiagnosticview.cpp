@@ -328,8 +328,7 @@ void DiagnosticView::suppressCurrentDiagnosticInline()
                 changeSet.insert(insertStart, newText);
             }
         }
-        refactoringFile->setChangeSet(changeSet);
-        refactoringFile->apply();
+        refactoringFile->apply(changeSet);
     }
 
     filterModel->addSuppressedDiagnostics(diags);

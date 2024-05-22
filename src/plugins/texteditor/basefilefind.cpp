@@ -594,8 +594,7 @@ FilePaths BaseFileFind::replaceAll(const QString &text, const SearchResultItems 
                                            item.mainRange().end.column + 1);
             changeSet.replace(start, end, replacement);
         }
-        file->setChangeSet(changeSet);
-        file->apply();
+        file->apply(changeSet);
     }
 
     return changes.keys();

@@ -360,14 +360,12 @@ private:
         targetChangeSet.insert(insertionPos, QString(insertionColumn, ' '));
         if (targetFile == sourceFile)
             removeAtSource(targetChangeSet);
-        targetFile->setChangeSet(targetChangeSet);
-        const bool targetFileSuccess = targetFile->apply();
+        const bool targetFileSuccess = targetFile->apply(targetChangeSet);
         if (targetFile == sourceFile || !targetFileSuccess)
             return;
         ChangeSet sourceChangeSet;
         removeAtSource(sourceChangeSet);
-        sourceFile->setChangeSet(sourceChangeSet);
-        sourceFile->apply();
+        sourceFile->apply(sourceChangeSet);
     }
 
     const Symbol * const m_symbol;

@@ -35,8 +35,7 @@ public:
 private:
     void perform() override
     {
-        currentFile()->setChangeSet(m_changes);
-        currentFile()->apply();
+        currentFile()->apply(m_changes);
     }
 
     const ChangeSet m_changes;

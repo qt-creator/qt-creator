@@ -629,8 +629,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
                                                              location.line(), location.column());
         ChangeSet changeSet;
         changeSet.insert(insertionPos, definition);
-        file->setChangeSet(changeSet);
-        file->apply();
+        file->apply(changeSet);
         const int indentationPos = file->document()->toPlainText().indexOf('}', insertionPos) - 1;
         QTextCursor cursor(editor->textDocument()->document());
         cursor.setPosition(indentationPos);

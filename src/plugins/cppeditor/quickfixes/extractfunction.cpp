@@ -202,8 +202,7 @@ public:
         ChangeSet change;
         change.insert(position, funcDef);
         change.replace(m_extractionStart, m_extractionEnd, funcCall);
-        currentFile()->setChangeSet(change);
-        currentFile()->apply();
+        currentFile()->apply(change);
 
         // Write declaration, if necessary.
         if (matchingClass) {
@@ -215,8 +214,7 @@ public:
             change.clear();
             position = declFile->position(location.line(), location.column());
             change.insert(position, location.prefix() + funcDecl + location.suffix());
-            declFile->setChangeSet(change);
-            declFile->apply();
+            declFile->apply(change);
         }
     }
 

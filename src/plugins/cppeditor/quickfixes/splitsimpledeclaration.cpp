@@ -67,8 +67,7 @@ public:
             prevDeclarator = declarator;
         }
 
-        currentFile()->setChangeSet(changes);
-        currentFile()->apply();
+        currentFile()->apply(changes);
     }
 
 private:

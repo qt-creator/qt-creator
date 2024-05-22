@@ -292,8 +292,7 @@ private:
             insertion.append('\n');
         ChangeSet s;
         s.insert(insertPos, insertion);
-        file->setChangeSet(s);
-        file->apply();
+        file->apply(s);
     }
 
     const QString m_className;
@@ -314,8 +313,7 @@ void AddIncludeForUndefinedIdentifierOp::perform()
 
     ChangeSet changes;
     insertNewIncludeDirective(m_include, file, semanticInfo().doc, changes);
-    file->setChangeSet(changes);
-    file->apply();
+    file->apply(changes);
 }
 
 AddForwardDeclForUndefinedIdentifierOp::AddForwardDeclForUndefinedIdentifierOp(

@@ -55,8 +55,7 @@ private:
         if (m_test) {
             ChangeSet changeSet;
             changeSet.replace(currentFile()->range(m_nameAst), newName);
-            currentFile()->setChangeSet(changeSet);
-            currentFile()->apply();
+            currentFile()->apply(changeSet);
         } else {
             editor()->renameUsages(newName);
         }

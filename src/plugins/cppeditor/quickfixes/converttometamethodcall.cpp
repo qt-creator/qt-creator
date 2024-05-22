@@ -100,8 +100,7 @@ private:
         }
 
         // Apply the changes.
-        currentFile()->setChangeSet(changes);
-        currentFile()->apply();
+        currentFile()->apply(changes);
     }
 
     const CallAST * const m_callAst;

@@ -267,13 +267,11 @@ void FunctionDeclDefLink::apply(CppEditorWidget *editor, bool jumpToMatch)
     const int targetStart = newTargetFile->position(targetLine, targetColumn);
     const int targetEnd = targetStart + targetInitial.size();
     if (targetInitial == newTargetFile->textOf(targetStart, targetEnd)) {
-        const ChangeSet changeset = changes(snapshot, targetStart);
-        newTargetFile->setChangeSet(changeset);
         if (jumpToMatch) {
             const int jumpTarget = newTargetFile->position(targetFunction->line(), targetFunction->column());
             newTargetFile->setOpenEditor(true, jumpTarget);
         }
-        newTargetFile->apply();
+        newTargetFile->apply(changes(snapshot, targetStart));
     } else {
         ToolTip::show(editor->toolTipPosition(linkSelection),
                       Tr::tr("Target file was changed, could not apply changes"));

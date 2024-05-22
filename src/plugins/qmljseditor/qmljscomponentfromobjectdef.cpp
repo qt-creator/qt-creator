@@ -189,8 +189,7 @@ public:
 
         Utils::ChangeSet changes;
         changes.replace(start, end, replacement);
-        currentFile->setChangeSet(changes);
-        currentFile->apply();
+        currentFile->apply(changes);
 
         Core::IVersionControl *versionControl = Core::VcsManager::findVersionControlForDirectory(
             path);

@@ -179,8 +179,7 @@ public:
         changes.move(currentFile()->range(condition), insertPos);
         changes.insert(insertPos, QLatin1String(";\n"));
 
-        currentFile()->setChangeSet(changes);
-        currentFile()->apply();
+        currentFile()->apply(changes);
     }
 
     ASTMatcher matcher;
@@ -219,8 +218,7 @@ public:
         changes.copy(currentFile()->range(core), insertPos);
         changes.insert(insertPos, QLatin1String(";\n"));
 
-        currentFile()->setChangeSet(changes);
-        currentFile()->apply();
+        currentFile()->apply(changes);
     }
 
     ASTMatcher matcher;
@@ -265,8 +263,7 @@ public:
         changes.remove(lExprEnd, currentFile()->startOf(condition->right_expression));
         changes.insert(currentFile()->endOf(pattern), QLatin1String("\n}"));
 
-        currentFile()->setChangeSet(changes);
-        currentFile()->apply();
+        currentFile()->apply(changes);
     }
 
     void splitOrCondition() const
@@ -293,8 +290,7 @@ public:
         const int lExprEnd = currentFile()->endOf(condition->left_expression);
         changes.remove(lExprEnd, currentFile()->startOf(condition->right_expression));
 
-        currentFile()->setChangeSet(changes);
-        currentFile()->apply();
+        currentFile()->apply(changes);
     }
 
 private:
@@ -376,8 +372,7 @@ public:
             change.replace(exprRange, varName);
         }
 
-        file->setChangeSet(change);
-        file->apply();
+        file->apply(change);
 
         // Select variable name and trigger symbol rename
         if (renamePos != -1) {

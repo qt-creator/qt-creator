@@ -30,8 +30,7 @@ public:
     {
         ChangeSet changes;
         changes.replace(start, end, replacement);
-        currentFile()->setChangeSet(changes);
-        currentFile()->apply();
+        currentFile()->apply(changes);
     }
 
 private:

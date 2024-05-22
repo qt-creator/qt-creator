@@ -97,8 +97,7 @@ bool applyTextEdits(const Client *client,
     if (edits.isEmpty())
         return true;
     const RefactoringFilePtr file = client->createRefactoringFile(filePath);
-    file->setChangeSet(editsToChangeSet(edits, file->document()));
-    return file->apply();
+    return file->apply(editsToChangeSet(edits, file->document()));
 }
 
 void applyTextEdit(TextDocumentManipulatorInterface &manipulator,

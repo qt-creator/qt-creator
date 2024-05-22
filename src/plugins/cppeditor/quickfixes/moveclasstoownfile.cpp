@@ -441,8 +441,7 @@ private:
                     .append('\n');
                 changes.remove(rangeToMove);
             }
-            refactoringFile->setChangeSet(changes);
-            refactoringFile->apply();
+            refactoringFile->apply(changes);
         }
 
         if (!namespaceNames.isEmpty()) {
@@ -455,19 +454,15 @@ private:
         if (!fileSettings.headerPragmaOnce)
             headerContent.append("\n#endif // " + headerGuard + '\n');
 
-        CppRefactoringFilePtr headerFile = state->factory.cppFile(headerFilePath);
         headerFilePath.ensureExistingFile();
         ChangeSet headerChanges;
         headerChanges.insert(0, headerContent);
-        headerFile->setChangeSet(headerChanges);
-        headerFile->apply();
+        state->factory.cppFile(headerFilePath)->apply(headerChanges);
         if (hasSourceContent || mustCreateSourceFile) {
             sourceFilePath.ensureExistingFile();
-            CppRefactoringFilePtr sourceFile = state->factory.cppFile(sourceFilePath);
             ChangeSet sourceChanges;
             sourceChanges.insert(0, sourceContent);
-            sourceFile->setChangeSet(sourceChanges);
-            sourceFile->apply();
+            state->factory.cppFile(sourceFilePath)->apply(sourceChanges);
         }
 
         if (!projectNode)

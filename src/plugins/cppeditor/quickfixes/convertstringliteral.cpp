@@ -275,8 +275,7 @@ public:
                 changes.insert(endPos, "\"" + str + "\"");
             replace = false;
         }
-        currentFile()->setChangeSet(changes);
-        currentFile()->apply();
+        currentFile()->apply(changes);
     }
 
 private:
@@ -352,8 +351,7 @@ public:
             changes.insert(startPos, leading);
         }
 
-        currentFile()->setChangeSet(changes);
-        currentFile()->apply();
+        currentFile()->apply(changes);
     }
 
 private:
@@ -386,8 +384,7 @@ public:
             changes.insert(currentFile()->startOf(stringLiteral), QLatin1String("@"));
         }
 
-        currentFile()->setChangeSet(changes);
-        currentFile()->apply();
+        currentFile()->apply(changes);
     }
 
 private:

@@ -41,8 +41,7 @@ public:
 
     void perform() override
     {
-        currentFile()->setChangeSet(m_change);
-        currentFile()->apply();
+        currentFile()->apply(m_change);
     }
 
 private:

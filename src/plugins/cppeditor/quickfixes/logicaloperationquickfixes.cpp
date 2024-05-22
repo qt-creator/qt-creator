@@ -41,8 +41,7 @@ public:
         if (!replacement.isEmpty())
             changes.replace(currentFile()->range(binary->binary_op_token), replacement);
 
-        currentFile()->setChangeSet(changes);
-        currentFile()->apply();
+        currentFile()->apply(changes);
     }
 
 private:
@@ -94,8 +93,7 @@ public:
             changes.insert(currentFile()->endOf(binary), QLatin1String(")"));
         }
         changes.replace(currentFile()->range(binary->binary_op_token), replacement);
-        currentFile()->setChangeSet(changes);
-        currentFile()->apply();
+        currentFile()->apply(changes);
     }
 
 private:
@@ -134,8 +132,7 @@ public:
         changes.insert(start, QLatin1String("!("));
         changes.insert(end, QLatin1String(")"));
 
-        currentFile()->setChangeSet(changes);
-        currentFile()->apply();
+        currentFile()->apply(changes);
     }
 };
 

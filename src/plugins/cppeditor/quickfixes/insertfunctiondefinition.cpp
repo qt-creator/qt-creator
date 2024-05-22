@@ -114,9 +114,8 @@ public:
             target->replace(targetPos - 1, targetPos, QLatin1String("\n {\n\n}")); // replace ';'
 
             if (!changeSet) {
-                targetFile->setChangeSet(*target);
                 targetFile->setOpenEditor(true, targetPos);
-                targetFile->apply();
+                targetFile->apply(*target);
 
                 // Move cursor inside definition
                 QTextCursor c = targetFile->cursor();
@@ -190,9 +189,8 @@ public:
             target->insert(targetPos,  loc.prefix() + defText + loc.suffix());
 
             if (!changeSet) {
-                targetFile->setChangeSet(*target);
                 targetFile->setOpenEditor(true, targetPos);
-                targetFile->apply();
+                targetFile->apply(*target);
 
                 // Move cursor inside definition
                 QTextCursor c = targetFile->cursor();
@@ -454,11 +452,8 @@ private:
                 this, loc, setting.defPos, finder.decl()->declarator_list->value,
                 setting.func->asDeclaration(),targetFilePath, &changeSet);
         }
-        for (auto it = changeSets.cbegin(); it != changeSets.cend(); ++it) {
-            const CppRefactoringFilePtr file = refactoring.cppFile(it.key());
-            file->setChangeSet(it.value());
-            file->apply();
-        }
+        for (auto it = changeSets.cbegin(); it != changeSets.cend(); ++it)
+            refactoring.cppFile(it.key())->apply(it.value());
     }
 
     ClassSpecifierAST *m_classAST = nullptr;

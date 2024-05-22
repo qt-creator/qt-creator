@@ -868,9 +868,8 @@ public:
 
         // Write header file
         if (!headerChangeSet.isEmpty()) {
-            headerFile->setChangeSet(headerChangeSet);
             headerFile->setOpenEditor(true, m_insertPosDecl);
-            headerFile->apply();
+            headerFile->apply(headerChangeSet);
         }
 
         // Insert in implementation file
@@ -921,10 +920,8 @@ public:
                 implementationChangeSet.insert(insertPos,  QLatin1String("\n\n") + defText);
             }
 
-            if (!implementationChangeSet.isEmpty()) {
-                implementationFile->setChangeSet(implementationChangeSet);
-                implementationFile->apply();
-            }
+            if (!implementationChangeSet.isEmpty())
+                implementationFile->apply(implementationChangeSet);
         }
     }
 

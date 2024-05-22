@@ -54,8 +54,7 @@ private:
                                                   varName + QLatin1String(" = "));
         ChangeSet changes;
         changes.insert(m_insertPos, insertString);
-        m_file->setChangeSet(changes);
-        m_file->apply();
+        m_file->apply(changes);
 
         // move cursor to new variable name
         QTextCursor c = m_file->cursor();

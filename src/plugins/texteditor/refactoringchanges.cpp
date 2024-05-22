@@ -287,6 +287,12 @@ bool RefactoringFile::apply()
     return result;
 }
 
+bool RefactoringFile::apply(const Utils::ChangeSet &changeSet)
+{
+    setChangeSet(changeSet);
+    return apply();
+}
+
 void RefactoringFile::setupFormattingRanges(const QList<ChangeSet::EditOp> &replaceList)
 {
     QTextDocument * const doc = m_editor ? m_editor->document() : m_document;
@@ -359,7 +365,7 @@ void RefactoringFile::doFormatting()
     Utils::sort(m_formattingCursors, [](const auto &tc1, const auto &tc2) {
         return tc1.first.selectionStart() < tc2.first.selectionStart();
     });
-    static const QString clangFormatLineRemovalBlocker("// QTC_TEMP");
+    static const QString clangFormatLineRemovalBlocker("");
     for (auto &[formattingCursor, _] : m_formattingCursors) {
         const QTextBlock firstBlock = document->findBlock(formattingCursor.selectionStart());
         const QTextBlock lastBlock = document->findBlock(formattingCursor.selectionEnd());

@@ -67,8 +67,7 @@ public:
             break;
         }
 
-        m_file->setChangeSet(changes);
-        m_file->apply();
+        m_file->apply(changes);
     }
 
 private:

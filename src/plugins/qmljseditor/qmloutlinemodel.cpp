@@ -897,10 +897,8 @@ void QmlOutlineModel::reparentNodes(QmlOutlineItem *targetItem, int row, QList<Q
         changedRanges << range;
     }
 
-    QmlJSRefactoringChanges refactoring(ModelManagerInterface::instance(), m_semanticInfo.snapshot);
-    TextEditor::RefactoringFilePtr file = refactoring.file(m_semanticInfo.document->fileName());
-    file->setChangeSet(changeSet);
-    file->apply();
+    QmlJSRefactoringChanges(ModelManagerInterface::instance(), m_semanticInfo.snapshot)
+        .file(m_semanticInfo.document->fileName())->apply(changeSet);
 }
 
 void QmlOutlineModel::moveObjectMember(AST::Node *toMove,

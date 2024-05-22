@@ -113,9 +113,8 @@ public:
 
         ChangeSet target;
         target.insert(targetPosition, loc.prefix() + m_decl);
-        targetFile->setChangeSet(target);
         targetFile->setOpenEditor(true, targetPosition);
-        targetFile->apply();
+        targetFile->apply(target);
     }
 
     static QString generateDeclaration(const Function *function)
@@ -206,8 +205,7 @@ private:
         const int targetPosition = targetFile->position(loc.line(), loc.column());
         ChangeSet target;
         target.insert(targetPosition, loc.prefix() + decl + ";\n");
-        targetFile->setChangeSet(target);
-        targetFile->apply();
+        targetFile->apply(target);
     }
 
     const Class * const m_class;
@@ -242,8 +240,7 @@ public:
             changes.replace(currentFile()->startOf(binaryAST),
                             currentFile()->endOf(simpleNameAST),
                             declaration);
-            currentFile()->setChangeSet(changes);
-            currentFile()->apply();
+            currentFile()->apply(changes);
         }
     }
 

@@ -201,15 +201,13 @@ public:
                 ChangeSet declChanges;
                 appendFunctionParameter(functionDeclaration.ast, functionDeclaration.file, &declChanges,
                                         true);
-                functionDeclaration.file->setChangeSet(declChanges);
-                functionDeclaration.file->apply();
+                functionDeclaration.file->apply(declChanges);
             } else {
                 appendFunctionParameter(functionDeclaration.ast, currentFile(), &changes,
                                         true);
             }
         }
-        currentFile()->setChangeSet(changes);
-        currentFile()->apply();
+        currentFile()->apply(changes);
         QTextCursor c = currentFile()->cursor();
         c.setPosition(c.position() - parameterName().length());
         editor()->setTextCursor(c);

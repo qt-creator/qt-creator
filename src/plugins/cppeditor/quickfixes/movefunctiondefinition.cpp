@@ -135,14 +135,10 @@ public:
 
     void applyChanges()
     {
-        if (!m_toFileChangeSet.isEmpty()) {
-            m_toFile->setChangeSet(m_toFileChangeSet);
-            m_toFile->apply();
-        }
-        if (!m_fromFileChangeSet.isEmpty()) {
-            m_fromFile->setChangeSet(m_fromFileChangeSet);
-            m_fromFile->apply();
-        }
+        if (!m_toFileChangeSet.isEmpty())
+            m_toFile->apply(m_toFileChangeSet);
+        if (!m_fromFileChangeSet.isEmpty())
+            m_fromFile->apply(m_fromFileChangeSet);
     }
 
 private:
@@ -278,14 +274,12 @@ private:
         toTarget.replace(m_toRange, wholeFunctionText);
         if (m_toFilePath == m_fromFilePath)
             toTarget.remove(m_fromRange);
-        toFile->setChangeSet(toTarget);
         toFile->setOpenEditor(true, m_toRange.start);
-        toFile->apply();
+        toFile->apply(toTarget);
         if (m_toFilePath != m_fromFilePath) {
             ChangeSet fromTarget;
             fromTarget.remove(m_fromRange);
-            fromFile->setChangeSet(fromTarget);
-            fromFile->apply();
+            fromFile->apply(fromTarget);
         }
     }
 

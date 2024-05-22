@@ -87,8 +87,7 @@ public:
         changes.insert(start, QLatin1String("\ncase ")
                                   + values.join(QLatin1String(":\nbreak;\ncase "))
                                   + QLatin1String(":\nbreak;"));
-        currentFile()->setChangeSet(changes);
-        currentFile()->apply();
+        currentFile()->apply(changes);
     }
 
     CompoundStatementAST *compoundStatement;

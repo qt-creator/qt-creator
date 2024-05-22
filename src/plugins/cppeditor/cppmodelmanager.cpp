@@ -2010,8 +2010,7 @@ void CppModelManager::renameIncludes(const QList<std::pair<FilePath, FilePath>> 
                                   newString);
             }
         }
-        file->setChangeSet(changeSet);
-        file->apply();
+        file->apply(changeSet);
     }
 }
 

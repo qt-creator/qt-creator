@@ -41,9 +41,8 @@ public:
         Utils::ChangeSet changes;
         changes.flip(currentFile()->startOf(m_currentParam), currentFile()->endOf(m_currentParam),
                      currentFile()->startOf(m_targetParam), targetEndPos);
-        currentFile()->setChangeSet(changes);
         currentFile()->setOpenEditor(false, targetEndPos);
-        currentFile()->apply();
+        currentFile()->apply(changes);
     }
 
 private:
