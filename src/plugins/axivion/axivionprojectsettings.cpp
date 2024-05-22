@@ -30,6 +30,7 @@ using namespace Utils;
 namespace Axivion::Internal {
 
 const char PSK_PROJECTNAME[] = "Axivion.ProjectName";
+const char PSK_DASHBOARDID[] = "Axivion.DashboardId";
 
 // AxivionProjectSettingsHandler
 
@@ -82,11 +83,15 @@ void AxivionProjectSettings::destroyProjectSettings()
 void AxivionProjectSettings::load()
 {
     m_dashboardProjectName = m_project->namedSettings(PSK_PROJECTNAME).toString();
+    m_dashboardId = Id::fromSetting(m_project->namedSettings(PSK_DASHBOARDID));
+    if (!m_dashboardId.isValid())
+        m_dashboardId = settings().defaultDashboardId();
 }
 
 void AxivionProjectSettings::save()
 {
     m_project->setNamedSettings(PSK_PROJECTNAME, m_dashboardProjectName);
+    m_project->setNamedSettings(PSK_DASHBOARDID, m_dashboardId.toSetting());
 }
 
 // AxivionProjectSettingsWidget
@@ -187,6 +192,12 @@ void AxivionProjectSettingsWidget::onSettingsChanged()
 {
     m_dashboardProjects->clear();
     m_infoLabel->setVisible(false);
+    // check if serverId vanished - reset to default
+    const Id serverId = settings().defaultDashboardId();
+    if (m_projectSettings->dashboardId() != serverId) {
+        m_projectSettings->setDashboardId(serverId);
+        switchActiveDashboardId(serverId);
+    }
     updateUi();
 }
 
@@ -197,6 +208,9 @@ void AxivionProjectSettingsWidget::linkProject()
 
     const QString projectName = selected.first()->text(0);
     m_projectSettings->setDashboardProjectName(projectName);
+    const Id serverId = settings().defaultDashboardId();
+    m_projectSettings->setDashboardId(serverId);
+    switchActiveDashboardId(serverId);
     updateUi();
     fetchProjectInfo(projectName);
 }
@@ -222,7 +236,8 @@ void AxivionProjectSettingsWidget::updateUi()
 
 void AxivionProjectSettingsWidget::updateEnabledStates()
 {
-    const bool hasDashboardSettings = !settings().server.dashboard.isEmpty();
+    const bool hasDashboardSettings = !settings().serverForId(m_projectSettings->dashboardId())
+            .dashboard.isEmpty();
     const bool linked = !m_projectSettings->dashboardProjectName().isEmpty();
     const bool linkable = m_dashboardProjects->topLevelItemCount()
             && !m_dashboardProjects->selectedItems().isEmpty();

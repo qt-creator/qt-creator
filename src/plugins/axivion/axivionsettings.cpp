@@ -112,13 +112,44 @@ AxivionSettings::AxivionSettings()
     highlightMarks.setDefaultValue(false);
     AspectContainer::readSettings();
 
-    server = readTokenFile(tokensFilePath());
+    m_server = readTokenFile(tokensFilePath());
 }
 
 void AxivionSettings::toSettings() const
 {
-    writeTokenFile(tokensFilePath(), server);
+    writeTokenFile(tokensFilePath(), m_server);
     AspectContainer::writeSettings();
+}
+
+Id AxivionSettings::defaultDashboardId() const
+{
+    return m_server.id;
+}
+
+const AxivionServer AxivionSettings::defaultServer() const
+{
+    return serverForId(defaultDashboardId());
+}
+
+const AxivionServer AxivionSettings::serverForId(const Utils::Id &id) const
+{
+    if (m_server.id == id)
+        return m_server;
+    return {};
+}
+
+void AxivionSettings::disableCertificateValidation(const Utils::Id &id)
+{
+    if (m_server.id == id)
+        m_server.validateCert = false;
+}
+
+void AxivionSettings::modifyDashboardServer(const Utils::Id &id, const AxivionServer &other)
+{
+    if (m_server.id == id) {
+        m_server = other;
+        emit changed();
+    }
 }
 
 // AxivionSettingsPage
@@ -242,7 +273,7 @@ AxivionSettingsWidget::AxivionSettingsWidget()
     using namespace Layouting;
 
     m_dashboardDisplay = new DashboardSettingsWidget(DashboardSettingsWidget::Display, this);
-    m_dashboardDisplay->setDashboardServer(settings().server);
+    m_dashboardDisplay->setDashboardServer(settings().defaultServer());
     m_edit = new QPushButton(Tr::tr("Edit..."), this);
     Column {
         Row {
@@ -260,8 +291,8 @@ AxivionSettingsWidget::AxivionSettingsWidget()
 
 void AxivionSettingsWidget::apply()
 {
-    settings().server = m_dashboardDisplay->dashboardServer();
-    emit settings().changed(); // ugly but needed
+    settings().modifyDashboardServer(settings().defaultDashboardId(),
+                                     m_dashboardDisplay->dashboardServer());
     settings().toSettings();
 }
 

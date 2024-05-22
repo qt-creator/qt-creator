@@ -128,9 +128,9 @@ static QString escapeKey(const QString &string)
     return escaped.replace('\\', "\\\\").replace('@', "\\@");
 }
 
-static QString credentialKey()
+static QString credentialKey(const AxivionServer &server)
 {
-    return escapeKey(settings().server.username) + '@' + escapeKey(settings().server.dashboard);
+    return escapeKey(server.username) + '@' + escapeKey(server.dashboard);
 }
 
 template <typename DtoType>
@@ -224,6 +224,9 @@ signals:
     void issueDetailsChanged(const QString &issueDetailsHtml);
 
 public:
+    // active id used for any network communication, defaults to settings' default
+    // set to projects settings' dashboard id on open project
+    Id m_dashboardServerId;
     // TODO: Should be set to Unknown on server address change in settings.
     ServerAccess m_serverAccess = ServerAccess::Unknown;
     // TODO: Should be cleared on username change in settings.
@@ -281,10 +284,10 @@ std::optional<Dto::ProjectInfoDto> projectInfo()
 
 // FIXME: extend to give some details?
 // FIXME: move when curl is no more in use?
-bool handleCertificateIssue()
+bool handleCertificateIssue(const Utils::Id &serverId)
 {
     QTC_ASSERT(dd, return false);
-    const QString serverHost = QUrl(settings().server.dashboard).host();
+    const QString serverHost = QUrl(settings().serverForId(serverId).dashboard).host();
     if (QMessageBox::question(ICore::dialogParent(), Tr::tr("Certificate Error"),
                               Tr::tr("Server certificate for %1 cannot be authenticated.\n"
                                      "Do you want to disable SSL verification for this server?\n"
@@ -293,7 +296,7 @@ bool handleCertificateIssue()
             != QMessageBox::Yes) {
         return false;
     }
-    settings().server.validateCert = false;
+    settings().disableCertificateValidation(serverId);
     settings().apply();
 
     return true;
@@ -309,6 +312,7 @@ AxivionPluginPrivate::AxivionPluginPrivate()
 
 void AxivionPluginPrivate::handleSslErrors(QNetworkReply *reply, const QList<QSslError> &errors)
 {
+    QTC_ASSERT(dd, return);
 #if QT_CONFIG(ssl)
     const QList<QSslError::SslError> accepted{
         QSslError::CertificateNotYetValid, QSslError::CertificateExpired,
@@ -317,7 +321,8 @@ void AxivionPluginPrivate::handleSslErrors(QNetworkReply *reply, const QList<QSs
     };
     if (Utils::allOf(errors,
                      [&accepted](const QSslError &e) { return accepted.contains(e.error()); })) {
-        if (!settings().server.validateCert || handleCertificateIssue())
+        const bool shouldValidate = settings().serverForId(dd->m_dashboardServerId).validateCert;
+        if (!shouldValidate || handleCertificateIssue(dd->m_dashboardServerId))
             reply->ignoreSslErrors(errors);
     }
 #else // ssl
@@ -351,6 +356,7 @@ void AxivionPluginPrivate::onStartupProjectChanged(Project *project)
         handleOpenedDocs();
     });
     const AxivionProjectSettings *projSettings = AxivionProjectSettings::projectSettings(m_project);
+    switchActiveDashboardId(projSettings->dashboardId());
     fetchProjectInfo(projSettings->dashboardProjectName());
 }
 
@@ -545,16 +551,17 @@ static void handleCredentialError(const CredentialQuery &credential)
 
 static Group authorizationRecipe()
 {
+    const Id serverId = dd->m_dashboardServerId;
     const Storage<QUrl> serverUrlStorage;
     const Storage<GetDtoStorage<Dto::DashboardInfoDto>> unauthorizedDashboardStorage;
     const auto onUnauthorizedGroupSetup = [serverUrlStorage, unauthorizedDashboardStorage] {
         unauthorizedDashboardStorage->url = *serverUrlStorage;
         return isServerAccessEstablished() ? SetupResult::StopWithSuccess : SetupResult::Continue;
     };
-    const auto onUnauthorizedDashboard = [unauthorizedDashboardStorage] {
+    const auto onUnauthorizedDashboard = [unauthorizedDashboardStorage, serverId] {
         if (unauthorizedDashboardStorage->dtoData) {
             const Dto::DashboardInfoDto &dashboardInfo = *unauthorizedDashboardStorage->dtoData;
-            const QString &username = settings().server.username;
+            const QString &username = settings().serverForId(serverId).username;
             if (username.isEmpty()
                 || (dashboardInfo.username && *dashboardInfo.username == username)) {
                 dd->m_serverAccess = ServerAccess::NoAuthorization;
@@ -571,10 +578,10 @@ static Group authorizationRecipe()
     const auto onCredentialLoopCondition = [](int) {
         return dd->m_serverAccess == ServerAccess::WithAuthorization && !dd->m_apiToken;
     };
-    const auto onGetCredentialSetup = [](CredentialQuery &credential) {
+    const auto onGetCredentialSetup = [serverId](CredentialQuery &credential) {
         credential.setOperation(CredentialOperation::Get);
         credential.setService(s_axivionKeychainService);
-        credential.setKey(credentialKey());
+        credential.setKey(credentialKey(settings().serverForId(serverId)));
     };
     const auto onGetCredentialDone = [](const CredentialQuery &credential, DoneWith result) {
         if (result == DoneWith::Success)
@@ -588,19 +595,21 @@ static Group authorizationRecipe()
 
     const Storage<QString> passwordStorage;
     const Storage<GetDtoStorage<Dto::DashboardInfoDto>> dashboardStorage;
-    const auto onPasswordGroupSetup = [serverUrlStorage, passwordStorage, dashboardStorage] {
+    const auto onPasswordGroupSetup
+            = [serverId, serverUrlStorage, passwordStorage, dashboardStorage] {
         if (dd->m_apiToken)
             return SetupResult::StopWithSuccess;
 
         bool ok = false;
+        const AxivionServer server = settings().serverForId(serverId);
         const QString text(Tr::tr("Enter the password for:\nDashboard: %1\nUser: %2")
-                               .arg(settings().server.dashboard, settings().server.username));
+                               .arg(server.dashboard, server.username));
         *passwordStorage = QInputDialog::getText(ICore::mainWindow(),
             Tr::tr("Axivion Server Password"), text, QLineEdit::Password, {}, &ok);
         if (!ok)
             return SetupResult::StopWithError;
 
-        const QString credential = settings().server.username + ':' + *passwordStorage;
+        const QString credential = server.username + ':' + *passwordStorage;
         dashboardStorage->credential = "Basic " + credential.toUtf8().toBase64();
         dashboardStorage->url = *serverUrlStorage;
         return SetupResult::Continue;
@@ -627,14 +636,14 @@ static Group authorizationRecipe()
         return SetupResult::Continue;
     };
 
-    const auto onSetCredentialSetup = [apiTokenStorage](CredentialQuery &credential) {
+    const auto onSetCredentialSetup = [apiTokenStorage, serverId](CredentialQuery &credential) {
         if (!apiTokenStorage->dtoData || !apiTokenStorage->dtoData->token)
             return SetupResult::StopWithSuccess;
 
         dd->m_apiToken = apiTokenStorage->dtoData->token->toUtf8();
         credential.setOperation(CredentialOperation::Set);
         credential.setService(s_axivionKeychainService);
-        credential.setKey(credentialKey());
+        credential.setKey(credentialKey(settings().serverForId(serverId)));
         credential.setData(*dd->m_apiToken);
         return SetupResult::Continue;
     };
@@ -654,7 +663,7 @@ static Group authorizationRecipe()
         dashboardStorage->url = *serverUrlStorage;
         return SetupResult::Continue;
     };
-    const auto onDeleteCredentialSetup = [dashboardStorage](CredentialQuery &credential) {
+    const auto onDeleteCredentialSetup = [dashboardStorage, serverId](CredentialQuery &credential) {
         if (dashboardStorage->dtoData) {
             dd->m_dashboardInfo = toDashboardInfo(*dashboardStorage);
             return SetupResult::StopWithSuccess;
@@ -664,13 +673,15 @@ static Group authorizationRecipe()
             .arg(Tr::tr("The stored ApiToken is not valid anymore, removing it.")));
         credential.setOperation(CredentialOperation::Delete);
         credential.setService(s_axivionKeychainService);
-        credential.setKey(credentialKey());
+        credential.setKey(credentialKey(settings().serverForId(serverId)));
         return SetupResult::Continue;
     };
 
     return {
         serverUrlStorage,
-        onGroupSetup([serverUrlStorage] { *serverUrlStorage = QUrl(settings().server.dashboard); }),
+        onGroupSetup([serverUrlStorage, serverId] {
+            *serverUrlStorage = QUrl(settings().serverForId(serverId).dashboard);
+        }),
         Group {
             unauthorizedDashboardStorage,
             onGroupSetup(onUnauthorizedGroupSetup),
@@ -1046,6 +1057,12 @@ void fetchIssueInfo(const QString &id)
 {
     QTC_ASSERT(dd, return);
     dd->fetchIssueInfo(id);
+}
+
+void switchActiveDashboardId(const Id &toDashboardId)
+{
+    QTC_ASSERT(dd, return);
+    dd->m_dashboardServerId = toDashboardId;
 }
 
 const std::optional<DashboardInfo> currentDashboardInfo()

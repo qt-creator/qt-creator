@@ -6,6 +6,7 @@
 #include "dashboard/dto.h"
 
 #include <utils/expected.h>
+#include <utils/id.h>
 
 #include <QHash>
 #include <QUrl>
@@ -83,6 +84,7 @@ QIcon iconForIssue(const std::optional<Dto::IssueKind> &issueKind);
 QString anyToSimpleString(const Dto::Any &any);
 void fetchIssueInfo(const QString &id);
 
+void switchActiveDashboardId(const Utils::Id &toDashboardId);
 const std::optional<DashboardInfo> currentDashboardInfo();
 
 Utils::FilePath findFileForIssuePath(const Utils::FilePath &issuePath);

@@ -23,6 +23,8 @@ public:
     QJsonObject toJson() const;
     static AxivionServer fromJson(const QJsonObject &json);
 
+    // id starts empty == invalid; set to generated uuid on first apply of valid dashboard config,
+    // never changes afterwards
     Utils::Id id;
     QString dashboard;
     QString username;
@@ -37,8 +39,15 @@ public:
 
     void toSettings() const;
 
-    AxivionServer server; // shall we have more than one?
+    Utils::Id defaultDashboardId() const;
+    const AxivionServer defaultServer() const;
+    const AxivionServer serverForId(const Utils::Id &id) const;
+    void disableCertificateValidation(const Utils::Id &id);
+    void modifyDashboardServer(const Utils::Id &id, const AxivionServer &other);
+
     Utils::BoolAspect highlightMarks{this};
+private:
+    AxivionServer m_server; // shall we have more than one?
 };
 
 AxivionSettings &settings();
