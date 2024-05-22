@@ -876,6 +876,7 @@ void BookmarkManager::edit()
     auto layout = new QFormLayout(&dlg);
     auto noteEdit = new QLineEdit(b->note());
     noteEdit->setMinimumWidth(300);
+    noteEdit->setFocus();
     auto lineNumberSpinbox = new QSpinBox;
     lineNumberSpinbox->setRange(1, INT_MAX);
     lineNumberSpinbox->setValue(b->lineNumber());
