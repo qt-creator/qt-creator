@@ -12,6 +12,7 @@
 
 #include <debugger/debuggerruncontrol.h>
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runcontrol.h>
