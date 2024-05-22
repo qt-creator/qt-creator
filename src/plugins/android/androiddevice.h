@@ -70,29 +70,13 @@ private:
     std::unique_ptr<QSettings> m_avdSettings;
 };
 
-class AndroidDeviceManager : public QObject
-{
-public:
-    static AndroidDeviceManager *instance();
-    void setupDevicesWatcher();
-    void updateAvdList();
+namespace AndroidDeviceManager {
 
-    Utils::expected_str<void> createAvd(const CreateAvdInfo &info, bool force);
-    void eraseAvd(const ProjectExplorer::IDevice::Ptr &device, QWidget *parent = nullptr);
+void setupDevicesWatcher();
+void updateAvdList();
+Utils::expected_str<void> createAvd(const CreateAvdInfo &info, bool force);
 
-private:
-    explicit AndroidDeviceManager(QObject *parent);
-    ~AndroidDeviceManager();
-
-    Tasking::Group m_avdListRecipe;
-    Tasking::TaskTreeRunner m_avdListRunner;
-    std::unique_ptr<Utils::Process> m_removeAvdProcess;
-    QFileSystemWatcher m_avdFileSystemWatcher;
-    Utils::Guard m_avdPathGuard;
-    std::unique_ptr<Utils::Process> m_adbDeviceWatcherProcess;
-
-    friend void setupAndroidDeviceManager(QObject *guard);
-};
+} // namespace AndroidDeviceManager
 
 void setupAndroidDevice();
 void setupAndroidDeviceManager(QObject *guard);

@@ -1542,8 +1542,7 @@ void AndroidConfigurations::updateAndroidDevice()
     IDevice::ConstPtr dev = devMgr->find(Constants::ANDROID_DEVICE_ID);
     if (dev)
         devMgr->removeDevice(dev->id());
-
-    AndroidDeviceManager::instance()->setupDevicesWatcher();
+    AndroidDeviceManager::setupDevicesWatcher();
 }
 
 #ifdef WITH_TESTS
