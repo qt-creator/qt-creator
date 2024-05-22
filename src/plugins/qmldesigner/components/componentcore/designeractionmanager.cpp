@@ -113,7 +113,6 @@ void DesignerActionManager::polishActions() const
     Core::Context qmlDesignerNavigatorContext(Constants::C_QMLNAVIGATOR);
     Core::Context qmlDesignerMaterialBrowserContext(Constants::C_QMLMATERIALBROWSER);
     Core::Context qmlDesignerAssetsLibraryContext(Constants::C_QMLASSETSLIBRARY);
-    Core::Context qmlDesignerCollectionEditorContext(Constants::C_QMLCOLLECTIONEDITOR);
 
     Core::Context qmlDesignerUIContext;
     qmlDesignerUIContext.add(qmlDesignerFormEditorContext);
@@ -121,7 +120,6 @@ void DesignerActionManager::polishActions() const
     qmlDesignerUIContext.add(qmlDesignerNavigatorContext);
     qmlDesignerUIContext.add(qmlDesignerMaterialBrowserContext);
     qmlDesignerUIContext.add(qmlDesignerAssetsLibraryContext);
-    qmlDesignerUIContext.add(qmlDesignerCollectionEditorContext);
 
     for (auto *action : actions) {
         if (!action->menuId().isEmpty()) {
@@ -2010,16 +2008,6 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ChangeStyleAction());
 
     addDesignerAction(new EditListModelAction);
-
-    addDesignerAction(new ModelNodeContextMenuAction(editCollectionCommandId,
-                                                     editCollectionDisplayName,
-                                                     contextIcon(DesignerIcons::EditIcon),
-                                                     rootCategory,
-                                                     QKeySequence("Alt+e"),
-                                                     ComponentCoreConstants::Priorities::EditCollection,
-                                                     &editCollection,
-                                                     &hasCollectionAsModel,
-                                                     &hasCollectionAsModel));
 
     addDesignerAction(new ModelNodeContextMenuAction(openSignalDialogCommandId,
                                                      openSignalDialogDisplayName,

@@ -19,7 +19,6 @@ inline constexpr char C_QMLNAVIGATOR[] = "QmlDesigner::Navigator";
 inline constexpr char C_QMLTEXTEDITOR[] = "QmlDesigner::TextEditor";
 inline constexpr char C_QMLMATERIALBROWSER[] = "QmlDesigner::MaterialBrowser";
 inline constexpr char C_QMLASSETSLIBRARY[] = "QmlDesigner::AssetsLibrary";
-inline constexpr char C_QMLCOLLECTIONEDITOR[] = "QmlDesigner::CollectionEditor";
 
 // Special context for preview menu, shared b/w designer and text editor
 inline constexpr char C_QT_QUICK_TOOLS_MENU[] = "QmlDesigner::ToolsMenu";
@@ -186,7 +185,6 @@ inline constexpr char OBJECT_NAME_EFFECT_COMPOSER[] = "QQuickWidgetEffectCompose
 inline constexpr char OBJECT_NAME_MATERIAL_BROWSER[] = "QQuickWidgetMaterialBrowser";
 inline constexpr char OBJECT_NAME_MATERIAL_EDITOR[] = "QQuickWidgetMaterialEditor";
 inline constexpr char OBJECT_NAME_PROPERTY_EDITOR[] = "QQuickWidgetPropertyEditor";
-inline constexpr char OBJECT_NAME_COLLECTION_EDITOR[] = "QQuickWidgetQDSCollectionEditor";
 inline constexpr char OBJECT_NAME_STATES_EDITOR[] = "QQuickWidgetStatesEditor";
 inline constexpr char OBJECT_NAME_TEXTURE_EDITOR[] = "QQuickWidgetTextureEditor";
 inline constexpr char OBJECT_NAME_TOP_TOOLBAR[] = "QQuickWidgetTopToolbar";

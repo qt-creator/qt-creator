@@ -846,30 +846,6 @@ void editMaterial(const SelectionContext &selectionContext)
     }
 }
 
-// Open a collection in the collection editor
-void editCollection(const SelectionContext &selectionContext)
-{
-    ModelNode modelNode = selectionContext.targetNode();
-
-    if (!modelNode)
-        modelNode = selectionContext.currentSingleSelectedNode();
-
-    if (!modelNode)
-        return;
-
-    const QString dataStoreExpression = "DataStore.";
-
-    BindingProperty prop = modelNode.bindingProperty("model");
-    if (!prop.exists() || !prop.expression().startsWith(dataStoreExpression))
-        return;
-
-    AbstractView *view = selectionContext.view();
-    const QString collectionId = prop.expression().mid(dataStoreExpression.size());
-
-    // to CollectionEditor...
-    view->emitCustomNotification("open_collection_by_id", {}, {collectionId});
-}
-
 void addItemToStackedContainer(const SelectionContext &selectionContext)
 {
     AbstractView *view = selectionContext.view();

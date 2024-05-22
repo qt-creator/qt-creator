@@ -231,12 +231,10 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
     connect(Core::ICore::instance(), &Core::ICore::contextChanged, this, [&](const Core::Context &context) {
         isMatBrowserActive = context.contains(Constants::C_QMLMATERIALBROWSER);
         isAssetsLibraryActive = context.contains(Constants::C_QMLASSETSLIBRARY);
-        isCollectionEditorActive = context.contains(Constants::C_QMLCOLLECTIONEDITOR);
 
         if (!context.contains(Constants::C_QMLFORMEDITOR) && !context.contains(Constants::C_QMLEDITOR3D)
          && !context.contains(Constants::C_QMLNAVIGATOR)) {
-            m_deleteAction.setEnabled(isMatBrowserActive || isAssetsLibraryActive
-                                      || isCollectionEditorActive);
+            m_deleteAction.setEnabled(isMatBrowserActive || isAssetsLibraryActive);
             m_cutAction.setEnabled(false);
             m_copyAction.setEnabled(false);
             m_pasteAction.setEnabled(false);
@@ -293,8 +291,6 @@ void ShortCutManager::deleteSelected()
         actionManager.view()->emitCustomNotification("delete_selected_material");
     else if (isAssetsLibraryActive)
         actionManager.view()->emitCustomNotification("delete_selected_assets");
-    else if (isCollectionEditorActive)
-        actionManager.view()->emitCustomNotification("delete_selected_collection");
     else if (currentDesignDocument())
         currentDesignDocument()->deleteSelected();
 }
