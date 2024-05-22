@@ -168,6 +168,7 @@ enum class CharacterContext {
     LastAfterComma,
     NewStatementOrContinuation,
     IfOrElseWithoutScope,
+    BracketAfterFunctionCall,
     Unknown
 };
 
@@ -219,6 +220,10 @@ static CharacterContext characterContext(const QTextBlock &currentBlock)
     if (prevLineText.isEmpty())
         return CharacterContext::NewStatementOrContinuation;
 
+    if ((currentBlock.text().trimmed().isEmpty() || currentBlock.text().trimmed().endsWith(")"))
+        && prevLineText.endsWith("{"))
+        return CharacterContext::BracketAfterFunctionCall;
+
     const QChar firstNonWhitespaceChar = findFirstNonWhitespaceCharacter(currentBlock);
     if (prevLineText.endsWith(',')) {
         if (firstNonWhitespaceChar == '}') {
@@ -268,6 +273,8 @@ static QByteArray dummyTextForContext(CharacterContext context, bool closingBrac
         return "a";
     case CharacterContext::IfOrElseWithoutScope:
         return ";";
+    case CharacterContext::BracketAfterFunctionCall:
+        return ";";
     case CharacterContext::NewStatementOrContinuation:
         return "/*//*/";
     case CharacterContext::Unknown:
@@ -298,6 +305,8 @@ static int forceIndentWithExtraText(QByteArray &buffer,
     int firstNonWhitespace = Utils::indexOf(blockText,
                                             [](const QChar &ch) { return !ch.isSpace(); });
     int utf8Offset = Text::utf8NthLineOffset(block.document(), buffer, block.blockNumber() + 1);
+    int utf8EndOfLineOffset = utf8Offset + blockText.length();
+
     if (firstNonWhitespace >= 0)
         utf8Offset += firstNonWhitespace;
     else
@@ -314,7 +323,9 @@ static int forceIndentWithExtraText(QByteArray &buffer,
         && nextBlockExistsAndEmpty(block)) {
         // If the next line is also empty it's safer to use a comment line.
         dummyText = "//";
-    } else if (firstNonWhitespace < 0 || closingParenBlock || closingBraceBlock) {
+    } else if (
+        firstNonWhitespace < 0 || closingParenBlock || closingBraceBlock
+        || charContext == CharacterContext::BracketAfterFunctionCall) {
         dummyText = dummyTextForContext(charContext, closingBraceBlock);
     }
 
@@ -329,6 +340,13 @@ static int forceIndentWithExtraText(QByteArray &buffer,
             extraLength += 3;
         }
     }
+
+    if (charContext == CharacterContext::BracketAfterFunctionCall) {
+        buffer.insert(utf8EndOfLineOffset + extraLength, dummyText);
+        extraLength += dummyText.length();
+        return extraLength;
+    }
+
     buffer.insert(utf8Offset + extraLength, dummyText);
     extraLength += dummyText.length();
 

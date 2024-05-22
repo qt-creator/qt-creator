@@ -111,6 +111,8 @@ private slots:
     void testIndentFunctionArgumentOnNewLine();
     void testIndentCommentOnNewLine();
     void testUtf8SymbolLine();
+    void testFunctionCallClosingParenthesis();
+    void testFunctionCallClosingParenthesisEmptyLine();
 
 private:
     void insertLines(const std::vector<QString> &lines);
@@ -831,6 +833,80 @@ void ClangFormatTest::testUtf8SymbolLine()
                                    "    cout << \"ä\" << endl;",
                                    "    return 0;",
                                    "}"}));
+}
+
+void ClangFormatTest::testFunctionCallClosingParenthesis()
+{
+    insertLines(
+        {"class X {",
+         "public:",
+         "    QString add() const;",
+         "    QString sub() const;",
+         "};",
+         "",
+         "QString X::add() const",
+         "{",
+         "    return QString()",
+         "}",
+         "",
+         "QString X::sub() const",
+         "{}"});
+    m_indenter->indentBlock(m_doc->findBlockByNumber(8), ')', TextEditor::TabSettings());
+    QCOMPARE(
+        documentLines(),
+        (std::vector<QString>{
+            "class X {",
+            "public:",
+            "    QString add() const;",
+            "    QString sub() const;",
+            "};",
+            "",
+            "QString X::add() const",
+            "{",
+            "    return QString()",
+            "}",
+            "",
+            "QString X::sub() const",
+            "{}",
+        }));
+}
+
+void ClangFormatTest::testFunctionCallClosingParenthesisEmptyLine()
+{
+    insertLines(
+        {"class X {",
+         "public:",
+         "    QString add() const;",
+         "    QString sub() const;",
+         "};",
+         "",
+         "QString X::add() const",
+         "{",
+         "",
+         "    return QString()",
+         "}",
+         "",
+         "QString X::sub() const",
+         "{}"});
+    m_indenter->indentBlock(m_doc->findBlockByNumber(8), QChar::Null, TextEditor::TabSettings());
+    QCOMPARE(
+        documentLines(),
+        (std::vector<QString>{
+                              "class X {",
+                              "public:",
+                              "    QString add() const;",
+                              "    QString sub() const;",
+                              "};",
+                              "",
+                              "QString X::add() const",
+                              "{",
+                              "    ",
+                              "    return QString()",
+                              "}",
+                              "",
+                              "QString X::sub() const",
+                              "{}",
+                              }));
 }
 
 QObject *createClangFormatTest()
