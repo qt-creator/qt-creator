@@ -23,8 +23,9 @@
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <qmlobjectnode.h>
-#include <variantproperty.h>
+#include <uniquename.h>
 #include <utils3d.h>
+#include <variantproperty.h>
 
 #include <utils/algorithm.h>
 
@@ -367,7 +368,10 @@ void ContentLibraryView::customNotification(const AbstractView *view,
     } else if (identifier == "add_assets_to_content_lib") {
         addLibAssets(data.first().toStringList());
     } else if (identifier == "add_3d_to_content_lib") {
-        addLib3DItem(nodeList.first());
+        if (nodeList.first().isComponent())
+            addLib3DComponent(nodeList.first());
+        else
+            addLib3DItem(nodeList.first());
     }
 }
 
@@ -663,6 +667,67 @@ void ContentLibraryView::addLibAssets(const QStringList &paths)
     m_widget->userModel()->addTextures(pathsInBundle);
 }
 
+void ContentLibraryView::addLib3DComponent(const ModelNode &node)
+{
+    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+
+    // TODO: check component with existing name and show a confirmation dialog
+    QString compBaseName = node.simplifiedTypeName();
+    QString compFileName = compBaseName + ".qml";
+
+    Utils::FilePath compDir = DocumentManager::currentProjectDirPath()
+                    .pathAppended(compUtils.import3dTypePath() + '/' + compBaseName);
+
+    auto bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/3d/");
+
+    // generate and save icon
+    UniqueName::generateId(compBaseName);
+    QString iconPath = QLatin1String("icons/%1").arg(UniqueName::generateId(compBaseName) + ".png");
+    QString fullIconPath = bundlePath.pathAppended(iconPath).toString();
+    genAndSaveIcon(compDir.pathAppended(compFileName).path(), fullIconPath);
+
+    const Utils::FilePaths sourceFiles = compDir.dirEntries({{}, QDir::Files, QDirIterator::Subdirectories});
+    const QStringList ignoreList {"_importdata.json", "qmldir", compBaseName + ".hints"};
+    QStringList filesList; // 3D component's assets (dependencies)
+
+    for (const Utils::FilePath &sourcePath : sourceFiles) {
+        Utils::FilePath relativePath = sourcePath.relativePathFrom(compDir);
+        if (ignoreList.contains(sourcePath.fileName()) || relativePath.startsWith("source scene"))
+            continue;
+
+        Utils::FilePath targetPath = bundlePath.pathAppended(relativePath.path());
+        targetPath.parentDir().ensureWritableDir();
+
+        // copy item from project to user bundle
+        auto result = sourcePath.copyFile(targetPath);
+        if (!result)
+            qWarning() << __FUNCTION__ << result.error();
+
+        if (sourcePath.fileName() != compFileName) // skip component file (only collect dependencies)
+            filesList.append(relativePath.path());
+    }
+
+    // add the item to the bundle json
+    QJsonObject &jsonRef = m_widget->userModel()->bundleJson3DObjectRef();
+    QJsonArray itemsArr = jsonRef.value("items").toArray();
+    itemsArr.append(QJsonObject {
+        {"name", node.simplifiedTypeName()},
+        {"qml", compFileName},
+        {"icon", iconPath},
+        {"files", QJsonArray::fromStringList(filesList)}
+    });
+
+    jsonRef["items"] = itemsArr;
+
+    auto result = bundlePath.pathAppended("user_3d_bundle.json")
+                      .writeFileContents(QJsonDocument(jsonRef).toJson());
+    if (!result)
+        qWarning() << __FUNCTION__ << result.error();
+
+    m_widget->userModel()->add3DItem(compBaseName, compFileName, QUrl::fromLocalFile(fullIconPath),
+                                     filesList);
+}
+
 void ContentLibraryView::addLib3DItem(const ModelNode &node)
 {
     auto bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/3d/");
@@ -682,16 +747,13 @@ void ContentLibraryView::addLib3DItem(const ModelNode &node)
     // add the item to the bundle json
     QJsonObject &jsonRef = m_widget->userModel()->bundleJson3DObjectRef();
     QJsonArray itemsArr = jsonRef.value("items").toArray();
-    QJsonObject itemObj;
-    itemObj.insert("name", name);
-    itemObj.insert("qml", qml);
-    itemObj.insert("icon", iconPath);
-    QJsonArray filesArr;
-    for (const QString &assetPath : depAssets)
-        filesArr.append(assetPath);
-    itemObj.insert("files", filesArr);
+    itemsArr.append(QJsonObject {
+        {"name", name},
+        {"qml", qml},
+        {"icon", iconPath},
+        {"files", QJsonArray::fromStringList(depAssets)}
+    });
 
-    itemsArr.append(itemObj);
     jsonRef["items"] = itemsArr;
 
     auto result = bundlePath.pathAppended("user_3d_bundle.json")

@@ -11,6 +11,7 @@ namespace QmlDesigner::UniqueName {
 
 QString generate(const QString &name, std::function<bool(const QString &)> predicate);
 QString generatePath(const QString &path);
-QMLDESIGNERCORE_EXPORT QString generateId(const QString &id, std::function<bool(const QString &)> predicate);
+QMLDESIGNERCORE_EXPORT QString generateId(const QString &id,
+                                          std::function<bool(const QString &)> predicate = {});
 
 } // namespace QmlDesigner::UniqueName

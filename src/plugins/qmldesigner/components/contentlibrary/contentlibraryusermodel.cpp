@@ -312,8 +312,7 @@ QPair<QString, QString> ContentLibraryUserModel::getUniqueLibItemNames(const QSt
         itemIcons.append(QFileInfo(obj.value("icon").toString()).baseName());
     }
 
-    QString baseQml = defaultName.trimmed();
-    baseQml.remove(' ');
+    QString baseQml = UniqueName::generateId(defaultName);
     baseQml[0] = baseQml.at(0).toUpper();
     baseQml.prepend("My");
 

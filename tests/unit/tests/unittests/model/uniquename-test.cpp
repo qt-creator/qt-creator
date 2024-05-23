@@ -21,6 +21,15 @@ TEST(UniqueName, generate_returns_same_input_if_predicate_returns_false)
     ASSERT_THAT(uniqueName, "abc");
 }
 
+TEST(UniqueName, generateId_returns_properly_formatted_id_when_predicate_is_not_provided)
+{
+    QString id = "  A    bc   d _";
+
+    QString uniqueId = UniqueName::generateId(id);
+
+    ASSERT_THAT(uniqueId, "aBcD_");
+}
+
 TEST(UniqueName, generateId_returns_properly_formatted_id)
 {
     auto pred = [] (const QString &id) -> bool {

@@ -57,6 +57,7 @@ private:
     void updateBundlesQuick3DVersion();
     void addLibMaterial(const ModelNode &node, const QPixmap &iconPixmap);
     void addLibAssets(const QStringList &paths);
+    void addLib3DComponent(const ModelNode &node);
     void addLib3DItem(const ModelNode &node);
     void genAndSaveIcon(const QString &qmlPath, const QString &iconPath);
     QStringList writeLibItemQml(const ModelNode &node, const QString &qml);

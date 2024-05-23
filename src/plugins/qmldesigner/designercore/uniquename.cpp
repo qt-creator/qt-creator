@@ -156,6 +156,9 @@ QString generateId(const QString &id, std::function<bool(const QString &)> predi
     if (newId.at(0).isDigit() || std::binary_search(std::begin(keywords), std::end(keywords), newId))
         newId.prepend('_');
 
+    if (!predicate)
+        return newId;
+
     return UniqueName::generate(newId, predicate);
 }
 
