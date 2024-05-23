@@ -9057,7 +9057,7 @@ QMimeData *TextEditorWidget::createMimeDataFromSelection(bool withHtml) const
                     } else {
                         const int startPosition = current.position() - selectionStart
                                                   - removedCount;
-                        int endPosition = startPosition + current.text().count();
+                        int endPosition = startPosition + current.text().size();
                         if (current != last)
                             endPosition++;
                         removedCount += endPosition - startPosition;

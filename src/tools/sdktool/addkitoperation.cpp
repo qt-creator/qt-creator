@@ -190,7 +190,7 @@ bool AddKitOperation::setArguments(const QStringList &args)
             ++i; // skip next;
 
             const QString tmp = current.mid(2);
-            const QString tmp2 = tmp.mid(0, tmp.count() - 9 /* toolchain */);
+            const QString tmp2 = tmp.mid(0, tmp.size() - 9 /* toolchain */);
             const QString lang = tmp2.isEmpty() ? QString("Cxx") : tmp2;
 
             if (next.isEmpty()) {

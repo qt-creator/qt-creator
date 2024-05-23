@@ -1626,7 +1626,7 @@ QString GitClient::synchronousCurrentLocalBranch(const FilePath &workingDirector
     if (!branch.isEmpty()) {
         const QString refsHeadsPrefix = "refs/heads/";
         if (branch.startsWith(refsHeadsPrefix)) {
-            branch.remove(0, refsHeadsPrefix.count());
+            branch.remove(0, refsHeadsPrefix.size());
             return branch;
         }
     }
