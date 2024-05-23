@@ -698,17 +698,17 @@ void tst_TestCore::testRewriterDynamicProperties()
     QCOMPARE(rootModelNode.properties().count(), 18);
     QVERIFY(rootModelNode.hasVariantProperty("i"));
     QCOMPARE(rootModelNode.variantProperty("i").dynamicTypeName(), QmlDesigner::TypeName("int"));
-    QCOMPARE(rootModelNode.variantProperty("i").value().type(), QVariant::Int);
+    QCOMPARE(rootModelNode.variantProperty("i").value().typeId(), QMetaType::Int);
     QCOMPARE(testRewriterView1->rootModelNode().variantProperty("i").value().toInt(), 0);
 
     QVERIFY(rootModelNode.hasVariantProperty("ii"));
     QCOMPARE(rootModelNode.variantProperty("ii").dynamicTypeName(), QmlDesigner::TypeName("int"));
-    QCOMPARE(rootModelNode.variantProperty("ii").value().type(), QVariant::Int);
+    QCOMPARE(rootModelNode.variantProperty("ii").value().typeId(), QMetaType::Int);
     QCOMPARE(testRewriterView1->rootModelNode().variantProperty("ii").value().toInt(), 1);
 
     QVERIFY(rootModelNode.hasVariantProperty("b"));
     QCOMPARE(rootModelNode.variantProperty("b").dynamicTypeName(), QmlDesigner::TypeName("bool"));
-    QCOMPARE(rootModelNode.variantProperty("b").value().type(), QVariant::Bool);
+    QCOMPARE(rootModelNode.variantProperty("b").value().typeId(), QMetaType::Bool);
     QCOMPARE(testRewriterView1->rootModelNode().variantProperty("b").value().toBool(), false);
 
     QVERIFY(rootModelNode.hasVariantProperty("bb"));
@@ -716,7 +716,7 @@ void tst_TestCore::testRewriterDynamicProperties()
 
     QVERIFY(rootModelNode.hasVariantProperty("d"));
     QCOMPARE(rootModelNode.variantProperty("d").dynamicTypeName(), QmlDesigner::TypeName("double"));
-    QCOMPARE(rootModelNode.variantProperty("d").value().type(), QVariant::Double);
+    QCOMPARE(rootModelNode.variantProperty("d").value().typeId(), QMetaType::Double);
     QCOMPARE(testRewriterView1->rootModelNode().variantProperty("d").value().toDouble(), 0.0);
 
     QVERIFY(rootModelNode.hasVariantProperty("dd"));
@@ -724,7 +724,7 @@ void tst_TestCore::testRewriterDynamicProperties()
 
     QVERIFY(rootModelNode.hasVariantProperty("r"));
     QCOMPARE(rootModelNode.variantProperty("r").dynamicTypeName(), QmlDesigner::TypeName("real"));
-    QCOMPARE(rootModelNode.variantProperty("r").value().type(), QVariant::Double);
+    QCOMPARE(rootModelNode.variantProperty("r").value().typeId(), QMetaType::Double);
     QCOMPARE(testRewriterView1->rootModelNode().variantProperty("r").value().toDouble(), 0.0);
 
     QVERIFY(rootModelNode.hasVariantProperty("rr"));
@@ -732,7 +732,7 @@ void tst_TestCore::testRewriterDynamicProperties()
 
     QVERIFY(rootModelNode.hasVariantProperty("s"));
     QCOMPARE(rootModelNode.variantProperty("s").dynamicTypeName(), QmlDesigner::TypeName("string"));
-    QCOMPARE(rootModelNode.variantProperty("s").value().type(), QVariant::String);
+    QCOMPARE(rootModelNode.variantProperty("s").value().typeId(), QMetaType::QString);
     QCOMPARE(testRewriterView1->rootModelNode().variantProperty("s").value().toString(), QString());
 
     QVERIFY(rootModelNode.hasVariantProperty("ss"));
@@ -740,7 +740,7 @@ void tst_TestCore::testRewriterDynamicProperties()
 
     QVERIFY(rootModelNode.hasVariantProperty("u"));
     QCOMPARE(rootModelNode.variantProperty("u").dynamicTypeName(), QmlDesigner::TypeName("url"));
-    QCOMPARE(rootModelNode.variantProperty("u").value().type(), QVariant::Url);
+    QCOMPARE(rootModelNode.variantProperty("u").value().typeId(), QMetaType::QUrl);
     QCOMPARE(testRewriterView1->rootModelNode().variantProperty("u").value().toUrl(), QUrl());
 
     QVERIFY(rootModelNode.hasVariantProperty("uu"));
@@ -748,7 +748,7 @@ void tst_TestCore::testRewriterDynamicProperties()
 
     QVERIFY(rootModelNode.hasVariantProperty("c"));
     QCOMPARE(rootModelNode.variantProperty("c").dynamicTypeName(), QmlDesigner::TypeName("color"));
-    QCOMPARE(rootModelNode.variantProperty("c").value().type(), QVariant::Color);
+    QCOMPARE(rootModelNode.variantProperty("c").value().typeId(), QMetaType::QColor);
     QCOMPARE(testRewriterView1->rootModelNode().variantProperty("c").value().value<QColor>(), QColor());
 
     QVERIFY(rootModelNode.hasVariantProperty("cc"));
@@ -756,7 +756,7 @@ void tst_TestCore::testRewriterDynamicProperties()
 
     QVERIFY(rootModelNode.hasVariantProperty("t"));
     QCOMPARE(rootModelNode.variantProperty("t").dynamicTypeName(), QmlDesigner::TypeName("date"));
-    QCOMPARE(rootModelNode.variantProperty("t").value().type(), QVariant::Date);
+    QCOMPARE(rootModelNode.variantProperty("t").value().typeId(), QMetaType::QDate);
     QCOMPARE(testRewriterView1->rootModelNode().variantProperty("t").value().value<QDate>(), QDate());
 
     QVERIFY(rootModelNode.hasVariantProperty("tt"));
@@ -764,8 +764,8 @@ void tst_TestCore::testRewriterDynamicProperties()
 
     QVERIFY(rootModelNode.hasVariantProperty("v"));
     QCOMPARE(rootModelNode.variantProperty("v").dynamicTypeName(), QmlDesigner::TypeName("variant"));
-    const int type = rootModelNode.variantProperty("v").value().type();
-    QCOMPARE(type, QMetaType::type("QVariant"));
+    const int type = rootModelNode.variantProperty("v").value().typeId();
+    QCOMPARE(type, QMetaType::fromName("QVariant").id());
 
     QVERIFY(rootModelNode.hasVariantProperty("vv"));
     const QString inThere = testRewriterView1->rootModelNode().variantProperty("vv").value().value<QString>();
@@ -3872,8 +3872,8 @@ void tst_TestCore::testRewriterPreserveType()
     QCOMPARE(rootNode.type(), QmlDesigner::TypeName("QtQuick.Rectangle"));
 
     ModelNode textNode = rootNode.directSubModelNodes().first();
-    QCOMPARE(QVariant::Bool, textNode.variantProperty("font.bold").value().type());
-    QCOMPARE(QVariant::Double, textNode.variantProperty("font.pointSize").value().type());
+    QCOMPARE(QMetaType::Bool, textNode.variantProperty("font.bold").value().typeId());
+    QCOMPARE(QMetaType::Double, textNode.variantProperty("font.pointSize").value().typeId());
     textNode.variantProperty("font.bold").setValue(QVariant(false));
     textNode.variantProperty("font.bold").setValue(QVariant(true));
     textNode.variantProperty("font.pointSize").setValue(QVariant(13.0));
@@ -3883,8 +3883,8 @@ void tst_TestCore::testRewriterPreserveType()
     newTextNode.variantProperty("font.bold").setValue(QVariant(true));
     newTextNode.variantProperty("font.pointSize").setValue(QVariant(13.0));
 
-    QCOMPARE(QVariant::Bool, newTextNode.variantProperty("font.bold").value().type());
-    QCOMPARE(QVariant::Double, newTextNode.variantProperty("font.pointSize").value().type());
+    QCOMPARE(QMetaType::Bool, newTextNode.variantProperty("font.bold").value().typeId());
+    QCOMPARE(QMetaType::Double, newTextNode.variantProperty("font.pointSize").value().typeId());
 }
 
 void tst_TestCore::testRewriterForArrayMagic()
@@ -6957,9 +6957,9 @@ void tst_TestCore::testModelPropertyValueTypes()
     ModelNode rootModelNode(testRewriterView1->rootModelNode());
     QVERIFY(rootModelNode.isValid());
 
-    QCOMPARE(rootModelNode.variantProperty("width").value().type(), QVariant::Double);
-    QCOMPARE(rootModelNode.variantProperty("radius").value().type(), QVariant::Double);
-    QCOMPARE(rootModelNode.variantProperty("color").value().type(), QVariant::Color);
+    QCOMPARE(rootModelNode.variantProperty("width").value().typeId(), QMetaType::Double);
+    QCOMPARE(rootModelNode.variantProperty("radius").value().typeId(), QMetaType::Double);
+    QCOMPARE(rootModelNode.variantProperty("color").value().typeId(), QMetaType::QColor);
 }
 
 void tst_TestCore::testModelNodeInHierarchy()
@@ -8963,18 +8963,18 @@ void tst_TestCore::loadGradient()
         QCOMPARE(pOne.id(), QString("pOne"));
         QCOMPARE(pOne.directSubModelNodes().size(), 0);
         QCOMPARE(pOne.propertyNames().size(), 2);
-        QCOMPARE(pOne.variantProperty("position").value().type(), QVariant::Double);
+        QCOMPARE(pOne.variantProperty("position").value().typeId(), QMetaType::Double);
         QCOMPARE(pOne.variantProperty("position").value().toDouble(), 0.0);
-        QCOMPARE(pOne.variantProperty("color").value().type(), QVariant::Color);
+        QCOMPARE(pOne.variantProperty("color").value().typeId(), QMetaType::QColor);
         QCOMPARE(pOne.variantProperty("color").value().value<QColor>(), QColor("lightsteelblue"));
 
         QCOMPARE(pTwo.type(), QmlDesigner::TypeName("QtQuick.GradientStop"));
         QCOMPARE(pTwo.id(), QString("pTwo"));
         QCOMPARE(pTwo.directSubModelNodes().size(), 0);
         QCOMPARE(pTwo.propertyNames().size(), 2);
-        QCOMPARE(pTwo.variantProperty("position").value().type(), QVariant::Double);
+        QCOMPARE(pTwo.variantProperty("position").value().typeId(), QMetaType::Double);
         QCOMPARE(pTwo.variantProperty("position").value().toDouble(), 1.0);
-        QCOMPARE(pTwo.variantProperty("color").value().type(), QVariant::Color);
+        QCOMPARE(pTwo.variantProperty("color").value().typeId(), QMetaType::QColor);
         QCOMPARE(pTwo.variantProperty("color").value().value<QColor>(), QColor("blue"));
     }
 
@@ -9003,18 +9003,18 @@ void tst_TestCore::loadGradient()
         QCOMPARE(nOne.id(), QString("nOne"));
         QCOMPARE(nOne.directSubModelNodes().size(), 0);
         QCOMPARE(nOne.propertyNames().size(), 2);
-        QCOMPARE(nOne.variantProperty("position").value().type(), QVariant::Double);
+        QCOMPARE(nOne.variantProperty("position").value().typeId(), QMetaType::Double);
         QCOMPARE(nOne.variantProperty("position").value().toDouble(), 0.0);
-        QCOMPARE(nOne.variantProperty("color").value().type(), QVariant::Color);
+        QCOMPARE(nOne.variantProperty("color").value().typeId(), QMetaType::QColor);
         QCOMPARE(nOne.variantProperty("color").value().value<QColor>(), QColor("blue"));
 
         QCOMPARE(nTwo.type(), QmlDesigner::TypeName("QtQuick.GradientStop"));
         QCOMPARE(nTwo.id(), QString("nTwo"));
         QCOMPARE(nTwo.directSubModelNodes().size(), 0);
         QCOMPARE(nTwo.propertyNames().size(), 2);
-        QCOMPARE(nTwo.variantProperty("position").value().type(), QVariant::Double);
+        QCOMPARE(nTwo.variantProperty("position").value().typeId(), QMetaType::Double);
         QCOMPARE(nTwo.variantProperty("position").value().toDouble(), 1.0);
-        QCOMPARE(nTwo.variantProperty("color").value().type(), QVariant::Color);
+        QCOMPARE(nTwo.variantProperty("color").value().typeId(), QMetaType::QColor);
         QCOMPARE(nTwo.variantProperty("color").value().value<QColor>(), QColor("lightsteelblue"));
     }
 }

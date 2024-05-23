@@ -65,119 +65,119 @@ struct scxmltag_type_t
 
 // Define tag-attributes
 const scxmltag_attribute_t scxml_scxml_attributes[] = {
-    {"initial", nullptr, false, false, QVariant::String},
-    {"name", nullptr, false, true, QVariant::String},
-    {"xmlns", "http://www.w3.org/2005/07/scxml", true, false, QVariant::String},
-    {"version", "1.0", true, false, QVariant::String},
-    {"datamodel", nullptr, false, true, QVariant::String},
-    {"binding", "early;late", false, true, QVariant::StringList}
+    {"initial", nullptr, false, false, QMetaType::QString},
+    {"name", nullptr, false, true, QMetaType::QString},
+    {"xmlns", "http://www.w3.org/2005/07/scxml", true, false, QMetaType::QString},
+    {"version", "1.0", true, false, QMetaType::QString},
+    {"datamodel", nullptr, false, true, QMetaType::QString},
+    {"binding", "early;late", false, true, QMetaType::QStringList}
 };
 
 const scxmltag_attribute_t scxml_state_attributes[] = {
-    {"id", nullptr, false, true, QVariant::String},
-    {"initial", nullptr, false, false, QVariant::String}
+    {"id", nullptr, false, true, QMetaType::QString},
+    {"initial", nullptr, false, false, QMetaType::QString}
 };
 
 const scxmltag_attribute_t scxml_parallel_attributes[] = {
-    {"id", nullptr, false, true, QVariant::String}
+    {"id", nullptr, false, true, QMetaType::QString}
 };
 
 const scxmltag_attribute_t scxml_transition_attributes[] = {
-    {"event", nullptr, false, true, QVariant::String},
-    {"cond", nullptr, false, true, QVariant::String},
-    {"target", nullptr, false, true, QVariant::String},
-    {"type", "internal;external", false, true, QVariant::StringList}
+    {"event", nullptr, false, true, QMetaType::QString},
+    {"cond", nullptr, false, true, QMetaType::QString},
+    {"target", nullptr, false, true, QMetaType::QString},
+    {"type", "internal;external", false, true, QMetaType::QStringList}
 };
 
 const scxmltag_attribute_t scxml_initialtransition_attributes[] = {
-    {"target", nullptr, false, false, QVariant::String}
+    {"target", nullptr, false, false, QMetaType::QString}
 };
 
 const scxmltag_attribute_t scxml_final_attributes[] = {
-    {"id", nullptr, false, true, QVariant::String}
+    {"id", nullptr, false, true, QMetaType::QString}
 };
 
 const scxmltag_attribute_t scxml_history_attributes[] = {
-    {"id", nullptr, false, true, QVariant::String},
-    {"type", "shallow;deep", false, true, QVariant::StringList}
+    {"id", nullptr, false, true, QMetaType::QString},
+    {"type", "shallow;deep", false, true, QMetaType::QStringList}
 };
 
 const scxmltag_attribute_t scxml_raise_attributes[] = {
-    {"event", nullptr, true, true, QVariant::String}
+    {"event", nullptr, true, true, QMetaType::QString}
 };
 
 const scxmltag_attribute_t scxml_if_attributes[] = {
-    {"cond", nullptr, true, true, QVariant::String},
+    {"cond", nullptr, true, true, QMetaType::QString},
 };
 
 const scxmltag_attribute_t scxml_elseif_attributes[] = {
-    {"cond", nullptr, true, true, QVariant::String}
+    {"cond", nullptr, true, true, QMetaType::QString}
 };
 
 const scxmltag_attribute_t scxml_foreach_attributes[] = {
-    {"array", nullptr, true, true, QVariant::String},
-    {"item", nullptr, true, true, QVariant::String},
-    {"index", nullptr, false, true, QVariant::String}
+    {"array", nullptr, true, true, QMetaType::QString},
+    {"item", nullptr, true, true, QMetaType::QString},
+    {"index", nullptr, false, true, QMetaType::QString}
 };
 
 const scxmltag_attribute_t scxml_log_attributes[] = {
-    {"label", "", false, true, QVariant::String},
-    {"expr", nullptr, false, true, QVariant::String}
+    {"label", "", false, true, QMetaType::QString},
+    {"expr", nullptr, false, true, QMetaType::QString}
 };
 
 const scxmltag_attribute_t scxml_data_attributes[] = {
-    {"id", nullptr, true, true, QVariant::String},
-    {"src", nullptr, false, true, QVariant::String},
-    {"expr", nullptr, false, true, QVariant::String}
+    {"id", nullptr, true, true, QMetaType::QString},
+    {"src", nullptr, false, true, QMetaType::QString},
+    {"expr", nullptr, false, true, QMetaType::QString}
 };
 
 const scxmltag_attribute_t scxml_assign_attributes[] = {
-    {"location", nullptr, true, true, QVariant::String},
-    {"expr", nullptr, false, true, QVariant::String}
+    {"location", nullptr, true, true, QMetaType::QString},
+    {"expr", nullptr, false, true, QMetaType::QString}
 };
 
 const scxmltag_attribute_t scxml_content_attributes[] = {
-    {"expr", nullptr, false, true, QVariant::String}
+    {"expr", nullptr, false, true, QMetaType::QString}
 };
 
 const scxmltag_attribute_t scxml_param_attributes[] = {
-    {"name", nullptr, true, true, QVariant::String},
-    {"expr", nullptr, false, true, QVariant::String},
-    {"location", nullptr, false, true, QVariant::String}
+    {"name", nullptr, true, true, QMetaType::QString},
+    {"expr", nullptr, false, true, QMetaType::QString},
+    {"location", nullptr, false, true, QMetaType::QString}
 };
 
 const scxmltag_attribute_t scxml_script_attributes[] = {
-    {"src", nullptr, false, true, QVariant::String}
+    {"src", nullptr, false, true, QMetaType::QString}
 };
 
 const scxmltag_attribute_t scxml_send_attributes[] = {
-    {"event", nullptr, false, true, QVariant::String},
-    {"eventexpr", nullptr, false, true, QVariant::String},
-    {"target", nullptr, false, true, QVariant::String},
-    {"targetexpr", nullptr, false, true, QVariant::String},
-    {"type", nullptr, false, true, QVariant::String},
-    {"typeexpr", nullptr, false, true, QVariant::String},
-    {"id", nullptr, false, true, QVariant::String},
-    {"idlocation", nullptr, false, true, QVariant::String},
-    {"delay", nullptr, false, true, QVariant::String},
-    {"delayexpr", nullptr, false, true, QVariant::String},
-    {"namelist", nullptr, false, true, QVariant::String}
+    {"event", nullptr, false, true, QMetaType::QString},
+    {"eventexpr", nullptr, false, true, QMetaType::QString},
+    {"target", nullptr, false, true, QMetaType::QString},
+    {"targetexpr", nullptr, false, true, QMetaType::QString},
+    {"type", nullptr, false, true, QMetaType::QString},
+    {"typeexpr", nullptr, false, true, QMetaType::QString},
+    {"id", nullptr, false, true, QMetaType::QString},
+    {"idlocation", nullptr, false, true, QMetaType::QString},
+    {"delay", nullptr, false, true, QMetaType::QString},
+    {"delayexpr", nullptr, false, true, QMetaType::QString},
+    {"namelist", nullptr, false, true, QMetaType::QString}
 };
 
 const scxmltag_attribute_t scxml_cancel_attributes[] = {
-    {"sendid", nullptr, false, true, QVariant::String},
-    {"sendidexpr", nullptr, false, true, QVariant::String}
+    {"sendid", nullptr, false, true, QMetaType::QString},
+    {"sendidexpr", nullptr, false, true, QMetaType::QString}
 };
 
 const scxmltag_attribute_t scxml_invoke_attributes[] = {
-    {"type", nullptr, false, true, QVariant::String},
-    {"typeexpr", nullptr, false, true, QVariant::String},
-    {"src", nullptr, false, true, QVariant::String},
-    {"srcexpr", nullptr, false, true, QVariant::String},
-    {"id", nullptr, false, true, QVariant::String},
-    {"idlocation", nullptr, false, true, QVariant::String},
-    {"namelist", nullptr, false, true, QVariant::String},
-    {"autoforward", ";true;false", false, true, QVariant::StringList}
+    {"type", nullptr, false, true, QMetaType::QString},
+    {"typeexpr", nullptr, false, true, QMetaType::QString},
+    {"src", nullptr, false, true, QMetaType::QString},
+    {"srcexpr", nullptr, false, true, QMetaType::QString},
+    {"id", nullptr, false, true, QMetaType::QString},
+    {"idlocation", nullptr, false, true, QMetaType::QString},
+    {"namelist", nullptr, false, true, QMetaType::QString},
+    {"autoforward", ";true;false", false, true, QMetaType::QStringList}
 };
 
 const scxmltag_type_t scxml_unknown = {

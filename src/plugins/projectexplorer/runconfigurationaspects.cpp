@@ -401,7 +401,7 @@ void ArgumentsAspect::fromMap(const Store &map)
 {
     QVariant args = map.value(settingsKey());
     // Until 3.7 a QStringList was stored for Remote Linux
-    if (args.typeId() == QVariant::StringList)
+    if (args.typeId() == QMetaType::QStringList)
         m_arguments = ProcessArgs::joinArgs(args.toStringList(), OsTypeLinux);
     else
         m_arguments = args.toString();

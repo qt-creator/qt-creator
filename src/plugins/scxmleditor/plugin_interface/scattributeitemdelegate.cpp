@@ -19,12 +19,12 @@ QWidget *SCAttributeItemDelegate::createEditor(QWidget *parent, const QStyleOpti
     Q_UNUSED(option)
 
     switch (index.data(DataTypeRole).toInt()) {
-    case QVariant::StringList: {
+    case QMetaType::QStringList: {
         auto combo = new QComboBox(parent);
         combo->setFocusPolicy(Qt::StrongFocus);
         return combo;
     }
-    case QVariant::String: {
+    case QMetaType::QString: {
         if (index.column() == 0) {
             auto edit = new QLineEdit(parent);
             edit->setFocusPolicy(Qt::StrongFocus);
@@ -52,7 +52,7 @@ void SCAttributeItemDelegate::updateEditorGeometry(QWidget *editor, const QStyle
 void SCAttributeItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
     switch (index.data(DataTypeRole).toInt()) {
-    case QVariant::StringList: {
+    case QMetaType::QStringList: {
         auto combo = qobject_cast<QComboBox*>(editor);
         if (combo) {
             combo->clear();

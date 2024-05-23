@@ -447,7 +447,7 @@ JsonValue *JsonValue::build(const QVariant &variant, JsonMemoryPool *pool)
 {
     switch (variant.typeId()) {
 
-    case QVariant::List: {
+    case QMetaType::QVariantList: {
         auto newValue = new (pool) JsonArrayValue;
         const QList<QVariant> list = variant.toList();
         for (const QVariant &element : list)
@@ -455,7 +455,7 @@ JsonValue *JsonValue::build(const QVariant &variant, JsonMemoryPool *pool)
         return newValue;
     }
 
-    case QVariant::Map: {
+    case QMetaType::QVariantMap: {
         auto newValue = new (pool) JsonObjectValue;
         const QVariantMap variantMap = variant.toMap();
         for (QVariantMap::const_iterator it = variantMap.begin(); it != variantMap.end(); ++it)
@@ -463,19 +463,19 @@ JsonValue *JsonValue::build(const QVariant &variant, JsonMemoryPool *pool)
         return newValue;
     }
 
-    case QVariant::String:
+    case QMetaType::QString:
         return new (pool) JsonStringValue(variant.toString());
 
-    case QVariant::Int:
+    case QMetaType::Int:
         return new (pool) JsonIntValue(variant.toInt());
 
-    case QVariant::Double:
+    case QMetaType::Double:
         return new (pool) JsonDoubleValue(variant.toDouble());
 
-    case QVariant::Bool:
+    case QMetaType::Bool:
         return new (pool) JsonBooleanValue(variant.toBool());
 
-    case QVariant::Invalid:
+    case QMetaType::UnknownType:
         return new (pool) JsonNullValue;
 
     default:

@@ -304,7 +304,7 @@ QString deEscape(const QString &value)
 
 QVariant deEscapeVariant(const QVariant &value)
 {
-    if (value.typeId() == QVariant::String)
+    if (value.typeId() == QMetaType::QString)
         return deEscape(value.toString());
     return value;
 }
@@ -459,9 +459,9 @@ using json = nlohmann::json;
     out = json::array({});
     out.push_back(property.name);
     out.push_back(property.type);
-    if (property.value.type() == QVariant::String)
+    if (property.value.typeId() == QMetaType::QString)
         out.push_back(Utils::PathString{property.value.toString()});
-    else if (property.value.type() == QVariant::Int || property.value.type() == QVariant::LongLong)
+    else if (property.value.typeId() == QMetaType::Int || property.value.typeId() == QMetaType::LongLong)
         out.push_back(property.value.toLongLong());
     else
         out.push_back(property.value.toDouble());

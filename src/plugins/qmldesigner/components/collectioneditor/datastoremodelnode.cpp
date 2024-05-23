@@ -493,7 +493,7 @@ void DataStoreModelNode::assignCollectionToNode(AbstractView *view,
             const QVariant currentTextRoleValue = textRoleProperty.value();
 
             if (currentTextRoleValue.isValid() && !currentTextRoleValue.isNull()) {
-                if (currentTextRoleValue.type() == QVariant::String) {
+                if (currentTextRoleValue.typeId() == QMetaType::QString) {
                     const QString currentTextRole = currentTextRoleValue.toString();
                     if (collectionHasColumn(collectionName, currentTextRole))
                         return;

@@ -41,7 +41,7 @@ PropertyName PropertyContainer::name() const
 
 QVariant PropertyContainer::value() const
 {
-    if (m_value.typeId() == QVariant::String)
+    if (m_value.typeId() == QMetaType::QString)
         m_value = PropertyParser::read(m_type, m_value.toString());
     return m_value;
 }

@@ -61,18 +61,18 @@ void PersistentSettingsTest::tst_readwrite()
         auto found = restored.find(it.key());
         QVERIFY(found != restoredEnd);
         QVERIFY(found.value().isValid());
-        if (it.value().type() == QVariant::List) {
+        if (it.value().typeId() == QMetaType::QVariantList) {
             const QVariantList origList = it.value().toList();
             const QVariantList foundList = found.value().toList();
 
             QCOMPARE(foundList.size(), origList.size());
             for (int i = 0, vEnd = foundList.size(); i < vEnd; ++i) {
-                if (foundList.at(i).type() == QVariant::Rect)
+                if (foundList.at(i).typeId() == QMetaType::QRect)
                     qDebug() << foundList.at(i).toRect() << origList.at(i).toRect();
                 QCOMPARE(foundList.at(i), origList.at(i));
             }
         }
-        if (it.value().type() == QVariant::Rect)
+        if (it.value().typeId() == QMetaType::QRect)
             qDebug() << found.value().toRect() << "vs" << it.value().toRect();
         QCOMPARE(found.value(), it.value());
     }

@@ -593,7 +593,7 @@ QString RewriterView::auxiliaryDataAsQML() const
                 hasAuxData = true;
                 QString strValue = value.toString();
 
-                auto metaType = static_cast<QMetaType::Type>(value.type());
+                const int metaType = value.typeId();
 
                 if (metaType == QMetaType::QString
                         || metaType == QMetaType::QColor) {

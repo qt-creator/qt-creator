@@ -124,7 +124,7 @@ QVector<JsonKitsPage::ConditionalFeature> JsonKitsPage::parseFeatures(const QVar
 
     if (data.isNull())
         return result;
-    if (data.type() != QVariant::List) {
+    if (data.typeId() != QMetaType::QVariantList) {
         if (errorMessage)
             *errorMessage = Tr::tr("Feature list is set and not of type list.");
         return result;
@@ -132,9 +132,9 @@ QVector<JsonKitsPage::ConditionalFeature> JsonKitsPage::parseFeatures(const QVar
 
     const QList<QVariant> elements = data.toList();
     for (const QVariant &element : elements) {
-        if (element.type() == QVariant::String) {
+        if (element.typeId() == QMetaType::QString) {
             result.append({ element.toString(), QVariant(true) });
-        } else if (element.type() == QVariant::Map) {
+        } else if (element.typeId() == QMetaType::QVariantMap) {
             const QVariantMap obj = element.toMap();
             const QString feature = obj.value(QLatin1String(KEY_FEATURE)).toString();
             if (feature.isEmpty()) {

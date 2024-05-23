@@ -604,7 +604,7 @@ static QString qmlDesignerRCPath()
 
 QVariant fixResourcePaths(const QVariant &value)
 {
-    if (value.typeId() == QVariant::Url) {
+    if (value.typeId() == QMetaType::QUrl) {
         const QUrl url = value.toUrl();
         if (url.scheme() == QLatin1String("qrc")) {
             const QString path = QLatin1String("qrc:") +  url.path();
@@ -625,7 +625,7 @@ QVariant fixResourcePaths(const QVariant &value)
             }
         }
     }
-    if (value.typeId() == QVariant::String) {
+    if (value.typeId() == QMetaType::QString) {
         const QString str = value.toString();
         if (str.contains(QLatin1String("qrc:"))) {
             if (!qmlDesignerRCPath().isEmpty()) {

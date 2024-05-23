@@ -1638,7 +1638,7 @@ IEditor *VcsBaseEditor::locateEditorByTag(const QString &tag)
     const QList<IDocument *> documents = DocumentModel::openedDocuments();
     for (IDocument *document : documents) {
         const QVariant tagPropertyValue = document->property(tagPropertyC);
-        if (tagPropertyValue.type() == QVariant::String && tagPropertyValue.toString() == tag)
+        if (tagPropertyValue.typeId() == QMetaType::QString && tagPropertyValue.toString() == tag)
             return DocumentModel::editorsForDocument(document).constFirst();
     }
     return nullptr;

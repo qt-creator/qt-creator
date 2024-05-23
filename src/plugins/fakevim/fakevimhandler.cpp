@@ -6123,7 +6123,7 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
         FvBaseAspect *act = s.item(Utils::keyFromString(optionName));
         if (!act) {
             showMessage(MessageError, Tr::tr("Unknown option:") + ' ' + cmd.args);
-        } else if (act->defaultVariantValue().type() == QVariant::Bool) {
+        } else if (act->defaultVariantValue().typeId() == QMetaType::Bool) {
             bool oldValue = act->variantValue().toBool();
             if (printOption) {
                 showMessage(MessageInfo, QLatin1String(oldValue ? "" : "no")

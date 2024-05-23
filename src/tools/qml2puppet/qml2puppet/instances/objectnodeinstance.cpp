@@ -372,7 +372,7 @@ void ObjectNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParentIn
 QVariant ObjectNodeInstance::convertSpecialCharacter(const QVariant& value) const
 {
     QVariant specialCharacterConvertedValue = value;
-    if (value.typeId() == QVariant::String) {
+    if (value.typeId() == QMetaType::QString) {
         QString string = value.toString();
         string.replace(QLatin1String("\\n"), QLatin1String("\n"));
         string.replace(QLatin1String("\\t"), QLatin1String("\t"));

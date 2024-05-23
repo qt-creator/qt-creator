@@ -46,7 +46,7 @@ bool JsonWizardScannerGenerator::setup(const QVariant &data, QString *errorMessa
     if (data.isNull())
         return true;
 
-    if (data.type() != QVariant::Map) {
+    if (data.typeId() != QMetaType::QVariantMap) {
         *errorMessage = Tr::tr("Key is not an object.");
         return false;
     }

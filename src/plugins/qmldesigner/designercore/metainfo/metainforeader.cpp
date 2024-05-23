@@ -272,7 +272,7 @@ inline QString deEscape(const QString &value)
 
 inline QVariant deEscapeVariant(const QVariant &value)
 {
-    if (value.typeId() == QVariant::String)
+    if (value.typeId() == QMetaType::QString)
         return deEscape(value.toString());
     return value;
 }

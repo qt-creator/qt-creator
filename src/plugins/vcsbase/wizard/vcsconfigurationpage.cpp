@@ -56,7 +56,7 @@ bool VcsConfigurationPageFactory::validateData(Id typeId, const QVariant &data,
 {
     QTC_ASSERT(canCreate(typeId), return false);
 
-    if (data.isNull() || data.type() != QVariant::Map) {
+    if (data.isNull() || data.typeId() != QMetaType::QVariantMap) {
         //: Do not translate "VcsConfiguration", because it is the id of a page.
         *errorMessage = ProjectExplorer::Tr::tr("\"data\" must be a JSON object for \"VcsConfiguration\" pages.");
         return false;

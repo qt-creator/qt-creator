@@ -329,7 +329,7 @@ public:
                 }
                 if (!item.detectionSource().isEmpty() && item.detectionSource() == k->autoDetectionSource())
                     level = DebuggerItem::MatchLevel(level + 2);
-            } else if (rawId.type() == QVariant::String) {
+            } else if (rawId.typeId() == QMetaType::QString) {
                 // New structure.
                 if (item.id() == rawId) {
                     // Detected by ID.

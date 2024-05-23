@@ -166,7 +166,7 @@ QVariant JsonFieldPage::Field::toSettings() const
 
 JsonFieldPage::Field *JsonFieldPage::Field::parse(const QVariant &input, QString *errorMessage)
 {
-    if (input.typeId() != QVariant::Map) {
+    if (input.typeId() != QMetaType::QVariantMap) {
         *errorMessage = Tr::tr("Field is not an object.");
         return nullptr;
     }
@@ -409,7 +409,7 @@ QDebug &operator<<(QDebug &debug, const JsonFieldPage::Field &field)
 
 bool LabelField::parseData(const QVariant &data, QString *errorMessage)
 {
-    if (data.typeId() != QVariant::Map) {
+    if (data.typeId() != QMetaType::QVariantMap) {
         *errorMessage = Tr::tr("Label (\"%1\") data is not an object.").arg(name());
         return false;
     }
@@ -447,7 +447,7 @@ bool SpacerField::parseData(const QVariant &data, QString *errorMessage)
     if (data.isNull())
         return true;
 
-    if (data.typeId() != QVariant::Map) {
+    if (data.typeId() != QMetaType::QVariantMap) {
         *errorMessage = Tr::tr("Spacer (\"%1\") data is not an object.").arg(name());
         return false;
     }
@@ -492,7 +492,7 @@ bool LineEditField::parseData(const QVariant &data, QString *errorMessage)
     if (data.isNull())
         return true;
 
-    if (data.typeId() != QVariant::Map) {
+    if (data.typeId() != QMetaType::QVariantMap) {
         *errorMessage = Tr::tr("LineEdit (\"%1\") data is not an object.").arg(name());
         return false;
     }
@@ -689,7 +689,7 @@ bool TextEditField::parseData(const QVariant &data, QString *errorMessage)
     if (data.isNull())
         return true;
 
-    if (data.typeId() != QVariant::Map) {
+    if (data.typeId() != QMetaType::QVariantMap) {
         *errorMessage = Tr::tr("TextEdit (\"%1\") data is not an object.")
                 .arg(name());
         return false;
@@ -772,7 +772,7 @@ bool PathChooserField::parseData(const QVariant &data, QString *errorMessage)
     if (data.isNull())
         return true;
 
-    if (data.typeId() != QVariant::Map) {
+    if (data.typeId() != QMetaType::QVariantMap) {
         *errorMessage = Tr::tr("PathChooser data is not an object.");
         return false;
     }
@@ -877,7 +877,7 @@ bool CheckBoxField::parseData(const QVariant &data, QString *errorMessage)
     if (data.isNull())
         return true;
 
-    if (data.typeId() != QVariant::Map) {
+    if (data.typeId() != QMetaType::QVariantMap) {
         *errorMessage = Tr::tr("CheckBox (\"%1\") data is not an object.").arg(name());
         return false;
     }
@@ -966,12 +966,12 @@ QVariant CheckBoxField::toSettings() const
 
 std::unique_ptr<QStandardItem> createStandardItemFromListItem(const QVariant &item, QString *errorMessage)
 {
-    if (item.typeId() == QVariant::List) {
+    if (item.typeId() == QMetaType::QVariantList) {
         *errorMessage = Tr::tr("No JSON lists allowed inside List items.");
         return {};
     }
     auto standardItem = std::make_unique<QStandardItem>();
-    if (item.typeId() == QVariant::Map) {
+    if (item.typeId() == QMetaType::QVariantMap) {
         QVariantMap tmp = item.toMap();
         const QString key = JsonWizardFactory::localizedString(consumeValue(tmp, "trKey", QString()).toString());
         const QVariant value = consumeValue(tmp, "value", key);
@@ -1001,7 +1001,7 @@ ListField::~ListField() = default;
 
 bool ListField::parseData(const QVariant &data, QString *errorMessage)
 {
-    if (data.typeId() != QVariant::Map) {
+    if (data.typeId() != QMetaType::QVariantMap) {
         *errorMessage = Tr::tr("%1 (\"%2\") data is not an object.").arg(type(), name());
         return false;
     }
@@ -1027,7 +1027,7 @@ bool ListField::parseData(const QVariant &data, QString *errorMessage)
         *errorMessage = Tr::tr("%1 (\"%2\") \"items\" missing.").arg(type(), name());
         return false;
     }
-    if (value.typeId() != QVariant::List) {
+    if (value.typeId() != QMetaType::QVariantList) {
         *errorMessage = Tr::tr("%1 (\"%2\") \"items\" is not a JSON list.").arg(type(), name());
         return false;
     }

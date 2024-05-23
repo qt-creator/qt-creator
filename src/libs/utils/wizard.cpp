@@ -365,8 +365,8 @@ QHash<QString, QVariant> Wizard::variables() const
 QString typeOf(const QVariant &v)
 {
     QString result;
-    switch (v.type()) {
-    case QVariant::Map:
+    switch (v.typeId()) {
+    case QMetaType::QVariantMap:
         result = QLatin1String("Object");
         break;
     default:

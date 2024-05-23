@@ -86,12 +86,12 @@ QVariantList PerfTimelineModel::labels() const
 
 QString prettyPrintTraceData(const QVariant &data)
 {
-    switch (data.type()) {
-    case QVariant::ULongLong:
+    switch (data.typeId()) {
+    case QMetaType::ULongLong:
         return QString::fromLatin1("0x%1").arg(data.toULongLong(), 16, 16, QLatin1Char('0'));
-    case QVariant::UInt:
+    case QMetaType::UInt:
         return QString::fromLatin1("0x%1").arg(data.toUInt(), 8, 16, QLatin1Char('0'));
-    case QVariant::List: {
+    case QMetaType::QVariantList: {
         QStringList ret;
         for (const QVariant &item : data.toList())
             ret.append(prettyPrintTraceData(item));

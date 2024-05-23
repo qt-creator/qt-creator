@@ -3504,7 +3504,7 @@ QVariant PropertyMetaInfo::castedValue(const QVariant &value) const
             return variant;
         } else if (typeId == QVariant::UserType && typeName == "var") {
             return variant;
-        } else if (variant.typeId() == QVariant::List) {
+        } else if (variant.typeId() == QMetaType::QVariantList) {
             // TODO: check the contents of the list
             return variant;
         } else if (typeName == "var" || typeName == "variant") {

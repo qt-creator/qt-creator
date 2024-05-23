@@ -1367,7 +1367,7 @@ FilePath FilePath::fromUtf8(const char *filename, int filenameSize)
 
 FilePath FilePath::fromSettings(const QVariant &variant)
 {
-    if (variant.type() == QVariant::Url) {
+    if (variant.typeId() == QMetaType::QUrl) {
         const QUrl url = variant.toUrl();
         return FilePath::fromParts(url.scheme(), url.host(), url.path());
     }

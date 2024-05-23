@@ -284,7 +284,7 @@ QByteArray MacroExpander::expand(const QByteArray &stringWithVariables) const
 
 QVariant MacroExpander::expandVariant(const QVariant &v) const
 {
-    const auto type = QMetaType::Type(v.type());
+    const int type = v.typeId();
     if (type == QMetaType::QString) {
         return expand(v.toString());
     } else if (type == QMetaType::QStringList) {

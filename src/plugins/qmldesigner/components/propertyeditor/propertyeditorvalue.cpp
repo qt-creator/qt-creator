@@ -60,10 +60,10 @@ static bool cleverColorCompare(const QVariant &value1, const QVariant &value2)
         return c1.name() == c2.name() && c1.alpha() == c2.alpha();
     }
 
-    if (value1.typeId() == QVariant::String && value2.typeId() == QVariant::Color)
+    if (value1.typeId() == QMetaType::QString && value2.typeId() == QVariant::Color)
         return cleverColorCompare(QVariant(QColor(value1.toString())), value2);
 
-    if (value1.typeId() == QVariant::Color && value2.typeId() == QVariant::String)
+    if (value1.typeId() == QVariant::Color && value2.typeId() == QMetaType::QString)
         return cleverColorCompare(value1, QVariant(QColor(value2.toString())));
 
     return false;

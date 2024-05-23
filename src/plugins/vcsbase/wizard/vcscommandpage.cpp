@@ -72,9 +72,9 @@ WizardPage *VcsCommandPageFactory::create(JsonWizard *wizard, Id typeId, const Q
     QStringList args;
     const QVariant argsVar = tmp.value(QLatin1String(VCSCOMMAND_EXTRA_ARGS));
     if (!argsVar.isNull()) {
-        if (argsVar.type() == QVariant::String) {
+        if (argsVar.typeId() == QMetaType::QString) {
             args << argsVar.toString();
-        } else if (argsVar.type() == QVariant::List) {
+        } else if (argsVar.typeId() == QMetaType::QVariantList) {
             args = Utils::transform(argsVar.toList(), &QVariant::toString);
         } else {
             return nullptr;
@@ -101,7 +101,7 @@ WizardPage *VcsCommandPageFactory::create(JsonWizard *wizard, Id typeId, const Q
         const QVariant &jobArgVar = job.value(QLatin1String(JOB_ARGUMENTS));
         QStringList jobArgs;
         if (!jobArgVar.isNull()) {
-            if (jobArgVar.type() == QVariant::List)
+            if (jobArgVar.typeId() == QMetaType::QVariantList)
                 jobArgs = Utils::transform(jobArgVar.toList(), &QVariant::toString);
             else
                 jobArgs << jobArgVar.toString();
@@ -127,7 +127,7 @@ bool VcsCommandPageFactory::validateData(Id typeId, const QVariant &data, QStrin
     QTC_ASSERT(canCreate(typeId), return false);
 
     QString em;
-    if (data.type() != QVariant::Map)
+    if (data.typeId() != QMetaType::QVariantMap)
         em = Tr::tr("\"data\" is no JSON object in \"VcsCommand\" page.");
 
     if (em.isEmpty()) {
@@ -161,13 +161,13 @@ bool VcsCommandPageFactory::validateData(Id typeId, const QVariant &data, QStrin
         }
 
         const QVariant extra = tmp.value(QLatin1String(VCSCOMMAND_EXTRA_ARGS));
-        if (!extra.isNull() && extra.type() != QVariant::String && extra.type() != QVariant::List) {
+        if (!extra.isNull() && extra.typeId() != QMetaType::QString && extra.typeId() != QMetaType::QVariantList) {
             em = Tr::tr("\"%1\" in \"data\" section of \"VcsCommand\" page has unexpected type (unset, String or List).")
                     .arg(QLatin1String(VCSCOMMAND_EXTRA_ARGS));
         }
 
         const QVariant jobs = tmp.value(QLatin1String(VCSCOMMAND_JOBS));
-        if (!jobs.isNull() && extra.type() != QVariant::List) {
+        if (!jobs.isNull() && extra.typeId() != QMetaType::QVariantList) {
             em = Tr::tr("\"%1\" in \"data\" section of \"VcsCommand\" page has unexpected type (unset or List).")
                     .arg(QLatin1String(VCSCOMMAND_JOBS));
         }
@@ -178,7 +178,7 @@ bool VcsCommandPageFactory::validateData(Id typeId, const QVariant &data, QStrin
                 em = Tr::tr("Job in \"VcsCommand\" page is empty.");
                 break;
             }
-            if (j.type() != QVariant::Map) {
+            if (j.typeId() != QMetaType::QVariantMap) {
                 em = Tr::tr("Job in \"VcsCommand\" page is not an object.");
                 break;
             }

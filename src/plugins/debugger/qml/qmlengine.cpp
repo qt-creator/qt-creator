@@ -783,7 +783,7 @@ void QmlEngine::assignValueInDebugger(WatchItem *item,
     const QString &expression, const QVariant &editValue)
 {
     if (!expression.isEmpty()) {
-        QTC_CHECK(editValue.typeId() == QVariant::String);
+        QTC_CHECK(editValue.typeId() == QMetaType::QString);
         QVariant value;
         QString val = editValue.toString();
         if (item->type == "boolean")
@@ -861,7 +861,7 @@ static ConsoleItem *constructLogItemTree(const QVariant &result, const QString &
 
     QString text;
     ConsoleItem *item = nullptr;
-    if (result.typeId() == QVariant::Map) {
+    if (result.typeId() == QMetaType::QVariantMap) {
         if (key.isEmpty())
             text = "Object";
         else
@@ -885,7 +885,7 @@ static ConsoleItem *constructLogItemTree(const QVariant &result, const QString &
                 item->appendChild(child);
         }
 
-    } else if (result.typeId() == QVariant::List) {
+    } else if (result.typeId() == QMetaType::QVariantList) {
         if (key.isEmpty())
             text = "List";
         else
@@ -904,7 +904,7 @@ static ConsoleItem *constructLogItemTree(const QVariant &result, const QString &
             if (child)
                 item->appendChild(child);
         }
-    } else if (result.canConvert(QVariant::String)) {
+    } else if (result.canConvert(QMetaType::QString)) {
         item = new ConsoleItem(ConsoleItem::DefaultType, result.toString());
     } else {
         item = new ConsoleItem(ConsoleItem::DefaultType, "Unknown Value");
@@ -1356,9 +1356,9 @@ void QmlEnginePrivate::scripts(int types, const QList<int> ids, bool includeSour
     if (includeSource)
         cmd.arg(INCLUDESOURCE, includeSource);
 
-    if (filter.typeId() == QVariant::String)
+    if (filter.typeId() == QMetaType::QString)
         cmd.arg(FILTER, filter.toString());
-    else if (filter.typeId() == QVariant::Int)
+    else if (filter.typeId() == QMetaType::Int)
         cmd.arg(FILTER, filter.toInt());
     else
         QTC_CHECK(!filter.isValid());
@@ -2041,7 +2041,7 @@ StackFrame QmlEnginePrivate::extractStackFrame(const QVariant &bodyVal)
     }
 
     auto extractString = [this](const QVariant &item) {
-        return (item.typeId() == QVariant::String ? item : extractData(item).value).toString();
+        return (item.typeId() == QMetaType::QString ? item : extractData(item).value).toString();
     };
 
     stackFrame.function = extractString(body.value("func"));
