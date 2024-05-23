@@ -503,13 +503,13 @@ struct Context // Basic context containing element name string constants.
 
 struct ParseValueStackEntry
 {
-    explicit ParseValueStackEntry(QVariant::Type t = QVariant::Invalid, const QString &k = QString()) : type(t), key(k) {}
+    explicit ParseValueStackEntry(int t = QMetaType::UnknownType, const QString &k = QString()) : typeId(t), key(k) {}
     explicit ParseValueStackEntry(const QVariant &aSimpleValue, const QString &k);
 
     QVariant value() const;
     void addChild(const QString &key, const QVariant &v);
 
-    QVariant::Type type;
+    int typeId;
     QString key;
     QVariant simpleValue;
     QVariantList listValue;
@@ -517,19 +517,19 @@ struct ParseValueStackEntry
 };
 
 ParseValueStackEntry::ParseValueStackEntry(const QVariant &aSimpleValue, const QString &k) :
-    type(aSimpleValue.type()), key(k), simpleValue(aSimpleValue)
+    typeId(aSimpleValue.typeId()), key(k), simpleValue(aSimpleValue)
 {
     QTC_ASSERT(simpleValue.isValid(), return);
 }
 
 QVariant ParseValueStackEntry::value() const
 {
-    switch (type) {
-    case QVariant::Invalid:
+    switch (typeId) {
+    case QMetaType::UnknownType:
         return QVariant();
-    case QVariant::Map:
+    case QMetaType::QVariantMap:
         return QVariant(mapValue);
-    case QVariant::List:
+    case QMetaType::QVariantList:
         return QVariant(listValue);
     default:
         break;
@@ -539,16 +539,16 @@ QVariant ParseValueStackEntry::value() const
 
 void ParseValueStackEntry::addChild(const QString &key, const QVariant &v)
 {
-    switch (type) {
-    case QVariant::Map:
+    switch (typeId) {
+    case QMetaType::QVariantMap:
         mapValue.insert(key, v);
         break;
-    case QVariant::List:
+    case QMetaType::QVariantList:
         listValue.push_back(v);
         break;
     default:
         qWarning() << "ParseValueStackEntry::Internal error adding " << key << v << " to "
-                 << QVariant::typeToName(type) << value();
+                 << QMetaType(typeId).name() << value();
         break;
     }
 }
@@ -643,10 +643,10 @@ bool ParseContext::handleStartElement(QXmlStreamReader &r)
         return handleEndElement(name);
     }
     case ListValueElement:
-        m_valueStack.push_back(ParseValueStackEntry(QVariant::List, key));
+        m_valueStack.push_back(ParseValueStackEntry(QMetaType::QVariantList, key));
         break;
     case MapValueElement:
-        m_valueStack.push_back(ParseValueStackEntry(QVariant::Map, key));
+        m_valueStack.push_back(ParseValueStackEntry(QMetaType::QVariantMap, key));
         break;
     default:
         break;
@@ -715,7 +715,7 @@ QVariant ParseContext::readSimpleValue(QXmlStreamReader &r, const QXmlStreamAttr
     }
     QVariant value;
     value.setValue(text);
-    value.convert(QMetaType::type(type.toLatin1().constData()));
+    value.convert(QMetaType::fromName(type.toLatin1()));
     return value;
 }
 
@@ -760,11 +760,11 @@ bool SdkPersistentSettingsReader::load(const QString &fileName)
 static void writeVariantValue(QXmlStreamWriter &w, const Context &ctx,
                               const QVariant &variant, const QString &key = QString())
 {
-    switch (static_cast<int>(variant.type())) {
-    case static_cast<int>(QVariant::StringList):
-    case static_cast<int>(QVariant::List): {
+    switch (variant.typeId()) {
+    case QMetaType::QStringList:
+    case QMetaType::QVariantList: {
         w.writeStartElement(ctx.valueListElement);
-        w.writeAttribute(ctx.typeAttribute, QLatin1String(QVariant::typeToName(QVariant::List)));
+        w.writeAttribute(ctx.typeAttribute, QLatin1String(QMetaType(QMetaType::QVariantList).name()));
         if (!key.isEmpty())
             w.writeAttribute(ctx.keyAttribute, key);
         const QList<QVariant> list = variant.toList();
@@ -773,9 +773,9 @@ static void writeVariantValue(QXmlStreamWriter &w, const Context &ctx,
         w.writeEndElement();
         break;
     }
-    case static_cast<int>(QVariant::Map): {
+    case QMetaType::QVariantMap: {
         w.writeStartElement(ctx.valueMapElement);
-        w.writeAttribute(ctx.typeAttribute, QLatin1String(QVariant::typeToName(QVariant::Map)));
+        w.writeAttribute(ctx.typeAttribute, QLatin1String(QMetaType(QMetaType::QVariantMap).name()));
         if (!key.isEmpty())
             w.writeAttribute(ctx.keyAttribute, key);
         const QVariantMap varMap = variant.toMap();
@@ -785,16 +785,16 @@ static void writeVariantValue(QXmlStreamWriter &w, const Context &ctx,
         w.writeEndElement();
     }
     break;
-    case static_cast<int>(QMetaType::QObjectStar): // ignore QObjects!
-    case static_cast<int>(QMetaType::VoidStar): // ignore void pointers!
+    case QMetaType::QObjectStar: // ignore QObjects!
+    case QMetaType::VoidStar: // ignore void pointers!
         break;
     default:
         w.writeStartElement(ctx.valueElement);
         w.writeAttribute(ctx.typeAttribute, QLatin1String(variant.typeName()));
         if (!key.isEmpty())
             w.writeAttribute(ctx.keyAttribute, key);
-        switch (variant.type()) {
-        case QVariant::Rect:
+        switch (variant.typeId()) {
+        case QMetaType::QRect:
             w.writeCharacters(rectangleToString(variant.toRect()));
             break;
         default:

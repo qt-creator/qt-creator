@@ -438,7 +438,7 @@ void AddKitOperation::unittest()
     QVERIFY(profile0.contains(ICON));
     QCOMPARE(profile0.value(ICON).toString(), "/tmp/icon.png");
     QVERIFY(profile0.contains(DATA));
-    QCOMPARE(profile0.value(DATA).type(), QVariant::Map);
+    QCOMPARE(profile0.value(DATA).typeId(), QMetaType::QVariantMap);
     QVERIFY(profile0.contains(AUTODETECTED));
     QCOMPARE(profile0.value(AUTODETECTED).toBool(), true);
     QVERIFY(profile0.contains(SDK));
@@ -447,7 +447,7 @@ void AddKitOperation::unittest()
     QVariantMap data = profile0.value(DATA).toMap();
     QCOMPARE(data.count(), 7);
     QVERIFY(data.contains(DEBUGGER));
-    QCOMPARE(data.value(DEBUGGER).type(), QVariant::Map);
+    QCOMPARE(data.value(DEBUGGER).typeId(), QMetaType::QVariantMap);
     QVERIFY(data.contains(DEVICE_TYPE));
     QCOMPARE(data.value(DEVICE_TYPE).toString(), "Desktop");
     QVERIFY(data.contains(TOOLCHAIN));
@@ -505,7 +505,7 @@ void AddKitOperation::unittest()
     QVERIFY(profile1.contains(ICON));
     QCOMPARE(profile1.value(ICON).toString(), "/tmp/icon2.png");
     QVERIFY(profile1.contains(DATA));
-    QCOMPARE(profile1.value(DATA).type(), QVariant::Map);
+    QCOMPARE(profile1.value(DATA).typeId(), QMetaType::QVariantMap);
     QVERIFY(profile1.contains(AUTODETECTED));
     QCOMPARE(profile1.value(AUTODETECTED).toBool(), true);
     QVERIFY(profile1.contains(SDK));
@@ -514,7 +514,7 @@ void AddKitOperation::unittest()
     data = profile1.value(DATA).toMap();
     QCOMPARE(data.count(), 9);
     QVERIFY(data.contains(DEBUGGER));
-    QCOMPARE(data.value(DEBUGGER).type(), QVariant::Map);
+    QCOMPARE(data.value(DEBUGGER).typeId(), QMetaType::QVariantMap);
     QVERIFY(data.contains(DEVICE_TYPE));
     QCOMPARE(data.value(DEVICE_TYPE).toString(), "Desktop");
     QVERIFY(data.contains(DEVICE_ID));
@@ -567,7 +567,7 @@ void AddKitOperation::unittest()
     QVERIFY(profile2.contains(ICON));
     QCOMPARE(profile2.value(ICON).toString(), "/tmp/icon2.png");
     QVERIFY(profile2.contains(DATA));
-    QCOMPARE(profile2.value(DATA).type(), QVariant::Map);
+    QCOMPARE(profile2.value(DATA).typeId(), QMetaType::QVariantMap);
     QVERIFY(profile2.contains(AUTODETECTED));
     QCOMPARE(profile2.value(AUTODETECTED).toBool(), true);
     QVERIFY(profile2.contains(SDK));

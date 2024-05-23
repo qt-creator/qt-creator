@@ -81,7 +81,7 @@ QVariantMap RmDeviceOperation::rmDevice(const QVariantMap &map, const QString &i
     QVariantList devList = GetOperation::get(dmMap, QLatin1String(DEVICE_LIST_ID)).toList();
     for (int i = 0; i < devList.count(); ++i) {
         QVariant value = devList.at(i);
-        if (value.type() != QVariant::Map)
+        if (value.typeId() != QMetaType::QVariantMap)
             continue;
         QVariantMap deviceData = value.toMap();
         QString devId = deviceData.value(QLatin1String(DEVICE_ID_ID)).toString();

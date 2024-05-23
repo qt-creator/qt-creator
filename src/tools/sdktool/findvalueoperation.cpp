@@ -122,9 +122,9 @@ QStringList FindValueOperation::findValue(const QVariant &in, const QVariant &va
                                            const QString &prefix)
 {
     QStringList result;
-    if (in.type() == value.type() && in == value) {
+    if (in.typeId() == value.typeId() && in == value) {
         result << prefix;
-    } else if (in.type() == QVariant::Map) {
+    } else if (in.typeId() == QMetaType::QVariantMap) {
         const QVariantMap map = in.toMap();
         for (QVariantMap::const_iterator i = map.begin(); i != map.end(); ++i) {
             QString pfx = prefix;
@@ -133,7 +133,7 @@ QStringList FindValueOperation::findValue(const QVariant &in, const QVariant &va
             pfx.append(i.key());
             result.append(findValue(i.value(), value, pfx));
         }
-    } else if (in.type() == QVariant::List) {
+    } else if (in.typeId() == QMetaType::QVariantList) {
         QVariantList list = in.toList();
         for (int pos = 0; pos < list.count(); ++pos) {
             QString pfx = prefix + QLatin1Char('[') + QString::number(pos) + QLatin1Char(']');
