@@ -88,7 +88,7 @@ static QString defaultFallbackFontFamily()
 
 static QString defaultFallbackFontStyleName(const QString &fontFamily)
 {
-    const QStringList styles = QFontDatabase().styles(fontFamily);
+    const QStringList styles = QFontDatabase::styles(fontFamily);
     QTC_ASSERT(!styles.isEmpty(), return QString("Regular"));
     return styles.first();
 }

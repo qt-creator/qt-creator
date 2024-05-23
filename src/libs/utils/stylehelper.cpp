@@ -716,12 +716,7 @@ Qt::HighDpiScaleFactorRoundingPolicy StyleHelper::defaultHighDpiScaleFactorRound
 
 QIcon StyleHelper::getIconFromIconFont(const QString &fontName, const QList<IconFontHelper> &parameters)
 {
-    QFontDatabase a;
-
-    QTC_ASSERT(a.hasFamily(fontName), {});
-
-    if (!a.hasFamily(fontName))
-        return {};
+    QTC_ASSERT(QFontDatabase::hasFamily(fontName), {});
 
     QIcon icon;
 
@@ -751,38 +746,31 @@ QIcon StyleHelper::getIconFromIconFont(const QString &fontName, const QList<Icon
 
 QIcon StyleHelper::getIconFromIconFont(const QString &fontName, const QString &iconSymbol, int fontSize, int iconSize, QColor color)
 {
-    QFontDatabase a;
+    QTC_ASSERT(QFontDatabase::hasFamily(fontName), {});
 
-    QTC_ASSERT(a.hasFamily(fontName), {});
+    QIcon icon;
+    QSize size(iconSize, iconSize);
 
-    if (a.hasFamily(fontName)) {
+    const int maxDpr = qRound(qApp->devicePixelRatio());
+    for (int dpr = 1; dpr <= maxDpr; dpr++) {
+        QPixmap pixmap(size * dpr);
+        pixmap.setDevicePixelRatio(dpr);
+        pixmap.fill(Qt::transparent);
 
-        QIcon icon;
-        QSize size(iconSize, iconSize);
+        QFont font(fontName);
+        font.setPixelSize(fontSize);
 
-        const int maxDpr = qRound(qApp->devicePixelRatio());
-        for (int dpr = 1; dpr <= maxDpr; dpr++) {
-            QPixmap pixmap(size * dpr);
-            pixmap.setDevicePixelRatio(dpr);
-            pixmap.fill(Qt::transparent);
+        QPainter painter(&pixmap);
+        painter.save();
+        painter.setPen(color);
+        painter.setFont(font);
+        painter.drawText(QRectF(QPoint(0, 0), size), Qt::AlignCenter, iconSymbol);
+        painter.restore();
 
-            QFont font(fontName);
-            font.setPixelSize(fontSize);
-
-            QPainter painter(&pixmap);
-            painter.save();
-            painter.setPen(color);
-            painter.setFont(font);
-            painter.drawText(QRectF(QPoint(0, 0), size), Qt::AlignCenter, iconSymbol);
-            painter.restore();
-
-            icon.addPixmap(pixmap);
-        }
-
-        return icon;
+        icon.addPixmap(pixmap);
     }
 
-    return {};
+    return icon;
 }
 
 QIcon StyleHelper::getIconFromIconFont(const QString &fontName, const QString &iconSymbol, int fontSize, int iconSize)
@@ -794,54 +782,46 @@ QIcon StyleHelper::getIconFromIconFont(const QString &fontName, const QString &i
 QIcon StyleHelper::getCursorFromIconFont(const QString &fontName, const QString &cursorFill, const QString &cursorOutline,
                                          int fontSize, int iconSize)
 {
-    QFontDatabase a;
-
-    QTC_ASSERT(a.hasFamily(fontName), {});
+    QTC_ASSERT(QFontDatabase::hasFamily(fontName), {});
 
     const QColor outlineColor = Qt::black;
     const QColor fillColor = Qt::white;
 
-    if (a.hasFamily(fontName)) {
+    QIcon icon;
+    QSize size(iconSize, iconSize);
 
-        QIcon icon;
-        QSize size(iconSize, iconSize);
+    const int maxDpr = qRound(qApp->devicePixelRatio());
+    for (int dpr = 1; dpr <= maxDpr; dpr++) {
+        QPixmap pixmap(size * dpr);
+        pixmap.setDevicePixelRatio(dpr);
+        pixmap.fill(Qt::transparent);
 
-        const int maxDpr = qRound(qApp->devicePixelRatio());
-        for (int dpr = 1; dpr <= maxDpr; dpr++) {
-            QPixmap pixmap(size * dpr);
-            pixmap.setDevicePixelRatio(dpr);
-            pixmap.fill(Qt::transparent);
+        QFont font(fontName);
+        font.setPixelSize(fontSize);
 
-            QFont font(fontName);
-            font.setPixelSize(fontSize);
+        QPainter painter(&pixmap);
+        painter.save();
+        painter.setRenderHint(QPainter::Antialiasing, true);
+        painter.setRenderHint(QPainter::TextAntialiasing, true);
+        painter.setRenderHint(QPainter::LosslessImageRendering, true);
+        painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
 
-            QPainter painter(&pixmap);
-            painter.save();
-            painter.setRenderHint(QPainter::Antialiasing, true);
-            painter.setRenderHint(QPainter::TextAntialiasing, true);
-            painter.setRenderHint(QPainter::LosslessImageRendering, true);
-            painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+        painter.setFont(font);
+        painter.setPen(outlineColor);
+        painter.drawText(QRectF(QPointF(0.0, 0.0), size),
+                         Qt::AlignCenter, cursorOutline);
 
-            painter.setFont(font);
-            painter.setPen(outlineColor);
-            painter.drawText(QRectF(QPointF(0.0, 0.0), size),
-                             Qt::AlignCenter, cursorOutline);
+        painter.setPen(fillColor);
+        painter.drawText(QRectF(QPointF(0.0, 0.0), size),
+                         Qt::AlignCenter, cursorFill);
 
-            painter.setPen(fillColor);
-            painter.drawText(QRectF(QPointF(0.0, 0.0), size),
-                             Qt::AlignCenter, cursorFill);
+        painter.restore();
 
-            painter.restore();
-
-            icon.addPixmap(pixmap);
-        }
-
-        return icon;
+        icon.addPixmap(pixmap);
     }
 
-    return {};
+    return icon;
 }
-
 
 QString StyleHelper::dpiSpecificImageFile(const QString &fileName)
 {

@@ -48,23 +48,19 @@ void drawIcon(QPainter *painter,
               int iconSize,
               const QColor &penColor)
 {
-    static QFontDatabase a;
-
     const QString fontName = "qtds_propertyIconFont.ttf";
 
-    Q_ASSERT(a.hasFamily(fontName));
+    QTC_ASSERT(QFontDatabase::hasFamily(fontName), return);
 
-    if (a.hasFamily(fontName)) {
-        QFont font(fontName);
-        font.setPixelSize(fontSize);
+    QFont font(fontName);
+    font.setPixelSize(fontSize);
 
-        painter->save();
-        painter->setPen(penColor);
-        painter->setFont(font);
-        painter->drawText(QRectF(x, y, iconSize, iconSize), iconSymbol);
+    painter->save();
+    painter->setPen(penColor);
+    painter->setFont(font);
+    painter->drawText(QRectF(x, y, iconSize, iconSize), iconSymbol);
 
-        painter->restore();
-    }
+    painter->restore();
 }
 
 FormEditorScene *FormEditorItem::scene() const {

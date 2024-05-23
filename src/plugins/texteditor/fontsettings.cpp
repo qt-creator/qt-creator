@@ -491,8 +491,7 @@ static QString defaultFontFamily()
         return QLatin1String("Menlo");
 
     const QString sourceCodePro(g_sourceCodePro);
-    const QFontDatabase dataBase;
-    if (dataBase.hasFamily(sourceCodePro))
+    if (QFontDatabase::hasFamily(sourceCodePro))
         return sourceCodePro;
 
     if (Utils::HostOsInfo::isAnyUnixHost())

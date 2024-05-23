@@ -586,8 +586,7 @@ int PropertyEditorContextObject::devicePixelRatio()
 
 QStringList PropertyEditorContextObject::styleNamesForFamily(const QString &family)
 {
-    const QFontDatabase dataBase;
-    return dataBase.styles(family);
+    return QFontDatabase::styles(family);
 }
 
 QStringList PropertyEditorContextObject::allStatesForId(const QString &id)
