@@ -54,9 +54,9 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/dropsupport.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/fsengine/fsengine.h>
+#include <utils/guiutils.h>
 #include <utils/historycompleter.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimeutils.h>
@@ -397,7 +397,7 @@ ICore::ICore()
         QCoreApplication::exit(exitCode);
     });
 
-    Utils::FileUtils::setDialogParentGetter(&ICore::dialogParent);
+    Utils::setDialogParentGetter(&ICore::dialogParent);
 
     d->m_progressManager->init(); // needs the status bar manager
     MessageManager::init();

@@ -5,7 +5,6 @@
 #include "savefile.h"
 
 #include "algorithm.h"
-#include "devicefileaccess.h"
 #include "environment.h"
 #include "qtcassert.h"
 #include "utilstr.h"
@@ -24,6 +23,8 @@
 #include <qplatformdefs.h>
 
 #ifdef QT_GUI_LIB
+#include "guiutils.h"
+
 #include <QMessageBox>
 #include <QGuiApplication>
 #endif
@@ -413,18 +414,6 @@ void withNtfsPermissions(const std::function<void()> &task)
 
 
 #ifdef QT_WIDGETS_LIB
-
-static std::function<QWidget *()> s_dialogParentGetter;
-
-void FileUtils::setDialogParentGetter(const std::function<QWidget *()> &getter)
-{
-    s_dialogParentGetter = getter;
-}
-
-static QWidget *dialogParent(QWidget *parent)
-{
-    return parent ? parent : s_dialogParentGetter ? s_dialogParentGetter() : nullptr;
-}
 
 static QUrl filePathToQUrl(const FilePath &filePath)
 {

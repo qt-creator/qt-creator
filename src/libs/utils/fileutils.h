@@ -89,8 +89,6 @@ public:
     static FilePaths usefulExtraSearchPaths();
 
 #ifdef QT_WIDGETS_LIB
-    static void setDialogParentGetter(const std::function<QWidget *()> &getter);
-
     static bool hasNativeFileDialog();
 
     static FilePath getOpenFilePath(QWidget *parent,
@@ -235,8 +233,6 @@ private:
 };
 
 QTCREATOR_UTILS_EXPORT QTextStream &operator<<(QTextStream &s, const FilePath &fn);
-
-bool isRelativePathHelper(const QString &path, OsType osType);
 
 } // namespace Utils
 
