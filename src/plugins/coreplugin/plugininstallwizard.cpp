@@ -397,15 +397,19 @@ static bool copyPluginFile(const FilePath &src, const FilePath &dest)
     return true;
 }
 
-bool PluginInstallWizard::exec()
+bool PluginInstallWizard::exec(const FilePath &archive)
 {
     Wizard wizard(ICore::dialogParent());
     wizard.setWindowTitle(Tr::tr("Install Plugin"));
 
     Data data;
 
-    auto filePage = new SourcePage(&data, &wizard);
-    wizard.addPage(filePage);
+    if (archive.isEmpty()) {
+        auto filePage = new SourcePage(&data, &wizard);
+        wizard.addPage(filePage);
+    } else {
+        data.sourcePath = archive;
+    }
 
     auto checkArchivePage = new CheckArchivePage(&data, &wizard);
     wizard.addPage(checkArchivePage);

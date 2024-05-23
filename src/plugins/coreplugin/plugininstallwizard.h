@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QCoreApplication>
 
 namespace Core {
@@ -11,7 +13,7 @@ namespace Internal {
 class PluginInstallWizard
 {
 public:
-    static bool exec();
+    static bool exec(const Utils::FilePath &archive = {});
 };
 
 } // namespace Internal
