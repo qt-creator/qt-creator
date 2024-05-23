@@ -122,7 +122,7 @@ public:
     ModelPrivate(const ModelPrivate &) = delete;
     ModelPrivate &operator=(const ModelPrivate &) = delete;
 
-    QUrl fileUrl() const;
+    const QUrl &fileUrl() const;
     void setFileUrl(const QUrl &url);
 
     InternalNodePointer createNode(const TypeName &typeName,

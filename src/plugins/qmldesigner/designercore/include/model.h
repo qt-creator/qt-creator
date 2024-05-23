@@ -137,7 +137,7 @@ public:
     ModelPointer createModel(const TypeName &typeName,
                              std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {});
 
-    QUrl fileUrl() const;
+    const QUrl &fileUrl() const;
     SourceId fileUrlSourceId() const;
     void setFileUrl(const QUrl &url);
 

@@ -243,7 +243,7 @@ void ModelPrivate::notifyUsedImportsChanged(const Imports &usedImports)
     }
 }
 
-QUrl ModelPrivate::fileUrl() const
+const QUrl &ModelPrivate::fileUrl() const
 {
     return m_fileUrl;
 }
@@ -2046,7 +2046,7 @@ void Model::clearMetaInfoCache()
   \brief Returns the URL against which relative URLs within the model should be resolved.
   \return The base URL.
   */
-QUrl Model::fileUrl() const
+const QUrl &Model::fileUrl() const
 {
     return d->fileUrl();
 }
