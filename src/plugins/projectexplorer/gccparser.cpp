@@ -8,12 +8,16 @@
 
 #include <utils/qtcassert.h>
 
+#include <QLoggingCategory>
+
 #include <numeric>
 #include <optional>
 
 using namespace Utils;
 
 namespace ProjectExplorer {
+
+static Q_LOGGING_CATEGORY(gccParserLog, "qtc.gccparser", QtWarningMsg)
 
 static const QString &filePattern()
 {
@@ -43,6 +47,7 @@ public:
 
     static std::optional<Data> parse(const QString &line)
     {
+        qCDebug(gccParserLog) << "checking regex" << theRegEx().pattern();
         const QRegularExpressionMatch match = theRegEx().match(line);
         if (!match.hasMatch())
             return {};
@@ -211,7 +216,10 @@ void GccParser::flush()
 
 OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat type)
 {
+    qCDebug(gccParserLog) << "incoming line" << line;
+
     if (type == StdOutFormat) {
+        qCDebug(gccParserLog) << "not parsing stdout";
         flush();
         return Status::NotHandled;
     }
@@ -230,6 +238,7 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
         return Status::InProgress;
     }
 
+    qCDebug(gccParserLog) << "checking regex" << m_regExpGccNames.pattern();
     QRegularExpressionMatch match = m_regExpGccNames.match(lne);
     if (match.hasMatch()) {
         QString description = lne.mid(match.capturedLength());
@@ -244,9 +253,12 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
         return Status::InProgress;
     }
 
+    qCDebug(gccParserLog) << "checking regex" << m_regExpIncluded.pattern();
     match = m_regExpIncluded.match(lne);
-    if (!match.hasMatch())
+    if (!match.hasMatch()) {
+        qCDebug(gccParserLog) << "checking regex" << m_regExpInlined.pattern();
         match = m_regExpInlined.match(lne);
+    }
     if (match.hasMatch()) {
         const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured("file")));
         const int lineNo = match.captured(2).toInt();
@@ -257,6 +269,7 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
         return {Status::InProgress, linkSpecs};
     }
 
+    qCDebug(gccParserLog) << "checking regex" << m_regExpCc1plus.pattern();
     match = m_regExpCc1plus.match(lne);
     if (match.hasMatch()) {
         const Task::TaskType type = match.captured(1) == "error" ? Task::Error : Task::Warning;
@@ -279,6 +292,7 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
         return {Status::InProgress, linkSpecs};
     }
 
+    qCDebug(gccParserLog) << "checking regex" << m_regExpScope.pattern();
     match = m_regExpScope.match(lne);
     if (match.hasMatch()) {
         const int lineno = match.captured(2).toInt();
@@ -296,6 +310,7 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
         return Status::InProgress;
     }
 
+    qCDebug(gccParserLog) << "no match";
     flush();
     return Status::NotHandled;
 }
