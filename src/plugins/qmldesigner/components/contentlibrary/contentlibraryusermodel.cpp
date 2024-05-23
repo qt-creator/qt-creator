@@ -237,6 +237,17 @@ void ContentLibraryUserModel::removeMaterialFromContentLib(ContentLibraryMateria
     emit dataChanged(index(MaterialsSectionIdx), index(MaterialsSectionIdx));
 }
 
+void ContentLibraryUserModel::remove3DFromContentLibByName(const QString &qmlFileName)
+{
+    ContentLibraryItem *itemToRemove = Utils::findOr(m_user3DItems, nullptr,
+                                             [&qmlFileName](ContentLibraryItem *item) {
+        return item->qml() == qmlFileName;
+    });
+
+    if (itemToRemove)
+        remove3DFromContentLib(itemToRemove);
+}
+
 void ContentLibraryUserModel::remove3DFromContentLib(ContentLibraryItem *item)
 {
     QJsonArray itemsArr = m_bundleObj3D.value("items").toArray();

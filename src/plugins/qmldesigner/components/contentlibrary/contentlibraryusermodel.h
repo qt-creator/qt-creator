@@ -62,6 +62,8 @@ public:
 
     void add3DInstance(ContentLibraryItem *bundleItem);
 
+    void remove3DFromContentLibByName(const QString &qmlFileName);
+
     void setBundleObj(const QJsonObject &newBundleObj);
     QJsonObject &bundleJsonMaterialObjectRef();
     QJsonObject &bundleJson3DObjectRef();

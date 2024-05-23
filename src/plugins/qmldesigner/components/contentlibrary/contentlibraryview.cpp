@@ -40,6 +40,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QMessageBox>
 #include <QPixmap>
 #include <QVector3D>
 
@@ -671,7 +672,6 @@ void ContentLibraryView::addLib3DComponent(const ModelNode &node)
 {
     auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
 
-    // TODO: check component with existing name and show a confirmation dialog
     QString compBaseName = node.simplifiedTypeName();
     QString compFileName = compBaseName + ".qml";
 
@@ -680,8 +680,20 @@ void ContentLibraryView::addLib3DComponent(const ModelNode &node)
 
     auto bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/3d/");
 
+    // confirm overwrite if an item with same name exists
+    if (bundlePath.pathAppended(compFileName).exists()) {
+        // Show a QML confirmation dialog before proceeding
+        QMessageBox::StandardButton reply = QMessageBox::question(m_widget, tr("3D Item Exists"),
+            tr("A 3D item with the same name '%1' already exists in the Content Library, are you sure you want to overwrite it?")
+                    .arg(compFileName), QMessageBox::Yes | QMessageBox::No);
+        if (reply == QMessageBox::No)
+            return;
+
+        // before overwriting remove old item (to avoid partial items and dangling assets)
+        m_widget->userModel()->remove3DFromContentLibByName(compFileName);
+    }
+
     // generate and save icon
-    UniqueName::generateId(compBaseName);
     QString iconPath = QLatin1String("icons/%1").arg(UniqueName::generateId(compBaseName) + ".png");
     QString fullIconPath = bundlePath.pathAppended(iconPath).toString();
     genAndSaveIcon(compDir.pathAppended(compFileName).path(), fullIconPath);
@@ -791,13 +803,17 @@ void ContentLibraryView::genAndSaveIcon(const QString &qmlPath, const QString &i
             else
                 qWarning() << "ContentLibraryView::genAndSaveIcon(): icon save failed";
         },
-        [](ImageCache::AbortReason abortReason) {
-            if (abortReason == ImageCache::AbortReason::Abort)
-                qWarning() << "ContentLibraryView::genAndSaveIcon(): icon generation aborted, reason: Abort";
-            else if (abortReason == ImageCache::AbortReason::Failed)
-                qWarning() << "ContentLibraryView::genAndSaveIcon(): icon generation aborted, reason: Failed";
-            else if (abortReason == ImageCache::AbortReason::NoEntry)
-                qWarning() << "ContentLibraryView::genAndSaveIcon(): icon generation aborted, reason: NoEntry";
+        [&](ImageCache::AbortReason abortReason) {
+            if (abortReason == ImageCache::AbortReason::Abort) {
+                qWarning() << QLatin1String("ContentLibraryView::genAndSaveIcon(): icon generation "
+                                            "failed for path %1, reason: Abort").arg(qmlPath);
+            } else if (abortReason == ImageCache::AbortReason::Failed) {
+                qWarning() << QLatin1String("ContentLibraryView::genAndSaveIcon(): icon generation "
+                                             "failed for path %1, reason: Failed").arg(qmlPath);
+            } else if (abortReason == ImageCache::AbortReason::NoEntry) {
+                qWarning() << QLatin1String("ContentLibraryView::genAndSaveIcon(): icon generation "
+                                            "failed for path %1, reason: NoEntry").arg(qmlPath);
+            }
         });
 }
 
