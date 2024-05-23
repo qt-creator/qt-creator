@@ -68,6 +68,7 @@ private:
 
 ClangCodeModelPlugin::~ClangCodeModelPlugin()
 {
+    m_generatorWatcher.cancel();
     m_generatorWatcher.waitForFinished();
 }
 
@@ -140,13 +141,18 @@ void ClangCodeModelPlugin::createCompilationDBAction()
 
     connect(&m_generatorWatcher, &QFutureWatcher<GenerateCompilationDbResult>::finished,
             this, [this] {
-        const GenerateCompilationDbResult result = m_generatorWatcher.result();
         QString message;
-        if (result.error.isEmpty()) {
-            message = Tr::tr("Clang compilation database generated at \"%1\".")
-                    .arg(QDir::toNativeSeparators(result.filePath));
+        if (m_generatorWatcher.future().resultCount()) {
+            const GenerateCompilationDbResult result = m_generatorWatcher.result();
+            if (result) {
+                message = Tr::tr("Clang compilation database generated at \"%1\".")
+                              .arg(result->toUserOutput());
+            } else {
+                message
+                    = Tr::tr("Generating Clang compilation database failed: %1").arg(result.error());
+            }
         } else {
-            message = Tr::tr("Generating Clang compilation database failed: %1").arg(result.error);
+            message = Tr::tr("Generating Clang compilation database canceled.");
         }
         MessageManager::writeFlashing(message);
         m_generateCompilationDBAction->setEnabled(true);

@@ -53,23 +53,16 @@ Utils::FilePath currentCppEditorDocumentFilePath();
 
 QString diagnosticCategoryPrefixRemoved(const QString &text);
 
-class GenerateCompilationDbResult
-{
-public:
-    GenerateCompilationDbResult() = default;
-    GenerateCompilationDbResult(const QString &filePath, const QString &error)
-        : filePath(filePath), error(error)
-    {}
-
-    QString filePath;
-    QString error;
-};
-
+using GenerateCompilationDbResult = Utils::expected_str<Utils::FilePath>;
 enum class CompilationDbPurpose { Project, CodeModel };
-GenerateCompilationDbResult generateCompilationDB(QList<CppEditor::ProjectInfo::ConstPtr> projectInfo,
-        Utils::FilePath baseDir, CompilationDbPurpose purpose,
-        CppEditor::ClangDiagnosticConfig warningsConfig, QStringList projectOptions,
-        Utils::FilePath clangIncludeDir);
+void generateCompilationDB(
+    QPromise<GenerateCompilationDbResult> &promise,
+    const QList<CppEditor::ProjectInfo::ConstPtr> &projectInfoList,
+    const Utils::FilePath &baseDir,
+    CompilationDbPurpose purpose,
+    const CppEditor::ClangDiagnosticConfig &warningsConfig,
+    const QStringList &projectOptions,
+    const Utils::FilePath &clangIncludeDir);
 
 class DiagnosticTextInfo
 {

@@ -540,11 +540,15 @@ void ClangModelManagerSupport::updateLanguageClient(Project *project)
         generatorWatcher->deleteLater();
         if (!isProjectDataUpToDate(project, projectInfo, jsonDbDir))
             return;
-        const GenerateCompilationDbResult result = generatorWatcher->result();
-        if (!result.error.isEmpty()) {
+        if (generatorWatcher->future().resultCount() == 0) {
             MessageManager::writeDisrupting(
-                        Tr::tr("Cannot use clangd: Failed to generate compilation database:\n%1")
-                        .arg(result.error));
+                Tr::tr("Cannot use clangd: Generating compilation database canceled."));
+            return;
+        }
+        const GenerateCompilationDbResult result = generatorWatcher->result();
+        if (!result) {
+            MessageManager::writeDisrupting(Tr::tr("Cannot use clangd: "
+                "Failed to generate compilation database:\n%1").arg(result.error()));
             return;
         }
         Id previousId;
