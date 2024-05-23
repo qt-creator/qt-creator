@@ -26,8 +26,6 @@ class CORE_EXPORT MessageManager : public QObject
     Q_OBJECT
 
 public:
-    static MessageManager *instance();
-
     static void setFont(const QFont &font);
     static void setWheelZoomEnabled(bool enabled);
 

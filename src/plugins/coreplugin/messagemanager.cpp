@@ -27,14 +27,6 @@ namespace Core {
 static MessageManager *m_instance = nullptr;
 static Internal::MessageOutputWindow *m_messageOutputWindow = nullptr;
 
-/*!
-    \internal
-*/
-MessageManager *MessageManager::instance()
-{
-    return m_instance;
-}
-
 enum class Flag { Silent, Flash, Disrupt };
 
 static void showOutputPane(Flag flags)

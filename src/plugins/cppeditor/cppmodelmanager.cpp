@@ -1330,11 +1330,8 @@ static QSet<QString> filteredFilesRemoved(const QSet<QString> &files,
             for (const QRegularExpression &rx: std::as_const(regexes)) {
                 QRegularExpressionMatch match = rx.match(filePath.absoluteFilePath().path());
                 if (match.hasMatch()) {
-                    const QString msg = Tr::tr("C++ Indexer: Skipping file \"%1\" "
-                                               "because its path matches the ignore pattern.")
-                                    .arg(filePath.displayName());
-                    QMetaObject::invokeMethod(MessageManager::instance(),
-                                              [msg] { MessageManager::writeSilently(msg); });
+                    MessageManager::writeSilently(Tr::tr("C++ Indexer: Skipping file \"%1\" "
+                        "because its path matches the ignore pattern.").arg(filePath.displayName()));
                     skip = true;
                     break;
                 }

@@ -365,15 +365,10 @@ bool fileSizeExceedsLimit(const FilePath &filePath, int sizeLimitInMb)
 
     const qint64 fileSizeInMB = filePath.fileSize() / (1000 * 1000);
     if (fileSizeInMB > sizeLimitInMb) {
-        const QString msg = Tr::tr("C++ Indexer: Skipping file \"%1\" because it is too big.")
-                        .arg(filePath.displayName());
-
-        QMetaObject::invokeMethod(Core::MessageManager::instance(),
-                                  [msg]() { Core::MessageManager::writeSilently(msg); });
-
+        Core::MessageManager::writeSilently(Tr::tr("C++ Indexer: Skipping file \"%1\" because "
+                                                   "it is too big.").arg(filePath.displayName()));
         return true;
     }
-
     return false;
 }
 
