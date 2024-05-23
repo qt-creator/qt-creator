@@ -42,7 +42,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/projectmanager.h>
-#include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
@@ -129,6 +128,7 @@ private:
     void kitCMakeConfiguration();
     void updateConfigureDetailsWidgetsSummary(
         const QStringList &configurationArguments = QStringList());
+    void updatePackageManagerAutoSetup(CMakeConfig &initialList);
 
     CMakeBuildConfiguration *m_buildConfig;
     QTreeView *m_configView;
@@ -165,6 +165,16 @@ static QModelIndex mapToSource(const QAbstractItemView *view, const QModelIndex 
         model = proxy->sourceModel();
     }
     return result;
+}
+
+static CMakeConfigItem getPackageManagerAutoSetupParameter()
+{
+    const QByteArray key("CMAKE_PROJECT_INCLUDE_BEFORE");
+    const QByteArray value = QString(
+                                 "%{BuildConfig:BuildDirectory:NativeFilePath}/%1/auto-setup.cmake")
+                                 .arg(Constants::PACKAGE_MANAGER_DIR)
+                                 .toUtf8();
+    return CMakeConfigItem(key, CMakeConfigItem::FILEPATH, value);
 }
 
 CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) :
@@ -605,6 +615,24 @@ void CMakeBuildSettingsWidget::reconfigureWithInitialParameters()
         m_buildConfig->cmakeBuildSystem()->runCMake();
 }
 
+void CMakeBuildSettingsWidget::updatePackageManagerAutoSetup(CMakeConfig &initialList)
+{
+    const bool usePackageManagerAutoSetup
+        = settings(m_buildConfig->project()).packageManagerAutoSetup();
+
+    const auto autoSetupParameter = getPackageManagerAutoSetupParameter();
+    auto it
+        = std::find_if(initialList.begin(), initialList.end(), [&autoSetupParameter](const CMakeConfigItem &item) {
+              return item.key == autoSetupParameter.key;
+          });
+    if (it != initialList.end()) {
+        if (!usePackageManagerAutoSetup && it->value == autoSetupParameter.value)
+            initialList.erase(it);
+    } else if (usePackageManagerAutoSetup) {
+        initialList.push_back(autoSetupParameter);
+    }
+}
+
 void CMakeBuildSettingsWidget::updateInitialCMakeArguments()
 {
     CMakeConfig initialList = m_buildConfig->initialCMakeArguments.cmakeConfiguration();
@@ -637,6 +665,8 @@ void CMakeBuildSettingsWidget::updateInitialCMakeArguments()
             initialList.push_back(ci);
         }
     }
+
+    updatePackageManagerAutoSetup(initialList);
 
     m_buildConfig->initialCMakeArguments.setCMakeConfiguration(initialList);
 
@@ -1115,7 +1145,8 @@ static bool isWindowsARM64(const Kit *k)
            && targetAbi.wordWidth() == 64;
 }
 
-static CommandLine defaultInitialCMakeCommand(const Kit *k, const QString &buildType)
+static CommandLine defaultInitialCMakeCommand(
+    const Kit *k, Project *project, const QString &buildType)
 {
     // Generator:
     CMakeTool *tool = CMakeKitAspect::cmakeTool(k);
@@ -1129,11 +1160,8 @@ static CommandLine defaultInitialCMakeCommand(const Kit *k, const QString &build
         cmd.addArg("-DCMAKE_BUILD_TYPE:STRING=" + buildType);
 
     // Package manager auto setup
-    if (settings(ProjectTree::currentProject()).packageManagerAutoSetup()) {
-        cmd.addArg(QString("-DCMAKE_PROJECT_INCLUDE_BEFORE:FILEPATH="
-                           "%{BuildConfig:BuildDirectory:NativeFilePath}/%1/auto-setup.cmake")
-                       .arg(Constants::PACKAGE_MANAGER_DIR));
-    }
+    if (settings(project).packageManagerAutoSetup())
+        cmd.addArg(getPackageManagerAutoSetupParameter().toArgument());
 
     // Cross-compilation settings:
     if (!CMakeBuildConfiguration::isIos(k)) { // iOS handles this differently
@@ -1456,7 +1484,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                                       ? extraInfoMap.value(CMAKE_BUILD_TYPE).toString()
                                       : info.typeName;
 
-        CommandLine cmd = defaultInitialCMakeCommand(k, buildType);
+        CommandLine cmd = defaultInitialCMakeCommand(k, target->project(), buildType);
         m_buildSystem->setIsMultiConfig(CMakeGeneratorKitAspect::isMultiConfigGenerator(k));
 
         // Android magic:
