@@ -68,7 +68,7 @@ void InteractiveConnectionManager::showCannotConnectToPuppetWarningAndSwitchToEd
 
 void InteractiveConnectionManager::dispatchCommand(const QVariant &command, Connection &connection)
 {
-    static const int puppetAliveCommandType = QMetaType::type("PuppetAliveCommand");
+    static const int puppetAliveCommandType = QMetaType::fromName("PuppetAliveCommand").id();
 
     if (command.typeId() == puppetAliveCommandType) {
         puppetAlive(connection);

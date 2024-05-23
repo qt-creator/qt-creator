@@ -283,7 +283,7 @@ QVariant ParseContext::readSimpleValue(QXmlStreamReader &r, const QXmlStreamAttr
     }
     QVariant value;
     value.setValue(text);
-    value.convert(QMetaType::type(type.toLatin1().constData()));
+    value.convert(QMetaType::fromName(type.toLatin1().constData()));
     return value;
 }
 

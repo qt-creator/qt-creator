@@ -242,23 +242,23 @@ bool isLiteralValue(AST::UiScriptBinding *script)
 int propertyType(const QString &typeName)
 {
     if (typeName == u"bool")
-        return QMetaType::type("bool");
+        return QMetaType::fromName("bool").id();
     else if (typeName == u"color")
-        return QMetaType::type("QColor");
+        return QMetaType::fromName("QColor").id();
     else if (typeName == u"date")
-        return QMetaType::type("QDate");
+        return QMetaType::fromName("QDate").id();
     else if (typeName == u"int")
-        return QMetaType::type("int");
+        return QMetaType::fromName("int").id();
     else if (typeName == u"real")
-        return QMetaType::type("double");
+        return QMetaType::fromName("double").id();
     else if (typeName == u"double")
-        return QMetaType::type("double");
+        return QMetaType::fromName("double").id();
     else if (typeName == u"string")
-        return QMetaType::type("QString");
+        return QMetaType::fromName("QString").id();
     else if (typeName == u"url")
-        return QMetaType::type("QUrl");
+        return QMetaType::fromName("QUrl").id();
     else if (typeName == u"var" || typeName == u"variant")
-        return QMetaType::type("QVariant");
+        return QMetaType::fromName("QVariant").id();
     else
         return -1;
 }
@@ -272,7 +272,7 @@ QVariant convertDynamicPropertyValueToVariant(const QString &astValue,
         return QString();
 
     const int type = propertyType(astType);
-    if (type == QMetaType::type("QVariant")) {
+    if (type == QMetaType::fromName("QVariant").id()) {
         if (cleanedValue.isNull()) // Explicitly isNull, NOT isEmpty!
             return QVariant(static_cast<QVariant::Type>(type));
         else

@@ -93,18 +93,18 @@ void NodeInstanceServerProxy::dispatchCommand(const QVariant &command)
 {
     NANOTRACE_SCOPE_ARGS("Update", "dispatchCommand", {"name", command.typeName()});
 
-    static const int informationChangedCommandType = QMetaType::type("InformationChangedCommand");
-    static const int valuesChangedCommandType = QMetaType::type("ValuesChangedCommand");
-    static const int valuesModifiedCommandType = QMetaType::type("ValuesModifiedCommand");
-    static const int pixmapChangedCommandType = QMetaType::type("PixmapChangedCommand");
-    static const int childrenChangedCommandType = QMetaType::type("ChildrenChangedCommand");
-    static const int statePreviewImageChangedCommandType = QMetaType::type("StatePreviewImageChangedCommand");
-    static const int componentCompletedCommandType = QMetaType::type("ComponentCompletedCommand");
-    static const int tokenCommandType = QMetaType::type("TokenCommand");
-    static const int debugOutputCommandType = QMetaType::type("DebugOutputCommand");
-    static const int changeSelectionCommandType = QMetaType::type("ChangeSelectionCommand");
-    static const int puppetToCreatorCommandType = QMetaType::type("PuppetToCreatorCommand");
-    static const int SyncNanotraceCommandType = QMetaType::type("SyncNanotraceCommand");
+    static const int informationChangedCommandType = QMetaType::fromName("InformationChangedCommand").id();
+    static const int valuesChangedCommandType = QMetaType::fromName("ValuesChangedCommand").id();
+    static const int valuesModifiedCommandType = QMetaType::fromName("ValuesModifiedCommand").id();
+    static const int pixmapChangedCommandType = QMetaType::fromName("PixmapChangedCommand").id();
+    static const int childrenChangedCommandType = QMetaType::fromName("ChildrenChangedCommand").id();
+    static const int statePreviewImageChangedCommandType = QMetaType::fromName("StatePreviewImageChangedCommand").id();
+    static const int componentCompletedCommandType = QMetaType::fromName("ComponentCompletedCommand").id();
+    static const int tokenCommandType = QMetaType::fromName("TokenCommand").id();
+    static const int debugOutputCommandType = QMetaType::fromName("DebugOutputCommand").id();
+    static const int changeSelectionCommandType = QMetaType::fromName("ChangeSelectionCommand").id();
+    static const int puppetToCreatorCommandType = QMetaType::fromName("PuppetToCreatorCommand").id();
+    static const int SyncNanotraceCommandType = QMetaType::fromName("SyncNanotraceCommand").id();
 
     qCInfo(instanceViewBenchmark) << "dispatching command" << command.typeId() << command.typeName();
     if (command.typeId() == informationChangedCommandType) {
@@ -173,7 +173,7 @@ QString NodeInstanceServerProxy::qrcMappingString() const
 void NodeInstanceServerProxy::writeCommand(const QVariant &command)
 {
 #ifdef NANOTRACE_DESIGNSTUDIO_ENABLED
-    if (command.typeId() == QMetaType::type("SyncNanotraceCommand")) {
+    if (command.typeId() == QMetaType::fromName("SyncNanotraceCommand").id()) {
         SyncNanotraceCommand cmd = command.value<SyncNanotraceCommand>();
         NANOTRACE_INSTANT_ARGS("Sync", "writeCommand",
             {"name", cmd.name().toStdString()},

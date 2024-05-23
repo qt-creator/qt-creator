@@ -391,8 +391,8 @@ void NodeInstanceClientProxy::readDataStream()
 
         QVariant command = readCommandFromIOStream(m_inputIoDevice, &readCommandCounter, &blockSize);
 #ifdef NANOTRACE_DESIGNSTUDIO_ENABLED
-        if (command.typeId() != QMetaType::type("EndNanotraceCommand")) {
-            if (command.typeId() == QMetaType::type("SyncNanotraceCommand")) {
+        if (command.typeId() != QMetaType::fromName("EndNanotraceCommand").id()) {
+            if (command.typeId() == QMetaType::fromName("SyncNanotraceCommand").id()) {
                 SyncNanotraceCommand cmd = command.value<SyncNanotraceCommand>();
                 NANOTRACE_INSTANT_ARGS("Sync", "readCommand",
                     {"name", cmd.name().toStdString()},

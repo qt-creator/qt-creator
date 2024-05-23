@@ -38,7 +38,7 @@ void TestConnectionManager::writeCommand(const QVariant &command)
 
 void TestConnectionManager::dispatchCommand(const QVariant &command, Connection &connection)
 {
-    static const int synchronizeCommandType = QMetaType::type("SynchronizeCommand");
+    static const int synchronizeCommandType = QMetaType::fromName("SynchronizeCommand").id();
 
     if (command.typeId() == synchronizeCommandType) {
         SynchronizeCommand synchronizeCommand = command.value<SynchronizeCommand>();

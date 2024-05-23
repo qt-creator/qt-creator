@@ -201,7 +201,7 @@ QVariant read(const QString &typeStr, const QString &str, const MetaInfo &)
 
 QVariant read(const QString &typeStr, const QString &str)
 {
-    int type = QMetaType::fromName(typeStr.toUtf8().constData()).id();
+    int type = QMetaType::fromName(typeStr.toUtf8()).id();
     if (type == 0) {
         if (typeStr != "binding"_L1 && typeStr != "enum"_L1) {
             qWarning() << "Type " << typeStr
@@ -266,7 +266,7 @@ QVariant read(int variantType, const QString &str)
         value = vector3DFromString(str, &conversionOk);
         break;
     default: {
-        if (variantType == QMetaType::type("Enumeration")) {
+        if (variantType == QMetaType::fromName("Enumeration").id()) {
             value = QVariant::fromValue<Enumeration>(enumerationFromString(str, &conversionOk));
         } else {
             value = QVariant(str);
