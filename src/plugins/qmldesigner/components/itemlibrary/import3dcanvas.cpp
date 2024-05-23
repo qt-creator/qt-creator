@@ -5,6 +5,7 @@
 
 #include <QImage>
 #include <QLinearGradient>
+#include <QMouseEvent>
 #include <QPainter>
 
 namespace QmlDesigner {
@@ -52,5 +53,30 @@ void Import3dCanvas::resizeEvent(QResizeEvent *)
     emit requestImageUpdate();
 }
 
+void Import3dCanvas::mousePressEvent(QMouseEvent *e)
+{
+    if (e->buttons() == Qt::LeftButton)
+        m_dragPos = e->position();
+    else
+        m_dragPos = {};
+}
+
+void Import3dCanvas::mouseReleaseEvent(QMouseEvent *)
+{
+    m_dragPos = {};
+}
+
+void Import3dCanvas::mouseMoveEvent(QMouseEvent *e)
+{
+    if (m_dragPos.isNull())
+        return;
+
+    const QPointF curPos = e->position();
+    const QPointF delta = curPos - m_dragPos;
+
+    m_dragPos = curPos;
+
+    emit requestRotation(delta);
+}
 
 }

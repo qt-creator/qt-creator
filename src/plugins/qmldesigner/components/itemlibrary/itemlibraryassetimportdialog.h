@@ -68,9 +68,11 @@ private:
     void setImportProgress(int value, const QString &text);
     void onImportReadyForPreview(const QString &path, const QString &compName);
     void onRequestImageUpdate();
+    void onRequestRotation(const QPointF &delta);
     void onImportNearlyFinished();
     void onImportFinished();
     void onClose();
+    void doClose();
     void onAccept();
     void toggleAdvanced();
 
@@ -116,5 +118,6 @@ private:
     OptionsData m_advancedData;
     bool m_advancedMode = false;
     int m_dialogHeight = 350;
+    bool m_explicitClose = false;
 };
 }

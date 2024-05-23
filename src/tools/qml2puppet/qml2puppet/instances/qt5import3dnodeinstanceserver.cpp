@@ -68,6 +68,19 @@ void Qt5Import3dNodeInstanceServer::view3DAction([[maybe_unused]] const View3DAc
         }
         break;
     }
+    case View3DActionType::Import3dRotatePreviewModel: {
+        QObject *obj = rootItem();
+        QQmlProperty sceneNodeProp(obj, "sceneNode", context());
+        auto sceneNode = sceneNodeProp.read().value<QQuick3DNode *>();
+        if (sceneNode) {
+            QPointF delta = command.value().toPointF();
+            m_generalHelper->orbitCamera(m_view3D->camera(), m_view3D->camera()->eulerRotation(),
+                                         m_lookAt, {}, {float(delta.x()), float(delta.y()), 0.f});
+            m_keepRendering = true;
+            startRenderTimer();
+        }
+        break;
+    }
     default:
         break;
     }
@@ -75,12 +88,10 @@ void Qt5Import3dNodeInstanceServer::view3DAction([[maybe_unused]] const View3DAc
 
 void Qt5Import3dNodeInstanceServer::startRenderTimer()
 {
-    if (timerId() != 0)
-        killTimer(timerId());
+    if (m_keepRendering && timerMode() == TimerMode::NormalTimer)
+        return;
 
-    int timerId = startTimer(renderTimerInterval());
-
-    setTimerId(timerId);
+    NodeInstanceServer::startRenderTimer();
 }
 
 void Qt5Import3dNodeInstanceServer::cleanup()
@@ -126,24 +137,28 @@ void Qt5Import3dNodeInstanceServer::render()
         m_view3D = qobject_cast<QQuick3DViewport *>(viewObj);
         if (m_view3D) {
             QQmlProperty sceneModelNameProp(obj, "sceneModelName", context());
-            QString sceneModelName = sceneModelNameProp.read().toString();
-            QFileInfo fi(fileUrl().toLocalFile());
-            QString compPath = fi.absolutePath() + '/' + sceneModelName + ".qml";
-            QQmlComponent comp(engine(), compPath, QQmlComponent::PreferSynchronous);
-            m_previewNode = qobject_cast<QQuick3DNode *>(comp.create(context()));
-            if (m_previewNode) {
-                engine()->setObjectOwnership(m_previewNode, QJSEngine::CppOwnership);
-                m_previewNode->setParent(m_view3D);
-                m_view3D->setImportScene(m_previewNode);
+            QQmlProperty sceneNodeProp(obj, "sceneNode", context());
+            auto sceneNode = sceneNodeProp.read().value<QQuick3DNode *>();
+            if (sceneNode) {
+                QString sceneModelName = sceneModelNameProp.read().toString();
+                QFileInfo fi(fileUrl().toLocalFile());
+                QString compPath = fi.absolutePath() + '/' + sceneModelName + ".qml";
+                QQmlComponent comp(engine(), compPath, QQmlComponent::PreferSynchronous);
+                m_previewNode = qobject_cast<QQuick3DNode *>(comp.create(context()));
+                if (m_previewNode) {
+                    engine()->setObjectOwnership(m_previewNode, QJSEngine::CppOwnership);
+                    m_previewNode->setParentItem(sceneNode);
+                    m_previewNode->setParent(sceneNode);
+                }
             }
         }
     }
 
     // Render scene once to ensure geometries are intialized so bounds calculations work correctly
     if (m_renderCount == 2 && m_view3D) {
-        QVector3D extents =
-            m_generalHelper->calculateNodeBoundsAndFocusCamera(m_view3D->camera(), m_previewNode,
-                                                               m_view3D, 1040, false);
+        QVector3D extents;
+        m_generalHelper->calculateBoundsAndFocusCamera(m_view3D->camera(), m_previewNode,
+                                                       m_view3D, 1050, false, m_lookAt, extents);
         auto getExtentStr = [&extents](int idx) -> QString {
             int prec = 0;
             float val = extents[idx];
@@ -176,7 +191,11 @@ void Qt5Import3dNodeInstanceServer::render()
         nodeInstanceClient()->handlePuppetToCreatorCommand(
             {PuppetToCreatorCommand::Import3DPreviewImage,
              QVariant::fromValue(imgContainer)});
-        slowDownRenderTimer(); // No more renders needed for now
+
+        if (!m_keepRendering)
+            slowDownRenderTimer();
+
+        m_keepRendering = false;
     }
 #else
     slowDownRenderTimer();

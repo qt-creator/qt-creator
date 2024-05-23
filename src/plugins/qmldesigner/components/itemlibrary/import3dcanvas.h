@@ -4,7 +4,7 @@
 
 #include <QEvent>
 #include <QImage>
-#include <QPointer>
+#include <QPointF>
 #include <QWidget>
 
 namespace QmlDesigner {
@@ -20,13 +20,18 @@ public:
 
 signals:
     void requestImageUpdate();
+    void requestRotation(const QPointF &delta);
 
 protected:
     void paintEvent(QPaintEvent *e) override;
     void resizeEvent(QResizeEvent *e) override;
+    void mousePressEvent(QMouseEvent *e) override;
+    void mouseReleaseEvent(QMouseEvent *e) override;
+    void mouseMoveEvent(QMouseEvent *e) override;
 
 private:
     QImage m_image;
+    QPointF m_dragPos;
 };
 
 } // namespace QmlDesigner

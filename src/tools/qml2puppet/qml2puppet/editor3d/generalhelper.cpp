@@ -462,17 +462,19 @@ QVector4D GeneralHelper::approachNode(
 // a selection box for bound calculations to work. This is used to focus the view for
 // various preview image generations, where doing things asynchronously is not good
 // and recalculating bounds for every frame is not a problem.
-QVector3D GeneralHelper::calculateNodeBoundsAndFocusCamera(
-    QQuick3DCamera *camera, QQuick3DNode *node, QQuick3DViewport *viewPort,
-    float defaultLookAtDistance, bool closeUp)
+void GeneralHelper::calculateBoundsAndFocusCamera(QQuick3DCamera *camera, QQuick3DNode *node,
+                                                  QQuick3DViewport *viewPort,
+                                                  float defaultLookAtDistance,
+                                                  bool closeUp, QVector3D &lookAt,
+                                                  QVector3D &extents)
 {
     QVector3D minBounds;
     QVector3D maxBounds;
 
     getBounds(viewPort, node, minBounds, maxBounds);
 
-    QVector3D extents = maxBounds - minBounds;
-    QVector3D lookAt = minBounds + (extents / 2.f);
+    extents = maxBounds - minBounds;
+    lookAt = minBounds + (extents / 2.f);
     float maxExtent = qSqrt(qreal(extents.x()) * qreal(extents.x())
                           + qreal(extents.y()) * qreal(extents.y())
                           + qreal(extents.z()) * qreal(extents.z()));
@@ -506,8 +508,17 @@ QVector3D GeneralHelper::calculateNodeBoundsAndFocusCamera(
             perspectiveCamera->setClipFar(maxDist * 1.01);
         }
     }
+}
 
-    return extents;
+void GeneralHelper::calculateNodeBoundsAndFocusCamera(QQuick3DCamera *camera, QQuick3DNode *node,
+                                                      QQuick3DViewport *viewPort,
+                                                      float defaultLookAtDistance,
+                                                      bool closeUp)
+{
+    QVector3D extents;
+    QVector3D lookAt;
+    calculateBoundsAndFocusCamera(camera, node, viewPort, defaultLookAtDistance, closeUp,
+                                  lookAt, extents);
 }
 
 // Aligns any cameras found in nodes list to a camera.

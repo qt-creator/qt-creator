@@ -35,11 +35,13 @@ private:
     void cleanup();
 
     int m_renderCount = 0;
+    bool m_keepRendering = false;
 
 #ifdef QUICK3D_MODULE
     QQuick3DViewport *m_view3D = nullptr;
     Internal::GeneralHelper *m_generalHelper = nullptr;
     QQuick3DNode *m_previewNode = nullptr;
+    QVector3D m_lookAt;
 #endif
 };
 

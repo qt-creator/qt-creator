@@ -221,6 +221,8 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(
             this, &ItemLibraryAssetImportDialog::updateUi);
     connect(canvas(), &Import3dCanvas::requestImageUpdate,
             this, &ItemLibraryAssetImportDialog::onRequestImageUpdate);
+    connect(canvas(), &Import3dCanvas::requestRotation,
+            this, &ItemLibraryAssetImportDialog::onRequestRotation);
 
     connect(&m_importer, &ItemLibraryAssetImporter::errorReported,
             this, &ItemLibraryAssetImportDialog::addError);
@@ -856,9 +858,10 @@ Rectangle {
     width: %1
     height: %2
 
-    property string sceneModelName: "%3"
+    property alias sceneNode: sceneNode
     property alias view3d: view3d
     property string extents
+    property string sceneModelName: "%3"
 
     gradient: Gradient {
         GradientStop { position: 1.0; color: "#222222" }
@@ -877,9 +880,9 @@ Rectangle {
 
         PerspectiveCamera {
             id: viewCamera
-            z: 600
-            y: 600
             x: 600
+            y: 600
+            z: 600
             eulerRotation.x: -45
             eulerRotation.y: -45
             clipFar: 100000
@@ -888,6 +891,10 @@ Rectangle {
 
         DirectionalLight {
             rotation: viewCamera.rotation
+        }
+
+        Node {
+            id: sceneNode
         }
     }
 
@@ -1041,13 +1048,20 @@ void ItemLibraryAssetImportDialog::onImportReadyForPreview(const QString &path, 
     ui->acceptButton->setEnabled(true);
     ui->importButton->setEnabled(true);
 
-    addInfo(tr("Generating import preview for %1.").arg(compName));
+    addInfo(tr("Import is ready for preview."));
+    addInfo(tr("Click \"Accept\" to finish the import or adjust options an click \"Import\" to import again."));
 }
 
 void ItemLibraryAssetImportDialog::onRequestImageUpdate()
 {
     if (m_nodeInstanceView)
         m_nodeInstanceView->view3DAction(View3DActionType::Import3dUpdatePreviewImage, canvas()->size());
+}
+
+void ItemLibraryAssetImportDialog::onRequestRotation(const QPointF &delta)
+{
+    if (m_nodeInstanceView)
+        m_nodeInstanceView->view3DAction(View3DActionType::Import3dRotatePreviewModel, delta);
 }
 
 void ItemLibraryAssetImportDialog::onImportNearlyFinished()
@@ -1063,18 +1077,28 @@ void ItemLibraryAssetImportDialog::onImportFinished()
         QString interruptStr = tr("Import interrupted.");
         addError(interruptStr);
         setImportProgress(0, interruptStr);
+        if (m_explicitClose)
+            QTimer::singleShot(1000, this, &ItemLibraryAssetImportDialog::doClose);
     } else {
         QString doneStr = tr("Import done.");
         addInfo(doneStr);
         setImportProgress(100, doneStr);
         if (m_closeOnFinish) {
             // Add small delay to allow user to visually confirm import finishing
-            QTimer::singleShot(1000, this, &ItemLibraryAssetImportDialog::onClose);
+            QTimer::singleShot(1000, this, &ItemLibraryAssetImportDialog::doClose);
         }
     }
 }
 
 void ItemLibraryAssetImportDialog::onClose()
+{
+    ui->importButton->setEnabled(false);
+    ui->acceptButton->setEnabled(false);
+    m_explicitClose = true;
+    doClose();
+}
+
+void ItemLibraryAssetImportDialog::doClose()
 {
     if (m_importer.isImporting()) {
         addInfo(tr("Canceling import."));
