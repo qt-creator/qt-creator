@@ -42,7 +42,18 @@ void PreviewTooltipBackend::showTooltip()
                 }
             });
         },
-        [](auto) {},
+        [&](ImageCache::AbortReason abortReason) {
+            if (abortReason == ImageCache::AbortReason::Abort) {
+                qWarning() << QLatin1String("PreviewTooltipBackend::showTooltip(): preview generation "
+                                            "failed for path %1, reason: Abort").arg(m_path);
+            } else if (abortReason == ImageCache::AbortReason::Failed) {
+                qWarning() << QLatin1String("PreviewTooltipBackend::showTooltip(): preview generation "
+                                            "failed for path %1, reason: Failed").arg(m_path);
+            } else if (abortReason == ImageCache::AbortReason::NoEntry) {
+                qWarning() << QLatin1String("PreviewTooltipBackend::showTooltip(): preview generation "
+                                            "failed for path %1, reason: NoEntry").arg(m_path);
+            }
+        },
         Utils::PathString{m_extraId},
         m_auxiliaryData);
 
