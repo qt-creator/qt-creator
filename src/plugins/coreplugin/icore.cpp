@@ -301,7 +301,6 @@ public:
     WindowSupport *m_windowSupport = nullptr;
     EditorManager *m_editorManager = nullptr;
     ExternalToolManager *m_externalToolManager = nullptr;
-    MessageManager *m_messageManager = nullptr;
     ProgressManagerPrivate *m_progressManager = nullptr;
     JsExpander *m_jsExpander = nullptr;
     VcsManager *m_vcsManager = nullptr;
@@ -1395,7 +1394,6 @@ void ICorePrivate::init()
     m_rightNavigationWidget = new NavigationWidget(m_toggleRightSideBarAction, Side::Right);
     m_rightPaneWidget = new RightPaneWidget();
 
-    m_messageManager = new MessageManager;
     m_editorManager = new EditorManager(this);
     m_externalToolManager = new ExternalToolManager();
 
@@ -1454,8 +1452,7 @@ ICorePrivate::~ICorePrivate()
 
     delete m_externalToolManager;
     m_externalToolManager = nullptr;
-    delete m_messageManager;
-    m_messageManager = nullptr;
+    MessageManager::destroy();
     delete m_shortcutSettings;
     m_shortcutSettings = nullptr;
     delete m_toolSettings;

@@ -5,47 +5,26 @@
 
 #include "core_global.h"
 
-#include <QMetaType>
-#include <QObject>
+#include <QStringList>
 
 QT_BEGIN_NAMESPACE
 class QFont;
 QT_END_NAMESPACE
 
-namespace Core {
+namespace Core::MessageManager {
 
-class ICore;
+CORE_EXPORT void setFont(const QFont &font);
+CORE_EXPORT void setWheelZoomEnabled(bool enabled);
 
-namespace Internal {
-class ICorePrivate;
-class MainWindow;
-}
+CORE_EXPORT void writeSilently(const QString &message);
+CORE_EXPORT void writeFlashing(const QString &message);
+CORE_EXPORT void writeDisrupting(const QString &message);
 
-class CORE_EXPORT MessageManager : public QObject
-{
-    Q_OBJECT
+CORE_EXPORT void writeSilently(const QStringList &messages);
+CORE_EXPORT void writeFlashing(const QStringList &messages);
+CORE_EXPORT void writeDisrupting(const QStringList &messages);
 
-public:
-    static void setFont(const QFont &font);
-    static void setWheelZoomEnabled(bool enabled);
+void init();
+void destroy();
 
-    static void writeSilently(const QString &message);
-    static void writeFlashing(const QString &message);
-    static void writeDisrupting(const QString &message);
-
-    static void writeSilently(const QStringList &messages);
-    static void writeFlashing(const QStringList &messages);
-    static void writeDisrupting(const QStringList &messages);
-
-private:
-    MessageManager();
-    ~MessageManager() override;
-
-    static void init();
-
-    friend class ICore;
-    friend class Internal::ICorePrivate;
-    friend class Internal::MainWindow;
-};
-
-} // namespace Core
+} // namespace Core::MessageManager
