@@ -159,12 +159,19 @@
         \li \key Q or \key {Page down}
         \li Move down.
     \row
+        \li \key Shift
+        \li Move faster.
+    \row
+        \li \key Alt
+        \li Move slower.
+    \row
         \li \key Spacebar
         \li Move to an object in the crosshairs.
     \endtable
 
-    To adjust the movement speed, select \inlineimage icons/camera_speed.png in the
-    \uicontrol 3D view toolbar to open the configuration dialog.
+    To adjust the movement speed, right-click and hold in the \uicontrol 3D view, and rotate the
+    mouse wheel. Alternatively, select \inlineimage icons/camera_speed.png in the \uicontrol 3D
+    view toolbar to open the configuration dialog.
 
     In the configuration dialog, you can:
     \list
