@@ -51,8 +51,22 @@ public:
         if (!match.hasMatch())
             return {};
 
+        // Quick plausability test: If there's no slashes or dots, it's probably not a file.
+        const QString possibleFile = match.captured("file");
+        if (!possibleFile.contains('/') && !possibleFile.contains("'\\")
+            && !possibleFile.contains('.')) {
+            return {};
+        }
+
+        // Defer to the LdParser for some file types
+        if (possibleFile.endsWith(".o") || possibleFile.endsWith(".a")
+            || possibleFile.endsWith("dll") || possibleFile.contains(".so")
+            || possibleFile.endsWith("ld") || possibleFile.endsWith("ranlib")) {
+            return {};
+        }
+
         Data data;
-        data.rawFilePath = match.captured("file");
+        data.rawFilePath = possibleFile;
         data.fileOffset = match.capturedStart("file");
         data.line = match.captured("line").toInt();
         data.column = match.captured("column").toInt();
@@ -90,13 +104,13 @@ private:
         const QString typePrefix = "(?:fatal |#)";
         const QString fullTypeString
             = QString::fromLatin1("(?<fullTypeString>%1?%2:?\\s)").arg(typePrefix, type);
-        const QString lineAndOptionalColumn = "(?:(?<line>\\d+)(?::(?<column>\\d+))?)";
+        const QString optionalLineAndColumn = "(?:(?:(?<line>\\d+)(?::(?<column>\\d+))?):)?";
         const QString binaryLocation = "\\(.*\\)"; // E.g. "(.text+0x40)"
         const QString fullLocation = QString::fromLatin1("%1(?:%2|%3)")
-                                         .arg(filePattern(), lineAndOptionalColumn, binaryLocation);
+                                         .arg(filePattern(), optionalLineAndColumn, binaryLocation);
         const QString description = "(?<description>[^\\s].+)";
 
-        return QString::fromLatin1("^%1:\\s+%2?%3$").arg(fullLocation, fullTypeString, description);
+        return QString::fromLatin1("^%1\\s+%2?%3$").arg(fullLocation, fullTypeString, description);
     }
 };
 } // namespace
@@ -105,17 +119,9 @@ GccParser::GccParser()
 {
     setObjectName(QLatin1String("GCCParser"));
 
-    m_regExpScope.setPattern(QLatin1Char('^') + filePattern()
-                                    + "(?:(\\d+):)?(\\d+:)?\\s+((?:In .*(?:function|constructor) .*|At global scope|At top level):)$");
-    QTC_CHECK(m_regExpScope.isValid());
-
     m_regExpIncluded.setPattern(QString::fromLatin1("\\bfrom\\s") + filePattern()
                                 + QLatin1String("(\\d+)(:\\d+)?[,:]?$"));
     QTC_CHECK(m_regExpIncluded.isValid());
-
-    m_regExpInlined.setPattern(QString::fromLatin1("\\binlined from\\s.* at ")
-                               + filePattern() + "(\\d+)(:\\d+)?[,:]?$");
-    QTC_CHECK(m_regExpInlined.isValid());
 
     m_regExpCc1plus.setPattern(QLatin1Char('^') + "cc1plus.*(error|warning): ((?:"
                                + filePattern() + " No such file or directory)?.*)");
@@ -177,8 +183,13 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
     const QString lne = rightTrimmed(line);
 
     // Blacklist some lines to not handle them:
-    if (lne.startsWith(QLatin1String("TeamBuilder ")) ||
-        lne.startsWith(QLatin1String("distcc["))) {
+    if (lne.startsWith(QLatin1String("TeamBuilder "))
+        || lne.startsWith(QLatin1String("distcc["))
+        || lne.contains("undefined reference")
+        || lne.contains("undefined symbol")
+        || lne.contains("duplicate symbol")
+        || lne.contains("multiple definition")
+        || lne.contains("ar: creating")) {
         return Status::NotHandled;
     }
 
@@ -205,10 +216,6 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
 
     qCDebug(gccParserLog) << "checking regex" << m_regExpIncluded.pattern();
     match = m_regExpIncluded.match(lne);
-    if (!match.hasMatch()) {
-        qCDebug(gccParserLog) << "checking regex" << m_regExpInlined.pattern();
-        match = m_regExpInlined.match(lne);
-    }
     if (match.hasMatch()) {
         const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured("file")));
         const int lineNo = match.captured(2).toInt();
@@ -229,7 +236,6 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
         if (!filePath.isEmpty())
             addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, -1, match, 3);
         gccCreateOrAmendTask(type, match.captured(2), lne, false, filePath, -1, 0, linkSpecs);
-        flush();
         return {Status::Done, linkSpecs};
     }
 
@@ -240,20 +246,6 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
             linkSpecs, filePath, data->line, data->fileOffset, data->rawFilePath.size());
         gccCreateOrAmendTask(
             data->type, data->description, lne, false, filePath, data->line, data->column, linkSpecs);
-        return {Status::InProgress, linkSpecs};
-    }
-
-    qCDebug(gccParserLog) << "checking regex" << m_regExpScope.pattern();
-    match = m_regExpScope.match(lne);
-    if (match.hasMatch()) {
-        const int lineno = match.captured(2).toInt();
-        const int column = match.captured(3).toInt();
-        const QString description = match.captured(4);
-        const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured("file")));
-        LinkSpecs linkSpecs;
-        addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineno, match, "file");
-        gccCreateOrAmendTask(
-            Task::Unknown, description, lne, false, filePath, lineno, column, linkSpecs);
         return {Status::InProgress, linkSpecs};
     }
 
@@ -439,8 +431,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                FilePath::fromUserInput("C:\\temp\\test\\untitled8/main.cpp"),
                                8, 0,
                                formatRanges)
-                << CompileTask(Task::Error,
-                               "collect2: ld returned 1 exit status"))
+                << CompileTask(Task::Error, "collect2: ld returned 1 exit status"))
             << QString();
 
     formatRanges.clear();
@@ -465,8 +456,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                FilePath::fromUserInput("C:\\temp\\test\\untitled8/main.cpp"),
                                -1, 0,
                                formatRanges)
-                << CompileTask(Task::Error,
-                               "collect2: ld returned 1 exit status"))
+                << CompileTask(Task::Error, "collect2: ld returned 1 exit status"))
             << QString();
 
     QTest::newRow("linker: dll format not recognized")
@@ -989,7 +979,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                    << formatRange(31, 28)
                                    << formatRange(59, 23, "olpfile:///home/user/test/foo.cpp::2::-1")
                                    << formatRange(82, 34))
-                << CompileTask(Task::Unknown,
+                << CompileTask(Task::Error,
                                "first defined here",
                                FilePath::fromUserInput("/home/user/test/bar.cpp"),
                                4)
@@ -1007,7 +997,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                 << CompileTask(Task::Error,
                                "multiple definition of `foo'",
                                FilePath::fromUserInput("foo.o"), -1)
-                << CompileTask(Task::Unknown,
+                << CompileTask(Task::Error,
                                "first defined here",
                                FilePath::fromUserInput("bar.o"), -1)
                 << CompileTask(Task::Error,
@@ -1465,6 +1455,37 @@ void ProjectExplorerTest::testGccOutputParsers_data()
             << Tasks{CompileTask(Task::Error, "blubb", "/home/tim/path/to/sources/and/more.h",
                                  15, 22)}
             << QString();
+
+    QTest::newRow("no line number")
+        << QString::fromUtf8("In file included from /data/dev/creator/src/libs/utils/aspects.cpp:12:\n"
+                             "/data/dev/creator/src/libs/utils/layoutbuilder.h: In instantiation of ‘Layouting::BuilderItem<X, XInterface>::I::I(const Inner&) [with Inner = Utils::BaseAspect; X = Layouting::Row; XInterface = Layouting::LayoutInterface]’:\n"
+                             "/data/dev/creator/src/libs/utils/aspects.cpp:3454:13:   required from here\n"
+                             "/data/dev/creator/src/libs/utils/layoutbuilder.h:79:51: error: use of deleted function ‘Utils::BaseAspect::BaseAspect(const Utils::BaseAspect&)’\n"
+                             "   79 |             apply = [p](XInterface *x) { doit_nest(x, p); };\n"
+                             "      |                                          ~~~~~~~~^~~~~")
+        << OutputParserTester::STDERR
+        << QString() << QString()
+        << (Tasks{compileTask(
+               Task::Error,
+               "use of deleted function ‘Utils::BaseAspect::BaseAspect(const Utils::BaseAspect&)’\n"
+               "In file included from /data/dev/creator/src/libs/utils/aspects.cpp:12:\n"
+               "/data/dev/creator/src/libs/utils/layoutbuilder.h: In instantiation of ‘Layouting::BuilderItem<X, XInterface>::I::I(const Inner&) [with Inner = Utils::BaseAspect; X = Layouting::Row; XInterface = Layouting::LayoutInterface]’:\n"
+               "/data/dev/creator/src/libs/utils/aspects.cpp:3454:13:   required from here\n"
+               "/data/dev/creator/src/libs/utils/layoutbuilder.h:79:51: error: use of deleted function ‘Utils::BaseAspect::BaseAspect(const Utils::BaseAspect&)’\n"
+               "   79 |             apply = [p](XInterface *x) { doit_nest(x, p); };\n"
+               "      |                                          ~~~~~~~~^~~~~",
+               FilePath::fromUserInput("/data/dev/creator/src/libs/utils/aspects.cpp"), 3454, 13,
+               QVector<QTextLayout::FormatRange>{
+                   formatRange(82, 22),
+                   formatRange(104, 44, "olpfile:///data/dev/creator/src/libs/utils/aspects.cpp::12::-1"),
+                   formatRange(148, 5),
+                   formatRange(153, 48, "olpfile:///data/dev/creator/src/libs/utils/layoutbuilder.h::0::-1"),
+                   formatRange(201, 177),
+                   formatRange(378, 44, "olpfile:///data/dev/creator/src/libs/utils/aspects.cpp::3454::-1"),
+                   formatRange(422, 31),
+                   formatRange(453, 48, "olpfile:///data/dev/creator/src/libs/utils/layoutbuilder.h::79::-1"),
+                   formatRange(501, 228)})})
+        << QString();
 }
 
 void ProjectExplorerTest::testGccOutputParsers()

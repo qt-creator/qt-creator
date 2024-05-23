@@ -38,9 +38,7 @@ private:
 
     bool isContinuation(const QString &newLine) const override;
 
-    QRegularExpression m_regExpScope;
     QRegularExpression m_regExpIncluded;
-    QRegularExpression m_regExpInlined;
     QRegularExpression m_regExpGccNames;
     QRegularExpression m_regExpCc1plus;
 };

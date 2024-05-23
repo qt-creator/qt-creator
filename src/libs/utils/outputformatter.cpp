@@ -342,6 +342,7 @@ OutputLineParser::Result OutputFormatter::handleMessage(const QString &text, Out
                 = d->nextParser->handleLine(text, outputTypeForParser(d->nextParser, format));
         switch (res.status) {
         case OutputLineParser::Status::Done:
+            d->nextParser->flush();
             d->nextParser = nullptr;
             return res;
         case OutputLineParser::Status::InProgress:
@@ -359,6 +360,7 @@ OutputLineParser::Result OutputFormatter::handleMessage(const QString &text, Out
                 = parser->handleLine(text, outputTypeForParser(parser, format));
         switch (res.status) {
         case OutputLineParser::Status::Done:
+            parser->flush();
             involvedParsers << parser;
             return res;
         case OutputLineParser::Status::InProgress:

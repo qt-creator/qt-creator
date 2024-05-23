@@ -17,6 +17,7 @@ public:
     LdParser();
 private:
     Result handleLine(const QString &line, Utils::OutputFormat type) override;
+    bool isContinuation(const QString &line) const override;
 
     QRegularExpression m_ranlib;
     QRegularExpression m_regExpLinker;
