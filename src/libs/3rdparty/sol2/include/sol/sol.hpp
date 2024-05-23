@@ -13841,7 +13841,7 @@ namespace sol { namespace stack {
 		}
 
 		static bool max_size_check(std::true_type, T& cont, std::size_t idx) {
-			return idx >= cont.max_size();
+			return idx >= std::size_t(cont.max_size());
 		}
 
 		static T get(lua_State* L, int relindex, record& tracking) {
