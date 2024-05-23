@@ -50,12 +50,12 @@ public:
         Data data;
         data.rawFilePath = match.captured("file");
         data.fileOffset = match.capturedStart("file");
-        data.line = match.captured(2).toInt();
-        data.column = match.captured(3).toInt();
-        data.description = match.captured(7);
-        if (match.captured(6) == QLatin1String("warning")) {
+        data.line = match.captured("line").toInt();
+        data.column = match.captured("column").toInt();
+        data.description = match.captured("description");
+        if (match.captured("type") == QLatin1String("warning")) {
             data.type = Task::Warning;
-        } else if (match.captured(6) == QLatin1String("error") ||
+        } else if (match.captured("type") == QLatin1String("error") ||
                    data.description.startsWith(QLatin1String("undefined reference to")) ||
                    data.description.startsWith(QLatin1String("multiple definition of"))) {
             data.type = Task::Error;
@@ -63,8 +63,8 @@ public:
 
         // Prepend "#warning" or "#error" if that triggered the match on (warning|error)
         // We want those to show how the warning was triggered
-        if (match.captured(4).startsWith(QLatin1Char('#')))
-            data.description.prepend(match.captured(4));
+        if (match.captured("fullTypeString").startsWith(QLatin1Char('#')))
+            data.description.prepend(match.captured("fullTypeString"));
 
         return data;
     }
@@ -82,10 +82,18 @@ private:
 
     static QString constructPattern()
     {
-        return '^' + filePattern()
-               + R"_((?:(?:(\d+):(?:(\d+):)?)|\(.*\):)\s+((fatal |#)?(warning|error|note):?\s)?([^\s].+)$)_";
-    }
+        const QString type = "(?<type>warning|error|note)";
+        const QString typePrefix = "(?:fatal |#)";
+        const QString fullTypeString
+            = QString::fromLatin1("(?<fullTypeString>%1?%2:?\\s)").arg(typePrefix, type);
+        const QString lineAndOptionalColumn = "(?:(?<line>\\d+)(?::(?<column>\\d+))?)";
+        const QString binaryLocation = "\\(.*\\)"; // E.g. "(.text+0x40)"
+        const QString fullLocation = QString::fromLatin1("%1(?:%2|%3)")
+                                         .arg(filePattern(), lineAndOptionalColumn, binaryLocation);
+        const QString description = "(?<description>[^\\s].+)";
 
+        return QString::fromLatin1("^%1:\\s+%2?%3$").arg(fullLocation, fullTypeString, description);
+    }
 };
 } // namespace
 
