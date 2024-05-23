@@ -9,6 +9,7 @@
 #include <utils/qtcassert.h>
 
 #include <numeric>
+#include <optional>
 
 using namespace Utils;
 
@@ -18,12 +19,70 @@ namespace ProjectExplorer {
 static const char FILE_PATTERN[] = "(<command[ -]line>|([A-Za-z]:)?[^:]+):";
 static const char COMMAND_PATTERN[] = "^(.*?[\\\\/])?([a-z0-9]+-[a-z0-9]+-[a-z0-9]+-)?(gcc|g\\+\\+)(-[0-9.]+)?(\\.exe)?: ";
 
+namespace {
+class MainRegEx
+{
+public:
+    struct Data {
+        QString rawFilePath;
+        QString description;
+        Task::TaskType type = Task::Unknown;
+        int line = -1;
+        int column = -1;
+        int fileOffset = -1;
+    };
+
+    static std::optional<Data> parse(const QString &line)
+    {
+        const QRegularExpressionMatch match = theRegEx().match(line);
+        if (!match.hasMatch())
+            return {};
+
+        Data data;
+        data.rawFilePath = match.captured(1);
+        data.fileOffset = match.capturedStart(1);
+        data.line = match.captured(3).toInt();
+        data.column = match.captured(4).toInt();
+        data.description = match.captured(8);
+        if (match.captured(7) == QLatin1String("warning")) {
+            data.type = Task::Warning;
+        } else if (match.captured(7) == QLatin1String("error") ||
+                   data.description.startsWith(QLatin1String("undefined reference to")) ||
+                   data.description.startsWith(QLatin1String("multiple definition of"))) {
+            data.type = Task::Error;
+        }
+
+        // Prepend "#warning" or "#error" if that triggered the match on (warning|error)
+        // We want those to show how the warning was triggered
+        if (match.captured(5).startsWith(QLatin1Char('#')))
+            data.description.prepend(match.captured(5));
+
+        return data;
+    }
+
+private:
+    static const QRegularExpression &theRegEx()
+    {
+        static const QRegularExpression re = [] {
+            const QRegularExpression re(constructPattern());
+            QTC_CHECK(re.isValid());
+            return re;
+        }();
+        return re;
+    }
+
+    static QString constructPattern()
+    {
+        return QLatin1Char('^') + FILE_PATTERN
+               + R"_((?:(?:(\d+):(?:(\d+):)?)|\(.*\):)\s+((fatal |#)?(warning|error|note):?\s)?([^\s].+)$)_";
+    }
+
+};
+} // namespace
+
 GccParser::GccParser()
 {
     setObjectName(QLatin1String("GCCParser"));
-    m_regExp.setPattern(QLatin1Char('^') + QLatin1String(FILE_PATTERN)
-                        + QLatin1String("(?:(?:(\\d+):(?:(\\d+):)?)|\\(.*\\):)\\s+((fatal |#)?(warning|error|note):?\\s)?([^\\s].+)$"));
-    QTC_CHECK(m_regExp.isValid());
 
     m_regExpScope.setPattern(QLatin1Char('^') + FILE_PATTERN
                                     + "(?:(\\d+):)?(\\d+:)?\\s+((?:In .*(?:function|constructor) .*|At global scope|At top level):)$");
@@ -193,27 +252,13 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
         return {Status::Done, linkSpecs};
     }
 
-    match = m_regExp.match(lne);
-    if (match.hasMatch()) {
-        int lineno = match.captured(3).toInt();
-        int column = match.captured(4).toInt();
-        Task::TaskType type = Task::Unknown;
-        QString description = match.captured(8);
-        if (match.captured(7) == QLatin1String("warning"))
-            type = Task::Warning;
-        else if (match.captured(7) == QLatin1String("error") ||
-                 description.startsWith(QLatin1String("undefined reference to")) ||
-                 description.startsWith(QLatin1String("multiple definition of")))
-            type = Task::Error;
-        // Prepend "#warning" or "#error" if that triggered the match on (warning|error)
-        // We want those to show how the warning was triggered
-        if (match.captured(5).startsWith(QLatin1Char('#')))
-            description = match.captured(5) + description;
-
-        const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured(1)));
+    if (const auto data = MainRegEx::parse(lne)) {
+        const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(data->rawFilePath));
         LinkSpecs linkSpecs;
-        addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineno, match, 1);
-        createOrAmendTask(type, description, lne, false, filePath, lineno, column, linkSpecs);
+        addLinkSpecForAbsoluteFilePath(
+            linkSpecs, filePath, data->line, data->fileOffset, data->rawFilePath.size());
+        createOrAmendTask(
+            data->type, data->description, lne, false, filePath, data->line, data->column, linkSpecs);
         return {Status::InProgress, linkSpecs};
     }
 
