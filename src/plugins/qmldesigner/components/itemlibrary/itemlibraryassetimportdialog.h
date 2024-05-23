@@ -63,6 +63,7 @@ private slots:
 
 private:
     void setCloseButtonState(bool importing);
+    void updateImportButtonState();
 
     void onImport();
     void setImportProgress(int value, const QString &text);
@@ -73,7 +74,6 @@ private:
     void onImportFinished();
     void onClose();
     void doClose();
-    void onAccept();
     void toggleAdvanced();
 
     void createTab(const QString &tabLabel, int optionsIndex, const QJsonObject &groups);
@@ -110,6 +110,7 @@ private:
     QString m_quick3DImportPath;
     ItemLibraryAssetImporter m_importer;
     QVector<QJsonObject> m_importOptions;
+    QVector<QJsonObject> m_previewOptions;
     QHash<QString, int> m_extToImportOptionsMap;
     QSet<QString> m_preselectedFilesForOverwrite;
     bool m_closeOnFinish = true;

@@ -151,16 +151,6 @@
          </property>
         </widget>
        </item>
-       <item>
-        <widget class="QPushButton" name="acceptButton">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Accept</string>
-         </property>
-        </widget>
-       </item>
       </layout>
      </item>
     </layout>

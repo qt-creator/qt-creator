@@ -215,8 +215,6 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(
 
     connect(ui->closeButton, &QPushButton::clicked,
             this, &ItemLibraryAssetImportDialog::onClose);
-    connect(ui->acceptButton, &QPushButton::clicked,
-            this, &ItemLibraryAssetImportDialog::onAccept);
     connect(ui->tabWidget, &QTabWidget::currentChanged,
             this, &ItemLibraryAssetImportDialog::updateUi);
     connect(canvas(), &Import3dCanvas::requestImageUpdate,
@@ -239,14 +237,22 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(
     connect(&m_importer, &ItemLibraryAssetImporter::importReadyForPreview,
             this, &ItemLibraryAssetImportDialog::onImportReadyForPreview);
 
-    addInfo(tr("Select import options and press \"Import\" to import the following files:"));
-    for (const auto &file : std::as_const(m_quick3DFiles))
-        addInfo(file);
-
     connect(ui->advancedSettingsButton, &QPushButton::clicked,
             this, &ItemLibraryAssetImportDialog::toggleAdvanced);
 
     QTimer::singleShot(0, this, &ItemLibraryAssetImportDialog::updateUi);
+
+    if (m_quick3DFiles.size() != 1) {
+        addInfo(tr("Select import options and press \"Import\" to import the following files:"));
+    } else {
+        addInfo(tr("Importing:"));
+        QTimer::singleShot(0, this, &ItemLibraryAssetImportDialog::onImport);
+    }
+
+    for (const auto &file : std::as_const(m_quick3DFiles))
+        addInfo(file);
+
+    updateImportButtonState();
 }
 
 ItemLibraryAssetImportDialog::~ItemLibraryAssetImportDialog()
@@ -495,6 +501,7 @@ QGridLayout *ItemLibraryAssetImportDialog::createOptionsGrid(
                     QJsonValue value(optCheck->isChecked());
                     optObj.insert("value", value);
                     m_importOptions[optionsIndex].insert(optKey, optObj);
+                    updateImportButtonState();
                 });
             } else {
                 // Simple options also exist in advanced, so don't connect simple controls directly
@@ -502,13 +509,17 @@ QGridLayout *ItemLibraryAssetImportDialog::createOptionsGrid(
                 auto *advCheck = qobject_cast<QCheckBox *>(
                             m_labelToControlWidgetMaps[optionsIndex].value(optKey));
                 if (advCheck) {
-                    QObject::connect(optCheck, &QCheckBox::toggled, this, [optCheck, advCheck]() {
-                        if (advCheck->isChecked() != optCheck->isChecked())
+                    QObject::connect(optCheck, &QCheckBox::toggled, this, [this, optCheck, advCheck]() {
+                        if (advCheck->isChecked() != optCheck->isChecked()) {
                             advCheck->setChecked(optCheck->isChecked());
+                            updateImportButtonState();
+                        }
                     });
-                    QObject::connect(advCheck, &QCheckBox::toggled, this, [optCheck, advCheck]() {
-                        if (advCheck->isChecked() != optCheck->isChecked())
+                    QObject::connect(advCheck, &QCheckBox::toggled, this, [this, optCheck, advCheck]() {
+                        if (advCheck->isChecked() != optCheck->isChecked()) {
                             optCheck->setChecked(advCheck->isChecked());
+                            updateImportButtonState();
+                        }
                     });
                 }
             }
@@ -544,6 +555,7 @@ QGridLayout *ItemLibraryAssetImportDialog::createOptionsGrid(
                     QJsonValue value(optSpin->value());
                     optObj.insert("value", value);
                     m_importOptions[optionsIndex].insert(optKey, optObj);
+                    updateImportButtonState();
                 });
             } else {
                 auto *advSpin = qobject_cast<QDoubleSpinBox *>(
@@ -551,14 +563,18 @@ QGridLayout *ItemLibraryAssetImportDialog::createOptionsGrid(
                 if (advSpin) {
                     // Connect corresponding advanced control
                     QObject::connect(optSpin, &QDoubleSpinBox::valueChanged,
-                                     this, [optSpin, advSpin] {
-                        if (advSpin->value() != optSpin->value())
+                                     this, [this, optSpin, advSpin] {
+                        if (advSpin->value() != optSpin->value()) {
                             advSpin->setValue(optSpin->value());
+                            updateImportButtonState();
+                        }
                     });
                     QObject::connect(advSpin, &QDoubleSpinBox::valueChanged,
-                                     this, [optSpin, advSpin] {
-                        if (advSpin->value() != optSpin->value())
+                                     this, [this, optSpin, advSpin] {
+                        if (advSpin->value() != optSpin->value()) {
                             optSpin->setValue(advSpin->value());
+                            updateImportButtonState();
+                        }
                     });
                 }
             }
@@ -994,6 +1010,11 @@ void ItemLibraryAssetImportDialog::setCloseButtonState(bool importing)
     ui->closeButton->setText(importing ? tr("Cancel") : tr("Close"));
 }
 
+void ItemLibraryAssetImportDialog::updateImportButtonState()
+{
+    ui->importButton->setText(m_previewOptions == m_importOptions ? tr("Accept") : tr("Import"));
+}
+
 void ItemLibraryAssetImportDialog::addError(const QString &error, const QString &srcPath)
 {
     m_closeOnFinish = false;
@@ -1013,8 +1034,14 @@ void ItemLibraryAssetImportDialog::addInfo(const QString &info, const QString &s
 
 void ItemLibraryAssetImportDialog::onImport()
 {
-    ui->acceptButton->setEnabled(false);
     ui->importButton->setEnabled(false);
+
+    if (!m_previewCompName.isEmpty() && m_previewOptions == m_importOptions) {
+        cleanupPreviewPuppet();
+        m_importer.finalizeQuick3DImport();
+        return;
+    }
+
     setCloseButtonState(true);
     ui->progressBar->setValue(0);
 
@@ -1041,15 +1068,17 @@ void ItemLibraryAssetImportDialog::setImportProgress(int value, const QString &t
 
 void ItemLibraryAssetImportDialog::onImportReadyForPreview(const QString &path, const QString &compName)
 {
+    addInfo(tr("Import is ready for preview."));
+    if (m_previewCompName.isEmpty())
+        addInfo(tr("Click \"Accept\" to finish the import or adjust options and click \"Import\" to import again."));
+
     m_previewFile = Utils::FilePath::fromString(path).pathAppended(m_importer.previewFileName());
     m_previewCompName = compName;
+    m_previewOptions = m_importOptions;
     QTimer::singleShot(0, this, &ItemLibraryAssetImportDialog::startPreview);
 
-    ui->acceptButton->setEnabled(true);
     ui->importButton->setEnabled(true);
-
-    addInfo(tr("Import is ready for preview."));
-    addInfo(tr("Click \"Accept\" to finish the import or adjust options an click \"Import\" to import again."));
+    updateImportButtonState();
 }
 
 void ItemLibraryAssetImportDialog::onRequestImageUpdate()
@@ -1093,7 +1122,6 @@ void ItemLibraryAssetImportDialog::onImportFinished()
 void ItemLibraryAssetImportDialog::onClose()
 {
     ui->importButton->setEnabled(false);
-    ui->acceptButton->setEnabled(false);
     m_explicitClose = true;
     doClose();
 }
@@ -1111,16 +1139,6 @@ void ItemLibraryAssetImportDialog::doClose()
         close();
         deleteLater();
     }
-}
-
-void ItemLibraryAssetImportDialog::onAccept()
-{
-    cleanupPreviewPuppet();
-
-    ui->importButton->setEnabled(false);
-    ui->acceptButton->setEnabled(false);
-
-    m_importer.finalizeQuick3DImport();
 }
 
 void ItemLibraryAssetImportDialog::toggleAdvanced()
