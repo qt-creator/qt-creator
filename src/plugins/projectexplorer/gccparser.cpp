@@ -15,8 +15,17 @@ using namespace Utils;
 
 namespace ProjectExplorer {
 
-// opt. drive letter + filename: (2 brackets)
-static const char FILE_PATTERN[] = "(<command[ -]line>|([A-Za-z]:)?[^:]+):";
+static const QString &filePattern()
+{
+    static const QString pattern = [] {
+        const QString pseudoFile = "<command[ -]line>";
+        const QString driveSpec = "[A-Za-z]:";
+        const QString realFile = QString::fromLatin1("(?:%1)?[^:]+").arg(driveSpec);
+        return QString::fromLatin1("(?<file>%1|%2):").arg(pseudoFile, realFile);
+    }();
+    return pattern;
+}
+
 static const char COMMAND_PATTERN[] = "^(.*?[\\\\/])?([a-z0-9]+-[a-z0-9]+-[a-z0-9]+-)?(gcc|g\\+\\+)(-[0-9.]+)?(\\.exe)?: ";
 
 namespace {
@@ -39,14 +48,14 @@ public:
             return {};
 
         Data data;
-        data.rawFilePath = match.captured(1);
-        data.fileOffset = match.capturedStart(1);
-        data.line = match.captured(3).toInt();
-        data.column = match.captured(4).toInt();
-        data.description = match.captured(8);
-        if (match.captured(7) == QLatin1String("warning")) {
+        data.rawFilePath = match.captured("file");
+        data.fileOffset = match.capturedStart("file");
+        data.line = match.captured(2).toInt();
+        data.column = match.captured(3).toInt();
+        data.description = match.captured(7);
+        if (match.captured(6) == QLatin1String("warning")) {
             data.type = Task::Warning;
-        } else if (match.captured(7) == QLatin1String("error") ||
+        } else if (match.captured(6) == QLatin1String("error") ||
                    data.description.startsWith(QLatin1String("undefined reference to")) ||
                    data.description.startsWith(QLatin1String("multiple definition of"))) {
             data.type = Task::Error;
@@ -54,8 +63,8 @@ public:
 
         // Prepend "#warning" or "#error" if that triggered the match on (warning|error)
         // We want those to show how the warning was triggered
-        if (match.captured(5).startsWith(QLatin1Char('#')))
-            data.description.prepend(match.captured(5));
+        if (match.captured(4).startsWith(QLatin1Char('#')))
+            data.description.prepend(match.captured(4));
 
         return data;
     }
@@ -73,7 +82,7 @@ private:
 
     static QString constructPattern()
     {
-        return QLatin1Char('^') + FILE_PATTERN
+        return '^' + filePattern()
                + R"_((?:(?:(\d+):(?:(\d+):)?)|\(.*\):)\s+((fatal |#)?(warning|error|note):?\s)?([^\s].+)$)_";
     }
 
@@ -84,20 +93,20 @@ GccParser::GccParser()
 {
     setObjectName(QLatin1String("GCCParser"));
 
-    m_regExpScope.setPattern(QLatin1Char('^') + FILE_PATTERN
+    m_regExpScope.setPattern(QLatin1Char('^') + filePattern()
                                     + "(?:(\\d+):)?(\\d+:)?\\s+((?:In .*(?:function|constructor) .*|At global scope|At top level):)$");
     QTC_CHECK(m_regExpScope.isValid());
 
-    m_regExpIncluded.setPattern(QString::fromLatin1("\\bfrom\\s") + QLatin1String(FILE_PATTERN)
+    m_regExpIncluded.setPattern(QString::fromLatin1("\\bfrom\\s") + filePattern()
                                 + QLatin1String("(\\d+)(:\\d+)?[,:]?$"));
     QTC_CHECK(m_regExpIncluded.isValid());
 
     m_regExpInlined.setPattern(QString::fromLatin1("\\binlined from\\s.* at ")
-                               + FILE_PATTERN + "(\\d+)(:\\d+)?[,:]?$");
+                               + filePattern() + "(\\d+)(:\\d+)?[,:]?$");
     QTC_CHECK(m_regExpInlined.isValid());
 
     m_regExpCc1plus.setPattern(QLatin1Char('^') + "cc1plus.*(error|warning): ((?:"
-                               + FILE_PATTERN + " No such file or directory)?.*)");
+                               + filePattern() + " No such file or directory)?.*)");
     QTC_CHECK(m_regExpCc1plus.isValid());
 
     // optional path with trailing slash
@@ -219,9 +228,9 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
         Task::TaskType type = Task::Error;
         if (description.startsWith(QLatin1String("warning: "))) {
             type = Task::Warning;
-            description = description.mid(9);
+            description = description.mid(8);
         } else if (description.startsWith(QLatin1String("fatal: ")))  {
-            description = description.mid(7);
+            description = description.mid(6);
         }
         createOrAmendTask(type, description, lne);
         return Status::InProgress;
@@ -231,11 +240,11 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
     if (!match.hasMatch())
         match = m_regExpInlined.match(lne);
     if (match.hasMatch()) {
-        const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured(1)));
-        const int lineNo = match.captured(3).toInt();
-        const int column = match.captured(4).toInt();
+        const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured("file")));
+        const int lineNo = match.captured(2).toInt();
+        const int column = match.captured(3).toInt();
         LinkSpecs linkSpecs;
-        addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, match, 1);
+        addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, match, "file");
         createOrAmendTask(Task::Unknown, lne.trimmed(), lne, false, filePath, lineNo, column, linkSpecs);
         return {Status::InProgress, linkSpecs};
     }
@@ -264,12 +273,12 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
 
     match = m_regExpScope.match(lne);
     if (match.hasMatch()) {
-        const int lineno = match.captured(3).toInt();
-        const int column = match.captured(4).toInt();
-        const QString description = match.captured(5);
-        const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured(1)));
+        const int lineno = match.captured(2).toInt();
+        const int column = match.captured(3).toInt();
+        const QString description = match.captured(4);
+        const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured("file")));
         LinkSpecs linkSpecs;
-        addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineno, match, 1);
+        addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineno, match, "file");
         createOrAmendTask(Task::Unknown, description, lne, false, filePath, lineno, column, linkSpecs);
         return {Status::InProgress, linkSpecs};
     }
