@@ -246,6 +246,8 @@ private:
             (const Link &link) {
                 moveComments(link, symbolLoc, comments);
             };
+        NonInteractiveFollowSymbolMarker niMarker;
+        CppCodeModelSettings::setInteractiveFollowSymbol(false);
         CppModelManager::followSymbol(cursorInEditor, callback, true, false,
                                       FollowSymbolMode::Exact);
     }

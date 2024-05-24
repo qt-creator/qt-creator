@@ -73,10 +73,10 @@ private:
 class ClangdFollowSymbol::Private
 {
 public:
-    Private(ClangdFollowSymbol *q, ClangdClient *client, const QTextCursor &cursor,
+    Private(ClangdFollowSymbol *q, ClangdClient *client, Origin origin, const QTextCursor &cursor,
             CppEditorWidget *editorWidget, const FilePath &filePath, const LinkHandler &callback,
             bool openInSplit)
-        : q(q), client(client), cursor(cursor), editorWidget(editorWidget),
+        : q(q), client(client), origin(origin), cursor(cursor), editorWidget(editorWidget),
           uri(client->hostPathToServerUri(filePath)), callback(callback),
           virtualFuncAssistProvider(q),
           docRevision(editorWidget ? editorWidget->textDocument()->document()->revision() : -1),
@@ -94,6 +94,7 @@ public:
 
     ClangdFollowSymbol * const q;
     ClangdClient * const client;
+    const Origin origin;
     const QTextCursor cursor;
     const QPointer<CppEditor::CppEditorWidget> editorWidget;
     const DocumentUri uri;
@@ -117,11 +118,11 @@ public:
     bool done = false;
 };
 
-ClangdFollowSymbol::ClangdFollowSymbol(ClangdClient *client, const QTextCursor &cursor,
-        CppEditorWidget *editorWidget, TextDocument *document, const LinkHandler &callback,
-        FollowTo followTo, bool openInSplit)
+ClangdFollowSymbol::ClangdFollowSymbol(ClangdClient *client, Origin origin,
+        const QTextCursor &cursor, CppEditorWidget *editorWidget, TextDocument *document,
+        const LinkHandler &callback, FollowTo followTo, bool openInSplit)
     : QObject(client),
-      d(new Private(this, client, cursor, editorWidget, document->filePath(), callback,
+      d(new Private(this, client, origin, cursor, editorWidget, document->filePath(), callback,
                     openInSplit))
 {
     // Abort if the user does something else with the document in the meantime.
@@ -191,6 +192,11 @@ void ClangdFollowSymbol::clear()
     d->pendingSymbolInfoRequests.clear();
     d->pendingGotoImplRequests.clear();
     d->pendingGotoDefRequests.clear();
+}
+
+bool ClangdFollowSymbol::isInteractive() const
+{
+    return d->origin == Origin::User;
 }
 
 void ClangdFollowSymbol::emitDone(const Link &link)

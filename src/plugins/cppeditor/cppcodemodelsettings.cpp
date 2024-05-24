@@ -83,6 +83,7 @@ bool operator==(const CppEditor::CppCodeModelSettings &s1,
            && s1.useBuiltinPreprocessor == s2.useBuiltinPreprocessor
            && s1.indexerFileSizeLimitInMb == s2.indexerFileSizeLimitInMb
            && s1.m_categorizeFindReferences == s2.m_categorizeFindReferences
+           && s1.interactiveFollowSymbol == s2.interactiveFollowSymbol
            && s1.ignoreFiles == s2.ignoreFiles && s1.ignorePattern == s2.ignorePattern;
 }
 
@@ -202,6 +203,16 @@ bool CppCodeModelSettings::categorizeFindReferences()
 void CppCodeModelSettings::setCategorizeFindReferences(bool categorize)
 {
     globalInstance().m_categorizeFindReferences = categorize;
+}
+
+bool CppCodeModelSettings::isInteractiveFollowSymbol()
+{
+    return globalInstance().interactiveFollowSymbol;
+}
+
+void CppCodeModelSettings::setInteractiveFollowSymbol(bool interactive)
+{
+    globalInstance().interactiveFollowSymbol = interactive;
 }
 
 CppCodeModelProjectSettings::CppCodeModelProjectSettings(ProjectExplorer::Project *project)

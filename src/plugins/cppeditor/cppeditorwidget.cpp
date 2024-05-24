@@ -623,6 +623,7 @@ void CppEditorWidget::renameUsages(const QString &replacement, QTextCursor curso
         const CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this, textDocument()};
         CppModelManager::globalRename(cursorInEditor, replacement);
     };
+    NonInteractiveFollowSymbolMarker niMarker;
     CppModelManager::followSymbol(CursorInEditor{cursor,
                                                  textDocument()->filePath(),
                                                  this,

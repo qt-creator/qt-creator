@@ -23,13 +23,17 @@ class ClangdFollowSymbol : public QObject
 {
     Q_OBJECT
 public:
-    ClangdFollowSymbol(ClangdClient *client, const QTextCursor &cursor,
+    enum class Origin { User, Code };
+
+    ClangdFollowSymbol(ClangdClient *client, Origin origin, const QTextCursor &cursor,
                        CppEditor::CppEditorWidget *editorWidget,
                        TextEditor::TextDocument *document, const Utils::LinkHandler &callback,
                        FollowTo followTo, bool openInSplit);
     ~ClangdFollowSymbol();
     void cancel();
     void clear();
+
+    bool isInteractive() const;
 
 signals:
     void done();
