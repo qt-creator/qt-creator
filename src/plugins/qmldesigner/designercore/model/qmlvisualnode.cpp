@@ -184,8 +184,8 @@ void QmlVisualNode::scatter(const ModelNode &targetNode, const std::optional<int
     if (!scatter)
         return;
 
-    if (offset.has_value()) { // offset
-        double offsetValue = offset.value();
+    if (offset) { // offset
+        double offsetValue = *offset;
         this->translate(QVector3D(offsetValue, offsetValue, offsetValue));
     } else { // scatter in range
         const double scatterRange = 20.;

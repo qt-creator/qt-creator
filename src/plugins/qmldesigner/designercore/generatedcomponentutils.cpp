@@ -18,7 +18,7 @@ bool couldBeProjectModule(const Utils::FilePath &path, const QString &projectNam
             return false;
 
         const QString expectedLine = QLatin1String("module %1").arg(projectName);
-        QByteArray fileContents = qmldirContents.value();
+        QByteArray fileContents = *qmldirContents;
         QTextStream stream(fileContents);
         while (!stream.atEnd()) {
             QString lineData = stream.readLine().trimmed();

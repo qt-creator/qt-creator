@@ -284,11 +284,10 @@ void DesignDocument::moveNodesToPosition(const QList<ModelNode> &nodes, const st
         parentProperty.reparentHere(pastedNode);
 
         QmlVisualNode visualNode(pastedNode);
-        if (!firstVisualNode.has_value() && visualNode.isValid()){
+        if (!firstVisualNode && visualNode) {
             firstVisualNode = visualNode;
-            translationVect = (position.has_value() && firstVisualNode.has_value())
-                    ? position.value() - firstVisualNode->position()
-                    : QVector3D();
+            translationVect = (position && firstVisualNode) ? *position - firstVisualNode->position()
+                                                            : QVector3D();
         }
         visualNode.translate(translationVect);
     }
