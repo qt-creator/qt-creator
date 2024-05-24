@@ -36,6 +36,7 @@ enum class View3DActionType {
     OrientationToggle,
     EditLightToggle,
     ShowGrid,
+    ShowLookAt,
     ShowSelectionBox,
     ShowIconGizmo,
     ShowCameraFrustum,

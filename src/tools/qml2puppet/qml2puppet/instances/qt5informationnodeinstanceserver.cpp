@@ -41,14 +41,15 @@
 #include "changeauxiliarycommand.h"
 
 #include "../editor3d/boxgeometry.h"
-#include "../editor3d/generalhelper.h"
-#include "../editor3d/mousearea3d.h"
 #include "../editor3d/camerageometry.h"
-#include "../editor3d/lightgeometry.h"
+#include "../editor3d/generalhelper.h"
 #include "../editor3d/gridgeometry.h"
-#include "../editor3d/selectionboxgeometry.h"
-#include "../editor3d/linegeometry.h"
 #include "../editor3d/icongizmoimageprovider.h"
+#include "../editor3d/lightgeometry.h"
+#include "../editor3d/linegeometry.h"
+#include "../editor3d/lookatgeometry.h"
+#include "../editor3d/mousearea3d.h"
+#include "../editor3d/selectionboxgeometry.h"
 
 #include <private/qquickdesignersupport_p.h>
 #include <qmlprivategate.h>
@@ -526,6 +527,7 @@ void Qt5InformationNodeInstanceServer::createEditView3D()
     qmlRegisterType<QmlDesigner::Internal::SelectionBoxGeometry>("SelectionBoxGeometry", 1, 0, "SelectionBoxGeometry");
     qmlRegisterType<QmlDesigner::Internal::LineGeometry>("LineGeometry", 1, 0, "LineGeometry");
     qmlRegisterType<QmlDesigner::Internal::BoxGeometry>("BoxGeometry", 1, 0, "BoxGeometry");
+    qmlRegisterType<QmlDesigner::Internal::LookAtGeometry>("LookAtGeometry", 1, 0, "LookAtGeometry");
 
     auto helper = new QmlDesigner::Internal::GeneralHelper();
     QObject::connect(helper, &QmlDesigner::Internal::GeneralHelper::toolStateChanged,
@@ -2532,6 +2534,9 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
         break;
     case View3DActionType::ShowGrid:
         updatedToolState.insert("showGrid", command.isEnabled());
+        break;
+    case View3DActionType::ShowLookAt:
+        updatedToolState.insert("showLookAt", command.isEnabled());
         break;
     case View3DActionType::ShowSelectionBox:
         updatedToolState.insert("showSelectionBox", command.isEnabled());

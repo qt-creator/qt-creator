@@ -135,6 +135,7 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     const QString orientationKey     = QStringLiteral("globalOrientation");
     const QString editLightKey       = QStringLiteral("showEditLight");
     const QString gridKey            = QStringLiteral("showGrid");
+    const QString showLookAtKey      = QStringLiteral("showLookAt");
     const QString selectionBoxKey    = QStringLiteral("showSelectionBox");
     const QString iconGizmoKey       = QStringLiteral("showIconGizmo");
     const QString cameraFrustumKey   = QStringLiteral("showCameraFrustum");
@@ -188,6 +189,11 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
         m_showGridAction->action()->setChecked(sceneState[gridKey].toBool());
     else
         m_showGridAction->action()->setChecked(false);
+
+    if (sceneState.contains(showLookAtKey))
+        m_showLookAtAction->action()->setChecked(sceneState[showLookAtKey].toBool());
+    else
+        m_showLookAtAction->action()->setChecked(false);
 
     if (sceneState.contains(selectionBoxKey))
         m_showSelectionBoxAction->action()->setChecked(sceneState[selectionBoxKey].toBool());
@@ -1040,6 +1046,18 @@ void Edit3DView::createEdit3DActions()
         nullptr,
         QCoreApplication::translate("ShowGridAction", "Toggle the visibility of the helper grid."));
 
+    m_showLookAtAction = std::make_unique<Edit3DAction>(
+        QmlDesigner::Constants::EDIT3D_EDIT_SHOW_LOOKAT,
+        View3DActionType::ShowLookAt,
+        QCoreApplication::translate("ShowLookAtAction", "Show Look-at"),
+        QKeySequence(Qt::Key_L),
+        true,
+        true,
+        QIcon(),
+        this,
+        nullptr,
+        QCoreApplication::translate("ShowLookAtAction", "Toggle the visibility of the edit camera look-at indicator."));
+
     m_showSelectionBoxAction = std::make_unique<Edit3DAction>(
         QmlDesigner::Constants::EDIT3D_EDIT_SHOW_SELECTION_BOX,
         View3DActionType::ShowSelectionBox,
@@ -1343,6 +1361,7 @@ void Edit3DView::createEdit3DActions()
     m_rightActions << m_resetAction.get();
 
     m_visibilityToggleActions << m_showGridAction.get();
+    m_visibilityToggleActions << m_showLookAtAction.get();
     m_visibilityToggleActions << m_showSelectionBoxAction.get();
     m_visibilityToggleActions << m_showIconGizmoAction.get();
     m_visibilityToggleActions << m_showCameraFrustumAction.get();

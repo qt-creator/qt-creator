@@ -50,6 +50,7 @@ inline constexpr char EDIT3D_EDIT_CAMERA[] = "QmlDesigner.Editor3D.EditCameraTog
 inline constexpr char EDIT3D_ORIENTATION[] = "QmlDesigner.Editor3D.OrientationToggle";
 inline constexpr char EDIT3D_EDIT_LIGHT[] = "QmlDesigner.Editor3D.EditLightToggle";
 inline constexpr char EDIT3D_EDIT_SHOW_GRID[] = "QmlDesigner.Editor3D.ToggleGrid";
+inline constexpr char EDIT3D_EDIT_SHOW_LOOKAT[] = "QmlDesigner.Editor3D.ToggleLookAt";
 inline constexpr char EDIT3D_EDIT_SELECT_BACKGROUND_COLOR[]
     = "QmlDesigner.Editor3D.SelectBackgroundColor";
 inline constexpr char EDIT3D_EDIT_SELECT_GRID_COLOR[] = "QmlDesigner.Editor3D.SelectGridColor";

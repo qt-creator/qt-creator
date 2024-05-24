@@ -12,6 +12,7 @@ View3D {
     property alias rotateGizmo: rotateGizmo
     property alias scaleGizmo: scaleGizmo
     property alias lightGizmo: lightGizmo
+    property alias lookAtGizmo: lookAtGizmo
 
     property var viewRoot: null
     property View3D editView: null
@@ -484,6 +485,12 @@ View3D {
             position: pivotLine.startPos
         }
 
+        AutoScaleHelper {
+            id: lookAtAutoScale
+            view3D: overlayView
+            position: lookAtGizmo.scenePosition
+        }
+
         MoveGizmo {
             id: moveGizmo
             scale: autoScale.getScale(Qt.vector3d(5, 5, 5))
@@ -618,6 +625,15 @@ View3D {
                     }
                 ]
             }
+        }
+
+        LookAtGizmo {
+            id: lookAtGizmo
+            color: "#ddd600"
+            scale: lookAtAutoScale.getScale(Qt.vector3d(10, 10, 10))
+            visible: overlayView.viewRoot.showLookAt
+                     && overlayView.isActive
+                     && !overlayView.viewRoot.cameraControls[viewRoot.activeSplit].showCrosshairs
         }
     }
 }

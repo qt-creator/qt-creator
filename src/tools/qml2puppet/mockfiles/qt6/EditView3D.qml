@@ -25,6 +25,7 @@ Item {
 
     property bool showEditLight: false
     property bool showGrid: true
+    property bool showLookAt: true
     property bool showSelectionBox: true
     property bool showIconGizmo: true
     property bool showCameraFrustum: false
@@ -66,6 +67,7 @@ Item {
     onShowEditLightChanged:       _generalHelper.storeToolState(sceneId, "showEditLight", showEditLight)
     onGlobalOrientationChanged:   _generalHelper.storeToolState(sceneId, "globalOrientation", globalOrientation)
     onShowGridChanged:            _generalHelper.storeToolState(sceneId, "showGrid", showGrid);
+    onShowLookAtChanged:          _generalHelper.storeToolState(sceneId, "showLookAt", showLookAt);
     onSyncEnvBackgroundChanged:   _generalHelper.storeToolState(sceneId, "syncEnvBackground", syncEnvBackground);
     onShowSelectionBoxChanged:    _generalHelper.storeToolState(sceneId, "showSelectionBox", showSelectionBox);
     onShowIconGizmoChanged:       _generalHelper.storeToolState(sceneId, "showIconGizmo", showIconGizmo);
@@ -304,6 +306,11 @@ Item {
         else if (resetToDefault)
             showGrid = true;
 
+        if ("showLookAt" in toolStates)
+            showLookAt = toolStates.showLookAt;
+        else if (resetToDefault)
+            showLookAt = true;
+
         if ("syncEnvBackground" in toolStates) {
             syncEnvBackground = toolStates.syncEnvBackground;
             updateEnvBackground();
@@ -393,6 +400,7 @@ Item {
     {
         _generalHelper.storeToolState(sceneId, "showEditLight", showEditLight)
         _generalHelper.storeToolState(sceneId, "showGrid", showGrid)
+        _generalHelper.storeToolState(sceneId, "showLookAt", showLookAt)
         _generalHelper.storeToolState(sceneId, "syncEnvBackground", syncEnvBackground)
         _generalHelper.storeToolState(sceneId, "showSelectionBox", showSelectionBox)
         _generalHelper.storeToolState(sceneId, "showIconGizmo", showIconGizmo)

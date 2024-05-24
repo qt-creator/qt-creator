@@ -93,6 +93,7 @@ extend_qtc_executable(qml2puppet
     linegeometry.cpp linegeometry.h
     icongizmoimageprovider.cpp icongizmoimageprovider.h
     boxgeometry.cpp boxgeometry.h
+    lookatgeometry.cpp lookatgeometry.h
 )
 
 find_package(Qt6 COMPONENTS Quick3DAssetImport QUIET)

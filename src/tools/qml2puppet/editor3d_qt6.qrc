@@ -37,6 +37,7 @@
         <file>mockfiles/qt6/LightIconGizmo.qml</file>
         <file>mockfiles/qt6/LightModel.qml</file>
         <file>mockfiles/qt6/Line3D.qml</file>
+        <file>mockfiles/qt6/LookAtGizmo.qml</file>
         <file>mockfiles/qt6/MaterialNodeView.qml</file>
         <file>mockfiles/qt6/ModelNode2DImageView.qml</file>
         <file>mockfiles/qt6/ModelNode3DImageView.qml</file>

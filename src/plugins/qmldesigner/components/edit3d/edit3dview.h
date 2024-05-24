@@ -159,6 +159,7 @@ private:
     std::unique_ptr<Edit3DAction> m_orientationModeAction;
     std::unique_ptr<Edit3DAction> m_editLightAction;
     std::unique_ptr<Edit3DAction> m_showGridAction;
+    std::unique_ptr<Edit3DAction> m_showLookAtAction;
     std::unique_ptr<Edit3DAction> m_showSelectionBoxAction;
     std::unique_ptr<Edit3DAction> m_showIconGizmoAction;
     std::unique_ptr<Edit3DAction> m_showCameraFrustumAction;

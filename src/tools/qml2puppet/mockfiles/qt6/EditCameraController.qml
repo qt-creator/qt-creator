@@ -29,7 +29,7 @@ Item {
     readonly property real _keyPanAmount: 1.0
     property bool ignoreToolState: false
     property bool flyMode: viewRoot.flyMode
-    property bool hasMovedInFlyMode: false
+    property bool showCrosshairs: false
 
     z: 10
     anchors.fill: parent
@@ -175,14 +175,14 @@ Item {
     function rotateCamera(angles)
     {
         if (flyMode)
-            hasMovedInFlyMode = true;
+            showCrosshairs = true;
         cameraCtrl._lookAtPoint = _generalHelper.rotateCamera(camera, angles, _lookAtPoint);
     }
 
     function moveCamera(moveVec)
     {
         if (flyMode)
-            hasMovedInFlyMode = true;
+            showCrosshairs = true;
         cameraCtrl._lookAtPoint = _generalHelper.moveCamera(camera, _lookAtPoint, moveVec);
     }
 
@@ -248,9 +248,13 @@ Item {
             cameraCtrl._dragging = false;
             cameraCtrl.storeCameraState(0);
         }
-        hasMovedInFlyMode = false;
+        showCrosshairs = false;
         _generalHelper.stopAllCameraMoves();
         _generalHelper.setCameraSpeedModifier(1.0);
+    }
+
+    on_LookAtPointChanged: {
+        viewRoot.overlayViews[splitId].lookAtGizmo.position = _lookAtPoint;
     }
 
     Connections {
@@ -268,7 +272,7 @@ Item {
     Image {
         anchors.centerIn: parent
         source: "qrc:///qtquickplugin/mockfiles/images/crosshair.png"
-        visible: cameraCtrl.hasMovedInFlyMode && viewRoot.activeSplit === cameraCtrl.splitId
+        visible: cameraCtrl.showCrosshairs && viewRoot.activeSplit === cameraCtrl.splitId
         opacity: 0.7
     }
 
