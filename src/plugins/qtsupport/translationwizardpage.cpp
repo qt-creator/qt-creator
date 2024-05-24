@@ -76,7 +76,7 @@ TranslationWizardPage::TranslationWizardPage(const QString &enabledExpr, bool si
     auto localeStrings = transform<QList<LocalePair>>(allLocales,
                 [](const QLocale &l) {
                     const QString displayName = QLocale::languageToString(l.language()).append(" (")
-                            .append(QLocale::countryToString(l.country())).append(')');
+                            .append(QLocale::territoryToString(l.territory())).append(')');
                     const QString tsFileBaseName = l.name();
                     return qMakePair(displayName, tsFileBaseName);
                 });

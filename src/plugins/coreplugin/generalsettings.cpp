@@ -240,7 +240,7 @@ void GeneralSettingsWidget::fillLanguageBox() const
         if (hasQmFilesForLocale(locale, creatorTrPath.toString())) {
             QLocale tmpLocale(locale);
             QString languageItem = QLocale::languageToString(tmpLocale.language()) + QLatin1String(" (")
-                                   + QLocale::countryToString(tmpLocale.country()) + QLatin1Char(')');
+                                   + QLocale::territoryToString(tmpLocale.territory()) + QLatin1Char(')');
             m_languageBox->addItem(languageItem, locale);
             if (locale == currentLocale)
                 m_languageBox->setCurrentIndex(m_languageBox->count() - 1);
