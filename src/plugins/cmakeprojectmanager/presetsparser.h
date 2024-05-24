@@ -142,7 +142,7 @@ public:
     int version = 0;
     bool havePresets = false;
     QVersionNumber cmakeMinimimRequired;
-    QHash<QString, QString> vendor;
+    std::optional<QVariantMap> vendor;
     std::optional<QStringList> include;
     Utils::FilePath fileDir;
     QList<PresetsDetails::ConfigurePreset> configurePresets;

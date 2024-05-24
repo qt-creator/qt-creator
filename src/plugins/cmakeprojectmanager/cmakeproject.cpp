@@ -121,6 +121,14 @@ Internal::PresetsData CMakeProject::combinePresets(Internal::PresetsData &cmakeP
         result.include = cmakeUserPresetsData.include;
     }
 
+    result.vendor = cmakePresetsData.vendor;
+    if (result.vendor) {
+        if (cmakeUserPresetsData.vendor)
+            result.vendor->insert(cmakeUserPresetsData.vendor.value());
+    } else {
+        result.vendor = cmakeUserPresetsData.vendor;
+    }
+
     auto combinePresetsInternal = [](auto &presetsHash,
                                      auto &presets,
                                      auto &userPresets,

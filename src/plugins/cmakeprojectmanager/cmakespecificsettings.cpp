@@ -12,6 +12,7 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectimporter.h>
 #include <projectexplorer/projectpanelfactory.h>
 
 #include <utils/hostosinfo.h>
@@ -122,7 +123,13 @@ CMakeSpecificSettings::CMakeSpecificSettings(Project *p, bool autoApply)
 
     if (project) {
         // Re-read the settings. Reading in constructor is too early
-        connect(project, &Project::settingsLoaded, this, [this] {
+        connect(project, &Project::settingsLoaded, this, [this] { readSettings(); });
+
+        connect(project->projectImporter(), &ProjectImporter::cmakePresetsUpdated, this, [this] {
+            // clear settings first
+            Store data;
+            project->setNamedSettings(Constants::Settings::GENERAL_ID, variantFromStore(data));
+
             readSettings();
         });
     }
@@ -133,9 +140,24 @@ void CMakeSpecificSettings::readSettings()
     if (!project) {
         AspectContainer::readSettings();
     } else {
-        const Store data = storeFromVariant(project->namedSettings(Constants::Settings::GENERAL_ID));
-        useGlobalSettings = data.value(Constants::Settings::USE_GLOBAL_SETTINGS, true).toBool();
-        fromMap(data);
+        Store data = storeFromVariant(project->namedSettings(Constants::Settings::GENERAL_ID));
+        if (data.isEmpty()) {
+            CMakeProject *cmakeProject = static_cast<CMakeProject *>(project);
+            if (cmakeProject->presetsData().havePresets && cmakeProject->presetsData().vendor) {
+                useGlobalSettings = false;
+                data = storeFromMap(cmakeProject->presetsData().vendor.value());
+                fromMap(data);
+
+                // Write the new loaded CMakePresets settings into .user file
+                writeSettings();
+            } else {
+                useGlobalSettings = true;
+                AspectContainer::readSettings();
+            }
+        } else {
+            useGlobalSettings = data.value(Constants::Settings::USE_GLOBAL_SETTINGS, true).toBool();
+            fromMap(data);
+        }
     }
 }
 

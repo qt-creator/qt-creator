@@ -435,6 +435,30 @@ bool parseBuildPresets(const QJsonValue &jsonValue,
     return true;
 }
 
+bool parseVendor(const QJsonValue &jsonValue, std::optional<QVariantMap> &vendorSettings)
+{
+    // The whole section is optional
+    if (jsonValue.isUndefined())
+        return true;
+    if (!jsonValue.isObject())
+        return false;
+
+    const QJsonObject object = jsonValue.toObject();
+    const QJsonValue qtIo = object.value("qt.io/QtCreator/1.0");
+    if (qtIo.isUndefined())
+        return true;
+    if (!qtIo.isObject())
+        return false;
+
+    const QJsonObject qtIoObject = qtIo.toObject();
+    vendorSettings = QVariantMap();
+    for (const QString &settingKey : qtIoObject.keys()) {
+        const QJsonValue settingValue = qtIoObject.value(settingKey);
+        vendorSettings->insert(settingKey, settingValue.toVariant());
+    }
+    return true;
+}
+
 const PresetsData &PresetsParser::presetsData() const
 {
     return m_presetsData;
@@ -500,6 +524,12 @@ bool PresetsParser::parse(const Utils::FilePath &jsonFile, QString &errorMessage
         errorMessage = ::CMakeProjectManager::Tr::tr("Invalid \"buildPresets\" section in %1 file")
                            .arg(jsonFile.fileName());
         return false;
+    }
+
+    // optional
+    if (!parseVendor(root.value("vendor"), m_presetsData.vendor)) {
+        errorMessage = ::CMakeProjectManager::Tr::tr("Invalid \"vendor\" section in %1 file")
+                           .arg(jsonFile.fileName());
     }
 
     return true;
