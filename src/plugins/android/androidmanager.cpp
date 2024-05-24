@@ -85,18 +85,52 @@ static const ProjectNode *currentProjectNode(const Target *target)
 
 QString packageName(const Target *target)
 {
-    const auto element = documentElement(AndroidManager::manifestPath(target));
-    if (!element)
-        return {};
-    return element->attribute("package");
-}
+    QString packageName;
 
-QString packageName(const FilePath &manifestFile)
-{
-    const auto element = documentElement(manifestFile);
-    if (!element)
-        return {};
-    return element->attribute("package");
+    // Check build.gradle
+    auto isComment = [](const QByteArray &trimmed) {
+        return trimmed.startsWith("//") || trimmed.startsWith('*') || trimmed.startsWith("/*");
+    };
+
+    const FilePath androidBuildDir = androidBuildDirectory(target);
+    const expected_str<QByteArray> gradleContents = androidBuildDir.pathAppended("build.gradle")
+                                                        .fileContents();
+    if (gradleContents) {
+        const auto lines = gradleContents->split('\n');
+        for (const auto &line : lines) {
+            const QByteArray trimmed = line.trimmed();
+            if (isComment(trimmed) || !trimmed.contains("namespace"))
+                continue;
+
+            int idx = trimmed.indexOf('=');
+            if (idx == -1)
+                idx = trimmed.indexOf(' ');
+            if (idx > -1) {
+                packageName = QString::fromUtf8(trimmed.mid(idx + 1).trimmed());
+                if (packageName == "androidPackageName") {
+                    // Check gradle.properties
+                    const QSettings gradleProperties = QSettings(
+                        androidBuildDir.pathAppended("gradle.properties").toFSPathString(),
+                        QSettings::IniFormat);
+                    packageName = gradleProperties.value("androidPackageName").toString();
+                } else {
+                    // Remote quotes
+                    packageName = packageName.removeFirst().removeLast();
+                }
+
+                break;
+            }
+        }
+    }
+
+    if (packageName.isEmpty()) {
+        // Check AndroidManifest.xml
+        const auto element = documentElement(AndroidManager::manifestPath(target));
+        if (element)
+            packageName = element->attribute("package");
+    }
+
+    return packageName;
 }
 
 QString activityName(const Target *target)

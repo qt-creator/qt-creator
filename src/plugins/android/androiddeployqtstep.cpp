@@ -368,11 +368,13 @@ DeployErrorFlags AndroidDeployQtStep::runDeploy(QPromise<void> &promise)
         QString packageName;
 
         if (m_uninstallPreviousPackageRun) {
-            packageName = AndroidManager::packageName(m_manifestName);
+            packageName = AndroidManager::packageName(target());
             if (packageName.isEmpty()) {
-                reportWarningOrError(Tr::tr("Cannot find the package name from the Android Manifest "
-                                            "file \"%1\".").arg(m_manifestName.toUserOutput()),
-                                     Task::Error);
+                reportWarningOrError(
+                    Tr::tr("Cannot find the package name from AndroidManifest.xml nor "
+                           "build.gradle files at \"%1\".")
+                        .arg(AndroidManager::androidBuildDirectory(target()).toUserOutput()),
+                    Task::Error);
                 return Failure;
             }
             const QString msg = Tr::tr("Uninstalling the previous package \"%1\".").arg(packageName);
