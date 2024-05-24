@@ -70,6 +70,8 @@ QtcPlugin {
             "widgets.lua",
             "wizard.lua",
         ]
+        qbs.install: true
+        qbs.installDir: qtc.ide_data_path + "/lua/meta/"
     }
 
     Group {
