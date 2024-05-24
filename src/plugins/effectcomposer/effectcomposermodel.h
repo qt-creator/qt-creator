@@ -12,7 +12,7 @@
 #include <QMap>
 #include <QRegularExpression>
 #include <QSet>
-#include <QTemporaryFile>
+#include <QTemporaryDir>
 #include <QTimer>
 
 namespace ProjectExplorer {
@@ -176,7 +176,7 @@ private:
     QString getQmlEffectString();
 
     void updateCustomUniforms();
-    void createFiles();
+    void initShaderDir();
     void bakeShaders();
     void saveResources(const QString &name);
 
@@ -205,8 +205,7 @@ private:
     QStringList m_defaultRootVertexShader;
     QStringList m_defaultRootFragmentShader;
     // Temp files to store shaders sources and binary data
-    QTemporaryFile m_fragmentSourceFile;
-    QTemporaryFile m_vertexSourceFile;
+    QTemporaryDir m_shaderDir;
     QString m_fragmentSourceFilename;
     QString m_vertexSourceFilename;
     QString m_fragmentShaderFilename;

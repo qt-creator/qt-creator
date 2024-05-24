@@ -21,6 +21,7 @@
 
 #include <QByteArrayView>
 #include <QLibraryInfo>
+#include <QTemporaryDir>
 #include <QVector2D>
 
 namespace EffectComposer {
@@ -48,6 +49,7 @@ static bool writeToFile(const QByteArray &buf, const QString &filename, FileType
 
 EffectComposerModel::EffectComposerModel(QObject *parent)
     : QAbstractListModel{parent}
+    , m_shaderDir(QDir::tempPath() + "/qds_ec_XXXXXX")
 {
     m_rebakeTimer.setSingleShot(true);
     connect(&m_rebakeTimer, &QTimer::timeout, this, &EffectComposerModel::bakeShaders);
@@ -1713,37 +1715,33 @@ void EffectComposerModel::updateCustomUniforms()
     m_exportedEffectPropertiesString = exportedEffectPropertiesString;
 }
 
-void EffectComposerModel::createFiles()
+void EffectComposerModel::initShaderDir()
 {
-    if (QFileInfo::exists(m_vertexShaderFilename))
-        QFile(m_vertexShaderFilename).remove();
-    if (QFileInfo::exists(m_fragmentShaderFilename))
-        QFile(m_fragmentShaderFilename).remove();
-    if (QFileInfo::exists(m_vertexShaderPreviewFilename))
-        QFile(m_vertexShaderPreviewFilename).remove();
-    if (QFileInfo::exists(m_fragmentShaderPreviewFilename))
-        QFile(m_fragmentShaderPreviewFilename).remove();
+    static int count = 0;
+    static const QString fileNameTemplate = "%1_%2.%3";
+    const QString countStr = QString::number(count);
 
-    auto vertexShaderFile = QTemporaryFile(QDir::tempPath() + "/dsem_XXXXXX.vert.qsb");
-    auto fragmentShaderFile = QTemporaryFile(QDir::tempPath() + "/dsem_XXXXXX.frag.qsb");
-    auto vertexShaderPreviewFile = QTemporaryFile(QDir::tempPath() + "/dsem_prev_XXXXXX.vert.qsb");
-    auto fragmentShaderPreviewFile = QTemporaryFile(QDir::tempPath() + "/dsem_prev_XXXXXX.frag.qsb");
+    auto resetFile = [&countStr, this](QString &fileName, const QString prefix, const QString suffix) {
+        // qsb generation is done in separate process, so it is not guaranteed all of the old files
+        // get deleted here, as they may not exist yet. Any dangling files will be deleted at
+        // application shutdown, when the temporary directory is destroyed.
+        if (!fileName.isEmpty()) {
+            QFile file(fileName);
+            if (file.exists())
+                file.remove();
+        }
 
-    m_vertexSourceFile.setFileTemplate(QDir::tempPath() + "/dsem_XXXXXX.vert");
-    m_fragmentSourceFile.setFileTemplate(QDir::tempPath() + "/dsem_XXXXXX.frag");
+        fileName = m_shaderDir.filePath(fileNameTemplate.arg(prefix, countStr, suffix));
+    };
 
-    if (!m_vertexSourceFile.open() || !m_fragmentSourceFile.open()
-        || !vertexShaderFile.open() || !fragmentShaderFile.open()
-        || !vertexShaderPreviewFile.open() || !fragmentShaderPreviewFile.open()) {
-        qWarning() << "Unable to open temporary files";
-    } else {
-        m_vertexSourceFilename = m_vertexSourceFile.fileName();
-        m_fragmentSourceFilename = m_fragmentSourceFile.fileName();
-        m_vertexShaderFilename = vertexShaderFile.fileName();
-        m_fragmentShaderFilename = fragmentShaderFile.fileName();
-        m_vertexShaderPreviewFilename = vertexShaderPreviewFile.fileName();
-        m_fragmentShaderPreviewFilename = fragmentShaderPreviewFile.fileName();
-    }
+    resetFile(m_vertexSourceFilename, "source", "vert");
+    resetFile(m_fragmentSourceFilename, "source", "frag");
+    resetFile(m_vertexShaderFilename, "compiled", "vert.qsb");
+    resetFile(m_fragmentShaderFilename, "compiled", "frag.qsb");
+    resetFile(m_vertexShaderPreviewFilename, "compiled_prev", "vert.qsb");
+    resetFile(m_fragmentShaderPreviewFilename, "compiled_prev", "frag.qsb");
+
+    ++count;
 }
 
 void EffectComposerModel::bakeShaders()
@@ -1756,7 +1754,7 @@ void EffectComposerModel::bakeShaders()
         return;
     }
 
-    createFiles();
+    initShaderDir();
 
     resetEffectError(ErrorPreprocessor);
     if (m_vertexShader == generateVertexShader() && m_fragmentShader == generateFragmentShader()) {
@@ -1775,11 +1773,11 @@ void EffectComposerModel::bakeShaders()
 
     setVertexShader(generateVertexShader());
     QString vs = m_vertexShader;
-    writeToFile(vs.toUtf8(), m_vertexSourceFile.fileName(), FileType::Text);
+    writeToFile(vs.toUtf8(), m_vertexSourceFilename, FileType::Text);
 
     setFragmentShader(generateFragmentShader());
     QString fs = m_fragmentShader;
-    writeToFile(fs.toUtf8(), m_fragmentSourceFile.fileName(), FileType::Text);
+    writeToFile(fs.toUtf8(), m_fragmentSourceFilename, FileType::Text);
 
     QtSupport::QtVersion *qtVer = QtSupport::QtKitAspect::qtVersion(target->kit());
     if (!qtVer) {
