@@ -24,6 +24,22 @@ add_qtc_plugin(Lua
     luaqttypes.cpp
     luaqttypes.h
     luatr.h
+    meta/action.lua
+    meta/async.lua
+    meta/core.lua
+    meta/fetch.lua
+    meta/install.lua
+    meta/layout.lua
+    meta/lsp.lua
+    meta/messagemanager.lua
+    meta/process.lua
+    meta/qt.lua
+    meta/qtc.lua
+    meta/settings.lua
+    meta/simpletypes.lua
+    meta/utils.lua
+    meta/widgets.lua
+    meta/wizard.lua
     # generateqtbindings.cpp # Use this if you need to generate some code.
 )
 
