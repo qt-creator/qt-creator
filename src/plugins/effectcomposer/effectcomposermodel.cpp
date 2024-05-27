@@ -518,11 +518,9 @@ QJsonObject nodeToJson(const CompositionNode &node)
 
         uniformObject.insert("type", type);
 
-        if (uniform->type() == Uniform::Type::Define || uniform->type() == Uniform::Type::Channel) {
-            QString controlType = Uniform::stringFromType(uniform->controlType());
-            if (controlType != type)
-                uniformObject.insert("controlType", controlType);
-        }
+        QString controlType = Uniform::stringFromType(uniform->controlType());
+        if (controlType != type)
+            uniformObject.insert("controlType", controlType);
 
         if (!uniform->displayName().isEmpty())
             uniformObject.insert("displayName", QString(uniform->displayName()));
@@ -544,7 +542,8 @@ QJsonObject nodeToJson(const CompositionNode &node)
         if (!uniform->description().isEmpty())
             uniformObject.insert("description", uniform->description());
         if (uniform->type() == Uniform::Type::Float
-            || uniform->type() == Uniform::Type::Int
+            || (uniform->type() == Uniform::Type::Int
+                && uniform->controlType() != Uniform::Type::Channel)
             || uniform->type() == Uniform::Type::Vec2
             || uniform->type() == Uniform::Type::Vec3
             || uniform->type() == Uniform::Type::Vec4
