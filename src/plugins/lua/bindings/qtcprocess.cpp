@@ -29,11 +29,22 @@ void addProcessModule()
                 p->setEnvironment(Environment::systemEnvironment());
 
                 QObject::connect(p, &Process::done, guard, [p, cb]() { cb(p->exitCode()); });
+            };
+
+        process["commandOutput_cb"] =
+            [guard
+             = pluginSpec->connectionGuard.get()](const QString &cmdline, const sol::function &cb) {
+                Process *p = new Process;
+                p->setCommand(CommandLine::fromUserInput((cmdline)));
+                p->setEnvironment(Environment::systemEnvironment());
+
+                QObject::connect(p, &Process::done, guard, [p, cb]() { cb(p->allOutput()); });
 
                 p->start();
             };
 
         process["runInTerminal"] = wrap(process["runInTerminal_cb"]);
+        process["commandOutput"] = wrap(process["commandOutput_cb"]);
 
         return process;
     });
