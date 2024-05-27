@@ -71,7 +71,6 @@ static FilePath pluginInstallPath(bool installIntoApplication)
 }
 
 namespace Core {
-namespace Internal {
 
 class SourcePage : public WizardPage
 {
@@ -145,7 +144,7 @@ struct ArchiveIssue
 // Async. Result is set if any issue was found.
 void checkContents(QPromise<ArchiveIssue> &promise, const FilePath &tempDir)
 {
-    PluginSpec *coreplugin = PluginManager::specForPlugin(CorePlugin::instance());
+    PluginSpec *coreplugin = PluginManager::specForPlugin(Internal::CorePlugin::instance());
 
     // look for plugin
     QDirIterator it(tempDir.path(), libraryNameFilter(), QDir::Files | QDir::NoSymLinks,
@@ -397,7 +396,7 @@ static bool copyPluginFile(const FilePath &src, const FilePath &dest)
     return true;
 }
 
-bool PluginInstallWizard::exec(const FilePath &archive)
+bool executePluginInstallWizard(const FilePath &archive)
 {
     Wizard wizard(ICore::dialogParent());
     wizard.setWindowTitle(Tr::tr("Install Plugin"));
@@ -442,5 +441,4 @@ bool PluginInstallWizard::exec(const FilePath &archive)
     return false;
 }
 
-} // namespace Internal
 } // namespace Core
