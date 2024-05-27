@@ -4,7 +4,6 @@
 #pragma once
 
 #include "ioutputparser.h"
-#include "task.h"
 
 #include <QRegularExpression>
 #include <QString>
@@ -22,16 +21,12 @@ public:
 
 private:
     Result handleLine(const QString &line, Utils::OutputFormat type) override;
-    void flush() override;
+    bool isContinuation(const QString &line) const override;
 
     Result processCompileLine(const QString &line);
 
     QRegularExpression m_compileRegExp;
     QRegularExpression m_additionalInfoRegExp;
-
-    Task m_lastTask;
-    LinkSpecs m_linkSpecs;
-    int m_lines = 0;
 };
 
 class PROJECTEXPLORER_EXPORT ClangClParser :  public ProjectExplorer::OutputTaskParser
@@ -43,11 +38,8 @@ public:
 
 private:
     Result handleLine(const QString &line, Utils::OutputFormat type) override;
-    void flush() override;
 
     const QRegularExpression m_compileRegExp;
-    Task m_lastTask;
-    int m_linkedLines = 0;
 };
 
 } // namespace ProjectExplorer

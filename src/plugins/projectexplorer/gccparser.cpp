@@ -10,7 +10,6 @@
 
 #include <QLoggingCategory>
 
-#include <numeric>
 #include <optional>
 
 using namespace Utils;
@@ -141,77 +140,28 @@ QList<OutputLineParser *> GccParser::gccParserSuite()
     return {new GccParser, new Internal::LldParser, new LdParser};
 }
 
-void GccParser::createOrAmendTask(
-        Task::TaskType type,
-        const QString &description,
-        const QString &originalLine,
-        bool forceAmend,
-        const FilePath &file,
-        int line,
-        int column,
-        const LinkSpecs &linkSpecs
-        )
+void GccParser::gccCreateOrAmendTask(
+    Task::TaskType type,
+    const QString &description,
+    const QString &originalLine,
+    bool forceAmend,
+    const Utils::FilePath &file,
+    int line,
+    int column,
+    const LinkSpecs &linkSpecs)
 {
-    const bool amend = !m_currentTask.isNull() && (forceAmend || isContinuation(originalLine));
-    if (!amend) {
-        flush();
-        m_currentTask = CompileTask(type, description, file, line, column);
-        m_currentTask.details.append(originalLine);
-        m_linkSpecs = linkSpecs;
-        m_lines = 1;
-        return;
-    }
-
-    LinkSpecs adaptedLinkSpecs = linkSpecs;
-    const int offset = std::accumulate(m_currentTask.details.cbegin(), m_currentTask.details.cend(),
-            0, [](int total, const QString &line) { return total + line.length() + 1;});
-    for (LinkSpec &ls : adaptedLinkSpecs)
-        ls.startPos += offset;
-    m_linkSpecs << adaptedLinkSpecs;
-    m_currentTask.details.append(originalLine);
-
-    // Check whether the new line is more relevant than the previous ones.
-    if ((m_currentTask.type != Task::Error && type == Task::Error)
-            || (m_currentTask.type == Task::Unknown && type != Task::Unknown)) {
-        m_currentTask.type = type;
-        m_currentTask.summary = description;
-        if (!file.isEmpty() && !m_requiredFromHereFound) {
-            m_currentTask.setFile(file);
-            m_currentTask.line = line;
-            m_currentTask.column = column;
-        }
-    }
+    createOrAmendTask(type, description, originalLine, forceAmend, file, line, column, linkSpecs);
 
     // If a "required from here" line is present, it is almost always the cause of the problem,
     // so that's where we should go when the issue is double-clicked.
     if ((originalLine.endsWith("required from here") || originalLine.endsWith("requested here")
-         || originalLine.endsWith("note: here")) && !file.isEmpty() && line > 0) {
-        m_requiredFromHereFound = true;
-        m_currentTask.setFile(file);
-        m_currentTask.line = line;
-        m_currentTask.column = column;
+         || originalLine.endsWith("note: here"))
+        && !file.isEmpty() && line > 0) {
+        fixTargetLink();
+        currentTask().setFile(file);
+        currentTask().line = line;
+        currentTask().column = column;
     }
-
-    ++m_lines;
-}
-
-void GccParser::flush()
-{
-    if (m_currentTask.isNull())
-        return;
-
-    // If there is only one line of details, then it is the line that we generated
-    // the summary from. Remove it, because it does not add any information.
-    if (m_currentTask.details.count() == 1)
-        m_currentTask.details.clear();
-
-    setDetailsFormat(m_currentTask, m_linkSpecs);
-    Task t = m_currentTask;
-    m_currentTask.clear();
-    m_linkSpecs.clear();
-    scheduleTask(t, m_lines, 1);
-    m_lines = 0;
-    m_requiredFromHereFound = false;
 }
 
 OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat type)
@@ -234,7 +184,7 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
 
     // Handle misc issues:
     if (lne.startsWith(QLatin1String("ERROR:")) || lne == QLatin1String("* cpp failed")) {
-        createOrAmendTask(Task::Error, lne, lne);
+        gccCreateOrAmendTask(Task::Error, lne, lne);
         return Status::InProgress;
     }
 
@@ -249,7 +199,7 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
         } else if (description.startsWith(QLatin1String("fatal: ")))  {
             description = description.mid(6);
         }
-        createOrAmendTask(type, description, lne);
+        gccCreateOrAmendTask(type, description, lne);
         return Status::InProgress;
     }
 
@@ -265,7 +215,8 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
         const int column = match.captured(3).toInt();
         LinkSpecs linkSpecs;
         addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, match, "file");
-        createOrAmendTask(Task::Unknown, lne.trimmed(), lne, false, filePath, lineNo, column, linkSpecs);
+        gccCreateOrAmendTask(
+            Task::Unknown, lne.trimmed(), lne, false, filePath, lineNo, column, linkSpecs);
         return {Status::InProgress, linkSpecs};
     }
 
@@ -277,7 +228,7 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
         LinkSpecs linkSpecs;
         if (!filePath.isEmpty())
             addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, -1, match, 3);
-        createOrAmendTask(type, match.captured(2), lne, false, filePath, -1, 0, linkSpecs);
+        gccCreateOrAmendTask(type, match.captured(2), lne, false, filePath, -1, 0, linkSpecs);
         flush();
         return {Status::Done, linkSpecs};
     }
@@ -287,7 +238,7 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
         LinkSpecs linkSpecs;
         addLinkSpecForAbsoluteFilePath(
             linkSpecs, filePath, data->line, data->fileOffset, data->rawFilePath.size());
-        createOrAmendTask(
+        gccCreateOrAmendTask(
             data->type, data->description, lne, false, filePath, data->line, data->column, linkSpecs);
         return {Status::InProgress, linkSpecs};
     }
@@ -301,12 +252,13 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
         const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured("file")));
         LinkSpecs linkSpecs;
         addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineno, match, "file");
-        createOrAmendTask(Task::Unknown, description, lne, false, filePath, lineno, column, linkSpecs);
+        gccCreateOrAmendTask(
+            Task::Unknown, description, lne, false, filePath, lineno, column, linkSpecs);
         return {Status::InProgress, linkSpecs};
     }
 
-    if ((lne.startsWith(' ') && !m_currentTask.isNull()) || isContinuation(lne)) {
-        createOrAmendTask(Task::Unknown, lne, lne, true);
+    if ((lne.startsWith(' ') && !currentTask().isNull()) || isContinuation(lne)) {
+        gccCreateOrAmendTask(Task::Unknown, lne, lne, true);
         return Status::InProgress;
     }
 
@@ -317,12 +269,12 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
 
 bool GccParser::isContinuation(const QString &newLine) const
 {
-    return !m_currentTask.isNull()
-            && (m_currentTask.details.last().endsWith(':')
-                || m_currentTask.details.last().endsWith(',')
-                || m_currentTask.details.last().contains(" required from ")
-                || newLine.contains("within this context")
-                || newLine.contains("note:"));
+    return !currentTask().isNull()
+           && (currentTask().details.last().endsWith(':')
+               || currentTask().details.last().endsWith(',')
+               || currentTask().details.last().contains(" required from ")
+               || newLine.contains("within this context")
+               || newLine.contains("note:"));
 }
 
 } // ProjectExplorer
@@ -1070,10 +1022,11 @@ void ProjectExplorerTest::testGccOutputParsers_data()
             << OutputParserTester::STDERR
             << QString() << QString()
             << Tasks({CompileTask(Task::Error,
-                                     "Undefined symbols for architecture x86_64:\n"
-                                  "  \"SvgLayoutTest()\", referenced from:\n"
-                                  "      _main in main.cpp.o",
-                                  "main.cpp.o")})
+                              "Undefined symbols for architecture x86_64:\n"
+                              "Undefined symbols for architecture x86_64:\n"
+                              "  \"SvgLayoutTest()\", referenced from:\n"
+                              "      _main in main.cpp.o",
+                              "main.cpp.o")})
             << QString();
 
     QTest::newRow("ld: undefined member function reference")

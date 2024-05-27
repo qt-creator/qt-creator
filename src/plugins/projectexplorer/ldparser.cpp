@@ -39,7 +39,7 @@ Utils::OutputLineParser::Result LdParser::handleLine(const QString &line, Utils:
         return Status::NotHandled;
 
     QString lne = rightTrimmed(line);
-    if (!lne.isEmpty() && !lne.at(0).isSpace() && !m_incompleteTask.isNull()) {
+    if (!lne.isEmpty() && !lne.at(0).isSpace() && !currentTask().isNull()) {
         flush();
         return Status::NotHandled;
     }
@@ -52,19 +52,20 @@ Utils::OutputLineParser::Result LdParser::handleLine(const QString &line, Utils:
 
     // ld on macOS
     if (lne.startsWith("Undefined symbols for architecture") && lne.endsWith(":")) {
-        m_incompleteTask = CompileTask(Task::Error, lne);
+        createOrAmendTask(Task::Error, lne, line);
         return Status::InProgress;
     }
-    if (!m_incompleteTask.isNull() && lne.startsWith("  ")) {
-        m_incompleteTask.details.append(lne);
+    if (!currentTask().isNull() && lne.startsWith("  ")) {
         static const QRegularExpression locRegExp("    (?<symbol>\\S+) in (?<file>\\S+)");
         const QRegularExpressionMatch match = locRegExp.match(lne);
         LinkSpecs linkSpecs;
+        Utils::FilePath filePath;
         if (match.hasMatch()) {
-            m_incompleteTask.setFile(absoluteFilePath(Utils::FilePath::fromString(
-                                                          match.captured("file"))));
-            addLinkSpecForAbsoluteFilePath(linkSpecs, m_incompleteTask.file, 0, match, "file");
+            filePath = absoluteFilePath(Utils::FilePath::fromString(match.captured("file")));
+            addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, 0, match, "file");
+            currentTask().setFile(filePath);
         }
+        createOrAmendTask(Task::Unknown, {}, line, true, filePath);
         return {Status::InProgress, linkSpecs};
     }
 
@@ -137,13 +138,4 @@ Utils::OutputLineParser::Result LdParser::handleLine(const QString &line, Utils:
     }
 
     return Status::NotHandled;
-}
-
-void LdParser::flush()
-{
-    if (m_incompleteTask.isNull())
-        return;
-    const Task t = m_incompleteTask;
-    m_incompleteTask.clear();
-    scheduleTask(t, 1);
 }
