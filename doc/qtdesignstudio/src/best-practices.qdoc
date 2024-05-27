@@ -13,4 +13,26 @@
     \list
       \li \l {Creating Glow and Bloom Effects}
     \endlist
+
+    \section1 Performance
+
+    \list
+      \li \l {Optimizing Designs}
+      \li \l {QML Performance Considerations And Suggestions}
+      \li \l {Creating Optimized 3D Scenes}
+      \li \l {Using Components Economically}
+    \endlist
+
+    \section1 Projects
+
+    \list
+      \li \l {Converting Qt 5 Projects into Qt 6 Projects}
+      \li \l {Converting UI Projects to Applications}
+    \endlist
+
+    \section1 Workflow
+
+    \list
+      \li \l {Designer-Developer Workflow}
+    \endlist
 */
