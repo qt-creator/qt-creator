@@ -782,12 +782,15 @@ void ClangFormatBaseIndenterPrivate::indent(const QTextCursor &cursor,
                                             const QChar &typedChar,
                                             int cursorPositionInEditor)
 {
+    const QString blockText = cursor.block().text().trimmed();
     if (cursor.hasSelection()) {
         indentBlocks(m_doc->findBlock(cursor.selectionStart()),
                      m_doc->findBlock(cursor.selectionEnd()),
                      typedChar,
                      cursorPositionInEditor);
-    } else {
+    } else if (
+        typedChar == QChar::Null || blockText.startsWith(typedChar) || blockText.endsWith(typedChar)
+        || blockText.isEmpty()) {
         indentBlocks(cursor.block(), cursor.block(), typedChar, cursorPositionInEditor);
     }
 }
