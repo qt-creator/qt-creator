@@ -105,7 +105,7 @@ void QmlJsEditingSettings::fromSettings(QtcSettings *settings)
         = settings->value(AUTO_FORMAT_ONLY_CURRENT_PROJECT, QVariant(false)).toBool();
     m_foldAuxData = settings->value(FOLD_AUX_DATA, QVariant(true)).toBool();
     m_uiQmlOpenMode = settings->value(UIQML_OPEN_MODE, "").toString();
-    m_qmllsSettings.useQmlls = settings->value(USE_QMLLS, QVariant(false)).toBool();
+    m_qmllsSettings.useQmlls = settings->value(USE_QMLLS, QVariant(true)).toBool();
     m_qmllsSettings.useLatestQmlls = settings->value(USE_LATEST_QMLLS, QVariant(false)).toBool();
     m_qmllsSettings.disableBuiltinCodemodel
         = settings->value(DISABLE_BUILTIN_CODEMODEL, QVariant(false)).toBool();
@@ -397,7 +397,7 @@ public:
         uiQmlOpenComboBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         uiQmlOpenComboBox->setSizeAdjustPolicy(QComboBox::QComboBox::AdjustToContents);
 
-        useQmlls = new QCheckBox(Tr::tr("Enable QML Language Server (EXPERIMENTAL!)"));
+        useQmlls = new QCheckBox(Tr::tr("Enable QML Language Server"));
         useQmlls->setChecked(s.qmllsSettings().useQmlls);
         disableBuiltInCodemodel = new QCheckBox(
             Tr::tr("Use QML Language Server advanced features (renaming, find usages and co.) "
