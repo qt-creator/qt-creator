@@ -60,6 +60,7 @@ QtLocalPeer::QtLocalPeer(QObject *parent, const QString &appId)
                        + QLatin1Char('/') + socketName
                        + QLatin1String("-lockfile");
     lockFile.reset(new QLockFile(lockName));
+    lockFile->setStaleLockTime(0);
 }
 
 bool QtLocalPeer::isClient()

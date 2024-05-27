@@ -47,23 +47,23 @@ static void mimeTypeFactoryLookup(const Utils::MimeType &mimeType,
     \brief The IEditorFactory class creates suitable editors for documents
     according to their MIME type.
 
-    Whenever a user wants to edit or create a document, the EditorManager
-    scans all IEditorFactory instances for suitable editors. The selected
-    IEditorFactory is then asked to create an editor.
+    When a user wants to edit or create a document, the EditorManager
+    scans all IEditorFactory instances for suitable editors and selects one
+    to create an editor.
 
     Implementations should set the properties of the IEditorFactory subclass in
     their constructor with IEditorFactory::setId(), IEditorFactory::setDisplayName(),
-    IEditorFactory::setMimeTypes(), and setEditorCreator()
+    IEditorFactory::setMimeTypes(), and IEditorFactory::setEditorCreator().
 
     IEditorFactory instances automatically register themselves in \QC in their
     constructor.
 
-    There are two varieties of editors: Internal and external. Internal editors
-    open within the main editing area of Qt Creator. An IEditorFactory defines
-    an internal editor by using the \c setEditorCreator function. External
+    There are two varieties of editors: internal and external. Internal editors
+    open within the main editing area of \QC. An IEditorFactory instance defines
+    an internal editor by using the setEditorCreator() function. External
     editors are external applications and are defined by using the
-    \c setEditorStarter function. They are accessible by the user using
-    the \uicontrol{Open With} dialog
+    setEditorStarter() function. The user can access them from the
+    \uicontrol{Open With} dialog.
 
     \sa Core::IEditor
     \sa Core::IDocument
@@ -167,7 +167,7 @@ IEditorFactory *IEditorFactory::editorFactoryForId(const Utils::Id &id)
 
 /*!
     Returns all available internal and external editors for the \a mimeType in the
-    default order: Editor types ordered by MIME type hierarchy, internal editors
+    default order: editor types are ordered by MIME type hierarchy, internal editors
     first.
 */
 const EditorFactories IEditorFactory::defaultEditorFactories(const MimeType &mimeType)
@@ -283,9 +283,10 @@ IEditor *IEditorFactory::createEditor() const
 }
 
 /*!
-    Starts an external editor.
+    Opens the file at \a filePath in an external editor.
 
-    Uses the function set with setEditorStarter() to start the editor.
+    Returns \c true on success or \c false on failure with the error in
+    \a errorMessage.
 
     \sa setEditorStarter()
 */
@@ -299,7 +300,7 @@ bool IEditorFactory::startEditor(const FilePath &filePath, QString *errorMessage
     Sets the function that is used to create an editor instance in
     createEditor() to \a creator.
 
-    This is mutually exclusive with the use of setEditorStarter.
+    This is mutually exclusive with the use of setEditorStarter().
 
     \sa createEditor()
 */
@@ -313,12 +314,16 @@ void IEditorFactory::setEditorCreator(const std::function<IEditor *()> &creator)
 }
 
 /*!
-    Opens the editor with \a fileName. Returns \c true on success or \c false
-    on failure along with the error in \a errorMessage.
+    \fn void Core::IEditorFactory::setEditorStarter(const std::function<bool(const Utils::FilePath &, QString *)> &starter);
 
-    This is mutually exclusive with the use of setEditorCreator.
+    Sets the function that is used to open a file for a given \c FilePath to
+    \a starter.
+
+    The function should return \c true on success, or return \c false and set the
+    \c QString to an error message at failure.
+
+    This is mutually exclusive with the use of setEditorCreator().
 */
-
 void IEditorFactory::setEditorStarter(const std::function<bool(const FilePath &, QString *)> &starter)
 {
     QTC_CHECK(!m_starter);

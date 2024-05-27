@@ -570,8 +570,6 @@ bool ICore::showWarningWithOptions(const QString &title, const QString &text,
     If \a scope is \c QSettings::SystemScope, only the installation settings
     shipped with the current version of \QC will be read. This
     functionality exists for internal purposes only.
-
-    \sa settingsDatabase()
 */
 QtcSettings *ICore::settings(QSettings::Scope scope)
 {
