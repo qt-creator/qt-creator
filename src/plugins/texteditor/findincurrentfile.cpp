@@ -27,8 +27,8 @@ private:
     QString id() const final;
     QString displayName() const final;
     bool isEnabled() const final;
-    void writeSettings(Utils::QtcSettings *settings) final;
-    void readSettings(Utils::QtcSettings *settings) final;
+    Utils::Store save() const final;
+    void restore(const Utils::Store &s) final;
 
     QString label() const final;
     QString toolTip() const final;
@@ -37,6 +37,9 @@ private:
     void handleFileChange(Core::IEditor *editor);
 
     QPointer<Core::IDocument> m_currentDocument;
+
+    // deprecated
+    QByteArray settingsKey() const final;
 };
 
 FindInCurrentFile::FindInCurrentFile()
@@ -97,18 +100,21 @@ void FindInCurrentFile::handleFileChange(Core::IEditor *editor)
     }
 }
 
-void FindInCurrentFile::writeSettings(QtcSettings *settings)
+Store FindInCurrentFile::save() const
 {
-    settings->beginGroup("FindInCurrentFile");
-    writeCommonSettings(settings);
-    settings->endGroup();
+    Store s;
+    writeCommonSettings(s);
+    return s;
 }
 
-void FindInCurrentFile::readSettings(QtcSettings *settings)
+void FindInCurrentFile::restore(const Store &s)
 {
-    settings->beginGroup("FindInCurrentFile");
-    readCommonSettings(settings, "*", "");
-    settings->endGroup();
+    readCommonSettings(s, "*", "");
+}
+
+QByteArray FindInCurrentFile::settingsKey() const
+{
+    return "FindInCurrentFile";
 }
 
 void setupFindInCurrentFile()

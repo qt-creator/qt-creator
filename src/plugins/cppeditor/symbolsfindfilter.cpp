@@ -166,24 +166,26 @@ QWidget *SymbolsFindFilter::createConfigWidget()
     return new SymbolsFindFilterConfigWidget(this);
 }
 
-void SymbolsFindFilter::writeSettings(QtcSettings *settings)
+Store SymbolsFindFilter::save() const
 {
-    settings->beginGroup(SETTINGS_GROUP);
-    settings->setValue(SETTINGS_SYMBOLTYPES, int(m_symbolsToSearch));
-    settings->setValue(SETTINGS_SEARCHSCOPE, int(m_scope));
-    settings->endGroup();
+    Store s;
+    s.insert(SETTINGS_SYMBOLTYPES, int(m_symbolsToSearch));
+    s.insert(SETTINGS_SEARCHSCOPE, int(m_scope));
+    return s;
 }
 
-void SymbolsFindFilter::readSettings(QtcSettings *settings)
+void SymbolsFindFilter::restore(const Utils::Store &s)
 {
-    settings->beginGroup(SETTINGS_GROUP);
     m_symbolsToSearch = static_cast<SearchSymbols::SymbolTypes>(
-                settings->value(SETTINGS_SYMBOLTYPES, int(SearchSymbols::AllTypes)).toInt());
+        s.value(SETTINGS_SYMBOLTYPES, int(SearchSymbols::AllTypes)).toInt());
     m_scope = static_cast<SearchScope>(
-                settings->value(SETTINGS_SEARCHSCOPE,
-                                int(SymbolSearcher::SearchProjectsOnly)).toInt());
-    settings->endGroup();
+        s.value(SETTINGS_SEARCHSCOPE, int(SymbolSearcher::SearchProjectsOnly)).toInt());
     emit symbolsToSearchChanged();
+}
+
+QByteArray SymbolsFindFilter::settingsKey() const
+{
+    return SETTINGS_GROUP;
 }
 
 void SymbolsFindFilter::onTaskStarted(Id type)

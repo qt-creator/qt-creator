@@ -6,6 +6,8 @@
 #include "../coreicons.h"
 #include "../coreplugintr.h"
 
+#include <utils/qtcsettings.h>
+
 #include <QApplication>
 #include <QKeySequence>
 #include <QPainter>
@@ -178,18 +180,6 @@ using namespace Utils;
 */
 
 /*!
-    \fn void Core::IFindFilter::writeSettings(Utils::QtcSettings *settings)
-    Called at shutdown to write the state of the additional options
-    for this find filter to the \a settings.
-*/
-
-/*!
-    \fn void Core::IFindFilter::readSettings(Utils::QtcSettings *settings)
-    Called at startup to read the state of the additional options
-    for this find filter from the \a settings.
-*/
-
-/*!
     \fn void Core::IFindFilter::enabledChanged(bool enabled)
 
     This signal is emitted when the \a enabled state of this find filter
@@ -262,6 +252,60 @@ FindFlags IFindFilter::supportedFindFlags() const
     return FindCaseSensitively
          | FindRegularExpression
          | FindWholeWords;
+}
+
+/*!
+    Returns a Store with the find filter's settings to store
+    in the session. Default values should not be saved.
+    The default implementation returns an empty store.
+
+    \sa restore()
+*/
+Store IFindFilter::save() const
+{
+    return {};
+}
+
+/*!
+    Restores the find filter's settings from the Store \a s.
+    Settings that are not present in the store should be reset to
+    the default.
+    The default implementation does nothing.
+
+    \sa save()
+*/
+void IFindFilter::restore([[maybe_unused]] const Utils::Store &s) {}
+
+/*!
+    Called at shutdown to write the state of the additional options
+    for this find filter to the \a settings.
+
+    \deprecated [14.0] Implement save() instead.
+*/
+void IFindFilter::writeSettings(Utils::QtcSettings *settings)
+{
+    settings->remove(settingsKey()); // make sure defaults are removed
+    storeToSettings(settingsKey(), settings, save());
+}
+
+/*!
+    Called at startup to read the state of the additional options
+    for this find filter from the \a settings.
+
+    \deprecated [14.0] Implement restore() instead.
+*/
+void IFindFilter::readSettings(Utils::QtcSettings *settings)
+{
+    restore(storeFromSettings(settingsKey(), settings));
+}
+
+/*!
+    \internal
+    \deprecated [14.0]
+*/
+QByteArray IFindFilter::settingsKey() const
+{
+    return id().toUtf8();
 }
 
 /*!

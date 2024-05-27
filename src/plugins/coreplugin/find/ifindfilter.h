@@ -6,6 +6,7 @@
 #include "../core_global.h"
 
 #include <utils/filesearch.h>
+#include <utils/store.h>
 
 QT_BEGIN_NAMESPACE
 class QWidget;
@@ -42,8 +43,13 @@ public:
     { Q_UNUSED(txt) Q_UNUSED(findFlags) }
 
     virtual QWidget *createConfigWidget() { return nullptr; }
-    virtual void writeSettings(Utils::QtcSettings *settings) { Q_UNUSED(settings) }
-    virtual void readSettings(Utils::QtcSettings *settings) { Q_UNUSED(settings) }
+    virtual Utils::Store save() const;
+    virtual void restore(const Utils::Store &s);
+
+    // deprecated in 14.0
+    virtual void writeSettings(Utils::QtcSettings *settings);
+    virtual void readSettings(Utils::QtcSettings *settings);
+    virtual QByteArray settingsKey() const;
 
     static QPixmap pixmapForFindFlags(Utils::FindFlags flags);
     static QString descriptionForFindFlags(Utils::FindFlags flags);

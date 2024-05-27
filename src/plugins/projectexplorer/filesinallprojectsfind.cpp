@@ -30,21 +30,24 @@ QString FilesInAllProjectsFind::displayName() const
 
 const char kSettingsKey[] = "FilesInAllProjectDirectories";
 
-void FilesInAllProjectsFind::writeSettings(QtcSettings *settings)
+Store FilesInAllProjectsFind::save() const
 {
-    settings->beginGroup(kSettingsKey);
-    writeCommonSettings(settings);
-    settings->endGroup();
+    Store s;
+    writeCommonSettings(s);
+    return s;
 }
 
-void FilesInAllProjectsFind::readSettings(QtcSettings *settings)
+void FilesInAllProjectsFind::restore(const Utils::Store &s)
 {
-    settings->beginGroup(kSettingsKey);
     readCommonSettings(
-        settings,
+        s,
         "CMakeLists.txt,*.cmake,*.pro,*.pri,*.qbs,*.cpp,*.h,*.mm,*.qml,*.md,*.txt,*.qdoc",
         "*/.git/*,*/.cvs/*,*/.svn/*,*.autosave,*/build/*");
-    settings->endGroup();
+}
+
+QByteArray FilesInAllProjectsFind::settingsKey() const
+{
+    return kSettingsKey;
 }
 
 FileContainerProvider FilesInAllProjectsFind::fileContainerProvider() const

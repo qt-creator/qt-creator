@@ -188,18 +188,21 @@ QWidget *FindInFiles::createConfigWidget()
     return m_configWidget;
 }
 
-void FindInFiles::writeSettings(QtcSettings *settings)
+Store FindInFiles::save() const
 {
-    settings->beginGroup("FindInFiles");
-    writeCommonSettings(settings);
-    settings->endGroup();
+    Store s;
+    writeCommonSettings(s);
+    return s;
 }
 
-void FindInFiles::readSettings(QtcSettings *settings)
+void FindInFiles::restore(const Utils::Store &s)
 {
-    settings->beginGroup("FindInFiles");
-    readCommonSettings(settings, "*.cpp,*.h", "*/.git/*,*/.cvs/*,*/.svn/*,*.autosave,*/build/*");
-    settings->endGroup();
+    readCommonSettings(s, "*.cpp,*.h", "*/.git/*,*/.cvs/*,*/.svn/*,*.autosave,*/build/*");
+}
+
+QByteArray FindInFiles::settingsKey() const
+{
+    return "FindInFiles";
 }
 
 void FindInFiles::setBaseDirectory(const FilePath &directory)

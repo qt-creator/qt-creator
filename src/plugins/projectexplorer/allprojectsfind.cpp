@@ -113,16 +113,19 @@ QWidget *AllProjectsFind::createConfigWidget()
     return m_configWidget;
 }
 
-void AllProjectsFind::writeSettings(QtcSettings *settings)
+Store AllProjectsFind::save() const
 {
-    settings->beginGroup("AllProjectsFind");
-    writeCommonSettings(settings);
-    settings->endGroup();
+    Store s;
+    writeCommonSettings(s);
+    return s;
 }
 
-void AllProjectsFind::readSettings(QtcSettings *settings)
+void AllProjectsFind::restore(const Utils::Store &s)
 {
-    settings->beginGroup("AllProjectsFind");
-    readCommonSettings(settings, "*", "");
-    settings->endGroup();
+    readCommonSettings(s, "*", "");
+}
+
+QByteArray AllProjectsFind::settingsKey() const
+{
+    return "AllProjectsFind";
 }

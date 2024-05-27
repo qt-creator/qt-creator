@@ -29,8 +29,11 @@ private:
 
     bool isEnabled() const final;
 
-    void writeSettings(Utils::QtcSettings *settings) final;
-    void readSettings(Utils::QtcSettings *settings) final;
+    Utils::Store save() const final;
+    void restore(const Utils::Store &s) final;
+
+    // deprecated
+    QByteArray settingsKey() const final;
 
     QString label() const final;
 
@@ -115,18 +118,21 @@ void CurrentProjectFind::setupSearch(Core::SearchResult *search)
     });
 }
 
-void CurrentProjectFind::writeSettings(QtcSettings *settings)
+Store CurrentProjectFind::save() const
 {
-    settings->beginGroup("CurrentProjectFind");
-    writeCommonSettings(settings);
-    settings->endGroup();
+    Store s;
+    writeCommonSettings(s);
+    return s;
 }
 
-void CurrentProjectFind::readSettings(QtcSettings *settings)
+void CurrentProjectFind::restore(const Store &s)
 {
-    settings->beginGroup("CurrentProjectFind");
-    readCommonSettings(settings, "*", "");
-    settings->endGroup();
+    readCommonSettings(s, "*", "");
+}
+
+QByteArray CurrentProjectFind::settingsKey() const
+{
+    return "CurrentProjectFind";
 }
 
 void setupCurrentProjectFind()
