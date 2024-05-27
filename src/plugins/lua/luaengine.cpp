@@ -159,7 +159,9 @@ expected_str<void> LuaEngine::prepareSetup(
     sol::environment env(lua, sol::create, lua.globals());
 
     lua.new_usertype<ScriptPluginSpec>(
-        "PluginSpec", sol::no_constructor, "name", sol::readonly(&ScriptPluginSpec::name));
+        "PluginSpec", sol::no_constructor, "name", sol::property([](ScriptPluginSpec &self) {
+            return self.name;
+        }));
 
     lua["PluginSpec"] = ScriptPluginSpec{pluginSpec.name(), appDataPath};
 
