@@ -748,6 +748,9 @@ void ContentLibraryView::addLib3DItem(const ModelNode &node)
     auto [qml, icon] = m_widget->userModel()->getUniqueLib3DNames(node.id());
     QString iconPath = QLatin1String("icons/%1").arg(icon);
 
+    if (name.isEmpty())
+        name = node.id();
+
     // generate and save item Qml file
     const QStringList depAssets = writeLibItemQml(node, qml);
 
