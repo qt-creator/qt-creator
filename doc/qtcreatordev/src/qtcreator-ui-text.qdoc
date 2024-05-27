@@ -273,8 +273,36 @@
 
     \section2 Marking UI Text for Translation
 
-    Make sure the text strings presented to the user are easy to translate.
-    The user interface text strings are enclosed in \c tr() calls and
+    \section3 Translation Context
+
+    Avoid creating many different translation contexts. By default, \c tr()
+    uses the context of the class, which means that translations break when
+    code is refactored and UI text is moved to a different class.
+
+    Create a single translation context for each plugin instead. Create a header
+    \c myplugintr.h
+
+    \code
+    #pragma once
+
+    #include <QCoreApplication>
+
+    namespace MyPlugin {
+
+    struct Tr
+    {
+        Q_DECLARE_TR_FUNCTIONS(QtC::MyPlugin)
+    };
+
+    } // namespace MyPlugin
+    \endcode
+
+    and use that struct as the translation context for UI text by calling
+    \c {Tr::tr()}. Use disambiguation strings in cases that need it.
+
+    \section3 Translator Comments
+
+    The user interface text strings are enclosed in \c {Tr::tr()} calls and
     extracted from the source code during the translation process. Therefore,
     the translator might not know the source code context of the messages.
 
@@ -286,26 +314,24 @@
     return tr("Add");
     \endcode
 
-    If the class is not Q_OBJECT, use \c {QCoreApplication::translate("class
-    context", "message")} or consider using Q_DECLARE_TR_FUNCTIONS. Do not use
-    \c {QObject::tr()}, which is confusing because the messages appear grouped
-    by class context in Qt Linguist and messages tied to QObject do not have a
-    class context.
+    \section3 File Paths
 
-    Use \c{QDir::toNativeSeparators()} for file and directory names that you
-    pass to \c{tr().arg()}.
+    Use \c{FilePath::toUserOutput()} from the \c Utils library for file and directory
+    names that you pass to \c{Tr::tr().arg()}.
 
-    Do not use markup that spans the whole string because that can be confusing
+    \section3 Markup
+
+    Avoid including markup within the translated text itself because that can be confusing
     for translators. For example, instead of:
 
     \code
-    tr("<html><head/><body><span>UI Text</span></body></html>")
+    Tr::tr("<html><head/><body><span>UI Text</span></body></html>")
     \endcode
 
     use
 
     \code
-    QLatin1String("<html><head/><body><span>") + tr("UI Text") + QLatin1String("/span></body></html>")
+    "<html><head/><body><span>" + Tr::tr("UI Text") + "</span></body></html>"
     \endcode
 
     \section2 Features of Languages or Writing Systems
