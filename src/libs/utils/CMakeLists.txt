@@ -94,6 +94,7 @@ add_qtc_library(Utils
     link.cpp link.h
     listmodel.h
     listutils.h
+    lua.cpp lua.h
     macroexpander.cpp macroexpander.h
     mathutils.cpp mathutils.h
     mimeconstants.h

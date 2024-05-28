@@ -185,6 +185,8 @@ QtcLibrary {
         "link.h",
         "listmodel.h",
         "listutils.h",
+        "lua.cpp",
+        "lua.h",
         "macroexpander.cpp",
         "macroexpander.h",
         "mathutils.cpp",
