@@ -231,6 +231,15 @@ void addLayoutModule()
             "Stretch", sol::call_constructor, sol::constructors<Stretch(int)>());
 
         // Layouts
+        layout.new_usertype<Layout>(
+            "Layout",
+            sol::call_constructor,
+            sol::factories(&construct<Layout>),
+            "show",
+            &Layout::show,
+            sol::base_classes,
+            sol::bases<Object, Thing>());
+
         layout.new_usertype<Form>(
             "Form",
             sol::call_constructor,

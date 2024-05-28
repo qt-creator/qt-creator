@@ -156,6 +156,7 @@ public:
     void fieldGrowthPolicy(int policy);
 
     QWidget *emerge() const;
+    void show() const;
 
     QFormLayout *asForm();
     QGridLayout *asGrid();

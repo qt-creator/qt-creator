@@ -686,6 +686,11 @@ QWidget *Layout::emerge() const
     return widget;
 }
 
+void Layout::show() const
+{
+    return emerge()->show();
+}
+
 // "Widgets"
 
 Widget::Widget(std::initializer_list<I> ps)
