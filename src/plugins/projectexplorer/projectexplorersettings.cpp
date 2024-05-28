@@ -142,8 +142,10 @@ static void loadProjectExplorerSettings()
               .toBool();
     settings.environmentId =
             QUuid(s->value(Constants::ENVIRONMENT_ID_SETTINGS_KEY).toByteArray());
-    if (settings.environmentId.isNull())
+    if (settings.environmentId.isNull()) {
         settings.environmentId = QUuid::createUuid();
+        s->setValue(Constants::ENVIRONMENT_ID_SETTINGS_KEY, settings.environmentId.toByteArray());
+    }
     int tmp = s->value(Constants::STOP_BEFORE_BUILD_SETTINGS_KEY,
                        int(defaultSettings.stopBeforeBuild))
                   .toInt();
