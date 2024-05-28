@@ -535,7 +535,7 @@ void ContentLibraryView::addLibMaterial(const ModelNode &node, const QPixmap &ic
     itemsArr.append(itemObj);
     jsonRef["items"] = itemsArr;
 
-    auto result = bundlePath.pathAppended("user_materials_bundle.json")
+    auto result = bundlePath.pathAppended(Constants::BUNDLE_JSON_FILENAME)
                       .writeFileContents(QJsonDocument(jsonRef).toJson());
     if (!result)
         qWarning() << __FUNCTION__ << result.error();
@@ -731,7 +731,7 @@ void ContentLibraryView::addLib3DComponent(const ModelNode &node)
 
     jsonRef["items"] = itemsArr;
 
-    auto result = bundlePath.pathAppended("user_3d_bundle.json")
+    auto result = bundlePath.pathAppended(Constants::BUNDLE_JSON_FILENAME)
                       .writeFileContents(QJsonDocument(jsonRef).toJson());
     if (!result)
         qWarning() << __FUNCTION__ << result.error();
@@ -771,7 +771,7 @@ void ContentLibraryView::addLib3DItem(const ModelNode &node)
 
     jsonRef["items"] = itemsArr;
 
-    auto result = bundlePath.pathAppended("user_3d_bundle.json")
+    auto result = bundlePath.pathAppended(Constants::BUNDLE_JSON_FILENAME)
                       .writeFileContents(QJsonDocument(jsonRef).toJson());
     if (!result)
         qWarning() << __FUNCTION__ << result.error();

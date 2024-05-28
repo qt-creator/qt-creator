@@ -78,6 +78,7 @@ inline constexpr char EDIT3D_SNAP_CONFIG[] = "QmlDesigner.Editor3D.SnapConfig";
 inline constexpr char EDIT3D_CAMERA_SPEED_CONFIG[] = "QmlDesigner.Editor3D.CameraSpeedConfig";
 
 inline constexpr char QML_DESIGNER_SUBFOLDER[] = "/designer/";
+inline constexpr char BUNDLE_JSON_FILENAME[] = "bundle.json";
 inline constexpr char COMPONENT_BUNDLES_TYPE[] = "Bundles";
 inline constexpr char COMPONENT_BUNDLES_MATERIAL_BUNDLE_TYPE[] = "Materials";
 inline constexpr char COMPONENT_BUNDLES_EFFECT_BUNDLE_TYPE[] = "Effects";

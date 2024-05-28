@@ -12,6 +12,7 @@
 
 #include <designerpaths.h>
 #include <imageutils.h>
+#include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <uniquename.h>
 
@@ -213,7 +214,7 @@ void ContentLibraryUserModel::removeMaterialFromContentLib(ContentLibraryMateria
     }
     m_bundleObjMaterial.insert("items", itemsArr);
 
-    auto result = bundlePath.pathAppended("user_material_bundle.json")
+    auto result = bundlePath.pathAppended(Constants::BUNDLE_JSON_FILENAME)
                       .writeFileContents(QJsonDocument(m_bundleObjMaterial).toJson());
     if (!result)
         qWarning() << __FUNCTION__ << result.error();
@@ -265,7 +266,7 @@ void ContentLibraryUserModel::remove3DFromContentLib(ContentLibraryItem *item)
     }
     m_bundleObj3D.insert("items", itemsArr);
 
-    auto result = m_bundlePath3D.pathAppended("user_3d_bundle.json")
+    auto result = m_bundlePath3D.pathAppended(Constants::BUNDLE_JSON_FILENAME)
                       .writeFileContents(QJsonDocument(m_bundleObj3D).toJson());
     if (!result)
         qWarning() << __FUNCTION__ << result.error();
@@ -384,7 +385,7 @@ void ContentLibraryUserModel::loadMaterialBundle()
     m_bundlePathMaterial.ensureWritableDir();
     m_bundlePathMaterial.pathAppended("icons").ensureWritableDir();
 
-    auto jsonFilePath = m_bundlePathMaterial.pathAppended("user_materials_bundle.json");
+    auto jsonFilePath = m_bundlePathMaterial.pathAppended(Constants::BUNDLE_JSON_FILENAME);
     if (!jsonFilePath.exists()) {
         QString jsonContent = "{\n";
         jsonContent += "    \"id\": \"UserMaterials\",\n";
@@ -407,7 +408,7 @@ void ContentLibraryUserModel::loadMaterialBundle()
 
     QJsonDocument bundleJsonDoc = QJsonDocument::fromJson(jsonContents.value());
     if (bundleJsonDoc.isNull()) {
-        qWarning() << __FUNCTION__ << "Invalid user_materials_bundle.json file";
+        qWarning() << __FUNCTION__ << "Invalid json file" << jsonFilePath;
         emit dataChanged(index(MaterialsSectionIdx), index(MaterialsSectionIdx));
         return;
     }
@@ -464,7 +465,7 @@ void ContentLibraryUserModel::load3DBundle()
     m_bundlePath3D.ensureWritableDir();
     m_bundlePath3D.pathAppended("icons").ensureWritableDir();
 
-    auto jsonFilePath = m_bundlePath3D.pathAppended("user_3d_bundle.json");
+    auto jsonFilePath = m_bundlePath3D.pathAppended(Constants::BUNDLE_JSON_FILENAME);
     if (!jsonFilePath.exists()) {
         QByteArray jsonContent = "{\n";
         jsonContent += "    \"id\": \"User3D\",\n";
@@ -487,7 +488,7 @@ void ContentLibraryUserModel::load3DBundle()
 
     QJsonDocument bundleJsonDoc = QJsonDocument::fromJson(jsonContents.value());
     if (bundleJsonDoc.isNull()) {
-        qWarning() << __FUNCTION__ << "Invalid user_3d_bundle.json file";
+        qWarning() << __FUNCTION__ << "Invalid json file" << jsonFilePath;
         emit dataChanged(index(Items3DSectionIdx), index(Items3DSectionIdx));
         return;
     }
