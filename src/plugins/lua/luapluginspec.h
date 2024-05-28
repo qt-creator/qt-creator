@@ -39,9 +39,8 @@ class LuaPluginSpec : public ExtensionSystem::PluginSpec
     LuaPluginSpec();
 
 public:
-    static Utils::expected_str<LuaPluginSpec *> create(const Utils::FilePath &filePath,
-                                                       sol::state lua,
-                                                       sol::table pluginTable);
+    static Utils::expected_str<LuaPluginSpec *> create(
+        const Utils::FilePath &filePath, sol::table pluginTable);
 
     ExtensionSystem::IPlugin *plugin() const override;
 
