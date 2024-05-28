@@ -828,12 +828,23 @@ public:
     StringListAspect(AspectContainer *container = nullptr);
     ~StringListAspect() override;
 
+    bool guiToBuffer() override;
+    void bufferToGui() override;
+
     void addToLayout(Layouting::Layout &parent) override;
 
     void appendValue(const QString &value, bool allowDuplicates = true);
     void removeValue(const QString &value);
     void appendValues(const QStringList &values, bool allowDuplicates = true);
     void removeValues(const QStringList &values);
+
+    void setUiAllowAdding(bool allowAdding);
+    void setUiAllowRemoving(bool allowRemoving);
+    void setUiAllowEditing(bool allowEditing);
+
+    bool uiAllowAdding() const;
+    bool uiAllowRemoving() const;
+    bool uiAllowEditing() const;
 
 private:
     std::unique_ptr<Internal::StringListAspectPrivate> d;

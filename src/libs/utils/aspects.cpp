@@ -39,6 +39,7 @@
 #include <QSpinBox>
 #include <QStandardItemModel>
 #include <QTextEdit>
+#include <QTreeWidget>
 #include <QUndoStack>
 
 using namespace Layouting;
@@ -931,6 +932,10 @@ public:
 class StringListAspectPrivate
 {
 public:
+    UndoableValue<QStringList> undoable;
+    bool allowAdding{true};
+    bool allowRemoving{true};
+    bool allowEditing{true};
 };
 
 class FilePathListAspectPrivate
@@ -2629,13 +2634,115 @@ StringListAspect::StringListAspect(AspectContainer *container)
 */
 StringListAspect::~StringListAspect() = default;
 
-/*!
-    \reimp
-*/
+bool StringListAspect::guiToBuffer()
+{
+    const QStringList newValue = d->undoable.get();
+    if (newValue != m_buffer) {
+        m_buffer = newValue;
+        return true;
+    }
+    return false;
+}
+
+void StringListAspect::bufferToGui()
+{
+    d->undoable.setWithoutUndo(m_buffer);
+}
+
 void StringListAspect::addToLayout(Layout &parent)
 {
-    Q_UNUSED(parent)
-    // TODO - when needed.
+    d->undoable.setSilently(value());
+
+    auto editor = new QTreeWidget();
+    editor->setHeaderHidden(true);
+    editor->setRootIsDecorated(false);
+    editor->setEditTriggers(
+        d->allowEditing ? QAbstractItemView::AllEditTriggers : QAbstractItemView::NoEditTriggers);
+
+    QPushButton *add = d->allowAdding ? new QPushButton(Tr::tr("Add")) : nullptr;
+    QPushButton *remove = d->allowRemoving ? new QPushButton(Tr::tr("Remove")) : nullptr;
+
+    auto itemsToStringList = [editor] {
+        QStringList items;
+        const QTreeWidgetItem *rootItem = editor->invisibleRootItem();
+        for (int i = 0, count = rootItem->childCount(); i < count; ++i) {
+            auto expr = rootItem->child(i)->data(0, Qt::DisplayRole).toString();
+            items.append(expr);
+        }
+        return items;
+    };
+
+    auto populate = [editor, this] {
+        editor->clear();
+        for (const QString &entry : d->undoable.get()) {
+            auto item = new QTreeWidgetItem(editor, {entry});
+            item->setData(0, Qt::ToolTipRole, entry);
+            item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable);
+        }
+    };
+
+    connect(add, &QPushButton::clicked, this, [this, populate, editor] {
+        d->undoable.setSilently(d->undoable.get() << "");
+        populate();
+        const QTreeWidgetItem *root = editor->invisibleRootItem();
+        QTreeWidgetItem *lastChild = root->child(root->childCount() - 1);
+        const QModelIndex index = editor->indexFromItem(lastChild, 0);
+        editor->edit(index);
+    });
+
+    connect(remove, &QPushButton::clicked, this, [this, editor, itemsToStringList] {
+        const QList<QTreeWidgetItem *> selected = editor->selectedItems();
+        QTC_ASSERT(selected.size() == 1, return);
+        editor->invisibleRootItem()->removeChild(selected.first());
+        delete selected.first();
+        d->undoable.set(undoStack(), itemsToStringList());
+    });
+
+    connect(
+        &d->undoable.m_signal, &UndoSignaller::changed, editor, [this, populate, itemsToStringList] {
+            if (itemsToStringList() != d->undoable.get())
+                populate();
+
+            handleGuiChanged();
+        });
+
+    connect(
+        editor->model(),
+        &QAbstractItemModel::dataChanged,
+        this,
+        [this,
+         itemsToStringList](const QModelIndex &tl, const QModelIndex &br, const QList<int> &roles) {
+            if (!roles.contains(Qt::DisplayRole))
+                return;
+            if (tl != br)
+                return;
+            d->undoable.set(undoStack(), itemsToStringList());
+        });
+
+    populate();
+
+    parent.addItem(
+        // clang-format off
+        Column {
+            createLabel(),
+            Row {
+                editor,
+                If { d->allowAdding || d->allowRemoving, {
+                    Column {
+                        If { d->allowAdding, {add}, {}},
+                        If { d->allowRemoving, {remove}, {}},
+                        st,
+                    }
+                }, {}},
+            }
+        } // clang-format on
+    );
+
+    registerSubWidget(editor);
+    if (d->allowAdding)
+        registerSubWidget(add);
+    if (d->allowRemoving)
+        registerSubWidget(remove);
 }
 
 void StringListAspect::appendValue(const QString &s, bool allowDuplicates)
@@ -2669,6 +2776,32 @@ void StringListAspect::removeValues(const QStringList &values)
     for (const QString &s : values)
         val.removeAll(s);
     setValue(val);
+}
+
+void StringListAspect::setUiAllowAdding(bool allowAdding)
+{
+    d->allowAdding = allowAdding;
+}
+void StringListAspect::setUiAllowRemoving(bool allowRemoving)
+{
+    d->allowRemoving = allowRemoving;
+}
+void StringListAspect::setUiAllowEditing(bool allowEditing)
+{
+    d->allowEditing = allowEditing;
+}
+
+bool StringListAspect::uiAllowAdding() const
+{
+    return d->allowAdding;
+}
+bool StringListAspect::uiAllowRemoving() const
+{
+    return d->allowRemoving;
+}
+bool StringListAspect::uiAllowEditing() const
+{
+    return d->allowEditing;
 }
 
 /*!
