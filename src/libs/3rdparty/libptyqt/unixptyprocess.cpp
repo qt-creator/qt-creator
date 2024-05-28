@@ -190,16 +190,17 @@ bool UnixPtyProcess::startProcess(const QString &shellPath,
         m_readMasterNotify->disconnect();
     });
 
-    QStringList varNames;
-    for (const QString &line : std::as_const(environment))
-        varNames.append(line.split("=").first());
-
-    QProcessEnvironment envFormat;
-    for (const QString &line : std::as_const(environment))
-        envFormat.insert(line.split("=").first(), line.split("=").last());
+    QProcessEnvironment env;
+    for (const QString &envEntry : environment) {
+        const int idx = envEntry.indexOf('=');
+        if (idx != -1)
+            env.insert(envEntry.left(idx), envEntry.mid(idx + 1));
+        else
+            env.insert(envEntry, QString());
+    }
 
     m_shellProcess.setWorkingDirectory(workingDir);
-    m_shellProcess.setProcessEnvironment(envFormat);
+    m_shellProcess.setProcessEnvironment(env);
     m_shellProcess.setReadChannel(QProcess::StandardOutput);
     m_shellProcess.start(m_shellPath, arguments);
     if (!m_shellProcess.waitForStarted())
