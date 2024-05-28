@@ -3,12 +3,14 @@
 
 #pragma once
 
-#include "generalhelper.h"
 #include "qt5nodeinstanceserver.h"
 
+#ifdef QUICK3D_MODULE
+#include "generalhelper.h"
 QT_BEGIN_NAMESPACE
 class QQuick3DNode;
 QT_END_NAMESPACE
+#endif
 
 namespace QmlDesigner {
 
@@ -31,7 +33,6 @@ protected:
     void startRenderTimer() override;
 
 private:
-    void finish();
     void cleanup();
 
     int m_renderCount = 0;
@@ -40,8 +41,17 @@ private:
 #ifdef QUICK3D_MODULE
     QQuick3DViewport *m_view3D = nullptr;
     Internal::GeneralHelper *m_generalHelper = nullptr;
-    QQuick3DNode *m_previewNode = nullptr;
-    QVector3D m_lookAt;
+
+    struct PreviewData
+    {
+        QString name;
+        QVector3D lookAt;
+        QVector3D extents;
+        QQuick3DNode *node = {};
+    };
+    QHash<QString, PreviewData> m_previewData;
+    QString m_currentNode;
+    QQuick3DNode *m_sceneNode = {};
 #endif
 };
 

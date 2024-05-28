@@ -33,7 +33,7 @@ public:
                        const QHash<QString, int> &extToImportOptionsMap,
                        const QSet<QString> &preselectedFilesForOverwrite);
 
-    void reImportQuick3D(const QString &assetName, const QVector<QJsonObject> &options);
+    void reImportQuick3D(const QHash<QString, QJsonObject> &importOptions);
 
     bool isImporting() const;
     void cancelImport();
@@ -48,12 +48,21 @@ public:
 
     void finalizeQuick3DImport();
 
+    struct PreviewData
+    {
+        int optionsIndex = 0;
+        QJsonObject renderedOptions;
+        QJsonObject currentOptions;
+        QString name;
+        QString folderName;
+    };
+
 signals:
     void errorReported(const QString &, const QString &);
     void warningReported(const QString &, const QString &);
     void infoReported(const QString &, const QString &);
     void progressChanged(int value, const QString &text);
-    void importReadyForPreview(const QString &path, const QString &compName);
+    void importReadyForPreview(const QString &path, const QList<PreviewData> &previewData);
     void importNearlyFinished();
     void importFinished();
 

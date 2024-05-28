@@ -63,15 +63,17 @@ private slots:
 
 private:
     void setCloseButtonState(bool importing);
-    void updateImportButtonState();
+    void updatePreviewOptions();
 
     void onImport();
     void setImportProgress(int value, const QString &text);
-    void onImportReadyForPreview(const QString &path, const QString &compName);
+    void onImportReadyForPreview(const QString &path,
+                                 const QList<ItemLibraryAssetImporter::PreviewData> &previewData);
     void onRequestImageUpdate();
     void onRequestRotation(const QPointF &delta);
     void onImportNearlyFinished();
     void onImportFinished();
+    void onCurrentRowChanged(int row);
     void onClose();
     void doClose();
     void toggleAdvanced();
@@ -84,10 +86,12 @@ private:
     bool isSimpleGroup(const QString &id);
     bool isSimpleOption(const QString &id);
     bool isHiddenOption(const QString &id);
+    bool optionsChanged();
 
     void startPreview();
     void cleanupPreviewPuppet();
     Import3dCanvas *canvas();
+    void resetOptionControls();
 
     Ui::ItemLibraryAssetImportDialog *ui = nullptr;
     Utils::OutputFormatter *m_outputFormatter = nullptr;
@@ -96,8 +100,9 @@ private:
     QPointer<RewriterView> m_rewriterView;
     QPointer<AbstractView> m_view;
     ModelPointer m_model;
+
+    QMap<QString, ItemLibraryAssetImporter::PreviewData> m_previewData;
     Utils::FilePath m_previewFile;
-    QString m_previewCompName;
 
     struct OptionsData
     {
@@ -110,7 +115,6 @@ private:
     QString m_quick3DImportPath;
     ItemLibraryAssetImporter m_importer;
     QVector<QJsonObject> m_importOptions;
-    QVector<QJsonObject> m_previewOptions;
     QHash<QString, int> m_extToImportOptionsMap;
     QSet<QString> m_preselectedFilesForOverwrite;
     bool m_closeOnFinish = true;
@@ -120,5 +124,7 @@ private:
     bool m_advancedMode = false;
     int m_dialogHeight = 350;
     bool m_explicitClose = false;
+    bool m_updatingControlStates = true;
+    bool m_firstImport = true;
 };
 }
