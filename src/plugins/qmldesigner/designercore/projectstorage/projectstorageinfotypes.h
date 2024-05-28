@@ -7,6 +7,7 @@
 
 #include <sqlite/sqlitevalue.h>
 #include <utils/smallstring.h>
+#include <utils/utility.h>
 
 #include <QVarLengthArray>
 
@@ -19,13 +20,6 @@ namespace QmlDesigner {
 
 template<std::size_t size>
 using SmallPathStrings = QVarLengthArray<Utils::PathString, size>;
-
-template<typename Enumeration>
-constexpr std::underlying_type_t<Enumeration> to_underlying(Enumeration enumeration) noexcept
-{
-    static_assert(std::is_enum_v<Enumeration>, "to_underlying expect an enumeration");
-    return static_cast<std::underlying_type_t<Enumeration>>(enumeration);
-}
 
 enum class FlagIs : unsigned int { False, Set, True };
 

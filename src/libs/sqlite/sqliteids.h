@@ -4,19 +4,13 @@
 #pragma once
 
 #include <utils/span.h>
+#include <utils/utility.h>
 
 #include <nanotrace/nanotracehr.h>
 #include <type_traits>
 #include <vector>
 
 namespace Sqlite {
-
-template<typename Enumeration>
-static constexpr std::underlying_type_t<Enumeration> to_underlying(Enumeration enumeration) noexcept
-{
-    static_assert(std::is_enum_v<Enumeration>, "to_underlying expect an enumeration");
-    return static_cast<std::underlying_type_t<Enumeration>>(enumeration);
-}
 
 template<auto Type, typename InternalIntegerType = long long>
 class BasicId
@@ -38,7 +32,7 @@ public:
     static constexpr BasicId createSpecialState(Enumeration specialState)
     {
         BasicId id;
-        id.id = ::Sqlite::to_underlying(specialState);
+        id.id = ::Utils::to_underlying(specialState);
         return id;
     }
 
@@ -77,7 +71,7 @@ public:
     template<typename Enumeration>
     constexpr bool hasSpecialState(Enumeration specialState) const
     {
-        return id == ::Sqlite::to_underlying(specialState);
+        return id == ::Utils::to_underlying(specialState);
     }
 
     explicit operator bool() const { return isValid(); }

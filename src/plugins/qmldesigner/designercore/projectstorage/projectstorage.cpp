@@ -3894,7 +3894,7 @@ Utils::PathString ProjectStorage::createJson(const Storage::Synchronization::Par
             json.append("\"}");
         } else {
             json.append(R"(","tr":)");
-            json.append(Utils::SmallString::number(to_underlying(parameter.traits)));
+            json.append(Utils::SmallString::number(Utils::to_underlying(parameter.traits)));
             json.append("}");
         }
     }

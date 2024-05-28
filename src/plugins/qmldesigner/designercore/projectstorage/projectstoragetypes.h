@@ -10,6 +10,7 @@
 #include <nanotrace/nanotracehr.h>
 #include <sqlite/sqlitevalue.h>
 #include <utils/smallstring.h>
+#include <utils/utility.h>
 
 #include <tuple>
 #include <variant>
@@ -207,7 +208,7 @@ void convertToString(String &string, const IsAutoVersion &isAutoVersion)
 
 constexpr bool operator<(IsAutoVersion first, IsAutoVersion second)
 {
-    return to_underlying(first) < to_underlying(second);
+    return Utils::to_underlying(first) < Utils::to_underlying(second);
 }
 
 class ModuleExportedImport

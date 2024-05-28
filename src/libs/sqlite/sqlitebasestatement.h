@@ -89,7 +89,7 @@ public:
     template<typename Enumeration, std::enable_if_t<std::is_enum_v<Enumeration>, bool> = true>
     void bind(int index, Enumeration enumeration)
     {
-        bind(index, to_underlying(enumeration));
+        bind(index, Utils::to_underlying(enumeration));
     }
 
     void bind(int index, uint value) { bind(index, static_cast<long long>(value)); }

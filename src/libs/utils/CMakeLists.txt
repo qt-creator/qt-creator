@@ -197,6 +197,7 @@ add_qtc_library(Utils
     utilstr.h
     utilsicons.cpp utilsicons.h
     utiltypes.h
+    utility.h
     variablechooser.cpp variablechooser.h
     winutils.cpp winutils.h
     wizard.cpp wizard.h
