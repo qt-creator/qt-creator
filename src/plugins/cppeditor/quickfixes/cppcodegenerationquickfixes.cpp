@@ -260,15 +260,14 @@ static void extractNames(const CppRefactoringFilePtr &file,
 class GetterSetterRefactoringHelper
 {
 public:
-    GetterSetterRefactoringHelper(CppQuickFixOperation *operation,
-                                  const FilePath &filePath,
-                                  Class *clazz)
+    GetterSetterRefactoringHelper(CppQuickFixOperation *operation, Class *clazz)
         : m_operation(operation)
         , m_changes(m_operation->snapshot())
         , m_locator(m_changes)
-        , m_headerFile(m_changes.cppFile(filePath))
+        , m_headerFile(operation->currentFile())
         , m_sourceFile([&] {
-            FilePath cppFilePath = correspondingHeaderOrSource(filePath, &m_isHeaderHeaderFile);
+            FilePath cppFilePath = correspondingHeaderOrSource(m_headerFile->filePath(),
+                                                               &m_isHeaderHeaderFile);
             if (!m_isHeaderHeaderFile || !cppFilePath.exists()) {
                 // there is no "source" file
                 return m_headerFile;
@@ -1271,11 +1270,10 @@ private:
             const ClassSpecifierAST *m_classAST;
             InsertionPointLocator::AccessSpec m_accessSpec;
             GenerateConstructorRefactoringHelper(CppQuickFixOperation *operation,
-                                                 const FilePath &filePath,
                                                  Class *clazz,
                                                  const ClassSpecifierAST *classAST,
                                                  InsertionPointLocator::AccessSpec accessSpec)
-                : GetterSetterRefactoringHelper(operation, filePath, clazz)
+                : GetterSetterRefactoringHelper(operation, clazz)
                 , m_classAST(classAST)
                 , m_accessSpec(accessSpec)
             {}
@@ -1416,7 +1414,6 @@ private:
             }
         };
         GenerateConstructorRefactoringHelper helper(this,
-                                                    currentFile()->filePath(),
                                                     m_classAST->symbol,
                                                     m_classAST,
                                                     accessSpec);
@@ -1509,7 +1506,7 @@ public:
 
     void perform() override
     {
-        GetterSetterRefactoringHelper helper(this, currentFile()->filePath(), m_data.clazz);
+        GetterSetterRefactoringHelper helper(this, m_data.clazz);
         helper.performGeneration(m_data, m_generateFlags);
         helper.applyChanges();
     }
@@ -1829,9 +1826,7 @@ private:
         }
         if (m_candidates.empty())
             return;
-        GetterSetterRefactoringHelper helper(this,
-                                             currentFile()->filePath(),
-                                             m_candidates.front().data.clazz);
+        GetterSetterRefactoringHelper helper(this, m_candidates.front().data.clazz);
         for (MemberInfo &mi : m_candidates) {
             if (mi.requestedFlags != 0) {
                 helper.performGeneration(mi.data, mi.requestedFlags);

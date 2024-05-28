@@ -155,8 +155,7 @@ public:
 
             // rewrite the function name
             if (nameIncludesOperatorName(decl->name())) {
-                CppRefactoringFilePtr file = refactoring.cppFile(op->filePath());
-                const QString operatorNameText = file->textOf(declAST->core_declarator);
+                const QString operatorNameText = op->currentFile()->textOf(declAST->core_declarator);
                 oo.includeWhiteSpaceInOperatorName = operatorNameText.contains(QLatin1Char(' '));
             }
             const QString name = oo.prettyName(LookupContext::minimalName(decl, targetCoN,
