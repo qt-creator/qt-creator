@@ -787,12 +787,12 @@ The kit supports &quot;%2&quot;, but the device uses &quot;%3&quot;.</source>
 </translation>
     </message>
     <message>
-        <source>
-Uninstalling the installed package may solve the issue.
-Do you want to uninstall the existing package?</source>
-        <translation>
-卸载已安装的包可能解决这个问题。
-你想卸载已经存在的包吗？</translation>
+        <source>Uninstalling the installed package may solve the issue.</source>
+        <translation>卸载已安装的包可能解决这个问题。</translation>
+    </message>
+    <message>
+        <source>Do you want to uninstall the existing package?</source>
+        <translation>你想卸载已经存在的包吗？</translation>
     </message>
     <message>
         <source>Install failed</source>

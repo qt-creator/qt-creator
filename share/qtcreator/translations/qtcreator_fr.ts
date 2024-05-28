@@ -11066,12 +11066,12 @@ Le kit supporte «&#xa0;%2&#xa0;», mais le périphérique utilise «&#xa0;%3&#x
 </translation>
     </message>
     <message>
-        <source>
-Uninstalling the installed package may solve the issue.
-Do you want to uninstall the existing package?</source>
-        <translation>
-La désinstallation du paquet installé peut résoudre le problème.
-Voulez-vous désinstaller le paquet existant&#xa0;?</translation>
+        <source>Uninstalling the installed package may solve the issue.</source>
+        <translation>La désinstallation du paquet installé peut résoudre le problème.</translation>
+    </message>
+    <message>
+        <source>Do you want to uninstall the existing package?</source>
+        <translation>Voulez-vous désinstaller le paquet existant&#xa0;?</translation>
     </message>
     <message>
         <source>Install failed</source>

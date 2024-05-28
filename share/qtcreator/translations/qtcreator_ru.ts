@@ -933,12 +933,12 @@ The files in the Android package source directory are copied to the build direct
 </translation>
     </message>
     <message>
-        <source>
-Uninstalling the installed package may solve the issue.
-Do you want to uninstall the existing package?</source>
-        <translation>
-Удаление установленного пакета может решить проблему.
-Желаете его удалить?</translation>
+        <source>Uninstalling the installed package may solve the issue.</source>
+        <translation>Удаление установленного пакета может решить проблему.</translation>
+    </message>
+    <message>
+        <source>Do you want to uninstall the existing package?</source>
+        <translation>Желаете его удалить?</translation>
     </message>
     <message>
         <source>Pulling files necessary for debugging.</source>

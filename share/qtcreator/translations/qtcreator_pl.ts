@@ -10692,12 +10692,12 @@ The kit supports &quot;%2&quot;, but the device uses &quot;%3&quot;.</source>
         <translation>Błąd instalacji, przyczyna nieznana.</translation>
     </message>
     <message>
-        <source>
-Uninstalling the installed package may solve the issue.
-Do you want to uninstall the existing package?</source>
-        <translation>
-Deinstalacja uprzednio zainstalowanego pakietu może rozwiązać problem.
-Czy zdeinstalować istniejący pakiet?</translation>
+        <source>Uninstalling the installed package may solve the issue.</source>
+        <translation>Deinstalacja uprzednio zainstalowanego pakietu może rozwiązać problem.</translation>
+    </message>
+    <message>
+        <source>Do you want to uninstall the existing package?</source>
+        <translation>Czy zdeinstalować istniejący pakiet?</translation>
     </message>
     <message>
         <source>The deployment AVD &quot;%1&quot; cannot be started.</source>

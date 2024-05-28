@@ -338,12 +338,12 @@ Minimum API-niveauet krævet af kittet er %1.</translation>
 </translation>
     </message>
     <message>
-        <source>
-Uninstalling the installed package may solve the issue.
-Do you want to uninstall the existing package?</source>
-        <translation>
-Afinstallation af den installerede pakke løser måske problemstillingen.
-Vil du afinstallere den eksisterende pakke?</translation>
+        <source>Uninstalling the installed package may solve the issue.</source>
+        <translation>Afinstallation af den installerede pakke løser måske problemstillingen.</translation>
+    </message>
+    <message>
+        <source>Do you want to uninstall the existing package?</source>
+        <translation>Vil du afinstallere den eksisterende pakke?</translation>
     </message>
     <message>
         <source>Install failed</source>

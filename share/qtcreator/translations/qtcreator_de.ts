@@ -11245,12 +11245,12 @@ Das Kit unterstützt &quot;%2&quot;, aber das Gerät verwendet &quot;%3&quot;.</
 </translation>
     </message>
     <message>
-        <source>
-Uninstalling the installed package may solve the issue.
-Do you want to uninstall the existing package?</source>
-        <translation>
-Das installierte Paket zu deinstallieren könnte das Problem lösen.
-Möchten Sie das vorhandene Paket deinstallieren?</translation>
+        <source>Uninstalling the installed package may solve the issue.</source>
+        <translation>Das installierte Paket zu deinstallieren könnte das Problem lösen.</translation>
+    </message>
+    <message>
+        <source>Do you want to uninstall the existing package?</source>
+        <translation>Möchten Sie das vorhandene Paket deinstallieren?</translation>
     </message>
     <message>
         <source>The deployment AVD &quot;%1&quot; cannot be started.</source>

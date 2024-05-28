@@ -10949,12 +10949,12 @@ with a password, which you can enter below.</source>
 </translation>
     </message>
     <message>
-        <source>
-Uninstalling the installed package may solve the issue.
-Do you want to uninstall the existing package?</source>
-        <translation>
-インストールされているパッケージをアンインストールすると、問題が解決する場合があります。
-既存のパッケージをアンインストールしますか？</translation>
+        <source>Uninstalling the installed package may solve the issue.</source>
+        <translation>インストールされているパッケージをアンインストールすると、問題が解決する場合があります。</translation>
+    </message>
+    <message>
+        <source>Do you want to uninstall the existing package?</source>
+        <translation>既存のパッケージをアンインストールしますか？</translation>
     </message>
     <message>
         <source>Package deploy: Running command &quot;%1&quot;.</source>

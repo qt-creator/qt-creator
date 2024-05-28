@@ -13221,9 +13221,11 @@ The minimum API level required by the kit is %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>
-Uninstalling the installed package may solve the issue.
-Do you want to uninstall the existing package?</source>
+        <source>Uninstalling the installed package may solve the issue.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Do you want to uninstall the existing package?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
