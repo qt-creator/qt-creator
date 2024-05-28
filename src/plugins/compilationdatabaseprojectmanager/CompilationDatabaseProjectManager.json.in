@@ -15,7 +15,7 @@
     ],
     "Category" : "Build Systems",
     "Description" : "Compilation Database project support.",
-    "Url" : "http://www.qt.io",
+    "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES},
     "Mimetypes" : [
         "<?xml version='1.0'?>",

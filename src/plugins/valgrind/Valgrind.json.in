@@ -14,6 +14,6 @@
     ],
     "Category" : "Code Analyzer",
     "Description" : "Valgrind Plugin.",
-    "Url" : "http://www.qt.io",
+    "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

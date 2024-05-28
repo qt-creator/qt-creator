@@ -14,7 +14,7 @@
     ],
     "Category" : "Qt Quick",
     "Description" : "Qt Quick support",
-    "Url" : "http://www.qt.io",
+    "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

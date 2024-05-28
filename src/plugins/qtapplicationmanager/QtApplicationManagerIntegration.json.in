@@ -16,7 +16,7 @@
     ],
     "Category" : "Device Support",
     "Description" : "Support for QtApplicationManager on a variety of different target platforms.",
-    "Url" : "http://www.qt.io",
+    "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

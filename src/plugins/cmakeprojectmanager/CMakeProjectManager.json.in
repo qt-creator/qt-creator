@@ -14,7 +14,7 @@
     ],
     "Category" : "Build Systems",
     "Description" : "CMake support.",
-    "Url" : "http://www.qt.io",
+    "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

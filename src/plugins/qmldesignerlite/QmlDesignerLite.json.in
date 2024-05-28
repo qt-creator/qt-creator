@@ -15,7 +15,7 @@
     "Category" : "Qt Quick",
     "Description" : "Qml Designer Lite",
     "LongDescription": "Qml Designer Lite is a lightweight version of Qt Design Studio, providing a subset of the features of the full Qt Design Studio.",
-    "Url" : "http://www.qt.io",
+    "Url" : "https://www.qt.io",
     "Experimental": true,
     ${IDE_PLUGIN_DEPENDENCIES}
 }

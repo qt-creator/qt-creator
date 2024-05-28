@@ -15,6 +15,6 @@
     ],
     "Category" : "Code Analyzer",
     "Description" : "Cppcheck static analyzer tool integration. See http://cppcheck.sourceforge.net.",
-    "Url" : "http://www.qt.io",
+    "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

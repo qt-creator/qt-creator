@@ -14,7 +14,7 @@
     ],
     "Category" : "Build Systems",
     "Description" : "Provides project type for Qt/QMake .pro files and tools.",
-    "Url" : "http://www.qt.io",
+    "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

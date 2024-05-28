@@ -14,7 +14,7 @@
     ],
     "Category" : "Core",
     "Description" : "ProjectExplorer framework that can be extended with different kind of project types.",
-    "Url" : "http://www.qt.io",
+    "Url" : "https://www.qt.io",
     "Arguments" : [
         {
             "Name" : "-customwizard-verbose",

@@ -14,7 +14,7 @@
     ],
     "Category" : "Other Languages",
     "Description" : "Plugin for supporting the Nim programming language.",
-    "Url" : "http://www.qt.io",
+    "Url" : "https://www.qt.io",
     "Experimental" : true,
     ${IDE_PLUGIN_DEPENDENCIES},
 

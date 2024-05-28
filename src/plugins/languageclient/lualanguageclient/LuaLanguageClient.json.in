@@ -16,6 +16,6 @@
     ],
     "Category" : "Scripting",
     "Description" : "Lua Language Client scripting support",
-    "Url" : "http://www.qt.io",
+    "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

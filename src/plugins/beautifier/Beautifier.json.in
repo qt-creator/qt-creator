@@ -15,6 +15,6 @@
     ],
     "Category" : "C++",
     "Description" : "Format source files with the help of beautifiers like AStyle, uncrustify or clang-format.",
-    "Url" : "http://www.qt.io",
+    "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

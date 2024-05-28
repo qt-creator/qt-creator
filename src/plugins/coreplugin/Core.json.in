@@ -15,7 +15,7 @@
     ],
     "Category" : "Core",
     "Description" : "The core plugin for the Qt IDE.",
-    "Url" : "http://www.qt.io",
+    "Url" : "https://www.qt.io",
     "Arguments" : [
         {
             "Name" : "-color",

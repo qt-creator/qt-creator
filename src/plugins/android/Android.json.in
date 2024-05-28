@@ -14,7 +14,7 @@
     ],
     "Category" : "Device Support",
     "Description" : "Support for deployment to and execution on Android Devices.",
-    "Url" : "http://necessitas.kde.org",
+    "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

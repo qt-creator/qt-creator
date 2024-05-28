@@ -14,7 +14,7 @@
     ],
     "Category" : "Other Languages",
     "Description" : "Language Server Protocol client component. See https://microsoft.github.io/language-server-protocol/overview for an overview on Language Servers.",
-    "Url" : "http://www.qt.io",
+    "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

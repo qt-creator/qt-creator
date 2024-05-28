@@ -14,7 +14,7 @@
     ],
     "Category" : "Modeling",
     "Description" : "Visual Editor for SCXML (State Chart XML) files.",
-    "Url" : "http://www.qt.io",
+    "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

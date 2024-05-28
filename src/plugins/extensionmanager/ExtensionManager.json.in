@@ -15,6 +15,6 @@
     "Category" : "Core",
     "Description" : "Extension Manager",
     "Experimental": true,
-    "Url" : "http://www.qt.io",
+    "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

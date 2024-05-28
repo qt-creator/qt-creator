@@ -14,6 +14,6 @@
     ],
     "Category" : "Device Support",
     "Description" : "Adds support for QNX to Qt Creator.",
-    "Url" : "http://www.blackberry.com",
+    "Url" : "https://www.blackberry.com",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

@@ -15,7 +15,7 @@
     ],
     "Category" : "Device Support",
     "Description" : "Helper for MCU related projects.",
-    "Url" : "http://www.qt.io",
+    "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "JsonWizardPaths" : [":/mcusupport/wizards/"]

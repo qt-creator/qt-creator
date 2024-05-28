@@ -14,7 +14,7 @@
     ],
     "Category" : "Qt Creator",
     "Description" : "Debugger integration.",
-    "Url" : "http://www.qt.io",
+    "Url" : "https://www.qt.io",
     "Arguments" : [
         {
             "Name" : "-debug",

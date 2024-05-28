@@ -15,6 +15,6 @@
     ],
     "Category" : "Device Support",
     "Description" : "Support for deployment to and execution on iOS Devices.",
-    "Url" : "http://www.qt.io",
+    "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

@@ -6,7 +6,7 @@
     "Vendor" : "IncrediBuild",
     "Copyright" : "(C) IncrediBuild",
     "Category" : "Build Systems",
-    "Url" : "http://www.IncrediBuild.com",
+    "Url" : "https://www.IncrediBuild.com",
     "License" : [ "Commercial Usage",
                   "",
                   "Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",

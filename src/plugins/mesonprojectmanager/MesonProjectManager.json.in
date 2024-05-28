@@ -16,6 +16,6 @@
     ],
     "Category" : "Build Systems",
     "Description" : "Meson support.",
-    "Url" : "http://www.mesonbuild.com",
+    "Url" : "https://www.mesonbuild.com",
     ${IDE_PLUGIN_DEPENDENCIES}
 }
