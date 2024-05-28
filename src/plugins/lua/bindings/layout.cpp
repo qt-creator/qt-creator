@@ -60,7 +60,7 @@ void constructWidget(std::unique_ptr<T> &widget, const sol::table &children)
     widget->setWindowTitle(children.get_or<QString>("windowTitle", ""));
     widget->setToolTip(children.get_or<QString>("toolTip", ""));
 
-    for (size_t i = 1; i < children.size(); ++i) {
+    for (size_t i = 1; i <= children.size(); ++i) {
         const auto &child = children[i];
         if (child.is<Layout>())
             widget->setLayout(*child.get<Layout *>());
@@ -147,7 +147,7 @@ std::unique_ptr<TabWidget> constructTabWidget(const sol::table &children, QObjec
 {
     std::unique_ptr<TabWidget> item(new TabWidget({}));
     setProperties(item, children, guard);
-    for (size_t i = 1; i < children.size(); ++i) {
+    for (size_t i = 1; i <= children.size(); ++i) {
         const auto &child = children[i];
         if (child.is<Tab *>())
             addToTabWidget(item.get(), *child.get<Tab *>());
@@ -160,7 +160,7 @@ std::unique_ptr<Splitter> constructSplitter(const sol::table &children)
     std::unique_ptr<Splitter> item(new Splitter({}));
     constructWidget(item, children);
 
-    for (size_t i = 1; i < children.size(); ++i) {
+    for (size_t i = 1; i <= children.size(); ++i) {
         const auto &child = children[i];
         if (child.is<Layout *>()) {
             addToSplitter(item.get(), *child.get<Layout *>());
