@@ -140,7 +140,7 @@ void CppcheckRunner::handleDone()
     if (m_process.result() == ProcessResult::FinishedWithSuccess)
         m_tool.finishParsing();
     else
-        Core::MessageManager::writeSilently(m_process.exitMessage());
+        m_tool.finishWithFail(m_process.exitMessage());
 
     m_currentFiles.clear();
     m_process.close();

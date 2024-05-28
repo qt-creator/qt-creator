@@ -304,4 +304,12 @@ void CppcheckTool::finishParsing()
     m_progress->reportFinished();
 }
 
+void CppcheckTool::finishWithFail(const QString &exitMessage)
+{
+    if (!exitMessage.isEmpty())
+        Core::MessageManager::writeSilently(exitMessage);
+    QTC_ASSERT(m_progress, return);
+    m_progress->cancelAndFinish();
+}
+
 } // Cppcheck::Internal

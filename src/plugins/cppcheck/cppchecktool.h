@@ -42,6 +42,7 @@ public:
     void parseOutputLine(const QString &line);
     void parseErrorLine(const QString &line);
     void finishParsing();
+    void finishWithFail(const QString &exitMessage);
 
 private:
     void updateArguments();
