@@ -22,6 +22,7 @@ namespace QmlDesigner {
 
 BindingModel::BindingModel(ConnectionView *view)
     : m_connectionView(view)
+    , m_delegate(*this)
 {
     setHorizontalHeaderLabels(BindingModelItem::headerLabels());
 }
@@ -246,11 +247,8 @@ void BindingModel::addModelNode(const ModelNode &node)
         appendRow(new BindingModelItem(property));
 }
 
-BindingModelBackendDelegate::BindingModelBackendDelegate()
-    : m_targetNode()
-    , m_property()
-    , m_sourceNode()
-    , m_sourceNodeProperty()
+BindingModelBackendDelegate::BindingModelBackendDelegate(BindingModel &model)
+    : m_model{model}
 {
     connect(&m_sourceNode, &StudioQmlComboBoxBackend::activated, this, [this] {
         sourceNodeChanged();
@@ -322,17 +320,14 @@ StudioQmlComboBoxBackend *BindingModelBackendDelegate::sourceProperty()
 
 void BindingModelBackendDelegate::sourceNodeChanged()
 {
-    BindingModel *model = qobject_cast<BindingModel *>(parent());
-    QTC_ASSERT(model, return);
-
-    ConnectionView *view = model->connectionView();
+    ConnectionView *view = m_model.connectionView();
     QTC_ASSERT(view, return);
     QTC_ASSERT(view->isAttached(), return );
 
     const QString sourceNode = m_sourceNode.currentText();
     const QString sourceProperty = m_sourceNodeProperty.currentText();
 
-    BindingProperty targetProperty = model->currentProperty();
+    BindingProperty targetProperty = m_model.currentProperty();
     QStringList properties = availableSourceProperties(sourceNode, targetProperty, view);
 
     if (!properties.contains(sourceProperty)) {
@@ -351,9 +346,6 @@ void BindingModelBackendDelegate::sourcePropertyNameChanged() const
         return;
 
     auto commit = [this, sourceProperty]() {
-        BindingModel *model = qobject_cast<BindingModel *>(parent());
-        QTC_ASSERT(model, return);
-
         const QString sourceNode = m_sourceNode.currentText();
         QString expression;
         if (sourceProperty.isEmpty())
@@ -361,8 +353,8 @@ void BindingModelBackendDelegate::sourcePropertyNameChanged() const
         else
             expression = sourceNode + QLatin1String(".") + sourceProperty;
 
-        int row = model->currentIndex();
-        model->commitExpression(row, expression);
+        int row = m_model.currentIndex();
+        m_model.commitExpression(row, expression);
     };
 
     callLater(commit);
@@ -371,11 +363,9 @@ void BindingModelBackendDelegate::sourcePropertyNameChanged() const
 void BindingModelBackendDelegate::targetPropertyNameChanged() const
 {
     auto commit = [this] {
-        BindingModel *model = qobject_cast<BindingModel *>(parent());
-        QTC_ASSERT(model, return);
         const PropertyName propertyName = m_property.currentText().toUtf8();
-        int row = model->currentIndex();
-        model->commitPropertyName(row, propertyName);
+        int row = m_model.currentIndex();
+        m_model.commitPropertyName(row, propertyName);
     };
 
     callLater(commit);

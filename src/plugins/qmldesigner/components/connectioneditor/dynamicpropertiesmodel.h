@@ -97,7 +97,7 @@ class DynamicPropertiesModelBackendDelegate : public QObject
     Q_PROPERTY(StudioQmlTextBackend *value READ value CONSTANT)
 
 public:
-    DynamicPropertiesModelBackendDelegate();
+    DynamicPropertiesModelBackendDelegate(DynamicPropertiesModel &model);
 
     void update(const AbstractProperty &property);
 
@@ -116,6 +116,7 @@ private:
     StudioQmlTextBackend *value();
     QString targetNode() const;
 
+    DynamicPropertiesModel &m_model;
     std::optional<int> m_internalNodeId;
     StudioQmlComboBoxBackend m_type;
     StudioQmlTextBackend m_name;

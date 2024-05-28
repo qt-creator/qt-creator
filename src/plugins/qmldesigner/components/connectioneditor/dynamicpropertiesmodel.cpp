@@ -25,7 +25,7 @@ namespace QmlDesigner {
 
 DynamicPropertiesModel::DynamicPropertiesModel(bool exSelection, AbstractView *view)
     : m_view(view)
-    , m_delegate(std::make_unique<DynamicPropertiesModelBackendDelegate>())
+    , m_delegate(std::make_unique<DynamicPropertiesModelBackendDelegate>(*this))
     , m_explicitSelection(exSelection)
 {
     setHorizontalHeaderLabels(DynamicPropertiesItem::headerLabels());
@@ -382,8 +382,8 @@ void DynamicPropertiesModel::setSelectedNode(const ModelNode &node)
     reset();
 }
 
-DynamicPropertiesModelBackendDelegate::DynamicPropertiesModelBackendDelegate()
-    : m_internalNodeId(std::nullopt)
+DynamicPropertiesModelBackendDelegate::DynamicPropertiesModelBackendDelegate(DynamicPropertiesModel &model)
+    : m_model(model)
 {
     m_type.setModel({"int", "bool", "var", "real", "string", "url", "color"});
     connect(&m_type, &StudioQmlComboBoxBackend::activated, this, [this] { handleTypeChanged(); });
@@ -411,32 +411,26 @@ void DynamicPropertiesModelBackendDelegate::update(const AbstractProperty &prope
 
 void DynamicPropertiesModelBackendDelegate::handleTypeChanged()
 {
-    DynamicPropertiesModel *model = qobject_cast<DynamicPropertiesModel *>(parent());
-    QTC_ASSERT(model, return);
-
     const PropertyName name = m_name.text().toUtf8();
 
-    int current = model->currentIndex();
+    int current = m_model.currentIndex();
     const TypeName type = m_type.currentText().toUtf8();
-    model->commitPropertyType(current, type);
+    m_model.commitPropertyType(current, type);
 
     // The order might have changed!
-    model->setCurrent(m_internalNodeId.value_or(-1), name);
+    m_model.setCurrent(m_internalNodeId.value_or(-1), name);
 }
 
 void DynamicPropertiesModelBackendDelegate::handleNameChanged()
 {
-    DynamicPropertiesModel *model = qobject_cast<DynamicPropertiesModel *>(parent());
-    QTC_ASSERT(model, return);
-
     const PropertyName name = m_name.text().toUtf8();
     QTC_ASSERT(!name.isEmpty(), return);
 
-    int current = model->currentIndex();
-    model->commitPropertyName(current, name);
+    int current = m_model.currentIndex();
+    m_model.commitPropertyName(current, name);
 
     // The order might have changed!
-    model->setCurrent(m_internalNodeId.value_or(-1), name);
+    m_model.setCurrent(m_internalNodeId.value_or(-1), name);
 }
 
 // TODO: Maybe replace with utils typeConvertVariant?
@@ -456,12 +450,9 @@ QVariant valueFromText(const QString &value, const QString &type)
 
 void DynamicPropertiesModelBackendDelegate::handleValueChanged()
 {
-    DynamicPropertiesModel *model = qobject_cast<DynamicPropertiesModel *>(parent());
-    QTC_ASSERT(model, return);
-
-    int current = model->currentIndex();
+    int current = m_model.currentIndex();
     QVariant value = valueFromText(m_value.text(), m_type.currentText());
-    model->commitPropertyValue(current, value);
+    m_model.commitPropertyValue(current, value);
 }
 
 QString DynamicPropertiesModelBackendDelegate::targetNode() const
