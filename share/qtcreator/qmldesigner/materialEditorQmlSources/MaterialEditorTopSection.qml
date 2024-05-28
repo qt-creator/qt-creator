@@ -11,8 +11,6 @@ import StudioTheme as StudioTheme
 Column {
     id: root
 
-    signal toolBarAction(int action)
-
     property string previewEnv
     property string previewModel
     property StudioTheme.ControlStyle buttonStyle: StudioTheme.ViewBarButtonStyle {
@@ -36,12 +34,6 @@ Column {
 
     anchors.left: parent.left
     anchors.right: parent.right
-
-    MaterialEditorToolBar {
-        width: root.width
-
-        onToolBarAction: (action) => root.toolBarAction(action)
-    }
 
     Item { width: 1; height: 10 } // spacer
 
