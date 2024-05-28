@@ -282,9 +282,6 @@
     Set the preferences in \uicontrol {Emulator command-line startup options}.
     For available options, see \l{Start the emulator from the command line}.
 
-    \note The Android Emulator has a bug that prevents it from starting on some
-    computers.
-
     To start the emulator manually, enter:
 
     \badcode
