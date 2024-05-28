@@ -172,6 +172,8 @@ public:
 
     Q_INVOKABLE void setForceBound(bool b);
 
+    Q_INVOKABLE void insertKeyframe();
+
 public slots:
     void resetValue();
     void setEnumeration(const QString &scope, const QString &name);

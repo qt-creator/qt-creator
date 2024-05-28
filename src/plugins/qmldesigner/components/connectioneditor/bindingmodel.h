@@ -30,7 +30,7 @@ signals:
     void targetNodeChanged();
 
 public:
-    BindingModelBackendDelegate();
+    BindingModelBackendDelegate(class BindingModel &model);
 
     void update(const BindingProperty &property, AbstractView *view);
 
@@ -44,6 +44,7 @@ private:
     StudioQmlComboBoxBackend *sourceNode();
     StudioQmlComboBoxBackend *sourceProperty();
 
+    BindingModel &m_model;
     QString m_targetNode;
     StudioQmlComboBoxBackend m_property;
     StudioQmlComboBoxBackend m_sourceNode;

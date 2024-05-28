@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #pragma once
 
-#include "import.h"
-
 #include <qprocessuniqueptr.h>
 
 #include <QSet>
@@ -35,20 +33,28 @@ public:
                        const QHash<QString, int> &extToImportOptionsMap,
                        const QSet<QString> &preselectedFilesForOverwrite);
 
+    void reImportQuick3D(const QString &assetName, const QVector<QJsonObject> &options);
+
     bool isImporting() const;
     void cancelImport();
     bool isCancelled() const;
 
-    void addError(const QString &errMsg, const QString &srcPath = {}) const;
-    void addWarning(const QString &warningMsg, const QString &srcPath = {}) const;
-    void addInfo(const QString &infoMsg, const QString &srcPath = {}) const;
+    void addError(const QString &errMsg, const QString &srcPath = {});
+    void addWarning(const QString &warningMsg, const QString &srcPath = {});
+    void addInfo(const QString &infoMsg, const QString &srcPath = {});
+
+    QString previewFileName() const { return "QDSImport3dPreviewScene.qml"; }
+    QString tempDirNameBase() const { return "/qds3dimport"; }
+
+    void finalizeQuick3DImport();
 
 signals:
-    void errorReported(const QString &, const QString &) const;
-    void warningReported(const QString &, const QString &) const;
-    void infoReported(const QString &, const QString &) const;
-    void progressChanged(int value, const QString &text) const;
-    void importNearlyFinished() const;
+    void errorReported(const QString &, const QString &);
+    void warningReported(const QString &, const QString &);
+    void infoReported(const QString &, const QString &);
+    void progressChanged(int value, const QString &text);
+    void importReadyForPreview(const QString &path, const QString &compName);
+    void importNearlyFinished();
     void importFinished();
 
 private slots:
@@ -63,7 +69,8 @@ private:
         QFileInfo sourceInfo;
         QString assetName;
         QString originalAssetName;
-        int importId;
+        int importId = -1;
+        int optionsIndex = -1;
     };
 
     void notifyFinished();
@@ -79,6 +86,7 @@ private:
     void notifyProgress(int value, const QString &text);
     void notifyProgress(int value);
     void keepUiAlive() const;
+    QString generateAssetFolderName(const QString &assetName) const;
 
     enum class OverwriteResult {
         Skip,
@@ -89,10 +97,9 @@ private:
     OverwriteResult confirmAssetOverwrite(const QString &assetName);
     void startNextImportProcess();
     void postImport();
-    void finalizeQuick3DImport();
     QString sourceSceneTargetFilePath(const ParseData &pd);
 
-    QSet<QHash<QString, QString>> m_importFiles;
+    QHash<QString, QHash<QString, QString>> m_importFiles; // Key: asset name
     QHash<QString, QStringList> m_overwrittenImports;
     bool m_isImporting = false;
     bool m_cancelled = false;
@@ -101,7 +108,8 @@ private:
     QProcessUniquePointer m_puppetProcess;
     int m_importIdCounter = 0;
     int m_currentImportId = 0;
-    QHash<int, ParseData> m_parseData;
+    QHash<int, QString> m_importIdToAssetNameMap;
+    QHash<QString, ParseData> m_parseData; // Key: asset name
     QString m_progressTitle;
     QStringList m_requiredImports;
     QList<int> m_puppetQueue;

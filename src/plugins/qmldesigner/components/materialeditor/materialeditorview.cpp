@@ -24,7 +24,6 @@
 #include "qmldesignerplugin.h"
 #include "qmltimeline.h"
 #include "variantproperty.h"
-#include <itemlibraryentry.h>
 #include <utils3d.h>
 
 #include <coreplugin/icore.h>
@@ -62,10 +61,6 @@ MaterialEditorView::MaterialEditorView(ExternalDependenciesInterface &externalDe
             m_ensureMatLibTimer.stop();
         }
     });
-
-    m_typeUpdateTimer.setSingleShot(true);
-    m_typeUpdateTimer.setInterval(500);
-    connect(&m_typeUpdateTimer, &QTimer::timeout, this, &MaterialEditorView::updatePossibleTypes);
 
     QmlDesignerPlugin::trackWidgetFocusTime(m_stackedWidget, Constants::EVENT_MATERIALEDITOR_TIME);
 
@@ -333,8 +328,10 @@ void MaterialEditorView::resetView()
 
     setupQmlBackend();
 
-    if (m_qmlBackEnd)
+    if (m_qmlBackEnd) {
         m_qmlBackEnd->emitSelectionChanged();
+        updatePossibleTypes();
+    }
 
     QTimer::singleShot(0, this, &MaterialEditorView::requestPreviewRender);
 
@@ -605,7 +602,6 @@ void MaterialEditorView::setupQmlBackend()
     else
         m_dynamicPropertiesModel->reset();
 
-    delayedTypeUpdate();
     initPreviewData();
 
     m_stackedWidget->setCurrentWidget(m_qmlBackEnd->widget());
@@ -690,21 +686,6 @@ void MaterialEditorView::initPreviewData()
     }
 }
 
-void MaterialEditorView::delayedTypeUpdate()
-{
-     m_typeUpdateTimer.start();
-}
-
-[[maybe_unused]] static Import entryToImport(const ItemLibraryEntry &entry)
-{
-    if (entry.majorVersion() == -1 && entry.minorVersion() == -1)
-        return Import::createFileImport(entry.requiredImport());
-
-    return Import::createLibraryImport(entry.requiredImport(),
-                                       QString::number(entry.majorVersion()) + QLatin1Char('.') +
-                                       QString::number(entry.minorVersion()));
-}
-
 void MaterialEditorView::updatePossibleTypes()
 {
     QTC_ASSERT(model(), return);
@@ -712,49 +693,21 @@ void MaterialEditorView::updatePossibleTypes()
     if (!m_qmlBackEnd)
         return;
 
-#ifdef QDS_USE_PROJECTSTORAGE
-    auto heirs = model()->qtQuick3DMaterialMetaInfo().heirs();
-    heirs.push_back(model()->qtQuick3DMaterialMetaInfo());
-    auto entries = Utils::transform<ItemLibraryEntries>(heirs, [&](const auto &heir) {
-        return toItemLibraryEntries(heir.itemLibrariesEntries(), *model()->projectStorage());
-    });
+    static const QStringList basicTypes {
+        "CustomMaterial",
+        "DefaultMaterial",
+        "PrincipledMaterial",
+        "SpecularGlossyMaterial"
+    };
 
-    // I am unsure about the code intention here
-#else // Ensure basic types are always first
-    QStringList nonQuick3dTypes;
-    QStringList allTypes;
+    const QString matType = m_selectedMaterial.simplifiedTypeName();
 
-    const QList<ItemLibraryEntry> itemLibEntries = m_itemLibraryInfo->entries();
-    for (const ItemLibraryEntry &entry : itemLibEntries) {
-        NodeMetaInfo metaInfo = model()->metaInfo(entry.typeName());
-        bool valid = metaInfo.isValid()
-                     && (metaInfo.majorVersion() >= entry.majorVersion()
-                         || metaInfo.majorVersion() < 0);
-        if (valid && metaInfo.isQtQuick3DMaterial()) {
-            bool addImport = entry.requiredImport().isEmpty();
-            if (!addImport) {
-                Import import = entryToImport(entry);
-                addImport = model()->hasImport(import, true, true);
-            }
-            if (addImport) {
-                const QList<QByteArray> typeSplit = entry.typeName().split('.');
-                const QString typeName = QString::fromLatin1(typeSplit.last());
-                if (typeSplit.size() == 2 && typeSplit.first() == "QtQuick3D") {
-                    if (!allTypes.contains(typeName))
-                        allTypes.append(typeName);
-                } else if (!nonQuick3dTypes.contains(typeName)) {
-                    nonQuick3dTypes.append(typeName);
-                }
-            }
-        }
+    if (basicTypes.contains(matType)) {
+        m_qmlBackEnd->contextObject()->setPossibleTypes(basicTypes);
+        return;
     }
 
-    allTypes.sort();
-    nonQuick3dTypes.sort();
-    allTypes.append(nonQuick3dTypes);
-
-    m_qmlBackEnd->contextObject()->setPossibleTypes(allTypes);
-#endif
+    m_qmlBackEnd->contextObject()->setPossibleTypes({matType});
 }
 
 void MaterialEditorView::modelAttached(Model *model)
@@ -774,20 +727,6 @@ void MaterialEditorView::modelAttached(Model *model)
         m_ensureMatLibTimer.start(500);
     }
 
-#ifndef QDS_USE_PROJECTSTORAGE
-    if (m_itemLibraryInfo.data() != model->metaInfo().itemLibraryInfo()) {
-        if (m_itemLibraryInfo) {
-            disconnect(m_itemLibraryInfo.data(), &ItemLibraryInfo::entriesChanged,
-                       this, &MaterialEditorView::delayedTypeUpdate);
-        }
-        m_itemLibraryInfo = model->metaInfo().itemLibraryInfo();
-        if (m_itemLibraryInfo) {
-            connect(m_itemLibraryInfo.data(), &ItemLibraryInfo::entriesChanged,
-                    this, &MaterialEditorView::delayedTypeUpdate);
-        }
-    }
-#endif
-
     if (!m_setupCompleted) {
         reloadQml();
         m_setupCompleted = true;
@@ -801,7 +740,8 @@ void MaterialEditorView::modelAboutToBeDetached(Model *model)
 {
     AbstractView::modelAboutToBeDetached(model);
     m_dynamicPropertiesModel->reset();
-    m_qmlBackEnd->materialEditorTransaction()->end();
+    if (auto transaction = m_qmlBackEnd->materialEditorTransaction())
+        transaction->end();
     m_qmlBackEnd->contextObject()->setHasMaterialLibrary(false);
     m_selectedMaterial = {};
 }
@@ -938,7 +878,8 @@ void MaterialEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNo
             m_selectedModels.append(node);
     }
 
-    m_qmlBackEnd->contextObject()->setHasModelSelection(!m_selectedModels.isEmpty());
+    if (m_qmlBackEnd)
+        m_qmlBackEnd->contextObject()->setHasModelSelection(!m_selectedModels.isEmpty());
 }
 
 void MaterialEditorView::currentStateChanged(const ModelNode &node)
@@ -1020,7 +961,7 @@ void MaterialEditorView::renameMaterial(ModelNode &material, const QString &newN
         return;
 
     executeInTransaction(__FUNCTION__, [&] {
-        material.setIdWithRefactoring(model()->generateIdFromName(newName, "material"));
+        material.setIdWithRefactoring(model()->generateNewId(newName, "material"));
 
         VariantProperty objNameProp = material.variantProperty("objectName");
         objNameProp.setValue(newName);
@@ -1057,7 +998,7 @@ void MaterialEditorView::duplicateMaterial(const ModelNode &material)
         QString newName = sourceMat.modelNode().variantProperty("objectName").value().toString() + " copy";
         VariantProperty objNameProp = duplicateMatNode.variantProperty("objectName");
         objNameProp.setValue(newName);
-        duplicateMatNode.setIdWithoutRefactoring(model()->generateIdFromName(newName, "material"));
+        duplicateMatNode.setIdWithoutRefactoring(model()->generateNewId(newName, "material"));
 
         // sync properties. Only the base state is duplicated.
         const QList<AbstractProperty> props = material.properties();

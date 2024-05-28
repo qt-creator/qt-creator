@@ -667,7 +667,7 @@ protected:
     virtual void slotCodeStyleSettingsChanged(const QVariant &); // Used in CppEditor
 
 private:
-    Internal::TextEditorWidgetPrivate *d;
+    std::unique_ptr<Internal::TextEditorWidgetPrivate> d;
     friend class BaseTextEditor;
     friend class TextEditorFactory;
     friend class Internal::TextEditorFactoryPrivate;

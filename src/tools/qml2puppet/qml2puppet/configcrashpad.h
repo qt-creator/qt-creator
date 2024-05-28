@@ -5,6 +5,7 @@
 #include <QtGlobal>
 
 #if defined(ENABLE_CRASHPAD) && defined(Q_OS_WIN)
+#include <QDir>
 #define NOMINMAX
 #include "client/crash_report_database.h"
 #include "client/crashpad_client.h"

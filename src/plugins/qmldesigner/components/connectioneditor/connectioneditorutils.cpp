@@ -212,7 +212,8 @@ bool isDynamicVariantPropertyType(const TypeName &type)
 {
     // "variant" is considered value type as it is initialized as one.
     // This may need to change if we provide any kind of proper editor for it.
-    static const QSet<TypeName> valueTypes{"int", "real", "color", "string", "bool", "url", "var", "variant"};
+    static const QSet<TypeName> valueTypes{
+        "int", "real", "double", "color", "string", "bool", "url", "var", "variant"};
     return valueTypes.contains(type);
 }
 

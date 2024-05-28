@@ -24,6 +24,8 @@
 #include <QDir>
 #include <QRandomGenerator>
 
+#include <memory>
+
 namespace QmlDesigner {
 
 static char imagePlaceHolder[] = "qrc:/qtquickplugin/images/template_image.png";
@@ -182,8 +184,8 @@ void QmlVisualNode::scatter(const ModelNode &targetNode, const std::optional<int
     if (!scatter)
         return;
 
-    if (offset.has_value()) { // offset
-        double offsetValue = offset.value();
+    if (offset) { // offset
+        double offsetValue = *offset;
         this->translate(QVector3D(offsetValue, offsetValue, offsetValue));
     } else { // scatter in range
         const double scatterRange = 20.;
@@ -250,8 +252,7 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
 
     NodeAbstractProperty parentProperty = parentQmlItemNode.defaultNodeAbstractProperty();
 
-
-    NodeHints hints = NodeHints::fromItemLibraryEntry(itemLibraryEntry);
+    NodeHints hints = NodeHints::fromItemLibraryEntry(itemLibraryEntry, view->model());
     const PropertyName forceNonDefaultProperty = hints.forceNonDefaultProperty().toUtf8();
 
     QmlObjectNode newNode = QmlItemNode::createQmlObjectNode(view,
@@ -289,17 +290,17 @@ static QmlObjectNode createQmlObjectNodeFromSource(AbstractView *view,
     textEdit.setPlainText(source);
     NotIndentingTextEditModifier modifier(&textEdit);
 
-    QScopedPointer<RewriterView> rewriterView(
-        new RewriterView(view->externalDependencies(), RewriterView::Amend));
+    std::unique_ptr<RewriterView> rewriterView = std::make_unique<RewriterView>(
+        view->externalDependencies(), RewriterView::Amend);
     rewriterView->setCheckSemanticErrors(false);
     rewriterView->setTextModifier(&modifier);
     rewriterView->setAllowComponentRoot(true);
     rewriterView->setPossibleImportsEnabled(false);
-    inputModel->setRewriterView(rewriterView.data());
+    inputModel->setRewriterView(rewriterView.get());
 
     if (rewriterView->errors().isEmpty() && rewriterView->rootModelNode().isValid()) {
         ModelNode rootModelNode = rewriterView->rootModelNode();
-        inputModel->detachView(rewriterView.data());
+        inputModel->detachView(rewriterView.get());
         QmlVisualNode(rootModelNode).setPosition(position);
         ModelMerger merger(view);
         return merger.insertModel(rootModelNode);
@@ -329,7 +330,7 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
 {
     QmlObjectNode newQmlObjectNode;
 
-    NodeHints hints = NodeHints::fromItemLibraryEntry(itemLibraryEntry);
+    NodeHints hints = NodeHints::fromItemLibraryEntry(itemLibraryEntry, view->model());
 
     auto createNodeFunc = [=, &newQmlObjectNode, &parentProperty]() {
 #ifndef QDS_USE_PROJECTSTORAGE
@@ -361,13 +362,17 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
             propertyPairList.append(position.propertyPairList());
 
             ModelNode::NodeSourceType nodeSourceType = ModelNode::NodeWithoutSource;
-            if (itemLibraryEntry.typeName() == "QtQml.Component")
-                nodeSourceType = ModelNode::NodeWithComponentSource;
 
 #ifdef QDS_USE_PROJECTSTORAGE
+            NodeMetaInfo metaInfo{itemLibraryEntry.typeId(), view->model()->projectStorage()};
+            if (metaInfo.isQmlComponent())
+                nodeSourceType = ModelNode::NodeWithComponentSource;
             newQmlObjectNode = QmlObjectNode(view->createModelNode(
                 itemLibraryEntry.typeName(), propertyPairList, {}, {}, nodeSourceType));
 #else
+            if (itemLibraryEntry.typeName() == "QtQml.Component")
+                nodeSourceType = ModelNode::NodeWithComponentSource;
+
             newQmlObjectNode = QmlObjectNode(view->createModelNode(itemLibraryEntry.typeName(),
                                                                    majorVersion,
                                                                    minorVersion,

@@ -18,6 +18,7 @@ public:
         ActiveSceneChanged,
         ActiveSplitChanged,
         RenderModelNodePreviewImage,
+        Import3DPreviewImage,
         Import3DSupport,
         NodeAtPos,
         BakeLightsProgress,

@@ -125,6 +125,8 @@ add_qtc_library(TestDesignerCore OBJECT
     projectstorage/projectstorageinterface.h
     projectstorage/projectstorageobserver.h
     projectstorage/projectstorage.cpp projectstorage/projectstorage.h
+    projectstorage/projectstorageerrornotifierinterface.h
+    projectstorage/projectstorageerrornotifier.cpp projectstorage/projectstorageerrornotifier.h
     projectstorage/projectstoragepathwatcher.h
     projectstorage/projectstoragepathwatcherinterface.h
     projectstorage/projectstoragepathwatchernotifierinterface.h
@@ -147,6 +149,8 @@ add_qtc_library(TestDesignerCore OBJECT
     tracing/qmldesignertracing.cpp tracing/qmldesignertracing.h
     rewritertransaction.cpp
     rewritertransaction.h
+    uniquename.cpp
+    uniquename.h
 )
 
 extend_qtc_library(TestDesignerCore

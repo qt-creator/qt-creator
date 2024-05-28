@@ -23,6 +23,8 @@
 #include <QQueue>
 #include <QRegularExpression>
 
+#include <memory>
+
 namespace {
 
 QPoint pointForModelNode(const QmlDesigner::ModelNode &node)
@@ -641,10 +643,10 @@ void StylesheetMerger::styleMerge(const QString &qmlTemplateString,
     textEditTemplate.setPlainText(imports + qmlTemplateString);
     NotIndentingTextEditModifier textModifierTemplate(&textEditTemplate);
 
-    QScopedPointer<RewriterView> templateRewriterView(
-        new RewriterView(externalDependencies, RewriterView::Amend));
+    std::unique_ptr<RewriterView> templateRewriterView = std::make_unique<RewriterView>(
+        externalDependencies, RewriterView::Amend);
     templateRewriterView->setTextModifier(&textModifierTemplate);
-    templateModel->attachView(templateRewriterView.data());
+    templateModel->attachView(templateRewriterView.get());
     templateRewriterView->setCheckSemanticErrors(false);
     templateRewriterView->setPossibleImportsEnabled(false);
 
@@ -665,12 +667,12 @@ void StylesheetMerger::styleMerge(const QString &qmlTemplateString,
     textEditStyle.setPlainText(parentRewriterView->textModifierContent());
     NotIndentingTextEditModifier textModifierStyle(&textEditStyle);
 
-    QScopedPointer<RewriterView> styleRewriterView(
-        new RewriterView(externalDependencies, RewriterView::Amend));
+    std::unique_ptr<RewriterView> styleRewriterView = std::make_unique<RewriterView>(
+        externalDependencies, RewriterView::Amend);
     styleRewriterView->setTextModifier(&textModifierStyle);
-    styleModel->attachView(styleRewriterView.data());
+    styleModel->attachView(styleRewriterView.get());
 
-    StylesheetMerger merger(templateRewriterView.data(), styleRewriterView.data());
+    StylesheetMerger merger(templateRewriterView.get(), styleRewriterView.get());
 
     try {
         merger.merge();

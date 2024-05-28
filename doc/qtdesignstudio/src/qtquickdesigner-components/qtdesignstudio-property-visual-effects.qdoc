@@ -1,0 +1,136 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page quick-design-effects.html
+    \previouspage quick-2d-effects.html
+    \nextpage quick-logic-helpers.html
+
+    \title Design Effects
+
+    \QDS provides a set of effects in the \uicontrol Properties view that you can apply
+    to the components.
+
+    \image studio-effects.webp "Design Effects in the Properties view"
+
+    \note This feature is a \e Beta release.
+
+    The available set of Design Effects applies to the \QDS components:
+    \list
+        \li \l {Applying Layer Blur on a Component} {Layer Blur}
+        \li \l {Applying Background Blur on a Component} {Background Blur}
+        \li \l {Applying Drop Shadow on a Component} {Drop Shadow}
+        \li \l {Applying Inner Shadow on a Component} {Inner Shadow}
+    \endlist
+
+    \section1 Applying Layer Blur on a Component
+
+        Use \uicontrol {Layer Blur} to make a component blurry. To apply \uicontrol {Layer Blur}
+        to a component, follow these steps:
+        \list 1
+            \li Select the component in the \uicontrol 2D or \uicontrol Navigator view.
+            \li Go to the \uicontrol {Properties} view > \uicontrol Effects
+                and select \uicontrol {Add Effects}.
+            \li Go to \uicontrol {Layer Blur} and enter the level of blurring you need
+                in \uicontrol {Blur}.
+
+            \image studio-effects-layer-blur.webp "Layer Blur Effects in Properties view"
+        \endlist
+        \note The level of \uicontrol {Layer Blur} is adjustable between zero and one hundred. \br
+            To remove the applied \uicontrol {Layer Blur}, select the component,
+            then go to \uicontrol {Properties} view > \uicontrol {Layer Blur}
+            > \uicontrol {Remove Effects}. This also removes all the other effects
+            applied to the component.
+
+    \section1 Applying Background Blur on a Component
+
+        Apply \uicontrol {Background Blur} to a component when you want to blur a selected
+        component behind it. There are a few essential conditions you should consider.
+        \list
+            \li Make the component partially transparent. With solid color,
+                the background component is not visible.
+            \li Use a solid color on the background component. On
+                a transparent background component the \uicontrol {Background Blur} does not
+                function properly.
+            \note Currently, the \uicontrol {Background Blur} functions on top of only one selected
+                background component. All the other components ignore the blurring.
+        \endlist
+
+        After fulfilling the above conditions, follow the next steps to apply the
+        \uicontrol {Background Blur} on a component.
+
+        \list 1
+            \li Select the component in the \uicontrol 2D or \uicontrol Navigator view.
+            \li Go to the \uicontrol {Properties} view > \uicontrol Effects
+                and select \uicontrol {Add Effects}.
+            \li Go to \uicontrol {Background Blur} and enter the level of blurring you need
+                in \uicontrol {Blur}.
+            \li In the \uicontrol Background dropdown menu, select another
+                components as the background component.
+            \li Drag the component on top of the background component. The area from the
+                component covering the component selected as \uicontrol Background gets
+                blurred. However, any other component behind the component doesn't blur.
+        \endlist
+
+        \image studio-effects-background-blur.webp "Applying Background Blur"
+
+    \section1 Applying Drop Shadow on a Component
+
+        Shadows can either fall outside or inside the component.
+        The shadow that falls outside is a drop shadow. To apply
+        a \uicontrol {Drop Shadow} to a component, follow the instructions below.
+
+        \list 1
+            \li Select the component in the \uicontrol 2D or \uicontrol Navigator view.
+            \li Go to the \uicontrol {Properties} view > \uicontrol Effects
+                and select \uicontrol {Add Effects}.
+        \endlist
+
+       This adds the default drop shadow to the component. To adjust this shadow,
+       follow these instructions.
+
+        \list 1
+            \li Select the component and go to the \uicontrol Properties view > \uicontrol Effects.
+                Then, select \inlineimage icons/particle-play.png next to the shadow type
+                selector dropdown menu.
+            \li Adjust \uicontrol Blur, \uicontrol Offset, \uicontrol Spread, and \uicontrol Color
+                to shape the shadow.
+        \endlist
+
+        \image studio-effects-drop-shadow.webp "Drop Shadow Effects in Properties view"
+
+        \note To stack multiple shadows, select \uicontrol {Add Shadow Effect} from the
+            \uicontrol Properties view. After adding multiple shadows, you can adjust them
+            separately from their expandable menu.
+
+        The \uicontrol {Show behind} feature in \uicontrol {Drop Shadow} only works when
+        the component is transparent. To use it:
+
+        \list 1
+            \li Select the component with a drop shadow.
+            \li Go to the \uicontrol Properties view > \uicontrol Effects.
+                Then, select \inlineimage icons/particle-play.png next to the shadow type
+                selector dropdown menu.
+            \li Select \uicontrol {Show Behind}.
+
+            \image studio-effects-show-shadow-behind.webp "Show drop shadow behind the component"
+        \endlist
+
+    \section1 Applying Inner Shadow on a Component
+
+        \uicontrol {Inner shadow} works inside a component. To apply \uicontrol {Inner Shadow},
+        do the following:
+
+        \list 1
+            \li Select the component in the \uicontrol 2D or \uicontrol Navigator view.
+            \li Go to the \uicontrol {Properties} view > \uicontrol Effects
+                and select \uicontrol {Add Effects}.
+            \li From the dropdown menu, select \uicontrol {Inner Shadow}.
+            \li Adjust \uicontrol Blur, \uicontrol Offset, \uicontrol Spread, and \uicontrol Color
+                to shape the shadow.
+
+            \image studio-effects-inner-shadow.webp "Inner shadow of the component"
+        \endlist
+
+
+*/

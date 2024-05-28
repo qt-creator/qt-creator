@@ -12,9 +12,10 @@ using QmlDesigner::ImportId;
 using QmlDesigner::ModuleId;
 using QmlDesigner::PropertyDeclarationId;
 using QmlDesigner::SourceId;
+using QmlDesigner::Storage::ModuleKind;
+using QmlDesigner::Storage::PropertyDeclarationTraits;
 using QmlDesigner::TypeId;
 using QmlDesigner::TypeIds;
-using QmlDesigner::Storage::PropertyDeclarationTraits;
 
 namespace Storage = QmlDesigner::Storage;
 
@@ -41,18 +42,20 @@ void setupIsBasedOn(ProjectStorageMock &mock)
 
 } // namespace
 
-ModuleId ProjectStorageMock::createModule(Utils::SmallStringView moduleName)
+ModuleId ProjectStorageMock::createModule(Utils::SmallStringView moduleName,
+                                          QmlDesigner::Storage::ModuleKind moduleKind)
 {
-    if (auto id = moduleId(moduleName)) {
+    if (auto id = moduleId(moduleName, moduleKind)) {
         return id;
     }
 
     static ModuleId moduleId;
     incrementBasicId(moduleId);
 
-    ON_CALL(*this, moduleId(Eq(moduleName))).WillByDefault(Return(moduleId));
-    ON_CALL(*this, moduleName(Eq(moduleId))).WillByDefault(Return(moduleName));
-    ON_CALL(*this, fetchModuleIdUnguarded(Eq(moduleName))).WillByDefault(Return(moduleId));
+    ON_CALL(*this, moduleId(Eq(moduleName), Eq(moduleKind))).WillByDefault(Return(moduleId));
+    ON_CALL(*this, module(Eq(moduleId)))
+        .WillByDefault(Return(QmlDesigner::Storage::Module{moduleName, moduleKind}));
+    ON_CALL(*this, fetchModuleIdUnguarded(Eq(moduleName), Eq(moduleKind))).WillByDefault(Return(moduleId));
 
     return moduleId;
 }
@@ -385,11 +388,11 @@ void ProjectStorageMock::setupQtQuick()
 {
     setupIsBasedOn(*this);
 
-    auto qmlModuleId = createModule("QML");
-    auto qmlNativeModuleId = createModule("QML-cppnative");
-    auto qtQmlModelsModuleId = createModule("QtQml.Models");
-    auto qtQuickModuleId = createModule("QtQuick");
-    auto qtQuickNativeModuleId = createModule("QtQuick-cppnative");
+    auto qmlModuleId = createModule("QML", ModuleKind::QmlLibrary);
+    auto qmlNativeModuleId = createModule("QML", ModuleKind::CppLibrary);
+    auto qtQmlModelsModuleId = createModule("QtQml.Models", ModuleKind::QmlLibrary);
+    auto qtQuickModuleId = createModule("QtQuick", ModuleKind::QmlLibrary);
+    auto qtQuickNativeModuleId = createModule("QtQuick", ModuleKind::CppLibrary);
 
     auto boolId = createValue(qmlModuleId, "bool");
     auto intId = createValue(qmlModuleId, "int");
@@ -463,11 +466,11 @@ void ProjectStorageMock::setupQtQuick()
                                           {qtObjectId});
     createObject(qtQuickModuleId, "PropertyChanges", {qtObjectId, stateOperationsId});
 
-    auto qtQuickTimelineModuleId = createModule("QtQuick.Timeline");
+    auto qtQuickTimelineModuleId = createModule("QtQuick.Timeline", ModuleKind::QmlLibrary);
     createObject(qtQuickTimelineModuleId, "KeyframeGroup", {qtObjectId});
     createObject(qtQuickTimelineModuleId, "Keyframe", {qtObjectId});
 
-    auto flowViewModuleId = createModule("FlowView");
+    auto flowViewModuleId = createModule("FlowView", ModuleKind::QmlLibrary);
     createObject(flowViewModuleId,
                  "FlowActionArea",
                  "data",
@@ -492,12 +495,12 @@ void ProjectStorageMock::setupQtQuick()
 
 void ProjectStorageMock::setupQtQuickImportedTypeNameIds(QmlDesigner::SourceId sourceId)
 {
-    auto qmlModuleId = moduleId("QML");
-    auto qtQmlModelsModuleId = moduleId("QtQml.Models");
-    auto qtQuickModuleId = moduleId("QtQuick");
-    auto qtQuickNativeModuleId = moduleId("QtQuick-cppnative");
-    auto qtQuickTimelineModuleId = moduleId("QtQuick.Timeline");
-    auto flowViewModuleId = moduleId("FlowView");
+    auto qmlModuleId = moduleId("QML", ModuleKind::QmlLibrary);
+    auto qtQmlModelsModuleId = moduleId("QtQml.Models", ModuleKind::QmlLibrary);
+    auto qtQuickModuleId = moduleId("QtQuick", ModuleKind::QmlLibrary);
+    auto qtQuickNativeModuleId = moduleId("QtQuick", ModuleKind::CppLibrary);
+    auto qtQuickTimelineModuleId = moduleId("QtQuick.Timeline", ModuleKind::QmlLibrary);
+    auto flowViewModuleId = moduleId("FlowView", ModuleKind::QmlLibrary);
 
     createImportedTypeNameId(sourceId, "int", qmlModuleId);
     createImportedTypeNameId(sourceId, "QtObject", qmlModuleId);

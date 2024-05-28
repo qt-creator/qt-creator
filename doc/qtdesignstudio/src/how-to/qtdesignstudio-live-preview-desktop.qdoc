@@ -24,8 +24,11 @@
             \uicontrol {Preview File}.
     \endlist
 
-    To preview the whole UI, select \uicontrol {Live Preview}
+    To preview the whole application, select \uicontrol {Live Preview}
     when viewing the main QML file of the project.
+
+    To preview the application in a different zoom level, right-click the \uicontrol {Live Preview}
+    button and select the zoom level.
 
     \section1 Overriding the Preview Tool
 

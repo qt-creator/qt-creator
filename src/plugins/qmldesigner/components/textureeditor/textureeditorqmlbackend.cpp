@@ -42,10 +42,11 @@ static QObject *variantToQObject(const QVariant &value)
 
 namespace QmlDesigner {
 
-TextureEditorQmlBackend::TextureEditorQmlBackend(TextureEditorView *textureEditor, AsynchronousImageCache &imageCache)
-    : m_quickWidget(new QQuickWidget)
-    , m_textureEditorTransaction(new TextureEditorTransaction(textureEditor))
-    , m_contextObject(new TextureEditorContextObject(m_quickWidget->rootContext()))
+TextureEditorQmlBackend::TextureEditorQmlBackend(TextureEditorView *textureEditor,
+                                                 AsynchronousImageCache &imageCache)
+    : m_quickWidget(Utils::makeUniqueObjectPtr<QQuickWidget>())
+    , m_textureEditorTransaction(std::make_unique<TextureEditorTransaction>(textureEditor))
+    , m_contextObject(std::make_unique<TextureEditorContextObject>(m_quickWidget->rootContext()))
 {
     QImage defaultImage;
     defaultImage.load(Utils::StyleHelper::dpiSpecificImageFile(":/textureeditor/images/texture_default.png"));
@@ -56,7 +57,7 @@ TextureEditorQmlBackend::TextureEditorQmlBackend(TextureEditorView *textureEdito
     m_quickWidget->engine()->addImageProvider("qmldesigner_thumbnails", m_textureEditorImageProvider);
     m_contextObject->setBackendValues(&m_backendValuesPropertyMap);
     m_contextObject->setModel(textureEditor->model());
-    context()->setContextObject(m_contextObject.data());
+    context()->setContextObject(m_contextObject.get());
 
     QObject::connect(&m_backendValuesPropertyMap, &DesignerPropertyMap::valueChanged,
                      textureEditor, &TextureEditorView::changeValue);
@@ -159,7 +160,7 @@ QQmlContext *TextureEditorQmlBackend::context() const
 
 TextureEditorContextObject *TextureEditorQmlBackend::contextObject() const
 {
-    return m_contextObject.data();
+    return m_contextObject.get();
 }
 
 QQuickWidget *TextureEditorQmlBackend::widget() const
@@ -184,7 +185,7 @@ DesignerPropertyMap &TextureEditorQmlBackend::backendValuesPropertyMap()
 
 TextureEditorTransaction *TextureEditorQmlBackend::textureEditorTransaction() const
 {
-    return m_textureEditorTransaction.data();
+    return m_textureEditorTransaction.get();
 }
 
 PropertyEditorValue *TextureEditorQmlBackend::propertyValueForName(const QString &propertyName)
@@ -227,12 +228,9 @@ void TextureEditorQmlBackend::setup(const QmlObjectNode &selectedTextureNode, co
 
         // anchors
         m_backendAnchorBinding.setup(selectedTextureNode.modelNode());
-        context()->setContextProperties(
-            QVector<QQmlContext::PropertyPair>{
-                {{"anchorBackend"}, QVariant::fromValue(&m_backendAnchorBinding)},
-                {{"transaction"}, QVariant::fromValue(m_textureEditorTransaction.data())}
-            }
-        );
+        context()->setContextProperties(QVector<QQmlContext::PropertyPair>{
+            {{"anchorBackend"}, QVariant::fromValue(&m_backendAnchorBinding)},
+            {{"transaction"}, QVariant::fromValue(m_textureEditorTransaction.get())}});
 
         contextObject()->setSpecificsUrl(qmlSpecificsFile);
         contextObject()->setStateName(stateName);

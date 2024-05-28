@@ -1,0 +1,17 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
+#include "projectstorageerrornotifier.h"
+
+#include "sourcepathcache.h"
+
+namespace QmlDesigner {
+
+void ProjectStorageErrorNotifier::typeNameCannotBeResolved(Utils::SmallStringView typeName,
+                                                        SourceId sourceId)
+{
+    qDebug() << "Missing type name: " << typeName
+             << " in file: " << m_pathCache.sourcePath(sourceId).toStringView();
+}
+
+} // namespace QmlDesigner

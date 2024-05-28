@@ -269,6 +269,21 @@ TEST_F(SqliteStatement, bind_int_id)
     ASSERT_THAT(readStatement.fetchIntValue(0), 42);
 }
 
+TEST_F(SqliteStatement, bind_special_state_id)
+{
+    enum class SpecialIdState { Unresolved = -1 };
+    constexpr TestIntId unresolvedTypeId = TestIntId::createSpecialState(SpecialIdState::Unresolved);
+    SqliteTestStatement<0, 1> statement("INSERT INTO test VALUES ('id', 323, ?)", database);
+
+    statement.bind(1, unresolvedTypeId);
+    statement.next();
+
+    SqliteTestStatement<1, 1> readStatement("SELECT value FROM test WHERE name='id'", database);
+    readStatement.next();
+    ASSERT_THAT(readStatement.fetchType(0), Sqlite::Type::Integer);
+    ASSERT_THAT(readStatement.fetchIntValue(0), -1);
+}
+
 TEST_F(SqliteStatement, bind_invalid_long_long_id_to_null)
 {
     TestLongLongId id;

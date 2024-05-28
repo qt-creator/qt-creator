@@ -3,6 +3,8 @@
 
 #include "view3dactioncommand.h"
 
+#include <utils/utility.h>
+
 #include <QDebug>
 #include <QDataStream>
 
@@ -64,16 +66,9 @@ QDebug operator<<(QDebug debug, const View3DActionCommand &command)
                            << command.m_value << ")\n";
 }
 
-template<typename Enumeration>
-constexpr std::underlying_type_t<Enumeration> to_underlying(Enumeration enumeration) noexcept
-{
-    static_assert(std::is_enum_v<Enumeration>, "to_underlying expect an enumeration");
-    return static_cast<std::underlying_type_t<Enumeration>>(enumeration);
-}
-
 QDebug operator<<(QDebug debug, View3DActionType type)
 {
-    return debug.nospace() << to_underlying(type);
+    return debug.nospace() << Utils::to_underlying(type);
 }
 
 } // namespace QmlDesigner

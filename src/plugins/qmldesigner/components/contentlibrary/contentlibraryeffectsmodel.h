@@ -3,21 +3,14 @@
 
 #pragma once
 
-#include "nodemetainfo.h"
-
 #include <QAbstractListModel>
-#include <QDir>
 #include <QJsonObject>
 
 namespace QmlDesigner {
 
-class ContentLibraryEffect;
+class ContentLibraryItem;
 class ContentLibraryEffectsCategory;
 class ContentLibraryWidget;
-
-namespace Internal {
-class ContentLibraryBundleImporter;
-}
 
 class ContentLibraryEffectsModel : public QAbstractListModel
 {
@@ -26,7 +19,6 @@ class ContentLibraryEffectsModel : public QAbstractListModel
     Q_PROPERTY(bool bundleExists READ bundleExists NOTIFY bundleExistsChanged)
     Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
     Q_PROPERTY(bool hasRequiredQuick3DImport READ hasRequiredQuick3DImport NOTIFY hasRequiredQuick3DImportChanged)
-    Q_PROPERTY(bool importerRunning MEMBER m_importerRunning NOTIFY importerRunningChanged)
 
 public:
     ContentLibraryEffectsModel(ContentLibraryWidget *parent = nullptr);
@@ -49,46 +41,33 @@ public:
     void resetModel();
     void updateIsEmpty();
 
-    Internal::ContentLibraryBundleImporter *bundleImporter() const;
+    Q_INVOKABLE void addInstance(QmlDesigner::ContentLibraryItem *bundleItem);
+    Q_INVOKABLE void removeFromProject(QmlDesigner::ContentLibraryItem *bundleItem);
 
-    Q_INVOKABLE void addInstance(QmlDesigner::ContentLibraryEffect *bundleItem);
-    Q_INVOKABLE void removeFromProject(QmlDesigner::ContentLibraryEffect *bundleItem);
+    QString bundleId() const;
 
 signals:
     void isEmptyChanged();
     void hasRequiredQuick3DImportChanged();
-#ifdef QDS_USE_PROJECTSTORAGE
-    void bundleItemImported(const QmlDesigner::TypeName &typeName);
-#else
-    void bundleItemImported(const QmlDesigner::NodeMetaInfo &metaInfo);
-#endif
-    void bundleItemAboutToUnimport(const QmlDesigner::TypeName &type);
-    void bundleItemUnimported(const QmlDesigner::NodeMetaInfo &metaInfo);
-    void importerRunningChanged();
     void bundleExistsChanged();
 
 private:
     bool isValidIndex(int idx) const;
-    void createImporter(const QString &bundlePath, const QString &bundleId,
-                        const QStringList &sharedFiles);
 
     ContentLibraryWidget *m_widget = nullptr;
     QString m_searchText;
+    QString m_bundlePath;
+    QString m_bundleId;
+    QStringList m_bundleSharedFiles;
     QList<ContentLibraryEffectsCategory *> m_bundleCategories;
     QJsonObject m_bundleObj;
-    Internal::ContentLibraryBundleImporter *m_importer = nullptr;
 
     bool m_isEmpty = true;
     bool m_bundleExists = false;
     bool m_probeBundleDir = false;
-    bool m_importerRunning = false;
 
     int m_quick3dMajorVersion = -1;
     int m_quick3dMinorVersion = -1;
-
-    QString m_importerBundlePath;
-    QString m_importerBundleId;
-    QStringList m_importerSharedFiles;
 };
 
 } // namespace QmlDesigner

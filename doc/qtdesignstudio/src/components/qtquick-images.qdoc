@@ -44,6 +44,9 @@
     If you need to display animated images, such as GIFs, use the
     \l {Animated Image} component.
 
+    \note Currently, the supported image formats include JPEG, JPG, PNG, SVG,
+        HDR, KTX, BMP, TTF, TIFF, WEBP, and GIF.
+
     \section1 Image Size
 
     \image qtquick-designer-image-properties.png "Image properties"

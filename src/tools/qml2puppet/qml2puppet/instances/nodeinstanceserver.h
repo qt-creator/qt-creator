@@ -258,6 +258,7 @@ protected:
     void setRenderTimerInterval(int timerInterval);
     int renderTimerInterval() const;
     void setSlowRenderTimerInterval(int timerInterval);
+    TimerMode timerMode() const { return m_timerMode; }
 
     virtual void initializeView() = 0;
     virtual void initializeAuxiliaryViews();

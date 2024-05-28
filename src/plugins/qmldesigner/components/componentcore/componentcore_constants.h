@@ -69,7 +69,6 @@ const char mergeTemplateCommandId[] = "MergeTemplate";
 const char goToImplementationCommandId[] = "GoToImplementation";
 const char makeComponentCommandId[] = "MakeComponent";
 const char editMaterialCommandId[] = "EditMaterial";
-const char editCollectionCommandId[] = "EditCollection";
 const char addItemToStackedContainerCommandId[] = "AddItemToStackedContainer";
 const char addTabBarToStackedContainerCommandId[] = "AddTabBarToStackedContainer";
 const char increaseIndexOfStackedContainerCommandId[] = "IncreaseIndexOfStackedContainer";
@@ -128,7 +127,6 @@ const char mergeTemplateDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMen
 const char goToImplementationDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Go to Implementation");
 const char makeComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Create Component");
 const char editMaterialDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit Material");
-const char editCollectionDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit Model");
 const char editAnnotationsDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit Annotations");
 const char addMouseAreaFillDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Add Mouse Area");
 const char editIn3dViewDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit in 3D View");
@@ -214,7 +212,6 @@ enum PrioritiesEnum : int {
     ArrangeCategory,
     EditCategory,
     EditListModel,
-    EditCollection,
     /******** Section *****************************/
     PositionSection = 2000,
     SnappingCategory,

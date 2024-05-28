@@ -422,7 +422,7 @@ QVariant KeyframeItem::itemChange(QGraphicsItem::GraphicsItemChange change, cons
                 rseg.moveLeftTo(position);
 
                 if (legalLeft() && legalRight()) {
-                    if (qApp->keyboardModifiers().testFlag(Qt::ShiftModifier) && m_validPos.has_value()) {
+                    if (qApp->keyboardModifiers().testFlag(Qt::ShiftModifier) && m_validPos) {
                         if (m_firstPos) {
                             auto firstToNow = QLineF(*m_firstPos, position);
                             if (std::abs(firstToNow.dx()) > std::abs(firstToNow.dy()))

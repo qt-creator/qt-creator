@@ -11,6 +11,8 @@
 
 #include <nodemetainfo.h>
 
+#include <memory>
+
 class PropertyEditorValue;
 
 QT_BEGIN_NAMESPACE
@@ -67,8 +69,8 @@ private:
     Utils::UniqueObjectPtr<QQuickWidget> m_quickWidget = nullptr;
     QmlAnchorBindingProxy m_backendAnchorBinding;
     QmlModelNodeProxy m_backendModelNode;
-    QScopedPointer<MaterialEditorTransaction> m_materialEditorTransaction;
-    QScopedPointer<MaterialEditorContextObject> m_contextObject;
+    std::unique_ptr<MaterialEditorTransaction> m_materialEditorTransaction;
+    std::unique_ptr<MaterialEditorContextObject> m_contextObject;
     QPointer<MaterialEditorImageProvider> m_materialEditorImageProvider;
 };
 

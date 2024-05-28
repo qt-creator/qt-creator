@@ -3,9 +3,10 @@
 
 #pragma once
 
-#include "abstractview.h"
-#include "createtexture.h"
-#include "nodemetainfo.h"
+#include <asynchronousimagecache.h>
+#include <abstractview.h>
+#include <createtexture.h>
+#include <nodemetainfo.h>
 
 #include <QObject>
 #include <QPointer>
@@ -14,7 +15,7 @@ QT_FORWARD_DECLARE_CLASS(QPixmap)
 
 namespace QmlDesigner {
 
-class ContentLibraryEffect;
+class ContentLibraryItem;
 class ContentLibraryMaterial;
 class ContentLibraryTexture;
 class ContentLibraryWidget;
@@ -25,7 +26,8 @@ class ContentLibraryView : public AbstractView
     Q_OBJECT
 
 public:
-    ContentLibraryView(ExternalDependenciesInterface &externalDependencies);
+    ContentLibraryView(AsynchronousImageCache &imageCache,
+                       ExternalDependenciesInterface &externalDependencies);
     ~ContentLibraryView() override;
 
     bool hasWidget() const override;
@@ -48,15 +50,17 @@ public:
                               const QVariant &data) override;
 
 private:
-    void connectUserBundle();
+    void connectImporter();
+    bool isMaterialBundle(const QString &bundleId) const;
+    bool isItemBundle(const QString &bundleId) const;
     void active3DSceneChanged(qint32 sceneId);
-    void updateBundleMaterialsImportedState();
-    void updateBundleUserMaterialsImportedState();
-    void updateBundleEffectsImportedState();
     void updateBundlesQuick3DVersion();
-    void addLibMaterial(const ModelNode &mat, const QPixmap &icon);
+    void addLibMaterial(const ModelNode &node, const QPixmap &iconPixmap);
     void addLibAssets(const QStringList &paths);
-    QStringList writeLibMaterialQml(const ModelNode &mat, const QString &qml);
+    void addLib3DComponent(const ModelNode &node);
+    void addLib3DItem(const ModelNode &node);
+    void genAndSaveIcon(const QString &qmlPath, const QString &iconPath);
+    QStringList writeLibItemQml(const ModelNode &node, const QString &qml);
     QPair<QString, QSet<QString>> modelNodeToQmlString(const ModelNode &node, QStringList &depListIds,
                                                        int depth = 0);
 
@@ -74,12 +78,13 @@ private:
 #endif
     QPointer<ContentLibraryWidget> m_widget;
     QList<ModelNode> m_bundleMaterialTargets;
-    ModelNode m_bundleEffectTarget; // target of the dropped bundle effect
-    QVariant m_bundleEffectPos; // pos of the dropped bundle effect
+    ModelNode m_bundleItemTarget; // target of the dropped bundle item
+    QVariant m_bundleItemPos; // pos of the dropped bundle item
     QList<ModelNode> m_selectedModels; // selected 3D model nodes
     ContentLibraryMaterial *m_draggedBundleMaterial = nullptr;
     ContentLibraryTexture *m_draggedBundleTexture = nullptr;
-    ContentLibraryEffect *m_draggedBundleEffect = nullptr;
+    ContentLibraryItem *m_draggedBundleItem = nullptr;
+    AsynchronousImageCache &m_imageCache;
     bool m_bundleMaterialAddToSelected = false;
     bool m_hasQuick3DImport = false;
     qint32 m_sceneId = -1;

@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -19,10 +19,6 @@
     other files that are needed to implement the application logic and to
     prepare the application for production.
 
-    Use the \l{Using Git}{Git} version control system to ensure that changes
-    are not lost when files are passed back and forth between designers and
-    developers.
-
     \QDS \l{Creating Projects}{projects} come with boilerplate code for a
     working Qt 6 application that you can build and run in Qt Creator using
     CMake. Therefore, you can open, build, and run the projects with Qt Creator.
@@ -31,58 +27,53 @@
     \e CMakeLists.txt file as the project file. This enables you to share
     your project as a fully working C++ application with developers.
 
-    If you use Git, you can clone an example project
-    \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/playground/AuroraCluster0}
-    {here}.
+    To export a \QDS project for Qt Creator, you need:
+
+    \list
+        \li Qt Creator 13.0 or above.
+        \li \QDS 4.5 or above.
+    \endlist
 
     \section1 Exporting a \QDS Project
 
-    \QDS uses a different project format than Qt Creator. \QDS does not build the project,
-    it uses a pre-compiled \l{QML runtime} to run the project. To export a \QDS project for the
-    Qt Creator, follow the process:
+        \list 1
+            \li \l {Creating a Project} {Create} or open your \QDS project with \QDS 4.5 or above.
 
-    \list 1
-        \li Open the project you want to export in \QDS.
-        \li Select \uicontrol {File} > \uicontrol {Export Project} > \uicontrol {Generate CMake Build Files}.
-            \image studio-project-export.webp "Export the \QDS project for Qt Creator"
+                \note If you are creating a new project in \QDS, select the
+                    \uicontrol {Target Qt Version} that is not higher than the Qt version
+                    used in your Qt Creator.
 
-        \li Select \uicontrol {Details} to access the \uicontrol {Advanced Options}.
-            \image studio-project-export-advanced.webp "Access Advanced Options in the project exporter"
+            \li Go to \uicontrol {File} > \uicontrol {Export Project}
+                > \uicontrol {Enable Automatic CMake Generation}. This creates a
+                \e {CMakeLists.txt} file in your project folder.
 
-            \note The project exporter has default settings selected. This works better if the project
-             is combined with an existing Qt project.
+                \note Enabling this option tracks the changes made to the project in Qt Creator
+                    and automatically updates in \QDS. The connection works unless you
+                    deactivate the option.
 
-        \li Select all the options here. This allows to export the
-            complete project. So, it can be compiled as a stand-alone application.
-            \image studio-project-export-advanced-options.webp "Select all the options in the project exporter"
+            \image studio-project-export.webp "Exporting Qt Design Studio project"
+        \endlist
 
-            \note If you copy this export on top of the existing Qt Creator project
-                  it overwrites the existing project. Hence, the default selected options in
-                  the exporter only exports the QML-specific items. You get a list of
-                  warnings at the bottom part of the exporter that denotes exactly which parts
-                  of the project gets overwritten.
-    \endlist
+    \section1 Opening the \QDS Project in Qt Creator
 
-    \section1 Using the Exported Project in Qt Creator
+        Open the \e {CMakeLists.txt} file in Qt Creator. To open:
 
-    After exporting the project from the \QDS, you have to open it from Qt Creator.
+        \list 1
+            \li In Qt Creator, select \uicontrol File > \uicontrol {Open File or Project}.
+            \li Browse through your project directory and select the \e {CMakeLists.txt}.
+                Then select \uicontrol Open.
 
-    If you have used any version before \QDS 4.0 to create the project, manually include this code
-    in the \e {CMakeLists.txt} file so the exported project works in Qt Creator.
+                \image studio-project-cmake-generation.webp "Project folder after CMake generation"
 
-    \code
-        set(BUILD_QDS_COMPONENTS ON CACHE BOOL "Build design studio components")
+            \li Select the Qt version and then \uicontrol {Configure Project}.
 
-        set(CMAKE_INCLUDE_CURRENT_DIR ON)
+                \note If your \QDS project was created with a more updated Qt than the one
+                    available in Qt Creator, the import doesn't work. Use
+                    \l {Get and Install Qt with Qt Online Installer} {Qt Online Installer}
+                    to install the latest Qt version. If successfully opened, all the files are
+                    accessible in the \uicontrol Projects view.
 
-        if (${BUILD_QDS_COMPONENTS})
-            include(${CMAKE_CURRENT_SOURCE_DIR}/qmlcomponents)
-        endif ()
-
-        include(${CMAKE_CURRENT_SOURCE_DIR}/qmlmodules)
-    \endcode
-
-    \note If you have created the project with the \QDS version 4.0 or above, you already have this code in
-          \e {CMakeLists.txt} by default.
-
+                \image qtcreator-qt-design-studio-project.webp "Qt Design studio projects in Qt Creator after successful import"
+            \li To run the project, select \uicontrol Run.
+        \endlist
 */

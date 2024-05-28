@@ -8,7 +8,7 @@
 namespace QmlDesigner {
 
 AbstractAction::AbstractAction(const QString &description)
-    : m_pureAction(new DefaultAction(description))
+    : m_pureAction(std::make_unique<DefaultAction>(description))
 {
     const Utils::Icon defaultIcon({
             {":/utils/images/select.png", Utils::Theme::QmlDesigner_FormEditorForegroundColor}}, Utils::Icon::MenuTintedStyle);
@@ -56,7 +56,7 @@ void AbstractAction::setCheckable(bool checkable)
 
 PureActionInterface *AbstractAction::pureAction() const
 {
-    return m_pureAction.data();
+    return m_pureAction.get();
 }
 
 SelectionContext AbstractAction::selectionContext() const

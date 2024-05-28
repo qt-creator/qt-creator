@@ -16,6 +16,8 @@
 
 #include <QQmlPropertyMap>
 
+#include <memory>
+
 class PropertyEditorValue;
 
 namespace QmlDesigner {
@@ -109,9 +111,9 @@ private:
     Utils::UniqueObjectPtr<Quick2PropertyEditorView> m_view = nullptr;
     QmlAnchorBindingProxy m_backendAnchorBinding;
     QmlModelNodeProxy m_backendModelNode;
-    QScopedPointer<PropertyEditorTransaction> m_propertyEditorTransaction;
-    QScopedPointer<PropertyEditorValue> m_dummyPropertyEditorValue;
-    QScopedPointer<PropertyEditorContextObject> m_contextObject;
+    std::unique_ptr<PropertyEditorTransaction> m_propertyEditorTransaction;
+    std::unique_ptr<PropertyEditorValue> m_dummyPropertyEditorValue;
+    std::unique_ptr<PropertyEditorContextObject> m_contextObject;
 };
 
 } //QmlDesigner

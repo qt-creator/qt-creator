@@ -8,14 +8,14 @@
 
 namespace QmlDesigner {
 
-AbstractActionGroup::AbstractActionGroup(const QString &displayName) :
-    m_displayName(displayName),
-    m_menu(new QmlEditorMenu)
+AbstractActionGroup::AbstractActionGroup(const QString &displayName)
+    : m_displayName(displayName)
+    , m_menu(Utils::makeUniqueObjectPtr<QmlEditorMenu>())
 {
     m_menu->setTitle(displayName);
     m_action = m_menu->menuAction();
 
-    QmlEditorMenu *qmlEditorMenu = qobject_cast<QmlEditorMenu *>(m_menu.data());
+    QmlEditorMenu *qmlEditorMenu = qobject_cast<QmlEditorMenu *>(m_menu.get());
     if (qmlEditorMenu)
         qmlEditorMenu->setIconsVisible(false);
 }
@@ -32,7 +32,7 @@ QAction *AbstractActionGroup::action() const
 
 QMenu *AbstractActionGroup::menu() const
 {
-    return m_menu.data();
+    return m_menu.get();
 }
 
 SelectionContext AbstractActionGroup::selectionContext() const

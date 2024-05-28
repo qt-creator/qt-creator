@@ -28,7 +28,7 @@ namespace QmlDesigner {
 constexpr auto category = ProjectStorageTracing::projectStorageUpdaterCategory;
 using NanotraceHR::keyValue;
 using Tracer = ProjectStorageTracing::Category::TracerType;
-
+using Storage::ModuleKind;
 namespace QmlDom = QQmlJS::Dom;
 
 namespace {
@@ -71,8 +71,7 @@ const Storage::Import &appendImports(Storage::Imports &imports,
     });
 
     Utils::PathString moduleName{QStringView(dependency.begin(), spaceFound)};
-    moduleName.append("-cppnative");
-    ModuleId cppModuleId = storage.moduleId(moduleName);
+    ModuleId cppModuleId = storage.moduleId(moduleName, ModuleKind::CppLibrary);
 
     return imports.emplace_back(cppModuleId, Storage::Version{}, sourceId);
 }
@@ -98,7 +97,8 @@ void addImports(Storage::Imports &imports,
     const auto &import = imports.emplace_back(cppModuleId, Storage::Version{}, sourceId);
     tracer.tick("append import"_t, keyValue("import", import));
 
-    if (ModuleId qmlCppModuleId = storage.moduleId("QML-cppnative"); cppModuleId != qmlCppModuleId) {
+    if (ModuleId qmlCppModuleId = storage.moduleId("QML", ModuleKind::CppLibrary);
+        cppModuleId != qmlCppModuleId) {
         const auto &import = imports.emplace_back(qmlCppModuleId, Storage::Version{}, sourceId);
         tracer.tick("append import"_t, keyValue("import", import));
     }
@@ -145,7 +145,8 @@ Storage::Synchronization::ExportedTypes createExports(const QList<QQmlJSScope::E
 
     for (const QQmlJSScope::Export &qmlExport : qmlExports) {
         TypeNameString exportedTypeName{qmlExport.type()};
-        exportedTypes.emplace_back(storage.moduleId(Utils::SmallString{qmlExport.package()}),
+        exportedTypes.emplace_back(storage.moduleId(Utils::SmallString{qmlExport.package()},
+                                                    ModuleKind::QmlLibrary),
                                    std::move(exportedTypeName),
                                    createVersion(qmlExport.version()));
     }
@@ -469,16 +470,16 @@ void addType(Storage::Synchronization::Types &types,
 using namespace Qt::StringLiterals;
 
 constexpr auto skipLists = std::make_tuple(
-    std::pair{"QtQuick.Templates-cppnative"sv, std::array{"QQuickItem"_L1}});
+    std::pair{std::pair{"QtQuick.Templates"_sv, ModuleKind::CppLibrary}, std::array{"QQuickItem"_L1}});
 
-Utils::span<const QLatin1StringView> getSkipList(std::string_view moduleName)
+Utils::span<const QLatin1StringView> getSkipList(const Storage::Module &module)
 {
     static constexpr Utils::span<const QLatin1StringView> emptySkipList;
     auto currentSkipList = emptySkipList;
 
     std::apply(
         [&](const auto &entry) {
-            if (entry.first == moduleName)
+            if (entry.first.first == module.name && entry.first.second == module.kind)
                 currentSkipList = entry.second;
         },
         skipLists);
@@ -494,7 +495,7 @@ bool skipType(const QQmlJSExportedScope &object, Utils::span<const QLatin1String
 }
 
 void addTypes(Storage::Synchronization::Types &types,
-              const Storage::Synchronization::ProjectData &projectData,
+              const Storage::Synchronization::DirectoryInfo &directoryInfo,
               const QList<QQmlJSExportedScope> &objects,
               QmlTypesParser::ProjectStorage &storage,
               const ComponentWithoutNamespaces &componentNameWithoutNamespaces)
@@ -502,15 +503,15 @@ void addTypes(Storage::Synchronization::Types &types,
     NanotraceHR::Tracer tracer{"add types"_t, category()};
     types.reserve(Utils::usize(objects) + types.size());
 
-    const auto skipList = getSkipList(storage.moduleName(projectData.moduleId));
+    const auto skipList = getSkipList(storage.module(directoryInfo.moduleId));
 
     for (const auto &object : objects) {
         if (skipType(object, skipList))
             continue;
 
         addType(types,
-                projectData.sourceId,
-                projectData.moduleId,
+                directoryInfo.sourceId,
+                directoryInfo.moduleId,
                 object,
                 storage,
                 componentNameWithoutNamespaces);
@@ -522,7 +523,7 @@ void addTypes(Storage::Synchronization::Types &types,
 void QmlTypesParser::parse(const QString &sourceContent,
                            Storage::Imports &imports,
                            Storage::Synchronization::Types &types,
-                           const Storage::Synchronization::ProjectData &projectData)
+                           const Storage::Synchronization::DirectoryInfo &directoryInfo)
 {
     NanotraceHR::Tracer tracer{"qmltypes parser parse"_t, category()};
 
@@ -535,8 +536,8 @@ void QmlTypesParser::parse(const QString &sourceContent,
 
     auto componentNameWithoutNamespaces = createComponentNameWithoutNamespaces(components);
 
-    addImports(imports, projectData.sourceId, dependencies, m_storage, projectData.moduleId);
-    addTypes(types, projectData, components, m_storage, componentNameWithoutNamespaces);
+    addImports(imports, directoryInfo.sourceId, dependencies, m_storage, directoryInfo.moduleId);
+    addTypes(types, directoryInfo, components, m_storage, componentNameWithoutNamespaces);
 }
 
 #else
@@ -544,7 +545,7 @@ void QmlTypesParser::parse(const QString &sourceContent,
 void QmlTypesParser::parse([[maybe_unused]] const QString &sourceContent,
                            [[maybe_unused]] Storage::Imports &imports,
                            [[maybe_unused]] Storage::Synchronization::Types &types,
-                           [[maybe_unused]] const Storage::Synchronization::ProjectData &projectData)
+                           [[maybe_unused]] const Storage::Synchronization::DirectoryInfo &directoryInfo)
 {}
 
 #endif

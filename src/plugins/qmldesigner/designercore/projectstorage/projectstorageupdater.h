@@ -143,9 +143,17 @@ private:
                            WatchedSourceIdsIds &watchedSourceIdsIds);
 
     void updateDirectory(const Utils::PathString &directory,
+                         const SourceContextIds &subdirecoriesToIgnore,
                          Storage::Synchronization::SynchronizationPackage &package,
                          NotUpdatedSourceIds &notUpdatedSourceIds,
                          WatchedSourceIdsIds &watchedSourceIdsIds);
+    void updateSubdirectories(const Utils::PathString &directory,
+                              SourceId directorySourceId,
+                              FileState directoryFileState,
+                              const SourceContextIds &subdirecoriesToIgnore,
+                              Storage::Synchronization::SynchronizationPackage &package,
+                              NotUpdatedSourceIds &notUpdatedSourceIds,
+                              WatchedSourceIdsIds &watchedSourceIdsIds);
     void updateDirectoryChanged(std::string_view directoryPath,
                                 FileState qmldirState,
                                 SourcePath qmldirSourcePath,
@@ -177,10 +185,12 @@ private:
                               Storage::Synchronization::SynchronizationPackage &package);
     void updatePropertyEditorPath(const QString &path,
                                   Storage::Synchronization::SynchronizationPackage &package,
-                                  SourceId directorySourceId);
+                                  SourceId directorySourceId,
+                                  long long pathOffset);
     void updatePropertyEditorFilePath(const QString &filePath,
                                       Storage::Synchronization::SynchronizationPackage &package,
-                                      SourceId directorySourceId);
+                                      SourceId directorySourceId,
+                                      long long pathOffset);
     void parseTypeInfos(const QStringList &typeInfos,
                         const QList<QmlDirParser::Import> &qmldirDependencies,
                         const QList<QmlDirParser::Import> &qmldirImports,
@@ -190,11 +200,11 @@ private:
                         Storage::Synchronization::SynchronizationPackage &package,
                         NotUpdatedSourceIds &notUpdatedSourceIds,
                         WatchedSourceIdsIds &watchedSourceIdsIds);
-    void parseProjectDatas(const Storage::Synchronization::ProjectDatas &projectDatas,
-                           Storage::Synchronization::SynchronizationPackage &package,
-                           NotUpdatedSourceIds &notUpdatedSourceIds,
-                           WatchedSourceIdsIds &watchedSourceIdsIds);
-    FileState parseTypeInfo(const Storage::Synchronization::ProjectData &projectData,
+    void parseDirectoryInfos(const Storage::Synchronization::DirectoryInfos &directoryInfos,
+                             Storage::Synchronization::SynchronizationPackage &package,
+                             NotUpdatedSourceIds &notUpdatedSourceIds,
+                             WatchedSourceIdsIds &watchedSourceIdsIds);
+    FileState parseTypeInfo(const Storage::Synchronization::DirectoryInfo &directoryInfo,
                             Utils::SmallStringView qmltypesPath,
                             Storage::Synchronization::SynchronizationPackage &package,
                             NotUpdatedSourceIds &notUpdatedSourceIds);

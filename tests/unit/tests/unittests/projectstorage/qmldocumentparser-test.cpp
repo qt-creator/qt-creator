@@ -3,6 +3,8 @@
 
 #include "../utils/googletest.h"
 
+#include <projectstorageerrornotifiermock.h>
+
 #include <sqlitedatabase.h>
 
 #include <projectstorage/projectstorage.h>
@@ -16,6 +18,7 @@ namespace Synchronization = Storage::Synchronization;
 using QmlDesigner::ModuleId;
 using QmlDesigner::SourceContextId;
 using QmlDesigner::SourceId;
+using QmlDesigner::Storage::ModuleKind;
 
 MATCHER_P(HasPrototype, prototype, std::string(negation ? "isn't " : "is ") + PrintToString(prototype))
 {
@@ -143,7 +146,8 @@ class QmlDocumentParser : public ::testing::Test
 public:
 protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
-    QmlDesigner::ProjectStorage storage{database, database.isInitialized()};
+    ProjectStorageErrorNotifierMock errorNotifierMock;
+    QmlDesigner::ProjectStorage storage{database, errorNotifierMock, database.isInitialized()};
     QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage> sourcePathCache{
         storage};
     QmlDesigner::QmlDocumentParser parser{storage, sourcePathCache};
@@ -151,7 +155,7 @@ protected:
     SourceId qmlFileSourceId{sourcePathCache.sourceId("/path/to/qmlfile.qml")};
     SourceContextId qmlFileSourceContextId{sourcePathCache.sourceContextId(qmlFileSourceId)};
     Utils::PathString directoryPath{sourcePathCache.sourceContextPath(qmlFileSourceContextId)};
-    ModuleId directoryModuleId{storage.moduleId(directoryPath)};
+    ModuleId directoryModuleId{storage.moduleId(directoryPath, ModuleKind::PathLibrary)};
 };
 
 TEST_F(QmlDocumentParser, prototype)
@@ -163,7 +167,7 @@ TEST_F(QmlDocumentParser, prototype)
 
 TEST_F(QmlDocumentParser, qualified_prototype)
 {
-    auto exampleModuleId = storage.moduleId("Example");
+    auto exampleModuleId = storage.moduleId("Example", ModuleKind::QmlLibrary);
     QString text = R"(import Example 2.1 as Example
                       Example.Item{})";
 
@@ -187,7 +191,7 @@ TEST_F(QmlDocumentParser, properties)
 
 TEST_F(QmlDocumentParser, qualified_properties)
 {
-    auto exampleModuleId = storage.moduleId("Example");
+    auto exampleModuleId = storage.moduleId("Example", ModuleKind::QmlLibrary);
 
     auto type = parser.parse(R"(import Example 2.1 as Example
                                 Item{ property Example.Foo foo})",
@@ -222,7 +226,7 @@ TEST_F(QmlDocumentParser, enumeration_in_properties)
 
 TEST_F(QmlDocumentParser, qualified_enumeration_in_properties)
 {
-    auto exampleModuleId = storage.moduleId("Example");
+    auto exampleModuleId = storage.moduleId("Example", ModuleKind::QmlLibrary);
 
     auto type = parser.parse(R"(import Example 2.1 as Example
                                 Item{ property Example.Enumeration.Foo foo})",
@@ -242,9 +246,9 @@ TEST_F(QmlDocumentParser, qualified_enumeration_in_properties)
 
 TEST_F(QmlDocumentParser, imports)
 {
-    ModuleId fooDirectoryModuleId = storage.moduleId("/path/foo");
-    ModuleId qmlModuleId = storage.moduleId("QML");
-    ModuleId qtQuickModuleId = storage.moduleId("QtQuick");
+    ModuleId fooDirectoryModuleId = storage.moduleId("/path/foo", ModuleKind::PathLibrary);
+    ModuleId qmlModuleId = storage.moduleId("QML", ModuleKind::QmlLibrary);
+    ModuleId qtQuickModuleId = storage.moduleId("QtQuick", ModuleKind::QmlLibrary);
 
     auto type = parser.parse(R"(import QtQuick
                                 import "../foo"
@@ -263,9 +267,9 @@ TEST_F(QmlDocumentParser, imports)
 
 TEST_F(QmlDocumentParser, imports_with_version)
 {
-    ModuleId fooDirectoryModuleId = storage.moduleId("/path/foo");
-    ModuleId qmlModuleId = storage.moduleId("QML");
-    ModuleId qtQuickModuleId = storage.moduleId("QtQuick");
+    ModuleId fooDirectoryModuleId = storage.moduleId("/path/foo", ModuleKind::PathLibrary);
+    ModuleId qmlModuleId = storage.moduleId("QML", ModuleKind::QmlLibrary);
+    ModuleId qtQuickModuleId = storage.moduleId("QtQuick", ModuleKind::QmlLibrary);
 
     auto type = parser.parse(R"(import QtQuick 2.1
                                 import "../foo"
@@ -284,8 +288,8 @@ TEST_F(QmlDocumentParser, imports_with_version)
 
 TEST_F(QmlDocumentParser, imports_with_explict_directory)
 {
-    ModuleId qmlModuleId = storage.moduleId("QML");
-    ModuleId qtQuickModuleId = storage.moduleId("QtQuick");
+    ModuleId qmlModuleId = storage.moduleId("QML", ModuleKind::QmlLibrary);
+    ModuleId qtQuickModuleId = storage.moduleId("QtQuick", ModuleKind::QmlLibrary);
 
     auto type = parser.parse(R"(import QtQuick
                                 import "../to"
@@ -358,10 +362,10 @@ TEST_F(QmlDocumentParser, enumeration)
 
 TEST_F(QmlDocumentParser, DISABLED_duplicate_imports_are_removed)
 {
-    ModuleId fooDirectoryModuleId = storage.moduleId("/path/foo");
-    ModuleId qmlModuleId = storage.moduleId("QML");
-    ModuleId qtQmlModuleId = storage.moduleId("QtQml");
-    ModuleId qtQuickModuleId = storage.moduleId("QtQuick");
+    ModuleId fooDirectoryModuleId = storage.moduleId("/path/foo", ModuleKind::PathLibrary);
+    ModuleId qmlModuleId = storage.moduleId("QML", ModuleKind::QmlLibrary);
+    ModuleId qtQmlModuleId = storage.moduleId("QtQml", ModuleKind::QmlLibrary);
+    ModuleId qtQuickModuleId = storage.moduleId("QtQuick", ModuleKind::QmlLibrary);
 
     auto type = parser.parse(R"(import QtQuick
                                 import "../foo"
@@ -497,7 +501,7 @@ TEST_F(QmlDocumentParser, alias_on_list_property)
 
 TEST_F(QmlDocumentParser, qualified_list_property)
 {
-    auto exampleModuleId = storage.moduleId("Example");
+    auto exampleModuleId = storage.moduleId("Example", ModuleKind::QmlLibrary);
     auto type = parser.parse(R"(import Example 2.1 as Example
                                 Item{
                                     property list<Example.Foo> foos

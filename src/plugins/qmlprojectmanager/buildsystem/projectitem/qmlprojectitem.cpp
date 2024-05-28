@@ -79,7 +79,7 @@ void QmlProjectItem::setupFileFilters()
             connect(fileFilterItem.get(),
                     &FileFilterItem::filesChanged,
                     this,
-                    &QmlProjectItem::qmlFilesChanged);
+                    &QmlProjectItem::filesChanged);
 #endif
             m_content.push_back(std::move(fileFilterItem));
         };
@@ -105,10 +105,7 @@ void QmlProjectItem::setupFileFilters()
         fileFilterItem->setDefaultDirectory(m_projectFile.parentDir().toString());
         fileFilterItem->setDirectory(groupDir.toString());
 #ifndef TESTS_ENABLED_QMLPROJECTITEM
-        connect(fileFilterItem.get(),
-                &FileFilterItem::filesChanged,
-                this,
-                &QmlProjectItem::qmlFilesChanged);
+        connect(fileFilterItem.get(), &FileFilterItem::filesChanged, this, &QmlProjectItem::filesChanged);
 #endif
         m_content.push_back(std::move(fileFilterItem));
     };

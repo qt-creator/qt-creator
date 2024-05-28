@@ -91,7 +91,6 @@
 #include <QMultiHash>
 #include <QPainter>
 #include <QPicture>
-#include <QScopedPointer>
 #include <QTimerEvent>
 #include <QUrl>
 
@@ -1031,8 +1030,20 @@ TypeName createQualifiedTypeName(const ModelNode &node)
     auto exportedTypes = node.metaInfo().exportedTypeNamesForSourceId(model->fileUrlSourceId());
     if (exportedTypes.size()) {
         const auto &exportedType = exportedTypes.front();
-        Utils::PathString typeName = model->projectStorage()->moduleName(exportedType.moduleId);
-        typeName += '/';
+        using Storage::ModuleKind;
+        auto module = model->projectStorage()->module(exportedType.moduleId);
+        Utils::PathString typeName;
+        switch (module.kind) {
+        case ModuleKind::QmlLibrary:
+            typeName += module.name;
+            typeName += '/';
+            break;
+        case ModuleKind::PathLibrary:
+            break;
+        case ModuleKind::CppLibrary:
+            break;
+        }
+
         typeName += exportedType.name;
 
         return typeName.toQByteArray();
@@ -1205,6 +1216,13 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     if (stateNode.isValid() && stateNode.metaInfo().isQtQuickState())
         stateInstanceId = stateNode.internalId();
 
+    QHash<QString, QVariantMap> sceneStates = m_edit3DToolStates[model()->fileUrl()];
+    QHash<QString, QVariantMap> projectStates = m_edit3DToolStates[
+        QUrl::fromLocalFile(m_externalDependencies.currentProjectDirPath())];
+    const QString ptsId = "@PTS";
+    if (projectStates.contains(ptsId))
+        sceneStates.insert(ptsId, projectStates[ptsId]);
+
     return CreateSceneCommand(instanceContainerList,
                               reparentContainerList,
                               idContainerList,
@@ -1215,7 +1233,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
                               mockupTypesVector,
                               model()->fileUrl(),
                               m_externalDependencies.currentResourcePath(),
-                              m_edit3DToolStates[model()->fileUrl()],
+                              sceneStates,
                               lastUsedLanguage,
                               m_captureImageMinimumSize,
                               m_captureImageMaximumSize,
@@ -1733,7 +1751,12 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
             auto data = qvariant_cast<QVariantList>(command.data());
             if (data.size() == 3) {
                 QString qmlId = data[0].toString();
-                m_edit3DToolStates[model()->fileUrl()][qmlId].insert(data[1].toString(), data[2]);
+                QUrl mainKey;
+                if (qmlId == "@PTS") // Project tool state
+                    mainKey = QUrl::fromLocalFile(m_externalDependencies.currentProjectDirPath());
+                else
+                    mainKey = model()->fileUrl();
+                m_edit3DToolStates[mainKey][qmlId].insert(data[1].toString(), data[2]);
             }
         }
     } else if (command.type() == PuppetToCreatorCommand::Render3DView) {

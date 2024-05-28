@@ -53,6 +53,10 @@ NodeMetaInfo object will result in an InvalidMetaInfoException being thrown.
 
 namespace {
 
+using Storage::ModuleKind;
+
+auto category = MetaInfoTracing::category;
+
 struct TypeDescription
 {
     QString className;
@@ -1493,15 +1497,20 @@ MetaInfoType NodeMetaInfo::type() const
 {
     if constexpr (useProjectStorage()) {
         if (isValid()) {
-            switch (typeData().traits.kind) {
+            using NanotraceHR::keyValue;
+            NanotraceHR::Tracer tracer{"get type"_t, category(), keyValue("type id", m_typeId)};
+            auto kind = typeData().traits.kind;
+            tracer.end(keyValue("type kind", kind));
+
+            switch (kind) {
             case Storage::TypeTraitsKind::Reference:
                 return MetaInfoType::Reference;
             case Storage::TypeTraitsKind::Value:
                 return MetaInfoType::Value;
             case Storage::TypeTraitsKind::Sequence:
                 return MetaInfoType::Sequence;
-            default:
-                break;
+            case Storage::TypeTraitsKind::None:
+                return MetaInfoType::None;
             }
         }
     }
@@ -1511,16 +1520,38 @@ MetaInfoType NodeMetaInfo::type() const
 
 bool NodeMetaInfo::isFileComponent() const
 {
-    if constexpr (useProjectStorage())
-        return isValid() && typeData().traits.isFileComponent;
-    else
+    if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return {};
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is file component"_t, category(), keyValue("type id", m_typeId)};
+
+        auto isFileComponent = typeData().traits.isFileComponent;
+
+        tracer.end(keyValue("is file component", isFileComponent));
+
+        return isFileComponent;
+
+    } else {
         return isValid() && m_privateData->isFileComponent();
+    }
 }
 
 bool NodeMetaInfo::isProjectComponent() const
 {
     if constexpr (useProjectStorage()) {
-        return isValid() && typeData().traits.isProjectComponent;
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is project component"_t, category(), keyValue("type id", m_typeId)};
+
+        auto isProjectComponent = typeData().traits.isProjectComponent;
+
+        tracer.end(keyValue("is project component", isProjectComponent));
+
+        return isProjectComponent;
     }
 
     return false;
@@ -1529,7 +1560,17 @@ bool NodeMetaInfo::isProjectComponent() const
 bool NodeMetaInfo::isInProjectModule() const
 {
     if constexpr (useProjectStorage()) {
-        return isValid() && typeData().traits.isInProjectModule;
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is project module"_t, category(), keyValue("type id", m_typeId)};
+
+        auto isInProjectModule = typeData().traits.isInProjectModule;
+
+        tracer.end(keyValue("is project module", isInProjectModule));
+
+        return isInProjectModule;
     }
 
     return false;
@@ -1538,10 +1579,17 @@ bool NodeMetaInfo::isInProjectModule() const
 FlagIs NodeMetaInfo::canBeContainer() const
 {
     if constexpr (useProjectStorage()) {
-        if (isValid())
-            return typeData().traits.canBeContainer;
+        if (!isValid())
+            return FlagIs::False;
 
-        return FlagIs::False;
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"can be container"_t, category(), keyValue("type id", m_typeId)};
+
+        auto canBeContainer = typeData().traits.canBeContainer;
+
+        tracer.end(keyValue("can be container", canBeContainer));
+
+        return canBeContainer;
     }
 
     return FlagIs::Set;
@@ -1550,10 +1598,17 @@ FlagIs NodeMetaInfo::canBeContainer() const
 FlagIs NodeMetaInfo::forceClip() const
 {
     if constexpr (useProjectStorage()) {
-        if (isValid())
-            return typeData().traits.forceClip;
+        if (!isValid())
+            return FlagIs::False;
 
-        return FlagIs::False;
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"force clip"_t, category(), keyValue("type id", m_typeId)};
+
+        auto forceClip = typeData().traits.forceClip;
+
+        tracer.end(keyValue("force clip", forceClip));
+
+        return forceClip;
     }
 
     return FlagIs::Set;
@@ -1562,10 +1617,17 @@ FlagIs NodeMetaInfo::forceClip() const
 FlagIs NodeMetaInfo::doesLayoutChildren() const
 {
     if constexpr (useProjectStorage()) {
-        if (isValid())
-            return typeData().traits.doesLayoutChildren;
+        if (!isValid())
+            return FlagIs::False;
 
-        return FlagIs::False;
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"does layout children"_t, category(), keyValue("type id", m_typeId)};
+
+        auto doesLayoutChildren = typeData().traits.doesLayoutChildren;
+
+        tracer.end(keyValue("does layout children", doesLayoutChildren));
+
+        return doesLayoutChildren;
     }
 
     return FlagIs::Set;
@@ -1574,10 +1636,19 @@ FlagIs NodeMetaInfo::doesLayoutChildren() const
 FlagIs NodeMetaInfo::canBeDroppedInFormEditor() const
 {
     if constexpr (useProjectStorage()) {
-        if (isValid())
-            return typeData().traits.canBeDroppedInFormEditor;
+        if (!isValid())
+            return FlagIs::False;
 
-        return FlagIs::False;
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"can be dropped in form editor"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
+        auto canBeDroppedInFormEditor = typeData().traits.canBeDroppedInFormEditor;
+
+        tracer.end(keyValue("can be dropped in form editor", canBeDroppedInFormEditor));
+
+        return canBeDroppedInFormEditor;
     }
 
     return FlagIs::Set;
@@ -1586,10 +1657,19 @@ FlagIs NodeMetaInfo::canBeDroppedInFormEditor() const
 FlagIs NodeMetaInfo::canBeDroppedInNavigator() const
 {
     if constexpr (useProjectStorage()) {
-        if (isValid())
-            return typeData().traits.canBeDroppedInNavigator;
+        if (!isValid())
+            return FlagIs::False;
 
-        return FlagIs::False;
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"can be dropped in navigator"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
+        auto canBeDroppedInNavigator = typeData().traits.canBeDroppedInNavigator;
+
+        tracer.end(keyValue("can be dropped in navigator", canBeDroppedInNavigator));
+
+        return canBeDroppedInNavigator;
     }
 
     return FlagIs::Set;
@@ -1598,10 +1678,19 @@ FlagIs NodeMetaInfo::canBeDroppedInNavigator() const
 FlagIs NodeMetaInfo::canBeDroppedInView3D() const
 {
     if constexpr (useProjectStorage()) {
-        if (isValid())
-            return typeData().traits.canBeDroppedInView3D;
+        if (!isValid())
+            return FlagIs::False;
 
-        return FlagIs::False;
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"can be dropped in view3d"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
+        auto canBeDroppedInView3D = typeData().traits.canBeDroppedInView3D;
+
+        tracer.end(keyValue("can be dropped in view3d", canBeDroppedInView3D));
+
+        return canBeDroppedInView3D;
     }
 
     return FlagIs::Set;
@@ -1610,10 +1699,17 @@ FlagIs NodeMetaInfo::canBeDroppedInView3D() const
 FlagIs NodeMetaInfo::isMovable() const
 {
     if constexpr (useProjectStorage()) {
-        if (isValid())
-            return typeData().traits.isMovable;
+        if (!isValid())
+            return FlagIs::False;
 
-        return FlagIs::False;
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is movable"_t, category(), keyValue("type id", m_typeId)};
+
+        auto isMovable = typeData().traits.isMovable;
+
+        tracer.end(keyValue("is movable", isMovable));
+
+        return isMovable;
     }
 
     return FlagIs::Set;
@@ -1622,10 +1718,17 @@ FlagIs NodeMetaInfo::isMovable() const
 FlagIs NodeMetaInfo::isResizable() const
 {
     if constexpr (useProjectStorage()) {
-        if (isValid())
-            return typeData().traits.isResizable;
+        if (!isValid())
+            return FlagIs::False;
 
-        return FlagIs::False;
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is resizable"_t, category(), keyValue("type id", m_typeId)};
+
+        auto isResizable = typeData().traits.isResizable;
+
+        tracer.end(keyValue("is resizable", isResizable));
+
+        return isResizable;
     }
 
     return FlagIs::Set;
@@ -1634,10 +1737,17 @@ FlagIs NodeMetaInfo::isResizable() const
 FlagIs NodeMetaInfo::hasFormEditorItem() const
 {
     if constexpr (useProjectStorage()) {
-        if (isValid())
-            return typeData().traits.hasFormEditorItem;
+        if (!isValid())
+            return FlagIs::False;
 
-        return FlagIs::False;
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"has form editor item"_t, category(), keyValue("type id", m_typeId)};
+
+        auto hasFormEditorItem = typeData().traits.hasFormEditorItem;
+
+        tracer.end(keyValue("has form editor item", hasFormEditorItem));
+
+        return hasFormEditorItem;
     }
 
     return FlagIs::Set;
@@ -1646,10 +1756,17 @@ FlagIs NodeMetaInfo::hasFormEditorItem() const
 FlagIs NodeMetaInfo::isStackedContainer() const
 {
     if constexpr (useProjectStorage()) {
-        if (isValid())
-            return typeData().traits.isStackedContainer;
+        if (!isValid())
+            return FlagIs::False;
 
-        return FlagIs::False;
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is stacked container"_t, category(), keyValue("type id", m_typeId)};
+
+        auto isStackedContainer = typeData().traits.isStackedContainer;
+
+        tracer.end(keyValue("is stacked container", isStackedContainer));
+
+        return isStackedContainer;
     }
 
     return FlagIs::Set;
@@ -1658,10 +1775,19 @@ FlagIs NodeMetaInfo::isStackedContainer() const
 FlagIs NodeMetaInfo::takesOverRenderingOfChildren() const
 {
     if constexpr (useProjectStorage()) {
-        if (isValid())
-            return typeData().traits.takesOverRenderingOfChildren;
+        if (!isValid())
+            return FlagIs::False;
 
-        return FlagIs::False;
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"takes over rendering of children"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
+        auto takesOverRenderingOfChildren = typeData().traits.takesOverRenderingOfChildren;
+
+        tracer.end(keyValue("takes over rendering of children", takesOverRenderingOfChildren));
+
+        return takesOverRenderingOfChildren;
     }
 
     return FlagIs::Set;
@@ -1670,10 +1796,17 @@ FlagIs NodeMetaInfo::takesOverRenderingOfChildren() const
 FlagIs NodeMetaInfo::visibleInNavigator() const
 {
     if constexpr (useProjectStorage()) {
-        if (isValid())
-            return typeData().traits.visibleInNavigator;
+        if (!isValid())
+            return FlagIs::False;
 
-        return FlagIs::False;
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"visible in navigator"_t, category(), keyValue("type id", m_typeId)};
+
+        auto visibleInNavigator = typeData().traits.visibleInNavigator;
+
+        tracer.end(keyValue("visible in navigator", visibleInNavigator));
+
+        return visibleInNavigator;
     }
 
     return FlagIs::Set;
@@ -1682,10 +1815,17 @@ FlagIs NodeMetaInfo::visibleInNavigator() const
 FlagIs NodeMetaInfo::visibleInLibrary() const
 {
     if constexpr (useProjectStorage()) {
-        if (isValid())
-            return typeData().traits.visibleInLibrary;
+        if (!isValid())
+            return FlagIs::False;
 
-        return FlagIs::False;
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"visible in library"_t, category(), keyValue("type id", m_typeId)};
+
+        auto visibleInLibrary = typeData().traits.visibleInLibrary;
+
+        tracer.end(keyValue("visible in library", visibleInLibrary));
+
+        return visibleInLibrary;
     }
 
     return FlagIs::Set;
@@ -1697,6 +1837,12 @@ namespace {
                                  TypeId typeId,
                                  Utils::SmallStringView propertyName)
 {
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"get combound property id"_t,
+                               category(),
+                               keyValue("type id", typeId),
+                               keyValue("property name", propertyName)};
+
     auto begin = propertyName.begin();
     const auto end = propertyName.end();
 
@@ -1712,10 +1858,16 @@ namespace {
 
             if (propertyId && found != end) {
                 begin = std::next(found);
-                return projectStorage.propertyDeclarationId(propertyTypeId, {begin, end});
+                auto id = projectStorage.propertyDeclarationId(propertyTypeId, {begin, end});
+
+                tracer.end(keyValue("property id", id));
+
+                return id;
             }
         }
     }
+
+    tracer.end(keyValue("property id", propertyId));
 
     return propertyId;
 }
@@ -1724,10 +1876,24 @@ namespace {
 
 bool NodeMetaInfo::hasProperty(Utils::SmallStringView propertyName) const
 {
-    if constexpr (useProjectStorage())
-        return isValid() && bool(propertyId(*m_projectStorage, m_typeId, propertyName));
-    else
+    if constexpr (useProjectStorage()) {
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"has property"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId),
+                                   keyValue("property name", propertyName)};
+
+        if (!isValid())
+            return false;
+
+        auto hasPropertyId = bool(propertyId(*m_projectStorage, m_typeId, propertyName));
+
+        tracer.end(keyValue("has property", hasPropertyId));
+
+        return hasPropertyId;
+    } else {
         return isValid() && m_privateData->properties().contains(QByteArrayView(propertyName));
+    }
 }
 
 PropertyMetaInfos NodeMetaInfo::properties() const
@@ -1736,12 +1902,14 @@ PropertyMetaInfos NodeMetaInfo::properties() const
         return {};
 
     if constexpr (useProjectStorage()) {
-        if (isValid()) {
-            return Utils::transform<PropertyMetaInfos>(
-                m_projectStorage->propertyDeclarationIds(m_typeId), [&](auto id) {
-                    return PropertyMetaInfo{id, m_projectStorage};
-                });
-        }
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"get properties"_t, category(), keyValue("type id", m_typeId)};
+
+        return Utils::transform<PropertyMetaInfos>(
+            m_projectStorage->propertyDeclarationIds(m_typeId), [&](auto id) {
+                return PropertyMetaInfo{id, m_projectStorage};
+            });
+
     } else {
         const auto &properties = m_privateData->properties();
 
@@ -1753,19 +1921,22 @@ PropertyMetaInfos NodeMetaInfo::properties() const
 
         return propertyMetaInfos;
     }
-
-    return {};
 }
 
 PropertyMetaInfos NodeMetaInfo::localProperties() const
 {
+    if (!isValid())
+        return {};
+
     if constexpr (useProjectStorage()) {
-        if (isValid()) {
-            return Utils::transform<PropertyMetaInfos>(
-                m_projectStorage->localPropertyDeclarationIds(m_typeId), [&](auto id) {
-                    return PropertyMetaInfo{id, m_projectStorage};
-                });
-        }
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"get local properties"_t, category(), keyValue("type id", m_typeId)};
+
+        return Utils::transform<PropertyMetaInfos>(
+            m_projectStorage->localPropertyDeclarationIds(m_typeId), [&](auto id) {
+                return PropertyMetaInfo{id, m_projectStorage};
+            });
+
     } else {
         const auto &properties = m_privateData->localProperties();
 
@@ -1777,71 +1948,82 @@ PropertyMetaInfos NodeMetaInfo::localProperties() const
 
         return propertyMetaInfos;
     }
-
-    return {};
 }
 
 PropertyMetaInfo NodeMetaInfo::property(const PropertyName &propertyName) const
 {
+    if (!isValid())
+        return {};
+
     if constexpr (useProjectStorage()) {
-        if (isValid())
-            return {propertyId(*m_projectStorage, m_typeId, propertyName), m_projectStorage};
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"get property"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId),
+                                   keyValue("property name", propertyName)};
+
+        return {propertyId(*m_projectStorage, m_typeId, propertyName), m_projectStorage};
     } else {
         if (hasProperty(propertyName)) {
             return PropertyMetaInfo{m_privateData, propertyName};
         }
+        return {};
     }
-
-    return {};
 }
 
 PropertyNameList NodeMetaInfo::signalNames() const
 {
-    if constexpr (useProjectStorage()) {
-        if (isValid()) {
-            return Utils::transform<PropertyNameList>(m_projectStorage->signalDeclarationNames(
-                                                          m_typeId),
-                                                      [&](const auto &name) {
-                                                          return name.toQByteArray();
-                                                      });
-        }
-    } else {
-        if (isValid())
-            return m_privateData->signalNames();
-    }
+    if (!isValid())
+        return {};
 
-    return {};
+    if constexpr (useProjectStorage()) {
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"get signal names"_t, category(), keyValue("type id", m_typeId)};
+
+        return Utils::transform<PropertyNameList>(m_projectStorage->signalDeclarationNames(m_typeId),
+                                                  [&](const auto &name) {
+                                                      return name.toQByteArray();
+                                                  });
+
+    } else {
+        return m_privateData->signalNames();
+    }
 }
 
 PropertyNameList NodeMetaInfo::slotNames() const
 {
-    if constexpr (useProjectStorage()) {
-        if (isValid()) {
-            return Utils::transform<PropertyNameList>(m_projectStorage->functionDeclarationNames(
-                                                          m_typeId),
-                                                      [&](const auto &name) {
-                                                          return name.toQByteArray();
-                                                      });
-        }
-    } else {
-        if (isValid())
-            return m_privateData->slotNames();
-    }
+    if (!isValid())
+        return {};
 
-    return {};
+    if constexpr (useProjectStorage()) {
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"get slot names"_t, category(), keyValue("type id", m_typeId)};
+        return Utils::transform<PropertyNameList>(m_projectStorage->functionDeclarationNames(m_typeId),
+                                                  [&](const auto &name) {
+                                                      return name.toQByteArray();
+                                                  });
+    } else {
+        return m_privateData->slotNames();
+    }
 }
 
 PropertyName NodeMetaInfo::defaultPropertyName() const
 {
+    if (!isValid())
+        return {};
+
     if constexpr (useProjectStorage()) {
-        if (isValid()) {
-            if (auto name = m_projectStorage->propertyName(defaultPropertyDeclarationId())) {
-                return name->toQByteArray();
-            }
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"get default property name"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+        if (auto name = m_projectStorage->propertyName(defaultPropertyDeclarationId())) {
+            tracer.end(keyValue("default property name", name));
+            return name->toQByteArray();
         }
+
     } else {
-        if (isValid())
-            return m_privateData->defaultPropertyName();
+        return m_privateData->defaultPropertyName();
     }
 
     return {};
@@ -1849,88 +2031,128 @@ PropertyName NodeMetaInfo::defaultPropertyName() const
 
 PropertyMetaInfo NodeMetaInfo::defaultProperty() const
 {
+    if (!isValid())
+        return {};
+
     if constexpr (useProjectStorage()) {
-        if (isValid()) {
-            return PropertyMetaInfo(defaultPropertyDeclarationId(), m_projectStorage);
-        }
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"get default property"_t, category(), keyValue("type id", m_typeId)};
+
+        auto id = defaultPropertyDeclarationId();
+
+        tracer.end(keyValue("default property id", id));
+
+        return PropertyMetaInfo(id, m_projectStorage);
     } else {
         return property(defaultPropertyName());
     }
-
-    return {};
 }
 bool NodeMetaInfo::hasDefaultProperty() const
 {
-    if constexpr (useProjectStorage())
-        return isValid() && bool(defaultPropertyDeclarationId());
-    else
+    if (!isValid())
+        return false;
+
+    if constexpr (useProjectStorage()) {
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"has default property"_t, category(), keyValue("type id", m_typeId)};
+        auto hasDefaultProperty = bool(defaultPropertyDeclarationId());
+        tracer.end(keyValue("has default property", hasDefaultProperty));
+
+        return hasDefaultProperty;
+    } else {
         return !defaultPropertyName().isEmpty();
+    }
 }
 
 std::vector<NodeMetaInfo> NodeMetaInfo::selfAndPrototypes() const
 {
+    if (!isValid())
+        return {};
+
     if constexpr (useProjectStorage()) {
-        if (isValid()) {
-            return Utils::transform<NodeMetaInfos>(
-                m_projectStorage->prototypeAndSelfIds(m_typeId), [&](TypeId typeId) {
-                    return NodeMetaInfo{typeId, m_projectStorage};
-                });
-        }
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"get self and prototypes"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
+        return Utils::transform<NodeMetaInfos>(m_projectStorage->prototypeAndSelfIds(m_typeId),
+                                               [&](TypeId typeId) {
+                                                   return NodeMetaInfo{typeId, m_projectStorage};
+                                               });
     } else {
-        if (isValid()) {
-            NodeMetaInfos hierarchy = {*this};
-            Model *model = m_privateData->model();
-            for (const TypeDescription &type : m_privateData->prototypes()) {
-                auto &last = hierarchy.emplace_back(model,
-                                                    type.className.toUtf8(),
-                                                    type.majorVersion,
-                                                    type.minorVersion);
-                if (!last.isValid())
-                    hierarchy.pop_back();
-            }
-
-            return hierarchy;
+        NodeMetaInfos hierarchy = {*this};
+        Model *model = m_privateData->model();
+        for (const TypeDescription &type : m_privateData->prototypes()) {
+            auto &last = hierarchy.emplace_back(model,
+                                                type.className.toUtf8(),
+                                                type.majorVersion,
+                                                type.minorVersion);
+            if (!last.isValid())
+                hierarchy.pop_back();
         }
-    }
 
-    return {};
+        return hierarchy;
+    }
 }
 
 NodeMetaInfos NodeMetaInfo::prototypes() const
 {
+    if (!isValid())
+        return {};
+
     if constexpr (useProjectStorage()) {
-        if (isValid()) {
-            return Utils::transform<NodeMetaInfos>(
-                m_projectStorage->prototypeIds(m_typeId), [&](TypeId typeId) {
-                    return NodeMetaInfo{typeId, m_projectStorage};
-                });
-        }
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"get prototypes"_t, category(), keyValue("type id", m_typeId)};
+        return Utils::transform<NodeMetaInfos>(m_projectStorage->prototypeIds(m_typeId),
+                                               [&](TypeId typeId) {
+                                                   return NodeMetaInfo{typeId, m_projectStorage};
+                                               });
+
     } else {
-        if (isValid()) {
-            NodeMetaInfos hierarchy;
-            Model *model = m_privateData->model();
-            for (const TypeDescription &type : m_privateData->prototypes()) {
-                auto &last = hierarchy.emplace_back(model,
-                                                    type.className.toUtf8(),
-                                                    type.majorVersion,
-                                                    type.minorVersion);
-                if (!last.isValid())
-                    hierarchy.pop_back();
-            }
-
-            return hierarchy;
+        NodeMetaInfos hierarchy;
+        Model *model = m_privateData->model();
+        for (const TypeDescription &type : m_privateData->prototypes()) {
+            auto &last = hierarchy.emplace_back(model,
+                                                type.className.toUtf8(),
+                                                type.majorVersion,
+                                                type.minorVersion);
+            if (!last.isValid())
+                hierarchy.pop_back();
         }
-    }
 
-    return {};
+        return hierarchy;
+    }
 }
+
+namespace {
+template<const char *moduleName, const char *typeName, ModuleKind moduleKind = ModuleKind::QmlLibrary>
+bool isBasedOnCommonType(NotNullPointer<const ProjectStorageType> projectStorage, TypeId typeId)
+{
+    if (!typeId)
+        return false;
+
+    auto base = projectStorage->commonTypeId<moduleName, typeName, moduleKind>();
+
+    return projectStorage->isBasedOn(typeId, base);
+}
+} // namespace
 
 bool NodeMetaInfo::defaultPropertyIsComponent() const
 {
-    if (hasDefaultProperty())
-        return defaultProperty().propertyType().isQmlComponent();
+    if (!isValid())
+        return false;
 
-    return false;
+    if (useProjectStorage()) {
+        auto id = defaultPropertyDeclarationId();
+        auto propertyDeclaration = m_projectStorage->propertyDeclaration(id);
+
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QML, Component>(m_projectStorage, propertyDeclaration->typeId);
+    } else {
+        if (hasDefaultProperty())
+            return defaultProperty().propertyType().isQmlComponent();
+        return false;
+    }
 }
 
 TypeName NodeMetaInfo::displayName() const
@@ -1976,10 +2198,16 @@ int NodeMetaInfo::minorVersion() const
 
 Storage::Info::ExportedTypeNames NodeMetaInfo::allExportedTypeNames() const
 {
+    if (!isValid())
+        return {};
+
     if constexpr (useProjectStorage()) {
-        if (isValid()) {
-            return m_projectStorage->exportedTypeNames(m_typeId);
-        }
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"get all exported type names"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
+        return m_projectStorage->exportedTypeNames(m_typeId);
     }
 
     return {};
@@ -1987,10 +2215,17 @@ Storage::Info::ExportedTypeNames NodeMetaInfo::allExportedTypeNames() const
 
 Storage::Info::ExportedTypeNames NodeMetaInfo::exportedTypeNamesForSourceId(SourceId sourceId) const
 {
+    if (!isValid())
+        return {};
+
     if constexpr (useProjectStorage()) {
-        if (isValid()) {
-            return m_projectStorage->exportedTypeNames(m_typeId, sourceId);
-        }
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"get exported type names for source id"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId),
+                                   keyValue("source id", sourceId)};
+
+        return m_projectStorage->exportedTypeNames(m_typeId, sourceId);
     }
 
     return {};
@@ -1998,9 +2233,18 @@ Storage::Info::ExportedTypeNames NodeMetaInfo::exportedTypeNamesForSourceId(Sour
 
 Storage::Info::TypeHints NodeMetaInfo::typeHints() const
 {
+    if (!isValid())
+        return {};
+
     if constexpr (useProjectStorage()) {
-        if (isValid())
-            return m_projectStorage->typeHints(m_typeId);
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"get type hints"_t, category(), keyValue("type id", m_typeId)};
+
+        auto hints = m_projectStorage->typeHints(m_typeId);
+
+        tracer.end(keyValue("type hints", hints));
+
+        return hints;
     }
 
     return {};
@@ -2008,9 +2252,18 @@ Storage::Info::TypeHints NodeMetaInfo::typeHints() const
 
 Utils::PathString NodeMetaInfo::iconPath() const
 {
+    if (!isValid())
+        return {};
+
     if constexpr (useProjectStorage()) {
-        if (isValid())
-            return m_projectStorage->typeIconPath(m_typeId);
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"get icon path"_t, category(), keyValue("type id", m_typeId)};
+
+        auto iconPath = m_projectStorage->typeIconPath(m_typeId);
+
+        tracer.end(keyValue("icon path", iconPath));
+
+        return iconPath;
     }
 
     return {};
@@ -2018,9 +2271,20 @@ Utils::PathString NodeMetaInfo::iconPath() const
 
 Storage::Info::ItemLibraryEntries NodeMetaInfo::itemLibrariesEntries() const
 {
+    if (!isValid())
+        return {};
+
     if constexpr (useProjectStorage()) {
-        if (isValid())
-            return m_projectStorage->itemLibraryEntries(m_typeId);
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"get item library entries"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
+        auto entries = m_projectStorage->itemLibraryEntries(m_typeId);
+
+        tracer.end(keyValue("item library entries", entries));
+
+        return entries;
     }
 
     return {};
@@ -2028,10 +2292,18 @@ Storage::Info::ItemLibraryEntries NodeMetaInfo::itemLibrariesEntries() const
 
 SourceId NodeMetaInfo::sourceId() const
 {
+    if (!isValid())
+        return SourceId{};
+
     if constexpr (useProjectStorage()) {
-        if (isValid()) {
-            return typeData().sourceId;
-        }
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"get source id"_t, category(), keyValue("type id", m_typeId)};
+
+        auto id = typeData().sourceId;
+
+        tracer.end(keyValue("source id", id));
+
+        return id;
     }
 
     return SourceId{};
@@ -2064,18 +2336,31 @@ QString NodeMetaInfo::requiredImportString() const
     if (!isValid())
         return {};
 
-    Import imp = m_privateData->requiredImport();
-    if (!imp.isEmpty())
-        return imp.toImportString();
+    if constexpr (!useProjectStorage()) {
+        Import imp = m_privateData->requiredImport();
+        if (!imp.isEmpty())
+            return imp.toImportString();
+    }
 
     return {};
 }
 
 SourceId NodeMetaInfo::propertyEditorPathId() const
 {
+    if (!isValid())
+        return SourceId{};
+
     if (useProjectStorage()) {
-        if (isValid())
-            return m_projectStorage->propertyEditorPathId(m_typeId);
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"get property editor path id"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
+        auto id = m_projectStorage->propertyEditorPathId(m_typeId);
+
+        tracer.end(keyValue("property editor path id", id));
+
+        return id;
     }
 
     return SourceId{};
@@ -2133,9 +2418,13 @@ bool NodeMetaInfo::isSubclassOf(const TypeName &type, int majorVersion, int mino
 bool NodeMetaInfo::isSuitableForMouseAreaFill() const
 {
     if constexpr (useProjectStorage()) {
-        if (!isValid()) {
+        if (!isValid())
             return false;
-        }
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is suitable for mouse area fill"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
 
         using namespace Storage::Info;
         auto itemId = m_projectStorage->commonTypeId<QtQuick, Item>();
@@ -2143,11 +2432,16 @@ bool NodeMetaInfo::isSuitableForMouseAreaFill() const
         auto controlsControlId = m_projectStorage->commonTypeId<QtQuick_Controls, Control>();
         auto templatesControlId = m_projectStorage->commonTypeId<QtQuick_Templates, Control>();
 
-        return m_projectStorage->isBasedOn(m_typeId,
-                                           itemId,
-                                           mouseAreaId,
-                                           controlsControlId,
-                                           templatesControlId);
+        auto isSuitableForMouseAreaFill = m_projectStorage->isBasedOn(m_typeId,
+                                                                      itemId,
+                                                                      mouseAreaId,
+                                                                      controlsControlId,
+                                                                      templatesControlId);
+
+        tracer.end(keyValue("is suitable for mouse area fill", isSuitableForMouseAreaFill));
+
+        return isSuitableForMouseAreaFill;
+
     } else {
         return isSubclassOf("QtQuick.Item") && !isSubclassOf("QtQuick.MouseArea")
                && !isSubclassOf("QtQuick.Controls.Control")
@@ -2158,6 +2452,15 @@ bool NodeMetaInfo::isSuitableForMouseAreaFill() const
 bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo) const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is based on"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId),
+                                   keyValue("meta info type id", metaInfo.m_typeId)};
+
         return m_projectStorage->isBasedOn(m_typeId, metaInfo.m_typeId);
     } else {
         if (!isValid())
@@ -2171,6 +2474,12 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo) const
 bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1, const NodeMetaInfo &metaInfo2) const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is based on"_t, category(), keyValue("type id", m_typeId)};
+
         return m_projectStorage->isBasedOn(m_typeId, metaInfo1.m_typeId, metaInfo2.m_typeId);
     } else {
         if (!isValid())
@@ -2189,6 +2498,12 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
                              const NodeMetaInfo &metaInfo3) const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is based on"_t, category(), keyValue("type id", m_typeId)};
+
         return m_projectStorage->isBasedOn(m_typeId,
                                            metaInfo1.m_typeId,
                                            metaInfo2.m_typeId,
@@ -2213,6 +2528,12 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
                              const NodeMetaInfo &metaInfo4) const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is based on"_t, category(), keyValue("type id", m_typeId)};
+
         return m_projectStorage->isBasedOn(m_typeId,
                                            metaInfo1.m_typeId,
                                            metaInfo2.m_typeId,
@@ -2240,6 +2561,12 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
                              const NodeMetaInfo &metaInfo5) const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is based on"_t, category(), keyValue("type id", m_typeId)};
+
         return m_projectStorage->isBasedOn(m_typeId,
                                            metaInfo1.m_typeId,
                                            metaInfo2.m_typeId,
@@ -2272,6 +2599,12 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
                              const NodeMetaInfo &metaInfo6) const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is based on"_t, category(), keyValue("type id", m_typeId)};
+
         return m_projectStorage->isBasedOn(m_typeId,
                                            metaInfo1.m_typeId,
                                            metaInfo2.m_typeId,
@@ -2309,6 +2642,12 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
                              const NodeMetaInfo &metaInfo7) const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is based on"_t, category(), keyValue("type id", m_typeId)};
+
         return m_projectStorage->isBasedOn(m_typeId,
                                            metaInfo1.m_typeId,
                                            metaInfo2.m_typeId,
@@ -2341,26 +2680,14 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
     }
 }
 
-namespace {
-template<const char *moduleName, const char *typeName>
-bool isBasedOnCommonType(NotNullPointer<const ProjectStorageType> projectStorage, TypeId typeId)
-{
-    if (!typeId) {
-        return false;
-    }
-
-    auto base = projectStorage->commonTypeId<moduleName, typeName>();
-
-    return projectStorage->isBasedOn(typeId, base);
-}
-} // namespace
-
 bool NodeMetaInfo::isGraphicalItem() const
 {
     if constexpr (useProjectStorage()) {
-        if (!isValid()) {
+        if (!isValid())
             return false;
-        }
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is graphical item"_t, category(), keyValue("type id", m_typeId)};
 
         using namespace Storage::Info;
         auto itemId = m_projectStorage->commonTypeId<QtQuick, Item>();
@@ -2380,6 +2707,12 @@ bool NodeMetaInfo::isGraphicalItem() const
 bool NodeMetaInfo::isQtObject() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is Qt object"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QML, QtObject>(m_projectStorage, m_typeId);
     } else {
@@ -2390,6 +2723,14 @@ bool NodeMetaInfo::isQtObject() const
 bool NodeMetaInfo::isQtQmlConnections() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is Qt Qml connections"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQml, Connections>(m_projectStorage, m_typeId);
     } else {
@@ -2400,9 +2741,11 @@ bool NodeMetaInfo::isQtQmlConnections() const
 bool NodeMetaInfo::isLayoutable() const
 {
     if constexpr (useProjectStorage()) {
-        if (!isValid()) {
+        if (!isValid())
             return false;
-        }
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is layoutable"_t, category(), keyValue("type id", m_typeId)};
 
         using namespace Storage::Info;
         auto positionerId = m_projectStorage->commonTypeId<QtQuick, Positioner>();
@@ -2421,6 +2764,14 @@ bool NodeMetaInfo::isLayoutable() const
 bool NodeMetaInfo::isQtQuickLayoutsLayout() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.Layouts.Layout"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick_Layouts, Layout>(m_projectStorage, m_typeId);
     } else {
@@ -2431,9 +2782,11 @@ bool NodeMetaInfo::isQtQuickLayoutsLayout() const
 bool NodeMetaInfo::isView() const
 {
     if constexpr (useProjectStorage()) {
-        if (!isValid()) {
+        if (!isValid())
             return false;
-        }
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is view"_t, category(), keyValue("type id", m_typeId)};
 
         using namespace Storage::Info;
         auto listViewId = m_projectStorage->commonTypeId<QtQuick, ListView>();
@@ -2450,7 +2803,13 @@ bool NodeMetaInfo::isView() const
 bool NodeMetaInfo::usesCustomParser() const
 {
     if constexpr (useProjectStorage()) {
-        return isValid() && typeData().traits.usesCustomParser;
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"uses custom parser"_t, category(), keyValue("type id", m_typeId)};
+
+        return typeData().traits.usesCustomParser;
     } else {
         if (!isValid())
             return false;
@@ -2476,8 +2835,14 @@ bool isTypeId(TypeId typeId, TypeIds... otherTypeIds)
 bool NodeMetaInfo::isVector2D() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is vector2d"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
-        return isValid() && isTypeId(m_typeId, m_projectStorage->commonTypeId<QtQuick, vector2d>());
+        return isTypeId(m_typeId, m_projectStorage->commonTypeId<QtQuick, vector2d>());
     } else {
         if (!m_privateData)
             return false;
@@ -2491,8 +2856,14 @@ bool NodeMetaInfo::isVector2D() const
 bool NodeMetaInfo::isVector3D() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is vector3d"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
-        return isValid() && isTypeId(m_typeId, m_projectStorage->commonTypeId<QtQuick, vector3d>());
+        return isTypeId(m_typeId, m_projectStorage->commonTypeId<QtQuick, vector3d>());
     } else {
         if (!m_privateData)
             return false;
@@ -2506,8 +2877,14 @@ bool NodeMetaInfo::isVector3D() const
 bool NodeMetaInfo::isVector4D() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is vector4d"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
-        return isValid() && isTypeId(m_typeId, m_projectStorage->commonTypeId<QtQuick, vector4d>());
+        return isTypeId(m_typeId, m_projectStorage->commonTypeId<QtQuick, vector4d>());
     } else {
         if (!m_privateData)
             return false;
@@ -2521,6 +2898,14 @@ bool NodeMetaInfo::isVector4D() const
 bool NodeMetaInfo::isQtQuickPropertyChanges() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.PropertyChanges"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick, Storage::Info::PropertyChanges>(m_projectStorage,
                                                                             m_typeId);
@@ -2532,6 +2917,14 @@ bool NodeMetaInfo::isQtQuickPropertyChanges() const
 bool NodeMetaInfo::isQtSafeRendererSafeRendererPicture() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is Qt.SafeRenderer.SafeRendererPicture"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<Qt_SafeRenderer, SafeRendererPicture>(m_projectStorage, m_typeId);
     } else {
@@ -2542,6 +2935,14 @@ bool NodeMetaInfo::isQtSafeRendererSafeRendererPicture() const
 bool NodeMetaInfo::isQtSafeRendererSafePicture() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is Qt.SafeRenderer.SafePicture"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<Qt_SafeRenderer, SafePicture>(m_projectStorage, m_typeId);
     } else {
@@ -2552,6 +2953,14 @@ bool NodeMetaInfo::isQtSafeRendererSafePicture() const
 bool NodeMetaInfo::isQtQuickTimelineKeyframe() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.Timeline.Keyframe"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick_Timeline, Keyframe>(m_projectStorage, m_typeId);
 
@@ -2563,6 +2972,14 @@ bool NodeMetaInfo::isQtQuickTimelineKeyframe() const
 bool NodeMetaInfo::isQtQuickTimelineTimelineAnimation() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.Timeline.TimelineAnimation"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick_Timeline, TimelineAnimation>(m_projectStorage, m_typeId);
     } else {
@@ -2573,6 +2990,14 @@ bool NodeMetaInfo::isQtQuickTimelineTimelineAnimation() const
 bool NodeMetaInfo::isQtQuickTimelineTimeline() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.Timeline.Timeline"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick_Timeline, Timeline>(m_projectStorage, m_typeId);
     } else {
@@ -2583,6 +3008,14 @@ bool NodeMetaInfo::isQtQuickTimelineTimeline() const
 bool NodeMetaInfo::isQtQuickTimelineKeyframeGroup() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.Timeline.KeyframeGroup"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick_Timeline, KeyframeGroup>(m_projectStorage, m_typeId);
     } else {
@@ -2593,9 +3026,11 @@ bool NodeMetaInfo::isQtQuickTimelineKeyframeGroup() const
 bool NodeMetaInfo::isListOrGridView() const
 {
     if constexpr (useProjectStorage()) {
-        if (!isValid()) {
+        if (!isValid())
             return false;
-        }
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is list or grid view"_t, category(), keyValue("type id", m_typeId)};
 
         using namespace Storage::Info;
         auto listViewId = m_projectStorage->commonTypeId<QtQuick, ListView>();
@@ -2609,9 +3044,11 @@ bool NodeMetaInfo::isListOrGridView() const
 bool NodeMetaInfo::isNumber() const
 {
     if constexpr (useProjectStorage()) {
-        if (!isValid()) {
+        if (!isValid())
             return false;
-        }
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is number"_t, category(), keyValue("type id", m_typeId)};
 
         using namespace Storage::Info;
         auto intId = m_projectStorage->builtinTypeId<int>();
@@ -2632,6 +3069,14 @@ bool NodeMetaInfo::isNumber() const
 bool NodeMetaInfo::isQtQuickExtrasPicture() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.Extras.Picture"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick_Extras, Picture>(m_projectStorage, m_typeId);
     } else {
@@ -2642,6 +3087,12 @@ bool NodeMetaInfo::isQtQuickExtrasPicture() const
 bool NodeMetaInfo::isQtQuickImage() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.Image"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
 
         return isBasedOnCommonType<QtQuick, Image>(m_projectStorage, m_typeId);
@@ -2653,6 +3104,14 @@ bool NodeMetaInfo::isQtQuickImage() const
 bool NodeMetaInfo::isQtQuickBorderImage() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.BorderImage"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
 
         return isBasedOnCommonType<QtQuick, BorderImage>(m_projectStorage, m_typeId);
@@ -2664,7 +3123,13 @@ bool NodeMetaInfo::isQtQuickBorderImage() const
 bool NodeMetaInfo::isAlias() const
 {
     if constexpr (useProjectStorage()) {
-        return false; // there is no type alias
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is alias"_t, category(), keyValue("type id", m_typeId)};
+
+        return false; // all types are already resolved
     } else {
         return isValid() && m_privateData->qualfiedTypeName() == "alias";
     }
@@ -2673,6 +3138,14 @@ bool NodeMetaInfo::isAlias() const
 bool NodeMetaInfo::isQtQuickPositioner() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.Positioner"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
 
         return isBasedOnCommonType<QtQuick, Positioner>(m_projectStorage, m_typeId);
@@ -2684,6 +3157,14 @@ bool NodeMetaInfo::isQtQuickPositioner() const
 bool NodeMetaInfo::isQtQuickPropertyAnimation() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.PropertyAnimation"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick, PropertyAnimation>(m_projectStorage, m_typeId);
     } else {
@@ -2694,6 +3175,12 @@ bool NodeMetaInfo::isQtQuickPropertyAnimation() const
 bool NodeMetaInfo::isQtQuickRepeater() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.Repeater"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick, Repeater>(m_projectStorage, m_typeId);
     } else {
@@ -2704,6 +3191,14 @@ bool NodeMetaInfo::isQtQuickRepeater() const
 bool NodeMetaInfo::isQtQuickControlsTabBar() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.Controls.TabBar"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick_Controls, TabBar>(m_projectStorage, m_typeId);
     } else {
@@ -2714,6 +3209,14 @@ bool NodeMetaInfo::isQtQuickControlsTabBar() const
 bool NodeMetaInfo::isQtQuickControlsSwipeView() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.Controls.SwipeView"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick_Controls, SwipeView>(m_projectStorage, m_typeId);
     } else {
@@ -2724,6 +3227,12 @@ bool NodeMetaInfo::isQtQuickControlsSwipeView() const
 bool NodeMetaInfo::isQtQuick3DCamera() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.Camera"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D, Camera>(m_projectStorage, m_typeId);
     } else {
@@ -2734,6 +3243,14 @@ bool NodeMetaInfo::isQtQuick3DCamera() const
 bool NodeMetaInfo::isQtQuick3DBakedLightmap() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.BakedLightmap"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D, BakedLightmap>(m_projectStorage, m_typeId);
     } else {
@@ -2744,6 +3261,12 @@ bool NodeMetaInfo::isQtQuick3DBakedLightmap() const
 bool NodeMetaInfo::isQtQuick3DBuffer() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.Buffer"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D, Buffer>(m_projectStorage, m_typeId);
     } else {
@@ -2754,6 +3277,14 @@ bool NodeMetaInfo::isQtQuick3DBuffer() const
 bool NodeMetaInfo::isQtQuick3DInstanceListEntry() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.InstanceListEntry"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D, InstanceListEntry>(m_projectStorage, m_typeId);
     } else {
@@ -2764,6 +3295,12 @@ bool NodeMetaInfo::isQtQuick3DInstanceListEntry() const
 bool NodeMetaInfo::isQtQuick3DLight() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.Light"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D, Light>(m_projectStorage, m_typeId);
     } else {
@@ -2774,6 +3311,14 @@ bool NodeMetaInfo::isQtQuick3DLight() const
 bool NodeMetaInfo::isQtQmlModelsListElement() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQml.Models.ListElement"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQml_Models, ListElement>(m_projectStorage, m_typeId);
     } else {
@@ -2784,6 +3329,12 @@ bool NodeMetaInfo::isQtQmlModelsListElement() const
 bool NodeMetaInfo::isQtQuickListModel() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.ListModel"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQml_Models, ListModel>(m_projectStorage, m_typeId);
     } else {
@@ -2794,6 +3345,12 @@ bool NodeMetaInfo::isQtQuickListModel() const
 bool NodeMetaInfo::isQtQuickListView() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.ListView"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick, ListView>(m_projectStorage, m_typeId);
     } else {
@@ -2801,9 +3358,33 @@ bool NodeMetaInfo::isQtQuickListView() const
     }
 }
 
+bool QmlDesigner::NodeMetaInfo::isQtQuickGridView() const
+{
+    if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.GridView"_t, category(), keyValue("type id", m_typeId)};
+
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQuick, GridView>(m_projectStorage, m_typeId);
+    } else {
+        return isValid() && (isSubclassOf("QtQuick.GridView"));
+    }
+}
+
 bool NodeMetaInfo::isQtQuick3DInstanceList() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.InstanceList"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D, InstanceList>(m_projectStorage, m_typeId);
     } else {
@@ -2814,6 +3395,14 @@ bool NodeMetaInfo::isQtQuick3DInstanceList() const
 bool NodeMetaInfo::isQtQuick3DParticles3DParticle3D() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.Particles3D.Particle3D"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D_Particles3D, Particle3D>(m_projectStorage, m_typeId);
     } else {
@@ -2824,6 +3413,14 @@ bool NodeMetaInfo::isQtQuick3DParticles3DParticle3D() const
 bool NodeMetaInfo::isQtQuick3DParticles3DParticleEmitter3D() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.Particles3D.ParticleEmitter3D"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D_Particles3D, ParticleEmitter3D>(m_projectStorage,
                                                                              m_typeId);
@@ -2835,6 +3432,14 @@ bool NodeMetaInfo::isQtQuick3DParticles3DParticleEmitter3D() const
 bool NodeMetaInfo::isQtQuick3DParticles3DAttractor3D() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.Particles3D.Attractor3D"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D_Particles3D, Attractor3D>(m_projectStorage, m_typeId);
     } else {
@@ -2845,8 +3450,16 @@ bool NodeMetaInfo::isQtQuick3DParticles3DAttractor3D() const
 bool NodeMetaInfo::isQtQuick3DParticlesAbstractShape() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.Particles3D.AbstractShape"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
-        return isBasedOnCommonType<QtQuick3D_Particles3D_cppnative, QQuick3DParticleAbstractShape>(
+        return isBasedOnCommonType<QtQuick3D_Particles3D, QQuick3DParticleAbstractShape, ModuleKind::CppLibrary>(
             m_projectStorage, m_typeId);
     } else {
         return isValid() && isSubclassOf("QQuick3DParticleAbstractShape");
@@ -2856,6 +3469,12 @@ bool NodeMetaInfo::isQtQuick3DParticlesAbstractShape() const
 bool NodeMetaInfo::isQtQuickItem() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.Item"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick, Item>(m_projectStorage, m_typeId);
     } else {
@@ -2866,6 +3485,12 @@ bool NodeMetaInfo::isQtQuickItem() const
 bool NodeMetaInfo::isQtQuickPath() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.Path"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick, Path>(m_projectStorage, m_typeId);
     } else {
@@ -2876,6 +3501,14 @@ bool NodeMetaInfo::isQtQuickPath() const
 bool NodeMetaInfo::isQtQuickPauseAnimation() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.PauseAnimation"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick, PauseAnimation>(m_projectStorage, m_typeId);
     } else {
@@ -2886,6 +3519,14 @@ bool NodeMetaInfo::isQtQuickPauseAnimation() const
 bool NodeMetaInfo::isQtQuickTransition() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.Transition"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick, Transition>(m_projectStorage, m_typeId);
     } else {
@@ -2896,6 +3537,14 @@ bool NodeMetaInfo::isQtQuickTransition() const
 bool NodeMetaInfo::isQtQuickWindowWindow() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.Window.Window"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick_Window, Window>(m_projectStorage, m_typeId);
     } else {
@@ -2906,6 +3555,12 @@ bool NodeMetaInfo::isQtQuickWindowWindow() const
 bool NodeMetaInfo::isQtQuickLoader() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.Loader"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick, Loader>(m_projectStorage, m_typeId);
     } else {
@@ -2916,6 +3571,12 @@ bool NodeMetaInfo::isQtQuickLoader() const
 bool NodeMetaInfo::isQtQuickState() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.State"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick, State>(m_projectStorage, m_typeId);
     } else {
@@ -2926,9 +3587,17 @@ bool NodeMetaInfo::isQtQuickState() const
 bool NodeMetaInfo::isQtQuickStateOperation() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.StateOperation"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
-        return isBasedOnCommonType<QtQuick_cppnative, QQuickStateOperation>(m_projectStorage,
-                                                                            m_typeId);
+        return isBasedOnCommonType<QtQuick, QQuickStateOperation, ModuleKind::CppLibrary>(m_projectStorage,
+                                                                                          m_typeId);
     } else {
         return isValid() && isSubclassOf("<cpp>.QQuickStateOperation");
     }
@@ -2937,6 +3606,12 @@ bool NodeMetaInfo::isQtQuickStateOperation() const
 bool NodeMetaInfo::isQtQuickText() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.Text"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick, Text>(m_projectStorage, m_typeId);
     } else {
@@ -2947,6 +3622,14 @@ bool NodeMetaInfo::isQtQuickText() const
 bool NodeMetaInfo::isQtMultimediaSoundEffect() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtMultimedia.SoundEffect"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtMultimedia, SoundEffect>(m_projectStorage, m_typeId);
     } else {
@@ -2957,9 +3640,11 @@ bool NodeMetaInfo::isQtMultimediaSoundEffect() const
 bool NodeMetaInfo::isFlowViewItem() const
 {
     if constexpr (useProjectStorage()) {
-        if (!isValid()) {
+        if (!isValid())
             return false;
-        }
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is FlowView.ViewItem"_t, category(), keyValue("type id", m_typeId)};
 
         using namespace Storage::Info;
         auto flowItemId = m_projectStorage->commonTypeId<FlowView, FlowItem>();
@@ -2976,6 +3661,12 @@ bool NodeMetaInfo::isFlowViewItem() const
 bool NodeMetaInfo::isFlowViewFlowItem() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is FlowView.FlowItem"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<FlowView, FlowItem>(m_projectStorage, m_typeId);
     } else {
@@ -2986,6 +3677,12 @@ bool NodeMetaInfo::isFlowViewFlowItem() const
 bool NodeMetaInfo::isFlowViewFlowView() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is FlowView.FlowView"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<FlowView, FlowView>(m_projectStorage, m_typeId);
     } else {
@@ -3006,6 +3703,14 @@ bool NodeMetaInfo::isFlowViewFlowActionArea() const
 bool NodeMetaInfo::isFlowViewFlowTransition() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is FlowView.FlowTransition"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<FlowView, FlowTransition>(m_projectStorage, m_typeId);
     } else {
@@ -3016,6 +3721,14 @@ bool NodeMetaInfo::isFlowViewFlowTransition() const
 bool NodeMetaInfo::isFlowViewFlowDecision() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is FlowView.FlowDecision"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<FlowView, FlowDecision>(m_projectStorage, m_typeId);
     } else {
@@ -3026,6 +3739,14 @@ bool NodeMetaInfo::isFlowViewFlowDecision() const
 bool NodeMetaInfo::isFlowViewFlowWildcard() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is FlowView.FlowWildcard"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<FlowView, FlowWildcard>(m_projectStorage, m_typeId);
     } else {
@@ -3036,6 +3757,14 @@ bool NodeMetaInfo::isFlowViewFlowWildcard() const
 bool NodeMetaInfo::isQtQuickStudioComponentsGroupItem() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.Studio.Components.GroupItem"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick_Studio_Components, GroupItem>(m_projectStorage, m_typeId);
     } else {
@@ -3046,6 +3775,14 @@ bool NodeMetaInfo::isQtQuickStudioComponentsGroupItem() const
 bool NodeMetaInfo::isQtQuickStudioUtilsJsonListModel() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.Studio.Utils.JsonListModel"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick_Studio_Components, JsonListModel>(m_projectStorage,
                                                                              m_typeId);
@@ -3057,6 +3794,12 @@ bool NodeMetaInfo::isQtQuickStudioUtilsJsonListModel() const
 bool NodeMetaInfo::isQmlComponent() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QML.Component"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QML, Component>(m_projectStorage, m_typeId);
     } else {
@@ -3072,6 +3815,12 @@ bool NodeMetaInfo::isQmlComponent() const
 bool NodeMetaInfo::isFont() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is font"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isValid() && isTypeId(m_typeId, m_projectStorage->commonTypeId<QtQuick, font>());
     } else {
@@ -3082,6 +3831,12 @@ bool NodeMetaInfo::isFont() const
 bool NodeMetaInfo::isColor() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is color"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isValid() && isTypeId(m_typeId, m_projectStorage->builtinTypeId<QColor>());
     } else {
@@ -3097,6 +3852,12 @@ bool NodeMetaInfo::isColor() const
 bool NodeMetaInfo::isBool() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is bool"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isValid() && isTypeId(m_typeId, m_projectStorage->builtinTypeId<bool>());
     } else {
@@ -3112,6 +3873,12 @@ bool NodeMetaInfo::isBool() const
 bool NodeMetaInfo::isInteger() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is integer"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isValid() && isTypeId(m_typeId, m_projectStorage->builtinTypeId<int>());
     } else {
@@ -3127,9 +3894,11 @@ bool NodeMetaInfo::isInteger() const
 bool NodeMetaInfo::isFloat() const
 {
     if constexpr (useProjectStorage()) {
-        if (!isValid()) {
+        if (!isValid())
             return false;
-        }
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is float"_t, category(), keyValue("type id", m_typeId)};
 
         using namespace Storage::Info;
         auto floatId = m_projectStorage->builtinTypeId<float>();
@@ -3149,6 +3918,12 @@ bool NodeMetaInfo::isFloat() const
 bool NodeMetaInfo::isVariant() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is variant"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isValid() && isTypeId(m_typeId, m_projectStorage->builtinTypeId<QVariant>());
     } else {
@@ -3164,6 +3939,12 @@ bool NodeMetaInfo::isVariant() const
 bool NodeMetaInfo::isString() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is string"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isValid() && isTypeId(m_typeId, m_projectStorage->builtinTypeId<QString>());
     } else {
@@ -3179,6 +3960,12 @@ bool NodeMetaInfo::isString() const
 bool NodeMetaInfo::isUrl() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is url"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isValid() && isTypeId(m_typeId, m_projectStorage->builtinTypeId<QUrl>());
     } else {
@@ -3194,6 +3981,12 @@ bool NodeMetaInfo::isUrl() const
 bool NodeMetaInfo::isQtQuick3DTexture() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.Texture"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D, Texture>(m_projectStorage, m_typeId);
     } else {
@@ -3205,6 +3998,12 @@ bool NodeMetaInfo::isQtQuick3DTexture() const
 bool NodeMetaInfo::isQtQuick3DShader() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.Shader"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D, Shader>(m_projectStorage, m_typeId);
     } else {
@@ -3215,6 +4014,12 @@ bool NodeMetaInfo::isQtQuick3DShader() const
 bool NodeMetaInfo::isQtQuick3DPass() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.Pass"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D, Pass>(m_projectStorage, m_typeId);
     } else {
@@ -3225,6 +4030,12 @@ bool NodeMetaInfo::isQtQuick3DPass() const
 bool NodeMetaInfo::isQtQuick3DCommand() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.Command"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D, Command>(m_projectStorage, m_typeId);
     } else {
@@ -3235,6 +4046,14 @@ bool NodeMetaInfo::isQtQuick3DCommand() const
 bool NodeMetaInfo::isQtQuick3DDefaultMaterial() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.DefaultMaterial"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D, DefaultMaterial>(m_projectStorage, m_typeId);
     } else {
@@ -3255,6 +4074,12 @@ bool NodeMetaInfo::isQtQuick3DMaterial() const
 bool NodeMetaInfo::isQtQuick3DModel() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.Model"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D, Storage::Info::Model>(m_projectStorage, m_typeId);
     } else {
@@ -3265,6 +4090,12 @@ bool NodeMetaInfo::isQtQuick3DModel() const
 bool NodeMetaInfo::isQtQuick3DNode() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.Node"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D, Node>(m_projectStorage, m_typeId);
     } else {
@@ -3275,6 +4106,14 @@ bool NodeMetaInfo::isQtQuick3DNode() const
 bool NodeMetaInfo::isQtQuick3DParticles3DAffector3D() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.Particles3D.Affector3D"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D_Particles3D, Affector3D>(m_projectStorage, m_typeId);
     } else {
@@ -3285,6 +4124,12 @@ bool NodeMetaInfo::isQtQuick3DParticles3DAffector3D() const
 bool NodeMetaInfo::isQtQuick3DView3D() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.View3D"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D, View3D>(m_projectStorage, m_typeId);
     } else {
@@ -3295,6 +4140,14 @@ bool NodeMetaInfo::isQtQuick3DView3D() const
 bool NodeMetaInfo::isQtQuick3DPrincipledMaterial() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.PrincipledMaterial"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D, PrincipledMaterial>(m_projectStorage, m_typeId);
     } else {
@@ -3305,6 +4158,14 @@ bool NodeMetaInfo::isQtQuick3DPrincipledMaterial() const
 bool NodeMetaInfo::isQtQuick3DSpecularGlossyMaterial() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.SpecularGlossyMaterial"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D, SpecularGlossyMaterial>(m_projectStorage, m_typeId);
     } else {
@@ -3315,6 +4176,14 @@ bool NodeMetaInfo::isQtQuick3DSpecularGlossyMaterial() const
 bool NodeMetaInfo::isQtQuick3DParticles3DSpriteParticle3D() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.Particles3D.SpriteParticle3D"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D_Particles3D, SpriteParticle3D>(m_projectStorage,
                                                                             m_typeId);
@@ -3326,6 +4195,14 @@ bool NodeMetaInfo::isQtQuick3DParticles3DSpriteParticle3D() const
 bool NodeMetaInfo::isQtQuick3DTextureInput() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.TextureInput"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D, TextureInput>(m_projectStorage, m_typeId);
     } else {
@@ -3336,6 +4213,14 @@ bool NodeMetaInfo::isQtQuick3DTextureInput() const
 bool NodeMetaInfo::isQtQuick3DCubeMapTexture() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.CubeMapTexture"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D, CubeMapTexture>(m_projectStorage, m_typeId);
     } else {
@@ -3348,6 +4233,14 @@ bool NodeMetaInfo::isQtQuick3DCubeMapTexture() const
 bool NodeMetaInfo::isQtQuick3DSceneEnvironment() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.SceneEnvironment"_t,
+                                   category(),
+                                   keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D, SceneEnvironment>(m_projectStorage, m_typeId);
     } else {
@@ -3358,6 +4251,12 @@ bool NodeMetaInfo::isQtQuick3DSceneEnvironment() const
 bool NodeMetaInfo::isQtQuick3DEffect() const
 {
     if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick3D.Effect"_t, category(), keyValue("type id", m_typeId)};
+
         using namespace Storage::Info;
         return isBasedOnCommonType<QtQuick3D, Effect>(m_projectStorage, m_typeId);
     } else {
@@ -3367,8 +4266,15 @@ bool NodeMetaInfo::isQtQuick3DEffect() const
 
 bool NodeMetaInfo::isEnumeration() const
 {
-    if constexpr (useProjectStorage())
-        return isValid() && typeData().traits.isEnum;
+    if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is enumeration"_t, category(), keyValue("type id", m_typeId)};
+
+        return typeData().traits.isEnum;
+    }
 
     return false;
 }
@@ -3393,8 +4299,15 @@ PropertyMetaInfo::~PropertyMetaInfo() = default;
 NodeMetaInfo PropertyMetaInfo::propertyType() const
 {
     if constexpr (useProjectStorage()) {
-        if (isValid())
-            return {propertyData().propertyTypeId, m_projectStorage};
+        if (!isValid())
+            return {};
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"get property type"_t,
+                                   category(),
+                                   keyValue("property declaration id", m_id)};
+
+        return {propertyData().propertyTypeId, m_projectStorage};
     } else {
         if (isValid())
             return NodeMetaInfo{nodeMetaInfoPrivateData()->model(),
@@ -3409,8 +4322,15 @@ NodeMetaInfo PropertyMetaInfo::propertyType() const
 NodeMetaInfo PropertyMetaInfo::type() const
 {
     if constexpr (useProjectStorage()) {
-        if (isValid())
-            return NodeMetaInfo(propertyData().typeId, m_projectStorage);
+        if (!isValid())
+            return {};
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"get property owner type "_t,
+                                   category(),
+                                   keyValue("property declaration id", m_id)};
+
+        return NodeMetaInfo(propertyData().typeId, m_projectStorage);
     }
 
     return {};
@@ -3418,59 +4338,121 @@ NodeMetaInfo PropertyMetaInfo::type() const
 
 PropertyName PropertyMetaInfo::name() const
 {
-    if (isValid()) {
-        if constexpr (useProjectStorage())
-            return PropertyName(Utils::SmallStringView(propertyData().name));
-        else
-            return propertyName();
-    }
+    if (!isValid())
+        return {};
 
-    return {};
+    if constexpr (useProjectStorage()) {
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"get property name"_t,
+                                   category(),
+                                   keyValue("property declaration id", m_id)};
+
+        return PropertyName(Utils::SmallStringView(propertyData().name));
+    } else {
+        return propertyName();
+    }
 }
 
 bool PropertyMetaInfo::isWritable() const
 {
-    if constexpr (useProjectStorage())
-        return isValid() && !(propertyData().traits & Storage::PropertyDeclarationTraits::IsReadOnly);
-    else
+    if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return {};
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is property writable"_t,
+                                   category(),
+                                   keyValue("property declaration id", m_id)};
+
+        return !(propertyData().traits & Storage::PropertyDeclarationTraits::IsReadOnly);
+    } else {
         return isValid() && nodeMetaInfoPrivateData()->isPropertyWritable(propertyName());
+    }
 }
 
 bool PropertyMetaInfo::isReadOnly() const
 {
-    return !isWritable();
+    if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return {};
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is property read only"_t,
+                                   category(),
+                                   keyValue("property declaration id", m_id)};
+
+        return propertyData().traits & Storage::PropertyDeclarationTraits::IsReadOnly;
+    } else {
+        return !isWritable();
+    }
 }
 
 bool PropertyMetaInfo::isListProperty() const
 {
-    if constexpr (useProjectStorage())
-        return isValid() && propertyData().traits & Storage::PropertyDeclarationTraits::IsList;
-    else
+    if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return {};
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is list property"_t,
+                                   category(),
+                                   keyValue("property declaration id", m_id)};
+
+        return propertyData().traits & Storage::PropertyDeclarationTraits::IsList;
+    } else {
         return isValid() && nodeMetaInfoPrivateData()->isPropertyList(propertyName());
+    }
 }
 
 bool PropertyMetaInfo::isEnumType() const
 {
-    if constexpr (useProjectStorage())
+    if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return {};
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is enum type"_t,
+                                   category(),
+                                   keyValue("property has enumeration type", m_id)};
+
         return propertyType().isEnumeration();
-    else
+    } else {
         return isValid() && nodeMetaInfoPrivateData()->isPropertyEnum(propertyName());
+    }
 }
 
 bool PropertyMetaInfo::isPrivate() const
 {
-    if constexpr (useProjectStorage())
+    if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return {};
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is private property"_t,
+                                   category(),
+                                   keyValue("property declaration id", m_id)};
+
         return isValid() && propertyData().name.startsWith("__");
-    else
+    } else {
         return isValid() && propertyName().startsWith("__");
+    }
 }
 
 bool PropertyMetaInfo::isPointer() const
 {
-    if constexpr (useProjectStorage())
+    if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return {};
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is pointer property"_t,
+                                   category(),
+                                   keyValue("property declaration id", m_id)};
+
         return isValid() && (propertyData().traits & Storage::PropertyDeclarationTraits::IsPointer);
-    else
+    } else {
         return isValid() && nodeMetaInfoPrivateData()->isPropertyPointer(propertyName());
+    }
 }
 
 namespace {
@@ -3487,6 +4469,11 @@ QVariant PropertyMetaInfo::castedValue(const QVariant &value) const
         return {};
 
     if constexpr (!useProjectStorage()) {
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"cast value"_t,
+                                   category(),
+                                   keyValue("property declaration id", m_id)};
+
         const QVariant variant = value;
         QVariant copyVariant = variant;
         const TypeName &typeName = propertyTypeName();

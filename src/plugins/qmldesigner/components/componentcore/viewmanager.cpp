@@ -7,7 +7,6 @@
 #include <abstractview.h>
 #include <assetslibraryview.h>
 #include <capturingconnectionmanager.h>
-#include <collectionview.h>
 #include <componentaction.h>
 #include <componentview.h>
 #include <contentlibraryview.h>
@@ -42,14 +41,6 @@
 
 namespace QmlDesigner {
 
-static bool enableModelEditor()
-{
-    Utils::QtcSettings *settings = Core::ICore::settings();
-    const Utils::Key enableModelManagerKey = "QML/Designer/UseExperimentalFeatures44";
-
-    return settings->value(enableModelManagerKey, false).toBool();
-}
-
 static Q_LOGGING_CATEGORY(viewBenchmark, "qtc.viewmanager.attach", QtWarningMsg)
 
 class ViewManagerData
@@ -64,8 +55,7 @@ public:
                                : connectionManager,
                            externalDependencies,
                            true)
-        , collectionView{externalDependencies}
-        , contentLibraryView{externalDependencies}
+        , contentLibraryView{imageCache, externalDependencies}
         , componentView{externalDependencies}
 #ifndef QTC_USE_QML_DESIGNER_LITE
         , edit3DView{externalDependencies}
@@ -90,7 +80,6 @@ public:
     Internal::DebugView debugView;
     DesignerActionManagerView designerActionManagerView;
     NodeInstanceView nodeInstanceView;
-    CollectionView collectionView;
     ContentLibraryView contentLibraryView;
     ComponentView componentView;
 #ifndef QTC_USE_QML_DESIGNER_LITE
@@ -234,9 +223,6 @@ QList<AbstractView *> ViewManager::standardViews() const
                                   &d->statesEditorView,
                                   &d->designerActionManagerView};
 #endif
-
-    if (enableModelEditor())
-        list.append(&d->collectionView);
 
     if (QmlDesignerPlugin::instance()
             ->settings()
@@ -418,8 +404,6 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
     widgetInfoList.append(d->textureEditorView.widgetInfo());
 #endif
     widgetInfoList.append(d->statesEditorView.widgetInfo());
-    if (enableModelEditor())
-        widgetInfoList.append(d->collectionView.widgetInfo());
 
     if (checkEnterpriseLicense())
         widgetInfoList.append(d->contentLibraryView.widgetInfo());

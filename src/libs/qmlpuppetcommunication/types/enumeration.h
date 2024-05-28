@@ -43,17 +43,20 @@ public:
 
     EnumerationNameView scope() const
     {
-        auto found = std::find(m_enumerationName.begin(), m_enumerationName.end(), '.');
-        return {m_enumerationName.begin(), found};
+        auto found = std::find(m_enumerationName.rbegin(), m_enumerationName.rend(), '.');
+        if (found != m_enumerationName.rend())
+            return {m_enumerationName.begin(), std::prev(found.base())};
+
+        return {m_enumerationName.end(), m_enumerationName.end()};
     }
 
     EnumerationNameView toScope() const { return scope().toByteArray(); }
 
     EnumerationNameView name() const
     {
-        auto found = std::find(m_enumerationName.begin(), m_enumerationName.end(), '.');
-        if (found != m_enumerationName.end())
-            return {std::next(found), m_enumerationName.end()};
+        auto found = std::find(m_enumerationName.rbegin(), m_enumerationName.rend(), '.');
+        if (found != m_enumerationName.rend())
+            return {found.base(), m_enumerationName.end()};
 
         return {m_enumerationName.end(), m_enumerationName.end()};
     }

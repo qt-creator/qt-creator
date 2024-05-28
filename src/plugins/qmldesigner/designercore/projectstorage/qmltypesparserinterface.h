@@ -15,7 +15,7 @@ public:
     virtual void parse(const QString &sourceContent,
                        Storage::Imports &imports,
                        Storage::Synchronization::Types &types,
-                       const Storage::Synchronization::ProjectData &projectData)
+                       const Storage::Synchronization::DirectoryInfo &directoryInfo)
         = 0;
 
 protected:

@@ -318,4 +318,13 @@ Component {
 Component {
   name: "QScxmlError"
 }
+
+Component {
+  name: "QList<QQuickLayoutItemProxy*>"
+}
+
+Component {
+  name: "VertexColorMaskFlags"
+}
+
 }

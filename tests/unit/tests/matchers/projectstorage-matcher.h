@@ -20,6 +20,7 @@ MATCHER_P2(IsTypeHint,
 
 template<typename PropertiesMatcher, typename ExtraFilePathsMatcher>
 auto IsItemLibraryEntry(QmlDesigner::TypeId typeId,
+                        Utils::SmallStringView typeName,
                         Utils::SmallStringView name,
                         Utils::SmallStringView iconPath,
                         Utils::SmallStringView category,
@@ -31,6 +32,7 @@ auto IsItemLibraryEntry(QmlDesigner::TypeId typeId,
 {
     using QmlDesigner::Storage::Info::ItemLibraryEntry;
     return AllOf(Field("typeId", &ItemLibraryEntry::typeId, typeId),
+                 Field("typeName", &ItemLibraryEntry::typeName, typeName),
                  Field("name", &ItemLibraryEntry::name, name),
                  Field("iconPath", &ItemLibraryEntry::iconPath, iconPath),
                  Field("category", &ItemLibraryEntry::category, category),
@@ -66,7 +68,7 @@ auto IsTypeAnnotation(QmlDesigner::SourceId sourceId,
 {
     using QmlDesigner::Storage::Synchronization::TypeAnnotation;
     return AllOf(Field("sourceId", &TypeAnnotation::sourceId, sourceId),
-                 Field("sourceId", &TypeAnnotation::directorySourceId, directorySourceId),
+                 Field("directory sourceId", &TypeAnnotation::directorySourceId, directorySourceId),
                  Field("typeName", &TypeAnnotation::typeName, typeName),
                  Field("moduleId", &TypeAnnotation::moduleId, moduleId),
                  Field("iconPath", &TypeAnnotation::iconPath, iconPath),

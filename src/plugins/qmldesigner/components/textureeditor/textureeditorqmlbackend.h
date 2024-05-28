@@ -11,6 +11,8 @@
 
 #include <nodemetainfo.h>
 
+#include <memory>
+
 class PropertyEditorValue;
 
 QT_BEGIN_NAMESPACE
@@ -64,11 +66,11 @@ private:
     // this needs be destructed after m_quickWidget->engine() is destructed
     DesignerPropertyMap m_backendValuesPropertyMap;
 
-    Utils::UniqueObjectPtr<QQuickWidget> m_quickWidget = nullptr;
+    Utils::UniqueObjectPtr<QQuickWidget> m_quickWidget;
     QmlAnchorBindingProxy m_backendAnchorBinding;
     QmlModelNodeProxy m_backendModelNode;
-    QScopedPointer<TextureEditorTransaction> m_textureEditorTransaction;
-    QScopedPointer<TextureEditorContextObject> m_contextObject;
+    std::unique_ptr<TextureEditorTransaction> m_textureEditorTransaction;
+    std::unique_ptr<TextureEditorContextObject> m_contextObject;
     AssetImageProvider *m_textureEditorImageProvider = nullptr;
 };
 

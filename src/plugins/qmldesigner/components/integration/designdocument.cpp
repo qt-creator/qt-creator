@@ -150,7 +150,10 @@ bool DesignDocument::loadInFileComponent(const ModelNode &componentNode)
 
     if (!componentNode.isRootNode()) {
         //change to subcomponent model
-        changeToInFileComponentModel(createComponentTextModifier(m_documentTextModifier.data(), rewriterView(), componentText, componentNode));
+        changeToInFileComponentModel(createComponentTextModifier(m_documentTextModifier.get(),
+                                                                 rewriterView(),
+                                                                 componentText,
+                                                                 componentNode));
     }
 
     return true;
@@ -281,11 +284,10 @@ void DesignDocument::moveNodesToPosition(const QList<ModelNode> &nodes, const st
         parentProperty.reparentHere(pastedNode);
 
         QmlVisualNode visualNode(pastedNode);
-        if (!firstVisualNode.has_value() && visualNode.isValid()){
+        if (!firstVisualNode && visualNode) {
             firstVisualNode = visualNode;
-            translationVect = (position.has_value() && firstVisualNode.has_value())
-                    ? position.value() - firstVisualNode->position()
-                    : QVector3D();
+            translationVect = (position && firstVisualNode) ? *position - firstVisualNode->position()
+                                                            : QVector3D();
         }
         visualNode.translate(translationVect);
     }
@@ -377,9 +379,12 @@ void DesignDocument::loadDocument(QPlainTextEdit *edit)
 
     m_documentTextModifier.reset(new BaseTextEditModifier(qobject_cast<TextEditor::TextEditorWidget *>(plainTextEdit())));
 
-    connect(m_documentTextModifier.data(), &TextModifier::textChanged, this, &DesignDocument::updateQrcFiles);
+    connect(m_documentTextModifier.get(),
+            &TextModifier::textChanged,
+            this,
+            &DesignDocument::updateQrcFiles);
 
-    m_rewriterView->setTextModifier(m_documentTextModifier.data());
+    m_rewriterView->setTextModifier(m_documentTextModifier.get());
 
     m_inFileComponentTextModifier.reset();
 
@@ -399,7 +404,7 @@ void DesignDocument::changeToDocumentModel()
     if (edit)
         edit->document()->clearUndoRedoStacks();
 
-    m_rewriterView->setTextModifier(m_documentTextModifier.data());
+    m_rewriterView->setTextModifier(m_documentTextModifier.get());
 
     m_inFileComponentModel.reset();
     m_inFileComponentTextModifier.reset();
@@ -432,7 +437,7 @@ bool DesignDocument::hasProject() const
 
 void DesignDocument::setModified()
 {
-    if (!m_documentTextModifier.isNull())
+    if (m_documentTextModifier)
         m_documentTextModifier->textDocument()->setModified(true);
 }
 
@@ -448,7 +453,7 @@ void DesignDocument::changeToInFileComponentModel(ComponentTextModifier *textMod
 
     m_inFileComponentModel = createInFileComponentModel();
 
-    m_rewriterView->setTextModifier(m_inFileComponentTextModifier.data());
+    m_rewriterView->setTextModifier(m_inFileComponentTextModifier.get());
 
     viewManager().attachRewriterView();
     viewManager().attachViewsExceptRewriterAndComponetView();
@@ -675,7 +680,7 @@ void DesignDocument::selectAll()
 
 RewriterView *DesignDocument::rewriterView() const
 {
-    return m_rewriterView.data();
+    return m_rewriterView.get();
 }
 
 void DesignDocument::setEditor(Core::IEditor *editor)

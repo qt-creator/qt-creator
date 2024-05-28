@@ -120,6 +120,11 @@ void ContentLibraryTexture::doSetDownloaded()
     m_toolTip = resolveToolTipText();
 }
 
+bool ContentLibraryTexture::visible() const
+{
+    return m_visible;
+}
+
 QString ContentLibraryTexture::parentDirPath() const
 {
     return m_dirPath;

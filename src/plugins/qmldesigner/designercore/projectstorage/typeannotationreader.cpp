@@ -178,8 +178,15 @@ TypeAnnotationReader::ParserSate TypeAnnotationReader::readDocument(const QStrin
 TypeAnnotationReader::ParserSate TypeAnnotationReader::readMetaInfoRootElement(const QString &name)
 {
     if (name == typeElementName) {
-        m_typeAnnotations.emplace_back(m_sourceId, m_directorySourceId);
+        auto &annotation = m_typeAnnotations.emplace_back(m_sourceId, m_directorySourceId);
+        annotation.traits.canBeDroppedInFormEditor = FlagIs::True;
+        annotation.traits.canBeDroppedInNavigator = FlagIs::True;
+        annotation.traits.isMovable = FlagIs::True;
+        annotation.traits.isResizable = FlagIs::True;
+        annotation.traits.hasFormEditorItem = FlagIs::True;
+        annotation.traits.visibleInLibrary = FlagIs::True;
         m_itemLibraryEntries = json::array();
+
         return ParsingType;
     } else {
         addErrorInvalidType(name);
@@ -258,7 +265,8 @@ void TypeAnnotationReader::readTypeProperty(QStringView name, const QVariant &va
         auto [moduleName, typeName] = decomposeTypePath(fullTypeName);
 
         m_typeAnnotations.back().typeName = typeName;
-        m_typeAnnotations.back().moduleId = m_projectStorage.moduleId(moduleName);
+        m_typeAnnotations.back().moduleId = m_projectStorage.moduleId(moduleName,
+                                                                      ModuleKind::QmlLibrary);
 
     } else if (name == "icon"_L1) {
         m_typeAnnotations.back().iconPath = absoluteFilePathForDocument(value.toString());

@@ -64,31 +64,22 @@ inline bool addMouseAreaFillCheck(const SelectionContext &selectionContext)
     return false;
 }
 
-inline bool isModel(const SelectionContext &selectionState)
+inline bool isModelOrMaterial(const SelectionContext &selectionState)
 {
     ModelNode node = selectionState.currentSingleSelectedNode();
-    return node.metaInfo().isQtQuick3DModel();
+    return node.metaInfo().isQtQuick3DModel() || node.metaInfo().isQtQuick3DMaterial();
 }
 
-inline bool modelHasMaterial(const SelectionContext &selectionState)
+inline bool hasEditableMaterial(const SelectionContext &selectionState)
 {
     ModelNode node = selectionState.currentSingleSelectedNode();
+
+    if (node.metaInfo().isQtQuick3DMaterial())
+        return true;
 
     BindingProperty prop = node.bindingProperty("materials");
 
     return prop.exists() && (!prop.expression().isEmpty() || !prop.resolveToModelNodeList().empty());
-}
-
-inline bool hasCollectionAsModel(const SelectionContext &selectionState)
-{
-    if (!selectionState.isInBaseState() || !selectionState.singleNodeIsSelected())
-        return false;
-
-    const ModelNode singleSelectedNode = selectionState.currentSingleSelectedNode();
-
-    return singleSelectedNode.metaInfo().isQtQuickListView()
-           && singleSelectedNode.property("model").toBindingProperty().expression().startsWith(
-               "DataStore.");
 }
 
 inline bool selectionEnabled(const SelectionContext &selectionState)

@@ -64,7 +64,6 @@ private:
 
     bool isMatBrowserActive = false;
     bool isAssetsLibraryActive = false;
-    bool isCollectionEditorActive = false;
 };
 
 } // namespace QmlDesigner

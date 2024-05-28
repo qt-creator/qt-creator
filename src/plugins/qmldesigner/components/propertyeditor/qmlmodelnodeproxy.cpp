@@ -161,13 +161,12 @@ void QmlModelNodeProxy::createModelNode(int internalIdParent,
                                         const QString &typeName,
                                         const QString &requiredImport)
 {
-    QTC_ASSERT(m_qmlObjectNode.isValid(), return );
-
-    auto modelNode = m_qmlObjectNode.modelNode();
-
-    AbstractView *view = modelNode.view();
-
     auto parentModelNode = m_qmlObjectNode.modelNode();
+
+    QTC_ASSERT(parentModelNode.isValid(), return );
+
+    AbstractView *view = parentModelNode.view();
+
     if (internalIdParent >= 0)
         parentModelNode = view->modelNodeForInternalId(internalIdParent);
 
@@ -186,7 +185,7 @@ void QmlModelNodeProxy::createModelNode(int internalIdParent,
 #ifdef QDS_USE_PROJECTSTORAGE
         ModelNode newNode = view->createModelNode(typeName.toUtf8());
 #else
-        NodeMetaInfo metaInfo = modelNode.model()->metaInfo(typeName.toUtf8());
+        NodeMetaInfo metaInfo = parentModelNode.model()->metaInfo(typeName.toUtf8());
         ModelNode newNode = view->createModelNode(metaInfo.typeName(),
                                                   metaInfo.majorVersion(),
                                                   metaInfo.minorVersion());
@@ -200,14 +199,17 @@ void QmlModelNodeProxy::moveNode(int internalIdParent,
                                  int fromIndex,
                                  int toIndex)
 {
-    QTC_ASSERT(m_qmlObjectNode.isValid(), return );
+    ModelNode modelNode = m_qmlObjectNode.modelNode();
 
-    ModelNode node = m_qmlObjectNode.view()->modelNodeForInternalId(internalIdParent);
+    QTC_ASSERT(modelNode.isValid(), return );
 
-    QTC_ASSERT(node.isValid(), return );
+    if (internalIdParent >= 0)
+        modelNode = m_qmlObjectNode.view()->modelNodeForInternalId(internalIdParent);
+
+    QTC_ASSERT(modelNode.isValid(), return );
     AbstractView *view = m_qmlObjectNode.view();
-    view->executeInTransaction("QmlModelNodeProxy::swapNode", [&] {
-        node.nodeListProperty(propertyName.toUtf8()).slide(fromIndex, toIndex);
+    view->executeInTransaction("QmlModelNodeProxy::moveNode", [&] {
+        modelNode.nodeListProperty(propertyName.toUtf8()).slide(fromIndex, toIndex);
     });
 }
 

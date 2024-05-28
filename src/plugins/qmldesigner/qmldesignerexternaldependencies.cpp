@@ -56,6 +56,11 @@ QUrl ExternalDependencies::projectUrl() const
     return {};
 }
 
+QString ExternalDependencies::projectName() const
+{
+    return QmlDesignerPlugin::instance()->documentManager().currentProjectName();
+}
+
 QString ExternalDependencies::currentProjectDirPath() const
 {
     return QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toString();

@@ -7,6 +7,9 @@
 
 #include <sqlite/sqlitevalue.h>
 #include <utils/smallstring.h>
+#include <utils/utility.h>
+
+#include <QVarLengthArray>
 
 #include <array>
 #include <tuple>
@@ -15,12 +18,8 @@
 
 namespace QmlDesigner {
 
-template<typename Enumeration>
-constexpr std::underlying_type_t<Enumeration> to_underlying(Enumeration enumeration) noexcept
-{
-    static_assert(std::is_enum_v<Enumeration>, "to_underlying expect an enumeration");
-    return static_cast<std::underlying_type_t<Enumeration>>(enumeration);
-}
+template<std::size_t size>
+using SmallPathStrings = QVarLengthArray<Utils::PathString, size>;
 
 enum class FlagIs : unsigned int { False, Set, True };
 
@@ -41,6 +40,34 @@ void convertToString(String &string, const FlagIs &flagIs)
 } // namespace QmlDesigner
 
 namespace QmlDesigner::Storage {
+
+enum class ModuleKind { QmlLibrary, CppLibrary, PathLibrary };
+
+struct Module
+{
+    Module() = default;
+
+    Module(Utils::SmallStringView name, Storage::ModuleKind kind)
+        : name{name}
+        , kind{kind}
+    {}
+
+    template<typename ModuleType>
+    Module(const ModuleType &module)
+        : name{module.name}
+        , kind{module.kind}
+    {}
+
+    Utils::PathString name;
+    Storage::ModuleKind kind = Storage::ModuleKind::QmlLibrary;
+
+    friend bool operator==(const Module &first, const Module &second)
+    {
+        return first.name == second.name && first.kind == second.kind;
+    }
+
+    explicit operator bool() const { return name.size(); }
+};
 
 enum class PropertyDeclarationTraits : int {
     None = 0,
@@ -352,6 +379,7 @@ using ToolTipString = Utils::BasicSmallString<94>;
 struct ItemLibraryEntry
 {
     ItemLibraryEntry(TypeId typeId,
+                     Utils::SmallStringView typeName,
                      Utils::SmallStringView name,
                      Utils::SmallStringView iconPath,
                      Utils::SmallStringView category,
@@ -359,6 +387,7 @@ struct ItemLibraryEntry
                      Utils::SmallStringView toolTip,
                      Utils::SmallStringView templatePath)
         : typeId{typeId}
+        , typeName{typeName}
         , name{name}
         , iconPath{iconPath}
         , category{category}
@@ -368,6 +397,7 @@ struct ItemLibraryEntry
     {}
 
     ItemLibraryEntry(TypeId typeId,
+                     Utils::SmallStringView typeName,
                      Utils::SmallStringView name,
                      Utils::SmallStringView iconPath,
                      Utils::SmallStringView category,
@@ -375,6 +405,7 @@ struct ItemLibraryEntry
                      Utils::SmallStringView toolTip,
                      ItemLibraryProperties properties)
         : typeId{typeId}
+        , typeName{typeName}
         , name{name}
         , iconPath{iconPath}
         , category{category}
@@ -389,6 +420,7 @@ struct ItemLibraryEntry
         using NanotraceHR::dictonary;
         using NanotraceHR::keyValue;
         auto dict = dictonary(keyValue("type id", entry.typeId),
+                              keyValue("type name", entry.typeName),
                               keyValue("name", entry.name),
                               keyValue("icon path", entry.iconPath),
                               keyValue("category", entry.category),
@@ -402,6 +434,7 @@ struct ItemLibraryEntry
     }
 
     TypeId typeId;
+    Utils::SmallString typeName;
     Utils::SmallString name;
     Utils::PathString iconPath;
     Utils::SmallString category;

@@ -31,8 +31,8 @@ public:
     virtual void addObserver(ProjectStorageObserver *observer) = 0;
     virtual void removeObserver(ProjectStorageObserver *observer) = 0;
 
-    virtual ModuleId moduleId(::Utils::SmallStringView name) const = 0;
-    virtual Utils::SmallString moduleName(ModuleId moduleId) const = 0;
+    virtual ModuleId moduleId(::Utils::SmallStringView name, Storage::ModuleKind kind) const = 0;
+    virtual QmlDesigner::Storage::Module module(ModuleId moduleId) const = 0;
     virtual std::optional<Storage::Info::PropertyDeclaration>
     propertyDeclaration(PropertyDeclarationId propertyDeclarationId) const = 0;
     virtual TypeId typeId(ModuleId moduleId,
@@ -80,16 +80,20 @@ public:
     virtual bool isBasedOn(TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId, TypeId) const = 0;
 
     virtual FileStatus fetchFileStatus(SourceId sourceId) const = 0;
-    virtual Storage::Synchronization::ProjectDatas fetchProjectDatas(SourceId sourceId) const = 0;
-    virtual std::optional<Storage::Synchronization::ProjectData> fetchProjectData(SourceId sourceId) const = 0;
+    virtual Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(SourceId sourceId) const = 0;
+    virtual Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(
+        SourceId directorySourceId, Storage::Synchronization::FileType) const
+        = 0;
+    virtual std::optional<Storage::Synchronization::DirectoryInfo> fetchDirectoryInfo(SourceId sourceId) const = 0;
+    virtual SmallSourceIds<32> fetchSubdirectorySourceIds(SourceId directorySourceId) const = 0;
 
     virtual SourceId propertyEditorPathId(TypeId typeId) const = 0;
     virtual const Storage::Info::CommonTypeCache<ProjectStorageType> &commonTypeCache() const = 0;
 
-    template<const char *moduleName, const char *typeName>
+    template<const char *moduleName, const char *typeName, Storage::ModuleKind moduleKind = Storage::ModuleKind::QmlLibrary>
     TypeId commonTypeId() const
     {
-        return commonTypeCache().template typeId<moduleName, typeName>();
+        return commonTypeCache().template typeId<moduleName, typeName, moduleKind>();
     }
 
     template<typename BuiltinType>
@@ -108,7 +112,7 @@ protected:
     ProjectStorageInterface() = default;
     ~ProjectStorageInterface() = default;
 
-    virtual ModuleId fetchModuleIdUnguarded(Utils::SmallStringView name) const = 0;
+    virtual ModuleId fetchModuleIdUnguarded(Utils::SmallStringView name, Storage::ModuleKind moduleKind) const = 0;
     virtual TypeId fetchTypeIdByModuleIdAndExportedName(ModuleId moduleId, Utils::SmallStringView name) const = 0;
 };
 

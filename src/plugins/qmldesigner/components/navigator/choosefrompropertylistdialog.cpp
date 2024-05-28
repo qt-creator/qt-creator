@@ -102,10 +102,9 @@ ChooseFromPropertyListFilter::ChooseFromPropertyListFilter(const NodeMetaInfo &i
 #ifdef QDS_USE_PROJECTSTORAGE
 // TODO add the types here or use the module
 #else
-        } else if (insertInfo.typeName().startsWith(
-                   QString("%1.MaterialBundle").arg(QmlDesignerPlugin::instance()->documentManager()
-                                                        .generatedComponentUtils().componentBundlesTypePrefix())
-                       .toUtf8())) {
+    } else if (insertInfo.typeName().startsWith(
+               QmlDesignerPlugin::instance()->documentManager()
+                   .generatedComponentUtils().materialsBundleType().toUtf8())) {
         if (parentInfo.isQtQuick3DModel())
             propertyList.append("materials");
 #endif

@@ -7,6 +7,8 @@
 
 #include <coreplugin/icontext.h>
 
+#include <utils/uniqueobjectptr.h>
+
 #include <QFrame>
 
 QT_BEGIN_NAMESPACE
@@ -61,7 +63,6 @@ public:
     Q_INVOKABLE void acceptTextureDropOnMaterial(int matIndex, const QString &texId);
     Q_INVOKABLE void focusMaterialSection(bool focusMatSec);
     Q_INVOKABLE void addMaterialToContentLibrary();
-    Q_INVOKABLE bool userBundleEnabled() const;
 
     StudioQuickWidget *quickWidget() const;
 
@@ -85,7 +86,7 @@ private:
     QPointer<MaterialBrowserView>  m_materialBrowserView;
     QPointer<MaterialBrowserModel> m_materialBrowserModel;
     QPointer<MaterialBrowserTexturesModel> m_materialBrowserTexturesModel;
-    QScopedPointer<StudioQuickWidget> m_quickWidget;
+    Utils::UniqueObjectPtr<StudioQuickWidget> m_quickWidget;
 
     QShortcut *m_qmlSourceUpdateShortcut = nullptr;
     PreviewImageProvider *m_previewImageProvider = nullptr;

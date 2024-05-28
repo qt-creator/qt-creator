@@ -3,9 +3,11 @@
 
 #pragma once
 
+#include "modelnode.h"
+#include "nodemetainfo.h"
+
 #include <QList>
 #include <QString>
-#include "modelnode.h"
 
 #include "qmldesignercorelib_global.h"
 #include "invalidmetainfoexception.h"
@@ -54,18 +56,19 @@ public:
 
     QHash<QString, QString> hints() const;
     static NodeHints fromModelNode(const ModelNode &modelNode);
-    static NodeHints fromItemLibraryEntry(const ItemLibraryEntry &entry);
+    static NodeHints fromItemLibraryEntry(const ItemLibraryEntry &entry, Model *model);
 
 private:
     explicit NodeHints(const ModelNode &modelNode);
     explicit NodeHints(const NodeMetaInfo &metaInfo);
-    explicit NodeHints(const ItemLibraryEntry &entry);
+    explicit NodeHints(const ItemLibraryEntry &entry, Model *model);
     const ModelNode &modelNode() const;
     bool isValid() const;
     Model *model() const;
     bool evaluateBooleanExpression(const QString &hintName, bool defaultValue, const ModelNode potentialParent = ModelNode()) const;
 
     ModelNode m_modelNode;
+    NodeMetaInfo m_metaInfo;
     QHash<QString, QString> m_hints;
 };
 

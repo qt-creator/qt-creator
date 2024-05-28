@@ -345,11 +345,8 @@ void SubComponentManager::unregisterQmlFile(const QFileInfo &fileInfo, const QSt
 void SubComponentManager::registerQmlFile(const QFileInfo &fileInfo, const QString &qualifier,
                                           bool addToLibrary)
 {
-    if (!addToLibrary || !model()
-        || m_componentUtils.isImport3dPath(fileInfo.path())
-        || m_componentUtils.isComposedEffectPath(fileInfo.path())) {
+    if (!addToLibrary || !model() || m_componentUtils.isGeneratedPath(fileInfo.path()))
         return;
-    }
 
     QString componentName = fileInfo.baseName();
     const QString baseComponentName = componentName;

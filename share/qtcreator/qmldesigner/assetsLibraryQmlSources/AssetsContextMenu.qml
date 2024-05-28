@@ -249,7 +249,7 @@ StudioControls.Menu {
 
     StudioControls.MenuItem {
         text: qsTr("Add to Content Library")
-        visible: root.rootView.userBundleEnabled() && root.__fileIndex && root.assetsModel.allFilePathsAreTextures(root.__selectedAssetPathsList)
+        visible: root.__fileIndex && root.assetsModel.allFilePathsAreTextures(root.__selectedAssetPathsList)
         height: visible ? implicitHeight : 0
         onTriggered: root.rootView.addAssetsToContentLibrary(root.__selectedAssetPathsList)
     }

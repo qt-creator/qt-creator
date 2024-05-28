@@ -15,6 +15,8 @@ View3D {
     property alias perspectiveCamera: scenePerspectiveCamera
     property alias orthoCamera: sceneOrthoCamera
     property alias sceneEnv: sceneEnv
+    property alias defaultLightProbe: defaultLightProbe
+    property alias defaultCubeMap: defaultCubeMap
     property vector3d cameraLookAt
     property var selectionBoxes: []
     property Node selectedNode
@@ -61,6 +63,14 @@ View3D {
         id: sceneEnv
         antialiasingMode: SceneEnvironment.MSAA
         antialiasingQuality: SceneEnvironment.High
+
+        Texture {
+            id: defaultLightProbe
+        }
+
+        CubeMapTexture {
+            id: defaultCubeMap
+        }
     }
 
     Node {

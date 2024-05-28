@@ -137,7 +137,7 @@ public:
     ModelPointer createModel(const TypeName &typeName,
                              std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {});
 
-    QUrl fileUrl() const;
+    const QUrl &fileUrl() const;
     SourceId fileUrlSourceId() const;
     void setFileUrl(const QUrl &url);
 
@@ -147,7 +147,7 @@ public:
     void setMetaInfo(const MetaInfo &metaInfo);
 #endif
 
-    Module module(Utils::SmallStringView moduleName);
+    Module module(Utils::SmallStringView moduleName, Storage::ModuleKind moduleKind);
     NodeMetaInfo metaInfo(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1) const;
     NodeMetaInfo metaInfo(Module module,
                           Utils::SmallStringView typeName,
@@ -255,10 +255,7 @@ public:
     bool hasId(const QString &id) const;
     bool hasImport(const QString &importUrl) const;
 
-    QString generateNewId(const QString &prefixName,
-                          const QString &fallbackPrefix = "element",
-                          std::optional<std::function<bool(const QString &)>> isDuplicate = {}) const;
-    QString generateIdFromName(const QString &name, const QString &fallbackId = "element") const;
+    QString generateNewId(const QString &prefixName, const QString &fallbackPrefix = "element") const;
 
     void startDrag(QMimeData *mimeData, const QPixmap &icon);
     void endDrag();

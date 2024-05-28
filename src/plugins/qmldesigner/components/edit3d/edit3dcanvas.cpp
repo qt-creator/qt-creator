@@ -51,6 +51,8 @@ Edit3DCanvas::Edit3DCanvas(Edit3DWidget *parent)
     setAcceptDrops(true);
     setFocusPolicy(Qt::ClickFocus);
     m_busyIndicator->show();
+
+    installEventFilter(this);
 }
 
 void Edit3DCanvas::updateRenderImage(const QImage &img)
@@ -79,10 +81,19 @@ QWidget *Edit3DCanvas::busyIndicator() const
     return m_busyIndicator;
 }
 
+#ifdef Q_OS_MACOS
+extern "C" bool AXIsProcessTrusted();
+#endif
+
 void Edit3DCanvas::setFlyMode(bool enabled, const QPoint &pos)
 {
     if (m_flyMode == enabled)
         return;
+
+#ifdef Q_OS_MACOS
+    if (!AXIsProcessTrusted())
+        m_isTrusted = false;
+#endif
 
     m_flyMode = enabled;
 
@@ -132,6 +143,23 @@ void Edit3DCanvas::setFlyMode(bool enabled, const QPoint &pos)
     m_parent->view()->setFlyMode(enabled);
 }
 
+bool Edit3DCanvas::eventFilter(QObject *obj, QEvent *event)
+{
+    if (m_flyMode && event->type() == QEvent::ShortcutOverride) {
+        // Suppress shortcuts that conflict with fly mode keys
+        const QList<int> controlKeys = { Qt::Key_W, Qt::Key_A, Qt::Key_S,
+                                        Qt::Key_D, Qt::Key_Q, Qt::Key_E,
+                                        Qt::Key_Up, Qt::Key_Down, Qt::Key_Left,
+                                        Qt::Key_Right, Qt::Key_PageDown, Qt::Key_PageUp,
+                                        Qt::Key_Alt, Qt::Key_Shift };
+        auto ke = static_cast<QKeyEvent *>(event);
+        if (controlKeys.contains(ke->key()))
+            event->accept();
+   }
+
+    return QObject::eventFilter(obj, event);
+}
+
 void Edit3DCanvas::mousePressEvent(QMouseEvent *e)
 {
     m_contextMenuPending = false;
@@ -171,7 +199,8 @@ void Edit3DCanvas::mouseMoveEvent(QMouseEvent *e)
             // We notify explicit camera rotation need for puppet rather than rely in mouse events,
             // as mouse isn't grabbed on puppet side and can't handle fast movements that go out of
             // edit camera mouse area. This also simplifies split view handling.
-            QPointF diff = m_hiddenCursorPos - e->globalPos();
+            QPointF diff = m_isTrusted ? (m_hiddenCursorPos - e->globalPos()) : (m_lastCursorPos - e->globalPos());
+
             if (e->buttons() == (Qt::LeftButton | Qt::RightButton)) {
                 m_parent->view()->emitView3DAction(View3DActionType::EditCameraMove,
                                                    QVector3D{float(-diff.x()), float(-diff.y()), 0.f});
@@ -182,13 +211,26 @@ void Edit3DCanvas::mouseMoveEvent(QMouseEvent *e)
             // Skip first move to avoid undesirable jump occasionally when initiating flight mode
             m_flyModeFirstUpdate = false;
         }
-        QCursor::setPos(m_hiddenCursorPos);
+
+        if (m_isTrusted)
+            QCursor::setPos(m_hiddenCursorPos);
+        else
+            m_lastCursorPos = e->globalPos();
     }
 }
 
 void Edit3DCanvas::wheelEvent(QWheelEvent *e)
 {
-    m_parent->view()->sendInputEvent(e);
+    if (m_flyMode) {
+        // In fly mode, wheel controls the camera speed slider (value range 1-100)
+        double speed;
+        double mult;
+        m_parent->view()->getCameraSpeedAuxData(speed, mult);
+        speed = qMin(100., qMax(1., speed + double(e->angleDelta().y()) / 40.));
+        m_parent->view()->setCameraSpeedAuxData(speed, mult);
+    } else {
+        m_parent->view()->sendInputEvent(e);
+    }
     QWidget::wheelEvent(e);
 }
 

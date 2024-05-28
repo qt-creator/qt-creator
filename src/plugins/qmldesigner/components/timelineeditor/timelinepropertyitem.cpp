@@ -35,7 +35,6 @@
 #include <QLineEdit>
 #include <QMenu>
 #include <QPainter>
-#include <QScopedPointer>
 
 #include <algorithm>
 

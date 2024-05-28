@@ -104,7 +104,7 @@ QtObject {
                 return root.maximumHeight + (2 * window.margin)
         }
         visible: false
-        flags: Qt.FramelessWindowHint | Qt.Tool | Qt.WindowStaysOnTopHint
+        flags: Qt.FramelessWindowHint | Qt.Tool
         color: "transparent"
 
         onClosing: function (close) {
@@ -286,10 +286,8 @@ QtObject {
             enabled: root.visible
 
             function onFocusWindowChanged(focusWindow) {
-                if (!focusWindow) {
-                    root.close()
+                if (!focusWindow)
                     return
-                }
 
                 if (root.keepOpen)
                     return

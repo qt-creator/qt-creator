@@ -92,7 +92,7 @@ private:
     void create3DPreviewView();
     void setup3DEditView(const QList<ServerNodeInstance> &instanceList,
                          const CreateSceneCommand &command);
-    void createCameraAndLightGizmos(const QList<ServerNodeInstance> &instanceList) const;
+    void createGizmos(const QList<ServerNodeInstance> &instanceList) const;
     void add3DViewPorts(const QList<ServerNodeInstance> &instanceList);
     void add3DScenes(const QList<ServerNodeInstance> &instanceList);
     QObject *findView3DForInstance(const ServerNodeInstance &instance) const;

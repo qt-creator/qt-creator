@@ -83,16 +83,17 @@ namespace QmlDesigner {
 PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyEditor,
                                                    AsynchronousImageCache &imageCache)
     : m_view(Utils::makeUniqueObjectPtr<Quick2PropertyEditorView>(imageCache))
-    , m_propertyEditorTransaction(new PropertyEditorTransaction(propertyEditor))
-    , m_dummyPropertyEditorValue(new PropertyEditorValue())
-    , m_contextObject(new PropertyEditorContextObject(m_view.get()))
+    , m_propertyEditorTransaction(std::make_unique<PropertyEditorTransaction>(propertyEditor))
+    , m_dummyPropertyEditorValue(std::make_unique<PropertyEditorValue>())
+    , m_contextObject(std::make_unique<PropertyEditorContextObject>(m_view.get()))
 {
     m_view->engine()->setOutputWarningsToStandardError(QmlDesignerPlugin::instance()
         ->settings().value(DesignerSettingsKey::SHOW_PROPERTYEDITOR_WARNINGS).toBool());
 
     m_view->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_dummyPropertyEditorValue->setValue(QLatin1String("#000000"));
-    context()->setContextProperty(QLatin1String("dummyBackendValue"), m_dummyPropertyEditorValue.data());
+    context()->setContextProperty(QLatin1String("dummyBackendValue"),
+                                  m_dummyPropertyEditorValue.get());
     m_contextObject->setBackendValues(&m_backendValuesPropertyMap);
     m_contextObject->setModel(propertyEditor->model());
     m_contextObject->insertInQmlContext(context());
@@ -402,7 +403,7 @@ QQmlContext *PropertyEditorQmlBackend::context()
 
 PropertyEditorContextObject *PropertyEditorQmlBackend::contextObject()
 {
-    return m_contextObject.data();
+    return m_contextObject.get();
 }
 
 QQuickWidget *PropertyEditorQmlBackend::widget()
@@ -432,7 +433,7 @@ DesignerPropertyMap &PropertyEditorQmlBackend::backendValuesPropertyMap() {
 }
 
 PropertyEditorTransaction *PropertyEditorQmlBackend::propertyEditorTransaction() {
-    return m_propertyEditorTransaction.data();
+    return m_propertyEditorTransaction.get();
 }
 
 PropertyEditorValue *PropertyEditorQmlBackend::propertyValueForName(const QString &propertyName)
@@ -495,12 +496,9 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
 
         // anchors
         m_backendAnchorBinding.setup(qmlObjectNode.modelNode());
-        context()->setContextProperties(
-            QVector<QQmlContext::PropertyPair>{
-                {{"anchorBackend"}, QVariant::fromValue(&m_backendAnchorBinding)},
-                {{"transaction"}, QVariant::fromValue(m_propertyEditorTransaction.data())}
-            }
-        );
+        context()->setContextProperties(QVector<QQmlContext::PropertyPair>{
+            {{"anchorBackend"}, QVariant::fromValue(&m_backendAnchorBinding)},
+            {{"transaction"}, QVariant::fromValue(m_propertyEditorTransaction.get())}});
 
         contextObject()->setHasMultiSelection(
             !qmlObjectNode.view()->singleSelectedModelNode().isValid());
@@ -592,13 +590,10 @@ void PropertyEditorQmlBackend::initialSetup(const TypeName &typeName, const QUrl
     QObject::connect(valueObject, &PropertyEditorValue::valueChanged, &backendValuesPropertyMap(), &DesignerPropertyMap::valueChanged);
     m_backendValuesPropertyMap.insert(QLatin1String("id"), QVariant::fromValue(valueObject));
 
-    context()->setContextProperties(
-        QVector<QQmlContext::PropertyPair>{
-            {{"anchorBackend"}, QVariant::fromValue(&m_backendAnchorBinding)},
-            {{"modelNodeBackend"}, QVariant::fromValue(&m_backendModelNode)},
-            {{"transaction"}, QVariant::fromValue(m_propertyEditorTransaction.data())}
-        }
-    );
+    context()->setContextProperties(QVector<QQmlContext::PropertyPair>{
+        {{"anchorBackend"}, QVariant::fromValue(&m_backendAnchorBinding)},
+        {{"modelNodeBackend"}, QVariant::fromValue(&m_backendModelNode)},
+        {{"transaction"}, QVariant::fromValue(m_propertyEditorTransaction.get())}});
 
     contextObject()->setSpecificsUrl(qmlSpecificsFile);
 

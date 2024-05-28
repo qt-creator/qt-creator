@@ -142,7 +142,7 @@
       \li From \uicontrol Components, drag a \uicontrol Sphere to \e _3DRepeater
       in \uicontrol Navigator.
       \image repeater3d-listmodel-navigator.png
-      \li Select \e sphere in \uicontrol Navigator and in the \Properties view, select
+      \li Select \e sphere in \uicontrol Navigator and in the \uicontrol Properties view, select
       \inlineimage icons/action-icon.png
       next to \uicontrol Scale > \uicontrol X.
       \li Select \uicontrol {Set binding} to open \uicontrol {Binding Editor}.

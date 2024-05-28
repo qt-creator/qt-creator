@@ -9,13 +9,46 @@
     "icon": "file_javascript.png",
     "platformIndependent": true,
 
+    "options":
+        [
+        { "key": "JSFile", "value": "%{Class}.%{JS: Util.preferredSuffix('application/javascript')}" },
+        { "key": "ApplicationImport", "value": "%{QmlProjectName} 1.0" },
+        { "key": "RootItem", "value": "%{JS: %{RootItemCB}.RootItem}" },
+        { "key": "UseImportDefault", "value": "%{JS: false}" },
+        { "key": "UseQtQuickControls2Default", "value": "%{JS: true}" }
+    ],
 
     "pages" :
-    [
+        [
         {
-            "trDisplayName": "Location",
-            "trShortTitle": "Location",
-            "typeId": "File"
+            "trDisplayName": "Define Class",
+            "trShortTitle": "Details",
+            "typeId": "Fields",
+            "data" :
+                [
+                {
+                    "name": "Class",
+                    "trDisplayName": "Component name:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data": {
+                        "validator": "(?:[A-Z_][a-zA-Z_0-9]*|)",
+                        "fixup": "%{JS: '%{INPUT}'.charAt(0).toUpperCase() + '%{INPUT}'.slice(1) }"
+                    }
+                },
+                {
+                    "name": "TargetPath",
+                    "type": "PathChooser",
+                    "trDisplayName": "Path:",
+                    "mandatory": true,
+                    "data":
+                    {
+                        "kind": "existingDirectory",
+                        "basePath": "%{InitialPath}",
+                        "path": "%{InitialPath}"
+                    }
+                }
+            ]
         },
         {
             "trDisplayName": "Options",
@@ -34,21 +67,16 @@
                     }
                 }
             ]
-        },
-        {
-            "trDisplayName": "Project Management",
-            "trShortTitle": "Summary",
-            "typeId": "Summary"
         }
     ],
     "generators" :
-    [
+        [
         {
             "typeId": "File",
             "data":
             {
                 "source": "file.js.tpl",
-                "target": "%{JS: Util.fileName('%{TargetPath}', '%{JS: Util.preferredSuffix('application/javascript')}')}",
+                "target": "%{TargetPath}/%{JSFile}",
                 "openInEditor": true
             }
         }

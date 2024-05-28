@@ -27,6 +27,10 @@ env_with_default("QTC_ENABLE_MODEL_TRACING" ENV_QTC_ENABLE_MODEL_TRACING OFF)
 option(ENABLE_MODEL_TRACING "Enable model tracing" ${ENV_QTC_ENABLE_MODEL_TRACING})
 add_feature_info("Model tracing" ${ENABLE_MODEL_TRACING} "")
 
+env_with_default("QTC_ENABLE_METAINFO_TRACING" ENV_QTC_ENABLE_METAINFO_TRACING OFF)
+option(ENABLE_METAINFO_TRACING "Enable meta info tracing" ${ENV_QTC_ENABLE_METAINFO_TRACING})
+add_feature_info("Meta info tracing" ${ENABLE_METAINFO_TRACING} "")
+
 add_qtc_library(QmlDesignerUtils STATIC
   DEPENDS
     Qt::Gui Utils Qt::QmlPrivate
@@ -93,14 +97,13 @@ add_qtc_library(QmlDesignerCore STATIC
     ${CMAKE_CURRENT_LIST_DIR}/designercore/include
   SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore
   SOURCES
-    rewritertransaction.cpp
-    rewritertransaction.h
-    generatedcomponentutils.cpp
-    generatedcomponentutils.h
+    rewritertransaction.cpp rewritertransaction.h
+    generatedcomponentutils.cpp generatedcomponentutils.h
+    uniquename.cpp uniquename.h
 )
 
 extend_qtc_library(QmlDesignerCore
-  CONDITION ENABLE_PROJECT_STORAGE_TRACING OR ENABLE_IMAGE_CACHE_TRACING OR ENABLE_MODEL_TRACING
+  CONDITION ENABLE_PROJECT_STORAGE_TRACING OR ENABLE_IMAGE_CACHE_TRACING OR ENABLE_MODEL_TRACING OR ENABLE_METAINFO_TRACING
   PUBLIC_DEPENDS Nanotrace
   PUBLIC_DEFINES
     ENABLE_QMLDESIGNER_TRACING
@@ -108,6 +111,7 @@ extend_qtc_library(QmlDesignerCore
     $<$<BOOL:${ENABLE_PROJECT_STORAGE_TRACING}>:ENABLE_PROJECT_STORAGE_TRACING>
     $<$<BOOL:${ENABLE_IMAGE_CACHE_TRACING}>:ENABLE_IMAGE_CACHE_TRACING>
     $<$<BOOL:${ENABLE_MODEL_TRACING}>:ENABLE_MODEL_TRACING>
+    $<$<BOOL:${ENABLE_METAINFO_TRACING}>:ENABLE_METAINFO_TRACING>
 )
 
 extend_qtc_library(QmlDesignerCore
@@ -463,6 +467,8 @@ extend_qtc_library(QmlDesignerCore
     projectstoragetypes.h
     projectstorageupdater.cpp projectstorageupdater.h
     projectstorage.cpp projectstorage.h
+    projectstorageerrornotifierinterface.h
+    projectstorageerrornotifier.cpp projectstorageerrornotifier.h
     sourcepath.h
     sourcepathcache.h
     sourcepathcacheinterface.h
@@ -498,7 +504,6 @@ add_qtc_plugin(QmlDesigner
   INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/components
     ${CMAKE_CURRENT_LIST_DIR}/components/assetslibrary
-    ${CMAKE_CURRENT_LIST_DIR}/components/collectioneditor
     ${CMAKE_CURRENT_LIST_DIR}/components/debugview
     ${CMAKE_CURRENT_LIST_DIR}/components/edit3d
     ${CMAKE_CURRENT_LIST_DIR}/components/formeditor
@@ -739,6 +744,8 @@ extend_qtc_plugin(QmlDesigner
     assetimportupdatetreeitemdelegate.cpp assetimportupdatetreeitemdelegate.h
     assetimportupdatetreemodel.cpp assetimportupdatetreemodel.h
     assetimportupdatetreeview.cpp assetimportupdatetreeview.h
+    import3dcanvas.cpp import3dcanvas.h
+    import3dconnectionmanager.cpp import3dconnectionmanager.h
     itemlibrary.qrc
     itemlibraryconstants.h
     itemlibraryimageprovider.cpp itemlibraryimageprovider.h
@@ -826,7 +833,7 @@ extend_qtc_plugin(QmlDesigner
     contentlibrarymaterialscategory.cpp contentlibrarymaterialscategory.h
     contentlibrarymaterial.cpp contentlibrarymaterial.h
     contentlibraryiconprovider.cpp contentlibraryiconprovider.h
-    contentlibraryeffect.cpp contentlibraryeffect.h
+    contentlibraryitem.cpp contentlibraryitem.h
     contentlibraryeffectscategory.cpp contentlibraryeffectscategory.h
     contentlibraryeffectsmodel.cpp contentlibraryeffectsmodel.h
     contentlibraryusermodel.cpp contentlibraryusermodel.h
@@ -841,21 +848,6 @@ extend_qtc_plugin(QmlDesigner
     materialeditortransaction.cpp materialeditortransaction.h
     materialeditorview.cpp materialeditorview.h
     materialeditor.qrc
-)
-
-extend_qtc_plugin(QmlDesigner
-  SOURCES_PREFIX components/collectioneditor
-  SOURCES
-    collectiondatatypemodel.cpp collectiondatatypemodel.h
-    collectiondetails.cpp collectiondetails.h
-    collectiondetailsmodel.cpp collectiondetailsmodel.h
-    collectiondetailssortfiltermodel.cpp collectiondetailssortfiltermodel.h
-    collectioneditorconstants.h
-    collectioneditorutils.cpp collectioneditorutils.h
-    collectionlistmodel.cpp collectionlistmodel.h
-    collectionview.cpp collectionview.h
-    collectionwidget.cpp collectionwidget.h
-    datastoremodelnode.cpp datastoremodelnode.h
 )
 
 extend_qtc_plugin(QmlDesigner
