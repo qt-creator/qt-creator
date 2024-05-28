@@ -2920,6 +2920,8 @@ void AspectContainer::registerAspect(BaseAspect *aspect, bool takeOwnership)
     d->m_items.append(aspect);
     if (takeOwnership)
         d->m_ownedItems.append(aspect);
+
+    connect(aspect, &BaseAspect::changed, this, [this]() { emit changed(); });
 }
 
 void AspectContainer::registerAspects(const AspectContainer &aspects)
