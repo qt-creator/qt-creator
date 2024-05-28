@@ -442,25 +442,34 @@ FilePath BaseFileFind::searchDir() const
     return d->m_searchDir;
 }
 
-void BaseFileFind::writeCommonSettings(Store &s) const
+void BaseFileFind::writeCommonSettings(
+    Store &s, const QString &defaultFilter, const QString &defaultExclusionFilter) const
 {
     const auto fromNativeSeparators = [](const QStringList &files) -> QStringList {
         return Utils::transform(files, &QDir::fromNativeSeparators);
     };
 
-    s.insert("filters", fromNativeSeparators(d->m_filterStrings.stringList()));
-    if (d->m_filterCombo)
-        s.insert("currentFilter", QDir::fromNativeSeparators(d->m_filterCombo->currentText()));
-    s.insert("exclusionFilters", fromNativeSeparators(d->m_exclusionStrings.stringList()));
-    if (d->m_exclusionCombo) {
-        s.insert(
-            "currentExclusionFilter",
-            QDir::fromNativeSeparators(d->m_exclusionCombo->currentText()));
-    }
+    const QStringList filterStrings = fromNativeSeparators(d->m_filterStrings.stringList());
+    if (filterStrings.size() != 1 || filterStrings.first() != defaultFilter)
+        s.insert("filters", filterStrings);
+    const QString currentFilter = d->m_filterCombo
+                                      ? QDir::fromNativeSeparators(d->m_filterCombo->currentText())
+                                      : d->m_filterSetting;
+    if (currentFilter != defaultFilter)
+        s.insert("currentFilter", currentFilter);
+    const QStringList exclusionFilters = fromNativeSeparators(d->m_exclusionStrings.stringList());
+    if (exclusionFilters.size() != 1 || exclusionFilters.first() != defaultExclusionFilter)
+        s.insert("exclusionFilters", exclusionFilters);
+    const QString currentExclusionFilter = d->m_exclusionCombo ? QDir::fromNativeSeparators(
+                                               d->m_exclusionCombo->currentText())
+                                                               : d->m_exclusionSetting;
+    if (currentExclusionFilter != defaultExclusionFilter)
+        s.insert("currentExclusionFilter", currentExclusionFilter);
 
     for (const SearchEngine *searchEngine : std::as_const(d->m_searchEngines))
         searchEngine->writeSettings(s);
-    s.insert("currentSearchEngineIndex", d->m_currentSearchEngineIndex);
+    if (d->m_currentSearchEngineIndex != 0)
+        s.insert("currentSearchEngineIndex", d->m_currentSearchEngineIndex);
 }
 
 void BaseFileFind::readCommonSettings(

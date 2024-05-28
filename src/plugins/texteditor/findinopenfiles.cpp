@@ -93,16 +93,19 @@ bool FindInOpenFiles::isEnabled() const
     return Core::DocumentModel::entryCount() > 0;
 }
 
+const char kDefaultInclusion[] = "*";
+const char kDefaultExclusion[] = "";
+
 Store FindInOpenFiles::save() const
 {
     Store s;
-    writeCommonSettings(s);
+    writeCommonSettings(s, kDefaultInclusion, kDefaultExclusion);
     return s;
 }
 
 void FindInOpenFiles::restore(const Store &s)
 {
-    readCommonSettings(s, "*", "");
+    readCommonSettings(s, kDefaultInclusion, kDefaultExclusion);
 }
 
 QByteArray FindInOpenFiles::settingsKey() const

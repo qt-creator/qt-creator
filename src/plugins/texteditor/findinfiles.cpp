@@ -188,16 +188,19 @@ QWidget *FindInFiles::createConfigWidget()
     return m_configWidget;
 }
 
+const char kDefaultInclusion[] = "*.cpp,*.h";
+const char kDefaultExclusion[] = "*/.git/*,*/.cvs/*,*/.svn/*,*.autosave,*/build/*";
+
 Store FindInFiles::save() const
 {
     Store s;
-    writeCommonSettings(s);
+    writeCommonSettings(s, kDefaultInclusion, kDefaultExclusion);
     return s;
 }
 
 void FindInFiles::restore(const Utils::Store &s)
 {
-    readCommonSettings(s, "*.cpp,*.h", "*/.git/*,*/.cvs/*,*/.svn/*,*.autosave,*/build/*");
+    readCommonSettings(s, kDefaultInclusion, kDefaultExclusion);
 }
 
 QByteArray FindInFiles::settingsKey() const

@@ -108,7 +108,8 @@ protected:
     virtual QString toolTip() const = 0; // see Core::SearchResultWindow::startNewSearch,
                                          // add %1 placeholder where the find flags should be put
 
-    void writeCommonSettings(Utils::Store &s) const;
+    void writeCommonSettings(
+        Utils::Store &s, const QString &defaultFilter, const QString &defaultExclusionFilter) const;
     void readCommonSettings(
         const Utils::Store &s, const QString &defaultFilter, const QString &defaultExclusionFilter);
     QList<QPair<QWidget *, QWidget *>> createPatternWidgets();

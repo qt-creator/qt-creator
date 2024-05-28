@@ -169,8 +169,10 @@ QWidget *SymbolsFindFilter::createConfigWidget()
 Store SymbolsFindFilter::save() const
 {
     Store s;
-    s.insert(SETTINGS_SYMBOLTYPES, int(m_symbolsToSearch));
-    s.insert(SETTINGS_SEARCHSCOPE, int(m_scope));
+    if (m_symbolsToSearch != SearchSymbols::AllTypes)
+        s.insert(SETTINGS_SYMBOLTYPES, int(m_symbolsToSearch));
+    if (m_scope != SymbolSearcher::SearchProjectsOnly)
+        s.insert(SETTINGS_SEARCHSCOPE, int(m_scope));
     return s;
 }
 

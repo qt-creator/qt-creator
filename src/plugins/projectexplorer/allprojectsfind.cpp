@@ -113,16 +113,19 @@ QWidget *AllProjectsFind::createConfigWidget()
     return m_configWidget;
 }
 
+const char kDefaultInclusion[] = "*";
+const char kDefaultExclusion[] = "";
+
 Store AllProjectsFind::save() const
 {
     Store s;
-    writeCommonSettings(s);
+    writeCommonSettings(s, kDefaultInclusion, kDefaultExclusion);
     return s;
 }
 
 void AllProjectsFind::restore(const Utils::Store &s)
 {
-    readCommonSettings(s, "*", "");
+    readCommonSettings(s, kDefaultInclusion, kDefaultExclusion);
 }
 
 QByteArray AllProjectsFind::settingsKey() const

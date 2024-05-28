@@ -118,16 +118,19 @@ void CurrentProjectFind::setupSearch(Core::SearchResult *search)
     });
 }
 
+const char kDefaultInclusion[] = "*";
+const char kDefaultExclusion[] = "";
+
 Store CurrentProjectFind::save() const
 {
     Store s;
-    writeCommonSettings(s);
+    writeCommonSettings(s, kDefaultInclusion, kDefaultExclusion);
     return s;
 }
 
 void CurrentProjectFind::restore(const Store &s)
 {
-    readCommonSettings(s, "*", "");
+    readCommonSettings(s, kDefaultInclusion, kDefaultExclusion);
 }
 
 QByteArray CurrentProjectFind::settingsKey() const
