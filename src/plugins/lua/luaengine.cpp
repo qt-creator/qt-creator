@@ -9,6 +9,7 @@
 #include <coreplugin/messagemanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/lua.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 
@@ -20,6 +21,25 @@ using namespace Utils;
 
 namespace Lua {
 
+class LuaInterfaceImpl : public Utils::LuaInterface
+{
+    LuaEngine *m_engine;
+
+public:
+    LuaInterfaceImpl(LuaEngine *engine)
+        : m_engine(engine)
+    {
+        Utils::setLuaInterface(this);
+    }
+    ~LuaInterfaceImpl() override { Utils::setLuaInterface(nullptr); }
+
+    expected_str<std::unique_ptr<LuaState>> runScript(
+        const QString &script, const QString &name) override
+    {
+        return m_engine->runScript(script, name);
+    }
+};
+
 class LuaEnginePrivate
 {
 public:
@@ -29,6 +49,8 @@ public:
     QList<std::function<void(sol::state_view)>> m_autoProviders;
 
     QMap<QString, std::function<void(sol::function)>> m_hooks;
+
+    std::unique_ptr<LuaInterfaceImpl> m_luaInterface;
 };
 
 static LuaEngine *s_instance = nullptr;
@@ -43,11 +65,76 @@ LuaEngine::LuaEngine()
     : d(new LuaEnginePrivate())
 {
     s_instance = this;
+    d->m_luaInterface.reset(new LuaInterfaceImpl(this));
 }
 
 LuaEngine::~LuaEngine()
 {
     s_instance = nullptr;
+}
+
+class LuaStateImpl : public Utils::LuaState
+{
+public:
+    sol::state lua;
+};
+
+// Runs the gives script in a new Lua state. The returned Object manages the lifetime of the state.
+std::unique_ptr<Utils::LuaState> LuaEngine::runScript(const QString &script, const QString &name)
+{
+    std::unique_ptr<LuaStateImpl> opaque = std::make_unique<LuaStateImpl>();
+
+    opaque->lua.open_libraries(
+        sol::lib::base,
+        sol::lib::bit32,
+        sol::lib::coroutine,
+        sol::lib::debug,
+        sol::lib::io,
+        sol::lib::math,
+        sol::lib::os,
+        sol::lib::package,
+        sol::lib::string,
+        sol::lib::table,
+        sol::lib::utf8);
+
+    opaque->lua["print"] = [prefix = name, printToOutputPane = true](sol::variadic_args va) {
+        const QString msg = variadicToStringList(va).join("\t");
+
+        qDebug().noquote() << "[" << prefix << "]" << msg;
+        if (printToOutputPane) {
+            static const QString p
+                = ansiColoredText("[" + prefix + "]", creatorTheme()->color(Theme::Token_Text_Muted));
+            Core::MessageManager::writeSilently(QString("%1 %2").arg(p, msg));
+        }
+    };
+
+    opaque->lua.new_usertype<ScriptPluginSpec>(
+        "PluginSpec", sol::no_constructor, "name", sol::property([](ScriptPluginSpec &self) {
+            return self.name;
+        }));
+
+    opaque->lua["PluginSpec"] = ScriptPluginSpec{name, {}, std::make_unique<QObject>()};
+
+    for (const auto &[name, func] : d->m_providers.asKeyValueRange()) {
+        opaque->lua["package"]["preload"][name.toStdString()] =
+            [func = func](const sol::this_state &s) { return func(s); };
+    }
+
+    for (const auto &func : d->m_autoProviders)
+        func(opaque->lua);
+
+    auto result
+        = opaque->lua
+              .safe_script(script.toStdString(), sol::script_pass_on_error, name.toStdString());
+
+    if (!result.valid()) {
+        sol::error err = result;
+        qWarning() << "Failed to run script" << name << ":" << QString::fromUtf8(err.what());
+        Core::MessageManager::writeFlashing(
+            tr("Failed to run script %1: %2").arg(name, QString::fromUtf8(err.what())));
+    }
+
+    return opaque;
 }
 
 void LuaEngine::registerProvider(const QString &packageName, const PackageProvider &provider)

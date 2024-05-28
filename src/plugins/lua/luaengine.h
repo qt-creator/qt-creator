@@ -10,6 +10,7 @@
 
 #include <utils/expected.h>
 #include <utils/filepath.h>
+#include <utils/lua.h>
 
 #include <sol/sol.hpp>
 
@@ -107,6 +108,9 @@ public:
         }
         return {};
     }
+
+    // Runs the given script in a new Lua state. The returned Object manages the lifetime of the state.
+    std::unique_ptr<Utils::LuaState> runScript(const QString &script, const QString &name);
 
 protected:
     Utils::expected_str<void> connectHooks(
