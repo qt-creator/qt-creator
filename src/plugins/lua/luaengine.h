@@ -37,6 +37,7 @@ struct ScriptPluginSpec
 {
     QString name;
     Utils::FilePath appDataPath;
+    std::unique_ptr<QObject> connectionGuard;
 };
 
 class LUA_EXPORT LuaEngine final : public QObject

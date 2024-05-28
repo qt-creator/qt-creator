@@ -19,16 +19,19 @@ void addUtilsModule()
     LuaEngine::registerProvider(
         "Utils",
         [futureSync = Utils::FutureSynchronizer()](sol::state_view lua) mutable -> sol::object {
+            const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec");
+
             auto async = lua.script("return require('async')", "_utils_").get<sol::table>();
 
             sol::table utils = lua.create_table();
 
-            utils.set_function("waitms_cb", [](int ms, const sol::function &cb) {
-                QTimer::singleShot(ms, &LuaEngine::instance(), [cb]() { cb(); });
+            utils.set_function("waitms_cb", [guard = pluginSpec->connectionGuard.get()](int ms, const sol::function &cb) {
+                QTimer::singleShot(ms, guard, [cb]() { cb(); });
             });
 
             auto dirEntries_cb =
-                [&futureSync](const FilePath &p, const sol::table &options, const sol::function &cb) {
+                [&futureSync, guard = pluginSpec->connectionGuard.get()](
+                    const FilePath &p, const sol::table &options, const sol::function &cb) {
                     const QStringList nameFilters = options.get_or<QStringList>("nameFilters", {});
                     QDir::Filters fileFilters
                         = (QDir::Filters) options.get_or<int>("fileFilters", QDir::NoFilter);
@@ -53,22 +56,22 @@ void addUtilsModule()
 
                     futureSync.addFuture<FilePath>(future);
 
-                    Utils::onFinished<FilePath>(
-                        future, &LuaEngine::instance(), [cb](const QFuture<FilePath> &future) {
-                            cb(future.results());
-                        });
+                    Utils::onFinished<FilePath>(future, guard, [cb](const QFuture<FilePath> &future) {
+                        cb(future.results());
+                    });
                 };
 
-            auto searchInPath_cb = [&futureSync](const FilePath &p, const sol::function &cb) {
+            auto searchInPath_cb = [&futureSync,
+                                    guard = pluginSpec->connectionGuard
+                                                .get()](const FilePath &p, const sol::function &cb) {
                 QFuture<FilePath> future = Utils::asyncRun(
                     [p](QPromise<FilePath> &promise) { promise.addResult(p.searchInPath()); });
 
                 futureSync.addFuture<FilePath>(future);
 
-                Utils::onFinished<FilePath>(
-                    future, &LuaEngine::instance(), [cb](const QFuture<FilePath> &future) {
-                        cb(future.result());
-                    });
+                Utils::onFinished<FilePath>(future, guard, [cb](const QFuture<FilePath> &future) {
+                    cb(future.result());
+                });
             };
 
             utils.set_function("__dirEntries_cb__", dirEntries_cb);

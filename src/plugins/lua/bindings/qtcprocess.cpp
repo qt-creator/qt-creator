@@ -12,30 +12,31 @@ namespace Lua::Internal {
 
 void addProcessModule()
 {
-    LuaEngine::registerProvider(
-        "Process", [](sol::state_view lua) -> sol::object {
-            sol::table async = lua.script("return require('async')", "_process_").get<sol::table>();
-            sol::function wrap = async["wrap"];
+    LuaEngine::registerProvider("Process", [](sol::state_view lua) -> sol::object {
+        const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec");
 
-            sol::table process = lua.create_table();
+        sol::table async = lua.script("return require('async')", "_process_").get<sol::table>();
+        sol::function wrap = async["wrap"];
 
-            process["runInTerminal_cb"] = [](const QString &cmdline, const sol::function &cb) {
+        sol::table process = lua.create_table();
+
+        process["runInTerminal_cb"] =
+            [guard
+             = pluginSpec->connectionGuard.get()](const QString &cmdline, const sol::function &cb) {
                 Process *p = new Process;
                 p->setTerminalMode(TerminalMode::Run);
                 p->setCommand(CommandLine::fromUserInput((cmdline)));
                 p->setEnvironment(Environment::systemEnvironment());
 
-                QObject::connect(p, &Process::done, &LuaEngine::instance(), [p, cb]() {
-                    cb(p->exitCode());
-                });
+                QObject::connect(p, &Process::done, guard, [p, cb]() { cb(p->exitCode()); });
 
                 p->start();
             };
 
-            process["runInTerminal"] = wrap(process["runInTerminal_cb"]);
+        process["runInTerminal"] = wrap(process["runInTerminal_cb"]);
 
-            return process;
-        });
+        return process;
+    });
 }
 
 } // namespace Lua::Internal

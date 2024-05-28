@@ -253,12 +253,12 @@ void addInstallModule()
             sol::function wrap = async["wrap"];
 
             sol::table install = lua.create_table();
-            const ScriptPluginSpec pluginSpec = lua.get<ScriptPluginSpec>("PluginSpec");
+            const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec");
 
             install["packageInfo"] =
                 [pluginSpec](const QString &name, sol::this_state l) -> sol::optional<sol::table> {
                 expected_str<QJsonObject> obj
-                    = getInstalledPackageInfo(pluginSpec.appDataPath, name);
+                    = getInstalledPackageInfo(pluginSpec->appDataPath, name);
                 if (!obj)
                     throw sol::error(obj.error().toStdString());
 
@@ -302,7 +302,7 @@ void addInstallModule()
                     }
 
                     const Utils::Id infoBarId = Utils::Id::fromString(
-                        "Install" + pluginSpec.name + QString::number(qHash(installOptionsList)));
+                        "Install" + pluginSpec->name + QString::number(qHash(installOptionsList)));
 
                     InfoBarEntry entry(infoBarId, msg, InfoBarEntry::GlobalSuppression::Enabled);
 
@@ -315,7 +315,7 @@ void addInstallModule()
                             progress->setDisplayName(Tr::tr("Installing package(s) %1").arg("..."));
 
                             tree->setRecipe(
-                                installRecipe(pluginSpec.appDataPath, installOptionsList, callback));
+                                installRecipe(pluginSpec->appDataPath, installOptionsList, callback));
                             tree->start();
 
                             Core::ICore::infoBar()->removeInfo(infoBarId);
@@ -327,7 +327,7 @@ void addInstallModule()
                         const QString markdown
                             = Tr::tr("The plugin \"**%1**\" would like to install the following "
                                      "package(s):\n\n")
-                                  .arg(pluginSpec.name)
+                                  .arg(pluginSpec->name)
                               + Utils::transform(installOptionsList, [](const InstallOptions &options) {
                                     return QString("* %1 - %2 (from: [%3](%3))")
                                         .arg(options.name, options.version, options.url.toString());

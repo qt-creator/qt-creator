@@ -89,7 +89,7 @@ HAS_MEM_FUNC(setTitle, hasSetTitle);
 HAS_MEM_FUNC(setValue, hasSetValue);
 
 template<class T>
-void setProperties(std::unique_ptr<T> &item, const sol::table &children)
+void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard)
 {
     if constexpr (hasOnTextChanged<T, void (T::*)(const QString &)>::value) {
         sol::optional<sol::protected_function> onTextChanged
@@ -100,7 +100,7 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children)
                     auto res = LuaEngine::void_safe_call(f, text);
                     QTC_CHECK_EXPECTED(res);
                 },
-                &LuaEngine::instance());
+                guard);
         }
     }
     if constexpr (hasOnClicked<T, void (T::*)(const std::function<void()> &, QObject *guard)>::value) {
@@ -112,7 +112,7 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children)
                     auto res = LuaEngine::void_safe_call(f);
                     QTC_CHECK_EXPECTED(res);
                 },
-                &LuaEngine::instance());
+                guard);
         }
     }
     if constexpr (hasSetText<T, void (T::*)(const QString &)>::value) {
@@ -129,11 +129,11 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children)
 }
 
 template<class T>
-std::unique_ptr<T> constructWidgetType(const sol::table &children)
+std::unique_ptr<T> constructWidgetType(const sol::table &children, QObject *guard)
 {
     std::unique_ptr<T> item(new T({}));
     constructWidget(item, children);
-    setProperties(item, children);
+    setProperties(item, children, guard);
     return item;
 }
 
@@ -143,10 +143,10 @@ std::unique_ptr<Tab> constructTab(const QString &tabName, const Layout &layout)
     return item;
 }
 
-std::unique_ptr<TabWidget> constructTabWidget(const sol::table &children)
+std::unique_ptr<TabWidget> constructTabWidget(const sol::table &children, QObject *guard)
 {
     std::unique_ptr<TabWidget> item(new TabWidget({}));
-    setProperties(item, children);
+    setProperties(item, children, guard);
     for (size_t i = 1; i < children.size(); ++i) {
         const auto &child = children[i];
         if (child.is<Tab *>())
@@ -177,6 +177,9 @@ std::unique_ptr<Splitter> constructSplitter(const sol::table &children)
 void addLayoutModule()
 {
     LuaEngine::registerProvider("Layout", [](sol::state_view l) -> sol::object {
+        const ScriptPluginSpec *pluginSpec = l.get<ScriptPluginSpec *>("PluginSpec");
+        QObject *guard = pluginSpec->connectionGuard.get();
+
         sol::table layout = l.create_table();
 
         layout.new_usertype<Span>(
@@ -225,14 +228,18 @@ void addLayoutModule()
         layout.new_usertype<PushButton>(
             "PushButton",
             sol::call_constructor,
-            sol::factories(&constructWidgetType<PushButton>),
+            sol::factories([guard](const sol::table &children) {
+                return constructWidgetType<PushButton>(children, guard);
+            }),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
         layout.new_usertype<Widget>(
             "Widget",
             sol::call_constructor,
-            sol::factories(&constructWidgetType<Widget>),
+            sol::factories([guard](const sol::table &children) {
+                return constructWidgetType<Widget>(children, guard);
+            }),
             "show",
             &Widget::show,
             "resize",
@@ -243,7 +250,9 @@ void addLayoutModule()
         layout.new_usertype<Stack>(
             "Stack",
             sol::call_constructor,
-            sol::factories(&constructWidgetType<Stack>),
+            sol::factories([guard](const sol::table &children) {
+                return constructWidgetType<Stack>(children, guard);
+            }),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
@@ -257,14 +266,18 @@ void addLayoutModule()
         layout.new_usertype<TextEdit>(
             "TextEdit",
             sol::call_constructor,
-            sol::factories(&constructWidgetType<TextEdit>),
+            sol::factories([guard](const sol::table &children) {
+                return constructWidgetType<TextEdit>(children, guard);
+            }),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
         layout.new_usertype<SpinBox>(
             "SpinBox",
             sol::call_constructor,
-            sol::factories(&constructWidgetType<SpinBox>),
+            sol::factories([guard](const sol::table &children) {
+                return constructWidgetType<SpinBox>(children, guard);
+            }),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
         layout.new_usertype<Splitter>(
@@ -276,20 +289,26 @@ void addLayoutModule()
         layout.new_usertype<ToolBar>(
             "ToolBar",
             sol::call_constructor,
-            sol::factories(&constructWidgetType<ToolBar>),
+            sol::factories([guard](const sol::table &children) {
+                return constructWidgetType<ToolBar>(children, guard);
+            }),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
         layout.new_usertype<TabWidget>(
             "TabWidget",
             sol::call_constructor,
-            sol::factories(&constructTabWidget),
+            sol::factories([guard](const sol::table &children) {
+                return constructTabWidget(children, guard);
+            }),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
         layout.new_usertype<Group>(
             "Group",
             sol::call_constructor,
-            sol::factories(&constructWidgetType<Group>),
+            sol::factories([guard](const sol::table &children) {
+                return constructWidgetType<Group>(children, guard);
+            }),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
@@ -299,22 +318,6 @@ void addLayoutModule()
         layout["hr"] = &hr;
         layout["noMargin"] = &noMargin;
         layout["normalMargin"] = &normalMargin;
-
-        //layout["customMargin"] = [](int left, int top, int right, int bottom) {
-        //    return customMargin(QMargins(left, top, right, bottom));
-        //};
-        // layout["withFormAlignment"] = &withFormAlignment;
-        // layout["columnStretch"] = &columnStretch;
-        // layout["spacing"] = &spacing;
-        // layout["windowTitle"] = &windowTitle;
-        // layout["fieldGrowthPolicy"] = &fieldGrowthPolicy;
-        // layout["id"] = &id;
-        layout["onTextChanged"] = [](const sol::function &f) {
-            return onTextChanged([f](const QString &text) {
-                auto res = LuaEngine::void_safe_call(f, text);
-                QTC_CHECK_EXPECTED(res);
-            });
-        };
 
         return layout;
     });

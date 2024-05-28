@@ -156,14 +156,13 @@ expected_str<void> LuaEngine::prepareSetup(
     const FilePath appDataPath = Core::ICore::userResourcePath() / "plugin-data" / "lua"
                                  / pluginSpec.location().fileName();
 
-    sol::environment env(lua, sol::create, lua.globals());
-
     lua.new_usertype<ScriptPluginSpec>(
         "PluginSpec", sol::no_constructor, "name", sol::property([](ScriptPluginSpec &self) {
             return self.name;
         }));
 
-    lua["PluginSpec"] = ScriptPluginSpec{pluginSpec.name(), appDataPath};
+    lua["PluginSpec"]
+        = ScriptPluginSpec{pluginSpec.name(), appDataPath, std::make_unique<QObject>()};
 
     // TODO: only register what the plugin requested
     for (const auto &[name, func] : d->m_providers.asKeyValueRange()) {

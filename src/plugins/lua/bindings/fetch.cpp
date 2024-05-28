@@ -39,6 +39,8 @@ void addFetchModule()
 {
     LuaEngine::registerProvider(
         "Fetch", [](sol::state_view lua) -> sol::object {
+            const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec");
+
             sol::table async = lua.script("return require('async')", "_fetch_").get<sol::table>();
             sol::function wrap = async["wrap"];
 
@@ -58,9 +60,10 @@ void addFetchModule()
                         .arg(r->error());
                 });
 
-            fetch["fetch_cb"] = [](const sol::table &options,
-                                   const sol::function &callback,
-                                   const sol::this_state &thisState) {
+            fetch["fetch_cb"] = [guard = pluginSpec->connectionGuard.get()](
+                                    const sol::table &options,
+                                    const sol::function &callback,
+                                    const sol::this_state &thisState) {
                 auto url = options.get<QString>("url");
 
                 auto method = (options.get_or<QString>("method", "GET")).toLower();
@@ -85,10 +88,7 @@ void addFetchModule()
 
                 if (convertToTable) {
                     QObject::connect(
-                        reply,
-                        &QNetworkReply::finished,
-                        &LuaEngine::instance(),
-                        [reply, thisState, callback]() {
+                        reply, &QNetworkReply::finished, guard, [reply, thisState, callback]() {
                             reply->deleteLater();
 
                             if (reply->error() != QNetworkReply::NoError) {
@@ -120,7 +120,7 @@ void addFetchModule()
 
                 } else {
                     QObject::connect(
-                        reply, &QNetworkReply::finished, &LuaEngine::instance(), [reply, callback]() {
+                        reply, &QNetworkReply::finished, guard, [reply, callback]() {
                             // We don't want the network reply to be deleted by the manager, but
                             // by the Lua GC
                             reply->setParent(nullptr);
