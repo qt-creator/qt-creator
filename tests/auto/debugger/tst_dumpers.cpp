@@ -1931,6 +1931,9 @@ void tst_Dumpers::dumper()
         } while (localsBeginPos != -1);
         actual.fromString(QString::fromLocal8Bit(contents));
         context.nameSpace = actual["result"]["qtnamespace"].data();
+        int runtime = actual["result"]["runtime"].data().toFloat() * 1000;
+        qCDebug(lcDumpers, "CaseInner: %5d", runtime);
+        m_totalInnerTime += runtime;
         actual = actual["result"]["data"];
     }
 
