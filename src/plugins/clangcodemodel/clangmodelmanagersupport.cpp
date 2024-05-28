@@ -728,8 +728,8 @@ void ClangModelManagerSupport::updateStaleIndexEntries()
             const QDateTime sourceIndexedTime = indexFilesIt->minLastModifiedTime;
 
             bool rescan = false;
-            QSet<FilePath> allIncludes = snapshot.allIncludesForDocument(sourceFile);
-            for (const FilePath &includeFile : qAsConst(allIncludes)) {
+            const QSet<FilePath> allIncludes = snapshot.allIncludesForDocument(sourceFile);
+            for (const FilePath &includeFile : allIncludes) {
                 auto includeFileTimeIt = lastModifiedCache.find(includeFile);
                 if (includeFileTimeIt == lastModifiedCache.end()) {
                     includeFileTimeIt = lastModifiedCache.insert(includeFile,
