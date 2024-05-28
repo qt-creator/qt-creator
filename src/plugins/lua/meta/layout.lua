@@ -97,6 +97,14 @@ local pushButton = {}
 ---@return PushButton
 function layout.PushButton(children) end
 
+---A Label
+---@class Label : LayoutItem
+local label = {}
+
+---@param children LayoutItem|string|BaseAspect|function
+---@return Label
+function layout.Label(children) end
+
 ---A SpinBox
 ---@class SpinBox : LayoutItem
 local spinBox = {}

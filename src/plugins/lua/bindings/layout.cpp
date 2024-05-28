@@ -234,6 +234,15 @@ void addLayoutModule()
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
+        layout.new_usertype<Label>(
+            "Label",
+            sol::call_constructor,
+            sol::factories([guard](const sol::table &children) {
+                return constructWidgetType<Label>(children, guard);
+            }),
+            sol::base_classes,
+            sol::bases<Widget, Object, Thing>());
+
         layout.new_usertype<Widget>(
             "Widget",
             sol::call_constructor,
