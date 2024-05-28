@@ -13,6 +13,9 @@ Column {
 
     property string previewEnv
     property string previewModel
+
+    property real __horizontalSpacing: 5
+
     property StudioTheme.ControlStyle buttonStyle: StudioTheme.ViewBarButtonStyle {
         //This is how you can override stuff from the control styles
         controlSize: Qt.size(previewOptions.width, previewOptions.width)
@@ -35,8 +38,7 @@ Column {
     anchors.left: parent.left
     anchors.right: parent.right
 
-    Item { width: 1; height: 10 } // spacer
-
+    Item { width: 1; height: 5 } // spacer
 
     StudioControls.Menu {
         id: modelMenu
@@ -121,6 +123,19 @@ Column {
         width: parent.width
         height: previewRect.height
 
+        StudioControls.AbstractButton {
+            id: pinButton
+
+            x: root.__horizontalSpacing
+
+            style: root.buttonStyle
+            iconSize: StudioTheme.Values.bigFont
+            buttonIcon: pinButton.checked ? StudioTheme.Constants.pin : StudioTheme.Constants.unpin
+            checkable: true
+            checked: itemPane.headerDocked
+            onCheckedChanged: itemPane.headerDocked = pinButton.checked
+        }
+
         Rectangle {
             id: previewRect
             anchors.horizontalCenter: parent.horizontalCenter
@@ -145,6 +160,7 @@ Column {
             height: previewRect.height
             anchors.top: previewRect.top
             anchors.left: previewRect.right
+            anchors.leftMargin: root.__horizontalSpacing
 
             Column {
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -164,7 +180,6 @@ Column {
                 }
             }
         }
-
     }
 
     HelperWidgets.Section {

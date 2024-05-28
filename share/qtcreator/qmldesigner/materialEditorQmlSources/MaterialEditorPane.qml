@@ -17,21 +17,21 @@ Item {
     // invoked from C++ to refresh material preview image
     function refreshPreview()
     {
-        topSection.refreshPreview()
+        itemPane.headerItem.refreshPreview()
     }
 
     // Called from C++ to close context menu on focus out
     function closeContextMenu()
     {
-        topSection.closeContextMenu()
+        itemPane.headerItem.closeContextMenu()
         Controller.closeContextMenu()
     }
 
     // Called from C++ to initialize preview menu checkmarks
     function initPreviewData(env, model)
     {
-        topSection.previewEnv = env;
-        topSection.previewModel = model
+        itemPane.headerItem.previewEnv = env
+        itemPane.headerItem.previewModel = model
     }
 
     MaterialEditorToolBar {
@@ -51,9 +51,7 @@ Item {
 
         clip: true
 
-        MaterialEditorTopSection {
-            id: topSection
-
+        headerComponent: MaterialEditorTopSection {
             onPreviewEnvChanged: root.previewEnvChanged(previewEnv)
             onPreviewModelChanged: root.previewModelChanged(previewModel)
         }
