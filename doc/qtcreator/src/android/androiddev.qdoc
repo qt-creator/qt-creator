@@ -112,10 +112,6 @@
 
     \section1 Manual setup
 
-    \note Use the latest Android SDK Command-Line Tools. \QC does not support
-    Android SDK Tools version 25.2.5 or earlier because it cannot fully
-    integrate them.
-
     If the automatic setup does not meet your needs, download
     and install Android SDK Command-line Tools, and then install or update the
     necessary NDKs, tools, and packages. For more information, see
