@@ -143,7 +143,7 @@ QString IVersionControl::refreshTopic(const FilePath &repository)
     it will be used. Otherwise it will be refreshed using the items provided by
     \c setTopicFileTracker() and \c setTopicRefresher().
 
-    \sa setTopicFileTracker(), setTopicRefresher().
+    \sa setTopicFileTracker(), setTopicRefresher()
  */
 
 QString IVersionControl::vcsTopic(const FilePath &topLevel)

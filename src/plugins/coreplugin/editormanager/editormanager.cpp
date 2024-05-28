@@ -261,10 +261,10 @@ void EditorManagerPlaceHolder::showEvent(QShowEvent *)
 */
 
 /*!
-    \fn void Core::EditorManager::editorCreated(Core::IEditor *editor, const QString &fileName)
+    \fn void Core::EditorManager::editorCreated(Core::IEditor *editor, const Utils::FilePath &filePath)
 
-    This signal is emitted after an \a editor was created for \a fileName, but
-    before it was opened in an editor view.
+    This signal is emitted after an \a editor was created for the file at
+    \a filePath, but before it was opened in an editor view.
 */
 /*!
     \fn void Core::EditorManager::editorOpened(Core::IEditor *editor)

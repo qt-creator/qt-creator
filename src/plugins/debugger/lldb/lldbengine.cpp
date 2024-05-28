@@ -407,9 +407,10 @@ void LldbEngine::handleResponse(const QString &response)
         const QString name = item.name();
         if (name == "result") {
             QString msg = item["status"].data();
-            if (!msg.isEmpty())
+            if (!msg.isEmpty()) {
                 msg[0] = msg.at(0).toUpper();
-            showStatusMessage(msg);
+                showStatusMessage(msg);
+            }
 
             int token = item["token"].toInt();
             showMessage(QString("%1^").arg(token), LogOutput);

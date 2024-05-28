@@ -44,7 +44,8 @@ QAction *execMenuAtWidget(QMenu *menu, QWidget *widget)
 }
 
 /*!
-    Adds tool tips to the menu that show the actions tool tip when hovering over an entry.
+    Adds tool tips to the \a menu that show the action's tool tip when hovering
+    over an entry.
  */
 void addToolTipsToMenu(QMenu *menu)
 {
