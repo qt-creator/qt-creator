@@ -278,10 +278,10 @@
     Set the preferences in \uicontrol {Emulator command-line startup options}.
     For available options, see \l{Start the emulator from the command line}.
 
-    To start the emulator manually, enter:
+    To start the emulator manually from the terminal, enter:
 
     \badcode
-    cd <ANDROID_SDK>/emulator
+    cd <ANDROID_SDK_ROOT>/emulator
     ./emulator -avd <AVD_NAME>
     \endcode
 
