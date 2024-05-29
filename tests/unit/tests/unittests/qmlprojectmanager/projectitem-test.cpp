@@ -35,6 +35,11 @@ protected:
             Utils::FilePath::fromString(localTestDataDir
                                         + "/file-filters/MaterialBundle.qmlproject"),
             true);
+
+        projectItemMcuWithModules = std::make_unique<const QmlProjectManager::QmlProjectItem>(
+            Utils::FilePath::fromString(localTestDataDir
+                                        + "/getter-setter/mcu_project_with_modules.qmlproject"),
+            true);
     }
 
     static void TearDownTestSuite()
@@ -43,6 +48,7 @@ protected:
         projectItemWithQdsPrefix.reset();
         projectItemWithoutQdsPrefix.reset();
         projectItemFileFilters.reset();
+        projectItemMcuWithModules.reset();
     }
 
 protected:
@@ -54,6 +60,7 @@ protected:
                                                localTestDataDir + "/getter-setter/empty.qmlproject"),
                                            true);
     inline static std::unique_ptr<const QmlProjectManager::QmlProjectItem> projectItemFileFilters;
+    inline static std::unique_ptr<const QmlProjectManager::QmlProjectItem> projectItemMcuWithModules;
 };
 
 auto createAbsoluteFilePaths(const QStringList &fileList)
@@ -740,6 +747,26 @@ TEST_F(QmlProjectItem, not_matches_file)
 
     // THEN
     ASSERT_FALSE(fileFound);
+}
+
+TEST_F(QmlProjectItem, qmlproject_modules)
+{
+    auto qmlProjectModules = projectItemMcuWithModules->qmlProjectModules();
+
+    ASSERT_THAT(
+        qmlProjectModules,
+        UnorderedElementsAre(
+            "file1.qmlproject",
+            "file2.qmlproject",
+            "../converter/test-set-mcu-1/mcu-modules/from_importpath/imported_module.qmlproject",
+            "../converter/test-set-mcu-2/testfile.qmlproject"));
+}
+
+TEST_F(QmlProjectItem, no_qmlproject_modules)
+{
+    auto qmlProjectModules = projectItemEmpty->qmlProjectModules();
+
+    ASSERT_THAT(qmlProjectModules, IsEmpty());
 }
 
 } // namespace

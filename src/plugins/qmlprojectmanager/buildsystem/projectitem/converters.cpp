@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "converters.h"
+#include "utils/algorithm.h"
 
 #include <QJsonDocument>
 
@@ -224,6 +225,103 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
     return qmlProjectString;
 }
 
+QStringList qmlprojectsFromFilesNodes(const QJsonArray &fileGroups,
+                                      const Utils::FilePath &projectRootPath)
+{
+    QStringList qmlProjectFiles;
+    for (const QJsonValue &fileGroup : fileGroups) {
+        if (fileGroup["type"].toString() != "Module") {
+            continue;
+        }
+        // In Qul, paths are relative to the project root directory, not the "directory" entry
+        qmlProjectFiles.append(fileGroup["files"].toVariant().toStringList());
+
+        // If the "directory" property is set, all qmlproject files in the directory are also added
+        // as relative paths from the project root directory, in addition to explicitly added files
+        const QString directoryProp = fileGroup["directory"].toString("");
+        if (directoryProp.isEmpty()) {
+            continue;
+        }
+        const Utils::FilePath dir = projectRootPath / directoryProp;
+        qmlProjectFiles.append(Utils::transform<QStringList>(
+            dir.dirEntries(Utils::FileFilter({"*.qmlproject"}, QDir::Files)),
+            [&projectRootPath](Utils::FilePath file) {
+                return file.absoluteFilePath().relativePathFrom(projectRootPath).toFSPathString();
+            }));
+    }
+
+    return qmlProjectFiles;
+}
+
+QString moduleUriFromQmlProject(const QString &qmlProjectFilePath)
+{
+    QmlJS::SimpleReader simpleReader;
+    const auto rootNode = simpleReader.readFile(qmlProjectFilePath);
+    // Since the file wasn't explicitly added, skip qmlproject files with errors
+    if (!rootNode || !simpleReader.errors().isEmpty()) {
+        return QString();
+    }
+
+    for (const auto &child : rootNode->children()) {
+        if (child->name() == "MCU.Module") {
+            const auto prop = child->property("uri").isValid() ? child->property("uri")
+                                                               : child->property("MCU.uri");
+            if (prop.isValid()) {
+                return prop.value.toString();
+            }
+            break;
+        }
+    }
+
+    return QString();
+}
+
+// Returns a list of qmlproject files in currentSearchPath which are valid modules,
+// with URIs matching the relative path from importPathBase.
+QStringList getModuleQmlProjectFiles(const Utils::FilePath &importPath,
+                                     const Utils::FilePath &projectRootPath)
+{
+    QStringList qmlProjectFiles;
+
+    QDirIterator it(importPath.toFSPathString(),
+                    QDir::NoDotAndDotDot | QDir::Files,
+                    QDirIterator::Subdirectories);
+    while (it.hasNext()) {
+        const QString file = it.next();
+        if (!file.endsWith(".qmlproject")) {
+            continue;
+        }
+
+        // Add if matching
+        QString uri = moduleUriFromQmlProject(file);
+        if (uri.isEmpty()) {
+            // If the qmlproject file is not a valid module, skip it
+            continue;
+        }
+
+        const auto filePath = Utils::FilePath::fromUserInput(file);
+        const bool isBaseImportPath = filePath.parentDir() == importPath;
+
+        // Check the URI against the original import path before adding
+        // If we look directly in the search path, the URI doesn't matter
+        const QString relativePath = filePath.parentDir().relativePathFrom(importPath).path();
+        if (isBaseImportPath || uri.replace(".", "/") == relativePath) {
+            // If the URI matches the path or the file is directly in the import path, add it
+            qmlProjectFiles.emplace_back(filePath.relativePathFrom(projectRootPath).toFSPathString());
+        }
+    }
+    return qmlProjectFiles;
+}
+
+QStringList qmlprojectsFromImportPaths(const QStringList &importPaths,
+                                       const Utils::FilePath &projectRootPath)
+{
+    return Utils::transform<QStringList>(importPaths, [&projectRootPath](const QString &importPath) {
+        const auto importDir = projectRootPath / importPath;
+        return getModuleQmlProjectFiles(importDir, projectRootPath);
+    });
+}
+
 QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
 {
     QmlJS::SimpleReader simpleQmlJSReader;
@@ -265,6 +363,9 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
 
     bool qtForMCUs = false;
 
+    QStringList importPaths;
+    Utils::FilePath projectRootPath = projectFile.parentDir();
+
     // convert the non-object props
     for (const QString &propName : rootNode->propertyNames()) {
         QJsonObject *currentObj = &rootObject;
@@ -300,6 +401,7 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
             value = rootNode->property(propName).value.toBool() ? "6" : "5";
         } else if (propName.contains("importpaths", Qt::CaseInsensitive)) {
             objKey = "importPaths";
+            importPaths = value.toVariant().toStringList();
         } else {
             currentObj = &otherProperties;
             objKey = propName; // With prefix
@@ -412,6 +514,12 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
                               nodeToJsonObject(childNode));
         }
     }
+
+    QStringList qmlProjectDependencies;
+    qmlProjectDependencies.append(qmlprojectsFromImportPaths(importPaths, projectRootPath));
+    qmlProjectDependencies.append(qmlprojectsFromFilesNodes(fileGroupsObject, projectRootPath));
+    qmlProjectDependencies.sort();
+    rootObject.insert("qmlprojectDependencies", QJsonArray::fromStringList(qmlProjectDependencies));
 
     mcuObject.insert("config", mcuConfigObject);
     mcuObject.insert("module", mcuModuleObject);

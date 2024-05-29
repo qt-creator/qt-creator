@@ -1,0 +1,5 @@
+import QmlProject 1.3
+
+// This file will NOT be picked up as an MCU module from importPaths
+Project {
+}

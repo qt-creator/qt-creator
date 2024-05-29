@@ -209,6 +209,11 @@ void QmlProjectItem::addImportPath(const QString &importPath)
     insertAndUpdateProjectFile("importPaths", importPaths);
 }
 
+QStringList QmlProjectItem::qmlProjectModules() const
+{
+    return m_project["qmlprojectDependencies"].toVariant().toStringList();
+}
+
 QStringList QmlProjectItem::fileSelectors() const
 {
     return m_project["runConfig"].toObject()["fileSelectors"].toVariant().toStringList();

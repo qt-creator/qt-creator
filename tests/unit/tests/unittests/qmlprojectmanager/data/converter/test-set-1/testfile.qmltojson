@@ -260,6 +260,8 @@
     },
     "otherProperties": {
     },
+    "qmlprojectDependencies": [
+    ],
     "runConfig": {
         "fileSelectors": [
         ],

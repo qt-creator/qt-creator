@@ -1,0 +1,15 @@
+import QmlProject 1.3
+
+Project {
+    importPaths: [ "../converter/test-set-mcu-1/mcu-modules" ]
+
+    mainFile: "Main.qml"
+
+    ModuleFiles {
+        files: [
+            "file1.qmlproject",
+            "file2.qmlproject"
+        ]
+        directory: "../converter/test-set-mcu-2"
+    }
+}
