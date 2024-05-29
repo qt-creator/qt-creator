@@ -464,7 +464,7 @@ static QIcon iconWithText(const QIcon &icon, const QString &text)
         font.setPixelSize(fontSize);
         font.setStretch(85);
         QPainter p(&pixmap);
-        p.setPen(Utils::creatorTheme()->color(Theme::PanelTextColorDark));
+        p.setPen(Utils::creatorColor(Theme::PanelTextColorDark));
         p.setFont(font);
         QTextOption textOption(Qt::AlignHCenter | Qt::AlignBottom);
         textOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);

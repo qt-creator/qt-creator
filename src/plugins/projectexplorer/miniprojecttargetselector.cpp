@@ -434,7 +434,7 @@ void TargetSelectorDelegate::paint(QPainter *painter,
     painter->save();
     painter->setClipping(false);
 
-    QColor textColor = creatorTheme()->color(Theme::MiniProjectTargetSelectorTextColor);
+    QColor textColor = creatorColor(Theme::MiniProjectTargetSelectorTextColor);
     if (option.state & QStyle::State_Selected) {
         QColor color;
         if (m_view->hasFocus()) {
@@ -494,7 +494,7 @@ SelectorView::SelectorView(QWidget *parent) : TreeView(parent)
     setSelectionBehavior(SelectRows);
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setHeaderHidden(true);
-    const QColor bgColor = creatorTheme()->color(Theme::MiniProjectTargetSelectorBackgroundColor);
+    const QColor bgColor = creatorColor(Theme::MiniProjectTargetSelectorBackgroundColor);
     const QString bgColorName = creatorTheme()->flag(Theme::FlatToolBars)
             ? bgColor.lighter(120).name() : bgColor.name();
     setStyleSheet(QString::fromLatin1("QAbstractItemView { background: %1; border-style: none; }").arg(bgColorName));
@@ -1538,7 +1538,7 @@ void MiniProjectTargetSelector::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
     painter.fillRect(rect(), StyleHelper::baseColor());
-    painter.setPen(creatorTheme()->color(Theme::MiniProjectTargetSelectorBorderColor));
+    painter.setPen(creatorColor(Theme::MiniProjectTargetSelectorBorderColor));
     // draw border on top and right
     QRectF borderRect = QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5);
     painter.drawLine(borderRect.topLeft(), borderRect.topRight());

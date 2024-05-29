@@ -117,7 +117,7 @@ public:
                 return false;
             };
             if (isFwdDecl())
-                return Utils::creatorTheme()->color(Utils::Theme::TextColorDisabled);
+                return Utils::creatorColor(Utils::Theme::TextColorDisabled);
             return TreeItem::data(column, role);
         }
 

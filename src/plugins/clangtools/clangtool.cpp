@@ -136,8 +136,8 @@ public:
         setLayout(layout);
 
         QPalette pal;
-        pal.setColor(QPalette::Window, Utils::creatorTheme()->color(Theme::InfoBarBackground));
-        pal.setColor(QPalette::WindowText, Utils::creatorTheme()->color(Theme::InfoBarText));
+        pal.setColor(QPalette::Window, Utils::creatorColor(Theme::InfoBarBackground));
+        pal.setColor(QPalette::WindowText, Utils::creatorColor(Theme::InfoBarText));
         setPalette(pal);
 
         setAutoFillBackground(true);

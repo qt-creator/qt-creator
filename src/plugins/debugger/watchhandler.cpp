@@ -978,7 +978,7 @@ static QColor valueColor(const WatchItem *item, int column)
                 color = Theme::Debugger_WatchItem_ValueChanged;
         }
     }
-    return creatorTheme()->color(color);
+    return creatorColor(color);
 }
 
 static DisplayFormats typeFormatList(const WatchItem *item)

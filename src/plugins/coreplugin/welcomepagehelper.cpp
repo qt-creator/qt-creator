@@ -41,7 +41,7 @@ using namespace StyleHelper::SpacingTokens;
 
 static QColor themeColor(Theme::Color role)
 {
-    return creatorTheme()->color(role);
+    return creatorColor(role);
 }
 
 namespace WelcomePageHelpers {
@@ -51,7 +51,7 @@ void setBackgroundColor(QWidget *widget, Theme::Color colorRole)
     QPalette palette = creatorTheme()->palette();
     const QPalette::ColorRole role = QPalette::Window;
     palette.setBrush(role, {});
-    palette.setColor(role, creatorTheme()->color(colorRole));
+    palette.setColor(role, creatorColor(colorRole));
     widget->setPalette(palette);
     widget->setBackgroundRole(role);
     widget->setAutoFillBackground(true);
@@ -195,23 +195,23 @@ void Button::paintEvent(QPaintEvent *event)
     switch (m_role) {
     case MediumPrimary:
     case SmallPrimary: {
-        const QBrush fill(creatorTheme()->color(isDown()
-                                                    ? Theme::Token_Accent_Subtle
-                                                    : hovered ? Theme::Token_Accent_Muted
-                                                              : Theme::Token_Accent_Default));
+        const QBrush fill(creatorColor(isDown()
+                                       ? Theme::Token_Accent_Subtle
+                                       : hovered ? Theme::Token_Accent_Muted
+                                                 : Theme::Token_Accent_Default));
         drawCardBackground(&p, bgR, fill, QPen(Qt::NoPen), brRectRounding);
         break;
     }
     case MediumSecondary:
     case SmallSecondary: {
-        const QPen outline(creatorTheme()->color(Theme::Token_Text_Default), hovered ? 2 : 1);
+        const QPen outline(creatorColor(Theme::Token_Text_Default), hovered ? 2 : 1);
         drawCardBackground(&p, bgR, QBrush(Qt::NoBrush), outline, brRectRounding);
         break;
     }
     case SmallList: {
         if (isChecked() || hovered) {
-            const QBrush fill(creatorTheme()->color(isChecked() ? Theme::Token_Foreground_Muted
-                                                                : Theme::Token_Foreground_Subtle));
+            const QBrush fill(creatorColor(isChecked() ? Theme::Token_Foreground_Muted
+                                                       : Theme::Token_Foreground_Subtle));
             drawCardBackground(&p, bgR, fill, QPen(Qt::NoPen), brRectRounding);
         }
         break;
@@ -329,11 +329,11 @@ void SearchBox::leaveEvent(QEvent *event)
 
 static void paintCommonBackground(QPainter *p, const QRectF &rect, const QWidget *widget)
 {
-    const QBrush fill(creatorTheme()->color(Theme::Token_Background_Muted));
+    const QBrush fill(creatorColor(Theme::Token_Background_Muted));
     const Theme::Color c = widget->hasFocus() ? Theme::Token_Stroke_Strong :
                                widget->underMouse() ? Theme::Token_Stroke_Muted
                                                     : Theme::Token_Stroke_Subtle;
-    const QPen pen(creatorTheme()->color(c));
+    const QPen pen(creatorColor(c));
     drawCardBackground(p, rect, fill, pen);
 }
 

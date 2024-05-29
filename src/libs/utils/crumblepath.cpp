@@ -111,9 +111,9 @@ void CrumblePathButton::paintEvent(QPaintEvent*)
         p.drawPixmap(width() - overlapSize, segmentRect.top(), middleSegmentPixmap);
 
     if (option.state & QStyle::State_Enabled)
-        option.palette.setColor(QPalette::ButtonText, creatorTheme()->color(Theme::PanelTextColorLight));
+        option.palette.setColor(QPalette::ButtonText, creatorColor(Theme::PanelTextColorLight));
     else
-        option.palette.setColor(QPalette::Disabled, QPalette::ButtonText, creatorTheme()->color(Theme::IconsDisabledColor));
+        option.palette.setColor(QPalette::Disabled, QPalette::ButtonText, creatorColor(Theme::IconsDisabledColor));
 
     QStylePainter sp(this);
     if (option.state & QStyle::State_Sunken)

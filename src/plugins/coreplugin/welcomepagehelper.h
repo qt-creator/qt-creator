@@ -31,11 +31,12 @@ namespace WelcomePageHelpers {
 
 constexpr QSize WelcomeThumbnailSize(214, 160);
 
-class CORE_EXPORT TextFormat {
+class CORE_EXPORT TextFormat
+{
 public:
     QColor color() const
     {
-        return Utils::creatorTheme()->color(themeColor);
+        return Utils::creatorColor(themeColor);
     }
 
     QFont font(bool underlined = false) const

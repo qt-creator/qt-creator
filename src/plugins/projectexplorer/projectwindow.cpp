@@ -1061,7 +1061,7 @@ void SelectorDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     if (TreeItem *item = model->itemForIndex(index)) {
         switch (item->level()) {
         case 2: {
-            QColor col = creatorTheme()->color(Theme::TextColorNormal);
+            QColor col = creatorColor(Theme::TextColorNormal);
             opt.palette.setColor(QPalette::Text, col);
             opt.font = StyleHelper::uiFont(StyleHelper::UiElementH4);
             break;

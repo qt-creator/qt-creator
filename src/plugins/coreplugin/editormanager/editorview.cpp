@@ -297,11 +297,11 @@ void EditorView::paintEvent(QPaintEvent *)
 
     QRect rect = m_container->geometry();
     if (creatorTheme()->flag(Theme::FlatToolBars)) {
-        painter.fillRect(rect, creatorTheme()->color(Theme::EditorPlaceholderColor));
+        painter.fillRect(rect, creatorColor(Theme::EditorPlaceholderColor));
     } else {
         painter.setRenderHint(QPainter::Antialiasing, true);
         painter.setPen(Qt::NoPen);
-        painter.setBrush(creatorTheme()->color(Theme::EditorPlaceholderColor));
+        painter.setBrush(creatorColor(Theme::EditorPlaceholderColor));
         const int r = 3;
         painter.drawRoundedRect(rect.adjusted(r , r, -r, -r), r * 2, r * 2);
     }

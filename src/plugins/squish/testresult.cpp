@@ -46,29 +46,27 @@ QString TestResult::typeToString(Result::Type type)
 
 QColor TestResult::colorForType(Result::Type type)
 {
-    Utils::Theme *creatorTheme = Utils::creatorTheme();
-
     switch (type) {
     case Result::Start:
     case Result::Log:
     case Result::Detail:
     case Result::End:
-        return creatorTheme->color(Utils::Theme::OutputPanes_StdOutTextColor);
+        return creatorColor(Utils::Theme::OutputPanes_StdOutTextColor);
     case Result::Pass:
-        return creatorTheme->color(Utils::Theme::OutputPanes_TestPassTextColor);
+        return creatorColor(Utils::Theme::OutputPanes_TestPassTextColor);
     case Result::Fail:
     case Result::Error:
-        return creatorTheme->color(Utils::Theme::OutputPanes_TestFailTextColor);
+        return creatorColor(Utils::Theme::OutputPanes_TestFailTextColor);
     case Result::ExpectedFail:
-        return creatorTheme->color(Utils::Theme::OutputPanes_TestXFailTextColor);
+        return creatorColor(Utils::Theme::OutputPanes_TestXFailTextColor);
     case Result::UnexpectedPass:
-        return creatorTheme->color(Utils::Theme::OutputPanes_TestXPassTextColor);
+        return creatorColor(Utils::Theme::OutputPanes_TestXPassTextColor);
     case Result::Warn:
-        return creatorTheme->color(Utils::Theme::OutputPanes_TestWarnTextColor);
+        return creatorColor(Utils::Theme::OutputPanes_TestWarnTextColor);
     case Result::Fatal:
-        return creatorTheme->color(Utils::Theme::OutputPanes_TestFatalTextColor);
+        return creatorColor(Utils::Theme::OutputPanes_TestFatalTextColor);
     }
-    return creatorTheme->color(Utils::Theme::OutputPanes_StdOutTextColor);
+    return creatorColor(Utils::Theme::OutputPanes_StdOutTextColor);
 }
 
 } // namespace Internal

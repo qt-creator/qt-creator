@@ -383,11 +383,11 @@ void VcsCommandPage::finished(bool success)
     if (success) {
         m_state = Succeeded;
         message = Tr::tr("Succeeded.");
-        palette.setColor(QPalette::WindowText, creatorTheme()->color(Theme::TextColorNormal).name());
+        palette.setColor(QPalette::WindowText, creatorColor(Theme::TextColorNormal).name());
     } else {
         m_state = Failed;
         message = Tr::tr("Failed.");
-        palette.setColor(QPalette::WindowText, creatorTheme()->color(Theme::TextColorError).name());
+        palette.setColor(QPalette::WindowText, creatorColor(Theme::TextColorError).name());
     }
 
     m_statusLabel->setText(message);

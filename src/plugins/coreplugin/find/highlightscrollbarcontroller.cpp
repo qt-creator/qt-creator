@@ -193,7 +193,7 @@ void HighlightScrollBarOverlay::drawHighlights(QPainter *painter,
     for (const QMap<Utils::Theme::Color, QMap<int, int>> &colors : std::as_const(m_highlightCache)) {
         const auto itColorEnd = colors.constEnd();
         for (auto itColor = colors.constBegin(); itColor != itColorEnd; ++itColor) {
-            const QColor &color = creatorTheme()->color(itColor.key());
+            const QColor &color = creatorColor(itColor.key());
             const QMap<int, int> &positions = itColor.value();
             const auto itPosEnd = positions.constEnd();
             const auto firstPos = int(docStart / lineHeight);

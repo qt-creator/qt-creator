@@ -414,7 +414,7 @@ void Edit3DWidget::showOnboardingLabel()
                    " in the"
                    " <b>Assets</b>"
                    " view.");
-            text = labelText.arg(Utils::creatorTheme()->color(Utils::Theme::TextColorLink).name());
+            text = labelText.arg(Utils::creatorColor(Utils::Theme::TextColorLink).name());
         } else {
             text = tr("3D view is not supported in Qt5 projects.");
         }

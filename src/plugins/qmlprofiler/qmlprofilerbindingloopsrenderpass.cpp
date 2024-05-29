@@ -285,7 +285,7 @@ BindingLoopMaterialShader::BindingLoopMaterialShader()
 
 static QColor bindingLoopsColor()
 {
-    return Utils::creatorTheme()->color(Utils::Theme::Timeline_HighlightColor);
+    return Utils::creatorColor(Utils::Theme::Timeline_HighlightColor);
 }
 
 bool BindingLoopMaterialShader::updateUniformData(RenderState &state, QSGMaterial *, QSGMaterial *)

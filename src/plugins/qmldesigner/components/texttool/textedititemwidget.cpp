@@ -42,7 +42,7 @@ QLineEdit* TextEditItemWidget::lineEdit() const
         m_lineEdit = std::make_unique<QLineEdit>();
         m_lineEdit->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
         QPalette palette = m_lineEdit->palette();
-        static QColor selectionColor = Utils::creatorTheme()->color(Utils::Theme::QmlDesigner_FormEditorSelectionColor);
+        static QColor selectionColor = Utils::creatorColor(Utils::Theme::QmlDesigner_FormEditorSelectionColor);
         palette.setColor(QPalette::Highlight, selectionColor);
         palette.setColor(QPalette::HighlightedText, Qt::white);
         palette.setColor(QPalette::Base, Qt::white);
@@ -57,7 +57,7 @@ QTextEdit* TextEditItemWidget::textEdit() const
     if (!m_textEdit) {
         m_textEdit = std::make_unique<QTextEdit>();
         QPalette palette = m_textEdit->palette();
-        static QColor selectionColor = Utils::creatorTheme()->color(Utils::Theme::QmlDesigner_FormEditorSelectionColor);
+        static QColor selectionColor = Utils::creatorColor(Utils::Theme::QmlDesigner_FormEditorSelectionColor);
         palette.setColor(QPalette::Highlight, selectionColor);
         palette.setColor(QPalette::HighlightedText, Qt::white);
         palette.setColor(QPalette::Base, Qt::white);

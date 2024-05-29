@@ -341,7 +341,7 @@ ShortcutInput::ShortcutInput()
     QPalette palette = m_warningLabel->palette();
     palette.setColor(QPalette::Active,
                      QPalette::WindowText,
-                     Utils::creatorTheme()->color(Utils::Theme::TextColorError));
+                     Utils::creatorColor(Utils::Theme::TextColorError));
     m_warningLabel->setPalette(palette);
     connect(m_warningLabel, &QLabel::linkActivated, this, &ShortcutInput::showConflictsRequested);
 
@@ -718,15 +718,15 @@ bool ShortcutSettingsWidget::markCollisions(ShortcutItem *item, int index)
             }
             if (currentIsConflicting) {
                 currentItem->m_item->setForeground(2,
-                                                   Utils::creatorTheme()->color(
-                                                       Utils::Theme::TextColorError));
+                                                   Utils::creatorColor(
+                                                   Utils::Theme::TextColorError));
                 hasCollision = true;
             }
         }
     }
     item->m_item->setForeground(2,
                                 hasCollision
-                                    ? Utils::creatorTheme()->color(Utils::Theme::TextColorError)
+                                    ? Utils::creatorColor(Utils::Theme::TextColorError)
                                     : commandList()->palette().windowText());
     return hasCollision;
 }

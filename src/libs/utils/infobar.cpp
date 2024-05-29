@@ -47,10 +47,10 @@ void InfoBarWidget::paintEvent(QPaintEvent *event)
 {
     QWidget::paintEvent(event);
     QPainter p(this);
-    p.fillRect(rect(), creatorTheme()->color(Theme::InfoBarBackground));
+    p.fillRect(rect(), creatorColor(Theme::InfoBarBackground));
     const QRectF adjustedRect = QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5);
     const bool topEdge = m_edge == Qt::TopEdge;
-    p.setPen(creatorTheme()->color(Theme::FancyToolBarSeparatorColor));
+    p.setPen(creatorColor(Theme::FancyToolBarSeparatorColor));
     p.drawLine(QLineF(topEdge ? adjustedRect.bottomLeft() : adjustedRect.topLeft(),
                       topEdge ? adjustedRect.bottomRight() : adjustedRect.topRight()));
 }

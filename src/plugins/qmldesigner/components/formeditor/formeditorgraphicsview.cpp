@@ -215,7 +215,7 @@ void FormEditorGraphicsView::drawBackground(QPainter *painter, const QRectF &rec
         painter->fillRect(rectangle.intersected(rootItemRect()), backgroundBrush());
     }
 
-    QPen pen(Utils::creatorTheme()->color(Utils::Theme::QmlDesigner_FormEditorSelectionColor));
+    QPen pen(Utils::creatorColor(Utils::Theme::QmlDesigner_FormEditorSelectionColor));
 
     pen.setStyle(Qt::DotLine);
     pen.setWidth(1);

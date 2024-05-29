@@ -577,5 +577,6 @@ private:
 
 QTCREATOR_UTILS_EXPORT Theme *creatorTheme();
 QTCREATOR_UTILS_EXPORT Theme *proxyTheme();
+QTCREATOR_UTILS_EXPORT QColor creatorColor(Theme::Color role);
 
 } // namespace Utils

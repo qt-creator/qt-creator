@@ -637,7 +637,7 @@ void MarkdownHighlighter::highlightBlock(const QString &text)
                 image.fill(QColor(0, 0, 0, 0).rgba());
                 image.setPixel(0,
                                height - 1,
-                               Utils::creatorTheme()->color(Theme::TextColorDisabled).rgba());
+                               Utils::creatorColor(Theme::TextColorDisabled).rgba());
 
                 h2Brush = QBrush(image);
             }

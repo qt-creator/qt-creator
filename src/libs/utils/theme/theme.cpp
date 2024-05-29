@@ -38,6 +38,12 @@ Theme *proxyTheme()
     return new Theme(m_creatorTheme);
 }
 
+// Convenience
+QColor creatorColor(Theme::Color role)
+{
+    return m_creatorTheme->color(role);
+}
+
 static bool paletteIsDark(const QPalette &pal)
 {
     return pal.color(QPalette::Window).lightnessF() < pal.color(QPalette::WindowText).lightnessF();

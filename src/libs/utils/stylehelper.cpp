@@ -107,7 +107,7 @@ QColor StyleHelper::notTooBrightHighlightColor()
 QPalette StyleHelper::sidebarFontPalette(const QPalette &original)
 {
     QPalette palette = original;
-    const QColor textColor = creatorTheme()->color(Theme::ProgressBarTitleColor);
+    const QColor textColor = creatorColor(Theme::ProgressBarTitleColor);
     palette.setColor(QPalette::WindowText, textColor);
     palette.setColor(QPalette::Text, textColor);
     return palette;
@@ -137,7 +137,7 @@ QColor StyleHelper::requestedBaseColor()
 QColor StyleHelper::toolbarBaseColor(bool lightColored)
 {
     if (creatorTheme()->flag(Theme::QDSTheme))
-        return creatorTheme()->color(Utils::Theme::DStoolbarBackground);
+        return creatorColor(Utils::Theme::DStoolbarBackground);
     else
         return StyleHelper::baseColor(lightColored);
 }
@@ -194,7 +194,7 @@ void StyleHelper::setBaseColor(const QColor &newcolor)
 {
     s_requestedBaseColor = newcolor;
 
-    const QColor themeBaseColor = creatorTheme()->color(Theme::PanelStatusBarBackgroundColor);
+    const QColor themeBaseColor = creatorColor(Theme::PanelStatusBarBackgroundColor);
     const QColor defaultBaseColor = QColor(DEFAULT_BASE_COLOR);
     QColor color;
 
@@ -366,11 +366,11 @@ void StyleHelper::drawArrow(QStyle::PrimitiveElement element, QPainter *painter,
         };
 
         if (!enabled) {
-            drawCommonStyleArrow(image.rect(), creatorTheme()->color(Theme::IconsDisabledColor));
+            drawCommonStyleArrow(image.rect(), creatorColor(Theme::IconsDisabledColor));
         } else {
             if (creatorTheme()->flag(Theme::ToolBarIconShadow))
                 drawCommonStyleArrow(image.rect().translated(0, devicePixelRatio), toolBarDropShadowColor());
-            drawCommonStyleArrow(image.rect(), creatorTheme()->color(Theme::IconsBaseColor));
+            drawCommonStyleArrow(image.rect(), creatorColor(Theme::IconsBaseColor));
         }
         painter.end();
         pixmap = QPixmap::fromImage(image);
@@ -463,9 +463,9 @@ void StyleHelper::drawMinimalArrow(QStyle::PrimitiveElement element, QPainter *p
         if (enabled) {
             if (creatorTheme()->flag(Theme::ToolBarIconShadow))
                 drawArrow(image.rect().translated(0, devicePixelRatio), toolBarDropShadowColor());
-            drawArrow(image.rect(), creatorTheme()->color(Theme::IconsBaseColor));
+            drawArrow(image.rect(), creatorColor(Theme::IconsBaseColor));
         } else {
-            drawArrow(image.rect(), creatorTheme()->color(Theme::IconsDisabledColor));
+            drawArrow(image.rect(), creatorColor(Theme::IconsDisabledColor));
         }
         painter.end();
         pixmap = QPixmap::fromImage(image);

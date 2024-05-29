@@ -34,7 +34,7 @@ void ShowPasswordButton::paintEvent(QPaintEvent *e)
     QRect r(QPoint(), size());
 
     if (m_containsMouse && isEnabled())
-        StyleHelper::drawPanelBgRect(&p, r, creatorTheme()->color(Theme::FancyToolButtonHoverColor));
+        StyleHelper::drawPanelBgRect(&p, r, creatorColor(Theme::FancyToolButtonHoverColor));
 
     QSize s = icon.actualSize(QSize(32, 16));
 

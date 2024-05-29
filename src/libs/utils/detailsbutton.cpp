@@ -87,8 +87,8 @@ QColor DetailsButton::outlineColor()
 {
     return HostOsInfo::isMacHost()
             ? QGuiApplication::palette().color(QPalette::Mid)
-            : StyleHelper::mergedColors(creatorTheme()->color(Theme::TextColorNormal),
-                                        creatorTheme()->color(Theme::BackgroundColorNormal), 15);
+            : StyleHelper::mergedColors(creatorColor(Theme::TextColorNormal),
+                                        creatorColor(Theme::BackgroundColorNormal), 15);
 }
 
 void DetailsButton::paintEvent(QPaintEvent *e)

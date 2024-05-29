@@ -99,7 +99,6 @@ void Settings::load()
 void Settings::setDefault()
 {
     scanningScope = ScanningScopeCurrentFile;
-    Utils::Theme *theme = Utils::creatorTheme();
 
     keywords.clear();
 
@@ -107,32 +106,32 @@ void Settings::setDefault()
 
     keyword.name = "TODO";
     keyword.iconType = IconType::Todo;
-    keyword.color = theme->color(Utils::Theme::OutputPanes_NormalMessageTextColor);
+    keyword.color = creatorColor(Utils::Theme::OutputPanes_NormalMessageTextColor);
     keywords.append(keyword);
 
     keyword.name = R"(\todo)";
     keyword.iconType = IconType::Todo;
-    keyword.color = theme->color(Utils::Theme::OutputPanes_NormalMessageTextColor);
+    keyword.color = creatorColor(Utils::Theme::OutputPanes_NormalMessageTextColor);
     keywords.append(keyword);
 
     keyword.name = "NOTE";
     keyword.iconType = IconType::Info;
-    keyword.color = theme->color(Utils::Theme::OutputPanes_NormalMessageTextColor);
+    keyword.color = creatorColor(Utils::Theme::OutputPanes_NormalMessageTextColor);
     keywords.append(keyword);
 
     keyword.name = "FIXME";
     keyword.iconType = IconType::Error;
-    keyword.color = theme->color(Utils::Theme::OutputPanes_ErrorMessageTextColor);
+    keyword.color = creatorColor(Utils::Theme::OutputPanes_ErrorMessageTextColor);
     keywords.append(keyword);
 
     keyword.name = "BUG";
     keyword.iconType = IconType::Bug;
-    keyword.color = theme->color(Utils::Theme::OutputPanes_ErrorMessageTextColor);
+    keyword.color = creatorColor(Utils::Theme::OutputPanes_ErrorMessageTextColor);
     keywords.append(keyword);
 
     keyword.name = "WARNING";
     keyword.iconType = IconType::Warning;
-    keyword.color = theme->color(Utils::Theme::OutputPanes_WarningMessageTextColor);
+    keyword.color = creatorColor(Utils::Theme::OutputPanes_WarningMessageTextColor);
     keywords.append(keyword);
 
     keywordsEdited = false;

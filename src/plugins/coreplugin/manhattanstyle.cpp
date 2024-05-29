@@ -269,15 +269,15 @@ void ManhattanStyle::unpolish(QApplication *app)
 
 QPalette panelPalette(const QPalette &oldPalette, bool lightColored = false)
 {
-    QColor color = creatorTheme()->color(lightColored ? Theme::PanelTextColorDark
-                                                      : Theme::PanelTextColorLight);
+    QColor color = creatorColor(lightColored ? Theme::PanelTextColorDark
+                                             : Theme::PanelTextColorLight);
     QPalette pal = oldPalette;
     pal.setBrush(QPalette::All, QPalette::WindowText, color);
     pal.setBrush(QPalette::All, QPalette::ButtonText, color);
     if (lightColored)
         color.setAlpha(100);
     else
-        color = creatorTheme()->color(Theme::IconsDisabledColor);
+        color = creatorColor(Theme::IconsDisabledColor);
     pal.setBrush(QPalette::Disabled, QPalette::WindowText, color);
     pal.setBrush(QPalette::Disabled, QPalette::ButtonText, color);
     return pal;
@@ -328,7 +328,7 @@ void ManhattanStyle::polish(QWidget *widget)
             QPalette palette = panelPalette(widget->palette(), isLightColored);
             if (!isLightColored)
                 palette.setBrush(QPalette::All, QPalette::WindowText,
-                                 creatorTheme()->color(Theme::ComboBoxTextColor));
+                                 creatorColor(Theme::ComboBoxTextColor));
             widget->setPalette(palette);
             widget->setMaximumHeight(height - 2);
             widget->setAttribute(Qt::WA_Hover);
@@ -450,9 +450,9 @@ static void drawPrimitiveTweakedForDarkTheme(QStyle::PrimitiveElement element,
     const bool isSunken = option->state & QStyle::State_Sunken;
 
     const QColor frameColor = isEnabled ? option->palette.color(QPalette::Mid).darker(132)
-                                        : creatorTheme()->color(Theme::BackgroundColorDisabled);
+                                        : creatorColor(Theme::BackgroundColorDisabled);
     const QColor indicatorColor = isEnabled ? option->palette.color(QPalette::Mid).darker(90)
-                                            : creatorTheme()->color(Theme::BackgroundColorDisabled);
+                                            : creatorColor(Theme::BackgroundColorDisabled);
     const QColor bgColor = isSunken ? option->palette.color(QPalette::Mid).darker()
                                     : option->palette.color(QPalette::Window);
     const QColor hlColor = option->palette.color(QPalette::Highlight);
@@ -613,7 +613,7 @@ void ManhattanStyle::drawPrimitiveForPanelWidget(PrimitiveElement element,
     QRect rect = option->rect;
     switch (element) {
     case PE_IndicatorDockWidgetResizeHandle:
-        painter->fillRect(option->rect, creatorTheme()->color(Theme::DockWidgetResizeHandleColor));
+        painter->fillRect(option->rect, creatorColor(Theme::DockWidgetResizeHandleColor));
         break;
     case PE_FrameDockWidget:
         QCommonStyle::drawPrimitive(element, option, painter, widget);
@@ -631,7 +631,7 @@ void ManhattanStyle::drawPrimitiveForPanelWidget(PrimitiveElement element,
                     painter->setOpacity(0.75);
                 QBrush baseBrush = option->palette.base();
                 if (widget && qobject_cast<const QSpinBox *>(widget->parentWidget()))
-                    baseBrush = creatorTheme()->color(Theme::DScontrolBackgroundDisabled);
+                    baseBrush = creatorColor(Theme::DScontrolBackgroundDisabled);
                 painter->fillRect(backgroundRect, baseBrush);
                 painter->restore();
             } else {
@@ -725,7 +725,7 @@ void ManhattanStyle::drawPrimitiveForPanelWidget(PrimitiveElement element,
                 painter->setPen(StyleHelper::sidebarShadow());
                 if (pressed) {
                     StyleHelper::drawPanelBgRect(
-                        painter, rect, creatorTheme()->color(Theme::FancyToolButtonSelectedColor));
+                        painter, rect, creatorColor(Theme::FancyToolButtonSelectedColor));
                     if (StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyleCompact
                         && !creatorTheme()->flag(Theme::FlatToolBars)) {
                         const QRectF borderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
@@ -736,13 +736,13 @@ void ManhattanStyle::drawPrimitiveForPanelWidget(PrimitiveElement element,
                 } else if (option->state & State_Enabled && option->state & State_MouseOver) {
                     if (widget->property(StyleHelper::C_TOOLBAR_ACTIONWIDGET).toBool()) {
                         painter->save();
-                        painter->setBrush(creatorTheme()->color(Theme::FancyToolButtonHoverColor));
+                        painter->setBrush(creatorColor(Theme::FancyToolButtonHoverColor));
                         painter->drawRoundedRect(rect, 5, 5);
                         painter->restore();
                     } else {
                         StyleHelper::drawPanelBgRect(painter,
                                                      rect,
-                                                     creatorTheme()->color(
+                                                     creatorColor(
                                                          Theme::FancyToolButtonHoverColor));
                     }
                 }
@@ -868,9 +868,8 @@ void ManhattanStyle::drawControl(
             const bool enabled = mbi->state & State_Enabled;
             QStyleOptionMenuItem item = *mbi;
             item.rect = mbi->rect;
-            const QColor color = creatorTheme()->color(enabled
-                                                       ? Theme::MenuItemTextColorNormal
-                                                       : Theme::MenuItemTextColorDisabled);
+            const QColor color = creatorColor(enabled ? Theme::MenuItemTextColorNormal
+                                                      : Theme::MenuItemTextColorDisabled);
             if (color.isValid()) {
                 QPalette pal = mbi->palette;
                 pal.setBrush(QPalette::Text, color);
@@ -897,24 +896,23 @@ void ManhattanStyle::drawControl(
             item.rect = mbi->rect;
             QPalette pal = mbi->palette;
             pal.setBrush(QPalette::ButtonText, dis
-                ? creatorTheme()->color(Theme::MenuBarItemTextColorDisabled)
-                : creatorTheme()->color(Theme::MenuBarItemTextColorNormal));
+                ? creatorColor(Theme::MenuBarItemTextColorDisabled)
+                : creatorColor(Theme::MenuBarItemTextColorNormal));
             item.palette = pal;
             QCommonStyle::drawControl(element, &item, painter, widget);
 
             if (act) {
                 // Fill|
                 const QColor fillColor = StyleHelper::alphaBlendedColors(
-                            StyleHelper::baseColor(), creatorTheme()->color(Theme::FancyToolButtonHoverColor));
+                            StyleHelper::baseColor(), creatorColor(Theme::FancyToolButtonHoverColor));
                 painter->fillRect(option->rect, fillColor);
 
                 QPalette pal = mbi->palette;
                 uint alignment = Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
                 if (!styleHint(SH_UnderlineShortcut, mbi, widget))
                     alignment |= Qt::TextHideMnemonic;
-                pal.setBrush(QPalette::Text, creatorTheme()->color(dis
-                                                                   ? Theme::IconsDisabledColor
-                                                                   : Theme::PanelTextColorLight));
+                pal.setBrush(QPalette::Text, creatorColor(dis ? Theme::IconsDisabledColor
+                                                              : Theme::PanelTextColorLight));
                 drawItemText(painter, item.rect, alignment, pal, !dis, mbi->text, QPalette::Text);
             }
         }
@@ -981,7 +979,7 @@ void ManhattanStyle::drawControl(
                 }
                 painter->setPen((option->state & State_Enabled)
                                   ? option->palette.color(QPalette::WindowText)
-                                  : creatorTheme()->color(Theme::IconsDisabledColor));
+                                  : creatorColor(Theme::IconsDisabledColor));
                 painter->drawText(editRect.adjusted(1, 0, -1, 0), Qt::AlignLeft | Qt::AlignVCenter, text);
 
                 painter->restore();
@@ -1072,7 +1070,7 @@ void ManhattanStyle::drawControl(
                     // toolbar should draw the top or bottom outline
                     // (needed for the find toolbar for instance)
                     const QColor hightLight = creatorTheme()->flag(Theme::FlatToolBars)
-                            ? creatorTheme()->color(Theme::FancyToolBarSeparatorColor)
+                            ? creatorColor(Theme::FancyToolBarSeparatorColor)
                             : StyleHelper::sidebarHighlight();
                     const QColor borderColor = drawLightColored
                             ? QColor(255, 255, 255, 180) : hightLight;
@@ -1158,7 +1156,7 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             label.palette = panelPalette(option->palette, lightColored(widget));
             if (widget && widget->property(StyleHelper::C_HIGHLIGHT_WIDGET).toBool()) {
                 label.palette.setColor(QPalette::ButtonText,
-                                       creatorTheme()->color(Theme::IconsWarningToolBarColor));
+                                       creatorColor(Theme::IconsWarningToolBarColor));
             }
             int fw = pixelMetric(PM_DefaultFrameWidth, option, widget);
             label.rect = button.adjusted(fw, fw, -fw, -fw);
@@ -1270,7 +1268,7 @@ void ManhattanStyle::drawButtonSeparator(QPainter *painter, const QRect &rect, b
     const QRectF borderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
     if (creatorTheme()->flag(Theme::FlatToolBars)) {
         const int margin = 3;
-        painter->setPen(creatorTheme()->color(Theme::FancyToolBarSeparatorColor));
+        painter->setPen(creatorColor(Theme::FancyToolBarSeparatorColor));
         painter->drawLine(borderRect.topRight() + QPointF(0, margin),
                           borderRect.bottomRight() - QPointF(0, margin));
     } else {

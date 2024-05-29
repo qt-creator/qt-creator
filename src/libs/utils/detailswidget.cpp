@@ -224,7 +224,7 @@ void DetailsWidget::paintEvent(QPaintEvent *paintEvent)
     QPainter p(this);
     if (creatorTheme()->flag(Theme::FlatProjectsMode) || HostOsInfo::isMacHost()) {
         const QColor bgColor = creatorTheme()->flag(Theme::FlatProjectsMode) ?
-                    creatorTheme()->color(Theme::DetailsWidgetBackgroundColor)
+                    creatorColor(Theme::DetailsWidgetBackgroundColor)
                   : palette().color(QPalette::Window);
         p.fillRect(rect(), bgColor);
     }

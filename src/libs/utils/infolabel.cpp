@@ -114,7 +114,7 @@ void InfoLabel::paintEvent(QPaintEvent *event)
     if (m_filled && isEnabled()) {
         p.save();
         p.setOpacity(0.175);
-        p.fillRect(rect(), creatorTheme()->color(fillColorForType(m_type)));
+        p.fillRect(rect(), creatorColor(fillColorForType(m_type)));
         p.restore();
     }
     const QIcon &icon = iconForType(m_type);

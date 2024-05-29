@@ -42,7 +42,7 @@ static MasksAndColors masksAndColors(const QList<IconMaskAndColor> &icon, int dp
     MasksAndColors result;
     for (const IconMaskAndColor &i: icon) {
         const QString &fileName = i.first.toString();
-        const QColor color = creatorTheme()->color(i.second);
+        const QColor color = creatorColor(i.second);
         const QString dprFileName = StyleHelper::availableImageResolutions(i.first.toString())
                                             .contains(dpr)
                                         ? StyleHelper::imageFileWithResolution(fileName, dpr)
@@ -165,7 +165,7 @@ QIcon Icon::icon() const
         const QPixmap combinedMask = Utils::combinedMask(masks, m_style);
         m_lastIcon.addPixmap(masksToIcon(masks, combinedMask, m_style));
 
-        const QColor disabledColor = creatorTheme()->color(Theme::IconsDisabledColor);
+        const QColor disabledColor = creatorColor(Theme::IconsDisabledColor);
         m_lastIcon.addPixmap(maskToColorAndAlpha(combinedMask, disabledColor), QIcon::Disabled);
     }
     return m_lastIcon;
@@ -182,7 +182,7 @@ QPixmap Icon::pixmap(QIcon::Mode iconMode) const
                 masksAndColors(m_iconSourceList, qRound(qApp->devicePixelRatio()));
         const QPixmap combinedMask = Utils::combinedMask(masks, m_style);
         return iconMode == QIcon::Disabled
-                ? maskToColorAndAlpha(combinedMask, creatorTheme()->color(Theme::IconsDisabledColor))
+                ? maskToColorAndAlpha(combinedMask, creatorColor(Theme::IconsDisabledColor))
                 : masksToIcon(masks, combinedMask, m_style);
     }
 }

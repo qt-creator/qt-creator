@@ -717,7 +717,7 @@ void IssuesWidget::showNoDataOverlay()
                 iconRect.moveCenter(that->rect().center());
                 icon.paint(&p, iconRect);
                 p.save();
-                p.setPen(Utils::creatorTheme()->color(Theme::TextColorDisabled));
+                p.setPen(Utils::creatorColor(Theme::TextColorDisabled));
                 p.drawText(iconRect.bottomRight() + QPoint{10, p.fontMetrics().height() / 2 - 16},
                            Tr::tr("No Data"));
                 p.restore();
@@ -750,7 +750,7 @@ public:
         m_outputWidget->addWidget(issuesWidget);
 
         QPalette pal = m_outputWidget->palette();
-        pal.setColor(QPalette::Window, creatorTheme()->color(Theme::Color::BackgroundColorNormal));
+        pal.setColor(QPalette::Window, creatorColor(Theme::Color::BackgroundColorNormal));
         m_outputWidget->setPalette(pal);
 
         m_showDashboard = new QToolButton(m_outputWidget);

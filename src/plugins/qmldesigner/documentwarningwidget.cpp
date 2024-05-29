@@ -149,8 +149,8 @@ bool DocumentWarningWidget::eventFilter(QObject *object, QEvent *event)
 
 void DocumentWarningWidget::showEvent(QShowEvent *event)
 {
-    const QColor backgroundColor = Utils::creatorTheme()->color(Utils::Theme::DScontrolBackground);
-    const QColor outlineColor = Utils::creatorTheme()->color(Utils::Theme::DScontrolOutline);
+    const QColor backgroundColor = Utils::creatorColor(Utils::Theme::DScontrolBackground);
+    const QColor outlineColor = Utils::creatorColor(Utils::Theme::DScontrolOutline);
     QPalette pal = palette();
     pal.setColor(QPalette::ToolTipBase, backgroundColor);
     pal.setColor(QPalette::ToolTipText, outlineColor);

@@ -1315,7 +1315,7 @@ JsonFieldPage::JsonFieldPage(MacroExpander *expander, QWidget *parent) :
     vLayout->addLayout(m_formLayout);
     m_errorLabel->setVisible(false);
     QPalette palette = m_errorLabel->palette();
-    palette.setColor(QPalette::WindowText, creatorTheme()->color(Theme::TextColorError));
+    palette.setColor(QPalette::WindowText, creatorColor(Theme::TextColorError));
     m_errorLabel->setPalette(palette);
     vLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
     vLayout->addWidget(m_errorLabel);

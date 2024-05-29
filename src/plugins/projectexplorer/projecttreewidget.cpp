@@ -76,7 +76,7 @@ public:
         const bool useUnavailableMarker = index.data(Project::UseUnavailableMarkerRole).toBool();
         if (useUnavailableMarker) {
             QStyleOptionViewItem opt = option;
-            opt.palette.setColor(QPalette::Text, creatorTheme()->color(Theme::TextColorDisabled));
+            opt.palette.setColor(QPalette::Text, creatorColor(Theme::TextColorDisabled));
             QStyledItemDelegate::paint(painter, opt, index);
             static const QPixmap pixmap
                 = QApplication::style()->standardIcon(QStyle::SP_BrowserStop).pixmap(10);

@@ -272,7 +272,7 @@ static void paintIcon(QPainter *painter, const QRect &rect,
         painter->setOpacity(1.0);
         QRect accentRect = rect;
         accentRect.setWidth(2);
-        painter->fillRect(accentRect, creatorTheme()->color(Theme::IconsBaseColor));
+        painter->fillRect(accentRect, creatorColor(Theme::IconsBaseColor));
     }
 }
 
@@ -302,16 +302,16 @@ static void paintIconAndText(QPainter *painter, const QRect &rect,
     if (selected && creatorTheme()->flag(Theme::FlatToolBars)) {
         QRect accentRect = rect;
         accentRect.setWidth(2);
-        painter->fillRect(accentRect, creatorTheme()->color(Theme::IconsBaseColor));
+        painter->fillRect(accentRect, creatorColor(Theme::IconsBaseColor));
     }
     if (enabled) {
         painter->setPen(
-            selected ? creatorTheme()->color(Theme::FancyTabWidgetEnabledSelectedTextColor)
-                     : creatorTheme()->color(Theme::FancyTabWidgetEnabledUnselectedTextColor));
+            selected ? creatorColor(Theme::FancyTabWidgetEnabledSelectedTextColor)
+                     : creatorColor(Theme::FancyTabWidgetEnabledUnselectedTextColor));
     } else {
         painter->setPen(
-            selected ? creatorTheme()->color(Theme::FancyTabWidgetDisabledSelectedTextColor)
-                     : creatorTheme()->color(Theme::FancyTabWidgetDisabledUnselectedTextColor));
+            selected ? creatorColor(Theme::FancyTabWidgetDisabledSelectedTextColor)
+                     : creatorColor(Theme::FancyTabWidgetDisabledUnselectedTextColor));
     }
 
     painter->translate(0, -1);
@@ -338,7 +338,7 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
     if (selected) {
         if (creatorTheme()->flag(Theme::FlatToolBars)) {
             // background color of a fancy tab that is active
-            painter->fillRect(rect, creatorTheme()->color(Theme::FancyTabBarSelectedBackgroundColor));
+            painter->fillRect(rect, creatorColor(Theme::FancyTabBarSelectedBackgroundColor));
         } else {
             paintSelectedTabBackground(painter, rect);
         }
@@ -349,7 +349,7 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
         painter->save();
         painter->setOpacity(fader);
         if (creatorTheme()->flag(Theme::FlatToolBars))
-            painter->fillRect(rect, creatorTheme()->color(Theme::FancyToolButtonHoverColor));
+            painter->fillRect(rect, creatorColor(Theme::FancyToolButtonHoverColor));
         else
             FancyToolButton::hoverOverlay(painter, rect);
         painter->restore();

@@ -101,26 +101,25 @@ private:
     {
         using Utils::Theme;
         QTextCharFormat format;
-        Theme *theme = Utils::creatorTheme();
         switch (channelForChar(text.isEmpty() ? QChar() : text.at(0))) {
             case LogInput:
-                format.setForeground(theme->color(Theme::Debugger_LogWindow_LogInput));
+                format.setForeground(creatorColor(Theme::Debugger_LogWindow_LogInput));
                 setFormat(1, text.size(), format);
                 break;
             case LogStatus:
-                format.setForeground(theme->color(Theme::Debugger_LogWindow_LogStatus));
+                format.setForeground(creatorColor(Theme::Debugger_LogWindow_LogStatus));
                 setFormat(1, text.size(), format);
                 break;
             case LogWarning:
-                format.setForeground(theme->color(Theme::OutputPanes_WarningMessageTextColor));
+                format.setForeground(creatorColor(Theme::OutputPanes_WarningMessageTextColor));
                 setFormat(1, text.size(), format);
                 break;
             case LogError:
-                format.setForeground(theme->color(Theme::OutputPanes_ErrorMessageTextColor));
+                format.setForeground(creatorColor(Theme::OutputPanes_ErrorMessageTextColor));
                 setFormat(1, text.size(), format);
                 break;
             case LogTime:
-                format.setForeground(theme->color(Theme::Debugger_LogWindow_LogTime));
+                format.setForeground(creatorColor(Theme::Debugger_LogWindow_LogTime));
                 setFormat(1, text.size(), format);
                 break;
             default:
@@ -156,7 +155,7 @@ private:
         Theme *theme = Utils::creatorTheme();
         if (text.size() > 3 && text.at(2) == ':') {
             QTextCharFormat format;
-            format.setForeground(theme->color(Theme::Debugger_LogWindow_LogTime));
+            format.setForeground(creatorColor(Theme::Debugger_LogWindow_LogTime));
             setFormat(1, text.size(), format);
         }
     }

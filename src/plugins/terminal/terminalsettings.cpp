@@ -527,37 +527,35 @@ TerminalSettings::TerminalSettings()
     enableMouseTracking.setToolTip(Tr::tr("Enables mouse tracking in the terminal."));
     enableMouseTracking.setDefaultValue(true);
 
-    Theme *theme = Utils::creatorTheme();
+    setupColor(this, foregroundColor, "Foreground", creatorColor(Theme::TerminalForeground));
+    setupColor(this, backgroundColor, "Background", creatorColor(Theme::TerminalBackground));
+    setupColor(this, selectionColor, "Selection", creatorColor(Theme::TerminalSelection));
 
-    setupColor(this, foregroundColor, "Foreground", theme->color(Theme::TerminalForeground));
-    setupColor(this, backgroundColor, "Background", theme->color(Theme::TerminalBackground));
-    setupColor(this, selectionColor, "Selection", theme->color(Theme::TerminalSelection));
+    setupColor(this, findMatchColor, "Find matches", creatorColor(Theme::TerminalFindMatch));
 
-    setupColor(this, findMatchColor, "Find matches", theme->color(Theme::TerminalFindMatch));
+    setupColor(this, colors[0], "0", creatorColor(Theme::TerminalAnsi0), "black");
+    setupColor(this, colors[8], "8", creatorColor(Theme::TerminalAnsi8), "bright black");
 
-    setupColor(this, colors[0], "0", theme->color(Theme::TerminalAnsi0), "black");
-    setupColor(this, colors[8], "8", theme->color(Theme::TerminalAnsi8), "bright black");
+    setupColor(this, colors[1], "1", creatorColor(Theme::TerminalAnsi1), "red");
+    setupColor(this, colors[9], "9", creatorColor(Theme::TerminalAnsi9), "bright red");
 
-    setupColor(this, colors[1], "1", theme->color(Theme::TerminalAnsi1), "red");
-    setupColor(this, colors[9], "9", theme->color(Theme::TerminalAnsi9), "bright red");
+    setupColor(this, colors[2], "2", creatorColor(Theme::TerminalAnsi2), "green");
+    setupColor(this, colors[10], "10", creatorColor(Theme::TerminalAnsi10), "bright green");
 
-    setupColor(this, colors[2], "2", theme->color(Theme::TerminalAnsi2), "green");
-    setupColor(this, colors[10], "10", theme->color(Theme::TerminalAnsi10), "bright green");
+    setupColor(this, colors[3], "3", creatorColor(Theme::TerminalAnsi3), "yellow");
+    setupColor(this, colors[11], "11", creatorColor(Theme::TerminalAnsi11), "bright yellow");
 
-    setupColor(this, colors[3], "3", theme->color(Theme::TerminalAnsi3), "yellow");
-    setupColor(this, colors[11], "11", theme->color(Theme::TerminalAnsi11), "bright yellow");
+    setupColor(this, colors[4], "4", creatorColor(Theme::TerminalAnsi4), "blue");
+    setupColor(this, colors[12], "12", creatorColor(Theme::TerminalAnsi12), "bright blue");
 
-    setupColor(this, colors[4], "4", theme->color(Theme::TerminalAnsi4), "blue");
-    setupColor(this, colors[12], "12", theme->color(Theme::TerminalAnsi12), "bright blue");
+    setupColor(this, colors[5], "5", creatorColor(Theme::TerminalAnsi5), "magenta");
+    setupColor(this, colors[13], "13", creatorColor(Theme::TerminalAnsi13), "bright magenta");
 
-    setupColor(this, colors[5], "5", theme->color(Theme::TerminalAnsi5), "magenta");
-    setupColor(this, colors[13], "13", theme->color(Theme::TerminalAnsi13), "bright magenta");
+    setupColor(this, colors[6], "6", creatorColor(Theme::TerminalAnsi6), "cyan");
+    setupColor(this, colors[14], "14", creatorColor(Theme::TerminalAnsi14), "bright cyan");
 
-    setupColor(this, colors[6], "6", theme->color(Theme::TerminalAnsi6), "cyan");
-    setupColor(this, colors[14], "14", theme->color(Theme::TerminalAnsi14), "bright cyan");
-
-    setupColor(this, colors[7], "7", theme->color(Theme::TerminalAnsi7), "white");
-    setupColor(this, colors[15], "15", theme->color(Theme::TerminalAnsi15), "bright white");
+    setupColor(this, colors[7], "7", creatorColor(Theme::TerminalAnsi7), "white");
+    setupColor(this, colors[15], "15", creatorColor(Theme::TerminalAnsi15), "bright white");
 
     setLayouter([this] {
         using namespace Layouting;

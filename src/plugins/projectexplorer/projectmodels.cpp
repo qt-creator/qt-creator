@@ -242,7 +242,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
     }
     case Qt::ForegroundRole:
         return node->isEnabled() ? QVariant()
-                                 : Utils::creatorTheme()->color(Utils::Theme::TextColorDisabled);
+                                 : Utils::creatorColor(Utils::Theme::TextColorDisabled);
     case Project::FilePathRole:
         return node->filePath().toString();
     case Project::isParsingRole:

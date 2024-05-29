@@ -59,7 +59,7 @@ void Chart::paintEvent(QPaintEvent *event)
     Q_UNUSED(event);
     QPainter painter(this);
 
-    painter.fillRect(rect(), Utils::creatorTheme()->color(Utils::Theme::Token_Background_Default));
+    painter.fillRect(rect(), Utils::creatorColor(Utils::Theme::Token_Background_Default));
 
     // add the name of the chart in the middle of the widget width and on the top
     painter.drawText(
@@ -74,10 +74,10 @@ void Chart::paintEvent(QPaintEvent *event)
         double xPos = padding + (x - dataRange.left()) * m_xScale;
         if (xPos < padding || xPos > width() - padding)
             continue;
-        painter.setPen(Utils::creatorTheme()->color(Utils::Theme::Token_Foreground_Default));
+        painter.setPen(Utils::creatorColor(Utils::Theme::Token_Foreground_Default));
         painter.drawLine(xPos, padding, xPos, height() - padding);
 
-        painter.setPen(Utils::creatorTheme()->color(Utils::Theme::Token_Text_Muted));
+        painter.setPen(Utils::creatorColor(Utils::Theme::Token_Text_Muted));
         painter.drawText(xPos, height() - numPadding, QString::number(x));
     }
 
@@ -86,18 +86,18 @@ void Chart::paintEvent(QPaintEvent *event)
         if (yPos < padding || yPos > height() - padding)
             continue;
 
-        painter.setPen(Utils::creatorTheme()->color(Utils::Theme::Token_Foreground_Default));
+        painter.setPen(Utils::creatorColor(Utils::Theme::Token_Foreground_Default));
         painter.drawLine(padding, yPos, width() - padding, yPos);
 
-        painter.setPen(Utils::creatorTheme()->color(Utils::Theme::Token_Text_Muted));
+        painter.setPen(Utils::creatorColor(Utils::Theme::Token_Text_Muted));
         painter.drawText(numPadding, yPos, QString::number(y));
     }
 
-    painter.setPen(Utils::creatorTheme()->color(Utils::Theme::Token_Foreground_Default));
+    painter.setPen(Utils::creatorColor(Utils::Theme::Token_Foreground_Default));
     painter.drawLine(padding, height() - padding, width() - padding, height() - padding); // X axis
     painter.drawLine(padding, height() - padding, padding, padding); // Y axis
 
-    QPen pen(Utils::creatorTheme()->color(Utils::Theme::Token_Accent_Default));
+    QPen pen(Utils::creatorColor(Utils::Theme::Token_Accent_Default));
     pen.setWidth(2);
     painter.setPen(pen);
     painter.setRenderHint(QPainter::Antialiasing);

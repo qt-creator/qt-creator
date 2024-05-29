@@ -144,7 +144,7 @@ private:
         case Qt::ForegroundRole:
             if ((detail().endsWith("class") || detail().endsWith("struct"))
                 && range().end() == selectionRange().end()) {
-                return creatorTheme()->color(Theme::TextColorDisabled);
+                return creatorColor(Theme::TextColorDisabled);
             }
             break;
         }

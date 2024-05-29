@@ -73,7 +73,7 @@ QVariant DynamicListModel::data(const QModelIndex &index, int role) const
     if (role == Qt::DisplayRole && index.column() == 0)
         return Tr::tr("Fetching..."); // TODO improve/customize?
     if (role == Qt::ForegroundRole && index.column() == 0)
-        return Utils::creatorTheme()->color(Utils::Theme::TextColorDisabled);
+        return Utils::creatorColor(Utils::Theme::TextColorDisabled);
     return {};
 }
 

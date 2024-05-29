@@ -119,11 +119,11 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current,
     const QString h6CapitalCss =
         StyleHelper::fontToCssProperties(StyleHelper::uiFont(StyleHelper::UiElementH6Capital))
         + QString::fromLatin1("; color: %1;")
-              .arg(creatorTheme()->color(Theme::Token_Text_Muted).name());
+              .arg(creatorColor(Theme::Token_Text_Muted).name());
     const QString bodyStyle = QString::fromLatin1("color: %1; background-color: %2;"
                                                   "margin-left: %3px; margin-right: %3px;")
-                                  .arg(creatorTheme()->color(Theme::Token_Text_Default).name())
-                                  .arg(creatorTheme()->color(Theme::Token_Background_Muted).name())
+                                  .arg(creatorColor(Theme::Token_Text_Default).name())
+                                  .arg(creatorColor(Theme::Token_Background_Muted).name())
                                   .arg(StyleHelper::SpacingTokens::ExVPaddingGapXl);
     const QString htmlStart = QString(R"(
         <html>
@@ -188,7 +188,7 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current,
 
         const QString examplesBoxCss =
             QString::fromLatin1("height: 168px; background-color: %1; ")
-                .arg(creatorTheme()->color(Theme::Token_Background_Default).name());
+                .arg(creatorColor(Theme::Token_Background_Default).name());
         description.append(QString(R"(
             <div style="%1">%2</div>
             <p style="%3">
@@ -240,7 +240,7 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current,
 
         const QString tagTemplate = QString(R"(
             <td style="border: 1px solid %1; padding: 3px; ">%2</td>
-        )").arg(creatorTheme()->color(Theme::Token_Stroke_Subtle).name());
+        )").arg(creatorColor(Theme::Token_Stroke_Subtle).name());
         const QStringList tags = Utils::transform(data.tags,
                                                   [&tagTemplate] (const QString &tag) {
                                                       return tagTemplate.arg(tag);

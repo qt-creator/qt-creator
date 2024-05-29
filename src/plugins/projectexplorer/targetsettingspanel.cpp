@@ -321,7 +321,7 @@ public:
 
         case Qt::ForegroundRole: {
             if (!isEnabled())
-                return Utils::creatorTheme()->color(Theme::TextColorDisabled);
+                return Utils::creatorColor(Theme::TextColorDisabled);
             break;
         }
 

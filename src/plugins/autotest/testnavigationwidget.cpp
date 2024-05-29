@@ -88,8 +88,8 @@ TestNavigationWidget::TestNavigationWidget()
     m_view->setItemDelegate(new TestTreeItemDelegate(this));
 
     QPalette pal;
-    pal.setColor(QPalette::Window, creatorTheme()->color(Theme::InfoBarBackground));
-    pal.setColor(QPalette::WindowText, creatorTheme()->color(Theme::InfoBarText));
+    pal.setColor(QPalette::Window, creatorColor(Theme::InfoBarBackground));
+    pal.setColor(QPalette::WindowText, creatorColor(Theme::InfoBarText));
     m_missingFrameworksWidget = new QFrame;
     m_missingFrameworksWidget->setPalette(pal);
     m_missingFrameworksWidget->setAutoFillBackground(true);

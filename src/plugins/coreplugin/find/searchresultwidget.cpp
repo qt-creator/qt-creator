@@ -67,8 +67,8 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
 
     QFrame *topWidget = new QFrame;
     QPalette pal;
-    pal.setColor(QPalette::Window,     creatorTheme()->color(Theme::InfoBarBackground));
-    pal.setColor(QPalette::WindowText, creatorTheme()->color(Theme::InfoBarText));
+    pal.setColor(QPalette::Window,     creatorColor(Theme::InfoBarBackground));
+    pal.setColor(QPalette::WindowText, creatorColor(Theme::InfoBarText));
     topWidget->setPalette(pal);
     if (creatorTheme()->flag(Theme::DrawSearchResultWidgetFrame)) {
         topWidget->setFrameStyle(QFrame::Panel | QFrame::Raised);

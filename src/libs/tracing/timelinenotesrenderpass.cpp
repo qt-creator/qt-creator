@@ -217,7 +217,7 @@ NotesMaterialShader::NotesMaterialShader()
 static QColor notesColor()
 {
     return Utils::creatorTheme()
-            ? Utils::creatorTheme()->color(Utils::Theme::Timeline_HighlightColor)
+            ? Utils::creatorColor(Utils::Theme::Timeline_HighlightColor)
             : QColor(255, 165, 0);
 }
 

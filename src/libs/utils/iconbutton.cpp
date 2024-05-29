@@ -26,7 +26,7 @@ void IconButton::paintEvent(QPaintEvent *e)
     QRect r(QPoint(), size());
 
     if (m_containsMouse && isEnabled()) {
-        QColor c = creatorTheme()->color(Theme::TextColorDisabled);
+        QColor c = creatorColor(Theme::TextColorDisabled);
         c.setAlphaF(c.alphaF() * .5);
         StyleHelper::drawPanelBgRect(&p, r, c);
     }

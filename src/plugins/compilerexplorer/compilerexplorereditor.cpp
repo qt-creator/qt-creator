@@ -423,27 +423,27 @@ SearchableTerminal *CompilerWidget::createTerminal()
 {
     m_resultTerminal = new SearchableTerminal();
     m_resultTerminal->setAllowBlinkingCursor(false);
-    std::array<QColor, 20> colors{Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi0),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi1),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi2),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi3),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi4),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi5),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi6),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi7),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi8),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi9),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi10),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi11),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi12),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi13),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi14),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi15),
+    std::array<QColor, 20> colors{Utils::creatorColor(Utils::Theme::TerminalAnsi0),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi1),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi2),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi3),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi4),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi5),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi6),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi7),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi8),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi9),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi10),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi11),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi12),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi13),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi14),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi15),
 
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalForeground),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalBackground),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalSelection),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalFindMatch)};
+                                  Utils::creatorColor(Utils::Theme::TerminalForeground),
+                                  Utils::creatorColor(Utils::Theme::TerminalBackground),
+                                  Utils::creatorColor(Utils::Theme::TerminalSelection),
+                                  Utils::creatorColor(Utils::Theme::TerminalFindMatch)};
 
     m_resultTerminal->setColors(colors);
 

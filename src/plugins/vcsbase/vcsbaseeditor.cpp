@@ -435,7 +435,7 @@ bool UrlTextCursorHandler::findContentsUnderCursor(const QTextCursor &cursor)
 
 void UrlTextCursorHandler::highlightCurrentContents()
 {
-    const QColor linkColor = creatorTheme()->color(Theme::TextColorLink);
+    const QColor linkColor = creatorColor(Theme::TextColorLink);
     QTextEdit::ExtraSelection sel;
     sel.cursor = currentCursor();
     sel.cursor.setPosition(currentCursor().position()

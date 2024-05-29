@@ -219,11 +219,6 @@ void ProjectWelcomePage::createActions()
 
 ///////////////////
 
-static QColor themeColor(Theme::Color role)
-{
-    return Utils::creatorTheme()->color(role);
-}
-
 static QPixmap pixmap(const QString &id, const Theme::Color color)
 {
     const QString fileName = QString(":/welcome/images/%1.png").arg(id);
@@ -232,8 +227,8 @@ static QPixmap pixmap(const QString &id, const Theme::Color color)
 
 static void drawBackgroundRect(QPainter *painter, const QRectF &rect, bool hovered)
 {
-    const QColor fill(themeColor(hovered ? cardHoverBackground : cardDefaultBackground));
-    const QPen pen(themeColor(hovered ? cardHoverStroke : cardDefaultStroke));
+    const QColor fill(creatorColor(hovered ? cardHoverBackground : cardDefaultBackground));
+    const QPen pen(creatorColor(hovered ? cardHoverStroke : cardDefaultStroke));
 
     const qreal rounding = s(defaultCardBackgroundRounding * 1000) / 1000.0;
     const qreal saneRounding = rounding <= 2 ? 0 : rounding;
@@ -514,7 +509,7 @@ public:
                                           .contains(mousePos) && !isDisabled;
                 if (isActive) {
                     WelcomePageHelpers::drawCardBackground(painter, actionR, Qt::transparent,
-                                                           themeColor(Theme::Token_Text_Muted));
+                                                           creatorColor(Theme::Token_Text_Muted));
                     m_activeActionRects[i] = actionR;
                 }
                 painter->setFont(actionFont);
@@ -524,7 +519,7 @@ public:
                 xx += actionR.width();
                 if (i < actions.count() - 1) {
                     const QRect dividerR(xx + s(HGapXs), yy, actionSepWidth, buttonHeight);
-                    painter->fillRect(dividerR, themeColor(Theme::Token_Text_Muted));
+                    painter->fillRect(dividerR, creatorColor(Theme::Token_Text_Muted));
                 }
                 xx += gapWidth;
             }

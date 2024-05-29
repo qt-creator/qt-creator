@@ -120,7 +120,7 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(
                 "QPushButton#advancedSettingsButton {background-color: transparent}");
     ui->advancedSettingsButton->setStyleSheet(
                 QString("QPushButton { border: none; color :%1 }").arg(
-                    Utils::creatorTheme()->color(Utils::Theme::QmlDesigner_HighlightColor).name()));
+                    Utils::creatorColor(Utils::Theme::QmlDesigner_HighlightColor).name()));
 
     QStringList importPaths;
     auto doc = QmlDesignerPlugin::instance()->currentDesignDocument();

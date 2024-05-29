@@ -29,7 +29,7 @@ inline QColor studioTextColor(bool enabled,
                        : Theme::DStextColor)
                     : Theme::DStextColorDisabled;
 
-    return creatorTheme()->color(themePenColorId);
+    return creatorColor(themePenColorId);
 }
 
 inline QColor studioButtonBgColor(bool enabled,
@@ -51,7 +51,7 @@ inline QColor studioButtonBgColor(bool enabled,
                  )
             : Theme::DScontrolBackgroundDisabled;
 
-    return creatorTheme()->color(themePenColorId);
+    return creatorColor(themePenColorId);
 }
 
 inline QColor studioButtonOutlineColor(bool enabled,
@@ -67,7 +67,7 @@ inline QColor studioButtonOutlineColor(bool enabled,
                : Theme::DScontrolOutline)
             : Theme::DScontrolOutlineDisabled;
 
-    return creatorTheme()->color(themePenColorId);
+    return creatorColor(themePenColorId);
 }
 
 inline bool anyParentsFocused(const QWidget *widget)
@@ -187,7 +187,7 @@ void StudioStyle::drawPrimitive(
     case PE_FrameMenu:
     case PE_PanelMenu:
         if (isQmlEditorMenu(widget))
-            painter->fillRect(option->rect, creatorTheme()->color(Theme::DSsubPanelBackground));
+            painter->fillRect(option->rect, creatorColor(Theme::DSsubPanelBackground));
         else
             Super::drawPrimitive(element, option, painter, widget);
         break;
@@ -241,7 +241,7 @@ void StudioStyle::drawPrimitive(
         }
 
         // The separator color is currently the same as toolbar bg
-        painter->fillRect(colorRect, creatorTheme()->color(Theme::DStoolbarBackground));
+        painter->fillRect(colorRect, creatorColor(Theme::DStoolbarBackground));
     } break;
 
     default: {
@@ -282,7 +282,7 @@ void StudioStyle::drawControl(
             QStyleOptionMenuItem item = *mbi;
 
             if (isActive) {
-                painter->fillRect(item.rect, creatorTheme()->color(Theme::DSinteraction));
+                painter->fillRect(item.rect, creatorColor(Theme::DSinteraction));
             }
             forwardX += startMargin;
 
@@ -294,7 +294,7 @@ void StudioStyle::drawControl(
                                       item.rect.right() - additionalMargin,
                                       commonHeight);
 
-                painter->setPen(creatorTheme()->color(Theme::DSstateSeparatorColor));
+                painter->setPen(creatorColor(Theme::DSstateSeparatorColor));
                 painter->drawLine(separatorLine);
                 item.text.clear();
                 painter->restore();
@@ -458,7 +458,7 @@ void StudioStyle::drawComplexControl(
                           : Theme::DSpopupBackground // Idle
                     : Theme::DSpopupBackground; // Disabled
 
-            QColor frameColor = creatorTheme()->color(themeframeColor);
+            QColor frameColor = creatorColor(themeframeColor);
 
             if ((option->subControls & SC_SliderGroove) && groove.isValid()) {
                 Theme::Color themeBgPlusColor = enabled
@@ -494,9 +494,9 @@ void StudioStyle::drawComplexControl(
 
                 painter->save();
                 painter->setPen(Qt::NoPen);
-                painter->setBrush(creatorTheme()->color(themeBgPlusColor));
+                painter->setBrush(creatorColor(themeBgPlusColor));
                 painter->drawRoundedRect(plusRect, borderRadius, borderRadius);
-                painter->setBrush(creatorTheme()->color(themeBgMinusColor));
+                painter->setBrush(creatorColor(themeBgMinusColor));
                 painter->drawRoundedRect(minusRect, borderRadius, borderRadius);
                 painter->restore();
             }
@@ -509,7 +509,7 @@ void StudioStyle::drawComplexControl(
                         : Theme::DScontrolBackgroundDisabled;
 
                 painter->setBrush(Qt::NoBrush);
-                painter->setPen(creatorTheme()->color(tickPen));
+                painter->setPen(creatorColor(tickPen));
                 int tickSize = proxy()->pixelMetric(PM_SliderTickmarkOffset, option, widget);
                 int available = proxy()->pixelMetric(PM_SliderSpaceAvailable, slider, widget);
                 int interval = slider->tickInterval;
@@ -577,7 +577,7 @@ void StudioStyle::drawComplexControl(
                 int halfSliderThickness = horizontal
                         ? handle.width() / 2
                         : handle.height() / 2;
-                painter->setBrush(creatorTheme()->color(handleColor));
+                painter->setBrush(creatorColor(handleColor));
                 painter->setPen(Qt::NoPen);
                 painter->drawRoundedRect(handle,
                                         halfSliderThickness,
@@ -733,7 +733,7 @@ void StudioStyle::drawComplexControl(
             bool enabled = scrollBar->state & QStyle::State_Enabled;
             bool hovered = enabled && scrollBar->state & QStyle::State_MouseOver;
 
-            QColor buttonColor = creatorTheme()->color(hovered ? Theme::DSscrollBarHandle
+            QColor buttonColor = creatorColor(hovered ? Theme::DSscrollBarHandle
                                                                : Theme::DSscrollBarHandle_idle);
             QColor gradientStartColor = buttonColor.lighter(118);
             QColor gradientStopColor = buttonColor;
@@ -753,12 +753,12 @@ void StudioStyle::drawComplexControl(
                 painter->save();
                 painter->setPen(Qt::NoPen);
                 if (hasTransientStyle) {
-                    QColor brushColor(creatorTheme()->color(Theme::DSscrollBarTrack));
+                    QColor brushColor(creatorColor(Theme::DSscrollBarTrack));
                     brushColor.setAlpha(0.3 * 255);
                     painter->setBrush(QBrush(brushColor));
                     painter->drawRoundedRect(scrollBarGroove, 4, 4);
                 } else {
-                    painter->setBrush(QBrush(creatorTheme()->color(Theme::DSscrollBarTrack)));
+                    painter->setBrush(QBrush(creatorColor(Theme::DSscrollBarTrack)));
                     painter->drawRect(rect);
                 }
                 painter->restore();

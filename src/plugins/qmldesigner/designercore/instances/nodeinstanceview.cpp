@@ -1870,7 +1870,7 @@ QVariant NodeInstanceView::modelNodePreviewImageDataToVariant(const ModelNodePre
         placeHolder = {150, 150};
         // Placeholder has transparency, but we don't want to show the checkerboard, so
         // paint in the correct background color
-        placeHolder.fill(Utils::creatorTheme()->color(Utils::Theme::BackgroundColorNormal));
+        placeHolder.fill(Utils::creatorColor(Utils::Theme::BackgroundColorNormal));
         QPainter painter(&placeHolder);
         painter.drawPixmap(0, 0, 150, 150, placeHolderSrc);
     }

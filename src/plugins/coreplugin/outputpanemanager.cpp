@@ -940,7 +940,7 @@ void OutputPaneToggleButton::paintEvent(QPaintEvent*)
             c = Theme::BackgroundColorSelected;
 
         if (c != Theme::BackgroundColorDark)
-            StyleHelper::drawPanelBgRect(&p, bgRect(rect()), creatorTheme()->color(c));
+            StyleHelper::drawPanelBgRect(&p, bgRect(rect()), creatorColor(c));
     } else {
         const QImage *image = nullptr;
         if (isDown()) {
@@ -974,7 +974,7 @@ void OutputPaneToggleButton::paintEvent(QPaintEvent*)
 
     if (m_flashTimer->state() == QTimeLine::Running)
     {
-        QColor c = creatorTheme()->color(Theme::OutputPaneButtonFlashColor);
+        QColor c = creatorColor(Theme::OutputPaneButtonFlashColor);
         c.setAlpha (m_flashTimer->currentFrame());
         if (creatorTheme()->flag(Theme::FlatToolBars))
             StyleHelper::drawPanelBgRect(&p, bgRect(rect()), c);
@@ -983,10 +983,10 @@ void OutputPaneToggleButton::paintEvent(QPaintEvent*)
     }
 
     p.setFont(font());
-    p.setPen(creatorTheme()->color(Theme::OutputPaneToggleButtonTextColorChecked));
+    p.setPen(creatorColor(Theme::OutputPaneToggleButtonTextColorChecked));
     p.drawText((numberAreaWidth() - numberWidth) / 2, baseLine, m_number);
     if (!isChecked())
-        p.setPen(creatorTheme()->color(Theme::OutputPaneToggleButtonTextColorUnchecked));
+        p.setPen(creatorColor(Theme::OutputPaneToggleButtonTextColorUnchecked));
     int leftPart = numberAreaWidth() + buttonBorderWidth;
     int labelWidth = 0;
     if (!m_badgeNumberLabel.text().isEmpty()) {
@@ -1083,15 +1083,15 @@ void BadgeLabel::paint(QPainter *p, int x, int y, bool isChecked)
     const QRectF rect(QRect(QPoint(x, y), m_size));
     p->save();
 
-    p->setBrush(creatorTheme()->color(isChecked? Theme::BadgeLabelBackgroundColorChecked
-                                               : Theme::BadgeLabelBackgroundColorUnchecked));
+    p->setBrush(creatorColor(isChecked? Theme::BadgeLabelBackgroundColorChecked
+                                      : Theme::BadgeLabelBackgroundColorUnchecked));
     p->setPen(Qt::NoPen);
     p->setRenderHint(QPainter::Antialiasing, true);
     p->drawRoundedRect(rect, m_padding, m_padding, Qt::AbsoluteSize);
 
     p->setFont(m_font);
-    p->setPen(creatorTheme()->color(isChecked ? Theme::BadgeLabelTextColorChecked
-                                              : Theme::BadgeLabelTextColorUnchecked));
+    p->setPen(creatorColor(isChecked ? Theme::BadgeLabelTextColorChecked
+                                     : Theme::BadgeLabelTextColorUnchecked));
     p->drawText(rect, Qt::AlignCenter, m_text);
 
     p->restore();

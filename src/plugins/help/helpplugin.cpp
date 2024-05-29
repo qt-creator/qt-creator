@@ -507,8 +507,8 @@ void HelpPluginPrivate::showContextHelp(const HelpItem &contextHelp)
                                     "<font color=\"%3\">%5</font>"
                                     "</center></body></html>")
                                 .arg(Tr::tr("No Documentation"))
-                                .arg(creatorTheme()->color(Theme::BackgroundColorNormal).name())
-                                .arg(creatorTheme()->color(Theme::TextColorNormal).name())
+                                .arg(creatorColor(Theme::BackgroundColorNormal).name())
+                                .arg(creatorColor(Theme::TextColorNormal).name())
                                 .arg(contextHelp.helpIds().join(", "))
                                 .arg(Tr::tr("No documentation available.")));
         }

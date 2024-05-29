@@ -112,7 +112,7 @@ PublicKeyDeploymentDialog::~PublicKeyDeploymentDialog()
 void PublicKeyDeploymentDialog::handleDeploymentDone(bool succeeded, const QString &errorMessage)
 {
     QString buttonText = succeeded ? Tr::tr("Deployment finished successfully.") : errorMessage;
-    const QString textColor = creatorTheme()->color(
+    const QString textColor = creatorColor(
                 succeeded ? Theme::TextColorNormal : Theme::TextColorError).name();
     setLabelText(QString::fromLatin1("<font color=\"%1\">%2</font>")
             .arg(textColor, buttonText.replace("\n", "<br/>")));

@@ -172,18 +172,16 @@ void ChangeSelectionDialog::acceptCommand(ChangeCommand command)
 //! Set commit message in details
 void ChangeSelectionDialog::setDetails()
 {
-    Theme *theme = creatorTheme();
-
     QPalette palette;
     if (m_process->result() == ProcessResult::FinishedWithSuccess) {
         m_detailsText->setPlainText(m_process->cleanedStdOut());
-        palette.setColor(QPalette::Text, theme->color(Theme::TextColorNormal));
+        palette.setColor(QPalette::Text, creatorColor(Theme::TextColorNormal));
         m_changeNumberEdit->setPalette(palette);
     } else if (m_process->result() == ProcessResult::StartFailed) {
         m_detailsText->setPlainText(Tr::tr("Error: Could not start Git."));
     } else {
         m_detailsText->setPlainText(Tr::tr("Error: Unknown reference"));
-        palette.setColor(QPalette::Text, theme->color(Theme::TextColorError));
+        palette.setColor(QPalette::Text, creatorColor(Theme::TextColorError));
         m_changeNumberEdit->setPalette(palette);
         enableButtons(false);
     }

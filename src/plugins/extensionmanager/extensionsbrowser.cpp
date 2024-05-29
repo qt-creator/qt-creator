@@ -329,10 +329,10 @@ public:
             const bool selected = option.state & QStyle::State_Selected;
             const bool hovered = option.state & QStyle::State_MouseOver;
             const QColor fillColor =
-                creatorTheme()->color(hovered ? WelcomePageHelpers::cardHoverBackground
+                creatorColor(hovered ? WelcomePageHelpers::cardHoverBackground
                                               : WelcomePageHelpers::cardDefaultBackground);
             const QColor strokeColor =
-                creatorTheme()->color(selected ? Theme::Token_Stroke_Strong
+                creatorColor(selected ? Theme::Token_Stroke_Strong
                                       : hovered ? WelcomePageHelpers::cardHoverStroke
                                                 : WelcomePageHelpers::cardDefaultStroke);
             WelcomePageHelpers::drawCardBackground(painter, itemRect, fillColor, strokeColor);
@@ -368,14 +368,14 @@ public:
             constexpr QRectF smallCircleAdjusted = smallCircle.adjusted(shrink, shrink,
                                                                         -shrink, -shrink);
             const QRectF smallCircleLocal = smallCircleAdjusted.translated(itemRect.topLeft());
-            const QColor fillColor = creatorTheme()->color(Theme::Token_Foreground_Muted);
-            const QColor strokeColor = creatorTheme()->color(Theme::Token_Stroke_Subtle);
+            const QColor fillColor = creatorColor(Theme::Token_Foreground_Muted);
+            const QColor strokeColor = creatorColor(Theme::Token_Stroke_Subtle);
             painter->setBrush(fillColor);
             painter->setPen(strokeColor);
             painter->drawEllipse(smallCircleLocal);
 
             painter->setFont(StyleHelper::uiFont(StyleHelper::UiElementCaptionStrong));
-            const QColor textColor = creatorTheme()->color(Theme::Token_Text_Default);
+            const QColor textColor = creatorColor(Theme::Token_Text_Default);
             painter->setPen(textColor);
             painter->drawText(smallCircleLocal, QString::number(data.plugins.count()),
                               QTextOption(Qt::AlignCenter));
@@ -388,7 +388,7 @@ public:
 
             constexpr int titleY = 30;
             const QPointF titleOrigin(itemRect.topLeft() + QPointF(textX, titleY));
-            painter->setPen(creatorTheme()->color(Theme::Token_Text_Default));
+            painter->setPen(creatorColor(Theme::Token_Text_Default));
             painter->setFont(StyleHelper::uiFont(StyleHelper::UiElementH6));
             const QString titleElided = painter->fontMetrics().elidedText(
                 data.name, elideMode, maxTextWidth);
@@ -396,7 +396,7 @@ public:
 
             constexpr int copyrightY = 52;
             const QPointF copyrightOrigin(itemRect.topLeft() + QPointF(textX, copyrightY));
-            painter->setPen(creatorTheme()->color(Theme::Token_Text_Muted));
+            painter->setPen(creatorColor(Theme::Token_Text_Muted));
             painter->setFont(StyleHelper::uiFont(StyleHelper::UiElementCaptionStrong));
             const QString copyrightElided = painter->fontMetrics().elidedText(
                 data.plugins.first()->copyright(), elideMode, maxTextWidth);
@@ -405,7 +405,7 @@ public:
             constexpr int tagsY = 70;
             const QPointF tagsOrigin(itemRect.topLeft() + QPointF(textX, tagsY));
             const QString tags = data.tags.join(", ");
-            painter->setPen(creatorTheme()->color(Theme::Token_Text_Default));
+            painter->setPen(creatorColor(Theme::Token_Text_Default));
             painter->setFont(StyleHelper::uiFont(StyleHelper::UiElementCaption));
             const QString tagsElided = painter->fontMetrics().elidedText(
                 tags, elideMode, maxTextWidth);

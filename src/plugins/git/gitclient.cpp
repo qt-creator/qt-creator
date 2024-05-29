@@ -3154,7 +3154,7 @@ void GitClient::push(const FilePath &workingDirectory, const QStringList &pushAr
             return;
 
         if (pushFailure == PushFailure::NonFastForward) {
-            const QColor warnColor = Utils::creatorTheme()->color(Theme::TextColorError);
+            const QColor warnColor = Utils::creatorColor(Theme::TextColorError);
             if (QMessageBox::question(
                     Core::ICore::dialogParent(), Tr::tr("Force Push"),
                     Tr::tr("Push failed. Would you like to force-push <span style=\"color:#%1\">"

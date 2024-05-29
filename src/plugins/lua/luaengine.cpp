@@ -103,7 +103,7 @@ std::unique_ptr<Utils::LuaState> LuaEngine::runScript(const QString &script, con
         qDebug().noquote() << "[" << prefix << "]" << msg;
         if (printToOutputPane) {
             static const QString p
-                = ansiColoredText("[" + prefix + "]", creatorTheme()->color(Theme::Token_Text_Muted));
+                = ansiColoredText("[" + prefix + "]", creatorColor(Theme::Token_Text_Muted));
             Core::MessageManager::writeSilently(QString("%1 %2").arg(p, msg));
         }
     };
@@ -232,7 +232,7 @@ expected_str<void> LuaEngine::prepareSetup(
         qDebug().noquote() << "[" << prefix << "]" << msg;
         if (printToOutputPane) {
             static const QString p
-                = ansiColoredText("[" + prefix + "]", creatorTheme()->color(Theme::Token_Text_Muted));
+                = ansiColoredText("[" + prefix + "]", creatorColor(Theme::Token_Text_Muted));
             Core::MessageManager::writeSilently(QString("%1 %2").arg(p, msg));
         }
     };

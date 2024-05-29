@@ -179,7 +179,7 @@ void CMakeProcess::stop()
 QString addCMakePrefix(const QString &str)
 {
     static const QString prefix
-        = ansiColoredText(Constants::OUTPUT_PREFIX, creatorTheme()->color(Theme::Token_Text_Muted));
+        = ansiColoredText(Constants::OUTPUT_PREFIX, creatorColor(Theme::Token_Text_Muted));
     return prefix + str;
 }
 
