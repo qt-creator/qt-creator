@@ -40,35 +40,7 @@
             for both C++ and C, check that emscripten is set up correctly.
     \endlist
 
-    \sa {WebAssembly}{How To: Develop for WebAssembly}
-*/
-
-/*!
-    \page creator-how-to-add-webassembly-kits.html
-    \previouspage creator-how-tos.html
-
-    \ingroup creator-how-to-webassembly
-
-    \title Add WebAssembly kits
-
-    The \l{Qt for WebAssembly} installation automatically adds build and run kits
-    to \QC.
-
-    To add more kits:
-
-    \list 1
-        \li Go to \preferences > \uicontrol Kits > \uicontrol Add.
-        \li In \uicontrol Name, enter a name for the kit.
-        \li In \uicontrol {Run device type}, select
-            \uicontrol {WebAssembly Runtime}.
-
-            \uicontrol Device is automatically set to \uicontrol {Web Browser}.
-        \li In \uicontrol Compiler, select \uicontrol {Emscripten Compiler} for
-            both C and C++.
-        \li Select \uicontrol Apply to add the kit.
-    \endlist
-
-    \sa {WebAssembly}{How To: Develop for WebAssembly}
+    \sa {Run applications in a web browser}
 */
 
 /*!
@@ -95,6 +67,5 @@
     a web browser as described in \l {Build for many platforms} and
     \l{Run on many platforms}.
 
-    \sa {Enable and disable plugins},
-    {WebAssembly}{How To: Develop for WebAssembly}
+    \sa {Build applications for the Web}, {Enable and disable plugins}
 */
