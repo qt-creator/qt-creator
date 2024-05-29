@@ -870,6 +870,21 @@ public:
         , kind{PropertyKind::Property}
     {}
 
+    explicit PropertyDeclaration(PropertyDeclarationId propertyDeclarationId,
+                                 ::Utils::SmallStringView name,
+                                 TypeId propertyTypeId,
+                                 PropertyDeclarationTraits traits,
+                                 ::Utils::SmallStringView aliasPropertyName,
+                                 TypeId typeId)
+        : name{name}
+        , aliasPropertyName{aliasPropertyName}
+        , traits{traits}
+        , propertyTypeId{propertyTypeId}
+        , typeId{typeId}
+        , propertyDeclarationId{propertyDeclarationId}
+        , kind{PropertyKind::Property}
+    {}
+
     explicit PropertyDeclaration(::Utils::SmallStringView name,
                                  ImportedTypeName aliasTypeName,
                                  ::Utils::SmallStringView aliasPropertyName,
@@ -916,6 +931,7 @@ public:
     PropertyDeclarationTraits traits = {};
     TypeId propertyTypeId;
     TypeId typeId;
+    PropertyDeclarationId propertyDeclarationId;
     PropertyKind kind = PropertyKind::Property;
 };
 
@@ -926,13 +942,13 @@ class PropertyDeclarationView
 public:
     explicit PropertyDeclarationView(::Utils::SmallStringView name,
                                      PropertyDeclarationTraits traits,
-                                     TypeId typeId,
+                                     TypeId propertyTypeId,
                                      ImportedTypeNameId typeNameId,
                                      PropertyDeclarationId id,
                                      PropertyDeclarationId aliasId)
         : name{name}
         , traits{traits}
-        , typeId{typeId}
+        , propertyTypeId{propertyTypeId}
         , typeNameId{typeNameId}
         , id{id}
         , aliasId{aliasId}
@@ -945,7 +961,7 @@ public:
         using NanotraceHR::keyValue;
         auto dict = dictonary(keyValue("name", propertyDeclaration.name),
                               keyValue("traits", propertyDeclaration.traits),
-                              keyValue("type id", propertyDeclaration.typeId),
+                              keyValue("type id", propertyDeclaration.propertyTypeId),
                               keyValue("type name id", propertyDeclaration.typeNameId),
                               keyValue("id", propertyDeclaration.id),
                               keyValue("alias id", propertyDeclaration.aliasId));
@@ -956,7 +972,7 @@ public:
 public:
     ::Utils::SmallStringView name;
     PropertyDeclarationTraits traits = {};
-    TypeId typeId;
+    TypeId propertyTypeId;
     ImportedTypeNameId typeNameId;
     PropertyDeclarationId id;
     PropertyDeclarationId aliasId;

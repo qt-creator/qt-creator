@@ -40,6 +40,7 @@ class ProjectStorage final : public ProjectStorageInterface
     friend Storage::Info::CommonTypeCache<ProjectStorageType>;
 
     enum class Relink { No, Yes };
+    enum class RaiseError { No, Yes };
 
 public:
     ProjectStorage(Database &database,
@@ -352,6 +353,7 @@ private:
             ImportedTypeNameId aliasImportedTypeNameId,
             Utils::SmallString aliasPropertyName,
             Utils::SmallString aliasPropertyNameTail,
+            SourceId sourceId,
             PropertyDeclarationId aliasPropertyDeclarationId = PropertyDeclarationId{})
             : typeId{typeId}
             , propertyDeclarationId{propertyDeclarationId}
@@ -359,6 +361,21 @@ private:
             , aliasPropertyName{std::move(aliasPropertyName)}
             , aliasPropertyNameTail{std::move(aliasPropertyNameTail)}
             , aliasPropertyDeclarationId{aliasPropertyDeclarationId}
+            , sourceId{sourceId}
+        {}
+
+        AliasPropertyDeclaration(TypeId typeId,
+                                 PropertyDeclarationId propertyDeclarationId,
+                                 ImportedTypeNameId aliasImportedTypeNameId,
+                                 Utils::SmallStringView aliasPropertyName,
+                                 Utils::SmallStringView aliasPropertyNameTail,
+                                 SourceId sourceId)
+            : typeId{typeId}
+            , propertyDeclarationId{propertyDeclarationId}
+            , aliasImportedTypeNameId{aliasImportedTypeNameId}
+            , aliasPropertyName{aliasPropertyName}
+            , aliasPropertyNameTail{aliasPropertyNameTail}
+            , sourceId{sourceId}
         {}
 
         friend bool operator<(const AliasPropertyDeclaration &first,
@@ -366,6 +383,13 @@ private:
         {
             return std::tie(first.typeId, first.propertyDeclarationId)
                    < std::tie(second.typeId, second.propertyDeclarationId);
+        }
+
+        friend bool operator==(const AliasPropertyDeclaration &first,
+                               const AliasPropertyDeclaration &second)
+        {
+            return std::tie(first.typeId, first.propertyDeclarationId)
+                   == std::tie(second.typeId, second.propertyDeclarationId);
         }
 
         template<typename String>
@@ -394,6 +418,7 @@ private:
         Utils::SmallString aliasPropertyName;
         Utils::SmallString aliasPropertyNameTail;
         PropertyDeclarationId aliasPropertyDeclarationId;
+        SourceId sourceId;
     };
 
     using AliasPropertyDeclarations = std::vector<AliasPropertyDeclaration>;
@@ -408,6 +433,12 @@ private:
             , propertyDeclarationId{propertyDeclarationId}
             , importedTypeNameId{std::move(importedTypeNameId)}
         {}
+
+        friend bool operator==(const PropertyDeclaration &first, const PropertyDeclaration &second)
+        {
+            return std::tie(first.typeId, first.propertyDeclarationId)
+                   == std::tie(second.typeId, second.propertyDeclarationId);
+        }
 
         friend bool operator<(const PropertyDeclaration &first, const PropertyDeclaration &second)
         {
@@ -569,8 +600,7 @@ private:
 
     void synchronizeTypes(Storage::Synchronization::Types &types,
                           TypeIds &updatedTypeIds,
-                          AliasPropertyDeclarations &insertedAliasPropertyDeclarations,
-                          AliasPropertyDeclarations &updatedAliasPropertyDeclarations,
+                          AliasPropertyDeclarations &aliasPropertyDeclarationsToLink,
                           AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                           PropertyDeclarations &relinkablePropertyDeclarations,
                           Prototypes &relinkablePrototypes,
@@ -605,7 +635,14 @@ private:
 
     void handlePropertyDeclarationWithPropertyType(TypeId typeId,
                                                    PropertyDeclarations &relinkablePropertyDeclarations);
-
+    void handlePropertyDeclarationsWithExportedTypeNameAndTypeId(
+        Utils::SmallStringView exportedTypeName,
+        TypeId typeId,
+        PropertyDeclarations &relinkablePropertyDeclarations);
+    void handleAliasPropertyDeclarationsWithExportedTypeNameAndTypeId(
+        Utils::SmallStringView exportedTypeName,
+        TypeId typeId,
+        AliasPropertyDeclarations &relinkableAliasPropertyDeclarations);
     void handlePrototypes(TypeId prototypeId, Prototypes &relinkablePrototypes);
     void handlePrototypesWithExportedTypeNameAndTypeId(Utils::SmallStringView exportedTypeName,
                                                        TypeId typeId,
@@ -651,14 +688,17 @@ private:
                                        Utils::SmallStringView aliasPropertyName,
                                        Utils::SmallStringView aliasPropertyNameTail);
 
-    void linkAliasPropertyDeclarationAliasIds(const AliasPropertyDeclarations &aliasDeclarations);
+    void linkAliasPropertyDeclarationAliasIds(const AliasPropertyDeclarations &aliasDeclarations,
+                                              RaiseError raiseError);
 
     void updateAliasPropertyDeclarationValues(const AliasPropertyDeclarations &aliasDeclarations);
 
     void checkAliasPropertyDeclarationCycles(const AliasPropertyDeclarations &aliasDeclarations);
 
-    void linkAliases(const AliasPropertyDeclarations &insertedAliasPropertyDeclarations,
-                     const AliasPropertyDeclarations &updatedAliasPropertyDeclarations);
+    void linkAliases(const AliasPropertyDeclarations &aliasPropertyDeclarationsToLink,
+                     RaiseError raiseError);
+
+    void repairBrokenAliasPropertyDeclarations();
 
     void synchronizeExportedTypes(const TypeIds &updatedTypeIds,
                                   Storage::Synchronization::ExportedTypes &exportedTypes,
@@ -689,7 +729,7 @@ private:
         const Storage::Synchronization::PropertyDeclaration &value, SourceId sourceId, TypeId typeId);
 
     void synchronizePropertyDeclarationsUpdateAlias(
-        AliasPropertyDeclarations &updatedAliasPropertyDeclarations,
+        AliasPropertyDeclarations &aliasPropertyDeclarationsToLink,
         const Storage::Synchronization::PropertyDeclarationView &view,
         const Storage::Synchronization::PropertyDeclaration &value,
         SourceId sourceId);
@@ -700,13 +740,11 @@ private:
         SourceId sourceId,
         PropertyDeclarationIds &propertyDeclarationIds);
 
-    void synchronizePropertyDeclarations(
-        TypeId typeId,
-        Storage::Synchronization::PropertyDeclarations &propertyDeclarations,
-        SourceId sourceId,
-        AliasPropertyDeclarations &insertedAliasPropertyDeclarations,
-        AliasPropertyDeclarations &updatedAliasPropertyDeclarations,
-        PropertyDeclarationIds &propertyDeclarationIds);
+    void synchronizePropertyDeclarations(TypeId typeId,
+                                         Storage::Synchronization::PropertyDeclarations &propertyDeclarations,
+                                         SourceId sourceId,
+                                         AliasPropertyDeclarations &aliasPropertyDeclarationsToLink,
+                                         PropertyDeclarationIds &propertyDeclarationIds);
 
     class AliasPropertyDeclarationView
     {
@@ -832,8 +870,7 @@ private:
     TypeId declareType(Storage::Synchronization::Type &type);
 
     void syncDeclarations(Storage::Synchronization::Type &type,
-                          AliasPropertyDeclarations &insertedAliasPropertyDeclarations,
-                          AliasPropertyDeclarations &updatedAliasPropertyDeclarations,
+                          AliasPropertyDeclarations &aliasPropertyDeclarationsToLink,
                           PropertyDeclarationIds &propertyDeclarationIds);
 
     template<typename Relinkable, typename Ids, typename Compare>
@@ -859,8 +896,7 @@ private:
     }
 
     void syncDeclarations(Storage::Synchronization::Types &types,
-                          AliasPropertyDeclarations &insertedAliasPropertyDeclarations,
-                          AliasPropertyDeclarations &updatedAliasPropertyDeclarations,
+                          AliasPropertyDeclarations &aliasPropertyDeclarationsToLink,
                           PropertyDeclarations &relinkablePropertyDeclarations);
 
     class TypeWithDefaultPropertyView
@@ -924,10 +960,12 @@ private:
     class FetchPropertyDeclarationResult
     {
     public:
-        FetchPropertyDeclarationResult(TypeId propertyTypeId,
+        FetchPropertyDeclarationResult(ImportedTypeNameId propertyImportedTypeNameId,
+                                       TypeId propertyTypeId,
                                        PropertyDeclarationId propertyDeclarationId,
                                        Storage::PropertyDeclarationTraits propertyTraits)
-            : propertyTypeId{propertyTypeId}
+            : propertyImportedTypeNameId{propertyImportedTypeNameId}
+            , propertyTypeId{propertyTypeId}
             , propertyDeclarationId{propertyDeclarationId}
             , propertyTraits{propertyTraits}
         {}
@@ -937,7 +975,9 @@ private:
         {
             using NanotraceHR::dictonary;
             using NanotraceHR::keyValue;
-            auto dict = dictonary(keyValue("property type id", result.propertyTypeId),
+            auto dict = dictonary(keyValue("property imported type name id",
+                                           result.propertyImportedTypeNameId),
+                                  keyValue("property type id", result.propertyTypeId),
                                   keyValue("property declaration id", result.propertyDeclarationId),
                                   keyValue("property traits", result.propertyTraits));
 
@@ -945,6 +985,7 @@ private:
         }
 
     public:
+        ImportedTypeNameId propertyImportedTypeNameId;
         TypeId propertyTypeId;
         PropertyDeclarationId propertyDeclarationId;
         Storage::PropertyDeclarationTraits propertyTraits;
