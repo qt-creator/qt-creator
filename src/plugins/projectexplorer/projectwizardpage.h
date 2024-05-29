@@ -52,7 +52,8 @@ public:
 
     void initializeProjectTree(Node *context, const Utils::FilePaths &paths,
                                Core::IWizardFactory::WizardKind kind,
-                               ProjectAction action);
+                               ProjectAction action,
+                               bool limitToSubproject);
 
     void initializeVersionControls();
     void setProjectUiVisible(bool visible);

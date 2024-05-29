@@ -177,7 +177,6 @@
             "trDisplayName":"Kit Selection",
             "trShortTitle":"Kits",
             "typeId":"Kits",
-            "enabled":"%{JS: !value('IsSubproject')}",
             "data":{
                 "projectFilePath":"%{ProjectFile}"
             }

@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "supportedProjectTypes": [ "Qt4ProjectManager.Qt4Project" ],
+    "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject" ],
     "id": "R.QtCreatorPlugin",
     "category": "G.Library",
     "trDescription": "Creates a custom Qt Creator plugin.",
@@ -135,7 +135,6 @@
             "trDisplayName": "Kit Selection",
             "trShortTitle": "Kits",
             "typeId": "Kits",
-            "enabled": "%{JS: !value('IsSubproject')}",
             "data": { "projectFilePath": "%{ProjectFile}" }
         },
         {

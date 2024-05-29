@@ -47,6 +47,7 @@ public:
         int index = -1; // page index in the wizard
         Utils::Id typeId;
         QVariant enabled;
+        QVariant skipForSubprojects;
         QVariant data;
     };
 

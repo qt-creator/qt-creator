@@ -29,9 +29,6 @@
           "key": "CMakeFileName",
           "value": "%{ProjectDirectory}/CMakeLists.txt"
         },
-        { "key": "IsTopLevelProject",
-           "value": "%{JS: !'%{Exists:ProjectExplorer.Profile.Ids}' }"
-        },
         {
           "key": "GUARD",
           "value": "%{JS: value('TestCaseFileWithHeaderSuffix').toUpperCase().replace('.', '_') }"
@@ -95,6 +92,7 @@
                     "trDisplayName": "Build system:",
                     "type": "ComboBox",
                     "persistenceKey": "BuildSystemType",
+                    "visible": "%{JS: !value('IsSubproject')}",
                     "data":
                     {
                         "index": 1,
@@ -124,7 +122,6 @@
             "trDisplayName": "Kit Selection",
             "trShortTitle": "Kits",
             "typeId": "Kits",
-            "enabled": "%{IsTopLevelProject}",
             "data": {
                  "projectFilePath": "%{ProjectFilePath}",
                  "requiredFeatures": [ "QtSupport.Wizards.FeatureQt", "DeviceType.Desktop" ]
@@ -171,7 +168,7 @@
                 {
                     "source": "../../projects/git.ignore",
                     "target": ".gitignore",
-                    "condition": "%{JS: ( %{IsTopLevelProject} && value('VersionControl') === 'G.Git' )}"
+                    "condition": "%{JS: ( !value('IsSubproject') && value('VersionControl') === 'G.Git' )}"
                 }
             ]
         }

@@ -46,7 +46,6 @@
             "trDisplayName": "Kit Selection",
             "trShortTitle": "Kits",
             "typeId": "Kits",
-            "enabled": "%{JS: ! %{IsSubproject}}",
             "data": {
                 "projectFilePath": "%{QmlProjectFileName}",
                 "requiredFeatures": [ "QtSupport.Wizards.FeatureQtQuickProject", "QtSupport.Wizards.FeatureQtQuick.6" ]

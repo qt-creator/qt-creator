@@ -4,6 +4,7 @@
 #include "projectwizardpage.h"
 
 #include "project.h"
+#include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "projectmanager.h"
 #include "projectmodels.h"
@@ -457,14 +458,18 @@ bool ProjectWizardPage::runVersionControl(const QList<GeneratedFile> &files, QSt
 
 void ProjectWizardPage::initializeProjectTree(Node *context, const FilePaths &paths,
                                               IWizardFactory::WizardKind kind,
-                                              ProjectAction action)
+                                              ProjectAction action, bool limitToSubproject)
 {
     m_projectComboBox->disconnect();
     Internal::BestNodeSelector selector(m_commonDirectory, paths);
+    Project *parentProject = static_cast<Project *>(
+                wizard()->property(Constants::PROJECT_POINTER).value<void *>());
 
     TreeItem *root = m_model.rootItem();
     root->removeChildren();
     for (Project *project : ProjectManager::projects()) {
+        if (limitToSubproject && project != parentProject)
+            continue;
         if (ProjectNode *pn = project->rootProjectNode()) {
             if (kind == IWizardFactory::ProjectWizard) {
                 if (Internal::AddNewTree *child = buildAddProjectTree(pn, paths.first(), context, &selector))
@@ -479,7 +484,8 @@ void ProjectWizardPage::initializeProjectTree(Node *context, const FilePaths &pa
         return Internal::compareNodes(static_cast<const Internal::AddNewTree *>(ti1)->node(),
                             static_cast<const Internal::AddNewTree *>(ti2)->node());
     });
-    root->prependChild(createNoneNode(&selector));
+    if (!limitToSubproject)
+        root->prependChild(createNoneNode(&selector));
 
     // Set combobox to context node if that appears in the tree:
     auto predicate = [context](TreeItem *ti) { return static_cast<Internal::AddNewTree*>(ti)->node() == context; };
@@ -491,7 +497,9 @@ void ProjectWizardPage::initializeProjectTree(Node *context, const FilePaths &pa
     setBestNode(selector.bestChoice());
     setAddingSubProject(action == AddSubProject);
 
-    m_projectComboBox->setEnabled(m_model.rowCount(QModelIndex()) > 1);
+    const bool enabled = m_model.rowCount(QModelIndex()) > 1
+            || m_model.findItemAtLevel<1>([](TreeItem *it){ return it->hasChildren(); });
+    m_projectComboBox->setEnabled(enabled);
     connect(m_projectComboBox, &QComboBox::currentIndexChanged,
             this, &ProjectWizardPage::projectChanged);
 }

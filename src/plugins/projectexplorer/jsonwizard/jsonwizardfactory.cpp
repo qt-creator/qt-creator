@@ -45,6 +45,7 @@ const char WIZARD_PATH[] = "templates/wizards";
 
 const char VERSION_KEY[] = "version";
 const char ENABLED_EXPRESSION_KEY[] = "enabled";
+const char SKIP_FOR_SUBPROJECTS_KEY[] = "skipForSubprojects";
 
 const char KIND_KEY[] = "kind";
 const char SUPPORTED_PROJECTS[] = "supportedProjectTypes";
@@ -416,6 +417,8 @@ JsonWizardFactory::Page JsonWizardFactory::parsePage(const QVariant &value, QStr
     }
 
     QVariant enabled = getDataValue(QLatin1String(ENABLED_EXPRESSION_KEY), data, defaultData, true);
+    QVariant skippable = getDataValue(QLatin1String(SKIP_FOR_SUBPROJECTS_KEY), data, defaultData,
+                                      factory->defaultSkipForSubprojects());
 
     QVariant specifiedSubData = data.value(QLatin1String(DATA_KEY));
     QVariant defaultSubData = defaultData.value(QLatin1String(DATA_KEY));
@@ -438,6 +441,7 @@ JsonWizardFactory::Page JsonWizardFactory::parsePage(const QVariant &value, QStr
     p.index = index;
     p.data = subData;
     p.enabled = enabled;
+    p.skipForSubprojects = skippable;
 
     return p;
 }
@@ -703,6 +707,8 @@ Wizard *JsonWizardFactory::runWizardImpl(const FilePath &path, QWidget *parent,
         page->setTitle(data.title);
         page->setSubTitle(data.subTitle);
         page->setProperty(Utils::SHORT_TITLE_PROPERTY, data.shortTitle);
+        page->setSkipForSubprojects(JsonWizard::boolFromVariant(data.skipForSubprojects,
+                                                                wizard->expander()));
 
         if (data.index >= 0) {
             wizard->setPage(data.index, page);

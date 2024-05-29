@@ -73,6 +73,7 @@ bool SubdirsProjectWizard::postGenerateFiles(const QWizard *w, const Core::Gener
         map.insert(QLatin1String(ProjectExplorer::Constants::PREFERRED_PROJECT_NODE_PATH), profileName.toVariant());
         map.insert(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS),
                    Utils::transform<QStringList>(wizard->selectedKits(), &Utils::Id::toString));
+        map.insert(QLatin1String(ProjectExplorer::Constants::PROJECT_ENABLESUBPROJECT), true);
         IWizardFactory::requestNewItemDialog(Tr::tr("New Subproject", "Title of dialog"),
                                              Utils::filtered(Core::IWizardFactory::allWizardFactories(),
                                                              [](Core::IWizardFactory *f) {

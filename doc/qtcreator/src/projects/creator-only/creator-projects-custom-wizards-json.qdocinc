@@ -299,7 +299,13 @@
                         It is automatically assigned if you do not set it.
 
                     \li \c enabled is set to \c true to show the page and to
-                        \c false to hide it.
+                        \c false to hide it. This is evaluated only once at
+                        the time of creating the respective wizard.
+
+                    \li \c skipForSubprojects can be used to skip a page of the
+                        wizard. Useful for e.g. handling of build information.
+                        This is evaluated only once at the time of creating the
+                        respective wizard page.
 
                     \li \c data specifies the wizard pages. In the C++ wizard,
                         it specifies a \c Fields page and a \c Summary page. The
@@ -482,7 +488,6 @@
         "trDisplayName": "Kit Selection",
         "trShortTitle": "Kits",
         "typeId": "Kits",
-        "enabled": "%{IsTopLevelProject}",
         "data": { "projectFilePath": "%{ProFileName}" }
     },
     \endcode
@@ -490,7 +495,9 @@
     The page evaluates \c {%\{Platform\}} to set the platform selected in
     \uicontrol File > \uicontrol {New Project} or \uicontrol {New File}.
 
-
+    \note This page sets \c skipForSubprojects to \c true to suppress
+    the page in case it is not needed, as sub projects derive this information
+    from their parent project.
 
     \section2 Project
 
@@ -511,6 +518,9 @@
 
     The page evaluates \c InitialPath to set the initial project path. The page
     sets \c ProjectDirectory and \c TargetPath to the project directory.
+    Furthermore the page sets \c IsSubproject to true if the project is
+    explicitly added to another project. In this case \c BuildSystem will be set
+    to the build system of the parent project.
 
     \section2 Summary
 
@@ -525,8 +535,8 @@
     }
     \endcode
 
-    The page sets \c IsSubproject to an empty string if this is a top-level
-    project and to \c yes otherwise. It sets \c VersionControl to the ID of the
+    The page sets \c IsSubproject to \c false if this is a top-level
+    project and to \c true otherwise. It sets \c VersionControl to the ID of the
     version control system in use.
 
     \section2 VcsCommand

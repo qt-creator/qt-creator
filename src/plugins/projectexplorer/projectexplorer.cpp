@@ -3544,8 +3544,10 @@ void ProjectExplorerPluginPrivate::addNewSubproject()
                                                             });
             map.insert(QLatin1String(Constants::PROJECT_KIT_IDS), profileIds);
             projectType = project->id();
+            map.insert(Constants::PROJECT_POINTER, QVariant::fromValue(static_cast<void *>(project)));
         }
 
+        map.insert(QLatin1String(Constants::PROJECT_ENABLESUBPROJECT), true);
         ICore::showNewItemDialog(Tr::tr("New Subproject", "Title of dialog"),
                                  Utils::filtered(IWizardFactory::allWizardFactories(),
                                                  [projectType](IWizardFactory *f) {

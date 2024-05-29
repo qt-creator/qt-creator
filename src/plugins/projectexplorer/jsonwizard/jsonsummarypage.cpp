@@ -28,7 +28,6 @@ using namespace Utils;
 
 static char KEY_SELECTED_PROJECT[] = "SelectedProject";
 static char KEY_SELECTED_NODE[] = "SelectedFolderNode";
-static char KEY_IS_SUBPROJECT[] = "IsSubproject";
 static char KEY_VERSIONCONTROL[] = "VersionControl";
 static char KEY_QT_KEYWORDS_ENABLED[] = "QtKeywordsEnabled";
 
@@ -103,7 +102,6 @@ void JsonSummaryPage::initializePage()
 
     m_wizard->setValue(QLatin1String(KEY_SELECTED_PROJECT), QVariant());
     m_wizard->setValue(QLatin1String(KEY_SELECTED_NODE), QVariant());
-    m_wizard->setValue(QLatin1String(KEY_IS_SUBPROJECT), false);
     m_wizard->setValue(QLatin1String(KEY_VERSIONCONTROL), QString());
     m_wizard->setValue(QLatin1String(KEY_QT_KEYWORDS_ENABLED), false);
 
@@ -133,6 +131,7 @@ void JsonSummaryPage::initializePage()
     const FilePath preferredNodePath = preferredNode ? preferredNode->filePath() : FilePath{};
     auto contextNode = findWizardContextNode(preferredNode);
     const ProjectAction currentAction = isProject ? AddSubProject : AddNewFile;
+    const bool isSubproject = m_wizard->value(Constants::PROJECT_ISSUBPROJECT).toBool();
 
     auto updateProjectTree = [this, files, kind, currentAction, preferredNodePath]() {
         Node *node = currentNode();
@@ -140,7 +139,8 @@ void JsonSummaryPage::initializePage()
             if (auto p = ProjectManager::projectWithProjectFilePath(preferredNodePath))
                 node = p->rootProjectNode();
         }
-        initializeProjectTree(findWizardContextNode(node), files, kind, currentAction);
+        initializeProjectTree(findWizardContextNode(node), files, kind, currentAction,
+                              m_wizard->value(Constants::PROJECT_ISSUBPROJECT).toBool());
         if (m_bsConnection && sender() != ProjectTree::instance())
             disconnect(m_bsConnection);
     };
@@ -157,16 +157,16 @@ void JsonSummaryPage::initializePage()
             }
         }
     }
-    initializeProjectTree(contextNode, files, kind, currentAction);
+    initializeProjectTree(contextNode, files, kind, currentAction, isSubproject);
 
     // Refresh combobox on project tree changes:
     connect(ProjectTree::instance(), &ProjectTree::treeChanged,
             this, updateProjectTree);
 
-
     bool hideProjectUi = JsonWizard::boolFromVariant(m_hideProjectUiValue, m_wizard->expander());
     setProjectUiVisible(!hideProjectUi);
 
+    setVersionControlUiElementsVisible(!isSubproject);
     initializeVersionControls();
 
     // Do a new try at initialization, now that we have real values set up:
@@ -275,7 +275,7 @@ void JsonSummaryPage::updateProjectData(FolderNode *node)
 
     m_wizard->setValue(QLatin1String(KEY_SELECTED_PROJECT), QVariant::fromValue(project));
     m_wizard->setValue(QLatin1String(KEY_SELECTED_NODE), QVariant::fromValue(node));
-    m_wizard->setValue(QLatin1String(KEY_IS_SUBPROJECT), node ? true : false);
+    m_wizard->setValue(QLatin1String(Constants::PROJECT_ISSUBPROJECT), node ? true : false);
     bool qtKeyWordsEnabled = true;
     if (ProjectTree::hasNode(node)) {
         const ProjectNode *projectNode = node->asProjectNode();
