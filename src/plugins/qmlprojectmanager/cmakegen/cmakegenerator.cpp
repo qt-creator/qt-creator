@@ -236,6 +236,22 @@ bool CMakeGenerator::ignore(const Utils::FilePath &path) const
     return false;
 }
 
+bool CMakeGenerator::checkUri(const QString& uri, const Utils::FilePath &path) const
+{
+    Utils::FilePath relative = path.relativeChildPath(m_root->dir);
+    const QList<QStringView> pathComponents = relative.pathView().split('/', Qt::SkipEmptyParts);
+    const QStringList uriComponents = uri.split('.', Qt::SkipEmptyParts);
+
+    if (pathComponents.size() == uriComponents.size()) {
+        for (qsizetype i=0; i<pathComponents.size(); ++i) {
+            if (pathComponents[i] != uriComponents[i])
+                return false;
+        }
+        return true;
+    }
+    return false;
+}
+
 void CMakeGenerator::createCMakeFiles(const NodePtr &node) const
 {
     QTC_ASSERT(m_writer, return);
@@ -288,6 +304,11 @@ void CMakeGenerator::readQmlDir(const Utils::FilePath &filePath, NodePtr &node) 
         }
     }
     f.close();
+
+    if (!checkUri(node->uri, node->dir)) {
+        QString text("Unexpected uri %1");
+        logIssue(ProjectExplorer::Task::Warning, text.arg(node->uri), node->dir);
+    }
 }
 
 NodePtr CMakeGenerator::findModuleFor(const NodePtr &node) const
