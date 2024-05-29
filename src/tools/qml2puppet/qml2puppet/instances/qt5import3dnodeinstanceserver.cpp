@@ -17,9 +17,11 @@
 
 #include <QQmlProperty>
 
+#ifdef QUICK3D_MODULE
 #include <private/qquick3dnode_p.h>
 #include <private/qquick3dviewport_p.h>
 #include <private/qquickdesignersupport_p.h>
+#endif
 
 namespace QmlDesigner {
 
@@ -53,6 +55,7 @@ void Qt5Import3dNodeInstanceServer::createScene(const CreateSceneCommand &comman
 
 void Qt5Import3dNodeInstanceServer::view3DAction([[maybe_unused]] const View3DActionCommand &command)
 {
+#ifdef QUICK3D_MODULE
     switch (command.type()) {
     case View3DActionType::Import3dUpdatePreviewImage: {
         QObject *obj = rootItem();
@@ -84,6 +87,7 @@ void Qt5Import3dNodeInstanceServer::view3DAction([[maybe_unused]] const View3DAc
     default:
         break;
     }
+#endif
 }
 
 void Qt5Import3dNodeInstanceServer::startRenderTimer()
@@ -116,9 +120,9 @@ void Qt5Import3dNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 
     if (!inFunction) {
         inFunction = true;
-
+#ifdef QUICK3D_MODULE
         QQuickDesignerSupport::polishItems(quickWindow());
-
+#endif
         render();
 
         inFunction = false;
