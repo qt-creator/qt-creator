@@ -201,7 +201,8 @@ bool ProjectIntroPage::validate()
     }
     // Validate and display status
     if (!d->m_pathChooser->isValid()) {
-        displayStatusMessage(InfoLabel::Error, d->m_pathChooser->errorMessage());
+        if (const QString msg = d->m_pathChooser->errorMessage(); !msg.isEmpty())
+            displayStatusMessage(InfoLabel::Error, msg);
         return false;
     }
 
