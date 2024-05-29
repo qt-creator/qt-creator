@@ -40,6 +40,7 @@ void CMakeWriterV1::transformNode(NodePtr &node) const
 void CMakeWriterV1::writeRootCMakeFile(const NodePtr &node) const
 {
     QTC_ASSERT(parent(), return);
+    QTC_ASSERT(parent()->buildSystem(), return);
 
     const Utils::FilePath cmakeFolderPath = node->dir.pathAppended("cmake");
     if (!cmakeFolderPath.exists())
@@ -66,6 +67,7 @@ void CMakeWriterV1::writeRootCMakeFile(const NodePtr &node) const
     const Utils::FilePath file = node->dir.pathAppended("CMakeLists.txt");
     if (!file.exists()) {
         const QString appName = parent()->projectName() + "App";
+        const QString findPackage = makeFindPackageBlock(parent()->buildSystem());
 
         QString fileSection = "";
         const QString configFile = getEnvironmentVariable(ENV_VARIABLE_CONTROLCONF);
@@ -73,7 +75,7 @@ void CMakeWriterV1::writeRootCMakeFile(const NodePtr &node) const
             fileSection = QString("\t\t%1").arg(configFile);
 
         const QString fileTemplate = readTemplate(":/templates/cmakeroot_v1");
-        const QString fileContent = fileTemplate.arg(appName, fileSection);
+        const QString fileContent = fileTemplate.arg(appName, findPackage, fileSection);
         writeFile(file, fileContent);
     }
 }

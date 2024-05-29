@@ -82,6 +82,7 @@ protected:
 
     QString getEnvironmentVariable(const QString &key) const;
 
+    QString makeFindPackageBlock(const QmlBuildSystem* buildSystem) const;
     QString makeRelative(const NodePtr &node, const Utils::FilePath &path) const;
     QString makeQmlFilesBlock(const NodePtr &node) const;
     QString makeSingletonBlock(const NodePtr &node) const;

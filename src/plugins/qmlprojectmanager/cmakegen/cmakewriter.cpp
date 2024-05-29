@@ -133,6 +133,31 @@ QString CMakeWriter::getEnvironmentVariable(const QString &key) const
     return value;
 }
 
+QString CMakeWriter::makeFindPackageBlock(const QmlBuildSystem* buildSystem) const
+{
+    QString head = "find_package(Qt" + buildSystem->versionQt();
+    const QString tail = " REQUIRED COMPONENTS Core Gui Qml Quick)\n";
+
+    const QStringList versions = buildSystem->versionQtQuick().split('.', Qt::SkipEmptyParts);
+    if (versions.size() < 2)
+        return head + tail;
+
+    bool majorOk = false;
+    bool minorOk = false;
+    int major = versions[0].toInt(&majorOk);
+    int minor = versions[1].toInt(&minorOk);
+    if (!majorOk || !minorOk)
+        return head + tail;
+
+    const QString from = versions[0] + "." + versions[1];
+    QString out = head + " " + from + tail;
+
+    if (major >= 6 && minor >= 3)
+        out += "qt_standard_project_setup()\n";
+
+    return out;
+}
+
 QString CMakeWriter::makeRelative(const NodePtr &node, const Utils::FilePath &path) const
 {
     const QString dir = node->dir.toString();
