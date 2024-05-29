@@ -74,6 +74,9 @@ public:
     void registerFieldWithName(const QString &name, QWidget *widget,
                                const char *property = nullptr, const char *changedSignal = nullptr);
 
+    void setSkipForSubprojects(bool skip) { m_skipForSubproject = skip; }
+    bool skipForSubprojects() const { return m_skipForSubproject; }
+
     virtual bool handleReject();
     virtual bool handleAccept();
 
@@ -85,6 +88,7 @@ private:
     void registerFieldName(const QString &name);
 
     QSet<QString> m_toRegister;
+    bool m_skipForSubproject = false;
 };
 
 } // namespace Utils

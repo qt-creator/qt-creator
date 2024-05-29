@@ -276,6 +276,7 @@ public:
     bool m_automaticProgressCreation = true;
     WizardProgress *m_wizardProgress = nullptr;
     QSet<QString> m_fieldNames;
+    bool m_skipForSubproject = false;
 };
 
 Wizard::Wizard(QWidget *parent, Qt::WindowFlags flags) :
@@ -523,6 +524,32 @@ void Wizard::_q_pageRemoved(int pageId)
         prevItem->setNextItems(nextItems);
     }
     d->m_wizardProgress->removeItem(item);
+}
+
+void Wizard::setSkipForSubprojects(bool skip)
+{
+    Q_D(Wizard);
+    d->m_skipForSubproject = skip;
+}
+
+int Wizard::nextId() const
+{
+    Q_D(const Wizard);
+    if (!d->m_skipForSubproject)
+        return QWizard::nextId();
+
+    const QList<int> allIds = pageIds();
+    int index = allIds.indexOf(currentId());
+    QTC_ASSERT(index > -1, return QWizard::nextId());
+
+    while (++index < allIds.size()) {
+        if (auto wp = qobject_cast<WizardPage *>(page(index))) {
+            if (!wp->skipForSubprojects())
+                return index;
+        }
+    }
+    QTC_CHECK(false); // should not happen
+    return QWizard::nextId();
 }
 
 class WizardProgressPrivate
