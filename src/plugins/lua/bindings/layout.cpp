@@ -19,9 +19,15 @@ static void processChildren(T *item, const sol::table &children)
     for (size_t i = 1; i <= children.size(); ++i) {
         const auto &child = children[i];
         if (child.is<Layout *>()) {
-            item->addItem(*child.get<Layout *>());
+            if (Layout *layout = child.get<Layout *>())
+                item->addItem(*layout);
+            else
+                item->addItem("ERROR");
         } else if (child.is<Widget *>()) {
-            item->addItem(*child.get<Widget *>());
+            if (Widget *widget = child.get<Widget *>())
+                item->addItem(*widget);
+            else
+                item->addItem("ERROR");
         } else if (child.is<BaseAspect>()) {
             child.get<BaseAspect *>()->addToLayout(*item);
         } else if (child.is<QString>()) {
