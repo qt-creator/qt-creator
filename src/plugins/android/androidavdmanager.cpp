@@ -89,14 +89,7 @@ bool startAvdAsync(const QString &avdName)
 
 QString findAvd(const QString &avdName)
 {
-    Process adbProcess;
-    adbProcess.setCommand({AndroidConfig::adbToolPath(), {"devices"}});
-    adbProcess.runBlocking();
-    if (adbProcess.result() != ProcessResult::FinishedWithSuccess)
-        return {};
-
-    // mid(1) - remove "List of devices attached" header line
-    const QStringList lines = adbProcess.allOutput().split('\n', Qt::SkipEmptyParts).mid(1);
+    const QStringList lines = AndroidConfig::devicesCommandOutput();
     for (const QString &line : lines) {
         // skip the daemon logs
         if (line.startsWith("* daemon"))

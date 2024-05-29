@@ -674,17 +674,22 @@ FilePath keytoolPath()
     return openJDKBinPath().pathAppended(keytoolName).withExecutableSuffix();
 }
 
-bool isConnected(const QString &serialNumber)
+QStringList devicesCommandOutput()
 {
     Process adbProcess;
     adbProcess.setCommand({adbToolPath(), {"devices"}});
     adbProcess.runBlocking();
     if (adbProcess.result() != ProcessResult::FinishedWithSuccess)
-        return false;
+        return {};
 
     // mid(1) - remove "List of devices attached" header line.
     // Example output: "List of devices attached\nemulator-5554\tdevice\n\n".
-    const QStringList lines = adbProcess.allOutput().split('\n', Qt::SkipEmptyParts).mid(1);
+    return adbProcess.allOutput().split('\n', Qt::SkipEmptyParts).mid(1);
+}
+
+bool isConnected(const QString &serialNumber)
+{
+    const QStringList lines = devicesCommandOutput();
     for (const QString &line : lines) {
         // skip the daemon logs
         if (!line.startsWith("* daemon") && line.left(line.indexOf('\t')).trimmed() == serialNumber)
