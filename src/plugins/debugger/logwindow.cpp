@@ -151,8 +151,6 @@ public:
 private:
     void highlightBlock(const QString &text) override
     {
-        using Utils::Theme;
-        Theme *theme = Utils::creatorTheme();
         if (text.size() > 3 && text.at(2) == ':') {
             QTextCharFormat format;
             format.setForeground(creatorColor(Theme::Debugger_LogWindow_LogTime));
