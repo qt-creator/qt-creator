@@ -159,7 +159,6 @@ TEST_F(QmlProjectItem, get_with_qds_prefix_supported_languages)
 TEST_F(QmlProjectItem, get_with_qds_prefix_primary_language)
 {
     auto primaryLanguage = projectItemWithQdsPrefix->primaryLanguage();
-    ;
 
     ASSERT_THAT(primaryLanguage, Eq("en"));
 }
@@ -311,7 +310,6 @@ TEST_F(QmlProjectItem, get_without_qds_prefix_supported_languages)
 TEST_F(QmlProjectItem, get_without_qds_prefix_primary_language)
 {
     auto primaryLanguage = projectItemWithoutQdsPrefix->primaryLanguage();
-    ;
 
     ASSERT_THAT(primaryLanguage, Eq("en"));
 }
@@ -600,7 +598,6 @@ TEST_F(QmlProjectItem, set_primary_language)
     projectItemSetters->setPrimaryLanguage("testing");
 
     auto primaryLanguage = projectItemSetters->primaryLanguage();
-    ;
 
     ASSERT_THAT(primaryLanguage, Eq("testing"));
 }
@@ -656,8 +653,8 @@ TEST_F(QmlProjectItem, add_environment)
 {
     projectItemSetters->addToEnviroment("testing", "testing");
     auto envs = projectItemSetters->environment();
-
     Utils::EnvironmentItems expectedEnvs;
+
     expectedEnvs.push_back({"testing", "testing"});
 
     ASSERT_EQ(envs, expectedEnvs);
