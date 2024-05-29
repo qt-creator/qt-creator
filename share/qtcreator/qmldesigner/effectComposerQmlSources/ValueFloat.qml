@@ -42,8 +42,9 @@ Row {
         to: uniformMaxValue
         value: uniformValue
         onMoved: {
-            uniformValue = value
-            spinBox.value = value // binding isn't working for this property so update it
+            let fixedValue = Number.parseFloat(value).toFixed(slider.decimals)
+            uniformValue = fixedValue
+            spinBox.value = fixedValue // binding isn't working for this property so update it
         }
     }
 }

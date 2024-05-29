@@ -7,6 +7,7 @@
 #include <qmlprivategate.h>
 
 #include <QDebug>
+#include <QDir>
 #include <QEvent>
 #include <QQmlContext>
 #include <QQmlError>
@@ -618,7 +619,8 @@ QVariant ObjectNodeInstance::property(const PropertyName &name) const
     QQmlProperty property(object(), QString::fromUtf8(name), context());
     if (property.property().isEnumType()) {
         QVariant value = property.read();
-        return property.property().enumerator().valueToKey(value.toInt());
+        QMetaEnum me = property.property().enumerator();
+        return QVariant::fromValue<Enumeration>(Enumeration(me.scope(), me.valueToKey(value.toInt())));
     }
 
     if (property.propertyType() == QVariant::Url) {
@@ -627,8 +629,8 @@ QVariant ObjectNodeInstance::property(const PropertyName &name) const
             return QVariant();
 
         if (url.scheme() == "file") {
-            int basePathLength = nodeInstanceServer()->fileUrl().toLocalFile().lastIndexOf('/');
-            return QUrl(url.toLocalFile().mid(basePathLength + 1));
+            QFileInfo fi{nodeInstanceServer()->fileUrl().toLocalFile()};
+            return QUrl{fi.absoluteDir().relativeFilePath(url.toLocalFile())};
         }
     }
 

@@ -338,30 +338,27 @@ public:
         if (exampleVersion.isEmpty())
             return true;
 
-        const QStringList exampleVersionParts = exampleVersion.split('.');
-        const QStringList qdsVersionParts = QCoreApplication::applicationVersion().split('.');
+        // Split versions into parts (major, minor, patch)
+        QStringList qdsVersionParts = QCoreApplication::applicationVersion().split('.');
+        QStringList exampleVersionParts = exampleVersion.split('.');
 
-        QList<int> exampleVerInts;
-        QList<int> qdsVerInts;
-        for (const QString &part : exampleVersionParts)
-            exampleVerInts.append(part.toInt());
+        // Fill missing parts with zeros
+        while (qdsVersionParts.size() < 3)
+            qdsVersionParts.append("0");
 
-        for (const QString &part : qdsVersionParts)
-            qdsVerInts.append(part.toInt());
+        while (exampleVersionParts.size() < 3)
+            exampleVersionParts.append("0");
 
-        // pad zeros so both lists are same size
-        while (qdsVerInts.size() < exampleVerInts.size())
-            qdsVerInts.append(0);
+        int qdsMajor = qdsVersionParts.at(0).toInt();
+        int qdsMinor = qdsVersionParts.at(1).toInt();
+        int qdsPatch = qdsVersionParts.at(2).toInt();
 
-        while (exampleVerInts.size() < qdsVerInts.size())
-            exampleVerInts.append(0);
+        int exMajor = exampleVersionParts.at(0).toInt();
+        int exMinor = exampleVersionParts.at(1).toInt();
+        int exPatch = exampleVersionParts.at(2).toInt();
 
-        for (int i = 0; i < qdsVerInts.size(); ++i) {
-            if (exampleVerInts[i] < qdsVerInts[i])
-                return false;
-        }
-
-        return true;
+        return QT_VERSION_CHECK(exMajor, exMinor, exPatch)
+               <= QT_VERSION_CHECK(qdsMajor, qdsMinor, qdsPatch);
     }
 
 public slots:
@@ -587,6 +584,9 @@ static bool forceDownLoad()
 
 static bool showSplashScreen()
 {
+    // some error dialog is maybe open, be silent to avoid focus problems (macOS had some)
+    if (Core::ICore::mainWindow() != Core::ICore::dialogParent())
+        return false;
     const Key lastQDSVersionEntry = "QML/Designer/lastQDSVersion";
 
     QtcSettings *settings = Core::ICore::settings();

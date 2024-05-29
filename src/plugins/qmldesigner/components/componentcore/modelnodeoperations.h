@@ -92,7 +92,6 @@ void layoutGridLayout(const SelectionContext &selectionState);
 void goImplementation(const SelectionContext &selectionState);
 void addNewSignalHandler(const SelectionContext &selectionState);
 void editMaterial(const SelectionContext &selectionContext);
-void editCollection(const SelectionContext &selectionContext);
 void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState, bool addAlwaysNewSlot);
 void removeLayout(const SelectionContext &selectionContext);
 void removePositioner(const SelectionContext &selectionContext);

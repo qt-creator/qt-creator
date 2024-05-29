@@ -39,7 +39,8 @@ namespace Internal {
 
 static QStringList puppetModes()
 {
-    static QStringList puppetModeList{"", "all", "editormode", "rendermode", "previewmode", "bakelightsmode"};
+    static QStringList puppetModeList{"", "all", "editormode", "rendermode", "previewmode",
+                                      "bakelightsmode", "import3dmode"};
     return puppetModeList;
 }
 

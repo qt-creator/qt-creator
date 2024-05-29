@@ -3,6 +3,7 @@
 
 message("Building designer components.")
 
+set(QT_QDS_COMPONENTS_NOWARN on)
 set(QT_QML_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/qml")
 
 include(FetchContent)
@@ -17,6 +18,7 @@ FetchContent_Populate(ds)
 
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
     QuickStudioComponentsplugin
+    QuickStudioDesignEffectsplugin
     QuickStudioEffectsplugin
     QuickStudioApplicationplugin
     FlowViewplugin

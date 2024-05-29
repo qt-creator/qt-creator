@@ -19,7 +19,6 @@ inline constexpr char C_QMLNAVIGATOR[] = "QmlDesigner::Navigator";
 inline constexpr char C_QMLTEXTEDITOR[] = "QmlDesigner::TextEditor";
 inline constexpr char C_QMLMATERIALBROWSER[] = "QmlDesigner::MaterialBrowser";
 inline constexpr char C_QMLASSETSLIBRARY[] = "QmlDesigner::AssetsLibrary";
-inline constexpr char C_QMLCOLLECTIONEDITOR[] = "QmlDesigner::CollectionEditor";
 
 // Special context for preview menu, shared b/w designer and text editor
 inline constexpr char C_QT_QUICK_TOOLS_MENU[] = "QmlDesigner::ToolsMenu";
@@ -51,6 +50,7 @@ inline constexpr char EDIT3D_EDIT_CAMERA[] = "QmlDesigner.Editor3D.EditCameraTog
 inline constexpr char EDIT3D_ORIENTATION[] = "QmlDesigner.Editor3D.OrientationToggle";
 inline constexpr char EDIT3D_EDIT_LIGHT[] = "QmlDesigner.Editor3D.EditLightToggle";
 inline constexpr char EDIT3D_EDIT_SHOW_GRID[] = "QmlDesigner.Editor3D.ToggleGrid";
+inline constexpr char EDIT3D_EDIT_SHOW_LOOKAT[] = "QmlDesigner.Editor3D.ToggleLookAt";
 inline constexpr char EDIT3D_EDIT_SELECT_BACKGROUND_COLOR[]
     = "QmlDesigner.Editor3D.SelectBackgroundColor";
 inline constexpr char EDIT3D_EDIT_SELECT_GRID_COLOR[] = "QmlDesigner.Editor3D.SelectGridColor";
@@ -78,8 +78,14 @@ inline constexpr char EDIT3D_SNAP_CONFIG[] = "QmlDesigner.Editor3D.SnapConfig";
 inline constexpr char EDIT3D_CAMERA_SPEED_CONFIG[] = "QmlDesigner.Editor3D.CameraSpeedConfig";
 
 inline constexpr char QML_DESIGNER_SUBFOLDER[] = "/designer/";
-inline constexpr char COMPONENT_BUNDLES_TYPE[] = "ComponentBundles";
-inline constexpr char GENERATED_COMPONENTS_FOLDER[] = "GeneratedComponents";
+inline constexpr char BUNDLE_JSON_FILENAME[] = "bundle.json";
+inline constexpr char COMPONENT_BUNDLES_TYPE[] = "Bundles";
+inline constexpr char COMPONENT_BUNDLES_MATERIAL_BUNDLE_TYPE[] = "Materials";
+inline constexpr char COMPONENT_BUNDLES_EFFECT_BUNDLE_TYPE[] = "Effects";
+inline constexpr char COMPONENT_BUNDLES_USER_MATERIAL_BUNDLE_TYPE[] = "UserMaterials";
+inline constexpr char COMPONENT_BUNDLES_USER_EFFECT_BUNDLE_TYPE[] = "UserEffects";
+inline constexpr char COMPONENT_BUNDLES_USER_3D_BUNDLE_TYPE[] = "User3D";
+inline constexpr char GENERATED_COMPONENTS_FOLDER[] = "Generated";
 inline constexpr char COMPONENT_BUNDLES_ASSET_REF_FILE[] = "_asset_ref.json";
 inline constexpr char OLD_QUICK_3D_ASSETS_FOLDER[] = "Quick3DAssets";
 inline constexpr char QUICK_3D_COMPONENTS_FOLDER[] = "QtQuick3D";
@@ -90,7 +96,10 @@ inline constexpr char QUICK_3D_ASSET_IMPORT_DATA_SOURCE_KEY[] = "source_scene";
 inline constexpr char OLD_ASSET_IMPORT_FOLDER[] = "asset_imports";
 inline constexpr char OLD_EFFECTS_IMPORT_FOLDER[] = "/asset_imports/Effects";
 inline constexpr char OLD_EFFECTS_FOLDER[] = "Effects";
-inline constexpr char COMPOSED_EFFECTS_TYPE[] = "ComposedEffects";
+inline constexpr char OLD_COMPONENT_BUNDLES_TYPE[] = "ComponentBundles";
+inline constexpr char OLD_COMPONENT_BUNDLES_MATERIAL_BUNDLE_TYPE[] = "MaterialBundle";
+inline constexpr char OLD_COMPONENT_BUNDLES_EFFECT_BUNDLE_TYPE[] = "EffectBundle";
+inline constexpr char COMPOSED_EFFECTS_TYPE[] = "Effects";
 inline constexpr char MATERIAL_LIB_ID[] = "__materialLibrary__";
 
 inline constexpr char MIME_TYPE_ITEM_LIBRARY_INFO[]
@@ -98,7 +107,7 @@ inline constexpr char MIME_TYPE_ITEM_LIBRARY_INFO[]
 inline constexpr char MIME_TYPE_ASSETS[] = "application/vnd.qtdesignstudio.assets";
 inline constexpr char MIME_TYPE_MATERIAL[] = "application/vnd.qtdesignstudio.material";
 inline constexpr char MIME_TYPE_TEXTURE[] = "application/vnd.qtdesignstudio.texture";
-inline constexpr char MIME_TYPE_BUNDLE_EFFECT[] = "application/vnd.qtdesignstudio.bundleeffect";
+inline constexpr char MIME_TYPE_BUNDLE_ITEM[] = "application/vnd.qtdesignstudio.bundleitem";
 inline constexpr char MIME_TYPE_BUNDLE_MATERIAL[] = "application/vnd.qtdesignstudio.bundlematerial";
 inline constexpr char MIME_TYPE_BUNDLE_TEXTURE[] = "application/vnd.qtdesignstudio.bundletexture";
 inline constexpr char MIME_TYPE_ASSET_IMAGE[] = "application/vnd.qtdesignstudio.asset.image";
@@ -178,7 +187,6 @@ inline constexpr char OBJECT_NAME_EFFECT_COMPOSER[] = "QQuickWidgetEffectCompose
 inline constexpr char OBJECT_NAME_MATERIAL_BROWSER[] = "QQuickWidgetMaterialBrowser";
 inline constexpr char OBJECT_NAME_MATERIAL_EDITOR[] = "QQuickWidgetMaterialEditor";
 inline constexpr char OBJECT_NAME_PROPERTY_EDITOR[] = "QQuickWidgetPropertyEditor";
-inline constexpr char OBJECT_NAME_COLLECTION_EDITOR[] = "QQuickWidgetQDSCollectionEditor";
 inline constexpr char OBJECT_NAME_STATES_EDITOR[] = "QQuickWidgetStatesEditor";
 inline constexpr char OBJECT_NAME_TEXTURE_EDITOR[] = "QQuickWidgetTextureEditor";
 inline constexpr char OBJECT_NAME_TOP_TOOLBAR[] = "QQuickWidgetTopToolbar";

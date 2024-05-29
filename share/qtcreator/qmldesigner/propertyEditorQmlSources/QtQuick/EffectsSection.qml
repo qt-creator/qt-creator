@@ -33,7 +33,7 @@ Section {
         if (!root.hasDesignerEffect)
             return
 
-        root.model = modelNodeBackend.allChildren(effect[0]) //ids for all effects
+        root.model = modelNodeBackend.allChildren(effect[0]) // ids for all effects
     }
 
     leftPadding: 0
@@ -50,6 +50,8 @@ Section {
     }
 
     SectionLayout {
+        x: StudioTheme.Values.sectionLeftPadding
+
         PropertyLabel {}
 
         SecondColumnLayout {
@@ -61,7 +63,7 @@ Section {
                 width: StudioTheme.Values.singleControlColumnWidth
                 buttonIcon: root.hasDesignerEffect ? qsTr("Remove Effects") : qsTr("Add Effects")
                 iconFont: StudioTheme.Constants.font
-                tooltip: qsTr("Adds a note with a title to explain the component.")
+                tooltip: qsTr("Adds visual effects on the component.")
                 onClicked: {
                     if (root.hasDesignerEffect) {
                          root.effectNodeWrapper.deleteModelNode()
@@ -77,6 +79,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Visible")
+            tooltip: qsTr("Toggles the visibility of visual effects on the component.")
             visible: root.hasDesignerEffect
         }
 
@@ -192,7 +195,10 @@ Section {
 
             SectionLayout {
 
-                PropertyLabel { text: qsTr("Visible") }
+                PropertyLabel {
+                    text: qsTr("Visible")
+                    tooltip: qsTr("Toggles the visibility of the <b>Layer Blur</b> on the component.")
+                }
 
                 SecondColumnLayout {
                     CheckBox {
@@ -204,7 +210,10 @@ Section {
                     ExpandingSpacer {}
                 }
 
-                PropertyLabel { text: qsTr("Blur") }
+                PropertyLabel {
+                    text: qsTr("Blur")
+                    tooltip: qsTr("Sets the intensity of the <b>Layer Blur</b> on the component.")
+                }
 
                 SecondColumnLayout {
                     SpinBox {
@@ -232,7 +241,10 @@ Section {
 
             SectionLayout {
 
-                PropertyLabel { text: qsTr("Visible") }
+                PropertyLabel {
+                    text: qsTr("Visible")
+                    tooltip: qsTr("Toggles the visibility of blur on the selected background component.")
+                }
 
                 SecondColumnLayout {
                     CheckBox {
@@ -244,7 +256,12 @@ Section {
                     ExpandingSpacer {}
                 }
 
-                PropertyLabel { text: qsTr("Blur") }
+                PropertyLabel {
+                    text: qsTr("Blur")
+                    tooltip: qsTr("Sets the intensity of blur on the selected background component.\n"
+                            + "The foreground component should be transparent, and the background "
+                            + "component should be opaque.")
+                }
 
                 SecondColumnLayout {
                     SpinBox {
@@ -258,7 +275,12 @@ Section {
                     ExpandingSpacer {}
                 }
 
-                PropertyLabel { text: qsTr("Background") }
+                PropertyLabel {
+                    text: qsTr("Background")
+                    tooltip: qsTr("Sets a component as the background of a transparent component."
+                            + "The <b>Background Blur</b> works only on this component. The component should "
+                            + "be solid.")
+                }
 
                 SecondColumnLayout {
                     ItemFilterComboBox {
@@ -362,7 +384,10 @@ Section {
                     id: controlContainer
                     property bool isDropShadow: shadowComboBox.currentValue === "DesignDropShadow"
 
-                    PropertyLabel { text: qsTr("Visible") }
+                    PropertyLabel {
+                        text: qsTr("Visible")
+                        tooltip: qsTr("Toggles the visibility of the component shadow.")
+                    }
 
                     SecondColumnLayout {
                         CheckBox {
@@ -374,7 +399,11 @@ Section {
                         ExpandingSpacer {}
                     }
 
-                    PropertyLabel { text: qsTr("Blur") }
+                    PropertyLabel {
+                        text: qsTr("Blur")
+                        tooltip: qsTr("Sets the softness of the component shadow. A larger value"
+                                + " causes the edges of the shadow to appear more blurry.")
+                    }
 
                     SecondColumnLayout {
                         SpinBox {
@@ -390,6 +419,9 @@ Section {
 
                     PropertyLabel {
                         text: qsTr("Spread")
+                        tooltip: modelNodeBackend.isInstanceOf("Rectangle")
+                                    ? qsTr("Resizes the base shadow of the component by pixels.")
+                                    : qsTr("Only supported for Rectangles.")
                         enabled: modelNodeBackend.isInstanceOf("Rectangle")
                     }
 
@@ -408,7 +440,7 @@ Section {
 
                     PropertyLabel {
                         text: qsTr("Color")
-                        tooltip: qsTr("Sets the color.")
+                        tooltip: qsTr("Sets the color of the shadow.")
                     }
 
                     ColorEditor {
@@ -416,7 +448,11 @@ Section {
                         supportGradient: false
                     }
 
-                    PropertyLabel { text: qsTr("Offset") }
+                    PropertyLabel {
+                        text: qsTr("Offset")
+                        tooltip: qsTr("Moves the shadow with respect to the component in "
+                                + "X and Y coordinates by pixels.")
+                    }
 
                     SecondColumnLayout {
                         SpinBox {
@@ -458,6 +494,7 @@ Section {
                     PropertyLabel {
                         visible: controlContainer.isDropShadow
                         text: qsTr("Show behind")
+                        tooltip: qsTr("Toggles the visibility of the shadow behind a transparent component.")
                     }
 
                     SecondColumnLayout {
@@ -483,6 +520,7 @@ Section {
     }
 
     SectionLayout {
+        x: StudioTheme.Values.sectionLeftPadding
         visible: root.hasDesignerEffect
 
         PropertyLabel {}
@@ -496,7 +534,7 @@ Section {
                 width: StudioTheme.Values.singleControlColumnWidth
                 buttonIcon: qsTr("Add Shadow Effect")
                 iconFont: StudioTheme.Constants.font
-                tooltip: qsTr("Adds a Design Drop Shadow.")
+                tooltip: qsTr("Adds <b>Drop Shadow</b> or <b>Inner Shadow</b> effects to a component.")
                 onClicked: {
                     modelNodeBackend.createModelNode(root.effectNode,
                                                      "effects",
@@ -504,6 +542,8 @@ Section {
                     root.invalidate()
                 }
             }
+
+            ExpandingSpacer {}
         }
     }
 }

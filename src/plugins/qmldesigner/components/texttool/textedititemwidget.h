@@ -3,7 +3,8 @@
 #pragma once
 
 #include <QGraphicsProxyWidget>
-#include <QScopedPointer>
+
+#include <memory>
 
 QT_BEGIN_NAMESPACE
 class QTextEdit;
@@ -32,7 +33,7 @@ protected:
 
     QString text() const;
 private:
-    mutable QScopedPointer<QLineEdit> m_lineEdit;
-    mutable QScopedPointer<QTextEdit> m_textEdit;
+    mutable std::unique_ptr<QLineEdit> m_lineEdit;
+    mutable std::unique_ptr<QTextEdit> m_textEdit;
 };
 } // namespace QmlDesigner

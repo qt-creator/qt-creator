@@ -4,8 +4,8 @@
 import QtQuick
 import HelperWidgets
 
-PropertyEditorPane {
-    id: itemPane
+Item {
+    id: root
 
     width: 420
     height: 420
@@ -17,63 +17,75 @@ PropertyEditorPane {
     // invoked from C++ to refresh material preview image
     function refreshPreview()
     {
-        topSection.refreshPreview()
+        itemPane.headerItem.refreshPreview()
     }
 
     // Called from C++ to close context menu on focus out
     function closeContextMenu()
     {
-        topSection.closeContextMenu()
+        itemPane.headerItem.closeContextMenu()
         Controller.closeContextMenu()
     }
 
     // Called from C++ to initialize preview menu checkmarks
     function initPreviewData(env, model)
     {
-        topSection.previewEnv = env;
-        topSection.previewModel = model
+        itemPane.headerItem.previewEnv = env
+        itemPane.headerItem.previewModel = model
     }
 
-    MaterialEditorTopSection {
-        id: topSection
+    MaterialEditorToolBar {
+        id: toolbar
 
-        onToolBarAction: (action) => itemPane.toolBarAction(action)
-        onPreviewEnvChanged: itemPane.previewEnvChanged(previewEnv)
-        onPreviewModelChanged: itemPane.previewModelChanged(previewModel)
+        width: parent.width
+
+        onToolBarAction: (action) => root.toolBarAction(action)
     }
 
-    Item { width: 1; height: 10 }
+    PropertyEditorPane {
+        id: itemPane
 
-    DynamicPropertiesSection {
-        propertiesModel: MaterialEditorDynamicPropertiesModel {}
-    }
+        anchors.top: toolbar.bottom
+        anchors.bottom: parent.bottom
+        width: parent.width
 
-    Loader {
-        id: specificsTwo
+        clip: true
 
-        property string theSource: specificQmlData
-
-        anchors.left: parent.left
-        anchors.right: parent.right
-        visible: specificsTwo.theSource !== ""
-        sourceComponent: specificQmlComponent
-
-        onTheSourceChanged: {
-            specificsTwo.active = false
-            specificsTwo.active = true
+        headerComponent: MaterialEditorTopSection {
+            onPreviewEnvChanged: root.previewEnvChanged(previewEnv)
+            onPreviewModelChanged: root.previewModelChanged(previewModel)
         }
-    }
 
-    Item {
-        width: 1
-        height: 10
-        visible: specificsTwo.visible
-    }
+        DynamicPropertiesSection {
+            propertiesModel: MaterialEditorDynamicPropertiesModel {}
+        }
 
-    Loader {
-        id: specificsOne
-        anchors.left: parent.left
-        anchors.right: parent.right
-        source: specificsUrl
+        Loader {
+            id: specificsTwo
+
+            property string theSource: specificQmlData
+
+            width: parent.width
+            visible: specificsTwo.theSource !== ""
+            sourceComponent: specificQmlComponent
+
+            onTheSourceChanged: {
+                specificsTwo.active = false
+                specificsTwo.active = true
+            }
+        }
+
+        Item { // spacer
+            width: 1
+            height: 10
+            visible: specificsTwo.visible
+        }
+
+        Loader {
+            id: specificsOne
+            anchors.left: parent.left
+            anchors.right: parent.right
+            source: specificsUrl
+        }
     }
 }

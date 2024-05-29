@@ -3,27 +3,12 @@
 
 #pragma once
 
-#include <QDir>
-#include <QQmlApplicationEngine>
-#include <QQmlComponent>
-#include <QQmlContext>
-
-#include <QFileInfo>
-#include <QFileOpenEvent>
-#include <QLibraryInfo>
-#include <QSurfaceFormat>
-
+#include <QApplication>
 #include <QCommandLineParser>
+#include <QQmlApplicationEngine>
 
-#include <QStandardPaths>
-#include <QTranslator>
-
-#include <QSharedPointer>
-
-#include "appmetadata.h"
 #include <iostream>
 
-#include <QApplication>
 class QmlBase : public QObject
 {
     Q_OBJECT
@@ -44,7 +29,6 @@ public:
 #ifdef ENABLE_INTERNAL_QML_RUNTIME
         m_argParser.addOption({"qml-runtime", "Run QML Runtime"});
 #endif
-        m_argParser.addOption({"appinfo", "Print build information"});
         m_argParser.addOption({"test", "Run test mode"});
     }
 
@@ -92,7 +76,6 @@ private:
     void initParser()
     {
         QCommandLineOption optHelp = m_argParser.addHelpOption();
-        QCommandLineOption optVers = m_argParser.addVersionOption();
 
         if (!m_argParser.parse(m_coreApp->arguments())) {
             std::cout << "Error: " << m_argParser.errorText().toStdString() << std::endl;
@@ -103,12 +86,8 @@ private:
             std::cout << std::endl;
 
             m_argParser.showHelp(1);
-        } else if (m_argParser.isSet(optVers)) {
-            m_argParser.showVersion();
         } else if (m_argParser.isSet(optHelp)) {
             m_argParser.showHelp(0);
-        } else if (m_argParser.isSet("appinfo")) {
-            QDSMeta::AppInfo::printAppInfo();
         } else if (m_argParser.isSet("test")) {
             exit(startTestMode());
         }

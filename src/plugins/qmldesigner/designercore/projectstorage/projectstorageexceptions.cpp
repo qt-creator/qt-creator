@@ -148,32 +148,32 @@ const char *CannotParseQmlDocumentFile::what() const noexcept
     return "Cannot parse qml types file!";
 }
 
-ProjectDataHasInvalidProjectSourceId::ProjectDataHasInvalidProjectSourceId()
+DirectoryInfoHasInvalidProjectSourceId::DirectoryInfoHasInvalidProjectSourceId()
 {
-    category().threadEvent("ProjectDataHasInvalidProjectSourceId"_t);
+    category().threadEvent("DirectoryInfoHasInvalidProjectSourceId"_t);
 }
 
-const char *ProjectDataHasInvalidProjectSourceId::what() const noexcept
+const char *DirectoryInfoHasInvalidProjectSourceId::what() const noexcept
 {
     return "The project source id is invalid!";
 }
 
-ProjectDataHasInvalidSourceId::ProjectDataHasInvalidSourceId()
+DirectoryInfoHasInvalidSourceId::DirectoryInfoHasInvalidSourceId()
 {
-    category().threadEvent("ProjectDataHasInvalidSourceId"_t);
+    category().threadEvent("DirectoryInfoHasInvalidSourceId"_t);
 }
 
-const char *ProjectDataHasInvalidSourceId::what() const noexcept
+const char *DirectoryInfoHasInvalidSourceId::what() const noexcept
 {
     return "The source id is invalid!";
 }
 
-ProjectDataHasInvalidModuleId::ProjectDataHasInvalidModuleId()
+DirectoryInfoHasInvalidModuleId::DirectoryInfoHasInvalidModuleId()
 {
-    category().threadEvent("ProjectDataHasInvalidModuleId"_t);
+    category().threadEvent("DirectoryInfoHasInvalidModuleId"_t);
 }
 
-const char *ProjectDataHasInvalidModuleId::what() const noexcept
+const char *DirectoryInfoHasInvalidModuleId::what() const noexcept
 {
     return "The module id is invalid!";
 }

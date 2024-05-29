@@ -10,7 +10,6 @@
 
 #include <app/app_version.h>
 #include <qml2puppet/import3d/import3d.h>
-
 #include <qt5nodeinstanceclientproxy.h>
 
 #include <QFileInfo>

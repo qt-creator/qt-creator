@@ -88,4 +88,13 @@ Category &projectStorageUpdaterCategory()
 
 } // namespace ProjectStorageTracing
 
+namespace MetaInfoTracing {
+Category &category()
+{
+    thread_local Category category_{"meta info"_t, Tracing::eventQueueWithStringArguments(), category};
+
+    return category_;
+}
+} // namespace MetaInfoTracing
+
 } // namespace QmlDesigner

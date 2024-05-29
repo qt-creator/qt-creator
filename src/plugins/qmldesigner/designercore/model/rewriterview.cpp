@@ -16,12 +16,14 @@
 #include <filemanager/objectlengthcalculator.h>
 #include <modelnode.h>
 #include <modelnodepositionstorage.h>
+#include <nodemetainfo.h>
 #include <nodeproperty.h>
+#include <projectstorage/projectstorage.h>
+#include <qmlobjectnode.h>
+#include <qmltimelinekeyframegroup.h>
 #include <rewritingexception.h>
 #include <signalhandlerproperty.h>
 #include <variantproperty.h>
-#include <qmlobjectnode.h>
-#include <qmltimelinekeyframegroup.h>
 
 #include <qmljs/parser/qmljsengine_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -56,9 +58,9 @@ RewriterView::RewriterView(ExternalDependenciesInterface &externalDependencies,
                            DifferenceHandling differenceHandling)
     : AbstractView{externalDependencies}
     , m_differenceHandling(differenceHandling)
-    , m_positionStorage(new ModelNodePositionStorage)
-    , m_modelToTextMerger(new Internal::ModelToTextMerger(this))
-    , m_textToModelMerger(new Internal::TextToModelMerger(this))
+    , m_positionStorage(std::make_unique<ModelNodePositionStorage>())
+    , m_modelToTextMerger(std::make_unique<Internal::ModelToTextMerger>(this))
+    , m_textToModelMerger(std::make_unique<Internal::TextToModelMerger>(this))
 {
     m_amendTimer.setSingleShot(true);
 
@@ -78,12 +80,12 @@ RewriterView::~RewriterView() = default;
 
 Internal::ModelToTextMerger *RewriterView::modelToTextMerger() const
 {
-    return m_modelToTextMerger.data();
+    return m_modelToTextMerger.get();
 }
 
 Internal::TextToModelMerger *RewriterView::textToModelMerger() const
 {
-    return m_textToModelMerger.data();
+    return m_textToModelMerger.get();
 }
 
 void RewriterView::modelAttached(Model *model)
@@ -92,7 +94,7 @@ void RewriterView::modelAttached(Model *model)
 
     AbstractView::modelAttached(model);
 
-    ModelAmender differenceHandler(m_textToModelMerger.data());
+    ModelAmender differenceHandler(m_textToModelMerger.get());
     const QString qmlSource = m_textModifier->text();
     if (m_textToModelMerger->load(qmlSource, differenceHandler))
         m_lastCorrectQmlSource = qmlSource;
@@ -104,6 +106,7 @@ void RewriterView::modelAttached(Model *model)
         m_modelAttachPending = true;
         QTimer::singleShot(1000, this, [this, model](){
             modelAttached(model);
+            restoreAuxiliaryData();
         });
     }
 }
@@ -492,7 +495,7 @@ void RewriterView::amendQmlText()
 
     const QString newQmlText = m_textModifier->text();
 
-    ModelAmender differenceHandler(m_textToModelMerger.data());
+    ModelAmender differenceHandler(m_textToModelMerger.get());
     if (m_textToModelMerger->load(newQmlText, differenceHandler))
         m_lastCorrectQmlSource = newQmlText;
     emitCustomNotification(EndRewriterAmend);
@@ -698,7 +701,7 @@ void RewriterView::forceAmend()
 
 Internal::ModelNodePositionStorage *RewriterView::positionStorage() const
 {
-    return m_positionStorage.data();
+    return m_positionStorage.get();
 }
 
 QList<DocumentMessage> RewriterView::warnings() const
@@ -755,7 +758,7 @@ void RewriterView::resetToLastCorrectQml()
 {
     m_textModifier->textDocument()->undo();
     m_textModifier->textDocument()->clearUndoRedoStacks(QTextDocument::RedoStack);
-    ModelAmender differenceHandler(m_textToModelMerger.data());
+    ModelAmender differenceHandler(m_textToModelMerger.get());
     Internal::WriteLocker::unlock(model());
     m_textToModelMerger->load(m_textModifier->text(), differenceHandler);
     Internal::WriteLocker::lock(model());
@@ -1004,6 +1007,61 @@ QSet<QPair<QString, QString> > RewriterView::qrcMapping() const
     return m_textToModelMerger->qrcMapping();
 }
 
+namespace {
+#ifdef QDS_USE_PROJECTSTORAGE
+
+ModuleIds generateModuleIds(const ModelNodes &nodes)
+{
+    ModuleIds moduleIds;
+    moduleIds.reserve(Utils::usize(nodes));
+    for (const auto &node : nodes) {
+        auto exportedNames = node.metaInfo().allExportedTypeNames();
+        if (exportedNames.size())
+            moduleIds.push_back(exportedNames.front().moduleId);
+    }
+
+    std::sort(moduleIds.begin(), moduleIds.end());
+    moduleIds.erase(std::unique(moduleIds.begin(), moduleIds.end()), moduleIds.end());
+
+    return moduleIds;
+}
+
+QStringList generateImports(ModuleIds moduleIds, const ProjectStorageType &projectStorage)
+{
+    QStringList imports;
+    imports.reserve(std::ssize(moduleIds));
+
+    for (auto moduleId : moduleIds) {
+        using Storage::ModuleKind;
+        auto module = projectStorage.module(moduleId);
+        switch (module.kind) {
+        case ModuleKind::QmlLibrary:
+            imports.push_back("import " + module.name.toQString());
+            break;
+        case ModuleKind::PathLibrary:
+            imports.push_back("import \"" + module.name.toQString() + "\"");
+            break;
+        case ModuleKind::CppLibrary:
+            break;
+        }
+    }
+
+    return imports;
+}
+
+QStringList generateImports(const ModelNodes &nodes)
+{
+    if (nodes.empty())
+        return {};
+
+    auto moduleIds = generateModuleIds(nodes);
+
+    return generateImports(moduleIds, *nodes.front().model()->projectStorage());
+}
+
+#endif
+} // namespace
+
 void RewriterView::moveToComponent(const ModelNode &modelNode)
 {
     if (!modelNode.isValid())
@@ -1012,20 +1070,26 @@ void RewriterView::moveToComponent(const ModelNode &modelNode)
     int offset = nodeOffset(modelNode);
 
     const QList<ModelNode> nodes = modelNode.allSubModelNodesAndThisNode();
-    QSet<QString> directPaths;
+#ifdef QDS_USE_PROJECTSTORAGE
+    auto directPaths = generateImports(nodes);
+#else
+    QSet<QString> directPathsSet;
 
     // Always add QtQuick import
     QString quickImport = model()->qtQuickItemMetaInfo().requiredImportString();
     if (!quickImport.isEmpty())
-        directPaths.insert(quickImport);
+        directPathsSet.insert(quickImport);
 
     for (const ModelNode &partialNode : nodes) {
         QString importStr = partialNode.metaInfo().requiredImportString();
         if (importStr.size())
-            directPaths << importStr;
+            directPathsSet << importStr;
     }
 
-    QString importData = Utils::sorted(directPaths.values()).join(QChar::LineFeed);
+    auto directPaths = directPathsSet.values();
+#endif
+
+    QString importData = Utils::sorted(directPaths).join(QChar::LineFeed);
     if (importData.size())
         importData.append(QString(2, QChar::LineFeed));
 
@@ -1091,7 +1155,7 @@ void RewriterView::qmlTextChanged()
 
         switch (m_differenceHandling) {
         case Validate: {
-            ModelValidator differenceHandler(m_textToModelMerger.data());
+            ModelValidator differenceHandler(m_textToModelMerger.get());
             if (m_textToModelMerger->load(newQmlText, differenceHandler))
                 m_lastCorrectQmlSource = newQmlText;
             break;

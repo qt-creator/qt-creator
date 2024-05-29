@@ -9,6 +9,7 @@
 
 #include <utils/smallstring.h>
 #include <utils/span.h>
+#include <utils/utility.h>
 
 #include <QByteArrayView>
 #include <QList>
@@ -144,17 +145,10 @@ void convertToString(String &string, Number number)
     string.append(number);
 }
 
-template<typename Enumeration>
-constexpr std::underlying_type_t<Enumeration> to_underlying(Enumeration enumeration) noexcept
-{
-    static_assert(std::is_enum_v<Enumeration>, "to_underlying expect an enumeration");
-    return static_cast<std::underlying_type_t<Enumeration>>(enumeration);
-}
-
 template<typename String, typename Enumeration, typename std::enable_if_t<std::is_enum_v<Enumeration>, bool> = true>
 void convertToString(String &string, Enumeration enumeration)
 {
-    string.append(to_underlying(enumeration));
+    string.append(Utils::to_underlying(enumeration));
 }
 
 template<typename String>

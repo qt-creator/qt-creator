@@ -25,6 +25,7 @@ Item {
 
     property bool showEditLight: false
     property bool showGrid: true
+    property bool showLookAt: true
     property bool showSelectionBox: true
     property bool showIconGizmo: true
     property bool showCameraFrustum: false
@@ -35,9 +36,10 @@ Item {
     property color backgroundGradientColorStart: "#222222"
     property color backgroundGradientColorEnd: "#999999"
     property color gridColor: "#cccccc"
-    property bool syncEnvBackground: false
+    property bool syncEnvBackground: true
     property bool splitView: false
     property bool flyMode: false
+    property bool showCameraSpeed: false
 
     enum SelectionMode { Item, Group }
     enum TransformMode { Move, Rotate, Scale }
@@ -65,6 +67,7 @@ Item {
     onShowEditLightChanged:       _generalHelper.storeToolState(sceneId, "showEditLight", showEditLight)
     onGlobalOrientationChanged:   _generalHelper.storeToolState(sceneId, "globalOrientation", globalOrientation)
     onShowGridChanged:            _generalHelper.storeToolState(sceneId, "showGrid", showGrid);
+    onShowLookAtChanged:          _generalHelper.storeToolState(sceneId, "showLookAt", showLookAt);
     onSyncEnvBackgroundChanged:   _generalHelper.storeToolState(sceneId, "syncEnvBackground", syncEnvBackground);
     onShowSelectionBoxChanged:    _generalHelper.storeToolState(sceneId, "showSelectionBox", showSelectionBox);
     onShowIconGizmoChanged:       _generalHelper.storeToolState(sceneId, "showIconGizmo", showIconGizmo);
@@ -165,7 +168,7 @@ Item {
                             break;
                         }
                     }
-                    showEditLight = !hasSceneLight;
+                    showEditLight = !hasSceneLight && !_generalHelper.sceneHasLightProbe(sceneId);
 
                     // Don't inherit camera angles from the previous scene
                     for (let i = 0; i < 4; ++i)
@@ -264,16 +267,22 @@ Item {
 
         for (var i = 0; i < 4; ++i) {
             if (syncEnvBackground) {
-                let bgMode = _generalHelper.sceneEnvironmentBgMode(sceneId);
-                if ((!_generalHelper.sceneEnvironmentLightProbe(sceneId) && bgMode === SceneEnvironment.SkyBox)
-                    || (!_generalHelper.sceneEnvironmentSkyBoxCubeMap(sceneId) && bgMode === SceneEnvironment.SkyBoxCubeMap)) {
-                    editViews[i].sceneEnv.backgroundMode = SceneEnvironment.Color;
-                } else {
-                    editViews[i].sceneEnv.backgroundMode = bgMode;
+                if (_generalHelper.hasSceneEnvironmentData(sceneId)) {
+                    let bgMode = _generalHelper.sceneEnvironmentBgMode(sceneId);
+                    if ((!_generalHelper.sceneEnvironmentLightProbe(sceneId) && bgMode === SceneEnvironment.SkyBox)
+                        || (!_generalHelper.sceneEnvironmentSkyBoxCubeMap(sceneId) && bgMode === SceneEnvironment.SkyBoxCubeMap)) {
+                        editViews[i].sceneEnv.backgroundMode = SceneEnvironment.Color;
+                    } else {
+                        editViews[i].sceneEnv.backgroundMode = bgMode;
+                    }
+                    editViews[i].sceneEnv.lightProbe = _generalHelper.sceneEnvironmentLightProbe(sceneId);
+                    editViews[i].sceneEnv.skyBoxCubeMap = _generalHelper.sceneEnvironmentSkyBoxCubeMap(sceneId);
+                    editViews[i].sceneEnv.clearColor = _generalHelper.sceneEnvironmentColor(sceneId);
+                } else if (activeScene) {
+                    _generalHelper.updateSceneEnvToLast(editViews[i].sceneEnv,
+                                                        editViews[i].defaultLightProbe,
+                                                        editViews[i].defaultCubeMap);
                 }
-                editViews[i].sceneEnv.lightProbe = _generalHelper.sceneEnvironmentLightProbe(sceneId);
-                editViews[i].sceneEnv.skyBoxCubeMap = _generalHelper.sceneEnvironmentSkyBoxCubeMap(sceneId);
-                editViews[i].sceneEnv.clearColor = _generalHelper.sceneEnvironmentColor(sceneId);
             } else {
                 editViews[i].sceneEnv.backgroundMode = SceneEnvironment.Transparent;
                 editViews[i].sceneEnv.lightProbe = null;
@@ -297,11 +306,16 @@ Item {
         else if (resetToDefault)
             showGrid = true;
 
+        if ("showLookAt" in toolStates)
+            showLookAt = toolStates.showLookAt;
+        else if (resetToDefault)
+            showLookAt = true;
+
         if ("syncEnvBackground" in toolStates) {
             syncEnvBackground = toolStates.syncEnvBackground;
             updateEnvBackground();
         } else if (resetToDefault) {
-            syncEnvBackground = false;
+            syncEnvBackground = true;
             updateEnvBackground();
         }
 
@@ -353,10 +367,13 @@ Item {
                 cameraControls[i].restoreDefaultState();
         }
 
-        if ("flyMode" in toolStates)
+        if ("flyMode" in toolStates) {
             flyMode = toolStates.flyMode;
-        else if (resetToDefault)
+            viewRoot.showCameraSpeed = false;
+        } else if (resetToDefault) {
             flyMode = false;
+            viewRoot.showCameraSpeed = false;
+        }
 
         if ("splitView" in toolStates)
             splitView = toolStates.splitView;
@@ -383,6 +400,7 @@ Item {
     {
         _generalHelper.storeToolState(sceneId, "showEditLight", showEditLight)
         _generalHelper.storeToolState(sceneId, "showGrid", showGrid)
+        _generalHelper.storeToolState(sceneId, "showLookAt", showLookAt)
         _generalHelper.storeToolState(sceneId, "syncEnvBackground", syncEnvBackground)
         _generalHelper.storeToolState(sceneId, "showSelectionBox", showSelectionBox)
         _generalHelper.storeToolState(sceneId, "showIconGizmo", showIconGizmo)
@@ -519,6 +537,12 @@ Item {
             overlayViews[i].addParticleEmitterGizmo(scene, obj);
     }
 
+    function addReflectionProbeGizmo(scene, obj)
+    {
+        for (var i = 0; i < 4; ++i)
+            overlayViews[i].addReflectionProbeGizmo(scene, obj);
+    }
+
     function releaseLightGizmo(obj)
     {
         for (var i = 0; i < 4; ++i)
@@ -543,6 +567,12 @@ Item {
             overlayViews[i].releaseParticleEmitterGizmo(obj);
     }
 
+    function releaseReflectionProbeGizmo(obj)
+    {
+        for (var i = 0; i < 4; ++i)
+            overlayViews[i].releaseReflectionProbeGizmo(obj);
+    }
+
     function updateLightGizmoScene(scene, obj)
     {
         for (var i = 0; i < 4; ++i)
@@ -565,6 +595,12 @@ Item {
     {
         for (var i = 0; i < 4; ++i)
             overlayViews[i].updateParticleEmitterGizmoScene(scene, obj);
+    }
+
+    function updateReflectionProbeGizmoScene(scene, obj)
+    {
+        for (var i = 0; i < 4; ++i)
+            overlayViews[i].updateReflectionProbeGizmoScene(scene, obj);
     }
 
     function resolveSplitPoint(x, y)
@@ -638,7 +674,6 @@ Item {
         {
             for (var i = 0; i < 4; ++i)
                 overlayViews[i].handleHiddenStateChange(node);
-
         }
 
         function onUpdateDragTooltip()
@@ -650,6 +685,18 @@ Item {
         function onSceneEnvDataChanged()
         {
             updateEnvBackground();
+        }
+
+        function onCameraSpeedChanged() {
+            _generalHelper.requestTimerEvent("hideSpeed", 1000);
+            viewRoot.showCameraSpeed = true
+        }
+
+        function onRequestedTimerEvent(timerId) {
+            if (timerId === "hideSpeed") {
+                viewRoot.showCameraSpeed = false;
+                _generalHelper.requestRender();
+            }
         }
     }
 
@@ -1057,6 +1104,38 @@ Item {
             font.pixelSize: 12
             color: "white"
             visible: viewRoot.fps > 0
+        }
+
+        Rectangle {
+            id: cameraSpeedLabel
+            width: 120
+            height: 65
+            anchors.centerIn: parent
+            opacity: 0.6
+            radius: 10
+            color: "white"
+            visible: flyMode && viewRoot.showCameraSpeed
+            enabled: false
+
+            Column {
+                anchors.fill: parent
+                anchors.margins: 8
+                spacing: 2
+                Text {
+                    width: parent.width
+                    horizontalAlignment: Text.AlignHCenter
+                    text: "Camera Speed"
+                    font.pixelSize: 16
+                }
+                Text {
+                    width: parent.width
+                    height: 20
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    font.pixelSize: 20
+                    text: _generalHelper.cameraSpeed.toLocaleString(Qt.locale(), 'f', 1)
+                }
+            }
         }
     }
 

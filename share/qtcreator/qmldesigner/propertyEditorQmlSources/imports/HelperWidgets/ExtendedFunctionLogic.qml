@@ -103,7 +103,7 @@ Item {
                 StudioControls.MenuItem {
                     text: qsTr("Insert Keyframe")
                     enabled: hasActiveTimeline
-                    onTriggered: insertKeyframe(backendValue.name)
+                    onTriggered: backendValue.insertKeyframe()
                 }
             }
         }

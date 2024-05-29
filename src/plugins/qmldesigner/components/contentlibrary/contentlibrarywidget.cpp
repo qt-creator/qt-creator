@@ -3,8 +3,9 @@
 
 #include "contentlibrarywidget.h"
 
-#include "contentlibraryeffect.h"
+#include "contentlibrarybundleimporter.h"
 #include "contentlibraryeffectsmodel.h"
+#include "contentlibraryitem.h"
 #include "contentlibrarymaterial.h"
 #include "contentlibrarymaterialsmodel.h"
 #include "contentlibrarytexture.h"
@@ -18,6 +19,7 @@
 
 #include <coreplugin/icore.h>
 #include <designerpaths.h>
+#include <nodemetainfo.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 
@@ -40,7 +42,6 @@
 #include <QQuickWidget>
 #include <QRegularExpression>
 #include <QShortcut>
-#include <QStandardPaths>
 #include <QVBoxLayout>
 
 namespace QmlDesigner {
@@ -67,18 +68,18 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
         Model *model = document->currentModel();
         QTC_ASSERT(model, return false);
 
-        if (m_effectToDrag) {
+        if (m_itemToDrag) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
             if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 20) {
                 QByteArray data;
                 QMimeData *mimeData = new QMimeData;
                 QDataStream stream(&data, QIODevice::WriteOnly);
-                stream << m_effectToDrag->type();
-                mimeData->setData(Constants::MIME_TYPE_BUNDLE_EFFECT, data);
+                stream << m_itemToDrag->type();
+                mimeData->setData(Constants::MIME_TYPE_BUNDLE_ITEM, data);
 
-                emit bundleEffectDragStarted(m_effectToDrag);
-                model->startDrag(mimeData, m_effectToDrag->icon().toLocalFile());
-                m_effectToDrag = nullptr;
+                emit bundleItemDragStarted(m_itemToDrag);
+                model->startDrag(mimeData, m_itemToDrag->icon().toLocalFile());
+                m_itemToDrag = nullptr;
             }
         } else if (m_materialToDrag) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
@@ -112,7 +113,7 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
             }
         }
     } else if (event->type() == QMouseEvent::MouseButtonRelease) {
-        m_effectToDrag = nullptr;
+        m_itemToDrag = nullptr;
         m_materialToDrag = nullptr;
         m_textureToDrag = nullptr;
         setIsDragging(false);
@@ -122,7 +123,7 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 }
 
 ContentLibraryWidget::ContentLibraryWidget()
-    : m_quickWidget(new StudioQuickWidget(this))
+    : m_quickWidget(Utils::makeUniqueObjectPtr<StudioQuickWidget>(this))
     , m_materialsModel(new ContentLibraryMaterialsModel(this))
     , m_texturesModel(new ContentLibraryTexturesModel("Textures", this))
     , m_environmentsModel(new ContentLibraryTexturesModel("Environments", this))
@@ -155,7 +156,7 @@ ContentLibraryWidget::ContentLibraryWidget()
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins({});
     layout->setSpacing(0);
-    layout->addWidget(m_quickWidget.data());
+    layout->addWidget(m_quickWidget.get());
 
     updateSearch();
 
@@ -177,6 +178,67 @@ ContentLibraryWidget::ContentLibraryWidget()
                         {"userModel",         QVariant::fromValue(m_userModel.data())}});
 
     reloadQmlSource();
+    createImporter();
+}
+
+void ContentLibraryWidget::createImporter()
+{
+    m_importer = new ContentLibraryBundleImporter();
+#ifdef QDS_USE_PROJECTSTORAGE
+    connect(m_importer,
+            &ContentLibraryBundleImporter::importFinished,
+            this,
+            [&](const QmlDesigner::TypeName &typeName, const QString &bundleId) {
+                setImporterRunning(false);
+                if (typeName.size())
+                    updateImportedState(bundleId);
+            });
+#else
+    connect(m_importer,
+            &ContentLibraryBundleImporter::importFinished,
+            this,
+            [&](const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId) {
+                setImporterRunning(false);
+                if (metaInfo.isValid())
+                    updateImportedState(bundleId);
+            });
+#endif
+
+    connect(m_importer, &ContentLibraryBundleImporter::unimportFinished, this,
+            [&](const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId) {
+                Q_UNUSED(metaInfo)
+                setImporterRunning(false);
+                updateImportedState(bundleId);
+    });
+}
+
+void ContentLibraryWidget::updateImportedState(const QString &bundleId)
+{
+    if (!m_importer)
+        return;
+
+    Utils::FilePath bundlePath = m_importer->resolveBundleImportPath(bundleId);
+
+    QStringList importedItems;
+    if (bundlePath.exists()) {
+        importedItems = transform(bundlePath.dirEntries({{"*.qml"}, QDir::Files}),
+                                  [](const Utils::FilePath &f) { return f.baseName(); });
+    }
+
+    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+    if (bundleId == compUtils.materialsBundleId())
+        m_materialsModel->updateImportedState(importedItems);
+    else if (bundleId == compUtils.effectsBundleId())
+        m_effectsModel->updateImportedState(importedItems);
+    else if (bundleId == compUtils.userMaterialsBundleId())
+        m_userModel->updateMaterialsImportedState(importedItems);
+    else if (bundleId == compUtils.user3DBundleId())
+        m_userModel->update3DImportedState(importedItems);
+}
+
+ContentLibraryBundleImporter *ContentLibraryWidget::importer() const
+{
+    return m_importer;
 }
 
 QVariantMap ContentLibraryWidget::readTextureBundleJson()
@@ -578,12 +640,6 @@ void ContentLibraryWidget::markTextureUpdated(const QString &textureKey)
         m_environmentsModel->markTextureHasNoUpdates(subcategory, textureKey);
 }
 
-bool ContentLibraryWidget::userBundleEnabled() const
-{
-    // TODO: this method is to be removed after user bundle implementation is complete
-    return Core::ICore::settings()->value("QML/Designer/UseExperimentalFeatures45", false).toBool();
-}
-
 QSize ContentLibraryWidget::sizeHint() const
 {
     return {420, 420};
@@ -683,6 +739,20 @@ void ContentLibraryWidget::setIsQt6Project(bool b)
     emit isQt6ProjectChanged();
 }
 
+bool ContentLibraryWidget::importerRunning() const
+{
+    return m_importerRunning;
+}
+
+void ContentLibraryWidget::setImporterRunning(bool b)
+{
+    if (m_importerRunning == b)
+        return;
+
+    m_importerRunning = b;
+    emit importerRunningChanged();
+}
+
 void ContentLibraryWidget::reloadQmlSource()
 {
     const QString materialBrowserQmlPath = qmlSourcesPath() + "/ContentLibrary.qml";
@@ -710,32 +780,9 @@ void ContentLibraryWidget::setIsDragging(bool val)
     }
 }
 
-QString ContentLibraryWidget::findTextureBundlePath()
+void ContentLibraryWidget::startDragItem(QmlDesigner::ContentLibraryItem *item, const QPointF &mousePos)
 {
-    QDir texBundleDir;
-
-    if (!qEnvironmentVariable("TEXTURE_BUNDLE_PATH").isEmpty())
-        texBundleDir.setPath(qEnvironmentVariable("TEXTURE_BUNDLE_PATH"));
-    else if (Utils::HostOsInfo::isMacHost())
-        texBundleDir.setPath(QCoreApplication::applicationDirPath() + "/../Resources/texture_bundle");
-
-    // search for matBundleDir from exec dir and up
-    if (texBundleDir.dirName() == ".") {
-        texBundleDir.setPath(QCoreApplication::applicationDirPath());
-        while (!texBundleDir.cd("texture_bundle") && texBundleDir.cdUp())
-            ; // do nothing
-
-        if (texBundleDir.dirName() != "texture_bundle") // bundlePathDir not found
-            return {};
-    }
-
-    return texBundleDir.path();
-}
-
-void ContentLibraryWidget::startDragEffect(QmlDesigner::ContentLibraryEffect *eff,
-                                           const QPointF &mousePos)
-{
-    m_effectToDrag = eff;
+    m_itemToDrag = item;
     m_dragStartPoint = mousePos.toPoint();
     setIsDragging(true);
 }
@@ -808,6 +855,20 @@ QPointer<ContentLibraryEffectsModel> ContentLibraryWidget::effectsModel() const
 QPointer<ContentLibraryUserModel> ContentLibraryWidget::userModel() const
 {
     return m_userModel;
+}
+
+bool ContentLibraryWidget::hasModelSelection() const
+{
+    return m_hasModelSelection;
+}
+
+void ContentLibraryWidget::setHasModelSelection(bool b)
+{
+    if (b == m_hasModelSelection)
+        return;
+
+    m_hasModelSelection = b;
+    emit hasModelSelectionChanged();
 }
 
 } // namespace QmlDesigner

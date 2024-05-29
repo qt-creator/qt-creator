@@ -10,6 +10,7 @@
 #include "qt5captureimagenodeinstanceserver.h"
 #include "qt5capturepreviewnodeinstanceserver.h"
 #include "qt5informationnodeinstanceserver.h"
+#include "qt5import3dnodeinstanceserver.h"
 #include "qt5previewnodeinstanceserver.h"
 #include "qt5rendernodeinstanceserver.h"
 #include "qt5testnodeinstanceserver.h"
@@ -69,6 +70,9 @@ Qt5NodeInstanceClientProxy::Qt5NodeInstanceClientProxy(QObject *parent) :
         initializeSocket();
     } else if (QCoreApplication::arguments().at(2) == QLatin1String("bakelightsmode")) {
         setNodeInstanceServer(std::make_unique<Qt5BakeLightsNodeInstanceServer>(this));
+        initializeSocket();
+    } else if (QCoreApplication::arguments().at(2) == QLatin1String("import3dmode")) {
+        setNodeInstanceServer(std::make_unique<Qt5Import3dNodeInstanceServer>(this));
         initializeSocket();
     }
 }

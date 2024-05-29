@@ -3,11 +3,11 @@
 
 #pragma once
 
+#include "contentlibraryitem.h"
+
 #include <QObject>
 
 namespace QmlDesigner {
-
-class ContentLibraryEffect;
 
 class ContentLibraryEffectsCategory : public QObject
 {
@@ -16,20 +16,20 @@ class ContentLibraryEffectsCategory : public QObject
     Q_PROPERTY(QString bundleCategoryName MEMBER m_name CONSTANT)
     Q_PROPERTY(bool bundleCategoryVisible MEMBER m_visible NOTIFY categoryVisibleChanged)
     Q_PROPERTY(bool bundleCategoryExpanded MEMBER m_expanded NOTIFY categoryExpandChanged)
-    Q_PROPERTY(QList<ContentLibraryEffect *> bundleCategoryItems MEMBER m_categoryItems
+    Q_PROPERTY(QList<ContentLibraryItem *> bundleCategoryItems MEMBER m_categoryItems
                NOTIFY categoryItemsChanged)
 
 public:
     ContentLibraryEffectsCategory(QObject *parent, const QString &name);
 
-    void addBundleItem(ContentLibraryEffect *bundleItem);
+    void addBundleItem(ContentLibraryItem *bundleItem);
     bool updateImportedState(const QStringList &importedMats);
     bool filter(const QString &searchText);
 
     QString name() const;
     bool visible() const;
     bool expanded() const;
-    QList<ContentLibraryEffect *> categoryItems() const;
+    QList<ContentLibraryItem *> categoryItems() const;
 
 signals:
     void categoryVisibleChanged();
@@ -41,7 +41,7 @@ private:
     bool m_visible = true;
     bool m_expanded = true;
 
-    QList<ContentLibraryEffect *> m_categoryItems;
+    QList<ContentLibraryItem *> m_categoryItems;
 };
 
 } // namespace QmlDesigner

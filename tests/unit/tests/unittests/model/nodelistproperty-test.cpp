@@ -44,11 +44,6 @@ protected:
 
     ~NodeListProperty() { model->detachView(&abstractViewMock); }
 
-    void setModuleId(Utils::SmallStringView moduleName, ModuleId moduleId)
-    {
-        ON_CALL(projectStorageMock, moduleId(Eq(moduleName))).WillByDefault(Return(moduleId));
-    }
-
     void setType(ModuleId moduleId,
                  Utils::SmallStringView typeName,
                  Utils::SmallString defaultPeopertyName)

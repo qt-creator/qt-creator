@@ -446,8 +446,13 @@ void QmlDesigner::MaterialBrowserView::loadPropertyGroups()
     if (!m_hasQuick3DImport || m_propertyGroupsLoaded || !model())
         return;
 
+#ifdef QDS_USE_PROJECTSTORAGE
+    // TODO
+    QString matPropsPath;
+#else
     QString matPropsPath = model()->metaInfo("QtQuick3D.Material").importDirectoryPath()
                                + "/designer/propertyGroups.json";
+#endif
     m_propertyGroupsLoaded = m_widget->materialBrowserModel()->loadPropertyGroups(matPropsPath);
 }
 

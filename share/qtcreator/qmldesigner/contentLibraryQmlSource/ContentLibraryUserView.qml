@@ -12,7 +12,7 @@ HelperWidgets.ScrollView {
     id: root
 
     clip: true
-    interactive: !ctxMenuMaterial.opened && !ctxMenuTexture.opened
+    interactive: !ctxMenuItem.opened && !ctxMenuTexture.opened
                  && !ContentLibraryBackend.rootView.isDragging && !HelperWidgets.Controller.contextMenuOpened
 
     property real cellWidth: 100
@@ -31,9 +31,10 @@ HelperWidgets.ScrollView {
     required property var searchBox
 
     signal unimport(var bundleItem);
+    signal removeFromContentLib(var bundleItem);
 
     function closeContextMenu() {
-        ctxMenuMaterial.close()
+        ctxMenuItem.close()
         ctxMenuTexture.close()
     }
 
@@ -46,21 +47,22 @@ HelperWidgets.ScrollView {
     }
 
     Column {
-        ContentLibraryMaterialContextMenu {
-            id: ctxMenuMaterial
+        ContentLibraryItemContextMenu {
+            id: ctxMenuItem
 
-            hasModelSelection: ContentLibraryBackend.userModel.hasModelSelection
-            importerRunning: ContentLibraryBackend.userModel.importerRunning
+            enableRemove: true
 
-            onApplyToSelected: (add) => ContentLibraryBackend.userModel.applyToSelected(ctxMenuMaterial.targetMaterial, add)
+            onApplyToSelected: (add) => ContentLibraryBackend.userModel.applyToSelected(ctxMenuItem.targetItem, add)
 
-            onUnimport: root.unimport(ctxMenuMaterial.targetMaterial)
-            onAddToProject: ContentLibraryBackend.userModel.addToProject(ctxMenuMaterial.targetMaterial)
+            onUnimport: root.unimport(ctxMenuItem.targetItem)
+            onAddToProject: ContentLibraryBackend.userModel.addToProject(ctxMenuItem.targetItem)
+            onRemoveFromContentLib: root.removeFromContentLib(ctxMenuItem.targetItem)
         }
 
         ContentLibraryTextureContextMenu {
             id: ctxMenuTexture
 
+            enableRemove: true
             hasSceneEnv: ContentLibraryBackend.texturesModel.hasSceneEnv
         }
 
@@ -79,7 +81,7 @@ HelperWidgets.ScrollView {
                 bottomPadding: StudioTheme.Values.sectionPadding
 
                 caption: categoryName
-                visible: categoryVisible
+                visible: categoryVisible && infoText.text === ""
                 category: "ContentLib_User"
 
                 function expandSection() {
@@ -89,8 +91,6 @@ HelperWidgets.ScrollView {
                 property alias count: repeater.count
 
                 onCountChanged: root.assignMaxCount()
-
-                property int numVisibleItem: 1 // initially, the tab is invisible so this will be 0
 
                 Grid {
                     width: section.width - section.leftPadding - section.rightPadding
@@ -110,14 +110,8 @@ HelperWidgets.ScrollView {
                                     width: root.cellWidth
                                     height: root.cellHeight
 
-                                    importerRunning: ContentLibraryBackend.userModel.importerRunning
-
-                                    onShowContextMenu: ctxMenuMaterial.popupMenu(modelData)
+                                    onShowContextMenu: ctxMenuItem.popupMenu(modelData)
                                     onAddToProject: ContentLibraryBackend.userModel.addToProject(modelData)
-
-                                    onVisibleChanged: {
-                                        section.numVisibleItem += visible ? 1 : -1
-                                    }
                                 }
                             }
                             DelegateChoice {
@@ -127,6 +121,15 @@ HelperWidgets.ScrollView {
                                     height: root.cellWidth // for textures use a square size since there is no name row
 
                                     onShowContextMenu: ctxMenuTexture.popupMenu(modelData)
+                                }
+                            }
+                            DelegateChoice {
+                                roleValue: "item"
+                                delegate: ContentLibraryItem {
+                                    width: root.cellWidth
+                                    height: root.cellHeight
+
+                                    onShowContextMenu: ctxMenuItem.popupMenu(modelData)
                                 }
                             }
                         }
@@ -140,7 +143,7 @@ HelperWidgets.ScrollView {
                     color: StudioTheme.Values.themeTextColor
                     font.pixelSize: StudioTheme.Values.baseFontSize
                     leftPadding: 10
-                    visible: !searchBox.isEmpty() && section.numVisibleItem === 0
+                    visible: infoText.text === "" && !searchBox.isEmpty() && categoryNoMatch
                 }
             }
         }
@@ -148,9 +151,7 @@ HelperWidgets.ScrollView {
         Text {
             id: infoText
             text: {
-                if (!ContentLibraryBackend.effectsModel.bundleExists)
-                    qsTr("User bundle couldn't be found.")
-                else if (!ContentLibraryBackend.rootView.isQt6Project)
+                if (!ContentLibraryBackend.rootView.isQt6Project)
                     qsTr("<b>Content Library</b> is not supported in Qt5 projects.")
                 else if (!ContentLibraryBackend.rootView.hasQuick3DImport)
                     qsTr("To use <b>Content Library</b>, first add the QtQuick3D module in the <b>Components</b> view.")
@@ -163,7 +164,7 @@ HelperWidgets.ScrollView {
             font.pixelSize: StudioTheme.Values.baseFontSize
             topPadding: 10
             leftPadding: 10
-            visible: ContentLibraryBackend.effectsModel.isEmpty
+            visible: infoText.text !== ""
         }
     }
 }

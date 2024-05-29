@@ -12,6 +12,7 @@ View3D {
     property alias rotateGizmo: rotateGizmo
     property alias scaleGizmo: scaleGizmo
     property alias lightGizmo: lightGizmo
+    property alias lookAtGizmo: lookAtGizmo
 
     property var viewRoot: null
     property View3D editView: null
@@ -21,6 +22,7 @@ View3D {
     property var cameraGizmos: []
     property var particleSystemIconGizmos: []
     property var particleEmitterGizmos: []
+    property var reflectionProbeGizmos: []
 
     signal commitObjectProperty(var objects, var propNames)
     signal changeObjectProperty(var objects, var propNames)
@@ -288,40 +290,114 @@ View3D {
         }
     }
 
+    function addReflectionProbeGizmo(scene, obj)
+    {
+        // Insert into first available gizmo if we don't already have gizmo for this object
+        var slotFound = -1;
+        for (var i = 0; i < reflectionProbeGizmos.length; ++i) {
+            if (!reflectionProbeGizmos[i].targetNode) {
+                slotFound = i;
+            } else if (reflectionProbeGizmos[i].targetNode === obj) {
+                reflectionProbeGizmos[i].scene = scene;
+                return;
+            }
+        }
+
+        if (slotFound !== -1) {
+            reflectionProbeGizmos[slotFound].scene = scene;
+            reflectionProbeGizmos[slotFound].targetNode = obj;
+            reflectionProbeGizmos[slotFound].locked = _generalHelper.isLocked(obj);
+            reflectionProbeGizmos[slotFound].hidden = _generalHelper.isHidden(obj);
+            return;
+        }
+
+        // No free gizmos available, create a new one
+        var gizmoComponent = Qt.createComponent("ReflectionProbeGizmo.qml");
+        if (gizmoComponent.status === Component.Ready) {
+            var gizmo = gizmoComponent.createObject(overlayView,
+                                                    {"view3D": overlayView,
+                                                     "targetNode": obj,
+                                                     "selectedNodes": viewRoot.selectedNodes,
+                                                     "scene": scene,
+                                                     "activeScene": viewRoot.activeScene,
+                                                     "locked": _generalHelper.isLocked(obj),
+                                                     "hidden": _generalHelper.isHidden(obj),
+                                                     "globalShow": viewRoot.showIconGizmo});
+            reflectionProbeGizmos[reflectionProbeGizmos.length] = gizmo;
+            gizmo.clicked.connect(viewRoot.handleObjectClicked);
+            gizmo.selectedNodes = Qt.binding(function() {return viewRoot.selectedNodes;});
+            gizmo.activeScene = Qt.binding(function() {return viewRoot.activeScene;});
+            gizmo.globalShow = Qt.binding(function() {return viewRoot.showIconGizmo;});
+        }
+    }
+
+    function releaseReflectionProbeGizmo(obj)
+    {
+        for (var i = 0; i < reflectionProbeGizmos.length; ++i) {
+            if (reflectionProbeGizmos[i].targetNode === obj) {
+                reflectionProbeGizmos[i].scene = null;
+                reflectionProbeGizmos[i].targetNode = null;
+                return;
+            }
+        }
+    }
+
+    function updateReflectionProbeGizmoScene(scene, obj)
+    {
+        for (var i = 0; i < reflectionProbeGizmos.length; ++i) {
+            if (reflectionProbeGizmos[i].targetNode === obj) {
+                reflectionProbeGizmos[i].scene = scene;
+                return;
+            }
+        }
+    }
+
     function gizmoAt(x, y)
     {
-        for (var i = 0; i < lightIconGizmos.length; ++i) {
+        let i = 0;
+        for (; i < lightIconGizmos.length; ++i) {
             if (lightIconGizmos[i].visible && lightIconGizmos[i].hasPoint(x, y))
                 return lightIconGizmos[i].targetNode;
         }
-        for (var i = 0; i < cameraGizmos.length; ++i) {
+        for (i = 0; i < cameraGizmos.length; ++i) {
             if (cameraGizmos[i].visible && cameraGizmos[i].hasPoint(x, y))
                 return cameraGizmos[i].targetNode;
         }
-        for (var i = 0; i < particleSystemIconGizmos.length; ++i) {
+        for (i = 0; i < particleSystemIconGizmos.length; ++i) {
             if (particleSystemIconGizmos[i].visible && particleSystemIconGizmos[i].hasPoint(x, y))
                 return particleSystemIconGizmos[i].targetNode;
+        }
+        for (i = 0; i < reflectionProbeGizmos.length; ++i) {
+            if (reflectionProbeGizmos[i].visible && reflectionProbeGizmos[i].hasPoint(x, y))
+                return reflectionProbeGizmos[i].targetNode;
         }
         return null;
     }
 
     function handleLockedStateChange(node)
     {
-        for (var i = 0; i < lightIconGizmos.length; ++i) {
+        let i = 0;
+        for (; i < lightIconGizmos.length; ++i) {
             if (lightIconGizmos[i].targetNode === node) {
                 lightIconGizmos[i].locked = _generalHelper.isLocked(node);
                 return;
             }
         }
-        for (var i = 0; i < cameraGizmos.length; ++i) {
+        for (i = 0; i < cameraGizmos.length; ++i) {
             if (cameraGizmos[i].targetNode === node) {
                 cameraGizmos[i].locked = _generalHelper.isLocked(node);
                 return;
             }
         }
-        for (var i = 0; i < particleSystemIconGizmos.length; ++i) {
+        for (i = 0; i < particleSystemIconGizmos.length; ++i) {
             if (particleSystemIconGizmos[i].targetNode === node) {
                 particleSystemIconGizmos[i].locked = _generalHelper.isLocked(node);
+                return;
+            }
+        }
+        for (i = 0; i < reflectionProbeGizmos.length; ++i) {
+            if (reflectionProbeGizmos[i].targetNode === node) {
+                reflectionProbeGizmos[i].locked = _generalHelper.isLocked(node);
                 return;
             }
         }
@@ -329,30 +405,37 @@ View3D {
 
     function handleHiddenStateChange(node)
     {
-        for (var i = 0; i < lightIconGizmos.length; ++i) {
+        let i = 0;
+        for (; i < lightIconGizmos.length; ++i) {
             if (lightIconGizmos[i].targetNode === node) {
                 lightIconGizmos[i].hidden = _generalHelper.isHidden(node);
                 return;
             }
         }
-        for (var i = 0; i < cameraGizmos.length; ++i) {
+        for (i = 0; i < cameraGizmos.length; ++i) {
             if (cameraGizmos[i].targetNode === node) {
                 cameraGizmos[i].hidden = _generalHelper.isHidden(node);
                 return;
             }
         }
-        for (var i = 0; i < particleSystemIconGizmos.length; ++i) {
+        for (i = 0; i < particleSystemIconGizmos.length; ++i) {
             if (particleSystemIconGizmos[i].targetNode === node) {
                 particleSystemIconGizmos[i].hidden = _generalHelper.isHidden(node);
                 return;
             }
         }
-        for (var i = 0; i < particleEmitterGizmos.length; ++i) {
+        for (i = 0; i < particleEmitterGizmos.length; ++i) {
             if (particleEmitterGizmos[i].targetNode === node) {
                 particleEmitterGizmos[i].hidden = _generalHelper.isHidden(node);
                 return;
             } else if (particleEmitterGizmos[i].targetNode && particleEmitterGizmos[i].targetNode.system === node) {
                 particleEmitterGizmos[i].systemHidden = _generalHelper.isHidden(node);
+                return;
+            }
+        }
+        for (i = 0; i < reflectionProbeGizmos.length; ++i) {
+            if (reflectionProbeGizmos[i].targetNode === node) {
+                reflectionProbeGizmos[i].hidden = _generalHelper.isHidden(node);
                 return;
             }
         }
@@ -400,6 +483,12 @@ View3D {
             id: pivotAutoScale
             view3D: overlayView
             position: pivotLine.startPos
+        }
+
+        AutoScaleHelper {
+            id: lookAtAutoScale
+            view3D: overlayView
+            position: lookAtGizmo.scenePosition
         }
 
         MoveGizmo {
@@ -536,6 +625,15 @@ View3D {
                     }
                 ]
             }
+        }
+
+        LookAtGizmo {
+            id: lookAtGizmo
+            color: "#ddd600"
+            scale: lookAtAutoScale.getScale(Qt.vector3d(10, 10, 10))
+            visible: overlayView.viewRoot.showLookAt
+                     && overlayView.isActive
+                     && !overlayView.viewRoot.cameraControls[viewRoot.activeSplit].showCrosshairs
         }
     }
 }

@@ -13,6 +13,7 @@
 namespace {
 using QmlDesigner::ModelNode;
 using QmlDesigner::ModelNodes;
+using QmlDesigner::Storage::ModuleKind;
 
 class ModelUtils : public ::testing::Test
 {
@@ -20,7 +21,7 @@ protected:
     NiceMock<SourcePathCacheMockWithPaths> pathCacheMock{"/path/model.qml"};
     QmlDesigner::SourceId sourceId = pathCacheMock.createSourceId("/path/foo.qml");
     NiceMock<ProjectStorageMockWithQtQtuick> projectStorageMock{pathCacheMock.sourceId};
-    QmlDesigner::ModuleId moduleId = projectStorageMock.moduleId("QtQuick");
+    QmlDesigner::ModuleId moduleId = projectStorageMock.moduleId("QtQuick", ModuleKind::QmlLibrary);
     QmlDesigner::Model model{{projectStorageMock, pathCacheMock},
                              "Item",
                              {QmlDesigner::Import::createLibraryImport("QML"),

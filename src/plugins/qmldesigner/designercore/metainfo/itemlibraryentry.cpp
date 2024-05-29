@@ -22,7 +22,7 @@ class ItemLibraryEntryData
 public:
     QString name;
     TypeName typeName;
-    NodeMetaInfo metaInfo;
+    TypeId typeId;
     QString category;
     int majorVersion{-1};
     int minorVersion{-1};
@@ -64,12 +64,12 @@ ItemLibraryEntry::ItemLibraryEntry()
     : m_data(std::make_shared<Internal::ItemLibraryEntryData>())
 {}
 
-ItemLibraryEntry::ItemLibraryEntry(const Storage::Info::ItemLibraryEntry &entry,
-                                   const ProjectStorageType &projectStorage)
+ItemLibraryEntry::ItemLibraryEntry(const Storage::Info::ItemLibraryEntry &entry)
     : ItemLibraryEntry{}
 {
     m_data->name = entry.name.toQString();
-    m_data->metaInfo = {entry.typeId, &projectStorage};
+    m_data->typeId = entry.typeId;
+    m_data->typeName = entry.typeName.toQByteArray();
     m_data->category = entry.category.toQString();
     if (entry.iconPath.size())
         m_data->libraryEntryIconPath = entry.iconPath.toQString();
@@ -87,6 +87,8 @@ ItemLibraryEntry::ItemLibraryEntry(const Storage::Info::ItemLibraryEntry &entry,
         m_data->extraFilePaths.emplace_back(extraFilePath.toQString());
 }
 
+ItemLibraryEntry::~ItemLibraryEntry() = default;
+
 QString ItemLibraryEntry::name() const
 {
     return m_data->name;
@@ -97,9 +99,9 @@ TypeName ItemLibraryEntry::typeName() const
     return m_data->typeName;
 }
 
-const NodeMetaInfo &ItemLibraryEntry::metaInfo() const
+TypeId ItemLibraryEntry::typeId() const
 {
-    return m_data->metaInfo;
+    return m_data->typeId;
 }
 
 QString ItemLibraryEntry::qmlSource() const
@@ -245,6 +247,7 @@ QDataStream &operator<<(QDataStream &stream, const ItemLibraryEntry &itemLibrary
     stream << itemLibraryEntry.m_data->qmlSource;
     stream << itemLibraryEntry.m_data->customComponentSource;
     stream << itemLibraryEntry.m_data->extraFilePaths;
+    stream << itemLibraryEntry.m_data->typeId.internalId();
 
     return stream;
 }
@@ -270,6 +273,9 @@ QDataStream &operator>>(QDataStream &stream, ItemLibraryEntry &itemLibraryEntry)
     stream >> itemLibraryEntry.m_data->qmlSource;
     stream >> itemLibraryEntry.m_data->customComponentSource;
     stream >> itemLibraryEntry.m_data->extraFilePaths;
+    TypeId::DatabaseType internalTypeId;
+    stream >> internalTypeId;
+    itemLibraryEntry.m_data->typeId = TypeId::create(internalTypeId);
 
     return stream;
 }
@@ -295,11 +301,10 @@ QDebug operator<<(QDebug debug, const ItemLibraryEntry &itemLibraryEntry)
     return debug.space();
 }
 
-QList<ItemLibraryEntry> toItemLibraryEntries(const Storage::Info::ItemLibraryEntries &entries,
-                                             const ProjectStorageType &projectStorage)
+QList<ItemLibraryEntry> toItemLibraryEntries(const Storage::Info::ItemLibraryEntries &entries)
 {
     return Utils::transform<QList<ItemLibraryEntry>>(entries, [&](const auto &entry) {
-        return ItemLibraryEntry{entry, projectStorage};
+        return ItemLibraryEntry{entry};
     });
 }
 

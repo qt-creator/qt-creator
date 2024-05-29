@@ -817,21 +817,25 @@ void editMaterial(const SelectionContext &selectionContext)
 
     QTC_ASSERT(modelNode.isValid(), return);
 
-    BindingProperty prop = modelNode.bindingProperty("materials");
-    if (!prop.exists())
-        return;
-
     AbstractView *view = selectionContext.view();
 
     ModelNode material;
 
-    if (view->hasId(prop.expression())) {
-        material = view->modelNodeForId(prop.expression());
+    if (modelNode.metaInfo().isQtQuick3DMaterial()) {
+        material = modelNode;
     } else {
-        QList<ModelNode> materials = prop.resolveToModelNodeList();
+        BindingProperty prop = modelNode.bindingProperty("materials");
+        if (!prop.exists())
+            return;
 
-        if (materials.size() > 0)
-            material = materials.first();
+        if (view->hasId(prop.expression())) {
+            material = view->modelNodeForId(prop.expression());
+        } else {
+            QList<ModelNode> materials = prop.resolveToModelNodeList();
+
+            if (materials.size() > 0)
+                material = materials.first();
+        }
     }
 
     if (material.isValid()) {
@@ -840,30 +844,6 @@ void editMaterial(const SelectionContext &selectionContext)
         // to MaterialBrowser...
         view->emitCustomNotification("select_material", {material});
     }
-}
-
-// Open a collection in the collection editor
-void editCollection(const SelectionContext &selectionContext)
-{
-    ModelNode modelNode = selectionContext.targetNode();
-
-    if (!modelNode)
-        modelNode = selectionContext.currentSingleSelectedNode();
-
-    if (!modelNode)
-        return;
-
-    const QString dataStoreExpression = "DataStore.";
-
-    BindingProperty prop = modelNode.bindingProperty("model");
-    if (!prop.exists() || !prop.expression().startsWith(dataStoreExpression))
-        return;
-
-    AbstractView *view = selectionContext.view();
-    const QString collectionId = prop.expression().mid(dataStoreExpression.size());
-
-    // to CollectionEditor...
-    view->emitCustomNotification("open_collection_by_id", {}, {collectionId});
 }
 
 void addItemToStackedContainer(const SelectionContext &selectionContext)

@@ -451,7 +451,7 @@ Row {
                 // Prefer hiding generated component files rather than other project files
                 let listIndex = nameMap.get(item.fileName)
                 let absPath = comboBox.listModel.get(listIndex).absoluteFilePath
-                if (absPath.includes("/GeneratedComponents/") || absPath.includes("/asset_imports/")) {
+                if (absPath.includes("/Generated/") || absPath.includes("/asset_imports/")) {
                     comboBox.listModel.set(listIndex, {
                         absoluteFilePath: item.absoluteFilePath,
                         relativeFilePath: item.relativeFilePath,

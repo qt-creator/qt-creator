@@ -14,7 +14,6 @@ T.CheckBox {
 
     // This property is used to indicate the global hover state
     property bool hover: control.hovered && control.enabled
-    property bool edit: false
 
     property alias actionIndicatorVisible: actionIndicator.visible
     property real __actionIndicatorWidth: control.style.actionIndicatorSize.width

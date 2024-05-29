@@ -7,7 +7,6 @@
 #include "selectionindicator.h"
 
 #include <QObject>
-#include <QScopedPointer>
 #include <QPointer>
 
 namespace QmlDesigner {

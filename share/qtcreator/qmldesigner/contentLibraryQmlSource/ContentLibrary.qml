@@ -115,23 +115,23 @@ Item {
                     width: parent.width
                     height: StudioTheme.Values.toolbarHeight
 
-                    Component.onCompleted: {
-                        var tabs = [
-                            { name: qsTr("Materials"),    icon: StudioTheme.Constants.material_medium },
-                            { name: qsTr("Textures"),     icon: StudioTheme.Constants.textures_medium },
-                            { name: qsTr("Environments"), icon: StudioTheme.Constants.languageList_medium },
-                            { name: qsTr("Effects"),      icon: StudioTheme.Constants.effects }
-                        ];
-                        if (ContentLibraryBackend.rootView.userBundleEnabled())
-                            tabs.push({ name: qsTr("User Assets"), icon: StudioTheme.Constants.effects });
-                        tabBar.tabsModel = tabs;
-                    }
+                    tabsModel: [
+                        { name: qsTr("Materials"),    icon: StudioTheme.Constants.material_medium },
+                        { name: qsTr("Textures"),     icon: StudioTheme.Constants.textures_medium },
+                        { name: qsTr("Environments"), icon: StudioTheme.Constants.languageList_medium },
+                        { name: qsTr("Effects"),      icon: StudioTheme.Constants.effects },
+                        { name: qsTr("User Assets"),  icon: StudioTheme.Constants.effects } // TODO: update icon
+                    ]
                 }
             }
         }
 
-        UnimportBundleMaterialDialog {
+        UnimportBundleItemDialog {
             id: confirmUnimportDialog
+        }
+
+        DeleteBundleItemDialog {
+            id: confirmDeleteDialog
         }
 
         StackLayout {
@@ -244,6 +244,12 @@ Item {
                     confirmUnimportDialog.targetBundleLabel = "material"
                     confirmUnimportDialog.targetBundleModel = ContentLibraryBackend.userModel
                     confirmUnimportDialog.open()
+                }
+
+                onRemoveFromContentLib: (bundleItem) => {
+                    confirmDeleteDialog.targetBundleItem = bundleItem
+                    confirmDeleteDialog.targetBundleLabel = "material"
+                    confirmDeleteDialog.open()
                 }
 
                 onCountChanged: root.responsiveResize(stackLayout.width, stackLayout.height)

@@ -13,6 +13,8 @@ Column {
         HSLA
     }
 
+    signal aboutToBeShown
+
     property int mode: ColorPicker.Mode.HSVA
     property color color: "#303091"
 
@@ -206,6 +208,8 @@ Column {
                     target: root
                     function onHueChanged() { gradientOverlay.requestPaint() }
                     function onModeChanged() { gradientOverlay.requestPaint() }
+                    function onAlphaChanged() { gradientOverlay.requestPaint() }
+                    function onAboutToBeShown() { gradientOverlay.requestPaint() }
                 }
 
                 onPaint: {
@@ -249,6 +253,7 @@ Column {
                     function onColorInvalidated() { pickerCross.requestPaint() }
                     function onColorChanged() { pickerCross.requestPaint() }
                     function onModeChanged() { pickerCross.requestPaint() }
+                    function onAboutToBeShown() { pickerCross.requestPaint() }
                 }
 
                 onPaint: {

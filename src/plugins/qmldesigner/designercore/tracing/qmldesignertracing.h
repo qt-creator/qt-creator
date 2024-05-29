@@ -62,4 +62,20 @@ using Category = NanotraceHR::StringViewWithStringArgumentsCategory<projectStora
 [[gnu::pure]] Category &projectStorageUpdaterCategory();
 
 } // namespace ProjectStorageTracing
+
+namespace MetaInfoTracing {
+constexpr NanotraceHR::Tracing tracingStatus()
+{
+#ifdef ENABLE_METAINFO_TRACING
+    return NanotraceHR::Tracing::IsEnabled;
+#else
+    return NanotraceHR::Tracing::IsDisabled;
+#endif
+}
+
+using Category = NanotraceHR::StringViewWithStringArgumentsCategory<tracingStatus()>;
+
+[[gnu::pure]] Category &category();
+
+} // namespace MetaInfoTracing
 } // namespace QmlDesigner

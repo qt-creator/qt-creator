@@ -23,6 +23,8 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <memory>
+
 namespace QmlDesigner {
 
 DesignDocumentView::DesignDocumentView(ExternalDependenciesInterface &externalDependencies)
@@ -116,14 +118,14 @@ QString DesignDocumentView::toText() const
     textEdit.setPlainText(imports +  QStringLiteral("Item {\n}\n"));
     NotIndentingTextEditModifier modifier(&textEdit);
 
-    QScopedPointer<RewriterView> rewriterView(
-        new RewriterView(externalDependencies(), RewriterView::Amend));
+    std::unique_ptr<RewriterView> rewriterView = std::make_unique<RewriterView>(externalDependencies(),
+                                                                                RewriterView::Amend);
     rewriterView->setCheckSemanticErrors(false);
     rewriterView->setPossibleImportsEnabled(false);
     rewriterView->setTextModifier(&modifier);
-    outputModel->setRewriterView(rewriterView.data());
+    outputModel->setRewriterView(rewriterView.get());
 
-    ModelMerger merger(rewriterView.data());
+    ModelMerger merger(rewriterView.get());
 
     merger.replaceModel(rootModelNode());
 

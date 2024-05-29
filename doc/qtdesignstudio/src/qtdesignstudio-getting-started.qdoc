@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -56,4 +56,6 @@
             If you would rather be shown things than read about them,
             you can watch our extensive video tutorials.
      \endlist
+
+     \include qtdesignstudio-qt-academy.qdocinc qt-academy-getting-started-with-qt-design-studio
 */

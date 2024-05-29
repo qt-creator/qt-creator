@@ -12,7 +12,7 @@ StudioControls.Menu {
 
     property var targetItem: null
 
-    readonly property bool targetAvailable: targetItem && !ContentLibraryBackend.effectsModel.importerRunning
+    readonly property bool targetAvailable: targetItem && !ContentLibraryBackend.rootView.importerRunning
 
     signal unimport(var bundleEff);
 

@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "modelnode.h"
+#include <modelnode.h>
 
 #include <QAbstractListModel>
 #include <QJsonObject>
@@ -20,6 +20,7 @@ class MaterialBrowserModel : public QAbstractListModel
 
     Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
     Q_PROPERTY(int selectedIndex MEMBER m_selectedIndex NOTIFY selectedIndexChanged)
+    Q_PROPERTY(bool selectedMaterialIsComponent MEMBER m_selectedMaterialIsComponent NOTIFY selectedMaterialIsComponentChanged)
     Q_PROPERTY(bool hasQuick3DImport READ hasQuick3DImport WRITE setHasQuick3DImport NOTIFY hasQuick3DImportChanged)
     Q_PROPERTY(bool hasModelSelection READ hasModelSelection WRITE setHasModelSelection NOTIFY hasModelSelectionChanged)
     Q_PROPERTY(bool hasMaterialLibrary READ hasMaterialLibrary WRITE setHasMaterialLibrary NOTIFY hasMaterialLibraryChanged)
@@ -110,6 +111,7 @@ signals:
             const QList<QmlDesigner::MaterialBrowserModel::PropertyCopyData> &props,
             bool all);
     void isQt6ProjectChanged();
+    void selectedMaterialIsComponentChanged();
 
 private:
     bool isValidIndex(int idx) const;
@@ -132,6 +134,7 @@ private:
     bool m_hasMaterialLibrary = false;
     bool m_allPropsCopied = true;
     bool m_isQt6Project = false;
+    bool m_selectedMaterialIsComponent = false;
     QString m_copiedMaterialType;
 
     QPointer<MaterialBrowserView> m_view;

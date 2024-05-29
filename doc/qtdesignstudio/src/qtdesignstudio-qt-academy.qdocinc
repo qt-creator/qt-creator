@@ -1,0 +1,22 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+//! [qt-academy-using-qt-bridge-for-figma]
+    To learn the basics of \QBF, take the
+    \l {https://www.qt.io/academy/course-catalog#how-to-use-qt-bridge-for-figma}
+    {How to Use \QBF} course in \QAC.
+//! [qt-academy-using-qt-bridge-for-figma]
+
+//! [qt-academy-3D-with-qt-design-studio]
+    To learn the basics of using 3D in \QDS, take the
+    \l {https://www.qt.io/academy/course-catalog#3d-with-qt-design-studio}
+    {3D with \QDS} course in \QAC.
+//! [qt-academy-3D-with-qt-design-studio]
+
+//! [qt-academy-getting-started-with-qt-design-studio]
+    To learn the basics of using \QDS, take the
+    \l {https://www.qt.io/academy/course-catalog#getting-started-with-qt-design-studio}
+    {Getting Started with \QDS} course in \QAC.
+//! [qt-academy-getting-started-with-qt-design-studio]
+
+*/

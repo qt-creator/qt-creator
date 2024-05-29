@@ -10,6 +10,7 @@
 #include <nanotrace/nanotracehr.h>
 #include <sqlite/sqlitevalue.h>
 #include <utils/smallstring.h>
+#include <utils/utility.h>
 
 #include <tuple>
 #include <variant>
@@ -82,7 +83,7 @@ void convertToString(String &string, const TypeNameKind &kind)
     }
 }
 
-enum class FileType : char { QmlTypes, QmlDocument };
+enum class FileType : char { QmlTypes, QmlDocument, Directory };
 
 template<typename String>
 void convertToString(String &string, const FileType &type)
@@ -93,6 +94,9 @@ void convertToString(String &string, const FileType &type)
         break;
     case FileType::QmlDocument:
         convertToString(string, "QmlDocument");
+        break;
+    case FileType::Directory:
+        convertToString(string, "Directory");
         break;
     }
 }
@@ -204,7 +208,7 @@ void convertToString(String &string, const IsAutoVersion &isAutoVersion)
 
 constexpr bool operator<(IsAutoVersion first, IsAutoVersion second)
 {
-    return to_underlying(first) < to_underlying(second);
+    return Utils::to_underlying(first) < Utils::to_underlying(second);
 }
 
 class ModuleExportedImport
@@ -1160,44 +1164,44 @@ public:
 
 using PropertyEditorQmlPaths = std::vector<class PropertyEditorQmlPath>;
 
-class ProjectData
+class DirectoryInfo
 {
 public:
-    ProjectData(SourceId projectSourceId, SourceId sourceId, ModuleId moduleId, FileType fileType)
-        : projectSourceId{projectSourceId}
+    DirectoryInfo(SourceId directorySourceId, SourceId sourceId, ModuleId moduleId, FileType fileType)
+        : directorySourceId{directorySourceId}
         , sourceId{sourceId}
         , moduleId{moduleId}
         , fileType{fileType}
     {}
 
-    friend bool operator==(const ProjectData &first, const ProjectData &second)
+    friend bool operator==(const DirectoryInfo &first, const DirectoryInfo &second)
     {
-        return first.projectSourceId == second.projectSourceId && first.sourceId == second.sourceId
+        return first.directorySourceId == second.directorySourceId && first.sourceId == second.sourceId
                && first.moduleId.internalId() == second.moduleId.internalId()
                && first.fileType == second.fileType;
     }
 
     template<typename String>
-    friend void convertToString(String &string, const ProjectData &projectData)
+    friend void convertToString(String &string, const DirectoryInfo &directoryInfo)
     {
         using NanotraceHR::dictonary;
         using NanotraceHR::keyValue;
-        auto dict = dictonary(keyValue("project source id", projectData.projectSourceId),
-                              keyValue("source id", projectData.sourceId),
-                              keyValue("module id", projectData.moduleId),
-                              keyValue("file type", projectData.fileType));
+        auto dict = dictonary(keyValue("project source id", directoryInfo.directorySourceId),
+                              keyValue("source id", directoryInfo.sourceId),
+                              keyValue("module id", directoryInfo.moduleId),
+                              keyValue("file type", directoryInfo.fileType));
 
         convertToString(string, dict);
     }
 
 public:
-    SourceId projectSourceId;
+    SourceId directorySourceId;
     SourceId sourceId;
     ModuleId moduleId;
     FileType fileType;
 };
 
-using ProjectDatas = std::vector<ProjectData>;
+using DirectoryInfos = std::vector<DirectoryInfo>;
 
 class TypeAnnotation
 {
@@ -1291,9 +1295,9 @@ public:
         , fileStatuses(std::move(fileStatuses))
     {}
 
-    SynchronizationPackage(SourceIds updatedProjectSourceIds, ProjectDatas projectDatas)
-        : projectDatas(std::move(projectDatas))
-        , updatedProjectSourceIds(std::move(updatedProjectSourceIds))
+    SynchronizationPackage(SourceIds updatedDirectoryInfoSourceIds, DirectoryInfos directoryInfos)
+        : directoryInfos(std::move(directoryInfos))
+        , updatedDirectoryInfoSourceIds(std::move(updatedDirectoryInfoSourceIds))
     {}
 
 public:
@@ -1302,8 +1306,8 @@ public:
     SourceIds updatedSourceIds;
     SourceIds updatedFileStatusSourceIds;
     FileStatuses fileStatuses;
-    ProjectDatas projectDatas;
-    SourceIds updatedProjectSourceIds;
+    DirectoryInfos directoryInfos;
+    SourceIds updatedDirectoryInfoSourceIds;
     Imports moduleDependencies;
     SourceIds updatedModuleDependencySourceIds;
     ModuleExportedImports moduleExportedImports;

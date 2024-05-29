@@ -8,6 +8,8 @@
 
 #include <coreplugin/icontext.h>
 
+#include <utils/uniqueobjectptr.h>
+
 #include <QFrame>
 #include <QQmlPropertyMap>
 #include <QQuickWidget>
@@ -98,7 +100,6 @@ public:
 
     Q_INVOKABLE void showInGraphicalShell(const QString &path);
     Q_INVOKABLE QString showInGraphicalShellMsg() const;
-    Q_INVOKABLE bool userBundleEnabled() const;
     Q_INVOKABLE void addAssetsToContentLibrary(const QStringList &assetPaths);
 
 signals:
@@ -137,7 +138,7 @@ private:
     AssetsLibraryView *m_assetsView = nullptr;
     CreateTextures m_createTextures = nullptr;
 
-    QScopedPointer<StudioQuickWidget> m_assetsWidget;
+    Utils::UniqueObjectPtr<StudioQuickWidget> m_assetsWidget;
     std::unique_ptr<PreviewTooltipBackend> m_fontPreviewTooltipBackend;
 
     QShortcut *m_qmlSourceUpdateShortcut = nullptr;

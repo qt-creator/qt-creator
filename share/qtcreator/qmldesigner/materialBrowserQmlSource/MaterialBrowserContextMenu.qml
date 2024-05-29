@@ -128,12 +128,10 @@ StudioControls.Menu {
         onTriggered: materialBrowserModel.addNewMaterial()
     }
 
-    Component.onCompleted: {
-        if (MaterialBrowserBackend.rootView.userBundleEnabled()) {
-            var menuItem = Qt.createQmlObject("import StudioControls as StudioControls; StudioControls.MenuItem {}", root)
-            menuItem.text = qsTr("Add to Content Library")
-            menuItem.onTriggered.connect(MaterialBrowserBackend.rootView.addMaterialToContentLibrary)
-            root.addItem(menuItem)
-        }
+    StudioControls.MenuItem {
+        text: qsTr("Add to Content Library")
+        enabled: !materialBrowserModel.selectedMaterialIsComponent
+
+        onTriggered: MaterialBrowserBackend.rootView.addMaterialToContentLibrary()
     }
 }

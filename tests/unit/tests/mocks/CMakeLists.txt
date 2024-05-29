@@ -22,6 +22,7 @@ add_qtc_library(TestMocks OBJECT
     mocktimestampprovider.h
     modelresourcemanagementmock.h
     propertycomponentgeneratormock.h
+    projectstorageerrornotifiermock.h
     projectstoragemock.cpp
     projectstoragemock.h
     projectstorageobservermock.h

@@ -1,0 +1,50 @@
+Language:        Cpp
+AccessModifierOffset: -4
+AlignEscapedNewlines: DontAlign
+AllowShortFunctionsOnASingleLine: Inline
+AlwaysBreakTemplateDeclarations: true # use with clang 19
+BinPackArguments: false
+BinPackParameters: false
+BraceWrapping:
+  AfterClass:      true
+  AfterFunction:   true
+  AfterStruct:     true
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+BreakBeforeBinaryOperators: All
+BreakBeforeBraces: Custom
+BreakConstructorInitializers: BeforeComma
+BreakInheritanceList: AfterComma
+# BreakTemplateDeclarations: Yes # use with clang 19
+ColumnLimit:    100
+IncludeCategories:
+  - Regex:           'Q.*'
+    Priority:        8
+    CaseSensitive:   true
+IndentPPDirectives: AfterHash
+IndentWidth:     4
+KeepEmptyLinesAtTheStartOfBlocks: false
+# Do not add QT_BEGIN_NAMESPACE/QT_END_NAMESPACE as this will indent lines in between.
+ObjCBlockIndentWidth: 4
+PPIndentWidth: 2
+PackConstructorInitializers: Never
+PenaltyBreakAssignment: 500
+PenaltyBreakBeforeFirstCallParameter: 150
+PenaltyBreakComment: 500
+PenaltyBreakFirstLessLess: 400
+PenaltyBreakString: 600
+PenaltyExcessCharacter: 7
+PenaltyReturnTypeOnItsOwnLine: 300
+QualifierAlignment: Custom
+QualifierOrder: ['friend', 'inline', 'static', 'constexpr', 'const', 'type']
+ReferenceAlignment: Right
+ReflowComments:  false
+SeparateDefinitionBlocks: Always
+SortUsingDeclarations: Lexicographic
+SpaceAfterCStyleCast: true
+SpaceAfterTemplateKeyword: false
+SpaceBeforeParens: ControlStatementsExceptControlMacros
+SpacesInContainerLiterals: false
+StatementAttributeLikeMacros: [emit]
+TabWidth:        4

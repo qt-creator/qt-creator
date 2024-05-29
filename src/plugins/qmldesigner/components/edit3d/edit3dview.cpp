@@ -20,9 +20,11 @@
 #include "nodeinstanceview.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
+#include "qmlitemnode.h"
 #include "qmlvisualnode.h"
 #include "seekerslider.h"
 #include "snapconfiguration.h"
+#include "variantproperty.h"
 
 #include <auxiliarydataproperties.h>
 #include <model/modelutils.h>
@@ -133,6 +135,7 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     const QString orientationKey     = QStringLiteral("globalOrientation");
     const QString editLightKey       = QStringLiteral("showEditLight");
     const QString gridKey            = QStringLiteral("showGrid");
+    const QString showLookAtKey      = QStringLiteral("showLookAt");
     const QString selectionBoxKey    = QStringLiteral("showSelectionBox");
     const QString iconGizmoKey       = QStringLiteral("showIconGizmo");
     const QString cameraFrustumKey   = QStringLiteral("showCameraFrustum");
@@ -187,6 +190,11 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     else
         m_showGridAction->action()->setChecked(false);
 
+    if (sceneState.contains(showLookAtKey))
+        m_showLookAtAction->action()->setChecked(sceneState[showLookAtKey].toBool());
+    else
+        m_showLookAtAction->action()->setChecked(false);
+
     if (sceneState.contains(selectionBoxKey))
         m_showSelectionBoxAction->action()->setChecked(sceneState[selectionBoxKey].toBool());
     else
@@ -235,36 +243,10 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
             state.showWireframe = false;
     }
 
-    // Syncing background color only makes sense for children of View3D instances
-    bool syncValue = false;
-    bool syncEnabled = false;
-    bool desiredSyncValue = false;
     if (sceneState.contains(syncEnvBgKey))
-        desiredSyncValue = sceneState[syncEnvBgKey].toBool();
-    ModelNode checkNode = Utils3D::active3DSceneNode(this);
-    const bool activeSceneValid = checkNode.isValid();
-
-    while (checkNode.isValid()) {
-        if (checkNode.metaInfo().isQtQuick3DView3D()) {
-            syncValue = desiredSyncValue;
-            syncEnabled = true;
-            break;
-        }
-        if (checkNode.hasParentProperty())
-            checkNode = checkNode.parentProperty().parentModelNode();
-        else
-            break;
-    }
-
-    if (activeSceneValid && syncValue != desiredSyncValue) {
-        // Update actual toolstate as well if we overrode it.
-        QTimer::singleShot(0, this, [this, syncValue]() {
-            emitView3DAction(View3DActionType::SyncEnvBackground, syncValue);
-        });
-    }
-
-    m_syncEnvBackgroundAction->action()->setChecked(syncValue);
-    m_syncEnvBackgroundAction->action()->setEnabled(syncEnabled);
+        m_syncEnvBackgroundAction->action()->setChecked(sceneState[syncEnvBgKey].toBool());
+    else
+        m_syncEnvBackgroundAction->action()->setChecked(false);
 
     // Selection context change updates visible and enabled states
     SelectionContext selectionContext(this);
@@ -273,6 +255,8 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
         m_bakeLightsAction->currentContextChanged(selectionContext);
 
     syncCameraSpeedToNewView();
+
+    storeCurrentSceneEnvironment();
 }
 
 void Edit3DView::modelAttached(Model *model)
@@ -350,11 +334,10 @@ void Edit3DView::handleEntriesChanged()
         {EK_importedModels, {tr("Imported Models"), contextIcon(DesignerIcons::ImportedModelsIcon)}}};
 
 #ifdef QDS_USE_PROJECTSTORAGE
-    const auto &projectStorage = *model()->projectStorage();
     auto append = [&](const NodeMetaInfo &metaInfo, ItemLibraryEntryKeys key) {
         auto entries = metaInfo.itemLibrariesEntries();
         if (entries.size())
-            entriesMap[key].entryList.append(toItemLibraryEntries(entries, projectStorage));
+            entriesMap[key].entryList.append(toItemLibraryEntries(entries));
     };
 
     append(model()->qtQuick3DModelMetaInfo(), EK_primitives);
@@ -369,7 +352,7 @@ void Edit3DView::handleEntriesChanged()
                                                .generatedComponentUtils()
                                                .import3dTypePrefix();
 
-    auto assetsModule = model()->module(import3dTypePrefix);
+    auto assetsModule = model()->module(import3dTypePrefix, Storage::ModuleKind::QmlLibrary);
 
     for (const auto &metaInfo : model()->metaInfosForModule(assetsModule))
         append(metaInfo, EK_importedModels);
@@ -386,9 +369,12 @@ void Edit3DView::handleEntriesChanged()
         } else if (entry.typeName() == "QtQuick3D.OrthographicCamera"
                    || entry.typeName() == "QtQuick3D.PerspectiveCamera") {
             entryKey = EK_cameras;
-        } else if (entry.typeName().startsWith(QmlDesignerPlugin::instance()->documentManager()
-                                                   .generatedComponentUtils().import3dTypePrefix().toUtf8())
-                   && NodeHints::fromItemLibraryEntry(entry).canBeDroppedInView3D()) {
+        } else if (entry.typeName().startsWith(QmlDesignerPlugin::instance()
+                                                   ->documentManager()
+                                                   .generatedComponentUtils()
+                                                   .import3dTypePrefix()
+                                                   .toUtf8())
+                   && NodeHints::fromItemLibraryEntry(entry, model()).canBeDroppedInView3D()) {
             entryKey = EK_importedModels;
         } else {
             continue;
@@ -505,7 +491,7 @@ void Edit3DView::nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::BundleMaterialDrop) {
         emitCustomNotification("drop_bundle_material", {modelNode}); // To ContentLibraryView
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::BundleEffectDrop) {
-        emitCustomNotification("drop_bundle_effect", {modelNode}, {pos3d}); // To ContentLibraryView
+        emitCustomNotification("drop_bundle_item", {modelNode}, {pos3d}); // To ContentLibraryView
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::TextureDrop) {
         emitCustomNotification("apply_texture_to_model3D", {modelNode, m_droppedModelNode});
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::AssetDrop) {
@@ -538,6 +524,21 @@ void Edit3DView::nodeRemoved(const ModelNode &,
                              PropertyChangeFlags)
 {
     updateAlignActionStates();
+}
+
+void Edit3DView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
+{
+    maybeStoreCurrentSceneEnvironment(propertyList);
+}
+
+void Edit3DView::bindingPropertiesChanged(const QList<BindingProperty> &propertyList, PropertyChangeFlags)
+{
+    maybeStoreCurrentSceneEnvironment(propertyList);
+}
+
+void Edit3DView::variantPropertiesChanged(const QList<VariantProperty> &propertyList, PropertyChangeFlags)
+{
+    maybeStoreCurrentSceneEnvironment(propertyList);
 }
 
 void Edit3DView::sendInputEvent(QEvent *e) const
@@ -716,6 +717,30 @@ QPoint Edit3DView::resolveToolbarPopupPos(Edit3DAction *action) const
     return pos;
 }
 
+template<typename T, typename>
+void Edit3DView::maybeStoreCurrentSceneEnvironment(const QList<T> &propertyList)
+{
+    QSet<qint32> handledNodes;
+    QmlObjectNode sceneEnv;
+    for (const AbstractProperty &prop : propertyList) {
+        ModelNode node = prop.parentModelNode();
+        const qint32 id = node.internalId();
+        if (handledNodes.contains(id))
+            continue;
+
+        handledNodes.insert(id);
+        if (!node.metaInfo().isQtQuick3DSceneEnvironment())
+            continue;
+
+        if (!sceneEnv.isValid())
+            sceneEnv = currentSceneEnv();
+        if (sceneEnv == node) {
+            storeCurrentSceneEnvironment();
+            break;
+        }
+    }
+}
+
 void Edit3DView::showContextMenu()
 {
     // If request for context menu is still pending, skip for now
@@ -736,32 +761,6 @@ void Edit3DView::showContextMenu()
 void Edit3DView::setFlyMode(bool enabled)
 {
     emitView3DAction(View3DActionType::FlyModeToggle, enabled);
-
-    // Disable any actions with conflicting hotkeys
-    if (enabled) {
-        m_flyModeDisabledActions.clear();
-        const QList<QKeySequence> controlKeys = { Qt::Key_W, Qt::Key_A, Qt::Key_S,
-                                                 Qt::Key_D, Qt::Key_Q, Qt::Key_E,
-                                                 Qt::Key_Up, Qt::Key_Down, Qt::Key_Left,
-                                                 Qt::Key_Right, Qt::Key_PageDown, Qt::Key_PageUp};
-        for (auto i = m_edit3DActions.cbegin(), end = m_edit3DActions.cend(); i != end; ++i) {
-            for (const QKeySequence &controlKey : controlKeys) {
-                if (Core::Command *cmd = m_edit3DWidget->actionToCommandHash().value(i.value()->action())) {
-                    if (cmd->keySequence().matches(controlKey) == QKeySequence::ExactMatch) {
-                        if (i.value()->action()->isEnabled()) {
-                            m_flyModeDisabledActions.append(i.value());
-                            i.value()->action()->setEnabled(false);
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-    } else {
-        for (Edit3DAction *action : std::as_const(m_flyModeDisabledActions))
-            action->action()->setEnabled(true);
-        m_flyModeDisabledActions.clear();
-    }
 }
 
 void Edit3DView::syncSnapAuxPropsToSettings()
@@ -829,6 +828,75 @@ void Edit3DView::syncCameraSpeedToNewView()
     }
 
     setCameraSpeedAuxData(speed, multiplier);
+}
+
+QmlObjectNode Edit3DView::currentSceneEnv()
+{
+    PropertyName envProp{"environment"};
+    ModelNode checkNode = Utils3D::active3DSceneNode(this);
+    while (checkNode.isValid()) {
+        if (checkNode.metaInfo().isQtQuick3DView3D()) {
+            QmlObjectNode sceneEnvNode = QmlItemNode(checkNode).bindingProperty(envProp)
+                                             .resolveToModelNode();
+            if (sceneEnvNode.isValid())
+                return sceneEnvNode;
+            break;
+        }
+        if (checkNode.hasParentProperty())
+            checkNode = checkNode.parentProperty().parentModelNode();
+        else
+            break;
+    }
+    return {};
+}
+
+void Edit3DView::storeCurrentSceneEnvironment()
+{
+    // If current active scene has scene environment, store relevant properties
+    QmlObjectNode sceneEnvNode = currentSceneEnv();
+    if (sceneEnvNode.isValid()) {
+        QVariantMap lastSceneEnvData;
+
+        auto insertPropValue = [](const PropertyName prop, const QmlObjectNode &node,
+                                  QVariantMap &map) {
+            if (!node.hasProperty(prop))
+                return;
+
+            map.insert(QString::fromUtf8(prop), node.modelValue(prop));
+        };
+
+        auto insertTextureProps = [&](const PropertyName prop) {
+            // For now we just grab the absolute path of texture source for simplicity
+            if (!sceneEnvNode.hasProperty(prop))
+                return;
+
+            QmlObjectNode bindNode = QmlItemNode(sceneEnvNode).bindingProperty(prop)
+                                         .resolveToModelNode();
+            if (bindNode.isValid()) {
+                QVariantMap props;
+                const PropertyName sourceProp = "source";
+                if (bindNode.hasProperty(sourceProp)) {
+                    Utils::FilePath qmlPath = Utils::FilePath::fromUrl(
+                        model()->fileUrl()).absolutePath();
+                    Utils::FilePath sourcePath = Utils::FilePath::fromUrl(
+                        bindNode.modelValue(sourceProp).toUrl());
+
+                    sourcePath = qmlPath.resolvePath(sourcePath);
+
+                    props.insert(QString::fromUtf8(sourceProp),
+                                 sourcePath.absoluteFilePath().toUrl());
+                }
+                lastSceneEnvData.insert(QString::fromUtf8(prop), props);
+            }
+        };
+
+        insertPropValue("backgroundMode", sceneEnvNode, lastSceneEnvData);
+        insertPropValue("clearColor", sceneEnvNode, lastSceneEnvData);
+        insertTextureProps("lightProbe");
+        insertTextureProps("skyBoxCubeMap");
+
+        emitView3DAction(View3DActionType::SetLastSceneEnvData, lastSceneEnvData);
+    }
 }
 
 const QList<Edit3DView::SplitToolState> &Edit3DView::splitToolStates() const
@@ -977,6 +1045,18 @@ void Edit3DView::createEdit3DActions()
         this,
         nullptr,
         QCoreApplication::translate("ShowGridAction", "Toggle the visibility of the helper grid."));
+
+    m_showLookAtAction = std::make_unique<Edit3DAction>(
+        QmlDesigner::Constants::EDIT3D_EDIT_SHOW_LOOKAT,
+        View3DActionType::ShowLookAt,
+        QCoreApplication::translate("ShowLookAtAction", "Show Look-at"),
+        QKeySequence(Qt::Key_L),
+        true,
+        true,
+        QIcon(),
+        this,
+        nullptr,
+        QCoreApplication::translate("ShowLookAtAction", "Toggle the visibility of the edit camera look-at indicator."));
 
     m_showSelectionBoxAction = std::make_unique<Edit3DAction>(
         QmlDesigner::Constants::EDIT3D_EDIT_SHOW_SELECTION_BOX,
@@ -1281,6 +1361,7 @@ void Edit3DView::createEdit3DActions()
     m_rightActions << m_resetAction.get();
 
     m_visibilityToggleActions << m_showGridAction.get();
+    m_visibilityToggleActions << m_showLookAtAction.get();
     m_visibilityToggleActions << m_showSelectionBoxAction.get();
     m_visibilityToggleActions << m_showIconGizmoAction.get();
     m_visibilityToggleActions << m_showCameraFrustumAction.get();

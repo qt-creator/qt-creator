@@ -17,9 +17,9 @@ class ContentLibraryMaterial : public QObject
     Q_PROPERTY(QString bundleMaterialName MEMBER m_name CONSTANT)
     Q_PROPERTY(QUrl bundleMaterialIcon MEMBER m_icon CONSTANT)
     Q_PROPERTY(bool bundleMaterialVisible MEMBER m_visible NOTIFY materialVisibleChanged)
-    Q_PROPERTY(bool bundleMaterialImported READ imported WRITE setImported NOTIFY materialImportedChanged)
+    Q_PROPERTY(bool bundleItemImported READ imported WRITE setImported NOTIFY materialImportedChanged)
     Q_PROPERTY(QString bundleMaterialBaseWebUrl MEMBER m_baseWebUrl CONSTANT)
-    Q_PROPERTY(QString bundleMaterialParentPath READ parentDirPath CONSTANT)
+    Q_PROPERTY(QString bundleMaterialDirPath READ dirPath CONSTANT)
     Q_PROPERTY(QStringList bundleMaterialFiles READ allFiles CONSTANT)
     Q_PROPERTY(QString itemType MEMBER m_itemType CONSTANT)
 
@@ -37,6 +37,7 @@ public:
 
     Q_INVOKABLE bool isDownloaded() const;
 
+    QString name() const;
     QUrl icon() const;
     QString qml() const;
     TypeName type() const;
@@ -46,7 +47,7 @@ public:
 
     bool setImported(bool imported);
     bool imported() const;
-    QString parentDirPath() const;
+    QString dirPath() const;
     QStringList allFiles() const;
 
 signals:

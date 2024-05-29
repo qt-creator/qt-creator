@@ -13,7 +13,6 @@ const char customQtForMCUs[] = "CustomQtForMCUs";
 const char customQt6Project[] = "CustomQt6Project";
 
 const char mainFilePath[] = "MainFilePath";
-const char customImportPaths[] = "CustomImportPaths";
 const char canonicalProjectDir[] ="CanonicalProjectDir";
 
 const char enviromentLaunchedQDS[] = "QTC_LAUNCHED_QDS";

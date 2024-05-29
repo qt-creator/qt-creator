@@ -45,7 +45,12 @@
                 "*.png",
                 "*.svg",
                 "*.hdr",
-                "*.ktx"
+                "*.ktx",
+                "*.bmp",
+                "*.ttf",
+                "*.tiff",
+                "*.webp",
+                "*.gif"
             ],
             "mcuProperties": {
             },

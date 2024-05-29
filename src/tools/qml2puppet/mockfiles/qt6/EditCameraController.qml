@@ -26,9 +26,10 @@ Item {
     readonly property vector3d _defaultCameraPosition: Qt.vector3d(0, 600, 600)
     readonly property vector3d _defaultCameraRotation: Qt.vector3d(-45, 0, 0)
     readonly property real _defaultCameraLookAtDistance: _defaultCameraPosition.length()
-    readonly property real _keyPanAmount: _generalHelper.cameraSpeed
+    readonly property real _keyPanAmount: 1.0
     property bool ignoreToolState: false
     property bool flyMode: viewRoot.flyMode
+    property bool showCrosshairs: false
 
     z: 10
     anchors.fill: parent
@@ -112,7 +113,7 @@ Item {
 
         if (resolvedResult) {
             var newLookAtAndZoom = _generalHelper.approachNode(camera, _defaultCameraLookAtDistance,
-                                                               resolvedResult, view3D);
+                                                               resolvedResult, view3d);
             _lookAtPoint = newLookAtAndZoom.toVector3d();
             _zoomFactor = newLookAtAndZoom.w;
             storeCameraState(0);
@@ -173,11 +174,15 @@ Item {
 
     function rotateCamera(angles)
     {
+        if (flyMode)
+            showCrosshairs = true;
         cameraCtrl._lookAtPoint = _generalHelper.rotateCamera(camera, angles, _lookAtPoint);
     }
 
     function moveCamera(moveVec)
     {
+        if (flyMode)
+            showCrosshairs = true;
         cameraCtrl._lookAtPoint = _generalHelper.moveCamera(camera, _lookAtPoint, moveVec);
     }
 
@@ -243,12 +248,19 @@ Item {
             cameraCtrl._dragging = false;
             cameraCtrl.storeCameraState(0);
         }
-        _generalHelper.stopAllCameraMoves()
+        showCrosshairs = false;
+        _generalHelper.stopAllCameraMoves();
+        _generalHelper.setCameraSpeedModifier(1.0);
+    }
+
+    on_LookAtPointChanged: {
+        viewRoot.overlayViews[splitId].lookAtGizmo.position = _lookAtPoint;
     }
 
     Connections {
         target: _generalHelper
         enabled: viewRoot.activeSplit === cameraCtrl.splitId
+
         function onRequestCameraMove(camera, moveVec) {
             if (camera === cameraCtrl.camera) {
                 cameraCtrl.moveCamera(moveVec);
@@ -260,7 +272,7 @@ Item {
     Image {
         anchors.centerIn: parent
         source: "qrc:///qtquickplugin/mockfiles/images/crosshair.png"
-        visible: cameraCtrl.flyMode && viewRoot.activeSplit === cameraCtrl.splitId
+        visible: cameraCtrl.showCrosshairs && viewRoot.activeSplit === cameraCtrl.splitId
         opacity: 0.7
     }
 
@@ -317,7 +329,7 @@ Item {
         onWheel: (wheel) => {
             if (cameraCtrl.flyMode && cameraCtrl.splitId !== viewRoot.activeSplit)
                 return;
-            viewRoot.activeSplit = cameraCtrl.splitId
+            viewRoot.activeSplit = cameraCtrl.splitId;
             if (cameraCtrl.camera) {
                 // Empirically determined divisor for nice zoom
                 cameraCtrl.zoomRelative(wheel.angleDelta.y / -40);
@@ -326,7 +338,17 @@ Item {
         }
     }
 
+    function setCameraSpeed(event) {
+        if (event.modifiers === Qt.AltModifier)
+            _generalHelper.setCameraSpeedModifier(0.5);
+        else if (event.modifiers === Qt.ShiftModifier)
+            _generalHelper.setCameraSpeedModifier(2.0);
+        else
+            _generalHelper.setCameraSpeedModifier(1.0);
+    }
+
     Keys.onPressed: (event) => {
+        setCameraSpeed(event)
         event.accepted = true;
         if (cameraCtrl.flyMode && event.key === Qt.Key_Space)
             approachObject();
@@ -335,6 +357,7 @@ Item {
     }
 
     Keys.onReleased: (event) => {
+        setCameraSpeed(event)
         event.accepted = true;
         _generalHelper.stopCameraMove(cameraCtrl.getMoveVectorForKey(event.key));
     }

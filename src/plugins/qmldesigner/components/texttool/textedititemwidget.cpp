@@ -38,8 +38,8 @@ void TextEditItemWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem
 
 QLineEdit* TextEditItemWidget::lineEdit() const
 {
-    if (m_lineEdit.isNull()) {
-        m_lineEdit.reset(new QLineEdit);
+    if (!m_lineEdit) {
+        m_lineEdit = std::make_unique<QLineEdit>();
         m_lineEdit->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
         QPalette palette = m_lineEdit->palette();
         static QColor selectionColor = Utils::creatorTheme()->color(Utils::Theme::QmlDesigner_FormEditorSelectionColor);
@@ -49,13 +49,13 @@ QLineEdit* TextEditItemWidget::lineEdit() const
         palette.setColor(QPalette::Text, Qt::black);
         m_lineEdit->setPalette(palette);
     }
-    return m_lineEdit.data();
+    return m_lineEdit.get();
 }
 
 QTextEdit* TextEditItemWidget::textEdit() const
 {
-    if (m_textEdit.isNull()) {
-        m_textEdit.reset(new QTextEdit);
+    if (!m_textEdit) {
+        m_textEdit = std::make_unique<QTextEdit>();
         QPalette palette = m_textEdit->palette();
         static QColor selectionColor = Utils::creatorTheme()->color(Utils::Theme::QmlDesigner_FormEditorSelectionColor);
         palette.setColor(QPalette::Highlight, selectionColor);
@@ -65,7 +65,7 @@ QTextEdit* TextEditItemWidget::textEdit() const
         m_textEdit->setPalette(palette);
     }
 
-    return m_textEdit.data();
+    return m_textEdit.get();
 }
 
 void TextEditItemWidget::activateTextEdit(const QSize &maximumSize)
@@ -83,19 +83,19 @@ void TextEditItemWidget::activateLineEdit()
 
 QString TextEditItemWidget::text() const
 {
-    if (widget() == m_lineEdit.data())
+    if (widget() == m_lineEdit.get())
         return m_lineEdit->text();
-    else if (widget() == m_textEdit.data())
+    else if (widget() == m_textEdit.get())
         return m_textEdit->toPlainText();
     return QString();
 }
 
 void TextEditItemWidget::updateText(const QString &text)
 {
-    if (widget() == m_lineEdit.data()) {
+    if (widget() == m_lineEdit.get()) {
         m_lineEdit->setText(text);
         m_lineEdit->selectAll();
-    } else if (widget() == m_textEdit.data()) {
+    } else if (widget() == m_textEdit.get()) {
         m_textEdit->setText(text);
         m_textEdit->selectAll();
     }

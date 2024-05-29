@@ -20,6 +20,7 @@
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
+#include <QDir>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QQmlEngine>
@@ -40,7 +41,10 @@ ContentLibraryMaterialsModel::ContentLibraryMaterialsModel(ContentLibraryWidget 
 
     qmlRegisterType<QmlDesigner::FileDownloader>("WebFetcher", 1, 0, "FileDownloader");
     qmlRegisterType<QmlDesigner::MultiFileDownloader>("WebFetcher", 1, 0, "MultiFileDownloader");
+}
 
+void ContentLibraryMaterialsModel::loadBundle()
+{
     QDir bundleDir{m_downloadPath};
     if (fetchBundleMetadata(bundleDir) && fetchBundleIcons(bundleDir))
         loadMaterialBundle(bundleDir);
@@ -192,11 +196,9 @@ void ContentLibraryMaterialsModel::downloadSharedFiles(const QDir &targetDir, co
         extractor->setAlwaysCreateDir(false);
         extractor->setClearTargetPathContents(false);
 
-        QObject::connect(extractor, &FileExtractor::finishedChanged, this, [this, downloader, extractor]() {
+        QObject::connect(extractor, &FileExtractor::finishedChanged, this, [downloader, extractor]() {
             downloader->deleteLater();
             extractor->deleteLater();
-
-            createImporter(m_importerBundlePath, m_importerBundleId, m_importerSharedFiles);
         });
 
         extractor->extract();
@@ -205,71 +207,48 @@ void ContentLibraryMaterialsModel::downloadSharedFiles(const QDir &targetDir, co
     downloader->start();
 }
 
-void ContentLibraryMaterialsModel::createImporter(const QString &bundlePath, const QString &bundleId,
-                                                  const QStringList &sharedFiles)
+QString ContentLibraryMaterialsModel::bundleId() const
 {
-    m_importer = new Internal::ContentLibraryBundleImporter(bundlePath, bundleId, sharedFiles);
-#ifdef QDS_USE_PROJECTSTORAGE
-    connect(m_importer,
-            &Internal::ContentLibraryBundleImporter::importFinished,
-            this,
-            [&](const QmlDesigner::TypeName &typeName) {
-                m_importerRunning = false;
-                emit importerRunningChanged();
-                if (typeName.size())
-                    emit bundleMaterialImported(typeName);
-            });
-#else
-    connect(m_importer,
-            &Internal::ContentLibraryBundleImporter::importFinished,
-            this,
-            [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
-                m_importerRunning = false;
-                emit importerRunningChanged();
-                if (metaInfo.isValid())
-                    emit bundleMaterialImported(metaInfo);
-            });
-#endif
-
-    connect(m_importer, &Internal::ContentLibraryBundleImporter::unimportFinished, this,
-            [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
-                Q_UNUSED(metaInfo)
-                m_importerRunning = false;
-                emit importerRunningChanged();
-                emit bundleMaterialUnimported(metaInfo);
-            });
-
-    resetModel();
-    updateIsEmpty();
+    return m_bundleId;
 }
 
-void ContentLibraryMaterialsModel::loadMaterialBundle(const QDir &matBundleDir)
+void ContentLibraryMaterialsModel::loadMaterialBundle(const QDir &bundleDir)
 {
-    if (m_matBundleExists)
+    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+
+    if (m_bundleExists && m_bundleId == compUtils.materialsBundleId())
         return;
 
-    QString matBundlePath = matBundleDir.filePath("material_bundle.json");
+    // clean up
+    qDeleteAll(m_bundleCategories);
+    m_bundleCategories.clear();
+    m_bundleExists = false;
+    m_isEmpty = true;
+    m_bundleObj = {};
+    m_bundleId.clear();
 
-    if (m_matBundleObj.isEmpty()) {
-        QFile matPropsFile(matBundlePath);
+    QString bundlePath = bundleDir.filePath("material_bundle.json");
 
-        if (!matPropsFile.open(QIODevice::ReadOnly)) {
-            qWarning("Couldn't open material_bundle.json");
-            return;
-        }
-
-        QJsonDocument matBundleJsonDoc = QJsonDocument::fromJson(matPropsFile.readAll());
-        if (matBundleJsonDoc.isNull()) {
-            qWarning("Invalid material_bundle.json file");
-            return;
-        } else {
-            m_matBundleObj = matBundleJsonDoc.object();
-        }
+    QFile bundleFile(bundlePath);
+    if (!bundleFile.open(QIODevice::ReadOnly)) {
+        qWarning("Couldn't open material_bundle.json");
+        resetModel();
+        return;
     }
 
-    QString bundleId = m_matBundleObj.value("id").toString();
+    QJsonDocument bundleJsonDoc = QJsonDocument::fromJson(bundleFile.readAll());
+    if (bundleJsonDoc.isNull()) {
+        qWarning("Invalid material_bundle.json file");
+        resetModel();
+        return;
+    }
 
-    const QJsonObject catsObj = m_matBundleObj.value("categories").toObject();
+    m_bundleObj = bundleJsonDoc.object();
+
+    QString bundleType = compUtils.materialsBundleType();
+    m_bundleId = compUtils.materialsBundleId();
+
+    const QJsonObject catsObj = m_bundleObj.value("categories").toObject();
     const QStringList categories = catsObj.keys();
     for (const QString &cat : categories) {
         auto category = new ContentLibraryMaterialsCategory(this, cat);
@@ -281,16 +260,13 @@ void ContentLibraryMaterialsModel::loadMaterialBundle(const QDir &matBundleDir)
 
             QStringList files;
             const QJsonArray assetsArr = matObj.value("files").toArray();
-            for (const auto /*QJson{Const,}ValueRef*/ &asset : assetsArr)
+            for (const QJsonValueConstRef &asset : assetsArr)
                 files.append(asset.toString());
 
-            QUrl icon = QUrl::fromLocalFile(matBundleDir.filePath(matObj.value("icon").toString()));
+            QUrl icon = QUrl::fromLocalFile(bundleDir.filePath(matObj.value("icon").toString()));
             QString qml = matObj.value("qml").toString();
-            TypeName type = QLatin1String("%1.%2.%3")
-                                .arg(QmlDesignerPlugin::instance()->documentManager()
-                                         .generatedComponentUtils().componentBundlesTypePrefix(),
-                                     bundleId,
-                                     qml.chopped(4)).toLatin1(); // chopped(4): remove .qml
+            TypeName type = QLatin1String("%1.%2")
+                                .arg(bundleType, qml.chopped(4)).toLatin1(); // chopped(4): remove .qml
 
             auto bundleMat = new ContentLibraryMaterial(category, matName, qml, type, icon, files,
                                                         m_downloadPath, m_baseUrl);
@@ -300,30 +276,23 @@ void ContentLibraryMaterialsModel::loadMaterialBundle(const QDir &matBundleDir)
         m_bundleCategories.append(category);
     }
 
-    QStringList sharedFiles;
-    const QJsonArray sharedFilesArr = m_matBundleObj.value("sharedFiles").toArray();
-    for (const auto /*QJson{Const,}ValueRef*/ &file : sharedFilesArr)
-        sharedFiles.append(file.toString());
+    m_bundleSharedFiles.clear();
+    const QJsonArray sharedFilesArr = m_bundleObj.value("sharedFiles").toArray();
+    for (const QJsonValueConstRef &file : sharedFilesArr)
+        m_bundleSharedFiles.append(file.toString());
 
     QStringList missingSharedFiles;
-    for (const QString &s : std::as_const(sharedFiles)) {
-        const QString fullSharedFilePath = matBundleDir.filePath(s);
-
-        if (!QFileInfo::exists(fullSharedFilePath))
+    for (const QString &s : std::as_const(m_bundleSharedFiles)) {
+        if (!QFileInfo::exists(bundleDir.filePath(s)))
             missingSharedFiles.push_back(s);
     }
 
-    if (missingSharedFiles.length() > 0) {
-        m_importerBundlePath = matBundleDir.path();
-        m_importerBundleId = bundleId;
-        m_importerSharedFiles = sharedFiles;
-        downloadSharedFiles(matBundleDir, missingSharedFiles);
-    } else {
-        createImporter(matBundleDir.path(), bundleId, sharedFiles);
-    }
+    if (missingSharedFiles.length() > 0)
+        downloadSharedFiles(bundleDir, missingSharedFiles);
 
-    m_matBundleExists = true;
-    emit matBundleExistsChanged();
+    m_bundleExists = true;
+    updateIsEmpty();
+    resetModel();
 }
 
 bool ContentLibraryMaterialsModel::hasRequiredQuick3DImport() const
@@ -333,12 +302,7 @@ bool ContentLibraryMaterialsModel::hasRequiredQuick3DImport() const
 
 bool ContentLibraryMaterialsModel::matBundleExists() const
 {
-    return m_matBundleExists;
-}
-
-Internal::ContentLibraryBundleImporter *ContentLibraryMaterialsModel::bundleImporter() const
-{
-    return m_importer;
+    return m_bundleExists;
 }
 
 void ContentLibraryMaterialsModel::setSearchText(const QString &searchText)
@@ -360,11 +324,11 @@ void ContentLibraryMaterialsModel::setSearchText(const QString &searchText)
     updateIsEmpty();
 }
 
-void ContentLibraryMaterialsModel::updateImportedState(const QStringList &importedMats)
+void ContentLibraryMaterialsModel::updateImportedState(const QStringList &importedItems)
 {
     bool changed = false;
     for (ContentLibraryMaterialsCategory *cat : std::as_const(m_bundleCategories))
-        changed |= cat->updateImportedState(importedMats);
+        changed |= cat->updateImportedState(importedItems);
 
     if (changed)
         resetModel();
@@ -400,42 +364,23 @@ void ContentLibraryMaterialsModel::applyToSelected(ContentLibraryMaterial *mat, 
 
 void ContentLibraryMaterialsModel::addToProject(ContentLibraryMaterial *mat)
 {
-    QString err = m_importer->importComponent(mat->qml(), mat->files());
+    QString err = m_widget->importer()->importComponent(mat->dirPath(), mat->type(), mat->qml(),
+                                                        mat->files() + m_bundleSharedFiles);
 
-    if (err.isEmpty()) {
-        m_importerRunning = true;
-        emit importerRunningChanged();
-    } else {
+    if (err.isEmpty())
+        m_widget->setImporterRunning(true);
+    else
         qWarning() << __FUNCTION__ << err;
-    }
 }
 
 void ContentLibraryMaterialsModel::removeFromProject(ContentLibraryMaterial *mat)
 {
-    emit bundleMaterialAboutToUnimport(mat->type());
+    QString err = m_widget->importer()->unimportComponent(mat->type(), mat->qml());
 
-     QString err = m_importer->unimportComponent(mat->qml());
-
-    if (err.isEmpty()) {
-        m_importerRunning = true;
-        emit importerRunningChanged();
-    } else {
+    if (err.isEmpty())
+        m_widget->setImporterRunning(true);
+    else
         qWarning() << __FUNCTION__ << err;
-    }
-}
-
-bool ContentLibraryMaterialsModel::hasModelSelection() const
-{
-    return m_hasModelSelection;
-}
-
-void ContentLibraryMaterialsModel::setHasModelSelection(bool b)
-{
-    if (b == m_hasModelSelection)
-        return;
-
-    m_hasModelSelection = b;
-    emit hasModelSelectionChanged();
 }
 
 } // namespace QmlDesigner

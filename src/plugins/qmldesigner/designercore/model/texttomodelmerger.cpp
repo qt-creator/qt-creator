@@ -94,21 +94,23 @@ bool isGlobalQtEnums(QStringView value)
 
 bool isKnownEnumScopes(QStringView value)
 {
-    static constexpr auto list = Utils::to_array<std::u16string_view>({u"TextInput",
-                                                                       u"TextEdit",
-                                                                       u"Material",
-                                                                       u"Universal",
-                                                                       u"Font",
-                                                                       u"Shape",
-                                                                       u"ShapePath",
-                                                                       u"AbstractButton",
-                                                                       u"Text",
-                                                                       u"ShaderEffectSource",
-                                                                       u"Grid",
-                                                                       u"ItemLayer",
-                                                                       u"ImageLayer",
-                                                                       u"SpriteLayer",
-                                                                       u"Light"});
+    static constexpr auto list = Utils::to_array<std::u16string_view>(
+        {u"TextInput",
+         u"TextEdit",
+         u"Material",
+         u"Universal",
+         u"Font",
+         u"Shape",
+         u"ShapePath",
+         u"AbstractButton",
+         u"Text",
+         u"ShaderEffectSource",
+         u"Grid",
+         u"ItemLayer",
+         u"ImageLayer",
+         u"SpriteLayer",
+         u"Light",
+         u"ExtendedSceneEnvironment.GlowBlendMode"});
 
     return std::find(std::begin(list), std::end(list), QmlDesigner::ModelUtils::toStdStringView(value))
            != std::end(list);
@@ -559,6 +561,11 @@ public:
             //Check for known enum scopes used globally
             if (isKnownEnumScopes(astValueList.constFirst()))
                 return QVariant::fromValue(Enumeration(astValue));
+        } else if (astValueList.size() == 3) {
+            QString enumName = astValueList.constFirst() + '.' + astValueList.at(1);
+            if (isKnownEnumScopes(enumName))
+                return QVariant::fromValue(
+                    Enumeration(enumName.toUtf8(), astValueList.constLast().toUtf8()));
         }
 
         auto eStmt = AST::cast<AST::ExpressionStatement *>(rhs);

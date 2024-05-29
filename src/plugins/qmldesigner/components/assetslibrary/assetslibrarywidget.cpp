@@ -7,7 +7,6 @@
 #include "assetslibrarymodel.h"
 #include "assetslibraryview.h"
 
-#include <asset.h>
 #include <designeractionmanager.h>
 #include <designerpaths.h>
 #include <hdrimage.h>
@@ -18,6 +17,7 @@
 #include <qmldesignerplugin.h>
 #include <studioquickwidget.h>
 #include <theme.h>
+#include <uniquename.h>
 #include <utils3d.h>
 
 #include <coreplugin/fileutils.h>
@@ -25,6 +25,7 @@
 #include <coreplugin/messagebox.h>
 
 #include <utils/algorithm.h>
+#include <utils/asset.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>
@@ -94,7 +95,7 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFon
     , m_assetsModel{new AssetsLibraryModel(this)}
     , m_assetsView{view}
     , m_createTextures{view}
-    , m_assetsWidget{new StudioQuickWidget(this)}
+    , m_assetsWidget{Utils::makeUniqueObjectPtr<StudioQuickWidget>(this)}
 {
     setWindowTitle(tr("Assets Library", "Title of assets library widget"));
     setMinimumWidth(250);
@@ -130,7 +131,7 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFon
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins({});
     layout->setSpacing(0);
-    layout->addWidget(m_assetsWidget.data());
+    layout->addWidget(m_assetsWidget.get());
 
     updateSearch();
 
@@ -174,23 +175,10 @@ void AssetsLibraryWidget::deleteSelectedAssets()
 
 QString AssetsLibraryWidget::getUniqueEffectPath(const QString &parentFolder, const QString &effectName)
 {
-    auto genEffectPath = [&parentFolder](const QString &name) {
-        QString effectsDir = ModelNodeOperations::getEffectsDefaultDirectory(parentFolder);
-        return QLatin1String("%1/%2.qep").arg(effectsDir, name);
-    };
+    QString effectsDir = ModelNodeOperations::getEffectsDefaultDirectory(parentFolder);
+    QString effectPath = QLatin1String("%1/%2.qep").arg(effectsDir, effectName);
 
-    QString uniqueName = effectName;
-    QString path = genEffectPath(uniqueName);
-    QFileInfo file{path};
-
-    while (file.exists()) {
-        uniqueName = m_assetsModel->getUniqueName(uniqueName);
-
-        path = genEffectPath(uniqueName);
-        file.setFile(path);
-    }
-
-    return path;
+    return UniqueName::generatePath(effectPath);
 }
 
 bool AssetsLibraryWidget::createNewEffect(const QString &effectPath, bool openInEffectComposer)
@@ -645,12 +633,6 @@ void AssetsLibraryWidget::addResources(const QStringList &files, bool showDialog
                                                       .arg(fileNames.join(' ')));
         }
     }
-}
-
-bool AssetsLibraryWidget::userBundleEnabled() const
-{
-    // TODO: this method is to be removed after user bundle implementation is complete
-    return Core::ICore::settings()->value("QML/Designer/UseExperimentalFeatures45", false).toBool();
 }
 
 void AssetsLibraryWidget::addAssetsToContentLibrary(const QStringList &assetPaths)

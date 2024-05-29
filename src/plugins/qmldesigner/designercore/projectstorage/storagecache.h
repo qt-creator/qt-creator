@@ -313,7 +313,7 @@ private:
             return entries.end();
         }
 
-        auto value = *found;
+        const auto &value = *found;
 
         if (value == view) {
             return found;

@@ -29,7 +29,7 @@ Item {
 
     property alias iconSource: iconImage.source
 
-    signal clicked(Node node, bool multi)
+    signal clicked(Node node, int button, bool multi)
 
     function hasPoint(x, y)
     {
@@ -83,7 +83,7 @@ Item {
                     }
 
                     onClicked: (mouse)=> {
-                        iconGizmo.clicked(iconGizmo.targetNode,
+                        iconGizmo.clicked(iconGizmo.targetNode, mouse.button,
                                           mouse.modifiers & Qt.ControlModifier);
                     }
                     hoverEnabled: iconGizmo.highlightOnHover && !iconGizmo.selected

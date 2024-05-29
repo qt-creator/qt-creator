@@ -22,6 +22,7 @@ namespace {
 using QmlDesigner::Enumeration;
 using QmlDesigner::ModelNode;
 using QmlDesigner::ModelNodes;
+using QmlDesigner::Storage::ModuleKind;
 using QmlDesigner::Storage::PropertyDeclarationTraits;
 using QmlDesigner::Storage::TypeTraits;
 
@@ -29,10 +30,11 @@ class PropertyMetaInfo : public ::testing::Test
 {
 protected:
     QmlDesigner::NodeMetaInfo createNodeMetaInfo(Utils::SmallStringView moduleName,
+                                                 ModuleKind moduleKind,
                                                  Utils::SmallStringView typeName,
                                                  QmlDesigner::Storage::TypeTraits typeTraits = {})
     {
-        auto moduleId = projectStorageMock.createModule(moduleName);
+        auto moduleId = projectStorageMock.createModule(moduleName, moduleKind);
         auto typeId = projectStorageMock.createType(moduleId, typeName, typeTraits);
 
         return QmlDesigner::NodeMetaInfo{typeId, &projectStorageMock};
@@ -47,7 +49,7 @@ protected:
                               QmlDesigner::Import::createLibraryImport("QtQuick"),
                               QmlDesigner::Import::createLibraryImport("QtQml.Models")},
                              QUrl::fromLocalFile(pathCache.path.toQString())};
-    QmlDesigner::NodeMetaInfo nodeInfo = createNodeMetaInfo("QtQuick", "Foo");
+    QmlDesigner::NodeMetaInfo nodeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "Foo");
 };
 
 TEST_F(PropertyMetaInfo, name)
@@ -71,7 +73,7 @@ TEST_F(PropertyMetaInfo, default_has_no_name)
 
 TEST_F(PropertyMetaInfo, property_type)
 {
-    auto barInfo = createNodeMetaInfo("QtQuick", "Bar");
+    auto barInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "Bar");
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, barInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
 
@@ -91,7 +93,7 @@ TEST_F(PropertyMetaInfo, default_hads_invalid_property_type)
 
 TEST_F(PropertyMetaInfo, type)
 {
-    auto barInfo = createNodeMetaInfo("QtQuick", "Bar");
+    auto barInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "Bar");
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, barInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
 
@@ -181,7 +183,7 @@ TEST_F(PropertyMetaInfo, is_enumeration)
 {
     TypeTraits traits;
     traits.isEnum = true;
-    auto enumInfo = createNodeMetaInfo("QtQuick", "MyEnum", traits);
+    auto enumInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "MyEnum", traits);
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, enumInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
 
@@ -192,7 +194,7 @@ TEST_F(PropertyMetaInfo, is_enumeration)
 
 TEST_F(PropertyMetaInfo, is_not_enumeration)
 {
-    auto notEnumInfo = createNodeMetaInfo("QtQuick", "NoEnum", {});
+    auto notEnumInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "NoEnum", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, notEnumInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
 
@@ -275,7 +277,7 @@ TEST_F(PropertyMetaInfo, cast_to_enumeration)
 {
     TypeTraits traits;
     traits.isEnum = true;
-    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", "MyEnum", traits);
+    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "MyEnum", traits);
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     Enumeration enumeration{"MyEnum.Foo"};
@@ -288,7 +290,7 @@ TEST_F(PropertyMetaInfo, cast_to_enumeration)
 
 TEST_F(PropertyMetaInfo, dont_to_cast_enumeration_if_property_type_is_not_enumeration)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", "MyEnum", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "MyEnum", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     Enumeration enumeration{"MyEnum.Foo"};
@@ -303,7 +305,7 @@ TEST_F(PropertyMetaInfo, dont_to_cast_enumeration_if_value_is_not_Enumeration)
 {
     TypeTraits traits;
     traits.isEnum = true;
-    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", "MyEnum", traits);
+    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "MyEnum", traits);
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant::fromValue(QString{"enumeration"});
@@ -315,7 +317,7 @@ TEST_F(PropertyMetaInfo, dont_to_cast_enumeration_if_value_is_not_Enumeration)
 
 TEST_F(PropertyMetaInfo, cast_to_model_node)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "var", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "var", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant::fromValue(model.rootModelNode());
@@ -327,7 +329,7 @@ TEST_F(PropertyMetaInfo, cast_to_model_node)
 
 TEST_F(PropertyMetaInfo, cast_to_qvariant_always_returns_the_save_variant_if_the_property_type_is_var)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "var", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "var", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant::fromValue(QString{"foo"});
@@ -339,7 +341,7 @@ TEST_F(PropertyMetaInfo, cast_to_qvariant_always_returns_the_save_variant_if_the
 
 TEST_F(PropertyMetaInfo, cast_double_to_double)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "double", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "double", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant::fromValue(14.2);
@@ -351,7 +353,7 @@ TEST_F(PropertyMetaInfo, cast_double_to_double)
 
 TEST_F(PropertyMetaInfo, cast_int_to_double_returns_number_variant)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "double", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "double", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant::fromValue(14);
@@ -363,7 +365,7 @@ TEST_F(PropertyMetaInfo, cast_int_to_double_returns_number_variant)
 
 TEST_F(PropertyMetaInfo, cast_default_to_double_returns_zero_variant)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "double", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "double", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant();
@@ -375,7 +377,7 @@ TEST_F(PropertyMetaInfo, cast_default_to_double_returns_zero_variant)
 
 TEST_F(PropertyMetaInfo, cast_qstring_to_double_returns_zero_variant)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "double", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "double", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant::fromValue(QString{"foo"});
@@ -387,7 +389,7 @@ TEST_F(PropertyMetaInfo, cast_qstring_to_double_returns_zero_variant)
 
 TEST_F(PropertyMetaInfo, cast_float_to_float)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML-cppnative", "float", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::CppLibrary, "float", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant::fromValue(14.2f);
@@ -399,7 +401,7 @@ TEST_F(PropertyMetaInfo, cast_float_to_float)
 
 TEST_F(PropertyMetaInfo, cast_int_to_float_returns_number_variant)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML-cppnative", "float", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::CppLibrary, "float", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant::fromValue(14);
@@ -411,7 +413,7 @@ TEST_F(PropertyMetaInfo, cast_int_to_float_returns_number_variant)
 
 TEST_F(PropertyMetaInfo, cast_default_to_float_returns_zero_variant)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML-cppnative", "float", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::CppLibrary, "float", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant();
@@ -423,7 +425,7 @@ TEST_F(PropertyMetaInfo, cast_default_to_float_returns_zero_variant)
 
 TEST_F(PropertyMetaInfo, cast_qstring_to_float_returns_zero_variant)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML-cppnative", "float", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::CppLibrary, "float", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant::fromValue(QString{"foo"});
@@ -435,7 +437,7 @@ TEST_F(PropertyMetaInfo, cast_qstring_to_float_returns_zero_variant)
 
 TEST_F(PropertyMetaInfo, cast_int_to_int)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "int", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "int", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant::fromValue(14);
@@ -447,7 +449,7 @@ TEST_F(PropertyMetaInfo, cast_int_to_int)
 
 TEST_F(PropertyMetaInfo, cast_double_to_int_returns_number_variant)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "int", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "int", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant::fromValue(14.2);
@@ -459,7 +461,7 @@ TEST_F(PropertyMetaInfo, cast_double_to_int_returns_number_variant)
 
 TEST_F(PropertyMetaInfo, cast_default_to_int_returns_zero_variant)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "int", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "int", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant();
@@ -471,7 +473,7 @@ TEST_F(PropertyMetaInfo, cast_default_to_int_returns_zero_variant)
 
 TEST_F(PropertyMetaInfo, cast_qstring_to_int_returns_zero_variant)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "int", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "int", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant::fromValue(QString{"foo"});
@@ -483,7 +485,7 @@ TEST_F(PropertyMetaInfo, cast_qstring_to_int_returns_zero_variant)
 
 TEST_F(PropertyMetaInfo, cast_bool_to_bool)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "bool", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "bool", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant::fromValue(true);
@@ -495,7 +497,7 @@ TEST_F(PropertyMetaInfo, cast_bool_to_bool)
 
 TEST_F(PropertyMetaInfo, cast_float_to_bool_returns_boolean_variant)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "bool", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "bool", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant::fromValue(14.2f);
@@ -507,7 +509,7 @@ TEST_F(PropertyMetaInfo, cast_float_to_bool_returns_boolean_variant)
 
 TEST_F(PropertyMetaInfo, cast_double_to_bool_returns_boolean_variant)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "bool", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "bool", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant::fromValue(14.2);
@@ -519,7 +521,7 @@ TEST_F(PropertyMetaInfo, cast_double_to_bool_returns_boolean_variant)
 
 TEST_F(PropertyMetaInfo, cast_int_to_bool_returns_boolean_variant)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "bool", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "bool", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant::fromValue(14);
@@ -531,7 +533,7 @@ TEST_F(PropertyMetaInfo, cast_int_to_bool_returns_boolean_variant)
 
 TEST_F(PropertyMetaInfo, cast_long_to_bool_returns_boolean_variant)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "bool", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "bool", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant::fromValue(14L);
@@ -543,7 +545,7 @@ TEST_F(PropertyMetaInfo, cast_long_to_bool_returns_boolean_variant)
 
 TEST_F(PropertyMetaInfo, cast_long_long_to_bool_returns_boolean_variant)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "bool", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "bool", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant::fromValue(14LL);
@@ -555,7 +557,7 @@ TEST_F(PropertyMetaInfo, cast_long_long_to_bool_returns_boolean_variant)
 
 TEST_F(PropertyMetaInfo, cast_default_to_bool_returns_zero_variant)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "bool", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "bool", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant();
@@ -567,7 +569,7 @@ TEST_F(PropertyMetaInfo, cast_default_to_bool_returns_zero_variant)
 
 TEST_F(PropertyMetaInfo, cast_qstring_to_bool_returns_zero_variant)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "bool", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "bool", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant::fromValue(QString{"foo"});
@@ -579,7 +581,7 @@ TEST_F(PropertyMetaInfo, cast_qstring_to_bool_returns_zero_variant)
 
 TEST_F(PropertyMetaInfo, cast_string_to_string)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "string", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "string", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant::fromValue(QString{"foo"});
@@ -591,7 +593,7 @@ TEST_F(PropertyMetaInfo, cast_string_to_string)
 
 TEST_F(PropertyMetaInfo, cast_QByteArray_to_empty_string)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "string", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "string", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant::fromValue(QByteArray{"foo"});
@@ -603,7 +605,7 @@ TEST_F(PropertyMetaInfo, cast_QByteArray_to_empty_string)
 
 TEST_F(PropertyMetaInfo, cast_int_to_empty_string)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "string", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "string", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant::fromValue(14);
@@ -615,7 +617,7 @@ TEST_F(PropertyMetaInfo, cast_int_to_empty_string)
 
 TEST_F(PropertyMetaInfo, cast_default_to_empty_string)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "string", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "string", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant();
@@ -627,7 +629,7 @@ TEST_F(PropertyMetaInfo, cast_default_to_empty_string)
 
 TEST_F(PropertyMetaInfo, cast_datatime_to_datetime)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "date", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "date", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto dataTime = QDateTime::currentDateTime();
@@ -640,7 +642,7 @@ TEST_F(PropertyMetaInfo, cast_datatime_to_datetime)
 
 TEST_F(PropertyMetaInfo, cast_int_to_datetime_returns_default_datetime)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "date", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "date", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant::fromValue(14);
@@ -652,7 +654,7 @@ TEST_F(PropertyMetaInfo, cast_int_to_datetime_returns_default_datetime)
 
 TEST_F(PropertyMetaInfo, cast_string_to_datetime_returns_default_datetime)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "date", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "date", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant::fromValue(QString{"Monday"});
@@ -664,7 +666,7 @@ TEST_F(PropertyMetaInfo, cast_string_to_datetime_returns_default_datetime)
 
 TEST_F(PropertyMetaInfo, cast_default_to_datetime_returns_default_datetime)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "date", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "date", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant();
@@ -676,7 +678,7 @@ TEST_F(PropertyMetaInfo, cast_default_to_datetime_returns_default_datetime)
 
 TEST_F(PropertyMetaInfo, cast_url_to_url)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "url", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "url", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto url = QUrl("http://www.qt.io/future");
@@ -689,7 +691,7 @@ TEST_F(PropertyMetaInfo, cast_url_to_url)
 
 TEST_F(PropertyMetaInfo, cast_string_to_empty_url)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "url", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "url", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant::fromValue(QString{"http://www.qt.io/future"});
@@ -701,7 +703,7 @@ TEST_F(PropertyMetaInfo, cast_string_to_empty_url)
 
 TEST_F(PropertyMetaInfo, cast_default_to_empty_url)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QML", "url", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QML", ModuleKind::QmlLibrary, "url", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant();
@@ -713,7 +715,7 @@ TEST_F(PropertyMetaInfo, cast_default_to_empty_url)
 
 TEST_F(PropertyMetaInfo, cast_color_to_color)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", "color", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "color", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto color = QColor(Qt::red);
@@ -726,7 +728,7 @@ TEST_F(PropertyMetaInfo, cast_color_to_color)
 
 TEST_F(PropertyMetaInfo, cast_string_to_null_color)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", "color", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "color", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant("red");
@@ -738,7 +740,7 @@ TEST_F(PropertyMetaInfo, cast_string_to_null_color)
 
 TEST_F(PropertyMetaInfo, cast_int_to_null_color)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", "color", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "color", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant(14);
@@ -750,7 +752,7 @@ TEST_F(PropertyMetaInfo, cast_int_to_null_color)
 
 TEST_F(PropertyMetaInfo, cast_default_to_null_color)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", "color", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "color", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant();
@@ -762,7 +764,7 @@ TEST_F(PropertyMetaInfo, cast_default_to_null_color)
 
 TEST_F(PropertyMetaInfo, cast_vector2d_to_vector2d)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", "vector2d", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "vector2d", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto vector2d = QVector2D{32.2f, 2.2f};
@@ -775,7 +777,7 @@ TEST_F(PropertyMetaInfo, cast_vector2d_to_vector2d)
 
 TEST_F(PropertyMetaInfo, cast_string_to_vector2d_returns_an_empty_vector2d)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", "vector2d", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "vector2d", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant(QString{"foo"});
@@ -787,7 +789,7 @@ TEST_F(PropertyMetaInfo, cast_string_to_vector2d_returns_an_empty_vector2d)
 
 TEST_F(PropertyMetaInfo, cast_int_to_vector2d_returns_an_empty_vector2d)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", "vector2d", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "vector2d", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant(12);
@@ -799,7 +801,7 @@ TEST_F(PropertyMetaInfo, cast_int_to_vector2d_returns_an_empty_vector2d)
 
 TEST_F(PropertyMetaInfo, cast_vector3d_to_vector2d_returns_an_empty_vector2d)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", "vector2d", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "vector2d", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant(QVector3D{32.2f, 2.2f, 784.f});
@@ -811,7 +813,7 @@ TEST_F(PropertyMetaInfo, cast_vector3d_to_vector2d_returns_an_empty_vector2d)
 
 TEST_F(PropertyMetaInfo, cast_default_to_vector2d_returns_an_empty_vector2d)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", "vector2d", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "vector2d", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant();
@@ -823,7 +825,7 @@ TEST_F(PropertyMetaInfo, cast_default_to_vector2d_returns_an_empty_vector2d)
 
 TEST_F(PropertyMetaInfo, cast_vector3d_to_vector3d)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", "vector3d", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "vector3d", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto vector3d = QVector3D{32.2f, 2.2f, 44.4f};
@@ -836,7 +838,7 @@ TEST_F(PropertyMetaInfo, cast_vector3d_to_vector3d)
 
 TEST_F(PropertyMetaInfo, cast_string_to_vector3d_returns_an_empty_vector3d)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", "vector3d", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "vector3d", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant(QString{"foo"});
@@ -848,7 +850,7 @@ TEST_F(PropertyMetaInfo, cast_string_to_vector3d_returns_an_empty_vector3d)
 
 TEST_F(PropertyMetaInfo, cast_int_to_vector3d_returns_an_empty_vector3d)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", "vector3d", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "vector3d", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant(12);
@@ -860,7 +862,7 @@ TEST_F(PropertyMetaInfo, cast_int_to_vector3d_returns_an_empty_vector3d)
 
 TEST_F(PropertyMetaInfo, cast_vector4d_to_vector3d_returns_an_empty_vector3d)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", "vector3d", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "vector3d", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant(QVector4D{32.2f, 2.2f, 784.f, 99.f});
@@ -872,7 +874,7 @@ TEST_F(PropertyMetaInfo, cast_vector4d_to_vector3d_returns_an_empty_vector3d)
 
 TEST_F(PropertyMetaInfo, cast_default_to_vector3d_returns_an_empty_vector3d)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", "vector3d", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "vector3d", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant();
@@ -884,7 +886,7 @@ TEST_F(PropertyMetaInfo, cast_default_to_vector3d_returns_an_empty_vector3d)
 
 TEST_F(PropertyMetaInfo, cast_vector4d_to_vector4d)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", "vector4d", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "vector4d", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto vector4d = QVector4D{32.2f, 2.2f, 44.4f, 23.f};
@@ -897,7 +899,7 @@ TEST_F(PropertyMetaInfo, cast_vector4d_to_vector4d)
 
 TEST_F(PropertyMetaInfo, cast_string_to_vector4d_returns_an_empty_vector4d)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", "vector4d", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "vector4d", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant(QString{"foo"});
@@ -909,7 +911,7 @@ TEST_F(PropertyMetaInfo, cast_string_to_vector4d_returns_an_empty_vector4d)
 
 TEST_F(PropertyMetaInfo, cast_int_to_vector4d_returns_an_empty_vector4d)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", "vector4d", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "vector4d", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant(12);
@@ -921,7 +923,7 @@ TEST_F(PropertyMetaInfo, cast_int_to_vector4d_returns_an_empty_vector4d)
 
 TEST_F(PropertyMetaInfo, cast_vector2d_to_vector4d_returns_an_empty_vector4d)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", "vector4d", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "vector4d", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant(QVector2D{32.2f, 2.2f});
@@ -933,7 +935,7 @@ TEST_F(PropertyMetaInfo, cast_vector2d_to_vector4d_returns_an_empty_vector4d)
 
 TEST_F(PropertyMetaInfo, cast_default_to_vector4d_returns_an_empty_vector4d)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", "vector4d", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "vector4d", {});
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant();
@@ -955,7 +957,7 @@ TEST_F(PropertyMetaInfo, default_cast_to_invalid_variant)
 
 TEST_F(PropertyMetaInfo, not_existing_property_cast_returns_invalid_value)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", "vector4d", {});
+    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", ModuleKind::QmlLibrary, "vector4d", {});
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant(43);
 

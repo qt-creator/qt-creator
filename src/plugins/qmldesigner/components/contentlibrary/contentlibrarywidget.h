@@ -5,6 +5,10 @@
 
 #include "createtexture.h"
 
+#include <modelfwd.h>
+
+#include <utils/uniqueobjectptr.h>
+
 #include <QFrame>
 #include <QPointer>
 
@@ -18,13 +22,15 @@ class StudioQuickWidget;
 
 namespace QmlDesigner {
 
-class ContentLibraryEffect;
+class ContentLibraryBundleImporter;
 class ContentLibraryEffectsModel;
+class ContentLibraryItem;
 class ContentLibraryMaterial;
 class ContentLibraryMaterialsModel;
 class ContentLibraryTexture;
 class ContentLibraryTexturesModel;
 class ContentLibraryUserModel;
+class NodeMetaInfo;
 
 class ContentLibraryWidget : public QFrame
 {
@@ -34,6 +40,8 @@ class ContentLibraryWidget : public QFrame
     Q_PROPERTY(bool hasMaterialLibrary READ hasMaterialLibrary NOTIFY hasMaterialLibraryChanged)
     Q_PROPERTY(bool hasActive3DScene READ hasActive3DScene WRITE setHasActive3DScene NOTIFY hasActive3DSceneChanged)
     Q_PROPERTY(bool isQt6Project READ isQt6Project NOTIFY isQt6ProjectChanged)
+    Q_PROPERTY(bool importerRunning READ importerRunning WRITE setImporterRunning NOTIFY importerRunningChanged)
+    Q_PROPERTY(bool hasModelSelection READ hasModelSelection NOTIFY hasModelSelectionChanged)
 
     // Needed for a workaround for a bug where after drag-n-dropping an item, the ScrollView scrolls to a random position
     Q_PROPERTY(bool isDragging MEMBER m_isDragging NOTIFY isDraggingChanged)
@@ -58,9 +66,14 @@ public:
     bool isQt6Project() const;
     void setIsQt6Project(bool b);
 
-    Q_INVOKABLE void handleSearchFilterChanged(const QString &filterText);
+    bool importerRunning() const;
+    void setImporterRunning(bool b);
+
+    bool hasModelSelection() const;
+    void setHasModelSelection(bool b);
 
     void setMaterialsModel(QPointer<ContentLibraryMaterialsModel> newMaterialsModel);
+    void updateImportedState(const QString &bundleId);
 
     QPointer<ContentLibraryMaterialsModel> materialsModel() const;
     QPointer<ContentLibraryTexturesModel> texturesModel() const;
@@ -68,7 +81,8 @@ public:
     QPointer<ContentLibraryEffectsModel> effectsModel() const;
     QPointer<ContentLibraryUserModel> userModel() const;
 
-    Q_INVOKABLE void startDragEffect(QmlDesigner::ContentLibraryEffect *eff, const QPointF &mousePos);
+    Q_INVOKABLE void handleSearchFilterChanged(const QString &filterText);
+    Q_INVOKABLE void startDragItem(QmlDesigner::ContentLibraryItem *item, const QPointF &mousePos);
     Q_INVOKABLE void startDragMaterial(QmlDesigner::ContentLibraryMaterial *mat, const QPointF &mousePos);
     Q_INVOKABLE void startDragTexture(QmlDesigner::ContentLibraryTexture *tex, const QPointF &mousePos);
     Q_INVOKABLE void addImage(QmlDesigner::ContentLibraryTexture *tex);
@@ -76,12 +90,13 @@ public:
     Q_INVOKABLE void addLightProbe(QmlDesigner::ContentLibraryTexture *tex);
     Q_INVOKABLE void updateSceneEnvState();
     Q_INVOKABLE void markTextureUpdated(const QString &textureKey);
-    Q_INVOKABLE bool userBundleEnabled() const;
 
     QSize sizeHint() const override;
 
+    ContentLibraryBundleImporter *importer() const;
+
 signals:
-    void bundleEffectDragStarted(QmlDesigner::ContentLibraryEffect *bundleEff);
+    void bundleItemDragStarted(QmlDesigner::ContentLibraryItem *item);
     void bundleMaterialDragStarted(QmlDesigner::ContentLibraryMaterial *bundleMat);
     void bundleTextureDragStarted(QmlDesigner::ContentLibraryTexture *bundleTex);
     void addTextureRequested(const QString texPath, QmlDesigner::AddTextureMode mode);
@@ -91,6 +106,8 @@ signals:
     void hasActive3DSceneChanged();
     void isDraggingChanged();
     void isQt6ProjectChanged();
+    void importerRunningChanged();
+    void hasModelSelectionChanged();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -99,7 +116,6 @@ private:
     void reloadQmlSource();
     void updateSearch();
     void setIsDragging(bool val);
-    QString findTextureBundlePath();
     void loadTextureBundles();
     QVariantMap readTextureBundleJson();
     bool fetchTextureBundleJson(const QDir &bundleDir);
@@ -110,19 +126,21 @@ private:
         const QString &existingMetaFile, const QString downloadedMetaFile);
     QStringList saveNewTextures(const QDir &bundleDir, const QStringList &newFiles);
     void populateTextureBundleModels();
+    void createImporter();
 
-    QScopedPointer<StudioQuickWidget> m_quickWidget;
+    Utils::UniqueObjectPtr<StudioQuickWidget> m_quickWidget;
     QPointer<ContentLibraryMaterialsModel> m_materialsModel;
     QPointer<ContentLibraryTexturesModel> m_texturesModel;
     QPointer<ContentLibraryTexturesModel> m_environmentsModel;
     QPointer<ContentLibraryEffectsModel> m_effectsModel;
     QPointer<ContentLibraryUserModel> m_userModel;
 
+    ContentLibraryBundleImporter *m_importer = nullptr;
     QShortcut *m_qmlSourceUpdateShortcut = nullptr;
 
     QString m_filterText;
 
-    ContentLibraryEffect *m_effectToDrag = nullptr;
+    ContentLibraryItem *m_itemToDrag = nullptr;
     ContentLibraryMaterial *m_materialToDrag = nullptr;
     ContentLibraryTexture *m_textureToDrag = nullptr;
     QPoint m_dragStartPoint;
@@ -132,6 +150,8 @@ private:
     bool m_hasQuick3DImport = false;
     bool m_isDragging = false;
     bool m_isQt6Project = false;
+    bool m_importerRunning = false;
+    bool m_hasModelSelection = false;
     QString m_textureBundleUrl;
     QString m_bundlePath;
 };

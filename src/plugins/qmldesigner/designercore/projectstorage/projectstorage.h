@@ -4,6 +4,7 @@
 #pragma once
 
 #include "commontypecache.h"
+#include "projectstorageerrornotifier.h"
 #include "projectstorageexceptions.h"
 #include "projectstorageinterface.h"
 #include "projectstoragetypes.h"
@@ -38,21 +39,30 @@ class ProjectStorage final : public ProjectStorageInterface
     using Database = Sqlite::Database;
     friend Storage::Info::CommonTypeCache<ProjectStorageType>;
 
+    enum class Relink { No, Yes };
+
 public:
-    ProjectStorage(Database &database, bool isInitialized);
+    ProjectStorage(Database &database,
+                   ProjectStorageErrorNotifierInterface &errorNotifier,
+                   bool isInitialized);
     ~ProjectStorage();
 
     void synchronize(Storage::Synchronization::SynchronizationPackage package) override;
 
     void synchronizeDocumentImports(Storage::Imports imports, SourceId sourceId) override;
 
+    void setErrorNotifier(ProjectStorageErrorNotifierInterface &errorNotifier)
+    {
+        this->errorNotifier = &errorNotifier;
+    }
+
     void addObserver(ProjectStorageObserver *observer) override;
 
     void removeObserver(ProjectStorageObserver *observer) override;
 
-    ModuleId moduleId(Utils::SmallStringView moduleName) const override;
+    ModuleId moduleId(Utils::SmallStringView moduleName, Storage::ModuleKind kind) const override;
 
-    Utils::SmallString moduleName(ModuleId moduleId) const override;
+    Storage::Module module(ModuleId moduleId) const override;
 
     TypeId typeId(ModuleId moduleId,
                   Utils::SmallStringView exportedTypeName,
@@ -116,7 +126,7 @@ public:
         return commonTypeCache_;
     }
 
-    template<const char *moduleName, const char *typeName>
+    template<const char *moduleName, const char *typeName, Storage::ModuleKind moduleKind = Storage::ModuleKind::QmlLibrary>
     TypeId commonTypeId() const
     {
         using NanotraceHR::keyValue;
@@ -125,7 +135,7 @@ public:
                                    keyValue("module name", std::string_view{moduleName}),
                                    keyValue("type name", std::string_view{typeName})};
 
-        auto typeId = commonTypeCache_.typeId<moduleName, typeName>();
+        auto typeId = commonTypeCache_.typeId<moduleName, typeName, moduleKind>();
 
         tracer.end(keyValue("type id", typeId));
 
@@ -229,11 +239,13 @@ public:
 
     FileStatus fetchFileStatus(SourceId sourceId) const override;
 
-    std::optional<Storage::Synchronization::ProjectData> fetchProjectData(SourceId sourceId) const override;
+    std::optional<Storage::Synchronization::DirectoryInfo> fetchDirectoryInfo(SourceId sourceId) const override;
 
-    Storage::Synchronization::ProjectDatas fetchProjectDatas(SourceId projectSourceId) const override;
-
-    Storage::Synchronization::ProjectDatas fetchProjectDatas(const SourceIds &projectSourceIds) const;
+    Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(SourceId directorySourceId) const override;
+    Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(
+        SourceId directorySourceId, Storage::Synchronization::FileType fileType) const override;
+    Storage::Synchronization::DirectoryInfos fetchDirectoryInfos(const SourceIds &directorySourceIds) const;
+    SmallSourceIds<32> fetchSubdirectorySourceIds(SourceId directorySourceId) const override;
 
     void setPropertyEditorPathId(TypeId typeId, SourceId pathId);
 
@@ -244,50 +256,90 @@ public:
     void resetForTestsOnly();
 
 private:
+    struct ModuleView
+    {
+        ModuleView() = default;
+
+        ModuleView(Utils::SmallStringView name, Storage::ModuleKind kind)
+            : name{name}
+            , kind{kind}
+        {}
+
+        ModuleView(const Storage::Module &module)
+            : name{module.name}
+            , kind{module.kind}
+        {}
+
+        Utils::SmallStringView name;
+        Storage::ModuleKind kind;
+
+        friend bool operator<(ModuleView first, ModuleView second)
+        {
+            return std::tie(first.kind, first.name) < std::tie(second.kind, second.name);
+        }
+
+        friend bool operator==(const Storage::Module &first, ModuleView second)
+        {
+            return first.name == second.name && first.kind == second.kind;
+        }
+
+        friend bool operator==(ModuleView first, const Storage::Module &second)
+        {
+            return second == first;
+        }
+    };
+
     class ModuleStorageAdapter
     {
     public:
-        auto fetchId(const Utils::SmallStringView name) { return storage.fetchModuleId(name); }
+        auto fetchId(ModuleView module) { return storage.fetchModuleId(module.name, module.kind); }
 
-        auto fetchValue(ModuleId id) { return storage.fetchModuleName(id); }
+        auto fetchValue(ModuleId id) { return storage.fetchModule(id); }
 
         auto fetchAll() { return storage.fetchAllModules(); }
 
         ProjectStorage &storage;
     };
 
-    class Module : public StorageCacheEntry<Utils::PathString, Utils::SmallStringView, ModuleId>
+    friend ModuleStorageAdapter;
+
+    static bool moduleNameLess(ModuleView first, ModuleView second) noexcept
     {
-        using Base = StorageCacheEntry<Utils::PathString, Utils::SmallStringView, ModuleId>;
+        return first < second;
+    }
+
+    class ModuleCacheEntry : public StorageCacheEntry<Storage::Module, ModuleView, ModuleId>
+    {
+        using Base = StorageCacheEntry<Storage::Module, ModuleView, ModuleId>;
 
     public:
         using Base::Base;
 
-        friend bool operator==(const Module &first, const Module &second)
+        ModuleCacheEntry(Utils::SmallStringView name, Storage::ModuleKind kind, ModuleId moduleId)
+            : Base{{name, kind}, moduleId}
+        {}
+
+        friend bool operator==(const ModuleCacheEntry &first, const ModuleCacheEntry &second)
         {
             return &first == &second && first.value == second.value;
         }
+
+        friend bool operator==(const ModuleCacheEntry &first, ModuleView second)
+        {
+            return first.value.name == second.name && first.value.kind == second.kind;
+        }
     };
 
-    using Modules = std::vector<Module>;
+    using ModuleCacheEntries = std::vector<ModuleCacheEntry>;
 
-    friend ModuleStorageAdapter;
+    using ModuleCache
+        = StorageCache<Storage::Module, ModuleView, ModuleId, ModuleStorageAdapter, NonLockingMutex, moduleNameLess, ModuleCacheEntry>;
 
-    static bool moduleNameLess(Utils::SmallStringView first, Utils::SmallStringView second) noexcept;
+    ModuleId fetchModuleId(Utils::SmallStringView moduleName, Storage::ModuleKind moduleKind);
 
-    using ModuleCache = StorageCache<Utils::PathString,
-                                     Utils::SmallStringView,
-                                     ModuleId,
-                                     ModuleStorageAdapter,
-                                     NonLockingMutex,
-                                     moduleNameLess,
-                                     Module>;
+    Storage::Module fetchModule(ModuleId id);
 
-    ModuleId fetchModuleId(Utils::SmallStringView moduleName);
-
-    Utils::PathString fetchModuleName(ModuleId id);
-
-    Modules fetchAllModules() const;
+    ModuleCacheEntries fetchAllModules() const;
 
     void callRefreshMetaInfoCallback(const TypeIds &deletedTypeIds);
 
@@ -398,6 +450,11 @@ private:
             return first.typeId < second.typeId;
         }
 
+        friend bool operator==(Prototype first, Prototype second)
+        {
+            return first.typeId == second.typeId;
+        }
+
         template<typename String>
         friend void convertToString(String &string, const Prototype &prototype)
         {
@@ -461,10 +518,12 @@ private:
     {
     public:
         TypeAnnotationView(TypeId typeId,
+                           Utils::SmallStringView typeName,
                            Utils::SmallStringView iconPath,
                            Utils::SmallStringView itemLibraryJson,
                            Utils::SmallStringView hintsJson)
             : typeId{typeId}
+            , typeName{typeName}
             , iconPath{iconPath}
             , itemLibraryJson{itemLibraryJson}
             , hintsJson{hintsJson}
@@ -476,6 +535,7 @@ private:
             using NanotraceHR::dictonary;
             using NanotraceHR::keyValue;
             auto dict = dictonary(keyValue("type id", typeAnnotationView.typeId),
+                                  keyValue("type name", typeAnnotationView.typeName),
                                   keyValue("icon path", typeAnnotationView.iconPath),
                                   keyValue("item library json", typeAnnotationView.itemLibraryJson),
                                   keyValue("hints json", typeAnnotationView.hintsJson));
@@ -485,6 +545,7 @@ private:
 
     public:
         TypeId typeId;
+        Utils::SmallStringView typeName;
         Utils::SmallStringView iconPath;
         Utils::SmallStringView itemLibraryJson;
         Utils::PathString hintsJson;
@@ -516,8 +577,8 @@ private:
                           Prototypes &relinkableExtensions,
                           const SourceIds &updatedSourceIds);
 
-    void synchronizeProjectDatas(Storage::Synchronization::ProjectDatas &projectDatas,
-                                 const SourceIds &updatedProjectSourceIds);
+    void synchronizeDirectoryInfos(Storage::Synchronization::DirectoryInfos &directoryInfos,
+                                 const SourceIds &updatedDirectoryInfoSourceIds);
 
     void synchronizeFileStatuses(FileStatuses &fileStatuses, const SourceIds &updatedSourceIds);
 
@@ -526,15 +587,18 @@ private:
                             Storage::Imports &moduleDependencies,
                             const SourceIds &updatedModuleDependencySourceIds,
                             Storage::Synchronization::ModuleExportedImports &moduleExportedImports,
-                            const ModuleIds &updatedModuleIds);
+                            const ModuleIds &updatedModuleIds,
+                            Prototypes &relinkablePrototypes,
+                            Prototypes &relinkableExtensions);
 
     void synchromizeModuleExportedImports(
         Storage::Synchronization::ModuleExportedImports &moduleExportedImports,
         const ModuleIds &updatedModuleIds);
 
-    ModuleId fetchModuleIdUnguarded(Utils::SmallStringView name) const override;
+    ModuleId fetchModuleIdUnguarded(Utils::SmallStringView name,
+                                    Storage::ModuleKind moduleKind) const override;
 
-    Utils::PathString fetchModuleNameUnguarded(ModuleId id) const;
+    Storage::Module fetchModuleUnguarded(ModuleId id) const;
 
     void handleAliasPropertyDeclarationsWithPropertyType(
         TypeId typeId, AliasPropertyDeclarations &relinkableAliasPropertyDeclarations);
@@ -543,9 +607,14 @@ private:
                                                    PropertyDeclarations &relinkablePropertyDeclarations);
 
     void handlePrototypes(TypeId prototypeId, Prototypes &relinkablePrototypes);
+    void handlePrototypesWithExportedTypeNameAndTypeId(Utils::SmallStringView exportedTypeName,
+                                                       TypeId typeId,
+                                                       Prototypes &relinkablePrototypes);
 
     void handleExtensions(TypeId extensionId, Prototypes &relinkableExtensions);
-
+    void handleExtensionsWithExportedTypeNameAndTypeId(Utils::SmallStringView exportedTypeName,
+                                                       TypeId typeId,
+                                                       Prototypes &relinkableExtensions);
     void deleteType(TypeId typeId,
                     AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                     PropertyDeclarations &relinkablePropertyDeclarations,
@@ -561,32 +630,7 @@ private:
     template<typename Callable>
     void relinkPrototypes(Prototypes &relinkablePrototypes,
                           const TypeIds &deletedTypeIds,
-                          Callable updateStatement)
-    {
-        using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"relink prototypes"_t,
-                                   projectStorageCategory(),
-                                   keyValue("relinkable prototypes", relinkablePrototypes),
-                                   keyValue("deleted type ids", deletedTypeIds)};
-
-        std::sort(relinkablePrototypes.begin(), relinkablePrototypes.end());
-
-        Utils::set_greedy_difference(
-            relinkablePrototypes.cbegin(),
-            relinkablePrototypes.cend(),
-            deletedTypeIds.begin(),
-            deletedTypeIds.end(),
-            [&](const Prototype &prototype) {
-                TypeId prototypeId = fetchTypeId(prototype.prototypeNameId);
-
-                if (!prototypeId)
-                    throw TypeNameDoesNotExists{fetchImportedTypeName(prototype.prototypeNameId)};
-
-                updateStatement(prototype.typeId, prototypeId);
-                checkForPrototypeChainCycle(prototype.typeId);
-            },
-            TypeCompare<Prototype>{});
-    }
+                          Callable updateStatement);
 
     void deleteNotUpdatedTypes(const TypeIds &updatedTypeIds,
                                const SourceIds &updatedSourceIds,
@@ -701,14 +745,32 @@ private:
         Storage::Synchronization::Types &types,
         AliasPropertyDeclarations &relinkableAliasPropertyDeclarations);
 
+    void handlePrototypesWithSourceIdAndPrototypeId(SourceId sourceId,
+                                                    TypeId prototypeId,
+                                                    Prototypes &relinkablePrototypes);
+    void handlePrototypesAndExtensionsWithSourceId(SourceId sourceId,
+                                                   TypeId prototypeId,
+                                                   TypeId extensionId,
+                                                   Prototypes &relinkablePrototypes,
+                                                   Prototypes &relinkableExtensions);
+    void handleExtensionsWithSourceIdAndExtensionId(SourceId sourceId,
+                                                    TypeId extensionId,
+                                                    Prototypes &relinkableExtensions);
+
     ImportId insertDocumentImport(const Storage::Import &import,
                                   Storage::Synchronization::ImportKind importKind,
                                   ModuleId sourceModuleId,
-                                  ImportId parentImportId);
+                                  ImportId parentImportId,
+                                  Relink forceRelink,
+                                  Prototypes &relinkablePrototypes,
+                                  Prototypes &relinkableExtensions);
 
     void synchronizeDocumentImports(Storage::Imports &imports,
                                     const SourceIds &updatedSourceIds,
-                                    Storage::Synchronization::ImportKind importKind);
+                                    Storage::Synchronization::ImportKind importKind,
+                                    Relink forceRelink,
+                                    Prototypes &relinkablePrototypes,
+                                    Prototypes &relinkableExtensions);
 
     static Utils::PathString createJson(const Storage::Synchronization::ParameterDeclarations &parameters);
 
@@ -854,6 +916,7 @@ private:
     TypeId fetchTypeId(ImportedTypeNameId typeNameId) const;
 
     Utils::SmallString fetchImportedTypeName(ImportedTypeNameId typeNameId) const;
+    SourceId fetchTypeSourceId(TypeId typeId) const;
 
     TypeId fetchTypeId(ImportedTypeNameId typeNameId,
                        Storage::Synchronization::TypeNameKind kind) const;
@@ -920,6 +983,7 @@ private:
 
 public:
     Database &database;
+    ProjectStorageErrorNotifierInterface *errorNotifier = nullptr; // cannot be null
     Sqlite::ExclusiveNonThrowingDestructorTransaction<Database> exclusiveTransaction;
     std::unique_ptr<Initializer> initializer;
     mutable ModuleCache moduleCache{ModuleStorageAdapter{*this}};

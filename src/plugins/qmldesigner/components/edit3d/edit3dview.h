@@ -8,6 +8,7 @@
 
 #include <abstractview.h>
 #include <modelcache.h>
+#include <qmlobjectnode.h>
 
 #include <QImage>
 #include <QPointer>
@@ -59,6 +60,11 @@ public:
                         PropertyChangeFlags propertyChange) override;
     void nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty,
                      PropertyChangeFlags propertyChange) override;
+    void propertiesRemoved(const QList<AbstractProperty> &propertyList) override;
+    void bindingPropertiesChanged(const QList<BindingProperty> &propertyList,
+                                  PropertyChangeFlags propertyChange) override;
+    void variantPropertiesChanged(const QList<VariantProperty> &propertyList,
+                                  PropertyChangeFlags propertyChange) override;
 
     void sendInputEvent(QEvent *e) const;
     void edit3DViewResized(const QSize &size) const;
@@ -127,8 +133,13 @@ private:
     void createSyncEnvBackgroundAction();
     void createSeekerSliderAction();
     void syncCameraSpeedToNewView();
+    QmlObjectNode currentSceneEnv();
+    void storeCurrentSceneEnvironment();
 
     QPoint resolveToolbarPopupPos(Edit3DAction *action) const;
+
+    template<typename T, typename = typename std::enable_if<std::is_base_of<AbstractProperty , T>::value>::type>
+    void maybeStoreCurrentSceneEnvironment(const QList<T> &propertyList);
 
     QPointer<Edit3DWidget> m_edit3DWidget;
     QVector<Edit3DAction *> m_leftActions;
@@ -148,6 +159,7 @@ private:
     std::unique_ptr<Edit3DAction> m_orientationModeAction;
     std::unique_ptr<Edit3DAction> m_editLightAction;
     std::unique_ptr<Edit3DAction> m_showGridAction;
+    std::unique_ptr<Edit3DAction> m_showLookAtAction;
     std::unique_ptr<Edit3DAction> m_showSelectionBoxAction;
     std::unique_ptr<Edit3DAction> m_showIconGizmoAction;
     std::unique_ptr<Edit3DAction> m_showCameraFrustumAction;
@@ -187,7 +199,6 @@ private:
     int m_activeSplit = 0;
 
     QList<SplitToolState> m_splitToolStates;
-    QList<Edit3DAction *> m_flyModeDisabledActions;
     ModelNode m_contextMenuPendingNode;
     ModelNode m_pickView3dNode;
 

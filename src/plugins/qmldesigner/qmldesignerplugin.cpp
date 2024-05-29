@@ -4,7 +4,6 @@
 #include "qmldesignerplugin.h"
 #include "qmldesignertr.h"
 
-#include "collectioneditor/collectionview.h"
 #include "coreplugin/iwizardfactory.h"
 #include "designmodecontext.h"
 #include "designmodewidget.h"
@@ -298,7 +297,6 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
 
     //TODO Move registering those types out of the property editor, since they are used also in the states editor
     Quick2PropertyEditorView::registerQmlTypes();
-    CollectionView::registerDeclarativeType();
     StudioQuickWidget::registerDeclarativeType();
     QmlDesignerBase::WindowManager::registerDeclarativeType();
 
@@ -392,7 +390,6 @@ void QmlDesignerPlugin::integrateIntoQtCreator(QWidget *modeWidget)
     Core::Context qmlDesignerNavigatorContext(Constants::C_QMLNAVIGATOR);
     Core::Context qmlDesignerMaterialBrowserContext(Constants::C_QMLMATERIALBROWSER);
     Core::Context qmlDesignerAssetsLibraryContext(Constants::C_QMLASSETSLIBRARY);
-    Core::Context qmlDesignerCollectionEditorContext(Constants::C_QMLCOLLECTIONEDITOR);
 
     context->context().add(qmlDesignerMainContext);
     context->context().add(qmlDesignerFormEditorContext);
@@ -400,7 +397,6 @@ void QmlDesignerPlugin::integrateIntoQtCreator(QWidget *modeWidget)
     context->context().add(qmlDesignerNavigatorContext);
     context->context().add(qmlDesignerMaterialBrowserContext);
     context->context().add(qmlDesignerAssetsLibraryContext);
-    context->context().add(qmlDesignerCollectionEditorContext);
     context->context().add(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID);
 
     d->shortCutManager.registerActions(qmlDesignerMainContext, qmlDesignerFormEditorContext,
