@@ -11,6 +11,8 @@
 
 #include <texteditor/refactoringchanges.h>
 
+#include <optional>
+
 namespace CppEditor {
 class CppRefactoringChanges;
 class CppRefactoringFile;
@@ -30,7 +32,6 @@ public:
     bool isCursorOn(unsigned tokenIndex) const;
     bool isCursorOn(const CPlusPlus::AST *ast) const;
 
-    Range range(int start, int end) const;
     Range range(unsigned tokenIndex) const;
     Range range(const CPlusPlus::AST *ast) const;
 
@@ -42,6 +43,8 @@ public:
     int endOf(const CPlusPlus::AST *ast) const;
 
     void startAndEndOf(unsigned index, int *start, int *end) const;
+
+    std::optional<std::pair<int, int>> expansionLoc(unsigned index) const;
 
     QList<CPlusPlus::Token> tokensForCursor() const;
     QList<CPlusPlus::Token> tokensForCursor(const QTextCursor &cursor) const;

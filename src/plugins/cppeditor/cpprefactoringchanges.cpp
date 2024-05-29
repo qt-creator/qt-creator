@@ -221,6 +221,9 @@ ChangeSet::Range CppRefactoringFile::range(const AST *ast) const
 
 int CppRefactoringFile::startOf(unsigned index) const
 {
+    if (const auto loc = expansionLoc(index))
+        return loc->first;
+
     int line, column;
     cppDocument()->translationUnit()->getPosition(tokenAt(index).utf16charsBegin(), &line, &column);
     return document()->findBlockByNumber(line - 1).position() + column - 1;
@@ -229,15 +232,14 @@ int CppRefactoringFile::startOf(unsigned index) const
 int CppRefactoringFile::startOf(const AST *ast) const
 {
     QTC_ASSERT(ast, return 0);
-    int firstToken = ast->firstToken();
-    const int lastToken = ast->lastToken();
-    while (tokenAt(firstToken).generated() && firstToken < lastToken)
-        ++firstToken;
-    return startOf(firstToken);
+    return startOf(ast->firstToken());
 }
 
 int CppRefactoringFile::endOf(unsigned index) const
 {
+    if (const auto loc = expansionLoc(index))
+        return loc->first + loc->second;
+
     int line, column;
     cppDocument()->translationUnit()->getPosition(tokenAt(index).utf16charsEnd(), &line, &column);
     return document()->findBlockByNumber(line - 1).position() + column - 1;
@@ -248,19 +250,29 @@ int CppRefactoringFile::endOf(const AST *ast) const
     QTC_ASSERT(ast, return 0);
     int lastToken = ast->lastToken() - 1;
     QTC_ASSERT(lastToken >= 0, return -1);
-    const int firstToken = ast->firstToken();
-    while (tokenAt(lastToken).generated() && lastToken > firstToken)
-        --lastToken;
     return endOf(lastToken);
 }
 
 void CppRefactoringFile::startAndEndOf(unsigned index, int *start, int *end) const
 {
+    if (const auto loc = expansionLoc(index)) {
+        *start = loc->first;
+        *end = loc->first + loc->second;
+        return;
+    }
+
     int line, column;
     Token token(tokenAt(index));
     cppDocument()->translationUnit()->getPosition(token.utf16charsBegin(), &line, &column);
     *start = document()->findBlockByNumber(line - 1).position() + column - 1;
     *end = *start + token.utf16chars();
+}
+
+std::optional<std::pair<int, int> > CppRefactoringFile::expansionLoc(unsigned int index) const
+{
+    if (!tokenAt(index).expanded())
+        return {};
+    return cppDocument()->translationUnit()->getExpansionPosition(index);
 }
 
 QString CppRefactoringFile::textOf(const AST *ast) const
