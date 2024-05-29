@@ -655,6 +655,7 @@ Wizard *JsonWizardFactory::runWizardImpl(const FilePath &path, QWidget *parent,
 
     wizard->setValue(QStringLiteral("Features"), Id::toStringList(availableFeatures(platform)));
     wizard->setValue(QStringLiteral("Plugins"), Id::toStringList(pluginFeatures()));
+    wizard->setValue(QStringLiteral("SupportedProjectTypes"), Id::toStringList(supportedProjectTypes()));
 
     // Add data to wizard:
     for (auto i = variables.constBegin(); i != variables.constEnd(); ++i)
