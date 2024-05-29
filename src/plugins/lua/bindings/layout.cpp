@@ -137,9 +137,49 @@ std::unique_ptr<T> constructWidgetType(const sol::table &children, QObject *guar
     return item;
 }
 
+std::unique_ptr<Tab> constructTabFromTable(const sol::table &children)
+{
+    if (children.size() != 2)
+        throw sol::error("Tab must have exactly two children");
+
+    auto tabName = children[1];
+    if (tabName.get_type() != sol::type::string)
+        throw sol::error("Tab name (first argument) must be a string");
+
+    const auto &layout = children[2];
+    if (!layout.is<Layout *>())
+        throw sol::error("Tab child (second argument) must be a Layout");
+
+    std::unique_ptr<Tab> item = std::make_unique<Tab>(tabName, *layout.get<Layout *>());
+    return item;
+}
+
 std::unique_ptr<Tab> constructTab(const QString &tabName, const Layout &layout)
 {
     std::unique_ptr<Tab> item = std::make_unique<Tab>(tabName, layout);
+    return item;
+}
+
+std::unique_ptr<Span> constructSpanFromTable(const sol::table &children)
+{
+    if (children.size() != 2)
+        throw sol::error("Span must have exactly two children");
+
+    auto spanSize = children[1];
+    if (spanSize.get_type() != sol::type::number)
+        throw sol::error("Span size (first argument) must be a number");
+
+    const auto &layout = children[2];
+    if (!layout.is<Layout *>())
+        throw sol::error("Span child (second argument) must be a Layout");
+
+    std::unique_ptr<Span> item = std::make_unique<Span>(spanSize, *layout.get<Layout *>());
+    return item;
+}
+
+std::unique_ptr<Span> constructSpan(int n, const Layout &layout)
+{
+    std::unique_ptr<Span> item = std::make_unique<Span>(n, layout);
     return item;
 }
 
@@ -183,7 +223,7 @@ void addLayoutModule()
         sol::table layout = l.create_table();
 
         layout.new_usertype<Span>(
-            "Span", sol::call_constructor, sol::constructors<Span(int n, const Layout::I &item)>());
+            "Span", sol::call_constructor, sol::factories(&constructSpan, &constructSpanFromTable));
 
         layout.new_usertype<Space>("Space", sol::call_constructor, sol::constructors<Space(int)>());
 
@@ -268,7 +308,7 @@ void addLayoutModule()
         layout.new_usertype<Tab>(
             "Tab",
             sol::call_constructor,
-            sol::factories(&constructTab),
+            sol::factories(&constructTab, &constructTabFromTable),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
@@ -327,6 +367,8 @@ void addLayoutModule()
         layout["hr"] = &hr;
         layout["noMargin"] = &noMargin;
         layout["normalMargin"] = &normalMargin;
+        layout["withFormAlignment"] = &withFormAlignment;
+        layout["spacing"] = &spacing;
 
         return layout;
     });

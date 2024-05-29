@@ -2,98 +2,99 @@
 
 local layout = {}
 
----The base class of all layout items
----@class LayoutItem
-layout.LayoutItem = {
-    ---Attaches the layout to the specified widget
-    ---@param widget QWidget
-    attachTo = function(widget) end
-}
+---The base class of all layout classes
+---@class Object
+layout.Layout = {}
+
+---The base class of all layout classes
+---@class Layout : Object
+layout.Layout = {}
+
+---The base class of all widget classes, an empty widget itself.
+---@class Widget : Object
+Widget = {}
+
+---@param children Layout
+---@return Widget
+function layout.Widget(children) end
 
 ---Column layout
----@class Column : LayoutItem
+---@class Column : Layout
 local column = {}
 
----@param children LayoutItem|string|BaseAspect|function
+---@param children Layout|string|BaseAspect|function
 ---@return Column
 function layout.Column(children) end
 
 ---A group box with a title
----@class Group : LayoutItem
+---@class Group : Widget
 local group = {}
 
 ---@return Group
 function layout.Group(children) end
 
 ---Row layout
----@class Row : LayoutItem
+---@class Row : Layout
 local row = {}
 
----@param children LayoutItem|string|BaseAspect|function
+---@param children Layout|string|BaseAspect|function
 ---@return Row
 function layout.Row(children) end
 
 ---Flow layout
----@class Flow : LayoutItem
+---@class Flow : Layout
 local flow = {}
 
----@param children LayoutItem|string|BaseAspect|function
+---@param children Layout|string|BaseAspect|function
 ---@return Flow
 function layout.Flow(children) end
 
 ---Grid layout
----@class Grid : LayoutItem
+---@class Grid : Layout
 local grid = {}
 
----@param children LayoutItem|string|BaseAspect|function
+---@param children Layout|string|BaseAspect|function
 ---@return Grid
 function layout.Grid(children) end
 
 ---Form layout
----@class Form : LayoutItem
+---@class Form : Layout
 local form = {}
 
----@param children LayoutItem|string|BaseAspect|function
+---@param children Layout|string|BaseAspect|function
 ---@return Form
 function layout.Form(children) end
 
----An empty widget
----@class Widget : LayoutItem
-local widget = {}
-
----@param children LayoutItem|string|BaseAspect|function
----@return Widget
-function layout.Widget(children) end
 
 ---A stack of multiple widgets
----@class Stack : LayoutItem
+---@class Stack : Widget
 local stack = {}
 
----@param children LayoutItem|string|BaseAspect|function
+---@param children Layout|string|BaseAspect|function
 ---@return Stack
 function layout.Stack(children) end
 
 ---A Tab widget
----@class Tab : LayoutItem
+---@class Tab : Widget
 local tab = {}
 
----@param children LayoutItem|string|BaseAspect|function
+---@param children Layout|string|BaseAspect|function
 ---@return Tab
 function layout.Tab(children) end
 
 ---A Multiline text edit
----@class TextEdit : LayoutItem
+---@class TextEdit : Widget
 local textEdit = {}
 
----@param children LayoutItem|string|BaseAspect|function
+---@param children Layout|string|BaseAspect|function
 ---@return TextEdit
 function layout.TextEdit(children) end
 
 ---A PushButton
----@class PushButton : LayoutItem
+---@class PushButton : Widget
 local pushButton = {}
 
----@param children LayoutItem|string|BaseAspect|function
+---@param children Layout|string|BaseAspect|function
 ---@return PushButton
 function layout.PushButton(children) end
 
@@ -106,37 +107,41 @@ local label = {}
 function layout.Label(children) end
 
 ---A SpinBox
----@class SpinBox : LayoutItem
+---@class SpinBox : Widget
 local spinBox = {}
 
----@param children LayoutItem|string|BaseAspect|function
+---@param children Layout|string|BaseAspect|function
 ---@return SpinBox
 function layout.SpinBox(children) end
 
 ---A Splitter
----@class Splitter : LayoutItem
+---@class Splitter : Widget
 local splitter = {}
 
----@param children LayoutItem|string|BaseAspect|function
+---@param children Layout|string|BaseAspect|function
 ---@return Splitter
 function layout.Splitter(children) end
 
 ---A Toolbar
----@class ToolBar : LayoutItem
+---@class ToolBar : Widget
 local toolBar = {}
 
----@param children LayoutItem|string|BaseAspect|function
+---@param children Layout|string|BaseAspect|function
 ---@return ToolBar
 function layout.ToolBar(children) end
 
 ---A TabWidget
----@class TabWidget : LayoutItem
+---@class TabWidget : Widget
 local tabWidget = {}
 
----@param children LayoutItem|string|BaseAspect|function
+---@param children Layout|string|BaseAspect|function
 ---@return TabWidget
 function layout.TabWidget(children) end
 
+---@param name string
+---@param child Layout|string|BaseAspect|function
+---@return TabWidget
+function layout.TabWidget(name, child) end
 ---A "Line break" in the layout
 function layout.br() end
 
@@ -155,32 +160,14 @@ function layout.noMargin() end
 ---Sets the margin of the layout to the default value
 function layout.normalMargin() end
 
----Sets the margin of the layout to a custom value
-function layout.customMargin(left, top, right, bottom) end
-
 ---Sets the alignment of the layout to "Form"
 function layout.withFormAlignment() end
-
----Sets the title of the parent object if possible
-function layout.title(text) end
-
----Sets the text of the parent object if possible
-function layout.text(text) end
-
----Sets the tooltip of the parent object if possible
-function layout.tooltip(text) end
 
 ---Sets the size of the parent object if possible
 function layout.resize(width, height) end
 
----Sets the stretch of the column at `index`
-function layout.columnStretch(index, stretch) end
-
 ---Sets the spacing of the layout
 function layout.spacing(spacing) end
-
----Sets the window title of the parent object if possible
-function layout.windowTitle(text) end
 
 ---Sets the field growth policy of the layout
 function layout.fieldGrowthPolicy(policy) end
