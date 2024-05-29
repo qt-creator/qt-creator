@@ -61,10 +61,12 @@ signals:
     void projectNodeChanged();
     void versionControlChanged(int);
 
+protected:
+    void setVersionControlUiElementsVisible(bool visible);
+
 private:
     void projectChanged(int);
     void manageVcs();
-    void hideVersionControlUiElements();
 
     void setAdditionalInfo(const QString &text);
     void setAddingSubProject(bool addingSubProject);

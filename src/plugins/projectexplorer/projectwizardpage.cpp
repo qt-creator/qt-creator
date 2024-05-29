@@ -377,7 +377,7 @@ void ProjectWizardPage::initializeVersionControls()
     m_addToVersionControlComboBox->disconnect();
     QList<IVersionControl *> versionControls = VcsManager::versionControls();
     if (versionControls.isEmpty())
-        hideVersionControlUiElements();
+        setVersionControlUiElementsVisible(false);
 
     IVersionControl *currentSelection = nullptr;
     int currentIdx = versionControlIndex() - 1;
@@ -589,11 +589,11 @@ void ProjectWizardPage::manageVcs()
     ICore::showOptionsDialog(VcsBase::Constants::VCS_COMMON_SETTINGS_ID, this);
 }
 
-void ProjectWizardPage::hideVersionControlUiElements()
+void ProjectWizardPage::setVersionControlUiElementsVisible(bool visible)
 {
-    m_addToVersionControlLabel->hide();
-    m_vcsManageButton->hide();
-    m_addToVersionControlComboBox->hide();
+    m_addToVersionControlLabel->setVisible(visible);
+    m_vcsManageButton->setVisible(visible);
+    m_addToVersionControlComboBox->setVisible(visible);
 }
 
 void ProjectWizardPage::setProjectUiVisible(bool visible)
