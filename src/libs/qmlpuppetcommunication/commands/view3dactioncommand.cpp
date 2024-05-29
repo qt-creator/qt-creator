@@ -3,7 +3,7 @@
 
 #include "view3dactioncommand.h"
 
-#include <utils/utility.h>
+#include "../../utils/utility.h"
 
 #include <QDebug>
 #include <QDataStream>
