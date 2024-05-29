@@ -136,7 +136,7 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
     connect(d->m_nameLineEdit, &FancyLineEdit::validReturnPressed,
             this, &ProjectIntroPage::slotActivated);
     connect(d->m_projectComboBox, &QComboBox::currentIndexChanged,
-            this, &ProjectIntroPage::slotChanged);
+            this, &ProjectIntroPage::onCurrentProjectIndexChanged);
 
     setProperty(SHORT_TITLE_PROPERTY, Tr::tr("Location"));
     registerFieldWithName(QLatin1String("Path"), d->m_pathChooser, "path", SIGNAL(textChanged(QString)));
@@ -193,12 +193,6 @@ bool ProjectIntroPage::isComplete() const
 
 bool ProjectIntroPage::validate()
 {
-    if (d->m_forceSubProject) {
-        int index = d->m_projectComboBox->currentIndex();
-        if (index == 0)
-            return false;
-        d->m_pathChooser->setFilePath(d->m_projectDirectories.at(index));
-    }
     // Validate and display status
     if (!d->m_pathChooser->isValid()) {
         if (const QString msg = d->m_pathChooser->errorMessage(); !msg.isEmpty())
@@ -259,6 +253,25 @@ void ProjectIntroPage::slotActivated()
 {
     if (d->m_complete)
         emit activated();
+}
+
+void ProjectIntroPage::onCurrentProjectIndexChanged(int index)
+{
+    if (d->m_forceSubProject) {
+        const int available = d->m_projectDirectories.size();
+        if (available == 0)
+            return;
+        QTC_ASSERT(index < available, return);
+        if (index < 0)
+            return;
+
+        const FilePath current = d->m_projectDirectories.at(index);
+        const FilePath visible = d->m_pathChooser->filePath();
+        if (visible != current && !visible.isChildOf(current))
+            d->m_pathChooser->setFilePath(current);
+
+        fieldsUpdated();
+    }
 }
 
 bool ProjectIntroPage::forceSubProject() const

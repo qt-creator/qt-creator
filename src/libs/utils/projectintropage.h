@@ -58,6 +58,7 @@ public slots:
 private:
     void slotChanged();
     void slotActivated();
+    void onCurrentProjectIndexChanged(int index);
 
     bool validate();
     void displayStatusMessage(InfoLabel::InfoType t, const QString &);
