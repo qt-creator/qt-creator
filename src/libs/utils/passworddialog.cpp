@@ -36,8 +36,7 @@ void ShowPasswordButton::paintEvent(QPaintEvent *e)
     if (m_containsMouse && isEnabled())
         StyleHelper::drawPanelBgRect(&p, r, creatorTheme()->color(Theme::FancyToolButtonHoverColor));
 
-    QWindow *window = this->window()->windowHandle();
-    QSize s = icon.actualSize(window, QSize(32, 16));
+    QSize s = icon.actualSize(QSize(32, 16));
 
     QPixmap px = icon.pixmap(s);
     QRect iRect(QPoint(), s);
@@ -61,8 +60,7 @@ void ShowPasswordButton::leaveEvent(QEvent *e)
 
 QSize ShowPasswordButton::sizeHint() const
 {
-    QWindow *window = this->window()->windowHandle();
-    QSize s = Utils::Icons::EYE_OPEN_TOOLBAR.icon().actualSize(window, QSize(32, 16)) + QSize(8, 8);
+    QSize s = Utils::Icons::EYE_OPEN_TOOLBAR.icon().actualSize(QSize(32, 16)) + QSize(8, 8);
 
     if (StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyleRelaxed)
         s += QSize(5, 5);
