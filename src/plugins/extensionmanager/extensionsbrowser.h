@@ -3,66 +3,30 @@
 
 #pragma once
 
-#include <utils/theme/theme.h>
-
-#include <QStandardItemModel>
 #include <QWidget>
 
-QT_BEGIN_NAMESPACE
-class QAbstractButton;
-class QItemSelectionModel;
-class QLineEdit;
-class QListView;
-class QSortFilterProxyModel;
-QT_END_NAMESPACE
-
-namespace ExtensionSystem
-{
-class PluginSpec;
-}
-
 namespace ExtensionManager::Internal {
-
-using PluginSpecList = QList<const ExtensionSystem::PluginSpec *>;
-using Tags = QStringList;
-
-enum ItemType {
-    ItemTypePack,
-    ItemTypeExtension,
-};
-
-struct ItemData {
-    const QString name;
-    const ItemType type = ItemTypeExtension;
-    const Tags tags;
-    const PluginSpecList plugins;
-};
-
-ItemData itemData(const QModelIndex &index);
 
 class ExtensionsBrowser final : public QWidget
 {
     Q_OBJECT
 
 public:
-    ExtensionsBrowser();
+    ExtensionsBrowser(QWidget *parent = nullptr);
+    ~ExtensionsBrowser();
 
     void adjustToWidth(const int width);
     QSize sizeHint() const override;
+
+    int extraListViewWidth() const; // Space for scrollbar, etc.
 
 signals:
     void itemSelected(const QModelIndex &current, const QModelIndex &previous);
 
 private:
-    int extraListViewWidth() const; // Space for scrollbar, etc.
+    void fetchExtensions();
 
-    QScopedPointer<QStandardItemModel> m_model;
-    QLineEdit *m_searchBox;
-    QAbstractButton *m_updateButton;
-    QListView *m_extensionsView;
-    QItemSelectionModel *m_selectionModel = nullptr;
-    QSortFilterProxyModel *m_filterProxyModel;
-    int m_columnsCount = 2;
+    class ExtensionsBrowserPrivate *d = nullptr;
 };
 
 } // ExtensionManager::Internal

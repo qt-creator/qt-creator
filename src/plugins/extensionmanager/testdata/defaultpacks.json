@@ -1,0 +1,161 @@
+{
+  "items": [
+    {
+      "name": "Essentials",
+      "tags": [ "Essentials" ],
+      "platforms": [ "macOS", "Windows", "Linux" ],
+      "license": "os",
+      "is_pack": true,
+      "description": {
+        "paragraphs": [
+          {
+            "text": [
+              "Basic services, such as editing and debugging code, viewing images, and adding resources to applications."
+            ],
+            "header": "Get started"
+          }
+        ],
+        "links": [
+          {
+            "url": "https://doc.qt.io/qtcreator/creator-coding-navigating.html",
+            "link_text": "Online documentation"
+          }
+        ]
+      },
+      "plugins": [
+        { "meta_data": { "Name": "BinEditor" } },
+        { "meta_data": { "Name": "Debugger" } },
+        { "meta_data": { "Name": "DiffEditor" } },
+        { "meta_data": { "Name": "ImageViewer" } },
+        { "meta_data": { "Name": "Macros" } },
+        { "meta_data": { "Name": "LanguageClient" } },
+        { "meta_data": { "Name": "ResourceEditor" } }
+      ]
+    },
+
+    {
+      "name": "C++ Support",
+      "tags": [ "Programming Language", "C++" ],
+      "platforms": [ "macOS", "Windows", "Linux" ],
+      "license": "os",
+      "is_pack": true,
+      "description": {
+        "paragraphs": [
+          {
+            "text": [
+              "Tools for developing Qt C++ applications."
+            ],
+            "header": "Get started"
+          }
+        ]
+      },
+      "plugins": [
+        { "meta_data": { "Name": "ClangCodeModel" } },
+        { "meta_data": { "Name": "ClangFormat" } },
+        { "meta_data": { "Name": "ClassView" } },
+        { "meta_data": { "Name": "CppEditor" } }
+      ]
+    },
+
+    {
+      "name": "QML Support",
+      "tags": [ "Programming Language", "QML" ],
+      "platforms": [ "macOS", "Windows", "Linux" ],
+      "license": "os",
+      "is_pack": true,
+      "description": {
+        "paragraphs": [
+          {
+            "text": [
+              "Tools for developing Qt Quick applications."
+            ],
+            "header": "Get started"
+          }
+        ]
+      },
+      "plugins": [
+        { "meta_data": { "Name": "QmlJSEditor" } },
+        { "meta_data": { "Name": "QmlJSTools" } },
+        { "meta_data": { "Name": "QmlPreview" } },
+        { "meta_data": { "Name": "QmlProfiler" } }
+      ]
+    },
+
+    {
+      "name": "Visual QML Editor",
+      "tags": [ "Visual UI editor", "qml", "Quick" ],
+      "platforms": [ "macOS", "Windows", "Linux" ],
+      "license": "os",
+      "is_pack": true,
+      "description": {
+        "paragraphs": [
+          {
+            "text": [
+              "Tools for creating Qt Quick UIs."
+            ],
+            "header": "Get started"
+          }
+        ]
+      },
+      "plugins": [
+        { "meta_data": { "Name": "QmlDesigner" } }
+      ]
+    },
+
+    {
+      "name": "Visual Widget Editor",
+      "tags": [ "Visual UI editor", "C++", "Widgets" ],
+      "platforms": [ "macOS", "Windows", "Linux" ],
+      "license": "os",
+      "is_pack": true,
+      "description": {
+        "paragraphs": [
+          {
+            "text": [
+              "Visual tool for creating Qt widget-based UIs."
+            ],
+            "header": "Get started"
+          }
+        ]
+      },
+      "plugins": [
+        { "meta_data": { "Name": "Designer" } }
+      ]
+    },
+
+    {
+      "name": "SpellChecker",
+      "tags": [ "Editor" ],
+      "platforms": [ "macOS", "Windows", "Linux" ],
+      "license": "os",
+      "is_pack": false,
+      "description": {
+        "paragraphs": [
+          {
+            "text": [
+                "Spellcheck comments in source files."
+            ],
+            "header": "Get started"
+          }
+        ],
+        "links": [
+          {
+            "url": "https://github.com/CJCombrink/SpellChecker-Plugin",
+            "link_text": "GitHub page"
+          }
+        ]
+      },
+      "plugins": [
+        {
+          "meta_data": {
+            "Name": "SpellChecker",
+            "Copyright": "(C) 2015 - 2024 Carel Combrink"
+          },
+          "url": "https://github.com/CJCombrink/SpellChecker-Plugin/releases/download/v3.6.0/SpellChecker-Plugin_QtC13.0.0_macos_x64.tar.gz"
+        }
+      ],
+      "vendor": "Carel Combrink",
+      "copyright": "(C) 2015 - 2024 Carel Combrink"
+    }
+  ]
+}

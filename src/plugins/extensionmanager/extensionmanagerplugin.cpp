@@ -5,6 +5,9 @@
 
 #include "extensionmanagerconstants.h"
 #include "extensionmanagerwidget.h"
+#ifdef WITH_TESTS
+#include "extensionmanager_test.h"
+#endif // WITH_TESTS
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -15,7 +18,6 @@
 #include <coreplugin/imode.h>
 
 #include <extensionsystem/iplugin.h>
-#include <extensionsystem/pluginspec.h>
 
 #include <utils/icon.h>
 #include <utils/layoutbuilder.h>
@@ -73,6 +75,10 @@ public:
     void initialize() final
     {
         m_mode = new ExtensionManagerMode;
+
+#ifdef WITH_TESTS
+        addTestCreator(createExtensionsModelTest);
+#endif // WITH_TESTS
     }
 
 private:

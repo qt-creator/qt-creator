@@ -9,4 +9,14 @@ add_qtc_plugin(ExtensionManager
     extensionmanagerwidget.h
     extensionsbrowser.cpp
     extensionsbrowser.h
+    extensionsmodel.cpp
+    extensionsmodel.h
+)
+
+extend_qtc_plugin(ExtensionManager
+  CONDITION WITH_TESTS
+  SOURCES
+    extensionmanager_test.cpp
+    extensionmanager_test.h
+    extensionmanager_test.qrc
 )

@@ -3,27 +3,19 @@
 
 #include <coreplugin/welcomepagehelper.h>
 
-QT_BEGIN_NAMESPACE
-class QTextBrowser;
-QT_END_NAMESPACE
-
 namespace ExtensionManager::Internal {
-
-class CollapsingWidget;
-class ExtensionsBrowser;
 
 class ExtensionManagerWidget final : public Core::ResizeSignallingWidget
 {
 public:
-    explicit ExtensionManagerWidget();
+    explicit ExtensionManagerWidget(QWidget *parent = nullptr);
+    ~ExtensionManagerWidget();
 
 private:
-    void updateView(const QModelIndex &current, [[maybe_unused]] const QModelIndex &previous);
+    void updateView(const QModelIndex &current);
+    void fetchAndInstallPlugin(const QUrl &url);
 
-    ExtensionsBrowser *m_leftColumn;
-    CollapsingWidget *m_secondarDescriptionWidget;
-    QTextBrowser *m_primaryDescription;
-    QTextBrowser *m_secondaryDescription;
+    class ExtensionManagerWidgetPrivate *d = nullptr;
 };
 
 } // ExtensionManager::Internal

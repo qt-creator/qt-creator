@@ -14,5 +14,15 @@ QtcPlugin {
         "extensionmanagerwidget.h",
         "extensionsbrowser.cpp",
         "extensionsbrowser.h",
+        "extensionsmodel.cpp",
+        "extensionsmodel.h",
     ]
+
+    QtcTestFiles {
+        files: [
+            "extensionmanager_test.h",
+            "extensionmanager_test.cpp",
+            "extensionmanager_test.qrc",
+        ]
+    }
 }
