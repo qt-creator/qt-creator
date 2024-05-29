@@ -142,38 +142,6 @@ instructions:
           property: target.arch
           equals_value: X86_64
 
-  - type: Group
-    instructions:
-      - type: MakeDirectory
-        directory: "{{.AgentWorkingDir}}/build/qt_temp"
-        maxTimeInSeconds: 3600
-        maxTimeBetweenOutput: 360
-        userMessageOnFailure: "Failed to create folder qt_temp, check logs."
-      - type: ExecuteCommand
-        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}\\build\\qt_temp\\Python38-win-x86.7z https://master.qt.io/development_releases/prebuilt/python/Python38-win-x86.7z"
-        maxTimeInSeconds: 3600
-        maxTimeBetweenOutput: 360
-        userMessageOnFailure: "Failed to download python package, check logs."
-      - type: ExecuteCommand
-        command: "C:\\Utils\\sevenzip\\7z.exe x -y {{.AgentWorkingDir}}\\build\\qt_temp\\Python38-win-x86.7z -o{{.AgentWorkingDir}}\\build\\qt_temp\\python"
-        maxTimeInSeconds: 3600
-        maxTimeBetweenOutput: 360
-        userMessageOnFailure: "Failed to extract python package, check logs."
-      - type: ExecuteCommand
-        command: "python -u {{.AgentWorkingDir}}\\qt-creator\\qt-creator\\scripts\\build.py --build-type {{.Env.QTC_BUILD_TYPE}} --src {{.AgentWorkingDir}}\\qt-creator\\qt-creator --build {{.AgentWorkingDir}}\\qt-creator\\qt-creator_build --python-path {{.AgentWorkingDir}}\\buid\\qt_temp\\python --no-qtcreator --no-zip"
-        maxTimeInSeconds: 36000
-        maxTimeBetweenOutput: 3600
-        userMessageOnFailure: "Failed to run build.py, check logs."
-    enable_if:
-      condition: and
-      conditions:
-        - condition: property
-          property: target.compiler
-          in_values: [MSVC2013, MSVC2015, MSVC2017, MSVC2019]
-        - condition: property
-          property: target.arch
-          equals_value: X86
-
   - type: UploadArtifact
     archiveDirectory: "{{.AgentWorkingDir}}/qt-creator/qt-creator_build/build"
     transferType: UploadModuleBuildArtifact

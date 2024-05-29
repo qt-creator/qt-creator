@@ -7,7 +7,7 @@ on:
       - 'doc/**'
 
 env:
-  QT_VERSION: 6.6.2
+  QT_VERSION: 6.7.1
   MACOS_DEPLOYMENT_TARGET: 11.0
   CLANG_VERSION: 18.1.5
   ELFUTILS_VERSION: 0.175
@@ -200,7 +200,7 @@ jobs:
           endif()
         elseif ("${{ runner.os }}" STREQUAL "Linux")
           set(url_os "linux_x64")
-          set(qt_package_arch_suffix "gcc_64")
+          set(qt_package_arch_suffix "linux_gcc_64")
           set(qt_dir_prefix "${qt_version}/gcc_64")
           set(qt_package_suffix "-Linux-RHEL_8_8-GCC-Linux-RHEL_8_8-X86_64")
         elseif ("${{ runner.os }}" STREQUAL "macOS")
@@ -267,10 +267,10 @@ jobs:
           )
         endforeach()
 
-        # uic depends on libicu56.so
+        # uic, qmake depend on libicu*.so libraries
         if ("${{ runner.os }}" STREQUAL "Linux")
           downloadAndExtract(
-            "${qt_base_url}/qt.qt6.${qt_version_dotless}.${qt_package_arch_suffix}/${qt_package_version}icu-linux-Rhel7.2-x64.7z"
+            "${qt_base_url}/qt.qt6.${qt_version_dotless}.${qt_package_arch_suffix}/${qt_package_version}icu-linux-Rhel8.6-x86_64.7z"
             icu.7z
           )
         endif()
