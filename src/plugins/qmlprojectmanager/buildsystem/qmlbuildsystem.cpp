@@ -6,8 +6,9 @@
 #include "../qmlprojectconstants.h"
 #include "../qmlprojectmanagertr.h"
 #include "../qmlproject.h"
+#include "projectitem/qmlprojectitem.h"
+#include "projectnode/qmlprojectnodes.h"
 
-#include <QtCore5Compat/qtextcodec.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -30,11 +31,8 @@
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/target.h>
-
 #include <projectexplorer/projectmanager.h>
-#include <projectitem/qmlprojectitem.h>
-#include <projectnode/qmlprojectnodes.h>
+#include <projectexplorer/target.h>
 
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
@@ -44,6 +42,7 @@
 #include <texteditor/textdocument.h>
 
 #include <QAction>
+#include <QtCore5Compat/qtextcodec.h>
 
 using namespace ProjectExplorer;
 namespace QmlProjectManager {
