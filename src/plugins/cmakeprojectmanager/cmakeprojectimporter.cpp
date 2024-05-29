@@ -12,6 +12,9 @@
 #include "presetsmacros.h"
 
 #include <coreplugin/messagemanager.h>
+#include <debugger/debuggeritem.h>
+#include <debugger/debuggeritemmanager.h>
+#include <debugger/debuggerkitaspect.h>
 
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/kitaspects.h>
@@ -30,7 +33,9 @@
 
 #include <QApplication>
 #include <QLoggingCategory>
+#include <QUuid>
 
+using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace QtSupport;
 using namespace Utils;
@@ -60,6 +65,7 @@ struct DirectoryData
     FilePath sysroot;
     QtProjectImporter::QtVersionData qt;
     QVector<ToolchainDescription> toolchains;
+    QVariant debugger;
 };
 
 static FilePaths scanDirectory(const FilePath &path, const QString &prefix)
@@ -203,6 +209,48 @@ FilePaths CMakeProjectImporter::presetCandidates()
     }
 
     return candidates;
+}
+
+static QVariant findOrRegisterDebugger(
+    Environment &env, const std::optional<QVariantMap> &vendor, const QString &presetName)
+{
+    const QString debuggerKey("debugger");
+    if (!vendor || !vendor.value().contains(debuggerKey))
+        return {};
+
+    const QVariant debuggerVariant = vendor.value().value(debuggerKey);
+    FilePath debuggerPath = FilePath::fromUserInput(debuggerVariant.toString());
+    if (!debuggerPath.isEmpty()) {
+        if (debuggerPath.isRelativePath())
+            debuggerPath = env.searchInPath(debuggerPath.fileName());
+
+        const QString mainName = Tr::tr("CMake Preset (%1) %2 Debugger");
+        DebuggerItem debugger;
+        debugger.setCommand(debuggerPath);
+        debugger.setUnexpandedDisplayName(
+            mainName.arg(presetName).arg(debuggerPath.completeBaseName()));
+        debugger.setAutoDetected(false);
+        QString errorMessage;
+        debugger.reinitializeFromFile(&errorMessage, &env);
+        if (!errorMessage.isEmpty())
+            qCWarning(cmInputLog()) << "Error reinitializing debugger" << debuggerPath.toString()
+                                    << "Error:" << errorMessage;
+
+        return DebuggerItemManager::registerDebugger(debugger);
+    } else {
+        auto debuggerMap = debuggerVariant.toMap();
+        if (debuggerMap.isEmpty())
+            return {};
+
+        // Manually create an Id, otrhewise the Kit will not have a debugger set
+        if (!debuggerMap.contains("Id"))
+            debuggerMap.insert("Id", QUuid::createUuid().toString());
+
+        auto store = storeFromMap(debuggerMap);
+        DebuggerItem debugger(store);
+
+        return DebuggerItemManager::registerDebugger(debugger);
+    }
 }
 
 Target *CMakeProjectImporter::preferredTarget(const QList<Target *> &possibleTargets)
@@ -835,6 +883,8 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
 
         data->hasQmlDebugging = CMakeBuildConfiguration::hasQmlDebugging(config);
 
+        data->debugger = findOrRegisterDebugger(env, configurePreset.vendor, configurePreset.name);
+
         QByteArrayList buildConfigurationTypes = {cache.valueOf("CMAKE_BUILD_TYPE")};
         if (buildConfigurationTypes.front().isEmpty()) {
             buildConfigurationTypes.clear();
@@ -1054,6 +1104,9 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
         }
         if (!data->cmakePreset.isEmpty())
             ensureBuildDirectory(*data, k);
+
+        if (data->debugger.isValid())
+            DebuggerKitAspect::setDebugger(k, data->debugger);
 
         qCInfo(cmInputLog) << "Temporary Kit created.";
     });

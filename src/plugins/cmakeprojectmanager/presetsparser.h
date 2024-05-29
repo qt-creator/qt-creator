@@ -94,7 +94,7 @@ public:
     std::optional<bool> hidden = false;
     std::optional<QStringList> inherits;
     std::optional<Condition> condition;
-    std::optional<QHash<QString, QString>> vendor;
+    std::optional<QVariantMap> vendor;
     std::optional<QString> displayName;
     std::optional<QString> description;
     std::optional<QString> generator;
@@ -120,7 +120,7 @@ public:
     std::optional<bool> hidden = false;
     std::optional<QStringList> inherits;
     std::optional<Condition> condition;
-    std::optional<QHash<QString, QString>> vendor;
+    std::optional<QVariantMap> vendor;
     std::optional<QString> displayName;
     std::optional<QString> description;
     std::optional<Utils::Environment> environment;

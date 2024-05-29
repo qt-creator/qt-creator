@@ -148,6 +148,30 @@ std::optional<PresetsDetails::Condition> parseCondition(const QJsonValue &jsonVa
     return condition;
 }
 
+bool parseVendor(const QJsonValue &jsonValue, std::optional<QVariantMap> &vendorSettings)
+{
+    // The whole section is optional
+    if (jsonValue.isUndefined())
+        return true;
+    if (!jsonValue.isObject())
+        return false;
+
+    const QJsonObject object = jsonValue.toObject();
+    const QJsonValue qtIo = object.value("qt.io/QtCreator/1.0");
+    if (qtIo.isUndefined())
+        return true;
+    if (!qtIo.isObject())
+        return false;
+
+    const QJsonObject qtIoObject = qtIo.toObject();
+    vendorSettings = QVariantMap();
+    for (const QString &settingKey : qtIoObject.keys()) {
+        const QJsonValue settingValue = qtIoObject.value(settingKey);
+        vendorSettings->insert(settingKey, settingValue.toVariant());
+    }
+    return true;
+}
+
 bool parseConfigurePresets(const QJsonValue &jsonValue,
                            QList<PresetsDetails::ConfigurePreset> &configurePresets,
                            const Utils::FilePath &fileDir)
@@ -187,6 +211,9 @@ bool parseConfigurePresets(const QJsonValue &jsonValue,
 
         if (object.contains("condition"))
             preset.condition = parseCondition(object.value("condition"));
+
+        if (object.contains("vendor"))
+            parseVendor(object.value("vendor"), preset.vendor);
 
         if (object.contains("displayName"))
             preset.displayName = object.value("displayName").toString();
@@ -378,6 +405,9 @@ bool parseBuildPresets(const QJsonValue &jsonValue,
         if (object.contains("condition"))
             preset.condition = parseCondition(object.value("condition"));
 
+        if (object.contains("vendor"))
+            parseVendor(object.value("vendor"), preset.vendor);
+
         if (object.contains("displayName"))
             preset.displayName = object.value("displayName").toString();
         if (object.contains("description"))
@@ -432,30 +462,6 @@ bool parseBuildPresets(const QJsonValue &jsonValue,
         buildPresets.emplace_back(preset);
     }
 
-    return true;
-}
-
-bool parseVendor(const QJsonValue &jsonValue, std::optional<QVariantMap> &vendorSettings)
-{
-    // The whole section is optional
-    if (jsonValue.isUndefined())
-        return true;
-    if (!jsonValue.isObject())
-        return false;
-
-    const QJsonObject object = jsonValue.toObject();
-    const QJsonValue qtIo = object.value("qt.io/QtCreator/1.0");
-    if (qtIo.isUndefined())
-        return true;
-    if (!qtIo.isObject())
-        return false;
-
-    const QJsonObject qtIoObject = qtIo.toObject();
-    vendorSettings = QVariantMap();
-    for (const QString &settingKey : qtIoObject.keys()) {
-        const QJsonValue settingValue = qtIoObject.value(settingKey);
-        vendorSettings->insert(settingKey, settingValue.toVariant());
-    }
     return true;
 }
 
@@ -535,10 +541,9 @@ bool PresetsParser::parse(const Utils::FilePath &jsonFile, QString &errorMessage
     return true;
 }
 
-static QHash<QString, QString> merge(const QHash<QString, QString> &first,
-                                     const QHash<QString, QString> &second)
+static QVariantMap merge(const QVariantMap &first, const QVariantMap &second)
 {
-    QHash<QString, QString> result = first;
+    QVariantMap result = first;
     for (auto it = second.constKeyValueBegin(); it != second.constKeyValueEnd(); ++it) {
         result[it->first] = it->second;
     }
