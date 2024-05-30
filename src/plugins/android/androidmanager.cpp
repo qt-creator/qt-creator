@@ -114,8 +114,9 @@ QString packageName(const Target *target)
                         QSettings::IniFormat);
                     packageName = gradleProperties.value("androidPackageName").toString();
                 } else {
-                    // Remote quotes
-                    packageName = packageName.removeFirst().removeLast();
+                    // Remove quotes
+                    if (packageName.size() > 2)
+                        packageName = packageName.remove(0, 1).chopped(1);
                 }
 
                 break;
