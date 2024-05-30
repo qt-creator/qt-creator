@@ -49,11 +49,7 @@ private:
                 return MesonToolKitAspect::mesonToolId(m_kit);
             return NinjaToolKitAspect::ninjaToolId(m_kit);
         }();
-        if (id.isValid())
-            m_toolsComboBox->setCurrentIndex(indexOf(id));
-        else {
-            setToDefault();
-        }
+        m_toolsComboBox->setCurrentIndex(indexOf(id));
     }
 
     QComboBox *m_toolsComboBox;
