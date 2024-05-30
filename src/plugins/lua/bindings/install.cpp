@@ -161,6 +161,7 @@ static Group installRecipe(
                 emitResult(sourceAndCommand.error());
                 return SetupResult::StopWithError;
             }
+            unarchiver.setGZipFileDestName(installOptionsIt->name);
             unarchiver.setSourceAndCommand(*sourceAndCommand);
             unarchiver.setDestDir(destination(appDataPath, *installOptionsIt));
             return SetupResult::Continue;
@@ -172,6 +173,12 @@ static Group installRecipe(
         if (result == DoneWith::Cancel)
             return DoneResult::Error;
 
+        const FilePath destDir = destination(appDataPath, *installOptionsIt);
+        const FilePath binary = destDir / installOptionsIt->name;
+
+        if (binary.isFile())
+            binary.setPermissions(QFile::ExeUser | QFile::ExeGroup | QFile::ExeOther);
+
         expected_str<QJsonDocument> doc = getOrCreatePackageInfo(appDataPath);
         if (!doc)
             return emitResult(doc.error());
@@ -180,7 +187,7 @@ static Group installRecipe(
         QJsonObject installedPackage;
         installedPackage["version"] = installOptionsIt->version;
         installedPackage["name"] = installOptionsIt->name;
-        installedPackage["path"] = destination(appDataPath, *installOptionsIt).toFSPathString();
+        installedPackage["path"] = destDir.toFSPathString();
         obj[installOptionsIt->name] = installedPackage;
 
         expected_str<void> res = savePackageInfo(appDataPath, QJsonDocument(obj));
