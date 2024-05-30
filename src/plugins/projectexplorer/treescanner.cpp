@@ -155,7 +155,7 @@ void TreeScanner::scanForFiles(
 {
     QList<FileNode *> nodes = ProjectExplorer::scanForFiles(
         promise, directory, dirFilter, [&filter, &factory](const Utils::FilePath &fn) -> FileNode * {
-            const Utils::MimeType mimeType = Utils::mimeTypeForFile(fn);
+            const Utils::MimeType mimeType = Utils::mimeTypesForFileName(fn.path()).value(0);
 
             // Skip some files during scan.
             if (filter && filter(mimeType, fn))
