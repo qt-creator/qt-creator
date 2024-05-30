@@ -7,6 +7,7 @@ local S = require('Settings')
 local Gui = require('Gui')
 local a = require('async')
 local fetch = require('Fetch').fetch
+local Install = require('Install')
 
 Settings = {}
 
@@ -44,7 +45,6 @@ local function installOrUpdateServer()
 
   if type(data) == "table" and #data > 0 then
     local r = data[1]
-    Install = require('Install')
     local lspPkgInfo = Install.packageInfo("lua-language-server")
     if not lspPkgInfo or lspPkgInfo.version ~= r.tag_name then
       local osTr = { mac = "darwin", windows = "win32", linux = "linux" }
@@ -83,7 +83,7 @@ local function installOrUpdateServer()
       binary = "bin/lua-language-server.exe"
     end
 
-    Settings.binary.defaultPath = lspPkgInfo.path:resolvePath(binary)
+    Settings.binary:setValue(lspPkgInfo.path:resolvePath(binary))
     Settings:apply()
     return
   end
@@ -138,29 +138,51 @@ local function layoutSettings()
   --- "using namespace Gui"
   local _ENV = using(Gui)
 
-  local installButton = {}
-
-  if Settings.binary.expandedValue:isExecutableFile() == false then
-    installButton = {
-      "Language server not found:",
-      Row {
-        PushButton {
-          text = "Try to install lua language server",
-          onClicked = function() a.sync(installServer)() end,
-        },
-        st
-      }
-    }
-  end
   local layout = Form {
     Settings.binary, br,
     Settings.developMode, br,
     Settings.showSource, br,
     Settings.showNode, br,
-    table.unpack(installButton)
+      Row {
+        PushButton {
+        text = "Update Lua Language Server",
+          onClicked = function() a.sync(installOrUpdateServer)() end,
+        },
+        st
+    }
   }
-
   return layout
+end
+
+local function binaryFromPkg()
+  local lspPkgInfo = Install.packageInfo("lua-language-server")
+  if lspPkgInfo then
+    local binary = "bin/lua-language-server"
+    if Utils.HostOsInfo.isWindowsHost() then
+      binary = "bin/lua-language-server.exe"
+    end
+    local binaryPath = lspPkgInfo.path:resolvePath(binary)
+    if binaryPath:isExecutableFile() == true then
+      return binaryPath
+    end
+  end
+
+  return nil
+end
+
+local function findBinary()
+  local binary = binaryFromPkg()
+  if binary then
+    return binary
+  end
+
+  -- Search for the binary in the PATH
+  local serverPath = Utils.FilePath.fromUserInput("lua-language-server")
+  local absolute = a.wait(serverPath:searchInPath()):resolveSymlinks()
+  if absolute:isExecutableFile() == true then
+    return absolute
+  end
+  return serverPath
 end
 
 local function setupAspect()
@@ -176,14 +198,9 @@ local function setupAspect()
     labelText = "Binary:",
     toolTip = "The path to the lua-language-server binary.",
     expectedKind = S.Kind.ExistingCommand,
-    defaultPath = Utils.FilePath.fromUserInput("lua-language-server"),
+    defaultPath = findBinary(),
   })
-  -- Search for the binary in the PATH
-  local serverPath = Settings.binary.defaultPath
-  local absolute = a.wait(serverPath:searchInPath()):resolveSymlinks()
-  if absolute:isExecutableFile() == true then
-    Settings.binary.defaultPath = absolute
-  end
+
   Settings.developMode = S.BoolAspect.create({
     settingsKey = "LuaCopilot.DevelopMode",
     displayName = "Enable Develop Mode",
