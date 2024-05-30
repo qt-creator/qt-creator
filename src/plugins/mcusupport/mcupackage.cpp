@@ -43,11 +43,11 @@ McuPackage::McuPackage(const SettingsHandler::Ptr &settingsHandler,
                        const McuPackageVersionDetector *versionDetector,
                        const bool addToSystemPath,
                        const Utils::PathChooser::Kind &valueType,
-                       const bool useNewestVersionKey)
+                       const bool allowNewerVersionKey)
     : settingsHandler(settingsHandler)
     , m_label(label)
     , m_detectionPaths(detectionPaths)
-    , m_settingsKey(settingsHandler->getVersionedKey(settingsKey, QSettings::SystemScope, versions, useNewestVersionKey))
+    , m_settingsKey(settingsKey)
     , m_versionDetector(versionDetector)
     , m_versions(versions)
     , m_cmakeVariableName(cmakeVarName)
@@ -56,8 +56,18 @@ McuPackage::McuPackage(const SettingsHandler::Ptr &settingsHandler,
     , m_addToSystemPath(addToSystemPath)
     , m_valueType(valueType)
 {
-    m_defaultPath = settingsHandler->getPath(m_settingsKey, QSettings::SystemScope, defaultPath);
-    m_path = settingsHandler->getPath(m_settingsKey, QSettings::UserScope, m_defaultPath);
+    // The installer writes versioned keys as well as the plain key as found in the kits.
+    // Use the versioned key in case the plain key was removed by an uninstall operation
+    const Utils::Key versionedKey = settingsHandler->getVersionedKey(settingsKey,
+                                                                     QSettings::SystemScope,
+                                                                     versions,
+                                                                     allowNewerVersionKey);
+    m_defaultPath = settingsHandler->getPath(versionedKey, QSettings::SystemScope, defaultPath);
+    m_path = settingsHandler->getPath(m_settingsKey, QSettings::UserScope, "");
+    // The user settings may have been written with a versioned key in older versions of QtCreator
+    if (m_path.isEmpty()) {
+        m_path = settingsHandler->getPath(versionedKey, QSettings::UserScope, m_defaultPath);
+    }
     if (m_path.isEmpty()) {
         m_path = FilePath::fromUserInput(qtcEnvironmentVariable(m_environmentVariableName));
     }
