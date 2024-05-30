@@ -220,24 +220,24 @@ std::unique_ptr<Splitter> constructSplitter(const sol::table &children)
     return item;
 }
 
-void addLayoutModule()
+void addGuiModule()
 {
-    LuaEngine::registerProvider("Layout", [](sol::state_view l) -> sol::object {
+    LuaEngine::registerProvider("Gui", [](sol::state_view l) -> sol::object {
         const ScriptPluginSpec *pluginSpec = l.get<ScriptPluginSpec *>("PluginSpec");
         QObject *guard = pluginSpec->connectionGuard.get();
 
-        sol::table layout = l.create_table();
+        sol::table gui = l.create_table();
 
-        layout.new_usertype<Span>(
+        gui.new_usertype<Span>(
             "Span", sol::call_constructor, sol::factories(&constructSpan, &constructSpanFromTable));
 
-        layout.new_usertype<Space>("Space", sol::call_constructor, sol::constructors<Space(int)>());
+        gui.new_usertype<Space>("Space", sol::call_constructor, sol::constructors<Space(int)>());
 
-        layout.new_usertype<Stretch>(
+        gui.new_usertype<Stretch>(
             "Stretch", sol::call_constructor, sol::constructors<Stretch(int)>());
 
         // Layouts
-        layout.new_usertype<Layout>(
+        gui.new_usertype<Layout>(
             "Layout",
             sol::call_constructor,
             sol::factories(&construct<Layout>),
@@ -246,33 +246,33 @@ void addLayoutModule()
             sol::base_classes,
             sol::bases<Object, Thing>());
 
-        layout.new_usertype<Form>(
+        gui.new_usertype<Form>(
             "Form",
             sol::call_constructor,
             sol::factories(&construct<Form>),
             sol::base_classes,
             sol::bases<Layout, Object, Thing>());
 
-        layout.new_usertype<Column>(
+        gui.new_usertype<Column>(
             "Column",
             sol::call_constructor,
             sol::factories(&construct<Column>),
             sol::base_classes,
             sol::bases<Layout, Object, Thing>());
 
-        layout.new_usertype<Row>(
+        gui.new_usertype<Row>(
             "Row",
             sol::call_constructor,
             sol::factories(&construct<Row>),
             sol::base_classes,
             sol::bases<Layout, Object, Thing>());
-        layout.new_usertype<Flow>(
+        gui.new_usertype<Flow>(
             "Flow",
             sol::call_constructor,
             sol::factories(&construct<Flow>),
             sol::base_classes,
             sol::bases<Layout, Object, Thing>());
-        layout.new_usertype<Grid>(
+        gui.new_usertype<Grid>(
             "Grid",
             sol::call_constructor,
             sol::factories(&construct<Grid>),
@@ -280,7 +280,7 @@ void addLayoutModule()
             sol::bases<Layout, Object, Thing>());
 
         // Widgets
-        layout.new_usertype<PushButton>(
+        gui.new_usertype<PushButton>(
             "PushButton",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
@@ -289,7 +289,7 @@ void addLayoutModule()
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
-        layout.new_usertype<Label>(
+        gui.new_usertype<Label>(
             "Label",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
@@ -298,7 +298,7 @@ void addLayoutModule()
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
-        layout.new_usertype<Widget>(
+        gui.new_usertype<Widget>(
             "Widget",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
@@ -311,7 +311,7 @@ void addLayoutModule()
             sol::base_classes,
             sol::bases<Object, Thing>());
 
-        layout.new_usertype<Stack>(
+        gui.new_usertype<Stack>(
             "Stack",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
@@ -320,14 +320,14 @@ void addLayoutModule()
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
-        layout.new_usertype<Tab>(
+        gui.new_usertype<Tab>(
             "Tab",
             sol::call_constructor,
             sol::factories(&constructTab, &constructTabFromTable),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
-        layout.new_usertype<TextEdit>(
+        gui.new_usertype<TextEdit>(
             "TextEdit",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
@@ -336,7 +336,7 @@ void addLayoutModule()
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
-        layout.new_usertype<SpinBox>(
+        gui.new_usertype<SpinBox>(
             "SpinBox",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
@@ -344,13 +344,13 @@ void addLayoutModule()
             }),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
-        layout.new_usertype<Splitter>(
+        gui.new_usertype<Splitter>(
             "Splitter",
             sol::call_constructor,
             sol::factories(&constructSplitter),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
-        layout.new_usertype<ToolBar>(
+        gui.new_usertype<ToolBar>(
             "ToolBar",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
@@ -358,7 +358,7 @@ void addLayoutModule()
             }),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
-        layout.new_usertype<TabWidget>(
+        gui.new_usertype<TabWidget>(
             "TabWidget",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
@@ -367,7 +367,7 @@ void addLayoutModule()
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
-        layout.new_usertype<Group>(
+        gui.new_usertype<Group>(
             "Group",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
@@ -376,16 +376,16 @@ void addLayoutModule()
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
-        layout["br"] = &br;
-        layout["st"] = &st;
-        layout["empty"] = &empty;
-        layout["hr"] = &hr;
-        layout["noMargin"] = &noMargin;
-        layout["normalMargin"] = &normalMargin;
-        layout["withFormAlignment"] = &withFormAlignment;
-        layout["spacing"] = &spacing;
+        gui["br"] = &br;
+        gui["st"] = &st;
+        gui["empty"] = &empty;
+        gui["hr"] = &hr;
+        gui["noMargin"] = &noMargin;
+        gui["normalMargin"] = &normalMargin;
+        gui["withFormAlignment"] = &withFormAlignment;
+        gui["spacing"] = &spacing;
 
-        return layout;
+        return gui;
     });
 }
 

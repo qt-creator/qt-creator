@@ -4,7 +4,7 @@ local LSP = require('LSP')
 local mm = require('MessageManager')
 local Utils = require('Utils')
 local S = require('Settings')
-local Layout = require('Layout')
+local Gui = require('Gui')
 local a = require('async')
 local fetch = require('Fetch').fetch
 
@@ -135,8 +135,8 @@ local function using(tbl)
   return result
 end
 local function layoutSettings()
-  --- "using namespace Layout"
-  local _ENV = using(Layout)
+  --- "using namespace Gui"
+  local _ENV = using(Gui)
 
   local installButton = {}
 

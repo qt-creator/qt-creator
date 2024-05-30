@@ -28,7 +28,7 @@ void addUtilsModule();
 void addMessageManagerModule();
 void addProcessModule();
 void addSettingsModule();
-void addLayoutModule();
+void addGuiModule();
 void addQtModule();
 void addCoreModule();
 void addHookModule();
@@ -72,7 +72,7 @@ public:
         addMessageManagerModule();
         addProcessModule();
         addSettingsModule();
-        addLayoutModule();
+        addGuiModule();
         addQtModule();
         addCoreModule();
         addHookModule();

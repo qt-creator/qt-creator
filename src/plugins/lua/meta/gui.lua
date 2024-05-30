@@ -1,22 +1,22 @@
 ---@meta Layout
 
-local layout = {}
+local gui = {}
 
----The base class of all layout classes
+---The base class of all ui related classes
 ---@class Object
-layout.Layout = {}
+gui.Object = {}
 
----The base class of all layout classes
+---The base class of all gui layout classes
 ---@class Layout : Object
-layout.Layout = {}
+gui.Layout = {}
 
 ---The base class of all widget classes, an empty widget itself.
 ---@class Widget : Object
-Widget = {}
+gui.Widget = {}
 
 ---@param children Layout
 ---@return Widget
-function layout.Widget(children) end
+function gui.Widget(children) end
 
 ---Column layout
 ---@class Column : Layout
@@ -24,14 +24,14 @@ local column = {}
 
 ---@param children Layout|string|BaseAspect|function
 ---@return Column
-function layout.Column(children) end
+function gui.Column(children) end
 
 ---A group box with a title
 ---@class Group : Widget
 local group = {}
 
 ---@return Group
-function layout.Group(children) end
+function gui.Group(children) end
 
 ---Row layout
 ---@class Row : Layout
@@ -39,7 +39,7 @@ local row = {}
 
 ---@param children Layout|string|BaseAspect|function
 ---@return Row
-function layout.Row(children) end
+function gui.Row(children) end
 
 ---Flow layout
 ---@class Flow : Layout
@@ -47,7 +47,7 @@ local flow = {}
 
 ---@param children Layout|string|BaseAspect|function
 ---@return Flow
-function layout.Flow(children) end
+function gui.Flow(children) end
 
 ---Grid layout
 ---@class Grid : Layout
@@ -55,7 +55,7 @@ local grid = {}
 
 ---@param children Layout|string|BaseAspect|function
 ---@return Grid
-function layout.Grid(children) end
+function gui.Grid(children) end
 
 ---Form layout
 ---@class Form : Layout
@@ -63,7 +63,7 @@ local form = {}
 
 ---@param children Layout|string|BaseAspect|function
 ---@return Form
-function layout.Form(children) end
+function gui.Form(children) end
 
 
 ---A stack of multiple widgets
@@ -72,7 +72,7 @@ local stack = {}
 
 ---@param children Layout|string|BaseAspect|function
 ---@return Stack
-function layout.Stack(children) end
+function gui.Stack(children) end
 
 ---A Tab widget
 ---@class Tab : Widget
@@ -80,7 +80,7 @@ local tab = {}
 
 ---@param children Layout|string|BaseAspect|function
 ---@return Tab
-function layout.Tab(children) end
+function gui.Tab(children) end
 
 ---A Multiline text edit
 ---@class TextEdit : Widget
@@ -88,7 +88,7 @@ local textEdit = {}
 
 ---@param children Layout|string|BaseAspect|function
 ---@return TextEdit
-function layout.TextEdit(children) end
+function gui.TextEdit(children) end
 
 ---A PushButton
 ---@class PushButton : Widget
@@ -96,7 +96,7 @@ local pushButton = {}
 
 ---@param children Layout|string|BaseAspect|function
 ---@return PushButton
-function layout.PushButton(children) end
+function gui.PushButton(children) end
 
 ---A Label
 ---@class Label : LayoutItem
@@ -104,7 +104,7 @@ local label = {}
 
 ---@param children LayoutItem|string|BaseAspect|function
 ---@return Label
-function layout.Label(children) end
+function gui.Label(children) end
 
 ---A SpinBox
 ---@class SpinBox : Widget
@@ -112,7 +112,7 @@ local spinBox = {}
 
 ---@param children Layout|string|BaseAspect|function
 ---@return SpinBox
-function layout.SpinBox(children) end
+function gui.SpinBox(children) end
 
 ---A Splitter
 ---@class Splitter : Widget
@@ -120,7 +120,7 @@ local splitter = {}
 
 ---@param children Layout|string|BaseAspect|function
 ---@return Splitter
-function layout.Splitter(children) end
+function gui.Splitter(children) end
 
 ---A Toolbar
 ---@class ToolBar : Widget
@@ -128,7 +128,7 @@ local toolBar = {}
 
 ---@param children Layout|string|BaseAspect|function
 ---@return ToolBar
-function layout.ToolBar(children) end
+function gui.ToolBar(children) end
 
 ---A TabWidget
 ---@class TabWidget : Widget
@@ -136,46 +136,46 @@ local tabWidget = {}
 
 ---@param children Layout|string|BaseAspect|function
 ---@return TabWidget
-function layout.TabWidget(children) end
+function gui.TabWidget(children) end
 
 ---@param name string
 ---@param child Layout|string|BaseAspect|function
 ---@return TabWidget
-function layout.TabWidget(name, child) end
----A "Line break" in the layout
-function layout.br() end
+function gui.TabWidget(name, child) end
+---A "Line break" in the gui
+function gui.br() end
 
 ---A "Stretch" in the layout
-function layout.st() end
+function gui.st() end
 
----An empty space in the layout
-function layout.empty() end
+---An empty grid cell in a grid layout
+function gui.empty() end
 
 ---A horizontal line in the layout
-function layout.hr() end
+function gui.hr() end
 
 ---Clears the margin of the layout
-function layout.noMargin() end
+function gui.noMargin() end
 
 ---Sets the margin of the layout to the default value
-function layout.normalMargin() end
+function gui.normalMargin() end
 
----Sets the alignment of the layout to "Form"
-function layout.withFormAlignment() end
+---Sets the alignment of a Grid layout according to the Form layout rules
+function gui.withFormAlignment() end
 
 ---Sets the size of the parent object if possible
-function layout.resize(width, height) end
+function gui.resize(width, height) end
 
----Sets the spacing of the layout
-function layout.spacing(spacing) end
+---Sets the spacing of the gui
+function gui.spacing(spacing) end
 
----Sets the field growth policy of the layout
-function layout.fieldGrowthPolicy(policy) end
+---Sets the field growth policy of the gui
+function gui.fieldGrowthPolicy(policy) end
 
 ---Sets the onClicked handler of the parent object if possible
-function layout.onClicked(f) end
+function gui.onClicked(f) end
 
 ---Sets the onTextChanged handler of the parent object if possible
-function layout.onTextChanged(f) end
+function gui.onTextChanged(f) end
 
-return layout
+return gui

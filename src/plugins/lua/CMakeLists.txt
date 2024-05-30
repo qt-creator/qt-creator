@@ -8,10 +8,10 @@ add_qtc_plugin(Lua
     bindings/async.cpp
     bindings/core.cpp
     bindings/fetch.cpp
+    bindings/gui.cpp
     bindings/hook.cpp
     bindings/inheritance.h
     bindings/install.cpp
-    bindings/layout.cpp
     bindings/messagemanager.cpp
     bindings/qtcprocess.cpp
     bindings/settings.cpp
@@ -28,8 +28,8 @@ add_qtc_plugin(Lua
     meta/async.lua
     meta/core.lua
     meta/fetch.lua
+    meta/gui.lua
     meta/install.lua
-    meta/layout.lua
     meta/lsp.lua
     meta/messagemanager.lua
     meta/process.lua
@@ -56,7 +56,7 @@ set(META_FILES
   meta/async.lua
   meta/core.lua
   meta/fetch.lua
-  meta/layout.lua
+  meta/gui.lua
   meta/lsp.lua
   meta/messagemanager.lua
   meta/process.lua
