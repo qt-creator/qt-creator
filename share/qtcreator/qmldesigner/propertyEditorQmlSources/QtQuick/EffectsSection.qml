@@ -89,7 +89,7 @@ Section {
             CheckBox {
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
-                backendValue: root.effectNodeWrapper.properties.visible
+                backendValue: root.effectNodeWrapper?.properties.visible
             }
 
             ExpandingSpacer {}
@@ -204,7 +204,7 @@ Section {
                     CheckBox {
                         implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                        + StudioTheme.Values.actionIndicatorWidth
-                        backendValue: root.effectNodeWrapper.properties.layerBlurVisible
+                        backendValue: root.effectNodeWrapper?.properties.layerBlurVisible
                     }
 
                     ExpandingSpacer {}
@@ -219,7 +219,7 @@ Section {
                     SpinBox {
                         implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                        + StudioTheme.Values.actionIndicatorWidth
-                        backendValue: root.effectNodeWrapper.properties.layerBlurRadius
+                        backendValue: root.effectNodeWrapper?.properties.layerBlurRadius
                         minimumValue: 0
                         maximumValue: 250
                     }
@@ -250,7 +250,7 @@ Section {
                     CheckBox {
                         implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                        + StudioTheme.Values.actionIndicatorWidth
-                        backendValue: root.effectNodeWrapper.properties.backgroundBlurVisible
+                        backendValue: root.effectNodeWrapper?.properties.backgroundBlurVisible
                     }
 
                     ExpandingSpacer {}
@@ -267,7 +267,7 @@ Section {
                     SpinBox {
                         implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                        + StudioTheme.Values.actionIndicatorWidth
-                        backendValue: root.effectNodeWrapper.properties.backgroundBlurRadius
+                        backendValue: root.effectNodeWrapper?.properties.backgroundBlurRadius
                         minimumValue: 0
                         maximumValue: 250
                     }
@@ -288,7 +288,7 @@ Section {
                                        + StudioTheme.Values.actionIndicatorWidth
                         width: implicitWidth
                         typeFilter: "QtQuick.Item"
-                        backendValue: root.effectNodeWrapper.properties.backgroundLayer
+                        backendValue: root.effectNodeWrapper?.properties.backgroundLayer
                     }
 
                     ExpandingSpacer {}
