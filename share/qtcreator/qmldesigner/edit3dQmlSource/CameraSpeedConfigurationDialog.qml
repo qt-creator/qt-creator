@@ -12,9 +12,10 @@ Rectangle {
     id: root
 
     property int toolTipDelay: 1000
+    property bool qdsTrusted: isQDSTrusted()
 
     width: 260
-    height: 150
+    height: root.qdsTrusted ? 150 : 210
     color: StudioTheme.Values.themePanelBackground
     border.color: StudioTheme.Values.themeControlOutline
     border.width: StudioTheme.Values.border
@@ -149,6 +150,43 @@ Rectangle {
                     Layout.preferredWidth: 70
                     Layout.preferredHeight: multiplierSpin.height
                     onClicked: resetDefaults()
+                }
+            }
+
+            Rectangle {
+                visible: !root.qdsTrusted
+                color: "transparent"
+                border.color: StudioTheme.Values.themeWarning
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+
+                RowLayout {
+                    anchors.fill: parent
+
+                    HelperWidgets.IconLabel {
+                        icon: StudioTheme.Constants.warning_medium
+                        pixelSize: StudioTheme.Values.mediumIconFontSize
+                        Layout.leftMargin: 10
+                    }
+
+                    Text {
+                        text: qsTr('<p>You only have partial control in fly mode. For full control, please
+                               enable the <span style="text-decoration: underline">Accessibility settings</span></p>')
+
+                        color: StudioTheme.Values.themeTextColor
+                        wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
+                        Layout.margins: 6
+                        textFormat: Text.RichText
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                Qt.openUrlExternally("x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")
+                                accessibilityOpened()
+                            }
+                        }
+                    }
                 }
             }
         }

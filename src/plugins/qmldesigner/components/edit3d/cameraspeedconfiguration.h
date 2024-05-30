@@ -39,6 +39,7 @@ public:
     Q_INVOKABLE void restoreCursor();
     Q_INVOKABLE void holdCursorInPlace();
     Q_INVOKABLE int devicePixelRatio();
+    Q_INVOKABLE bool isQDSTrusted() const;
 
     void cancel();
     void apply();
@@ -58,6 +59,7 @@ signals:
     void speedChanged();
     void multiplierChanged();
     void totalSpeedChanged();
+    void accessibilityOpened();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;

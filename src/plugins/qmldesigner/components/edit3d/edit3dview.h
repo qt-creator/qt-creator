@@ -18,6 +18,10 @@
 #include <QVector>
 #include <QVector3D>
 
+#ifdef Q_OS_MACOS
+extern "C" bool AXIsProcessTrusted();
+#endif
+
 QT_BEGIN_NAMESPACE
 class QAction;
 class QInputEvent;
@@ -40,6 +44,15 @@ public:
         int matOverride = 0;
         bool showWireframe = false;
     };
+
+    static bool isQDSTrusted()
+    {
+#ifdef Q_OS_MACOS
+        return AXIsProcessTrusted();
+#else
+        return true;
+#endif
+    }
 
     Edit3DView(ExternalDependenciesInterface &externalDependencies);
 

@@ -42,7 +42,6 @@
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
-
 #include <QToolButton>
 
 namespace QmlDesigner {
@@ -56,19 +55,6 @@ inline static QIcon toolbarIcon(const DesignerIcons::IconId &iconId)
 {
     return DesignerActionManager::instance().toolbarIcon(iconId);
 };
-
-#ifdef Q_OS_MACOS
-extern "C" bool AXIsProcessTrusted();
-#endif
-
-static bool isAXITrusted()
-{
-#ifdef Q_OS_MACOS
-    return AXIsProcessTrusted();
-#else
-    return true;
-#endif
-}
 
 Edit3DView::Edit3DView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
@@ -1323,7 +1309,11 @@ void Edit3DView::createEdit3DActions()
                     this, [this] {
                         setCameraSpeedAuxData(m_cameraSpeedConfiguration->speed(),
                                               m_cameraSpeedConfiguration->multiplier());
-            });
+                    });
+            connect(m_cameraSpeedConfiguration.data(), &CameraSpeedConfiguration::accessibilityOpened,
+                    this, [this] {
+                        m_cameraSpeedConfigAction->setIndicator(false);
+                    });
         }
         m_cameraSpeedConfiguration->showConfigDialog(resolveToolbarPopupPos(m_cameraSpeedConfigAction.get()));
     };
@@ -1337,7 +1327,7 @@ void Edit3DView::createEdit3DActions()
         cameraSpeedConfigTrigger,
         this);
 
-    m_cameraSpeedConfigAction->setIndicator(!isAXITrusted());
+    m_cameraSpeedConfigAction->setIndicator(!isQDSTrusted());
 
     m_leftActions << m_selectionModeAction.get();
     m_leftActions << nullptr; // Null indicates separator
