@@ -115,7 +115,7 @@ void CppcheckRunner::checkQueued()
 
     CommandLine commandLine{m_binary, m_arguments, CommandLine::Raw};
     FilePaths files = m_queue.begin().value();
-    commandLine.addArg(m_queue.begin().key());
+    commandLine.addArgs(m_queue.begin().key(), CommandLine::Raw);
     m_currentFiles.clear();
     int argumentsLength = commandLine.arguments().length();
     while (!files.isEmpty()) {
