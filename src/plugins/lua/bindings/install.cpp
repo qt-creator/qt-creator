@@ -17,8 +17,10 @@
 #include <utils/stylehelper.h>
 #include <utils/unarchiver.h>
 
+#include <QApplication>
 #include <QJsonDocument>
 #include <QLabel>
+#include <QMessageBox>
 #include <QTemporaryFile>
 #include <QtConcurrent>
 
@@ -301,41 +303,71 @@ void addInstallModule()
                         installOptionsList.append({url, name, version});
                     }
 
+                    auto install = [&state, pluginSpec, installOptionsList, callback]() {
+                        auto tree = state.createTree();
+
+                        auto progress = new TaskProgress(tree);
+                        progress->setDisplayName(Tr::tr("Installing package(s) %1").arg("..."));
+
+                        tree->setRecipe(
+                            installRecipe(pluginSpec->appDataPath, installOptionsList, callback));
+                        tree->start();
+                    };
+
+                    auto denied = [callback]() { callback(false, "User denied installation"); };
+
+                    if (QApplication::activeModalWidget()) {
+                        auto msgBox = new QMessageBox(
+                            QMessageBox::Question,
+                            Tr::tr("Install package"),
+                            msg,
+                            QMessageBox::Yes | QMessageBox::No,
+                            Core::ICore::dialogParent());
+
+                        const QString details
+                            = Tr::tr("The plugin \"%1\" would like to install the following "
+                                     "package(s):\n\n")
+                                  .arg(pluginSpec->name)
+                              + Utils::transform(installOptionsList, [](const InstallOptions &options) {
+                                    return QString("* %1 - %2 (from: %3)")
+                                        .arg(options.name, options.version, options.url.toString());
+                                }).join("\n");
+
+                        msgBox->setDetailedText(details);
+
+                        auto guard = pluginSpec->connectionGuard.get();
+                        QObject::connect(msgBox, &QMessageBox::accepted, guard, install);
+                        QObject::connect(msgBox, &QMessageBox::rejected, guard, denied);
+
+                        msgBox->show();
+                        return;
+                    }
+
                     const Utils::Id infoBarId = Utils::Id::fromString(
                         "Install" + pluginSpec->name + QString::number(qHash(installOptionsList)));
 
                     InfoBarEntry entry(infoBarId, msg, InfoBarEntry::GlobalSuppression::Enabled);
 
-                    entry.addCustomButton(
-                        Tr::tr("Install"),
-                        [infoBarId, &state, pluginSpec, installOptionsList, callback]() {
-                            auto tree = state.createTree();
+                    entry.addCustomButton(Tr::tr("Install"), [install, infoBarId]() {
+                        install();
+                        Core::ICore::infoBar()->removeInfo(infoBarId);
+                    });
 
-                            auto progress = new TaskProgress(tree);
-                            progress->setDisplayName(Tr::tr("Installing package(s) %1").arg("..."));
+                    entry.setCancelButtonInfo(denied);
 
-                            tree->setRecipe(
-                                installRecipe(pluginSpec->appDataPath, installOptionsList, callback));
-                            tree->start();
+                    const QString details
+                        = Tr::tr("The plugin \"**%1**\" would like to install the following "
+                                 "package(s):\n\n")
+                              .arg(pluginSpec->name)
+                          + Utils::transform(installOptionsList, [](const InstallOptions &options) {
+                                return QString("* %1 - %2 (from: [%3](%3))")
+                                    .arg(options.name, options.version, options.url.toString());
+                            }).join("\n");
 
-                            Core::ICore::infoBar()->removeInfo(infoBarId);
-                        });
-                    entry.setCancelButtonInfo(
-                        [callback]() { callback(false, "User denied installation"); });
-
-                    entry.setDetailsWidgetCreator([pluginSpec, installOptionsList]() -> QWidget * {
-                        const QString markdown
-                            = Tr::tr("The plugin \"**%1**\" would like to install the following "
-                                     "package(s):\n\n")
-                                  .arg(pluginSpec->name)
-                              + Utils::transform(installOptionsList, [](const InstallOptions &options) {
-                                    return QString("* %1 - %2 (from: [%3](%3))")
-                                        .arg(options.name, options.version, options.url.toString());
-                                }).join("\n");
-
+                    entry.setDetailsWidgetCreator([details]() -> QWidget * {
                         QLabel *list = new QLabel();
                         list->setTextFormat(Qt::TextFormat::MarkdownText);
-                        list->setText(markdown);
+                        list->setText(details);
                         list->setMargin(StyleHelper::SpacingTokens::ExPaddingGapS);
                         return list;
                     });
