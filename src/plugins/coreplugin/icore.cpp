@@ -294,6 +294,7 @@ public:
 
     MainWindow *m_mainwindow = nullptr;
     QTimer m_trimTimer;
+    QString m_prependAboutInformation;
     QStringList m_aboutInformation;
     Context m_highPrioAdditionalContexts;
     Context m_lowPrioAdditionalContexts{Constants::C_GLOBAL};
@@ -1215,7 +1216,9 @@ void ICore::saveSettings(SaveSettingsReason reason)
 */
 QStringList ICore::additionalAboutInformation()
 {
-    return d->m_aboutInformation;
+    auto aboutInformation = d->m_aboutInformation;
+    aboutInformation.prepend(d->m_prependAboutInformation);
+    return aboutInformation;
 }
 
 /*!
@@ -1224,6 +1227,14 @@ QStringList ICore::additionalAboutInformation()
 void ICore::clearAboutInformation()
 {
     d->m_aboutInformation.clear();
+}
+
+/*!
+    \internal
+*/
+void ICore::setPrependAboutInformation(const QString &line)
+{
+    d->m_prependAboutInformation = line;
 }
 
 /*!

@@ -665,12 +665,11 @@ void QmlDesignerPlugin::enforceDelayedInitialize()
 
         FoundLicense license = checkLicense();
         if (license == FoundLicense::enterprise)
-            Core::ICore::appendAboutInformation(tr("License: Enterprise"));
+            Core::ICore::setPrependAboutInformation("License: Enterprise");
         else if (license == FoundLicense::professional)
-            Core::ICore::appendAboutInformation(tr("License: Professional"));
-
-        if (!licensee().isEmpty())
-            Core::ICore::appendAboutInformation(tr("Licensee: %1").arg(licensee()));
+            Core::ICore::setPrependAboutInformation("License: Professional");
+        else if (license == FoundLicense::community)
+            Core::ICore::setPrependAboutInformation("License: Community");
     }
 
     m_delayedInitialized = true;
