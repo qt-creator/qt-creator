@@ -100,6 +100,8 @@ private:
     QPointer<QAction> m_selectParentAction;
     QPointer<QAction> m_toggleGroupAction;
     QPointer<QAction> m_wireFrameAction;
+    QPointer<QAction> m_importBundleAction;
+    QPointer<QAction> m_exportBundleAction;
     QPointer<QAction> m_addToContentLibAction;
     QHash<int, QPointer<QAction>> m_matOverrideActions;
     QPointer<QMenu> m_createSubMenu;

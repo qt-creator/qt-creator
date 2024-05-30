@@ -308,28 +308,30 @@ QPair<QString, QString> ContentLibraryUserModel::getUniqueLib3DNames(const QStri
 QPair<QString, QString> ContentLibraryUserModel::getUniqueLibItemNames(const QString &defaultName,
                                                                        const QJsonObject &bundleObj) const
 {
-    QTC_ASSERT(!bundleObj.isEmpty(), return {});
+    QString uniqueQml = UniqueName::generateId(defaultName);
+    uniqueQml[0] = uniqueQml.at(0).toUpper();
+    uniqueQml.prepend("My");
 
-    const QJsonArray itemsArr = bundleObj.value("items").toArray();
+    QString uniqueIcon = defaultName;
 
-    QStringList itemQmls, itemIcons;
-    for (const QJsonValueConstRef &itemRef : itemsArr) {
-        const QJsonObject &obj = itemRef.toObject();
-        itemQmls.append(obj.value("qml").toString().chopped(4)); // remove .qml
-        itemIcons.append(QFileInfo(obj.value("icon").toString()).baseName());
+    if (!bundleObj.isEmpty()) {
+        const QJsonArray itemsArr = bundleObj.value("items").toArray();
+
+        QStringList itemQmls, itemIcons;
+        for (const QJsonValueConstRef &itemRef : itemsArr) {
+            const QJsonObject &obj = itemRef.toObject();
+            itemQmls.append(obj.value("qml").toString().chopped(4)); // remove .qml
+            itemIcons.append(QFileInfo(obj.value("icon").toString()).baseName());
+        }
+
+        uniqueQml = UniqueName::generate(uniqueQml, [&] (const QString &name) {
+            return itemQmls.contains(name);
+        });
+
+        uniqueIcon = UniqueName::generate(uniqueIcon, [&] (const QString &name) {
+            return itemIcons.contains(name);
+        });
     }
-
-    QString baseQml = UniqueName::generateId(defaultName);
-    baseQml[0] = baseQml.at(0).toUpper();
-    baseQml.prepend("My");
-
-    QString uniqueQml = UniqueName::generate(baseQml, [&] (const QString &name) {
-        return itemQmls.contains(name);
-    });
-
-    QString uniqueIcon = UniqueName::generate(defaultName, [&] (const QString &name) {
-        return itemIcons.contains(name);
-    });
 
     return {uniqueQml + ".qml", uniqueIcon + ".png"};
 }

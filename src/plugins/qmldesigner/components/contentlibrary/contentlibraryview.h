@@ -8,10 +8,14 @@
 #include <createtexture.h>
 #include <nodemetainfo.h>
 
+#include <utils/filepath.h>
+
 #include <QObject>
 #include <QPointer>
 
+QT_FORWARD_DECLARE_CLASS(QImage)
 QT_FORWARD_DECLARE_CLASS(QPixmap)
+QT_FORWARD_DECLARE_CLASS(ZipWriter)
 
 namespace QmlDesigner {
 
@@ -59,10 +63,10 @@ private:
     void addLibAssets(const QStringList &paths);
     void addLib3DComponent(const ModelNode &node);
     void addLib3DItem(const ModelNode &node);
-    void genAndSaveIcon(const QString &qmlPath, const QString &iconPath);
-    QStringList writeLibItemQml(const ModelNode &node, const QString &qml);
-    QPair<QString, QSet<QString>> modelNodeToQmlString(const ModelNode &node, QStringList &depListIds,
-                                                       int depth = 0);
+    void exportLib3DItem(const ModelNode &node);
+    void getImageFromCache(const QString &qmlPath,
+                           std::function<void(const QImage &image)> successCallback);
+    QPair<QString, QSet<QString>> modelNodeToQmlString(const ModelNode &node, int depth = 0);
 
 #ifdef QDS_USE_PROJECTSTORAGE
     void applyBundleMaterialToDropTarget(const ModelNode &bundleMat, const TypeName &typeName = {});
@@ -89,6 +93,8 @@ private:
     bool m_hasQuick3DImport = false;
     qint32 m_sceneId = -1;
     CreateTexture m_createTexture;
+    Utils::FilePath m_iconSavePath;
+    std::unique_ptr<ZipWriter> m_zipWriter;
 };
 
 } // namespace QmlDesigner

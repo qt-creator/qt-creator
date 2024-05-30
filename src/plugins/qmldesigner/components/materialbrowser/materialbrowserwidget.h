@@ -63,6 +63,7 @@ public:
     Q_INVOKABLE void acceptTextureDropOnMaterial(int matIndex, const QString &texId);
     Q_INVOKABLE void focusMaterialSection(bool focusMatSec);
     Q_INVOKABLE void addMaterialToContentLibrary();
+    Q_INVOKABLE void exportMaterial();
 
     StudioQuickWidget *quickWidget() const;
 

@@ -368,7 +368,14 @@ void MaterialBrowserWidget::addMaterialToContentLibrary()
 {
     ModelNode mat = m_materialBrowserModel->selectedMaterial();
     m_materialBrowserView->emitCustomNotification("add_material_to_content_lib", {mat},
-                                                  {m_previewImageProvider->getPixmap(mat)});
+                                                  {m_previewImageProvider->getPixmap(mat)}); // to ContentLibrary
+}
+
+void MaterialBrowserWidget::exportMaterial()
+{
+    ModelNode mat = m_materialBrowserModel->selectedMaterial();
+    m_materialBrowserView->emitCustomNotification("export_material_as_bundle", {mat},
+                                                  {m_previewImageProvider->getPixmap(mat)}); // to ContentLibrary
 }
 
 QString MaterialBrowserWidget::qmlSourcesPath()
