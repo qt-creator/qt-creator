@@ -14,7 +14,13 @@
                   "Alternatively, this plugin may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this plugin. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html."
     ],
     "Category" : "Device Support",
-    "Description" : "Helper plugin for Qt Safe Renderer projects.",
+    "Description" : "Render safety-critical items in functional safety systems",
+    "LongDescription" : [
+        "Qt Safe Renderer separates the safety-critical rendering from the other parts of the system, so it can render safety-critical UI elements even if there are failures in the main UI. Therefore, you can use Qt in a system requiring certification without changing the Qt libraries.",
+        "You also need:",
+            "- Qt Safe Renderer",
+            "- A Qt version supported by the Qt Safe Renderer"
+    ],
     "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES},
 

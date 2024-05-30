@@ -13,7 +13,11 @@
                   "Alternatively, this plugin may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this plugin. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html."
     ],
     "Category" : "Version Control",
-    "Description" : "Bazaar integration.",
+    "Description" : "Access the Bazaar version control system",
+    "LongDescription" : [
+        "You also need:",
+            "- Bazaar"
+    ],
     "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

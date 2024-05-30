@@ -13,7 +13,10 @@
                   "Alternatively, this plugin may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this plugin. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html."
     ],
     "Category" : "Qt Creator",
-    "Description" : "Qt Widgets Designer integration.",
+    "Description" : "Design Qt-widgets based UIs",
+    "LongDescription" : [
+        "Create widgets and forms that are integrated with Qt C++ code.",
+    ],
     "Url" : "https://www.qt.io",
     ${DESIGNER_PLUGIN_ARGUMENTS}
     ${IDE_PLUGIN_DEPENDENCIES}

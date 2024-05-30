@@ -14,7 +14,8 @@
     ],
     "Experimental" : true,
     "SoftLoadable" : true,
-    "Description" : "vcpkg integration.",
+    "Description" : "Get and manage libraries from the vcpkg package manager",
+    "LongDescription" : [],
     "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES},
 

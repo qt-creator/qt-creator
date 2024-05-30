@@ -14,7 +14,8 @@
     ],
     "DisabledByDefault" : true,
     "SoftLoadable" : true,
-    "Description" : "Screen recording.",
+    "Description" : "Record screens",
+    "LongDescription" : [],
     "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

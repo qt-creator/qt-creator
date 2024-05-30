@@ -15,7 +15,13 @@
 ],
 
     "Category" : "Device Support",
-    "Description" : "Support for the Boot2Qt Device access using the Qt Debug Bridge.",
+    "Description" : "Develop applications for Boot to Qt devices",
+    "LongDescription" : [
+        "Connect devices with USB or WLAN to run, debug, and analyze applications built for them.",
+        "You also need:",
+            "- Boot to Qt",
+            "- Build tools and other dependencies related to the development host"
+],
     "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

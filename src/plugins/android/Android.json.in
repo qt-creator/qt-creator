@@ -13,7 +13,13 @@
                   "Alternatively, this plugin may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this plugin. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html."
     ],
     "Category" : "Device Support",
-    "Description" : "Support for deployment to and execution on Android Devices.",
+    "Description" : "Develop applications for Android devices",
+    "LongDescription" : [
+        "Connect devices with USB to run, debug, and analyze applications built for them.",
+        "You also need:",
+            "- Qt for Android",
+            "- Android development tools"
+    ],
     "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES},
 

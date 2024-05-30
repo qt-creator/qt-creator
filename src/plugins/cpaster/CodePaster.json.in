@@ -12,7 +12,10 @@
                   "",
                   "Alternatively, this plugin may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this plugin. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html."
     ],
-    "Description" : "Codepaster plugin for pushing/fetching diff from server.",
+    "Description" : "Access code-pasting services",
+    "LongDescription" : [
+        "Paste snippets of text, such as code or diffs, to a server or fetch them from the server."
+    ],
     "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

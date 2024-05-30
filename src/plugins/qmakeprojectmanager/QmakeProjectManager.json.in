@@ -13,7 +13,10 @@
                   "Alternatively, this plugin may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this plugin. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html."
     ],
     "Category" : "Build Systems",
-    "Description" : "Provides project type for Qt/QMake .pro files and tools.",
+    "Description" : "Build applications with qmake",
+    "LongDescription" : [
+        "Use .pro project configuration files and tools that automate the generation of Makefiles."
+    ],
     "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES},
 

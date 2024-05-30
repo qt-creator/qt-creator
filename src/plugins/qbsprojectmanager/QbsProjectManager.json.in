@@ -13,7 +13,10 @@
                   "Alternatively, this plugin may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this plugin. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html."
     ],
     "Category" : "Build Systems",
-    "Description" : "QBS support.",
+    "Description" : "Build applications with Qbs",
+    "LongDescription" : [
+        "Generate a build graph from a high-level project description (like with qmake or CMake) and execute the commands in the low-level build graph (like with make)."
+    ],
     "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

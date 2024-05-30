@@ -12,7 +12,10 @@
                   "",
                   "Alternatively, this plugin may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this plugin. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html."
     ],
-    "Description" : "Macros in text editors.",
+    "Description" : "Record and play macros in text editors",
+    "LongDescription" : [
+        "When you have a file open in the code editor, you can record a keyboard sequence as a macro. You can then play the macro to repeat the sequence. You can save the latest macro and assign a keyboard shortcut for running it or run it from the locator."
+    ],
     "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

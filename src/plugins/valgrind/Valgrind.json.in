@@ -13,7 +13,12 @@
                   "Alternatively, this plugin may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this plugin. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html."
     ],
     "Category" : "Code Analyzer",
-    "Description" : "Valgrind Plugin.",
+    "Description" : "Analyze code with Valgrind's Tool Suite",
+    "LongDescription" : [
+        "Detect problems in memory management with Memcheck and find cache misses in the code with Callgrind.",
+        "You also need:",
+            "- Valgrind's Tool Suite"
+    ],
     "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

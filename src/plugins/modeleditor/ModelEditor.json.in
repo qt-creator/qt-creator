@@ -13,7 +13,10 @@
                   "Alternatively, this plugin may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this plugin. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html."
     ],
     "Category" : "Modeling",
-    "Description" : "Graphical modeling with structured diagrams.",
+    "Description" : "Create Universal Modeling Language (UML) style models",
+    "LongDescription" : [
+        "Create structured and behavioral diagrams that offer different views to your system. However, the editor uses a variant of UML and has only a subset of properties for specifying the appearance of model elements."
+    ],
     "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES},
 

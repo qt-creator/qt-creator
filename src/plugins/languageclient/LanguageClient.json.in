@@ -13,7 +13,10 @@
                   "Alternatively, this plugin may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this plugin. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html."
     ],
     "Category" : "Other Languages",
-    "Description" : "Language Server Protocol client component. See https://microsoft.github.io/language-server-protocol/overview for an overview on Language Servers.",
+    "Description" : "Get code editing services",
+    "LongDescription" : [
+        "Offers code completion, highlighting of the symbol under cursor, and jumping to the symbol definition, as well as diagnostics from the language server."
+    ],
     "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES},
 
