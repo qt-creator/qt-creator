@@ -9,6 +9,7 @@
 
 #include <QDir>
 
+namespace ExtensionSystem { class IPlugin; }
 namespace ProjectExplorer { class Project; }
 
 namespace CppEditor::Internal {
@@ -28,6 +29,7 @@ public:
                                      QDir::toNativeSeparators("../Src"),
                                      ".."};
     Utils::FilePath licenseTemplatePath;
+    QString headerGuardTemplate = "%{JS: '%{Header:FileName}'.toUpperCase().replace(/[.]/g, '_')}";
     bool headerPragmaOnce = false;
     bool lowerCaseFiles = Constants::LOWERCASE_CPPFILES_DEFAULT;
 
@@ -39,6 +41,9 @@ public:
     // Convenience to return a license template completely formatted.
     QString licenseTemplate() const;
 
+    // Expanded headerGuardTemplate.
+    QString headerGuard(const Utils::FilePath &headerFilePath) const;
+
     bool equals(const CppFileSettings &rhs) const;
     bool operator==(const CppFileSettings &s) const { return equals(s); }
     bool operator!=(const CppFileSettings &s) const { return !equals(s); }
@@ -48,6 +53,6 @@ CppFileSettings &globalCppFileSettings();
 
 CppFileSettings cppFileSettingsForProject(ProjectExplorer::Project *project);
 
-void setupCppFileSettings();
+void setupCppFileSettings(ExtensionSystem::IPlugin &plugin);
 
 } // namespace CppEditor::Internal

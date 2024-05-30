@@ -227,7 +227,7 @@ void CppEditorPlugin::initialize()
 void CppEditorPlugin::extensionsInitialized()
 {
     setupCppQuickFixProjectPanel();
-    setupCppFileSettings();
+    setupCppFileSettings(*this);
     setupCppCodeModelProjectSettingsPanel();
 
     if (CppModelManager::isClangCodeModelActive()) {

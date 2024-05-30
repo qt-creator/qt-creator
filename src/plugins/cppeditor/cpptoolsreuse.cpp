@@ -358,6 +358,11 @@ CppCompletionAssistProcessor *getCppCompletionAssistProcessor()
     return new Internal::InternalCppCompletionAssistProcessor();
 }
 
+QString deriveHeaderGuard(const Utils::FilePath &filePath, ProjectExplorer::Project *project)
+{
+    return Internal::cppFileSettingsForProject(project).headerGuard(filePath);
+}
+
 bool fileSizeExceedsLimit(const FilePath &filePath, int sizeLimitInMb)
 {
     if (sizeLimitInMb <= 0)
