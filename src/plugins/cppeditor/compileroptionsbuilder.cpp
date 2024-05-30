@@ -899,8 +899,8 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
             continue;
         }
 
-        // GCC option that clang doesn't know.
-        if (option.contains("direct-extern-access"))
+        // GCC options that clang doesn't know.
+        if (option.contains("direct-extern-access") || option == "-fnothrow-opt")
             continue;
 
         // These were already parsed into ProjectPart::includedFiles.
