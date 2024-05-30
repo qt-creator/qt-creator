@@ -145,6 +145,10 @@ settings.FilePathAspect = {}
 ---@return FilePathAspect
 function settings.FilePathAspect.create(options) end
 
+---Set the value of the aspect
+---@param value string|FilePath The value to set
+function settings.FilePathAspect:setValue(value) end
+
 settings.IntegerAspect = {}
 function settings.IntegerAspect.create(options) end
 

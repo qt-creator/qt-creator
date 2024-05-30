@@ -300,6 +300,13 @@ void addSettingsModule()
         addTypedAspect<StringAspect>(settings, "StringAspect");
 
         auto filePathAspectType = addTypedAspect<FilePathAspect>(settings, "FilePathAspect");
+        filePathAspectType.set(
+            "setValue",
+            sol::overload(
+                [](FilePathAspect &self, const QString &value) {
+                    self.setValue(FilePath::fromUserInput(value));
+                },
+                [](FilePathAspect &self, const FilePath &value) { self.setValue(value); }));
         filePathAspectType.set("expandedValue", sol::property(&FilePathAspect::expandedValue));
         filePathAspectType.set(
             "defaultPath",
