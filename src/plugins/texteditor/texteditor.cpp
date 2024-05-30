@@ -986,6 +986,8 @@ void TextEditorWidgetFind::selectAll(const QString &txt, FindFlags findFlags)
         if (future.resultCount() <= 0)
             return;
         const SearchResultItems &results = future.result();
+        if (results.isEmpty())
+            return;
         const auto cursorForResult = [this](const SearchResultItem &item) {
             return selectRange(m_editor->document(), item.mainRange());
         };
