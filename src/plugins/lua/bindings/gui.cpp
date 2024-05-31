@@ -306,8 +306,8 @@ void addGuiModule()
             }),
             "show",
             &Widget::show,
-            "resize",
-            &Widget::resize,
+            "setSize",
+            &Widget::setSize,
             sol::base_classes,
             sol::bases<Object, Thing>());
 

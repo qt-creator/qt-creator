@@ -339,17 +339,17 @@ void Layout::span(int cols, int rows)
     pendingItems.back().spanRows = rows;
 }
 
-void Layout::noMargin()
+void Layout::setNoMargins()
 {
-    customMargin({});
+    setContentMargins({});
 }
 
-void Layout::normalMargin()
+void Layout::setNormalMargins()
 {
-    customMargin({9, 9, 9, 9});
+    setContentMargins({9, 9, 9, 9});
 }
 
-void Layout::customMargin(const QMargins &margin)
+void Layout::setContentMargins(const QMargins &margin)
 {
     access(this)->setContentsMargins(margin);
 }
@@ -467,11 +467,11 @@ void addToLayout(Layout *layout, const QString &inner)
     layout->addLayoutItem(item);
 }
 
-void empty(Layout *iface)
+void empty(Layout *layout)
 {
     LayoutItem item;
     item.empty = true;
-    iface->addLayoutItem(item);
+    layout->addLayoutItem(item);
 }
 
 void hr(Layout *layout)
@@ -479,26 +479,26 @@ void hr(Layout *layout)
     layout->addLayoutItem(createHr());
 }
 
-void br(Layout *iface)
+void br(Layout *layout)
 {
-    iface->flush();
+    layout->flush();
 }
 
-void st(Layout *iface)
+void st(Layout *layout)
 {
     LayoutItem item;
     item.stretch = 1;
-    iface->addLayoutItem(item);
+    layout->addLayoutItem(item);
 }
 
-void noMargin(Layout *iface)
+void noMargin(Layout *layout)
 {
-    iface->noMargin();
+    layout->setNoMargins();
 }
 
-void normalMargin(Layout *iface)
+void normalMargin(Layout *layout)
 {
-    iface->normalMargin();
+    layout->setNormalMargins();
 }
 
 QFormLayout *Layout::asForm()
@@ -612,9 +612,9 @@ void Layout::flush_() const
     const_cast<Layout *>(this)->flush();
 }
 
-void withFormAlignment(Layout *iface)
+void withFormAlignment(Layout *layout)
 {
-    iface->useFormAlignment = true;
+    layout->useFormAlignment = true;
 }
 
 // Flow
@@ -672,7 +672,7 @@ Form::Form(std::initializer_list<I> ps)
     flush();
 }
 
-void Layout::fieldGrowthPolicy(int policy)
+void Layout::setFieldGrowthPolicy(int policy)
 {
     if (auto lt = asForm())
         lt->setFieldGrowthPolicy(QFormLayout::FieldGrowthPolicy(policy));
@@ -699,7 +699,7 @@ Widget::Widget(std::initializer_list<I> ps)
     apply(this, ps);
 }
 
-void Widget::resize(int w, int h)
+void Widget::setSize(int w, int h)
 {
     access(this)->resize(w, h);
 }
@@ -724,19 +724,19 @@ void Widget::show()
     access(this)->show();
 }
 
-void Widget::noMargin(int)
+void Widget::setNoMargins(int)
 {
-    customMargin({});
+    setContentMargins({});
 }
 
-void Widget::normalMargin(int)
+void Widget::setNormalMargins(int)
 {
-    customMargin({9, 9, 9, 9});
+    setContentMargins({9, 9, 9, 9});
 }
 
-void Widget::customMargin(const QMargins &margin)
+void Widget::setContentMargins(const QMargins &margins)
 {
-    access(this)->setContentsMargins(margin);
+    access(this)->setContentsMargins(margins);
 }
 
 QWidget *Widget::emerge() const
@@ -979,7 +979,7 @@ void addToLayout(Layout *layout, const Span &inner)
 
 LayoutModifier spacing(int space)
 {
-    return [space](Layout *iface) { iface->setSpacing(space); };
+    return [space](Layout *layout) { layout->setSpacing(space); };
 }
 
 void addToLayout(Layout *layout, const Space &inner)

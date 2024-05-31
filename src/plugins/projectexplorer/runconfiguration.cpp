@@ -201,7 +201,7 @@ bool RunConfiguration::isEnabled(Utils::Id) const
 QWidget *RunConfiguration::createConfigurationWidget()
 {
     Layouting::Form form;
-    form.noMargin();
+    form.setNoMargins();
     for (BaseAspect *aspect : std::as_const(*this)) {
         if (aspect->isVisible()) {
             form.addItem(aspect);
