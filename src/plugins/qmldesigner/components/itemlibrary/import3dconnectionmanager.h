@@ -12,16 +12,19 @@ namespace QmlDesigner {
 class Import3dConnectionManager : public InteractiveConnectionManager
 {
 public:
+    using IconCallback = std::function<void(const QString &, const QImage &)>;
     using ImageCallback = std::function<void(const QImage &)>;
 
     Import3dConnectionManager();
 
+    void setPreviewIconCallback(IconCallback callback);
     void setPreviewImageCallback(ImageCallback callback);
 
 protected:
     void dispatchCommand(const QVariant &command, Connection &connection) override;
 
 private:
+    IconCallback m_previewIconCallback;
     ImageCallback m_previewImageCallback;
 };
 

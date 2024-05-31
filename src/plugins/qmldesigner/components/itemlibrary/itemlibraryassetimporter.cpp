@@ -238,7 +238,6 @@ void ItemLibraryAssetImporter::reset()
     delete m_tempDir;
     m_tempDir = new QTemporaryDir(QDir::tempPath() + tempDirNameBase());
     m_importFiles.clear();
-    m_overwrittenImports.clear();
     m_puppetProcess.reset();
     m_parseData.clear();
     m_requiredImports.clear();
@@ -337,14 +336,14 @@ bool ItemLibraryAssetImporter::preParseQuick3DAsset(const QString &file, ParseDa
                 overwriteFiles = dlg.selectedFiles();
             if (!overwriteFiles.isEmpty()) {
                 overwriteFiles.append(::Utils::toList(alwaysOverwrite));
-                m_overwrittenImports.insert(pd.targetDirPath, overwriteFiles);
+                pd.overwrittenImports.insert(pd.targetDirPath, overwriteFiles);
             } else {
                 addWarning(tr("No files selected for overwrite, skipping import: \"%1\".").arg(pd.assetName));
                 return false;
             }
 
         } else {
-            m_overwrittenImports.insert(pd.targetDirPath, {});
+            pd.overwrittenImports.insert(pd.targetDirPath, {});
         }
     }
 
@@ -396,9 +395,7 @@ void ItemLibraryAssetImporter::postParseQuick3DAsset(ParseData &pd)
                 qmlInfo.append(".");
                 qmlInfo.append(pd.assetName);
                 qmlInfo.append('\n');
-                const QString reqImp = QStringLiteral("%1.%2").arg(
-                    QmlDesignerPlugin::instance()->documentManager()
-                        .generatedComponentUtils().import3dTypePrefix(), pd.assetName);
+                const QString reqImp = generateRequiredImportForAsset(pd.assetName);
                 if (!m_requiredImports.contains(reqImp))
                     m_requiredImports.append(reqImp);
                 while (qmlIt.hasNext()) {
@@ -480,9 +477,13 @@ void ItemLibraryAssetImporter::postParseQuick3DAsset(ParseData &pd)
 
     // Gather all generated files
     QDirIterator dirIt(outDir.path(), QDir::Files, QDirIterator::Subdirectories);
+    pd.assetSize = 0;
     while (dirIt.hasNext()) {
         dirIt.next();
         insertAsset(dirIt.filePath());
+        QFileInfo fi = dirIt.fileInfo();
+        if (fi.isFile())
+            pd.assetSize += fi.size();
     }
 
     // Copy the original asset into a subdirectory
@@ -492,14 +493,17 @@ void ItemLibraryAssetImporter::postParseQuick3DAsset(ParseData &pd)
 
 void ItemLibraryAssetImporter::copyImportedFiles()
 {
-    if (!m_overwrittenImports.isEmpty()) {
+    QHash<QString, QStringList> allOverwrites;
+    for (const ParseData &pd: std::as_const(m_parseData))
+        allOverwrites.insert(pd.overwrittenImports);
+    if (!allOverwrites.isEmpty()) {
         const QString progressTitle = tr("Removing old overwritten assets.");
         addInfo(progressTitle);
         notifyProgress(0, progressTitle);
 
         int counter = 0;
-        auto it = m_overwrittenImports.constBegin();
-        while (it != m_overwrittenImports.constEnd()) {
+        auto it = allOverwrites.constBegin();
+        while (it != allOverwrites.constEnd()) {
             Utils::FilePath dir = Utils::FilePath::fromUserInput(it.key());
             if (dir.exists()) {
                 const auto &overwrittenFiles = it.value();
@@ -512,7 +516,7 @@ void ItemLibraryAssetImporter::copyImportedFiles()
                         QFile::remove(fileName);
                 }
             }
-            notifyProgress((100 * ++counter) / m_overwrittenImports.size(), progressTitle);
+            notifyProgress((100 * ++counter) / allOverwrites.size(), progressTitle);
             ++it;
         }
     }
@@ -566,6 +570,13 @@ QString ItemLibraryAssetImporter::generateAssetFolderName(const QString &assetNa
 {
     static int counter = 0;
     return assetName + "_QDS_" + QString::number(counter++);
+}
+
+QString ItemLibraryAssetImporter::generateRequiredImportForAsset(const QString &assetName) const
+{
+    return QStringLiteral("%1.%2").arg(
+        QmlDesignerPlugin::instance()->documentManager()
+            .generatedComponentUtils().import3dTypePrefix(), assetName);
 }
 
 ItemLibraryAssetImporter::OverwriteResult ItemLibraryAssetImporter::confirmAssetOverwrite(const QString &assetName)
@@ -653,8 +664,11 @@ void ItemLibraryAssetImporter::postImport()
             data.renderedOptions = pd.options;
             data.currentOptions = pd.options;
             data.optionsIndex = pd.optionsIndex;
+            data.type = pd.sourceInfo.suffix().toLower();
+            data.size = pd.assetSize;
             dataList.append(data);
         }
+
         emit importReadyForPreview(m_tempDir->path(), dataList);
     }
 }
@@ -716,8 +730,12 @@ void ItemLibraryAssetImporter::finalizeQuick3DImport()
                             addError(tr("Failed to update imports: %1").arg(e.description()));
                         }
                     } else if (counter >= 50) {
-                        if (!m_overwrittenImports.isEmpty())
-                            model->rewriterView()->emitCustomNotification("asset_import_update");
+                        for (const ParseData &pd : std::as_const(m_parseData)) {
+                            if (!pd.overwrittenImports.isEmpty()) {
+                                model->rewriterView()->emitCustomNotification("asset_import_update");
+                                break;
+                            }
+                        }
                         timer->stop();
                         notifyFinished();
                     }
@@ -730,6 +748,13 @@ void ItemLibraryAssetImporter::finalizeQuick3DImport()
             notifyFinished();
         }
     }
+}
+
+void ItemLibraryAssetImporter::removeAssetFromImport(const QString &assetName)
+{
+    m_parseData.remove(assetName);
+    m_importFiles.remove(assetName);
+    m_requiredImports.removeOne(generateRequiredImportForAsset(assetName));
 }
 
 QString ItemLibraryAssetImporter::sourceSceneTargetFilePath(const ParseData &pd)

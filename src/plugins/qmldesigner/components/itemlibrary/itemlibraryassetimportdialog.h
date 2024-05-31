@@ -9,12 +9,15 @@
 #include <utils/filepath.h>
 
 #include <QDialog>
+#include <QIcon>
 #include <QJsonObject>
 #include <QPointer>
 #include <QSet>
 
 QT_BEGIN_NAMESPACE
 class QGridLayout;
+class QLabel;
+class QListWidgetItem;
 class QPushButton;
 QT_END_NAMESPACE
 
@@ -23,7 +26,6 @@ class OutputFormatter;
 }
 
 namespace QmlDesigner {
-class ItemLibraryAssetImporter;
 class Import3dCanvas;
 class Import3dConnectionManager;
 class NodeInstanceView;
@@ -53,6 +55,8 @@ public:
                              const QVariantMap &supportedExts,
                              const QVariantMap &supportedOpts);
 
+    void keyPressEvent(QKeyEvent *event) override;
+
 protected:
     void resizeEvent(QResizeEvent *event) override;
 
@@ -62,6 +66,22 @@ private slots:
     void addInfo(const QString &info, const QString &srcPath = {});
 
 private:
+    struct ImportData
+    {
+        QListWidgetItem *listItem = {};
+        QLabel *iconLabel = {};
+        QLabel *infoLabel = {};
+        QPushButton *removeButton = {};
+        ItemLibraryAssetImporter::PreviewData previewData;
+    };
+
+    struct OptionsData
+    {
+        int optionsRows = 0;
+        int optionsHeight = 0;
+        QList<QWidget *> contentWidgets;
+    };
+
     void setCloseButtonState(bool importing);
     void updatePreviewOptions();
 
@@ -73,15 +93,17 @@ private:
     void onRequestRotation(const QPointF &delta);
     void onImportNearlyFinished();
     void onImportFinished();
-    void onCurrentRowChanged(int row);
+    void onCurrentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
     void onClose();
     void doClose();
     void toggleAdvanced();
+    void onRemoveAsset(const QString &assetName);
 
     void createTab(const QString &tabLabel, int optionsIndex, const QJsonObject &groups);
     QGridLayout *createOptionsGrid(QWidget *contentWidget, bool advanced, int optionsIndex,
                                    const QJsonObject &groups);
     void updateUi();
+    QString assetNameForListItem(QListWidgetItem *item);
 
     bool isSimpleGroup(const QString &id);
     bool isSimpleOption(const QString &id);
@@ -101,15 +123,8 @@ private:
     QPointer<AbstractView> m_view;
     ModelPointer m_model;
 
-    QMap<QString, ItemLibraryAssetImporter::PreviewData> m_previewData;
+    QMap<QString, ImportData> m_importData;
     Utils::FilePath m_previewFile;
-
-    struct OptionsData
-    {
-        int optionsRows = 0;
-        int optionsHeight = 0;
-        QList<QWidget *> contentWidgets; // Tab content widgets
-    };
 
     QStringList m_quick3DFiles;
     QString m_quick3DImportPath;
@@ -126,5 +141,7 @@ private:
     bool m_explicitClose = false;
     bool m_updatingControlStates = true;
     bool m_firstImport = true;
+    QIcon m_selectedRemoveIcon;
+    QIcon m_unselectedRemoveIcon;
 };
 }

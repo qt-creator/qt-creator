@@ -7,6 +7,8 @@
 #include "import3dcanvas.h"
 #include "import3dconnectionmanager.h"
 
+#include <designeractionmanager.h>
+#include <designericons.h>
 #include <model.h>
 #include <model/modelutils.h>
 #include <nodeinstanceview.h>
@@ -18,6 +20,7 @@
 
 #include <theme.h>
 #include <utils/outputformatter.h>
+#include <utils/stylehelper.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
@@ -25,7 +28,9 @@
 #include <coreplugin/icore.h>
 
 #include <QFileInfo>
+#include <QFontMetrics>
 #include <QDir>
+#include <QLocale>
 #include <QLoggingCategory>
 #include <QTimer>
 #include <QJsonArray>
@@ -63,6 +68,17 @@ void addFormattedMessage(Utils::OutputFormatter *formatter,
                 formatter->plainTextEdit()->verticalScrollBar()->maximum());
 }
 
+QIcon iconFromIconFont(Theme::Icon iconType, const QColor &color)
+{
+    const QString unicode = Theme::getIconUnicode(iconType);
+    const QString fontName = "qtds_propertyIconFont.ttf";
+
+    const auto helper = Utils::StyleHelper::IconFontHelper(
+        unicode, color, QSize(28, 28), QIcon::Normal);
+
+    return Utils::StyleHelper::getIconFromIconFont(fontName, {helper});
+}
+
 const int rowHeight = 32;
 const int checkBoxColWidth = 18;
 const int labelMinWidth = 130;
@@ -87,6 +103,11 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(
 {
     setModal(true);
     ui->setupUi(this);
+
+    m_selectedRemoveIcon = iconFromIconFont(Theme::Icon::delete_small,
+                                              Theme::getColor(Theme::IconsBaseColor));
+    m_unselectedRemoveIcon = iconFromIconFont(Theme::Icon::delete_small,
+                                              Theme::getColor(Theme::IconsDisabledColor));
 
     m_outputFormatter = new Utils::OutputFormatter;
     m_outputFormatter->setPlainTextEdit(ui->plainTextEdit);
@@ -239,8 +260,8 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(
 
     connect(ui->advancedSettingsButton, &QPushButton::clicked,
             this, &ItemLibraryAssetImportDialog::toggleAdvanced);
-    connect(ui->importList, &QListWidget::currentRowChanged,
-            this, &ItemLibraryAssetImportDialog::onCurrentRowChanged);
+    connect(ui->importList, &QListWidget::currentItemChanged,
+            this, &ItemLibraryAssetImportDialog::onCurrentItemChanged);
 
     QTimer::singleShot(0, this, &ItemLibraryAssetImportDialog::updateUi);
 
@@ -381,6 +402,15 @@ void ItemLibraryAssetImportDialog::updateImport(AbstractView *view,
                                                 "Failed to update import.\nError:\n%1").arg(errorMsg),
                     QMessageBox::Close);
     }
+}
+
+void ItemLibraryAssetImportDialog::keyPressEvent(QKeyEvent *event)
+{
+    if ((event->key() == Qt::Key_Backspace || event->key() == Qt::Key_Delete)
+        && ui->importList->currentItem()) {
+        onRemoveAsset(assetNameForListItem(ui->importList->currentItem()));
+    }
+    return QDialog::keyPressEvent(event);
 }
 
 void ItemLibraryAssetImportDialog::createTab(const QString &tabLabel, int optionsIndex,
@@ -828,6 +858,15 @@ void ItemLibraryAssetImportDialog::updateUi()
     }
 }
 
+QString ItemLibraryAssetImportDialog::assetNameForListItem(QListWidgetItem *item)
+{
+    for (const ImportData &data : std::as_const(m_importData)) {
+        if (data.listItem == item)
+            return data.previewData.name;
+    }
+    return {};
+}
+
 bool ItemLibraryAssetImportDialog::isSimpleGroup(const QString &id)
 {
     static QStringList simpleGroups {
@@ -859,8 +898,8 @@ bool ItemLibraryAssetImportDialog::isHiddenOption(const QString &id)
 
 bool ItemLibraryAssetImportDialog::optionsChanged()
 {
-    for (const ItemLibraryAssetImporter::PreviewData &data : std::as_const(m_previewData)) {
-        if (data.renderedOptions != data.currentOptions)
+    for (const ImportData &data : std::as_const(m_importData)) {
+        if (data.previewData.renderedOptions != data.previewData.currentOptions)
             return true;
     }
     return false;
@@ -883,6 +922,7 @@ Rectangle {
 
     property alias sceneNode: sceneNode
     property alias view3d: view3d
+    property alias iconView3d: iconView3d
     property string extents
     property string sceneModelName
 
@@ -897,28 +937,38 @@ Rectangle {
         camera: viewCamera
 
         environment: SceneEnvironment {
+            id: sceneEnvironment
             antialiasingMode: SceneEnvironment.MSAA
             antialiasingQuality: SceneEnvironment.VeryHigh
         }
 
-        PerspectiveCamera {
-            id: viewCamera
-            x: 600
-            y: 600
-            z: 600
-            eulerRotation.x: -45
-            eulerRotation.y: -45
-            clipFar: 100000
-            clipNear: 10
-        }
-
-        DirectionalLight {
-            rotation: viewCamera.rotation
-        }
-
         Node {
             id: sceneNode
+            PerspectiveCamera {
+                id: viewCamera
+                x: 600
+                y: 600
+                z: 600
+                eulerRotation.x: -45
+                eulerRotation.y: -45
+                clipFar: 100000
+                clipNear: 10
+            }
+
+            DirectionalLight {
+                rotation: viewCamera.rotation
+            }
         }
+    }
+
+    View3D {
+        id: iconView3d
+        importScene: sceneNode
+        camera: viewCamera
+        environment: sceneEnvironment
+        visible: false
+        width: 48
+        height: 48
     }
 
     Text {
@@ -966,6 +1016,15 @@ Rectangle {
 
     m_nodeInstanceView->setTarget(m_view->nodeInstanceView()->target());
 
+    auto previewIconCallback = [this](const QString &assetName, const QImage &image) {
+        if (!m_importData.contains(assetName)) {
+            addWarning(tr("Preview icon generated for non-existent asset: %1").arg(assetName));
+            return;
+        }
+        if (m_importData[assetName].iconLabel)
+            m_importData[assetName].iconLabel->setPixmap(QPixmap::fromImage(image));
+    };
+
     auto previewImageCallback = [this](const QImage &image) {
         canvas()->updateRenderImage(image);
     };
@@ -975,6 +1034,7 @@ Rectangle {
         cleanupPreviewPuppet();
     };
 
+    m_connectionManager->setPreviewIconCallback(std::move(previewIconCallback));
     m_connectionManager->setPreviewImageCallback(std::move(previewImageCallback));
     m_nodeInstanceView->setCrashCallback(std::move(crashCallback));
 
@@ -992,8 +1052,10 @@ void ItemLibraryAssetImportDialog::cleanupPreviewPuppet()
     if (m_nodeInstanceView)
         m_nodeInstanceView->setCrashCallback({});
 
-    if (m_connectionManager)
+    if (m_connectionManager) {
+        m_connectionManager->setPreviewIconCallback({});
         m_connectionManager->setPreviewImageCallback({});
+    }
 
     delete m_rewriterView;
     delete m_nodeInstanceView;
@@ -1007,17 +1069,17 @@ Import3dCanvas *ItemLibraryAssetImportDialog::canvas()
 
 void ItemLibraryAssetImportDialog::resetOptionControls()
 {
-    const QString currentName = ui->importList->currentItem()->text();
-    if (!m_previewData.contains(currentName))
+    const QString currentName = assetNameForListItem(ui->importList->currentItem());
+    if (!m_importData.contains(currentName))
         return;
 
     m_updatingControlStates = true;
 
-    const ItemLibraryAssetImporter::PreviewData &data = m_previewData[currentName];
-    const QJsonObject options = data.currentOptions;
+    const ImportData &data = m_importData[currentName];
+    const QJsonObject options = data.previewData.currentOptions;
     const QStringList optKeys = options.keys();
     for (const QString &optKey : optKeys) {
-        QWidget *w = m_labelToControlWidgetMaps[data.optionsIndex].value(optKey);
+        QWidget *w = m_labelToControlWidgetMaps[data.previewData.optionsIndex].value(optKey);
         const QJsonObject optObj = options.value(optKey).toObject();
         const QJsonValue optValue = optObj.value("value");
         if (auto *cb = qobject_cast<QCheckBox *>(w))
@@ -1048,10 +1110,10 @@ void ItemLibraryAssetImportDialog::updatePreviewOptions()
         return;
 
     if (ui->importList->currentRow() >= 0) {
-        const QString assetName = ui->importList->currentItem()->text();
-        if (m_previewData.contains(assetName)) {
-            ItemLibraryAssetImporter::PreviewData &data = m_previewData[assetName];
-            data.currentOptions = m_importOptions[data.optionsIndex];
+        const QString assetName = assetNameForListItem(ui->importList->currentItem());
+        if (m_importData.contains(assetName)) {
+            ImportData &data = m_importData[assetName];
+            data.previewData.currentOptions = m_importOptions[data.previewData.optionsIndex];
         }
     }
 
@@ -1079,25 +1141,26 @@ void ItemLibraryAssetImportDialog::onImport()
 {
     ui->importButton->setEnabled(false);
     ui->tabWidget->setEnabled(false);
+    ui->importList->setEnabled(false);
 
-    const ItemLibraryAssetImporter::PreviewData &data
-        = m_previewData.value(ui->importList->currentIndex().data().toString());
-
-    if (!data.name.isEmpty() && !optionsChanged()) {
+    if (!m_importData.isEmpty() && !optionsChanged()) {
         cleanupPreviewPuppet();
         m_importer.finalizeQuick3DImport();
         return;
     }
 
+    const QString assetName = assetNameForListItem(ui->importList->currentItem());
+    const ImportData &data = m_importData.value(assetName);
+
     setCloseButtonState(true);
     ui->progressBar->setValue(0);
 
     if (!m_quick3DFiles.isEmpty()) {
-        if (!m_previewData.isEmpty()) {
+        if (!m_importData.isEmpty()) {
             QHash<QString , QJsonObject> importOptions;
-            for (const ItemLibraryAssetImporter::PreviewData &data : std::as_const(m_previewData)) {
-                if (data.renderedOptions != data.currentOptions)
-                    importOptions.insert(data.name, data.currentOptions);
+            for (const ImportData &data : std::as_const(m_importData)) {
+                if (data.previewData.renderedOptions != data.previewData.currentOptions)
+                    importOptions.insert(data.previewData.name, data.previewData.currentOptions);
             }
             m_importer.reImportQuick3D(importOptions);
         } else {
@@ -1121,16 +1184,79 @@ void ItemLibraryAssetImportDialog::setImportProgress(int value, const QString &t
 void ItemLibraryAssetImportDialog::onImportReadyForPreview(
     const QString &path, const QList<ItemLibraryAssetImporter::PreviewData> &previewData)
 {
+    if (previewData.isEmpty()) {
+        m_importer.cancelImport();
+        return;
+    }
+
+    QPixmap placeHolder = QPixmap(":/navigator/icon/tooltip_placeholder.png").scaled(48, 48);
+
+    int maxNameLen = 150;
+
     QStringList assetNames;
     for (const ItemLibraryAssetImporter::PreviewData &data : previewData) {
-        m_previewData[data.name] = data;
-        assetNames.append(data.name);
+        const QString assetName = data.name;
+        assetNames.append(assetName);
+        if (!m_importData.contains(assetName)) {
+            ImportData impData;
+            impData.previewData = data;
+            auto lwi = new QListWidgetItem();
+            impData.listItem = lwi;
+            auto w = new QWidget(ui->importList);
+            w->setToolTip(assetName);
+            auto layout = new QHBoxLayout(w);
+            auto iconLabel = new QLabel(w);
+            iconLabel->setPixmap(placeHolder);
+            impData.iconLabel = iconLabel;
+            layout->addWidget(iconLabel);
+            auto infoLabel = new QLabel(w);
+            infoLabel->setFixedWidth(maxNameLen);
+            impData.infoLabel = infoLabel;
+            layout->addWidget(infoLabel);
+            layout->addStretch(1);
+            auto removeButton = new QPushButton(m_unselectedRemoveIcon, {}, w);
+            removeButton->setFlat(true);
+            impData.removeButton = removeButton;
+            layout->addWidget(removeButton, 0, Qt::AlignRight);
+            layout->setSizeConstraint(QLayout::SetNoConstraint);
+            w->setLayout(layout);
+            w->resize(w->height(), ui->importList->width());
+            lwi->setSizeHint(w->sizeHint());
+            ui->importList->addItem(lwi);
+            ui->importList->setItemWidget(lwi, w);
+            m_importData[assetName] = impData;
+            QObject::connect(removeButton, &QPushButton::clicked, this, [this, assetName]() {
+                onRemoveAsset(assetName);
+            });
+        } else {
+            m_importData[assetName].previewData = data;
+        }
 
-        auto items = ui->importList->findItems(data.name, Qt::MatchExactly);
-        if (items.isEmpty())
-            ui->importList->addItem(data.name);
+        if (!m_importData.contains(assetName))
+            return;
 
-        addInfo(tr("Import ready for preview: %1").arg(data.name));
+        const ImportData &impData = m_importData[assetName];
+
+        if (QLabel *l = impData.infoLabel) {
+            QFontMetrics fm = l->fontMetrics();
+            QString truncNameBase = assetName;
+            QString truncName = assetName;
+            int truncNameLen = fm.boundingRect(truncName).width();
+            while (!truncNameBase.isEmpty() && truncNameLen > maxNameLen) {
+                truncNameBase.chop(1);
+                truncName = truncNameBase + "...";
+                truncNameLen = fm.boundingRect(truncName).width();
+            }
+
+            QString s;
+            s += truncName + '\n';
+            s += tr("Object Type: %1\n").arg(data.type);
+            s += tr("Imported Size: %1").arg(QLocale::system().formattedDataSize(
+                data.size, 2, QLocale::DataSizeTraditionalFormat));
+            l->setText(s);
+        }
+
+        addInfo(tr("Import ready for preview: %1").arg(assetName));
     }
 
     if (m_firstImport) {
@@ -1147,11 +1273,11 @@ void ItemLibraryAssetImportDialog::onImportReadyForPreview(
         if (!m_nodeInstanceView)
             return;
         for (const QString &assetName : std::as_const(assetNames)) {
-            const ItemLibraryAssetImporter::PreviewData &data = m_previewData.value(assetName);
-            if (!data.name.isEmpty()) {
+            const ImportData &data = m_importData.value(assetName);
+            if (!data.previewData.name.isEmpty()) {
                 QVariantHash msgData;
-                msgData.insert("name", data.name);
-                msgData.insert("folder", data.folderName);
+                msgData.insert("name", data.previewData.name);
+                msgData.insert("folder", data.previewData.folderName);
                 m_nodeInstanceView->view3DAction(View3DActionType::Import3dAddPreviewModel, msgData);
             }
         }
@@ -1159,6 +1285,7 @@ void ItemLibraryAssetImportDialog::onImportReadyForPreview(
 
     ui->importButton->setEnabled(true);
     ui->tabWidget->setEnabled(true);
+    ui->importList->setEnabled(true);
     updatePreviewOptions();
     if (ui->importList->currentRow() < 0)
         ui->importList->setCurrentRow(0);
@@ -1202,23 +1329,33 @@ void ItemLibraryAssetImportDialog::onImportFinished()
     }
 }
 
-void ItemLibraryAssetImportDialog::onCurrentRowChanged(int)
+void ItemLibraryAssetImportDialog::onCurrentItemChanged(QListWidgetItem *current, QListWidgetItem *)
 {
-    QTimer::singleShot(0, this, [this]() {
+    if (!current)
+        return;
+
+    for (const ImportData &data : std::as_const(m_importData)) {
+        if (data.removeButton) {
+            if (current == data.listItem)
+                data.removeButton->setIcon(m_selectedRemoveIcon);
+            else
+                data.removeButton->setIcon(m_unselectedRemoveIcon);
+        }
+    }
+    const QString assetName = assetNameForListItem(ui->importList->currentItem());
+    resetOptionControls();
+
+    const ImportData data = m_importData.value(assetName);
+    for (int i = 0; i < ui->tabWidget->count(); ++i)
+        ui->tabWidget->widget(i)->setVisible(i == data.previewData.optionsIndex);
+    ui->tabWidget->setCurrentIndex(data.previewData.optionsIndex);
+
+    QTimer::singleShot(0, this, [this, assetName]() {
         if (!m_nodeInstanceView)
             return;
-        int row = ui->importList->currentRow();
-        QString compName;
-        if (row >= 0)
-            compName = ui->importList->item(row)->text();
-        m_nodeInstanceView->view3DAction(View3DActionType::Import3dSetCurrentPreviewModel, compName);
-        resetOptionControls();
-
-        if (m_previewData.contains(compName)) {
-            const ItemLibraryAssetImporter::PreviewData data = m_previewData[compName];
-            for (int i = 0; i < ui->tabWidget->count(); ++i)
-                ui->tabWidget->widget(i)->setVisible(i == data.optionsIndex);
-            ui->tabWidget->setCurrentIndex(data.optionsIndex);
+        if (m_importData.contains(assetName)) {
+            m_nodeInstanceView->view3DAction(View3DActionType::Import3dSetCurrentPreviewModel,
+                                             assetName);
         }
     });
 }
@@ -1266,6 +1403,22 @@ void ItemLibraryAssetImportDialog::toggleAdvanced()
     m_dialogHeight = qMax(350, m_dialogHeight + (m_advancedMode ? diff : -diff));
 
     updateUi();
+}
+
+void ItemLibraryAssetImportDialog::onRemoveAsset(const QString &assetName)
+{
+    m_importer.removeAssetFromImport(assetName);
+    if (m_importData.contains(assetName)) {
+        ImportData data = m_importData.take(assetName);
+        addInfo(tr("Removed %1 from the import.").arg(assetName));
+        if (data.listItem) {
+            ui->importList->removeItemWidget(data.listItem);
+            delete data.listItem;
+        }
+    }
+
+    if (m_importData.isEmpty())
+        onClose();
 }
 
 }

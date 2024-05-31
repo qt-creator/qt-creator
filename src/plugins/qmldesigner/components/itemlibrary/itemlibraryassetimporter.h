@@ -47,6 +47,7 @@ public:
     QString tempDirNameBase() const { return "/qds3dimport"; }
 
     void finalizeQuick3DImport();
+    void removeAssetFromImport(const QString &assetName);
 
     struct PreviewData
     {
@@ -55,6 +56,8 @@ public:
         QJsonObject currentOptions;
         QString name;
         QString folderName;
+        QString type;
+        qint64 size;
     };
 
 signals:
@@ -78,8 +81,10 @@ private:
         QFileInfo sourceInfo;
         QString assetName;
         QString originalAssetName;
+        qint64 assetSize;
         int importId = -1;
         int optionsIndex = -1;
+        QHash<QString, QStringList> overwrittenImports;
     };
 
     void notifyFinished();
@@ -96,6 +101,7 @@ private:
     void notifyProgress(int value);
     void keepUiAlive() const;
     QString generateAssetFolderName(const QString &assetName) const;
+    QString generateRequiredImportForAsset(const QString &assetName) const;
 
     enum class OverwriteResult {
         Skip,
@@ -109,7 +115,6 @@ private:
     QString sourceSceneTargetFilePath(const ParseData &pd);
 
     QHash<QString, QHash<QString, QString>> m_importFiles; // Key: asset name
-    QHash<QString, QStringList> m_overwrittenImports;
     bool m_isImporting = false;
     bool m_cancelled = false;
     QString m_importPath;

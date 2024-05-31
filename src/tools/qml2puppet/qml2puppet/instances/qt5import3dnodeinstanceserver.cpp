@@ -35,7 +35,7 @@ Qt5Import3dNodeInstanceServer::Qt5Import3dNodeInstanceServer(NodeInstanceClientI
 #ifdef QUICK3D_MODULE
     m_generalHelper = new Internal::GeneralHelper();
     QObject::connect(m_generalHelper, &Internal::GeneralHelper::requestRender, this, [this]() {
-        startRenderTimer();
+        addCurrentNodeToRenderQueue();
     });
 #endif
 }
@@ -54,16 +54,22 @@ void Qt5Import3dNodeInstanceServer::createScene(const CreateSceneCommand &comman
 
 #ifdef QUICK3D_MODULE
     QObject *obj = rootItem();
-    QQmlProperty viewProp(obj, "view3d", context());
-    QObject *viewObj = viewProp.read().value<QObject *>();
-    m_view3D = qobject_cast<QQuick3DViewport *>(viewObj);
+    auto initView = [&obj, this](const QString &viewId, QQuick3DViewport *&view3D) {
+        QQmlProperty viewProp(obj, viewId, context());
+        QObject *viewObj = viewProp.read().value<QObject *>();
+        view3D = qobject_cast<QQuick3DViewport *>(viewObj);
+    };
+    initView("view3d", m_view3D);
+    initView("iconView3d", m_iconView3D);
+
     if (m_view3D) {
         QQmlProperty sceneNodeProp(obj, "sceneNode", context());
         m_sceneNode = sceneNodeProp.read().value<QQuick3DNode *>();
+        m_defaultCameraRotation = m_view3D->camera()->rotation();
+        m_defaultCameraPosition = m_view3D->camera()->position();
+        addInitToRenderQueue();
     }
 #endif
-
-    startRenderTimer();
 }
 
 void Qt5Import3dNodeInstanceServer::view3DAction([[maybe_unused]] const View3DActionCommand &command)
@@ -79,7 +85,7 @@ void Qt5Import3dNodeInstanceServer::view3DAction([[maybe_unused]] const View3DAc
             wProp.write(size.width());
             hProp.write(size.height());
             resizeCanvasToRootItem();
-            startRenderTimer();
+            addCurrentNodeToRenderQueue();
         }
         break;
     }
@@ -92,8 +98,8 @@ void Qt5Import3dNodeInstanceServer::view3DAction([[maybe_unused]] const View3DAc
             QPointF delta = command.value().toPointF();
             m_generalHelper->orbitCamera(m_view3D->camera(), m_view3D->camera()->eulerRotation(),
                                          data.lookAt, {}, {float(delta.x()), float(delta.y()), 0.f});
-            m_keepRendering = true;
-            startRenderTimer();
+            // Add 2 renders to keep render timer alive for smooth rotation
+            addCurrentNodeToRenderQueue(2);
         }
         break;
     }
@@ -123,28 +129,23 @@ void Qt5Import3dNodeInstanceServer::view3DAction([[maybe_unused]] const View3DAc
             engine()->setObjectOwnership(data.node, QJSEngine::CppOwnership);
             data.node->setParentItem(m_sceneNode);
             data.node->setParent(m_sceneNode);
+
+            addInitToRenderQueue();
+
+            if (m_currentNode == name)
+                addCurrentNodeToRenderQueue();
+
+            addIconToRenderQueue(name);
         }
 
-        if (m_currentNode == data.name) {
-            m_renderCount = 0;
-            startRenderTimer();
-        } else if (data.node) {
-            data.node->setVisible(false);
-        }
         break;
     }
     case View3DActionType::Import3dSetCurrentPreviewModel: {
         QString newName = command.value().toString();
         if (m_previewData.contains(newName) && m_currentNode != newName) {
-            const PreviewData &newData = m_previewData[newName];
-            const PreviewData oldData = m_previewData.value(m_currentNode);
-            if (oldData.node)
-                oldData.node->setVisible(false);
-            if (newData.node)
-                newData.node->setVisible(true);
-            m_renderCount = 0;
             m_currentNode = newName;
-            startRenderTimer();
+            addInitToRenderQueue();
+            addCurrentNodeToRenderQueue();
         }
         break;
     }
@@ -157,8 +158,10 @@ void Qt5Import3dNodeInstanceServer::view3DAction([[maybe_unused]] const View3DAc
 
 void Qt5Import3dNodeInstanceServer::startRenderTimer()
 {
-    if (m_keepRendering && timerMode() == TimerMode::NormalTimer)
+#ifdef QUICK3D_MODULE
+    if (!m_renderQueue.isEmpty() && timerMode() == TimerMode::NormalTimer)
         return;
+#endif
 
     NodeInstanceServer::startRenderTimer();
 }
@@ -172,6 +175,45 @@ void Qt5Import3dNodeInstanceServer::cleanup()
     delete m_generalHelper;
 #endif
 }
+
+#ifdef QUICK3D_MODULE
+void Qt5Import3dNodeInstanceServer::addInitToRenderQueue()
+{
+    startRenderTimer();
+
+    // "Init" render is simply a rendering of the entire scene without producing any images.
+    // This is done to make sure everything is initialized properly for subsequent renders.
+
+    if (m_renderQueue.isEmpty() || m_renderQueue[0] != RenderType::Init)
+        m_renderQueue.prepend(RenderType::Init);
+}
+
+void Qt5Import3dNodeInstanceServer::addCurrentNodeToRenderQueue(int count)
+{
+    startRenderTimer();
+
+    int remaining = count;
+    for (const RenderType &type : std::as_const(m_renderQueue)) {
+        if (type == RenderType::CurrentNode && --remaining <= 0)
+            return;
+    }
+
+    int index = !m_renderQueue.isEmpty() && m_renderQueue[0] == RenderType::Init ? 1 : 0;
+
+    while (remaining > 0) {
+        m_renderQueue.insert(index, RenderType::CurrentNode);
+        --remaining;
+    }
+}
+
+void Qt5Import3dNodeInstanceServer::addIconToRenderQueue(const QString &assetName)
+{
+    startRenderTimer();
+
+    m_generateIconQueue.append(assetName);
+    m_renderQueue.append(RenderType::NextIcon);
+}
+#endif
 
 void Qt5Import3dNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 {
@@ -194,54 +236,112 @@ void Qt5Import3dNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 void Qt5Import3dNodeInstanceServer::render()
 {
 #ifdef QUICK3D_MODULE
-    ++m_renderCount;
+    if (m_renderQueue.isEmpty() || !m_view3D || !m_iconView3D)
+        return;
 
-    // Render scene at least once before calculating bounds to ensure geometries are intialized
-    if (m_renderCount == 2 && m_view3D && m_previewData.contains(m_currentNode)) {
-        PreviewData &data = m_previewData[m_currentNode];
-        m_generalHelper->calculateBoundsAndFocusCamera(m_view3D->camera(), data.node,
-                                                       m_view3D, 1050, false, data.lookAt,
-                                                       data.extents);
+    RenderType currentType = m_renderQueue.takeFirst();
+    PreviewData data;
+    QQuick3DViewport *currentView = m_view3D;
+    QVector3D cameraPosition = m_view3D->camera()->position();
+    QQuaternion cameraRotation = m_view3D->camera()->rotation();
 
-        auto getExtentStr = [&data](int idx) -> QString {
-            int prec = 0;
-            float val = data.extents[idx];
-            while (val < 100.f) {
-                ++prec;
-                val *= 10.f;
-            }
-            // Strip unnecessary zeroes after decimal separator
-            if (prec > 0) {
-                QString checkStr = QString::number(data.extents[idx], 'f', prec);
-                while (prec > 0 && (checkStr.last(1) == "0" || checkStr.last(1) == ".")) {
-                    --prec;
-                    checkStr.chop(1);
-                }
-            }
-            QString retval = QLocale().toString(data.extents[idx], 'f', prec);
-            return retval;
+    if (currentType == RenderType::Init) {
+        m_view3D->setVisible(true);
+        m_iconView3D->setVisible(true);
+    } else {
+        auto showNode = [this](const QString &name) {
+            for (const PreviewData &data : std::as_const(m_previewData))
+                data.node->setVisible(data.name == name);
         };
 
-        QQmlProperty extentsProp(rootItem(), "extents", context());
-        extentsProp.write(tr("Dimensions: %1 x %2 x %3").arg(getExtentStr(0))
-                                                        .arg(getExtentStr(1))
-                                                        .arg(getExtentStr(2)));
+        if (currentType == RenderType::CurrentNode) {
+            if (m_previewData.contains(m_currentNode)) {
+                showNode(m_currentNode);
+                data = m_previewData[m_currentNode];
+                m_view3D->setVisible(true);
+                m_iconView3D->setVisible(false);
+            }
+        } else if (currentType == RenderType::NextIcon) {
+            if (!m_generateIconQueue.isEmpty()) {
+                const QString assetName = m_generateIconQueue.takeFirst();
+                if (m_previewData.contains(assetName)) {
+                    m_view3D->setVisible(false);
+                    m_iconView3D->setVisible(true);
+                    showNode(assetName);
+                    data = m_previewData[assetName];
+                    m_refocus = true;
+                    currentView = m_iconView3D;
+                    currentView->camera()->setRotation(m_defaultCameraRotation);
+                    currentView->camera()->setPosition(m_defaultCameraPosition);
+                }
+            }
+        }
+
+        if (m_refocus && data.node) {
+            m_generalHelper->calculateBoundsAndFocusCamera(currentView->camera(), data.node,
+                                                           currentView, 1050, false, data.lookAt,
+                                                           data.extents);
+            if (currentType == RenderType::CurrentNode) {
+                auto getExtentStr = [&data](int idx) -> QString {
+                    int prec = 0;
+                    float val = data.extents[idx];
+
+                    if (val == 0.f) {
+                        prec = 1;
+                    } else {
+                        while (val < 100.f) {
+                            ++prec;
+                            val *= 10.f;
+                        }
+                    }
+                    // Strip unnecessary zeroes after decimal separator
+                    if (prec > 0) {
+                        QString checkStr = QString::number(data.extents[idx], 'f', prec);
+                        while (prec > 0 && (checkStr.last(1) == "0" || checkStr.last(1) == ".")) {
+                            --prec;
+                            checkStr.chop(1);
+                        }
+                    }
+                    QString retval = QLocale().toString(data.extents[idx], 'f', prec);
+                    return retval;
+                };
+
+                QQmlProperty extentsProp(rootItem(), "extents", context());
+                extentsProp.write(tr("Dimensions: %1 x %2 x %3").arg(getExtentStr(0))
+                                      .arg(getExtentStr(1))
+                                      .arg(getExtentStr(2)));
+            }
+        }
     }
 
-    rootNodeInstance().updateDirtyNodeRecursive();
+    currentView->update();
     QImage renderImage = grabWindow();
 
-    if (m_renderCount >= 2) {
-        ImageContainer imgContainer(0, renderImage, m_renderCount);
-        nodeInstanceClient()->handlePuppetToCreatorCommand(
-            {PuppetToCreatorCommand::Import3DPreviewImage,
-             QVariant::fromValue(imgContainer)});
-
-        if (!m_keepRendering)
-            slowDownRenderTimer();
-
-        m_keepRendering = false;
+    if (currentType == RenderType::Init) {
+        m_refocus = true;
+    } else if (currentType == RenderType::CurrentNode) {
+        if (m_previewData.contains(m_currentNode)) {
+            ImageContainer imgContainer(0, renderImage, 1000000);
+            nodeInstanceClient()->handlePuppetToCreatorCommand(
+                {PuppetToCreatorCommand::Import3DPreviewImage, QVariant::fromValue(imgContainer)});
+        }
+    } else if (currentType == RenderType::NextIcon) {
+        if (!data.name.isEmpty()) {
+            QSizeF iconSize = m_iconView3D->size();
+            QImage iconImage = renderImage.copy(0, 0, iconSize.width(), iconSize.height());
+            ImageContainer imgContainer(0, iconImage, 1000001);
+            QVariantList cmdData;
+            cmdData.append(data.name);
+            cmdData.append(QVariant::fromValue(imgContainer));
+            nodeInstanceClient()->handlePuppetToCreatorCommand(
+                {PuppetToCreatorCommand::Import3DPreviewIcon, cmdData});
+        }
+        m_refocus = true;
+        currentView->camera()->setRotation(cameraRotation);
+        currentView->camera()->setPosition(cameraPosition);
     }
+    if (m_renderQueue.isEmpty())
+        slowDownRenderTimer();
 #else
     slowDownRenderTimer();
 #endif

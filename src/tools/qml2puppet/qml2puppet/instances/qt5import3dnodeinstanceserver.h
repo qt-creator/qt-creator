@@ -35,11 +35,13 @@ protected:
 private:
     void cleanup();
 
-    int m_renderCount = 0;
-    bool m_keepRendering = false;
-
 #ifdef QUICK3D_MODULE
+    void addInitToRenderQueue();
+    void addCurrentNodeToRenderQueue(int count = 1);
+    void addIconToRenderQueue(const QString &assetName);
+
     QQuick3DViewport *m_view3D = nullptr;
+    QQuick3DViewport *m_iconView3D = nullptr;
     Internal::GeneralHelper *m_generalHelper = nullptr;
 
     struct PreviewData
@@ -50,8 +52,21 @@ private:
         QQuick3DNode *node = {};
     };
     QHash<QString, PreviewData> m_previewData;
+
+    enum class RenderType
+    {
+        Init,
+        CurrentNode,
+        NextIcon
+    };
+    QList<RenderType> m_renderQueue;
+
+    bool m_refocus = false;
     QString m_currentNode;
     QQuick3DNode *m_sceneNode = {};
+    QStringList m_generateIconQueue;
+    QQuaternion m_defaultCameraRotation;
+    QVector3D m_defaultCameraPosition;
 #endif
 };
 
