@@ -388,7 +388,7 @@ private:
             = Utils::transform<QStringList>(state->namespacePath, [&](const Namespace *ns) {
                   return ov.prettyName(ns->name());
               });
-        const QString headerGuard = Utils::headerGuard(headerFileName, namespaceNames);
+        const QString headerGuard = Utils::headerGuard(headerFileName);
         if (fileSettings.headerPragmaOnce) {
             headerContent.append("#pragma once\n");
         } else {

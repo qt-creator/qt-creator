@@ -98,11 +98,6 @@ QString CppToolsJsExtension::classToFileName(const QString &klass, const QString
     return finalPath + name + ext;
 }
 
-QString CppToolsJsExtension::classToHeaderGuard(const QString &klass, const QString &extension) const
-{
-    return Utils::headerGuard(fileName(className(klass), extension), namespaces(klass));
-}
-
 QString CppToolsJsExtension::openNamespaces(const QString &klass) const
 {
     QString result;
