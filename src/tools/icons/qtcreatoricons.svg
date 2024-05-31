@@ -3772,7 +3772,7 @@
          height="100%" />
       <path
          id="path6795"
-         d="m 16,423.5 v 11 M 26,418 16,423.5 6,418 m 0,11.5 10,5.5 10,-5.5 v -11 L 16,413 6,418.5 Z"
+         d="m 16,422.5 v 12 M 27,418 16,422.5 5,418 m 0,12.5 11,4.5 11,-4.5 v -13 L 16,413 5,417.5 Z"
          style="fill:none;stroke:#000000;stroke-width:2;stroke-linejoin:round"
          sodipodi:nodetypes="cccccccccccc" />
     </g>
@@ -3787,15 +3787,29 @@
          width="100%"
          height="100%" />
       <path
-         id="path4530"
-         style="fill:none;stroke:#000000;stroke-width:2;stroke-linejoin:round"
-         d="M 49.5,422 H 56 Z M 38,424 h 5.5 z m 11.5,2 H 56 Z"
-         sodipodi:nodetypes="ccccccccc" />
+         id="path6795-3"
+         style="display:inline;fill:none;stroke:#000000;stroke-width:2;stroke-linejoin:round;stroke-linecap:round"
+         d="m 48,422.5 v 4 m 0,4 v 4 M 59,418 c 0,0 -1.6471,0.674 -3.6667,1.5 M 51.6667,421 C 49.6472,421.826 48,422.5 48,422.5 c 0,0 -1.6471,-0.674 -3.6667,-1.5 m -3.6666,-1.5 C 38.6472,418.674 37,418 37,418 m 7.3333,15.5 C 46.3528,434.326 48,435 48,435 m 11,-17.5 c 0,0 -1.6471,-0.674 -3.6667,-1.5 m -3.6666,-1.5 C 49.6472,413.674 48,413 48,413 c 0,0 -1.6471,0.674 -3.6667,1.5 M 40.6667,416 C 38.6472,416.826 37,417.5 37,417.5 v 4.333 m 0,4.334 v 4.333 c 0,0 1.6471,0.674 3.6667,1.5" />
       <path
-         style="fill:#000000;fill-opacity:1"
-         d="m 50,420 h -3.5 c -1.5,0 -4,0.5 -4,4 0,3.5 2.5,4 4,4 H 50 c 1.5,0 2,-1 2,-1.5 v -5 C 52,421 51.5,420 50,420 Z"
-         id="path4682"
-         sodipodi:nodetypes="cczccccc" />
+         style="fill:#000000;stroke:#000000;stroke-width:2;stroke-linejoin:round"
+         d="M 59,421.75 V 430.5 l -8,3.25 V 425 Z"
+         id="path32048"
+         sodipodi:nodetypes="ccccc" />
+    </g>
+    <g
+       id="src/plugins/extensionmanager/images/download">
+      <rect
+         y="408"
+         x="65"
+         height="16"
+         width="16"
+         id="use15-0-0"
+         style="display:inline;fill:#ffffff" />
+      <path
+         id="path7"
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round"
+         d="m 67,422 h 12 m -6,-3.5 V 410 m -3,5.5 3,3 3.03461,-3"
+         sodipodi:nodetypes="ccccccc" />
     </g>
     <g
        id="src/libs/utils/images/eyeoverlay">

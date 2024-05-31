@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/extensionmanager">
+        <file>images/download.png</file>
+        <file>images/download@2x.png</file>
         <file>images/extensionsmall.png</file>
         <file>images/extensionsmall@2x.png</file>
         <file>images/mode_extensionmanager_mask.png</file>
