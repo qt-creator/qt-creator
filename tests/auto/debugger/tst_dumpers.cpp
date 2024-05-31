@@ -1171,6 +1171,7 @@ private:
     bool m_isQnxGdb = false;
     bool m_useGLibCxxDebug = false;
     int m_totalDumpTime = 0;
+    int m_totalInnerTime = 0;
 };
 
 void tst_Dumpers::initTestCase()
@@ -1344,6 +1345,8 @@ void tst_Dumpers::cleanup()
 void tst_Dumpers::cleanupTestCase()
 {
     qCDebug(lcDumpers) << "Dumpers total: " << QTime::fromMSecsSinceStartOfDay(m_totalDumpTime);
+    qCDebug(lcDumpers, "TotalOuter: %5d", m_totalDumpTime);
+    qCDebug(lcDumpers, "TotalInner: %5d", m_totalInnerTime);
 }
 
 void tst_Dumpers::dumper()
@@ -1890,6 +1893,9 @@ void tst_Dumpers::dumper()
 
         actual.fromStringMultiple(QString::fromLocal8Bit(contents));
         context.nameSpace = actual["qtnamespace"].data();
+        int runtime = actual["runtime"].data().toFloat() * 1000;
+        qCDebug(lcDumpers, "CaseInner: %5d", runtime);
+        m_totalInnerTime += runtime;
         actual = actual["data"];
         //qCDebug(lcDumpers) << "FOUND NS: " << context.nameSpace;
 
@@ -1914,6 +1920,9 @@ void tst_Dumpers::dumper()
             context.nameSpace.clear();
         contents.replace("\\\"", "\"");
         actual.fromString(QString::fromLocal8Bit(contents));
+        int runtime = actual["runtime"].data().toFloat() * 1000;
+        qCDebug(lcDumpers, "CaseInner: %5d", runtime);
+        m_totalInnerTime += runtime;
     } else {
         QByteArray localsAnswerStart("<qtcreatorcdbext>|R|42|");
         QByteArray locals("|script|");
