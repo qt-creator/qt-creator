@@ -55,7 +55,7 @@ Project {
         "languageclient/languageclient.qbs",
         "languageclient/lualanguageclient/lualanguageclient.qbs",
         "lua/lua.qbs",
-        "lualsp/lualsp.qbs",
+        "luals/luals.qbs",
         "luatests/luatests.qbs",
         "macros/macros.qbs",
         "marketplace/marketplace.qbs",
