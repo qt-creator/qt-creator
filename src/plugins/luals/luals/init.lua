@@ -35,12 +35,8 @@ end
 
 local function installOrUpdateServer()
   local data = a.wait(fetch({
-    url = "https://api.github.com/repos/LuaLS/lua-language-server/releases?per_page=1",
-    convertToTable = true,
-    headers = {
-      Accept = "application/vnd.github.v3+json",
-      ["X-GitHub-Api-Version"] = "2022-11-28"
-    }
+    url = "https://qtccache.qt.io/LuaLanguageServer/LatestRelease",
+    convertToTable = true
   }))
 
   if type(data) == "table" and #data > 0 then
