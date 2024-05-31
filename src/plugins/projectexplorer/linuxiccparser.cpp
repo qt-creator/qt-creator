@@ -59,7 +59,7 @@ OutputLineParser::Result LinuxIccParser::handleLine(const QString &line, OutputF
             const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured(1)));
             const int lineNo = match.captured(2).toInt();
             LinkSpecs linkSpecs;
-            addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, match, 1);
+            addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, -1, match, 1);
             createOrAmendTask(type, match.captured(6).trimmed(), line, false, filePath, lineNo);
             m_expectFirstLine = false;
             return Status::InProgress;

@@ -114,7 +114,7 @@ OutputLineParser::Result MsvcParser::handleLine(const QString &line, OutputForma
             const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured(2)));
             const int lineNo = match.captured(3).toInt();
             LinkSpecs linkSpecs;
-            addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, match, 2);
+            addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, -1, match, 2);
             createOrAmendTask(Task::Unknown, description, line, false, filePath, lineNo, 0, linkSpecs);
             return {Status::InProgress, linkSpecs};
         }
@@ -146,7 +146,7 @@ MsvcParser::Result MsvcParser::processCompileLine(const QString &line)
         QPair<FilePath, int> position = parseFileName(match.captured(1));
         const FilePath filePath = absoluteFilePath(position.first);
         LinkSpecs linkSpecs;
-        addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, position.second, match, 1);
+        addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, position.second, -1, match, 1);
         const QString &description = match.captured(3) + match.captured(4).trimmed();
         createOrAmendTask(
             taskType(match.captured(2)),
@@ -228,7 +228,7 @@ OutputLineParser::Result ClangClParser::handleLine(const QString &line, OutputFo
         const FilePath file = absoluteFilePath(position.first);
         const int lineNo = position.second;
         LinkSpecs linkSpecs;
-        addLinkSpecForAbsoluteFilePath(linkSpecs, file, lineNo, match, 1);
+        addLinkSpecForAbsoluteFilePath(linkSpecs, file, lineNo, -1, match, 1);
         createOrAmendTask(
             taskType(match.captured(2)), match.captured(3).trimmed(), line, false, file, lineNo);
         return {Status::InProgress, linkSpecs};

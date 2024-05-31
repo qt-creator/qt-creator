@@ -62,7 +62,7 @@ OutputLineParser::Result JavaParser::handleLine(const QString &line, OutputForma
                      absoluteFilePath(file),
                      lineno);
     LinkSpecs linkSpecs;
-    addLinkSpecForAbsoluteFilePath(linkSpecs, task.file, task.line, match, 2);
+    addLinkSpecForAbsoluteFilePath(linkSpecs, task.file, task.line, task.column, match, 2);
     scheduleTask(task, 1);
     return {Status::Done, linkSpecs};
 }

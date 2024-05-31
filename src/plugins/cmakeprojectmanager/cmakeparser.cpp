@@ -93,8 +93,8 @@ OutputLineParser::Result CMakeParser::handleLine(const QString &line, OutputForm
                                          match.captured(2).toInt());
             m_lines = 1;
             LinkSpecs linkSpecs;
-            addLinkSpecForAbsoluteFilePath(linkSpecs, m_lastTask.file, m_lastTask.line,
-                                           match, 1);
+            addLinkSpecForAbsoluteFilePath(
+                linkSpecs, m_lastTask.file, m_lastTask.line, m_lastTask.column, match, 1);
 
             m_errorOrWarningLine.file = m_lastTask.file;
             m_errorOrWarningLine.line = m_lastTask.line;
@@ -107,8 +107,8 @@ OutputLineParser::Result CMakeParser::handleLine(const QString &line, OutputForm
             m_lastTask = BuildSystemTask(Task::Error, QString(),
                                          absoluteFilePath(FilePath::fromUserInput(match.captured(1))));
             LinkSpecs linkSpecs;
-            addLinkSpecForAbsoluteFilePath(linkSpecs, m_lastTask.file, m_lastTask.line,
-                                           match, 1);
+            addLinkSpecForAbsoluteFilePath(
+                linkSpecs, m_lastTask.file, m_lastTask.line, m_lastTask.column, match, 1);
             m_lines = 1;
             return {Status::InProgress, linkSpecs};
         }
@@ -121,8 +121,8 @@ OutputLineParser::Result CMakeParser::handleLine(const QString &line, OutputForm
                                          match.captured(3).toInt());
             m_lines = 1;
             LinkSpecs linkSpecs;
-            addLinkSpecForAbsoluteFilePath(linkSpecs, m_lastTask.file, m_lastTask.line,
-                                           match, 1);
+            addLinkSpecForAbsoluteFilePath(
+                linkSpecs, m_lastTask.file, m_lastTask.line, m_lastTask.column, match, 1);
 
             m_errorOrWarningLine.file = m_lastTask.file;
             m_errorOrWarningLine.line = m_lastTask.line;
@@ -174,8 +174,13 @@ OutputLineParser::Result CMakeParser::handleLine(const QString &line, OutputForm
             m_lastTask.line = match.captured(1).toInt();
             m_expectTripleLineErrorData = LINE_DESCRIPTION;
             LinkSpecs linkSpecs;
-            addLinkSpecForAbsoluteFilePath(linkSpecs, m_lastTask.file, m_lastTask.line, 0,
-                                           match.capturedStart());
+            addLinkSpecForAbsoluteFilePath(
+                linkSpecs,
+                m_lastTask.file,
+                m_lastTask.line,
+                m_lastTask.column,
+                0,
+                match.capturedStart());
             return {Status::InProgress, linkSpecs};
         }
     case LINE_DESCRIPTION:

@@ -62,8 +62,8 @@ OutputLineParser::Result KeilParser::parseArmWarningOrErrorDetailsMessage(const 
     const QString descr = match.captured(DescriptionIndex);
     newTask(CompileTask(type, descr, absoluteFilePath(fileName), lineno));
     LinkSpecs linkSpecs;
-    addLinkSpecForAbsoluteFilePath(linkSpecs, m_lastTask.file, m_lastTask.line, match,
-                                   FilePathIndex);
+    addLinkSpecForAbsoluteFilePath(
+        linkSpecs, m_lastTask.file, m_lastTask.line, m_lastTask.column, match, FilePathIndex);
     return {Status::InProgress, linkSpecs};
 }
 
@@ -98,8 +98,8 @@ OutputLineParser::Result KeilParser::parseMcs51WarningOrErrorDetailsMessage1(con
                                                 match.captured(MessageTextIndex));
     newTask(CompileTask(type, descr, absoluteFilePath(fileName), lineno));
     LinkSpecs linkSpecs;
-    addLinkSpecForAbsoluteFilePath(linkSpecs, m_lastTask.file, m_lastTask.line, match,
-                                   FilePathIndex);
+    addLinkSpecForAbsoluteFilePath(
+        linkSpecs, m_lastTask.file, m_lastTask.line, m_lastTask.column, match, FilePathIndex);
     return {Status::InProgress, linkSpecs};
 }
 
@@ -119,8 +119,8 @@ OutputLineParser::Result KeilParser::parseMcs51WarningOrErrorDetailsMessage2(con
                                                 match.captured(MessageTextIndex));
     newTask(CompileTask(type, descr, absoluteFilePath(fileName), lineno));
     LinkSpecs linkSpecs;
-    addLinkSpecForAbsoluteFilePath(linkSpecs, m_lastTask.file, m_lastTask.line, match,
-                                   FilePathIndex);
+    addLinkSpecForAbsoluteFilePath(
+        linkSpecs, m_lastTask.file, m_lastTask.line, m_lastTask.column, match, FilePathIndex);
     return {Status::InProgress, linkSpecs};
 }
 
