@@ -24,6 +24,7 @@
 #include "qmldesignerplugin.h"
 #include "qmltimeline.h"
 #include "variantproperty.h"
+#include <uniquename.h>
 #include <utils3d.h>
 
 #include <coreplugin/icore.h>
@@ -970,10 +971,7 @@ void MaterialEditorView::renameMaterial(ModelNode &material, const QString &newN
 
 void MaterialEditorView::duplicateMaterial(const ModelNode &material)
 {
-    QTC_ASSERT(material.isValid(), return);
-
-    if (!model())
-        return;
+    QTC_ASSERT(material.isValid() && model(), return);
 
     TypeName matType = material.type();
     QmlObjectNode sourceMat(material);
@@ -982,8 +980,7 @@ void MaterialEditorView::duplicateMaterial(const ModelNode &material)
 
     executeInTransaction(__FUNCTION__, [&] {
         ModelNode matLib = Utils3D::materialLibraryNode(this);
-        if (!matLib.isValid())
-            return;
+        QTC_ASSERT(matLib.isValid(), return);
 
         // create the duplicate material
 #ifdef QDS_USE_PROJECTSTORAGE
@@ -994,10 +991,24 @@ void MaterialEditorView::duplicateMaterial(const ModelNode &material)
 #endif
         duplicateMatNode = duplicateMat.modelNode();
 
-        // set name and id
-        QString newName = sourceMat.modelNode().variantProperty("objectName").value().toString() + " copy";
+        // generate and set a unique name
+        QString newName = sourceMat.modelNode().variantProperty("objectName").value().toString();
+        if (!newName.contains("copy", Qt::CaseInsensitive))
+            newName.append(" copy");
+
+        const QList<ModelNode> mats = matLib.directSubModelNodesOfType(model()->qtQuick3DMaterialMetaInfo());
+        QStringList matNames;
+        for (const ModelNode &mat : mats)
+            matNames.append(mat.variantProperty("objectName").value().toString());
+
+        newName = UniqueName::generate(newName, [&] (const QString &name) {
+            return matNames.contains(name);
+        });
+
         VariantProperty objNameProp = duplicateMatNode.variantProperty("objectName");
         objNameProp.setValue(newName);
+
+        // generate and set an id
         duplicateMatNode.setIdWithoutRefactoring(model()->generateNewId(newName, "material"));
 
         // sync properties. Only the base state is duplicated.
