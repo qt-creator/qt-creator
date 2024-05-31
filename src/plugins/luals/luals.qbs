@@ -1,8 +1,8 @@
 QtcLuaPlugin {
-    name: "lualsp"
+    name: "luals"
 
     luafiles: [
         "init.lua",
-        "lualsp.lua",
+        "luals.lua",
     ]
 }
