@@ -597,7 +597,10 @@ QPair<QString, QSet<QString>> ContentLibraryView::modelNodeToQmlString(const Mod
         if (p.isVariantProperty()) {
             QVariant pValue = p.toVariantProperty().value();
             QString val;
-            if (strcmp(pValue.typeName(), "QString") == 0 || strcmp(pValue.typeName(), "QColor") == 0) {
+
+            if (!pValue.typeName()) {
+                // dynamic property with no value assigned
+            } else if (strcmp(pValue.typeName(), "QString") == 0 || strcmp(pValue.typeName(), "QColor") == 0) {
                 val = QLatin1String("\"%1\"").arg(pValue.toString());
             } else if (strcmp(pValue.typeName(), "QUrl") == 0) {
                 QString pValueStr = pValue.toString();
@@ -609,12 +612,20 @@ QPair<QString, QSet<QString>> ContentLibraryView::modelNodeToQmlString(const Mod
             } else {
                 val = pValue.toString();
             }
-
-            qml += indent + p.name() + ": " + val + "\n";
+            if (p.isDynamic()) {
+                QString valWithColon = val.isEmpty() ? QString() : (": " + val);
+                qml += indent + "property "  + p.dynamicTypeName() + " " + p.name() + valWithColon + "\n";
+            } else {
+                qml += indent + p.name() + ": " + val + "\n";
+            }
         } else if (p.isBindingProperty()) {
-            qml += indent + p.name() + ": " + p.toBindingProperty().expression() + "\n";
-
             ModelNode depNode = modelNodeForId(p.toBindingProperty().expression());
+            QTC_ASSERT(depNode.isValid(), continue);
+
+            if (p.isDynamic())
+                qml += indent + "property "  + p.dynamicTypeName() + " " + p.name() + ": " + depNode.id() + "\n";
+            else
+                qml += indent + p.name() + ": " + depNode.id() + "\n";
 
             if (depNode && !depListIds.contains(depNode.id())) {
                 depListIds.append(depNode.id());

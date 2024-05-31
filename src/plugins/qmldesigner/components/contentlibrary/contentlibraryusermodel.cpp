@@ -82,11 +82,6 @@ QVariant ContentLibraryUserModel::data(const QModelIndex &index, int role) const
     return {};
 }
 
-bool ContentLibraryUserModel::isValidIndex(int idx) const
-{
-    return idx > -1 && idx < rowCount();
-}
-
 void ContentLibraryUserModel::updateNoMatchMaterials()
 {
     m_noMatchMaterials = Utils::allOf(m_userMaterials, [&](ContentLibraryMaterial *item) {

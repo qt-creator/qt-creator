@@ -95,7 +95,6 @@ private:
     void loadMaterialBundle();
     void load3DBundle();
     void loadTextureBundle();
-    bool isValidIndex(int idx) const;
     void removeMaterialFromContentLib(ContentLibraryMaterial *mat);
     void remove3DFromContentLib(ContentLibraryItem *item);
     QPair<QString, QString> getUniqueLibItemNames(const QString &defaultName,
