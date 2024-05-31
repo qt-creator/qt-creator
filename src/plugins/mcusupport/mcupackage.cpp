@@ -569,6 +569,10 @@ QVariant McuToolchainPackage::debuggerId() const
     switch (m_type) {
     case ToolchainType::ArmGcc: {
         sub = QString::fromLatin1("bin/arm-none-eabi-gdb-py");
+        const FilePath command = (path() / sub).withExecutableSuffix();
+        if (!command.exists()) {
+            sub = QString::fromLatin1("bin/arm-none-eabi-gdb");
+        }
         displayName = Tr::tr("Arm GDB at %1");
         engineType = Debugger::GdbEngineType;
         break;
