@@ -39,7 +39,6 @@ add_qtc_plugin(Lua
     meta/simpletypes.lua
     meta/utils.lua
     meta/widgets.lua
-    meta/wizard.lua
     # generateqtbindings.cpp # Use this if you need to generate some code.
 )
 
@@ -66,7 +65,6 @@ set(META_FILES
   meta/simpletypes.lua
   meta/utils.lua
   meta/widgets.lua
-  meta/wizard.lua
 )
 
 qtc_copy_to_builddir(copy_lua_meta_files
