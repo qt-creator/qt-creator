@@ -4,6 +4,8 @@ QtcPlugin {
     name: "ExtensionManager"
 
     Depends { name: "Core" }
+    Depends { name: "Tasking" }
+    Depends { name: "Qt.network" }
 
     files: [
         "extensionmanager.qrc",
