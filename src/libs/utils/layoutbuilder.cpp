@@ -341,17 +341,17 @@ void Layout::span(int cols, int rows)
 
 void Layout::setNoMargins()
 {
-    setContentMargins({});
+    setContentsMargins(0, 0, 0, 0);
 }
 
 void Layout::setNormalMargins()
 {
-    setContentMargins({9, 9, 9, 9});
+    setContentsMargins(9, 9, 9, 9);
 }
 
-void Layout::setContentMargins(const QMargins &margin)
+void Layout::setContentsMargins(int left, int top, int right, int bottom)
 {
-    access(this)->setContentsMargins(margin);
+    access(this)->setContentsMargins(left, top, right, bottom);
 }
 
 /*!
@@ -726,17 +726,17 @@ void Widget::show()
 
 void Widget::setNoMargins(int)
 {
-    setContentMargins({});
+    setContentsMargins(0, 0, 0, 0);
 }
 
 void Widget::setNormalMargins(int)
 {
-    setContentMargins({9, 9, 9, 9});
+    setContentsMargins(9, 9, 9, 9);
 }
 
-void Widget::setContentMargins(const QMargins &margins)
+void Widget::setContentsMargins(int left, int top, int right, int bottom)
 {
-    access(this)->setContentsMargins(margins);
+    access(this)->setContentsMargins(left, top, right, bottom);
 }
 
 QWidget *Widget::emerge() const

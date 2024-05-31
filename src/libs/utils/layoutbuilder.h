@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <QMargins>
 #include <QString>
 
 #include <functional>
@@ -26,7 +25,6 @@ class QGroupBox;
 class QHBoxLayout;
 class QLabel;
 class QLayout;
-class QMargins;
 class QObject;
 class QPushButton;
 class QSpinBox;
@@ -51,6 +49,15 @@ public:
     const T1 id;
     const T2 arg; // FIXME: Could be const &, but this would currently break bindTo().
 };
+
+template <typename T1, typename T2>
+struct Arg2 { const T1 p1; const T2 p2; };
+
+template <typename T1, typename T2, typename T3>
+struct Arg3 { const T1 p1; const T2 p2; const T3 p3; };
+
+template <typename T1, typename T2, typename T3, typename T4>
+struct Arg4 { const T1 p1; const T2 p2; const T3 p3; const T4 p4; };
 
 // The main dispatcher
 
@@ -142,7 +149,7 @@ public:
 
     void setNoMargins();
     void setNormalMargins();
-    void setContentMargins(const QMargins &margin);
+    void setContentsMargins(int left, int top, int right, int bottom);
     void setColumnStretch(int cols, int rows);
     void setSpacing(int space);
     void setFieldGrowthPolicy(int policy);
@@ -268,7 +275,7 @@ public:
     void setToolTip(const QString &);
     void setNoMargins(int = 0);
     void setNormalMargins(int = 0);
-    void setContentMargins(const QMargins &);
+    void setContentsMargins(int left, int top, int right, int bottom);
 };
 
 class QTCREATOR_UTILS_EXPORT Label : public Widget
@@ -448,13 +455,18 @@ void doit(Interface *x, IdId, auto p)
 
 #define QTCREATOR_SETTER2(name, setter) \
     class name##_TAG {}; \
-    inline auto name(auto p1, auto p2) { return IdAndArg{name##_TAG{}, std::pair{p1, p2}}; } \
-    inline void doit(auto x, name##_TAG, auto p) { x->setter(p.first, p.second); }
+    inline auto name(auto p1, auto p2) { return IdAndArg{name##_TAG{}, Arg2{p1, p2}}; } \
+    inline void doit(auto x, name##_TAG, auto p) { x->setter(p.p1, p.p2); }
 
-#define QTCREATOR_TYPED_SETTER(name, setter, type) \
+#define QTCREATOR_SETTER3(name, setter) \
     class name##_TAG {}; \
-    inline auto name(type p) { return IdAndArg{name##_TAG{}, p}; } \
-    inline void doit(auto x, name##_TAG, auto p) { x->setter(p); }
+    inline auto name(auto p1, auto p2, auto p3) { return IdAndArg{name##_TAG{}, Arg4{p1, p2, p3}}; } \
+    inline void doit(auto x, name##_TAG, auto p) { x->setter(p.p1, p.p2, p.p3); }
+
+#define QTCREATOR_SETTER4(name, setter) \
+    class name##_TAG {}; \
+    inline auto name(auto p1, auto p2, auto p3, auto p4) { return IdAndArg{name##_TAG{}, Arg4{p1, p2, p3, p4}}; } \
+    inline void doit(auto x, name##_TAG, auto p) { x->setter(p.p1, p.p2, p.p3, p.p4); }
 
 QTCREATOR_SETTER(fieldGrowthPolicy, setFieldGrowthPolicy);
 QTCREATOR_SETTER(groupChecker, setGroupChecker);
@@ -471,8 +483,7 @@ QTCREATOR_SETTER2(columnStretch, setColumnStretch);
 QTCREATOR_SETTER2(onClicked, onClicked);
 QTCREATOR_SETTER2(onLinkHovered, onLinkHovered);
 QTCREATOR_SETTER2(onTextChanged, onTextChanged);
-
-QTCREATOR_TYPED_SETTER(customMargin, setContentMargins, const QMargins &);
+QTCREATOR_SETTER4(customMargins, setContentsMargins);
 
 // Nesting dispatchers
 

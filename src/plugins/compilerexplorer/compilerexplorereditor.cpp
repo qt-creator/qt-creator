@@ -258,7 +258,7 @@ SourceEditorWidget::SourceEditorWidget(const std::shared_ptr<SourceSettings> &se
         settings->languageId,
         addCompilerButton,
         removeSourceButton,
-        customMargin({6, 0, 0, 0}), spacing(0),
+        customMargins(6, 0, 0, 0), spacing(0),
     }.attachTo(toolBar);
 
     Column {
@@ -403,7 +403,7 @@ CompilerWidget::CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSett
         m_compilerSettings->compiler,
         advButton,
         removeCompilerBtn,
-        customMargin({6, 0, 0, 0}), spacing(0),
+        customMargins(6, 0, 0, 0), spacing(0),
     }.attachTo(toolBar);
 
     Column {
