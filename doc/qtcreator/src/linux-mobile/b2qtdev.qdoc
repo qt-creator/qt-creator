@@ -100,14 +100,18 @@
 
     \note Enable the \B2Q plugin to use it.
 
-    If \QC does not automatically detect a \l{\B2Q: Documentation}{\B2Q}
-    device you connect with USB:
+    If \QC does not automatically detect a \B2Q device you connect with USB,
+    check that you followed the instructions in the \l{\B2Q: Documentation}
+    {Quick Start Guide} for the device.
+
+    If that does not help, but you can reach the IP address of the device,
+    create a network connection to it:
 
     \list 1
         \li Go to \preferences > \uicontrol Devices > \uicontrol Devices.
             \image qtcreator-boot2qt-device-configurations.webp {Devices tab in Preferences}
         \li Select \uicontrol Add > \uicontrol {Boot2Qt Device} to create
-            either a network connection or a USB connection to the device.
+            a network connection to the device.
             \image qtcreator-devices-boot2qt.png {Boot to Qt Network Device Setup wizard}
         \li In \uicontrol {Device name}, enter a name for the connection.
         \li In \uicontrol {Device address}, enter the host
