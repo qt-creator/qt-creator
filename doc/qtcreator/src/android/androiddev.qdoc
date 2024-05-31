@@ -131,21 +131,23 @@
     C:\Users\Username\AppData\Local\QtProject\qtcreator\android\sdk_definitions.json
     \endcode
 
-    For example, the SDK configuration file sets the NDK version 19.2.5345600
-    for use with Qt 5.12.0 to 5.12.5 and Qt 5.13.0 to 5.13.1:
+    For example, the SDK configuration file sets the NDK version 22.1.7171670
+    for use with Qt 6.3, Qt 6.2, and Qt 5.15.9 to 5.15.20:
 
     \badcode
     "specific_qt_versions": [
-        {
-            "versions": ["5.12.[0-5]", "5.13.[0-1]"],
-            "sdk_essential_packages": ["build-tools;28.0.2", "ndk;19.2.5345600"],
-            "ndk_path": "ndk/19.2.5345600"
-        }
+    {       "versions": ["6.3", "6.2", "5.15.[9-20]"],
+            "sdk_essential_packages": ["build-tools;31.0.0", "ndk;22.1.7171670"]
+        },
     ]
     \endcode
 
     You can view the latest version of the configuration file that is up-to-date
     with the Android SDK and NDK changes, \l{sdk_definitions.json}, in Git.
+
+    \note For Qt 6.5 or later, \QC reads the NDK version that was used for
+    building Qt from \c modules/Core.json and uses it instead of the version
+    in \c sdk_definitions.json.
 
     \sa {Android}{How To: Develop for Android},
     {Developing for Android}

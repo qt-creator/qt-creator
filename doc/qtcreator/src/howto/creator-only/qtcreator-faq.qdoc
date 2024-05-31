@@ -121,14 +121,10 @@
     \b {The Qt API Reference Documentation is missing and context help does
     not find topics. What can I do?}
 
-    \QC comes fully integrated with Qt documentation and examples using
-    the Qt Help plugin. The integrated Qt Reference Documentation is available
-    for Qt 4.4 and later. \QC and other Qt deliverables have
-    documentation as .qch files. All the documentation is accessible in the
-    \uicontrol Help mode.
+    Install a Qt version and Qt documentation with \QOI.
 
-    To view the documentation that is available and to add documentation,
-    select \preferences > \uicontrol Help >
+    To view the installed documentation (.qch files) and to add documentation,
+    go to \preferences > \uicontrol Help >
     \uicontrol Documentation. For more information, see
     \l{Add external documentation}.
 
