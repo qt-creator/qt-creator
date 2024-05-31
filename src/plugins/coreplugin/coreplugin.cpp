@@ -251,6 +251,9 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     expander->registerVariable("HostOs:ExecutableSuffix",
                                Tr::tr("The platform executable suffix."),
                                [] { return QString(Utils::HostOsInfo::withExecutableSuffix("")); });
+    expander->registerFileVariables("IDE:Executable",
+                               Tr::tr("The path to the running %1 itself.").arg(QGuiApplication::applicationDisplayName()),
+                               []() { return FilePath::fromUserInput(QCoreApplication::applicationFilePath()); });
     expander->registerVariable("IDE:ResourcePath",
                                Tr::tr("The directory where %1 finds its pre-installed resources.")
                                    .arg(QGuiApplication::applicationDisplayName()),
