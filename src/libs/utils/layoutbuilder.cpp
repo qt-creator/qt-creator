@@ -763,6 +763,31 @@ void Label::setText(const QString &text)
     access(this)->setText(text);
 }
 
+void Label::setTextFormat(Qt::TextFormat format)
+{
+    access(this)->setTextFormat(format);
+}
+
+void Label::setWordWrap(bool on)
+{
+    access(this)->setWordWrap(on);
+}
+
+void Label::setTextInteractionFlags(Qt::TextInteractionFlags flags)
+{
+    access(this)->setTextInteractionFlags(flags);
+}
+
+void Label::setOpenExternalLinks(bool on)
+{
+    access(this)->setOpenExternalLinks(on);
+}
+
+void Label::onLinkHovered(const std::function<void (const QString &)> &func, QObject *guard)
+{
+    QObject::connect(access(this), &QLabel::linkHovered, guard, func);
+}
+
 // Group
 
 Group::Group(std::initializer_list<I> ps)
