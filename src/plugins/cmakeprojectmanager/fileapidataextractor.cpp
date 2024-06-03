@@ -209,12 +209,9 @@ static bool isChildOf(const FilePath &path, const FilePaths &prefixes)
 static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
                                       const FilePath &sourceDirectory,
                                       const FilePath &buildDirectory,
-                                      bool relativeLibs,
-                                      const QSet<FilePath> &sharedLibraryArtifacts)
+                                      bool relativeLibs)
 {
     const FilePath currentBuildDir = buildDirectory.resolvePath(t.buildDir);
-    const QSet<FilePath> sharedLibraryArtifactsPaths
-        = transform(sharedLibraryArtifacts, &FilePath::parentDir);
 
     CMakeBuildTarget ct;
     ct.title = t.name;
@@ -323,20 +320,20 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
                     // "/usr/local/lib" since these are usually in the standard search
                     // paths. There probably are more, but the naming schemes are arbitrary
                     // so we'd need to ask the linker ("ld --verbose | grep SEARCH_DIR").
-                    if (buildDir.osType() != OsTypeWindows
-                        && !isChildOf(tmp,
-                                      {"/lib", "/lib64", "/usr/lib", "/usr/lib64", "/usr/local/lib"}))
+                    if (buildDir.osType() == OsTypeWindows
+                        || !isChildOf(tmp,
+                                      {"/lib",
+                                       "/lib64",
+                                       "/usr/lib",
+                                       "/usr/lib64",
+                                       "/usr/local/lib"})) {
                         librarySeachPaths.append(tmp);
-
-                    if (buildDir.osType() == OsTypeWindows) {
-                        if (sharedLibraryArtifactsPaths.contains(tmp))
-                            librarySeachPaths.append(tmp);
 
                         // Libraries often have their import libs in ../lib and the
                         // actual dll files in ../bin on windows. Qt is one example of that.
-                        if (tmp.fileName() == "lib") {
+                        if (tmp.fileName() == "lib" && buildDir.osType() == OsTypeWindows) {
                             const FilePath path = tmp.parentDir().pathAppended("bin");
-                            if (path.isDir() && !isChildOf(path, {buildDir}))
+                            if (path.isDir())
                                 librarySeachPaths.append(path);
                         }
                     }
@@ -355,19 +352,12 @@ static QList<CMakeBuildTarget> generateBuildTargets(const QFuture<void> &cancelF
                                                     const FilePath &buildDirectory,
                                                     bool relativeLibs)
 {
-    QSet<FilePath> sharedLibraryArtifacts;
-    for (const TargetDetails &t : input.targetDetails)
-        if (t.type == "MODULE_LIBRARY" || t.type == "SHARED_LIBRARY")
-            for (const FilePath &p : t.artifacts)
-                sharedLibraryArtifacts.insert(buildDirectory.resolvePath(p));
-
     QList<CMakeBuildTarget> result;
     result.reserve(input.targetDetails.size());
     for (const TargetDetails &t : input.targetDetails) {
         if (cancelFuture.isCanceled())
             return {};
-        result.append(
-            toBuildTarget(t, sourceDirectory, buildDirectory, relativeLibs, sharedLibraryArtifacts));
+        result.append(toBuildTarget(t, sourceDirectory, buildDirectory, relativeLibs));
     }
     return result;
 }
