@@ -41,6 +41,7 @@ public:
         setDescription(
             Tr::tr("Re-order Member Function Definitions According to Declaration Order"));
         m_state->decls = decls;
+        m_state->currentFile = currentFile();
     }
 
 private:
@@ -71,6 +72,7 @@ private:
 
         QList<Symbol *> decls;
         QHash<FilePath, DefLocations> defLocations;
+        CppRefactoringFilePtr currentFile;
         int remainingFollowSymbolOps = 0;
     };
 
@@ -120,6 +122,7 @@ private:
 
             // Force queued execution, as the built-in editor can run the callback synchronously.
             const auto followSymbol = [cursorInEditor, callback] {
+                NonInteractiveFollowSymbolMarker niMarker;
                 CppModelManager::followSymbol(
                     cursorInEditor, callback, true, false, FollowSymbolMode::Exact);
             };
@@ -157,7 +160,9 @@ private:
             if (defLocsExpectedOrder == defLocsActualOrder)
                 continue;
 
-            CppRefactoringFilePtr file = factory.cppFile(it.key());
+            CppRefactoringFilePtr file = it.key() == state->currentFile->filePath()
+                                             ? state->currentFile
+                                             : factory.cppFile(it.key());
             ChangeSet changes;
             for (int i = 0; i < defLocsActualOrder.size(); ++i) {
                 const DefLocation &actualLoc = defLocsActualOrder[i];

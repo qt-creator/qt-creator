@@ -58,7 +58,7 @@ Link OutputLineParser::parseLinkTarget(const QString &target)
         return {};
     return Link(FilePath::fromString(parts.first()),
                 parts.length() > 1 ? parts.at(1).toInt() : 0,
-                parts.length() > 2 ? parts.at(2).toInt() : 0);
+                parts.length() > 2 ? parts.at(2).toInt() - 1 : 0);
 }
 
 // The redirection mechanism is needed for broken build tools (e.g. xcodebuild) that get invoked
@@ -141,26 +141,39 @@ FilePath OutputLineParser::absoluteFilePath(const FilePath &filePath) const
     return filePath;
 }
 
-void OutputLineParser::addLinkSpecForAbsoluteFilePath(OutputLineParser::LinkSpecs &linkSpecs,
-        const FilePath &filePath, int lineNo, int pos, int len)
+void OutputLineParser::addLinkSpecForAbsoluteFilePath(
+    OutputLineParser::LinkSpecs &linkSpecs,
+    const FilePath &filePath,
+    int lineNo,
+    int column,
+    int pos,
+    int len)
 {
     if (filePath.toFileInfo().isAbsolute())
-        linkSpecs.append({pos, len, createLinkTarget(filePath, lineNo)});
+        linkSpecs.append({pos, len, createLinkTarget(filePath, lineNo, column)});
 }
 
-void OutputLineParser::addLinkSpecForAbsoluteFilePath(OutputLineParser::LinkSpecs &linkSpecs,
-        const FilePath &filePath, int lineNo, const QRegularExpressionMatch &match,
-        int capIndex)
+void OutputLineParser::addLinkSpecForAbsoluteFilePath(
+    OutputLineParser::LinkSpecs &linkSpecs,
+    const FilePath &filePath,
+    int lineNo,
+    int column,
+    const QRegularExpressionMatch &match,
+    int capIndex)
 {
-    addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, match.capturedStart(capIndex),
-                                   match.capturedLength(capIndex));
+    addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, column,
+                                   match.capturedStart(capIndex), match.capturedLength(capIndex));
 }
-void OutputLineParser::addLinkSpecForAbsoluteFilePath(OutputLineParser::LinkSpecs &linkSpecs,
-        const FilePath &filePath, int lineNo, const QRegularExpressionMatch &match,
-                                                      const QString &capName)
+void OutputLineParser::addLinkSpecForAbsoluteFilePath(
+    OutputLineParser::LinkSpecs &linkSpecs,
+    const FilePath &filePath,
+    int lineNo,
+    int column,
+    const QRegularExpressionMatch &match,
+    const QString &capName)
 {
-    addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, match.capturedStart(capName),
-                                   match.capturedLength(capName));
+    addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, column,
+                                   match.capturedStart(capName), match.capturedLength(capName));
 }
 
 bool Utils::OutputLineParser::fileExists(const FilePath &fp) const

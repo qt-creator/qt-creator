@@ -198,7 +198,7 @@ ExtensionsBrowser::ExtensionsBrowser(QWidget *parent)
     auto manageLabel = new QLabel(Tr::tr("Manage Extensions"));
     manageLabel->setFont(StyleHelper::uiFont(StyleHelper::UiElementH1));
 
-    d->searchBox = new Core::SearchBox;
+    d->searchBox = new SearchBox;
     d->searchBox->setFixedWidth(itemSize.width());
 
     d->updateButton = new Button(Tr::tr("Install..."), Button::MediumPrimary);
@@ -252,10 +252,8 @@ ExtensionsBrowser::ExtensionsBrowser(QWidget *parent)
     connect(d->updateButton, &QAbstractButton::pressed, this, []() {
         executePluginInstallWizard();
     });
-    connect(ExtensionSystem::PluginManager::instance(),
-            &ExtensionSystem::PluginManager::pluginsChanged, this, updateModel);
-    connect(ExtensionSystem::PluginManager::instance(),
-            &ExtensionSystem::PluginManager::initializationDone,
+    connect(PluginManager::instance(), &PluginManager::pluginsChanged, this, updateModel);
+    connect(PluginManager::instance(), &PluginManager::initializationDone,
             this, &ExtensionsBrowser::fetchExtensions);
     connect(d->searchBox, &QLineEdit::textChanged,
             d->filterProxyModel, &QSortFilterProxyModel::setFilterWildcard);

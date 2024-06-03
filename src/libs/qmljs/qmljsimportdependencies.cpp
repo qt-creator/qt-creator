@@ -185,14 +185,14 @@ ImportKey::ImportKey(ImportType::Enum type, const QString &path, int majorVersio
 
 void ImportKey::addToHash(QCryptographicHash &hash) const
 {
-    hash.addData(reinterpret_cast<const char *>(&type), sizeof(type));
-    hash.addData(reinterpret_cast<const char *>(&majorVersion), sizeof(majorVersion));
-    hash.addData(reinterpret_cast<const char *>(&minorVersion), sizeof(minorVersion));
+    hash.addData(QByteArrayView(reinterpret_cast<const char *>(&type), sizeof(type)));
+    hash.addData(QByteArrayView(reinterpret_cast<const char *>(&majorVersion), sizeof(majorVersion)));
+    hash.addData(QByteArrayView(reinterpret_cast<const char *>(&minorVersion), sizeof(minorVersion)));
     for (const QString &s : splitPath) {
-        hash.addData("/", 1);
-        hash.addData(reinterpret_cast<const char *>(s.constData()), sizeof(QChar) * s.size());
+        hash.addData("/");
+        hash.addData(QByteArrayView(reinterpret_cast<const char *>(s.constData()), sizeof(QChar) * s.size()));
     }
-    hash.addData("/", 1);
+    hash.addData("/");
 }
 
 ImportKey ImportKey::flatKey() const {
@@ -547,11 +547,11 @@ QByteArray DependencyInfo::calculateFingerprint(const ImportDependencies &deps)
     QStringList coreImports = Utils::toList(allCoreImports);
     coreImports.sort();
     for (const QString &importId : std::as_const(coreImports)) {
-        hash.addData(reinterpret_cast<const char*>(importId.constData()), importId.size() * sizeof(QChar));
+        hash.addData(QByteArrayView(reinterpret_cast<const char*>(importId.constData()), importId.size() * sizeof(QChar)));
         QByteArray coreImportFingerprint = deps.coreImport(importId).fingerprint;
         hash.addData(coreImportFingerprint);
     }
-    hash.addData("/", 1);
+    hash.addData("/");
     QList<ImportKey> imports = Utils::toList(allImports);
     std::sort(imports.begin(), imports.end());
     for (const ImportKey &k : std::as_const(imports))

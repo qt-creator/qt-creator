@@ -5,113 +5,88 @@
 
 #include "messageoutputwindow.h"
 
-#include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
 #include <QFont>
-#include <QThread>
-#include <QTime>
+
+#include <memory>
 
 /*!
-    \class Core::MessageManager
+    \namespace Core::MessageManager
     \inheaderfile coreplugin/messagemanager.h
     \ingroup mainclasses
     \inmodule QtCreator
 
-    \brief The MessageManager class is used to post messages in the
+    \brief The MessageManager namespace is used to post messages in the
     \uicontrol{General Messages} pane.
 */
 
-namespace Core {
+namespace Core::MessageManager {
 
-static MessageManager *m_instance = nullptr;
-static Internal::MessageOutputWindow *m_messageOutputWindow = nullptr;
+static std::unique_ptr<Internal::MessageOutputWindow> s_messageOutputWindow;
 
 enum class Flag { Silent, Flash, Disrupt };
 
 static void showOutputPane(Flag flags)
 {
-    QTC_ASSERT(m_messageOutputWindow, return);
-
+    QTC_ASSERT(s_messageOutputWindow, return);
     switch (flags) {
-    case Core::Flag::Silent:
+    case Flag::Silent:
         break;
-    case Core::Flag::Flash:
-        m_messageOutputWindow->flash();
+    case Flag::Flash:
+        s_messageOutputWindow->flash();
         break;
-    case Core::Flag::Disrupt:
-        m_messageOutputWindow->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
+    case Flag::Disrupt:
+        s_messageOutputWindow->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
         break;
     }
 }
 
 static void doWrite(const QString &text, Flag flags)
 {
-    QTC_ASSERT(m_messageOutputWindow, return);
-
+    QTC_ASSERT(s_messageOutputWindow, return);
     showOutputPane(flags);
-    m_messageOutputWindow->append(text + '\n');
+    s_messageOutputWindow->append(text + '\n');
 }
 
-static void write(const QString &text, Flag flags)
+static void writeImpl(const QString &text, Flag flags)
 {
-    QTC_ASSERT(m_instance, return);
-    if (QThread::currentThread() == m_instance->thread())
-        doWrite(text, flags);
-    else
-        QMetaObject::invokeMethod(m_instance, [text, flags] {
-            doWrite(text, flags);
-        }, Qt::QueuedConnection);
+    QTC_ASSERT(s_messageOutputWindow, return);
+    QMetaObject::invokeMethod(s_messageOutputWindow.get(), [text, flags] { doWrite(text, flags); });
 }
 
 /*!
     \internal
 */
-MessageManager::MessageManager()
+void init()
 {
-    m_instance = this;
-    m_messageOutputWindow = nullptr;
+    s_messageOutputWindow.reset(new Internal::MessageOutputWindow);
 }
 
 /*!
     \internal
 */
-MessageManager::~MessageManager()
+void destroy()
 {
-    if (m_messageOutputWindow) {
-        ExtensionSystem::PluginManager::removeObject(m_messageOutputWindow);
-        delete m_messageOutputWindow;
-    }
-    m_instance = nullptr;
+    s_messageOutputWindow.reset();
 }
 
 /*!
     \internal
 */
-void MessageManager::init()
+void setFont(const QFont &font)
 {
-    m_messageOutputWindow = new Internal::MessageOutputWindow;
-    ExtensionSystem::PluginManager::addObject(m_messageOutputWindow);
+    QTC_ASSERT(s_messageOutputWindow, return);
+    s_messageOutputWindow->setFont(font);
 }
 
 /*!
     \internal
 */
-void MessageManager::setFont(const QFont &font)
+void setWheelZoomEnabled(bool enabled)
 {
-    QTC_ASSERT(m_messageOutputWindow, return);
-
-    m_messageOutputWindow->setFont(font);
-}
-
-/*!
-    \internal
-*/
-void MessageManager::setWheelZoomEnabled(bool enabled)
-{
-    QTC_ASSERT(m_messageOutputWindow, return);
-
-    m_messageOutputWindow->setWheelZoomEnabled(enabled);
+    QTC_ASSERT(s_messageOutputWindow, return);
+    s_messageOutputWindow->setWheelZoomEnabled(enabled);
 }
 
 /*!
@@ -124,9 +99,9 @@ void MessageManager::setWheelZoomEnabled(bool enabled)
     \sa writeFlashing()
     \sa writeDisrupting()
 */
-void MessageManager::writeSilently(const QString &message)
+void writeSilently(const QString &message)
 {
-    Core::write(message, Flag::Silent);
+    writeImpl(message, Flag::Silent);
 }
 
 /*!
@@ -141,9 +116,9 @@ void MessageManager::writeSilently(const QString &message)
     \sa writeSilently()
     \sa writeDisrupting()
 */
-void MessageManager::writeFlashing(const QString &message)
+void writeFlashing(const QString &message)
 {
-    Core::write(message, Flag::Flash);
+    writeImpl(message, Flag::Flash);
 }
 
 /*!
@@ -156,15 +131,15 @@ void MessageManager::writeFlashing(const QString &message)
     \sa writeSilently()
     \sa writeFlashing()
 */
-void MessageManager::writeDisrupting(const QString &message)
+void writeDisrupting(const QString &message)
 {
-    Core::write(message, Flag::Disrupt);
+    writeImpl(message, Flag::Disrupt);
 }
 
 /*!
     \overload writeSilently()
 */
-void MessageManager::writeSilently(const QStringList &messages)
+void writeSilently(const QStringList &messages)
 {
     writeSilently(messages.join('\n'));
 }
@@ -172,7 +147,7 @@ void MessageManager::writeSilently(const QStringList &messages)
 /*!
     \overload writeFlashing()
 */
-void MessageManager::writeFlashing(const QStringList &messages)
+void writeFlashing(const QStringList &messages)
 {
     writeFlashing(messages.join('\n'));
 }
@@ -180,9 +155,9 @@ void MessageManager::writeFlashing(const QStringList &messages)
 /*!
     \overload writeDisrupting()
 */
-void MessageManager::writeDisrupting(const QStringList &messages)
+void writeDisrupting(const QStringList &messages)
 {
     writeDisrupting(messages.join('\n'));
 }
 
-} // namespace Core
+} // namespace Core::MessageManager

@@ -68,7 +68,6 @@ QtcPlugin {
             "simpletypes.lua",
             "utils.lua",
             "widgets.lua",
-            "wizard.lua",
         ]
         qbs.install: true
         qbs.installDir: qtc.ide_data_path + "/lua/meta/"

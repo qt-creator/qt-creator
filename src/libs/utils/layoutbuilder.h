@@ -279,6 +279,11 @@ public:
     Label(const QString &text);
 
     void setText(const QString &);
+    void setTextFormat(Qt::TextFormat);
+    void setWordWrap(bool);
+    void setTextInteractionFlags(Qt::TextInteractionFlags);
+    void setOpenExternalLinks(bool);
+    void onLinkHovered(const std::function<void(const QString &)> &, QObject *guard);
 };
 
 class QTCREATOR_UTILS_EXPORT Group : public Widget
@@ -445,6 +450,26 @@ void doit(auto x, TextId, auto p) { x->setText(p); }
 class TitleId {};
 auto title(auto p) { return IdAndArg{TitleId{}, p}; }
 void doit(auto x, TitleId, auto p) { x->setTitle(p); }
+
+class TextFormatId {};
+auto textFormat(auto p) { return IdAndArg{TextFormatId{}, p}; }
+void doit(auto x, TextFormatId, auto p) { x->setTextFormat(p); }
+
+class WordWrapId {};
+auto wordWrap(auto p) { return IdAndArg{WordWrapId{}, p}; }
+void doit(auto x, WordWrapId, auto p) { x->setWordWrap(p); }
+
+class TextInteractionFlagId {};
+auto textInteractionFlags(auto p) { return IdAndArg{TextInteractionFlagId{}, p}; }
+void doit(auto x, TextInteractionFlagId, auto p) { x->setTextInteractionFlags(p); }
+
+class OpenExternalLinksId {};
+auto openExternalLinks(auto p) { return IdAndArg{OpenExternalLinksId{}, p}; }
+void doit(auto x, OpenExternalLinksId, auto p) { x->setOpenExternalLinks(p); }
+
+class OnLinkHoveredId {};
+auto onLinkHovered(auto p, QObject *guard) { return IdAndArg{OnLinkHoveredId{}, std::pair{p, guard}}; }
+void doit(auto x, OnLinkHoveredId, auto p) { x->onLinkHovered(p.first, p.second); }
 
 class GroupCheckerId {};
 auto groupChecker(auto p) { return IdAndArg{GroupCheckerId{}, p}; }

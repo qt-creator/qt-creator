@@ -62,7 +62,7 @@ Utils::OutputLineParser::Result LdParser::handleLine(const QString &line, Utils:
         if (match.hasMatch()) {
             handle = true;
             filePath = absoluteFilePath(Utils::FilePath::fromString(match.captured("file")));
-            addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, 0, match, "file");
+            addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, -1, -1, match, "file");
             currentTask().setFile(filePath);
         } else {
             handle = !lne.isEmpty() && lne.at(0).isSpace();
@@ -135,7 +135,7 @@ Utils::OutputLineParser::Result LdParser::handleLine(const QString &line, Utils:
         }
         if (hasKeyword || filePath.fileName().endsWith(".o")) {
             LinkSpecs linkSpecs;
-            addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineno, match, capIndex);
+            addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineno, -1, match, capIndex);
             createOrAmendTask(type, description, line, false, filePath, lineno, 0, linkSpecs);
             return {getStatus(), linkSpecs};
         }

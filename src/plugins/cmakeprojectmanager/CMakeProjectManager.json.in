@@ -15,7 +15,7 @@
     "Category" : "Build Systems",
     "Description" : "Automate the configuration of build systems with CMake",
     "LongDescription" : [
-        "CMake controls the software compilation process by using simple configuration files, called CMakeLists.txt files."
+        "CMake controls the software compilation process by using simple configuration files, called CMakeLists.txt files.",
         "You also need:",
             "- CMake",
         "Qt Online Installer installs a CMake version that you can use."

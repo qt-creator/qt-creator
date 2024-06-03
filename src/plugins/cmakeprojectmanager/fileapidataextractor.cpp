@@ -210,9 +210,11 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
                                       const FilePath &sourceDirectory,
                                       const FilePath &buildDirectory,
                                       bool relativeLibs,
-                                      const QSet<FilePath> &artifacts)
+                                      const QSet<FilePath> &sharedLibraryArtifacts)
 {
     const FilePath currentBuildDir = buildDirectory.resolvePath(t.buildDir);
+    const QSet<FilePath> sharedLibraryArtifactsPaths
+        = transform(sharedLibraryArtifacts, &FilePath::parentDir);
 
     CMakeBuildTarget ct;
     ct.title = t.name;
@@ -306,7 +308,6 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
                 if (f.role == "libraries")
                     tmp = tmp.parentDir();
 
-                std::optional<QString> dllName;
                 if (buildDir.osType() == OsTypeWindows && (f.role == "libraries")) {
                     const auto partAsFilePath = FilePath::fromUserInput(part);
                     part = partAsFilePath.fileName();
@@ -314,24 +315,6 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
                     // Skip object libraries on Windows. This case can happen with static qml plugins
                     if (part.endsWith(".obj") || part.endsWith(".o"))
                         continue;
-
-                    // Only consider dlls, not static libraries
-                    for (const QString &suffix :
-                         {QString(".lib"), QString(".dll.a"), QString(".a")}) {
-                        if (part.endsWith(suffix) && !dllName)
-                            dllName = part.chopped(suffix.length()).append(".dll");
-                    }
-
-                    // MinGW has libQt6Core.a -> Qt6Core.dll
-                    // but libFoo.dll.a was already handled above
-                    const QString mingwPrefix("lib");
-                    const QString mingwSuffix("a");
-                    const QString completeSuffix = partAsFilePath.completeSuffix();
-                    if (part.startsWith(mingwPrefix) && completeSuffix == mingwSuffix) {
-                        dllName = part.chopped(mingwSuffix.length() + 1/*the '.'*/)
-                                      .sliced(mingwPrefix.length())
-                                      .append(".dll");
-                    }
                 }
 
                 if (!tmp.isEmpty() && tmp.isDir()) {
@@ -345,18 +328,15 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
                                       {"/lib", "/lib64", "/usr/lib", "/usr/lib64", "/usr/local/lib"}))
                         librarySeachPaths.append(tmp);
 
-                    if (buildDir.osType() == OsTypeWindows && dllName) {
-                        const auto validPath = [&artifacts](const FilePath& path) {
-                            return path.exists() || artifacts.contains(path);
-                        };
-                        if (validPath(tmp.pathAppended(*dllName)))
+                    if (buildDir.osType() == OsTypeWindows) {
+                        if (sharedLibraryArtifactsPaths.contains(tmp))
                             librarySeachPaths.append(tmp);
 
                         // Libraries often have their import libs in ../lib and the
                         // actual dll files in ../bin on windows. Qt is one example of that.
                         if (tmp.fileName() == "lib") {
                             const FilePath path = tmp.parentDir().pathAppended("bin");
-                            if (path.isDir() && validPath(path.pathAppended(*dllName)))
+                            if (path.isDir())
                                 librarySeachPaths.append(path);
                         }
                     }
@@ -375,17 +355,19 @@ static QList<CMakeBuildTarget> generateBuildTargets(const QFuture<void> &cancelF
                                                     const FilePath &buildDirectory,
                                                     bool relativeLibs)
 {
-    QSet<FilePath> artifacts;
+    QSet<FilePath> sharedLibraryArtifacts;
     for (const TargetDetails &t : input.targetDetails)
-        for (const FilePath &p: t.artifacts)
-            artifacts.insert(buildDirectory.resolvePath(p));
+        if (t.type == "MODULE_LIBRARY" || t.type == "SHARED_LIBRARY")
+            for (const FilePath &p : t.artifacts)
+                sharedLibraryArtifacts.insert(buildDirectory.resolvePath(p));
 
     QList<CMakeBuildTarget> result;
     result.reserve(input.targetDetails.size());
     for (const TargetDetails &t : input.targetDetails) {
         if (cancelFuture.isCanceled())
             return {};
-        result.append(toBuildTarget(t, sourceDirectory, buildDirectory, relativeLibs, artifacts));
+        result.append(
+            toBuildTarget(t, sourceDirectory, buildDirectory, relativeLibs, sharedLibraryArtifacts));
     }
     return result;
 }

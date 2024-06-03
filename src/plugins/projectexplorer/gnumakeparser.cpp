@@ -103,7 +103,7 @@ OutputLineParser::Result GnuMakeParser::handleLine(const QString &line, OutputFo
         if (!m_suppressIssues) {
             const FilePath file = absoluteFilePath(FilePath::fromUserInput(match.captured(1)));
             const int lineNo = match.captured(4).toInt();
-            addLinkSpecForAbsoluteFilePath(linkSpecs, file, lineNo, match, 1);
+            addLinkSpecForAbsoluteFilePath(linkSpecs, file, lineNo, -1, match, 1);
             emitTask(BuildSystemTask(res.type, res.description, file, lineNo));
         }
         return {Status::Done, linkSpecs};

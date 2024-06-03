@@ -370,6 +370,7 @@ private:
             if (!link.hasValidTarget())
                 collectOperations(interface, result);
         };
+        NonInteractiveFollowSymbolMarker niMarker;
         CppModelManager::followSymbol(cursorInEditor, followSymbolFallback, false, false,
                                       FollowSymbolMode::Exact,
                                       CppModelManager::Backend::Builtin);

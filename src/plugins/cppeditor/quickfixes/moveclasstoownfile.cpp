@@ -294,6 +294,7 @@ private:
 
         // Force queued execution, as the built-in editor can run the callback synchronously.
         const auto followSymbol = [cursorInEditor, callback] {
+            NonInteractiveFollowSymbolMarker niMarker;
             CppModelManager::followSymbol(
                 cursorInEditor, callback, true, false, FollowSymbolMode::Exact);
         };

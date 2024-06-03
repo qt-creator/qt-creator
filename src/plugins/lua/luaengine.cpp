@@ -4,6 +4,7 @@
 #include "luaengine.h"
 
 #include "luapluginspec.h"
+#include "luatr.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -172,14 +173,6 @@ expected_str<void> LuaEngine::connectHooks(
     return {};
 }
 
-expected_str<void> LuaEngine::connectHooks(sol::state_view lua, const sol::table &hookTable)
-{
-    if (!hookTable)
-        return {};
-
-    return instance().connectHooks(lua, hookTable, "");
-}
-
 expected_str<LuaPluginSpec *> LuaEngine::loadPlugin(const Utils::FilePath &path)
 {
     auto contents = path.fileContents();
@@ -204,12 +197,16 @@ expected_str<LuaPluginSpec *> LuaEngine::loadPlugin(const Utils::FilePath &path)
     sol::table pluginInfo = result.get<sol::table>();
     if (!pluginInfo.valid())
         return make_unexpected(QString("Script did not return a table with plugin info"));
-    return LuaPluginSpec::create(path, std::move(lua), pluginInfo);
+    return LuaPluginSpec::create(path, pluginInfo);
 }
 
-expected_str<void> LuaEngine::prepareSetup(
-    sol::state_view &lua, const LuaPluginSpec &pluginSpec, sol::optional<sol::table> hookTable)
+expected_str<sol::protected_function> LuaEngine::prepareSetup(
+    sol::state_view lua, const LuaPluginSpec &pluginSpec)
 {
+    auto contents = pluginSpec.filePath().fileContents();
+    if (!contents)
+        return make_unexpected(contents.error());
+
     // TODO: Only open libraries requested by the plugin
     lua.open_libraries(
         sol::lib::base,
@@ -261,10 +258,29 @@ expected_str<void> LuaEngine::prepareSetup(
     for (const auto &func : d->m_autoProviders)
         func(lua);
 
-    if (hookTable)
-        return LuaEngine::connectHooks(lua, *hookTable);
+    sol::protected_function_result result = lua.safe_script(
+        std::string_view(contents->data(), contents->size()),
+        sol::script_pass_on_error,
+        pluginSpec.filePath().fileName().toUtf8().constData());
 
-    return {};
+    auto pluginTable = result.get<sol::optional<sol::table>>();
+    if (!pluginTable)
+        return make_unexpected(Tr::tr("Script did not return a table"));
+
+    auto hookTable = pluginTable->get<sol::optional<sol::table>>("hooks");
+
+    if (hookTable) {
+        auto connectResult = connectHooks(lua, *hookTable, {});
+        if (!connectResult)
+            return make_unexpected(connectResult.error());
+    }
+
+    auto setupFunction = pluginTable->get_or<sol::function>("setup", {});
+
+    if (!setupFunction)
+        return make_unexpected(Tr::tr("Plugin info table did not contain a setup function"));
+
+    return setupFunction;
 }
 
 bool LuaEngine::isCoroutine(lua_State *state)

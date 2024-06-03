@@ -57,7 +57,8 @@ OutputLineParser::Result XcodebuildParser::handleLine(const QString &line, Outpu
                                  absoluteFilePath(FilePath::fromString(
                                      lne.left(filePathEndPos))));
                 LinkSpecs linkSpecs;
-                addLinkSpecForAbsoluteFilePath(linkSpecs, task.file, task.line, 0, filePathEndPos);
+                addLinkSpecForAbsoluteFilePath(linkSpecs, task.file, task.line, task.column, 0,
+                                               filePathEndPos);
                 scheduleTask(task, 1);
                 return {Status::Done, linkSpecs};
             }

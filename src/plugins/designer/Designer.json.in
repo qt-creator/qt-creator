@@ -15,7 +15,7 @@
     "Category" : "Qt Creator",
     "Description" : "Design Qt-widgets based UIs",
     "LongDescription" : [
-        "Create widgets and forms that are integrated with Qt C++ code.",
+        "Create widgets and forms that are integrated with Qt C++ code."
     ],
     "Url" : "https://www.qt.io",
     ${DESIGNER_PLUGIN_ARGUMENTS}

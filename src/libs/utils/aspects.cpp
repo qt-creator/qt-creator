@@ -2681,22 +2681,26 @@ void StringListAspect::addToLayout(Layout &parent)
         }
     };
 
-    connect(add, &QPushButton::clicked, this, [this, populate, editor] {
-        d->undoable.setSilently(d->undoable.get() << "");
-        populate();
-        const QTreeWidgetItem *root = editor->invisibleRootItem();
-        QTreeWidgetItem *lastChild = root->child(root->childCount() - 1);
-        const QModelIndex index = editor->indexFromItem(lastChild, 0);
-        editor->edit(index);
-    });
+    if (add) {
+        connect(add, &QPushButton::clicked, this, [this, populate, editor] {
+            d->undoable.setSilently(d->undoable.get() << "");
+            populate();
+            const QTreeWidgetItem *root = editor->invisibleRootItem();
+            QTreeWidgetItem *lastChild = root->child(root->childCount() - 1);
+            const QModelIndex index = editor->indexFromItem(lastChild, 0);
+            editor->edit(index);
+        });
+    }
 
-    connect(remove, &QPushButton::clicked, this, [this, editor, itemsToStringList] {
-        const QList<QTreeWidgetItem *> selected = editor->selectedItems();
-        QTC_ASSERT(selected.size() == 1, return);
-        editor->invisibleRootItem()->removeChild(selected.first());
-        delete selected.first();
-        d->undoable.set(undoStack(), itemsToStringList());
-    });
+    if (remove) {
+        connect(remove, &QPushButton::clicked, this, [this, editor, itemsToStringList] {
+            const QList<QTreeWidgetItem *> selected = editor->selectedItems();
+            QTC_ASSERT(selected.size() == 1, return);
+            editor->invisibleRootItem()->removeChild(selected.first());
+            delete selected.first();
+            d->undoable.set(undoStack(), itemsToStringList());
+        });
+    }
 
     connect(
         &d->undoable.m_signal, &UndoSignaller::changed, editor, [this, populate, itemsToStringList] {

@@ -235,29 +235,34 @@ public:
 private:
     void perform() override
     {
-        const auto textDoc = const_cast<QTextDocument *>(currentFile()->document());
-        const int pos = currentFile()->cppDocument()->translationUnit()->getTokenPositionInDocument(
+        const CppRefactoringFilePtr file = currentFile();
+        const auto textDoc = const_cast<QTextDocument *>(file->document());
+        const int pos = file->cppDocument()->translationUnit()->getTokenPositionInDocument(
             m_symbol->sourceLocation(), textDoc);
         QTextCursor cursor(textDoc);
         cursor.setPosition(pos);
-        const CursorInEditor cursorInEditor(cursor, currentFile()->filePath(), editor(),
+        const CursorInEditor cursorInEditor(cursor, file->filePath(), editor(),
                                             editor()->textDocument());
-        const auto callback = [symbolLoc = m_symbol->toLink(), comments = m_commentTokens]
+        const auto callback = [symbolLoc = m_symbol->toLink(), comments = m_commentTokens, file]
             (const Link &link) {
-                moveComments(link, symbolLoc, comments);
+                moveComments(file, link, symbolLoc, comments);
             };
+        NonInteractiveFollowSymbolMarker niMarker;
+        CppCodeModelSettings::setInteractiveFollowSymbol(false);
         CppModelManager::followSymbol(cursorInEditor, callback, true, false,
                                       FollowSymbolMode::Exact);
     }
 
-    static void moveComments(const Link &targetLoc, const Link &symbolLoc,
-                             const QList<Token> &comments)
+    static void moveComments(
+        const CppRefactoringFilePtr &sourceFile,
+        const Link &targetLoc,
+        const Link &symbolLoc,
+        const QList<Token> &comments)
     {
         if (!targetLoc.hasValidTarget() || targetLoc.hasSameLocation(symbolLoc))
             return;
 
         CppRefactoringChanges changes(CppModelManager::snapshot());
-        const CppRefactoringFilePtr sourceFile = changes.cppFile(symbolLoc.targetFilePath);
         const CppRefactoringFilePtr targetFile
             = targetLoc.targetFilePath == symbolLoc.targetFilePath
                   ? sourceFile

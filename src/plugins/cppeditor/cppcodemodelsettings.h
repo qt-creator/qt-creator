@@ -55,6 +55,9 @@ public:
     static bool categorizeFindReferences();
     static void setCategorizeFindReferences(bool categorize);
 
+    static bool isInteractiveFollowSymbol();
+    static void setInteractiveFollowSymbol(bool interactive);
+
     QString ignorePattern;
     PCHUsage pchUsage = PchUse_BuildSystem;
     int indexerFileSizeLimitInMb = 5;
@@ -63,7 +66,10 @@ public:
     bool useBuiltinPreprocessor = true;
     bool ignoreFiles = false;
     bool enableIndexing = true;
-    bool m_categorizeFindReferences = false; // Ephemeral!
+
+    // Ephemeral!
+    bool m_categorizeFindReferences = false;
+    bool interactiveFollowSymbol = true;
 
 private:
     CppCodeModelSettings(Utils::QtcSettings *s) { fromSettings(s); }
@@ -76,6 +82,14 @@ private:
 namespace Internal {
 void setupCppCodeModelSettingsPage();
 void setupCppCodeModelProjectSettingsPanel();
+
+class NonInteractiveFollowSymbolMarker
+{
+public:
+    NonInteractiveFollowSymbolMarker() { CppCodeModelSettings::setInteractiveFollowSymbol(false); }
+    ~NonInteractiveFollowSymbolMarker() { CppCodeModelSettings::setInteractiveFollowSymbol(true); }
+};
+
 } // namespace Internal
 
 } // namespace CppEditor

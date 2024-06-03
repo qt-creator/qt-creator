@@ -15,7 +15,7 @@
     ],
     "Description" : "Visualize CPU and Memory consumption for running applications",
     "LongDescription" : [
-        "Select an application to monitor its performance in real-time.",
+        "Select an application to monitor its performance in real-time."
     ],
     "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES}

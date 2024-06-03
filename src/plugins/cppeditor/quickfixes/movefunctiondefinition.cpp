@@ -86,10 +86,10 @@ public:
     };
 
     MoveFuncDefRefactoringHelper(CppQuickFixOperation *operation, MoveType type,
-                                 const FilePath &fromFile, const FilePath &toFile)
+                                 const FilePath &toFile)
         : m_operation(operation), m_type(type), m_changes(m_operation->snapshot())
     {
-        m_fromFile = m_changes.cppFile(fromFile);
+        m_fromFile = operation->currentFile();
         m_toFile = (m_type == MoveOutside) ? m_fromFile : m_changes.cppFile(toFile);
     }
 
@@ -159,19 +159,18 @@ public:
         , m_funcDef(funcDef)
         , m_type(type)
         , m_cppFilePath(cppFilePath)
-        , m_headerFilePath(funcDef->symbol->filePath())
     {
         if (m_type == MoveFuncDefRefactoringHelper::MoveOutside) {
             setDescription(Tr::tr("Move Definition Outside Class"));
         } else {
-            const FilePath resolved = m_cppFilePath.relativePathFrom(m_headerFilePath.parentDir());
+            const FilePath resolved = m_cppFilePath.relativePathFrom(filePath().parentDir());
             setDescription(Tr::tr("Move Definition to %1").arg(resolved.displayName()));
         }
     }
 
     void perform() override
     {
-        MoveFuncDefRefactoringHelper helper(this, m_type, m_headerFilePath, m_cppFilePath);
+        MoveFuncDefRefactoringHelper helper(this, m_type, m_cppFilePath);
         helper.performMove(m_funcDef);
         helper.applyChanges();
     }
@@ -180,7 +179,6 @@ private:
     FunctionDefinitionAST *m_funcDef;
     MoveFuncDefRefactoringHelper::MoveType m_type;
     const FilePath m_cppFilePath;
-    const FilePath m_headerFilePath;
 };
 
 class MoveAllFuncDefOutsideOp : public CppQuickFixOperation
@@ -193,12 +191,11 @@ public:
         , m_type(type)
         , m_classDef(classDef)
         , m_cppFilePath(cppFileName)
-        , m_headerFilePath(classDef->symbol->filePath())
     {
         if (m_type == MoveFuncDefRefactoringHelper::MoveOutside) {
             setDescription(Tr::tr("Definitions Outside Class"));
         } else {
-            const FilePath resolved = m_cppFilePath.relativePathFrom(m_headerFilePath.parentDir());
+            const FilePath resolved = m_cppFilePath.relativePathFrom(filePath().parentDir());
             setDescription(Tr::tr("Move All Function Definitions to %1")
                                .arg(resolved.displayName()));
         }
@@ -206,7 +203,7 @@ public:
 
     void perform() override
     {
-        MoveFuncDefRefactoringHelper helper(this, m_type, m_headerFilePath, m_cppFilePath);
+        MoveFuncDefRefactoringHelper helper(this, m_type, m_cppFilePath);
         for (DeclarationListAST *it = m_classDef->member_specifier_list; it; it = it->next) {
             if (FunctionDefinitionAST *funcAST = it->value->asFunctionDefinition()) {
                 if (funcAST->symbol && !funcAST->symbol->isGenerated())
@@ -220,7 +217,6 @@ private:
     MoveFuncDefRefactoringHelper::MoveType m_type;
     ClassSpecifierAST *m_classDef;
     const FilePath m_cppFilePath;
-    const FilePath m_headerFilePath;
 };
 
 class MoveFuncDefToDeclOp : public CppQuickFixOperation

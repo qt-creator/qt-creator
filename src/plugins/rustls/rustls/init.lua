@@ -8,6 +8,7 @@ local S = require('Settings')
 local Gui = require('Gui')
 local a = require('async')
 local fetch = require('Fetch').fetch
+local Install = require('Install')
 
 Settings = {}
 
@@ -39,7 +40,6 @@ local function installOrUpdateServer()
     if r.prerelease then
       r = data[2]
     end
-    Install = require('Install')
     local lspPkgInfo = Install.packageInfo("rust-analyzer")
     if not lspPkgInfo or lspPkgInfo.version ~= r.tag_name then
       local osTr = { mac = "apple-darwin", windows = "pc-windows-msvc", linux = "unknown-linux-gnu" }
@@ -80,7 +80,7 @@ local function installOrUpdateServer()
       binary = "rust-analyzer.exe"
     end
 
-    Settings.binary.defaultPath = lspPkgInfo.path:resolvePath(binary)
+    Settings.binary:setValue(lspPkgInfo.path:resolvePath(binary))
     Settings:apply()
     return
   end
@@ -130,8 +130,8 @@ local function layoutSettings()
     Settings.binary, br,
     Row {
       PushButton {
-        text("Try to install Rust language server"),
-        onClicked(function() a.sync(installOrUpdateServer)() end),
+        text = "Try to install Rust language server",
+        onClicked = function() a.sync(installOrUpdateServer)() end,
         br,
       },
       st
@@ -141,6 +141,36 @@ local function layoutSettings()
   return layout
 end
 
+local function binaryFromPkg()
+  local lspPkgInfo = Install.packageInfo("rust-analyzer")
+  if lspPkgInfo then
+    local binary = "rust-analyzer"
+    if Utils.HostOsInfo.isWindowsHost() then
+      binary = "rust-analyzer.exe"
+    end
+    local binaryPath = lspPkgInfo.path:resolvePath(binary)
+    if binaryPath:isExecutableFile() == true then
+      return binaryPath
+    end
+  end
+
+  return nil
+end
+
+local function findBinary()
+  local binary = binaryFromPkg()
+  if binary then
+    return binary
+  end
+
+  -- Search for the binary in the PATH
+  local serverPath = Utils.FilePath.fromUserInput("rust-analyzer")
+  local absolute = a.wait(serverPath:searchInPath()):resolveSymlinks()
+  if absolute:isExecutableFile() == true then
+    return absolute
+  end
+  return serverPath
+end
 local function setupAspect()
   ---@class Settings: AspectContainer
   Settings = S.AspectContainer.create({
@@ -154,14 +184,8 @@ local function setupAspect()
     labelText = "Binary:",
     toolTip = "The path to the rust analyzer binary.",
     expectedKind = S.Kind.ExistingCommand,
-    defaultPath = Utils.FilePath.fromUserInput("rust-analyzer"),
+    defaultPath = findBinary(),
   })
-  -- Search for the binary in the PATH
-  local serverPath = Settings.binary.defaultPath
-  local absolute = a.wait(serverPath:searchInPath()):resolveSymlinks()
-  if absolute:isExecutableFile() == true then
-    Settings.binary.defaultPath = absolute
-  end
 
   return Settings
 end

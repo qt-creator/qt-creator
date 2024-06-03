@@ -39,7 +39,7 @@ NimParser::Result NimParser::handleLine(const QString &lne, OutputFormat)
     const CompileTask t(type, message, absoluteFilePath(FilePath::fromUserInput(filename)),
                         lineNumber);
     LinkSpecs linkSpecs;
-    addLinkSpecForAbsoluteFilePath(linkSpecs, t.file, t.line, match, 1);
+    addLinkSpecForAbsoluteFilePath(linkSpecs, t.file, t.line, t.column, match, 1);
     scheduleTask(t, 1);
     return {Status::Done, linkSpecs};
 }

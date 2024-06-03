@@ -30,7 +30,7 @@ MercurialSettings::MercurialSettings()
     binaryPath.setExpectedKind(PathChooser::ExistingCommand);
     binaryPath.setDefaultValue(Constants::MERCURIALDEFAULT);
     binaryPath.setDisplayName(Tr::tr("Mercurial Command"));
-    binaryPath.setHistoryCompleter("Bazaar.Command.History");
+    binaryPath.setHistoryCompleter("Mercurial.Command.History");
     binaryPath.setLabelText(Tr::tr("Command:"));
 
     userName.setDisplayStyle(StringAspect::LineEditDisplay);

@@ -3,9 +3,6 @@
 
 #include "extensionsmodel.h"
 
-#include "extensionsbrowser.h"
-
-#include "extensionmanagertr.h"
 #include "utils/algorithm.h"
 
 #include <coreplugin/coreconstants.h>
@@ -30,16 +27,16 @@ namespace ExtensionManager::Internal {
 
 Q_LOGGING_CATEGORY(modelLog, "qtc.extensionmanager.model", QtWarningMsg)
 
-struct PluginDependency
+struct Dependency
 {
     QString name;
     QString version;
 };
-using PluginDependencies = QList<PluginDependency>;
+using Dependencies = QList<Dependency>;
 
 struct Plugin
 {
-    PluginDependencies dependencies;
+    Dependencies dependencies;
     QString copyright;
     QString name;
     QString packageUrl;
@@ -74,10 +71,10 @@ static Plugin pluginFromJson(const QJsonObject &obj)
     const QJsonObject metaDataObj = obj.value("meta_data").toObject();
 
     const QJsonArray dependenciesArray = metaDataObj.value("Dependencies").toArray();
-    PluginDependencies dependencies;
+    Dependencies dependencies;
     for (const QJsonValueConstRef &dependencyVal : dependenciesArray) {
         const QJsonObject dependencyObj = dependencyVal.toObject();
-        dependencies.append(PluginDependency{
+        dependencies.append(Dependency{
             .name = dependencyObj.value("Name").toString(),
             .version = dependencyObj.value("Version").toString(),
         });
@@ -189,18 +186,11 @@ static Extensions parseExtensionsRepoReply(const QByteArray &jsonData)
     return parsedExtensions;
 }
 
-class ExtensionsModelPrivate : public QObject
+class ExtensionsModelPrivate
 {
 public:
-    ExtensionsModelPrivate(ExtensionsModel *parent)
-        : q(parent)
-    {
-    }
-
     void setExtensions(const Extensions &extensions);
     void removeLocalExtensions();
-
-    ExtensionsModel *q;
 
     Extensions allExtensions; // Original, complete extensions entries
     Extensions absentExtensions; // All packs + plugin extensions that are not (yet) installed
@@ -224,7 +214,7 @@ void ExtensionsModelPrivate::removeLocalExtensions()
 
 ExtensionsModel::ExtensionsModel(QObject *parent)
     : QAbstractListModel(parent)
-    , d(new ExtensionsModelPrivate(this))
+    , d(new ExtensionsModelPrivate)
 {
 }
 
@@ -250,7 +240,7 @@ static QVariant dataFromPluginSpec(const PluginSpec *pluginSpec, int role)
         return pluginSpec->copyright();
     case RoleDependencies: {
         QStringList dependencies = transform(pluginSpec->dependencies(),
-                                             &ExtensionSystem::PluginDependency::toString);
+                                             &PluginDependency::toString);
         dependencies.sort();
         return dependencies;
     }
@@ -301,7 +291,7 @@ static QStringList dependenciesFromExtension(const Extension &extension)
 {
     QStringList dependencies;
     for (const Plugin &plugin : extension.plugins) {
-        for (const PluginDependency &dependency : plugin.dependencies) {
+        for (const Dependency &dependency : plugin.dependencies) {
             const QString withVersion = QString::fromLatin1("%1 (%2)").arg(dependency.name)
                                             .arg(dependency.version);
             dependencies.append(withVersion);
@@ -404,8 +394,7 @@ void ExtensionsModel::setExtensionsJson(const QByteArray &json)
 
 PluginSpec *ExtensionsModel::pluginSpecForName(const QString &pluginName)
 {
-    return Utils::findOrDefault(PluginManager::plugins(),
-                                Utils::equal(&PluginSpec::name, pluginName));
+    return findOrDefault(PluginManager::plugins(), equal(&PluginSpec::name, pluginName));
 }
 
 } // ExtensionManager::Internal

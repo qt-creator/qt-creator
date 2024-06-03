@@ -65,7 +65,7 @@ OutputLineParser::Result ClangParser::handleLine(const QString &line, OutputForm
         const int lineNo = match.captured(3).toInt();
         const int column = 0;
         LinkSpecs linkSpecs;
-        addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, match, 2);
+        addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, column, match, 2);
         createOrAmendTask(Task::Unknown, lne.trimmed(), lne, false,
                           filePath, lineNo, column, linkSpecs);
         return {Status::InProgress, linkSpecs};
@@ -84,7 +84,7 @@ OutputLineParser::Result ClangParser::handleLine(const QString &line, OutputForm
 
         const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured(1)));
         LinkSpecs linkSpecs;
-        addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, match, 1);
+        addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, column, match, 1);
         createOrAmendTask(taskType(match.captured(8)), match.captured(9), lne, false,
                           filePath, lineNo, column, linkSpecs);
         return {Status::InProgress, linkSpecs};
@@ -235,7 +235,7 @@ void ProjectExplorerTest::testClangOutputParser_data()
                                    68, 10,
                                    QVector<QTextLayout::FormatRange>()
                                        << formatRange(34, 0)
-                                       << formatRange(34, 28, "olpfile:///usr/include/c++/4.6/utility::68::-1")
+                                       << formatRange(34, 28, "olpfile:///usr/include/c++/4.6/utility::68::10")
                                        << formatRange(62, 93)))
                 << QString();
 
@@ -255,7 +255,7 @@ void ProjectExplorerTest::testClangOutputParser_data()
                                    567, 51,
                                    QVector<QTextLayout::FormatRange>()
                                        << formatRange(74, 0)
-                                       << formatRange(74, 64, "olpfile:///home/code/src/creator/src/plugins/coreplugin/manhattanstyle.cpp::567::-1")
+                                       << formatRange(74, 64, "olpfile:///home/code/src/creator/src/plugins/coreplugin/manhattanstyle.cpp::567::51")
                                        << formatRange(138, 202)))
                 << QString();
 

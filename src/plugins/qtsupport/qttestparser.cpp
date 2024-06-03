@@ -44,8 +44,8 @@ OutputLineParser::Result QtTestParser::handleLine(const QString &line, OutputFor
         m_currentTask.file = absoluteFilePath(FilePath::fromString(
                     QDir::fromNativeSeparators(match.captured("file"))));
         m_currentTask.line = match.captured("line").toInt();
-        addLinkSpecForAbsoluteFilePath(linkSpecs, m_currentTask.file, m_currentTask.line, match,
-                                       "file");
+        addLinkSpecForAbsoluteFilePath(
+            linkSpecs, m_currentTask.file, m_currentTask.line, m_currentTask.column, match, "file");
         emitCurrentTask();
         return {Status::Done, linkSpecs};
     }

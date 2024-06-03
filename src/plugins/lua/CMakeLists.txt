@@ -39,10 +39,15 @@ add_qtc_plugin(Lua
     meta/simpletypes.lua
     meta/utils.lua
     meta/widgets.lua
-    meta/wizard.lua
     # generateqtbindings.cpp # Use this if you need to generate some code.
 )
 
+qt_add_resources(Lua lua_images_rcc
+  PREFIX "/lua"
+  FILES
+    images/settingscategory_lua.png
+    images/settingscategory_lua@2x.png
+)
 
 set_source_files_properties(luauibindings.cpp PROPERTY SKIP_AUTOMOC ON PROPERTY SKIP_AUTOGEN ON)
 
@@ -66,7 +71,6 @@ set(META_FILES
   meta/simpletypes.lua
   meta/utils.lua
   meta/widgets.lua
-  meta/wizard.lua
 )
 
 qtc_copy_to_builddir(copy_lua_meta_files

@@ -26,7 +26,6 @@
 #include <QAction>
 #include <QMainWindow>
 
-using namespace ExtensionSystem;
 using namespace Core;
 using namespace Utils;
 
@@ -45,7 +44,7 @@ public:
                           Theme::IconsBaseColor}});
         const Icon FLAT_ACTIVE({{":/extensionmanager/images/mode_extensionmanager_mask.png",
                                  Theme::IconsModeWelcomeActiveColor}});
-        setIcon(Utils::Icon::modeIcon(FLAT, FLAT, FLAT_ACTIVE));
+        setIcon(Icon::modeIcon(FLAT, FLAT, FLAT_ACTIVE));
         setPriority(72);
 
         using namespace Layouting;

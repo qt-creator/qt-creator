@@ -280,7 +280,7 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
         const LinksData linksData = current.data(RoleDescriptionLinks).value<LinksData>();
         if (!linksData.isEmpty()) {
             QString linksHtml;
-            const QStringList links = Utils::transform(linksData, [](const LinksData::Type &link) {
+            const QStringList links = transform(linksData, [](const LinksData::Type &link) {
                 const QString anchor = link.first.isEmpty() ? link.second : link.first;
                 return QString::fromLatin1("<a href=\"%1\">%2 &gt;</a>")
                     .arg(link.second).arg(anchor);
@@ -293,7 +293,7 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
         if (!imagesData.isEmpty()) {
             const QString examplesBoxCss =
                 QString::fromLatin1("height: 168px; background-color: %1; ")
-                    .arg(creatorTheme()->color(Theme::Token_Background_Default).name());
+                    .arg(creatorColor(Theme::Token_Background_Default).name());
             description.append(QString(R"(
                 <br/>
                 <div style="%1">%2</div>
@@ -362,8 +362,8 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
         if (!tags.isEmpty()) {
             const QString tagTemplate = QString(R"(
                 <td style="border: 1px solid %1; padding: 3px; ">%2</td>
-            )").arg(creatorTheme()->color(Theme::Token_Stroke_Subtle).name());
-            const QStringList tagsFmt = Utils::transform(tags, [&tagTemplate](const QString &tag) {
+            )").arg(creatorColor(Theme::Token_Stroke_Subtle).name());
+            const QStringList tagsFmt = transform(tags, [&tagTemplate](const QString &tag) {
                 return tagTemplate.arg(tag);
             });
             description.append(QString(R"(
@@ -397,8 +397,7 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
 
         if (isPack) {
             const PluginsData plugins = current.data(RolePlugins).value<PluginsData>();
-            const QStringList extensions = Utils::transform(plugins,
-                                                            &QPair<QString, QString>::first);
+            const QStringList extensions = transform(plugins, &QPair<QString, QString>::first);
             const QString extensionsFmt = extensions.join("<br/>");
             description.append(QString(R"(
                 <div style="%1">%2</div>
@@ -422,7 +421,7 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url)
         StorageStruct() {
             progressDialog.reset(new QProgressDialog(Tr::tr("Downloading Plugin..."),
                                                      Tr::tr("Cancel"), 0, 0,
-                                                     Core::ICore::dialogParent()));
+                                                     ICore::dialogParent()));
             progressDialog->setWindowModality(Qt::ApplicationModal);
             progressDialog->setFixedSize(progressDialog->sizeHint());
             progressDialog->setAutoClose(false);

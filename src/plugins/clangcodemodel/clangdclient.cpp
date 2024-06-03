@@ -349,7 +349,7 @@ public:
 
     ClangdClient * const q;
     const CppEditor::ClangdSettings::Data settings;
-    ClangdFollowSymbol *followSymbol = nullptr;
+    QList<ClangdFollowSymbol *> followSymbolOps;
     ClangdSwitchDeclDef *switchDeclDef = nullptr;
     ClangdFindLocalReferences *findLocalRefs = nullptr;
     std::optional<QVersionNumber> versionNumber;
@@ -501,8 +501,8 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
 
 ClangdClient::~ClangdClient()
 {
-    if (d->followSymbol)
-        d->followSymbol->clear();
+    for (ClangdFollowSymbol * const followSymbol : std::as_const(d->followSymbolOps))
+        followSymbol->clear();
     delete d;
 }
 
@@ -990,7 +990,7 @@ MessageId ClangdClient::requestSymbolInfo(const Utils::FilePath &filePath, const
 #ifdef WITH_TESTS
 ClangdFollowSymbol *ClangdClient::currentFollowSymbolOperation()
 {
-    return d->followSymbol;
+    return d->followSymbolOps.isEmpty() ? nullptr : d->followSymbolOps.first();
 }
 #endif
 
@@ -1005,8 +1005,20 @@ void ClangdClient::followSymbol(TextDocument *document,
 {
     QTC_ASSERT(documentOpen(document), openDocument(document));
 
-    if (d->followSymbol)
-        d->followSymbol->cancel();
+    const ClangdFollowSymbol::Origin origin
+        = CppEditor::CppCodeModelSettings::isInteractiveFollowSymbol()
+              ? ClangdFollowSymbol::Origin::User
+              : ClangdFollowSymbol::Origin::Code;
+    if (origin == ClangdFollowSymbol::Origin::User) {
+        for (auto it = d->followSymbolOps.begin(); it != d->followSymbolOps.end(); ) {
+            if ((*it)->isInteractive()) {
+                (*it)->cancel();
+                it = d->followSymbolOps.erase(it);
+            } else {
+                ++it;
+            }
+        }
+    }
 
     const QTextCursor adjustedCursor = d->adjustedCursor(cursor, document);
     if (followTo == FollowTo::SymbolDef && !resolveTarget) {
@@ -1020,14 +1032,13 @@ void ClangdClient::followSymbol(TextDocument *document,
 
     qCDebug(clangdLog) << "follow symbol requested" << document->filePath()
                        << adjustedCursor.blockNumber() << adjustedCursor.positionInBlock();
-    auto clangdFollowSymbol = new ClangdFollowSymbol(this, adjustedCursor, editorWidget, document,
-                                                     callback, followTo, openInSplit);
+    auto clangdFollowSymbol = new ClangdFollowSymbol(this, origin, adjustedCursor, editorWidget,
+                                                     document, callback, followTo, openInSplit);
     connect(clangdFollowSymbol, &ClangdFollowSymbol::done, this, [this, clangdFollowSymbol] {
         clangdFollowSymbol->deleteLater();
-        if (clangdFollowSymbol == d->followSymbol)
-            d->followSymbol = nullptr;
+        d->followSymbolOps.removeOne(clangdFollowSymbol);
     });
-    d->followSymbol = clangdFollowSymbol;
+    d->followSymbolOps << clangdFollowSymbol;
 }
 
 void ClangdClient::switchDeclDef(TextDocument *document, const QTextCursor &cursor,

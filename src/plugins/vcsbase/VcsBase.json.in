@@ -16,7 +16,7 @@
     "Description" : "Provides the technical basis for version control system (VCS) extensions",
     "LongDescription" : [
         "You also need:",
-            "- An extension for a VCS tool, such as Git, and the tool
+            "- An extension for a VCS tool, such as Git, and the tool"
     ],
     "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES}

@@ -55,14 +55,12 @@ public:
     static LuaEngine &instance();
 
     Utils::expected_str<LuaPluginSpec *> loadPlugin(const Utils::FilePath &path);
-    Utils::expected_str<void> prepareSetup(
-        sol::state_view &lua, const LuaPluginSpec &pluginSpec, sol::optional<sol::table> hookTable);
+    Utils::expected_str<sol::protected_function> prepareSetup(
+        sol::state_view lua, const LuaPluginSpec &pluginSpec);
 
     static void registerProvider(const QString &packageName, const PackageProvider &provider);
     static void autoRegister(const std::function<void(sol::state_view)> &registerFunction);
     static void registerHook(QString name, const std::function<void(sol::function)> &hookProvider);
-
-    static Utils::expected_str<void> connectHooks(sol::state_view lua, const sol::table &hookTable);
 
     static bool isCoroutine(lua_State *state);
 
