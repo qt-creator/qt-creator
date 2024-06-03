@@ -339,7 +339,7 @@ bool CvsPluginPrivate::isVcsFileOrDirectory(const Utils::FilePath &filePath) con
 
 bool CvsPluginPrivate::isConfigured() const
 {
-    const FilePath binary = settings().binaryPath();
+    const FilePath binary = settings().binaryPath.effectiveBinary();
     if (binary.isEmpty())
         return false;
     QFileInfo fi = binary.toFileInfo();

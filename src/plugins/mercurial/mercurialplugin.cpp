@@ -669,7 +669,7 @@ bool MercurialPluginPrivate::managesFile(const FilePath &workingDirectory, const
 
 bool MercurialPluginPrivate::isConfigured() const
 {
-    const FilePath binary = settings().binaryPath();
+    const FilePath binary = settings().binaryPath.effectiveBinary();
     if (binary.isEmpty())
         return false;
     QFileInfo fi = binary.toFileInfo();
