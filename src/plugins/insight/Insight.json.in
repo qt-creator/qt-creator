@@ -18,7 +18,7 @@
     "LongDescription" : [
         "Use Qt Insight with Qt Design Studio.",
         "You also need:",
-            "- Qt Insight",
+            "- Qt Insight"
     ],
     "DisabledByDefault" : true,
     "Url" : "https://www.qt.io",
