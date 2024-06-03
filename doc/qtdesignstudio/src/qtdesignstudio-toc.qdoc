@@ -119,6 +119,7 @@
         \li \l{Prototyping}
             \list
                 \li \l{Creating UI Logic}
+                \li \l{Effects}
                 \li \l{Simulating Complex Experiences}
                     \list
                         \li \l{Loading Placeholder Data}
