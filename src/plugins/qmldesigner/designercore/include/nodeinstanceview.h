@@ -134,13 +134,16 @@ public:
 
     void sendInputEvent(QEvent *e) const;
     void view3DAction(View3DActionType type, const QVariant &value) override;
-    void requestModelNodePreviewImage(const ModelNode &node, const ModelNode &renderNode) const;
+    void requestModelNodePreviewImage(const ModelNode &node,
+                                      const ModelNode &renderNode,
+                                      const QSize &size = {}) const;
     void edit3DViewResized(const QSize &size) const;
 
     void handlePuppetToCreatorCommand(const PuppetToCreatorCommand &command) override;
 
     QVariant previewImageDataForGenericNode(const ModelNode &modelNode,
-                                            const ModelNode &renderNode) const;
+                                            const ModelNode &renderNode,
+                                            const QSize &size = {}) const;
     QVariant previewImageDataForImageNode(const ModelNode &modelNode) const;
 
     void setCrashCallback(std::function<void()> crashCallback)

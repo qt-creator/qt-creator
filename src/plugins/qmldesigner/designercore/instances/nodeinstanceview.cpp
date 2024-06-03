@@ -1778,9 +1778,6 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
             auto node = modelNodeForInternalId(container.instanceId());
             if (node.isValid()) {
                 const double ratio = m_externalDependencies.formEditorDevicePixelRatio();
-                const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * ratio;
-                if (image.height() != dim || image.width() != dim)
-                    image = image.scaled(dim, dim, Qt::KeepAspectRatio);
                 image.setDevicePixelRatio(ratio);
                 updatePreviewImageForNode(node, image);
             }
@@ -1826,13 +1823,15 @@ void NodeInstanceView::view3DAction(View3DActionType type, const QVariant &value
 }
 
 void NodeInstanceView::requestModelNodePreviewImage(const ModelNode &node,
-                                                    const ModelNode &renderNode) const
+                                                    const ModelNode &renderNode,
+                                                    const QSize &size) const
 {
     if (m_nodeInstanceServer && node.isValid() && hasInstanceForModelNode(node)) {
         auto instance = instanceForModelNode(node);
         if (instance.isValid()) {
             qint32 renderItemId = -1;
             QString componentPath;
+            QSize imageSize;
             if (renderNode.isValid()) {
                 auto renderInstance = instanceForModelNode(renderNode);
                 if (renderInstance.isValid())
@@ -1842,11 +1841,17 @@ void NodeInstanceView::requestModelNodePreviewImage(const ModelNode &node,
             } else if (node.isComponent()) {
                 componentPath = ModelUtils::componentFilePath(node);
             }
-            const double ratio = m_externalDependencies.formEditorDevicePixelRatio();
-            const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * ratio;
-            m_nodeInstanceServer->requestModelNodePreviewImage(
-                        RequestModelNodePreviewImageCommand(instance.instanceId(), QSize(dim, dim),
-                                                            componentPath, renderItemId));
+
+            if (size.isValid()) {
+                imageSize = size;
+            } else {
+                const double ratio = m_externalDependencies.formEditorDevicePixelRatio();
+                const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * ratio;
+                imageSize = {dim, dim};
+            }
+
+            m_nodeInstanceServer->requestModelNodePreviewImage(RequestModelNodePreviewImageCommand(
+                instance.instanceId(), imageSize, componentPath, renderItemId));
         }
     }
 }
@@ -1991,7 +1996,8 @@ void NodeInstanceView::endNanotrace()
 }
 
 QVariant NodeInstanceView::previewImageDataForGenericNode(const ModelNode &modelNode,
-                                                          const ModelNode &renderNode) const
+                                                          const ModelNode &renderNode,
+                                                          const QSize &size) const
 {
     if (!modelNode.isValid())
         return {};
@@ -2006,9 +2012,15 @@ QVariant NodeInstanceView::previewImageDataForGenericNode(const ModelNode &model
     } else {
         imageData.type = QString::fromLatin1(createQualifiedTypeName(modelNode));
         imageData.id = id;
-        m_imageDataMap.insert(id, imageData);
+
+        // There might be multiple requests for different preview pixmap sizes.
+        // Here only the one with the default size is stored.
+        const double ratio = externalDependencies().formEditorDevicePixelRatio();
+        const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * ratio;
+        if (size.width() == dim && size.height() == dim)
+            m_imageDataMap.insert(id, imageData);
     }
-    requestModelNodePreviewImage(modelNode, renderNode);
+    requestModelNodePreviewImage(modelNode, renderNode, size);
 
     return modelNodePreviewImageDataToVariant(imageData);
 }
@@ -2028,7 +2040,6 @@ void NodeInstanceView::updateWatcher(const QString &path)
     QStringList oldDirs;
     QStringList newFiles;
     QStringList newDirs;
-    QStringList qsbFiles;
 
     const QString projPath = m_externalDependencies.currentProjectDirPath();
 

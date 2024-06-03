@@ -525,6 +525,15 @@ void MaterialEditorView::handlePreviewModelChanged(const QString &modelStr)
     emitCustomNotification("refresh_material_browser", {});
 }
 
+void MaterialEditorView::handlePreviewSizeChanged(const QSizeF &size)
+{
+    if (m_previewSize == size.toSize())
+        return;
+
+    m_previewSize = size.toSize();
+    requestPreviewRender();
+}
+
 void MaterialEditorView::setupQmlBackend()
 {
 #ifdef QDS_USE_PROJECTSTORAGE
@@ -851,7 +860,9 @@ void MaterialEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty
 void MaterialEditorView::requestPreviewRender()
 {
     if (model() && model()->nodeInstanceView() && m_selectedMaterial.isValid())
-        model()->nodeInstanceView()->previewImageDataForGenericNode(m_selectedMaterial, {});
+        model()->nodeInstanceView()->previewImageDataForGenericNode(m_selectedMaterial,
+                                                                    {},
+                                                                    m_previewSize);
 }
 
 bool MaterialEditorView::hasWidget() const
@@ -937,8 +948,13 @@ void MaterialEditorView::rootNodeTypeChanged(const QString &type, int, int)
 
 void MaterialEditorView::modelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap)
 {
-    if (node == m_selectedMaterial)
-        m_qmlBackEnd->updateMaterialPreview(pixmap);
+    if (node != m_selectedMaterial)
+        return;
+
+    if (m_previewSize.isValid() && pixmap.size() != m_previewSize)
+        return;
+
+    m_qmlBackEnd->updateMaterialPreview(pixmap);
 }
 
 void MaterialEditorView::importsChanged([[maybe_unused]] const Imports &addedImports,

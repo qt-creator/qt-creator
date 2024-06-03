@@ -844,6 +844,7 @@ extend_qtc_plugin(QmlDesigner
   SOURCES
     materialeditorcontextobject.cpp materialeditorcontextobject.h
     materialeditordynamicpropertiesproxymodel.cpp materialeditordynamicpropertiesproxymodel.h
+    materialeditorimageprovider.cpp materialeditorimageprovider.h
     materialeditorqmlbackend.cpp materialeditorqmlbackend.h
     materialeditortransaction.cpp materialeditortransaction.h
     materialeditorview.cpp materialeditorview.h

@@ -8,6 +8,7 @@
 
 #include <QHash>
 #include <QPointer>
+#include <QSize>
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
@@ -83,6 +84,7 @@ public slots:
     void handleToolBarAction(int action);
     void handlePreviewEnvChanged(const QString &envAndValue);
     void handlePreviewModelChanged(const QString &modelStr);
+    void handlePreviewSizeChanged(const QSizeF &size);
 
 protected:
     void timerEvent(QTimerEvent *event) override;
@@ -124,6 +126,7 @@ private:
     bool m_hasQuick3DImport = false;
     bool m_hasMaterialRoot = false;
     bool m_initializingPreviewData = false;
+    QSize m_previewSize;
 
     QPointer<QColorDialog> m_colorDialog;
     QPointer<ItemLibraryInfo> m_itemLibraryInfo;

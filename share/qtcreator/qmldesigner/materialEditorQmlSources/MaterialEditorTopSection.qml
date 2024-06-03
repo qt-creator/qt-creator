@@ -8,7 +8,7 @@ import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 
-Column {
+ColumnLayout {
     id: root
 
     property string previewEnv
@@ -18,7 +18,7 @@ Column {
 
     property StudioTheme.ControlStyle buttonStyle: StudioTheme.ViewBarButtonStyle {
         //This is how you can override stuff from the control styles
-        controlSize: Qt.size(previewOptions.width, previewOptions.width)
+        controlSize: Qt.size(optionsToolbar.height, optionsToolbar.height)
         baseIconFontSize: StudioTheme.Values.bigIconFontSize
     }
 
@@ -118,15 +118,15 @@ Column {
         }
     }
 
-    Item {
-        anchors.horizontalCenter: parent.horizontalCenter
-        width: parent.width
-        height: previewRect.height
+    Row {
+        id: optionsToolbar
 
+        Layout.preferredHeight: 40
+        Layout.fillWidth: true
+
+        leftPadding: root.__horizontalSpacing
         StudioControls.AbstractButton {
             id: pinButton
-
-            x: root.__horizontalSpacing
 
             style: root.buttonStyle
             iconSize: StudioTheme.Values.bigFont
@@ -136,56 +136,53 @@ Column {
             onCheckedChanged: itemPane.headerDocked = pinButton.checked
         }
 
-        Rectangle {
-            id: previewRect
-            anchors.horizontalCenter: parent.horizontalCenter
-            width: 152
-            height: 152
-            color: "#000000"
-
-            Image {
-                id: materialPreview
-                width: 150
-                height: 150
-                anchors.centerIn: parent
-                source: "image://materialEditor/preview"
-                cache: false
-                smooth: true
-            }
+        HelperWidgets.AbstractButton {
+            style: root.buttonStyle
+            buttonIcon: StudioTheme.Constants.textures_medium
+            tooltip: qsTr("Select preview environment.")
+            onClicked: envMenu.popup()
         }
 
-        Item {
-            id: previewOptions
-            width: 40
-            height: previewRect.height
-            anchors.top: previewRect.top
-            anchors.left: previewRect.right
-            anchors.leftMargin: root.__horizontalSpacing
+        HelperWidgets.AbstractButton {
+            style: root.buttonStyle
+            buttonIcon: StudioTheme.Constants.cube_medium
+            tooltip: qsTr("Select preview model.")
+            onClicked: modelMenu.popup()
+        }
+    }
 
-            Column {
-                anchors.horizontalCenter: parent.horizontalCenter
+    Rectangle {
+        id: previewRect
 
-                HelperWidgets.AbstractButton {
-                    style: root.buttonStyle
-                    buttonIcon: StudioTheme.Constants.textures_medium
-                    tooltip: qsTr("Select preview environment.")
-                    onClicked: envMenu.popup()
-                }
+        Layout.fillWidth: true
+        Layout.minimumWidth: 152
+        implicitHeight: materialPreview.height
 
-                HelperWidgets.AbstractButton {
-                    style: root.buttonStyle
-                    buttonIcon: StudioTheme.Constants.cube_medium
-                    tooltip: qsTr("Select preview model.")
-                    onClicked: modelMenu.popup()
-                }
-            }
+        clip: true
+        color: "#000000"
+
+        Image {
+            id: materialPreview
+
+            width: root.width
+            height: Math.min(materialPreview.width * 0.75, 400)
+            anchors.centerIn: parent
+
+            fillMode: Image.PreserveAspectFit
+
+            source: "image://materialEditor/preview"
+            cache: false
+            smooth: true
+
+            sourceSize.width: materialPreview.width
+            sourceSize.height: materialPreview.height
         }
     }
 
     HelperWidgets.Section {
         // Section with hidden header is used so properties are aligned with the other sections' properties
         hideHeader: true
-        width: parent.width
+        Layout.fillWidth: true
         collapsible: false
 
         HelperWidgets.SectionLayout {
