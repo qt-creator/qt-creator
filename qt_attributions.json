@@ -543,5 +543,19 @@
         "License": "BSD 3-Clause \"New\" or \"Revised\" License",
         "LicenseFile": "src/libs/3rdparty/qtkeychain/COPYING",
         "Copyright": "Copyright (C) 2011-2015 Frank Osterfeld, Copyright (C) 2016 Mathias Hasselmann"
+    },
+    {
+        "Id": "zlib",
+        "Name": "ZLib",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Used by ZipWriter/ZipReader to support compress and uncompress operations.",
+        "Path": "src/libs/3rdparty/zlib",
+        "Description": "Zlib is a lossless data-compression library.",
+        "Homepage": "https://www.zlib.net",
+        "Version": "1.3.1",
+        "License": "BSD 3-Clause \"New\" or \"Revised\" License",
+        "LicenseFile": "src/libs/3rdparty/zlib/LICENSE",
+        "Copyright": "Copyright (C) 1995-2024 Jean-loup Gailly and Mark Adler"
     }
 ]
