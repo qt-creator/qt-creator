@@ -336,7 +336,7 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
                         // actual dll files in ../bin on windows. Qt is one example of that.
                         if (tmp.fileName() == "lib") {
                             const FilePath path = tmp.parentDir().pathAppended("bin");
-                            if (path.isDir())
+                            if (path.isDir() && !isChildOf(path, {buildDir}))
                                 librarySeachPaths.append(path);
                         }
                     }
