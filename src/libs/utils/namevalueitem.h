@@ -16,7 +16,7 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT EnvironmentItem
 {
 public:
-    enum Operation : char { SetEnabled, Unset, Prepend, Append, SetDisabled };
+    enum Operation : char { SetEnabled, Unset, Prepend, Append, SetDisabled, Comment };
     EnvironmentItem() = default;
     EnvironmentItem(const QString &key, const QString &value, Operation operation = SetEnabled)
         : name(key)

@@ -363,7 +363,10 @@ void EnvironmentWidget::updateSummaryText()
         return;
     }
 
-    Utils::EnvironmentItems list = d->m_model->userChanges();
+    Utils::EnvironmentItems list
+            = Utils::filtered(d->m_model->userChanges(), [](const EnvironmentItem &it) {
+        return it.operation != Utils::EnvironmentItem::Comment;
+    });
     Utils::EnvironmentItem::sort(&list);
 
     QString text;
@@ -386,6 +389,8 @@ void EnvironmentWidget::updateSummaryText()
                 break;
             case Utils::EnvironmentItem::SetDisabled:
                 text.append(Tr::tr("Set <a href=\"%1\"><b>%1</b></a> to <b>%2</b> [disabled]").arg(item.name.toHtmlEscaped(), item.value.toHtmlEscaped()));
+                break;
+            case Utils::EnvironmentItem::Comment:
                 break;
             }
         }
