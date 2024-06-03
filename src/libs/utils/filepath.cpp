@@ -1230,6 +1230,9 @@ FilePathInfo FilePath::filePathInfo() const
 */
 bool FilePath::exists() const
 {
+    if (isEmpty())
+        return false;
+
     const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return false;
@@ -1242,6 +1245,9 @@ bool FilePath::exists() const
 */
 bool FilePath::isExecutableFile() const
 {
+    if (isEmpty())
+        return false;
+
     const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return false;
@@ -1254,6 +1260,9 @@ bool FilePath::isExecutableFile() const
 */
 bool FilePath::isWritableDir() const
 {
+    if (isEmpty())
+        return false;
+
     const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return false;
@@ -1266,6 +1275,9 @@ bool FilePath::isWritableDir() const
 */
 bool FilePath::isWritableFile() const
 {
+    if (isEmpty())
+        return false;
+
     const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return false;
@@ -1273,9 +1285,11 @@ bool FilePath::isWritableFile() const
     return (*access)->isWritableFile(*this);
 }
 
-
 bool FilePath::isReadableFile() const
 {
+    if (isEmpty())
+        return false;
+
     const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return false;
@@ -1285,6 +1299,9 @@ bool FilePath::isReadableFile() const
 
 bool FilePath::isReadableDir() const
 {
+    if (isEmpty())
+        return false;
+
     const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return false;
@@ -1294,6 +1311,9 @@ bool FilePath::isReadableDir() const
 
 bool FilePath::isFile() const
 {
+    if (isEmpty())
+        return false;
+
     const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return false;
@@ -1303,6 +1323,9 @@ bool FilePath::isFile() const
 
 bool FilePath::isDir() const
 {
+    if (isEmpty())
+        return false;
+
     const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return false;
@@ -1312,6 +1335,9 @@ bool FilePath::isDir() const
 
 bool FilePath::isSymLink() const
 {
+    if (isEmpty())
+        return false;
+
     const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return false;
