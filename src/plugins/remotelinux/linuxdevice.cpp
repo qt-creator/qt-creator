@@ -1231,25 +1231,20 @@ RunResult LinuxDevicePrivate::runInShell(const CommandLine &cmd, const QByteArra
 
 void LinuxDevicePrivate::announceConnectionAttempt()
 {
-    const auto announce = [id = announceId(), name = q->displayName()] {
-        Core::ICore::infoBar()->addInfo(
-            InfoBarEntry(id,
-                         Tr::tr("Establishing initial connection to device \"%1\". "
-                                "This might take a moment.")
-                             .arg(name)));
+    const QString message = Tr::tr("Establishing initial connection to device \"%1\". "
+                                   "This might take a moment.").arg(q->displayName());
+    qCDebug(linuxDeviceLog) << message;
+    if (isMainThread()) {
+        Core::ICore::infoBar()->addInfo(InfoBarEntry(announceId(), message));
         QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
         QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents); // Yes, twice.
-    };
-    if (QThread::currentThread() == qApp->thread())
-        announce();
-    else
-        QMetaObject::invokeMethod(Core::ICore::infoBar(), announce, Qt::BlockingQueuedConnection);
+    }
 }
 
 void LinuxDevicePrivate::unannounceConnectionAttempt()
 {
-    QMetaObject::invokeMethod(Core::ICore::infoBar(),
-                              [id = announceId()] { Core::ICore::infoBar()->removeInfo(id); });
+    if (isMainThread())
+        Core::ICore::infoBar()->removeInfo(announceId());
 }
 
 bool LinuxDevicePrivate::checkDisconnectedWithWarning()
