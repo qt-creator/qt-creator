@@ -140,12 +140,18 @@
 
     To connect to an Axivion dashboard server:
 
-    \list 1
-        \li Select \uicontrol Edit to create a connection to the Axivion
+    \list
+        \li Select \uicontrol Add to add a new connection to an Axivion
             dashboard server.
+        \li Select \uicontrol Edit to modify an existing connection to
+            an Axivion dashboard server.
             \image qtcreator-edit-dashboard-configuration.webp {Edit Dashboard Configuration dialog}
-        \li In \uicontrol {Dashboard URL}, enter the URL of the server.
-        \li In \uicontrol Username, enter the username to access the server.
+            \list
+                \li In \uicontrol {Dashboard URL}, enter the URL of the server.
+                \li In \uicontrol Username, enter the username to access the server.
+            \endlist
+        \li Select \uicontrol Remove to remove the current selected connection
+            to an Axivion dashboard server.
     \endlist
 
     The first time you access the server, you must enter the password that
@@ -173,6 +179,8 @@
         \li Go to \uicontrol Projects > \uicontrol {Project Settings} >
             \uicontrol Axivion.
             \image qtcreator-preferences-axivion-project.webp {Axivion settings in Project Settings}
+        \li From \uicontrol {Dashboard} select one of the configured Axivion
+            dashboard configurations.
         \li Select \uicontrol {Fetch Projects} to list projects from Axivion.
         \li Select a project, and then select \uicontrol {Link Project} to link
             to it.
