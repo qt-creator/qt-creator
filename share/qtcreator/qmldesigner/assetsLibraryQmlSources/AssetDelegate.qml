@@ -315,7 +315,7 @@ TreeViewDelegate {
         id: thumbnailImage
         visible: !root.__isDirectory
         y: StudioTheme.Values.border
-        x: root.depth * root.indentation + StudioTheme.Values.border
+        x: bg.x
         width: 48
         height: 48
         cache: false
