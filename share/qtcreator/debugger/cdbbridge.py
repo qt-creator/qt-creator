@@ -7,6 +7,7 @@ import sys
 import cdbext
 import re
 import threading
+import time
 from utils import TypeCode
 
 sys.path.insert(1, os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))))
@@ -421,6 +422,7 @@ class Dumper(DumperBase):
         return ptr
 
     def fetchVariables(self, args):
+        start_time = time.perf_counter()
         self.resetStats()
         (ok, res) = self.tryFetchInterpreterVariables(args)
         if ok:
@@ -458,6 +460,8 @@ class Dumper(DumperBase):
             self.put(',qtnamespace="%s"' % self.qtNamespaceToReport)
             self.qtNamespaceToReport = None
 
+        runtime = time.perf_counter() - start_time
+        self.put(',runtime="%s"' % runtime)
         self.reportResult(''.join(self.output), args)
         self.output = []
 
