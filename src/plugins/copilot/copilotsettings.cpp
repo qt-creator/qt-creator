@@ -37,6 +37,8 @@ CopilotSettings &settings()
     return settings;
 }
 
+static const QString entryPointFileName = QStringLiteral("language-server.js");
+
 CopilotSettings::CopilotSettings()
 {
     setAutoApply(false);
@@ -85,13 +87,16 @@ CopilotSettings::CopilotSettings()
     distPath.setExpectedKind(PathChooser::File);
     distPath.setDefaultPathValue(distFromVim);
     distPath.setSettingsKey("Copilot.DistPath");
-    distPath.setLabelText(Tr::tr("Path to agent.js:"));
+    //: %1 is the filename of the copilot language server
+    distPath.setLabelText(Tr::tr("Path to %1:").arg(entryPointFileName));
     distPath.setHistoryCompleter("Copilot.DistPath.History");
-    distPath.setDisplayName(Tr::tr("Agent.js path"));
-    //: %1 is the URL to copilot.vim getting started
-    distPath.setToolTip(Tr::tr("Select path to agent.js in Copilot Neovim plugin. See "
+    //: %1 is the filename of the copilot language server
+    distPath.setDisplayName(Tr::tr("%1 path").arg(entryPointFileName));
+    //: %1 is the URL to copilot.vim getting started, %2 is the filename of the copilot language server
+    distPath.setToolTip(Tr::tr("Select path to %2 in Copilot Neovim plugin. See "
                                "%1 for installation instructions.")
-                            .arg("https://github.com/github/copilot.vim#getting-started"));
+                            .arg("https://github.com/github/copilot.vim#getting-started")
+                            .arg(entryPointFileName));
 
     autoComplete.setDisplayName(Tr::tr("Auto Request"));
     autoComplete.setSettingsKey("Copilot.Autocomplete");
@@ -197,12 +202,13 @@ CopilotSettings::CopilotSettings()
             text(Tr::tr(
                 "The Copilot plugin requires node.js and the Copilot neovim plugin. "
                 "If you install the neovim plugin as described in %1, "
-                "the plugin will find the agent.js file automatically.\n\n"
+                "the plugin will find the %3 file automatically.\n\n"
                 "Otherwise you need to specify the path to the %2 "
                 "file from the Copilot neovim plugin.",
                 "Markdown text for the copilot instruction label")
                        .arg("[README.md](https://github.com/github/copilot.vim)")
-                       .arg("[language-server.js](https://github.com/github/copilot.vim/tree/release/dist)"))
+                       .arg("[language-server.js](https://github.com/github/copilot.vim/tree/release/dist)")
+                       .arg(entryPointFileName)),
         };
 
         return Column {
