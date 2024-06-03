@@ -367,9 +367,9 @@ void PropertyEditorView::setExpressionOnObjectNode(const QmlObjectNode &constObj
         }
     }
 
-    if (qmlObjectNode.expression(name) != expression
+    if (qmlObjectNode.expression(name) != newExpression
         || !qmlObjectNode.propertyAffectedByCurrentState(name))
-        qmlObjectNode.setBindingProperty(name, expression);
+        qmlObjectNode.setBindingProperty(name, newExpression);
 }
 
 void PropertyEditorView::generateAliasForProperty(const ModelNode &modelNode, const QString &name)
