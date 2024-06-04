@@ -938,6 +938,7 @@ Rectangle {
 
         environment: SceneEnvironment {
             id: sceneEnvironment
+            lightProbe: probeTexture
             antialiasingMode: SceneEnvironment.MSAA
             antialiasingQuality: SceneEnvironment.VeryHigh
         }
@@ -957,6 +958,11 @@ Rectangle {
 
             DirectionalLight {
                 rotation: viewCamera.rotation
+            }
+
+            Texture {
+                id: probeTexture
+                source: "qrc:/qtquickplugin/mockfiles/images/preview_studio.hdr"
             }
         }
     }
