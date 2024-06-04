@@ -25,7 +25,7 @@ public:
     int current() const { return m_current; }
     std::optional<DoneResult> result() const { return m_result; }
 
-signals:
+Q_SIGNALS:
     void done(DoneResult success);
 
 private:

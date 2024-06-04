@@ -5,8 +5,8 @@
 
 #include "tasking_global.h"
 
-#include <QObject>
-#include <QList>
+#include <QtCore/QList>
+#include <QtCore/QObject>
 
 #include <memory>
 
@@ -84,7 +84,7 @@ class TASKING_EXPORT TaskInterface : public QObject
 {
     Q_OBJECT
 
-signals:
+Q_SIGNALS:
     void done(DoneResult result);
 
 private:
@@ -345,7 +345,7 @@ private:
             std::invoke(handler);
             return SetupResult::Continue;
         };
-    };
+    }
     template <typename Handler>
     static GroupDoneHandler wrapGroupDone(Handler &&handler)
     {
@@ -368,7 +368,7 @@ private:
                 std::invoke(handler);
             return result == DoneWith::Success ? DoneResult::Success : DoneResult::Error;
         };
-    };
+    }
 };
 
 template <typename Handler>
@@ -433,7 +433,7 @@ private:
             std::invoke(handler);
             return SetupResult::StopWithSuccess;
         };
-    };
+    }
 };
 
 template <typename Task, typename Deleter = std::default_delete<Task>>
@@ -490,7 +490,7 @@ private:
             std::invoke(handler, *adapter.task());
             return SetupResult::Continue;
         };
-    };
+    }
 
     template <typename Handler>
     static InterfaceDoneHandler wrapDone(Handler &&handler) {
@@ -529,7 +529,7 @@ private:
                 std::invoke(handler);
             return result == DoneWith::Success ? DoneResult::Success : DoneResult::Error;
         };
-    };
+    }
 };
 
 class TASKING_EXPORT TaskTree final : public QObject
@@ -579,7 +579,7 @@ public:
                             wrapHandler<const StorageStruct>(std::forward<Handler>(handler)));
     }
 
-signals:
+Q_SIGNALS:
     void started();
     void done(DoneWith result);
     void asyncCountChanged(int count);

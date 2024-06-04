@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <qglobal.h>
+#include <QtCore/qglobal.h>
 
 #if defined(TASKING_LIBRARY)
 #  define TASKING_EXPORT Q_DECL_EXPORT

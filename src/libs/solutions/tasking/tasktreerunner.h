@@ -6,7 +6,7 @@
 #include "tasking_global.h"
 #include "tasktree.h"
 
-#include <QObject>
+#include <QtCore/QObject>
 
 namespace Tasking {
 
@@ -33,7 +33,7 @@ public:
     // No done() signal is emitted.
     void reset();
 
-signals:
+Q_SIGNALS:
     void aboutToStart(TaskTree *taskTree);
     void done(DoneWith result);
 

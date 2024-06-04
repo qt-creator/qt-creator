@@ -3,7 +3,7 @@
 
 #include "networkquery.h"
 
-#include <QNetworkAccessManager>
+#include <QtNetwork/QNetworkAccessManager>
 
 namespace Tasking {
 
