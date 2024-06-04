@@ -1444,6 +1444,7 @@ void SimpleTargetRunnerPrivate::start()
     else
         m_outputCodec = QTextCodec::codecForName("utf8");
 
+    m_process.setForceDefaultErrorModeOnWindows(true);
     m_process.start();
 }
 

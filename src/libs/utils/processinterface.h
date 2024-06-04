@@ -94,6 +94,7 @@ public:
     bool m_useCtrlCStub = false;
     bool m_belowNormalPriority = false; // internal, dependent on other fields and specific code path
     bool m_createConsoleOnWindows = false;
+    bool m_forceDefaultErrorMode = false;
 };
 
 class QTCREATOR_UTILS_EXPORT ProcessResultData

@@ -147,26 +147,15 @@ void DebuggerItem::reinitializeFromFile(QString *error, Utils::Environment *cust
 
     Environment env = customEnv ? *customEnv : m_command.deviceEnvironment();
 
-    // Prevent calling lldb on Windows because the lldb from the llvm package is linked against
-    // python but does not contain a python dll.
-    const bool isAndroidNdkLldb = DebuggerItem::addAndroidLldbPythonEnv(m_command, env);
-    const FilePath qtcreatorLldb = Core::ICore::lldbExecutable(CLANG_BINDIR);
-    if (HostOsInfo::isWindowsHost() && m_command.fileName().startsWith("lldb") && !isAndroidNdkLldb
-        && qtcreatorLldb != m_command) {
-        QString errorMessage;
-        m_version = winGetDLLVersion(WinDLLFileVersion,
-                                     m_command.absoluteFilePath().path(),
-                                     &errorMessage);
-        m_engineType = LldbEngineType;
-        m_abis = Abi::abisOfBinary(m_command);
-        return;
-    }
-
     // QNX gdb unconditionally checks whether the QNX_TARGET env variable is
     // set and bails otherwise, even when it is not used by the specific
     // codepath triggered by the --version and --configuration arguments. The
     // hack below tricks it into giving us the information we want.
     env.set("QNX_TARGET", QString());
+
+    // On Windows, we need to prevent the Windows Error Reporting dialog from
+    // popping up when a candidate is missing required DLLs.
+    WindowsCrashDialogBlocker blocker;
 
     Process proc;
     proc.setEnvironment(env);

@@ -187,6 +187,9 @@ public:
     void setCreateConsoleOnWindows(bool create);
     bool createConsoleOnWindows() const;
 
+    void setForceDefaultErrorModeOnWindows(bool force);
+    bool forceDefaultErrorModeOnWindows() const;
+
 signals:
     void starting(); // On NotRunning -> Starting state transition
     void started();  // On Starting -> Running state transition
