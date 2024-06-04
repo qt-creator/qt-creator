@@ -50,14 +50,44 @@ public:
     const T2 arg; // FIXME: Could be const &, but this would currently break bindTo().
 };
 
-template <typename T1, typename T2>
-struct Arg2 { const T1 p1; const T2 p2; };
+template<typename T1, typename T2>
+struct Arg2
+{
+    Arg2(const T1 &a1, const T2 &a2)
+        : p1(a1)
+        , p2(a2)
+    {}
+    const T1 p1;
+    const T2 p2;
+};
 
-template <typename T1, typename T2, typename T3>
-struct Arg3 { const T1 p1; const T2 p2; const T3 p3; };
+template<typename T1, typename T2, typename T3>
+struct Arg3
+{
+    Arg3(const T1 &a1, const T2 &a2, const T3 &a3)
+        : p1(a1)
+        , p2(a2)
+        , p3(a3)
+    {}
+    const T1 p1;
+    const T2 p2;
+    const T3 p3;
+};
 
-template <typename T1, typename T2, typename T3, typename T4>
-struct Arg4 { const T1 p1; const T2 p2; const T3 p3; const T4 p4; };
+template<typename T1, typename T2, typename T3, typename T4>
+struct Arg4
+{
+    Arg4(const T1 &a1, const T2 &a2, const T3 &a3, const T4 &a4)
+        : p1(a1)
+        , p2(a2)
+        , p3(a3)
+        , p4(a4)
+    {}
+    const T1 p1;
+    const T2 p2;
+    const T3 p3;
+    const T4 p4;
+};
 
 // The main dispatcher
 
@@ -460,7 +490,7 @@ void doit(Interface *x, IdId, auto p)
 
 #define QTCREATOR_SETTER3(name, setter) \
     class name##_TAG {}; \
-    inline auto name(auto p1, auto p2, auto p3) { return IdAndArg{name##_TAG{}, Arg4{p1, p2, p3}}; } \
+    inline auto name(auto p1, auto p2, auto p3) { return IdAndArg{name##_TAG{}, Arg3{p1, p2, p3}}; } \
     inline void doit(auto x, name##_TAG, auto p) { x->setter(p.p1, p.p2, p.p3); }
 
 #define QTCREATOR_SETTER4(name, setter) \
