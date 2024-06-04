@@ -34,6 +34,7 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/environmentaspectwidget.h>
 #include <projectexplorer/environmentwidget.h>
+#include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/namedwidget.h>
 #include <projectexplorer/processparameters.h>
@@ -1176,6 +1177,30 @@ static CommandLine defaultInitialCMakeCommand(
         }
     }
 
+    // GCC compiler and linker specific flags
+    for (Toolchain *tc : ToolchainKitAspect::toolChains(k)) {
+        if (auto *gccTc = tc->asGccToolchain()) {
+            const QStringList compilerFlags = gccTc->platformCodeGenFlags();
+
+            QString language;
+            if (gccTc->language() == ProjectExplorer::Constants::C_LANGUAGE_ID)
+                language = "C";
+            else if (gccTc->language() == ProjectExplorer::Constants::CXX_LANGUAGE_ID)
+                language = "CXX";
+
+            if (!language.isEmpty() && !compilerFlags.isEmpty())
+                cmd.addArg("-DCMAKE_" + language + "_FLAGS_INIT:STRING=" + compilerFlags.join(" "));
+
+            const QStringList linkerFlags = gccTc->platformLinkerFlags();
+            if (!linkerFlags.isEmpty()) {
+                const QString joinedLinkerFlags = linkerFlags.join(" ");
+                cmd.addArg("-DCMAKE_EXE_LINKER_FLAGS_INIT:STRING=" + joinedLinkerFlags);
+                cmd.addArg("-DCMAKE_MODULE_LINKER_FLAGS_INIT:STRING=" + joinedLinkerFlags);
+                cmd.addArg("-DCMAKE_SHARED_LINKER_FLAGS_INIT:STRING=" + joinedLinkerFlags);
+            }
+        }
+    }
+
     cmd.addArgs(CMakeConfigurationKitAspect::toArgumentsList(k));
     cmd.addArgs(CMakeConfigurationKitAspect::additionalConfiguration(k), CommandLine::Raw);
 
@@ -2163,9 +2188,20 @@ void InitialCMakeArgumentsAspect::setAllValues(const QString &values, QStringLis
     if (!cmakeGenerator.isEmpty())
         arguments.append(cmakeGenerator);
 
-    m_cmakeConfiguration = CMakeConfig::fromArguments(arguments, additionalOptions);
-    for (CMakeConfigItem &ci : m_cmakeConfiguration)
+    CMakeConfig config = CMakeConfig::fromArguments(arguments, additionalOptions);
+    // Join CMAKE_CXX_FLAGS_INIT values if more entries are present, or skip the same
+    // values like CMAKE_EXE_LINKER_FLAGS_INIT coming from both C and CXX compilers
+    QHash<QByteArray, CMakeConfigItem> uniqueConfig;
+    for (CMakeConfigItem &ci : config) {
         ci.isInitial = true;
+        if (uniqueConfig.contains(ci.key)) {
+            if (uniqueConfig[ci.key].value != ci.value)
+                uniqueConfig[ci.key].value = uniqueConfig[ci.key].value + " " + ci.value;
+        } else {
+            uniqueConfig.insert(ci.key, ci);
+        }
+    }
+    m_cmakeConfiguration = uniqueConfig.values();
 
     // Display the unknown arguments in "Additional CMake Options"
     const QString additionalOptionsValue = ProcessArgs::joinArgs(additionalOptions);
