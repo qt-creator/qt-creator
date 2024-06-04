@@ -366,7 +366,8 @@ Environment LinuxDevicePrivate::getEnvironment()
 
     Process getEnvProc;
     getEnvProc.setCommand(CommandLine{q->filePath("env")});
-    getEnvProc.runBlocking();
+    using namespace std::chrono;
+    getEnvProc.runBlocking(5s);
 
     const QString remoteOutput = getEnvProc.cleanedStdOut();
     m_environmentCache = Environment(remoteOutput.split('\n', Qt::SkipEmptyParts), q->osType());
