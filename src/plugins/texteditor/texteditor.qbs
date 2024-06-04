@@ -222,8 +222,6 @@ QtcPlugin {
             "snippetprovider.h",
             "snippetscollection.cpp",
             "snippetscollection.h",
-            "snippetssettings.cpp",
-            "snippetssettings.h",
             "snippetssettingspage.cpp",
             "snippetssettingspage.h",
         ]
