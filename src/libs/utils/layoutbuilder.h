@@ -41,13 +41,12 @@ namespace Layouting {
 
 class NestId {};
 
-template <typename T1, typename T2>
+template <typename Id, typename Arg>
 class IdAndArg
 {
 public:
-    IdAndArg(const T1 &id, const T2 &arg) : id(id), arg(arg) {}
-    const T1 id;
-    const T2 arg; // FIXME: Could be const &, but this would currently break bindTo().
+    IdAndArg(Id, const Arg &arg) : arg(arg) {}
+    const Arg arg; // FIXME: Could be const &, but this would currently break bindTo().
 };
 
 template<typename T1, typename T2>
@@ -107,7 +106,7 @@ public:
     template <typename Id, typename Arg>
     BuilderItem(IdAndArg<Id, Arg> && idarg)
     {
-        apply = [&idarg](X *x) { doit(x, idarg.id, idarg.arg); };
+        apply = [&idarg](X *x) { doit(x, Id{}, idarg.arg); };
     }
 
     std::function<void(X *)> apply;
