@@ -105,12 +105,24 @@ FilePath SettingsHandler::getPath(const Key &settingsKey,
 
 bool SettingsHandler::write(const Key &settingsKey,
                             const FilePath &path,
-                            const FilePath &defaultPath) const
+                            const FilePath &maybeDefaultPath) const
 {
     const FilePath savedPath = packagePathFromSettings(settingsKey,
                                                        *Core::ICore::settings(QSettings::UserScope),
-                                                       defaultPath);
+                                                       maybeDefaultPath);
     const Key key = Key(Constants::SETTINGS_GROUP) + '/' + Constants::SETTINGS_KEY_PACKAGE_PREFIX + settingsKey;
+
+    FilePath defaultPath = maybeDefaultPath;
+    if (path == maybeDefaultPath) {
+        // If the installer has overwritten the non-versioned key with an older version than the
+        // newest versioned key, and the user wants to manually return to the newest installed
+        // version, the defaultPath will match the desired path, and the settings object will
+        // assume it can simply remove the key instead of writing a new value to it.
+        // To work around this, pretend like the default value is the value found from the global scope
+        defaultPath = packagePathFromSettings(settingsKey,
+                                              *Core::ICore::settings(QSettings::SystemScope),
+                                              maybeDefaultPath);;
+    }
     Core::ICore::settings()->setValueWithDefault(key,
                                                  path.toUserOutput(),
                                                  defaultPath.toUserOutput());

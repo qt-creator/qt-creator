@@ -50,18 +50,22 @@ CopilotSettings::CopilotSettings()
         // Vim, Linux/macOS:
         FilePath::fromUserInput("~/.vim/pack/github/start/copilot.vim/dist/agent.js"),
         FilePath::fromUserInput("~/.vim/pack/github/start/copilot.vim/copilot/dist/agent.js"),
+        FilePath::fromUserInput("~/.vim/pack/github/start/copilot.vim/dist/language-server.js"),
 
         // Neovim, Linux/macOS:
         FilePath::fromUserInput("~/.config/nvim/pack/github/start/copilot.vim/dist/agent.js"),
         FilePath::fromUserInput("~/.config/nvim/pack/github/start/copilot.vim/copilot/dist/agent.js"),
+        FilePath::fromUserInput("~/.config/nvim/pack/github/start/copilot.vim/dist/language-server.js"),
 
         // Vim, Windows (PowerShell command):
         FilePath::fromUserInput("~/vimfiles/pack/github/start/copilot.vim/dist/agent.js"),
         FilePath::fromUserInput("~/vimfiles/pack/github/start/copilot.vim/copilot/dist/agent.js"),
+        FilePath::fromUserInput("~/vimfiles/pack/github/start/copilot.vim/dist/language-server.js"),
 
         // Neovim, Windows (PowerShell command):
         FilePath::fromUserInput("~/AppData/Local/nvim/pack/github/start/copilot.vim/dist/agent.js"),
-        FilePath::fromUserInput("~/AppData/Local/nvim/pack/github/start/copilot.vim/copilot/dist/agent.js")
+        FilePath::fromUserInput("~/AppData/Local/nvim/pack/github/start/copilot.vim/copilot/dist/agent.js"),
+        FilePath::fromUserInput("~/AppData/Local/nvim/pack/github/start/copilot.vim/dist/language-server.js")
     };
     // clang-format on
 
@@ -198,7 +202,7 @@ CopilotSettings::CopilotSettings()
                 "file from the Copilot neovim plugin.",
                 "Markdown text for the copilot instruction label")
                        .arg("[README.md](https://github.com/github/copilot.vim)")
-                       .arg("[agent.js](https://github.com/github/copilot.vim/tree/release/dist)"))
+                       .arg("[language-server.js](https://github.com/github/copilot.vim/tree/release/dist)"))
         };
 
         return Column {
