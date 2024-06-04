@@ -1349,6 +1349,14 @@ static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArgume
 
                 if (argFilePath != presetFilePath)
                     arg = presetItem.toArgument();
+            } else if (argItem.key == "CMAKE_CXX_FLAGS_INIT") {
+                // Append the preset value with at the initial parameters value (e.g. QML Debugging)
+                if (argItem.expandedValue(k) != QString::fromUtf8(presetItem.value)) {
+                    argItem.value.append(" ");
+                    argItem.value.append(presetItem.value);
+
+                    arg = argItem.toArgument();
+                }
             } else if (argItem.expandedValue(k) != QString::fromUtf8(presetItem.value)) {
                 arg = presetItem.toArgument();
             }
