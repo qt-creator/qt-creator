@@ -247,6 +247,10 @@ public:
         Token_Notification_Success,
         Token_Notification_Neutral,
         Token_Notification_Danger,
+        Token_Gradient01_Start,
+        Token_Gradient01_End,
+        Token_Gradient02_Start,
+        Token_Gradient02_End,
 
         /* Timeline Library */
         Timeline_TextColor,
