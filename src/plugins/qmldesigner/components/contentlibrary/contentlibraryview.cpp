@@ -381,7 +381,7 @@ void ContentLibraryView::customNotification(const AbstractView *view,
     } else if (identifier == "export_item_as_bundle") {
         exportLib3DItem(nodeList.first());
     } else if (identifier == "export_material_as_bundle") {
-        // TODO
+        exportLib3DItem(nodeList.first(), data.first().value<QPixmap>());
     }
 }
 
@@ -810,7 +810,7 @@ void ContentLibraryView::addLib3DItem(const ModelNode &node)
     m_widget->userModel()->add3DItem(name, qml, m_iconSavePath.toUrl(), depAssetsList);
 }
 
-void ContentLibraryView::exportLib3DItem(const ModelNode &node)
+void ContentLibraryView::exportLib3DItem(const ModelNode &node, const QPixmap &iconPixmap)
 {
     // prompt and get the exported bundle path
     QString defaultExportFileName = QLatin1String("%1.%2").arg(node.id(), Constants::BUNDLE_SUFFIX);
@@ -820,13 +820,15 @@ void ContentLibraryView::exportLib3DItem(const ModelNode &node)
                         .currentDesignDocument()->fileName().parentDir();
     }
 
-    QString exportPath = QFileDialog::getSaveFileName(m_widget, tr("Export Component"),
+    QString dialogTitle = node.metaInfo().isQtQuick3DMaterial() ? tr("Export Material")
+                                                                : tr("Export Component");
+    QString exportPath = QFileDialog::getSaveFileName(m_widget, dialogTitle,
                                 projectFP.pathAppended(defaultExportFileName).toFSPathString(),
                                 tr("Qt Design Studio Bundle Files (*.%1)").arg(Constants::BUNDLE_SUFFIX));
     if (exportPath.isEmpty())
         return;
 
-    // targetPath is a temp path for collectiong and zipping assets, actual export target is where
+    // targetPath is a temp path for collecting and zipping assets, actual export target is where
     // the user chose to export (i.e. exportPath)
     QTemporaryDir tempDir;
     QTC_ASSERT(tempDir.isValid(), return);
@@ -849,18 +851,7 @@ void ContentLibraryView::exportLib3DItem(const ModelNode &node)
     QTC_ASSERT_EXPECTED(result, return);
     m_zipWriter->addFile(qmlFilePath.fileName(), qmlString.toUtf8());
 
-    // generate and save icon
     QString iconPath = QLatin1String("icons/%1").arg(icon);
-    m_iconSavePath = targetPath.pathAppended(iconPath);
-    getImageFromCache(qmlFilePath.toFSPathString(), [&](const QImage &image) {
-        QByteArray iconByteArray;
-        QBuffer buffer(&iconByteArray);
-        buffer.open(QIODevice::WriteOnly);
-        image.save(&buffer, "PNG");
-
-        m_zipWriter->addFile("icons/" + m_iconSavePath.fileName(), iconByteArray);
-        m_zipWriter->close();
-    });
 
     // add the item to the bundle json
     QJsonObject jsonObj;
@@ -882,6 +873,23 @@ void ContentLibraryView::exportLib3DItem(const ModelNode &node)
         Utils::FilePath assetPathSource = DocumentManager::currentResourcePath().pathAppended(assetPath);
         m_zipWriter->addFile(assetPath, assetPathSource.fileContents().value_or(""));
     }
+
+    // add icon
+    auto addIconAndCloseZip = [&] (const auto &image) { // auto: QImage or QPixmap
+        QByteArray iconByteArray;
+        QBuffer buffer(&iconByteArray);
+        buffer.open(QIODevice::WriteOnly);
+        image.save(&buffer, "PNG");
+
+        m_zipWriter->addFile("icons/" + m_iconSavePath.fileName(), iconByteArray);
+        m_zipWriter->close();
+    };
+
+    m_iconSavePath = targetPath.pathAppended(iconPath);
+    if (iconPixmap.isNull())
+        getImageFromCache(qmlFilePath.toFSPathString(), addIconAndCloseZip);
+    else
+        addIconAndCloseZip(iconPixmap);
 }
 
 /**

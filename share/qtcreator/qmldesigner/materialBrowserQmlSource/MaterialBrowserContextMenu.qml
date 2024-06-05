@@ -135,12 +135,10 @@ StudioControls.Menu {
         onTriggered: MaterialBrowserBackend.rootView.addMaterialToContentLibrary()
     }
 
-    // TODO: implement
-    // StudioControls.MenuItem {
-    //     text: qsTr("Export material")
-    //     enabled: !materialBrowserModel.selectedMaterialIsComponent // TODO: support component materials
-    //     visible: false
+    StudioControls.MenuItem {
+        text: qsTr("Export Material")
+        enabled: !materialBrowserModel.selectedMaterialIsComponent // TODO: support component materials
 
-    //     onTriggered: MaterialBrowserBackend.rootView.exportMaterial()
-    // }
+        onTriggered: MaterialBrowserBackend.rootView.exportMaterial()
+    }
 }

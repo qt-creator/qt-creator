@@ -63,7 +63,7 @@ private:
     void addLibAssets(const QStringList &paths);
     void addLib3DComponent(const ModelNode &node);
     void addLib3DItem(const ModelNode &node);
-    void exportLib3DItem(const ModelNode &node);
+    void exportLib3DItem(const ModelNode &node, const QPixmap &iconPixmap = {});
     void getImageFromCache(const QString &qmlPath,
                            std::function<void(const QImage &image)> successCallback);
     QPair<QString, QSet<QString>> modelNodeToQmlString(const ModelNode &node, int depth = 0);
