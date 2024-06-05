@@ -1157,11 +1157,8 @@ QColor StereotypeDefinitionParser::parseColorExpression()
     Token token = d->m_scanner->read();
     if (token.type() == Token::TokenIdentifier || token.type() == Token::TokenColor) {
         QString value = token.text().toLower();
-        QColor color;
-        if (QColor::isValidColor(value)) {
-            color.setNamedColor(value);
-            return color;
-        }
+        if (QColor::isValidColorName(value))
+            return QColor::fromString(value);
     }
     throw StereotypeDefinitionParserError("Expected color name.", token.sourcePos());
 }
@@ -1191,9 +1188,8 @@ StereotypeDefinitionParser::Value StereotypeDefinitionParser::parseExpression()
         return Value(Float, QVariant(value));
     } else if (token.type() == Token::TokenColor) {
         QString value = token.text().toLower();
-        QColor color;
-        if (QColor::isValidColor(value)) {
-            color.setNamedColor(value);
+        if (QColor::isValidColorName(value)) {
+            const QColor color = QColor::fromString(value);
             return Value(Color, QVariant(color));
         } else {
             throw StereotypeDefinitionParserError("Invalid color.", token.sourcePos());
