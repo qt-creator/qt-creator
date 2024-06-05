@@ -1191,8 +1191,10 @@ void LinuxDevicePrivate::checkOsType()
 // Call me with shell mutex locked
 bool LinuxDevicePrivate::setupShell(const SshParameters &sshParameters, bool announce)
 {
-    if (m_handler->isRunning(sshParameters))
+    if (m_handler->isRunning(sshParameters)) {
+        setDisconnected(false);
         return true;
+    }
 
     invalidateEnvironmentCache();
 
