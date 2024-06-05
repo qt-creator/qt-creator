@@ -1189,3 +1189,16 @@ extend_qtc_plugin(qtquickplugin
       qtquickplugin.qrc
 )
 add_subdirectory(studioplugin)
+
+if (BUILD_DESIGNSTUDIO)
+    configure_file(
+        "${QtCreator_SOURCE_DIR}/dist/branding/qtdesignstudio/QtProject/QtDesignStudio.ini"
+        "${PROJECT_BINARY_DIR}/${IDE_DATA_PATH}/QtProject/${IDE_CASED_ID}.ini"
+        COPYONLY
+    )
+    install(FILES
+        ${QtCreator_SOURCE_DIR}/dist/branding/qtdesignstudio/QtProject/QtDesignStudio.ini
+        DESTINATION ${IDE_DATA_PATH}/QtProject
+        RENAME ${IDE_CASED_ID}.ini
+    )
+endif ()
