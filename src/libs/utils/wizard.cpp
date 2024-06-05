@@ -45,7 +45,9 @@ public:
         m_indicatorPixmap(indicatorPixmap)
     {
         m_indicatorLabel = new QLabel(this);
-        m_indicatorLabel->setFixedSize(m_indicatorPixmap.size());
+        const QSizeF indicatorSize = m_indicatorPixmap.deviceIndependentSize();
+        m_indicatorLabel->setFixedSize(
+            {qCeil(indicatorSize.width()), qCeil(indicatorSize.height())});
         m_titleLabel = new QLabel(title, this);
         auto l = new QHBoxLayout(this);
         l->setContentsMargins(0, 0, 0, 0);
