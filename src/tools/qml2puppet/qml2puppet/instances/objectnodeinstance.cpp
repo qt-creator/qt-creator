@@ -471,7 +471,7 @@ void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVar
 
 
     QVariant oldValue = property.read();
-    if (oldValue.typeId() == QVariant::Url) {
+    if (oldValue.typeId() == QMetaType::QUrl) {
         QUrl url = oldValue.toUrl();
         QString path = url.toLocalFile();
         if (QFileInfo::exists(path) && nodeInstanceServer() && !path.isEmpty())
@@ -488,7 +488,7 @@ void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVar
         qDebug() << "ObjectNodeInstance.setPropertyVariant: Cannot be written: " << object() << name << adjustedValue;
 
     QVariant newValue = property.read();
-    if (newValue.typeId() == QVariant::Url) {
+    if (newValue.typeId() == QMetaType::QUrl) {
         QUrl url = newValue.toUrl();
         QString path = url.toLocalFile();
         if (QFileInfo::exists(path) && nodeInstanceServer() && !path.isEmpty())
@@ -578,7 +578,7 @@ void ObjectNodeInstance::refreshProperty(const PropertyName &name)
     else
         property.write(resetValue(name));
 
-    if (oldValue.typeId() == QVariant::Url) {
+    if (oldValue.typeId() == QMetaType::QUrl) {
         QByteArray key = oldValue.toUrl().toEncoded(QUrl::UrlFormattingOption(0x100));
         QString pixmapKey = QString::fromUtf8(key.constData(), key.size());
         QPixmapCache::remove(pixmapKey);
@@ -623,7 +623,7 @@ QVariant ObjectNodeInstance::property(const PropertyName &name) const
         return QVariant::fromValue<Enumeration>(Enumeration(me.scope(), me.valueToKey(value.toInt())));
     }
 
-    if (property.propertyType() == QVariant::Url) {
+    if (property.propertyType() == QMetaType::QUrl) {
         QUrl url = property.read().toUrl();
         if (url.isEmpty())
             return QVariant();

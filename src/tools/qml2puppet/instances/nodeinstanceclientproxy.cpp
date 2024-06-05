@@ -541,34 +541,34 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
 {
     NANOTRACE_SCOPE_ARGS("Update", "dispatchCommand", {"name", command.typeName()});
 
-    static const int createInstancesCommandType = QMetaType::type("CreateInstancesCommand");
-    static const int update3dViewStateCommand = QMetaType::type("Update3dViewStateCommand");
-    static const int changeFileUrlCommandType = QMetaType::type("ChangeFileUrlCommand");
-    static const int createSceneCommandType = QMetaType::type("CreateSceneCommand");
-    static const int clearSceneCommandType = QMetaType::type("ClearSceneCommand");
-    static const int removeInstancesCommandType = QMetaType::type("RemoveInstancesCommand");
-    static const int removePropertiesCommandType = QMetaType::type("RemovePropertiesCommand");
-    static const int changeBindingsCommandType = QMetaType::type("ChangeBindingsCommand");
-    static const int changeValuesCommandType = QMetaType::type("ChangeValuesCommand");
-    static const int changeAuxiliaryCommandType = QMetaType::type("ChangeAuxiliaryCommand");
-    static const int reparentInstancesCommandType = QMetaType::type("ReparentInstancesCommand");
-    static const int changeIdsCommandType = QMetaType::type("ChangeIdsCommand");
-    static const int changeStateCommandType = QMetaType::type("ChangeStateCommand");
-    static const int completeComponentCommandType = QMetaType::type("CompleteComponentCommand");
-    static const int synchronizeCommandType = QMetaType::type("SynchronizeCommand");
-    static const int changeNodeSourceCommandType = QMetaType::type("ChangeNodeSourceCommand");
-    static const int removeSharedMemoryCommandType = QMetaType::type("RemoveSharedMemoryCommand");
-    static const int tokenCommandType = QMetaType::type("TokenCommand");
-    static const int endPuppetCommandType = QMetaType::type("EndPuppetCommand");
-    static const int changeSelectionCommandType = QMetaType::type("ChangeSelectionCommand");
-    static const int inputEventCommandType = QMetaType::type("InputEventCommand");
-    static const int view3DActionCommandType = QMetaType::type("View3DActionCommand");
-    static const int requestModelNodePreviewImageCommandType = QMetaType::type("RequestModelNodePreviewImageCommand");
-    static const int changeLanguageCommand = QMetaType::type("ChangeLanguageCommand");
-    static const int changePreviewImageSizeCommand = QMetaType::type(
-        "ChangePreviewImageSizeCommand");
-    static const int startNanotraceCommandType = QMetaType::type("StartNanotraceCommand");
-    static const int endNanotraceCommandType = QMetaType::type("EndNanotraceCommand");
+    static const int createInstancesCommandType = QMetaType::fromName("CreateInstancesCommand").id();
+    static const int update3dViewStateCommand = QMetaType::fromName("Update3dViewStateCommand").id();
+    static const int changeFileUrlCommandType = QMetaType::fromName("ChangeFileUrlCommand").id();
+    static const int createSceneCommandType = QMetaType::fromName("CreateSceneCommand").id();
+    static const int clearSceneCommandType = QMetaType::fromName("ClearSceneCommand").id();
+    static const int removeInstancesCommandType = QMetaType::fromName("RemoveInstancesCommand").id();
+    static const int removePropertiesCommandType = QMetaType::fromName("RemovePropertiesCommand").id();
+    static const int changeBindingsCommandType = QMetaType::fromName("ChangeBindingsCommand").id();
+    static const int changeValuesCommandType = QMetaType::fromName("ChangeValuesCommand").id();
+    static const int changeAuxiliaryCommandType = QMetaType::fromName("ChangeAuxiliaryCommand").id();
+    static const int reparentInstancesCommandType = QMetaType::fromName("ReparentInstancesCommand").id();
+    static const int changeIdsCommandType = QMetaType::fromName("ChangeIdsCommand").id();
+    static const int changeStateCommandType = QMetaType::fromName("ChangeStateCommand").id();
+    static const int completeComponentCommandType = QMetaType::fromName("CompleteComponentCommand").id();
+    static const int synchronizeCommandType = QMetaType::fromName("SynchronizeCommand").id();
+    static const int changeNodeSourceCommandType = QMetaType::fromName("ChangeNodeSourceCommand").id();
+    static const int removeSharedMemoryCommandType = QMetaType::fromName("RemoveSharedMemoryCommand").id();
+    static const int tokenCommandType = QMetaType::fromName("TokenCommand").id();
+    static const int endPuppetCommandType = QMetaType::fromName("EndPuppetCommand").id();
+    static const int changeSelectionCommandType = QMetaType::fromName("ChangeSelectionCommand").id();
+    static const int inputEventCommandType = QMetaType::fromName("InputEventCommand").id();
+    static const int view3DActionCommandType = QMetaType::fromName("View3DActionCommand").id();
+    static const int requestModelNodePreviewImageCommandType = QMetaType::fromName("RequestModelNodePreviewImageCommand").id();
+    static const int changeLanguageCommand = QMetaType::fromName("ChangeLanguageCommand").id();
+    static const int changePreviewImageSizeCommand = QMetaType::fromName(
+        "ChangePreviewImageSizeCommand").id();
+    static const int startNanotraceCommandType = QMetaType::fromName("StartNanotraceCommand").id();
+    static const int endNanotraceCommandType = QMetaType::fromName("EndNanotraceCommand").id();
 
     const int commandType = command.typeId();
 
