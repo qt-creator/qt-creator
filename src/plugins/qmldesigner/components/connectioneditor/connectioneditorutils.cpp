@@ -203,7 +203,7 @@ bool isBindingExpression(const QVariant &value)
     if (value.metaType().id() != QMetaType::QString)
         return false;
 
-    QRegularExpression regexp("^[a-z_]\\w*|^[A-Z]\\w*\\.{1}([a-z_]\\w*\\.?)+");
+    QRegularExpression regexp("^[a-zA-Z_]\\w*\\.{1}([a-z_]\\w*\\.?)+");
     QRegularExpressionMatch match = regexp.match(value.toString());
     return match.hasMatch();
 }
