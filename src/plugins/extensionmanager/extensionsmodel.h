@@ -30,6 +30,8 @@ enum Role {
     RoleDescriptionImages,
     RoleDescriptionLinks,
     RoleDescriptionText,
+    RoleDownloadCount,
+    RoleId,
     RoleItemType,
     RoleLicense,
     RoleLocation,
