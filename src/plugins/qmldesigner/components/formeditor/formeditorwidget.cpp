@@ -324,11 +324,6 @@ void FormEditorWidget::changeRootItemHeight(const QString &heighText)
     }
 }
 
-namespace {
-constexpr AuxiliaryDataKeyView formeditorColorProperty{AuxiliaryDataType::Temporary,
-                                                       "formeditorColor"};
-}
-
 void FormEditorWidget::changeBackgound(const QColor &color)
 {
     if (color.alpha() == 0) {
