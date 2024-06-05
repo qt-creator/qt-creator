@@ -796,6 +796,7 @@ static void restoreRecentProjects(QtcSettings *s)
                 {FilePath::fromUserInput(filePaths.at(i)), displayNames.at(i), exists});
         }
     }
+    dd->updateRecentProjectMenu();
     dd->checkRecentProjectsAsync();
 }
 
