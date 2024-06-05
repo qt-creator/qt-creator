@@ -377,9 +377,12 @@ void tst_Environment::pathChanges()
     else
         environment.appendOrSet(variable, value);
 
-    qDebug() << "Actual  :" << environment.toStringList();
-    qDebug() << "Expected:" << expected.toStringList();
-    QCOMPARE(environment, expected);
+    const bool envEqualsExpected = environment == expected;
+    if (!envEqualsExpected) {
+        qDebug() << "Actual  :" << environment.toStringList();
+        qDebug() << "Expected:" << expected.toStringList();
+    }
+    QVERIFY(envEqualsExpected);
 }
 
 void tst_Environment::find_data()
