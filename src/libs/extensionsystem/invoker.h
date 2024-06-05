@@ -38,7 +38,7 @@ private:
     InvokerBase(const InvokerBase &); // Unimplemented.
     template <class T> const char *typeName()
     {
-        return QMetaType::typeName(qMetaTypeId<T>());
+        return QMetaType(qMetaTypeId<T>()).name();
     }
     QObject *target;
     QGenericArgument arg[10];

@@ -184,7 +184,7 @@ void ModelTreeView::dragMoveEvent(QDragMoveEvent *event)
 {
     QTreeView::dragMoveEvent(event);
     bool accept = false;
-    QModelIndex dropIndex = indexAt(event->pos());
+    QModelIndex dropIndex = indexAt(event->position().toPoint());
     QModelIndex dropSourceModelIndex = m_sortedTreeModel->mapToSource(dropIndex);
     if (dropSourceModelIndex.isValid()) {
         TreeModel *treeModel = m_sortedTreeModel->treeModel();
@@ -215,7 +215,7 @@ void ModelTreeView::dropEvent(QDropEvent *event)
     bool accept = false;
     event->setDropAction(Qt::MoveAction);
     if (event->mimeData()->hasFormat("text/model-elements")) {
-        QModelIndex dropIndex = indexAt(event->pos());
+        QModelIndex dropIndex = indexAt(event->position().toPoint());
         QModelIndex dropSourceModelIndex = m_sortedTreeModel->mapToSource(dropIndex);
         if (dropSourceModelIndex.isValid()) {
             TreeModel *treeModel = m_sortedTreeModel->treeModel();

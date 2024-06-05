@@ -201,7 +201,7 @@ QVariant read(const QString &typeStr, const QString &str, const MetaInfo &)
 
 QVariant read(const QString &typeStr, const QString &str)
 {
-    int type = QMetaType::type(typeStr.toUtf8().constData());
+    int type = QMetaType::fromName(typeStr.toUtf8().constData()).id();
     if (type == 0) {
         if (typeStr != "binding"_L1 && typeStr != "enum"_L1) {
             qWarning() << "Type " << typeStr
@@ -270,15 +270,14 @@ QVariant read(int variantType, const QString &str)
             value = QVariant::fromValue<Enumeration>(enumerationFromString(str, &conversionOk));
         } else {
             value = QVariant(str);
-            value.convert(static_cast<QVariant::Type>(variantType));
+            value.convert(QMetaType(variantType));
         }
         break;
         }
     }
 
     if (!conversionOk) {
-        qWarning() << "Could not convert" << str
-                   << "to" << QMetaType::typeName(variantType);
+        qWarning() << "Could not convert" << str << "to" << QMetaType(variantType).name();
         value = QVariant(str);
     }
 

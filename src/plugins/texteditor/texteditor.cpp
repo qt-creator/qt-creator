@@ -9232,7 +9232,7 @@ void TextEditorWidget::dragLeaveEvent(QDragLeaveEvent *)
 void TextEditorWidget::dragMoveEvent(QDragMoveEvent *e)
 {
     const QRect rect = cursorRect(d->m_dndCursor);
-    d->m_dndCursor = cursorForPosition(e->pos());
+    d->m_dndCursor = cursorForPosition(e->position().toPoint());
     if (!rect.isNull())
         viewport()->update(rect);
     viewport()->update(cursorRect(d->m_dndCursor));
@@ -9250,7 +9250,7 @@ void TextEditorWidget::dropEvent(QDropEvent *e)
     // Update multi text cursor before inserting data
     MultiTextCursor cursor = multiTextCursor();
     cursor.beginEditBlock();
-    const QTextCursor eventCursor = cursorForPosition(e->pos());
+    const QTextCursor eventCursor = cursorForPosition(e->position().toPoint());
     if (e->dropAction() == Qt::MoveAction && e->source() == viewport())
         cursor.removeSelectedText();
     cursor.setCursors({eventCursor});
