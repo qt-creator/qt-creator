@@ -11,9 +11,7 @@ namespace UniqueName = QmlDesigner::UniqueName;
 
 TEST(UniqueName, generate_returns_same_input_if_predicate_returns_false)
 {
-    auto pred = [] (const QString &name) -> bool {
-        return false;
-    };
+    auto pred = [](const QString &) -> bool { return false; };
     QString name = "abc";
 
     QString uniqueName = UniqueName::generate(name, pred);
@@ -32,9 +30,7 @@ TEST(UniqueName, generateId_returns_properly_formatted_id_when_predicate_is_not_
 
 TEST(UniqueName, generateId_returns_properly_formatted_id)
 {
-    auto pred = [] (const QString &id) -> bool {
-        return false;
-    };
+    auto pred = [](const QString &) -> bool { return false; };
     QString id = "  A    bc   d _";
 
     QString uniqueId = UniqueName::generateId(id, pred);
@@ -57,9 +53,7 @@ TEST(UniqueName, generateId_returns_properly_formatted_unique_id_when_id_exists)
 
 TEST(UniqueName, generateId_properly_handles_dot_separated_words)
 {
-    auto pred = [&] (const QString &id) -> bool {
-        return false;
-    };
+    auto pred = [&](const QString &) -> bool { return false; };
     QString id = "Foo.bar*foo";
 
     QString uniqueId = UniqueName::generateId(id, pred);
@@ -69,9 +63,7 @@ TEST(UniqueName, generateId_properly_handles_dot_separated_words)
 
 TEST(UniqueName, generateId_prefixes_with_underscore_if_id_is_a_reserved_word)
 {
-    auto pred = [&] (const QString &id) -> bool {
-        return false;
-    };
+    auto pred = [&](const QString &) -> bool { return false; };
     QString id = "for";
 
     QString uniqueId = UniqueName::generateId(id, pred);
@@ -81,9 +73,7 @@ TEST(UniqueName, generateId_prefixes_with_underscore_if_id_is_a_reserved_word)
 
 TEST(UniqueName, generateId_prefixes_with_underscore_if_id_is_a_number)
 {
-    auto pred = [&] (const QString &id) -> bool {
-        return false;
-    };
+    auto pred = [&](const QString &) -> bool { return false; };
     QString id = "436";
 
     QString uniqueId = UniqueName::generateId(id, pred);
