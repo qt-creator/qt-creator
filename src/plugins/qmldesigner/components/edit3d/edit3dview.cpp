@@ -57,6 +57,19 @@ inline static QIcon toolbarIcon(const DesignerIcons::IconId &iconId)
     return DesignerActionManager::instance().toolbarIcon(iconId);
 };
 
+#ifdef Q_OS_MACOS
+extern "C" bool AXIsProcessTrusted();
+#endif
+
+static bool isAXITrusted()
+{
+#ifdef Q_OS_MACOS
+    return AXIsProcessTrusted();
+#else
+    return true;
+#endif
+}
+
 Edit3DView::Edit3DView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
 {
@@ -1315,17 +1328,16 @@ void Edit3DView::createEdit3DActions()
         m_cameraSpeedConfiguration->showConfigDialog(resolveToolbarPopupPos(m_cameraSpeedConfigAction.get()));
     };
 
-    m_cameraSpeedConfigAction = std::make_unique<Edit3DAction>(
+    m_cameraSpeedConfigAction = std::make_unique<Edit3DIndicatorButtonAction>(
         QmlDesigner::Constants::EDIT3D_CAMERA_SPEED_CONFIG,
         View3DActionType::Empty,
-        QCoreApplication::translate("CameraSpeedConfigAction", "Open camera speed configuration dialog"),
-        QKeySequence(),
-        false,
-        false,
+        QCoreApplication::translate("CameraSpeedConfigAction",
+                                    "Open camera speed configuration dialog"),
         toolbarIcon(DesignerIcons::CameraSpeedConfigIcon),
-        this,
-        cameraSpeedConfigTrigger);
+        cameraSpeedConfigTrigger,
+        this);
 
+    m_cameraSpeedConfigAction->setIndicator(!isAXITrusted());
 
     m_leftActions << m_selectionModeAction.get();
     m_leftActions << nullptr; // Null indicates separator

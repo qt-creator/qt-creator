@@ -3,9 +3,8 @@
 
 #include "edit3dactions.h"
 
-#include "bakelights.h"
 #include "edit3dview.h"
-#include "nodemetainfo.h"
+#include "indicatoractionwidget.h"
 #include "qmldesignerconstants.h"
 #include "seekerslider.h"
 
@@ -34,10 +33,25 @@ void Edit3DActionTemplate::actionTriggered(bool b)
         m_action(m_selectionContext);
 }
 
-Edit3DWidgetActionTemplate::Edit3DWidgetActionTemplate(QWidgetAction *widget)
+Edit3DWidgetActionTemplate::Edit3DWidgetActionTemplate(QWidgetAction *widget,
+                                                       SelectionContextOperation action)
     : PureActionInterface(widget)
+    , m_action(action)
 {
+    QObject::connect(widget, &QAction::triggered, widget, [this](bool value) {
+        actionTriggered(value);
+    });
+}
 
+void Edit3DWidgetActionTemplate::setSelectionContext(const SelectionContext &selectionContext)
+{
+    m_selectionContext = selectionContext;
+}
+
+void Edit3DWidgetActionTemplate::actionTriggered([[maybe_unused]] bool b)
+{
+    if (m_action)
+        m_action(m_selectionContext);
 }
 
 Edit3DAction::Edit3DAction(const QByteArray &menuId,
@@ -154,4 +168,34 @@ bool Edit3DBakeLightsAction::isEnabled(const SelectionContext &) const
             && !Utils3D::activeView3dId(m_view).isEmpty();
 }
 
+Edit3DIndicatorButtonAction::Edit3DIndicatorButtonAction(const QByteArray &menuId,
+                                                         View3DActionType type,
+                                                         const QString &description,
+                                                         const QIcon &icon,
+                                                         SelectionContextOperation customAction,
+                                                         Edit3DView *view)
+    : Edit3DAction(menuId,
+                   type,
+                   view,
+                   new Edit3DWidgetActionTemplate(new IndicatorButtonAction(description, icon),
+                                                  customAction))
+{
+    m_buttonAction = qobject_cast<IndicatorButtonAction *>(action());
 }
+
+void Edit3DIndicatorButtonAction::setIndicator(bool indicator)
+{
+    m_buttonAction->setIndicator(indicator);
+}
+
+bool Edit3DIndicatorButtonAction::isVisible(const SelectionContext &) const
+{
+    return m_buttonAction->isVisible();
+}
+
+bool Edit3DIndicatorButtonAction::isEnabled(const SelectionContext &) const
+{
+    return m_buttonAction->isEnabled();
+}
+
+} // namespace QmlDesigner

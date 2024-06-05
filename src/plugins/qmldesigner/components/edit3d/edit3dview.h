@@ -180,7 +180,7 @@ private:
     std::unique_ptr<Edit3DAction> m_backgroundColorMenuAction;
     std::unique_ptr<Edit3DAction> m_snapToggleAction;
     std::unique_ptr<Edit3DAction> m_snapConfigAction;
-    std::unique_ptr<Edit3DAction> m_cameraSpeedConfigAction;
+    std::unique_ptr<Edit3DIndicatorButtonAction> m_cameraSpeedConfigAction;
     std::unique_ptr<Edit3DBakeLightsAction> m_bakeLightsAction;
 
     int particlemode;
