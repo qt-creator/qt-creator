@@ -326,17 +326,12 @@ void FormEditorWidget::changeRootItemHeight(const QString &heighText)
 
 void FormEditorWidget::changeBackgound(const QColor &color)
 {
-    if (color.alpha() == 0) {
+    if (color.alpha() == 0)
         m_graphicsView->activateCheckboardBackground();
-        if (m_formEditorView->rootModelNode().hasAuxiliaryData(formeditorColorProperty)) {
-            m_formEditorView->rootModelNode().setAuxiliaryDataWithoutLock(formeditorColorProperty,
-                                                                          {});
-        }
-    } else {
+    else
         m_graphicsView->activateColoredBackground(color);
-        m_formEditorView->rootModelNode().setAuxiliaryDataWithoutLock(formeditorColorProperty,
-                                                                      color);
-    }
+
+    m_formEditorView->rootModelNode().setAuxiliaryDataWithoutLock(formeditorColorProperty, color);
 }
 
 void FormEditorWidget::registerActionAsCommand(
@@ -397,8 +392,12 @@ void FormEditorWidget::updateActions()
             m_backgroundAction->setColor(Qt::transparent);
         }
 
-        if (m_formEditorView->rootModelNode().hasAuxiliaryData(contextImageProperty))
+        if (m_formEditorView->rootModelNode().hasAuxiliaryData(contextImageProperty)) {
+            m_backgroundAction->setColorEnabled(BackgroundAction::ContextImage, true);
             m_backgroundAction->setColor(BackgroundAction::ContextImage);
+        } else {
+            m_backgroundAction->setColorEnabled(BackgroundAction::ContextImage, false);
+        }
 
     } else {
         m_rootWidthAction->clearLineEditText();

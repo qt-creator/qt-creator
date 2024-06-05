@@ -65,6 +65,8 @@ Item {
 
     property int internalNodeId
 
+    property color backgroundColor: "transparent"
+
     signal focusSignal
     signal defaultClicked
     signal clone
@@ -241,7 +243,7 @@ Item {
                            (stateBackground.innerHeight - thumbnailImage.paintedHeight) / 2) - StudioTheme.Values.border
                     width: Math.round(thumbnailImage.paintedWidth) + 2 * StudioTheme.Values.border
                     height: Math.round(thumbnailImage.paintedHeight) + 2 * StudioTheme.Values.border
-                    color: "transparent"
+                    color: root.backgroundColor
                     border.width: StudioTheme.Values.border
                     border.color: StudioTheme.Values.themeStatePreviewOutline
                 }

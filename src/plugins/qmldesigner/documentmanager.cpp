@@ -4,6 +4,7 @@
 #include "documentmanager.h"
 #include "qmldesignerplugin.h"
 
+#include <auxiliarydataproperties.h>
 #include <bindingproperty.h>
 #include <model/modelutils.h>
 #include <modelnode.h>
@@ -295,7 +296,7 @@ bool DocumentManager::goIntoComponent(const ModelNode &modelNode)
         ModelNode rootModelNode = designDocument()->rewriterView()->rootModelNode();
         applyProperties(rootModelNode, oldProperties);
 
-        rootModelNode.setAuxiliaryData(AuxiliaryDataType::Temporary, "contextImage", image);
+        rootModelNode.setAuxiliaryData(contextImageProperty, image);
 
         return true;
     }

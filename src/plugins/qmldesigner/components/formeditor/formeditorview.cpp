@@ -1000,10 +1000,8 @@ void FormEditorView::setupRootItemSize()
         formEditorWidget()->setRootItemRect(rootRect);
         formEditorWidget()->centerScene();
 
-        auto contextImage = rootModelNode().auxiliaryData(contextImageProperty);
-
-        if (contextImage)
-            m_formEditorWidget->setBackgoundImage(contextImage.value().value<QImage>());
+        if (auto contextImage = rootModelNode().auxiliaryData(contextImageProperty))
+            formEditorWidget()->setBackgoundImage(contextImage.value().value<QImage>());
     }
 }
 
