@@ -25,14 +25,6 @@ const char EXCLUDED_FILES_KEY[] = "ExcludedFiles";
 NimProjectScanner::NimProjectScanner(Project *project)
     : m_project(project)
 {
-    m_scanner.setFilter([this](const Utils::MimeType &, const FilePath &fp) {
-        const QString path = fp.toString();
-        return excludedFiles().contains(path)
-                || path.endsWith(".nimproject")
-                || path.contains(".nimproject.user")
-                || path.contains(".nimble.user");
-    });
-
     connect(&m_directoryWatcher, &FileSystemWatcher::directoryChanged,
             this, &NimProjectScanner::directoryChanged);
     connect(&m_directoryWatcher, &FileSystemWatcher::fileChanged,
@@ -91,6 +83,13 @@ void NimProjectScanner::saveSettings()
 
 void NimProjectScanner::startScan()
 {
+    m_scanner.setFilter(
+        [excludedFiles = excludedFiles()](const Utils::MimeType &, const FilePath &fp) {
+            const QString path = fp.toString();
+            return excludedFiles.contains(path) || path.endsWith(".nimproject")
+                   || path.contains(".nimproject.user") || path.contains(".nimble.user");
+        });
+
     m_scanner.asyncScanForFiles(m_project->projectDirectory());
 }
 
