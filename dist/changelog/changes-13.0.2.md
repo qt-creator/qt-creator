@@ -28,8 +28,16 @@ Editing
 * Fixed that `Use Qt module name in #include-directive` used Qt 4 module names
   ([QTCREATORBUG-30751](https://bugreports.qt.io/browse/QTCREATORBUG-30751))
 
+### Copilot
+
+* Adapted to changes in the Copilot neovim plugin
+
 Projects
 --------
+
+### CMake
+
+* Fixed the environment macro expansion for Presets
 
 ### Meson
 
