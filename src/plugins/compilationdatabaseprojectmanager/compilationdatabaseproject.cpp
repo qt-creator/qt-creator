@@ -106,8 +106,10 @@ QString compilerPath(QString pathFlag)
 
 Toolchain *toolchainFromFlags(const Kit *kit, const QStringList &flags, const Utils::Id &language)
 {
+    Toolchain * const kitToolchain = ToolchainKitAspect::toolchain(kit, language);
+
     if (flags.empty())
-        return ToolchainKitAspect::toolchain(kit, language);
+        return kitToolchain;
 
     // Try exact compiler match.
     const Utils::FilePath compiler = Utils::FilePath::fromUserInput(compilerPath(flags.front()));
@@ -118,6 +120,8 @@ Toolchain *toolchainFromFlags(const Kit *kit, const QStringList &flags, const Ut
         return toolchain;
 
     Utils::Id compilerId = getCompilerId(compiler.fileName());
+    if (kitToolchain->isValid() && kitToolchain->typeId() == compilerId)
+        return kitToolchain;
     if ((toolchain = toolchainFromCompilerId(compilerId, language)))
         return toolchain;
 
@@ -126,13 +130,14 @@ Toolchain *toolchainFromFlags(const Kit *kit, const QStringList &flags, const Ut
         compilerId = Utils::HostOsInfo::isWindowsHost()
                 ? ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID
                 : ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID;
+        if (kitToolchain->isValid() && kitToolchain->typeId() == compilerId)
+            return kitToolchain;
         if ((toolchain = toolchainFromCompilerId(compilerId, language)))
             return toolchain;
     }
 
-    toolchain = ToolchainKitAspect::toolchain(kit, language);
     qWarning() << "No matching toolchain found, use the default.";
-    return toolchain;
+    return kitToolchain;
 }
 
 void addDriverModeFlagIfNeeded(const Toolchain *toolchain,
