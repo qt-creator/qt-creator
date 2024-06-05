@@ -97,6 +97,13 @@ const char USER_ENVIRONMENT_CHANGES_KEY[] = "CMake.Configure.UserEnvironmentChan
 const char BASE_ENVIRONMENT_KEY[] = "CMake.Configure.BaseEnvironment";
 const char GENERATE_QMLLS_INI_SETTING[] = "J.QtQuick/QmlJSEditor.GenerateQmllsIniFiles";
 
+const char CMAKE_TOOLCHAIN_FILE[] = "CMAKE_TOOLCHAIN_FILE";
+const char CMAKE_C_FLAGS_INIT[] = "CMAKE_C_FLAGS_INIT";
+const char CMAKE_CXX_FLAGS_INIT[] = "CMAKE_CXX_FLAGS_INIT";
+const char CMAKE_CXX_FLAGS[] = "CMAKE_CXX_FLAGS";
+const char CMAKE_CXX_FLAGS_DEBUG[] = "CMAKE_CXX_FLAGS_DEBUG";
+const char CMAKE_CXX_FLAGS_RELWITHDEBINFO[] = "CMAKE_CXX_FLAGS_RELWITHDEBINFO";
+
 namespace Internal {
 
 class CMakeBuildSettingsWidget : public NamedWidget
@@ -889,11 +896,11 @@ CMakeConfig CMakeBuildSettingsWidget::getQmlDebugCxxFlags()
     const bool enable = m_buildConfig->qmlDebugging() == TriState::Enabled;
 
     const CMakeConfig configList = m_buildConfig->cmakeBuildSystem()->configurationFromCMake();
-    const QByteArrayList cxxFlagsPrev{"CMAKE_CXX_FLAGS",
-                                      "CMAKE_CXX_FLAGS_DEBUG",
-                                      "CMAKE_CXX_FLAGS_RELWITHDEBINFO",
-                                      "CMAKE_CXX_FLAGS_INIT"};
-    const QByteArrayList cxxFlags{"CMAKE_CXX_FLAGS_INIT", "CMAKE_CXX_FLAGS"};
+    const QByteArrayList cxxFlagsPrev{CMAKE_CXX_FLAGS,
+                                      CMAKE_CXX_FLAGS_DEBUG,
+                                      CMAKE_CXX_FLAGS_RELWITHDEBINFO,
+                                      CMAKE_CXX_FLAGS_INIT};
+    const QByteArrayList cxxFlags{CMAKE_CXX_FLAGS_INIT, CMAKE_CXX_FLAGS};
     const QByteArray qmlDebug(QT_QML_DEBUG_PARAM);
 
     CMakeConfig changedConfig;
@@ -1182,14 +1189,14 @@ static CommandLine defaultInitialCMakeCommand(
         if (auto *gccTc = tc->asGccToolchain()) {
             const QStringList compilerFlags = gccTc->platformCodeGenFlags();
 
-            QString language;
+            QLatin1String languageFlagsInit;
             if (gccTc->language() == ProjectExplorer::Constants::C_LANGUAGE_ID)
-                language = "C";
+                languageFlagsInit = QLatin1String(CMAKE_C_FLAGS_INIT);
             else if (gccTc->language() == ProjectExplorer::Constants::CXX_LANGUAGE_ID)
-                language = "CXX";
+                languageFlagsInit = QLatin1String(CMAKE_CXX_FLAGS_INIT);
 
-            if (!language.isEmpty() && !compilerFlags.isEmpty())
-                cmd.addArg("-DCMAKE_" + language + "_FLAGS_INIT:STRING=" + compilerFlags.join(" "));
+            if (!languageFlagsInit.isEmpty() && !compilerFlags.isEmpty())
+                cmd.addArg("-D" + languageFlagsInit + ":STRING=" + compilerFlags.join(" "));
 
             const QStringList linkerFlags = gccTc->platformLinkerFlags();
             if (!linkerFlags.isEmpty()) {
@@ -1342,14 +1349,14 @@ static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArgume
                 }
 
                 arg = argItem.toArgument();
-            } else if (argItem.key == "CMAKE_TOOLCHAIN_FILE") {
+            } else if (argItem.key == CMAKE_TOOLCHAIN_FILE) {
                 const FilePath argFilePath = FilePath::fromString(argItem.expandedValue(k));
                 const FilePath presetFilePath = FilePath::fromUserInput(
                     QString::fromUtf8(presetItem.value));
 
                 if (argFilePath != presetFilePath)
                     arg = presetItem.toArgument();
-            } else if (argItem.key == "CMAKE_CXX_FLAGS_INIT") {
+            } else if (argItem.key == CMAKE_CXX_FLAGS_INIT) {
                 // Append the preset value with at the initial parameters value (e.g. QML Debugging)
                 if (argItem.expandedValue(k) != QString::fromUtf8(presetItem.value)) {
                     argItem.value.append(" ");
@@ -1618,7 +1625,8 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                                   : TriState::Default);
 
         if (qt && qt->isQmlDebuggingSupported())
-            cmd.addArg("-DCMAKE_CXX_FLAGS_INIT:STRING=%{" + QLatin1String(QT_QML_DEBUG_FLAG) + "}");
+            cmd.addArg(
+                QLatin1String("-D") + CMAKE_CXX_FLAGS_INIT + ":STRING=%{" + QT_QML_DEBUG_FLAG + "}");
 
         // QT_QML_GENERATE_QMLLS_INI, if enabled via the settings checkbox:
         if (Core::ICore::settings()->value(GENERATE_QMLLS_INI_SETTING).toBool()) {
@@ -1679,8 +1687,8 @@ bool CMakeBuildConfiguration::hasQmlDebugging(const CMakeConfig &config)
     // Determine QML debugging flags. This must match what we do in
     // CMakeBuildSettingsWidget::getQmlDebugCxxFlags()
     // such that in doubt we leave the QML Debugging setting at "Leave at default"
-    const QString cxxFlagsInit = config.stringValueOf("CMAKE_CXX_FLAGS_INIT");
-    const QString cxxFlags = config.stringValueOf("CMAKE_CXX_FLAGS");
+    const QString cxxFlagsInit = config.stringValueOf(CMAKE_CXX_FLAGS_INIT);
+    const QString cxxFlags = config.stringValueOf(CMAKE_CXX_FLAGS);
     return cxxFlagsInit.contains(QT_QML_DEBUG_PARAM) && cxxFlags.contains(QT_QML_DEBUG_PARAM);
 }
 
