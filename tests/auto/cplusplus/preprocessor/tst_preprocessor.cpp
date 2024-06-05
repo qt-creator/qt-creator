@@ -108,6 +108,11 @@ public:
         m_definedMacrosLine.append(macro.line());
     }
 
+    void pragmaAdded(const Pragma &pragma) override
+    {
+        m_pragmas.append(pragma);
+    }
+
     void passedMacroDefinitionCheck(int /*bytesOffset*/,
                                     int /*utf16charsOffset*/,
                                     int line,
@@ -264,6 +269,8 @@ public:
     const QMap<QByteArray, QVector<MacroArgumentReference >> usedMacros() const
     { return m_usedMacros; }
 
+    const QList<Pragma> &pragmas() const { return m_pragmas; }
+
 private:
     Environment *m_env;
     QByteArray *m_output;
@@ -282,6 +289,7 @@ private:
     QSet<QByteArray> m_unresolvedDefines;
     QList<int> m_macroArgsCount;
     QMap<QByteArray, QVector<MacroArgumentReference >> m_usedMacros;
+    QList<Pragma> m_pragmas;
 };
 
 QT_BEGIN_NAMESPACE
@@ -381,6 +389,7 @@ private slots:
     void trigraph();
     void nested_arguments_expansion();
     void preprocessorSymbolsAsMacroArguments();
+    void pragmas();
 };
 
 // Remove all #... lines, and 'simplify' string, to allow easily comparing the result
@@ -2088,6 +2097,28 @@ void tst_Preprocessor::preprocessorSymbolsAsMacroArguments()
             "return 0;\n"
             "}\n";
     QVERIFY(preprocess.run(QLatin1String("<stdin>"), input).startsWith("# 1 \"<stdin>\"\n"));
+}
+
+void tst_Preprocessor::pragmas()
+{
+    Environment env;
+    QByteArray output;
+    MockClient client(&env, &output);
+    Preprocessor preprocess(&client, &env);
+    QByteArray input =
+        "#pragma once\n"
+        "#include <iostream>\n"
+        "#pragma pack(/*distraction*/push)\n"
+        "struct S { bool b1; int i; short s; bool b2; };\n"
+        "#pragma pack(pop)\n";
+    preprocess.run(QLatin1String("<stdin>"), input);
+    QCOMPARE(client.pragmas().size(), 3);
+    QCOMPARE(client.pragmas().at(0).line, 1);
+    QCOMPARE(client.pragmas().at(0).tokens, QByteArrayList{"once"});
+    QCOMPARE(client.pragmas().at(1).line, 3);
+    QCOMPARE(client.pragmas().at(1).tokens, (QByteArrayList{"pack", "(", "push", ")"}));
+    QCOMPARE(client.pragmas().at(2).line, 5);
+    QCOMPARE(client.pragmas().at(2).tokens, (QByteArrayList{"pack", "(", "pop", ")"}));
 }
 
 void tst_Preprocessor::excessive_nesting()

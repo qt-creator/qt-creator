@@ -1146,6 +1146,25 @@ private slots:
         // -------------------------------------------------------------------------------------------
 
         original =
+            "#pragma once\n"
+            "void @f();\n"
+            ;
+        expected =
+            "#pragma once\n"
+            "\n"
+            "#include \"file.h\"\n"
+            "\n"
+            "void f();\n"
+            ;
+        testDocuments << CppTestDocument::create("file.cpp", original, expected);
+        QTest::newRow("inserting_onlyPragmaOnce")
+            << TestIncludePaths::globalIncludePath()
+            << testDocuments << firstRefactoringOperation << "\"file.h\"";
+        testDocuments.clear();
+
+        // -------------------------------------------------------------------------------------------
+
+        original =
             "\n"
             "// comment\n"
             "\n"

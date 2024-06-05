@@ -85,6 +85,12 @@ void FastPreprocessor::macroAdded(const Macro &macro)
     _currentDoc->appendMacro(macro);
 }
 
+void FastPreprocessor::pragmaAdded(const Pragma &pragma)
+{
+    Q_ASSERT(_currentDoc);
+    _currentDoc->appendPragma(pragma);
+}
+
 static const Macro revision(const Snapshot &s, const Macro &m)
 {
     if (Document::Ptr d = s.document(m.filePath())) {

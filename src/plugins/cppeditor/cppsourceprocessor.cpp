@@ -298,6 +298,13 @@ void CppSourceProcessor::macroAdded(const CPlusPlus::Macro &macro)
     m_currentDoc->appendMacro(macro);
 }
 
+void CppSourceProcessor::pragmaAdded(const CPlusPlus::Pragma &pragma)
+{
+    if (!m_currentDoc)
+        return;
+    m_currentDoc->appendPragma(pragma);
+}
+
 void CppSourceProcessor::passedMacroDefinitionCheck(int bytesOffset, int utf16charsOffset,
                                                     int line, const CPlusPlus::Macro &macro)
 {

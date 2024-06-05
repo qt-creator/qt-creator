@@ -1626,10 +1626,10 @@ void Preprocessor::handlePreprocessorDirective(PPToken *tk)
     static const QByteArray ppInclude("include");
     static const QByteArray ppIncludeNext("include_next");
     static const QByteArray ppImport("import");
+    static const QByteArray ppPragma("pragma");
     //### TODO:
     // line
     // error
-    // pragma
 
     if (tk->is(T_IDENTIFIER)) {
         const ByteArrayRef directive = tk->asByteArrayRef();
@@ -1640,6 +1640,8 @@ void Preprocessor::handlePreprocessorDirective(PPToken *tk)
             handleIfDefDirective(true, tk);
         } else if (directive == ppEndIf) {
             handleEndIfDirective(tk, poundToken);
+        } else if (directive == ppPragma) {
+            handlePragmaDirective(tk);
         } else {
             m_state.updateIncludeGuardState(State::IncludeGuardStateHint_OtherToken);
 
@@ -1864,6 +1866,23 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
 
     if (m_client)
         m_client->macroAdded(macro);
+}
+
+void Preprocessor::handlePragmaDirective(PPToken *tk)
+{
+    Pragma pragma;
+    pragma.line = tk->lineno;
+    lex(tk); // consume "pragma" token
+
+    while (isContinuationToken(*tk)) {
+        if (!consumeComments(tk))
+            return;
+        pragma.tokens << tk->asByteArrayRef().toByteArray();
+        lex(tk);
+    }
+
+    if (m_client)
+        m_client->pragmaAdded(pragma);
 }
 
 QByteArray Preprocessor::expand(PPToken *tk, PPToken *lastConditionToken)

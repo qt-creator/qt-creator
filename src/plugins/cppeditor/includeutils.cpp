@@ -216,15 +216,22 @@ int LineForNewIncludeDirective::findInsertLineForVeryFirstInclude(unsigned *newL
 {
     int insertLine = 1;
 
-    // If there is an include guard, insert right after that one
-    const QByteArray includeGuardMacroName = m_cppDocument->includeGuardMacroName();
-    if (!includeGuardMacroName.isEmpty()) {
+    const auto appendAndPrependNewline = [&] {
+        if (newLinesToPrepend)
+            *newLinesToPrepend = 1;
+        if (newLinesToAppend)
+            *newLinesToAppend += 1;
+    };
+
+    // If there is an include guard or a "#pragma once", insert right after that one
+    if (const int pragmaOnceLine = m_cppDocument->pragmaOnceLine(); pragmaOnceLine != -1) {
+        appendAndPrependNewline();
+        insertLine = pragmaOnceLine + 1;
+    } else if (const QByteArray includeGuardMacroName = m_cppDocument->includeGuardMacroName();
+               !includeGuardMacroName.isEmpty()) {
         for (const Macro &definedMacro :  m_cppDocument->definedMacros()) {
             if (definedMacro.name() == includeGuardMacroName) {
-                if (newLinesToPrepend)
-                    *newLinesToPrepend = 1;
-                if (newLinesToAppend)
-                    *newLinesToAppend += 1;
+                appendAndPrependNewline();
                 insertLine = definedMacro.line() + 1;
             }
         }

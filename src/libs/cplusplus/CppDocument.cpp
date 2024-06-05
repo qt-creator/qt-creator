@@ -356,6 +356,15 @@ void Document::addUndefinedMacroUse(const QByteArray &name,
     _undefinedMacroUses.append(use);
 }
 
+int Document::pragmaOnceLine() const
+{
+    for (const Pragma &p : _pragmas) {
+        if (p.tokens.size() == 1 && p.tokens.first() == "once")
+            return p.line;
+    }
+    return -1;
+}
+
 /*!
     \class Document::MacroUse
     \brief The MacroUse class represents the usage of a macro in a

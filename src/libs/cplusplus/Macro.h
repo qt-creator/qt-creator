@@ -157,4 +157,11 @@ private:
     };
 };
 
+class CPLUSPLUS_EXPORT Pragma
+{
+public:
+    QByteArrayList tokens;
+    int line;
+};
+
 } // CPlusPlus
