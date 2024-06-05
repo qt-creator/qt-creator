@@ -53,13 +53,12 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     const TestResult testResult = resultFilterModel->testResult(index);
     QTC_ASSERT(testResult.isValid(), painter->restore(); return);
 
-    const QWidget *widget = dynamic_cast<const QWidget*>(painter->device());
-    QWindow *window = widget ? widget->window()->windowHandle() : nullptr;
-
     QIcon icon = index.data(Qt::DecorationRole).value<QIcon>();
-    if (!icon.isNull())
+    if (!icon.isNull()) {
         painter->drawPixmap(positions.left(), positions.top(),
-                            icon.pixmap(window, QSize(positions.iconSize(), positions.iconSize())));
+                            icon.pixmap(QSize(positions.iconSize(), positions.iconSize()),
+                                        painter->device()->devicePixelRatio()));
+    }
 
     TestResultItem *item = resultFilterModel->itemForIndex(index);
     QTC_ASSERT(item, painter->restore(); return);

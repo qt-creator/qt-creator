@@ -551,8 +551,7 @@ void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
         // return a high-dpi pixmap, which will in that case have a devicePixelRatio
         // different than 1. The shadow drawing caluculations are done in device
         // pixels.
-        QWindow *window = dynamic_cast<QWidget*>(p->device())->window()->windowHandle();
-        QPixmap px = icon.pixmap(window, rect.size(), iconMode);
+        QPixmap px = icon.pixmap(rect.size(), devicePixelRatio, iconMode);
         int radius = int(dipRadius * devicePixelRatio);
         QPoint offset = dipOffset * devicePixelRatio;
         cache = QPixmap(px.size() + QSize(radius * 2, radius * 2));
@@ -563,7 +562,7 @@ void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
             const bool hasDisabledState =
                     icon.availableSizes().count() == icon.availableSizes(QIcon::Disabled).count();
             if (!hasDisabledState)
-                px = disabledSideBarIcon(icon.pixmap(window, rect.size()));
+                px = disabledSideBarIcon(icon.pixmap(rect.size(), devicePixelRatio));
         } else if (creatorTheme()->flag(Theme::ToolBarIconShadow)) {
             // Draw shadow
             QImage tmp(px.size() + QSize(radius * 2, radius * 2 + 1), QImage::Format_ARGB32_Premultiplied);

@@ -563,16 +563,15 @@ static void drawPrimitiveTweakedForDarkTheme(QStyle::PrimitiveElement element,
         break;
     }
     case QStyle::PE_IndicatorTabClose: {
-        QWindow *window = widget ? widget->window()->windowHandle() : nullptr;
+        const qreal devicePixelRatio = painter->device()->devicePixelRatio();
         QRect iconRect = QRect(0, 0, 16, 16);
         iconRect.moveCenter(option->rect.center());
         const QIcon::Mode mode = !isEnabled ? QIcon::Disabled : QIcon::Normal;
         const static QIcon closeIcon = Utils::Icons::CLOSE_FOREGROUND.icon();
         if (option->state & QStyle::State_MouseOver && widget)
             widget->style()->drawPrimitive(QStyle::PE_PanelButtonCommand, option, painter, widget);
-        const int devicePixelRatio = widget ? widget->devicePixelRatio() : 1;
         const QPixmap iconPx =
-                closeIcon.pixmap(window, iconRect.size() * devicePixelRatio, mode);
+                closeIcon.pixmap(iconRect.size() * devicePixelRatio, devicePixelRatio, mode);
         painter->drawPixmap(iconRect, iconPx);
         break;
     }
