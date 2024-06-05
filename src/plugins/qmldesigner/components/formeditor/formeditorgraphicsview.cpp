@@ -3,7 +3,6 @@
 
 #include "formeditorgraphicsview.h"
 #include "backgroundaction.h"
-#include "formeditoritem.h"
 #include "formeditorwidget.h"
 #include "navigation2d.h"
 
@@ -76,11 +75,11 @@ bool FormEditorGraphicsView::eventFilter(QObject *watched, QEvent *event)
             auto mouseEvent = static_cast<QMouseEvent *>(event);
             if (!m_panningStartPosition.isNull()) {
                 horizontalScrollBar()->setValue(horizontalScrollBar()->value() -
-                    (mouseEvent->x() - m_panningStartPosition.x()));
+                    (mouseEvent->position().x() - m_panningStartPosition.x()));
                 verticalScrollBar()->setValue(verticalScrollBar()->value() -
-                    (mouseEvent->y() - m_panningStartPosition.y()));
+                    (mouseEvent->position().y() - m_panningStartPosition.y()));
             }
-            m_panningStartPosition = mouseEvent->pos();
+            m_panningStartPosition = mouseEvent->position();
             event->accept();
             return true;
         }
