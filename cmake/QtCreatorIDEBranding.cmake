@@ -16,6 +16,6 @@ set(IDE_DOC_FILE_ONLINE "qtcreator/qtcreator-online.qdocconf")
 # Absolute, or relative to <qtcreator>/src/app
 # Should contain qtcreator.ico, qtcreator.xcassets
 set(IDE_ICON_PATH "")
-# Absolute, or relative to <qtcreator>/src/plugins/coreplugin
+# Absolute, or relative to <qtcreator>/src/app
 # Should contain images/logo/(16|24|32|48|64|128|256|512)/QtProject-qtcreator.png
 set(IDE_LOGO_PATH "")

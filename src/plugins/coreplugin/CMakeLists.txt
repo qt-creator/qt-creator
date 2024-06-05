@@ -1,8 +1,3 @@
-if (NOT IS_ABSOLUTE ${IDE_LOGO_PATH})
-  set(IDE_LOGO_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${IDE_LOGO_PATH}")
-endif()
-configure_file(core_logo.qrc.cmakein core_logo_cmake.qrc)
-
 add_qtc_plugin(Core
   DEPENDS Qt::PrintSupport Qt::Qml Qt::Sql Qt::Gui Qt::GuiPrivate
   PUBLIC_DEPENDS Aggregation ExtensionSystem Utils app_version
@@ -16,7 +11,6 @@ add_qtc_plugin(Core
     actionsfilter.cpp actionsfilter.h
     basefilewizard.cpp basefilewizard.h
     basefilewizardfactory.cpp basefilewizardfactory.h
-    ${CMAKE_CURRENT_BINARY_DIR}/core_logo_cmake.qrc
     core.qrc
     core_global.h
     coreconstants.h
@@ -194,16 +188,6 @@ extend_qtc_plugin(Core
   CONDITION BUILD_WITH_CRASHPAD
   DEFINES ENABLE_CRASHPAD
 )
-
-if ((NOT WIN32) AND (NOT APPLE))
-  # install logo
-  foreach(size 16 24 32 48 64 128 256 512)
-    install(
-      FILES ${IDE_LOGO_PATH}/images/logo/${size}/QtProject-qtcreator.png
-      DESTINATION share/icons/hicolor/${size}x${size}/apps
-    )
-  endforeach()
-endif()
 
 set(FONTS_BASE "${QtCreator_SOURCE_DIR}/src/share/3rdparty/studiofonts/")
 qt_add_resources(Core

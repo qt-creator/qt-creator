@@ -24,7 +24,6 @@ Project {
         "compilationdatabaseprojectmanager/compilationdatabaseprojectmanager.qbs",
         "conan/conan.qbs",
         "coreplugin/coreplugin.qbs",
-        "coreplugin/images/logo/logo.qbs",
         "cpaster/cpaster.qbs",
         "cpaster/frontend/frontend.qbs",
         "cppcheck/cppcheck.qbs",
