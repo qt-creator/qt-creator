@@ -142,7 +142,7 @@ bool NameValueItemsWidget::editVariable(const QString &name, Selection selection
         skipWhiteSpace();
         if (offset < line.length()) {
             QChar nextChar = line.at(offset);
-            if (nextChar.isLetterOrNumber())
+            if (nextChar.isLetterOrNumber() || nextChar == '_')
                 continue;
             if (nextChar == '=') {
                 if (++offset < line.length() && line.at(offset) == '+')
