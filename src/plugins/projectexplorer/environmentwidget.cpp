@@ -197,10 +197,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, Type type, QWidget *additi
 
     auto horizontalLayout = new QHBoxLayout();
     horizontalLayout->setContentsMargins(0, 0, 0, 0);
-    auto tree = new Utils::TreeView(this);
-    connect(tree, &QAbstractItemView::activated,
-            tree, [tree](const QModelIndex &idx) { tree->edit(idx); });
-    d->m_environmentView = tree;
+    d->m_environmentView = new Utils::TreeView(this);
     d->m_environmentView->setModel(d->m_model);
     d->m_environmentView->setMinimumHeight(400);
     d->m_environmentView->setRootIsDecorated(false);
