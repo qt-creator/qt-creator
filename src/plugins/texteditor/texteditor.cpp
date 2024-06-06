@@ -7577,7 +7577,7 @@ bool TextEditorWidget::openLink(const Utils::Link &link, bool inNextSplit)
 #endif
 
     QString url = link.targetFilePath.toString();
-    if (url.startsWith(u"https://"_qs) || url.startsWith(u"http://"_qs)) {
+    if (url.startsWith(u"https://") || url.startsWith(u"http://")) {
         QDesktopServices::openUrl(url);
         return true;
     }
@@ -7616,11 +7616,12 @@ void TextEditorWidgetPrivate::requestUpdateLink(QMouseEvent *e)
         return;
 
     // Check that the mouse was actually on the text somewhere
-    bool onText = q->cursorRect(cursor).right() >= e->x();
+    const int posX = e->position().x();
+    bool onText = q->cursorRect(cursor).right() >= posX;
     if (!onText) {
         QTextCursor nextPos = cursor;
         nextPos.movePosition(QTextCursor::Right);
-        onText = q->cursorRect(nextPos).right() >= e->x();
+        onText = q->cursorRect(nextPos).right() >= posX;
     }
 
     if (onText) {
