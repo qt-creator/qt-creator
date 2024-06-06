@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
+import QtCore
 import HelperWidgets
 
 Item {
@@ -42,6 +43,12 @@ Item {
         onToolBarAction: (action) => root.toolBarAction(action)
     }
 
+    Settings {
+        id: settings
+
+        property var topSection
+    }
+
     PropertyEditorPane {
         id: itemPane
 
@@ -52,8 +59,12 @@ Item {
         clip: true
 
         headerComponent: MaterialEditorTopSection {
+            id: topSection
             onPreviewEnvChanged: root.previewEnvChanged(previewEnv)
             onPreviewModelChanged: root.previewModelChanged(previewModel)
+
+            Component.onCompleted: topSection.restoreState(settings.topSection)
+            Component.onDestruction: settings.topSection = topSection.saveState()
         }
 
         DynamicPropertiesSection {

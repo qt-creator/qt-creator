@@ -126,6 +126,7 @@ QtObject {
 
     property real controlGap: 5 // TODO different name
     property real splitterMargin: 5
+    property real splitterThickness: 6
     property real twoControlColumnGap: values.controlLabelGap
                                        + values.controlLabelWidth
                                        + values.controlGap

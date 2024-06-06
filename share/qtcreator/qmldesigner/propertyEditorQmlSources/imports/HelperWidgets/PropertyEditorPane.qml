@@ -57,6 +57,7 @@ Rectangle {
             bottom: itemPane.bottom
             left: itemPane.left
             right: itemPane.right
+            topMargin: dockedHeaderLoader.active ? 2 : 0
         }
 
         interactive: !Controller.contextMenuOpened
@@ -74,6 +75,7 @@ Rectangle {
                 active: !itemPane.headerDocked
                 sourceComponent: itemPane.headerComponent
 
+                visible: active
                 HeaderBackground{}
             }
 

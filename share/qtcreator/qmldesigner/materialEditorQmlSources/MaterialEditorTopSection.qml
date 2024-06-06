@@ -8,17 +8,16 @@ import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 
-ColumnLayout {
+SplitView {
     id: root
 
     property string previewEnv
     property string previewModel
 
-    property real __horizontalSpacing: 5
+    property real __spacing: 5
 
     property StudioTheme.ControlStyle buttonStyle: StudioTheme.ViewBarButtonStyle {
         //This is how you can override stuff from the control styles
-        controlSize: Qt.size(optionsToolbar.height, optionsToolbar.height)
         baseIconFontSize: StudioTheme.Values.bigIconFontSize
     }
 
@@ -38,7 +37,17 @@ ColumnLayout {
     anchors.left: parent.left
     anchors.right: parent.right
 
-    Item { width: 1; height: 5 } // spacer
+    implicitHeight: previewRect.implicitHeight + nameSection.implicitHeight
+
+    orientation: Qt.Vertical
+
+    handle: Rectangle {
+        implicitWidth: root.orientation === Qt.Horizontal ? StudioTheme.Values.splitterThickness : root.width
+        implicitHeight: root.orientation === Qt.Horizontal ? root.height : StudioTheme.Values.splitterThickness
+        color: SplitHandle.pressed ? StudioTheme.Values.themeSliderHandleInteraction
+            : (SplitHandle.hovered ? StudioTheme.Values.themeSliderHandleHover
+                                     : "transparent")
+    }
 
     StudioControls.Menu {
         id: modelMenu
@@ -118,44 +127,13 @@ ColumnLayout {
         }
     }
 
-    Row {
-        id: optionsToolbar
-
-        Layout.preferredHeight: 40
-        Layout.fillWidth: true
-
-        leftPadding: root.__horizontalSpacing
-        StudioControls.AbstractButton {
-            id: pinButton
-
-            style: root.buttonStyle
-            iconSize: StudioTheme.Values.bigFont
-            buttonIcon: pinButton.checked ? StudioTheme.Constants.pin : StudioTheme.Constants.unpin
-            checkable: true
-            checked: itemPane.headerDocked
-            onCheckedChanged: itemPane.headerDocked = pinButton.checked
-        }
-
-        HelperWidgets.AbstractButton {
-            style: root.buttonStyle
-            buttonIcon: StudioTheme.Constants.textures_medium
-            tooltip: qsTr("Select preview environment.")
-            onClicked: envMenu.popup()
-        }
-
-        HelperWidgets.AbstractButton {
-            style: root.buttonStyle
-            buttonIcon: StudioTheme.Constants.cube_medium
-            tooltip: qsTr("Select preview model.")
-            onClicked: modelMenu.popup()
-        }
-    }
-
     Rectangle {
         id: previewRect
 
-        Layout.fillWidth: true
-        Layout.minimumWidth: 152
+        SplitView.fillWidth: true
+        SplitView.minimumWidth: 152
+        SplitView.preferredHeight: Math.min(root.width * 0.75, 400)
+        SplitView.minimumHeight: 150
         implicitHeight: materialPreview.height
 
         clip: true
@@ -165,7 +143,7 @@ ColumnLayout {
             id: materialPreview
 
             width: root.width
-            height: Math.min(materialPreview.width * 0.75, 400)
+            height: previewRect.height
             anchors.centerIn: parent
 
             fillMode: Image.PreserveAspectFit
@@ -176,13 +154,66 @@ ColumnLayout {
 
             sourceSize.width: materialPreview.width
             sourceSize.height: materialPreview.height
+
+            Rectangle {
+                id: toolbarRect
+
+                radius: 10
+                color: StudioTheme.Values.themeToolbarBackground
+                width: optionsToolbar.width + 2 * toolbarRect.radius
+                height: optionsToolbar.height + toolbarRect.radius
+                anchors.left: parent.left
+                anchors.leftMargin: -toolbarRect.radius
+                anchors.verticalCenter: parent.verticalCenter
+
+                Column {
+                    id: optionsToolbar
+
+                    spacing: root.__spacing
+                    anchors.centerIn: parent
+                    anchors.horizontalCenterOffset: root.__spacing
+
+                    HelperWidgets.AbstractButton {
+                        id: pinButton
+
+                        style: buttonStyle
+                        buttonIcon: pinButton.checked ? StudioTheme.Constants.pin : StudioTheme.Constants.unpin
+                        checkable: true
+                        checked: itemPane.headerDocked
+                        onCheckedChanged: itemPane.headerDocked = pinButton.checked
+                    }
+
+                    HelperWidgets.AbstractButton {
+                        id: previewEnvMenuButton
+
+                        style: buttonStyle
+                        buttonIcon: StudioTheme.Constants.textures_medium
+                        tooltip: qsTr("Select preview environment.")
+                        onClicked: envMenu.popup()
+                    }
+
+                    HelperWidgets.AbstractButton {
+                        id: previewModelMenuButton
+
+                        style: buttonStyle
+                        buttonIcon: StudioTheme.Constants.cube_medium
+                        tooltip: qsTr("Select preview model.")
+                        onClicked: modelMenu.popup()
+                    }
+                }
+            }
         }
     }
 
     HelperWidgets.Section {
+        id: nameSection
+
         // Section with hidden header is used so properties are aligned with the other sections' properties
         hideHeader: true
-        Layout.fillWidth: true
+        SplitView.fillWidth: true
+        SplitView.preferredHeight: implicitHeight
+        SplitView.maximumHeight: implicitHeight
+        bottomPadding: StudioTheme.Values.sectionPadding * 2
         collapsible: false
 
         HelperWidgets.SectionLayout {
@@ -202,7 +233,7 @@ ColumnLayout {
                     showExtendedFunctionButton: false
 
                     // allow only alphanumeric characters, underscores, no space at start, and 1 space between words
-                    validator: HelperWidgets.RegExpValidator { regExp: /^(\w+\s)*\w+$/ }
+                    validator: RegularExpressionValidator { regularExpression: /^(\w+\s)*\w+$/ }
                 }
 
                 HelperWidgets.ExpandingSpacer {}
@@ -211,9 +242,9 @@ ColumnLayout {
             HelperWidgets.PropertyLabel { text: qsTr("Type") }
 
             HelperWidgets.SecondColumnLayout {
-            HelperWidgets.Spacer { implicitWidth: StudioTheme.Values.actionIndicatorWidth }
+                HelperWidgets.Spacer { implicitWidth: StudioTheme.Values.actionIndicatorWidth }
 
-            HelperWidgets.ComboBox {
+                HelperWidgets.ComboBox {
                     currentIndex: possibleTypeIndex
                     model: possibleTypes
                     showExtendedFunctionButton: false

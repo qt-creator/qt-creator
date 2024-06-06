@@ -45,7 +45,10 @@ QPixmap MaterialEditorImageProvider::requestPixmap(const QString &id,
             pixmap = m_previewPixmap;
             setRequestedSize(requestedSize);
         } else {
-            pixmap = defaultPreview.scaled(requestedSize, Qt::KeepAspectRatio);
+            if (requestedSize.isEmpty())
+                pixmap = defaultPreview;
+            else
+                pixmap = defaultPreview.scaled(requestedSize, Qt::KeepAspectRatio);
         }
     } else {
         qWarning() << __FUNCTION__ << "Unsupported image id:" << id;
@@ -67,7 +70,7 @@ QPixmap MaterialEditorImageProvider::requestPixmap(const QString &id,
  */
 void MaterialEditorImageProvider::setRequestedSize(const QSize &requestedSize)
 {
-    if (!requestedSize.isValid())
+    if (requestedSize.isEmpty())
         return;
 
     m_requestedSize = requestedSize;
