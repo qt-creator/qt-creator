@@ -27,12 +27,8 @@ end
 
 local function installOrUpdateServer()
   local data = a.wait(fetch({
-    url = "https://api.github.com/repos/rust-lang/rust-analyzer/releases?per_page=2",
+    url = "https://qtccache.qt.io/RustLanguageServer/LatestReleases",
     convertToTable = true,
-    headers = {
-      Accept = "application/vnd.github.v3+json",
-      ["X-GitHub-Api-Version"] = "2022-11-28"
-    }
   }))
 
   if type(data) == "table" and #data > 1 then
