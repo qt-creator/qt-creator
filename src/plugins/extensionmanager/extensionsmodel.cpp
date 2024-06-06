@@ -38,6 +38,7 @@ struct Plugin
 {
     Dependencies dependencies;
     QString copyright;
+    bool isInternal = false;
     QString name;
     QString packageUrl;
     QString vendor;
@@ -54,6 +55,8 @@ struct Description {
 struct Extension {
     QString copyright;
     Description description;
+    int downloadCount = -1;
+    QString id;
     QString license;
     QString name;
     QStringList platforms;
@@ -83,6 +86,7 @@ static Plugin pluginFromJson(const QJsonObject &obj)
     return {
         .dependencies = dependencies,
         .copyright = metaDataObj.value("Copyright").toString(),
+        .isInternal = obj.value("is_internal").toBool(false),
         .name = metaDataObj.value("Name").toString(),
         .packageUrl = obj.value("url").toString(),
         .vendor = metaDataObj.value("Vendor").toString(),
@@ -158,6 +162,8 @@ static Extension extensionFromJson(const QJsonObject &obj)
     const Extension extension = {
         .copyright = obj.value("copyright").toString(),
         .description = description,
+        .downloadCount = obj.value("download_count").toInt(-1),
+        .id = obj.value("id").toString(),
         .license = obj.value("license").toString(),
         .name = obj.value("name").toString(),
         .platforms = platforms,
@@ -318,6 +324,10 @@ static QVariant dataFromExtension(const Extension &extension, int role)
         return QVariant::fromValue(extension.description.links);
     case RoleDescriptionText:
         return QVariant::fromValue(extension.description.text);
+    case RoleDownloadCount:
+        return extension.downloadCount;
+    case RoleId:
+        return extension.id;
     case RoleItemType:
         return extension.type;
     case RoleLicense:

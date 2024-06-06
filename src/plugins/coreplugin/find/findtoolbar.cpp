@@ -1047,6 +1047,39 @@ void FindToolBar::resizeEvent(QResizeEvent *event)
     QMetaObject::invokeMethod(this, &FindToolBar::updateToolBar, Qt::QueuedConnection);
 }
 
+void FindToolBar::restore(const Store &s)
+{
+    FindFlags flags;
+    if (s.value("Backward", false).toBool())
+        flags |= FindBackward;
+    if (s.value("CaseSensitively", false).toBool())
+        flags |= FindCaseSensitively;
+    if (s.value("WholeWords", false).toBool())
+        flags |= FindWholeWords;
+    if (s.value("RegularExpression", false).toBool())
+        flags |= FindRegularExpression;
+    if (s.value("PreserveCase", false).toBool())
+        flags |= FindPreserveCase;
+    m_findFlags = flags;
+    findFlagsChanged();
+}
+
+Store FindToolBar::save() const
+{
+    Store s;
+    if (m_findFlags & FindBackward)
+        s.insert("Backward", true);
+    if (m_findFlags & FindCaseSensitively)
+        s.insert("CaseSensitively", true);
+    if (m_findFlags & FindWholeWords)
+        s.insert("WholeWords", true);
+    if (m_findFlags & FindRegularExpression)
+        s.insert("RegularExpression", true);
+    if (m_findFlags & FindPreserveCase)
+        s.insert("PreserveCase", true);
+    return s;
+}
+
 void FindToolBar::writeSettings()
 {
     Utils::QtcSettings *settings = ICore::settings();

@@ -326,7 +326,7 @@ NamedWidget *BuildConfiguration::createConfigWidget()
     }
 
     Layouting::Form form;
-    form.noMargin();
+    form.setNoMargins();
     for (BaseAspect *aspect : aspects()) {
         if (aspect->isVisible()) {
             form.addItem(aspect);

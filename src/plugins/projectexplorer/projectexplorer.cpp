@@ -796,6 +796,7 @@ static void restoreRecentProjects(QtcSettings *s)
                 {FilePath::fromUserInput(filePaths.at(i)), displayNames.at(i), exists});
         }
     }
+    dd->updateRecentProjectMenu();
     dd->checkRecentProjectsAsync();
 }
 
@@ -2184,7 +2185,7 @@ void ProjectExplorerPluginPrivate::checkRecentProjectsAsync()
     m_recentProjectsFuture
         = QtConcurrent::mapped(&m_recentProjectsPool, m_recentProjects, [](RecentProjectsEntry p) {
               // check if project is available, but avoid querying devices
-              p.exists = p.filePath.needsDevice() || p.filePath.isFile();
+              p.exists = p.filePath.needsDevice() || p.filePath.exists();
               return p;
           });
     Utils::futureSynchronizer()->addFuture(m_recentProjectsFuture);

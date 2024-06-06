@@ -210,6 +210,21 @@ static bool comesDirectlyAfterIf(const QTextDocument *doc, int pos)
     return pos > 0 && doc->characterAt(pos) == 'f' && doc->characterAt(pos - 1) == 'i';
 }
 
+static bool startsWithKeyWord(const QString &keyWord, const QString &text)
+{
+    if (text.size() <= keyWord.size())
+        return false;
+
+    const QChar chAfter = text.at(keyWord.size());
+    return text.startsWith(keyWord) && !chAfter.isDigit() && !chAfter.isLetter() && chAfter != '_';
+}
+
+static bool startsWithKeyWords(const QString &text)
+{
+    return startsWithKeyWord("if", text) || startsWithKeyWord("while", text)
+           || startsWithKeyWord("for", text);
+}
+
 static CharacterContext characterContext(const QTextBlock &currentBlock)
 {
     QTextBlock previousNonEmptyBlock = reverseFindLastEmptyBlock(currentBlock);
@@ -220,8 +235,9 @@ static CharacterContext characterContext(const QTextBlock &currentBlock)
     if (prevLineText.isEmpty())
         return CharacterContext::NewStatementOrContinuation;
 
-    if ((currentBlock.text().trimmed().isEmpty() || currentBlock.text().trimmed().endsWith(")"))
-        && prevLineText.endsWith("{"))
+    const QString currentBlockText = currentBlock.text().trimmed();
+    if ((currentBlockText.isEmpty() || currentBlockText.endsWith(")"))
+        && prevLineText.endsWith("{") && !startsWithKeyWords(currentBlockText))
         return CharacterContext::BracketAfterFunctionCall;
 
     const QChar firstNonWhitespaceChar = findFirstNonWhitespaceCharacter(currentBlock);

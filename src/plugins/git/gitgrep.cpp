@@ -245,14 +245,15 @@ GitGrepParameters GitGrep::gitParameters() const
     return {m_treeLineEdit->text(), m_recurseSubmodules && m_recurseSubmodules->isChecked()};
 }
 
-void GitGrep::readSettings(QtcSettings *settings)
+void GitGrep::readSettings(const Store &s)
 {
-    m_treeLineEdit->setText(settings->value(GitGrepRef).toString());
+    m_treeLineEdit->setText(s.value(GitGrepRef).toString());
 }
 
-void GitGrep::writeSettings(QtcSettings *settings) const
+void GitGrep::writeSettings(Store &s) const
 {
-    settings->setValue(GitGrepRef, m_treeLineEdit->text());
+    if (!m_treeLineEdit->text().isEmpty())
+        s.insert(GitGrepRef, m_treeLineEdit->text());
 }
 
 SearchExecutor GitGrep::searchExecutor() const

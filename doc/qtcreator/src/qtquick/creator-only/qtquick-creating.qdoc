@@ -149,8 +149,7 @@
             imports that are used in the QML files.
 
             You can add imports later to combine Qt Quick basic types with
-            Qt Quick Controls, Qt Quick Dialogs, and Qt Quick Layouts (available
-            since Qt 5.1).
+            Qt Quick Controls, Qt Quick Dialogs, and Qt Quick Layouts.
 
         \li Select the \uicontrol {Use Qt Virtual Keyboard} check box to add
             support for \l{Qt Virtual Keyboard} to the application.

@@ -38,6 +38,7 @@ public:
 
 namespace AndroidConfig {
 
+QString getAvdName(const QString &serialnumber);
 QStringList apiLevelNamesFor(const SdkPlatformList &platforms);
 QString apiLevelNameFor(const SdkPlatform *platform);
 
@@ -88,7 +89,7 @@ Utils::FilePath makePathFromNdk(const Utils::FilePath &ndkLocation);
 
 Utils::FilePath keytoolPath();
 
-QList<AndroidDeviceInfo> connectedDevices(QString *error = nullptr);
+QStringList devicesCommandOutput();
 
 QString bestNdkPlatformMatch(int target, const QtSupport::QtVersion *qtVersion);
 

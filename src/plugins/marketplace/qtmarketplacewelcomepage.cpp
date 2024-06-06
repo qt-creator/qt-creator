@@ -62,11 +62,11 @@ public:
         Column {
             Row {
                 m_searcher,
-                customMargin({0, 0, ExVPaddingGapXl, 0}),
+                customMargins(0, 0, ExVPaddingGapXl, 0),
             },
             m_sectionedProducts,
             spacing(VPaddingL),
-            customMargin({ExVPaddingGapXl, ExVPaddingGapXl, 0, 0}),
+            customMargins(ExVPaddingGapXl, ExVPaddingGapXl, 0, 0),
         }.attachTo(this);
 
         connect(m_sectionedProducts, &SectionedProducts::toggleProgressIndicator,

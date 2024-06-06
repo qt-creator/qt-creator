@@ -17,5 +17,13 @@
     "Category" : "Scripting",
     "Description" : "Support for Lua based plugins.",
     "Url" : "https://www.qt.io",
+    "JsonWizardPaths" : [":/lua/wizards"],
+    "Arguments" : [
+        {
+            "Name" : "-loadluaplugin",
+            "Parameter" : "path",
+            "Description" : "Load an additional lua plugin from the specified path"
+        }
+    ],
     ${IDE_PLUGIN_DEPENDENCIES}
 }

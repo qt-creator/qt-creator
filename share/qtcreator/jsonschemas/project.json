@@ -1,0 +1,57 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Qt Creator workspace project definition",
+    "description": "A Qt Creator workspace project definition",
+    "type": "object",
+    "properties": {
+        "project.name": {
+            "type": "string",
+            "description": "The name of the project"
+        },
+        "files.exclude": {
+            "type": "array",
+            "items": [
+                {
+                    "type": "string"
+                }
+            ],
+            "description": "Files to exclude from the project"
+        },
+        "targets": {
+            "type": "array",
+            "description": "A list of targets",
+            "items": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "arguments": {
+                            "type": "array",
+                            "items": [
+                                {
+                                    "type": "string"
+                                }
+                            ],
+                            "description": "Arguments to pass to the executable"
+                        },
+                        "executable": {
+                            "type": "string",
+                            "description": "The executable to run"
+                        },
+                        "name": {
+                            "type": "string",
+                            "description": "The name of the target"
+                        },
+                        "workingDirectory": {
+                            "type": "string",
+                            "description": "The working directory to run the executable in"
+                        }
+                    },
+                    "required": [
+                        "executable",
+                        "name"
+                    ]
+                }
+            ]
+        }
+    }
+}

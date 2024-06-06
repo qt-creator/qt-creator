@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <QMargins>
 #include <QString>
 
 #include <functional>
@@ -26,7 +25,6 @@ class QGroupBox;
 class QHBoxLayout;
 class QLabel;
 class QLayout;
-class QMargins;
 class QObject;
 class QPushButton;
 class QSpinBox;
@@ -50,6 +48,45 @@ public:
     IdAndArg(const T1 &id, const T2 &arg) : id(id), arg(arg) {}
     const T1 id;
     const T2 arg; // FIXME: Could be const &, but this would currently break bindTo().
+};
+
+template<typename T1, typename T2>
+struct Arg2
+{
+    Arg2(const T1 &a1, const T2 &a2)
+        : p1(a1)
+        , p2(a2)
+    {}
+    const T1 p1;
+    const T2 p2;
+};
+
+template<typename T1, typename T2, typename T3>
+struct Arg3
+{
+    Arg3(const T1 &a1, const T2 &a2, const T3 &a3)
+        : p1(a1)
+        , p2(a2)
+        , p3(a3)
+    {}
+    const T1 p1;
+    const T2 p2;
+    const T3 p3;
+};
+
+template<typename T1, typename T2, typename T3, typename T4>
+struct Arg4
+{
+    Arg4(const T1 &a1, const T2 &a2, const T3 &a3, const T4 &a4)
+        : p1(a1)
+        , p2(a2)
+        , p3(a3)
+        , p4(a4)
+    {}
+    const T1 p1;
+    const T2 p2;
+    const T3 p3;
+    const T4 p4;
 };
 
 // The main dispatcher
@@ -139,13 +176,16 @@ public:
     Layout(Implementation *w) { ptr = w; }
 
     void span(int cols, int rows);
-    void noMargin();
-    void normalMargin();
-    void customMargin(const QMargins &margin);
+
+    void setNoMargins();
+    void setNormalMargins();
+    void setContentsMargins(int left, int top, int right, int bottom);
     void setColumnStretch(int cols, int rows);
     void setSpacing(int space);
+    void setFieldGrowthPolicy(int policy);
 
     void attachTo(QWidget *);
+
     void addItem(I item);
     void addItems(std::initializer_list<I> items);
     void addRow(std::initializer_list<I> items);
@@ -153,7 +193,6 @@ public:
 
     void flush();
     void flush_() const;
-    void fieldGrowthPolicy(int policy);
 
     QWidget *emerge() const;
     void show() const;
@@ -258,15 +297,15 @@ public:
     Widget(Implementation *w) { ptr = w; }
 
     QWidget *emerge() const;
-
     void show();
-    void resize(int, int);
+
     void setLayout(const Layout &layout);
+    void setSize(int, int);
     void setWindowTitle(const QString &);
     void setToolTip(const QString &);
-    void noMargin(int = 0);
-    void normalMargin(int = 0);
-    void customMargin(const QMargins &margin);
+    void setNoMargins(int = 0);
+    void setNormalMargins(int = 0);
+    void setContentsMargins(int left, int top, int right, int bottom);
 };
 
 class QTCREATOR_UTILS_EXPORT Label : public Widget
@@ -439,69 +478,42 @@ void doit(Interface *x, IdId, auto p)
 
 // Setter dispatchers
 
-class SizeId {};
-auto size(auto w, auto h) { return IdAndArg{SizeId{}, std::pair{w, h}}; }
-void doit(auto x, SizeId, auto p) { x->resize(p->first, p->second); }
+#define QTCREATOR_SETTER(name, setter) \
+    class name##_TAG {}; \
+    inline auto name(auto p) { return IdAndArg{name##_TAG{}, p}; } \
+    inline void doit(auto x, name##_TAG, auto p) { x->setter(p); }
 
-class TextId {};
-auto text(auto p) { return IdAndArg{TextId{}, p}; }
-void doit(auto x, TextId, auto p) { x->setText(p); }
+#define QTCREATOR_SETTER2(name, setter) \
+    class name##_TAG {}; \
+    inline auto name(auto p1, auto p2) { return IdAndArg{name##_TAG{}, Arg2{p1, p2}}; } \
+    inline void doit(auto x, name##_TAG, auto p) { x->setter(p.p1, p.p2); }
 
-class TitleId {};
-auto title(auto p) { return IdAndArg{TitleId{}, p}; }
-void doit(auto x, TitleId, auto p) { x->setTitle(p); }
+#define QTCREATOR_SETTER3(name, setter) \
+    class name##_TAG {}; \
+    inline auto name(auto p1, auto p2, auto p3) { return IdAndArg{name##_TAG{}, Arg3{p1, p2, p3}}; } \
+    inline void doit(auto x, name##_TAG, auto p) { x->setter(p.p1, p.p2, p.p3); }
 
-class TextFormatId {};
-auto textFormat(auto p) { return IdAndArg{TextFormatId{}, p}; }
-void doit(auto x, TextFormatId, auto p) { x->setTextFormat(p); }
+#define QTCREATOR_SETTER4(name, setter) \
+    class name##_TAG {}; \
+    inline auto name(auto p1, auto p2, auto p3, auto p4) { return IdAndArg{name##_TAG{}, Arg4{p1, p2, p3, p4}}; } \
+    inline void doit(auto x, name##_TAG, auto p) { x->setter(p.p1, p.p2, p.p3, p.p4); }
 
-class WordWrapId {};
-auto wordWrap(auto p) { return IdAndArg{WordWrapId{}, p}; }
-void doit(auto x, WordWrapId, auto p) { x->setWordWrap(p); }
-
-class TextInteractionFlagId {};
-auto textInteractionFlags(auto p) { return IdAndArg{TextInteractionFlagId{}, p}; }
-void doit(auto x, TextInteractionFlagId, auto p) { x->setTextInteractionFlags(p); }
-
-class OpenExternalLinksId {};
-auto openExternalLinks(auto p) { return IdAndArg{OpenExternalLinksId{}, p}; }
-void doit(auto x, OpenExternalLinksId, auto p) { x->setOpenExternalLinks(p); }
-
-class OnLinkHoveredId {};
-auto onLinkHovered(auto p, QObject *guard) { return IdAndArg{OnLinkHoveredId{}, std::pair{p, guard}}; }
-void doit(auto x, OnLinkHoveredId, auto p) { x->onLinkHovered(p.first, p.second); }
-
-class GroupCheckerId {};
-auto groupChecker(auto p) { return IdAndArg{GroupCheckerId{}, p}; }
-void doit(auto x, GroupCheckerId, auto p) { x->setGroupChecker(p); }
-
-class ToolTipId {};
-auto toolTip(auto p) { return IdAndArg{ToolTipId{}, p}; }
-void doit(auto x, ToolTipId, auto p) { x->setToolTip(p); }
-
-class WindowTitleId {};
-auto windowTitle(auto p) { return IdAndArg{WindowTitleId{}, p}; }
-void doit(auto x, WindowTitleId, auto p) { x->setWindowTitle(p); }
-
-class OnTextChangedId {};
-auto onTextChanged(auto p) { return IdAndArg{OnTextChangedId{}, p}; }
-void doit(auto x, OnTextChangedId, auto p) { x->onTextChanged(p); }
-
-class OnClickedId {};
-auto onClicked(auto p, auto guard) { return IdAndArg{OnClickedId{}, std::pair{p, guard}}; }
-void doit(auto x, OnClickedId, auto p) { x->onClicked(p.first, p.second); }
-
-class CustomMarginId {};
-inline auto customMargin(const QMargins &p) { return IdAndArg{CustomMarginId{}, p}; }
-void doit(auto x, CustomMarginId, auto p) { x->customMargin(p); }
-
-class FieldGrowthPolicyId {};
-inline auto fieldGrowthPolicy(auto p) { return IdAndArg{FieldGrowthPolicyId{}, p}; }
-void doit(auto x, FieldGrowthPolicyId, auto p) { x->fieldGrowthPolicy(p); }
-
-class ColumnStretchId {};
-inline auto columnStretch(int column, int stretch) { return IdAndArg{ColumnStretchId{}, std::pair{column, stretch}}; }
-void doit(auto x, ColumnStretchId, auto p) { x->setColumnStretch(p.first, p.second); }
+QTCREATOR_SETTER(fieldGrowthPolicy, setFieldGrowthPolicy);
+QTCREATOR_SETTER(groupChecker, setGroupChecker);
+QTCREATOR_SETTER(openExternalLinks, setOpenExternalLinks);
+QTCREATOR_SETTER2(size, setSize)
+QTCREATOR_SETTER(text, setText)
+QTCREATOR_SETTER(textFormat, setTextFormat);
+QTCREATOR_SETTER(textInteractionFlags, setTextInteractionFlags);
+QTCREATOR_SETTER(title, setTitle)
+QTCREATOR_SETTER(toolTip, setToolTip);
+QTCREATOR_SETTER(windowTitle, setWindowTitle);
+QTCREATOR_SETTER(wordWrap, setWordWrap);
+QTCREATOR_SETTER2(columnStretch, setColumnStretch);
+QTCREATOR_SETTER2(onClicked, onClicked);
+QTCREATOR_SETTER2(onLinkHovered, onLinkHovered);
+QTCREATOR_SETTER2(onTextChanged, onTextChanged);
+QTCREATOR_SETTER4(customMargins, setContentsMargins);
 
 // Nesting dispatchers
 

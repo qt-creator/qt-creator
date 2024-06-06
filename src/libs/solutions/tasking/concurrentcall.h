@@ -5,7 +5,7 @@
 
 #include "tasktree.h"
 
-#include <QtConcurrent>
+#include <QtConcurrent/QtConcurrent>
 
 namespace Tasking {
 
@@ -76,7 +76,7 @@ public:
         }
     }
 
-    void start() {
+    void start() final {
         if (!this->task()->m_startHandler) {
             emit this->done(DoneResult::Error); // TODO: Add runtime assert
             return;

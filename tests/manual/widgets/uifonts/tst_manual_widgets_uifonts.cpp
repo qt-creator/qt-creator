@@ -29,6 +29,8 @@ int main(int argc, char *argv[])
         { StyleHelper::UiElementBody2, "Body-02" },
         { StyleHelper::UiElementButtonMedium, "Button Medium" },
         { StyleHelper::UiElementButtonSmall, "Button Small" },
+        { StyleHelper::UiElementLabelMedium, "Label Medium" },
+        { StyleHelper::UiElementLabelSmall, "Label Small" },
         { StyleHelper::UiElementCaptionStrong, "Caption strong" },
         { StyleHelper::UiElementCaption, "Caption" },
         { StyleHelper::UiElementIconStandard, "Icon Standard" },

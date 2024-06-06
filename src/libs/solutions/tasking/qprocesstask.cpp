@@ -3,12 +3,12 @@
 
 #include "qprocesstask.h"
 
-#include <QCoreApplication>
-#include <QDebug>
-#include <QMutex>
-#include <QThread>
-#include <QTimer>
-#include <QWaitCondition>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QDebug>
+#include <QtCore/QMutex>
+#include <QtCore/QThread>
+#include <QtCore/QTimer>
+#include <QtCore/QWaitCondition>
 
 namespace Tasking {
 
@@ -60,7 +60,7 @@ public:
         terminate();
     }
 
-signals:
+Q_SIGNALS:
     void finished();
 
 private:

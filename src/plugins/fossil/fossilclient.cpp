@@ -766,7 +766,7 @@ unsigned int FossilClient::binaryVersion() const
     static unsigned int cachedBinaryVersion = 0;
     static FilePath cachedBinaryPath;
 
-    const FilePath currentBinaryPath = settings().binaryPath();
+    const FilePath currentBinaryPath = settings().binaryPath.effectiveBinary();
 
     if (currentBinaryPath.isEmpty())
         return 0;

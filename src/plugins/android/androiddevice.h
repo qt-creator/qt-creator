@@ -70,44 +70,13 @@ private:
     std::unique_ptr<QSettings> m_avdSettings;
 };
 
-class AndroidDeviceManager : public QObject
-{
-public:
-    static AndroidDeviceManager *instance();
-    void setupDevicesWatcher();
-    void updateAvdList();
-    IDevice::DeviceState getDeviceState(const QString &serial, IDevice::MachineType type) const;
-    void updateDeviceState(const ProjectExplorer::IDevice::ConstPtr &device);
+namespace AndroidDeviceManager {
 
-    Utils::expected_str<void> createAvd(const CreateAvdInfo &info, bool force);
-    void startAvd(const ProjectExplorer::IDevice::Ptr &device, QWidget *parent = nullptr);
-    void eraseAvd(const ProjectExplorer::IDevice::Ptr &device, QWidget *parent = nullptr);
-    void setupWifiForDevice(const ProjectExplorer::IDevice::Ptr &device, QWidget *parent = nullptr);
+void setupDevicesWatcher();
+void updateAvdList();
+Utils::expected_str<void> createAvd(const CreateAvdInfo &info, bool force);
 
-    void setEmulatorArguments(QWidget *parent = nullptr);
-
-    QString getRunningAvdsSerialNumber(const QString &name) const;
-
-    static ProjectExplorer::IDevice::Ptr createDeviceFromInfo(const CreateAvdInfo &info);
-
-private:
-    explicit AndroidDeviceManager(QObject *parent);
-    ~AndroidDeviceManager();
-
-    void handleDevicesListChange(const QString &serialNumber);
-    void handleAvdListChange(const AndroidDeviceInfoList &avdList);
-
-    QString emulatorName(const QString &serialNumber) const;
-
-    Tasking::Group m_avdListRecipe;
-    Tasking::TaskTreeRunner m_avdListRunner;
-    std::unique_ptr<Utils::Process> m_removeAvdProcess;
-    QFileSystemWatcher m_avdFileSystemWatcher;
-    Utils::Guard m_avdPathGuard;
-    std::unique_ptr<Utils::Process> m_adbDeviceWatcherProcess;
-
-    friend void setupAndroidDeviceManager(QObject *guard);
-};
+} // namespace AndroidDeviceManager
 
 void setupAndroidDevice();
 void setupAndroidDeviceManager(QObject *guard);

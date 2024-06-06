@@ -101,7 +101,7 @@ void CppcheckTool::updateArguments()
 
     arguments.push_back("--template=\"{file},{line},{severity},{id},{message}\"");
 
-    m_runner->reconfigure(s.binary(), arguments.join(' '));
+    m_runner->reconfigure(s.binary.effectiveBinary(), arguments.join(' '));
 }
 
 QStringList CppcheckTool::additionalArguments(const CppEditor::ProjectPart &part) const

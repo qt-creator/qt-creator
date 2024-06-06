@@ -115,6 +115,7 @@ QtcPlugin {
             "projectmanager.cpp", "projectmanager.h",
             "projectmodels.cpp", "projectmodels.h",
             "projectnodes.cpp", "projectnodes.h",
+            "projectnodeshelper.h",
             "projectpanelfactory.cpp", "projectpanelfactory.h",
             "projectsettingswidget.cpp", "projectsettingswidget.h",
             "projecttree.cpp",

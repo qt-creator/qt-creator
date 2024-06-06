@@ -628,17 +628,15 @@ void AndroidRunnerWorker::asyncStart()
     using namespace Tasking;
 
     const Storage<PidUserPair> pidStorage;
-    const LoopUntil iterator([pidStorage](int) { return pidStorage->first <= 0; });
 
     const FilePath adbPath = AndroidConfig::adbToolPath();
     const QStringList args = selector();
+    const QString pidScript = m_isPreNougat
+        ? QString("for p in /proc/[0-9]*; do cat <$p/cmdline && echo :${p##*/}; done")
+        : QString("pidof -s '%1'").arg(m_packageName);
 
-    const auto onPidSetup = [adbPath, args, packageName = m_packageName,
-                             isPreNougat = m_isPreNougat](Process &process) {
-        const QString pidScript = isPreNougat
-            ? QString("for p in /proc/[0-9]*; do cat <$p/cmdline && echo :${p##*/}; done")
-            : QString("pidof -s '%1'").arg(packageName);
-        process.setCommand({adbPath, args + QStringList{"shell", pidScript}});
+    const auto onPidSetup = [adbPath, args, pidScript](Process &process) {
+        process.setCommand({adbPath, {args, "shell", pidScript}});
     };
     const auto onPidDone = [pidStorage, packageName = m_packageName,
                             isPreNougat = m_isPreNougat](const Process &process) {
@@ -650,8 +648,8 @@ void AndroidRunnerWorker::asyncStart()
     };
 
     const auto onUserSetup = [pidStorage, adbPath, args](Process &process) {
-        process.setCommand({adbPath, args
-            + QStringList{"shell", "ps", "-o", "user", "-p", QString::number(pidStorage->first)}});
+        process.setCommand({adbPath, {args, "shell", "ps", "-o", "user", "-p",
+                                      QString::number(pidStorage->first)}});
     };
     const auto onUserDone = [pidStorage](const Process &process) {
         const QString out = process.allOutput();
@@ -674,10 +672,11 @@ void AndroidRunnerWorker::asyncStart()
     const Group root {
         pidStorage,
         onGroupSetup([pidStorage] { *pidStorage = {-1, 0}; }),
-        Group {
-            iterator,
+        Forever {
+            stopOnSuccess,
             ProcessTask(onPidSetup, onPidDone, CallDoneIf::Success),
-            TimeoutTask([](std::chrono::milliseconds &timeout) { timeout = 200ms; })
+            TimeoutTask([](std::chrono::milliseconds &timeout) { timeout = 200ms; },
+                        [] { return DoneResult::Error; })
         }.withTimeout(45s),
         ProcessTask(onUserSetup, onUserDone, CallDoneIf::Success),
         onGroupDone([pidStorage, this] { onProcessIdChanged(*pidStorage); })

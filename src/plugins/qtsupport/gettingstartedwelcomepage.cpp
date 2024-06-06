@@ -279,7 +279,7 @@ public:
 
         using namespace Layouting;
         Row titleRow {
-            customMargin({0, 0, ExVPaddingGapXl, 0}),
+            customMargins(0, 0, ExVPaddingGapXl, 0),
             spacing(ExVPaddingGapXl),
         };
 
@@ -317,7 +317,7 @@ public:
             titleRow,
             gridView,
             spacing(ExVPaddingGapXl),
-            customMargin({ExVPaddingGapXl, ExVPaddingGapXl, 0, 0}),
+            customMargins(ExVPaddingGapXl, ExVPaddingGapXl, 0, 0),
         }.attachTo(this);
 
         connect(&m_exampleDelegate, &ExampleDelegate::tagClicked,

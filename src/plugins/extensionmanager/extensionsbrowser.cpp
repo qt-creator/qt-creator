@@ -40,27 +40,37 @@
 #include <QPainterPath>
 #include <QStyle>
 
-using namespace ExtensionSystem;
 using namespace Core;
+using namespace ExtensionSystem;
 using namespace Utils;
+using namespace StyleHelper;
+using namespace SpacingTokens;
+using namespace WelcomePageHelpers;
 
 namespace ExtensionManager::Internal {
 
 Q_LOGGING_CATEGORY(browserLog, "qtc.extensionmanager.browser", QtWarningMsg)
 
-constexpr QSize itemSize = {330, 86};
-constexpr int gapSize = StyleHelper::SpacingTokens::ExVPaddingGapXl;
-constexpr QSize cellSize = {itemSize.width() + gapSize, itemSize.height() + gapSize};
-
-static QColor colorForExtensionName(const QString &name)
-{
-    const size_t hash = qHash(name);
-    return QColor::fromHsv(hash % 360, 180, 110);
-}
+constexpr int gapSize = ExVPaddingGapXl;
+constexpr int itemWidth = 330;
+constexpr int cellWidth = itemWidth + HPaddingL;
 
 class ExtensionItemDelegate : public QItemDelegate
 {
 public:
+    constexpr static QSize dividerS{1, 16};
+    constexpr static QSize iconBgS{50, 50};
+    constexpr static TextFormat itemNameTF
+        {Theme::Token_Text_Default, UiElement::UiElementH6};
+    constexpr static TextFormat countTF
+        {Theme::Token_Text_Default, UiElement::UiElementLabelSmall,
+         Qt::AlignCenter | Qt::TextDontClip};
+    constexpr static TextFormat vendorTF
+        {Theme::Token_Text_Muted, UiElement::UiElementLabelSmall,
+         Qt::AlignVCenter | Qt::TextDontClip};
+    constexpr static TextFormat tagsTF
+        {Theme::Token_Text_Default, UiElement::UiElementCaption};
+
     explicit ExtensionItemDelegate(QObject *parent = nullptr)
         : QItemDelegate(parent)
     {
@@ -69,12 +79,54 @@ public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index)
         const override
     {
+        // +---------------+-------+---------------+----------------------------------------------------------------------+---------------+-----------+
+        // |               |       |               |                            (ExPaddingGapL)                           |               |           |
+        // |               |       |               +-------------------------------------------------------------+--------+               |           |
+        // |               |       |               |                          <itemName>                         |<status>|               |           |
+        // |               |       |               +-------------------------------------------------------------+--------+               |           |
+        // |               |       |               |                               (VGapXxs)                              |               |           |
+        // |               |       |               +--------+--------+--------------+--------+--------+---------+---------+               |           |
+        // |(ExPaddingGapL)|<icon> |(ExPaddingGapL)|<vendor>|(HGapXs)|<divider>(h16)|(HGapXs)|<dlIcon>|(HGapXxs)|<dlCount>|(ExPaddingGapL)|(HPaddingL)|
+        // |               |(50x50)|               +--------+--------+--------------+--------+--------+---------+---------+               |           |
+        // |               |       |               |                               (VGapXxs)                              |               |           |
+        // |               |       |               +----------------------------------------------------------------------+               |           |
+        // |               |       |               |                                <tags>                                |               |           |
+        // |               |       |               +----------------------------------------------------------------------+               |           |
+        // |               |       |               |                            (ExPaddingGapL)                           |               |           |
+        // +---------------+-------+---------------+----------------------------------------------------------------------+---------------+-----------+
+        // |                                                             (ExVPaddingGapXl)                                                            |
+        // +------------------------------------------------------------------------------------------------------------------------------------------+
+
+        const QRect bgRGlobal = option.rect.adjusted(0, 0, -HPaddingL, -gapSize);
+        const QRect bgR = bgRGlobal.translated(-option.rect.topLeft());
+
+        const int middleColumnW = bgR.width() - ExPaddingGapL - iconBgS.width() - ExPaddingGapL
+                                  - ExPaddingGapL;
+
+        int x = bgR.x();
+        int y = bgR.y();
+        x += ExPaddingGapL;
+        const QRect iconBgR(x, y + (bgR.height() - iconBgS.height()) / 2,
+                            iconBgS.width(), iconBgS.height());
+        x += iconBgS.width() + ExPaddingGapL;
+        y += ExPaddingGapL;
+        const QRect itemNameR(x, y, middleColumnW, itemNameTF.lineHeight());
+        const QString itemName = index.data().toString();
+
+        y += itemNameR.height() + VGapXxs;
+        const QRect vendorRowR(x, y, middleColumnW, vendorRowHeight());
+        QRect vendorR = vendorRowR;
+
+        y += vendorRowR.height() + VGapXxs;
+        const QRect tagsR(x, y, middleColumnW, tagsTF.lineHeight());
+
+        QTC_CHECK(option.rect.height() - 1 == tagsR.bottom() + ExPaddingGapL + gapSize);
+
         painter->save();
         painter->setRenderHint(QPainter::Antialiasing);
+        painter->translate(bgRGlobal.topLeft());
 
-        const QString itemName = index.data().toString();
         const bool isPack = index.data(RoleItemType) == ItemTypePack;
-        const QRectF itemRect(option.rect.topLeft(), itemSize);
         {
             const bool selected = option.state & QStyle::State_Selected;
             const bool hovered = option.state & QStyle::State_MouseOver;
@@ -85,94 +137,114 @@ public:
                 creatorColor(selected ? Theme::Token_Stroke_Strong
                                       : hovered ? WelcomePageHelpers::cardHoverStroke
                                                 : WelcomePageHelpers::cardDefaultStroke);
-            WelcomePageHelpers::drawCardBackground(painter, itemRect, fillColor, strokeColor);
+            WelcomePageHelpers::drawCardBackground(painter, bgR, fillColor, strokeColor);
         }
         {
-            constexpr QRectF bigCircle(16, 16, 48, 48);
-            constexpr double gradientMargin = 0.14645;
-            const QRectF bigCircleLocal = bigCircle.translated(itemRect.topLeft());
-            QPainterPath bigCirclePath;
-            bigCirclePath.addEllipse(bigCircleLocal);
-            QLinearGradient gradient(bigCircleLocal.topLeft(), bigCircleLocal.bottomRight());
-            const QColor startColor = isPack ? qRgb(0x1e, 0x99, 0x6e)
-                                             : colorForExtensionName(itemName);
-            const QColor endColor = isPack ? qRgb(0x07, 0x6b, 0x6d) : startColor.lighter(150);
-            gradient.setColorAt(gradientMargin, startColor);
-            gradient.setColorAt(1 - gradientMargin, endColor);
-            painter->fillPath(bigCirclePath, gradient);
+            QLinearGradient gradient(iconBgR.topRight(), iconBgR.bottomLeft());
+            const QColor startColor = creatorColor(Utils::Theme::Token_Gradient01_Start);
+            const QColor endColor = creatorColor(Utils::Theme::Token_Gradient01_End);
+            gradient.setColorAt(0, startColor);
+            gradient.setColorAt(1, endColor);
+            constexpr int iconRectRounding = 4;
+            drawCardBackground(painter, iconBgR, gradient, Qt::NoPen, iconRectRounding);
 
-            static const QIcon packIcon =
-                Icon({{":/extensionmanager/images/packsmall.png",
-                       Theme::Token_Text_Default}}, Icon::Tint).icon();
-            static const QIcon extensionIcon =
-                Icon({{":/extensionmanager/images/extensionsmall.png",
-                       Theme::Token_Text_Default}}, Icon::Tint).icon();
-            QRectF iconRect(0, 0, 32, 32);
-            iconRect.moveCenter(bigCircleLocal.center());
-            (isPack ? packIcon : extensionIcon).paint(painter, iconRect.toRect());
+            // Icon
+            constexpr Theme::Color color = Theme::Token_Basic_White;
+            static const QIcon pack = Icon({{":/extensionmanager/images/packsmall.png", color}},
+                                           Icon::Tint).icon();
+            static const QIcon extension = Icon({{":/extensionmanager/images/extensionsmall.png",
+                                                  color}}, Icon::Tint).icon();
+            (isPack ? pack : extension).paint(painter, iconBgR);
         }
         if (isPack) {
-            constexpr QRectF smallCircle(47, 50, 18, 18);
-            constexpr qreal strokeWidth = 1;
-            constexpr qreal shrink = strokeWidth / 2;
-            constexpr QRectF smallCircleAdjusted = smallCircle.adjusted(shrink, shrink,
-                                                                        -shrink, -shrink);
-            const QRectF smallCircleLocal = smallCircleAdjusted.translated(itemRect.topLeft());
+            constexpr int circleSize = 18;
+            constexpr int circleOverlap = 3; // Protrusion from lower right corner of iconRect
+            const QRect smallCircle(iconBgR.right() + 1 + circleOverlap - circleSize,
+                                    iconBgR.bottom() + 1 + circleOverlap - circleSize,
+                                    circleSize, circleSize);
             const QColor fillColor = creatorColor(Theme::Token_Foreground_Muted);
             const QColor strokeColor = creatorColor(Theme::Token_Stroke_Subtle);
-            painter->setBrush(fillColor);
-            painter->setPen(strokeColor);
-            painter->drawEllipse(smallCircleLocal);
+            drawCardBackground(painter, smallCircle, fillColor, strokeColor, circleSize / 2);
 
-            painter->setFont(StyleHelper::uiFont(StyleHelper::UiElementCaptionStrong));
-            const QColor textColor = creatorColor(Theme::Token_Text_Default);
-            painter->setPen(textColor);
+            painter->setFont(countTF.font());
+            painter->setPen(countTF.color());
             const PluginsData plugins = index.data(RolePlugins).value<PluginsData>();
-            painter->drawText(
-                smallCircleLocal,
-                QString::number(plugins.count()),
-                QTextOption(Qt::AlignCenter));
+            painter->drawText(smallCircle, countTF.drawTextFlags, QString::number(plugins.count()));
         }
         {
-            constexpr int textX = 80;
-            constexpr int rightMargin = StyleHelper::SpacingTokens::ExVPaddingGapXl;
-            constexpr int maxTextWidth = itemSize.width() - textX - rightMargin;
-            constexpr Qt::TextElideMode elideMode = Qt::ElideRight;
-
-            constexpr int titleY = 30;
-            const QPointF titleOrigin(itemRect.topLeft() + QPointF(textX, titleY));
-            painter->setPen(creatorColor(Theme::Token_Text_Default));
-            painter->setFont(StyleHelper::uiFont(StyleHelper::UiElementH6));
+            painter->setPen(itemNameTF.color());
+            painter->setFont(itemNameTF.font());
             const QString titleElided
-                = painter->fontMetrics().elidedText(itemName, elideMode, maxTextWidth);
-            painter->drawText(titleOrigin, titleElided);
+                = painter->fontMetrics().elidedText(itemName, Qt::ElideRight, itemNameR.width());
+            painter->drawText(itemNameR, itemNameTF.drawTextFlags, titleElided);
+        }
+        {
+            const QString vendor = index.data(RoleVendor).toString();
+            const QFontMetrics fm(vendorTF.font());
+            painter->setPen(vendorTF.color());
+            painter->setFont(vendorTF.font());
 
-            constexpr int copyrightY = 52;
-            const QPointF copyrightOrigin(itemRect.topLeft() + QPointF(textX, copyrightY));
-            painter->setPen(creatorColor(Theme::Token_Text_Muted));
-            painter->setFont(StyleHelper::uiFont(StyleHelper::UiElementCaptionStrong));
-            const QString copyright = index.data(RoleCopyright).toString();
-            const QString copyrightElided
-                = painter->fontMetrics().elidedText(copyright, elideMode, maxTextWidth);
-            painter->drawText(copyrightOrigin, copyrightElided);
+            if (const int dlCount = index.data(RoleDownloadCount).toInt(); dlCount > 0) {
+                constexpr QSize dlIconS(16, 16);
+                const QString dlCountString = QString::number(dlCount);
+                const int dlCountW = fm.horizontalAdvance(dlCountString);
+                const int dlItemsW = HGapXs + dividerS.width() + HGapXs + dlIconS.width()
+                                     + HGapXxs + dlCountW;
+                const int vendorW = fm.horizontalAdvance(vendor);
+                vendorR.setWidth(qMin(middleColumnW - dlItemsW, vendorW));
 
-            constexpr int tagsY = 70;
-            const QPointF tagsOrigin(itemRect.topLeft() + QPointF(textX, tagsY));
-            const QString tags = index.data(RoleTags).toStringList().join(", ");
-            painter->setPen(creatorColor(Theme::Token_Text_Default));
-            painter->setFont(StyleHelper::uiFont(StyleHelper::UiElementCaption));
-            const QString tagsElided = painter->fontMetrics().elidedText(
-                tags, elideMode, maxTextWidth);
-            painter->drawText(tagsOrigin, tagsElided);
+                QRect dividerR = vendorRowR;
+                dividerR.setLeft(vendorR.right() + HGapXs);
+                dividerR.setWidth(dividerS.width());
+                painter->fillRect(dividerR, vendorTF.color());
+
+                QRect dlIconR = vendorRowR;
+                dlIconR.setLeft(dividerR.right() + HGapXs);
+                dlIconR.setWidth(dlIconS.width());
+                static const QIcon dlIcon = Icon({{":/extensionmanager/images/download.png",
+                                                   vendorTF.themeColor}}, Icon::Tint).icon();
+                dlIcon.paint(painter, dlIconR);
+
+                QRect dlCountR = vendorRowR;
+                dlCountR.setLeft(dlIconR.right() + HGapXxs);
+                painter->drawText(dlCountR, vendorTF.drawTextFlags, dlCountString);
+            }
+
+            const QString vendorElided = fm.elidedText(vendor, Qt::ElideRight, vendorR.width());
+            painter->drawText(vendorR, vendorTF.drawTextFlags, vendorElided);
+        }
+        {
+            const QStringList tagList = index.data(RoleTags).toStringList();
+            const QString tags = tagList.join(", ");
+            painter->setPen(tagsTF.color());
+            painter->setFont(tagsTF.font());
+            const QString tagsElided
+                = painter->fontMetrics().elidedText(tags, Qt::ElideRight, tagsR.width());
+            painter->drawText(tagsR, tagsTF.drawTextFlags, tagsElided);
         }
 
         painter->restore();
     }
 
+    static int vendorRowHeight()
+    {
+        return qMax(vendorTF.lineHeight(), dividerS.height());
+    }
+
     QSize sizeHint([[maybe_unused]] const QStyleOptionViewItem &option,
                    [[maybe_unused]] const QModelIndex &index) const override
     {
-        return cellSize;
+        const int middleColumnH =
+            itemNameTF.lineHeight()
+            + VGapXxs
+            + vendorRowHeight()
+            + VGapXxs
+            + tagsTF.lineHeight();
+        const int height =
+            ExPaddingGapL
+            + qMax(iconBgS.height(), middleColumnH)
+            + ExPaddingGapL;
+        return {cellWidth, height + gapSize};
     }
 };
 
@@ -196,11 +268,10 @@ ExtensionsBrowser::ExtensionsBrowser(QWidget *parent)
     setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
 
     auto manageLabel = new QLabel(Tr::tr("Manage Extensions"));
-    manageLabel->setFont(StyleHelper::uiFont(StyleHelper::UiElementH1));
+    manageLabel->setFont(uiFont(UiElementH1));
 
     d->searchBox = new SearchBox;
-    d->searchBox->setFixedWidth(itemSize.width());
-
+    d->searchBox->setFixedWidth(itemWidth);
     d->updateButton = new Button(Tr::tr("Install..."), Button::MediumPrimary);
 
     d->model = new ExtensionsModel(this);
@@ -267,14 +338,14 @@ ExtensionsBrowser::~ExtensionsBrowser()
 void ExtensionsBrowser::adjustToWidth(const int width)
 {
     const int widthForItems = width - extraListViewWidth();
-    d->columnsCount = qMax(1, qFloor(widthForItems / cellSize.width()));
+    d->columnsCount = qMax(1, qFloor(widthForItems / cellWidth));
     d->updateButton->setVisible(d->columnsCount > 1);
     updateGeometry();
 }
 
 QSize ExtensionsBrowser::sizeHint() const
 {
-    const int columsWidth = d->columnsCount * cellSize.width();
+    const int columsWidth = d->columnsCount * cellWidth;
     return { columsWidth + extraListViewWidth(), 0};
 }
 

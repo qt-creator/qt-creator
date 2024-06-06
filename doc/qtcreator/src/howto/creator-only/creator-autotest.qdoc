@@ -849,8 +849,7 @@
 
     \section1 Blacklisting Tests
 
-    Since Qt 5.4, you can add a BLACKLIST file for tests. It is mainly used
-    internally by the Qt CI system.
+    A BLACKLIST file for tests is mainly used internally by the Qt CI system.
 
     \table
         \header

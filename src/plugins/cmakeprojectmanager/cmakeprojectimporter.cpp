@@ -1124,6 +1124,11 @@ const QList<BuildInfo> CMakeProjectImporter::buildInfoList(void *directoryData) 
         && data->hasQmlDebugging)
         buildType = CMakeBuildConfigurationFactory::BuildTypeProfile;
     BuildInfo info = CMakeBuildConfigurationFactory::createBuildInfo(buildType);
+
+    // For CMake Presets use the provided build type if is not mapped to a known type
+    if (!data->cmakePreset.isEmpty() && info.buildType == BuildConfiguration::Unknown)
+        info.typeName = info.displayName = QString::fromUtf8(data->cmakeBuildType);
+
     info.buildDirectory = data->buildDirectory;
 
     QVariantMap config = info.extraInfo.toMap(); // new empty, or existing one from createBuildInfo

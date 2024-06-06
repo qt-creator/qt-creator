@@ -197,10 +197,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, Type type, QWidget *additi
 
     auto horizontalLayout = new QHBoxLayout();
     horizontalLayout->setContentsMargins(0, 0, 0, 0);
-    auto tree = new Utils::TreeView(this);
-    connect(tree, &QAbstractItemView::activated,
-            tree, [tree](const QModelIndex &idx) { tree->edit(idx); });
-    d->m_environmentView = tree;
+    d->m_environmentView = new Utils::TreeView(this);
     d->m_environmentView->setModel(d->m_model);
     d->m_environmentView->setMinimumHeight(400);
     d->m_environmentView->setRootIsDecorated(false);
@@ -363,7 +360,10 @@ void EnvironmentWidget::updateSummaryText()
         return;
     }
 
-    Utils::EnvironmentItems list = d->m_model->userChanges();
+    Utils::EnvironmentItems list
+            = Utils::filtered(d->m_model->userChanges(), [](const EnvironmentItem &it) {
+        return it.operation != Utils::EnvironmentItem::Comment;
+    });
     Utils::EnvironmentItem::sort(&list);
 
     QString text;
@@ -386,6 +386,8 @@ void EnvironmentWidget::updateSummaryText()
                 break;
             case Utils::EnvironmentItem::SetDisabled:
                 text.append(Tr::tr("Set <a href=\"%1\"><b>%1</b></a> to <b>%2</b> [disabled]").arg(item.name.toHtmlEscaped(), item.value.toHtmlEscaped()));
+                break;
+            case Utils::EnvironmentItem::Comment:
                 break;
             }
         }

@@ -3,6 +3,7 @@ set(resource_directories
   cplusplus
   glsl
   indexer_preincludes
+  jsonschemas
   modeleditor
   qmldesigner
   qmlicons

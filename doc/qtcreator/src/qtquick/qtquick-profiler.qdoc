@@ -261,33 +261,24 @@
     of the code the event is associated with.
 
     The following types of events are displayed in the timeline view on one or
-    several rows. The availability of event types depends on the Qt version that
-    you build the application with and the Qt Quick version you use.
+    several rows.
 
     \table
 
     \header
         \li Event Category
         \li Description
-        \li Minimum Qt Version
-        \li Qt Quick Version
-
     \row
         \li \uicontrol {Pixmap Cache}
         \li Displays the general amount of pixmap data cached, in pixels. In
             addition, displays a separate event for each picture being loaded,
             with specifics about its file name and size.
-        \li Qt 5.1
-        \li Qt Quick 2
 
     \row
         \li \uicontrol {Scene Graph}
         \li Displays the time when scene graph frames are rendered and some
             additional timing information for the various stages executed to do
             so.
-        \li Qt 5.1
-        \li Qt Quick 2
-
     \row
         \li \uicontrol {Memory Usage}
         \li Displays block allocations of the JavaScript memory manager.
@@ -300,82 +291,49 @@
             The second row displays the actual usage of the allocated memory.
             This is the amount of JavaScript heap the application has actually
             requested.
-        \li Qt 5.4
-        \li Qt Quick 2
-
     \row
         \li \uicontrol {Input Events}
         \li Displays mouse and keyboard events.
-        \li Qt 4.7.4
-        \li Qt Quick 1 or Qt Quick 2
-
     \row
         \li \uicontrol Painting
-        \li Displays the time spent painting the scene for each frame.
-        \li Qt 4.7.4
-        \li Qt Quick 1
-
+        \li Not used.
     \row
         \li \uicontrol Animations
         \li Displays the amount of animations that are active and the frame
             rate that they are running at.
-            Information about render thread animations is displayed for
-            applications that are built with Qt 5.3 or later. Render thread
-            animations are shown in a separate row then.
-        \li Qt 5.0 (Qt 5.3)
-        \li Qt Quick 2
-
+            Render thread animations are shown on a separate row.
     \row
         \li \uicontrol Compiling
         \li Displays the time spent compiling the QML files.
-        \li Qt 4.7.4
-        \li Qt Quick 1 or Qt Quick 2
-
     \row
         \li \uicontrol Creating
-        \li Displays the time spent creating the elements in the scene. In Qt
-            Quick 2, creation of elements takes place in two stages. The first
+        \li Displays the time spent creating the elements in the scene.
+            The creation of elements takes place in two stages. The first
             stage is for the creation of the data structures, including child
             elements. The second stage represents the completion callbacks. Not
             all elements trigger completion callbacks, though. The stages are
             shown as separate events in the timeline.
-            For Qt Quick 2 applications compiled with versions of Qt before
-            5.2.1 only the creation of top-level elements is shown, as single
-            events.
-        \li Qt 4.7.4 (Qt 5.2.1)
-        \li Qt Quick 1 or Qt Quick 2
-
     \row
         \li \uicontrol Binding
         \li Displays the time when a binding is evaluated and how long the
             evaluation takes.
-        \li Qt 4.7.4
-        \li Qt Quick 1 or Qt Quick 2
-
     \row
         \li \uicontrol {Handling Signal}
         \li Displays the time when a signal is handled and how long the
             handling takes.
-        \li Qt 4.7.4
-        \li Qt Quick 1 or Qt Quick 2
-
     \row
         \li \uicontrol JavaScript
         \li Displays the time spent executing the actual JavaScript behind
             bindings and signal handlers. It lists all the JavaScript functions
             you may be using to evaluate bindings or handle signals.
-        \li Qt 5.3
-        \li Qt Quick 2
-
     \row
         \li \uicontrol Quick3D
         \li Displays the time spent rendering Qt Quick 3D frames, timing information
             for frame preparation and synchronization, particle system update times
             and particle update count, as well as texture and mesh memory allocations
             and memory consumption.
-        \li Qt 6.3
-        \li Qt Quick 3D
 
+            This event type is available since Qt 6.3.
     \endtable
 
     \section2 Analyzing Scene Graph Events
@@ -399,7 +357,6 @@
         \li Render Loop Types
         \li Label in output of QSG_RENDER_TIMING
         \li Description
-        \li Caveats
     \row
         \li \uicontrol {Polish}
         \li GUI
@@ -407,8 +364,6 @@
         \li polish
         \li Final touch-up of items before they are rendered using
             QQuickItem::updatePolish().
-        \li Versions of Qt prior to Qt 5.4 record no polish times for the basic
-            render loop and incorrect ones for the windows render loop.
     \row
         \li \uicontrol {GUI Thread Wait}
         \li GUI
@@ -419,14 +374,12 @@
             the same mutex at \uicontrol {GUI Thread Sync}. If this starts long
             before \uicontrol {Render Thread Sync}, there is \e free  time in the GUI
             thread you could be using for running additional QML or JavaScript.
-        \li None
     \row
         \li \uicontrol {GUI Thread Sync}
         \li GUI
         \li Threaded
         \li blockedForSync
         \li The time the GUI thread is blocked, waiting for the render thread.
-        \li None
     \row
         \li \uicontrol {Animations}
         \li GUI
@@ -437,7 +390,6 @@
             animation events will be shown when using the basic render loop.
             Watch the \uicontrol {Animations} category to see animation timing in
             this case.
-        \li None
     \row
         \li \uicontrol {Render Thread Sync}
         \li Render
@@ -445,7 +397,6 @@
         \li Frame rendered ... sync
         \li Synchronizing the QML state into the scene graph using
             QQuickItem::updatePaintNode().
-        \li None
     \row
         \li \uicontrol {Render}
         \li Render
@@ -455,20 +406,12 @@
             uploading all the necessary data to the GPU. This is the \e gross
             render time. Do not confuse it with the \e net \uicontrol{Render Render}
             time below.
-        \li With versions of Qt prior to Qt 5.5, the gross render time and the
-            below breakup of render times may be misaligned by some
-            microseconds due to different, unsynchronized timers being used to
-            measure them. For example \uicontrol {Render Preprocess} might seem to
-            start before \uicontrol {Render Thread Sync} is finished.
     \row
         \li \uicontrol {Swap}
         \li Render
         \li Threaded, Basic, Windows
         \li Frame rendered ... swap
         \li Swapping frames after rendering.
-        \li The output of swap times triggered by setting QSG_RENDER_TIMING is
-            incorrect for the basic render loop and versions of Qt prior to
-            Qt 5.4. QML Profiler shows the correct swap times.
     \row
         \li \uicontrol {Render Preprocess}
         \li Render
@@ -476,8 +419,6 @@
         \li time in renderer ... preprocess
         \li Calling QSGNode::preprocess() on all nodes that need to be
             preprocessed. This is part of the gross \uicontrol {Render} step.
-        \li May not be properly aligned with \uicontrol {Render} with versions of Qt
-            prior to Qt 5.5.
     \row
         \li \uicontrol {Render Update}
         \li Render
@@ -489,8 +430,6 @@
             with state from the GUI thread. In \uicontrol {Render Update}, all the
             nodes are combined to create the final scene. This is part of the
             gross \uicontrol {Render} step.
-        \li May not be properly aligned with \uicontrol {Render} with versions of Qt
-            prior to Qt 5.5.
     \row
         \li \uicontrol {Render Bind}
         \li Render
@@ -498,8 +437,6 @@
         \li time in renderer ... binding
         \li Binding the correct framebuffer for OpenGL rendering. This is part
             of the gross \uicontrol {Render} step.
-        \li May not be properly aligned with \uicontrol {Render} with versions of Qt
-            prior to Qt 5.5.
     \row
         \li \uicontrol {Render Render}
         \li Render
@@ -507,38 +444,30 @@
         \li time in renderer ... rendering
         \li The actual process of sending all the data to the GPU via OpenGL.
             This is part of the gross \uicontrol {Render} step.
-        \li May not be properly aligned with \uicontrol {Render} with versions of Qt
-            prior to Qt 5.5.
     \row
         \li \uicontrol {Material Compile}
         \li Render
         \li Threaded, Basic, Windows
         \li shader compiled
         \li Compiling GLSL shader programs.
-        \li None
     \row
         \li \uicontrol {Glyph Render}
         \li Render
         \li Threaded, Basic, Windows
         \li glyphs ... rendering
         \li Rendering of font glyphs into textures.
-        \li Versions of Qt prior to Qt 5.4 report incorrect times for these
-            events.
     \row
         \li \uicontrol {Glyph Upload}
         \li Render
         \li Threaded, Basic, Windows
         \li glyphs ... upload
         \li Uploading of glyph textures to the GPU.
-        \li Versions of Qt prior to Qt 5.4 report incorrect times for these
-            events.
     \row
         \li \uicontrol {Texture Bind}
         \li Render
         \li Threaded, Basic, Windows
         \li plain texture ... bind
         \li Binding a texture in the OpenGL context using glBindTextures.
-        \li None
     \row
         \li \uicontrol {Texture Convert}
         \li Render
@@ -546,35 +475,30 @@
         \li plain texture ... convert
         \li Converting the format and downscaling an image to make it suitable
             for usage as a texture.
-        \li None
     \row
         \li \uicontrol {Texture Swizzle}
         \li Render
         \li Threaded, Basic, Windows
         \li plain texture ... swizzle
         \li Swizzling the texture data on the CPU if necessary.
-        \li None
     \row
         \li \uicontrol {Texture Upload}
         \li Render
         \li Threaded, Basic, Windows
         \li plain texture ... upload / atlastexture uploaded
         \li Uploading the texture data to the GPU.
-        \li None
     \row
         \li \uicontrol {Texture Mipmap}
         \li Render
         \li Threaded, Basic, Windows
         \li plain texture ... mipmap
         \li Mipmapping a texture on the GPU.
-        \li None
     \row
         \li \uicontrol {Texture Delete}
         \li Render
         \li Threaded, Basic, Windows
         \li plain texture deleted
         \li Deleting a texture from the GPU that became unnecessary.
-        \li None
     \endtable
 
     \section2 Analyzing Qt Quick 3D Events
@@ -675,9 +599,6 @@
 
     To copy the contents of one view or row to the clipboard, select
     \uicontrol {Copy Table} or \uicontrol {Copy Row} in the context menu.
-
-    JavaScript events are shown in the \uicontrol Statistics view only for applications
-    that use Qt Quick 2 and are built with Qt 5.3 or later.
 
     \section2 Visualizing Statistics as Flame Graphs
 

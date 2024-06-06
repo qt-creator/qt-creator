@@ -307,7 +307,7 @@ recognize:
 
         if (currentExpanded) {
             QTC_ASSERT(macroOffset != -1 && macroLength != -1, continue);
-            _expansionPositions[_tokens->size() - 1] = std::make_pair(macroOffset, macroLength);
+            _expansionPositions[int(_tokens->size()) - 1] = std::make_pair(macroOffset, macroLength);
         }
     } while (tk.kind());
 

@@ -60,11 +60,12 @@ NameValueItemsWidget::NameValueItemsWidget(QWidget *parent)
     const QString helpText = Tr::tr(
         "Enter one environment variable per line.\n"
         "To set or change a variable, use VARIABLE=VALUE.\n"
+        "To disable a variable, prefix this line with \"#\".\n"
         "To append to a variable, use VARIABLE+=VALUE.\n"
         "To prepend to a variable, use VARIABLE=+VALUE.\n"
         "Existing variables can be referenced in a VALUE with ${OTHER}.\n"
         "To clear a variable, put its name on a line with nothing else on it.\n"
-        "To disable a variable, prefix the line with \"#\".");
+        "Lines starting with \"##\" will be treated as comments.");
 
     m_editor = new Internal::TextEditHelper(this);
     auto layout = new QVBoxLayout(this);
@@ -141,7 +142,7 @@ bool NameValueItemsWidget::editVariable(const QString &name, Selection selection
         skipWhiteSpace();
         if (offset < line.length()) {
             QChar nextChar = line.at(offset);
-            if (nextChar.isLetterOrNumber())
+            if (nextChar.isLetterOrNumber() || nextChar == '_')
                 continue;
             if (nextChar == '=') {
                 if (++offset < line.length() && line.at(offset) == '+')

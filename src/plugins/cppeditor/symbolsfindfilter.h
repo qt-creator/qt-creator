@@ -37,14 +37,17 @@ public:
     void findAll(const QString &txt, Utils::FindFlags findFlags) override;
 
     QWidget *createConfigWidget() override;
-    void writeSettings(Utils::QtcSettings *settings) override;
-    void readSettings(Utils::QtcSettings *settings) override;
+    Utils::Store save() const override;
+    void restore(const Utils::Store &s) override;
 
     void setSymbolsToSearch(const SearchSymbols::SymbolTypes &types) { m_symbolsToSearch = types; }
     SearchSymbols::SymbolTypes symbolsToSearch() const { return m_symbolsToSearch; }
 
     void setSearchScope(SearchScope scope) { m_scope = scope; }
     SearchScope searchScope() const { return m_scope; }
+
+    // deprecated
+    QByteArray settingsKey() const override;
 
 signals:
     void symbolsToSearchChanged();

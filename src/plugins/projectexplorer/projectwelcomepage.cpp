@@ -799,11 +799,11 @@ public:
                     sessionsLabel,
                     st,
                     manageSessionsButton,
-                    customMargin({HPaddingS, 0, sessionScrollBarGap, 0}),
+                    customMargins(HPaddingS, 0, sessionScrollBarGap, 0),
                 },
                 sessionsList,
                 spacing(ExPaddingGapL),
-                customMargin({ExVPaddingGapXl, ExVPaddingGapXl, 0, 0}),
+                customMargins(ExVPaddingGapXl, ExVPaddingGapXl, 0, 0),
             }.attachTo(sessions);
             connect(manageSessionsButton, &Button::clicked,
                     this, &SessionManager::showSessionManager);
@@ -823,11 +823,11 @@ public:
             Column {
                 Row {
                     projectsLabel,
-                    customMargin({HPaddingS, 0, 0, 0}),
+                    customMargins(HPaddingS, 0, 0, 0),
                 },
                 projectsList,
                 spacing(ExPaddingGapL),
-                customMargin({ExVPaddingGapXl - sessionScrollBarGap, ExVPaddingGapXl, 0, 0}),
+                customMargins(ExVPaddingGapXl - sessionScrollBarGap, ExVPaddingGapXl, 0, 0),
             }.attachTo(projects);
         }
 

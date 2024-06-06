@@ -11,6 +11,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/runcontrol.h>
 
+#include <QChartView>
 #include <QFormLayout>
 #include <QGraphicsItem>
 #include <QHash>
@@ -24,15 +25,15 @@ class AppStatisticsMonitorView : public QWidget
 {
 public:
     explicit AppStatisticsMonitorView(
-        AppStatisticsMonitorManager *appStatisticManager, QWidget *parent = nullptr);
+        AppStatisticsMonitorManager *appStatisticManager);
 
     ~AppStatisticsMonitorView() override;
 
 private:
     QComboBox *m_comboBox;
 
-    Chart *m_memChart;
-    Chart *m_cpuChart;
+    std::unique_ptr<AppStatisticsMonitorChart> m_chartMem;
+    std::unique_ptr<AppStatisticsMonitorChart> m_chartCpu;
 
     AppStatisticsMonitorManager *m_manager;
 };
@@ -114,25 +115,21 @@ QHash<qint64, QString> AppStatisticsMonitorManager::pidNameMap() const
 }
 
 // AppStatisticsMonitorView
-AppStatisticsMonitorView::AppStatisticsMonitorView(AppStatisticsMonitorManager *dapManager, QWidget *)
-    : m_manager(dapManager)
+AppStatisticsMonitorView::AppStatisticsMonitorView(AppStatisticsMonitorManager *appManager)
+    : m_manager(appManager)
 {
     auto layout = new QVBoxLayout;
     auto form = new QFormLayout;
     setLayout(layout);
 
-    m_comboBox = new QComboBox();
+    m_comboBox = new QComboBox(this);
     form->addRow(m_comboBox);
 
-    m_memChart = new Chart("Memory consumption ");
-    m_memChart->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    m_memChart->clear();
-    form->addRow(m_memChart);
+    m_chartMem = std::make_unique<AppStatisticsMonitorChart>(tr("Memory consumption"));
+    m_chartCpu = std::make_unique<AppStatisticsMonitorChart>(tr("CPU consumption"));
 
-    m_cpuChart = new Chart("CPU consumption ");
-    m_cpuChart->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    m_cpuChart->clear();
-    form->addRow(m_cpuChart);
+    form->addRow(m_chartMem->chartView());
+    form->addRow(m_chartCpu->chartView());
 
     layout->addLayout(form);
 
@@ -142,16 +139,19 @@ AppStatisticsMonitorView::AppStatisticsMonitorView(AppStatisticsMonitorManager *
     }
     m_comboBox->setCurrentIndex(m_comboBox->count() - 1);
 
-    m_memChart->clear();
-    m_cpuChart->clear();
+    m_chartCpu->clear();
+    m_chartMem->clear();
 
     auto updateCharts = [this](int index) {
         m_manager->setCurrentDataProvider(m_comboBox->itemData(index).toLongLong());
         if (m_manager->currentDataProvider() != nullptr) {
-            m_memChart->loadNewProcessData(
-                m_manager->currentDataProvider()->memoryConsumptionHistory());
-            m_cpuChart->loadNewProcessData(
-                m_manager->currentDataProvider()->cpuConsumptionHistory());
+            const QList<double> &memConsumptionHistory
+                = m_manager->currentDataProvider()->memoryConsumptionHistory();
+            const QList<double> &cpuConsumptionHistory
+                = m_manager->currentDataProvider()->cpuConsumptionHistory();
+
+            m_chartMem->loadNewProcessData(memConsumptionHistory);
+            m_chartCpu->loadNewProcessData(cpuConsumptionHistory);
         }
     };
 
@@ -170,16 +170,17 @@ AppStatisticsMonitorView::AppStatisticsMonitorView(AppStatisticsMonitorManager *
             if (pid != m_comboBox->currentData()) {
                 m_comboBox->addItem(name + " : " + QString::number(pid), pid);
 
-                m_memChart->clear();
-                m_cpuChart->clear();
+                m_chartMem->clear();
+                m_chartCpu->clear();
 
                 m_comboBox->setCurrentIndex(m_comboBox->count() - 1);
             }
         });
 
     connect(m_manager, &AppStatisticsMonitorManager::appStoped, this, [this](qint64 pid) {
-        m_memChart->addNewPoint({m_memChart->lastPointX() + 1, 0});
-        m_cpuChart->addNewPoint({m_cpuChart->lastPointX() + 1, 0});
+        m_chartMem->addNewPoint({m_chartMem->lastPointX() + 1, 0});
+        m_chartCpu->addNewPoint({m_chartCpu->lastPointX() + 1, 0});
+
         const int indx = m_comboBox->findData(pid);
         if (indx != -1)
             m_comboBox->removeItem(indx);
@@ -188,10 +189,10 @@ AppStatisticsMonitorView::AppStatisticsMonitorView(AppStatisticsMonitorManager *
     connect(m_manager, &AppStatisticsMonitorManager::newDataAvailable, this, [this] {
         const IDataProvider *currentDataProvider = m_manager->currentDataProvider();
         if (currentDataProvider != nullptr) {
-            m_memChart->addNewPoint(
+            m_chartMem->addNewPoint(
                 {(double) currentDataProvider->memoryConsumptionHistory().size(),
                  currentDataProvider->memoryConsumptionLast()});
-            m_cpuChart->addNewPoint(
+            m_chartCpu->addNewPoint(
                 {(double) currentDataProvider->cpuConsumptionHistory().size(),
                  currentDataProvider->cpuConsumptionLast()});
         }

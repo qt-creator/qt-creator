@@ -73,7 +73,7 @@ ModelTreeFilter::ModelTreeFilter(QWidget *parent) :
             },
             d->relationsCheckBox,
             d->diagramElementsCheckBox,
-            customMargin({margin, 0, margin, 0}),
+            customMargins(margin, 0, margin, 0),
         },
         Space(10),
         line(),
@@ -88,11 +88,11 @@ ModelTreeFilter::ModelTreeFilter(QWidget *parent) :
                 Tr::tr("Name:"), d->nameLineEdit, br,
                 Tr::tr("Direction:"), d->directionComboBox, br,
             },
-            customMargin({margin, 0, margin, 0}),
+            customMargins(margin, 0, margin, 0),
         },
         st,
         line(),
-        customMargin({0, margin, 0, 0}),
+        customMargins(0, margin, 0, 0),
     }.attachTo(this);
 
     connect(d->resetViewButton, &QPushButton::clicked, this, &ModelTreeFilter::resetView);

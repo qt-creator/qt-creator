@@ -168,11 +168,7 @@ QString UvscServerProvider::channelString() const
 bool UvscServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMessage) const
 {
     QTC_ASSERT(runTool, return false);
-    const RunControl *runControl = runTool->runControl();
-    const auto exeAspect = runControl->aspectData<ExecutableAspect>();
-    QTC_ASSERT(exeAspect, return false);
-
-    const FilePath bin = exeAspect->executable;
+    const FilePath bin = runTool->runControl()->runnable().command.executable();
     if (bin.isEmpty()) {
         errorMessage = Tr::tr("Cannot debug: Local executable is not set.");
         return false;

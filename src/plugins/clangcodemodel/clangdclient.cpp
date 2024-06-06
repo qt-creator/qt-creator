@@ -1011,9 +1011,10 @@ void ClangdClient::followSymbol(TextDocument *document,
               : ClangdFollowSymbol::Origin::Code;
     if (origin == ClangdFollowSymbol::Origin::User) {
         for (auto it = d->followSymbolOps.begin(); it != d->followSymbolOps.end(); ) {
-            if ((*it)->isInteractive()) {
-                (*it)->cancel();
+            ClangdFollowSymbol * const followSymbol = *it;
+            if (followSymbol->isInteractive()) {
                 it = d->followSymbolOps.erase(it);
+                followSymbol->cancel();
             } else {
                 ++it;
             }

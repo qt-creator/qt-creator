@@ -627,10 +627,14 @@ void PluginSpec::setEnabledIndirectly(bool value)
 }
 void PluginSpec::setForceDisabled(bool value)
 {
+    if (value)
+        d->forceEnabled = false;
     d->forceDisabled = value;
 }
 void PluginSpec::setForceEnabled(bool value)
 {
+    if (value)
+        d->forceDisabled = false;
     d->forceEnabled = value;
 }
 

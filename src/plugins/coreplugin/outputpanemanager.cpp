@@ -421,7 +421,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     }.attachTo(this);
 
     Row {
-        spacing(creatorTheme()->flag(Theme::FlatToolBars) ? 9 : 4), customMargin({5, 0, 0, 0}),
+        spacing(creatorTheme()->flag(Theme::FlatToolBars) ? 9 : 4), customMargins(5, 0, 0, 0),
     }.attachTo(m_buttonsWidget);
 
     StatusBarManager::addStatusBarWidget(m_buttonsWidget, StatusBarManager::Second);

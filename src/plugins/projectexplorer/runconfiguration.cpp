@@ -201,7 +201,7 @@ bool RunConfiguration::isEnabled(Utils::Id) const
 QWidget *RunConfiguration::createConfigurationWidget()
 {
     Layouting::Form form;
-    form.noMargin();
+    form.setNoMargins();
     for (BaseAspect *aspect : std::as_const(*this)) {
         if (aspect->isVisible()) {
             form.addItem(aspect);
@@ -425,6 +425,13 @@ ProcessRunData RunConfiguration::runnable() const
         r.environment = environmentAspect->environment();
     if (m_runnableModifier)
         m_runnableModifier(r);
+
+    // TODO: Do expansion in commandLine()?
+    if (!r.command.isEmpty()) {
+        const FilePath expanded = macroExpander()->expand(r.command.executable());
+        r.command.setExecutable(expanded);
+    }
+
     return r;
 }
 

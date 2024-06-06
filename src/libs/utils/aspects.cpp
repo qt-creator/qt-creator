@@ -1410,6 +1410,7 @@ public:
     FilePath m_baseFileName;
     StringAspect::ValueAcceptor m_valueAcceptor;
     std::optional<FancyLineEdit::ValidationFunction> m_validator;
+    std::optional<FilePath> m_effectiveBinary;
     std::function<void()> m_openTerminal;
 
     CheckableAspectImplementation m_checkerImpl;
@@ -1430,6 +1431,8 @@ FilePathAspect::FilePathAspect(AspectContainer *container)
 
     addDataExtractor(this, &FilePathAspect::value, &Data::value);
     addDataExtractor(this, &FilePathAspect::operator(), &Data::filePath);
+
+    connect(this, &BaseAspect::changed, this, [this] { d->m_effectiveBinary.reset(); });
 }
 
 FilePathAspect::~FilePathAspect() = default;
@@ -1453,6 +1456,29 @@ FilePath FilePathAspect::expandedValue() const
     if (!value.isEmpty() && d->m_expanderProvider)
         return FilePath::fromUserInput(d->m_expanderProvider()->expand(value));
     return FilePath::fromUserInput(value);
+}
+
+/*!
+    Returns the full path of the set command. Only makes a difference if
+    expected kind is \c Command or \c ExistingCommand and the current
+    file path is an executable provided without its path.
+    Performs a lookup in PATH if necessary.
+ */
+FilePath FilePathAspect::effectiveBinary() const
+{
+    if (d->m_effectiveBinary)
+        return *d->m_effectiveBinary;
+
+    const FilePath current = expandedValue();
+    const PathChooser::Kind kind = d->m_expectedKind;
+    if (kind != PathChooser::ExistingCommand && kind != PathChooser::Command)
+        return current;
+
+    if (current.needsDevice())
+        return current;
+
+    d->m_effectiveBinary.emplace(current.searchInPath());
+    return *d->m_effectiveBinary;
 }
 
 QString FilePathAspect::value() const
@@ -1693,9 +1719,12 @@ void FilePathAspect::setAutoApplyOnEditingFinished(bool applyOnEditingFinished)
 */
 void FilePathAspect::setExpectedKind(const PathChooser::Kind expectedKind)
 {
-    d->m_expectedKind = expectedKind;
-    if (d->m_pathChooserDisplay)
-        d->m_pathChooserDisplay->setExpectedKind(expectedKind);
+    if (d->m_expectedKind != expectedKind) {
+        d->m_expectedKind = expectedKind;
+        d->m_effectiveBinary.reset();
+        if (d->m_pathChooserDisplay)
+            d->m_pathChooserDisplay->setExpectedKind(expectedKind);
+    }
 }
 
 void FilePathAspect::setEnvironment(const Environment &env)

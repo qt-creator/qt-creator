@@ -334,22 +334,12 @@ void TerminalInterface::start()
 
     Environment finalEnv = m_setup.m_environment;
 
-    if (HostOsInfo::isWindowsHost()) {
-        if (!finalEnv.hasKey("PATH")) {
-            const QString path = qtcEnvironmentVariable("PATH");
-            if (!path.isEmpty())
-                finalEnv.set("PATH", path);
-        }
-        if (!finalEnv.hasKey("SystemRoot")) {
-            const QString systemRoot = qtcEnvironmentVariable("SystemRoot");
-            if (!systemRoot.isEmpty())
-                finalEnv.set("SystemRoot", systemRoot);
-        }
-    } else if (HostOsInfo::isMacHost()) {
+    if (HostOsInfo::isMacHost())
         finalEnv.set("TERM", "xterm-256color");
-    }
 
     if (finalEnv.hasChanges()) {
+        finalEnv = finalEnv.appliedToEnvironment(Environment::systemEnvironment());
+
         d->envListFile = std::make_unique<QTemporaryFile>(this);
         if (!d->envListFile->open()) {
             cleanupAfterStartFailure(msgCannotCreateTempFile(d->envListFile->errorString()));

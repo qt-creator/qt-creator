@@ -79,6 +79,8 @@ enum ToolbarStyle {
 };
 constexpr ToolbarStyle defaultToolbarStyle = ToolbarStyleCompact;
 
+// Keep in sync with:
+// SyleHelper::uiFontMetrics, ICore::uiConfigInformation, tst_manual_widgets_uifonts::main
 enum UiElement {
     UiElementH1,
     UiElementH2,
@@ -91,6 +93,8 @@ enum UiElement {
     UiElementBody2,
     UiElementButtonMedium,
     UiElementButtonSmall,
+    UiElementLabelMedium,
+    UiElementLabelSmall,
     UiElementCaptionStrong,
     UiElementCaption,
     UiElementIconStandard,

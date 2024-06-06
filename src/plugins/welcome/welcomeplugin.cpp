@@ -162,7 +162,7 @@ public:
                 welcomeLabel,
                 st,
                 spacing(ExVPaddingGapXl),
-                customMargin({HPaddingM, VPaddingM, HPaddingM, VPaddingM}),
+                customMargins(HPaddingM, VPaddingM, HPaddingM, VPaddingM),
             },
             createRule(Qt::Horizontal),
             noMargin, spacing(0),
@@ -188,7 +188,7 @@ public:
 
         Column mainColumn {
             spacing(0),
-            customMargin({ExVPaddingGapXl, 0, ExVPaddingGapXl, 0}),
+            customMargins(ExVPaddingGapXl, 0, ExVPaddingGapXl, 0),
         };
 
         m_essentials = new QWidget;
@@ -205,7 +205,7 @@ public:
                 newButton,
                 openButton,
                 spacing(ExPaddingGapL),
-                customMargin({0, ExVPaddingGapXl, 0, ExVPaddingGapXl}),
+                customMargins(0, ExVPaddingGapXl, 0, ExVPaddingGapXl),
             };
 
             essentials.addItem(projectButtons);
@@ -238,7 +238,7 @@ public:
             Column linksLayout {
                 label,
                 spacing(VGapS),
-                customMargin({0, VGapL, 0, ExVPaddingGapXl}),
+                customMargins(0, VGapL, 0, ExVPaddingGapXl),
             };
 
             const struct {

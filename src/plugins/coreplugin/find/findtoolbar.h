@@ -6,6 +6,7 @@
 #include "currentdocumentfind.h"
 
 #include <utils/id.h>
+#include <utils/store.h>
 #include <utils/styledbar.h>
 
 #include <QTimer>
@@ -18,7 +19,9 @@ class QSpacerItem;
 class QToolButton;
 QT_END_NAMESPACE
 
-namespace Utils { class FancyLineEdit; }
+namespace Utils {
+class FancyLineEdit;
+} // namespace Utils
 
 namespace Core {
 
@@ -43,6 +46,10 @@ public:
     explicit FindToolBar(CurrentDocumentFind *currentDocumentFind);
     ~FindToolBar() override;
 
+    void restore(const Utils::Store &s);
+    Utils::Store save() const;
+
+    // TODO deprecated since QtC 14.0
     void readSettings();
     void writeSettings();
 

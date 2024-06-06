@@ -7,7 +7,7 @@
 
 #include "tasktree.h"
 
-#include <QProcess>
+#include <QtCore/QProcess>
 
 namespace Tasking {
 
@@ -45,17 +45,17 @@ public:
 class TASKING_EXPORT QProcessAdapter : public TaskAdapter<QProcess, QProcessDeleter>
 {
 private:
-    void start() override {
+    void start() final {
         connect(task(), &QProcess::finished, this, [this] {
             const bool success = task()->exitStatus() == QProcess::NormalExit
                                  && task()->error() == QProcess::UnknownError
                                  && task()->exitCode() == 0;
-            emit done(toDoneResult(success));
+            Q_EMIT done(toDoneResult(success));
         });
         connect(task(), &QProcess::errorOccurred, this, [this](QProcess::ProcessError error) {
             if (error != QProcess::FailedToStart)
                 return;
-            emit done(DoneResult::Error);
+            Q_EMIT done(DoneResult::Error);
         });
         task()->start();
     }

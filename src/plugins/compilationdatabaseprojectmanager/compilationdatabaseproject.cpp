@@ -332,7 +332,11 @@ CompilationDatabaseBuildSystem::CompilationDatabaseBuildSystem(Target *target)
             this, &CompilationDatabaseBuildSystem::updateDeploymentData);
 }
 
-CompilationDatabaseBuildSystem::~CompilationDatabaseBuildSystem() = default;
+CompilationDatabaseBuildSystem::~CompilationDatabaseBuildSystem()
+{
+    if (m_parser)
+        delete m_parser;
+}
 
 void CompilationDatabaseBuildSystem::triggerParsing()
 {

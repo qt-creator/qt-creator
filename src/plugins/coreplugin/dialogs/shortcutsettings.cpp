@@ -30,6 +30,7 @@
 #include <QLineEdit>
 #include <QPointer>
 #include <QPushButton>
+#include <QTimer>
 #include <QTreeWidgetItem>
 
 #include <array>
@@ -420,6 +421,7 @@ private:
     QGridLayout *m_shortcutLayout;
     std::vector<std::unique_ptr<ShortcutInput>> m_shortcutInputs;
     QPointer<QPushButton> m_addButton = nullptr;
+    QTimer m_updateTimer;
 };
 
 ShortcutSettingsWidget::ShortcutSettingsWidget()
@@ -428,7 +430,12 @@ ShortcutSettingsWidget::ShortcutSettingsWidget()
     setTargetHeader(Tr::tr("Shortcut"));
     setResetVisible(true);
 
+    m_updateTimer.setSingleShot(true);
+    m_updateTimer.setInterval(100);
+
     connect(ActionManager::instance(), &ActionManager::commandListChanged,
+            &m_updateTimer, qOverload<>(&QTimer::start));
+    connect(&m_updateTimer, &QTimer::timeout,
             this, &ShortcutSettingsWidget::initialize);
     connect(this, &ShortcutSettingsWidget::currentCommandChanged,
             this, &ShortcutSettingsWidget::handleCurrentCommandChanged);

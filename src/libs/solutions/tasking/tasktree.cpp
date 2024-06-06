@@ -5,17 +5,17 @@
 
 #include "barrier.h"
 
-#include <QDebug>
-#include <QEventLoop>
-#include <QFutureWatcher>
-#include <QHash>
-#include <QMetaEnum>
-#include <QMutex>
-#include <QPromise>
-#include <QPointer>
-#include <QSet>
-#include <QTime>
-#include <QTimer>
+#include <QtCore/QDebug>
+#include <QtCore/QEventLoop>
+#include <QtCore/QFutureWatcher>
+#include <QtCore/QHash>
+#include <QtCore/QMetaEnum>
+#include <QtCore/QMutex>
+#include <QtCore/QPointer>
+#include <QtCore/QPromise>
+#include <QtCore/QSet>
+#include <QtCore/QTime>
+#include <QtCore/QTimer>
 
 using namespace std::chrono;
 
@@ -1461,7 +1461,7 @@ static QString currentTime() { return QTime::currentTime().toString(Qt::ISODateW
 ExecutableItem ExecutableItem::withLog(const QString &logName) const
 {
     const auto header = [logName] {
-        return QString("TASK TREE LOG [%1] \"%2\"").arg(currentTime(), logName);
+        return QString::fromLatin1("TASK TREE LOG [%1] \"%2\"").arg(currentTime(), logName);
     };
     struct LogStorage
     {
@@ -1482,8 +1482,8 @@ ExecutableItem ExecutableItem::withLog(const QString &logName) const
             const int asyncCountDiff = activeTaskTree()->asyncCount() - storage->asyncCount;
             QT_CHECK(asyncCountDiff >= 0);
             const QMetaEnum doneWithEnum = QMetaEnum::fromType<DoneWith>();
-            const QString syncType = asyncCountDiff ? QString("asynchronously")
-                                                    : QString("synchronously");
+            const QString syncType = asyncCountDiff ? QString::fromLatin1("asynchronously")
+                                                    : QString::fromLatin1("synchronously");
             qDebug().noquote().nospace() << header() << " finished " << syncType << " with "
                 << doneWithEnum.valueToKey(int(result)) << " within " << elapsed.count() << "ms.";
         })

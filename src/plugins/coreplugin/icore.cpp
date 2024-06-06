@@ -1068,6 +1068,8 @@ QString uiConfigInformation()
     QTC_ADD_UIELEMENT_FONT(Body2);
     QTC_ADD_UIELEMENT_FONT(ButtonMedium);
     QTC_ADD_UIELEMENT_FONT(ButtonSmall);
+    QTC_ADD_UIELEMENT_FONT(LabelMedium);
+    QTC_ADD_UIELEMENT_FONT(LabelSmall);
     QTC_ADD_UIELEMENT_FONT(CaptionStrong);
     QTC_ADD_UIELEMENT_FONT(Caption);
     QTC_ADD_UIELEMENT_FONT(IconStandard);

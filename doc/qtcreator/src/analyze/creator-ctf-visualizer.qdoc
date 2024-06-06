@@ -113,7 +113,7 @@
     LTTng is a tracing toolkit for Linux that you can apply on embedded Linux
     systems to find out how to optimize the startup time of an application.
 
-    Since Qt 5.13, Qt has a set of kernel trace points and a tracing
+    Qt has a set of kernel trace points and a tracing
     subsystem for custom user space trace points.
 
     \section2 Configuring the Kernel

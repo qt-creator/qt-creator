@@ -118,10 +118,9 @@ void InfoLabel::paintEvent(QPaintEvent *event)
         p.restore();
     }
     const QIcon &icon = iconForType(m_type);
-    QWindow *window = this->window()->windowHandle();
     const QIcon::Mode mode = !this->isEnabled() ? QIcon::Disabled : QIcon::Normal;
     const QPixmap iconPx =
-            icon.pixmap(window, QSize(iconSize, iconSize) * devicePixelRatio(), mode);
+            icon.pixmap(QSize(iconSize, iconSize) * devicePixelRatio(), devicePixelRatio(), mode);
     p.drawPixmap(iconRect, iconPx);
     ElidingLabel::paintEvent(event);
 }

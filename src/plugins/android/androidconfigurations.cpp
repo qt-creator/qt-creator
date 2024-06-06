@@ -141,33 +141,6 @@ static QString buildToolsPackageMarker()
     return QLatin1String(Constants::buildToolsPackageName) + ";";
 }
 
-static QString getAvdName(const QString &serialnumber)
-{
-    const int index = serialnumber.indexOf(QLatin1String("-"));
-    if (index == -1)
-        return {};
-    bool ok;
-    const int port = serialnumber.mid(index + 1).toInt(&ok);
-    if (!ok)
-        return {};
-
-    QTcpSocket tcpSocket;
-    tcpSocket.connectToHost(QHostAddress(QHostAddress::LocalHost), port);
-    if (!tcpSocket.waitForConnected(100)) // Don't wait more than 100ms for a local connection
-        return {};
-
-    tcpSocket.write("avd name\nexit\n");
-    tcpSocket.waitForDisconnected(500);
-
-    const QByteArrayList response = tcpSocket.readAll().split('\n');
-    // The input "avd name" might not be echoed as-is, but contain ASCII control sequences.
-    for (int i = response.size() - 1; i > 1; --i) {
-        if (response.at(i).startsWith("OK"))
-            return QString::fromLatin1(response.at(i - 1)).trimmed();
-    }
-    return {};
-}
-
 static QString getDeviceProperty(const QString &device, const QString &property)
 {
     // workaround for '????????????' serial numbers
@@ -310,6 +283,33 @@ static FilePath ndkSubPathFromQtVersion(const QtVersion &version)
 //////////////////////////////////
 // AndroidConfig
 //////////////////////////////////
+
+QString getAvdName(const QString &serialnumber)
+{
+    const int index = serialnumber.indexOf(QLatin1String("-"));
+    if (index == -1)
+        return {};
+    bool ok;
+    const int port = serialnumber.mid(index + 1).toInt(&ok);
+    if (!ok)
+        return {};
+
+    QTcpSocket tcpSocket;
+    tcpSocket.connectToHost(QHostAddress(QHostAddress::LocalHost), port);
+    if (!tcpSocket.waitForConnected(100)) // Don't wait more than 100ms for a local connection
+        return {};
+
+    tcpSocket.write("avd name\nexit\n");
+    tcpSocket.waitForDisconnected(500);
+
+    const QByteArrayList response = tcpSocket.readAll().split('\n');
+    // The input "avd name" might not be echoed as-is, but contain ASCII control sequences.
+    for (int i = response.size() - 1; i > 1; --i) {
+        if (response.at(i).startsWith("OK"))
+            return QString::fromLatin1(response.at(i - 1)).trimmed();
+    }
+    return {};
+}
 
 QLatin1String displayName(const Abi &abi)
 {
@@ -674,66 +674,25 @@ FilePath keytoolPath()
     return openJDKBinPath().pathAppended(keytoolName).withExecutableSuffix();
 }
 
-QList<AndroidDeviceInfo> connectedDevices(QString *error)
+QStringList devicesCommandOutput()
 {
-    QList<AndroidDeviceInfo> devices;
-    Process adbProc;
-    CommandLine cmd{adbToolPath(), {"devices"}};
-    adbProc.setCommand(cmd);
-    using namespace std::chrono_literals;
-    adbProc.runBlocking(30s);
-    if (adbProc.result() != ProcessResult::FinishedWithSuccess) {
-        if (error)
-            *error = Tr::tr("Could not run: %1").arg(cmd.toUserOutput());
-        return devices;
-    }
-    QStringList adbDevs = adbProc.allOutput().split('\n', Qt::SkipEmptyParts);
-    if (adbDevs.empty())
-        return devices;
+    Process adbProcess;
+    adbProcess.setCommand({adbToolPath(), {"devices"}});
+    adbProcess.runBlocking();
+    if (adbProcess.result() != ProcessResult::FinishedWithSuccess)
+        return {};
 
-    for (const QString &line : adbDevs) // remove the daemon logs
-        if (line.startsWith("* daemon"))
-            adbDevs.removeOne(line);
-    adbDevs.removeFirst(); // remove "List of devices attached" header line
-
-    // workaround for '????????????' serial numbers:
-    // can use "adb -d" when only one usb device attached
-    for (const QString &device : std::as_const(adbDevs)) {
-        const QString serialNo = device.left(device.indexOf('\t')).trimmed();
-        const QString deviceType = device.mid(device.indexOf('\t')).trimmed();
-        AndroidDeviceInfo dev;
-        dev.serialNumber = serialNo;
-        dev.type = serialNo.startsWith(QLatin1String("emulator")) ? IDevice::Emulator
-                                                                  : IDevice::Hardware;
-        dev.sdk = getSDKVersion(dev.serialNumber);
-        dev.cpuAbi = getAbis(dev.serialNumber);
-        if (deviceType == QLatin1String("unauthorized"))
-            dev.state = IDevice::DeviceConnected;
-        else if (deviceType == QLatin1String("offline"))
-            dev.state = IDevice::DeviceDisconnected;
-        else
-            dev.state = IDevice::DeviceReadyToUse;
-
-        if (dev.type == IDevice::Emulator) {
-            dev.avdName = getAvdName(dev.serialNumber);
-            if (dev.avdName.isEmpty())
-                dev.avdName = serialNo;
-        }
-
-        devices.push_back(dev);
-    }
-
-    Utils::sort(devices);
-    if (devices.isEmpty() && error)
-        *error = Tr::tr("No devices found in output of: %1").arg(cmd.toUserOutput());
-    return devices;
+    // mid(1) - remove "List of devices attached" header line.
+    // Example output: "List of devices attached\nemulator-5554\tdevice\n\n".
+    return adbProcess.allOutput().split('\n', Qt::SkipEmptyParts).mid(1);
 }
 
 bool isConnected(const QString &serialNumber)
 {
-    const QList<AndroidDeviceInfo> devices = connectedDevices();
-    for (const AndroidDeviceInfo &device : devices) {
-        if (device.serialNumber == serialNumber)
+    const QStringList lines = devicesCommandOutput();
+    for (const QString &line : lines) {
+        // skip the daemon logs
+        if (!line.startsWith("* daemon") && line.left(line.indexOf('\t')).trimmed() == serialNumber)
             return true;
     }
     return false;
@@ -1588,8 +1547,7 @@ void AndroidConfigurations::updateAndroidDevice()
     IDevice::ConstPtr dev = devMgr->find(Constants::ANDROID_DEVICE_ID);
     if (dev)
         devMgr->removeDevice(dev->id());
-
-    AndroidDeviceManager::instance()->setupDevicesWatcher();
+    AndroidDeviceManager::setupDevicesWatcher();
 }
 
 #ifdef WITH_TESTS

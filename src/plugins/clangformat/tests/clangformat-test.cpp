@@ -114,8 +114,10 @@ private slots:
     void testFunctionCallClosingParenthesis();
     void testFunctionCallClosingParenthesisEmptyLine();
     void testNoIndentationInMiddleOfLine();
-    void testIndentationInTheBegginingOfLine();
     void testIndentationInMiddleOfLine();
+    void testIndentationInTheBegginingOfLine();
+    void testIndentationReturnAfterIf();
+    void testIndentationReturnAfterIfSomthingFunction();
 
 private:
     void insertLines(const std::vector<QString> &lines);
@@ -962,6 +964,38 @@ void ClangFormatTest::testIndentationInTheBegginingOfLine()
                                    "{",
                                    "    if () {",
                                    "    } else",
+                                   "}"}));
+}
+
+void ClangFormatTest::testIndentationReturnAfterIf()
+{
+    insertLines({"int main()",
+                 "{",
+                 "    if (true)",
+                 "    return 0;",
+                 "}"});
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    QCOMPARE(documentLines(),
+             (std::vector<QString>{"int main()",
+                                   "{",
+                                   "    if (true)",
+                                   "        return 0;",
+                                   "}"}));
+}
+
+void ClangFormatTest::testIndentationReturnAfterIfSomthingFunction()
+{
+    insertLines({"int main()",
+                 "{",
+                 "    if_somthing()",
+                 "    return 0;",
+                 "}"});
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    QCOMPARE(documentLines(),
+             (std::vector<QString>{"int main()",
+                                   "{",
+                                   "    if_somthing()",
+                                   "    return 0;",
                                    "}"}));
 }
 

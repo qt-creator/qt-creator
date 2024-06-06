@@ -203,6 +203,9 @@ void WorkingDirectoryAspect::addToLayout(Layout &builder)
         m_chooser->setEnvironment(m_envAspect->environment());
     }
 
+    m_chooser->setReadOnly(isReadOnly());
+    m_resetButton->setEnabled(!isReadOnly());
+
     builder.addItems({Tr::tr("Working directory:"), m_chooser.data(), m_resetButton.data()});
 }
 
@@ -437,6 +440,7 @@ QWidget *ArgumentsAspect::setupChooser()
                     this, [this] { setArguments(m_multiLineChooser->toPlainText()); });
         }
         m_multiLineChooser->setPlainText(m_arguments);
+        m_multiLineChooser->setReadOnly(isReadOnly());
         return m_multiLineChooser.data();
     }
     if (!m_chooser) {
@@ -445,6 +449,8 @@ QWidget *ArgumentsAspect::setupChooser()
         connect(m_chooser.data(), &QLineEdit::textChanged, this, &ArgumentsAspect::setArguments);
     }
     m_chooser->setText(m_arguments);
+    m_chooser->setReadOnly(isReadOnly());
+
     return m_chooser.data();
 }
 
@@ -597,6 +603,7 @@ void ExecutableAspect::setEnvironment(const Environment &env)
 
 void ExecutableAspect::setReadOnly(bool readOnly)
 {
+    BaseAspect::setReadOnly(readOnly);
     m_executable.setReadOnly(readOnly);
 }
 

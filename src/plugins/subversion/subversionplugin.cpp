@@ -1067,7 +1067,7 @@ bool SubversionPluginPrivate::isVcsFileOrDirectory(const FilePath &filePath) con
 
 bool SubversionPluginPrivate::isConfigured() const
 {
-    const FilePath binary = settings().binaryPath();
+    const FilePath binary = settings().binaryPath.effectiveBinary();
     if (binary.isEmpty())
         return false;
     QFileInfo fi = binary.toFileInfo();

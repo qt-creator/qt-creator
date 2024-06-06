@@ -139,8 +139,8 @@ public:
     QString title() const override { return Tr::tr("Internal"); }
     QString toolTip() const override { return {}; }
     QWidget *widget() const override { return m_widget; }
-    void readSettings(QtcSettings * /*settings*/) override {}
-    void writeSettings(QtcSettings * /*settings*/) const override {}
+    void readSettings(const Store &) override {}
+    void writeSettings(Store &) const override {}
     SearchExecutor searchExecutor() const override
     {
         return [](const FileFindParameters &parameters) {
@@ -442,47 +442,57 @@ FilePath BaseFileFind::searchDir() const
     return d->m_searchDir;
 }
 
-void BaseFileFind::writeCommonSettings(QtcSettings *settings)
+void BaseFileFind::writeCommonSettings(
+    Store &s, const QString &defaultFilter, const QString &defaultExclusionFilter) const
 {
     const auto fromNativeSeparators = [](const QStringList &files) -> QStringList {
         return Utils::transform(files, &QDir::fromNativeSeparators);
     };
 
-    settings->setValue("filters", fromNativeSeparators(d->m_filterStrings.stringList()));
-    if (d->m_filterCombo)
-        settings->setValue("currentFilter",
-                           QDir::fromNativeSeparators(d->m_filterCombo->currentText()));
-    settings->setValue("exclusionFilters", fromNativeSeparators(d->m_exclusionStrings.stringList()));
-    if (d->m_exclusionCombo)
-        settings->setValue("currentExclusionFilter",
-                           QDir::fromNativeSeparators(d->m_exclusionCombo->currentText()));
+    const QStringList filterStrings = fromNativeSeparators(d->m_filterStrings.stringList());
+    if (filterStrings.size() != 1 || filterStrings.first() != defaultFilter)
+        s.insert("filters", filterStrings);
+    const QString currentFilter = d->m_filterCombo
+                                      ? QDir::fromNativeSeparators(d->m_filterCombo->currentText())
+                                      : d->m_filterSetting;
+    if (currentFilter != defaultFilter)
+        s.insert("currentFilter", currentFilter);
+    const QStringList exclusionFilters = fromNativeSeparators(d->m_exclusionStrings.stringList());
+    if (exclusionFilters.size() != 1 || exclusionFilters.first() != defaultExclusionFilter)
+        s.insert("exclusionFilters", exclusionFilters);
+    const QString currentExclusionFilter = d->m_exclusionCombo ? QDir::fromNativeSeparators(
+                                               d->m_exclusionCombo->currentText())
+                                                               : d->m_exclusionSetting;
+    if (currentExclusionFilter != defaultExclusionFilter)
+        s.insert("currentExclusionFilter", currentExclusionFilter);
 
     for (const SearchEngine *searchEngine : std::as_const(d->m_searchEngines))
-        searchEngine->writeSettings(settings);
-    settings->setValue("currentSearchEngineIndex", d->m_currentSearchEngineIndex);
+        searchEngine->writeSettings(s);
+    if (d->m_currentSearchEngineIndex != 0)
+        s.insert("currentSearchEngineIndex", d->m_currentSearchEngineIndex);
 }
 
-void BaseFileFind::readCommonSettings(QtcSettings *settings, const QString &defaultFilter,
-                                      const QString &defaultExclusionFilter)
+void BaseFileFind::readCommonSettings(
+    const Store &s, const QString &defaultFilter, const QString &defaultExclusionFilter)
 {
     const auto toNativeSeparators = [](const QStringList &files) -> QStringList {
         return Utils::transform(files, &QDir::toNativeSeparators);
     };
 
-    const QStringList filterSetting = settings->value("filters").toStringList();
+    const QStringList filterSetting = s.value("filters").toStringList();
     const QStringList filters = filterSetting.isEmpty() ? QStringList(defaultFilter)
                                                         : filterSetting;
-    const QVariant currentFilter = settings->value("currentFilter");
+    const QVariant currentFilter = s.value("currentFilter");
     d->m_filterSetting = currentFilter.isValid() ? currentFilter.toString()
                                                  : filters.first();
     d->m_filterStrings.setStringList(toNativeSeparators(filters));
     if (d->m_filterCombo)
         syncComboWithSettings(d->m_filterCombo, d->m_filterSetting);
 
-    QStringList exclusionFilters = settings->value("exclusionFilters").toStringList();
+    QStringList exclusionFilters = s.value("exclusionFilters").toStringList();
     if (!exclusionFilters.contains(defaultExclusionFilter))
         exclusionFilters << defaultExclusionFilter;
-    const QVariant currentExclusionFilter = settings->value("currentExclusionFilter");
+    const QVariant currentExclusionFilter = s.value("currentExclusionFilter");
     d->m_exclusionSetting = currentExclusionFilter.isValid() ? currentExclusionFilter.toString()
                                                           : exclusionFilters.first();
     d->m_exclusionStrings.setStringList(toNativeSeparators(exclusionFilters));
@@ -490,8 +500,8 @@ void BaseFileFind::readCommonSettings(QtcSettings *settings, const QString &defa
         syncComboWithSettings(d->m_exclusionCombo, d->m_exclusionSetting);
 
     for (SearchEngine* searchEngine : std::as_const(d->m_searchEngines))
-        searchEngine->readSettings(settings);
-    const int currentSearchEngineIndex = settings->value("currentSearchEngineIndex", 0).toInt();
+        searchEngine->readSettings(s);
+    const int currentSearchEngineIndex = s.value("currentSearchEngineIndex", 0).toInt();
     syncSearchEngineCombo(currentSearchEngineIndex);
 }
 

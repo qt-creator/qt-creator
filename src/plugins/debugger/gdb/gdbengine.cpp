@@ -4044,7 +4044,7 @@ void GdbEngine::handleGdbStarted()
     }
 
     const FilePath path = settings().extraDumperFile();
-    if (!path.isEmpty() && path.isReadableFile()) {
+    if (path.isReadableFile()) {
         DebuggerCommand cmd("addDumperModule");
         cmd.arg("path", path.path());
         runCommand(cmd);

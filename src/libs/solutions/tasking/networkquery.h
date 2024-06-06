@@ -7,8 +7,8 @@
 
 #include "tasktree.h"
 
-#include <QNetworkReply>
-#include <QNetworkRequest>
+#include <QtNetwork/QNetworkReply>
+#include <QtNetwork/QNetworkRequest>
 
 #include <memory>
 
@@ -37,7 +37,7 @@ public:
     QNetworkReply *reply() const { return m_reply.get(); }
     void start();
 
-signals:
+Q_SIGNALS:
     void started();
     void done(DoneResult result);
 

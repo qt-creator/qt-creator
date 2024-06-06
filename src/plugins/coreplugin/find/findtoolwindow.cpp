@@ -346,6 +346,30 @@ void FindToolWindow::replace()
     filter->replaceAll(term, Find::findFlags());
 }
 
+void FindToolWindow::restore(const Utils::Store &s)
+{
+    const QString currentFilter = s.value("CurrentFilter").toString();
+    for (int i = 0; i < m_filters.size(); ++i) {
+        IFindFilter *filter = m_filters.at(i);
+        filter->restore(storeFromVariant(s.value(filter->id().toUtf8())));
+        if (filter->id() == currentFilter)
+            setCurrentFilterIndex(i);
+    }
+}
+
+Store FindToolWindow::save() const
+{
+    Store s;
+    if (m_currentFilter && (m_filters.isEmpty() || m_filters.first() != m_currentFilter))
+        s.insert("CurrentFilter", m_currentFilter->id());
+    for (IFindFilter *filter : std::as_const(m_filters)) {
+        const Store store = filter->save();
+        if (!store.isEmpty())
+            s.insert(filter->id().toUtf8(), variantFromStore(store));
+    }
+    return s;
+}
+
 void FindToolWindow::writeSettings()
 {
     Utils::QtcSettings *settings = ICore::settings();

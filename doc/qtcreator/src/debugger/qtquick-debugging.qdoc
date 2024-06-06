@@ -25,10 +25,6 @@
     information about the state of the UI, and inspect QML properties and
     JavaScript variables, as well as change their values temporarily at runtime.
 
-    \if defined(qtcreator)
-    \note You need Qt 5.0 or later to debug Qt Quick projects.
-    \endif
-
     For an example of how to debug Qt Quick Projects, see
     \l{Debugging a Qt Quick Application}.
 
@@ -86,7 +82,7 @@
             rebuild the project.
 
         \li To debug applications on \l{glossary-device}{devices}, check that
-            Qt 5.0, or later, libraries are installed on the device and
+            Qt libraries are installed on the device and
             \l{Run on many platforms}{select the corresponding kit for the device}
             before you start debugging.
 
@@ -249,12 +245,6 @@
     In the selection mode, you can click items in the running
     application to jump to their definitions in the code. The properties of the
     selected item are displayed in the \uicontrol {Locals} view.
-
-    \if defined(qtcreator)
-    The \uicontrol Select tool will be enabled either if your application is
-    using Qt 5.7 or later, or if your application is using an earlier version
-    of Qt and is based on the \c QQuickView class.
-    \endif
 
     You can also view the item hierarchy in the running application:
 

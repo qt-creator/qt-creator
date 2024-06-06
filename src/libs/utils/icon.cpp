@@ -221,11 +221,11 @@ QIcon Icon::modeIcon(const Icon &classic, const Icon &flat, const Icon &flatActi
 QIcon Icon::combinedIcon(const QList<QIcon> &icons)
 {
     QIcon result;
-    QWindow *window = QApplication::allWidgets().constFirst()->windowHandle();
+    const qreal devicePixelRatio = QApplication::allWidgets().constFirst()->devicePixelRatio();
     for (const QIcon &icon: icons)
         for (const QIcon::Mode mode: {QIcon::Disabled, QIcon::Normal})
             for (const QSize &size: icon.availableSizes(mode))
-                result.addPixmap(icon.pixmap(window, size, mode), mode);
+                result.addPixmap(icon.pixmap(size, devicePixelRatio, mode), mode);
     return result;
 }
 

@@ -5,17 +5,119 @@
 
 #include <utils/theme/theme.h>
 
+#include <QAbstractAxis>
+#include <QChartView>
+#include <QDebug>
 #include <QPaintEvent>
 #include <QPainter>
 #include <QPen>
 #include <QPointF>
+#include <QRandomGenerator>
+#include <QSplineSeries>
 #include <QString>
+#include <QValueAxis>
+
+using namespace Utils;
 
 namespace AppStatisticsMonitor::Internal {
 
 static const int padding = 40;
 static const int numPadding = 10;
 static const QRectF dataRangeDefault = QRectF(0, 0, 5, 1);
+
+AppStatisticsMonitorChart::AppStatisticsMonitorChart(
+    const QString &name, QGraphicsItem *parent, Qt::WindowFlags wFlags)
+    : QChart(QChart::ChartTypeCartesian, parent, wFlags)
+    , m_series(new QLineSeries(this))
+    , m_axisX(new QValueAxis())
+    , m_axisY(new QValueAxis())
+    , m_point(0, 0)
+    , m_chartView(new QChartView(this))
+    , m_name(name)
+{
+    m_chartView->setMinimumHeight(200);
+    m_chartView->setMinimumWidth(400);
+    const QBrush brushTitle(creatorColor(Theme::Token_Text_Muted));
+    const QBrush brush(creatorColor(Theme::Token_Background_Default));
+    const QPen penBack(creatorColor(Theme::Token_Text_Muted));
+    const QPen penAxis(creatorColor(Theme::Token_Text_Muted));
+
+    setTitleBrush(brushTitle);
+    setBackgroundBrush(brush);
+    setBackgroundPen(penBack);
+    m_axisX->setLinePen(penAxis);
+    m_axisY->setLinePen(penAxis);
+    m_axisX->setLabelsColor(creatorColor(Theme::Token_Text_Muted));
+    m_axisY->setLabelsColor(creatorColor(Theme::Token_Text_Muted));
+    QPen pen(creatorColor(Theme::Token_Accent_Default));
+    pen.setWidth(2);
+    m_series->setPen(pen);
+
+    setTitle(m_name + " " + QString::number(m_point.y(), 'g', 4) + "%");
+    m_chartView->setRenderHint(QPainter::Antialiasing);
+    m_chartView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    addSeries(m_series);
+
+    addAxis(m_axisX, Qt::AlignBottom);
+    addAxis(m_axisY, Qt::AlignLeft);
+    m_series->attachAxis(m_axisX);
+    m_series->attachAxis(m_axisY);
+    m_axisX->applyNiceNumbers();
+    m_axisY->applyNiceNumbers();
+    legend()->hide();
+
+    clear();
+}
+
+QChartView *AppStatisticsMonitorChart::chartView()
+{
+    return m_chartView;
+}
+
+void AppStatisticsMonitorChart::addNewPoint(const QPointF &point)
+{
+    m_point = point;
+    if (m_axisY->max() < m_point.y())
+        m_axisY->setRange(0, qRound(m_point.y()) + 1);
+    m_axisX->setRange(0, qRound(m_point.x()) + 1);
+
+    setTitle(m_name + " " + QString::number(m_point.y(), 'g', 4) + "%");
+    m_series->append(m_point);
+}
+
+void AppStatisticsMonitorChart::loadNewProcessData(const QList<double> &data)
+{
+    clear();
+    QList<QPointF> points{{0, 0}};
+    int i = 0;
+    double max_y = 0;
+
+    for (double e : qAsConst(data)) {
+        points.push_back({double(++i), e});
+        max_y = qMax(max_y, e);
+    }
+
+    m_axisY->setRange(0, qRound(max_y) + 1);
+    m_axisX->setRange(0, data.size() + 1);
+
+    m_series->clear();
+    m_series->append(points);
+}
+
+void AppStatisticsMonitorChart::clear()
+{
+    m_axisX->setRange(0, 5);
+    m_axisY->setRange(0, 1);
+    m_series->clear();
+    m_series->append(0, 0);
+}
+
+double AppStatisticsMonitorChart::lastPointX() const
+{
+    return m_point.x();
+}
+
+//---------------------- Chart -----------------------
 
 Chart::Chart(const QString &name, QWidget *parent)
     : QWidget(parent)
@@ -31,7 +133,7 @@ void Chart::addNewPoint(const QPointF &point)
     update();
 }
 
-void Chart::loadNewProcessData(QList<double> data)
+void Chart::loadNewProcessData(const QList<double> &data)
 {
     clear();
     for (long i = 0; i < data.size(); ++i) {
@@ -59,7 +161,7 @@ void Chart::paintEvent(QPaintEvent *event)
     Q_UNUSED(event);
     QPainter painter(this);
 
-    painter.fillRect(rect(), Utils::creatorColor(Utils::Theme::Token_Background_Default));
+    painter.fillRect(rect(), creatorColor(Theme::Token_Background_Default));
 
     // add the name of the chart in the middle of the widget width and on the top
     painter.drawText(
@@ -74,10 +176,10 @@ void Chart::paintEvent(QPaintEvent *event)
         double xPos = padding + (x - dataRange.left()) * m_xScale;
         if (xPos < padding || xPos > width() - padding)
             continue;
-        painter.setPen(Utils::creatorColor(Utils::Theme::Token_Foreground_Default));
+        painter.setPen(creatorColor(Theme::Token_Foreground_Default));
         painter.drawLine(xPos, padding, xPos, height() - padding);
 
-        painter.setPen(Utils::creatorColor(Utils::Theme::Token_Text_Muted));
+        painter.setPen(creatorColor(Theme::Token_Text_Muted));
         painter.drawText(xPos, height() - numPadding, QString::number(x));
     }
 
@@ -86,18 +188,18 @@ void Chart::paintEvent(QPaintEvent *event)
         if (yPos < padding || yPos > height() - padding)
             continue;
 
-        painter.setPen(Utils::creatorColor(Utils::Theme::Token_Foreground_Default));
+        painter.setPen(creatorColor(Theme::Token_Foreground_Default));
         painter.drawLine(padding, yPos, width() - padding, yPos);
 
-        painter.setPen(Utils::creatorColor(Utils::Theme::Token_Text_Muted));
+        painter.setPen(creatorColor(Theme::Token_Text_Muted));
         painter.drawText(numPadding, yPos, QString::number(y));
     }
 
-    painter.setPen(Utils::creatorColor(Utils::Theme::Token_Foreground_Default));
+    painter.setPen(creatorColor(Theme::Token_Foreground_Default));
     painter.drawLine(padding, height() - padding, width() - padding, height() - padding); // X axis
     painter.drawLine(padding, height() - padding, padding, padding); // Y axis
 
-    QPen pen(Utils::creatorColor(Utils::Theme::Token_Accent_Default));
+    QPen pen(creatorColor(Theme::Token_Accent_Default));
     pen.setWidth(2);
     painter.setPen(pen);
     painter.setRenderHint(QPainter::Antialiasing);
