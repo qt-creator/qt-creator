@@ -543,11 +543,11 @@ void DebuggerRunTool::start()
     for (auto engine : m_engines) {
         engine->setRunParameters(m_runParameters);
         engine->setRunId(d->runId);
-        engine->setRunTool(this);
         for (auto companion : m_engines) {
             if (companion != engine)
                 engine->addCompanionEngine(companion);
         }
+        engine->setRunTool(this);
         if (!first)
             engine->setSecondaryEngine();
         auto rc = runControl();

@@ -553,8 +553,10 @@ void DebuggerEnginePrivate::setupViews()
         = new Perspective(perspectiveId, m_engine->displayName(), parentPerspectiveId, settingsId);
 
     m_progress.setProgressRange(0, 1000);
-    FutureProgress *fp = ProgressManager::addTask(m_progress.future(),
-        Tr::tr("Launching Debugger"), "Debugger.Launcher");
+    const QString msg = m_companionEngines.isEmpty()
+            ? Tr::tr("Launching Debugger")
+            : Tr::tr("Launching %1 Debugger").arg(m_debuggerName);
+    FutureProgress *fp = ProgressManager::addTask(m_progress.future(), msg, "Debugger.Launcher");
     connect(fp, &FutureProgress::canceled, m_engine, &DebuggerEngine::quitDebugger);
     m_progress.reportStarted();
 
