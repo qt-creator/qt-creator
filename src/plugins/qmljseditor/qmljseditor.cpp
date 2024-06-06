@@ -267,6 +267,8 @@ bool QmlJSEditorWidget::isOutlineCursorChangesBlocked()
 
 void QmlJSEditorWidget::jumpToOutlineElement(int /*index*/)
 {
+    if (!m_outlineCombo)
+        return;
     QModelIndex index = m_outlineCombo->view()->currentIndex();
     SourceLocation location = m_qmlJsEditorDocument->outlineModel()->sourceLocation(index);
 
@@ -285,6 +287,8 @@ void QmlJSEditorWidget::jumpToOutlineElement(int /*index*/)
 
 void QmlJSEditorWidget::updateOutlineIndexNow()
 {
+    if (!m_outlineCombo)
+        return;
     if (!m_qmlJsEditorDocument->outlineModel()->document())
         return;
 
@@ -570,8 +574,19 @@ void QmlJSEditorWidget::createToolBar()
 
     connect(this, &QmlJSEditorWidget::cursorPositionChanged,
             &m_updateOutlineIndexTimer, QOverload<>::of(&QTimer::start));
+    connect(this, &QmlJSEditorWidget::toolbarOutlineChanged,
+            this, &QmlJSEditorWidget::updateOutline);
 
-    insertExtraToolBarWidget(TextEditorWidget::Left, m_outlineCombo);
+    setToolbarOutline(m_outlineCombo);
+}
+
+void QmlJSEditorWidget::updateOutline(QWidget *newOutline)
+{
+    if (!newOutline) {
+        createToolBar();
+    } else if (newOutline != m_outlineCombo){
+        m_outlineCombo = nullptr;
+    }
 }
 
 class CodeModelInspector : public MemberProcessor

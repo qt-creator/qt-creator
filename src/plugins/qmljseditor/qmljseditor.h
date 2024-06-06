@@ -79,6 +79,7 @@ protected:
     void scrollContentsBy(int dx, int dy) override;
     void applyFontSettings() override;
     void createToolBar();
+    void updateOutline(QWidget *newOutline);
     void findLinkAt(const QTextCursor &cursor,
                     const Utils::LinkHandler &processLinkCallback,
                     bool resolveTarget = true,
