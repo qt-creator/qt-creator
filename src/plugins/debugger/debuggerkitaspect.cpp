@@ -388,6 +388,15 @@ public:
         k->setValue(DebuggerKitAspect::id(), bestLevel != DebuggerItem::DoesNotMatch ? bestItem.id() : QVariant());
     }
 
+    void fix(Kit *k) override
+    {
+        const QVariant id = k->value(DebuggerKitAspect::id());
+        if (Utils::anyOf(DebuggerItemManager::debuggers(), Utils::equal(&DebuggerItem::id, id)))
+            return;
+        k->removeKeySilently(DebuggerKitAspect::id());
+        setup(k);
+    }
+
     KitAspect *createKitAspect(Kit *k) const override
     {
         return new Internal::DebuggerKitAspectImpl(k, this);
