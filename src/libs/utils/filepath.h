@@ -268,6 +268,8 @@ public:
     // FIXME: Avoid. See toSettings, toVariant, toUserOutput, toFSPathString, path, nativePath.
     QString toString() const;
 
+    bool equalsCaseSensitive(const FilePath &other) const;
+
 private:
     // These are needed.
     QTCREATOR_UTILS_EXPORT friend bool operator==(const FilePath &first, const FilePath &second);
@@ -281,6 +283,8 @@ private:
     QTCREATOR_UTILS_EXPORT friend size_t qHash(const FilePath &a);
 
     QTCREATOR_UTILS_EXPORT friend QDebug operator<<(QDebug dbg, const FilePath &c);
+
+    static bool equals(const FilePath &first, const FilePath &second, Qt::CaseSensitivity cs);
 
     // Implementation details. May change.
     friend class ::tst_fileutils;

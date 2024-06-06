@@ -293,6 +293,26 @@ QString FilePath::toString() const
     return scheme() + "://" + encodedHost() + pathView();
 }
 
+bool FilePath::equals(const FilePath &first, const FilePath &second, Qt::CaseSensitivity cs)
+{
+    if (first.m_hash != 0 && second.m_hash != 0 && first.m_hash != second.m_hash)
+        return false;
+
+    return first.pathView().compare(second.pathView(), cs) == 0
+           && first.host() == second.host()
+           && first.scheme() == second.scheme();
+}
+
+/*!
+ * Returns true if the two file paths compare equal case-sensitively.
+ * This is relevant on semi-case sensitive systems like Windows with NTFS.
+ * @see QTCREATORBUG-30846
+ */
+bool FilePath::equalsCaseSensitive(const FilePath &other) const
+{
+    return equals(*this, other, Qt::CaseSensitive);
+}
+
 /*!
     Returns a QString for passing on to QString based APIs.
 
@@ -2354,12 +2374,7 @@ DeviceFileHooks &DeviceFileHooks::instance()
 
 QTCREATOR_UTILS_EXPORT bool operator==(const FilePath &first, const FilePath &second)
 {
-    if (first.m_hash != 0 && second.m_hash != 0 && first.m_hash != second.m_hash)
-        return false;
-
-    return first.pathView().compare(second.pathView(), first.caseSensitivity()) == 0
-        && first.host() == second.host()
-        && first.scheme() == second.scheme();
+    return FilePath::equals(first, second, first.caseSensitivity());
 }
 
 QTCREATOR_UTILS_EXPORT bool operator!=(const FilePath &first, const FilePath &second)
