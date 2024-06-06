@@ -64,6 +64,19 @@ local function setup()
         text = "Run lua tests",
         onTrigger = function() a.sync(runTests)() end,
     })
+    Action.create("LuaTests.layoutDemo", {
+        text = "Lua Layout Demo",
+        onTrigger = function()
+            local script, err = loadfile(Utils.FilePath.fromUserInput(script_path()):parentDir():resolvePath(
+            "guidemo.lua"):nativePath())
+            if not script then
+                print("Failed to load demo:", err)
+                return
+            end
+
+            script()()
+        end,
+    })
 end
 
 return { setup = setup }

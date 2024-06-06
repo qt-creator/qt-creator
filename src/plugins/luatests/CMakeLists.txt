@@ -7,4 +7,5 @@ add_qtc_lua_plugin(luatests
         luatests/tst_aspectcontainer.lua
         luatests/tst_fetch.lua
         luatests/tst_utils.lua
+        luatests/guidemo.lua
 )
