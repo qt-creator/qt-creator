@@ -3,6 +3,7 @@ QtcLuaPlugin {
 
     luafiles: [
         "inspect.lua",
+        "guidemo.lua",
         "luatests.lua",
         "qtctest.lua",
         "tests.lua",
