@@ -214,7 +214,16 @@
         \li \l{Options Pages}
         \li \l{Editors}
         \endomit
-        \endlist
+    \endlist
+
+    \section1 Lua Extensions
+
+    If you have more specific needs that are not covered by the above methods but don't need
+    a full-blown plugin, you can extend \QC with Lua Extensions.
+
+    \list
+        \li \l{Extending \QC with Lua}
+    \endlist
 
     \section1 All Topics
 
