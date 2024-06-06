@@ -1,0 +1,76 @@
+{
+  "items": [
+    {
+      "name": "Few tags",
+      "tags": [ "Tag one", "Tag two"]
+    },
+
+    {
+      "name": "Many tags",
+      "tags": [ "Tag_01", "Tag_02", "Tag_03", "Tag_04", "Tag_05", "Tag_06", "Tag_07", "Tag_08", "Tag_09", "Tag_10", "Tag_11", "Tag_12", "Tag_13", "Tag_14", "Tag_15", "Tag_16", "Tag_17", "Tag_18", "Tag_19", "Tag_20", "Tag_21", "Tag_22", "Tag_23", "Tag_24", "Tag_25", "Tag_26", "Tag_27", "Tag_28", "Tag_29", "Tag_30", "And_a_very_long_tag_without_spaces", "Ok, a last long tag without spaces, but that sgould be enough"],
+      "description": {
+        "paragraphs": [
+          {
+            "text": [
+              "... and a few long ones"
+            ]
+          }
+        ]
+      }
+    },
+
+    {
+      "name": "One static image",
+      "description": {
+        "paragraphs": [
+          {
+            "text": [
+              "png"
+            ]
+          }
+        ],
+        "images": [
+          {
+            "image_label": "Screenshot",
+            "url": "https://bugreports.qt.io/secure/attachment/147354/VirtualNodesShownAsNotExisting.png"
+          }
+        ]
+      }
+    },
+
+    {
+      "name": "One animated image",
+      "description": {
+        "paragraphs": [
+          {
+            "text": [
+              "gif (animated)"
+            ]
+          }
+        ],
+        "images": [
+          {
+            "image_label": "Screencast",
+            "url": "https://bugreports.qt.io/secure/attachment/156058/156058_DragAndCopyOnLinux.gif"
+          }
+        ]
+      }
+    },
+
+    {
+      "name": "Vendor, no download count",
+      "vendor": "Vendor name"
+    },
+
+    {
+      "name": "No vendor, but download count",
+      "download_count": 12345
+    },
+
+    {
+      "name": "Vendor and download count",
+      "vendor": "Vendor name",
+      "download_count": 12345
+    }
+  ]
+}

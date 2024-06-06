@@ -3819,6 +3819,20 @@
          sodipodi:nodetypes="cccccccccccc" />
     </g>
     <g
+       id="src/plugins/extensionmanager/images/packbig">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use16"
+         style="display:inline"
+         transform="matrix(0.97058824,0,0,1,-39.794118,403)" />
+      <path
+         id="path13"
+         d="m 16.5,456.16667 v 16 M 30.5,450 16.5,456.16667 2.5,450 m 0,16.66666 14,6.16667 14,-6.16667 v -17.33333 l -14,-5.83333 -14,5.83333 z"
+         style="fill:none;stroke:#000000;stroke-width:3;stroke-linejoin:round" />
+    </g>
+    <g
        id="src/plugins/extensionmanager/images/extensionsmall">
       <use
          x="0"
@@ -3837,6 +3851,25 @@
          d="M 59,421.75 V 430.5 l -8,3.25 V 425 Z"
          id="path32048"
          sodipodi:nodetypes="ccccc" />
+    </g>
+    <g
+       id="src/plugins/extensionmanager/images/extensionbig">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32_28"
+         id="use13"
+         style="display:inline"
+         transform="matrix(0.97058824,0,0,1,-5.794118,403)" />
+      <path
+         style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round"
+         d="M 55.454565,470.65463 64.5,466.667 v -11.17266 l -9,3.95638 z"
+         id="path19"
+         sodipodi:nodetypes="ccccc" />
+      <path
+         id="path14"
+         style="fill:none;stroke:#000000;stroke-width:3;stroke-linejoin:round;stroke-linecap:round"
+         d="m 50.5,456.167 v 5.333 m 0,5.333 v 5.334 m 14,-22.167 -4.6667,2.056 m -4.6666,2.055 -4.6667,2.056 -4.6667,-2.056 M 41.1667,452.056 36.5,450 m 4.6667,-2.611 -4.6667,1.944 v 5.778 m 0,5.778 v 5.778 l 4.6667,2.055 m 4.6666,2.056 4.6667,2.055 m 14,-23.5 -4.6667,-1.944 M 55.1667,445.444 50.5,443.5 l -4.6667,1.944" />
     </g>
     <g
        id="src/plugins/extensionmanager/images/download">

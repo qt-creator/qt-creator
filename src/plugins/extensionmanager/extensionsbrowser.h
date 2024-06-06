@@ -5,6 +5,12 @@
 
 #include <QWidget>
 
+QT_FORWARD_DECLARE_CLASS(QLabel)
+
+namespace Core::WelcomePageHelpers {
+class TextFormat;
+}
+
 namespace ExtensionManager::Internal {
 
 class ExtensionsBrowser final : public QWidget
@@ -14,6 +20,8 @@ class ExtensionsBrowser final : public QWidget
 public:
     ExtensionsBrowser(QWidget *parent = nullptr);
     ~ExtensionsBrowser();
+
+    void setFilter(const QString &filter);
 
     void adjustToWidth(const int width);
     QSize sizeHint() const override;
@@ -28,5 +36,8 @@ private:
 
     class ExtensionsBrowserPrivate *d = nullptr;
 };
+
+QLabel *tfLabel(const Core::WelcomePageHelpers::TextFormat &tf, bool singleLine = true);
+QGradientStops iconGradientStops(const QModelIndex &index);
 
 } // ExtensionManager::Internal

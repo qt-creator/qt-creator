@@ -14,6 +14,7 @@ public:
 private:
     void updateView(const QModelIndex &current);
     void fetchAndInstallPlugin(const QUrl &url);
+    void fetchAndDisplayImage(const QUrl &url);
 
     class ExtensionManagerWidgetPrivate *d = nullptr;
 };

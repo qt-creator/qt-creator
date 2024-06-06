@@ -26,6 +26,7 @@
 #include <solutions/tasking/tasktree.h>
 #include <solutions/tasking/tasktreerunner.h>
 
+#include <utils/elidinglabel.h>
 #include <utils/fancylineedit.h>
 #include <utils/icon.h>
 #include <utils/layoutbuilder.h>
@@ -141,10 +142,7 @@ public:
         }
         {
             QLinearGradient gradient(iconBgR.topRight(), iconBgR.bottomLeft());
-            const QColor startColor = creatorColor(Utils::Theme::Token_Gradient01_Start);
-            const QColor endColor = creatorColor(Utils::Theme::Token_Gradient01_End);
-            gradient.setColorAt(0, startColor);
-            gradient.setColorAt(1, endColor);
+            gradient.setStops(iconGradientStops(index));
             constexpr int iconRectRounding = 4;
             drawCardBackground(painter, iconBgR, gradient, Qt::NoPen, iconRectRounding);
 
@@ -267,11 +265,13 @@ ExtensionsBrowser::ExtensionsBrowser(QWidget *parent)
 {
     setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
 
-    auto manageLabel = new QLabel(Tr::tr("Manage Extensions"));
-    manageLabel->setFont(uiFont(UiElementH1));
+    static const TextFormat titleTF
+        {Theme::Token_Text_Default, UiElementH2};
+    QLabel *titleLabel = tfLabel(titleTF);
+    titleLabel->setText(Tr::tr("Manage Extensions"));
 
     d->searchBox = new SearchBox;
-    d->searchBox->setFixedWidth(itemWidth);
+    d->searchBox->setPlaceholderText(Tr::tr("Search"));
     d->updateButton = new Button(Tr::tr("Install..."), Button::MediumPrimary);
 
     d->model = new ExtensionsModel(this);
@@ -294,11 +294,17 @@ ExtensionsBrowser::ExtensionsBrowser(QWidget *parent)
 
     using namespace Layouting;
     Column {
-        Space(15),
-        manageLabel,
-        Space(15),
-        Row { d->searchBox, st, d->updateButton, Space(extraListViewWidth() + gapSize) },
-        Space(gapSize),
+        Column {
+            titleLabel,
+            customMargins(0, VPaddingM, 0, VPaddingM),
+        },
+        Row {
+            d->searchBox,
+            d->updateButton,
+            spacing(gapSize),
+            customMargins(0, VPaddingM, extraListViewWidth() + gapSize, VPaddingM),
+        },
+        Space(ExPaddingGapL),
         d->extensionsView,
         noMargin, spacing(0),
     }.attachTo(this);
@@ -335,6 +341,11 @@ ExtensionsBrowser::~ExtensionsBrowser()
     delete d;
 }
 
+void ExtensionsBrowser::setFilter(const QString &filter)
+{
+    d->searchBox->setText(filter);
+}
+
 void ExtensionsBrowser::adjustToWidth(const int width)
 {
     const int widthForItems = width - extraListViewWidth();
@@ -358,8 +369,6 @@ int ExtensionsBrowser::extraListViewWidth() const
 
 void ExtensionsBrowser::fetchExtensions()
 {
-    // d->model->setExtensionsJson(testData("thirdpartyplugins")); return;
-
     using namespace Tasking;
 
     const auto onQuerySetup = [](NetworkQuery &query) {
@@ -367,12 +376,11 @@ void ExtensionsBrowser::fetchExtensions()
         const QString url = "%1/api/v1/search?request=";
         const QString requestTemplate
             = R"({"version":"%1","host_os":"%2","host_os_version":"%3","host_architecture":"%4","page_size":200})";
-        const QString request = url.arg(host)
-                                + requestTemplate
-                                      .arg("2.2")    // .arg(QCoreApplication::applicationVersion())
-                                      .arg("macOS")  // .arg(QSysInfo::productType())
-                                      .arg("12")     // .arg(QSysInfo::productVersion())
-                                      .arg("arm64"); // .arg(QSysInfo::currentCpuArchitecture());
+        const QString request = url.arg(host) + requestTemplate
+                                                    .arg(QCoreApplication::applicationVersion())
+                                                    .arg(QSysInfo::productType())
+                                                    .arg(QSysInfo::productVersion())
+                                                    .arg(QSysInfo::currentCpuArchitecture());
 
         query.setRequest(QNetworkRequest(QUrl::fromUserInput(request)));
         query.setNetworkAccessManager(NetworkAccessManager::instance());
@@ -380,6 +388,7 @@ void ExtensionsBrowser::fetchExtensions()
     const auto onQueryDone = [this](const NetworkQuery &query, DoneWith result) {
         if (result != DoneWith::Success) {
 #ifdef WITH_TESTS
+            // Available test sets: "defaultpacks", "varieddata", "thirdpartyplugins"
             d->model->setExtensionsJson(testData("defaultpacks"));
 #endif // WITH_TESTS
             return;
@@ -393,6 +402,35 @@ void ExtensionsBrowser::fetchExtensions()
     };
 
     d->taskTreeRunner.start(group);
+}
+
+QLabel *tfLabel(const TextFormat &tf, bool singleLine)
+{
+    QLabel *label = singleLine ? new Utils::ElidingLabel : new QLabel;
+    if (singleLine)
+        label->setFixedHeight(tf.lineHeight());
+    label->setFont(tf.font());
+    label->setAlignment(Qt::Alignment(tf.drawTextFlags));
+
+    QPalette pal = label->palette();
+    pal.setColor(QPalette::WindowText, tf.color());
+    label->setPalette(pal);
+
+    return label;
+}
+
+QGradientStops iconGradientStops(const QModelIndex &index)
+{
+    const bool isVendorExtension = index.data(RoleVendor).toString() == "The Qt Company Ltd";
+    const QColor startColor = creatorColor(isVendorExtension ? Theme::Token_Gradient01_Start
+                                                             : Theme::Token_Gradient02_Start);
+    const QColor endColor = creatorColor(isVendorExtension ? Theme::Token_Gradient01_End
+                                                           : Theme::Token_Gradient02_End);
+    const QGradientStops gradient = {
+        {0, startColor},
+        {1, endColor},
+    };
+    return gradient;
 }
 
 } // ExtensionManager::Internal
