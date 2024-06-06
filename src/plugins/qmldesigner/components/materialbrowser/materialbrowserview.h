@@ -34,7 +34,9 @@ public:
     void modelAboutToBeDetached(Model *model) override;
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
-    void modelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap) override;
+    void modelNodePreviewPixmapChanged(const ModelNode &node,
+                                       const QPixmap &pixmap,
+                                       const QByteArray &requestId) override;
     void nodeIdChanged(const ModelNode &node, const QString &newId, const QString &oldId) override;
     void variantPropertiesChanged(const QList<VariantProperty> &propertyList, PropertyChangeFlags propertyChange) override;
     void propertiesRemoved(const QList<AbstractProperty> &propertyList) override;

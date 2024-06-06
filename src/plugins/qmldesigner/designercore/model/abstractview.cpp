@@ -385,7 +385,9 @@ void AbstractView::updateImport3DSupport(const QVariantMap &/*supportMap*/)
 // position of the requested view position.
 void AbstractView::nodeAtPosReady(const ModelNode &/*modelNode*/, const QVector3D &/*pos3d*/) {}
 
-void AbstractView::modelNodePreviewPixmapChanged(const ModelNode &/*node*/, const QPixmap &/*pixmap*/)
+void AbstractView::modelNodePreviewPixmapChanged(const ModelNode & /*node*/,
+                                                 const QPixmap & /*pixmap*/,
+                                                 const QByteArray & /*requestId*/)
 {
 }
 
@@ -749,10 +751,12 @@ void AbstractView::emitUpdateActiveScene3D(const QVariantMap &sceneState)
         model()->d->notifyUpdateActiveScene3D(sceneState);
 }
 
-void AbstractView::emitModelNodelPreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap)
+void AbstractView::emitModelNodelPreviewPixmapChanged(const ModelNode &node,
+                                                      const QPixmap &pixmap,
+                                                      const QByteArray &requestId)
 {
     if (model())
-        model()->d->notifyModelNodePreviewPixmapChanged(node, pixmap);
+        model()->d->notifyModelNodePreviewPixmapChanged(node, pixmap, requestId);
 }
 
 void AbstractView::emitImport3DSupportChanged(const QVariantMap &supportMap)

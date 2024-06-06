@@ -23,9 +23,11 @@ public:
     QImage image() const;
     qint32 keyNumber() const;
     QRectF rect() const;
+    QByteArray requestId() const;
 
     void setImage(const QImage &image);
     void setRect(const QRectF &rectangle);
+    void setRequestId(const QByteArray &newRequestId);
 
     static void removeSharedMemorys(const QVector<qint32> &keyNumberVector);
 
@@ -34,6 +36,7 @@ private:
     qint32 m_instanceId;
     qint32 m_keyNumber;
     QRectF m_rect;
+    QByteArray m_requestId;
 };
 
 QDataStream &operator<<(QDataStream &out, const ImageContainer &container);

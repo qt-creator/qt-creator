@@ -18,38 +18,46 @@ class RequestModelNodePreviewImageCommand
 
 public:
     RequestModelNodePreviewImageCommand();
-    explicit RequestModelNodePreviewImageCommand(qint32 id, const QSize &size,
-                                                 const QString &componentPath, qint32 renderItemId);
+    explicit RequestModelNodePreviewImageCommand(
+        qint32 id,
+        const QSize &size,
+        const QString &componentPath,
+        qint32 renderItemId,
+        const QByteArray &requestId = {});
 
     qint32 instanceId() const;
     QSize size() const;
     QString componentPath() const;
     qint32 renderItemId() const;
+    QByteArray requestId() const;
 
 private:
     qint32 m_instanceId;
     QSize m_size;
     QString m_componentPath;
     qint32 m_renderItemId;
+    QByteArray m_requestId;
 };
 
 inline bool operator==(const RequestModelNodePreviewImageCommand &first,
                        const RequestModelNodePreviewImageCommand &second)
 {
-    return first.instanceId() == second.instanceId()
-        && first.size() == second.size()
-        && first.componentPath() == second.componentPath()
-        && first.renderItemId() == second.renderItemId();
+    return first.instanceId() == second.instanceId() && first.size() == second.size()
+           && first.componentPath() == second.componentPath()
+           && first.renderItemId() == second.renderItemId()
+           && first.requestId() == second.requestId();
 }
 
 inline size_t qHash(const RequestModelNodePreviewImageCommand &key, size_t seed = 0)
 {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     return ::qHash(key.instanceId(), seed)
-            ^ ::qHash(std::make_pair(key.size().width(), key.size().height()), seed)
-            ^ ::qHash(key.componentPath(), seed) ^ ::qHash(key.renderItemId(), seed);
+           ^ ::qHash(std::make_pair(key.size().width(), key.size().height()), seed)
+           ^ ::qHash(key.componentPath(), seed) ^ ::qHash(key.renderItemId(), seed)
+           ^ ::qHash(key.requestId(), seed);
 #else
-    return qHashMulti(seed, key.instanceId(), key.size(), key.componentPath(), key.renderItemId());
+    return qHashMulti(
+        seed, key.instanceId(), key.size(), key.componentPath(), key.renderItemId(), key.requestId());
 #endif
 }
 

@@ -715,10 +715,12 @@ void ModelPrivate::notifyUpdateActiveScene3D(const QVariantMap &sceneState)
     notifyInstanceChanges([&](AbstractView *view) { view->updateActiveScene3D(sceneState); });
 }
 
-void ModelPrivate::notifyModelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap)
+void ModelPrivate::notifyModelNodePreviewPixmapChanged(const ModelNode &node,
+                                                       const QPixmap &pixmap,
+                                                       const QByteArray &requestId)
 {
     notifyInstanceChanges(
-        [&](AbstractView *view) { view->modelNodePreviewPixmapChanged(node, pixmap); });
+        [&](AbstractView *view) { view->modelNodePreviewPixmapChanged(node, pixmap, requestId); });
 }
 
 void ModelPrivate::notifyImport3DSupportChanged(const QVariantMap &supportMap)

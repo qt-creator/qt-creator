@@ -1779,7 +1779,7 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
             if (node.isValid()) {
                 const double ratio = m_externalDependencies.formEditorDevicePixelRatio();
                 image.setDevicePixelRatio(ratio);
-                updatePreviewImageForNode(node, image);
+                updatePreviewImageForNode(node, image, container.requestId());
             }
         }
     } else if (command.type() == PuppetToCreatorCommand::Import3DSupport) {
@@ -1824,7 +1824,8 @@ void NodeInstanceView::view3DAction(View3DActionType type, const QVariant &value
 
 void NodeInstanceView::requestModelNodePreviewImage(const ModelNode &node,
                                                     const ModelNode &renderNode,
-                                                    const QSize &size) const
+                                                    const QSize &size,
+                                                    const QByteArray &requestId) const
 {
     if (m_nodeInstanceServer && node.isValid() && hasInstanceForModelNode(node)) {
         auto instance = instanceForModelNode(node);
@@ -1842,16 +1843,17 @@ void NodeInstanceView::requestModelNodePreviewImage(const ModelNode &node,
                 componentPath = ModelUtils::componentFilePath(node);
             }
 
+            const double ratio = m_externalDependencies.formEditorDevicePixelRatio();
+
             if (size.isValid()) {
-                imageSize = size;
+                imageSize = size * ratio;
             } else {
-                const double ratio = m_externalDependencies.formEditorDevicePixelRatio();
                 const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * ratio;
                 imageSize = {dim, dim};
             }
 
             m_nodeInstanceServer->requestModelNodePreviewImage(RequestModelNodePreviewImageCommand(
-                instance.instanceId(), imageSize, componentPath, renderItemId));
+                instance.instanceId(), imageSize, componentPath, renderItemId, requestId));
         }
     }
 }
@@ -1997,7 +1999,8 @@ void NodeInstanceView::endNanotrace()
 
 QVariant NodeInstanceView::previewImageDataForGenericNode(const ModelNode &modelNode,
                                                           const ModelNode &renderNode,
-                                                          const QSize &size) const
+                                                          const QSize &size,
+                                                          const QByteArray &requestId) const
 {
     if (!modelNode.isValid())
         return {};
@@ -2014,23 +2017,23 @@ QVariant NodeInstanceView::previewImageDataForGenericNode(const ModelNode &model
         imageData.id = id;
 
         // There might be multiple requests for different preview pixmap sizes.
-        // Here only the one with the default size is stored.
-        const double ratio = externalDependencies().formEditorDevicePixelRatio();
-        const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * ratio;
-        if (size.width() == dim && size.height() == dim)
+        // Here only the one with no request id is stored.
+        if (requestId.isEmpty())
             m_imageDataMap.insert(id, imageData);
     }
-    requestModelNodePreviewImage(modelNode, renderNode, size);
+    requestModelNodePreviewImage(modelNode, renderNode, size, requestId);
 
     return modelNodePreviewImageDataToVariant(imageData);
 }
 
-void NodeInstanceView::updatePreviewImageForNode(const ModelNode &modelNode, const QImage &image)
+void NodeInstanceView::updatePreviewImageForNode(const ModelNode &modelNode,
+                                                 const QImage &image,
+                                                 const QByteArray &requestId)
 {
     QPixmap pixmap = QPixmap::fromImage(image);
     if (m_imageDataMap.contains(modelNode.id()))
         m_imageDataMap[modelNode.id()].pixmap = pixmap;
-    emitModelNodelPreviewPixmapChanged(modelNode, pixmap);
+    emitModelNodelPreviewPixmapChanged(modelNode, pixmap, requestId);
 }
 
 void NodeInstanceView::updateWatcher(const QString &path)

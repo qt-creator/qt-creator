@@ -364,13 +364,13 @@ void NavigatorView::enableWidget()
         m_widget->enableNavigator();
 }
 
-void NavigatorView::modelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap)
+void NavigatorView::modelNodePreviewPixmapChanged(const ModelNode &node,
+                                                  const QPixmap &pixmap,
+                                                  const QByteArray &requestId)
 {
     // There might be multiple requests for different preview pixmap sizes.
     // Here only the one with the default size is picked.
-    const double ratio = externalDependencies().formEditorDevicePixelRatio();
-    const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * ratio;
-    if (pixmap.width() == dim && pixmap.height() == dim)
+    if (requestId.isEmpty())
         m_treeModel->updateToolTipPixmap(node, pixmap);
 }
 

@@ -221,7 +221,9 @@ public:
 
     void notifyRenderImage3DChanged(const QImage &image);
     void notifyUpdateActiveScene3D(const QVariantMap &sceneState);
-    void notifyModelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap);
+    void notifyModelNodePreviewPixmapChanged(const ModelNode &node,
+                                             const QPixmap &pixmap,
+                                             const QByteArray &requestId);
     void notifyImport3DSupportChanged(const QVariantMap &supportMap);
     void notifyNodeAtPosResult(const ModelNode &modelNode, const QVector3D &pos3d);
     void notifyView3DAction(View3DActionType type, const QVariant &value);

@@ -136,14 +136,16 @@ public:
     void view3DAction(View3DActionType type, const QVariant &value) override;
     void requestModelNodePreviewImage(const ModelNode &node,
                                       const ModelNode &renderNode,
-                                      const QSize &size = {}) const;
+                                      const QSize &size = {},
+                                      const QByteArray &requestId = {}) const;
     void edit3DViewResized(const QSize &size) const;
 
     void handlePuppetToCreatorCommand(const PuppetToCreatorCommand &command) override;
 
     QVariant previewImageDataForGenericNode(const ModelNode &modelNode,
                                             const ModelNode &renderNode,
-                                            const QSize &size = {}) const;
+                                            const QSize &size = {},
+                                            const QByteArray &requestId = {}) const;
     QVariant previewImageDataForImageNode(const ModelNode &modelNode) const;
 
     void setCrashCallback(std::function<void()> crashCallback)
@@ -229,7 +231,9 @@ private: // functions
         QString info;
     };
     QVariant modelNodePreviewImageDataToVariant(const ModelNodePreviewImageData &imageData) const;
-    void updatePreviewImageForNode(const ModelNode &modelNode, const QImage &image);
+    void updatePreviewImageForNode(const ModelNode &modelNode,
+                                   const QImage &image,
+                                   const QByteArray &requestId);
 
     void updateWatcher(const QString &path);
     void handleShaderChanges();

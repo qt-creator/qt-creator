@@ -55,7 +55,9 @@ public:
 
     void nodeTypeChanged(const ModelNode& node, const TypeName &type, int majorVersion, int minorVersion) override;
     void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) override;
-    void modelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap) override;
+    void modelNodePreviewPixmapChanged(const ModelNode &node,
+                                       const QPixmap &pixmap,
+                                       const QByteArray &requestId) override;
     void importsChanged(const Imports &addedImports, const Imports &removedImports) override;
     void customNotification(const AbstractView *view, const QString &identifier,
                             const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;

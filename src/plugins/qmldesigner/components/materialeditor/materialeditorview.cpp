@@ -42,6 +42,8 @@
 
 namespace QmlDesigner {
 
+static const char MATERIAL_EDITOR_IMAGE_REQUEST_ID[] = "MaterialEditor";
+
 MaterialEditorView::MaterialEditorView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
     , m_stackedWidget(new QStackedWidget)
@@ -859,10 +861,12 @@ void MaterialEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty
 // request render image for the selected material node
 void MaterialEditorView::requestPreviewRender()
 {
-    if (model() && model()->nodeInstanceView() && m_selectedMaterial.isValid())
+    if (model() && model()->nodeInstanceView() && m_selectedMaterial.isValid()) {
         model()->nodeInstanceView()->previewImageDataForGenericNode(m_selectedMaterial,
                                                                     {},
-                                                                    m_previewSize);
+                                                                    m_previewSize,
+                                                                    MATERIAL_EDITOR_IMAGE_REQUEST_ID);
+    }
 }
 
 bool MaterialEditorView::hasWidget() const
@@ -946,15 +950,15 @@ void MaterialEditorView::rootNodeTypeChanged(const QString &type, int, int)
     }
 }
 
-void MaterialEditorView::modelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap)
+void MaterialEditorView::modelNodePreviewPixmapChanged(const ModelNode &node,
+                                                       const QPixmap &pixmap,
+                                                       const QByteArray &requestId)
 {
     if (node != m_selectedMaterial)
         return;
 
-    if (m_previewSize.isValid() && pixmap.size() != m_previewSize)
-        return;
-
-    m_qmlBackEnd->updateMaterialPreview(pixmap);
+    if (requestId == MATERIAL_EDITOR_IMAGE_REQUEST_ID)
+        m_qmlBackEnd->updateMaterialPreview(pixmap);
 }
 
 void MaterialEditorView::importsChanged([[maybe_unused]] const Imports &addedImports,
