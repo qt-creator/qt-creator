@@ -93,10 +93,21 @@ HAS_MEM_FUNC(onClicked, hasOnClicked);
 HAS_MEM_FUNC(setText, hasSetText);
 HAS_MEM_FUNC(setTitle, hasSetTitle);
 HAS_MEM_FUNC(setValue, hasSetValue);
+HAS_MEM_FUNC(setSize, hasSetSize);
 
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard)
 {
+    if constexpr (hasSetSize<T, void (T::*)(int, int)>::value) {
+        sol::optional<sol::table> size = children.get<sol::optional<sol::table>>("size");
+        if (size) {
+            if (size->size() == 2)
+                item->setSize(size->get<int>(1), size->get<int>(2));
+            else
+                throw sol::error("size must have exactly two elements");
+        }
+    }
+
     if constexpr (hasOnTextChanged<T, void (T::*)(const QString &)>::value) {
         sol::optional<sol::protected_function> onTextChanged
             = children.get<sol::optional<sol::protected_function>>("onTextChanged");
@@ -233,8 +244,7 @@ void addGuiModule()
 
         gui.new_usertype<Space>("Space", sol::call_constructor, sol::constructors<Space(int)>());
 
-        gui.new_usertype<Stretch>(
-            "Stretch", sol::call_constructor, sol::constructors<Stretch(int)>());
+        gui.new_usertype<Stretch>("Stretch", sol::call_constructor, sol::constructors<Stretch(int)>());
 
         // Layouts
         gui.new_usertype<Layout>(
@@ -306,8 +316,6 @@ void addGuiModule()
             }),
             "show",
             &Widget::show,
-            "setSize",
-            &Widget::setSize,
             sol::base_classes,
             sol::bases<Object, Thing>());
 
