@@ -19,6 +19,7 @@
 #include <documentmanager.h>
 #include <enumeration.h>
 #include <externaldependenciesinterface.h>
+#include <model/modelutils.h>
 #include <nodelistproperty.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
@@ -26,7 +27,6 @@
 #include <uniquename.h>
 #include <utils3d.h>
 #include <variantproperty.h>
-
 #include <solutions/zip/zipwriter.h>
 
 #include <utils/algorithm.h>
@@ -379,7 +379,11 @@ void ContentLibraryView::customNotification(const AbstractView *view,
         else
             addLib3DItem(nodeList.first());
     } else if (identifier == "export_item_as_bundle") {
-        exportLib3DItem(nodeList.first());
+        // TODO: support exporting 2D items
+        if (nodeList.first().isComponent())
+            exportLib3DComponent(nodeList.first());
+        else
+            exportLib3DItem(nodeList.first());
     } else if (identifier == "export_material_as_bundle") {
         exportLib3DItem(nodeList.first(), data.first().value<QPixmap>());
     }
@@ -676,14 +680,10 @@ void ContentLibraryView::addLibAssets(const QStringList &paths)
 
 void ContentLibraryView::addLib3DComponent(const ModelNode &node)
 {
-    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-
     QString compBaseName = node.simplifiedTypeName();
     QString compFileName = compBaseName + ".qml";
 
-    Utils::FilePath compDir = DocumentManager::currentProjectDirPath()
-                    .pathAppended(compUtils.import3dTypePath() + '/' + compBaseName);
-
+    auto compDir = Utils::FilePath::fromString(ModelUtils::componentFilePath(node)).parentDir();
     auto bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/3d/");
 
     // confirm overwrite if an item with same name exists
@@ -750,6 +750,71 @@ void ContentLibraryView::addLib3DComponent(const ModelNode &node)
     m_widget->userModel()->add3DItem(compBaseName, compFileName, m_iconSavePath.toUrl(), filesList);
 }
 
+void ContentLibraryView::exportLib3DComponent(const ModelNode &node)
+{
+    QString exportPath = getExportPath(node);
+    if (exportPath.isEmpty())
+        return;
+
+    // targetPath is a temp path for collecting and zipping assets, actual export target is where
+    // the user chose to export (i.e. exportPath)
+    QTemporaryDir tempDir;
+    QTC_ASSERT(tempDir.isValid(), return);
+    auto targetPath = Utils::FilePath::fromString(tempDir.path());
+
+    m_zipWriter = std::make_unique<ZipWriter>(exportPath);
+
+    QString compBaseName = node.simplifiedTypeName();
+    QString compFileName = compBaseName + ".qml";
+
+    auto compDir = Utils::FilePath::fromString(ModelUtils::componentFilePath(node)).parentDir();
+
+    QString iconPath = QLatin1String("icons/%1").arg(UniqueName::generateId(compBaseName) + ".png");
+
+    const Utils::FilePaths sourceFiles = compDir.dirEntries({{}, QDir::Files, QDirIterator::Subdirectories});
+    const QStringList ignoreList {"_importdata.json", "qmldir", compBaseName + ".hints"};
+    QStringList filesList; // 3D component's assets (dependencies)
+
+    for (const Utils::FilePath &sourcePath : sourceFiles) {
+        Utils::FilePath relativePath = sourcePath.relativePathFrom(compDir);
+        if (ignoreList.contains(sourcePath.fileName()) || relativePath.startsWith("source scene"))
+            continue;
+
+        m_zipWriter->addFile(relativePath.toFSPathString(), sourcePath.fileContents().value_or(""));
+
+        if (sourcePath.fileName() != compFileName) // skip component file (only collect dependencies)
+            filesList.append(relativePath.path());
+    }
+
+    // add the item to the bundle json
+    QJsonObject jsonObj;
+    QJsonArray itemsArr;
+    itemsArr.append(QJsonObject {
+        {"name", node.simplifiedTypeName()},
+        {"qml", compFileName},
+        {"icon", iconPath},
+        {"files", QJsonArray::fromStringList(filesList)}
+    });
+
+    jsonObj["items"] = itemsArr;
+
+    Utils::FilePath jsonFilePath = targetPath.pathAppended(Constants::BUNDLE_JSON_FILENAME);
+    m_zipWriter->addFile(jsonFilePath.fileName(), QJsonDocument(jsonObj).toJson());
+
+    // add icon
+    m_iconSavePath = targetPath.pathAppended(iconPath);
+    m_iconSavePath.parentDir().ensureWritableDir();
+    getImageFromCache(compDir.pathAppended(compFileName).path(), [&](const QImage &image) {
+        QByteArray iconByteArray;
+        QBuffer buffer(&iconByteArray);
+        buffer.open(QIODevice::WriteOnly);
+        image.save(&buffer, "PNG");
+
+        m_zipWriter->addFile("icons/" + m_iconSavePath.fileName(), iconByteArray);
+        m_zipWriter->close();
+    });
+}
+
 void ContentLibraryView::addLib3DItem(const ModelNode &node)
 {
     auto bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/3d/");
@@ -810,9 +875,8 @@ void ContentLibraryView::addLib3DItem(const ModelNode &node)
     m_widget->userModel()->add3DItem(name, qml, m_iconSavePath.toUrl(), depAssetsList);
 }
 
-void ContentLibraryView::exportLib3DItem(const ModelNode &node, const QPixmap &iconPixmap)
+QString ContentLibraryView::getExportPath(const ModelNode &node)
 {
-    // prompt and get the exported bundle path
     QString defaultExportFileName = QLatin1String("%1.%2").arg(node.id(), Constants::BUNDLE_SUFFIX);
     Utils::FilePath projectFP = DocumentManager::currentProjectDirPath();
     if (projectFP.isEmpty()) {
@@ -822,9 +886,14 @@ void ContentLibraryView::exportLib3DItem(const ModelNode &node, const QPixmap &i
 
     QString dialogTitle = node.metaInfo().isQtQuick3DMaterial() ? tr("Export Material")
                                                                 : tr("Export Component");
-    QString exportPath = QFileDialog::getSaveFileName(m_widget, dialogTitle,
-                                projectFP.pathAppended(defaultExportFileName).toFSPathString(),
-                                tr("Qt Design Studio Bundle Files (*.%1)").arg(Constants::BUNDLE_SUFFIX));
+    return QFileDialog::getSaveFileName(m_widget, dialogTitle,
+                            projectFP.pathAppended(defaultExportFileName).toFSPathString(),
+                            tr("Qt Design Studio Bundle Files (*.%1)").arg(Constants::BUNDLE_SUFFIX));
+}
+
+void ContentLibraryView::exportLib3DItem(const ModelNode &node, const QPixmap &iconPixmap)
+{
+    QString exportPath = getExportPath(node);
     if (exportPath.isEmpty())
         return;
 
