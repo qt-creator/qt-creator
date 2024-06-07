@@ -254,6 +254,8 @@ private:
     QList<NodeInstance> loadInstancesFromCache(const QList<ModelNode> &nodeList,
                                                const NodeInstanceCacheData &cache);
 
+    QString fullyQualifyPropertyIfApplies(const BindingProperty &property) const;
+
     mutable QHash<QString, ModelNodePreviewImageData> m_imageDataMap;
 
     NodeInstance m_rootNodeInstance;
