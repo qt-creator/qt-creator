@@ -884,8 +884,8 @@ void ContentLibraryView::addLib3DItem(const ModelNode &node)
 
 QString ContentLibraryView::getExportPath(const ModelNode &node) const
 {
-    QString defaultFileName = node.hasId() ? node.id() : "component";
-    QString defaultExportFileName = QLatin1String("%1.%2").arg(defaultFileName, Constants::BUNDLE_SUFFIX);
+    QString defaultName = node.hasId() ? node.id() : "component";
+    QString defaultExportFileName = QLatin1String("%1.%2").arg(defaultName, Constants::BUNDLE_SUFFIX);
     Utils::FilePath projectFP = DocumentManager::currentProjectDirPath();
     if (projectFP.isEmpty()) {
         projectFP = QmlDesignerPlugin::instance()->documentManager()
@@ -919,17 +919,17 @@ void ContentLibraryView::exportLib3DItem(const ModelNode &node, const QPixmap &i
 
     // targetPath is a temp path for collecting and zipping assets, actual export target is where
     // the user chose to export (i.e. exportPath)
-    QTemporaryDir tempDir;
-    QTC_ASSERT(tempDir.isValid(), return);
-    auto targetPath = Utils::FilePath::fromString(tempDir.path());
+    m_tempDir = std::make_unique<QTemporaryDir>();
+    QTC_ASSERT(m_tempDir->isValid(), return);
+    auto targetPath = Utils::FilePath::fromString(m_tempDir->path());
 
     m_zipWriter = std::make_unique<ZipWriter>(exportPath);
 
     QString name = node.variantProperty("objectName").value().toString();
     if (name.isEmpty())
-        name = node.id();
+        name = node.hasId() ? node.id() : "component";
 
-    auto [qml, icon] = m_widget->userModel()->getUniqueLibItemNames(node.id());
+    auto [qml, icon] = m_widget->userModel()->getUniqueLibItemNames(name);
 
     // generate and save Qml file
     auto [qmlString, depAssets] = modelNodeToQmlString(node);
@@ -976,6 +976,7 @@ void ContentLibraryView::exportLib3DItem(const ModelNode &node, const QPixmap &i
 
         m_zipWriter->addFile("icons/" + m_iconSavePath.fileName(), iconByteArray);
         m_zipWriter->close();
+        m_tempDir.reset();
     };
 
     m_iconSavePath = targetPath.pathAppended(iconPath);

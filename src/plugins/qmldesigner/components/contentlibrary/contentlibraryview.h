@@ -13,9 +13,11 @@
 #include <QObject>
 #include <QPointer>
 
+class ZipWriter;
+
 QT_FORWARD_DECLARE_CLASS(QImage)
 QT_FORWARD_DECLARE_CLASS(QPixmap)
-QT_FORWARD_DECLARE_CLASS(ZipWriter)
+QT_FORWARD_DECLARE_CLASS(QTemporaryDir)
 
 namespace QmlDesigner {
 
@@ -99,6 +101,7 @@ private:
     CreateTexture m_createTexture;
     Utils::FilePath m_iconSavePath;
     std::unique_ptr<ZipWriter> m_zipWriter;
+    std::unique_ptr<QTemporaryDir> m_tempDir;
 };
 
 } // namespace QmlDesigner
