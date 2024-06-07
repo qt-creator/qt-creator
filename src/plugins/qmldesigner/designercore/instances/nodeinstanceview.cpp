@@ -1161,7 +1161,12 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
         ModelNode node = property.parentModelNode();
         if (node.isValid() && hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
-            PropertyBindingContainer container(instance.instanceId(), property.name(), property.expression(), property.dynamicTypeName());
+            const QString expression = fullyQualifyPropertyIfApplies(property);
+
+            PropertyBindingContainer container(instance.instanceId(),
+                                               property.name(),
+                                               expression,
+                                               property.dynamicTypeName());
             bindingContainerList.append(container);
         }
     }
@@ -1370,7 +1375,11 @@ ChangeBindingsCommand NodeInstanceView::createChangeBindingCommand(const QList<B
         ModelNode node = property.parentModelNode();
         if (node.isValid() && hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
-            PropertyBindingContainer container(instance.instanceId(), property.name(), property.expression(), property.dynamicTypeName());
+            const QString expression = fullyQualifyPropertyIfApplies(property);
+            PropertyBindingContainer container(instance.instanceId(),
+                                               property.name(),
+                                               expression,
+                                               property.dynamicTypeName());
             containerList.append(container);
         }
 
@@ -2340,4 +2349,62 @@ QList<NodeInstance> NodeInstanceView::loadInstancesFromCache(const QList<ModelNo
 
     return instanceList;
 }
+
+static bool isCapitalized(const QString &string)
+{
+    if (string.length() == 0)
+        return false;
+
+    return string.at(0).isUpper();
+}
+
+QString NodeInstanceView::fullyQualifyPropertyIfApplies(const BindingProperty &property) const
+{
+    auto parentModelNode = property.parentModelNode();
+
+    const QString originalExpression = property.expression();
+
+    if (!parentModelNode || parentModelNode.isRootNode())
+        return originalExpression;
+
+    const ModelNode rootNode = rootModelNode();
+
+    if (!rootNode.hasId())
+        return originalExpression;
+
+    if (originalExpression.contains('.'))
+        return originalExpression;
+
+    if (isCapitalized(originalExpression))
+        return originalExpression;
+
+    const NodeMetaInfo metaInfo = parentModelNode.metaInfo();
+
+    if (!metaInfo.isValid())
+        return originalExpression;
+
+    const auto propertyName = originalExpression.toUtf8();
+
+    if (metaInfo.hasProperty(propertyName))
+        return originalExpression;
+
+    if (hasId(originalExpression))
+        return originalExpression;
+
+    QString qualifiedExpression = rootNode.id() + "." + originalExpression;
+
+    if (rootNode.hasProperty(propertyName))
+        return qualifiedExpression;
+
+    const NodeMetaInfo rootMetaInfo = rootNode.metaInfo();
+
+    if (!rootMetaInfo.isValid())
+        return originalExpression;
+
+    if (rootMetaInfo.hasProperty(propertyName))
+        return qualifiedExpression;
+
+    return originalExpression;
+}
+
 } // namespace QmlDesigner
