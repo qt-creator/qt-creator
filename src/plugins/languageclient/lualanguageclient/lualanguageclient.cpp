@@ -294,8 +294,13 @@ public:
         }
     }
 
-    // TODO: Unregister Client settings from LanguageClientManager
-    ~LuaClientWrapper() = default;
+    ~LuaClientWrapper()
+    {
+        for (auto client : m_clients)
+            LanguageClientManager::shutdownClient(client);
+
+        // TODO: Unregister Client settings from LanguageClientManager
+    }
 
     TransportType transportType() { return m_transportType; }
 
@@ -338,9 +343,15 @@ public:
         for (Client *c : m_clients) {
             for (const auto &[msg, func] : m_messageCallbacks.asKeyValueRange()) {
                 c->registerCustomMethod(
-                    msg, [name = msg, f = func](const LanguageServerProtocol::JsonRpcMessage &m) {
-                        auto table = ::Lua::LuaEngine::toTable(f.lua_state(), m.toJsonObject());
-                        auto result = f.call(table);
+                    msg,
+                    [self = QPointer<LuaClientWrapper>(this),
+                     name = msg](const LanguageServerProtocol::JsonRpcMessage &m) {
+                        if (!self)
+                            return;
+
+                        auto func = self->m_messageCallbacks.value(name);
+                        auto table = ::Lua::LuaEngine::toTable(func.lua_state(), m.toJsonObject());
+                        auto result = func.call(table);
                         if (!result.valid()) {
                             qWarning() << "Error calling message callback for:" << name << ":"
                                        << (result.get<sol::error>().what());
