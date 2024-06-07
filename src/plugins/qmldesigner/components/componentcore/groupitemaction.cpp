@@ -3,6 +3,7 @@
 
 #include "groupitemaction.h"
 
+#include "designermcumanager.h"
 #include "nodeabstractproperty.h"
 #include "nodelistproperty.h"
 
@@ -81,6 +82,10 @@ inline bool itemsAreGrouped(const SelectionContext &selection)
 
 bool groupingEnabled(const SelectionContext &selection)
 {
+    //StudioComponents.GroupItem is not available in Qt for MCUs
+    if (DesignerMcuManager::instance().isMCUProject())
+        return false;
+
     if (selection.singleNodeIsSelected())
         return itemsAreGrouped(selection);
     else
