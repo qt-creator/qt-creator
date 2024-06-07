@@ -199,7 +199,7 @@ FakeVimSettings::FakeVimSettings()
                         autoIndent.setValue(true);
                         smartIndent.setValue(tps.m_autoIndent);
                         incSearch.setValue(true);
-                    }, nullptr),
+                    }, this),
                 },
                 PushButton {
                     text(Tr::tr("Set Qt Style")),
@@ -213,7 +213,7 @@ FakeVimSettings::FakeVimSettings()
                         incSearch.setVolatileValue(true);
                         backspace.setVolatileValue(QString("indent,eol,start"));
                         passKeys.setVolatileValue(true);
-                    }, nullptr),
+                    }, this),
                 },
                 PushButton {
                     text(Tr::tr("Set Plain Style")),
@@ -227,7 +227,7 @@ FakeVimSettings::FakeVimSettings()
                         incSearch.setVolatileValue(false);
                         backspace.setVolatileValue(QString());
                         passKeys.setVolatileValue(false);
-                    }, nullptr),
+                    }, this),
                  },
                  st
             },
