@@ -78,7 +78,7 @@ public:
         const QVariant checkFormat = kit->value(McuDependenciesKitAspect::id());
         if (!checkFormat.isValid() || checkFormat.isNull())
             return result;
-        if (!checkFormat.canConvert(QMetaType::QVariantList))
+        if (!checkFormat.canConvert(QMetaType(QMetaType::QVariantList)))
             return {BuildSystemTask(Task::Error, Tr::tr("The MCU dependencies setting value is invalid."))};
 
         // check paths defined in cmake variables for given dependencies exist
@@ -105,7 +105,7 @@ public:
         QTC_ASSERT(kit, return );
 
         const QVariant variant = kit->value(McuDependenciesKitAspect::id());
-        if (!variant.isNull() && !variant.canConvert(QMetaType::QVariantList)) {
+        if (!variant.isNull() && !variant.canConvert(QMetaType(QMetaType::QVariantList))) {
             qWarning("Kit \"%s\" has a wrong mcu dependencies value set.",
                      qPrintable(kit->displayName()));
             McuDependenciesKitAspect::setDependencies(kit, Utils::EnvironmentItems());

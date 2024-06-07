@@ -1565,7 +1565,7 @@ void TextToModelMerger::syncVariantProperty(AbstractProperty &modelProperty,
                                             const TypeName &astType,
                                             DifferenceHandler &differenceHandler)
 {
-    if (astValue.canConvert(QMetaType::QString))
+    if (astValue.canConvert(QMetaType(QMetaType::QString)))
         populateQrcMapping(astValue.toString());
 
     if (modelProperty.isVariantProperty()) {
