@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (C) 2020 The Qt Company Ltd.
+# Copyright (C) 2024 The Qt Company Ltd.
 # SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 # import the print function which is used in python 3.x
@@ -295,12 +295,15 @@ def package_qtcreator(args, paths):
                                          '*'],
                                         paths.debug_install)
         if common.is_windows_platform():
-            common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads,
+            # use -mf=off to avoid usage of the ARM executable compression filter,
+            # which cannot be extracted by the p7zip version on the machine doing
+            # the repository builds
+            common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads, '-mf=off',
                                      os.path.join(paths.result, 'wininterrupt' + args.zip_infix + '.7z'),
                                      '*'],
                                     paths.wininterrupt_install)
             if not args.no_cdb:
-                common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads,
+                common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads, '-mf=off',
                                          os.path.join(paths.result, 'qtcreatorcdbext' + args.zip_infix + '.7z'),
                                          '*'],
                                         paths.qtcreatorcdbext_install)
