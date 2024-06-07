@@ -884,7 +884,8 @@ void ContentLibraryView::addLib3DItem(const ModelNode &node)
 
 QString ContentLibraryView::getExportPath(const ModelNode &node) const
 {
-    QString defaultExportFileName = QLatin1String("%1.%2").arg(node.id(), Constants::BUNDLE_SUFFIX);
+    QString defaultFileName = node.hasId() ? node.id() : "component";
+    QString defaultExportFileName = QLatin1String("%1.%2").arg(defaultFileName, Constants::BUNDLE_SUFFIX);
     Utils::FilePath projectFP = DocumentManager::currentProjectDirPath();
     if (projectFP.isEmpty()) {
         projectFP = QmlDesignerPlugin::instance()->documentManager()
