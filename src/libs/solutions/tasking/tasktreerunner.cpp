@@ -1,9 +1,12 @@
+// Copyright (C) 2024 Jarek Kobus
 // Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "tasktreerunner.h"
 
 #include "tasktree.h"
+
+QT_BEGIN_NAMESPACE
 
 namespace Tasking {
 
@@ -38,3 +41,5 @@ void TaskTreeRunner::reset()
 }
 
 } // namespace Tasking
+
+QT_END_NAMESPACE

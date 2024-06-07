@@ -1,4 +1,5 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 Jarek Kobus
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 
 #include "qprocesstask.h"
@@ -9,6 +10,10 @@
 #include <QtCore/QThread>
 #include <QtCore/QTimer>
 #include <QtCore/QWaitCondition>
+
+QT_BEGIN_NAMESPACE
+
+#if QT_CONFIG(process)
 
 namespace Tasking {
 
@@ -262,4 +267,13 @@ void QProcessDeleter::operator()(QProcess *process)
 
 } // namespace Tasking
 
+#endif // QT_CONFIG(process)
+
+QT_END_NAMESPACE
+
+#if QT_CONFIG(process)
+
 #include "qprocesstask.moc"
+
+#endif // QT_CONFIG(process)
+

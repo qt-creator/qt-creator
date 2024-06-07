@@ -1,7 +1,10 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 Jarek Kobus
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "barrier.h"
+
+QT_BEGIN_NAMESPACE
 
 namespace Tasking {
 
@@ -47,3 +50,5 @@ void Barrier::stopWithResult(DoneResult result)
 }
 
 } // namespace Tasking
+
+QT_END_NAMESPACE
