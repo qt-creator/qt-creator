@@ -1002,33 +1002,52 @@ void ContentLibraryView::importBundle()
     const QJsonArray importedItemsArr = importedJsonObj.value("items").toArray();
     QTC_ASSERT(!importedItemsArr.isEmpty(), return);
 
-    // copy files to bundle folder
-    const QList<ZipReader::FileInfo> fiList = zipReader.fileInfoList();
-    for (const ZipReader::FileInfo &fi : fiList) {
-        if (fi.filePath == Constants::BUNDLE_JSON_FILENAME)
-            continue;
-
-        Utils::FilePath fp = bundlePath.pathAppended(fi.filePath);
-        fp.parentDir().ensureWritableDir();
-        fp.writeFileContents(zipReader.fileData(fi.filePath));
-    }
-    zipReader.close();
-
-    // update bundle json file and user model
     QJsonObject &jsonRef = m_widget->userModel()->bundleJson3DObjectRef();
     QJsonArray itemsArr = jsonRef.value("items").toArray();
+
+    QStringList existingQmls;
+    for (const QJsonValueConstRef &itemRef : std::as_const(itemsArr))
+        existingQmls.append(itemRef.toObject().value("qml").toString());
+
     for (const QJsonValueConstRef &itemRef : importedItemsArr) {
+        QJsonObject itemObj = itemRef.toObject();
+        QString qml = itemObj.value("qml").toString();
+
+        // confirm overwrite if an item with same name exists
+        if (existingQmls.contains(qml)) {
+            QMessageBox::StandardButton reply = QMessageBox::question(m_widget, tr("Component Exists"),
+                                                tr("A component with the same name '%1' already "
+                                                   "exists in the Content Library, are you sure "
+                                                   "you want to overwrite it?")
+                                            .arg(qml), QMessageBox::Yes | QMessageBox::No);
+            if (reply == QMessageBox::No)
+                continue;
+
+            // before overwriting remove old item (to avoid partial items and dangling assets)
+            m_widget->userModel()->remove3DFromContentLibByName(qml);
+        }
+
         // add entry to json
         itemsArr.append(itemRef);
 
         // add entry to model
-        const QJsonObject itemObj = itemRef.toObject();
         QString name = itemObj.value("name").toString();
-        QString qml = itemObj.value("qml").toString();
         QStringList files = itemObj.value("files").toVariant().toStringList();
-        QUrl iconUrl = bundlePath.pathAppended(itemObj.value("icon").toString()).toUrl();
+        QString icon = itemObj.value("icon").toString();
+        QUrl iconUrl = bundlePath.pathAppended(icon).toUrl();
         m_widget->userModel()->add3DItem(name, qml, iconUrl, files);
+
+        // copy files
+        files << qml << icon; // all files
+        for (const QString &file : std::as_const(files)) {
+            Utils::FilePath filePath = bundlePath.pathAppended(file);
+            filePath.parentDir().ensureWritableDir();
+            QTC_ASSERT_EXPECTED(filePath.writeFileContents(zipReader.fileData(file)),);
+        }
     }
+
+    zipReader.close();
+
     jsonRef["items"] = itemsArr;
 
     auto result = bundlePath.pathAppended(Constants::BUNDLE_JSON_FILENAME)
