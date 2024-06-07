@@ -147,6 +147,9 @@ QString generatePath(const QString &path)
  */
 QString generateId(const QString &id, std::function<bool(const QString &)> predicate)
 {
+    if (id.isEmpty())
+        return {};
+
     // remove non word (non A-Z, a-z, 0-9) or space characters
     QString newId = id.trimmed();
 
