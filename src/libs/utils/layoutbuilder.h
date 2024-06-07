@@ -149,9 +149,9 @@ class QTCREATOR_UTILS_EXPORT LayoutItem
 public:
     ~LayoutItem();
     LayoutItem();
-    LayoutItem(QLayout *l) : layout(l) {}
-    LayoutItem(QWidget *w) : widget(w) {}
-    LayoutItem(const QString &t) : text(t) {}
+    LayoutItem(QLayout *l);
+    LayoutItem(QWidget *w);
+    LayoutItem(const QString &t);
     LayoutItem(const LayoutModifier &inner);
 
     QString text;
