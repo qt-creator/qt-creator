@@ -325,7 +325,8 @@ void PropertyEditorQmlBackend::createPropertyEditorValue(const QmlObjectNode &qm
     valueObject->setName(name);
     valueObject->setModelNode(qmlObjectNode);
 
-    if (qmlObjectNode.propertyAffectedByCurrentState(name) && !(qmlObjectNode.modelNode().property(name).isBindingProperty()))
+    if (qmlObjectNode.propertyAffectedByCurrentState(name)
+        && !(qmlObjectNode.hasBindingProperty(name)))
         valueObject->setValue(qmlObjectNode.modelValue(name));
 
     else
