@@ -244,10 +244,6 @@ LayoutItem::LayoutItem(const QString &t)
     : text(t), empty(t.isEmpty())
 {}
 
-LayoutItem::LayoutItem(const LayoutModifier &inner)
-    : empty(!inner), ownerModifier(inner)
-{}
-
 /*!
     \fn  template <class T> LayoutItem(const T &t)
     \internal

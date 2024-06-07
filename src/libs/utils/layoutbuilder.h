@@ -142,7 +142,6 @@ public:
 class FlowLayout;
 class Layout;
 using LayoutModifier = std::function<void(Layout *)>;
-// using LayoutModifier = void(*)(Layout *);
 
 class QTCREATOR_UTILS_EXPORT LayoutItem
 {
@@ -152,7 +151,6 @@ public:
     LayoutItem(QLayout *l);
     LayoutItem(QWidget *w);
     LayoutItem(const QString &t);
-    LayoutItem(const LayoutModifier &inner);
 
     QString text;
     QLayout *layout = nullptr;
@@ -161,8 +159,6 @@ public:
     int spanCols = 1;
     int spanRows = 1;
     bool empty = false;
-    LayoutModifier ownerModifier;
-    //Qt::Alignment align = {};
 };
 
 class QTCREATOR_UTILS_EXPORT Layout : public Object
