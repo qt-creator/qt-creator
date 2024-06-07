@@ -27,6 +27,8 @@
 #include <uniquename.h>
 #include <utils3d.h>
 #include <variantproperty.h>
+
+#include <solutions/zip/zipreader.h>
 #include <solutions/zip/zipwriter.h>
 
 #include <utils/algorithm.h>
@@ -386,6 +388,8 @@ void ContentLibraryView::customNotification(const AbstractView *view,
             exportLib3DItem(nodeList.first());
     } else if (identifier == "export_material_as_bundle") {
         exportLib3DItem(nodeList.first(), data.first().value<QPixmap>());
+    } else if (identifier == "import_bundle_to_3d_scene") {
+        importBundle();
     }
 }
 
@@ -798,6 +802,9 @@ void ContentLibraryView::exportLib3DComponent(const ModelNode &node)
 
     jsonObj["items"] = itemsArr;
 
+    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+    jsonObj["id"] = compUtils.user3DBundleId();
+
     Utils::FilePath jsonFilePath = targetPath.pathAppended(Constants::BUNDLE_JSON_FILENAME);
     m_zipWriter->addFile(jsonFilePath.fileName(), QJsonDocument(jsonObj).toJson());
 
@@ -875,7 +882,7 @@ void ContentLibraryView::addLib3DItem(const ModelNode &node)
     m_widget->userModel()->add3DItem(name, qml, m_iconSavePath.toUrl(), depAssetsList);
 }
 
-QString ContentLibraryView::getExportPath(const ModelNode &node)
+QString ContentLibraryView::getExportPath(const ModelNode &node) const
 {
     QString defaultExportFileName = QLatin1String("%1.%2").arg(node.id(), Constants::BUNDLE_SUFFIX);
     Utils::FilePath projectFP = DocumentManager::currentProjectDirPath();
@@ -889,6 +896,18 @@ QString ContentLibraryView::getExportPath(const ModelNode &node)
     return QFileDialog::getSaveFileName(m_widget, dialogTitle,
                             projectFP.pathAppended(defaultExportFileName).toFSPathString(),
                             tr("Qt Design Studio Bundle Files (*.%1)").arg(Constants::BUNDLE_SUFFIX));
+}
+
+QString ContentLibraryView::getImportPath() const
+{
+    Utils::FilePath projectFP = DocumentManager::currentProjectDirPath();
+    if (projectFP.isEmpty()) {
+        projectFP = QmlDesignerPlugin::instance()->documentManager()
+                        .currentDesignDocument()->fileName().parentDir();
+    }
+
+    return QFileDialog::getOpenFileName(m_widget, tr("Import Component"), projectFP.toFSPathString(),
+                                        tr("Qt Design Studio Bundle Files (*.%1)").arg(Constants::BUNDLE_SUFFIX));
 }
 
 void ContentLibraryView::exportLib3DItem(const ModelNode &node, const QPixmap &iconPixmap)
@@ -934,6 +953,10 @@ void ContentLibraryView::exportLib3DItem(const ModelNode &node, const QPixmap &i
 
     jsonObj["items"] = itemsArr;
 
+    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+    jsonObj["id"] = node.metaInfo().isQtQuick3DMaterial() ? compUtils.userMaterialsBundleId()
+                                                          : compUtils.user3DBundleId();
+
     Utils::FilePath jsonFilePath = targetPath.pathAppended(Constants::BUNDLE_JSON_FILENAME);
     m_zipWriter->addFile(jsonFilePath.fileName(), QJsonDocument(jsonObj).toJson());
 
@@ -959,6 +982,60 @@ void ContentLibraryView::exportLib3DItem(const ModelNode &node, const QPixmap &i
         getImageFromCache(qmlFilePath.toFSPathString(), addIconAndCloseZip);
     else
         addIconAndCloseZip(iconPixmap);
+}
+
+void ContentLibraryView::importBundle()
+{
+    // TODO: support importing materials
+
+    QString importPath = getImportPath();
+    if (importPath.isEmpty())
+        return;
+
+    auto bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/3d/");
+    ZipReader zipReader(importPath);
+
+    QByteArray bundleJsonContent = zipReader.fileData(Constants::BUNDLE_JSON_FILENAME);
+    QTC_ASSERT(!bundleJsonContent.isEmpty(), return);
+
+    const QJsonObject importedJsonObj = QJsonDocument::fromJson(bundleJsonContent).object();
+    const QJsonArray importedItemsArr = importedJsonObj.value("items").toArray();
+    QTC_ASSERT(!importedItemsArr.isEmpty(), return);
+
+    // copy files to bundle folder
+    const QList<ZipReader::FileInfo> fiList = zipReader.fileInfoList();
+    for (const ZipReader::FileInfo &fi : fiList) {
+        if (fi.filePath == Constants::BUNDLE_JSON_FILENAME)
+            continue;
+
+        Utils::FilePath fp = bundlePath.pathAppended(fi.filePath);
+        fp.parentDir().ensureWritableDir();
+        fp.writeFileContents(zipReader.fileData(fi.filePath));
+    }
+    zipReader.close();
+
+    // update bundle json file and user model
+    QJsonObject &jsonRef = m_widget->userModel()->bundleJson3DObjectRef();
+    QJsonArray itemsArr = jsonRef.value("items").toArray();
+    for (const QJsonValueConstRef &itemRef : importedItemsArr) {
+        // add entry to json
+        itemsArr.append(itemRef);
+
+        // add entry to model
+        const QJsonObject itemObj = itemRef.toObject();
+        QString name = itemObj.value("name").toString();
+        QString qml = itemObj.value("qml").toString();
+        QStringList files = itemObj.value("files").toVariant().toStringList();
+        QUrl iconUrl = bundlePath.pathAppended(itemObj.value("icon").toString()).toUrl();
+        m_widget->userModel()->add3DItem(name, qml, iconUrl, files);
+    }
+    jsonRef["items"] = itemsArr;
+
+    auto result = bundlePath.pathAppended(Constants::BUNDLE_JSON_FILENAME)
+                      .writeFileContents(QJsonDocument(jsonRef).toJson());
+    QTC_ASSERT_EXPECTED(result,);
+
+    m_widget->userModel()->refresh3DSection();
 }
 
 /**

@@ -65,9 +65,11 @@ private:
     void exportLib3DComponent(const ModelNode &node);
     void addLib3DItem(const ModelNode &node);
     void exportLib3DItem(const ModelNode &node, const QPixmap &iconPixmap = {});
+    void importBundle();
     void getImageFromCache(const QString &qmlPath,
                            std::function<void(const QImage &image)> successCallback);
-    QString getExportPath(const ModelNode &node);
+    QString getExportPath(const ModelNode &node) const;
+    QString getImportPath() const;
     QPair<QString, QSet<QString>> modelNodeToQmlString(const ModelNode &node, int depth = 0);
 
 #ifdef QDS_USE_PROJECTSTORAGE
