@@ -266,7 +266,6 @@ LocalsAndExpressionsSettings::LocalsAndExpressionsSettings()
 
     extraDumperCommands.setSettingsKey(debugModeGroup, "GdbCustomDumperCommands");
     extraDumperCommands.setDisplayStyle(StringAspect::TextEditDisplay);
-    extraDumperCommands.setUseGlobalMacroExpander();
     extraDumperCommands.setToolTip("<html><head/><body><p>"
                         + Tr::tr("Python commands entered here will be executed after built-in "
                              "debugging helpers have been loaded and fully initialized. You can "

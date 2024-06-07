@@ -20,6 +20,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcprocess.h>
 #include <utils/processinfo.h>
 #include <utils/processinterface.h>

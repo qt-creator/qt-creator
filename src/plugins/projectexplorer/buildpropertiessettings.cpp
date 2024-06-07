@@ -59,7 +59,6 @@ BuildPropertiesSettings::BuildPropertiesSettings()
                "The default value can be set using the environment variable "
                "<tt>%1</tt>")
             .arg(Constants::QTC_DEFAULT_BUILD_DIRECTORY_TEMPLATE));
-    buildDirectoryTemplate.setUseGlobalMacroExpander();
     buildDirectoryTemplate.setUseResetButton();
 
     separateDebugInfo.setSettingsKey("ProjectExplorer/Settings/SeparateDebugInfo");

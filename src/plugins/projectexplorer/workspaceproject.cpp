@@ -180,8 +180,6 @@ public:
         executable.setLabelText(Tr::tr("Executable:"));
         executable.setReadOnly(true);
         executable.setValue(bti.targetFilePath);
-        executable.setMacroExpanderProvider(
-            [this]() -> MacroExpander * { return const_cast<MacroExpander *>(macroExpander()); });
 
         auto argumentsAsString = [this]() {
             return CommandLine{

@@ -7,7 +7,6 @@
 #include "guiutils.h"
 #include "id.h"
 #include "infolabel.h"
-#include "macroexpander.h"
 #include "pathchooser.h"
 #include "qtcsettings.h"
 #include "store.h"
@@ -36,6 +35,7 @@ namespace Utils {
 class AspectContainer;
 class BoolAspect;
 class CheckableDecider;
+class MacroExpander;
 
 namespace Internal {
 class AspectContainerPrivate;
@@ -202,6 +202,9 @@ public:
     // This is expensive. Do not use without good reason
     void writeToSettingsImmediatly() const;
 
+    void setMacroExpander(MacroExpander *expander);
+    MacroExpander *macroExpander() const;
+
 signals:
     void changed();
     void volatileValueChanged();
@@ -218,6 +221,8 @@ protected:
     virtual bool guiToBuffer();
 
     virtual void handleGuiChanged();
+
+    void addMacroExpansion(QWidget *w);
 
     QLabel *createLabel();
     void addLabeledItem(Layouting::Layout &parent, QWidget *widget);
@@ -607,8 +612,6 @@ public:
     void setPlaceHolderText(const QString &placeHolderText);
     void setHistoryCompleter(const Key &historyCompleterKey);
     void setAcceptRichText(bool acceptRichText);
-    void setMacroExpanderProvider(const MacroExpanderProvider &expanderProvider);
-    void setUseGlobalMacroExpander();
     void setUseResetButton();
     void setValidationFunction(const FancyLineEdit::ValidationFunction &validator);
     void setAutoApplyOnEditingFinished(bool applyOnEditingFinished);
@@ -685,7 +688,6 @@ public:
     void setValidationFunction(const FancyLineEdit::ValidationFunction &validator);
     void setDisplayFilter(const std::function<QString (const QString &)> &displayFilter);
     void setHistoryCompleter(const Key &historyCompleterKey);
-    void setMacroExpanderProvider(const MacroExpanderProvider &expanderProvider);
     void setShowToolTipOnLabel(bool show);
     void setAutoApplyOnEditingFinished(bool applyOnEditingFinished);
 
@@ -974,6 +976,8 @@ public:
     void setAutoApply(bool on) override;
     bool isDirty() override;
     void setUndoStack(QUndoStack *undoStack) override;
+
+    void setMacroExpander(MacroExpander *expander);
 
     template <typename T> T *aspect() const
     {
