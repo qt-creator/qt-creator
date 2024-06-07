@@ -25,9 +25,11 @@ public:
     {
         m_sourceAspect.setSettingsKey(SOURCE_KEY);
         m_sourceAspect.setLabelText(Tr::tr("Source:"));
+        m_sourceAspect.setMacroExpanderProvider([this] { return macroExpander(); });
 
         m_targetAspect.setSettingsKey(TARGET_KEY);
         m_targetAspect.setLabelText(Tr::tr("Target:"));
+        m_targetAspect.setMacroExpanderProvider([this] { return macroExpander(); });
 
         addMacroExpander();
     }
@@ -35,8 +37,8 @@ public:
 protected:
     bool init() final
     {
-        m_source = m_sourceAspect();
-        m_target = m_targetAspect();
+        m_source = m_sourceAspect.expandedValue();
+        m_target = m_targetAspect.expandedValue();
         return m_source.exists();
     }
 
