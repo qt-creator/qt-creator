@@ -11,8 +11,8 @@
 
 #include <random>
 
-using Utils::PathString;
-using Utils::SmallString;
+namespace {
+
 using Utils::SmallStringLiteral;
 using Utils::SmallStringView;
 
@@ -24,22 +24,41 @@ static_assert(16 == alignof(Utils::BasicSmallString<31>));
 static_assert(16 == alignof(Utils::BasicSmallString<64>));
 static_assert(16 == alignof(Utils::BasicSmallString<192>));
 
-TEST(SmallString, basic_string_equal)
+template<typename StringType>
+class SmallString : public testing::Test
 {
-    ASSERT_THAT(SmallString("text"), Eq(SmallString("text")));
+public:
+    using String = StringType;
+};
+
+using StringTypes = ::testing::Types<Utils::BasicSmallString<31>, Utils::BasicSmallString<64>, Utils::PathString>;
+TYPED_TEST_SUITE(SmallString, StringTypes);
+
+TYPED_TEST(SmallString, basic_string_equal)
+{
+    using SmallString = typename TestFixture::String;
+    SmallString text("text");
+
+    ASSERT_THAT(text, Eq(SmallString("text")));
 }
 
-TEST(SmallString, basic_small_string_unequal)
+TYPED_TEST(SmallString, basic_small_string_unequal)
 {
-    ASSERT_THAT(SmallString("text"), Ne(SmallString("other text")));
+    using SmallString = typename TestFixture::String;
+    SmallString text("text");
+
+    ASSERT_THAT(text, Ne(SmallString("other text")));
 }
 
-TEST(SmallString, null_small_string_is_equal_to_empty_small_string)
+TYPED_TEST(SmallString, null_small_string_is_equal_to_empty_small_string)
 {
-    ASSERT_THAT(SmallString(), Eq(SmallString("")));
+    using SmallString = typename TestFixture::String;
+    SmallString defaultString;
+
+    ASSERT_THAT(defaultString, Eq(SmallString("")));
 }
 
-TEST(SmallString, short_small_string_literal_is_short_small_string)
+TYPED_TEST(SmallString, short_small_string_literal_is_short_small_string)
 {
     // constexpr
     SmallStringLiteral shortText("short string");
@@ -47,15 +66,17 @@ TEST(SmallString, short_small_string_literal_is_short_small_string)
     ASSERT_TRUE(shortText.isShortString());
 }
 
-TEST(SmallString, short_small_string_is_short_small_string)
+TYPED_TEST(SmallString, short_small_string_is_short_small_string)
 {
+    using SmallString = typename TestFixture::String;
     SmallString shortText("short string");
 
     ASSERT_TRUE(shortText.isShortString());
 }
 
-TEST(SmallString, create_from_c_string_iterators)
+TYPED_TEST(SmallString, create_from_c_string_iterators)
 {
+    using SmallString = typename TestFixture::String;
     char sourceText[] = "this is very very very very very much text";
 
     SmallString text(sourceText, &sourceText[sizeof(sourceText) - 1]);
@@ -63,8 +84,9 @@ TEST(SmallString, create_from_c_string_iterators)
     ASSERT_THAT(text, SmallString("this is very very very very very much text"));
 }
 
-TEST(SmallString, create_from_q_byte_array_iterators)
+TYPED_TEST(SmallString, create_from_q_byte_array_iterators)
 {
+    using SmallString = typename TestFixture::String;
     QByteArray sourceText = "this is very very very very very much text";
 
     SmallString text(sourceText.begin(), sourceText.end());
@@ -72,8 +94,9 @@ TEST(SmallString, create_from_q_byte_array_iterators)
     ASSERT_THAT(text, SmallString("this is very very very very very much text"));
 }
 
-TEST(SmallString, create_from_small_string_iterators)
+TYPED_TEST(SmallString, create_from_small_string_iterators)
 {
+    using SmallString = typename TestFixture::String;
     SmallString sourceText = "this is very very very very very much text";
 
     SmallString text(sourceText.begin(), sourceText.end());
@@ -81,8 +104,9 @@ TEST(SmallString, create_from_small_string_iterators)
     ASSERT_THAT(text, SmallString("this is very very very very very much text"));
 }
 
-TEST(SmallString, create_from_string_view)
+TYPED_TEST(SmallString, create_from_string_view)
 {
+    using SmallString = typename TestFixture::String;
     SmallStringView sourceText = "this is very very very very very much text";
 
     SmallString text(sourceText);
@@ -90,53 +114,64 @@ TEST(SmallString, create_from_string_view)
     ASSERT_THAT(text, SmallString("this is very very very very very much text"));
 }
 
-TEST(SmallString, short_small_string_is_reference)
+TYPED_TEST(SmallString, short_small_string_is_reference)
 {
-    SmallString longText("very very very very very long text");
+    Utils::SmallString longText("very very very very very long text");
 
     ASSERT_TRUE(longText.isReadOnlyReference());
 }
 
-TEST(SmallString, small_string_contructor_is_not_reference)
+TYPED_TEST(SmallString, small_string_contructor_is_not_reference)
 {
+    using SmallString = typename TestFixture::String;
     const char *shortCSmallString = "short string";
     auto shortText = SmallString(shortCSmallString);
 
     ASSERT_TRUE(shortText.isShortString());
 }
 
-TEST(SmallString, short_small_string_is_not_reference)
+TYPED_TEST(SmallString, short_small_string_is_not_reference)
 {
+    using SmallString = typename TestFixture::String;
     const char *shortCSmallString = "short string";
     auto shortText = SmallString::fromUtf8(shortCSmallString);
 
     ASSERT_FALSE(shortText.isReadOnlyReference());
 }
 
-TEST(SmallString, long_small_string_construtor_is_allocated)
+TYPED_TEST(SmallString, long_small_string_construtor_is_allocated)
 {
     const char *longCSmallString = "very very very very very long text";
-    auto longText = SmallString(longCSmallString);
+    auto longText = Utils::SmallString(longCSmallString);
 
     ASSERT_TRUE(longText.hasAllocatedMemory());
 }
 
-TEST(SmallString, maximum_short_small_string)
+TYPED_TEST(SmallString, maximum_short_small_string)
 {
+    using SmallString = typename TestFixture::String;
     SmallString maximumShortText("very very very very short text", 30);
 
     ASSERT_THAT(maximumShortText, StrEq("very very very very short text"));
 }
 
-TEST(SmallString, long_const_expression_small_string_is_reference)
+TYPED_TEST(SmallString, long_const_expression_small_string_is_reference)
 {
-    SmallString longText("very very very very very very very very very very very long string");
+    using SmallString = typename TestFixture::String;
+    SmallString longText(
+        "very very very very very very very very very very very long string very very very very "
+        "very very very very very very very long string very very very very very very very very "
+        "very very very long string very very very very very very very very very very very long "
+        "string very very very very very very very very very very very long string very very very "
+        "very very very very very very very very long string very very very very very very very "
+        "very very very very long string");
 
     ASSERT_TRUE(longText.isReadOnlyReference());
 }
 
-TEST(SmallString, copy_short_const_expression_small_string_is_short_small_string)
+TYPED_TEST(SmallString, copy_short_const_expression_small_string_is_short_small_string)
 {
+    using SmallString = typename TestFixture::String;
     SmallString shortText("short string");
 
     auto shortTextCopy = shortText;
@@ -144,35 +179,50 @@ TEST(SmallString, copy_short_const_expression_small_string_is_short_small_string
     ASSERT_TRUE(shortTextCopy.isShortString());
 }
 
-TEST(SmallString, copy_long_const_expression_small_string_is_long_small_string)
+TYPED_TEST(SmallString, copy_long_const_expression_small_string_is_long_small_string)
 {
-    SmallString longText("very very very very very very very very very very very long string");
+    using SmallString = typename TestFixture::String;
+    SmallString longText(
+        "very very very very very very very very very very very long string very very very very "
+        "very very very very very very very long string very very very very very very very very "
+        "very very very long string very very very very very very very very very very very long "
+        "string very very very very very very very very very very very long string very very very "
+        "very very very very very very very very long string very very very very very very very "
+        "very very very very long string");
 
     auto longTextCopy = longText;
 
     ASSERT_FALSE(longTextCopy.isShortString());
 }
 
-TEST(SmallString, short_path_string_is_short_string)
+TYPED_TEST(SmallString, short_path_string_is_short_string)
 {
     const char *rawText = "very very very very very very very very very very very long path which fits in the short memory";
 
-    PathString text(rawText);
+    Utils::PathString text(rawText);
 
     ASSERT_TRUE(text.isShortString());
 }
 
-TEST(SmallString, small_string_from_character_array_is_reference)
+TYPED_TEST(SmallString, small_string_from_character_array_is_reference)
 {
-    const char longCString[] = "very very very very very very very very very very very long string";
+    using SmallString = typename TestFixture::String;
+    const char longCString[]
+        = "very very very very very very very very very very very long string very very very very "
+          "very very very very very very very long string very very very very very very very very "
+          "very very very long string very very very very very very very very very very very long "
+          "string very very very very very very very very very very very long string very very "
+          "very very very very very very very very very long string very very very very very very "
+          "very very very very very long string";
 
     SmallString longString(longCString);
 
     ASSERT_TRUE(longString.isReadOnlyReference());
 }
 
-TEST(SmallString, small_string_from_character_pointer_is_not_reference)
+TYPED_TEST(SmallString, small_string_from_character_pointer_is_not_reference)
 {
+    using SmallString = typename TestFixture::String;
     const char *longCString = "very very very very very very very very very very very long string";
 
     SmallString longString = SmallString::fromUtf8(longCString);
@@ -180,9 +230,16 @@ TEST(SmallString, small_string_from_character_pointer_is_not_reference)
     ASSERT_FALSE(longString.isReadOnlyReference());
 }
 
-TEST(SmallString, copy_string_from_reference)
+TYPED_TEST(SmallString, copy_string_from_reference)
 {
-    SmallString longText("very very very very very very very very very very very long string");
+    using SmallString = typename TestFixture::String;
+    SmallString longText(
+        "very very very very very very very very very very very long string very very very very "
+        "very very very very very very very long string very very very very very very very very "
+        "very very very long string very very very very very very very very very very very long "
+        "string very very very very very very very very very very very long string very very "
+        "very very very very very very very very very long string very very very very very very "
+        "very very very very very long string");
     SmallString longTextCopy;
 
     longTextCopy = longText;
@@ -190,59 +247,68 @@ TEST(SmallString, copy_string_from_reference)
     ASSERT_TRUE(longTextCopy.isReadOnlyReference());
 }
 
-TEST(SmallString, small_string_literal_short_small_string_data_access)
+TYPED_TEST(SmallString, small_string_literal_short_small_string_data_access)
 {
-    SmallStringLiteral literalText("very very very very very very very very very very very long string");
+    SmallStringLiteral literalText(
+        "very very very very very very very very very very very long string");
 
     ASSERT_THAT(literalText, StrEq("very very very very very very very very very very very long string"));
 }
 
-TEST(SmallString, small_string_literal_long_small_string_data_access)
+TYPED_TEST(SmallString, small_string_literal_long_small_string_data_access)
 {
     SmallStringLiteral literalText("short string");
 
     ASSERT_THAT(literalText, StrEq("short string"));
 }
 
-TEST(SmallString, reference_data_access)
+TYPED_TEST(SmallString, reference_data_access)
 {
+    using SmallString = typename TestFixture::String;
+
     SmallString literalText("short string");
 
     ASSERT_THAT(literalText, StrEq("short string"));
 }
 
-TEST(SmallString, short_data_access)
+TYPED_TEST(SmallString, short_data_access)
 {
+    using SmallString = typename TestFixture::String;
     const char *shortCString = "short string";
     auto shortText = SmallString::fromUtf8(shortCString);
 
     ASSERT_THAT(shortText, StrEq("short string"));
 }
 
-TEST(SmallString, long_data_access)
+TYPED_TEST(SmallString, long_data_access)
 {
+    using SmallString = typename TestFixture::String;
     const char *longCString = "very very very very very very very very very very very long string";
     auto longText = SmallString::fromUtf8(longCString);
 
     ASSERT_THAT(longText, StrEq(longCString));
 }
 
-TEST(SmallString, small_string_begin_is_equal_end_for_empty_small_string)
+TYPED_TEST(SmallString, small_string_begin_is_equal_end_for_empty_small_string)
 {
+    using SmallString = typename TestFixture::String;
+
     SmallString text;
 
     ASSERT_THAT(text.begin(), Eq(text.end()));
 }
 
-TEST(SmallString, small_string_begin_is_not_equal_end_for_non_empty_small_string)
+TYPED_TEST(SmallString, small_string_begin_is_not_equal_end_for_non_empty_small_string)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("x");
 
     ASSERT_THAT(text.begin(), Ne(text.end()));
 }
 
-TEST(SmallString, small_string_begin_plus_one_is_equal_end_for_small_string_width_size_one)
+TYPED_TEST(SmallString, small_string_begin_plus_one_is_equal_end_for_small_string_width_size_one)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("x");
 
     auto beginPlusOne = text.begin() + std::size_t(1);
@@ -250,22 +316,27 @@ TEST(SmallString, small_string_begin_plus_one_is_equal_end_for_small_string_widt
     ASSERT_THAT(beginPlusOne, Eq(text.end()));
 }
 
-TEST(SmallString, small_string_r_begin_is_equal_r_end_for_empty_small_string)
+TYPED_TEST(SmallString, small_string_r_begin_is_equal_r_end_for_empty_small_string)
 {
+    using SmallString = typename TestFixture::String;
+
     SmallString text;
 
     ASSERT_THAT(text.rbegin(), Eq(text.rend()));
 }
 
-TEST(SmallString, small_string_r_begin_is_not_equal_r_end_for_non_empty_small_string)
+TYPED_TEST(SmallString, small_string_r_begin_is_not_equal_r_end_for_non_empty_small_string)
 {
+    using SmallString = typename TestFixture::String;
+
     SmallString text("x");
 
     ASSERT_THAT(text.rbegin(), Ne(text.rend()));
 }
 
-TEST(SmallString, small_string_r_begin_plus_one_is_equal_r_end_for_small_string_width_size_one)
+TYPED_TEST(SmallString, small_string_r_begin_plus_one_is_equal_r_end_for_small_string_width_size_one)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("x");
 
     auto beginPlusOne = text.rbegin() + 1l;
@@ -273,22 +344,26 @@ TEST(SmallString, small_string_r_begin_plus_one_is_equal_r_end_for_small_string_
     ASSERT_THAT(beginPlusOne, Eq(text.rend()));
 }
 
-TEST(SmallString, small_string_const_r_begin_is_equal_r_end_for_empty_small_string)
+TYPED_TEST(SmallString, small_string_const_r_begin_is_equal_r_end_for_empty_small_string)
 {
+    using SmallString = typename TestFixture::String;
     const SmallString text;
 
     ASSERT_THAT(text.rbegin(), Eq(text.rend()));
 }
 
-TEST(SmallString, small_string_const_r_begin_is_not_equal_r_end_for_non_empty_small_string)
+TYPED_TEST(SmallString, small_string_const_r_begin_is_not_equal_r_end_for_non_empty_small_string)
 {
+    using SmallString = typename TestFixture::String;
     const SmallString text("x");
 
     ASSERT_THAT(text.rbegin(), Ne(text.rend()));
 }
 
-TEST(SmallString, small_string_small_string_const_r_begin_plus_one_is_equal_r_end_for_small_string_width_size_one)
+TYPED_TEST(SmallString,
+           small_string_small_string_const_r_begin_plus_one_is_equal_r_end_for_small_string_width_size_one)
 {
+    using SmallString = typename TestFixture::String;
     const SmallString text("x");
 
     auto beginPlusOne = text.rbegin() + 1l;
@@ -296,8 +371,9 @@ TEST(SmallString, small_string_small_string_const_r_begin_plus_one_is_equal_r_en
     ASSERT_THAT(beginPlusOne, Eq(text.rend()));
 }
 
-TEST(SmallString, small_string_distance_between_begin_and_end_is_zero_for_empty_text)
+TYPED_TEST(SmallString, small_string_distance_between_begin_and_end_is_zero_for_empty_text)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("");
 
     auto distance = std::distance(text.begin(), text.end());
@@ -305,8 +381,9 @@ TEST(SmallString, small_string_distance_between_begin_and_end_is_zero_for_empty_
     ASSERT_THAT(distance, 0);
 }
 
-TEST(SmallString, small_string_distance_between_begin_and_end_is_one_for_one_sign)
+TYPED_TEST(SmallString, small_string_distance_between_begin_and_end_is_one_for_one_sign)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("x");
 
     auto distance = std::distance(text.begin(), text.end());
@@ -314,8 +391,9 @@ TEST(SmallString, small_string_distance_between_begin_and_end_is_one_for_one_sig
     ASSERT_THAT(distance, 1);
 }
 
-TEST(SmallString, small_string_distance_between_r_begin_and_r_end_is_zero_for_empty_text)
+TYPED_TEST(SmallString, small_string_distance_between_r_begin_and_r_end_is_zero_for_empty_text)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("");
 
     auto distance = std::distance(text.rbegin(), text.rend());
@@ -323,8 +401,9 @@ TEST(SmallString, small_string_distance_between_r_begin_and_r_end_is_zero_for_em
     ASSERT_THAT(distance, 0);
 }
 
-TEST(SmallString, small_string_distance_between_r_begin_and_r_end_is_one_for_one_sign)
+TYPED_TEST(SmallString, small_string_distance_between_r_begin_and_r_end_is_one_for_one_sign)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("x");
 
     auto distance = std::distance(text.rbegin(), text.rend());
@@ -332,8 +411,9 @@ TEST(SmallString, small_string_distance_between_r_begin_and_r_end_is_one_for_one
     ASSERT_THAT(distance, 1);
 }
 
-TEST(SmallString, small_string_begin_points_to_x)
+TYPED_TEST(SmallString, small_string_begin_points_to_x)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("x");
 
     auto sign = *text.begin();
@@ -341,8 +421,9 @@ TEST(SmallString, small_string_begin_points_to_x)
     ASSERT_THAT(sign, 'x');
 }
 
-TEST(SmallString, small_string_r_begin_points_to_x)
+TYPED_TEST(SmallString, small_string_r_begin_points_to_x)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("x");
 
     auto sign = *text.rbegin();
@@ -350,8 +431,9 @@ TEST(SmallString, small_string_r_begin_points_to_x)
     ASSERT_THAT(sign, 'x');
 }
 
-TEST(SmallString, const_small_string_begin_points_to_x)
+TYPED_TEST(SmallString, const_small_string_begin_points_to_x)
 {
+    using SmallString = typename TestFixture::String;
     const SmallString text("x");
 
     auto sign = *text.begin();
@@ -359,8 +441,9 @@ TEST(SmallString, const_small_string_begin_points_to_x)
     ASSERT_THAT(sign, 'x');
 }
 
-TEST(SmallString, const_small_string_r_begin_points_to_x)
+TYPED_TEST(SmallString, const_small_string_r_begin_points_to_x)
 {
+    using SmallString = typename TestFixture::String;
     const SmallString text("x");
 
     auto sign = *text.rbegin();
@@ -368,21 +451,21 @@ TEST(SmallString, const_small_string_r_begin_points_to_x)
     ASSERT_THAT(sign, 'x');
 }
 
-TEST(SmallString, small_string_view_begin_is_equal_end_for_empty_small_string)
+TYPED_TEST(SmallString, small_string_view_begin_is_equal_end_for_empty_small_string)
 {
     SmallStringView text{""};
 
     ASSERT_THAT(text.begin(), Eq(text.end()));
 }
 
-TEST(SmallString, small_string_view_begin_is_not_equal_end_for_non_empty_small_string)
+TYPED_TEST(SmallString, small_string_view_begin_is_not_equal_end_for_non_empty_small_string)
 {
     SmallStringView text("x");
 
     ASSERT_THAT(text.begin(), Ne(text.end()));
 }
 
-TEST(SmallString, small_string_view_begin_plus_one_is_equal_end_for_small_string_width_size_one)
+TYPED_TEST(SmallString, small_string_view_begin_plus_one_is_equal_end_for_small_string_width_size_one)
 {
     SmallStringView text("x");
 
@@ -391,21 +474,22 @@ TEST(SmallString, small_string_view_begin_plus_one_is_equal_end_for_small_string
     ASSERT_THAT(beginPlusOne, Eq(text.end()));
 }
 
-TEST(SmallString, small_string_view_r_begin_is_equal_r_end_for_empty_small_string)
+TYPED_TEST(SmallString, small_string_view_r_begin_is_equal_r_end_for_empty_small_string)
 {
     SmallStringView text{""};
 
     ASSERT_THAT(text.rbegin(), Eq(text.rend()));
 }
 
-TEST(SmallString, small_string_view_r_begin_is_not_equal_r_end_for_non_empty_small_string)
+TYPED_TEST(SmallString, small_string_view_r_begin_is_not_equal_r_end_for_non_empty_small_string)
 {
     SmallStringView text("x");
 
     ASSERT_THAT(text.rbegin(), Ne(text.rend()));
 }
 
-TEST(SmallString, small_string_view_r_begin_plus_one_is_equal_r_end_for_small_string_width_size_one)
+TYPED_TEST(SmallString,
+           small_string_view_r_begin_plus_one_is_equal_r_end_for_small_string_width_size_one)
 {
     SmallStringView text("x");
 
@@ -414,21 +498,22 @@ TEST(SmallString, small_string_view_r_begin_plus_one_is_equal_r_end_for_small_st
     ASSERT_THAT(beginPlusOne, Eq(text.rend()));
 }
 
-TEST(SmallString, small_string_view_const_r_begin_is_equal_r_end_for_empty_small_string)
+TYPED_TEST(SmallString, small_string_view_const_r_begin_is_equal_r_end_for_empty_small_string)
 {
     const SmallStringView text{""};
 
     ASSERT_THAT(text.rbegin(), Eq(text.rend()));
 }
 
-TEST(SmallString, small_string_view_const_r_begin_is_not_equal_r_end_for_non_empty_small_string)
+TYPED_TEST(SmallString, small_string_view_const_r_begin_is_not_equal_r_end_for_non_empty_small_string)
 {
     const SmallStringView text("x");
 
     ASSERT_THAT(text.rbegin(), Ne(text.rend()));
 }
 
-TEST(SmallString, small_string_view_const_r_begin_plus_one_is_equal_r_end_for_small_string_width_size_one)
+TYPED_TEST(SmallString,
+           small_string_view_const_r_begin_plus_one_is_equal_r_end_for_small_string_width_size_one)
 {
     const SmallStringView text("x");
 
@@ -437,7 +522,7 @@ TEST(SmallString, small_string_view_const_r_begin_plus_one_is_equal_r_end_for_sm
     ASSERT_THAT(beginPlusOne, Eq(text.rend()));
 }
 
-TEST(SmallString, small_string_view_distance_between_begin_and_end_is_zero_for_empty_text)
+TYPED_TEST(SmallString, small_string_view_distance_between_begin_and_end_is_zero_for_empty_text)
 {
     SmallStringView text("");
 
@@ -446,7 +531,7 @@ TEST(SmallString, small_string_view_distance_between_begin_and_end_is_zero_for_e
     ASSERT_THAT(distance, 0);
 }
 
-TEST(SmallString, small_string_view_distance_between_begin_and_end_is_one_for_one_sign)
+TYPED_TEST(SmallString, small_string_view_distance_between_begin_and_end_is_one_for_one_sign)
 {
     SmallStringView text("x");
 
@@ -455,7 +540,7 @@ TEST(SmallString, small_string_view_distance_between_begin_and_end_is_one_for_on
     ASSERT_THAT(distance, 1);
 }
 
-TEST(SmallString, small_string_view_distance_between_r_begin_and_r_end_is_zero_for_empty_text)
+TYPED_TEST(SmallString, small_string_view_distance_between_r_begin_and_r_end_is_zero_for_empty_text)
 {
     SmallStringView text("");
 
@@ -464,7 +549,7 @@ TEST(SmallString, small_string_view_distance_between_r_begin_and_r_end_is_zero_f
     ASSERT_THAT(distance, 0);
 }
 
-TEST(SmallString, small_string_view_distance_between_r_begin_and_r_end_is_one_for_one_sign)
+TYPED_TEST(SmallString, small_string_view_distance_between_r_begin_and_r_end_is_one_for_one_sign)
 {
     SmallStringView text("x");
 
@@ -473,7 +558,7 @@ TEST(SmallString, small_string_view_distance_between_r_begin_and_r_end_is_one_fo
     ASSERT_THAT(distance, 1);
 }
 
-TEST(SmallString, const_small_string_view_distance_between_begin_and_end_is_zero_for_empty_text)
+TYPED_TEST(SmallString, const_small_string_view_distance_between_begin_and_end_is_zero_for_empty_text)
 {
     const SmallStringView text("");
 
@@ -482,7 +567,7 @@ TEST(SmallString, const_small_string_view_distance_between_begin_and_end_is_zero
     ASSERT_THAT(distance, 0);
 }
 
-TEST(SmallString, const_small_string_view_distance_between_begin_and_end_is_one_for_one_sign)
+TYPED_TEST(SmallString, const_small_string_view_distance_between_begin_and_end_is_one_for_one_sign)
 {
     const SmallStringView text("x");
 
@@ -491,7 +576,8 @@ TEST(SmallString, const_small_string_view_distance_between_begin_and_end_is_one_
     ASSERT_THAT(distance, 1);
 }
 
-TEST(SmallString, const_small_string_view_distance_between_r_begin_and_r_end_is_zero_for_empty_text)
+TYPED_TEST(SmallString,
+           const_small_string_view_distance_between_r_begin_and_r_end_is_zero_for_empty_text)
 {
     const SmallStringView text("");
 
@@ -500,7 +586,7 @@ TEST(SmallString, const_small_string_view_distance_between_r_begin_and_r_end_is_
     ASSERT_THAT(distance, 0);
 }
 
-TEST(SmallString, const_small_string_view_distance_between_r_begin_and_r_end_is_one_for_one_sign)
+TYPED_TEST(SmallString, const_small_string_view_distance_between_r_begin_and_r_end_is_one_for_one_sign)
 {
     const SmallStringView text("x");
 
@@ -509,7 +595,7 @@ TEST(SmallString, const_small_string_view_distance_between_r_begin_and_r_end_is_
     ASSERT_THAT(distance, 1);
 }
 
-TEST(SmallString, small_string_view_begin_points_to_x)
+TYPED_TEST(SmallString, small_string_view_begin_points_to_x)
 {
     SmallStringView text("x");
 
@@ -518,7 +604,7 @@ TEST(SmallString, small_string_view_begin_points_to_x)
     ASSERT_THAT(sign, 'x');
 }
 
-TEST(SmallString, small_string_view_r_begin_points_to_x)
+TYPED_TEST(SmallString, small_string_view_r_begin_points_to_x)
 {
     SmallStringView text("x");
 
@@ -527,7 +613,7 @@ TEST(SmallString, small_string_view_r_begin_points_to_x)
     ASSERT_THAT(sign, 'x');
 }
 
-TEST(SmallString, const_small_string_view_begin_points_to_x)
+TYPED_TEST(SmallString, const_small_string_view_begin_points_to_x)
 {
     const SmallStringView text("x");
 
@@ -536,7 +622,7 @@ TEST(SmallString, const_small_string_view_begin_points_to_x)
     ASSERT_THAT(sign, 'x');
 }
 
-TEST(SmallString, const_small_string_view_r_begin_points_to_x)
+TYPED_TEST(SmallString, const_small_string_view_r_begin_points_to_x)
 {
     const SmallStringView text("x");
 
@@ -545,7 +631,7 @@ TEST(SmallString, const_small_string_view_r_begin_points_to_x)
     ASSERT_THAT(sign, 'x');
 }
 
-TEST(SmallString, small_string_literal_view_r_begin_points_to_x)
+TYPED_TEST(SmallString, small_string_literal_view_r_begin_points_to_x)
 {
     SmallStringLiteral text("x");
 
@@ -554,7 +640,7 @@ TEST(SmallString, small_string_literal_view_r_begin_points_to_x)
     ASSERT_THAT(sign, 'x');
 }
 
-TEST(SmallString, const_small_string_literal_view_r_begin_points_to_x)
+TYPED_TEST(SmallString, const_small_string_literal_view_r_begin_points_to_x)
 {
     const SmallStringLiteral text("x");
 
@@ -563,8 +649,9 @@ TEST(SmallString, const_small_string_literal_view_r_begin_points_to_x)
     ASSERT_THAT(sign, 'x');
 }
 
-TEST(SmallString, constructor_standard_string)
+TYPED_TEST(SmallString, constructor_standard_string)
 {
+    using SmallString = typename TestFixture::String;
     std::string stdStringText = "short string";
 
     auto text = SmallString(stdStringText);
@@ -572,8 +659,9 @@ TEST(SmallString, constructor_standard_string)
     ASSERT_THAT(text, SmallString("short string"));
 }
 
-TEST(SmallString, to_q_string)
+TYPED_TEST(SmallString, to_q_string)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("short string");
 
     auto qStringText = text;
@@ -610,17 +698,27 @@ protected:
 
 INSTANTIATE_TEST_SUITE_P(SmallString, FromQString, testing::Range<qsizetype>(0, 10000, 300));
 
-TEST_P(FromQString, from_qstring)
+TEST_P(FromQString, small_string_from_qstring)
 {
     const QString qStringText = exampleString(size);
 
-    auto text = SmallString(qStringText);
+    auto text = Utils::SmallString(qStringText);
 
     ASSERT_THAT(text, qStringText.toStdString());
 }
 
-TEST(SmallString, from_q_byte_array)
+TEST_P(FromQString, path_string_from_qstring)
 {
+    const QString qStringText = exampleString(size);
+
+    auto text = Utils::PathString(qStringText);
+
+    ASSERT_THAT(text, qStringText.toStdString());
+}
+
+TYPED_TEST(SmallString, from_q_byte_array)
+{
+    using SmallString = typename TestFixture::String;
     QByteArray qByteArray = QByteArrayLiteral("short string");
 
     auto text = SmallString::fromQByteArray(qByteArray);
@@ -628,8 +726,9 @@ TEST(SmallString, from_q_byte_array)
     ASSERT_THAT(text, SmallString("short string"));
 }
 
-TEST(SmallString, mid_one_parameter)
+TYPED_TEST(SmallString, mid_one_parameter)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("some text");
 
     auto midString = text.mid(5);
@@ -637,8 +736,9 @@ TEST(SmallString, mid_one_parameter)
     ASSERT_THAT(midString, Eq(SmallString("text")));
 }
 
-TEST(SmallString, mid_two_parameter)
+TYPED_TEST(SmallString, mid_two_parameter)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("some text and more");
 
     auto midString = text.mid(5, 4);
@@ -646,7 +746,7 @@ TEST(SmallString, mid_two_parameter)
     ASSERT_THAT(midString, Eq(SmallString("text")));
 }
 
-TEST(SmallString, small_string_view_mid_one_parameter)
+TYPED_TEST(SmallString, small_string_view_mid_one_parameter)
 {
     SmallStringView text("some text");
 
@@ -655,7 +755,7 @@ TEST(SmallString, small_string_view_mid_one_parameter)
     ASSERT_THAT(midString, Eq(SmallStringView("text")));
 }
 
-TEST(SmallString, small_string_view_mid_two_parameter)
+TYPED_TEST(SmallString, small_string_view_mid_two_parameter)
 {
     SmallStringView text("some text and more");
 
@@ -664,8 +764,9 @@ TEST(SmallString, small_string_view_mid_two_parameter)
     ASSERT_THAT(midString, Eq(SmallStringView("text")));
 }
 
-TEST(SmallString, size_of_empty_stringl)
+TYPED_TEST(SmallString, size_of_empty_stringl)
 {
+    using SmallString = typename TestFixture::String;
     SmallString emptyString;
 
     auto size = emptyString.size();
@@ -673,7 +774,7 @@ TEST(SmallString, size_of_empty_stringl)
     ASSERT_THAT(size, 0);
 }
 
-TEST(SmallString, size_short_small_string_literal)
+TYPED_TEST(SmallString, size_short_small_string_literal)
 {
     SmallStringLiteral shortText("text");
 
@@ -682,7 +783,7 @@ TEST(SmallString, size_short_small_string_literal)
     ASSERT_THAT(size, 4);
 }
 
-TEST(SmallString, size_long_small_string_literal)
+TYPED_TEST(SmallString, size_long_small_string_literal)
 {
     auto longText = SmallStringLiteral("very very very very very very very very very very very long string");
 
@@ -691,8 +792,9 @@ TEST(SmallString, size_long_small_string_literal)
     ASSERT_THAT(size, 66);
 }
 
-TEST(SmallString, size_reference)
+TYPED_TEST(SmallString, size_reference)
 {
+    using SmallString = typename TestFixture::String;
     SmallString shortText("text");
 
     auto size = shortText.size();
@@ -700,8 +802,9 @@ TEST(SmallString, size_reference)
     ASSERT_THAT(size, 4);
 }
 
-TEST(SmallString, size_short_small_string)
+TYPED_TEST(SmallString, size_short_small_string)
 {
+    using SmallString = typename TestFixture::String;
     SmallString shortText("text", 4);
 
     auto size = shortText.size();
@@ -709,8 +812,9 @@ TEST(SmallString, size_short_small_string)
     ASSERT_THAT(size, 4);
 }
 
-TEST(SmallString, size_short_path_string)
+TYPED_TEST(SmallString, size_short_path_string)
 {
+    using SmallString = typename TestFixture::String;
     SmallString shortPath("very very very very very very very very very very very long path which fits in the short memory");
 
     auto size = shortPath.size();
@@ -718,8 +822,9 @@ TEST(SmallString, size_short_path_string)
     ASSERT_THAT(size, 95);
 }
 
-TEST(SmallString, size_long_small_string)
+TYPED_TEST(SmallString, size_long_small_string)
 {
+    using SmallString = typename TestFixture::String;
     auto longText = SmallString::fromUtf8("very very very very very very very very very very very long string");
 
     auto size = longText.size();
@@ -727,77 +832,85 @@ TEST(SmallString, size_long_small_string)
     ASSERT_THAT(size, 66);
 }
 
-TEST(SmallString, capacity_reference)
+TYPED_TEST(SmallString, capacity_reference)
 {
-    SmallString shortText("very very very very very very very long string");
+    Utils::SmallString shortText("very very very very very very very long string");
 
     auto capacity = shortText.capacity();
 
     ASSERT_THAT(capacity, 0);
 }
 
-TEST(SmallString, capacity_short_small_string)
+TYPED_TEST(SmallString, capacity_short_small_string)
 {
+    using SmallString = typename TestFixture::String;
     SmallString shortText("text", 4);
 
     auto capacity = shortText.capacity();
 
-    ASSERT_THAT(capacity, 31);
+    ASSERT_THAT(capacity, SmallString::Capacity);
 }
 
-TEST(SmallString, capacity_long_small_string)
+TYPED_TEST(SmallString, capacity_long_small_string)
 {
+    using SmallString = typename TestFixture::String;
     auto longText = SmallString::fromUtf8("very very very very very very very very very very very long string");
 
     auto capacity = longText.capacity();
 
-    ASSERT_THAT(capacity, 66);
+    ASSERT_THAT(capacity, Ge(66));
 }
 
-TEST(SmallString, fits_not_in_capacity_because_null_small_string_is_a_short_small_string)
+TYPED_TEST(SmallString, fits_not_in_capacity_because_null_small_string_is_a_short_small_string)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text;
 
     ASSERT_FALSE(text.fitsNotInCapacity(30));
 }
 
-TEST(SmallString, fits_not_in_capacity_because_it_is_reference)
+TYPED_TEST(SmallString, fits_not_in_capacity_because_it_is_reference)
 {
-    SmallString text("very very very very very very very long string");
+    Utils::SmallString text("very very very very very very very long string");
 
     ASSERT_TRUE(text.fitsNotInCapacity(1));
 }
 
-TEST(SmallString, fits_in_short_small_string_capacity)
+TYPED_TEST(SmallString, fits_in_short_small_string_capacity)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("text", 4);
 
-    ASSERT_FALSE(text.fitsNotInCapacity(30));
+    ASSERT_FALSE(text.fitsNotInCapacity(SmallString::Capacity));
 }
 
-TEST(SmallString, fits_in_not_short_small_string_capacity)
+TYPED_TEST(SmallString, fits_in_not_short_small_string_capacity)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("text", 4);
 
-    ASSERT_TRUE(text.fitsNotInCapacity(32));
+    ASSERT_TRUE(text.fitsNotInCapacity(SmallString::Capacity + 1));
 }
 
-TEST(SmallString, fits_in_long_small_string_capacity)
+TYPED_TEST(SmallString, fits_in_long_small_string_capacity)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text = SmallString::fromUtf8("very very very very very very long string");
 
     ASSERT_FALSE(text.fitsNotInCapacity(33)) << text.capacity();
 }
 
-TEST(SmallString, fits_not_in_long_small_string_capacity)
+TYPED_TEST(SmallString, fits_not_in_small_string_capacity)
 {
-    SmallString text = SmallString::fromUtf8("very very very very very very long string");
+    using SmallString = typename TestFixture::String;
+    SmallString text = SmallString::fromUtf8("very very very very long string");
 
-    ASSERT_TRUE(text.fitsNotInCapacity(65)) << text.capacity();
+    ASSERT_TRUE(text.fitsNotInCapacity(SmallString::Capacity + 1)) << text.capacity();
 }
 
-TEST(SmallString, append_null_small_string)
+TYPED_TEST(SmallString, append_null_small_string)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("text");
 
     text += SmallString();
@@ -805,8 +918,9 @@ TEST(SmallString, append_null_small_string)
     ASSERT_THAT(text, SmallString("text"));
 }
 
-TEST(SmallString, append_null_q_string)
+TYPED_TEST(SmallString, append_null_q_string)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("text");
 
     text += QString();
@@ -814,8 +928,9 @@ TEST(SmallString, append_null_q_string)
     ASSERT_THAT(text, SmallString("text"));
 }
 
-TEST(SmallString, append_empty_small_string)
+TYPED_TEST(SmallString, append_empty_small_string)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("text");
 
     text += SmallString("");
@@ -823,8 +938,9 @@ TEST(SmallString, append_empty_small_string)
     ASSERT_THAT(text, SmallString("text"));
 }
 
-TEST(SmallString, append_empty_q_string)
+TYPED_TEST(SmallString, append_empty_q_string)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("text");
 
     text += QString("");
@@ -832,8 +948,9 @@ TEST(SmallString, append_empty_q_string)
     ASSERT_THAT(text, SmallString("text"));
 }
 
-TEST(SmallString, append_short_small_string)
+TYPED_TEST(SmallString, append_short_small_string)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("some ");
 
     text += SmallString("text");
@@ -841,8 +958,9 @@ TEST(SmallString, append_short_small_string)
     ASSERT_THAT(text, SmallString("some text"));
 }
 
-TEST(SmallString, append_short_q_string)
+TYPED_TEST(SmallString, append_short_q_string)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("some ");
 
     text += QString("text");
@@ -850,8 +968,9 @@ TEST(SmallString, append_short_q_string)
     ASSERT_THAT(text, SmallString("some text"));
 }
 
-TEST(SmallString, append_long_small_string_to_short_small_string)
+TYPED_TEST(SmallString, append_long_small_string_to_short_small_string)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("some ");
 
     text += SmallString("very very very very very long string");
@@ -859,8 +978,9 @@ TEST(SmallString, append_long_small_string_to_short_small_string)
     ASSERT_THAT(text, SmallString("some very very very very very long string"));
 }
 
-TEST(SmallString, append_long_q_string_to_short_small_string)
+TYPED_TEST(SmallString, append_long_q_string_to_short_small_string)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("some ");
 
     text += QString("very very very very very long string");
@@ -868,8 +988,9 @@ TEST(SmallString, append_long_q_string_to_short_small_string)
     ASSERT_THAT(text, SmallString("some very very very very very long string"));
 }
 
-TEST(SmallString, append_long_small_string)
+TYPED_TEST(SmallString, append_long_small_string)
 {
+    using SmallString = typename TestFixture::String;
     SmallString longText("some very very very very very very very very very very very long string");
 
     longText += SmallString(" text");
@@ -877,8 +998,9 @@ TEST(SmallString, append_long_small_string)
     ASSERT_THAT(longText, SmallString("some very very very very very very very very very very very long string text"));
 }
 
-TEST(SmallString, append_long_q_string)
+TYPED_TEST(SmallString, append_long_q_string)
 {
+    using SmallString = typename TestFixture::String;
     SmallString longText("some very very very very very very very very very very very long string");
 
     longText += QString(" text");
@@ -889,8 +1011,9 @@ TEST(SmallString, append_long_q_string)
             "some very very very very very very very very very very very long string text"));
 }
 
-TEST(SmallString, append_initializer_list)
+TYPED_TEST(SmallString, append_initializer_list)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("some text");
 
     text += {" and", " some", " other", " text"};
@@ -898,8 +1021,9 @@ TEST(SmallString, append_initializer_list)
     ASSERT_THAT(text, Eq("some text and some other text"));
 }
 
-TEST(SmallString, append_empty_initializer_list)
+TYPED_TEST(SmallString, append_empty_initializer_list)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("some text");
 
     text += {};
@@ -907,8 +1031,9 @@ TEST(SmallString, append_empty_initializer_list)
     ASSERT_THAT(text, Eq("some text"));
 }
 
-TEST(SmallString, append_int)
+TYPED_TEST(SmallString, append_int)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("some text");
 
     text += 123;
@@ -916,8 +1041,9 @@ TEST(SmallString, append_int)
     ASSERT_THAT(text, Eq("some text123"));
 }
 
-TEST(SmallString, append_float)
+TYPED_TEST(SmallString, append_float)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("some text");
 
     text += 123.456;
@@ -925,8 +1051,9 @@ TEST(SmallString, append_float)
     ASSERT_THAT(text, Eq("some text123.456"));
 }
 
-TEST(SmallString, append_character)
+TYPED_TEST(SmallString, append_character)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("some text");
 
     text += 'x';
@@ -934,15 +1061,17 @@ TEST(SmallString, append_character)
     ASSERT_THAT(text, Eq("some textx"));
 }
 
-TEST(SmallString, to_byte_array)
+TYPED_TEST(SmallString, to_byte_array)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("some text");
 
     ASSERT_THAT(text.toQByteArray(), QByteArrayLiteral("some text"));
 }
 
-TEST(SmallString, contains)
+TYPED_TEST(SmallString, contains)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("some text");
 
     ASSERT_TRUE(text.contains(SmallString("text")));
@@ -950,8 +1079,9 @@ TEST(SmallString, contains)
     ASSERT_TRUE(text.contains('x'));
 }
 
-TEST(SmallString, not_contains)
+TYPED_TEST(SmallString, not_contains)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("some text");
 
     ASSERT_FALSE(text.contains(SmallString("textTwo")));
@@ -959,80 +1089,90 @@ TEST(SmallString, not_contains)
     ASSERT_FALSE(text.contains('q'));
 }
 
-TEST(SmallString, equal_small_string_operator)
+TYPED_TEST(SmallString, equal_small_string_operator)
 {
+    using SmallString = typename TestFixture::String;
     ASSERT_TRUE(SmallString() == SmallString(""));
     ASSERT_FALSE(SmallString() == SmallString("text"));
     ASSERT_TRUE(SmallString("text") == SmallString("text"));
     ASSERT_FALSE(SmallString("text") == SmallString("text2"));
 }
 
-TEST(SmallString, equal_small_string_operator_with_difference_class_sizes)
+TYPED_TEST(SmallString, equal_small_string_operator_with_difference_class_sizes)
 {
-    ASSERT_TRUE(SmallString() == PathString(""));
-    ASSERT_FALSE(SmallString() == PathString("text"));
-    ASSERT_TRUE(SmallString("text") == PathString("text"));
-    ASSERT_FALSE(SmallString("text") == PathString("text2"));
+    using SmallString = typename TestFixture::String;
+    ASSERT_TRUE(SmallString() == Utils::PathString(""));
+    ASSERT_FALSE(SmallString() == Utils::PathString("text"));
+    ASSERT_TRUE(SmallString("text") == Utils::PathString("text"));
+    ASSERT_FALSE(SmallString("text") == Utils::PathString("text2"));
 }
 
-TEST(SmallString, equal_c_string_array_operator)
+TYPED_TEST(SmallString, equal_c_string_array_operator)
 {
+    using SmallString = typename TestFixture::String;
     ASSERT_TRUE(SmallString() == "");
     ASSERT_FALSE(SmallString() == "text");
     ASSERT_TRUE(SmallString("text") == "text");
     ASSERT_FALSE(SmallString("text") == "text2");
 }
 
-TEST(SmallString, equal_c_string_pointer_operator)
+TYPED_TEST(SmallString, equal_c_string_pointer_operator)
 {
+    using SmallString = typename TestFixture::String;
     ASSERT_TRUE(SmallString("text") == std::string("text").data());
     ASSERT_FALSE(SmallString("text") == std::string("text2").data());
 }
 
-TEST(SmallString, equal_small_string_view_operator)
+TYPED_TEST(SmallString, equal_small_string_view_operator)
 {
+    using SmallString = typename TestFixture::String;
     ASSERT_TRUE(SmallString("text") == SmallStringView("text"));
     ASSERT_FALSE(SmallString("text") == SmallStringView("text2"));
 }
 
-TEST(SmallString, equal_small_string_views_operator)
+TYPED_TEST(SmallString, equal_small_string_views_operator)
 {
     ASSERT_TRUE(SmallStringView("text") == SmallStringView("text"));
     ASSERT_FALSE(SmallStringView("text") == SmallStringView("text2"));
 }
 
-TEST(SmallString, unequal_operator)
+TYPED_TEST(SmallString, unequal_operator)
 {
+    using SmallString = typename TestFixture::String;
     ASSERT_FALSE(SmallString("text") != SmallString("text"));
     ASSERT_TRUE(SmallString("text") != SmallString("text2"));
 }
 
-TEST(SmallString, unequal_c_string_array_operator)
+TYPED_TEST(SmallString, unequal_c_string_array_operator)
 {
+    using SmallString = typename TestFixture::String;
     ASSERT_FALSE(SmallString("text") != "text");
     ASSERT_TRUE(SmallString("text") != "text2");
 }
 
-TEST(SmallString, unequal_c_string_pointer_operator)
+TYPED_TEST(SmallString, unequal_c_string_pointer_operator)
 {
+    using SmallString = typename TestFixture::String;
     ASSERT_FALSE(SmallString("text") != std::string("text").data());
     ASSERT_TRUE(SmallString("text") != std::string("text2").data());
 }
 
-TEST(SmallString, unequal_small_string_view_array_operator)
+TYPED_TEST(SmallString, unequal_small_string_view_array_operator)
 {
+    using SmallString = typename TestFixture::String;
     ASSERT_FALSE(SmallString("text") != SmallStringView("text"));
     ASSERT_TRUE(SmallString("text") != SmallStringView("text2"));
 }
 
-TEST(SmallString, unequal_small_string_views_array_operator)
+TYPED_TEST(SmallString, unequal_small_string_views_array_operator)
 {
     ASSERT_FALSE(SmallStringView("text") != SmallStringView("text"));
     ASSERT_TRUE(SmallStringView("text") != SmallStringView("text2"));
 }
 
-TEST(SmallString, smaller_operator)
+TYPED_TEST(SmallString, smaller_operator)
 {
+    using SmallString = typename TestFixture::String;
     ASSERT_TRUE(SmallString() < SmallString("text"));
     ASSERT_TRUE(SmallString("some") < SmallString("text"));
     ASSERT_TRUE(SmallString("text") < SmallString("texta"));
@@ -1041,8 +1181,9 @@ TEST(SmallString, smaller_operator)
     ASSERT_FALSE(SmallString("text") < SmallString("text"));
 }
 
-TEST(SmallString, smaller_operator_with_string_view_right)
+TYPED_TEST(SmallString, smaller_operator_with_string_view_right)
 {
+    using SmallString = typename TestFixture::String;
     ASSERT_TRUE(SmallString() < SmallStringView("text"));
     ASSERT_TRUE(SmallString("some") < SmallStringView("text"));
     ASSERT_TRUE(SmallString("text") < SmallStringView("texta"));
@@ -1051,8 +1192,9 @@ TEST(SmallString, smaller_operator_with_string_view_right)
     ASSERT_FALSE(SmallString("text") < SmallStringView("text"));
 }
 
-TEST(SmallString, smaller_operator_with_string_view_left)
+TYPED_TEST(SmallString, smaller_operator_with_string_view_left)
 {
+    using SmallString = typename TestFixture::String;
     ASSERT_TRUE(SmallStringView("") < SmallString("text"));
     ASSERT_TRUE(SmallStringView("some") < SmallString("text"));
     ASSERT_TRUE(SmallStringView("text") < SmallString("texta"));
@@ -1061,44 +1203,48 @@ TEST(SmallString, smaller_operator_with_string_view_left)
     ASSERT_FALSE(SmallStringView("text") < SmallString("text"));
 }
 
-TEST(SmallString, smaller_operator_for_difference_class_sizes)
+TYPED_TEST(SmallString, smaller_operator_for_difference_class_sizes)
 {
-    ASSERT_TRUE(SmallString() < PathString("text"));
-    ASSERT_TRUE(SmallString("some") < PathString("text"));
-    ASSERT_TRUE(SmallString("text") < PathString("texta"));
-    ASSERT_FALSE(SmallString("texta") < PathString("text"));
-    ASSERT_FALSE(SmallString("text") < PathString("some"));
-    ASSERT_FALSE(SmallString("text") < PathString("text"));
+    using SmallString = typename TestFixture::String;
+    ASSERT_TRUE(SmallString() < Utils::PathString("text"));
+    ASSERT_TRUE(SmallString("some") < Utils::PathString("text"));
+    ASSERT_TRUE(SmallString("text") < Utils::PathString("texta"));
+    ASSERT_FALSE(SmallString("texta") < Utils::PathString("text"));
+    ASSERT_FALSE(SmallString("text") < Utils::PathString("some"));
+    ASSERT_FALSE(SmallString("text") < Utils::PathString("text"));
 }
 
-TEST(SmallString, is_empty)
+TYPED_TEST(SmallString, is_empty)
 {
+    using SmallString = typename TestFixture::String;
     ASSERT_FALSE(SmallString("text").isEmpty());
     ASSERT_TRUE(SmallString("").isEmpty());
     ASSERT_TRUE(SmallString().isEmpty());
 }
 
-TEST(SmallString, string_view_is_empty)
+TYPED_TEST(SmallString, string_view_is_empty)
 {
     ASSERT_FALSE(SmallStringView("text").isEmpty());
     ASSERT_TRUE(SmallStringView("").isEmpty());
 }
 
-TEST(SmallString, string_view_empty)
+TYPED_TEST(SmallString, string_view_empty)
 {
     ASSERT_FALSE(SmallStringView("text").empty());
     ASSERT_TRUE(SmallStringView("").empty());
 }
 
-TEST(SmallString, has_content)
+TYPED_TEST(SmallString, has_content)
 {
+    using SmallString = typename TestFixture::String;
     ASSERT_TRUE(SmallString("text").hasContent());
     ASSERT_FALSE(SmallString("").hasContent());
     ASSERT_FALSE(SmallString().hasContent());
 }
 
-TEST(SmallString, clear)
+TYPED_TEST(SmallString, clear)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("text");
 
     text.clear();
@@ -1106,8 +1252,9 @@ TEST(SmallString, clear)
     ASSERT_TRUE(text.isEmpty());
 }
 
-TEST(SmallString, no_occurrences_for_empty_text)
+TYPED_TEST(SmallString, no_occurrences_for_empty_text)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text;
 
     auto occurrences = text.countOccurrence("text");
@@ -1115,8 +1262,9 @@ TEST(SmallString, no_occurrences_for_empty_text)
     ASSERT_THAT(occurrences, 0);
 }
 
-TEST(SmallString, no_occurrences_in_text)
+TYPED_TEST(SmallString, no_occurrences_in_text)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("here is some text, here is some text, here is some text");
 
     auto occurrences = text.countOccurrence("texts");
@@ -1124,8 +1272,9 @@ TEST(SmallString, no_occurrences_in_text)
     ASSERT_THAT(occurrences, 0);
 }
 
-TEST(SmallString, some_occurrences)
+TYPED_TEST(SmallString, some_occurrences)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("here is some text, here is some text, here is some text");
 
     auto occurrences = text.countOccurrence("text");
@@ -1133,8 +1282,9 @@ TEST(SmallString, some_occurrences)
     ASSERT_THAT(occurrences, 3);
 }
 
-TEST(SmallString, some_more_occurrences)
+TYPED_TEST(SmallString, some_more_occurrences)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("texttexttext");
 
     auto occurrences = text.countOccurrence("text");
@@ -1142,8 +1292,9 @@ TEST(SmallString, some_more_occurrences)
     ASSERT_THAT(occurrences, 3);
 }
 
-TEST(SmallString, replace_with_character)
+TYPED_TEST(SmallString, replace_with_character)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("here is some text, here is some text, here is some text");
 
     text.replace('s', 'x');
@@ -1151,8 +1302,9 @@ TEST(SmallString, replace_with_character)
     ASSERT_THAT(text, SmallString("here ix xome text, here ix xome text, here ix xome text"));
 }
 
-TEST(SmallString, replace_with_equal_sized_text)
+TYPED_TEST(SmallString, replace_with_equal_sized_text)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("here is some text");
 
     text.replace("some", "much");
@@ -1160,8 +1312,9 @@ TEST(SmallString, replace_with_equal_sized_text)
     ASSERT_THAT(text, SmallString("here is much text"));
 }
 
-TEST(SmallString, replace_with_equal_sized_text_on_empty_text)
+TYPED_TEST(SmallString, replace_with_equal_sized_text_on_empty_text)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text;
 
     text.replace("some", "much");
@@ -1169,8 +1322,9 @@ TEST(SmallString, replace_with_equal_sized_text_on_empty_text)
     ASSERT_THAT(text, SmallString());
 }
 
-TEST(SmallString, replace_with_shorter_text)
+TYPED_TEST(SmallString, replace_with_shorter_text)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("here is some text");
 
     text.replace("some", "any");
@@ -1178,8 +1332,9 @@ TEST(SmallString, replace_with_shorter_text)
     ASSERT_THAT(text, SmallString("here is any text"));
 }
 
-TEST(SmallString, replace_with_shorter_text_on_empty_text)
+TYPED_TEST(SmallString, replace_with_shorter_text_on_empty_text)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text;
 
     text.replace("some", "any");
@@ -1187,8 +1342,9 @@ TEST(SmallString, replace_with_shorter_text_on_empty_text)
     ASSERT_THAT(text, SmallString());
 }
 
-TEST(SmallString, replace_with_longer_text)
+TYPED_TEST(SmallString, replace_with_longer_text)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("here is some text");
 
     text.replace("some", "much more");
@@ -1196,8 +1352,9 @@ TEST(SmallString, replace_with_longer_text)
     ASSERT_THAT(text, SmallString("here is much more text"));
 }
 
-TEST(SmallString, replace_with_longer_text_on_empty_text)
+TYPED_TEST(SmallString, replace_with_longer_text_on_empty_text)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text;
 
     text.replace("some", "much more");
@@ -1205,8 +1362,9 @@ TEST(SmallString, replace_with_longer_text_on_empty_text)
     ASSERT_THAT(text, SmallString());
 }
 
-TEST(SmallString, replace_short_small_string_with_longer_text)
+TYPED_TEST(SmallString, replace_short_small_string_with_longer_text)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text = SmallString::fromUtf8("here is some text");
 
     text.replace("some", "much more");
@@ -1214,8 +1372,9 @@ TEST(SmallString, replace_short_small_string_with_longer_text)
     ASSERT_THAT(text, SmallString("here is much more text"));
 }
 
-TEST(SmallString, replace_long_small_string_with_longer_text)
+TYPED_TEST(SmallString, replace_long_small_string_with_longer_text)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text = SmallString::fromUtf8("some very very very very very very very very very very very long string");
 
     text.replace("long", "much much much much much much much much much much much much much much much much much much more");
@@ -1223,8 +1382,9 @@ TEST(SmallString, replace_long_small_string_with_longer_text)
     ASSERT_THAT(text, "some very very very very very very very very very very very much much much much much much much much much much much much much much much much much much more string");
 }
 
-TEST(SmallString, multiple_replace_small_string_with_longer_text)
+TYPED_TEST(SmallString, multiple_replace_small_string_with_longer_text)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text = SmallString("here is some text with some longer text");
 
     text.replace("some", "much more");
@@ -1232,8 +1392,9 @@ TEST(SmallString, multiple_replace_small_string_with_longer_text)
     ASSERT_THAT(text, SmallString("here is much more text with much more longer text"));
 }
 
-TEST(SmallString, multiple_replace_small_string_with_shorter_text)
+TYPED_TEST(SmallString, multiple_replace_small_string_with_shorter_text)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text = SmallString("here is some text with some longer text");
 
     text.replace("some", "a");
@@ -1241,8 +1402,9 @@ TEST(SmallString, multiple_replace_small_string_with_shorter_text)
     ASSERT_THAT(text, SmallString("here is a text with a longer text"));
 }
 
-TEST(SmallString, dont_replace_replaced_text)
+TYPED_TEST(SmallString, dont_replace_replaced_text)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("here is some foo text");
 
     text.replace("foo", "foofoo");
@@ -1250,26 +1412,40 @@ TEST(SmallString, dont_replace_replaced_text)
     ASSERT_THAT(text, SmallString("here is some foofoo text"));
 }
 
-TEST(SmallString, dont_reserve_if_nothing_is_replaced_for_longer_replacement_text)
+TYPED_TEST(SmallString, dont_reserve_if_nothing_is_replaced_for_longer_replacement_text)
 {
-    SmallString text("here is some text with some longer text");
+    using SmallString = typename TestFixture::String;
+    SmallString text(
+        "here is some text with some longer text here is some text with some longer texthere is "
+        "some text with some longer texthere is some text with some longer texthere is some text "
+        "with some longer texthere is some text with some longer texthere is some text with some "
+        "longer texthere is some text with some longer texthere is some text with some longer "
+        "texthere is some text with some longer text");
 
     text.replace("bar", "foofoo");
 
     ASSERT_TRUE(text.isReadOnlyReference());
 }
 
-TEST(SmallString, dont_reserve_if_nothing_is_replaced_for_shorter_replacement_text)
+TYPED_TEST(SmallString, dont_reserve_if_nothing_is_replaced_for_shorter_replacement_text)
 {
-    SmallString text("here is some text with some longer text");
+    using SmallString = typename TestFixture::String;
+    SmallString text(
+        "here is some text with some longer text here is some text with some longer texthere is "
+        "some text with some longer texthere is some text with some longer texthere is some text "
+        "with some longer texthere is some text with some longer texthere is some text with some "
+        "longer texthere is some text with some longer texthere is some text with some longer "
+        "texthere is some text with some longer text");
 
     text.replace("foofoo", "bar");
 
     ASSERT_TRUE(text.isReadOnlyReference());
 }
 
-TEST(SmallString, starts_with)
+TYPED_TEST(SmallString, starts_with)
 {
+    using SmallString = typename TestFixture::String;
+
     SmallString text("$column");
 
     ASSERT_FALSE(text.startsWith("$columnxxx"));
@@ -1280,7 +1456,7 @@ TEST(SmallString, starts_with)
     ASSERT_FALSE(text.startsWith('@'));
 }
 
-TEST(SmallString, starts_with_string_view)
+TYPED_TEST(SmallString, starts_with_string_view)
 {
     SmallStringView text("$column");
 
@@ -1292,9 +1468,11 @@ TEST(SmallString, starts_with_string_view)
     ASSERT_FALSE(text.startsWith('@'));
 }
 
-TEST(SmallString, starts_with_qstringview)
+TYPED_TEST(SmallString, starts_with_qstringview)
 {
+    using SmallString = typename TestFixture::String;
     using namespace Qt::StringLiterals;
+
     SmallString text("$column");
 
     ASSERT_FALSE(text.startsWith(u"$columnxxx"_s));
@@ -1305,8 +1483,10 @@ TEST(SmallString, starts_with_qstringview)
     ASSERT_FALSE(text.startsWith(u"@"_s));
 }
 
-TEST(SmallString, ends_with)
+TYPED_TEST(SmallString, ends_with)
 {
+    using SmallString = typename TestFixture::String;
+
     SmallString text("/my/path");
 
     ASSERT_TRUE(text.endsWith("/my/path"));
@@ -1316,7 +1496,7 @@ TEST(SmallString, ends_with)
     ASSERT_FALSE(text.endsWith('x'));
 }
 
-TEST(SmallString, ends_with_string_view)
+TYPED_TEST(SmallString, ends_with_string_view)
 {
     SmallStringView text("/my/path");
 
@@ -1325,25 +1505,29 @@ TEST(SmallString, ends_with_string_view)
     ASSERT_FALSE(text.endsWith("paths"));
 }
 
-TEST(SmallString, ends_with_small_string)
+TYPED_TEST(SmallString, ends_with_small_string)
 {
+    using SmallString = typename TestFixture::String;
+
     SmallString text("/my/path");
 
     ASSERT_TRUE(text.endsWith(SmallString("path")));
     ASSERT_TRUE(text.endsWith('h'));
 }
 
-TEST(SmallString, reserve_smaller_than_short_string_capacity)
+TYPED_TEST(SmallString, reserve_smaller_than_short_string_capacity)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("text");
 
     text.reserve(2);
 
-    ASSERT_THAT(text.capacity(), 31);
+    ASSERT_THAT(text.capacity(), SmallString::Capacity);
 }
 
-TEST(SmallString, reserve_smaller_than_short_string_capacity_is_short_string)
+TYPED_TEST(SmallString, reserve_smaller_than_short_string_capacity_is_short_string)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("text");
 
     text.reserve(2);
@@ -1351,44 +1535,39 @@ TEST(SmallString, reserve_smaller_than_short_string_capacity_is_short_string)
     ASSERT_TRUE(text.isShortString());
 }
 
-TEST(SmallString, reserve_smaller_than_reference)
+TYPED_TEST(SmallString, reserve_bigger_than_short_string_capacity)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("some very very very very very very very very very very very long string");
 
-    text.reserve(35);
+    text.reserve(SmallString::Capacity + 1);
 
-    ASSERT_THAT(text.capacity(), 71);
+    ASSERT_THAT(text.capacity(), Ge(SmallString::Capacity + 1));
 }
 
-TEST(SmallString, reserve_bigger_than_short_string_capacity)
+TYPED_TEST(SmallString, reserve_smaller_than_reference)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("text");
 
     text.reserve(10);
 
-    ASSERT_THAT(text.capacity(), 31);
+    ASSERT_THAT(text.capacity(), SmallString::Capacity);
 }
 
-TEST(SmallString, reserve_bigger_than_reference)
+TYPED_TEST(SmallString, reserve_bigger_than_reference)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("some very very very very very very very very very very very long string");
 
-    text.reserve(35);
+    text.reserve(SmallString::Capacity + 1);
 
-    ASSERT_THAT(text.capacity(), 71);
+    ASSERT_THAT(text.capacity(), Ge(SmallString::Capacity + 1));
 }
 
-TEST(SmallString, reserve_much_bigger_than_short_string_capacity)
+TYPED_TEST(SmallString, text_is_copied_after_reserve_from_short_to_long_string)
 {
-    SmallString text("text");
-
-    text.reserve(100);
-
-    ASSERT_THAT(text.capacity(), 100);
-}
-
-TEST(SmallString, text_is_copied_after_reserve_from_short_to_long_string)
-{
+    using SmallString = typename TestFixture::String;
     SmallString text("text");
 
     text.reserve(100);
@@ -1396,8 +1575,9 @@ TEST(SmallString, text_is_copied_after_reserve_from_short_to_long_string)
     ASSERT_THAT(text, "text");
 }
 
-TEST(SmallString, text_is_copied_after_reserve_reference_to_long_string)
+TYPED_TEST(SmallString, text_is_copied_after_reserve_reference_to_long_string)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("some very very very very very very very very very very very long string");
 
     text.reserve(100);
@@ -1405,35 +1585,30 @@ TEST(SmallString, text_is_copied_after_reserve_reference_to_long_string)
     ASSERT_THAT(text, "some very very very very very very very very very very very long string");
 }
 
-TEST(SmallString, reserve_smaller_than_short_small_string)
+TYPED_TEST(SmallString, reserve_smaller_than_short_string)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text = SmallString::fromUtf8("text");
 
     text.reserve(10);
 
-    ASSERT_THAT(text.capacity(), 31);
+    ASSERT_THAT(text.capacity(), SmallString::Capacity);
 }
 
-TEST(SmallString, reserve_bigger_than_short_small_string)
+TYPED_TEST(SmallString, reserve_bigger_than_short_string)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text = SmallString::fromUtf8("text");
 
-    text.reserve(100);
+    text.reserve(SmallString::Capacity + 1);
 
-    ASSERT_THAT(text.capacity(), 100);
+    ASSERT_THAT(text.capacity(), Ge(SmallString::Capacity + 1));
 }
 
-TEST(SmallString, reserve_bigger_than_long_small_string)
+TYPED_TEST(SmallString, optimal_heap_cache_line_for_size)
 {
-    SmallString text = SmallString::fromUtf8("some very very very very very very very very very very very long string");
+    using SmallString = typename TestFixture::String;
 
-    text.reserve(100);
-
-    ASSERT_THAT(text.capacity(), 100);
-}
-
-TEST(SmallString, optimal_heap_cache_line_for_size)
-{
     ASSERT_THAT(SmallString::optimalHeapCapacity(64), 64);
     ASSERT_THAT(SmallString::optimalHeapCapacity(65), 128);
     ASSERT_THAT(SmallString::optimalHeapCapacity(127), 128);
@@ -1451,9 +1626,9 @@ TEST(SmallString, optimal_heap_cache_line_for_size)
     ASSERT_THAT(SmallString::optimalHeapCapacity(4097), 4160);
 }
 
-TEST(SmallString, optimal_capacity_for_size)
+TYPED_TEST(SmallString, optimal_capacity_for_size)
 {
-    SmallString text;
+    Utils::SmallString text;
 
     ASSERT_THAT(text.optimalCapacity(0), 0);
     ASSERT_THAT(text.optimalCapacity(31), 31);
@@ -1463,8 +1638,9 @@ TEST(SmallString, optimal_capacity_for_size)
     ASSERT_THAT(text.optimalCapacity(129), 192);
 }
 
-TEST(SmallString, data_stream_data)
+TYPED_TEST(SmallString, data_stream_data)
 {
+    using SmallString = typename TestFixture::String;
     SmallString inputText("foo");
     QByteArray byteArray;
     QDataStream out(&byteArray, QIODevice::ReadWrite);
@@ -1474,8 +1650,9 @@ TEST(SmallString, data_stream_data)
     ASSERT_TRUE(byteArray.endsWith("foo"));
 }
 
-TEST(SmallString, read_data_stream_size)
+TYPED_TEST(SmallString, read_data_stream_size)
 {
+    using SmallString = typename TestFixture::String;
     SmallString outputText("foo");
     QByteArray byteArray;
     quint32 size;
@@ -1490,8 +1667,9 @@ TEST(SmallString, read_data_stream_size)
     ASSERT_THAT(size, 3);
 }
 
-TEST(SmallString, read_data_stream_data)
+TYPED_TEST(SmallString, read_data_stream_data)
 {
+    using SmallString = typename TestFixture::String;
     SmallString outputText("foo");
     QByteArray byteArray;
     SmallString outputString;
@@ -1506,8 +1684,9 @@ TEST(SmallString, read_data_stream_data)
     ASSERT_THAT(outputString, SmallString("foo"));
 }
 
-TEST(SmallString, short_small_string_copy_constuctor)
+TYPED_TEST(SmallString, short_small_string_copy_constuctor)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("text");
 
     auto copy = text;
@@ -1515,8 +1694,9 @@ TEST(SmallString, short_small_string_copy_constuctor)
     ASSERT_THAT(copy, text);
 }
 
-TEST(SmallString, long_small_string_copy_constuctor)
+TYPED_TEST(SmallString, long_small_string_copy_constuctor)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("this is a very very very very long text");
 
     auto copy = text;
@@ -1524,8 +1704,9 @@ TEST(SmallString, long_small_string_copy_constuctor)
     ASSERT_THAT(copy, text);
 }
 
-TEST(SmallString, short_small_string_move_constuctor)
+TYPED_TEST(SmallString, short_small_string_move_constuctor)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("text");
 
     auto copy = std::move(text);
@@ -1533,8 +1714,9 @@ TEST(SmallString, short_small_string_move_constuctor)
     ASSERT_THAT(copy, SmallString("text"));
 }
 
-TEST(SmallString, long_small_string_move_constuctor)
+TYPED_TEST(SmallString, long_small_string_move_constuctor)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("this is a very very very very long text");
 
     auto copy = std::move(text);
@@ -1542,18 +1724,20 @@ TEST(SmallString, long_small_string_move_constuctor)
     ASSERT_THAT(copy, SmallString("this is a very very very very long text"));
 }
 
-TEST(SmallString, short_path_string_move_constuctor)
+TYPED_TEST(SmallString, short_path_string_move_constuctor)
 {
-    PathString text("text");
+    using SmallString = typename TestFixture::String;
+    SmallString text("text");
 
     auto copy = std::move(text);
 
     ASSERT_THAT(copy, SmallString("text"));
 }
 
-TEST(SmallString, long_path_string_move_constuctor)
+TYPED_TEST(SmallString, long_path_string_move_constuctor)
 {
-    PathString text(
+    using SmallString = typename TestFixture::String;
+    SmallString text(
         "this is a very very very very very very very very very very very very very very very very "
         "very very very very very very very very very very very very very very very very very very "
         "very very very very very very very very very very very very very very long text");
@@ -1562,7 +1746,7 @@ TEST(SmallString, long_path_string_move_constuctor)
 
     ASSERT_THAT(
         copy,
-        PathString(
+        SmallString(
             "this is a very very very very very very very very very very very very very very very "
             "very very very very very very very very very very very very very very very very very "
             "very very very very very very very very very very very very very very very very long "
@@ -1574,8 +1758,9 @@ QT_WARNING_DISABLE_GCC("-Wpragmas")
 QT_WARNING_DISABLE_GCC("-Wself-move")
 QT_WARNING_DISABLE_CLANG("-Wself-move")
 
-TEST(SmallString, short_small_string_move_constuctor_to_self)
+TYPED_TEST(SmallString, short_small_string_move_constuctor_to_self)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("text");
 
     text = std::move(text);
@@ -1583,8 +1768,9 @@ TEST(SmallString, short_small_string_move_constuctor_to_self)
     ASSERT_THAT(text, SmallString("text"));
 }
 
-TEST(SmallString, long_small_string_move_constuctor_to_self)
+TYPED_TEST(SmallString, long_small_string_move_constuctor_to_self)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("this is a very very very very long text");
 
     text = std::move(text);
@@ -1592,18 +1778,20 @@ TEST(SmallString, long_small_string_move_constuctor_to_self)
     ASSERT_THAT(text, SmallString("this is a very very very very long text"));
 }
 
-TEST(SmallString, short_path_string_move_constuctor_to_self)
+TYPED_TEST(SmallString, short_path_string_move_constuctor_to_self)
 {
-    PathString text("text");
+    using SmallString = typename TestFixture::String;
+    SmallString text("text");
 
     text = std::move(text);
 
     ASSERT_THAT(text, SmallString("text"));
 }
 
-TEST(SmallString, long_path_string_move_constuctor_to_self)
+TYPED_TEST(SmallString, long_path_string_move_constuctor_to_self)
 {
-    PathString text(
+    using SmallString = typename TestFixture::String;
+    SmallString text(
         "this is a very very very very very very very very very very very very very very very very "
         "very very very very very very very very very very very very very very very very very very "
         "very very very very very very very very very very very very very very long text");
@@ -1612,7 +1800,7 @@ TEST(SmallString, long_path_string_move_constuctor_to_self)
 
     ASSERT_THAT(
         text,
-        PathString(
+        SmallString(
             "this is a very very very very very very very very very very very very very very very "
             "very very very very very very very very very very very very very very very very very "
             "very very very very very very very very very very very very very very very very long "
@@ -1621,8 +1809,9 @@ TEST(SmallString, long_path_string_move_constuctor_to_self)
 
 QT_WARNING_POP
 
-TEST(SmallString, short_small_string_copy_assignment)
+TYPED_TEST(SmallString, short_small_string_copy_assignment)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("text");
     SmallString copy("more text");
 
@@ -1631,8 +1820,9 @@ TEST(SmallString, short_small_string_copy_assignment)
     ASSERT_THAT(copy, text);
 }
 
-TEST(SmallString, long_small_string_copy_assignment)
+TYPED_TEST(SmallString, long_small_string_copy_assignment)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("this is a very very very very long text");
     SmallString copy("more text");
 
@@ -1646,8 +1836,9 @@ TEST(SmallString, long_small_string_copy_assignment)
 #pragma clang diagnostic ignored "-Wself-assign-overloaded"
 #endif
 
-TEST(SmallString, long_small_string_copy_self_assignment)
+TYPED_TEST(SmallString, long_small_string_copy_self_assignment)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("this is a very very very very long text");
 
     text = text;
@@ -1659,8 +1850,9 @@ TEST(SmallString, long_small_string_copy_self_assignment)
 #pragma clang diagnostic pop
 #endif
 
-TEST(SmallString, short_small_string_move_assignment)
+TYPED_TEST(SmallString, short_small_string_move_assignment)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("text");
     SmallString copy("more text");
 
@@ -1669,8 +1861,9 @@ TEST(SmallString, short_small_string_move_assignment)
     ASSERT_THAT(copy, SmallString("text"));
 }
 
-TEST(SmallString, long_small_string_move_assignment)
+TYPED_TEST(SmallString, long_small_string_move_assignment)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("this is a very very very very long text");
     SmallString copy("more text");
 
@@ -1679,37 +1872,40 @@ TEST(SmallString, long_small_string_move_assignment)
     ASSERT_THAT(copy, SmallString("this is a very very very very long text"));
 }
 
-TEST(SmallString, short_path_string_move_assignment)
+TYPED_TEST(SmallString, short_path_string_move_assignment)
 {
-    PathString text("text");
-    PathString copy("more text");
+    using SmallString = typename TestFixture::String;
+    SmallString text("text");
+    SmallString copy("more text");
 
     copy = std::move(text);
 
     ASSERT_THAT(copy, SmallString("text"));
 }
 
-TEST(SmallString, long_path_string_move_assignment)
+TYPED_TEST(SmallString, long_path_string_move_assignment)
 {
-    PathString text(
+    using SmallString = typename TestFixture::String;
+    SmallString text(
         "this is a very very very very very very very very very very very very very very very very "
         "very very very very very very very very very very very very very very very very very very "
         "very very very very very very very very very very very very very very long text");
-    PathString copy("more text");
+    SmallString copy("more text");
 
     copy = std::move(text);
 
     ASSERT_THAT(
         copy,
-        PathString(
+        SmallString(
             "this is a very very very very very very very very very very very very very very very "
             "very very very very very very very very very very very very very very very very very "
             "very very very very very very very very very very very very very very very very long "
             "text"));
 }
 
-TEST(SmallString, short_small_string_take)
+TYPED_TEST(SmallString, short_small_string_take)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("text");
     SmallString copy("more text");
 
@@ -1719,8 +1915,9 @@ TEST(SmallString, short_small_string_take)
     ASSERT_THAT(copy, SmallString("text"));
 }
 
-TEST(SmallString, long_small_string_take)
+TYPED_TEST(SmallString, long_small_string_take)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("this is a very very very very long text");
     SmallString copy("more text");
 
@@ -1730,8 +1927,9 @@ TEST(SmallString, long_small_string_take)
     ASSERT_THAT(copy, SmallString("this is a very very very very long text"));
 }
 
-TEST(SmallString, replace_by_position_shorter_with_longer_text)
+TYPED_TEST(SmallString, replace_by_position_shorter_with_longer_text)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("this is a very very very very long text");
 
     text.replace(8, 1, "some");
@@ -1739,8 +1937,9 @@ TEST(SmallString, replace_by_position_shorter_with_longer_text)
     ASSERT_THAT(text, SmallString("this is some very very very very long text"));
 }
 
-TEST(SmallString, replace_by_position_longer_with_short_text)
+TYPED_TEST(SmallString, replace_by_position_longer_with_short_text)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("this is some very very very very long text");
 
     text.replace(8, 4, "a");
@@ -1748,8 +1947,9 @@ TEST(SmallString, replace_by_position_longer_with_short_text)
     ASSERT_THAT(text, SmallString("this is a very very very very long text"));
 }
 
-TEST(SmallString, replace_by_position_equal_sized_texts)
+TYPED_TEST(SmallString, replace_by_position_equal_sized_texts)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text("this is very very very very very long text");
 
     text.replace(33, 4, "much");
@@ -1757,8 +1957,9 @@ TEST(SmallString, replace_by_position_equal_sized_texts)
     ASSERT_THAT(text, SmallString("this is very very very very very much text"));
 }
 
-TEST(SmallString, compare_text_with_different_line_endings)
+TYPED_TEST(SmallString, compare_text_with_different_line_endings)
 {
+    using SmallString = typename TestFixture::String;
     SmallString unixText("some \ntext");
     SmallString windowsText("some \n\rtext");
 
@@ -1767,8 +1968,9 @@ TEST(SmallString, compare_text_with_different_line_endings)
     ASSERT_THAT(unixText, convertedText);
 }
 
-TEST(SmallString, const_subscript_operator)
+TYPED_TEST(SmallString, const_subscript_operator)
 {
+    using SmallString = typename TestFixture::String;
     const SmallString text{"some text"};
 
     auto &&sign = text[5];
@@ -1776,8 +1978,9 @@ TEST(SmallString, const_subscript_operator)
     ASSERT_THAT(sign, 't');
 }
 
-TEST(SmallString, non_const_subscript_operator)
+TYPED_TEST(SmallString, non_const_subscript_operator)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text{"some text"};
 
     auto &&sign = text[5];
@@ -1785,8 +1988,9 @@ TEST(SmallString, non_const_subscript_operator)
     ASSERT_THAT(sign, 't');
 }
 
-TEST(SmallString, manipulate_const_subscript_operator)
+TYPED_TEST(SmallString, manipulate_const_subscript_operator)
 {
+    using SmallString = typename TestFixture::String;
     const SmallString text{"some text"};
     auto &&sign = text[5];
 
@@ -1795,8 +1999,9 @@ TEST(SmallString, manipulate_const_subscript_operator)
     ASSERT_THAT(text, SmallString{"some text"});
 }
 
-TEST(SmallString, manipulate_non_const_subscript_operator)
+TYPED_TEST(SmallString, manipulate_non_const_subscript_operator)
 {
+    using SmallString = typename TestFixture::String;
     char rawText[] = "some text";
     SmallString text{rawText};
     auto &&sign = text[5];
@@ -1806,36 +2011,41 @@ TEST(SmallString, manipulate_non_const_subscript_operator)
     ASSERT_THAT(text, SmallString{"some qext"});
 }
 
-TEST(SmallString, empty_initializer_list_content)
+TYPED_TEST(SmallString, empty_initializer_list_content)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text = {};
 
     ASSERT_THAT(text, SmallString());
 }
 
-TEST(SmallString, empty_initializer_list_size)
+TYPED_TEST(SmallString, empty_initializer_list_size)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text = {};
 
     ASSERT_THAT(text, SizeIs(0));
 }
 
-TEST(SmallString, initializer_list_content)
+TYPED_TEST(SmallString, initializer_list_content)
 {
+    using SmallString = typename TestFixture::String;
     auto text = SmallString::join({"some", " ", "text"});
 
     ASSERT_THAT(text, SmallString("some text"));
 }
 
-TEST(SmallString, initializer_list_size)
+TYPED_TEST(SmallString, initializer_list_size)
 {
+    using SmallString = typename TestFixture::String;
     auto text = SmallString::join({"some", " ", "text"});
 
     ASSERT_THAT(text, SizeIs(9));
 }
 
-TEST(SmallString, number_to_string)
+TYPED_TEST(SmallString, number_to_string)
 {
+    using SmallString = typename TestFixture::String;
     ASSERT_THAT(SmallString::number(-0), "0");
     ASSERT_THAT(SmallString::number(1), "1");
     ASSERT_THAT(SmallString::number(-1), "-1");
@@ -1849,7 +2059,7 @@ TEST(SmallString, number_to_string)
     ASSERT_THAT(SmallString::number(-1.2f), "-1.2");
 }
 
-TEST(SmallString, string_view_plus_operator)
+TYPED_TEST(SmallString, string_view_plus_operator)
 {
     SmallStringView text = "text";
 
@@ -1858,7 +2068,7 @@ TEST(SmallString, string_view_plus_operator)
     ASSERT_THAT(result, "text and more text");
 }
 
-TEST(SmallString, string_view_plus_operator_reverse_order)
+TYPED_TEST(SmallString, string_view_plus_operator_reverse_order)
 {
     SmallStringView text = " and more text";
 
@@ -1867,8 +2077,9 @@ TEST(SmallString, string_view_plus_operator_reverse_order)
     ASSERT_THAT(result, "text and more text");
 }
 
-TEST(SmallString, string_plus_operator)
+TYPED_TEST(SmallString, string_plus_operator)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text = "text";
 
     auto result = text + " and more text";
@@ -1876,8 +2087,9 @@ TEST(SmallString, string_plus_operator)
     ASSERT_THAT(result, "text and more text");
 }
 
-TEST(SmallString, string_plus_operator_reverse_order)
+TYPED_TEST(SmallString, string_plus_operator_reverse_order)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text = " and more text";
 
     auto result = "text" + text;
@@ -1885,23 +2097,23 @@ TEST(SmallString, string_plus_operator_reverse_order)
     ASSERT_THAT(result, "text and more text");
 }
 
-TEST(SmallString, short_string_capacity)
+TYPED_TEST(SmallString, short_string_capacity)
 {
-    ASSERT_THAT(SmallString().shortStringCapacity(), 31);
-    ASSERT_THAT(PathString().shortStringCapacity(), 176);
+    ASSERT_THAT(Utils::SmallString().shortStringCapacity(), 31);
+    ASSERT_THAT(Utils::PathString().shortStringCapacity(), 176);
 }
 
-TEST(SmallString, to_view)
+TYPED_TEST(SmallString, to_view)
 {
+    using SmallString = typename TestFixture::String;
     SmallString text = "text";
 
     auto view = text.toStringView();
 
     ASSERT_THAT(view, "text");
-
 }
 
-TEST(SmallString, compare)
+TYPED_TEST(SmallString, compare)
 {
     const char longText[] = "textfoo";
 
@@ -1914,3 +2126,5 @@ TEST(SmallString, compare)
     ASSERT_THAT(Utils::compare("textx", "texta"), Gt(0));
     ASSERT_THAT(Utils::compare("texta", "textx"), Le(0));
 }
+
+} // namespace

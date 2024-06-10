@@ -39,6 +39,7 @@ public:
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = std::reverse_iterator<const_iterator>;
     using size_type = std::size_t;
+    static constexpr size_type Capacity = Size;
 
     static_assert(Size < 64 ? sizeof(Internal::StringDataLayout<Size>) == Size + 1
                             : sizeof(Internal::StringDataLayout<Size>) == Size + 16,

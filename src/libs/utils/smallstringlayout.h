@@ -264,7 +264,7 @@ struct alignas(16) StringDataLayout<MaximumShortStringDataAreaSize,
 
     StringDataLayout(const char *string, size_type size, size_type capacity) noexcept
         : size_{static_cast<int>(size)}
-        , capacity_{static_cast<int>(capacity)}
+        , capacity_{std::max<int>(capacity, MaximumShortStringDataAreaSize)}
     {
         if (Q_LIKELY(capacity <= shortStringCapacity())) {
             std::char_traits<char>::copy(buffer, string, size);
