@@ -710,6 +710,11 @@ void SshProcessInterfacePrivate::start()
                 this, &SshProcessInterfacePrivate::handleDisconnected);
         auto linuxDevice = std::dynamic_pointer_cast<const LinuxDevice>(m_device);
         QTC_ASSERT(linuxDevice, handleDone(); return);
+        if (linuxDevice->isDisconnected()) {
+            emit q->done({-1, QProcess::CrashExit, QProcess::FailedToStart,
+                          Tr::tr("Device \"%1\" is disconnected").arg(linuxDevice->displayName())});
+            return;
+        }
         linuxDevice->connectionAccess()
             ->attachToSharedConnection(m_connectionHandle.get(), m_sshParameters);
     } else {
