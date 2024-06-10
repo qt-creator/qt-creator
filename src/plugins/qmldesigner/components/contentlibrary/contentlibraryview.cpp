@@ -388,7 +388,7 @@ void ContentLibraryView::customNotification(const AbstractView *view,
             exportLib3DItem(nodeList.first());
     } else if (identifier == "export_material_as_bundle") {
         exportLib3DItem(nodeList.first(), data.first().value<QPixmap>());
-    } else if (identifier == "import_bundle_to_3d_scene") {
+    } else if (identifier == "import_bundle") {
         importBundle();
     }
 }

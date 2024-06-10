@@ -371,6 +371,11 @@ void MaterialBrowserWidget::addMaterialToContentLibrary()
                                                   {m_previewImageProvider->getPixmap(mat)}); // to ContentLibrary
 }
 
+void MaterialBrowserWidget::importMaterial()
+{
+    ModelNode mat = m_materialBrowserModel->selectedMaterial();
+    m_materialBrowserView->emitCustomNotification("import_bundle"); // to ContentLibrary
+}
 void MaterialBrowserWidget::exportMaterial()
 {
     ModelNode mat = m_materialBrowserModel->selectedMaterial();

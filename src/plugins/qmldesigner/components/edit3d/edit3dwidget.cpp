@@ -373,7 +373,7 @@ void Edit3DWidget::createContextMenu()
     m_importBundleAction = m_contextMenu->addAction(
         contextIcon(DesignerIcons::CreateIcon),  // TODO: placeholder icon
         tr("Import Components"), [&] {
-            view()->emitCustomNotification("import_bundle_to_3d_scene", {m_contextMenuTarget}); // To ContentLibrary
+            view()->emitCustomNotification("import_bundle"); // To ContentLibrary
         });
 
     m_exportBundleAction = m_contextMenu->addAction(

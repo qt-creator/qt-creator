@@ -136,6 +136,12 @@ StudioControls.Menu {
     }
 
     StudioControls.MenuItem {
+        text: qsTr("Import Material")
+
+        onTriggered: MaterialBrowserBackend.rootView.importMaterial()
+    }
+
+    StudioControls.MenuItem {
         text: qsTr("Export Material")
         enabled: !materialBrowserModel.selectedMaterialIsComponent // TODO: support component materials
 
