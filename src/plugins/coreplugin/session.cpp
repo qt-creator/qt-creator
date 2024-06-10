@@ -30,8 +30,9 @@
 
 #include <QAction>
 #include <QActionGroup>
-#include <QFutureInterface>
+#include <QCoreApplication>
 #include <QDebug>
+#include <QFutureInterface>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
