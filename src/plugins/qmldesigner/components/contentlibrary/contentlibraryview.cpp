@@ -710,7 +710,7 @@ void ContentLibraryView::addLib3DComponent(const ModelNode &node)
     getImageFromCache(compDir.pathAppended(compFileName).path(), [&](const QImage &image) {
         bool iconSaved = image.save(m_iconSavePath.toFSPathString());
         if (iconSaved)
-            m_widget->userModel()->refresh3DSection();
+            m_widget->userModel()->refreshSection(ContentLibraryUserModel::Items3DSectionIdx);
         else
             qWarning() << "ContentLibraryView::getImageFromCache(): icon save failed" << iconPath;
     });
@@ -848,7 +848,7 @@ void ContentLibraryView::addLib3DItem(const ModelNode &node)
     getImageFromCache(qmlPath, [&](const QImage &image) {
         bool iconSaved = image.save(m_iconSavePath.toFSPathString());
         if (iconSaved)
-            m_widget->userModel()->refresh3DSection();
+            m_widget->userModel()->refreshSection(ContentLibraryUserModel::Items3DSectionIdx);
         else
             qWarning() << "ContentLibraryView::getImageFromCache(): icon save failed" << iconPath;
     });
@@ -988,13 +988,10 @@ void ContentLibraryView::exportLib3DItem(const ModelNode &node, const QPixmap &i
 
 void ContentLibraryView::importBundle()
 {
-    // TODO: support importing materials
-
     QString importPath = getImportPath();
     if (importPath.isEmpty())
         return;
 
-    auto bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/3d/");
     ZipReader zipReader(importPath);
 
     QByteArray bundleJsonContent = zipReader.fileData(Constants::BUNDLE_JSON_FILENAME);
@@ -1004,7 +1001,14 @@ void ContentLibraryView::importBundle()
     const QJsonArray importedItemsArr = importedJsonObj.value("items").toArray();
     QTC_ASSERT(!importedItemsArr.isEmpty(), return);
 
-    QJsonObject &jsonRef = m_widget->userModel()->bundleJson3DObjectRef();
+    bool isMat = isMaterialBundle(importedJsonObj.value("id").toString());
+
+    QString bundleFolderName = isMat ? QLatin1String("materials") : QLatin1String("3d");
+    auto bundlePath = Utils::FilePath::fromString(QLatin1String("%1/User/%3/")
+                                            .arg(Paths::bundlesPathSetting(), bundleFolderName));
+
+    QJsonObject &jsonRef = isMat ? m_widget->userModel()->bundleJsonMaterialObjectRef()
+                                 : m_widget->userModel()->bundleJson3DObjectRef();
     QJsonArray itemsArr = jsonRef.value("items").toArray();
 
     QStringList existingQmls;
@@ -1026,7 +1030,10 @@ void ContentLibraryView::importBundle()
                 continue;
 
             // before overwriting remove old item (to avoid partial items and dangling assets)
-            m_widget->userModel()->remove3DFromContentLibByName(qml);
+            if (isMat)
+                m_widget->userModel()->removeMaterialFromContentLibByName(qml);
+            else
+                m_widget->userModel()->remove3DFromContentLibByName(qml);
         }
 
         // add entry to json
@@ -1037,7 +1044,6 @@ void ContentLibraryView::importBundle()
         QStringList files = itemObj.value("files").toVariant().toStringList();
         QString icon = itemObj.value("icon").toString();
         QUrl iconUrl = bundlePath.pathAppended(icon).toUrl();
-        m_widget->userModel()->add3DItem(name, qml, iconUrl, files);
 
         // copy files
         files << qml << icon; // all files
@@ -1046,6 +1052,11 @@ void ContentLibraryView::importBundle()
             filePath.parentDir().ensureWritableDir();
             QTC_ASSERT_EXPECTED(filePath.writeFileContents(zipReader.fileData(file)),);
         }
+
+        if (isMat)
+            m_widget->userModel()->addMaterial(name, qml, iconUrl, files);
+        else
+            m_widget->userModel()->add3DItem(name, qml, iconUrl, files);
     }
 
     zipReader.close();
@@ -1056,7 +1067,9 @@ void ContentLibraryView::importBundle()
                       .writeFileContents(QJsonDocument(jsonRef).toJson());
     QTC_ASSERT_EXPECTED(result,);
 
-    m_widget->userModel()->refresh3DSection();
+    auto sectionIdx = isMat ? ContentLibraryUserModel::MaterialsSectionIdx
+                            : ContentLibraryUserModel::Items3DSectionIdx;
+    m_widget->userModel()->refreshSection(sectionIdx);
 }
 
 /**

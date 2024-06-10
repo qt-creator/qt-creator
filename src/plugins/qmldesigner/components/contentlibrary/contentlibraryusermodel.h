@@ -31,6 +31,11 @@ class ContentLibraryUserModel : public QAbstractListModel
     Q_PROPERTY(QList<ContentLibraryItem *> userEffects MEMBER m_userEffects NOTIFY userEffectsChanged)
 
 public:
+    enum SectionIndex { MaterialsSectionIdx = 0,
+                        TexturesSectionIdx,
+                        Items3DSectionIdx,
+                        EffectsSectionIdx };
+
     ContentLibraryUserModel(ContentLibraryWidget *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -59,12 +64,13 @@ public:
 
     void addMaterial(const QString &name, const QString &qml, const QUrl &icon, const QStringList &files);
     void add3DItem(const QString &name, const QString &qml, const QUrl &icon, const QStringList &files);
-    void refresh3DSection();
+    void refreshSection(SectionIndex sectionIndex);
     void addTextures(const QStringList &paths);
 
     void add3DInstance(ContentLibraryItem *bundleItem);
 
     void remove3DFromContentLibByName(const QString &qmlFileName);
+    void removeMaterialFromContentLibByName(const QString &qmlFileName);
 
     void setBundleObj(const QJsonObject &newBundleObj);
     QJsonObject &bundleJsonMaterialObjectRef();
@@ -89,11 +95,6 @@ signals:
     void bundle3DExistsChanged();
 
 private:
-    enum SectionIndex { MaterialsSectionIdx = 0,
-                        TexturesSectionIdx,
-                        Items3DSectionIdx,
-                        EffectsSectionIdx };
-
     void loadMaterialBundle();
     void load3DBundle();
     void loadTextureBundle();

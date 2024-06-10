@@ -129,9 +129,9 @@ void ContentLibraryUserModel::add3DItem(const QString &name, const QString &qml,
     m_user3DItems.append(new ContentLibraryItem(this, name, qml, type, icon, files));
 }
 
-void ContentLibraryUserModel::refresh3DSection()
+void ContentLibraryUserModel::refreshSection(SectionIndex sectionIndex)
 {
-    emit dataChanged(index(Items3DSectionIdx), index(Items3DSectionIdx));
+    emit dataChanged(index(sectionIndex), index(sectionIndex));
 }
 
 void ContentLibraryUserModel::addTextures(const QStringList &paths)
@@ -242,6 +242,17 @@ void ContentLibraryUserModel::remove3DFromContentLibByName(const QString &qmlFil
 
     if (itemToRemove)
         remove3DFromContentLib(itemToRemove);
+}
+
+void ContentLibraryUserModel::removeMaterialFromContentLibByName(const QString &qmlFileName)
+{
+    ContentLibraryMaterial *itemToRemove = Utils::findOr(m_userMaterials, nullptr,
+                                                     [&qmlFileName](ContentLibraryMaterial *item) {
+                                                         return item->qml() == qmlFileName;
+                                                     });
+
+    if (itemToRemove)
+        removeMaterialFromContentLib(itemToRemove);
 }
 
 void ContentLibraryUserModel::remove3DFromContentLib(ContentLibraryItem *item)
