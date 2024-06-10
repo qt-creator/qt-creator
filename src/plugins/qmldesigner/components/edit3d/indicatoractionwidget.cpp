@@ -166,7 +166,7 @@ void IndicatorButtonAction::setIndicator(bool indicator)
 
 QWidget *IndicatorButtonAction::createWidget(QWidget *parent)
 {
-    if (QMenu *menu = qobject_cast<QMenu *>(parent))
+    if (qobject_cast<QMenu *>(parent))
         return nullptr;
 
     IndicatorButton *button = new IndicatorButton(parent);
