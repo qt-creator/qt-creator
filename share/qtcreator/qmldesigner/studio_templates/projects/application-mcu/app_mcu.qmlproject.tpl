@@ -19,6 +19,14 @@ Project {
         directory: "."
     }
 
+    ImageFiles {
+        directory: "images"
+    }
+
+    ImageFiles {
+        directory: "assets"
+    }
+
     Files {
        filter: "*.conf"
        files: ["qtquickcontrols2.conf"]
