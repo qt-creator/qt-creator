@@ -366,6 +366,9 @@ Environment LinuxDevicePrivate::getEnvironment()
     if (m_environmentCache.has_value())
         return m_environmentCache.value();
 
+    if (m_disconnected)
+        return {};
+
     Process getEnvProc;
     getEnvProc.setCommand(CommandLine{q->filePath("env")});
     using namespace std::chrono;
