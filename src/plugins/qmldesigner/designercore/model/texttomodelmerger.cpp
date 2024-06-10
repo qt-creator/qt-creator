@@ -829,7 +829,7 @@ QmlDesigner::Imports createQt5Modules()
             QmlDesigner::Import::createLibraryImport("QtQuick.Timeline", "1.0"),
             QmlDesigner::Import::createLibraryImport("QtCharts", "2.15"),
             QmlDesigner::Import::createLibraryImport("QtDataVisulaization", "2.15"),
-            QmlDesigner::Import::createLibraryImport("QtQuick.Studio.Controls", "1.0"),
+            QmlDesigner::Import::createLibraryImport("QtQuick.Studio.Components", "1.0"),
             QmlDesigner::Import::createLibraryImport("QtQuick.Studio.Effects", "1.0"),
             QmlDesigner::Import::createLibraryImport("FlowView", "1.0"),
             QmlDesigner::Import::createLibraryImport("QtQuick.Studio.LogicHelper", "1.0"),
