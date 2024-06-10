@@ -281,7 +281,7 @@ struct alignas(16) StringDataLayout<MaximumShortStringDataAreaSize,
 
     constexpr void reset() noexcept
     {
-        pointer = nullptr;
+        pointer = buffer;
         size_ = 0;
         capacity_ = MaximumShortStringDataAreaSize;
     }

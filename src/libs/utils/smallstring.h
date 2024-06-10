@@ -464,9 +464,11 @@ public:
 
             reserve(optimalCapacity(newSize));
 
-            std::memcpy(data() + oldSize, temporaryArray, newAppendedStringSize);
+            auto begin = data();
 
-            newEnd = data() + newSize;
+            std::memcpy(begin + oldSize, temporaryArray, newAppendedStringSize);
+
+            newEnd = begin + newSize;
         }
         setSize(newEnd - data());
     }
