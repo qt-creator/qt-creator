@@ -669,17 +669,8 @@ void AbstractView::emitDocumentMessage(const QList<DocumentMessage> &errors, con
         model()->d->setDocumentMessages(errors, warnings);
 }
 
-void AbstractView::emitCustomNotification(const QString &identifier)
-{
-    emitCustomNotification(identifier, QList<ModelNode>());
-}
-
-void AbstractView::emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList)
-{
-    emitCustomNotification(identifier, nodeList, QList<QVariant>());
-}
-
-void AbstractView::emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data)
+void AbstractView::emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList,
+                                          const QList<QVariant> &data)
 {
     if (model())
         model()->d->notifyCustomNotification(this, identifier, nodeList, data);

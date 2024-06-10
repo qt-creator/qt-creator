@@ -132,9 +132,8 @@ public:
 
     void emitDocumentMessage(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings = {});
     void emitDocumentMessage(const QString &error);
-    void emitCustomNotification(const QString &identifier);
-    void emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList);
-    void emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
+    void emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList = {},
+                                const QList<QVariant> &data = {});
 
     void emitInstancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList);
     void emitInstanceErrorChange(const QVector<qint32> &instanceIds);
