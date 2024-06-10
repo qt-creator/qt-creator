@@ -844,11 +844,9 @@ Utils::expected_str<void> PluginSpecPrivate::readMetaData(const QJsonObject &dat
     value = metaData.value(QLatin1String(PLUGIN_DISABLED_BY_DEFAULT));
     if (!value.isUndefined() && !value.isBool())
         return reportError(msgValueIsNotABool(PLUGIN_DISABLED_BY_DEFAULT));
-    enabledByDefault = !value.toBool(false);
+    enabledByDefault = !value.toBool(experimental || deprecated);
     qCDebug(pluginLog) << "enabledByDefault =" << enabledByDefault;
 
-    if (experimental || deprecated)
-        enabledByDefault = false;
     enabledBySettings = enabledByDefault;
 
     value = metaData.value(QLatin1String(PLUGIN_SOFTLOADABLE));
