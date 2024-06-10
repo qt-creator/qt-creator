@@ -695,8 +695,10 @@ void LanguageClientSettings::toSettings(QtcSettings *settings,
     QVariantList typedSettingsVariant;
     for (const QVariant &var : settings->value(typedClientsKey).toList()) {
         const Store map = storeFromVariant(var);
-        Id typeId = Id::fromSetting(map.value(typeIdKey));
-        if (typeId.isValid() && !clientTypes().contains(typeId))
+        const Id typeId = Id::fromSetting(map.value(typeIdKey));
+        const QString id = map.value(idKey).toString();
+        if (typeId.isValid() && !clientTypes().contains(typeId)
+            && !Utils::anyOf(typedSettings, Utils::equal(&BaseSettings::m_id, id)))
             typedSettingsVariant << var;
     }
 
