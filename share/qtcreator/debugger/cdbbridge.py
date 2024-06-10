@@ -76,7 +76,9 @@ class Dumper(DumperBase):
         self.outputLock = threading.Lock()
         self.isCdb = True
 
-        #FIXME
+    #FIXME
+    def register_known_qt_types(self):
+        DumperBase.register_known_qt_types(self)
         typeid = self.typeid_for_string('@QVariantMap')
         del self.type_code_cache[typeid]
         del self.type_target_cache[typeid]

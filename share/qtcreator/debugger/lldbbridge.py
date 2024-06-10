@@ -783,6 +783,54 @@ class Dumper(DumperBase):
 
         self.fetchInternalFunctions = lambda: None
 
+    def extractQtVersion(self):
+        for func in self.target.FindFunctions('qVersion'):
+            name = func.GetSymbol().GetName()
+            if name == None:
+                continue
+            if name.endswith('()'):
+                name = name[:-2]
+            if name.count(':') > 2:
+                continue
+
+            #qtNamespace = name[:name.find('qVersion')]
+            #self.qtNamespace = lambda: qtNamespace
+
+            options = lldb.SBExpressionOptions()
+            res = self.target.EvaluateExpression(name + '()', options)
+
+            if not res.IsValid() or not res.GetType().IsPointerType():
+                exp = '((const char*())%s)()' % name
+                res = self.target.EvaluateExpression(exp, options)
+
+            if not res.IsValid() or not res.GetType().IsPointerType():
+                exp = '((const char*())_Z8qVersionv)()'
+                res = self.target.EvaluateExpression(exp, options)
+
+            if not res.IsValid() or not res.GetType().IsPointerType():
+                continue
+
+            version = str(res)
+            if version.count('.') != 2:
+                continue
+
+            version.replace("'", '"')  # Both seem possible
+            version = version[version.find('"') + 1:version.rfind('"')]
+
+            (major, minor, patch) = version.split('.')
+            qtVersion = 0x10000 * int(major) + 0x100 * int(minor) + int(patch)
+            return qtVersion
+
+        try:
+            versionValue = self.target.EvaluateExpression('qtHookData[2]').GetNonSyntheticValue()
+            if versionValue.IsValid():
+                return versionValue.unsigned
+        except:
+            pass
+
+        return None
+
+
     def handleCommand(self, command):
         result = lldb.SBCommandReturnObject()
         self.debugger.GetCommandInterpreter().HandleCommand(command, result)

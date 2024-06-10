@@ -874,6 +874,36 @@ class Dumper(DumperBase):
         except:
             return '0x%x' % address
 
+    def qtVersionString(self):
+        try:
+            return str(gdb.lookup_symbol('qVersion')[0].value()())
+        except:
+            pass
+        try:
+            ns = self.qtNamespace()
+            return str(gdb.parse_and_eval("((const char*(*)())'%sqVersion')()" % ns))
+        except:
+            pass
+        return None
+
+    def extractQtVersion(self):
+        try:
+            # Only available with Qt 5.3+
+            return int(str(gdb.parse_and_eval('((void**)&qtHookData)[2]')), 16)
+        except:
+            pass
+
+        try:
+            version = self.qtVersionString()
+            (major, minor, patch) = version[version.find('"') + 1:version.rfind('"')].split('.')
+            qtversion = 0x10000 * int(major) + 0x100 * int(minor) + int(patch)
+            self.qtVersion = lambda: qtversion
+            return qtversion
+        except:
+            # Use fallback until we have a better answer.
+            return None
+
+
     def createSpecialBreakpoints(self, args):
         self.specialBreakpoints = []
 
