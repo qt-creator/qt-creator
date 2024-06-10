@@ -38,6 +38,7 @@ private:
     JsonWizard *m_wizard;
     JsonWizard::GeneratorFiles m_fileList;
     QVariant m_hideProjectUiValue;
+    QMetaObject::Connection m_bsConnection;
 };
 
 } // namespace ProjectExplorer

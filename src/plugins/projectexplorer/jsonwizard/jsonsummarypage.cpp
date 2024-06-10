@@ -4,12 +4,14 @@
 #include "jsonsummarypage.h"
 
 #include "jsonwizard.h"
+#include "../buildsystem.h"
 #include "../project.h"
 #include "../projectexplorerconstants.h"
 #include "../projectexplorertr.h"
 #include "../projectnodes.h"
 #include "../projectmanager.h"
 #include "../projecttree.h"
+#include "../target.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/iversioncontrol.h>
@@ -76,6 +78,24 @@ void JsonSummaryPage::setHideProjectUiValue(const QVariant &hideProjectUiValue)
     m_hideProjectUiValue = hideProjectUiValue;
 }
 
+static Node *extractPreferredNode(const JsonWizard *wizard)
+{
+    // Use static cast from void * to avoid qobject_cast (which needs a valid object) in value()
+    // in the following code:
+    Node *preferred = nullptr;
+    QVariant variant = wizard->value(Constants::PREFERRED_PROJECT_NODE);
+    if (variant.isValid()) {
+        preferred = static_cast<Node *>(variant.value<void *>());
+    } else {
+        variant = wizard->value(Constants::PREFERRED_PROJECT_NODE_PATH);
+        if (variant.isValid()) {
+            const FilePath fp = FilePath::fromVariant(variant);
+            preferred = ProjectTree::instance()->nodeForFile(fp);
+        }
+    }
+    return preferred;
+}
+
 void JsonSummaryPage::initializePage()
 {
     m_wizard = qobject_cast<JsonWizard *>(wizard());
@@ -109,18 +129,39 @@ void JsonSummaryPage::initializePage()
                                  });
     }
 
-    // Use static cast from void * to avoid qobject_cast (which needs a valid object) in value()
-    // in the following code:
-    auto contextNode = findWizardContextNode(static_cast<Node *>(m_wizard->value(Constants::PREFERRED_PROJECT_NODE).value<void *>()));
+    Node *preferredNode = extractPreferredNode(m_wizard);
+    const FilePath preferredNodePath = preferredNode ? preferredNode->filePath() : FilePath{};
+    auto contextNode = findWizardContextNode(preferredNode);
     const ProjectAction currentAction = isProject ? AddSubProject : AddNewFile;
 
+    auto updateProjectTree = [this, files, kind, currentAction, preferredNodePath]() {
+        Node *node = currentNode();
+        if (!node) {
+            if (auto p = ProjectManager::projectWithProjectFilePath(preferredNodePath))
+                node = p->rootProjectNode();
+        }
+        initializeProjectTree(findWizardContextNode(node), files, kind, currentAction);
+        if (m_bsConnection && sender() != ProjectTree::instance())
+            disconnect(m_bsConnection);
+    };
+
+    if (contextNode) {
+        if (auto p = contextNode->getProject()) {
+            if (auto targets = p->targets(); !targets.isEmpty()) {
+                if (auto bs = targets.first()->buildSystem()) {
+                    if (bs->isParsing()) {
+                        m_bsConnection = connect(bs, &BuildSystem::parsingFinished,
+                                                 this, updateProjectTree);
+                    }
+                }
+            }
+        }
+    }
     initializeProjectTree(contextNode, files, kind, currentAction);
 
     // Refresh combobox on project tree changes:
     connect(ProjectTree::instance(), &ProjectTree::treeChanged,
-            this, [this, files, kind, currentAction]() {
-        initializeProjectTree(findWizardContextNode(currentNode()), files, kind, currentAction);
-    });
+            this, updateProjectTree);
 
 
     bool hideProjectUi = JsonWizard::boolFromVariant(m_hideProjectUiValue, m_wizard->expander());
