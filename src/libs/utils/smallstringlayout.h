@@ -8,9 +8,14 @@
 #include <QtGlobal>
 
 #include <algorithm>
+#include <charconv>
+#include <climits>
+#include <cmath>
 #include <cstdint>
+#include <cstdlib>
 #include <cstring>
 #include <memory>
+#include <string>
 #include <type_traits>
 
 QT_WARNING_PUSH

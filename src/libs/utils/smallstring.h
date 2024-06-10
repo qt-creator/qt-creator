@@ -16,14 +16,8 @@
 #include <QStringEncoder>
 
 #include <algorithm>
-#include <charconv>
-#include <cmath>
-#include <cstdlib>
-#include <climits>
-#include <cstring>
 #include <initializer_list>
 #include <numeric>
-#include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
