@@ -863,10 +863,13 @@ void MaterialEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty
 void MaterialEditorView::requestPreviewRender()
 {
     if (model() && model()->nodeInstanceView() && m_selectedMaterial.isValid()) {
+        static int requestId = 0;
+        m_previewRequestId = QByteArray(MATERIAL_EDITOR_IMAGE_REQUEST_ID)
+                             + QByteArray::number(++requestId);
         model()->nodeInstanceView()->previewImageDataForGenericNode(m_selectedMaterial,
                                                                     {},
                                                                     m_previewSize,
-                                                                    MATERIAL_EDITOR_IMAGE_REQUEST_ID);
+                                                                    m_previewRequestId);
     }
 }
 
@@ -955,11 +958,10 @@ void MaterialEditorView::modelNodePreviewPixmapChanged(const ModelNode &node,
                                                        const QPixmap &pixmap,
                                                        const QByteArray &requestId)
 {
-    if (node != m_selectedMaterial)
+    if (node != m_selectedMaterial || requestId != m_previewRequestId)
         return;
 
-    if (requestId == MATERIAL_EDITOR_IMAGE_REQUEST_ID)
-        m_qmlBackEnd->updateMaterialPreview(pixmap);
+    m_qmlBackEnd->updateMaterialPreview(pixmap);
 }
 
 void MaterialEditorView::importsChanged([[maybe_unused]] const Imports &addedImports,
