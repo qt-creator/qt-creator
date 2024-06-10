@@ -143,7 +143,7 @@ void PdbEngine::handlePdbStarted()
 void PdbEngine::interruptInferior()
 {
     QString error;
-    interruptProcess(m_proc.processId(), GdbEngineType, &error);
+    interruptProcess(m_proc.processId(), &error);
 }
 
 void PdbEngine::executeStepIn(bool)

@@ -7,7 +7,6 @@
 
 namespace Debugger::Internal {
 
-bool interruptProcess(qint64 pID, int engineType, QString *errorMessage,
-                      const bool engineExecutableIs64Bit = false);
+bool interruptProcess(qint64 pID, QString *errorMessage);
 
 } // Debugger::Internal
