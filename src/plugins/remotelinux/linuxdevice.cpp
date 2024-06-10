@@ -58,6 +58,8 @@ using namespace Utils;
 
 namespace RemoteLinux {
 
+const char DisconnectedKey[] = "Disconnected";
+
 const QByteArray s_pidMarker = "__qtc";
 
 static Q_LOGGING_CATEGORY(linuxDeviceLog, "qtc.remotelinux.device", QtWarningMsg);
@@ -1061,6 +1063,19 @@ LinuxDevice::LinuxDevice()
                          if (!result)
                              QMessageBox::warning(nullptr, Tr::tr("Error"), result.error());
                      }});
+}
+
+void LinuxDevice::fromMap(const Utils::Store &map)
+{
+    IDevice::fromMap(map);
+    d->m_disconnected = map.value(DisconnectedKey, false).toBool();
+}
+
+Store LinuxDevice::toMap() const
+{
+    Store map = IDevice::toMap();
+    map.insert(DisconnectedKey, d->m_disconnected);
+    return map;
 }
 
 void LinuxDevice::_setOsType(Utils::OsType osType)
