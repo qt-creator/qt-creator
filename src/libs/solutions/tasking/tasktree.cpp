@@ -1450,6 +1450,11 @@ ExecutableItem ExecutableItem::withTimeout(milliseconds timeout,
 
 static QString currentTime() { return QTime::currentTime().toString(Qt::ISODateWithMs); }
 
+static QString logHeader(const QString &logName)
+{
+    return QString::fromLatin1("TASK TREE LOG [%1] \"%2\"").arg(currentTime(), logName);
+};
+
 /*!
     Attaches a custom debug printout to a copy of \c this ExecutableItem,
     issued on task startup and after the task is finished, and returns the coupled item.
@@ -1463,9 +1468,6 @@ static QString currentTime() { return QTime::currentTime().toString(Qt::ISODateW
 */
 ExecutableItem ExecutableItem::withLog(const QString &logName) const
 {
-    const auto header = [logName] {
-        return QString::fromLatin1("TASK TREE LOG [%1] \"%2\"").arg(currentTime(), logName);
-    };
     struct LogStorage
     {
         time_point<system_clock, nanoseconds> start;
@@ -1474,21 +1476,22 @@ ExecutableItem ExecutableItem::withLog(const QString &logName) const
     const Storage<LogStorage> storage;
     return Group {
         storage,
-        onGroupSetup([storage, header] {
+        onGroupSetup([storage, logName] {
             storage->start = system_clock::now();
             storage->asyncCount = activeTaskTree()->asyncCount();
-            qDebug().noquote() << header() << "started.";
+            qDebug().noquote().nospace() << logHeader(logName) << " started.";
         }),
         *this,
-        onGroupDone([storage, header](DoneWith result) {
+        onGroupDone([storage, logName](DoneWith result) {
             const auto elapsed = duration_cast<milliseconds>(system_clock::now() - storage->start);
             const int asyncCountDiff = activeTaskTree()->asyncCount() - storage->asyncCount;
             QT_CHECK(asyncCountDiff >= 0);
             const QMetaEnum doneWithEnum = QMetaEnum::fromType<DoneWith>();
             const QString syncType = asyncCountDiff ? QString::fromLatin1("asynchronously")
                                                     : QString::fromLatin1("synchronously");
-            qDebug().noquote().nospace() << header() << " finished " << syncType << " with "
-                << doneWithEnum.valueToKey(int(result)) << " within " << elapsed.count() << "ms.";
+            qDebug().noquote().nospace() << logHeader(logName) << " finished " << syncType
+                                         << " with " << doneWithEnum.valueToKey(int(result))
+                                         << " within " << elapsed.count() << "ms.";
         })
     };
 }
@@ -3383,7 +3386,7 @@ TimeoutTaskAdapter::~TimeoutTaskAdapter()
 void TimeoutTaskAdapter::start()
 {
     m_timerId = scheduleTimeout(*task(), this, [this] {
-        m_timerId = {};
+        m_timerId.reset();
         emit done(DoneResult::Success);
     });
 }

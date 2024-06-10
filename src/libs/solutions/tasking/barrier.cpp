@@ -24,7 +24,7 @@ void Barrier::start()
 {
     QT_ASSERT(!isRunning(), return);
     m_current = 0;
-    m_result = {};
+    m_result.reset();
 }
 
 void Barrier::advance()
