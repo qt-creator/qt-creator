@@ -597,8 +597,10 @@ void TextureEditorView::modelAboutToBeDetached(Model *model)
 {
     AbstractView::modelAboutToBeDetached(model);
     m_dynamicPropertiesModel->reset();
-    m_qmlBackEnd->textureEditorTransaction()->end();
-    m_qmlBackEnd->contextObject()->setHasMaterialLibrary(false);
+    if (m_qmlBackEnd) {
+        m_qmlBackEnd->textureEditorTransaction()->end();
+        m_qmlBackEnd->contextObject()->setHasMaterialLibrary(false);
+    }
 }
 
 void TextureEditorView::propertiesRemoved(const QList<AbstractProperty> &propertyList)

@@ -766,9 +766,11 @@ void MaterialEditorView::modelAboutToBeDetached(Model *model)
 {
     AbstractView::modelAboutToBeDetached(model);
     m_dynamicPropertiesModel->reset();
-    if (auto transaction = m_qmlBackEnd->materialEditorTransaction())
-        transaction->end();
-    m_qmlBackEnd->contextObject()->setHasMaterialLibrary(false);
+    if (m_qmlBackEnd) {
+        if (auto transaction = m_qmlBackEnd->materialEditorTransaction())
+            transaction->end();
+        m_qmlBackEnd->contextObject()->setHasMaterialLibrary(false);
+    }
     m_selectedMaterial = {};
 }
 
@@ -981,7 +983,8 @@ void MaterialEditorView::importsChanged([[maybe_unused]] const Imports &addedImp
                                         [[maybe_unused]] const Imports &removedImports)
 {
     m_hasQuick3DImport = model()->hasImport("QtQuick3D");
-    m_qmlBackEnd->contextObject()->setHasQuick3DImport(m_hasQuick3DImport);
+    if (m_qmlBackEnd)
+        m_qmlBackEnd->contextObject()->setHasQuick3DImport(m_hasQuick3DImport);
 
     if (m_hasQuick3DImport)
         m_ensureMatLibTimer.start(500);
