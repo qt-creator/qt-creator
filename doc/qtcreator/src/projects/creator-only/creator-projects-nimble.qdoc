@@ -20,7 +20,7 @@
     \note Enable the Nim plugin to use Nimble and Nim.
 
     In addition, you have to download and install Nim and set up a
-    \l {glossary-buildandrun-kit}{kit} that contains the Nim compiler.
+    \l {Kits}{kit} that contains the Nim compiler.
 
     You can use wizards to create Nim and Nimble projects.
 

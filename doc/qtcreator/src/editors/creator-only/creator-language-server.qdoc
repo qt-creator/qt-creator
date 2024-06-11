@@ -250,8 +250,8 @@
     To disable the embedded code model and use \QMLLS for everything,
     select \uicontrol {Use \QMLLS advanced features}.
 
-    Also, \QC tries to use \QMLLS shipped with
-    the Qt version in your current kit. To override that behavior and always use
+    Also, \QC tries to use \QMLLS shipped with the Qt version in your current
+    \l{Kits}{kit}. To override that behavior and always use
     \QMLLS of the highest registered Qt version, select
     \uicontrol {Use \QMLLS from latest Qt version}.
 
@@ -262,7 +262,7 @@
     > \uicontrol {Initial Configuration}.
 
     \sa {Manage Language Servers}{How To: Manage Language Servers},
-    {Enabling and Disabling Messages}, {CMake Build Configuration},
+    {Enabling and Disabling Messages}, {CMake Build Configuration}, {Kits}
     {Language Servers}
 */
 

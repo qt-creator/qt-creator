@@ -51,7 +51,7 @@
             (4) to list examples that you can run on \B2Q devices.
 
         \li In \uicontrol {Configure Project}, select
-            \l{glossary-buildandrun-kit}{kits} for building the example for the
+            \l{Kits}{kits} for building the example for the
             target platforms.
 
             \image qtcreator-configure-project.webp {Configure Project view}

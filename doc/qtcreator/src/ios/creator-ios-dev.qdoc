@@ -147,7 +147,8 @@
     If the current device state is \uicontrol Connected, (the traffic light icon is
     orange), you need to configure the device using Xcode.
 
-    \sa {iOS}{How To: Develop for iOS}, {Developing for iOS}
+    \sa {Activate kits for a project}, {iOS}{How To: Develop for iOS},
+    {Developing for iOS}
 */
 
 /*!

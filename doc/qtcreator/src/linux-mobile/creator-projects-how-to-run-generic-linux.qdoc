@@ -34,6 +34,6 @@
     Debugging works transparently if GDB server is installed on the device and
     it is compatible with the GDB on the host.
 
-    \sa {Remote Linux}{How To: Develop for remote Linux}, {Run on many platforms}, {Compilers},
-    {Embedded Platforms}, {kit-preferences}{Kits}
+    \sa {Remote Linux}{How To: Develop for remote Linux},
+    {Run on many platforms}, {Compilers}, {Embedded Platforms}, {Kits}
 */

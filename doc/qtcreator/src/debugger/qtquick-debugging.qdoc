@@ -281,6 +281,6 @@
     updated in the running application, but not in the source code.
 
     \if defined(qtcreator)
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}, {Kits}
     \endif
 */

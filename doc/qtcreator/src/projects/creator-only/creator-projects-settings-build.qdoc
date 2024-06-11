@@ -16,7 +16,7 @@
 
     \title Configure projects for building
 
-    Specify build settings for the selected \l{glossary-buildandrun-kit}{kit} in
+    Specify build settings for the selected \l{Kits}{kit} in
     \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol Build >
     \uicontrol {Build Settings}.
 

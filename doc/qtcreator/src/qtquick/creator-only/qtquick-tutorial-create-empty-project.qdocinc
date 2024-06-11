@@ -37,14 +37,14 @@
 
         \li Select \uicontrol Next to open the \uicontrol {Kit Selection} dialog.
 
-        \li Select Qt 6.4 or later \l{glossary-buildandrun-kit}{kits} for the
+        \li Select Qt 6.4 or later \l{Kits}{kits} for the
             platforms that you want to build the application for. To build
             applications for mobile devices, select kits also for Android and
             iOS.
 
             \note The list shows kits that you specify in \preferences >
             \uicontrol Kits.
-            For more information, see \l {Add kits} and \l {kits-tab}{Kits}.
+            For more information, see \l {Add kits} and \l {Kits}.
 
         \li Select \uicontrol Next to open the \uicontrol {Project Management}
             dialog.

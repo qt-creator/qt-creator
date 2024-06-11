@@ -294,6 +294,6 @@
 
     \sa {View output}
     \if defined(qtcreator)
-    \sa {Add custom output parsers}
+    \sa {Add custom output parsers}, {Kits}
     \endif
 */

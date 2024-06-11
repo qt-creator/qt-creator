@@ -392,7 +392,7 @@
             \image qtcreator-valgrind-remote-settings.png {Start Remote Analysis dialog}
 
         \li Select the application to run and analyze, as well as the
-            \l{glossary-buildandrun-kit}{kit} to use.
+            \l{Kits}{kit} to use.
 
     \endlist
 

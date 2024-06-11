@@ -151,5 +151,5 @@
     is especially useful when viewing large trace files that are difficult to
     visualize using the built-in trace-viewer (\c{chrome://tracing}).
 
-    \sa {Analyze}{How To: Analyze}, {Analyzers}
+    \sa {Activate kits for a project}, {Analyze}{How To: Analyze}, {Analyzers}
 */

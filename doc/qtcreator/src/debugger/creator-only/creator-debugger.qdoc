@@ -29,7 +29,7 @@
     \section1 Setting Up the Debugger
 
     The debugger plugin automatically selects a suitable native debugger for
-    each \l{kits-tab}{kit} from the ones found on your system. You can select
+    each \l{Kits}{kit} from the ones found on your system. You can select
     another kit. To specify the debugger and compiler to use for each kit, go to
     \preferences > \uicontrol Kits.
 
@@ -212,7 +212,7 @@
     \l{Debugging a Qt Quick Application}.
 
     \sa {Debugging a C++ Application}, {Debug}{How To: Debug}, {Debuggers},
-    {Debugger}
+    {Debugger}, {Kits}
 */
 
 /*!
@@ -301,7 +301,7 @@
     \title Start and debug an external application
 
     To debug any executable on your local or on a remote
-    machine without using a project, specify a build and run kit that
+    machine without using a project, specify a build and run \l{Kits}{kit} that
     identifies the device to debug the application on.
 
     While the \e{start external} debugger mode does not strictly require a
@@ -342,7 +342,8 @@
             configuration to use.
     \endlist
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Activate kits for a project}, {Debug}{How To: Debug}, {Debugging},
+    {Debuggers}, {Debugger}
 */
 
 /*!
@@ -406,7 +407,8 @@
             process to start.
     \endlist
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Activate kits for a project}, {Debug}{How To: Debug}, {Debugging},
+    {Debuggers}, {Debugger}
 */
 
 /*!

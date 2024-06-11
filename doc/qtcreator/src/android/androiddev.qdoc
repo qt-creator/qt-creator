@@ -149,8 +149,7 @@
     building Qt from \c modules/Core.json and uses it instead of the version
     in \c sdk_definitions.json.
 
-    \sa {Android}{How To: Develop for Android},
-    {Developing for Android}
+    \sa {Android}{How To: Develop for Android}, {Developing for Android}, {Kits}
 */
 
 /*!

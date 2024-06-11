@@ -519,5 +519,5 @@
     The \l {Application Output} view shows some information even if the
     Performance Analyzer displays error messages.
 
-    \sa {Analyze}{How To: Analyze}, {Analyzers}, {Analyzing Code}
+    \sa {Analyze}{How To: Analyze}, {Analyzers}, {Analyzing Code}, {Kits}
 */

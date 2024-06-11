@@ -28,7 +28,7 @@
 
         \li Select the \uicontrol {Build and Run Kit Selector} icon or go to
             \uicontrol Build > \uicontrol {Open Build and Run Kit Selector} to select the
-            build and run \l{glossary-buildandrun-kit}{kit}.
+            build and run \l{Kits}{kit}.
 
             \image qtcreator-kit-selector.webp {Kit selector}
 

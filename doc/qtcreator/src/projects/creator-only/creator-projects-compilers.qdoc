@@ -18,7 +18,7 @@
     You can develop Qt applications on several 32-bit and 64-bit platforms.
     Usually, you can build Qt applications on each platform with GCC, a
     vendor-supplied compiler, or a third party compiler. In \QC, a
-    \l{glossary-buildandrun-kit}{kit} specifies the compiler and other
+    \l{Kits}{kit} specifies the compiler and other
     necessary tools for building an application for and running it on a
     particular platform.
 
