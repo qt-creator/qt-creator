@@ -736,9 +736,6 @@ class DumperBase():
     # Hex decoding operating on str, return str.
     @staticmethod
     def hexdecode(s, encoding='utf8'):
-        if sys.version_info[0] == 2:
-            # For python2 we need an extra str() call to return str instead of unicode
-            return str(s.decode('hex').decode(encoding))
         return bytes.fromhex(s).decode(encoding)
 
     # Hex encoding operating on str or bytes, return str.
@@ -746,10 +743,6 @@ class DumperBase():
     def hexencode(s):
         if s is None:
             s = ''
-        if sys.version_info[0] == 2:
-            if isinstance(s, buffer):
-                return bytes(s).encode('hex')
-            return s.encode('hex')
         if isinstance(s, str):
             s = s.encode('utf8')
         return hexencode_(s)
@@ -2727,10 +2720,7 @@ typename))
         try:
             if funcname.startswith('qdump__'):
                 typename = funcname[7:]
-                if sys.version_info > (3,):
-                    spec = inspect.getfullargspec(function)
-                else:
-                    spec = inspect.getargspec(function)
+                spec = inspect.getfullargspec(function)
                 if len(spec.args) == 2:
                     self.qqDumpers[typename] = function
                 elif len(spec.args) == 3 and len(spec.defaults) == 1:
@@ -2777,11 +2767,8 @@ typename))
     def reloadDumpers(self, args):
         for mod in self.dumpermodules:
             m = sys.modules[mod]
-            if sys.version_info[0] >= 3:
-                import importlib
-                importlib.reload(m)
-            else:
-                reload(m)
+            import importlib
+            importlib.reload(m)
         self.setupDumpers(args)
 
     def loadDumpers(self, args):
