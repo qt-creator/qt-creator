@@ -22,6 +22,7 @@ class ProjectExplorerSettings
 {
 public:
     BuildBeforeRunMode buildBeforeDeploy = BuildBeforeRunMode::WholeProject;
+    int reaperTimeoutInSeconds = 1;
     bool deployBeforeRun = true;
     bool saveBeforeBuild = false;
     bool useJom = true;
