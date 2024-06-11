@@ -287,7 +287,8 @@ bool MaterialEditorView::locked() const
 
 void MaterialEditorView::currentTimelineChanged(const ModelNode &)
 {
-    m_qmlBackEnd->contextObject()->setHasActiveTimeline(QmlTimeline::hasActiveTimeline(this));
+    if (m_qmlBackEnd)
+        m_qmlBackEnd->contextObject()->setHasActiveTimeline(QmlTimeline::hasActiveTimeline(this));
 }
 
 DynamicPropertiesModel *MaterialEditorView::dynamicPropertiesModel() const
