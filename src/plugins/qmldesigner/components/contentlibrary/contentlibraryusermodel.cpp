@@ -5,8 +5,6 @@
 
 #include "contentlibrarybundleimporter.h"
 #include "contentlibraryitem.h"
-#include "contentlibrarymaterial.h"
-#include "contentlibrarymaterialscategory.h"
 #include "contentlibrarytexture.h"
 #include "contentlibrarywidget.h"
 
@@ -84,7 +82,7 @@ QVariant ContentLibraryUserModel::data(const QModelIndex &index, int role) const
 
 void ContentLibraryUserModel::updateNoMatchMaterials()
 {
-    m_noMatchMaterials = Utils::allOf(m_userMaterials, [&](ContentLibraryMaterial *item) {
+    m_noMatchMaterials = Utils::allOf(m_userMaterials, [&](ContentLibraryItem *item) {
         return !item->visible();
     });
 }
@@ -111,8 +109,7 @@ void ContentLibraryUserModel::addMaterial(const QString &name, const QString &qm
     QString typePrefix = compUtils.userMaterialsBundleType();
     TypeName type = QLatin1String("%1.%2").arg(typePrefix, qml.chopped(4)).toLatin1();
 
-    auto libMat = new ContentLibraryMaterial(this, name, qml, type, icon, files,
-                                             Paths::bundlesPathSetting().append("/User/materials"));
+    auto libMat = new ContentLibraryItem(this, name, qml, type, icon, files, "material");
     m_userMaterials.append(libMat);
 
     emit dataChanged(index(MaterialsSectionIdx), index(MaterialsSectionIdx));
@@ -126,7 +123,7 @@ void ContentLibraryUserModel::add3DItem(const QString &name, const QString &qml,
     QString typePrefix = compUtils.user3DBundleType();
     TypeName type = QLatin1String("%1.%2").arg(typePrefix, qml.chopped(4)).toLatin1();
 
-    m_user3DItems.append(new ContentLibraryItem(this, name, qml, type, icon, files));
+    m_user3DItems.append(new ContentLibraryItem(this, name, qml, type, icon, files, "3d"));
 }
 
 void ContentLibraryUserModel::refreshSection(SectionIndex sectionIndex)
@@ -184,20 +181,20 @@ void ContentLibraryUserModel::removeTexture(ContentLibraryTexture *tex)
 
 void ContentLibraryUserModel::removeFromContentLib(QObject *item)
 {
-    if (auto mat = qobject_cast<ContentLibraryMaterial *>(item))
-        removeMaterialFromContentLib(mat);
-    else if (auto itm = qobject_cast<ContentLibraryItem *>(item))
-        remove3DFromContentLib(itm);
+    auto castedItem = qobject_cast<ContentLibraryItem *>(item);
+
+    if (castedItem->itemType() == "material")
+        removeMaterialFromContentLib(castedItem);
+    else if (castedItem->itemType() == "3d")
+        remove3DFromContentLib(castedItem);
 }
 
-void ContentLibraryUserModel::removeMaterialFromContentLib(ContentLibraryMaterial *item)
+void ContentLibraryUserModel::removeMaterialFromContentLib(ContentLibraryItem *item)
 {
-    auto bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/materials/");
-
     QJsonArray itemsArr = m_bundleObjMaterial.value("items").toArray();
 
     // remove qml and icon files
-    Utils::FilePath::fromString(item->qmlFilePath()).removeFile();
+    m_bundlePathMaterial.pathAppended(item->qml()).removeFile();
     Utils::FilePath::fromUrl(item->icon()).removeFile();
 
     // remove from the bundle json file
@@ -209,7 +206,7 @@ void ContentLibraryUserModel::removeMaterialFromContentLib(ContentLibraryMateria
     }
     m_bundleObjMaterial.insert("items", itemsArr);
 
-    auto result = bundlePath.pathAppended(Constants::BUNDLE_JSON_FILENAME)
+    auto result = m_bundlePathMaterial.pathAppended(Constants::BUNDLE_JSON_FILENAME)
                       .writeFileContents(QJsonDocument(m_bundleObjMaterial).toJson());
     if (!result)
         qWarning() << __FUNCTION__ << result.error();
@@ -222,7 +219,7 @@ void ContentLibraryUserModel::removeMaterialFromContentLib(ContentLibraryMateria
     const QStringList itemFiles = item->files();
     for (const QString &file : itemFiles) {
         if (allFiles.count(file) == 0) // only used by the deleted item
-            bundlePath.pathAppended(file).removeFile();
+            m_bundlePathMaterial.pathAppended(file).removeFile();
     }
 
     // remove from model
@@ -246,8 +243,8 @@ void ContentLibraryUserModel::remove3DFromContentLibByName(const QString &qmlFil
 
 void ContentLibraryUserModel::removeMaterialFromContentLibByName(const QString &qmlFileName)
 {
-    ContentLibraryMaterial *itemToRemove = Utils::findOr(m_userMaterials, nullptr,
-                                                     [&qmlFileName](ContentLibraryMaterial *item) {
+    ContentLibraryItem *itemToRemove = Utils::findOr(m_userMaterials, nullptr,
+                                                     [&qmlFileName](ContentLibraryItem *item) {
                                                          return item->qml() == qmlFileName;
                                                      });
 
@@ -435,13 +432,9 @@ void ContentLibraryUserModel::loadMaterialBundle()
         QString qml = itemObj.value("qml").toString();
         TypeName type = QLatin1String("%1.%2").arg(typePrefix, qml.chopped(4)).toLatin1();
         QUrl icon = m_bundlePathMaterial.pathAppended(itemObj.value("icon").toString()).toUrl();
-        QStringList files;
-        const QJsonArray assetsArr = itemObj.value("files").toArray();
-        for (const QJsonValueConstRef &asset : assetsArr)
-            files.append(asset.toString());
+        QStringList files = itemObj.value("files").toVariant().toStringList();
 
-        m_userMaterials.append(new ContentLibraryMaterial(this, name, qml, type, icon, files,
-                                                          m_bundlePathMaterial.path(), ""));
+        m_userMaterials.append(new ContentLibraryItem(this, name, qml, type, icon, files, "material"));
     }
 
     m_bundleMaterialSharedFiles.clear();
@@ -515,12 +508,9 @@ void ContentLibraryUserModel::load3DBundle()
         QString qml = itemObj.value("qml").toString();
         TypeName type = QLatin1String("%1.%2").arg(typePrefix, qml.chopped(4)).toLatin1();
         QUrl icon = m_bundlePath3D.pathAppended(itemObj.value("icon").toString()).toUrl();
-        QStringList files;
-        const QJsonArray assetsArr = itemObj.value("files").toArray();
-        for (const QJsonValueConstRef &asset : assetsArr)
-            files.append(asset.toString());
+        QStringList files = itemObj.value("files").toVariant().toStringList();
 
-        m_user3DItems.append(new ContentLibraryItem(nullptr, name, qml, type, icon, files));
+        m_user3DItems.append(new ContentLibraryItem(nullptr, name, qml, type, icon, files, "3d"));
     }
 
     m_bundle3DSharedFiles.clear();
@@ -578,7 +568,7 @@ void ContentLibraryUserModel::setSearchText(const QString &searchText)
 
     m_searchText = lowerSearchText;
 
-    for (ContentLibraryMaterial *item : std::as_const(m_userMaterials))
+    for (ContentLibraryItem *item : std::as_const(m_userMaterials))
         item->filter(m_searchText);
 
     for (ContentLibraryTexture *item : std::as_const(m_userTextures))
@@ -596,7 +586,7 @@ void ContentLibraryUserModel::setSearchText(const QString &searchText)
 void ContentLibraryUserModel::updateMaterialsImportedState(const QStringList &importedItems)
 {
     bool changed = false;
-    for (ContentLibraryMaterial *mat : std::as_const(m_userMaterials))
+    for (ContentLibraryItem *mat : std::as_const(m_userMaterials))
         changed |= mat->setImported(importedItems.contains(mat->qml().chopped(4)));
 
     if (changed)
@@ -634,27 +624,25 @@ void ContentLibraryUserModel::resetModel()
     endResetModel();
 }
 
-void ContentLibraryUserModel::applyToSelected(ContentLibraryMaterial *mat, bool add)
+void ContentLibraryUserModel::applyToSelected(ContentLibraryItem *mat, bool add)
 {
     emit applyToSelectedTriggered(mat, add);
 }
 
 void ContentLibraryUserModel::addToProject(QObject *item)
 {
+    auto castedItem = qobject_cast<ContentLibraryItem *>(item);
     QString bundleDir;
-    TypeName type;
-    QString qmlFile;
-    QStringList files;
-    if (auto mat = qobject_cast<ContentLibraryMaterial *>(item)) {
-        bundleDir = mat->dirPath();
-        type = mat->type();
-        qmlFile = mat->qml();
-        files = mat->files() + m_bundleMaterialSharedFiles;
-    } else if (auto itm = qobject_cast<ContentLibraryItem *>(item)) {
-        bundleDir = m_bundlePath3D.toString();
-        type = itm->type();
-        qmlFile = itm->qml();
-        files = itm->files() + m_bundle3DSharedFiles;
+    TypeName type = castedItem->type();
+    QString qmlFile = castedItem->qml();
+    QStringList files = castedItem->files();
+
+    if (castedItem->itemType() == "material") {
+        bundleDir = m_bundlePathMaterial.toFSPathString();
+        files << m_bundleMaterialSharedFiles;
+    } else if (castedItem->itemType() == "3d") {
+        bundleDir = m_bundlePath3D.toFSPathString();
+        files << m_bundle3DSharedFiles;
     } else {
         qWarning() << __FUNCTION__ << "Unsupported Item";
         return;
@@ -670,20 +658,8 @@ void ContentLibraryUserModel::addToProject(QObject *item)
 
 void ContentLibraryUserModel::removeFromProject(QObject *item)
 {
-    TypeName type;
-    QString qml;
-    if (auto mat = qobject_cast<ContentLibraryMaterial *>(item)) {
-        type = mat->type();
-        qml = mat->qml();
-    } else if (auto itm = qobject_cast<ContentLibraryItem *>(item)) {
-        type = itm->type();
-        qml = itm->qml();
-    } else {
-        qWarning() << __FUNCTION__ << "Unsupported Item";
-        return;
-    }
-
-    QString err = m_widget->importer()->unimportComponent(type, qml);
+    auto castedItem = qobject_cast<ContentLibraryItem *>(item);
+    QString err = m_widget->importer()->unimportComponent(castedItem->type(), castedItem->qml());
 
     if (err.isEmpty())
         m_widget->setImporterRunning(true);

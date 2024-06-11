@@ -13,7 +13,6 @@ QT_FORWARD_DECLARE_CLASS(QUrl)
 namespace QmlDesigner {
 
 class ContentLibraryItem;
-class ContentLibraryMaterial;
 class ContentLibraryTexture;
 class ContentLibraryWidget;
 class NodeMetaInfo;
@@ -25,7 +24,7 @@ class ContentLibraryUserModel : public QAbstractListModel
     Q_PROPERTY(bool matBundleExists READ matBundleExists NOTIFY matBundleExistsChanged)
     Q_PROPERTY(bool bundle3DExists MEMBER m_bundle3DExists NOTIFY bundle3DExistsChanged)
     Q_PROPERTY(bool hasRequiredQuick3DImport READ hasRequiredQuick3DImport NOTIFY hasRequiredQuick3DImportChanged)
-    Q_PROPERTY(QList<ContentLibraryMaterial *> userMaterials MEMBER m_userMaterials NOTIFY userMaterialsChanged)
+    Q_PROPERTY(QList<ContentLibraryItem *> userMaterials MEMBER m_userMaterials NOTIFY userMaterialsChanged)
     Q_PROPERTY(QList<ContentLibraryTexture *> userTextures MEMBER m_userTextures NOTIFY userTexturesChanged)
     Q_PROPERTY(QList<ContentLibraryItem *> user3DItems MEMBER m_user3DItems NOTIFY user3DItemsChanged)
     Q_PROPERTY(QList<ContentLibraryItem *> userEffects MEMBER m_userEffects NOTIFY userEffectsChanged)
@@ -78,7 +77,7 @@ public:
 
     void loadBundles();
 
-    Q_INVOKABLE void applyToSelected(QmlDesigner::ContentLibraryMaterial *mat, bool add = false);
+    Q_INVOKABLE void applyToSelected(QmlDesigner::ContentLibraryItem *mat, bool add = false);
     Q_INVOKABLE void addToProject(QObject *item);
     Q_INVOKABLE void removeFromProject(QObject *item);
     Q_INVOKABLE void removeTexture(QmlDesigner::ContentLibraryTexture *tex);
@@ -90,7 +89,7 @@ signals:
     void userTexturesChanged();
     void user3DItemsChanged();
     void userEffectsChanged();
-    void applyToSelectedTriggered(QmlDesigner::ContentLibraryMaterial *mat, bool add = false);
+    void applyToSelectedTriggered(QmlDesigner::ContentLibraryItem *mat, bool add = false);
     void matBundleExistsChanged();
     void bundle3DExistsChanged();
 
@@ -98,7 +97,7 @@ private:
     void loadMaterialBundle();
     void load3DBundle();
     void loadTextureBundle();
-    void removeMaterialFromContentLib(ContentLibraryMaterial *mat);
+    void removeMaterialFromContentLib(ContentLibraryItem *mat);
     void remove3DFromContentLib(ContentLibraryItem *item);
 
     ContentLibraryWidget *m_widget = nullptr;
@@ -110,7 +109,7 @@ private:
     Utils::FilePath m_bundlePathMaterial;
     Utils::FilePath m_bundlePath3D;
 
-    QList<ContentLibraryMaterial *> m_userMaterials;
+    QList<ContentLibraryItem *> m_userMaterials;
     QList<ContentLibraryTexture *> m_userTextures;
     QList<ContentLibraryItem *> m_userEffects;
     QList<ContentLibraryItem *> m_user3DItems;

@@ -10,8 +10,10 @@ ContentLibraryItem::ContentLibraryItem(QObject *parent,
                                        const QString &qml,
                                        const TypeName &type,
                                        const QUrl &icon,
-                                       const QStringList &files)
-    : QObject(parent), m_name(name), m_qml(qml), m_type(type), m_icon(icon), m_files(files)
+                                       const QStringList &files,
+                                       const QString &itemType)
+    : QObject(parent), m_name(name), m_qml(qml), m_type(type), m_icon(icon), m_files(files),
+    m_itemType(itemType)
 {
     m_allFiles = m_files;
     m_allFiles.push_back(m_qml);
@@ -71,6 +73,11 @@ bool ContentLibraryItem::imported() const
 QStringList ContentLibraryItem::allFiles() const
 {
     return m_allFiles;
+}
+
+QString ContentLibraryItem::itemType() const
+{
+    return m_itemType;
 }
 
 } // namespace QmlDesigner

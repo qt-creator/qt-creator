@@ -3,8 +3,6 @@
 
 #include "contentlibrarymaterial.h"
 
-#include <QFileInfo>
-
 namespace QmlDesigner {
 
 ContentLibraryMaterial::ContentLibraryMaterial(QObject *parent,
@@ -12,11 +10,8 @@ ContentLibraryMaterial::ContentLibraryMaterial(QObject *parent,
                                                const QString &qml,
                                                const TypeName &type,
                                                const QUrl &icon,
-                                               const QStringList &files,
-                                               const QString &downloadPath,
-                                               const QString &baseWebUrl)
+                                               const QStringList &files)
     : QObject(parent), m_name(name), m_qml(qml), m_type(type), m_icon(icon), m_files(files)
-    , m_downloadPath(downloadPath), m_baseWebUrl(baseWebUrl)
 {
     m_allFiles = m_files;
     m_allFiles.push_back(m_qml);
@@ -76,22 +71,6 @@ bool ContentLibraryMaterial::setImported(bool imported)
 bool ContentLibraryMaterial::imported() const
 {
     return m_imported;
-}
-
-bool ContentLibraryMaterial::isDownloaded() const
-{
-    QString fullPath = qmlFilePath();
-    return QFileInfo(fullPath).isFile();
-}
-
-QString ContentLibraryMaterial::qmlFilePath() const
-{
-    return m_downloadPath + "/" + m_qml;
-}
-
-QString ContentLibraryMaterial::dirPath() const
-{
-    return m_downloadPath;
 }
 
 QStringList ContentLibraryMaterial::allFiles() const

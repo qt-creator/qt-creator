@@ -106,7 +106,7 @@ HelperWidgets.ScrollView {
 
                             DelegateChoice {
                                 roleValue: "material"
-                                ContentLibraryMaterial {
+                                ContentLibraryItem {
                                     width: root.cellWidth
                                     height: root.cellHeight
 
@@ -124,7 +124,7 @@ HelperWidgets.ScrollView {
                                 }
                             }
                             DelegateChoice {
-                                roleValue: "item"
+                                roleValue: "3d"
                                 delegate: ContentLibraryItem {
                                     width: root.cellWidth
                                     height: root.cellHeight

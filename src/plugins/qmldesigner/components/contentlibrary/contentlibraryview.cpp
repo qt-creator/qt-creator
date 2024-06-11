@@ -120,7 +120,7 @@ WidgetInfo ContentLibraryView::widgetInfo()
         connect(m_widget->userModel(),
                 &ContentLibraryUserModel::applyToSelectedTriggered,
                 this,
-                [&](ContentLibraryMaterial *bundleMat, bool add) {
+                [&](ContentLibraryItem *bundleMat, bool add) {
             if (m_selectedModels.isEmpty())
                 return;
 

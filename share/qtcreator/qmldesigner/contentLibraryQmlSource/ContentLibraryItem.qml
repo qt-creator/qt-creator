@@ -2,9 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
-import QtQuick.Layouts
-import HelperWidgets
 import QtQuick.Controls
+import HelperWidgets as HelperWidgets
 import StudioTheme as StudioTheme
 import ContentLibraryBackend
 
@@ -12,18 +11,20 @@ Item {
     id: root
 
     signal showContextMenu()
+    signal addToProject()
 
     visible: modelData.bundleItemVisible
 
     MouseArea {
         id: mouseArea
 
+        enabled: !ContentLibraryBackend.rootView.importerRunning
         hoverEnabled: true
         anchors.fill: parent
         acceptedButtons: Qt.LeftButton | Qt.RightButton
 
         onPressed: (mouse) => {
-            if (mouse.button === Qt.LeftButton && !ContentLibraryBackend.rootView.importerRunning)
+            if (mouse.button === Qt.LeftButton)
                 ContentLibraryBackend.rootView.startDragItem(modelData, mapToGlobal(mouse.x, mouse.y))
             else if (mouse.button === Qt.RightButton)
                 root.showContextMenu()
@@ -65,6 +66,26 @@ Item {
                     id: indicatorMouseArea
                     anchors.fill: parent
                     hoverEnabled: true
+                }
+            }
+
+            HelperWidgets.IconButton {
+                id: addToProjectButton
+
+                icon: StudioTheme.Constants.plus
+                tooltip: qsTr("Add an instance to project")
+                buttonSize: 22
+                property color c: "white"
+                normalColor: Qt.hsla(c.hslHue, c.hslSaturation, c.hslLightness, .2)
+                hoverColor: Qt.hsla(c.hslHue, c.hslSaturation, c.hslLightness, .3)
+                pressColor: Qt.hsla(c.hslHue, c.hslSaturation, c.hslLightness, .4)
+                anchors.right: img.right
+                anchors.bottom: img.bottom
+                enabled: !ContentLibraryBackend.rootView.importerRunning
+                visible: containsMouse || mouseArea.containsMouse
+
+                onClicked: {
+                    root.addToProject()
                 }
             }
         }

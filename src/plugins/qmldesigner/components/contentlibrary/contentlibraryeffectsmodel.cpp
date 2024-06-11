@@ -171,17 +171,14 @@ void ContentLibraryEffectsModel::loadBundle()
             TypeName type = QLatin1String("%1.%2")
                                 .arg(bundleType, qml.chopped(4)).toLatin1(); // chopped(4): remove .qml
 
-            auto bundleItem = new ContentLibraryItem(category, itemName, qml, type, icon, files);
+            auto bundleItem = new ContentLibraryItem(category, itemName, qml, type, icon, files, "effect");
 
             category->addBundleItem(bundleItem);
         }
         m_bundleCategories.append(category);
     }
 
-    m_bundleSharedFiles.clear();
-    const QJsonArray sharedFilesArr = m_bundleObj.value("sharedFiles").toArray();
-    for (const QJsonValueConstRef &file : sharedFilesArr)
-        m_bundleSharedFiles.append(file.toString());
+    m_bundleSharedFiles = m_bundleObj.value("sharedFiles").toVariant().toStringList();
 
     m_bundlePath = bundleDir.path();
     m_bundleExists = true;

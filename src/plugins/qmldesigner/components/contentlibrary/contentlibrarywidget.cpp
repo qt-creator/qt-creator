@@ -84,7 +84,7 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
         } else if (m_materialToDrag) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
             if ((me->globalPosition().toPoint() - m_dragStartPoint).manhattanLength() > 20
-                && m_materialToDrag->isDownloaded()) {
+                && m_materialsModel->isMaterialDownloaded(m_materialToDrag)) {
                 QByteArray data;
                 QMimeData *mimeData = new QMimeData;
                 QDataStream stream(&data, QIODevice::WriteOnly);
