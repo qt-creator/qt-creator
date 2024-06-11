@@ -62,6 +62,7 @@ public:
         Column {
             Row {
                 m_searcher,
+                m_errorLabel,
                 customMargins(0, 0, ExVPaddingGapXl, 0),
             },
             m_sectionedProducts,

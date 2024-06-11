@@ -17,7 +17,7 @@
     "Description" : "Develop applications for bare metal devices",
     "LongDescription" : [
         "Adds a target for bare metal development.",
-        "Connect devices with USB or WLAN to run, debug, and analyze applications built for them.",
+        "Connect devices with debug server providers to run, debug, and analyze applications built for them.",
         "You also need:",
             "- A toolchain for bare metal development"
     ],

@@ -75,7 +75,7 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
     const QString sourceLicense = CppEditor::AbstractEditorSupport::licenseTemplate(
         project, FilePath::fromString(parameters.sourceFile), parameters.className);
     // Include guards
-    const QString guard = Utils::headerGuard(parameters.headerFile, namespaceList);
+    const QString guard = Utils::headerGuard(parameters.headerFile);
 
     const QString uiInclude = "ui_" + QFileInfo(parameters.uiFile).completeBaseName() + ".h";
 

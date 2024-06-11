@@ -133,11 +133,11 @@ QbsProfilesSettingsWidget::QbsProfilesSettingsWidget()
             Column {
                 PushButton {
                     text(Tr::tr("E&xpand All")),
-                    onClicked([this] { m_propertiesView->expandAll(); }, nullptr),
+                    onClicked([this] { m_propertiesView->expandAll(); }, this),
                 },
                 PushButton {
                     text(Tr::tr("&Collapse All")),
-                    onClicked([this] { m_propertiesView->collapseAll(); }, nullptr),
+                    onClicked([this] { m_propertiesView->collapseAll(); }, this),
                 },
                 st,
             },

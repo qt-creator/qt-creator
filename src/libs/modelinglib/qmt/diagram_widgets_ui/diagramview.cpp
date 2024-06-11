@@ -112,7 +112,7 @@ void DiagramView::dropEvent(QDropEvent *event)
                 if (diagramSceneController->isAddingAllowed(Uid(QUuid(key)),
                                                             m_diagramSceneModel->diagram())) {
                     diagramSceneController->addExistingModelElement(Uid(QUuid(key)),
-                                                                    mapToScene(event->pos()),
+                                                                    mapToScene(event->position().toPoint()),
                                                                     m_diagramSceneModel->diagram());
                 }
             }
@@ -126,10 +126,10 @@ void DiagramView::dropEvent(QDropEvent *event)
             QString stereotype;
             dataStream >> newElementId >> name >> stereotype;
             if (!newElementId.isEmpty()) {
-                QPointF pos = mapToScene(event->pos());
+                QPointF pos = mapToScene(event->position().toPoint());
                 diagramSceneController->dropNewElement(
                             newElementId, name, stereotype, m_diagramSceneModel->findTopmostElement(pos),
-                            pos, m_diagramSceneModel->diagram(), event->pos(), size());
+                            pos, m_diagramSceneModel->diagram(), event->position().toPoint(), size());
             }
         }
         event->accept();

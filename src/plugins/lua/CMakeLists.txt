@@ -4,6 +4,7 @@ add_qtc_plugin(Lua
   PUBLIC_DEPENDS lua546 sol2
   PUBLIC_DEFINES LUA_AVAILABLE
   SOURCES
+    wizards/wizards.qrc
     bindings/action.cpp
     bindings/async.cpp
     bindings/core.cpp

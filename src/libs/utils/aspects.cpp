@@ -10,6 +10,7 @@
 #include "guard.h"
 #include "iconbutton.h"
 #include "layoutbuilder.h"
+#include "macroexpander.h"
 #include "passworddialog.h"
 #include "pathchooser.h"
 #include "pathlisteditor.h"
@@ -95,6 +96,7 @@ public:
     BaseAspect::DataCloner m_dataCloner;
     QList<BaseAspect::DataExtractor> m_dataExtractors;
 
+    MacroExpander *m_expander = globalMacroExpander();
     QUndoStack *m_undoStack = nullptr;
 };
 
@@ -724,6 +726,27 @@ QVariant BaseAspect::fromSettingsValue(const QVariant &val) const
     return d->m_fromSettings ? d->m_fromSettings(val) : val;
 }
 
+void BaseAspect::setMacroExpander(MacroExpander *expander)
+{
+    d->m_expander = expander;
+}
+
+MacroExpander *BaseAspect::macroExpander() const
+{
+    return d->m_expander;
+}
+
+void BaseAspect::addMacroExpansion(QWidget *w)
+{
+    if (!d->m_expander)
+        return;
+    const auto chooser = new VariableChooser(w);
+    chooser->addSupportedWidget(w);
+    chooser->addMacroExpanderProvider([this] { return d->m_expander; });
+    if (auto pathChooser = qobject_cast<PathChooser *>(w))
+        pathChooser->setMacroExpander(d->m_expander);
+}
+
 namespace Internal {
 
 class BoolAspectPrivate
@@ -887,7 +910,6 @@ public:
     Qt::TextElideMode m_elideMode = Qt::ElideNone;
     QString m_placeHolderText;
     Key m_historyCompleterKey;
-    MacroExpanderProvider m_expanderProvider;
     StringAspect::ValueAcceptor m_valueAcceptor;
     std::optional<FancyLineEdit::ValidationFunction> m_validator;
 
@@ -1119,16 +1141,6 @@ void StringAspect::setAcceptRichText(bool acceptRichText)
     emit acceptRichTextChanged(acceptRichText);
 }
 
-void StringAspect::setMacroExpanderProvider(const MacroExpanderProvider &expanderProvider)
-{
-    d->m_expanderProvider = expanderProvider;
-}
-
-void StringAspect::setUseGlobalMacroExpander()
-{
-    d->m_expanderProvider = &globalMacroExpander;
-}
-
 void StringAspect::setUseResetButton()
 {
     d->m_useResetButton = true;
@@ -1149,14 +1161,6 @@ void StringAspect::addToLayout(Layout &parent)
 {
     d->m_checkerImpl.addToLayoutFirst(parent);
 
-    const auto useMacroExpander = [this](QWidget *w) {
-        if (!d->m_expanderProvider)
-            return;
-        const auto chooser = new VariableChooser(w);
-        chooser->addSupportedWidget(w);
-        chooser->addMacroExpanderProvider(d->m_expanderProvider);
-    };
-
     const QString displayedString = d->m_displayFilter ? d->m_displayFilter(volatileValue())
                                                        : volatileValue();
 
@@ -1164,6 +1168,7 @@ void StringAspect::addToLayout(Layout &parent)
     case PasswordLineEditDisplay:
     case LineEditDisplay: {
         auto lineEditDisplay = createSubWidget<FancyLineEdit>();
+        addMacroExpansion(lineEditDisplay);
         lineEditDisplay->setPlaceholderText(d->m_placeHolderText);
         if (!d->m_historyCompleterKey.isEmpty())
             lineEditDisplay->setHistoryCompleter(d->m_historyCompleterKey);
@@ -1197,7 +1202,6 @@ void StringAspect::addToLayout(Layout &parent)
         }
 
         addLabeledItem(parent, lineEditDisplay);
-        useMacroExpander(lineEditDisplay);
         if (d->m_useResetButton) {
             auto resetButton = createSubWidget<QPushButton>(Tr::tr("Reset"));
             resetButton->setEnabled(lineEditDisplay->text() != defaultValue());
@@ -1255,6 +1259,7 @@ void StringAspect::addToLayout(Layout &parent)
     }
     case TextEditDisplay: {
         auto textEditDisplay = createSubWidget<QTextEdit>();
+        addMacroExpansion(textEditDisplay);
         textEditDisplay->setPlaceholderText(d->m_placeHolderText);
         textEditDisplay->setUndoRedoEnabled(false);
         textEditDisplay->setAcceptRichText(d->m_acceptRichText);
@@ -1273,7 +1278,6 @@ void StringAspect::addToLayout(Layout &parent)
         }
 
         addLabeledItem(parent, textEditDisplay);
-        useMacroExpander(textEditDisplay);
         bufferToGui();
         connect(this,
                 &StringAspect::acceptRichTextChanged,
@@ -1323,8 +1327,10 @@ void StringAspect::addToLayout(Layout &parent)
 
 QString StringAspect::expandedValue() const
 {
-    if (!m_internal.isEmpty() && d->m_expanderProvider)
-        return d->m_expanderProvider()->expand(m_internal);
+    if (!m_internal.isEmpty()) {
+        if (auto expander = macroExpander())
+            return expander->expand(m_internal);
+    }
     return m_internal;
 }
 
@@ -1406,7 +1412,6 @@ public:
     PathChooser::Kind m_expectedKind = PathChooser::File;
     Environment m_environment;
     QPointer<PathChooser> m_pathChooserDisplay;
-    MacroExpanderProvider m_expanderProvider;
     FilePath m_baseFileName;
     StringAspect::ValueAcceptor m_valueAcceptor;
     std::optional<FancyLineEdit::ValidationFunction> m_validator;
@@ -1453,8 +1458,10 @@ FilePath FilePathAspect::operator()() const
 FilePath FilePathAspect::expandedValue() const
 {
     const auto value = TypedAspect::value();
-    if (!value.isEmpty() && d->m_expanderProvider)
-        return FilePath::fromUserInput(d->m_expanderProvider()->expand(value));
+    if (!value.isEmpty()) {
+        if (auto expander = macroExpander())
+            return FilePath::fromUserInput(expander->expand(value));
+    }
     return FilePath::fromUserInput(value);
 }
 
@@ -1586,17 +1593,10 @@ void FilePathAspect::addToLayout(Layouting::Layout &parent)
 {
     d->m_checkerImpl.addToLayoutFirst(parent);
 
-    const auto useMacroExpander = [this](QWidget *w) {
-        if (!d->m_expanderProvider)
-            return;
-        const auto chooser = new VariableChooser(w);
-        chooser->addSupportedWidget(w);
-        chooser->addMacroExpanderProvider(d->m_expanderProvider);
-    };
-
     const QString displayedString = d->m_displayFilter ? d->m_displayFilter(value()) : value();
 
     d->m_pathChooserDisplay = createSubWidget<PathChooser>();
+    addMacroExpansion(d->m_pathChooserDisplay->lineEdit());
     d->m_pathChooserDisplay->setExpectedKind(d->m_expectedKind);
     if (!d->m_historyCompleterKey.isEmpty())
         d->m_pathChooserDisplay->setHistoryCompleter(d->m_historyCompleterKey);
@@ -1621,7 +1621,6 @@ void FilePathAspect::addToLayout(Layouting::Layout &parent)
         d->m_pathChooserDisplay->lineEdit()->setPlaceholderText(d->m_placeHolderText);
     d->m_checkerImpl.updateWidgetFromCheckStatus(this, d->m_pathChooserDisplay.data());
     addLabeledItem(parent, d->m_pathChooserDisplay);
-    useMacroExpander(d->m_pathChooserDisplay->lineEdit());
     connect(d->m_pathChooserDisplay, &PathChooser::validChanged, this, &FilePathAspect::validChanged);
     bufferToGui();
     if (isAutoApply() && d->m_autoApplyOnEditingFinished) {
@@ -1763,11 +1762,6 @@ void FilePathAspect::setHistoryCompleter(const Key &historyCompleterKey)
     d->m_historyCompleterKey = historyCompleterKey;
     if (d->m_pathChooserDisplay)
         d->m_pathChooserDisplay->setHistoryCompleter(historyCompleterKey);
-}
-
-void FilePathAspect::setMacroExpanderProvider(const MacroExpanderProvider &expanderProvider)
-{
-    d->m_expanderProvider = expanderProvider;
 }
 
 void FilePathAspect::validateInput()
@@ -3235,6 +3229,14 @@ void AspectContainer::setUndoStack(QUndoStack *undoStack)
 
     for (BaseAspect *aspect : std::as_const(d->m_items))
         aspect->setUndoStack(undoStack);
+}
+
+void AspectContainer::setMacroExpander(MacroExpander *expander)
+{
+    BaseAspect::setMacroExpander(expander);
+
+    for (BaseAspect *aspect : std::as_const(d->m_items))
+        aspect->setMacroExpander(expander);
 }
 
 bool AspectContainer::equals(const AspectContainer &other) const

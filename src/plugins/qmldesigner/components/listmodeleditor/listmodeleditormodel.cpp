@@ -29,7 +29,7 @@ public:
 
     QVariant maybeConvertToNumber(const QVariant &value)
     {
-        if (value.typeId() == QVariant::Bool)
+        if (value.typeId() == QMetaType::Bool)
             return value;
 
         if (value.typeId() == QMetaType::QString) {

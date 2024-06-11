@@ -3877,7 +3877,7 @@ ProjectExplorerPlugin::renameFile(Node *node, const QString &newFileName)
 
     const FilePath newFilePath = FilePath::fromString(newFileName);
 
-    if (oldFilePath == newFilePath)
+    if (oldFilePath.equalsCaseSensitive(newFilePath))
         return {};
 
     const HandleIncludeGuards handleGuards = canTryToRenameIncludeGuards(node);

@@ -131,17 +131,17 @@ void NodeInstanceClientProxy::initializeCapturedStream(const QString &fileName)
 
 bool compareCommands(const QVariant &command, const QVariant &controlCommand)
 {
-    static const int informationChangedCommandType = QMetaType::type("InformationChangedCommand");
-    static const int valuesChangedCommandType = QMetaType::type("ValuesChangedCommand");
-    static const int valuesModifiedCommandType = QMetaType::type("ValuesModifiedCommand");
-    static const int pixmapChangedCommandType = QMetaType::type("PixmapChangedCommand");
-    static const int childrenChangedCommandType = QMetaType::type("ChildrenChangedCommand");
-    static const int statePreviewImageChangedCommandType = QMetaType::type("StatePreviewImageChangedCommand");
-    static const int componentCompletedCommandType = QMetaType::type("ComponentCompletedCommand");
-    static const int synchronizeCommandType = QMetaType::type("SynchronizeCommand");
-    static const int tokenCommandType = QMetaType::type("TokenCommand");
-    static const int debugOutputCommandType = QMetaType::type("DebugOutputCommand");
-    static const int changeSelectionCommandType = QMetaType::type("ChangeSelectionCommand");
+    static const int informationChangedCommandType = QMetaType::fromName("InformationChangedCommand").id();
+    static const int valuesChangedCommandType = QMetaType::fromName("ValuesChangedCommand").id();
+    static const int valuesModifiedCommandType = QMetaType::fromName("ValuesModifiedCommand").id();
+    static const int pixmapChangedCommandType = QMetaType::fromName("PixmapChangedCommand").id();
+    static const int childrenChangedCommandType = QMetaType::fromName("ChildrenChangedCommand").id();
+    static const int statePreviewImageChangedCommandType = QMetaType::fromName("StatePreviewImageChangedCommand").id();
+    static const int componentCompletedCommandType = QMetaType::fromName("ComponentCompletedCommand").id();
+    static const int synchronizeCommandType = QMetaType::fromName("SynchronizeCommand").id();
+    static const int tokenCommandType = QMetaType::fromName("TokenCommand").id();
+    static const int debugOutputCommandType = QMetaType::fromName("DebugOutputCommand").id();
+    static const int changeSelectionCommandType = QMetaType::fromName("ChangeSelectionCommand").id();
 
     if (command.typeId() == controlCommand.typeId()) {
         if (command.typeId() == informationChangedCommandType)
@@ -186,8 +186,8 @@ void NodeInstanceClientProxy::writeCommand(const QVariant &command)
         }
     } else if (m_outputIoDevice) {
 #ifdef NANOTRACE_DESIGNSTUDIO_ENABLED
-        if (command.typeId() != QMetaType::type("PuppetAliveCommand")) {
-            if (command.typeId() == QMetaType::type("SyncNanotraceCommand")) {
+        if (command.typeId() != QMetaType::fromName("PuppetAliveCommand").id()) {
+            if (command.typeId() == QMetaType::fromName("SyncNanotraceCommand").id()) {
                 SyncNanotraceCommand cmd = command.value<SyncNanotraceCommand>();
                 NANOTRACE_INSTANT_ARGS("Sync", "writeCommand",
                     {"name", cmd.name().toStdString()},

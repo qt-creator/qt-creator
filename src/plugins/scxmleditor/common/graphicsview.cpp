@@ -175,8 +175,8 @@ void GraphicsView::dragMoveEvent(QDragMoveEvent *event)
 
         ScxmlTag *targetTag = nullptr;
 
-        QList<QGraphicsItem*> parentItems = items(event->pos());
-        QPointF sceneP = mapToScene(event->pos());
+        QList<QGraphicsItem*> parentItems = items(event->position().toPoint());
+        QPointF sceneP = mapToScene(event->position().toPoint());
         for (int i = 0; i < parentItems.count(); ++i) {
             auto item = static_cast<BaseItem*>(parentItems[i]);
             if (item && item->type() >= TransitionType && item->containsScenePoint(sceneP)) {
@@ -206,9 +206,9 @@ void GraphicsView::dropEvent(QDropEvent *event)
         int shapeIndex = event->mimeData()->data("shapeIndex").toInt();
 
         ScxmlTag *targetTag = nullptr;
-        QPointF targetPos = mapToScene(event->pos());
+        QPointF targetPos = mapToScene(event->position().toPoint());
 
-        QList<QGraphicsItem*> parentItems = items(event->pos());
+        QList<QGraphicsItem*> parentItems = items(event->position().toPoint());
         for (int i = 0; i < parentItems.count(); ++i) {
             auto item = static_cast<const BaseItem*>(parentItems[i]);
             if (item && item->type() >= StateType) {

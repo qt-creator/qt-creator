@@ -1,0 +1,9 @@
+{
+    "workspace.library": [
+        "%{JS: Lua.metaFolder()}"
+    ],
+    "hint.paramName": "Literal",
+    "hint.enable": true,
+    "hint.await": true,
+    "hint.arrayIndex": "Disable"
+}

@@ -477,9 +477,9 @@ SubversionPluginPrivate::SubversionPluginPrivate()
 bool SubversionPluginPrivate::isVcsDirectory(const FilePath &fileName) const
 {
     const QString baseName = fileName.fileName();
-    return fileName.isDir() && contains(m_svnDirectories, [baseName](const QString &s) {
+    return contains(m_svnDirectories, [baseName](const QString &s) {
         return !baseName.compare(s, HostOsInfo::fileNameCaseSensitivity());
-    });
+    }) && fileName.isDir();
 }
 
 bool SubversionPluginPrivate::activateCommit()

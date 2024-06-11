@@ -22,10 +22,10 @@
     Qt versions and compilers by adding the paths to them and by creating
     \l{glossary-buildandrun-kit}{kits} that use them.
 
-    To make \QC behave more like your favorite code editor or IDE, you can
-    change the settings for keyboard shortcuts, color schemes, generic
-    highlighting, code snippets, and version control systems. In addition,
-    you can enable and disable \QC features by managing plugins.
+    To make \QC behave more like your favorite code editor or IDE,
+    change the preferences for keyboard shortcuts, color schemes, generic
+    highlighting, code snippets, and version control systems. Manage plugins
+    to turn on and off \QC features.
 
     The following sections summarize the options that you have and point you to
     detailed information to help you specify any required settings and to make
@@ -33,8 +33,8 @@
 
     \section1 Checking Build and Run Settings
 
-    \QC is an integrated development environment (IDE) that you can use to
-    develop Qt applications. While you can use \QOI to install \QC,
+    \QC is an integrated development environment (IDE) for creating
+    applications. While you can use \QOI to install \QC,
     the stand-alone \QC installer never installs Qt or any Qt tools, such as
     qmake. To use \QC for Qt development, you also need to install a Qt version
     and a compiler. If you update the compiler version later, you
@@ -45,9 +45,7 @@
     available in \QC. If it does not, you must add the kits yourself to tell
     \QC where everything is.
 
-    To add kits, select \preferences > \uicontrol Kits > \uicontrol Add.
-
-    For more information, see \l{Add kits}.
+    To add kits, go to \preferences > \uicontrol Kits and select \uicontrol Add.
 
     Each kit consists of a set of values that define one environment, such as a
     \l{glossary-device}{device}, compiler, and Qt version. If \preferences >
@@ -57,48 +55,41 @@
     If \uicontrol Auto-detected still does not show the Qt version, select
     \uicontrol {Add} to add it manually.
 
-    For more information, see \l{Add Qt versions}.
-
     Also check that \preferences > \uicontrol Kits >
     \uicontrol {Compilers} shows your compiler.
 
-    For more information, see \l{Add compilers}.
+    Connect devices to the computer via USB to run, debug, and analyze
+    applications on them. You can connect Linux-based devices also
+    over a WLAN. Configure a connection between \QC and the computer, and
+    select the device in a kit.
 
-    You can connect devices to the development PC to run, debug, and
-    analyze applications on them from \QC. You can connect the device to the
-    development PC via USB. Additionally, you can connect Linux-based devices
-    over a WLAN. You must also configure a connection between \QC and the
-    development PC and specify the device in a kit.
+    To add devices, go to \preferences > \uicontrol Devices >
+    \uicontrol Devices and select \uicontrol Add.
 
-    To add devices, select \preferences > \uicontrol Devices >
-    \uicontrol Devices > \uicontrol Add.
-
-    For more information, see \l{Develop for Devices}.
+    For more information, see \l{Manage Kits}{How To: Manage Kits} and
+    \l{Develop for Devices}{How To: Develop for Devices}.
 
     \section1 Changing Keyboard Shortcuts
 
     You can use \QC with your favorite keyboard shortcuts.
 
-    To view and edit all keyboard shortcuts defined in \QC, select
-    \preferences >
-    \uicontrol Environment >
-    \uicontrol Keyboard. For more information, see \l{Keyboard Shortcuts}.
+    To view and edit all keyboard shortcuts defined in \QC, go to \preferences >
+    \uicontrol Environment > \uicontrol Keyboard. For more information, see
+    \l{Keyboard Shortcuts}.
 
     \section1 Changing Color Schemes
 
-    Themes enable you to customize the appearance of the \QC UI: widgets,
-    colors, and icons.
+    Themes set the appearance of the \QC UI: widgets, colors, and icons.
 
-    To switch themes, select \preferences > \uicontrol Environment >
-    \uicontrol Interface, and then select a theme in the \uicontrol Theme field.
+    To switch themes, go to \preferences > \uicontrol Environment >
+    \uicontrol Interface and select a theme in \uicontrol Theme.
 
-    You can use the \QC text and code editors with your favorite color scheme
-    that defines how to highlight code elements and which background color to
-    use. You can select one of the predefined color schemes or create custom
-    ones. The color schemes apply to highlighting C++ files, QML files, and
-    generic files.
+    Use the \QC text and code editors with your favorite color scheme that sets
+    highlighting of code elements and the background color. Select one of the
+    predefined color schemes or create custom ones. The color schemes apply to
+    highlighting C++ files, QML files, and generic files.
 
-    To change the color scheme, select \preferences >
+    To change the color scheme, go to \preferences >
     \uicontrol {Text Editor} > \uicontrol {Font & Colors}.
 
     For more information, see \l{Change editor colors}.
@@ -108,7 +99,7 @@
     highlighting engine for Kate syntax definitions. \QC comes with most of
     the commonly used syntax files, and you can download additional files.
 
-    To download and use highlight definition files, select \preferences >
+    To download and use highlight definition files, go to \preferences >
     \uicontrol {Text Editor} > \uicontrol {Generic Highlighter}.
 
     For more information, see \l{Download highlight definitions}.
@@ -117,10 +108,10 @@
 
     As you write code, \QC suggests properties, IDs, and code snippets to
     complete the code. It lists context-sensitive suggestions for
-    the statement currently under your cursor. You can add, modify, and remove
+    the statement currently under your cursor. Add, modify, and remove
     snippets in the snippet editor.
 
-    To open the snippet editor, select \preferences >
+    To open the snippet editor, go to \preferences >
     \uicontrol {Text Editor} > \uicontrol Snippets.
 
     For more information, see \l{Snippets}.
@@ -131,8 +122,7 @@
     to configure the version control in any special way to make it work with
     \QC.
 
-    However, some configuration options are available and you can set them in
-    \preferences >
+    However, you can set some configuration options in \preferences >
     \uicontrol {Version Control} > \uicontrol General.
 
     For more information about the supported functions, see
@@ -144,13 +134,15 @@
     You can \l{Enable and disable plugins}{enable} disabled plugins if you
     need them and disable plugins you don't need.
 
-    You can \l{Install plugins}{download and install} more plugins from
+    \l{Install plugins}{Download and install} more plugins from
     \l{https://marketplace.qt.io/}{Qt Marketplace} or some
     other source, such as \l{https://github.com/}{GitHub}.
 
-    To enable and disable plugins, select \uicontrol Help >
+    To enable and disable plugins, go to \uicontrol Help >
     \uicontrol {About Plugins}.
 
-    To install plugins, select \uicontrol Help > \uicontrol {About Plugins} >
-    \uicontrol {Install Plugins}.
+    To install plugins, go to \uicontrol Help > \uicontrol {About Plugins} and
+    select \uicontrol {Install Plugins}.
+
+    \sa {Install \QC}, {Reset \QC settings}, {Preferences}
 */

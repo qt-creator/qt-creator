@@ -44,6 +44,8 @@ Editing
 
 ### Models
 
+### SCXML
+
 ### Binary Files
 
 Projects
@@ -56,6 +58,8 @@ Projects
 ### Qbs
 
 ### Python
+
+### Workspace
 
 ### vcpkg
 
@@ -118,6 +122,8 @@ Platforms
 ### Boot to Qt
 
 ### MCU
+
+### Qt Application Manager
 
 ### QNX
 

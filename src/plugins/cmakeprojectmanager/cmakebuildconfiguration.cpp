@@ -1463,12 +1463,9 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
     buildTypeAspect.setDisplayStyle(StringAspect::LineEditDisplay);
     buildTypeAspect.setDefaultValue("Unknown");
 
-    initialCMakeArguments.setMacroExpanderProvider([this] { return macroExpander(); });
-
     additionalCMakeOptions.setSettingsKey("CMake.Additional.Options");
     additionalCMakeOptions.setLabelText(Tr::tr("Additional CMake <a href=\"options\">options</a>:"));
     additionalCMakeOptions.setDisplayStyle(StringAspect::LineEditDisplay);
-    additionalCMakeOptions.setMacroExpanderProvider([this] { return macroExpander(); });
 
     macroExpander()->registerVariable(DEVELOPMENT_TEAM_FLAG,
                                       Tr::tr("The CMake flag for the development team"),

@@ -41,13 +41,12 @@ namespace Layouting {
 
 class NestId {};
 
-template <typename T1, typename T2>
+template <typename Id, typename Arg>
 class IdAndArg
 {
 public:
-    IdAndArg(const T1 &id, const T2 &arg) : id(id), arg(arg) {}
-    const T1 id;
-    const T2 arg; // FIXME: Could be const &, but this would currently break bindTo().
+    IdAndArg(Id, const Arg &arg) : arg(arg) {}
+    const Arg arg; // FIXME: Could be const &, but this would currently break bindTo().
 };
 
 template<typename T1, typename T2>
@@ -107,7 +106,7 @@ public:
     template <typename Id, typename Arg>
     BuilderItem(IdAndArg<Id, Arg> && idarg)
     {
-        apply = [&idarg](X *x) { doit(x, idarg.id, idarg.arg); };
+        apply = [&idarg](X *x) { doit(x, Id{}, idarg.arg); };
     }
 
     std::function<void(X *)> apply;
@@ -143,17 +142,15 @@ public:
 class FlowLayout;
 class Layout;
 using LayoutModifier = std::function<void(Layout *)>;
-// using LayoutModifier = void(*)(Layout *);
 
 class QTCREATOR_UTILS_EXPORT LayoutItem
 {
 public:
     ~LayoutItem();
     LayoutItem();
-    LayoutItem(QLayout *l) : layout(l) {}
-    LayoutItem(QWidget *w) : widget(w) {}
-    LayoutItem(const QString &t) : text(t) {}
-    LayoutItem(const LayoutModifier &inner);
+    LayoutItem(QLayout *l);
+    LayoutItem(QWidget *w);
+    LayoutItem(const QString &t);
 
     QString text;
     QLayout *layout = nullptr;
@@ -162,8 +159,6 @@ public:
     int spanCols = 1;
     int spanRows = 1;
     bool empty = false;
-    LayoutModifier ownerModifier;
-    //Qt::Alignment align = {};
 };
 
 class QTCREATOR_UTILS_EXPORT Layout : public Object

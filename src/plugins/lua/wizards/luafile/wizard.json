@@ -1,0 +1,41 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [],
+    "id": "Q.Lua",
+    "category": "R.Lua",
+    "trDescription": "Creates a simple lua file.",
+    "trDisplayName": "Lua Script",
+    "trDisplayCategory": "Lua",
+    "iconText": "ts",
+    "enabled": "%{JS: value('Plugins').indexOf('Lua') >= 0}",
+    "options": [
+        {
+            "key": "DefaultSuffix",
+            "value": "%{JS: Util.preferredSuffix('text/x-lua')}"
+        }
+    ],
+    "pages": [
+        {
+            "trDisplayName": "Location",
+            "trShortTitle": "Location",
+            "typeId": "File"
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators": [
+        {
+            "typeId": "File",
+            "data": [
+                {
+                    "source": "script.lua",
+                    "target": "%{JS: Util.fileName(value('TargetPath'), value('DefaultSuffix'))}",
+                    "openInEditor": true
+                }
+            ]
+        }
+    ]
+}

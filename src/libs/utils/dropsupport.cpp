@@ -108,7 +108,7 @@ bool DropSupport::eventFilter(QObject *obj, QEvent *event)
                     de->acceptProposedAction();
                 bool needToScheduleEmit = m_files.isEmpty();
                 m_files.append(tempFiles);
-                m_dropPos = de->pos();
+                m_dropPos = de->position().toPoint();
                 if (needToScheduleEmit) { // otherwise we already have a timer pending
                     // Delay the actual drop, to avoid conflict between
                     // actions that happen when opening files, and actions that the item views do
@@ -122,7 +122,7 @@ bool DropSupport::eventFilter(QObject *obj, QEvent *event)
                 accepted = true;
                 bool needToScheduleEmit = m_values.isEmpty();
                 m_values.append(fileDropMimeData->values());
-                m_dropPos = de->pos();
+                m_dropPos = de->position().toPoint();
                 if (needToScheduleEmit)
                     QTimer::singleShot(100, this, &DropSupport::emitValuesDropped);
             }

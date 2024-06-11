@@ -19,6 +19,7 @@
 #include <utils/clangutils.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcprocess.h>
 #include <utils/variablechooser.h>
 
@@ -207,17 +208,17 @@ FilePath ClangdSettings::clangdFilePath() const
     return fallbackClangdFilePath();
 }
 
-FilePath ClangdSettings::projectIndexPath(const Utils::MacroExpander &expander) const
+FilePath ClangdSettings::projectIndexPath(const MacroExpander &expander) const
 {
     return FilePath::fromUserInput(expander.expand(m_data.projectIndexPathTemplate));
 }
 
-FilePath ClangdSettings::sessionIndexPath(const Utils::MacroExpander &expander) const
+FilePath ClangdSettings::sessionIndexPath(const MacroExpander &expander) const
 {
     return FilePath::fromUserInput(expander.expand(m_data.sessionIndexPathTemplate));
 }
 
-bool ClangdSettings::sizeIsOkay(const Utils::FilePath &fp) const
+bool ClangdSettings::sizeIsOkay(const FilePath &fp) const
 {
     return !sizeThresholdEnabled() || sizeThresholdInKb() * 1024 >= fp.fileSize();
 }

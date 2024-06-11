@@ -24,9 +24,9 @@ int main(int argc, char *argv[])
     };
 
     Row {
-        PushButton { text("-"), onClicked(minusClick, nullptr) },
+        PushButton { text("-"), onClicked(minusClick, qApp) },
         lineEdit,
-        PushButton { text("+"), onClicked(plusClick, nullptr) },
+        PushButton { text("+"), onClicked(plusClick, qApp) },
         Group {
             title("Splitter in Group"),
             Column {

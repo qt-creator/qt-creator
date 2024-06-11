@@ -1,7 +1,9 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 Jarek Kobus
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#pragma once
+#ifndef TASKING_TASKTREE_H
+#define TASKING_TASKTREE_H
 
 #include "tasking_global.h"
 
@@ -13,7 +15,6 @@
 QT_BEGIN_NAMESPACE
 template <class T>
 class QFuture;
-QT_END_NAMESPACE
 
 namespace Tasking {
 
@@ -41,7 +42,7 @@ enum class WorkflowPolicy
     FinishAllAndSuccess,  // 4  - Reports success after all children finished.
     FinishAllAndError     // 5  - Reports error after all children finished.
 };
-Q_ENUM_NS(WorkflowPolicy);
+Q_ENUM_NS(WorkflowPolicy)
 
 enum class SetupResult
 {
@@ -49,14 +50,14 @@ enum class SetupResult
     StopWithSuccess,
     StopWithError
 };
-Q_ENUM_NS(SetupResult);
+Q_ENUM_NS(SetupResult)
 
 enum class DoneResult
 {
     Success,
     Error
 };
-Q_ENUM_NS(DoneResult);
+Q_ENUM_NS(DoneResult)
 
 enum class DoneWith
 {
@@ -64,7 +65,7 @@ enum class DoneWith
     Error,
     Cancel
 };
-Q_ENUM_NS(DoneWith);
+Q_ENUM_NS(DoneWith)
 
 enum class CallDoneIf
 {
@@ -72,7 +73,7 @@ enum class CallDoneIf
     Success,
     Error
 };
-Q_ENUM_NS(CallDoneIf);
+Q_ENUM_NS(CallDoneIf)
 
 TASKING_EXPORT DoneResult toDoneResult(bool success);
 
@@ -624,3 +625,7 @@ using TaskTreeTask = CustomTask<TaskTreeTaskAdapter>;
 using TimeoutTask = CustomTask<TimeoutTaskAdapter>;
 
 } // namespace Tasking
+
+QT_END_NAMESPACE
+
+#endif // TASKING_TASKTREE_H

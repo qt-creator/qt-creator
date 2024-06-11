@@ -549,7 +549,7 @@ void DebuggerItemModel::autoDetectCdbDebuggers()
 
     for (const QFileInfo &kitFolderFi : kitFolders) {
         const QString path = kitFolderFi.absoluteFilePath();
-        QStringList abis = {"x86", "x64"};
+        QStringList abis = {"x64"};
         if (HostOsInfo::hostArchitecture() == Utils::OsArchArm64)
             abis << "arm64";
         for (const QString &abi: abis) {

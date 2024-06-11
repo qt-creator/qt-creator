@@ -15,7 +15,7 @@
     "Category" : "Device Support",
     "Description" : "Develop for QNX Neutrino devices",
     "LongDescription" : [
-        "Connect devices with USB or WLAN to run, debug, and analyze applications built for them.",
+        "Connect devices with USB or over a network to run, debug, and analyze applications built for them.",
         "You also need:",
             "- Qt for QNX",
             "- QNX Software Development Platform (SDP)"

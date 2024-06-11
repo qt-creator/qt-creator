@@ -60,8 +60,6 @@ public:
             setupProcessParameters(&param);
             return param.summary(display);
         });
-
-        addMacroExpander();
     }
 
 private:

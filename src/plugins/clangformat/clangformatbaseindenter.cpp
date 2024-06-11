@@ -961,12 +961,8 @@ const clang::format::FormatStyle &ClangFormatBaseIndenterPrivate::styleForFile()
         return m_cachedStyle.style;
     }
 
-    llvm::Expected<clang::format::FormatStyle> styleFromProjectFolder
-        = clang::format::getStyle("file",
-                                  m_fileName->toFSPathString().toStdString(),
-                                  "none",
-                                  "",
-                                  &llvmFileSystemAdapter);
+    llvm::Expected<clang::format::FormatStyle> styleFromProjectFolder = clang::format::getStyle(
+        "file", m_fileName->toFSPathString().toStdString(), "none", "", &llvmFileSystemAdapter, true);
 
     if (styleFromProjectFolder && !(*styleFromProjectFolder == clang::format::getNoStyle())) {
         addQtcStatementMacros(*styleFromProjectFolder);

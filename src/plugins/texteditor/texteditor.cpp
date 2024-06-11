@@ -7577,7 +7577,7 @@ bool TextEditorWidget::openLink(const Utils::Link &link, bool inNextSplit)
 #endif
 
     QString url = link.targetFilePath.toString();
-    if (url.startsWith(u"https://"_qs) || url.startsWith(u"http://"_qs)) {
+    if (url.startsWith(u"https://") || url.startsWith(u"http://")) {
         QDesktopServices::openUrl(url);
         return true;
     }
@@ -7616,11 +7616,12 @@ void TextEditorWidgetPrivate::requestUpdateLink(QMouseEvent *e)
         return;
 
     // Check that the mouse was actually on the text somewhere
-    bool onText = q->cursorRect(cursor).right() >= e->x();
+    const int posX = e->position().x();
+    bool onText = q->cursorRect(cursor).right() >= posX;
     if (!onText) {
         QTextCursor nextPos = cursor;
         nextPos.movePosition(QTextCursor::Right);
-        onText = q->cursorRect(nextPos).right() >= e->x();
+        onText = q->cursorRect(nextPos).right() >= posX;
     }
 
     if (onText) {
@@ -9232,7 +9233,7 @@ void TextEditorWidget::dragLeaveEvent(QDragLeaveEvent *)
 void TextEditorWidget::dragMoveEvent(QDragMoveEvent *e)
 {
     const QRect rect = cursorRect(d->m_dndCursor);
-    d->m_dndCursor = cursorForPosition(e->pos());
+    d->m_dndCursor = cursorForPosition(e->position().toPoint());
     if (!rect.isNull())
         viewport()->update(rect);
     viewport()->update(cursorRect(d->m_dndCursor));
@@ -9250,7 +9251,7 @@ void TextEditorWidget::dropEvent(QDropEvent *e)
     // Update multi text cursor before inserting data
     MultiTextCursor cursor = multiTextCursor();
     cursor.beginEditBlock();
-    const QTextCursor eventCursor = cursorForPosition(e->pos());
+    const QTextCursor eventCursor = cursorForPosition(e->position().toPoint());
     if (e->dropAction() == Qt::MoveAction && e->source() == viewport())
         cursor.removeSelectedText();
     cursor.setCursors({eventCursor});

@@ -289,7 +289,7 @@ void WorkspaceView::keyPressEvent(QKeyEvent *event)
 
 void WorkspaceView::dropEvent(QDropEvent *event)
 {
-    const QModelIndex dropIndex = indexAt(event->pos());
+    const QModelIndex dropIndex = indexAt(event->position().toPoint());
     const DropIndicatorPosition dropIndicator = dropIndicatorPosition();
 
     const auto droppedWorkspaces = selectedWorkspaces();

@@ -55,6 +55,9 @@ public:
 protected:
     LinuxDevice();
 
+    void fromMap(const Utils::Store &map) override;
+    Utils::Store toMap() const override;
+
     void _setOsType(Utils::OsType osType);
 
     class LinuxDevicePrivate *d;

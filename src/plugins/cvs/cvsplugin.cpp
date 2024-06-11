@@ -333,8 +333,8 @@ Utils::Id CvsPluginPrivate::id() const
 
 bool CvsPluginPrivate::isVcsFileOrDirectory(const Utils::FilePath &filePath) const
 {
-    return filePath.isDir()
-            && !filePath.fileName().compare("CVS", Utils::HostOsInfo::fileNameCaseSensitivity());
+    return !filePath.fileName().compare("CVS", Utils::HostOsInfo::fileNameCaseSensitivity())
+           && filePath.isDir();
 }
 
 bool CvsPluginPrivate::isConfigured() const

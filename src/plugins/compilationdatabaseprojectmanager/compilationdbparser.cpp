@@ -169,9 +169,9 @@ void CompilationDbParser::start()
             if (!isIgnored) {
                 if (auto it = m_mimeBinaryCache.get<std::optional<bool>>(
                         [mimeType](const QHash<QString, bool> &cache) -> std::optional<bool> {
-                            auto it = cache.find(mimeType.name());
-                            if (it != cache.end())
-                                return *it;
+                            const auto cache_it = cache.find(mimeType.name());
+                            if (cache_it != cache.end())
+                                return *cache_it;
                             return {};
                         })) {
                     isIgnored = *it;

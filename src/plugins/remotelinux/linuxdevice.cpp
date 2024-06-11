@@ -58,6 +58,8 @@ using namespace Utils;
 
 namespace RemoteLinux {
 
+const char DisconnectedKey[] = "Disconnected";
+
 const QByteArray s_pidMarker = "__qtc";
 
 static Q_LOGGING_CATEGORY(linuxDeviceLog, "qtc.remotelinux.device", QtWarningMsg);
@@ -363,6 +365,9 @@ Environment LinuxDevicePrivate::getEnvironment()
     QWriteLocker writeLocker(&m_environmentCacheLock);
     if (m_environmentCache.has_value())
         return m_environmentCache.value();
+
+    if (m_disconnected)
+        return {};
 
     Process getEnvProc;
     getEnvProc.setCommand(CommandLine{q->filePath("env")});
@@ -705,6 +710,11 @@ void SshProcessInterfacePrivate::start()
                 this, &SshProcessInterfacePrivate::handleDisconnected);
         auto linuxDevice = std::dynamic_pointer_cast<const LinuxDevice>(m_device);
         QTC_ASSERT(linuxDevice, handleDone(); return);
+        if (linuxDevice->isDisconnected()) {
+            emit q->done({-1, QProcess::CrashExit, QProcess::FailedToStart,
+                          Tr::tr("Device \"%1\" is disconnected").arg(linuxDevice->displayName())});
+            return;
+        }
         linuxDevice->connectionAccess()
             ->attachToSharedConnection(m_connectionHandle.get(), m_sshParameters);
     } else {
@@ -1063,6 +1073,19 @@ LinuxDevice::LinuxDevice()
                      }});
 }
 
+void LinuxDevice::fromMap(const Utils::Store &map)
+{
+    IDevice::fromMap(map);
+    d->m_disconnected = map.value(DisconnectedKey, false).toBool();
+}
+
+Store LinuxDevice::toMap() const
+{
+    Store map = IDevice::toMap();
+    map.insert(DisconnectedKey, d->m_disconnected);
+    return map;
+}
+
 void LinuxDevice::_setOsType(Utils::OsType osType)
 {
     qCDebug(linuxDeviceLog) << "Setting OS type to" << osType << "for" << displayName();
@@ -1191,8 +1214,10 @@ void LinuxDevicePrivate::checkOsType()
 // Call me with shell mutex locked
 bool LinuxDevicePrivate::setupShell(const SshParameters &sshParameters, bool announce)
 {
-    if (m_handler->isRunning(sshParameters))
+    if (m_handler->isRunning(sshParameters)) {
+        setDisconnected(false);
         return true;
+    }
 
     invalidateEnvironmentCache();
 

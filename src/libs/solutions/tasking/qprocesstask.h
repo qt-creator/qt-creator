@@ -1,13 +1,19 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 Jarek Kobus
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#pragma once
+#ifndef TASKING_QPROCESSTASK_H
+#define TASKING_QPROCESSTASK_H
 
 #include "tasking_global.h"
 
 #include "tasktree.h"
 
 #include <QtCore/QProcess>
+
+QT_BEGIN_NAMESPACE
+
+#if QT_CONFIG(process)
 
 namespace Tasking {
 
@@ -64,3 +70,9 @@ private:
 using QProcessTask = CustomTask<QProcessAdapter>;
 
 } // namespace Tasking
+
+#endif // QT_CONFIG(process)
+
+QT_END_NAMESPACE
+
+#endif // TASKING_QPROCESSTASK_H

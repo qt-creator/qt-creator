@@ -291,7 +291,8 @@ bool FlatModel::setData(const QModelIndex &index, const QVariant &value, int rol
 
     // The base name of the file was changed. Go look for other files with the same base name
     // and offer to rename them as well.
-    if (orgFilePath != newFilePath && orgFilePath.suffix() == newFilePath.suffix()) {
+    if (!orgFilePath.equalsCaseSensitive(newFilePath)
+        && orgFilePath.suffix() == newFilePath.suffix()) {
         const QList<Node *> candidateNodes = ProjectTree::siblingsWithSameBaseName(node);
         if (!candidateNodes.isEmpty()) {
             QStringList fileNames = transform<QStringList>(candidateNodes, [](const Node *n) {

@@ -4,9 +4,6 @@
 #include "qbsprofilemanager.h"
 
 #include "defaultpropertyprovider.h"
-#include "qbsproject.h"
-#include "qbsprojectmanagerconstants.h"
-#include "qbsprojectmanagerplugin.h"
 #include "qbsprojectmanagertr.h"
 #include "qbssettings.h"
 
@@ -82,9 +79,9 @@ QString toJSLiteral(const QVariant &val)
         str += '}';
         return str;
     }
-    if (val.typeId() == QVariant::Bool)
+    if (val.typeId() == QMetaType::Bool)
         return toJSLiteral(val.toBool());
-    if (val.canConvert(QMetaType::QString))
+    if (val.canConvert(QMetaType(QMetaType::QString)))
         return toJSLiteral(val.toString());
     return QString::fromLatin1("Unconvertible type %1").arg(QLatin1String(val.typeName()));
 }

@@ -742,9 +742,8 @@ void FossilClient::annotate(const FilePath &workingDir, const QString &file, int
 bool FossilClient::isVcsFileOrDirectory(const FilePath &filePath) const
 {
     // false for any dir or file other than fossil checkout db-file
-    return filePath.toFileInfo().isFile()
-           && !filePath.fileName().compare(Constants::FOSSILREPO,
-                                           HostOsInfo::fileNameCaseSensitivity());
+    return !filePath.fileName().compare(Constants::FOSSILREPO, HostOsInfo::fileNameCaseSensitivity())
+           && filePath.isFile();
 }
 
 FilePath FossilClient::findTopLevelForFile(const FilePath &file) const

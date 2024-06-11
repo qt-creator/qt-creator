@@ -21,6 +21,7 @@ QtcPlugin {
         "luaqttypes.h",
         "luatr.h",
         "luauibindings.cpp",
+        "wizards/wizards.qrc",
     ]
 
     Group {

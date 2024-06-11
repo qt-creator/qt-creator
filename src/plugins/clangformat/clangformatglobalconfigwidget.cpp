@@ -256,8 +256,8 @@ void ClangFormatGlobalConfigWidget::initCurrentProjectLabel()
 
 bool ClangFormatGlobalConfigWidget::projectClangFormatFileExists()
 {
-    llvm::Expected<clang::format::FormatStyle> styleFromProjectFolder
-        = clang::format::getStyle("file", m_project->projectFilePath().path().toStdString(), "none");
+    llvm::Expected<clang::format::FormatStyle> styleFromProjectFolder = clang::format::getStyle(
+        "file", m_project->projectFilePath().path().toStdString(), "none", "", nullptr, true);
 
     return styleFromProjectFolder && !(*styleFromProjectFolder == clang::format::getNoStyle());
 }
