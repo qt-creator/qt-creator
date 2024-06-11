@@ -98,9 +98,9 @@ std::vector<Utils::FilePath> CMakeWriter::singletons(const NodePtr &node) const
     return files(node, [](const NodePtr &n) { return n->singletons; });
 }
 
-std::vector<Utils::FilePath> CMakeWriter::resources(const NodePtr &node) const
+std::vector<Utils::FilePath> CMakeWriter::assets(const NodePtr &node) const
 {
-    return files(node, [](const NodePtr &n) { return n->resources; });
+    return files(node, [](const NodePtr &n) { return n->assets; });
 }
 
 std::vector<Utils::FilePath> CMakeWriter::sources(const NodePtr &node) const
@@ -229,7 +229,7 @@ std::tuple<QString, QString> CMakeWriter::makeResourcesBlocks(const NodePtr &nod
 
     QString resourceFiles;
     std::vector<QString> bigResources;
-    for (const Utils::FilePath &path : resources(node)) {
+    for (const Utils::FilePath &path : assets(node)) {
         if (path.fileSize() > 5000000) {
             bigResources.push_back(makeRelative(node, path));
             continue;

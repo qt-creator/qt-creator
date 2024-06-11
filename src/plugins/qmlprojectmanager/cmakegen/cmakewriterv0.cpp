@@ -21,7 +21,7 @@ CMakeWriterV0::CMakeWriterV0(CMakeGenerator *parent)
 bool CMakeWriterV0::isPlugin(const NodePtr &node) const
 {
     if (node->type == Node::Type::App)
-        return !node->files.empty() || !node->singletons.empty() || !node->resources.empty();
+        return !node->files.empty() || !node->singletons.empty() || !node->assets.empty();
 
     return CMakeWriter::isPlugin(node);
 }

@@ -32,7 +32,7 @@ struct Node
     std::vector<std::shared_ptr<Node>> subdirs;
     std::vector<Utils::FilePath> files;
     std::vector<Utils::FilePath> singletons;
-    std::vector<Utils::FilePath> resources;
+    std::vector<Utils::FilePath> assets;
     std::vector<Utils::FilePath> sources;
 };
 
@@ -76,7 +76,7 @@ protected:
     std::vector<Utils::FilePath> files(const NodePtr &node, const FileGetter &getter) const;
     std::vector<Utils::FilePath> qmlFiles(const NodePtr &node) const;
     std::vector<Utils::FilePath> singletons(const NodePtr &node) const;
-    std::vector<Utils::FilePath> resources(const NodePtr &node) const;
+    std::vector<Utils::FilePath> assets(const NodePtr &node) const;
     std::vector<Utils::FilePath> sources(const NodePtr &node) const;
     std::vector<QString> plugins(const NodePtr &node) const;
 

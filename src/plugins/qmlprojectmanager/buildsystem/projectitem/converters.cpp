@@ -3,6 +3,7 @@
 
 #include "converters.h"
 #include "utils/algorithm.h"
+#include "cmakegen/filetypes.h"
 
 #include <QJsonDocument>
 
@@ -10,17 +11,10 @@ namespace QmlProjectManager::Converters {
 
 const static QStringList qmlFilesFilter{QStringLiteral("*.qml")};
 const static QStringList javaScriptFilesFilter{QStringLiteral("*.js"), QStringLiteral("*.ts")};
-const static QStringList imageFilesFilter{QStringLiteral("*.jpeg"),
-                                          QStringLiteral("*.jpg"),
-                                          QStringLiteral("*.png"),
-                                          QStringLiteral("*.svg"),
-                                          QStringLiteral("*.hdr"),
-                                          QStringLiteral("*.ktx"),
-                                          QStringLiteral("*.bmp"),
-                                          QStringLiteral("*.ttf"),
-                                          QStringLiteral("*.tiff"),
-                                          QStringLiteral("*.webp"),
-                                          QStringLiteral("*.gif")};
+
+const QStringList imageFilesFilter() {
+    return imageFiles([](const QString& suffix) { return "*." + suffix; });
+}
 
 QString jsonValueToString(const QJsonValue &val, int indentationLevel, bool indented);
 
@@ -123,7 +117,7 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
         if (nodeName.toLower() == "qmlfiles") {
             filter = qmlFilesFilter;
         } else if (nodeName.toLower() == "imagefiles") {
-            filter = imageFilesFilter;
+            filter = imageFilesFilter();
         } else if (nodeName.toLower() == "javascriptfiles") {
             filter = javaScriptFilesFilter;
         }
@@ -459,7 +453,7 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
                 } else if (childNodeName == "javascriptfiles") {
                     inserter(javaScriptFilesFilter);
                 } else if (childNodeName == "imagefiles") {
-                    inserter(imageFilesFilter);
+                    inserter(imageFilesFilter());
                 }
             }
 
