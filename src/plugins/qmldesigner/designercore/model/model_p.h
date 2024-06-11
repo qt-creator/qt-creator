@@ -355,6 +355,7 @@ private:
     InternalNodePointer m_currentTimelineNode;
     std::unique_ptr<ModelResourceManagementInterface> m_resourceManagement;
     QUrl m_fileUrl;
+    Utils::PathString m_localPath;
     SourceId m_sourceId;
     QPointer<RewriterView> m_rewriterView;
     QPointer<NodeInstanceView> m_nodeInstanceView;

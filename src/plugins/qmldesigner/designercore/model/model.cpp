@@ -166,15 +166,25 @@ void ModelPrivate::detachAllViews()
 
 namespace {
 Storage::Imports createStorageImports(const Imports &imports,
+                                      Utils::SmallStringView localDirectoryPath,
                                       ProjectStorageType &projectStorage,
                                       SourceId fileId)
 {
-    return Utils::transform<Storage::Imports>(imports, [&](const Import &import) {
-        using Storage::ModuleKind;
+    using Storage::ModuleKind;
+    Storage::Imports storageImports;
+    storageImports.reserve(Utils::usize(imports) + 1);
+
+    for (const Import &import : imports) {
         auto moduleKind = import.isLibraryImport() ? ModuleKind::QmlLibrary : ModuleKind::PathLibrary;
         auto moduleId = projectStorage.moduleId(Utils::SmallString{import.url()}, moduleKind);
-        return Storage::Import{moduleId, import.majorVersion(), import.minorVersion(), fileId};
-    });
+        storageImports.emplace_back(moduleId, import.majorVersion(), import.minorVersion(), fileId);
+    }
+
+    auto localDirectoryModuleId = projectStorage.moduleId(localDirectoryPath, ModuleKind::PathLibrary);
+
+    storageImports.emplace_back(localDirectoryModuleId, Storage::Version{}, fileId);
+
+    return storageImports;
 }
 
 } // namespace
@@ -196,7 +206,7 @@ void ModelPrivate::changeImports(Imports toBeAddedImports, Imports toBeRemovedIm
 
     if (!removedImports.isEmpty() || !allNewAddedImports.isEmpty()) {
         if (useProjectStorage()) {
-            auto imports = createStorageImports(m_imports, *projectStorage, m_sourceId);
+            auto imports = createStorageImports(m_imports, m_localPath, *projectStorage, m_sourceId);
             projectStorage->synchronizeDocumentImports(std::move(imports), m_sourceId);
         }
         notifyImportsChanged(allNewAddedImports, removedImports);
@@ -265,7 +275,10 @@ void ModelPrivate::setFileUrl(const QUrl &fileUrl)
     if (oldPath != fileUrl) {
         m_fileUrl = fileUrl;
         if constexpr (useProjectStorage()) {
-            m_sourceId = pathCache->sourceId(SourcePath{fileUrl.path()});
+            auto path = fileUrl.path();
+            m_sourceId = pathCache->sourceId(SourcePath{path});
+            auto found = std::find(path.rbegin(), path.rend(), u'/').base();
+            m_localPath = Utils::PathString{QStringView{path.begin(), std::prev(found)}};
         }
 
         for (const QPointer<AbstractView> &view : std::as_const(m_viewList))
