@@ -149,7 +149,7 @@ void DashboardWidget::updateUi()
         }
         return prefix;
     };
-    auto linked = [this](const QString &text, const QString &href, bool link) {
+    auto linked = [](const QString &text, const QString &href, bool link) {
         return link ? QString("<a href='%1'>%2</a>").arg(href).arg(text)
                     : text;
     };
