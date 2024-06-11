@@ -312,7 +312,7 @@ def qdump__QDateTime(d, value):
     # {sharedref(4), ...
     base = d.extractPointer(value)
     is32bit = d.ptrSize() == 4
-    if qtVersionAtLeast(0x050200):
+    if d.qtVersionAtLeast(0x050200):
         tiVersion = d.qtTypeInfoVersion()
         #DumperBase.warn('TI VERSION: %s' % tiVersion)
         if tiVersion is None:
@@ -1713,7 +1713,7 @@ def qform__QStack():
 
 
 def qdump__QStack(d, value):
-    if d.qtVersionVersionAtLeast(0x060000):
+    if d.qtVersionAtLeast(0x060000):
         qdump__QList(d, value)
     else:
         qdump__QVector(d, value)
