@@ -408,7 +408,10 @@ bool equals(const QVariant &a, const QVariant &b)
 
 bool usesCustomParserButIsNotPropertyChange(const QmlDesigner::NodeMetaInfo &nodeMetaInfo)
 {
-    return nodeMetaInfo.usesCustomParser() && !nodeMetaInfo.isQtQuickPropertyChanges();
+    bool usesCustomParser = nodeMetaInfo.usesCustomParser();
+    bool isQtQuickPropertyChanges = nodeMetaInfo.isQtQuickPropertyChanges();
+
+    return usesCustomParser && !isQtQuickPropertyChanges;
 }
 
 } // anonymous namespace
@@ -1147,7 +1150,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
 
     if (info.isQmlComponent() || isImplicitComponent)
         setupComponentDelayed(modelNode, differenceHandler.isAmender());
-    else if (info.usesCustomParser())
+    else if (usesCustomParserButIsNotPropertyChange(info))
         setupCustomParserNodeDelayed(modelNode, differenceHandler.isAmender());
     else if (!modelNode.nodeSource().isEmpty() || modelNode.nodeSourceType() != ModelNode::NodeWithoutSource)
         clearImplicitComponentDelayed(modelNode, differenceHandler.isAmender());
