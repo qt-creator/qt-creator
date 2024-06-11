@@ -25,7 +25,7 @@ else()
 endif()
 
 add_qtc_plugin(Designer
-  PLUGIN_CLASS FormEditorPlugin
+  PLUGIN_CLASS DesignerPlugin
   CONDITION TARGET Qt::DesignerComponentsPrivate AND TARGET Qt::Designer
   DEPENDS designerintegrationv2
     Qt::Designer Qt::PrintSupport Qt::DesignerComponentsPrivate
