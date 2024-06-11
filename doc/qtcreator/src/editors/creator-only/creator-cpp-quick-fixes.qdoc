@@ -103,15 +103,174 @@
         \li Create function declarations and definitions
    \endlist
 
-    The following table summarizes the quick fixes for C++ code. The
-    fix is available when the cursor is in the position described in the
-    Activation column.
+    The following tables summarize the quick fixes available for C++ code,
+    according to the cursor position.
+
+    \section1 Block of Code Selected
 
     \table
         \header
             \li Quick Fix
             \li Description
-            \li Activation
+        \row
+            \li Assign to Local Variable
+            \li Adds a local variable which stores the return value of a
+                function call or a new expression. For example, rewrites:
+
+    \code
+    QString s;
+    s.toLatin1();
+    \endcode
+
+                as
+
+    \code
+    QString s;
+    QByteArray latin1 = s.toLatin1();
+    \endcode
+
+                and
+
+    \code
+    new Foo;
+    \endcode
+
+                as
+
+    \code
+    Foo * localFoo = new Foo;
+    \endcode
+
+                By default, \QC uses the \c auto variable type when creating the
+                variable. To label the variable with its actual type, select
+                \preferences > \uicontrol C++ > \uicontrol {Quick Fixes} and
+                clear \uicontrol {Use type "auto" when creating new variables}.
+
+                Also available for a function call.
+        \row
+            \li Extract Function
+            \li Moves the selected code to a new function and replaces the block
+                of code with a call to the new function. Enter a name for the
+                function in the \uicontrol {Extract Function Refactoring}
+                dialog.
+        \row
+            \li Extract Constant as Function Parameter
+            \li Replaces the selected literal and all its occurrences with the
+                function parameter \c{newParameter}, which has the original
+                literal as the default value.
+    \endtable
+
+    \section1 Class
+
+    The following quick fixes are available when the cursor is on the definition
+    of a class.
+
+    \table
+        \header
+            \li Quick Fix
+            \li Description
+        \row
+            \li Create Implementations for Member Functions
+            \li Creates implementations for all member functions in one go.
+                In the \uicontrol {Member Function Implementations} dialog,
+                specify whether the member functions are generated
+                inline or outside the class.
+        \row
+            \li Generate Constructor
+            \li Creates a constructor for a class.
+        \row
+            \li Generate Missing Q_PROPERTY Members
+            \li Adds missing members to a \c Q_PROPERTY:
+            \list
+                \li \c read function
+                \li \c write function, if there is a WRITE
+                \li \c {onChanged} signal, if there is a NOTIFY
+                \li data member with the name \c {m_<propertyName>}
+            \endlist
+        \row
+            \li Insert Virtual Functions of Base Classes
+            \li Inserts declarations and the corresponding definitions inside or
+                outside the class or in an implementation file (if it exists).
+                For more information, see \l{Insert virtual functions}.
+        \row
+            \li Move All Function Definitions
+            \li Moves all function definitions to the implementation file or
+                outside the class. For example, rewrites:
+    \code
+    class Foo
+    {
+      void bar()
+      {
+          // do stuff here
+      }
+      void baz()
+      {
+          // do stuff here
+      }
+    };
+    \endcode
+
+                as
+
+    \code
+    class Foo
+    {
+      void bar();
+      void baz();
+    };
+
+    void Foo::bar() {
+        // do stuff here
+    }
+
+    void Foo::baz() {
+        // do stuff here
+    }
+    \endcode
+    \endtable
+
+    \section1 Class Member
+
+    The following quick fixes are available when the cursor is on a member
+    variable in a class definition.
+
+    \table
+        \header
+            \li Quick Fix
+            \li Description
+        \row
+            \li Generate Constant Q_PROPERTY and Missing Members
+            \li Generates a constant Q_PROPERTY and adds missing members
+                to it.
+        \row
+            \li Generate Getter
+            \li Creates a getter member function for a member variable.
+        \row
+            \li Generate Getter and Setter
+            \li Creates getter and setter member functions for a member
+                variable.
+        \row
+            \li Create Getter and Setter Member Functions
+            \li Creates either both getter and setter member functions for
+                member variables or only a getter or setter.
+        \row
+            \li Generate Q_PROPERTY and Missing Members
+            \li Generates a Q_PROPERTY and adds missing members to it.
+        \row
+            \li Generate Q_PROPERTY and Missing Members with Reset Function
+            \li Generates a Q_PROPERTY and adds missing members to it, with an
+                additional \c reset function.
+        \row
+            \li Generate Setter
+            \li Creates a setter member function for a member variable.
+    \endtable
+
+    \section1 Control Statement
+
+    \table
+        \header
+            \li Quick Fix
+            \li Description
         \row
             \li Add Curly Braces
             \li Adds curly braces to an if statement that does not have a
@@ -129,7 +288,10 @@
         b;
     }
     \endcode
-            \li \c if
+        \row
+            \li Complete Switch Statement
+            \li Adds all possible cases to a switch statement of the type
+                \c enum.
         \row
             \li Move Declaration out of Condition
             \li Moves a declaration out of an if or while condition to simplify
@@ -145,7 +307,188 @@
     Type name = foo;
     if (name) {}
     \endcode
-            \li Name of the introduced variable
+        \row
+            \li Optimize for-Loop
+            \li Rewrites post-increment operators as pre-increment operators and
+                post-decrement operators as pre-decrement operators. It also
+                moves other than string or numeric literals and id expressions
+                from the condition of a for loop to its initializer. For
+                example, rewrites:
+
+    \code
+    for (int i = 0; i < 3 * 2; i++)
+    \endcode
+
+                as
+
+    \code
+    for (int i = 0, total = 3 * 2; i < total; ++i)
+    \endcode
+    \endtable
+
+    \section1 Function Declaration or Definition
+
+    \table
+        \header
+            \li Quick Fix
+            \li Description
+        \row
+            \li Add Definition in ...
+            \li Inserts a definition stub for a function declaration either in
+                the header file (inside or outside the class) or in the
+                implementation file. For free functions, inserts the definition
+                after the declaration of the function or in the implementation
+                file. Qualified names are minimized when possible, instead of
+                always being fully expanded.
+
+                For example, rewrites
+
+    \code
+    Class Foo {
+        void bar();
+    };
+    \endcode
+
+                as (inside class)
+
+    \code
+    Class Foo {
+        void bar() {
+
+        }
+    };
+    \endcode
+
+                as (outside class)
+
+    \code
+    Class Foo {
+        void bar();
+    };
+
+    void Foo::bar()
+    {
+
+    }
+    \endcode
+
+                as (in implementation file)
+
+    \code
+    // Header file
+    Class Foo {
+        void bar();
+    };
+
+    // Implementation file
+    void Foo::bar()
+    {
+
+    }
+    \endcode
+        \row
+            \li Add \c Function Declaration
+            \li Inserts the member function declaration that matches the member
+                function definition into the class declaration. The function can
+                be \c {public}, \c {protected}, \c {private}, \c {public slot},
+                \c {protected slot}, or \c {private slot}.
+       \row
+            \li Apply Changes
+            \li Keeps function declarations and definitions synchronized by
+                checking for the matching declaration or definition when you
+                edit a function signature and by applying the changes to the
+                matching code.
+
+                When this fix is available, a light bulb icon appears:
+                \inlineimage icons/refactormarker.png
+        \row
+            \li Move Definition Here
+            \li Moves an existing function definition to its declaration.
+        \row
+            \li Move Function Definition
+            \li Moves a function definition to the implementation file, outside
+                the class or back to its declaration. For example, rewrites:
+    \code
+    class Foo
+    {
+      void bar()
+      {
+          // do stuff here
+      }
+    };
+    \endcode
+
+                as
+    \code
+    class Foo
+    {
+      void bar();
+    };
+
+    void Foo::bar() {
+        // do stuff here
+    }
+    \endcode
+        \row
+            \li Move Function Documentation to Declaration/Definition
+            \li Moves the documentation comment for a function between its
+                declaration and definition.
+    \endtable
+
+    \section1 Identifier
+
+    \table
+        \header
+            \li Quick Fix
+            \li Description
+        \row
+            \li Add #include for undeclared or forward declared identifier
+            \li Adds an \c {#include} directive to the current file to make the
+                definition of a symbol available.
+        \row
+            \li Add Class Member
+            \li Adds a member declaration for the class member being
+                initialized if it is not yet declared. If \QC cannot
+                automatically detect the data type of the member, you
+                must add it.
+        \row
+            \li Add Forward Declaration
+            \li Adds a forward declaration for an undeclared identifier
+                operation.
+        \row
+            \li Convert to Camel Case
+            \li Converts a symbol name to camel case, where elements of the name
+                are joined without delimiter characters and the initial
+                character of each element is capitalized. For example, rewrites
+                \c an_example_symbol as \c anExampleSymbol and
+                \c AN_EXAMPLE_SYMBOL as \c AnExampleSymbol
+    \endtable
+
+    \section1 Numeric Literal
+
+    \table
+        \header
+            \li Quick Fix
+            \li Description
+        \row
+            \li Convert to Decimal
+            \li Converts an integer literal to decimal representation
+        \row
+            \li Convert to Hexadecimal
+            \li Converts an integer literal to hexadecimal representation
+        \row
+            \li Convert to Octal
+            \li Converts an integer literal to octal representation
+    \endtable
+
+    \section1 Operator
+
+    \table
+        \header
+            \li Quick Fix
+            \li Description
+            \li Operator
+
         \row
             \li Rewrite Condition Using ||
             \li Rewrites the expression according to De Morgan's laws. For
@@ -201,21 +544,6 @@
 
             \li \c {<=}, \c {<}, \c {>}, \c {>=}, \c {==} or \c {!=}
         \row
-            \li Split Declaration
-            \li Splits a simple declaration into several declarations. For
-                example, rewrites:
-    \code
-    int *a, b;
-    \endcode
-
-                as
-
-    \code
-    int *a;
-    int b;
-    \endcode
-            \li Type name or variable name
-        \row
             \li Split if Statement
             \li Splits an if statement into several statements. For example,
                 rewrites:
@@ -265,18 +593,14 @@
     \endcode
             \li \c {<=}, \c {<}, \c {>},  \c {>=}, \c {==}, \c {!=}, \c {&&}
                 or \c {||}
-        \row
-            \li Convert to Decimal
-            \li Converts an integer literal to decimal representation
-            \li Numeric literal
-        \row
-            \li Convert to Hexadecimal
-            \li Converts an integer literal to hexadecimal representation
-            \li Numeric literal
-        \row
-            \li Convert to Octal
-            \li Converts an integer literal to octal representation
-            \li Numeric literal
+    \endtable
+
+    \section1 String Literal
+
+    \table
+        \header
+            \li Quick Fix
+            \li Description
         \row
             \li Convert to Objective-C String Literal
             \li Converts a string literal to an Objective-C string literal if
@@ -294,7 +618,18 @@
     \code
     @"abcd"
     \endcode
-            \li String literal
+        \row
+            \li Enclose in QByteArrayLiteral()
+            \li Converts a string to a byte array. For example, rewrites
+    \code
+    "abcd"
+    \endcode
+
+                as
+
+    \code
+    QByteArrayLiteral("abcd")
+    \endcode
         \row
             \li Enclose in QLatin1Char()
             \li Sets the encoding for a character to Latin-1, unless the
@@ -311,7 +646,6 @@
     \code
     QLatin1Char('a')
     \endcode
-            \li String literal
         \row
             \li Enclose in QLatin1String()
             \li Sets the encoding for a string to Latin-1, unless the string is
@@ -326,22 +660,10 @@
     \code
     QLatin1String("abcd")
     \endcode
-
-            \li String literal
         \row
-            \li Enclose in QByteArrayLiteral()
-            \li Converts a string to a byte array. For example, rewrites
-    \code
-    "abcd"
-    \endcode
-
-                as
-
-    \code
-    QByteArrayLiteral("abcd")
-    \endcode
-
-            \li String literal
+            \li Escape String Literal as UTF-8
+            \li Escapes non-ASCII characters in a string literal to hexadecimal
+                escape sequences. String Literals are handled as UTF-8.
         \row
             \li Mark as Translatable
             \li Marks a string translatable. For example, rewrites \c "abcd"
@@ -353,104 +675,37 @@
     QCoreApplication::translate("CONTEXT", "abcd")
     QT_TRANSLATE_NOOP("GLOBAL", "abcd")
     \endcode
-
-            \li String literal
-
         \row
-            \li Add Definition in ...
-            \li Inserts a definition stub for a function declaration either in
-                the header file (inside or outside the class) or in the
-                implementation file. For free functions, inserts the definition
-                after the declaration of the function or in the implementation
-                file. Qualified names are minimized when possible, instead of
-                always being fully expanded.
+            \li Unescape String Literal as UTF-8
+            \li Unescapes octal or hexadecimal escape sequences in a string
+                literal. String Literals are handled as UTF-8.
+    \endtable
 
-                For example, rewrites
+    \section1 \c using directive
 
-    \code
-    Class Foo {
-        void bar();
-    };
-    \endcode
-
-                as (inside class)
-
-    \code
-    Class Foo {
-        void bar() {
-
-        }
-    };
-    \endcode
-
-                as (outside class)
-
-    \code
-    Class Foo {
-        void bar();
-    };
-
-    void Foo::bar()
-    {
-
-    }
-    \endcode
-
-                as (in implementation file)
-
-    \code
-    // Header file
-    Class Foo {
-        void bar();
-    };
-
-    // Implementation file
-    void Foo::bar()
-    {
-
-    }
-    \endcode
-
-            \li Function name
+    \table
+        \header
+            \li Quick Fix
+            \li Description
+       \row
+            \li Remove All Occurrences of \c {using namespace} in Global Scope
+                and Adjust Type Names Accordingly
+            \li Remove all occurrences of \c {using namespace} in the global
+                scope and adjust type names accordingly.
         \row
-            \li Add \c Function Declaration
-            \li Inserts the member function declaration that matches the member
-                function definition into the class declaration. The function can
-                be \c {public}, \c {protected}, \c {private}, \c {public slot},
-                \c {protected slot}, or \c {private slot}.
-            \li Function name
-        \row
-            \li Add Class Member
-            \li Adds a member declaration for the class member being
-                initialized if it is not yet declared. If \QC cannot
-                automatically detect the data type of the member, you
-                must add it.
-            \li Identifier
-        \row
-            \li Create Implementations for Member Functions
-            \li Creates implementations for all member functions in one go.
-                In the \uicontrol {Member Function Implementations} dialog,
-                specify whether the member functions are generated
-                inline or outside the class.
-            \li Function name
-        \row
-            \li Switch with Next/Previous Parameter
-            \li Moves a parameter down or up one position in a parameter list.
-            \li Parameter in the declaration or definition of a function
-        \row
-            \li Extract Function
-            \li Moves the selected code to a new function and replaces the block
-                of code with a call to the new function. Enter a name for the
-                function in the \uicontrol {Extract Function Refactoring}
-                dialog.
-            \li Block of code selected
-        \row
-            \li Extract Constant as Function Parameter
-            \li Replaces the selected literal and all its occurrences with the
-                function parameter \c{newParameter}. The parameter
-                \c{newParameter} will have the original literal as the default
-                value.
-            \li Block of code selected
+            \li Remove \c {using namespace} and Adjust Type Names Accordingly
+            \li Remove occurrences of \c {using namespace} in the local scope
+                and adjust type names accordingly.
+    \endtable
+
+
+    \section1 Miscellaneous
+
+    \table
+        \header
+            \li Quick Fix
+            \li Description
+            \li Activation
         \row
             \li Add Local Declaration
             \li Adds the type of an assignee, if the type of the right-hand
@@ -469,63 +724,59 @@
                 where Type is the return type of \c {foo()}
 
             \li Assignee
+        \row
+            \li Convert connect() to Qt 5 Style
+            \li Converts a Qt 4 QObject::connect() to Qt 5 style.
+            \li QObject::connect() (Qt 4 style)
+        \row
+            \li Convert Comment to C/C++ Style
+            \li Converts C-style comments into C++-style comments, and vice
+                versa. Tries to preserve \e pretty layout and takes Doxygen and
+                qdoc formatting into consideration, but you might need to clean
+                up the results.
+            \li Code comment
+        \row
+            \li Convert to Pointer
+            \li Converts the selected stack variable to a pointer. For example,
+                rewrites:
 
+    \code
+    QByteArray foo = "foo";
+    foo.append("bar");
+    \endcode
+
+                as
+
+    \code
+    QByteArray *foo = new QByteArray("foo");
+    foo->append("bar");
+    \endcode
+
+                This operation is limited to work only within function scope.
+                Also, the coding style for pointers and references is not
+                respected yet.
+            \li Stack Variable
         \row
-            \li Convert to Camel Case
-            \li Converts a symbol name to camel case, where elements of the name
-                are joined without delimiter characters and the initial
-                character of each element is capitalized. For example, rewrites
-                \c an_example_symbol as \c anExampleSymbol and
-                \c AN_EXAMPLE_SYMBOL as \c AnExampleSymbol
-            \li Identifier
-        \row
-            \li Complete Switch Statement
-            \li Adds all possible cases to a switch statement of the type
-                \c enum
-            \li \c switch
-        \row
-            \li Generate Missing Q_PROPERTY Members
-            \li Adds missing members to a \c Q_PROPERTY:
-            \list
-                \li \c read function
-                \li \c write function, if there is a WRITE
-                \li \c {onChanged} signal, if there is a NOTIFY
-                \li data member with the name \c {m_<propertyName>}
-            \endlist
-            \li \c Q_PROPERTY
-        \row
-            \li Generate Q_PROPERTY and Missing Members
-            \li Generates a Q_PROPERTY and adds missing members to it, as
-                described above.
-            \li Class member
-        \row
-            \li Generate Constant Q_PROPERTY and Missing Members
-            \li Generates a constant Q_PROPERTY and adds missing members
-                to it, as described above.
-            \li Class member
-        \row
-            \li Generate Q_PROPERTY and Missing Members with Reset Function
-            \li Generates a Q_PROPERTY and adds missing members to it, as
-                described above, but with an additional \c reset function.
-            \li Class member
-       \row
-            \li Apply Changes
-            \li Keeps function declarations and definitions synchronized by
-                checking for the matching declaration or definition when you
-                edit a function signature and by applying the changes to the
-                matching code.
-            \li Function signature. When this fix is available, a light bulb
-                icon appears: \inlineimage icons/refactormarker.png
-        \row
-            \li Add #include for undeclared or forward declared identifier
-            \li Adds an \c {#include} directive to the current file to make the
-                definition of a symbol available.
-            \li Undeclared identifier
-        \row
-            \li Add Forward Declaration
-            \li Adds a forward declaration for an undeclared identifier
-                operation.
-            \li Undeclared identifier
+            \li Convert to Stack Variable
+            \li Converts the selected pointer to a stack variable. For example,
+                rewrites:
+
+    \code
+    QByteArray *foo = new QByteArray("foo");
+    foo->append("bar");
+    \endcode
+
+                as
+
+    \code
+    QByteArray foo("foo");
+    foo.append("bar");
+    \endcode
+
+                This operation is limited to work only within function scope.
+                Also, the coding style for pointers and references is not
+                respected yet.
+            \li Pointer Variable
         \row
             \li Reformat Pointers or References
             \li Reformats declarations with pointers or references according
@@ -551,239 +802,24 @@
             \li Declarations with pointers or references and selections
                 that have such declarations
         \row
-            \li Create Getter and Setter Member Functions
-            \li Creates either both getter and setter member functions for
-                member variables or only a getter or setter.
-            \li Member variable in class definition
-        \row
-            \li Generate Getter and Setter
-            \li Creates getter and setter member functions for a member
-                variable.
-            \li Member variable in class definition
-        \row
-            \li Generate Getter
-            \li Creates a getter member function for a member variable.
-            \li Member variable in class definition
-        \row
-            \li Generate Setter
-            \li Creates a setter member function for a member variable.
-            \li Member variable in class definition
-        \row
-            \li Generate Constructor
-            \li Creates a constructor for a class.
-            \li Class definition
-        \row
-            \li Move Function Definition
-            \li Moves a function definition to the implementation file, outside
-                the class or back to its declaration. For example, rewrites:
-    \code
-    class Foo
-    {
-      void bar()
-      {
-          // do stuff here
-      }
-    };
-    \endcode
-
-                as
-    \code
-    class Foo
-    {
-      void bar();
-    };
-
-    void Foo::bar() {
-        // do stuff here
-    }
-    \endcode
-
-            \li Function signature
-        \row
-            \li Move All Function Definitions
-            \li Moves all function definitions to the implementation file or
-                outside the class. For example, rewrites:
-    \code
-    class Foo
-    {
-      void bar()
-      {
-          // do stuff here
-      }
-      void baz()
-      {
-          // do stuff here
-      }
-    };
-    \endcode
-
-                as
-
-    \code
-    class Foo
-    {
-      void bar();
-      void baz();
-    };
-
-    void Foo::bar() {
-        // do stuff here
-    }
-
-    void Foo::baz() {
-        // do stuff here
-    }
-    \endcode
-
-            \li Class name
-        \row
-            \li Move Definition Here
-            \li Moves an existing function definition to its declaration.
-            \li Function declaration
-        \row
-            \li Assign to Local Variable
-            \li Adds a local variable which stores the return value of a
-                function call or a new expression. For example, rewrites:
-
-    \code
-    QString s;
-    s.toLatin1();
-    \endcode
-
-                as
-
-    \code
-    QString s;
-    QByteArray latin1 = s.toLatin1();
-    \endcode
-
-                and
-
-    \code
-    new Foo;
-    \endcode
-
-                as
-
-    \code
-    Foo * localFoo = new Foo;
-    \endcode
-
-                By default, \QC uses the \c auto variable type when creating the
-                variable. To label the variable with its actual type, select
-                \preferences > \uicontrol C++ >
-                \uicontrol {Quick Fixes}, and then deselect the
-                \uicontrol {Use type "auto" when creating new variables} check
-                box.
-
-            \li Function call or class name
-        \row
-            \li Insert Virtual Functions of Base Classes
-            \li Inserts declarations and the corresponding definitions inside or
-                outside the class or in an implementation file (if it exists).
-                For more information, see \l{Insert virtual functions}.
-            \li Class or base class name
-        \row
-            \li Optimize for-Loop
-            \li Rewrites post increment operators as pre increment operators and
-                post decrement operators as pre decrement operators. It also
-                moves other than string or numeric literals and id expressions
-                from the condition of a for loop to its initializer. For
+            \li Split Declaration
+            \li Splits a simple declaration into several declarations. For
                 example, rewrites:
-
     \code
-    for (int i = 0; i < 3 * 2; i++)
+    int *a, b;
     \endcode
 
                 as
 
     \code
-    for (int i = 0, total = 3 * 2; i < total; ++i)
+    int *a;
+    int b;
     \endcode
-            \li \c for
-
+            \li Type name or variable name
         \row
-            \li Escape String Literal as UTF-8
-            \li Escapes non-ASCII characters in a string literal to hexadecimal
-                escape sequences. String Literals are handled as UTF-8.
-            \li String literal
-
-        \row
-            \li Unescape String Literal as UTF-8
-            \li Unescapes octal or hexadecimal escape sequences in a string
-                literal. String Literals are handled as UTF-8.
-            \li String literal
-
-        \row
-            \li Convert to Stack Variable
-            \li Converts the selected pointer to a stack variable. For example,
-                rewrites:
-
-    \code
-    QByteArray *foo = new QByteArray("foo");
-    foo->append("bar");
-    \endcode
-
-                as
-
-    \code
-    QByteArray foo("foo");
-    foo.append("bar");
-    \endcode
-
-                This operation is limited to work only within function scope.
-                Also, the coding style for pointers and references is not
-                respected yet.
-            \li Pointer Variable
-
-        \row
-            \li Convert to Pointer
-            \li Converts the selected stack variable to a pointer. For example,
-                rewrites:
-
-    \code
-    QByteArray foo = "foo";
-    foo.append("bar");
-    \endcode
-
-                as
-
-    \code
-    QByteArray *foo = new QByteArray("foo");
-    foo->append("bar");
-    \endcode
-
-                This operation is limited to work only within function scope.
-                Also, the coding style for pointers and references is not
-                respected yet.
-            \li Stack Variable
-        \row
-            \li Remove \c {using namespace} and Adjust Type Names Accordingly
-            \li Remove occurrences of \c {using namespace} in the local scope
-                and adjust type names accordingly.
-            \li \c using directive
-       \row
-            \li Remove All Occurrences of \c {using namespace} in Global Scope
-                and Adjust Type Names Accordingly
-            \li Remove all occurrences of \c {using namespace} in the global
-                scope and adjust type names accordingly.
-            \li \c using directive
-        \row
-            \li Convert connect() to Qt 5 Style
-            \li Converts a Qt 4 QObject::connect() to Qt 5 style.
-            \li QObject::connect() (Qt 4 style)
-        \row
-            \li Convert Comment to C/C++ Style
-            \li Converts C-style comments into C++-style comments, and vice
-                versa. Tries to preserve \e pretty layout and takes Doxygen and
-                qdoc formatting into consideration, but you might need to clean
-                up the results.
-            \li Code comment
-        \row
-            \li Move Function Documentation to Declaration/Definition
-            \li Moves the documentation comment for a function between its
-                declaration and definition.
-            \li Documentation comment for a function
+            \li Switch with Next/Previous Parameter
+            \li Moves a parameter down or up one position in a parameter list.
+            \li Parameter in the declaration or definition of a function
     \endtable
 
     \sa {Apply quick fixes}, {Find symbols}, {Rename symbols},
