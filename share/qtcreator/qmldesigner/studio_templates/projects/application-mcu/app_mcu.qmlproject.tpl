@@ -33,6 +33,10 @@ Project {
         filter: "*.ttf;*.otf"
     }
 
+    FontFiles {
+        directory: "fonts"
+    }
+
     ModuleFiles {
         files: [
             "imports/Constants/constants_module.qmlproject"
