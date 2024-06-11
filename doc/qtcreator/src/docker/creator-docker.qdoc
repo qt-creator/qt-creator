@@ -25,6 +25,8 @@
 
     You are advised to use CMake to build applications in the Docker container.
 
+    \note Enable the Docker plugin to use it.
+
     To pull images from Docker hub or other registries, use the
     \l{https://docs.docker.com/engine/reference/commandline/pull/}{docker pull}
     command.
@@ -64,7 +66,8 @@
     Go to \preferences > \uicontrol Kits to check
     that the automatically generated kits point to the appropriate kit items.
 
-    \sa {Docker}{How To: Develop for Docker}, {Manage Kits}{How To: Manage Kits}
+    \sa {Enable and disable plugins}, {Docker}{How To: Develop for Docker},
+    {Manage Kits}{How To: Manage Kits}
 */
 
 /*!
@@ -74,6 +77,8 @@
     \ingroup creator-how-to-docker
 
     \title Set preferences for Docker devices
+
+    \note Enable the Docker plugin to use it.
 
     To set preferences for Docker devices:
 
@@ -165,7 +170,8 @@
     \uicontrol {List Auto-Detected Kit Items}. To remove
     them, select \uicontrol {Remove Auto-Detected Kit Items}.
 
-    \sa {Docker}{How To: Develop for Docker}, {Manage Kits}{How To: Manage Kits}
+    \sa {Enable and disable plugins}, {Docker}{How To: Develop for Docker},
+    {Manage Kits}{How To: Manage Kits}
 */
 
 /*!
@@ -175,6 +181,8 @@
     \ingroup creator-how-to-docker
 
     \title Build for and run on Docker devices
+
+    \note Enable the Docker plugin to use it.
 
     To specify build settings for Docker images:
 
@@ -188,5 +196,6 @@
     Select \uicontrol Run to specify run settings. Usually, you can use
     the default settings.
 
-    \sa {Docker}{How To: Develop for Docker}, {Manage Kits}{How To: Manage Kits}
+    \sa {Enable and disable plugins}, {Docker}{How To: Develop for Docker},
+    {Manage Kits}{How To: Manage Kits}
 */
