@@ -264,7 +264,7 @@ struct alignas(16) StringDataLayout<MaximumShortStringDataAreaSize,
 
     StringDataLayout(const char *string, size_type size, size_type capacity) noexcept
         : size_{static_cast<int>(size)}
-        , capacity_{std::max<int>(capacity, MaximumShortStringDataAreaSize)}
+        , capacity_{static_cast<int>(std::max<size_type>(capacity, MaximumShortStringDataAreaSize))}
     {
         if (Q_LIKELY(capacity <= shortStringCapacity())) {
             std::char_traits<char>::copy(buffer, string, size);
@@ -286,7 +286,7 @@ struct alignas(16) StringDataLayout<MaximumShortStringDataAreaSize,
         capacity_ = MaximumShortStringDataAreaSize;
     }
 
-    void setSize(size_type size) noexcept { size_ = size; }
+    void setSize(size_type size) noexcept { size_ = static_cast<int>(size); }
 
     size_type size() const noexcept { return size_; }
 
@@ -302,7 +302,10 @@ struct alignas(16) StringDataLayout<MaximumShortStringDataAreaSize,
 
     void setPointer(char *p) noexcept { pointer = p; }
 
-    void setAllocatedCapacity(size_type capacity) noexcept { capacity_ = capacity; }
+    void setAllocatedCapacity(size_type capacity) noexcept
+    {
+        capacity_ = static_cast<int>(capacity);
+    }
 
     constexpr size_type shortStringSize() const noexcept { return size_; }
 
