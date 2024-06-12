@@ -551,17 +551,15 @@ static QString replaceIllegalPropertyNameChars(const QString &str)
     return ret;
 }
 
-static bool idIsQmlKeyWord(const QString &id)
+static bool idIsQmlKeyWord(QStringView id)
 {
-    static const QSet<QString> keywords = {"as",         "break",    "case",    "catch",
-                                           "continue",   "debugger", "default", "delete",
-                                           "do",         "else",     "finally", "for",
-                                           "function",   "if",       "import",  "in",
-                                           "instanceof", "new",      "return",  "switch",
-                                           "this",       "throw",    "try",     "typeof",
-                                           "var",        "void",     "while",   "with"};
+    static constexpr std::u16string_view keywords[] = {
+        u"as",     u"break", u"case",       u"catch",   u"continue", u"debugger", u"default",
+        u"delete", u"do",    u"else",       u"finally", u"for",      u"function", u"if",
+        u"import", u"in",    u"instanceof", u"new",     u"return",   u"switch",   u"this",
+        u"throw",  u"try",   u"typeof",     u"var",     u"void",     u"while",    u"with"};
 
-    return keywords.contains(id);
+    return Utils::contains(keywords, std::u16string_view{id.utf16(), Utils::usize(id)});
 }
 
 QString RewriterView::auxiliaryDataAsQML() const
