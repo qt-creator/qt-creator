@@ -778,6 +778,7 @@ bool skipModule(QStringView moduleName)
 }
 
 void collectPossibleFileImports(const QString &checkPath,
+                                const QString &projectFolder,
                                 QSet<QString> usedImportsSet,
                                 QList<QmlDesigner::Import> &possibleImports)
 {
@@ -796,11 +797,11 @@ void collectPossibleFileImports(const QString &checkPath,
         if (!dir.entryInfoList(qmlList, QDir::Files).isEmpty()
             && dir.entryInfoList(qmldirList, QDir::Files).isEmpty()
             && !usedImportsSet.contains(dirPath)) {
-            const QString importName = dir.path().mid(checkPath.size() + 1);
+            const QString importName = dir.path().mid(projectFolder.size() + 1);
             QmlDesigner::Import import = QmlDesigner::Import::createFileImport(importName);
             possibleImports.append(import);
         }
-        collectPossibleFileImports(dirPath, usedImportsSet, possibleImports);
+        collectPossibleFileImports(dirPath, projectFolder, usedImportsSet, possibleImports);
     }
 }
 
@@ -815,7 +816,7 @@ QList<QmlDesigner::Import> generatePossibleFileImports(const QString &path,
 
     QStringList fileImportPaths;
 
-    collectPossibleFileImports(path, usedImportsSet, possibleImports);
+    collectPossibleFileImports(path, path, usedImportsSet, possibleImports);
 
     return possibleImports;
 }
