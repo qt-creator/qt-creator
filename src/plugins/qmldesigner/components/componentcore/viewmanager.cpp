@@ -161,7 +161,7 @@ void ViewManager::attachRewriterView()
         });
 
         currentModel()->setRewriterView(view);
-        view->reactivateTextMofifierChangeSignals();
+        view->reactivateTextModifierChangeSignals();
         view->restoreAuxiliaryData();
     }
 
@@ -171,7 +171,7 @@ void ViewManager::attachRewriterView()
 void ViewManager::detachRewriterView()
 {
     if (RewriterView *view = currentDesignDocument()->rewriterView()) {
-        view->deactivateTextMofifierChangeSignals();
+        view->deactivateTextModifierChangeSignals();
         currentModel()->setRewriterView(nullptr);
     }
 }

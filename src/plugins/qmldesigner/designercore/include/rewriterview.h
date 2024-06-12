@@ -90,8 +90,8 @@ public:
     void setTextModifier(TextModifier *textModifier);
     QString textModifierContent() const;
 
-    void reactivateTextMofifierChangeSignals();
-    void deactivateTextMofifierChangeSignals();
+    void reactivateTextModifierChangeSignals();
+    void deactivateTextModifierChangeSignals();
 
     void auxiliaryDataChanged(const ModelNode &node,
                               AuxiliaryDataKeyView key,
