@@ -82,6 +82,8 @@ Item {
             width: img.width
             anchors.horizontalCenter: parent.horizontalCenter
 
+            validator: RegularExpressionValidator { regularExpression: /(^$|^[a-z_]\w*$)/ }
+
             onRenamed: (newId) => {
                 MaterialBrowserBackend.materialBrowserTexturesModel.setTextureId(index, newId);
                 mouseArea.forceActiveFocus()

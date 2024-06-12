@@ -206,6 +206,13 @@ void MaterialBrowserTexturesModel::updateTextureSource(const ModelNode &texture)
         emit dataChanged(index(idx, 0), index(idx, 0), {RoleTexSource, RoleTexToolTip});
 }
 
+void MaterialBrowserTexturesModel::updateTextureId(const ModelNode &texture)
+{
+    int idx = textureIndex(texture);
+    if (idx != -1)
+        emit dataChanged(index(idx, 0), index(idx, 0), {RoleTexId, RoleTexSource, RoleTexToolTip});
+}
+
 void MaterialBrowserTexturesModel::updateAllTexturesSources()
 {
     emit dataChanged(index(0, 0), index(rowCount() - 1, 0), {RoleTexSource, RoleTexToolTip});
@@ -314,8 +321,13 @@ void MaterialBrowserTexturesModel::setTextureId(int idx, const QString &newId)
         return;
 
     if (node.id() != newId) {
-        node.setIdWithRefactoring(newId);
-        emit dataChanged(index(idx, 0), index(idx, 0), {RoleTexId});
+        QString nodeId;
+        if (!newId.isEmpty()) {
+            const auto model = m_view->model();
+            QTC_ASSERT(model, return);
+            nodeId = model->generateNewId(newId);
+        }
+        node.setIdWithRefactoring(nodeId);
     }
 }
 

@@ -373,7 +373,7 @@ void MaterialBrowserView::nodeIdChanged(const ModelNode &node, [[maybe_unused]] 
                                                                [[maybe_unused]] const QString &oldId)
 {
     if (isTexture(node))
-        m_widget->materialBrowserTexturesModel()->updateTextureSource(node);
+        m_widget->materialBrowserTexturesModel()->updateTextureId(node);
 }
 
 void MaterialBrowserView::variantPropertiesChanged(const QList<VariantProperty> &propertyList,
