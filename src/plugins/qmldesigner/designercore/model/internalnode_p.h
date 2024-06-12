@@ -76,6 +76,7 @@ public:
     bool setAuxiliaryData(AuxiliaryDataKeyView key, const QVariant &data);
     bool removeAuxiliaryData(AuxiliaryDataKeyView key);
     bool hasAuxiliaryData(AuxiliaryDataKeyView key) const;
+    bool hasAuxiliaryData(AuxiliaryDataType type) const;
     AuxiliaryDatasForType auxiliaryData(AuxiliaryDataType type) const;
     AuxiliaryDatasView auxiliaryData() const { return std::as_const(m_auxiliaryDatas); }
 

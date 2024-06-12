@@ -80,6 +80,7 @@ add_qtc_library(TestDesignerCore OBJECT
     metainfo/nodemetainfo.cpp
     model/abstractproperty.cpp
     model/abstractview.cpp
+    model/auxiliarypropertystorageview.cpp model/auxiliarypropertystorageview.h
     model/annotation.cpp
     model/bindingproperty.cpp
     model/import.cpp

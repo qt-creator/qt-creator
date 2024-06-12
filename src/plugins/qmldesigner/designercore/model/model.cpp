@@ -4,6 +4,7 @@
 #include "model.h"
 #include "internalnode_p.h"
 #include "model_p.h"
+#include "modelutils.h"
 #include <modelnode.h>
 
 #include "../projectstorage/sourcepath.h"
@@ -2039,6 +2040,18 @@ QList<ModelNode> Model::selectedNodes(AbstractView *view) const
     return d->toModelNodeList(d->selectedNodes(), view);
 }
 
+void Model::setSelectedModelNodes(const QList<ModelNode> &selectedNodeList)
+{
+    QList<ModelNode> unlockedNodes;
+
+    for (const auto &modelNode : selectedNodeList) {
+        if (!ModelUtils::isThisOrAncestorLocked(modelNode))
+            unlockedNodes.push_back(modelNode);
+    }
+
+    d->setSelectedNodes(toInternalNodeList(unlockedNodes));
+}
+
 void Model::clearMetaInfoCache()
 {
     d->m_nodeMetaInfoCache.clear();
@@ -2064,7 +2077,6 @@ SourceId Model::fileUrlSourceId() const
   */
 void Model::setFileUrl(const QUrl &url)
 {
-    QTC_ASSERT(url.isValid() && url.isLocalFile(), qDebug() << "url:" << url; return);
     Internal::WriteLocker locker(d.get());
     d->setFileUrl(url);
 }

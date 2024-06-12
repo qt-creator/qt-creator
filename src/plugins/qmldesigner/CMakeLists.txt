@@ -361,6 +361,7 @@ extend_qtc_library(QmlDesignerCore
     abstractview.cpp
     anchorline.cpp
     annotation.cpp
+    auxiliarypropertystorageview.cpp auxiliarypropertystorageview.h
     bindingproperty.cpp
     componenttextmodifier.cpp
     documentmessage.cpp

@@ -534,6 +534,42 @@ std::ostream &operator<<(std::ostream &out, FlagIs flagIs)
     return out;
 }
 
+std::ostream &operator<<(std::ostream &out, const BasicAuxiliaryDataKey<Utils::SmallStringView> &key)
+{
+    return out << "(" << key.name << ", " << key.type << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const BasicAuxiliaryDataKey<Utils::SmallString> &key)
+{
+    return out << "(" << key.name << ", " << key.type << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, AuxiliaryDataType type)
+{
+    switch (type) {
+    case AuxiliaryDataType::None:
+        out << "None";
+        break;
+    case AuxiliaryDataType::Temporary:
+        out << "Temporary";
+        break;
+    case AuxiliaryDataType::Document:
+        out << "Document";
+        break;
+    case AuxiliaryDataType::NodeInstancePropertyOverwrite:
+        out << "NodeInstancePropertyOverwrite";
+        break;
+    case AuxiliaryDataType::NodeInstanceAuxiliary:
+        out << "NodeInstanceAuxiliary";
+        break;
+    case AuxiliaryDataType::Persistent:
+        out << "Persistent";
+        break;
+    }
+
+    return out;
+}
+
 namespace Cache {
 
 std::ostream &operator<<(std::ostream &out, const SourceContext &sourceContext)

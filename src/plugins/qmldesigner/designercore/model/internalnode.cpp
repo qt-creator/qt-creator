@@ -51,6 +51,14 @@ auto find(Type &&auxiliaryDatas, AuxiliaryDataKeyView key)
     });
 }
 
+template<typename Type>
+auto find(Type &&auxiliaryDatas, AuxiliaryDataType type)
+{
+    return std::find_if(auxiliaryDatas.begin(), auxiliaryDatas.end(), [&](const auto &element) {
+        return element.first.type == type;
+    });
+}
+
 } // namespace
 
 std::optional<QVariant> InternalNode::auxiliaryData(AuxiliaryDataKeyView key) const
@@ -95,6 +103,13 @@ bool InternalNode::removeAuxiliaryData(AuxiliaryDataKeyView key)
 bool InternalNode::hasAuxiliaryData(AuxiliaryDataKeyView key) const
 {
     auto found = find(m_auxiliaryDatas, key);
+
+    return found != m_auxiliaryDatas.end();
+}
+
+bool InternalNode::hasAuxiliaryData(AuxiliaryDataType type) const
+{
+    auto found = find(m_auxiliaryDatas, type);
 
     return found != m_auxiliaryDatas.end();
 }

@@ -20,17 +20,19 @@
 #include <itemlibraryview.h>
 #include <materialbrowserview.h>
 #include <materialeditorview.h>
+#include <model/auxiliarypropertystorageview.h>
 #include <navigatorview.h>
 #include <nodeinstanceview.h>
 #include <propertyeditorview.h>
+#include <qmldesignerplugin.h>
 #include <rewriterview.h>
 #include <stateseditorview.h>
 #include <texteditorview.h>
 #include <textureeditorview.h>
-#include <qmldesignerplugin.h>
 
 #include <coreplugin/icore.h>
 
+#include <sqlitedatabase.h>
 #include <utils/algorithm.h>
 
 #include <advanceddockingsystem/dockwidget.h>
@@ -49,6 +51,7 @@ public:
     ViewManagerData(AsynchronousImageCache &imageCache,
                     ExternalDependenciesInterface &externalDependencies)
         : debugView{externalDependencies}
+        , auxiliaryDataKeyView{auxiliaryDataDatabase, externalDependencies}
         , designerActionManagerView{externalDependencies}
         , nodeInstanceView(QCoreApplication::arguments().contains("-capture-puppet-stream")
                                ? capturingConnectionManager
@@ -78,6 +81,11 @@ public:
     CapturingConnectionManager capturingConnectionManager;
     QmlModelState savedState;
     Internal::DebugView debugView;
+    Sqlite::Database auxiliaryDataDatabase{
+        Utils::PathString{Core::ICore::userResourcePath("auxiliary_data.db").toString()},
+        Sqlite::JournalMode::Wal,
+        Sqlite::LockingMode::Normal};
+    AuxiliaryPropertyStorageView auxiliaryDataKeyView;
     DesignerActionManagerView designerActionManagerView;
     NodeInstanceView nodeInstanceView;
     ContentLibraryView contentLibraryView;
@@ -201,7 +209,8 @@ QList<AbstractView *> ViewManager::views() const
 QList<AbstractView *> ViewManager::standardViews() const
 {
 #ifndef QTC_USE_QML_DESIGNER_LITE
-    QList<AbstractView *> list = {&d->edit3DView,
+    QList<AbstractView *> list = {&d->auxiliaryDataKeyView,
+                                  &d->edit3DView,
                                   &d->formEditorView,
                                   &d->textEditorView,
                                   &d->assetsLibraryView,

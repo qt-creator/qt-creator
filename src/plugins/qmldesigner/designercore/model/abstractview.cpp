@@ -427,14 +427,7 @@ QList<Internal::InternalNode::Pointer> toInternalNodeList(const QList<ModelNode>
 */
 void AbstractView::setSelectedModelNodes(const QList<ModelNode> &selectedNodeList)
 {
-    QList<ModelNode> unlockedNodes;
-
-    for (const auto &modelNode : selectedNodeList) {
-        if (!ModelUtils::isThisOrAncestorLocked(modelNode))
-            unlockedNodes.push_back(modelNode);
-    }
-
-    model()->d->setSelectedNodes(toInternalNodeList(unlockedNodes));
+    model()->setSelectedModelNodes(selectedNodeList);
 }
 
 void AbstractView::setSelectedModelNode(const ModelNode &modelNode)

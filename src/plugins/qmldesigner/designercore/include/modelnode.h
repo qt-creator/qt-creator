@@ -152,10 +152,10 @@ public:
     void destroy();
 
     QString id() const;
-    void ensureIdExists();
-    [[nodiscard]] QString validId();
-    void setIdWithRefactoring(const QString &id);
-    void setIdWithoutRefactoring(const QString &id);
+    void ensureIdExists() const;
+    [[nodiscard]] QString validId() const;
+    void setIdWithRefactoring(const QString &id) const;
+    void setIdWithoutRefactoring(const QString &id) const;
     static bool isValidId(const QString &id);
     static QString getIdValidityErrorMessage(const QString &id);
 
@@ -192,6 +192,7 @@ public:
     void removeAuxiliaryData(AuxiliaryDataType type, Utils::SmallStringView name) const;
     bool hasAuxiliaryData(AuxiliaryDataKeyView key) const;
     bool hasAuxiliaryData(AuxiliaryDataType type, Utils::SmallStringView name) const;
+    bool hasAuxiliaryData(AuxiliaryDataType type) const;
     AuxiliaryDatasForType auxiliaryData(AuxiliaryDataType type) const;
     AuxiliaryDatasView auxiliaryData() const;
 

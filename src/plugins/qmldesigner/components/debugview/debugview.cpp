@@ -244,6 +244,9 @@ QTextStream &operator<<(QTextStream &stream, AuxiliaryDataType type)
     case AuxiliaryDataType::Temporary:
         stream << "Temporary";
         break;
+    case AuxiliaryDataType::Persistent:
+        stream << "Persistent";
+        break;
     }
 
     return stream;

@@ -20,7 +20,8 @@ enum class AuxiliaryDataType {
     Temporary,
     Document,
     NodeInstancePropertyOverwrite,
-    NodeInstanceAuxiliary
+    NodeInstanceAuxiliary,
+    Persistent
 };
 
 enum class View3DActionType {

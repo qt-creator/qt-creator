@@ -80,13 +80,13 @@ QString ModelNode::id() const
     return m_internalNode->id;
 }
 
-void ModelNode::ensureIdExists()
+void ModelNode::ensureIdExists() const
 {
     if (!hasId())
         setIdWithoutRefactoring(model()->generateNewId(simplifiedTypeName()));
 }
 
-QString ModelNode::validId()
+QString ModelNode::validId() const
 {
     ensureIdExists();
 
@@ -162,7 +162,7 @@ bool ModelNode::hasId() const
     return !m_internalNode->id.isEmpty();
 }
 
-void ModelNode::setIdWithRefactoring(const QString &id)
+void ModelNode::setIdWithRefactoring(const QString &id) const
 {
     if (isValid()) {
         if (model()->rewriterView() && !id.isEmpty()
@@ -174,7 +174,7 @@ void ModelNode::setIdWithRefactoring(const QString &id)
     }
 }
 
-void ModelNode::setIdWithoutRefactoring(const QString &id)
+void ModelNode::setIdWithoutRefactoring(const QString &id) const
 {
     Internal::WriteLocker locker(m_model.data());
     if (!isValid())
@@ -601,7 +601,8 @@ static QList<ModelNode> descendantNodes(const ModelNode &node)
 static void removeModelNodeFromSelection(const ModelNode &node)
 {
     // remove nodes from the active selection
-    QList<ModelNode> selectedList = node.view()->selectedModelNodes();
+    auto model = node.model();
+    QList<ModelNode> selectedList = model->selectedNodes(node.view());
 
     const QList<ModelNode> descendants = descendantNodes(node);
     for (const ModelNode &descendantNode : descendants)
@@ -609,7 +610,7 @@ static void removeModelNodeFromSelection(const ModelNode &node)
 
     selectedList.removeAll(node);
 
-    node.view()->setSelectedModelNodes(selectedList);
+    model->setSelectedModelNodes(selectedList);
 }
 
 /*! \brief complete removes this ModelNode from the Model
@@ -995,6 +996,8 @@ void ModelNode::setAuxiliaryData(AuxiliaryDataType type,
 void ModelNode::setAuxiliaryData(AuxiliaryDataKeyView key, const QVariant &data) const
 {
     if (isValid()) {
+        if (key.type == AuxiliaryDataType::Persistent)
+            ensureIdExists();
         Internal::WriteLocker locker(m_model.data());
         m_model->d->setAuxiliaryData(internalNode(), key, data);
     }
@@ -1002,21 +1005,32 @@ void ModelNode::setAuxiliaryData(AuxiliaryDataKeyView key, const QVariant &data)
 
 void ModelNode::setAuxiliaryDataWithoutLock(AuxiliaryDataKeyView key, const QVariant &data) const
 {
-    if (isValid())
+    if (isValid()) {
+        if (key.type == AuxiliaryDataType::Persistent)
+            ensureIdExists();
+
         m_model->d->setAuxiliaryData(internalNode(), key, data);
+    }
 }
 
 void ModelNode::setAuxiliaryDataWithoutLock(AuxiliaryDataType type,
                                             Utils::SmallStringView name,
                                             const QVariant &data) const
 {
-    if (isValid())
+    if (isValid()) {
+        if (type == AuxiliaryDataType::Persistent)
+            ensureIdExists();
+
         m_model->d->setAuxiliaryData(internalNode(), {type, name}, data);
+    }
 }
 
 void ModelNode::removeAuxiliaryData(AuxiliaryDataKeyView key) const
 {
     if (isValid()) {
+        if (key.type == AuxiliaryDataType::Persistent)
+            ensureIdExists();
+
         Internal::WriteLocker locker(m_model.data());
         m_model->d->removeAuxiliaryData(internalNode(), key);
     }
@@ -1038,6 +1052,14 @@ bool ModelNode::hasAuxiliaryData(AuxiliaryDataKeyView key) const
 bool ModelNode::hasAuxiliaryData(AuxiliaryDataType type, Utils::SmallStringView name) const
 {
     return hasAuxiliaryData({type, name});
+}
+
+bool ModelNode::hasAuxiliaryData(AuxiliaryDataType type) const
+{
+    if (!isValid())
+        return false;
+
+    return m_internalNode->hasAuxiliaryData(type);
 }
 
 AuxiliaryDatasForType ModelNode::auxiliaryData(AuxiliaryDataType type) const

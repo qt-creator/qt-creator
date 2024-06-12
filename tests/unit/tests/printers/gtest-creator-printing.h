@@ -4,6 +4,7 @@
 #pragma once
 
 #include <designercore/model/modelresourcemanagementfwd.h>
+#include <qmlpuppetcommunication/interfaces/nodeinstanceglobal.h>
 #include <utils/cpplanguage_details.h>
 #include <utils/smallstringio.h>
 
@@ -126,6 +127,8 @@ class NodeMetaInfo;
 class PropertyMetaInfo;
 struct CompoundPropertyMetaInfo;
 enum class FlagIs : unsigned int;
+template<typename NameType>
+class BasicAuxiliaryDataKey;
 
 std::ostream &operator<<(std::ostream &out, const ModelNode &node);
 std::ostream &operator<<(std::ostream &out, const VariantProperty &property);
@@ -142,6 +145,9 @@ std::ostream &operator<<(std::ostream &out, const NodeMetaInfo &metaInfo);
 std::ostream &operator<<(std::ostream &out, const PropertyMetaInfo &metaInfo);
 std::ostream &operator<<(std::ostream &out, const CompoundPropertyMetaInfo &metaInfo);
 std::ostream &operator<<(std::ostream &out, FlagIs flagIs);
+std::ostream &operator<<(std::ostream &out, const BasicAuxiliaryDataKey<Utils::SmallStringView> &key);
+std::ostream &operator<<(std::ostream &out, const BasicAuxiliaryDataKey<Utils::SmallString> &key);
+std::ostream &operator<<(std::ostream &out, AuxiliaryDataType type);
 
 namespace Cache {
 class SourceContext;
