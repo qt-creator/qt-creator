@@ -204,6 +204,7 @@ bool isBindingExpression(const QVariant &value)
         return false;
 
     QRegularExpression regexp("^[a-zA-Z_]\\w*\\.{1}([a-z_]\\w*\\.?)+");
+    //    QRegularExpression regexp("^[a-z_]\\w*|^[A-Z]\\w*\\.{1}([a-z_]\\w*\\.?)+");
     QRegularExpressionMatch match = regexp.match(value.toString());
     return match.hasMatch();
 }
@@ -301,13 +302,16 @@ std::vector<PropertyMetaInfo> propertiesFromSingleton(const QString &name, Abstr
 
 QList<AbstractProperty> dynamicPropertiesFromNode(const ModelNode &node)
 {
-    auto isDynamic = [](const AbstractProperty &p) { return p.isDynamic(); };
+    auto isDynamic = [](const AbstractProperty &p) {
+        return p.isDynamic() || p.isSignalDeclarationProperty();
+    };
     auto byName = [](const AbstractProperty &a, const AbstractProperty &b) {
         return a.name() < b.name();
     };
 
     QList<AbstractProperty> dynamicProperties = Utils::filtered(node.properties(), isDynamic);
     Utils::sort(dynamicProperties, byName);
+
     return dynamicProperties;
 }
 
