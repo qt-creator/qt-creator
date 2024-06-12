@@ -118,6 +118,7 @@ private slots:
     void storageOperators();
     void storageDestructor();
     void storageZeroInitialization();
+    void nestedBrokenStorage();
     void restart();
     void destructorOfTaskEmittingDone();
 };
@@ -3450,6 +3451,55 @@ void tst_Tasking::storageZeroInitialization()
 
     QVERIFY(defaultValue);
     QCOMPARE(defaultValue, 0);
+}
+
+// This test ensures that when a missing storage object inside the nested task tree is accessed
+// directly from the outer task tree's handler, containing the same storage object, then we
+// detect this misconfigured recipe, issue a warning, and return nullptr for the storage
+// being accessed (instead of returning parent's task tree's storage instance).
+// This test should also trigger a runtime assert that we are accessing the nullptr storage.
+void tst_Tasking::nestedBrokenStorage()
+{
+    int *outerStorage = nullptr;
+    int *innerStorage1 = nullptr;
+    int *innerStorage2 = nullptr;
+    const Storage<int> storage;
+
+    const auto onOuterSync = [storage, &outerStorage, &innerStorage1, &innerStorage2] {
+        outerStorage = &*storage;
+
+        const auto onInnerSync1 = [storage, &innerStorage1] {
+            innerStorage1 = &*storage; // Triggers the runtime assert on purpose.
+        };
+        const auto onInnerSync2 = [storage, &innerStorage2] {
+            innerStorage2 = &*storage; // Storage is accessible in currently running tree - all OK.
+        };
+
+        const Group innerRecipe {
+            Group {
+                // Broken subrecipe, the storage wasn't placed inside the recipe.
+                // storage,
+                Sync(onInnerSync1)
+            },
+            Group {
+                storage, // Subrecipe OK, another instance for the nested storage will be created.
+                Sync(onInnerSync2)
+            }
+        };
+
+        TaskTree::runBlocking(innerRecipe);
+    };
+
+    const Group outerRecipe {
+        storage,
+        Sync(onOuterSync)
+    };
+
+    TaskTree::runBlocking(outerRecipe);
+    QVERIFY(outerStorage != nullptr);
+    QCOMPARE(innerStorage1, nullptr);
+    QVERIFY(innerStorage2 != nullptr);
+    QVERIFY(innerStorage2 != outerStorage);
 }
 
 void tst_Tasking::restart()
