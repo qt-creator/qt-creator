@@ -198,6 +198,9 @@ void QmlVisualNode::scatter(const ModelNode &targetNode, const std::optional<int
 
 void QmlVisualNode::translate(const QVector3D &vector)
 {
+    if (modelNode().hasBindingProperty("x") || modelNode().hasBindingProperty("y"))
+        return;
+
     setPosition(position() + vector);
 }
 
