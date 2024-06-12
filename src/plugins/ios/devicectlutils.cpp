@@ -73,6 +73,7 @@ expected_str<QMap<QString, QString>> parseDeviceInfo(const QByteArray &rawOutput
             info[kOsVersion] = QLatin1String("%1 (%2)")
                                    .arg(device["deviceProperties"]["osVersionNumber"].toString(),
                                         device["deviceProperties"]["osBuildUpdate"].toString());
+            info[kProductType] = device["hardwareProperties"]["productType"].toString();
             info[kCpuArchitecture] = device["hardwareProperties"]["cpuType"]["name"].toString();
             info[kUniqueDeviceId] = udid;
             return info;
