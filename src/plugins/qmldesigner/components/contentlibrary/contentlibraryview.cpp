@@ -524,7 +524,10 @@ void ContentLibraryView::addLibMaterial(const ModelNode &node, const QPixmap &ic
     auto bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/materials/");
 
     QString name = node.variantProperty("objectName").value().toString();
-    auto [qml, icon] = m_widget->userModel()->getUniqueLibMaterialNames(node.id());
+    if (name.isEmpty())
+        name = node.displayName();
+
+    auto [qml, icon] = m_widget->userModel()->getUniqueLibMaterialNames(name);
 
     QString iconPath = QLatin1String("icons/%1").arg(icon);
     QString fullIconPath = bundlePath.pathAppended(iconPath).toFSPathString();
@@ -828,9 +831,9 @@ void ContentLibraryView::addLib3DItem(const ModelNode &node)
 
     QString name = node.variantProperty("objectName").value().toString();
     if (name.isEmpty())
-        name = node.id();
+        name = node.displayName();
 
-    auto [qml, icon] = m_widget->userModel()->getUniqueLibItemNames(node.id(),
+    auto [qml, icon] = m_widget->userModel()->getUniqueLibItemNames(name,
                                                 m_widget->userModel()->bundleJson3DObjectRef());
 
     // generate and save Qml file
@@ -884,8 +887,8 @@ void ContentLibraryView::addLib3DItem(const ModelNode &node)
 
 QString ContentLibraryView::getExportPath(const ModelNode &node) const
 {
-    QString defaultName = node.hasId() ? node.id() : "component";
-    QString defaultExportFileName = QLatin1String("%1.%2").arg(defaultName, Constants::BUNDLE_SUFFIX);
+    QString defaultExportFileName = QLatin1String("%1.%2").arg(node.displayName(),
+                                                               Constants::BUNDLE_SUFFIX);
     Utils::FilePath projectFP = DocumentManager::currentProjectDirPath();
     if (projectFP.isEmpty()) {
         projectFP = QmlDesignerPlugin::instance()->documentManager()
@@ -927,7 +930,7 @@ void ContentLibraryView::exportLib3DItem(const ModelNode &node, const QPixmap &i
 
     QString name = node.variantProperty("objectName").value().toString();
     if (name.isEmpty())
-        name = node.hasId() ? node.id() : "component";
+        name = node.displayName();
 
     auto [qml, icon] = m_widget->userModel()->getUniqueLibItemNames(name);
 

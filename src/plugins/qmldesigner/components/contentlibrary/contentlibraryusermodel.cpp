@@ -317,7 +317,10 @@ QPair<QString, QString> ContentLibraryUserModel::getUniqueLibItemNames(const QSt
                                                                        const QJsonObject &bundleObj) const
 {
     QString uniqueQml = UniqueName::generateId(defaultName);
-    uniqueQml[0] = uniqueQml.at(0).toUpper();
+    if (uniqueQml.isEmpty())
+        uniqueQml = "Component";
+    else
+        uniqueQml[0] = uniqueQml.at(0).toUpper();
     uniqueQml.prepend("My");
 
     QString uniqueIcon = defaultName;
