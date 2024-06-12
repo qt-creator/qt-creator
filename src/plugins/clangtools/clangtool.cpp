@@ -474,11 +474,10 @@ ClangTool::ClangTool(const QString &name, Id id, ClangToolType type)
 
     // Expand/Collapse
     action = new QAction(this);
-    action->setDisabled(true);
     action->setCheckable(true);
     action->setIcon(Utils::Icons::EXPAND_ALL_TOOLBAR.icon());
-    action->setToolTip(Tr::tr("Expand All"));
-    connect(action, &QAction::toggled, this, [this](bool checked){
+    m_expandCollapse = action;
+    const auto handleCollapseExpandToggled = [this](bool checked){
         if (checked) {
             m_expandCollapse->setToolTip(Tr::tr("Collapse All"));
             m_diagnosticView->expandAll();
@@ -486,8 +485,9 @@ ClangTool::ClangTool(const QString &name, Id id, ClangToolType type)
             m_expandCollapse->setToolTip(Tr::tr("Expand All"));
             m_diagnosticView->collapseAll();
         }
-    });
-    m_expandCollapse = action;
+    };
+    connect(action, &QAction::toggled, this, handleCollapseExpandToggled);
+    handleCollapseExpandToggled(action->isChecked());
 
     // Filter button
     action = m_showFilter = new QAction(this);
@@ -1242,8 +1242,32 @@ QSet<Diagnostic> ClangTool::diagnostics() const
 
 void ClangTool::onNewDiagnosticsAvailable(const Diagnostics &diagnostics, bool generateMarks)
 {
-    QTC_ASSERT(m_diagnosticModel, return);
+    const int oldLevel1RowCount = m_diagnosticModel->rowCount();
+    const auto getOldLastLevel1Index = [&] {
+        return m_diagnosticModel->index(oldLevel1RowCount - 1, 0);
+    };
+    const auto getLevel2RowCountForOldLastLevel1Index = [&] {
+        return oldLevel1RowCount == 0 ? -1 : m_diagnosticModel->rowCount(getOldLastLevel1Index());
+    };
+    const int oldLevel2RowCount = getLevel2RowCountForOldLastLevel1Index();
     m_diagnosticModel->addDiagnostics(diagnostics, generateMarks);
+    if (!m_expandCollapse->isChecked())
+        return;
+
+    // Now expand newly added items, both in existing file nodes and in newly added ones.
+    // We assume diagnostics arrive "in order", i.e. things are only ever added at the end
+    // (in the source model).
+    const int newLevel2RowCount = getLevel2RowCountForOldLastLevel1Index();
+    for (int i = oldLevel2RowCount; i < newLevel2RowCount; ++i) {
+        m_diagnosticView->expand(m_diagnosticFilterModel->mapFromSource(
+            m_diagnosticModel
+                ->index(i, 0, m_diagnosticFilterModel->mapFromSource(getOldLastLevel1Index()))));
+    }
+    const int newLevel1RowCount = m_diagnosticFilterModel->rowCount();
+    for (int i = oldLevel1RowCount; i < newLevel1RowCount; ++i) {
+        m_diagnosticView->expandRecursively(
+            m_diagnosticFilterModel->mapFromSource(m_diagnosticModel->index(i, 0)));
+    }
 }
 
 void ClangTool::updateForCurrentState()
@@ -1273,7 +1297,6 @@ void ClangTool::updateForCurrentState()
     m_goBack->setEnabled(issuesVisible > 0);
     m_goNext->setEnabled(issuesVisible > 0);
     m_clear->setEnabled(!isRunning);
-    m_expandCollapse->setEnabled(issuesVisible);
     m_loadExported->setEnabled(!isRunning);
     m_showFilter->setEnabled(issuesFound > 1);
 

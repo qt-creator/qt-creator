@@ -23,7 +23,9 @@
     applications on them.
 
     \note If you use qmake to build the project and the device does not have
-    Qt libraries, you need a fake Qt installation.
+    Qt libraries, you need a Qt installation that meets the requirements in
+    \l{Self-built Qt versions}. In addition, the \c mkspecs directory needs
+    to be complete enough to parse .pro files.
 
     The following toolchains are supported for building applications:
 

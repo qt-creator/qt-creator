@@ -261,6 +261,12 @@ DocumentHighlightsResult::DocumentHighlightsResult(const QJsonValue &value)
     }
 }
 
+template<>
+MarkedString fromJsonValue<MarkedString>(const QJsonValue &value)
+{
+    return MarkedString(value);
+}
+
 MarkedString::MarkedString(const QJsonValue &value)
 {
     if (value.isObject())

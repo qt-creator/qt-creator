@@ -42,7 +42,7 @@ static QString fileName(const QString &path, const QString &extension)
 
 QString CppToolsJsExtension::headerGuard(const QString &in) const
 {
-    return Utils::headerGuard(in);
+    return fileSettings().headerGuard(Utils::FilePath::fromString(in));
 }
 
 QString CppToolsJsExtension::licenseTemplate() const

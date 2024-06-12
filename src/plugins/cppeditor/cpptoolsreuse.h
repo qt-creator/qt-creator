@@ -6,7 +6,6 @@
 #include "cppeditor_global.h"
 
 #include "clangdiagnosticconfig.h"
-#include "compileroptionsbuilder.h"
 #include "projectpart.h"
 
 #include <texteditor/quickfix.h>
@@ -64,6 +63,9 @@ TextEditor::QuickFixOperations CPPEDITOR_EXPORT
 quickFixOperations(const TextEditor::AssistInterface *interface);
 
 CppCompletionAssistProcessor CPPEDITOR_EXPORT *getCppCompletionAssistProcessor();
+
+QString CPPEDITOR_EXPORT
+deriveHeaderGuard(const Utils::FilePath &filePath, ProjectExplorer::Project *project);
 
 enum class CacheUsage { ReadWrite, ReadOnly };
 

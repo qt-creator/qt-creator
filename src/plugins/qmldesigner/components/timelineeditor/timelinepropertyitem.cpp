@@ -107,14 +107,14 @@ static void editValue(const ModelNode &frameNode, const std::pair<qreal, qreal> 
         int userType = value.typeId();
         QVariant newValue = dialog->value();
 
-        if (newValue.canConvert(userType)) {
+        if (newValue.canConvert(QMetaType(userType))) {
             QVariant newValueConverted = newValue;
-            bool converted = newValueConverted.convert(userType);
+            bool converted = newValueConverted.convert(QMetaType(userType));
 
             if (!converted) {
                 // convert() fails for int to double, so we try this combination
                 newValueConverted = newValue;
-                converted = newValueConverted.convert(QMetaType::Double);
+                converted = newValueConverted.convert(QMetaType(QMetaType::Double));
             }
 
             if (converted)

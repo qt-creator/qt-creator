@@ -34,7 +34,6 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/environmentaspectwidget.h>
 #include <projectexplorer/environmentwidget.h>
-#include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/namedwidget.h>
 #include <projectexplorer/processparameters.h>
@@ -1184,30 +1183,6 @@ static CommandLine defaultInitialCMakeCommand(
         }
     }
 
-    // GCC compiler and linker specific flags
-    for (Toolchain *tc : ToolchainKitAspect::toolChains(k)) {
-        if (auto *gccTc = tc->asGccToolchain()) {
-            const QStringList compilerFlags = gccTc->platformCodeGenFlags();
-
-            QLatin1String languageFlagsInit;
-            if (gccTc->language() == ProjectExplorer::Constants::C_LANGUAGE_ID)
-                languageFlagsInit = QLatin1String(CMAKE_C_FLAGS_INIT);
-            else if (gccTc->language() == ProjectExplorer::Constants::CXX_LANGUAGE_ID)
-                languageFlagsInit = QLatin1String(CMAKE_CXX_FLAGS_INIT);
-
-            if (!languageFlagsInit.isEmpty() && !compilerFlags.isEmpty())
-                cmd.addArg("-D" + languageFlagsInit + ":STRING=" + compilerFlags.join(" "));
-
-            const QStringList linkerFlags = gccTc->platformLinkerFlags();
-            if (!linkerFlags.isEmpty()) {
-                const QString joinedLinkerFlags = linkerFlags.join(" ");
-                cmd.addArg("-DCMAKE_EXE_LINKER_FLAGS_INIT:STRING=" + joinedLinkerFlags);
-                cmd.addArg("-DCMAKE_MODULE_LINKER_FLAGS_INIT:STRING=" + joinedLinkerFlags);
-                cmd.addArg("-DCMAKE_SHARED_LINKER_FLAGS_INIT:STRING=" + joinedLinkerFlags);
-            }
-        }
-    }
-
     cmd.addArgs(CMakeConfigurationKitAspect::toArgumentsList(k));
     cmd.addArgs(CMakeConfigurationKitAspect::additionalConfiguration(k), CommandLine::Raw);
 
@@ -1356,7 +1331,7 @@ static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArgume
 
                 if (argFilePath != presetFilePath)
                     arg = presetItem.toArgument();
-            } else if (argItem.key == CMAKE_CXX_FLAGS_INIT) {
+            } else if (argItem.key == CMAKE_C_FLAGS_INIT || argItem.key == CMAKE_CXX_FLAGS_INIT) {
                 // Append the preset value with at the initial parameters value (e.g. QML Debugging)
                 if (argItem.expandedValue(k) != QString::fromUtf8(presetItem.value)) {
                     argItem.value.append(" ");

@@ -548,6 +548,13 @@ static void registerLuaApi()
                 // ... then register the settings.
                 LanguageClientManager::registerClientSettings(client);
 
+                // and the client type.
+                ClientType type;
+                type.id = client->m_settingsTypeId;
+                type.name = luaClient->m_name;
+                type.userAddable = false;
+                LanguageClientSettings::registerClientType(type);
+
                 return luaClient;
             });
 

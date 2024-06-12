@@ -13,6 +13,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(Qt6 COMPONENTS Charts QUIET)
 
+set(APPSTATISTICSMONITOR_DISABLEDBYDEFAULT "true")
+
 if (NOT QT_CREATOR_API_DEFINED)
   # standalone build
   set(DESTINATION DESTINATION .)
@@ -21,6 +23,8 @@ if (NOT QT_CREATOR_API_DEFINED)
   qtc_handle_compiler_cache_support()
 
   find_package(QtCreator COMPONENTS Core ProjectExplorer Utils REQUIRED)
+
+  set(APPSTATISTICSMONITOR_DISABLEDBYDEFAULT "false")
 endif()
 
 

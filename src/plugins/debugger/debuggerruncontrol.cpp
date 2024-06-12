@@ -276,11 +276,6 @@ void DebuggerRunTool::setSkipExecutableValidation(bool on)
     m_runParameters.skipExecutableValidation = on;
 }
 
-void DebuggerRunTool::setUseCtrlCStub(bool on)
-{
-    m_runParameters.useCtrlCStub = on;
-}
-
 void DebuggerRunTool::setBreakOnMain(bool on)
 {
     m_runParameters.breakOnMain = on;

@@ -440,8 +440,11 @@ static DebuggerItem::MatchLevel matchSingle(const Abi &debuggerAbi, const Abi &t
             return matchOnMultiarch;
     }
 
-    if (debuggerAbi.wordWidth() == 64 && targetAbi.wordWidth() == 32)
-        return DebuggerItem::MatchesSomewhat;
+    if (debuggerAbi.wordWidth() == 64 && targetAbi.wordWidth() == 32) {
+        return HostOsInfo::isWindowsHost() && engineType == CdbEngineType
+                   ? DebuggerItem::MatchesPerfectly
+                   : DebuggerItem::MatchesSomewhat;
+    }
     if (debuggerAbi.wordWidth() != 0 && debuggerAbi.wordWidth() != targetAbi.wordWidth())
         return matchOnMultiarch;
 

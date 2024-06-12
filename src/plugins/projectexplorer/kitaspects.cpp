@@ -1539,7 +1539,7 @@ Tasks EnvironmentKitAspectFactory::validate(const Kit *k) const
     QTC_ASSERT(k, return result);
 
     const QVariant variant = k->value(EnvironmentKitAspect::id());
-    if (!variant.isNull() && !variant.canConvert(QMetaType::QVariantList))
+    if (!variant.isNull() && !variant.canConvert(QMetaType(QMetaType::QVariantList)))
         result << BuildSystemTask(Task::Error, Tr::tr("The environment setting value is invalid."));
 
     return result;
@@ -1550,7 +1550,7 @@ void EnvironmentKitAspectFactory::fix(Kit *k)
     QTC_ASSERT(k, return);
 
     const QVariant variant = k->value(EnvironmentKitAspect::id());
-    if (!variant.isNull() && !variant.canConvert(QMetaType::QVariantList)) {
+    if (!variant.isNull() && !variant.canConvert(QMetaType(QMetaType::QVariantList))) {
         qWarning("Kit \"%s\" has a wrong environment value set.", qPrintable(k->displayName()));
         EnvironmentKitAspect::setEnvironmentChanges(k, EnvironmentItems());
     }

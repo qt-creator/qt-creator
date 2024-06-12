@@ -68,7 +68,7 @@ public:
         if (value.isArray()) {
             QList<T> values;
             values.reserve(value.toArray().count());
-            for (auto arrayValue : value.toArray())
+            for (const auto &arrayValue : value.toArray())
                 values << fromJsonValue<T>(arrayValue);
             *this = values;
         } else {

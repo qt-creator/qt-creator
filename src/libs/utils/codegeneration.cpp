@@ -29,23 +29,6 @@ QTCREATOR_UTILS_EXPORT QString fileNameToCppIdentifier(const QString &s)
     return rc;
 }
 
-QTCREATOR_UTILS_EXPORT QString headerGuard(const QString &file)
-{
-    return headerGuard(file, QStringList());
-}
-
-QTCREATOR_UTILS_EXPORT QString headerGuard(const QString &file, const QStringList &namespaceList)
-{
-    const QChar underscore = QLatin1Char('_');
-    QString rc;
-    for (int i = 0; i < namespaceList.count(); i++)
-        rc += namespaceList.at(i).toUpper() + underscore;
-
-    const QFileInfo fi(file);
-    rc += fileNameToCppIdentifier(fi.fileName()).toUpper();
-    return rc;
-}
-
 QTCREATOR_UTILS_EXPORT
 void writeIncludeFileDirective(const QString &file, bool globalInclude,
                                QTextStream &str)

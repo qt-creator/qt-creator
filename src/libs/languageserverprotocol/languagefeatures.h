@@ -52,6 +52,9 @@ public:
     operator QJsonValue() const;
 };
 
+template<>
+LANGUAGESERVERPROTOCOL_EXPORT MarkedString fromJsonValue<MarkedString>(const QJsonValue &value);
+
 class LANGUAGESERVERPROTOCOL_EXPORT HoverContent
     : public std::variant<MarkedString, QList<MarkedString>, MarkupContent>
 {

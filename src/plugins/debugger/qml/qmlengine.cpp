@@ -904,7 +904,7 @@ static ConsoleItem *constructLogItemTree(const QVariant &result, const QString &
             if (child)
                 item->appendChild(child);
         }
-    } else if (result.canConvert(QMetaType::QString)) {
+    } else if (result.canConvert(QMetaType(QMetaType::QString))) {
         item = new ConsoleItem(ConsoleItem::DefaultType, result.toString());
     } else {
         item = new ConsoleItem(ConsoleItem::DefaultType, "Unknown Value");

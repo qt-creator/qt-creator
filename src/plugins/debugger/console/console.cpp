@@ -27,6 +27,8 @@ const char SHOW_LOG[] = "showLog";
 const char SHOW_WARNING[] = "showWarning";
 const char SHOW_ERROR[] = "showError";
 
+using namespace Utils;
+
 namespace Debugger::Internal {
 
 /////////////////////////////////////////////////////////////////////
@@ -90,8 +92,8 @@ Console::Console()
     m_showDebug.setLabelText(Tr::tr("Show debug, log, and info messages."));
     m_showDebug.setToolTip(Tr::tr("Show debug, log, and info messages."));
     m_showDebug.setValue(true);
-    m_showDebug.action()->setIcon(Utils::Icons::INFO_TOOLBAR.icon());
-    connect(&m_showDebug, &Utils::BoolAspect::changed,
+    m_showDebug.setIcon(Icons::INFO_TOOLBAR.icon());
+    connect(&m_showDebug, &BoolAspect::changed,
             proxyModel, [this, proxyModel] { proxyModel->setShowLogs(m_showDebug()); });
     m_showDebugButton->setDefaultAction(m_showDebug.action());
 
@@ -102,8 +104,8 @@ Console::Console()
     m_showWarning.setLabelText(Tr::tr("Show warning messages."));
     m_showWarning.setToolTip(Tr::tr("Show warning messages."));
     m_showWarning.setValue(true);
-    m_showWarning.action()->setIcon(Utils::Icons::WARNING_TOOLBAR.icon());
-    connect(m_showWarning.action(), &QAction::toggled,
+    m_showWarning.setIcon(Icons::WARNING_TOOLBAR.icon());
+    connect(&m_showWarning, &BoolAspect::changed,
             proxyModel, [this, proxyModel] { proxyModel->setShowWarnings(m_showWarning()); });
     m_showWarningButton->setDefaultAction(m_showWarning.action());
 
@@ -114,8 +116,8 @@ Console::Console()
     m_showError.setLabelText(Tr::tr("Show error messages."));
     m_showError.setToolTip(Tr::tr("Show error messages."));
     m_showError.setValue(true);
-    m_showError.action()->setIcon(Utils::Icons::CRITICAL_TOOLBAR.icon());
-    connect(m_showError.action(), &QAction::toggled,
+    m_showError.setIcon(Icons::CRITICAL_TOOLBAR.icon());
+    connect(&m_showError, &BoolAspect::changed,
             proxyModel, [this, proxyModel] { proxyModel->setShowErrors(m_showError()); });
     m_showErrorButton->setDefaultAction(m_showError.action());
 

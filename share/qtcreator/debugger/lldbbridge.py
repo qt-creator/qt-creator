@@ -18,11 +18,7 @@ sys.path.insert(1, os.path.dirname(os.path.abspath(inspect.getfile(inspect.curre
 
 # Simplify development of this module by reloading deps
 if 'dumper' in sys.modules:
-    if sys.version_info[0] >= 3:
-        if sys.version_info[1] > 3:
-            from importlib import reload
-        else:
-            def reload(m): print('Unsupported Python version - not reloading %s' % str(m))
+    from importlib import reload
     reload(sys.modules['dumper'])
 
 from dumper import DumperBase, SubItem, Children, TopLevelItem
@@ -34,16 +30,10 @@ from dumper import DumperBase, SubItem, Children, TopLevelItem
 #######################################################################
 
 qqWatchpointOffset = 10000
-_c_str_trans = None
-
-if sys.version_info[0] >= 3:
-    _c_str_trans = str.maketrans({"\n": "\\n", '"':'\\"', "\\":"\\\\"})
+_c_str_trans = str.maketrans({"\n": "\\n", '"':'\\"', "\\":"\\\\"})
 
 def toCString(s):
-    if _c_str_trans is not None:
-        return str(s).translate(_c_str_trans)
-    else:
-        return str(s).replace('\\', '\\\\').replace('\n', '\\n').replace('"', '\\"')
+    return str(s).translate(_c_str_trans)
 
 def fileNameAsString(file):
     return toCString(file) if file.IsValid() else ''
@@ -782,6 +772,54 @@ class Dumper(DumperBase):
             self.qtPropertyFunc = symbol.GetStartAddress().GetLoadAddress(self.target)
 
         self.fetchInternalFunctions = lambda: None
+
+    def extractQtVersion(self):
+        for func in self.target.FindFunctions('qVersion'):
+            name = func.GetSymbol().GetName()
+            if name == None:
+                continue
+            if name.endswith('()'):
+                name = name[:-2]
+            if name.count(':') > 2:
+                continue
+
+            #qtNamespace = name[:name.find('qVersion')]
+            #self.qtNamespace = lambda: qtNamespace
+
+            options = lldb.SBExpressionOptions()
+            res = self.target.EvaluateExpression(name + '()', options)
+
+            if not res.IsValid() or not res.GetType().IsPointerType():
+                exp = '((const char*())%s)()' % name
+                res = self.target.EvaluateExpression(exp, options)
+
+            if not res.IsValid() or not res.GetType().IsPointerType():
+                exp = '((const char*())_Z8qVersionv)()'
+                res = self.target.EvaluateExpression(exp, options)
+
+            if not res.IsValid() or not res.GetType().IsPointerType():
+                continue
+
+            version = str(res)
+            if version.count('.') != 2:
+                continue
+
+            version.replace("'", '"')  # Both seem possible
+            version = version[version.find('"') + 1:version.rfind('"')]
+
+            (major, minor, patch) = version.split('.')
+            qtVersion = 0x10000 * int(major) + 0x100 * int(minor) + int(patch)
+            return qtVersion
+
+        try:
+            versionValue = self.target.EvaluateExpression('qtHookData[2]').GetNonSyntheticValue()
+            if versionValue.IsValid():
+                return versionValue.unsigned
+        except:
+            pass
+
+        return None
+
 
     def handleCommand(self, command):
         result = lldb.SBCommandReturnObject()
@@ -2312,9 +2350,6 @@ class SummaryProvider(LogMixin):
             if encoding in text_encodings:
                 try:
                     decodedValue = Dumper.hexdecode(summaryValue, encoding)
-                    # LLDB expects UTF-8 for python 2
-                    if sys.version_info[0] < 3:
-                        return "\"%s\"" % (decodedValue.encode('utf8'))
                     return '"' + decodedValue + '"'
                 except:
                     return "<failed to decode '%s' as '%s': %s>" % (summaryValue, encoding, sys.exc_info()[1])

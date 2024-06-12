@@ -253,7 +253,12 @@ public:
     : Project(FOLDER_MIMETYPE, file.isDir() ? file / ".qtcreator" / "project.json" : file)
     {
         QTC_CHECK(projectFilePath().absolutePath().ensureWritableDir());
-        QTC_CHECK(projectFilePath().ensureExistingFile());
+        if (!projectFilePath().exists() && QTC_GUARD(projectFilePath().ensureExistingFile())) {
+            QJsonObject projectJson;
+            projectJson.insert("$schema", "https://download.qt.io/official_releases/qtcreator/latest/installer_source/jsonschemas/project.json");
+            projectJson.insert(FILES_EXCLUDE_KEY, QJsonArray{QJsonValue(".qtcreator/project.json.user")});
+            projectFilePath().writeFileContents(QJsonDocument(projectJson).toJson());
+        }
 
         setId(Id::fromString(WORKSPACE_PROJECT_ID));
         setDisplayName(projectDirectory().fileName());

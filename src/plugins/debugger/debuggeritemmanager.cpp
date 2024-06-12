@@ -783,6 +783,12 @@ void DebuggerItemModel::readDebuggers(const FilePath &fileName, bool isSystem)
                                   .arg(item.command().toUserOutput(), item.id().toString(), fileName.toUserOutput());
                     continue;
                 }
+                if (item.engineType() == CdbEngineType
+                    && Abi::abisOfBinary(item.command()).value(0).wordWidth() == 32) {
+                    qWarning() << QString("32 bit CDB \"%1\" (%2) read from \"%3\" dropped since it is not supported anymore.")
+                                  .arg(item.command().toUserOutput(), item.id().toString(), fileName.toUserOutput());
+                    continue;
+                }
                 // FIXME: During startup, devices are not yet available, so we cannot check if the file still exists.
                 if (!item.command().needsDevice() && !item.command().isExecutableFile()) {
                     qWarning() << QString("DebuggerItem \"%1\" (%2) read from \"%3\" dropped since the command is not executable.")
