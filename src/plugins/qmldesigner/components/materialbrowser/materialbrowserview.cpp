@@ -280,6 +280,29 @@ void MaterialBrowserView::updateMaterialsPreview()
         m_previewTimer.start(0);
 }
 
+template<typename T, typename> // T can be either BindingProperty or VariantProperty
+void MaterialBrowserView::updatePropertyList(const QList<T> &propertyList)
+{
+    for (const AbstractProperty &property : propertyList) {
+        ModelNode node(property.parentModelNode());
+        if (isMaterial(node)) {
+            if (property.name() == "objectName")
+                m_widget->materialBrowserModel()->updateMaterialName(node);
+            else
+                m_previewRequests << node;
+        } else if (property.name() == "source") {
+            QmlObjectNode selectedTex = m_widget->materialBrowserTexturesModel()->selectedTexture();
+            if (isTexture(node))
+                m_widget->materialBrowserTexturesModel()->updateTextureSource(node);
+            else if (selectedTex.propertyChangeForCurrentState() == node)
+                m_widget->materialBrowserTexturesModel()->updateTextureSource(selectedTex);
+        }
+    }
+
+    if (!m_previewRequests.isEmpty())
+        m_previewTimer.start(0);
+}
+
 bool MaterialBrowserView::isMaterial(const ModelNode &node) const
 {
     return node.metaInfo().isQtQuick3DMaterial();
@@ -356,26 +379,18 @@ void MaterialBrowserView::nodeIdChanged(const ModelNode &node, [[maybe_unused]] 
 void MaterialBrowserView::variantPropertiesChanged(const QList<VariantProperty> &propertyList,
                                                    [[maybe_unused]] PropertyChangeFlags propertyChange)
 {
-    for (const VariantProperty &property : propertyList) {
-        ModelNode node(property.parentModelNode());
-        if (isMaterial(node) && property.name() == "objectName") {
-            m_widget->materialBrowserModel()->updateMaterialName(node);
-        } else if (property.name() == "source") {
-            QmlObjectNode selectedTex = m_widget->materialBrowserTexturesModel()->selectedTexture();
-            if (isTexture(node))
-                m_widget->materialBrowserTexturesModel()->updateTextureSource(node);
-            else if (selectedTex.propertyChangeForCurrentState() == node)
-                m_widget->materialBrowserTexturesModel()->updateTextureSource(selectedTex);
-        }
-    }
+    updatePropertyList(propertyList);
+}
+
+void MaterialBrowserView::bindingPropertiesChanged(const QList<BindingProperty> &propertyList,
+                                                   [[maybe_unused]] PropertyChangeFlags propertyChange)
+{
+    updatePropertyList(propertyList);
 }
 
 void MaterialBrowserView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
 {
-    for (const AbstractProperty &prop : propertyList) {
-        if (isTexture(prop.parentModelNode()) && prop.name() == "source")
-            m_widget->materialBrowserTexturesModel()->updateTextureSource(prop.parentModelNode());
-    }
+    updatePropertyList(propertyList);
 }
 
 void MaterialBrowserView::nodeReparented(const ModelNode &node,
