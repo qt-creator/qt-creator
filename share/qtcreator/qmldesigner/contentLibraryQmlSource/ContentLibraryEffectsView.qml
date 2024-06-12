@@ -96,6 +96,7 @@ HelperWidgets.ScrollView {
                             height: root.cellHeight
 
                             onShowContextMenu: ctxMenu.popupMenu(modelData)
+                            onAddToProject: ContentLibraryBackend.effectsModel.addInstance(modelData)
                         }
 
                         onCountChanged: root.assignMaxCount()

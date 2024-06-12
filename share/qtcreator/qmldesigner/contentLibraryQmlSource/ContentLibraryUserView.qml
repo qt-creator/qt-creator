@@ -130,6 +130,7 @@ HelperWidgets.ScrollView {
                                     height: root.cellHeight
 
                                     onShowContextMenu: ctxMenuItem.popupMenu(modelData)
+                                    onAddToProject: ContentLibraryBackend.userModel.addToProject(modelData)
                                 }
                             }
                         }
