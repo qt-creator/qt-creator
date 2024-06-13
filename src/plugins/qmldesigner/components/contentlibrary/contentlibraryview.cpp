@@ -807,6 +807,7 @@ void ContentLibraryView::exportLib3DComponent(const ModelNode &node)
 
     auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
     jsonObj["id"] = compUtils.user3DBundleId();
+    jsonObj["version"] = BUNDLE_VERSION;
 
     Utils::FilePath jsonFilePath = targetPath.pathAppended(Constants::BUNDLE_JSON_FILENAME);
     m_zipWriter->addFile(jsonFilePath.fileName(), QJsonDocument(jsonObj).toJson());
@@ -960,6 +961,7 @@ void ContentLibraryView::exportLib3DItem(const ModelNode &node, const QPixmap &i
     auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
     jsonObj["id"] = node.metaInfo().isQtQuick3DMaterial() ? compUtils.userMaterialsBundleId()
                                                           : compUtils.user3DBundleId();
+    jsonObj["version"] = BUNDLE_VERSION;
 
     Utils::FilePath jsonFilePath = targetPath.pathAppended(Constants::BUNDLE_JSON_FILENAME);
     m_zipWriter->addFile(jsonFilePath.fileName(), QJsonDocument(jsonObj).toJson());
@@ -1004,6 +1006,13 @@ void ContentLibraryView::importBundle()
     const QJsonArray importedItemsArr = importedJsonObj.value("items").toArray();
     QTC_ASSERT(!importedItemsArr.isEmpty(), return);
 
+    QString bundleVersion = importedJsonObj.value("version").toString();
+    bool bundleVersionOk = !bundleVersion.isEmpty() && bundleVersion == BUNDLE_VERSION;
+    if (!bundleVersionOk) {
+        QMessageBox::warning(m_widget, tr("Unsupported bundle file"),
+                             tr("The chosen bundle was created with an incompatible version of Qt Design Studio"));
+        return;
+    }
     bool isMat = isMaterialBundle(importedJsonObj.value("id").toString());
 
     QString bundleFolderName = isMat ? QLatin1String("materials") : QLatin1String("3d");

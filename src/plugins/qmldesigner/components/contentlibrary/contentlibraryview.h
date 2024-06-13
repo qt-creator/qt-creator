@@ -102,6 +102,8 @@ private:
     Utils::FilePath m_iconSavePath;
     std::unique_ptr<ZipWriter> m_zipWriter;
     std::unique_ptr<QTemporaryDir> m_tempDir;
+
+    static constexpr char BUNDLE_VERSION[] = "1.0";
 };
 
 } // namespace QmlDesigner
