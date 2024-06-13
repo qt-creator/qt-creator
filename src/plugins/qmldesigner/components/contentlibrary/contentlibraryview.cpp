@@ -365,7 +365,7 @@ void ContentLibraryView::customNotification(const AbstractView *view,
 
         m_bundleItemPos = data.size() == 1 ? data.first() : QVariant();
         if (is3D)
-            m_widget->userModel()->add3DInstance(m_draggedBundleItem);
+            m_widget->userModel()->addItemToProject(m_draggedBundleItem);
         else
             m_widget->effectsModel()->addInstance(m_draggedBundleItem);
         m_bundleItemTarget = nodeList.first() ? nodeList.first() : Utils3D::active3DSceneNode(this);

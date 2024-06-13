@@ -65,7 +65,7 @@ public:
     void refreshSection(SectionIndex sectionIndex);
     void addTextures(const QStringList &paths);
 
-    void add3DInstance(ContentLibraryItem *bundleItem);
+    void addItemToProject(ContentLibraryItem *item);
 
     void remove3DFromContentLibByName(const QString &qmlFileName);
     void removeMaterialFromContentLibByName(const QString &qmlFileName);

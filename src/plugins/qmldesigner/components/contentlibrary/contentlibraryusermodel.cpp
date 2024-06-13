@@ -155,18 +155,6 @@ void ContentLibraryUserModel::addTextures(const QStringList &paths)
     emit dataChanged(index(TexturesSectionIdx), index(TexturesSectionIdx));
 }
 
-void ContentLibraryUserModel::add3DInstance(ContentLibraryItem *bundleItem)
-{
-    QString err = m_widget->importer()->importComponent(m_bundlePath3D.path(), bundleItem->type(),
-                                                        bundleItem->qml(),
-                                                        bundleItem->files() + m_bundle3DSharedFiles);
-
-    if (err.isEmpty())
-        m_widget->setImporterRunning(true);
-    else
-        qWarning() << __FUNCTION__ << err;
-}
-
 void ContentLibraryUserModel::removeTexture(ContentLibraryTexture *tex)
 {
     // remove resources
@@ -624,23 +612,30 @@ void ContentLibraryUserModel::applyToSelected(ContentLibraryItem *mat, bool add)
 void ContentLibraryUserModel::addToProject(QObject *item)
 {
     auto castedItem = qobject_cast<ContentLibraryItem *>(item);
-    QString bundleDir;
-    TypeName type = castedItem->type();
-    QString qmlFile = castedItem->qml();
-    QStringList files = castedItem->files();
+    QTC_ASSERT(castedItem, return);
 
-    if (castedItem->itemType() == "material") {
-        bundleDir = m_bundlePathMaterial.toFSPathString();
+    addItemToProject(castedItem);
+}
+
+void ContentLibraryUserModel::addItemToProject(ContentLibraryItem *item)
+{
+    QString bundlePath;
+    TypeName type = item->type();
+    QString qmlFile = item->qml();
+    QStringList files = item->files();
+
+    if (item->itemType() == "material") {
+        bundlePath = m_bundlePathMaterial.toFSPathString();
         files << m_bundleMaterialSharedFiles;
-    } else if (castedItem->itemType() == "3d") {
-        bundleDir = m_bundlePath3D.toFSPathString();
+    } else if (item->itemType() == "3d") {
+        bundlePath = m_bundlePath3D.toFSPathString();
         files << m_bundle3DSharedFiles;
     } else {
         qWarning() << __FUNCTION__ << "Unsupported Item";
         return;
     }
 
-    QString err = m_widget->importer()->importComponent(bundleDir, type, qmlFile, files);
+    QString err = m_widget->importer()->importComponent(bundlePath, type, qmlFile, files);
 
     if (err.isEmpty())
         m_widget->setImporterRunning(true);
