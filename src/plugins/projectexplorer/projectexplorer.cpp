@@ -491,6 +491,7 @@ public:
     void savePersistentSettings();
 
     void addNewFile();
+    void addNewHeaderOrSource();
     void handleAddExistingFiles();
     void addExistingDirectory();
     void addNewSubproject();
@@ -594,6 +595,8 @@ public:
     QAction *m_renameFileAction;
     QAction *m_filePropertiesAction = nullptr;
     QAction *m_diffFileAction;
+    QAction *m_createHeaderAction = nullptr;
+    QAction *m_createSourceAction = nullptr;
     QAction *m_openFileAction;
     QAction *m_projectTreeCollapseAllAction;
     QAction *m_projectTreeExpandAllAction;
@@ -1574,6 +1577,19 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd = ActionManager::registerAction(dd->m_diffFileAction, Constants::DIFFFILE, projectTreeContext);
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
 
+    dd->m_createHeaderAction = new QAction(Tr::tr("Create Header File"), this);
+    cmd = ActionManager::registerAction(
+                dd->m_createHeaderAction,
+                "ProjectExplorer.CreateHeader",
+                projectTreeContext);
+    mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
+    dd->m_createSourceAction = new QAction(Tr::tr("Create Source File"), this);
+    cmd = ActionManager::registerAction(
+                dd->m_createSourceAction,
+                "ProjectExplorer.CreateSource",
+                projectTreeContext);
+    mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
+
     // Not yet used by anyone, so hide for now
 //    mfolder->addAction(cmd, Constants::G_FOLDER_FILES);
 //    msubProject->addAction(cmd, Constants::G_FOLDER_FILES);
@@ -1826,6 +1842,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::deleteFile);
     connect(dd->m_renameFileAction, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::handleRenameFile);
+    connect(dd->m_createHeaderAction, &QAction::triggered,
+            dd, &ProjectExplorerPluginPrivate::addNewHeaderOrSource);
+    connect(dd->m_createSourceAction, &QAction::triggered,
+            dd, &ProjectExplorerPluginPrivate::addNewHeaderOrSource);
     connect(dd->m_setStartupProjectAction, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::handleSetStartupProject);
     connect(dd->m_closeProjectFilesActionFileMenu, &QAction::triggered,
@@ -3227,6 +3247,8 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
     m_deleteFileAction->setEnabled(false);
     m_renameFileAction->setEnabled(false);
     m_diffFileAction->setEnabled(false);
+    m_createHeaderAction->setEnabled(false);
+    m_createSourceAction->setEnabled(false);
 
     m_addExistingFilesAction->setVisible(true);
     m_addExistingDirectoryAction->setVisible(true);
@@ -3240,6 +3262,8 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
     m_runActionContextMenu->setEnabled(false);
     m_defaultRunConfiguration.clear();
     m_diffFileAction->setVisible(DiffService::instance());
+    m_createHeaderAction->setVisible(false);
+    m_createSourceAction->setVisible(false);
 
     m_openTerminalHere->setVisible(true);
     m_openTerminalHereBuildEnv->setVisible(false);
@@ -3337,10 +3361,28 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
             m_diffFileAction->setEnabled(DiffService::instance()
                         && currentNodeIsTextFile && TextEditor::TextDocument::currentTextDocument());
 
-            const bool canDuplicate = canEditProject && supports(AddNewFile)
-                    && currentNode->asFileNode()->fileType() != FileType::Project;
-            m_duplicateFileAction->setVisible(canDuplicate);
-            m_duplicateFileAction->setEnabled(canDuplicate);
+            const bool canAdd = canEditProject && supports(AddNewFile) && !isTypeProject;
+            m_duplicateFileAction->setVisible(canAdd);
+            m_duplicateFileAction->setEnabled(canAdd);
+
+            const bool isHeader = fileNode->fileType() == FileType::Header;
+            const bool isSource = fileNode->fileType() == FileType::Source;
+            if (canAdd && (isHeader || isSource)) {
+                if (const auto parentFolder = fileNode->parentFolderNode()) {
+                    const QString baseName = fileNode->filePath().completeBaseName();
+                    const FileType otherType = isHeader ? FileType::Source : FileType::Header;
+                    const auto pred = [otherType, baseName](FileNode *child) {
+                        return child->fileType() == otherType
+                                && child->filePath().completeBaseName() == baseName;
+                    };
+                    if (!parentFolder->findChildFileNode(pred)) {
+                        QAction * const action = isHeader ? m_createSourceAction
+                                                          : m_createHeaderAction;
+                        action->setVisible(true);
+                        action->setEnabled(true);
+                    }
+                }
+            }
 
             EditorManager::populateOpenWithMenu(m_openWithMenu, currentNode->filePath());
         }
@@ -3444,6 +3486,37 @@ void ProjectExplorerPluginPrivate::addNewFile()
                                  return f->supportedProjectTypes().isEmpty();
                              }),
                              location, map);
+}
+
+void ProjectExplorerPluginPrivate::addNewHeaderOrSource()
+{
+    FileNode * const fileNode = ProjectTree::currentNode() ? ProjectTree::currentNode()->asFileNode()
+                                                           : nullptr;
+    QTC_ASSERT(fileNode, return);
+    const bool isHeader = fileNode->fileType() == FileType::Header;
+    const bool isSource = fileNode->fileType() == FileType::Source;
+    QTC_ASSERT(isHeader || isSource, return);
+    FolderNode * const folderNode = fileNode->parentFolderNode();
+    QTC_ASSERT(folderNode, return);
+
+    QVariantMap map;
+    map.insert(QLatin1String(Constants::PREFERRED_PROJECT_NODE),
+               QVariant::fromValue(static_cast<void *>(folderNode)));
+    map.insert(Constants::PREFERRED_PROJECT_NODE_PATH, folderNode->filePath().toString());
+    map.insert("InitialFileName", fileNode->filePath().completeBaseName());
+    if (Project *p = ProjectTree::currentProject()) {
+        const QStringList profileIds = Utils::transform(p->targets(), [](const Target *t) {
+            return t->id().toString();
+        });
+        map.insert(QLatin1String(Constants::PROJECT_KIT_IDS), profileIds);
+        map.insert(Constants::PROJECT_POINTER, QVariant::fromValue(static_cast<void *>(p)));
+    }
+    const Id factoryId = isHeader ? "B.Source" : "C.Header";
+    IWizardFactory * const factory = Utils::findOrDefault(
+                IWizardFactory::allWizardFactories(),
+                [factoryId](const IWizardFactory *f) { return f->id() == factoryId; });
+    QTC_ASSERT(factory, return);
+    factory->runWizard(folderNode->directory(), ICore::dialogParent(), {}, map);
 }
 
 void ProjectExplorerPluginPrivate::addNewSubproject()
