@@ -115,7 +115,7 @@ inline constexpr AuxiliaryDataKeyView bakeLightsManualProperty{AuxiliaryDataType
                                                                "bakeLightsManual"};
 inline constexpr AuxiliaryDataKeyView contextImageProperty{AuxiliaryDataType::Temporary,
                                                            "contextImage"};
-inline constexpr AuxiliaryDataKeyView formeditorColorProperty{AuxiliaryDataType::Document,
+inline constexpr AuxiliaryDataKeyView formeditorColorProperty{AuxiliaryDataType::Persistent,
                                                               "formeditorColor"};
 
 // Most material preview aux properties are duplicated as document and instance types, as they
