@@ -28,7 +28,6 @@ ContentLibraryUserModel::ContentLibraryUserModel(ContentLibraryWidget *parent)
     : QAbstractListModel(parent)
     , m_widget(parent)
 {
-    m_userCategories = {tr("Materials"), tr("Textures"), tr("3D"), /*tr("Effects"), tr("2D components")*/}; // TODO
 }
 
 int ContentLibraryUserModel::rowCount(const QModelIndex &) const
@@ -113,6 +112,8 @@ void ContentLibraryUserModel::addMaterial(const QString &name, const QString &qm
     m_userMaterials.append(libMat);
 
     emit dataChanged(index(MaterialsSectionIdx), index(MaterialsSectionIdx));
+
+    updateIsEmpty();
 }
 
 void ContentLibraryUserModel::add3DItem(const QString &name, const QString &qml,
@@ -129,6 +130,7 @@ void ContentLibraryUserModel::add3DItem(const QString &name, const QString &qml,
 void ContentLibraryUserModel::refreshSection(SectionIndex sectionIndex)
 {
     emit dataChanged(index(sectionIndex), index(sectionIndex));
+    updateIsEmpty();
 }
 
 void ContentLibraryUserModel::addTextures(const QStringList &paths)
@@ -177,6 +179,7 @@ void ContentLibraryUserModel::removeTexture(ContentLibraryTexture *tex)
 
     // update model
     emit dataChanged(index(TexturesSectionIdx), index(TexturesSectionIdx));
+    updateIsEmpty();
 }
 
 void ContentLibraryUserModel::removeFromContentLib(QObject *item)
@@ -228,6 +231,7 @@ void ContentLibraryUserModel::removeMaterialFromContentLib(ContentLibraryItem *i
 
     // update model
     emit dataChanged(index(MaterialsSectionIdx), index(MaterialsSectionIdx));
+    updateIsEmpty();
 }
 
 void ContentLibraryUserModel::remove3DFromContentLibByName(const QString &qmlFileName)
@@ -291,6 +295,7 @@ void ContentLibraryUserModel::remove3DFromContentLib(ContentLibraryItem *item)
 
     // update model
     emit dataChanged(index(Items3DSectionIdx), index(Items3DSectionIdx));
+    updateIsEmpty();
 }
 
 /**
@@ -378,13 +383,13 @@ void ContentLibraryUserModel::loadBundles()
 void ContentLibraryUserModel::loadMaterialBundle()
 {
     auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-    if (m_matBundleExists && m_bundleIdMaterial == compUtils.userMaterialsBundleId())
+    if (m_matBundleLoaded && m_bundleIdMaterial == compUtils.userMaterialsBundleId())
         return;
 
     // clean up
     qDeleteAll(m_userMaterials);
     m_userMaterials.clear();
-    m_matBundleExists = false;
+    m_matBundleLoaded = false;
     m_noMatchMaterials = true;
     m_bundleObjMaterial = {};
     m_bundleIdMaterial.clear();
@@ -445,8 +450,9 @@ void ContentLibraryUserModel::loadMaterialBundle()
     for (const QJsonValueConstRef &file : sharedFilesArr)
         m_bundleMaterialSharedFiles.append(file.toString());
 
-    m_matBundleExists = true;
+    m_matBundleLoaded = true;
     updateNoMatchMaterials();
+    updateIsEmpty();
     emit dataChanged(index(MaterialsSectionIdx), index(MaterialsSectionIdx));
 }
 
@@ -454,13 +460,13 @@ void ContentLibraryUserModel::load3DBundle()
 {
     auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
 
-    if (m_bundle3DExists && m_bundleId3D == compUtils.user3DBundleId())
+    if (m_bundle3DLoaded && m_bundleId3D == compUtils.user3DBundleId())
         return;
 
     // clean up
     qDeleteAll(m_user3DItems);
     m_user3DItems.clear();
-    m_bundle3DExists = false;
+    m_bundle3DLoaded = false;
     m_noMatch3D = true;
     m_bundleObj3D = {};
     m_bundleId3D.clear();
@@ -521,8 +527,9 @@ void ContentLibraryUserModel::load3DBundle()
     for (const QJsonValueConstRef &file : sharedFilesArr)
         m_bundle3DSharedFiles.append(file.toString());
 
-    m_bundle3DExists = true;
+    m_bundle3DLoaded = true;
     updateNoMatch3D();
+    updateIsEmpty();
     emit dataChanged(index(Items3DSectionIdx), index(Items3DSectionIdx));
 }
 
@@ -557,9 +564,15 @@ bool ContentLibraryUserModel::hasRequiredQuick3DImport() const
     return m_widget->hasQuick3DImport() && m_quick3dMajorVersion == 6 && m_quick3dMinorVersion >= 3;
 }
 
-bool ContentLibraryUserModel::matBundleExists() const
+void ContentLibraryUserModel::updateIsEmpty()
 {
-    return m_matBundleExists;
+    bool newIsEmpty = m_user3DItems.isEmpty() && m_userMaterials.isEmpty() && m_userTextures.isEmpty()
+                      && m_userEffects.isEmpty();
+    if (m_isEmpty == newIsEmpty)
+        return;
+
+    m_isEmpty = newIsEmpty;
+    emit isEmptyChanged();
 }
 
 void ContentLibraryUserModel::setSearchText(const QString &searchText)

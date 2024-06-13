@@ -21,9 +21,8 @@ class ContentLibraryUserModel : public QAbstractListModel
 {
     Q_OBJECT
 
-    Q_PROPERTY(bool matBundleExists READ matBundleExists NOTIFY matBundleExistsChanged)
-    Q_PROPERTY(bool bundle3DExists MEMBER m_bundle3DExists NOTIFY bundle3DExistsChanged)
     Q_PROPERTY(bool hasRequiredQuick3DImport READ hasRequiredQuick3DImport NOTIFY hasRequiredQuick3DImportChanged)
+    Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
     Q_PROPERTY(QList<ContentLibraryItem *> userMaterials MEMBER m_userMaterials NOTIFY userMaterialsChanged)
     Q_PROPERTY(QList<ContentLibraryTexture *> userTextures MEMBER m_userTextures NOTIFY userTexturesChanged)
     Q_PROPERTY(QList<ContentLibraryItem *> user3DItems MEMBER m_user3DItems NOTIFY user3DItemsChanged)
@@ -54,7 +53,7 @@ public:
 
     bool hasRequiredQuick3DImport() const;
 
-    bool matBundleExists() const;
+    void updateIsEmpty();
 
     void resetModel();
     void updateNoMatchMaterials();
@@ -85,13 +84,12 @@ public:
 
 signals:
     void hasRequiredQuick3DImportChanged();
+    void isEmptyChanged();
     void userMaterialsChanged();
     void userTexturesChanged();
     void user3DItemsChanged();
     void userEffectsChanged();
     void applyToSelectedTriggered(QmlDesigner::ContentLibraryItem *mat, bool add = false);
-    void matBundleExistsChanged();
-    void bundle3DExistsChanged();
 
 private:
     void loadMaterialBundle();
@@ -113,7 +111,8 @@ private:
     QList<ContentLibraryTexture *> m_userTextures;
     QList<ContentLibraryItem *> m_userEffects;
     QList<ContentLibraryItem *> m_user3DItems;
-    QStringList m_userCategories;
+    const QStringList m_userCategories = {tr("Materials"), tr("Textures"), tr("3D"),
+                                          /*tr("Effects"), tr("2D components")*/}; // TODO;
 
     QJsonObject m_bundleObjMaterial;
     QJsonObject m_bundleObj3D;
@@ -122,8 +121,9 @@ private:
     bool m_noMatchTextures = true;
     bool m_noMatch3D = true;
     bool m_noMatchEffects = true;
-    bool m_matBundleExists = false;
-    bool m_bundle3DExists = false;
+    bool m_matBundleLoaded = false;
+    bool m_bundle3DLoaded = false;
+    bool m_isEmpty = true;
 
     int m_quick3dMajorVersion = -1;
     int m_quick3dMinorVersion = -1;

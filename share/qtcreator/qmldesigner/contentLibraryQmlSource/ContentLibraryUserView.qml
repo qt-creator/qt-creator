@@ -158,6 +158,8 @@ HelperWidgets.ScrollView {
                     qsTr("To use <b>Content Library</b>, first add the QtQuick3D module in the <b>Components</b> view.")
                 else if (!ContentLibraryBackend.rootView.hasMaterialLibrary)
                     qsTr("<b>Content Library</b> is disabled inside a non-visual component.")
+                else if (ContentLibraryBackend.userModel.isEmpty)
+                    qsTr("There are no user assets in the <b>Content Library</b>.")
                 else
                     ""
             }
