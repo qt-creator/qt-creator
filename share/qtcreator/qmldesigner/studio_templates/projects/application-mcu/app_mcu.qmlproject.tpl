@@ -56,7 +56,8 @@ Project {
             "Timeline",
             "Shapes",
             "Profiling",
-            "StudioComponents"
+            "StudioComponents",
+            "Layouts"
         ]
     }
 

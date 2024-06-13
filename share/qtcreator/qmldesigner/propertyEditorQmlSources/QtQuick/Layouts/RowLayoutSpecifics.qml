@@ -7,6 +7,7 @@ import HelperWidgets 2.0
 import StudioTheme 1.0 as StudioTheme
 
 Section {
+    id: root
     anchors.left: parent.left
     anchors.right: parent.right
     caption: qsTr("Row Layout")
@@ -50,16 +51,19 @@ Section {
         }
 
         PropertyLabel {
-            text: qsTr("Uniform cell size")
+            text: qsTr("Uniform cell sizes")
             tooltip: qsTr("Toggles all cells to have a uniform size.")
             visible: majorQtQuickVersion === 6 && minorQtQuickVersion >= 6
+            blockedByTemplate: !backendValues.uniformCellSizes.isAvailable
         }
+
         SecondColumnLayout {
             CheckBox {
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.uniformCellSizes
                 visible: majorQtQuickVersion === 6 && minorQtQuickVersion >= 6
+                enabled: backendValues.uniformCellSizes.isAvailable
             }
 
             ExpandingSpacer {}
