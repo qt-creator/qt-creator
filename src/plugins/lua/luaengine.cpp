@@ -81,7 +81,8 @@ public:
 };
 
 // Runs the gives script in a new Lua state. The returned Object manages the lifetime of the state.
-std::unique_ptr<Utils::LuaState> LuaEngine::runScript(const QString &script, const QString &name)
+std::unique_ptr<Utils::LuaState> LuaEngine::runScript(
+    const QString &script, const QString &name, std::function<void(sol::state &)> customizeState)
 {
     std::unique_ptr<LuaStateImpl> opaque = std::make_unique<LuaStateImpl>();
 
@@ -123,6 +124,9 @@ std::unique_ptr<Utils::LuaState> LuaEngine::runScript(const QString &script, con
 
     for (const auto &func : d->m_autoProviders)
         func(opaque->lua);
+
+    if (customizeState)
+        customizeState(opaque->lua);
 
     auto result
         = opaque->lua

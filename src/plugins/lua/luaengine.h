@@ -108,7 +108,10 @@ public:
     }
 
     // Runs the given script in a new Lua state. The returned Object manages the lifetime of the state.
-    std::unique_ptr<Utils::LuaState> runScript(const QString &script, const QString &name);
+    std::unique_ptr<Utils::LuaState> runScript(
+        const QString &script,
+        const QString &name,
+        std::function<void(sol::state &)> customizeState = {});
 
 protected:
     Utils::expected_str<void> connectHooks(

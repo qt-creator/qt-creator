@@ -50,6 +50,12 @@ qt_add_resources(Lua lua_images_rcc
     images/settingscategory_lua@2x.png
 )
 
+qt_add_resources(Lua lua_script_rcc
+  PREFIX "/lua"
+  FILES
+    scripts/ilua.lua
+)
+
 set_source_files_properties(luauibindings.cpp PROPERTY SKIP_AUTOMOC ON PROPERTY SKIP_AUTOGEN ON)
 
 if (MSVC)
