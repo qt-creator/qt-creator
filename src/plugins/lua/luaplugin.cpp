@@ -106,10 +106,7 @@ public:
 
     bool delayedInitialize() final
     {
-        scanForPlugins(transform(PluginManager::pluginPaths(), [](const FilePath &path) {
-            return path / "lua-plugins";
-        }));
-
+        scanForPlugins(PluginManager::pluginPaths());
         return true;
     }
 
