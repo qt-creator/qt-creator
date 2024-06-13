@@ -95,8 +95,7 @@ private:
     void loadMaterialBundle();
     void load3DBundle();
     void loadTextureBundle();
-    void removeMaterialFromContentLib(ContentLibraryItem *mat);
-    void remove3DFromContentLib(ContentLibraryItem *item);
+    void removeItem(ContentLibraryItem *item);
 
     ContentLibraryWidget *m_widget = nullptr;
     QString m_searchText;

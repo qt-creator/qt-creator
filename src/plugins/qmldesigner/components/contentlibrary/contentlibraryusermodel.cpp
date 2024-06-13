@@ -185,53 +185,9 @@ void ContentLibraryUserModel::removeTexture(ContentLibraryTexture *tex)
 void ContentLibraryUserModel::removeFromContentLib(QObject *item)
 {
     auto castedItem = qobject_cast<ContentLibraryItem *>(item);
+    QTC_ASSERT(castedItem, return);
 
-    if (castedItem->itemType() == "material")
-        removeMaterialFromContentLib(castedItem);
-    else if (castedItem->itemType() == "3d")
-        remove3DFromContentLib(castedItem);
-}
-
-void ContentLibraryUserModel::removeMaterialFromContentLib(ContentLibraryItem *item)
-{
-    QJsonArray itemsArr = m_bundleObjMaterial.value("items").toArray();
-
-    // remove qml and icon files
-    m_bundlePathMaterial.pathAppended(item->qml()).removeFile();
-    Utils::FilePath::fromUrl(item->icon()).removeFile();
-
-    // remove from the bundle json file
-    for (int i = 0; i < itemsArr.size(); ++i) {
-        if (itemsArr.at(i).toObject().value("qml") == item->qml()) {
-            itemsArr.removeAt(i);
-            break;
-        }
-    }
-    m_bundleObjMaterial.insert("items", itemsArr);
-
-    auto result = m_bundlePathMaterial.pathAppended(Constants::BUNDLE_JSON_FILENAME)
-                      .writeFileContents(QJsonDocument(m_bundleObjMaterial).toJson());
-    if (!result)
-        qWarning() << __FUNCTION__ << result.error();
-
-    // delete dependency files if they are only used by the deleted material
-    QStringList allFiles;
-    for (const QJsonValueConstRef &itemRef : std::as_const(itemsArr))
-        allFiles.append(itemRef.toObject().value("files").toVariant().toStringList());
-
-    const QStringList itemFiles = item->files();
-    for (const QString &file : itemFiles) {
-        if (allFiles.count(file) == 0) // only used by the deleted item
-            m_bundlePathMaterial.pathAppended(file).removeFile();
-    }
-
-    // remove from model
-    m_userMaterials.removeOne(item);
-    item->deleteLater();
-
-    // update model
-    emit dataChanged(index(MaterialsSectionIdx), index(MaterialsSectionIdx));
-    updateIsEmpty();
+    removeItem(castedItem);
 }
 
 void ContentLibraryUserModel::remove3DFromContentLibByName(const QString &qmlFileName)
@@ -242,7 +198,7 @@ void ContentLibraryUserModel::remove3DFromContentLibByName(const QString &qmlFil
     });
 
     if (itemToRemove)
-        remove3DFromContentLib(itemToRemove);
+        removeItem(itemToRemove);
 }
 
 void ContentLibraryUserModel::removeMaterialFromContentLibByName(const QString &qmlFileName)
@@ -253,15 +209,35 @@ void ContentLibraryUserModel::removeMaterialFromContentLibByName(const QString &
                                                      });
 
     if (itemToRemove)
-        removeMaterialFromContentLib(itemToRemove);
+        removeItem(itemToRemove);
 }
 
-void ContentLibraryUserModel::remove3DFromContentLib(ContentLibraryItem *item)
+void ContentLibraryUserModel::removeItem(ContentLibraryItem *item)
 {
-    QJsonArray itemsArr = m_bundleObj3D.value("items").toArray();
+    Utils::FilePath *bundlePath = nullptr;
+    QJsonObject *bundleObj = nullptr;
+    QList<ContentLibraryItem *> *userItems = nullptr;
+    SectionIndex sectionIdx;
+
+    if (item->itemType() == "material") {
+        bundlePath = &m_bundlePathMaterial;
+        bundleObj = &m_bundleObjMaterial;
+        userItems = &m_userMaterials;
+        sectionIdx = MaterialsSectionIdx;
+    } else if (item->itemType() == "3d") {
+        bundlePath = &m_bundlePath3D;
+        bundleObj = &m_bundleObj3D;
+        userItems = &m_user3DItems;
+        sectionIdx = Items3DSectionIdx;
+    } else {
+        qWarning() << __FUNCTION__ << "Unsupported item";
+        return;
+    }
+
+    QJsonArray itemsArr = bundleObj->value("items").toArray();
 
     // remove qml and icon files
-    m_bundlePath3D.pathAppended(item->qml()).removeFile();
+    bundlePath->pathAppended(item->qml()).removeFile();
     Utils::FilePath::fromUrl(item->icon()).removeFile();
 
     // remove from the bundle json file
@@ -271,10 +247,10 @@ void ContentLibraryUserModel::remove3DFromContentLib(ContentLibraryItem *item)
             break;
         }
     }
-    m_bundleObj3D.insert("items", itemsArr);
+    bundleObj->insert("items", itemsArr);
 
-    auto result = m_bundlePath3D.pathAppended(Constants::BUNDLE_JSON_FILENAME)
-                      .writeFileContents(QJsonDocument(m_bundleObj3D).toJson());
+    auto result = bundlePath->pathAppended(Constants::BUNDLE_JSON_FILENAME)
+                      .writeFileContents(QJsonDocument(*bundleObj).toJson());
     if (!result)
         qWarning() << __FUNCTION__ << result.error();
 
@@ -286,15 +262,15 @@ void ContentLibraryUserModel::remove3DFromContentLib(ContentLibraryItem *item)
     const QStringList itemFiles = item->files();
     for (const QString &file : itemFiles) {
         if (allFiles.count(file) == 0) // only used by the deleted item
-            m_bundlePath3D.pathAppended(file).removeFile();
+            bundlePath->pathAppended(file).removeFile();
     }
 
     // remove from model
-    m_user3DItems.removeOne(item);
+    userItems->removeOne(item);
     item->deleteLater();
 
     // update model
-    emit dataChanged(index(Items3DSectionIdx), index(Items3DSectionIdx));
+    emit dataChanged(index(sectionIdx), index(sectionIdx));
     updateIsEmpty();
 }
 
