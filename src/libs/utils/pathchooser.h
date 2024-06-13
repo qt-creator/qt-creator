@@ -67,10 +67,10 @@ public:
     bool isValid() const;
     QString errorMessage() const;
 
-    FilePath filePath() const; // Close to what's in the line edit.
+    FilePath filePath() const; // Close to what's in the line edit. Expands macros.
     FilePath absoluteFilePath() const; // Relative paths resolved wrt the specified base dir.
 
-    FilePath rawFilePath() const; // The raw unexpanded input as FilePath.
+    FilePath unexpandedFilePath() const; // The raw unexpanded input as FilePath.
 
     FilePath baseDirectory() const;
     void setBaseDirectory(const FilePath &base);

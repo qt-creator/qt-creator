@@ -186,7 +186,7 @@ void WorkingDirectoryAspect::addToLayout(Layout &builder)
     m_chooser->setBaseDirectory(m_defaultWorkingDirectory);
     m_chooser->setFilePath(m_workingDirectory.isEmpty() ? m_defaultWorkingDirectory : m_workingDirectory);
     connect(m_chooser.data(), &PathChooser::textChanged, this, [this] {
-        m_workingDirectory = m_chooser->rawFilePath();
+        m_workingDirectory = m_chooser->unexpandedFilePath();
         m_resetButton->setEnabled(m_workingDirectory != m_defaultWorkingDirectory);
     });
 

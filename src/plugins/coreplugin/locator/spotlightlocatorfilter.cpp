@@ -231,7 +231,7 @@ bool SpotlightLocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefres
     chooser->addSupportedWidget(caseSensitiveArgumentsEdit);
     const bool accepted = ILocatorFilter::openConfigDialog(parent, &configWidget);
     if (accepted) {
-        m_command = commandEdit->rawFilePath().toString();
+        m_command = commandEdit->unexpandedFilePath().toString();
         m_arguments = argumentsEdit->text();
         m_caseSensitiveArguments = caseSensitiveArgumentsEdit->text();
         m_sortResults = sortResults->isChecked();

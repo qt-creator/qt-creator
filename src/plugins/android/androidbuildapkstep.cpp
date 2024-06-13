@@ -140,7 +140,7 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     keystoreLocationChooser->setPromptDialogFilter(Tr::tr("Keystore files (*.keystore *.jks)"));
     keystoreLocationChooser->setPromptDialogTitle(Tr::tr("Select Keystore File"));
     connect(keystoreLocationChooser, &PathChooser::textChanged, this, [this, keystoreLocationChooser] {
-        const FilePath file = keystoreLocationChooser->rawFilePath();
+        const FilePath file = keystoreLocationChooser->unexpandedFilePath();
         m_step->setKeystorePath(file);
         m_signPackageCheckBox->setChecked(!file.isEmpty());
         if (!file.isEmpty())

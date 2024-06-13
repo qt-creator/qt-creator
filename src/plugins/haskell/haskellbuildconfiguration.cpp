@@ -90,7 +90,7 @@ public:
                 &Utils::PathChooser::textChanged,
                 bc,
                 [bc, buildDirectoryInput](const QString &) {
-                    bc->setBuildDirectory(buildDirectoryInput->rawFilePath());
+                    bc->setBuildDirectory(buildDirectoryInput->unexpandedFilePath());
                 });
     }
 };
