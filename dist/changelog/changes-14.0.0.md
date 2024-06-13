@@ -56,9 +56,12 @@ Editing
       ([QTCREATORBUG-10279](https://bugreports.qt.io/browse/QTCREATORBUG-10279))
 * Clangd
     * Increased the minimum version to LLVM 17
-    * Added an option for the index location
+    * Added the `Per-project index location` and `Per-session index location`
+      options in `Preferences` > `C++` > `Clangd` for setting the index location
+      for a project or session
       ([QTCREATORBUG-27346](https://bugreports.qt.io/browse/QTCREATORBUG-27346))
-    * Made reparsing source files while editing header files optional
+    * Added the `Update dependent sources` option to make re-parsing source files
+      while editing header files optional
       ([QTCREATORBUG-29943](https://bugreports.qt.io/browse/QTCREATORBUG-29943))
     * Fixed the handling of system headers
       ([QTCREATORBUG-30474](https://bugreports.qt.io/browse/QTCREATORBUG-30474))
