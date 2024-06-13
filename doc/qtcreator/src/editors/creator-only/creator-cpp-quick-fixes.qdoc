@@ -227,6 +227,14 @@
         // do stuff here
     }
     \endcode
+    \row
+        \li Move Class to a Dedicated Set of Source Files
+        \li Moves a class to separate header and source files. For more
+            information, see \l{Move classes to separate files}.
+    \row
+        \li Re-order Member Function Definitions According to Declaration Order
+        \li Re-orders method definitions in a .cpp file to follow the order of
+            method declarations in the corresponding .h file.
     \endtable
 
     \section1 Class Member
@@ -333,7 +341,7 @@
             \li Quick Fix
             \li Description
         \row
-            \li Add Definition in ...
+            \li Add Definition ...
             \li Inserts a definition stub for a function declaration either in
                 the header file (inside or outside the class) or in the
                 implementation file. For free functions, inserts the definition
@@ -401,6 +409,10 @@
 
                 When this fix is available, a light bulb icon appears:
                 \inlineimage icons/refactormarker.png
+        \row
+            \li Convert Function Call to Qt Meta-Method Invocation
+            \li Converts a normal function call into a meta method invocation, if
+                the function is marked as invokable.
         \row
             \li Move Definition Here
             \li Moves an existing function definition to its declaration.
