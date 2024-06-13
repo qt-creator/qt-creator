@@ -1622,7 +1622,7 @@ void addMouseAreaFill(const SelectionContext &selectionContext)
                 QmlDesigner::ModelNode mouseAreaNode = selectionContext.view()->createModelNode(
                     "QtQuick.MouseArea", itemMetaInfo.majorVersion(), itemMetaInfo.minorVersion());
 #endif
-                mouseAreaNode.validId();
+                mouseAreaNode.ensureIdExists();
 
                 modelNode.defaultNodeListProperty().reparentHere(mouseAreaNode);
                 QmlItemNode mouseAreaItemNode(mouseAreaNode);

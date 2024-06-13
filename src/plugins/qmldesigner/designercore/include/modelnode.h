@@ -152,7 +152,8 @@ public:
     void destroy();
 
     QString id() const;
-    QString validId();
+    void ensureIdExists();
+    [[nodiscard]] QString validId();
     void setIdWithRefactoring(const QString &id);
     void setIdWithoutRefactoring(const QString &id);
     static bool isValidId(const QString &id);

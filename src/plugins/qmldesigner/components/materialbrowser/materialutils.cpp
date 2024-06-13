@@ -55,7 +55,7 @@ void MaterialUtils::assignMaterialTo3dModel(AbstractView *view, const ModelNode 
                                                     metaInfo.majorVersion(),
                                                     metaInfo.minorVersion());
 #endif
-            newMaterialNode.validId();
+            newMaterialNode.ensureIdExists();
         }
     }
 

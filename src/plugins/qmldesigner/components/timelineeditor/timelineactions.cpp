@@ -90,7 +90,7 @@ void TimelineActions::pasteKeyframesToTarget(const ModelNode &targetNode,
         view.executeInTransaction("TimelineActions::pasteKeyframesToTarget", [=, &view](){
 
             ModelNode nonConstTargetNode = targetNode;
-            nonConstTargetNode.validId();
+            nonConstTargetNode.ensureIdExists();
 
             if (QmlTimelineKeyframeGroup::checkKeyframesType(rootNode)) {
                 /* Single selection */

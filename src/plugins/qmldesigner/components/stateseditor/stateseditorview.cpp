@@ -171,7 +171,7 @@ void StatesEditorView::createNewState()
     }
 
     executeInTransaction("createNewState", [this, newStateName]() {
-        activeStatesGroupNode().validId();
+        activeStatesGroupNode().ensureIdExists();
 
         ModelNode newState = activeStateGroup().addState(newStateName);
         setCurrentState(newState);

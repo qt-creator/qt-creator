@@ -388,7 +388,7 @@ void TextureEditorView::handleToolBarAction(int action)
                                                        metaInfo.majorVersion(),
                                                        metaInfo.minorVersion());
 #endif
-            newTextureNode.validId();
+            newTextureNode.ensureIdExists();
             matLib.defaultNodeListProperty().reparentHere(newTextureNode);
         });
         break;
@@ -770,7 +770,7 @@ void TextureEditorView::duplicateTexture(const ModelNode &texture)
         QmlObjectNode duplicateTex = createModelNode(matType, metaInfo.majorVersion(), metaInfo.minorVersion());
 #endif
         duplicateTextureNode = duplicateTex .modelNode();
-        duplicateTextureNode.validId();
+        duplicateTextureNode.ensureIdExists();
 
         // sync properties. Only the base state is duplicated.
         const QList<AbstractProperty> props = texture.properties();

@@ -39,7 +39,7 @@ void QmlObjectNode::setVariantProperty(const PropertyName &name, const QVariant 
         return;
 
     if (timelineIsActive() && currentTimeline().isRecording()) {
-        modelNode().validId();
+        modelNode().ensureIdExists();
 
         QmlTimelineKeyframeGroup timelineFrames(currentTimeline().keyframeGroup(modelNode(), name));
 
@@ -69,7 +69,7 @@ void QmlObjectNode::setVariantProperty(const PropertyName &name, const QVariant 
     if (isInBaseState()) {
         modelNode().variantProperty(name).setValue(value); //basestate
     } else {
-        modelNode().validId();
+        modelNode().ensureIdExists();
 
         QmlPropertyChanges changeSet(currentState().propertyChanges(modelNode()));
         Q_ASSERT(changeSet.isValid());
@@ -88,7 +88,7 @@ void QmlObjectNode::setBindingProperty(const PropertyName &name, const QString &
     if (isInBaseState()) {
         modelNode().bindingProperty(name).setExpression(expression); //basestate
     } else {
-        modelNode().validId();
+        modelNode().ensureIdExists();
 
         QmlPropertyChanges changeSet(currentState().propertyChanges(modelNode()));
         Q_ASSERT(changeSet.isValid());
@@ -338,7 +338,7 @@ void QmlObjectNode::ensureAliasExport()
         return;
 
     if (!isAliasExported()) {
-        modelNode().validId();
+        modelNode().ensureIdExists();
         ModelNode rootModelNode = view()->rootModelNode();
         rootModelNode.bindingProperty(modelNode().id().toUtf8()).
             setDynamicTypeNameAndExpression("alias", modelNode().id());

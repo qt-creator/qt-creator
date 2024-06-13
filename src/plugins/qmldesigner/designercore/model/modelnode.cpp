@@ -80,10 +80,15 @@ QString ModelNode::id() const
     return m_internalNode->id;
 }
 
+void ModelNode::ensureIdExists()
+{
+    if (!hasId())
+        setIdWithoutRefactoring(model()->generateNewId(simplifiedTypeName()));
+}
+
 QString ModelNode::validId()
 {
-    if (id().isEmpty())
-        setIdWithRefactoring(model()->generateNewId(simplifiedTypeName()));
+    ensureIdExists();
 
     return id();
 }
