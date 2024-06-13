@@ -2,11 +2,11 @@
 
 local gui = {}
 
----The base class of all ui related classes
+---The base class of all ui related classes.
 ---@class Object
 gui.Object = {}
 
----The base class of all gui layout classes
+---The base class of all gui layout classes.
 ---@class Layout : Object
 gui.Layout = {}
 
@@ -26,14 +26,14 @@ local column = {}
 ---@return Column
 function gui.Column(children) end
 
----A group box with a title
+---A group box with a title.
 ---@class Group : Widget
 local group = {}
 
 ---@return Group
 function gui.Group(children) end
 
----Row layout
+---Row layout.
 ---@class Row : Layout
 local row = {}
 
@@ -41,7 +41,7 @@ local row = {}
 ---@return Row
 function gui.Row(children) end
 
----Flow layout
+---Flow layout.
 ---@class Flow : Layout
 local flow = {}
 
@@ -49,7 +49,7 @@ local flow = {}
 ---@return Flow
 function gui.Flow(children) end
 
----Grid layout
+---Grid layout.
 ---@class Grid : Layout
 local grid = {}
 
@@ -57,7 +57,7 @@ local grid = {}
 ---@return Grid
 function gui.Grid(children) end
 
----Form layout
+---Form layout.
 ---@class Form : Layout
 local form = {}
 
@@ -66,7 +66,7 @@ local form = {}
 function gui.Form(children) end
 
 
----A stack of multiple widgets
+---A stack of multiple widgets.
 ---@class Stack : Widget
 local stack = {}
 
@@ -74,7 +74,7 @@ local stack = {}
 ---@return Stack
 function gui.Stack(children) end
 
----A Tab widget
+---A Tab widget.
 ---@class Tab : Widget
 local tab = {}
 
@@ -82,7 +82,7 @@ local tab = {}
 ---@return Tab
 function gui.Tab(children) end
 
----A Multiline text edit
+---A Multiline text edit.
 ---@class TextEdit : Widget
 local textEdit = {}
 
@@ -90,7 +90,6 @@ local textEdit = {}
 ---@return TextEdit
 function gui.TextEdit(children) end
 
----A PushButton
 ---@class PushButton : Widget
 local pushButton = {}
 
@@ -98,7 +97,6 @@ local pushButton = {}
 ---@return PushButton
 function gui.PushButton(children) end
 
----A Label
 ---@class Label : LayoutItem
 local label = {}
 
@@ -106,7 +104,6 @@ local label = {}
 ---@return Label
 function gui.Label(children) end
 
----A SpinBox
 ---@class SpinBox : Widget
 local spinBox = {}
 
@@ -114,7 +111,6 @@ local spinBox = {}
 ---@return SpinBox
 function gui.SpinBox(children) end
 
----A Splitter
 ---@class Splitter : Widget
 local splitter = {}
 
@@ -122,7 +118,6 @@ local splitter = {}
 ---@return Splitter
 function gui.Splitter(children) end
 
----A Toolbar
 ---@class ToolBar : Widget
 local toolBar = {}
 
@@ -130,7 +125,6 @@ local toolBar = {}
 ---@return ToolBar
 function gui.ToolBar(children) end
 
----A TabWidget
 ---@class TabWidget : Widget
 local tabWidget = {}
 
@@ -142,40 +136,40 @@ function gui.TabWidget(children) end
 ---@param child Layout|string|BaseAspect|function
 ---@return TabWidget
 function gui.TabWidget(name, child) end
----A "Line break" in the gui
+---A "Line break" in the gui.
 function gui.br() end
 
----A "Stretch" in the layout
+---A "Stretch" in the layout.
 function gui.st() end
 
----An empty grid cell in a grid layout
+---An empty grid cell in a grid layout.
 function gui.empty() end
 
----A horizontal line in the layout
+---A horizontal line in the layout.
 function gui.hr() end
 
----Clears the margin of the layout
+---Clears the margin of the layout.
 function gui.noMargin() end
 
----Sets the margin of the layout to the default value
+---Sets the margin of the layout to the default value.
 function gui.normalMargin() end
 
----Sets the alignment of a Grid layout according to the Form layout rules
+---Sets the alignment of a Grid layout according to the Form layout rules.
 function gui.withFormAlignment() end
 
----Sets the size of the parent object if possible
+---Sets the size of the parent object if possible.
 function gui.resize(width, height) end
 
----Sets the spacing of the gui
+---Sets the spacing of the gui.
 function gui.spacing(spacing) end
 
----Sets the field growth policy of the gui
+---Sets the field growth policy of the gui.
 function gui.fieldGrowthPolicy(policy) end
 
----Sets the onClicked handler of the parent object if possible
+---Sets the onClicked handler of the parent object if possible.
 function gui.onClicked(f) end
 
----Sets the onTextChanged handler of the parent object if possible
+---Sets the onTextChanged handler of the parent object if possible.
 function gui.onTextChanged(f) end
 
 return gui
