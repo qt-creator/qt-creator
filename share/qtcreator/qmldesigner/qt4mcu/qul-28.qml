@@ -45,6 +45,8 @@ VersionData {
         "QtQuick.Controls.ToolButton",
         "QtQuick.Controls.ToolSeparator",
         "QtQuick.Controls.Tumbler",
+        "QtQuick.Layouts.LayoutItemProxy",
+        "QtQuick.Layouts.StackLayout",
         "QtQuick.Shapes.ConicalGradient",
         "QtQuick.Shapes.RadialGradient"
     ]
@@ -52,6 +54,7 @@ VersionData {
     allowedImports: [
         "QtQuick",
         "QtQuick.Controls",
+        "QtQuick.Layouts",
         "QtQuick.Shapes",
         "QtQuick.Timeline",
         "QtQuickUltralite.Extras",
@@ -183,6 +186,30 @@ VersionData {
 
     QtQuick.Controls.Slider {
         bannedProperties: ["live", "snapMode", "touchDragThreshold"]
+    }
+
+    ComplexProperty {
+        prefix: "Layout"
+        bannedProperties: ["horizontalStretchFactor", "verticalStretchFactor"]
+    }
+
+    QtQuick.Layouts.Layout {
+        bannedProperties: ["horizontalStretchFactor", "verticalStretchFactor"]
+    }
+
+    QtQuick.Layouts.ColumnLayout {
+        allowedProperties: ["layoutDirection"]
+        bannedProperties: ["uniformCellSizes"]
+    }
+
+    QtQuick.Layouts.RowLayout {
+        allowedProperties: ["layoutDirection"]
+        bannedProperties: ["uniformCellSizes"]
+    }
+
+    QtQuick.Layouts.GridLayout {
+        allowedProperties: ["layoutDirection"]
+        bannedProperties: ["uniformCellHeights", "uniformCellWidths"]
     }
 
     //Path and Shapes related:
