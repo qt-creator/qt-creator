@@ -532,7 +532,7 @@ void RichTextEditor::setupFontActions()
         w->setCurrentIndex(w->findText(m_textEdit->currentCharFormat().font().family()));
         connect(w, &QComboBox::textActivated, [this](const QString &f) {
             QTextCharFormat fmt;
-            fmt.setFontFamily(f);
+            fmt.setFontFamilies({f});
             mergeFormatOnWordOrSelection(fmt);
         });
     });
