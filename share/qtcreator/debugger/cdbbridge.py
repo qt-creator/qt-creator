@@ -331,8 +331,7 @@ class Dumper(DumperBase):
         self.qtNamespace = lambda: namespace
         return namespace
 
-    def qtVersion(self):
-        qtVersion = None
+    def extractQtVersion(self):
         try:
             qtVersion = self.parseAndEvaluate(
                 '((void**)&%s)[2]' % self.qtHookDataSymbolName()).integer()
@@ -344,10 +343,7 @@ class Dumper(DumperBase):
                     (major, minor, patch) = version.decode('latin1').split('.')
                     qtVersion = 0x10000 * int(major) + 0x100 * int(minor) + int(patch)
                 except:
-                    pass
-        if qtVersion is None:
-            qtVersion = self.fallbackQtVersion
-        self.qtVersion = lambda: qtVersion
+                    return None
         return qtVersion
 
     def putVtableItem(self, address):
