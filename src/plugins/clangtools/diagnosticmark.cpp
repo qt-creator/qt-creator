@@ -20,10 +20,13 @@ using namespace Utils;
 namespace ClangTools {
 namespace Internal {
 
+static TextMarkCategory clangToolsCategory()
+{
+    return {Tr::tr("Clang Tools"), Id(Constants::DIAGNOSTIC_MARK_ID)};
+}
+
 DiagnosticMark::DiagnosticMark(const Diagnostic &diagnostic, TextDocument *document)
-    : TextMark(document,
-               diagnostic.location.line,
-               {Tr::tr("Clang Tools"), Id(Constants::DIAGNOSTIC_MARK_ID)})
+    : TextMark(document, diagnostic.location.line, clangToolsCategory())
     , m_diagnostic(diagnostic)
 {
     setSettingsPage(Constants::SETTINGS_PAGE_ID);
@@ -60,7 +63,8 @@ DiagnosticMark::DiagnosticMark(const Diagnostic &diagnostic, TextDocument *docum
 }
 
 DiagnosticMark::DiagnosticMark(const Diagnostic &diagnostic)
-    : DiagnosticMark(diagnostic, TextDocument::textDocumentForFilePath(diagnostic.location.filePath))
+    : TextMark(diagnostic.location.filePath, diagnostic.location.line, clangToolsCategory())
+    , m_diagnostic(diagnostic)
 {}
 
 void DiagnosticMark::disable()
