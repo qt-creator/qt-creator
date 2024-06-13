@@ -848,6 +848,16 @@ void IosSimulatorToolHandlerPrivate::installAppOnSimulator()
     futureSynchronizer.addFuture(Utils::onResultReady(installFuture, q, onResponseAppInstall));
 }
 
+#ifdef Q_OS_UNIX
+static void monitorPid(QPromise<void> &promise, qint64 pid)
+{
+    do {
+        // Poll every 1 sec to check whether the app is running.
+        QThread::msleep(1000);
+    } while (!promise.isCanceled() && kill(pid, 0) == 0);
+}
+#endif
+
 void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &extraArgs)
 {
     const QString bundleId = SimulatorControl::bundleIdentifier(m_bundlePath);
@@ -871,21 +881,7 @@ void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &ext
                         "Install Xcode 8 or later.").arg(bundleId));
     }
 
-    auto monitorPid = [this](QPromise<void> &promise, qint64 pid) {
-#ifdef Q_OS_UNIX
-        do {
-            // Poll every 1 sec to check whether the app is running.
-            QThread::msleep(1000);
-        } while (!promise.isCanceled() && kill(pid, 0) == 0);
-#else
-    Q_UNUSED(pid)
-#endif
-        // Future is cancelled if the app is stopped from the qt creator.
-        if (!promise.isCanceled())
-            stop(0);
-    };
-
-    auto onResponseAppLaunch = [this, captureConsole, monitorPid, stdoutFile, stderrFile](
+    auto onResponseAppLaunch = [this, captureConsole, stdoutFile, stderrFile](
                                    const SimulatorControl::Response &response) {
         if (response) {
             if (!isResponseValid(*response))
@@ -893,8 +889,15 @@ void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &ext
             m_pid = response->inferiorPid;
             gotInferiorPid(m_bundlePath, m_deviceId, response->inferiorPid);
             didStartApp(m_bundlePath, m_deviceId, Ios::IosToolHandler::Success);
+#ifdef Q_OS_UNIX
             // Start monitoring app's life signs.
-            futureSynchronizer.addFuture(Utils::asyncRun(monitorPid, response->inferiorPid));
+            futureSynchronizer.addFuture(Utils::onFinished(
+                Utils::asyncRun(monitorPid, response->inferiorPid), q,
+                [this](const QFuture<void> &future) {
+                    if (!future.isCanceled())
+                        stop(0);
+                }));
+#endif
             if (captureConsole)
                 futureSynchronizer.addFuture(Utils::asyncRun(&LogTailFiles::exec, &outputLogger,
                                                              stdoutFile, stderrFile));
