@@ -1502,7 +1502,7 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
 
     handler->modeChanged.set([tew, this, editor](bool insertMode) {
         HandlerAndData &handlerAndData = m_editorToHandler[editor];
-        if (!handlerAndData.handler->inFakeVimMode())
+        if (!handlerAndData.handler || !handlerAndData.handler->inFakeVimMode())
             return;
 
         // We don't want to show suggestions unless we are in insert mode.
