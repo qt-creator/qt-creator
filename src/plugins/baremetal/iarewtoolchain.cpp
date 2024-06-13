@@ -334,6 +334,7 @@ Toolchain::MacroInspectionRunner IarToolchain::createMacroInspectionRunner() con
         macros.append({"__intrinsic", "", MacroType::Define});
         macros.append({"__nounwind", "", MacroType::Define});
         macros.append({"__noreturn", "", MacroType::Define});
+        macros.append({"__no_init", "", MacroType::Define});
         macros.append({"__packed", "", MacroType::Define});
         macros.append({"__spec_string", "", MacroType::Define});
         macros.append({"__constrange(__a,__b)", "", MacroType::Define});
