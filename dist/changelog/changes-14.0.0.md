@@ -66,7 +66,8 @@ Editing
     * Fixed the handling of system headers
       ([QTCREATORBUG-30474](https://bugreports.qt.io/browse/QTCREATORBUG-30474))
 * Built-in
-    * Added the option to disable the built-in indexer
+    * Added the `Enable indexing` option in `Preferences` > `C++` > `Code Model`
+      to turn off the built-in indexer
       ([QTCREATORBUG-29147](https://bugreports.qt.io/browse/QTCREATORBUG-29147))
     * Added an option for "statement macros" that are interpreted by the indenter
       as complete statements that don't require a semicolon at the end

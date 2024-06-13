@@ -162,7 +162,7 @@
 
     \title Code Model
 
-    \brief Sets global preferences for the code model.
+    \brief Sets global preferences for the C++ code model.
 
     The code model offers services such as code completion, syntactic and
     semantic highlighting, and diagnostics.
@@ -189,6 +189,10 @@
         \li \uicontrol {Use built-in preprocessor to show pre-processed files}
         \li Uses the built-in preprocessor to show the
             pre-processed source file in the editor.
+    \row
+        \li \uicontrol {Enable indexing}
+        \li Turns on the built-in indexer. Clearing this checkbox severely limits
+            the capabilities of the code model.
     \row
         \li \uicontrol {Do not index files greater than}
         \li To avoid out-of-memory crashes caused by indexing huge source files
