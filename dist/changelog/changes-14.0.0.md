@@ -13,6 +13,8 @@ the public Git repository. For example:
 General
 -------
 
+* Started work on supporting Lua based plugins (registering language servers,
+  actions, preferences, and wizards)
 * Added `Clear` and `Save Contents` to context menus of all output views
 * Locator
     * Added the option to show results relative to project root
