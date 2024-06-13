@@ -162,7 +162,7 @@ void checkContents(QPromise<ArchiveIssue> &promise, const FilePath &tempDir)
                 [coreplugin](const PluginDependency &d) { return d.name == coreplugin->name(); });
             if (found == dependencies.constEnd())
                 return;
-            if (coreplugin->provides(found->name, found->version))
+            if ((*spec)->provides(coreplugin, *found))
                 return;
             promise.addResult(
                 ArchiveIssue{Tr::tr("Plugin requires an incompatible version of %1 (%2).")

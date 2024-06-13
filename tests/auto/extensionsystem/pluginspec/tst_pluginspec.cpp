@@ -190,25 +190,25 @@ void tst_PluginSpec::provides()
     CppPluginSpec spec;
     QVERIFY(spec.readMetaData(metaData("testspecs/simplespec.json")));
 
-    QVERIFY(!spec.provides("SomeOtherPlugin", "2.2.3_9"));
-    QVERIFY(!spec.provides("MyPlugin", "2.2.3_10"));
-    QVERIFY(!spec.provides("MyPlugin", "2.2.4"));
-    QVERIFY(!spec.provides("MyPlugin", "2.3.11_1"));
-    QVERIFY(!spec.provides("MyPlugin", "2.3"));
-    QVERIFY(!spec.provides("MyPlugin", "3.0"));
-    QVERIFY(!spec.provides("MyPlugin", "1.9.9_99"));
-    QVERIFY(!spec.provides("MyPlugin", "1.9"));
-    QVERIFY(!spec.provides("MyPlugin", "0.9"));
-    QVERIFY(!spec.provides("MyPlugin", "1"));
+    QVERIFY(!spec.provides(&spec, {"SomeOtherPlugin", "2.2.3_9"}));
+    QVERIFY(!spec.provides(&spec, {"MyPlugin", "2.2.3_10"}));
+    QVERIFY(!spec.provides(&spec, {"MyPlugin", "2.2.4"}));
+    QVERIFY(!spec.provides(&spec, {"MyPlugin", "2.3.11_1"}));
+    QVERIFY(!spec.provides(&spec, {"MyPlugin", "2.3"}));
+    QVERIFY(!spec.provides(&spec, {"MyPlugin", "3.0"}));
+    QVERIFY(!spec.provides(&spec, {"MyPlugin", "1.9.9_99"}));
+    QVERIFY(!spec.provides(&spec, {"MyPlugin", "1.9"}));
+    QVERIFY(!spec.provides(&spec, {"MyPlugin", "0.9"}));
+    QVERIFY(!spec.provides(&spec, {"MyPlugin", "1"}));
 
-    QVERIFY(spec.provides("myplugin", "2.2.3_9"));
-    QVERIFY(spec.provides("MyPlugin", "2.2.3_9"));
-    QVERIFY(spec.provides("MyPlugin", "2.2.3_8"));
-    QVERIFY(spec.provides("MyPlugin", "2.2.3"));
-    QVERIFY(spec.provides("MyPlugin", "2.2.2"));
-    QVERIFY(spec.provides("MyPlugin", "2.1.2_10"));
-    QVERIFY(spec.provides("MyPlugin", "2.0_10"));
-    QVERIFY(spec.provides("MyPlugin", "2"));
+    QVERIFY(spec.provides(&spec, {"myplugin", "2.2.3_9"}));
+    QVERIFY(spec.provides(&spec, {"MyPlugin", "2.2.3_9"}));
+    QVERIFY(spec.provides(&spec, {"MyPlugin", "2.2.3_8"}));
+    QVERIFY(spec.provides(&spec, {"MyPlugin", "2.2.3"}));
+    QVERIFY(spec.provides(&spec, {"MyPlugin", "2.2.2"}));
+    QVERIFY(spec.provides(&spec, {"MyPlugin", "2.1.2_10"}));
+    QVERIFY(spec.provides(&spec, {"MyPlugin", "2.0_10"}));
+    QVERIFY(spec.provides(&spec, {"MyPlugin", "2"}));
 }
 
 void tst_PluginSpec::experimental()

@@ -36,13 +36,14 @@ class PluginView;
 
 struct EXTENSIONSYSTEM_EXPORT PluginDependency
 {
-    enum Type {
-        Required,
-        Optional,
-        Test
-    };
+    enum Type { Required, Optional, Test };
 
     PluginDependency() : type(Required) {}
+    PluginDependency(const QString &name, const QString &version, Type type = Required)
+        : name(name)
+        , version(version)
+        , type(type)
+    {}
 
     QString name;
     QString version;
@@ -130,7 +131,7 @@ public:
     virtual void addArgument(const QString &argument);
     virtual QHash<PluginDependency, PluginSpec *> dependencySpecs() const;
 
-    virtual bool provides(const QString &pluginName, const QString &pluginVersion) const;
+    virtual bool provides(PluginSpec *spec, const PluginDependency &dependency) const;
     virtual bool requiresAny(const QSet<PluginSpec *> &plugins) const;
     virtual PluginSpecs enableDependenciesIndirectly(bool enableTestDependencies);
     virtual bool resolveDependencies(const PluginSpecs &pluginSpecs);
