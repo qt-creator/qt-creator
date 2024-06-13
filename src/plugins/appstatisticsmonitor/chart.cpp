@@ -38,7 +38,8 @@ AppStatisticsMonitorChart::AppStatisticsMonitorChart(
     m_chartView->setMinimumHeight(200);
     m_chartView->setMinimumWidth(400);
     const QBrush brushTitle(creatorColor(Theme::Token_Text_Muted));
-    const QBrush brush(creatorColor(Theme::Token_Background_Default));
+    // const QBrush brush(creatorColor(Theme::Token_Background_Default)); left for the future
+    const QBrush brush(creatorColor(Theme::BackgroundColorNormal));
     const QPen penBack(creatorColor(Theme::Token_Text_Muted));
     const QPen penAxis(creatorColor(Theme::Token_Text_Muted));
 
@@ -160,8 +161,8 @@ void Chart::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
     QPainter painter(this);
-
-    painter.fillRect(rect(), creatorColor(Theme::Token_Background_Default));
+    // painter.fillRect(rect(), creatorColor(Theme::Token_Background_Default)); left for the future
+    painter.fillRect(rect(), creatorColor(Theme::BackgroundColorNormal));
 
     // add the name of the chart in the middle of the widget width and on the top
     painter.drawText(
