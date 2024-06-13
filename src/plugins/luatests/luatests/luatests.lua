@@ -13,8 +13,7 @@ return {
         It has tests for (almost) all functionality exposed by the API.
     ]],
     Dependencies = {
-        { Name = "Core", Version = "13.0.82", Required = true },
-        { Name = "Lua",  Version = "13.0.82", Required = true }
+        { Name = "Lua",  Version = "14.0.0" }
     },
     setup = function() require 'tests'.setup() end,
     printToOutputPane = true,

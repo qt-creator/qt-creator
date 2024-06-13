@@ -29,7 +29,7 @@ QtcPlugin = {}
 ---@class QtcPluginDependency
 ---@field Name string The name of the dependency.
 ---@field Version string The version of the dependency. (`major.minor.patch`)
----@field Required boolean Whether the dependency is required or not.
+---@field Required? "required"|"optional"|"test" Whether the dependency is required or not. (Default: "required")
 QtcPluginDependency = {}
 
 

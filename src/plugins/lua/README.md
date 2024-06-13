@@ -40,7 +40,7 @@ Can contain newlines.
     disabledByDefault = false,
 
     dependencies = {
-        { name="Core", version = "12.0.0" }
+        { name="Core", version = "14.0.0" }
     },
 } --[[@as QtcPlugin]]
 ```
