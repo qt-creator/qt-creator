@@ -9,7 +9,7 @@
                 "-tcs",
                 "-load",
                 "Lua",
-                "-loadluaplugin",
+                "-pluginpath",
                 "%\{ActiveProject:ProjectDirectory\}"
             ]
         }

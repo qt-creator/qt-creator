@@ -20,10 +20,6 @@
             "value": "%{ProjectDirectory}/.qtcreator/project.json"
         },
         {
-            "key": "PluginNameLower",
-            "value": "%{JS: value('PluginName').toLowerCase()}"
-        },
-        {
             "key": "PluginSpecFile",
             "value": "%{JS: Util.fileName(value('PluginName').toLowerCase(), Util.preferredSuffix('text/x-lua'))}"
         },
@@ -147,14 +143,14 @@
                 },
                 {
                     "source": "init.lua.tpl",
-                    "target": "%{SrcFileName}"
+                    "target": "%{PluginName}/%{SrcFileName}"
                 },
                 {
                     "source": ".luarc.json"
                 },
                 {
                     "source": "plugin.lua.tpl",
-                    "target": "%{PluginSpecFile}",
+                    "target": "%{PluginName}/%{PluginSpecFile}",
                     "openInEditor": true
                 }
             ]
