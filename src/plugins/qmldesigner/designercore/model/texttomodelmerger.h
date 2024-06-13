@@ -141,7 +141,10 @@ private:
     static QString textAt(const QmlJS::Document::Ptr &doc,
                           const QmlJS::SourceLocation &from,
                           const QmlJS::SourceLocation &to);
-
+#ifndef QDS_USE_PROJECTSTORAGE
+    QList<QmlDesigner::Import> generatePossibleFileImports(
+        const QString &path, const QList<QmlJS::Import> &usedImports) const;
+#endif
 private:
     RewriterView *m_rewriterView;
     bool m_isActive;

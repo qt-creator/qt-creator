@@ -781,13 +781,14 @@ bool skipModule(QStringView moduleName)
 }
 
 void collectPossibleFileImports(const QString &checkPath,
-                                const QString &projectFolder,
+                                const QDir &docDir,
                                 QSet<QString> usedImportsSet,
                                 QList<QmlDesigner::Import> &possibleImports)
 {
     const QStringList qmlList("*.qml");
     const QStringList qmldirList("qmldir");
     const QChar delimeter('/');
+    const QString upDir("../");
 
     if (QFileInfo(checkPath).isRoot())
         return;
@@ -800,28 +801,19 @@ void collectPossibleFileImports(const QString &checkPath,
         if (!dir.entryInfoList(qmlList, QDir::Files).isEmpty()
             && dir.entryInfoList(qmldirList, QDir::Files).isEmpty()
             && !usedImportsSet.contains(dirPath)) {
-            const QString importName = dir.path().mid(projectFolder.size() + 1);
+            const QString importName = docDir.relativeFilePath(dirPath);
+
+            // Omit all imports that would be just "../", "../../" etc. without additional subfolder,
+            // as we don't want to encourage bad design. "../MySharedComps" is a legitimate
+            // use, though.
+            if (importName.startsWith(upDir) && importName.lastIndexOf(upDir) == importName.size() - 3)
+                continue;
+
             QmlDesigner::Import import = QmlDesigner::Import::createFileImport(importName);
             possibleImports.append(import);
         }
-        collectPossibleFileImports(dirPath, projectFolder, usedImportsSet, possibleImports);
+        collectPossibleFileImports(dirPath, docDir, usedImportsSet, possibleImports);
     }
-}
-
-QList<QmlDesigner::Import> generatePossibleFileImports(const QString &path,
-                                                       const QList<QmlJS::Import> &usedImports)
-{
-    QSet<QString> usedImportsSet;
-    for (const QmlJS::Import &i : usedImports)
-        usedImportsSet.insert(i.info.path());
-
-    QList<QmlDesigner::Import> possibleImports;
-
-    QStringList fileImportPaths;
-
-    collectPossibleFileImports(path, path, usedImportsSet, possibleImports);
-
-    return possibleImports;
 }
 
 QmlDesigner::Imports createQt5Modules()
@@ -886,6 +878,25 @@ void TextToModelMerger::setupPossibleImports()
     if (m_rewriterView->isAttached())
         m_rewriterView->model()->setPossibleImports(modules);
 }
+
+QList<QmlDesigner::Import> TextToModelMerger::generatePossibleFileImports(
+    const QString &path, const QList<QmlJS::Import> &usedImports) const
+{
+    if (!m_rewriterView)
+        return {};
+
+    QSet<QString> usedImportsSet;
+    for (const QmlJS::Import &i : usedImports)
+        usedImportsSet.insert(i.info.path());
+
+    QList<QmlDesigner::Import> possibleImports;
+
+    collectPossibleFileImports(m_rewriterView->externalDependencies().currentResourcePath().toLocalFile(),
+                               QDir(path), usedImportsSet, possibleImports);
+
+    return possibleImports;
+}
+
 #endif
 
 #ifndef QDS_USE_PROJECTSTORAGE
