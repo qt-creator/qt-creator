@@ -110,7 +110,9 @@ Editing
 
 ### Compiler Explorer
 
-* Added a wizard template for code that uses Qt
+* Added a wizard template for code that uses Qt to `File`> `New File`>
+  `Compiler Explorer`
+  [Documentation](https://doc.qt.io/qtcreator/creator-how-to-create-compiler-explorer-sessions.html)
 
 ### Models
 
