@@ -50,6 +50,8 @@ private:
         QVector3D lookAt;
         QVector3D extents;
         QQuick3DNode *node = {};
+        QQuaternion cameraRotation;
+        QVector3D cameraPosition;
     };
     QHash<QString, PreviewData> m_previewData;
 

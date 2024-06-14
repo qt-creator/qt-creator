@@ -94,12 +94,14 @@ void Qt5Import3dNodeInstanceServer::view3DAction([[maybe_unused]] const View3DAc
         QQmlProperty sceneNodeProp(obj, "sceneNode", context());
         auto sceneNode = sceneNodeProp.read().value<QQuick3DNode *>();
         if (sceneNode && m_previewData.contains(m_currentNode)) {
-            const PreviewData &data = m_previewData[m_currentNode];
+            PreviewData &data = m_previewData[m_currentNode];
             QPointF delta = command.value().toPointF();
             m_generalHelper->orbitCamera(m_view3D->camera(), m_view3D->camera()->eulerRotation(),
                                          data.lookAt, {}, {float(delta.x()), float(delta.y()), 0.f});
             // Add 2 renders to keep render timer alive for smooth rotation
             addCurrentNodeToRenderQueue(2);
+            data.cameraRotation = m_view3D->camera()->rotation();
+            data.cameraPosition = m_view3D->camera()->position();
         }
         break;
     }
@@ -108,7 +110,8 @@ void Qt5Import3dNodeInstanceServer::view3DAction([[maybe_unused]] const View3DAc
         const QString name = cmd["name"].toString();
         const QString folder = cmd["folder"].toString();
 
-        if (m_previewData.contains(name)) {
+        bool isUpdate = m_previewData.contains(name);
+        if (isUpdate) {
             QQuick3DNode *node = m_previewData[name].node;
             if (node) {
                 node->setParentItem({});
@@ -120,6 +123,10 @@ void Qt5Import3dNodeInstanceServer::view3DAction([[maybe_unused]] const View3DAc
         PreviewData &data = m_previewData[name];
         data.name = name;
         data.lookAt = {};
+        if (!isUpdate) {
+            data.cameraRotation = m_defaultCameraRotation;
+            data.cameraPosition = m_defaultCameraPosition;
+        }
 
         QFileInfo fi(fileUrl().toLocalFile());
         QString compPath = fi.absolutePath() + '/' + folder + '/' + name + ".qml";
@@ -143,7 +150,16 @@ void Qt5Import3dNodeInstanceServer::view3DAction([[maybe_unused]] const View3DAc
     case View3DActionType::Import3dSetCurrentPreviewModel: {
         QString newName = command.value().toString();
         if (m_previewData.contains(newName) && m_currentNode != newName) {
+            QQuick3DCamera *camera = m_view3D->camera();
+            if (m_previewData.contains(m_currentNode)) {
+                PreviewData &oldData = m_previewData[m_currentNode];
+                oldData.cameraPosition = camera->position();
+                oldData.cameraRotation = camera->rotation();
+            }
             m_currentNode = newName;
+            const PreviewData &newData = m_previewData[m_currentNode];
+            camera->setPosition(newData.cameraPosition);
+            camera->setRotation(newData.cameraRotation);
             addInitToRenderQueue();
             addCurrentNodeToRenderQueue();
         }
