@@ -576,7 +576,7 @@ QString RewriterView::auxiliaryDataAsQML() const
 
     int columnCount = 0;
 
-    const QRegularExpression safeName("^[a-z][a-zA-Z0-9]*$");
+    static const QRegularExpression safeName(R"(^[a-z][a-zA-Z0-9]*$)");
 
     for (const auto &node : allModelNodes()) {
         auto data = node.auxiliaryData(AuxiliaryDataType::Document);
