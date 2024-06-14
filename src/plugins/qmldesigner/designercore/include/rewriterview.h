@@ -196,7 +196,7 @@ private: //variables
     void handleProjectUpdate();
     bool inErrorState() const { return !m_rewritingErrorMessage.isEmpty(); }
 
-    TextModifier *m_textModifier = nullptr;
+    QPointer<TextModifier> m_textModifier;
     int transactionLevel = 0;
     bool m_modificationGroupActive = false;
     bool m_checkSemanticErrors = true;
