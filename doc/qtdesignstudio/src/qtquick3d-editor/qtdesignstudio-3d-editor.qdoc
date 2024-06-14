@@ -365,6 +365,10 @@
             \li Toggles the visibility of the helper grid.
             \li \key G
         \row
+            \li Show Look-at
+            \li Toggles the visibility of the edit camera look-at indicator.
+            \li \key L
+        \row
             \li Show Selection Boxes
             \li Toggles the visibility of selection boxes for selected 3D objects.
             \li \key B
