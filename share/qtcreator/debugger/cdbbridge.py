@@ -314,25 +314,6 @@ class Dumper(DumperBase):
         self.qtDeclarativeHookDataSymbolName = lambda: hookSymbolName
         return hookSymbolName
 
-    def qtNamespace(self):
-        namespace = ''
-        qstrdupSymbolName = '*qstrdup'
-        coreModuleName = self.qtCoreModuleName()
-        if coreModuleName is not None:
-            qstrdupSymbolName = '%s!%s' % (coreModuleName, qstrdupSymbolName)
-            resolved = cdbext.resolveSymbol(qstrdupSymbolName)
-            if resolved:
-                name = resolved[0].split('!')[1]
-                namespaceIndex = name.find('::')
-                if namespaceIndex > 0:
-                    namespace = name[:namespaceIndex + 2]
-            self.qtNamespace = lambda: namespace
-            self.qtCustomEventFunc = self.parseAndEvaluate(
-                '%s!%sQObject::customEvent' %
-                (self.qtCoreModuleName(), namespace)).address()
-        self.qtNamespace = lambda: namespace
-        return namespace
-
     def extractQtVersion(self):
         try:
             qtVersion = self.parseAndEvaluate(
@@ -924,3 +905,12 @@ class Dumper(DumperBase):
         if self.useDynamicType:
             val.typeid = self.dynamic_typeid_at_address(val.typeid, address)
         return val
+
+    def fetchInternalFunctions(self):
+        coreModuleName = self.qtCoreModuleName()
+        ns = self.qtNamespace()
+        if coreModuleName is not None:
+            self.qtCustomEventFunc = self.parseAndEvaluate(
+                '%s!%sQObject::customEvent' %
+                (self.qtCoreModuleName(), ns)).address()
+        self.fetchInternalFunctions = lambda: None
