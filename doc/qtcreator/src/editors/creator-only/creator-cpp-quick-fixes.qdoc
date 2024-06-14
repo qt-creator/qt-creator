@@ -115,7 +115,7 @@
         \row
             \li Assign to Local Variable
             \li Adds a local variable which stores the return value of a
-                function call or a new expression. For example, rewrites:
+                function call or a new expression. For example, rewrites
 
     \code
     QString s;
@@ -195,7 +195,7 @@
         \row
             \li Move All Function Definitions
             \li Moves all function definitions to the implementation file or
-                outside the class. For example, rewrites:
+                outside the class. For example, rewrites
     \code
     class Foo
     {
@@ -281,12 +281,14 @@
             \li Description
         \row
             \li Add Curly Braces
-            \li Adds curly braces to an if statement that does not have a
-                compound statement. For example, rewrites
+            \li Adds curly braces to an if clause or to a do, while, or for
+                loop. For example, rewrites an if clause
 
     \code
     if (a)
         b;
+    else
+        c;
     \endcode
 
                 as
@@ -294,6 +296,54 @@
     \code
     if (a) {
         b;
+    } else {
+        c;
+    }
+    \endcode
+
+    Rewrites a do loop
+
+    \code
+    do
+        ++i;
+    while (i < 10);
+    \endcode
+
+                as
+
+    \code
+    do {
+        ++i;
+    } while (i < 10);
+    \endcode
+
+    Rewrites a while loop
+
+    \code
+    while (i > 0)
+        --i;
+    \endcode
+
+            as
+
+    \code
+    while (i > 0) {
+        --i;
+    }
+    \endcode
+
+    Rewrites a for loop
+
+    \code
+    for (int i = 0; i < 10; ++i)
+        func(i);
+    \endcode
+
+            as
+
+    \code
+    for (int i = 0; i < 10; ++i) {
+         func(i);
     }
     \endcode
         \row
@@ -321,7 +371,7 @@
                 post-decrement operators as pre-decrement operators. It also
                 moves other than string or numeric literals and id expressions
                 from the condition of a for loop to its initializer. For
-                example, rewrites:
+                example, rewrites
 
     \code
     for (int i = 0; i < 3 * 2; i++)
@@ -451,7 +501,7 @@
 
     The quick fix also works on invokable methods outside the class that are
     visible from the location where they are called from. For example, it
-    rewrites:
+    rewrites
 
     \code
     Foo f;
@@ -470,7 +520,7 @@
         \row
             \li Move Function Definition
             \li Moves a function definition to the implementation file, outside
-                the class or back to its declaration. For example, rewrites:
+                the class or back to its declaration. For example, rewrites
     \code
     class Foo
     {
@@ -555,7 +605,7 @@
         \row
             \li Rewrite Condition Using ||
             \li Rewrites the expression according to De Morgan's laws. For
-                example, rewrites:
+                example, rewrites
     \code
     !a && !b
     \endcode
@@ -569,7 +619,7 @@
         \row
             \li Rewrite Using \e operator
             \li Rewrites an expression negating it and using the inverse
-                operator. For example, rewrites:
+                operator. For example, rewrites
 
             \list
 
@@ -609,7 +659,7 @@
         \row
             \li Split if Statement
             \li Splits an if statement into several statements. For example,
-                rewrites:
+                rewrites
 
     \code
     if (something && something_else) {
@@ -645,7 +695,7 @@
         \row
             \li Swap Operands
             \li Rewrites an expression in the inverse order using the inverse
-                operator. For example, rewrites:
+                operator. For example, rewrites
     \code
     a op b
     \endcode
@@ -801,7 +851,7 @@
         \row
             \li Convert to Pointer
             \li Converts the selected stack variable to a pointer. For example,
-                rewrites:
+                rewrites
 
     \code
     QByteArray foo = "foo";
@@ -822,7 +872,7 @@
         \row
             \li Convert to Stack Variable
             \li Converts the selected pointer to a stack variable. For example,
-                rewrites:
+                rewrites
 
     \code
     QByteArray *foo = new QByteArray("foo");
@@ -847,7 +897,7 @@
                 project is open, the current global code style settings are
                 used.
 
-                For example, rewrites:
+                For example, rewrites
 
     \code
     char*s;
@@ -867,7 +917,7 @@
         \row
             \li Split Declaration
             \li Splits a simple declaration into several declarations. For
-                example, rewrites:
+                example, rewrites
     \code
     int *a, b;
     \endcode

@@ -51,9 +51,11 @@ Editing
       ([QTCREATORBUG-12190](https://bugreports.qt.io/browse/QTCREATORBUG-12190))
     * Added `Re-order Member Function Definitions According to Declaration Order`
       ([QTCREATORBUG-6199](https://bugreports.qt.io/browse/QTCREATORBUG-6199))
-    * Added triggers for `Add Curly Braces`
+    * Added `Add Curly Braces` for do, while, and for loops
     * Fixed issues with macros
       ([QTCREATORBUG-10279](https://bugreports.qt.io/browse/QTCREATORBUG-10279))
+
+    [Documentation](https://doc.qt.io/qtcreator/creator-reference-cpp-quick-fixes.html)
 * Clangd
     * Increased the minimum version to LLVM 17
     * Added the `Per-project index location` and `Per-session index location`
