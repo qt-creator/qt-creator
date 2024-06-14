@@ -124,7 +124,7 @@ class Dumper(DumperBase):
                     pass
         if nativeValue.type().code() == TypeCode.Enum:
             val.ldisplay = self.enumValue(nativeValue)
-        elif not nativeValue.type().resolved and nativeValue.type().code() == TypeCode.Struct and not nativeValue.hasChildren():
+        elif not nativeValue.type().resolved() and nativeValue.type().code() == TypeCode.Struct and not nativeValue.hasChildren():
             val.ldisplay = self.enumValue(nativeValue)
         val.isBaseClass = val.name == nativeValue.type().name()
         val.typeid = self.from_native_type(nativeValue.type())
