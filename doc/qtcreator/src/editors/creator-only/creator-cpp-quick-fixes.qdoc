@@ -411,8 +411,59 @@
                 \inlineimage icons/refactormarker.png
         \row
             \li Convert Function Call to Qt Meta-Method Invocation
-            \li Converts a normal function call into a meta method invocation, if
-                the function is marked as invokable.
+            \li Converts an invokable function call into a meta method
+                invocation. This applies to signals and slots in general,
+                as well as functions explicitly marked with \c Q_INVOKABLE.
+                For example, for the following class:
+    \code
+    class Foo : public QObject
+    {
+        Q_OBJECT
+    public:
+        explicit Foo(QObject *parent = nullptr);
+
+        Q_SLOT void pubBar(int i);
+
+    private:
+        Q_INVOKABLE void bar(int i, const QString &c);
+    };
+    \endcode
+
+                rewrites
+
+    \code
+    Foo::Foo(QObject *parent)
+        : QObject{parent}
+    {
+        this->bar(42, QString("answer"));
+    }
+    \endcode
+
+                as
+
+    \code
+    Foo::Foo(QObject *parent)
+        : QObject{parent}
+    {
+        QMetaObject::invokeMethod(this, "bar", Q_ARG(int, 42), Q_ARG(QString, QString("answer")));
+    }
+    \endcode
+
+    The quick fix also works on invokable methods outside the class that are
+    visible from the location where they are called from. For example, it
+    rewrites:
+
+    \code
+    Foo f;
+    f.pubBar(123);
+    \endcode
+
+    as
+
+    \code
+    Foo f;
+    QMetaObject::invokeMethod(&f, "pubBar", Q_ARG(int, 123));
+    \endcode
         \row
             \li Move Definition Here
             \li Moves an existing function definition to its declaration.
