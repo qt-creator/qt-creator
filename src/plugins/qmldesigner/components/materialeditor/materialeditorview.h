@@ -61,10 +61,17 @@ public:
     void importsChanged(const Imports &addedImports, const Imports &removedImports) override;
     void customNotification(const AbstractView *view, const QString &identifier,
                             const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
-    void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent,
+
+    void nodeReparented(const ModelNode &node,
+                        const NodeAbstractProperty &newPropertyParent,
                         const NodeAbstractProperty &oldPropertyParent,
                         AbstractView::PropertyChangeFlags propertyChange) override;
+
+    void nodeIdChanged(const ModelNode &node, const QString &newId, const QString &oldId) override;
     void nodeAboutToBeRemoved(const ModelNode &removedNode) override;
+    void nodeRemoved(const ModelNode &removedNode,
+                     const NodeAbstractProperty &parentProperty,
+                     PropertyChangeFlags propertyChange) override;
 
     void dragStarted(QMimeData *mimeData) override;
     void dragEnded() override;
@@ -128,6 +135,7 @@ private:
     bool m_hasQuick3DImport = false;
     bool m_hasMaterialRoot = false;
     bool m_initializingPreviewData = false;
+    bool m_textureAboutToBeRemoved = false;
     QSize m_previewSize;
     QByteArray m_previewRequestId;
 

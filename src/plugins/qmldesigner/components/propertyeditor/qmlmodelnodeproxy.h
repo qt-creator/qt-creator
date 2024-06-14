@@ -28,6 +28,7 @@ public:
 
     void emitSelectionToBeChanged();
     void emitSelectionChanged();
+    void refresh();
 
     QmlObjectNode qmlObjectNode() const;
 
@@ -70,6 +71,7 @@ signals:
     void modelNodeChanged();
     void selectionToBeChanged();
     void selectionChanged();
+    void refreshRequired();
 
 private:
     QList<int> allChildren(const ModelNode &modelNode) const;

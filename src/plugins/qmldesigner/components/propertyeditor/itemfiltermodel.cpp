@@ -28,8 +28,15 @@ void ItemFilterModel::setModelNodeBackend(const QVariant &modelNodeBackend)
     const auto backendObjectCasted =
             qobject_cast<const QmlModelNodeProxy *>(modelNodeBackendObject);
 
-    if (backendObjectCasted)
+    disconnect(m_updateConnection);
+    if (backendObjectCasted) {
         m_modelNode = backendObjectCasted->qmlObjectNode().modelNode();
+
+        m_updateConnection = connect(backendObjectCasted,
+                                     &QmlModelNodeProxy::refreshRequired,
+                                     this,
+                                     &ItemFilterModel::setupModel);
+    }
 
     setupModel();
     emit modelNodeBackendChanged();

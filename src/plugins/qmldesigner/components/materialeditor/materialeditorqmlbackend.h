@@ -44,6 +44,7 @@ public:
     void setSource(const QUrl &url);
     QmlAnchorBindingProxy &backendAnchorBinding();
     void updateMaterialPreview(const QPixmap &pixmap);
+    void refreshBackendModel();
     DesignerPropertyMap &backendValuesPropertyMap();
     MaterialEditorTransaction *materialEditorTransaction() const;
 

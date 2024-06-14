@@ -46,6 +46,11 @@ void QmlModelNodeProxy::emitSelectionChanged()
     emit selectionChanged();
 }
 
+void QmlModelNodeProxy::refresh()
+{
+    emit refreshRequired();
+}
+
 QmlObjectNode QmlModelNodeProxy::qmlObjectNode() const
 {
     return m_qmlObjectNode;

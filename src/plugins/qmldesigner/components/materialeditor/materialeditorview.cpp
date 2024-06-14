@@ -44,6 +44,19 @@ namespace QmlDesigner {
 
 static const char MATERIAL_EDITOR_IMAGE_REQUEST_ID[] = "MaterialEditor";
 
+static bool containsTexture(const ModelNode &node)
+{
+    if (node.metaInfo().isQtQuick3DTexture())
+        return true;
+
+    const ModelNodes children = node.allSubModelNodes();
+    for (const ModelNode &child : children) {
+        if (child.metaInfo().isQtQuick3DTexture())
+            return true;
+    }
+    return false;
+};
+
 MaterialEditorView::MaterialEditorView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
     , m_stackedWidget(new QStackedWidget)
@@ -1110,12 +1123,34 @@ void MaterialEditorView::nodeReparented(const ModelNode &node,
 {
     if (node.id() == Constants::MATERIAL_LIB_ID && m_qmlBackEnd && m_qmlBackEnd->contextObject())
         m_qmlBackEnd->contextObject()->setHasMaterialLibrary(true);
+    else if (m_qmlBackEnd && containsTexture(node))
+        m_qmlBackEnd->refreshBackendModel();
+}
+
+void MaterialEditorView::nodeIdChanged(const ModelNode &node,
+                                       [[maybe_unused]] const QString &newId,
+                                       [[maybe_unused]] const QString &oldId)
+{
+    if (m_qmlBackEnd && node.metaInfo().isQtQuick3DTexture())
+        m_qmlBackEnd->refreshBackendModel();
 }
 
 void MaterialEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
     if (removedNode.id() == Constants::MATERIAL_LIB_ID && m_qmlBackEnd && m_qmlBackEnd->contextObject())
         m_qmlBackEnd->contextObject()->setHasMaterialLibrary(false);
+    else if (containsTexture(removedNode))
+        m_textureAboutToBeRemoved = true;
+}
+
+void MaterialEditorView::nodeRemoved([[maybe_unused]] const ModelNode &removedNode,
+                                     [[maybe_unused]] const NodeAbstractProperty &parentProperty,
+                                     [[maybe_unused]] PropertyChangeFlags propertyChange)
+{
+    if (m_qmlBackEnd && m_textureAboutToBeRemoved)
+        m_qmlBackEnd->refreshBackendModel();
+
+    m_textureAboutToBeRemoved = false;
 }
 
 void QmlDesigner::MaterialEditorView::highlightSupportedProperties(bool highlight)

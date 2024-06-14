@@ -178,6 +178,11 @@ void MaterialEditorQmlBackend::updateMaterialPreview(const QPixmap &pixmap)
     QMetaObject::invokeMethod(m_quickWidget->rootObject(), "refreshPreview");
 }
 
+void MaterialEditorQmlBackend::refreshBackendModel()
+{
+    m_backendModelNode.refresh();
+}
+
 DesignerPropertyMap &MaterialEditorQmlBackend::backendValuesPropertyMap()
 {
     return m_backendValuesPropertyMap;

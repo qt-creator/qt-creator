@@ -71,6 +71,7 @@ private:
     QString m_typeFilter;
     QList<qint32> m_modelInternalIds;
     QmlDesigner::ModelNode m_modelNode;
+    QMetaObject::Connection m_updateConnection;
     bool m_selectionOnly;
     QStringList m_selectedItems;
 
