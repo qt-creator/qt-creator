@@ -23,7 +23,7 @@ StudioControls.Menu {
     {
         root.targetItem = item
 
-        let isMaterial = root.targetItem.itemType === "material"
+        let isMaterial = root.targetItem.bundleId === "UserMaterials"
         applyToSelectedReplace.visible = isMaterial
         applyToSelectedAdd.visible = isMaterial
 

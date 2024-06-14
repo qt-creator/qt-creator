@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "contentlibraryusermodel.h"
+#include "useritemcategory.h"
+#include "usertexturecategory.h"
 
 #include "contentlibrarybundleimporter.h"
 #include "contentlibraryitem.h"
@@ -28,6 +30,7 @@ ContentLibraryUserModel::ContentLibraryUserModel(ContentLibraryWidget *parent)
     : QAbstractListModel(parent)
     , m_widget(parent)
 {
+    createCategories();
 }
 
 int ContentLibraryUserModel::rowCount(const QModelIndex &) const
@@ -40,119 +43,73 @@ QVariant ContentLibraryUserModel::data(const QModelIndex &index, int role) const
     QTC_ASSERT(index.isValid() && index.row() < m_userCategories.size(), return {});
     QTC_ASSERT(roleNames().contains(role), return {});
 
-    if (role == NameRole)
-        return m_userCategories.at(index.row());
+    UserCategory *currCat = m_userCategories.at(index.row());
 
-    if (role == ItemsRole) {
-        if (index.row() == MaterialsSectionIdx)
-            return QVariant::fromValue(m_userMaterials);
-        if (index.row() == TexturesSectionIdx)
-            return QVariant::fromValue(m_userTextures);
-        if (index.row() == Items3DSectionIdx)
-            return QVariant::fromValue(m_user3DItems);
-        if (index.row() == EffectsSectionIdx)
-            return QVariant::fromValue(m_userEffects);
-    }
+    if (role == TitleRole)
+        return currCat->title();
 
-    if (role == NoMatchRole) {
-        if (index.row() == MaterialsSectionIdx)
-            return m_noMatchMaterials;
-        if (index.row() == TexturesSectionIdx)
-            return m_noMatchTextures;
-        if (index.row() == Items3DSectionIdx)
-            return m_noMatch3D;
-        if (index.row() == EffectsSectionIdx)
-            return m_noMatchEffects;
-    }
+    if (role == ItemsRole)
+        return QVariant::fromValue(currCat->items());
 
-    if (role == VisibleRole) {
-        if (index.row() == MaterialsSectionIdx)
-            return !m_userMaterials.isEmpty();
-        if (index.row() == TexturesSectionIdx)
-            return !m_userTextures.isEmpty();
-        if (index.row() == Items3DSectionIdx)
-            return !m_user3DItems.isEmpty();
-        if (index.row() == EffectsSectionIdx)
-            return !m_userEffects.isEmpty();
-    }
+    if (role == NoMatchRole)
+        return currCat->noMatch();
+
+    if (role == EmptyRole)
+        return currCat->isEmpty();
 
     return {};
 }
 
-void ContentLibraryUserModel::updateNoMatchMaterials()
+void ContentLibraryUserModel::createCategories()
 {
-    m_noMatchMaterials = Utils::allOf(m_userMaterials, [&](ContentLibraryItem *item) {
-        return !item->visible();
-    });
+    QTC_ASSERT(m_userCategories.isEmpty(), return);
+
+    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+    auto userBundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User");
+
+    auto catMaterial = new UserItemCategory{tr("Materials"),
+                                            userBundlePath.pathAppended("materials"),
+                                            compUtils.userMaterialsBundleId()};
+
+    auto catTexture = new UserTextureCategory{tr("Textures"), userBundlePath.pathAppended("textures")};
+
+    auto cat3D = new UserItemCategory{tr("3D"), userBundlePath.pathAppended("3d"),
+                                      compUtils.user3DBundleId()};
+
+    m_userCategories << catMaterial << catTexture << cat3D;
 }
 
-void ContentLibraryUserModel::updateNoMatchTextures()
-{
-    m_noMatchTextures = Utils::allOf(m_userTextures, [&](ContentLibraryTexture *item) {
-        return !item->visible();
-    });
-}
-
-void ContentLibraryUserModel::updateNoMatch3D()
-{
-    m_noMatch3D = Utils::allOf(m_user3DItems, [&](ContentLibraryItem *item) {
-        return !item->visible();
-    });
-}
-
-void ContentLibraryUserModel::addMaterial(const QString &name, const QString &qml,
-                                          const QUrl &icon, const QStringList &files)
+void ContentLibraryUserModel::addItem(const QString &bundleId, const QString &name,
+                                      const QString &qml, const QUrl &icon, const QStringList &files)
 {
     auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
 
-    QString typePrefix = compUtils.userMaterialsBundleType();
+    QString typePrefix = compUtils.userBundleType(bundleId);
     TypeName type = QLatin1String("%1.%2").arg(typePrefix, qml.chopped(4)).toLatin1();
 
-    auto libMat = new ContentLibraryItem(this, name, qml, type, icon, files, "material");
-    m_userMaterials.append(libMat);
+    SectionIndex sectionIndex = bundleIdToSectionIndex(bundleId);
 
-    emit dataChanged(index(MaterialsSectionIdx), index(MaterialsSectionIdx));
-
+    UserCategory *cat = m_userCategories[sectionIndex];
+    cat->addItem(new ContentLibraryItem(cat, name, qml, type, icon, files, bundleId));
+    emit dataChanged(index(sectionIndex), index(sectionIndex), {ItemsRole, EmptyRole});
     updateIsEmpty();
 }
 
-void ContentLibraryUserModel::add3DItem(const QString &name, const QString &qml,
-                                        const QUrl &icon, const QStringList &files)
+void ContentLibraryUserModel::refreshSection(const QString &bundleId)
 {
-    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-
-    QString typePrefix = compUtils.user3DBundleType();
-    TypeName type = QLatin1String("%1.%2").arg(typePrefix, qml.chopped(4)).toLatin1();
-
-    m_user3DItems.append(new ContentLibraryItem(this, name, qml, type, icon, files, "3d"));
-}
-
-void ContentLibraryUserModel::refreshSection(SectionIndex sectionIndex)
-{
-    emit dataChanged(index(sectionIndex), index(sectionIndex));
+    SectionIndex sectionIdx = bundleIdToSectionIndex(bundleId);
+    emit dataChanged(index(sectionIdx), index(sectionIdx), {ItemsRole, EmptyRole});
     updateIsEmpty();
 }
 
-void ContentLibraryUserModel::addTextures(const QStringList &paths)
+void ContentLibraryUserModel::addTextures(const Utils::FilePaths &paths)
 {
-    QDir bundleDir{Paths::bundlesPathSetting() + "/User/textures"};
-    bundleDir.mkpath(".");
-    bundleDir.mkdir("icons");
+    auto texCat = qobject_cast<UserTextureCategory *>(m_userCategories[TexturesSectionIdx]);
+    QTC_ASSERT(texCat, return);
 
-    for (const QString &path : paths) {
-        QFileInfo fileInfo(path);
-        QString suffix = '.' + fileInfo.suffix();
-        auto iconFileInfo = QFileInfo(fileInfo.path().append("/icons/").append(fileInfo.baseName() + ".png"));
-        QPair<QSize, qint64> info = ImageUtils::imageInfo(path);
-        QString dirPath = fileInfo.path();
-        QSize imgDims = info.first;
-        qint64 imgFileSize = info.second;
+    texCat->addItems(paths);
 
-        auto tex = new ContentLibraryTexture(this, iconFileInfo, dirPath, suffix, imgDims, imgFileSize);
-        m_userTextures.append(tex);
-    }
-
-    emit dataChanged(index(TexturesSectionIdx), index(TexturesSectionIdx));
+    emit dataChanged(index(TexturesSectionIdx), index(TexturesSectionIdx), {ItemsRole, EmptyRole});
 }
 
 void ContentLibraryUserModel::removeTexture(ContentLibraryTexture *tex)
@@ -162,8 +119,7 @@ void ContentLibraryUserModel::removeTexture(ContentLibraryTexture *tex)
     Utils::FilePath::fromString(tex->iconPath()).removeFile();
 
     // remove from model
-    m_userTextures.removeOne(tex);
-    tex->deleteLater();
+    m_userCategories[TexturesSectionIdx]->removeItem(tex);
 
     // update model
     emit dataChanged(index(TexturesSectionIdx), index(TexturesSectionIdx));
@@ -178,23 +134,20 @@ void ContentLibraryUserModel::removeFromContentLib(QObject *item)
     removeItem(castedItem);
 }
 
-void ContentLibraryUserModel::remove3DFromContentLibByName(const QString &qmlFileName)
+void ContentLibraryUserModel::removeItemByName(const QString &qmlFileName, const QString &bundleId)
 {
-    ContentLibraryItem *itemToRemove = Utils::findOr(m_user3DItems, nullptr,
-                                             [&qmlFileName](ContentLibraryItem *item) {
-        return item->qml() == qmlFileName;
-    });
+    ContentLibraryItem *itemToRemove = nullptr;
+    const QObjectList items = m_userCategories[bundleIdToSectionIndex(bundleId)]->items();
 
-    if (itemToRemove)
-        removeItem(itemToRemove);
-}
+    for (QObject *item : items) {
+        ContentLibraryItem *castedItem = qobject_cast<ContentLibraryItem *>(item);
+        QTC_ASSERT(castedItem, return);
 
-void ContentLibraryUserModel::removeMaterialFromContentLibByName(const QString &qmlFileName)
-{
-    ContentLibraryItem *itemToRemove = Utils::findOr(m_userMaterials, nullptr,
-                                                     [&qmlFileName](ContentLibraryItem *item) {
-                                                         return item->qml() == qmlFileName;
-                                                     });
+        if (castedItem->qml() == qmlFileName) {
+            itemToRemove = castedItem;
+            break;
+        }
+    }
 
     if (itemToRemove)
         removeItem(itemToRemove);
@@ -202,30 +155,16 @@ void ContentLibraryUserModel::removeMaterialFromContentLibByName(const QString &
 
 void ContentLibraryUserModel::removeItem(ContentLibraryItem *item)
 {
-    Utils::FilePath *bundlePath = nullptr;
-    QJsonObject *bundleObj = nullptr;
-    QList<ContentLibraryItem *> *userItems = nullptr;
-    SectionIndex sectionIdx;
+    UserItemCategory *itemCat = qobject_cast<UserItemCategory *>(item->parent());
+    QTC_ASSERT(itemCat, return);
 
-    if (item->itemType() == "material") {
-        bundlePath = &m_bundlePathMaterial;
-        bundleObj = &m_bundleObjMaterial;
-        userItems = &m_userMaterials;
-        sectionIdx = MaterialsSectionIdx;
-    } else if (item->itemType() == "3d") {
-        bundlePath = &m_bundlePath3D;
-        bundleObj = &m_bundleObj3D;
-        userItems = &m_user3DItems;
-        sectionIdx = Items3DSectionIdx;
-    } else {
-        qWarning() << __FUNCTION__ << "Unsupported item";
-        return;
-    }
+    Utils::FilePath bundlePath = itemCat->bundlePath();
+    QJsonObject &bundleObj = itemCat->bundleObjRef();
 
-    QJsonArray itemsArr = bundleObj->value("items").toArray();
+    QJsonArray itemsArr = bundleObj.value("items").toArray();
 
     // remove qml and icon files
-    bundlePath->pathAppended(item->qml()).removeFile();
+    bundlePath.pathAppended(item->qml()).removeFile();
     Utils::FilePath::fromUrl(item->icon()).removeFile();
 
     // remove from the bundle json file
@@ -235,10 +174,10 @@ void ContentLibraryUserModel::removeItem(ContentLibraryItem *item)
             break;
         }
     }
-    bundleObj->insert("items", itemsArr);
+    bundleObj.insert("items", itemsArr);
 
-    auto result = bundlePath->pathAppended(Constants::BUNDLE_JSON_FILENAME)
-                      .writeFileContents(QJsonDocument(*bundleObj).toJson());
+    auto result = bundlePath.pathAppended(Constants::BUNDLE_JSON_FILENAME)
+                      .writeFileContents(QJsonDocument(bundleObj).toJson());
     if (!result)
         qWarning() << __FUNCTION__ << result.error();
 
@@ -250,16 +189,34 @@ void ContentLibraryUserModel::removeItem(ContentLibraryItem *item)
     const QStringList itemFiles = item->files();
     for (const QString &file : itemFiles) {
         if (allFiles.count(file) == 0) // only used by the deleted item
-            bundlePath->pathAppended(file).removeFile();
+            bundlePath.pathAppended(file).removeFile();
     }
 
     // remove from model
-    userItems->removeOne(item);
-    item->deleteLater();
+    itemCat->removeItem(item);
 
     // update model
-    emit dataChanged(index(sectionIdx), index(sectionIdx));
+    SectionIndex sectionIdx = bundleIdToSectionIndex(item->bundleId());
+    emit dataChanged(index(sectionIdx), index(sectionIdx), {ItemsRole, EmptyRole});
     updateIsEmpty();
+}
+
+ContentLibraryUserModel::SectionIndex ContentLibraryUserModel::bundleIdToSectionIndex(
+    const QString &bundleId) const
+{
+    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+
+    if (bundleId == compUtils.userMaterialsBundleId())
+        return MaterialsSectionIdx;
+
+    if (bundleId == compUtils.user3DBundleId())
+        return Items3DSectionIdx;
+
+    if (bundleId == compUtils.userEffectsBundleId())
+        return EffectsSectionIdx;
+
+    qWarning() << __FUNCTION__ << "Invalid section index for bundleId:" << bundleId;
+    return {};
 }
 
 /**
@@ -269,7 +226,9 @@ void ContentLibraryUserModel::removeItem(ContentLibraryItem *item)
  */
 QPair<QString, QString> ContentLibraryUserModel::getUniqueLibMaterialNames(const QString &defaultName) const
 {
-    return getUniqueLibItemNames(defaultName, m_bundleObjMaterial);
+    const QJsonObject bundleObj = qobject_cast<UserItemCategory *>(
+                                      m_userCategories.at(Items3DSectionIdx))->bundleObjRef();
+    return getUniqueLibItemNames(defaultName, bundleObj);
 }
 
 /**
@@ -279,7 +238,9 @@ QPair<QString, QString> ContentLibraryUserModel::getUniqueLibMaterialNames(const
  */
 QPair<QString, QString> ContentLibraryUserModel::getUniqueLib3DNames(const QString &defaultName) const
 {
-    return getUniqueLibItemNames(defaultName, m_bundleObj3D);
+    const QJsonObject bundleObj = qobject_cast<UserItemCategory *>(
+                                      m_userCategories.at(Items3DSectionIdx))->bundleObjRef();
+    return getUniqueLibItemNames(defaultName, bundleObj);
 }
 
 QPair<QString, QString> ContentLibraryUserModel::getUniqueLibItemNames(const QString &defaultName,
@@ -319,208 +280,27 @@ QPair<QString, QString> ContentLibraryUserModel::getUniqueLibItemNames(const QSt
 QHash<int, QByteArray> ContentLibraryUserModel::roleNames() const
 {
     static const QHash<int, QByteArray> roles {
-        {NameRole, "categoryName"},
-        {VisibleRole, "categoryVisible"},
+        {TitleRole, "categoryTitle"},
+        {EmptyRole, "categoryEmpty"},
         {ItemsRole, "categoryItems"},
         {NoMatchRole, "categoryNoMatch"}
     };
     return roles;
 }
 
-QJsonObject &ContentLibraryUserModel::bundleJsonMaterialObjectRef()
+QJsonObject &ContentLibraryUserModel::bundleObjectRef(const QString &bundleId)
 {
-    return m_bundleObjMaterial;
-}
-
-QJsonObject &ContentLibraryUserModel::bundleJson3DObjectRef()
-{
-    return m_bundleObj3D;
+    auto secIdx = bundleIdToSectionIndex(bundleId);
+    return qobject_cast<UserItemCategory *>(m_userCategories[secIdx])->bundleObjRef();
 }
 
 void ContentLibraryUserModel::loadBundles()
 {
-    loadMaterialBundle();
-    load3DBundle();
-    loadTextureBundle();
-}
+    for (UserCategory *cat : std::as_const(m_userCategories))
+        cat->loadBundle();
 
-void ContentLibraryUserModel::loadMaterialBundle()
-{
-    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-    if (m_matBundleLoaded && m_bundleIdMaterial == compUtils.userMaterialsBundleId())
-        return;
-
-    // clean up
-    qDeleteAll(m_userMaterials);
-    m_userMaterials.clear();
-    m_matBundleLoaded = false;
-    m_noMatchMaterials = true;
-    m_bundleObjMaterial = {};
-    m_bundleIdMaterial.clear();
-
-    m_bundlePathMaterial = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/materials");
-    m_bundlePathMaterial.ensureWritableDir();
-    m_bundlePathMaterial.pathAppended("icons").ensureWritableDir();
-
-    auto jsonFilePath = m_bundlePathMaterial.pathAppended(Constants::BUNDLE_JSON_FILENAME);
-    if (!jsonFilePath.exists()) {
-        QString jsonContent = "{\n";
-        jsonContent += "    \"id\": \"UserMaterials\",\n";
-        jsonContent += "    \"items\": []\n";
-        jsonContent += "}";
-        Utils::expected_str<qint64> res = jsonFilePath.writeFileContents(jsonContent.toLatin1());
-        if (!res.has_value()) {
-            qWarning() << __FUNCTION__ << res.error();
-            emit dataChanged(index(MaterialsSectionIdx), index(MaterialsSectionIdx));
-            return;
-        }
-    }
-
-    Utils::expected_str<QByteArray> jsonContents = jsonFilePath.fileContents();
-    if (!jsonContents.has_value()) {
-        qWarning() << __FUNCTION__ << jsonContents.error();
-        emit dataChanged(index(MaterialsSectionIdx), index(MaterialsSectionIdx));
-        return;
-    }
-
-    QJsonDocument bundleJsonDoc = QJsonDocument::fromJson(jsonContents.value());
-    if (bundleJsonDoc.isNull()) {
-        qWarning() << __FUNCTION__ << "Invalid json file" << jsonFilePath;
-        emit dataChanged(index(MaterialsSectionIdx), index(MaterialsSectionIdx));
-        return;
-    }
-
-    m_bundleIdMaterial = compUtils.userMaterialsBundleId();
-    m_bundleObjMaterial = bundleJsonDoc.object();
-    m_bundleObjMaterial["id"] = m_bundleIdMaterial;
-
-    // parse items
-    QString typePrefix = compUtils.userMaterialsBundleType();
-    const QJsonArray itemsArr = m_bundleObjMaterial.value("items").toArray();
-    for (const QJsonValueConstRef &itemRef : itemsArr) {
-        const QJsonObject itemObj = itemRef.toObject();
-
-        QString name = itemObj.value("name").toString();
-        QString qml = itemObj.value("qml").toString();
-        TypeName type = QLatin1String("%1.%2").arg(typePrefix, qml.chopped(4)).toLatin1();
-        QUrl icon = m_bundlePathMaterial.pathAppended(itemObj.value("icon").toString()).toUrl();
-        QStringList files = itemObj.value("files").toVariant().toStringList();
-
-        m_userMaterials.append(new ContentLibraryItem(this, name, qml, type, icon, files, "material"));
-    }
-
-    m_bundleMaterialSharedFiles.clear();
-    const QJsonArray sharedFilesArr = m_bundleObjMaterial.value("sharedFiles").toArray();
-    for (const QJsonValueConstRef &file : sharedFilesArr)
-        m_bundleMaterialSharedFiles.append(file.toString());
-
-    m_matBundleLoaded = true;
-    updateNoMatchMaterials();
+    resetModel();
     updateIsEmpty();
-    emit dataChanged(index(MaterialsSectionIdx), index(MaterialsSectionIdx));
-}
-
-void ContentLibraryUserModel::load3DBundle()
-{
-    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-
-    if (m_bundle3DLoaded && m_bundleId3D == compUtils.user3DBundleId())
-        return;
-
-    // clean up
-    qDeleteAll(m_user3DItems);
-    m_user3DItems.clear();
-    m_bundle3DLoaded = false;
-    m_noMatch3D = true;
-    m_bundleObj3D = {};
-    m_bundleId3D.clear();
-
-    m_bundlePath3D = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/3d");
-    m_bundlePath3D.ensureWritableDir();
-    m_bundlePath3D.pathAppended("icons").ensureWritableDir();
-
-    auto jsonFilePath = m_bundlePath3D.pathAppended(Constants::BUNDLE_JSON_FILENAME);
-    if (!jsonFilePath.exists()) {
-        QByteArray jsonContent = "{\n";
-        jsonContent += "    \"id\": \"User3D\",\n";
-        jsonContent += "    \"items\": []\n";
-        jsonContent += "}";
-        Utils::expected_str<qint64> res = jsonFilePath.writeFileContents(jsonContent);
-        if (!res.has_value()) {
-            qWarning() << __FUNCTION__ << res.error();
-            emit dataChanged(index(Items3DSectionIdx), index(Items3DSectionIdx));
-            return;
-        }
-    }
-
-    Utils::expected_str<QByteArray> jsonContents = jsonFilePath.fileContents();
-    if (!jsonContents.has_value()) {
-        qWarning() << __FUNCTION__ << jsonContents.error();
-        emit dataChanged(index(Items3DSectionIdx), index(Items3DSectionIdx));
-        return;
-    }
-
-    QJsonDocument bundleJsonDoc = QJsonDocument::fromJson(jsonContents.value());
-    if (bundleJsonDoc.isNull()) {
-        qWarning() << __FUNCTION__ << "Invalid json file" << jsonFilePath;
-        emit dataChanged(index(Items3DSectionIdx), index(Items3DSectionIdx));
-        return;
-    }
-
-    m_bundleId3D = compUtils.user3DBundleId();
-    m_bundleObj3D = bundleJsonDoc.object();
-    m_bundleObj3D["id"] = m_bundleId3D;
-
-    // parse items
-    QString typePrefix = compUtils.user3DBundleType();
-    const QJsonArray itemsArr = m_bundleObj3D.value("items").toArray();
-    for (const QJsonValueConstRef &itemRef : itemsArr) {
-        const QJsonObject itemObj = itemRef.toObject();
-
-        QString name = itemObj.value("name").toString();
-        QString qml = itemObj.value("qml").toString();
-        TypeName type = QLatin1String("%1.%2").arg(typePrefix, qml.chopped(4)).toLatin1();
-        QUrl icon = m_bundlePath3D.pathAppended(itemObj.value("icon").toString()).toUrl();
-        QStringList files = itemObj.value("files").toVariant().toStringList();
-
-        m_user3DItems.append(new ContentLibraryItem(nullptr, name, qml, type, icon, files, "3d"));
-    }
-
-    m_bundle3DSharedFiles.clear();
-    const QJsonArray sharedFilesArr = m_bundleObj3D.value("sharedFiles").toArray();
-    for (const QJsonValueConstRef &file : sharedFilesArr)
-        m_bundle3DSharedFiles.append(file.toString());
-
-    m_bundle3DLoaded = true;
-    updateNoMatch3D();
-    updateIsEmpty();
-    emit dataChanged(index(Items3DSectionIdx), index(Items3DSectionIdx));
-}
-
-void ContentLibraryUserModel::loadTextureBundle()
-{
-    if (!m_userTextures.isEmpty())
-        return;
-
-    QDir bundleDir{Paths::bundlesPathSetting() + "/User/textures"};
-    bundleDir.mkpath(".");
-    bundleDir.mkdir("icons");
-
-    const QFileInfoList fileInfos = bundleDir.entryInfoList(QDir::Files);
-    for (const QFileInfo &fileInfo : fileInfos) {
-        QString suffix = '.' + fileInfo.suffix();
-        auto iconFileInfo = QFileInfo(fileInfo.path().append("/icons/").append(fileInfo.baseName() + ".png"));
-        QPair<QSize, qint64> info = ImageUtils::imageInfo(fileInfo.path());
-        QString dirPath = fileInfo.path();
-        QSize imgDims = info.first;
-        qint64 imgFileSize = info.second;
-
-        auto tex = new ContentLibraryTexture(this, iconFileInfo, dirPath, suffix, imgDims, imgFileSize);
-        m_userTextures.append(tex);
-    }
-
-    updateNoMatchTextures();
-    emit dataChanged(index(TexturesSectionIdx), index(TexturesSectionIdx));
 }
 
 bool ContentLibraryUserModel::hasRequiredQuick3DImport() const
@@ -530,8 +310,9 @@ bool ContentLibraryUserModel::hasRequiredQuick3DImport() const
 
 void ContentLibraryUserModel::updateIsEmpty()
 {
-    bool newIsEmpty = m_user3DItems.isEmpty() && m_userMaterials.isEmpty() && m_userTextures.isEmpty()
-                      && m_userEffects.isEmpty();
+    bool newIsEmpty = std::ranges::all_of(std::as_const(m_userCategories),
+                                          [](UserCategory *cat) { return cat->isEmpty(); });
+
     if (m_isEmpty == newIsEmpty)
         return;
 
@@ -548,39 +329,27 @@ void ContentLibraryUserModel::setSearchText(const QString &searchText)
 
     m_searchText = lowerSearchText;
 
-    for (ContentLibraryItem *item : std::as_const(m_userMaterials))
-        item->filter(m_searchText);
+    for (UserCategory *cat : std::as_const(m_userCategories))
+        cat->filter(m_searchText);
 
-    for (ContentLibraryTexture *item : std::as_const(m_userTextures))
-        item->filter(m_searchText);
-
-    for (ContentLibraryItem *item : std::as_const(m_user3DItems))
-        item->filter(m_searchText);
-
-    updateNoMatchMaterials();
-    updateNoMatchTextures();
-    updateNoMatch3D();
     resetModel();
 }
 
-void ContentLibraryUserModel::updateMaterialsImportedState(const QStringList &importedItems)
+void ContentLibraryUserModel::updateImportedState(const QStringList &importedItems,
+                                                  const QString &bundleId)
 {
+    SectionIndex secIdx = bundleIdToSectionIndex(bundleId);
+    UserItemCategory *cat = qobject_cast<UserItemCategory *>(m_userCategories.at(secIdx));
+    const QObjectList items = cat->items();
+
     bool changed = false;
-    for (ContentLibraryItem *mat : std::as_const(m_userMaterials))
-        changed |= mat->setImported(importedItems.contains(mat->qml().chopped(4)));
+    for (QObject *item : items) {
+        ContentLibraryItem *castedItem = qobject_cast<ContentLibraryItem *>(item);
+        changed |= castedItem->setImported(importedItems.contains(castedItem->qml().chopped(4)));
+    }
 
     if (changed)
-        emit dataChanged(index(MaterialsSectionIdx), index(MaterialsSectionIdx));
-}
-
-void ContentLibraryUserModel::update3DImportedState(const QStringList &importedItems)
-{
-    bool changed = false;
-    for (ContentLibraryItem *item : std::as_const(m_user3DItems))
-        changed |= item->setImported(importedItems.contains(item->qml().chopped(4)));
-
-    if (changed)
-        emit dataChanged(index(Items3DSectionIdx), index(Items3DSectionIdx));
+        emit dataChanged(index(secIdx), index(secIdx), {ItemsRole});
 }
 
 void ContentLibraryUserModel::setQuick3DImportVersion(int major, int minor)
@@ -609,31 +378,15 @@ void ContentLibraryUserModel::applyToSelected(ContentLibraryItem *mat, bool add)
     emit applyToSelectedTriggered(mat, add);
 }
 
-void ContentLibraryUserModel::addToProject(QObject *item)
+void ContentLibraryUserModel::addToProject(ContentLibraryItem *item)
 {
-    auto castedItem = qobject_cast<ContentLibraryItem *>(item);
-    QTC_ASSERT(castedItem, return);
+    UserItemCategory *itemCat = qobject_cast<UserItemCategory *>(item->parent());
+    QTC_ASSERT(itemCat, return);
 
-    addItemToProject(castedItem);
-}
-
-void ContentLibraryUserModel::addItemToProject(ContentLibraryItem *item)
-{
-    QString bundlePath;
+    QString bundlePath = itemCat->bundlePath().toFSPathString();
     TypeName type = item->type();
     QString qmlFile = item->qml();
-    QStringList files = item->files();
-
-    if (item->itemType() == "material") {
-        bundlePath = m_bundlePathMaterial.toFSPathString();
-        files << m_bundleMaterialSharedFiles;
-    } else if (item->itemType() == "3d") {
-        bundlePath = m_bundlePath3D.toFSPathString();
-        files << m_bundle3DSharedFiles;
-    } else {
-        qWarning() << __FUNCTION__ << "Unsupported Item";
-        return;
-    }
+    QStringList files = item->files() + itemCat->sharedFiles();
 
     QString err = m_widget->importer()->importComponent(bundlePath, type, qmlFile, files);
 

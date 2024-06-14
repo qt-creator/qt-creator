@@ -230,10 +230,8 @@ void ContentLibraryWidget::updateImportedState(const QString &bundleId)
         m_materialsModel->updateImportedState(importedItems);
     else if (bundleId == compUtils.effectsBundleId())
         m_effectsModel->updateImportedState(importedItems);
-    else if (bundleId == compUtils.userMaterialsBundleId())
-        m_userModel->updateMaterialsImportedState(importedItems);
-    else if (bundleId == compUtils.user3DBundleId())
-        m_userModel->update3DImportedState(importedItems);
+    else
+        m_userModel->updateImportedState(importedItems, bundleId);
 }
 
 ContentLibraryBundleImporter *ContentLibraryWidget::importer() const

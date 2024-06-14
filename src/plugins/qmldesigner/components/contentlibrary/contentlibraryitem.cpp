@@ -11,9 +11,9 @@ ContentLibraryItem::ContentLibraryItem(QObject *parent,
                                        const TypeName &type,
                                        const QUrl &icon,
                                        const QStringList &files,
-                                       const QString &itemType)
+                                       const QString &bundleId)
     : QObject(parent), m_name(name), m_qml(qml), m_type(type), m_icon(icon), m_files(files),
-    m_itemType(itemType)
+    m_bundleId(bundleId)
 {
     m_allFiles = m_files;
     m_allFiles.push_back(m_qml);
@@ -75,9 +75,9 @@ QStringList ContentLibraryItem::allFiles() const
     return m_allFiles;
 }
 
-QString ContentLibraryItem::itemType() const
+QString ContentLibraryItem::bundleId() const
 {
-    return m_itemType;
+    return m_bundleId;
 }
 
 } // namespace QmlDesigner

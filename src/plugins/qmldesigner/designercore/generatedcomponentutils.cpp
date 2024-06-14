@@ -273,6 +273,21 @@ QString GeneratedComponentUtils::effectsBundleType() const
     return componentBundlesTypePrefix() + '.' + effectsBundleId();
 }
 
+QString GeneratedComponentUtils::userBundleType(const QString &bundleId) const
+{
+    if (bundleId == userMaterialsBundleId())
+        return userMaterialsBundleType();
+
+    if (bundleId == userEffectsBundleId())
+        return userEffectsBundleType();
+
+    if (bundleId == user3DBundleId())
+        return user3DBundleType();
+
+    qWarning() << __FUNCTION__ << "no bundleType for bundleId:" << bundleId;
+    return {};
+}
+
 QString GeneratedComponentUtils::userMaterialsBundleType() const
 {
     return componentBundlesTypePrefix() + '.' + userMaterialsBundleId();

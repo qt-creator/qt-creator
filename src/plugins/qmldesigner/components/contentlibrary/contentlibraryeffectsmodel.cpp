@@ -171,7 +171,7 @@ void ContentLibraryEffectsModel::loadBundle()
             TypeName type = QLatin1String("%1.%2")
                                 .arg(bundleType, qml.chopped(4)).toLatin1(); // chopped(4): remove .qml
 
-            auto bundleItem = new ContentLibraryItem(category, itemName, qml, type, icon, files, "effect");
+            auto bundleItem = new ContentLibraryItem(category, itemName, qml, type, icon, files, m_bundleId);
 
             category->addBundleItem(bundleItem);
         }

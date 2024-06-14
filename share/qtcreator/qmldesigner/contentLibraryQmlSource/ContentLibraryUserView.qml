@@ -80,8 +80,8 @@ HelperWidgets.ScrollView {
                 topPadding: StudioTheme.Values.sectionPadding
                 bottomPadding: StudioTheme.Values.sectionPadding
 
-                caption: categoryName
-                visible: categoryVisible && infoText.text === ""
+                caption: categoryTitle
+                visible: !categoryEmpty && infoText.text === ""
                 category: "ContentLib_User"
 
                 function expandSection() {
@@ -102,10 +102,10 @@ HelperWidgets.ScrollView {
                         model: categoryItems
 
                         delegate: DelegateChooser {
-                            role: "itemType"
+                            role: "bundleId"
 
                             DelegateChoice {
-                                roleValue: "material"
+                                roleValue: "UserMaterials"
                                 ContentLibraryItem {
                                     width: root.cellWidth
                                     height: root.cellHeight
@@ -115,7 +115,7 @@ HelperWidgets.ScrollView {
                                 }
                             }
                             DelegateChoice {
-                                roleValue: "texture"
+                                roleValue: "UserTextures"
                                 delegate: ContentLibraryTexture {
                                     width: root.cellWidth
                                     height: root.cellWidth // for textures use a square size since there is no name row
@@ -124,7 +124,7 @@ HelperWidgets.ScrollView {
                                 }
                             }
                             DelegateChoice {
-                                roleValue: "3d"
+                                roleValue: "User3D"
                                 delegate: ContentLibraryItem {
                                     width: root.cellWidth
                                     height: root.cellHeight

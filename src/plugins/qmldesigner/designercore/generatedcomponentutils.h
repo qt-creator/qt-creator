@@ -44,6 +44,7 @@ public:
 
     QString materialsBundleType() const;
     QString effectsBundleType() const;
+    QString userBundleType(const QString &bundleId) const;
     QString userMaterialsBundleType() const;
     QString userEffectsBundleType() const;
     QString user3DBundleType() const;
