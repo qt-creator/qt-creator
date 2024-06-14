@@ -1198,6 +1198,8 @@ void ItemLibraryAssetImportDialog::onImportReadyForPreview(
     QPixmap placeHolder = QPixmap(":/navigator/icon/tooltip_placeholder.png").scaled(48, 48);
 
     int maxNameLen = 150;
+    // Used to initially layout infolabel with sufficient height
+    const QString tallStr = "Wj\nWj\nWj";
 
     QStringList assetNames;
     for (const ItemLibraryAssetImporter::PreviewData &data : previewData) {
@@ -1216,8 +1218,9 @@ void ItemLibraryAssetImportDialog::onImportReadyForPreview(
             impData.iconLabel = iconLabel;
             layout->addWidget(iconLabel);
             auto infoLabel = new QLabel(w);
-            infoLabel->setFixedWidth(maxNameLen);
             impData.infoLabel = infoLabel;
+            infoLabel->setText(tallStr);
+            infoLabel->setFixedWidth(maxNameLen);
             layout->addWidget(infoLabel);
             layout->addStretch(1);
             auto removeButton = new QPushButton(m_unselectedRemoveIcon, {}, w);
