@@ -56,6 +56,7 @@ Editing
       ([QTCREATORBUG-10279](https://bugreports.qt.io/browse/QTCREATORBUG-10279))
 
     [Documentation](https://doc.qt.io/qtcreator/creator-reference-cpp-quick-fixes.html)
+
 * Clangd
     * Increased the minimum version to LLVM 17
     * Added the `Per-project index location` and `Per-session index location`
@@ -85,7 +86,8 @@ Editing
 
 * Improved support for enums
   ([QTCREATORBUG-19226](https://bugreports.qt.io/browse/QTCREATORBUG-19226))
-* Added `Qt Design Studio` to `Open With` for `.ui.qml`-files
+* Added `Qt Design Studio` to `Open With` for `.ui.qml` files
+  ([Documentation](https://doc.qt.io/qtcreator/creator-quick-ui-forms.html))
 * Language Server
     * Switched on by default
     * Added option for generating `qmlls.ini` files for CMake projects
