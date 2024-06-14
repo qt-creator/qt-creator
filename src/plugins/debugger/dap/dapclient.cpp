@@ -237,6 +237,8 @@ void DapClient::emitSignals(const QJsonDocument &doc)
             type = DapResponseType::SetBreakpoints;
         } else if (command == "setFunctionBreakpoints") {
             type = DapResponseType::SetFunctionBreakpoints;
+        } else if (command == "attach") {
+            type = DapResponseType::Attach;
         }
         emit responseReady(type, ob);
         return;

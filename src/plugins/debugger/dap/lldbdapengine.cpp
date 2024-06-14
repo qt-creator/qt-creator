@@ -120,7 +120,15 @@ void LldbDapEngine::handleDapInitialize()
     }
 
     QTC_ASSERT(state() == EngineRunRequested, qCDebug(logCategory()) << state());
-    m_dapClient->postRequest("attach", QJsonObject{{"__restart", ""}});
+
+    const DebuggerRunParameters &rp = runParameters();
+    m_dapClient->postRequest(
+        "attach",
+        QJsonObject{
+            {"program", rp.inferior.command.executable().path()},
+            {"pid", QString::number(rp.attachPID.pid())},
+            {"__restart", ""}});
+
     qCDebug(logCategory()) << "handleDapAttach";
 }
 
@@ -145,9 +153,6 @@ void LldbDapEngine::setupEngine()
 
     const DebuggerRunParameters &rp = runParameters();
     CommandLine cmd{rp.debugger.command.executable()};
-
-    if (isLocalAttachEngine())
-        cmd.addArgs({"--debugger-pid", QString::number(rp.attachPID.pid())});
 
     IDataProvider *dataProvider =  new ProcessDataProvider(rp, cmd, this);
     m_dapClient = new LldbDapClient(dataProvider, this);

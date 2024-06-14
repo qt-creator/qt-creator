@@ -692,6 +692,9 @@ void DapEngine::handleResponse(DapResponseType type, const QJsonObject &response
     case DapResponseType::SetBreakpoints:
         handleBreakpointResponse(response);
         break;
+    case DapResponseType::Attach:
+        notifyInferiorRunOk();
+        break;
     default:
         showMessage("UNKNOWN RESPONSE:" + command);
     };
