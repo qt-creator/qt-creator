@@ -36,6 +36,7 @@
             \l{Outline} view or in the \uicontrol Symbols list on the
             \l{Edit Mode}{editor toolbar}
         \li \l{Call Hierarchy}{Viewing the callers and callees of a function}
+        \li \l{Type Hierarchy}{Viewing the base classes and derived classes of a class}
         \li \l{Find references to a symbol}{Finding references to symbols}
         \li \l{Rename symbols}{Renaming the symbol under the cursor}
         \li Code actions
