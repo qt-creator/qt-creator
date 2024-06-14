@@ -494,6 +494,12 @@ void DebuggerRunTool::start()
             case LldbEngineType:
                 m_engines << createLldbEngine();
                 break;
+            case GdbDapEngineType:
+                m_engines << createDapEngine(ProjectExplorer::Constants::DAP_GDB_DEBUG_RUN_MODE);
+                break;
+            case LldbDapEngineType:
+                m_engines << createDapEngine(ProjectExplorer::Constants::DAP_LLDB_DEBUG_RUN_MODE);
+                break;
             case UvscEngineType:
                 m_engines << createUvscEngine();
                 break;
