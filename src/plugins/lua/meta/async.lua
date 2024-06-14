@@ -20,7 +20,7 @@ local async = {}
 function async.sync(func) end
 
 ---@async
----Calls an async function and waits for it to finish. **Must** be called from async.sync()
+---Calls an async function and waits for it to finish. **Must** be called from async.sync().
 ---
 --- Example:
 --- ```lua
@@ -39,7 +39,7 @@ function async.sync(func) end
 function async.wait(func) end
 
 ---@async
----Calls multiple async functions and waits for all of them to finish. **Must** be called from async.sync()
+---Calls multiple async functions and waits for all of them to finish. **Must** be called from async.sync().
 ---
 --- Example:
 --- ```lua

@@ -25,6 +25,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QRadioButton>
+#include <QSpinBox>
 
 using namespace Core;
 using namespace Utils;
@@ -33,6 +34,7 @@ namespace ProjectExplorer {
 namespace Internal {
 
 namespace Constants {
+const char REAPER_TIMEOUT_SETTINGS_KEY[] = "ProjectExplorer/Settings/ReaperTimeout";
 const char BUILD_BEFORE_DEPLOY_SETTINGS_KEY[] = "ProjectExplorer/Settings/BuildBeforeDeploy";
 const char DEPLOY_BEFORE_RUN_SETTINGS_KEY[] = "ProjectExplorer/Settings/DeployBeforeRun";
 const char SAVE_BEFORE_BUILD_SETTINGS_KEY[] = "ProjectExplorer/Settings/SaveBeforeBuild";
@@ -65,6 +67,7 @@ void saveProjectExplorerSettings();
 static bool operator==(const ProjectExplorerSettings &p1, const ProjectExplorerSettings &p2)
 {
     return p1.buildBeforeDeploy == p2.buildBeforeDeploy
+            && p1.reaperTimeoutInSeconds == p2.reaperTimeoutInSeconds
             && p1.deployBeforeRun == p2.deployBeforeRun
             && p1.saveBeforeBuild == p2.saveBeforeBuild
             && p1.useJom == p2.useJom
@@ -120,6 +123,9 @@ static void loadProjectExplorerSettings()
 
     static const ProjectExplorerSettings defaultSettings;
 
+    settings.reaperTimeoutInSeconds
+        = s->value(Constants::REAPER_TIMEOUT_SETTINGS_KEY, defaultSettings.reaperTimeoutInSeconds)
+              .toInt();
     settings.deployBeforeRun
         = s->value(Constants::DEPLOY_BEFORE_RUN_SETTINGS_KEY, defaultSettings.deployBeforeRun)
               .toBool();
@@ -186,6 +192,10 @@ void saveProjectExplorerSettings()
     static const ProjectExplorerSettings defaultSettings;
 
     const ProjectExplorerSettings &settings = projectExplorerSettings();
+    s->setValueWithDefault(
+        Constants::REAPER_TIMEOUT_SETTINGS_KEY,
+        settings.reaperTimeoutInSeconds,
+        defaultSettings.reaperTimeoutInSeconds);
     s->setValueWithDefault(Constants::BUILD_BEFORE_DEPLOY_SETTINGS_KEY,
                            int(settings.buildBeforeDeploy),
                            int(defaultSettings.buildBeforeDeploy));
@@ -290,6 +300,7 @@ private:
     QComboBox *m_terminalModeComboBox;
     QCheckBox *m_jomCheckbox;
     QCheckBox *m_showAllKitsCheckBox;
+    QSpinBox *m_reaperTimeoutSpinBox;
     Utils::ElidingLabel *m_appEnvLabel;
 
     QButtonGroup *m_directoryButtonGroup;
@@ -297,6 +308,13 @@ private:
 
 ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
 {
+    m_reaperTimeoutSpinBox = new QSpinBox;
+    m_reaperTimeoutSpinBox->setMinimum(1);
+    m_reaperTimeoutSpinBox->setSuffix(Tr::tr("s"));
+    m_reaperTimeoutSpinBox->setToolTip(
+        Tr::tr("The amount of seconds to wait between a \"soft kill\" and a \"hard kill\" of a "
+               "running application"));
+
     m_currentDirectoryRadioButton = new QRadioButton(Tr::tr("Current directory"));
     m_directoryRadioButton = new QRadioButton(Tr::tr("Directory"));
     m_projectsDirectoryPathChooser = new PathChooser;
@@ -406,6 +424,8 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
                     Tr::tr("Build before deploying:"), m_buildBeforeDeployComboBox, br,
                     Tr::tr("Stop applications before building:"), m_stopBeforeBuildComboBox, br,
                     Tr::tr("Default for \"Run in terminal\":"), m_terminalModeComboBox, br,
+                    Tr::tr("Time to wait before force-stopping applications:"),
+                    m_reaperTimeoutSpinBox, st, br,
                 },
                 m_jomCheckbox,
                 jomLabel,
@@ -434,6 +454,7 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
 ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
 {
     ProjectExplorerSettings s;
+    s.reaperTimeoutInSeconds = m_reaperTimeoutSpinBox->value();
     s.buildBeforeDeploy = static_cast<BuildBeforeRunMode>(
        m_buildBeforeDeployComboBox->currentData().toInt());
     s.deployBeforeRun = m_deployProjectBeforeRunCheckBox->isChecked();
@@ -458,6 +479,7 @@ ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
 
 void ProjectExplorerSettingsWidget::setSettings(const ProjectExplorerSettings  &s)
 {
+    m_reaperTimeoutSpinBox->setValue(s.reaperTimeoutInSeconds);
     m_appEnvChanges = s.appEnvChanges;
     m_buildBeforeDeployComboBox->setCurrentIndex(
                 m_buildBeforeDeployComboBox->findData(int(s.buildBeforeDeploy)));

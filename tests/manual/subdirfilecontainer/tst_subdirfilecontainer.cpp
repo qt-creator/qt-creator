@@ -155,7 +155,7 @@ private slots:
             tasks.append(AsyncTask<void>(onCopySetup(parentDir.filePath(sourceDirName),
                                                      parentDir.filePath(destDirName))));
         }
-        QVERIFY(TaskTree::runBlocking(tasks));
+        QCOMPARE(TaskTree::runBlocking(tasks), DoneWith::Success);
     }
 
     void cleanupTestCase()
@@ -177,7 +177,7 @@ private slots:
         for (int i = 0; i < s_topLevelSubDirsCount; ++i)
             tasks.append(AsyncTask<void>(onSetup(parentDir.filePath(dirName(i)))));
 
-        QVERIFY(TaskTree::runBlocking(tasks));
+        QCOMPARE(TaskTree::runBlocking(tasks), DoneWith::Success);
 
         m_tempDir.reset();
         Singleton::deleteAll();

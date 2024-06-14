@@ -15,8 +15,7 @@ This plugin provides some functionality.
 You can describe it more here.
     ]],
     Dependencies = {
-        { Name = "Core", Version = "%{JS: Util.qtCreatorIdeVersion()}", Required = true },
-        { Name = "Lua",  Version = "%{JS: Util.qtCreatorIdeVersion()}", Required = true },
+        { Name = "Lua",  Version = "%{JS: Util.qtCreatorIdeVersion()}" },
     },
     setup = function()
         require 'init'.setup()

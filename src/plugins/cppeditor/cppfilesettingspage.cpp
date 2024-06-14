@@ -744,6 +744,8 @@ void setupCppFileSettings(ExtensionSystem::IPlugin &plugin)
 
 #ifdef WITH_TESTS
     plugin.addTestCreator([] { return new CppFileSettingsTest; });
+#else
+    Q_UNUSED(plugin)
 #endif
 }
 

@@ -790,7 +790,7 @@ bool SettingsDialog::execDialog()
             ICore::settings()->setValueWithDefault(kPreferenceDialogSize, size(), initialSize);
             // make sure that the current "single" instance is deleted
             // we can't delete right away, since we still access the m_applied member
-            deleteLater();
+            QMetaObject::invokeMethod(this, [this] { deleteLater(); }, Qt::QueuedConnection);
         });
     }
 

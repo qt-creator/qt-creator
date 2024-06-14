@@ -1629,6 +1629,7 @@ void ICorePrivate::registerDefaultContainers()
     filemenu->menu()->setTitle(Tr::tr("&File"));
     filemenu->appendGroup(Constants::G_FILE_NEW);
     filemenu->appendGroup(Constants::G_FILE_OPEN);
+    filemenu->appendGroup(Constants::G_FILE_RECENT);
     filemenu->appendGroup(Constants::G_FILE_SESSION);
     filemenu->appendGroup(Constants::G_FILE_PROJECT);
     filemenu->appendGroup(Constants::G_FILE_SAVE);
@@ -1785,7 +1786,7 @@ void ICorePrivate::registerDefaultActions()
 
     // File->Recent Files Menu
     ActionContainer *ac = ActionManager::createMenu(Constants::M_FILE_RECENTFILES);
-    mfile->addMenu(ac, Constants::G_FILE_OPEN);
+    mfile->addMenu(ac, Constants::G_FILE_RECENT);
     ac->menu()->setTitle(Tr::tr("Recent &Files"));
     ac->setOnAllDisabledBehavior(ActionContainer::Show);
 

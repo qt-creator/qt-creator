@@ -16,10 +16,10 @@ Core.GeneratedFile.Attribute = {
 ---@field filePath FilePath
 ---@field contents string
 ---@field isBinary boolean
----@field attributes Attribute A combination of Attribute
+---@field attributes Attribute A combination of Attribute.
 Core.GeneratedFile = {}
 
----Create a new GeneratedFile
+---Create a new GeneratedFile.
 ---@return GeneratedFile
 function Core.GeneratedFile.new() end
 

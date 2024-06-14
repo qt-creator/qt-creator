@@ -1177,7 +1177,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         ActionManager::createMenu(Constants::M_RECENTPROJECTS);
     mrecent->menu()->setTitle(Tr::tr("Recent P&rojects"));
     mrecent->setOnAllDisabledBehavior(ActionContainer::Show);
-    mfile->addMenu(mrecent, Core::Constants::G_FILE_OPEN);
+    mfile->addMenu(mrecent, Core::Constants::G_FILE_RECENT);
     connect(
         m_instance,
         &ProjectExplorerPlugin::recentProjectsChanged,

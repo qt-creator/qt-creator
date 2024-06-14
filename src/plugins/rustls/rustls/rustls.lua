@@ -14,9 +14,8 @@ This plugin provides the Rust Language Server.
 It will try to install it if it is not found.
     ]],
     Dependencies = {
-        { Name = "Core",              Version = "13.0.82", Required = true },
-        { Name = "Lua",               Version = "13.0.82", Required = true },
-        { Name = "LuaLanguageClient", Version = "13.0.82", Required = true }
+        { Name = "Lua",               Version = "14.0.0" },
+        { Name = "LuaLanguageClient", Version = "14.0.0" }
     },
     setup = function()
         require 'init'.setup()

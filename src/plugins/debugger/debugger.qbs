@@ -123,6 +123,7 @@ QtcPlugin {
             "dapclient.cpp", "dapclient.h",
             "dapengine.cpp", "dapengine.h",
             "gdbdapengine.cpp", "gdbdapengine.h",
+            "lldbdapengine.cpp", "lldbdapengine.h",
             "pydapengine.cpp", "pydapengine.h",
         ]
     }

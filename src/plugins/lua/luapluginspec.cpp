@@ -9,6 +9,7 @@
 #include <extensionsystem/extensionsystemtr.h>
 
 #include <utils/algorithm.h>
+#include <utils/appinfo.h>
 #include <utils/expected.h>
 
 #include <QJsonDocument>
@@ -74,6 +75,19 @@ expected_str<LuaPluginSpec *> LuaPluginSpec::create(const FilePath &filePath, so
 ExtensionSystem::IPlugin *LuaPluginSpec::plugin() const
 {
     return nullptr;
+}
+
+bool LuaPluginSpec::provides(PluginSpec *spec, const PluginDependency &dependency) const
+{
+    if (QString::compare(dependency.name, spec->name(), Qt::CaseInsensitive) != 0)
+        return false;
+
+    // Since we first released the lua support with Qt Creator 14.0.0, but the internal version
+    // number was still 13.0.82, we needed to special case this version.
+    if (versionCompare(dependency.version, "14.0.0") <= 0)
+        return true;
+
+    return (versionCompare(spec->version(), dependency.version) >= 0);
 }
 
 // LuaPluginSpec::For internal use {}

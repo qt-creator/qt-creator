@@ -1129,7 +1129,7 @@ function (add_qtc_lua_plugin name)
 
   qtc_copy_to_builddir(${name}
     FILES ${_arg_SOURCES}
-    DESTINATION ${IDE_PLUGIN_PATH}/lua-plugins
+    DESTINATION ${IDE_PLUGIN_PATH}
   )
 
   if (NOT _arg_EXCLUDE_FROM_INSTALL)
@@ -1138,7 +1138,7 @@ function (add_qtc_lua_plugin name)
 
       install(
         FILES ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE}
-        DESTINATION ${IDE_PLUGIN_PATH}/lua-plugins/${SOURCE_DIR}
+        DESTINATION ${IDE_PLUGIN_PATH}/${SOURCE_DIR}
       )
     endforeach()
   endif()

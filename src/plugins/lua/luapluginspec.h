@@ -44,6 +44,9 @@ public:
 
     ExtensionSystem::IPlugin *plugin() const override;
 
+    bool provides(
+        PluginSpec *spec, const ExtensionSystem::PluginDependency &dependency) const override;
+
     // For internal use only
     bool loadLibrary() override;
     bool initializePlugin() override;

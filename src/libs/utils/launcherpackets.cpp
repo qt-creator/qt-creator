@@ -49,7 +49,8 @@ void StartProcessPacket::doSerialize(QDataStream &stream) const
            << unixTerminalDisabled
            << useCtrlCStub
            << reaperTimeout
-           << createConsoleOnWindows;
+           << createConsoleOnWindows
+           << forceDefaultErrorMode;
 }
 
 void StartProcessPacket::doDeserialize(QDataStream &stream)
@@ -70,7 +71,8 @@ void StartProcessPacket::doDeserialize(QDataStream &stream)
            >> unixTerminalDisabled
            >> useCtrlCStub
            >> reaperTimeout
-           >> createConsoleOnWindows;
+           >> createConsoleOnWindows
+           >> forceDefaultErrorMode;
     processMode = Utils::ProcessMode(processModeInt);
     processChannelMode = QProcess::ProcessChannelMode(processChannelModeInt);
 }

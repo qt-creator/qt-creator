@@ -287,6 +287,7 @@ void tst_Devicectlutils::parseDeviceInfo_data()
                                    {"deviceConnected", "YES"},
                                    {"deviceName", "Some iOS device"},
                                    {"osVersion", "17.3 (21D50)"},
+                                   {"productType", "iPad11,2"},
                                    {"uniqueDeviceId", "00000000-0000000000000000"}});
     QTest::addRow("unhandled device")
         << data << QString("000000000000000000000001")

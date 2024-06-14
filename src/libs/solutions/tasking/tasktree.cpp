@@ -1291,6 +1291,12 @@ const void *Loop::valuePtr() const
 
 using StoragePtr = void *;
 
+static QString s_activeStorageWarning =
+    "The referenced storage is not reachable in the running tree. "
+    "A nullptr will be returned which might lead to a crash in the calling code. "
+    "It is possible that no storage was added to the tree, "
+    "or the storage is not reachable from where it is referenced.";
+
 class StorageThreadData
 {
     Q_DISABLE_COPY_MOVE(StorageThreadData)
@@ -1299,7 +1305,7 @@ public:
     StorageThreadData() = default;
     void pushStorage(StoragePtr storagePtr)
     {
-        m_activeStorageStack.push_back(storagePtr);
+        m_activeStorageStack.push_back({storagePtr, activeTaskTree()});
     }
     void popStorage()
     {
@@ -1308,16 +1314,16 @@ public:
     }
     StoragePtr activeStorage() const
     {
-        QT_ASSERT(m_activeStorageStack.size(), qWarning(
-            "The referenced storage is not reachable in the running tree. "
-            "A nullptr will be returned which might lead to a crash in the calling code. "
-            "It is possible that no storage was added to the tree, "
-            "or the storage is not reachable from where it is referenced."); return nullptr);
-        return m_activeStorageStack.last();
+        QT_ASSERT(m_activeStorageStack.size(),
+                  qWarning().noquote() << s_activeStorageWarning; return nullptr);
+        const QPair<StoragePtr, TaskTree *> &top = m_activeStorageStack.last();
+        QT_ASSERT(top.second == activeTaskTree(),
+                  qWarning().noquote() << s_activeStorageWarning; return nullptr);
+        return top.first;
     }
 
 private:
-    QList<StoragePtr> m_activeStorageStack;
+    QList<QPair<StoragePtr, TaskTree *>> m_activeStorageStack;
 };
 
 class StorageData

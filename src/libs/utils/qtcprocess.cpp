@@ -511,7 +511,8 @@ private:
         handler->setWriteData(m_setup.m_writeData);
         handler->setNativeArguments(m_setup.m_nativeArguments);
         handler->setWindowsSpecificStartupFlags(m_setup.m_belowNormalPriority,
-                                                m_setup.m_createConsoleOnWindows);
+                                                m_setup.m_createConsoleOnWindows,
+                                                m_setup.m_forceDefaultErrorMode);
 
         const QProcessEnvironment penv = m_setup.m_environment.toProcessEnvironment();
         if (!penv.isEmpty())
@@ -1381,6 +1382,16 @@ void Process::setCreateConsoleOnWindows(bool create)
 bool Process::createConsoleOnWindows() const
 {
     return d->m_setup.m_createConsoleOnWindows;
+}
+
+void Process::setForceDefaultErrorModeOnWindows(bool force)
+{
+    d->m_setup.m_forceDefaultErrorMode = force;
+}
+
+bool Process::forceDefaultErrorModeOnWindows() const
+{
+    return d->m_setup.m_forceDefaultErrorMode;
 }
 
 void Process::setExtraData(const QString &key, const QVariant &value)

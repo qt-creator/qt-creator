@@ -1,5 +1,5 @@
-#ifndef PROJECT_INTERNAL_THECLASS_H
-#define PROJECT_INTERNAL_THECLASS_H
+#ifndef THECLASS_H
+#define THECLASS_H
 
 namespace Project {
 namespace Internal {
@@ -26,4 +26,4 @@ template<typename T> T TheClass::defaultValue() const { return T(); }
 } // namespace Internal
 } // namespace Project
 
-#endif // PROJECT_INTERNAL_THECLASS_H
+#endif // THECLASS_H

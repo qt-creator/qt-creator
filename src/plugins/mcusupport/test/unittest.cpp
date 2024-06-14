@@ -75,6 +75,7 @@ using ProjectExplorer::ToolchainManager;
 
 using testing::_;
 using testing::Return;
+using testing::Between;
 
 namespace {
 const char empty[]{""};
@@ -506,6 +507,7 @@ void McuSupportTest::init()
 
 void McuSupportTest::cleanup()
 {
+    QVERIFY(settingsMockPtr.get());
     QVERIFY(testing::Mock::VerifyAndClearExpectations(settingsMockPtr.get()));
     QVERIFY(testing::Mock::VerifyAndClearExpectations(freeRtosPackage));
     QVERIFY(testing::Mock::VerifyAndClearExpectations(sdkPackage));
@@ -854,7 +856,7 @@ void McuSupportTest::test_useFallbackPathForToolchainWhenPathFromSettingsIsNotAv
     McuTargetDescription::Toolchain toolchainDescription{armGcc, {}, compilerDescription, {}};
 
     EXPECT_CALL(*settingsMockPtr, getPath(Key{armGccDirectorySetting}, _, FilePath{fallbackDir}))
-        .Times(2)
+        .Times(Between(2,3))
         .WillRepeatedly(Return(FilePath{fallbackDir}));
 
     McuToolchainPackage *toolchain = targetFactory.createToolchain(toolchainDescription);
@@ -1559,7 +1561,7 @@ void McuSupportTest::test_legacy_createThirdPartyPackage()
     QFETCH(QString, detectionPath);
 
     EXPECT_CALL(*settingsMockPtr, getPath(Key{setting}, _, _))
-        .Times(2)
+        .Times(Between(2,3))
         .WillRepeatedly(Return(FilePath::fromUserInput(defaultPath)));
 
     McuPackagePtr thirdPartyPackage{creator()};
@@ -1644,7 +1646,7 @@ void McuSupportTest::test_createThirdPartyPackage()
         .WillOnce(Return(FilePath::fromUserInput(defaultPath)));
 
     EXPECT_CALL(*settingsMockPtr, getPath(Key{setting}, QSettings::UserScope, _))
-        .Times(testing::AtMost(1))
+        .Times(testing::AtMost(2))
         .WillOnce(Return(FilePath::fromUserInput(path)));
 
     auto [targets, packages] = targetFactory.createTargets(targetDescription, sdkPackagePtr);
@@ -1668,7 +1670,7 @@ void McuSupportTest::test_createThirdPartyPackage()
 void McuSupportTest::test_legacy_createCypressProgrammer3rdPartyPackage()
 {
     EXPECT_CALL(*settingsMockPtr, getPath(Key{cypressProgrammerSetting}, _, _))
-        .Times(2)
+        .Times(Between(2,3))
         .WillRepeatedly(Return(FilePath::fromUserInput(defaultToolPath)));
 
     McuPackagePtr thirdPartyPackage{Legacy::createCypressProgrammerPackage(settingsMockPtr)};
@@ -1692,7 +1694,7 @@ void McuSupportTest::test_createJLink3rdPartyPackage()
         .WillOnce(Return(FilePath::fromUserInput(jlinkPath)));
 
     EXPECT_CALL(*settingsMockPtr, getPath(Key{jlinkSetting}, QSettings::UserScope, _))
-        .Times(testing::AtMost(1))
+        .Times(testing::AtMost(2))
         .WillOnce(Return(FilePath::fromUserInput(jlinkPath)));
 
     auto [targets, packages] = targetFactory.createTargets(targetDescription, sdkPackagePtr);

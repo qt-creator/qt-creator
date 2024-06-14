@@ -813,14 +813,17 @@ void IosDebugSupport::start()
         setStartMode(AttachToRemoteProcess);
         setIosPlatform("remote-ios");
         const QString osVersion = dev->osVersion();
+        const QString productType = dev->productType();
         const QString cpuArchitecture = dev->cpuArchitecture();
-        const FilePaths symbolsPathCandidates = {
-            FilePath::fromString(QDir::homePath() + "/Library/Developer/Xcode/iOS DeviceSupport/"
-                                 + osVersion + " " + cpuArchitecture + "/Symbols"),
-            FilePath::fromString(QDir::homePath() + "/Library/Developer/Xcode/iOS DeviceSupport/"
-                                 + osVersion + "/Symbols"),
-            IosConfigurations::developerPath().pathAppended(
-                "Platforms/iPhoneOS.platform/DeviceSupport/" + osVersion + "/Symbols")};
+        const FilePath home = FilePath::fromString(QDir::homePath());
+        const FilePaths symbolsPathCandidates
+            = {home / "Library/Developer/Xcode/iOS DeviceSupport" / (productType + " " + osVersion)
+                   / "Symbols",
+               home / "Library/Developer/Xcode/iOS DeviceSupport"
+                   / (osVersion + " " + cpuArchitecture) / "Symbols",
+               home / "Library/Developer/Xcode/iOS DeviceSupport" / osVersion / "Symbols",
+               IosConfigurations::developerPath() / "Platforms/iPhoneOS.platform/DeviceSupport"
+                   / osVersion / "Symbols"};
         const FilePath deviceSdk = Utils::findOrDefault(symbolsPathCandidates, &FilePath::isDir);
 
         if (deviceSdk.isEmpty()) {

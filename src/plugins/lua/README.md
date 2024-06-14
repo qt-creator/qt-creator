@@ -6,7 +6,7 @@ The Lua plugin provides support for writing plugins using the Lua scripting lang
 
 ## Usage
 
-The plugin scans the folder `lua-plugins` folder inside the normal plugin folder of Qt Creator
+The plugin scans the normal plugin folders of Qt Creator
 `ExtensionSystem::PluginManager::pluginPaths()`. It loads scripts from any folder that contains
 a .lua script named the same as the folder.
 Whether or not the script is enabled is determined by the `disabledByDefault` field in the plugin
@@ -17,7 +17,7 @@ table and the settings configured via the "About Plugins" dialog in Qt Creator.
 A Lua script needs to provide the following table to be considered a plugin:
 
 ```lua
--- lua-plugins/myluaplugin/myluaplugin.lua
+-- myluaplugin/myluaplugin.lua
 return {
     name = "MyLuaPlugin",
     version = "1.0.0",
@@ -40,7 +40,7 @@ Can contain newlines.
     disabledByDefault = false,
 
     dependencies = {
-        { name="Core", version = "12.0.0" }
+        { name="Core", version = "14.0.0" }
     },
 } --[[@as QtcPlugin]]
 ```
@@ -50,13 +50,13 @@ It must only return the plugin specification table and not execute or require an
 Use `require` to load other files from within the setup function.
 
 ```lua
--- lua-plugins/myluaplugin/myluaplugin.lua
+-- myluaplugin/myluaplugin.lua
 return {
     -- ... required fields omitted ..
     setup = function() require 'init'.setup() end,
 } --[[@as QtcPlugin]]
 
--- lua-plugins/myluaplugin/init.lua
+-- myluaplugin/init.lua
 local function setup()
     print("Hello from Lua!")
 end

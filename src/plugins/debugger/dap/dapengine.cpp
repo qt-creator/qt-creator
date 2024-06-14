@@ -6,6 +6,7 @@
 #include "cmakedapengine.h"
 #include "dapclient.h"
 #include "gdbdapengine.h"
+#include "lldbdapengine.h"
 #include "pydapengine.h"
 
 #include <debugger/breakhandler.h>
@@ -1058,6 +1059,8 @@ DebuggerEngine *createDapEngine(Utils::Id runMode)
         return new CMakeDapEngine;
     if (runMode == ProjectExplorer::Constants::DAP_GDB_DEBUG_RUN_MODE)
         return new GdbDapEngine;
+    if (runMode == ProjectExplorer::Constants::DAP_LLDB_DEBUG_RUN_MODE)
+        return new LldbDapEngine;
     if (runMode == ProjectExplorer::Constants::DAP_PY_DEBUG_RUN_MODE)
         return new PyDapEngine;
 

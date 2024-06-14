@@ -559,18 +559,17 @@ QString PluginSpec::errorString() const
 }
 
 /*!
-    Returns whether this plugin can be used to fill in a dependency of the given
-    \a pluginName and \a pluginVersion.
+    Returns whether the plugin \a spec can be used to fill the \a dependency of this plugin.
 
-        \sa PluginSpec::dependencies()
+    \sa PluginSpec::dependencies()
 */
-bool PluginSpec::provides(const QString &pluginName, const QString &pluginVersion) const
+bool PluginSpec::provides(PluginSpec *spec, const PluginDependency &dependency) const
 {
-    if (QString::compare(pluginName, name(), Qt::CaseInsensitive) != 0)
+    if (QString::compare(dependency.name, spec->name(), Qt::CaseInsensitive) != 0)
         return false;
 
-    return (versionCompare(version(), pluginVersion) >= 0)
-           && (versionCompare(compatVersion(), pluginVersion) <= 0);
+    return (versionCompare(spec->version(), dependency.version) >= 0)
+           && (versionCompare(spec->compatVersion(), dependency.version) <= 0);
 }
 
 /*!
@@ -1075,8 +1074,8 @@ bool PluginSpec::resolveDependencies(const PluginSpecs &specs)
 
     QHash<PluginDependency, PluginSpec *> resolvedDependencies;
     for (const PluginDependency &dependency : d->dependencies) {
-        PluginSpec *const found = findOrDefault(specs, [&dependency](PluginSpec *spec) {
-            return spec->provides(dependency.name, dependency.version);
+        PluginSpec *const found = findOrDefault(specs, [this, &dependency](PluginSpec *spec) {
+            return provides(spec, dependency);
         });
         if (!found) {
             if (dependency.type == PluginDependency::Required) {

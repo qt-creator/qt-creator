@@ -91,7 +91,7 @@
     For more information about the project file settings, see
     \l{Declaring Other Libraries}{qmake Manual: Declaring Other Libraries}.
 
-    \sa {Adding an Internal Library to a qmake Project}{Tutorial: Adding an Internal Library to a qmake Project},
+    \sa {Using an Internal Library in a qmake Project}{Tutorial: Using an Internal Library in a qmake Project},
     {Add subprojects to projects}, {Add libraries to CMake projects},
     {Use project wizards}, {Creating Projects}
 */
@@ -103,7 +103,7 @@
 
     \ingroup creator-tutorials
 
-    \title Adding an Internal Library to a qmake Project
+    \title Using an Internal Library in a qmake Project
 
     \brief How to create your own library and link your application against it
     when using qmake as the build system.

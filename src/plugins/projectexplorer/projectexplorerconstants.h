@@ -171,6 +171,7 @@ const char NORMAL_RUN_MODE[]="RunConfiguration.NormalRunMode";
 const char DEBUG_RUN_MODE[]="RunConfiguration.DebugRunMode";
 const char DAP_CMAKE_DEBUG_RUN_MODE[]="RunConfiguration.CmakeDebugRunMode";
 const char DAP_GDB_DEBUG_RUN_MODE[]="RunConfiguration.DapGdbDebugRunMode";
+const char DAP_LLDB_DEBUG_RUN_MODE[]="RunConfiguration.DapLldbDebugRunMode";
 const char DAP_PY_DEBUG_RUN_MODE[]="RunConfiguration.DapPyDebugRunMode";
 const char QML_PROFILER_RUN_MODE[]="RunConfiguration.QmlProfilerRunMode";
 const char QML_PROFILER_RUNNER[]="RunConfiguration.QmlProfilerRunner";

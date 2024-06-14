@@ -13,6 +13,8 @@ the public Git repository. For example:
 General
 -------
 
+* Started work on supporting Lua based plugins (registering language servers,
+  actions, preferences, and wizards)
 * Added `Clear` and `Save Contents` to context menus of all output views
 * Locator
     * Added the option to show results relative to project root
@@ -54,17 +56,22 @@ Editing
       ([QTCREATORBUG-10279](https://bugreports.qt.io/browse/QTCREATORBUG-10279))
 * Clangd
     * Increased the minimum version to LLVM 17
-    * Added an option for the index location
+    * Added the `Per-project index location` and `Per-session index location`
+      options in `Preferences` > `C++` > `Clangd` for setting the index location
+      for a project or session
       ([QTCREATORBUG-27346](https://bugreports.qt.io/browse/QTCREATORBUG-27346))
-    * Made reparsing source files while editing header files optional
+    * Added the `Update dependent sources` option to make re-parsing source files
+      while editing header files optional
       ([QTCREATORBUG-29943](https://bugreports.qt.io/browse/QTCREATORBUG-29943))
     * Fixed the handling of system headers
       ([QTCREATORBUG-30474](https://bugreports.qt.io/browse/QTCREATORBUG-30474))
 * Built-in
-    * Added the option to disable the built-in indexer
+    * Added the `Enable indexing` option in `Preferences` > `C++` > `Code Model`
+      to turn off the built-in indexer
       ([QTCREATORBUG-29147](https://bugreports.qt.io/browse/QTCREATORBUG-29147))
-    * Added an option for "statement macros" that are interpreted by the indenter
-      as complete statements that don't require a semicolon at the end
+    * Added the `Statement Macros` field in `Preferences` > `C++` > `Code Style`
+      for macros that the indenter interprets as complete statements that don't
+      require a semicolon at the end
       ([QTCREATORBUG-13640](https://bugreports.qt.io/browse/QTCREATORBUG-13640),
        [QTCREATORBUG-15069](https://bugreports.qt.io/browse/QTCREATORBUG-15069),
        [QTCREATORBUG-18789](https://bugreports.qt.io/browse/QTCREATORBUG-18789))

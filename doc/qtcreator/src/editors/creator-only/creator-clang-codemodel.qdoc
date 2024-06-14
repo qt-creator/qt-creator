@@ -162,7 +162,7 @@
 
     \title Code Model
 
-    \brief Sets global preferences for the code model.
+    \brief Sets global preferences for the C++ code model.
 
     The code model offers services such as code completion, syntactic and
     semantic highlighting, and diagnostics.
@@ -189,6 +189,10 @@
         \li \uicontrol {Use built-in preprocessor to show pre-processed files}
         \li Uses the built-in preprocessor to show the
             pre-processed source file in the editor.
+    \row
+        \li \uicontrol {Enable indexing}
+        \li Turns on the built-in indexer. Clearing this checkbox severely limits
+            the capabilities of the code model.
     \row
         \li \uicontrol {Do not index files greater than}
         \li To avoid out-of-memory crashes caused by indexing huge source files
@@ -243,9 +247,14 @@
             version 14, or later.
         \li In the \uicontrol {Background indexing} field, select \uicontrol Off
             to use a faster, but less accurate built-in indexer than the one used
-            by default. You can set the indexing priority depending on whether
+            by default. Set the indexing priority depending on whether
             the accuracy of results or speed is more important to you during
             global symbol searches.
+        \li In \uicontrol {Per-project index location}, select the folder to
+            store the index files for each project. The \c {compile-commands.json}
+            file is also stored in this folder.
+        \li In \uicontrol {Per-session index location}, select the folder to
+            store the index files for each session.
         \li In \uicontrol {Header/source switch mode}, select the C/C++
             backend for switching between header and source files. While the
             clangd implementation has more capabilities than the built-in
@@ -254,6 +263,13 @@
         \li By default, clangd attempts to use all unused cores. You can set a
             fixed number of cores to use in \uicontrol {Worker thread count}.
             Background indexing also uses this many worker threads.
+        \li Select \uicontrol {Insert header files on completion} to insert
+            header files when completing symbols.
+        \li Select \uicontrol {Update dependent sources} to re-parse all source
+            files that include a header file when editing the header file. This
+            can cause a heavy CPU load if the header file is included in many
+            source files. Clear this option to only re-parse the source files
+            when saving the header file.
         \li Set the number of \uicontrol {Completion results} if you regularly
             miss important results during code completion. Set it to 0 to remove
             the limit on the number of completion results. Setting this to 0 or a
