@@ -18,6 +18,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QTimer>
 
+using namespace Qt::StringLiterals;
 using namespace std::chrono;
 
 QT_BEGIN_NAMESPACE
@@ -1298,11 +1299,11 @@ const void *Loop::valuePtr() const
 
 using StoragePtr = void *;
 
-static QString s_activeStorageWarning =
+static constexpr QLatin1StringView s_activeStorageWarning =
     "The referenced storage is not reachable in the running tree. "
     "A nullptr will be returned which might lead to a crash in the calling code. "
     "It is possible that no storage was added to the tree, "
-    "or the storage is not reachable from where it is referenced.";
+    "or the storage is not reachable from where it is referenced."_L1;
 
 class StorageThreadData
 {
