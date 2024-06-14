@@ -91,6 +91,19 @@
 
     To remove language servers from the list, select \uicontrol Delete.
 
+    \section1 Updating Python Language Server
+
+    \QC offers to update the Python language server when you open a Python
+    file in the editor.
+
+    \image qtcreator-python-update-language-server.webp {Message about updating Python Language Server}
+
+    To update the language server, select \uicontrol Update. To save your choice,
+    select \uicontrol {Always Update}.
+
+    To skip updating and hide the message for future updates, select
+    \uicontrol Never.
+
     \section1 Supported Locator Filters
 
     The locator enables you to browse not only files, but any items defined by

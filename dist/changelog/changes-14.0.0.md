@@ -98,7 +98,8 @@ Editing
 
 ### Python
 
-* Added the option to install Python LSP updates
+* Added options for updating Python Language Server
+  ([Documentation] (https://doc-snapshots.qt.io/qtcreator-14.0/creator-language-servers.html))
 
 ### Language Server Protocol
 
