@@ -3,7 +3,10 @@
 <component type="desktop">
  <id>org.qt-project.qtcreator.desktop</id>
  <name>Qt Creator</name>
- <summary>Provides a cross-platform, complete integrated development environment (IDE) for application developers to create applications for multiple platforms and devices</summary>
+ <developer id="org.qt-project">
+   <name>Qt Project</name>
+ </developer>
+ <summary>Cross-platform integrated development environment (IDE)</summary>
  <metadata_license>CC0-1.0</metadata_license>
  <project_license>GPL-3.0</project_license>
  <description>
@@ -23,16 +26,27 @@
    newcomers to Qt.
   </p>
  </description>
+ <launchable type="desktop-id">org.qt-project.qtcreator.desktop</launchable>
 
  <url type="homepage">https://www.qt.io/ide/</url>
  <project_group>Qt</project_group>
  <content_rating type="oars-1.1" />
  <screenshots>
+  <screenshot type="default">
+   <caption>Application development life-cycle</caption>
+   <image>https://doc.qt.io/qtcreator/images/qt-app-dev-flow.webp</image>
+  </screenshot>
   <screenshot>
+   <caption>Overview</caption>
    <image>https://doc.qt.io/qtcreator/images/qtcreator-breakdown.png</image>
   </screenshot>
   <screenshot>
-   <image>https://doc.qt.io/qtcreator/images/qtcreator-gs-build-example-open.png</image>
+   <caption>Examples</caption>
+   <image>https://doc.qt.io/qtcreator/images/qtcreator-examples-open.webp</image>
+  </screenshot>
+  <screenshot>
+   <caption>Code editor</caption>
+   <image>https://doc.qt.io/qtcreator/images/qtcreator-spliteditorview.png</image>
   </screenshot>
  </screenshots>
  <releases>
