@@ -99,6 +99,7 @@ Internal::TextToModelMerger *RewriterView::textToModelMerger() const
 
 void RewriterView::modelAttached(Model *model)
 {
+    QTC_ASSERT(m_textModifier, return);
     m_modelAttachPending = false;
 
     AbstractView::modelAttached(model);
@@ -457,7 +458,7 @@ void RewriterView::deactivateTextModifierChangeSignals()
 
 void RewriterView::auxiliaryDataChanged(const ModelNode &, AuxiliaryDataKeyView key, const QVariant &)
 {
-    if (m_restoringAuxData)
+    if (m_restoringAuxData || !m_textModifier)
         return;
 
     if (key.type == AuxiliaryDataType::Document)
@@ -522,9 +523,9 @@ void RewriterView::amendQmlText()
 {
     if (!model()->rewriterView())
         return;
+    QTC_ASSERT(m_textModifier, return);
 
     emitCustomNotification(StartRewriterAmend);
-
     const QString newQmlText = m_textModifier->text();
 
     ModelAmender differenceHandler(m_textToModelMerger.get());
@@ -765,6 +766,7 @@ void RewriterView::enterErrorState(const QString &errorMessage)
 
 void RewriterView::resetToLastCorrectQml()
 {
+    QTC_ASSERT(m_textModifier, return);
     m_textModifier->textDocument()->undo();
     m_textModifier->textDocument()->clearUndoRedoStacks(QTextDocument::RedoStack);
     ModelAmender differenceHandler(m_textToModelMerger.get());
@@ -777,6 +779,7 @@ void RewriterView::resetToLastCorrectQml()
 
 QMap<ModelNode, QString> RewriterView::extractText(const QList<ModelNode> &nodes) const
 {
+    QTC_ASSERT(m_textModifier, return {});
     QmlDesigner::ASTObjectTextExtractor extract(m_textModifier->text());
     QMap<ModelNode, QString> result;
 
@@ -803,6 +806,7 @@ int RewriterView::nodeOffset(const ModelNode &node) const
  */
 int RewriterView::nodeLength(const ModelNode &node) const
 {
+    QTC_ASSERT(m_textModifier, return -1);
     ObjectLengthCalculator objectLengthCalculator;
     unsigned length;
     if (objectLengthCalculator(m_textModifier->text(), nodeOffset(node), length))
@@ -813,12 +817,14 @@ int RewriterView::nodeLength(const ModelNode &node) const
 
 int RewriterView::firstDefinitionInsideOffset(const ModelNode &node) const
 {
+    QTC_ASSERT(m_textModifier, return -1);
     FirstDefinitionFinder firstDefinitionFinder(m_textModifier->text());
     return firstDefinitionFinder(nodeOffset(node));
 }
 
 int RewriterView::firstDefinitionInsideLength(const ModelNode &node) const
 {
+    QTC_ASSERT(m_textModifier, return -1);
     FirstDefinitionFinder firstDefinitionFinder(m_textModifier->text());
     const int offset = firstDefinitionFinder(nodeOffset(node));
 
@@ -842,6 +848,8 @@ static bool isInNodeDefinition(int nodeTextOffset, int nodeTextLength, int curso
 
 ModelNode RewriterView::nodeAtTextCursorPositionHelper(const ModelNode &root, int cursorPosition) const
 {
+    QTC_ASSERT(m_textModifier, return {});
+
     using myPair = std::pair<ModelNode, int>;
     std::vector<myPair> data;
 
@@ -1150,36 +1158,35 @@ void RewriterView::qmlTextChanged()
 {
     if (inErrorState())
         return;
+    QTC_ASSERT(m_textModifier, return);
 
-    if (m_textToModelMerger && m_textModifier) {
-        const QString newQmlText = m_textModifier->text();
+    const QString newQmlText = m_textModifier->text();
 
 #if 0
-        qDebug() << Q_FUNC_INFO;
-        qDebug() << "old:" << lastCorrectQmlSource;
-        qDebug() << "new:" << newQmlText;
+    qDebug() << Q_FUNC_INFO;
+    qDebug() << "old:" << lastCorrectQmlSource;
+    qDebug() << "new:" << newQmlText;
 #endif
 
-        switch (m_differenceHandling) {
-        case Validate: {
-            ModelValidator differenceHandler(m_textToModelMerger.get());
-            if (m_textToModelMerger->load(newQmlText, differenceHandler))
-                m_lastCorrectQmlSource = newQmlText;
-            break;
-        }
+    switch (m_differenceHandling) {
+    case Validate: {
+        ModelValidator differenceHandler(m_textToModelMerger.get());
+        if (m_textToModelMerger->load(newQmlText, differenceHandler))
+            m_lastCorrectQmlSource = newQmlText;
+        break;
+    }
 
-        case Amend: {
-            if (m_instantQmlTextUpdate || externalDependencies().instantQmlTextUpdate()) {
-                amendQmlText();
-            } else {
-                if (externalDependencies().viewManagerUsesRewriterView(this)) {
-                    externalDependencies().viewManagerDiableWidgets();
-                    m_amendTimer.start();
-                }
+    case Amend: {
+        if (m_instantQmlTextUpdate || externalDependencies().instantQmlTextUpdate()) {
+            amendQmlText();
+        } else {
+            if (externalDependencies().viewManagerUsesRewriterView(this)) {
+                externalDependencies().viewManagerDiableWidgets();
+                m_amendTimer.start();
             }
-            break;
         }
-        }
+        break;
+    }
     }
 }
 
