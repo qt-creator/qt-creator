@@ -235,8 +235,23 @@ def qdump__QStandardItem(d, value):
 
     vtable, dptr = value.split('pp')
     if d.qtVersionAtLeast(0x060000):
-        model, parent, values, children, rows, cols, item = \
-            d.split('pp{@QList<@QStandardItemData>}{@QList<@QStandardItem *>}IIp', dptr)
+        if d.isCdb:
+            if d.isDebugBuild is None:
+                try:
+                    value["d_ptr"]
+                    d.isDebugBuild = True
+                except Exception:
+                    d.isDebugBuild = False
+            if d.isDebugBuild:
+                model = value["d_ptr"]["d"]["model"]
+                values = value["d_ptr"]["d"]["values"]
+                children = value["d_ptr"]["d"]["children"]
+            else:
+                model, parent, values, children, rows, cols, item = \
+                    d.split('pp{@QList<@QStandardItemData>}{@QList<@QStandardItem *>}IIp', dptr)
+        else:
+            model, parent, values, children, rows, cols, item = \
+                d.split('pp{@QList<@QStandardItemData>}{@QList<@QStandardItem *>}IIp', dptr)
     else:
         # There used to be a virtual destructor that got removed in
         # 88b6abcebf29b455438 on Apr 18 17:01:22 2017
@@ -249,7 +264,9 @@ def qdump__QStandardItem(d, value):
     d.putExpandable()
     if d.isExpanded():
         with Children(d):
-            d.putSubItem('[model]', d.createValue(model, '@QStandardItemModel'))
+            if isinstance(model, int):  # Used as address.
+                model = d.createValue(model, '@QStandardItemModel')
+            d.putSubItem('[model]', model)
             d.putSubItem('[values]', values)
             d.putSubItem('[children]', children)
 
