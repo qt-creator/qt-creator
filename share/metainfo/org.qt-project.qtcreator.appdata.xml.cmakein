@@ -54,6 +54,7 @@
    <description>
     <p>Qt Creator v${IDE_VERSION_DISPLAY}</p>
    </description>
+   <url>https://github.com/qt-creator/qt-creator/releases/tag/v${IDE_VERSION_DISPLAY}</url>
   </release>
  </releases>
 </component>
