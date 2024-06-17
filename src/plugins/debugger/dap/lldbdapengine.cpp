@@ -193,7 +193,7 @@ void LldbDapEngine::handleDapConfigurationDone()
         return;
     }
 
-    notifyEngineRunAndInferiorStopOk();
+    notifyEngineRunAndInferiorRunOk();
 }
 
 void LldbDapEngine::setupEngine()
