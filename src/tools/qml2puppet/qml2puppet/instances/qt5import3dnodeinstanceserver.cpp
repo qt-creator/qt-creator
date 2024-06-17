@@ -22,6 +22,7 @@
 #ifdef QUICK3D_MODULE
 #include <private/qquick3dnode_p.h>
 #include <private/qquick3dviewport_p.h>
+#include <private/qquick3dperspectivecamera_p.h>
 #endif
 
 namespace QmlDesigner {
@@ -84,6 +85,12 @@ void Qt5Import3dNodeInstanceServer::view3DAction([[maybe_unused]] const View3DAc
             QQmlProperty hProp(obj, "height", context());
             wProp.write(size.width());
             hProp.write(size.height());
+            if (auto camera = qobject_cast<QQuick3DPerspectiveCamera *>(m_view3D->camera())) {
+                if (size.width() >= size.height())
+                    camera->setFieldOfViewOrientation(QQuick3DPerspectiveCamera::Vertical);
+                else
+                    camera->setFieldOfViewOrientation(QQuick3DPerspectiveCamera::Horizontal);
+            }
             resizeCanvasToRootItem();
             addCurrentNodeToRenderQueue();
         }
