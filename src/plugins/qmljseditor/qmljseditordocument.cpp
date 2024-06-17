@@ -745,6 +745,11 @@ static Utils::FilePath qmllsForFile(const Utils::FilePath &file,
     if (settings.useLatestQmlls)
         return settingsManager->latestQmlls();
     QmlJS::ModelManagerInterface::ProjectInfo pInfo = modelManager->projectInfoForPath(file);
+
+    if (!settings.ignoreMinimumQmllsVersion
+        && QVersionNumber::fromString(pInfo.qtVersionString) < settings.mininumQmllsVersion) {
+        return {};
+    }
     return pInfo.qmllsPath;
 }
 
