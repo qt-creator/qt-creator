@@ -275,6 +275,8 @@ ProjectWizardPage::ProjectWizardPage(QWidget *parent)
     m_projectLabel->setObjectName("projectLabel");
     m_projectComboBox = new Utils::TreeViewComboBox;
     m_projectComboBox->setObjectName("projectComboBox");
+    m_infoLabel = new Utils::InfoLabel;
+    m_infoLabel->setVisible(false);
     m_additionalInfo = new QLabel;
     m_addToVersionControlLabel = new QLabel(Tr::tr("Add to &version control:"));
     m_addToVersionControlComboBox = new QComboBox;
@@ -295,6 +297,7 @@ ProjectWizardPage::ProjectWizardPage(QWidget *parent)
     Column {
         Form {
             m_projectLabel, m_projectComboBox, br,
+            m_infoLabel, br,
             empty, m_additionalInfo, br,
             m_addToVersionControlLabel, m_addToVersionControlComboBox, m_vcsManageButton, br,
         },
@@ -608,6 +611,17 @@ void ProjectWizardPage::setProjectUiVisible(bool visible)
 {
     m_projectLabel->setVisible(visible);
     m_projectComboBox->setVisible(visible);
+}
+
+void ProjectWizardPage::setStatus(const QString &text, InfoLabel::InfoType type)
+{
+    m_infoLabel->setText(text);
+    m_infoLabel->setType(type);
+}
+
+void ProjectWizardPage::setStatusVisible(bool visible)
+{
+    m_infoLabel->setVisible(visible);
 }
 
 } // namespace ProjectExplorer

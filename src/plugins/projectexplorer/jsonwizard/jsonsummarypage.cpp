@@ -295,6 +295,17 @@ void JsonSummaryPage::updateProjectData(FolderNode *node)
     m_wizard->setValue(QLatin1String(KEY_QT_KEYWORDS_ENABLED), qtKeyWordsEnabled);
 
     updateFileList();
+    setStatusVisible(false);
+    if (node && !m_fileList.isEmpty()) {
+        const FilePath parentFolder = node->directory();
+        const FilePath subProjectFolder = m_fileList.first().file.filePath().parentDir();
+        if (!subProjectFolder.isChildOf(parentFolder)) {
+            setStatus(Tr::tr("Subproject \"%1\" outside of \"%2\".")
+                      .arg(subProjectFolder.toUserOutput()).arg(parentFolder.toUserOutput()),
+                      InfoLabel::Warning);
+            setStatusVisible(true);
+        }
+    }
 }
 
 } // namespace ProjectExplorer
