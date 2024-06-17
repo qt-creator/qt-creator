@@ -3473,7 +3473,9 @@ void ProjectExplorerPluginPrivate::addNewFile()
     // to access meta data on an object that get deleted in the meantime:
     map.insert(QLatin1String(Constants::PREFERRED_PROJECT_NODE), QVariant::fromValue(static_cast<void *>(currentNode)));
     map.insert(Constants::PREFERRED_PROJECT_NODE_PATH, currentNode->filePath().toString());
-    if (Project *p = ProjectTree::currentProject()) {
+    Project *p = ProjectTree::projectForNode(currentNode);
+    QTC_ASSERT(p, p = ProjectTree::currentProject());
+    if (p) {
         const QStringList profileIds = Utils::transform(p->targets(), [](const Target *t) {
             return t->id().toString();
         });
@@ -3504,7 +3506,9 @@ void ProjectExplorerPluginPrivate::addNewHeaderOrSource()
                QVariant::fromValue(static_cast<void *>(folderNode)));
     map.insert(Constants::PREFERRED_PROJECT_NODE_PATH, folderNode->filePath().toString());
     map.insert("InitialFileName", fileNode->filePath().completeBaseName());
-    if (Project *p = ProjectTree::currentProject()) {
+    Project *p = ProjectTree::projectForNode(folderNode);
+    QTC_ASSERT(p, p = ProjectTree::currentProject());
+    if (p) {
         const QStringList profileIds = Utils::transform(p->targets(), [](const Target *t) {
             return t->id().toString();
         });
@@ -3528,11 +3532,13 @@ void ProjectExplorerPluginPrivate::addNewSubproject()
     if (currentNode->isProjectNodeType()
             && currentNode->supportsAction(AddSubProject, currentNode)) {
         QVariantMap map;
-        map.insert(QLatin1String(Constants::PREFERRED_PROJECT_NODE), QVariant::fromValue(currentNode));
-        Project *project = ProjectTree::currentProject();
+        map.insert(QLatin1String(Constants::PREFERRED_PROJECT_NODE),
+                   QVariant::fromValue(static_cast<void *>(currentNode)));
+        Project *project = ProjectTree::projectForNode(currentNode);
+        QTC_ASSERT(project, project = ProjectTree::currentProject());
         Id projectType;
         if (project) {
-            const QStringList profileIds = Utils::transform(ProjectTree::currentProject()->targets(),
+            const QStringList profileIds = Utils::transform(project->targets(),
                                                             [](const Target *t) {
                                                                 return t->id().toString();
                                                             });
