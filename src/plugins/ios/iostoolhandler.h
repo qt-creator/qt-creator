@@ -82,7 +82,7 @@ public:
 
 private:
     friend class IosToolTaskAdapter;
-    IosToolHandler *m_iosToolHandler = nullptr;
+    std::unique_ptr<IosToolHandler> m_iosToolHandler;
     StartHandler m_startHandler;
     Internal::IosDeviceType m_deviceType = Internal::IosDeviceType::IosDevice;
 };
