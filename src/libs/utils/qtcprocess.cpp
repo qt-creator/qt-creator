@@ -2140,9 +2140,10 @@ void ProcessPrivate::setupDebugLog()
         static std::atomic_int startCounter = 0;
         const int currentNumber = startCounter.fetch_add(1);
         qCDebug(processLog).nospace().noquote()
-                << "Process " << currentNumber << " starting ("
-                << qPrintable(blockingMessage(property(QTC_PROCESS_BLOCKING_TYPE)))
-                << "): " << m_setup.m_commandLine.toUserOutput();
+            << "Process " << currentNumber << " starting ("
+            << qPrintable(blockingMessage(property(QTC_PROCESS_BLOCKING_TYPE)))
+            << (isMainThread() ? ", main thread" : "")
+            << "): " << m_setup.m_commandLine.toUserOutput();
         setProperty(QTC_PROCESS_NUMBER, currentNumber);
     });
 
