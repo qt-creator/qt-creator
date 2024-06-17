@@ -666,7 +666,17 @@ void ItemLibraryAssetImporter::postImport()
             data.optionsIndex = pd.optionsIndex;
             data.type = pd.sourceInfo.suffix().toLower();
             data.size = pd.assetSize;
-            dataList.append(data);
+
+            bool inserted = false;
+            for (int i = 0; i < dataList.size(); ++i) {
+                if (dataList[i].name.compare(data.name, Qt::CaseInsensitive) > 0) {
+                    dataList.insert(i, data);
+                    inserted = true;
+                    break;
+                }
+            }
+            if (!inserted)
+                dataList.append(data);
         }
 
         emit importReadyForPreview(m_tempDir->path(), dataList);
