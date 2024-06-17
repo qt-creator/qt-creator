@@ -16,8 +16,8 @@
 #endif
 
 #ifdef Q_OS_WIN
-#include <psapi.h>
 #include <windows.h>
+#include <psapi.h>
 #endif
 
 #ifdef Q_OS_MACOS
