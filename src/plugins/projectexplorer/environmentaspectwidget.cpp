@@ -26,6 +26,10 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect)
 {
     QTC_CHECK(m_aspect);
 
+    connect(m_aspect, &EnvironmentAspect::userChangesUpdateRequested, this, [this] {
+        m_environmentWidget->forceUpdateCheck();
+    });
+
     setContentsMargins(0, 0, 0, 0);
     auto topLayout = new QVBoxLayout(this);
     topLayout->setContentsMargins(0, 0, 0, 25);

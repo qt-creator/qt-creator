@@ -29,6 +29,8 @@ public:
     enum class Selection { Name, Value };
     bool editVariable(const QString &name, Selection selection);
 
+    void forceUpdateCheck();
+
 signals:
     void userChangedItems(const EnvironmentItems &items);
 
