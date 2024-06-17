@@ -676,7 +676,7 @@ void AndroidRunnerWorker::asyncStart()
             stopOnSuccess,
             ProcessTask(onPidSetup, onPidDone, CallDoneIf::Success),
             TimeoutTask([](std::chrono::milliseconds &timeout) { timeout = 200ms; },
-                        [] { return DoneResult::Error; })
+                        DoneResult::Error)
         }.withTimeout(45s),
         ProcessTask(onUserSetup, onUserDone, CallDoneIf::Success),
         onGroupDone([pidStorage, this] { onProcessIdChanged(*pidStorage); })
