@@ -345,7 +345,8 @@ void Qt5Import3dNodeInstanceServer::render()
         if (!data.name.isEmpty()) {
             QSizeF iconSize = m_iconView3D->size();
             QImage iconImage = renderImage.copy(0, 0, iconSize.width(), iconSize.height());
-            ImageContainer imgContainer(0, iconImage, 1000001);
+            static qint32 renderId = 1000001;
+            ImageContainer imgContainer(0, iconImage, ++renderId);
             QVariantList cmdData;
             cmdData.append(data.name);
             cmdData.append(QVariant::fromValue(imgContainer));
