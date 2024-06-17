@@ -211,15 +211,46 @@ FilePaths CMakeProjectImporter::presetCandidates()
     return candidates;
 }
 
+class DebuggerCMakeExpander
+{
+    const PresetsDetails::ConfigurePreset &preset;
+    const Environment &env;
+    const FilePath &projectDirectory;
+
+public:
+    DebuggerCMakeExpander(
+        const PresetsDetails::ConfigurePreset &p, const Environment &e, const FilePath &projectDir)
+        : preset(p)
+        , env(e)
+        , projectDirectory(projectDir)
+    {}
+
+    QString expand(const QString &value) const
+    {
+        QString result{value};
+        CMakePresets::Macros::expand(preset, env, projectDirectory, result);
+        return result;
+    }
+
+    QVariantMap expand(const QVariantMap &map) const
+    {
+        QVariantMap result{map};
+        for (auto it = result.begin(); it != result.end(); ++it)
+            if (it->canConvert<QString>())
+                it->setValue(expand(it->toString()));
+        return result;
+    }
+};
+
 static QVariant findOrRegisterDebugger(
-    Environment &env, const std::optional<QVariantMap> &vendor, const QString &presetName)
+    Environment &env, const PresetsDetails::ConfigurePreset &preset, const DebuggerCMakeExpander& expander)
 {
     const QString debuggerKey("debugger");
-    if (!vendor || !vendor.value().contains(debuggerKey))
+    if (!preset.vendor || !preset.vendor.value().contains(debuggerKey))
         return {};
 
-    const QVariant debuggerVariant = vendor.value().value(debuggerKey);
-    FilePath debuggerPath = FilePath::fromUserInput(debuggerVariant.toString());
+    const QVariant debuggerVariant = preset.vendor.value().value(debuggerKey);
+    FilePath debuggerPath = FilePath::fromUserInput(expander.expand(debuggerVariant.toString()));
     if (!debuggerPath.isEmpty()) {
         if (debuggerPath.isRelativePath())
             debuggerPath = env.searchInPath(debuggerPath.fileName());
@@ -228,7 +259,7 @@ static QVariant findOrRegisterDebugger(
         DebuggerItem debugger;
         debugger.setCommand(debuggerPath);
         debugger.setUnexpandedDisplayName(
-            mainName.arg(presetName).arg(debuggerPath.completeBaseName()));
+            mainName.arg(preset.name).arg(debuggerPath.completeBaseName()));
         debugger.setAutoDetected(false);
         QString errorMessage;
         debugger.reinitializeFromFile(&errorMessage, &env);
@@ -246,7 +277,7 @@ static QVariant findOrRegisterDebugger(
         if (!debuggerMap.contains("Id"))
             debuggerMap.insert("Id", QUuid::createUuid().toString());
 
-        auto store = storeFromMap(debuggerMap);
+        auto store = storeFromMap(expander.expand(debuggerMap));
         DebuggerItem debugger(store);
 
         return DebuggerItemManager::registerDebugger(debugger);
@@ -883,7 +914,8 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
 
         data->hasQmlDebugging = CMakeBuildConfiguration::hasQmlDebugging(config);
 
-        data->debugger = findOrRegisterDebugger(env, configurePreset.vendor, configurePreset.name);
+        data->debugger = findOrRegisterDebugger(
+            env, configurePreset, DebuggerCMakeExpander(configurePreset, env, projectDirectory()));
 
         QByteArrayList buildConfigurationTypes = {cache.valueOf("CMAKE_BUILD_TYPE")};
         if (buildConfigurationTypes.front().isEmpty()) {
