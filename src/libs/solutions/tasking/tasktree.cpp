@@ -677,7 +677,7 @@ private:
 /*!
     \typealias CustomTask::TaskDoneHandler
 
-    Type alias for \c std::function<DoneResult(const Task &, DoneWith)>.
+    Type alias for \c std::function<DoneResult(const Task &, DoneWith)> or DoneResult.
 
     The \c TaskDoneHandler is an optional argument of a custom task element's constructor.
     Any function with the above signature, when passed as a task done handler,
@@ -701,6 +701,9 @@ private:
     In this case, the final result of the task will be equal to the value indicated by
     the DoneWith argument. When the handler returns the DoneResult value,
     the task's final result may be tweaked inside the done handler's body by the returned value.
+
+    For a \c TaskDoneHandler of the DoneResult type, no additional handling is executed,
+    and the task finishes unconditionally with the passed value of DoneResult.
 
     \sa CustomTask(), TaskSetupHandler, GroupDoneHandler
 */
@@ -1056,7 +1059,7 @@ private:
 /*!
     \typealias GroupItem::GroupDoneHandler
 
-    Type alias for \c std::function<DoneResult(DoneWith)>.
+    Type alias for \c std::function<DoneResult(DoneWith)> or DoneResult.
 
     The \c GroupDoneHandler is an argument of the onGroupDone() element.
     Any function with the above signature, when passed as a group done handler,
@@ -1070,6 +1073,10 @@ private:
     In this case, the final result of the group will be equal to the value indicated by
     the DoneWith argument. When the handler returns the DoneResult value,
     the group's final result may be tweaked inside the done handler's body by the returned value.
+
+    For a \c GroupDoneHandler of the DoneResult type, no additional handling is executed,
+    and the group finishes unconditionally with the passed value of DoneResult,
+    ignoring the group's workflow policy.
 
     \sa onGroupDone(), GroupSetupHandler, CustomTask::TaskDoneHandler
 */
@@ -2436,7 +2443,7 @@ bool TaskTreePrivate::invokeDoneHandler(RuntimeTask *node, DoneWith doneWith)
     \section2 Task's Done Handler
 
     When a running task finishes, the task tree invokes an optionally provided done handler.
-    The handler should always take a \c const \e reference to the associated task class object:
+    The handler should take a \c const \e reference to the associated task class object:
 
     \code
         const auto onSetup = [](QProcess &process) {
