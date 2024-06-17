@@ -462,14 +462,17 @@ static bool isFileIncluded(const QList<QRegularExpression> &filterRegs,
     return isIncluded && (exclusionRegs.isEmpty() || !matches(exclusionRegs, filePath));
 }
 
-std::function<FilePaths(const FilePaths &)> filterFilesFunction(const QStringList &filters,
-                                                                const QStringList &exclusionFilters)
+FilterFilesFunction filterFilesFunction(const QStringList &filters,
+                                        const QStringList &exclusionFilters,
+                                        const FilterFileFunction &filterFileFuntion)
 {
     const QList<QRegularExpression> filterRegs = filtersToRegExps(filters);
     const QList<QRegularExpression> exclusionRegs = filtersToRegExps(exclusionFilters);
-    return [filterRegs, exclusionRegs](const FilePaths &filePaths) {
-        return Utils::filtered(filePaths, [&filterRegs, &exclusionRegs](const FilePath &filePath) {
-            return isFileIncluded(filterRegs, exclusionRegs, filePath);
+    return [filterRegs, exclusionRegs, filterFileFuntion](const FilePaths &filePaths) {
+        return Utils::filtered(filePaths, [&filterRegs, &exclusionRegs, filterFileFuntion](
+                                              const FilePath &filePath) {
+            return isFileIncluded(filterRegs, exclusionRegs, filePath) &&
+                   (!filterFileFuntion || filterFileFuntion(filePath));
         });
     };
 }
@@ -583,12 +586,14 @@ const int s_progressMaximum = 1000;
 struct SubDirCache
 {
     SubDirCache(const FilePaths &directories, const QStringList &filters,
-                const QStringList &exclusionFilters, QTextCodec *encoding);
+                const QStringList &exclusionFilters,
+                const FilterFileFunction &filterFileFuntion, QTextCodec *encoding);
 
     std::optional<FileContainerIterator::Item> updateCache(int advanceIntoIndex,
                                                            const SubDirCache &initialCache);
 
-    std::function<FilePaths(const FilePaths &)> m_filterFiles;
+    FilterFilesFunction m_filterFilesFunction;
+    FilterFileFunction m_filterFileFunction;
     QTextCodec *m_encoding = nullptr;
     QStack<FilePath> m_dirs;
     QSet<FilePath> m_knownDirs;
@@ -606,8 +611,10 @@ struct SubDirCache
 };
 
 SubDirCache::SubDirCache(const FilePaths &directories, const QStringList &filters,
-                         const QStringList &exclusionFilters, QTextCodec *encoding)
-    : m_filterFiles(filterFilesFunction(filters, exclusionFilters))
+                         const QStringList &exclusionFilters,
+                         const FilterFileFunction &filterFileFuntion, QTextCodec *encoding)
+    : m_filterFilesFunction(filterFilesFunction(filters, exclusionFilters, filterFileFuntion))
+    , m_filterFileFunction(filterFileFuntion)
     , m_encoding(encoding == nullptr ? QTextCodec::codecForLocale() : encoding)
 {
     const qreal maxPer = qreal(s_progressMaximum) / directories.count();
@@ -642,7 +649,7 @@ std::optional<FileContainerIterator::Item> SubDirCache::updateCache(int advanceI
         const FilePath dir = m_dirs.pop();
         const qreal dirProgressMax = m_progressValues.pop();
         const bool processed = m_processedValues.pop();
-        if (dir.exists()) {
+        if (dir.exists() && (!m_filterFileFunction || m_filterFileFunction(dir))) {
             using Dir = FilePath;
             using CanonicalDir = FilePath;
             std::vector<std::pair<Dir, CanonicalDir>> subDirs;
@@ -657,7 +664,7 @@ std::optional<FileContainerIterator::Item> SubDirCache::updateCache(int advanceI
             }
             if (subDirs.empty()) {
                 const FilePaths allFilePaths = dir.dirEntries(QDir::Files | QDir::Hidden);
-                const FilePaths filePaths = m_filterFiles(allFilePaths);
+                const FilePaths filePaths = m_filterFilesFunction(allFilePaths);
                 m_items.reserve(m_items.size() + filePaths.size());
                 Utils::reverseForeach(filePaths, [this](const FilePath &file) {
                     m_items.append({file, m_encoding});
@@ -706,15 +713,25 @@ static FileContainerIterator::Advancer subDirAdvancer(const SubDirCache &initial
 }
 
 static FileContainer::AdvancerProvider subDirAdvancerProvider(const FilePaths &directories,
-    const QStringList &filters, const QStringList &exclusionFilters, QTextCodec *encoding)
+    const QStringList &filters, const QStringList &exclusionFilters,
+    const FilterFileFunction &filterFileFuntion, QTextCodec *encoding)
 {
-    const SubDirCache initialCache(directories, filters, exclusionFilters, encoding);
-    return [=] { return subDirAdvancer(initialCache); };
+    const SubDirCache initialCache(directories, filters, exclusionFilters, filterFileFuntion,
+                                   encoding);
+    return [initialCache] { return subDirAdvancer(initialCache); };
 }
 
 SubDirFileContainer::SubDirFileContainer(const FilePaths &directories, const QStringList &filters,
                                          const QStringList &exclusionFilters, QTextCodec *encoding)
-    : FileContainer(subDirAdvancerProvider(directories, filters, exclusionFilters, encoding),
-                    s_progressMaximum) {}
+    : FileContainer(subDirAdvancerProvider(directories, filters, exclusionFilters, {}, encoding),
+                    s_progressMaximum)
+{}
+
+SubDirFileContainer::SubDirFileContainer(const FilePaths &directories,
+                                         const FilterFileFunction &filterFileFuntion,
+                                         QTextCodec *encoding)
+    : FileContainer(subDirAdvancerProvider(directories, {}, {}, filterFileFuntion, encoding),
+                    s_progressMaximum)
+{}
 
 } // namespace Utils

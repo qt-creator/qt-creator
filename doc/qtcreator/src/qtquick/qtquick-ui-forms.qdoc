@@ -23,14 +23,18 @@
     \brief Limitations of \QDS UI files (.ui.qml).
 
     \if defined(qtdesignstudio)
-    You can use \QDS wizards to create UI files that have the filename
-    extension \e .ui.qml. The UI files can be edited in the \l {2D} view.
-    If you use the \l {Code} view to add code that is not supported
-    by the \uicontrol {2D} view, \QDS displays error messages.
+    \QDS wizards create UI files that have the filename extension \e .ui.qml.
+    Edit the UI files in the \l {2D} view.
+
+    If you use the \l {Code} view to add code that the \uicontrol {2D} view does
+    not support, \QDS displays error messages.
     \else
     If you switch between \QC and \QDS or cooperate with designers on
     a project, you might encounter UI files (.ui.qml). They are intended to
     be edited in \QDS only.
+
+    To open UI files with \QDS, select \uicontrol {Open With} >
+    \uicontrol {\QDS} in the context menu for the file.
     \endif
 
 

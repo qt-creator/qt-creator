@@ -24,6 +24,7 @@ namespace Cppcheck::Internal {
 
 class CppcheckRunner;
 class CppcheckDiagnosticManager;
+class CppcheckSettings;
 
 class CppcheckTool final : public QObject
 {
@@ -33,7 +34,7 @@ public:
     CppcheckTool(CppcheckDiagnosticManager &manager, const Utils::Id &progressId);
     ~CppcheckTool() override;
 
-    void updateOptions();
+    void updateOptions(const CppcheckSettings &settings);
     void setProject(ProjectExplorer::Project *project);
     void check(const Utils::FilePaths &files);
     void stop(const Utils::FilePaths &files);
@@ -45,7 +46,7 @@ public:
     void finishWithFail(const QString &exitMessage);
 
 private:
-    void updateArguments();
+    void updateArguments(const CppcheckSettings &settings);
     void addToQueue(const Utils::FilePaths &files, const CppEditor::ProjectPart &part);
     QStringList additionalArguments(const CppEditor::ProjectPart &part) const;
 

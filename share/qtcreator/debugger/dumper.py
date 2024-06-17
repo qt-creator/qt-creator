@@ -1072,7 +1072,6 @@ class DumperBase():
 
     def check_typeid(self, typeid):
         if not isinstance(typeid, int):
-            size = self.type_size_cache.get(typeid, None)
             raise RuntimeError('WRONG TYPE FOR TYPEID: %s %s' % (str(typeid), type(typeid)))
 
     def checkRef(self, ref):

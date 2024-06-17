@@ -54,6 +54,7 @@ enum class DapResponseType
     Evaluate,
     SetBreakpoints,
     SetFunctionBreakpoints,
+    Attach,
     Unknown
 };
 

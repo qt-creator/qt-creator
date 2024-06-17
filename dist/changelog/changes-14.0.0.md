@@ -51,9 +51,12 @@ Editing
       ([QTCREATORBUG-12190](https://bugreports.qt.io/browse/QTCREATORBUG-12190))
     * Added `Re-order Member Function Definitions According to Declaration Order`
       ([QTCREATORBUG-6199](https://bugreports.qt.io/browse/QTCREATORBUG-6199))
-    * Added triggers for `Add Curly Braces`
+    * Added `Add Curly Braces` for do, while, and for loops
     * Fixed issues with macros
       ([QTCREATORBUG-10279](https://bugreports.qt.io/browse/QTCREATORBUG-10279))
+
+    [Documentation](https://doc.qt.io/qtcreator/creator-reference-cpp-quick-fixes.html)
+
 * Clangd
     * Increased the minimum version to LLVM 17
     * Added the `Per-project index location` and `Per-session index location`
@@ -83,7 +86,8 @@ Editing
 
 * Improved support for enums
   ([QTCREATORBUG-19226](https://bugreports.qt.io/browse/QTCREATORBUG-19226))
-* Added `Qt Design Studio` to `Open With` for `.ui.qml`-files
+* Added `Qt Design Studio` to `Open With` for `.ui.qml` files
+  ([Documentation](https://doc.qt.io/qtcreator/creator-quick-ui-forms.html))
 * Language Server
     * Switched on by default
     * Added option for generating `qmlls.ini` files for CMake projects
@@ -94,7 +98,8 @@ Editing
 
 ### Python
 
-* Added the option to install Python LSP updates
+* Added options for updating Python Language Server
+  ([Documentation] (https://doc-snapshots.qt.io/qtcreator-14.0/creator-language-servers.html))
 
 ### Language Server Protocol
 

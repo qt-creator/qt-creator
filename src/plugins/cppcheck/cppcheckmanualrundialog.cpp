@@ -52,7 +52,9 @@ ManualRunDialog::ManualRunDialog(const ProjectExplorer::Project *project)
         analyzeButton->setEnabled(m_model->hasCheckedFiles());
     });
 
-    auto optionsWidget = settings().layouter()().emerge();
+    m_manualRunSettings.readSettings();
+    m_manualRunSettings.setAutoApply(true);
+    auto optionsWidget = m_manualRunSettings.layouter()().emerge();
 
     auto layout = new QVBoxLayout(this);
     layout->addWidget(optionsWidget);

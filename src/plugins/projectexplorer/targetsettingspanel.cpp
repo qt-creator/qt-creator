@@ -170,6 +170,7 @@ public:
 
     void ensureWidget();
     void rebuildContents();
+    void ensureShowMoreItem();
 
     void setShowAllKits(bool showAllKits)
     {
@@ -206,6 +207,10 @@ public:
         if (role == Qt::DisplayRole) {
             return !m_p->showAllKits() ? Tr::tr("Show All Kits") : Tr::tr("Hide Inactive Kits");
         }
+
+        if (role == IsShowMoreRole)
+            return true;
+
         return {};
     }
 
@@ -814,6 +819,14 @@ void TargetItem::updateSubItems()
     }
 }
 
+void TargetGroupItemPrivate::ensureShowMoreItem()
+{
+    if (q->findAnyChild([](TreeItem *item) { return item->data(0, IsShowMoreRole).toBool(); }))
+        return;
+
+    q->appendChild(new ShowMoreItem(this));
+}
+
 void TargetGroupItemPrivate::rebuildContents()
 {
     QGuiApplication::setOverrideCursor(Qt::WaitCursor);
@@ -829,7 +842,7 @@ void TargetGroupItemPrivate::rebuildContents()
     }
 
     if (isAnyKitNotEnabled)
-        q->appendChild(new ShowMoreItem(this));
+        ensureShowMoreItem();
 
     if (q->parent()) {
         q->parent()
@@ -843,6 +856,7 @@ void TargetGroupItemPrivate::handleTargetAdded(Target *target)
 {
     if (TargetItem *item = q->targetItem(target))
         item->updateSubItems();
+    ensureShowMoreItem();
     q->update();
 }
 
@@ -850,6 +864,7 @@ void TargetGroupItemPrivate::handleTargetRemoved(Target *target)
 {
     if (TargetItem *item = q->targetItem(target))
         item->updateSubItems();
+    ensureShowMoreItem();
     q->parent()->setData(0, QVariant::fromValue(static_cast<TreeItem *>(q)),
                          ItemDeactivatedFromBelowRole);
 }
@@ -858,6 +873,7 @@ void TargetGroupItemPrivate::handleTargetChanged(Target *target)
 {
     if (TargetItem *item = q->targetItem(target))
         item->updateSubItems();
+    ensureShowMoreItem();
     q->setData(0, QVariant(), ItemActivatedFromBelowRole);
 }
 

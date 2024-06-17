@@ -55,7 +55,7 @@ FileContainer AllProjectsFind::filesForProjects(const QStringList &nameFilters,
                                                 const QStringList &exclusionFilters,
                                                 const QList<Project *> &projects)
 {
-    std::function<FilePaths(const FilePaths &)> filterFiles
+    const FilterFilesFunction filterFiles
         = Utils::filterFilesFunction(nameFilters, exclusionFilters);
     const QMap<FilePath, QTextCodec *> openEditorEncodings
         = TextDocument::openedTextDocumentEncodings();

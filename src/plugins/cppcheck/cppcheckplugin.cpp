@@ -56,9 +56,9 @@ public:
 
 CppcheckPluginPrivate::CppcheckPluginPrivate()
 {
-    tool.updateOptions();
+    tool.updateOptions(settings());
     connect(&settings(), &AspectContainer::changed, this, [this] {
-        tool.updateOptions();
+        tool.updateOptions(settings());
         trigger.recheck();
     });
 
@@ -112,8 +112,6 @@ void CppcheckPluginPrivate::startManualRun()
     if (!project)
         return;
 
-    manualRunTool.updateOptions();
-
     ManualRunDialog dialog(project);
     if (dialog.exec() == ManualRunDialog::Rejected)
         return;
@@ -125,7 +123,7 @@ void CppcheckPluginPrivate::startManualRun()
         return;
 
     manualRunTool.setProject(project);
-    manualRunTool.updateOptions();
+    manualRunTool.updateOptions(dialog.manualRunSettings());
     manualRunTool.check(files);
     perspective.select();
 }

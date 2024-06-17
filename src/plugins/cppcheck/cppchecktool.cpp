@@ -39,10 +39,10 @@ CppcheckTool::CppcheckTool(CppcheckDiagnosticManager &manager, const Id &progres
 
 CppcheckTool::~CppcheckTool() = default;
 
-void CppcheckTool::updateOptions()
+void CppcheckTool::updateOptions(const CppcheckSettings &settings)
 {
     m_filters.clear();
-    for (const QString &pattern : settings().ignoredPatterns().split(',')) {
+    for (const QString &pattern : settings.ignoredPatterns().split(',')) {
         const QString trimmedPattern = pattern.trimmed();
         if (trimmedPattern.isEmpty())
             continue;
@@ -52,56 +52,54 @@ void CppcheckTool::updateOptions()
             m_filters.push_back(re);
     }
 
-    updateArguments();
+    updateArguments(settings);
 }
 
 void CppcheckTool::setProject(ProjectExplorer::Project *project)
 {
     m_project = project;
-    updateArguments();
+    updateArguments(settings());
 }
 
-void CppcheckTool::updateArguments()
+void CppcheckTool::updateArguments(const CppcheckSettings &settings)
 {
     if (!m_project)
         return;
 
     m_cachedAdditionalArguments.clear();
 
-    CppcheckSettings &s = settings();
-
     QStringList arguments;
-    if (!s.customArguments().isEmpty()) {
+    if (!settings.customArguments().isEmpty()) {
         Utils::MacroExpander *expander = Utils::globalMacroExpander();
-        const QString expanded = expander->expand(s.customArguments());
+        const QString expanded = expander->expand(settings.customArguments());
         arguments.push_back(expanded);
     }
 
-    if (s.warning())
+    if (settings.warning())
         arguments.push_back("--enable=warning");
-    if (s.style())
+    if (settings.style())
         arguments.push_back("--enable=style");
-    if (s.performance())
+    if (settings.performance())
         arguments.push_back("--enable=performance");
-    if (s.portability())
+    if (settings.portability())
         arguments.push_back("--enable=portability");
-    if (s.information())
+    if (settings.information())
         arguments.push_back("--enable=information");
-    if (s.unusedFunction())
+    if (settings.unusedFunction())
         arguments.push_back("--enable=unusedFunction");
-    if (s.missingInclude())
+    if (settings.missingInclude())
         arguments.push_back("--enable=missingInclude");
-    if (s.inconclusive())
+    if (settings.inconclusive())
         arguments.push_back("--inconclusive");
-    if (s.forceDefines())
+    if (settings.forceDefines())
         arguments.push_back("--force");
 
-    if (!s.unusedFunction() && !s.customArguments().contains("-j "))
+    if (!settings.unusedFunction() && !settings.customArguments().contains("-j "))
         arguments.push_back("-j " + QString::number(QThread::idealThreadCount()));
 
     arguments.push_back("--template=\"{file},{line},{severity},{id},{message}\"");
 
-    m_runner->reconfigure(s.binary.effectiveBinary(), arguments.join(' '));
+    m_runner->reconfigure(settings.binary.effectiveBinary(), arguments.join(' '));
 }
 
 QStringList CppcheckTool::additionalArguments(const CppEditor::ProjectPart &part) const

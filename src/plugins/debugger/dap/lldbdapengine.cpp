@@ -7,7 +7,9 @@
 
 #include <coreplugin/messagemanager.h>
 
+#include <debugger/debuggeractions.h>
 #include <debugger/debuggermainwindow.h>
+#include <debugger/debuggersourcepathmappingwidget.h>
 
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
@@ -18,6 +20,7 @@
 #include <projectexplorer/projecttree.h>
 
 #include <QDebug>
+#include <QJsonArray>
 #include <QLocalSocket>
 #include <QVersionNumber>
 
@@ -112,15 +115,69 @@ LldbDapEngine::LldbDapEngine()
     setDebuggerType("DAP");
 }
 
+QJsonArray LldbDapEngine::sourceMap() const
+{
+    QJsonArray sourcePathMapping;
+    const SourcePathMap sourcePathMap
+        = mergePlatformQtPath(runParameters(), settings().sourcePathMap());
+    for (auto it = sourcePathMap.constBegin(), cend = sourcePathMap.constEnd(); it != cend; ++it) {
+        sourcePathMapping.append(QJsonArray{
+            {it.key(), expand(it.value())},
+        });
+    }
+    return sourcePathMapping;
+}
+
+QJsonArray LldbDapEngine::preRunCommands() const
+{
+    const QStringList lines = settings().gdbStartupCommands().split('\n')
+                              + runParameters().additionalStartupCommands.split('\n');
+    QJsonArray result;
+    for (const QString &line : lines) {
+        const QString trimmed = line.trimmed();
+        if (!trimmed.isEmpty() && !trimmed.startsWith('#'))
+            result.append(trimmed);
+    }
+    return result;
+}
+
 void LldbDapEngine::handleDapInitialize()
 {
+    // Documentation at:
+    // * https://github.com/llvm/llvm-project/tree/main/lldb/tools/lldb-dap#lldb-dap
+    // * https://github.com/llvm/llvm-project/blob/main/lldb/tools/lldb-dap/package.json
+
+    const DebuggerRunParameters &rp = runParameters();
+
     if (!isLocalAttachEngine()) {
-        DapEngine::handleDapInitialize();
+        m_dapClient->postRequest(
+            "launch",
+            QJsonObject{
+                {"noDebug", false},
+                {"program", rp.inferior.command.executable().path()},
+                {"args", rp.inferior.command.arguments()},
+                {"cwd", rp.inferior.workingDirectory.path()},
+                {"sourceMap", sourceMap()},
+                {"preRunCommands", preRunCommands()},
+                {"__restart", ""},
+            });
+
+        qCDebug(logCategory()) << "handleDapLaunch";
         return;
     }
 
     QTC_ASSERT(state() == EngineRunRequested, qCDebug(logCategory()) << state());
-    m_dapClient->postRequest("attach", QJsonObject{{"__restart", ""}});
+
+    m_dapClient->postRequest(
+        "attach",
+        QJsonObject{
+            {"program", rp.inferior.command.executable().path()},
+            {"pid", QString::number(rp.attachPID.pid())},
+            {"sourceMap", sourceMap()},
+            {"preRunCommands", preRunCommands()},
+            {"__restart", ""},
+        });
+
     qCDebug(logCategory()) << "handleDapAttach";
 }
 
@@ -136,7 +193,7 @@ void LldbDapEngine::handleDapConfigurationDone()
         return;
     }
 
-    notifyEngineRunAndInferiorStopOk();
+    notifyEngineRunAndInferiorRunOk();
 }
 
 void LldbDapEngine::setupEngine()
@@ -145,9 +202,6 @@ void LldbDapEngine::setupEngine()
 
     const DebuggerRunParameters &rp = runParameters();
     CommandLine cmd{rp.debugger.command.executable()};
-
-    if (isLocalAttachEngine())
-        cmd.addArgs({"--debugger-pid", QString::number(rp.attachPID.pid())});
 
     IDataProvider *dataProvider =  new ProcessDataProvider(rp, cmd, this);
     m_dapClient = new LldbDapClient(dataProvider, this);

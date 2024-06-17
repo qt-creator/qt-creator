@@ -21,6 +21,9 @@ private:
     bool isLocalAttachEngine() const;
     bool acceptsBreakpoint(const BreakpointParameters &bp) const override;
     const QLoggingCategory &logCategory() override;
+
+    QJsonArray sourceMap() const;
+    QJsonArray preRunCommands() const;
 };
 
 } // Debugger::Internal

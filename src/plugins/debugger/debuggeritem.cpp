@@ -271,6 +271,10 @@ QString DebuggerItem::engineTypeName() const
         return QLatin1String("CDB");
     case LldbEngineType:
         return QLatin1String("LLDB");
+    case GdbDapEngineType:
+        return QLatin1String("GDB DAP");
+    case LldbDapEngineType:
+        return QLatin1String("LLDB DAP");
     case UvscEngineType:
         return QLatin1String("UVSC");
     default:
