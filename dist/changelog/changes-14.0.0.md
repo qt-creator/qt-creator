@@ -99,7 +99,7 @@ Editing
 ### Python
 
 * Added options for updating Python Language Server
-  ([Documentation] (https://doc-snapshots.qt.io/qtcreator-14.0/creator-language-servers.html))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-14.0/creator-language-servers.html))
 
 ### Language Server Protocol
 
@@ -117,8 +117,10 @@ Editing
 ### Models
 
 * Added more visual attributes for relations
-* Added support for linked files
-* Added support for custom images
+* Added support for linked files in model element properties
+* Added support for custom images in model element properties
+
+([Documentation](https://doc-snapshots.qt.io/qtcreator-14.0/creator-how-to-create-models.html))
 
 ### SCXML
 
