@@ -1036,8 +1036,10 @@ Rectangle {
     };
 
     auto crashCallback = [&] {
-        addWarning("Preview process crashed.");
-        cleanupPreviewPuppet();
+        const QString errorMsg(tr("Preview generation process crashed."));
+        addWarning(errorMsg);
+        canvas()->displayError(errorMsg);
+        QTimer::singleShot(0, this, &ItemLibraryAssetImportDialog::cleanupPreviewPuppet);
     };
 
     m_connectionManager->setPreviewIconCallback(std::move(previewIconCallback));

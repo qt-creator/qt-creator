@@ -34,6 +34,12 @@ void Import3dCanvas::updateRenderImage(const QImage &img)
     update();
 }
 
+void Import3dCanvas::displayError(const QString &error)
+{
+    m_errorMsg = error;
+    update();
+}
+
 void Import3dCanvas::paintEvent([[maybe_unused]] QPaintEvent *e)
 {
     QWidget::paintEvent(e);
@@ -46,6 +52,9 @@ void Import3dCanvas::paintEvent([[maybe_unused]] QPaintEvent *e)
     } else {
         painter.drawImage(rect(), m_image, QRect(0, 0, m_image.width(), m_image.height()));
     }
+
+    if (!m_errorMsg.isEmpty())
+        painter.drawText(QRect(0, 0, width(), height()), Qt::AlignHCenter | Qt::AlignVCenter, m_errorMsg);
 }
 
 void Import3dCanvas::resizeEvent(QResizeEvent *)

@@ -17,6 +17,7 @@ public:
     Import3dCanvas(QWidget *parent);
 
     void updateRenderImage(const QImage &img);
+    void displayError(const QString &error);
 
 signals:
     void requestImageUpdate();
@@ -32,6 +33,7 @@ protected:
 private:
     QImage m_image;
     QPointF m_dragPos;
+    QString m_errorMsg;
 };
 
 } // namespace QmlDesigner
