@@ -26,9 +26,8 @@ struct DirectoryScanResult
     Utils::FilePaths subDirectories;
 };
 
-template<typename Result>
-DirectoryScanResult scanForFiles(
-    QPromise<Result> &promise,
+static DirectoryScanResult scanForFiles(
+    const QFuture<void> &future,
     const Utils::FilePath &directory,
     const QDir::Filters &filter,
     const std::function<FileNode *(const Utils::FilePath &)> factory,
@@ -38,7 +37,7 @@ DirectoryScanResult scanForFiles(
 
     const Utils::FilePaths entries = directory.dirEntries(filter);
     for (const Utils::FilePath &entry : entries) {
-        if (promise.isCanceled())
+        if (future.isCanceled())
             return result;
 
         if (Utils::anyOf(versionControls, [entry](const Core::IVersionControl *vc) {
@@ -52,7 +51,6 @@ DirectoryScanResult scanForFiles(
         else if (FileNode *node = factory(entry))
             result.nodes.append(node);
     }
-
     return result;
 }
 
@@ -65,9 +63,11 @@ QList<FileNode *> scanForFilesRecursively(
     const std::function<FileNode *(const Utils::FilePath &)> factory,
     const QList<Core::IVersionControl *> &versionControls)
 {
+    const QFuture<void> future(promise.future());
+
     QSet<Utils::FilePath> visited;
     const DirectoryScanResult result
-        = scanForFiles(promise, directory, filter, factory, versionControls);
+        = scanForFiles(future, directory, filter, factory, versionControls);
     QList<FileNode *> fileNodes = result.nodes;
     const double progressIncrement = progressRange
                                      / static_cast<double>(
@@ -86,15 +86,12 @@ QList<FileNode *> scanForFilesRecursively(
 
     while (!subDirectories.isEmpty()) {
         using namespace Tasking;
-        LoopList iterator(subDirectories);
+        const LoopList iterator(subDirectories);
         subDirectories.clear();
 
         auto onSetup = [&, iterator](Utils::Async<DirectoryScanResult> &task) {
             task.setConcurrentCallData(
-                [&filter, &factory, &promise, &versionControls, subdir = iterator->first](
-                    QPromise<DirectoryScanResult> &p) {
-                    p.addResult(scanForFiles(promise, subdir, filter, factory, versionControls));
-                });
+                scanForFiles, future, iterator->first, filter, factory, versionControls);
         };
 
         auto onDone = [&, iterator](const Utils::Async<DirectoryScanResult> &task) {
