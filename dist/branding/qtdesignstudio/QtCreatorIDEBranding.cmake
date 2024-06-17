@@ -9,6 +9,7 @@ set(IDE_DISPLAY_NAME "Qt Design Studio")              # The IDE display name.
 set(IDE_ID "qtdesignstudio")                          # The IDE id (no spaces, lowercase!)
 set(IDE_CASED_ID "QtDesignStudio")                    # The cased IDE id (no spaces!)
 set(IDE_BUNDLE_IDENTIFIER "org.qt-project.${IDE_ID}") # The macOS application bundle identifier.
+set(IDE_APP_ID "io.qt.${IDE_ID}")                     # The free desktop application identifier.
 
 set(PROJECT_USER_FILE_EXTENSION .qtds)
 set(IDE_DOC_FILE "qtdesignstudio/qtdesignstudio.qdocconf")

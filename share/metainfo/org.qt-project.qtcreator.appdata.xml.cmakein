@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright (C) 2016 The Qt Company Ltd. Contact: https://www.qt.io/licensing/ -->
 <component type="desktop">
- <id>org.qt-project.qtcreator.desktop</id>
+ <id>org.qt-project.qtcreator</id>
  <name>Qt Creator</name>
  <summary>Provides a cross-platform, complete integrated development environment (IDE) for application developers to create applications for multiple platforms and devices</summary>
  <metadata_license>CC0-1.0</metadata_license>

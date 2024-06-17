@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Exec=qtdesignstudio %F
+Name=Qt Design Studio
+GenericName=UI Designer for Qml applications
+X-KDE-StartupNotify=true
+Icon=QtProject-qtdesignstudio
+StartupWMClass=org.qt-project.qtdesignstudio
+Terminal=false
+Categories=Development;GUIDesigner;Qt;
+MimeType=application/x-qmlproject

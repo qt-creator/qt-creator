@@ -6,17 +6,17 @@ if (NOT APPLE AND NOT WIN32)
     string(TIMESTAMP timestamp "%Y-%m-%d")
     set(DATE_ATTRIBUTE " date=\"${timestamp}\"")
   endif()
-  configure_file(metainfo/org.qt-project.qtcreator.appdata.xml.cmakein metainfo/org.qt-project.qtcreator.appdata.xml)
+  configure_file(metainfo/${IDE_APP_ID}.appdata.xml.cmakein metainfo/${IDE_APP_ID}.appdata.xml)
 
   install(
-    DIRECTORY
-      applications
+    FILES
+      applications/${IDE_APP_ID}.desktop
     DESTINATION
-      ${CMAKE_INSTALL_DATAROOTDIR}
+      ${CMAKE_INSTALL_DATAROOTDIR}/applications/
   )
   install(
     FILES
-      ${CMAKE_CURRENT_BINARY_DIR}/metainfo/org.qt-project.qtcreator.appdata.xml
+      ${CMAKE_CURRENT_BINARY_DIR}/metainfo/${IDE_APP_ID}.appdata.xml
     DESTINATION
       ${CMAKE_INSTALL_DATAROOTDIR}/metainfo/
   )
