@@ -9,11 +9,13 @@ import QtQuick
 import Constants
 
 Rectangle {
+    id: root
     width: Constants.width
     height: Constants.height
     color: Constants.backgroundColor
 
     Text {
+        id: text
         text: qsTr("Hello %{ProjectName}")
         anchors.centerIn: parent
     }
