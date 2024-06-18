@@ -1,7 +1,7 @@
 {
     "version": 1,
     "supportedProjectTypes": [
-        "Qt4ProjectManager.Qt4Project"
+        "ProjectExplorer.WorkspaceProject"
     ],
     "id": "R.QtCreatorLuaPlugin",
     "category": "G.Library",
@@ -9,11 +9,7 @@
     "trDisplayName": "Qt Creator Lua Plugin",
     "trDisplayCategory": "Library",
     "iconText": "LuaP",
-    "featuresRequired": [
-        "QtSupport.Wizards.FeatureQt",
-        "QtSupport.Wizards.FeatureDesktop"
-    ],
-    "enabled": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0}",
+    "featuresRequired": [],
     "options": [
         {
             "key": "ProjectFile",
@@ -26,14 +22,6 @@
         {
             "key": "SrcFileName",
             "value": "init.lua"
-        },
-        {
-            "key": "CN",
-            "value": "%{JS: Cpp.className(value('PluginName') + 'Plugin')}"
-        },
-        {
-            "key": "HasTranslation",
-            "value": "%{JS: value('TsFileName') !== ''}"
         }
     ],
     "pages": [
