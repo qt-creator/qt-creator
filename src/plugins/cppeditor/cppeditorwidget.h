@@ -14,6 +14,7 @@
 #include <functional>
 
 namespace TextEditor {
+class BlockRange;
 class IAssistProposal;
 class IAssistProvider;
 }
@@ -36,6 +37,8 @@ class CPPEDITOR_EXPORT CppEditorWidget : public TextEditor::TextEditorWidget
 public:
     CppEditorWidget();
     ~CppEditorWidget() override;
+
+    static CppEditorWidget *fromTextDocument(TextEditor::TextDocument *doc);
 
     Internal::CppEditorDocument *cppEditorDocument() const;
 
@@ -83,6 +86,8 @@ public:
     static const QList<QTextEdit::ExtraSelection>
     unselectLeadingWhitespace(const QList<QTextEdit::ExtraSelection> &selections);
 
+    void setIfdefedOutBlocks(const QList<TextEditor::BlockRange> &blocks);
+
     bool isInTestMode() const;
     void setProposals(const TextEditor::IAssistProposal *immediateProposal,
                       const TextEditor::IAssistProposal *finalProposal);
@@ -91,6 +96,7 @@ public:
 signals:
     void proposalsReady(const TextEditor::IAssistProposal *immediateProposal,
                         const TextEditor::IAssistProposal *finalProposal);
+    void ifdefedOutBlocksChanged(const QList<TextEditor::BlockRange> &blocks);
 #endif
 
 protected:

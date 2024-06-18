@@ -44,6 +44,7 @@
 #include <texteditor/completionsettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/refactoroverlay.h>
+#include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditorsettings.h>
@@ -419,6 +420,17 @@ CppEditorWidget::CppEditorWidget()
     qRegisterMetaType<SemanticInfo>("SemanticInfo");
 }
 
+CppEditorWidget *CppEditorWidget::fromTextDocument(TextEditor::TextDocument *doc)
+{
+    const QVector<BaseTextEditor *> editors = BaseTextEditor::textEditorsForDocument(doc);
+    for (BaseTextEditor * const editor : editors) {
+        if (const auto editorWidget = qobject_cast<CppEditor::CppEditorWidget *>(
+                editor->editorWidget()))
+            return editorWidget;
+    }
+    return nullptr;
+}
+
 void CppEditorWidget::finalizeInitialization()
 {
     d->m_cppEditorDocument = qobject_cast<CppEditorDocument *>(textDocument());
@@ -594,7 +606,7 @@ void CppEditorWidget::onIfdefedOutBlocksUpdated(unsigned revision,
 {
     if (revision != documentRevision())
         return;
-    textDocument()->setIfdefedOutBlocks(ifdefedOutBlocks);
+    setIfdefedOutBlocks(ifdefedOutBlocks);
 }
 
 void CppEditorWidget::findUsages()
@@ -1482,6 +1494,14 @@ const QList<QTextEdit::ExtraSelection> CppEditorWidget::unselectLeadingWhitespac
         filtered << splitSelections;
     }
     return filtered;
+}
+
+void CppEditorWidget::setIfdefedOutBlocks(const QList<TextEditor::BlockRange> &blocks)
+{
+    cppEditorDocument()->setIfdefedOutBlocks(blocks);
+#ifdef WITH_TESTS
+    emit ifdefedOutBlocksChanged(blocks);
+#endif
 }
 
 bool CppEditorWidget::isInTestMode() const { return d->inTestMode; }

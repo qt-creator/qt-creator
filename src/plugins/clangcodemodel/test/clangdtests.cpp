@@ -835,7 +835,9 @@ void ClangdTestHighlighting::initTestCase()
 {
     ClangdTest::initTestCase();
 
-    connect(document("highlighting.cpp"), &TextDocument::ifdefedOutBlocksChanged, this,
+    using CppEditor::CppEditorWidget;
+    connect(CppEditorWidget::fromTextDocument(document("highlighting.cpp")),
+            &CppEditorWidget::ifdefedOutBlocksChanged, this,
             [this](const QList<BlockRange> &ranges) { m_ifdefedOutBlocks = ranges; });
     QTimer timer;
     timer.setSingleShot(true);

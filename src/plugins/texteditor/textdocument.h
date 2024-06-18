@@ -84,9 +84,6 @@ public:
     void autoFormat(const QTextCursor &cursor);
     bool applyChangeSet(const Utils::ChangeSet &changeSet);
 
-    // the blocks list must be sorted
-    void setIfdefedOutBlocks(const QList<BlockRange> &blocks);
-
     TextMarks marks() const;
     bool addMark(TextMark *mark);
     TextMarks marksAt(int line) const;
@@ -161,10 +158,6 @@ signals:
     void tabSettingsChanged();
     void fontSettingsChanged();
     void markRemoved(TextMark *mark);
-
-#ifdef WITH_TESTS
-    void ifdefedOutBlocksChanged(const QList<BlockRange> &blocks);
-#endif
 
 protected:
     virtual void applyFontSettings();

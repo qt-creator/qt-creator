@@ -6,6 +6,7 @@
 #include "baseeditordocumentparser.h"
 #include "cppcodeformatter.h"
 #include "cppeditorconstants.h"
+#include "cppeditorlogging.h"
 #include "cppeditortr.h"
 #include "cppmodelmanager.h"
 #include "cppeditorconstants.h"
@@ -305,6 +306,64 @@ void CppEditorDocument::setExtraPreprocessorDirectives(const QByteArray &directi
 
         emit preprocessorSettingsChanged(!directives.trimmed().isEmpty());
     }
+}
+
+void CppEditorDocument::setIfdefedOutBlocks(const QList<TextEditor::BlockRange> &blocks)
+{
+    if (syntaxHighlighter() && syntaxHighlighter()->syntaxHighlighterUpToDate()) {
+        connect(syntaxHighlighter(),
+            &SyntaxHighlighter::finished,
+            this,
+            [this, blocks] { setIfdefedOutBlocks(blocks); },
+            Qt::SingleShotConnection);
+        return;
+    }
+
+    auto documentLayout = qobject_cast<TextDocumentLayout*>(document()->documentLayout());
+    QTC_ASSERT(documentLayout, return);
+
+    QTextBlock block = document()->firstBlock();
+    bool needUpdate = false;
+    int rangeNumber = 0;
+    int braceDepthDelta = 0;
+    while (block.isValid()) {
+        bool cleared = false;
+        bool set = false;
+        if (rangeNumber < blocks.size()) {
+            const BlockRange &range = blocks.at(rangeNumber);
+            if (block.position() >= range.first()
+                && ((block.position() + block.length() - 1) <= range.last() || !range.last()))
+                set = TextDocumentLayout::setIfdefedOut(block);
+            else
+                cleared = TextDocumentLayout::clearIfdefedOut(block);
+            if (block.contains(range.last()))
+                ++rangeNumber;
+        } else {
+            cleared = TextDocumentLayout::clearIfdefedOut(block);
+        }
+
+        if (cleared || set) {
+            needUpdate = true;
+            int delta = TextDocumentLayout::braceDepthDelta(block);
+            if (cleared)
+                braceDepthDelta += delta;
+            else if (set)
+                braceDepthDelta -= delta;
+        }
+
+        if (braceDepthDelta) {
+            qCDebug(highlighterLog)
+            << "changing brace depth and folding indent by" << braceDepthDelta << "for line"
+            << (block.blockNumber() + 1) << "due to ifdefed out code";
+            TextDocumentLayout::changeBraceDepth(block,braceDepthDelta);
+            TextDocumentLayout::changeFoldingIndent(block, braceDepthDelta); // ### C++ only, refactor!
+        }
+
+        block = block.next();
+    }
+
+    if (needUpdate)
+        documentLayout->requestUpdate();
 }
 
 void CppEditorDocument::setPreferredParseContext(const QString &parseContextId)

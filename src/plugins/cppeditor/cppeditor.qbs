@@ -84,6 +84,8 @@ QtcPlugin {
         "cppdoxygen.cpp",
         "cppdoxygen.h",
         "cppdoxygen.kwgen",
+        "cppeditorlogging.cpp",
+        "cppeditorlogging.h",
         "cppeditorwidget.cpp",
         "cppeditorwidget.h",
         "cppeditor.qrc",

@@ -38,6 +38,9 @@ public:
     void setPreferredParseContext(const QString &parseContextId);
     void setExtraPreprocessorDirectives(const QByteArray &directives);
 
+    // the blocks list must be sorted
+    void setIfdefedOutBlocks(const QList<TextEditor::BlockRange> &blocks);
+
     void scheduleProcessDocument();
 
     ParseContextModel &parseContextModel();

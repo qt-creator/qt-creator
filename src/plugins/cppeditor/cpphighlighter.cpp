@@ -4,6 +4,7 @@
 #include "cpphighlighter.h"
 
 #include "cppdoxygen.h"
+#include "cppeditorlogging.h"
 #include "cpptoolsreuse.h"
 
 #include <extensionsystem/iplugin.h>
@@ -15,7 +16,6 @@
 #include <cplusplus/Lexer.h>
 
 #include <QFile>
-#include <QLoggingCategory>
 #include <QTextCharFormat>
 #include <QTextDocument>
 #include <QTextLayout>
@@ -28,8 +28,7 @@ using namespace TextEditor;
 using namespace CPlusPlus;
 
 namespace CppEditor {
-
-static Q_LOGGING_CATEGORY(log, "qtc.cppeditor.syntaxhighlighter", QtWarningMsg)
+using namespace Internal;
 
 CppHighlighter::CppHighlighter(QTextDocument *document) :
     SyntaxHighlighter(document)
@@ -39,16 +38,17 @@ CppHighlighter::CppHighlighter(QTextDocument *document) :
 
 void CppHighlighter::highlightBlock(const QString &text)
 {
-    qCDebug(log) << "highlighting line" << (currentBlock().blockNumber() + 1);
+    qCDebug(highlighterLog) << "highlighting line" << (currentBlock().blockNumber() + 1);
 
     const int previousBlockState_ = previousBlockState();
     int lexerState = 0, initialBraceDepth = 0;
     if (previousBlockState_ != -1) {
         lexerState = previousBlockState_ & 0xff;
         initialBraceDepth = previousBlockState_ >> 8;
-        qCDebug(log) << "initial brace depth carried over from previous block" << initialBraceDepth;
+        qCDebug(highlighterLog) << "initial brace depth carried over from previous block"
+                                << initialBraceDepth;
     } else {
-        qCDebug(log) << "initial brace depth 0";
+        qCDebug(highlighterLog) << "initial brace depth 0";
     }
 
     int braceDepth = initialBraceDepth;
@@ -69,9 +69,9 @@ void CppHighlighter::highlightBlock(const QString &text)
     static const auto lexerStateWithoutNewLineExpectedBit = [](int state) { return state & ~0x80; };
     initialLexerState = lexerStateWithoutNewLineExpectedBit(initialLexerState);
     int foldingIndent = initialBraceDepth;
-    qCDebug(log) << "folding indent initialized to brace depth" << foldingIndent;
+    qCDebug(highlighterLog) << "folding indent initialized to brace depth" << foldingIndent;
     if (TextBlockUserData *userData = TextDocumentLayout::textUserData(currentBlock())) {
-        qCDebug(log) << "resetting stored folding data for current block";
+        qCDebug(highlighterLog) << "resetting stored folding data for current block";
         userData->setFoldingIndent(0);
         userData->setFoldingStartIncluded(false);
         userData->setFoldingEndIncluded(false);
@@ -90,7 +90,7 @@ void CppHighlighter::highlightBlock(const QString &text)
         }
         TextDocumentLayout::setFoldingIndent(currentBlock(), foldingIndent);
         TextDocumentLayout::setExpectedRawStringSuffix(currentBlock(), inheritedRawStringSuffix);
-        qCDebug(log) << "no tokens, storing brace depth" << braceDepth << "and foldingIndent"
+        qCDebug(highlighterLog) << "no tokens, storing brace depth" << braceDepth << "and foldingIndent"
                      << foldingIndent;
         return;
     }
@@ -133,7 +133,7 @@ void CppHighlighter::highlightBlock(const QString &text)
             insertParen({Parenthesis::Opened, c, tk.utf16charsBegin()});
             if (tk.is(T_LBRACE)) {
                 ++braceDepth;
-                qCDebug(log) << "encountered opening brace, increasing brace depth to" << braceDepth;
+                qCDebug(highlighterLog) << "encountered opening brace, increasing brace depth to" << braceDepth;
 
                 // if a folding block opens at the beginning of a line, treat the line before
                 // as if it were inside the folding block except if it is a comment or the line does
@@ -147,7 +147,7 @@ void CppHighlighter::highlightBlock(const QString &text)
                     && tk.utf16charsBegin() == firstNonSpace) {
                     ++foldingIndent;
                     TextDocumentLayout::userData(currentBlock())->setFoldingStartIncluded(true);
-                    qCDebug(log)
+                    qCDebug(highlighterLog)
                         << "folding character is first on one line, increase folding indent to"
                         << foldingIndent << "and set foldingStartIncluded in stored data";
                 }
@@ -157,16 +157,16 @@ void CppHighlighter::highlightBlock(const QString &text)
             insertParen({Parenthesis::Closed, c, tk.utf16charsBegin()});
             if (tk.is(T_RBRACE)) {
                 --braceDepth;
-                qCDebug(log) << "encountered closing brace, decreasing brace depth to" << braceDepth;
+                qCDebug(highlighterLog) << "encountered closing brace, decreasing brace depth to" << braceDepth;
                 if (braceDepth < foldingIndent) {
                     // unless we are at the end of the block, we reduce the folding indent
                     if (isLastToken || tokens.at(i + 1).is(T_SEMICOLON)) {
-                        qCDebug(log) << "token is last token in statement or line, setting "
+                        qCDebug(highlighterLog) << "token is last token in statement or line, setting "
                                         "foldingEndIncluded in stored data";
                         TextDocumentLayout::userData(currentBlock())->setFoldingEndIncluded(true);
                     } else {
                         foldingIndent = qMin(braceDepth, foldingIndent);
-                        qCDebug(log) << "setting folding indent to minimum of current value and "
+                        qCDebug(highlighterLog) << "setting folding indent to minimum of current value and "
                                         "brace depth, which is"
                                      << foldingIndent;
                     }
@@ -218,17 +218,17 @@ void CppHighlighter::highlightBlock(const QString &text)
             if (initialLexerState && i == 0 && (tk.is(T_COMMENT) || tk.is(T_DOXY_COMMENT))
                 && (tokens.size() > 1 || !lexerState)) {
                 --braceDepth;
-                qCDebug(log)
+                qCDebug(highlighterLog)
                     << "encountered some comment-related condition, decreasing brace depth to"
                     << braceDepth;
                 // unless we are at the end of the block, we reduce the folding indent
                 if (isLastToken) {
-                    qCDebug(log) << "token is last token on line, setting "
+                    qCDebug(highlighterLog) << "token is last token on line, setting "
                                     "foldingEndIncluded in stored data";
                     TextDocumentLayout::userData(currentBlock())->setFoldingEndIncluded(true);
                 } else {
                     foldingIndent = qMin(braceDepth, foldingIndent);
-                    qCDebug(log) << "setting folding indent to minimum of current value and "
+                    qCDebug(highlighterLog) << "setting folding indent to minimum of current value and "
                                     "brace depth, which is"
                                  << foldingIndent;
                 }
@@ -272,7 +272,7 @@ void CppHighlighter::highlightBlock(const QString &text)
         if (lastToken.is(T_COMMENT) || lastToken.is(T_DOXY_COMMENT)) {
             insertParen({Parenthesis::Opened, QLatin1Char('+'), lastToken.utf16charsBegin()});
             ++braceDepth;
-            qCDebug(log)
+            qCDebug(highlighterLog)
                 << "encountered some comment-related condition, increasing brace depth to"
                 << braceDepth;
         }
@@ -286,13 +286,13 @@ void CppHighlighter::highlightBlock(const QString &text)
             userData && userData->ifdefedOut()) {
         braceDepth = initialBraceDepth;
         foldingIndent = initialBraceDepth;
-        qCDebug(log) << "block is ifdefed out, resetting brace depth and folding indent to"
+        qCDebug(highlighterLog) << "block is ifdefed out, resetting brace depth and folding indent to"
                      << initialBraceDepth;
     }
 
     TextDocumentLayout::setFoldingIndent(currentBlock(), foldingIndent);
     setCurrentBlockState((braceDepth << 8) | tokenize.state());
-    qCDebug(log) << "storing brace depth" << braceDepth << "and folding indent" << foldingIndent;
+    qCDebug(highlighterLog) << "storing brace depth" << braceDepth << "and folding indent" << foldingIndent;
 
     TextDocumentLayout::setExpectedRawStringSuffix(currentBlock(),
                                                    tokenize.expectedRawStringSuffix());
