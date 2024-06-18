@@ -131,8 +131,8 @@ Editing
 Projects
 --------
 
-* Added the option to hide all unconfigured kits from the list in `Projects`
-  mode
+* Added the `Hide Inactive Kits`/`Show All Kits` button to hide inactive kits
+  from the list in the `Projects` mode
 * Added support for user comments in the environment editor
 * Fixed the parsing of file links when color was used for the output
   ([QTCREATORBUG-30774](https://bugreports.qt.io/browse/QTCREATORBUG-30774))

@@ -127,6 +127,9 @@
     is not suitable for the project type. To view the warning and error messages,
     move the mouse pointer over the kit name.
 
+    To hide inactive kits from the list, select \uicontrol {Hide Inactive Kits}.
+    To show them again, select \uicontrol {Show All Kits}.
+
     \section1 Manage kits
 
     To modify kit configuration or to \l{Add kits}{add kits} to the list or to
