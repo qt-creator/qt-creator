@@ -273,15 +273,17 @@ Item {
     function ensureVisible(yPos, itemHeight) {
         let currentY = contentYBehavior.targetValue && scrollViewAnim.running
             ? contentYBehavior.targetValue : scrollView.contentY
+        let itemHeightAdj = (itemHeight - scrollView.height + 8)
+        let lessThanItemSpace = itemHeightAdj >= 0
 
-        if (currentY > yPos) {
+        if (currentY > yPos || lessThanItemSpace) {
             if (yPos < itemHeight)
                 scrollView.contentY = 0
             else
                 scrollView.contentY = yPos
-            return true
+            return !lessThanItemSpace
         } else {
-            let adjustedY = yPos + itemHeight - scrollView.height + 8
+            let adjustedY = yPos + itemHeightAdj
             if (currentY < adjustedY) {
                 if (scrollView.contentHeight - scrollView.height < adjustedY )
                     scrollView.contentY = scrollView.contentHeight - scrollView.height
