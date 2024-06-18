@@ -717,7 +717,7 @@ class DumperBase():
                 c = ord(item[0])
                 if c in (45, 46) or (c >= 48 and c < 58):  # '-', '.' or digit.
                     if '.' in item:
-                        res.append(float(item))
+                        self.type_template_arguments_cache[(typeid, idx)] = float(item)
                     else:
                         if item.endswith('l'):
                             item = item[:-1]
