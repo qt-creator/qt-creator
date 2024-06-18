@@ -71,7 +71,7 @@ void GlobalOrProjectAspect::setProjectSettings(AspectContainer *settings)
 void GlobalOrProjectAspect::setGlobalSettings(AspectContainer *settings)
 {
     m_globalSettings = settings;
-    m_projectSettings->setAutoApply(false);
+    m_globalSettings->setAutoApply(false);
 }
 
 void GlobalOrProjectAspect::setUsingGlobalSettings(bool value)
