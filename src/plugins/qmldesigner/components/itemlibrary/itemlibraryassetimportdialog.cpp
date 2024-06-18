@@ -1262,7 +1262,7 @@ void ItemLibraryAssetImportDialog::onImportReadyForPreview(
             QString s;
             s += truncName + '\n';
             s += tr("Object Type: %1\n").arg(data.type);
-            s += tr("Imported Size: %1").arg(QLocale::system().formattedDataSize(
+            s += tr("Import Size: %1").arg(QLocale::system().formattedDataSize(
                 data.size, 2, QLocale::DataSizeTraditionalFormat));
             l->setText(s);
         }
