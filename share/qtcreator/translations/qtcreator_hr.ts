@@ -2133,7 +2133,13 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
     </message>
     <message>
         <source>Executable:</source>
+        <comment>adjective</comment>
         <translation>Izvršavajuća:</translation>
+    </message>
+    <message>
+        <source>Executable:</source>
+        <comment>noun</comment>
+        <translation>Izvršna datoteka:</translation>
     </message>
     <message>
         <source>Symbolic link:</source>

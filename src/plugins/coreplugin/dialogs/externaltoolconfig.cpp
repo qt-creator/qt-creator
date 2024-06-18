@@ -563,7 +563,7 @@ ExternalToolConfig::ExternalToolConfig()
 
     Form {
         Tr::tr("Description:"), m_description, br,
-        Tr::tr("Executable:"), m_executable, br,
+        Tr::tr("Executable:", "noun"), m_executable, br,
         Tr::tr("Arguments:"), m_arguments, br,
         Tr::tr("Working directory:"), m_workingDirectory, br,
         outputLabel, m_outputBehavior, br,

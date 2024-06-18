@@ -18313,7 +18313,13 @@ will also disable the following plugins:
     </message>
     <message>
         <source>Executable:</source>
+        <comment>adjective</comment>
         <translation>Можно запускать:</translation>
+    </message>
+    <message>
+        <source>Executable:</source>
+        <comment>noun</comment>
+        <translation>Программа:</translation>
     </message>
     <message>
         <source>Symbolic link:</source>
