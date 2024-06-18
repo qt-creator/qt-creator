@@ -735,7 +735,7 @@ void Client::openDocument(TextEditor::TextDocument *document)
 void Client::sendMessage(const JsonRpcMessage &message, SendDocUpdates sendUpdates,
                          Schedule semanticTokensSchedule)
 {
-    QScopeGuard guard([responseHandler = message.responseHandler()](){
+    QScopeGuard guard([this, responseHandler = message.responseHandler()](){
         if (responseHandler) {
             static ResponseError<std::nullptr_t> error;
             if (!error.isValid()) {
@@ -745,7 +745,9 @@ void Client::sendMessage(const JsonRpcMessage &message, SendDocUpdates sendUpdat
             QJsonObject response;
             response[idKey] = responseHandler->id;
             response[errorKey] = QJsonObject(error);
-            responseHandler->callback(JsonRpcMessage(response));
+            QMetaObject::invokeMethod(this, [callback = responseHandler->callback, response](){
+                callback(JsonRpcMessage(response));
+            }, Qt::QueuedConnection);
         }
     });
 
