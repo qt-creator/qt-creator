@@ -233,6 +233,9 @@
     The editor center-aligns transition labels, but you can drag them to
     other positions.
 
+    Conditions on transitions appear below the transition lines within square
+    brackets ([]).
+
     To add edge points to transitions, select a transition line. You can add
     only two edge points for each line. The editor automatically removes
     unnecessary edge points. To remove the selected edge point, select

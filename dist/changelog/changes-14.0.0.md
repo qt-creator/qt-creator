@@ -122,8 +122,9 @@ Editing
 
 ### SCXML
 
-* Added visualization of conditions on transitions
+* Added visualization of conditions on transitions by using square brackets: `[]`
   ([QTCREATORBUG-21946](https://bugreports.qt.io/browse/QTCREATORBUG-21946))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-14.0/creator-scxml.html))
 
 Projects
 --------
