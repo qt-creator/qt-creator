@@ -250,7 +250,7 @@ FilePath correspondingHeaderOrSource(const FilePath &filePath, bool *wasHeader, 
     } else {
         const QList<ProjectInfo::ConstPtr> projectInfos = CppModelManager::projectInfos();
         for (const ProjectInfo::ConstPtr &projectInfo : projectInfos) {
-            const Project *project = projectForProjectInfo(*projectInfo);
+            const Project *project = projectInfo->project();
             if (project == currentProject)
                 continue; // We have already checked the current project.
 

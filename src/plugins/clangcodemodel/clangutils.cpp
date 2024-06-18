@@ -5,6 +5,7 @@
 
 #include "clangcodemodeltr.h"
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <cppeditor/baseeditordocumentparser.h>

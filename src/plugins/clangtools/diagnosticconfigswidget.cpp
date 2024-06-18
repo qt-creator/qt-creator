@@ -38,11 +38,11 @@
 #include <QSortFilterProxyModel>
 #include <QStackedWidget>
 #include <QStringListModel>
+#include <QTextEdit>
 #include <QTreeView>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QUuid>
-
 
 using namespace CppEditor;
 using namespace Utils;

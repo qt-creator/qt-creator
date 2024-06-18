@@ -8,6 +8,7 @@
 #include "../cppprojectfile.h"
 #include "../cpprefactoringchanges.h"
 #include "../indexitem.h"
+#include "../insertionpointlocator.h"
 #include "cppquickfix.h"
 #include "cppquickfixhelpers.h"
 

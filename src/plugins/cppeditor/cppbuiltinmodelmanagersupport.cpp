@@ -29,6 +29,7 @@ using namespace Utils;
 
 namespace CppEditor::Internal {
 namespace {
+
 class CppHoverHandler : public TextEditor::BaseHoverHandler
 {
 private:

@@ -14,7 +14,10 @@
 
 #include <optional>
 
-namespace Core { class SearchResult; }
+namespace Core {
+class HelpItem;
+class SearchResult;
+}
 namespace CppEditor { class CppEditorWidget; }
 namespace LanguageServerProtocol { class Range; }
 namespace ProjectExplorer {

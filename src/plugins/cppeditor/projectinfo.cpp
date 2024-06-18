@@ -6,6 +6,7 @@
 #include <projectexplorer/abi.h>
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/rawprojectpart.h>
 #include <projectexplorer/toolchain.h>
 
@@ -23,6 +24,11 @@ ProjectInfo::ConstPtr ProjectInfo::cloneWithNewSettings(const ConstPtr &pi,
                                                         const CppCodeModelSettings &settings)
 {
     return ConstPtr(new ProjectInfo(pi, settings));
+}
+
+ProjectExplorer::Project *ProjectInfo::project() const
+{
+    return ProjectExplorer::ProjectManager::projectWithProjectFilePath(projectFilePath());
 }
 
 bool ProjectInfo::operator ==(const ProjectInfo &other) const

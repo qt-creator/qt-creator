@@ -7,6 +7,7 @@
 #include "cpptoolsreuse.h"
 
 #include <texteditor/textdocumentlayout.h>
+#include <utils/algorithm.h>
 #include <utils/textutils.h>
 
 #include <cplusplus/SimpleLexer.h>

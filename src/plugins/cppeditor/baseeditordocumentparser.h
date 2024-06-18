@@ -6,8 +6,10 @@
 #include "cppeditor_global.h"
 #include "cpptoolsreuse.h"
 #include "cppworkingcopy.h"
+#include "projectpart.h"
 
 #include <projectexplorer/project.h>
+#include <utils/cpplanguage_details.h>
 
 #include <QObject>
 #include <QMutex>

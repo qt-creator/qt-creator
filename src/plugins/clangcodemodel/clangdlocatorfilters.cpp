@@ -6,6 +6,8 @@
 #include "clangdclient.h"
 #include "clangmodelmanagersupport.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppeditortr.h>
 #include <cppeditor/cpplocatorfilter.h>

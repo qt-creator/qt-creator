@@ -1573,7 +1573,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo::ConstPtr &ne
     QStringList removedProjectParts;
     bool filesRemoved = false;
 
-    Project * const project = projectForProjectInfo(*newProjectInfo);
+    Project * const project = newProjectInfo->project();
     if (!project)
         return {};
 

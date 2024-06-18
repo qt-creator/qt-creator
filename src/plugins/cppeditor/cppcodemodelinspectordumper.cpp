@@ -505,7 +505,7 @@ void Dumper::dumpProjectInfos(const QList<ProjectInfo::ConstPtr> &projectInfos)
             QString projectFilePath = "<None>";
             if (part->hasProject()) {
                 projectFilePath = part->topLevelProject.toUserOutput();
-                if (const ProjectExplorer::Project * const project = projectForProjectPart(*part))
+                if (const ProjectExplorer::Project * const project = part->project())
                     projectName = project->displayName();
             }
             if (!part->projectConfigFile.isEmpty())

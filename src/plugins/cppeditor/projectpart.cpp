@@ -4,6 +4,7 @@
 #include "projectpart.h"
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <utils/algorithm.h>
 
@@ -42,6 +43,11 @@ bool ProjectPart::belongsToProject(const ProjectExplorer::Project *project) cons
 bool ProjectPart::belongsToProject(const Utils::FilePath &project) const
 {
     return topLevelProject == project;
+}
+
+Project *ProjectPart::project() const
+{
+    return ProjectManager::projectWithProjectFilePath(topLevelProject);
 }
 
 QByteArray ProjectPart::readProjectConfigFile(const QString &projectConfigFile)

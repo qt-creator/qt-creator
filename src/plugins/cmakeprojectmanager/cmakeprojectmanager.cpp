@@ -22,6 +22,7 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/modemanager.h>
 
+#include <cppeditor/cppprojectfile.h>
 #include <cppeditor/cpptoolsreuse.h>
 
 #include <debugger/analyzer/analyzerconstants.h>

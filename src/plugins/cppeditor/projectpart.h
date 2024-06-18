@@ -30,7 +30,6 @@ class CPPEDITOR_EXPORT ProjectPart
 public:
     using ConstPtr = QSharedPointer<const ProjectPart>;
 
-public:
     static ConstPtr create(const Utils::FilePath &topLevelProject,
                       const ProjectExplorer::RawProjectPart &rpp = {},
                       const QString &displayName = {},
@@ -49,10 +48,10 @@ public:
     bool hasProject() const { return !topLevelProject.isEmpty(); }
     bool belongsToProject(const ProjectExplorer::Project *project) const;
     bool belongsToProject(const Utils::FilePath &project) const;
+    ProjectExplorer::Project *project() const;
 
     static QByteArray readProjectConfigFile(const QString &projectConfigFile);
 
-public:
     const Utils::FilePath topLevelProject;
     const QString displayName;
     const QString projectFile;
@@ -115,6 +114,33 @@ private:
 public:
     // Must come last due to initialization order.
     const CPlusPlus::LanguageFeatures languageFeatures;
+};
+
+class ProjectPartInfo {
+public:
+    enum Hint {
+        NoHint = 0,
+        IsFallbackMatch  = 1 << 0,
+        IsAmbiguousMatch = 1 << 1,
+        IsPreferredMatch = 1 << 2,
+        IsFromProjectMatch = 1 << 3,
+        IsFromDependenciesMatch = 1 << 4,
+    };
+    Q_DECLARE_FLAGS(Hints, Hint)
+
+    ProjectPartInfo() = default;
+    ProjectPartInfo(const ProjectPart::ConstPtr &projectPart,
+                    const QList<ProjectPart::ConstPtr> &projectParts,
+                    Hints hints)
+        : projectPart(projectPart)
+        , projectParts(projectParts)
+        , hints(hints)
+    {
+    }
+
+    ProjectPart::ConstPtr projectPart;
+    QList<ProjectPart::ConstPtr> projectParts; // The one above as first plus alternatives.
+    Hints hints = NoHint;
 };
 
 } // namespace CppEditor
