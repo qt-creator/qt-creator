@@ -713,6 +713,60 @@ void tst_Tasking::testTree_data()
     }
 
     {
+        // These tests ensure that tweaking the done result in group's done handler takes priority
+        // over the group's workflow policy. In this case the group's workflow policy is ignored.
+        const auto setupGroup = [=](DoneResult doneResult, WorkflowPolicy policy) {
+            return Group {
+                storage,
+                Group {
+                    workflowPolicy(policy),
+                    onGroupDone([doneResult] { return doneResult; })
+                },
+                groupDone(0)
+            };
+        };
+
+        const auto doneData = [storage, setupGroup](WorkflowPolicy policy) {
+            return TestData{storage, setupGroup(DoneResult::Success, policy),
+                            Log{{0, Handler::GroupSuccess}}, 0, DoneWith::Success, 0};
+        };
+        const auto errorData = [storage, setupGroup](WorkflowPolicy policy) {
+            return TestData{storage, setupGroup(DoneResult::Error, policy),
+                            Log{{0, Handler::GroupError}}, 0, DoneWith::Error, 0};
+        };
+
+        QTest::newRow("GroupDoneTweakSuccessWithStopOnError")
+            << doneData(WorkflowPolicy::StopOnError);
+        QTest::newRow("GroupDoneTweakSuccessWithContinueOnError")
+            << doneData(WorkflowPolicy::ContinueOnError);
+        QTest::newRow("GroupDoneTweakSuccessWithStopOnSuccess")
+            << doneData(WorkflowPolicy::StopOnSuccess);
+        QTest::newRow("GroupDoneTweakSuccessWithContinueOnSuccess")
+            << doneData(WorkflowPolicy::ContinueOnSuccess);
+        QTest::newRow("GroupDoneTweakSuccessWithStopOnSuccessOrError")
+            << doneData(WorkflowPolicy::StopOnSuccessOrError);
+        QTest::newRow("GroupDoneTweakSuccessWithFinishAllAndSuccess")
+            << doneData(WorkflowPolicy::FinishAllAndSuccess);
+        QTest::newRow("GroupDoneTweakSuccessWithFinishAllAndError")
+            << doneData(WorkflowPolicy::FinishAllAndError);
+
+        QTest::newRow("GroupDoneTweakErrorWithStopOnError")
+            << errorData(WorkflowPolicy::StopOnError);
+        QTest::newRow("GroupDoneTweakErrorWithContinueOnError")
+            << errorData(WorkflowPolicy::ContinueOnError);
+        QTest::newRow("GroupDoneTweakErrorWithStopOnSuccess")
+            << errorData(WorkflowPolicy::StopOnSuccess);
+        QTest::newRow("GroupDoneTweakErrorWithContinueOnSuccess")
+            << errorData(WorkflowPolicy::ContinueOnSuccess);
+        QTest::newRow("GroupDoneTweakErrorWithStopOnSuccessOrError")
+            << errorData(WorkflowPolicy::StopOnSuccessOrError);
+        QTest::newRow("GroupDoneTweakErrorWithFinishAllAndSuccess")
+            << errorData(WorkflowPolicy::FinishAllAndSuccess);
+        QTest::newRow("GroupDoneTweakErrorWithFinishAllAndError")
+            << errorData(WorkflowPolicy::FinishAllAndError);
+    }
+
+    {
         const Group root {
             storage,
             createTaskWithSetupTweak(1, SetupResult::StopWithSuccess),

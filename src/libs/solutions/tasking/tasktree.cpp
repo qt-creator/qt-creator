@@ -1987,23 +1987,24 @@ SetupResult TaskTreePrivate::continueStart(RuntimeContainer *container, SetupRes
 {
     const SetupResult groupAction = startAction == SetupResult::Continue ? startChildren(container)
                                                                          : startAction;
-    if (groupAction != SetupResult::Continue) {
-        const bool bit = container->updateSuccessBit(groupAction == SetupResult::StopWithSuccess);
-        RuntimeIteration *parentIteration = container->parentIteration();
-        RuntimeTask *parentTask = container->m_parentTask;
-        QT_CHECK(parentTask);
-        const bool result = invokeDoneHandler(container, bit ? DoneWith::Success : DoneWith::Error);
-        if (parentIteration) {
-            parentIteration->deleteChild(parentTask);
-            if (!parentIteration->m_container->isStarting())
-                childDone(parentIteration, result);
-        } else {
-            QT_CHECK(m_runtimeRoot.get() == parentTask);
-            m_runtimeRoot.reset();
-            emitDone(result ? DoneWith::Success : DoneWith::Error);
-        }
+    if (groupAction == SetupResult::Continue)
+        return groupAction;
+
+    const bool bit = container->updateSuccessBit(groupAction == SetupResult::StopWithSuccess);
+    RuntimeIteration *parentIteration = container->parentIteration();
+    RuntimeTask *parentTask = container->m_parentTask;
+    QT_CHECK(parentTask);
+    const bool result = invokeDoneHandler(container, bit ? DoneWith::Success : DoneWith::Error);
+    if (parentIteration) {
+        parentIteration->deleteChild(parentTask);
+        if (!parentIteration->m_container->isStarting())
+            childDone(parentIteration, result);
+    } else {
+        QT_CHECK(m_runtimeRoot.get() == parentTask);
+        m_runtimeRoot.reset();
+        emitDone(result ? DoneWith::Success : DoneWith::Error);
     }
-    return groupAction;
+    return toSetupResult(result);
 }
 
 SetupResult TaskTreePrivate::startChildren(RuntimeContainer *container)
