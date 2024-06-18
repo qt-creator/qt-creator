@@ -4202,7 +4202,7 @@ typename))
         res = self.readRawMemory(address, size)
         if len(res) > 0:
             return res
-        raise RuntimeError('CANNOT READ %d BYTES FROM ADDRESS: %s %s' % (size, address))
+        raise RuntimeError('CANNOT READ %d BYTES FROM ADDRESS: %s' % (size, address))
 
     def value_display(self, value):
         type_code = self.type_code(value.typeid)
