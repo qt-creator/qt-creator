@@ -573,6 +573,7 @@ void ContentLibraryView::addLibMaterial(const ModelNode &node, const QPixmap &ic
     }
 
     m_widget->userModel()->addItem(bundleId, name, qml, QUrl::fromLocalFile(fullIconPath), depAssetsList);
+    m_widget->userModel()->refreshSection(bundleId);
 }
 
 QPair<QString, QSet<QString>> ContentLibraryView::modelNodeToQmlString(const ModelNode &node, int depth)
@@ -854,16 +855,24 @@ void ContentLibraryView::addLib3DItem(const ModelNode &node)
     QTC_ASSERT_EXPECTED(result,);
 
     // generate and save icon
-    QString qmlPath = bundlePath.pathAppended(qml).toFSPathString();
     QString iconPath = QLatin1String("icons/%1").arg(icon);
     m_iconSavePath = bundlePath.pathAppended(iconPath);
     m_iconSavePath.parentDir().ensureWritableDir();
-    getImageFromCache(qmlPath, [&](const QImage &image) {
+
+    // copy qml to a temp folder as icon generation fails sometimes when generating directly from
+    // the bundle folder
+    m_tempDir = std::make_unique<QTemporaryDir>();
+    QTC_ASSERT(m_tempDir->isValid(), return);
+    Utils::FilePath qmlPathTemp = Utils::FilePath::fromString(m_tempDir->path()).pathAppended(qml);
+    bundlePath.pathAppended(qml).copyFile(qmlPathTemp);
+
+    getImageFromCache(qmlPathTemp.toFSPathString(), [&](const QImage &image) {
         bool iconSaved = image.save(m_iconSavePath.toFSPathString());
         if (iconSaved)
             m_widget->userModel()->refreshSection(compUtils.user3DBundleId());
         else
             qWarning() << "ContentLibraryView::getImageFromCache(): icon save failed" << iconPath;
+        m_tempDir.reset();
     });
 
     // add the item to the bundle json
@@ -1072,6 +1081,7 @@ void ContentLibraryView::importBundle()
 
         m_widget->userModel()->addItem(bundleId, name, qml, iconUrl, files);
     }
+    m_widget->userModel()->refreshSection(bundleId);
 
     zipReader.close();
 

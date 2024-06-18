@@ -91,7 +91,6 @@ void ContentLibraryUserModel::addItem(const QString &bundleId, const QString &na
 
     UserCategory *cat = m_userCategories[sectionIndex];
     cat->addItem(new ContentLibraryItem(cat, name, qml, type, icon, files, bundleId));
-    emit dataChanged(index(sectionIndex), index(sectionIndex), {ItemsRole, EmptyRole});
     updateIsEmpty();
 }
 
