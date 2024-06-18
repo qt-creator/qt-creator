@@ -10,6 +10,7 @@
 #include "tabsettings.h"
 #include "textdocumentlayout.h"
 #include "texteditor.h"
+#include "texteditorconstants.h"
 #include "texteditorsettings.h"
 #include "texteditortr.h"
 #include "textindenter.h"
@@ -573,6 +574,9 @@ void TextDocument::setIfdefedOutBlocks(const QList<BlockRange> &blocks)
         }
 
         if (braceDepthDelta) {
+            qCDebug(Internal::foldingLog)
+                << "changing brace depth and folding indent by" << braceDepthDelta << "for line"
+                << (block.blockNumber() + 1) << "due to ifdefed out code";
             TextDocumentLayout::changeBraceDepth(block,braceDepthDelta);
             TextDocumentLayout::changeFoldingIndent(block, braceDepthDelta); // ### C++ only, refactor!
         }

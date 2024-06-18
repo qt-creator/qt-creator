@@ -6339,6 +6339,13 @@ void TextEditorWidgetPrivate::paintCodeFolding(QPainter &painter,
     bool drawBox = nextBlockUserData
             && TextDocumentLayout::foldingIndent(data.block)
             < nextBlockUserData->foldingIndent();
+    if (drawBox) {
+        qCDebug(foldingLog) << "need to paint folding marker";
+        qCDebug(foldingLog) << "folding indent for line" << (data.block.blockNumber() + 1) << "is"
+                            << TextDocumentLayout::foldingIndent(data.block);
+        qCDebug(foldingLog) << "folding indent for line" << (nextBlock.blockNumber() + 1) << "is"
+                            << nextBlockUserData->foldingIndent();
+    }
 
     const int blockNumber = data.block.blockNumber();
     bool active = blockNumber == extraAreaHighlightFoldBlockNumber;

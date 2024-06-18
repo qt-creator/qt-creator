@@ -125,4 +125,9 @@ TextStyle styleFromName(const char *name)
 }
 
 } // namespace Constants
+
+namespace Internal {
+Q_LOGGING_CATEGORY(foldingLog, "qtc.editor.folding", QtWarningMsg)
+} // namespace Internal
+
 } // namespace TextEditor
