@@ -51,7 +51,7 @@ protected:
 public:
     using PackageProvider = std::function<sol::object(sol::state_view)>;
 
-    ~LuaEngine();
+    ~LuaEngine() override;
     static LuaEngine &instance();
 
     Utils::expected_str<LuaPluginSpec *> loadPlugin(const Utils::FilePath &path);
