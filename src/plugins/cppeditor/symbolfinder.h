@@ -35,6 +35,10 @@ public:
                                                 const CPlusPlus::Snapshot &snapshot,
                                                 bool strict = false);
 
+    QList<CPlusPlus::Function *> findMatchingDefinitions(
+        CPlusPlus::Symbol *declaration, const CPlusPlus::Snapshot &snapshot, bool strict,
+        bool stopAtFirstResult);
+
     CPlusPlus::Symbol *findMatchingVarDefinition(CPlusPlus::Symbol *declaration,
                                                  const CPlusPlus::Snapshot &snapshot);
 

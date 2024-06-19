@@ -936,6 +936,20 @@ const Node *Project::nodeForFilePath(const FilePath &filePath,
     return nullptr;
 }
 
+ProjectNode *Project::productNodeForFilePath(
+    const Utils::FilePath &filePath, const NodeMatcher &extraMatcher) const
+{
+    const Node * const fileNode = nodeForFilePath(filePath, extraMatcher);
+    if (!fileNode)
+        return nullptr;
+    for (ProjectNode *projectNode = fileNode->parentProjectNode(); projectNode;
+         projectNode = projectNode->parentProjectNode()) {
+        if (projectNode->isProduct())
+            return projectNode;
+    }
+    return nullptr;
+}
+
 FilePaths Project::binariesForSourceFile(const FilePath &sourceFile) const
 {
     if (!rootProjectNode())

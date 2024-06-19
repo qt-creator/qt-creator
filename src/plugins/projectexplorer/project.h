@@ -112,6 +112,8 @@ public:
     bool isKnownFile(const Utils::FilePath &filename) const;
     const Node *nodeForFilePath(const Utils::FilePath &filePath,
                                 const NodeMatcher &extraMatcher = {}) const;
+    ProjectNode *productNodeForFilePath(
+        const Utils::FilePath &filePath, const NodeMatcher &extraMatcher = {}) const;
     Utils::FilePaths binariesForSourceFile(const Utils::FilePath &sourceFile) const;
 
     virtual void toMap(Utils::Store &map) const;

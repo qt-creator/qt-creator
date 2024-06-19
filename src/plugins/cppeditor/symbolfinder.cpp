@@ -132,25 +132,34 @@ Function *SymbolFinder::findMatchingDefinition(Symbol *declaration,
                                              const Snapshot &snapshot,
                                              bool strict)
 {
+    const QList<Function *> defs = findMatchingDefinitions(declaration, snapshot, strict, true);
+    return defs.isEmpty() ? nullptr : defs.first();
+}
+
+QList<Function *> SymbolFinder::findMatchingDefinitions(
+    CPlusPlus::Symbol *declaration, const CPlusPlus::Snapshot &snapshot, bool strict,
+    bool stopAtFirstResult)
+{
     if (!declaration)
-        return nullptr;
+        return {};
 
     const FilePath declFile = declaration->filePath();
 
     Document::Ptr thisDocument = snapshot.document(declFile);
     if (!thisDocument) {
         qWarning() << "undefined document:" << declaration->fileName();
-        return nullptr;
+        return {};
     }
 
     Function *declarationTy = declaration->type()->asFunctionType();
     if (!declarationTy) {
         qWarning() << "not a function:" << declaration->fileName()
-                   << declaration->line() << declaration->column();
-        return nullptr;
+        << declaration->line() << declaration->column();
+        return {};
     }
 
-    Hit best;
+    QList<Function *> best;
+    bool bestAreExact = false;
     const FilePaths filePaths = fileIterationOrder(declFile, snapshot);
     for (const FilePath &filePath : filePaths) {
         Document::Ptr doc = snapshot.document(filePath);
@@ -200,16 +209,23 @@ Function *SymbolFinder::findMatchingDefinition(Symbol *declaration,
             if (enclosingType != context.lookupType(declarations.first().declaration()))
                 continue;
 
-            if (hit.exact)
-                return hit.func;
+            if (hit.exact) {
+                if (!bestAreExact)
+                    best.clear();
+                best << hit.func;
+                if (stopAtFirstResult)
+                    return best;
+                bestAreExact = true;
+            }
 
-            if (!best.func || hit.func->argumentCount() == declarationTy->argumentCount())
-                best = hit;
+            if (!bestAreExact || hit.func->argumentCount() == declarationTy->argumentCount())
+                best << hit.func;
         }
     }
 
-    QTC_CHECK(!best.exact);
-    return strict ? nullptr : best.func;
+    if (strict && !bestAreExact)
+        return {};
+    return best;
 }
 
 Symbol *SymbolFinder::findMatchingVarDefinition(Symbol *declaration, const Snapshot &snapshot)

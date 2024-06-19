@@ -17,6 +17,7 @@
 #include <coreplugin/icore.h>
 #include <cplusplus/CppRewriter.h>
 #include <cplusplus/Overview.h>
+#include <projectexplorer/projectmanager.h>
 #include <utils/layoutbuilder.h>
 
 #include <QDialogButtonBox>
@@ -29,6 +30,7 @@
 #endif
 
 using namespace CPlusPlus;
+using namespace ProjectExplorer;
 using namespace TextEditor;
 using namespace Utils;
 
@@ -487,11 +489,31 @@ private:
                                 if (func->isSignal() || func->isPureVirtual() || func->isFriend())
                                     return;
 
-                                // Check if there is already a definition
+                                const Project * const declProject
+                                    = ProjectManager::projectForFile(func->filePath());
+                                const ProjectNode * const declProduct
+                                    = declProject
+                                          ? declProject->productNodeForFilePath(func->filePath())
+                                          : nullptr;
+
+                                // Check if there is already a definition in this product.
                                 SymbolFinder symbolFinder;
-                                if (symbolFinder.findMatchingDefinition(decl, interface.snapshot(),
-                                                                        true)) {
-                                    return;
+                                const QList<Function *> defs
+                                    = symbolFinder.findMatchingDefinitions(
+                                        decl, interface.snapshot(), true, false);
+                                for (const Function * const def : defs) {
+                                    const Project *const defProject
+                                        = ProjectManager::projectForFile(def->filePath());
+                                    if (declProject == defProject) {
+                                        if (!declProduct)
+                                            return;
+                                        const ProjectNode * const defProduct
+                                            = defProject ? defProject->productNodeForFilePath(
+                                                  def->filePath())
+                                                         : nullptr;
+                                        if (!defProduct || declProduct == defProduct)
+                                            return;
+                                    }
                                 }
 
                                 // Insert Position: Implementation File
@@ -511,6 +533,18 @@ private:
                                             continue;
 
                                         const FilePath filePath = location.filePath();
+                                        const Project * const defProject
+                                            = ProjectManager::projectForFile(filePath);
+                                        if (declProject != defProject)
+                                            continue;
+                                        if (declProduct) {
+                                            const ProjectNode * const defProduct = defProject
+                                                ? defProject->productNodeForFilePath(filePath)
+                                                : nullptr;
+                                            if (defProduct && declProduct != defProduct)
+                                                continue;
+                                        }
+
                                         if (ProjectFile::isHeader(ProjectFile::classify(filePath.path()))) {
                                             const FilePath source = correspondingHeaderOrSource(filePath);
                                             if (!source.isEmpty()) {

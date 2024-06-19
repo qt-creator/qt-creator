@@ -643,18 +643,23 @@ const QList<InsertionLocation> InsertionPointLocator::methodDefinition(
     const InsertionLocation location = nextToSurroundingDefinitions(declaration,
                                                                     m_refactoringChanges,
                                                                     destinationFile);
-    if (location.isValid()) {
+    if (location.isValid())
         result += location;
-        return result;
-    }
 
     const FilePath declFilePath = declaration->filePath();
     FilePath target = declFilePath;
     if (!ProjectFile::isSource(ProjectFile::classify(declFilePath.path()))) {
         FilePath candidate = correspondingHeaderOrSource(declFilePath);
-        if (!candidate.isEmpty())
+        if (!candidate.isEmpty()
+            && !Utils::contains(result, [candidate](const InsertionLocation &loc) {
+                   return loc.filePath() == candidate;
+               })) {
             target = candidate;
+        }
     }
+
+    if (!result.isEmpty() && target == declFilePath)
+        return result;
 
     CppRefactoringFilePtr targetFile = m_refactoringChanges.cppFile(target);
     Document::Ptr doc = targetFile->cppDocument();
