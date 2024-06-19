@@ -11,7 +11,6 @@ include(Utils)
 
 env_with_default("QTC_BUILD_WITH_PCH" ENV_QTC_BUILD_WITH_PCH ON)
 env_with_default("QTC_WITH_TESTS" ENV_QTC_WITH_TESTS OFF)
-env_with_default("QTC_WITH_QMLDESIGNER" ENV_QTC_WITH_QMLDESIGNER ON)
 
 option(BUILD_WITH_PCH "Build with precompiled headers" "${ENV_QTC_BUILD_WITH_PCH}")
 
@@ -78,12 +77,9 @@ find_package(Qt6
   REQUIRED
 )
 
-if (Qt6_VERSION VERSION_GREATER_EQUAL 6.5.4)
-    option(WITH_QMLDESIGNER "Build QmlDesigner" ${ENV_QTC_WITH_QMLDESIGNER})
-else()
-    option(WITH_QMLDESIGNER "Build QmlDesigner" OFF)
-endif()
-add_feature_info("Build QmlDesigner and related code (only if Qt is 6.5.4 or newer)" ${WITH_QMLDESIGNER} "")
+# depending on Qt version and compiler version enable or disable Qml Designer
+# can be overwritten by variable WITH_QMLDESIGNER / QTC_WITH_QMLDESIGNER (env)
+configure_qml_designer(${Qt6_VERSION})
 
 # hack for Qbs which still supports Qt5 and Qt6
 if (TARGET Qt6::Core5CompatPrivate)
