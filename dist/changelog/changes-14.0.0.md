@@ -148,7 +148,7 @@ Projects
 
 * Made CMake settings configurable per project
 * Implemented `Open Online Documentation` for CMake documentation
-* Added `Clear CMake Configuration` to the context menu in the Projects view
+* Added `Clear CMake Configuration` to the context menu in the `Projects` view
   ([QTCREATORBUG-24658](https://bugreports.qt.io/browse/QTCREATORBUG-24658))
 * Fixed that the package manager auto-setup files were not removed with
   `Clear CMake Configuration`

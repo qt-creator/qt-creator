@@ -65,8 +65,7 @@
     a tree and lists all files that are part of the project.
     \QC automatically runs CMake to refresh project information in the
     view when you edit a \c CMakeLists.txt configuration file
-    in a project. Project information is also automatically refreshed when
-    you build the project.
+    in a project. Also, refreshes project information when you build the project.
 
     \image qtcreator-projects-view-edit.png {CMake project in Projects view}
 
