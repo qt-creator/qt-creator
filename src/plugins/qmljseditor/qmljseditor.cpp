@@ -97,8 +97,8 @@ namespace QmlJSEditor {
 static LanguageClient::Client *getQmllsClient(const Utils::FilePath &fileName)
 {
     // the value in disableBuiltinCodemodel is only valid when useQmlls is enabled
-    if (QmlJsEditingSettings::get().qmllsSettings().useQmlls
-        && !QmlJsEditingSettings::get().qmllsSettings().disableBuiltinCodemodel)
+    if (QmlJsEditingSettings::get().useQmlls()
+        && !QmlJsEditingSettings::get().disableBuiltinCodemodel())
         return nullptr;
 
     auto client = LanguageClient::LanguageClientManager::clientForFilePath(fileName);

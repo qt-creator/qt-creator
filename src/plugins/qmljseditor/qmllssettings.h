@@ -11,30 +11,19 @@
 
 namespace QmlJSEditor {
 
-struct QmllsSettings
-{
-    bool useQmlls = true;
-    bool useLatestQmlls = false;
-    bool disableBuiltinCodemodel = false;
-    bool generateQmllsIniFiles = false;
-
-    friend bool operator==(const QmllsSettings &s1, const QmllsSettings &s2)
-    {
-        return s1.useQmlls == s2.useQmlls && s1.useLatestQmlls == s2.useLatestQmlls
-               && s1.disableBuiltinCodemodel == s2.disableBuiltinCodemodel
-               && s1.generateQmllsIniFiles == s2.generateQmllsIniFiles;
-    }
-    friend bool operator!=(const QmllsSettings &s1, const QmllsSettings &s2) { return !(s1 == s2); }
-};
-
 class QMLJSEDITOR_EXPORT QmllsSettingsManager : public QObject
 {
     Q_OBJECT
+
 public:
     static QmllsSettingsManager *instance();
-    QmllsSettings lastSettings();
+
     Utils::FilePath latestQmlls();
     void setupAutoupdate();
+
+    bool useQmlls() const;
+    bool useLatestQmlls() const;
+
 public slots:
     void checkForChanges();
 signals:
@@ -42,7 +31,10 @@ signals:
 
 private:
     QMutex m_mutex;
-    QmllsSettings m_lastSettings;
+    bool m_useQmlls = true;
+    bool m_useLatestQmlls = false;
+    bool m_disableBuiltinCodemodel = false;
+    bool m_generateQmllsIniFiles = false;
     Utils::FilePath m_latestQmlls;
 };
 

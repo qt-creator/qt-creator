@@ -50,9 +50,6 @@ public:
     bool useCustomFormatCommand() const;
     void setUseCustomFormatCommand(bool customCommand);
 
-    QmllsSettings &qmllsSettings();
-    const QmllsSettings &qmllsSettings() const;
-
     const QString uiQmlOpenMode() const;
     void setUiQmlOpenMode(const QString &mode);
 
@@ -64,6 +61,18 @@ public:
 
     QSet<int> disabledMessagesForNonQuickUi() const;
     void setDisabledMessagesForNonQuickUi(const QSet<int> &disabled);
+
+    bool useQmlls() const;
+    void setUseQmlls(bool newUseQmlls);
+
+    bool useLatestQmlls() const;
+    void setUseLatestQmlls(bool newUseLatestQmlls);
+
+    bool disableBuiltinCodemodel() const;
+    void setDisableBuiltinCodemodel(bool newDisableBuiltinCodemodel);
+
+    bool generateQmllsIniFiles() const;
+    void setGenerateQmllsIniFiles(bool newGenerateQmllsIniFiles);
 
     friend bool operator==(const QmlJsEditingSettings &s1, const QmlJsEditingSettings &s2)
     { return s1.equals(s2); }
@@ -78,7 +87,10 @@ private:
     bool m_foldAuxData = true;
     bool m_useCustomFormatCommand = false;
     bool m_useCustomAnalyzer = false;
-    QmllsSettings m_qmllsSettings;
+    bool m_useQmlls = true;
+    bool m_useLatestQmlls = false;
+    bool m_disableBuiltinCodemodel = false;
+    bool m_generateQmllsIniFiles = false;
     QString m_uiQmlOpenMode;
     QString m_formatCommand;
     QString m_formatCommandOptions;

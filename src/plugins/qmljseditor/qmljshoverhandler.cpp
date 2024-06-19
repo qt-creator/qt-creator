@@ -375,7 +375,7 @@ void QmlJSHoverHandler::reset()
 void QmlJSHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPoint &point)
 {
     // disable hoverhandling in case qmlls is enabled
-    if (QmlJsEditingSettings::get().qmllsSettings().useQmlls) {
+    if (QmlJsEditingSettings::get().useQmlls()) {
         BaseHoverHandler::operateTooltip(editorWidget, point);
         return;
     }

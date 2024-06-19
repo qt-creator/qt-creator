@@ -63,12 +63,6 @@ QmllsSettingsManager *QmllsSettingsManager::instance()
     return manager;
 }
 
-QmllsSettings QmllsSettingsManager::lastSettings()
-{
-    QMutexLocker l(&m_mutex);
-    return m_lastSettings;
-}
-
 FilePath QmllsSettingsManager::latestQmlls()
 {
     QMutexLocker l(&m_mutex);
@@ -92,19 +86,36 @@ void QmllsSettingsManager::setupAutoupdate()
 
 void QmllsSettingsManager::checkForChanges()
 {
-    QmllsSettings newSettings = QmlJsEditingSettings::get().qmllsSettings();
-    FilePath newLatest = newSettings.useLatestQmlls && newSettings.useQmlls ? evaluateLatestQmlls()
-                                                                            : m_latestQmlls;
-    if (m_lastSettings == newSettings && newLatest == m_latestQmlls)
+    const QmlJsEditingSettings &newSettings = QmlJsEditingSettings::get();
+    FilePath newLatest = newSettings.useLatestQmlls() && newSettings.useQmlls()
+            ? evaluateLatestQmlls() : m_latestQmlls;
+    if (m_useQmlls == newSettings.useQmlls()
+        && m_useLatestQmlls == newSettings.useLatestQmlls()
+        && m_disableBuiltinCodemodel == newSettings.disableBuiltinCodemodel()
+        && m_generateQmllsIniFiles == newSettings.generateQmllsIniFiles()
+        && newLatest == m_latestQmlls)
         return;
-    qCDebug(qmllsLog) << "qmlls settings changed:" << newSettings.useQmlls
-                      << newSettings.useLatestQmlls << newLatest;
+    qCDebug(qmllsLog) << "qmlls settings changed:" << newSettings.useQmlls()
+                      << newSettings.useLatestQmlls() << newLatest;
     {
         QMutexLocker l(&m_mutex);
         m_latestQmlls = newLatest;
-        m_lastSettings = newSettings;
+        m_useQmlls = newSettings.useQmlls();
+        m_useLatestQmlls = newSettings.useLatestQmlls();
+        m_disableBuiltinCodemodel = newSettings.disableBuiltinCodemodel();
+        m_generateQmllsIniFiles = newSettings.generateQmllsIniFiles();
     }
     emit settingsChanged();
+}
+
+bool QmllsSettingsManager::useLatestQmlls() const
+{
+    return m_useLatestQmlls;
+}
+
+bool QmllsSettingsManager::useQmlls() const
+{
+    return m_useQmlls;
 }
 
 } // namespace QmlJSEditor

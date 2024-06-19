@@ -105,11 +105,11 @@ void QmlJsEditingSettings::fromSettings(QtcSettings *settings)
         = settings->value(AUTO_FORMAT_ONLY_CURRENT_PROJECT, QVariant(false)).toBool();
     m_foldAuxData = settings->value(FOLD_AUX_DATA, QVariant(true)).toBool();
     m_uiQmlOpenMode = settings->value(UIQML_OPEN_MODE, "").toString();
-    m_qmllsSettings.useQmlls = settings->value(USE_QMLLS, QVariant(true)).toBool();
-    m_qmllsSettings.useLatestQmlls = settings->value(USE_LATEST_QMLLS, QVariant(false)).toBool();
-    m_qmllsSettings.disableBuiltinCodemodel
+    m_useQmlls = settings->value(USE_QMLLS, QVariant(true)).toBool();
+    m_useLatestQmlls = settings->value(USE_LATEST_QMLLS, QVariant(false)).toBool();
+    m_disableBuiltinCodemodel
         = settings->value(DISABLE_BUILTIN_CODEMODEL, QVariant(false)).toBool();
-    m_qmllsSettings.generateQmllsIniFiles
+    m_generateQmllsIniFiles
         = settings->value(GENERATE_QMLLS_INI_FILES, QVariant(false)).toBool();
     m_formatCommand = settings->value(FORMAT_COMMAND, {}).toString();
     m_formatCommandOptions = settings->value(FORMAT_COMMAND_OPTIONS, {}).toString();
@@ -136,10 +136,10 @@ void QmlJsEditingSettings::toSettings(QtcSettings *settings) const
     settings->setValue(AUTO_FORMAT_ONLY_CURRENT_PROJECT, m_autoFormatOnlyCurrentProject);
     settings->setValue(FOLD_AUX_DATA, m_foldAuxData);
     settings->setValue(UIQML_OPEN_MODE, m_uiQmlOpenMode);
-    settings->setValue(USE_QMLLS, m_qmllsSettings.useQmlls);
-    settings->setValue(USE_LATEST_QMLLS, m_qmllsSettings.useLatestQmlls);
-    settings->setValue(DISABLE_BUILTIN_CODEMODEL, m_qmllsSettings.disableBuiltinCodemodel);
-    settings->setValue(GENERATE_QMLLS_INI_FILES, m_qmllsSettings.generateQmllsIniFiles);
+    settings->setValue(USE_QMLLS, m_useQmlls);
+    settings->setValue(USE_LATEST_QMLLS, m_useLatestQmlls);
+    settings->setValue(DISABLE_BUILTIN_CODEMODEL, m_disableBuiltinCodemodel);
+    settings->setValue(GENERATE_QMLLS_INI_FILES, m_generateQmllsIniFiles);
     settings->setValueWithDefault(FORMAT_COMMAND, m_formatCommand, {});
     settings->setValueWithDefault(FORMAT_COMMAND_OPTIONS, m_formatCommandOptions, {});
     settings->setValueWithDefault(CUSTOM_COMMAND, m_useCustomFormatCommand, false);
@@ -160,8 +160,13 @@ bool QmlJsEditingSettings::equals(const QmlJsEditingSettings &other) const
            && m_pinContextPane == other.m_pinContextPane
            && m_autoFormatOnSave == other.m_autoFormatOnSave
            && m_autoFormatOnlyCurrentProject == other.m_autoFormatOnlyCurrentProject
-           && m_foldAuxData == other.m_foldAuxData && m_qmllsSettings == other.m_qmllsSettings
-           && m_uiQmlOpenMode == other.m_uiQmlOpenMode && m_formatCommand == other.m_formatCommand
+           && m_foldAuxData == other.m_foldAuxData
+           && m_useQmlls == other.m_useQmlls
+           && m_useLatestQmlls == other.m_useLatestQmlls
+           && m_disableBuiltinCodemodel == other.m_disableBuiltinCodemodel
+           && m_generateQmllsIniFiles == other.m_generateQmllsIniFiles
+           && m_uiQmlOpenMode == other.m_uiQmlOpenMode
+           && m_formatCommand == other.m_formatCommand
            && m_formatCommandOptions == other.m_formatCommandOptions
            && m_useCustomFormatCommand == other.m_useCustomFormatCommand
            && m_useCustomAnalyzer == other.m_useCustomAnalyzer
@@ -254,16 +259,6 @@ void QmlJsEditingSettings::setUseCustomFormatCommand(bool customCommand)
     m_useCustomFormatCommand = customCommand;
 }
 
-QmllsSettings &QmlJsEditingSettings::qmllsSettings()
-{
-    return m_qmllsSettings;
-}
-
-const QmllsSettings &QmlJsEditingSettings::qmllsSettings() const
-{
-    return m_qmllsSettings;
-}
-
 const QString QmlJsEditingSettings::uiQmlOpenMode() const
 {
     return m_uiQmlOpenMode;
@@ -302,6 +297,46 @@ QSet<int> QmlJsEditingSettings::disabledMessagesForNonQuickUi() const
 void QmlJsEditingSettings::setDisabledMessagesForNonQuickUi(const QSet<int> &disabled)
 {
     m_disabledMessagesForNonQuickUi = disabled;
+}
+
+bool QmlJsEditingSettings::generateQmllsIniFiles() const
+{
+    return m_generateQmllsIniFiles;
+}
+
+void QmlJsEditingSettings::setGenerateQmllsIniFiles(bool newGenerateQmllsIniFiles)
+{
+    m_generateQmllsIniFiles = newGenerateQmllsIniFiles;
+}
+
+bool QmlJsEditingSettings::disableBuiltinCodemodel() const
+{
+    return m_disableBuiltinCodemodel;
+}
+
+void QmlJsEditingSettings::setDisableBuiltinCodemodel(bool newDisableBuiltinCodemodel)
+{
+    m_disableBuiltinCodemodel = newDisableBuiltinCodemodel;
+}
+
+bool QmlJsEditingSettings::useLatestQmlls() const
+{
+    return m_useLatestQmlls;
+}
+
+void QmlJsEditingSettings::setUseLatestQmlls(bool newUseLatestQmlls)
+{
+    m_useLatestQmlls = newUseLatestQmlls;
+}
+
+bool QmlJsEditingSettings::useQmlls() const
+{
+    return m_useQmlls;
+}
+
+void QmlJsEditingSettings::setUseQmlls(bool newUseQmlls)
+{
+    m_useQmlls = newUseQmlls;
 }
 
 class AnalyzerMessageItem final : public Utils::TreeItem
@@ -398,19 +433,19 @@ public:
         uiQmlOpenComboBox->setSizeAdjustPolicy(QComboBox::QComboBox::AdjustToContents);
 
         useQmlls = new QCheckBox(Tr::tr("Enable QML Language Server"));
-        useQmlls->setChecked(s.qmllsSettings().useQmlls);
+        useQmlls->setChecked(s.useQmlls());
         disableBuiltInCodemodel = new QCheckBox(
             Tr::tr("Use QML Language Server advanced features (renaming, find usages and co.) "
                    "(EXPERIMENTAL!)"));
-        disableBuiltInCodemodel->setChecked(s.qmllsSettings().disableBuiltinCodemodel);
-        disableBuiltInCodemodel->setEnabled(s.qmllsSettings().useQmlls);
+        disableBuiltInCodemodel->setChecked(s.disableBuiltinCodemodel());
+        disableBuiltInCodemodel->setEnabled(s.useQmlls());
         useLatestQmlls = new QCheckBox(Tr::tr("Use QML Language Server from latest Qt version"));
-        useLatestQmlls->setChecked(s.qmllsSettings().useLatestQmlls);
-        useLatestQmlls->setEnabled(s.qmllsSettings().useQmlls);
+        useLatestQmlls->setChecked(s.useLatestQmlls());
+        useLatestQmlls->setEnabled(s.useQmlls());
         generateQmllsIniFiles = new QCheckBox(
             Tr::tr("Generate QML Language Server .qmlls.ini configurations for new projects."));
-        generateQmllsIniFiles->setChecked(s.qmllsSettings().generateQmllsIniFiles);
-        generateQmllsIniFiles->setEnabled(s.qmllsSettings().useQmlls);
+        generateQmllsIniFiles->setChecked(s.generateQmllsIniFiles());
+        generateQmllsIniFiles->setEnabled(s.useQmlls());
         QObject::connect(useQmlls, &QCheckBox::stateChanged, this, [this](int checked) {
             useLatestQmlls->setEnabled(checked != Qt::Unchecked);
             disableBuiltInCodemodel->setEnabled(checked != Qt::Unchecked);
@@ -510,10 +545,10 @@ public:
         s.setFormatCommandOptions(formatCommandOptions->text());
         s.setFoldAuxData(foldAuxData->isChecked());
         s.setUiQmlOpenMode(uiQmlOpenComboBox->currentData().toString());
-        s.qmllsSettings().useQmlls = useQmlls->isChecked();
-        s.qmllsSettings().disableBuiltinCodemodel = disableBuiltInCodemodel->isChecked();
-        s.qmllsSettings().useLatestQmlls = useLatestQmlls->isChecked();
-        s.qmllsSettings().generateQmllsIniFiles = generateQmllsIniFiles->isChecked();
+        s.setUseQmlls(useQmlls->isChecked());
+        s.setDisableBuiltinCodemodel(disableBuiltInCodemodel->isChecked());
+        s.setUseLatestQmlls(useLatestQmlls->isChecked());
+        s.setGenerateQmllsIniFiles(generateQmllsIniFiles->isChecked());
         s.setUseCustomAnalyzer(useCustomAnalyzer->isChecked());
         QSet<int> disabled;
         QSet<int> disabledForNonQuickUi;
