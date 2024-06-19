@@ -833,6 +833,18 @@ void ContentLibraryView::exportLib3DComponent(const ModelNode &node)
     });
 }
 
+QString ContentLibraryView::nodeNameToComponentFileName(const QString &name) const
+{
+    QString fileName = UniqueName::generateId(name);
+    if (fileName.isEmpty())
+        fileName = "Component";
+    else
+        fileName[0] = fileName.at(0).toUpper();
+    fileName.prepend("My");
+
+    return fileName + ".qml";
+}
+
 void ContentLibraryView::addLib3DItem(const ModelNode &node)
 {
     auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
@@ -844,8 +856,23 @@ void ContentLibraryView::addLib3DItem(const ModelNode &node)
         name = node.displayName();
 
     QJsonObject &jsonRef = m_widget->userModel()->bundleObjectRef(bundleId);
+    QJsonArray itemsArr = jsonRef.value("items").toArray();
 
-    auto [qml, icon] = m_widget->userModel()->getUniqueLibItemNames(name, jsonRef);
+    QString qml = nodeNameToComponentFileName(name);
+
+    // confirm overwrite if an item with same name exists
+    if (m_widget->userModel()->jsonPropertyExists("qml", qml, bundleId)) {
+        QMessageBox::StandardButton reply = QMessageBox::question(m_widget, tr("Component Exists"),
+                                              tr("A component with the same name '%1' already "
+                                                 "exists in the Content Library, are you sure "
+                                                 "you want to overwrite it?")
+                                                  .arg(qml), QMessageBox::Yes | QMessageBox::No);
+        if (reply == QMessageBox::No)
+            return;
+
+        // before overwriting remove old item (to avoid partial items and dangling assets)
+        m_widget->userModel()->removeItemByName(qml, bundleId);
+    }
 
     // generate and save Qml file
     auto [qmlString, depAssets] = modelNodeToQmlString(node);
@@ -855,7 +882,13 @@ void ContentLibraryView::addLib3DItem(const ModelNode &node)
     QTC_ASSERT_EXPECTED(result,);
 
     // generate and save icon
-    QString iconPath = QLatin1String("icons/%1").arg(icon);
+    QString iconPathTemplate = QLatin1String("icons/%1.png");
+    QString iconBaseName = UniqueName::generateId(name, [&] (const QString &currName) {
+        return m_widget->userModel()->jsonPropertyExists("icon", iconPathTemplate.arg(currName),
+                                                         bundleId);
+    });
+
+    QString iconPath = iconPathTemplate.arg(iconBaseName);
     m_iconSavePath = bundlePath.pathAppended(iconPath);
     m_iconSavePath.parentDir().ensureWritableDir();
 
@@ -876,7 +909,7 @@ void ContentLibraryView::addLib3DItem(const ModelNode &node)
     });
 
     // add the item to the bundle json
-    QJsonArray itemsArr = jsonRef.value("items").toArray();
+    itemsArr = jsonRef.value("items").toArray();
     itemsArr.append(QJsonObject {
         {"name", name},
         {"qml", qml},
@@ -950,7 +983,8 @@ void ContentLibraryView::exportLib3DItem(const ModelNode &node, const QPixmap &i
     if (name.isEmpty())
         name = node.displayName();
 
-    auto [qml, icon] = m_widget->userModel()->getUniqueLibItemNames(name);
+    QString qml = nodeNameToComponentFileName(name);
+    QString iconBaseName = UniqueName::generateId(name);
 
     // generate and save Qml file
     auto [qmlString, depAssets] = modelNodeToQmlString(node);
@@ -961,7 +995,7 @@ void ContentLibraryView::exportLib3DItem(const ModelNode &node, const QPixmap &i
     QTC_ASSERT_EXPECTED(result, return);
     m_zipWriter->addFile(qmlFilePath.fileName(), qmlString.toUtf8());
 
-    QString iconPath = QLatin1String("icons/%1").arg(icon);
+    QString iconPath = QLatin1String("icons/%1.png").arg(iconBaseName);
 
     // add the item to the bundle json
     QJsonObject jsonObj;

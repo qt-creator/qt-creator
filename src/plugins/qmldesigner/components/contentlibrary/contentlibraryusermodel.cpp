@@ -352,6 +352,25 @@ void ContentLibraryUserModel::updateImportedState(const QStringList &importedIte
         emit dataChanged(index(secIdx), index(secIdx), {ItemsRole});
 }
 
+bool ContentLibraryUserModel::jsonPropertyExists(const QString &propName, const QString &propValue,
+                                                 const QString &bundleId) const
+{
+    SectionIndex secIdx = bundleIdToSectionIndex(bundleId);
+    UserItemCategory *cat = qobject_cast<UserItemCategory *>(m_userCategories.at(secIdx));
+    QTC_ASSERT(cat, return false);
+
+    QJsonObject &bundleObj = cat->bundleObjRef();
+    const QJsonArray itemsArr = bundleObj.value("items").toArray();
+
+    for (const QJsonValueConstRef &itemRef : itemsArr) {
+        const QJsonObject &obj = itemRef.toObject();
+        if (obj.value(propName).toString() == propValue)
+            return true;
+    }
+
+    return false;
+}
+
 void ContentLibraryUserModel::setQuick3DImportVersion(int major, int minor)
 {
     bool oldRequiredImport = hasRequiredQuick3DImport();

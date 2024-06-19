@@ -72,6 +72,7 @@ private:
                            std::function<void(const QImage &image)> successCallback);
     QString getExportPath(const ModelNode &node) const;
     QString getImportPath() const;
+    QString nodeNameToComponentFileName(const QString &name) const;
     QPair<QString, QSet<QString>> modelNodeToQmlString(const ModelNode &node, int depth = 0);
 
 #ifdef QDS_USE_PROJECTSTORAGE
