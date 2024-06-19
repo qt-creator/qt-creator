@@ -308,10 +308,11 @@ bool ContentLibraryUserModel::hasRequiredQuick3DImport() const
     return m_widget->hasQuick3DImport() && m_quick3dMajorVersion == 6 && m_quick3dMinorVersion >= 3;
 }
 
-void ContentLibraryUserModel::updateIsEmpty()
-{
-    bool newIsEmpty = std::ranges::all_of(std::as_const(m_userCategories),
-                                          [](UserCategory *cat) { return cat->isEmpty(); });
+void ContentLibraryUserModel::updateIsEmpty() {
+
+    bool newIsEmpty = Utils::allOf(std::as_const(m_userCategories), [](UserCategory *cat) {
+        return cat->isEmpty();
+    });
 
     if (m_isEmpty == newIsEmpty)
         return;
