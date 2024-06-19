@@ -45,7 +45,7 @@
         \li Select \uicontrol Add to start from an empty kit or \uicontrol Clone
             to clone the selected kit and edit its preferences.
             \image qtcreator-kits.png
-        \li Set \l{kits-tab}{kit preferences} according to the build system and
+        \li Set \l{Kits}{kit preferences} according to the build system and
             device type.
 
         \li Select \uicontrol OK to create the kit.
@@ -58,8 +58,7 @@
     choose the kit to use. To set the selected kit as the default kit,
     select \uicontrol {Make Default}.
 
-    \sa {Activate kits for a project}, {Add debuggers}, {Add Qt versions},
-    {Open projects}, {Compilers}, {kits-tab}{Kits}
+    \sa {Manage Kits}{How To: Manage Kits}, {Compilers}, {Kits}
 */
 
 /*!
@@ -214,7 +213,6 @@
             \uicontrol Manage to add installed Ninja tools to the list.
     \endtable
 
-    \sa {Activate kits for a project}, {Open projects}, {Add CMake Tools},
-    {Add compilers}, {Add debuggers}, {Add kits}, {Add Qt versions},
+    \sa {Manage Kits}{How To: Manage Kits}, {Add CMake Tools},
     {Edit Qbs profiles}
 */

@@ -181,6 +181,7 @@
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-mcu
+    \ingroup creator-how-to-manage-kits
 
     \title Manage MCU Kits
 
@@ -209,7 +210,7 @@
     software required for MCU development with the current kit.
 
     \sa {Enable and disable plugins}, {MCUs}{How To: Develop for MCUs},
-    {Developing for MCUs}
+    {Manage Kits}{How To: Manage Kits}, {Developing for MCUs}
 */
 
 /*!

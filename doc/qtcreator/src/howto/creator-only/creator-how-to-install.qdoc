@@ -41,7 +41,7 @@
     instructions to install \QC.
 
     To develop with Qt, you also need a Qt version. You can register Qt versions
-    in the stand-alone \QC to use them in \l{kits-tab}{kits}.
+    in the stand-alone \QC to use them in \l{Kits}{kits}.
 
     \section2 Use package managers
 
@@ -89,5 +89,5 @@
     {Compiling \QC} and \l{https://wiki.qt.io/Building_Qt_Creator_from_Git}
     {Building Qt Creator from Git}.
 
-    \sa {Register installed Qt versions}
+    \sa {Manage Kits}{How To: Manage Kits}, {Register installed Qt versions}
 */

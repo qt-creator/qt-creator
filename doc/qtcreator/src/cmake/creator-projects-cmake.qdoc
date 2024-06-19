@@ -133,12 +133,13 @@
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-build-with-cmake
+    \ingroup creator-how-to-manage-kits
 
     \title Add CMake tools
 
     \QC automatically detects the CMake executable that you specify in the
     \c PATH. You can add paths to other CMake executables and use them in
-    different build and run \l{glossary-buildandrun-kit}{kits}.
+    different build and run \l{Kits}{kits}.
 
     To see the CMake installations that \QC automatically detects:
 
@@ -183,8 +184,8 @@
 
     \image qtcreator-kits-cmake.png {Kits preferences}
 
-    \sa {Build with CMake}{How To: Build with CMake}, {CMake}, {Add kits},
-    {kits-tab}{Kits}
+    \sa {Build with CMake}{How To: Build with CMake},
+    {Manage Kits}{How To: Manage Kits}, {CMake}, {Kits}
 */
 
 /*!

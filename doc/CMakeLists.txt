@@ -67,8 +67,14 @@ if(WITH_ONLINE_DOCS)
   _add_doc(${IDE_DOC_FILE_ONLINE} "qtcreatordev/qtcreator-dev-online.qdocconf")
 endif()
 
+if (BUILD_DOCS_BY_DEFAULT)
+set(EXCLUDE_DOCS_FROM_ALL "")
+else()
+set(EXCLUDE_DOCS_FROM_ALL "EXCLUDE_FROM_ALL")
+endif()
+
 install(DIRECTORY config
   DESTINATION ${IDE_HEADER_INSTALL_PATH}/doc
   COMPONENT Devel
-  EXCLUDE_FROM_ALL
+  ${EXCLUDE_DOCS_FROM_ALL}
 )

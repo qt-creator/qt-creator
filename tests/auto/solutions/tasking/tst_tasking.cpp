@@ -713,6 +713,60 @@ void tst_Tasking::testTree_data()
     }
 
     {
+        // These tests ensure that tweaking the done result in group's done handler takes priority
+        // over the group's workflow policy. In this case the group's workflow policy is ignored.
+        const auto setupGroup = [=](DoneResult doneResult, WorkflowPolicy policy) {
+            return Group {
+                storage,
+                Group {
+                    workflowPolicy(policy),
+                    onGroupDone([doneResult] { return doneResult; })
+                },
+                groupDone(0)
+            };
+        };
+
+        const auto doneData = [storage, setupGroup](WorkflowPolicy policy) {
+            return TestData{storage, setupGroup(DoneResult::Success, policy),
+                            Log{{0, Handler::GroupSuccess}}, 0, DoneWith::Success, 0};
+        };
+        const auto errorData = [storage, setupGroup](WorkflowPolicy policy) {
+            return TestData{storage, setupGroup(DoneResult::Error, policy),
+                            Log{{0, Handler::GroupError}}, 0, DoneWith::Error, 0};
+        };
+
+        QTest::newRow("GroupDoneTweakSuccessWithStopOnError")
+            << doneData(WorkflowPolicy::StopOnError);
+        QTest::newRow("GroupDoneTweakSuccessWithContinueOnError")
+            << doneData(WorkflowPolicy::ContinueOnError);
+        QTest::newRow("GroupDoneTweakSuccessWithStopOnSuccess")
+            << doneData(WorkflowPolicy::StopOnSuccess);
+        QTest::newRow("GroupDoneTweakSuccessWithContinueOnSuccess")
+            << doneData(WorkflowPolicy::ContinueOnSuccess);
+        QTest::newRow("GroupDoneTweakSuccessWithStopOnSuccessOrError")
+            << doneData(WorkflowPolicy::StopOnSuccessOrError);
+        QTest::newRow("GroupDoneTweakSuccessWithFinishAllAndSuccess")
+            << doneData(WorkflowPolicy::FinishAllAndSuccess);
+        QTest::newRow("GroupDoneTweakSuccessWithFinishAllAndError")
+            << doneData(WorkflowPolicy::FinishAllAndError);
+
+        QTest::newRow("GroupDoneTweakErrorWithStopOnError")
+            << errorData(WorkflowPolicy::StopOnError);
+        QTest::newRow("GroupDoneTweakErrorWithContinueOnError")
+            << errorData(WorkflowPolicy::ContinueOnError);
+        QTest::newRow("GroupDoneTweakErrorWithStopOnSuccess")
+            << errorData(WorkflowPolicy::StopOnSuccess);
+        QTest::newRow("GroupDoneTweakErrorWithContinueOnSuccess")
+            << errorData(WorkflowPolicy::ContinueOnSuccess);
+        QTest::newRow("GroupDoneTweakErrorWithStopOnSuccessOrError")
+            << errorData(WorkflowPolicy::StopOnSuccessOrError);
+        QTest::newRow("GroupDoneTweakErrorWithFinishAllAndSuccess")
+            << errorData(WorkflowPolicy::FinishAllAndSuccess);
+        QTest::newRow("GroupDoneTweakErrorWithFinishAllAndError")
+            << errorData(WorkflowPolicy::FinishAllAndError);
+    }
+
+    {
         const Group root {
             storage,
             createTaskWithSetupTweak(1, SetupResult::StopWithSuccess),
@@ -3120,10 +3174,48 @@ void tst_Tasking::testTree_data()
         QTest::newRow("ParallelDisorder") << TestData{storage, root, log, 2, DoneWith::Error, 1};
     }
 
+    {
+        // This tests ensures the task done handler or onGroupDone accepts the DoneResult as an
+        // argument.
+
+        const Group groupSuccess {
+            storage,
+            Group {
+                onGroupDone(DoneResult::Success)
+            },
+            groupDone(0)
+        };
+        const Group groupError {
+            storage,
+            Group {
+                onGroupDone(DoneResult::Error)
+            },
+            groupDone(0)
+        };
+        const Group taskSuccess {
+            storage,
+            TestTask({}, DoneResult::Success),
+            groupDone(0)
+        };
+        const Group taskError {
+            storage,
+            TestTask({}, DoneResult::Error),
+            groupDone(0)
+        };
+
+        QTest::newRow("DoneResultGroupSuccess")
+            << TestData{storage, groupSuccess, {{0, Handler::GroupSuccess}}, 0, DoneWith::Success, 0};
+        QTest::newRow("DoneResultGroupError")
+            << TestData{storage, groupError, {{0, Handler::GroupError}}, 0, DoneWith::Error, 0};
+        QTest::newRow("DoneResultTaskSuccess")
+            << TestData{storage, taskSuccess, {{0, Handler::GroupSuccess}}, 1, DoneWith::Success, 1};
+        QTest::newRow("DoneResultTaskError")
+            << TestData{storage, taskError, {{0, Handler::GroupError}}, 1, DoneWith::Error, 1};
+    }
+
     // This test checks if storage shadowing works OK.
     QTest::newRow("StorageShadowing") << storageShadowingData();
 }
-
 
 static QtMessageHandler s_oldMessageHandler = nullptr;
 static QStringList s_messages;

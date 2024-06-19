@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 
 # Remove when sharing with others.
 @if %{JS: Util.isDirectory('%{QtCreatorBuild}/Qt Creator.app/Contents/Resources')}

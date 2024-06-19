@@ -71,7 +71,8 @@
 
     The available settings depend on the debug server provider.
 
-    \sa {Enable and disable plugins}, {Bare Metal}{How To: Develop for Bare Metal}
+    \sa {Add kits}, {Enable and disable plugins},
+    {Bare Metal}{How To: Develop for Bare Metal}
 */
 
 /*!
@@ -296,6 +297,7 @@
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-bare-metal
+    \ingroup creator-how-to-manage-kits
 
     \title Add Bare Metal devices
 

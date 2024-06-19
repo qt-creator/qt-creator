@@ -717,7 +717,7 @@ class DumperBase():
                 c = ord(item[0])
                 if c in (45, 46) or (c >= 48 and c < 58):  # '-', '.' or digit.
                     if '.' in item:
-                        res.append(float(item))
+                        self.type_template_arguments_cache[(typeid, idx)] = float(item)
                     else:
                         if item.endswith('l'):
                             item = item[:-1]
@@ -2446,7 +2446,7 @@ typename))
         self.checkIntType(base)
         self.checkIntType(n)
         inner_typeid = self.typeid_for_typish(inner_typish)
-        inner_size = self.type_size_cache.get(inner_typeid, None)
+        inner_size = self.type_size(inner_typeid)
         self.putNumChild(n)
         #self.warn('ADDRESS: 0x%x INNERSIZE: %s INNERTYPE: %s' % (base, inner_size, inner_typeid))
         enc = self.type_encoding_cache.get(inner_typeid, None)
@@ -3565,7 +3565,9 @@ typename))
             return target_typeid
         self.type_code_cache[typeid] = TypeCode.Typedef
         self.type_target_cache[typeid] = target_typeid
-        self.type_size_cache[typeid] = self.type_size_cache.get(target_typeid, None)
+        size = self.type_size_cache.get(target_typeid, None)
+        if size is not None:
+            self.type_size_cache[typeid] = size
         return typeid
 
     def createType(self, typish, size=None):
@@ -3711,7 +3713,7 @@ typename))
 
         typeid = self.cheap_typeid_from_name_nons(typename)
         if typeid:
-            size = self.type_size_cache.get(typeid, None)
+            size = self.type_size(typeid)
             if size is not None:
                 return size, typeid
 
@@ -3719,7 +3721,7 @@ typename))
         self.warn("LOOKUP FIELD TYPE: %s TYPEOBJ: %s" % (typename, typeobj))
         if typeobj is not None:
             typeid = typeobj.typeid
-            size = self.type_size_cache.get(typeid, None)
+            size = self.type_size(typeid)
             if size is not None:
                 return size, typeid
 
@@ -3950,8 +3952,10 @@ typename))
         if size is not None:
             return size
 
-        if size is None:
-            nativeType = self.type_nativetype(typeid)
+        nativeType = self.type_nativetype(typeid)
+        if self.isCdb:
+            size = nativeType.bitsize() // 8
+        else:
             if not self.type_size_cache.get(typeid):
                 self.from_native_type(nativeType)
             size = self.type_size_cache.get(typeid, None)
@@ -4202,7 +4206,7 @@ typename))
         res = self.readRawMemory(address, size)
         if len(res) > 0:
             return res
-        raise RuntimeError('CANNOT READ %d BYTES FROM ADDRESS: %s %s' % (size, address))
+        raise RuntimeError('CANNOT READ %d BYTES FROM ADDRESS: %s' % (size, address))
 
     def value_display(self, value):
         type_code = self.type_code(value.typeid)

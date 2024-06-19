@@ -11,7 +11,7 @@
 
     \brief Settings for building applications with qmake.
 
-    Specify build settings for the selected \l{glossary-buildandrun-kit}{kit}
+    Specify build settings for the selected \l{Kits}{kit}
     in \uicontrol Projects > \uicontrol {Build & Run}
     > \uicontrol Build > \uicontrol {Build Settings}.
 

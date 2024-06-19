@@ -58,7 +58,7 @@
     \endtable
 
     The debugger plugin automatically selects a suitable native debugger for
-    each \l{kits-tab}{kit} from the ones found on the computer. The automatic
+    each \l{Kits}{kit} from the ones found on the computer. The automatic
     setup fails if the native debugger is not installed on the computer or
     if \QC does not support the installed version.
 
@@ -148,5 +148,5 @@
 
     \image qtcreator-run-settings-python.webp {Run settings for a Python project}
 
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}, {Kits}
 */

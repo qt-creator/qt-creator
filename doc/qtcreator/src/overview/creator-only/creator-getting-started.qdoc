@@ -50,7 +50,7 @@
             \li \b {\l{Building and Running an Example}}
 
                 To check that \l{https://www.qt.io/download-qt-installer}
-                {\QOI} created \l{glossary-buildandrun-kit}
+                {\QOI} created \l{Kits}
                 {build and run kits}, open an example application and run it.
                 If you have not done so before, go to
                 \l{Building and Running an Example}.

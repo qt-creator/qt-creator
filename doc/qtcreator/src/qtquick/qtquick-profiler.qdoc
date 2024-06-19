@@ -37,7 +37,7 @@
         \li Set up QML debugging for the project. For more information, see
             \l{Setting Up QML Debugging}.
         \if defined(qtcreator)
-        \li In the \uicontrol Projects mode, select a \l{glossary-buildandrun-kit}
+        \li In the \uicontrol Projects mode, select a \l{Kits}
             {kit} with Qt version 4.7.4 or later.
        \endif
             \note To profile applications on \l{glossary-device}{devices}, you

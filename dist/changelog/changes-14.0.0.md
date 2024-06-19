@@ -99,7 +99,7 @@ Editing
 ### Python
 
 * Added options for updating Python Language Server
-  ([Documentation] (https://doc-snapshots.qt.io/qtcreator-14.0/creator-language-servers.html))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-14.0/creator-language-servers.html))
 
 ### Language Server Protocol
 
@@ -110,18 +110,23 @@ Editing
 
 ### Compiler Explorer
 
-* Added a wizard template for code that uses Qt
+* Added a wizard template for code that uses Qt to `File`> `New File`>
+  `Compiler Explorer`
+  [Documentation](https://doc.qt.io/qtcreator/creator-how-to-create-compiler-explorer-sessions.html)
 
 ### Models
 
 * Added more visual attributes for relations
-* Added support for linked files
-* Added support for custom images
+* Added support for linked files in model element properties
+* Added support for custom images in model element properties
+
+([Documentation](https://doc-snapshots.qt.io/qtcreator-14.0/creator-how-to-create-models.html))
 
 ### SCXML
 
-* Added visualization of conditions on transitions
+* Added visualization of conditions on transitions by using square brackets: `[]`
   ([QTCREATORBUG-21946](https://bugreports.qt.io/browse/QTCREATORBUG-21946))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-14.0/creator-scxml.html))
 
 Projects
 --------

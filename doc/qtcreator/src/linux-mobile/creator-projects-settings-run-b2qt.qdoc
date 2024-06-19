@@ -11,7 +11,7 @@
 
     \brief Settings for running applications on \B2Q devices.
 
-    Specify settings for running applications on the \l {kits-tab}{Run device} that
+    Specify settings for running applications on the \l {Kits}{Run device} that
     you select for a kit in \uicontrol Projects > \uicontrol {Build & Run} >
     \uicontrol Run > \uicontrol {Run Settings}.
 
@@ -25,6 +25,6 @@
     host and on the device.
 
     \sa {\B2Q}{How To: Develop for \B2Q}, {Manage Kits}{How To: Manage Kits},
-    {Configure projects for running}, {kits-tab}{Kits},
+    {Configure projects for running}, {Kits},
     {\B2Q Deploy Configuration}
 */

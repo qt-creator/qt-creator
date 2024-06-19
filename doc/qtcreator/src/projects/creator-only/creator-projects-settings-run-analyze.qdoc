@@ -9,7 +9,7 @@
 
     \title Specify Valgrind settings for a project
 
-    Specify settings for running applications on the \l {kits-tab}{Run device} that
+    Specify settings for running applications on the \l {Kits}{Run device} that
     you select for a kit in \uicontrol Projects > \uicontrol {Build & Run} >
     \uicontrol Run > \uicontrol {Run Settings}.
 

@@ -80,6 +80,7 @@ public:
         SmallSecondary,
         SmallList,
         SmallLink,
+        Tag,
     };
 
     explicit Button(const QString &text, Role role, QWidget *parent = nullptr);

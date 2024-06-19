@@ -222,11 +222,7 @@ GroupItem DeviceCtlRunner::killProcess(Storage<AppInfo> &appInfo)
                              QString::number(appInfo->processIdentifier)}});
         return SetupResult::Continue;
     };
-    const auto onDone = [] {
-        // we tried our best and don't care at this point
-        return DoneResult::Success;
-    };
-    return ProcessTask(onSetup, onDone);
+    return ProcessTask(onSetup, DoneResult::Success); // we tried our best and don't care at this point
 }
 
 GroupItem DeviceCtlRunner::launchTask(const QString &bundleIdentifier)

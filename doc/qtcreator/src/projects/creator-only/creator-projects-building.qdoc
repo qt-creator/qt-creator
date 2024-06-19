@@ -16,7 +16,7 @@
     \title Build for many platforms
 
     You can build applications for many target platforms, or using different
-    compilers, debuggers or Qt versions. \l{glossary-buildandrun-kit}{Kits}
+    compilers, debuggers or Qt versions. \l{Kits}
     define the tools, \l{glossary-device}{device} type, and other settings to use.
 
     By default, when you run the application, you
@@ -34,9 +34,8 @@
     \list 1
 
         \li  Select the \uicontrol {Build and Run Kit Selector} icon or go to
-             \uicontrol Build > \uicontrol {Open Build and Run Kit Selector} to select the
-             build and run \l{glossary-buildandrun-kit}{kit} or an
-             \l{Manage AVDs}{Android device}.
+             \uicontrol Build > \uicontrol {Open Build and Run Kit Selector} to
+             select the build and run kit or an \l{Manage AVDs}{Android device}.
 
             \image qtcreator-kit-selector.webp {Kit selector}
 

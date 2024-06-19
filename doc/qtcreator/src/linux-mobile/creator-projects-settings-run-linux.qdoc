@@ -11,7 +11,7 @@
 
     \brief Settings for running applications on Linux-based devices.
 
-    Specify run settings for the selected \l{glossary-buildandrun-kit}{kit} in
+    Specify run settings for the selected \l{Kits}{kit} in
     \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol Run >
     \uicontrol {Run Settings}.
 
@@ -37,6 +37,6 @@
     Select the \uicontrol {Forward to local display} check box to show a remotely
     running X11 client on a local display.
 
-    \sa {Activate kits for a project}, {Configure projects for running}, {kits-tab}{Kits},
+    \sa {Activate kits for a project}, {Configure projects for running}, {Kits},
     {Remote Linux}{How To: Develop for remote Linux}
 */

@@ -235,8 +235,23 @@ def qdump__QStandardItem(d, value):
 
     vtable, dptr = value.split('pp')
     if d.qtVersionAtLeast(0x060000):
-        model, parent, values, children, rows, cols, item = \
-            d.split('pp{@QList<@QStandardItemData>}{@QList<@QStandardItem *>}IIp', dptr)
+        if d.isCdb:
+            if d.isDebugBuild is None:
+                try:
+                    value["d_ptr"]
+                    d.isDebugBuild = True
+                except Exception:
+                    d.isDebugBuild = False
+            if d.isDebugBuild:
+                model = value["d_ptr"]["d"]["model"]
+                values = value["d_ptr"]["d"]["values"]
+                children = value["d_ptr"]["d"]["children"]
+            else:
+                model, parent, values, children, rows, cols, item = \
+                    d.split('pp{@QList<@QStandardItemData>}{@QList<@QStandardItem *>}IIp', dptr)
+        else:
+            model, parent, values, children, rows, cols, item = \
+                d.split('pp{@QList<@QStandardItemData>}{@QList<@QStandardItem *>}IIp', dptr)
     else:
         # There used to be a virtual destructor that got removed in
         # 88b6abcebf29b455438 on Apr 18 17:01:22 2017
@@ -249,7 +264,9 @@ def qdump__QStandardItem(d, value):
     d.putExpandable()
     if d.isExpanded():
         with Children(d):
-            d.putSubItem('[model]', d.createValue(model, '@QStandardItemModel'))
+            if isinstance(model, int):  # Used as address.
+                model = d.createValue(model, '@QStandardItemModel')
+            d.putSubItem('[model]', model)
             d.putSubItem('[values]', values)
             d.putSubItem('[children]', children)
 
@@ -385,9 +402,9 @@ def qdump__QDateTime(d, value):
         # -     [QTime time;]
         # -      -  uint mds;
         # -  Spec spec;
-        dateSize = 8 if qtVersionAtLeast(0x050000) else 4  # Qt5: qint64, Qt4 uint
+        dateSize = 8 if d.qtVersionAtLeast(0x050000) else 4  # Qt5: qint64, Qt4 uint
         # 4 byte padding after 4 byte QAtomicInt if we are on 64 bit and QDate is 64 bit
-        refPlusPadding = 8 if qtVersionAtLeast(0x050000) and d.ptrSize() == 8 else 4
+        refPlusPadding = 8 if d.qtVersionAtLeast(0x050000) and d.ptrSize() == 8 else 4
         dateBase = base + refPlusPadding
         timeBase = dateBase + dateSize
         mds = d.extractInt(timeBase)
@@ -1031,14 +1048,14 @@ def qdump__QHostAddress(d, value):
         else:
             (ipString, scopeId, a4, pad, a6, protocol, isParsed) \
                 = d.split('{@QString}{@QString}{@quint32}I16sI{bool}', dd)
-    elif qtVersionAtLeast(0x050600):  # 5.6.0 at f3aabb42
+    elif d.qtVersionAtLeast(0x050600):  # 5.6.0 at f3aabb42
         if d.ptrSize() == 8 or d.isWindowsTarget():
             (ipString, scopeId, a4, pad, a6, protocol, isParsed) \
                 = d.split('{@QString}{@QString}{@quint32}I16sI{bool}', dd)
         else:
             (ipString, scopeId, a4, a6, protocol, isParsed) \
                 = d.split('{@QString}{@QString}{@quint32}16sI{bool}', dd)
-    elif qtVersionAtLeast(0x050000):  # 5.2.0 at 62feb088
+    elif d.qtVersionAtLeast(0x050000):  # 5.2.0 at 62feb088
         (ipString, scopeId, a4, a6, protocol, isParsed) \
             = d.split('{@QString}{@QString}{@quint32}16sI{bool}', dd)
     else:  # 4.8.7 at b05d05f

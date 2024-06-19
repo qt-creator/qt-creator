@@ -124,7 +124,7 @@ class Dumper(DumperBase):
                     pass
         if nativeValue.type().code() == TypeCode.Enum:
             val.ldisplay = self.enumValue(nativeValue)
-        elif not nativeValue.type().resolved and nativeValue.type().code() == TypeCode.Struct and not nativeValue.hasChildren():
+        elif not nativeValue.type().resolved() and nativeValue.type().code() == TypeCode.Struct and not nativeValue.hasChildren():
             val.ldisplay = self.enumValue(nativeValue)
         val.isBaseClass = val.name == nativeValue.type().name()
         val.typeid = self.from_native_type(nativeValue.type())
@@ -172,15 +172,17 @@ class Dumper(DumperBase):
                 self.type_name_cache[typeid] = nativeType.name()
                 self.type_code_cache[typeid] = code
                 self.type_target_cache[typeid] = self.typeid_for_string(targetName)
-                self.type_size_cache[typeid] = nativeType.bitsize() // 8
+                if nativeType.resolved():
+                    self.type_size_cache[typeid] = nativeType.bitsize() // 8
                 return typeid
 
             code = TypeCode.Struct
 
         self.type_name_cache[typeid] = nativeType.name()
-        self.type_size_cache[typeid] = nativeType.bitsize() // 8
+        if nativeType.resolved():
+            self.type_size_cache[typeid] = nativeType.bitsize() // 8
+            self.type_modulename_cache[typeid] = nativeType.module()
         self.type_code_cache[typeid] = code
-        self.type_modulename_cache[typeid] = nativeType.module()
         self.type_enum_display_cache[typeid] = lambda intval, addr, form: \
             self.nativeTypeEnumDisplay(nativeType, intval, form)
         return typeid
@@ -311,25 +313,6 @@ class Dumper(DumperBase):
 
         self.qtDeclarativeHookDataSymbolName = lambda: hookSymbolName
         return hookSymbolName
-
-    def qtNamespace(self):
-        namespace = ''
-        qstrdupSymbolName = '*qstrdup'
-        coreModuleName = self.qtCoreModuleName()
-        if coreModuleName is not None:
-            qstrdupSymbolName = '%s!%s' % (coreModuleName, qstrdupSymbolName)
-            resolved = cdbext.resolveSymbol(qstrdupSymbolName)
-            if resolved:
-                name = resolved[0].split('!')[1]
-                namespaceIndex = name.find('::')
-                if namespaceIndex > 0:
-                    namespace = name[:namespaceIndex + 2]
-            self.qtNamespace = lambda: namespace
-            self.qtCustomEventFunc = self.parseAndEvaluate(
-                '%s!%sQObject::customEvent' %
-                (self.qtCoreModuleName(), namespace)).address()
-        self.qtNamespace = lambda: namespace
-        return namespace
 
     def extractQtVersion(self):
         try:
@@ -549,7 +532,6 @@ class Dumper(DumperBase):
             return
 
         self.putAddress(value.address())
-        self.putField('size', self.type_size(value.typeid))
 
         if typeobj.code == TypeCode.Function:
             #DumperBase.warn('FUNCTION VALUE: %s' % value)
@@ -923,3 +905,12 @@ class Dumper(DumperBase):
         if self.useDynamicType:
             val.typeid = self.dynamic_typeid_at_address(val.typeid, address)
         return val
+
+    def fetchInternalFunctions(self):
+        coreModuleName = self.qtCoreModuleName()
+        ns = self.qtNamespace()
+        if coreModuleName is not None:
+            self.qtCustomEventFunc = self.parseAndEvaluate(
+                '%s!%sQObject::customEvent' %
+                (self.qtCoreModuleName(), ns)).address()
+        self.fetchInternalFunctions = lambda: None

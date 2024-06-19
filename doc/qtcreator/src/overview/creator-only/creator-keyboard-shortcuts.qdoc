@@ -570,7 +570,7 @@
             \li  Open project
             \li  Ctrl+Shift+O
         \row
-            \li  Select the \l{glossary-buildandrun-kit}{kit} to build and run your project with
+            \li  Select the \l{Kits}{kit} to build and run your project with
             \li  Ctrl+T
         \row
             \li  Run

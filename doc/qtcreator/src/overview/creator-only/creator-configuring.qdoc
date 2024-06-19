@@ -20,7 +20,7 @@
     However, if you install the stand-alone \QC package, build \QC from sources,
     or install several Qt versions, you may need to tell \QC where to find the
     Qt versions and compilers by adding the paths to them and by creating
-    \l{glossary-buildandrun-kit}{kits} that use them.
+    \l{Kits}{kits} that use them.
 
     To make \QC behave more like your favorite code editor or IDE,
     change the preferences for keyboard shortcuts, color schemes, generic

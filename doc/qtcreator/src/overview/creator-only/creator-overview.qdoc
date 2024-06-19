@@ -181,7 +181,7 @@
 
     Run and deploy Qt applications that you build for different target
     platforms or with different compilers, debuggers, or Qt versions.
-    \l{glossary-buildandrun-kit}{Kits} define the tools, \l{glossary-device}
+    \l{Kits} define the tools, \l{glossary-device}
     {device} type and other settings to use when building and running your
     project.
 

@@ -63,7 +63,7 @@
 
     To test applications on \l{glossary-device}{devices}, you can install
     toolchains for mobile and embedded development as part of Qt distributions.
-    The installers create \l{glossary-buildandrun-kit}{kits} and specify build
+    The installers create \l{Kits}{kits} and specify build
     and run settings for the installed device types. However, you might need to
     install and configure some additional software on the devices to be able to
     \l{Develop for Devices}{connect} to them from the computer.
@@ -81,7 +81,7 @@
 
     To create a new project, select \uicontrol File > \uicontrol{New Project} and
     select the type of your project. The contents of the wizard dialogs depend
-    on the project type and the \l{glossary-buildandrun-kit}{kits} that you
+    on the project type and the \l{Kits}{kits} that you
     select in the \uicontrol {Kit Selection} dialog. Follow the instructions of
     the wizard.
 
