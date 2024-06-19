@@ -85,12 +85,12 @@ class Dumper(DumperBase):
         del self.type_size_cache[typeid]
         del self.type_alignment_cache[typeid]
 
-    def enumValue(self, nativeValue):
+    def enumValue(self, nativeValue: cdbext.Value) -> str:
         val = nativeValue.nativeDebuggerValue()
         # remove '0n' decimal prefix of the native cdb value output
         return val.replace('(0n', '(')
 
-    def fromNativeValue(self, nativeValue):
+    def fromNativeValue(self, nativeValue: cdbext.Value) -> DumperBase.Value:
         self.check(isinstance(nativeValue, cdbext.Value))
         val = self.Value(self)
         val.name = nativeValue.name()
@@ -133,7 +133,7 @@ class Dumper(DumperBase):
         val.lbitsize = nativeValue.bitsize()
         return val
 
-    def nativeTypeId(self, nativeType):
+    def nativeTypeId(self, nativeType: cdbext.Type) -> str:
         self.check(isinstance(nativeType, cdbext.Type))
         name = nativeType.name()
         if name is None or len(name) == 0:
@@ -148,7 +148,7 @@ class Dumper(DumperBase):
                               for f in nativeType.fields()])
         return typeId
 
-    def from_native_type(self, nativeType):
+    def from_native_type(self, nativeType: cdbext.Type) -> str:
         self.check(isinstance(nativeType, cdbext.Type))
         typeid = self.typeid_for_string(self.nativeTypeId(nativeType))
         self.type_nativetype_cache[typeid] = nativeType
@@ -187,7 +187,7 @@ class Dumper(DumperBase):
             self.nativeTypeEnumDisplay(nativeType, intval, form)
         return typeid
 
-    def listNativeValueChildren(self, nativeValue, include_bases):
+    def listNativeValueChildren(self, nativeValue: cdbext.Value, include_bases: bool) -> list[DumperBase.Value]:
         fields = []
         index = 0
         nativeMember = nativeValue.childFromIndex(index)
@@ -202,19 +202,19 @@ class Dumper(DumperBase):
             nativeMember = nativeValue.childFromIndex(index)
         return fields
 
-    def listValueChildren(self, value, include_bases=True):
+    def listValueChildren(self, value: DumperBase.Value, include_bases=True) -> list[DumperBase.Value]:
         nativeValue = value.nativeValue
         if nativeValue is None:
             nativeValue = cdbext.createValue(value.address(), self.lookupNativeType(value.type.name, 0))
         return self.listNativeValueChildren(nativeValue, include_bases)
 
-    def nativeListMembers(self, value, native_type, include_bases):
+    def nativeListMembers(self, value: DumperBase.Value, native_type: cdbext.Type, include_bases: bool) -> list[DumperBase.Value]:
         nativeValue = value.nativeValue
         if nativeValue is None:
             nativeValue = cdbext.createValue(value.address(), native_type)
         return self.listNativeValueChildren(nativeValue, include_bases)
 
-    def nativeStructAlignment(self, nativeType):
+    def nativeStructAlignment(self, nativeType: cdbext.Type) -> int:
         #DumperBase.warn("NATIVE ALIGN FOR %s" % nativeType.name)
         def handleItem(nativeFieldType, align):
             a = self.type_alignment(self.from_native_type(nativeFieldType))
@@ -224,13 +224,13 @@ class Dumper(DumperBase):
             align = handleItem(f.type(), align)
         return align
 
-    def nativeTypeEnumDisplay(self, nativeType, intval, form):
+    def nativeTypeEnumDisplay(self, nativeType: cdbext.Type, intval: int, form) -> str:
         value = self.nativeParseAndEvaluate('(%s)%d' % (nativeType.name(), intval))
         if value is None:
             return ''
         return self.enumValue(value)
 
-    def enumExpression(self, enumType, enumValue):
+    def enumExpression(self, enumType: str, enumValue: str) -> str:
         ns = self.qtNamespace()
         return ns + "Qt::" + enumType + "(" \
             + ns + "Qt::" + enumType + "::" + enumValue + ")"
@@ -238,25 +238,25 @@ class Dumper(DumperBase):
     def pokeValue(self, typeName, *args):
         return None
 
-    def parseAndEvaluate(self, exp):
+    def parseAndEvaluate(self, exp: str) -> DumperBase.Value:
         return self.fromNativeValue(self.nativeParseAndEvaluate(exp))
 
-    def nativeParseAndEvaluate(self, exp):
+    def nativeParseAndEvaluate(self, exp: str) -> cdbext.Value:
         return cdbext.parseAndEvaluate(exp)
 
-    def isWindowsTarget(self):
+    def isWindowsTarget(self) -> bool:
         return True
 
-    def isQnxTarget(self):
+    def isQnxTarget(self) -> bool:
         return False
 
-    def isArmArchitecture(self):
+    def isArmArchitecture(self) -> bool:
         return False
 
-    def isMsvcTarget(self):
+    def isMsvcTarget(self) -> bool:
         return True
 
-    def qtCoreModuleName(self):
+    def qtCoreModuleName(self) -> str:
         modules = cdbext.listOfModules()
         # first check for an exact module name match
         for coreName in ['Qt6Core', 'Qt6Cored', 'Qt5Cored', 'Qt5Core', 'QtCored4', 'QtCore4']:
@@ -272,7 +272,7 @@ class Dumper(DumperBase):
                 return coreName
         return None
 
-    def qtDeclarativeModuleName(self):
+    def qtDeclarativeModuleName(self) -> str:
         modules = cdbext.listOfModules()
         for declarativeModuleName in ['Qt6Qmld', 'Qt6Qml', 'Qt5Qmld', 'Qt5Qml']:
             if declarativeModuleName in modules:
@@ -285,7 +285,7 @@ class Dumper(DumperBase):
             return declarativeModuleName
         return None
 
-    def qtHookDataSymbolName(self):
+    def qtHookDataSymbolName(self) -> str:
         hookSymbolName = 'qtHookData'
         coreModuleName = self.qtCoreModuleName()
         if coreModuleName is not None:
@@ -299,7 +299,7 @@ class Dumper(DumperBase):
         self.qtHookDataSymbolName = lambda: hookSymbolName
         return hookSymbolName
 
-    def qtDeclarativeHookDataSymbolName(self):
+    def qtDeclarativeHookDataSymbolName(self) -> str:
         hookSymbolName = 'qtDeclarativeHookData'
         declarativeModuleName = self.qtDeclarativeModuleName()
         if declarativeModuleName is not None:
@@ -314,7 +314,7 @@ class Dumper(DumperBase):
         self.qtDeclarativeHookDataSymbolName = lambda: hookSymbolName
         return hookSymbolName
 
-    def extractQtVersion(self):
+    def extractQtVersion(self) -> int:
         try:
             qtVersion = self.parseAndEvaluate(
                 '((void**)&%s)[2]' % self.qtHookDataSymbolName()).integer()
@@ -329,7 +329,7 @@ class Dumper(DumperBase):
                     return None
         return qtVersion
 
-    def putVtableItem(self, address):
+    def putVtableItem(self, address: int):
         funcName = cdbext.getNameByAddress(address)
         if funcName is None:
             self.putItem(self.createPointerValue(address, 'void'))
@@ -338,7 +338,7 @@ class Dumper(DumperBase):
             self.putType('void*')
             self.putAddress(address)
 
-    def putVTableChildren(self, item, itemCount):
+    def putVTableChildren(self, item: DumperBase.Value, itemCount: int) -> int:
         p = item.address()
         for i in range(itemCount):
             deref = self.extractPointer(p)
@@ -350,12 +350,12 @@ class Dumper(DumperBase):
                 p += self.ptrSize()
         return itemCount
 
-    def ptrSize(self):
+    def ptrSize(self) -> int:
         size = cdbext.pointerSize()
         self.ptrSize = lambda: size
         return size
 
-    def stripQintTypedefs(self, typeName):
+    def stripQintTypedefs(self, typeName: str) -> str:
         if typeName.startswith('qint'):
             prefix = ''
             size = typeName[4:]
@@ -375,7 +375,7 @@ class Dumper(DumperBase):
         else:
             return typeName
 
-    def lookupNativeType(self, name, module=0):
+    def lookupNativeType(self, name: str, module=0) -> cdbext.Type:
         if name.startswith('void'):
             return FakeVoidType(name, self)
         return cdbext.lookupType(name, module)
@@ -383,13 +383,13 @@ class Dumper(DumperBase):
     def reportResult(self, result, args):
         cdbext.reportResult('result={%s}' % result)
 
-    def readRawMemory(self, address, size):
+    def readRawMemory(self, address: int, size: int) -> int:
         mem = cdbext.readRawMemory(address, size)
         if len(mem) != size:
             raise Exception("Invalid memory request: %d bytes from 0x%x" % (size, address))
         return mem
 
-    def findStaticMetaObject(self, type):
+    def findStaticMetaObject(self, type: DumperBase.Type) -> int:
         ptr = 0
         if type.moduleName is not None:
             # Try to find the static meta object in the same module as the type definition. This is
@@ -449,13 +449,10 @@ class Dumper(DumperBase):
     def report(self, stuff):
         sys.stdout.write(stuff + "\n")
 
-    def findValueByExpression(self, exp):
-        return cdbext.parseAndEvaluate(exp)
-
-    def nativeValueDereferenceReference(self, value):
+    def nativeValueDereferenceReference(self, value: DumperBase.Value) -> DumperBase.Value:
         return self.nativeValueDereferencePointer(value)
 
-    def nativeValueDereferencePointer(self, value):
+    def nativeValueDereferencePointer(self, value: DumperBase.Value) -> DumperBase.Value:
         def nativeVtCastValue(nativeValue):
             # If we have a pointer to a derived instance of the pointer type cdb adds a
             # synthetic '__vtcast_<derived type name>' member as the first child
@@ -490,7 +487,7 @@ class Dumper(DumperBase):
     def callHelper(self, rettype, value, function, args):
         raise Exception("cdb does not support calling functions")
 
-    def nameForCoreId(self, id):
+    def nameForCoreId(self, id: int) -> DumperBase.Value:
         for dll in ['Utilsd', 'Utils']:
             idName = cdbext.call('%s!Utils::nameForId(%d)' % (dll, id))
             if idName is not None:
@@ -500,7 +497,7 @@ class Dumper(DumperBase):
     def putCallItem(self, name, rettype, value, func, *args):
         return
 
-    def symbolAddress(self, symbolName):
+    def symbolAddress(self, symbolName: str) -> int:
         res = self.nativeParseAndEvaluate(symbolName)
         return None if res is None else res.address()
 
@@ -726,7 +723,7 @@ class Dumper(DumperBase):
                     self.putItem(value.dereference())
 
 
-    def putCStyleArray(self, value):
+    def putCStyleArray(self, value: DumperBase.Value):
         arrayType = value.type
         innerType = arrayType.target()
         address = value.address()

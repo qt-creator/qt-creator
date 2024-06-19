@@ -19,6 +19,7 @@ set(resource_files
   debugger/.pylintrc
   debugger/boosttypes.py
   debugger/cdbbridge.py
+  debugger/cdbext.pyi
   debugger/creatortypes.py
   debugger/dumper.py
   debugger/gdbbridge.py
