@@ -134,6 +134,7 @@ Projects
 * Added the `Hide Inactive Kits`/`Show All Kits` button to hide inactive kits
   from the list in the `Projects` mode
 * Added support for user comments in the environment editor
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-14.0/creator-how-to-edit-environment-settings.html))
 * Fixed the parsing of file links when color was used for the output
   ([QTCREATORBUG-30774](https://bugreports.qt.io/browse/QTCREATORBUG-30774))
 * Fixed that the column information was not used when opening files from links
