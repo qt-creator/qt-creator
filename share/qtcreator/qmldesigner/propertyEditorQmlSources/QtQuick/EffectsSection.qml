@@ -75,6 +75,8 @@ Section {
                     root.invalidate()
                 }
             }
+
+            ExpandingSpacer {}
         }
 
         PropertyLabel {
