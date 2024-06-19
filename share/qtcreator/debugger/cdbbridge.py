@@ -883,26 +883,6 @@ class Dumper(DumperBase):
         self.putItem(derefValue)
         self.currentChildType = savedCurrentChildType
 
-    def createValue(self, datish, typish):
-        if isinstance(datish, int):  # Used as address.
-            return self.createValueFromAddressAndType(datish, typish)
-        if isinstance(datish, bytes):
-            val = self.Value(self)
-            val.typeid = self.create_typeid(typish)
-            #DumperBase.warn('CREATING %s WITH DATA %s' % (val.type.name, self.hexencode(datish)))
-            val.ldata = datish
-            val.check()
-            return val
-        raise RuntimeError('EXPECTING ADDRESS OR BYTES, GOT %s' % type(datish))
-
-    def createValueFromAddressAndType(self, address, typish):
-        val = self.Value(self)
-        val.typeid = self.create_typeid(typish)
-        val.laddress = address
-        if self.useDynamicType:
-            val.typeid = self.dynamic_typeid_at_address(val.typeid, address)
-        return val
-
     def fetchInternalFunctions(self):
         coreModuleName = self.qtCoreModuleName()
         ns = self.qtNamespace()
