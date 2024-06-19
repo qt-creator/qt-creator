@@ -21,7 +21,10 @@
 #include <QTextLayout>
 
 #ifdef WITH_TESTS
+#include "cppeditorwidget.h"
+#include "cpptoolstestcase.h"
 #include <QtTest>
+#include <utility>
 #endif
 
 using namespace TextEditor;
@@ -280,16 +283,6 @@ void CppHighlighter::highlightBlock(const QString &text)
 
     TextDocumentLayout::setParentheses(currentBlock(), parentheses);
 
-    // if the block is ifdefed out, we only store the parentheses, but
-    // do not adjust the brace depth.
-    if (TextBlockUserData *userData = TextDocumentLayout::textUserData(currentBlock());
-            userData && userData->ifdefedOut()) {
-        braceDepth = initialBraceDepth;
-        foldingIndent = initialBraceDepth;
-        qCDebug(highlighterLog) << "block is ifdefed out, resetting brace depth and folding indent to"
-                     << initialBraceDepth;
-    }
-
     TextDocumentLayout::setFoldingIndent(currentBlock(), foldingIndent);
     setCurrentBlockState((braceDepth << 8) | tokenize.state());
     qCDebug(highlighterLog) << "storing brace depth" << braceDepth << "and folding indent" << foldingIndent;
@@ -543,6 +536,8 @@ void CppHighlighter::highlightDoxygenComment(const QString &text, int position, 
 
 namespace Internal {
 #ifdef WITH_TESTS
+using namespace CppEditor::Tests;
+using namespace Tests;
 class CppHighlighterTest : public CppHighlighter
 {
     Q_OBJECT
@@ -733,12 +728,102 @@ private slots:
 private:
     QTextDocument m_doc;
 };
+
+class CodeFoldingTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void test()
+    {
+        const QByteArray content = R"(cpp // 0,0
+int main() {                              // 1,0
+#if 0                                     // 1,1
+    if (true) {                           // 1,1
+        //...                             // 1,1
+    }                                     // 1,1
+    else {                                // 1,1
+        //...                             // 1,1
+    }                                     // 1,1
+#else                                     // 1,1
+    if (true) {                           // 2,1
+        //...                             // 2,2
+    }                                     // 1,1
+#endif                                    // 1,1
+}                                         // 0,0
+                                          // 0,0
+cpp)";
+        TemporaryDir temporaryDir;
+        QVERIFY(temporaryDir.isValid());
+        CppTestDocument testDocument("file.cpp", content);
+        testDocument.setBaseDirectory(temporaryDir.path());
+        QVERIFY(testDocument.writeToDisk());
+
+        QVERIFY(TestCase::openCppEditor(testDocument.filePath(), &testDocument.m_editor,
+                                        &testDocument.m_editorWidget));
+
+        QEventLoop loop;
+        QTimer t;
+        t.setSingleShot(true);
+        connect(&t, &QTimer::timeout, &loop, [&] {loop.exit(1); });
+        const auto check = [&] {
+            const struct LoopHandler {
+                LoopHandler(QEventLoop &loop) : loop(loop) {}
+                ~LoopHandler() { loop.quit(); }
+
+            private:
+                QEventLoop &loop;
+            } loopHandler(loop);
+
+            const auto getExpectedBraceDepthAndFoldingIndent = [](const QTextBlock &block) {
+                const QString &text = block.text();
+                if (text.size() < 3)
+                    return std::make_pair(-1, -1);
+                bool ok;
+                const int braceDepth = text.mid(text.size() - 3, 1).toInt(&ok);
+                if (!ok)
+                    return std::make_pair(-1, -1);
+                const int foldingIndent = text.last(1).toInt(&ok);
+                if (!ok)
+                    return std::make_pair(-1, -1);
+                return std::make_pair(braceDepth, foldingIndent);
+            };
+            const auto getActualBraceDepthAndFoldingIndent = [](const QTextBlock &block) {
+                const int braceDepth = block.userState() >> 8;
+                const int foldingIndent = TextDocumentLayout::foldingIndent(block);
+                return std::make_pair(braceDepth, foldingIndent);
+            };
+            TextDocument * const doc = testDocument.m_editorWidget->textDocument();
+            const QTextBlock lastBlock = doc->document()->lastBlock();
+            for (QTextBlock b = doc->document()->firstBlock(); b.isValid() && b != lastBlock;
+                 b = b.next()) {
+                const auto actual = getActualBraceDepthAndFoldingIndent(b);
+                const auto expected = getExpectedBraceDepthAndFoldingIndent(b);
+                if (actual != expected)
+                    qDebug() << "In line" << (b.blockNumber() + 1);
+                QCOMPARE(actual, expected);
+            }
+        };
+        connect(testDocument.m_editorWidget, &CppEditorWidget::ifdefedOutBlocksChanged,
+                this, check);
+        t.start(5000);
+        QCOMPARE(loop.exec(), 0);
+    }
+
+    void cleanup()
+    {
+        QVERIFY(Core::EditorManager::closeAllEditors(false));
+        QVERIFY(TestCase::garbageCollectGlobalSnapshot());
+    }
+};
+
 #endif // WITH_TESTS
 
 void registerHighlighterTests(ExtensionSystem::IPlugin &plugin)
 {
 #ifdef WITH_TESTS
     plugin.addTest<CppHighlighterTest>();
+    plugin.addTest<CodeFoldingTest>();
 #else
     Q_UNUSED(plugin)
 #endif

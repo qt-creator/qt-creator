@@ -325,38 +325,40 @@ void CppEditorDocument::setIfdefedOutBlocks(const QList<TextEditor::BlockRange> 
     QTextBlock block = document()->firstBlock();
     bool needUpdate = false;
     int rangeNumber = 0;
-    int braceDepthDelta = 0;
+    int previousBraceDepth = 0;
     while (block.isValid()) {
-        bool cleared = false;
-        bool set = false;
+        bool resetToPrevious = false;
         if (rangeNumber < blocks.size()) {
             const BlockRange &range = blocks.at(rangeNumber);
             if (block.position() >= range.first()
-                && ((block.position() + block.length() - 1) <= range.last() || !range.last()))
-                set = TextDocumentLayout::setIfdefedOut(block);
-            else
-                cleared = TextDocumentLayout::clearIfdefedOut(block);
+                && ((block.position() + block.length() - 1) <= range.last() || !range.last())) {
+                TextDocumentLayout::setIfdefedOut(block);
+                resetToPrevious = true;
+            } else {
+                TextDocumentLayout::clearIfdefedOut(block);
+                previousBraceDepth = TextDocumentLayout::braceDepth(block);
+                resetToPrevious = false;
+            }
             if (block.contains(range.last()))
                 ++rangeNumber;
         } else {
-            cleared = TextDocumentLayout::clearIfdefedOut(block);
+            TextDocumentLayout::clearIfdefedOut(block);
+            resetToPrevious = false;
         }
 
-        if (cleared || set) {
-            needUpdate = true;
-            int delta = TextDocumentLayout::braceDepthDelta(block);
-            if (cleared)
-                braceDepthDelta += delta;
-            else if (set)
-                braceDepthDelta -= delta;
-        }
-
-        if (braceDepthDelta) {
-            qCDebug(highlighterLog)
-            << "changing brace depth and folding indent by" << braceDepthDelta << "for line"
-            << (block.blockNumber() + 1) << "due to ifdefed out code";
-            TextDocumentLayout::changeBraceDepth(block,braceDepthDelta);
-            TextDocumentLayout::changeFoldingIndent(block, braceDepthDelta); // ### C++ only, refactor!
+        // Do not change brace depth and folding indent in ifdefed-out code.
+        if (resetToPrevious) {
+            const int currentBraceDepth = TextDocumentLayout::braceDepth(block);
+            const int currentFoldingIndent = TextDocumentLayout::foldingIndent(block);
+            if (currentBraceDepth != previousBraceDepth
+                || currentFoldingIndent != previousBraceDepth) {
+                TextDocumentLayout::setBraceDepth(block, previousBraceDepth);
+                TextDocumentLayout::setFoldingIndent(block, previousBraceDepth);
+                needUpdate = true;
+                qCDebug(highlighterLog)
+                    << "changing brace depth and folding indent to" << previousBraceDepth
+                    << "for line" << (block.blockNumber() + 1) << "in ifdefed out code";
+            }
         }
 
         block = block.next();
