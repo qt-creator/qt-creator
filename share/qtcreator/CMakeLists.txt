@@ -4,6 +4,7 @@ set(resource_directories
   glsl
   indexer_preincludes
   jsonschemas
+  lua-plugins
   modeleditor
   qmldesigner
   qmlicons

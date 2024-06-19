@@ -1119,27 +1119,3 @@ function(qtc_add_public_header header)
     COMPONENT Devel EXCLUDE_FROM_ALL
   )
 endfunction()
-
-function (add_qtc_lua_plugin name)
-  cmake_parse_arguments(_arg "EXCLUDE_FROM_INSTALL" "" "SOURCES" ${ARGN})
-
-  if (${_arg_UNPARSED_ARGUMENTS})
-    message(FATAL_ERROR "add_qtc_lua_plugin had unparsed arguments!")
-  endif()
-
-  qtc_copy_to_builddir(${name}
-    FILES ${_arg_SOURCES}
-    DESTINATION ${IDE_PLUGIN_PATH}
-  )
-
-  if (NOT _arg_EXCLUDE_FROM_INSTALL)
-    foreach(SOURCE ${_arg_SOURCES})
-      get_filename_component(SOURCE_DIR "${SOURCE}" DIRECTORY)
-
-      install(
-        FILES ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE}
-        DESTINATION ${IDE_PLUGIN_PATH}/${SOURCE_DIR}
-      )
-    endforeach()
-  endif()
-endfunction()
