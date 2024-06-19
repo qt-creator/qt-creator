@@ -11,6 +11,7 @@
 #include "cppeditortr.h"
 #include "cppeditorwidget.h"
 #include "cppfilesettingspage.h"
+#include "cpphighlighter.h"
 #include "cppincludehierarchy.h"
 #include "cppheadersource.h"
 #include "cppmodelmanager.h"
@@ -29,7 +30,6 @@
 #include "cppcodegen_test.h"
 #include "cppcompletion_test.h"
 #include "cppdoxygen_test.h"
-#include "cpphighlighter.h"
 #include "cppincludehierarchy_test.h"
 #include "cpplocalsymbols_test.h"
 #include "cpplocatorfilter_test.h"
@@ -488,11 +488,11 @@ void CppEditorPlugin::registerVariables()
 
 void CppEditorPlugin::registerTests()
 {
+    registerHighlighterTests(*this);
 #ifdef WITH_TESTS
     addTest<CodegenTest>();
     addTest<CompilerOptionsBuilderTest>();
     addTest<CompletionTest>();
-    addTest<CppHighlighterTest>();
     addTest<FunctionUtilsTest>();
     addTest<HeaderPathFilterTest>();
     addTestCreator(createCppHeaderSourceTest);
