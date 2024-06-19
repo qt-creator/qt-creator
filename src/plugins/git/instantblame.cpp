@@ -67,8 +67,31 @@ bool BlameMark::addToolTipContent(QLayout *target) const
     auto textLabel = new QLabel;
     textLabel->setText(toolTip());
     target->addWidget(textLabel);
-    QObject::connect(textLabel, &QLabel::linkActivated, textLabel, [this] {
-        gitClient().show(m_info.filePath, m_info.sha1);
+    QObject::connect(textLabel, &QLabel::linkActivated, textLabel, [this](const QString &link) {
+        qCInfo(log) << "Link activated with target:" << link;
+        const QString sha1 = (link == "blameParent") ? m_info.sha1 + "^" : m_info.sha1;
+
+        if (link.startsWith("blame") || link == "showFile") {
+            const VcsBasePluginState state = currentState();
+            QTC_ASSERT(state.hasTopLevel(), return);
+            const Utils::FilePath path = state.topLevel();
+
+            const QString originalFileName = m_info.originalFileName;
+            if (link.startsWith("blame")) {
+                qCInfo(log).nospace().noquote() << "Blaming: \"" << path << "/" << originalFileName
+                                                << "\":" << m_info.line << " @ " << sha1;
+                gitClient().annotate(path, originalFileName, m_info.line, sha1);
+            } else {
+                qCInfo(log).nospace().noquote() << "Showing file: \"" << path << "/"
+                                                << originalFileName << "\" @ " << sha1;
+
+                const auto fileName = Utils::FilePath::fromString(originalFileName);
+                gitClient().openShowEditor(path, sha1, fileName);
+            }
+        } else {
+            qCInfo(log).nospace().noquote() << "Showing commit: " << sha1 << " for " << m_info.filePath;
+            gitClient().show(m_info.filePath, sha1);
+        }
     });
 
     return true;
@@ -77,14 +100,20 @@ bool BlameMark::addToolTipContent(QLayout *target) const
 QString BlameMark::toolTipText(const CommitInfo &info) const
 {
     QString result = QString(
+                         "<table cellspacing=\"10\"><tr>"
+                         "  <td><a href=\"blame\">Blame %1</a></td>"
+                         "  <td><a href=\"blameParent\">Blame Parent</a></td>"
+                         "  <td><a href=\"showFile\">File at %1</a></td>"
+                         "</tr></table>"
+                         "<p></p>"
                          "<table>"
-                         "  <tr><td>commit</td><td><a href>%1</a></td></tr>"
+                         "  <tr><td>commit</td><td><a href=\"show\">%1</a></td></tr>"
                          "  <tr><td>Author:</td><td>%2 &lt;%3&gt;</td></tr>"
                          "  <tr><td>Date:</td><td>%4</td></tr>"
                          "  <tr></tr>"
                          "  <tr><td colspan='2' align='left'>%5</td></tr>"
                          "</table>")
-                         .arg(info.sha1, info.author, info.authorMail,
+                         .arg(info.sha1.left(8), info.author, info.authorMail,
                               info.authorTime.toString("yyyy-MM-dd hh:mm:ss"), info.summary);
 
     if (settings().instantBlameIgnoreSpaceChanges()
@@ -186,12 +215,12 @@ void InstantBlame::setup()
 // committer-time 1613752312
 // committer-tz +0100
 // summary Add greeting to script
-// boundary
+// (boundary/previous f6b5868032a5dc0e73b82b09184086d784949646 oldfile)
 // filename foo
 //     echo Hello World!
 
 static CommitInfo parseBlameOutput(const QStringList &blame, const Utils::FilePath &filePath,
-                                   const Git::Internal::Author &author)
+                                   int line, const Git::Internal::Author &author)
 {
     CommitInfo result;
     if (blame.size() <= 12)
@@ -208,6 +237,12 @@ static CommitInfo parseBlameOutput(const QStringList &blame, const Utils::FilePa
     result.authorTime = QDateTime::fromSecsSinceEpoch(timeStamp);
     result.summary = blame.at(9).mid(8);
     result.filePath = filePath;
+    // blame.at(10) can be "boundary", "previous" or "filename"
+    if (blame.at(10).startsWith("filename"))
+        result.originalFileName = blame.at(10).mid(9);
+    else
+        result.originalFileName = blame.at(11).mid(9);
+    result.line = line;
     return result;
 }
 
@@ -287,7 +322,7 @@ void InstantBlame::perform()
             stop();
             return;
         }
-        const CommitInfo info = parseBlameOutput(output.split('\n'), filePath, m_author);
+        const CommitInfo info = parseBlameOutput(output.split('\n'), filePath, line, m_author);
         m_blameMark.reset(new BlameMark(filePath, line, info));
     };
     QStringList options = {"blame", "-p"};

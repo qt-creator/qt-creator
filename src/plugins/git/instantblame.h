@@ -26,6 +26,8 @@ public:
     QDateTime authorTime;
     QString summary;
     Utils::FilePath filePath;
+    QString originalFileName; // relative file path from project root
+    int line = -1;
 };
 
 class BlameMark : public TextEditor::TextMark
