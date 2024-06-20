@@ -57,11 +57,25 @@
             },
           "environment": {
             "AN_ENVIRONMENT_FLAG": "1"
+            }
+          },
+          "vendor": {
+            "qt.io/QtCreator/1.0": {
+               "AskBeforePresetsReload": false,
+               "AskReConfigureInitialParams": false,
+               "AutorunCMake": false,
+               "PackageManagerAutoSetup": false,
+               "ShowAdvancedOptionsByDefault": true,
+               "ShowSourceSubFolders": false,
+               "UseJunctionsForSourceAndBuildDirectories": true
+               }
           }
-        }
       ]
     }
     \endcode
+
+    For more information about the CMake project settings in the \c vendor
+    section, see \l {Override CMake settings for a project}.
 
     \section1 MinGW Example
 
@@ -74,6 +88,7 @@
         \li generator – MinGW Makefiles
         \li path to a CMake executable
         \li path to the Qt installation via \c CMAKE_PREFIX_PATH
+        \li GNU gdb 11.2.0 for MinGW 11.2.0 64-bit debugger
     \endlist
 
     \badcode
@@ -92,8 +107,17 @@
           },
           "environment": {
             "PATH": "C:/Qt/Tools/mingw1120_64/bin;$penv{PATH}"
-          }
-        }
+          },
+          "vendor": {
+            "qt.io/QtCreator/1.0": {
+              "debugger": {
+                "DisplayName": "GNU gdb 11.2.0 for MinGW 11.2.0 64-bit",
+                "Abis": ["x86-windows-msys-pe-64bit"],
+                "Binary": "C:/Qt/Tools/mingw1120_64/bin/gdb.exe",
+                "EngineType": 1,
+                "Version": "11.2.0"
+              }
+            }
       ]
     }
     \endcode
@@ -185,6 +209,50 @@
     "cacheVariables": {
       "CMAKE_C_COMPILER": "cl.exe",
       "CMAKE_CXX_COMPILER": "cl.exe"
+    }
+    \endcode
+
+    \section1 Cross-Compilation Example
+
+    The following example configures a Qt project for cross-compilation on \macos
+    for Windows and running with the \c wine emulator on \macos:
+
+    \list
+        \li generator – Ninja
+        \li build directory – \c <sourceDir>/build-release
+        \li LLVM/MinGW toolchain
+        \li configuration type – \c CMAKE_BUILD_TYPE as \c Release
+        \li LLDB 18.1.6 debugger
+        \li \c wine emulator
+    \endlist
+
+    \badcode
+    {
+      "version": 4,
+      "configurePresets": [
+        {
+          "name": "llvm-mingw",
+          "displayName": "LLVM-MinGW 18.1.6",
+          "generator": "Ninja",
+          "binaryDir": "${sourceDir}/build-release",
+          "toolchainFile": "llvm-mingw.cmake",
+          "cacheVariables": {
+            "CMAKE_BUILD_TYPE": "Release",
+            "CMAKE_CROSSCOMPILING_EMULATOR": "/opt/homebrew/bin/wine"
+          },
+          "vendor": {
+            "qt.io/QtCreator/1.0": {
+              "debugger": {
+                "DisplayName": "LLDB 18.1.6 (CMake Preset)",
+                "Abis": ["x86-darwin-generic-mach_o-64bit", "arm-darwin-generic-mach_o-64bit"],
+                "Binary": "/Users/jdoe/llvm-mingw/bin/lldb",
+                "EngineType": 256,
+                "Version": "18.1.6"
+              }
+            }
+          }
+        }
+      ]
     }
     \endcode
 

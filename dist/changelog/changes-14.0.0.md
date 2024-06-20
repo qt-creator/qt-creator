@@ -163,7 +163,11 @@ Projects
        [QTCREATORBUG-29559](https://bugreports.qt.io/browse/QTCREATORBUG-29559),
        [QTCREATORBUG-30385](https://bugreports.qt.io/browse/QTCREATORBUG-30385))
     * Made it possible to register debuggers
+      ([QTCREATORBUG-30836](https://bugreports.qt.io/browse/QTCREATORBUG-30836))
     * Added support for custom build types
+      ([QTCREATORBUG-30014](https://bugreports.qt.io/browse/QTCREATORBUG-30014))
+
+    ([Documentation](https://doc-snapshots.qt.io/qtcreator-14.0/creator-build-settings-cmake-presets.html))
 
 ### Workspace
 

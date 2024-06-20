@@ -67,6 +67,9 @@
         \li \l{Using Junction Points on Windows}
     \endtable
 
+    You can set these preferences as \l{Configure Presets}{CMake presets} or in
+    a \l{Share project settings}{CMakeLists.txt.shared} file.
+
     \sa {Build with CMake}{How To: Build with CMake}, {CMake},
     {Configuring Projects}
 */
