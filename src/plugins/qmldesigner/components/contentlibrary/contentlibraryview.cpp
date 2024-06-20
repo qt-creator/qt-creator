@@ -879,12 +879,22 @@ void ContentLibraryView::addLibItem(const ModelNode &node, const QPixmap &iconPi
     };
 
     if (iconPixmap.isNull()) {
-        // copy qml to a temp folder as icon generation fails sometimes when generating directly from
-        // the bundle folder
+        // copy qml and its dependencies to a temp folder as icon generation fails sometimes when
+        // generating directly from the bundle folder
         m_tempDir = std::make_unique<QTemporaryDir>();
         QTC_ASSERT(m_tempDir->isValid(), return);
-        Utils::FilePath qmlPathTemp = Utils::FilePath::fromString(m_tempDir->path()).pathAppended(qml);
+        auto tempDirPath = Utils::FilePath::fromString(m_tempDir->path());
+
+        Utils::FilePath qmlPathTemp = tempDirPath.pathAppended(qml);
         bundlePath.pathAppended(qml).copyFile(qmlPathTemp);
+
+        for (const QString &assetPath : depAssetsList) {
+            Utils::FilePath assetPathSource = DocumentManager::currentResourcePath().pathAppended(assetPath);
+            Utils::FilePath assetPathTarget = tempDirPath.pathAppended(assetPath);
+            assetPathTarget.parentDir().ensureWritableDir();
+            auto result = assetPathSource.copyFile(assetPathTarget);
+            QTC_ASSERT_EXPECTED(result,);
+        }
 
         getImageFromCache(qmlPathTemp.toFSPathString(), saveIcon);
     } else {
