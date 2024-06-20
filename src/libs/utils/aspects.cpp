@@ -2942,12 +2942,12 @@ void FilePathListAspect::removeValues(const FilePaths &paths)
 }
 
 /*!
-    \class Utils::IntegerListAspect
+    \class Utils::IntegersAspect
     \internal
     \inmodule QtCreator
 
-    \brief A string list aspect represents a property of some object
-    that is a list of strings.
+    \brief An integers aspect represents a property of some object
+    that is a list of integers.
 */
 
 IntegersAspect::IntegersAspect(AspectContainer *container)

@@ -182,284 +182,61 @@ static QList<int> defaultDisabledMessagesNonQuickUi()
     return disabledForNonQuickUi;
 }
 
-static QStringList intListToStringList(const QList<int> &list)
+static QVariant toSettingsTransformation(const QVariant &v)
 {
-    return Utils::transform(list, [](int v) { return QString::number(v); });
+    QList<int> list = v.value<QList<int>>();
+    QStringList result = Utils::transform<QStringList>(list, [](int i) { return QString::number(i); });
+    return QVariant::fromValue(result);
 }
 
-static QList<int> intListFromStringList(const QStringList &list)
+static QVariant fromSettingsTransformation(const QVariant &v)
 {
-    return Utils::transform<QList<int> >(list, [](const QString &v) { return v.toInt(); });
-}
-
-static QStringList defaultDisabledMessagesAsString()
-{
-    static const QStringList result = intListToStringList(defaultDisabledMessages());
-    return result;
-}
-
-static QStringList defaultDisabledNonQuickUiAsString()
-{
-    static const QStringList result = intListToStringList(defaultDisabledMessagesNonQuickUi());
-    return result;
+    QStringList list = v.value<QStringList>();
+    QList<int> result =  Utils::transform<QList<int>>(list, [](const QString &s) { return s.toInt(); });
+    return QVariant::fromValue(result);
 }
 
 QmlJsEditingSettings::QmlJsEditingSettings()
 {
-    QtcSettings *settings = Core::ICore::settings();
+    const Key group = QmlJSEditor::Constants::SETTINGS_CATEGORY_QML;
 
-    settings->beginGroup(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
-    m_enableContextPane = settings->value(QML_CONTEXTPANE_KEY, QVariant(false)).toBool();
-    m_pinContextPane = settings->value(QML_CONTEXTPANEPIN_KEY, QVariant(false)).toBool();
-    m_autoFormatOnSave = settings->value(AUTO_FORMAT_ON_SAVE, QVariant(false)).toBool();
-    m_autoFormatOnlyCurrentProject
-        = settings->value(AUTO_FORMAT_ONLY_CURRENT_PROJECT, QVariant(false)).toBool();
-    m_foldAuxData = settings->value(FOLD_AUX_DATA, QVariant(true)).toBool();
-    m_uiQmlOpenMode = settings->value(UIQML_OPEN_MODE, "").toString();
-    m_useQmlls = settings->value(USE_QMLLS, QVariant(true)).toBool();
-    m_useLatestQmlls = settings->value(USE_LATEST_QMLLS, QVariant(false)).toBool();
-    m_ignoreMinimumQmllsVersion
-        = settings->value(IGNORE_MINIMUM_QMLLS_VERSION, QVariant(false)).toBool();
-    m_disableBuiltinCodemodel = settings->value(DISABLE_BUILTIN_CODEMODEL, QVariant(false)).toBool();
-    m_generateQmllsIniFiles
-        = settings->value(GENERATE_QMLLS_INI_FILES, QVariant(false)).toBool();
-    m_formatCommand = settings->value(FORMAT_COMMAND, {}).toString();
-    m_formatCommandOptions = settings->value(FORMAT_COMMAND_OPTIONS, {}).toString();
-    m_useCustomFormatCommand = settings->value(CUSTOM_COMMAND, QVariant(false)).toBool();
-    m_useCustomAnalyzer = settings->value(CUSTOM_ANALYZER, QVariant(false)).toBool();
+    useQmlls.setSettingsKey(group, USE_QMLLS);
+    useQmlls.setDefaultValue(true);
 
-    m_disabledMessages = Utils::toSet(
-        intListFromStringList(settings->value(DISABLED_MESSAGES,
-                              defaultDisabledMessagesAsString()).toStringList()));
+    enableContextPane.setSettingsKey(group, QML_CONTEXTPANE_KEY);
+    pinContextPane.setSettingsKey(group, QML_CONTEXTPANEPIN_KEY);
+    autoFormatOnSave.setSettingsKey(group, AUTO_FORMAT_ON_SAVE);
+    autoFormatOnlyCurrentProject.setSettingsKey(group, AUTO_FORMAT_ONLY_CURRENT_PROJECT);
 
-    m_disabledMessagesForNonQuickUi = Utils::toSet(
-        intListFromStringList(settings->value(DISABLED_MESSAGES_NONQUICKUI,
-                              defaultDisabledNonQuickUiAsString()).toStringList()));
+    foldAuxData.setSettingsKey(group, FOLD_AUX_DATA);
+    foldAuxData.setDefaultValue(true);
 
-    settings->endGroup();
-}
+    uiQmlOpenMode.setSettingsKey(group, UIQML_OPEN_MODE);
+    useLatestQmlls.setSettingsKey(group, USE_LATEST_QMLLS);
+    disableBuiltinCodemodel.setSettingsKey(group, DISABLE_BUILTIN_CODEMODEL);
+    generateQmllsIniFiles.setSettingsKey(group, GENERATE_QMLLS_INI_FILES);
+    ignoreMinimumQmllsVersion.setSettingsKey(group, IGNORE_MINIMUM_QMLLS_VERSION);
+    formatCommand.setSettingsKey(group, FORMAT_COMMAND);
+    formatCommandOptions.setSettingsKey(group, FORMAT_COMMAND_OPTIONS);
+    useCustomFormatCommand.setSettingsKey(group, CUSTOM_COMMAND);
+    useCustomAnalyzer.setSettingsKey(group, CUSTOM_ANALYZER);
 
-void QmlJsEditingSettings::toSettings(QtcSettings *settings) const
-{
-    settings->beginGroup(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
-    settings->setValue(QML_CONTEXTPANE_KEY, m_enableContextPane);
-    settings->setValue(QML_CONTEXTPANEPIN_KEY, m_pinContextPane);
-    settings->setValue(AUTO_FORMAT_ON_SAVE, m_autoFormatOnSave);
-    settings->setValue(AUTO_FORMAT_ONLY_CURRENT_PROJECT, m_autoFormatOnlyCurrentProject);
-    settings->setValue(FOLD_AUX_DATA, m_foldAuxData);
-    settings->setValue(UIQML_OPEN_MODE, m_uiQmlOpenMode);
-    settings->setValue(USE_QMLLS, m_useQmlls);
-    settings->setValue(USE_LATEST_QMLLS, m_useLatestQmlls);
-    settings->setValue(IGNORE_MINIMUM_QMLLS_VERSION, m_ignoreMinimumQmllsVersion);
-    settings->setValue(DISABLE_BUILTIN_CODEMODEL, m_disableBuiltinCodemodel);
-    settings->setValue(GENERATE_QMLLS_INI_FILES, m_generateQmllsIniFiles);
-    settings->setValueWithDefault(FORMAT_COMMAND, m_formatCommand, {});
-    settings->setValueWithDefault(FORMAT_COMMAND_OPTIONS, m_formatCommandOptions, {});
-    settings->setValueWithDefault(CUSTOM_COMMAND, m_useCustomFormatCommand, false);
-    settings->setValueWithDefault(CUSTOM_ANALYZER, m_useCustomAnalyzer, false);
-    settings->setValueWithDefault(DISABLED_MESSAGES,
-                                  intListToStringList(Utils::sorted(Utils::toList(m_disabledMessages))),
-                                  defaultDisabledMessagesAsString());
-    settings->setValueWithDefault(DISABLED_MESSAGES_NONQUICKUI,
-                                  intListToStringList(Utils::sorted(Utils::toList(m_disabledMessagesForNonQuickUi))),
-                                  defaultDisabledNonQuickUiAsString());
-    settings->endGroup();
-    QmllsSettingsManager::instance()->checkForChanges();
-}
+    disabledMessages.setSettingsKey(group, DISABLED_MESSAGES);
+    disabledMessages.setDefaultValue(defaultDisabledMessages());
+    disabledMessages.setFromSettingsTransformation(&fromSettingsTransformation);
+    disabledMessages.setToSettingsTransformation(&toSettingsTransformation);
 
-bool QmlJsEditingSettings::equals(const QmlJsEditingSettings &other) const
-{
-    return m_enableContextPane == other.m_enableContextPane
-           && m_pinContextPane == other.m_pinContextPane
-           && m_autoFormatOnSave == other.m_autoFormatOnSave
-           && m_autoFormatOnlyCurrentProject == other.m_autoFormatOnlyCurrentProject
-           && m_foldAuxData == other.m_foldAuxData
-           && m_useQmlls == other.m_useQmlls
-           && m_useLatestQmlls == other.m_useLatestQmlls
-           && m_disableBuiltinCodemodel == other.m_disableBuiltinCodemodel
-           && m_generateQmllsIniFiles == other.m_generateQmllsIniFiles
-           && m_uiQmlOpenMode == other.m_uiQmlOpenMode
-           && m_formatCommand == other.m_formatCommand
-           && m_formatCommandOptions == other.m_formatCommandOptions
-           && m_useCustomFormatCommand == other.m_useCustomFormatCommand
-           && m_useCustomAnalyzer == other.m_useCustomAnalyzer
-           && m_disabledMessages == other.m_disabledMessages
-           && m_disabledMessagesForNonQuickUi == other.m_disabledMessagesForNonQuickUi;
-}
+    disabledMessagesForNonQuickUi.setSettingsKey(group, DISABLED_MESSAGES_NONQUICKUI);
+    disabledMessagesForNonQuickUi.setDefaultValue(defaultDisabledMessagesNonQuickUi());
+    disabledMessagesForNonQuickUi.setFromSettingsTransformation(&fromSettingsTransformation);
+    disabledMessagesForNonQuickUi.setToSettingsTransformation(&toSettingsTransformation);
 
-bool QmlJsEditingSettings::enableContextPane() const
-{
-    return m_enableContextPane;
-}
-
-void QmlJsEditingSettings::setEnableContextPane(const bool enableContextPane)
-{
-    m_enableContextPane = enableContextPane;
-}
-
-bool QmlJsEditingSettings::pinContextPane() const
-{
-    return m_pinContextPane;
-}
-
-void QmlJsEditingSettings::setPinContextPane(const bool pinContextPane)
-{
-    m_pinContextPane = pinContextPane;
-}
-
-bool QmlJsEditingSettings::autoFormatOnSave() const
-{
-    return m_autoFormatOnSave;
-}
-
-void QmlJsEditingSettings::setAutoFormatOnSave(const bool autoFormatOnSave)
-{
-    m_autoFormatOnSave = autoFormatOnSave;
-}
-
-bool QmlJsEditingSettings::autoFormatOnlyCurrentProject() const
-{
-    return m_autoFormatOnlyCurrentProject;
-}
-
-void QmlJsEditingSettings::setAutoFormatOnlyCurrentProject(const bool autoFormatOnlyCurrentProject)
-{
-    m_autoFormatOnlyCurrentProject = autoFormatOnlyCurrentProject;
-}
-
-bool QmlJsEditingSettings::foldAuxData() const
-{
-    return m_foldAuxData;
-}
-
-void QmlJsEditingSettings::setFoldAuxData(const bool foldAuxData)
-{
-    m_foldAuxData = foldAuxData;
+    readSettings();
 }
 
 QString QmlJsEditingSettings::defaultFormatCommand() const
 {
     return DEFAULT_CUSTOM_FORMAT_COMMAND;
-}
-
-QString QmlJsEditingSettings::formatCommand() const
-{
-    return m_formatCommand;
-}
-
-void QmlJsEditingSettings::setFormatCommand(const QString &formatCommand)
-{
-    m_formatCommand = formatCommand;
-}
-
-QString QmlJsEditingSettings::formatCommandOptions() const
-{
-    return m_formatCommandOptions;
-}
-
-void QmlJsEditingSettings::setFormatCommandOptions(const QString &formatCommandOptions)
-{
-    m_formatCommandOptions = formatCommandOptions;
-}
-
-bool QmlJsEditingSettings::useCustomFormatCommand() const
-{
-    return m_useCustomFormatCommand;
-}
-
-void QmlJsEditingSettings::setUseCustomFormatCommand(bool customCommand)
-{
-    m_useCustomFormatCommand = customCommand;
-}
-
-const QString QmlJsEditingSettings::uiQmlOpenMode() const
-{
-    return m_uiQmlOpenMode;
-}
-
-void QmlJsEditingSettings::setUiQmlOpenMode(const QString &mode)
-{
-    m_uiQmlOpenMode = mode;
-}
-
-bool QmlJsEditingSettings::useCustomAnalyzer() const
-{
-    return m_useCustomAnalyzer;
-}
-
-void QmlJsEditingSettings::setUseCustomAnalyzer(bool customAnalyzer)
-{
-    m_useCustomAnalyzer = customAnalyzer;
-}
-
-QSet<int> QmlJsEditingSettings::disabledMessages() const
-{
-    return m_disabledMessages;
-}
-
-void QmlJsEditingSettings::setDisabledMessages(const QSet<int> &disabled)
-{
-    m_disabledMessages = disabled;
-}
-
-QSet<int> QmlJsEditingSettings::disabledMessagesForNonQuickUi() const
-{
-    return m_disabledMessagesForNonQuickUi;
-}
-
-void QmlJsEditingSettings::setDisabledMessagesForNonQuickUi(const QSet<int> &disabled)
-{
-    m_disabledMessagesForNonQuickUi = disabled;
-}
-
-bool QmlJsEditingSettings::generateQmllsIniFiles() const
-{
-    return m_generateQmllsIniFiles;
-}
-
-void QmlJsEditingSettings::setGenerateQmllsIniFiles(bool newGenerateQmllsIniFiles)
-{
-    m_generateQmllsIniFiles = newGenerateQmllsIniFiles;
-}
-
-bool QmlJsEditingSettings::disableBuiltinCodemodel() const
-{
-    return m_disableBuiltinCodemodel;
-}
-
-void QmlJsEditingSettings::setDisableBuiltinCodemodel(bool newDisableBuiltinCodemodel)
-{
-    m_disableBuiltinCodemodel = newDisableBuiltinCodemodel;
-}
-
-bool QmlJsEditingSettings::useLatestQmlls() const
-{
-    return m_useLatestQmlls;
-}
-
-void QmlJsEditingSettings::setUseLatestQmlls(bool newUseLatestQmlls)
-{
-    m_useLatestQmlls = newUseLatestQmlls;
-}
-
-bool QmlJsEditingSettings::ignoreMinimumQmllsVersion() const
-{
-    return m_ignoreMinimumQmllsVersion;
-}
-
-void QmlJsEditingSettings::setIgnoreMinimumQmllsVersion(bool newIgnoreMinimumQmllsVersion)
-{
-    m_ignoreMinimumQmllsVersion = newIgnoreMinimumQmllsVersion;
-}
-
-bool QmlJsEditingSettings::useQmlls() const
-{
-    return m_useQmlls;
-}
-
-void QmlJsEditingSettings::setUseQmlls(bool newUseQmlls)
-{
-    m_useQmlls = newUseQmlls;
 }
 
 class AnalyzerMessageItem final : public Utils::TreeItem
@@ -667,37 +444,39 @@ public:
     void apply() final
     {
         QmlJsEditingSettings &s = settings();
-        s.setEnableContextPane(enableContextPane->isChecked());
-        s.setPinContextPane(pinContextPane->isChecked());
-        s.setAutoFormatOnSave(autoFormatOnSave->isChecked());
-        s.setAutoFormatOnlyCurrentProject(autoFormatOnlyCurrentProject->isChecked());
-        s.setUseCustomFormatCommand(useCustomFormatCommand->isChecked());
-        s.setFormatCommand(formatCommand->text());
-        s.setFormatCommandOptions(formatCommandOptions->text());
-        s.setFoldAuxData(foldAuxData->isChecked());
-        s.setUiQmlOpenMode(uiQmlOpenComboBox->currentData().toString());
-        s.setUseQmlls(useQmlls->isChecked());
-        s.setDisableBuiltinCodemodel(disableBuiltInCodemodel->isChecked());
-        s.setUseLatestQmlls(useLatestQmlls->isChecked());
-        s.setIgnoreMinimumQmllsVersion(ignoreMinimumQmllsVersion->isChecked());
-        s.setGenerateQmllsIniFiles(generateQmllsIniFiles->isChecked());
-        s.setUseCustomAnalyzer(useCustomAnalyzer->isChecked());
-        QSet<int> disabled;
-        QSet<int> disabledForNonQuickUi;
+        s.enableContextPane.setValue(enableContextPane->isChecked());
+        s.pinContextPane.setValue(pinContextPane->isChecked());
+        s.autoFormatOnSave.setValue(autoFormatOnSave->isChecked());
+        s.autoFormatOnlyCurrentProject.setValue(autoFormatOnlyCurrentProject->isChecked());
+        s.useCustomFormatCommand.setValue(useCustomFormatCommand->isChecked());
+        s.formatCommand.setValue(formatCommand->text());
+        s.formatCommandOptions.setValue(formatCommandOptions->text());
+        s.foldAuxData.setValue(foldAuxData->isChecked());
+        s.uiQmlOpenMode.setValue(uiQmlOpenComboBox->currentData().toString());
+        s.useQmlls.setValue(useQmlls->isChecked());
+        s.disableBuiltinCodemodel.setValue(disableBuiltInCodemodel->isChecked());
+        s.ignoreMinimumQmllsVersion.setValue(ignoreMinimumQmllsVersion->isChecked());
+        s.useLatestQmlls.setValue(useLatestQmlls->isChecked());
+        s.generateQmllsIniFiles.setValue(generateQmllsIniFiles->isChecked());
+        s.useCustomAnalyzer.setValue(useCustomAnalyzer->isChecked());
+        QList<int> disabled;
+        QList<int> disabledForNonQuickUi;
+
         analyzerMessageModel->forAllItems(
             [&disabled, &disabledForNonQuickUi](AnalyzerMessageItem *item){
             if (item->data(0, Qt::CheckStateRole) == Qt::Unchecked)
-                disabled.insert(item->messageNumber());
+                disabled.append(item->messageNumber());
             if (item->data(1, Qt::CheckStateRole) == Qt::Checked)
-                disabledForNonQuickUi.insert(item->messageNumber());
+                disabledForNonQuickUi.append(item->messageNumber());
         });
-        s.setDisabledMessages(disabled);
-        s.setDisabledMessagesForNonQuickUi(disabledForNonQuickUi);
-        s.toSettings(Core::ICore::settings());
+        s.disabledMessages.setValue(disabled);
+        s.disabledMessagesForNonQuickUi.setValue(disabledForNonQuickUi);
+        s.writeSettings();
+        QmllsSettingsManager::instance()->checkForChanges();
     }
 
 private:
-    void populateAnalyzerMessages(const QSet<int> &disabled, const QSet<int> &disabledForNonQuickUi)
+    void populateAnalyzerMessages(const QList<int> &disabled, const QList<int> &disabledForNonQuickUi)
     {
         using namespace QmlJS::StaticAnalysis;
         auto knownMessages = Utils::sorted(Message::allMessageTypes());
@@ -721,8 +500,8 @@ private:
         menu.addAction(reset);
         connect(reset, &QAction::triggered, this, [this](){
             analyzerMessageModel->clear();
-            populateAnalyzerMessages(Utils::toSet(defaultDisabledMessages()),
-                                     Utils::toSet(defaultDisabledMessagesNonQuickUi()));
+            populateAnalyzerMessages(defaultDisabledMessages(),
+                                     defaultDisabledMessagesNonQuickUi());
 
         });
         menu.exec(analyzerMessagesView->mapToGlobal(position));

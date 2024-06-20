@@ -383,13 +383,13 @@ void QuickToolBar::onPropertyRemovedAndChange(const QString &remove, const QStri
 
 void QuickToolBar::onPinnedChanged(bool b)
 {
-    settings().setPinContextPane(b);
+    settings().pinContextPane.setValue(b);
 }
 
 void QuickToolBar::onEnabledChanged(bool b)
 {
-    settings().setPinContextPane(b);
-    settings().setEnableContextPane(b);
+    settings().pinContextPane.setValue(b);
+    settings().enableContextPane.setValue(b);
 }
 
 void QuickToolBar::indentLines(int startLine, int endLine)

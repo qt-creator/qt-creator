@@ -13,92 +13,32 @@
 
 namespace QmlJSEditor::Internal {
 
-class QmlJsEditingSettings
+class QmlJsEditingSettings final : public Utils::AspectContainer
 {
 public:
     static const inline QVersionNumber mininumQmllsVersion = QVersionNumber(6, 8);
 
     QmlJsEditingSettings();
 
-    void toSettings(Utils::QtcSettings *) const;
-
-    bool equals(const QmlJsEditingSettings &other) const;
-
-    bool enableContextPane() const;
-    void setEnableContextPane(const bool enableContextPane);
-
-    bool pinContextPane() const;
-    void setPinContextPane(const bool pinContextPane);
-
-    bool autoFormatOnSave() const;
-    void setAutoFormatOnSave(const bool autoFormatOnSave);
-
-    bool autoFormatOnlyCurrentProject() const;
-    void setAutoFormatOnlyCurrentProject(const bool autoFormatOnlyCurrentProject);
-
-    bool foldAuxData() const;
-    void setFoldAuxData(const bool foldAuxData);
-
     QString defaultFormatCommand() const;
-    QString formatCommand() const;
-    void setFormatCommand(const QString &formatCommand);
 
-    QString formatCommandOptions() const;
-    void setFormatCommandOptions(const QString &formatCommandOptions);
-
-    bool useCustomFormatCommand() const;
-    void setUseCustomFormatCommand(bool customCommand);
-
-    const QString uiQmlOpenMode() const;
-    void setUiQmlOpenMode(const QString &mode);
-
-    bool useCustomAnalyzer() const;
-    void setUseCustomAnalyzer(bool customAnalyzer);
-
-    QSet<int> disabledMessages() const;
-    void setDisabledMessages(const QSet<int> &disabled);
-
-    QSet<int> disabledMessagesForNonQuickUi() const;
-    void setDisabledMessagesForNonQuickUi(const QSet<int> &disabled);
-
-    bool useQmlls() const;
-    void setUseQmlls(bool newUseQmlls);
-
-    bool useLatestQmlls() const;
-    void setUseLatestQmlls(bool newUseLatestQmlls);
-
-    bool ignoreMinimumQmllsVersion() const;
-    void setIgnoreMinimumQmllsVersion(bool newIgnoreMinimumQmllsVersion);
-
-    bool disableBuiltinCodemodel() const;
-    void setDisableBuiltinCodemodel(bool newDisableBuiltinCodemodel);
-
-    bool generateQmllsIniFiles() const;
-    void setGenerateQmllsIniFiles(bool newGenerateQmllsIniFiles);
-
-    friend bool operator==(const QmlJsEditingSettings &s1, const QmlJsEditingSettings &s2)
-    { return s1.equals(s2); }
-    friend bool operator!=(const QmlJsEditingSettings &s1, const QmlJsEditingSettings &s2)
-    { return !s1.equals(s2); }
-
-private:
-    bool m_enableContextPane = false;
-    bool m_pinContextPane = false;
-    bool m_autoFormatOnSave = false;
-    bool m_autoFormatOnlyCurrentProject = false;
-    bool m_foldAuxData = true;
-    bool m_useCustomFormatCommand = false;
-    bool m_useCustomAnalyzer = false;
-    bool m_useQmlls = true;
-    bool m_useLatestQmlls = false;
-    bool m_ignoreMinimumQmllsVersion = false;
-    bool m_disableBuiltinCodemodel = false;
-    bool m_generateQmllsIniFiles = false;
-    QString m_uiQmlOpenMode;
-    QString m_formatCommand;
-    QString m_formatCommandOptions;
-    QSet<int> m_disabledMessages;
-    QSet<int> m_disabledMessagesForNonQuickUi;
+    Utils::BoolAspect enableContextPane{this};
+    Utils::BoolAspect pinContextPane{this};
+    Utils::BoolAspect autoFormatOnSave{this};
+    Utils::BoolAspect autoFormatOnlyCurrentProject{this};
+    Utils::BoolAspect foldAuxData{this};
+    Utils::BoolAspect useCustomFormatCommand{this};
+    Utils::BoolAspect useCustomAnalyzer{this};
+    Utils::BoolAspect useQmlls{this};
+    Utils::BoolAspect useLatestQmlls{this};
+    Utils::BoolAspect ignoreMinimumQmllsVersion{this};
+    Utils::BoolAspect disableBuiltinCodemodel{this};
+    Utils::BoolAspect generateQmllsIniFiles{this};
+    Utils::StringAspect uiQmlOpenMode{this};
+    Utils::StringAspect formatCommand{this};
+    Utils::StringAspect formatCommandOptions{this};
+    Utils::IntegersAspect disabledMessages{this};
+    Utils::IntegersAspect disabledMessagesForNonQuickUi{this};
 };
 
 class QmllsSettingsManager : public QObject
