@@ -444,7 +444,7 @@ Column {
 
             Connections {
                 target: root
-                onAboutToBeShown: {
+                function onAboutToBeShown() {
                     colorPicker.aboutToBeShown()
                 }
             }
