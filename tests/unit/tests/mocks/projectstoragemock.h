@@ -367,8 +367,10 @@ public:
 class ProjectStorageMockWithQtQtuick : public ProjectStorageMock
 {
 public:
-    ProjectStorageMockWithQtQtuick(QmlDesigner::SourceId sourceId)
+    ProjectStorageMockWithQtQtuick(QmlDesigner::SourceId sourceId,
+                                   Utils::SmallStringView localPathModuleName)
     {
+        createModule(localPathModuleName, QmlDesigner::Storage::ModuleKind::PathLibrary);
         setupQtQuick();
         setupQtQuickImportedTypeNameIds(sourceId);
         setupCommonTypeCache();

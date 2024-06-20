@@ -184,7 +184,7 @@ public:
 
 protected:
     NiceMock<SourcePathCacheMockWithPaths> pathCacheMock{"/path/foo.qml"};
-    NiceMock<ProjectStorageMockWithQtQtuick> projectStorageMock{pathCacheMock.sourceId};
+    NiceMock<ProjectStorageMockWithQtQtuick> projectStorageMock{pathCacheMock.sourceId, "/path"};
     NiceMock<MockFunction<ModelNode(const ModelNode &)>> goIntoComponentMock;
     QmlDesigner::ModelPointer designerModel{
         QmlDesigner::Model::create(QmlDesigner::ProjectStorageDependencies{projectStorageMock,

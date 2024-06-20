@@ -41,7 +41,7 @@ protected:
     inline static std::unique_ptr<StaticData> staticData;
     Sqlite::Database &database = staticData->database;
     NiceMock<SourcePathCacheMockWithPaths> pathCacheMock{"/path/foo.qml"};
-    NiceMock<ProjectStorageMockWithQtQtuick> projectStorageMock{pathCacheMock.sourceId};
+    NiceMock<ProjectStorageMockWithQtQtuick> projectStorageMock{pathCacheMock.sourceId, "/path"};
     NiceMock<ModelResourceManagementMock> resourceManagementMock;
     QmlDesigner::Imports imports = {QmlDesigner::Import::createLibraryImport("QtQuick")};
     QmlDesigner::Model model{{projectStorageMock, pathCacheMock},
