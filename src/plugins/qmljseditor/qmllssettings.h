@@ -3,17 +3,15 @@
 
 #pragma once
 
-#include "qmljseditor_global.h"
-
 #include <utils/filepath.h>
 
 #include <QMutex>
 #include <QObject>
 #include <QVersionNumber>
 
-namespace QmlJSEditor {
+namespace QmlJSEditor::Internal {
 
-class QMLJSEDITOR_EXPORT QmllsSettingsManager : public QObject
+class QmllsSettingsManager : public QObject
 {
     Q_OBJECT
 
@@ -44,4 +42,4 @@ private:
     Utils::FilePath m_latestQmlls;
 };
 
-} // namespace QmlJSEditor
+} // QmlJSEditor::Internal

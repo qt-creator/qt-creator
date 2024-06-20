@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmllssettings.h"
-#include "qmljseditingsettingspage.h"
+#include "qmljseditorsettings.h"
 
 #include <utils/hostosinfo.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -17,7 +17,7 @@
 using namespace QtSupport;
 using namespace Utils;
 
-namespace QmlJSEditor {
+namespace QmlJSEditor::Internal {
 
 namespace {
 Q_LOGGING_CATEGORY(qmllsLog, "qtc.qmlls.settings", QtWarningMsg);
@@ -90,7 +90,7 @@ void QmllsSettingsManager::setupAutoupdate()
 
 void QmllsSettingsManager::checkForChanges()
 {
-    const QmlJsEditingSettings &newSettings = QmlJsEditingSettings::get();
+    const QmlJsEditingSettings &newSettings = settings();
     FilePath newLatest = newSettings.useLatestQmlls() && newSettings.useQmlls()
             ? evaluateLatestQmlls() : m_latestQmlls;
     if (m_useQmlls == newSettings.useQmlls()
@@ -127,4 +127,4 @@ bool QmllsSettingsManager::useQmlls() const
     return m_useQmlls;
 }
 
-} // namespace QmlJSEditor
+} // QmlJSEditor::Internal

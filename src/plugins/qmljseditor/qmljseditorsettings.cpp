@@ -1,7 +1,7 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "qmljseditingsettingspage.h"
+#include "qmljseditorsettings.h"
 #include "qmljseditorconstants.h"
 #include "qmljseditortr.h"
 
@@ -50,7 +50,13 @@ const char DEFAULT_CUSTOM_FORMAT_COMMAND[] = "%{CurrentDocument:Project:QT_HOST_
 using namespace QmlJSEditor::Internal;
 using namespace Utils;
 
-namespace QmlJSEditor {
+namespace QmlJSEditor::Internal {
+
+QmlJsEditingSettings &settings()
+{
+    static QmlJsEditingSettings settings;
+    return settings;
+}
 
 static QList<int> defaultDisabledMessages()
 {
@@ -68,18 +74,12 @@ static QList<int> defaultDisabledMessagesNonQuickUi()
     return disabledForNonQuickUi;
 }
 
-void QmlJsEditingSettings::set()
-{
-    if (get() != *this)
-        toSettings(Core::ICore::settings());
-}
-
 static QStringList intListToStringList(const QList<int> &list)
 {
     return Utils::transform(list, [](int v) { return QString::number(v); });
 }
 
-QList<int> intListFromStringList(const QStringList &list)
+static QList<int> intListFromStringList(const QStringList &list)
 {
     return Utils::transform<QList<int> >(list, [](const QString &v) { return v.toInt(); });
 }
@@ -96,8 +96,10 @@ static QStringList defaultDisabledNonQuickUiAsString()
     return result;
 }
 
-void QmlJsEditingSettings::fromSettings(QtcSettings *settings)
+QmlJsEditingSettings::QmlJsEditingSettings()
 {
+    QtcSettings *settings = Core::ICore::settings();
+
     settings->beginGroup(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
     m_enableContextPane = settings->value(QML_CONTEXTPANE_KEY, QVariant(false)).toBool();
     m_pinContextPane = settings->value(QML_CONTEXTPANEPIN_KEY, QVariant(false)).toBool();
@@ -413,7 +415,7 @@ class QmlJsEditingSettingsPageWidget final : public Core::IOptionsPageWidget
 public:
     QmlJsEditingSettingsPageWidget()
     {
-        auto s = QmlJsEditingSettings::get();
+        const QmlJsEditingSettings &s = settings();
         autoFormatOnSave = new QCheckBox(Tr::tr("Enable auto format on file save"));
         autoFormatOnSave->setChecked(s.autoFormatOnSave());
         autoFormatOnlyCurrentProject =
@@ -557,7 +559,7 @@ public:
 
     void apply() final
     {
-        QmlJsEditingSettings s;
+        QmlJsEditingSettings &s = settings();
         s.setEnableContextPane(enableContextPane->isChecked());
         s.setPinContextPane(pinContextPane->isChecked());
         s.setAutoFormatOnSave(autoFormatOnSave->isChecked());
@@ -584,7 +586,7 @@ public:
         });
         s.setDisabledMessages(disabled);
         s.setDisabledMessagesForNonQuickUi(disabledForNonQuickUi);
-        s.set();
+        s.toSettings(Core::ICore::settings());
     }
 
 private:
@@ -638,14 +640,6 @@ private:
     Utils::TreeModel<AnalyzerMessageItem> *analyzerMessageModel;
 };
 
-
-QmlJsEditingSettings QmlJsEditingSettings::get()
-{
-    QmlJsEditingSettings settings;
-    settings.fromSettings(Core::ICore::settings());
-    return settings;
-}
-
 QmlJsEditingSettingsPage::QmlJsEditingSettingsPage()
 {
     setId("C.QmlJsEditing");
@@ -654,4 +648,4 @@ QmlJsEditingSettingsPage::QmlJsEditingSettingsPage()
     setWidgetCreator([] { return new QmlJsEditingSettingsPageWidget; });
 }
 
-} // QmlJsEditor
+} // QmlJsEditor::Internal

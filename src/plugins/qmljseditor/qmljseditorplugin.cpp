@@ -3,9 +3,9 @@
 
 #include "qmljseditorplugin.h"
 
-#include "qmljseditingsettingspage.h"
 #include "qmljseditorconstants.h"
 #include "qmljseditordocument.h"
+#include "qmljseditorsettings.h"
 #include "qmljseditortr.h"
 #include "qmljsoutline.h"
 #include "qmljsquickfixassist.h"
@@ -183,13 +183,13 @@ QmlJS::JsonSchemaManager *jsonManager()
 void QmlJSEditorPluginPrivate::reformatFile()
 {
     if (m_currentDocument) {
-        if (QmlJsEditingSettings::get().useCustomFormatCommand()) {
-            QString formatCommand = QmlJsEditingSettings::get().formatCommand();
+        if (settings().useCustomFormatCommand()) {
+            QString formatCommand = settings().formatCommand();
             if (formatCommand.isEmpty())
-                formatCommand = QmlJsEditingSettings::get().defaultFormatCommand();
+                formatCommand = settings().defaultFormatCommand();
             const auto exe = FilePath::fromUserInput(globalMacroExpander()->expand(formatCommand));
             const QString args = globalMacroExpander()->expand(
-                QmlJsEditingSettings::get().formatCommandOptions());
+                settings().formatCommandOptions());
             const CommandLine commandLine(exe, args, CommandLine::Raw);
             TextEditor::Command command;
             command.setExecutable(commandLine.executable());
@@ -296,7 +296,7 @@ void QmlJSEditorPluginPrivate::checkCurrentEditorSemanticInfoUpToDate()
 
 void QmlJSEditorPluginPrivate::autoFormatOnSave(IDocument *document)
 {
-    if (!QmlJsEditingSettings::get().autoFormatOnSave())
+    if (!settings().autoFormatOnSave())
         return;
 
     // Check that we are dealing with a QML/JS editor
@@ -305,7 +305,7 @@ void QmlJSEditorPluginPrivate::autoFormatOnSave(IDocument *document)
         return;
 
     // Check if file is contained in the current project (if wished)
-    if (QmlJsEditingSettings::get().autoFormatOnlyCurrentProject()) {
+    if (settings().autoFormatOnlyCurrentProject()) {
         const Project *pro = ProjectTree::currentProject();
         if (!pro || !pro->files(Project::SourceFiles).contains(document->filePath()))
             return;

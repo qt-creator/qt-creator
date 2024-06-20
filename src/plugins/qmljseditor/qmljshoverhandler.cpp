@@ -1,21 +1,21 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "qmlexpressionundercursor.h"
-#include "qmljseditor.h"
-#include "qmljseditorconstants.h"
-#include "qmljseditordocument.h"
-#include "qmljseditortr.h"
 #include "qmljshoverhandler.h"
-#include "qmljseditingsettingspage.h"
+
+#include "qmljseditor.h"
+#include "qmljseditordocument.h"
+#include "qmljseditorsettings.h"
+#include "qmljseditortr.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/helpitem.h>
 #include <coreplugin/helpmanager.h>
-#include <utils/qtcassert.h>
+
 #include <extensionsystem/pluginmanager.h>
+
 #include <qmljs/qmljscontext.h>
 #include <qmljs/qmljsscopechain.h>
 #include <qmljs/qmljsinterpreter.h>
@@ -23,7 +23,10 @@
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsastfwd_p.h>
 #include <qmljs/qmljsutils.h>
+
 #include <texteditor/texteditor.h>
+
+#include <utils/qtcassert.h>
 #include <utils/qrcparser.h>
 #include <utils/tooltip/tooltip.h>
 
@@ -35,6 +38,7 @@
 
 using namespace Core;
 using namespace QmlJS;
+using namespace QmlJSEditor::Internal;
 using namespace TextEditor;
 
 namespace QmlJSEditor {
@@ -375,7 +379,7 @@ void QmlJSHoverHandler::reset()
 void QmlJSHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPoint &point)
 {
     // disable hoverhandling in case qmlls is enabled
-    if (QmlJsEditingSettings::get().useQmlls()) {
+    if (settings().useQmlls()) {
         BaseHoverHandler::operateTooltip(editorWidget, point);
         return;
     }

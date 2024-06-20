@@ -10,17 +10,13 @@
 #include <QPointer>
 #include <QWidget>
 
-namespace QmlJSEditor {
+namespace QmlJSEditor::Internal {
 
 class QmlJsEditingSettings
 {
 public:
-    QmlJsEditingSettings() = default;
+    QmlJsEditingSettings();
 
-    static QmlJsEditingSettings get();
-    void set();
-
-    void fromSettings(Utils::QtcSettings *);
     void toSettings(Utils::QtcSettings *) const;
 
     bool equals(const QmlJsEditingSettings &other) const;
@@ -102,7 +98,7 @@ private:
     QSet<int> m_disabledMessagesForNonQuickUi;
 };
 
-namespace Internal {
+QmlJsEditingSettings &settings();
 
 class QmlJsEditingSettingsPage : public Core::IOptionsPage
 {
@@ -110,5 +106,4 @@ public:
     QmlJsEditingSettingsPage();
 };
 
-} // namespace Internal
-} // namespace QmlDesigner
+} // QmlJSEditor::Internal
