@@ -64,6 +64,9 @@ public:
     static bool isProjectConfigurationCascading();
     static void setProjectConfigurationCascading(bool b);
 
+    static bool deployProjectDependencies();
+    static void setDeployProjectDependencies(bool deploy);
+
     static Project *startupProject();
     static Target *startupTarget();
     static BuildSystem *startupBuildSystem();

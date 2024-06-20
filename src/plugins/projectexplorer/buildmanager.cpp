@@ -55,6 +55,8 @@
 #include <QVBoxLayout>
 #include <QVariant>
 
+#include <utility>
+
 using namespace Core;
 using namespace Tasking;
 using namespace Utils;
@@ -202,20 +204,46 @@ static const QList<BuildConfiguration *> buildConfigsForSelection(const Target *
     return {};
 }
 
-static int queue(const QList<Project *> &projects, const QList<Id> &stepIds,
-                 ConfigSelection configSelection, const RunConfiguration *forRunConfig = nullptr,
-                 RunControl *starter = nullptr)
+using ProjectAndStepIds = std::pair<Project *, QList<Id>>;
+using ProjectsAndStepIds = QList<ProjectAndStepIds>;
+static ProjectsAndStepIds projectWithDependencies(
+    const Project *mainProject, const QList<Id> &mainStepIds)
+{
+    QList<Id> depStepIds = mainStepIds;
+    if (ProjectManager::deployProjectDependencies()
+        && depStepIds.contains(Constants::BUILDSTEPS_BUILD)
+        && !depStepIds.contains(Constants::BUILDSTEPS_DEPLOY)) {
+        depStepIds << Constants::BUILDSTEPS_DEPLOY;
+    }
+    ProjectsAndStepIds result
+        = Utils::transform(ProjectManager::projectOrder(mainProject), [&](Project *p) {
+              return std::make_pair(p, depStepIds);
+          });
+
+    // Shouldn't be necessary, but see the weird check at the end of
+    // ProjectManagerPrivate::dependencies().
+    if (QTC_GUARD(result.last().first == mainProject))
+        result.last().second = mainStepIds;
+
+    return result;
+}
+
+static int queue(
+    const ProjectsAndStepIds &projectsAndStepIds,
+    ConfigSelection configSelection,
+    const RunConfiguration *forRunConfig = nullptr,
+    RunControl *starter = nullptr)
 {
     if (!ProjectExplorerPlugin::saveModifiedFiles())
         return -1;
 
     const StopBeforeBuild stopBeforeBuild = projectExplorerSettings().stopBeforeBuild;
-    if (stopBeforeBuild != StopBeforeBuild::None
-            && stepIds.contains(Constants::BUILDSTEPS_BUILD)) {
+    if (stopBeforeBuild != StopBeforeBuild::None && !projectsAndStepIds.isEmpty()
+        && projectsAndStepIds.last().second.contains(Constants::BUILDSTEPS_BUILD)) {
         StopBeforeBuild stopCondition = stopBeforeBuild;
         if (stopCondition == StopBeforeBuild::SameApp && !forRunConfig)
             stopCondition = StopBeforeBuild::SameBuildDir;
-        const auto isStoppableRc = [&projects, stopCondition, configSelection, forRunConfig,
+        const auto isStoppableRc = [&projectsAndStepIds, stopCondition, configSelection, forRunConfig,
                                     starter](RunControl *rc) {
             if (rc == starter)
                 return false;
@@ -228,24 +256,27 @@ static int queue(const QList<Project *> &projects, const QList<Id> &stepIds,
             case StopBeforeBuild::All:
                 return true;
             case StopBeforeBuild::SameProject:
-                return projects.contains(rc->project());
-            case StopBeforeBuild::SameBuildDir:
-                return Utils::contains(projects, [rc, configSelection](Project *p) {
-                    const FilePath executable = rc->commandLine().executable();
-                    IDevice::ConstPtr device = DeviceManager::deviceForPath(executable);
-                    for (const Target * const t : targetsForSelection(p, configSelection)) {
-                        if (!device)
-                            device = DeviceKitAspect::device(t->kit());
-                        if (!device || device->type() != Constants::DESKTOP_DEVICE_TYPE)
-                            continue;
-                        for (const BuildConfiguration * const bc
-                             : buildConfigsForSelection(t, configSelection)) {
-                            if (executable.isChildOf(bc->buildDirectory()))
-                                return true;
-                        }
-                    }
-                    return false;
+                return Utils::contains(projectsAndStepIds, [rc](const ProjectAndStepIds &p) {
+                    return p.first == rc->project();
                 });
+            case StopBeforeBuild::SameBuildDir:
+                return Utils::contains(
+                    projectsAndStepIds, [rc, configSelection](const ProjectAndStepIds &p) {
+                        const FilePath executable = rc->commandLine().executable();
+                        IDevice::ConstPtr device = DeviceManager::deviceForPath(executable);
+                        for (const Target *const t : targetsForSelection(p.first, configSelection)) {
+                            if (!device)
+                                device = DeviceKitAspect::device(t->kit());
+                            if (!device || device->type() != Constants::DESKTOP_DEVICE_TYPE)
+                                continue;
+                            for (const BuildConfiguration *const bc :
+                                 buildConfigsForSelection(t, configSelection)) {
+                                if (executable.isChildOf(bc->buildDirectory()))
+                                    return true;
+                            }
+                        }
+                        return false;
+                    });
             case StopBeforeBuild::SameApp:
                 QTC_ASSERT(forRunConfig, return false);
                 return forRunConfig->buildTargetInfo().targetFilePath
@@ -285,22 +316,22 @@ static int queue(const QList<Project *> &projects, const QList<Id> &stepIds,
     QList<BuildStepList *> stepLists;
     QStringList preambleMessage;
 
-    for (const Project *pro : projects) {
-        if (pro && pro->needsConfiguration()) {
+    for (const ProjectAndStepIds &p : projectsAndStepIds) {
+        if (p.first && p.first->needsConfiguration()) {
             preambleMessage.append(
                         Tr::tr("The project %1 is not configured, skipping it.")
-                        .arg(pro->displayName()) + QLatin1Char('\n'));
+                        .arg(p.first->displayName()) + QLatin1Char('\n'));
         }
     }
-    for (const Project *pro : projects) {
-        for (const Target *const t : targetsForSelection(pro, configSelection)) {
+    for (const ProjectAndStepIds &p : projectsAndStepIds) {
+        for (const Target *const t : targetsForSelection(p.first, configSelection)) {
             for (const BuildConfiguration *bc : buildConfigsForSelection(t, configSelection)) {
                 const IDevice::Ptr device = std::const_pointer_cast<IDevice>(
                     BuildDeviceKitAspect::device(bc->kit()));
                 if (device && !device->prepareForBuild(t)) {
                     preambleMessage.append(
                         Tr::tr("The build device failed to prepare for the build of %1 (%2).")
-                            .arg(pro->displayName())
+                            .arg(p.first->displayName())
                             .arg(t->displayName())
                         + QLatin1Char('\n'));
                 }
@@ -308,13 +339,16 @@ static int queue(const QList<Project *> &projects, const QList<Id> &stepIds,
         }
     }
 
-    for (const Id id : stepIds) {
-        const bool isBuild = id == Constants::BUILDSTEPS_BUILD;
-        const bool isClean = id == Constants::BUILDSTEPS_CLEAN;
-        const bool isDeploy = id == Constants::BUILDSTEPS_DEPLOY;
-        for (const Project *pro : projects) {
-            if (!pro || pro->needsConfiguration())
-                continue;
+    for (const ProjectAndStepIds &p : projectsAndStepIds) {
+        const Project * const pro = p.first;
+        if (!pro || pro->needsConfiguration())
+            continue;
+
+        for (const Id id : p.second) {
+            const bool isBuild = id == Constants::BUILDSTEPS_BUILD;
+            const bool isClean = id == Constants::BUILDSTEPS_CLEAN;
+            const bool isDeploy = id == Constants::BUILDSTEPS_DEPLOY;
+
             BuildStepList *bsl = nullptr;
             for (const Target * target : targetsForSelection(pro, configSelection)) {
                 if (isBuild || isClean) {
@@ -462,54 +496,60 @@ void BuildManager::extensionsInitialized()
 
 void BuildManager::buildProjectWithoutDependencies(Project *project)
 {
-    queue({project}, {Id(Constants::BUILDSTEPS_BUILD)}, ConfigSelection::Active);
+    queue({std::make_pair(project, QList<Id>{Constants::BUILDSTEPS_BUILD})}, ConfigSelection::Active);
 }
 
 void BuildManager::cleanProjectWithoutDependencies(Project *project)
 {
-    queue({project}, {Id(Constants::BUILDSTEPS_CLEAN)}, ConfigSelection::Active);
+    queue({std::make_pair(project, QList<Id>{Constants::BUILDSTEPS_CLEAN})}, ConfigSelection::Active);
 }
 
 void BuildManager::rebuildProjectWithoutDependencies(Project *project)
 {
-    queue({project}, {Id(Constants::BUILDSTEPS_CLEAN), Id(Constants::BUILDSTEPS_BUILD)},
+    queue({std::make_pair(project, QList<Id>{Constants::BUILDSTEPS_CLEAN, Constants::BUILDSTEPS_BUILD})},
           ConfigSelection::Active);
 }
 
 void BuildManager::buildProjectWithDependencies(Project *project, ConfigSelection configSelection,
                                                 RunControl *starter)
 {
-    queue(ProjectManager::projectOrder(project), {Id(Constants::BUILDSTEPS_BUILD)},
+    queue(projectWithDependencies(project, {Id(Constants::BUILDSTEPS_BUILD)}),
           configSelection, nullptr, starter);
 }
 
 void BuildManager::cleanProjectWithDependencies(Project *project, ConfigSelection configSelection)
 {
-    queue(ProjectManager::projectOrder(project), {Id(Constants::BUILDSTEPS_CLEAN)},
-          configSelection);
+    queue(projectWithDependencies(project, {Id(Constants::BUILDSTEPS_CLEAN)}), configSelection);
 }
 
 void BuildManager::rebuildProjectWithDependencies(Project *project, ConfigSelection configSelection)
 {
-    queue(ProjectManager::projectOrder(project),
-          {Id(Constants::BUILDSTEPS_CLEAN), Id(Constants::BUILDSTEPS_BUILD)},
-          configSelection);
+    queue(
+        projectWithDependencies(
+            project, QList<Id>{Constants::BUILDSTEPS_CLEAN, Constants::BUILDSTEPS_BUILD}),
+        configSelection);
+}
+
+static ProjectsAndStepIds projectsWithStepIds(
+    const QList<Project *> &projects, const QList<Id> &stepIds)
+{
+    return Utils::transform(projects, [&](Project *p) { return std::make_pair(p, stepIds); });
 }
 
 void BuildManager::buildProjects(const QList<Project *> &projects, ConfigSelection configSelection)
 {
-    queue(projects, {Id(Constants::BUILDSTEPS_BUILD)}, configSelection);
+    queue(projectsWithStepIds(projects, {Constants::BUILDSTEPS_BUILD}), configSelection);
 }
 
 void BuildManager::cleanProjects(const QList<Project *> &projects, ConfigSelection configSelection)
 {
-    queue(projects, {Id(Constants::BUILDSTEPS_CLEAN)}, configSelection);
+    queue(projectsWithStepIds(projects, {Constants::BUILDSTEPS_CLEAN}), configSelection);
 }
 
 void BuildManager::rebuildProjects(const QList<Project *> &projects,
                                    ConfigSelection configSelection)
 {
-    queue(projects, {Id(Constants::BUILDSTEPS_CLEAN), Id(Constants::BUILDSTEPS_BUILD)},
+    queue(projectsWithStepIds(projects, {Constants::BUILDSTEPS_CLEAN, Constants::BUILDSTEPS_BUILD}),
           configSelection);
 }
 
@@ -519,7 +559,7 @@ void BuildManager::deployProjects(const QList<Project *> &projects)
     if (projectExplorerSettings().buildBeforeDeploy != BuildBeforeRunMode::Off)
         steps << Id(Constants::BUILDSTEPS_BUILD);
     steps << Id(Constants::BUILDSTEPS_DEPLOY);
-    queue(projects, steps, ConfigSelection::Active);
+    queue(projectsWithStepIds(projects, steps), ConfigSelection::Active);
 }
 
 BuildForRunConfigStatus BuildManager::potentiallyBuildForRunConfig(RunConfiguration *rc)
@@ -544,7 +584,7 @@ BuildForRunConfigStatus BuildManager::potentiallyBuildForRunConfig(RunConfigurat
     }
 
     Project * const pro = rc->target()->project();
-    const int queueCount = queue(ProjectManager::projectOrder(pro), stepIds,
+    const int queueCount = queue(projectWithDependencies(pro, stepIds),
                                  ConfigSelection::Active, rc);
     if (rc->target()->activeBuildConfiguration())
         rc->target()->activeBuildConfiguration()->restrictNextBuild(nullptr);

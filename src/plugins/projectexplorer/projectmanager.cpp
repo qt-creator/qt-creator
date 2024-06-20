@@ -69,6 +69,7 @@ public:
     bool hasProjects() const { return !m_projects.isEmpty(); }
 
     bool m_casadeSetActive = false;
+    bool m_deployProjectDependencies = false;
 
     Project *m_startupProject = nullptr;
     QList<Project *> m_projects;
@@ -227,6 +228,17 @@ void ProjectManager::setProjectConfigurationCascading(bool b)
     SessionManager::markSessionFileDirty();
 }
 
+bool ProjectManager::deployProjectDependencies()
+{
+    return d->m_deployProjectDependencies;
+}
+
+void ProjectManager::setDeployProjectDependencies(bool deploy)
+{
+    d->m_deployProjectDependencies = deploy;
+    SessionManager::markSessionFileDirty();
+}
+
 void ProjectManager::setStartupProject(Project *startupProject)
 {
     QTC_ASSERT((!startupProject && d->m_projects.isEmpty())
@@ -337,6 +349,7 @@ void ProjectManagerPrivate::saveSession()
                                     Utils::transform<QStringList>(projectFiles,
                                                                   &FilePath::toString));
     SessionManager::setSessionValue("CascadeSetActive", m_casadeSetActive);
+    SessionManager::setSessionValue("DeployProjectDependencies", m_deployProjectDependencies);
 
     QVariantMap depMap;
     auto i = m_depMap.constBegin();
@@ -667,6 +680,7 @@ void ProjectManagerPrivate::loadSession()
     d->m_failedProjects.clear();
     d->m_depMap.clear();
     d->m_casadeSetActive = false;
+    d->m_deployProjectDependencies = false;
 
     // not ideal that this is in ProjectManager
     Id modeId = Id::fromSetting(SessionManager::value("ActiveMode"));
@@ -705,6 +719,8 @@ void ProjectManagerPrivate::loadSession()
     ModeManager::setFocusToCurrentMode();
 
     d->m_casadeSetActive = SessionManager::sessionValue("CascadeSetActive", false).toBool();
+    d->m_deployProjectDependencies
+        = SessionManager::sessionValue("DeployProjectDependencies", false).toBool();
 
     // Starts a event loop, better do that at the very end
     QMetaObject::invokeMethod(m_instance, [this] { askUserAboutFailedProjects(); });
