@@ -32,7 +32,7 @@ const QLatin1StringView WORKSPACE_PROJECT_RUNCONFIG_ID{"WorkspaceProject.RunConf
 const QLatin1StringView PROJECT_NAME_KEY{"project.name"};
 const QLatin1StringView FILES_EXCLUDE_KEY{"files.exclude"};
 const QLatin1StringView EXCLUDE_ACTION_ID{"ProjectExplorer.ExcludeFromWorkspace"};
-
+const QLatin1StringView RESCAN_ACTION_ID{"ProjectExplorer.RescanWorkspace"};
 
 using namespace Utils;
 using namespace Core;
@@ -308,28 +308,60 @@ void setupWorkspaceProject(QObject *guard)
     ProjectManager::registerProjectType<WorkspaceProject>(FOLDER_MIMETYPE);
     ProjectManager::registerProjectType<WorkspaceProject>(WORKSPACE_MIMETYPE);
 
+    QAction *excludeAction = nullptr;
+    ActionBuilder(guard, Id::fromString(EXCLUDE_ACTION_ID))
+        .setContext(Id::fromString(WORKSPACE_PROJECT_ID))
+        .setText(Tr::tr("Exclude from Project"))
+        .addToContainer(Constants::M_FOLDERCONTEXT, Constants::G_FOLDER_OTHER)
+        .addToContainer(Constants::M_FILECONTEXT, Constants::G_FILE_OTHER)
+        .bindContextAction(&excludeAction)
+        .setCommandAttribute(Command::CA_Hide)
+        .addOnTriggered(guard, [] {
+            Node *node = ProjectTree::currentNode();
+            QTC_ASSERT(node, return);
+            const auto project = qobject_cast<WorkspaceProject *>(node->getProject());
+            QTC_ASSERT(project, return);
+            project->excludeNode(node);
+        });
+
+    QAction *rescanAction = nullptr;
+    ActionBuilder(guard, Id::fromString(RESCAN_ACTION_ID))
+        .setContext(Id::fromString(WORKSPACE_PROJECT_ID))
+        .setText(Tr::tr("Rescan Workspace"))
+        .addToContainer(Constants::M_PROJECTCONTEXT, Constants::G_PROJECT_REBUILD)
+        .bindContextAction(&rescanAction)
+        .setCommandAttribute(Command::CA_Hide)
+        .addOnTriggered(guard, [] {
+            Node *node = ProjectTree::currentNode();
+            QTC_ASSERT(node, return);
+            const auto project = qobject_cast<WorkspaceProject *>(node->getProject());
+            QTC_ASSERT(project, return);
+            if (auto target = project->activeTarget()) {
+                if (target->buildSystem())
+                    target->buildSystem()->triggerParsing();
+            }
+        });
+
     QObject::connect(
         ProjectTree::instance(),
         &ProjectTree::aboutToShowContextMenu,
         ProjectExplorerPlugin::instance(),
-        [](Node *node) {
-            const bool enabled = node && node->isEnabled()
-                                 && qobject_cast<WorkspaceProject *>(node->getProject());
-            ActionManager::command(Id::fromString(EXCLUDE_ACTION_ID))->action()->setEnabled(enabled);
+        [excludeAction, rescanAction](Node *node) {
+            const bool visible = node && qobject_cast<WorkspaceProject *>(node->getProject());
+            excludeAction->setVisible(visible);
+            rescanAction->setVisible(visible);
+            if (visible) {
+                excludeAction->setEnabled(node->isEnabled());
+                bool enableRescan = false;
+                if (Project *project = node->getProject()) {
+                    if (Target *target = project->activeTarget()) {
+                        if (BuildSystem *buildSystem = target->buildSystem())
+                            enableRescan = !buildSystem->isParsing();
+                    }
+                }
+                rescanAction->setEnabled(enableRescan);
+            }
         });
-
-    ActionBuilder excludeAction(guard, Id::fromString(EXCLUDE_ACTION_ID));
-    excludeAction.setContext(Id::fromString(WORKSPACE_PROJECT_ID));
-    excludeAction.setText(Tr::tr("Exclude from Project"));
-    excludeAction.addToContainer(Constants::M_FOLDERCONTEXT, Constants::G_FOLDER_OTHER);
-    excludeAction.addToContainer(Constants::M_FILECONTEXT, Constants::G_FILE_OTHER);
-    excludeAction.addOnTriggered([] {
-        Node *node = ProjectTree::currentNode();
-        QTC_ASSERT(node, return);
-        const auto project = qobject_cast<WorkspaceProject *>(node->getProject());
-        QTC_ASSERT(project, return);
-        project->excludeNode(node);
-    });
 
     static WorkspaceProjectRunConfigurationFactory theRunConfigurationFactory;
     static WorkspaceProjectRunWorkerFactory theRunWorkerFactory;
