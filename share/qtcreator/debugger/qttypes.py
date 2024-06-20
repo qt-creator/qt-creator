@@ -569,7 +569,7 @@ def qdump__QDir(d, value):
                 with SubItem(d, 'absolutePath'):
                     d.putItem(d.createValue(privAddress + absoluteDirEntryOffset, '@QString'))
                 with SubItem(d, 'entryInfoList'):
-                    qdumpHelper_QList(d, privAddress + fileInfosOffset, '@QFileInfo')
+                    qdumpHelper_QList(d, d.createValue(privAddress + fileInfosOffset, '@QList<@QFileInfo>'), '@QFileInfo')
                 with SubItem(d, 'entryList'):
                     d.putItem(d.createValue(privAddress + filesOffset, '@QStringList'))
             d.putFields(value)
