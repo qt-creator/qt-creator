@@ -55,6 +55,16 @@ public:
 
 using FilePaths = QList<class FilePath>;
 
+class QTCREATOR_UTILS_EXPORT FilePathWatcher : public QObject
+{
+    Q_OBJECT
+public:
+    using QObject::QObject;
+
+signals:
+    void pathChanged(const Utils::FilePath &path);
+};
+
 class QTCREATOR_UTILS_EXPORT FilePath
 {
 public:
@@ -269,6 +279,8 @@ public:
     QString toString() const;
 
     bool equalsCaseSensitive(const FilePath &other) const;
+
+    Utils::expected_str<std::unique_ptr<FilePathWatcher>> watch() const;
 
 private:
     // These are needed.
