@@ -3,18 +3,21 @@
 
 #pragma once
 
-#include "qmllssettings.h"
-
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QPointer>
-#include <QWidget>
+#include <utils/filepath.h>
+
+#include <QMutex>
+#include <QObject>
+#include <QVersionNumber>
 
 namespace QmlJSEditor::Internal {
 
 class QmlJsEditingSettings
 {
 public:
+    static const inline QVersionNumber mininumQmllsVersion = QVersionNumber(6, 8);
+
     QmlJsEditingSettings();
 
     void toSettings(Utils::QtcSettings *) const;
@@ -96,6 +99,33 @@ private:
     QString m_formatCommandOptions;
     QSet<int> m_disabledMessages;
     QSet<int> m_disabledMessagesForNonQuickUi;
+};
+
+class QmllsSettingsManager : public QObject
+{
+    Q_OBJECT
+
+public:
+    static QmllsSettingsManager *instance();
+
+    Utils::FilePath latestQmlls();
+    void setupAutoupdate();
+
+    bool useQmlls() const;
+    bool useLatestQmlls() const;
+
+public slots:
+    void checkForChanges();
+signals:
+    void settingsChanged();
+
+private:
+    QMutex m_mutex;
+    bool m_useQmlls = true;
+    bool m_useLatestQmlls = false;
+    bool m_disableBuiltinCodemodel = false;
+    bool m_generateQmllsIniFiles = false;
+    Utils::FilePath m_latestQmlls;
 };
 
 QmlJsEditingSettings &settings();

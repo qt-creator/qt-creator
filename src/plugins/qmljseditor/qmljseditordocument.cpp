@@ -6,13 +6,13 @@
 #include "qmljseditordocument_p.h"
 #include "qmljseditorplugin.h"
 #include "qmljseditortr.h"
+#include "qmljseditorsettings.h"
 #include "qmljshighlighter.h"
 #include "qmljsquickfixassist.h"
 #include "qmljssemantichighlighter.h"
 #include "qmljssemanticinfoupdater.h"
 #include "qmljstextmark.h"
 #include "qmllsclient.h"
-#include "qmllssettings.h"
 #include "qmloutlinemodel.h"
 
 #include <coreplugin/coreconstants.h>
@@ -477,10 +477,8 @@ QmlJSEditorDocumentPrivate::QmlJSEditorDocumentPrivate(QmlJSEditorDocument *pare
             this, &QmlJSEditorDocumentPrivate::reparseDocument);
     connect(modelManager, &ModelManagerInterface::documentUpdated,
             this, &QmlJSEditorDocumentPrivate::onDocumentUpdated);
-    connect(QmllsSettingsManager::instance(),
-            &QmllsSettingsManager::settingsChanged,
-            this,
-            &Internal::QmlJSEditorDocumentPrivate::settingsChanged);
+    connect(QmllsSettingsManager::instance(), &QmllsSettingsManager::settingsChanged,
+            this, &QmlJSEditorDocumentPrivate::settingsChanged);
 
     // semantic info
     m_semanticInfoUpdater = new SemanticInfoUpdater();
@@ -746,9 +744,9 @@ static Utils::FilePath qmllsForFile(const Utils::FilePath &file,
         return settingsManager->latestQmlls();
     QmlJS::ModelManagerInterface::ProjectInfo pInfo = modelManager->projectInfoForPath(file);
 
-    if (!settingsManager->ignoreMinimumQmllsVersion()
+    if (!settings().ignoreMinimumQmllsVersion()
         && QVersionNumber::fromString(pInfo.qtVersionString)
-               < QmllsSettingsManager::mininumQmllsVersion) {
+               < QmlJsEditingSettings::mininumQmllsVersion) {
         return {};
     }
     return pInfo.qmllsPath;
