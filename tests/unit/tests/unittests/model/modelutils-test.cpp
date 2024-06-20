@@ -159,4 +159,85 @@ TEST_F(ModelUtils, lowest_common_ancestor_for_uncle_and_nephew_should_return_the
     ASSERT_THAT(commonAncestor, grandFatherNode);
 }
 
+TEST_F(ModelUtils, isValidQmlIdentifier_fails_on_empty_values)
+{
+    QStringView emptyValue = u"";
+
+    bool result = QmlDesigner::ModelUtils::isValidQmlIdentifier(emptyValue);
+
+    ASSERT_FALSE(result);
+}
+
+TEST_F(ModelUtils, isValidQmlIdentifier_fails_on_upper_case_first_letter)
+{
+    QStringView id = u"Lmn";
+
+    bool result = QmlDesigner::ModelUtils::isValidQmlIdentifier(id);
+
+    ASSERT_FALSE(result);
+}
+
+TEST_F(ModelUtils, isValidQmlIdentifier_fails_on_digital_first_letter)
+{
+    QStringView id = u"6mn";
+
+    bool result = QmlDesigner::ModelUtils::isValidQmlIdentifier(id);
+
+    ASSERT_FALSE(result);
+}
+
+TEST_F(ModelUtils, isValidQmlIdentifier_fails_on_unicodes)
+{
+    QStringView id = u"sähköverkko";
+
+    bool result = QmlDesigner::ModelUtils::isValidQmlIdentifier(id);
+
+    ASSERT_FALSE(result);
+}
+
+TEST_F(ModelUtils, isValidQmlIdentifier_passes_on_lower_case_first_letter)
+{
+    QStringView id = u"mn";
+
+    bool result = QmlDesigner::ModelUtils::isValidQmlIdentifier(id);
+
+    ASSERT_TRUE(result);
+}
+
+TEST_F(ModelUtils, isValidQmlIdentifier_passes_on_underscored_first_letter)
+{
+    QStringView id = u"_m";
+
+    bool result = QmlDesigner::ModelUtils::isValidQmlIdentifier(id);
+
+    ASSERT_TRUE(result);
+}
+
+TEST_F(ModelUtils, isValidQmlIdentifier_passes_on_digital_non_first_letter)
+{
+    QStringView id = u"_6";
+
+    bool result = QmlDesigner::ModelUtils::isValidQmlIdentifier(id);
+
+    ASSERT_TRUE(result);
+}
+
+TEST_F(ModelUtils, isValidQmlIdentifier_passes_on_upper_case_non_first_letter)
+{
+    QStringView id = u"mN";
+
+    bool result = QmlDesigner::ModelUtils::isValidQmlIdentifier(id);
+
+    ASSERT_TRUE(result);
+}
+
+TEST_F(ModelUtils, isValidQmlIdentifier_passes_on_underscore_only)
+{
+    QStringView id = u"_";
+
+    bool result = QmlDesigner::ModelUtils::isValidQmlIdentifier(id);
+
+    ASSERT_TRUE(result);
+}
+
 } // namespace

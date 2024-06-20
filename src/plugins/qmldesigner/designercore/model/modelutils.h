@@ -46,6 +46,12 @@ QMLDESIGNERCORE_EXPORT QList<ModelNode> allModelNodesWithId(AbstractView *view);
 QMLDESIGNERCORE_EXPORT bool isThisOrAncestorLocked(const ModelNode &node);
 QMLDESIGNERCORE_EXPORT ModelNode lowestCommonAncestor(Utils::span<const ModelNode> nodes);
 
+QMLDESIGNERCORE_EXPORT bool isQmlKeyword(QStringView id);
+QMLDESIGNERCORE_EXPORT bool isDiscouragedQmlId(QStringView id);
+QMLDESIGNERCORE_EXPORT bool isQmlBuiltinType(QStringView id);
+QMLDESIGNERCORE_EXPORT bool isBannedQmlId(QStringView id);
+QMLDESIGNERCORE_EXPORT bool isValidQmlIdentifier(QStringView id);
+
 constexpr std::u16string_view toStdStringView(QStringView view)
 {
     return {view.utf16(), Utils::usize(view)};

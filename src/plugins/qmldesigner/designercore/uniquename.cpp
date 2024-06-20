@@ -3,6 +3,8 @@
 
 #include "uniquename.h"
 
+#include <model/modelutils.h>
+
 #include <utils/span.h>
 
 #include <QFileInfo>
@@ -11,30 +13,6 @@
 namespace QmlDesigner::UniqueName {
 
 using namespace Qt::Literals;
-
-constexpr QLatin1StringView keywords[] {
-    "anchors"_L1,        "as"_L1,         "baseState"_L1,
-    "border"_L1,         "bottom"_L1,     "break"_L1,
-    "case"_L1,           "catch"_L1,      "clip"_L1,
-    "color"_L1,          "continue"_L1,   "data"_L1,
-    "debugger"_L1,       "default"_L1,    "delete"_L1,
-    "do"_L1,             "else"_L1,       "enabled"_L1,
-    "finally"_L1,        "flow"_L1,       "focus"_L1,
-    "font"_L1,           "for"_L1,        "function"_L1,
-    "height"_L1,         "if"_L1,         "import"_L1,
-    "in"_L1,             "instanceof"_L1, "item"_L1,
-    "layer"_L1,          "left"_L1,       "margin"_L1,
-    "new"_L1,            "opacity"_L1,    "padding"_L1,
-    "parent"_L1,         "print"_L1,      "rect"_L1,
-    "return"_L1,         "right"_L1,      "scale"_L1,
-    "shaderInfo"_L1,     "source"_L1,     "sprite"_L1,
-    "spriteSequence"_L1, "state"_L1,      "switch"_L1,
-    "text"_L1,           "this"_L1,       "throw"_L1,
-    "top"_L1,            "try"_L1,        "typeof"_L1,
-    "var"_L1,            "visible"_L1,    "void"_L1,
-    "while"_L1,          "with"_L1,       "x"_L1,
-    "y"_L1
-};
 
 namespace {
 
@@ -156,7 +134,7 @@ QString generateId(const QString &id, std::function<bool(const QString &)> predi
     newId = toCamelCase(newId);
 
     // prepend _ if starts with a digit or invalid id (such as reserved words)
-    if (newId.at(0).isDigit() || std::binary_search(std::begin(keywords), std::end(keywords), newId))
+    if (newId.at(0).isDigit() || ModelUtils::isBannedQmlId(newId))
         newId.prepend('_');
 
     if (!predicate)

@@ -93,42 +93,10 @@ QString ModelNode::validId() const
     return id();
 }
 
-namespace {
-bool isQmlKeyWord(QStringView id)
-{
-    static constexpr auto keywords = Utils::to_array<std::u16string_view>(
-        {u"as",       u"break",  u"case",   u"catch", u"continue",   u"debugger",
-         u"default",  u"delete", u"do",     u"else",  u"finally",    u"for",
-         u"function", u"if",     u"import", u"in",    u"instanceof", u"new",
-         u"print",    u"return", u"switch", u"this",  u"throw",      u"try",
-         u"typeof",   u"var",    u"void",   u"while", u"with"});
-
-    return std::binary_search(keywords.begin(), keywords.end(), ModelUtils::toStdStringView(id));
-}
-
-bool isIdToAvoid(QStringView id)
-{
-    static constexpr auto token = Utils::to_array<std::u16string_view>(
-        {u"anchors", u"baseState",      u"border", u"bottom", u"clip",       u"color",
-         u"data",    u"enabled",        u"flow",   u"focus",  u"font",       u"height",
-         u"item",    u"layer",          u"left",   u"margin", u"opacity",    u"padding",
-         u"parent",  u"rect",           u"right",  u"scale",  u"shaderInfo", u"source",
-         u"sprite",  u"spriteSequence", u"state",  u"text",   u"texture",    u"top",
-         u"visible", u"width",          u"x",      u"y"});
-
-    return std::binary_search(token.begin(), token.end(), ModelUtils::toStdStringView(id));
-}
-
-bool idContainsWrongLetter(const QString &id)
-{
-    static QRegularExpression idExpr(QStringLiteral("^[a-z_][a-zA-Z0-9_]*$"));
-    return !id.contains(idExpr);
-}
-
-} // namespace
 bool ModelNode::isValidId(const QString &id)
 {
-    return id.isEmpty() || (!idContainsWrongLetter(id) && !isQmlKeyWord(id) && !isIdToAvoid(id));
+    using namespace ModelUtils;
+    return isValidQmlIdentifier(id) && !isBannedQmlId(id);
 }
 
 QString ModelNode::getIdValidityErrorMessage(const QString &id)
@@ -145,10 +113,13 @@ QString ModelNode::getIdValidityErrorMessage(const QString &id)
     if (id.contains(' '))
         return QObject::tr("ID cannot include whitespace (%1).").arg(id);
 
-    if (isQmlKeyWord(id))
+    if (ModelUtils::isQmlKeyword(id))
         return QObject::tr("%1 is a reserved QML keyword.").arg(id);
 
-    if (isIdToAvoid(id))
+    if (ModelUtils::isQmlBuiltinType(id))
+        return QObject::tr("%1 is a reserved Qml type.").arg(id);
+
+    if (ModelUtils::isDiscouragedQmlId(id))
         return QObject::tr("%1 is a reserved property keyword.").arg(id);
 
     return QObject::tr("ID includes invalid characters (%1).").arg(id);
