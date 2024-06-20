@@ -44,6 +44,8 @@ public:
     static void recheckDockerDaemon();
     QFuture<Utils::expected_str<QList<Network>>> networks();
 
+    bool isContainerRunning(const QString &containerId);
+
 signals:
     void dockerDaemonAvailableChanged();
 
