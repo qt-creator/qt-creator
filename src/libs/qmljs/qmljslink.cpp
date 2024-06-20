@@ -512,6 +512,16 @@ bool LinkPrivate::importLibrary(const Document::Ptr &doc,
     // commands in qmldir files, and is pending removal in Qt 6.
     for (const auto &toImport : libraryInfo.imports()) {
         QString importName = toImport.module;
+
+        // These implicit imports do not work reliable, since each type
+        // is only added to one import/module. If a type is added here,
+        // it is not added to the actual module, because of caching.
+        //
+        // In case of QtQuick3D.MaterialEditor this leads to a reproducible issue.
+        // As a workaround we simply skip all implicit imports for QtQuick3D.
+        if (importName == "QtQuick3D")
+            continue;
+
         ComponentVersion vNow = toImport.version;
         /* There was a period in which no version == auto
          * Required for QtQuick imports less than 2.15
