@@ -1976,6 +1976,48 @@
       </g>
     </g>
     <g
+       id="src/plugins/lua/wizards/plugin/icon">
+      <use
+         transform="translate(360,60)"
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_60_60"
+         id="use2673"
+         width="100%"
+         height="100%" />
+      <use
+         style="display:inline"
+         x="0"
+         y="0"
+         xlink:href="#wizardicons_puzzlepiece"
+         id="use2675"
+         width="100%"
+         height="100%"
+         transform="translate(60,60)" />
+      <g
+         id="g9737">
+        <circle
+           style="fill:#999999;stroke:#000000"
+           id="path9543-7"
+           cx="393.5"
+           cy="232.5"
+           r="5" />
+        <circle
+           style="fill:#999999;stroke:#000000"
+           id="path6651"
+           cx="377.5"
+           cy="248.5"
+           r="15" />
+        <circle
+           style="fill:#ffffff"
+           id="path9543"
+           cx="383"
+           cy="243"
+           r="5" />
+      </g>
+    </g>
+    <g
        id="share/qtcreator/templates/wizards/projects/vcs/mercurial/icon">
       <use
          transform="translate(420)"

@@ -8,7 +8,8 @@
     "trDescription": "Creates a custom Qt Creator Lua plugin.",
     "trDisplayName": "Qt Creator Lua Plugin",
     "trDisplayCategory": "Library",
-    "iconText": "LuaP",
+    "icon": "icon.png",
+    "iconKind": "Themed",
     "featuresRequired": [],
     "options": [
         {
