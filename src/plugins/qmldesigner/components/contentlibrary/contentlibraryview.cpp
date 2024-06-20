@@ -795,20 +795,35 @@ QString ContentLibraryView::nodeNameToComponentFileName(const QString &name) con
 void ContentLibraryView::addLibItem(const ModelNode &node, const QPixmap &iconPixmap)
 {
     auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-    auto bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/3d/");
-    QString bundleId = compUtils.user3DBundleId();
+
+    m_bundleId.clear();
+    Utils::FilePath bundlePath;
+
+    if (node.metaInfo().isQtQuick3DMaterial()) {
+        bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/materials/");
+        m_bundleId = compUtils.userMaterialsBundleId();
+    } else if (node.metaInfo().isQtQuick3DEffect()) {
+        bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/effects/");
+        m_bundleId = compUtils.userEffectsBundleId();
+    } else if (node.metaInfo().isQtQuick3DNode()) {
+        bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/3d/");
+        m_bundleId = compUtils.user3DBundleId();
+    } else {
+        qWarning() << __FUNCTION__ << "Unsuppported node type";
+        return;
+    }
 
     QString name = node.variantProperty("objectName").value().toString();
     if (name.isEmpty())
         name = node.displayName();
 
-    QJsonObject &jsonRef = m_widget->userModel()->bundleObjectRef(bundleId);
+    QJsonObject &jsonRef = m_widget->userModel()->bundleObjectRef(m_bundleId);
     QJsonArray itemsArr = jsonRef.value("items").toArray();
 
     QString qml = nodeNameToComponentFileName(name);
 
     // confirm overwrite if an item with same name exists
-    if (m_widget->userModel()->jsonPropertyExists("qml", qml, bundleId)) {
+    if (m_widget->userModel()->jsonPropertyExists("qml", qml, m_bundleId)) {
         QMessageBox::StandardButton reply = QMessageBox::question(m_widget, tr("Component Exists"),
                                               tr("A component with the same name '%1' already "
                                                  "exists in the Content Library, are you sure "
@@ -818,7 +833,7 @@ void ContentLibraryView::addLibItem(const ModelNode &node, const QPixmap &iconPi
             return;
 
         // before overwriting remove old item (to avoid partial items and dangling assets)
-        m_widget->userModel()->removeItemByName(qml, bundleId);
+        m_widget->userModel()->removeItemByName(qml, m_bundleId);
     }
 
     // generate and save Qml file
@@ -832,7 +847,7 @@ void ContentLibraryView::addLibItem(const ModelNode &node, const QPixmap &iconPi
     QString iconPathTemplate = QLatin1String("icons/%1.png");
     QString iconBaseName = UniqueName::generateId(name, [&] (const QString &currName) {
         return m_widget->userModel()->jsonPropertyExists("icon", iconPathTemplate.arg(currName),
-                                                         bundleId);
+                                                         m_bundleId);
     });
 
     QString iconPath = iconPathTemplate.arg(iconBaseName);
@@ -865,13 +880,13 @@ void ContentLibraryView::addLibItem(const ModelNode &node, const QPixmap &iconPi
     m_iconSavePath = bundlePath.pathAppended(iconPath);
     m_iconSavePath.parentDir().ensureWritableDir();
 
-    m_widget->userModel()->addItem(bundleId, name, qml, m_iconSavePath.toUrl(), depAssetsList);
+    m_widget->userModel()->addItem(m_bundleId, name, qml, m_iconSavePath.toUrl(), depAssetsList);
 
     // generate and save icon
     auto saveIcon = [&] (const auto &image) { // auto: QImage or QPixmap
         bool iconSaved = image.save(m_iconSavePath.toFSPathString());
         if (iconSaved) {
-            m_widget->userModel()->refreshSection(compUtils.user3DBundleId());
+            m_widget->userModel()->refreshSection(m_bundleId);
         } else {
             qWarning() << "ContentLibraryView::addLibItem(): icon save failed";
         }

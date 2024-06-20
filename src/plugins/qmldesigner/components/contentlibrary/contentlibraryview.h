@@ -101,6 +101,7 @@ private:
     CreateTexture m_createTexture;
     Utils::FilePath m_iconSavePath;
     QString m_generatedFolderName;
+    QString m_bundleId;
     std::unique_ptr<ZipWriter> m_zipWriter;
     std::unique_ptr<QTemporaryDir> m_tempDir;
 
