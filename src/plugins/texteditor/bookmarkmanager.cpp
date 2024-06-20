@@ -218,7 +218,6 @@ BookmarkView::BookmarkView()
     setDragEnabled(true);
     setDragDropMode(QAbstractItemView::DragDrop);
 
-    connect(this, &QAbstractItemView::doubleClicked, this, &BookmarkView::gotoBookmark);
     connect(this, &QAbstractItemView::activated, this, &BookmarkView::gotoBookmark);
 }
 
