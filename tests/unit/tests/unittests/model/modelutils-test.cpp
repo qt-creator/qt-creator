@@ -20,7 +20,7 @@ class ModelUtils : public ::testing::Test
 protected:
     NiceMock<SourcePathCacheMockWithPaths> pathCacheMock{"/path/model.qml"};
     QmlDesigner::SourceId sourceId = pathCacheMock.createSourceId("/path/foo.qml");
-    NiceMock<ProjectStorageMockWithQtQtuick> projectStorageMock{pathCacheMock.sourceId, "/path"};
+    NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCacheMock.sourceId, "/path"};
     QmlDesigner::ModuleId moduleId = projectStorageMock.moduleId("QtQuick", ModuleKind::QmlLibrary);
     QmlDesigner::Model model{{projectStorageMock, pathCacheMock},
                              "Item",

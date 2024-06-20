@@ -364,10 +364,10 @@ public:
         exportedTypeNameBySourceId;
 };
 
-class ProjectStorageMockWithQtQtuick : public ProjectStorageMock
+class ProjectStorageMockWithQtQuick : public ProjectStorageMock
 {
 public:
-    ProjectStorageMockWithQtQtuick(QmlDesigner::SourceId sourceId,
+    ProjectStorageMockWithQtQuick(QmlDesigner::SourceId sourceId,
                                    Utils::SmallStringView localPathModuleName)
     {
         createModule(localPathModuleName, QmlDesigner::Storage::ModuleKind::PathLibrary);
