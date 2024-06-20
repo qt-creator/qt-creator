@@ -135,13 +135,55 @@ struct FileState
     FileStateItem expected;
 };
 
+class FileWatchers : public QObject
+{
+    Q_OBJECT
+public:
+    FilePaths files() const { return watchers.keys(); }
+
+    bool addPath(const FilePath &path)
+    {
+        if (watchers.contains(path))
+            return false;
+
+        auto res = path.watch();
+        QTC_ASSERT_EXPECTED(res, return false;);
+
+        connect(res->get(), &FilePathWatcher::pathChanged, this, [this, path] {
+            emit fileChanged(path);
+        });
+        watchers.insert(path, std::move(*res));
+        return true;
+    }
+
+    void addPaths(const FilePaths &paths)
+    {
+        for (const FilePath &path : paths)
+            addPath(path);
+    }
+
+    bool removePath(const FilePath &path)
+    {
+        if (!watchers.contains(path))
+            return false;
+
+        watchers.remove(path);
+        return true;
+    }
+
+signals:
+    void fileChanged(const FilePath &filePath);
+
+protected:
+    QMap<FilePath, std::shared_ptr<FilePathWatcher>> watchers;
+};
+
 class DocumentManagerPrivate final : public QObject
 {
 public:
     DocumentManagerPrivate();
 
-    QFileSystemWatcher *fileWatcher();
-    QFileSystemWatcher *linkWatcher();
+    FileWatchers *fileWatcher();
 
     void checkOnNextFocusChange();
     void onApplicationFocusChange();
@@ -159,8 +201,7 @@ public:
     bool m_checkOnFocusChange = false;
     bool m_useProjectsDirectory = kUseProjectsDirectoryDefault;
 
-    QFileSystemWatcher *m_fileWatcher = nullptr; // Delayed creation.
-    QFileSystemWatcher *m_linkWatcher = nullptr; // Delayed creation (only UNIX/if a link is seen).
+    FileWatchers m_fileWatcher; // Delayed creation.
     FilePath m_lastVisitedDirectory = FilePath::fromString(QDir::currentPath());
     FilePath m_defaultLocationForNewFiles;
     FilePath m_projectsDirectory;
@@ -177,29 +218,9 @@ public:
 static DocumentManager *m_instance;
 static DocumentManagerPrivate *d;
 
-QFileSystemWatcher *DocumentManagerPrivate::fileWatcher()
+FileWatchers *DocumentManagerPrivate::fileWatcher()
 {
-    if (!m_fileWatcher) {
-        m_fileWatcher= new QFileSystemWatcher(m_instance);
-        QObject::connect(m_fileWatcher, &QFileSystemWatcher::fileChanged,
-                         m_instance, &DocumentManager::changedFile);
-    }
-    return m_fileWatcher;
-}
-
-QFileSystemWatcher *DocumentManagerPrivate::linkWatcher()
-{
-    if (HostOsInfo::isAnyUnixHost()) {
-        if (!m_linkWatcher) {
-            m_linkWatcher = new QFileSystemWatcher(m_instance);
-            m_linkWatcher->setObjectName(QLatin1String("_qt_autotest_force_engine_poller"));
-            QObject::connect(m_linkWatcher, &QFileSystemWatcher::fileChanged,
-                             m_instance, &DocumentManager::changedFile);
-        }
-        return m_linkWatcher;
-    }
-
-    return fileWatcher();
+    return &m_fileWatcher;
 }
 
 void DocumentManagerPrivate::checkOnNextFocusChange()
@@ -237,6 +258,9 @@ DocumentManager::DocumentManager(QObject *parent)
 {
     d = new DocumentManagerPrivate;
     m_instance = this;
+
+    QObject::connect(
+        &d->m_fileWatcher, &FileWatchers::fileChanged, this, &DocumentManager::changedFile);
 
     connect(Utils::GlobalFileChangeBlocker::instance(), &Utils::GlobalFileChangeBlocker::stateChanged,
             this, [](bool blocked) {
@@ -302,7 +326,7 @@ static void addFileInfos(const QList<IDocument *> &documents)
                 linkPathsToWatch.append(d->m_states.value(filePath).watchedFilePath);
                 pathsToWatch.append(d->m_states.value(resolvedFilePath).watchedFilePath);
             }
-        } else if (!filePath.needsDevice()) {
+        } else {
             pathsToWatch.append(d->m_states.value(filePath).watchedFilePath);
         }
     }
@@ -311,11 +335,11 @@ static void addFileInfos(const QList<IDocument *> &documents)
     // update link targets, even if there are multiple documents registered for it
     if (!pathsToWatch.isEmpty()) {
         qCDebug(log) << "adding full watch for" << pathsToWatch;
-        d->fileWatcher()->addPaths(Utils::transform(pathsToWatch, &FilePath::toString));
+        d->fileWatcher()->addPaths(pathsToWatch);
     }
     if (!linkPathsToWatch.isEmpty()) {
         qCDebug(log) << "adding link watch for" << linkPathsToWatch;
-        d->linkWatcher()->addPaths(Utils::transform(linkPathsToWatch, &FilePath::toString));
+        d->fileWatcher()->addPaths(linkPathsToWatch);
     }
 }
 
@@ -379,16 +403,9 @@ static void removeFileInfo(IDocument *document)
         if (d->m_states.value(filePath).lastUpdatedState.isEmpty()) {
             const FilePath &watchedFilePath = d->m_states.value(filePath).watchedFilePath;
             if (!watchedFilePath.needsDevice()) {
-                const QString &localFilePath = watchedFilePath.path();
-                if (d->m_fileWatcher
-                    && d->m_fileWatcher->files().contains(localFilePath)) {
-                    qCDebug(log) << "removing watch for" << localFilePath;
-                    d->m_fileWatcher->removePath(localFilePath);
-                }
-                if (d->m_linkWatcher
-                    && d->m_linkWatcher->files().contains(localFilePath)) {
-                    qCDebug(log) << "removing watch for" << localFilePath;
-                    d->m_linkWatcher->removePath(localFilePath);
+                if (d->m_fileWatcher.files().contains(watchedFilePath)) {
+                    qCDebug(log) << "removing watch for" << watchedFilePath;
+                    d->m_fileWatcher.removePath(watchedFilePath);
                 }
             }
             d->m_states.remove(filePath);
@@ -1031,9 +1048,8 @@ FilePaths DocumentManager::getOpenFileNames(const QString &filters,
     return files;
 }
 
-void DocumentManager::changedFile(const QString &fileName)
+void DocumentManager::changedFile(const FilePath &filePath)
 {
-    const FilePath filePath = FilePath::fromString(fileName);
     const bool wasempty = d->m_changedFiles.isEmpty();
 
     if (d->m_states.contains(filePathKey(filePath, KeepLinks)))
@@ -1567,3 +1583,5 @@ FileChangeBlocker::~FileChangeBlocker()
 }
 
 } // namespace Core
+
+#include "documentmanager.moc"

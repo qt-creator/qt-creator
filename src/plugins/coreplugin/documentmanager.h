@@ -148,7 +148,7 @@ private:
     void documentDestroyed(QObject *obj);
     void checkForNewFileName(IDocument *document);
     void checkForReload();
-    void changedFile(const QString &file);
+    void changedFile(const Utils::FilePath &file);
     void updateSaveAll();
     static void registerSaveAllAction();
 
