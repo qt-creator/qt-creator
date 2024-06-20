@@ -61,12 +61,11 @@ private:
     bool isItemBundle(const QString &bundleId) const;
     void active3DSceneChanged(qint32 sceneId);
     void updateBundlesQuick3DVersion();
-    void addLibMaterial(const ModelNode &node, const QPixmap &iconPixmap);
     void addLibAssets(const QStringList &paths);
     void addLib3DComponent(const ModelNode &node);
     void exportLib3DComponent(const ModelNode &node);
-    void addLib3DItem(const ModelNode &node);
-    void exportLib3DItem(const ModelNode &node, const QPixmap &iconPixmap = {});
+    void addLibItem(const ModelNode &node, const QPixmap &iconPixmap = {});
+    void exportLibItem(const ModelNode &node, const QPixmap &iconPixmap = {});
     void importBundle();
     void getImageFromCache(const QString &qmlPath,
                            std::function<void(const QImage &image)> successCallback);

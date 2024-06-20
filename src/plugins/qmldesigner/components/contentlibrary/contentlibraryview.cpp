@@ -377,22 +377,22 @@ void ContentLibraryView::customNotification(const AbstractView *view,
     } else if (identifier == "add_material_to_content_lib") {
         QTC_ASSERT(nodeList.size() == 1 && data.size() == 1, return);
 
-        addLibMaterial(nodeList.first(), data.first().value<QPixmap>());
+        addLibItem(nodeList.first(), data.first().value<QPixmap>());
     } else if (identifier == "add_assets_to_content_lib") {
         addLibAssets(data.first().toStringList());
     } else if (identifier == "add_3d_to_content_lib") {
         if (nodeList.first().isComponent())
             addLib3DComponent(nodeList.first());
         else
-            addLib3DItem(nodeList.first());
+            addLibItem(nodeList.first());
     } else if (identifier == "export_item_as_bundle") {
         // TODO: support exporting 2D items
         if (nodeList.first().isComponent())
             exportLib3DComponent(nodeList.first());
         else
-            exportLib3DItem(nodeList.first());
+            exportLibItem(nodeList.first());
     } else if (identifier == "export_material_as_bundle") {
-        exportLib3DItem(nodeList.first(), data.first().value<QPixmap>());
+        exportLibItem(nodeList.first(), data.first().value<QPixmap>());
     } else if (identifier == "import_bundle") {
         importBundle();
     }
@@ -522,87 +522,6 @@ void ContentLibraryView::applyBundleMaterialToDropTarget(const ModelNode &bundle
     });
 }
 #endif
-
-// Add a project material to Content Library's user tab
-void ContentLibraryView::addLibMaterial(const ModelNode &node, const QPixmap &iconPixmap)
-{
-    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-    auto bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/materials/");
-    QString bundleId = compUtils.userMaterialsBundleId();
-
-    QString name = node.variantProperty("objectName").value().toString();
-    if (name.isEmpty())
-        name = node.displayName();
-
-    QJsonObject &jsonRef = m_widget->userModel()->bundleObjectRef(bundleId);
-    QJsonArray itemsArr = jsonRef.value("items").toArray();
-
-    QString qml = nodeNameToComponentFileName(name);
-
-    // confirm overwrite if an item with same name exists
-    if (m_widget->userModel()->jsonPropertyExists("qml", qml, bundleId)) {
-        QMessageBox::StandardButton reply = QMessageBox::question(m_widget, tr("Material Exists"),
-                                              tr("A material with the same name '%1' already "
-                                                 "exists in the Content Library, are you sure "
-                                                 "you want to overwrite it?")
-                                                  .arg(qml), QMessageBox::Yes | QMessageBox::No);
-        if (reply == QMessageBox::No)
-            return;
-
-        // before overwriting remove old item (to avoid partial items and dangling assets)
-        m_widget->userModel()->removeItemByName(qml, bundleId);
-    }
-
-    // generate and save Qml file
-    auto [qmlString, depAssets] = modelNodeToQmlString(node);
-    const QStringList depAssetsList = depAssets.values();
-
-    auto result = bundlePath.pathAppended(qml).writeFileContents(qmlString.toUtf8());
-    QTC_ASSERT_EXPECTED(result,);
-
-    // save icon
-    QString iconPathTemplate = QLatin1String("icons/%1.png");
-    QString iconBaseName = UniqueName::generateId(name, [&] (const QString &currName) {
-        return m_widget->userModel()->jsonPropertyExists("icon", iconPathTemplate.arg(currName),
-                                                         bundleId);
-    });
-
-    QString iconPath = iconPathTemplate.arg(iconBaseName);
-    m_iconSavePath = bundlePath.pathAppended(iconPath);
-    m_iconSavePath.parentDir().ensureWritableDir();
-
-    bool iconSaved = iconPixmap.save(m_iconSavePath.toFSPathString());
-    if (!iconSaved)
-        qWarning() << __FUNCTION__ << "icon save failed";
-
-    // add the material to the bundle json
-    itemsArr = jsonRef.value("items").toArray();
-    itemsArr.append(QJsonObject {
-        {"name", name},
-        {"qml", qml},
-        {"icon", iconPath},
-        {"files", QJsonArray::fromStringList(depAssetsList)}
-    });
-
-    jsonRef["items"] = itemsArr;
-
-    result = bundlePath.pathAppended(Constants::BUNDLE_JSON_FILENAME)
-                      .writeFileContents(QJsonDocument(jsonRef).toJson());
-    QTC_ASSERT_EXPECTED(result,);
-
-    // copy material assets to bundle folder
-    for (const QString &assetPath : depAssetsList) {
-        Utils::FilePath assetPathSource = DocumentManager::currentResourcePath().pathAppended(assetPath);
-        Utils::FilePath assetPathTarget = bundlePath.pathAppended(assetPath);
-        assetPathTarget.parentDir().ensureWritableDir();
-
-        auto result = assetPathSource.copyFile(assetPathTarget);
-        QTC_ASSERT_EXPECTED(result,);
-    }
-
-    m_widget->userModel()->addItem(bundleId, name, qml, m_iconSavePath.toUrl(), depAssetsList);
-    m_widget->userModel()->refreshSection(bundleId);
-}
 
 QPair<QString, QSet<QString>> ContentLibraryView::modelNodeToQmlString(const ModelNode &node, int depth)
 {
@@ -873,7 +792,7 @@ QString ContentLibraryView::nodeNameToComponentFileName(const QString &name) con
     return fileName + ".qml";
 }
 
-void ContentLibraryView::addLib3DItem(const ModelNode &node)
+void ContentLibraryView::addLibItem(const ModelNode &node, const QPixmap &iconPixmap)
 {
     auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
     auto bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/3d/");
@@ -909,7 +828,7 @@ void ContentLibraryView::addLib3DItem(const ModelNode &node)
     auto result = bundlePath.pathAppended(qml).writeFileContents(qmlString.toUtf8());
     QTC_ASSERT_EXPECTED(result,);
 
-    // generate and save icon
+    // get icon path
     QString iconPathTemplate = QLatin1String("icons/%1.png");
     QString iconBaseName = UniqueName::generateId(name, [&] (const QString &currName) {
         return m_widget->userModel()->jsonPropertyExists("icon", iconPathTemplate.arg(currName),
@@ -917,24 +836,6 @@ void ContentLibraryView::addLib3DItem(const ModelNode &node)
     });
 
     QString iconPath = iconPathTemplate.arg(iconBaseName);
-    m_iconSavePath = bundlePath.pathAppended(iconPath);
-    m_iconSavePath.parentDir().ensureWritableDir();
-
-    // copy qml to a temp folder as icon generation fails sometimes when generating directly from
-    // the bundle folder
-    m_tempDir = std::make_unique<QTemporaryDir>();
-    QTC_ASSERT(m_tempDir->isValid(), return);
-    Utils::FilePath qmlPathTemp = Utils::FilePath::fromString(m_tempDir->path()).pathAppended(qml);
-    bundlePath.pathAppended(qml).copyFile(qmlPathTemp);
-
-    getImageFromCache(qmlPathTemp.toFSPathString(), [&](const QImage &image) {
-        bool iconSaved = image.save(m_iconSavePath.toFSPathString());
-        if (iconSaved)
-            m_widget->userModel()->refreshSection(compUtils.user3DBundleId());
-        else
-            qWarning() << "ContentLibraryView::getImageFromCache(): icon save failed" << iconPath;
-        m_tempDir.reset();
-    });
 
     // add the item to the bundle json
     itemsArr = jsonRef.value("items").toArray();
@@ -961,7 +862,34 @@ void ContentLibraryView::addLib3DItem(const ModelNode &node)
         QTC_ASSERT_EXPECTED(result,);
     }
 
+    m_iconSavePath = bundlePath.pathAppended(iconPath);
+    m_iconSavePath.parentDir().ensureWritableDir();
+
     m_widget->userModel()->addItem(bundleId, name, qml, m_iconSavePath.toUrl(), depAssetsList);
+
+    // generate and save icon
+    auto saveIcon = [&] (const auto &image) { // auto: QImage or QPixmap
+        bool iconSaved = image.save(m_iconSavePath.toFSPathString());
+        if (iconSaved) {
+            m_widget->userModel()->refreshSection(compUtils.user3DBundleId());
+        } else {
+            qWarning() << "ContentLibraryView::addLibItem(): icon save failed";
+        }
+        m_tempDir.reset();
+    };
+
+    if (iconPixmap.isNull()) {
+        // copy qml to a temp folder as icon generation fails sometimes when generating directly from
+        // the bundle folder
+        m_tempDir = std::make_unique<QTemporaryDir>();
+        QTC_ASSERT(m_tempDir->isValid(), return);
+        Utils::FilePath qmlPathTemp = Utils::FilePath::fromString(m_tempDir->path()).pathAppended(qml);
+        bundlePath.pathAppended(qml).copyFile(qmlPathTemp);
+
+        getImageFromCache(qmlPathTemp.toFSPathString(), saveIcon);
+    } else {
+        saveIcon(iconPixmap);
+    }
 }
 
 QString ContentLibraryView::getExportPath(const ModelNode &node) const
@@ -993,7 +921,7 @@ QString ContentLibraryView::getImportPath() const
                                         tr("Qt Design Studio Bundle Files (*.%1)").arg(Constants::BUNDLE_SUFFIX));
 }
 
-void ContentLibraryView::exportLib3DItem(const ModelNode &node, const QPixmap &iconPixmap)
+void ContentLibraryView::exportLibItem(const ModelNode &node, const QPixmap &iconPixmap)
 {
     QString exportPath = getExportPath(node);
     if (exportPath.isEmpty())
