@@ -115,6 +115,14 @@ LldbDapEngine::LldbDapEngine()
     setDebuggerType("DAP");
 }
 
+QJsonArray LldbDapEngine::environment() const
+{
+    QJsonArray envArray;
+    for (const QString &value : runParameters().inferior.environment.toDictionary().toStringList())
+        envArray.append(value);
+    return envArray;
+}
+
 QJsonArray LldbDapEngine::sourceMap() const
 {
     QJsonArray sourcePathMapping;
@@ -148,19 +156,25 @@ void LldbDapEngine::handleDapInitialize()
     // * https://github.com/llvm/llvm-project/blob/main/lldb/tools/lldb-dap/package.json
 
     const DebuggerRunParameters &rp = runParameters();
+    const QJsonArray map = sourceMap();
+    const QJsonArray commands = preRunCommands();
 
     if (!isLocalAttachEngine()) {
-        m_dapClient->postRequest(
-            "launch",
-            QJsonObject{
-                {"noDebug", false},
-                {"program", rp.inferior.command.executable().path()},
-                {"args", rp.inferior.command.arguments()},
-                {"cwd", rp.inferior.workingDirectory.path()},
-                {"sourceMap", sourceMap()},
-                {"preRunCommands", preRunCommands()},
-                {"__restart", ""},
-            });
+        const QJsonArray env = environment();
+        QJsonObject launchJson{
+            {"noDebug", false},
+            {"program", rp.inferior.command.executable().path()},
+            {"args", rp.inferior.command.arguments()},
+            {"cwd", rp.inferior.workingDirectory.path()},
+            {"env", env},
+            {"__restart", ""},
+        };
+        if (!map.isEmpty())
+            launchJson.insert("sourceMap", map);
+        if (!commands.isEmpty())
+            launchJson.insert("preRunCommands", commands);
+
+        m_dapClient->postRequest("launch", launchJson);
 
         qCDebug(logCategory()) << "handleDapLaunch";
         return;
@@ -168,15 +182,17 @@ void LldbDapEngine::handleDapInitialize()
 
     QTC_ASSERT(state() == EngineRunRequested, qCDebug(logCategory()) << state());
 
-    m_dapClient->postRequest(
-        "attach",
-        QJsonObject{
-            {"program", rp.inferior.command.executable().path()},
-            {"pid", QString::number(rp.attachPID.pid())},
-            {"sourceMap", sourceMap()},
-            {"preRunCommands", preRunCommands()},
-            {"__restart", ""},
-        });
+    QJsonObject attachJson{
+        {"program", rp.inferior.command.executable().path()},
+        {"pid", QString::number(rp.attachPID.pid())},
+        {"__restart", ""},
+    };
+    if (!map.isEmpty())
+        attachJson.insert("sourceMap", map);
+    if (!commands.isEmpty())
+        attachJson.insert("preRunCommands", commands);
+
+    m_dapClient->postRequest("attach", attachJson);
 
     qCDebug(logCategory()) << "handleDapAttach";
 }

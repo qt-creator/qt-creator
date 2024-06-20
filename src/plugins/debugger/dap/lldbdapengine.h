@@ -22,6 +22,7 @@ private:
     bool acceptsBreakpoint(const BreakpointParameters &bp) const override;
     const QLoggingCategory &logCategory() override;
 
+    QJsonArray environment() const;
     QJsonArray sourceMap() const;
     QJsonArray preRunCommands() const;
 };
