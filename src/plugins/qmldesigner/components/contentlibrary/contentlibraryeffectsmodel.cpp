@@ -93,11 +93,9 @@ QHash<int, QByteArray> ContentLibraryEffectsModel::roleNames() const
     return roles;
 }
 
-void ContentLibraryEffectsModel::loadBundle()
+void ContentLibraryEffectsModel::loadBundle(bool force)
 {
-    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-
-    if (m_probeBundleDir || (m_bundleExists && m_bundleId == compUtils.effectsBundleId()))
+    if (m_probeBundleDir && !force)
         return;
 
     // clean up
@@ -148,6 +146,7 @@ void ContentLibraryEffectsModel::loadBundle()
 
     m_bundleObj = bundleJsonDoc.object();
 
+    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
     QString bundleType = compUtils.effectsBundleType();
     m_bundleId = compUtils.effectsBundleId();
 

@@ -234,10 +234,10 @@ QJsonObject &ContentLibraryUserModel::bundleObjectRef(const QString &bundleId)
     return qobject_cast<UserItemCategory *>(m_userCategories[secIdx])->bundleObjRef();
 }
 
-void ContentLibraryUserModel::loadBundles()
+void ContentLibraryUserModel::loadBundles(bool force)
 {
     for (UserCategory *cat : std::as_const(m_userCategories))
-        cat->loadBundle();
+        cat->loadBundle(force);
 
     resetModel();
     updateIsEmpty();

@@ -266,15 +266,20 @@ void ContentLibraryView::modelAttached(Model *model)
 
     // bundles loading has to happen here, otherwise project path is not ready which will
     // cause bundle items types to resolve incorrectly
-    m_widget->materialsModel()->loadBundle();
-    m_widget->effectsModel()->loadBundle();
-    m_widget->userModel()->loadBundles();
-
     auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+    QString genFolderName = compUtils.generatedComponentsPath().fileName();
+    bool forceReload = m_generatedFolderName != genFolderName;
+
+    m_widget->materialsModel()->loadBundle();
+    m_widget->effectsModel()->loadBundle(forceReload);
+    m_widget->userModel()->loadBundles(forceReload);
+
     m_widget->updateImportedState(compUtils.materialsBundleId());
     m_widget->updateImportedState(compUtils.effectsBundleId());
     m_widget->updateImportedState(compUtils.userMaterialsBundleId());
     m_widget->updateImportedState(compUtils.user3DBundleId());
+
+    m_generatedFolderName = genFolderName;
 }
 
 void ContentLibraryView::modelAboutToBeDetached(Model *model)

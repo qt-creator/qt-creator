@@ -57,7 +57,7 @@ public:
     void setBundleObj(const QJsonObject &newBundleObj);
     QJsonObject &bundleObjectRef(const QString &bundleId);
 
-    void loadBundles();
+    void loadBundles(bool force = false);
 
     Q_INVOKABLE void applyToSelected(QmlDesigner::ContentLibraryItem *mat, bool add = false);
     Q_INVOKABLE void addToProject(ContentLibraryItem *item);

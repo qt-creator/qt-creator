@@ -25,7 +25,7 @@ public:
     bool noMatch() const;
     void setNoMatch(bool val);
 
-    virtual void loadBundle() = 0;
+    virtual void loadBundle(bool force = false) = 0;
     virtual void filter(const QString &searchText) = 0;
 
     void addItem(QObject *item);

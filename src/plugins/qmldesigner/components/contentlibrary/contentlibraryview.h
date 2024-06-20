@@ -101,6 +101,7 @@ private:
     qint32 m_sceneId = -1;
     CreateTexture m_createTexture;
     Utils::FilePath m_iconSavePath;
+    QString m_generatedFolderName;
     std::unique_ptr<ZipWriter> m_zipWriter;
     std::unique_ptr<QTemporaryDir> m_tempDir;
 

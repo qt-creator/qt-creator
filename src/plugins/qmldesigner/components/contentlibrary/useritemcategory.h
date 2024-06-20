@@ -18,7 +18,7 @@ class UserItemCategory : public UserCategory
 public:
     UserItemCategory(const QString &title, const Utils::FilePath &bundlePath, const QString &bundleId);
 
-    void loadBundle() override;
+    void loadBundle(bool force) override;
     void filter(const QString &searchText) override;
 
     QStringList sharedFiles() const;

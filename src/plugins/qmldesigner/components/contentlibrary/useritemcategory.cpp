@@ -20,9 +20,9 @@ UserItemCategory::UserItemCategory(const QString &title, const Utils::FilePath &
 {
 }
 
-void UserItemCategory::loadBundle()
+void UserItemCategory::loadBundle(bool force)
 {
-    if (m_bundleLoaded)
+    if (m_bundleLoaded && !force)
         return;
 
     // clean up
@@ -66,12 +66,11 @@ void UserItemCategory::loadBundle()
         return;
     }
 
-    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-
     m_bundleObj = bundleJsonDoc.object();
     m_bundleObj["id"] = m_bundleId;
 
     // parse items
+    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
     QString typePrefix = compUtils.userBundleType(m_bundleId);
     const QJsonArray itemsArr = m_bundleObj.value("items").toArray();
     for (const QJsonValueConstRef &itemRef : itemsArr) {

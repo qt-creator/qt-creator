@@ -15,9 +15,9 @@ UserTextureCategory::UserTextureCategory(const QString &title, const Utils::File
 {
 }
 
-void UserTextureCategory::loadBundle()
+void UserTextureCategory::loadBundle(bool force)
 {
-    if (m_bundleLoaded)
+    if (m_bundleLoaded && !force)
         return;
 
     // clean up
