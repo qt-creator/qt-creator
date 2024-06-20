@@ -34,6 +34,8 @@ public:
 
     Utils::expected_str<void> signalProcess(int pid, Utils::ControlSignal signal) const;
 
+    Utils::Environment deviceEnvironment() const override;
+
 protected:
     Utils::expected_str<void> reinit();
 
@@ -77,8 +79,6 @@ protected:
                                        const Utils::FilePath &target) const override;
 
     bool renameFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const override;
-
-    Utils::Environment deviceEnvironment() const override;
 
     Utils::expected_str<Utils::FilePath> createTempFile(const Utils::FilePath &filePath) override;
 
