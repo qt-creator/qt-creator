@@ -38,10 +38,6 @@ public:
 
     bool jsonPropertyExists(const QString &propName, const QString &propValue,
                             const QString &bundleId) const;
-    QPair<QString, QString> getUniqueLibMaterialNames(const QString &defaultName = "Material") const;
-    QPair<QString, QString> getUniqueLib3DNames(const QString &defaultName = "Item") const;
-    QPair<QString, QString> getUniqueLibItemNames(const QString &defaultName = "Item",
-                                                  const QJsonObject &bundleObj = {}) const;
 
     void setQuick3DImportVersion(int major, int minor);
 

@@ -14,7 +14,6 @@
 #include <imageutils.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
-#include <uniquename.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -216,64 +215,6 @@ ContentLibraryUserModel::SectionIndex ContentLibraryUserModel::bundleIdToSection
 
     qWarning() << __FUNCTION__ << "Invalid section index for bundleId:" << bundleId;
     return {};
-}
-
-/**
- * @brief Gets unique Qml component and icon file material names from a given name
- * @param defaultName input name
- * @return <Qml, icon> file names
- */
-QPair<QString, QString> ContentLibraryUserModel::getUniqueLibMaterialNames(const QString &defaultName) const
-{
-    const QJsonObject bundleObj = qobject_cast<UserItemCategory *>(
-                                      m_userCategories.at(Items3DSectionIdx))->bundleObjRef();
-    return getUniqueLibItemNames(defaultName, bundleObj);
-}
-
-/**
- * @brief Gets unique Qml component and icon file 3d item names from a given name
- * @param defaultName input name
- * @return <Qml, icon> file names
- */
-QPair<QString, QString> ContentLibraryUserModel::getUniqueLib3DNames(const QString &defaultName) const
-{
-    const QJsonObject bundleObj = qobject_cast<UserItemCategory *>(
-                                      m_userCategories.at(Items3DSectionIdx))->bundleObjRef();
-    return getUniqueLibItemNames(defaultName, bundleObj);
-}
-
-QPair<QString, QString> ContentLibraryUserModel::getUniqueLibItemNames(const QString &defaultName,
-                                                                       const QJsonObject &bundleObj) const
-{
-    QString uniqueQml = UniqueName::generateId(defaultName);
-    if (uniqueQml.isEmpty())
-        uniqueQml = "Component";
-    else
-        uniqueQml[0] = uniqueQml.at(0).toUpper();
-    uniqueQml.prepend("My");
-
-    QString uniqueIcon = defaultName;
-
-    if (!bundleObj.isEmpty()) {
-        const QJsonArray itemsArr = bundleObj.value("items").toArray();
-
-        QStringList itemQmls, itemIcons;
-        for (const QJsonValueConstRef &itemRef : itemsArr) {
-            const QJsonObject &obj = itemRef.toObject();
-            itemQmls.append(obj.value("qml").toString().chopped(4)); // remove .qml
-            itemIcons.append(QFileInfo(obj.value("icon").toString()).baseName());
-        }
-
-        uniqueQml = UniqueName::generate(uniqueQml, [&] (const QString &name) {
-            return itemQmls.contains(name);
-        });
-
-        uniqueIcon = UniqueName::generate(uniqueIcon, [&] (const QString &name) {
-            return itemIcons.contains(name);
-        });
-    }
-
-    return {uniqueQml + ".qml", uniqueIcon + ".png"};
 }
 
 QHash<int, QByteArray> ContentLibraryUserModel::roleNames() const

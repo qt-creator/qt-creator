@@ -521,34 +521,57 @@ void ContentLibraryView::applyBundleMaterialToDropTarget(const ModelNode &bundle
 // Add a project material to Content Library's user tab
 void ContentLibraryView::addLibMaterial(const ModelNode &node, const QPixmap &iconPixmap)
 {
+    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
     auto bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/materials/");
+    QString bundleId = compUtils.userMaterialsBundleId();
 
     QString name = node.variantProperty("objectName").value().toString();
     if (name.isEmpty())
         name = node.displayName();
 
-    auto [qml, icon] = m_widget->userModel()->getUniqueLibMaterialNames(name);
+    QJsonObject &jsonRef = m_widget->userModel()->bundleObjectRef(bundleId);
+    QJsonArray itemsArr = jsonRef.value("items").toArray();
 
-    QString iconPath = QLatin1String("icons/%1").arg(icon);
-    QString fullIconPath = bundlePath.pathAppended(iconPath).toFSPathString();
+    QString qml = nodeNameToComponentFileName(name);
 
-    // save icon
-    bool iconSaved = iconPixmap.save(fullIconPath);
-    if (!iconSaved)
-        qWarning() << __FUNCTION__ << "icon save failed";
+    // confirm overwrite if an item with same name exists
+    if (m_widget->userModel()->jsonPropertyExists("qml", qml, bundleId)) {
+        QMessageBox::StandardButton reply = QMessageBox::question(m_widget, tr("Material Exists"),
+                                              tr("A material with the same name '%1' already "
+                                                 "exists in the Content Library, are you sure "
+                                                 "you want to overwrite it?")
+                                                  .arg(qml), QMessageBox::Yes | QMessageBox::No);
+        if (reply == QMessageBox::No)
+            return;
 
-    // generate and save material Qml file
+        // before overwriting remove old item (to avoid partial items and dangling assets)
+        m_widget->userModel()->removeItemByName(qml, bundleId);
+    }
+
+    // generate and save Qml file
     auto [qmlString, depAssets] = modelNodeToQmlString(node);
     const QStringList depAssetsList = depAssets.values();
 
     auto result = bundlePath.pathAppended(qml).writeFileContents(qmlString.toUtf8());
     QTC_ASSERT_EXPECTED(result,);
 
+    // save icon
+    QString iconPathTemplate = QLatin1String("icons/%1.png");
+    QString iconBaseName = UniqueName::generateId(name, [&] (const QString &currName) {
+        return m_widget->userModel()->jsonPropertyExists("icon", iconPathTemplate.arg(currName),
+                                                         bundleId);
+    });
+
+    QString iconPath = iconPathTemplate.arg(iconBaseName);
+    m_iconSavePath = bundlePath.pathAppended(iconPath);
+    m_iconSavePath.parentDir().ensureWritableDir();
+
+    bool iconSaved = iconPixmap.save(m_iconSavePath.toFSPathString());
+    if (!iconSaved)
+        qWarning() << __FUNCTION__ << "icon save failed";
+
     // add the material to the bundle json
-    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-    QString bundleId = compUtils.userMaterialsBundleId();
-    QJsonObject &jsonRef = m_widget->userModel()->bundleObjectRef(bundleId);
-    QJsonArray itemsArr = jsonRef.value("items").toArray();
+    itemsArr = jsonRef.value("items").toArray();
     itemsArr.append(QJsonObject {
         {"name", name},
         {"qml", qml},
@@ -572,7 +595,7 @@ void ContentLibraryView::addLibMaterial(const ModelNode &node, const QPixmap &ic
         QTC_ASSERT_EXPECTED(result,);
     }
 
-    m_widget->userModel()->addItem(bundleId, name, qml, QUrl::fromLocalFile(fullIconPath), depAssetsList);
+    m_widget->userModel()->addItem(bundleId, name, qml, m_iconSavePath.toUrl(), depAssetsList);
     m_widget->userModel()->refreshSection(bundleId);
 }
 
