@@ -77,6 +77,15 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: 1.22.x
+    - name: Install UPX
+      if: ${{ !startsWith(matrix.config.os, 'macos') }}
+      uses: crazy-max/ghaction-upx@v3
+      with:
+        install-only: true
+    - name: Install UPX (macOS)
+      if: ${{ startsWith(matrix.config.os, 'macos') }}
+      run: |
+        brew install upx
     - name: Download Ninja and CMake
       shell: cmake -P {0}
       run: |
