@@ -202,24 +202,66 @@ QmlJsEditingSettings::QmlJsEditingSettings()
 
     useQmlls.setSettingsKey(group, USE_QMLLS);
     useQmlls.setDefaultValue(true);
+    useQmlls.setLabelText(Tr::tr("Turn on"));
 
     enableContextPane.setSettingsKey(group, QML_CONTEXTPANE_KEY);
+    enableContextPane.setLabelText(Tr::tr("Always show Qt Quick Toolbar"));
+
     pinContextPane.setSettingsKey(group, QML_CONTEXTPANEPIN_KEY);
+    pinContextPane.setLabelText(Tr::tr("Pin Qt Quick Toolbar"));
+
     autoFormatOnSave.setSettingsKey(group, AUTO_FORMAT_ON_SAVE);
+    autoFormatOnSave.setLabelText(Tr::tr("Enable auto format on file save"));
+
     autoFormatOnlyCurrentProject.setSettingsKey(group, AUTO_FORMAT_ONLY_CURRENT_PROJECT);
+    autoFormatOnlyCurrentProject.setEnabler(&autoFormatOnSave);
+    autoFormatOnlyCurrentProject.setLabelText(
+        Tr::tr("Restrict to files contained in the current project"));
 
     foldAuxData.setSettingsKey(group, FOLD_AUX_DATA);
     foldAuxData.setDefaultValue(true);
+    foldAuxData.setLabelText(Tr::tr("Auto-fold auxiliary data"));
 
     uiQmlOpenMode.setSettingsKey(group, UIQML_OPEN_MODE);
+
     useLatestQmlls.setSettingsKey(group, USE_LATEST_QMLLS);
+    useLatestQmlls.setEnabler(&useQmlls);
+    useLatestQmlls.setLabelText(Tr::tr("Use from latest Qt version"));
+
     disableBuiltinCodemodel.setSettingsKey(group, DISABLE_BUILTIN_CODEMODEL);
+    disableBuiltinCodemodel.setEnabler(&useQmlls);
+    disableBuiltinCodemodel.setLabelText(
+        Tr::tr("Use advanced features (renaming, find usages, and so on) "
+               "(experimental)"));
+
     generateQmllsIniFiles.setSettingsKey(group, GENERATE_QMLLS_INI_FILES);
+    generateQmllsIniFiles.setEnabler(&useQmlls);
+    generateQmllsIniFiles.setLabelText(
+        Tr::tr("Create .qmlls.ini files for new projects"));
+
     ignoreMinimumQmllsVersion.setSettingsKey(group, IGNORE_MINIMUM_QMLLS_VERSION);
-    formatCommand.setSettingsKey(group, FORMAT_COMMAND);
-    formatCommandOptions.setSettingsKey(group, FORMAT_COMMAND_OPTIONS);
+    ignoreMinimumQmllsVersion.setEnabler(&useQmlls);
+    ignoreMinimumQmllsVersion.setLabelText(
+        Tr::tr("Allow versions below Qt %1")
+            .arg(QmlJsEditingSettings::mininumQmllsVersion.toString()));
+
     useCustomFormatCommand.setSettingsKey(group, CUSTOM_COMMAND);
+    useCustomFormatCommand.setLabelText(
+        Tr::tr("Use custom command instead of built-in formatter"));
+
+    formatCommand.setSettingsKey(group, FORMAT_COMMAND);
+    formatCommand.setEnabler(&useCustomFormatCommand);
+    formatCommand.setDisplayStyle(StringAspect::LineEditDisplay);
+    formatCommand.setPlaceHolderText(defaultFormatCommand());
+    formatCommand.setLabelText(Tr::tr("Command:"));
+
+    formatCommandOptions.setSettingsKey(group, FORMAT_COMMAND_OPTIONS);
+    formatCommandOptions.setEnabler(&useCustomFormatCommand);
+    formatCommandOptions.setDisplayStyle(StringAspect::LineEditDisplay);
+    formatCommandOptions.setLabelText(Tr::tr("Arguments:"));
+
     useCustomAnalyzer.setSettingsKey(group, CUSTOM_ANALYZER);
+    useCustomAnalyzer.setLabelText(Tr::tr("Use customized static analyzer"));
 
     disabledMessages.setSettingsKey(group, DISABLED_MESSAGES);
     disabledMessages.setDefaultValue(defaultDisabledMessages());
@@ -300,29 +342,8 @@ class QmlJsEditingSettingsPageWidget final : public Core::IOptionsPageWidget
 public:
     QmlJsEditingSettingsPageWidget()
     {
-        const QmlJsEditingSettings &s = settings();
-        autoFormatOnSave = new QCheckBox(Tr::tr("Enable auto format on file save"));
-        autoFormatOnSave->setChecked(s.autoFormatOnSave());
-        autoFormatOnlyCurrentProject =
-                new QCheckBox(Tr::tr("Restrict to files contained in the current project"));
-        autoFormatOnlyCurrentProject->setChecked(s.autoFormatOnlyCurrentProject());
-        autoFormatOnlyCurrentProject->setEnabled(autoFormatOnSave->isChecked());
-        useCustomFormatCommand = new QCheckBox(
-            Tr::tr("Use custom command instead of built-in formatter"));
-        useCustomFormatCommand->setChecked(s.useCustomFormatCommand());
-        auto formatCommandLabel = new QLabel(Tr::tr("Command:"));
-        formatCommand = new QLineEdit();
-        formatCommand->setText(s.formatCommand());
-        formatCommand->setPlaceholderText(s.defaultFormatCommand());
-        auto formatCommandOptionsLabel = new QLabel(Tr::tr("Arguments:"));
-        formatCommandOptions = new QLineEdit();
-        formatCommandOptions->setText(s.formatCommandOptions());
-        pinContextPane = new QCheckBox(Tr::tr("Pin Qt Quick Toolbar"));
-        pinContextPane->setChecked(s.pinContextPane());
-        enableContextPane = new QCheckBox(Tr::tr("Always show Qt Quick Toolbar"));
-        enableContextPane->setChecked(s.enableContextPane());
-        foldAuxData = new QCheckBox(Tr::tr("Auto-fold auxiliary data"));
-        foldAuxData->setChecked(s.foldAuxData());
+        QmlJsEditingSettings &s = settings();
+
         uiQmlOpenComboBox = new QComboBox;
         uiQmlOpenComboBox->addItem(Tr::tr("Always Ask"), "");
         uiQmlOpenComboBox->addItem(Tr::tr("Qt Design Studio"), Core::Constants::MODE_DESIGN);
@@ -332,45 +353,14 @@ public:
         uiQmlOpenComboBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         uiQmlOpenComboBox->setSizeAdjustPolicy(QComboBox::QComboBox::AdjustToContents);
 
-        useQmlls = new QCheckBox(Tr::tr("Turn on"));
-        useQmlls->setChecked(s.useQmlls());
-
-        ignoreMinimumQmllsVersion = new QCheckBox(
-            Tr::tr("Allow versions below Qt %1")
-                .arg(QmlJsEditingSettings::mininumQmllsVersion.toString()));
-        ignoreMinimumQmllsVersion->setChecked(s.ignoreMinimumQmllsVersion());
-        ignoreMinimumQmllsVersion->setEnabled(s.useQmlls());
-
-        disableBuiltInCodemodel = new QCheckBox(
-            Tr::tr("Use advanced features (renaming, find usages, and so on) "
-                   "(experimental)"));
-        disableBuiltInCodemodel->setChecked(s.disableBuiltinCodemodel());
-        disableBuiltInCodemodel->setEnabled(s.useQmlls());
-        useLatestQmlls = new QCheckBox(Tr::tr("Use from latest Qt version"));
-        useLatestQmlls->setChecked(s.useLatestQmlls());
-        useLatestQmlls->setEnabled(s.useQmlls());
-
-        generateQmllsIniFiles = new QCheckBox(Tr::tr("Create .qmlls.ini files for new projects"));
-        generateQmllsIniFiles->setChecked(s.generateQmllsIniFiles());
-        generateQmllsIniFiles->setEnabled(s.useQmlls());
-        QObject::connect(useQmlls, &QCheckBox::stateChanged, this, [this](int checked) {
-            useLatestQmlls->setEnabled(checked != Qt::Unchecked);
-            disableBuiltInCodemodel->setEnabled(checked != Qt::Unchecked);
-            generateQmllsIniFiles->setEnabled(checked != Qt::Unchecked);
-            ignoreMinimumQmllsVersion->setEnabled(checked != Qt::Unchecked);
-        });
-
-        useCustomAnalyzer = new QCheckBox(Tr::tr("Use customized static analyzer"));
-        useCustomAnalyzer->setChecked(s.useCustomAnalyzer());
-        analyzerMessageModel = new Utils::TreeModel<AnalyzerMessageItem>(this);
-        analyzerMessageModel->setHeader({Tr::tr("Enabled"),
-                                         Tr::tr("Disabled for non Qt Quick UI"),
-                                         Tr::tr("Message")});
+        analyzerMessageModel.setHeader({Tr::tr("Enabled"),
+                                        Tr::tr("Disabled for non Qt Quick UI"),
+                                        Tr::tr("Message")});
         analyzerMessagesView = new QTreeView;
-        analyzerMessagesView->setModel(analyzerMessageModel);
+        analyzerMessagesView->setModel(&analyzerMessageModel);
         analyzerMessagesView->setEnabled(s.useCustomAnalyzer());
-        QObject::connect(useCustomAnalyzer, &QCheckBox::stateChanged, this, [this](int checked){
-            analyzerMessagesView->setEnabled(checked != Qt::Unchecked);
+        QObject::connect(&s.useCustomAnalyzer, &BoolAspect::volatileValueChanged, this, [this, &s] {
+            analyzerMessagesView->setEnabled(s.useCustomAnalyzer.volatileValue());
         });
         analyzerMessagesView->setToolTip(
             "<html>"
@@ -388,33 +378,45 @@ public:
                 bindTo(&formattingGroup),
                 title(Tr::tr("Automatic Formatting on File Save")),
                 Column {
-                    autoFormatOnSave,
-                    autoFormatOnlyCurrentProject,
-                    useCustomFormatCommand,
+                    s.autoFormatOnSave,
+                    s.autoFormatOnlyCurrentProject,
+                    s.useCustomFormatCommand,
                     Form {
-                        formatCommandLabel, formatCommand, br,
-                        formatCommandOptionsLabel, formatCommandOptions
+                        s.formatCommand, br,
+                        s.formatCommandOptions
                     }
                 },
             },
             Group {
                 title(Tr::tr("Qt Quick Toolbars")),
-                Column { pinContextPane, enableContextPane },
+                Column {
+                    s.pinContextPane,
+                    s.enableContextPane
+                },
             },
             Group {
                 title(Tr::tr("Features")),
                 Column {
-                    foldAuxData,
+                    s.foldAuxData,
                     Form { Tr::tr("Open .ui.qml files with:"), uiQmlOpenComboBox },
                 },
             },
             Group{
                 title(Tr::tr("QML Language Server")),
-                Column{useQmlls, ignoreMinimumQmllsVersion, disableBuiltInCodemodel, useLatestQmlls, generateQmllsIniFiles},
+                Column {
+                    s.useQmlls,
+                    s.ignoreMinimumQmllsVersion,
+                    s.disableBuiltinCodemodel,
+                    s.useLatestQmlls,
+                    s.generateQmllsIniFiles
+                },
             },
             Group {
                 title(Tr::tr("Static Analyzer")),
-                Column{ useCustomAnalyzer, analyzerMessagesView },
+                Column {
+                    s.useCustomAnalyzer,
+                    analyzerMessagesView
+                },
             },
             st,
         }.attachTo(this);
@@ -423,46 +425,18 @@ public:
         Utils::VariableChooser::addSupportForChildWidgets(formattingGroup,
                                                           Utils::globalMacroExpander());
 
-        const auto updateFormatCommandState = [&, formatCommandLabel, formatCommandOptionsLabel] {
-            const bool enabled = useCustomFormatCommand->isChecked();
-            formatCommandLabel->setEnabled(enabled);
-            formatCommand->setEnabled(enabled);
-            formatCommandOptionsLabel->setEnabled(enabled);
-            formatCommandOptions->setEnabled(enabled);
-        };
-        updateFormatCommandState();
-
-        connect(autoFormatOnSave, &QCheckBox::toggled, this, [&, updateFormatCommandState]() {
-            autoFormatOnlyCurrentProject->setEnabled(autoFormatOnSave->isChecked());
-            updateFormatCommandState();
-        });
-        connect(useCustomFormatCommand, &QCheckBox::toggled, this, updateFormatCommandState);
-
         populateAnalyzerMessages(s.disabledMessages(), s.disabledMessagesForNonQuickUi());
     }
 
     void apply() final
     {
         QmlJsEditingSettings &s = settings();
-        s.enableContextPane.setValue(enableContextPane->isChecked());
-        s.pinContextPane.setValue(pinContextPane->isChecked());
-        s.autoFormatOnSave.setValue(autoFormatOnSave->isChecked());
-        s.autoFormatOnlyCurrentProject.setValue(autoFormatOnlyCurrentProject->isChecked());
-        s.useCustomFormatCommand.setValue(useCustomFormatCommand->isChecked());
-        s.formatCommand.setValue(formatCommand->text());
-        s.formatCommandOptions.setValue(formatCommandOptions->text());
-        s.foldAuxData.setValue(foldAuxData->isChecked());
+        s.apply();
         s.uiQmlOpenMode.setValue(uiQmlOpenComboBox->currentData().toString());
-        s.useQmlls.setValue(useQmlls->isChecked());
-        s.disableBuiltinCodemodel.setValue(disableBuiltInCodemodel->isChecked());
-        s.ignoreMinimumQmllsVersion.setValue(ignoreMinimumQmllsVersion->isChecked());
-        s.useLatestQmlls.setValue(useLatestQmlls->isChecked());
-        s.generateQmllsIniFiles.setValue(generateQmllsIniFiles->isChecked());
-        s.useCustomAnalyzer.setValue(useCustomAnalyzer->isChecked());
         QList<int> disabled;
         QList<int> disabledForNonQuickUi;
 
-        analyzerMessageModel->forAllItems(
+        analyzerMessageModel.forAllItems(
             [&disabled, &disabledForNonQuickUi](AnalyzerMessageItem *item){
             if (item->data(0, Qt::CheckStateRole) == Qt::Unchecked)
                 disabled.append(item->messageNumber());
@@ -480,7 +454,7 @@ private:
     {
         using namespace QmlJS::StaticAnalysis;
         auto knownMessages = Utils::sorted(Message::allMessageTypes());
-        auto root = analyzerMessageModel->rootItem();
+        auto root = analyzerMessageModel.rootItem();
         for (auto msgType : knownMessages) {
             const QString msg = Message::prototypeForMessageType(msgType).message;
             auto item = new AnalyzerMessageItem(msgType, msg);
@@ -499,7 +473,7 @@ private:
         QAction *reset = new QAction(Tr::tr("Reset to Default"), &menu);
         menu.addAction(reset);
         connect(reset, &QAction::triggered, this, [this](){
-            analyzerMessageModel->clear();
+            analyzerMessageModel.clear();
             populateAnalyzerMessages(defaultDisabledMessages(),
                                      defaultDisabledMessagesNonQuickUi());
 
@@ -507,23 +481,9 @@ private:
         menu.exec(analyzerMessagesView->mapToGlobal(position));
     }
 
-    QCheckBox *autoFormatOnSave;
-    QCheckBox *autoFormatOnlyCurrentProject;
-    QCheckBox *useCustomFormatCommand;
-    QLineEdit *formatCommand;
-    QLineEdit *formatCommandOptions;
-    QCheckBox *pinContextPane;
-    QCheckBox *enableContextPane;
-    QCheckBox *foldAuxData;
-    QCheckBox *useQmlls;
-    QCheckBox *useLatestQmlls;
-    QCheckBox *ignoreMinimumQmllsVersion;
-    QCheckBox *disableBuiltInCodemodel;
-    QCheckBox *generateQmllsIniFiles;
     QComboBox *uiQmlOpenComboBox;
-    QCheckBox *useCustomAnalyzer;
     QTreeView *analyzerMessagesView;
-    Utils::TreeModel<AnalyzerMessageItem> *analyzerMessageModel;
+    Utils::TreeModel<AnalyzerMessageItem> analyzerMessageModel;
 };
 
 QmlJsEditingSettingsPage::QmlJsEditingSettingsPage()
