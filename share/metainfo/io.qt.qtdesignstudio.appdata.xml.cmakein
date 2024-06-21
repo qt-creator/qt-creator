@@ -26,7 +26,7 @@
  </description>
  <launchable type="desktop-id">io.qt.qtdesignstudio.desktop</launchable>
 
- <url type="homepage">https://www.qt.io/ide/</url>
+ <url type="homepage">https://www.qt.io/product/ui-design-tools</url>
  <project_group>Qt</project_group>
  <content_rating type="oars-1.1" />
  <screenshots>
