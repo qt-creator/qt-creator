@@ -569,7 +569,7 @@ def qdump__QDir(d, value):
                 with SubItem(d, 'absolutePath'):
                     d.putItem(d.createValue(privAddress + absoluteDirEntryOffset, '@QString'))
                 with SubItem(d, 'entryInfoList'):
-                    qdumpHelper_QList(d, privAddress + fileInfosOffset, '@QFileInfo')
+                    qdumpHelper_QList(d, d.createValue(privAddress + fileInfosOffset, '@QList<@QFileInfo>'), '@QFileInfo')
                 with SubItem(d, 'entryList'):
                     d.putItem(d.createValue(privAddress + filesOffset, '@QStringList'))
             d.putFields(value)
@@ -1256,7 +1256,7 @@ def qdump__QLocale(d, value):
 
     prefix = ns + 'QLocale::'
     try:
-        if qtVersionAtLeast(0x060700):
+        if d.qtVersionAtLeast(0x060700):
             res = d.call('const char *', value, 'name', prefix + 'TagSeparator::Underscore')
         else:
             res = d.call('const char *', value, 'name')

@@ -313,6 +313,11 @@ bool FilePath::equalsCaseSensitive(const FilePath &other) const
     return equals(*this, other, Qt::CaseSensitive);
 }
 
+Utils::expected_str<std::unique_ptr<FilePathWatcher>> FilePath::watch() const
+{
+    return fileAccess()->watch(*this);
+}
+
 /*!
     Returns a QString for passing on to QString based APIs.
 

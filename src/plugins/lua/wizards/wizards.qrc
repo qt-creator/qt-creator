@@ -7,5 +7,7 @@
     <file>plugin/project.json</file>
     <file>plugin/wizard.json</file>
     <file>plugin/.luarc.json</file>
+    <file>plugin/icon.png</file>
+    <file>plugin/icon@2x.png</file>
   </qresource>
 </RCC>

@@ -144,14 +144,11 @@ bool LuaPluginSpec::delayedInitialize()
 }
 ExtensionSystem::IPlugin::ShutdownFlag LuaPluginSpec::stop()
 {
-    d->activeLuaState.reset();
+    d->activeLuaState->stack_clear();
     return ExtensionSystem::IPlugin::ShutdownFlag::SynchronousShutdown;
 }
 
-void LuaPluginSpec::kill()
-{
-    d->activeLuaState.reset();
-}
+void LuaPluginSpec::kill() {}
 
 bool LuaPluginSpec::printToOutputPane() const
 {

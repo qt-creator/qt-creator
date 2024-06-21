@@ -177,8 +177,11 @@ static inline int askMsgSendFailed()
 
 static inline QStringList getPluginPaths()
 {
-    QStringList rc(QDir::cleanPath(QApplication::applicationDirPath()
-                                   + '/' + RELATIVE_PLUGIN_PATH));
+    QStringList rc;
+    rc << (QDir::cleanPath(QApplication::applicationDirPath()
+                                   + '/' + RELATIVE_PLUGIN_PATH))
+       << (QDir::cleanPath(QApplication::applicationDirPath()
+                           + '/' + RELATIVE_DATA_PATH + "/lua-plugins"));
     // Local plugin path: <localappdata>/plugins/<ideversion>
     //    where <localappdata> is e.g.
     //    "%LOCALAPPDATA%\QtProject\qtcreator" on Windows Vista and later

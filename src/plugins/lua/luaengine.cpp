@@ -373,11 +373,9 @@ QJsonValue LuaEngine::toJson(const sol::table &table)
 QStringList LuaEngine::variadicToStringList(const sol::variadic_args &vargs)
 {
     QStringList strings;
-    int n = vargs.size();
-    int i;
-    for (i = 1; i <= n; i++) {
+    for (size_t i = 1, n = vargs.size(); i <= n; i++) {
         size_t l;
-        const char *s = luaL_tolstring(vargs.lua_state(), i, &l);
+        const char *s = luaL_tolstring(vargs.lua_state(), int(i), &l);
         if (s != nullptr)
             strings.append(QString::fromUtf8(s, l));
     }

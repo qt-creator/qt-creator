@@ -255,6 +255,9 @@
     \QMLLS of the highest registered Qt version, select
     \uicontrol {Use \QMLLS from latest Qt version}.
 
+    To use older \QMLLS versions, select
+    \uicontrol{Allow versions below Qt 6.8}.
+
     \image qtcreator-qml-js-editing.webp {QML/JS Editing preferences}
 
     When using \c qmlls from Qt 6.7 or later, set \l{QT_QML_GENERATE_QMLLS_INI}

@@ -220,7 +220,7 @@ bool SpotlightLocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefres
     caseSensitiveArgumentsEdit->setText(m_caseSensitiveArguments);
     auto sortResults = new QCheckBox(Tr::tr("Sort results"));
     sortResults->setChecked(m_sortResults);
-    layout->addRow(Tr::tr("Executable:"), commandEdit);
+    layout->addRow(Tr::tr("Executable:", "noun"), commandEdit);
     layout->addRow(Tr::tr("Arguments:"), argumentsEdit);
     layout->addRow(Tr::tr("Case sensitive:"), caseSensitiveArgumentsEdit);
     layout->addRow({}, sortResults);
@@ -231,7 +231,7 @@ bool SpotlightLocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefres
     chooser->addSupportedWidget(caseSensitiveArgumentsEdit);
     const bool accepted = ILocatorFilter::openConfigDialog(parent, &configWidget);
     if (accepted) {
-        m_command = commandEdit->rawFilePath().toString();
+        m_command = commandEdit->unexpandedFilePath().toString();
         m_arguments = argumentsEdit->text();
         m_caseSensitiveArguments = caseSensitiveArgumentsEdit->text();
         m_sortResults = sortResults->isChecked();

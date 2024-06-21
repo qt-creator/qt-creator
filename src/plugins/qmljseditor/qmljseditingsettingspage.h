@@ -68,6 +68,9 @@ public:
     bool useLatestQmlls() const;
     void setUseLatestQmlls(bool newUseLatestQmlls);
 
+    bool ignoreMinimumQmllsVersion() const;
+    void setIgnoreMinimumQmllsVersion(bool newIgnoreMinimumQmllsVersion);
+
     bool disableBuiltinCodemodel() const;
     void setDisableBuiltinCodemodel(bool newDisableBuiltinCodemodel);
 
@@ -89,6 +92,7 @@ private:
     bool m_useCustomAnalyzer = false;
     bool m_useQmlls = true;
     bool m_useLatestQmlls = false;
+    bool m_ignoreMinimumQmllsVersion = false;
     bool m_disableBuiltinCodemodel = false;
     bool m_generateQmllsIniFiles = false;
     QString m_uiQmlOpenMode;

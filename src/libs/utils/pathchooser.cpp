@@ -342,14 +342,14 @@ void PathChooser::setEnvironment(const Environment &env)
     }
 }
 
-FilePath PathChooser::rawFilePath() const
+FilePath PathChooser::unexpandedFilePath() const
 {
     return FilePath::fromUserInput(d->m_lineEdit->text());
 }
 
 FilePath PathChooser::filePath() const
 {
-    return d->expandedPath(rawFilePath());
+    return d->expandedPath(unexpandedFilePath());
 }
 
 FilePath PathChooser::absoluteFilePath() const

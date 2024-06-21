@@ -35,6 +35,7 @@ const char QML_CONTEXTPANEPIN_KEY[] = "QmlJSEditor.ContextPanePinned";
 const char FOLD_AUX_DATA[] = "QmlJSEditor.FoldAuxData";
 const char USE_QMLLS[] = "QmlJSEditor.UseQmlls";
 const char USE_LATEST_QMLLS[] = "QmlJSEditor.UseLatestQmlls";
+const char IGNORE_MINIMUM_QMLLS_VERSION[] = "QmlJSEditor.IgnoreMinimumQmllsVersion";
 const char DISABLE_BUILTIN_CODEMODEL[] = "QmlJSEditor.DisableBuiltinCodemodel";
 const char GENERATE_QMLLS_INI_FILES[] = "QmlJSEditor.GenerateQmllsIniFiles";
 const char UIQML_OPEN_MODE[] = "QmlJSEditor.openUiQmlMode";
@@ -107,8 +108,9 @@ void QmlJsEditingSettings::fromSettings(QtcSettings *settings)
     m_uiQmlOpenMode = settings->value(UIQML_OPEN_MODE, "").toString();
     m_useQmlls = settings->value(USE_QMLLS, QVariant(true)).toBool();
     m_useLatestQmlls = settings->value(USE_LATEST_QMLLS, QVariant(false)).toBool();
-    m_disableBuiltinCodemodel
-        = settings->value(DISABLE_BUILTIN_CODEMODEL, QVariant(false)).toBool();
+    m_ignoreMinimumQmllsVersion
+        = settings->value(IGNORE_MINIMUM_QMLLS_VERSION, QVariant(false)).toBool();
+    m_disableBuiltinCodemodel = settings->value(DISABLE_BUILTIN_CODEMODEL, QVariant(false)).toBool();
     m_generateQmllsIniFiles
         = settings->value(GENERATE_QMLLS_INI_FILES, QVariant(false)).toBool();
     m_formatCommand = settings->value(FORMAT_COMMAND, {}).toString();
@@ -138,6 +140,7 @@ void QmlJsEditingSettings::toSettings(QtcSettings *settings) const
     settings->setValue(UIQML_OPEN_MODE, m_uiQmlOpenMode);
     settings->setValue(USE_QMLLS, m_useQmlls);
     settings->setValue(USE_LATEST_QMLLS, m_useLatestQmlls);
+    settings->setValue(IGNORE_MINIMUM_QMLLS_VERSION, m_ignoreMinimumQmllsVersion);
     settings->setValue(DISABLE_BUILTIN_CODEMODEL, m_disableBuiltinCodemodel);
     settings->setValue(GENERATE_QMLLS_INI_FILES, m_generateQmllsIniFiles);
     settings->setValueWithDefault(FORMAT_COMMAND, m_formatCommand, {});
@@ -329,6 +332,16 @@ void QmlJsEditingSettings::setUseLatestQmlls(bool newUseLatestQmlls)
     m_useLatestQmlls = newUseLatestQmlls;
 }
 
+bool QmlJsEditingSettings::ignoreMinimumQmllsVersion() const
+{
+    return m_ignoreMinimumQmllsVersion;
+}
+
+void QmlJsEditingSettings::setIgnoreMinimumQmllsVersion(bool newIgnoreMinimumQmllsVersion)
+{
+    m_ignoreMinimumQmllsVersion = newIgnoreMinimumQmllsVersion;
+}
+
 bool QmlJsEditingSettings::useQmlls() const
 {
     return m_useQmlls;
@@ -434,6 +447,13 @@ public:
 
         useQmlls = new QCheckBox(Tr::tr("Enable QML Language Server"));
         useQmlls->setChecked(s.useQmlls());
+
+        ignoreMinimumQmllsVersion = new QCheckBox(
+            Tr::tr("Allow versions below Qt %1")
+                .arg(QmllsSettingsManager::mininumQmllsVersion.toString()));
+        ignoreMinimumQmllsVersion->setChecked(s.ignoreMinimumQmllsVersion());
+        ignoreMinimumQmllsVersion->setEnabled(s.useQmlls());
+
         disableBuiltInCodemodel = new QCheckBox(
             Tr::tr("Use QML Language Server advanced features (renaming, find usages and co.) "
                    "(EXPERIMENTAL!)"));
@@ -442,6 +462,7 @@ public:
         useLatestQmlls = new QCheckBox(Tr::tr("Use QML Language Server from latest Qt version"));
         useLatestQmlls->setChecked(s.useLatestQmlls());
         useLatestQmlls->setEnabled(s.useQmlls());
+
         generateQmllsIniFiles = new QCheckBox(
             Tr::tr("Generate QML Language Server .qmlls.ini configurations for new projects."));
         generateQmllsIniFiles->setChecked(s.generateQmllsIniFiles());
@@ -450,6 +471,7 @@ public:
             useLatestQmlls->setEnabled(checked != Qt::Unchecked);
             disableBuiltInCodemodel->setEnabled(checked != Qt::Unchecked);
             generateQmllsIniFiles->setEnabled(checked != Qt::Unchecked);
+            ignoreMinimumQmllsVersion->setEnabled(checked != Qt::Unchecked);
         });
 
         useCustomAnalyzer = new QCheckBox(Tr::tr("Use customized static analyzer"));
@@ -502,7 +524,7 @@ public:
             },
             Group{
                 title(Tr::tr("QML Language Server")),
-                Column{useQmlls, disableBuiltInCodemodel , useLatestQmlls, generateQmllsIniFiles},
+                Column{useQmlls, ignoreMinimumQmllsVersion, disableBuiltInCodemodel, useLatestQmlls, generateQmllsIniFiles},
             },
             Group {
                 title(Tr::tr("Static Analyzer")),
@@ -548,6 +570,7 @@ public:
         s.setUseQmlls(useQmlls->isChecked());
         s.setDisableBuiltinCodemodel(disableBuiltInCodemodel->isChecked());
         s.setUseLatestQmlls(useLatestQmlls->isChecked());
+        s.setIgnoreMinimumQmllsVersion(ignoreMinimumQmllsVersion->isChecked());
         s.setGenerateQmllsIniFiles(generateQmllsIniFiles->isChecked());
         s.setUseCustomAnalyzer(useCustomAnalyzer->isChecked());
         QSet<int> disabled;
@@ -606,6 +629,7 @@ private:
     QCheckBox *foldAuxData;
     QCheckBox *useQmlls;
     QCheckBox *useLatestQmlls;
+    QCheckBox *ignoreMinimumQmllsVersion;
     QCheckBox *disableBuiltInCodemodel;
     QCheckBox *generateQmllsIniFiles;
     QComboBox *uiQmlOpenComboBox;

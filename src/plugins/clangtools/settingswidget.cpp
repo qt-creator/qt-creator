@@ -99,12 +99,12 @@ SettingsWidget::~SettingsWidget()
 
 FilePath SettingsWidget::clangTidyPath() const
 {
-    return m_clangTidyPathChooser->rawFilePath();
+    return m_clangTidyPathChooser->unexpandedFilePath();
 }
 
 FilePath SettingsWidget::clazyStandalonePath() const
 {
-    return m_clazyStandalonePathChooser->rawFilePath();
+    return m_clazyStandalonePathChooser->unexpandedFilePath();
 }
 
 // ClangToolsOptionsPage

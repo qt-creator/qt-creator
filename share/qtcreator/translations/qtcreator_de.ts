@@ -21936,7 +21936,13 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Executable:</source>
+        <comment>adjective</comment>
         <translation>Ausführbar:</translation>
+    </message>
+    <message>
+        <source>Executable:</source>
+        <comment>noun</comment>
+        <translation>Ausführbare Datei:</translation>
     </message>
     <message>
         <source>Symbolic link:</source>

@@ -29,8 +29,8 @@ struct DirectoryScanResult
 static DirectoryScanResult scanForFiles(
     const QFuture<void> &future,
     const Utils::FilePath &directory,
-    const QDir::Filters &filter,
-    const std::function<FileNode *(const Utils::FilePath &)> factory,
+    QDir::Filters filter,
+    const std::function<FileNode *(const Utils::FilePath &)> &factory,
     const QList<Core::IVersionControl *> &versionControls)
 {
     DirectoryScanResult result;
@@ -57,10 +57,10 @@ static DirectoryScanResult scanForFiles(
 template<typename Result>
 QList<FileNode *> scanForFilesRecursively(
     QPromise<Result> &promise,
-    double progressRange,
+    int progressRange,
     const Utils::FilePath &directory,
-    const QDir::Filters &filter,
-    const std::function<FileNode *(const Utils::FilePath &)> factory,
+    QDir::Filters filter,
+    const std::function<FileNode *(const Utils::FilePath &)> &factory,
     const QList<Core::IVersionControl *> &versionControls)
 {
     const QFuture<void> future(promise.future());
@@ -69,10 +69,9 @@ QList<FileNode *> scanForFilesRecursively(
     const DirectoryScanResult result
         = scanForFiles(future, directory, filter, factory, versionControls);
     QList<FileNode *> fileNodes = result.nodes;
-    const double progressIncrement = progressRange
-                                     / static_cast<double>(
-                                         fileNodes.count() + result.subDirectories.count());
-    promise.setProgressValue(fileNodes.count() * progressIncrement);
+    const int progressIncrement = int(
+        progressRange / static_cast<double>(fileNodes.count() + result.subDirectories.count()));
+    promise.setProgressValue(int(fileNodes.count() * progressIncrement));
     QList<QPair<Utils::FilePath, int>> subDirectories;
     auto addSubDirectories = [&](const Utils::FilePaths &subdirs, int progressIncrement) {
         for (const Utils::FilePath &subdir : subdirs) {
@@ -98,12 +97,13 @@ QList<FileNode *> scanForFilesRecursively(
             const int progressRange = iterator->second;
             const DirectoryScanResult result = task.result();
             fileNodes.append(result.nodes);
-            const int subDirCount = result.subDirectories.count();
+            const qsizetype subDirCount = result.subDirectories.count();
             if (subDirCount == 0) {
                 promise.setProgressValue(promise.future().progressValue() + progressRange);
             } else {
-                const int fileCount = result.nodes.count();
-                const int increment = progressRange / static_cast<double>(fileCount + subDirCount);
+                const qsizetype fileCount = result.nodes.count();
+                const int increment = int(
+                    progressRange / static_cast<double>(fileCount + subDirCount));
                 promise.setProgressValue(
                     promise.future().progressValue() + increment * fileCount);
                 addSubDirectories(result.subDirectories, increment);
@@ -126,12 +126,12 @@ template<typename Result>
 QList<FileNode *> scanForFiles(
     QPromise<Result> &promise,
     const Utils::FilePath &directory,
-    const QDir::Filters &filter,
-    const std::function<FileNode *(const Utils::FilePath &)> factory)
+    QDir::Filters filter,
+    const std::function<FileNode *(const Utils::FilePath &)> &factory)
 {
     promise.setProgressRange(0, 1000000);
     return Internal::scanForFilesRecursively(promise,
-                                             1000000.0,
+                                             1000000,
                                              directory,
                                              filter,
                                              factory,

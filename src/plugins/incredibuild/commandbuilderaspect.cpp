@@ -132,7 +132,7 @@ void CommandBuilderAspect::addToLayout(Layouting::Layout &parent)
         d->makePathChooser->setBaseDirectory(PathChooser::homePath());
         d->makePathChooser->setHistoryCompleter("IncrediBuild.BuildConsole.MakeCommand.History");
         connect(d->makePathChooser, &PathChooser::rawPathChanged, this, [this] {
-            d->m_activeCommandBuilder->setCommand(d->makePathChooser->rawFilePath());
+            d->m_activeCommandBuilder->setCommand(d->makePathChooser->unexpandedFilePath());
             updateGui();
         });
     }

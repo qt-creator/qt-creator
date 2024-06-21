@@ -33,9 +33,13 @@ static FilePath evaluateLatestQmlls()
     QVersionNumber latestVersion;
     FilePath latestQmakeFilePath;
     int latestUniqueId = std::numeric_limits<int>::min();
+    const bool ignoreMinimumQmllsVersion
+        = QmllsSettingsManager::instance()->ignoreMinimumQmllsVersion();
     for (QtVersion *v : versions) {
         // check if we find qmlls
         QVersionNumber vNow = v->qtVersion();
+        if (!ignoreMinimumQmllsVersion && vNow < QmllsSettingsManager::mininumQmllsVersion)
+            continue;
         FilePath qmllsNow = QmlJS::ModelManagerInterface::qmllsForBinPath(v->hostBinPath(), vNow);
         if (!qmllsNow.isExecutableFile())
             continue;
@@ -111,6 +115,11 @@ void QmllsSettingsManager::checkForChanges()
 bool QmllsSettingsManager::useLatestQmlls() const
 {
     return m_useLatestQmlls;
+}
+
+bool QmllsSettingsManager::ignoreMinimumQmllsVersion() const
+{
+    return m_ignoreMinimumQmllsVersion;
 }
 
 bool QmllsSettingsManager::useQmlls() const

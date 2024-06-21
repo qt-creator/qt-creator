@@ -151,7 +151,7 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
     m_layout->addRow(m_sourceDirectoryWarning);
 
     connect(m_androidPackageSourceDir, &PathChooser::textChanged, m_wizard, [this] {
-        m_wizard->setDirectory(m_androidPackageSourceDir->rawFilePath());
+        m_wizard->setDirectory(m_androidPackageSourceDir->unexpandedFilePath());
     });
 
     if (wizard->copyGradle()) {

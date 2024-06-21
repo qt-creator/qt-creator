@@ -82,6 +82,13 @@ QtcPlugin {
         ]
     }
 
+    Group {
+        name: "Lua images rcc"
+        Qt.core.resourcePrefix: "lua/images/"
+        fileTags: "qt.core.resource_data"
+        files: "images/**"
+    }
+
     Export {
         Depends { name: "sol2" }
         Depends { name: "lua546" }

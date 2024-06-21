@@ -38,6 +38,8 @@ public:
 
     void expand();
 
+    void forceUpdateCheck() const;
+
 signals:
     void userChangesChanged();
     void detailsVisibleChanged(bool visible);

@@ -57,7 +57,7 @@ inline OsArch osArchFromString(const QString &architecture)
         return OsArchItanium;
     if (architecture == QLatin1String("arm"))
         return OsArchArm;
-    if (architecture == QLatin1String("arm64"))
+    if (architecture == QLatin1String("arm64") || architecture == QLatin1String("aarch64"))
         return OsArchArm64;
     return OsArchUnknown;
 }

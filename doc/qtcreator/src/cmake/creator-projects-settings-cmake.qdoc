@@ -1,0 +1,75 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-configure-cmake-for-project.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-projects-configure
+    \ingroup creator-how-to-build-with-cmake
+
+    \title Override CMake settings for a project
+
+    To override CMake settings for the current project:
+
+    \list 1
+        \li Go to \uicontrol Projects > \uicontrol {Project Settings} >
+            \uicontrol CMake.
+            \image qtcreator-project-settings-cmake.webp {CMake settings for a project}
+        \li Clear \uicontrol {Use global settings}.
+        \li Configure CMake for the project.
+    \endlist
+
+    Your choices override the values you set in \preferences > \uicontrol CMake >
+    \uicontrol General.
+
+    \table
+    \header
+        \li Setting
+        \li Value
+        \li Read More
+    \row
+        \li Autorun CMake
+        \li Runs CMake to refresh project information when you edit
+            a \c CMakeLists.txt configuration file in a project. Also,
+            refreshes project information when you build the project.
+        \li \l{View CMake project contents}
+    \row
+        \li Package manager auto setup
+        \li Sets up the \l {Conan Package Manager}{Conan} or
+            \l {vcpkg Package Manager}{vcpkg} package manager for use with CMake.
+        \li \l{Using CMake with Package Managers}
+    \row
+        \li Ask before re-configuring with initial parameters
+        \li Asks before acting when you select
+            \uicontrol {Re-configure with Initial Variables}.
+        \li \l{Re-configuring with Initial Variables}
+    \row
+        \li Ask before reloading CMake presets
+        \li Asks before acting when you select \uicontrol Build >
+            \uicontrol {Reload CMake Presets}.
+        \li \l{CMake Presets}
+    \row
+        \li Show subfolders inside source group folders
+        \li Hides subfolder names and arranges the files according to their
+            source group in the \uicontrol Projects view.
+        \li \l{Hide subfolder names in Projects view}
+    \row
+        \li Show advanced options by default
+        \li Shows all CMake variables by default in
+            \uicontrol {Initial Configuration} and
+            \uicontrol {Current Configuration}.
+        \li \l{Viewing Advanced Variables}
+    \row
+        \li Use junctions for CMake configuration and build operations
+        \li On Windows, uses junction points for CMake configure, build, and
+            install operations.
+        \li \l{Using Junction Points on Windows}
+    \endtable
+
+    You can set these preferences as \l{Configure Presets}{CMake presets} or in
+    a \l{Share project settings}{CMakeLists.txt.shared} file.
+
+    \sa {Build with CMake}{How To: Build with CMake}, {CMake},
+    {Configuring Projects}
+*/

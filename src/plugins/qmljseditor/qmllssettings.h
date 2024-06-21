@@ -6,8 +6,10 @@
 #include "qmljseditor_global.h"
 
 #include <utils/filepath.h>
+
 #include <QMutex>
 #include <QObject>
+#include <QVersionNumber>
 
 namespace QmlJSEditor {
 
@@ -16,6 +18,8 @@ class QMLJSEDITOR_EXPORT QmllsSettingsManager : public QObject
     Q_OBJECT
 
 public:
+    static const inline QVersionNumber mininumQmllsVersion = QVersionNumber(6, 8);
+
     static QmllsSettingsManager *instance();
 
     Utils::FilePath latestQmlls();
@@ -23,6 +27,7 @@ public:
 
     bool useQmlls() const;
     bool useLatestQmlls() const;
+    bool ignoreMinimumQmllsVersion() const;
 
 public slots:
     void checkForChanges();
@@ -33,6 +38,7 @@ private:
     QMutex m_mutex;
     bool m_useQmlls = true;
     bool m_useLatestQmlls = false;
+    bool m_ignoreMinimumQmllsVersion = false;
     bool m_disableBuiltinCodemodel = false;
     bool m_generateQmllsIniFiles = false;
     Utils::FilePath m_latestQmlls;

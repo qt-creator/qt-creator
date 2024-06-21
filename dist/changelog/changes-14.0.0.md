@@ -131,9 +131,10 @@ Editing
 Projects
 --------
 
-* Added the option to hide all unconfigured kits from the list in `Projects`
-  mode
+* Added the `Hide Inactive Kits`/`Show All Kits` button to hide inactive kits
+  from the list in the `Projects` mode
 * Added support for user comments in the environment editor
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-14.0/creator-how-to-edit-environment-settings.html))
 * Fixed the parsing of file links when color was used for the output
   ([QTCREATORBUG-30774](https://bugreports.qt.io/browse/QTCREATORBUG-30774))
 * Fixed that the column information was not used when opening files from links
@@ -148,7 +149,7 @@ Projects
 
 * Made CMake settings configurable per project
 * Implemented `Open Online Documentation` for CMake documentation
-* Added `Clear CMake Configuration` to the context menu in the Projects view
+* Added `Clear CMake Configuration` to the context menu in the `Projects` view
   ([QTCREATORBUG-24658](https://bugreports.qt.io/browse/QTCREATORBUG-24658))
 * Fixed that the package manager auto-setup files were not removed with
   `Clear CMake Configuration`
@@ -162,7 +163,11 @@ Projects
        [QTCREATORBUG-29559](https://bugreports.qt.io/browse/QTCREATORBUG-29559),
        [QTCREATORBUG-30385](https://bugreports.qt.io/browse/QTCREATORBUG-30385))
     * Made it possible to register debuggers
+      ([QTCREATORBUG-30836](https://bugreports.qt.io/browse/QTCREATORBUG-30836))
     * Added support for custom build types
+      ([QTCREATORBUG-30014](https://bugreports.qt.io/browse/QTCREATORBUG-30014))
+
+    ([Documentation](https://doc-snapshots.qt.io/qtcreator-14.0/creator-build-settings-cmake-presets.html))
 
 ### Workspace
 

@@ -163,10 +163,10 @@ int AttachCoreDialog::exec()
 {
     connect(d->symbolFileName, &PathChooser::validChanged, this, &AttachCoreDialog::changed);
     connect(d->coreFileName, &PathChooser::validChanged, this, [this] {
-        coreFileChanged(d->coreFileName->rawFilePath());
+        coreFileChanged(d->coreFileName->unexpandedFilePath());
     });
     connect(d->coreFileName, &PathChooser::textChanged, this, [this] {
-        coreFileChanged(d->coreFileName->rawFilePath());
+        coreFileChanged(d->coreFileName->unexpandedFilePath());
     });
     connect(d->kitChooser, &KitChooser::currentIndexChanged, this, &AttachCoreDialog::changed);
     connect(d->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);

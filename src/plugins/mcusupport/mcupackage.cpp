@@ -314,7 +314,7 @@ QWidget *McuPackage::widget()
     QObject::connect(this, &McuPackage::statusChanged, widget, [this] { updateStatusUi(); });
 
     QObject::connect(m_fileChooser, &PathChooser::textChanged, this, [this] {
-        setPath(m_fileChooser->rawFilePath());
+        setPath(m_fileChooser->unexpandedFilePath());
     });
 
     connect(this, &McuPackage::changed, m_fileChooser, [this] {

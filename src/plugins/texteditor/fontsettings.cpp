@@ -156,7 +156,7 @@ QTextCharFormat FontSettings::toTextCharFormat(TextStyle category) const
     QTextCharFormat tf;
 
     if (category == C_TEXT) {
-        tf.setFontFamily(m_family);
+        tf.setFontFamilies({m_family});
         tf.setFontPointSize(m_fontSize * m_fontZoom / 100.);
         tf.setFontStyleStrategy(m_antialias ? QFont::PreferAntialias : QFont::NoAntialias);
     }

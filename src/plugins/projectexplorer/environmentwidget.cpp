@@ -332,6 +332,7 @@ void EnvironmentWidget::setBaseEnvironmentText(const QString &text)
 
 Utils::EnvironmentItems EnvironmentWidget::userChanges() const
 {
+    forceUpdateCheck();
     return d->m_model->userChanges();
 }
 
@@ -350,6 +351,11 @@ void EnvironmentWidget::setOpenTerminalFunc(const EnvironmentWidget::OpenTermina
 void EnvironmentWidget::expand()
 {
     d->m_detailsContainer->setState(Utils::DetailsWidget::Expanded);
+}
+
+void EnvironmentWidget::forceUpdateCheck() const
+{
+    d->m_editor.forceUpdateCheck();
 }
 
 void EnvironmentWidget::updateSummaryText()

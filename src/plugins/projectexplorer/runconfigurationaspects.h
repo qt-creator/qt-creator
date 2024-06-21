@@ -227,6 +227,36 @@ public:
     QString detectionSource;
 };
 
+class PROJECTEXPLORER_EXPORT LauncherAspect : public Utils::BaseAspect
+{
+    Q_OBJECT
+
+public:
+    LauncherAspect(Utils::AspectContainer *container = nullptr);
+
+    Launcher currentLauncher() const;
+    void updateLaunchers(const QList<Launcher> &launchers);
+    void setDefaultLauncher(const Launcher &launcher);
+    void setCurrentLauncher(const Launcher &launcher);
+    void setSettingsDialogId(Utils::Id id) { m_settingsDialogId = id; }
+
+    void fromMap(const Utils::Store &) override;
+    void toMap(Utils::Store &) const override;
+    void addToLayout(Layouting::Layout &parent) override;
+
+    struct Data : Utils::BaseAspect::Data { Launcher launcher; };
+
+private:
+    void setCurrentLauncherId(const QString &id);
+    void updateCurrentLauncher();
+    void updateComboBox();
+    QList<Launcher> m_launchers;
+    QPointer<QComboBox> m_comboBox;
+    QString m_defaultId;
+    QString m_currentId;
+    Utils::Id m_settingsDialogId;
+};
+
 class PROJECTEXPLORER_EXPORT MainScriptAspect : public Utils::FilePathAspect
 {
     Q_OBJECT
