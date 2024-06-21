@@ -97,6 +97,7 @@ public:
     QString serverName() const;
     QString serverVersion() const;
     const DynamicCapabilities &dynamicCapabilities() const;
+    DynamicCapabilities &dynamicCapabilities();
     void registerCapabilities(const QList<LanguageServerProtocol::Registration> &registrations);
     void unregisterCapabilities(const QList<LanguageServerProtocol::Unregistration> &unregistrations);
 
