@@ -163,13 +163,23 @@ bool OpenEditorsWindow::eventFilter(QObject *obj, QEvent *e)
     if (obj == m_editorView) {
         if (e->type() == QEvent::ShortcutOverride) {
             auto ke = static_cast<QKeyEvent*>(e);
-            if (ke->key() == Qt::Key_Up) {
+            switch (ke->key()) {
+            case Qt::Key_Up:
                 selectPreviousEditor();
                 return true;
-            }
-            if (ke->key() == Qt::Key_Down) {
+            case Qt::Key_Down:
                 selectNextEditor();
                 return true;
+            case Qt::Key_P:
+            case Qt::Key_N:
+                if (ke->modifiers() == Qt::KeyboardModifiers(HostOsInfo::controlModifier())) {
+                    if (ke->key() == Qt::Key_P)
+                        selectPreviousEditor();
+                    else
+                        selectNextEditor();
+                    return true;
+                }
+                break;
             }
         }
         if (e->type() == QEvent::KeyPress) {
