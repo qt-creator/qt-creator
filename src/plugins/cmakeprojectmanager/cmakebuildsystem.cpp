@@ -985,7 +985,7 @@ bool CMakeBuildSystem::renameFile(Node *context,
 
             // Try the next occurrence. This can happen if set_source_file_properties is used
             fileToRename = projectFileArgumentPosition(targetName, oldRelPathName);
-        } while (fileToRename);
+        } while (fileToRename && !fileToRename->fromGlobbing);
 
         return true;
     }
