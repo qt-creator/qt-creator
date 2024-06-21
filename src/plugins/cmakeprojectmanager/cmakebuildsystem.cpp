@@ -936,10 +936,6 @@ bool CMakeBuildSystem::renameFile(Node *context,
         const FilePath newRelPath = newFilePath.canonicalPath().relativePathFrom(projDir).cleanPath();
         const QString newRelPathName = newRelPath.toString();
 
-        // FilePath needs the file to exist on disk, the old file has already been renamed
-        const QString oldRelPathName
-            = newRelPath.parentDir().pathAppended(oldFilePath.fileName()).cleanPath().toString();
-
         const QString targetName = n->buildKey();
         const QString key
             = QStringList{projDir.path(), targetName, oldFilePath.path(), newFilePath.path()}.join(
@@ -984,7 +980,7 @@ bool CMakeBuildSystem::renameFile(Node *context,
             }
 
             // Try the next occurrence. This can happen if set_source_file_properties is used
-            fileToRename = projectFileArgumentPosition(targetName, oldRelPathName);
+            fileToRename = projectFileArgumentPosition(targetName, fileToRename->relativeFileName);
         } while (fileToRename && !fileToRename->fromGlobbing);
 
         return true;
