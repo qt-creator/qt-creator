@@ -73,7 +73,10 @@ jobs:
             file(APPEND "$ENV{GITHUB_OUTPUT}" "tag=${{github.run_id}}\n")
         endif()
 
-
+    - name: Setup Go 1.22.x
+      uses: actions/setup-go@v5
+      with:
+        go-version: 1.22.x
     - name: Download Ninja and CMake
       shell: cmake -P {0}
       run: |
