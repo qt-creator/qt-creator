@@ -17,6 +17,7 @@ Product {
             "designer/**/*",
             "glsl/**/*",
             "jsonschemas/**/*",
+            "lua-plugins/**/*",
             "modeleditor/**/*",
             "qml/**/*",
             "qmldesigner/**/*",
