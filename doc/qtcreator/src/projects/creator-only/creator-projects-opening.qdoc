@@ -14,6 +14,7 @@
 
     \ingroup creator-how-to-projects-configure
     \ingroup creator-how-to-manage-kits
+    \ingroup creator-how-to-projects
 
     \title Open projects
 
@@ -48,6 +49,15 @@
                     projects (3).
             \endlist
     \endlist
+
+    \section1 Open directories as projects
+
+    To open a directory as a project, go to \uicontrol File >
+    \uicontrol {Open Workspace}.
+
+    \QC generates the \e .qtcreator/project.json project file in the directory
+    for setting a project name and file exclusion filters. You can open either
+    the JSON file or the workspace to open the project the next time.
 
     \section1 Re-configure projects
 
