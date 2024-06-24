@@ -20,7 +20,7 @@ instructions:
     maxTimeInSeconds: 600
     maxTimeBetweenOutput: 600
     project: qtsdk/tqtc-qtsdk
-    ref: master
+    ref: production
     directory: "build/tqtc-qtsdk"
     userMessageOnFailure: "Failed to install tqtc-qtsdk, check logs"
   - type: Group
