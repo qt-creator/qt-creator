@@ -75,6 +75,7 @@ public:
     bool isMovable() const override;
     bool isQuickItem() const override;
     bool isRenderable() const override;
+    bool isComposedEffect() const override;
 
     QList<ServerNodeInstance> stateInstances() const override;
 
@@ -123,6 +124,7 @@ private: //variables
     double m_width;
     double m_height;
     bool m_hidden = false;
+    bool m_isComposedEffect = false;
     static bool s_createEffectItem;
     static bool s_unifiedRenderPath;
 };

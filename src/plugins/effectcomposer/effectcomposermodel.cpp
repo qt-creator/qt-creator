@@ -846,7 +846,8 @@ R"(
 
     QString parentChanged{
 R"(
-    onParentChanged: {
+    function setupParentLayer()
+    {
         if (_oldParent && _oldParent !== parent) {
             _oldParent.layer.enabled = false
             _oldParent.layer.effect = null
@@ -860,26 +861,21 @@ R"(
             if (visible) {
                 parent.layer.enabled = true
                 parent.layer.effect = effectComponent
+                %6
+                %4%1%5%3
+            } else {
+                parent.layer.enabled = false
+                parent.layer.effect = null
+                %8
+                %4%2
             }
-            %6
-            %4%1%5%3
+            parent.update()
         }
     }
 
-    onVisibleChanged: {
-        if (visible) {
-            parent.layer.enabled = true
-            parent.layer.effect = effectComponent
-            %6
-            %4%1%5%3
-        } else {
-            parent.layer.enabled = false
-            parent.layer.effect = null
-            %8
-            %4%2
-        }
-        parent.update()
-    }
+    onParentChanged: setupParentLayer()
+
+    onVisibleChanged: setupParentLayer()
 
 )"
     };
