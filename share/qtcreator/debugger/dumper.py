@@ -1428,8 +1428,9 @@ class DumperBase():
     # This is shared by pointer and array formatting.
     def tryPutSimpleFormattedPointer(self, ptr, typename, innerType, displayFormat, limit):
         if displayFormat == DisplayFormat.Automatic:
-            targetType = innerType
-            if innerType.code == TypeCode.Typedef:
+            if self.isCdb or innerType.code is not TypeCode.Typedef:
+                targetType = innerType
+            else:
                 targetType = innerType.target()
 
             if targetType.name in ('char', 'signed char', 'unsigned char', 'uint8_t', 'CHAR'):
@@ -3406,13 +3407,6 @@ typename))
 
         def target(self):
             return self.dumper.Type(self.dumper, self.dumper.type_target(self.typeid))
-
-        @property
-        def targetName(self):
-            target = self.target()
-            if target is None:
-                return ''
-            return target if isinstance(target, str) else target.name
 
         @property
         def moduleName(self):

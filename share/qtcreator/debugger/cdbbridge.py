@@ -479,7 +479,7 @@ class Dumper(DumperBase):
         else:
             val = self.Value(self)
             val.laddress = value.pointer()
-            val.typeid = self.typeid_for_string(value.type.targetName)
+            val.typeid = self.type_target(value.typeid)
             val.nativeValue = value.nativeValue
 
         return val
@@ -709,85 +709,6 @@ class Dumper(DumperBase):
                           addrBase=addrBase, addrStep=innerSize):
                 for i in self.childRange():
                     self.putSubItem(i, self.createValue(addrBase + i * innerSize, innerType))
-
-    def tryPutSimpleFormattedPointer(self, ptr, typeName, innerType, displayFormat, limit):
-        if isinstance(innerType, self.Type):
-            innerType = innerType.name
-        if displayFormat == DisplayFormat.Automatic:
-            if innerType in ('char', 'signed char', 'unsigned char', 'uint8_t', 'CHAR'):
-                # Use UTF-8 as default for char *.
-                self.putType(typeName)
-                (length, shown, data) = self.readToFirstZero(ptr, 1, limit)
-                self.putValue(data, 'utf8', length=length)
-                if self.isExpanded():
-                    self.putArrayData(ptr, shown, innerType)
-                return True
-
-            if innerType in ('wchar_t', 'WCHAR'):
-                self.putType(typeName)
-                (length, data) = self.encodeCArray(ptr, 2, limit)
-                self.putValue(data, 'utf16', length=length)
-                return True
-
-        if displayFormat == DisplayFormat.Latin1String:
-            self.putType(typeName)
-            (length, data) = self.encodeCArray(ptr, 1, limit)
-            self.putValue(data, 'latin1', length=length)
-            return True
-
-        if displayFormat == DisplayFormat.SeparateLatin1String:
-            self.putType(typeName)
-            (length, data) = self.encodeCArray(ptr, 1, limit)
-            self.putValue(data, 'latin1', length=length)
-            self.putDisplay('latin1:separate', data)
-            return True
-
-        if displayFormat == DisplayFormat.Utf8String:
-            self.putType(typeName)
-            (length, data) = self.encodeCArray(ptr, 1, limit)
-            self.putValue(data, 'utf8', length=length)
-            return True
-
-        if displayFormat == DisplayFormat.SeparateUtf8String:
-            self.putType(typeName)
-            (length, data) = self.encodeCArray(ptr, 1, limit)
-            self.putValue(data, 'utf8', length=length)
-            self.putDisplay('utf8:separate', data)
-            return True
-
-        if displayFormat == DisplayFormat.Local8BitString:
-            self.putType(typeName)
-            (length, data) = self.encodeCArray(ptr, 1, limit)
-            self.putValue(data, 'local8bit', length=length)
-            return True
-
-        if displayFormat == DisplayFormat.Utf16String:
-            self.putType(typeName)
-            (length, data) = self.encodeCArray(ptr, 2, limit)
-            self.putValue(data, 'utf16', length=length)
-            return True
-
-        if displayFormat == DisplayFormat.Ucs4String:
-            self.putType(typeName)
-            (length, data) = self.encodeCArray(ptr, 4, limit)
-            self.putValue(data, 'ucs4', length=length)
-            return True
-
-        return False
-
-    def putDerefedPointer(self, value):
-        derefValue = value.dereference()
-        savedCurrentChildType = self.currentChildType
-        self.currentChildType = value.type.targetName
-        self.putType(value.type.targetName)
-        derefValue.name = '*'
-        derefValue.autoDerefCount = value.autoDerefCount + 1
-
-        if derefValue.type.code == TypeCode.Pointer:
-            self.putField('autoderefcount', '{}'.format(derefValue.autoDerefCount))
-
-        self.putItem(derefValue)
-        self.currentChildType = savedCurrentChildType
 
     def fetchInternalFunctions(self):
         coreModuleName = self.qtCoreModuleName()
