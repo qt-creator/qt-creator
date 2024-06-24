@@ -7,7 +7,12 @@
 #include "vcpkgsettings.h"
 #include "vcpkgtr.h"
 
+#include <solutions/spinner/spinner.h>
+#include <solutions/tasking/tasktree.h>
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/fancylineedit.h>
 #include <utils/fileutils.h>
 #include <utils/infolabel.h>
@@ -37,6 +42,7 @@ private:
     void listPackages(const QString &filter);
     void showPackageDetails(const QString &packageName);
     void updateStatus();
+    void updatePackages();
 
     VcpkgManifests m_allPackages;
     VcpkgManifest m_selectedPackage;
@@ -52,6 +58,8 @@ private:
     QLabel *m_vcpkgHomepage;
     InfoLabel *m_infoLabel;
     QDialogButtonBox *m_buttonBox;
+    SpinnerSolution::Spinner *m_spinner;
+    Tasking::TaskTreeRunner m_taskTreeRunner;
 };
 
 VcpkgPackageSearchDialog::VcpkgPackageSearchDialog(const VcpkgManifest &preexistingPackages,
@@ -112,10 +120,10 @@ VcpkgPackageSearchDialog::VcpkgPackageSearchDialog(const VcpkgManifest &preexist
     }.attachTo(this);
     // clang-format on
 
-    m_allPackages = vcpkgManifests(settings().vcpkgRoot());
+    m_spinner = new SpinnerSolution::Spinner(SpinnerSolution::SpinnerSize::Large, this);
 
-    listPackages({});
     updateStatus();
+    updatePackages();
 
     connect(m_packagesFilter, &FancyLineEdit::filterChanged,
             this, &VcpkgPackageSearchDialog::listPackages);
@@ -175,6 +183,38 @@ void VcpkgPackageSearchDialog::updateStatus()
     m_infoLabel->setVisible(isProjectDependency);
     m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(!(package.isEmpty()
                                                             || isProjectDependency));
+}
+
+void VcpkgPackageSearchDialog::updatePackages()
+{
+    using ResultType = VcpkgManifests;
+
+    const auto parseManifests = [=](QPromise<ResultType> &promise, const FilePath &srcPath) {
+        promise.addResult(vcpkgManifests(srcPath));
+    };
+
+    using namespace Tasking;
+    Group group {
+        onGroupSetup([this]() {
+            m_spinner->show();
+        }),
+        AsyncTask<ResultType>{
+            [parseManifests](Async<ResultType> &task) {
+                task.setConcurrentCallData(parseManifests,
+                                           settings().vcpkgRoot());
+            },
+            [this](const Async<ResultType> &task) {
+                m_allPackages = task.result();
+            }
+        },
+        onGroupDone([this]() {
+            m_spinner->hide();
+            listPackages({});
+            updateStatus();
+        }),
+    };
+
+    m_taskTreeRunner.start(group);
 }
 
 VcpkgManifest parseVcpkgManifest(const QByteArray &vcpkgManifestJsonData, bool *ok)
