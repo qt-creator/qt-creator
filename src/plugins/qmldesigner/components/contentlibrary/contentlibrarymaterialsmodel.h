@@ -62,7 +62,7 @@ signals:
 private:
     void loadMaterialBundle();
     bool fetchBundleIcons();
-    bool fetchBundleMetadata();
+    bool fetchBundleJsonFile();
     bool isValidIndex(int idx) const;
     void downloadSharedFiles();
 

@@ -44,7 +44,7 @@ ContentLibraryMaterialsModel::ContentLibraryMaterialsModel(ContentLibraryWidget 
 
 void ContentLibraryMaterialsModel::loadBundle()
 {
-    if (fetchBundleMetadata() && fetchBundleIcons())
+    if (fetchBundleJsonFile() && fetchBundleIcons())
         loadMaterialBundle();
 }
 
@@ -152,19 +152,20 @@ bool ContentLibraryMaterialsModel::fetchBundleIcons()
     return false;
 }
 
-bool ContentLibraryMaterialsModel::fetchBundleMetadata()
+bool ContentLibraryMaterialsModel::fetchBundleJsonFile()
 {
     Utils::FilePath jsonFilePath = m_bundlePath.pathAppended("material_bundle.json");
 
     if (jsonFilePath.exists() && jsonFilePath.fileSize() > 0)
         return true;
 
-    QString metaFileUrl = m_baseUrl + "/material_bundle.json";
+    QString bundleJsonUrl = m_baseUrl + "/material_bundle.json";
+
     FileDownloader *downloader = new FileDownloader(this);
-    downloader->setUrl(metaFileUrl);
+    downloader->setUrl(bundleJsonUrl);
     downloader->setProbeUrl(false);
     downloader->setDownloadEnabled(true);
-    downloader->setTargetFilePath(m_bundlePath.toFSPathString());
+    downloader->setTargetFilePath(jsonFilePath.toFSPathString());
 
     QObject::connect(downloader, &FileDownloader::finishedChanged, this,
                      [this, downloader] {
