@@ -387,6 +387,7 @@ void LanguageClientManager::enableClientSettings(const QString &settingsId, bool
 QList<Client *> LanguageClientManager::clientsForSetting(const BaseSettings *setting)
 {
     QTC_ASSERT(managerInstance, return {});
+    QTC_ASSERT(setting, return {});
     auto instance = managerInstance;
     return instance->m_clientsForSetting.value(setting->m_id);
 }
