@@ -46,7 +46,7 @@ public:
     AuthenticationType authenticationType = AuthenticationTypeAll;
     SshHostKeyCheckingMode hostKeyCheckingMode = SshHostKeyCheckingAllowNoMatch;
 
-    static bool setupSshEnvironment(Utils::Process *process);
+    static void setupSshEnvironment(Utils::Process *process);
 
     friend PROJECTEXPLORER_EXPORT bool operator==(const SshParameters &p1, const SshParameters &p2);
     friend bool operator!=(const SshParameters &p1, const SshParameters &p2) { return !(p1 == p2); }
