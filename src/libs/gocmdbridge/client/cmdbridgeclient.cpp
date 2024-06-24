@@ -294,7 +294,10 @@ expected_str<QFuture<Environment>> Client::start()
                     auto func = it.value();
                     auto id = it.key();
                     it = j->map.erase(it);
-                    func(QVariantMap{{"Type", "error"}, {"Id", id}, {"Error", "Process exited"}});
+                    func(QVariantMap{
+                        {"Type", "error"},
+                        {"Id", id},
+                        {"Error", QString("Process exited: %1").arg(d->process->errorString())}});
                 }
 
                 emit done(d->process->resultData());

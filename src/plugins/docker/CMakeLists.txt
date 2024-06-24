@@ -1,5 +1,4 @@
 add_qtc_plugin(Docker
-  CONDITION TARGET CmdBridgeClient
   DEPENDS Utils CmdBridgeClient
   PLUGIN_DEPENDS Core ProjectExplorer QtSupport
   SOURCES

@@ -78,7 +78,6 @@
 #include <QThread>
 #include <QToolButton>
 
-#include <numeric>
 #include <optional>
 
 #ifdef Q_OS_UNIX
@@ -114,6 +113,31 @@ public:
     QString mapToDevicePath(const QString &hostPath) const override;
 
     DockerDevicePrivate *m_dev = nullptr;
+};
+
+class DockerFallbackFileAccess : public UnixDeviceFileAccess
+{
+    const FilePath m_rootPath;
+
+public:
+    DockerFallbackFileAccess(const FilePath &rootPath)
+        : m_rootPath(rootPath)
+    {}
+
+    RunResult runInShell(const CommandLine &cmdLine, const QByteArray &stdInData) const override
+    {
+        Process proc;
+        proc.setWriteData(stdInData);
+        proc.setCommand(
+            {m_rootPath.withNewPath(cmdLine.executable().path()), cmdLine.splitArguments()});
+        proc.runBlocking();
+
+        return {
+            proc.resultData().m_exitCode,
+            proc.readAllRawStandardOutput(),
+            proc.readAllRawStandardError(),
+        };
+    }
 };
 
 void DockerDeviceSettings::fromMap(const Store &map)
@@ -333,7 +357,7 @@ public:
 
     std::optional<Environment> m_cachedEnviroment;
     bool m_isShutdown = false;
-    std::unique_ptr<DockerDeviceFileAccess> m_fileAccess;
+    std::unique_ptr<DeviceFileAccess> m_fileAccess;
 };
 
 class DockerProcessImpl : public ProcessInterface
@@ -373,8 +397,10 @@ DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePriva
     });
 
     connect(&m_process, &Process::readyReadStandardOutput, this, [this] {
-        if (m_hasReceivedFirstOutput)
+        if (m_hasReceivedFirstOutput) {
             emit readyRead(m_process.readAllRawStandardOutput(), {});
+            return;
+        }
 
         QByteArray output = m_process.readAllRawStandardOutput();
         qsizetype idx = output.indexOf('\n');
@@ -383,14 +409,30 @@ DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePriva
         qCDebug(dockerDeviceLog) << "Process first line received:" << m_process.commandLine()
                                  << firstLine;
 
-        if (!firstLine.startsWith("__qtc"))
+        if (!firstLine.startsWith("__qtc")) {
+            emit done(ProcessResultData{
+                -1,
+                QProcess::ExitStatus::CrashExit,
+                QProcess::ProcessError::FailedToStart,
+                QString::fromUtf8(firstLine),
+            });
             return;
+        }
 
         bool ok = false;
         m_remotePID = firstLine.mid(5, firstLine.size() - 5 - 5).toLongLong(&ok);
 
         if (ok)
             emit started(m_remotePID);
+        else {
+            emit done(ProcessResultData{
+                -1,
+                QProcess::ExitStatus::CrashExit,
+                QProcess::ProcessError::FailedToStart,
+                QString::fromUtf8(firstLine),
+            });
+            return;
+        }
 
         // In case we already received some error output, send it now.
         const QByteArray stdErr = m_process.readAllRawStandardError();
@@ -479,8 +521,18 @@ void DockerProcessImpl::sendControlSignal(ControlSignal controlSignal)
             m_process.closeWriteChannel();
             return;
         }
-        static_cast<DockerDeviceFileAccess *>(m_device->fileAccess())
-            ->signalProcess(m_remotePID, controlSignal);
+        auto dfa = dynamic_cast<DockerDeviceFileAccess *>(m_device->fileAccess());
+        if (dfa) {
+            static_cast<DockerDeviceFileAccess *>(m_device->fileAccess())
+                ->signalProcess(m_remotePID, controlSignal);
+        } else {
+            const int signal = controlSignalToInt(controlSignal);
+            Process p;
+            p.setCommand(
+                {m_device->rootPath().withNewPath("kill"),
+                 {QString("-%1").arg(signal), QString("%2").arg(m_remotePID)}});
+            p.runBlocking();
+        }
     } else {
         // clang-format off
         switch (controlSignal) {
@@ -544,9 +596,14 @@ DockerDevice::DockerDevice(std::unique_ptr<DockerDeviceSettings> deviceSettings)
     setFileAccess([this]() -> DeviceFileAccess * {
         if (!d->m_fileAccess) {
             auto fileAccess = std::make_unique<DockerDeviceFileAccess>(d);
-            QTC_ASSERT_EXPECTED(
-                fileAccess->init(rootPath().withNewPath("/tmp/_qtc_cmdbridge")), return nullptr);
-            d->m_fileAccess = std::move(fileAccess);
+            auto initResult = fileAccess->init(rootPath().withNewPath("/tmp/_qtc_cmdbridge"));
+            QTC_CHECK(initResult);
+            if (initResult) {
+                d->m_fileAccess = std::move(fileAccess);
+                return d->m_fileAccess.get();
+            }
+
+            d->m_fileAccess = std::make_unique<DockerFallbackFileAccess>(rootPath());
         }
         return d->m_fileAccess.get();
     });
@@ -649,11 +706,20 @@ CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd,
     exec.addCommandLineAsArgs(cmd, CommandLine::Raw);
 
     if (withMarker) {
+        // Check the executable for existence.
+        CommandLine testType({"type", {}});
+        testType.addArg(cmd.executable().path());
+        testType.addArgs(">/dev/null", CommandLine::Raw);
+
+        // Send PID only if existence was confirmed, so we can correctly notify
+        // a failed start.
         CommandLine echo("echo");
         echo.addArgs("__qtc$$qtc__", CommandLine::Raw);
         echo.addCommandLineWithAnd(exec);
 
-        dockerCmd.addCommandLineAsSingleArg(echo);
+        testType.addCommandLineWithAnd(echo);
+
+        dockerCmd.addCommandLineAsSingleArg(testType);
     } else {
         dockerCmd.addCommandLineAsSingleArg(exec);
     }
@@ -762,6 +828,8 @@ QStringList DockerDevicePrivate::createMountArgs() const
 
     const Utils::expected_str<Utils::FilePath> cmdBridgePath = CmdBridge::Client::getCmdBridgePath(
         osAndArch.first, osAndArch.second, Core::ICore::libexecPath());
+
+    QTC_CHECK_EXPECTED(cmdBridgePath);
 
     QStringList cmds;
     QList<MountPair> mounts;
