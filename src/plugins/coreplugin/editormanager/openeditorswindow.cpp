@@ -165,34 +165,35 @@ bool OpenEditorsWindow::eventFilter(QObject *obj, QEvent *e)
             auto ke = static_cast<QKeyEvent*>(e);
             switch (ke->key()) {
             case Qt::Key_Up:
-                selectPreviousEditor();
+            case Qt::Key_P:
+                e->accept();
                 return true;
             case Qt::Key_Down:
-                selectNextEditor();
-                return true;
-            case Qt::Key_P:
             case Qt::Key_N:
-                if (ke->modifiers() == Qt::KeyboardModifiers(HostOsInfo::controlModifier())) {
-                    if (ke->key() == Qt::Key_P)
-                        selectPreviousEditor();
-                    else
-                        selectNextEditor();
-                    return true;
-                }
-                break;
+                e->accept();
+                return true;
             }
         }
         if (e->type() == QEvent::KeyPress) {
             auto ke = static_cast<QKeyEvent*>(e);
-            if (ke->key() == Qt::Key_Escape) {
+            switch (ke->key()) {
+            case Qt::Key_Up:
+            case Qt::Key_P:
+                selectNextEditor();
+                return true;
+            case Qt::Key_Down:
+            case Qt::Key_N:
+                selectPreviousEditor();
+                return true;
+            case Qt::Key_Escape:
                 setVisible(false);
                 return true;
-            }
-            if (ke->key() == Qt::Key_Return
-                    || ke->key() == Qt::Key_Enter) {
+            case Qt::Key_Return:
+            case Qt::Key_Enter:
                 selectEditor(m_editorView->currentItem());
                 return true;
             }
+
         } else if (e->type() == QEvent::KeyRelease) {
             auto ke = static_cast<QKeyEvent*>(e);
             if (ke->modifiers() == 0
