@@ -1999,6 +1999,17 @@ void DesignerActionManager::createDefaultDesignerActions()
                           [&] (const SelectionContext& context) { mergeWithTemplate(context, m_externalDependencies); },
                           &SelectionContextFunctors::always));
 
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          addToContentLibraryCommandId,
+                          addToContentLibraryDisplayName,
+                          contextIcon(DesignerIcons::CreateIcon), // TODO: placeholder icon
+                          rootCategory,
+                          QKeySequence(),
+                          Priorities::Add3DToContentLib,
+                          &add3DAssetToContentLibrary,
+                          &enableAddToContentLib,
+                          &enableAddToContentLib));
+
     addDesignerAction(new ActionGroup(
                           "",
                           genericToolBarCategory,

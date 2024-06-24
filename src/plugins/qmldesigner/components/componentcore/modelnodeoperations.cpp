@@ -797,6 +797,12 @@ void moveToComponent(const SelectionContext &selectionContext)
         selectionContext.view()->model()->rewriterView()->moveToComponent(modelNode);
 }
 
+void add3DAssetToContentLibrary(const SelectionContext &selectionContext)
+{
+    ModelNode node = selectionContext.currentSingleSelectedNode();
+    selectionContext.view()->emitCustomNotification("add_3d_to_content_lib", {node});
+}
+
 void goImplementation(const SelectionContext &selectionState)
 {
     addSignalHandlerOrGotoImplementation(selectionState, false);
