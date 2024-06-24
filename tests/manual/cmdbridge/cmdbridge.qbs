@@ -3,8 +3,9 @@ import qbs.FileInfo
 QtcManualTest {
     name: "CmdBridge manualtest"
 
-    Depends { name: "Utils" }
     Depends { name: "app_version_header" }
+    Depends { name: "CmdBridgeClient" }
+    Depends { name: "Utils" }
 
     cpp.defines: {
         var defines = base;
