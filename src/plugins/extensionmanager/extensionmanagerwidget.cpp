@@ -550,6 +550,8 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
     const bool showContent = current.isValid();
     d->primaryContent->setVisible(showContent);
     d->secondaryContent->setVisible(showContent);
+    d->headingWidget->setVisible(showContent);
+    d->pluginStatus->setVisible(showContent);
     if (!showContent)
         return;
 
