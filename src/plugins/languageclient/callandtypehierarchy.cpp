@@ -76,7 +76,12 @@ protected:
     }
 
 private:
-    bool canFetchMore() const override { return m_client && !m_fetchedChildren; }
+    bool canFetchMore() const override
+    {
+        if (m_client && !m_fetchedChildren)
+            const_cast<HierarchyItem*>(this)->fetchMore();
+        return false;
+    }
 
     void fetchMore() override
     {
@@ -96,8 +101,6 @@ private:
                             appendChild(new HierarchyItem(getSourceItem(item), m_client));
                     }
                 }
-                if (!hasChildren())
-                    update();
             });
         m_client->sendMessage(request);
     }
