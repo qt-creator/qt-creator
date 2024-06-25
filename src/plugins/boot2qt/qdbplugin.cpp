@@ -106,7 +106,7 @@ public:
     {
         setConfigBaseId(Constants::QdbDeployConfigurationId);
         addSupportedTargetDeviceType(Constants::QdbLinuxOsType);
-        setDefaultDisplayName(Tr::tr("Deploy to Boot2Qt target"));
+        setDefaultDisplayName(Tr::tr("Deploy to Boot to Qt target"));
         setUseDeploymentDataView();
 
         addInitialStep(RemoteLinux::Constants::MakeInstallStepId, [](Target *target) {

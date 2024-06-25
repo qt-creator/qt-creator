@@ -33,7 +33,7 @@ public:
     QdbRunConfiguration(Target *target, Id id)
         : RunConfiguration(target, id)
     {
-        setDefaultDisplayName(Tr::tr("Run on Boot2Qt Device"));
+        setDefaultDisplayName(Tr::tr("Run on Boot to Qt Device"));
 
         executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
         executable.setSettingsKey("QdbRunConfig.RemoteExecutable");
@@ -87,7 +87,7 @@ private:
         Tasks tasks;
         if (executable().isEmpty()) {
             tasks << BuildSystemTask(Task::Warning, Tr::tr("The remote executable must be set "
-                                                           "in order to run on a Boot2Qt device."));
+                                                           "to run on a Boot to Qt device."));
         }
         return tasks;
     }
