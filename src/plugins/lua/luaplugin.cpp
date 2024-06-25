@@ -19,6 +19,7 @@
 #include <utils/theme/theme.h>
 
 #include <QDebug>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListView>
