@@ -38,6 +38,7 @@ public:
 
     PluginSpec *currentPlugin() const;
     void setFilter(const QString &filter);
+    bool setPluginsEnabled(const QSet<PluginSpec *> &plugins, bool enable);
     void cancelChanges();
 
 signals:
@@ -48,7 +49,6 @@ signals:
 private:
     PluginSpec *pluginForIndex(const QModelIndex &index) const;
     void updatePlugins();
-    bool setPluginsEnabled(const QSet<PluginSpec *> &plugins, bool enable);
 
     Utils::TreeView *m_categoryView;
     Utils::TreeModel<Utils::TreeItem, Internal::CollectionItem, Internal::PluginItem> *m_model;
