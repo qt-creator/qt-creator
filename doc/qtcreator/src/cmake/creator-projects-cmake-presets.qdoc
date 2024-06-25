@@ -44,7 +44,7 @@
     \c NOT_COMMON_VALUE is displayed in \uicontrol {Initial Parameters}
     and \c AN_ENVIRONMENT_FLAG in the environment configuration field.
 
-    \badcode
+    \code
     {
       "version": 1,
       "configurePresets": [
@@ -91,7 +91,7 @@
         \li GNU gdb 11.2.0 for MinGW 11.2.0 64-bit debugger
     \endlist
 
-    \badcode
+    \code
     {
       "version": 1,
       "configurePresets": [
@@ -131,7 +131,7 @@
     generator, add \c Debug and \c Release build steps, and specify the path
     to \c ninja.exe as a value of the \c CMAKE_MAKE_PROGRAM variable:
 
-    \badcode
+    \code
     {
       "version": 2,
       "configurePresets": [
@@ -180,7 +180,7 @@
 
     For example:
 
-    \badcode
+    \code
     "generator": "Ninja Multi-Config",
     "toolset": {
       "value": "v142,host=x64",
@@ -196,7 +196,7 @@
     in the \c PATH, you might also have to specify the compiler to use in
     \c cacheVariables or \c environmentVariables:
 
-    \badcode
+    \code
     "generator": "Ninja Multi-Config",
     "toolset": {
       "value": "v142,host=x64",
@@ -226,7 +226,7 @@
         \li \c wine emulator
     \endlist
 
-    \badcode
+    \code
     {
       "version": 4,
       "configurePresets": [
@@ -262,7 +262,7 @@
     if the \c hostSystemName equals \c Linux, the \c linux presets are used and
     if it equals \c Windows, the \c windows presets are used.
 
-    \badcode
+    \code
     {
       "version": 3,
       "configurePresets": [
