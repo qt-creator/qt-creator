@@ -4,6 +4,7 @@
 #include "ieditorfactory.h"
 #include "ieditorfactory_p.h"
 #include "editormanager.h"
+#include "../coreconstants.h"
 
 #include <utils/algorithm.h>
 #include <utils/mimeconstants.h>
@@ -36,6 +37,14 @@ static void mimeTypeFactoryLookup(const Utils::MimeType &mimeType,
         }
         return true; // continue
     });
+    // Always offer the plain text editor as a fallback for the case that the mime type
+    // is not detected correctly.
+    if (auto plainTextEditorFactory = Utils::findOrDefault(
+            allFactories,
+            Utils::equal(&IEditorFactory::id, Utils::Id(Constants::K_DEFAULT_TEXT_EDITOR_ID)))) {
+        if (!matches.contains(plainTextEditorFactory))
+            list->append(plainTextEditorFactory);
+    }
 }
 
 /*!
