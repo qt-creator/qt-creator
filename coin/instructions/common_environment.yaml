@@ -23,6 +23,9 @@ instructions:
       - type: EnvironmentVariable
         variableName: QTC_SDKTOOL_QT_BASE_URL
         variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/archive/qt/6.6/6.6.0-released/Qt/src/submodules/qtbase-everywhere-src-6.6.0"
+      - type: EnvironmentVariable
+        variableName: GOFLAGS
+        variableValue: "-buildvcs=false"
       - type: Group
         instructions:
           - type: EnvironmentVariable
