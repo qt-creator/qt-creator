@@ -290,11 +290,15 @@ void MaterialBrowserView::updatePropertyList(const QList<T> &propertyList)
                 m_widget->materialBrowserModel()->updateMaterialName(node);
             else
                 m_previewRequests << node;
-        } else if (property.name() == "source") {
+        } else if (isTexture(node)) {
             QmlObjectNode selectedTex = m_widget->materialBrowserTexturesModel()->selectedTexture();
-            if (isTexture(node))
+            if (property.name() == "source")
                 m_widget->materialBrowserTexturesModel()->updateTextureSource(node);
-            else if (selectedTex.propertyChangeForCurrentState() == node)
+            else if (property.name() == "objectName")
+                m_widget->materialBrowserTexturesModel()->updateTextureName(node);
+        } else {
+            QmlObjectNode selectedTex = m_widget->materialBrowserTexturesModel()->selectedTexture();
+            if (property.name() == "source" && selectedTex.propertyChangeForCurrentState() == node)
                 m_widget->materialBrowserTexturesModel()->updateTextureSource(selectedTex);
         }
     }

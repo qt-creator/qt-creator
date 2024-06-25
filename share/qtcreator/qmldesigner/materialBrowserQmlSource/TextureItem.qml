@@ -16,7 +16,7 @@ Item {
     signal showContextMenu()
 
     function forceFinishEditing() {
-        txtId.commitRename()
+        txtName.commitRename()
     }
 
     MouseArea {
@@ -76,16 +76,14 @@ Item {
         }
 
         MaterialBrowserItemName {
-            id: txtId
+            id: txtName
 
-            text: textureId
+            text: textureName
             width: img.width
             anchors.horizontalCenter: parent.horizontalCenter
 
-            validator: RegularExpressionValidator { regularExpression: /(^$|^[a-z_]\w*$)/ }
-
-            onRenamed: (newId) => {
-                MaterialBrowserBackend.materialBrowserTexturesModel.setTextureId(index, newId);
+            onRenamed: (newName) => {
+                MaterialBrowserBackend.materialBrowserTexturesModel.setTextureName(index, newName);
                 mouseArea.forceActiveFocus()
             }
 

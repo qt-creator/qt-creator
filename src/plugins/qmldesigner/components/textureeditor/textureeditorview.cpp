@@ -48,6 +48,43 @@
 #include <QTimer>
 #include <QColorDialog>
 
+using namespace Qt::StringLiterals;
+
+namespace {
+
+QString nameFromId(const QString &id, const QString &defaultName)
+{
+    if (id.isEmpty())
+        return defaultName;
+
+    QString newName = id;
+    static const QRegularExpression sideUnderscores{R"((?:^_+)|(?:_+$))"};
+    static const QRegularExpression underscores{R"((?:_+))"};
+    static const QRegularExpression camelCases{R"((?:[A-Z](?=[a-z]))|(?:(?<=[a-z])[A-Z]))"};
+
+    newName.remove(sideUnderscores);
+
+    // Insert underscore to camel case edges
+    QRegularExpressionMatchIterator caseMatch = camelCases.globalMatch(newName);
+    QStack<int> camelCaseIndexes;
+    while (caseMatch.hasNext())
+        camelCaseIndexes.push(caseMatch.next().capturedStart());
+    while (!camelCaseIndexes.isEmpty())
+        newName.insert(camelCaseIndexes.pop(), '_');
+
+    // Replace underscored joints with space
+    newName.replace(underscores, " ");
+    newName = newName.trimmed();
+
+    if (newName.isEmpty())
+        return defaultName;
+
+    newName[0] = newName[0].toUpper();
+    return newName;
+}
+
+} // namespace
+
 namespace QmlDesigner {
 
 TextureEditorView::TextureEditorView(AsynchronousImageCache &imageCache,
@@ -389,6 +426,8 @@ void TextureEditorView::handleToolBarAction(int action)
                                                        metaInfo.minorVersion());
 #endif
             newTextureNode.ensureIdExists();
+            VariantProperty textureName = newTextureNode.variantProperty("objectName");
+            textureName.setValue(nameFromId(newTextureNode.id(), "Texture"_L1));
             matLib.defaultNodeListProperty().reparentHere(newTextureNode);
         });
         break;
