@@ -279,8 +279,8 @@ public:
         : QWidget(parent)
     {
         m_label = new InfoLabel;
-        m_checkBox = new QCheckBox(Tr::tr("Load on Start"));
-        m_restartButton = new Button(Tr::tr("Restart now"), Button::MediumPrimary);
+        m_checkBox = new QCheckBox(Tr::tr("Load on start"));
+        m_restartButton = new Button(Tr::tr("Restart Now"), Button::MediumPrimary);
         m_restartButton->setVisible(false);
         m_pluginView.hide();
 
@@ -667,9 +667,9 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url)
     struct StorageStruct
     {
         StorageStruct() {
-            progressDialog.reset(new QProgressDialog(Tr::tr("Downloading Plugin..."),
-                                                     Tr::tr("Cancel"), 0, 0,
-                                                     ICore::dialogParent()));
+            progressDialog.reset(new QProgressDialog(
+                Tr::tr("Downloading..."), Tr::tr("Cancel"), 0, 0, ICore::dialogParent()));
+            progressDialog->setWindowTitle(Tr::tr("Download Extension"));
             progressDialog->setWindowModality(Qt::ApplicationModal);
             progressDialog->setFixedSize(progressDialog->sizeHint());
             progressDialog->setAutoClose(false);
@@ -694,7 +694,7 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url)
             QMessageBox::warning(
                 ICore::dialogParent(),
                 Tr::tr("Download Error"),
-                Tr::tr("Could not download Plugin") + "\n\n" + storage->url.toString() + "\n\n"
+                Tr::tr("Cannot download extension") + "\n\n" + storage->url.toString() + "\n\n"
                     + Tr::tr("Code: %1.").arg(query.reply()->error()));
         }
     };

@@ -59,7 +59,7 @@ void addFetchModule()
             LuaOptionsPage(Module *module)
             {
                 setId("BB.Lua.Fetch");
-                setDisplayName(Tr::tr("Network access"));
+                setDisplayName(Tr::tr("Network Access"));
                 setCategory("ZY.Lua");
                 setDisplayCategory("Lua");
                 setCategoryIconPath(":/lua/images/settingscategory_lua.png");
@@ -176,8 +176,8 @@ void addFetchModule()
                 // so we have to use a QMessageBox instead of the info bar
                 auto msgBox = new QMessageBox(
                     QMessageBox::Question,
-                    Tr::tr("Allow Internet access"),
-                    Tr::tr("The plugin \"%1\" would like to fetch from the following url:\n%2")
+                    Tr::tr("Allow Internet Access"),
+                    Tr::tr("Allow the extension \"%1\" to fetch from the following URL:\n%2")
                         .arg(pluginName)
                         .arg(url),
                     QMessageBox::Yes | QMessageBox::No,
@@ -205,14 +205,13 @@ void addFetchModule()
 
             Utils::InfoBarEntry entry{
                 Utils::Id::fromString("Fetch" + pluginName),
-                Tr::tr("The plugin \"%1\" would like to fetch data from the internet. Do "
-                       "you want to allow this?")
+                Tr::tr("Allow the extension \"%1\" to fetch data from the internet?")
                     .arg(pluginName)};
             entry.setDetailsWidgetCreator([pluginName, url] {
-                const QString markdown = Tr::tr("The plugin \"**%1**\" would like to fetch "
-                                                "from the following url:\n\n")
-                                             .arg(pluginName)
-                                         + QString("* [%3](%3)").arg(url);
+                const QString markdown = Tr::tr("Allow the extension \"%1\" to fetch data"
+                                                "from the following URL:\n\n")
+                                             .arg("**" + pluginName + "**")
+                                         + QString("* [%1](%1)").arg(url);
 
                 QLabel *list = new QLabel();
                 list->setTextFormat(Qt::TextFormat::MarkdownText);
@@ -225,7 +224,7 @@ void addFetchModule()
                 Core::ICore::infoBar()->removeInfo(Utils::Id::fromString("Fetch" + pluginName));
                 fetch();
             });
-            entry.addCustomButton(Tr::tr("Allow once"), [pluginName, fetch]() {
+            entry.addCustomButton(Tr::tr("Allow Once"), [pluginName, fetch]() {
                 Core::ICore::infoBar()->removeInfo(Utils::Id::fromString("Fetch" + pluginName));
                 fetch();
             });
@@ -311,8 +310,8 @@ void addFetchModule()
             };
 
             checkPermission(url, actualFetch, [callback, pluginName]() {
-                callback(Tr::tr("Fetching is not allowed for the plugin \"%1\" (You can edit "
-                                "permissions in Preferences => Lua)")
+                callback(Tr::tr("Fetching is not allowed for the extension \"%1\". (You can edit "
+                                "permissions in Preferences > Lua.)")
                              .arg(pluginName));
             });
         };

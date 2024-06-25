@@ -50,7 +50,7 @@ expected_str<QJsonDocument> getPackageInfo(const FilePath &appDataPath)
         return make_unexpected(error.errorString());
 
     if (!doc.isObject())
-        return make_unexpected(Tr::tr("Package info is not an object"));
+        return make_unexpected(Tr::tr("Package info is not an object."));
 
     return doc;
 }
@@ -66,7 +66,7 @@ expected_str<QJsonObject> getInstalledPackageInfo(const FilePath &appDataPath, c
     if (root.contains(name)) {
         QJsonValue v = root[name];
         if (!v.isObject())
-            return make_unexpected(Tr::tr("Installed package info is not an object"));
+            return make_unexpected(Tr::tr("Installed package info is not an object."));
         return v.toObject();
     }
 
@@ -86,12 +86,12 @@ expected_str<QJsonDocument> getOrCreatePackageInfo(const FilePath &appDataPath)
 expected_str<void> savePackageInfo(const FilePath &appDataPath, const QJsonDocument &doc)
 {
     if (!appDataPath.ensureWritableDir())
-        return make_unexpected(Tr::tr("Could not create app data directory"));
+        return make_unexpected(Tr::tr("Cannot create app data directory."));
 
     const FilePath packageInfoPath = appDataPath / "package.json";
     return packageInfoPath.writeFileContents(doc.toJson())
         .transform_error([](const QString &error) {
-            return Tr::tr("Could not write to package info: %1").arg(error);
+            return Tr::tr("Cannot write to package info: %1").arg(error);
         })
         .transform([](qint64) { return; });
 }
@@ -147,7 +147,7 @@ static Group installRecipe(
         const auto size = reply->size();
         const auto written = storage->write(reply->readAll());
         if (written != size)
-            return emitResult(Tr::tr("Could not write to temporary file"));
+            return emitResult(Tr::tr("Cannot write to temporary file."));
         storage->close();
         return DoneResult::Success;
     };
@@ -169,7 +169,7 @@ static Group installRecipe(
 
     const auto onUnarchiverDone = [appDataPath, installOptionsIt, emitResult](DoneWith result) {
         if (result == DoneWith::Error)
-            return emitResult(Tr::tr("Unarchiving failed"));
+            return emitResult(Tr::tr("Unarchiving failed."));
         if (result == DoneWith::Cancel)
             return DoneResult::Error;
 
@@ -212,7 +212,7 @@ static Group installRecipe(
                 }
 
                 if (!storage->open(QIODevice::WriteOnly)) {
-                    emitResult(Tr::tr("Could not open temporary file"));
+                    emitResult(Tr::tr("Cannot open temporary file."));
                     return SetupResult::StopWithError;
                 }
                 return SetupResult::Continue;
@@ -326,16 +326,17 @@ void addInstallModule()
                     if (QApplication::activeModalWidget()) {
                         auto msgBox = new QMessageBox(
                             QMessageBox::Question,
-                            Tr::tr("Install package"),
+                            Tr::tr("Install Package"),
                             msg,
                             QMessageBox::Yes | QMessageBox::No,
                             Core::ICore::dialogParent());
 
                         const QString details
-                            = Tr::tr("The plugin \"%1\" would like to install the following "
+                            = Tr::tr("The extension \"%1\" wants to install the following "
                                      "package(s):\n\n")
                                   .arg(pluginSpec->name)
                               + Utils::transform(installOptionsList, [](const InstallOptions &options) {
+                                    //: %1 = package name, %2 = version, %3 = URL
                                     return QString("* %1 - %2 (from: %3)")
                                         .arg(options.name, options.version, options.url.toString());
                                 }).join("\n");
@@ -363,11 +364,12 @@ void addInstallModule()
                     entry.setCancelButtonInfo(denied);
 
                     const QString details
-                        = Tr::tr("The plugin \"**%1**\" would like to install the following "
+                        = Tr::tr("The extension \"%1\" wants to install the following "
                                  "package(s):\n\n")
-                              .arg(pluginSpec->name)
+                              .arg("**" + pluginSpec->name + "**") // markdown bold
                           + Utils::transform(installOptionsList, [](const InstallOptions &options) {
-                                return QString("* %1 - %2 (from: [%3](%3))")
+                                //: Markdown list item: %1 = package name, %2 = version, %3 = URL
+                                return Tr::tr("* %1 - %2 (from: [%3](%3))")
                                     .arg(options.name, options.version, options.url.toString());
                             }).join("\n");
 
