@@ -24,6 +24,7 @@
 #include <QLineEdit>
 #include <QListView>
 #include <QStringListModel>
+#include <QStyledItemDelegate>
 
 using namespace Core;
 using namespace Utils;
@@ -59,7 +60,28 @@ public:
     }
 };
 
-class LuaTerminal : public QListView
+class ItemDelegate : public QStyledItemDelegate
+{
+public:
+    using QStyledItemDelegate::QStyledItemDelegate;
+
+    QWidget *createEditor(
+        QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override
+    {
+        auto label = new QLabel(parent);
+        const QString text = index.data().toString();
+        label->setText(text);
+        label->setFont(option.font);
+        label->setTextInteractionFlags(
+            Qt::TextInteractionFlag::TextSelectableByMouse
+            | Qt::TextInteractionFlag::TextSelectableByKeyboard);
+        label->setAutoFillBackground(true);
+        label->setSelection(0, text.size());
+        return label;
+    }
+};
+
+class LuaReplView : public QListView
 {
     Q_OBJECT
 
@@ -69,10 +91,11 @@ class LuaTerminal : public QListView
     QStringListModel m_model;
 
 public:
-    LuaTerminal(QWidget *parent = nullptr)
+    LuaReplView(QWidget *parent = nullptr)
         : QListView(parent)
     {
         setModel(&m_model);
+        setItemDelegate(new ItemDelegate);
     }
 
     void showEvent(QShowEvent *) override
@@ -82,8 +105,6 @@ public:
         }
         resetTerminal();
     }
-
-    void keyPressEvent(QKeyEvent *e) override { emit keyPressed(e); }
 
     void handleRequestResult(const QString &result)
     {
@@ -102,11 +123,9 @@ public:
         const auto ilua = QString::fromUtf8(f.readAll());
         m_luaState = LuaEngine::instance().runScript(ilua, "ilua.lua", [this](sol::state &lua) {
             lua["print"] = [this](sol::variadic_args va) {
-                const QStringList msgs = LuaEngine::variadicToStringList(va)
-                                             .join("\t")
-                                             .replace("\r\n", "\n")
-                                             .split('\n');
-                m_model.setStringList(m_model.stringList() + msgs);
+                const QString msgs
+                    = LuaEngine::variadicToStringList(va).join("\t").replace("\r\n", "\n");
+                m_model.setStringList(m_model.stringList() << msgs);
                 scrollToBottom();
             };
 
@@ -114,7 +133,6 @@ public:
             sol::function wrap = async["wrap"];
 
             lua["readline_cb"] = [this](const QString &prompt, sol::function callback) {
-                m_model.setStringList(m_model.stringList() << prompt);
                 scrollToBottom();
                 emit inputRequested(prompt);
                 m_readCallback = callback;
@@ -128,14 +146,12 @@ public:
 
 signals:
     void inputRequested(const QString &prompt);
-    void keyPressed(QKeyEvent *e);
 };
 
 class LineEdit : public FancyLineEdit
 {
 public:
     using FancyLineEdit::FancyLineEdit;
-    void keyPressEvent(QKeyEvent *e) override { FancyLineEdit::keyPressEvent(e); }
 };
 
 class LuaPane : public Core::IOutputPane
@@ -144,7 +160,7 @@ class LuaPane : public Core::IOutputPane
 
 protected:
     QWidget *m_ui{nullptr};
-    LuaTerminal *m_terminal{nullptr};
+    LuaReplView *m_terminal{nullptr};
 
 public:
     LuaPane(QObject *parent = nullptr)
@@ -160,7 +176,7 @@ public:
         using namespace Layouting;
 
         if (!m_ui && parent) {
-            m_terminal = new LuaTerminal;
+            m_terminal = new LuaReplView;
             LineEdit *inputEdit = new LineEdit;
             QLabel *prompt = new QLabel;
 
@@ -182,16 +198,12 @@ public:
             });
             connect(
                 m_terminal,
-                &LuaTerminal::inputRequested,
+                &LuaReplView::inputRequested,
                 this,
                 [prompt, inputEdit](const QString &p) {
                     prompt->setText(p);
                     inputEdit->setReadOnly(false);
                 });
-            connect(m_terminal, &LuaTerminal::keyPressed, this, [inputEdit](QKeyEvent *e) {
-                inputEdit->keyPressEvent(e);
-                inputEdit->setFocus();
-            });
         }
 
         return m_ui;
@@ -228,7 +240,6 @@ private:
 
 public:
     LuaPlugin() {}
-    ~LuaPlugin() override = default;
 
     void initialize() final
     {
@@ -249,8 +260,7 @@ public:
 
         Core::JsExpander::registerGlobalObject("Lua", [] { return new LuaJsExtension(); });
 
-        m_pane = new LuaPane;
-        ExtensionSystem::PluginManager::addObject(m_pane);
+        m_pane = new LuaPane(this);
     }
 
     bool delayedInitialize() final
