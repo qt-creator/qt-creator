@@ -16,6 +16,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
+#include <extensionsystem/pluginview.h>
 
 #include <solutions/tasking/networkquery.h>
 #include <solutions/tasking/tasktree.h>
@@ -279,20 +280,32 @@ public:
     {
         m_label = new InfoLabel;
         m_checkBox = new QCheckBox(Tr::tr("Load on Start"));
+        m_restartButton = new Button("Restart now", Button::MediumPrimary);
+        m_restartButton->setVisible(false);
+        m_pluginView.hide();
 
         using namespace Layouting;
         Column {
             m_label,
             m_checkBox,
+            m_restartButton,
         }.attachTo(this);
 
         connect(m_checkBox, &QCheckBox::clicked, this, [this](bool checked) {
             ExtensionSystem::PluginSpec *spec = ExtensionsModel::pluginSpecForName(m_pluginName);
             if (spec == nullptr)
                 return;
-            spec->setEnabledBySettings(checked);
-            ExtensionSystem::PluginManager::writeSettings();
+            const bool doIt = m_pluginView.data().setPluginsEnabled({spec}, checked);
+            if (doIt) {
+                m_restartButton->show();
+                ExtensionSystem::PluginManager::writeSettings();
+            } else {
+                m_checkBox->setChecked(!checked);
+            }
         });
+
+        connect(m_restartButton, &QAbstractButton::clicked,
+                ICore::instance(), &ICore::restart, Qt::QueuedConnection);
 
         update();
     }
@@ -328,7 +341,9 @@ private:
 
     InfoLabel *m_label;
     QCheckBox *m_checkBox;
+    QAbstractButton *m_restartButton;
     QString m_pluginName;
+    ExtensionSystem::PluginView m_pluginView{this};
 };
 
 class TagList : public QWidget

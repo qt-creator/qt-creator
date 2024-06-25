@@ -369,6 +369,11 @@ void PluginView::updatePlugins()
     m_categoryView->expandAll();
 }
 
+PluginData &PluginView::data()
+{
+    return m_data;
+}
+
 static QString pluginListString(const QSet<PluginSpec *> &plugins)
 {
     QStringList names = Utils::transform<QList>(plugins, &PluginSpec::name);

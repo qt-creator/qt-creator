@@ -60,6 +60,8 @@ public:
     void setFilter(const QString &filter);
     void cancelChanges();
 
+    PluginData &data();
+
 signals:
     void currentPluginChanged(ExtensionSystem::PluginSpec *spec);
     void pluginActivated(ExtensionSystem::PluginSpec *spec);
