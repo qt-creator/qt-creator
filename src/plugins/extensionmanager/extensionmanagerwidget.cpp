@@ -280,7 +280,7 @@ public:
     {
         m_label = new InfoLabel;
         m_checkBox = new QCheckBox(Tr::tr("Load on Start"));
-        m_restartButton = new Button("Restart now", Button::MediumPrimary);
+        m_restartButton = new Button(Tr::tr("Restart now"), Button::MediumPrimary);
         m_restartButton->setVisible(false);
         m_pluginView.hide();
 
