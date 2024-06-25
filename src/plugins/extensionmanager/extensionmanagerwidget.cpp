@@ -427,6 +427,7 @@ ExtensionManagerWidget::ExtensionManagerWidget(QWidget *parent)
     d->description->setWordWrap(true);
     d->linksTitle = sectionTitle(h6CapitalTF, Tr::tr("More information"));
     d->links = tfLabel(contentTF, false);
+    d->links->setOpenExternalLinks(true);
     d->imageTitle = sectionTitle(h6CapitalTF, {});
     d->image = new QLabel;
     d->imageMovie.setDevice(&d->imageDataBuffer);
