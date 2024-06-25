@@ -251,7 +251,6 @@ class ExtensionsBrowserPrivate
 public:
     ExtensionsModel *model;
     QLineEdit *searchBox;
-    QAbstractButton *updateButton;
     QListView *extensionsView;
     QItemSelectionModel *selectionModel = nullptr;
     QSortFilterProxyModel *filterProxyModel;
@@ -272,7 +271,6 @@ ExtensionsBrowser::ExtensionsBrowser(QWidget *parent)
 
     d->searchBox = new SearchBox;
     d->searchBox->setPlaceholderText(Tr::tr("Search"));
-    d->updateButton = new Button(Tr::tr("Install..."), Button::MediumPrimary);
 
     d->model = new ExtensionsModel(this);
 
@@ -300,7 +298,6 @@ ExtensionsBrowser::ExtensionsBrowser(QWidget *parent)
         },
         Row {
             d->searchBox,
-            d->updateButton,
             spacing(gapSize),
             customMargins(0, VPaddingM, extraListViewWidth() + gapSize, VPaddingM),
         },
@@ -326,9 +323,6 @@ ExtensionsBrowser::ExtensionsBrowser(QWidget *parent)
         }
     };
 
-    connect(d->updateButton, &QAbstractButton::pressed, this, []() {
-        executePluginInstallWizard();
-    });
     connect(PluginManager::instance(), &PluginManager::pluginsChanged, this, updateModel);
     connect(PluginManager::instance(), &PluginManager::initializationDone,
             this, &ExtensionsBrowser::fetchExtensions);
@@ -350,7 +344,6 @@ void ExtensionsBrowser::adjustToWidth(const int width)
 {
     const int widthForItems = width - extraListViewWidth();
     d->columnsCount = qMax(1, qFloor(widthForItems / cellWidth));
-    d->updateButton->setVisible(d->columnsCount > 1);
     updateGeometry();
 }
 
