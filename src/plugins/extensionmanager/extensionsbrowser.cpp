@@ -381,7 +381,7 @@ void ExtensionsBrowser::fetchExtensions()
     const auto onQueryDone = [this](const NetworkQuery &query, DoneWith result) {
         if (result != DoneWith::Success) {
 #ifdef WITH_TESTS
-            // Available test sets: "defaultpacks", "varieddata", "thirdpartyplugins"
+            // Available: "augmentedplugindata", "defaultpacks", "varieddata", "thirdpartyplugins"
             d->model->setExtensionsJson(testData("defaultpacks"));
 #endif // WITH_TESTS
             return;

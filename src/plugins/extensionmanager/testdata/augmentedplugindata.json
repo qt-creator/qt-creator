@@ -1,0 +1,71 @@
+{
+  "items": [
+    {
+      "name": "ScreenRecorder",
+      "description": {
+        "paragraphs": [
+          {
+            "header": "Screen Recorder plugin",
+            "text": [
+              "With FFmpeg, you can record your screens and save the recordings as animated images or videos.",
+              "To record screens:",
+              "",
+              "- Select Tools > Screen Recording.",
+              "- Select to select the screen to record from and to set the recorded screen area.",
+              "- Select to start recording.",
+              "- Select when you are done recording.",
+              "- Select Crop and Trim to edit the recording.",
+              "- Select Export to save the recording as an animated image or a video."
+            ]
+          },
+          {
+            "header": "Set the screen and area to record",
+            "text": [
+              "Set the screen and the area to record in the Screen Recording Options dialog.",
+              "To select a screen and area:",
+              "",
+              "- In Display, select the display to record.",
+              "- In Recorded screen area, drag the guides to set the x and y coordinates of the starting point for the recording area, as well as the width and height of the area.",
+              "- Select OK to return to the Record Screen dialog."
+            ]
+          }
+        ],
+        "images": [
+          {
+            "image_label": "Create animated imges like this",
+            "url": "https://bugreports.qt.io/secure/attachment/156058/156058_DragAndCopyOnLinux.gif"
+          }
+        ],
+        "links": [
+          {
+            "link_text": "Documentation",
+            "url": "https://doc.qt.io/qtcreator/creator-how-to-record-screens.html"
+          },
+          {
+            "link_text": "Homepage",
+            "url": "https://www.qt.io/"
+          }
+        ]
+      },
+      "is_pack": false,
+      "plugins": [
+        {
+          "meta_data": {
+            "Name": "ScreenRecorder",
+            "Dependencies": [
+              {
+                "meta_data": {
+                  "Name": "Core",
+                  "Version": "13.0.2"
+                }
+              }
+            ],
+            "Version": "13.0.2"
+          }
+        }
+      ],
+      "tags": [ "Utility", "Docs" ],
+      "vendor": "The Qt Company Ltd"
+    }
+  ]
+}
