@@ -267,6 +267,7 @@ public:
         m_view->setModel(&m_model);
         m_view->setActivationMode(SingleClickActivation);
         m_view->setItemDelegate(&m_delegate);
+        m_view->setUniformRowHeights(true);
 
         theWidget->setLayout(new QVBoxLayout);
         theWidget->layout()->addWidget(m_view);
