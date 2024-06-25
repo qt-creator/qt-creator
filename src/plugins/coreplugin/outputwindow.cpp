@@ -74,7 +74,7 @@ public:
     QElapsedTimer lastMessage;
     QHash<unsigned int, QPair<int, int>> taskPositions;
     //: default file name suggested for saving text from output views
-    QString outputFileNameHint{Tr::tr("output.txt")};
+    QString outputFileNameHint{::Core::Tr::tr("output.txt")};
 };
 
 } // namespace Internal

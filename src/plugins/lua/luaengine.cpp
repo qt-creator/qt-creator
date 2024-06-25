@@ -132,7 +132,7 @@ std::unique_ptr<Utils::LuaState> LuaEngine::runScript(const QString &script, con
         sol::error err = result;
         qWarning() << "Failed to run script" << name << ":" << QString::fromUtf8(err.what());
         Core::MessageManager::writeFlashing(
-            tr("Failed to run script %1: %2").arg(name, QString::fromUtf8(err.what())));
+            Tr::tr("Failed to run script %1: %2").arg(name, QString::fromUtf8(err.what())));
     }
 
     return opaque;
