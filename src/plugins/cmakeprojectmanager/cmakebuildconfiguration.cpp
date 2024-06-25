@@ -1585,7 +1585,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
         if (info.buildDirectory.isEmpty()) {
             setBuildDirectory(shadowBuildDirectory(target->project()->projectFilePath(),
                                                    k,
-                                                   info.typeName,
+                                                   info.displayName,
                                                    info.buildType));
         }
 
@@ -1960,6 +1960,9 @@ CMakeBuildConfigurationFactory::CMakeBuildConfigurationFactory()
                                 k,
                                 info.typeName,
                                 info.buildType);
+            } else {
+                info.displayName.clear(); // ask for a name
+                info.buildDirectory.clear(); // This depends on the displayName
             }
             result << info;
         }
