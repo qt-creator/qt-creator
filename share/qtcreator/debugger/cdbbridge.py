@@ -187,7 +187,7 @@ class Dumper(DumperBase):
             self.nativeTypeEnumDisplay(nativeType, intval, form)
         return typeid
 
-    def listNativeValueChildren(self, nativeValue: cdbext.Value, include_bases: bool) -> list[DumperBase.Value]:
+    def listNativeValueChildren(self, nativeValue: cdbext.Value, include_bases: bool):
         fields = []
         index = 0
         nativeMember = nativeValue.childFromIndex(index)
@@ -202,13 +202,13 @@ class Dumper(DumperBase):
             nativeMember = nativeValue.childFromIndex(index)
         return fields
 
-    def listValueChildren(self, value: DumperBase.Value, include_bases=True) -> list[DumperBase.Value]:
+    def listValueChildren(self, value: DumperBase.Value, include_bases=True):
         nativeValue = value.nativeValue
         if nativeValue is None:
             nativeValue = cdbext.createValue(value.address(), self.lookupNativeType(value.type.name, 0))
         return self.listNativeValueChildren(nativeValue, include_bases)
 
-    def nativeListMembers(self, value: DumperBase.Value, native_type: cdbext.Type, include_bases: bool) -> list[DumperBase.Value]:
+    def nativeListMembers(self, value: DumperBase.Value, native_type: cdbext.Type, include_bases: bool):
         nativeValue = value.nativeValue
         if nativeValue is None:
             nativeValue = cdbext.createValue(value.address(), native_type)
