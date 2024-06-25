@@ -806,11 +806,10 @@ void collectPossibleFileImports(const QString &checkPath,
             // Omit all imports that would be just "../", "../../" etc. without additional subfolder,
             // as we don't want to encourage bad design. "../MySharedComps" is a legitimate
             // use, though.
-            if (importName.startsWith(upDir) && importName.lastIndexOf(upDir) == importName.size() - 3)
-                continue;
-
-            QmlDesigner::Import import = QmlDesigner::Import::createFileImport(importName);
-            possibleImports.append(import);
+            if (!importName.startsWith(upDir) || importName.lastIndexOf(upDir) != importName.size() - 3) {
+                QmlDesigner::Import import = QmlDesigner::Import::createFileImport(importName);
+                possibleImports.append(import);
+            }
         }
         collectPossibleFileImports(dirPath, docDir, usedImportsSet, possibleImports);
     }
