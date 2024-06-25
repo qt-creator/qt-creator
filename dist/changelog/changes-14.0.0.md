@@ -95,11 +95,14 @@ Editing
   ([QTCREATORBUG-30594](https://bugreports.qt.io/browse/QTCREATORBUG-30594))
 * Language Server
     * Switched on by default for Qt 6.8 and later
-    * Added option for generating `qmlls.ini` files for CMake projects
+    * Added an option for generating `qmlls.ini` files for CMake projects in
+      `Preferences` > `Qt Quick`> `QML/JS Editing`
       ([QTCREATORBUG-30394](https://bugreports.qt.io/browse/QTCREATORBUG-30394))
       ([Qt Documentation](https://doc.qt.io/qt-6/cmake-variable-qt-qml-generate-qmlls-ini.html))
     * Fixed that tool tips from the built-in model were shown instead of tool tips
       from the server
+
+      [Documentation](https://doc.qt.io/qtcreator/creator-how-to-use-qml-language-server.html)
 
 ### Python
 

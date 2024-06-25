@@ -401,7 +401,7 @@ public:
         uiQmlOpenComboBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         uiQmlOpenComboBox->setSizeAdjustPolicy(QComboBox::QComboBox::AdjustToContents);
 
-        useQmlls = new QCheckBox(Tr::tr("Enable QML Language Server"));
+        useQmlls = new QCheckBox(Tr::tr("Turn on"));
         useQmlls->setChecked(s.qmllsSettings().useQmlls);
 
         ignoreMinimumQmllsVersion = new QCheckBox(
@@ -411,16 +411,16 @@ public:
         ignoreMinimumQmllsVersion->setEnabled(s.qmllsSettings().useQmlls);
 
         disableBuiltInCodemodel = new QCheckBox(
-            Tr::tr("Use QML Language Server advanced features (renaming, find usages and co.) "
-                   "(EXPERIMENTAL!)"));
+            Tr::tr("Use advanced features (renaming, find usages, and so on) "
+                   "(experimental)"));
         disableBuiltInCodemodel->setChecked(s.qmllsSettings().disableBuiltinCodemodel);
         disableBuiltInCodemodel->setEnabled(s.qmllsSettings().useQmlls);
-        useLatestQmlls = new QCheckBox(Tr::tr("Use QML Language Server from latest Qt version"));
+        useLatestQmlls = new QCheckBox(Tr::tr("Use from latest Qt version"));
         useLatestQmlls->setChecked(s.qmllsSettings().useLatestQmlls);
         useLatestQmlls->setEnabled(s.qmllsSettings().useQmlls);
 
         generateQmllsIniFiles = new QCheckBox(
-            Tr::tr("Generate QML Language Server .qmlls.ini configurations for new projects."));
+            Tr::tr("Create .qmlls.ini files for new projects"));
         generateQmllsIniFiles->setChecked(s.qmllsSettings().generateQmllsIniFiles);
         generateQmllsIniFiles->setEnabled(s.qmllsSettings().useQmlls);
         QObject::connect(useQmlls, &QCheckBox::stateChanged, this, [this](int checked) {

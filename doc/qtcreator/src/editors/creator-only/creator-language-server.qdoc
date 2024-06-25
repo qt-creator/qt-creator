@@ -85,9 +85,8 @@
     To enable a language server, select the checkbox next to the language
     server name and set server preferences.
 
-    To turn on \l{Turn on \QMLLS}{\QMLLS}, go to
-    \preferences > \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing} and
-    select \uicontrol {Enable \QMLLS}.
+    To configure \l{Configure \QMLLS}{\QMLLS}, go to
+    \preferences > \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing}.
 
     To remove language servers from the list, select \uicontrol Delete.
 
@@ -237,35 +236,33 @@
 
     \ingroup creator-how-to-lsp
 
-    \title Turn on \QMLLS
+    \title Configure \QMLLS
 
-    Since Qt 6.4, \QMLLS offers code completion and
-    issues warnings for QML. To use it, go to \preferences >
-    \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing} and select
-    \uicontrol {Enable \QMLLS}.
+    Since Qt 6.4, \QMLLS offers code completion and issues warnings for QML.
 
-    By default, enabling \QMLLS will only enable warning messages
-    and code completion, while advanced features such as renaming and finding usages
-    will be handled by the embedded code model.
-    To disable the embedded code model and use \QMLLS for everything,
-    select \uicontrol {Use \QMLLS advanced features}.
+    To turn off \QMLLS, go to \preferences > \uicontrol {Qt Quick} >
+    \uicontrol {QML/JS Editing} and clear \uicontrol {Turn on}.
+
+    By default, \QMLLS issues warning messages and provides code completion,
+    while the embedded code model handles advanced features, such as renaming
+    symbols and finding usages. To disable the embedded code model and use
+    \QMLLS for everything, select \uicontrol {Use advanced features}.
 
     Also, \QC tries to use \QMLLS shipped with the Qt version in your current
     \l{Kits}{kit}. To override that behavior and always use
     \QMLLS of the highest registered Qt version, select
-    \uicontrol {Use \QMLLS from latest Qt version}.
+    \uicontrol {Use from latest Qt version}.
 
     To use older \QMLLS versions, select
     \uicontrol{Allow versions below Qt 6.8}.
 
     \image qtcreator-qml-js-editing.webp {QML/JS Editing preferences}
 
-    When using \c qmlls from Qt 6.7 or later, set \l{QT_QML_GENERATE_QMLLS_INI}
-    to \c{ON} in \uicontrol Projects > \uicontrol {Build Settings}
-    > \uicontrol {Initial Configuration}.
+    To automatically configure new CMake projects, select
+    \uicontrol {Create .qmlls.ini files for new projects}.
 
     \sa {Manage Language Servers}{How To: Manage Language Servers},
-    {Enabling and Disabling Messages}, {CMake Build Configuration}, {Kits}
+    {Enabling and Disabling Messages}, {CMake Build Configuration}, {Kits},
     {Language Servers}
 */
 
