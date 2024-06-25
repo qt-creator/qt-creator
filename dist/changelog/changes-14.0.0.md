@@ -220,7 +220,9 @@ Analyzer
 
 ### Axivion
 
-* Made it possible to register multiple servers
+* Added the `Add` and `Remove` buttons to `Preferences` > `Axivion` for
+  registering multiple servers
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-14.0/creator-preferences-axivion.html))
 
 ### Cppcheck
 
