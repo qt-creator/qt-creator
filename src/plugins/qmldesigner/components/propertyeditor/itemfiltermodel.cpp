@@ -119,6 +119,41 @@ QStringList ItemFilterModel::validationItems() const
     return m_validationItems;
 }
 
+QVariant ItemFilterModel::modelItemData(int row) const
+{
+    QModelIndex idx = index(row, 0, {});
+    if (!idx.isValid())
+        return {};
+
+    QVariantMap mapItem;
+
+    auto insertData = [&](Role role) {
+        mapItem.insert(QString::fromUtf8(roleNames().value(role)), idx.data(role));
+    };
+
+    insertData(IdRole);
+    insertData(IdAndNameRole);
+    insertData(NameRole);
+    insertData(EnabledRole);
+
+    return mapItem;
+}
+
+int ItemFilterModel::indexFromId(const QString &id) const
+{
+    AbstractView *view = m_modelNode.view();
+    if (!view || !view->model())
+        return -1;
+
+    int idx = -1;
+    for (const auto &internalId : std::as_const(m_modelInternalIds)) {
+        ++idx;
+        if (id == view->modelNodeForInternalId(internalId).id())
+            return idx;
+    }
+    return -1;
+}
+
 void ItemFilterModel::registerDeclarativeType()
 {
     qmlRegisterType<ItemFilterModel>("HelperWidgets", 2, 0, "ItemFilterModel");
