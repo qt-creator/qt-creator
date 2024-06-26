@@ -235,7 +235,6 @@ Item {
                 cellWidth: root.thumbnailSize
                 cellHeight: root.thumbnailSize + 20
                 numColumns: root.numColumns
-                hideHorizontalScrollBar: true
 
                 searchBox: searchBox
 

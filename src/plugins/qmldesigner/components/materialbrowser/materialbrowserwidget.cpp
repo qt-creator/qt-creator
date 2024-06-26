@@ -374,7 +374,7 @@ void MaterialBrowserWidget::addMaterialToContentLibrary()
 void MaterialBrowserWidget::importMaterial()
 {
     ModelNode mat = m_materialBrowserModel->selectedMaterial();
-    m_materialBrowserView->emitCustomNotification("import_bundle"); // to ContentLibrary
+    m_materialBrowserView->emitCustomNotification("import_bundle_to_project"); // to ContentLibrary
 }
 void MaterialBrowserWidget::exportMaterial()
 {

@@ -66,7 +66,8 @@ private:
     void exportLib3DComponent(const ModelNode &node);
     void addLibItem(const ModelNode &node, const QPixmap &iconPixmap = {});
     void exportLibItem(const ModelNode &node, const QPixmap &iconPixmap = {});
-    void importBundle();
+    void importBundleToContentLib();
+    void importBundleToProject();
     void getImageFromCache(const QString &qmlPath,
                            std::function<void(const QImage &image)> successCallback);
     QString getExportPath(const ModelNode &node) const;

@@ -108,6 +108,7 @@ signals:
     void isQt6ProjectChanged();
     void importerRunningChanged();
     void hasModelSelectionChanged();
+    void importBundle();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;

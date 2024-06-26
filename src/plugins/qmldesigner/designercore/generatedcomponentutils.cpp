@@ -131,6 +131,25 @@ Utils::FilePath GeneratedComponentUtils::effectBundlePath() const
     return basePath.resolvePath(QLatin1String(Constants::COMPONENT_BUNDLES_EFFECT_BUNDLE_TYPE));
 }
 
+Utils::FilePath GeneratedComponentUtils::userBundlePath(const QString &bundleId) const
+{
+    Utils::FilePath basePath = componentBundlesBasePath();
+    if (basePath.isEmpty())
+        return {};
+
+    if (bundleId == userMaterialsBundleId())
+        return basePath.pathAppended(Constants::COMPONENT_BUNDLES_USER_MATERIAL_BUNDLE_TYPE);
+
+    if (bundleId == userEffectsBundleId())
+        return basePath.pathAppended(Constants::COMPONENT_BUNDLES_USER_EFFECT_BUNDLE_TYPE);
+
+    if (bundleId == user3DBundleId())
+        return basePath.pathAppended(Constants::COMPONENT_BUNDLES_USER_3D_BUNDLE_TYPE);
+
+    qWarning() << __FUNCTION__ << "no bundleType for bundleId:" << bundleId;
+    return {};
+}
+
 Utils::FilePath GeneratedComponentUtils::projectModulePath(bool generateIfNotExists) const
 {
     using Utils::FilePath;

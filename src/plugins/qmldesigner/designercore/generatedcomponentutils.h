@@ -23,6 +23,7 @@ public:
     Utils::FilePath import3dBasePath() const;
     Utils::FilePath materialBundlePath() const;
     Utils::FilePath effectBundlePath() const;
+    Utils::FilePath userBundlePath(const QString &bundleId) const;
     Utils::FilePath projectModulePath(bool generateIfNotExists = false) const;
 
     bool isImport3dPath(const QString &path) const;

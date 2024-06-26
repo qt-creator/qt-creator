@@ -100,6 +100,9 @@ WidgetInfo ContentLibraryView::widgetInfo()
             m_widget->environmentsModel()->setHasSceneEnv(sceneEnvExists);
         });
 
+        connect(m_widget, &ContentLibraryWidget::importBundle, this,
+                &ContentLibraryView::importBundleToContentLib);
+
         connect(m_widget->materialsModel(),
                 &ContentLibraryMaterialsModel::applyToSelectedTriggered,
                 this,
@@ -393,8 +396,8 @@ void ContentLibraryView::customNotification(const AbstractView *view,
             exportLibItem(nodeList.first());
     } else if (identifier == "export_material_as_bundle") {
         exportLibItem(nodeList.first(), data.first().value<QPixmap>());
-    } else if (identifier == "import_bundle") {
-        importBundle();
+    } else if (identifier == "import_bundle_to_project") {
+        importBundleToProject();
     }
 }
 
@@ -1023,7 +1026,7 @@ void ContentLibraryView::exportLibItem(const ModelNode &node, const QPixmap &ico
         addIconAndCloseZip(iconPixmap);
 }
 
-void ContentLibraryView::importBundle()
+void ContentLibraryView::importBundleToContentLib()
 {
     QString importPath = getImportPath();
     if (importPath.isEmpty())
@@ -1049,6 +1052,7 @@ void ContentLibraryView::importBundle()
     bool isMat = isMaterialBundle(bundleId);
 
     QString bundleFolderName = isMat ? QLatin1String("materials") : QLatin1String("3d");
+
     auto bundlePath = Utils::FilePath::fromString(QLatin1String("%1/User/%3/")
                                             .arg(Paths::bundlesPathSetting(), bundleFolderName));
 
@@ -1096,6 +1100,7 @@ void ContentLibraryView::importBundle()
 
         m_widget->userModel()->addItem(bundleId, name, qml, iconUrl, files);
     }
+
     m_widget->userModel()->refreshSection(bundleId);
 
     zipReader.close();
@@ -1105,6 +1110,85 @@ void ContentLibraryView::importBundle()
     auto result = bundlePath.pathAppended(Constants::BUNDLE_JSON_FILENAME)
                       .writeFileContents(QJsonDocument(jsonRef).toJson());
     QTC_ASSERT_EXPECTED(result,);
+}
+
+void ContentLibraryView::importBundleToProject()
+{
+    QString importPath = getImportPath();
+    if (importPath.isEmpty())
+        return;
+
+    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+
+    ZipReader zipReader(importPath);
+
+    QByteArray bundleJsonContent = zipReader.fileData(Constants::BUNDLE_JSON_FILENAME);
+    QTC_ASSERT(!bundleJsonContent.isEmpty(), return);
+
+    const QJsonObject importedJsonObj = QJsonDocument::fromJson(bundleJsonContent).object();
+    const QJsonArray importedItemsArr = importedJsonObj.value("items").toArray();
+    QTC_ASSERT(!importedItemsArr.isEmpty(), return);
+
+    QString bundleVersion = importedJsonObj.value("version").toString();
+    bool bundleVersionOk = !bundleVersion.isEmpty() && bundleVersion == BUNDLE_VERSION;
+    if (!bundleVersionOk) {
+        QMessageBox::warning(m_widget, tr("Unsupported bundle file"),
+                             tr("The chosen bundle was created with an incompatible version of Qt Design Studio"));
+        return;
+    }
+    QString bundleId = importedJsonObj.value("id").toString();
+
+    QTemporaryDir tempDir;
+    QTC_ASSERT(tempDir.isValid(), return);
+    auto bundlePath = Utils::FilePath::fromString(tempDir.path());
+
+    const QStringList existingQmls = Utils::transform(compUtils.userBundlePath(bundleId)
+                                       .dirEntries(QDir::Files), [](const Utils::FilePath &path) {
+                                                                       return path.fileName();
+                                                                   });
+
+    for (const QJsonValueConstRef &itemRef : importedItemsArr) {
+        QJsonObject itemObj = itemRef.toObject();
+        QString qml = itemObj.value("qml").toString();
+
+        // confirm overwrite if an item with same name exists
+        if (existingQmls.contains(qml)) {
+            QMessageBox::StandardButton reply = QMessageBox::question(m_widget, tr("Component Exists"),
+                                                  tr("A component with the same name '%1' already "
+                                                     "exists in the project, are you sure "
+                                                     "you want to overwrite it?")
+                                                      .arg(qml), QMessageBox::Yes | QMessageBox::No);
+            if (reply == QMessageBox::No)
+                continue;
+
+            // TODO: before overwriting remove old item's dependencies (not harmful but for cleanup)
+        }
+
+        // add entry to model
+        QStringList files = itemObj.value("files").toVariant().toStringList();
+        QString icon = itemObj.value("icon").toString();
+
+        // copy files
+        QStringList allFiles = files;
+        allFiles << qml << icon;
+        for (const QString &file : std::as_const(allFiles)) {
+            Utils::FilePath filePath = bundlePath.pathAppended(file);
+            filePath.parentDir().ensureWritableDir();
+            QTC_ASSERT_EXPECTED(filePath.writeFileContents(zipReader.fileData(file)),);
+        }
+
+        QString typePrefix = compUtils.userBundleType(bundleId);
+        TypeName type = QLatin1String("%1.%2").arg(typePrefix, qml.chopped(4)).toLatin1();
+
+        QString err = m_widget->importer()->importComponent(bundlePath.toFSPathString(), type, qml, files);
+
+        if (err.isEmpty())
+            m_widget->setImporterRunning(true);
+        else
+            qWarning() << __FUNCTION__ << err;
+    }
+
+    zipReader.close();
 }
 
 /**
