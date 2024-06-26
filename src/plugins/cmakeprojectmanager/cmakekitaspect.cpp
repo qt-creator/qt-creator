@@ -97,6 +97,7 @@ public:
 
 private:
     QVariant defaultValue(const Kit *k) const;
+    bool isNinjaPresent(const Kit *k, const CMakeTool *tool) const;
 };
 
 class CMakeConfigurationKitAspectFactory : public KitAspectFactory
@@ -556,6 +557,17 @@ CMakeGeneratorKitAspectFactory::CMakeGeneratorKitAspectFactory()
     setDescription(Tr::tr("CMake generator defines how a project is built when using CMake.<br>"
                       "This setting is ignored when using other build systems."));
     setPriority(19000);
+
+    auto updateKits = [this] {
+        if (KitManager::isLoaded()) {
+            for (Kit *k : KitManager::kits())
+                fix(k);
+        }
+    };
+
+    //make sure the default value is set if a new default CMake is set
+    connect(CMakeToolManager::instance(), &CMakeToolManager::defaultCMakeChanged,
+            this, updateKits);
 }
 
 QString CMakeGeneratorKitAspect::generator(const Kit *k)
@@ -664,18 +676,7 @@ QVariant CMakeGeneratorKitAspectFactory::defaultValue(const Kit *k) const
         return g.matches("Ninja");
     });
     if (it != known.constEnd()) {
-        const bool hasNinja = [k, tool] {
-            if (Internal::settings(nullptr).ninjaPath().isEmpty()) {
-                auto findNinja = [](const Environment &env) -> bool {
-                    return !env.searchInPath("ninja").isEmpty();
-                };
-                if (!findNinja(tool->filePath().deviceEnvironment()))
-                    return findNinja(k->buildEnvironment());
-            }
-            return true;
-        }();
-
-        if (hasNinja)
+        if (isNinjaPresent(k, tool))
             return GeneratorInfo("Ninja").toVariant();
     }
 
@@ -723,6 +724,18 @@ QVariant CMakeGeneratorKitAspectFactory::defaultValue(const Kit *k) const
         return QVariant();
 
     return GeneratorInfo(it->name).toVariant();
+}
+
+bool CMakeGeneratorKitAspectFactory::isNinjaPresent(const Kit *k, const CMakeTool *tool) const
+{
+    if (Internal::settings(nullptr).ninjaPath().isEmpty()) {
+        auto findNinja = [](const Environment &env) -> bool {
+            return !env.searchInPath("ninja").isEmpty();
+        };
+        if (!findNinja(tool->filePath().deviceEnvironment()))
+            return findNinja(k->buildEnvironment());
+    }
+    return true;
 }
 
 Tasks CMakeGeneratorKitAspectFactory::validate(const Kit *k) const
@@ -783,7 +796,7 @@ void CMakeGeneratorKitAspectFactory::fix(Kit *k)
                            [info](const CMakeTool::Generator &g) {
         return g.matches(info.generator);
     });
-    if (it == known.constEnd()) {
+    if (it == known.constEnd() || (info.generator == "Ninja" && !isNinjaPresent(k, tool))) {
         GeneratorInfo dv;
         dv.fromVariant(defaultValue(k));
         setGeneratorInfo(k, dv);
