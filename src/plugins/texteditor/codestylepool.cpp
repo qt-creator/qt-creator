@@ -135,6 +135,20 @@ ICodeStylePreferences *CodeStylePool::createCodeStyle(const QByteArray &id, cons
     return codeStyle;
 }
 
+ICodeStylePreferences *CodeStylePool::createCodeStyle(const QString &displayName)
+{
+    if (!d->m_factory)
+        return nullptr;
+
+    ICodeStylePreferences *codeStyle = d->m_factory->createCodeStyle();
+    codeStyle->setDisplayName(displayName);
+
+    addCodeStyle(codeStyle);
+    saveCodeStyle(codeStyle);
+
+    return codeStyle;
+}
+
 void CodeStylePool::addCodeStyle(ICodeStylePreferences *codeStyle)
 {
     const QByteArray newId = d->generateUniqueId(codeStyle->id());

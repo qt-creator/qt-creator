@@ -30,7 +30,7 @@ CodeStyleEditor::CodeStyleEditor(ICodeStylePreferencesFactory *factory,
 {
     m_layout = new QVBoxLayout(this);
     m_layout->setContentsMargins(0, 0, 0, 0);
-    auto selector = new CodeStyleSelectorWidget(factory, project, this);
+    auto selector = m_factory->createSelectorWidget(project, this);
     selector->setCodeStyle(codeStyle);
     m_additionalGlobalSettingsWidget = factory->createAdditionalGlobalSettings(codeStyle,
                                                                                project,

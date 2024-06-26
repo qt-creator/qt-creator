@@ -5,6 +5,7 @@
 
 #include "clangformatconfigwidget.h"
 #include "clangformatconstants.h"
+#include "clangformatfile.h"
 #include "clangformatindenter.h"
 #include "clangformatsettings.h"
 #include "clangformattr.h"
@@ -17,6 +18,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
 
+#include <texteditor/codestylepool.h>
+#include <texteditor/codestyleselectorwidget.h>
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/texteditorsettings.h>
 
@@ -27,7 +30,9 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QGroupBox>
+#include <QInputDialog>
 #include <QLabel>
+#include <QMessageBox>
 #include <QSpinBox>
 
 using namespace CppEditor;
@@ -350,6 +355,59 @@ void ClangFormatGlobalConfigWidget::finish()
         !ClangFormatSettings::instance().useCustomSettings());
 }
 
+class ClangFormatSelectorWidget final : public CodeStyleSelectorWidget
+{
+public:
+    ClangFormatSelectorWidget(
+        ICodeStylePreferencesFactory *factory,
+        ProjectExplorer::Project *project = nullptr,
+        QWidget *parent = nullptr)
+        : CodeStyleSelectorWidget(factory, project, parent)
+    {}
+
+private:
+    void slotImportClicked() final
+    {
+        const FilePath filePath =
+            FileUtils::getOpenFilePath(this, Tr::tr("Import Code Format"), {},
+                                       Tr::tr("Clang Format (*clang-format*);;All files (*)"));
+        if (!filePath.isEmpty()) {
+            QString name = QInputDialog::getText(
+                this,
+                Tr::tr("Import Code Style"),
+                Tr::tr("Enter a name for the imported code style:"));
+            if (name.isEmpty())
+                return;
+
+            CodeStylePool *codeStylePool = m_codeStyle->delegatingPool();
+            ICodeStylePreferences *importedStyle = codeStylePool->createCodeStyle(name);
+            ClangFormatFile file(importedStyle, filePath);
+
+            if (importedStyle)
+                m_codeStyle->setCurrentDelegate(importedStyle);
+            else
+                QMessageBox::warning(this,
+                                     Tr::tr("Import Code Style"),
+                                     Tr::tr("Cannot import code style from \"%1\".")
+                                         .arg(filePath.toUserOutput()));
+        }
+    }
+
+    void slotExportClicked() final
+    {
+        ICodeStylePreferences *currentPreferences = m_codeStyle->currentPreferences();
+        const FilePath filePath = FileUtils::getSaveFilePath(
+            this,
+            Tr::tr("Export Code Format"),
+            FileUtils::homePath(),
+            Tr::tr("Clang Format (*clang-format*);;All files (*)"));
+        if (!filePath.isEmpty()) {
+            FilePath clangFormatFile = filePathToCurrentSettings(currentPreferences);
+            clangFormatFile.copyFile(filePath);
+        }
+    }
+};
+
 class ClangFormatStyleFactory final : public CppCodeStylePreferencesFactory
 {
 public:
@@ -368,6 +426,12 @@ public:
         ICodeStylePreferences *codeStyle, Project *project, QWidget *parent) final
     {
         return new ClangFormatGlobalConfigWidget(codeStyle, project, parent);
+    }
+
+    CodeStyleSelectorWidget *createSelectorWidget(
+        ProjectExplorer::Project *project, QWidget *parent) final
+    {
+        return new ClangFormatSelectorWidget(this, project, parent);
     }
 };
 

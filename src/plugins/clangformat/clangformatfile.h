@@ -19,7 +19,8 @@ namespace ClangFormat {
 class ClangFormatFile
 {
 public:
-    explicit ClangFormatFile(const TextEditor::ICodeStylePreferences *preferences);
+    explicit ClangFormatFile(
+        const TextEditor::ICodeStylePreferences *preferences, const Utils::FilePath &filePath = {});
     clang::format::FormatStyle style();
 
     Utils::FilePath filePath();

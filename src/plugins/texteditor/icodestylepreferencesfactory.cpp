@@ -4,6 +4,7 @@
 #include "icodestylepreferencesfactory.h"
 
 #include "codestyleeditor.h"
+#include "codestyleselectorwidget.h"
 
 using namespace TextEditor;
 
@@ -21,4 +22,10 @@ CodeStyleEditorWidget *ICodeStylePreferencesFactory::createAdditionalGlobalSetti
     ICodeStylePreferences *, ProjectExplorer::Project *, QWidget *)
 {
     return nullptr;
+}
+
+CodeStyleSelectorWidget *ICodeStylePreferencesFactory::createSelectorWidget(
+    ProjectExplorer::Project *project, QWidget *parent)
+{
+    return new CodeStyleSelectorWidget(this, project, parent);
 }

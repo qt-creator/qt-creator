@@ -16,14 +16,32 @@
 
 using namespace ClangFormat;
 
-ClangFormatFile::ClangFormatFile(const TextEditor::ICodeStylePreferences *preferences)
+ClangFormatFile::ClangFormatFile(
+    const TextEditor::ICodeStylePreferences *preferences, const Utils::FilePath &fromFilePath)
     : m_filePath(filePathToCurrentSettings(preferences))
 {
     if (m_filePath.exists())
         return;
 
-    // create file and folder
+    // create folder
     m_filePath.parentDir().createDir();
+
+    if (fromFilePath.exists() && fromFilePath.copyFile(m_filePath)) {
+        auto fileContent = m_filePath.fileContents();
+        if (fileContent && !fileContent->contains("yaml-language-server")) {
+            fileContent->insert(
+                0,
+                "# yaml-language-server: "
+                "$schema=https://json.schemastore.org/clang-format.json\n");
+            m_filePath.writeFileContents(fileContent.value());
+        }
+        parseConfigurationFile(m_filePath, m_style);
+        return;
+    }
+
+    // It is done separately from folder because filePath.copyFile doesn't copy if file exists
+    // ToDo: when behavior of copyFile is changed, combine that block with folder creation block
+    // create file
     std::fstream newStyleFile(m_filePath.path().toStdString(), std::fstream::out);
     if (newStyleFile.is_open())
         newStyleFile.close();
