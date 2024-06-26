@@ -49,6 +49,10 @@ QmlMainFileAspect::QmlMainFileAspect(AspectContainer *container)
             this, &QmlMainFileAspect::changeCurrentFile);
     connect(EditorManager::instance(), &EditorManager::currentDocumentStateChanged,
             this, [this] { changeCurrentFile(); });
+    connect(ProjectExplorerPlugin::instance(),
+            &ProjectExplorerPlugin::fileListChanged,
+            this,
+            &QmlMainFileAspect::updateFileComboBox);
 }
 
 QmlMainFileAspect::~QmlMainFileAspect()
@@ -63,9 +67,6 @@ void QmlMainFileAspect::addToLayout(Layouting::Layout &parent)
     m_fileListCombo->setModel(&m_fileListModel);
 
     updateFileComboBox();
-
-    connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::fileListChanged,
-            this, &QmlMainFileAspect::updateFileComboBox);
     connect(m_fileListCombo, &QComboBox::activated, this, &QmlMainFileAspect::setMainScript);
 
     parent.addItems({Tr::tr("Main QML file:"), m_fileListCombo.data()});
@@ -93,7 +94,7 @@ void QmlMainFileAspect::updateFileComboBox()
     const FilePath projectDir = m_target->project()->projectDirectory();
 
     if (mainScriptSource() == FileInProjectFile) {
-        const FilePath mainScriptInFilePath = projectDir.relativeChildPath(mainScript());
+        const FilePath mainScriptInFilePath = mainScript().relativePathFrom(projectDir);
         m_fileListModel.clear();
         m_fileListModel.appendRow(new QStandardItem(mainScriptInFilePath.toString()));
         if (m_fileListCombo)
