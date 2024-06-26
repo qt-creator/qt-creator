@@ -308,16 +308,17 @@ AxivionSettingsWidget::AxivionSettingsWidget()
     auto addButton = new QPushButton(Tr::tr("Add..."), this);
     m_edit = new QPushButton(Tr::tr("Edit..."), this);
     m_remove = new QPushButton(Tr::tr("Remove"), this);
-    Column {
-        Row {
-            Form {
-                Tr::tr("Default dashboard server"), m_dashboardServers, br
-            }, st,
-            Column { addButton, m_edit, st, m_remove },
+    Column{
+        Row{
+            Form{Tr::tr("Default dashboard server:"), m_dashboardServers, br},
+            st,
+            Column{addButton, m_edit, st, m_remove},
         },
-        Space(10), br,
-        Row { settings().highlightMarks }, st
-    }.attachTo(this);
+        Space(10),
+        br,
+        Row{settings().highlightMarks},
+        st}
+        .attachTo(this);
 
     connect(addButton, &QPushButton::clicked, this, [this] {
         // add an empty item unconditionally
@@ -357,10 +358,11 @@ void AxivionSettingsWidget::updateEnabledStates()
 void AxivionSettingsWidget::removeCurrentServerConfig()
 {
     const QString config = m_dashboardServers->currentData().value<AxivionServer>().displayString();
-    if (QMessageBox::question(ICore::dialogParent(), Tr::tr("Remove Server Configuration"),
-                              Tr::tr("Do you really want to remove the server configuration "
-                                     "\"%1\"?").arg(config))
-            != QMessageBox::Yes) {
+    if (QMessageBox::question(
+            ICore::dialogParent(),
+            Tr::tr("Remove Server Configuration"),
+            Tr::tr("Remove the server configuration \"%1\"?").arg(config))
+        != QMessageBox::Yes) {
         return;
     }
     m_dashboardServers->removeItem(m_dashboardServers->currentIndex());

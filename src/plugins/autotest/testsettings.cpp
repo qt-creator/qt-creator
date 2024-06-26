@@ -35,7 +35,7 @@ TestSettings::TestSettings()
 
     useTimeout.setSettingsKey("UseTimeout");
     useTimeout.setDefaultValue(false);
-    useTimeout.setLabelText(Tr::tr("Timeout"));
+    useTimeout.setLabelText(Tr::tr("Timeout:"));
     useTimeout.setToolTip(Tr::tr("Use a timeout while executing test cases."));
 
     timeout.setSettingsKey("Timeout");

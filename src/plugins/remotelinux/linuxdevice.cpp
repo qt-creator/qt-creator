@@ -711,8 +711,11 @@ void SshProcessInterfacePrivate::start()
         auto linuxDevice = std::dynamic_pointer_cast<const LinuxDevice>(m_device);
         QTC_ASSERT(linuxDevice, handleDone(); return);
         if (linuxDevice->isDisconnected()) {
-            emit q->done({-1, QProcess::CrashExit, QProcess::FailedToStart,
-                          Tr::tr("Device \"%1\" is disconnected").arg(linuxDevice->displayName())});
+            emit q->done(
+                {-1,
+                 QProcess::CrashExit,
+                 QProcess::FailedToStart,
+                 Tr::tr("Device \"%1\" is disconnected.").arg(linuxDevice->displayName())});
             return;
         }
         linuxDevice->connectionAccess()
@@ -1646,7 +1649,7 @@ private:
             const expected_str<void> result = async.result();
             if (result)
                 emit progress(
-                    Tr::tr("Created directory: %1\n").arg(iteratorParentDirs->toUserOutput()));
+                    Tr::tr("Created directory: \"%1\".\n").arg(iteratorParentDirs->toUserOutput()));
             else
                 emit progress(result.error());
         };
@@ -1665,7 +1668,8 @@ private:
             ++counter;
 
             if (result) {
-                emit progress(Tr::tr("Copied %1/%2: %3 -> %4\n")
+                //: %1/%2 = progress in the form 4/15, %3 and %4 = source and target file paths
+                emit progress(Tr::tr("Copied %1/%2: \"%3\" -> \"%4\".\n")
                                   .arg(counter)
                                   .arg(m_setup.m_files.size())
                                   .arg(iterator->m_source.toUserOutput())

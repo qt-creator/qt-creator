@@ -110,7 +110,7 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(ICodeStylePreferenc
     // clang-format off
     Group globalSettingsGroupBox {
         bindTo(&globalSettingsGroupBoxWidget),
-        title(Tr::tr("ClangFormat Settings:")),
+        title(Tr::tr("ClangFormat Settings")),
         Column {
             m_useGlobalSettings,
             Form {
