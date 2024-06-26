@@ -15,7 +15,7 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
-#include <texteditor/codeassist/textdocumentmanipulatorinterface.h>
+#include <texteditor/codeassist/textdocumentmanipulator.h>
 #include <texteditor/refactoringchanges.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -100,7 +100,7 @@ bool applyTextEdits(const Client *client,
     return file->apply(editsToChangeSet(edits, file->document()));
 }
 
-void applyTextEdit(TextDocumentManipulatorInterface &manipulator,
+void applyTextEdit(TextDocumentManipulator &manipulator,
                    const TextEdit &edit,
                    bool newTextIsSnippet)
 {

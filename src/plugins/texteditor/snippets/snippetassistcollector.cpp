@@ -24,7 +24,7 @@ public:
     }
     bool implicitlyApplies() const override { return false; }
     bool prematurelyApplies(const QChar &) const override { return false; }
-    void apply(TextDocumentManipulatorInterface &manipulator, int basePosition) const override
+    void apply(TextDocumentManipulator &manipulator, int basePosition) const override
     {
         manipulator.insertCodeSnippet(basePosition, m_snippet.content(), &Snippet::parse);
     }

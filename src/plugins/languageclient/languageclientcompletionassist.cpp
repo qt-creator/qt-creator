@@ -53,7 +53,7 @@ bool LanguageClientCompletionItem::prematurelyApplies(const QChar &typedCharacte
     return false;
 }
 
-void LanguageClientCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
+void LanguageClientCompletionItem::apply(TextDocumentManipulator &manipulator,
                                          int /*basePosition*/) const
 {
     if (auto edit = m_item.textEdit()) {

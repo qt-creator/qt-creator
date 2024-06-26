@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "textdocumentmanipulatorinterface.h"
+#include "textdocumentmanipulator.h"
 
 QT_BEGIN_NAMESPACE
 class QIcon;
@@ -36,7 +36,7 @@ public:
     virtual QString filterText() const { return text(); }
     virtual bool implicitlyApplies() const = 0;
     virtual bool prematurelyApplies(const QChar &typedCharacter) const = 0;
-    virtual void apply(TextDocumentManipulatorInterface &manipulator, int basePosition) const = 0;
+    virtual void apply(TextDocumentManipulator &manipulator, int basePosition) const = 0;
     virtual QIcon icon() const = 0;
     virtual QString detail() const = 0;
     virtual bool isKeyword() const { return false; }

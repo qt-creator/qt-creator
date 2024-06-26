@@ -105,7 +105,7 @@ bool AssistProposalItem::prematurelyApplies(const QChar &c) const
     return false;
 }
 
-void AssistProposalItem::apply(TextDocumentManipulatorInterface &manipulator, int basePosition) const
+void AssistProposalItem::apply(TextDocumentManipulator &manipulator, int basePosition) const
 {
     if (data().canConvert<QString>()) {
         applySnippet(manipulator, basePosition);
@@ -117,19 +117,19 @@ void AssistProposalItem::apply(TextDocumentManipulatorInterface &manipulator, in
     }
 }
 
-void AssistProposalItem::applyContextualContent(TextDocumentManipulatorInterface &manipulator, int basePosition) const
+void AssistProposalItem::applyContextualContent(TextDocumentManipulator &manipulator, int basePosition) const
 {
     const int currentPosition = manipulator.currentPosition();
     manipulator.replace(basePosition, currentPosition - basePosition, text());
 
 }
 
-void AssistProposalItem::applySnippet(TextDocumentManipulatorInterface &manipulator, int basePosition) const
+void AssistProposalItem::applySnippet(TextDocumentManipulator &manipulator, int basePosition) const
 {
     manipulator.insertCodeSnippet(basePosition, data().toString(), &Snippet::parse);
 }
 
-void AssistProposalItem::applyQuickFix(TextDocumentManipulatorInterface &manipulator, int basePosition) const
+void AssistProposalItem::applyQuickFix(TextDocumentManipulator &manipulator, int basePosition) const
 {
     Q_UNUSED(manipulator)
     Q_UNUSED(basePosition)

@@ -37,7 +37,7 @@ public:
         setText(text);
     }
 
-    void apply(TextDocumentManipulatorInterface &manipulator, int /*basePosition*/) const final
+    void apply(TextDocumentManipulator &manipulator, int /*basePosition*/) const final
     {
 
         //Move to last in circular clipboard

@@ -74,8 +74,7 @@ class ClangdCompletionItem : public LanguageClientCompletionItem
 {
 public:
     using LanguageClientCompletionItem::LanguageClientCompletionItem;
-    void apply(TextDocumentManipulatorInterface &manipulator,
-               int basePosition) const override;
+    void apply(TextDocumentManipulator &manipulator, int basePosition) const override;
 
     enum class SpecialQtType { Signal, Slot, None };
     static SpecialQtType getQtType(const CompletionItem &item);
@@ -247,7 +246,7 @@ bool ClangdCompletionAssistProvider::isInCommentOrString(const AssistInterface *
     return CppEditor::isInCommentOrString(interface, features);
 }
 
-void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
+void ClangdCompletionItem::apply(TextDocumentManipulator &manipulator,
                                  int /*basePosition*/) const
 {
     const CompletionItem item = this->item();

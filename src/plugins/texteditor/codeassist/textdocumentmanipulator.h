@@ -3,30 +3,45 @@
 
 #pragma once
 
-#include "textdocumentmanipulatorinterface.h"
+#include <texteditor/snippets/snippetparser.h>
+#include <texteditor/texteditor_global.h>
+
+#include <utils/textutils.h>
+
+QT_BEGIN_NAMESPACE
+class QChar;
+class QString;
+class QTextCursor;
+QT_END_NAMESPACE
 
 namespace TextEditor {
 
 class TextEditorWidget;
 
-class TextDocumentManipulator final : public TextDocumentManipulatorInterface
+class TEXTEDITOR_EXPORT TextDocumentManipulator
 {
 public:
     TextDocumentManipulator(TextEditorWidget *textEditorWidget);
 
-    int currentPosition() const final;
-    int positionAt(TextPositionOperation textPositionOperation) const final;
-    QChar characterAt(int position) const final;
-    QString textAt(int position, int length) const final;
-    QTextCursor textCursorAt(int position) const final;
+    int currentPosition() const;
+    int positionAt(TextPositionOperation textPositionOperation) const;
+    QChar characterAt(int position) const;
+    QString textAt(int position, int length) const;
+    QTextCursor textCursorAt(int position) const;
 
-    void setCursorPosition(int position) final;
-    void setAutoCompleteSkipPosition(int position) final;
-    bool replace(int position, int length, const QString &text) final;
-    void insertCodeSnippet(int position, const QString &text, const SnippetParser &parse) final;
-    void paste() final;
-    void encourageApply() final;
-    void autoIndent(int position, int length) override;
+    void setCursorPosition(int position);
+    void setAutoCompleteSkipPosition(int position);
+    bool replace(int position, int length, const QString &text);
+    void insertCodeSnippet(int position, const QString &text, const SnippetParser &parse);
+    void paste();
+    void encourageApply();
+    void autoIndent(int position, int length);
+
+    QString getLine(int line) const;
+
+    Utils::Text::Position cursorPos() const;
+
+    int skipPos() const;
 
 private:
     bool textIsDifferentAt(int position, int length, const QString &text) const;

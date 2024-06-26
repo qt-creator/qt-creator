@@ -30,7 +30,7 @@
 #include <texteditor/codeassist/assistproposaliteminterface.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
-#include <texteditor/codeassist/textdocumentmanipulatorinterface.h>
+#include <texteditor/codeassist/textdocumentmanipulator.h>
 #include <texteditor/semantichighlighter.h>
 #include <texteditor/textmark.h>
 
@@ -1530,76 +1530,6 @@ void ClangdTestHighlighting::testIfdefedOutBlocks()
 }
 
 
-class Manipulator final : public TextDocumentManipulatorInterface
-{
-public:
-    Manipulator()
-    {
-        const auto textEditor = static_cast<BaseTextEditor *>(EditorManager::currentEditor());
-        QVERIFY(textEditor);
-        m_doc = textEditor->textDocument()->document();
-        m_cursor = textEditor->editorWidget()->textCursor();
-    }
-
-    int currentPosition() const override { return m_cursor.position(); }
-    int positionAt(TextPositionOperation) const override { return 0; }
-    QChar characterAt(int position) const override { return m_doc->characterAt(position); }
-
-    QString textAt(int position, int length) const override
-    {
-        return m_doc->toPlainText().mid(position, length);
-    }
-
-    QTextCursor textCursorAt(int position) const override
-    {
-        QTextCursor cursor(m_doc);
-        cursor.setPosition(position);
-        return cursor;
-    }
-
-    void setCursorPosition(int position) override { m_cursor.setPosition(position); }
-    void setAutoCompleteSkipPosition(int position) override { m_skipPos = position; }
-
-    bool replace(int position, int length, const QString &text) override
-    {
-        QTextCursor cursor = textCursorAt(position);
-        cursor.setPosition(position + length, QTextCursor::KeepAnchor);
-        cursor.insertText(text);
-        return true;
-    }
-
-    void insertCodeSnippet(int pos, const QString &text, const SnippetParser &parser) override
-    {
-        const auto parseResult = parser(text);
-        if (const auto snippet = std::get_if<ParsedSnippet>(&parseResult)) {
-            if (!snippet->parts.isEmpty())
-                textCursorAt(pos).insertText(snippet->parts.first().text);
-        }
-    }
-
-    void paste() override {}
-    void encourageApply() override {}
-    void autoIndent(int, int) override {}
-
-    QString getLine(int line) const { return m_doc->findBlockByNumber(line - 1).text(); }
-
-    QPair<int, int> cursorPos() const
-    {
-        const int pos = currentPosition();
-        QPair<int, int> lineAndColumn;
-        Text::convertPosition(m_doc, pos, &lineAndColumn.first, &lineAndColumn.second);
-        return lineAndColumn;
-    }
-
-    int skipPos() const { return m_skipPos; }
-
-private:
-    QTextDocument *m_doc;
-    QTextCursor m_cursor;
-    int m_skipPos = -1;
-};
-
-
 class ClangdTestCompletion final : public ClangdTest
 {
     Q_OBJECT
@@ -1723,10 +1653,10 @@ void ClangdTestCompletion::testCompleteGlobals()
 
     const AssistProposalItemInterface * const item = getItem(proposal, " globalFunction()", "void");
     QVERIFY(item);
-    Manipulator manipulator;
+    TextDocumentManipulator manipulator(TextEditorWidget::currentTextEditorWidget());
     item->apply(manipulator, cursorPos);
     QCOMPARE(manipulator.getLine(7), "   globalFunction() /* COMPLETE HERE */");
-    QCOMPARE(manipulator.cursorPos(), qMakePair(7, 19));
+    QCOMPARE(manipulator.cursorPos(), Text::Position(7, 19));
     QCOMPARE(manipulator.skipPos(), -1);
 }
 
@@ -1743,10 +1673,10 @@ void ClangdTestCompletion::testCompleteMembers()
 
     const AssistProposalItemInterface * const item = getItem(proposal, " member", "int");
     QVERIFY(item);
-    Manipulator manipulator;
+    TextDocumentManipulator manipulator(TextEditorWidget::currentTextEditorWidget());
     item->apply(manipulator, cursorPos);
     QCOMPARE(manipulator.getLine(7), "    s.member /* COMPLETE HERE */");
-    QCOMPARE(manipulator.cursorPos(), qMakePair(7, 12));
+    QCOMPARE(manipulator.cursorPos(), Text::Position(7, 12));
     QCOMPARE(manipulator.skipPos(), -1);
 }
 
@@ -1761,10 +1691,10 @@ void ClangdTestCompletion::testCompleteMembersFromInside()
 
     const AssistProposalItemInterface * const item = getItem(proposal, " privateFunc()", "void");
     QVERIFY(item);
-    Manipulator manipulator;
+    TextDocumentManipulator manipulator(TextEditorWidget::currentTextEditorWidget());
     item->apply(manipulator, cursorPos);
     QCOMPARE(manipulator.getLine(4), "        privateFunc() /* COMPLETE HERE */");
-    QCOMPARE(manipulator.cursorPos(), qMakePair(4, 21));
+    QCOMPARE(manipulator.cursorPos(), Text::Position(4, 21));
     QCOMPARE(manipulator.skipPos(), -1);
 }
 
@@ -1779,10 +1709,10 @@ void ClangdTestCompletion::testCompleteMembersFromOutside()
 
     const AssistProposalItemInterface * const item = getItem(proposal, " publicFunc()", "void");
     QVERIFY(item);
-    Manipulator manipulator;
+    TextDocumentManipulator manipulator(TextEditorWidget::currentTextEditorWidget());
     item->apply(manipulator, cursorPos);
     QCOMPARE(manipulator.getLine(13), "    c.publicFunc() /* COMPLETE HERE */");
-    QCOMPARE(manipulator.cursorPos(), qMakePair(13, 18));
+    QCOMPARE(manipulator.cursorPos(), Text::Position(13, 18));
     QCOMPARE(manipulator.skipPos(), -1);
 }
 
@@ -1797,10 +1727,10 @@ void ClangdTestCompletion::testCompleteMembersFromFriend()
 
     const AssistProposalItemInterface * const item = getItem(proposal, " privateFunc()", "void");
     QVERIFY(item);
-    Manipulator manipulator;
+    TextDocumentManipulator manipulator(TextEditorWidget::currentTextEditorWidget());
     item->apply(manipulator, cursorPos);
     QCOMPARE(manipulator.getLine(14), "    C().privateFunc() /* COMPLETE HERE */");
-    QCOMPARE(manipulator.cursorPos(), qMakePair(14, 21));
+    QCOMPARE(manipulator.cursorPos(), Text::Position(14, 21));
     QCOMPARE(manipulator.skipPos(), -1);
 }
 
@@ -1814,10 +1744,10 @@ void ClangdTestCompletion::testFunctionAddress()
 
     const AssistProposalItemInterface * const item = getItem(proposal, " memberFunc()", "void");
     QVERIFY(item);
-    Manipulator manipulator;
+    TextDocumentManipulator manipulator(TextEditorWidget::currentTextEditorWidget());
     item->apply(manipulator, cursorPos);
     QCOMPARE(manipulator.getLine(7), "    const auto p = &S::memberFunc /* COMPLETE HERE */;");
-    QCOMPARE(manipulator.cursorPos(), qMakePair(7, 33));
+    QCOMPARE(manipulator.cursorPos(), Text::Position(7, 33));
     QCOMPARE(manipulator.skipPos(), -1);
 }
 
@@ -1878,10 +1808,10 @@ void ClangdTestCompletion::testCompleteClassAndConstructor()
     const AssistProposalItemInterface * const item
             = getItem(proposal, QString::fromUtf8(" Foo(…)"), "[2 overloads]");
     QVERIFY(item);
-    Manipulator manipulator;
+    TextDocumentManipulator manipulator(TextEditorWidget::currentTextEditorWidget());
     item->apply(manipulator, cursorPos);
     QCOMPARE(manipulator.getLine(7), "    Foo( /* COMPLETE HERE */");
-    QCOMPARE(manipulator.cursorPos(), qMakePair(7, 8));
+    QCOMPARE(manipulator.cursorPos(), Text::Position(7, 8));
     QCOMPARE(manipulator.skipPos(), -1);
 }
 
@@ -1905,10 +1835,10 @@ void ClangdTestCompletion::testCompleteWithDotToArrowCorrection()
     QVERIFY(proposal);
     const AssistProposalItemInterface * const item = getItem(proposal, " member", "int");
     QVERIFY(item);
-    Manipulator manipulator;
+    TextDocumentManipulator manipulator(TextEditorWidget::currentTextEditorWidget());
     item->apply(manipulator, cursorPos);
     QCOMPARE(manipulator.getLine(4), "    bar->member /* COMPLETE HERE */");
-    QCOMPARE(manipulator.cursorPos(), qMakePair(4, 15));
+    QCOMPARE(manipulator.cursorPos(), Text::Position(4, 15));
     QCOMPARE(manipulator.skipPos(), -1);
 }
 
@@ -1936,10 +1866,10 @@ void ClangdTestCompletion::testCompleteCodeInGeneratedUiFile()
     const AssistProposalItemInterface * const item = getItem(
                 proposal, " setupUi(QMainWindow *MainWindow)", "void");
     QVERIFY(item);
-    Manipulator manipulator;
+    TextDocumentManipulator manipulator(TextEditorWidget::currentTextEditorWidget());
     item->apply(manipulator, cursorPos);
     QCOMPARE(manipulator.getLine(34), "    ui->setupUi( /* COMPLETE HERE */");
-    QCOMPARE(manipulator.cursorPos(), qMakePair(34, 16));
+    QCOMPARE(manipulator.cursorPos(), Text::Position(34, 16));
     QCOMPARE(manipulator.skipPos(), -1);
 }
 

@@ -22,7 +22,7 @@ class ClangDiagnosticConfig;
 class CppEditorDocumentHandle;
 }
 
-namespace TextEditor { class TextDocumentManipulatorInterface; }
+namespace TextEditor { class TextDocumentManipulator; }
 
 namespace ProjectExplorer { class Project; }
 
@@ -126,11 +126,10 @@ bool matchPreviousWord(const CharacterProvider &provider, QTextCursor cursor, QS
     return pattern.isEmpty();
 }
 
-QString textUntilPreviousStatement(TextEditor::TextDocumentManipulatorInterface &manipulator,
-                                   int startPosition);
+QString textUntilPreviousStatement(
+    TextEditor::TextDocumentManipulator &manipulator, int startPosition);
 
-bool isAtUsingDeclaration(TextEditor::TextDocumentManipulatorInterface &manipulator,
-                          int basePosition);
+bool isAtUsingDeclaration(TextEditor::TextDocumentManipulator &manipulator, int basePosition);
 
 class ClangSourceRange
 {

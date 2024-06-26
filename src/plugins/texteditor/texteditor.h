@@ -518,6 +518,8 @@ public:
     // Returns an object that blocks suggestions until it is destroyed.
     SuggestionBlocker blockSuggestions();
 
+    QList<QTextCursor> autoCompleteHighlightPositions() const;
+
 #ifdef WITH_TESTS
     void processTooltipRequest(const QTextCursor &c);
 #endif

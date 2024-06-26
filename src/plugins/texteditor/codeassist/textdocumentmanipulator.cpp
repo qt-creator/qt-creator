@@ -112,6 +112,22 @@ void TextDocumentManipulator::autoIndent(int position, int length)
     }
 }
 
+QString TextDocumentManipulator::getLine(int line) const
+{
+    return m_textEditorWidget->document()->findBlockByNumber(line - 1).text();
+}
+
+Utils::Text::Position TextDocumentManipulator::cursorPos() const
+{
+    return Utils::Text::Position::fromCursor(m_textEditorWidget->textCursor());
+}
+
+int TextDocumentManipulator::skipPos() const
+{
+    const QList<QTextCursor> highlights = m_textEditorWidget->autoCompleteHighlightPositions();
+    return highlights.isEmpty() ? -1 : highlights.first().position();
+}
+
 bool TextDocumentManipulator::textIsDifferentAt(int position, int length, const QString &text) const
 {
     const auto textToBeReplaced = m_textEditorWidget->textAt(position, length);

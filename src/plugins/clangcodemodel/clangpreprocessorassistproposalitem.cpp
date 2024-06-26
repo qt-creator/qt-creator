@@ -28,7 +28,7 @@ bool ClangPreprocessorAssistProposalItem::implicitlyApplies() const
     return true;
 }
 
-void ClangPreprocessorAssistProposalItem::apply(TextEditor::TextDocumentManipulatorInterface &manipulator,
+void ClangPreprocessorAssistProposalItem::apply(TextEditor::TextDocumentManipulator &manipulator,
                                                 int basePosition) const
 {
     // TODO move in an extra class under tests

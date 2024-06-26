@@ -199,7 +199,6 @@ QtcPlugin {
             "keywordscompletionassist.h",
             "textdocumentmanipulator.cpp",
             "textdocumentmanipulator.h",
-            "textdocumentmanipulatorinterface.h",
         ]
     }
 

@@ -7037,6 +7037,11 @@ TextEditorWidget::SuggestionBlocker TextEditorWidget::blockSuggestions()
     return d->m_suggestionBlocker;
 }
 
+QList<QTextCursor> TextEditorWidget::autoCompleteHighlightPositions() const
+{
+    return d->m_autoCompleteHighlightPos;
+}
+
 #ifdef WITH_TESTS
 void TextEditorWidget::processTooltipRequest(const QTextCursor &c)
 {

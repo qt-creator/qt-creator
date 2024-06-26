@@ -20,7 +20,7 @@
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
-#include <texteditor/codeassist/textdocumentmanipulatorinterface.h>
+#include <texteditor/codeassist/textdocumentmanipulator.h>
 
 #include <cplusplus/SimpleLexer.h>
 #include <utils/algorithm.h>
@@ -303,8 +303,7 @@ const QStringList globalClangOptions()
 }
 
 // 7.3.3: using typename(opt) nested-name-specifier unqualified-id ;
-bool isAtUsingDeclaration(TextEditor::TextDocumentManipulatorInterface &manipulator,
-                          int basePosition)
+bool isAtUsingDeclaration(TextEditor::TextDocumentManipulator &manipulator, int basePosition)
 {
     using namespace CPlusPlus;
     SimpleLexer lexer;
@@ -322,7 +321,7 @@ bool isAtUsingDeclaration(TextEditor::TextDocumentManipulatorInterface &manipula
     return contains(tokens, [](const Token &token) { return token.kind() == T_USING; });
 }
 
-QString textUntilPreviousStatement(TextEditor::TextDocumentManipulatorInterface &manipulator,
+QString textUntilPreviousStatement(TextEditor::TextDocumentManipulator &manipulator,
                                    int startPosition)
 {
     static const QString stopCharacters(";{}#");

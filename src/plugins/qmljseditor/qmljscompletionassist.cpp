@@ -355,7 +355,7 @@ bool QmlJSAssistProposalItem::prematurelyApplies(const QChar &c) const
             || (text().endsWith(QLatin1Char('.')) && c == QLatin1Char('.'));
 }
 
-void QmlJSAssistProposalItem::applyContextualContent(TextEditor::TextDocumentManipulatorInterface &manipulator,
+void QmlJSAssistProposalItem::applyContextualContent(TextEditor::TextDocumentManipulator &manipulator,
                                                      int basePosition) const
 {
     const int currentPosition = manipulator.currentPosition();

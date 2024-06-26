@@ -64,7 +64,7 @@ class CppAssistProposalItem final : public AssistProposalItem
 public:
     ~CppAssistProposalItem() noexcept override = default;
     bool prematurelyApplies(const QChar &c) const override;
-    void applyContextualContent(TextDocumentManipulatorInterface &manipulator, int basePosition) const override;
+    void applyContextualContent(TextDocumentManipulator &manipulator, int basePosition) const override;
 
     bool isOverloaded() const { return m_isOverloaded; }
     void markAsOverloaded() { m_isOverloaded = true; }
@@ -143,7 +143,7 @@ bool CppAssistProposalItem::prematurelyApplies(const QChar &typedChar) const
     return false;
 }
 
-static bool isDereferenced(TextDocumentManipulatorInterface &manipulator, int basePosition)
+static bool isDereferenced(TextDocumentManipulator &manipulator, int basePosition)
 {
     QTextCursor cursor = manipulator.textCursorAt(basePosition);
     cursor.setPosition(basePosition);
@@ -173,7 +173,7 @@ quint64 CppAssistProposalItem::hash() const
     return 0;
 }
 
-void CppAssistProposalItem::applyContextualContent(TextDocumentManipulatorInterface &manipulator, int basePosition) const
+void CppAssistProposalItem::applyContextualContent(TextDocumentManipulator &manipulator, int basePosition) const
 {
     Symbol *symbol = nullptr;
 
