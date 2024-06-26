@@ -261,7 +261,9 @@ public:
 void ExtensionsModelPrivate::setExtensions(const Extensions &extensions)
 {
     this->extensions = extensions;
+    qCDebug(modelLog) << "Number of extensions from json:" << this->extensions.count();
     addUnlistedLocalExtensions();
+    qCDebug(modelLog) << "Number of extensions with added local ones:" << this->extensions.count();
 }
 
 void ExtensionsModelPrivate::addUnlistedLocalExtensions()

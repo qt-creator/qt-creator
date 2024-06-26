@@ -383,10 +383,17 @@ void ExtensionsBrowser::fetchExtensions()
 
         query.setRequest(QNetworkRequest(QUrl::fromUserInput(request)));
         query.setNetworkAccessManager(NetworkAccessManager::instance());
+        qCDebug(browserLog).noquote() << "Sending request:" << request;
     };
     const auto onQueryDone = [this](const NetworkQuery &query, DoneWith result) {
         const QByteArray response = query.reply()->readAll();
-        d->model->setExtensionsJson(response);
+        qCDebug(browserLog).noquote() << "Got result" << result;
+        if (result == DoneWith::Success) {
+            d->model->setExtensionsJson(response);
+        } else {
+            qCDebug(browserLog).noquote() << response;
+            d->model->setExtensionsJson({});
+        }
     };
 
     Group group {
