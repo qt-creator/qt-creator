@@ -399,166 +399,166 @@ private:
     QSignalMapper *m_signalMapper;
 };
 
-class ExtensionManagerWidgetPrivate
+class ExtensionManagerWidget final : public Core::ResizeSignallingWidget
 {
 public:
-    QString currentItemName;
-    ExtensionsBrowser *extensionBrowser;
-    CollapsingWidget *secondaryDescriptionWidget;
-    HeadingWidget *headingWidget;
-    QWidget *primaryContent;
-    QWidget *secondaryContent;
-    QLabel *description;
-    QLabel *linksTitle;
-    QLabel *links;
-    QLabel *imageTitle;
-    QLabel *image;
-    QBuffer imageDataBuffer;
-    QMovie imageMovie;
-    QLabel *tagsTitle;
-    TagList *tags;
-    QLabel *platformsTitle;
-    QLabel *platforms;
-    QLabel *dependenciesTitle;
-    QLabel *dependencies;
-    QLabel *packExtensionsTitle;
-    QLabel *packExtensions;
-    PluginStatusWidget *pluginStatus;
-    PluginsData currentItemPlugins;
-    Tasking::TaskTreeRunner dlTaskTreeRunner;
-    Tasking::TaskTreeRunner imgTaskTreeRunner;
+    ExtensionManagerWidget();
+
+private:
+    void updateView(const QModelIndex &current);
+    void fetchAndInstallPlugin(const QUrl &url);
+    void fetchAndDisplayImage(const QUrl &url);
+
+    QString m_currentItemName;
+    ExtensionsBrowser *m_extensionBrowser;
+    CollapsingWidget *m_secondaryDescriptionWidget;
+    HeadingWidget *m_headingWidget;
+    QWidget *m_primaryContent;
+    QWidget *m_secondaryContent;
+    QLabel *m_description;
+    QLabel *m_linksTitle;
+    QLabel *m_links;
+    QLabel *m_imageTitle;
+    QLabel *m_image;
+    QBuffer m_imageDataBuffer;
+    QMovie m_imageMovie;
+    QLabel *m_tagsTitle;
+    TagList *m_tags;
+    QLabel *m_platformsTitle;
+    QLabel *m_platforms;
+    QLabel *m_dependenciesTitle;
+    QLabel *m_dependencies;
+    QLabel *m_packExtensionsTitle;
+    QLabel *m_packExtensions;
+    PluginStatusWidget *m_pluginStatus;
+    PluginsData m_currentItemPlugins;
+    Tasking::TaskTreeRunner m_dlTaskTreeRunner;
+    Tasking::TaskTreeRunner m_imgTaskTreeRunner;
 };
 
-ExtensionManagerWidget::ExtensionManagerWidget(QWidget *parent)
-    : ResizeSignallingWidget(parent)
-    , d(new ExtensionManagerWidgetPrivate)
+ExtensionManagerWidget::ExtensionManagerWidget()
 {
-    d->extensionBrowser = new ExtensionsBrowser;
+    m_extensionBrowser = new ExtensionsBrowser;
     auto descriptionColumns = new QWidget;
-    d->secondaryDescriptionWidget = new CollapsingWidget;
+    m_secondaryDescriptionWidget = new CollapsingWidget;
 
-    d->headingWidget = new HeadingWidget;
-    d->description = tfLabel(contentTF, false);
-    d->description->setWordWrap(true);
-    d->linksTitle = sectionTitle(h6CapitalTF, Tr::tr("More information"));
-    d->links = tfLabel(contentTF, false);
-    d->links->setOpenExternalLinks(true);
-    d->imageTitle = sectionTitle(h6CapitalTF, {});
-    d->image = new QLabel;
-    d->imageMovie.setDevice(&d->imageDataBuffer);
+    m_headingWidget = new HeadingWidget;
+    m_description = tfLabel(contentTF, false);
+    m_description->setWordWrap(true);
+    m_linksTitle = sectionTitle(h6CapitalTF, Tr::tr("More information"));
+    m_links = tfLabel(contentTF, false);
+    m_links->setOpenExternalLinks(true);
+    m_imageTitle = sectionTitle(h6CapitalTF, {});
+    m_image = new QLabel;
+    m_imageMovie.setDevice(&m_imageDataBuffer);
 
     using namespace Layouting;
     auto primary = new QWidget;
     const auto spL = spacing(SpacingTokens::VPaddingL);
     Column {
-        d->description,
-        Column { d->linksTitle, d->links, spL },
-        Column { d->imageTitle, d->image, spL },
+        m_description,
+        Column { m_linksTitle, m_links, spL },
+        Column { m_imageTitle, m_image, spL },
         st,
         noMargin, spacing(SpacingTokens::ExVPaddingGapXl),
     }.attachTo(primary);
-    d->primaryContent = toScrollableColumn(primary);
+    m_primaryContent = toScrollableColumn(primary);
 
-    d->tagsTitle = sectionTitle(h6TF, Tr::tr("Tags"));
-    d->tags = new TagList;
-    d->platformsTitle = sectionTitle(h6TF, Tr::tr("Platforms"));
-    d->platforms = tfLabel(contentTF, false);
-    d->dependenciesTitle = sectionTitle(h6TF, Tr::tr("Dependencies"));
-    d->dependencies = tfLabel(contentTF, false);
-    d->packExtensionsTitle = sectionTitle(h6TF, Tr::tr("Extensions in pack"));
-    d->packExtensions = tfLabel(contentTF, false);
-    d->pluginStatus = new PluginStatusWidget;
+    m_tagsTitle = sectionTitle(h6TF, Tr::tr("Tags"));
+    m_tags = new TagList;
+    m_platformsTitle = sectionTitle(h6TF, Tr::tr("Platforms"));
+    m_platforms = tfLabel(contentTF, false);
+    m_dependenciesTitle = sectionTitle(h6TF, Tr::tr("Dependencies"));
+    m_dependencies = tfLabel(contentTF, false);
+    m_packExtensionsTitle = sectionTitle(h6TF, Tr::tr("Extensions in pack"));
+    m_packExtensions = tfLabel(contentTF, false);
+    m_pluginStatus = new PluginStatusWidget;
 
     auto secondary = new QWidget;
     const auto spXxs = spacing(SpacingTokens::VPaddingXxs);
     Column {
         sectionTitle(h6CapitalTF, Tr::tr("Extension details")),
         Column {
-            Column { d->tagsTitle, d->tags, spXxs },
-            Column { d->platformsTitle, d->platforms, spXxs },
-            Column { d->dependenciesTitle, d->dependencies, spXxs },
-            Column { d->packExtensionsTitle, d->packExtensions, spXxs },
+            Column { m_tagsTitle, m_tags, spXxs },
+            Column { m_platformsTitle, m_platforms, spXxs },
+            Column { m_dependenciesTitle, m_dependencies, spXxs },
+            Column { m_packExtensionsTitle, m_packExtensions, spXxs },
             spacing(SpacingTokens::VPaddingL),
         },
         st,
         noMargin, spacing(SpacingTokens::ExVPaddingGapXl),
     }.attachTo(secondary);
-    d->secondaryContent = toScrollableColumn(secondary);
+    m_secondaryContent = toScrollableColumn(secondary);
 
     Row {
         WelcomePageHelpers::createRule(Qt::Vertical),
         Column {
-            d->secondaryContent,
-            d->pluginStatus,
+            m_secondaryContent,
+            m_pluginStatus,
         },
         noMargin, spacing(0),
-    }.attachTo(d->secondaryDescriptionWidget);
+    }.attachTo(m_secondaryDescriptionWidget);
 
     Row {
         WelcomePageHelpers::createRule(Qt::Vertical),
         Row {
             Column {
                 Column {
-                    d->headingWidget,
+                    m_headingWidget,
                     customMargins(SpacingTokens::ExVPaddingGapXl, SpacingTokens::ExVPaddingGapXl,
                                   SpacingTokens::ExVPaddingGapXl, SpacingTokens::ExVPaddingGapXl),
                 },
-                d->primaryContent,
+                m_primaryContent,
             },
         },
-        d->secondaryDescriptionWidget,
+        m_secondaryDescriptionWidget,
         noMargin, spacing(0),
     }.attachTo(descriptionColumns);
 
     Row {
         Space(SpacingTokens::ExVPaddingGapXl),
-        d->extensionBrowser,
+        m_extensionBrowser,
         descriptionColumns,
         noMargin, spacing(0),
     }.attachTo(this);
 
     WelcomePageHelpers::setBackgroundColor(this, Theme::Token_Background_Default);
 
-    connect(d->extensionBrowser, &ExtensionsBrowser::itemSelected,
+    connect(m_extensionBrowser, &ExtensionsBrowser::itemSelected,
             this, &ExtensionManagerWidget::updateView);
     connect(this, &ResizeSignallingWidget::resized, this, [this](const QSize &size) {
         const int intendedBrowserColumnWidth = size.width() - 580;
-        d->extensionBrowser->adjustToWidth(intendedBrowserColumnWidth);
+        m_extensionBrowser->adjustToWidth(intendedBrowserColumnWidth);
         const bool secondaryDescriptionVisible = size.width() > 970;
         const int secondaryDescriptionWidth = secondaryDescriptionVisible ? 264 : 0;
-        d->secondaryDescriptionWidget->setWidth(secondaryDescriptionWidth);
+        m_secondaryDescriptionWidget->setWidth(secondaryDescriptionWidth);
     });
-    connect(d->headingWidget, &HeadingWidget::pluginInstallationRequested, this, [this](){
-        fetchAndInstallPlugin(QUrl::fromUserInput(d->currentItemPlugins.constFirst().second));
+    connect(m_headingWidget, &HeadingWidget::pluginInstallationRequested, this, [this](){
+        fetchAndInstallPlugin(QUrl::fromUserInput(m_currentItemPlugins.constFirst().second));
     });
-    connect(d->tags, &TagList::tagSelected, d->extensionBrowser, &ExtensionsBrowser::setFilter);
-    connect(d->headingWidget, &HeadingWidget::vendorClicked,
-            d->extensionBrowser, &ExtensionsBrowser::setFilter);
+    connect(m_tags, &TagList::tagSelected, m_extensionBrowser, &ExtensionsBrowser::setFilter);
+    connect(m_headingWidget, &HeadingWidget::vendorClicked,
+            m_extensionBrowser, &ExtensionsBrowser::setFilter);
 
     updateView({});
 }
 
-ExtensionManagerWidget::~ExtensionManagerWidget()
-{
-    delete d;
-}
-
 void ExtensionManagerWidget::updateView(const QModelIndex &current)
 {
-    d->headingWidget->update(current);
+    m_headingWidget->update(current);
 
     const bool showContent = current.isValid();
-    d->primaryContent->setVisible(showContent);
-    d->secondaryContent->setVisible(showContent);
-    d->headingWidget->setVisible(showContent);
-    d->pluginStatus->setVisible(showContent);
+    m_primaryContent->setVisible(showContent);
+    m_secondaryContent->setVisible(showContent);
+    m_headingWidget->setVisible(showContent);
+    m_pluginStatus->setVisible(showContent);
     if (!showContent)
         return;
 
-    d->currentItemName = current.data().toString();
+    m_currentItemName = current.data().toString();
     const bool isPack = current.data(RoleItemType) == ItemTypePack;
-    d->pluginStatus->setPluginName(isPack ? QString() : d->currentItemName);
-    d->currentItemPlugins = current.data(RolePlugins).value<PluginsData>();
+    m_pluginStatus->setPluginName(isPack ? QString() : m_currentItemName);
+    m_currentItemPlugins = current.data(RolePlugins).value<PluginsData>();
 
     auto toContentParagraph = [](const QString &text) {
         const QString pHtml = QString::fromLatin1("<p style=\"margin-top:0;margin-bottom:0;"
@@ -592,9 +592,9 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
             descriptionHtml.prepend(QString::fromLatin1("<body style=\"color:%1;\">")
                                         .arg(creatorColor(Theme::Token_Text_Default).name()));
             descriptionHtml.append("</body>");
-            d->description->setText(descriptionHtml);
+            m_description->setText(descriptionHtml);
         }
-        d->description->setVisible(hasDescription);
+        m_description->setVisible(hasDescription);
 
         const LinksData linksData = current.data(RoleDescriptionLinks).value<LinksData>();
         const bool hasLinks = !linksData.isEmpty();
@@ -608,55 +608,55 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
                     .arg(anchor);
             });
             linksHtml = links.join("<br/>");
-            d->links->setText(toContentParagraph(linksHtml));
+            m_links->setText(toContentParagraph(linksHtml));
         }
-        d->linksTitle->setVisible(hasLinks);
-        d->links->setVisible(hasLinks);
+        m_linksTitle->setVisible(hasLinks);
+        m_links->setVisible(hasLinks);
 
-        d->imgTaskTreeRunner.reset();
-        d->imageMovie.stop();
-        d->imageDataBuffer.close();
-        d->image->clear();
+        m_imgTaskTreeRunner.reset();
+        m_imageMovie.stop();
+        m_imageDataBuffer.close();
+        m_image->clear();
         const ImagesData imagesData = current.data(RoleDescriptionImages).value<ImagesData>();
         const bool hasImages = !imagesData.isEmpty();
         if (hasImages) {
             const ImagesData::Type &image = imagesData.constFirst(); // Only show one image
-            d->imageTitle->setText(image.first);
+            m_imageTitle->setText(image.first);
             fetchAndDisplayImage(image.second);
         }
-        d->imageTitle->setVisible(hasImages);
-        d->image->setVisible(hasImages);
+        m_imageTitle->setVisible(hasImages);
+        m_image->setVisible(hasImages);
     }
 
     {
         const QStringList tags = current.data(RoleTags).toStringList();
-        d->tags->setTags(tags);
+        m_tags->setTags(tags);
         const bool hasTags = !tags.isEmpty();
-        d->tagsTitle->setVisible(hasTags);
-        d->tags->setVisible(hasTags);
+        m_tagsTitle->setVisible(hasTags);
+        m_tags->setVisible(hasTags);
 
         const QStringList platforms = current.data(RolePlatforms).toStringList();
         const bool hasPlatforms = !platforms.isEmpty();
         if (hasPlatforms)
-            d->platforms->setText(toContentParagraph(platforms.join("<br/>")));
-        d->platformsTitle->setVisible(hasPlatforms);
-        d->platforms->setVisible(hasPlatforms);
+            m_platforms->setText(toContentParagraph(platforms.join("<br/>")));
+        m_platformsTitle->setVisible(hasPlatforms);
+        m_platforms->setVisible(hasPlatforms);
 
         const QStringList dependencies = current.data(RoleDependencies).toStringList();
         const bool hasDependencies = !dependencies.isEmpty();
         if (hasDependencies)
-            d->dependencies->setText(toContentParagraph(dependencies.join("<br/>")));
-        d->dependenciesTitle->setVisible(hasDependencies);
-        d->dependencies->setVisible(hasDependencies);
+            m_dependencies->setText(toContentParagraph(dependencies.join("<br/>")));
+        m_dependenciesTitle->setVisible(hasDependencies);
+        m_dependencies->setVisible(hasDependencies);
 
         const PluginsData plugins = current.data(RolePlugins).value<PluginsData>();
         const bool hasExtensions = isPack && !plugins.isEmpty();
         if (hasExtensions) {
             const QStringList extensions = transform(plugins, &QPair<QString, QString>::first);
-            d->packExtensions->setText(toContentParagraph(extensions.join("<br/>")));
+            m_packExtensions->setText(toContentParagraph(extensions.join("<br/>")));
         }
-        d->packExtensionsTitle->setVisible(hasExtensions);
-        d->packExtensions->setVisible(hasExtensions);
+        m_packExtensionsTitle->setVisible(hasExtensions);
+        m_packExtensions->setVisible(hasExtensions);
     }
 }
 
@@ -717,7 +717,7 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url)
         onGroupDone(onPluginInstallation),
     };
 
-    d->dlTaskTreeRunner.start(group);
+    m_dlTaskTreeRunner.start(group);
 }
 
 void ExtensionManagerWidget::fetchAndDisplayImage(const QUrl &url)
@@ -744,17 +744,17 @@ void ExtensionManagerWidget::fetchAndDisplayImage(const QUrl &url)
     const auto onShowImage = [storage, this]() {
         if (storage->imageData.isEmpty())
             return;
-        d->imageDataBuffer.setData(storage->imageData);
-        if (!d->imageDataBuffer.open(QIODevice::ReadOnly))
+        m_imageDataBuffer.setData(storage->imageData);
+        if (!m_imageDataBuffer.open(QIODevice::ReadOnly))
             return;
-        QImageReader reader(&d->imageDataBuffer);
+        QImageReader reader(&m_imageDataBuffer);
         const bool animated = reader.supportsAnimation();
         if (animated) {
-            d->image->setMovie(&d->imageMovie);
-            d->imageMovie.start();
+            m_image->setMovie(&m_imageMovie);
+            m_imageMovie.start();
         } else {
             const QPixmap pixmap = QPixmap::fromImage(reader.read());
-            d->image->setPixmap(pixmap);
+            m_image->setPixmap(pixmap);
         }
     };
 
@@ -764,7 +764,12 @@ void ExtensionManagerWidget::fetchAndDisplayImage(const QUrl &url)
         onGroupDone(onShowImage),
     };
 
-    d->imgTaskTreeRunner.start(group);
+    m_imgTaskTreeRunner.start(group);
+}
+
+QWidget *createExtensionManagerWidget()
+{
+    return new ExtensionManagerWidget;
 }
 
 } // ExtensionManager::Internal
