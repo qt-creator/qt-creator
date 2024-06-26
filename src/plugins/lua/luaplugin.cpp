@@ -171,7 +171,7 @@ public:
     {
         setId("LuaPane");
         setDisplayName(Tr::tr("Lua"));
-        setPriorityInStatusBar(20);
+        setPriorityInStatusBar(-20);
     }
 
     QWidget *outputWidget(QWidget *parent) override
