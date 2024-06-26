@@ -12,6 +12,8 @@
 
 #include <qtsupport/qtversionmanager.h>
 
+#include <solutions/tasking/tasktree.h>
+
 #include <utils/filepath.h>
 
 #include <QHash>
@@ -90,6 +92,7 @@ Utils::FilePath makePathFromNdk(const Utils::FilePath &ndkLocation);
 Utils::FilePath keytoolPath();
 
 QStringList devicesCommandOutput();
+Tasking::ExecutableItem devicesCommandOutputRecipe(const Tasking::Storage<QStringList> &outputStorage);
 
 QString bestNdkPlatformMatch(int target, const QtSupport::QtVersion *qtVersion);
 

@@ -8,16 +8,10 @@
 #include "androiddeviceinfo.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/devicesupport/idevicefactory.h>
 
 #include <solutions/tasking/tasktreerunner.h>
 
-#include <utils/guard.h>
-
-#include <QFileSystemWatcher>
 #include <QSettings>
-
-namespace Utils { class Process; }
 
 namespace Android::Internal {
 
@@ -54,6 +48,8 @@ public:
     QString sdcardSize() const;
     QString openGLStatus() const;
 
+    void startAvd();
+
 protected:
     void fromMap(const Utils::Store &map) final;
 
@@ -68,6 +64,7 @@ private:
     void initAvdSettings();
 
     std::unique_ptr<QSettings> m_avdSettings;
+    Tasking::TaskTreeRunner m_taskTreeRunner;
 };
 
 namespace AndroidDeviceManager {

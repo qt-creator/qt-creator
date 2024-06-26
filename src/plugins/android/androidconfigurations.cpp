@@ -61,6 +61,7 @@
 
 using namespace ProjectExplorer;
 using namespace QtSupport;
+using namespace Tasking;
 using namespace Utils;
 
 namespace {
@@ -685,6 +686,17 @@ QStringList devicesCommandOutput()
     // mid(1) - remove "List of devices attached" header line.
     // Example output: "List of devices attached\nemulator-5554\tdevice\n\n".
     return adbProcess.allOutput().split('\n', Qt::SkipEmptyParts).mid(1);
+}
+
+ExecutableItem devicesCommandOutputRecipe(const Storage<QStringList> &outputStorage)
+{
+    const auto onSetup = [](Process &process) { process.setCommand({adbToolPath(), {"devices"}}); };
+    const auto onDone = [outputStorage](const Process &process) {
+        // mid(1) - remove "List of devices attached" header line.
+        // Example output: "List of devices attached\nemulator-5554\tdevice\n\n".
+        *outputStorage = process.allOutput().split('\n', Qt::SkipEmptyParts).mid(1);
+    };
+    return ProcessTask(onSetup, onDone);
 }
 
 bool isConnected(const QString &serialNumber)
