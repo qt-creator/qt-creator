@@ -52,9 +52,9 @@ namespace ExtensionManager::Internal {
 
 Q_LOGGING_CATEGORY(browserLog, "qtc.extensionmanager.browser", QtWarningMsg)
 
-constexpr int gapSize = ExVPaddingGapXl;
+constexpr int gapSize = HGapL;
 constexpr int itemWidth = 330;
-constexpr int cellWidth = itemWidth + HPaddingL;
+constexpr int cellWidth = itemWidth + gapSize;
 
 class ExtensionItemDelegate : public QItemDelegate
 {
@@ -80,25 +80,25 @@ public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index)
         const override
     {
-        // +---------------+-------+---------------+----------------------------------------------------------------------+---------------+-----------+
-        // |               |       |               |                            (ExPaddingGapL)                           |               |           |
-        // |               |       |               +-------------------------------------------------------------+--------+               |           |
-        // |               |       |               |                          <itemName>                         |<status>|               |           |
-        // |               |       |               +-------------------------------------------------------------+--------+               |           |
-        // |               |       |               |                               (VGapXxs)                              |               |           |
-        // |               |       |               +--------+--------+--------------+--------+--------+---------+---------+               |           |
-        // |(ExPaddingGapL)|<icon> |(ExPaddingGapL)|<vendor>|(HGapXs)|<divider>(h16)|(HGapXs)|<dlIcon>|(HGapXxs)|<dlCount>|(ExPaddingGapL)|(HPaddingL)|
-        // |               |(50x50)|               +--------+--------+--------------+--------+--------+---------+---------+               |           |
-        // |               |       |               |                               (VGapXxs)                              |               |           |
-        // |               |       |               +----------------------------------------------------------------------+               |           |
-        // |               |       |               |                                <tags>                                |               |           |
-        // |               |       |               +----------------------------------------------------------------------+               |           |
-        // |               |       |               |                            (ExPaddingGapL)                           |               |           |
-        // +---------------+-------+---------------+----------------------------------------------------------------------+---------------+-----------+
-        // |                                                             (ExVPaddingGapXl)                                                            |
-        // +------------------------------------------------------------------------------------------------------------------------------------------+
+        // +---------------+-------+---------------+----------------------------------------------------------------------+---------------+---------+
+        // |               |       |               |                            (ExPaddingGapL)                           |               |         |
+        // |               |       |               +-------------------------------------------------------------+--------+               |         |
+        // |               |       |               |                          <itemName>                         |<status>|               |         |
+        // |               |       |               +-------------------------------------------------------------+--------+               |         |
+        // |               |       |               |                               (VGapXxs)                              |               |         |
+        // |               |       |               +--------+--------+--------------+--------+--------+---------+---------+               |         |
+        // |(ExPaddingGapL)|<icon> |(ExPaddingGapL)|<vendor>|(HGapXs)|<divider>(h16)|(HGapXs)|<dlIcon>|(HGapXxs)|<dlCount>|(ExPaddingGapL)|(gapSize)|
+        // |               |(50x50)|               +--------+--------+--------------+--------+--------+---------+---------+               |         |
+        // |               |       |               |                               (VGapXxs)                              |               |         |
+        // |               |       |               +----------------------------------------------------------------------+               |         |
+        // |               |       |               |                                <tags>                                |               |         |
+        // |               |       |               +----------------------------------------------------------------------+               |         |
+        // |               |       |               |                            (ExPaddingGapL)                           |               |         |
+        // +---------------+-------+---------------+----------------------------------------------------------------------+---------------+---------+
+        // |                                                                (gapSize)                                                               |
+        // +----------------------------------------------------------------------------------------------------------------------------------------+
 
-        const QRect bgRGlobal = option.rect.adjusted(0, 0, -HPaddingL, -gapSize);
+        const QRect bgRGlobal = option.rect.adjusted(0, 0, -gapSize, -gapSize);
         const QRect bgR = bgRGlobal.translated(-option.rect.topLeft());
 
         const int middleColumnW = bgR.width() - ExPaddingGapL - iconBgS.width() - ExPaddingGapL
@@ -356,7 +356,9 @@ QSize ExtensionsBrowser::sizeHint() const
 int ExtensionsBrowser::extraListViewWidth() const
 {
     // TODO: Investigate "transient" scrollbar, just for this list view.
+    constexpr int extraPadding = qMax(0, ExVPaddingGapXl - gapSize);
     return d->extensionsView->style()->pixelMetric(QStyle::PM_ScrollBarExtent)
+           + extraPadding
            + 1; // Needed
 }
 
