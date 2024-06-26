@@ -45,46 +45,32 @@ static bool is32BitUserSpace()
 
 bool startAvdAsync(const QString &avdName)
 {
-    const FilePath emulator = AndroidConfig::emulatorToolPath();
-    if (!emulator.exists()) {
-        QMetaObject::invokeMethod(Core::ICore::mainWindow(), [emulator] {
+    const FilePath emulatorPath = AndroidConfig::emulatorToolPath();
+    if (!emulatorPath.exists()) {
+        QMetaObject::invokeMethod(Core::ICore::mainWindow(), [emulatorPath] {
             QMessageBox::critical(Core::ICore::dialogParent(),
                                   Tr::tr("Emulator Tool Is Missing"),
                                   Tr::tr("Install the missing emulator tool (%1) to the"
                                          " installed Android SDK.")
-                                  .arg(emulator.displayName()));
+                                  .arg(emulatorPath.displayName()));
         });
         return false;
     }
 
-    // TODO: Here we are potentially leaking Process instance in case when shutdown happens
-    // after the avdProcess has started and before it has finished. Giving a parent object here
-    // should solve the issue. However, AndroidAvdManager is not a QObject, so no clue what parent
-    // would be the most appropriate. Preferably some object taken form android plugin...
-    Process *avdProcess = new Process;
-    avdProcess->setProcessChannelMode(QProcess::MergedChannels);
-    QObject::connect(avdProcess, &Process::done, avdProcess, [avdProcess] {
-        if (avdProcess->exitCode()) {
-            const QString errorOutput = QString::fromLatin1(avdProcess->rawStdOut());
-            QMetaObject::invokeMethod(Core::ICore::mainWindow(), [errorOutput] {
-                const QString title = Tr::tr("AVD Start Error");
-                QMessageBox::critical(Core::ICore::dialogParent(), title, errorOutput);
-            });
-        }
-        avdProcess->deleteLater();
-    });
-
-    // start the emulator
-    CommandLine cmd(emulator);
+    CommandLine cmd(emulatorPath);
     if (is32BitUserSpace())
         cmd.addArg("-force-32bit");
-
     cmd.addArgs(AndroidConfig::emulatorArgs(), CommandLine::Raw);
     cmd.addArgs({"-avd", avdName});
     qCDebug(avdManagerLog).noquote() << "Running command (startAvdAsync):" << cmd.toUserOutput();
-    avdProcess->setCommand(cmd);
-    avdProcess->start();
-    return avdProcess->waitForStarted(QDeadlineTimer::Forever);
+    if (Process::startDetached(cmd, {}, DetachedChannelMode::Discard))
+        return true;
+
+    QMetaObject::invokeMethod(Core::ICore::mainWindow(), [avdName] {
+        QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("AVD Start Error"),
+                              Tr::tr("Failed to start AVD emulator for \"%1\" device.").arg(avdName));
+    });
+    return false;
 }
 
 QString findAvd(const QString &avdName)
