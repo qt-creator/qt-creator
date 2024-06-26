@@ -15,13 +15,14 @@
     \c CMakeUserPresets.json has options for your local builds.
 
     Create the presets files in the format described in
-    \l{https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html}
+    \l{https://cmake.org/cmake/help/v3.24/manual/cmake-presets.7.html}
     {cmake-presets(7)} and store them in the project's root directory.
     You can then see them in the \l {Projects} view.
 
-    \QC supports presets up to version 3 (introduced in CMake 3.21), but does not
-    enforce version checking. It reads and uses all the fields from version 3 if
-    present. It does not support test presets.
+    \QC supports \e configure and \e build presets up to version 5
+    (introduced in CMake 3.24), but does not enforce version checking.
+    It reads and uses all the fields from version 5 if present.
+    It does not support \e test presets.
 
     You can import the presets the first time you \l {Open projects}
     {open a project}, when no \c CMakeLists.txt.user file exists or you have
