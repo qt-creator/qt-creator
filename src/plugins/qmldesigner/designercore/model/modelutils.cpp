@@ -315,23 +315,27 @@ ModelNode lowestCommonAncestor(Utils::span<const ModelNode> nodes)
 
 bool isQmlKeyword(QStringView id)
 {
-    return std::binary_search(std::begin(qmlKeywords), std::end(qmlKeywords), id);
+    return std::binary_search(std::begin(qmlKeywords), std::end(qmlKeywords), toStdStringView(id));
 }
 
 bool isDiscouragedQmlId(QStringView id)
 {
-    return std::binary_search(std::begin(qmlDiscouragedIds), std::end(qmlDiscouragedIds), id);
+    return std::binary_search(std::begin(qmlDiscouragedIds),
+                              std::end(qmlDiscouragedIds),
+                              toStdStringView(id));
 }
 
 bool isQmlBuiltinType(QStringView id)
 {
-    return std::binary_search(std::begin(qmlBuiltinTypes), std::end(qmlBuiltinTypes), id);
+    return std::binary_search(std::begin(qmlBuiltinTypes),
+                              std::end(qmlBuiltinTypes),
+                              toStdStringView(id));
 }
 
 bool isBannedQmlId(QStringView id)
 {
     static constexpr auto invalidIds = createBannedQmlIds();
-    return std::binary_search(invalidIds.begin(), invalidIds.end(), id);
+    return std::binary_search(invalidIds.begin(), invalidIds.end(), toStdStringView(id));
 }
 
 bool isValidQmlIdentifier(QStringView id)
