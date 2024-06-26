@@ -7613,7 +7613,7 @@ void tst_Dumpers::dumper_data()
                 + Check("dr.@2.c", "3", "int")
                 + Check("dr.d", "4", "int")
 
-                + Check("array.0.val", "44", "int") % NoLldbEngine;
+                + Check("array.0.val", "44", "int");
 
 
     QTest::newRow("Gdb13393")
