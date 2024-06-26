@@ -390,7 +390,7 @@ void ExtensionsModel::setExtensionsJson(const QByteArray &json)
     endResetModel();
 }
 
-PluginSpec *ExtensionsModel::pluginSpecForName(const QString &pluginName)
+PluginSpec *pluginSpecForName(const QString &pluginName)
 {
     return findOrDefault(PluginManager::plugins(), equal(&PluginSpec::name, pluginName));
 }

@@ -223,7 +223,7 @@ public:
 
         const ItemType itemType = current.data(RoleItemType).value<ItemType>();
         const bool isPack = itemType == ItemTypePack;
-        const bool isRemotePlugin = !(isPack || ExtensionsModel::pluginSpecForName(name));
+        const bool isRemotePlugin = !(isPack || pluginSpecForName(name));
         installButton->setVisible(isRemotePlugin && !pluginData.empty());
         if (installButton->isVisible())
             installButton->setToolTip(pluginData.constFirst().second);
@@ -292,7 +292,7 @@ public:
         }.attachTo(this);
 
         connect(m_checkBox, &QCheckBox::clicked, this, [this](bool checked) {
-            ExtensionSystem::PluginSpec *spec = ExtensionsModel::pluginSpecForName(m_pluginName);
+            ExtensionSystem::PluginSpec *spec = pluginSpecForName(m_pluginName);
             if (spec == nullptr)
                 return;
             const bool doIt = m_pluginView.data().setPluginsEnabled({spec}, checked);
@@ -319,7 +319,7 @@ public:
 private:
     void update()
     {
-        const ExtensionSystem::PluginSpec *spec = ExtensionsModel::pluginSpecForName(m_pluginName);
+        const ExtensionSystem::PluginSpec *spec = pluginSpecForName(m_pluginName);
         setVisible(spec != nullptr);
         if (spec == nullptr)
             return;

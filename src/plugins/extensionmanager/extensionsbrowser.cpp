@@ -422,11 +422,13 @@ QLabel *tfLabel(const TextFormat &tf, bool singleLine)
 
 QGradientStops iconGradientStops(const QModelIndex &index)
 {
-    const bool isVendorExtension = index.data(RoleVendor).toString() == "The Qt Company Ltd";
-    const QColor startColor = creatorColor(isVendorExtension ? Theme::Token_Gradient01_Start
-                                                             : Theme::Token_Gradient02_Start);
-    const QColor endColor = creatorColor(isVendorExtension ? Theme::Token_Gradient01_End
-                                                           : Theme::Token_Gradient02_End);
+    const PluginSpec *ps = pluginSpecForName(index.data(RoleName).toString());
+    const bool greenGradient = ps != nullptr && ps->isEffectivelyEnabled();
+
+    const QColor startColor = creatorColor(greenGradient ? Theme::Token_Gradient01_Start
+                                                         : Theme::Token_Gradient02_Start);
+    const QColor endColor = creatorColor(greenGradient ? Theme::Token_Gradient01_End
+                                                       : Theme::Token_Gradient02_End);
     const QGradientStops gradient = {
         {0, startColor},
         {1, endColor},
