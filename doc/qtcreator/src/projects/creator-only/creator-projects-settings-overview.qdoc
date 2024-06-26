@@ -96,7 +96,7 @@
                 \li \l{Link projects with GitLab}{GitLab}
                 \li \l{Configure language server workspace}{Language Server}
                 \li \l{Specify settings for quick fixes}{Quick Fixes}
-                \li \l{Testing}
+                \li \l{Apply filters before scanning for tests}{Testing}
                 \li \l{Exclude files from to-do lists}{To-Do} (experimental)
             \endlist
 
