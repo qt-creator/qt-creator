@@ -152,8 +152,7 @@ void LldbDapEngine::handleDapInitialize()
     const QJsonArray commands = preRunCommands();
 
     if (!isLocalAttachEngine()) {
-        const QJsonArray env = QJsonArray::fromStringList(
-            rp.inferior.environment.toDictionary().toStringList());
+        const QJsonArray env = QJsonArray::fromStringList(rp.inferior.environment.toStringList());
         const QJsonArray args = QJsonArray::fromStringList(rp.inferior.command.splitArguments());
 
         QJsonObject launchJson{
