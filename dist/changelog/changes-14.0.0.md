@@ -286,7 +286,8 @@ Platforms
 
 ### Android
 
-* Added support for creating `android-desktop` devices
+* Added support for creating `android-desktop` devices in `Preferences` >
+  `Devices` > `Add` > `Android Device` > `Device definition`
 * Added support for `namespace` in `build.gradle`
   ([QTBUG-106907](https://bugreports.qt.io/browse/QTBUG-106907))
 * Fixed that errors when creating AVDs were not visible to the user

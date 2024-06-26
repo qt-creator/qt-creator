@@ -302,22 +302,45 @@
 
     \title Create an Android Virtual Device (AVD)
 
-    To create a new Android Virtual Device (AVD):
+    You can create AVDs for:
+
+    \list
+        \li Automotive
+        \li Desktop
+        \li Phone
+        \li Tablet
+        \li TV
+        \li Wear
+    \endlist
+
+    To create a new AVD:
 
     \list 1
         \li Go to \preferences > \uicontrol Devices.
         \li Select \uicontrol Add > \uicontrol {Android Device} >
             \uicontrol {Start Wizard}.
             \image qtcreator-android-create-avd.png {Create New AVD dialog}
-        \li Set the name, definition, architecture, target API level, and
-            SD card size of the device.
+        \li In \uicontrol Name, give the AVD a name.
+        \li In \uicontrol {Device definition}, select the AVD type, and then
+            select one of the predefined AVDs or \uicontrol Custom for a custom
+            AVD.
+        \li In \uicontrol {Architecture (ABI)}, select an Android system image
+            that you installed on the computer.
+        \li In \uicontrol {Target API level}, select the \l{What is API Level?}
+            {API level} to use for building the application.
+        \li In \uicontrol {SD card size}, set the size of the SD card for the
+            AVD.
+        \li Select \uicontrol {Override existing AVD name} to overwrite an
+            existing AVD with a new AVD using the same name (\c avdmanager \c -f
+            option).
         \li Select \uicontrol OK to create the AVD.
     \endlist
 
     For more advanced options for creating a new AVD, use the command-line tool
     \l{avdmanager} or the Android Studio's native AVD Manager UI.
 
-    \sa {Android}{How To: Develop for Android}, {Developing for Android}
+    \sa {Android}{How To: Develop for Android}, {Android Deploy Configuration},
+    {Developing for Android}
 */
 
 /*!
