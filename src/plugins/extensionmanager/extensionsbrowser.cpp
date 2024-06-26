@@ -247,6 +247,32 @@ public:
     }
 };
 
+class SortFilterProxyModel : public QSortFilterProxyModel
+{
+public:
+    SortFilterProxyModel(QObject *parent = nullptr);
+
+protected:
+    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
+};
+
+SortFilterProxyModel::SortFilterProxyModel(QObject *parent)
+    : QSortFilterProxyModel(parent)
+{
+}
+
+bool SortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
+{
+    const ItemType leftType = left.data(RoleItemType).value<ItemType>();
+    const ItemType rightType = right.data(RoleItemType).value<ItemType>();
+    if (leftType != rightType)
+        return leftType < rightType;
+
+    const QString leftName = left.data(RoleName).toString();
+    const QString rightName = right.data(RoleName).toString();
+    return leftName < rightName;
+}
+
 class ExtensionsBrowserPrivate
 {
 public:
@@ -255,7 +281,7 @@ public:
     QLineEdit *searchBox;
     QListView *extensionsView;
     QItemSelectionModel *selectionModel = nullptr;
-    QSortFilterProxyModel *filterProxyModel;
+    SortFilterProxyModel *filterProxyModel;
     int columnsCount = 2;
     Tasking::TaskTreeRunner taskTreeRunner;
     SpinnerSolution::Spinner *m_spinner;
@@ -277,7 +303,7 @@ ExtensionsBrowser::ExtensionsBrowser(QWidget *parent)
 
     d->model = new ExtensionsModel(this);
 
-    d->filterProxyModel = new QSortFilterProxyModel(this);
+    d->filterProxyModel = new SortFilterProxyModel(this);
     d->filterProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     d->filterProxyModel->setFilterRole(RoleSearchText);
     d->filterProxyModel->setSortRole(RoleItemType);
