@@ -362,6 +362,12 @@ int ExtensionsBrowser::extraListViewWidth() const
 
 void ExtensionsBrowser::fetchExtensions()
 {
+#ifdef WITH_TESTS
+    // Uncomment for testing with local json data.
+    // Available: "augmentedplugindata", "defaultpacks", "varieddata", "thirdpartyplugins"
+    // d->model->setExtensionsJson(testData("defaultpacks")); return;
+#endif // WITH_TESTS
+
     using namespace Tasking;
 
     const auto onQuerySetup = [](NetworkQuery &query) {
@@ -379,13 +385,6 @@ void ExtensionsBrowser::fetchExtensions()
         query.setNetworkAccessManager(NetworkAccessManager::instance());
     };
     const auto onQueryDone = [this](const NetworkQuery &query, DoneWith result) {
-        if (result != DoneWith::Success) {
-#ifdef WITH_TESTS
-            // Available: "augmentedplugindata", "defaultpacks", "varieddata", "thirdpartyplugins"
-            d->model->setExtensionsJson(testData("defaultpacks"));
-#endif // WITH_TESTS
-            return;
-        }
         const QByteArray response = query.reply()->readAll();
         d->model->setExtensionsJson(response);
     };
