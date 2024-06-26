@@ -20,6 +20,8 @@ QtcLibrary {
         "tasktree.h",
         "tasktreerunner.cpp",
         "tasktreerunner.h",
+        "tcpsocket.cpp",
+        "tcpsocket.h",
     ]
 
     Export {
