@@ -22,6 +22,7 @@
 #include <extensionsystem/pluginview.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <solutions/spinner/spinner.h>
 #include <solutions/tasking/networkquery.h>
 #include <solutions/tasking/tasktree.h>
 #include <solutions/tasking/tasktreerunner.h>
@@ -249,6 +250,7 @@ public:
 class ExtensionsBrowserPrivate
 {
 public:
+    bool dataFetched = false;
     ExtensionsModel *model;
     QLineEdit *searchBox;
     QListView *extensionsView;
@@ -256,6 +258,7 @@ public:
     QSortFilterProxyModel *filterProxyModel;
     int columnsCount = 2;
     Tasking::TaskTreeRunner taskTreeRunner;
+    SpinnerSolution::Spinner *m_spinner;
 };
 
 ExtensionsBrowser::ExtensionsBrowser(QWidget *parent)
@@ -311,6 +314,8 @@ ExtensionsBrowser::ExtensionsBrowser(QWidget *parent)
     WelcomePageHelpers::setBackgroundColor(d->extensionsView->viewport(),
                                            Theme::Token_Background_Default);
 
+    d->m_spinner = new SpinnerSolution::Spinner(SpinnerSolution::SpinnerSize::Large, this);
+
     auto updateModel = [this] {
         d->filterProxyModel->sort(0);
 
@@ -324,8 +329,6 @@ ExtensionsBrowser::ExtensionsBrowser(QWidget *parent)
     };
 
     connect(PluginManager::instance(), &PluginManager::pluginsChanged, this, updateModel);
-    connect(PluginManager::instance(), &PluginManager::initializationDone,
-            this, &ExtensionsBrowser::fetchExtensions);
     connect(d->searchBox, &QLineEdit::textChanged,
             d->filterProxyModel, &QSortFilterProxyModel::setFilterWildcard);
 }
@@ -362,6 +365,15 @@ int ExtensionsBrowser::extraListViewWidth() const
            + 1; // Needed
 }
 
+void ExtensionsBrowser::showEvent(QShowEvent *event)
+{
+    if (!d->dataFetched) {
+        d->dataFetched = true;
+        fetchExtensions();
+    }
+    QWidget::showEvent(event);
+}
+
 void ExtensionsBrowser::fetchExtensions()
 {
 #ifdef WITH_TESTS
@@ -372,7 +384,7 @@ void ExtensionsBrowser::fetchExtensions()
 
     using namespace Tasking;
 
-    const auto onQuerySetup = [](NetworkQuery &query) {
+    const auto onQuerySetup = [this](NetworkQuery &query) {
         const QString host = "https://qc-extensions.qt.io";
         const QString url = "%1/api/v1/search?request=";
         const QString requestTemplate
@@ -382,10 +394,10 @@ void ExtensionsBrowser::fetchExtensions()
                                                     .arg(QSysInfo::productType())
                                                     .arg(QSysInfo::productVersion())
                                                     .arg(QSysInfo::currentCpuArchitecture());
-
         query.setRequest(QNetworkRequest(QUrl::fromUserInput(request)));
         query.setNetworkAccessManager(NetworkAccessManager::instance());
         qCDebug(browserLog).noquote() << "Sending request:" << request;
+        d->m_spinner->show();
     };
     const auto onQueryDone = [this](const NetworkQuery &query, DoneWith result) {
         const QByteArray response = query.reply()->readAll();
@@ -396,6 +408,7 @@ void ExtensionsBrowser::fetchExtensions()
             qCDebug(browserLog).noquote() << response;
             d->model->setExtensionsJson({});
         }
+        d->m_spinner->hide();
     };
 
     Group group {

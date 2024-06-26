@@ -28,6 +28,8 @@ public:
 
     int extraListViewWidth() const; // Space for scrollbar, etc.
 
+    void showEvent(QShowEvent *event) override;
+
 signals:
     void itemSelected(const QModelIndex &current, const QModelIndex &previous);
 
