@@ -137,6 +137,7 @@ public:
     // Some of them could be aggregated in another public utils class.
 
     static bool startDetached(const CommandLine &cmd, const FilePath &workingDirectory = {},
+                              DetachedChannelMode channelMode = DetachedChannelMode::Forward,
                               qint64 *pid = nullptr);
 
     // Starts the command and waits for finish.
