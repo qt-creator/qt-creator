@@ -34,6 +34,7 @@
 #include <utils/networkaccessmanager.h>
 #include <utils/stylehelper.h>
 
+#include <QApplication>
 #include <QItemDelegate>
 #include <QLabel>
 #include <QListView>
