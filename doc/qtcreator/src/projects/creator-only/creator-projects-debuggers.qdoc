@@ -15,12 +15,11 @@
 
     \title Add debuggers
 
-    The \QC debugger plugin acts as an interface between the \QC core and
-    external native debuggers such as the GNU Symbolic Debugger (GDB),
+    You can use debuggers, such as the GNU Symbolic Debugger (GDB),
     the Microsoft Console Debugger (CDB), a QML/JavaScript debugger, and the
     debugger of the low level virtual machine (LLVM) project, LLDB.
 
-    The debugger plugin automatically selects a suitable native debugger for
+    \QC automatically selects a suitable debugger for
     each \l{Kits}{kit} from the ones found on your system.
     To override this choice, select \preferences > \uicontrol Kits.
 
@@ -75,6 +74,6 @@
     The debugger disappears from the list when you select \uicontrol Apply.
     Until then, you can cancel the deletion by clicking \uicontrol Restore.
 
-    \sa {Debugging}, {Debuggers}, {Debugger}, {Supported Native Debuggers},
+    \sa {Debugging}, {Debuggers}, {Debugger}, {Supported Debuggers},
     {Troubleshooting Debugger}
 */

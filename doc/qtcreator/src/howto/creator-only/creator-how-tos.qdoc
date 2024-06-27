@@ -66,8 +66,7 @@
 
     \section1 Debug
 
-    Use native debuggers to inspect the state of your application while
-    debugging.
+    Use debuggers to inspect the state of your application while it is running.
 
     \generatelist creator-how-to-debug
 

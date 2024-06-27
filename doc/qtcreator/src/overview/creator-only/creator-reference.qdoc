@@ -21,7 +21,7 @@
 
     \section1 Debuggers
 
-    Set up and use native debuggers to debug executable binary files, as well as
+    Set up and use debuggers to debug executable binary files, as well as
     QML, Java, and Python source code.
 
     \annotatedlist creator-reference-debugger

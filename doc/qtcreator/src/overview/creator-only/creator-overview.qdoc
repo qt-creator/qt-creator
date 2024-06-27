@@ -266,10 +266,10 @@
             to find the next one.
     \endlist
 
-    \QC integrates several native debuggers for inspecting the state of
-    your application while debugging. The debugger plugin automatically selects
-    a suitable native debugger for each kit from the ones it finds on the
-    computer. Edit the kits to override this choice.
+    \QC integrates several debuggers for inspecting the state of your
+    application. It automatically selects a suitable debugger for each
+    kit from the ones it finds on the computer. Edit the kits to override
+    this choice.
 
     If you install \QC with \QOI, the GNU Symbolic Debugger is installed
     automatically and you should be ready to start debugging after you create
