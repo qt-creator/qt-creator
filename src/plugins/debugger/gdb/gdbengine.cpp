@@ -470,7 +470,7 @@ void GdbEngine::handleAsyncOutput(const QStringView asyncClass, const GdbMi &res
         Module module;
         module.startAddress = 0;
         module.endAddress = 0;
-        module.hostPath = Utils::FilePath::fromString(result["host-name"].data());
+        module.hostPath = Utils::FilePath::fromUserInput(result["host-name"].data());
         const QString target = result["target-name"].data();
         module.modulePath = runParameters().inferior.command.executable().withNewPath(target);
         module.moduleName = module.hostPath.baseName();
