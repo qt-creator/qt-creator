@@ -1488,6 +1488,11 @@ void CMakeBuildSystem::updateFallbackProjectData()
                                        Tr::tr("Scan \"%1\" project tree")
                                            .arg(project()->displayName()),
                                        "CMake.Scan.Tree");
+
+    // A failed configuration could be the result of an compiler update
+    // which then would cause CMake to fail. Make sure to offer an upgrade path
+    // to the new Kit compiler values.
+    updateInitialCMakeExpandableVars();
 }
 
 void CMakeBuildSystem::updateCMakeConfiguration(QString &errorMessage)
