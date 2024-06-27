@@ -15,7 +15,7 @@
 ],
 
     "Category" : "Device Support",
-    "Description" : "Develop applications for Boot to Qt devices",
+    "Description" : "Develop applications for Boot to Qt devices.",
     "LongDescription" : [
         "Connect devices with a USB cable, or a wired or wireless connection, depending on the device to run, debug, and analyze applications built for them.",
         "You also need:",
