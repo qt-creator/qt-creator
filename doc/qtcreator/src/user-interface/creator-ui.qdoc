@@ -16,7 +16,7 @@
     \if defined(qtcreator)
     When you start \QC, it opens to the \uicontrol Welcome mode.
 
-    \image qtcreator-breakdown.png {Welcome mode}
+    \image qtcreator-welcome.webp {Welcome mode}
 
     \table
     \header

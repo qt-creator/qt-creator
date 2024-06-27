@@ -1,0 +1,39 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-load-extensions.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-use
+
+    \title Load extensions
+
+    In the experimental \uicontrol Extensions mode, you can load and unload
+    extensions from the computer or the web.
+
+    To load extensions when you start \QC:
+
+    \list 1
+        \li Go to \uicontrol Extensions.
+            \image qtcreator-extension-mode.webp {Extensions mode}
+        \li Select an extension.
+        \li Select \uicontrol {Load on start}.
+    \endlist
+
+    \section1 Load extensions from the web
+
+    By default, the \uicontrol Extensions mode lists extensions installed on the
+    computer. You can also list extensions from external repositories in the web.
+
+    To load extensions from the web:
+
+    \list 1
+        \li Go to \preferences > \uicontrol Environment > \uicontrol Extensions.
+            \image qtcreator-preferences-extensions.webp {Extensions in Preferences}
+        \li Select \uicontrol {Use external repository}.
+        \li Select \uicontrol OK.
+    \endlist
+
+    \sa {Enable and disable plugins}, {Install plugins}
+*/
