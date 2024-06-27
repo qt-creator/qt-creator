@@ -423,13 +423,15 @@ void ExtensionsBrowser::fetchExtensions()
                                                     .arg(QSysInfo::currentCpuArchitecture());
         query.setRequest(QNetworkRequest(QUrl::fromUserInput(request)));
         query.setNetworkAccessManager(NetworkAccessManager::instance());
-        qCDebug(browserLog).noquote() << "Sending request:" << request;
+        qCDebug(browserLog).noquote() << "Sending JSON request:" << request;
         d->m_spinner->show();
     };
     const auto onQueryDone = [this](const NetworkQuery &query, DoneWith result) {
         const QByteArray response = query.reply()->readAll();
-        qCDebug(browserLog).noquote() << "Got result" << result;
+        qCDebug(browserLog).noquote() << "Got JSON QNetworkReply:" << query.reply()->error();
         if (result == DoneWith::Success) {
+            qCDebug(browserLog).noquote() << "JSON response size:"
+                                          << QLocale::system().formattedDataSize(response.size());
             d->model->setExtensionsJson(response);
         } else {
             qCDebug(browserLog).noquote() << response;
