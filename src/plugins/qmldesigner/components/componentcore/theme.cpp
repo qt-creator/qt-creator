@@ -34,7 +34,8 @@ Theme::Theme(Utils::Theme *originTheme, QObject *parent)
                   "qmldesigner/propertyEditorQmlSources/imports/StudioTheme/InternalConstants.qml")
               .toString();
 
-    QQmlEngine* engine = new QQmlEngine(this);
+    QQmlEngine *engine = new QQmlEngine(this);
+    setupTheme(engine);
     QQmlComponent component(engine, QUrl::fromLocalFile(constantsPath));
 
     if (component.status() == QQmlComponent::Ready) {
