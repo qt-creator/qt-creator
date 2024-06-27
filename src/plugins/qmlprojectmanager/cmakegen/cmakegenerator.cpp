@@ -224,10 +224,20 @@ bool CMakeGenerator::ignore(const Utils::FilePath &path) const
 
 bool CMakeGenerator::checkUri(const QString& uri, const Utils::FilePath &path) const
 {
-    Utils::FilePath relative = path.relativeChildPath(m_root->dir);
-    const QList<QStringView> pathComponents = relative.pathView().split('/', Qt::SkipEmptyParts);
-    const QStringList uriComponents = uri.split('.', Qt::SkipEmptyParts);
+    QTC_ASSERT(buildSystem(), return false);
 
+    Utils::FilePath relative = path.relativeChildPath(m_root->dir);
+    QList<QStringView> pathComponents = relative.pathView().split('/', Qt::SkipEmptyParts);
+
+    for (const auto& import : buildSystem()->importPaths()) {
+        Utils::FilePath importPath = Utils::FilePath::fromUserInput(import);
+        for (const auto& component : importPath.pathView().split('/', Qt::SkipEmptyParts)) {
+            if (component == pathComponents.first())
+                pathComponents.pop_front();
+        }
+    }
+
+    const QStringList uriComponents = uri.split('.', Qt::SkipEmptyParts);
     if (pathComponents.size() == uriComponents.size()) {
         for (qsizetype i=0; i<pathComponents.size(); ++i) {
             if (pathComponents[i] != uriComponents[i])
