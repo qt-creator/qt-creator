@@ -596,6 +596,17 @@ QPair<QString, QSet<QString>> ContentLibraryView::modelNodeToQmlString(const Mod
         }
     }
 
+    // add child nodes
+    const ModelNodes nodeChildren = node.directSubModelNodes();
+    for (const ModelNode &childNode : nodeChildren) {
+        if (childNode && !depListIds.contains(childNode.id())) {
+            depListIds.append(childNode.id());
+            auto [depQml, depAssets] = modelNodeToQmlString(childNode, depth + 1);
+            qml += "\n" + depQml + "\n";
+            assets.unite(depAssets);
+        }
+    }
+
     indent = QString(" ").repeated(depth * 4);
 
     qml += indent + "}\n";
