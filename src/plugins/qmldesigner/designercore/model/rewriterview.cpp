@@ -844,6 +844,26 @@ static bool isInNodeDefinition(int nodeTextOffset, int nodeTextLength, int curso
     return (nodeTextOffset <= cursorPosition) && (nodeTextOffset + nodeTextLength > cursorPosition);
 }
 
+int findEvenClosingBrace(const QStringView &string)
+{
+    int count = 0;
+    int index = 0;
+
+    for (auto currentChar : string) {
+        if (currentChar == '{')
+            count++;
+
+        if (currentChar == '}') {
+            if (count == 1)
+                return index;
+            else
+                count--;
+        }
+        index++;
+    }
+    return index;
+}
+
 ModelNode RewriterView::nodeAtTextCursorPositionHelper(const ModelNode &root, int cursorPosition) const
 {
     QTC_ASSERT(m_textModifier, return {});
@@ -865,8 +885,9 @@ ModelNode RewriterView::nodeAtTextCursorPositionHelper(const ModelNode &root, in
         ModelNode node = pair.first;
 
         const int nodeTextOffset = nodeOffset(node);
-        const int nodeTextLength = m_textModifier->text().indexOf("}", nodeTextOffset)
-                                   - nodeTextOffset - 1;
+
+        const int nodeTextLength = findEvenClosingBrace(m_textModifier->text().sliced(nodeTextOffset))
+                                   - 1;
 
         if (isInNodeDefinition(nodeTextOffset, nodeTextLength, cursorPosition))
             lastNode = node;
