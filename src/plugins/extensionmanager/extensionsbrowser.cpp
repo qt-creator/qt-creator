@@ -341,6 +341,7 @@ ExtensionsBrowser::ExtensionsBrowser(QWidget *parent)
                                            Theme::Token_Background_Default);
 
     d->m_spinner = new SpinnerSolution::Spinner(SpinnerSolution::SpinnerSize::Large, this);
+    d->m_spinner->hide();
 
     auto updateModel = [this] {
         d->filterProxyModel->sort(0);
