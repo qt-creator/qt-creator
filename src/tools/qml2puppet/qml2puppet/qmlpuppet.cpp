@@ -124,12 +124,12 @@ void QmlPuppet::initQmlRunner()
         QString options = m_coreApp->arguments().at(4);
 
         Import3D::import3D(sourceAsset, outDir, options);
+    } else {
+        startCrashpad(QCoreApplication::applicationDirPath()
+                          + '/' + RELATIVE_LIBEXEC_PATH, crashReportsPath());
+
+        new QmlDesigner::Qt5NodeInstanceClientProxy(m_coreApp.get());
     }
-
-    startCrashpad(QCoreApplication::applicationDirPath()
-                  + '/' + RELATIVE_LIBEXEC_PATH, crashReportsPath());
-
-    new QmlDesigner::Qt5NodeInstanceClientProxy(m_coreApp.get());
 
 #if defined(Q_OS_WIN) && defined(QT_NO_DEBUG)
     SetErrorMode(SEM_NOGPFAULTERRORBOX); //We do not want to see any message boxes
