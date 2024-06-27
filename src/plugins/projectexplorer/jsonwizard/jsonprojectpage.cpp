@@ -139,7 +139,7 @@ void JsonProjectPage::initUiForSubProject()
 
     const QList<Project *> currentProjects = ProjectManager::projects();
     QList<ProjectInfo> projectInfos;
-    projectInfos.append({Tr::tr("None"), Core::DocumentManager::projectsDirectory()});
+    projectInfos.append({Tr::tr("None"), Core::DocumentManager::projectsDirectory(), {}, {}, {}});
     int index = -1;
     int counter = 1; // we've added None already
     for (const Project *proj : currentProjects) {
