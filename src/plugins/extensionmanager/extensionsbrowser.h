@@ -40,6 +40,13 @@ private:
 };
 
 QLabel *tfLabel(const Core::WelcomePageHelpers::TextFormat &tf, bool singleLine = true);
-QGradientStops iconGradientStops(const QModelIndex &index);
+
+constexpr static QSize iconBgSizeSmall{50, 50};
+constexpr static QSize iconBgSizeBig{68, 68};
+enum Size {
+    SizeSmall,
+    SizeBig,
+};
+QPixmap itemIcon(const QModelIndex &index, Size size);
 
 } // ExtensionManager::Internal

@@ -61,7 +61,6 @@ class ExtensionItemDelegate : public QItemDelegate
 {
 public:
     constexpr static QSize dividerS{1, 16};
-    constexpr static QSize iconBgS{50, 50};
     constexpr static TextFormat itemNameTF
         {Theme::Token_Text_Default, UiElement::UiElementH6};
     constexpr static TextFormat countTF
@@ -102,15 +101,15 @@ public:
         const QRect bgRGlobal = option.rect.adjusted(0, 0, -gapSize, -gapSize);
         const QRect bgR = bgRGlobal.translated(-option.rect.topLeft());
 
-        const int middleColumnW = bgR.width() - ExPaddingGapL - iconBgS.width() - ExPaddingGapL
-                                  - ExPaddingGapL;
+        const int middleColumnW = bgR.width() - ExPaddingGapL - iconBgSizeSmall.width()
+                - ExPaddingGapL - ExPaddingGapL;
 
         int x = bgR.x();
         int y = bgR.y();
         x += ExPaddingGapL;
-        const QRect iconBgR(x, y + (bgR.height() - iconBgS.height()) / 2,
-                            iconBgS.width(), iconBgS.height());
-        x += iconBgS.width() + ExPaddingGapL;
+        const QRect iconBgR(x, y + (bgR.height() - iconBgSizeSmall.height()) / 2,
+                            iconBgSizeSmall.width(), iconBgSizeSmall.height());
+        x += iconBgSizeSmall.width() + ExPaddingGapL;
         y += ExPaddingGapL;
         const QRect itemNameR(x, y, middleColumnW, itemNameTF.lineHeight());
         const QString itemName = index.data().toString();
@@ -142,18 +141,8 @@ public:
             WelcomePageHelpers::drawCardBackground(painter, bgR, fillColor, strokeColor);
         }
         {
-            QLinearGradient gradient(iconBgR.topRight(), iconBgR.bottomLeft());
-            gradient.setStops(iconGradientStops(index));
-            constexpr int iconRectRounding = 4;
-            drawCardBackground(painter, iconBgR, gradient, Qt::NoPen, iconRectRounding);
-
-            // Icon
-            constexpr Theme::Color color = Theme::Token_Basic_White;
-            static const QIcon pack = Icon({{":/extensionmanager/images/packsmall.png", color}},
-                                           Icon::Tint).icon();
-            static const QIcon extension = Icon({{":/extensionmanager/images/extensionsmall.png",
-                                                  color}}, Icon::Tint).icon();
-            (isPack ? pack : extension).paint(painter, iconBgR);
+            const QPixmap icon = itemIcon(index, SizeSmall);
+            painter->drawPixmap(iconBgR.topLeft(), icon);
         }
         if (isPack) {
             constexpr int circleSize = 18;
@@ -241,7 +230,7 @@ public:
             + tagsTF.lineHeight();
         const int height =
             ExPaddingGapL
-            + qMax(iconBgS.height(), middleColumnH)
+            + qMax(iconBgSizeSmall.height(), middleColumnH)
             + ExPaddingGapL;
         return {cellWidth, height + gapSize};
     }
@@ -462,20 +451,48 @@ QLabel *tfLabel(const TextFormat &tf, bool singleLine)
     return label;
 }
 
-QGradientStops iconGradientStops(const QModelIndex &index)
+QPixmap itemIcon(const QModelIndex &index, Size size)
 {
-    const PluginSpec *ps = pluginSpecForName(index.data(RoleName).toString());
-    const bool greenGradient = ps != nullptr && ps->isEffectivelyEnabled();
+    const QSize iconBgS = size == SizeSmall ? iconBgSizeSmall : iconBgSizeBig;
+    const qreal dpr = qApp->devicePixelRatio();
+    QPixmap pixmap(iconBgS * dpr);
+    pixmap.fill(Qt::transparent);
+    pixmap.setDevicePixelRatio(dpr);
+    const QRect iconBgR(QPoint(), pixmap.deviceIndependentSize().toSize());
 
-    const QColor startColor = creatorColor(greenGradient ? Theme::Token_Gradient01_Start
-                                                         : Theme::Token_Gradient02_Start);
-    const QColor endColor = creatorColor(greenGradient ? Theme::Token_Gradient01_End
-                                                       : Theme::Token_Gradient02_End);
-    const QGradientStops gradient = {
-        {0, startColor},
-        {1, endColor},
+    const PluginSpec *ps = pluginSpecForName(index.data(RoleName).toString());
+    const bool isEnabled = ps == nullptr || ps->isEffectivelyEnabled();
+    const QGradientStops gradientStops = {
+        {0, creatorColor(isEnabled ? Theme::Token_Gradient01_Start
+                                   : Theme::Token_Gradient02_Start)},
+        {1, creatorColor(isEnabled ? Theme::Token_Gradient01_End
+                                   : Theme::Token_Gradient02_End)},
     };
-    return gradient;
+
+    const Theme::Color color = Theme::Token_Basic_White;
+    static const QIcon packS = Icon({{":/extensionmanager/images/packsmall.png", color}},
+                                    Icon::Tint).icon();
+    static const QIcon packB = Icon({{":/extensionmanager/images/packbig.png", color}},
+                                    Icon::Tint).icon();
+    static const QIcon extensionS = Icon({{":/extensionmanager/images/extensionsmall.png",
+                                           color}}, Icon::Tint).icon();
+    static const QIcon extensionB = Icon({{":/extensionmanager/images/extensionbig.png",
+                                           color}}, Icon::Tint).icon();
+    const ItemType itemType = index.data(RoleItemType).value<ItemType>();
+    const QIcon &icon = (itemType == ItemTypePack) ? (size == SizeSmall ? packS : packB)
+                                                   : (size == SizeSmall ? extensionS : extensionB);
+    const int iconRectRounding = 4;
+    const qreal iconOpacityDisabled = 0.6;
+
+    QPainter p(&pixmap);
+    QLinearGradient gradient(iconBgR.topRight(), iconBgR.bottomLeft());
+    gradient.setStops(gradientStops);
+    WelcomePageHelpers::drawCardBackground(&p, iconBgR, gradient, Qt::NoPen, iconRectRounding);
+    if (!isEnabled)
+        p.setOpacity(iconOpacityDisabled);
+    icon.paint(&p, iconBgR);
+
+    return pixmap;
 }
 
 } // ExtensionManager::Internal

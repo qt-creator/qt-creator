@@ -113,7 +113,6 @@ private:
 
 class HeadingWidget : public QWidget
 {
-    static constexpr QSize iconBgS{68, 68};
     static constexpr int dividerH = 16;
 
     Q_OBJECT
@@ -123,7 +122,7 @@ public:
         : QWidget(parent)
     {
         m_icon = new QLabel;
-        m_icon->setFixedSize(iconBgS);
+        m_icon->setFixedSize(iconBgSizeBig);
 
         static const TextFormat titleTF
             {Theme::Token_Text_Default, UiElementH4};
@@ -200,7 +199,7 @@ public:
         if (!current.isValid())
             return;
 
-        m_icon->setPixmap(icon(current));
+        m_icon->setPixmap(itemIcon(current, SizeBig));
 
         const QString name = current.data(RoleName).toString();
         m_title->setText(name);
@@ -236,32 +235,6 @@ signals:
     void vendorClicked(const QString &vendor);
 
 private:
-    static QPixmap icon(const QModelIndex &index)
-    {
-        const qreal dpr = qApp->devicePixelRatio();
-        QPixmap pixmap(iconBgS * dpr);
-        pixmap.fill(Qt::transparent);
-        pixmap.setDevicePixelRatio(dpr);
-        const QRect bgR(QPoint(), pixmap.deviceIndependentSize().toSize());
-
-        QPainter p(&pixmap);
-        QLinearGradient gradient(bgR.topRight(), bgR.bottomLeft());
-        gradient.setStops(iconGradientStops(index));
-        constexpr int iconRectRounding = 4;
-        WelcomePageHelpers::drawCardBackground(&p, bgR, gradient, Qt::NoPen, iconRectRounding);
-
-        // Icon
-        constexpr Theme::Color color = Theme::Token_Basic_White;
-        static const QIcon pack = Icon({{":/extensionmanager/images/packbig.png", color}},
-                                       Icon::Tint).icon();
-        static const QIcon extension = Icon({{":/extensionmanager/images/extensionbig.png",
-                                              color}}, Icon::Tint).icon();
-        const ItemType itemType = index.data(RoleItemType).value<ItemType>();
-        (itemType == ItemTypePack ? pack : extension).paint(&p, bgR);
-
-        return pixmap;
-    }
-
     QLabel *m_icon;
     QLabel *m_title;
     Button *m_vendor;
