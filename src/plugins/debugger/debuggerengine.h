@@ -125,6 +125,9 @@ public:
     // Used by Valgrind
     QStringList expectedSignals;
 
+    // For QNX debugging
+    bool useCtrlCStub = false;
+
     // Used by Android to avoid false positives on warnOnRelease
     bool skipExecutableValidation = false;
     bool useTargetAsync = false;

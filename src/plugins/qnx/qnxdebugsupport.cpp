@@ -126,6 +126,7 @@ public:
 
         setStartMode(AttachToRemoteServer);
         setCloseMode(KillAtClose);
+        setUseCtrlCStub(true);
         setSolibSearchPath(FileUtils::toFilePathList(searchPaths(k)));
         if (auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitAspect::qtVersion(k))) {
             setSysRoot(qtVersion->qnxTarget());
@@ -195,6 +196,7 @@ public:
     {
         setId("QnxAttachDebugSupport");
         setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
+        setUseCtrlCStub(true);
 
         if (isCppDebugging()) {
             auto pdebugRunner = new PDebugRunner(runControl, portsGatherer());
