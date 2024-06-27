@@ -153,8 +153,7 @@ QPixmap Theme::getPixmap(const QString &id)
 
 QString Theme::getIconUnicode(Theme::Icon i)
 {
-    if (!instance()->m_constants)
-        return QString();
+    QTC_ASSERT(instance()->m_constants, return {});
 
     const QMetaObject *m = instance()->metaObject();
     const char *enumName = "Icon";
@@ -172,6 +171,7 @@ QString Theme::getIconUnicode(Theme::Icon i)
 
 QString Theme::getIconUnicode(const QString &name)
 {
+    QTC_ASSERT(instance()->m_constants, return {});
     return instance()->m_constants->property(name.toStdString().data()).toString();
 }
 
