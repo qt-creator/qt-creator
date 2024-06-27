@@ -158,6 +158,7 @@ private:
 
     QPushButton *m_batchEditButton = nullptr;
     QPushButton *m_kitConfiguration = nullptr;
+    CMakeConfig m_configurationChanges;
 };
 
 static QModelIndex mapToSource(const QAbstractItemView *view, const QModelIndex &idx)
@@ -416,6 +417,11 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
         updateButtonState();
         m_showProgressTimer.stop();
         m_progressIndicator->hide();
+
+        if (!m_configurationChanges.isEmpty()) {
+            m_configModel->setBatchEditConfiguration(m_configurationChanges);
+            m_configurationChanges.clear();
+        }
         updateConfigurationStateSelection();
     });
 
@@ -502,8 +508,9 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     connect(bs, &CMakeBuildSystem::warningOccurred,
             this, &CMakeBuildSettingsWidget::setWarning);
 
-    connect(bs, &CMakeBuildSystem::configurationChanged,
-            m_configModel, &ConfigModel::setBatchEditConfiguration);
+    connect(bs, &CMakeBuildSystem::configurationChanged, this, [this](const CMakeConfig &config) {
+        m_configurationChanges = config;
+    });
 
     updateFromKit();
     connect(m_buildConfig->target(), &Target::kitChanged,
