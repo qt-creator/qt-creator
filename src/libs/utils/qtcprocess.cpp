@@ -1317,12 +1317,18 @@ void Process::closeWriteChannel()
     d->sendControlSignal(ControlSignal::CloseWriteChannel);
 }
 
-bool Process::startDetached(const CommandLine &cmd, const FilePath &workingDirectory, qint64 *pid)
+bool Process::startDetached(const CommandLine &cmd, const FilePath &workingDirectory,
+                            DetachedChannelMode channelMode, qint64 *pid)
 {
-    return QProcess::startDetached(cmd.executable().toUserOutput(),
-                                   cmd.splitArguments(),
-                                   workingDirectory.toUserOutput(),
-                                   pid);
+    QProcess process;
+    process.setProgram(cmd.executable().toUserOutput());
+    process.setArguments(cmd.splitArguments());
+    process.setWorkingDirectory(workingDirectory.toUserOutput());
+    if (channelMode == DetachedChannelMode::Discard) {
+        process.setStandardOutputFile(QProcess::nullDevice());
+        process.setStandardErrorFile(QProcess::nullDevice());
+    }
+    return process.startDetached(pid);
 }
 
 void Process::setLowPriority()

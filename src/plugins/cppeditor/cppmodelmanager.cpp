@@ -553,7 +553,7 @@ using FindUnusedActionsEnabledSwitcherPtr = std::shared_ptr<FindUnusedActionsEna
 
 static void checkNextFunctionForUnused(
         const QPointer<SearchResult> &search,
-        const std::shared_ptr<QFutureInterface<bool>> &findRefsFuture,
+        const std::shared_ptr<QFutureInterface<void>> &findRefsFuture,
         const FindUnusedActionsEnabledSwitcherPtr &actionsSwitcher)
 {
     if (!search || findRefsFuture->isCanceled())
@@ -650,14 +650,14 @@ void CppModelManager::findUnusedFunctions(const FilePath &folder)
             Utils::transform<QVariantList>(links, [](const Link &l) { return QVariant::fromValue(l);
         }));
         search->setUserData(remainingAndActiveLinks);
-        const auto findRefsFuture = std::make_shared<QFutureInterface<bool>>();
+        const auto findRefsFuture = std::make_shared<QFutureInterface<void>>();
         FutureProgress *const progress = ProgressManager::addTask(findRefsFuture->future(),
                                                           Tr::tr("Finding Unused Functions"),
                                                           "CppEditor.FindUnusedFunctions");
         connect(progress,
                 &FutureProgress::canceled,
                 search,
-                [search, future = std::weak_ptr<QFutureInterface<bool>>(findRefsFuture)] {
+                [search, future = std::weak_ptr<QFutureInterface<void>>(findRefsFuture)] {
             search->finishSearch(true);
             if (const auto f = future.lock()) {
                 f->cancel();

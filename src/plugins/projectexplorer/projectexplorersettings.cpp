@@ -310,10 +310,11 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
 {
     m_reaperTimeoutSpinBox = new QSpinBox;
     m_reaperTimeoutSpinBox->setMinimum(1);
+    //: Suffix for "seconds"
     m_reaperTimeoutSpinBox->setSuffix(Tr::tr("s"));
     m_reaperTimeoutSpinBox->setToolTip(
         Tr::tr("The amount of seconds to wait between a \"soft kill\" and a \"hard kill\" of a "
-               "running application"));
+               "running application."));
 
     m_currentDirectoryRadioButton = new QRadioButton(Tr::tr("Current directory"));
     m_directoryRadioButton = new QRadioButton(Tr::tr("Directory"));

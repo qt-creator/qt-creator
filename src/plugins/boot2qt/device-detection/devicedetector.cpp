@@ -80,7 +80,7 @@ void DeviceDetector::handleDeviceEvent(QdbDeviceTracker::DeviceEventType eventTy
     DeviceManager * const dm = DeviceManager::instance();
 
     if (eventType == QdbDeviceTracker::NewDevice) {
-        const QString name = Tr::tr("Qt Debug Bridge device %1").arg(serial);
+        const QString name = Tr::tr("Boot to Qt device %1").arg(serial);
         QdbDevice::Ptr device = QdbDevice::create();
         device->setupId(IDevice::AutoDetected, deviceId);
         device->settings()->displayName.setValue(name);

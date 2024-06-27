@@ -83,6 +83,8 @@ Analyzer
 
 ### CTF Visualizer
 
+### Cppcheck
+
 Terminal
 --------
 
@@ -126,6 +128,8 @@ Platforms
 ### Qt Application Manager
 
 ### QNX
+
+### Bare Metal
 
 Credits for these changes go to:
 --------------------------------

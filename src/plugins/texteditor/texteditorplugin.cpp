@@ -304,12 +304,22 @@ void TextEditorPlugin::createStandardContextMenu()
     add(Constants::SWITCH_UTF8BOM, Constants::G_BOM);
 }
 
+class TextActionBuilder : public ActionBuilder
+{
+public:
+    TextActionBuilder(QObject *contextActionParent, const Utils::Id actionId)
+        : ActionBuilder(contextActionParent, actionId)
+    {
+        setContext(Context(Constants::C_TEXTEDITOR));
+    }
+};
+
 void TextEditorPlugin::createEditorCommands()
 {
     using namespace Core::Constants;
     // Add shortcut for invoking automatic completion
     Command *command = nullptr;
-    ActionBuilder(this, Constants::COMPLETE_THIS)
+    TextActionBuilder(this, Constants::COMPLETE_THIS)
         .setText(Tr::tr("Trigger Completion"))
         .bindCommand(&command)
         .setDefaultKeySequence(Tr::tr("Meta+Space"), Tr::tr("Ctrl+Space"));
@@ -320,253 +330,253 @@ void TextEditorPlugin::createEditorCommands()
     FancyLineEdit::setCompletionShortcut(command->keySequence());
 
     // Add shortcut for invoking function hint completion
-    ActionBuilder(this, Constants::FUNCTION_HINT)
+    TextActionBuilder(this, Constants::FUNCTION_HINT)
         .setText(Tr::tr("Display Function Hint"))
         .setDefaultKeySequence(Tr::tr("Meta+Shift+D"), Tr::tr("Ctrl+Shift+D"));
 
     // Add shortcut for invoking quick fix options
-    ActionBuilder(this, Constants::QUICKFIX_THIS)
+    TextActionBuilder(this, Constants::QUICKFIX_THIS)
         .setText(Tr::tr("Trigger Refactoring Action"))
         .setDefaultKeySequence(Tr::tr("Alt+Return"));
 
-    ActionBuilder(this, Constants::SHOWCONTEXTMENU)
+    TextActionBuilder(this, Constants::SHOWCONTEXTMENU)
         .setText(Tr::tr("Show Context Menu"));
 
-    ActionBuilder(this, DELETE_LINE).setText(Tr::tr("Delete &Line"));
-    ActionBuilder(this, DELETE_END_OF_LINE).setText(Tr::tr("Delete Line from Cursor On"));
-    ActionBuilder(this, DELETE_END_OF_WORD).setText(Tr::tr("Delete Word from Cursor On"));
-    ActionBuilder(this, DELETE_END_OF_WORD_CAMEL_CASE)
+    TextActionBuilder(this, DELETE_LINE).setText(Tr::tr("Delete &Line"));
+    TextActionBuilder(this, DELETE_END_OF_LINE).setText(Tr::tr("Delete Line from Cursor On"));
+    TextActionBuilder(this, DELETE_END_OF_WORD).setText(Tr::tr("Delete Word from Cursor On"));
+    TextActionBuilder(this, DELETE_END_OF_WORD_CAMEL_CASE)
         .setText(Tr::tr("Delete Word Camel Case from Cursor On"));
-    ActionBuilder(this, DELETE_START_OF_LINE)
+    TextActionBuilder(this, DELETE_START_OF_LINE)
         .setText(Tr::tr("Delete Line up to Cursor"))
         .setDefaultKeySequence(Tr::tr("Ctrl+Backspace"), {});
-    ActionBuilder(this, DELETE_START_OF_WORD).setText(Tr::tr("Delete Word up to Cursor"));
-    ActionBuilder(this, DELETE_START_OF_WORD_CAMEL_CASE)
+    TextActionBuilder(this, DELETE_START_OF_WORD).setText(Tr::tr("Delete Word up to Cursor"));
+    TextActionBuilder(this, DELETE_START_OF_WORD_CAMEL_CASE)
         .setText(Tr::tr("Delete Word Camel Case up to Cursor"));
-    ActionBuilder(this, GOTO_BLOCK_START_WITH_SELECTION)
+    TextActionBuilder(this, GOTO_BLOCK_START_WITH_SELECTION)
         .setText(Tr::tr("Go to Block Start with Selection"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+{")));
-    ActionBuilder(this, GOTO_BLOCK_END_WITH_SELECTION)
+    TextActionBuilder(this, GOTO_BLOCK_END_WITH_SELECTION)
         .setText(Tr::tr("Go to Block End with Selection"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+}")));
-    ActionBuilder(this, MOVE_LINE_UP)
+    TextActionBuilder(this, MOVE_LINE_UP)
         .setText(Tr::tr("Move Line Up"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Shift+Up")));
-    ActionBuilder(this, MOVE_LINE_DOWN)
+    TextActionBuilder(this, MOVE_LINE_DOWN)
         .setText(Tr::tr("Move Line Down"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Shift+Down")));
-    ActionBuilder(this, COPY_LINE_UP)
+    TextActionBuilder(this, COPY_LINE_UP)
         .setText(Tr::tr("Copy Line Up"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Alt+Up")));
-    ActionBuilder(this, COPY_LINE_DOWN)
+    TextActionBuilder(this, COPY_LINE_DOWN)
         .setText(Tr::tr("Copy Line Down"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Alt+Down")));
-    ActionBuilder(this, JOIN_LINES)
+    TextActionBuilder(this, JOIN_LINES)
         .setText(Tr::tr("Join Lines"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+J")));
-    ActionBuilder(this, INSERT_LINE_ABOVE)
+    TextActionBuilder(this, INSERT_LINE_ABOVE)
         .setText(Tr::tr("Insert Line Above Current Line"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Shift+Return")));
-    ActionBuilder(this, INSERT_LINE_BELOW)
+    TextActionBuilder(this, INSERT_LINE_BELOW)
         .setText(Tr::tr("Insert Line Below Current Line"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Return")));
-    ActionBuilder(this, SWITCH_UTF8BOM).setText(Tr::tr("Toggle UTF-8 BOM"));
-    ActionBuilder(this, INDENT).setText(Tr::tr("Indent"));
-    ActionBuilder(this, UNINDENT).setText(Tr::tr("Unindent"));
-    ActionBuilder(this, FOLLOW_SYMBOL_UNDER_CURSOR)
+    TextActionBuilder(this, SWITCH_UTF8BOM).setText(Tr::tr("Toggle UTF-8 BOM"));
+    TextActionBuilder(this, INDENT).setText(Tr::tr("Indent"));
+    TextActionBuilder(this, UNINDENT).setText(Tr::tr("Unindent"));
+    TextActionBuilder(this, FOLLOW_SYMBOL_UNDER_CURSOR)
         .setText(Tr::tr("Follow Symbol Under Cursor"))
         .setDefaultKeySequence(QKeySequence(Qt::Key_F2));
-    ActionBuilder(this, FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT)
+    TextActionBuilder(this, FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT)
         .setText(Tr::tr("Follow Symbol Under Cursor in Next Split"))
         .setDefaultKeySequence(Tr::tr("Meta+E, F2"), Tr::tr("Ctrl+E, F2"));
-    ActionBuilder(this, FOLLOW_SYMBOL_TO_TYPE)
+    TextActionBuilder(this, FOLLOW_SYMBOL_TO_TYPE)
         .setText(Tr::tr("Follow Type Under Cursor"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Shift+F2")));
-    ActionBuilder(this, FOLLOW_SYMBOL_TO_TYPE_IN_NEXT_SPLIT)
+    TextActionBuilder(this, FOLLOW_SYMBOL_TO_TYPE_IN_NEXT_SPLIT)
         .setText(Tr::tr("Follow Type Under Cursor in Next Split"))
         .setDefaultKeySequence(Tr::tr("Meta+E, Shift+F2"), Tr::tr("Ctrl+E, Ctrl+Shift+F2"));
-    ActionBuilder(this, FIND_USAGES)
+    TextActionBuilder(this, FIND_USAGES)
         .setText(Tr::tr("Find References to Symbol Under Cursor"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Shift+U")));
-    ActionBuilder(this, RENAME_SYMBOL)
+    TextActionBuilder(this, RENAME_SYMBOL)
         .setText(Tr::tr("Rename Symbol Under Cursor"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Shift+R")));
-    ActionBuilder(this, JUMP_TO_FILE_UNDER_CURSOR)
+    TextActionBuilder(this, JUMP_TO_FILE_UNDER_CURSOR)
         .setText(Tr::tr("Jump to File Under Cursor"))
         .setDefaultKeySequence(QKeySequence(Qt::Key_F2));
-    ActionBuilder(this, JUMP_TO_FILE_UNDER_CURSOR_IN_NEXT_SPLIT)
+    TextActionBuilder(this, JUMP_TO_FILE_UNDER_CURSOR_IN_NEXT_SPLIT)
         .setText(Tr::tr("Jump to File Under Cursor in Next Split"))
         .setDefaultKeySequence(Tr::tr("Meta+E, F2"), Tr::tr("Ctrl+E, F2"));
-    ActionBuilder(this, OPEN_CALL_HIERARCHY).setText(Tr::tr("Open Call Hierarchy"));
-    ActionBuilder(this, OPEN_TYPE_HIERARCHY)
+    TextActionBuilder(this, OPEN_CALL_HIERARCHY).setText(Tr::tr("Open Call Hierarchy"));
+    TextActionBuilder(this, OPEN_TYPE_HIERARCHY)
         .setText(Tr::tr("Open Type Hierarchy"))
         .setDefaultKeySequence(Tr::tr("Meta+Shift+T"), Tr::tr("Ctrl+Shift+T"));
-    ActionBuilder(this, VIEW_PAGE_UP)
+    TextActionBuilder(this, VIEW_PAGE_UP)
         .setText(Tr::tr("Move the View a Page Up and Keep the Cursor Position"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+PgUp")));
-    ActionBuilder(this, VIEW_PAGE_DOWN)
+    TextActionBuilder(this, VIEW_PAGE_DOWN)
         .setText(Tr::tr("Move the View a Page Down and Keep the Cursor Position"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+PgDown")));
-    ActionBuilder(this, VIEW_LINE_UP)
+    TextActionBuilder(this, VIEW_LINE_UP)
         .setText(Tr::tr("Move the View a Line Up and Keep the Cursor Position"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Up")));
-    ActionBuilder(this, VIEW_LINE_DOWN)
+    TextActionBuilder(this, VIEW_LINE_DOWN)
         .setText(Tr::tr("Move the View a Line Down and Keep the Cursor Position"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Down")));
 
     ActionManager::actionContainer(M_EDIT);
-    ActionBuilder(this, SELECT_ENCODING)
+    TextActionBuilder(this, SELECT_ENCODING)
         .setText(Tr::tr("Select Encoding..."))
         .addToContainer(M_EDIT, G_EDIT_OTHER);
-    ActionBuilder(this, CIRCULAR_PASTE)
+    TextActionBuilder(this, CIRCULAR_PASTE)
         .setText(Tr::tr("Paste from Clipboard History"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Shift+V")))
         .addToContainer(M_EDIT, G_EDIT_COPYPASTE);
-    ActionBuilder(this, NO_FORMAT_PASTE)
+    TextActionBuilder(this, NO_FORMAT_PASTE)
         .setText(Tr::tr("Paste Without Formatting"))
         .setDefaultKeySequence(Tr::tr("Ctrl+Alt+Shift+V"), QString())
         .addToContainer(M_EDIT, G_EDIT_COPYPASTE);
 
     ActionManager::actionContainer(M_EDIT_ADVANCED);
-    ActionBuilder(this, AUTO_INDENT_SELECTION)
+    TextActionBuilder(this, AUTO_INDENT_SELECTION)
         .setText(Tr::tr("Auto-&indent Selection"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+I")))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_FORMAT);
-    ActionBuilder(this, AUTO_FORMAT_SELECTION)
+    TextActionBuilder(this, AUTO_FORMAT_SELECTION)
         .setText(Tr::tr("Auto-&format Selection"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+;")))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_FORMAT);
-    ActionBuilder(this, REWRAP_PARAGRAPH)
+    TextActionBuilder(this, REWRAP_PARAGRAPH)
         .setText(Tr::tr("&Rewrap Paragraph"))
         .setDefaultKeySequence(Tr::tr("Meta+E, R"), Tr::tr("Ctrl+E, R"))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_FORMAT);
-    ActionBuilder(this, VISUALIZE_WHITESPACE)
+    TextActionBuilder(this, VISUALIZE_WHITESPACE)
         .setText(Tr::tr("&Visualize Whitespace"))
         .setDefaultKeySequence(Tr::tr("Meta+E, Meta+V"), Tr::tr("Ctrl+E, Ctrl+V"))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_FORMAT);
-    ActionBuilder(this, CLEAN_WHITESPACE)
+    TextActionBuilder(this, CLEAN_WHITESPACE)
         .setText(Tr::tr("Clean Whitespace"))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_FORMAT);
-    ActionBuilder(this, TEXT_WRAPPING)
+    TextActionBuilder(this, TEXT_WRAPPING)
         .setText(Tr::tr("Enable Text &Wrapping"))
         .setDefaultKeySequence(Tr::tr("Meta+E, Meta+W"), Tr::tr("Ctrl+E, Ctrl+W"))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_FORMAT)
         .setCheckable(true);
-    ActionBuilder(this, UN_COMMENT_SELECTION)
+    TextActionBuilder(this, UN_COMMENT_SELECTION)
         .setText(Tr::tr("Toggle Comment &Selection"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+/")))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_FORMAT);
-    ActionBuilder(this, CUT_LINE)
+    TextActionBuilder(this, CUT_LINE)
         .setText(Tr::tr("Cut &Line"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Shift+Del")))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_TEXT);
-    ActionBuilder(this, COPY_LINE)
+    TextActionBuilder(this, COPY_LINE)
         .setText(Tr::tr("Copy &Line"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Ins")))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_TEXT);
-    ActionBuilder(this, COPY_WITH_HTML)
+    TextActionBuilder(this, COPY_WITH_HTML)
         .setText(Tr::tr("Copy With Highlighting"))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_TEXT);
-    ActionBuilder(this, ADD_CURSORS_TO_LINE_ENDS)
+    TextActionBuilder(this, ADD_CURSORS_TO_LINE_ENDS)
         .setText(Tr::tr("Create Cursors at Selected Line Ends"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Alt+Shift+I")))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_TEXT);
-    ActionBuilder(this, ADD_SELECT_NEXT_FIND_MATCH)
+    TextActionBuilder(this, ADD_SELECT_NEXT_FIND_MATCH)
         .setText(Tr::tr("Add Next Occurrence to Selection"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+D")))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_TEXT);
-    ActionBuilder(this, DUPLICATE_SELECTION)
+    TextActionBuilder(this, DUPLICATE_SELECTION)
         .setText(Tr::tr("&Duplicate Selection"))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_TEXT);
-    ActionBuilder(this, DUPLICATE_SELECTION_AND_COMMENT)
+    TextActionBuilder(this, DUPLICATE_SELECTION_AND_COMMENT)
         .setText(Tr::tr("&Duplicate Selection and Comment"))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_TEXT);
-    ActionBuilder(this, UPPERCASE_SELECTION)
+    TextActionBuilder(this, UPPERCASE_SELECTION)
         .setText(Tr::tr("Uppercase Selection"))
         .setDefaultKeySequence(Tr::tr("Meta+Shift+U"), Tr::tr("Alt+Shift+U"))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_TEXT);
-    ActionBuilder(this, LOWERCASE_SELECTION)
+    TextActionBuilder(this, LOWERCASE_SELECTION)
         .setText(Tr::tr("Lowercase Selection"))
         .setDefaultKeySequence(Tr::tr("Meta+U"), Tr::tr("Alt+U"))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_TEXT);
-    ActionBuilder(this, SORT_LINES)
+    TextActionBuilder(this, SORT_LINES)
         .setText(Tr::tr("Sort Lines"))
         .setDefaultKeySequence(Tr::tr("Meta+Shift+S"), Tr::tr("Alt+Shift+S"))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_TEXT);
-    ActionBuilder(this, FOLD)
+    TextActionBuilder(this, FOLD)
         .setText(Tr::tr("Fold"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+<")))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_COLLAPSING);
-    ActionBuilder(this, UNFOLD)
+    TextActionBuilder(this, UNFOLD)
         .setText(Tr::tr("Unfold"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+>")))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_COLLAPSING);
-    ActionBuilder(this, UNFOLD_ALL)
+    TextActionBuilder(this, UNFOLD_ALL)
         .setText(Tr::tr("Toggle &Fold All"))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_COLLAPSING);
-    ActionBuilder(this, INCREASE_FONT_SIZE)
+    TextActionBuilder(this, INCREASE_FONT_SIZE)
         .setText(Tr::tr("Increase Font Size"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl++")))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_FONT);
-    ActionBuilder(this, DECREASE_FONT_SIZE)
+    TextActionBuilder(this, DECREASE_FONT_SIZE)
         .setText(Tr::tr("Decrease Font Size"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+-")))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_FONT);
-    ActionBuilder(this, RESET_FONT_SIZE)
+    TextActionBuilder(this, RESET_FONT_SIZE)
         .setText(Tr::tr("Reset Font Size"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+0")))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_FONT);
-    ActionBuilder(this, GOTO_BLOCK_START)
+    TextActionBuilder(this, GOTO_BLOCK_START)
         .setText(Tr::tr("Go to Block Start"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+[")))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_BLOCKS);
-    ActionBuilder(this, GOTO_BLOCK_END)
+    TextActionBuilder(this, GOTO_BLOCK_END)
         .setText(Tr::tr("Go to Block End"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+]")))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_BLOCKS);
-    ActionBuilder(this, SELECT_BLOCK_UP)
+    TextActionBuilder(this, SELECT_BLOCK_UP)
         .setText(Tr::tr("Select Block Up"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+U")))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_BLOCKS);
-    ActionBuilder(this, SELECT_BLOCK_DOWN)
+    TextActionBuilder(this, SELECT_BLOCK_DOWN)
         .setText(Tr::tr("Select Block Down"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Shift+Alt+U")))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_BLOCKS);
-    ActionBuilder(this, SELECT_WORD_UNDER_CURSOR).setText(Tr::tr("Select Word Under Cursor"));
+    TextActionBuilder(this, SELECT_WORD_UNDER_CURSOR).setText(Tr::tr("Select Word Under Cursor"));
 
-    ActionBuilder(this, GOTO_DOCUMENT_START).setText(Tr::tr("Go to Document Start"));
-    ActionBuilder(this, GOTO_DOCUMENT_END).setText(Tr::tr("Go to Document End"));
-    ActionBuilder(this, GOTO_LINE_START).setText(Tr::tr("Go to Line Start"));
-    ActionBuilder(this, GOTO_LINE_END).setText(Tr::tr("Go to Line End"));
-    ActionBuilder(this, GOTO_NEXT_LINE).setText(Tr::tr("Go to Next Line"));
-    ActionBuilder(this, GOTO_PREVIOUS_LINE).setText(Tr::tr("Go to Previous Line"));
-    ActionBuilder(this, GOTO_PREVIOUS_CHARACTER).setText(Tr::tr("Go to Previous Character"));
-    ActionBuilder(this, GOTO_NEXT_CHARACTER).setText(Tr::tr("Go to Next Character"));
-    ActionBuilder(this, GOTO_PREVIOUS_WORD).setText(Tr::tr("Go to Previous Word"));
-    ActionBuilder(this, GOTO_NEXT_WORD).setText(Tr::tr("Go to Next Word"));
-    ActionBuilder(this, GOTO_PREVIOUS_WORD_CAMEL_CASE)
+    TextActionBuilder(this, GOTO_DOCUMENT_START).setText(Tr::tr("Go to Document Start"));
+    TextActionBuilder(this, GOTO_DOCUMENT_END).setText(Tr::tr("Go to Document End"));
+    TextActionBuilder(this, GOTO_LINE_START).setText(Tr::tr("Go to Line Start"));
+    TextActionBuilder(this, GOTO_LINE_END).setText(Tr::tr("Go to Line End"));
+    TextActionBuilder(this, GOTO_NEXT_LINE).setText(Tr::tr("Go to Next Line"));
+    TextActionBuilder(this, GOTO_PREVIOUS_LINE).setText(Tr::tr("Go to Previous Line"));
+    TextActionBuilder(this, GOTO_PREVIOUS_CHARACTER).setText(Tr::tr("Go to Previous Character"));
+    TextActionBuilder(this, GOTO_NEXT_CHARACTER).setText(Tr::tr("Go to Next Character"));
+    TextActionBuilder(this, GOTO_PREVIOUS_WORD).setText(Tr::tr("Go to Previous Word"));
+    TextActionBuilder(this, GOTO_NEXT_WORD).setText(Tr::tr("Go to Next Word"));
+    TextActionBuilder(this, GOTO_PREVIOUS_WORD_CAMEL_CASE)
         .setText(Tr::tr("Go to Previous Word (Camel Case)"));
-    ActionBuilder(this, GOTO_NEXT_WORD_CAMEL_CASE).setText(Tr::tr("Go to Next Word (Camel Case)"));
+    TextActionBuilder(this, GOTO_NEXT_WORD_CAMEL_CASE).setText(Tr::tr("Go to Next Word (Camel Case)"));
 
-    ActionBuilder(this, GOTO_LINE_START_WITH_SELECTION)
+    TextActionBuilder(this, GOTO_LINE_START_WITH_SELECTION)
         .setText(Tr::tr("Go to Line Start with Selection"));
-    ActionBuilder(this, GOTO_LINE_END_WITH_SELECTION)
+    TextActionBuilder(this, GOTO_LINE_END_WITH_SELECTION)
         .setText(Tr::tr("Go to Line End with Selection"));
-    ActionBuilder(this, GOTO_NEXT_LINE_WITH_SELECTION)
+    TextActionBuilder(this, GOTO_NEXT_LINE_WITH_SELECTION)
         .setText(Tr::tr("Go to Next Line with Selection"));
-    ActionBuilder(this, GOTO_PREVIOUS_LINE_WITH_SELECTION)
+    TextActionBuilder(this, GOTO_PREVIOUS_LINE_WITH_SELECTION)
         .setText(Tr::tr("Go to Previous Line with Selection"));
-    ActionBuilder(this, GOTO_PREVIOUS_CHARACTER_WITH_SELECTION)
+    TextActionBuilder(this, GOTO_PREVIOUS_CHARACTER_WITH_SELECTION)
         .setText(Tr::tr("Go to Previous Character with Selection"));
-    ActionBuilder(this, GOTO_NEXT_CHARACTER_WITH_SELECTION)
+    TextActionBuilder(this, GOTO_NEXT_CHARACTER_WITH_SELECTION)
         .setText(Tr::tr("Go to Next Character with Selection"));
-    ActionBuilder(this, GOTO_PREVIOUS_WORD_WITH_SELECTION)
+    TextActionBuilder(this, GOTO_PREVIOUS_WORD_WITH_SELECTION)
         .setText(Tr::tr("Go to Previous Word with Selection"));
-    ActionBuilder(this, GOTO_NEXT_WORD_WITH_SELECTION)
+    TextActionBuilder(this, GOTO_NEXT_WORD_WITH_SELECTION)
         .setText(Tr::tr("Go to Next Word with Selection"));
-    ActionBuilder(this, GOTO_PREVIOUS_WORD_CAMEL_CASE_WITH_SELECTION)
+    TextActionBuilder(this, GOTO_PREVIOUS_WORD_CAMEL_CASE_WITH_SELECTION)
         .setText(Tr::tr("Go to Previous Word (Camel Case) with Selection"));
-    ActionBuilder(this, GOTO_NEXT_WORD_CAMEL_CASE_WITH_SELECTION)
+    TextActionBuilder(this, GOTO_NEXT_WORD_CAMEL_CASE_WITH_SELECTION)
         .setText(Tr::tr("Go to Next Word (Camel Case) with Selection"));
 }
 

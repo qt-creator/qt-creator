@@ -20,7 +20,7 @@ instructions:
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to download elfutils package, check logs."
       - type: ExecuteCommand
-        command: "/usr/bin/7z x -y {{.AgentWorkingDir}}/build/qt_temp/elfutils-release_0.175qt-linux-x86_64.7z -o{{.AgentWorkingDir}}/build/qt_temp/elfutils"
+        command: "7z x -y {{.AgentWorkingDir}}/build/qt_temp/elfutils-release_0.175qt-linux-x86_64.7z -o{{.AgentWorkingDir}}/build/qt_temp/elfutils"
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to extract elfutils package, check logs."
@@ -30,7 +30,7 @@ instructions:
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to download LLVM package, check logs."
       - type: ExecuteCommand
-        command: "/usr/bin/7z x -y {{.AgentWorkingDir}}/build/qt_temp/libclang.7z -o{{.AgentWorkingDir}}/build/qt_temp/"
+        command: "7z x -y {{.AgentWorkingDir}}/build/qt_temp/libclang.7z -o{{.AgentWorkingDir}}/build/qt_temp/"
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to extract LLVM package, check logs."
@@ -42,7 +42,7 @@ instructions:
       - type: ChangeDirectory
         directory: "{{.AgentWorkingDir}}/build/tqtc-qtsdk/packaging_tools"
       - type: ExecuteCommand
-        command: "python3 -m pipenv run python -u bld_sdktool.py --qt-url {{.Env.QTC_SDKTOOL_QT_BASE_URL}}{{.Env.QTC_SDKTOOL_QT_EXT}} --qt-build {{.AgentWorkingDir}}/build/sdktool/qt --src {{.AgentWorkingDir}}/qt-creator/qt-creator/src/tools/sdktool --build {{.AgentWorkingDir}}/build/sdktool/build --install {{.AgentWorkingDir}}/build/sdktool/install --make-command make"
+        command: "python3 -m pipenv run python -u bld_sdktool.py --qt-url {{.Env.QTC_SDKTOOL_QT_BASE_URL}}{{.Env.QTC_SDKTOOL_QT_EXT}} --qt-build {{.AgentWorkingDir}}/build/sdktool/qt --src {{.AgentWorkingDir}}/qt-creator/qt-creator/src/tools/sdktool --build {{.AgentWorkingDir}}/build/sdktool/build --install {{.AgentWorkingDir}}/build/sdktool/install --make-command ninja"
         maxTimeInSeconds: 36000
         maxTimeBetweenOutput: 3600
         userMessageOnFailure: "Failed to build sdktool, check logs."
@@ -64,7 +64,7 @@ instructions:
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to download LLVM package, check logs."
       - type: ExecuteCommand
-        command: "/usr/local/bin/7z x -y {{.AgentWorkingDir}}/build/qt_temp/libclang.7z -o{{.AgentWorkingDir}}/build/qt_temp/"
+        command: "7z x -y {{.AgentWorkingDir}}/build/qt_temp/libclang.7z -o{{.AgentWorkingDir}}/build/qt_temp/"
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to extract LLVM package, check logs."
@@ -79,7 +79,7 @@ instructions:
         variableName: MACOSX_DEPLOYMENT_TARGET
         variableValue: "{{.Env.SDKTOOL_MACOSX_DEPLOYMENT_TARGET}}"
       - type: ExecuteCommand
-        command: "python3 -m pipenv run python -u bld_sdktool.py --qt-url {{.Env.QTC_SDKTOOL_QT_BASE_URL}}{{.Env.QTC_SDKTOOL_QT_EXT}} --qt-build {{.AgentWorkingDir}}/build/sdktool/qt --src {{.AgentWorkingDir}}/qt-creator/qt-creator/src/tools/sdktool --build {{.AgentWorkingDir}}/build/sdktool/build --install {{.AgentWorkingDir}}/build/sdktool/install --make-command make"
+        command: "python3 -m pipenv run python -u bld_sdktool.py --qt-url {{.Env.QTC_SDKTOOL_QT_BASE_URL}}{{.Env.QTC_SDKTOOL_QT_EXT}} --qt-build {{.AgentWorkingDir}}/build/sdktool/qt --src {{.AgentWorkingDir}}/qt-creator/qt-creator/src/tools/sdktool --build {{.AgentWorkingDir}}/build/sdktool/build --install {{.AgentWorkingDir}}/build/sdktool/install --make-command ninja --universal"
         maxTimeInSeconds: 36000
         maxTimeBetweenOutput: 3600
         userMessageOnFailure: "Failed to build sdktool, check logs."
@@ -96,7 +96,7 @@ instructions:
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to download elfutils package, check logs."
       - type: ExecuteCommand
-        command: "C:\\Utils\\sevenzip\\7z.exe x -y {{.AgentWorkingDir}}\\build\\qt_temp\\elfutils-release_0.175qt-windows-x86_64.7z -o{{.AgentWorkingDir}}\\build\\qt_temp\\elfutils"
+        command: "7z.exe x -y {{.AgentWorkingDir}}\\build\\qt_temp\\elfutils-release_0.175qt-windows-x86_64.7z -o{{.AgentWorkingDir}}\\build\\qt_temp\\elfutils"
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to extract elfutils package, check logs."
@@ -106,7 +106,7 @@ instructions:
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to download python package, check logs."
       - type: ExecuteCommand
-        command: "C:\\Utils\\sevenzip\\7z.exe x -y {{.AgentWorkingDir}}\\build\\qt_temp\\Python38-win-x64.7z -o{{.AgentWorkingDir}}\\build\\qt_temp\\python"
+        command: "7z.exe x -y {{.AgentWorkingDir}}\\build\\qt_temp\\Python38-win-x64.7z -o{{.AgentWorkingDir}}\\build\\qt_temp\\python"
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to extract python package, check logs."
@@ -116,7 +116,7 @@ instructions:
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to download LLVM package, check logs."
       - type: ExecuteCommand
-        command: "C:\\Utils\\sevenzip\\7z.exe x -y {{.AgentWorkingDir}}\\build\\qt_temp\\libclang.7z -o{{.AgentWorkingDir}}\\build\\qt_temp\\"
+        command: "7z.exe x -y {{.AgentWorkingDir}}\\build\\qt_temp\\libclang.7z -o{{.AgentWorkingDir}}\\build\\qt_temp\\"
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to extract LLVM package, check logs."
@@ -128,7 +128,7 @@ instructions:
       - type: ChangeDirectory
         directory: "{{.AgentWorkingDir}}\\build\\tqtc-qtsdk\\packaging_tools"
       - type: ExecuteCommand
-        command: "python -m pipenv run python -u bld_sdktool.py --qt-url {{.Env.QTC_SDKTOOL_QT_BASE_URL}}{{.Env.QTC_SDKTOOL_QT_EXT}} --qt-build {{.AgentWorkingDir}}\\build\\sdktool\\qt --src {{.AgentWorkingDir}}\\qt-creator\\qt-creator\\src\\tools\\sdktool --build {{.AgentWorkingDir}}\\build\\sdktool\\build --install {{.AgentWorkingDir}}\\build\\sdktool\\install --make-command nmake"
+        command: "python -m pipenv run python -u bld_sdktool.py --qt-url {{.Env.QTC_SDKTOOL_QT_BASE_URL}}{{.Env.QTC_SDKTOOL_QT_EXT}} --qt-build {{.AgentWorkingDir}}\\build\\sdktool\\qt --src {{.AgentWorkingDir}}\\qt-creator\\qt-creator\\src\\tools\\sdktool --build {{.AgentWorkingDir}}\\build\\sdktool\\build --install {{.AgentWorkingDir}}\\build\\sdktool\\install --make-command ninja"
         maxTimeInSeconds: 36000
         maxTimeBetweenOutput: 3600
         userMessageOnFailure: "Failed to build sdktool, check logs."

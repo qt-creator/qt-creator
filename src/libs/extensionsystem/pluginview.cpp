@@ -89,8 +89,8 @@ static const QIcon &icon(IconIndex icon)
 class PluginItem : public TreeItem
 {
 public:
-    PluginItem(PluginSpec *spec, PluginView *view)
-        : m_spec(spec), m_view(view)
+    PluginItem(PluginSpec *spec, PluginData *data)
+        : m_spec(spec), m_data(data)
     {}
 
     QVariant data(int column, int role) const override
@@ -167,7 +167,7 @@ public:
     bool setData(int column, const QVariant &data, int role) override
     {
         if (column == LoadedColumn && role == Qt::CheckStateRole)
-            return m_view->setPluginsEnabled({m_spec}, data.toBool());
+            return m_data->setPluginsEnabled({m_spec}, data.toBool());
         return false;
     }
 
@@ -193,19 +193,19 @@ public:
 
 public:
     PluginSpec *m_spec; // Not owned.
-    PluginView *m_view; // Not owned.
+    PluginData *m_data; // Not owned.
 };
 
 class CollectionItem : public TreeItem
 {
 public:
-    CollectionItem(const QString &name, const PluginSpecs &plugins, PluginView *view)
+    CollectionItem(const QString &name, const PluginSpecs &plugins, PluginData *data)
         : m_name(name)
         , m_plugins(plugins)
-        , m_view(view)
+        , m_data(data)
     {
         for (PluginSpec *spec : plugins)
-            appendChild(new PluginItem(spec, view));
+            appendChild(new PluginItem(spec, data));
     }
 
     QVariant data(int column, int role) const override
@@ -241,7 +241,7 @@ public:
         if (column == LoadedColumn && role == Qt::CheckStateRole) {
             const PluginSpecs affectedPlugins
                 = Utils::filtered(m_plugins, [](PluginSpec *spec) { return !spec->isRequired(); });
-            if (m_view->setPluginsEnabled(toSet(affectedPlugins), data.toBool())) {
+            if (m_data->setPluginsEnabled(toSet(affectedPlugins), data.toBool())) {
                 update();
                 return true;
             }
@@ -260,19 +260,31 @@ public:
 public:
     QString m_name;
     const PluginSpecs m_plugins;
-    PluginView *m_view; // Not owned.
+    PluginData *m_data; // Not owned.
 };
 
 } // Internal
 
 using namespace ExtensionSystem::Internal;
 
+PluginData::PluginData(QWidget *parent, PluginView *owner)
+    : m_parent(parent), m_pluginView(owner)
+{
+    m_model = new TreeModel<TreeItem, CollectionItem, PluginItem>(parent);
+    m_model->setHeader({ Tr::tr("Name"), Tr::tr("Load"), Tr::tr("Version"), Tr::tr("Vendor") });
+
+    m_sortModel = new CategorySortFilterModel(parent);
+    m_sortModel->setSourceModel(m_model);
+    m_sortModel->setSortRole(SortRole);
+    m_sortModel->setFilterKeyColumn(-1/*all*/);
+}
+
 /*!
     Constructs a plugin view with \a parent that displays a list of plugins
     from a plugin manager.
 */
 PluginView::PluginView(QWidget *parent)
-    : QWidget(parent)
+    : QWidget(parent), m_data(this, this)
 {
     m_categoryView = new TreeView(this);
     m_categoryView->setAlternatingRowColors(true);
@@ -282,14 +294,7 @@ PluginView::PluginView(QWidget *parent)
     m_categoryView->setSelectionMode(QAbstractItemView::SingleSelection);
     m_categoryView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-    m_model = new TreeModel<TreeItem, CollectionItem, PluginItem>(this);
-    m_model->setHeader({ Tr::tr("Name"), Tr::tr("Load"), Tr::tr("Version"), Tr::tr("Vendor") });
-
-    m_sortModel = new CategorySortFilterModel(this);
-    m_sortModel->setSourceModel(m_model);
-    m_sortModel->setSortRole(SortRole);
-    m_sortModel->setFilterKeyColumn(-1/*all*/);
-    m_categoryView->setModel(m_sortModel);
+    m_categoryView->setModel(m_data.m_sortModel);
 
     auto *gridLayout = new QGridLayout(this);
     gridLayout->setContentsMargins(2, 2, 2, 2);
@@ -329,7 +334,7 @@ PluginSpec *PluginView::currentPlugin() const
 */
 void PluginView::setFilter(const QString &filter)
 {
-    m_sortModel->setFilterRegularExpression(
+    m_data.m_sortModel->setFilterRegularExpression(
         QRegularExpression(QRegularExpression::escape(filter),
                            QRegularExpression::CaseInsensitiveOption));
     m_categoryView->expandAll();
@@ -337,15 +342,15 @@ void PluginView::setFilter(const QString &filter)
 
 PluginSpec *PluginView::pluginForIndex(const QModelIndex &index) const
 {
-    const QModelIndex &sourceIndex = m_sortModel->mapToSource(index);
-    PluginItem *item = m_model->itemForIndexAtLevel<2>(sourceIndex);
+    const QModelIndex &sourceIndex = m_data.m_sortModel->mapToSource(index);
+    PluginItem *item = m_data.m_model->itemForIndexAtLevel<2>(sourceIndex);
     return item ? item->m_spec: nullptr;
 }
 
 void PluginView::updatePlugins()
 {
     // Model.
-    m_model->clear();
+    m_data.m_model->clear();
 
     const QHash<QString, PluginSpecs> pluginCollections
         = PluginManager::pluginCollections();
@@ -353,15 +358,20 @@ void PluginView::updatePlugins()
     const auto end = pluginCollections.cend();
     for (auto it = pluginCollections.cbegin(); it != end; ++it) {
         const QString name = it.key().isEmpty() ? Tr::tr("Utilities") : it.key();
-        collections.push_back(new CollectionItem(name, it.value(), this));
+        collections.push_back(new CollectionItem(name, it.value(), &m_data));
     }
     Utils::sort(collections, &CollectionItem::m_name);
 
     for (CollectionItem *collection : std::as_const(collections))
-        m_model->rootItem()->appendChild(collection);
+        m_data.m_model->rootItem()->appendChild(collection);
 
-    emit m_model->layoutChanged();
+    emit m_data.m_model->layoutChanged();
     m_categoryView->expandAll();
+}
+
+PluginData &PluginView::data()
+{
+    return m_data;
 }
 
 static QString pluginListString(const QSet<PluginSpec *> &plugins)
@@ -371,7 +381,7 @@ static QString pluginListString(const QSet<PluginSpec *> &plugins)
     return names.join(QLatin1Char('\n'));
 }
 
-bool PluginView::setPluginsEnabled(const QSet<PluginSpec *> &plugins, bool enable)
+bool PluginData::setPluginsEnabled(const QSet<PluginSpec *> &plugins, bool enable)
 {
     QSet<PluginSpec *> additionalPlugins;
     if (enable) {
@@ -383,7 +393,7 @@ bool PluginView::setPluginsEnabled(const QSet<PluginSpec *> &plugins, bool enabl
         }
         additionalPlugins.subtract(plugins);
         if (!additionalPlugins.isEmpty()) {
-            if (QMessageBox::question(this, Tr::tr("Enabling Plugins"),
+            if (QMessageBox::question(m_parent, Tr::tr("Enabling Plugins"),
                              Tr::tr("Enabling\n%1\nwill also enable the following plugins:\n\n%2")
                              .arg(pluginListString(plugins), pluginListString(additionalPlugins)),
                              QMessageBox::Ok | QMessageBox::Cancel,
@@ -400,7 +410,7 @@ bool PluginView::setPluginsEnabled(const QSet<PluginSpec *> &plugins, bool enabl
         }
         additionalPlugins.subtract(plugins);
         if (!additionalPlugins.isEmpty()) {
-            if (QMessageBox::question(this, Tr::tr("Disabling Plugins"),
+            if (QMessageBox::question(m_parent, Tr::tr("Disabling Plugins"),
                              Tr::tr("Disabling\n%1\nwill also disable the following plugins:\n\n%2")
                              .arg(pluginListString(plugins), pluginListString(additionalPlugins)),
                              QMessageBox::Ok | QMessageBox::Cancel,
@@ -422,13 +432,16 @@ bool PluginView::setPluginsEnabled(const QSet<PluginSpec *> &plugins, bool enabl
         item->updateColumn(LoadedColumn);
         item->parent()->updateColumn(LoadedColumn);
     }
-    emit pluginsChanged(affectedPlugins, enable);
+
+    if (m_pluginView)
+        emit m_pluginView->pluginsChanged(affectedPlugins, enable);
+
     return true;
 }
 
 void PluginView::cancelChanges()
 {
-    for (auto element : m_affectedPlugins)
+    for (auto element : m_data.m_affectedPlugins)
         element.first->setEnabledBySettings(element.second);
 }
 

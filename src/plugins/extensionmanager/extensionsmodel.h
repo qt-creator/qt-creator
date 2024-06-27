@@ -54,11 +54,12 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
 
     void setExtensionsJson(const QByteArray &json);
-    static ExtensionSystem::PluginSpec *pluginSpecForName(const QString &pluginName);
 
 private:
     class ExtensionsModelPrivate *d = nullptr;
 };
+
+ExtensionSystem::PluginSpec *pluginSpecForName(const QString &pluginName);
 
 #ifdef WITH_TESTS
 QObject *createExtensionsModelTest();

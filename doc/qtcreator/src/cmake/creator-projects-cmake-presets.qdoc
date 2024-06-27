@@ -15,13 +15,14 @@
     \c CMakeUserPresets.json has options for your local builds.
 
     Create the presets files in the format described in
-    \l{https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html}
+    \l{https://cmake.org/cmake/help/v3.24/manual/cmake-presets.7.html}
     {cmake-presets(7)} and store them in the project's root directory.
     You can then see them in the \l {Projects} view.
 
-    \QC supports presets up to version 3 (introduced in CMake 3.21), but does not
-    enforce version checking. It reads and uses all the fields from version 3 if
-    present. It does not support test presets.
+    \QC supports \e configure and \e build presets up to version 5
+    (introduced in CMake 3.24), but does not enforce version checking.
+    It reads and uses all the fields from version 5 if present.
+    It does not support \e test presets.
 
     You can import the presets the first time you \l {Open projects}
     {open a project}, when no \c CMakeLists.txt.user file exists or you have
@@ -44,7 +45,7 @@
     \c NOT_COMMON_VALUE is displayed in \uicontrol {Initial Parameters}
     and \c AN_ENVIRONMENT_FLAG in the environment configuration field.
 
-    \badcode
+    \code
     {
       "version": 1,
       "configurePresets": [
@@ -91,7 +92,7 @@
         \li GNU gdb 11.2.0 for MinGW 11.2.0 64-bit debugger
     \endlist
 
-    \badcode
+    \code
     {
       "version": 1,
       "configurePresets": [
@@ -131,7 +132,7 @@
     generator, add \c Debug and \c Release build steps, and specify the path
     to \c ninja.exe as a value of the \c CMAKE_MAKE_PROGRAM variable:
 
-    \badcode
+    \code
     {
       "version": 2,
       "configurePresets": [
@@ -180,7 +181,7 @@
 
     For example:
 
-    \badcode
+    \code
     "generator": "Ninja Multi-Config",
     "toolset": {
       "value": "v142,host=x64",
@@ -196,7 +197,7 @@
     in the \c PATH, you might also have to specify the compiler to use in
     \c cacheVariables or \c environmentVariables:
 
-    \badcode
+    \code
     "generator": "Ninja Multi-Config",
     "toolset": {
       "value": "v142,host=x64",
@@ -226,7 +227,7 @@
         \li \c wine emulator
     \endlist
 
-    \badcode
+    \code
     {
       "version": 4,
       "configurePresets": [
@@ -262,7 +263,7 @@
     if the \c hostSystemName equals \c Linux, the \c linux presets are used and
     if it equals \c Windows, the \c windows presets are used.
 
-    \badcode
+    \code
     {
       "version": 3,
       "configurePresets": [

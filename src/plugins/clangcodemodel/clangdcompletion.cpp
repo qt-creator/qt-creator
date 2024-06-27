@@ -358,8 +358,14 @@ void ClangdCompletionItem::apply(TextDocumentManipulator &manipulator,
     }
 
     // Avoid inserting characters that are already there
+    // For include file completions, also consider a possibly pre-existing
+    // closing quote or angle bracket.
     QTextCursor cursor = manipulator.textCursorAt(rangeStart);
     cursor.movePosition(QTextCursor::EndOfWord);
+    if (kind == CompletionItemKind::File && !textToBeInserted.isEmpty()
+        && textToBeInserted.right(1) == manipulator.textAt(cursor.position(), 1)) {
+        cursor.setPosition(cursor.position() + 1);
+    }
     const QString textAfterCursor = manipulator.textAt(currentPos, cursor.position() - currentPos);
     if (currentPos < cursor.position()
             && textToBeInserted != textAfterCursor

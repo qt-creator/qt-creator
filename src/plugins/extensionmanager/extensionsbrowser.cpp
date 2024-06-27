@@ -22,10 +22,12 @@
 #include <extensionsystem/pluginview.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <solutions/spinner/spinner.h>
 #include <solutions/tasking/networkquery.h>
 #include <solutions/tasking/tasktree.h>
 #include <solutions/tasking/tasktreerunner.h>
 
+#include <utils/elidinglabel.h>
 #include <utils/fancylineedit.h>
 #include <utils/icon.h>
 #include <utils/layoutbuilder.h>
@@ -51,9 +53,9 @@ namespace ExtensionManager::Internal {
 
 Q_LOGGING_CATEGORY(browserLog, "qtc.extensionmanager.browser", QtWarningMsg)
 
-constexpr int gapSize = ExVPaddingGapXl;
+constexpr int gapSize = HGapL;
 constexpr int itemWidth = 330;
-constexpr int cellWidth = itemWidth + HPaddingL;
+constexpr int cellWidth = itemWidth + gapSize;
 
 class ExtensionItemDelegate : public QItemDelegate
 {
@@ -79,25 +81,25 @@ public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index)
         const override
     {
-        // +---------------+-------+---------------+----------------------------------------------------------------------+---------------+-----------+
-        // |               |       |               |                            (ExPaddingGapL)                           |               |           |
-        // |               |       |               +-------------------------------------------------------------+--------+               |           |
-        // |               |       |               |                          <itemName>                         |<status>|               |           |
-        // |               |       |               +-------------------------------------------------------------+--------+               |           |
-        // |               |       |               |                               (VGapXxs)                              |               |           |
-        // |               |       |               +--------+--------+--------------+--------+--------+---------+---------+               |           |
-        // |(ExPaddingGapL)|<icon> |(ExPaddingGapL)|<vendor>|(HGapXs)|<divider>(h16)|(HGapXs)|<dlIcon>|(HGapXxs)|<dlCount>|(ExPaddingGapL)|(HPaddingL)|
-        // |               |(50x50)|               +--------+--------+--------------+--------+--------+---------+---------+               |           |
-        // |               |       |               |                               (VGapXxs)                              |               |           |
-        // |               |       |               +----------------------------------------------------------------------+               |           |
-        // |               |       |               |                                <tags>                                |               |           |
-        // |               |       |               +----------------------------------------------------------------------+               |           |
-        // |               |       |               |                            (ExPaddingGapL)                           |               |           |
-        // +---------------+-------+---------------+----------------------------------------------------------------------+---------------+-----------+
-        // |                                                             (ExVPaddingGapXl)                                                            |
-        // +------------------------------------------------------------------------------------------------------------------------------------------+
+        // +---------------+-------+---------------+----------------------------------------------------------------------+---------------+---------+
+        // |               |       |               |                            (ExPaddingGapL)                           |               |         |
+        // |               |       |               +-------------------------------------------------------------+--------+               |         |
+        // |               |       |               |                          <itemName>                         |<status>|               |         |
+        // |               |       |               +-------------------------------------------------------------+--------+               |         |
+        // |               |       |               |                               (VGapXxs)                              |               |         |
+        // |               |       |               +--------+--------+--------------+--------+--------+---------+---------+               |         |
+        // |(ExPaddingGapL)|<icon> |(ExPaddingGapL)|<vendor>|(HGapXs)|<divider>(h16)|(HGapXs)|<dlIcon>|(HGapXxs)|<dlCount>|(ExPaddingGapL)|(gapSize)|
+        // |               |(50x50)|               +--------+--------+--------------+--------+--------+---------+---------+               |         |
+        // |               |       |               |                               (VGapXxs)                              |               |         |
+        // |               |       |               +----------------------------------------------------------------------+               |         |
+        // |               |       |               |                                <tags>                                |               |         |
+        // |               |       |               +----------------------------------------------------------------------+               |         |
+        // |               |       |               |                            (ExPaddingGapL)                           |               |         |
+        // +---------------+-------+---------------+----------------------------------------------------------------------+---------------+---------+
+        // |                                                                (gapSize)                                                               |
+        // +----------------------------------------------------------------------------------------------------------------------------------------+
 
-        const QRect bgRGlobal = option.rect.adjusted(0, 0, -HPaddingL, -gapSize);
+        const QRect bgRGlobal = option.rect.adjusted(0, 0, -gapSize, -gapSize);
         const QRect bgR = bgRGlobal.translated(-option.rect.topLeft());
 
         const int middleColumnW = bgR.width() - ExPaddingGapL - iconBgS.width() - ExPaddingGapL
@@ -141,10 +143,7 @@ public:
         }
         {
             QLinearGradient gradient(iconBgR.topRight(), iconBgR.bottomLeft());
-            const QColor startColor = creatorColor(Utils::Theme::Token_Gradient01_Start);
-            const QColor endColor = creatorColor(Utils::Theme::Token_Gradient01_End);
-            gradient.setColorAt(0, startColor);
-            gradient.setColorAt(1, endColor);
+            gradient.setStops(iconGradientStops(index));
             constexpr int iconRectRounding = 4;
             drawCardBackground(painter, iconBgR, gradient, Qt::NoPen, iconRectRounding);
 
@@ -248,17 +247,44 @@ public:
     }
 };
 
+class SortFilterProxyModel : public QSortFilterProxyModel
+{
+public:
+    SortFilterProxyModel(QObject *parent = nullptr);
+
+protected:
+    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
+};
+
+SortFilterProxyModel::SortFilterProxyModel(QObject *parent)
+    : QSortFilterProxyModel(parent)
+{
+}
+
+bool SortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
+{
+    const ItemType leftType = left.data(RoleItemType).value<ItemType>();
+    const ItemType rightType = right.data(RoleItemType).value<ItemType>();
+    if (leftType != rightType)
+        return leftType < rightType;
+
+    const QString leftName = left.data(RoleName).toString();
+    const QString rightName = right.data(RoleName).toString();
+    return leftName < rightName;
+}
+
 class ExtensionsBrowserPrivate
 {
 public:
+    bool dataFetched = false;
     ExtensionsModel *model;
     QLineEdit *searchBox;
-    QAbstractButton *updateButton;
     QListView *extensionsView;
     QItemSelectionModel *selectionModel = nullptr;
-    QSortFilterProxyModel *filterProxyModel;
+    SortFilterProxyModel *filterProxyModel;
     int columnsCount = 2;
     Tasking::TaskTreeRunner taskTreeRunner;
+    SpinnerSolution::Spinner *m_spinner;
 };
 
 ExtensionsBrowser::ExtensionsBrowser(QWidget *parent)
@@ -267,16 +293,17 @@ ExtensionsBrowser::ExtensionsBrowser(QWidget *parent)
 {
     setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
 
-    auto manageLabel = new QLabel(Tr::tr("Manage Extensions"));
-    manageLabel->setFont(uiFont(UiElementH1));
+    static const TextFormat titleTF
+        {Theme::Token_Text_Default, UiElementH2};
+    QLabel *titleLabel = tfLabel(titleTF);
+    titleLabel->setText(Tr::tr("Manage Extensions"));
 
     d->searchBox = new SearchBox;
-    d->searchBox->setFixedWidth(itemWidth);
-    d->updateButton = new Button(Tr::tr("Install..."), Button::MediumPrimary);
+    d->searchBox->setPlaceholderText(Tr::tr("Search"));
 
     d->model = new ExtensionsModel(this);
 
-    d->filterProxyModel = new QSortFilterProxyModel(this);
+    d->filterProxyModel = new SortFilterProxyModel(this);
     d->filterProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     d->filterProxyModel->setFilterRole(RoleSearchText);
     d->filterProxyModel->setSortRole(RoleItemType);
@@ -294,11 +321,16 @@ ExtensionsBrowser::ExtensionsBrowser(QWidget *parent)
 
     using namespace Layouting;
     Column {
-        Space(15),
-        manageLabel,
-        Space(15),
-        Row { d->searchBox, st, d->updateButton, Space(extraListViewWidth() + gapSize) },
-        Space(gapSize),
+        Column {
+            titleLabel,
+            customMargins(0, VPaddingM, 0, VPaddingM),
+        },
+        Row {
+            d->searchBox,
+            spacing(gapSize),
+            customMargins(0, VPaddingM, extraListViewWidth() + gapSize, VPaddingM),
+        },
+        Space(ExPaddingGapL),
         d->extensionsView,
         noMargin, spacing(0),
     }.attachTo(this);
@@ -307,6 +339,8 @@ ExtensionsBrowser::ExtensionsBrowser(QWidget *parent)
     WelcomePageHelpers::setBackgroundColor(d->extensionsView, Theme::Token_Background_Default);
     WelcomePageHelpers::setBackgroundColor(d->extensionsView->viewport(),
                                            Theme::Token_Background_Default);
+
+    d->m_spinner = new SpinnerSolution::Spinner(SpinnerSolution::SpinnerSize::Large, this);
 
     auto updateModel = [this] {
         d->filterProxyModel->sort(0);
@@ -320,12 +354,7 @@ ExtensionsBrowser::ExtensionsBrowser(QWidget *parent)
         }
     };
 
-    connect(d->updateButton, &QAbstractButton::pressed, this, []() {
-        executePluginInstallWizard();
-    });
     connect(PluginManager::instance(), &PluginManager::pluginsChanged, this, updateModel);
-    connect(PluginManager::instance(), &PluginManager::initializationDone,
-            this, &ExtensionsBrowser::fetchExtensions);
     connect(d->searchBox, &QLineEdit::textChanged,
             d->filterProxyModel, &QSortFilterProxyModel::setFilterWildcard);
 }
@@ -335,11 +364,15 @@ ExtensionsBrowser::~ExtensionsBrowser()
     delete d;
 }
 
+void ExtensionsBrowser::setFilter(const QString &filter)
+{
+    d->searchBox->setText(filter);
+}
+
 void ExtensionsBrowser::adjustToWidth(const int width)
 {
     const int widthForItems = width - extraListViewWidth();
     d->columnsCount = qMax(1, qFloor(widthForItems / cellWidth));
-    d->updateButton->setVisible(d->columnsCount > 1);
     updateGeometry();
 }
 
@@ -352,40 +385,56 @@ QSize ExtensionsBrowser::sizeHint() const
 int ExtensionsBrowser::extraListViewWidth() const
 {
     // TODO: Investigate "transient" scrollbar, just for this list view.
+    constexpr int extraPadding = qMax(0, ExVPaddingGapXl - gapSize);
     return d->extensionsView->style()->pixelMetric(QStyle::PM_ScrollBarExtent)
+           + extraPadding
            + 1; // Needed
+}
+
+void ExtensionsBrowser::showEvent(QShowEvent *event)
+{
+    if (!d->dataFetched) {
+        d->dataFetched = true;
+        fetchExtensions();
+    }
+    QWidget::showEvent(event);
 }
 
 void ExtensionsBrowser::fetchExtensions()
 {
-    // d->model->setExtensionsJson(testData("thirdpartyplugins")); return;
+#ifdef WITH_TESTS
+    // Uncomment for testing with local json data.
+    // Available: "augmentedplugindata", "defaultpacks", "varieddata", "thirdpartyplugins"
+    // d->model->setExtensionsJson(testData("defaultpacks")); return;
+#endif // WITH_TESTS
 
     using namespace Tasking;
 
-    const auto onQuerySetup = [](NetworkQuery &query) {
+    const auto onQuerySetup = [this](NetworkQuery &query) {
         const QString host = "https://qc-extensions.qt.io";
         const QString url = "%1/api/v1/search?request=";
         const QString requestTemplate
             = R"({"version":"%1","host_os":"%2","host_os_version":"%3","host_architecture":"%4","page_size":200})";
-        const QString request = url.arg(host)
-                                + requestTemplate
-                                      .arg("2.2")    // .arg(QCoreApplication::applicationVersion())
-                                      .arg("macOS")  // .arg(QSysInfo::productType())
-                                      .arg("12")     // .arg(QSysInfo::productVersion())
-                                      .arg("arm64"); // .arg(QSysInfo::currentCpuArchitecture());
-
+        const QString request = url.arg(host) + requestTemplate
+                                                    .arg(QCoreApplication::applicationVersion())
+                                                    .arg(QSysInfo::productType())
+                                                    .arg(QSysInfo::productVersion())
+                                                    .arg(QSysInfo::currentCpuArchitecture());
         query.setRequest(QNetworkRequest(QUrl::fromUserInput(request)));
         query.setNetworkAccessManager(NetworkAccessManager::instance());
+        qCDebug(browserLog).noquote() << "Sending request:" << request;
+        d->m_spinner->show();
     };
     const auto onQueryDone = [this](const NetworkQuery &query, DoneWith result) {
-        if (result != DoneWith::Success) {
-#ifdef WITH_TESTS
-            d->model->setExtensionsJson(testData("defaultpacks"));
-#endif // WITH_TESTS
-            return;
-        }
         const QByteArray response = query.reply()->readAll();
-        d->model->setExtensionsJson(response);
+        qCDebug(browserLog).noquote() << "Got result" << result;
+        if (result == DoneWith::Success) {
+            d->model->setExtensionsJson(response);
+        } else {
+            qCDebug(browserLog).noquote() << response;
+            d->model->setExtensionsJson({});
+        }
+        d->m_spinner->hide();
     };
 
     Group group {
@@ -393,6 +442,37 @@ void ExtensionsBrowser::fetchExtensions()
     };
 
     d->taskTreeRunner.start(group);
+}
+
+QLabel *tfLabel(const TextFormat &tf, bool singleLine)
+{
+    QLabel *label = singleLine ? new Utils::ElidingLabel : new QLabel;
+    if (singleLine)
+        label->setFixedHeight(tf.lineHeight());
+    label->setFont(tf.font());
+    label->setAlignment(Qt::Alignment(tf.drawTextFlags));
+
+    QPalette pal = label->palette();
+    pal.setColor(QPalette::WindowText, tf.color());
+    label->setPalette(pal);
+
+    return label;
+}
+
+QGradientStops iconGradientStops(const QModelIndex &index)
+{
+    const PluginSpec *ps = pluginSpecForName(index.data(RoleName).toString());
+    const bool greenGradient = ps != nullptr && ps->isEffectivelyEnabled();
+
+    const QColor startColor = creatorColor(greenGradient ? Theme::Token_Gradient01_Start
+                                                         : Theme::Token_Gradient02_Start);
+    const QColor endColor = creatorColor(greenGradient ? Theme::Token_Gradient01_End
+                                                       : Theme::Token_Gradient02_End);
+    const QGradientStops gradient = {
+        {0, startColor},
+        {1, endColor},
+    };
+    return gradient;
 }
 
 } // ExtensionManager::Internal

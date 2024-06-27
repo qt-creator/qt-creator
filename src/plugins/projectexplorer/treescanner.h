@@ -75,7 +75,7 @@ private:
     static void scanForFiles(Promise &fi,
         const Utils::FilePath &directory,
         const FileFilter &filter,
-        const QDir::Filters &dirFilter,
+        QDir::Filters dirFilter,
         const FileTypeFactory &factory);
 
 private:

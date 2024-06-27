@@ -448,8 +448,10 @@ void ElementTasks::openLinkedFile(const qmt::MElement *element)
                     (void) Core::EditorManager::openEditor(filepath);
                 }
             } else {
-                QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("Opening File"),
-                                      Tr::tr("File %1 does not exist.").arg(filepath.toUserOutput()));
+                QMessageBox::critical(
+                    Core::ICore::dialogParent(),
+                    Tr::tr("Opening File"),
+                    Tr::tr("File \"%1\" does not exist.").arg(filepath.toUserOutput()));
             }
         }
     }

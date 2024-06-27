@@ -330,7 +330,8 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
 
     if (auto project = ProjectTree::currentProject()) {
         buffer.replace("${CMAKE_SOURCE_DIR}", project->projectDirectory().path());
-        if (auto bs = ProjectTree::currentBuildSystem(); bs && bs->buildConfiguration()) {
+        auto bs = ProjectTree::currentBuildSystem();
+        if (bs && bs->buildConfiguration()) {
             buffer.replace("${CMAKE_BINARY_DIR}", bs->buildConfiguration()->buildDirectory().path());
 
             // Get the path suffix from current source dir to project source dir and apply it

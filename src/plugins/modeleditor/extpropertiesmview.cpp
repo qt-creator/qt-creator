@@ -257,8 +257,10 @@ void ExtPropertiesMView::onImagePathChanged(const QString &path)
                 assignModelElement<qmt::DObject, QImage>(m_diagramElements, SelectionSingle, image,
                                                          &qmt::DObject::image, &qmt::DObject::setImage);
             } else {
-                QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("Selecting Image"),
-                                      Tr::tr("Unable to read image file %1").arg(path));
+                QMessageBox::critical(
+                    Core::ICore::dialogParent(),
+                    Tr::tr("Selecting Image"),
+                    Tr::tr("Unable to read image file \"%1\".").arg(path));
             }
         }
     }

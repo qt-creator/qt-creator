@@ -175,7 +175,7 @@ public:
     std::optional<sol::protected_function> m_startFailedCallback;
     QMap<QString, sol::protected_function> m_messageCallbacks;
 
-    QList<Client *> m_clients;
+    LuaClientSettings *m_settings{nullptr};
 
 public:
     static BaseSettings::StartBehavior startBehaviorFromString(const QString &str)
@@ -189,6 +189,8 @@ public:
 
         throw sol::error("Unknown start behavior: " + str.toStdString());
     }
+
+    void setSettings(LuaClientSettings *settings) { m_settings = settings; }
 
     LuaClientWrapper(const sol::table &options)
     {
@@ -267,8 +269,6 @@ public:
                 auto luaClient = qobject_cast<LuaClient *>(c);
                 if (luaClient && luaClient->m_settingsId == m_settingsTypeId && m_onInstanceStart) {
                     QTC_CHECK(::Lua::LuaEngine::void_safe_call(*m_onInstanceStart, c));
-
-                    m_clients.push_back(c);
                     updateMessageCallbacks();
                 }
             });
@@ -286,20 +286,9 @@ public:
         if (!luaClient || luaClient->m_settingsId != m_settingsTypeId)
             return;
 
-        if (m_clients.contains(c))
-            m_clients.removeOne(c);
-
         if (unexpected && m_startFailedCallback) {
             QTC_CHECK_EXPECTED(::Lua::LuaEngine::void_safe_call(*m_startFailedCallback));
         }
-    }
-
-    ~LuaClientWrapper()
-    {
-        for (auto client : m_clients)
-            LanguageClientManager::shutdownClient(client);
-
-        // TODO: Unregister Client settings from LanguageClientManager
     }
 
     TransportType transportType() { return m_transportType; }
@@ -340,7 +329,9 @@ public:
 
     void updateMessageCallbacks()
     {
-        for (Client *c : m_clients) {
+        for (Client *c : LanguageClientManager::clientsForSetting(m_settings)) {
+            if (!c)
+                continue;
             for (const auto &[msg, func] : m_messageCallbacks.asKeyValueRange()) {
                 c->registerCustomMethod(
                     msg,
@@ -367,8 +358,10 @@ public:
         if (!messageValue.isObject())
             throw sol::error("Message is not an object");
         const LanguageServerProtocol::JsonRpcMessage jsonrpcmessage(messageValue.toObject());
-        for (Client *c : m_clients)
-            c->sendMessage(jsonrpcmessage);
+        for (Client *c : LanguageClientManager::clientsForSetting(m_settings)) {
+            if (c)
+                c->sendMessage(jsonrpcmessage);
+        }
     }
 
     void updateOptions()
@@ -536,6 +529,7 @@ static void registerLuaApi()
             [](const sol::table &options) -> std::shared_ptr<LuaClientWrapper> {
                 auto luaClient = std::make_shared<LuaClientWrapper>(options);
                 auto client = new LuaClientSettings(luaClient);
+                luaClient->setSettings(client);
 
                 // The order is important!
                 // First restore the settings ...

@@ -57,7 +57,7 @@ BuildPropertiesSettings::BuildPropertiesSettings()
     buildDirectoryTemplate.setToolTip(
         Tr::tr("Template used to construct the default build directory.<br><br>"
                "The default value can be set using the environment variable "
-               "<tt>%1</tt>")
+               "<tt>%1</tt>.")
             .arg(Constants::QTC_DEFAULT_BUILD_DIRECTORY_TEMPLATE));
     buildDirectoryTemplate.setUseResetButton();
 

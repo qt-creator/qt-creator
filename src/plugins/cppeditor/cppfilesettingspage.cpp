@@ -47,7 +47,7 @@ class HeaderGuardExpander : public MacroExpander
 public:
     HeaderGuardExpander(const FilePath &filePath) : m_filePath(filePath)
     {
-        setDisplayName(Tr::tr("Header file variables"));
+        setDisplayName(Tr::tr("Header File Variables"));
         registerFileVariables("Header", Tr::tr("Header file"), [this] {
             return m_filePath;
         });

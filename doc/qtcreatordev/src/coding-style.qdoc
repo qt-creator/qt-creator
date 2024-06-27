@@ -637,8 +637,8 @@
         \li Use Utils::FilePath for any QString that semantically is a file or directory,
             see also \l{Passing File Names}.
         \li Prefer using Utils::FilePath over any use of QDir and QFileInfo.
-        \li Prefer using Utils::QtcProcess over QProcess.
-        \li If Utils::FilePath or Utils::QtcProcess functionality is not sufficient
+        \li Prefer using Utils::Process over QProcess.
+        \li If Utils::FilePath or Utils::Process functionality is not sufficient
             for your purpose, prefer enhancing them over falling back to QString
             or QProcess.
         \li Avoid platform #ifdefs unless they are absolutely needed for locally

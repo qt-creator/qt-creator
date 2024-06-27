@@ -108,19 +108,19 @@ bool LuaPluginSpec::initializePlugin()
         = LuaEngine::instance().prepareSetup(*activeLuaState, *this);
 
     if (!setupResult) {
-        setError(Lua::Tr::tr("Failed to prepare plugin setup: %1").arg(setupResult.error()));
+        setError(Lua::Tr::tr("Cannot prepare extension setup: %1").arg(setupResult.error()));
         return false;
     }
 
     auto result = setupResult->call();
 
     if (result.get_type() == sol::type::boolean && result.get<bool>() == false) {
-        setError(Lua::Tr::tr("Plugin setup function returned false"));
+        setError(Lua::Tr::tr("Extension setup function returned false."));
         return false;
     } else if (result.get_type() == sol::type::string) {
         std::string error = result.get<sol::error>().what();
         if (!error.empty()) {
-            setError(Lua::Tr::tr("Plugin setup function returned error: %1")
+            setError(Lua::Tr::tr("Extension setup function returned error: %1")
                          .arg(QString::fromStdString(error)));
             return false;
         }

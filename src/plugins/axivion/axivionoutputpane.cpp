@@ -879,17 +879,17 @@ public:
         dashboardUrl.setQuery(search.toUrlQuery(QueryMode::FilterQuery));
 
         QMenu *menu = new QMenu;
-        auto action = new QAction(Tr::tr("Open issue in Dashboard"), menu);
+        auto action = new QAction(Tr::tr("Open Issue in Dashboard"), menu);
         menu->addAction(action);
         QObject::connect(action, &QAction::triggered, menu, [issueBaseUrl] {
             QDesktopServices::openUrl(issueBaseUrl);
         });
-        action = new QAction(Tr::tr("Open table in Dashboard"), menu);
+        action = new QAction(Tr::tr("Open Table in Dashboard"), menu);
         QObject::connect(action, &QAction::triggered, menu, [dashboardUrl] {
             QDesktopServices::openUrl(dashboardUrl);
         });
         menu->addAction(action);
-        action = new QAction(Tr::tr("Copy Dashboard link to clipboard"), menu);
+        action = new QAction(Tr::tr("Copy Dashboard Link to Clipboard"), menu);
         QObject::connect(action, &QAction::triggered, menu, [dashboardUrl] {
             if (auto clipboard = QGuiApplication::clipboard())
                 clipboard->setText(dashboardUrl.toString());

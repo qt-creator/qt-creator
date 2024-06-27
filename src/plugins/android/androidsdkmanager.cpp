@@ -313,7 +313,7 @@ static GroupItem updateRecipe(const Storage<DialogStorage> &dialogStorage)
         const QStringList args = {"--update", sdkRootArg()};
         QuestionProgressDialog *dialog = dialogStorage->m_dialog.get();
         setupSdkProcess(args, &process, dialog, 0, 1);
-        dialog->appendMessage(Tr::tr("Updating installed packages....") + '\n', NormalMessageFormat);
+        dialog->appendMessage(Tr::tr("Updating installed packages...") + '\n', NormalMessageFormat);
         dialog->setProgress(0);
     };
     const auto onDone = [dialogStorage](DoneWith result) {

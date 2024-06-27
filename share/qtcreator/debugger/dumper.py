@@ -1295,8 +1295,6 @@ class DumperBase():
         innerType = arrayType.target()
         #self.warn("ARRAY TYPE: %s" % arrayType)
         #self.warn("INNER TYPE: %s" % innerType)
-        if innerType is None:
-            innerType = value.type.target()
 
         address = value.address()
         if address:

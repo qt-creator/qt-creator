@@ -19,10 +19,10 @@ instructions:
         variableValue: 11.0
       - type: EnvironmentVariable
         variableName: SDKTOOL_MACOSX_DEPLOYMENT_TARGET
-        variableValue: 10.14
+        variableValue: 11.0
       - type: EnvironmentVariable
         variableName: QTC_SDKTOOL_QT_BASE_URL
-        variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/archive/qt/5.15/5.15.2-final-released/latest/src/submodules/qtbase-everywhere-src-5.15.2"
+        variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/archive/qt/6.6/6.6.0-released/Qt/src/submodules/qtbase-everywhere-src-6.6.0"
       - type: Group
         instructions:
           - type: EnvironmentVariable

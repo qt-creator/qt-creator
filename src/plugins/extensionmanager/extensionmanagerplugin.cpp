@@ -50,7 +50,7 @@ public:
         using namespace Layouting;
         auto widget = Column {
             new StyledBar,
-            new ExtensionManagerWidget,
+            createExtensionManagerWidget(),
             noMargin, spacing(0),
         }.emerge();
 

@@ -30,7 +30,9 @@
 #include <coreplugin/messagebox.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/taskhub.h>
 
 #include <utils/algorithm.h>
@@ -2074,8 +2076,10 @@ QString GdbEngine::breakpointLocation(const BreakpointParameters &data)
         return addressSpec(data.address);
 
     BreakpointPathUsage usage = data.pathUsage;
-    if (usage == BreakpointPathUsageEngineDefault)
-        usage = BreakpointUseShortPath;
+    if (usage == BreakpointPathUsageEngineDefault) {
+        ProjectExplorer::Project *project = ProjectManager::projectForFile(data.fileName);
+        usage = project ? BreakpointUseFullPath : BreakpointUseShortPath;
+    }
 
     const QString fileName = usage == BreakpointUseFullPath
         ? data.fileName.path() : breakLocation(data.fileName);
@@ -2088,8 +2092,10 @@ QString GdbEngine::breakpointLocation(const BreakpointParameters &data)
 QString GdbEngine::breakpointLocation2(const BreakpointParameters &data)
 {
     BreakpointPathUsage usage = data.pathUsage;
-    if (usage == BreakpointPathUsageEngineDefault)
-        usage = BreakpointUseShortPath;
+    if (usage == BreakpointPathUsageEngineDefault) {
+        ProjectExplorer::Project *project = ProjectManager::projectForFile(data.fileName);
+        usage = project ? BreakpointUseFullPath : BreakpointUseShortPath;
+    }
 
     const QString fileName = usage == BreakpointUseFullPath
         ? data.fileName.path() : breakLocation(data.fileName);

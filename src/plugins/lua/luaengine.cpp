@@ -136,7 +136,7 @@ std::unique_ptr<Utils::LuaState> LuaEngine::runScript(
         sol::error err = result;
         qWarning() << "Failed to run script" << name << ":" << QString::fromUtf8(err.what());
         Core::MessageManager::writeFlashing(
-            tr("Failed to run script %1: %2").arg(name, QString::fromUtf8(err.what())));
+            Tr::tr("Failed to run script %1: %2").arg(name, QString::fromUtf8(err.what())));
     }
 
     return opaque;
@@ -168,7 +168,7 @@ expected_str<void> LuaEngine::connectHooks(
             QString hookName = QStringList{path, k.as<QString>()}.join(".");
             auto it = d->m_hooks.find(hookName);
             if (it == d->m_hooks.end())
-                return make_unexpected(QString("No hook named '%1' found").arg(hookName));
+                return make_unexpected(Tr::tr("No hook with the name \"%1\" found.").arg(hookName));
             else
                 it.value()(v.as<sol::function>());
         }
@@ -269,7 +269,7 @@ expected_str<sol::protected_function> LuaEngine::prepareSetup(
 
     auto pluginTable = result.get<sol::optional<sol::table>>();
     if (!pluginTable)
-        return make_unexpected(Tr::tr("Script did not return a table"));
+        return make_unexpected(Tr::tr("Script did not return a table."));
 
     auto hookTable = pluginTable->get<sol::optional<sol::table>>("hooks");
 
@@ -282,7 +282,7 @@ expected_str<sol::protected_function> LuaEngine::prepareSetup(
     auto setupFunction = pluginTable->get_or<sol::function>("setup", {});
 
     if (!setupFunction)
-        return make_unexpected(Tr::tr("Plugin info table did not contain a setup function"));
+        return make_unexpected(Tr::tr("Extension info table did not contain a setup function."));
 
     return setupFunction;
 }

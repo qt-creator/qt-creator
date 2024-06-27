@@ -974,8 +974,12 @@ expected_str<void> createAvd(const CreateAvdInfo &info, bool force)
 
     GuardLocker locker(s_instance->m_avdPathGuard);
     process.runBlocking();
-    if (process.result() != ProcessResult::FinishedWithSuccess)
-        return Utils::make_unexpected(process.exitMessage());
+    if (process.result() != ProcessResult::FinishedWithSuccess) {
+        const QString stdErr = process.stdErr();
+        const QString errorMessage = stdErr.isEmpty() ? process.exitMessage()
+                                                      : process.exitMessage() + "\n\n" + stdErr;
+        return Utils::make_unexpected(errorMessage);
+    }
     return {};
 }
 

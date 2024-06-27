@@ -211,7 +211,7 @@ QIcon Icon::sideBarIcon(const Icon &classic, const Icon &flat)
 }
 
 QIcon Icon::modeIcon(const Icon &classic, const Icon &flat,
-                     [[__maybe_unused__]] const Icon &flatActive)
+                     [[maybe_unused]] const Icon &flatActive)
 {
     QIcon result = sideBarIcon(classic, flat);
     return result;

@@ -187,9 +187,16 @@ void CMakeTargetNode::setConfig(const CMakeConfig &config)
     m_config = config;
 }
 
+void CMakeTargetNode::setVisibleAfterAddFileAction(bool visibleAfterAddFileAction)
+{
+    m_visibleAfterAddFileAction = visibleAfterAddFileAction;
+}
+
 std::optional<FilePath> CMakeTargetNode::visibleAfterAddFileAction() const
 {
-    return filePath().pathAppended(Constants::CMAKE_LISTS_TXT);
+    if (m_visibleAfterAddFileAction)
+        return filePath().pathAppended(Constants::CMAKE_LISTS_TXT);
+    return std::nullopt;
 }
 
 void CMakeTargetNode::build()

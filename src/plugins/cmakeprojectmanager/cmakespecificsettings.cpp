@@ -142,8 +142,9 @@ void CMakeSpecificSettings::readSettings()
     } else {
         Store data = storeFromVariant(project->namedSettings(Constants::Settings::GENERAL_ID));
         if (data.isEmpty()) {
-            CMakeProject *cmakeProject = static_cast<CMakeProject *>(project);
-            if (cmakeProject->presetsData().havePresets && cmakeProject->presetsData().vendor) {
+            CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(project);
+            if (cmakeProject && cmakeProject->presetsData().havePresets
+                && cmakeProject->presetsData().vendor) {
                 useGlobalSettings = false;
                 data = storeFromMap(cmakeProject->presetsData().vendor.value());
                 fromMap(data);

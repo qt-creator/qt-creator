@@ -67,12 +67,12 @@ DeployMcuProcessStep::DeployMcuProcessStep(ProjectExplorer::BuildStepList *bc, I
     , m_tmpDir()
 {
     if (!buildSystem()) {
-        showError(QmlProjectManager::Tr::tr("Failed to find valid build system"));
+        showError(QmlProjectManager::Tr::tr("Cannot find a valid build system."));
         return;
     }
 
     if (!m_tmpDir.isValid()) {
-        showError(QmlProjectManager::Tr::tr("Failed to create valid build directory"));
+        showError(QmlProjectManager::Tr::tr("Cannot create a valid build directory."));
         return;
     }
 
@@ -193,7 +193,7 @@ void MCUBuildStepFactory::updateDeployStep(ProjectExplorer::Target *target, bool
             stepList->appendStep(DeployMcuProcessStep::id);
         } else {
             DeployMcuProcessStep::showError(
-                QmlProjectManager::Tr::tr("Failed to find valid Qt for MCUs kit"));
+                QmlProjectManager::Tr::tr("Cannot find a valid Qt for MCUs kit."));
         }
     } else {
         if (!step)

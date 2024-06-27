@@ -115,14 +115,6 @@ LldbDapEngine::LldbDapEngine()
     setDebuggerType("DAP");
 }
 
-QJsonArray LldbDapEngine::environment() const
-{
-    QJsonArray envArray;
-    for (const QString &value : runParameters().inferior.environment.toDictionary().toStringList())
-        envArray.append(value);
-    return envArray;
-}
-
 QJsonArray LldbDapEngine::sourceMap() const
 {
     QJsonArray sourcePathMapping;
@@ -160,11 +152,12 @@ void LldbDapEngine::handleDapInitialize()
     const QJsonArray commands = preRunCommands();
 
     if (!isLocalAttachEngine()) {
-        const QJsonArray env = environment();
+        const QJsonArray env = QJsonArray::fromStringList(rp.inferior.environment.toStringList());
+        const QJsonArray args = QJsonArray::fromStringList(rp.inferior.command.splitArguments());
+
         QJsonObject launchJson{
             {"noDebug", false},
             {"program", rp.inferior.command.executable().path()},
-            {"args", rp.inferior.command.arguments()},
             {"cwd", rp.inferior.workingDirectory.path()},
             {"env", env},
             {"__restart", ""},
@@ -173,6 +166,8 @@ void LldbDapEngine::handleDapInitialize()
             launchJson.insert("sourceMap", map);
         if (!commands.isEmpty())
             launchJson.insert("preRunCommands", commands);
+        if (!args.isEmpty())
+            launchJson.insert("args", args);
 
         m_dapClient->postRequest("launch", launchJson);
 

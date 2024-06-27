@@ -55,12 +55,12 @@ static std::optional<QDomElement> documentElement(const FilePath &fileName)
 {
     QFile file(fileName.toString());
     if (!file.open(QIODevice::ReadOnly)) {
-        MessageManager::writeDisrupting(Tr::tr("Cannot open: %1").arg(fileName.toUserOutput()));
+        MessageManager::writeDisrupting(Tr::tr("Cannot open \"%1\".").arg(fileName.toUserOutput()));
         return {};
     }
     QDomDocument doc;
     if (!doc.setContent(file.readAll())) {
-        MessageManager::writeDisrupting(Tr::tr("Cannot parse: %1").arg(fileName.toUserOutput()));
+        MessageManager::writeDisrupting(Tr::tr("Cannot parse \"%1\".").arg(fileName.toUserOutput()));
         return {};
     }
     return doc.documentElement();

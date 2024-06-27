@@ -120,11 +120,14 @@
             tooltips
         \li Selecting any of the above elements and pressing \key F1 to show
             its documentation
-        \li Switching to the Help mode
+        \li Switching to the \uicontrol Help mode
     \endlist
 
-    \sa {Build with CMake}{How To: Build with CMake}, {CMake},
-    {Read Documentation}{How To: Read Documentation}
+    To view the documentation online, open it in the \uicontrol Help mode and
+    select \inlineimage icons/online.png (\uicontrol {Open Online Documentation}).
+
+    \sa {Build with CMake}{How To: Build with CMake},
+    {Read Documentation}{How To: Read Documentation}, {CMake}
 */
 
 /*!

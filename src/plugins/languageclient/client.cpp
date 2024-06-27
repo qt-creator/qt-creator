@@ -1789,6 +1789,11 @@ const DynamicCapabilities &Client::dynamicCapabilities() const
     return d->m_dynamicCapabilities;
 }
 
+DynamicCapabilities &Client::dynamicCapabilities()
+{
+    return d->m_dynamicCapabilities;
+}
+
 DocumentSymbolCache *Client::documentSymbolCache()
 {
     return &d->m_documentSymbolCache;

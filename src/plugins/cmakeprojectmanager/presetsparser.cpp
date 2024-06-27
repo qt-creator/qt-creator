@@ -518,7 +518,7 @@ bool PresetsParser::parse(const Utils::FilePath &jsonFile, QString &errorMessage
                                m_presetsData.configurePresets,
                                jsonFile.parentDir())) {
         errorMessage = ::CMakeProjectManager::Tr::tr(
-                           "Invalid \"configurePresets\" section in %1 file")
+                           "Invalid \"configurePresets\" section in file \"%1\".")
                            .arg(jsonFile.fileName());
         return false;
     }
@@ -527,14 +527,15 @@ bool PresetsParser::parse(const Utils::FilePath &jsonFile, QString &errorMessage
     if (!parseBuildPresets(root.value("buildPresets"),
                            m_presetsData.buildPresets,
                            jsonFile.parentDir())) {
-        errorMessage = ::CMakeProjectManager::Tr::tr("Invalid \"buildPresets\" section in %1 file")
+        errorMessage = ::CMakeProjectManager::Tr::tr(
+                           "Invalid \"buildPresets\" section in file \"%1\".")
                            .arg(jsonFile.fileName());
         return false;
     }
 
     // optional
     if (!parseVendor(root.value("vendor"), m_presetsData.vendor)) {
-        errorMessage = ::CMakeProjectManager::Tr::tr("Invalid \"vendor\" section in %1 file")
+        errorMessage = ::CMakeProjectManager::Tr::tr("Invalid \"vendor\" section in file \"%1\".")
                            .arg(jsonFile.fileName());
     }
 

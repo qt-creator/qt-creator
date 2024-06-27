@@ -47,3 +47,24 @@ static void parenTest()
 
 const char* s7 = R"(
 ))";
+
+// comment
+{
+
+}
+
+/*
+ *
+ */
+{
+
+}
+
+static void parenTest2()
+{
+
+    parenTest();
+    {
+
+    }
+}

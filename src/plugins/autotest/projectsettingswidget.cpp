@@ -69,7 +69,7 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
     m_pathFilters = new QTreeWidget;
     m_pathFilters->setHeaderHidden(true);
     m_pathFilters->setRootIsDecorated(false);
-    QLabel *filterLabel = new QLabel(Tr::tr("Wildcard expressions for filtering"), this);
+    QLabel *filterLabel = new QLabel(Tr::tr("Wildcard expressions for filtering:"), this);
     QPushButton *addFilter = new QPushButton(Tr::tr("Add"), this);
     QPushButton *removeFilter = new QPushButton(Tr::tr("Remove"), this);
     removeFilter->setEnabled(false);
