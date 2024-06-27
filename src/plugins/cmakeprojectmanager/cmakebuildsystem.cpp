@@ -2323,6 +2323,18 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
         }
     }
 
+    // Handle MSVC C/C++ compiler update, by udating also the linker, otherwise projects
+    // will fail to compile by using a linker that doesn't exist
+    const FilePath cxxCompiler = config.filePathValueOf("CMAKE_CXX_COMPILER");
+    if (!cxxCompiler.isEmpty() && cxxCompiler.fileName() == "cl.exe") {
+        const FilePath linker = cm.filePathValueOf("CMAKE_LINKER");
+        if (!linker.exists())
+            config << CMakeConfigItem(
+                "CMAKE_LINKER",
+                CMakeConfigItem::FILEPATH,
+                cxxCompiler.parentDir().pathAppended(linker.fileName()).path().toUtf8());
+    }
+
     if (!config.isEmpty())
         emit configurationChanged(config);
 }
