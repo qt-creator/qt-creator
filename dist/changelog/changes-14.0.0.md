@@ -291,7 +291,8 @@ Platforms
 
 ### Remote Linux
 
-* Added the option to use SSH port forwarding for debugging
+* Added the `Use SSH port forwarding for debugging` option in `Preferences` >
+  `Devices` for a `Remote Linux Device`
 * Improved the performance of the generic deployment method
 * Fixed that the file size check that is performed before parsing C++ files
   could freeze Qt Creator until finished for remote projects

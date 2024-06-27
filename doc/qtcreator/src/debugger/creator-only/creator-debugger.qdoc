@@ -589,8 +589,24 @@
     in GDB, see \l{https://sourceware.org/gdb/onlinedocs/gdb/Connecting.html}
     {Debugging with GDB: Connecting to a Remote Target}.
 
-    \sa {Debug}{How To: Debug}, {GDB}, {Debugging},
-    {Debuggers}, {Debugger}, {Kits}
+    \section1 Use SSH port forwarding
+
+    To enable debugging on remote targets that cannot expose GDB server ports,
+    map the remote ports to local ports using SSH tunneling. \QC automatically
+    detects the local and remote ports.
+
+    To turn on SSH port forwarding:
+
+    \list 1
+        \li Go to \preferences > \uicontrol Devices.
+            \image qtcreator-preferences-devices-remote-linux.webp {Remote Linux device preferences}
+        \li In \uicontrol Device, select \uicontrol {Remote Linux Device}.
+        \li Select \uicontrol {Use SSH port forwarding for debugging}.
+        \li Select \uicontrol OK.
+    \endlist
+
+    \sa {Debug}{How To: Debug}, {Remote Linux}{How To: Develop for remote Linux},
+    {GDB}, {Debugging}, {Debuggers}, {Debugger}, {Kits}
 */
 
 /*!
