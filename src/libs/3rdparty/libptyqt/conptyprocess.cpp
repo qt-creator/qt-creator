@@ -1132,10 +1132,6 @@ qint64 ConPtyProcess::write(const QByteArray &byteArray)
 
 bool ConPtyProcess::isAvailable()
 {
-#ifdef TOO_OLD_WINSDK
-    return false; //very importnant! ConPty can be built, but it doesn't work if built with old sdk and Win10 < 1903
-#endif
-
     qint32 buildNumber = QSysInfo::kernelVersion().split(".").last().toInt();
     if (buildNumber < CONPTY_MINIMAL_WINDOWS_VERSION)
         return false;
