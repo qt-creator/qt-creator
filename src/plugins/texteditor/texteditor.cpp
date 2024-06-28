@@ -7406,6 +7406,21 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
     const TabSettings tabSettings = m_document->tabSettings();
     const TypingSettings &typingSettings = m_document->typingSettings();
 
+    auto behavior = typingSettings.m_smartBackspaceBehavior;
+    if (cursor.hasMultipleCursors()) {
+        if (behavior == TypingSettings::BackspaceFollowsPreviousIndents) {
+            behavior = TypingSettings::BackspaceNeverIndents;
+        } else if (behavior == TypingSettings::BackspaceUnindents) {
+            for (QTextCursor &c : cursor) {
+                if (c.positionInBlock() == 0
+                    || c.positionInBlock() > TabSettings::firstNonSpace(c.block().text())) {
+                    behavior = TypingSettings::BackspaceNeverIndents;
+                    break;
+                }
+            }
+        }
+    }
+
     for (QTextCursor &c : cursor) {
         const int pos = c.position();
         if (!pos)
@@ -7425,12 +7440,12 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
         }
 
         bool handled = false;
-        if (typingSettings.m_smartBackspaceBehavior == TypingSettings::BackspaceNeverIndents) {
+        if (behavior == TypingSettings::BackspaceNeverIndents) {
             if (cursorWithinSnippet)
                 c.beginEditBlock();
             c.deletePreviousChar();
             handled = true;
-        } else if (typingSettings.m_smartBackspaceBehavior
+        } else if (behavior
                    == TypingSettings::BackspaceFollowsPreviousIndents) {
             QTextBlock currentBlock = c.block();
             int positionInBlock = pos - currentBlock.position();
@@ -7465,7 +7480,7 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
                     }
                 }
             }
-        } else if (typingSettings.m_smartBackspaceBehavior == TypingSettings::BackspaceUnindents) {
+        } else if (behavior == TypingSettings::BackspaceUnindents) {
             if (c.positionInBlock() == 0
                 || c.positionInBlock() > TabSettings::firstNonSpace(c.block().text())) {
                 if (cursorWithinSnippet)
