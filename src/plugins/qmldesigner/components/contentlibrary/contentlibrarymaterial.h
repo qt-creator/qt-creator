@@ -19,7 +19,7 @@ class ContentLibraryMaterial : public QObject
     Q_PROPERTY(bool bundleMaterialVisible MEMBER m_visible NOTIFY materialVisibleChanged)
     Q_PROPERTY(bool bundleItemImported READ imported WRITE setImported NOTIFY materialImportedChanged)
     Q_PROPERTY(QStringList bundleMaterialFiles READ allFiles CONSTANT)
-    Q_PROPERTY(QString itemType MEMBER m_itemType CONSTANT)
+    Q_PROPERTY(QString bundleId READ bundleId CONSTANT)
 
 public:
     ContentLibraryMaterial(QObject *parent,
@@ -27,7 +27,8 @@ public:
                            const QString &qml,
                            const TypeName &type,
                            const QUrl &icon,
-                           const QStringList &files);
+                           const QStringList &files,
+                           const QString &bundleId);
 
     bool filter(const QString &searchText);
 
@@ -41,6 +42,8 @@ public:
     bool setImported(bool imported);
     bool imported() const;
     QStringList allFiles() const;
+
+    QString bundleId() const;
 
 signals:
     void materialVisibleChanged();
@@ -57,7 +60,7 @@ private:
     bool m_imported = false;
 
     QStringList m_allFiles;
-    const QString m_itemType = "material";
+    const QString m_bundleId;
 };
 
 } // namespace QmlDesigner

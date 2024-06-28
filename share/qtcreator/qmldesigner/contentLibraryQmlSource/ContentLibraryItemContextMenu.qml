@@ -25,7 +25,9 @@ StudioControls.Menu {
     {
         root.targetItem = item
 
-        let isMaterial = item && root.targetItem.bundleId === "UserMaterials"
+        let isMaterial = item && (root.targetItem.bundleId === "UserMaterials"
+                                  || root.targetItem.bundleId === "MaterialBundle"
+                                  || root.targetItem.bundleId === "Materials")
         applyToSelectedReplace.visible = isMaterial
         applyToSelectedAdd.visible = isMaterial
 

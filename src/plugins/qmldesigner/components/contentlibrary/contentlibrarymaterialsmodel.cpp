@@ -266,7 +266,8 @@ void ContentLibraryMaterialsModel::loadMaterialBundle()
             QString qml = matObj.value("qml").toString();
             TypeName type = QLatin1String("%1.%2").arg(bundleType, qml.chopped(4)).toLatin1(); // chopped(4): remove .qml
 
-            auto bundleMat = new ContentLibraryMaterial(category, matName, qml, type, icon, files);
+            auto bundleMat = new ContentLibraryMaterial(category, matName, qml, type, icon, files,
+                                                        m_bundleId);
 
             category->addBundleMaterial(bundleMat);
         }
