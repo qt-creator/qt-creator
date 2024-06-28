@@ -41,7 +41,6 @@ add_qtc_plugin(TextEditor
     codeassist/iassistprovider.cpp codeassist/iassistprovider.h
     codeassist/ifunctionhintproposalmodel.cpp codeassist/ifunctionhintproposalmodel.h
     codeassist/keywordscompletionassist.cpp codeassist/keywordscompletionassist.h
-    codeassist/textdocumentmanipulator.cpp codeassist/textdocumentmanipulator.h
     codecchooser.cpp codecchooser.h
     codestyleeditor.cpp codestyleeditor.h
     codestylepool.cpp codestylepool.h

@@ -15,7 +15,6 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
-#include <texteditor/codeassist/textdocumentmanipulator.h>
 #include <texteditor/refactoringchanges.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -100,19 +99,17 @@ bool applyTextEdits(const Client *client,
     return file->apply(editsToChangeSet(edits, file->document()));
 }
 
-void applyTextEdit(TextDocumentManipulator &manipulator,
-                   const TextEdit &edit,
-                   bool newTextIsSnippet)
+void applyTextEdit(TextEditorWidget *editorWidget, const TextEdit &edit, bool newTextIsSnippet)
 {
     const Range range = edit.range();
-    const QTextDocument *doc = manipulator.document();
+    const QTextDocument *doc = editorWidget->document();
     const int start = Text::positionInText(doc, range.start().line() + 1, range.start().character() + 1);
     const int end = Text::positionInText(doc, range.end().line() + 1, range.end().character() + 1);
     if (newTextIsSnippet) {
-        manipulator.replace(start, end - start, {});
-        manipulator.insertCodeSnippet(start, edit.newText(), &parseSnippet);
+        editorWidget->replace(start, end - start, {});
+        editorWidget->insertCodeSnippet(start, edit.newText(), &parseSnippet);
     } else {
-        manipulator.replace(start, end - start, edit.newText());
+        editorWidget->replace(start, end - start, edit.newText());
     }
 }
 

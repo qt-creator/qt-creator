@@ -20,7 +20,7 @@ public:
     QString text() const override;
     bool implicitlyApplies() const override;
     bool prematurelyApplies(const QChar &c) const override;
-    void apply(TextDocumentManipulator &manipulator, int basePosition) const override;
+    void apply(TextEditorWidget *editorWidget, int basePosition) const override;
 
     void setIcon(const QIcon &icon);
     QIcon icon() const final;
@@ -37,9 +37,9 @@ public:
     bool isValid() const final;
     quint64 hash() const override;
 
-    virtual void applyContextualContent(TextDocumentManipulator &manipulator, int basePosition) const;
-    virtual void applySnippet(TextDocumentManipulator &manipulator, int basePosition) const;
-    virtual void applyQuickFix(TextDocumentManipulator &manipulator, int basePosition) const;
+    virtual void applyContextualContent(TextEditorWidget *editorWidget, int basePosition) const;
+    virtual void applySnippet(TextEditorWidget *editorWidget, int basePosition) const;
+    virtual void applyQuickFix(TextEditorWidget *editorWidget, int basePosition) const;
 
 private:
     QIcon m_icon;

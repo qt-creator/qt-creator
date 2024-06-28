@@ -15,6 +15,7 @@
 #include <texteditor/snippets/snippet.h>
 #include <texteditor/snippets/snippetassistcollector.h>
 #include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
 #include <utils/algorithm.h>
 #include <utils/textutils.h>
@@ -53,23 +54,24 @@ bool LanguageClientCompletionItem::prematurelyApplies(const QChar &typedCharacte
     return false;
 }
 
-void LanguageClientCompletionItem::apply(TextDocumentManipulator &manipulator,
+void LanguageClientCompletionItem::apply(TextEditorWidget *editorWidget,
                                          int /*basePosition*/) const
 {
+    QTC_ASSERT(editorWidget, return);
     if (auto edit = m_item.textEdit()) {
-        applyTextEdit(manipulator, *edit, isSnippet());
+        applyTextEdit(editorWidget, *edit, isSnippet());
     } else {
-        const int pos = manipulator.currentPosition();
+        const int pos = editorWidget->position();
         const QString textToInsert(m_item.insertText().value_or(text()));
         int length = 0;
         for (auto it = textToInsert.crbegin(), end = textToInsert.crend(); it != end; ++it) {
-            if (it->toLower() != manipulator.characterAt(pos - length - 1).toLower()) {
+            if (it->toLower() != editorWidget->characterAt(pos - length - 1).toLower()) {
                 length = 0;
                 break;
             }
             ++length;
         }
-        QTextCursor cursor = manipulator.textCursorAt(pos);
+        QTextCursor cursor = editorWidget->textCursorAt(pos);
         cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
         const QString blockTextUntilPosition = cursor.selectedText();
         static QRegularExpression identifier("[a-zA-Z_][a-zA-Z0-9_]*$");
@@ -77,19 +79,19 @@ void LanguageClientCompletionItem::apply(TextDocumentManipulator &manipulator,
         int matchLength = match.hasMatch() ? match.capturedLength(0) : 0;
         length = qMax(length, matchLength);
         if (isSnippet()) {
-            manipulator.replace(pos - length, length, {});
-            manipulator.insertCodeSnippet(pos - length, textToInsert, &parseSnippet);
+            editorWidget->replace(pos - length, length, {});
+            editorWidget->insertCodeSnippet(pos - length, textToInsert, &parseSnippet);
         } else {
-            manipulator.replace(pos - length, length, textToInsert);
+            editorWidget->replace(pos - length, length, textToInsert);
         }
     }
 
     if (auto additionalEdits = m_item.additionalTextEdits()) {
         for (const auto &edit : *additionalEdits)
-            applyTextEdit(manipulator, edit);
+            applyTextEdit(editorWidget, edit);
     }
     if (!m_triggeredCommitCharacter.isNull())
-        manipulator.insertCodeSnippet(manipulator.currentPosition(),
+        editorWidget->insertCodeSnippet(editorWidget->position(),
                                       m_triggeredCommitCharacter,
                                       &Snippet::parse);
 }

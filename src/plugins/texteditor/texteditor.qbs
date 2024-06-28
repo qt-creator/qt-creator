@@ -197,8 +197,6 @@ QtcPlugin {
             "ifunctionhintproposalmodel.h",
             "keywordscompletionassist.cpp",
             "keywordscompletionassist.h",
-            "textdocumentmanipulator.cpp",
-            "textdocumentmanipulator.h",
         ]
     }
 

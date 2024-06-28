@@ -893,7 +893,7 @@ public:
         return text() == m_provider->needle();
     }
 
-    void applyContextualContent(TextDocumentManipulator &, int) const override
+    void applyContextualContent(TextEditorWidget *, int) const override
     {
         QTC_ASSERT(m_provider->handler(), return);
         m_provider->handler()->handleReplay(text().mid(m_provider->needle().size()));

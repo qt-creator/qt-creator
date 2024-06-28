@@ -54,7 +54,6 @@
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/iassistprovider.h>
-#include <texteditor/codeassist/textdocumentmanipulator.h>
 #include <texteditor/texteditor.h>
 #include <utils/algorithm.h>
 #include <utils/async.h>
