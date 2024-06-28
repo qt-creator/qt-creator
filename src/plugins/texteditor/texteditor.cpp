@@ -9430,9 +9430,9 @@ BaseTextEditor::~BaseTextEditor()
 
 TextDocument *BaseTextEditor::textDocument() const
 {
-    TextEditorWidget *widget = editorWidget();
-    QTC_CHECK(!widget->d->m_document.isNull());
-    return widget->d->m_document.data();
+    TextDocument *doc = editorWidget()->textDocument();
+    QTC_CHECK(doc);
+    return doc;
 }
 
 void BaseTextEditor::addContext(Id id)

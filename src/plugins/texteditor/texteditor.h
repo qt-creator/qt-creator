@@ -676,7 +676,6 @@ protected:
 
 private:
     std::unique_ptr<Internal::TextEditorWidgetPrivate> d;
-    friend class BaseTextEditor;
     friend class TextEditorFactory;
     friend class Internal::TextEditorFactoryPrivate;
     friend class Internal::TextEditorWidgetPrivate;
