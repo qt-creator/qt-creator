@@ -7402,6 +7402,10 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
     QTC_ASSERT(!q->multiTextCursor().hasSelection(), return);
     MultiTextCursor cursor = m_cursors;
     cursor.beginEditBlock();
+
+    const TabSettings tabSettings = m_document->tabSettings();
+    const TypingSettings &typingSettings = m_document->typingSettings();
+
     for (QTextCursor &c : cursor) {
         const int pos = c.position();
         if (!pos)
@@ -7413,9 +7417,6 @@ void TextEditorWidgetPrivate::handleBackspaceKey()
             snippetCursor.movePosition(QTextCursor::Left);
             cursorWithinSnippet = snippetCheckCursor(snippetCursor);
         }
-
-        const TabSettings tabSettings = m_document->tabSettings();
-        const TypingSettings &typingSettings = m_document->typingSettings();
 
         if (typingSettings.m_autoIndent && !m_autoCompleteHighlightPos.isEmpty()
             && (m_autoCompleteHighlightPos.last() == c) && m_removeAutoCompletedText
