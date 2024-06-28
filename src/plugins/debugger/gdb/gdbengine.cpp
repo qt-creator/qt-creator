@@ -675,6 +675,8 @@ void GdbEngine::interruptInferior()
     } else {
         showStatusMessage(Tr::tr("Stop requested..."), 5000);
         showMessage("TRYING TO INTERRUPT INFERIOR");
+        // Ctrl+C events are only handled properly for console applications on Windows
+        // when gdb debugs a GUI application the CTRL+C events are not handled
         if (HostOsInfo::isWindowsHost() && !m_isQnxGdb) {
             IDevice::ConstPtr dev = device();
             QTC_ASSERT(dev, notifyInferiorStopFailed(); return);
