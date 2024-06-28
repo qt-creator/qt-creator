@@ -24,24 +24,21 @@ public:
     TextDocumentManipulator(TextEditorWidget *textEditorWidget);
 
     int currentPosition() const;
-    int positionAt(TextPositionOperation textPositionOperation) const;
     QChar characterAt(int position) const;
     QString textAt(int position, int length) const;
+    QTextCursor textCursor() const;
     QTextCursor textCursorAt(int position) const;
+    QTextDocument *document() const;
+    TextEditorWidget *editor() const;
 
     void setCursorPosition(int position);
-    void setAutoCompleteSkipPosition(int position);
-    bool replace(int position, int length, const QString &text);
+    void addAutoCompleteSkipPosition();
+    void replace(int position, int length, const QString &text);
     void insertCodeSnippet(int position, const QString &text, const SnippetParser &parse);
-    void paste();
-    void encourageApply();
-    void autoIndent(int position, int length);
 
     QString getLine(int line) const;
 
     Utils::Text::Position cursorPos() const;
-
-    int skipPos() const;
 
 private:
     bool textIsDifferentAt(int position, int length, const QString &text) const;

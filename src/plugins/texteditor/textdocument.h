@@ -59,6 +59,7 @@ public:
     virtual QString plainText() const;
     virtual QString textAt(int pos, int length) const;
     virtual QChar characterAt(int pos) const;
+    QString blockText(int blockNumber) const;
 
     void setTypingSettings(const TypingSettings &typingSettings);
     void setStorageSettings(const StorageSettings &storageSettings);

@@ -51,8 +51,9 @@ void ClangPreprocessorAssistProposalItem::apply(TextEditor::TextDocumentManipula
         extraCharacters += m_typedCharacter;
 
     // Avoid inserting characters that are already there
-    const int endsPosition = manipulator.positionAt(TextEditor::EndOfLinePosition);
-    const QString existingText = manipulator.textAt(manipulator.currentPosition(), endsPosition - manipulator.currentPosition());
+    QTextCursor c = manipulator.textCursor();
+    c.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    const QString existingText = c.selectedText();
     int existLength = 0;
     if (!existingText.isEmpty()) {
         // Calculate the exist length in front of the extra chars

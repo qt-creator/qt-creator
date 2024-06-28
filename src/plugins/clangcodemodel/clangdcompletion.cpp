@@ -288,7 +288,7 @@ void ClangdCompletionItem::apply(TextDocumentManipulator &manipulator,
     int cursorOffset = 0;
     bool setAutoCompleteSkipPos = false;
     int currentPos = manipulator.currentPosition();
-    const QTextDocument * const doc = manipulator.textCursorAt(currentPos).document();
+    const QTextDocument * const doc = manipulator.document();
     const Range range = edit->range();
     const int rangeStart = range.start().toPositionInDocument(doc);
     if (isFunctionLike && completionSettings.m_autoInsertBrackets) {
@@ -383,13 +383,14 @@ void ClangdCompletionItem::apply(TextDocumentManipulator &manipulator,
 
     textToBeInserted += extraCharacters;
     const int length = currentPos - rangeStart + extraLength;
-    const bool isReplaced = manipulator.replace(rangeStart, length, textToBeInserted);
+    const int oldRevision = manipulator.document()->revision();
+    manipulator.replace(rangeStart, length, textToBeInserted);
     manipulator.setCursorPosition(rangeStart + textToBeInserted.length());
-    if (isReplaced) {
+    if (manipulator.document()->revision() != oldRevision) {
         if (cursorOffset)
             manipulator.setCursorPosition(manipulator.currentPosition() + cursorOffset);
         if (setAutoCompleteSkipPos)
-            manipulator.setAutoCompleteSkipPosition(manipulator.currentPosition());
+            manipulator.addAutoCompleteSkipPosition();
     }
 
     if (auto additionalEdits = item.additionalTextEdits()) {

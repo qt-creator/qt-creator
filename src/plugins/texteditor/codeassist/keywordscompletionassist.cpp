@@ -111,7 +111,7 @@ void KeywordsAssistProposalItem::applyContextualContent(TextDocumentManipulator 
     if (cursorOffset)
         manipulator.setCursorPosition(manipulator.currentPosition() + cursorOffset);
     if (setAutoCompleteSkipPosition)
-        manipulator.setAutoCompleteSkipPosition(manipulator.currentPosition());
+        manipulator.addAutoCompleteSkipPosition();
 }
 
 // -------------------------

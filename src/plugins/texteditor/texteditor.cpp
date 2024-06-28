@@ -3226,7 +3226,7 @@ public:
     QTextCursor cursor;
 };
 
-void TextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg,
+void TextEditorWidget::insertCodeSnippet(int basePosition,
                                          const QString &snippet,
                                          const SnippetParser &parse)
 {
@@ -3239,7 +3239,8 @@ void TextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg,
     QTC_ASSERT(std::holds_alternative<ParsedSnippet>(result), return);
     ParsedSnippet data = std::get<ParsedSnippet>(result);
 
-    QTextCursor cursor = cursor_arg;
+    QTextCursor cursor = textCursor();
+    cursor.setPosition(basePosition, QTextCursor::KeepAnchor);
     cursor.beginEditBlock();
     cursor.removeSelectedText();
     const int startCursorPosition = cursor.position();
@@ -3431,6 +3432,18 @@ int TextEditorWidget::position(TextPositionOperation posOp, int at) const
     }
 
     return -1;
+}
+
+QTextCursor TextEditorWidget::textCursorAt(int position) const
+{
+    QTextCursor c = textCursor();
+    c.setPosition(position);
+    return c;
+}
+
+Text::Position TextEditorWidget::lineColumn() const
+{
+    return Utils::Text::Position::fromCursor(textCursor());
 }
 
 QRect TextEditorWidget::cursorRect(int pos) const
@@ -9580,6 +9593,22 @@ void TextEditorWidget::replace(int length, const QString &string)
 {
     QTextCursor tc = textCursor();
     tc.setPosition(tc.position() + length, QTextCursor::KeepAnchor);
+    tc.insertText(string);
+}
+
+void TextEditorWidget::replace(int pos, int length, const QString &string)
+{
+    if (length == string.length()) {
+        bool different = false;
+        for (int i = 0; !different && pos < length; ++i)
+            different = document()->characterAt(pos) != string.at(i);
+        if (!different)
+            return;
+    }
+
+    QTextCursor tc = textCursor();
+    tc.setPosition(pos);
+    tc.setPosition(pos + length, QTextCursor::KeepAnchor);
     tc.insertText(string);
 }
 

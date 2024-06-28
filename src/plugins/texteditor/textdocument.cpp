@@ -340,6 +340,11 @@ QChar TextDocument::characterAt(int pos) const
     return document()->characterAt(pos);
 }
 
+QString TextDocument::blockText(int blockNumber) const
+{
+    return document()->findBlockByNumber(blockNumber).text();
+}
+
 void TextDocument::setTypingSettings(const TypingSettings &typingSettings)
 {
     d->m_typingSettings = typingSettings;

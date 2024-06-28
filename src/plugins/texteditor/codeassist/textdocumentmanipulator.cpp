@@ -18,11 +18,6 @@ int TextDocumentManipulator::currentPosition() const
     return m_textEditorWidget->position();
 }
 
-int TextDocumentManipulator::positionAt(TextPositionOperation textPositionOperation) const
-{
-    return m_textEditorWidget->position(textPositionOperation);
-}
-
 QChar TextDocumentManipulator::characterAt(int position) const
 {
     return m_textEditorWidget->characterAt(position);
@@ -33,12 +28,24 @@ QString TextDocumentManipulator::textAt(int position, int length) const
     return m_textEditorWidget->textAt(position, length);
 }
 
+QTextCursor TextDocumentManipulator::textCursor() const
+{
+    return m_textEditorWidget->textCursor();
+}
+
 QTextCursor TextDocumentManipulator::textCursorAt(int position) const
 {
-    auto cursor = m_textEditorWidget->textCursor();
-    cursor.setPosition(position);
+    return m_textEditorWidget->textCursorAt(position);
+}
 
-    return cursor;
+QTextDocument *TextDocumentManipulator::document() const
+{
+    return m_textEditorWidget->document();
+}
+
+TextEditorWidget *TextDocumentManipulator::editor() const
+{
+    return m_textEditorWidget;
 }
 
 void TextDocumentManipulator::setCursorPosition(int position)
@@ -46,101 +53,31 @@ void TextDocumentManipulator::setCursorPosition(int position)
     m_textEditorWidget->setCursorPosition(position);
 }
 
-void TextDocumentManipulator::setAutoCompleteSkipPosition(int position)
+void TextDocumentManipulator::addAutoCompleteSkipPosition()
 {
-    QTextCursor cursor = m_textEditorWidget->textCursor();
-    cursor.setPosition(position);
-    m_textEditorWidget->setAutoCompleteSkipPosition(cursor);
+    m_textEditorWidget->setAutoCompleteSkipPosition(m_textEditorWidget->textCursor());
 }
 
-bool TextDocumentManipulator::replace(int position, int length, const QString &text)
+void TextDocumentManipulator::replace(int position, int length, const QString &text)
 {
-    bool textWillBeReplaced = textIsDifferentAt(position, length, text);
-
-    if (textWillBeReplaced)
-        replaceWithoutCheck(position, length, text);
-
-    return textWillBeReplaced;
+    m_textEditorWidget->replace(position, length, text);
 }
 
 void TextDocumentManipulator::insertCodeSnippet(int position,
                                                 const QString &text,
                                                 const SnippetParser &parse)
 {
-    auto cursor = m_textEditorWidget->textCursor();
-    cursor.setPosition(position, QTextCursor::KeepAnchor);
-    m_textEditorWidget->insertCodeSnippet(cursor, text, parse);
-}
-
-void TextDocumentManipulator::paste()
-{
-    m_textEditorWidget->paste();
-}
-
-void TextDocumentManipulator::encourageApply()
-{
-    m_textEditorWidget->encourageApply();
-}
-
-namespace {
-
-bool hasOnlyBlanksBeforeCursorInLine(QTextCursor textCursor)
-{
-    textCursor.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
-
-    const auto textBeforeCursor = textCursor.selectedText();
-
-    const auto nonSpace = std::find_if(textBeforeCursor.cbegin(),
-                                       textBeforeCursor.cend(),
-                                       [] (const QChar &signBeforeCursor) {
-        return !signBeforeCursor.isSpace();
-    });
-
-    return nonSpace == textBeforeCursor.cend();
-}
-
-}
-
-void TextDocumentManipulator::autoIndent(int position, int length)
-{
-    auto cursor = m_textEditorWidget->textCursor();
-    cursor.setPosition(position);
-    if (hasOnlyBlanksBeforeCursorInLine(cursor)) {
-        cursor.setPosition(position + length, QTextCursor::KeepAnchor);
-
-        m_textEditorWidget->textDocument()->autoIndent(cursor);
-    }
+    m_textEditorWidget->insertCodeSnippet(position, text, parse);
 }
 
 QString TextDocumentManipulator::getLine(int line) const
 {
-    return m_textEditorWidget->document()->findBlockByNumber(line - 1).text();
+    return m_textEditorWidget->textDocument()->blockText(line - 1);
 }
 
 Utils::Text::Position TextDocumentManipulator::cursorPos() const
 {
-    return Utils::Text::Position::fromCursor(m_textEditorWidget->textCursor());
-}
-
-int TextDocumentManipulator::skipPos() const
-{
-    const QList<QTextCursor> highlights = m_textEditorWidget->autoCompleteHighlightPositions();
-    return highlights.isEmpty() ? -1 : highlights.first().position();
-}
-
-bool TextDocumentManipulator::textIsDifferentAt(int position, int length, const QString &text) const
-{
-    const auto textToBeReplaced = m_textEditorWidget->textAt(position, length);
-
-    return text != textToBeReplaced;
-}
-
-void TextDocumentManipulator::replaceWithoutCheck(int position, int length, const QString &text)
-{
-    auto cursor = m_textEditorWidget->textCursor();
-    cursor.setPosition(position);
-    cursor.setPosition(position + length, QTextCursor::KeepAnchor);
-    cursor.insertText(text);
+    return m_textEditorWidget->lineColumn();
 }
 
 } // namespace TextEditor

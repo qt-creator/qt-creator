@@ -322,7 +322,7 @@ void CppAssistProposalItem::applyContextualContent(TextDocumentManipulator &mani
     if (cursorOffset)
         manipulator.setCursorPosition(manipulator.currentPosition() + cursorOffset);
     if (setAutoCompleteSkipPos)
-        manipulator.setAutoCompleteSkipPosition(manipulator.currentPosition());
+        manipulator.addAutoCompleteSkipPosition();
 }
 
 // --------------------

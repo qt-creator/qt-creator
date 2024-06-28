@@ -1659,7 +1659,7 @@ void ClangdTestCompletion::testCompleteGlobals()
     item->apply(manipulator, cursorPos);
     QCOMPARE(manipulator.getLine(7), "   globalFunction() /* COMPLETE HERE */");
     QCOMPARE(manipulator.cursorPos(), Text::Position({7, 19}));
-    QCOMPARE(manipulator.skipPos(), -1);
+    QVERIFY(manipulator.editor()->autoCompleteHighlightPositions().isEmpty());
 }
 
 void ClangdTestCompletion::testCompleteMembers()
@@ -1679,7 +1679,7 @@ void ClangdTestCompletion::testCompleteMembers()
     item->apply(manipulator, cursorPos);
     QCOMPARE(manipulator.getLine(7), "    s.member /* COMPLETE HERE */");
     QCOMPARE(manipulator.cursorPos(), Text::Position({7, 12}));
-    QCOMPARE(manipulator.skipPos(), -1);
+    QVERIFY(manipulator.editor()->autoCompleteHighlightPositions().isEmpty());
 }
 
 void ClangdTestCompletion::testCompleteMembersFromInside()
@@ -1697,7 +1697,7 @@ void ClangdTestCompletion::testCompleteMembersFromInside()
     item->apply(manipulator, cursorPos);
     QCOMPARE(manipulator.getLine(4), "        privateFunc() /* COMPLETE HERE */");
     QCOMPARE(manipulator.cursorPos(), Text::Position({4, 21}));
-    QCOMPARE(manipulator.skipPos(), -1);
+    QVERIFY(manipulator.editor()->autoCompleteHighlightPositions().isEmpty());
 }
 
 void ClangdTestCompletion::testCompleteMembersFromOutside()
@@ -1715,7 +1715,7 @@ void ClangdTestCompletion::testCompleteMembersFromOutside()
     item->apply(manipulator, cursorPos);
     QCOMPARE(manipulator.getLine(13), "    c.publicFunc() /* COMPLETE HERE */");
     QCOMPARE(manipulator.cursorPos(), Text::Position({13, 18}));
-    QCOMPARE(manipulator.skipPos(), -1);
+    QVERIFY(manipulator.editor()->autoCompleteHighlightPositions().isEmpty());
 }
 
 void ClangdTestCompletion::testCompleteMembersFromFriend()
@@ -1733,7 +1733,7 @@ void ClangdTestCompletion::testCompleteMembersFromFriend()
     item->apply(manipulator, cursorPos);
     QCOMPARE(manipulator.getLine(14), "    C().privateFunc() /* COMPLETE HERE */");
     QCOMPARE(manipulator.cursorPos(), Text::Position({14, 21}));
-    QCOMPARE(manipulator.skipPos(), -1);
+    QVERIFY(manipulator.editor()->autoCompleteHighlightPositions().isEmpty());
 }
 
 void ClangdTestCompletion::testFunctionAddress()
@@ -1750,7 +1750,7 @@ void ClangdTestCompletion::testFunctionAddress()
     item->apply(manipulator, cursorPos);
     QCOMPARE(manipulator.getLine(7), "    const auto p = &S::memberFunc /* COMPLETE HERE */;");
     QCOMPARE(manipulator.cursorPos(), Text::Position({7, 33}));
-    QCOMPARE(manipulator.skipPos(), -1);
+    QVERIFY(manipulator.editor()->autoCompleteHighlightPositions().isEmpty());
 }
 
 void ClangdTestCompletion::testFunctionHints()
@@ -1814,7 +1814,7 @@ void ClangdTestCompletion::testCompleteClassAndConstructor()
     item->apply(manipulator, cursorPos);
     QCOMPARE(manipulator.getLine(7), "    Foo( /* COMPLETE HERE */");
     QCOMPARE(manipulator.cursorPos(), Text::Position({7, 8}));
-    QCOMPARE(manipulator.skipPos(), -1);
+    QVERIFY(manipulator.editor()->autoCompleteHighlightPositions().isEmpty());
 }
 
 void ClangdTestCompletion::testCompletePrivateFunctionDefinition()
@@ -1841,7 +1841,7 @@ void ClangdTestCompletion::testCompleteWithDotToArrowCorrection()
     item->apply(manipulator, cursorPos);
     QCOMPARE(manipulator.getLine(4), "    bar->member /* COMPLETE HERE */");
     QCOMPARE(manipulator.cursorPos(), Text::Position({4, 15}));
-    QCOMPARE(manipulator.skipPos(), -1);
+    QVERIFY(manipulator.editor()->autoCompleteHighlightPositions().isEmpty());
 }
 
 void ClangdTestCompletion::testDontCompleteWithDotToArrowCorrectionForFloats()
@@ -1872,7 +1872,7 @@ void ClangdTestCompletion::testCompleteCodeInGeneratedUiFile()
     item->apply(manipulator, cursorPos);
     QCOMPARE(manipulator.getLine(34), "    ui->setupUi( /* COMPLETE HERE */");
     QCOMPARE(manipulator.cursorPos(), Text::Position({34, 16}));
-    QCOMPARE(manipulator.skipPos(), -1);
+    QVERIFY(manipulator.editor()->autoCompleteHighlightPositions().isEmpty());
 }
 
 void ClangdTestCompletion::testSignalCompletion_data()

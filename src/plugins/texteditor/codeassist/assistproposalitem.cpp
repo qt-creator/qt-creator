@@ -113,7 +113,7 @@ void AssistProposalItem::apply(TextDocumentManipulator &manipulator, int basePos
         applyQuickFix(manipulator, basePosition);
     } else {
         applyContextualContent(manipulator, basePosition);
-        manipulator.encourageApply();
+        manipulator.editor()->encourageApply();
     }
 }
 

@@ -51,7 +51,7 @@ public:
                     TextEditorWidget::duplicateMimeData(m_mimeData.get()));
 
         //Paste
-        manipulator.paste();
+        manipulator.editor()->paste();
     }
 
 private:
