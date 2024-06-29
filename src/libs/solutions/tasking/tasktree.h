@@ -308,9 +308,13 @@ protected:
     ExecutableItem(const TaskHandler &handler) : GroupItem(handler) {}
 
 private:
+    friend ExecutableItem operator!(const ExecutableItem &item);
+
     ExecutableItem withCancelImpl(
         const std::function<void(QObject *, const std::function<void()> &)> &connectWrapper) const;
 };
+
+TASKING_EXPORT ExecutableItem operator!(const ExecutableItem &item);
 
 class TASKING_EXPORT Group : public ExecutableItem
 {

@@ -3213,6 +3213,53 @@ void tst_Tasking::testTree_data()
             << TestData{storage, taskError, {{0, Handler::GroupError}}, 1, DoneWith::Error, 1};
     }
 
+    {
+        // This test check if ExecutableItem's negation works OK
+
+        const Group negateSuccessTask {
+            storage,
+            !createSuccessTask(0)
+        };
+
+        const Group negateErrorTask {
+            storage,
+            !createFailingTask(0)
+        };
+
+        const Group negateSuccessGroup {
+            storage,
+            !Group {
+                createSuccessTask(0)
+            }
+        };
+
+        const Group negateErrorGroup {
+            storage,
+            !Group {
+                createFailingTask(0)
+            }
+        };
+
+        const Group doubleNegation {
+            storage,
+            !!createSuccessTask(0)
+        };
+
+        const Log successLog {{0, Handler::Setup}, {0, Handler::Success}};
+        const Log errorLog {{0, Handler::Setup}, {0, Handler::Error}};
+
+        QTest::newRow("NegateSuccessTask")
+            << TestData{storage, negateSuccessTask, successLog, 1, DoneWith::Error, 1};
+        QTest::newRow("NegateErrorTask")
+            << TestData{storage, negateErrorTask, errorLog, 1, DoneWith::Success, 1};
+        QTest::newRow("NegateSuccessGroup")
+            << TestData{storage, negateSuccessGroup, successLog, 1, DoneWith::Error, 1};
+        QTest::newRow("NegateErrorGroup")
+            << TestData{storage, negateErrorGroup, errorLog, 1, DoneWith::Success, 1};
+        QTest::newRow("DoubleNegation")
+            << TestData{storage, doubleNegation, successLog, 1, DoneWith::Success, 1};
+    }
+
     // This test checks if storage shadowing works OK.
     QTest::newRow("StorageShadowing") << storageShadowingData();
 }

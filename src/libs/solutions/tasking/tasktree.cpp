@@ -1510,6 +1510,14 @@ ExecutableItem ExecutableItem::withLog(const QString &logName) const
     };
 }
 
+ExecutableItem operator!(const ExecutableItem &item)
+{
+    return Group {
+        item,
+        onGroupDone([](DoneWith doneWith) { return toDoneResult(doneWith == DoneWith::Error); })
+    };
+}
+
 ExecutableItem ExecutableItem::withCancelImpl(
     const std::function<void(QObject *, const std::function<void()> &)> &connectWrapper) const
 {
