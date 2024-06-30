@@ -9,6 +9,8 @@ QtcLibrary {
         "barrier.cpp",
         "barrier.h",
         "concurrentcall.h",
+        "conditional.cpp",
+        "conditional.h",
         "networkquery.cpp",
         "networkquery.h",
         "qprocesstask.cpp",

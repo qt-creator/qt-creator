@@ -3,6 +3,7 @@
 
 #include <tasking/barrier.h>
 #include <tasking/concurrentcall.h>
+#include <tasking/conditional.h>
 
 #include <QtTest>
 #include <QHash>
@@ -121,6 +122,7 @@ private slots:
     void nestedBrokenStorage();
     void restart();
     void destructorOfTaskEmittingDone();
+    void validConditionalConstructs();
 };
 
 void tst_Tasking::validConstructs()
@@ -3789,6 +3791,127 @@ void tst_Tasking::destructorOfTaskEmittingDone()
 {
     TaskTree taskTree({BrokenTask()});
     taskTree.start();
+}
+
+void tst_Tasking::validConditionalConstructs()
+{
+    const TestTask condition;
+    const TestTask continuation;
+
+    If (condition) >>
+        Then {continuation} >>
+    ElseIf (condition) >>
+        Then {continuation} >>
+    ElseIf (condition) >>
+        Then {continuation} >>
+    Else {continuation};
+
+    Group {
+        parallel,
+        TestTask(),
+        If (condition) >>
+            Then { continuation },
+        If (condition) >>
+            Then { continuation } >>
+        Else { continuation }
+    };
+
+    Group {
+        If (condition) >>
+            Then { continuation }
+    };
+
+    Group {
+        If (condition) >>
+            Then { continuation } >>
+        Else { continuation }
+    };
+
+    Group {
+        If (condition) >>
+            Then { continuation } >>
+        ElseIf (condition) >>
+            Then { continuation }
+    };
+
+    Group {
+        If (condition) >>
+            Then { continuation } >>
+        ElseIf (condition) >>
+            Then { continuation } >>
+        ElseIf (condition) >>
+            Then { continuation } >>
+        Else { continuation }
+    };
+
+    Group {
+        If (condition) >>
+            Then { continuation } >>
+        ElseIf (condition) >>
+            Then { continuation } >>
+        ElseIf (condition) >>
+            Then { continuation } >>
+        ElseIf (condition) >>
+            Then { continuation }
+    };
+
+    Group {
+        If (condition) >>
+            Then { continuation } >>
+        ElseIf (condition) >>
+            Then { continuation } >>
+        Else { continuation }
+    };
+
+    Group {
+        If (condition && condition) >>
+            Then { continuation } >>
+        ElseIf (!condition) >>
+            Then { } >>
+        Else { }
+    };
+
+    // The following constucts are invalid and won't compile:
+#if 0
+
+    // Lack of "Then" body.
+    Group {
+        If (condition)
+    };
+
+    // Can't start with "ElseIf".
+    Group {
+        ElseIf (condition)
+    };
+
+    // Can't start with "Else".
+    Group {
+        Else { continuation }
+    };
+
+    // Can't start with "Then".
+    Group {
+        Then { continuation }
+    };
+
+    // "Then" can't be followed by "If".
+    // Replace ">>" after the first "Then" to construct 2 independent if conditions.
+    Group {
+        If (condition) >>
+            Then { continuation } >>
+        If (condition) >>
+            Then { continuation }
+    };
+
+    // "Else" can't be followed by anything, it must be the final statement.
+    Group {
+        If (condition) >>
+            Then { continuation } >>
+        Else { continuation } >>
+        Else { continuation }
+    };
+
+#endif
 }
 
 QTEST_GUILESS_MAIN(tst_Tasking)

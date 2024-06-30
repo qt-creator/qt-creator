@@ -5,6 +5,8 @@ add_qtc_library(Tasking OBJECT
     barrier.cpp
     barrier.h
     concurrentcall.h
+    conditional.cpp
+    conditional.h
     networkquery.cpp
     networkquery.h
     qprocesstask.cpp
