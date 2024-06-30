@@ -1516,6 +1516,24 @@ ExecutableItem ExecutableItem::withLog(const QString &logName) const
     };
 }
 
+/*!
+    \fn ExecutableItem ExecutableItem::operator!(const ExecutableItem &item)
+
+    Returns an ExecutableItem with the DoneResult of \a item negated.
+
+    If \a item reports DoneResult::Success, the returned item reports DoneResult::Error.
+    If \a item reports DoneResult::Error, the returned item reports DoneResult::Success.
+
+    The returned item is equivalent to:
+    \code
+        Group {
+            item,
+            onGroupDone([](DoneWith doneWith) { return toDoneResult(doneWith == DoneWith::Error); })
+        }
+    \endcode
+
+    \sa operator&&(), operator||()
+*/
 ExecutableItem operator!(const ExecutableItem &item)
 {
     return Group {
@@ -1524,16 +1542,78 @@ ExecutableItem operator!(const ExecutableItem &item)
     };
 }
 
+/*!
+    \fn ExecutableItem ExecutableItem::operator&&(const ExecutableItem &first, const ExecutableItem &second)
+
+    Returns an ExecutableItem with \a first and \a second tasks merged with conjunction.
+
+    Both \a first and \a second tasks execute in sequence.
+    If both tasks report DoneResult::Success, the returned item reports DoneResult::Success.
+    Otherwise, the returned item reports DoneResult::Error.
+
+    The returned item is
+    \l {https://en.wikipedia.org/wiki/Short-circuit_evaluation}{short-circuiting}:
+    if the \a first task reports DoneResult::Error, the \a second task is skipped,
+    and the returned item reports DoneResult::Error immediately.
+
+    The returned item is equivalent to:
+    \code
+        Group { stopOnError, first, second }
+    \endcode
+
+    \note Parallel execution of conjunction in a short-circuit manner can be achieved with the
+          following code: \c {Group { parallel, stopOnError, first, second }}. In this case:
+          if the \e {first finished} task reports DoneResult::Error,
+          the \e other task is canceled, and the group reports DoneResult::Error immediately.
+
+    \sa operator||(), operator!()
+*/
 ExecutableItem operator&&(const ExecutableItem &first, const ExecutableItem &second)
 {
     return Group { stopOnError, first, second };
 }
 
+/*!
+    \fn ExecutableItem ExecutableItem::operator||(const ExecutableItem &first, const ExecutableItem &second)
+
+    Returns an ExecutableItem with \a first and \a second tasks merged with disjunction.
+
+    Both \a first and \a second tasks execute in sequence.
+    If both tasks report DoneResult::Error, the returned item reports DoneResult::Error.
+    Otherwise, the returned item reports DoneResult::Success.
+
+    The returned item is
+    \l {https://en.wikipedia.org/wiki/Short-circuit_evaluation}{short-circuiting}:
+    if the \a first task reports DoneResult::Success, the \a second task is skipped,
+    and the returned item reports DoneResult::Success immediately.
+
+    The returned item is equivalent to:
+    \code
+        Group { stopOnSuccess, first, second }
+    \endcode
+
+    \note Parallel execution of disjunction in a short-circuit manner can be achieved with the
+          following code: \c {Group { parallel, stopOnSuccess, first, second }}. In this case:
+          if the \e {first finished} task reports DoneResult::Success,
+          the \e other task is canceled, and the group reports DoneResult::Success immediately.
+
+    \sa operator&&(), operator!()
+*/
 ExecutableItem operator||(const ExecutableItem &first, const ExecutableItem &second)
 {
     return Group { stopOnSuccess, first, second };
 }
 
+/*!
+    \fn ExecutableItem ExecutableItem::operator&&(const ExecutableItem &item, DoneResult result)
+    \overload ExecutableItem::operator&&()
+
+    Returns the \a item task if the \a result is DoneResult::Success; otherwise returns
+    the \a item task with its done result tweaked to DoneResult::Error.
+
+    The \c {task && DoneResult::Error} is an eqivalent to tweaking the task's done result
+    into DoneResult::Error unconditionally.
+*/
 ExecutableItem operator&&(const ExecutableItem &item, DoneResult result)
 {
     if (result == DoneResult::Success)
@@ -1541,6 +1621,16 @@ ExecutableItem operator&&(const ExecutableItem &item, DoneResult result)
     return Group { finishAllAndError, item };
 }
 
+/*!
+    \fn ExecutableItem ExecutableItem::operator||(const ExecutableItem &item, DoneResult result)
+    \overload ExecutableItem::operator||()
+
+    Returns the \a item task if the \a result is DoneResult::Error; otherwise returns
+    the \a item task with its done result tweaked to DoneResult::Success.
+
+    The \c {task || DoneResult::Success} is an eqivalent to tweaking the task's done result
+    into DoneResult::Success unconditionally.
+*/
 ExecutableItem operator||(const ExecutableItem &item, DoneResult result)
 {
     if (result == DoneResult::Error)
