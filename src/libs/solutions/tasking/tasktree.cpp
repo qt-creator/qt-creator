@@ -1166,9 +1166,9 @@ private:
 
     \sa sequential, parallel
 */
-GroupItem parallelLimit(int limit)
+GroupItem ParallelLimitFunctor::operator()(int limit) const
 {
-    return Group::parallelLimit(qMax(limit, 0));
+    return GroupItem({{}, limit});
 }
 
 /*!
@@ -1179,10 +1179,13 @@ GroupItem parallelLimit(int limit)
     \sa stopOnError, continueOnError, stopOnSuccess, continueOnSuccess, stopOnSuccessOrError,
         finishAllAndSuccess, finishAllAndError, WorkflowPolicy
 */
-GroupItem workflowPolicy(WorkflowPolicy policy)
+GroupItem WorkflowPolicyFunctor::operator()(WorkflowPolicy policy) const
 {
-    return Group::workflowPolicy(policy);
+    return GroupItem({{}, {}, policy});
 }
+
+const ParallelLimitFunctor parallelLimit = ParallelLimitFunctor();
+const WorkflowPolicyFunctor workflowPolicy = WorkflowPolicyFunctor();
 
 const GroupItem nullItem = GroupItem({});
 

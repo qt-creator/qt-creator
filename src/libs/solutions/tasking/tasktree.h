@@ -260,8 +260,6 @@ protected:
     void addChildren(const QList<GroupItem> &children);
 
     static GroupItem groupHandler(const GroupHandler &handler) { return GroupItem({handler}); }
-    static GroupItem parallelLimit(int limit) { return GroupItem({{}, limit}); }
-    static GroupItem workflowPolicy(WorkflowPolicy policy) { return GroupItem({{}, {}, policy}); }
 
     // Checks if Function may be invoked with Args and if Function's return type is Result.
     template <typename Result, typename Function, typename ...Args,
@@ -278,6 +276,8 @@ private:
     friend class ContainerNode;
     friend class TaskNode;
     friend class TaskTreePrivate;
+    friend class ParallelLimitFunctor;
+    friend class WorkflowPolicyFunctor;
     Type m_type = Type::Group;
     QList<GroupItem> m_children;
     GroupData m_groupData;
@@ -335,8 +335,6 @@ public:
     static GroupItem onGroupDone(Handler &&handler, CallDoneIf callDoneIf = CallDoneIf::SuccessOrError) {
         return groupHandler({{}, wrapGroupDone(std::forward<Handler>(handler)), callDoneIf});
     }
-    using GroupItem::parallelLimit;  // Default: 1 (sequential). 0 means unlimited (parallel).
-    using GroupItem::workflowPolicy; // Default: WorkflowPolicy::StopOnError.
 
 private:
     template <typename Handler>
@@ -396,8 +394,22 @@ static GroupItem onGroupDone(Handler &&handler, CallDoneIf callDoneIf = CallDone
     return Group::onGroupDone(std::forward<Handler>(handler), callDoneIf);
 }
 
-TASKING_EXPORT GroupItem parallelLimit(int limit);
-TASKING_EXPORT GroupItem workflowPolicy(WorkflowPolicy policy);
+class TASKING_EXPORT ParallelLimitFunctor
+{
+public:
+    // Default: 1 (sequential). 0 means unlimited (parallel).
+    GroupItem operator()(int limit) const;
+};
+
+class TASKING_EXPORT WorkflowPolicyFunctor
+{
+public:
+    // Default: WorkflowPolicy::StopOnError.
+    GroupItem operator()(WorkflowPolicy policy) const;
+};
+
+TASKING_EXPORT extern const ParallelLimitFunctor parallelLimit;
+TASKING_EXPORT extern const WorkflowPolicyFunctor workflowPolicy;
 
 TASKING_EXPORT extern const GroupItem nullItem;
 
