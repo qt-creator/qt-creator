@@ -3260,6 +3260,90 @@ void tst_Tasking::testTree_data()
             << TestData{storage, doubleNegation, successLog, 1, DoneWith::Success, 1};
     }
 
+    {
+        // This test check if ExecutableItem's AND and OR works OK
+
+        const Group successAndSuccessTask {
+            storage,
+            createSuccessTask(0) && createSuccessTask(1)
+        };
+        const Group successAndErrorTask {
+            storage,
+            createSuccessTask(0) && createFailingTask(1)
+        };
+        const Group errorAndSuccessTask {
+            storage,
+            createFailingTask(0) && createSuccessTask(1)
+        };
+        const Group errorAndErrorTask {
+            storage,
+            createFailingTask(0) && createFailingTask(1)
+        };
+
+        const Group successOrSuccessTask {
+            storage,
+            createSuccessTask(0) || createSuccessTask(1)
+        };
+        const Group successOrErrorTask {
+            storage,
+            createSuccessTask(0) || createFailingTask(1)
+        };
+        const Group errorOrSuccessTask {
+            storage,
+            createFailingTask(0) || createSuccessTask(1)
+        };
+        const Group errorOrErrorTask {
+            storage,
+            createFailingTask(0) || createFailingTask(1)
+        };
+
+        const Log successLog {{0, Handler::Setup}, {0, Handler::Success}};
+        const Log errorLog {{0, Handler::Setup}, {0, Handler::Error}};
+
+        const Log successSuccessLog {
+            {0, Handler::Setup},
+            {0, Handler::Success},
+            {1, Handler::Setup},
+            {1, Handler::Success},
+        };
+        const Log successErrorLog {
+            {0, Handler::Setup},
+            {0, Handler::Success},
+            {1, Handler::Setup},
+            {1, Handler::Error},
+        };
+        const Log errorSuccessLog {
+            {0, Handler::Setup},
+            {0, Handler::Error},
+            {1, Handler::Setup},
+            {1, Handler::Success},
+        };
+        const Log errorErrorLog {
+            {0, Handler::Setup},
+            {0, Handler::Error},
+            {1, Handler::Setup},
+            {1, Handler::Error},
+        };
+
+        QTest::newRow("SuccessAndSuccessTask")
+            << TestData{storage, successAndSuccessTask, successSuccessLog, 2, DoneWith::Success, 2};
+        QTest::newRow("SuccessAndErrorTask")
+            << TestData{storage, successAndErrorTask, successErrorLog, 2, DoneWith::Error, 2};
+        QTest::newRow("ErrorAndSuccessTask")
+            << TestData{storage, errorAndSuccessTask, errorLog, 2, DoneWith::Error, 1};
+        QTest::newRow("ErrorAndErrorTask")
+            << TestData{storage, errorAndErrorTask, errorLog, 2, DoneWith::Error, 1};
+
+        QTest::newRow("SuccessOrSuccessTask")
+            << TestData{storage, successOrSuccessTask, successLog, 2, DoneWith::Success, 1};
+        QTest::newRow("SuccessOrErrorTask")
+            << TestData{storage, successOrErrorTask, successLog, 2, DoneWith::Success, 1};
+        QTest::newRow("ErrorOrSuccessTask")
+            << TestData{storage, errorOrSuccessTask, errorSuccessLog, 2, DoneWith::Success, 2};
+        QTest::newRow("ErrorOrErrorTask")
+            << TestData{storage, errorOrErrorTask, errorErrorLog, 2, DoneWith::Error, 2};
+    }
+
     // This test checks if storage shadowing works OK.
     QTest::newRow("StorageShadowing") << storageShadowingData();
 }

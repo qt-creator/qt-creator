@@ -1518,6 +1518,16 @@ ExecutableItem operator!(const ExecutableItem &item)
     };
 }
 
+ExecutableItem operator&&(const ExecutableItem &first, const ExecutableItem &second)
+{
+    return Group { stopOnError, first, second };
+}
+
+ExecutableItem operator||(const ExecutableItem &first, const ExecutableItem &second)
+{
+    return Group { stopOnSuccess, first, second };
+}
+
 ExecutableItem ExecutableItem::withCancelImpl(
     const std::function<void(QObject *, const std::function<void()> &)> &connectWrapper) const
 {
