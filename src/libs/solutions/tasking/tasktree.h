@@ -313,6 +313,8 @@ private:
                                                     const ExecutableItem &second);
     TASKING_EXPORT friend ExecutableItem operator||(const ExecutableItem &first,
                                                     const ExecutableItem &second);
+    TASKING_EXPORT friend ExecutableItem operator&&(const ExecutableItem &item, DoneResult result);
+    TASKING_EXPORT friend ExecutableItem operator||(const ExecutableItem &item, DoneResult result);
 
     ExecutableItem withCancelImpl(
         const std::function<void(QObject *, const std::function<void()> &)> &connectWrapper) const;

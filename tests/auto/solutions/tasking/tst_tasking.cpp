@@ -3214,6 +3214,47 @@ void tst_Tasking::testTree_data()
     }
 
     {
+        // This tests ensures the task done handler or onGroupDone accepts the DoneResult as an
+        // argument.
+
+        const Group groupSuccess {
+            storage,
+            Group { createFailingTask(0) } || DoneResult::Success,
+            groupDone(0)
+        };
+
+        const Group groupError {
+            storage,
+            Group { createSuccessTask(0) } && DoneResult::Error,
+            groupDone(0)
+        };
+
+        const Group taskSuccess {
+            storage,
+            createFailingTask(0) || DoneResult::Success,
+            groupDone(0)
+        };
+
+        const Group taskError {
+            storage,
+            createSuccessTask(0) && DoneResult::Error,
+            groupDone(0)
+        };
+
+        const Log successLog {{0, Handler::Setup}, {0, Handler::Error}, {0, Handler::GroupSuccess}};
+        const Log errorLog {{0, Handler::Setup}, {0, Handler::Success}, {0, Handler::GroupError}};
+
+        QTest::newRow("LogicGroupSuccess")
+            << TestData{storage, groupSuccess, successLog, 1, DoneWith::Success, 1};
+        QTest::newRow("LogicGroupError")
+            << TestData{storage, groupError, errorLog, 1, DoneWith::Error, 1};
+        QTest::newRow("LogicTaskSuccess")
+            << TestData{storage, taskSuccess, successLog, 1, DoneWith::Success, 1};
+        QTest::newRow("LogicTaskError")
+            << TestData{storage, taskError, errorLog, 1, DoneWith::Error, 1};
+    }
+
+    {
         // This test check if ExecutableItem's negation works OK
 
         const Group negateSuccessTask {

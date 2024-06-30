@@ -1528,6 +1528,20 @@ ExecutableItem operator||(const ExecutableItem &first, const ExecutableItem &sec
     return Group { stopOnSuccess, first, second };
 }
 
+ExecutableItem operator&&(const ExecutableItem &item, DoneResult result)
+{
+    if (result == DoneResult::Success)
+        return item;
+    return Group { finishAllAndError, item };
+}
+
+ExecutableItem operator||(const ExecutableItem &item, DoneResult result)
+{
+    if (result == DoneResult::Error)
+        return item;
+    return Group { finishAllAndSuccess, item };
+}
+
 ExecutableItem ExecutableItem::withCancelImpl(
     const std::function<void(QObject *, const std::function<void()> &)> &connectWrapper) const
 {
