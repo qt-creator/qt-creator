@@ -408,7 +408,7 @@ void ExtensionsBrowser::fetchExtensions()
             = R"({"version":"%1","host_os":"%2","host_os_version":"%3","host_architecture":"%4","page_size":200})";
         const QString request = url.arg(host) + requestTemplate
                                                     .arg(QCoreApplication::applicationVersion())
-                                                    .arg(QSysInfo::productType())
+                                                    .arg(osTypeToString(HostOsInfo::hostOs()))
                                                     .arg(QSysInfo::productVersion())
                                                     .arg(QSysInfo::currentCpuArchitecture());
         query.setRequest(QNetworkRequest(QUrl::fromUserInput(request)));
