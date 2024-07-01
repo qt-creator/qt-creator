@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "cppchecksettings.h"
-
 #include <QDialog>
 
 namespace Utils {
@@ -19,18 +17,18 @@ class SelectableFilesFromDirModel;
 
 namespace Cppcheck::Internal {
 
+class CppcheckSettings;
+
 class ManualRunDialog : public QDialog
 {
 public:
-    explicit ManualRunDialog(const ProjectExplorer::Project *project);
+    explicit ManualRunDialog(const ProjectExplorer::Project *project, CppcheckSettings *settings);
 
     Utils::FilePaths filePaths() const;
     QSize sizeHint() const override;
 
-    const CppcheckSettings &manualRunSettings() const { return m_manualRunSettings; }
 private:
     ProjectExplorer::SelectableFilesFromDirModel *m_model;
-    CppcheckSettings m_manualRunSettings;
 };
 
 } // Cppcheck::Internal
