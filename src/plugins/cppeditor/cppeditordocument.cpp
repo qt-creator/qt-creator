@@ -310,7 +310,7 @@ void CppEditorDocument::setExtraPreprocessorDirectives(const QByteArray &directi
 
 void CppEditorDocument::setIfdefedOutBlocks(const QList<TextEditor::BlockRange> &blocks)
 {
-    if (syntaxHighlighter() && syntaxHighlighter()->syntaxHighlighterUpToDate()) {
+    if (syntaxHighlighter() && !syntaxHighlighter()->syntaxHighlighterUpToDate()) {
         connect(syntaxHighlighter(),
             &SyntaxHighlighter::finished,
             this,
