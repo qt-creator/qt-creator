@@ -126,7 +126,7 @@ void PropertyEditorQmlBackend::setupPropertyEditorValue(const PropertyName &name
 namespace {
 PropertyName auxNamePostFix(Utils::SmallStringView propertyName)
 {
-    return PropertyName(propertyName) + "__AUX";
+    return PropertyNameView(propertyName) + "__AUX";
 }
 
 QVariant properDefaultAuxiliaryProperties(const QmlObjectNode &qmlObjectNode,

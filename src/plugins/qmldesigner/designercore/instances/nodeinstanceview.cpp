@@ -67,6 +67,7 @@
 #include <projectstorage/projectstorage.h>
 
 #include <utils/hdrimage.h>
+#include <utils/smallstringview.h>
 
 #include <coreplugin/messagemanager.h>
 
@@ -93,6 +94,7 @@
 #include <QPicture>
 #include <QTimerEvent>
 #include <QUrl>
+#include <QByteArray>
 
 enum {
     debug = false
@@ -634,10 +636,11 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
     case AuxiliaryDataType::Document:
         if ((key == lockedProperty || key == invisibleProperty) && hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
+
             PropertyValueContainer container{instance.instanceId(),
-                                             PropertyName{key.name},
+                                             key.name,
                                              value,
-                                             TypeName(),
+                                             {},
                                              key.type};
             m_nodeInstanceServer->changeAuxiliaryValues({{container}});
         }
@@ -647,7 +650,7 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
         if (hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
             PropertyValueContainer container{instance.instanceId(),
-                                             PropertyName{key.name},
+                                             key.name,
                                              value,
                                              TypeName(),
                                              key.type};
@@ -660,13 +663,13 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
             NodeInstance instance = instanceForModelNode(node);
             if (value.isValid()) {
                 PropertyValueContainer container{instance.instanceId(),
-                                                 PropertyName{key.name},
+                                                 key.name,
                                                  value,
                                                  TypeName(),
                                                  key.type};
                 m_nodeInstanceServer->changeAuxiliaryValues({{container}});
             } else {
-                PropertyName name{key.name};
+                const PropertyName name = key.name.toByteArray();
                 if (node.hasVariantProperty(name)) {
                     PropertyValueContainer container(instance.instanceId(),
                                                      name,
