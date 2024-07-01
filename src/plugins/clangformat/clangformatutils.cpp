@@ -113,7 +113,11 @@ clang::format::FormatStyle calculateQtcStyle()
     style.IndentWrappedFunctionNames = false;
     style.JavaScriptQuotes = FormatStyle::JSQS_Leave;
     style.JavaScriptWrapImports = true;
+#if LLVM_VERSION_MAJOR >= 19
+    style.KeepEmptyLines = {false, false, false};
+#else
     style.KeepEmptyLinesAtTheStartOfBlocks = false;
+#endif
     // Do not add QT_BEGIN_NAMESPACE/QT_END_NAMESPACE as this will indent lines in between.
     style.MacroBlockBegin = "";
     style.MacroBlockEnd = "";
