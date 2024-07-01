@@ -407,9 +407,13 @@ void AssetsLibraryWidget::handleExtFilesDrop(const QList<QUrl> &simpleFilePaths,
                                                                            targetDirPath,
                                                                            isDropOnRoot);
             if (result.status() == AddFilesResult::Failed) {
-                Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
-                                                      tr("Could not add %1 to project.")
-                                                          .arg(simpleFilePathStrings.join(' ')));
+                QWidget *w = Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
+                                                                   tr("Could not add %1 to project.")
+                                                                       .arg(simpleFilePathStrings.join(' ')));
+                // Avoid multiple modal dialogs open at the same time
+                auto mb = qobject_cast<QMessageBox *>(w);
+                if (mb && !complexFilePathStrings.empty())
+                    mb->exec();
             }
         }
     }
@@ -603,6 +607,9 @@ void AssetsLibraryWidget::addResources(const QStringList &files, bool showDialog
         categoryFileNames.insert(category, fileName);
     }
 
+    QStringList unsupportedFiles;
+    QStringList failedOpsFiles;
+
     for (const QString &category : categoryFileNames.uniqueKeys()) {
         QStringList fileNames = categoryFileNames.values(category);
         AddResourceOperation operation = categoryToOperation.value(category);
@@ -611,9 +618,7 @@ void AssetsLibraryWidget::addResources(const QStringList &files, bool showDialog
             AddFilesResult result = operation(fileNames,
                                               document->fileName().parentDir().toString(), showDialog);
             if (result.status() == AddFilesResult::Failed) {
-                Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
-                                                      tr("Could not add %1 to project.")
-                                                          .arg(fileNames.join(' ')));
+                failedOpsFiles.append(fileNames);
             } else {
                 if (!result.directory().isEmpty()) {
                     emit directoryCreated(result.directory());
@@ -628,10 +633,23 @@ void AssetsLibraryWidget::addResources(const QStringList &files, bool showDialog
                 }
             }
         } else {
-            Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
-                                                  tr("Could not add %1 to project. Unsupported file format.")
-                                                      .arg(fileNames.join(' ')));
+            unsupportedFiles.append(fileNames);
         }
+    }
+
+    if (!failedOpsFiles.isEmpty()) {
+        QWidget *w = Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
+                                                           tr("Could not add %1 to project.")
+                                                               .arg(failedOpsFiles.join(' ')));
+        // Avoid multiple modal dialogs open at the same time
+        auto mb = qobject_cast<QMessageBox *>(w);
+        if (mb && !unsupportedFiles.isEmpty())
+            mb->exec();
+    }
+    if (!unsupportedFiles.isEmpty()) {
+        Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
+                                              tr("Could not add %1 to project. Unsupported file format.")
+                                                  .arg(unsupportedFiles.join(' ')));
     }
 }
 
