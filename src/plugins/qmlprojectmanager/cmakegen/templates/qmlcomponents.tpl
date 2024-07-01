@@ -32,5 +32,5 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
 add_subdirectory(${ds_SOURCE_DIR} ${ds_BINARY_DIR})
 
 target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
-  BULD_QDS_COMPONENTS=true
+  BUILD_QDS_COMPONENTS=true
 )
