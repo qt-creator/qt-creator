@@ -269,9 +269,7 @@ extend_qtc_library(Utils
   CONDITION TARGET Qt::CorePrivate
   DEPENDS Qt::CorePrivate ptyqt
   DEFINES QTC_UTILS_WITH_FSENGINE
-  SOURCES fsengine/fsengine_impl.cpp
-          fsengine/fsengine_impl.h
-          fsengine/diriterator.h
+  SOURCES fsengine/diriterator.h
           fsengine/fileiteratordevicesappender.h
           fsengine/fixedlistfsengine.h
           fsengine/fsenginehandler.cpp

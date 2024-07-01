@@ -376,8 +376,6 @@ QtcLibrary {
             "fsengine.h",
             "fsenginehandler.cpp",
             "fsenginehandler.h",
-            "fsengine_impl.cpp",
-            "fsengine_impl.h"
         ]
     }
 
