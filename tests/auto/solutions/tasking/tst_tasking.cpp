@@ -3387,6 +3387,284 @@ void tst_Tasking::testTree_data()
 
     // This test checks if storage shadowing works OK.
     QTest::newRow("StorageShadowing") << storageShadowingData();
+
+    // CONDITIONAL API
+
+    {
+        const Group root {
+            storage,
+            If (createSuccessTask(0)) >>
+                Then { createSuccessTask(1) }
+        };
+
+        const Log log {
+            {0, Handler::Setup},
+            {0, Handler::Success},
+            {1, Handler::Setup},
+            {1, Handler::Success}
+        };
+
+        QTest::newRow("CondIfSuccessThenSuccess")
+            << TestData{storage, root, log, 2, DoneWith::Success, 2};
+    }
+
+    {
+        const Group root {
+            storage,
+            If (createSuccessTask(0)) >>
+                Then { createFailingTask(1) }
+        };
+
+        const Log log {
+            {0, Handler::Setup},
+            {0, Handler::Success},
+            {1, Handler::Setup},
+            {1, Handler::Error}
+        };
+
+        QTest::newRow("CondIfSuccessThenError")
+            << TestData{storage, root, log, 2, DoneWith::Error, 2};
+    }
+
+    {
+        const Group root {
+            storage,
+            If (createFailingTask(0)) >>
+                Then { createSuccessTask(1) }
+        };
+
+        const Log log {
+            {0, Handler::Setup},
+            {0, Handler::Error}
+        };
+
+        QTest::newRow("CondIfErrorThenSuccess")
+            << TestData{storage, root, log, 2, DoneWith::Success, 1};
+    }
+
+    {
+        const Group root {
+            storage,
+            If (createSuccessTask(0)) >>
+                Then { createSuccessTask(1) } >>
+            Else { createSuccessTask(2) }
+        };
+
+        const Log log {
+            {0, Handler::Setup},
+            {0, Handler::Success},
+            {1, Handler::Setup},
+            {1, Handler::Success}
+        };
+
+        QTest::newRow("CondIfSuccessThenSuccessElseSuccess")
+            << TestData{storage, root, log, 3, DoneWith::Success, 2};
+    }
+
+    {
+        const Group root {
+            storage,
+            If (createFailingTask(0)) >>
+                Then { createSuccessTask(1) } >>
+            Else { createSuccessTask(2) }
+        };
+
+        const Log log {
+            {0, Handler::Setup},
+            {0, Handler::Error},
+            {2, Handler::Setup},
+            {2, Handler::Success}
+        };
+
+        QTest::newRow("CondIfErrorThenSuccessElseSuccess")
+            << TestData{storage, root, log, 3, DoneWith::Success, 2};
+    }
+
+    {
+        const Group root {
+            storage,
+            If (createFailingTask(0)) >>
+                Then { createSuccessTask(1) } >>
+            Else { createFailingTask(2) }
+        };
+
+        const Log log {
+            {0, Handler::Setup},
+            {0, Handler::Error},
+            {2, Handler::Setup},
+            {2, Handler::Error}
+        };
+
+        QTest::newRow("CondIfErrorThenSuccessElseError")
+            << TestData{storage, root, log, 3, DoneWith::Error, 2};
+    }
+
+    {
+        const Group root {
+            storage,
+            If (createFailingTask(0)) >>
+                Then { createSuccessTask(1) } >>
+            ElseIf (createFailingTask(2)) >>
+                Then { createSuccessTask(3) }
+        };
+
+        const Log log {
+            {0, Handler::Setup},
+            {0, Handler::Error},
+            {2, Handler::Setup},
+            {2, Handler::Error}
+        };
+
+        QTest::newRow("CondIfErrorThenSuccessElseIfErrorThenSuccess")
+            << TestData{storage, root, log, 4, DoneWith::Success, 2};
+    }
+
+    {
+        const Group root {
+            storage,
+            If (createFailingTask(0)) >>
+                Then { createSuccessTask(1) } >>
+            ElseIf (createSuccessTask(2)) >>
+                Then { createSuccessTask(3) }
+        };
+
+        const Log log {
+            {0, Handler::Setup},
+            {0, Handler::Error},
+            {2, Handler::Setup},
+            {2, Handler::Success},
+            {3, Handler::Setup},
+            {3, Handler::Success}
+        };
+
+        QTest::newRow("CondIfErrorThenSuccessElseIfSuccessThenSuccess")
+            << TestData{storage, root, log, 4, DoneWith::Success, 3};
+    }
+
+    {
+        const Group root {
+            storage,
+            If (createFailingTask(0)) >>
+                Then { createSuccessTask(1) } >>
+            ElseIf (createSuccessTask(2)) >>
+                Then { createFailingTask(3) }
+        };
+
+        const Log log {
+            {0, Handler::Setup},
+            {0, Handler::Error},
+            {2, Handler::Setup},
+            {2, Handler::Success},
+            {3, Handler::Setup},
+            {3, Handler::Error}
+        };
+
+        QTest::newRow("CondIfErrorThenSuccessElseIfSuccessThenError")
+            << TestData{storage, root, log, 4, DoneWith::Error, 3};
+    }
+
+    {
+        const Group root {
+            storage,
+            If (createSuccessTask(0)) >>
+                Then { createSuccessTask(1) } >>
+            ElseIf (createSuccessTask(2)) >>
+                Then { createSuccessTask(3) } >>
+            Else { createSuccessTask(4) }
+        };
+
+        const Log log {
+            {0, Handler::Setup},
+            {0, Handler::Success},
+            {1, Handler::Setup},
+            {1, Handler::Success}
+        };
+
+        QTest::newRow("CondIfSuccessThenSuccessElseIfSuccessThenSuccessElseSuccess")
+            << TestData{storage, root, log, 5, DoneWith::Success, 2};
+    }
+
+    {
+        const Group root {
+            storage,
+            If (createFailingTask(0)) >>
+                Then { createSuccessTask(1) } >>
+            ElseIf (createSuccessTask(2)) >>
+                Then { createSuccessTask(3) } >>
+            Else { createSuccessTask(4) }
+        };
+
+        const Log log {
+            {0, Handler::Setup},
+            {0, Handler::Error},
+            {2, Handler::Setup},
+            {2, Handler::Success},
+            {3, Handler::Setup},
+            {3, Handler::Success}
+        };
+
+        QTest::newRow("CondIfErrorThenSuccessElseIfSuccessThenSuccessElseSuccess")
+            << TestData{storage, root, log, 5, DoneWith::Success, 3};
+    }
+
+    {
+        const Group root {
+            storage,
+            If (createSuccessTask(0)) >>
+                Then { createSuccessTask(1) },
+            createSuccessTask(2)
+        };
+
+        const Log log {
+            {0, Handler::Setup},
+            {0, Handler::Success},
+            {1, Handler::Setup},
+            {1, Handler::Success},
+            {2, Handler::Setup},
+            {2, Handler::Success}
+        };
+
+        QTest::newRow("CondIfSuccessThenSuccessWithContinuation")
+            << TestData{storage, root, log, 3, DoneWith::Success, 3};
+    }
+
+    {
+        const Group root {
+            storage,
+            If (createSuccessTask(0)) >>
+                Then { createFailingTask(1) },
+            createSuccessTask(2)
+        };
+
+        const Log log {
+            {0, Handler::Setup},
+            {0, Handler::Success},
+            {1, Handler::Setup},
+            {1, Handler::Error}
+        };
+
+        QTest::newRow("CondIfSuccessThenErrorWithContinuation")
+            << TestData{storage, root, log, 3, DoneWith::Error, 2};
+    }
+
+    {
+        const Group root {
+            storage,
+            If (createFailingTask(0)) >>
+                Then { createFailingTask(1) },
+            createSuccessTask(2)
+        };
+
+        const Log log {
+            {0, Handler::Setup},
+            {0, Handler::Error},
+            {2, Handler::Setup},
+            {2, Handler::Success}
+        };
+
+        QTest::newRow("CondIfErrorThenErrorWithContinuation")
+            << TestData{storage, root, log, 3, DoneWith::Success, 2};
+    }
 }
 
 static QtMessageHandler s_oldMessageHandler = nullptr;
