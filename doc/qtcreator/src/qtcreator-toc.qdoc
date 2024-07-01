@@ -13,18 +13,17 @@
     {Qt documentation} portal or in the \l {Get help}{Help} mode.
 
     \list
-        \li \l{Developing with \QC}
-        \list
-            \li \l{Getting Started}
-                \list
-                    \li \l{User Interface}
-                    \li \l{Configuring Qt Creator}
-                \endlist
-            \li \l{Creating Projects}
-            \li \l{Configuring Projects}
-            \li \l{Debugging}
-            \li \l{Analyzing Code}
-        \endlist
+        \li \l{Installation}
+        \li \l{Getting Started}
+            \list
+                \li \l{Overview}
+                \li \l{User Interface}
+                \li \l{Configuring Qt Creator}
+            \endlist
+        \li \l{Creating Projects}
+        \li \l{Configuring Projects}
+        \li \l{Debugging}
+        \li \l{Analyzing Code}
         \li \l{Tutorials}
             \generatelist creator-tutorials
         \li \l{How To}

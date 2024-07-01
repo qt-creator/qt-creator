@@ -3,14 +3,13 @@
 
 /*!
     \page creator-how-to-install.html
-    \previouspage creator-how-tos.html
+    \previouspage index.html
+    \nextpage creator-getting-started.html
 
-    \ingroup creator-how-to-use
-
-    \title Install \QC
+    \title Installation
 
     You can install either a \e commercial or \e {open source} version of \QC in
-    many ways:
+    the following ways:
 
     \list
         \li As a part of a Qt installation with \l{Get and Install Qt}{\QOI}.
@@ -43,11 +42,11 @@
     To develop with Qt, you also need a Qt version. You can register Qt versions
     in the stand-alone \QC to use them in \l{Kits}{kits}.
 
-    \section2 Use package managers
+    \section2 Using Package Managers
 
     The \QC packages that package managers offer are not
     officially supported. For links to official releases, see
-    \l {Download installation packages}.
+    \l {Downloading Installation Packages}.
 
     On Windows you can use \c chocolatey, and on \macos you can use \c brew.
     These package managers install the latest \QC releases available online.
@@ -68,7 +67,7 @@
     \note Linux distributions might have old \QC versions, so you might want to
     download and install the latest version.
 
-    \section2 Download installation packages
+    \section2 Downloading Installation Packages
 
     You can download \QC installation packages from:
 
@@ -81,7 +80,7 @@
         \li \l{https://github.com/qt-creator/qt-creator/releases}{GitHub}
     \endlist
 
-    \section2 Build from sources
+    \section2 Building from Sources
 
     To test the very latest \QC version, maybe with your own changes,
     you can build it from sources. For more information, see

@@ -144,5 +144,5 @@
     To install plugins, go to \uicontrol Help > \uicontrol {About Plugins} and
     select \uicontrol {Install Plugins}.
 
-    \sa {Install \QC}, {Reset \QC settings}, {Preferences}
+    \sa {Installation}, {Reset \QC settings}, {Preferences}
 */

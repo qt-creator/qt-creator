@@ -1,14 +1,8 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
-// **********************************************************************
-// NOTE: the sections are not ordered by their logical order to avoid
-// reshuffling the file each time the index order changes (i.e., often).
-// Run the fixnavi.pl script to adjust the links to the index order.
-// **********************************************************************
-
 /*!
-    \previouspage index.html
+    \previouspage creator-how-to-install.html
     \page creator-getting-started.html
     \nextpage creator-overview.html
 
@@ -18,19 +12,17 @@
     \l{https://www.qt.io/academy/course-catalog#getting-started-with-qt-creator}
     {Getting Started with Qt Creator} course in Qt Academy.
 
-    For more information about installing \QC, see \l{Install \QC}.
-
-    \table
+    \table borderless
         \row
-            \li \inlineimage front-gs.png
-            \li \inlineimage front-ui.png
-            \li \inlineimage front-advanced.png
+            \li \inlineimage icons/installation.png
+            \li \inlineimage icons/ide.png
+            \li \inlineimage icons/getting-started.png
         \row
-            \li \b {\l{Developing with \QC}}
+            \li \b {\l{Overview}}
 
                 If you have not used an integrated development environment (IDE)
                 before, or want to know what kind of IDE \QC is, go to
-                \l{Developing with \QC}.
+                \l{Overview}.
             \li \b {\l{User Interface}}
 
                 If you have not used \QC before, and want to become familiar
@@ -43,9 +35,9 @@
                 control systems. For an overview of the options you have, go to
                 \l{Configuring Qt Creator}.
         \row
-            \li \inlineimage front-preview.png
-            \li \inlineimage front-help.png
-            \li
+            \li \inlineimage icons/platform-and-toolchain.png
+            \li \inlineimage icons/tutorials.png
+            \li \inlineimage icons/api-reference.png
         \row
             \li \b {\l{Building and Running an Example}}
 
@@ -59,7 +51,11 @@
                 Now you are ready to start developing your own applications.
                 Pick a tutorial to follow in \l{Tutorials}. To start developing
                 for mobile devices, select \l{Creating a Mobile Application}.
-            \li
+            \li \b{\l {Qt Documentation}}
+
+                For more examples, as well as the details about using Qt tools
+                and APIs to develop Qt applications, go to \l {Qt Documentation}.
     \endtable
 
+    \sa {Installation}
 */
