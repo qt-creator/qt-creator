@@ -7,6 +7,7 @@
 #include "xmlprotocol/parser.h"
 
 #include <solutions/tasking/barrier.h>
+#include <solutions/tasking/conditional.h>
 #include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/qtcprocess.h>
@@ -135,7 +136,7 @@ Group ValgrindProcessPrivate::runRecipe() const
     Storage<ValgrindStorage> storage;
     SingleBarrier xmlBarrier;
 
-    const auto onSetup = [this, storage, xmlBarrier] {
+    const auto isSetupValid = [this, storage, xmlBarrier] {
         ValgrindStorage *storagePtr = storage.activeStorage();
         storagePtr->m_valgrindCommand.setExecutable(m_valgrindCommand.executable());
         if (!m_localServerAddress.isNull()) {
@@ -154,7 +155,7 @@ Group ValgrindProcessPrivate::runRecipe() const
             if (!xmlServer->listen(m_localServerAddress)) {
                 emit q->processErrorReceived(Tr::tr("XmlServer on %1:").arg(ip) + ' '
                                              + xmlServer->errorString(), QProcess::FailedToStart);
-                return SetupResult::StopWithError;
+                return false;
             }
             xmlServer->setMaxPendingConnections(1);
 
@@ -171,23 +172,21 @@ Group ValgrindProcessPrivate::runRecipe() const
             if (!logServer->listen(m_localServerAddress)) {
                 emit q->processErrorReceived(Tr::tr("LogServer on %1:").arg(ip) + ' '
                                              + logServer->errorString(), QProcess::FailedToStart);
-                return SetupResult::StopWithError;
+                return false;
             }
             logServer->setMaxPendingConnections(1);
 
             storagePtr->m_valgrindCommand = valgrindCommand(storagePtr->m_valgrindCommand,
                                                             *xmlServer, *logServer);
         }
-        return SetupResult::Continue;
+        return true;
     };
 
     const auto onProcessSetup = [this, storage](Process &process) {
         setupValgrindProcess(&process, storage->m_valgrindCommand);
     };
 
-    const auto onParserGroupSetup = [this] {
-        return m_localServerAddress.isNull() ? SetupResult::StopWithSuccess : SetupResult::Continue;
-    };
+    const auto isAddressValid = [this] { return !m_localServerAddress.isNull(); };
 
     const auto onParserSetup = [this, storage](Parser &parser) {
         connect(&parser, &Parser::status, q, &ValgrindProcess::status);
@@ -203,12 +202,14 @@ Group ValgrindProcessPrivate::runRecipe() const
         parallel,
         storage,
         xmlBarrier,
-        onGroupSetup(onSetup),
-        ProcessTask(onProcessSetup),
-        Group {
-            onGroupSetup(onParserGroupSetup),
-            waitForBarrierTask(xmlBarrier),
-            ParserTask(onParserSetup, onParserError, CallDoneIf::Error)
+        If (isSetupValid) >> Then {
+            ProcessTask(onProcessSetup),
+            If (isAddressValid) >> Then {
+                waitForBarrierTask(xmlBarrier),
+                ParserTask(onParserSetup, onParserError, CallDoneIf::Error)
+            }
+        } >> Else {
+            errorItem
         }
     };
     return root;
