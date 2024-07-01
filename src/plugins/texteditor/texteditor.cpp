@@ -3089,15 +3089,21 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
 
     if (ro || !isPrintableText(eventText)) {
         QTextCursor::MoveOperation blockSelectionOperation = QTextCursor::NoMove;
-        if (e->modifiers() == (Qt::AltModifier | Qt::ShiftModifier) && !Utils::HostOsInfo::isMacHost()) {
-            if (MultiTextCursor::multiCursorAddEvent(e, QKeySequence::MoveToNextLine))
+        if (e->modifiers() == (Qt::AltModifier | Qt::ShiftModifier)
+            && !Utils::HostOsInfo::isMacHost()) {
+            if (MultiTextCursor::multiCursorEvent(
+                           e, QKeySequence::MoveToNextLine, Qt::ShiftModifier)) {
                 blockSelectionOperation = QTextCursor::Down;
-            else if (MultiTextCursor::multiCursorAddEvent(e, QKeySequence::MoveToPreviousLine))
+            } else if (MultiTextCursor::multiCursorEvent(
+                           e, QKeySequence::MoveToPreviousLine, Qt::ShiftModifier)) {
                 blockSelectionOperation = QTextCursor::Up;
-            else if (MultiTextCursor::multiCursorAddEvent(e, QKeySequence::MoveToNextChar))
+            } else if (MultiTextCursor::multiCursorEvent(
+                           e, QKeySequence::MoveToNextChar, Qt::ShiftModifier)) {
                 blockSelectionOperation = QTextCursor::NextCharacter;
-            else if (MultiTextCursor::multiCursorAddEvent(e, QKeySequence::MoveToPreviousChar))
+            } else if (MultiTextCursor::multiCursorEvent(
+                           e, QKeySequence::MoveToPreviousChar, Qt::ShiftModifier)) {
                 blockSelectionOperation = QTextCursor::PreviousCharacter;
+            }
         }
 
         if (blockSelectionOperation != QTextCursor::NoMove) {
