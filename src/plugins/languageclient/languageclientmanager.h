@@ -48,7 +48,8 @@ public:
 
     static LanguageClientManager *instance();
 
-    static QList<Client *> clientsSupportingDocument(const TextEditor::TextDocument *doc);
+    static QList<Client *> clientsSupportingDocument(
+        const TextEditor::TextDocument *doc, bool onlyReachable = true);
 
     static void applySettings();
     static QList<BaseSettings *> currentSettings();

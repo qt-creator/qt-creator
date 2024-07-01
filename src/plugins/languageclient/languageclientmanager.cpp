@@ -275,13 +275,14 @@ LanguageClientManager *LanguageClientManager::instance()
     return managerInstance;
 }
 
-QList<Client *> LanguageClientManager::clientsSupportingDocument(const TextEditor::TextDocument *doc)
+QList<Client *> LanguageClientManager::clientsSupportingDocument(
+    const TextEditor::TextDocument *doc, bool onlyReachable)
 {
     QTC_ASSERT(managerInstance, return {});
     QTC_ASSERT(doc, return {};);
-    return Utils::filtered(managerInstance->reachableClients(), [doc](Client *client) {
-        return client->isSupportedDocument(doc);
-    });
+    return Utils::filtered(
+        onlyReachable ? managerInstance->reachableClients() : managerInstance->m_clients,
+        [doc](Client *client) { return client->isSupportedDocument(doc); });
 }
 
 void LanguageClientManager::applySettings()

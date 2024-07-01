@@ -256,7 +256,7 @@ void updateEditorToolBar(Core::IEditor *editor)
             auto menu = new QMenu;
             auto clientsGroup = new QActionGroup(menu);
             clientsGroup->setExclusive(true);
-            for (auto client : LanguageClientManager::clientsSupportingDocument(document)) {
+            for (auto client : LanguageClientManager::clientsSupportingDocument(document, false)) {
                 auto action = clientsGroup->addAction(client->name());
                 auto reopen = [action, client = QPointer(client), document] {
                     if (!client)
@@ -266,6 +266,10 @@ void updateEditorToolBar(Core::IEditor *editor)
                 };
                 action->setCheckable(true);
                 action->setChecked(client == LanguageClientManager::clientForDocument(document));
+                action->setEnabled(client->reachable());
+                QObject::connect(client, &Client::stateChanged, action, [action, client] {
+                    action->setEnabled(client->reachable());
+                });
                 QObject::connect(action, &QAction::triggered, reopen);
             }
             menu->addActions(clientsGroup->actions());
