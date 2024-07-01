@@ -13,12 +13,12 @@ PropertyValueContainer::PropertyValueContainer()
 }
 
 PropertyValueContainer::PropertyValueContainer(qint32 instanceId,
-                                               const PropertyName &name,
+                                               PropertyNameView name,
                                                const QVariant &value,
                                                const TypeName &dynamicTypeName,
                                                AuxiliaryDataType auxiliaryDataType)
     : m_instanceId(instanceId)
-    , m_name(name)
+    , m_name(name.toByteArray())
     , m_value(value)
     , m_dynamicTypeName(dynamicTypeName)
     , m_auxiliaryDataType{auxiliaryDataType}

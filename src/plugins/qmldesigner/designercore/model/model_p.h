@@ -125,7 +125,7 @@ public:
     const QUrl &fileUrl() const;
     void setFileUrl(const QUrl &url);
 
-    InternalNodePointer createNode(const TypeName &typeName,
+    InternalNodePointer createNode(TypeNameView typeName,
                                    int majorVersion,
                                    int minorVersion,
                                    const QList<QPair<PropertyName, QVariant>> &propertyList,

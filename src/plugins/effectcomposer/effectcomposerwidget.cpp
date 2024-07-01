@@ -10,8 +10,6 @@
 #include "effectutils.h"
 #include "propertyhandler.h"
 
-//#include "qmldesigner/designercore/imagecache/midsizeimagecacheprovider.h"
-#include "theme.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -20,6 +18,7 @@
 #include <qmldesigner/documentmanager.h>
 #include <qmldesigner/qmldesignerconstants.h>
 #include <qmldesigner/qmldesignerplugin.h>
+#include <qmldesigner/components/componentcore/theme.h>
 #include <studioquickwidget.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>

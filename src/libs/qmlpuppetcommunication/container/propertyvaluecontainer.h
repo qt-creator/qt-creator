@@ -11,13 +11,14 @@
 #include "nodeinstanceglobal.h"
 
 namespace QmlDesigner {
+using PropertyNameView = QByteArrayView;
 
 class PropertyValueContainer
 {
 public:
     PropertyValueContainer();
     PropertyValueContainer(qint32 instanceId,
-                           const PropertyName &name,
+                           PropertyNameView name,
                            const QVariant &value,
                            const TypeName &dynamicTypeName,
                            AuxiliaryDataType auxiliaryDataType = AuxiliaryDataType::None);

@@ -4347,7 +4347,7 @@ PropertyName PropertyMetaInfo::name() const
                                    category(),
                                    keyValue("property declaration id", m_id)};
 
-        return PropertyName(Utils::SmallStringView(propertyData().name));
+        return propertyData().name.toQByteArray();
     } else {
         return propertyName();
     }
