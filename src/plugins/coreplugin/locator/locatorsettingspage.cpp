@@ -214,21 +214,13 @@ void RichTextDelegate::paint(QPainter *painter,
     m_doc.setHtml(options.text);
     m_doc.setTextWidth(options.rect.width());
     options.text = "";
-    options.widget->style()->drawControl(QStyle::CE_ItemViewItem, &options, painter);
+    options.widget->style()->drawControl(QStyle::CE_ItemViewItem, &options, painter, options.widget);
     painter->translate(options.rect.left(), options.rect.top());
     QRect clip(0, 0, options.rect.width(), options.rect.height());
     QAbstractTextDocumentLayout::PaintContext paintContext;
     paintContext.palette = options.palette;
     painter->setClipRect(clip);
     paintContext.clip = clip;
-    if (qobject_cast<const QAbstractItemView *>(options.widget)->selectionModel()->isSelected(index)) {
-        QAbstractTextDocumentLayout::Selection selection;
-        selection.cursor = QTextCursor(&m_doc);
-        selection.cursor.select(QTextCursor::Document);
-        selection.format.setBackground(options.palette.brush(QPalette::Highlight));
-        selection.format.setForeground(options.palette.brush(QPalette::HighlightedText));
-        paintContext.selections << selection;
-    }
     m_doc.documentLayout()->draw(painter, paintContext);
     painter->restore();
 }
