@@ -141,12 +141,15 @@
         \li Always communicates with the default instance.
     \endtable
 
-    \section1 Profile Qt Quick applications
+    \section1 Analyze the applications
 
-    You can use the \l{Profiling QML Applications}{QML Profiler} to find causes
-    for typical performance problems in your Qt Quick applications, such as
+    Use the \l{Profiling QML Applications}{QML Profiler} to find causes
+    for typical performance problems in Qt Quick applications, such as
     slowness and unresponsive, stuttering user interfaces. You cannot profile an
     in-process runtime as an individual process.
+
+    Use the \l{Performance Analyzer} to analyze the CPU and memory usage of an
+    application.
 
     \sa {Activate kits for a project}, {Enable and disable plugins},
     {\B2Q}{How To: Develop for \B2Q},

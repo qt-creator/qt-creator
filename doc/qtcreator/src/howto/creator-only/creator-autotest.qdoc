@@ -515,7 +515,7 @@
             By default, \QC groups tests that are in the same directory.
     \endtable
 
-    To select the testing framework for the current project, go to
+    To override some preferences for the current project, go to
     \uicontrol Projects > \uicontrol {Project Settings} > \uicontrol {Testing}.
 
     \section1 Qt Tests
@@ -715,7 +715,7 @@
         \li Disable statistical analysis and bootstrapping.
     \endtable
 
-    \section2 Specifying Settings for Running CTest-Based Tests
+    \section1 CTest-Based Tests
 
     To specify settings for running CTest-based tests, go to \preferences >
     \uicontrol {Testing} > \uicontrol {CTest}.

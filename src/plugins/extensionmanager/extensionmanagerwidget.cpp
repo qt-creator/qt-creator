@@ -53,6 +53,8 @@ using namespace WelcomePageHelpers;
 
 namespace ExtensionManager::Internal {
 
+Q_LOGGING_CATEGORY(widgetLog, "qtc.extensionmanager.widget", QtWarningMsg)
+
 constexpr TextFormat h5TF
     {Theme::Token_Text_Default, UiElement::UiElementH5};
 constexpr TextFormat h6TF
@@ -111,7 +113,6 @@ private:
 
 class HeadingWidget : public QWidget
 {
-    static constexpr QSize iconBgS{68, 68};
     static constexpr int dividerH = 16;
 
     Q_OBJECT
@@ -121,7 +122,7 @@ public:
         : QWidget(parent)
     {
         m_icon = new QLabel;
-        m_icon->setFixedSize(iconBgS);
+        m_icon->setFixedSize(iconBgSizeBig);
 
         static const TextFormat titleTF
             {Theme::Token_Text_Default, UiElementH4};
@@ -198,7 +199,7 @@ public:
         if (!current.isValid())
             return;
 
-        m_icon->setPixmap(icon(current));
+        m_icon->setPixmap(itemIcon(current, SizeBig));
 
         const QString name = current.data(RoleName).toString();
         m_title->setText(name);
@@ -234,32 +235,6 @@ signals:
     void vendorClicked(const QString &vendor);
 
 private:
-    static QPixmap icon(const QModelIndex &index)
-    {
-        const qreal dpr = qApp->devicePixelRatio();
-        QPixmap pixmap(iconBgS * dpr);
-        pixmap.fill(Qt::transparent);
-        pixmap.setDevicePixelRatio(dpr);
-        const QRect bgR(QPoint(), pixmap.deviceIndependentSize().toSize());
-
-        QPainter p(&pixmap);
-        QLinearGradient gradient(bgR.topRight(), bgR.bottomLeft());
-        gradient.setStops(iconGradientStops(index));
-        constexpr int iconRectRounding = 4;
-        WelcomePageHelpers::drawCardBackground(&p, bgR, gradient, Qt::NoPen, iconRectRounding);
-
-        // Icon
-        constexpr Theme::Color color = Theme::Token_Basic_White;
-        static const QIcon pack = Icon({{":/extensionmanager/images/packbig.png", color}},
-                                       Icon::Tint).icon();
-        static const QIcon extension = Icon({{":/extensionmanager/images/extensionbig.png",
-                                              color}}, Icon::Tint).icon();
-        const ItemType itemType = index.data(RoleItemType).value<ItemType>();
-        (itemType == ItemTypePack ? pack : extension).paint(&p, bgR);
-
-        return pixmap;
-    }
-
     QLabel *m_icon;
     QLabel *m_title;
     Button *m_vendor;
@@ -735,8 +710,10 @@ void ExtensionManagerWidget::fetchAndDisplayImage(const QUrl &url)
         storage->url = url;
         query.setRequest(QNetworkRequest(url));
         query.setNetworkAccessManager(NetworkAccessManager::instance());
+        qCDebug(widgetLog).noquote() << "Sending image request:" << url.toDisplayString();
     };
     const auto onFetchDone = [storage](const NetworkQuery &query, DoneWith result) {
+        qCDebug(widgetLog) << "Got image QNetworkReply:" << query.reply()->error();
         if (result == DoneWith::Success)
             storage->imageData = query.reply()->readAll();
     };
@@ -745,6 +722,9 @@ void ExtensionManagerWidget::fetchAndDisplayImage(const QUrl &url)
         if (storage->imageData.isEmpty())
             return;
         m_imageDataBuffer.setData(storage->imageData);
+        qCDebug(widgetLog).noquote() << "Image reponse size:"
+                                     << QLocale::system().formattedDataSize(
+                                            m_imageDataBuffer.size());
         if (!m_imageDataBuffer.open(QIODevice::ReadOnly))
             return;
         QImageReader reader(&m_imageDataBuffer);
@@ -756,6 +736,8 @@ void ExtensionManagerWidget::fetchAndDisplayImage(const QUrl &url)
             const QPixmap pixmap = QPixmap::fromImage(reader.read());
             m_image->setPixmap(pixmap);
         }
+        qCDebug(widgetLog) << "Image dimensions:" << reader.size();
+        qCDebug(widgetLog) << "Image is animated:" << animated;
     };
 
     Group group{

@@ -1488,6 +1488,11 @@ void CMakeBuildSystem::updateFallbackProjectData()
                                        Tr::tr("Scan \"%1\" project tree")
                                            .arg(project()->displayName()),
                                        "CMake.Scan.Tree");
+
+    // A failed configuration could be the result of an compiler update
+    // which then would cause CMake to fail. Make sure to offer an upgrade path
+    // to the new Kit compiler values.
+    updateInitialCMakeExpandableVars();
 }
 
 void CMakeBuildSystem::updateCMakeConfiguration(QString &errorMessage)
@@ -2321,6 +2326,18 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
                 }
             }
         }
+    }
+
+    // Handle MSVC C/C++ compiler update, by udating also the linker, otherwise projects
+    // will fail to compile by using a linker that doesn't exist
+    const FilePath cxxCompiler = config.filePathValueOf("CMAKE_CXX_COMPILER");
+    if (!cxxCompiler.isEmpty() && cxxCompiler.fileName() == "cl.exe") {
+        const FilePath linker = cm.filePathValueOf("CMAKE_LINKER");
+        if (!linker.exists())
+            config << CMakeConfigItem(
+                "CMAKE_LINKER",
+                CMakeConfigItem::FILEPATH,
+                cxxCompiler.parentDir().pathAppended(linker.fileName()).path().toUtf8());
     }
 
     if (!config.isEmpty())

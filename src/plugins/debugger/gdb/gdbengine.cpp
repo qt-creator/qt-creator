@@ -126,7 +126,6 @@ const char notCompatibleMessage[] = "is not compatible with target architecture"
 GdbEngine::GdbEngine()
 {
     m_gdbProc.setProcessMode(ProcessMode::Writer);
-    m_gdbProc.setUseCtrlCStub(true);
 
     setObjectName("GdbEngine");
     setDebuggerName("GDB");
@@ -471,7 +470,7 @@ void GdbEngine::handleAsyncOutput(const QStringView asyncClass, const GdbMi &res
         Module module;
         module.startAddress = 0;
         module.endAddress = 0;
-        module.hostPath = Utils::FilePath::fromString(result["host-name"].data());
+        module.hostPath = Utils::FilePath::fromUserInput(result["host-name"].data());
         const QString target = result["target-name"].data();
         module.modulePath = runParameters().inferior.command.executable().withNewPath(target);
         module.moduleName = module.hostPath.baseName();
@@ -676,7 +675,28 @@ void GdbEngine::interruptInferior()
     } else {
         showStatusMessage(Tr::tr("Stop requested..."), 5000);
         showMessage("TRYING TO INTERRUPT INFERIOR");
-        interruptInferior2();
+        // Ctrl+C events are only handled properly for console applications on Windows
+        // when gdb debugs a GUI application the CTRL+C events are not handled
+        if (HostOsInfo::isWindowsHost() && !m_isQnxGdb) {
+            IDevice::ConstPtr dev = device();
+            QTC_ASSERT(dev, notifyInferiorStopFailed(); return);
+            DeviceProcessSignalOperation::Ptr signalOperation = dev->signalOperation();
+            QTC_ASSERT(signalOperation, notifyInferiorStopFailed(); return);
+            connect(signalOperation.get(), &DeviceProcessSignalOperation::finished,
+                    this, [this, signalOperation](const QString &error) {
+                        if (error.isEmpty()) {
+                            showMessage("Interrupted " + QString::number(inferiorPid()));
+                            notifyInferiorStopOk();
+                        } else {
+                            showMessage(error, LogError);
+                            notifyInferiorStopFailed();
+                        }
+                    });
+            signalOperation->setDebuggerCommand(runParameters().debugger.command.executable());
+            signalOperation->interruptProcess(inferiorPid());
+        } else {
+            interruptInferior2();
+        }
     }
 }
 
@@ -1249,11 +1269,9 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     handleStop1(data);
 }
 
-static QStringList stopSignals(const Abi &abi)
+static QString stopSignal(const Abi &abi)
 {
-    static QStringList winSignals = { "SIGTRAP", "SIGINT" };
-    static QStringList unixSignals = { "SIGINT" };
-    return abi.os() == Abi::WindowsOS ? winSignals : unixSignals;
+    return QLatin1String(abi.os() == Abi::WindowsOS ? "SIGTRAP" : "SIGINT");
 }
 
 void GdbEngine::handleStop1(const GdbMi &data)
@@ -1402,7 +1420,7 @@ void GdbEngine::handleStop2(const GdbMi &data)
             QString meaning = data["signal-meaning"].data();
             // Ignore these as they are showing up regularly when
             // stopping debugging.
-            if (stopSignals(rp.toolChainAbi).contains(name) || rp.expectedSignals.contains(name)) {
+            if (name == stopSignal(rp.toolChainAbi) || rp.expectedSignals.contains(name)) {
                 showMessage(name + " CONSIDERED HARMLESS. CONTINUING.");
             } else if (m_isQnxGdb && name == "0" && meaning == "Signal 0") {
                 showMessage("SIGNAL 0 CONSIDERED BOGUS.");
@@ -3807,6 +3825,9 @@ void GdbEngine::setupEngine()
     CHECK_STATE(EngineSetupRequested);
     showMessage("TRYING TO START ADAPTER");
 
+    if (isRemoteEngine())
+        m_gdbProc.setUseCtrlCStub(runParameters().useCtrlCStub); // This is only set for QNX
+
     const DebuggerRunParameters &rp = runParameters();
     CommandLine gdbCommand = rp.debugger.command;
 
@@ -4301,6 +4322,7 @@ void GdbEngine::interruptLocalInferior(qint64 pid)
         showMessage("TRYING TO INTERRUPT INFERIOR BEFORE PID WAS OBTAINED", LogError);
         return;
     }
+    QString errorMessage;
     if (runParameters().runAsRoot) {
         Environment env = Environment::systemEnvironment();
         RunControl::provideAskPassEntry(env);
@@ -4309,8 +4331,11 @@ void GdbEngine::interruptLocalInferior(qint64 pid)
         proc.setEnvironment(env);
         proc.start();
         proc.waitForFinished();
+    } else if (interruptProcess(pid, &errorMessage)) {
+        showMessage("Interrupted " + QString::number(pid));
     } else {
-        m_gdbProc.interrupt();
+        showMessage(errorMessage, LogError);
+        notifyInferiorStopFailed();
     }
 }
 

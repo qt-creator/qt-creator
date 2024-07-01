@@ -1305,14 +1305,17 @@ class DumperBase():
 
         displayFormat = self.currentItemFormat()
         arrayByteSize = arrayType.size()
+        n = self.arrayItemCountFromTypeName(value.type.name, 100)
         if arrayByteSize == 0:
             # This should not happen. But it does, see QTCREATORBUG-14755.
             # GDB/GCC produce sizeof == 0 for QProcess arr[3]
             # And in the Nim string dumper.
-            itemCount = self.arrayItemCountFromTypeName(value.type.name, 100)
-            arrayByteSize = int(itemCount) * innerType.size()
+            arrayByteSize = n * innerType.size()
+        elif not self.isCdb:
+            # Do not check the inner type size for cdb since this requires a potentially expensive
+            # type lookup
+            n = arrayByteSize // innerType.size()
 
-        n = arrayByteSize // innerType.size()
         p = value.address()
         if displayFormat != DisplayFormat.Raw and p:
             if innerType.name in (
@@ -1428,8 +1431,9 @@ class DumperBase():
     # This is shared by pointer and array formatting.
     def tryPutSimpleFormattedPointer(self, ptr, typename, innerType, displayFormat, limit):
         if displayFormat == DisplayFormat.Automatic:
-            targetType = innerType
-            if innerType.code == TypeCode.Typedef:
+            if self.isCdb or innerType.code is not TypeCode.Typedef:
+                targetType = innerType
+            else:
                 targetType = innerType.target()
 
             if targetType.name in ('char', 'signed char', 'unsigned char', 'uint8_t', 'CHAR'):
@@ -3406,13 +3410,6 @@ typename))
 
         def target(self):
             return self.dumper.Type(self.dumper, self.dumper.type_target(self.typeid))
-
-        @property
-        def targetName(self):
-            target = self.target()
-            if target is None:
-                return ''
-            return target if isinstance(target, str) else target.name
 
         @property
         def moduleName(self):

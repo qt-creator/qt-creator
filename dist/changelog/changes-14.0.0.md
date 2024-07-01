@@ -246,10 +246,12 @@ Version Control Systems
 Test Integration
 ----------------
 
-* Made the test timeout optional
+* Made the test timeout optional in `Preferences` > `Testing` > `General`
   ([QTCREATORBUG-30668](https://bugreports.qt.io/browse/QTCREATORBUG-30668))
-* Added a project specific option `Limit Files to Path Patterns` for restricting
-  the search for tests
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-14.0/creator-preferences-testing.html))
+* Added the project specific `Limit Files to Path Patterns` option in `Projects` >
+  `Project Settings` > `Testing` for restricting the search for tests
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-14.0/creator-how-to-limit-files-to-path-patterns.html))
 
 ### Qt Test
 

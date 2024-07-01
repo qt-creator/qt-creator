@@ -744,7 +744,7 @@ jobs:
         name: ${{ steps.ccache.outputs.archive_name }}
 
     - name: Upload Release Changelog
-      if: contains(github.ref, 'tags/v')
+      if: runner.os == 'macOS' && contains(github.ref, 'tags/v')
       uses: actions/upload-artifact@v4
       with:
         path: ./release/changelog.md

@@ -4,6 +4,7 @@ QtcPlugin {
     name: "ExtensionManager"
 
     Depends { name: "Core" }
+    Depends { name: "Spinner" }
     Depends { name: "Tasking" }
     Depends { name: "Qt.network" }
 

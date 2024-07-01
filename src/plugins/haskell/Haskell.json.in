@@ -6,7 +6,7 @@
     "Vendor" : "Eike Ziller",
     "Copyright" : "(C) Eike Ziller",
     "License" : "MIT",
-    "Description" : "Write source code in the Haskell language",
+    "Description" : "Write source code in the Haskell language.",
     "LongDescription" : [],
     "Url" : "https://haskell.org",
     ${IDE_PLUGIN_DEPENDENCIES},
