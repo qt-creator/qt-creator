@@ -2116,9 +2116,11 @@ void ICorePrivate::registerModeSelectorStyleActions()
     ActionContainer *mmodeLayouts = ActionManager::createMenu(Constants::M_VIEW_MODESTYLES);
     mview->addMenu(mmodeLayouts, Constants::G_VIEW_VIEWS);
     QMenu *styleMenu = mmodeLayouts->menu();
-    styleMenu->setTitle(Tr::tr("Mode Selector Style"));
+    styleMenu->setTitle(Tr::tr("Modes"));
     auto *stylesGroup = new QActionGroup(styleMenu);
     stylesGroup->setExclusive(true);
+
+    mmodeLayouts->addSeparator(Constants::G_DEFAULT_THREE);
 
     ActionBuilder(this, "QtCreator.Modes.IconsAndText")
         .setText(Tr::tr("Icons and Text"))

@@ -41,9 +41,11 @@ public:
     int priority() const;
     Utils::Id id() const;
     bool isEnabled() const;
+    bool isVisible() const;
     QMenu *menu() const;
 
     void setEnabled(bool enabled);
+    void setVisible(bool visible);
     void setDisplayName(const QString &displayName);
     void setIcon(const QIcon &icon);
     void setPriority(int priority);
@@ -55,6 +57,7 @@ public:
 
 signals:
     void enabledStateChanged(bool enabled);
+    void visibleChanged(bool visible);
 
 private:
     std::unique_ptr<Internal::IModePrivate> m_d;

@@ -64,7 +64,9 @@ struct ModeManagerPrivate
 {
     void showMenu(int index, QMouseEvent *event);
     void appendMode(IMode *mode);
+    void ensureVisibleEnabledMode();
     void enabledStateChanged(IMode *mode);
+    void visibleChanged(IMode *mode);
     void activateModeHelper(Id id);
     void extensionsInitializedHelper();
 
@@ -166,9 +168,15 @@ void ModeManagerPrivate::activateModeHelper(Id id)
         m_pendingFirstActiveMode = id;
     } else {
         const int currentIndex = m_modeStack->currentIndex();
-        const int newIndex = indexOf(id);
-        if (newIndex != currentIndex && newIndex >= 0)
-            m_modeStack->setCurrentIndex(newIndex);
+        const int newIndex = id.isValid() ? indexOf(id) : -1;
+        if (newIndex != currentIndex) {
+            if (newIndex >= 0) {
+                m_modes.at(newIndex)->setVisible(true);
+                m_modeStack->setCurrentIndex(newIndex);
+            } else {
+                m_modeStack->setCurrentIndex(-1);
+            }
+        }
     }
 }
 
@@ -206,6 +214,7 @@ void ModeManagerPrivate::appendMode(IMode *mode)
     m_modeStack->insertTab(index, mode->widget(), mode->icon(), mode->displayName(),
                            mode->menu() != nullptr);
     m_modeStack->setTabEnabled(index, mode->isEnabled());
+    m_modeStack->setTabVisible(index, mode->isVisible());
 
     // Register mode shortcut
     const Id actionId = mode->id().withPrefix("QtCreator.Mode.");
@@ -228,6 +237,22 @@ void ModeManagerPrivate::appendMode(IMode *mode)
 
     QObject::connect(mode, &IMode::enabledStateChanged,
                      m_instance, [this, mode] { enabledStateChanged(mode); });
+
+    // view action
+    QAction *toggleAction;
+    ActionBuilder(m_instance, mode->id().withPrefix("QtCreator.Modes.View."))
+        //: %1 = name of a mode
+        .setText(Tr::tr("Show %1").arg(mode->displayName()))
+        .setCheckable(true)
+        .setChecked(mode->isVisible())
+        .addToContainer(Constants::M_VIEW_MODESTYLES)
+        .bindContextAction(&toggleAction)
+        .addOnTriggered(mode, [mode](bool checked) { mode->setVisible(checked); });
+    QObject::connect(
+        mode, &IMode::visibleChanged, m_instance, [this, mode, toggleAction](bool visible) {
+            toggleAction->setChecked(visible);
+            visibleChanged(mode);
+        });
 }
 
 void ModeManager::removeMode(IMode *mode)
@@ -245,23 +270,39 @@ void ModeManager::removeMode(IMode *mode)
     ICore::removeContextObject(mode);
 }
 
+void ModeManagerPrivate::ensureVisibleEnabledMode()
+{
+    // Make sure we leave any disabled mode to prevent possible crashes:
+    IMode *mode = ModeManager::currentMode();
+    if (!mode || !mode->isEnabled() || !mode->isVisible()) {
+        // This assumes that there is always at least one enabled mode.
+        for (int i = 0; i < d->m_modes.count(); ++i) {
+            IMode *other = d->m_modes.at(i);
+            if (other->isEnabled() && other->isVisible()) {
+                ModeManager::activateMode(other->id());
+                return;
+            }
+        }
+        ModeManager::activateMode({});
+    }
+}
+
 void ModeManagerPrivate::enabledStateChanged(IMode *mode)
 {
     int index = d->m_modes.indexOf(mode);
     QTC_ASSERT(index >= 0, return);
     d->m_modeStack->setTabEnabled(index, mode->isEnabled());
 
-    // Make sure we leave any disabled mode to prevent possible crashes:
-    if (mode->id() == ModeManager::currentModeId() && !mode->isEnabled()) {
-        // This assumes that there is always at least one enabled mode.
-        for (int i = 0; i < d->m_modes.count(); ++i) {
-            if (d->m_modes.at(i) != mode &&
-                d->m_modes.at(i)->isEnabled()) {
-                ModeManager::activateMode(d->m_modes.at(i)->id());
-                break;
-            }
-        }
-    }
+    ensureVisibleEnabledMode();
+}
+
+void ModeManagerPrivate::visibleChanged(IMode *mode)
+{
+    int index = d->m_modes.indexOf(mode);
+    QTC_ASSERT(index >= 0, return);
+    d->m_modeStack->setTabVisible(index, mode->isVisible());
+
+    ensureVisibleEnabledMode();
 }
 
 /*!
@@ -294,11 +335,8 @@ void ModeManager::addProjectSelector(QAction *action)
 
 void ModeManager::currentTabAboutToChange(int index)
 {
-    if (index >= 0) {
-        IMode *mode = d->m_modes.at(index);
-        if (mode)
-            emit currentModeAboutToChange(mode->id());
-    }
+    IMode *mode = d->m_modes.value(index, nullptr);
+    emit currentModeAboutToChange(mode ? mode->id() : Id());
 }
 
 void ModeManager::currentTabChanged(int index)
