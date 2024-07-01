@@ -161,14 +161,10 @@ void ExampleSetModel::recreateModel(const QtVersions &qtVersionsIn)
     // Sort by Qt version, example sets not associated to Qt last
     Utils::sort(items, [](QStandardItem *a, QStandardItem *b) {
         const QVersionNumber versionB = b->data(kVersionRole).value<QVersionNumber>();
-        if (versionB.isNull())
-            return true;
         const QVersionNumber versionA = a->data(kVersionRole).value<QVersionNumber>();
-        if (versionA.isNull())
-            return false;
-        if (versionA == versionB)
-            return a->data(Qt::DisplayRole).toString() < b->data(Qt::DisplayRole).toString();
-        return versionA < versionB;
+        if (versionA != versionB)
+            return versionA < versionB;
+        return a->data(Qt::DisplayRole).toString() < b->data(Qt::DisplayRole).toString();
     });
 
     for (QStandardItem *item : std::as_const(items))
