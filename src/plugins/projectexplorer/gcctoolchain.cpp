@@ -857,8 +857,11 @@ QStringList GccToolchain::suggestedMkspecList() const
         return {QString("linux-icc-%1").arg(targetAbi().wordWidth())};
 
     if (m_subType == MinGW) {
-        if (HostOsInfo::isWindowsHost())
+        if (HostOsInfo::isWindowsHost()) {
+            if (compilerCommand().fileName().contains("clang"))
+                return {"win32-clang-g++"};
             return {"win32-g++"};
+        }
         if (HostOsInfo::isLinuxHost()) {
             if (version().startsWith("4.6."))
                 return {"win32-g++-4.6-cross", "unsupported/win32-g++-4.6-cross"};
