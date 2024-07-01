@@ -2120,20 +2120,29 @@ void ICorePrivate::registerModeSelectorStyleActions()
     auto *stylesGroup = new QActionGroup(styleMenu);
     stylesGroup->setExclusive(true);
 
-    m_setModeSelectorStyleIconsAndTextAction = stylesGroup->addAction(Tr::tr("Icons and Text"));
-    connect(m_setModeSelectorStyleIconsAndTextAction, &QAction::triggered,
-                                 [] { ModeManager::setModeStyle(ModeManager::Style::IconsAndText); });
-    m_setModeSelectorStyleIconsAndTextAction->setCheckable(true);
-    m_setModeSelectorStyleIconsOnlyAction = stylesGroup->addAction(Tr::tr("Icons Only"));
-    connect(m_setModeSelectorStyleIconsOnlyAction, &QAction::triggered,
-                                 [] { ModeManager::setModeStyle(ModeManager::Style::IconsOnly); });
-    m_setModeSelectorStyleIconsOnlyAction->setCheckable(true);
-    m_setModeSelectorStyleHiddenAction = stylesGroup->addAction(Tr::tr("Hidden"));
-    connect(m_setModeSelectorStyleHiddenAction, &QAction::triggered,
-                                 [] { ModeManager::setModeStyle(ModeManager::Style::Hidden); });
-    m_setModeSelectorStyleHiddenAction->setCheckable(true);
+    ActionBuilder(this, "QtCreator.Modes.IconsAndText")
+        .setText(Tr::tr("Icons and Text"))
+        .setCheckable(true)
+        .addOnTriggered([] { ModeManager::setModeStyle(ModeManager::Style::IconsAndText); })
+        .addToContainer(Constants::M_VIEW_MODESTYLES, Constants::G_DEFAULT_THREE)
+        .bindContextAction(&m_setModeSelectorStyleIconsAndTextAction);
+    stylesGroup->addAction(m_setModeSelectorStyleIconsAndTextAction);
 
-    styleMenu->addActions(stylesGroup->actions());
+    ActionBuilder(this, "QtCreator.Modes.IconsOnly")
+        .setText(Tr::tr("Icons Only"))
+        .setCheckable(true)
+        .addOnTriggered([] { ModeManager::setModeStyle(ModeManager::Style::IconsOnly); })
+        .addToContainer(Constants::M_VIEW_MODESTYLES, Constants::G_DEFAULT_THREE)
+        .bindContextAction(&m_setModeSelectorStyleIconsOnlyAction);
+    stylesGroup->addAction(m_setModeSelectorStyleIconsOnlyAction);
+
+    ActionBuilder(this, "QtCreator.Modes.Hidden")
+        .setText(Tr::tr("Hidden"))
+        .setCheckable(true)
+        .addOnTriggered([] { ModeManager::setModeStyle(ModeManager::Style::Hidden); })
+        .addToContainer(Constants::M_VIEW_MODESTYLES, Constants::G_DEFAULT_THREE)
+        .bindContextAction(&m_setModeSelectorStyleHiddenAction);
+    stylesGroup->addAction(m_setModeSelectorStyleHiddenAction);
 }
 
 void ICorePrivate::openFile()
