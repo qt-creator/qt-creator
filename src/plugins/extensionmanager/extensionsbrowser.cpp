@@ -449,6 +449,7 @@ QLabel *tfLabel(const TextFormat &tf, bool singleLine)
         label->setFixedHeight(tf.lineHeight());
     label->setFont(tf.font());
     label->setAlignment(Qt::Alignment(tf.drawTextFlags));
+    label->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
     QPalette pal = label->palette();
     pal.setColor(QPalette::WindowText, tf.color());
