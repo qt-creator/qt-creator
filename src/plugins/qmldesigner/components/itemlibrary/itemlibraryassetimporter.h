@@ -56,6 +56,7 @@ public:
         QJsonObject currentOptions;
         QString name;
         QString folderName;
+        QString qmlName;
         QString type;
         qint64 size;
     };
@@ -81,6 +82,7 @@ private:
         QFileInfo sourceInfo;
         QString assetName;
         QString originalAssetName;
+        QString importedQmlName;
         qint64 assetSize;
         int importId = -1;
         int optionsIndex = -1;

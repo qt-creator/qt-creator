@@ -1288,6 +1288,7 @@ void ItemLibraryAssetImportDialog::onImportReadyForPreview(
             if (!data.previewData.name.isEmpty()) {
                 QVariantHash msgData;
                 msgData.insert("name", data.previewData.name);
+                msgData.insert("qmlName", data.previewData.qmlName);
                 msgData.insert("folder", data.previewData.folderName);
                 m_nodeInstanceView->view3DAction(View3DActionType::Import3dAddPreviewModel, msgData);
             }

@@ -290,10 +290,12 @@ bool ItemLibraryAssetImporter::preParseQuick3DAsset(const QString &file, ParseDa
                 currentChar = QLatin1Char('_');
         }
         const QChar firstChar = pd.assetName[0];
-        if (firstChar.isDigit())
-            pd.assetName[0] = QLatin1Char('_');
-        if (firstChar.isLower())
+        if (firstChar.isDigit()) {
+            // Match quick3d importer logic on starting digit
+            pd.assetName.prepend("Node");
+        } else if (firstChar.isLower()) {
             pd.assetName[0] = firstChar.toUpper();
+        }
     }
 
     pd.targetDirPath = pd.targetDir.filePath(pd.assetName);
@@ -401,6 +403,8 @@ void ItemLibraryAssetImporter::postParseQuick3DAsset(ParseData &pd)
                 while (qmlIt.hasNext()) {
                     qmlIt.next();
                     QFileInfo fi = QFileInfo(qmlIt.filePath());
+                    if (pd.importedQmlName.isEmpty())
+                        pd.importedQmlName = fi.baseName();
                     qmlInfo.append(fi.baseName());
                     qmlInfo.append(' ');
                     qmlInfo.append(version);
@@ -661,6 +665,7 @@ void ItemLibraryAssetImporter::postImport()
             PreviewData data;
             data.name = pd.assetName;
             data.folderName = pd.outDir.dirName();
+            data.qmlName = pd.importedQmlName;
             data.renderedOptions = pd.options;
             data.currentOptions = pd.options;
             data.optionsIndex = pd.optionsIndex;

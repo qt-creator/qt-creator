@@ -115,6 +115,7 @@ void Qt5Import3dNodeInstanceServer::view3DAction([[maybe_unused]] const View3DAc
     case View3DActionType::Import3dAddPreviewModel: {
         const QVariantHash cmd = command.value().toHash();
         const QString name = cmd["name"].toString();
+        const QString qmlName = cmd["qmlName"].toString();
         const QString folder = cmd["folder"].toString();
 
         bool isUpdate = m_previewData.contains(name);
@@ -136,7 +137,7 @@ void Qt5Import3dNodeInstanceServer::view3DAction([[maybe_unused]] const View3DAc
         }
 
         QFileInfo fi(fileUrl().toLocalFile());
-        QString compPath = fi.absolutePath() + '/' + folder + '/' + name + ".qml";
+        QString compPath = fi.absolutePath() + '/' + folder + '/' + qmlName + ".qml";
         QQmlComponent comp(engine(), compPath, QQmlComponent::PreferSynchronous);
         data.node = qobject_cast<QQuick3DNode *>(comp.create(context()));
         if (data.node) {
