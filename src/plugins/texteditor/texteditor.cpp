@@ -3492,6 +3492,12 @@ bool TextEditorWidget::event(QEvent *e)
         applyFontSettings();
         return true;
     }
+    case QEvent::ReadOnlyChange:
+        d->updateFileLineEndingVisible();
+        if (isReadOnly())
+            setTextInteractionFlags(textInteractionFlags() | Qt::TextSelectableByKeyboard);
+        d->updateActions();
+        break;
     default:
         break;
     }
@@ -8943,15 +8949,6 @@ void TextEditorWidget::unfoldAll()
     documentLayout->requestUpdate();
     documentLayout->emitDocumentSizeChanged();
     centerCursor();
-}
-
-void TextEditorWidget::setReadOnly(bool b)
-{
-    QPlainTextEdit::setReadOnly(b);
-    d->updateFileLineEndingVisible();
-    if (b)
-        setTextInteractionFlags(textInteractionFlags() | Qt::TextSelectableByKeyboard);
-    d->updateActions();
 }
 
 void TextEditorWidget::cut()

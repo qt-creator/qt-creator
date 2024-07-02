@@ -269,8 +269,6 @@ public:
     int columnCount() const;
     int rowCount() const;
 
-    void setReadOnly(bool b);
-
     // replaces the text from the current cursor position to the base position with the snippet
     // and starts the snippet replacement mode
     void insertCodeSnippet(int basePosition,
