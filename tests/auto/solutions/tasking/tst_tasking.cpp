@@ -419,7 +419,7 @@ static Handler toTweakDoneHandler(DoneResult result)
 
 static TestData storageShadowingData()
 {
-    // This test check if storage shadowing works OK.
+    // This test checks if storage shadowing works OK.
 
     const Storage<CustomStorage> storage;
     // This helper storage collect the pointers to storages created by shadowedStorage.
@@ -3010,7 +3010,7 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        // These tests confirms the expected message log
+        // These tests confirm the expected message log.
 
         const TestData testSuccess {
             storage,
@@ -3140,7 +3140,7 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        // This tests ensures the task done handlers are invoked in a different order
+        // This test ensures the task done handlers are invoked in a different order
         // than the corresponding setup handlers.
 
         const QList<milliseconds> tasks { 1000000ms, 0ms };
@@ -3175,7 +3175,7 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        // This tests ensures the task done handler or onGroupDone accepts the DoneResult as an
+        // This test ensures the task done handler or onGroupDone accepts the DoneResult as an
         // argument.
 
         const Group groupSuccess {
@@ -3214,7 +3214,7 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        // This tests ensures the task done handler or onGroupDone accepts the DoneResult as an
+        // These tests ensure the task done handler or onGroupDone accepts the DoneResult as an
         // argument.
 
         const Group groupSuccess {
@@ -3255,7 +3255,7 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        // This test check if ExecutableItem's negation works OK
+        // This test checks if ExecutableItem's negation works OK.
 
         const Group negateSuccessTask {
             storage,
@@ -3302,7 +3302,7 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        // This test check if ExecutableItem's AND and OR works OK
+        // This test checks if ExecutableItem's AND and OR works OK.
 
         const Group successAndSuccessTask {
             storage,
@@ -3383,6 +3383,41 @@ void tst_Tasking::testTree_data()
             << TestData{storage, errorOrSuccessTask, errorSuccessLog, 2, DoneWith::Success, 2};
         QTest::newRow("ErrorOrErrorTask")
             << TestData{storage, errorOrErrorTask, errorErrorLog, 2, DoneWith::Error, 2};
+    }
+
+    {
+        // This test ensures the nullItem in conditional expression works OK.
+
+        const auto recipe = [storage, createSuccessTask](bool condition) {
+            return Group {
+                storage,
+                condition ? createSuccessTask(0) : nullItem
+            };
+        };
+
+        const Log trueLog {{0, Handler::Setup}, {0, Handler::Success}};
+        const Log falseLog {};
+
+        QTest::newRow("NullItemTrue")
+            << TestData{storage, recipe(true), trueLog, 1, DoneWith::Success, 1};
+        QTest::newRow("NullItemFalse")
+            << TestData{storage, recipe(false), falseLog, 0, DoneWith::Success, 0};
+    }
+
+    {
+        // These tests ensure the successItem and errorItem work OK.
+
+        const auto recipe = [storage, createSuccessTask](bool success) {
+            return Group {
+                storage,
+                success ? successItem : errorItem
+            };
+        };
+
+        QTest::newRow("SuccessItem")
+            << TestData{storage, recipe(true), {}, 0, DoneWith::Success, 0};
+        QTest::newRow("ErrorItem")
+            << TestData{storage, recipe(false), {}, 0, DoneWith::Error, 0};
     }
 
     // This test checks if storage shadowing works OK.
@@ -3664,6 +3699,65 @@ void tst_Tasking::testTree_data()
 
         QTest::newRow("CondIfErrorThenErrorWithContinuation")
             << TestData{storage, root, log, 3, DoneWith::Success, 2};
+    }
+
+    {
+        // These tests ensure the successItem and errorItem work OK in if-statement.
+
+        const auto recipe = [storage, createSuccessTask, createFailingTask](
+                                bool ifCondition, bool bodyResult, bool elseResult) {
+            return Group {
+                storage,
+                If (ifCondition ? createSuccessTask(0) : createFailingTask(0)) >> Then {
+                    bodyResult ? successItem : errorItem
+                } >> Else {
+                    elseResult ? successItem : errorItem
+                },
+                createSuccessTask(1)
+            };
+        };
+
+        const Log trueTrueTrue {
+            {0, Handler::Setup},
+            {0, Handler::Success},
+            {1, Handler::Setup},
+            {1, Handler::Success}
+        };
+        const Log trueTrueFalse = trueTrueTrue; // Else branch skipped.
+        const Log trueFalseTrue {
+            {0, Handler::Setup},
+            {0, Handler::Success}
+        };
+        const Log trueFalseFalse = trueFalseTrue; // Else branch skipped.
+        const Log falseTrueTrue {
+            {0, Handler::Setup},
+            {0, Handler::Error},
+            {1, Handler::Setup}, // Else branch returns successItem -> continue after If.
+            {1, Handler::Success}
+        };
+        const Log falseTrueFalse {
+            {0, Handler::Setup},
+            {0, Handler::Error}
+        }; // Else branch returns errorItem -> main group skips task 2 and stops with error.
+        const Log falseFalseTrue = falseTrueTrue; // Then branch skipped.
+        const Log falseFalseFalse = falseTrueFalse; // Then branch skipped
+
+        QTest::newRow("BoolItemTrueTrueTrue")
+            << TestData{storage, recipe(true, true, true), trueTrueTrue, 2, DoneWith::Success, 2};
+        QTest::newRow("BoolItemTrueTrueFalse")
+            << TestData{storage, recipe(true, true, false), trueTrueFalse, 2, DoneWith::Success, 2};
+        QTest::newRow("BoolItemTrueFalseTrue")
+            << TestData{storage, recipe(true, false, true), trueFalseTrue, 2, DoneWith::Error, 1};
+        QTest::newRow("BoolItemTrueFalseFalse")
+            << TestData{storage, recipe(true, false, false), trueFalseFalse, 2, DoneWith::Error, 1};
+        QTest::newRow("BoolItemFalseTrueTrue")
+            << TestData{storage, recipe(false, true, true), falseTrueTrue, 2, DoneWith::Success, 2};
+        QTest::newRow("BoolItemFalseTrueFalse")
+            << TestData{storage, recipe(false, true, false), falseTrueFalse, 2, DoneWith::Error, 1};
+        QTest::newRow("BoolItemFalseFalseTrue")
+            << TestData{storage, recipe(false, false, true), falseFalseTrue, 2, DoneWith::Success, 2};
+        QTest::newRow("BoolItemFalseFalseFalse")
+            << TestData{storage, recipe(false, false, false), falseFalseFalse, 2, DoneWith::Error, 1};
     }
 }
 

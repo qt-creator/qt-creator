@@ -1187,8 +1187,6 @@ GroupItem WorkflowPolicyFunctor::operator()(WorkflowPolicy policy) const
 const ParallelLimitFunctor parallelLimit = ParallelLimitFunctor();
 const WorkflowPolicyFunctor workflowPolicy = WorkflowPolicyFunctor();
 
-const GroupItem nullItem = GroupItem({});
-
 const GroupItem sequential = parallelLimit(1);
 const GroupItem parallel = parallelLimit(0);
 const GroupItem parallelIdealThreadCountLimit = parallelLimit(qMax(QThread::idealThreadCount() - 1, 1));
@@ -1200,6 +1198,11 @@ const GroupItem continueOnSuccess = workflowPolicy(WorkflowPolicy::ContinueOnSuc
 const GroupItem stopOnSuccessOrError = workflowPolicy(WorkflowPolicy::StopOnSuccessOrError);
 const GroupItem finishAllAndSuccess = workflowPolicy(WorkflowPolicy::FinishAllAndSuccess);
 const GroupItem finishAllAndError = workflowPolicy(WorkflowPolicy::FinishAllAndError);
+
+// Keep below the above in order to avoid static initialization fiasco.
+const GroupItem nullItem = GroupItem({});
+const ExecutableItem successItem = Group { finishAllAndSuccess };
+const ExecutableItem errorItem = Group { finishAllAndError };
 
 // Please note the thread_local keyword below guarantees a separate instance per thread.
 // The s_activeTaskTrees is currently used internally only and is not exposed in the public API.

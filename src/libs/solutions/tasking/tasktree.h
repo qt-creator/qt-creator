@@ -417,8 +417,6 @@ public:
 TASKING_EXPORT extern const ParallelLimitFunctor parallelLimit;
 TASKING_EXPORT extern const WorkflowPolicyFunctor workflowPolicy;
 
-TASKING_EXPORT extern const GroupItem nullItem;
-
 TASKING_EXPORT extern const GroupItem sequential;
 TASKING_EXPORT extern const GroupItem parallel;
 TASKING_EXPORT extern const GroupItem parallelIdealThreadCountLimit;
@@ -430,6 +428,10 @@ TASKING_EXPORT extern const GroupItem continueOnSuccess;
 TASKING_EXPORT extern const GroupItem stopOnSuccessOrError;
 TASKING_EXPORT extern const GroupItem finishAllAndSuccess;
 TASKING_EXPORT extern const GroupItem finishAllAndError;
+
+TASKING_EXPORT extern const GroupItem nullItem;
+TASKING_EXPORT extern const ExecutableItem successItem;
+TASKING_EXPORT extern const ExecutableItem errorItem;
 
 class TASKING_EXPORT Forever final : public Group
 {
