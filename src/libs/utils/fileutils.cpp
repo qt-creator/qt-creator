@@ -305,49 +305,50 @@ FileUtils::CopyAskingForOverwrite::CopyAskingForOverwrite(QWidget *dialogParent,
     , m_postOperation(postOperation)
 {}
 
-bool FileUtils::CopyAskingForOverwrite::operator()(const FilePath &src,
-                                                   const FilePath &dest,
-                                                   QString *error)
+FileUtils::CopyHelper FileUtils::CopyAskingForOverwrite::operator()()
 {
-    bool copyFile = true;
-    if (dest.exists()) {
-        if (m_skipAll)
-            copyFile = false;
-        else if (!m_overwriteAll) {
-            const int res = QMessageBox::question(
-                m_parent,
-                Tr::tr("Overwrite File?"),
-                Tr::tr("Overwrite existing file \"%1\"?").arg(dest.toUserOutput()),
-                QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::No | QMessageBox::NoToAll
-                    | QMessageBox::Cancel);
-            if (res == QMessageBox::Cancel) {
+    CopyHelper helperFunction = [this](const FilePath &src, const FilePath &dest, QString *error) {
+        bool copyFile = true;
+        if (dest.exists()) {
+            if (m_skipAll)
+                copyFile = false;
+            else if (!m_overwriteAll) {
+                const int res = QMessageBox::question(
+                    m_parent,
+                    Tr::tr("Overwrite File?"),
+                    Tr::tr("Overwrite existing file \"%1\"?").arg(dest.toUserOutput()),
+                    QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::No
+                            | QMessageBox::NoToAll | QMessageBox::Cancel);
+                if (res == QMessageBox::Cancel) {
+                    return false;
+                } else if (res == QMessageBox::No) {
+                    copyFile = false;
+                } else if (res == QMessageBox::NoToAll) {
+                    m_skipAll = true;
+                    copyFile = false;
+                } else if (res == QMessageBox::YesToAll) {
+                    m_overwriteAll = true;
+                }
+                if (copyFile)
+                    dest.removeFile();
+            }
+        }
+        if (copyFile) {
+            dest.parentDir().ensureWritableDir();
+            if (!src.copyFile(dest)) {
+                if (error) {
+                    *error = Tr::tr("Could not copy file \"%1\" to \"%2\".")
+                                 .arg(src.toUserOutput(), dest.toUserOutput());
+                }
                 return false;
-            } else if (res == QMessageBox::No) {
-                copyFile = false;
-            } else if (res == QMessageBox::NoToAll) {
-                m_skipAll = true;
-                copyFile = false;
-            } else if (res == QMessageBox::YesToAll) {
-                m_overwriteAll = true;
             }
-            if (copyFile)
-                dest.removeFile();
+            if (m_postOperation)
+                m_postOperation(dest);
         }
-    }
-    if (copyFile) {
-        dest.parentDir().ensureWritableDir();
-        if (!src.copyFile(dest)) {
-            if (error) {
-                *error = Tr::tr("Could not copy file \"%1\" to \"%2\".")
-                             .arg(src.toUserOutput(), dest.toUserOutput());
-            }
-            return false;
-        }
-        if (m_postOperation)
-            m_postOperation(dest);
-    }
-    m_files.append(dest.absoluteFilePath());
-    return true;
+        m_files.append(dest.absoluteFilePath());
+        return true;
+    };
+    return helperFunction;
 }
 
 FilePaths FileUtils::CopyAskingForOverwrite::files() const
@@ -694,11 +695,10 @@ FilePathInfo FileUtils::filePathInfoFromTriple(const QString &infos, int modeBas
     return {size, flags, dt};
 }
 
-bool FileUtils::copyRecursively(
-    const FilePath &srcFilePath,
-    const FilePath &tgtFilePath,
-    QString *error,
-    std::function<bool(const FilePath &, const FilePath &, QString *)> copyHelper)
+bool FileUtils::copyRecursively(const FilePath &srcFilePath,
+                                const FilePath &tgtFilePath,
+                                QString *error,
+                                CopyHelper copyHelper)
 {
     if (srcFilePath.isDir()) {
         if (!tgtFilePath.ensureWritableDir()) {

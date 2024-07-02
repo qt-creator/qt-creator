@@ -43,13 +43,14 @@ struct QTCREATOR_UTILS_EXPORT RunResult
 class QTCREATOR_UTILS_EXPORT FileUtils
 {
 public:
+    using CopyHelper = std::function<bool(const FilePath &, const FilePath &, QString *)>;
 #ifdef QT_GUI_LIB
     class QTCREATOR_UTILS_EXPORT CopyAskingForOverwrite
     {
     public:
         CopyAskingForOverwrite(QWidget *dialogParent,
                                const std::function<void(FilePath)> &postOperation = {});
-        bool operator()(const FilePath &src, const FilePath &dest, QString *error);
+        CopyHelper operator()();
         FilePaths files() const;
 
     private:
@@ -65,7 +66,7 @@ public:
         const FilePath &srcFilePath,
         const FilePath &tgtFilePath,
         QString *error,
-        std::function<bool(const FilePath &, const FilePath &, QString *)> helper);
+        CopyHelper helper);
 
     static bool copyIfDifferent(const FilePath &srcFilePath,
                                 const FilePath &tgtFilePath);
