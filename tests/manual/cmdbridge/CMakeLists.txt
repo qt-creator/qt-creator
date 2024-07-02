@@ -5,7 +5,7 @@ add_qtc_test(tst_manual_cmdbridge
   MANUALTEST
   CONDITION TARGET CmdBridgeClient
   DEFINES "TEST_RELATIVE_LIBEXEC_PATH=\"${TEST_RELATIVE_LIBEXEC_PATH}\""
-  DEPENDS CmdBridgeClient
+  DEPENDS CmdBridgeClient app_version
   SOURCES
     tst_cmdbridge.cpp
 )
