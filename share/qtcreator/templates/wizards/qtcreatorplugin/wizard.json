@@ -19,8 +19,7 @@
         { "key": "LibraryDefine", "value": "%{JS: Cpp.headerGuard(value('PluginName')) + '_LIBRARY'}" },
         { "key": "LibraryExport", "value": "%{JS: Cpp.headerGuard(value('PluginName')) + '_EXPORT'}" },
         { "key": "SrcFileName", "value": "%{JS: Util.fileName(value('PluginNameLower'), Util.preferredSuffix('text/x-c++src'))}" },
-        { "key": "HdrFileName", "value": "%{JS: Util.fileName(value('PluginNameLower'), Util.preferredSuffix('text/x-c++hdr'))}" },
-        { "key": "GlobalHdrFileName", "value": "%{JS: Util.fileName(value('PluginNameLower') + '_global', Util.preferredSuffix('text/x-c++hdr'))}" },
+        { "key": "MocFileName", "value": "%{JS: Util.fileName(value('PluginNameLower'), 'moc')}" },
         { "key": "ConstantsHdrFileName", "value": "%{JS: Util.fileName(value('PluginNameLower') + 'constants', Util.preferredSuffix('text/x-c++hdr'))}" },
         { "key": "TrHdrFileName", "value": "%{JS: Util.fileName(value('PluginNameLower') + 'tr', Util.preferredSuffix('text/x-c++hdr'))}" },
         { "key": "CN", "value": "%{JS: Cpp.className(value('PluginName') + 'Plugin')}" },
@@ -171,14 +170,6 @@
                     "target": "%{SrcFileName}"
                 },
                 {
-                    "source": "myplugin.h",
-                    "target": "%{HdrFileName}"
-                },
-                {
-                    "source": "myplugin_global.h",
-                    "target": "%{GlobalHdrFileName}"
-                },
-                {
                     "source": "mypluginconstants.h",
                     "target": "%{ConstantsHdrFileName}"
                 },
@@ -197,7 +188,7 @@
                 },
                 {
                     "source": "../projects/git.ignore",
-                    "target": ".gitignore",
+                    "target": ".gitignore"
                     "condition": "%{JS: !value('IsSubproject') && value('VersionControl') === 'G.Git'}"
                 }
             ]
