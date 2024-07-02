@@ -704,27 +704,19 @@ void CMakeBuildSettingsWidget::kitCMakeConfiguration()
         m_buildConfig->kit()->unblockNotification();
     });
 
-    Layouting::Grid grid;
-    KitAspect *widget = CMakeKitAspect::createKitAspect(m_buildConfig->kit());
-    widget->setParent(dialog);
-    widget->addToLayout(grid);
-    widget = CMakeGeneratorKitAspect::createKitAspect(m_buildConfig->kit());
-    widget->setParent(dialog);
-    widget->addToLayout(grid);
-    widget = CMakeConfigurationKitAspect::createKitAspect(m_buildConfig->kit());
-    widget->setParent(dialog);
-    widget->addToLayout(grid);
-    grid.attachTo(dialog);
-
-    auto layout = qobject_cast<QGridLayout *>(dialog->layout());
-
-    layout->setColumnStretch(1, 1);
+    Kit *kit = m_buildConfig->kit();
 
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Close);
     connect(buttons, &QDialogButtonBox::clicked, dialog, &QDialog::close);
-    layout->addItem(new QSpacerItem(0, 0, QSizePolicy::Maximum, QSizePolicy::MinimumExpanding),
-                    4, 0);
-    layout->addWidget(buttons, 5, 0, 1, -1);
+
+    using namespace Layouting;
+    Grid {
+        CMakeKitAspect::createKitAspect(kit),
+        CMakeGeneratorKitAspect::createKitAspect(kit),
+        CMakeConfigurationKitAspect::createKitAspect(kit),
+        empty, empty, buttons,
+        columnStretch(1, 1)
+    }.attachTo(dialog);
 
     dialog->setMinimumWidth(400);
     dialog->resize(800, 1);
