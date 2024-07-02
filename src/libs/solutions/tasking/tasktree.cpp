@@ -865,6 +865,82 @@ private:
 */
 
 /*!
+    \variable nullItem
+
+    A convenient global group's element indicating a no-op item.
+
+    This is useful in conditional expressions to indicate the absence of an optional element:
+
+    \code
+        const ExecutableItem task = ...;
+        const std::optional<ExecutableItem> optionalTask = ...;
+
+        Group group {
+            task,
+            optionalTask ? *optionalTask : nullItem
+        };
+    \endcode
+*/
+
+/*!
+    \variable successItem
+
+    A convenient global executable element containing an empty, successful, synchronous task.
+
+    This is useful in if-statements to indicate that a branch ends with success:
+
+    \code
+        const ExecutableItem conditionalTask = ...;
+
+        Group group {
+            stopOnDone,
+            If (conditionalTask) >> Then {
+                ...
+            } >> Else {
+                successItem
+            },
+            nextTask
+        };
+    \endcode
+
+    In the above example, if the \c conditionalTask finishes with an error, the \c Else branch
+    is chosen, which finishes immediately with success. This causes the \c nextTask to be skipped
+    (because of the stopOnDone workflow policy of the \c group)
+    and the \c group finishes with success.
+
+    \sa errorItem
+*/
+
+/*!
+    \variable errorItem
+
+    A convenient global executable element containing an empty, erroneous, synchronous task.
+
+    This is useful in if-statements to indicate that a branch ends with an error:
+
+    \code
+        const ExecutableItem conditionalTask = ...;
+
+        Group group {
+            stopOnError,
+            If (conditionalTask) >> Then {
+                ...
+            } >> Else {
+                errorItem
+            },
+            nextTask
+        };
+    \endcode
+
+    In the above example, if the \c conditionalTask finishes with an error, the \c Else branch
+    is chosen, which finishes immediately with an error. This causes the \c nextTask to be skipped
+    (because of the stopOnError workflow policy of the \c group)
+    and the \c group finishes with an error.
+
+    \sa successItem
+*/
+
+/*!
     \variable sequential
     A convenient global group's element describing the sequential execution mode.
 
