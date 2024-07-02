@@ -308,17 +308,15 @@ protected:
     ExecutableItem(const TaskHandler &handler) : GroupItem(handler) {}
 
 private:
-    friend ExecutableItem operator!(const ExecutableItem &item);
-    friend ExecutableItem operator&&(const ExecutableItem &first, const ExecutableItem &second);
-    friend ExecutableItem operator||(const ExecutableItem &first, const ExecutableItem &second);
+    TASKING_EXPORT friend ExecutableItem operator!(const ExecutableItem &item);
+    TASKING_EXPORT friend ExecutableItem operator&&(const ExecutableItem &first,
+                                                    const ExecutableItem &second);
+    TASKING_EXPORT friend ExecutableItem operator||(const ExecutableItem &first,
+                                                    const ExecutableItem &second);
 
     ExecutableItem withCancelImpl(
         const std::function<void(QObject *, const std::function<void()> &)> &connectWrapper) const;
 };
-
-TASKING_EXPORT ExecutableItem operator!(const ExecutableItem &item);
-TASKING_EXPORT ExecutableItem operator&&(const ExecutableItem &first, const ExecutableItem &second);
-TASKING_EXPORT ExecutableItem operator||(const ExecutableItem &first, const ExecutableItem &second);
 
 class TASKING_EXPORT Group : public ExecutableItem
 {
