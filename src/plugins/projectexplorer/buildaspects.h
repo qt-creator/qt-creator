@@ -23,7 +23,7 @@ public:
     bool isShadowBuild() const;
     void setProblem(const QString &description);
 
-    void addToLayout(Layouting::Layout &parent) override;
+    void addToLayoutImpl(Layouting::Layout &parent) override;
 
     static Utils::FilePath fixupDir(const Utils::FilePath &dir);
 

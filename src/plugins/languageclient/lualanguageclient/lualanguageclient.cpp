@@ -317,7 +317,7 @@ public:
     Layouting::LayoutModifier settingsLayout()
     {
         if (m_aspects)
-            return [this](Layouting::Layout *iface) { m_aspects->addToLayout(*iface); };
+            return [this](Layouting::Layout *iface) { m_aspects->addToLayoutImpl(*iface); };
         return {};
     }
 

@@ -110,8 +110,7 @@ public:
 
     virtual void refresh() = 0;
 
-    void addToLayout(Layouting::Layout &parentItem) override;
-
+    void addToLayoutImpl(Layouting::Layout &layout) override;
     static QString msgManage();
 
     Kit *kit() const { return m_kit; }
@@ -124,7 +123,7 @@ public:
 
 protected:
     virtual void makeReadOnly() {}
-    virtual void addToLayoutImpl(Layouting::Layout &parentItem) = 0;
+    virtual void addToInnerLayout(Layouting::Layout &parentItem) = 0;
     virtual Utils::Id settingsPageItemToPreselect() const { return {}; }
 
     Kit *m_kit;

@@ -91,7 +91,7 @@ void LibrarySelectionAspect::setVariantValue(const QVariant &value, Announcement
     setValue(map, howToAnnounce);
 }
 
-void LibrarySelectionAspect::addToLayout(Layouting::Layout &parent)
+void LibrarySelectionAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
     using namespace Layouting;
 

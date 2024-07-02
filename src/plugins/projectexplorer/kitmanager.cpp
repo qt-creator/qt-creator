@@ -798,7 +798,7 @@ void KitAspect::makeStickySubWidgetsReadOnly()
     makeReadOnly();
 }
 
-void KitAspect::addToLayout(Layouting::Layout &parentItem)
+void KitAspect::addToLayoutImpl(Layouting::Layout &layout)
 {
     auto label = createSubWidget<QLabel>(m_factory->displayName() + ':');
     label->setToolTip(m_factory->description());
@@ -806,16 +806,16 @@ void KitAspect::addToLayout(Layouting::Layout &parentItem)
         emit labelLinkActivated(link);
     });
 
-    parentItem.addItem(label);
-    addToLayoutImpl(parentItem);
+    layout.addItem(label);
+    addToInnerLayout(layout);
     if (m_managingPageId.isValid()) {
         m_manageButton = createSubWidget<QPushButton>(msgManage());
         connect(m_manageButton, &QPushButton::clicked, [this] {
             Core::ICore::showOptionsDialog(m_managingPageId, settingsPageItemToPreselect());
         });
-        parentItem.addItem(m_manageButton);
+        layout.addItem(m_manageButton);
     }
-    parentItem.addItem(Layouting::br);
+    layout.addItem(Layouting::br);
 }
 
 void KitAspect::addMutableAction(QWidget *child)

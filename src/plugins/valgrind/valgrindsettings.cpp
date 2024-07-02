@@ -116,7 +116,7 @@ SuppressionAspect::~SuppressionAspect()
     delete d;
 }
 
-void SuppressionAspect::addToLayout(Layouting::Layout &parent)
+void SuppressionAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
     QTC_CHECK(!d->addEntry);
     QTC_CHECK(!d->removeEntry);

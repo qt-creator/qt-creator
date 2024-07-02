@@ -63,7 +63,7 @@ TerminalAspect::TerminalAspect(AspectContainer *container)
 /*!
     \reimp
 */
-void TerminalAspect::addToLayout(Layout &parent)
+void TerminalAspect::addToLayoutImpl(Layout &parent)
 {
     QTC_CHECK(!m_checkBox);
     m_checkBox = createSubWidget<QCheckBox>(Tr::tr("Run in terminal"));
@@ -174,7 +174,7 @@ void WorkingDirectoryAspect::setEnvironment(EnvironmentAspect *envAspect)
 /*!
     \reimp
 */
-void WorkingDirectoryAspect::addToLayout(Layout &builder)
+void WorkingDirectoryAspect::addToLayoutImpl(Layout &builder)
 {
     QTC_CHECK(!m_chooser);
     m_chooser = new PathChooser;
@@ -457,7 +457,7 @@ QWidget *ArgumentsAspect::setupChooser()
 /*!
     \reimp
 */
-void ArgumentsAspect::addToLayout(Layout &builder)
+void ArgumentsAspect::addToLayoutImpl(Layout &builder)
 {
     QTC_CHECK(!m_chooser && !m_multiLineChooser && !m_multiLineButton);
 
@@ -650,7 +650,7 @@ FilePath ExecutableAspect::executable() const
 /*!
     \reimp
 */
-void ExecutableAspect::addToLayout(Layout &builder)
+void ExecutableAspect::addToLayoutImpl(Layout &builder)
 {
     builder.addItem(m_executable);
     if (m_alternativeExecutable) {
@@ -896,7 +896,7 @@ void LauncherAspect::toMap(Store &map) const
         saveToMap(map, m_currentId, QString(), settingsKey());
 }
 
-void LauncherAspect::addToLayout(Layout &builder)
+void LauncherAspect::addToLayoutImpl(Layout &builder)
 {
     if (QTC_GUARD(m_comboBox.isNull()))
         m_comboBox = new QComboBox;

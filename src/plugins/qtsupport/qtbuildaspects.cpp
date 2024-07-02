@@ -30,9 +30,9 @@ QmlDebuggingAspect::QmlDebuggingAspect(AspectContainer *container)
     setValue(buildPropertiesSettings().qmlDebugging());
 }
 
-void QmlDebuggingAspect::addToLayout(Layouting::Layout &parent)
+void QmlDebuggingAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
-    SelectionAspect::addToLayout(parent);
+    SelectionAspect::addToLayoutImpl(parent);
     const auto warningLabel = createSubWidget<InfoLabel>(QString(), InfoLabel::Warning);
     warningLabel->setElideMode(Qt::ElideNone);
     parent.addRow({Layouting::empty, warningLabel});
@@ -78,9 +78,9 @@ void QtQuickCompilerAspect::setBuildConfiguration(const BuildConfiguration *buil
     m_buildConfig = buildConfig;
 }
 
-void QtQuickCompilerAspect::addToLayout(Layouting::Layout &parent)
+void QtQuickCompilerAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
-    SelectionAspect::addToLayout(parent);
+    SelectionAspect::addToLayoutImpl(parent);
     const auto warningLabel = createSubWidget<InfoLabel>(QString(), InfoLabel::Warning);
     warningLabel->setElideMode(Qt::ElideNone);
     warningLabel->setVisible(false);

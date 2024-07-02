@@ -73,7 +73,7 @@ public:
     }
 
 protected:
-    void addToLayoutImpl(Layouting::Layout &parent) override
+    void addToInnerLayout(Layouting::Layout &parent) override
     {
         addMutableAction(m_comboBox);
         parent.addItem(m_comboBox);

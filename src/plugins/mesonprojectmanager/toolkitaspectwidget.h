@@ -36,7 +36,7 @@ private:
 
     void makeReadOnly() override { m_toolsComboBox->setEnabled(false); }
 
-    void addToLayoutImpl(Layouting::Layout &parent) override
+    void addToInnerLayout(Layouting::Layout &parent) override
     {
         addMutableAction(m_toolsComboBox);
         parent.addItem(m_toolsComboBox);

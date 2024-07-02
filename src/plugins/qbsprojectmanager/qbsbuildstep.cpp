@@ -60,9 +60,9 @@ ArchitecturesAspect::ArchitecturesAspect(AspectContainer *container)
     setAllValues(m_abisToArchMap.keys());
 }
 
-void ArchitecturesAspect::addToLayout(Layouting::Layout &parent)
+void ArchitecturesAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
-    MultiSelectionAspect::addToLayout(parent);
+    MultiSelectionAspect::addToLayoutImpl(parent);
     const auto changeHandler = [this] {
         const QtVersion *qtVersion = QtKitAspect::qtVersion(m_kit);
         if (!qtVersion) {

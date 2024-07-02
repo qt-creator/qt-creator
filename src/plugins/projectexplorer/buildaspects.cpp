@@ -123,9 +123,9 @@ void BuildDirectoryAspect::fromMap(const Store &map)
     }
 }
 
-void BuildDirectoryAspect::addToLayout(Layouting::Layout &parent)
+void BuildDirectoryAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
-    FilePathAspect::addToLayout(parent);
+    FilePathAspect::addToLayoutImpl(parent);
     d->genericProblemSpacer = new QLabel;
     d->specialProblemSpacer = new QLabel;
     d->genericProblemLabel = new InfoLabel({}, InfoLabel::Warning);
