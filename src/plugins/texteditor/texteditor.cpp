@@ -1104,8 +1104,6 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     m_fileLineEnding->setContentsMargins(spacing, 0, spacing, 0);
     m_fileLineEndingAction = m_toolBar->addWidget(m_fileLineEnding);
     updateFileLineEndingVisible();
-    connect(q, &TextEditorWidget::readOnlyChanged,
-            this, &TextEditorWidgetPrivate::updateFileLineEndingVisible);
 
     m_fileEncodingButton = new QToolButton;
     m_fileEncodingButton->setContentsMargins(spacing, 0, spacing, 0);
@@ -8950,7 +8948,7 @@ void TextEditorWidget::unfoldAll()
 void TextEditorWidget::setReadOnly(bool b)
 {
     QPlainTextEdit::setReadOnly(b);
-    emit readOnlyChanged();
+    d->updateFileLineEndingVisible();
     if (b)
         setTextInteractionFlags(textInteractionFlags() | Qt::TextSelectableByKeyboard);
     d->updateActions();

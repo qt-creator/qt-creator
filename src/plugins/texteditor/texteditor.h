@@ -531,7 +531,6 @@ public:
 
 signals:
     void assistFinished(); // Used in tests.
-    void readOnlyChanged();
 
     void requestBlockUpdate(const QTextBlock &);
 
