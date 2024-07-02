@@ -357,14 +357,16 @@ private:
     static GroupDoneHandler wrapGroupDone(Handler &&handler)
     {
         static constexpr bool isDoneResultType = std::is_same_v<Handler, DoneResult>;
-        // R, V, D stands for: Done[R]esult, [V]oid, [D]oneWith
+        // R, B, V, D stands for: Done[R]esult, [B]ool, [V]oid, [D]oneWith
         static constexpr bool isRD = isInvocable<DoneResult, Handler, DoneWith>();
         static constexpr bool isR = isInvocable<DoneResult, Handler>();
+        static constexpr bool isBD = isInvocable<bool, Handler, DoneWith>();
+        static constexpr bool isB = isInvocable<bool, Handler>();
         static constexpr bool isVD = isInvocable<void, Handler, DoneWith>();
         static constexpr bool isV = isInvocable<void, Handler>();
-        static_assert(isDoneResultType || isRD || isR || isVD || isV,
+        static_assert(isDoneResultType || isRD || isR || isBD || isB || isVD || isV,
             "Group done handler needs to take (DoneWith) or (void) as an argument and has to "
-            "return void or DoneResult. Alternatively, it may be of DoneResult type. "
+            "return void, bool or DoneResult. Alternatively, it may be of DoneResult type. "
             "The passed handler doesn't fulfill these requirements.");
         return [handler](DoneWith result) {
             if constexpr (isDoneResultType)
@@ -373,11 +375,15 @@ private:
                 return std::invoke(handler, result);
             if constexpr (isR)
                 return std::invoke(handler);
+            if constexpr (isBD)
+                return toDoneResult(std::invoke(handler, result));
+            if constexpr (isB)
+                return toDoneResult(std::invoke(handler));
             if constexpr (isVD)
                 std::invoke(handler, result);
             else if constexpr (isV)
                 std::invoke(handler);
-            return result == DoneWith::Success ? DoneResult::Success : DoneResult::Error;
+            return toDoneResult(result == DoneWith::Success);
         };
     }
 };
@@ -438,26 +444,20 @@ class TASKING_EXPORT Sync final : public ExecutableItem
 public:
     template <typename Handler>
     Sync(Handler &&handler) {
-        addChildren({ onGroupSetup(wrapHandler(std::forward<Handler>(handler))) });
+        addChildren({ onGroupDone(wrapHandler(std::forward<Handler>(handler))) });
     }
 
 private:
     template <typename Handler>
-    static GroupSetupHandler wrapHandler(Handler &&handler) {
-        // R, V stands for: Done[R]esult, [V]oid
+    static auto wrapHandler(Handler &&handler) {
+        // R, B, V stands for: Done[R]esult, [B]ool, [V]oid
         static constexpr bool isR = isInvocable<DoneResult, Handler>();
+        static constexpr bool isB = isInvocable<bool, Handler>();
         static constexpr bool isV = isInvocable<void, Handler>();
-        static_assert(isR || isV,
-            "Sync handler needs to take no arguments and has to return void or DoneResult. "
+        static_assert(isR || isB || isV,
+            "Sync handler needs to take no arguments and has to return void, bool or DoneResult. "
             "The passed handler doesn't fulfill these requirements.");
-        return [handler] {
-            if constexpr (isR) {
-                return std::invoke(handler) == DoneResult::Success ? SetupResult::StopWithSuccess
-                                                                   : SetupResult::StopWithError;
-            }
-            std::invoke(handler);
-            return SetupResult::StopWithSuccess;
-        };
+        return handler;
     }
 };
 
@@ -522,18 +522,24 @@ private:
         if constexpr (std::is_same_v<Handler, TaskDoneHandler>)
             return {}; // User passed {} for the done handler.
         static constexpr bool isDoneResultType = std::is_same_v<Handler, DoneResult>;
-        // R, V, T, D stands for: Done[R]esult, [V]oid, [T]ask, [D]oneWith
+        // R, B, V, T, D stands for: Done[R]esult, [B]ool, [V]oid, [T]ask, [D]oneWith
         static constexpr bool isRTD = isInvocable<DoneResult, Handler, const Task &, DoneWith>();
         static constexpr bool isRT = isInvocable<DoneResult, Handler, const Task &>();
         static constexpr bool isRD = isInvocable<DoneResult, Handler, DoneWith>();
         static constexpr bool isR = isInvocable<DoneResult, Handler>();
+        static constexpr bool isBTD = isInvocable<bool, Handler, const Task &, DoneWith>();
+        static constexpr bool isBT = isInvocable<bool, Handler, const Task &>();
+        static constexpr bool isBD = isInvocable<bool, Handler, DoneWith>();
+        static constexpr bool isB = isInvocable<bool, Handler>();
         static constexpr bool isVTD = isInvocable<void, Handler, const Task &, DoneWith>();
         static constexpr bool isVT = isInvocable<void, Handler, const Task &>();
         static constexpr bool isVD = isInvocable<void, Handler, DoneWith>();
         static constexpr bool isV = isInvocable<void, Handler>();
-        static_assert(isDoneResultType || isRTD || isRT || isRD || isR || isVTD || isVT || isVD || isV,
+        static_assert(isDoneResultType || isRTD || isRT || isRD || isR
+                                       || isBTD || isBT || isBD || isB
+                                       || isVTD || isVT || isVD || isV,
             "Task done handler needs to take (const Task &, DoneWith), (const Task &), "
-            "(DoneWith) or (void) as arguments and has to return void or DoneResult. "
+            "(DoneWith) or (void) as arguments and has to return void, bool or DoneResult. "
             "Alternatively, it may be of DoneResult type. "
             "The passed handler doesn't fulfill these requirements.");
         return [handler](const TaskInterface &taskInterface, DoneWith result) {
@@ -548,6 +554,14 @@ private:
                 return std::invoke(handler, result);
             if constexpr (isR)
                 return std::invoke(handler);
+            if constexpr (isBTD)
+                return toDoneResult(std::invoke(handler, *adapter.task(), result));
+            if constexpr (isBT)
+                return toDoneResult(std::invoke(handler, *adapter.task()));
+            if constexpr (isBD)
+                return toDoneResult(std::invoke(handler, result));
+            if constexpr (isB)
+                return toDoneResult(std::invoke(handler));
             if constexpr (isVTD)
                 std::invoke(handler, *adapter.task(), result);
             else if constexpr (isVT)
@@ -556,7 +570,7 @@ private:
                 std::invoke(handler, result);
             else if constexpr (isV)
                 std::invoke(handler);
-            return result == DoneWith::Success ? DoneResult::Success : DoneResult::Error;
+            return toDoneResult(result == DoneWith::Success);
         };
     }
 };

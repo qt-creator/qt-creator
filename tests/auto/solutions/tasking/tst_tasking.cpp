@@ -508,8 +508,7 @@ static TestData parallelData()
             const Handler handler = doneWith == DoneWith::Cancel ? Handler::Canceled
                                     : result == DoneResult::Success ? Handler::Success : Handler::Error;
             storage->m_log.append({taskId, handler});
-            return doneWith == DoneWith::Cancel ? DoneResult::Error
-                   : result == DoneResult::Success ? DoneResult::Success : DoneResult::Error;
+            return doneWith != DoneWith::Cancel && result == DoneResult::Success;
         };
     };
 
@@ -582,8 +581,7 @@ void tst_Tasking::testTree_data()
             const Handler handler = doneWith == DoneWith::Cancel ? Handler::Canceled
                                     : result == DoneResult::Success ? Handler::Success : Handler::Error;
             storage->m_log.append({taskId, handler});
-            return doneWith == DoneWith::Cancel ? DoneResult::Error
-                   : result == DoneResult::Success ? DoneResult::Success : DoneResult::Error;
+            return doneWith != DoneWith::Cancel && result == DoneResult::Success;
         };
     };
 
