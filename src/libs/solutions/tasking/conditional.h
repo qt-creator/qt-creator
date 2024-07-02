@@ -23,6 +23,10 @@ class TASKING_EXPORT If
 public:
     explicit If(const ExecutableItem &condition) : m_condition(condition) {}
 
+    template <typename Handler,
+              std::enable_if_t<!std::is_base_of_v<ExecutableItem, std::decay_t<Handler>>, bool> = true>
+    explicit If(Handler &&handler) : m_condition(Sync(std::forward<Handler>(handler))) {}
+
 private:
     TASKING_EXPORT friend ThenItem operator>>(const If &ifItem, const Then &thenItem);
 
@@ -34,6 +38,10 @@ class TASKING_EXPORT ElseIf
 {
 public:
     explicit ElseIf(const ExecutableItem &condition) : m_condition(condition) {}
+
+    template <typename Handler,
+             std::enable_if_t<!std::is_base_of_v<ExecutableItem, std::decay_t<Handler>>, bool> = true>
+    explicit ElseIf(Handler &&handler) : m_condition(Sync(std::forward<Handler>(handler))) {}
 
 private:
     friend class ElseIfItem;
