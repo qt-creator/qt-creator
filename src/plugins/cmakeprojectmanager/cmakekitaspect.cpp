@@ -872,10 +872,10 @@ const char CMAKE_QMAKE_KEY[] = "QT_QMAKE_EXECUTABLE";
 const char CMAKE_PREFIX_PATH_KEY[] = "CMAKE_PREFIX_PATH";
 const char QTC_CMAKE_PRESET_KEY[] = "QTC_CMAKE_PRESET";
 
-class CMakeConfigurationKitAspectWidget final : public KitAspect
+class CMakeConfigurationKitAspectImpl final : public KitAspect
 {
 public:
-    CMakeConfigurationKitAspectWidget(Kit *kit, const KitAspectFactory *factory)
+    CMakeConfigurationKitAspectImpl(Kit *kit, const KitAspectFactory *factory)
         : KitAspect(kit, factory),
           m_summaryLabel(createSubWidget<ElidingLabel>()),
           m_manageButton(createSubWidget<QPushButton>())
@@ -883,7 +883,7 @@ public:
         refresh();
         m_manageButton->setText(Tr::tr("Change..."));
         connect(m_manageButton, &QAbstractButton::clicked,
-                this, &CMakeConfigurationKitAspectWidget::editConfigurationChanges);
+                this, &CMakeConfigurationKitAspectImpl::editConfigurationChanges);
     }
 
 private:
@@ -982,10 +982,10 @@ private:
                                                           CMakeConfigurationKitAspect::defaultConfiguration(kit()));
             CMakeConfigurationKitAspect::setAdditionalConfiguration(kit(), QString());
         });
-        connect(m_dialog, &QDialog::accepted, this, &CMakeConfigurationKitAspectWidget::acceptChangesDialog);
-        connect(m_dialog, &QDialog::rejected, this, &CMakeConfigurationKitAspectWidget::closeChangesDialog);
+        connect(m_dialog, &QDialog::accepted, this, &CMakeConfigurationKitAspectImpl::acceptChangesDialog);
+        connect(m_dialog, &QDialog::rejected, this, &CMakeConfigurationKitAspectImpl::closeChangesDialog);
         connect(buttons->button(QDialogButtonBox::Apply), &QAbstractButton::clicked,
-                this, &CMakeConfigurationKitAspectWidget::applyChanges);
+                this, &CMakeConfigurationKitAspectImpl::applyChanges);
 
         refresh();
         m_dialog->show();
@@ -1254,7 +1254,7 @@ KitAspect *CMakeConfigurationKitAspectFactory::createKitAspect(Kit *k) const
 {
     if (!k)
         return nullptr;
-    return new CMakeConfigurationKitAspectWidget(k, this);
+    return new CMakeConfigurationKitAspectImpl(k, this);
 }
 
 // Factory instances;
