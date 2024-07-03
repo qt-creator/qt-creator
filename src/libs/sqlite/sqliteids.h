@@ -91,6 +91,8 @@ public:
             NanotraceHR::convertToString(string, id.internalId());
     }
 
+    friend bool compareId(BasicId first, BasicId second) { return first.id == second.id; }
+
 protected:
     InternalIntegerType id = 0;
 };

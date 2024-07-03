@@ -5,7 +5,10 @@
 
 #include "constraints.h"
 
+#include <QVarLengthArray>
+
 #include <functional>
+#include <list>
 #include <type_traits>
 
 namespace Sqlite {
@@ -84,18 +87,24 @@ public:
 using Column = BasicColumn<ColumnType>;
 using StrictColumn = BasicColumn<StrictColumnType>;
 
-using Columns = std::vector<Column>;
-using StrictColumns = std::vector<StrictColumn>;
+inline constexpr qsizetype maximumSupportedColumnCount = 32;
+
+using Columns = QVarLengthArray<Column, maximumSupportedColumnCount>;
+using StableReferenceColumns = std::list<Column>;
+using StrictColumns = QVarLengthArray<StrictColumn, maximumSupportedColumnCount>;
+using StableReferenceStrictColumns = std::list<StrictColumn>;
 using ColumnConstReference = std::reference_wrapper<const Column>;
 using StrictColumnConstReference = std::reference_wrapper<const StrictColumn>;
-using ColumnConstReferences = std::vector<Column>;
-using StrictColumnConstReferences = std::vector<StrictColumn>;
+using ColumnConstReferences = QVarLengthArray<Column, maximumSupportedColumnCount>;
+using StrictColumnConstReferences = QVarLengthArray<StrictColumn, maximumSupportedColumnCount>;
 
 template<typename ColumnType>
-using BasicColumns = std::vector<BasicColumn<ColumnType>>;
+using BasicColumns = QVarLengthArray<BasicColumn<ColumnType>, maximumSupportedColumnCount>;
+template<typename ColumnType>
+using StableReferenceBasicColumns = std::list<BasicColumn<ColumnType>>;
 template<typename ColumnType>
 using BasicColumnConstReference = std::reference_wrapper<const BasicColumn<ColumnType>>;
 template<typename ColumnType>
-using BasicColumnConstReferences = std::vector<BasicColumn<ColumnType>>;
+using BasicColumnConstReferences = QVarLengthArray<BasicColumn<ColumnType>, maximumSupportedColumnCount>;
 
 } // namespace Sqlite
