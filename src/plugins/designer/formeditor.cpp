@@ -1,7 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "designercontext.h"
 #include "designertr.h"
 #include "editordata.h"
 #include "editorwidget.h"
@@ -91,8 +90,24 @@ using namespace Core;
 using namespace Designer::Constants;
 using namespace Utils;
 
-namespace Designer {
-namespace Internal {
+namespace Designer::Internal {
+
+class DesignerContext final : public IContext
+{
+public:
+    DesignerContext(const Context &context, QWidget *widget, QObject *parent)
+        : IContext(parent)
+    {
+        setContext(context);
+        setWidget(widget);
+    }
+
+    void contextHelp(const HelpCallback &callback) const final
+    {
+        const QDesignerFormEditorInterface *core = designerEditor();
+        callback(core->integration()->contextHelpId());
+    }
+};
 
 /* A stub-like, read-only text editor which displays UI files as text. Could be used as a
   * read/write editor too, but due to lack of XML editor, highlighting and other such
@@ -983,7 +998,6 @@ void addPluginPath(const QString &pluginPath)
     sAdditionalPluginPaths->append(pluginPath);
 }
 
-} // namespace Internal
-} // namespace Designer
+} // namespace Designer::Internal
 
 Q_DECLARE_METATYPE(Designer::Internal::ToolData)
