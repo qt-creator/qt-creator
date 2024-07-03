@@ -609,8 +609,7 @@ void StudioWelcomePlugin::extensionsInitialized()
 
     // Enable QDS new project dialog and QDS wizards
     if (Core::ICore::isQtDesignStudio()) {
-        ProjectExplorer::JsonWizardFactory::clearWizardPaths();
-        ProjectExplorer::JsonWizardFactory::addWizardPath(
+        ProjectExplorer::JsonWizardFactory::setInstalledWizardsPath(
             Core::ICore::resourcePath("qmldesigner/studio_templates"));
 
         Core::ICore::setNewDialogFactory([](QWidget *parent) { return new QdsNewDialog(parent); });

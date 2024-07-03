@@ -14,11 +14,11 @@
 
     \ingroup creator-reference-debugger
 
-    \title Supported Native Debuggers
+    \title Supported Debuggers
 
     \brief Summary of supported debugger versions.
 
-    \QC supports native debuggers for debugging compiled code.
+    You can use \QC to debug compiled code.
     On most supported platforms, you can use the GNU Symbolic Debugger (GDB).
     On Microsoft Windows, when using the Microsoft toolchain, you need the
     Microsoft Console Debugger (CDB). On \macos and Linux, you can use the LLDB
@@ -34,7 +34,7 @@
         \header
             \li Platform
             \li Compiler
-            \li Native Debugger
+            \li Debugger
         \row
             \li Linux
             \li GCC, ICC
@@ -57,9 +57,9 @@
             \li Debugging Tools for Windows/CDB
     \endtable
 
-    The debugger plugin automatically selects a suitable native debugger for
+    \QC automatically selects a suitable debugger for
     each \l{Kits}{kit} from the ones found on the computer. The automatic
-    setup fails if the native debugger is not installed on the computer or
+    setup fails if the debugger is not installed on the computer or
     if \QC does not support the installed version.
 
     \section1 GDB Versions
@@ -123,7 +123,7 @@
     {Mac OS X Debugging Magic}.
     \section1 LLDB Versions
 
-    The LLDB native debugger has similar functionality to the GDB debugger. LLDB
+    The LLDB debugger has similar functionality to the GDB debugger. LLDB
     is the default debugger in Xcode on \macos for C++ on the desktop.
     LLDB is typically used with the Clang compiler (even though you can use it
     with GCC, too).

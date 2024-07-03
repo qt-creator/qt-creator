@@ -5,7 +5,7 @@
 
 #include "extensionmanagertr.h"
 #include "extensionsmodel.h"
-#include "utils/hostosinfo.h"
+#include "extensionmanagersettings.h"
 
 #ifdef WITH_TESTS
 #include "extensionmanager_test.h"
@@ -29,6 +29,7 @@
 
 #include <utils/elidinglabel.h>
 #include <utils/fancylineedit.h>
+#include <utils/hostosinfo.h>
 #include <utils/icon.h>
 #include <utils/layoutbuilder.h>
 #include <utils/networkaccessmanager.h>
@@ -399,14 +400,18 @@ void ExtensionsBrowser::fetchExtensions()
     // d->model->setExtensionsJson(testData("defaultpacks")); return;
 #endif // WITH_TESTS
 
+    if (!settings().useExternalRepo()) {
+        d->model->setExtensionsJson({});
+        return;
+    }
+
     using namespace Tasking;
 
     const auto onQuerySetup = [this](NetworkQuery &query) {
-        const QString host = "https://qc-extensions.qt.io";
         const QString url = "%1/api/v1/search?request=";
         const QString requestTemplate
             = R"({"version":"%1","host_os":"%2","host_os_version":"%3","host_architecture":"%4","page_size":200})";
-        const QString request = url.arg(host) + requestTemplate
+        const QString request = url.arg(settings().externalRepoUrl()) + requestTemplate
                                                     .arg(QCoreApplication::applicationVersion())
                                                     .arg(osTypeToString(HostOsInfo::hostOs()))
                                                     .arg(QSysInfo::productVersion())
@@ -444,6 +449,7 @@ QLabel *tfLabel(const TextFormat &tf, bool singleLine)
         label->setFixedHeight(tf.lineHeight());
     label->setFont(tf.font());
     label->setAlignment(Qt::Alignment(tf.drawTextFlags));
+    label->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
     QPalette pal = label->palette();
     pal.setColor(QPalette::WindowText, tf.color());

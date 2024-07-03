@@ -99,8 +99,8 @@ public:
                 iter = iter->next;
             return *this;
         }
-        bool operator==(const ListIterator &other) { return iter == other.iter; }
-        bool operator!=(const ListIterator &other) { return iter != other.iter; }
+        bool operator==(const ListIterator &other) const { return iter == other.iter; }
+        bool operator!=(const ListIterator &other) const { return iter != other.iter; }
     };
     ListIterator begin() { return {this}; }
     ListIterator end() { return {nullptr}; }

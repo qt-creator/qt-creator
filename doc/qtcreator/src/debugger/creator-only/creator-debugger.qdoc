@@ -14,8 +14,7 @@
 
     \title Debugging
 
-    The \QC debugger plugin acts as an interface between the \QC
-    core and external native debuggers that you can use to:
+    You can use debuggers to:
 
     \list
         \li Debug executable binary files - GNU Symbolic Debugger (GDB),
@@ -28,7 +27,7 @@
 
     \section1 Setting Up the Debugger
 
-    The debugger plugin automatically selects a suitable native debugger for
+    \QC automatically selects a suitable debugger for
     each \l{Kits}{kit} from the ones found on your system. You can select
     another kit. To specify the debugger and compiler to use for each kit, go to
     \preferences > \uicontrol Kits.
@@ -36,7 +35,7 @@
     \image qtcreator-kits.png {Kits preferences}
 
     You need to set up the debugger only if the automatic setup fails because
-    the native debugger is missing (for example, you must install the CDB
+    the debugger is missing (for example, you must install the CDB
     debugger on Windows yourself) or because \QC does not support the installed
     version. For example, when your system does not have GDB
     installed or the installed version is outdated, and you want to use a locally
@@ -58,11 +57,11 @@
     Optionally, you can set up the Microsoft Symbol Server if you need
     symbol information from Microsoft modules that is not found locally.
 
-    For more information, see \l{Supported Native Debuggers} and \l{CDB Paths}.
+    For more information, see \l{Supported Debuggers} and \l{CDB Paths}.
 
     \section1 Launching the Debugger
 
-    The debugger plugin can run the native debuggers in various operating modes
+    The debuggers run in various operating modes
     depending on where and how you start and run the debugged process. Some of
     the modes are only available for a particular operating system or platform:
 
@@ -93,9 +92,8 @@
 
     \section2 GDB Run Modes
 
-    The GDB native debugger used internally by the debugger plugin runs in
-    different modes to cope with the variety of supported platforms and
-    environments:
+    The GDB debugger runs in different modes to cope with the variety of
+    supported platforms and environments:
 
     \list
         \li \e{Plain mode} debugs locally started processes that do not need
@@ -591,8 +589,24 @@
     in GDB, see \l{https://sourceware.org/gdb/onlinedocs/gdb/Connecting.html}
     {Debugging with GDB: Connecting to a Remote Target}.
 
-    \sa {Debug}{How To: Debug}, {GDB}, {Debugging},
-    {Debuggers}, {Debugger}, {Kits}
+    \section1 Use SSH port forwarding
+
+    To enable debugging on remote targets that cannot expose GDB server ports,
+    map the remote ports to local ports using SSH tunneling. \QC automatically
+    detects the local and remote ports.
+
+    To turn on SSH port forwarding:
+
+    \list 1
+        \li Go to \preferences > \uicontrol Devices.
+            \image qtcreator-preferences-devices-remote-linux.webp {Remote Linux device preferences}
+        \li In \uicontrol Device, select \uicontrol {Remote Linux Device}.
+        \li Select \uicontrol {Use SSH port forwarding for debugging}.
+        \li Select \uicontrol OK.
+    \endlist
+
+    \sa {Debug}{How To: Debug}, {Remote Linux}{How To: Develop for remote Linux},
+    {GDB}, {Debugging}, {Debuggers}, {Debugger}, {Kits}
 */
 
 /*!
@@ -770,7 +784,7 @@
 
             The log view acts as a console, so you can send the contents
             of the line under the text cursor in the log directly to the
-            native debugger.
+            debugger.
         \li \l{Troubleshooting Debugger}
 
             \l {Debugger Log}
@@ -865,9 +879,9 @@
 
     \title Examine complex values in Debug views
 
-    \QC displays the raw information from the native debuggers in a clear and
+    \QC displays the raw information from the debuggers in a clear and
     concise manner to simplify the debugging process without losing the power
-    of the native debuggers.
+    of the debuggers.
 
     \image qtcreator-locals.png {Locals view}
 
@@ -1150,8 +1164,8 @@
 
     \brief View information about the modules included in a debugged application.
 
-    The \uicontrol Modules view displays information that the debugger plugin
-    has about modules included in the application that is being debugged.
+    The \uicontrol Modules view displays information about modules included in
+    the application that is being debugged.
 
     A module is:
 
@@ -1389,13 +1403,13 @@
         \li Set \l{Debugger}{debugger preferences}.
     \endlist
 
-    \section1 Directly Interacting with Native Debuggers
+    \section1 Directly Interacting with Debuggers
 
     You can use the left pane of the \uicontrol {Debugger Log} view to directly
-    interact with the command line of the native debugger.
+    interact with the command line of the debugger.
 
     Press \key {Ctrl+Enter} to send the contents of the line under the
-    text cursor to the native debugger. Or, enter the command in the
+    text cursor to the debugger. Or, enter the command in the
     \uicontrol Command field. The right side pane of the
     \uicontrol {Debugger Log} view shows the command output.
 
@@ -1464,7 +1478,7 @@
     \brief Load, customize, and add debugging helpers.
 
     \QC uses Python scripts to translate raw memory contents and type information
-    data from native debugger backends (GDB, LLDB, and CDB are currently supported)
+    data from debugger backends (GDB, LLDB, and CDB are currently supported)
     into the form presented to the user in the
     \l {Local Variables and Function Parameters}{Locals}
     and \l {Evaluating Expressions}{Expressions} views.
@@ -1520,7 +1534,7 @@
     of Qt, or of your own library, at the same time.
 
     To add debugging helpers for custom types, add debugging helper
-    implementations to the startup file of the native debuggers (for example,
+    implementations to the startup file of the debuggers (for example,
     \c{~/.gdbinit} or \c{~/.lldbinit}) or specify them directly in the
     \uicontrol {Additional Startup Commands} in \preferences >
     \uicontrol Debugger > \uicontrol GDB.
@@ -1733,7 +1747,7 @@
             \endcode
 
         \li \c{putCallItem(self, name, rettype, value, func, *args)} - Uses the
-            native debugger backend to place the function call \c func returning
+            debugger backend to place the function call \c func returning
             \c rettype  on the value specified by \a {value} and to output the
             resulting item.
 
@@ -1880,7 +1894,7 @@
     an integral or floating point type.
 
     Type objects, that is, instances of the \c{Dumper.Type} class, can be
-    created by native debugger backends, usually by evaluating Debug Information
+    created by debugger backends, usually by evaluating Debug Information
     built into or shipped alongside the debugged binary, or created on-the-fly
     by the debugging helper.
 
@@ -2110,7 +2124,7 @@
             \l {Run on many platforms}{build and run kit selector}
             picked a runnable target and you can run the application.
 
-        \li Make sure the debugger is \l{Supported Native Debuggers}{set up properly}.
+        \li Make sure the debugger is \l{Supported Debuggers}{set up properly}.
 
         \li In the \uicontrol Debug mode, go to \uicontrol View >
             \uicontrol Views > \uicontrol {Debugger Log} to open the

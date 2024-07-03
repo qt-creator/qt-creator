@@ -19,10 +19,12 @@
 
 namespace Cppcheck::Internal {
 
-ManualRunDialog::ManualRunDialog(const ProjectExplorer::Project *project)
+ManualRunDialog::ManualRunDialog(const ProjectExplorer::Project *project,
+                                 CppcheckSettings *settings)
     : m_model(new ProjectExplorer::SelectableFilesFromDirModel(this))
 {
     QTC_ASSERT(project, return );
+    QTC_ASSERT(settings, return);
 
     setWindowTitle(Tr::tr("Cppcheck Run Configuration"));
 
@@ -52,9 +54,7 @@ ManualRunDialog::ManualRunDialog(const ProjectExplorer::Project *project)
         analyzeButton->setEnabled(m_model->hasCheckedFiles());
     });
 
-    m_manualRunSettings.readSettings();
-    m_manualRunSettings.setAutoApply(true);
-    auto optionsWidget = m_manualRunSettings.layouter()().emerge();
+    auto optionsWidget = settings->layouter()().emerge();
 
     auto layout = new QVBoxLayout(this);
     layout->addWidget(optionsWidget);

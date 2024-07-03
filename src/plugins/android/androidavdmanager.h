@@ -8,7 +8,7 @@
 
 namespace Android::Internal::AndroidAvdManager {
 
-QString startAvd(const QString &name);
+QString startAvd(const QString &name, const std::optional<QFuture<void>> &future = {});
 bool startAvdAsync(const QString &avdName);
 QString findAvd(const QString &avdName);
 QString waitForAvd(const QString &avdName, const std::optional<QFuture<void>> &future = {});
