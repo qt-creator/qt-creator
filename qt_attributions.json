@@ -436,6 +436,7 @@
         "Path": "src/libs/3rdparty/winpty",
         "Description": "winpty is a Windows software package providing an interface similar to a Unix pty-master for communicating with Windows console programs.",
         "Homepage": "https://github.com/rprichard/winpty",
+        "Version": "7e59fe2d09",
         "License": "MIT License",
         "LicenseFile": "src/libs/3rdparty/winpty/LICENSE",
         "Copyright": "Copyright (c) 2011-2016 Ryan Prichard"
@@ -449,6 +450,7 @@
         "Path": "src/libs/3rdparty/libptyqt",
         "Description": "Pty-Qt is small library for access to console applications by pseudo-terminal interface on Mac, Linux and Windows.",
         "Homepage": "https://github.com/kafeg/ptyqt",
+        "Version" : "045ca5f09f",
         "License": "MIT License",
         "LicenseFile": "src/libs/3rdparty/libptyqt/LICENSE",
         "Copyright": "Copyright (c) 2019 Vitaly Petrov"
@@ -460,8 +462,9 @@
         "QtParts": ["tools"],
         "QtUsage": "Used for the integrated terminal.",
         "Path": "src/libs/3rdparty/libptyqt",
-        "Description": "Major parts of conptyprocess.cpp have been ported from microsofts terminal source code and integrated into ptyqt's class.",
+        "Description": "Major parts of src/winconpty/ have been ported from microsofts terminal source code and integrated into ptyqt's conptyprocess.cpp.",
         "Homepage": "https://github.com/microsoft/terminal",
+        "Version" : "a38388615e",
         "License": "MIT License",
         "LicenseFile": "src/libs/3rdparty/libptyqt/LICENSE-CONPTY",
         "Copyright": "Copyright (c) Microsoft Corporation"
@@ -475,6 +478,7 @@
         "Path": "src/libs/3rdparty/libvterm",
         "Description": "An abstract C99 library which implements a VT220 or xterm-like terminal emulator.",
         "Homepage": "https://www.leonerd.org.uk/code/libvterm",
+        "Version" : "0.3.3",
         "License": "MIT License",
         "LicenseFile": "src/libs/3rdparty/libvterm/LICENSE",
         "Copyright": "Copyright (c) 2008 Paul Evans"
@@ -488,6 +492,7 @@
         "Path": "src/plugins/terminal/shellintegrations",
         "Description": "Scripts for integrating with various shells.",
         "Homepage": "https://github.com/microsoft/vscode/tree/main/src/vs/workbench/contrib/terminal/browser/media",
+        "Version" : "463d9933a4",
         "License": "MIT License",
         "LicenseFile": "src/plugins/terminal/shellintegrations/LICENSE.vscode",
         "Copyright": "Copyright (c) 2015 - present Microsoft Corporation"
@@ -501,6 +506,7 @@
         "Path": "src/plugins/terminal/shellintegrations",
         "Description": "A library of Lua scripts for use with Clink.",
         "Homepage": "https://github.com/chrisant996/clink-gizmos",
+        "Version" : "680716f3d9",
         "License": "MIT License",
         "LicenseFile": "src/plugins/terminal/shellintegrations/LICENSE.clink",
         "Copyright": "Copyright (c) 2022 Chris Antos"
