@@ -8727,17 +8727,10 @@
          width="100%"
          height="100%"
          style="stroke-width:0.88039" />
-      <g
-         id="g34266"
-         style="stroke:#000000;stroke-linecap:round;stroke-linejoin:round;fill:none">
-        <path
-           id="path34132"
-           d="M 51,54 V 64 H 65 V 54 m -16,-2 9,-6 9,6"
-           style="stroke-width:2" />
-        <path
-           id="path34224"
-           d="m 60.5,58.5 h 1 v 1 h -1 z m 0,-3 h 1 v 1 h -1 z m -3,3 h 1 v 1 h -1 z m 0,-3 h 1 v 1 h -1 z m -3,3 h 1 v 1 h -1 z m 0,-3 h 1 v 1 h -1 z" />
-      </g>
+      <path
+         id="path4"
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-linejoin:round"
+         d="m 55,64 v -7 h 6 v 7 M 50,52.5 V 64 H 66 V 52.5 l -8,-6 z" />
     </g>
     <g
        transform="translate(-55,264)"
@@ -8758,6 +8751,20 @@
          d="m 100,63 h 16 m -16,-4 h 12 m -12,-4 h 16 m -16,-4 h 12 m -12,-4 h 16" />
     </g>
     <g
+       id="mode_design_pen">
+      <rect
+         style="fill:#ffffff"
+         id="rect17"
+         width="13"
+         height="21"
+         x="83"
+         y="280" />
+      <path
+         id="path47960"
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+         d="M 91,290.5 A 1.5,1.5 0 0 1 89.5,292 1.5,1.5 0 0 1 88,290.5 1.5,1.5 0 0 1 89.5,289 1.5,1.5 0 0 1 91,290.5 Z M 89.5,281 v 8 m -3.5,6 c 7,0 7,0 7,0 m -4.5,-14 h 2 l 4,10 -1.5,4 1.5,3 h -10 l 1.5,-3 -1.5,-4 z" />
+    </g>
+    <g
        transform="translate(-69,264)"
        style="display:inline"
        id="src/plugins/coreplugin/images/mode_design_mask">
@@ -8770,16 +8777,12 @@
          id="use5913-0"
          width="100%"
          height="100%" />
-      <g
-         id="g49500"
-         inkscape:transform-center-y="0.70710678"
-         transform="rotate(-45,157.5,54.5)"
-         inkscape:transform-center-x="-0.70710678">
-        <path
-           id="path47960"
-           style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
-           d="M 159,54.5 A 1.5,1.5 0 0 1 157.5,56 1.5,1.5 0 0 1 156,54.5 1.5,1.5 0 0 1 157.5,53 1.5,1.5 0 0 1 159,54.5 Z M 157.5,45 v 8 m -3.5,6 c 7,0 7,0 7,0 m -4.5,-14 h 2 l 4,10 -1.5,4 1.5,3 h -10 l 1.5,-3 -1.5,-4 z" />
-      </g>
+      <use
+         x="0"
+         y="0"
+         xlink:href="#mode_design_pen"
+         id="use18"
+         transform="rotate(-135,75.244119,159.91674)" />
     </g>
     <g
        transform="translate(-83,264)"
@@ -8810,6 +8813,14 @@
       </g>
     </g>
     <g
+       id="mode_project_wrench">
+      <path
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-linejoin:round"
+         d="m 159,277 v 5.5 l 0.5,0.5 h 3 l 0.5,-0.5 V 277 c 0.5,0 4.0272,1.45336 4,5.5 -0.0269,3.99991 -4,5.5 -4,5.5 v 9 c 0,1.5 -1,2 -2,2 -1,0 -2,-0.5 -2,-2 v -9 c 0,0 -3.99599,-1.5 -4,-5.5 -0.004,-4.12282 3.5,-5.5 4,-5.5 z"
+         id="path8"
+         sodipodi:nodetypes="ccccccscssscsc" />
+    </g>
+    <g
        transform="translate(-97,264)"
        style="display:inline"
        id="src/plugins/projectexplorer/images/mode_project_mask">
@@ -8822,32 +8833,12 @@
          id="use5913-0-8-3"
          width="100%"
          height="100%" />
-      <circle
-         style="fill:none;stroke:#000000;stroke-width:2"
-         id="path86372"
-         cx="258"
-         cy="55"
-         r="9" />
-      <g
-         id="g88204"
-         transform="rotate(45,258,55)">
-        <path
-           style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:round"
-           d="m 258,60.5 v -5"
-           id="path86584"
-           sodipodi:nodetypes="cc" />
-        <circle
-           style="fill:#000000"
-           id="path86725"
-           cx="258"
-           cy="52.5"
-           r="3.5" />
-        <path
-           style="fill:none;stroke:#ffffff"
-           d="M 258,52 V 48"
-           id="path87283"
-           sodipodi:nodetypes="cc" />
-      </g>
+      <use
+         x="0"
+         y="0"
+         xlink:href="#mode_project_wrench"
+         id="use17"
+         transform="rotate(45,489.04885,287.88225)" />
     </g>
     <g
        transform="translate(-162,264)"
@@ -9064,6 +9055,31 @@
          id="path34590" />
     </g>
     <g
+       id="build_hammer"
+       transform="translate(-667,327)">
+      <rect
+         style="fill:#ffffff"
+         id="rect11"
+         width="20"
+         height="22"
+         x="854"
+         y="47" />
+      <rect
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round"
+         id="rect8"
+         width="4"
+         height="15"
+         x="862"
+         y="53"
+         ry="1"
+         rx="1" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:2"
+         d="m 870,48 h -8.5 c -2,0 -4,3 -5,5 H 870 Z"
+         id="path11"
+         sodipodi:nodetypes="csccc" />
+    </g>
+    <g
        transform="translate(-664,297)"
        style="display:inline"
        id="src/plugins/projectexplorer/images/build_hammer_mask">
@@ -9076,18 +9092,12 @@
          id="use5913-0-8-1-89"
          width="100%"
          height="100%" />
-      <g
-         id="g29289"
-         transform="rotate(30,861.61602,58.5)">
-        <path
-           id="path25494"
-           style="fill:#ffffff;stroke:#000000;stroke-width:4;stroke-linejoin:round;paint-order:markers stroke fill"
-           d="m 858,52 h 6 v -1 h -6 m 2,6 h 1 v 10 h -1 z" />
-        <path
-           style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round"
-           d="m 858,50 c -1.5,0 -3.5,1.5 -3.5,3 h 3.5"
-           id="path26814" />
-      </g>
+      <use
+         x="0"
+         y="0"
+         xlink:href="#build_hammer"
+         id="use20"
+         transform="rotate(45,922.51682,1023.5188)" />
     </g>
     <g
        transform="translate(-247.5,256)"

@@ -572,14 +572,15 @@ static QStringList environmentTemplatesPaths()
 }
 
 static bool s_searchPathsInitialized = false;
+Q_GLOBAL_STATIC(FilePath, s_installedWizardsPath, {Core::ICore::resourcePath(WIZARD_PATH)})
+Q_GLOBAL_STATIC(FilePaths, s_additionalWizardPaths)
 
 FilePaths &JsonWizardFactory::searchPaths()
 {
     static FilePaths m_searchPaths;
     if (!s_searchPathsInitialized) {
         s_searchPathsInitialized = true;
-        m_searchPaths = {Core::ICore::userResourcePath(WIZARD_PATH),
-                         Core::ICore::resourcePath(WIZARD_PATH)};
+        m_searchPaths = {Core::ICore::userResourcePath(WIZARD_PATH), *s_installedWizardsPath};
         for (const QString &environmentTemplateDirName : environmentTemplatesPaths())
             m_searchPaths << FilePath::fromString(environmentTemplateDirName);
         m_searchPaths << Utils::transform(
@@ -598,6 +599,7 @@ FilePaths &JsonWizardFactory::searchPaths()
                 }
             }
         }
+        m_searchPaths += *s_additionalWizardPaths;
     }
 
     return m_searchPaths;
@@ -610,12 +612,16 @@ void JsonWizardFactory::resetSearchPaths()
 
 void JsonWizardFactory::addWizardPath(const FilePath &path)
 {
-    searchPaths().append(path);
+    s_additionalWizardPaths->append(path);
 }
 
-void JsonWizardFactory::clearWizardPaths()
+/*!
+    \internal
+*/
+void JsonWizardFactory::setInstalledWizardsPath(const Utils::FilePath &path)
 {
-    searchPaths().clear();
+    *s_installedWizardsPath = path;
+    resetSearchPaths();
 }
 
 void JsonWizardFactory::setVerbose(int level)

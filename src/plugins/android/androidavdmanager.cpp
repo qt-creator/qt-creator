@@ -20,10 +20,10 @@ namespace Android::Internal::AndroidAvdManager {
 
 static Q_LOGGING_CATEGORY(avdManagerLog, "qtc.android.avdManager", QtWarningMsg)
 
-QString startAvd(const QString &name)
+QString startAvd(const QString &name, const std::optional<QFuture<void>> &future)
 {
     if (!findAvd(name).isEmpty() || startAvdAsync(name))
-        return waitForAvd(name);
+        return waitForAvd(name, future);
     return {};
 }
 

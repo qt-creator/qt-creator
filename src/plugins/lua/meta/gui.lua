@@ -1,4 +1,4 @@
----@meta Layout
+---@meta Gui
 
 local gui = {}
 

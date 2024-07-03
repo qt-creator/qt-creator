@@ -25,6 +25,7 @@ public:
     std::optional<CppEditor::ClangToolType> toolType;
 
 private:
+    void initialize();
     const Diagnostic m_diagnostic;
     bool m_enabled = true;
 };

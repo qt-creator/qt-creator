@@ -111,15 +111,14 @@ static void startAvd(const IDevice::Ptr &device, QWidget *parent)
     const AndroidDevice *androidDev = static_cast<const AndroidDevice *>(device.get());
     const QString name = androidDev->avdName();
     qCDebug(androidDeviceLog, "Starting Android AVD id \"%s\".", qPrintable(name));
-    auto future = Utils::asyncRun([name, device] {
-        const QString serialNumber = AndroidAvdManager::startAvd(name);
+    Utils::futureSynchronizer()->addFuture(Utils::asyncRun([name, device](QPromise<void> &promise) {
+        const QString serialNumber = AndroidAvdManager::startAvd(name, promise.future());
         // Mark the AVD as ReadyToUse once we know it's started
         if (!serialNumber.isEmpty()) {
             DeviceManager *const devMgr = DeviceManager::instance();
             devMgr->setDeviceState(device->id(), IDevice::DeviceReadyToUse);
         }
-    });
-    // TODO: use future!
+    }));
 }
 
 static void setEmulatorArguments(QWidget *parent)

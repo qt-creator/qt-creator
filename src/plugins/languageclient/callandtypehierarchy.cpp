@@ -66,10 +66,14 @@ protected:
             return QVariant::fromValue(
                 Link(m_client->serverUriToHostPath(m_item.uri()), start.line() + 1, start.character()));
         }
-        case AnnotationRole:
+        case AnnotationRole: {
+            QStringList result;
             if (const std::optional<QString> detail = m_item.detail())
-                return *detail;
-            return {};
+                result << *detail;
+            if (childCount() > 0)
+                result << QString("[%1]").arg(childCount());
+            return result.isEmpty() ? QVariant() : QVariant(result.join(' '));
+        }
         default:
             return TreeItem::data(column, role);
         }

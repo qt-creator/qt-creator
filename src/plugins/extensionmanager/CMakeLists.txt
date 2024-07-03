@@ -5,6 +5,8 @@ add_qtc_plugin(ExtensionManager
     extensionmanagerconstants.h
     extensionmanagerplugin.cpp
     extensionmanagertr.h
+    extensionmanagersettings.cpp
+    extensionmanagersettings.h
     extensionmanagerwidget.cpp
     extensionmanagerwidget.h
     extensionsbrowser.cpp

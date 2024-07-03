@@ -15,6 +15,7 @@ General
 * Started work on supporting Lua based plugins (registering language servers,
   actions, preferences, and wizards)
   ([Documentation](https://doc-snapshots.qt.io/qtcreator-extending/lua-extensions.html))
+* Added a mode for managing extensions
 * Added `Clear` and `Save Contents` to context menus of all output views
 * Locator
     * Added the option to show results relative to project root
@@ -38,6 +39,9 @@ Editing
 * Fixed that after hiding the editor in `Debug` mode, `Edit` mode always opened
   when opening documents, even if an external editor window was available
   ([QTCREATORBUG-30408](https://bugreports.qt.io/browse/QTCREATORBUG-30408))
+* Fixed that it wasn't possible to open a file in the text editor if it was
+  classified as a binary file format by the MIME database
+  ([QTCREATORBUG-31116](https://bugreports.qt.io/browse/QTCREATORBUG-31116))
 
 ### C++
 
@@ -177,6 +181,12 @@ Projects
 * Fixed a crash when triggering `Follow Symbol` in a CMake file that does not
   belong to a project
   ([QTCREATORBUG-31077](https://bugreports.qt.io/browse/QTCREATORBUG-31077))
+* Fixed that multiple build configurations of the same type used the same
+  build directory
+  ([QTCREATORBUG-26066](https://bugreports.qt.io/browse/QTCREATORBUG-26066))
+* Fixed an issue with adding new files when file globs are used in the CMake
+  files
+  ([QTCREATORBUG-30445](https://bugreports.qt.io/browse/QTCREATORBUG-30445))
 * Presets
     * Made CMake settings configurable
       ([QTCREATORBUG-25972](https://bugreports.qt.io/browse/QTCREATORBUG-25972),
@@ -291,7 +301,8 @@ Platforms
 
 ### Remote Linux
 
-* Added the option to use SSH port forwarding for debugging
+* Added the `Use SSH port forwarding for debugging` option in `Preferences` >
+  `Devices` for a `Remote Linux Device`
 * Improved the performance of the generic deployment method
 * Fixed that the file size check that is performed before parsing C++ files
   could freeze Qt Creator until finished for remote projects
@@ -343,8 +354,10 @@ Michael Weghorn
 Miikka Heikkinen  
 Orgad Shaneh  
 Pranta Dastider  
+Ralf Habacker  
 Robert Löhning  
 Sami Shalayel  
+Semih Yavuz  
 Sergey Silin  
 Shrief Gabr  
 Teea Poldsam  
