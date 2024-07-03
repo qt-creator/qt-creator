@@ -60,6 +60,10 @@ public:
     virtual void setWidget(QWidget *widget) { m_widget = widget; }
     virtual void setContextHelp(const HelpItem &id) { m_contextHelp = id; }
 
+    static void attach(QWidget *widget,
+                       const Context &context,
+                       const HelpItem &contextHelp = {});
+
     friend CORE_EXPORT QDebug operator<<(QDebug debug, const Core::Context &context);
 
 protected:

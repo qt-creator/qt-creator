@@ -224,11 +224,7 @@ void IOutputPane::setupContext(const char *context, QWidget *widget)
 
 void IOutputPane::setupContext(const Context &context, QWidget *widget)
 {
-    QTC_ASSERT(!m_context, return);
-    m_context = new IContext(this);
-    m_context->setContext(context);
-    m_context->setWidget(widget);
-    ICore::addContextObject(m_context);
+    IContext::attach(widget, context);
 
     ActionBuilder(this, Constants::ZOOM_IN)
         .setContext(context)

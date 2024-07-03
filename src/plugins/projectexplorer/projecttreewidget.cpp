@@ -142,11 +142,8 @@ public:
         setDragDropMode(QAbstractItemView::DragDrop);
         viewport()->setAcceptDrops(true);
         setDropIndicatorShown(true);
-        auto context = new IContext(this);
-        context->setContext(Context(ProjectExplorer::Constants::C_PROJECT_TREE));
-        context->setWidget(this);
 
-        ICore::addContextObject(context);
+        IContext::attach(this, Context(ProjectExplorer::Constants::C_PROJECT_TREE));
 
         connect(this, &ProjectTreeView::expanded,
                 this, &ProjectTreeView::invalidateSize);

@@ -87,8 +87,6 @@ protected:
     void setupContext(const Context &context, QWidget *widget);
     void setZoomButtonsEnabled(bool enabled);
 
-    IContext *m_context = nullptr;
-
 private:
     virtual void updateFilter();
 

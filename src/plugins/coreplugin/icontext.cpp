@@ -3,9 +3,21 @@
 
 #include "icontext.h"
 
+#include "icore.h"
+
 #include <QDebug>
 
 namespace Core {
+
+void IContext::attach(QWidget *widget, const Context &context, const HelpItem &help)
+{
+    auto icontext = new IContext(widget); // As QObject parent.
+    icontext->setContext(context);
+    icontext->setWidget(widget);
+    icontext->setContextHelp(help);
+    ICore::addContextObject(icontext);
+}
+
 QDebug operator<<(QDebug debug, const Core::Context &context)
 {
     debug.nospace() << "Context(";
@@ -23,6 +35,7 @@ QDebug operator<<(QDebug debug, const Core::Context &context)
 
     return debug;
 }
+
 } // namespace Core
 
 /*!

@@ -8,7 +8,6 @@
 
 #include "../coreconstants.h"
 #include "../icontext.h"
-#include "../icore.h"
 #include "../idocument.h"
 
 #include <utils/qtcassert.h>
@@ -20,10 +19,7 @@ namespace Internal {
 
 EditorArea::EditorArea()
 {
-    m_context = new IContext;
-    m_context->setContext(Context(Constants::C_EDITORMANAGER));
-    m_context->setWidget(this);
-    ICore::addContextObject(m_context);
+    IContext::attach(this, Context(Constants::C_EDITORMANAGER));
 
     setCurrentView(view());
     updateCloseSplitButton();
@@ -39,8 +35,6 @@ EditorArea::~EditorArea()
     setCurrentView(nullptr);
     disconnect(qApp, &QApplication::focusChanged,
                this, &EditorArea::focusChanged);
-
-    delete m_context;
 }
 
 IDocument *EditorArea::currentDocument() const

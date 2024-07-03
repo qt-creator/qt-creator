@@ -247,10 +247,7 @@ void Find::initialize()
     d->m_currentDocumentFind = new Internal::CurrentDocumentFind;
 
     d->m_findToolBar = new Internal::FindToolBar(d->m_currentDocumentFind);
-    auto *findToolBarContext = new IContext(m_instance);
-    findToolBarContext->setWidget(d->m_findToolBar);
-    findToolBarContext->setContext(Context(Constants::C_FINDTOOLBAR));
-    ICore::addContextObject(findToolBarContext);
+    IContext::attach(d->m_findToolBar, Context(Constants::C_FINDTOOLBAR));
 
     d->m_findDialog = new Internal::FindToolWindow;
     d->m_searchResultWindow = new SearchResultWindow(d->m_findDialog);

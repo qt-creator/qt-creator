@@ -5,10 +5,6 @@
 
 #include <utils/navigationtreeview.h>
 
-namespace Core {
-class IContext;
-}
-
 namespace Autotest {
 namespace Internal {
 
@@ -21,9 +17,6 @@ public:
 
     void selectAll() override;
     void deselectAll();
-
-private:
-    Core::IContext *m_context;
 };
 
 } // namespace Internal

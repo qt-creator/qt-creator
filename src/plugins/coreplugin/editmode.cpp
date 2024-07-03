@@ -66,14 +66,10 @@ EditMode::EditMode() :
             this, &EditMode::grabEditorManager);
     m_splitter->setFocusProxy(editorPlaceHolder);
 
-    auto modeContextObject = new IContext(this);
-    modeContextObject->setContext(Context(Constants::C_EDITORMANAGER));
-    modeContextObject->setWidget(m_splitter);
-    ICore::addContextObject(modeContextObject);
+    IContext::attach(m_splitter, Context(Constants::C_EDITORMANAGER));
 
     setWidget(m_splitter);
-    setContext(Context(Constants::C_EDIT_MODE,
-                       Constants::C_NAVIGATION_PANE));
+    setContext(Context(Constants::C_EDIT_MODE, Constants::C_NAVIGATION_PANE));
 }
 
 EditMode::~EditMode()

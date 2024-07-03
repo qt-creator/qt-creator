@@ -7,7 +7,6 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreplugintr.h>
-#include <coreplugin/icore.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -30,14 +29,11 @@
 namespace QmlDesigner {
 
 BindingEditorWidget::BindingEditorWidget()
-    : m_context(new Core::IContext(this))
 {
     Core::Context context(BINDINGEDITOR_CONTEXT_ID,
                           ProjectExplorer::Constants::QMLJS_LANGUAGE_ID);
 
-    m_context->setWidget(this);
-    m_context->setContext(context);
-    Core::ICore::addContextObject(m_context);
+    Core::IContext::attach(this, context);
 
     Utils::TransientScrollAreaSupport::support(this);
 

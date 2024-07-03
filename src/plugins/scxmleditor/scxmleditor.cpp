@@ -15,7 +15,6 @@
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/editortoolbar.h>
 #include <coreplugin/icontext.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
@@ -218,10 +217,7 @@ void ScxmlEditorData::fullInit()
 
     Context scxmlContexts = m_contexts;
     scxmlContexts.add(Core::Constants::C_EDITORMANAGER);
-    auto context = new IContext(this);
-    context->setContext(scxmlContexts);
-    context->setWidget(m_modeWidget);
-    ICore::addContextObject(context);
+    IContext::attach(m_modeWidget, scxmlContexts);
 
     DesignMode::registerDesignWidget(m_modeWidget, QStringList(Utils::Constants::SCXML_MIMETYPE), m_contexts);
 }

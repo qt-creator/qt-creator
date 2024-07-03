@@ -11,7 +11,6 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icontext.h>
-#include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
@@ -23,12 +22,9 @@ namespace Squish::Internal {
 
 SquishTestTreeView::SquishTestTreeView(QWidget *parent)
     : Utils::NavigationTreeView(parent)
-    , m_context(new Core::IContext(this))
 {
     setExpandsOnDoubleClick(false);
-    m_context->setWidget(this);
-    m_context->setContext(Core::Context(Constants::SQUISH_CONTEXT));
-    Core::ICore::addContextObject(m_context);
+    Core::IContext::attach(this, Core::Context(Constants::SQUISH_CONTEXT));
 }
 
 void SquishTestTreeView::resizeEvent(QResizeEvent *event)

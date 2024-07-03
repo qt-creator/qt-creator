@@ -809,10 +809,7 @@ WelcomeMode::WelcomeMode()
     m_modeWidget = new QWidget;
     m_modeWidget->setLayout(boxLayout);
     boxLayout->addWidget(m_quickWidget);
-    auto context = new IContext(m_modeWidget);
-    context->setWidget(m_modeWidget);
-    context->setContextHelp("Qt Design Studio Manual");
-    ICore::addContextObject(context);
+    IContext::attach(m_modeWidget, {}, "Qt Design Studio Manual");
     setWidget(m_modeWidget);
 
     QStringList designStudioQchPathes

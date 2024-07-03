@@ -88,10 +88,7 @@ DescriptionEditorWidget::DescriptionEditorWidget(QWidget *parent)
 
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
-    auto context = new IContext(this);
-    context->setWidget(this);
-    context->setContext(Context(Constants::C_DIFF_EDITOR_DESCRIPTION));
-    ICore::addContextObject(context);
+    IContext::attach(this, Context(Constants::C_DIFF_EDITOR_DESCRIPTION));
 
     textDocument()->resetSyntaxHighlighter([] { return new SyntaxHighlighter(); });
 }

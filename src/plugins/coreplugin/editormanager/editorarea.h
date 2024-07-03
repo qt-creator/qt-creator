@@ -7,11 +7,7 @@
 
 #include <QPointer>
 
-namespace Core {
-
-class IContext;
-
-namespace Internal {
+namespace Core::Internal {
 
 class EditorArea : public SplitterOrView
 {
@@ -35,10 +31,8 @@ private:
     void updateCloseSplitButton();
     void hideEvent(QHideEvent *) override;
 
-    IContext *m_context;
     QPointer<EditorView> m_currentView;
     QPointer<IDocument> m_currentDocument;
 };
 
-} // Internal
-} // Core
+} // Core::Internal

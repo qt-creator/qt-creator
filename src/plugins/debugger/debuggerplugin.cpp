@@ -683,7 +683,6 @@ public:
     QStringList m_arguments;
 
     QList<IOptionsPage *> m_optionPages;
-    IContext m_debugModeContext;
 
     Perspective m_perspective{Constants::PRESET_PERSPECTIVE_ID, Tr::tr("Debugger")};
     Perspective m_perspectiveDap{Constants::DAP_PERSPECTIVE_ID, Tr::tr("DAP")};
@@ -1165,9 +1164,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     // Debug mode setup
     m_mode = new DebugMode;
 
-    m_debugModeContext.setContext(Context(CC::C_EDITORMANAGER));
-    m_debugModeContext.setWidget(m_mode->widget());
-    ICore::addContextObject(&m_debugModeContext);
+    IContext::attach(m_mode->widget(), Context(CC::C_EDITORMANAGER));
 
     //
     //  Connections

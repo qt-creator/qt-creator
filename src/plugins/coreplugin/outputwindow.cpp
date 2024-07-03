@@ -98,10 +98,7 @@ OutputWindow::OutputWindow(Context context, const Key &settingsKey, QWidget *par
 
     d->settingsKey = settingsKey;
 
-    auto outputWindowContext = new IContext(this);
-    outputWindowContext->setContext(context);
-    outputWindowContext->setWidget(this);
-    ICore::addContextObject(outputWindowContext);
+    IContext::attach(this, context);
 
     auto undoAction = new QAction(this);
     auto redoAction = new QAction(this);

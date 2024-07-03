@@ -192,19 +192,14 @@ protected:
     void keyPressEvent(QKeyEvent *event) final;
 
 private:
-    Core::IContext *m_bookmarkContext;
     QModelIndex m_contextMenuIndex;
 };
 
 BookmarkView::BookmarkView()
-    : m_bookmarkContext(new IContext(this))
 {
     setWindowTitle(Tr::tr("Bookmarks"));
 
-    m_bookmarkContext->setWidget(this);
-    m_bookmarkContext->setContext(Context(BOOKMARKS_CONTEXT));
-
-    ICore::addContextObject(m_bookmarkContext);
+    IContext::attach(this, Context(BOOKMARKS_CONTEXT));
 
     ListView::setModel(&bookmarkManager());
 
