@@ -7,14 +7,16 @@ env:
   QT_VERSION: %{JS: Util.qtVersion()}
   QT_CREATOR_VERSION: %{JS: Util.qtCreatorVersion()}
   QT_CREATOR_SNAPSHOT: NO
-  MACOS_DEPLOYMENT_TARGET: 11.0
-  CMAKE_VERSION: 3.21.1
-  NINJA_VERSION: 1.10.1
+  MACOS_DEPLOYMENT_TARGET: "11.0"
+  CMAKE_VERSION: "3.29.6"
+  NINJA_VERSION: "1.12.1"
 
 jobs:
   build:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
+    outputs:
+        tag: ${{ steps.git.outputs.tag }}
     strategy:
       matrix:
         config:
@@ -30,13 +32,22 @@ jobs:
             cc: "gcc", cxx: "g++"
           }
         - {
-            name: "macOS Latest Clang", artifact: "macOS-x64",
+            name: "macOS Latest Clang", artifact: "macOS-universal",
             os: macos-latest,
             cc: "clang", cxx: "clang++"
           }
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+    - name: Checkout submodules
+      id: git
+      shell: cmake -P {0}
+      run: |
+        if (${{github.ref}} MATCHES "tags/v(.*)")
+            file(APPEND "$ENV{GITHUB_OUTPUT}" "tag=${CMAKE_MATCH_1}\\n")
+        else()
+            file(APPEND "$ENV{GITHUB_OUTPUT}" "tag=${{github.run_id}}\\n")
+        endif()
 
     - name: Download Ninja and CMake
       shell: cmake -P {0}
@@ -159,10 +170,15 @@ jobs:
           )
         endforeach()
 
-        # uic depends on libicu56.so
+        # uic depends on libicu*.so
         if ("${{ runner.os }}" STREQUAL "Linux")
+          if (qt_version VERSION_LESS "6.7.0")
+            set(uic_suffix "Rhel7.2-x64")
+          else()
+            set(uic_suffix "Rhel8.6-x86_64")
+          endif()
           downloadAndExtract(
-            "${qt_base_url}/qt.qt6.${qt_version_dotless}.${qt_package_arch_suffix}/${qt_package_version}icu-linux-Rhel7.2-x64.7z"
+            "${qt_base_url}/qt.qt6.${qt_version_dotless}.${qt_package_arch_suffix}/${qt_package_version}icu-linux-${uic_suffix}.7z"
             icu.7z
           )
         endif()
@@ -223,6 +239,9 @@ jobs:
         endif()
 
         set(ENV{NINJA_STATUS} "[%f/%t %o/sec] ")
+        if ("${{ runner.os }}" STREQUAL "macOS")
+            set(ENV{CMAKE_OSX_ARCHITECTURES} "x86_64;arm64")
+        endif()
 
         set(build_plugin_py "scripts/build_plugin.py")
         foreach(dir "share/qtcreator/scripts" "Qt Creator.app/Contents/Resources/scripts" "Contents/Resources/scripts")
@@ -251,8 +270,8 @@ jobs:
           message(FATAL_ERROR "Build failed")
         endif()
 
-    - uses: actions/upload-artifact@v3
-      id: upload_artifact
+    - name: Upload
+      uses: actions/upload-artifact@v4
       with:
         path: ./${{ env.PLUGIN_NAME }}-${{ env.QT_CREATOR_VERSION }}-${{ matrix.config.artifact }}.7z
         name: ${{ env.PLUGIN_NAME}}-${{ env.QT_CREATOR_VERSION }}-${{ matrix.config.artifact }}.7z
@@ -260,76 +279,26 @@ jobs:
   release:
     if: contains(github.ref, 'tags/v')
     runs-on: ubuntu-latest
-    permissions: write-all
     needs: build
 
     steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: release-with-dirs
+
+    - name: Fixup artifacts
+      run: |
+        mkdir release
+        mv release-with-dirs/*/* release/
+
     - name: Create Release
       id: create_release
-      uses: actions/create-release@v1
+      uses: softprops/action-gh-release@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        tag_name: v${{ needs.build.outputs.tag }}
+        files: release/*
         draft: false
         prerelease: false
-
-    - name: Store Release url
-      run: |
-        echo "${{ steps.create_release.outputs.upload_url }}" > ./upload_url
-
-    - uses: actions/upload-artifact@v3
-      with:
-        path: ./upload_url
-        name: upload_url
-
-  publish:
-    if: contains(github.ref, 'tags/v')
-
-    name: ${{ matrix.config.name }}
-    runs-on: ${{ matrix.config.os }}
-    strategy:
-      matrix:
-        config:
-        - {
-            name: "Windows Latest x64", artifact: "Windows-x64.7z",
-            os: ubuntu-latest
-          }
-        - {
-            name: "Linux Latest x64", artifact: "Linux-x64.7z",
-            os: ubuntu-latest
-          }
-        - {
-            name: "macOS Latest x64", artifact: "macOS-x64.7z",
-            os: macos-latest
-          }
-    needs: release
-
-    steps:
-    - name: Download artifact
-      uses: actions/download-artifact@v3
-      with:
-        name: ${{ env.PLUGIN_NAME }}-${{ env.QT_CREATOR_VERSION }}-${{ matrix.config.artifact }}
-        path: ./
-
-    - name: Download URL
-      uses: actions/download-artifact@v3
-      with:
-        name: upload_url
-        path: ./
-    - id: set_upload_url
-      run: |
-        upload_url=`cat ./upload_url`
-        echo upload_url=$upload_url >> $GITHUB_OUTPUT
-
-    - name: Upload to Release
-      id: upload_to_release
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.set_upload_url.outputs.upload_url }}
-        asset_path: ./${{ env.PLUGIN_NAME }}-${{ env.QT_CREATOR_VERSION }}-${{ matrix.config.artifact }}
-        asset_name: ${{ env.PLUGIN_NAME }}-${{ env.QT_CREATOR_VERSION }}-${{ matrix.config.artifact }}
-        asset_content_type: application/x-7z-compressed
