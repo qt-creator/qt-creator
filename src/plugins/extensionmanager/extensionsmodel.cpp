@@ -358,6 +358,18 @@ static QVariant dataFromExtension(const Extension &extension, int role)
     return {};
 }
 
+ExtensionState extensionState(const QModelIndex &index)
+{
+    if (index.data(RoleItemType) != ItemTypeExtension)
+        return None;
+
+    const PluginSpec *ps = pluginSpecForName(index.data(RoleName).toString());
+    if (!ps)
+        return NotInstalled;
+
+    return ps->isEffectivelyEnabled() ? InstalledEnabled : InstalledDisabled;
+}
+
 static QString searchText(const QModelIndex &index)
 {
     QStringList searchTexts;
@@ -370,6 +382,8 @@ static QString searchText(const QModelIndex &index)
 
 QVariant ExtensionsModel::data(const QModelIndex &index, int role) const
 {
+    if (role == RoleExtensionState)
+        return extensionState(index);
     if (role == RoleSearchText)
         return searchText(index);
 

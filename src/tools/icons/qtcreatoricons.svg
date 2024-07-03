@@ -3887,6 +3887,26 @@
          sodipodi:nodetypes="ccccccc" />
     </g>
     <g
+       id="src/plugins/extensionmanager/images/checkmark">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_12"
+         id="use6279"
+         width="100%"
+         height="100%"
+         transform="translate(101,1)" />
+      <circle
+         id="path9935"
+         cx="71"
+         cy="431"
+         r="5" />
+      <path
+         style="fill:none;stroke:#ffffff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+         d="m 69,431 1.5,1.5 2.5,-3"
+         id="path10003" />
+    </g>
+    <g
        id="src/libs/utils/images/eyeoverlay">
       <use
          style="display:inline"

@@ -23,6 +23,13 @@ enum ItemType {
     ItemTypeExtension,
 };
 
+enum ExtensionState {
+    None, // Not a plugin
+    InstalledEnabled,
+    InstalledDisabled,
+    NotInstalled,
+};
+
 enum Role {
     RoleName = Qt::UserRole,
     RoleCompatVersion,
@@ -32,6 +39,7 @@ enum Role {
     RoleDescriptionLinks,
     RoleDescriptionText,
     RoleDownloadCount,
+    RoleExtensionState,
     RoleId,
     RoleItemType,
     RoleLicense,

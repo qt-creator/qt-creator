@@ -59,6 +59,19 @@ constexpr int gapSize = HGapL;
 constexpr int itemWidth = 330;
 constexpr int cellWidth = itemWidth + gapSize;
 
+static QString extensionStateDisplayString(ExtensionState state)
+{
+    switch (state) {
+    case InstalledEnabled:
+        return Tr::tr("Loaded");
+    case InstalledDisabled:
+        return Tr::tr("Installed");
+    default:
+        return {};
+    }
+    return {};
+}
+
 class ExtensionItemDelegate : public QItemDelegate
 {
 public:
@@ -71,6 +84,8 @@ public:
     constexpr static TextFormat vendorTF
         {Theme::Token_Text_Muted, UiElement::UiElementLabelSmall,
          Qt::AlignVCenter | Qt::TextDontClip};
+    constexpr static TextFormat stateTF
+        {vendorTF.themeColor, UiElement::UiElementCaption, vendorTF.drawTextFlags};
     constexpr static TextFormat tagsTF
         {Theme::Token_Text_Default, UiElement::UiElementCaption};
 
@@ -84,9 +99,9 @@ public:
     {
         // +---------------+-------+---------------+----------------------------------------------------------------------+---------------+---------+
         // |               |       |               |                            (ExPaddingGapL)                           |               |         |
-        // |               |       |               +-------------------------------------------------------------+--------+               |         |
-        // |               |       |               |                          <itemName>                         |<status>|               |         |
-        // |               |       |               +-------------------------------------------------------------+--------+               |         |
+        // |               |       |               +-----------------------------+---------+--------+---------+-----------+               |         |
+        // |               |       |               |          <itemName>         |(HGapXxs)|<status>|(HGapXxs)|<checkmark>|               |         |
+        // |               |       |               +-----------------------------+---------+--------+---------+-----------+               |         |
         // |               |       |               |                               (VGapXxs)                              |               |         |
         // |               |       |               +--------+--------+--------------+--------+--------+---------+---------+               |         |
         // |(ExPaddingGapL)|<icon> |(ExPaddingGapL)|<vendor>|(HGapXs)|<divider>(h16)|(HGapXs)|<dlIcon>|(HGapXxs)|<dlCount>|(ExPaddingGapL)|(gapSize)|
@@ -115,6 +130,19 @@ public:
         y += ExPaddingGapL;
         const QRect itemNameR(x, y, middleColumnW, itemNameTF.lineHeight());
         const QString itemName = index.data().toString();
+
+        const QSize checkmarkS(12, 12);
+        const QRect checkmarkR(x + middleColumnW - checkmarkS.width(), y,
+                               checkmarkS.width(), checkmarkS.height());
+        const ExtensionState state = index.data(RoleExtensionState).value<ExtensionState>();
+        const QString stateString = extensionStateDisplayString(state);
+        const bool showState = (state == InstalledEnabled || state == InstalledDisabled)
+                && !stateString.isEmpty();
+        const QFont stateFont = stateTF.font();
+        const QFontMetrics stateFM(stateFont);
+        const int stateStringWidth = stateFM.horizontalAdvance(stateString);
+        const QRect stateR(checkmarkR.x() - HGapXxs - stateStringWidth, y,
+                           stateStringWidth, stateTF.lineHeight());
 
         y += itemNameR.height() + VGapXxs;
         const QRect vendorRowR(x, y, middleColumnW, vendorRowHeight());
@@ -162,11 +190,22 @@ public:
             painter->drawText(smallCircle, countTF.drawTextFlags, QString::number(plugins.count()));
         }
         {
+            QRect effectiveR = itemNameR;
+            if (showState)
+                effectiveR.setRight(stateR.left() - HGapXxs - 1);
             painter->setPen(itemNameTF.color());
             painter->setFont(itemNameTF.font());
             const QString titleElided
-                = painter->fontMetrics().elidedText(itemName, Qt::ElideRight, itemNameR.width());
-            painter->drawText(itemNameR, itemNameTF.drawTextFlags, titleElided);
+                = painter->fontMetrics().elidedText(itemName, Qt::ElideRight, effectiveR.width());
+            painter->drawText(effectiveR, itemNameTF.drawTextFlags, titleElided);
+        }
+        if (showState) {
+            static const QIcon checkmark = Icon({{":/extensionmanager/images/checkmark.png",
+                                                  stateTF.themeColor}}, Icon::Tint).icon();
+            checkmark.paint(painter, checkmarkR);
+            painter->setPen(stateTF.color());
+            painter->setFont(stateTF.font());
+            painter->drawText(stateR, stateTF.drawTextFlags, stateString);
         }
         {
             const QString vendor = index.data(RoleVendor).toString();
