@@ -736,6 +736,36 @@ MacroExpander *BaseAspect::macroExpander() const
     return d->m_expander;
 }
 
+void BaseAspect::addOnChanged(QObject *guard, const Callback &callback)
+{
+    connect(this, &BaseAspect::changed, guard, callback);
+}
+
+void BaseAspect::addVolatileValueChanged(QObject *guard, const Callback &callback)
+{
+    connect(this, &BaseAspect::volatileValueChanged, guard, callback);
+}
+
+void BaseAspect::addCheckedChanged(QObject *guard, const Callback &callback)
+{
+    connect(this, &BaseAspect::checkedChanged, guard, callback);
+}
+
+void BaseAspect::addEnabledChanged(QObject *guard, const Callback &callback)
+{
+    connect(this, &BaseAspect::enabledChanged, guard, callback);
+}
+
+void BaseAspect::addLabelTextChanged(QObject *guard, const Callback &callback)
+{
+    connect(this, &BaseAspect::labelTextChanged, guard, callback);
+}
+
+void BaseAspect::addLabelPixmapChanged(QObject *guard, const Callback &callback)
+{
+    connect(this, &BaseAspect::labelPixmapChanged, guard, callback);
+}
+
 void BaseAspect::addMacroExpansion(QWidget *w)
 {
     if (!d->m_expander)

@@ -205,6 +205,14 @@ public:
     void setMacroExpander(MacroExpander *expander);
     MacroExpander *macroExpander() const;
 
+    using Callback = std::function<void()>;
+    void addOnChanged(QObject *guard, const Callback &callback);
+    void addVolatileValueChanged(QObject *guard, const Callback &callback);
+    void addCheckedChanged(QObject *guard, const Callback &callback);
+    void addEnabledChanged(QObject *guard, const Callback &callback);
+    void addLabelTextChanged(QObject *guard, const Callback &callback);
+    void addLabelPixmapChanged(QObject *guard, const Callback &callback);
+
 signals:
     void changed();
     void volatileValueChanged();
