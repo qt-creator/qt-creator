@@ -136,6 +136,9 @@ bool HelpViewer::launchWithExternalApp(const QUrl &url)
         // QHelpEngineCore::findFile returns a valid url even though the file does not exist
         if (resolvedUrl.scheme() == "about" && resolvedUrl.path() == "blank")
             return false;
+        // fake items have no associated file - they are kind of virtual folders
+        if (resolvedUrl.fileName().isEmpty())
+            return false;
 
         const QString& path = resolvedUrl.path();
         if (!canOpenPage(path)) {
