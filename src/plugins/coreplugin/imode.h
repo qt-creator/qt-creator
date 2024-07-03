@@ -22,7 +22,7 @@ namespace Internal {
 class IModePrivate;
 }
 
-class CORE_EXPORT IMode : public IContext
+class CORE_EXPORT IMode : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString displayName READ displayName WRITE setDisplayName)
@@ -43,6 +43,8 @@ public:
     bool isEnabled() const;
     bool isVisible() const;
     QMenu *menu() const;
+    Context context() const;
+    QWidget *widget() const;
 
     void setEnabled(bool enabled);
     void setVisible(bool visible);
@@ -51,6 +53,8 @@ public:
     void setPriority(int priority);
     void setId(Utils::Id id);
     void setMenu(QMenu *menu);
+    void setContext(const Context &context);
+    void setWidget(QWidget *widget);
 
     Utils::FancyMainWindow *mainWindow();
     void setMainWindow(Utils::FancyMainWindow *mw);

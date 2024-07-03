@@ -209,8 +209,6 @@ void ModeManagerPrivate::appendMode(IMode *mode)
 {
     const int index = m_modeCommands.count();
 
-    ICore::addContextObject(mode);
-
     m_modeStack->insertTab(index, mode->widget(), mode->icon(), mode->displayName(),
                            mode->menu() != nullptr);
     m_modeStack->setTabEnabled(index, mode->isEnabled());
@@ -266,8 +264,6 @@ void ModeManager::removeMode(IMode *mode)
 
     d->m_modeCommands.remove(index);
     d->m_modeStack->removeTab(index);
-
-    ICore::removeContextObject(mode);
 }
 
 void ModeManagerPrivate::ensureVisibleEnabledMode()

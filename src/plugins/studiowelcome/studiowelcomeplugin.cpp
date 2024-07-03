@@ -66,6 +66,7 @@
 #include <algorithm>
 #include <memory>
 
+using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -764,7 +765,6 @@ WelcomeMode::WelcomeMode()
 
     setPriority(Core::Constants::P_MODE_WELCOME);
     setId(Core::Constants::MODE_WELCOME);
-    setContextHelp("Qt Design Studio Manual");
     setContext(Core::Context(Core::Constants::C_WELCOME_MODE));
 
     QFontDatabase::addApplicationFont(":/studiofonts/TitilliumWeb-Regular.ttf");
@@ -809,6 +809,10 @@ WelcomeMode::WelcomeMode()
     m_modeWidget = new QWidget;
     m_modeWidget->setLayout(boxLayout);
     boxLayout->addWidget(m_quickWidget);
+    auto context = new IContext(m_modeWidget);
+    context->setWidget(m_modeWidget);
+    context->setContextHelp("Qt Design Studio Manual");
+    ICore::addContextObject(context);
     setWidget(m_modeWidget);
 
     QStringList designStudioQchPathes

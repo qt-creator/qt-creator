@@ -299,7 +299,6 @@ WelcomeMode::WelcomeMode()
 
     setPriority(Constants::P_MODE_WELCOME);
     setId(Constants::MODE_WELCOME);
-    setContextHelp("Qt Creator Manual");
     setContext(Context(Constants::C_WELCOME_MODE));
 
     m_modeWidget = new ResizeSignallingWidget;
@@ -346,6 +345,10 @@ WelcomeMode::WelcomeMode()
         spacing(0),
     }.attachTo(m_modeWidget);
 
+    auto context = new IContext(m_modeWidget);
+    context->setWidget(m_modeWidget);
+    context->setContextHelp("Qt Creator Manual");
+    ICore::addContextObject(context);
     setWidget(m_modeWidget);
 }
 

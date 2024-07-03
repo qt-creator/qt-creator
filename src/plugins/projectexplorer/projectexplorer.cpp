@@ -366,7 +366,6 @@ public:
                                Icons::MODE_PROJECT_FLAT, Icons::MODE_PROJECT_FLAT_ACTIVE));
         setPriority(Constants::P_MODE_SESSION);
         setId(Constants::MODE_SESSION);
-        setContextHelp("Managing Projects");
     }
 };
 
@@ -913,6 +912,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     auto splitter = new MiniSplitter(Qt::Vertical);
     splitter->addWidget(dd->m_proWindow);
     splitter->addWidget(new OutputPanePlaceHolder(Constants::MODE_SESSION, splitter));
+    auto context = new IContext(splitter);
+    context->setWidget(splitter);
+    context->setContextHelp("Managing Projects");
+    ICore::addContextObject(context);
     dd->m_projectsMode.setWidget(splitter);
     dd->m_projectsMode.setEnabled(false);
 

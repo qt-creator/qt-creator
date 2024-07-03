@@ -25,6 +25,8 @@ public:
     Utils::FancyMainWindow *m_mainWindow = nullptr;
     int m_priority = -1;
     Utils::Id m_id;
+    Context m_context;
+    QPointer<QWidget> m_widget;
     bool m_isEnabled = true;
     BoolAspect m_isVisible;
 };
@@ -123,7 +125,7 @@ public:
     Registers the mode in \QC.
 */
 IMode::IMode(QObject *parent)
-    : IContext(parent)
+    : QObject(parent)
     , m_d(new Internal::IModePrivate)
 {
     m_d->m_isVisible.setDefaultValue(true);
@@ -197,6 +199,16 @@ void IMode::setMenu(QMenu *menu)
     m_d->m_menu = menu;
 }
 
+void IMode::setContext(const Context &context)
+{
+    m_d->m_context = context;
+}
+
+void IMode::setWidget(QWidget *widget)
+{
+    m_d->m_widget = widget;
+}
+
 Utils::FancyMainWindow *IMode::mainWindow()
 {
     if (m_d->m_mainWindow)
@@ -223,6 +235,16 @@ bool IMode::isVisible() const
 QMenu *IMode::menu() const
 {
     return m_d->m_menu;
+}
+
+Context IMode::context() const
+{
+    return m_d->m_context;
+}
+
+QWidget *IMode::widget() const
+{
+    return m_d->m_widget;
 }
 
 } // namespace Core
