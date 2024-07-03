@@ -196,11 +196,11 @@ bool AbstractProcessStep::setupProcess(Process &process)
                                ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForLocale());
     process.setStdErrCodec(QTextCodec::codecForLocale());
 
-    process.setStdOutLineCallback([this](const QString &s){
+    process.setStdOutCallback([this](const QString &s){
         emit addOutput(s, OutputFormat::Stdout, DontAppendNewline);
     });
 
-    process.setStdErrLineCallback([this](const QString &s){
+    process.setStdErrCallback([this](const QString &s){
         emit addOutput(s, OutputFormat::Stderr, DontAppendNewline);
     });
 
