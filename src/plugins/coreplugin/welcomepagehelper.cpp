@@ -298,7 +298,7 @@ constexpr TextFormat searchBoxPlaceholderTF
 
 static const QPixmap &searchBoxIcon()
 {
-    static const QPixmap icon = Icon({{FilePath::fromString(":/core/images/search"),
+    static const QPixmap icon = Icon({{FilePath::fromString(":/core/images/search.png"),
                                        Theme::Token_Text_Muted}}, Icon::Tint).pixmap();
     return icon;
 }
@@ -383,7 +383,7 @@ constexpr TextFormat ComboBoxTf
 
 static const QPixmap &comboBoxIcon()
 {
-    static const QPixmap icon = Icon({{FilePath::fromString(":/core/images/expandarrow"),
+    static const QPixmap icon = Icon({{FilePath::fromString(":/core/images/expandarrow.png"),
                                        ComboBoxTf.themeColor}}, Icon::Tint).pixmap();
     return icon;
 }

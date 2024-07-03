@@ -364,7 +364,7 @@ public:
                                                                    : bgR.height()));
 
         const QSize iconS = icon().deviceIndependentSize().toSize();
-        static const QPixmap arrow = Icon({{FilePath::fromString(":/core/images/expandarrow"),
+        static const QPixmap arrow = Icon({{FilePath::fromString(":/core/images/expandarrow.png"),
                                             Theme::Token_Text_Muted}}, Icon::Tint).pixmap();
         const QSize arrowS = arrow.deviceIndependentSize().toSize();
         const bool arrowVisible = hovered || expanded;
