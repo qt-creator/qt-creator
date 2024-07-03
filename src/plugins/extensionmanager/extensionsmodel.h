@@ -25,6 +25,7 @@ enum ItemType {
 
 enum Role {
     RoleName = Qt::UserRole,
+    RoleCompatVersion,
     RoleCopyright,
     RoleDependencies,
     RoleDescriptionImages,

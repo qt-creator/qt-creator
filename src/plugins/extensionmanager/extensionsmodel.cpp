@@ -53,6 +53,7 @@ struct Description {
 };
 
 struct Extension {
+    QString compatVersion;
     QString copyright;
     Description description;
     int downloadCount = -1;
@@ -166,6 +167,7 @@ static Extension extensionFromJson(const QJsonObject &obj)
     const Description description = descriptionFromJson(descriptionObj);
 
     const Extension extension = {
+        .compatVersion = obj.value("compatibility").toString(),
         .copyright = obj.value("copyright").toString(),
         .description = description,
         .downloadCount = obj.value("download_count").toInt(-1),
@@ -234,6 +236,7 @@ static Extension extensionFromPluginSpec(const PluginSpec *pluginSpec)
                                       : QStringList(platformsPattern);
 
     const Extension extension = {
+        .compatVersion = pluginSpec->compatVersion(),
         .copyright = pluginSpec->copyright(),
         .description = description,
         .id = {},
@@ -311,6 +314,8 @@ static QVariant dataFromExtension(const Extension &extension, int role)
     case Qt::DisplayRole:
     case RoleName:
         return extension.name;
+    case RoleCompatVersion:
+        return extension.compatVersion;
     case RoleCopyright:
         return !extension.copyright.isEmpty() ? extension.copyright : QVariant();
     case RoleDependencies:

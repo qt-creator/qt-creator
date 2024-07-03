@@ -399,6 +399,8 @@ private:
     QMovie m_imageMovie;
     QLabel *m_tagsTitle;
     TagList *m_tags;
+    QLabel *m_compatVersionTitle;
+    QLabel *m_compatVersion;
     QLabel *m_platformsTitle;
     QLabel *m_platforms;
     QLabel *m_dependenciesTitle;
@@ -441,6 +443,8 @@ ExtensionManagerWidget::ExtensionManagerWidget()
 
     m_tagsTitle = sectionTitle(h6TF, Tr::tr("Tags"));
     m_tags = new TagList;
+    m_compatVersionTitle = sectionTitle(h6TF, Tr::tr("Compatibility"));
+    m_compatVersion = tfLabel(contentTF, false);
     m_platformsTitle = sectionTitle(h6TF, Tr::tr("Platforms"));
     m_platforms = tfLabel(contentTF, false);
     m_dependenciesTitle = sectionTitle(h6TF, Tr::tr("Dependencies"));
@@ -455,6 +459,7 @@ ExtensionManagerWidget::ExtensionManagerWidget()
         sectionTitle(h6CapitalTF, Tr::tr("Extension details")),
         Column {
             Column { m_tagsTitle, m_tags, spXxs },
+            Column { m_compatVersionTitle, m_compatVersion, spXxs },
             Column { m_platformsTitle, m_platforms, spXxs },
             Column { m_dependenciesTitle, m_dependencies, spXxs },
             Column { m_packExtensionsTitle, m_packExtensions, spXxs },
@@ -609,6 +614,13 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
         const bool hasTags = !tags.isEmpty();
         m_tagsTitle->setVisible(hasTags);
         m_tags->setVisible(hasTags);
+
+        const QString compatVersion = current.data(RoleCompatVersion).toString();
+        const bool hasCompatVersion = !compatVersion.isEmpty();
+        if (hasCompatVersion)
+            m_compatVersion->setText(compatVersion);
+        m_compatVersionTitle->setVisible(hasCompatVersion);
+        m_compatVersion->setVisible(hasCompatVersion);
 
         const QStringList platforms = current.data(RolePlatforms).toStringList();
         const bool hasPlatforms = !platforms.isEmpty();
