@@ -346,8 +346,9 @@ public:
             .addToContainer(menuId)
             .addOnTriggered(this, &ClangFormat::disableFormattingSelectedText);
 
-        connect(&settings().supportedMimeTypes, &BaseAspect::changed,
-                this, [this] { updateActions(Core::EditorManager::currentEditor()); });
+        settings().supportedMimeTypes.addOnChanged(this, [this] {
+            updateActions(Core::EditorManager::currentEditor());
+        });
     }
 
     QString id() const final

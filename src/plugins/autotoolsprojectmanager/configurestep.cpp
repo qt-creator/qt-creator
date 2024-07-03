@@ -45,10 +45,7 @@ public:
         arguments.setSettingsKey("AutotoolsProjectManager.ConfigureStep.AdditionalArguments");
         arguments.setLabelText(Tr::tr("Arguments:"));
         arguments.setHistoryCompleter("AutotoolsPM.History.ConfigureArgs");
-
-        connect(&arguments, &BaseAspect::changed, this, [this] {
-            m_runConfigure = true;
-        });
+        arguments.addOnChanged(this, [this] { m_runConfigure = true; });
 
         setCommandLineProvider([this] {
             return getCommandLine(arguments());

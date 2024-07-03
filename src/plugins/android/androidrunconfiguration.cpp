@@ -54,8 +54,7 @@ public:
         environment.addSupportedBaseEnvironment(Tr::tr("Clean Environment"), {});
 
         extraAppArgs.setMacroExpander(macroExpander());
-
-        connect(&extraAppArgs, &BaseAspect::changed, this, [this, target] {
+        extraAppArgs.addOnChanged(this, [this, target] {
             if (target->buildConfigurations().first()->buildType() == BuildConfiguration::BuildType::Release) {
                 const QString buildKey = target->activeBuildKey();
                 target->buildSystem()->setExtraData(buildKey,

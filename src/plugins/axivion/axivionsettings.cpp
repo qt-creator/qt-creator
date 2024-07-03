@@ -251,8 +251,8 @@ DashboardSettingsWidget::DashboardSettingsWidget(QWidget *parent, QPushButton *o
         m_valid.setValue(isValid());
         ok->setEnabled(m_valid());
     };
-    connect(&m_dashboardUrl, &BaseAspect::changed, this, checkValidity);
-    connect(&m_username, &BaseAspect::changed, this, checkValidity);
+    m_dashboardUrl.addOnChanged(this, checkValidity);
+    m_username.addOnChanged(this, checkValidity);
 }
 
 AxivionServer DashboardSettingsWidget::dashboardServer() const

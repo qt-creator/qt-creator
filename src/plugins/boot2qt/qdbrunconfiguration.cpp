@@ -76,8 +76,8 @@ public:
             fullCommand.setValue(cmd.toUserOutput());
         };
 
-        connect(&arguments, &BaseAspect::changed, this, updateFullCommand);
-        connect(&executable, &BaseAspect::changed, this, updateFullCommand);
+        arguments.addOnChanged(this, updateFullCommand);
+        executable.addOnChanged(this, updateFullCommand);
         updateFullCommand();
     }
 

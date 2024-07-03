@@ -99,7 +99,7 @@ QWidget *CMakeInstallStep::createConfigWidget()
 
     updateDetails();
 
-    connect(&cmakeArguments, &StringAspect::changed, this, updateDetails);
+    cmakeArguments.addOnChanged(this, updateDetails);
 
     connect(ProjectExplorerPlugin::instance(),
             &ProjectExplorerPlugin::settingsChanged,

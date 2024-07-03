@@ -42,8 +42,7 @@ public:
         arguments.setValue("--force --install");
         arguments.setDisplayStyle(StringAspect::LineEditDisplay);
         arguments.setHistoryCompleter("AutotoolsPM.History.AutoreconfStepArgs");
-
-        connect(&arguments, &BaseAspect::changed, this, [this] { m_runAutoreconf = true; });
+        arguments.addOnChanged(this, [this] { m_runAutoreconf = true; });
 
         setCommandLineProvider([this] {
             return CommandLine("autoreconf", arguments(), CommandLine::Raw);

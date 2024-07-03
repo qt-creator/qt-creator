@@ -104,7 +104,7 @@ public:
             settings->source.setVolatileValue(plainText());
         });
 
-        connect(&settings->source, &Utils::StringAspect::changed, this, [settings, this] {
+        settings->source.addOnChanged(this, [settings, this] {
             if (settings->source.volatileValue() != plainText())
                 setPlainText(settings->source.volatileValue());
         });

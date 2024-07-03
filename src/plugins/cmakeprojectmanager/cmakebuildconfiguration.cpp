@@ -201,11 +201,9 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
 
     auto buildDirAspect = bc->buildDirectoryAspect();
     buildDirAspect->setAutoApplyOnEditingFinished(true);
-    connect(buildDirAspect, &BaseAspect::changed, this, [this] {
-        m_configModel->flush(); // clear out config cache...;
-    });
+    buildDirAspect->addOnChanged(this, [this] { m_configModel->flush(); }); // clear config cache
 
-    connect(&m_buildConfig->buildTypeAspect, &BaseAspect::changed, this, [this] {
+    m_buildConfig->buildTypeAspect.addOnChanged(this, [this] {
         if (!m_buildConfig->cmakeBuildSystem()->isMultiConfig()) {
             CMakeConfig config;
             config << CMakeConfigItem("CMAKE_BUILD_TYPE",
@@ -216,9 +214,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     });
 
     auto qmlDebugAspect = bc->aspect<QtSupport::QmlDebuggingAspect>();
-    connect(qmlDebugAspect, &QtSupport::QmlDebuggingAspect::changed, this, [this] {
-        updateButtonState();
-    });
+    qmlDebugAspect->addOnChanged(this, [this] { updateButtonState(); });
 
     m_warningMessageLabel = new InfoLabel({}, InfoLabel::Warning);
     m_warningMessageLabel->setVisible(false);

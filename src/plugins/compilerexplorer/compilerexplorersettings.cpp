@@ -77,10 +77,9 @@ SourceSettings::SourceSettings(const ApiConfigFunction &apiConfigFunction)
     compilers.setCreateItemFunction([this, apiConfigFunction] {
         auto result = std::make_shared<CompilerSettings>(apiConfigFunction);
         connect(this, &SourceSettings::languagesChanged, result.get(), &CompilerSettings::refresh);
-        connect(&languageId,
-                &Utils::StringSelectionAspect::changed,
-                result.get(),
-                [this, result = result.get()] { result->setLanguageId(languageId()); });
+        languageId.addOnChanged( result.get(), [this, result = result.get()] {
+            result->setLanguageId(languageId());
+        });
 
         connect(result.get(), &Utils::AspectContainer::changed, this, &SourceSettings::changed);
 

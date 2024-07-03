@@ -254,8 +254,9 @@ public:
             .addToContainer(menuId)
             .addOnTriggered(this, &Uncrustify::formatSelectedText);
 
-        connect(&settings().supportedMimeTypes, &Utils::BaseAspect::changed,
-                this, [this] { updateActions(Core::EditorManager::currentEditor()); });
+        settings().supportedMimeTypes.addOnChanged(this, [this] {
+            updateActions(Core::EditorManager::currentEditor());
+        });
     }
 
     QString id() const final

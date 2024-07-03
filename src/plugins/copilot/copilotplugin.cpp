@@ -125,7 +125,7 @@ public:
             requestAct->setEnabled(enabled);
         };
 
-        connect(&settings().enableCopilot, &BaseAspect::changed, this, updateActions);
+        settings().enableCopilot.addOnChanged(this, updateActions);
 
         updateActions();
 

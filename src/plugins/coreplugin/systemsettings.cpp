@@ -152,9 +152,8 @@ SystemSettings::SystemSettings()
     autoSuspendMinDocumentCount.setEnabler(&autoSuspendEnabled);
     bigFileSizeLimitInMB.setEnabler(&warnBeforeOpeningBigFiles);
 
-    connect(&autoSaveModifiedFiles, &BaseAspect::changed,
-            this, &EditorManagerPrivate::updateAutoSave);
-    connect(&autoSaveInterval, &BaseAspect::changed, this, &EditorManagerPrivate::updateAutoSave);
+    autoSaveModifiedFiles.addOnChanged(this, &EditorManagerPrivate::updateAutoSave);
+    autoSaveInterval.addOnChanged(this, &EditorManagerPrivate::updateAutoSave);
 }
 
 class SystemSettingsWidget : public IOptionsPageWidget

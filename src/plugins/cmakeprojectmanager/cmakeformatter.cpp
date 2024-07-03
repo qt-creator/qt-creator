@@ -116,8 +116,7 @@ public:
                                   && isApplicable(editor->document()));
         };
 
-        connect(&autoFormatMime, &Utils::StringAspect::changed,
-                this, updateActions);
+        autoFormatMime.addOnChanged(this, updateActions);
         connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
                 this, updateActions);
         connect(EditorManager::instance(), &EditorManager::aboutToSave,

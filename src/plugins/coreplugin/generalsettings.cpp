@@ -60,6 +60,10 @@ GeneralSettings::GeneralSettings()
     showShortcutsInContextMenus.setLabelText(
         Tr::tr("Show keyboard shortcuts in context menus (default: %1)")
             .arg(defaultShowShortcutsInContextMenu() ? Tr::tr("on") : Tr::tr("off")));
+    showShortcutsInContextMenus.addOnChanged(this, [this] {
+        QCoreApplication::setAttribute(Qt::AA_DontShowShortcutsInContextMenus,
+                                       !showShortcutsInContextMenus());
+    });
 
     provideSplitterCursors.setSettingsKey("General/OverrideSplitterCursors");
     provideSplitterCursors.setDefaultValue(false);
@@ -68,11 +72,6 @@ GeneralSettings::GeneralSettings()
         Tr::tr("Provide cursors for resizing views.\nIf the system cursors for resizing views are "
                "not displayed properly, you can use the cursors provided by %1.")
             .arg(QGuiApplication::applicationDisplayName()));
-
-    connect(&showShortcutsInContextMenus, &BaseAspect::changed, this, [this] {
-        QCoreApplication::setAttribute(Qt::AA_DontShowShortcutsInContextMenus,
-                                       !showShortcutsInContextMenus());
-    });
 
     readSettings();
 }

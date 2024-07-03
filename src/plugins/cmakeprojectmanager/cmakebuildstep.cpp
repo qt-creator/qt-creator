@@ -610,11 +610,11 @@ QWidget *CMakeBuildStep::createConfigWidget()
 
     updateDetails();
 
-    connect(&cmakeArguments, &BaseAspect::changed, this, updateDetails);
-    connect(&toolArguments, &BaseAspect::changed, this, updateDetails);
-    connect(&useStaging, &BaseAspect::changed, this, updateDetails);
-    connect(&stagingDir, &BaseAspect::changed, this, updateDetails);
-    connect(&useiOSAutomaticProvisioningUpdates, &BaseAspect::changed, this, updateDetails);
+    cmakeArguments.addOnChanged(this, updateDetails);
+    toolArguments.addOnChanged(this, updateDetails);
+    useStaging.addOnChanged(this, updateDetails);
+    stagingDir.addOnChanged(this, updateDetails);
+    useiOSAutomaticProvisioningUpdates.addOnChanged(this, updateDetails);
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
             this, updateDetails);

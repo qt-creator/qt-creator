@@ -152,6 +152,7 @@ AbstractSettings::AbstractSettings(const QString &name, const QString &ending)
     command.setCommandVersionArguments({"--version"});
     command.setPromptDialogTitle(BeautifierTool::msgCommandPromptDialogTitle("Clang Format"));
     command.setValidatePlaceHolder(true);
+    command.addOnChanged(this, [this] { m_version = {}; version(); });
 
     supportedMimeTypes.setDisplayStyle(StringAspect::LineEditDisplay);
     supportedMimeTypes.setSettingsKey("supportedMime");
@@ -172,8 +173,6 @@ AbstractSettings::AbstractSettings(const QString &name, const QString &ending)
         }
         return types.join("; ");
     });
-
-    connect(&command, &BaseAspect::changed, this, [this] { m_version = {}; version(); });
 }
 
 AbstractSettings::~AbstractSettings() = default;

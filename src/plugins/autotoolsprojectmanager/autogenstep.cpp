@@ -52,8 +52,7 @@ AutogenStep::AutogenStep(BuildStepList *bsl, Id id) : AbstractProcessStep(bsl, i
     m_arguments.setLabelText(Tr::tr("Arguments:"));
     m_arguments.setDisplayStyle(StringAspect::LineEditDisplay);
     m_arguments.setHistoryCompleter("AutotoolsPM.History.AutogenStepArgs");
-
-    connect(&m_arguments, &BaseAspect::changed, this, [this] { m_runAutogen = true; });
+    m_arguments.addOnChanged(this, [this] { m_runAutogen = true; });
 
     setWorkingDirectoryProvider([this] { return project()->projectDirectory(); });
 
