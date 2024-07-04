@@ -16270,7 +16270,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>You may need to add the project directory to the list of directories that are mounted by the build device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie müssen das Projektverzeichnis möglicherweise zur Liste der vom Gerät eingehängten Pfade hinzufügen.</translation>
     </message>
     <message>
         <source>The source directory %1 is not reachable by the CMake executable %2.</source>
@@ -16310,7 +16310,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>CMake Preset (%1) %2 Debugger</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake-Preset (%1) %2 Debugger</translation>
     </message>
     <message>
         <source>Unexpected source directory &quot;%1&quot;, expected &quot;%2&quot;. This can be correct in some situations, for example when importing a standalone Qt test, but usually this is an error. Import the build anyway?</source>
@@ -16435,7 +16435,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     <message>
         <source>CMake project configuration failed. No CMake configuration for build type &quot;%1&quot; found. Check General Messages for more information.</source>
         <extracomment>General Messages refers to the output view</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Die CMake-Konfiguration des Projekts ist fehlgeschlagen. Es wurde keine CMake-Konfiguration für den Build-Typ &quot;%1&quot; gefunden. Überprüfen Sie &quot;Allgemeine Ausgaben&quot; für weitere Informationen.</translation>
     </message>
     <message>
         <source>No &quot;%1&quot; CMake configuration found. Available configurations: &quot;%2&quot;.
@@ -16475,15 +16475,15 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Invalid &quot;configurePresets&quot; section in file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Abschnitt &quot;configurePresets&quot; in Datei &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Invalid &quot;buildPresets&quot; section in file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Abschnitt &quot;buildPresets&quot; in Datei &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Invalid &quot;vendor&quot; section in file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Abschnitt &quot;vendor&quot; in Datei &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>&lt;File System&gt;</source>
@@ -16871,7 +16871,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Generating Clang compilation database canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzeugen der Clang-Kompilierungsdatenbank wurde abgebrochen.</translation>
     </message>
     <message>
         <source>Generate Compilation Database for &quot;%1&quot;</source>
@@ -16973,7 +16973,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Cannot use clangd: Generating compilation database canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann Clangd nicht nutzen: Erstellen der Kompilierungsdatenbank wurde abgebrochen.</translation>
     </message>
     <message>
         <source>Cannot use clangd: Failed to generate compilation database:
@@ -17008,7 +17008,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Could not retrieve project info.</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt-Information konnte nicht abgefragt werden.</translation>
     </message>
     <message>
         <source>Could not create &quot;%1&quot;: %2</source>
@@ -17194,11 +17194,11 @@ Ausgabe:
     </message>
     <message>
         <source>Suppress Selected Diagnostics Inline</source>
-        <translation type="unfinished"></translation>
+        <translation>Inline-Anzeige der ausgewählten Meldungen unterdrücken</translation>
     </message>
     <message>
         <source>Suppress This Diagnostic Inline</source>
-        <translation type="unfinished"></translation>
+        <translation>Inline-Anzeige dieser Meldung unterdrücken</translation>
     </message>
     <message>
         <source>Disable These Checks</source>
@@ -18677,17 +18677,17 @@ Der Code wurde in die Zwischenablage kopiert.</translation>
     <message>
         <source>Path to %1:</source>
         <extracomment>%1 is the filename of the copilot language server</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zu %1:</translation>
     </message>
     <message>
         <source>%1 path</source>
         <extracomment>%1 is the filename of the copilot language server</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zu %1</translation>
     </message>
     <message>
         <source>Select path to %2 in Copilot Neovim plugin. See %1 for installation instructions.</source>
         <extracomment>%1 is the URL to copilot.vim getting started, %2 is the filename of the copilot language server</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie den Pfad zu %2 im Copilot-Plugin für Neovim. Siehe auch %1 für eine Installationsanleitung.</translation>
     </message>
     <message>
         <source>Auto Request</source>
@@ -18786,7 +18786,9 @@ Der Code wurde in die Zwischenablage kopiert.</translation>
 
 Otherwise you need to specify the path to the %2 file from the Copilot neovim plugin.</source>
         <comment>Markdown text for the copilot instruction label</comment>
-        <translation type="unfinished"></translation>
+        <translation>Das Copilot-Plugin benötigt node.js und das Copilot-Plugin für Neovim. Wenn Sie das Neovim-Plugin wie in der %1 beschrieben installieren, findet das Plugin die Datei %3 automatisch.
+
+Ansonsten müssen Sie den Pfad zur Datei %2 aus dem Copilot-Plugin für Neovim angeben.</translation>
     </message>
     <message>
         <source>Note</source>
@@ -20147,11 +20149,11 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
     <message>
         <source>output.txt</source>
         <extracomment>default file name suggested for saving text from output views</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ausgabe.txt</translation>
     </message>
     <message>
         <source>Save Contents...</source>
-        <translation type="unfinished"></translation>
+        <translation>Inhalt speichern...</translation>
     </message>
     <message numerus="yes">
         <source>Elided %n characters due to Application Output settings</source>
@@ -20517,7 +20519,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt von einem Leerzeiche
     </message>
     <message>
         <source>Locator filters show relative paths to the active project when possible.</source>
-        <translation type="unfinished"></translation>
+        <translation>Locator-Filter zeigen relative Pfade zum aktiven Projekt an, wenn möglich.</translation>
     </message>
     <message>
         <source>Files in Directories</source>
@@ -20987,7 +20989,7 @@ Möchten Sie es beenden?</translation>
     </message>
     <message>
         <source>The path to the running %1 itself.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad zum laufenden %1 selbst.</translation>
     </message>
     <message>
         <source>The directory where %1 finds its pre-installed resources.</source>
@@ -20995,7 +20997,7 @@ Möchten Sie es beenden?</translation>
     </message>
     <message>
         <source>The directory where %1 puts custom user data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Verzeichnis, in dem %1 Benutzerdaten speichert.</translation>
     </message>
     <message>
         <source>The current date (QDate formatstring).</source>
@@ -21235,7 +21237,7 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Reopen Last Closed Document</source>
-        <translation type="unfinished"></translation>
+        <translation>Zuletzt geschlossenes Dokument erneut öffnen</translation>
     </message>
     <message>
         <source>Meta+E,2</source>
