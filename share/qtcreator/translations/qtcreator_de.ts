@@ -10765,7 +10765,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Verifying package integrity...</source>
-        <translation type="unfinished"></translation>
+        <translation>Prüfe die Integrität des Pakets...</translation>
     </message>
     <message>
         <source>Unarchiving error.</source>
@@ -10963,7 +10963,7 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>Android support is not yet configured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Android-Unterstützung ist noch nicht konfiguriert.</translation>
     </message>
     <message>
         <source>The device info returned from AvdDialog is invalid.</source>
@@ -11169,11 +11169,11 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>Cannot find the package name from AndroidManifest.xml nor build.gradle files at &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte den Paketnamen nicht aus den Informationen in der AndroidManifest.xml-Datei oder der build.gradle-Datei in &quot;%1&quot; bestimmen.</translation>
     </message>
     <message>
         <source>Deployment failed with the following errors:</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Deployment ist mit den folgenden Fehlern fehlgeschlagen:</translation>
     </message>
     <message>
         <source>Install an APK File</source>
@@ -11397,7 +11397,7 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     </message>
     <message>
         <source>Cannot open &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; kann nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Cannot parse &quot;%1&quot;.</source>
@@ -11599,39 +11599,39 @@ Installieren Sie diese manuell, nachdem der aktuelle Vorgang abgeschlossen ist.
     </message>
     <message>
         <source>Finished successfully.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erfolgreich abgeschlossen.</translation>
     </message>
     <message>
         <source>Installing / Uninstalling selected packages...</source>
-        <translation type="unfinished"></translation>
+        <translation>Installiere / Deinstalliere ausgewählte Pakete...</translation>
     </message>
     <message>
         <source>Closing the preferences dialog will cancel the running and scheduled SDK operations.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn Sie den Einstellungsdialog schließen, werden die laufenden und geplanten SDK-Operationen abgebrochen.</translation>
     </message>
     <message>
         <source>Closing the options dialog will cancel the running and scheduled SDK operations.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn Sie den Einstellungsdialog schließen, werden die laufenden und geplanten SDK-Operationen abgebrochen.</translation>
     </message>
     <message>
         <source>Uninstalling %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Deinstalliere %1...</translation>
     </message>
     <message>
         <source>Installing %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Installiere %1...</translation>
     </message>
     <message>
         <source>Updating installed packages...</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualisiere installierte Pakete...</translation>
     </message>
     <message>
         <source>[Packages to be uninstalled:]</source>
-        <translation type="unfinished"></translation>
+        <translation>[Pakete, die deinstalliert werden sollen:]</translation>
     </message>
     <message>
         <source>[Packages to be installed:]</source>
-        <translation type="unfinished"></translation>
+        <translation>[Pakete, die installiert werden sollen:]</translation>
     </message>
     <message>
         <source>Android SDK Changes</source>
@@ -11720,7 +11720,7 @@ Installieren Sie diese manuell, nachdem der aktuelle Vorgang abgeschlossen ist.
     </message>
     <message>
         <source>Failed to start AVD emulator for &quot;%1&quot; device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Starten des AVD-Emulators für das Gerät &quot;%1&quot; ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Clean Environment</source>
@@ -12340,11 +12340,11 @@ und das Überschreiben Ihrer Einstellungen erfordert. Das Überschreiben erlaube
     </message>
     <message>
         <source>Use a timeout while executing test cases.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeitlimit für das Ausführen von Testfällen verwenden.</translation>
     </message>
     <message>
         <source>Timeout used when executing test cases. This will apply for each test case on its own, not the whole project. Overrides test framework or build system defaults.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeitlimit, das für das Ausführen von Testfällen benutzt wird. Dieses wird für jeden Testfall einzeln angewendet, nicht für das gesamte Projekt. Überschreibt die Vorgaben des Test-Frameworks und des Build-Systems.</translation>
     </message>
     <message>
         <source>Omit run configuration warnings</source>
@@ -12494,23 +12494,23 @@ Warnung: Dies ist eine experimentelle Funktion und könnte dazu führen, dass di
     </message>
     <message>
         <source>Apply path filters before scanning for tests.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfade vor dem Suchen nach Tests filtern.</translation>
     </message>
     <message>
         <source>Wildcard expressions for filtering:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausdrücke mit Platzhaltern, die zum Filtern benutzt werden:</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished">Hinzufügen</translation>
+        <translation>Hinzufügen</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Limit Files to Path Patterns</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateien auf Suchmuster beschränken</translation>
     </message>
     <message>
         <source>Scanning for Tests</source>
@@ -13028,7 +13028,7 @@ Dies könnte Probleme während der Ausführung verursachen.
     </message>
     <message>
         <source>Repeat Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>Tests wiederholen</translation>
     </message>
     <message>
         <source>Output on failure</source>
@@ -13728,7 +13728,7 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>No Data</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Daten</translation>
     </message>
     <message>
         <source>Axivion</source>
@@ -13744,15 +13744,15 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Open Issue in Dashboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Problem im Dashboard anzeigen</translation>
     </message>
     <message>
         <source>Open Table in Dashboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Tabelle im Dashboard anzeigen</translation>
     </message>
     <message>
         <source>Copy Dashboard Link to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Dashboard-Link in die Zwischenablage kopieren</translation>
     </message>
     <message>
         <source>Show rule details</source>
@@ -13792,7 +13792,7 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>Unauthenticated access failed (wrong user), using authenticated access...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zugriff ohne Authentifizierung ist fehlgeschlagen (falscher Benutzer), verwende authentifizierten Zugriff...</translation>
     </message>
     <message>
         <source>Enter the password for:
@@ -13830,7 +13830,7 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Search for issues inside the Axivion dashboard or request issue details for Axivion inline annotations to see them here.</source>
-        <translation type="unfinished"></translation>
+        <translation>Suchen Sie nach Problemen im Axivion-Dashboard oder fordern Sie Problemdetails für Inline-Annotationen von Axivion an, um sie hier anzuzeigen.</translation>
     </message>
     <message>
         <source>Fetch Projects</source>
@@ -13882,7 +13882,7 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Add...</source>
-        <translation type="unfinished">Hinzufügen...</translation>
+        <translation>Hinzufügen...</translation>
     </message>
     <message>
         <source>Edit...</source>
@@ -13890,27 +13890,27 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Default dashboard server:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorgabe-Dashboardserver:</translation>
     </message>
     <message>
         <source>unset</source>
-        <translation type="unfinished"></translation>
+        <translation>nicht gesetzt</translation>
     </message>
     <message>
         <source>Remove Server Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Server-Konfiguration löschen</translation>
     </message>
     <message>
         <source>Remove the server configuration &quot;%1&quot;?</source>
-        <translation type="unfinished"></translation>
+        <translation>Server-Konfiguration &quot;%1&quot; löschen?</translation>
     </message>
     <message>
         <source>Add Dashboard Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Dashboard-Konfiguration hinzufügen</translation>
     </message>
     <message>
         <source>Edit Dashboard Configuration</source>
