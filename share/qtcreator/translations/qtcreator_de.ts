@@ -29969,102 +29969,102 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     <name>QtC::ExtensionManager</name>
     <message>
         <source>Extensions</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterungen</translation>
     </message>
     <message>
         <source>More information</source>
-        <translation type="unfinished"></translation>
+        <translation>Mehr Informationen</translation>
     </message>
     <message>
         <source>Extension details</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterungsdetails</translation>
     </message>
     <message numerus="yes">
         <source>Pack contains %n plugins.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Paket enthält ein Plugin.</numerusform>
+            <numerusform>Paket enthält %n Plugins.</numerusform>
         </translation>
     </message>
     <message>
         <source>Load on start</source>
-        <translation type="unfinished"></translation>
+        <translation>Beim Start laden</translation>
     </message>
     <message>
         <source>Restart Now</source>
-        <translation type="unfinished">Jetzt neu starten</translation>
+        <translation>Jetzt neu starten</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <source>Loaded</source>
-        <translation type="unfinished">Geladen</translation>
+        <translation>Geladen</translation>
     </message>
     <message>
         <source>Not loaded</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht geladen</translation>
     </message>
     <message>
         <source>Tags</source>
-        <translation type="unfinished">Tags</translation>
+        <translation>Tags</translation>
     </message>
     <message>
         <source>Platforms</source>
-        <translation type="unfinished"></translation>
+        <translation>Plattformen</translation>
     </message>
     <message>
         <source>Dependencies</source>
-        <translation type="unfinished">Abhängigkeiten</translation>
+        <translation>Abhängigkeiten</translation>
     </message>
     <message>
         <source>Extensions in pack</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterungen im Paket</translation>
     </message>
     <message>
         <source>Downloading...</source>
-        <translation type="unfinished"></translation>
+        <translation>Lade herunter...</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Abbrechen</translation>
+        <translation>Abbrechen</translation>
     </message>
     <message>
         <source>Download Extension</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterung herunterladen</translation>
     </message>
     <message>
         <source>Download Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ladefehler</translation>
     </message>
     <message>
         <source>Cannot download extension</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterung kann nicht heruntergeladen werden</translation>
     </message>
     <message>
         <source>Code: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Code: %1.</translation>
     </message>
     <message>
         <source>Manage Extensions</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterungen verwalten</translation>
     </message>
     <message>
         <source>Search</source>
-        <translation type="unfinished">Suche</translation>
+        <translation>Suche</translation>
     </message>
     <message>
         <source>Install...</source>
-        <translation type="unfinished"></translation>
+        <translation>Installieren...</translation>
     </message>
     <message>
         <source>Use external repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Externes Repository benutzen</translation>
     </message>
     <message>
         <source>Repository: %1</source>
-        <translation type="unfinished">Repository: %1</translation>
+        <translation>Repository: %1</translation>
     </message>
 </context>
 <context>
@@ -30103,7 +30103,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Loadable without restart:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann ohne Neustart geladen werden:</translation>
     </message>
     <message>
         <source>Plugin Details of %1</source>
@@ -30271,7 +30271,7 @@ Grund: %3</translation>
     </message>
     <message>
         <source>Cannot open file</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei kann nicht geöffnet werden</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is missing</source>
@@ -30299,11 +30299,11 @@ Grund: %3</translation>
     </message>
     <message>
         <source>No IID found</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine IID gefunden</translation>
     </message>
     <message>
         <source>Expected IID &quot;%1&quot;, but found &quot;%2&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>IID &quot;%1&quot; erwartet, aber &quot;%2&quot; gefunden</translation>
     </message>
     <message>
         <source>Resolving dependencies failed because state != Read</source>
@@ -30375,7 +30375,7 @@ Grund: %3</translation>
     </message>
     <message>
         <source>Load on Startup</source>
-        <translation>Beim Start Laden</translation>
+        <translation>Beim Start laden</translation>
     </message>
     <message>
         <source>Utilities</source>
@@ -30429,7 +30429,7 @@ Plugin durch ein Kommandozeilenargument deaktiviert.</translation>
     </message>
     <message>
         <source>Load on startup</source>
-        <translation>Beim Start Laden</translation>
+        <translation>Beim Start laden</translation>
     </message>
     <message>
         <source>Enabling Plugins</source>
