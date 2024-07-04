@@ -24896,11 +24896,11 @@ Möchten Sie die Daten trotzdem anzeigen?</translation>
     </message>
     <message>
         <source>Disable All Breakpoints</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Haltepunkte deaktivieren</translation>
     </message>
     <message>
         <source>Enable All Breakpoints</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Haltepunkte aktivieren</translation>
     </message>
     <message>
         <source>Disable Selected Locations</source>
@@ -25729,15 +25729,15 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>Use debug info daemon</source>
-        <translation type="unfinished"></translation>
+        <translation>Debuginfo-Daemon benutzen</translation>
     </message>
     <message>
         <source>Use system settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Systemeinstellungen benutzen</translation>
     </message>
     <message>
         <source>Lets GDB attempt to automatically retrieve debug information for system packages.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lässt GDB versuchen, die Debuginformation für Systempakete automatisch abzurufen.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enables stepping backwards.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; This feature is very slow and unstable on the GDB side. It exhibits unpredictable behavior when going backwards over system calls and is very likely to destroy your debugging session.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -26608,7 +26608,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>&quot;%1&quot; could not be started. Error message: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; konnte nicht gestartet werden. Fehlermeldung: %2</translation>
     </message>
     <message>
         <source>Python Error</source>
@@ -27134,7 +27134,7 @@ Sie werden möglicherweise gebeten, den Inhalt dieses Logs mitzuteilen, wenn Sie
     </message>
     <message>
         <source>LLDB Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>LLDB Voreinstellung</translation>
     </message>
     <message>
         <source>Python Preset</source>
@@ -27932,7 +27932,7 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>Behavior</source>
-        <translation type="unfinished">Verhalten</translation>
+        <translation>Verhalten</translation>
     </message>
     <message>
         <source>Extra Debugging Helpers</source>
@@ -28206,7 +28206,7 @@ Bitte wählen Sie einen 64-bit-Debugger in den Kit-Einstellungen für dieses Kit
     </message>
     <message>
         <source>Launching %1 Debugger</source>
-        <translation type="unfinished"></translation>
+        <translation>Starte Debugger %1</translation>
     </message>
     <message>
         <source>Loading finished.</source>
@@ -35058,7 +35058,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Product type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Produkttyp:</translation>
     </message>
     <message>
         <source>Device name</source>
@@ -35091,7 +35091,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Product type</source>
-        <translation type="unfinished"></translation>
+        <translation>Produkttyp</translation>
     </message>
     <message>
         <source>An iOS device in user mode has been detected.</source>
@@ -35160,7 +35160,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Update</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualisieren</translation>
     </message>
     <message>
         <source>iOS Simulator</source>
@@ -35256,7 +35256,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Configure available simulator devices in &lt;a href=&quot;%1&quot;&gt;Xcode&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurieren Sie verfügbare Simulator-Geräte in &lt;a href=&quot;%1&quot;&gt;Xcode&lt;/a&gt;.</translation>
     </message>
     <message>
         <source>Devices</source>
@@ -35605,7 +35605,7 @@ Beispiel: *.cpp%1*.h</translation>
     </message>
     <message>
         <source>File pattern:</source>
-        <translation type="unfinished"></translation>
+        <translation>Suchmuster für Dateinamen:</translation>
     </message>
     <message>
         <source>Executable:</source>
@@ -35749,11 +35749,11 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Language Server Diagnostics</source>
-        <translation type="unfinished"></translation>
+        <translation>Language Server-Meldungen</translation>
     </message>
     <message>
         <source>Issues provided by the Language Server in the current document.</source>
-        <translation type="unfinished"></translation>
+        <translation>Probleme, die der Language Server im aktuellen Dokument gefunden hat.</translation>
     </message>
     <message>
         <source>Always On</source>
@@ -35862,7 +35862,7 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Deprecated</source>
-        <translation type="unfinished"></translation>
+        <translation>Veraltet</translation>
     </message>
     <message>
         <source>Incoming</source>
@@ -35874,11 +35874,11 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Bases</source>
-        <translation type="unfinished">Basisklassen</translation>
+        <translation>Basistypen</translation>
     </message>
     <message>
         <source>Derived</source>
-        <translation type="unfinished">Abgeleitet</translation>
+        <translation>Abgeleitet</translation>
     </message>
     <message>
         <source>Call Hierarchy</source>
