@@ -416,12 +416,24 @@ void OutputWindow::handleNextOutputChunk()
 {
     QTC_ASSERT(!d->queuedOutput.isEmpty(), return);
     auto &chunk = d->queuedOutput.first();
-    if (chunk.first.size() <= chunkSize) {
+
+    // We want to break off the chunks along line breaks, if possible.
+    // Otherwise we can get ugly temporary artifacts e.g. for ANSI escape codes.
+    int actualChunkSize = std::min(chunkSize, int(chunk.first.size()));
+    const int minEndPos = std::max(0, actualChunkSize - 1000);
+    for (int i = actualChunkSize - 1; i >= minEndPos; --i) {
+        if (chunk.first.at(i) == '\n') {
+            actualChunkSize = i + 1;
+            break;
+        }
+    }
+
+    if (actualChunkSize == chunk.first.size()) {
         handleOutputChunk(chunk.first, chunk.second);
         d->queuedOutput.removeFirst();
     } else {
-        handleOutputChunk(chunk.first.left(chunkSize), chunk.second);
-        chunk.first.remove(0, chunkSize);
+        handleOutputChunk(chunk.first.left(actualChunkSize), chunk.second);
+        chunk.first.remove(0, actualChunkSize);
     }
     if (!d->queuedOutput.isEmpty())
         d->queueTimer.start();
