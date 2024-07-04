@@ -345,10 +345,7 @@ WelcomeMode::WelcomeMode()
         spacing(0),
     }.attachTo(m_modeWidget);
 
-    auto context = new IContext(m_modeWidget);
-    context->setWidget(m_modeWidget);
-    context->setContextHelp("Qt Creator Manual");
-    ICore::addContextObject(context);
+    IContext::attach(m_modeWidget, {}, "Qt Creator Manual");
     setWidget(m_modeWidget);
 }
 

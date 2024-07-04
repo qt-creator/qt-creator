@@ -17,7 +17,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/icontext.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/session.h>
 
 #include <utils/algorithm.h>
@@ -33,12 +32,9 @@
 #include <utils/utilsicons.h>
 
 #include <QAbstractTextDocumentLayout>
-#include <QApplication>
-#include <QDir>
 #include <QLabel>
 #include <QMenu>
 #include <QPainter>
-#include <QScrollBar>
 #include <QStyledItemDelegate>
 #include <QTextDocument>
 #include <QToolButton>
@@ -143,7 +139,7 @@ public:
     Internal::TaskModel *m_model;
     Internal::TaskFilterModel *m_filter;
     TaskView m_treeView;
-    Core::IContext *m_taskWindowContext;
+    const Core::Context m_taskWindowContext{Core::Context(Core::Constants::C_PROBLEM_PANE)};
     QHash<const QAction *, ITaskHandler *> m_actionToHandlerMap;
     ITaskHandler *m_defaultHandler = nullptr;
     QToolButton *m_filterWarningsButton;
@@ -194,10 +190,7 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
     d->m_treeView.setAttribute(Qt::WA_MacShowFocusRect, false);
     d->m_treeView.resizeColumns();
 
-    d->m_taskWindowContext = new Core::IContext(&d->m_treeView);
-    d->m_taskWindowContext->setWidget(&d->m_treeView);
-    d->m_taskWindowContext->setContext(Core::Context(Core::Constants::C_PROBLEM_PANE));
-    Core::ICore::addContextObject(d->m_taskWindowContext);
+    Core::IContext::attach(&d->m_treeView, d->m_taskWindowContext);
 
     connect(d->m_treeView.selectionModel(), &QItemSelectionModel::currentChanged,
             this, [this](const QModelIndex &index) { d->m_treeView.scrollTo(index); });
@@ -298,7 +291,7 @@ void TaskWindow::delayedInitialization()
         Id id = h->actionManagerId();
         if (id.isValid()) {
             Core::Command *cmd =
-                Core::ActionManager::registerAction(action, id, d->m_taskWindowContext->context(), true);
+                Core::ActionManager::registerAction(action, id, d->m_taskWindowContext, true);
             action = cmd->action();
         }
         d->m_treeView.addAction(action);

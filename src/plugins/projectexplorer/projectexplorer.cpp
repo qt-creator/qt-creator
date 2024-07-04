@@ -912,10 +912,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     auto splitter = new MiniSplitter(Qt::Vertical);
     splitter->addWidget(dd->m_proWindow);
     splitter->addWidget(new OutputPanePlaceHolder(Constants::MODE_SESSION, splitter));
-    auto context = new IContext(splitter);
-    context->setWidget(splitter);
-    context->setContextHelp("Managing Projects");
-    ICore::addContextObject(context);
+
+    IContext::attach(splitter, {}, "Managing Projects");
+
     dd->m_projectsMode.setWidget(splitter);
     dd->m_projectsMode.setEnabled(false);
 
