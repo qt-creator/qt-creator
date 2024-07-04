@@ -383,6 +383,8 @@ void EditorView::fillListContextMenu(QMenu *menu) const
                                          : nullptr;
     EditorManager::addSaveAndCloseEditorActions(menu, entry, editor);
     menu->addSeparator();
+    EditorManager::addPinEditorActions(menu, entry);
+    menu->addSeparator();
     EditorManager::addNativeDirAndOpenWithActions(menu, entry);
 }
 
