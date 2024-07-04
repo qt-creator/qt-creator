@@ -141,6 +141,8 @@ public:
                                              IEditor *editor = nullptr);
     static void addPinEditorActions(QMenu *contextMenu, DocumentModel::Entry *entry);
     static void addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentModel::Entry *entry);
+    static void addContextMenuActions(
+        QMenu *contextMenu, DocumentModel::Entry *entry, IEditor *editor = nullptr);
     static void populateOpenWithMenu(QMenu *menu, const Utils::FilePath &filePath);
 
     static void runWithTemporaryEditor(const Utils::FilePath &filePath,

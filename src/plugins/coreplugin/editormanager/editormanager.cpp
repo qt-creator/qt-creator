@@ -2928,6 +2928,16 @@ void EditorManager::addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentM
         populateOpenWithMenu(openWith, entry->filePath());
 }
 
+void EditorManager::addContextMenuActions(
+    QMenu *contextMenu, DocumentModel::Entry *entry, IEditor *editor)
+{
+    EditorManager::addSaveAndCloseEditorActions(contextMenu, entry, editor);
+    contextMenu->addSeparator();
+    EditorManager::addPinEditorActions(contextMenu, entry);
+    contextMenu->addSeparator();
+    EditorManager::addNativeDirAndOpenWithActions(contextMenu, entry);
+}
+
 /*!
     Populates the \uicontrol {Open With} menu \a menu with editors that are
     suitable for opening the document \a filePath.
