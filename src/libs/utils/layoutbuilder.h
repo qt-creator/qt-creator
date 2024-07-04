@@ -414,12 +414,11 @@ QTC_DEFINE_BUILDER_SETTER(toolTip, setToolTip)
 QTC_DEFINE_BUILDER_SETTER(windowTitle, setWindowTitle)
 QTC_DEFINE_BUILDER_SETTER(wordWrap, setWordWrap);
 QTC_DEFINE_BUILDER_SETTER(orientation, setOrientation);
-QTC_DEFINE_BUILDER_SETTER2(columnStretch, setColumnStretch)
-QTC_DEFINE_BUILDER_SETTER2(onClicked, onClicked)
-QTC_DEFINE_BUILDER_SETTER2(onLinkHovered, onLinkHovered)
-QTC_DEFINE_BUILDER_SETTER2(onTextChanged, onTextChanged)
-QTC_DEFINE_BUILDER_SETTER2(stretchFactor, setStretchFactor)
-QTC_DEFINE_BUILDER_SETTER4(customMargins, setContentsMargins)
+QTC_DEFINE_BUILDER_SETTER(columnStretch, setColumnStretch)
+QTC_DEFINE_BUILDER_SETTER(onClicked, onClicked)
+QTC_DEFINE_BUILDER_SETTER(onLinkHovered, onLinkHovered)
+QTC_DEFINE_BUILDER_SETTER(onTextChanged, onTextChanged)
+QTC_DEFINE_BUILDER_SETTER(customMargins, setContentsMargins)
 
 // Nesting dispatchers
 
