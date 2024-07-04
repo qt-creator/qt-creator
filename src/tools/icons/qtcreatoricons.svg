@@ -8970,15 +8970,13 @@
          x="0"
          style="display:inline"
          transform="translate(703,3)" />
-      <use
-         style="display:inline"
-         x="0"
-         y="0"
-         xlink:href="#src/libs/utils/images/stop_small"
-         id="use1533"
-         transform="translate(379,-513)"
-         width="100%"
-         height="100%" />
+      <rect
+         id="rect2664"
+         height="8"
+         width="8"
+         y="61"
+         x="762"
+         ry="1" />
     </g>
     <g
        id="src/plugins/debugger/images/debugger_interrupt_mask"
