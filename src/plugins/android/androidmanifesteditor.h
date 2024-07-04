@@ -25,7 +25,6 @@ public:
     explicit AndroidManifestEditor(AndroidManifestEditorWidget *editorWidget);
 
     QWidget *toolBar() override;
-    AndroidManifestEditorWidget *widget() const override;
     Core::IDocument *document() const override;
     TextEditor::TextEditorWidget *textEditor() const;
 
@@ -34,6 +33,7 @@ public:
     void gotoLine(int line, int column = 0, bool centerLine = true)  override;
 
 private:
+    AndroidManifestEditorWidget *ownWidget() const;
     void changeEditorPage(QAction *action);
 
     QString m_displayName;

@@ -44,9 +44,9 @@ QWidget *AndroidManifestEditor::toolBar()
     return m_toolBar;
 }
 
-AndroidManifestEditorWidget *AndroidManifestEditor::widget() const
+AndroidManifestEditorWidget *AndroidManifestEditor::ownWidget() const
 {
-    return static_cast<AndroidManifestEditorWidget *>(Core::IEditor::widget());
+    return static_cast<AndroidManifestEditorWidget *>(widget());
 }
 
 Core::IDocument *AndroidManifestEditor::document() const
@@ -56,7 +56,7 @@ Core::IDocument *AndroidManifestEditor::document() const
 
 TextEditor::TextEditorWidget *AndroidManifestEditor::textEditor() const
 {
-    return widget()->textEditorWidget();
+    return ownWidget()->textEditorWidget();
 }
 
 int AndroidManifestEditor::currentLine() const
@@ -77,10 +77,10 @@ void AndroidManifestEditor::gotoLine(int line, int column, bool centerLine)
 
 void AndroidManifestEditor::changeEditorPage(QAction *action)
 {
-    if (!widget()->setActivePage(static_cast<AndroidManifestEditorWidget::EditorPage>(action->data().toInt()))) {
+    if (!ownWidget()->setActivePage(static_cast<AndroidManifestEditorWidget::EditorPage>(action->data().toInt()))) {
         const QList<QAction *> actions = m_actionGroup->actions();
         for (QAction *action : actions) {
-            if (action->data().toInt() == widget()->activePage()) {
+            if (action->data().toInt() == ownWidget()->activePage()) {
                 action->setChecked(true);
                 break;
             }
