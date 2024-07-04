@@ -62,6 +62,7 @@ QtcPlugin {
         "perfprofiler.qrc",
     ]
 
+    Qt.core.resourceFileBaseName: "PerfProfilerQml" // avoid conflicting qrc file
     Group {
         name: "Qml Files"
         Qt.core.resourcePrefix: "qt/qml/QtCreator/PerfProfiler/"
