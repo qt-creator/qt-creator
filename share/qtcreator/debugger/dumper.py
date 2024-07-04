@@ -3716,7 +3716,7 @@ typename))
                 return size, typeid
 
         typeobj = self.lookupType(typename)
-        self.warn("LOOKUP FIELD TYPE: %s TYPEOBJ: %s" % (typename, typeobj))
+        #self.warn("LOOKUP FIELD TYPE: %s TYPEOBJ: %s" % (typename, typeobj))
         if typeobj is not None:
             typeid = typeobj.typeid
             size = self.type_size(typeid)
