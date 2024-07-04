@@ -20,6 +20,7 @@
 #ifdef QUICK3D_MODULE
 #include <private/qquick3dnode_p.h>
 #include <private/qquick3dviewport_p.h>
+#include <private/qquick3dcamera_p.h>
 #include <private/qquickdesignersupport_p.h>
 #endif
 
