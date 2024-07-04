@@ -302,10 +302,8 @@ void QmlProjectPlugin::initialize()
         m_landingPageWidget = new QdsLandingPageWidget();
 
         const QStringList mimeTypes = {Utils::Constants::QMLUI_MIMETYPE};
-        auto context = new Internal::DesignModeContext(m_landingPageWidget);
-        ICore::addContextObject(context);
 
-        DesignMode::registerDesignWidget(m_landingPageWidget, mimeTypes, context->context());
+        DesignMode::registerDesignWidget(m_landingPageWidget, mimeTypes, {});
 
         connect(ModeManager::instance(), &ModeManager::currentModeChanged,
                 this, &QmlProjectPlugin::editorModeChanged);
