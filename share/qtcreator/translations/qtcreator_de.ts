@@ -35935,129 +35935,134 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     <name>QtC::Lua</name>
     <message>
         <source>Network Access</source>
-        <translation type="unfinished"></translation>
+        <translation>Netzwerkzugriff</translation>
     </message>
     <message>
         <source>Allow Internet Access</source>
-        <translation type="unfinished"></translation>
+        <translation>Internetzugriff erlauben</translation>
     </message>
     <message>
         <source>Allow the extension &quot;%1&quot; to fetch from the following URL:
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Erweiterung &quot;%1&quot; erlauben, auf folgende URL zuzugreifen:
+%2</translation>
     </message>
     <message>
         <source>Remember choice</source>
-        <translation type="unfinished"></translation>
+        <translation>Auswahl speichern</translation>
     </message>
     <message>
         <source>Allow the extension &quot;%1&quot; to fetch data from the internet?</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Erweiterung &quot;%1&quot; erlauben, Daten aus dem Internet zu laden?</translation>
     </message>
     <message>
         <source>Allow the extension &quot;%1&quot; to fetch datafrom the following URL:
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Der Erweiterung &quot;%1&quot; erlauben, Daten von der folgenden URL zu laden:
+
+</translation>
     </message>
     <message>
         <source>Always Allow</source>
-        <translation type="unfinished"></translation>
+        <translation>Immer erlauben</translation>
     </message>
     <message>
         <source>Allow Once</source>
-        <translation type="unfinished"></translation>
+        <translation>Einmal erlauben</translation>
     </message>
     <message>
         <source>Deny</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbieten</translation>
     </message>
     <message>
         <source>Fetching is not allowed for the extension &quot;%1&quot;. (You can edit permissions in Preferences &gt; Lua.)</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Laden von Daten ist der Erweiterung &quot;%1&quot; nicht erlaubt. (Sie können die Rechte in Einstellungen &gt; Lua ändern.)</translation>
     </message>
     <message>
         <source>Package info is not an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>Paketinformation ist kein Objekt.</translation>
     </message>
     <message>
         <source>Installed package info is not an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>Installierte Paketinformation ist kein Objekt.</translation>
     </message>
     <message>
         <source>Cannot create app data directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Verzeichnis für Anwendungsdaten konnte nicht angelegt werden.</translation>
     </message>
     <message>
         <source>Cannot write to package info: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Paketinformation konnte nicht geschrieben werden: %1</translation>
     </message>
     <message>
         <source>Cannot write to temporary file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Temporäre Datei konnte nicht geschrieben werden.</translation>
     </message>
     <message>
         <source>Unarchiving failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Entpacken fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Cannot open temporary file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Temporäre Datei konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Installing package(s) %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Installiere Paket(e) %1</translation>
     </message>
     <message>
         <source>Install Package</source>
-        <translation type="unfinished"></translation>
+        <translation>Installiere Paket</translation>
     </message>
     <message>
         <source>The extension &quot;%1&quot; wants to install the following package(s):
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Die Erweiterung &quot;%1&quot; möchte folgende Pakete installieren:
+
+</translation>
     </message>
     <message>
         <source>Install</source>
-        <translation type="unfinished">Installieren</translation>
+        <translation>Installieren</translation>
     </message>
     <message>
         <source>* %1 - %2 (from: [%3](%3))</source>
         <extracomment>Markdown list item: %1 = package name, %2 = version, %3 = URL</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>* %1 - %2 (von: [%3](%3))</translation>
     </message>
     <message>
         <source>Failed to run script %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Ausführen des Skripts %1 ist fehlgeschlagen: %2</translation>
     </message>
     <message>
         <source>No hook with the name &quot;%1&quot; found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Einsprungpunkt mit dem Namen &quot;%1&quot; gefunden.</translation>
     </message>
     <message>
         <source>Script did not return a table.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Skript hat keine Tabelle zurückgeliefert.</translation>
     </message>
     <message>
         <source>Extension info table did not contain a setup function.</source>
-        <translation type="unfinished"></translation>
+        <translation>Informationstabelle der Erweiterung enthält keine Setup-Funktion.</translation>
     </message>
     <message>
         <source>Failed to load plugin %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Laden des Plugins %1 ist fehlgeschlagen: %2</translation>
     </message>
     <message>
         <source>Cannot prepare extension setup: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Setup der Erweiterung kann nicht vorbereitet werden: %1</translation>
     </message>
     <message>
         <source>Extension setup function returned false.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Setup-Funktion der Erweiterung hat &quot;false&quot; zurückgeliefert.</translation>
     </message>
     <message>
         <source>Extension setup function returned error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Setup-Funktion der Erweiterung hat einen Fehler zurückgeliefert: %1</translation>
     </message>
 </context>
 <context>
