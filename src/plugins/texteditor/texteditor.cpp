@@ -9687,12 +9687,6 @@ void BaseTextEditor::contextHelp(const HelpCallback &callback) const
     editorWidget()->contextHelpItem(callback);
 }
 
-void BaseTextEditor::setContextHelp(const HelpItem &item)
-{
-    IEditor::setContextHelp(item);
-    editorWidget()->setContextHelpItem(item);
-}
-
 void TextEditorWidget::contextHelpItem(const IContext::HelpCallback &callback)
 {
     if (!d->m_contextHelpItem.isEmpty()) {

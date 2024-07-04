@@ -136,7 +136,6 @@ public:
     QWidget *toolBar() override;
 
     void contextHelp(const HelpCallback &callback) const override; // from IContext
-    void setContextHelp(const Core::HelpItem &item) override;
 
     int currentLine() const override;
     int currentColumn() const override;
