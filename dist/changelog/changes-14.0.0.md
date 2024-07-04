@@ -7,7 +7,7 @@ The most important changes are listed in this document. For a complete list of
 changes, see the Git log for the Qt Creator sources that you can check out from
 the public Git repository or view online at
 
-https://code.qt.io/cgit/qt-creator/qt-creator.git/log/?id=13.0..v14.0.0
+<https://code.qt.io/cgit/qt-creator/qt-creator.git/log/?id=13.0..v14.0.0>
 
 General
 -------
