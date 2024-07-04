@@ -32,9 +32,12 @@ function(_find_all_includes _ret_includes _ret_framework_paths)
     else()
         set(_qt_core "Qt::Core")
     endif()
-    get_target_property(_qt_target ${_qt_core} LOCATION) # <fw_path>/QtCore.framework/QtCore
-    get_filename_component(_qt_loc "${_qt_target}" DIRECTORY)
-    set("${_ret_framework_paths}" "${_qt_loc}/.." PARENT_SCOPE)
+    get_target_property(_qt_target ${_qt_core} LOCATION)
+    # eg <fw_path>/QtCore.framework/QtCore
+    # or <fw_path>/QtCore.framework/Versions/A/QtCore
+    # cut off /QtCore.framework/*
+    string(REGEX REPLACE "/QtCore.framework/.*" "" _qt_loc "${_qt_target}")
+    set("${_ret_framework_paths}" "${_qt_loc}" PARENT_SCOPE)
   endif()
 endfunction()
 
