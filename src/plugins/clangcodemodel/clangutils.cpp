@@ -157,8 +157,6 @@ void generateCompilationDB(
 {
     QTC_ASSERT(!baseDir.isEmpty(),
         promise.addResult(make_unexpected(Tr::tr("Could not retrieve build directory."))); return);
-    QTC_ASSERT(!projectInfoList.isEmpty(),
-        promise.addResult(make_unexpected(Tr::tr("Could not retrieve project info."))); return);
     QTC_CHECK(baseDir.ensureWritableDir());
     QFile compileCommandsFile(baseDir.pathAppended("compile_commands.json").toFSPathString());
     const bool fileOpened = compileCommandsFile.open(QIODevice::WriteOnly | QIODevice::Truncate);
