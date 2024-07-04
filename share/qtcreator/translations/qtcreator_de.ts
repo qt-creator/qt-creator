@@ -22987,11 +22987,11 @@ Namensraum-Definition</translation>
     </message>
     <message>
         <source>Macros that can be used as statements without a trailing semicolon.</source>
-        <translation type="unfinished"></translation>
+        <translation>Makros, die ohne abschließendes Semikolon benutzt werden können.</translation>
     </message>
     <message>
         <source>Statement Macros</source>
-        <translation type="unfinished"></translation>
+        <translation>Anweisungs-Makros</translation>
     </message>
     <message>
         <source>Braces</source>
@@ -23258,15 +23258,15 @@ Diese Präfixe werden zusätzlich zum Dateinamen beim Wechseln zwischen Header- 
     </message>
     <message>
         <source>Header File Variables</source>
-        <translation type="unfinished"></translation>
+        <translation>Variablen für Header-Dateien</translation>
     </message>
     <message>
         <source>Header file</source>
-        <translation type="unfinished"></translation>
+        <translation>Header-Datei</translation>
     </message>
     <message>
         <source>Use &quot;#pragma once&quot; instead</source>
-        <translation type="unfinished"></translation>
+        <translation>Stattdessen &quot;#pragma once&quot; benutzen</translation>
     </message>
     <message>
         <source>&amp;Lower case file names</source>
@@ -23274,7 +23274,7 @@ Diese Präfixe werden zusätzlich zum Dateinamen beim Wechseln zwischen Header- 
     </message>
     <message>
         <source>Include guard template:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorlage für Include-Guards:</translation>
     </message>
     <message>
         <source>License &amp;template:</source>
@@ -23711,11 +23711,11 @@ z.B. name = &quot;m_test_foo_&quot;:
     </message>
     <message>
         <source>Enable indexing</source>
-        <translation type="unfinished"></translation>
+        <translation>Indizieren aktivieren</translation>
     </message>
     <message>
         <source>Indexing should almost always be kept enabled, as disabling it will severely limit the capabilities of the code model.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Indizieren sollte nahezu immer aktiviert bleiben, da das Deaktivieren die Fähigkeiten des Codemodells erheblich einschränkt.</translation>
     </message>
     <message>
         <source>Do not index files greater than</source>
@@ -23759,11 +23759,11 @@ z.B. name = &quot;m_test_foo_&quot;:
     </message>
     <message>
         <source>The location of the per-project clangd index.&lt;p&gt;This is also where the compile_commands.json file will go.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad zum Clangd-Index pro Projekt.&lt;p&gt;Dies ist auch der Ort, an dem die compile_commands.json-Datei gespeichert wird.</translation>
     </message>
     <message>
         <source>The location of the per-session clangd index.&lt;p&gt;This is also where the compile_commands.json file will go.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad zum Clangd-Index pro Sitzung.&lt;p&gt;Dies ist auch der Ort, an dem die compile_commands.json-Datei gespeichert wird.</translation>
     </message>
     <message>
         <source>&lt;p&gt;The C/C++ backend to use for switching between header and source files.&lt;/p&gt;&lt;p&gt;While the clangd implementation has more capabilities than the built-in code model, it tends to find false positives.&lt;/p&gt;&lt;p&gt;When &quot;Try Both&quot; is selected, clangd is used only if the built-in variant does not find anything.&lt;/p&gt;</source>
@@ -23783,7 +23783,7 @@ z.B. name = &quot;m_test_foo_&quot;:
     </message>
     <message>
         <source>&lt;p&gt;Controls whether when editing a header file, clangd should re-parse all source files including that header.&lt;/p&gt;&lt;p&gt;Note that enabling this option can cause considerable CPU load when editing widely included headers.&lt;/p&gt;&lt;p&gt;If this option is disabled, the dependent source files are only re-parsed when the header file is saved.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Bestimmt, ob Clangd beim Bearbeiten einer Header-Datei alle Quelldateien, die diesen Header benutzen, neu auswerten soll.&lt;/p&gt;&lt;p&gt;Beachten Sie, dass das Aktivieren dieser Einstellung erhebliche Prozessorauslastung beim Bearbeiten weitgenutzter Header-Dateien zur Folge haben kann.&lt;/p&gt;&lt;p&gt;Wenn diese Einstellung deaktiviert ist, werden abhängige Quelldateien erst erneut ausgewertet, wenn die Header-Datei gespeichert wird.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Defines the amount of time %1 waits before sending document changes to the server.
@@ -23811,7 +23811,7 @@ Das integrierte Codemodell übernimmt Syntaxhervorhebung, Code-Vervollständigun
     </message>
     <message>
         <source>Update dependent sources</source>
-        <translation type="unfinished"></translation>
+        <translation>Abhängige Quellen aktualisieren</translation>
     </message>
     <message>
         <source>Automatic</source>
@@ -23839,11 +23839,11 @@ Das integrierte Codemodell übernimmt Syntaxhervorhebung, Code-Vervollständigun
     </message>
     <message>
         <source>Per-project index location:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad des Index pro Projekt:</translation>
     </message>
     <message>
         <source>Per-session index location:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad des Index pro Sitzung:</translation>
     </message>
     <message>
         <source>Header/source switch mode:</source>
@@ -24211,40 +24211,41 @@ Flags: %3</translation>
     </message>
     <message>
         <source>Convert Function Call to Qt Meta-Method Invocation</source>
-        <translation type="unfinished"></translation>
+        <translation>Funktionsaufruf in Qt Meta-Methodenaufruf umwandeln</translation>
     </message>
     <message>
         <source>Move Class to a Dedicated Set of Source Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Klasse in dedizierten Satz Quelldateien verschieben</translation>
     </message>
     <message>
         <source>Header file only</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur Header-Datei</translation>
     </message>
     <message>
         <source>Project:</source>
-        <translation type="unfinished">Projekt:</translation>
+        <translation>Projekt:</translation>
     </message>
     <message>
         <source>Header file:</source>
-        <translation type="unfinished">Header-Datei:</translation>
+        <translation>Header-Datei:</translation>
     </message>
     <message>
         <source>Implementation file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Implementationsdatei:</translation>
     </message>
     <message>
         <source>Refusing to overwrite the following files: %1
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Folgende Dateien existieren und werden nicht überschrieben: %1
+</translation>
     </message>
     <message>
         <source>Failed to add to project file &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Hinzufügen zur Projektdatei &quot;%1&quot; fehlgeschlagen: %2</translation>
     </message>
     <message>
         <source>Re-order Member Function Definitions According to Declaration Order</source>
-        <translation type="unfinished"></translation>
+        <translation>Definitionen der Memberfunktionen entsprechend der Deklarationsreihenfolge anordnen</translation>
     </message>
 </context>
 <context>
