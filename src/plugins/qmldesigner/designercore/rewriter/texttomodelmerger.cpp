@@ -22,7 +22,7 @@
 
 #include <externaldependenciesinterface.h>
 #include <import.h>
-#include <model/modelutils.h>
+#include <modelutils.h>
 #include <projectstorage/modulescanner.h>
 #include <rewritingexception.h>
 

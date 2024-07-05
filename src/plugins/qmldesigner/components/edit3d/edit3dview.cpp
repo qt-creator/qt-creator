@@ -27,7 +27,7 @@
 #include "variantproperty.h"
 
 #include <auxiliarydataproperties.h>
-#include <model/modelutils.h>
+#include <modelutils.h>
 #include <utils3d.h>
 
 #include <coreplugin/icore.h>

@@ -35,7 +35,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icore.h>
 
-#include <model/modelutils.h>
+#include <modelutils.h>
 
 #include <utils/asset.h>
 #include <utils/qtcassert.h>

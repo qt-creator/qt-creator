@@ -10,7 +10,7 @@
 #include <designeractionmanager.h>
 #include <designericons.h>
 #include <model.h>
-#include <model/modelutils.h>
+#include <modelutils.h>
 #include <nodeinstanceview.h>
 #include <nodemetainfo.h>
 #include <qmldesignerconstants.h>

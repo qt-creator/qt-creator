@@ -14,7 +14,7 @@
 #include <designersettings.h>
 #include <designmodecontext.h>
 #include <itemlibraryentry.h>
-#include <model/modelutils.h>
+#include <modelutils.h>
 #include <nodeinstanceview.h>
 #include <nodelistproperty.h>
 #include <nodeproperty.h>

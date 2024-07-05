@@ -19,7 +19,7 @@
 #include <documentmanager.h>
 #include <enumeration.h>
 #include <externaldependenciesinterface.h>
-#include <model/modelutils.h>
+#include <modelutils.h>
 #include <nodelistproperty.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>

@@ -6,7 +6,7 @@
 #include <mocks/abstractviewmock.h>
 #include <mocks/projectstoragemock.h>
 #include <mocks/sourcepathcachemock.h>
-#include <model/modelutils.h>
+#include <modelutils.h>
 #include <nodemetainfo.h>
 #include <nodeproperty.h>
 

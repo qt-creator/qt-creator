@@ -3,7 +3,7 @@
 
 #include "uniquename.h"
 
-#include <model/modelutils.h>
+#include <modelutils.h>
 
 #include <utils/span.h>
 

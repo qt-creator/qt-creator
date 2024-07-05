@@ -15,7 +15,7 @@
 #include "qmlobjectnode.h"
 #include "variantproperty.h"
 
-#include <model/modelutils.h>
+#include <modelutils.h>
 
 #include <utils3d.h>
 

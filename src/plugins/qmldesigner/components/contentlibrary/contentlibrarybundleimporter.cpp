@@ -11,7 +11,7 @@
 #include <qmldesignerplugin.h>
 #include <rewritingexception.h>
 
-#include <model/modelutils.h>
+#include <modelutils.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <utils/async.h>
 

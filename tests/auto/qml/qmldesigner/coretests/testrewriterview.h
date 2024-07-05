@@ -3,8 +3,8 @@
 
 #pragma once
 
+#include <rewriter/modeltotextmerger.h>
 #include <rewriterview.h>
-#include <model/modeltotextmerger.h>
 
 namespace QmlDesigner {
 

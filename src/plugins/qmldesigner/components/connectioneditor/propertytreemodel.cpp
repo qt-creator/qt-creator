@@ -7,7 +7,7 @@
 #include <bindingproperty.h>
 #include <designeralgorithm.h>
 #include <exception.h>
-#include <model/modelutils.h>
+#include <modelutils.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>

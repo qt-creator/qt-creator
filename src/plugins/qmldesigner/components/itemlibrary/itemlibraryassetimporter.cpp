@@ -15,7 +15,7 @@
 #include "rewritingexception.h"
 #include "viewmanager.h"
 
-#include <model/modelutils.h>
+#include <modelutils.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 

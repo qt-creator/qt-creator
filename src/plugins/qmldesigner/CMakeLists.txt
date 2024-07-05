@@ -93,10 +93,6 @@ add_qtc_library(QmlDesignerCore STATIC
   PUBLIC_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/designercore
     ${CMAKE_CURRENT_LIST_DIR}/designercore/include
-  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore
-  SOURCES
-    rewritertransaction.cpp rewritertransaction.h
-
 )
 
 extend_qtc_library(QmlDesignerCore
@@ -104,6 +100,10 @@ extend_qtc_library(QmlDesignerCore
   SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore/designercoreutils
   SOURCES
     generatedcomponentutils.cpp generatedcomponentutils.h
+    modelmerger.cpp modelmerger.h
+    modelutils.cpp modelutils.h
+    skipiterator.h
+    stylesheetmerger.cpp stylesheetmerger.h
     uniquename.cpp uniquename.h
 )
 
@@ -285,9 +285,7 @@ extend_qtc_library(QmlDesignerCore
     invalidslideindexexception.h
     mathutils.h
     modelfwd.h
-    modelmerger.h
     modelnode.h
-    modelnodepositionstorage.h
     module.h
     nodeabstractproperty.h
     nodeinstance.h
@@ -311,9 +309,9 @@ extend_qtc_library(QmlDesignerCore
     qmltimelinekeyframegroup.h
     removebasestateexception.h
     rewritingexception.h
+    rewritertransaction.h
     signalhandlerproperty.h
     stringutils.h
-    stylesheetmerger.h
     synchronousimagecache.h
     variantproperty.h
 )
@@ -370,7 +368,6 @@ extend_qtc_library(QmlDesignerCore
     annotation.cpp
     auxiliarypropertystorageview.cpp auxiliarypropertystorageview.h
     bindingproperty.cpp
-    componenttextmodifier.cpp
     documentmessage.cpp
     import.cpp
     internalbindingproperty.cpp
@@ -391,25 +388,46 @@ extend_qtc_library(QmlDesignerCore
     internalvariantproperty.h
     model.cpp
     model_p.h
-    modelmerger.cpp
     modelnode.cpp
-    modelnodepositionrecalculator.cpp
-    modelnodepositionrecalculator.h
-    modelnodepositionstorage.cpp
     modelresourcemanagementinterface.h
     modelresourcemanagementfwd.h
     modelresourcemanagement.cpp modelresourcemanagement.h
-    modeltotextmerger.cpp
-    modeltotextmerger.h
-    modelutils.cpp
-    modelutils.h
     nodeabstractproperty.cpp
     nodelistproperty.cpp
     nodeproperty.cpp
+    signalhandlerproperty.cpp
+    variantproperty.cpp
+)
+
+extend_qtc_library(QmlDesignerCore
+  INCLUDES ${CMAKE_CURRENT_LIST_DIR}/designercore/rewriter
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore/rewriter
+  SOURCES
+    componenttextmodifier.cpp
+    modelnodepositionrecalculator.cpp
+    modelnodepositionrecalculator.h
+    modelnodepositionstorage.cpp
+    modelnodepositionstorage.h
+    modeltotextmerger.cpp
+    modeltotextmerger.h
     plaintexteditmodifier.cpp
     propertycontainer.cpp
     propertynode.cpp
     propertyparser.cpp
+    rewriteaction.cpp
+    rewriteaction.h
+    rewriteactioncompressor.cpp
+    rewriteactioncompressor.h
+    rewritertransaction.cpp
+    rewriterview.cpp
+    textmodifier.cpp
+    texttomodelmerger.cpp
+    texttomodelmerger.h
+)
+extend_qtc_library(QmlDesignerCore
+  INCLUDES ${CMAKE_CURRENT_LIST_DIR}/designercore/qmltools
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore/qmltools
+  SOURCES
     qml3dnode.cpp
     qmlanchors.cpp
     qmlchangeset.cpp
@@ -423,18 +441,6 @@ extend_qtc_library(QmlDesignerCore
     qmltimeline.cpp
     qmltimelinekeyframegroup.cpp
     qmlvisualnode.cpp
-    rewriteaction.cpp
-    rewriteaction.h
-    rewriteactioncompressor.cpp
-    rewriteactioncompressor.h
-    rewriterview.cpp
-    signalhandlerproperty.cpp
-    skipiterator.h
-    stylesheetmerger.cpp
-    textmodifier.cpp
-    texttomodelmerger.cpp
-    texttomodelmerger.h
-    variantproperty.cpp
 )
 
 extend_qtc_library(QmlDesignerCore
@@ -959,7 +965,7 @@ extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX designercore
   PUBLIC_INCLUDES designercore
   SOURCES
-    model/basetexteditmodifier.cpp
+    rewriter/basetexteditmodifier.cpp
 )
 
 extend_qtc_plugin(QmlDesigner

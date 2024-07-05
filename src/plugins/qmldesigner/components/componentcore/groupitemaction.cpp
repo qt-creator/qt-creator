@@ -7,7 +7,7 @@
 #include "nodeabstractproperty.h"
 #include "nodelistproperty.h"
 
-#include <model/modelutils.h>
+#include <modelutils.h>
 #include <utils/algorithm.h>
 
 using namespace QmlDesigner;

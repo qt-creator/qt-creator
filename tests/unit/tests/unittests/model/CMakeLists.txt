@@ -6,6 +6,5 @@ extend_qtc_test(unittest
     model-test.cpp
     modelnode-test.cpp
     modelresourcemanagement-test.cpp
-    modelutils-test.cpp
     nodelistproperty-test.cpp
 )

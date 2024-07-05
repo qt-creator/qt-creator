@@ -8,7 +8,7 @@
 #include <bindingproperty.h>
 #include <connectioneditorevaluator.h>
 #include <exception.h>
-#include <model/modelutils.h>
+#include <modelutils.h>
 #include <modelnodeoperations.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>

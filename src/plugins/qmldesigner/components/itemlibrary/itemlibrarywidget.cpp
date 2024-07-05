@@ -21,7 +21,7 @@
 #endif
 #include <itemlibrarymodel.h>
 #include <model.h>
-#include <model/modelutils.h>
+#include <modelutils.h>
 #include <rewritingexception.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>

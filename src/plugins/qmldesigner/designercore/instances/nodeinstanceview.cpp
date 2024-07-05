@@ -58,7 +58,7 @@
 #include <designersettings.h>
 #include <externaldependenciesinterface.h>
 #include <model.h>
-#include <model/modelutils.h>
+#include <modelutils.h>
 #include <modelnode.h>
 #include <nodehints.h>
 #include <qmlitemnode.h>

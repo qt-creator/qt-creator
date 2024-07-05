@@ -27,7 +27,7 @@
 
 #include <actioneditor.h>
 #include <documentmanager.h>
-#include <model/modelutils.h>
+#include <modelutils.h>
 #include <viewmanager.h>
 #include <qmldesignerplugin.h>
 
