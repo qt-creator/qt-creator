@@ -108,6 +108,7 @@ void ContentLibraryUserModel::addTextures(const Utils::FilePaths &paths)
     texCat->addItems(paths);
 
     emit dataChanged(index(TexturesSectionIdx), index(TexturesSectionIdx), {ItemsRole, EmptyRole});
+    updateIsEmpty();
 }
 
 void ContentLibraryUserModel::removeTexture(ContentLibraryTexture *tex)
