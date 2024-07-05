@@ -11,8 +11,6 @@
 
 #include <QWidget>
 
-#include <functional>
-
 QT_FORWARD_DECLARE_CLASS(QComboBox)
 QT_FORWARD_DECLARE_CLASS(QGraphicsView)
 QT_FORWARD_DECLARE_CLASS(QLabel)
@@ -28,14 +26,6 @@ class TransitionEditorView;
 class TransitionEditorToolBar;
 class TransitionEditorGraphicsScene;
 class ModelNode;
-
-class TransitionContext : public Core::IContext
-{
-    Q_OBJECT
-
-public:
-    explicit TransitionContext(QWidget *widget);
-};
 
 class TransitionEditorWidget : public QWidget
 {
