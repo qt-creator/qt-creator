@@ -33,6 +33,8 @@ Editing
 * Added a highlight for the current view in case of multiple views
   ([QTCREATORBUG-23654](https://bugreports.qt.io/browse/QTCREATORBUG-23654))
 * Added `Window > Reopen Last Closed Document`
+* Added the option to open files in a text editor that were detected as binary
+  ([QTCREATORBUG-31116](https://bugreports.qt.io/browse/QTCREATORBUG-31116))
 * Fixed that changing a document's MIME type by renaming did not re-open it in
   the new editor type when needed
   ([QTCREATORBUG-30317](https://bugreports.qt.io/browse/QTCREATORBUG-30317))
@@ -42,6 +44,8 @@ Editing
 * Fixed that it wasn't possible to open a file in the text editor if it was
   classified as a binary file format by the MIME database
   ([QTCREATORBUG-31116](https://bugreports.qt.io/browse/QTCREATORBUG-31116))
+* Fixed the unindenting with backspace when multiple cursors are active
+  ([QTCREATORBUG-31158](https://bugreports.qt.io/browse/QTCREATORBUG-31158))
 
 ### C++
 
@@ -162,6 +166,8 @@ Projects
 * Fixed that Qt Creator variables were not expanded for the `Copy File`
   deploy step
   ([QTCREATORBUG-30821](https://bugreports.qt.io/browse/QTCREATORBUG-30821))
+* Fixed duplicate entries in the variable chooser for the build directory
+  ([QTCREATORBUG-31183](https://bugreports.qt.io/browse/QTCREATORBUG-31183))
 
 ### CMake
 
@@ -187,6 +193,10 @@ Projects
 * Fixed an issue with adding new files when file globs are used in the CMake
   files
   ([QTCREATORBUG-30445](https://bugreports.qt.io/browse/QTCREATORBUG-30445))
+* Fixed the default CMake generator for kits if Ninja is not installed
+  ([QTCREATORBUG-31129](https://bugreports.qt.io/browse/QTCREATORBUG-31129))
+* Fixed that duplicate `CMAKE_CXX_COMPILER` entries could be used
+  ([QTCREATORBUG-27005](https://bugreports.qt.io/browse/QTCREATORBUG-27005))
 * Presets
     * Made CMake settings configurable
       ([QTCREATORBUG-25972](https://bugreports.qt.io/browse/QTCREATORBUG-25972),
