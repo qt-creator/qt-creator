@@ -53,16 +53,6 @@ MaterialBrowserContext::MaterialBrowserContext(QWidget *widget)
     });
 }
 
-AssetsLibraryContext::AssetsLibraryContext(QWidget *widget)
-    : IContext(widget)
-{
-    setWidget(widget);
-    setContext(Core::Context(Constants::C_QMLASSETSLIBRARY, Constants::C_QT_QUICK_TOOLS_MENU));
-    setContextHelpProvider([this](const HelpCallback &callback) {
-        qobject_cast<AssetsLibraryWidget *>(m_widget)->contextHelp(callback);
-    });
-}
-
 NavigatorContext::NavigatorContext(QWidget *widget)
   : IContext(widget)
 {

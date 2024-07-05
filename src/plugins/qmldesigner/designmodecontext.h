@@ -43,14 +43,6 @@ public:
     MaterialBrowserContext(QWidget *widget);
 };
 
-class AssetsLibraryContext : public Core::IContext
-{
-    Q_OBJECT
-
-public:
-    AssetsLibraryContext(QWidget *widget);
-};
-
 class NavigatorContext : public Core::IContext
 {
     Q_OBJECT
