@@ -199,6 +199,8 @@ void ContentLibraryView::connectImporter()
                                                                 {"y", pos.y()},
                                                                 {"z", pos.z()}});
                         m_bundleItemTarget.defaultNodeListProperty().reparentHere(newNode);
+                        newNode.setIdWithoutRefactoring(model()->generateNewId(
+                            newNode.simplifiedTypeName(), "node"));
                         clearSelectedModelNodes();
                         selectModelNode(newNode);
                     });
