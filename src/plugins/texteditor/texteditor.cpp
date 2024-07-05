@@ -9437,6 +9437,9 @@ BaseTextEditor::BaseTextEditor()
     : d(new BaseTextEditorPrivate)
 {
     addContext(Constants::C_TEXTEDITOR);
+    setContextHelpProvider([this](const HelpCallback &callback) {
+        editorWidget()->contextHelpItem(callback);
+    });
 }
 
 BaseTextEditor::~BaseTextEditor()
@@ -9680,11 +9683,6 @@ void TextEditorWidgetPrivate::updateCursorPosition()
     m_contextHelpItem = HelpItem();
     if (!q->textCursor().block().isVisible())
         q->ensureCursorVisible();
-}
-
-void BaseTextEditor::contextHelp(const HelpCallback &callback) const
-{
-    editorWidget()->contextHelpItem(callback);
 }
 
 void TextEditorWidget::contextHelpItem(const IContext::HelpCallback &callback)

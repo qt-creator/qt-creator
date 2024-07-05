@@ -62,8 +62,9 @@ public:
     using HelpCallback = std::function<void(const HelpItem &item)>;
     using HelpProvider = std::function<void(const HelpCallback &item)>;
 
-    virtual void contextHelp(const HelpCallback &callback) const;
+    void contextHelp(const HelpCallback &callback) const;
     void setContextHelp(const HelpItem &id);
+    void setContextHelpProvider(const HelpProvider &provider);
 
     static void attach(QWidget *widget,
                        const Context &context,

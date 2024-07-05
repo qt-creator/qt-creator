@@ -18,11 +18,9 @@ DesignModeContext::DesignModeContext(QWidget *widget)
 {
     setWidget(widget);
     setContext(Core::Context(Constants::C_QMLDESIGNER, Constants::C_QT_QUICK_TOOLS_MENU));
-}
-
-void DesignModeContext::contextHelp(const HelpCallback &callback) const
-{
-    qobject_cast<DesignModeWidget *>(m_widget)->contextHelp(callback);
+    setContextHelpProvider([this](const HelpCallback &callback) {
+        qobject_cast<DesignModeWidget *>(m_widget)->contextHelp(callback);
+    });
 }
 
 FormEditorContext::FormEditorContext(QWidget *widget)
@@ -30,11 +28,9 @@ FormEditorContext::FormEditorContext(QWidget *widget)
 {
     setWidget(widget);
     setContext(Core::Context(Constants::C_QMLFORMEDITOR, Constants::C_QT_QUICK_TOOLS_MENU));
-}
-
-void FormEditorContext::contextHelp(const HelpCallback &callback) const
-{
-    qobject_cast<FormEditorWidget *>(m_widget)->contextHelp(callback);
+    setContextHelpProvider([this](const HelpCallback &callback) {
+        qobject_cast<FormEditorWidget *>(m_widget)->contextHelp(callback);
+    });
 }
 
 Editor3DContext::Editor3DContext(QWidget *widget)
@@ -42,11 +38,9 @@ Editor3DContext::Editor3DContext(QWidget *widget)
 {
     setWidget(widget);
     setContext(Core::Context(Constants::C_QMLEDITOR3D, Constants::C_QT_QUICK_TOOLS_MENU));
-}
-
-void Editor3DContext::contextHelp(const HelpCallback &callback) const
-{
-    qobject_cast<Edit3DWidget *>(m_widget)->contextHelp(callback);
+    setContextHelpProvider([this](const HelpCallback &callback) {
+        qobject_cast<Edit3DWidget *>(m_widget)->contextHelp(callback);
+    });
 }
 
 MaterialBrowserContext::MaterialBrowserContext(QWidget *widget)
@@ -54,11 +48,9 @@ MaterialBrowserContext::MaterialBrowserContext(QWidget *widget)
 {
     setWidget(widget);
     setContext(Core::Context(Constants::C_QMLMATERIALBROWSER, Constants::C_QT_QUICK_TOOLS_MENU));
-}
-
-void MaterialBrowserContext::contextHelp(const HelpCallback &callback) const
-{
-    qobject_cast<MaterialBrowserWidget *>(m_widget)->contextHelp(callback);
+    setContextHelpProvider([this](const HelpCallback &callback) {
+        qobject_cast<MaterialBrowserWidget *>(m_widget)->contextHelp(callback);
+    });
 }
 
 AssetsLibraryContext::AssetsLibraryContext(QWidget *widget)
@@ -66,11 +58,9 @@ AssetsLibraryContext::AssetsLibraryContext(QWidget *widget)
 {
     setWidget(widget);
     setContext(Core::Context(Constants::C_QMLASSETSLIBRARY, Constants::C_QT_QUICK_TOOLS_MENU));
-}
-
-void AssetsLibraryContext::contextHelp(const HelpCallback &callback) const
-{
-    qobject_cast<AssetsLibraryWidget *>(m_widget)->contextHelp(callback);
+    setContextHelpProvider([this](const HelpCallback &callback) {
+        qobject_cast<AssetsLibraryWidget *>(m_widget)->contextHelp(callback);
+    });
 }
 
 NavigatorContext::NavigatorContext(QWidget *widget)
@@ -78,11 +68,9 @@ NavigatorContext::NavigatorContext(QWidget *widget)
 {
     setWidget(widget);
     setContext(Core::Context(Constants::C_QMLNAVIGATOR, Constants::C_QT_QUICK_TOOLS_MENU));
-}
-
-void NavigatorContext::contextHelp(const HelpCallback &callback) const
-{
-    qobject_cast<NavigatorWidget *>(m_widget)->contextHelp(callback);
+    setContextHelpProvider([this](const HelpCallback &callback) {
+        qobject_cast<NavigatorWidget *>(m_widget)->contextHelp(callback);
+    });
 }
 
 TextEditorContext::TextEditorContext(QWidget *widget)
@@ -90,11 +78,9 @@ TextEditorContext::TextEditorContext(QWidget *widget)
 {
     setWidget(widget);
     setContext(Core::Context(Constants::C_QMLTEXTEDITOR, Constants::C_QT_QUICK_TOOLS_MENU));
-}
-
-void TextEditorContext::contextHelp(const HelpCallback &callback) const
-{
-    qobject_cast<TextEditorWidget *>(m_widget)->contextHelp(callback);
+    setContextHelpProvider([this](const HelpCallback &callback) {
+        qobject_cast<TextEditorWidget *>(m_widget)->contextHelp(callback);
+    });
 }
 
 } // namespace QmlDesigner::Internal

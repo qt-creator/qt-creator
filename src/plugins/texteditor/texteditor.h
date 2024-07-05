@@ -135,8 +135,6 @@ public:
     void restoreState(const QByteArray &state) override;
     QWidget *toolBar() override;
 
-    void contextHelp(const HelpCallback &callback) const override; // from IContext
-
     int currentLine() const override;
     int currentColumn() const override;
     void gotoLine(int line, int column = 0, bool centerLine = true) override;

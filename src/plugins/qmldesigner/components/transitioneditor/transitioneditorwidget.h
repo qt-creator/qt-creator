@@ -35,7 +35,6 @@ class TransitionContext : public Core::IContext
 
 public:
     explicit TransitionContext(QWidget *widget);
-    void contextHelp(const HelpCallback &callback) const override;
 };
 
 class TransitionEditorWidget : public QWidget

@@ -17,7 +17,6 @@ class DesignModeContext : public Core::IContext
 
 public:
     DesignModeContext(QWidget *widget);
-    void contextHelp(const Core::IContext::HelpCallback &callback) const override;
 };
 
 class FormEditorContext : public Core::IContext
@@ -26,7 +25,6 @@ class FormEditorContext : public Core::IContext
 
 public:
     FormEditorContext(QWidget *widget);
-    void contextHelp(const Core::IContext::HelpCallback &callback) const override;
 };
 
 class Editor3DContext : public Core::IContext
@@ -35,7 +33,6 @@ class Editor3DContext : public Core::IContext
 
 public:
     Editor3DContext(QWidget *widget);
-    void contextHelp(const Core::IContext::HelpCallback &callback) const override;
 };
 
 class MaterialBrowserContext : public Core::IContext
@@ -44,7 +41,6 @@ class MaterialBrowserContext : public Core::IContext
 
 public:
     MaterialBrowserContext(QWidget *widget);
-    void contextHelp(const Core::IContext::HelpCallback &callback) const override;
 };
 
 class AssetsLibraryContext : public Core::IContext
@@ -53,7 +49,6 @@ class AssetsLibraryContext : public Core::IContext
 
 public:
     AssetsLibraryContext(QWidget *widget);
-    void contextHelp(const Core::IContext::HelpCallback &callback) const override;
 };
 
 class NavigatorContext : public Core::IContext
@@ -62,7 +57,6 @@ class NavigatorContext : public Core::IContext
 
 public:
     NavigatorContext(QWidget *widget);
-    void contextHelp(const Core::IContext::HelpCallback &callback) const override;
 };
 
 class TextEditorContext : public Core::IContext
@@ -71,7 +65,6 @@ class TextEditorContext : public Core::IContext
 
 public:
     TextEditorContext(QWidget *widget);
-    void contextHelp(const Core::IContext::HelpCallback &callback) const override;
 };
 } // namespace Internal
 } // namespace QmlDesigner

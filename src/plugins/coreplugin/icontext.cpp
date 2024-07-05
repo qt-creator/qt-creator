@@ -27,6 +27,11 @@ void IContext::setContextHelp(const HelpItem &item)
     };
 }
 
+void IContext::setContextHelpProvider(const HelpProvider &provider)
+{
+    m_contextHelpProvider = provider;
+}
+
 void IContext::attach(QWidget *widget, const Context &context, const HelpItem &help)
 {
     auto icontext = new IContext(widget); // As QObject parent.

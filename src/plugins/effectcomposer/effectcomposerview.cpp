@@ -24,11 +24,10 @@ EffectComposerContext::EffectComposerContext(QWidget *widget)
     setWidget(widget);
     setContext(Core::Context(QmlDesigner::Constants::C_QMLEFFECTCOMPOSER,
                              QmlDesigner::Constants::C_QT_QUICK_TOOLS_MENU));
-}
 
-void EffectComposerContext::contextHelp(const HelpCallback &callback) const
-{
-    qobject_cast<EffectComposerWidget *>(m_widget)->contextHelp(callback);
+    setContextHelpProvider([this](const HelpCallback &callback) {
+        qobject_cast<EffectComposerWidget *>(m_widget)->contextHelp(callback);
+    });
 }
 
 EffectComposerView::EffectComposerView(QmlDesigner::ExternalDependenciesInterface &externalDependencies)

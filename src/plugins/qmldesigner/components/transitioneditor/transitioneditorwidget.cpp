@@ -52,12 +52,10 @@ TransitionContext::TransitionContext(QWidget *widget)
 {
     setWidget(widget);
     setContext(Core::Context(TransitionEditorConstants::C_QMLTRANSITIONS));
-}
-
-void TransitionContext::contextHelp(const Core::IContext::HelpCallback &callback) const
-{
-    if (auto *widget = qobject_cast<TransitionEditorWidget *>(m_widget))
-        widget->contextHelp(callback);
+    setContextHelpProvider([this](const Core::IContext::HelpCallback &callback)  {
+        if (auto *widget = qobject_cast<TransitionEditorWidget *>(m_widget))
+            widget->contextHelp(callback);
+    });
 }
 
 class Eventfilter : public QObject

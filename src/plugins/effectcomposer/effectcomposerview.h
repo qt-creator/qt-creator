@@ -21,7 +21,6 @@ class EffectComposerContext : public Core::IContext
 
 public:
     EffectComposerContext(QWidget *widget);
-    void contextHelp(const Core::IContext::HelpCallback &callback) const override;
 };
 
 class EffectComposerView : public QmlDesigner::AbstractView

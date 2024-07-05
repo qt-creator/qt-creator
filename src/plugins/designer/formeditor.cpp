@@ -100,12 +100,10 @@ public:
     {
         setContext(context);
         setWidget(widget);
-    }
-
-    void contextHelp(const HelpCallback &callback) const final
-    {
-        const QDesignerFormEditorInterface *core = designerEditor();
-        callback(core->integration()->contextHelpId());
+        setContextHelpProvider([](const HelpCallback &callback) {
+            const QDesignerFormEditorInterface *core = designerEditor();
+            callback(core->integration()->contextHelpId());
+        });
     }
 };
 

@@ -15,7 +15,6 @@ class TimelineContext : public Core::IContext
 
 public:
     explicit TimelineContext(QWidget *widget);
-    void contextHelp(const HelpCallback &callback) const override;
 };
 
 } // namespace QmlDesigner
