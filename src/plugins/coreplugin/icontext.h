@@ -53,13 +53,15 @@ class CORE_EXPORT IContext : public QObject
 public:
     IContext(QObject *parent = nullptr) : QObject(parent) {}
 
-    virtual Context context() const { return m_context; }
-    virtual QWidget *widget() const { return m_widget; }
+    QWidget *widget() const { return m_widget; }
+    void setWidget(QWidget *widget) { m_widget = widget; }
+
+    Context context() const { return m_context; }
+    void setContext(const Context &context) { m_context = context; }
+
     using HelpCallback = std::function<void(const HelpItem &item)>;
     virtual void contextHelp(const HelpCallback &callback) const { callback(m_contextHelp); }
 
-    virtual void setContext(const Context &context) { m_context = context; }
-    virtual void setWidget(QWidget *widget) { m_widget = widget; }
     virtual void setContextHelp(const HelpItem &id) { m_contextHelp = id; }
 
     static void attach(QWidget *widget,
