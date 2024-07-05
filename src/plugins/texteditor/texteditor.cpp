@@ -4125,6 +4125,7 @@ void TextEditorWidgetPrivate::registerActions()
                               .contextAction();
     m_visualizeWhitespaceAction = ActionBuilder(this, VISUALIZE_WHITESPACE)
                                       .setContext(m_editorContext)
+                                      .setCheckable(true)
                                       .addOnToggled(
                                           this,
                                           [this](bool checked) {
@@ -4140,6 +4141,7 @@ void TextEditorWidgetPrivate::registerActions()
                               .contextAction();
     m_textWrappingAction = ActionBuilder(this, TEXT_WRAPPING)
                                .setContext(m_editorContext)
+                               .setCheckable(true)
                                .addOnToggled(
                                    this,
                                    [this](bool checked) {
