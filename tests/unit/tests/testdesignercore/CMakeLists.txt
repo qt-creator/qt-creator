@@ -18,6 +18,7 @@ add_qtc_library(TestDesignerCore OBJECT
     ${QmlDesignerDir}/designercore
     ${QmlDesignerDir}/designercore/include
     ${QmlDesignerDir}/designercore/imagecache
+    ${QmlDesignerDir}/designercore/designercoreutils
   PUBLIC_DEFINES
     UNIT_TESTS
     DONT_CHECK_MESSAGE_COUNTER
@@ -150,8 +151,8 @@ add_qtc_library(TestDesignerCore OBJECT
     tracing/qmldesignertracing.cpp tracing/qmldesignertracing.h
     rewritertransaction.cpp
     rewritertransaction.h
-    uniquename.cpp
-    uniquename.h
+    designercoreutils/uniquename.cpp
+    designercoreutils/uniquename.h
 )
 
 extend_qtc_library(TestDesignerCore

@@ -8,5 +8,4 @@ extend_qtc_test(unittest
     modelresourcemanagement-test.cpp
     modelutils-test.cpp
     nodelistproperty-test.cpp
-    uniquename-test.cpp
 )

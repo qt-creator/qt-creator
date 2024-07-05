@@ -96,6 +96,13 @@ add_qtc_library(QmlDesignerCore STATIC
   SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore
   SOURCES
     rewritertransaction.cpp rewritertransaction.h
+
+)
+
+extend_qtc_library(QmlDesignerCore
+  PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/designercore/designercoreutils
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore/designercoreutils
+  SOURCES
     generatedcomponentutils.cpp generatedcomponentutils.h
     uniquename.cpp uniquename.h
 )
@@ -521,6 +528,7 @@ add_qtc_plugin(QmlDesigner
     ${CMAKE_CURRENT_LIST_DIR}
     ${CMAKE_CURRENT_LIST_DIR}/designercore #can not be a public dependency -> EXCLUDE_FROM_INSTALL in QmlDesignerCore
     ${CMAKE_CURRENT_LIST_DIR}/designercore/include #iwidgetplugin.h is used by other plugins
+    ${CMAKE_CURRENT_LIST_DIR}/designercore/designercoreutils
   SOURCES
     designmodecontext.cpp designmodecontext.h
     designmodewidget.cpp designmodewidget.h
