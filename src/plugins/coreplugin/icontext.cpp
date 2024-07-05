@@ -41,6 +41,15 @@ void IContext::attach(QWidget *widget, const Context &context, const HelpItem &h
     ICore::addContextObject(icontext);
 }
 
+void IContext::attach(QWidget *widget, const Context &context, const HelpProvider &helpProvider)
+{
+    auto icontext = new IContext(widget); // As QObject parent.
+    icontext->setContext(context);
+    icontext->setWidget(widget);
+    icontext->setContextHelpProvider(helpProvider);
+    ICore::addContextObject(icontext);
+}
+
 QDebug operator<<(QDebug debug, const Core::Context &context)
 {
     debug.nospace() << "Context(";

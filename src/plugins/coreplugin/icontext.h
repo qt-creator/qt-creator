@@ -69,6 +69,9 @@ public:
     static void attach(QWidget *widget,
                        const Context &context,
                        const HelpItem &contextHelp = {});
+    static void attach(QWidget *widget,
+                       const Context &context,
+                       const HelpProvider &helpProvider);
 
 protected:
     Context m_context;

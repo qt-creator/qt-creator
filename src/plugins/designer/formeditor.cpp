@@ -92,21 +92,6 @@ using namespace Utils;
 
 namespace Designer::Internal {
 
-class DesignerContext final : public IContext
-{
-public:
-    DesignerContext(const Context &context, QWidget *widget, QObject *parent)
-        : IContext(parent)
-    {
-        setContext(context);
-        setWidget(widget);
-        setContextHelpProvider([](const HelpCallback &callback) {
-            const QDesignerFormEditorInterface *core = designerEditor();
-            callback(core->integration()->contextHelpId());
-        });
-    }
-};
-
 /* A stub-like, read-only text editor which displays UI files as text. Could be used as a
   * read/write editor too, but due to lack of XML editor, highlighting and other such
   * functionality, editing is disabled.
@@ -443,7 +428,11 @@ void FormEditorData::fullInit()
 
     Context designerContexts = m_contexts;
     designerContexts.add(Core::Constants::C_EDITORMANAGER);
-    ICore::addContextObject(new DesignerContext(designerContexts, m_modeWidget, this));
+
+    IContext::attach(m_modeWidget, designerContexts, [](const IContext::HelpCallback &callback) {
+        const QDesignerFormEditorInterface *core = designerEditor();
+        callback(core->integration()->contextHelpId());
+    });
 
     DesignMode::registerDesignWidget(m_modeWidget,
                                      QStringList(Utils::Constants::FORM_MIMETYPE),
