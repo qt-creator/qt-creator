@@ -15,7 +15,7 @@ Rectangle {
     color: Constants.backgroundColor
 
     Text {
-        id: text
+        id: textLabel
         text: qsTr("Hello %{ProjectName}")
         anchors.centerIn: parent
     }
