@@ -821,6 +821,7 @@ extend_qtc_plugin(QmlDesigner
     qmlanchorbindingproxy.cpp qmlanchorbindingproxy.h
     qmlmodelnodeproxy.cpp qmlmodelnodeproxy.h
     quick2propertyeditorview.cpp quick2propertyeditorview.h
+    propertyeditorutils.cpp propertyeditorutils.h
 )
 
 extend_qtc_plugin(QmlDesigner

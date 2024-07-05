@@ -10,6 +10,7 @@
 #include "designmodewidget.h"
 #include "nodemetainfo.h"
 #include "nodeproperty.h"
+#include "propertyeditorutils.h"
 #include "propertyeditorview.h"
 #include "qmldesignerplugin.h"
 #include "qmlitemnode.h"
@@ -713,7 +714,8 @@ void PropertyEditorNodeWrapper::setup()
         qDeleteAll(m_valuesPropertyMap.children());
 
         if (QmlObjectNode qmlObjectNode = m_modelNode) {
-            const PropertyMetaInfos props = m_modelNode.metaInfo().properties();
+            const PropertyMetaInfos props = PropertyEditorUtils::filteredPropertes(
+                m_modelNode.metaInfo());
             for (const auto &property : props) {
                 const auto &propertyName = property.name();
                 auto valueObject = new PropertyEditorValue(&m_valuesPropertyMap);
@@ -834,9 +836,12 @@ PropertyEditorSubSelectionWrapper::PropertyEditorSubSelectionWrapper(const Model
 {
     QmlObjectNode qmlObjectNode(modelNode);
 
+    return;
+
     QTC_ASSERT(qmlObjectNode.isValid(), return );
 
-    for (const auto &property : qmlObjectNode.modelNode().metaInfo().properties()) {
+    for (const auto &property :
+         PropertyEditorUtils::filteredPropertes(qmlObjectNode.modelNode().metaInfo())) {
         auto propertyName = property.name();
         createPropertyEditorValue(qmlObjectNode,
                                   propertyName,

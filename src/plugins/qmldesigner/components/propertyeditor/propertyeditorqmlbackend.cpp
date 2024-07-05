@@ -4,6 +4,7 @@
 #include "propertyeditorqmlbackend.h"
 
 #include "propertyeditortransaction.h"
+#include "propertyeditorutils.h"
 #include "propertyeditorvalue.h"
 #include "propertymetainfo.h"
 
@@ -454,7 +455,7 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
         if (propertyEditorBenchmark().isInfoEnabled())
             time.start();
 
-        for (const auto &property : qmlObjectNode.modelNode().metaInfo().properties()) {
+        for (const auto &property : PropertyEditorUtils::filteredPropertes(qmlObjectNode.metaInfo())) {
             auto propertyName = property.name();
             createPropertyEditorValue(qmlObjectNode,
                                       propertyName,
@@ -564,7 +565,7 @@ void PropertyEditorQmlBackend::initialSetup(const TypeName &typeName, const QUrl
 {
     NodeMetaInfo metaInfo = propertyEditor->model()->metaInfo(typeName);
 
-    for (const auto &property : metaInfo.properties()) {
+    for (const auto &property : PropertyEditorUtils::filteredPropertes(metaInfo)) {
         setupPropertyEditorValue(property.name(), propertyEditor, property.propertyType());
     }
 
@@ -683,7 +684,7 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &metaTyp
     PropertyMetaInfos separateSectionProperties;
 
     // Iterate over all properties and isolate the properties which have their own template
-    for (const auto &property : metaType.properties()) {
+    for (const auto &property : PropertyEditorUtils::filteredPropertes(metaType)) {
         const auto &propertyName = property.name();
         if (propertyName.startsWith("__"))
             continue; // private API
