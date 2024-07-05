@@ -2,9 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "timelinewidget.h"
-#include "bindingproperty.h"
 #include "curvesegment.h"
-#include "easingcurve.h"
 #include "easingcurvedialog.h"
 #include "timelineconstants.h"
 #include "timelinegraphicsscene.h"
@@ -44,6 +42,8 @@
 #include <QVariantAnimation>
 
 #include <cmath>
+
+using namespace Core;
 
 namespace QmlDesigner {
 
@@ -281,6 +281,9 @@ TimelineWidget::TimelineWidget(TimelineView *view)
     connect(m_playbackAnimation, &QVariantAnimation::finished, onFinish);
 
     TimeLineNS::TimelineScrollAreaSupport::support(m_graphicsView, m_scrollbar);
+
+    IContext::attach(this, Context(TimelineConstants::C_QMLTIMELINE),
+                    [this](const IContext::HelpCallback &callback) { contextHelp(callback); });
 }
 
 void TimelineWidget::connectToolbar()
