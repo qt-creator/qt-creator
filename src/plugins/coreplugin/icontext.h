@@ -60,9 +60,10 @@ public:
     void setContext(const Context &context) { m_context = context; }
 
     using HelpCallback = std::function<void(const HelpItem &item)>;
-    virtual void contextHelp(const HelpCallback &callback) const { callback(m_contextHelp); }
+    using HelpProvider = std::function<void(const HelpCallback &item)>;
 
-    virtual void setContextHelp(const HelpItem &id) { m_contextHelp = id; }
+    virtual void contextHelp(const HelpCallback &callback) const;
+    void setContextHelp(const HelpItem &id);
 
     static void attach(QWidget *widget,
                        const Context &context,
@@ -71,7 +72,7 @@ public:
 protected:
     Context m_context;
     QPointer<QWidget> m_widget;
-    HelpItem m_contextHelp;
+    HelpProvider m_contextHelpProvider;
 };
 
 } // namespace Core
