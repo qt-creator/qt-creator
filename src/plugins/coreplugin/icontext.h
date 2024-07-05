@@ -41,6 +41,8 @@ public:
     void add(Utils::Id c) { d.append(c); }
     bool operator==(const Context &c) const { return d == c.d; }
 
+    friend CORE_EXPORT QDebug operator<<(QDebug debug, const Core::Context &context);
+
 private:
     QList<Utils::Id> d;
 };
@@ -63,8 +65,6 @@ public:
     static void attach(QWidget *widget,
                        const Context &context,
                        const HelpItem &contextHelp = {});
-
-    friend CORE_EXPORT QDebug operator<<(QDebug debug, const Core::Context &context);
 
 protected:
     Context m_context;
