@@ -3,6 +3,7 @@
 
 #include "luaengine.h"
 #include "luapluginspec.h"
+#include "luatr.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/jsexpander.h>
@@ -102,7 +103,7 @@ public:
 
                 if (!result) {
                     qWarning() << "Failed to load plugin" << script << ":" << result.error();
-                    MessageManager::writeFlashing(tr("Failed to load plugin %1: %2")
+                    MessageManager::writeFlashing(Tr::tr("Failed to load plugin %1: %2")
                                                       .arg(script.toUserOutput())
                                                       .arg(result.error()));
                     continue;
