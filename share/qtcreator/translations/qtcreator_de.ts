@@ -37239,11 +37239,11 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>Toggle View and Filter Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen für Ansicht und Filter umschalten</translation>
     </message>
     <message>
         <source>Ctrl+Shift+L</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+L</translation>
     </message>
     <message>
         <source>Synchronize Browser and Diagram</source>
@@ -37388,15 +37388,15 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>Add Package Link to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket-Link zu %1 hinzufügen</translation>
     </message>
     <message>
         <source>Add Diagram Link to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Diagramm-Link zu %1 hinzufügen</translation>
     </message>
     <message>
         <source>Add Document Link to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Dokument-Link zu %1 hinzufügen</translation>
     </message>
     <message>
         <source>Add Package %1</source>
@@ -37428,19 +37428,19 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>Select File Target</source>
-        <translation type="unfinished"></translation>
+        <translation>Zieldatei auswählen</translation>
     </message>
     <message>
         <source>Linked file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Verlinkte Datei:</translation>
     </message>
     <message>
         <source>Select Image File</source>
-        <translation type="unfinished"></translation>
+        <translation>Bilddatei auswählen</translation>
     </message>
     <message>
         <source>Image:</source>
-        <translation type="unfinished"></translation>
+        <translation>Bild:</translation>
     </message>
     <message>
         <source>&lt;font color=red&gt;Model file must be reloaded.&lt;/font&gt;</source>
@@ -37448,11 +37448,11 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>Selecting Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Bild auswählen</translation>
     </message>
     <message>
         <source>Unable to read image file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bilddatei &quot;%1&quot; konnte nicht gelesen werden.</translation>
     </message>
     <message>
         <source>Zoom: %1%</source>
@@ -37460,15 +37460,15 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>Opening File</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffne Datei</translation>
     </message>
     <message>
         <source>File &quot;%1&quot; does not exist.</source>
-        <translation type="unfinished">Datei &quot;%1&quot; existiert nicht.</translation>
+        <translation>Datei &quot;%1&quot; existiert nicht.</translation>
     </message>
     <message>
         <source>Add Related Elements...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zugehörige Elemente hinzufügen...</translation>
     </message>
     <message>
         <source>Update Include Dependencies</source>
@@ -59525,31 +59525,31 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished">Zurücksetzen</translation>
+        <translation>Zurücksetzen</translation>
     </message>
     <message>
         <source>Relations</source>
-        <translation type="unfinished"></translation>
+        <translation>Beziehungen</translation>
     </message>
     <message>
         <source>Diagram Elements</source>
-        <translation type="unfinished"></translation>
+        <translation>Diagrammelemente</translation>
     </message>
     <message>
         <source>Clear</source>
-        <translation type="unfinished">Löschen</translation>
+        <translation>Löschen</translation>
     </message>
     <message>
         <source>View</source>
-        <translation type="unfinished"></translation>
+        <translation>Ansicht</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">Filter</translation>
+        <translation>Filter</translation>
     </message>
     <message>
         <source>Type:</source>
-        <translation type="unfinished">Typ:</translation>
+        <translation>Typ:</translation>
     </message>
     <message>
         <source>Stereotypes:</source>
@@ -59821,11 +59821,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished">Warnung</translation>
+        <translation>Warnung</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <source>Intermediate points:</source>
@@ -59957,7 +59957,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Open Linked File</source>
-        <translation type="unfinished"></translation>
+        <translation>Verlinkte Datei öffnen</translation>
     </message>
     <message>
         <source>Align Bottom</source>
@@ -60025,27 +60025,27 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Relation Attributes</source>
-        <translation type="unfinished"></translation>
+        <translation>Beziehungsattribute</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>Direction</source>
-        <translation type="unfinished"></translation>
+        <translation>Richtung</translation>
     </message>
     <message>
         <source>Stereotypes</source>
-        <translation type="unfinished"></translation>
+        <translation>Stereotype</translation>
     </message>
     <message>
         <source>Other Element Attributes</source>
-        <translation type="unfinished"></translation>
+        <translation>Andere Elementattribute</translation>
     </message>
     <message>
         <source>Number of matching elements: </source>
-        <translation type="unfinished"></translation>
+        <translation>Anzahl der übereinstimmenden Elemente: </translation>
     </message>
 </context>
 <context>
