@@ -28,8 +28,6 @@
 #include <qmltimeline.h>
 #include <qmltimelinekeyframegroup.h>
 
-#include <designmodecontext.h>
-
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 

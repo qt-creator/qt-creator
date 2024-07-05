@@ -55,9 +55,7 @@
 #include <advanceddockingsystem/docksplitter.h>
 #include <advanceddockingsystem/iconprovider.h>
 
-using Core::MiniSplitter;
-using Core::IEditor;
-using Core::EditorManager;
+using namespace Core;
 
 using namespace QmlDesigner;
 
@@ -121,6 +119,10 @@ DesignModeWidget::DesignModeWidget()
     setAcceptDrops(true);
     if (Utils::StyleHelper::isQDSTheme() || Core::ICore::isQtDesignStudio())
         qApp->setStyle(QmlDesignerBasePlugin::style());
+
+    IContext::attach(this,
+                     Context(Constants::C_QMLDESIGNER, Constants::C_QT_QUICK_TOOLS_MENU),
+                     [this](const IContext::HelpCallback &callback) { contextHelp(callback); });
 }
 
 DesignModeWidget::~DesignModeWidget()

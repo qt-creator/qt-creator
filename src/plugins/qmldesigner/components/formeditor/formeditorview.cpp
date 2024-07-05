@@ -18,7 +18,6 @@
 #include <qmldesignerplugin.h>
 #include <bindingproperty.h>
 #include <designersettings.h>
-#include <designmodecontext.h>
 #include <model.h>
 #include <modelnode.h>
 #include <nodeabstractproperty.h>
@@ -204,9 +203,6 @@ void FormEditorView::createFormEditorWidget()
     m_dragTool = std::make_unique<DragTool>(this);
 
     m_currentTool = m_selectionTool.get();
-
-    auto formEditorContext = new Internal::FormEditorContext(m_formEditorWidget.data());
-    Core::ICore::addContextObject(formEditorContext);
 
     connect(m_formEditorWidget->zoomAction(), &ZoomAction::zoomLevelChanged, [this] {
         m_currentTool->formEditorItemsChanged(scene()->allFormEditorItems());

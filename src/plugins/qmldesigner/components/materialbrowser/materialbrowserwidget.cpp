@@ -32,6 +32,8 @@
 #include <QShortcut>
 #include <QVBoxLayout>
 
+using namespace Core;
+
 namespace QmlDesigner {
 
 static QString propertyEditorResourcesPath()
@@ -212,6 +214,10 @@ MaterialBrowserWidget::MaterialBrowserWidget(AsynchronousImageCache &imageCache,
     reloadQmlSource();
 
     setFocusProxy(m_quickWidget->quickWidget());
+
+    IContext::attach(this,
+                     Context(Constants::C_QMLMATERIALBROWSER, Constants::C_QT_QUICK_TOOLS_MENU),
+                     [this](const IContext::HelpCallback &callback) { contextHelp(callback); });
 }
 
 void MaterialBrowserWidget::updateMaterialPreview(const ModelNode &node, const QPixmap &pixmap)

@@ -5,7 +5,6 @@
 #include "qmldesignertr.h"
 
 #include "coreplugin/iwizardfactory.h"
-#include "designmodecontext.h"
 #include "designmodewidget.h"
 #include "dynamiclicensecheck.h"
 #include "exception.h"
@@ -90,6 +89,7 @@
 
 static Q_LOGGING_CATEGORY(qmldesignerLog, "qtc.qmldesigner", QtWarningMsg)
 
+using namespace Core;
 using namespace QmlDesigner::Internal;
 
 namespace QmlDesigner {
@@ -380,10 +380,13 @@ static QString projectPath(const Utils::FilePath &fileName)
     return path;
 }
 
-void QmlDesignerPlugin::integrateIntoQtCreator(QWidget *modeWidget)
+void QmlDesignerPlugin::integrateIntoQtCreator(DesignModeWidget *modeWidget)
 {
-    auto context = new Internal::DesignModeContext(modeWidget);
-    Core::ICore::addContextObject(context);
+    const Context context(Constants::C_QMLDESIGNER, Constants::C_QT_QUICK_TOOLS_MENU);
+    IContext::attach(modeWidget, context, [modeWidget](const IContext::HelpCallback &callback) {
+        modeWidget->contextHelp(callback);
+    });
+
     Core::Context qmlDesignerMainContext(Constants::C_QMLDESIGNER);
     Core::Context qmlDesignerFormEditorContext(Constants::C_QMLFORMEDITOR);
     Core::Context qmlDesignerEditor3dContext(Constants::C_QMLEDITOR3D);
@@ -397,7 +400,7 @@ void QmlDesignerPlugin::integrateIntoQtCreator(QWidget *modeWidget)
     const QStringList mimeTypes = { Utils::Constants::QML_MIMETYPE,
                                     Utils::Constants::QMLUI_MIMETYPE };
 
-    Core::DesignMode::registerDesignWidget(modeWidget, mimeTypes, context->context());
+    Core::DesignMode::registerDesignWidget(modeWidget, mimeTypes, context);
 
     connect(Core::DesignMode::instance(), &Core::DesignMode::actionsUpdated,
         &d->shortCutManager, &ShortCutManager::updateActions);

@@ -36,10 +36,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <utils/qtcassert.h>
-
-#include <designmodecontext.h>
-
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 

@@ -6,7 +6,6 @@
 #include "texteditorwidget.h"
 
 #include <customnotifications.h>
-#include <designmodecontext.h>
 #include <designdocument.h>
 #include <designersettings.h>
 #include <modelnode.h>
@@ -14,6 +13,7 @@
 #include <zoomaction.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
+#include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -41,6 +41,8 @@
 #include <QString>
 #include <QTimer>
 
+using namespace Core;
+
 namespace QmlDesigner {
 
 const char TEXTEDITOR_CONTEXT_ID[] = "QmlDesigner.TextEditorContext";
@@ -48,8 +50,13 @@ const char TEXTEDITOR_CONTEXT_ID[] = "QmlDesigner.TextEditorContext";
 TextEditorView::TextEditorView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
     , m_widget(new TextEditorWidget(this))
-    , m_textEditorContext(new Internal::TextEditorContext(m_widget))
+    , m_textEditorContext(new Core::IContext(m_widget))
 {
+    m_textEditorContext->setWidget(m_widget);
+    m_textEditorContext->setContext(Context(Constants::C_QMLTEXTEDITOR, Constants::C_QT_QUICK_TOOLS_MENU));
+    m_textEditorContext->setContextHelpProvider([this](const IContext::HelpCallback &callback) {
+        m_widget->contextHelp(callback);
+    });
     Core::ICore::addContextObject(m_textEditorContext);
 
     Core::Context context(TEXTEDITOR_CONTEXT_ID);

@@ -47,6 +47,8 @@
 #include <QMimeData>
 #include <QVBoxLayout>
 
+using namespace Core;
+
 namespace QmlDesigner {
 
 inline static QIcon contextIcon(const DesignerIcons::IconId &iconId)
@@ -186,6 +188,10 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
     m_canvas = new Edit3DCanvas(this);
     fillLayout->addWidget(m_canvas.data());
     showCanvas(false);
+
+    IContext::attach(this,
+                     Context(Constants::C_QMLEDITOR3D, Constants::C_QT_QUICK_TOOLS_MENU),
+                     [this](const IContext::HelpCallback &callback) { contextHelp(callback); });
 }
 
 void Edit3DWidget::createContextMenu()

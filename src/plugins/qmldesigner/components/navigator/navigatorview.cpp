@@ -12,7 +12,6 @@
 #include <bindingproperty.h>
 #include <commontypecache.h>
 #include <designersettings.h>
-#include <designmodecontext.h>
 #include <itemlibraryentry.h>
 #include <model/modelutils.h>
 #include <nodeinstanceview.h>
@@ -758,10 +757,6 @@ void NavigatorView::setupWidget()
 {
     m_widget = new NavigatorWidget(this);
     m_treeModel = new NavigatorTreeModel(this);
-
-    auto navigatorContext = new Internal::NavigatorContext(m_widget.data());
-    Core::ICore::addContextObject(navigatorContext);
-
     m_treeModel->setView(this);
     m_widget->setTreeModel(m_treeModel.data());
     m_currentModelInterface = m_treeModel;

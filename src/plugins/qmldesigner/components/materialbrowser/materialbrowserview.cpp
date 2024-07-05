@@ -5,7 +5,6 @@
 
 #include "bindingproperty.h"
 #include "createtexture.h"
-#include "designmodecontext.h"
 #include "externaldependenciesinterface.h"
 #include "materialbrowsermodel.h"
 #include "materialbrowsertexturesmodel.h"
@@ -61,9 +60,6 @@ WidgetInfo MaterialBrowserView::widgetInfo()
 {
     if (m_widget.isNull()) {
         m_widget = new MaterialBrowserWidget(m_imageCache, this);
-
-        auto matEditorContext = new Internal::MaterialBrowserContext(m_widget.data());
-        Core::ICore::addContextObject(matEditorContext);
 
         // custom notifications below are sent to the MaterialEditor
         MaterialBrowserModel *matBrowserModel = m_widget->materialBrowserModel().data();
