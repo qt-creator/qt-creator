@@ -34,6 +34,8 @@
 #include <QQuickItem>
 #include <QTimer>
 
+using namespace Core;
+
 namespace EffectComposer {
 
 static QString propertyEditorResourcesPath()
@@ -128,8 +130,12 @@ EffectComposerWidget::EffectComposerWidget(EffectComposerView *view)
                 m_effectComposerModel->saveComposition(compName);
         }
     });
-}
 
+    IContext::attach(this,
+                     Context(QmlDesigner::Constants::C_QMLEFFECTCOMPOSER,
+                             QmlDesigner::Constants::C_QT_QUICK_TOOLS_MENU),
+                     [this](const IContext::HelpCallback &callback) { contextHelp(callback); });
+}
 
 bool EffectComposerWidget::eventFilter(QObject *obj, QEvent *event)
 {

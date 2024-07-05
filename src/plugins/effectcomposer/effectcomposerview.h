@@ -7,21 +7,12 @@
 #include "modelnode.h"
 
 #include <generatedcomponentutils.h>
-#include <coreplugin/icontext.h>
 
 #include <QPointer>
 
 namespace EffectComposer {
 
 class EffectComposerWidget;
-
-class EffectComposerContext : public Core::IContext
-{
-    Q_OBJECT
-
-public:
-    EffectComposerContext(QWidget *widget);
-};
 
 class EffectComposerView : public QmlDesigner::AbstractView
 {

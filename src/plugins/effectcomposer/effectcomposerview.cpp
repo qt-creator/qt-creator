@@ -18,18 +18,6 @@
 
 namespace EffectComposer {
 
-EffectComposerContext::EffectComposerContext(QWidget *widget)
-    : IContext(widget)
-{
-    setWidget(widget);
-    setContext(Core::Context(QmlDesigner::Constants::C_QMLEFFECTCOMPOSER,
-                             QmlDesigner::Constants::C_QT_QUICK_TOOLS_MENU));
-
-    setContextHelpProvider([this](const HelpCallback &callback) {
-        qobject_cast<EffectComposerWidget *>(m_widget)->contextHelp(callback);
-    });
-}
-
 EffectComposerView::EffectComposerView(QmlDesigner::ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
     , m_componentUtils(externalDependencies)
@@ -116,9 +104,6 @@ QmlDesigner::WidgetInfo EffectComposerView::widgetInfo()
                     document->clearUndoRedoStacks();
             }
         });
-
-        auto context = new EffectComposerContext(m_widget.data());
-        Core::ICore::addContextObject(context);
     }
 
     return createWidgetInfo(m_widget.data(), "EffectComposer",
