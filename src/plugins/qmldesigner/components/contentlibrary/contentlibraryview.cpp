@@ -187,6 +187,8 @@ void ContentLibraryView::connectImporter()
                 } else if (isItemBundle(bundleId)) {
                     if (!m_bundleItemTarget)
                         m_bundleItemTarget = Utils3D::active3DSceneNode(this);
+                    if (!m_bundleItemTarget)
+                        m_bundleItemTarget = rootModelNode();
 
                     QTC_ASSERT(m_bundleItemTarget, return);
 
