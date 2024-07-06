@@ -243,8 +243,11 @@ const char TEXT_SNIPPET_GROUP_ID[] = "Text";
 const char GLOBAL_SETTINGS_ID[]    = "Global";
 const char GENERIC_PROPOSAL_ID[] = "TextEditor.GenericProposalId";
 
-const char BOOKMARKS_PREV_ACTION[]        = "Bookmarks.Previous";
-const char BOOKMARKS_NEXT_ACTION[]        = "Bookmarks.Next";
+const char BOOKMARKS_PREV_ACTION[]              = "Bookmarks.Previous";
+const char BOOKMARKS_NEXT_ACTION[]              = "Bookmarks.Next";
+const char BOOKMARKS_MOVEUP_ACTION[]            = "Bookmarks.MoveUp";
+const char BOOKMARKS_MOVEDOWN_ACTION[]          = "Bookmarks.MoveDown";
+const char BOOKMARKS_SORTBYFILENAMES_ACTION[]   = "Bookmarks.SortByFilenames";
 
 /**
  * Delay before tooltip will be shown near completion assistant proposal

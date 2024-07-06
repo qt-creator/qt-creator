@@ -75,6 +75,7 @@ public:
     void moveDown();
     void edit();
     void editByFileAndLine(const Utils::FilePath &fileName, int lineNumber);
+    void sortByFilenames();
     bool gotoBookmark(const Bookmark *bookmark) const;
 
     void requestContextMenu(const Utils::FilePath &filePath, int lineNumber, QMenu *menu);
