@@ -9,6 +9,7 @@
 #include <utils/qtcassert.h>
 
 #include <QLoggingCategory>
+#include <QVariant>
 
 namespace QmlDesigner {
 using namespace std;
@@ -48,15 +49,18 @@ bool DSThemeGroup::addProperty(ThemeId theme, const ThemeProperty &prop)
     }
 
     if (!m_values.contains(prop.name))
-        m_values[prop.name] = make_unique<ThemeValues>();
+        m_values[prop.name] = {};
 
-    const auto &tValues = m_values.at(prop.name);
-    if (tValues->contains(theme)) {
+    auto &tValues = m_values.at(prop.name);
+    if (tValues.contains(theme)) {
         qCDebug(dsLog) << "Add property failed. Duplicate property name." << prop;
         return false;
     }
 
-    tValues->insert({theme, {prop.value, prop.isBinding}});
+    tValues.emplace(std::piecewise_construct,
+                    std::forward_as_tuple(theme),
+                    std::forward_as_tuple(prop.value, prop.isBinding));
+
     return true;
 }
 
@@ -66,8 +70,8 @@ std::optional<ThemeProperty> DSThemeGroup::propertyValue(ThemeId theme, const Pr
         return {};
 
     const auto &tValues = m_values.at(name);
-    const auto itr = tValues->find(theme);
-    if (itr != tValues->end()) {
+    const auto itr = tValues.find(theme);
+    if (itr != tValues.end()) {
         auto &[value, isBindind] = itr->second;
         return ThemeProperty{name, value, isBindind};
     }
@@ -93,13 +97,15 @@ void DSThemeGroup::updateProperty(ThemeId theme, PropertyName newName, const The
     }
 
     auto &tValues = m_values.at(prop.name);
-    const auto itr = tValues->find(theme);
-    if (itr == tValues->end()) {
+    const auto itr = tValues.find(theme);
+    if (itr == tValues.end()) {
         qCDebug(dsLog) << "Property update failure. No property for the theme" << theme << prop;
         return;
     }
 
-    tValues->at(theme) = {prop.value, prop.isBinding};
+    auto &entry = tValues.at(theme);
+    entry.value = prop.value;
+    entry.isBinding = prop.isBinding;
     if (newName != prop.name) {
         m_values[newName] = std::move(tValues);
         m_values.erase(prop.name);
@@ -115,9 +121,9 @@ size_t DSThemeGroup::count(ThemeId theme) const
 {
     return std::accumulate(m_values.cbegin(),
                            m_values.cend(),
-                           0,
+                           0ull,
                            [theme](size_t c, const GroupProperties::value_type &p) {
-                               return c + (p.second->contains(theme) ? 1 : 0);
+                               return c + (p.second.contains(theme) ? 1 : 0);
                            });
 }
 
@@ -128,22 +134,19 @@ size_t DSThemeGroup::count() const
 
 void DSThemeGroup::removeTheme(ThemeId theme)
 {
-    for (auto itr = m_values.cbegin(); itr != m_values.cend();) {
-        itr->second->erase(theme);
-        itr = itr->second->size() == 0 ? m_values.erase(itr) : std::next(itr);
+    for (auto itr = m_values.begin(); itr != m_values.end();) {
+        itr->second.erase(theme);
+        itr = itr->second.size() == 0 ? m_values.erase(itr) : std::next(itr);
     }
 }
 
 void DSThemeGroup::duplicateValues(ThemeId from, ThemeId to)
 {
-    for (auto itr = m_values.cbegin(); itr != m_values.cend(); ++itr) {
-        const auto &[propName, values] = *itr;
-        if (!values)
-            continue;
-
-        auto fromValueItr = values->find(from);
-        if (fromValueItr != values->end())
-            (*values)[to] = fromValueItr->second;
+    for (auto itr = m_values.begin(); itr != m_values.end(); ++itr) {
+        auto &[propName, values] = *itr;
+        auto fromValueItr = values.find(from);
+        if (fromValueItr != values.end())
+            values[to] = fromValueItr->second;
     }
 }
 
@@ -162,11 +165,11 @@ void DSThemeGroup::decorate(ThemeId theme, ModelNode themeNode)
         return;
     }
 
-    for (auto itr = m_values.cbegin(); itr != m_values.cend(); ++itr) {
-        const auto &[propName, values] = *itr;
-        auto themeValue = values->find(theme);
-        if (themeValue != values->end()) {
-            const auto &propData = themeValue->second;
+    for (auto itr = m_values.begin(); itr != m_values.end(); ++itr) {
+        auto &[propName, values] = *itr;
+        auto themeValue = values.find(theme);
+        if (themeValue != values.end()) {
+            auto &propData = themeValue->second;
             if (propData.isBinding) {
                 auto bindingProp = groupNode.bindingProperty(propName);
                 if (bindingProp)

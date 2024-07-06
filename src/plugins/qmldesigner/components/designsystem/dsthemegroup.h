@@ -16,12 +16,19 @@ class DSThemeGroup
 {
     struct PropertyData
     {
+        PropertyData() = default;
+        template<typename Variant>
+        PropertyData(Variant &&value, bool isBinding)
+            : value{std::forward<Variant>(value)}
+            , isBinding{isBinding}
+        {}
+
         QVariant value;
         bool isBinding = false;
     };
 
     using ThemeValues = std::map<ThemeId, PropertyData>;
-    using GroupProperties = std::map<PropertyName, std::unique_ptr<ThemeValues>>;
+    using GroupProperties = std::map<PropertyName, ThemeValues>;
 
 public:
     DSThemeGroup(GroupType type);

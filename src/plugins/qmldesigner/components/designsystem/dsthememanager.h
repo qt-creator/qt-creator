@@ -22,6 +22,12 @@ public:
     DSThemeManager();
     ~DSThemeManager();
 
+    DSThemeManager(const DSThemeManager&) = delete;
+    DSThemeManager& operator=(const DSThemeManager&) = delete;
+
+    DSThemeManager(DSThemeManager&&) = default;
+    DSThemeManager& operator=(DSThemeManager&&) = default;
+
     std::optional<ThemeId> addTheme(const ThemeName &themeName);
     std::optional<ThemeId> themeId(const ThemeName &themeName) const;
     void removeTheme(ThemeId id);

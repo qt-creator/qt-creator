@@ -4,6 +4,9 @@
 #pragma once
 
 #include "nodeinstanceglobal.h"
+
+#include <QVariant>
+
 namespace QmlDesigner
 {
 

@@ -11,6 +11,7 @@
 #include <utils/qtcassert.h>
 
 #include <QLoggingCategory>
+#include <QVariant>
 
 namespace {
 Q_LOGGING_CATEGORY(dsLog, "qtc.designer.designSystem", QtInfoMsg)
