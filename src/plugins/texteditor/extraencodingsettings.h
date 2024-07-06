@@ -28,6 +28,12 @@ public:
         AlwaysDelete = 2
     };
     Utf8BomSetting m_utf8BomSetting;
+
+    enum LineEndingSetting {
+      Unix = 0,
+      Windows = 1
+    };
+    LineEndingSetting m_lineEndingSetting;
 };
 
 void setupExtraEncodingSettings();

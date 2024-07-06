@@ -413,6 +413,7 @@ void BehaviorSettingsWidget::setAssignedExtraEncodingSettings(
     const ExtraEncodingSettings &encodingSettings)
 {
     d->utf8BomBox->setCurrentIndex(encodingSettings.m_utf8BomSetting);
+    d->defaultLineEndings->setCurrentIndex(encodingSettings.m_lineEndingSetting);
 }
 
 void BehaviorSettingsWidget::assignedExtraEncodingSettings(
@@ -420,6 +421,9 @@ void BehaviorSettingsWidget::assignedExtraEncodingSettings(
 {
     encodingSettings->m_utf8BomSetting =
         (ExtraEncodingSettings::Utf8BomSetting)d->utf8BomBox->currentIndex();
+
+    encodingSettings->m_lineEndingSetting
+      = (ExtraEncodingSettings::LineEndingSetting)d->defaultLineEndings->currentIndex();
 }
 
 void BehaviorSettingsWidget::setAssignedLineEnding(int lineEnding)
