@@ -5,6 +5,7 @@
 #include "welcometr.h"
 
 #include <coreplugin/icore.h>
+
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/infobar.h>
@@ -13,48 +14,63 @@
 
 #include <QEvent>
 #include <QGuiApplication>
+#include <QImage>
 #include <QKeyEvent>
 #include <QLabel>
 #include <QPainter>
-#include <QPushButton>
+#include <QPointer>
 #include <QVBoxLayout>
 
+using namespace Core;
 using namespace Utils;
+
+namespace Welcome::Internal {
 
 const char kTakeTourSetting[] = "TakeUITour";
 
-namespace Welcome {
-namespace Internal {
-
-void IntroductionWidget::askUserAboutIntroduction(QWidget *parent)
+struct Item
 {
-    // CheckableMessageBox for compatibility with Qt Creator < 4.11
-    if (!CheckableDecider(Key(kTakeTourSetting)).shouldAskAgain()
-        || !Core::ICore::infoBar()->canInfoBeAdded(kTakeTourSetting))
-        return;
+    QString pointerAnchorObjectName;
+    QString title;
+    QString brief;
+    QString description;
+};
 
-    Utils::InfoBarEntry
-        info(kTakeTourSetting,
-             Tr::tr("Would you like to take a quick UI tour? This tour highlights important user "
-                    "interface elements and shows how they are used. To take the tour later, "
-                    "select Help > UI Tour."),
-             Utils::InfoBarEntry::GlobalSuppression::Enabled);
-    info.addCustomButton(Tr::tr("Take UI Tour"), [parent] {
-        Core::ICore::infoBar()->removeInfo(kTakeTourSetting);
-        Core::ICore::infoBar()->globallySuppressInfo(kTakeTourSetting);
-        auto intro = new IntroductionWidget(parent);
-        intro->show();
-    });
-    Core::ICore::infoBar()->addInfo(info);
-}
+class IntroductionWidget : public QWidget
+{
+public:
+    IntroductionWidget();
 
-IntroductionWidget::IntroductionWidget(QWidget *parent)
-    : QWidget(parent),
+protected:
+    bool event(QEvent *e) override;
+    bool eventFilter(QObject *obj, QEvent *ev) override;
+    void paintEvent(QPaintEvent *ev) override;
+    void keyPressEvent(QKeyEvent *ke) override;
+    void mouseReleaseEvent(QMouseEvent *me) override;
+
+private:
+    void finish();
+    void step();
+    void setStep(uint index);
+    void resizeToParent();
+
+    QWidget *m_textWidget;
+    QLabel *m_stepText;
+    QLabel *m_continueLabel;
+    QImage m_borderImage;
+    QString m_bodyCss;
+    std::vector<Item> m_items;
+    QPointer<QWidget> m_stepPointerAnchor;
+    uint m_step = 0;
+};
+
+IntroductionWidget::IntroductionWidget()
+    : QWidget(ICore::dialogParent()),
       m_borderImage(":/welcome/images/border.png")
 {
     setFocusPolicy(Qt::StrongFocus);
     setFocus();
-    parent->installEventFilter(this);
+    parentWidget()->installEventFilter(this);
 
     QPalette p = palette();
     p.setColor(QPalette::WindowText, QColor(220, 220, 220));
@@ -381,5 +397,34 @@ void IntroductionWidget::resizeToParent()
     m_textWidget->setGeometry(QRect(width()/4, height()/4, width()/2, height()/2));
 }
 
-} // namespace Internal
-} // namespace Welcome
+
+// Public access.
+
+void runUiTour()
+{
+    auto intro = new IntroductionWidget;
+    intro->show();
+}
+
+void askUserAboutIntroduction()
+{
+    // CheckableMessageBox for compatibility with Qt Creator < 4.11
+    if (!CheckableDecider(Key(kTakeTourSetting)).shouldAskAgain()
+        || !ICore::infoBar()->canInfoBeAdded(kTakeTourSetting))
+        return;
+
+    InfoBarEntry
+        info(kTakeTourSetting,
+             Tr::tr("Would you like to take a quick UI tour? This tour highlights important user "
+                    "interface elements and shows how they are used. To take the tour later, "
+                    "select Help > UI Tour."),
+             InfoBarEntry::GlobalSuppression::Enabled);
+    info.addCustomButton(Tr::tr("Take UI Tour"), [] {
+        ICore::infoBar()->removeInfo(kTakeTourSetting);
+        ICore::infoBar()->globallySuppressInfo(kTakeTourSetting);
+        runUiTour();
+    });
+    ICore::infoBar()->addInfo(info);
+}
+
+} //  Welcome::Internal
