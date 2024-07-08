@@ -47,76 +47,12 @@ using namespace ExtensionSystem;
 using namespace Utils;
 using namespace StyleHelper::SpacingTokens;
 
-namespace Welcome {
-namespace Internal {
-
-class TopArea;
-class SideArea;
+namespace Welcome::Internal {
 
 const char currentPageSettingsKeyC[] = "Welcome2Tab";
 
-class WelcomeMode : public IMode
+class TopArea final : public QWidget
 {
-    Q_OBJECT
-
-public:
-    WelcomeMode();
-    ~WelcomeMode();
-
-    void initPlugins();
-
-private:
-    void addPage(IWelcomePage *page);
-
-    ResizeSignallingWidget *m_modeWidget;
-    QStackedWidget *m_pageStack;
-    TopArea *m_topArea;
-    SideArea *m_sideArea;
-    QList<IWelcomePage *> m_pluginList;
-    QList<QAbstractButton *> m_pageButtons;
-    QButtonGroup *m_buttonGroup;
-    Id m_activePage;
-    Id m_defaultPage;
-};
-
-class WelcomePlugin final : public ExtensionSystem::IPlugin
-{
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Welcome.json")
-
-public:
-    ~WelcomePlugin() final { delete m_welcomeMode; }
-
-    bool initialize(const QStringList &arguments, QString *) final
-    {
-        m_welcomeMode = new WelcomeMode;
-
-        ActionBuilder(this, "Welcome.UITour")
-            .setText(Tr::tr("UI Tour"))
-            .addToContainer(Core::Constants::M_HELP, Core::Constants::G_HELP_HELP, true)
-            .addOnTriggered(&runUiTour);
-
-        if (!arguments.contains("-notour")) {
-            connect(ICore::instance(), &ICore::coreOpened, this, [] { askUserAboutIntroduction(); },
-            Qt::QueuedConnection);
-        }
-
-        return true;
-    }
-
-    void extensionsInitialized() final
-    {
-        m_welcomeMode->initPlugins();
-        ModeManager::activateMode(m_welcomeMode->id());
-    }
-
-    WelcomeMode *m_welcomeMode = nullptr;
-};
-
-class TopArea : public QWidget
-{
-    Q_OBJECT
-
 public:
     TopArea(QWidget *parent = nullptr)
         : QWidget(parent)
@@ -164,10 +100,8 @@ public:
     }
 };
 
-class SideArea : public QScrollArea
+class SideArea final : public QScrollArea
 {
-    Q_OBJECT
-
 public:
     SideArea(QWidget *parent = nullptr)
         : QScrollArea(parent)
@@ -280,140 +214,201 @@ public:
     QWidget *m_links = nullptr;
 };
 
-WelcomeMode::WelcomeMode()
+class WelcomeModeWidget final : public ResizeSignallingWidget
 {
-    setDisplayName(Tr::tr("Welcome"));
+public:
+    WelcomeModeWidget()
+    {
+        setBackgroundColor(this, Theme::Token_Background_Default);
 
-    const Icon CLASSIC(":/welcome/images/mode_welcome.png");
-    const Icon FLAT({{":/welcome/images/mode_welcome_mask.png",
-                      Theme::IconsBaseColor}});
-    const Icon FLAT_ACTIVE({{":/welcome/images/mode_welcome_mask.png",
-                             Theme::IconsModeWelcomeActiveColor}});
-    setIcon(Icon::modeIcon(CLASSIC, FLAT, FLAT_ACTIVE));
+        m_sideArea = new SideArea(this);
+        m_sideArea->verticalScrollBar()->setEnabled(false);
 
-    setPriority(Constants::P_MODE_WELCOME);
-    setId(Constants::MODE_WELCOME);
-    setContext(Context(Constants::C_WELCOME_MODE));
+        m_buttonGroup = new QButtonGroup(this);
+        m_buttonGroup->setExclusive(true);
 
-    m_modeWidget = new ResizeSignallingWidget;
-    setBackgroundColor(m_modeWidget, Theme::Token_Background_Default);
-    connect(m_modeWidget,
-            &ResizeSignallingWidget::resized,
-            this,
-            [this](const QSize &size, const QSize &) {
-                const QSize sideAreaS = m_sideArea->size();
-                const QSize topAreaS = m_topArea->size();
-                const QSize mainWindowS = ICore::mainWindow()->size();
+        m_pageStack = new QStackedWidget(this);
+        m_pageStack->setObjectName("WelcomeScreenStackedWidget");
+        m_pageStack->setAutoFillBackground(true);
 
-                const bool showSideArea = sideAreaS.width() < size.width() / 4;
-                const bool showTopArea = topAreaS.height() < mainWindowS.height() / 8.85;
-                const bool showLinks = true;
+        m_topArea = new TopArea;
 
-                m_sideArea->m_links->setVisible(showLinks);
-                m_sideArea->setVisible(showSideArea);
-                m_topArea->setVisible(showTopArea);
-            });
+        using namespace Layouting;
+        Column {
+            new StyledBar,
+            m_topArea,
+            Row {
+                m_sideArea,
+                m_pageStack,
+            },
+            noMargin,
+            spacing(0),
+        }.attachTo(this);
 
-    m_sideArea = new SideArea(m_modeWidget);
-    m_sideArea->verticalScrollBar()->setEnabled(false);
+        IContext::attach(this, {}, "Qt Creator Manual");
 
-    m_buttonGroup = new QButtonGroup(m_modeWidget);
-    m_buttonGroup->setExclusive(true);
+        connect(this, &ResizeSignallingWidget::resized,
+                this, [this](const QSize &size, const QSize &) {
+            const QSize sideAreaS = m_sideArea->size();
+            const QSize topAreaS = m_topArea->size();
+            const QSize mainWindowS = ICore::mainWindow()->size();
 
-    m_pageStack = new QStackedWidget(m_modeWidget);
-    m_pageStack->setObjectName("WelcomeScreenStackedWidget");
-    m_pageStack->setAutoFillBackground(true);
+            const bool showSideArea = sideAreaS.width() < size.width() / 4;
+            const bool showTopArea = topAreaS.height() < mainWindowS.height() / 8.85;
+            const bool showLinks = true;
 
-    m_topArea = new TopArea;
-
-    using namespace Layouting;
-
-    Column {
-        new StyledBar,
-        m_topArea,
-        Row {
-            m_sideArea,
-            m_pageStack,
-        },
-        noMargin,
-        spacing(0),
-    }.attachTo(m_modeWidget);
-
-    IContext::attach(m_modeWidget, {}, "Qt Creator Manual");
-    setWidget(m_modeWidget);
-}
-
-WelcomeMode::~WelcomeMode()
-{
-    QtcSettings *settings = ICore::settings();
-    settings->setValueWithDefault(currentPageSettingsKeyC,
-                                  m_activePage.toSetting(),
-                                  m_defaultPage.toSetting());
-    delete m_modeWidget;
-}
-
-void WelcomeMode::initPlugins()
-{
-    QtcSettings *settings = ICore::settings();
-    m_activePage = Id::fromSetting(settings->value(currentPageSettingsKeyC));
-
-    for (IWelcomePage *page : IWelcomePage::allWelcomePages())
-        addPage(page);
-
-    if (!m_pageButtons.isEmpty()) {
-        const int welcomeIndex = Utils::indexOf(m_pluginList,
-                                                Utils::equal(&IWelcomePage::id,
-                                                             Utils::Id("Examples")));
-        const int defaultIndex = welcomeIndex >= 0 ? welcomeIndex : 0;
-        m_defaultPage = m_pluginList.at(defaultIndex)->id();
-        if (!m_activePage.isValid())
-            m_pageButtons.at(defaultIndex)->click();
+            m_sideArea->m_links->setVisible(showLinks);
+            m_sideArea->setVisible(showSideArea);
+            m_topArea->setVisible(showTopArea);
+        });
     }
-}
 
-void WelcomeMode::addPage(IWelcomePage *page)
+    ~WelcomeModeWidget()
+    {
+        QtcSettings *settings = ICore::settings();
+        settings->setValueWithDefault(currentPageSettingsKeyC,
+                                      m_activePage.toSetting(),
+                                      m_defaultPage.toSetting());
+    }
+
+    void initPlugins()
+    {
+        QtcSettings *settings = ICore::settings();
+        m_activePage = Id::fromSetting(settings->value(currentPageSettingsKeyC));
+
+        for (IWelcomePage *page : IWelcomePage::allWelcomePages())
+            addPage(page);
+
+        if (!m_pageButtons.isEmpty()) {
+            const int welcomeIndex = Utils::indexOf(m_pluginList,
+                                                    Utils::equal(&IWelcomePage::id,
+                                                                 Utils::Id("Examples")));
+            const int defaultIndex = welcomeIndex >= 0 ? welcomeIndex : 0;
+            m_defaultPage = m_pluginList.at(defaultIndex)->id();
+            if (!m_activePage.isValid())
+                m_pageButtons.at(defaultIndex)->click();
+        }
+    }
+
+    void addPage(IWelcomePage *page)
+    {
+        int idx;
+        int pagePriority = page->priority();
+        for (idx = 0; idx != m_pluginList.size(); ++idx) {
+            if (m_pluginList.at(idx)->priority() >= pagePriority)
+                break;
+        }
+        auto pageButton = new Button(page->title(), Button::SmallList, m_sideArea->widget());
+        auto pageId = page->id();
+        pageButton->setText(page->title());
+
+        m_buttonGroup->addButton(pageButton);
+        m_pluginList.insert(idx, page);
+        m_pageButtons.insert(idx, pageButton);
+
+        m_sideArea->m_pluginButtons->insertWidget(idx, pageButton);
+
+        QWidget *stackPage = page->createWidget();
+        stackPage->setAutoFillBackground(true);
+        m_pageStack->insertWidget(idx, stackPage);
+
+        connect(page, &QObject::destroyed, this, [this, page, stackPage, pageButton] {
+            m_buttonGroup->removeButton(pageButton);
+            m_pluginList.removeOne(page);
+            m_pageButtons.removeOne(pageButton);
+            delete pageButton;
+            delete stackPage;
+        });
+
+        auto onClicked = [this, pageId, stackPage] {
+            m_activePage = pageId;
+            m_pageStack->setCurrentWidget(stackPage);
+        };
+
+        connect(pageButton, &Button::clicked, this, onClicked);
+        if (pageId == m_activePage) {
+            onClicked();
+            pageButton->setChecked(true);
+        }
+    }
+
+    QStackedWidget *m_pageStack;
+    TopArea *m_topArea;
+    SideArea *m_sideArea;
+    QList<IWelcomePage *> m_pluginList;
+    QList<QAbstractButton *> m_pageButtons;
+    QButtonGroup *m_buttonGroup;
+
+    Id m_activePage;
+    Id m_defaultPage;
+};
+
+class WelcomeMode final : public IMode
 {
-    int idx;
-    int pagePriority = page->priority();
-    for (idx = 0; idx != m_pluginList.size(); ++idx) {
-        if (m_pluginList.at(idx)->priority() >= pagePriority)
-            break;
+public:
+    WelcomeMode()
+    {
+        setDisplayName(Tr::tr("Welcome"));
+
+        const Icon CLASSIC(":/welcome/images/mode_welcome.png");
+        const Icon FLAT({{":/welcome/images/mode_welcome_mask.png",
+                          Theme::IconsBaseColor}});
+        const Icon FLAT_ACTIVE({{":/welcome/images/mode_welcome_mask.png",
+                                 Theme::IconsModeWelcomeActiveColor}});
+        setIcon(Icon::modeIcon(CLASSIC, FLAT, FLAT_ACTIVE));
+
+        setPriority(Constants::P_MODE_WELCOME);
+        setId(Constants::MODE_WELCOME);
+        setContext(Context(Constants::C_WELCOME_MODE));
+
+        m_modeWidget = new WelcomeModeWidget;
+        setWidget(m_modeWidget);
     }
-    auto pageButton = new Button(page->title(), Button::SmallList, m_sideArea->widget());
-    auto pageId = page->id();
-    pageButton->setText(page->title());
 
-    m_buttonGroup->addButton(pageButton);
-    m_pluginList.insert(idx, page);
-    m_pageButtons.insert(idx, pageButton);
+    ~WelcomeMode() { delete m_modeWidget; }
 
-    m_sideArea->m_pluginButtons->insertWidget(idx, pageButton);
-
-    QWidget *stackPage = page->createWidget();
-    stackPage->setAutoFillBackground(true);
-    m_pageStack->insertWidget(idx, stackPage);
-
-    connect(page, &QObject::destroyed, this, [this, page, stackPage, pageButton] {
-        m_buttonGroup->removeButton(pageButton);
-        m_pluginList.removeOne(page);
-        m_pageButtons.removeOne(pageButton);
-        delete pageButton;
-        delete stackPage;
-    });
-
-    auto onClicked = [this, pageId, stackPage] {
-        m_activePage = pageId;
-        m_pageStack->setCurrentWidget(stackPage);
-    };
-
-    connect(pageButton, &Button::clicked, this, onClicked);
-    if (pageId == m_activePage) {
-        onClicked();
-        pageButton->setChecked(true);
+    void extensionsInitialized()
+    {
+        m_modeWidget->initPlugins();
+        ModeManager::activateMode(id());
     }
-}
 
-} // namespace Internal
-} // namespace Welcome
+private:
+    WelcomeModeWidget *m_modeWidget;
+};
+
+class WelcomePlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Welcome.json")
+
+    ~WelcomePlugin() final { delete m_welcomeMode; }
+
+    bool initialize(const QStringList &arguments, QString *) final
+    {
+        m_welcomeMode = new WelcomeMode;
+
+        ActionBuilder(this, "Welcome.UITour")
+            .setText(Tr::tr("UI Tour"))
+            .addToContainer(Core::Constants::M_HELP, Core::Constants::G_HELP_HELP, true)
+            .addOnTriggered(&runUiTour);
+
+        if (!arguments.contains("-notour")) {
+            connect(ICore::instance(), &ICore::coreOpened, this, [] { askUserAboutIntroduction(); },
+            Qt::QueuedConnection);
+        }
+
+        return true;
+    }
+
+    void extensionsInitialized() final
+    {
+        m_welcomeMode->extensionsInitialized();
+    }
+
+    WelcomeMode *m_welcomeMode = nullptr;
+};
+
+} // Welcome::Internal
 
 #include "welcomeplugin.moc"
