@@ -91,12 +91,10 @@ public:
     {
         m_welcomeMode = new WelcomeMode;
 
-        auto introAction = new QAction(Tr::tr("UI Tour"), this);
-        connect(introAction, &QAction::triggered, &runUiTour);
-        Command *cmd = ActionManager::registerAction(introAction, "Welcome.UITour");
-        ActionContainer *mhelp = ActionManager::actionContainer(Core::Constants::M_HELP);
-        if (QTC_GUARD(mhelp))
-            mhelp->addAction(cmd, Core::Constants::G_HELP_HELP);
+        ActionBuilder(this, "Welcome.UITour")
+            .setText(Tr::tr("UI Tour"))
+            .addToContainer(Core::Constants::M_HELP, Core::Constants::G_HELP_HELP, true)
+            .addOnTriggered(&runUiTour);
 
         if (!arguments.contains("-notour")) {
             connect(ICore::instance(), &ICore::coreOpened, this, [] { askUserAboutIntroduction(); },
