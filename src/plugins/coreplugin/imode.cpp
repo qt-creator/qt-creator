@@ -7,6 +7,7 @@
 
 #include <utils/aspects.h>
 #include <utils/fancymainwindow.h>
+#include <utils/qtcassert.h>
 
 #include <aggregation/aggregate.h>
 
@@ -27,6 +28,7 @@ public:
     Utils::Id m_id;
     Context m_context;
     QPointer<QWidget> m_widget;
+    std::function<QWidget *()> m_widgetCreator;
     bool m_isEnabled = true;
     BoolAspect m_isVisible;
 };
@@ -127,7 +129,11 @@ IMode::IMode(QObject *parent)
     ModeManager::addMode(this);
 }
 
-IMode::~IMode() = default;
+IMode::~IMode()
+{
+    if (m_d->m_widgetCreator)
+        delete m_d->m_widget;
+}
 
 QString IMode::displayName() const
 {
@@ -203,7 +209,16 @@ void IMode::setContext(const Context &context)
 
 void IMode::setWidget(QWidget *widget)
 {
+    QTC_ASSERT(!m_d->m_widgetCreator,
+               qWarning("A mode widget should not be set if there is already a widget creator"));
     m_d->m_widget = widget;
+}
+
+void IMode::setWidgetCreator(const std::function<QWidget *()> &widgetCreator)
+{
+    QTC_ASSERT(!m_d->m_widget,
+               qWarning("A mode widget widgetCreator should not be set if there is already a widget"));
+    m_d->m_widgetCreator = widgetCreator;
 }
 
 Utils::FancyMainWindow *IMode::mainWindow()
@@ -257,6 +272,8 @@ Context IMode::context() const
 
 QWidget *IMode::widget() const
 {
+    if (!m_d->m_widget && m_d->m_widgetCreator)
+        m_d->m_widget = m_d->m_widgetCreator();
     return m_d->m_widget;
 }
 

@@ -56,6 +56,7 @@ public:
     void setMenu(std::function<void(QMenu *)> menuFunction);
     void setContext(const Context &context);
     void setWidget(QWidget *widget);
+    void setWidgetCreator(const std::function<QWidget *()> &widgetCreator);
 
     Utils::FancyMainWindow *mainWindow();
     void setMainWindow(Utils::FancyMainWindow *mw);

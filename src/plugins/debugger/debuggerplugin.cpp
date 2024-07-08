@@ -500,13 +500,11 @@ public:
         setPriority(85);
         setId(MODE_DEBUG);
 
-        setWidget(new DebugModeWidget);
+        setWidgetCreator([] { return new DebugModeWidget; });
         setMainWindow(DebuggerMainWindow::instance());
 
         setMenu(&DebuggerMainWindow::addPerspectiveMenu);
     }
-
-    ~DebugMode() { delete widget(); }
 };
 
 ///////////////////////////////////////////////////////////////////////

@@ -74,14 +74,11 @@ EditMode::EditMode()
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,
             this, &EditMode::grabEditorManager);
 
-    setWidget(new EditModeWidget);
+    setWidgetCreator([] { return new EditModeWidget; });
     setContext(Context(Constants::C_EDIT_MODE, Constants::C_NAVIGATION_PANE));
 }
 
-EditMode::~EditMode()
-{
-    delete widget();
-}
+EditMode::~EditMode() = default;
 
 void EditMode::grabEditorManager(Utils::Id mode)
 {
