@@ -64,11 +64,6 @@ static int expectedFilesCount()
     return expectedFilesCountHelper(s_treeDepth) * s_topLevelSubDirsCount + 1; // +1 -> fileTemplate.txt
 }
 
-static int threadsCount()
-{
-    return qMax(QThread::idealThreadCount() - 1, 1); // "- 1" -> left for main thread
-}
-
 static bool generateOriginal(const QString &parentPath, const QString &templateFile, int depth)
 {
     const QDir parentDir(parentPath);
@@ -104,6 +99,11 @@ static void generateCopy(QPromise<void> &promise, const QString &sourcePath,
         promise.future().cancel();
 }
 
+static void removeTree(const QString &parentPath)
+{
+    FilePath::fromString(parentPath).removeRecursively();
+};
+
 class tst_SubDirFileContainer : public QObject
 {
     Q_OBJECT
@@ -121,11 +121,10 @@ private slots:
         qDebug() << "This manual test compares the performance of the SubDirFileContainer with a "
                     "manually written iterator using QDir::entryInfoList() and with QDirIterator.";
         QTC_SCOPED_TIMER("GENERATING TEMPORARY FILES TREE");
-        m_threadsCount = threadsCount();
         m_filesCount = expectedFilesCount();
         m_dirsCount = expectedDirsCount();
         m_tempDir.reset(new QTemporaryDir);
-        qDebug() << "Generating on" << m_threadsCount << "cores...";
+        qDebug() << "Generating on" << qMax(QThread::idealThreadCount() - 1, 1) << "cores...";
         qDebug() << "Generating" << m_filesCount << "files...";
         qDebug() << "Generating" << m_dirsCount << "dirs...";
         qDebug() << "Generating inside" << m_tempDir->path() << "dir...";
@@ -141,43 +140,42 @@ private slots:
         QVERIFY(parentDir.mkdir(sourceDirName));
         QVERIFY(generateOriginal(parentDir.filePath(sourceDirName), templateFile, s_treeDepth));
 
-        const auto onCopySetup = [](const QString &sourcePath, const QString &destPath) {
-            return [sourcePath, destPath](Async<void> &async) {
-                async.setConcurrentCallData(generateCopy, sourcePath, destPath);
-            };
+        const LoopRepeat iterator(s_topLevelSubDirsCount - 1);
+
+        const auto onCopySetup = [iterator, parentDir, sourceDirName](Async<void> &async) {
+            const QString destDirName = dirName(iterator.iteration() + 1);
+            QVERIFY(parentDir.mkdir(destDirName));
+            async.setConcurrentCallData(generateCopy, parentDir.filePath(sourceDirName),
+                                        parentDir.filePath(destDirName));
         };
 
-        // Parallelize tree generation
-        QList<GroupItem> tasks{parallelLimit(m_threadsCount)};
-        for (int i = 1; i < s_topLevelSubDirsCount; ++i) {
-            const QString destDirName = dirName(i);
-            QVERIFY(parentDir.mkdir(destDirName));
-            tasks.append(AsyncTask<void>(onCopySetup(parentDir.filePath(sourceDirName),
-                                                     parentDir.filePath(destDirName))));
-        }
-        QCOMPARE(TaskTree::runBlocking(tasks), DoneWith::Success);
+        const For recipe = {
+            iterator,
+            parallelIdealThreadCountLimit, // Parallelize tree generation
+            AsyncTask<void>(onCopySetup)
+        };
+        QCOMPARE(TaskTree::runBlocking(recipe), DoneWith::Success);
     }
 
     void cleanupTestCase()
     {
         QTC_SCOPED_TIMER("CLEANING UP");
 
-        // Parallelize tree removal
-        const auto removeTree = [](const QString &parentPath) {
-            FilePath::fromString(parentPath).removeRecursively();
-        };
+        const LoopRepeat iterator(s_topLevelSubDirsCount - 1);
 
-        const auto onSetup = [removeTree](const QString &parentPath) {
-            return [parentPath, removeTree](Async<void> &async) {
-                async.setConcurrentCallData(removeTree, parentPath);
-            };
-        };
         const QDir parentDir(m_tempDir->path());
-        QList<GroupItem> tasks {parallelLimit(m_threadsCount)};
-        for (int i = 0; i < s_topLevelSubDirsCount; ++i)
-            tasks.append(AsyncTask<void>(onSetup(parentDir.filePath(dirName(i)))));
+        const auto onSetup = [iterator, parentDir](Async<void> &async) {
+            async.setConcurrentCallData(removeTree,
+                                        parentDir.filePath(dirName(iterator.iteration() + 1)));
+        };
 
-        QCOMPARE(TaskTree::runBlocking(tasks), DoneWith::Success);
+        const For recipe = {
+            iterator,
+            parallelIdealThreadCountLimit, // Parallelize tree removal
+            AsyncTask<void>(onSetup)
+        };
+
+        QCOMPARE(TaskTree::runBlocking(recipe), DoneWith::Success);
 
         m_tempDir.reset();
         Singleton::deleteAll();
@@ -262,7 +260,6 @@ private slots:
     }
 
 private:
-    int m_threadsCount = 1;
     int m_dirsCount = 0;
     int m_filesCount = 0;
     std::unique_ptr<QTemporaryDir> m_tempDir;
