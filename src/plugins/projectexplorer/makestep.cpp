@@ -313,6 +313,10 @@ QWidget *MakeStep::createConfigWidget()
     if (m_disablingForSubDirsSupported)
         builder.addRow({m_disabledForSubdirsAspect});
     builder.addRow({m_buildTargetsAspect});
+    if (m_runAsRootAspect.isVisible()) {
+        m_runAsRootAspect.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
+        builder.addRow({m_runAsRootAspect});
+    }
     builder.setNoMargins();
 
     auto widget = builder.emerge();

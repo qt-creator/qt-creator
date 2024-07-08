@@ -781,6 +781,10 @@ RunAsRootAspect::RunAsRootAspect(AspectContainer *container)
     setId("RunAsRoot");
     setSettingsKey("RunConfiguration.RunAsRoot");
     setLabel(Tr::tr("Run as root user"), LabelPlacement::AtCheckBox);
+
+    // Not technically correct, but sensible approximation.
+    // Client code with more context can override.
+    setVisible(HostOsInfo::isAnyUnixHost());
 }
 
 Interpreter::Interpreter()
