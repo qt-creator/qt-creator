@@ -27,6 +27,7 @@
 #include <solutions/tasking/tasktree.h>
 #include <solutions/tasking/tasktreerunner.h>
 
+#include <utils/algorithm.h>
 #include <utils/elidinglabel.h>
 #include <utils/fancylineedit.h>
 #include <utils/hostosinfo.h>
@@ -58,6 +59,96 @@ Q_LOGGING_CATEGORY(browserLog, "qtc.extensionmanager.browser", QtWarningMsg)
 constexpr int gapSize = HGapL;
 constexpr int itemWidth = 330;
 constexpr int cellWidth = itemWidth + gapSize;
+
+class OptionChooser : public QComboBox
+{
+public:
+    OptionChooser(const FilePath &iconMask, const QString &textTemplate, QWidget *parent = nullptr)
+        : QComboBox(parent)
+        , m_iconDefault(Icon({{iconMask, m_colorDefault}}, Icon::Tint).icon())
+        , m_iconActive(Icon({{iconMask, m_colorActive}}, Icon::Tint).icon())
+        , m_textTemplate(textTemplate)
+    {
+        setMouseTracking(true);
+        connect(this, &QComboBox::currentIndexChanged, this, &QWidget::updateGeometry);
+    }
+
+protected:
+    void paintEvent([[maybe_unused]] QPaintEvent *event) override
+    {
+        // +------------+------+---------+---------------+------------+
+        // |            |      |         |  (VPaddingXs) |            |
+        // |            |      |         +---------------+            |
+        // |(HPaddingXs)|(icon)|(HGapXxs)|<template%item>|(HPaddingXs)|
+        // |            |      |         +---------------+            |
+        // |            |      |         |  (VPaddingXs) |            |
+        // +------------+------+---------+---------------+------------+
+
+        const bool active = currentIndex() > 0;
+        const bool hover = underMouse();
+        const TextFormat &tF = (active || hover) ? m_itemActiveTf : m_itemDefaultTf;
+
+        const QRect iconRect(HPaddingXs, 0, m_iconSize.width(), height());
+        const int textX = iconRect.right() + 1 + HGapXxs;
+        const QRect textRect(textX, VPaddingXs,
+                             width() - HPaddingXs - textX, tF.lineHeight());
+
+        QPainter p(this);
+        (active ? m_iconActive : m_iconDefault).paint(&p, iconRect);
+        p.setPen(tF.color());
+        p.setFont(tF.font());
+        const QString elidedText = p.fontMetrics().elidedText(currentFormattedText(),
+                                                              Qt::ElideRight,
+                                                              textRect.width() + HPaddingXs);
+        p.drawText(textRect, tF.drawTextFlags, elidedText);
+    }
+
+    void enterEvent(QEnterEvent *event) override
+    {
+        QComboBox::enterEvent(event);
+        update();
+    }
+
+    void leaveEvent(QEvent *event) override
+    {
+        QComboBox::leaveEvent(event);
+        update();
+    }
+
+private:
+    QSize sizeHint() const override
+    {
+        const QFontMetrics fm(m_itemDefaultTf.font());
+        const int textWidth = fm.horizontalAdvance(currentFormattedText());
+        const int width =
+            HPaddingXs
+            + m_iconSize.width()
+            + HGapXxs
+            + textWidth
+            + HPaddingXs;
+        const int height =
+            VPaddingXs
+            + m_itemDefaultTf.lineHeight()
+            + VPaddingXs;
+        return {width, height};
+    }
+
+    QString currentFormattedText() const
+    {
+        return m_textTemplate.arg(currentText());
+    }
+
+    constexpr static Theme::Color m_colorDefault = Theme::Token_Text_Muted;
+    constexpr static Theme::Color m_colorActive = Theme::Token_Text_Default;
+    constexpr static QSize m_iconSize{16, 16};
+    constexpr static TextFormat m_itemDefaultTf
+        {m_colorDefault, UiElement::UiElementLabelMedium};
+    constexpr static TextFormat m_itemActiveTf
+        {m_colorActive, m_itemDefaultTf.uiElement};
+    const QIcon m_iconDefault;
+    const QIcon m_iconActive;
+    const QString m_textTemplate;
+};
 
 static QString extensionStateDisplayString(ExtensionState state)
 {
@@ -280,28 +371,104 @@ public:
 class SortFilterProxyModel : public QSortFilterProxyModel
 {
 public:
-    SortFilterProxyModel(QObject *parent = nullptr);
+    struct SortOption {
+        const QString displayName;
+        const Role role;
+        const Qt::SortOrder order = Qt::AscendingOrder;
+    };
+
+    struct FilterOption {
+        const QString displayName;
+        const std::function<bool(const QModelIndex &)> indexAcceptedFunc;
+    };
+
+    SortFilterProxyModel(QObject *parent = nullptr)
+        : QSortFilterProxyModel(parent)
+    {
+        setSortCaseSensitivity(Qt::CaseInsensitive);
+    }
+
+    static const QList<SortOption> &sortOptions()
+    {
+        static const QList<SortOption> options = {
+            {Tr::tr("Name"), RoleName},
+            {Tr::tr("Vendor"), RoleVendor},
+            {Tr::tr("Popularity"), RoleDownloadCount, Qt::DescendingOrder},
+        };
+        return options;
+    }
+
+    void setSortOption(int index)
+    {
+        QTC_ASSERT(index < sortOptions().count(), index = 0);
+        m_sortOptionIndex = index;
+        const SortOption &option = sortOptions().at(index);
+
+        // Ensure some order for cases with insufficient data, e.g. RoleDownloadCount
+        setSortRole(RoleName);
+        sort(0);
+        if (option.role == RoleName)
+            return; // Already sorted.
+
+        setSortRole(option.role);
+        sort(0, option.order);
+    }
+
+    static const QList<FilterOption> &filterOptions()
+    {
+        static const QList<FilterOption> options = {
+            {
+                Tr::tr("All"),
+                []([[maybe_unused]] const QModelIndex &index) {
+                    return true;
+                },
+            },
+            {
+                Tr::tr("Extension packs"),
+                [](const QModelIndex &index) {
+                    return index.data(RoleItemType).value<ItemType>() == ItemTypePack;
+                },
+            },
+            {
+                Tr::tr("Individual extensions"),
+                [](const QModelIndex &index) {
+                    return index.data(RoleItemType).value<ItemType>() == ItemTypeExtension;
+                },
+            },
+        };
+        return options;
+    }
+
+    void setFilterOption(int index)
+    {
+        QTC_ASSERT(index < filterOptions().count(), index = 0);
+        beginResetModel();
+        m_filterOptionIndex = index;
+        endResetModel();
+    }
 
 protected:
-    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
+    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override
+    {
+        const SortOption &option = sortOptions().at(m_sortOptionIndex);
+        const ItemType leftType = left.data(RoleItemType).value<ItemType>();
+        const ItemType rightType = right.data(RoleItemType).value<ItemType>();
+        if (leftType != rightType)
+            return option.order == Qt::AscendingOrder ? leftType < rightType
+                                                      : leftType > rightType;
+
+        return QSortFilterProxyModel::lessThan(left, right);
+    }
+
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override
+    {
+        const QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
+        return filterOptions().at(m_filterOptionIndex).indexAcceptedFunc(index);
+    }
+
+    int m_filterOptionIndex = 0;
+    int m_sortOptionIndex = 0;
 };
-
-SortFilterProxyModel::SortFilterProxyModel(QObject *parent)
-    : QSortFilterProxyModel(parent)
-{
-}
-
-bool SortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
-{
-    const ItemType leftType = left.data(RoleItemType).value<ItemType>();
-    const ItemType rightType = right.data(RoleItemType).value<ItemType>();
-    if (leftType != rightType)
-        return leftType < rightType;
-
-    const QString leftName = left.data(RoleName).toString();
-    const QString rightName = right.data(RoleName).toString();
-    return leftName < rightName;
-}
 
 class ExtensionsBrowserPrivate
 {
@@ -309,9 +476,12 @@ public:
     bool dataFetched = false;
     ExtensionsModel *model;
     QLineEdit *searchBox;
+    OptionChooser *filterChooser;
+    OptionChooser *sortChooser;
     QListView *extensionsView;
     QItemSelectionModel *selectionModel = nullptr;
-    SortFilterProxyModel *filterProxyModel;
+    QSortFilterProxyModel *searchProxyModel;
+    SortFilterProxyModel *sortFilterProxyModel;
     int columnsCount = 2;
     Tasking::TaskTreeRunner taskTreeRunner;
     SpinnerSolution::Spinner *m_spinner;
@@ -333,11 +503,22 @@ ExtensionsBrowser::ExtensionsBrowser(QWidget *parent)
 
     d->model = new ExtensionsModel(this);
 
-    d->filterProxyModel = new SortFilterProxyModel(this);
-    d->filterProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    d->filterProxyModel->setFilterRole(RoleSearchText);
-    d->filterProxyModel->setSortRole(RoleItemType);
-    d->filterProxyModel->setSourceModel(d->model);
+    d->searchProxyModel = new QSortFilterProxyModel(this);
+    d->searchProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    d->searchProxyModel->setFilterRole(RoleSearchText);
+    d->searchProxyModel->setSourceModel(d->model);
+
+    d->sortFilterProxyModel = new SortFilterProxyModel(this);
+    d->sortFilterProxyModel->setSourceModel(d->searchProxyModel);
+
+    d->filterChooser = new OptionChooser(":/extensionmanager/images/filter.png",
+                                         Tr::tr("Filter by: %1"));
+    d->filterChooser->addItems(Utils::transform(SortFilterProxyModel::filterOptions(),
+                                                &SortFilterProxyModel::FilterOption::displayName));
+
+    d->sortChooser = new OptionChooser(":/extensionmanager/images/sort.png", Tr::tr("Sort by: %1"));
+    d->sortChooser->addItems(Utils::transform(SortFilterProxyModel::sortOptions(),
+                                              &SortFilterProxyModel::SortOption::displayName));
 
     d->extensionsView = new QListView;
     d->extensionsView->setFrameStyle(QFrame::NoFrame);
@@ -346,7 +527,7 @@ ExtensionsBrowser::ExtensionsBrowser(QWidget *parent)
     d->extensionsView->setSelectionMode(QListView::SingleSelection);
     d->extensionsView->setUniformItemSizes(true);
     d->extensionsView->setViewMode(QListView::IconMode);
-    d->extensionsView->setModel(d->filterProxyModel);
+    d->extensionsView->setModel(d->sortFilterProxyModel);
     d->extensionsView->setMouseTracking(true);
 
     using namespace Layouting;
@@ -360,7 +541,13 @@ ExtensionsBrowser::ExtensionsBrowser(QWidget *parent)
             spacing(gapSize),
             customMargins(0, VPaddingM, extraListViewWidth() + gapSize, VPaddingM),
         },
-        Space(ExPaddingGapL),
+        Row {
+            d->filterChooser,
+            Space(HGapS),
+            d->sortChooser,
+            st,
+            customMargins(0, 0, extraListViewWidth() + gapSize, 0),
+        },
         d->extensionsView,
         noMargin, spacing(0),
     }.attachTo(this);
@@ -374,10 +561,10 @@ ExtensionsBrowser::ExtensionsBrowser(QWidget *parent)
     d->m_spinner->hide();
 
     auto updateModel = [this] {
-        d->filterProxyModel->sort(0);
+        d->sortFilterProxyModel->sort(0);
 
         if (d->selectionModel == nullptr) {
-            d->selectionModel = new QItemSelectionModel(d->filterProxyModel,
+            d->selectionModel = new QItemSelectionModel(d->sortFilterProxyModel,
                                                           d->extensionsView);
             d->extensionsView->setSelectionModel(d->selectionModel);
             connect(d->extensionsView->selectionModel(), &QItemSelectionModel::currentChanged,
@@ -387,7 +574,11 @@ ExtensionsBrowser::ExtensionsBrowser(QWidget *parent)
 
     connect(PluginManager::instance(), &PluginManager::pluginsChanged, this, updateModel);
     connect(d->searchBox, &QLineEdit::textChanged,
-            d->filterProxyModel, &QSortFilterProxyModel::setFilterWildcard);
+            d->searchProxyModel, &QSortFilterProxyModel::setFilterWildcard);
+    connect(d->sortChooser, &OptionChooser::currentIndexChanged,
+            d->sortFilterProxyModel, &SortFilterProxyModel::setSortOption);
+    connect(d->filterChooser, &OptionChooser::currentIndexChanged,
+            d->sortFilterProxyModel, &SortFilterProxyModel::setFilterOption);
 }
 
 ExtensionsBrowser::~ExtensionsBrowser()

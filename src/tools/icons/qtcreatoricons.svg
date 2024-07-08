@@ -3907,6 +3907,44 @@
          id="path10003" />
     </g>
     <g
+       id="src/plugins/extensionmanager/images/filter">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="use9-9"
+         transform="translate(98,-28)"
+         width="100%"
+         height="100%" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter"
+         d="m 85.5,411 h 8 l -3.5,5.5 v 3 l -1,1 v -4 z"
+         id="path12" />
+    </g>
+    <g
+       id="src/plugins/extensionmanager/images/sort">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect"
+         id="use19"
+         transform="translate(115,-28)"
+         width="100%"
+         height="100%" />
+      <path
+         id="path17"
+         style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter"
+         d="m 101,414.5 3,-3 3,3 m -3,6.5 v -9" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#path17"
+         id="use21"
+         transform="rotate(180,107,416.5)"
+         width="100%"
+         height="100%" />
+    </g>
+    <g
        id="src/libs/utils/images/eyeoverlay">
       <use
          style="display:inline"
