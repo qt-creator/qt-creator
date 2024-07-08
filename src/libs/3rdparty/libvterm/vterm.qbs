@@ -30,6 +30,6 @@ QtcLibrary {
 
     Export {
         Depends { name: "cpp" }
-        cpp.includePaths: "include"
+        cpp.includePaths: exportingProduct.sourceDirectory + "/include"
     }
 }
