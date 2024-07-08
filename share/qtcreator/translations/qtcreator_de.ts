@@ -47061,7 +47061,7 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
     </message>
     <message>
         <source>JavaScript can break the visual tooling in Qt Design Studio.</source>
-        <translation type="unfinished"></translation>
+        <translation>JavaScript kann das visuelle Tooling in Qt Design Studio stören.</translation>
     </message>
     <message>
         <source>Duplicate import (%1).</source>
@@ -47446,23 +47446,23 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Turn on</source>
-        <translation type="unfinished"></translation>
+        <translation>Einschalten</translation>
     </message>
     <message>
         <source>Allow versions below Qt %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Versionen niedriger als Qt %1 erlauben</translation>
     </message>
     <message>
         <source>Use advanced features (renaming, find usages, and so on) (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterte Funktionen verwenden (umbenennen, Verweise finden und weiteres) (experimentell)</translation>
     </message>
     <message>
         <source>Use from latest Qt version</source>
-        <translation type="unfinished"></translation>
+        <translation>Neueste Qt-Version verwenden</translation>
     </message>
     <message>
         <source>Create .qmlls.ini files for new projects</source>
-        <translation type="unfinished"></translation>
+        <translation>.qmlls.ini-Dateien für neue Projekte erstellen</translation>
     </message>
     <message>
         <source>QML Language Server</source>
@@ -50080,13 +50080,15 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
     <message>
         <source>Use SSH port forwarding for debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>SSH-Portweiterleitung zum Debuggen verwenden</translation>
     </message>
     <message>
         <source>Enable debugging on remote targes which cannot expose gdbserver ports.
 The ssh tunneling is used to map the remote gdbserver port to localhost.
 The local and remote ports are determined automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mache Debuggen auf entfernten Zielen möglich, die gdbserver-Ports nicht direkt bereitstellen können.
+Es wird SSH-Tunneling verwendet, um die entfernten gdbserver-Ports auf localhost abzubilden.
+Die lokalen und entfernten Ports werden automatisch bestimmt.</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
@@ -50189,7 +50191,7 @@ Der Steuerprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Device &quot;%1&quot; is disconnected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerät &quot;%1&quot; ist nicht verbunden.</translation>
     </message>
     <message>
         <source>Remote Linux</source>
@@ -50214,17 +50216,19 @@ Der Steuerprozess konnte nicht gestartet werden.</translation>
     <message>
         <source>Created directory: &quot;%1&quot;.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis wurde erstellt: &quot;%1&quot;.
+</translation>
     </message>
     <message>
         <source>Copied %1/%2: &quot;%3&quot; -&gt; &quot;%4&quot;.
 </source>
         <extracomment>%1/%2 = progress in the form 4/15, %3 and %4 = source and target file paths</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1/%2 kopiert: &quot;%3 -&gt; &quot;%4&quot;.
+</translation>
     </message>
     <message>
         <source>Failed to deploy files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Deployment der Dateien ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Device is considered unconnected. Re-run device test to reset state.</source>
@@ -50366,15 +50370,15 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>%1 failed to start: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 konnte nicht gestartet werden: %2</translation>
     </message>
     <message>
         <source>%1 crashed.</source>
-        <translation type="unfinished">%1 ist abgestürzt.</translation>
+        <translation>%1 ist abgestürzt.</translation>
     </message>
     <message>
         <source>%1 failed with exit code %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ist mit Rückgabewert %2 fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Deploy files</source>
@@ -50752,7 +50756,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Cropping</source>
-        <translation type="unfinished"></translation>
+        <translation>Zuschneiden</translation>
     </message>
     <message>
         <source>Crop and Trim...</source>
@@ -54517,15 +54521,15 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
     <message>
         <source>Open Type Hierarchy</source>
-        <translation type="unfinished">Klassenhierarchie öffnen</translation>
+        <translation>Klassenhierarchie öffnen</translation>
     </message>
     <message>
         <source>Meta+Shift+T</source>
-        <translation type="unfinished">Meta+Shift+T</translation>
+        <translation>Meta+Shift+T</translation>
     </message>
     <message>
         <source>Ctrl+Shift+T</source>
-        <translation type="unfinished">Ctrl+Shift+T</translation>
+        <translation>Ctrl+Shift+T</translation>
     </message>
     <message>
         <source>Move the View a Page Up and Keep the Cursor Position</source>
@@ -54713,23 +54717,23 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
     <message>
         <source>Sort Lines</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeilen sortieren</translation>
     </message>
     <message>
         <source>Go to Previous Word (Camel Case)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zum vorhergehenden Wort springen (Camel Case)</translation>
     </message>
     <message>
         <source>Go to Next Word (Camel Case)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zum nächsten Wort springen (Camel Case)</translation>
     </message>
     <message>
         <source>Go to Previous Word (Camel Case) with Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorhergehendes Wort markieren (Camel Case)</translation>
     </message>
     <message>
         <source>Go to Next Word (Camel Case) with Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Nächstes Wort markieren (Camel Case)</translation>
     </message>
     <message>
         <source>Meta+Shift+S</source>
@@ -55969,15 +55973,15 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Type Hierarchy</source>
-        <translation type="unfinished">Klassenhierarchie</translation>
+        <translation>Typenhierarchie</translation>
     </message>
     <message>
         <source>No type hierarchy available</source>
-        <translation type="unfinished">Keine Klassenhierarchie verfügbar</translation>
+        <translation>Keine Typenhierarchie verfügbar</translation>
     </message>
     <message>
         <source>Reloads the type hierarchy for the symbol under the cursor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lädt die Typenhierarchie für das Symbol unter der Einfügemarke neu.</translation>
     </message>
 </context>
 <context>
@@ -56735,7 +56739,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>watch is not implemented.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;watch&quot; ist nicht implementiert.</translation>
     </message>
     <message>
         <source>Refusing to remove the standard directory &quot;%1&quot;.</source>
@@ -57206,11 +57210,11 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Failed to open output file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Ausgabedatei konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Failed to write output file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Ausgabedatei konnte nicht geschrieben werden.</translation>
     </message>
     <message>
         <source>Command failed.</source>
@@ -57241,7 +57245,7 @@ in &quot;%2&quot; aus.
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished">Vorgabe</translation>
+        <translation>Vorgabe</translation>
     </message>
     <message>
         <source>Show %1 Column</source>
@@ -57318,7 +57322,14 @@ To prepend to a variable, use VARIABLE=+VALUE.
 Existing variables can be referenced in a VALUE with ${OTHER}.
 To clear a variable, put its name on a line with nothing else on it.
 Lines starting with &quot;##&quot; will be treated as comments.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie eine Umgebungsvariable pro Zeile ein.
+Um eine Variable zu setzen oder zu ändern, verwenden Sie VARIABLE=WERT.
+Um eine Variable zu deaktivieren, stellen Sie der Zeile &quot;#&quot; voran.
+Um einen Wert an eine Variable anzufügen, verwenden Sie VARIABLE+=WERT.
+Um einen Wert einer Variable voranzustellen, verwenden Sie VARIABLE=+WERT.
+Existierende Variablen können in einem WERT mit ${ANDERE} verwendet werden.
+Um eine Variable zu leeren, schreiben Sie nichts als ihren Namen in eine Zeile.
+Zeilen, die mit &quot;##&quot; beginnen, werden als Kommentare behandelt.</translation>
     </message>
     <message>
         <source>&amp;OK</source>
@@ -57436,7 +57447,7 @@ Lines starting with &quot;##&quot; will be treated as comments.</source>
     </message>
     <message>
         <source>No Lua interface set</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Lua-Schnittstelle eingestellt</translation>
     </message>
 </context>
 <context>
