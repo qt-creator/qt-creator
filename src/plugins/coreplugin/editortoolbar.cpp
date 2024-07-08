@@ -193,8 +193,12 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
        menu.exec(d->m_editorList->mapToGlobal(p));
     });
     connect(d->m_dragHandleMenu, &QMenu::aboutToShow, this, [this] {
-       d->m_dragHandleMenu->clear();
        fillListContextMenu(d->m_dragHandleMenu);
+    });
+    connect(d->m_dragHandleMenu, &QMenu::aboutToHide, this, [this] {
+        // Remove actions from context menu, to avoid any shortcuts set on them
+        // for the display in the menu interfering with global actions
+        d->m_dragHandleMenu->clear();
     });
     connect(d->m_lockButton, &QAbstractButton::clicked, this, &EditorToolBar::makeEditorWritable);
     connect(d->m_closeEditorButton, &QAbstractButton::clicked,
