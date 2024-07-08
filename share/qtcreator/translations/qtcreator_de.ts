@@ -38955,7 +38955,7 @@ Außer: %2
     <message>
         <source>compile-output.txt</source>
         <extracomment>file name suggested for saving compile output</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>kompilierungsausgabe.txt</translation>
     </message>
     <message>
         <source>Show Compile &amp;Output</source>
@@ -39315,7 +39315,7 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
     </message>
     <message>
         <source>Open Workspace...</source>
-        <translation type="unfinished"></translation>
+        <translation>Workspace öffnen...</translation>
     </message>
     <message>
         <source>Open File</source>
@@ -39641,7 +39641,7 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Open Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>Workspace öffnen</translation>
     </message>
     <message>
         <source>Sanitizer</source>
@@ -40299,19 +40299,19 @@ Rename %2 to %3 anyway?</source>
     </message>
     <message>
         <source>No build device is set for the kit &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es ist kein Gerät (Erstellung) für das Kit &quot;%1&quot; eingerichtet.</translation>
     </message>
     <message>
         <source>You can try mounting the folder in your device settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie können in den Geräteeinstellungen versuchen, das Verzeichnis einzuhängen.</translation>
     </message>
     <message>
         <source>The build device &quot;%1&quot; cannot reach the project directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Gerät &quot;%1&quot; für das Erstellen kann das Projektverzeichnis nicht erreichen.</translation>
     </message>
     <message>
         <source>The build device &quot;%1&quot; cannot reach the build directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Gerät &quot;%1&quot; für das Erstellen kann das Build-Verzeichnis nicht erreichen.</translation>
     </message>
     <message>
         <source>Default</source>
@@ -40604,7 +40604,7 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     <message>
         <source>application-output-%1.txt</source>
         <extracomment>file name suggested for saving application output, %1 = run configuration display name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>anwendungsausgabe-%1.txt</translation>
     </message>
     <message>
         <source>Application Output</source>
@@ -42960,7 +42960,8 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     <message>
         <source>* Did not find a JSON object in &quot;%1&quot;.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>* Konnte kein JSON-Objekt in &quot;%1&quot; finden.
+</translation>
     </message>
     <message>
         <source>* Version %1 not supported.</source>
@@ -43117,7 +43118,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     <message>
         <source>%1: Full path to Project Directory.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1: Vollständiger Pfad zum Projektverzeichnis.</translation>
     </message>
     <message>
         <source>%1: The name of the active kit.</source>
@@ -43472,11 +43473,11 @@ Sie werden erhalten.</numerusform>
     </message>
     <message>
         <source>Show All Kits</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Kits anzeigen</translation>
     </message>
     <message>
         <source>Hide Inactive Kits</source>
-        <translation type="unfinished"></translation>
+        <translation>Inaktive Kits verbergen</translation>
     </message>
     <message>
         <source>Enable Kit for Project &quot;%1&quot;</source>
@@ -43673,11 +43674,11 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Emulator</source>
-        <translation type="unfinished">Emulator</translation>
+        <translation>Emulator</translation>
     </message>
     <message>
         <source>Launcher:</source>
-        <translation type="unfinished"></translation>
+        <translation>Startprogramm:</translation>
     </message>
     <message>
         <source>X11 Forwarding:</source>
@@ -44133,11 +44134,11 @@ Was soll %1 tun?</translation>
     <message>
         <source>s</source>
         <extracomment>Suffix for &quot;seconds&quot;</extracomment>
-        <translation type="unfinished">s</translation>
+        <translation>s</translation>
     </message>
     <message>
         <source>The amount of seconds to wait between a &quot;soft kill&quot; and a &quot;hard kill&quot; of a running application.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Zeit in Sekunden, die zwischen einem &quot;soft kill&quot; und einem &quot;hard kill&quot; einer laufenden Anwendung gewartet werden soll.</translation>
     </message>
     <message>
         <source>Current directory</source>
@@ -44237,11 +44238,11 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Show all kits in &quot;Build &amp; Run&quot; in &quot;Projects&quot; mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Kits in &quot;Erstellung und Ausführung&quot; im Modus &quot;Projekte&quot; anzeigen</translation>
     </message>
     <message>
         <source>Show also inactive kits in &quot;Build &amp; Run&quot; in &quot;Projects&quot; mode.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeige auch inaktive Kits in &quot;Erstellung und Ausführung&quot; im Modus &quot;Projekte&quot;.</translation>
     </message>
     <message>
         <source>Environment changes to apply to run configurations, but not build configurations.</source>
@@ -44277,7 +44278,7 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Time to wait before force-stopping applications:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu wartende Zeit vor dem erzwungenen Beenden von Anwendungen:</translation>
     </message>
     <message>
         <source>Files</source>
@@ -44377,7 +44378,7 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Template used to construct the default build directory.&lt;br&gt;&lt;br&gt;The default value can be set using the environment variable &lt;tt&gt;%1&lt;/tt&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorlage für das Standard-Build-Verzeichnis.&lt;br&gt;&lt;br&gt;Der Standardwert kann über die Umgebungsvariable &lt;tt&gt;%1&lt;/tt&gt; gesetzt werden.</translation>
     </message>
     <message>
         <source>QML debugging:</source>
@@ -44600,15 +44601,15 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>You can edit this configuration inside the .qtcreator/project.json file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie können diese Konfiguration über die Datei &quot;.qtcreator/project.json&quot; bearbeiten.</translation>
     </message>
     <message>
         <source>Exclude from Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Vom Projekt ausschließen</translation>
     </message>
     <message>
         <source>Rescan Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>Workspace erneut durchsuchen</translation>
     </message>
 </context>
 <context>
@@ -44771,28 +44772,28 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Update Requirements</source>
-        <translation type="unfinished"></translation>
+        <translation>Requirements aktualisieren</translation>
     </message>
     <message>
         <source>Install Requirements</source>
-        <translation type="unfinished"></translation>
+        <translation>Requirements installieren</translation>
     </message>
     <message>
         <source>Update %1</source>
         <extracomment>%1 = package name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 aktualisieren</translation>
     </message>
     <message>
         <source>Install %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 installieren</translation>
     </message>
     <message>
         <source>Update Packages</source>
-        <translation type="unfinished"></translation>
+        <translation>Pakete aktualisieren</translation>
     </message>
     <message>
         <source>Install Packages</source>
-        <translation type="unfinished"></translation>
+        <translation>Pakete installieren</translation>
     </message>
     <message>
         <source>Running &quot;%1&quot; to install %2.</source>
@@ -44897,19 +44898,19 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Update Python language server (PyLS) for %1 (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Python Language Server (PyLS) für %1 (%2) aktualisieren.</translation>
     </message>
     <message>
         <source>Always Update</source>
-        <translation type="unfinished"></translation>
+        <translation>Immer aktualisieren</translation>
     </message>
     <message>
         <source>Update</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualisieren</translation>
     </message>
     <message>
         <source>Never</source>
-        <translation type="unfinished">Niemals</translation>
+        <translation>Niemals</translation>
     </message>
     <message>
         <source>Searching Python binaries...</source>
@@ -45937,7 +45938,7 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
     <message>
         <source>Unable to start &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; kann nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Qt Widgets Designer is not responding (%1).</source>
