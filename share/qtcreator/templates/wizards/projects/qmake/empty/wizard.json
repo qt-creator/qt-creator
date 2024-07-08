@@ -12,7 +12,7 @@
     "enabled": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0}",
     "options":
     [
-        { "key": "ProFileName", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'pro')}" },
+        { "key": "ProFileName", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'pro')}" }
     ],
 
     "pages":
