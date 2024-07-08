@@ -493,27 +493,28 @@ ShowController::ShowController(IDocument *document, const QString &id)
         data->m_follows = {busyMessage};
         data->m_follows.resize(parents.size());
 
-        const auto onFollowsError = [data, updateDescription] {
+        const LoopList iterator(parents);
+        const auto onFollowSetup = [this, iterator](Process &process) {
+            setupCommand(process, {"describe", "--tags", "--abbrev=0", *iterator});
+        };
+        const auto onFollowDone = [data, updateDescription, iterator](const Process &process) {
+            data->m_follows[iterator.iteration()] = process.cleanedStdOut().trimmed();
+            updateDescription(*data);
+        };
+
+        const auto onDone = [data, updateDescription] {
             data->m_follows.clear();
             updateDescription(*data);
         };
 
-        QList<GroupItem> tasks {
+        const Group recipe {
             parallel,
             continueOnSuccess,
-            onGroupDone(onFollowsError, CallDoneIf::Error)
+            iterator,
+            ProcessTask(onFollowSetup, onFollowDone, CallDoneIf::Success),
+            onGroupDone(onDone, CallDoneIf::Error)
         };
-        for (int i = 0, total = parents.size(); i < total; ++i) {
-            const auto onFollowSetup = [this, parent = parents.at(i)](Process &process) {
-                setupCommand(process, {"describe", "--tags", "--abbrev=0", parent});
-            };
-            const auto onFollowDone = [data, updateDescription, i](const Process &process) {
-                data->m_follows[i] = process.cleanedStdOut().trimmed();
-                updateDescription(*data);
-            };
-            tasks.append(ProcessTask(onFollowSetup, onFollowDone, CallDoneIf::Success));
-        }
-        taskTree.setRecipe(tasks);
+        taskTree.setRecipe(recipe);
     };
 
     const auto onDiffSetup = [this, id](Process &process) {
