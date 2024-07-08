@@ -752,11 +752,13 @@ int main(int argc, char **argv)
                 break;
             }
             Q_UNUSED(translator.load(QString())); // unload()
-        } else if (locale == QLatin1String("C") /* overrideLanguage == "English" */) {
-            // use built-in
-            break;
-        } else if (locale.startsWith(QLatin1String("en")) /* "English" is built-in */) {
-            // use built-in
+        } else if (
+            locale == QLatin1String("C") /* overrideLanguage == "English" */
+            || locale.startsWith(QLatin1String("en")) /* "English" is built-in */) {
+            // Load any spelling fixes that might have been done temporarily after string freeze,
+            // for the rest use the built-in source text
+            if (translator.load("qtcreator_en", creatorTrPath))
+                app.installTranslator(&translator);
             break;
         }
     }
