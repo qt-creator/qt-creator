@@ -54,8 +54,11 @@ public:
     a configurable layout of debugging related information. Design mode
     reserves all the main window's space for the graphical editor.
 
-    A mode is an IContext. Set the context's \l{IContext::widget()}{widget}
-    to define the mode's layout.
+    When a mode gets selected, a context is added and a widget is shown.
+    Use \l{IMode::setContext()} to set the context, and either
+    \l{IMode::setWidget()} to set the widget directly or
+    \l{IMode::setWidgetCreator()} to define a functor that is used when the
+    widget is needed.
 
     Adding a mode should be done sparingly, only as a last reserve. Consider if
     your feature can instead be implemented as a INavigationWidgetFactory,
@@ -202,11 +205,23 @@ void IMode::setMenu(std::function<void(QMenu *)> menuFunction)
     m_d->m_menuFunction = menuFunction;
 }
 
+/*!
+    Sets the \a context associated with this IMode.
+
+    \sa context()
+*/
 void IMode::setContext(const Context &context)
 {
     m_d->m_context = context;
 }
 
+/*!
+    Sets the \a widget associated with this IMode.
+
+    \note The ownership of the passed widget is not changed.
+
+    \sa widget(), setWidgetCreator()
+*/
 void IMode::setWidget(QWidget *widget)
 {
     QTC_ASSERT(!m_d->m_widgetCreator,
@@ -214,6 +229,14 @@ void IMode::setWidget(QWidget *widget)
     m_d->m_widget = widget;
 }
 
+/*!
+    Sets the \a widgetCreator to create the widget associated with this IMode
+    when needed.
+
+    \note The mode itself takes the ownership of the created widget.
+
+    \sa widget(), setWidget()
+*/
 void IMode::setWidgetCreator(const std::function<QWidget *()> &widgetCreator)
 {
     QTC_ASSERT(!m_d->m_widget,
@@ -265,11 +288,21 @@ void IMode::addToMenu(QMenu *menu) const
         m_d->m_menuFunction(menu);
 }
 
+/*!
+    Returns the context list associated with this IMode.
+
+    \sa setContext()
+*/
 Context IMode::context() const
 {
     return m_d->m_context;
 }
 
+/*!
+    Returns the widget associated with this IMode.
+
+    \sa setWidget()
+*/
 QWidget *IMode::widget() const
 {
     if (!m_d->m_widget && m_d->m_widgetCreator)
