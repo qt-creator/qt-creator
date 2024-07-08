@@ -777,6 +777,8 @@ void BaseAspect::addMacroExpansion(QWidget *w)
         return;
     const auto chooser = new VariableChooser(w);
     chooser->addSupportedWidget(w);
+    if (d->m_expander == globalMacroExpander()) // default for VariableChooser()
+        return;
     chooser->addMacroExpanderProvider([this] { return d->m_expander; });
     if (auto pathChooser = qobject_cast<PathChooser *>(w))
         pathChooser->setMacroExpander(d->m_expander);

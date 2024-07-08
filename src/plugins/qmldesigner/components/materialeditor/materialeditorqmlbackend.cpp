@@ -315,7 +315,7 @@ void MaterialEditorQmlBackend::emitSelectionChanged()
 void MaterialEditorQmlBackend::setValueforAuxiliaryProperties(const QmlObjectNode &qmlObjectNode,
                                                               AuxiliaryDataKeyView key)
 {
-    const PropertyName propertyName = auxNamePostFix(PropertyName(key.name));
+    const PropertyName propertyName = auxNamePostFix(key.name.toByteArray());
     setValue(qmlObjectNode, propertyName, qmlObjectNode.modelNode().auxiliaryDataWithDefault(key));
 }
 

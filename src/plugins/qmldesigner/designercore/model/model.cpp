@@ -109,7 +109,7 @@ ModelPrivate::ModelPrivate(Model *model,
     changeImports(std::move(imports), {});
 
     m_rootInternalNode = createNode(
-        TypeName{typeName}, -1, -1, {}, {}, {}, ModelNode::NodeWithoutSource, {}, true);
+        typeName, -1, -1, {}, {}, {}, ModelNode::NodeWithoutSource, {}, true);
 
     m_currentStateNode = m_rootInternalNode;
     m_currentTimelineNode = m_rootInternalNode;
@@ -285,7 +285,7 @@ void ModelPrivate::changeNodeType(const InternalNodePointer &node, const TypeNam
     }
 }
 
-InternalNodePointer ModelPrivate::createNode(const TypeName &typeName,
+InternalNodePointer ModelPrivate::createNode(TypeNameView typeName,
                                              int majorVersion,
                                              int minorVersion,
                                              const QList<QPair<PropertyName, QVariant>> &propertyList,

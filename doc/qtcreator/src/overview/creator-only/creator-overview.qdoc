@@ -8,11 +8,11 @@
 // **********************************************************************
 
 /*!
-    \previouspage index.html
+    \previouspage creator-getting-started.html
     \page creator-overview.html
-    \nextpage creator-getting-started.html
+    \nextpage creator-quick-tour.html
 
-    \title Developing with \QC
+    \title Overview
 
     \QC is a cross-platform, complete integrated development environment
     (IDE) that you can use to create applications for desktop, embedded,

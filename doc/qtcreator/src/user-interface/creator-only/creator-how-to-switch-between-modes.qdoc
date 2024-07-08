@@ -27,7 +27,7 @@
         \li Purpose
         \li Read More
     \row
-        \li {1,7} \inlineimage qtcreator-mode-selector.png
+        \li {1,8} \inlineimage qtcreator-mode-selector.webp {Mode selector}
     \row
         \li \uicontrol Welcome
         \li \key Ctrl+1
@@ -57,8 +57,13 @@
             This mode is available when a project is open.
         \li \l{Configuring Projects}
     \row
-        \li \uicontrol Help
+        \li \uicontrol Extensions
         \li \key Ctrl+6
+        \li Load \QC extensions from the computer or the web.
+        \li \l{Load extensions}
+    \row
+        \li \uicontrol Help
+        \li \key Ctrl+7
         \li Read documentation.
         \li \l{Get help}
     \endtable

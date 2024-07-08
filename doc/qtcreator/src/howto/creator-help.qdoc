@@ -42,7 +42,7 @@
     The following image shows the context sensitive help in the \uicontrol Edit
     mode.
 
-    \image qtcreator-context-sensitive-help.png {Context-sensitive help in Edit mode}
+    \image qtcreator-context-sensitive-help.webp {Context-sensitive help in Edit mode}
 
     \section1 Change the font
 
@@ -287,7 +287,7 @@
     code editor when you press \key F1. If there is not enough vertical
     space, the help opens in the full-screen help mode.
 
-    \image qtcreator-context-sensitive-help.png {Context-sensitive help in Edit mode}
+    \image qtcreator-context-sensitive-help.webp {Context-sensitive help in Edit mode}
 
     To specify that the help always opens in full-screen mode or in an external
     window, go to \preferences > \uicontrol Help > \uicontrol General.

@@ -393,7 +393,7 @@ void DebugView::auxiliaryDataChanged(const ModelNode &node,
 
         message << node;
         message << key.type;
-        message << QByteArray{key.name};
+        message << key.name.toByteArray();
         message << data.toString();
 
         log("::auxiliaryDataChanged:", string);

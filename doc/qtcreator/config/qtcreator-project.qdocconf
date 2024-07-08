@@ -1,5 +1,5 @@
 project     = qtcreator
-description = "$IDE_DISPLAY_NAME Manual"
+description = "$IDE_DISPLAY_NAME Documentation"
 url         = http://doc.qt.io/$IDE_ID
 
 #Words to ignore for auto-linking
@@ -57,14 +57,14 @@ qhp.projects            = QtCreator
 qhp.QtCreator.file             = qtcreator.qhp
 qhp.QtCreator.namespace        = org.qt-project.qtcreator.$QTC_VERSION_TAG
 qhp.QtCreator.virtualFolder    = doc
-qhp.QtCreator.indexTitle       = $IDE_DISPLAY_NAME Manual $QTC_VERSION
+qhp.QtCreator.indexTitle       = $IDE_DISPLAY_NAME Documentation $QTC_VERSION
 qhp.QtCreator.filterAttributes = $IDE_ID $QTC_VERSION
 qhp.QtCreator.customFilters.QtCreator.name = $IDE_DISPLAY_NAME $QTC_VERSION
 qhp.QtCreator.customFilters.QtCreator.filterAttributes = $IDE_ID $QTC_VERSION
 qhp.QtCreator.indexRoot        =
 
 qhp.QtCreator.subprojects = manual
-qhp.QtCreator.subprojects.manual.title = $IDE_DISPLAY_NAME Manual
+qhp.QtCreator.subprojects.manual.title = $IDE_DISPLAY_NAME Documentation
 qhp.QtCreator.subprojects.manual.indexTitle = All Topics
 qhp.QtCreator.subprojects.manual.type = manual
 
@@ -73,10 +73,10 @@ qhp.QtCreator.subprojects.manual.type = manual
 macro.see                       = "\\sa"
 macro.function                  = "\\fn"
 
-navigation.landingpage = "$IDE_DISPLAY_NAME Manual"
+navigation.landingpage = "$IDE_DISPLAY_NAME Documentation"
 
 # Auto-generate navigation linking based on "All Topics":
 navigation.toctitles = "All Topics"
 navigation.toctitles.inclusive = false
 
-buildversion = "$IDE_DISPLAY_NAME Manual $QTC_VERSION"
+buildversion = "$IDE_DISPLAY_NAME $QTC_VERSION"

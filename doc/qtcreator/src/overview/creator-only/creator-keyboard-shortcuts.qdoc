@@ -141,8 +141,11 @@
             \li  Switch to \uicontrol Projects mode
             \li  Ctrl+5
         \row
-            \li  Switch to \uicontrol Help mode
+            \li  Switch to \uicontrol Extensions mode
             \li  Ctrl+6
+        \row
+            \li  Switch to \uicontrol Help mode
+            \li  Ctrl+7
         \row
             \li  Toggle \uicontrol{Issues}
             \li  Alt+1 (Cmd+1 on \macos)

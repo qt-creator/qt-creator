@@ -51,12 +51,12 @@ public:
     using Pointer = std::shared_ptr<InternalNode>;
     using WeakPointer = std::weak_ptr<InternalNode>;
 
-    explicit InternalNode(TypeName typeName,
+    explicit InternalNode(TypeNameView typeName,
                           int majorVersion,
                           int minorVersion,
                           qint32 internalId,
                           ModelTracing::Category::FlowTokenType flowTraceToken)
-        : typeName(std::move(typeName))
+        : typeName(typeName.toByteArray())
         , majorVersion(majorVersion)
         , minorVersion(minorVersion)
         , isValid(true)

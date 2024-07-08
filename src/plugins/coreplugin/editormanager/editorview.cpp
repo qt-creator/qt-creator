@@ -534,29 +534,27 @@ void EditorView::cutForwardNavigationHistory()
 void EditorView::updateNavigatorActions()
 {
     static const int MAX_ITEMS = 20;
-    FilePath last;
+    QString lastDisplay;
     m_backMenu->clear();
     int count = 0;
     for (int i = m_currentNavigationHistoryPosition - 1; i >= 0; i--) {
         const EditLocation &loc = m_navigationHistory.at(i);
-        if (loc.filePath != last) {
-            m_backMenu->addAction(loc.displayName(), this, [this, i] { goToNavigationHistory(i); });
-            last = loc.filePath;
+        if (!loc.displayName().isEmpty() && loc.displayName() != lastDisplay) {
+            lastDisplay = loc.displayName();
+            m_backMenu->addAction(lastDisplay, this, [this, i] { goToNavigationHistory(i); });
             ++count;
             if (count >= MAX_ITEMS)
                 break;
         }
     }
-    last = {};
+    lastDisplay.clear();
     m_forwardMenu->clear();
     count = 0;
     for (int i = m_currentNavigationHistoryPosition + 1; i < m_navigationHistory.size(); i++) {
         const EditLocation &loc = m_navigationHistory.at(i);
-        if (loc.filePath != last) {
-            m_forwardMenu->addAction(loc.displayName(), this, [this, i] {
-                goToNavigationHistory(i);
-            });
-            last = loc.filePath;
+        if (!loc.displayName().isEmpty() && loc.displayName() != lastDisplay) {
+            lastDisplay = loc.displayName();
+            m_forwardMenu->addAction(lastDisplay, this, [this, i] { goToNavigationHistory(i); });
             ++count;
             if (count >= MAX_ITEMS)
                 break;

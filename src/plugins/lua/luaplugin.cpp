@@ -284,7 +284,7 @@ public:
 
                 if (!result) {
                     qWarning() << "Failed to load plugin" << script << ":" << result.error();
-                    MessageManager::writeFlashing(tr("Failed to load plugin %1: %2")
+                    MessageManager::writeFlashing(Tr::tr("Failed to load plugin %1: %2")
                                                       .arg(script.toUserOutput())
                                                       .arg(result.error()));
                     continue;
