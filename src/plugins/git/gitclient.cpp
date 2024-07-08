@@ -372,7 +372,6 @@ ShowController::ShowController(IDocument *document, const QString &id)
     };
 
     const Storage<ReloadStorage> storage;
-    const Storage<QString> diffInputStorage;
 
     const auto updateDescription = [this](const ReloadStorage &storage) {
         QString desc = storage.m_header;
@@ -523,13 +522,13 @@ ShowController::ShowController(IDocument *document, const QString &id)
                                    noColorOption, decorateOption, id}));
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
     };
+    const Storage<QString> diffInputStorage;
     const auto onDiffDone = [diffInputStorage](const Process &process) {
         *diffInputStorage = process.cleanedStdOut();
     };
 
     const Group root {
         storage,
-        diffInputStorage,
         parallel,
         onGroupSetup([this] { setStartupFile(VcsBase::source(this->document()).toString()); }),
         Group {
@@ -539,12 +538,13 @@ ShowController::ShowController(IDocument *document, const QString &id)
                 parallel,
                 finishAllAndSuccess,
                 onGroupSetup(desciptionDetailsSetup),
-                ProcessTask(onBranchesSetup, onBranchesDone, CallDoneIf::Success),
-                ProcessTask(onPrecedesSetup, onPrecedesDone, CallDoneIf::Success),
+                ProcessTask(onBranchesSetup, onBranchesDone),
+                ProcessTask(onPrecedesSetup, onPrecedesDone),
                 TaskTreeTask(onFollowsSetup)
             }
         },
         Group {
+            diffInputStorage,
             ProcessTask(onDiffSetup, onDiffDone, CallDoneIf::Success),
             postProcessTask(diffInputStorage)
         }
