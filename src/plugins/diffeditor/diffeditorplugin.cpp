@@ -106,44 +106,50 @@ DiffFilesController::DiffFilesController(IDocument *document)
     setDisplayName(Tr::tr("Diff"));
     using namespace Tasking;
 
-    const Storage<QList<std::optional<FileData>>> storage;
-
-    const auto onTreeSetup = [this, storage](TaskTree &taskTree) {
-        QList<std::optional<FileData>> *outputList = storage.activeStorage();
-
-        const QList<ReloadInput> inputList = reloadInputList();
-        outputList->resize(inputList.size());
-
-        QList<GroupItem> tasks { parallel, finishAllAndSuccess };
-        for (int i = 0; i < inputList.size(); ++i) {
-            const auto onDiffSetup = [this, reloadInput = inputList.at(i)](Async<FileData> &async) {
-                async.setConcurrentCallData(
-                    DiffFile(ignoreWhitespace(), contextLineCount()), reloadInput);
-            };
-
-            const auto onDiffDone = [outputList, i](const Async<FileData> &async) {
-                if (async.isResultAvailable())
-                    (*outputList)[i] = async.result();
-            };
-            tasks.append(AsyncTask<FileData>(onDiffSetup, onDiffDone, CallDoneIf::Success));
-        }
-        taskTree.setRecipe(tasks);
+    struct StorageStruct
+    {
+        QList<ReloadInput> inputList;
+        QList<std::optional<FileData>> resultList;
     };
-    const auto onTreeDone = [this, storage](DoneWith result) {
+    const Storage<StorageStruct> storage;
+
+    const auto onSetup = [this, storage] {
+        StorageStruct *activeStorage = storage.activeStorage();
+        activeStorage->inputList = reloadInputList();
+        activeStorage->resultList.resize(activeStorage->inputList.size());
+    };
+
+    const LoopUntil iterator([storage](int iteration) {
+        return iteration < storage->inputList.size();
+    });
+
+    const auto onDiffSetup = [this, storage, iterator](Async<FileData> &async) {
+        async.setConcurrentCallData(DiffFile(ignoreWhitespace(), contextLineCount()),
+                                    storage->inputList.at(iterator.iteration()));
+    };
+    const auto onDiffDone = [storage, iterator](const Async<FileData> &async) {
+        if (async.isResultAvailable())
+            storage->resultList[iterator.iteration()] = async.result();
+    };
+
+    const auto onDone = [this, storage] {
         QList<FileData> finalList;
-        if (result == DoneWith::Success) {
-            const QList<std::optional<FileData>> &results = *storage;
-            for (const std::optional<FileData> &result : results) {
-                if (result.has_value())
-                    finalList.append(*result);
-            }
+        const QList<std::optional<FileData>> &results = storage->resultList;
+        for (const std::optional<FileData> &result : results) {
+            if (result.has_value())
+                finalList.append(*result);
         }
         setDiffFiles(finalList);
     };
 
-    const Group root = {
+    const Group root {
+        parallelIdealThreadCountLimit,
+        finishAllAndSuccess,
         storage,
-        TaskTreeTask(onTreeSetup, onTreeDone)
+        iterator,
+        onGroupSetup(onSetup),
+        AsyncTask<FileData>(onDiffSetup, onDiffDone, CallDoneIf::Success),
+        onGroupDone(onDone)
     };
     setReloadRecipe(root);
 }
