@@ -29,6 +29,7 @@
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/networkaccessmanager.h>
+#include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/temporarydirectory.h>
 #include <utils/utilsicons.h>
@@ -495,10 +496,14 @@ ExtensionManagerWidget::ExtensionManagerWidget()
         noMargin, spacing(0),
     }.attachTo(descriptionColumns);
 
-    Row {
-        Space(SpacingTokens::ExVPaddingGapXl),
-        m_extensionBrowser,
-        descriptionColumns,
+    Column {
+        new StyledBar,
+        Row {
+            Space(SpacingTokens::ExVPaddingGapXl),
+            m_extensionBrowser,
+            descriptionColumns,
+            noMargin, spacing(0),
+        },
         noMargin, spacing(0),
     }.attachTo(this);
 

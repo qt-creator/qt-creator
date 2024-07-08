@@ -20,11 +20,6 @@
 #include <extensionsystem/iplugin.h>
 
 #include <utils/icon.h>
-#include <utils/layoutbuilder.h>
-#include <utils/styledbar.h>
-
-#include <QAction>
-#include <QMainWindow>
 
 using namespace Core;
 using namespace Utils;
@@ -46,18 +41,8 @@ public:
                                  Theme::IconsModeWelcomeActiveColor}});
         setIcon(Icon::modeIcon(FLAT, FLAT, FLAT_ACTIVE));
         setPriority(72);
-
-        using namespace Layouting;
-        auto widget = Column {
-            new StyledBar,
-            createExtensionManagerWidget(),
-            noMargin, spacing(0),
-        }.emerge();
-
-        setWidget(widget);
+        setWidgetCreator(&createExtensionManagerWidget);
     }
-
-    ~ExtensionManagerMode() { delete widget(); }
 };
 
 class ExtensionManagerPlugin final : public ExtensionSystem::IPlugin
