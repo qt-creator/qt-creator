@@ -59,6 +59,7 @@
 #include <utils/guiutils.h>
 #include <utils/historycompleter.h>
 #include <utils/hostosinfo.h>
+#include <utils/layoutbuilder.h>
 #include <utils/mimeutils.h>
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
@@ -2526,12 +2527,7 @@ void ICorePrivate::changeLog()
     for (const VersionFilePair &f : versionedFiles)
         versionCombo->addItem(f.first.toString());
     dialog = new LogDialog(ICore::dialogParent());
-    auto versionLayout = new QHBoxLayout;
-    versionLayout->addWidget(new QLabel(Tr::tr("Version:")));
-    versionLayout->addWidget(versionCombo);
-    versionLayout->addStretch(1);
     auto showInExplorer = new QPushButton(FileUtils::msgGraphicalShellAction());
-    versionLayout->addWidget(showInExplorer);
     auto textEdit = new QTextBrowser;
     textEdit->setOpenExternalLinks(true);
 
@@ -2541,26 +2537,24 @@ void ICorePrivate::changeLog()
 
     new MarkdownHighlighter(textEdit->document());
 
-    auto textEditWidget = new QFrame;
-    textEditWidget->setFrameStyle(QFrame::NoFrame);
     auto findToolBar = new FindToolBarPlaceHolder(dialog);
     findToolBar->setLightColored(true);
-    auto textEditLayout = new QVBoxLayout;
-    textEditLayout->setContentsMargins(0, 0, 0, 0);
-    textEditLayout->setSpacing(0);
-    textEditLayout->addWidget(textEdit);
-    textEditLayout->addWidget(findToolBar);
-    textEditWidget->setLayout(textEditLayout);
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
-    auto dialogLayout = new QVBoxLayout;
-    dialogLayout->addLayout(versionLayout);
-    dialogLayout->addWidget(textEditWidget);
-    dialogLayout->addWidget(buttonBox);
-    dialog->setLayout(dialogLayout);
     dialog->resize(700, 600);
     dialog->setWindowTitle(Tr::tr("Change Log"));
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     ICore::registerWindow(dialog, Context("CorePlugin.VersionDialog"));
+
+    using namespace Layouting;
+    Column {
+        Row { Tr::tr("Version:"), versionCombo, st, showInExplorer },
+        Column {
+            textEdit,
+            findToolBar,
+            spacing(0),
+        },
+        buttonBox,
+    }.attachTo(dialog);
 
     connect(buttonBox, &QDialogButtonBox::rejected, dialog, &QDialog::close);
     QPushButton *closeButton = buttonBox->button(QDialogButtonBox::Close);
