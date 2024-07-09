@@ -500,7 +500,7 @@ void IDevice::fromMap(const Store &map)
     settings()->fromMap(map);
 
     d->id = Id::fromSetting(map.value(IdKey));
-    d->osType = osTypeFromString(map.value(ClientOsTypeKey, osTypeToString(OsTypeLinux)).toString());
+    d->osType = osTypeFromString(map.value(ClientOsTypeKey).toString()).value_or(OsTypeLinux);
     if (!d->id.isValid())
         d->id = newId();
     d->origin = static_cast<Origin>(map.value(OriginKey, ManuallyAdded).toInt());

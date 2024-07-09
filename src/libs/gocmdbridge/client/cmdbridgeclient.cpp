@@ -259,15 +259,19 @@ expected_str<QFuture<Environment>> Client::start()
     d->jobs.writeLocked()->map.insert(-1, [envPromise](QVariantMap map) {
         envPromise->start();
         QString type = map.value("Type").toString();
-        QTC_CHECK(type == "environment");
         if (type == "environment") {
-            OsType osType = osTypeFromString(map.value("OsType").toString());
-            Environment env(map.value("Env").toStringList(), osType);
+            expected_str<OsType> osType = osTypeFromString(map.value("OsType").toString());
+            QTC_CHECK_EXPECTED(osType);
+            Environment env(map.value("Env").toStringList(), osType.value_or(OsTypeLinux));
             envPromise->addResult(env);
         } else if (type == "error") {
             QString err = map.value("Error", QString{}).toString();
             qCWarning(clientLog) << "Error: " << err;
             envPromise->setException(std::make_exception_ptr(std::runtime_error(err.toStdString())));
+        } else {
+            qCWarning(clientLog) << "Unknown initial response type: " << type;
+            envPromise->setException(
+                std::make_exception_ptr(std::runtime_error("Unknown response type")));
         }
 
         envPromise->finish();
@@ -284,9 +288,11 @@ expected_str<QFuture<Environment>> Client::start()
 
             connect(d->process, &Process::done, d->process, [this] {
                 if (d->process->resultData().m_exitCode != 0) {
-                    qCWarning(clientLog).noquote() << d->process->resultData().m_errorString;
-                    qCWarning(clientLog).noquote() << d->process->readAllStandardError();
-                    qCWarning(clientLog).noquote() << d->process->readAllStandardOutput();
+                    qCWarning(clientLog)
+                        << "Process exited with error code:" << d->process->resultData().m_exitCode
+                        << "Error:" << d->process->errorString()
+                        << "StandardError:" << d->process->readAllStandardError()
+                        << "StandardOutput:" << d->process->readAllStandardOutput();
                 }
 
                 auto j = d->jobs.writeLocked();

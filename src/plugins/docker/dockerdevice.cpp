@@ -313,7 +313,7 @@ public:
     QString repoAndTagEncoded() const { return deviceSettings->repoAndTagEncoded(); }
     QString dockerImageId() const { return deviceSettings->imageId(); }
 
-    QPair<Utils::OsType, Utils::OsArch> osTypeAndArch() const;
+    expected_str<QPair<Utils::OsType, Utils::OsArch>> osTypeAndArch() const;
 
     expected_str<Environment> environment();
 
@@ -331,6 +331,8 @@ public:
     expected_str<void> startContainer();
     void stopCurrentContainer();
     expected_str<void> fetchSystemEnviroment();
+
+    expected_str<FilePath> getCmdBridgePath() const;
 
     std::optional<FilePath> clangdExecutable() const
     {
@@ -594,7 +596,22 @@ DockerDevice::DockerDevice(std::unique_ptr<DockerDeviceSettings> deviceSettings)
     : ProjectExplorer::IDevice(std::move(deviceSettings))
     , d(new DockerDevicePrivate(this))
 {
-    setFileAccess([this]() -> DeviceFileAccess * {
+    auto createBridgeFileAccess = [this]() -> expected_str<std::unique_ptr<DeviceFileAccess>> {
+        expected_str<FilePath> cmdBridgePath = d->getCmdBridgePath();
+
+        if (!cmdBridgePath)
+            return make_unexpected(cmdBridgePath.error());
+
+        auto fAccess = std::make_unique<DockerDeviceFileAccess>(d);
+        expected_str<void> initResult = fAccess->init(
+            rootPath().withNewPath("/tmp/_qtc_cmdbridge"));
+        if (!initResult)
+            return make_unexpected(initResult.error());
+
+        return fAccess;
+    };
+
+    setFileAccess([this, createBridgeFileAccess]() -> DeviceFileAccess * {
         if (DeviceFileAccess *fileAccess = d->m_fileAccess.readLocked()->get())
             return fileAccess;
 
@@ -603,14 +620,15 @@ DockerDevice::DockerDevice(std::unique_ptr<DockerDeviceSettings> deviceSettings)
         if (*fileAccess)
             return fileAccess->get();
 
-        auto fAccess = std::make_unique<DockerDeviceFileAccess>(d);
-        expected_str<void> initResult = fAccess->init(
-            rootPath().withNewPath("/tmp/_qtc_cmdbridge"));
-        QTC_CHECK_EXPECTED(initResult);
-        if (initResult) {
-            *fileAccess = std::move(fAccess);
+        expected_str<std::unique_ptr<DeviceFileAccess>> fAccess = createBridgeFileAccess();
+
+        if (fAccess) {
+            *fileAccess = std::move(*fAccess);
             return fileAccess->get();
         }
+
+        qCWarning(dockerDeviceLog) << "Failed to start CmdBridge:" << fAccess.error()
+                                   << ", falling back to slow direct access";
 
         *fileAccess = std::make_unique<DockerFallbackFileAccess>(rootPath());
         return fileAccess->get();
@@ -835,13 +853,18 @@ expected_str<void> isValidMountInfo(const DockerDevicePrivate::MountPair &mi)
     return {};
 }
 
-QStringList DockerDevicePrivate::createMountArgs() const
+expected_str<FilePath> DockerDevicePrivate::getCmdBridgePath() const
 {
     auto osAndArch = osTypeAndArch();
+    if (!osAndArch)
+        return make_unexpected(osAndArch.error());
+    return CmdBridge::Client::getCmdBridgePath(
+        osAndArch->first, osAndArch->second, Core::ICore::libexecPath());
+};
 
-    const Utils::expected_str<Utils::FilePath> cmdBridgePath = CmdBridge::Client::getCmdBridgePath(
-        osAndArch.first, osAndArch.second, Core::ICore::libexecPath());
-
+QStringList DockerDevicePrivate::createMountArgs() const
+{
+    const Utils::expected_str<Utils::FilePath> cmdBridgePath = getCmdBridgePath();
     QTC_CHECK_EXPECTED(cmdBridgePath);
 
     QStringList cmds;
@@ -1325,7 +1348,7 @@ void DockerDeviceFactory::shutdownExistingDevices()
     }
 }
 
-QPair<Utils::OsType, Utils::OsArch> DockerDevicePrivate::osTypeAndArch() const
+expected_str<QPair<Utils::OsType, Utils::OsArch>> DockerDevicePrivate::osTypeAndArch() const
 {
     Process proc;
     proc.setCommand(
@@ -1333,13 +1356,21 @@ QPair<Utils::OsType, Utils::OsArch> DockerDevicePrivate::osTypeAndArch() const
          {"image", "inspect", repoAndTag(), "--format", "{{.Os}}\t{{.Architecture}}"}});
     proc.runBlocking();
     if (proc.result() != ProcessResult::FinishedWithSuccess)
-        return {Utils::OsType::OsTypeOther, Utils::OsArch::OsArchUnknown};
+        return make_unexpected(Tr::tr("Failed to inspect image: %1").arg(proc.allOutput()));
 
     const QString out = proc.cleanedStdOut().trimmed();
     const QStringList parts = out.split('\t');
     if (parts.size() != 2)
-        return {Utils::OsType::OsTypeOther, Utils::OsArch::OsArchUnknown};
-    return {osTypeFromString(parts.at(0)), osArchFromString(parts.at(1))};
+        return make_unexpected(Tr::tr("Could not parse image inspect output: %1").arg(out));
+
+    auto os = osTypeFromString(parts.at(0));
+    auto arch = osArchFromString(parts.at(1));
+    if (!os)
+        return make_unexpected(os.error());
+    if (!arch)
+        return make_unexpected(arch.error());
+
+    return qMakePair(os.value(), arch.value());
 }
 
 expected_str<Environment> DockerDevicePrivate::environment()

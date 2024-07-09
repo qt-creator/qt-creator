@@ -68,22 +68,31 @@ expected_str<void> FileAccess::deployAndInit(
 
     qCDebug(faLog) << "Found dd on remote host:" << *whichDD;
 
-    const auto unameOs = run({remoteRootPath.withNewPath("uname"), {"-s"}});
-    if (!unameOs)
+    const expected_str<QString> unameOs = run({remoteRootPath.withNewPath("uname"), {"-s"}});
+    if (!unameOs) {
         return make_unexpected(
             QString("Could not determine OS on remote host: %1").arg(unameOs.error()));
+    }
+    Utils::expected_str<OsType> osType = osTypeFromString(unameOs.value());
+    if (!osType)
+        return make_unexpected(osType.error());
 
     qCDebug(faLog) << "Remote host OS:" << *unameOs;
 
-    const auto unameArch = run({remoteRootPath.withNewPath("uname"), {"-m"}});
-    if (!unameArch)
+    const expected_str<QString> unameArch = run({remoteRootPath.withNewPath("uname"), {"-m"}});
+    if (!unameArch) {
         return make_unexpected(
             QString("Could not determine architecture on remote host: %1").arg(unameArch.error()));
+    }
+
+    const Utils::expected_str<OsArch> osArch = osArchFromString(unameArch.value());
+    if (!osArch)
+        return make_unexpected(osArch.error());
 
     qCDebug(faLog) << "Remote host architecture:" << *unameArch;
 
-    const Utils::expected_str<Utils::FilePath> cmdBridgePath = Client::getCmdBridgePath(
-        osTypeFromString(unameOs.value()), osArchFromString(unameArch.value()), libExecPath);
+    const Utils::expected_str<Utils::FilePath> cmdBridgePath
+        = Client::getCmdBridgePath(*osType, *osArch, libExecPath);
 
     if (!cmdBridgePath) {
         return make_unexpected(

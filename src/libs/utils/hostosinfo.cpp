@@ -31,7 +31,8 @@ bool HostOsInfo::m_useOverrideFileNameCaseSensitivity = false;
 
 OsArch HostOsInfo::hostArchitecture()
 {
-    static const OsArch arch = osArchFromString(QSysInfo::currentCpuArchitecture());
+    static const OsArch arch
+        = osArchFromString(QSysInfo::currentCpuArchitecture()).value_or(OsArchUnknown);
     return arch;
 }
 
