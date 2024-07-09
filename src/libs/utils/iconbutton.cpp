@@ -50,8 +50,7 @@ void IconButton::leaveEvent(QEvent *e)
 
 QSize IconButton::sizeHint() const
 {
-    QWindow *window = this->window()->windowHandle();
-    QSize s = icon().actualSize(window, QSize(32, 16)) + QSize(8, 8);
+    QSize s = icon().actualSize(QSize(32, 16)) + QSize(8, 8);
 
     if (StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyleRelaxed)
         s += QSize(5, 5);
