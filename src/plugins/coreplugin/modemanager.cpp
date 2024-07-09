@@ -17,6 +17,7 @@
 #include <utils/qtcassert.h>
 
 #include <QAction>
+#include <QActionGroup>
 #include <QDebug>
 #include <QMap>
 #include <QMouseEvent>
@@ -68,6 +69,8 @@ struct ModeManagerPrivate
     void enabledStateChanged(IMode *mode);
     void visibleChanged(IMode *mode);
     void activateModeHelper(Id id);
+    void registerModeSelectorStyleActions();
+    void updateModeSelectorStyleMenu();
     void extensionsInitializedHelper();
 
     Internal::FancyTabWidget *m_modeStack;
@@ -78,6 +81,9 @@ struct ModeManagerPrivate
     Context m_addedContexts;
     int m_oldCurrent;
     ModeManager::Style m_modeStyle = ModeManager::Style::IconsAndText;
+    QAction *m_setModeSelectorStyleIconsAndTextAction = nullptr;
+    QAction *m_setModeSelectorStyleHiddenAction = nullptr;
+    QAction *m_setModeSelectorStyleIconsOnlyAction = nullptr;
 
     bool m_startingUp = true;
     Id m_pendingFirstActiveMode; // Valid before extentionsInitialized.
@@ -180,6 +186,68 @@ void ModeManagerPrivate::activateModeHelper(Id id)
     }
 }
 
+void ModeManagerPrivate::registerModeSelectorStyleActions()
+{
+    ActionContainer *mview = ActionManager::actionContainer(Constants::M_VIEW);
+
+    // Cycle Mode Selector Styles
+    ActionBuilder(m_instance, Constants::CYCLE_MODE_SELECTOR_STYLE)
+        .setText(Tr::tr("Cycle Mode Selector Styles"))
+        .addOnTriggered([] { ModeManager::cycleModeStyle(); });
+
+    // Mode Selector Styles
+    ActionContainer *mmodeLayouts = ActionManager::createMenu(Constants::M_VIEW_MODESTYLES);
+    mview->addMenu(mmodeLayouts, Constants::G_VIEW_MODES);
+    QMenu *styleMenu = mmodeLayouts->menu();
+    styleMenu->setTitle(Tr::tr("Modes"));
+    auto *stylesGroup = new QActionGroup(styleMenu);
+    stylesGroup->setExclusive(true);
+
+    mmodeLayouts->addSeparator(Constants::G_DEFAULT_THREE);
+
+    ActionBuilder(m_instance, "QtCreator.Modes.IconsAndText")
+        .setText(Tr::tr("Icons and Text"))
+        .setCheckable(true)
+        .addOnTriggered([] { ModeManager::setModeStyle(ModeManager::Style::IconsAndText); })
+        .addToContainer(Constants::M_VIEW_MODESTYLES, Constants::G_DEFAULT_THREE)
+        .bindContextAction(&m_setModeSelectorStyleIconsAndTextAction);
+    stylesGroup->addAction(m_setModeSelectorStyleIconsAndTextAction);
+
+    ActionBuilder(m_instance, "QtCreator.Modes.IconsOnly")
+        .setText(Tr::tr("Icons Only"))
+        .setCheckable(true)
+        .addOnTriggered([] { ModeManager::setModeStyle(ModeManager::Style::IconsOnly); })
+        .addToContainer(Constants::M_VIEW_MODESTYLES, Constants::G_DEFAULT_THREE)
+        .bindContextAction(&m_setModeSelectorStyleIconsOnlyAction);
+    stylesGroup->addAction(m_setModeSelectorStyleIconsOnlyAction);
+
+    ActionBuilder(m_instance, "QtCreator.Modes.Hidden")
+        .setText(Tr::tr("Hidden"))
+        .setCheckable(true)
+        .addOnTriggered([] { ModeManager::setModeStyle(ModeManager::Style::Hidden); })
+        .addToContainer(Constants::M_VIEW_MODESTYLES, Constants::G_DEFAULT_THREE)
+        .bindContextAction(&m_setModeSelectorStyleHiddenAction);
+    stylesGroup->addAction(m_setModeSelectorStyleHiddenAction);
+    updateModeSelectorStyleMenu();
+}
+
+void ModeManagerPrivate::updateModeSelectorStyleMenu()
+{
+    if (!m_setModeSelectorStyleHiddenAction) // actions not yet created
+        return;
+    switch (m_modeStyle) {
+    case ModeManager::Style::IconsAndText:
+        m_setModeSelectorStyleIconsAndTextAction->setChecked(true);
+        break;
+    case ModeManager::Style::IconsOnly:
+        m_setModeSelectorStyleIconsOnlyAction->setChecked(true);
+        break;
+    case ModeManager::Style::Hidden:
+        m_setModeSelectorStyleHiddenAction->setChecked(true);
+        break;
+    }
+}
+
 void ModeManager::extensionsInitialized()
 {
     d->extensionsInitializedHelper();
@@ -188,7 +256,7 @@ void ModeManager::extensionsInitialized()
 void ModeManagerPrivate::extensionsInitializedHelper()
 {
     m_startingUp = false;
-
+    registerModeSelectorStyleActions();
     Utils::sort(m_modes, &IMode::priority);
     std::reverse(m_modes.begin(), m_modes.end());
 
@@ -386,6 +454,8 @@ void ModeManager::setModeStyle(ModeManager::Style style)
     d->m_actionBar->setIconsOnly(iconsOnly);
     d->m_modeStack->setIconsOnly(iconsOnly);
     d->m_modeStack->setSelectionWidgetVisible(visible);
+
+    d->updateModeSelectorStyleMenu();
 }
 
 /*!

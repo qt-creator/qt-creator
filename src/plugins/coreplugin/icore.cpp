@@ -285,12 +285,9 @@ public:
 
     void registerDefaultContainers();
     void registerDefaultActions();
-    void registerModeSelectorStyleActions();
 
     void readSettings();
     void saveWindowSettings();
-
-    void updateModeSelectorStyleMenu();
 
     MainWindow *m_mainwindow = nullptr;
     QTimer m_trimTimer;
@@ -324,9 +321,6 @@ public:
     QAction *m_toggleLeftSideBarAction = nullptr;
     QAction *m_toggleRightSideBarAction = nullptr;
     QAction *m_toggleMenubarAction = nullptr;
-    QAction *m_setModeSelectorStyleIconsAndTextAction = nullptr;
-    QAction *m_setModeSelectorStyleHiddenAction = nullptr;
-    QAction *m_setModeSelectorStyleIconsOnlyAction = nullptr;
 
     QToolButton *m_toggleLeftSideBarButton = nullptr;
     QToolButton *m_toggleRightSideBarButton = nullptr;
@@ -1654,6 +1648,8 @@ void ICorePrivate::registerDefaultContainers()
     ActionContainer *mview = ActionManager::createMenu(Constants::M_VIEW);
     menubar->addMenu(mview, Constants::G_VIEW);
     mview->menu()->setTitle(Tr::tr("&View"));
+    mview->appendGroup(Constants::G_VIEW_SIDEBAR);
+    mview->appendGroup(Constants::G_VIEW_MODES);
     mview->appendGroup(Constants::G_VIEW_VIEWS);
     mview->appendGroup(Constants::G_VIEW_PANES);
 
@@ -1980,7 +1976,7 @@ void ICorePrivate::registerDefaultActions()
     toggleLeftSideBarAction.setCheckable(true);
     toggleLeftSideBarAction.setCommandAttribute(Command::CA_UpdateText);
     toggleLeftSideBarAction.setDefaultKeySequence(Tr::tr("Ctrl+0"), Tr::tr("Alt+0"));
-    toggleLeftSideBarAction.addToContainer(Constants::M_VIEW, Constants::G_VIEW_VIEWS);
+    toggleLeftSideBarAction.addToContainer(Constants::M_VIEW, Constants::G_VIEW_SIDEBAR);
     toggleLeftSideBarAction.addOnTriggered(this,
         [this](bool visible) { setSidebarVisible(visible, Side::Left); });
 
@@ -1996,7 +1992,7 @@ void ICorePrivate::registerDefaultActions()
     toggleRightSideBarAction.setCheckable(true);
     toggleRightSideBarAction.setCommandAttribute(Command::CA_UpdateText);
     toggleRightSideBarAction.setDefaultKeySequence(Tr::tr("Ctrl+Shift+0"), Tr::tr("Alt+Shift+0"));
-    toggleRightSideBarAction.addToContainer(Constants::M_VIEW, Constants::G_VIEW_VIEWS);
+    toggleRightSideBarAction.addToContainer(Constants::M_VIEW, Constants::G_VIEW_SIDEBAR);
     toggleRightSideBarAction.setEnabled(false);
     toggleRightSideBarAction.addOnTriggered(this,
         [this](bool visible) { setSidebarVisible(visible, Side::Right); });
@@ -2012,7 +2008,7 @@ void ICorePrivate::registerDefaultActions()
         toggleMenubarAction.bindContextAction(&m_toggleMenubarAction);
         toggleMenubarAction.setCheckable(true);
         toggleMenubarAction.setDefaultKeySequence(Tr::tr("Ctrl+Alt+M"));
-        toggleMenubarAction.addToContainer(Constants::M_VIEW, Constants::G_VIEW_VIEWS);
+        toggleMenubarAction.addToContainer(Constants::M_VIEW, Constants::G_VIEW_SIDEBAR);
         toggleMenubarAction.addOnToggled(this, [](bool visible) {
             if (!visible) {
                 auto keySequenceAndText = [](const Utils::Id &actionName) {
@@ -2045,8 +2041,6 @@ void ICorePrivate::registerDefaultActions()
             globalMenuBar()->setVisible(visible);
         });
     }
-
-    registerModeSelectorStyleActions();
 
     // Window->Views
     ActionContainer *mviews = ActionManager::createMenu(Constants::M_VIEW_VIEWS);
@@ -2098,53 +2092,6 @@ void ICorePrivate::registerDefaultActions()
         tmpAction.setSeperator(true);
         tmpAction.addToContainer(Constants::M_HELP, Constants::G_HELP_ABOUT);
     }
-}
-
-void ICorePrivate::registerModeSelectorStyleActions()
-{
-    ActionContainer *mview = ActionManager::actionContainer(Constants::M_VIEW);
-
-    // Cycle Mode Selector Styles
-    ActionBuilder(this, Constants::CYCLE_MODE_SELECTOR_STYLE)
-        .setText(Tr::tr("Cycle Mode Selector Styles"))
-        .addOnTriggered(this, [this] {
-            ModeManager::cycleModeStyle();
-            updateModeSelectorStyleMenu();
-        });
-
-    // Mode Selector Styles
-    ActionContainer *mmodeLayouts = ActionManager::createMenu(Constants::M_VIEW_MODESTYLES);
-    mview->addMenu(mmodeLayouts, Constants::G_VIEW_VIEWS);
-    QMenu *styleMenu = mmodeLayouts->menu();
-    styleMenu->setTitle(Tr::tr("Modes"));
-    auto *stylesGroup = new QActionGroup(styleMenu);
-    stylesGroup->setExclusive(true);
-
-    mmodeLayouts->addSeparator(Constants::G_DEFAULT_THREE);
-
-    ActionBuilder(this, "QtCreator.Modes.IconsAndText")
-        .setText(Tr::tr("Icons and Text"))
-        .setCheckable(true)
-        .addOnTriggered([] { ModeManager::setModeStyle(ModeManager::Style::IconsAndText); })
-        .addToContainer(Constants::M_VIEW_MODESTYLES, Constants::G_DEFAULT_THREE)
-        .bindContextAction(&m_setModeSelectorStyleIconsAndTextAction);
-    stylesGroup->addAction(m_setModeSelectorStyleIconsAndTextAction);
-
-    ActionBuilder(this, "QtCreator.Modes.IconsOnly")
-        .setText(Tr::tr("Icons Only"))
-        .setCheckable(true)
-        .addOnTriggered([] { ModeManager::setModeStyle(ModeManager::Style::IconsOnly); })
-        .addToContainer(Constants::M_VIEW_MODESTYLES, Constants::G_DEFAULT_THREE)
-        .bindContextAction(&m_setModeSelectorStyleIconsOnlyAction);
-    stylesGroup->addAction(m_setModeSelectorStyleIconsOnlyAction);
-
-    ActionBuilder(this, "QtCreator.Modes.Hidden")
-        .setText(Tr::tr("Hidden"))
-        .setCheckable(true)
-        .addOnTriggered([] { ModeManager::setModeStyle(ModeManager::Style::Hidden); })
-        .addToContainer(Constants::M_VIEW_MODESTYLES, Constants::G_DEFAULT_THREE)
-        .bindContextAction(&m_setModeSelectorStyleHiddenAction);
-    stylesGroup->addAction(m_setModeSelectorStyleHiddenAction);
 }
 
 void ICorePrivate::openFile()
@@ -2414,7 +2361,6 @@ void ICorePrivate::readSettings()
         }
 
         ModeManager::setModeStyle(modeStyle);
-        updateModeSelectorStyleMenu();
     }
 
     if (globalMenuBar() && !globalMenuBar()->isNativeMenuBar()) {
@@ -2449,21 +2395,6 @@ void ICorePrivate::saveWindowSettings()
     settings->setValue(modeSelectorLayoutKey, int(ModeManager::modeStyle()));
 
     settings->endGroup();
-}
-
-void ICorePrivate::updateModeSelectorStyleMenu()
-{
-    switch (ModeManager::modeStyle()) {
-    case ModeManager::Style::IconsAndText:
-        m_setModeSelectorStyleIconsAndTextAction->setChecked(true);
-        break;
-    case ModeManager::Style::IconsOnly:
-        m_setModeSelectorStyleIconsOnlyAction->setChecked(true);
-        break;
-    case ModeManager::Style::Hidden:
-        m_setModeSelectorStyleHiddenAction->setChecked(true);
-        break;
-    }
 }
 
 void ICorePrivate::updateContext()
