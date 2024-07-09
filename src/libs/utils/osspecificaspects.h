@@ -49,7 +49,7 @@ inline OsType osTypeFromString(const QString &string)
 
 inline OsArch osArchFromString(const QString &architecture)
 {
-    if (architecture == QLatin1String("x86_64"))
+    if (architecture == QLatin1String("x86_64") || architecture == QLatin1String("amd64"))
         return OsArchAMD64;
     if (architecture == QLatin1String("x86"))
         return OsArchX86;
