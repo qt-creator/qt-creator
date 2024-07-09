@@ -77,7 +77,6 @@ public:
 
 private:
     QPointer<TextEditorWidget> m_widget;
-    Core::IContext *m_textEditorContext;
     bool m_errorState = false;
 };
 

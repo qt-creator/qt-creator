@@ -45,35 +45,15 @@ using namespace Core;
 
 namespace QmlDesigner {
 
-const char TEXTEDITOR_CONTEXT_ID[] = "QmlDesigner.TextEditorContext";
-
 TextEditorView::TextEditorView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
     , m_widget(new TextEditorWidget(this))
-    , m_textEditorContext(new Core::IContext(m_widget))
 {
-    m_textEditorContext->setWidget(m_widget);
-    m_textEditorContext->setContext(Context(Constants::C_QMLTEXTEDITOR, Constants::C_QT_QUICK_TOOLS_MENU));
-    m_textEditorContext->setContextHelpProvider([this](const IContext::HelpCallback &callback) {
-        m_widget->contextHelp(callback);
-    });
-    Core::ICore::addContextObject(m_textEditorContext);
-
-    Core::Context context(TEXTEDITOR_CONTEXT_ID);
-
-    /*
-     * We have to register our own active auto completion shortcut, because the original short cut will
-     * use the cursor position of the original editor in the editor manager.
-     */
-
-    QAction *completionAction = new QAction(tr("Trigger Completion"), this);
-    Core::Command *command = Core::ActionManager::registerAction(completionAction, TextEditor::Constants::COMPLETE_THIS, context);
-    command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+Space") : tr("Ctrl+Space")));
-
-    connect(completionAction, &QAction::triggered, this, [this] {
-        if (m_widget->textEditor())
-            m_widget->textEditor()->editorWidget()->invokeAssist(TextEditor::Completion);
-    });
+    IContext::attach(m_widget,
+                     Context(Constants::C_QMLTEXTEDITOR, Constants::C_QT_QUICK_TOOLS_MENU),
+                     [this](const IContext::HelpCallback &callback) {
+                         m_widget->contextHelp(callback);
+                     });
 }
 
 TextEditorView::~TextEditorView()
@@ -90,11 +70,6 @@ void TextEditorView::modelAttached(Model *model)
 
     auto textEditor = Utils::UniqueObjectLatePtr<TextEditor::BaseTextEditor>(
         QmlDesignerPlugin::instance()->currentDesignDocument()->textEditor()->duplicate());
-
-    // Set the context of the text editor, but we add another special context to override shortcuts.
-    Core::Context context = textEditor->context();
-    context.prepend(TEXTEDITOR_CONTEXT_ID);
-    m_textEditorContext->setContext(context);
 
     m_widget->setTextEditor(std::move(textEditor));
 }
