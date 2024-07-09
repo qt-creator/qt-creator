@@ -49,10 +49,11 @@
 #include <utils/overridecursor.h>
 #include <utils/pathlisteditor.h>
 #include <utils/port.h>
-#include <utils/qtcprocess.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/sortfiltermodel.h>
+#include <utils/synchronizedvalue.h>
 #include <utils/temporaryfile.h>
 #include <utils/terminalhooks.h>
 #include <utils/treemodel.h>
@@ -357,7 +358,7 @@ public:
 
     std::optional<Environment> m_cachedEnviroment;
     bool m_isShutdown = false;
-    std::unique_ptr<DeviceFileAccess> m_fileAccess;
+    SynchronizedValue<std::unique_ptr<DeviceFileAccess>> m_fileAccess;
 };
 
 class DockerProcessImpl : public ProcessInterface
@@ -594,19 +595,27 @@ DockerDevice::DockerDevice(std::unique_ptr<DockerDeviceSettings> deviceSettings)
     , d(new DockerDevicePrivate(this))
 {
     setFileAccess([this]() -> DeviceFileAccess * {
-        if (!d->m_fileAccess) {
-            auto fileAccess = std::make_unique<DockerDeviceFileAccess>(d);
-            auto initResult = fileAccess->init(rootPath().withNewPath("/tmp/_qtc_cmdbridge"));
-            QTC_CHECK(initResult);
-            if (initResult) {
-                d->m_fileAccess = std::move(fileAccess);
-                return d->m_fileAccess.get();
-            }
+        if (DeviceFileAccess *fileAccess = d->m_fileAccess.readLocked()->get())
+            return fileAccess;
 
-            d->m_fileAccess = std::make_unique<DockerFallbackFileAccess>(rootPath());
+        SynchronizedValue<std::unique_ptr<DeviceFileAccess>>::unique_lock fileAccess
+            = d->m_fileAccess.writeLocked();
+        if (*fileAccess)
+            return fileAccess->get();
+
+        auto fAccess = std::make_unique<DockerDeviceFileAccess>(d);
+        expected_str<void> initResult = fAccess->init(
+            rootPath().withNewPath("/tmp/_qtc_cmdbridge"));
+        QTC_CHECK_EXPECTED(initResult);
+        if (initResult) {
+            *fileAccess = std::move(fAccess);
+            return fileAccess->get();
         }
-        return d->m_fileAccess.get();
+
+        *fileAccess = std::make_unique<DockerFallbackFileAccess>(rootPath());
+        return fileAccess->get();
     });
+
     setDisplayType(Tr::tr("Docker"));
     setOsType(OsTypeLinux);
     setupId(IDevice::ManuallyAdded);
@@ -734,6 +743,10 @@ void DockerDevicePrivate::stopCurrentContainer()
 
     if (!DockerApi::isDockerDaemonAvailable(false).value_or(false))
         return;
+
+    auto fileAccess = m_fileAccess.writeLocked();
+    if (*fileAccess)
+        fileAccess->reset();
 
     Process proc;
     proc.setCommand({settings().dockerBinaryPath(), {"container", "stop", m_container}});
@@ -1071,8 +1084,8 @@ expected_str<void> DockerDevicePrivate::fetchSystemEnviroment()
     if (m_cachedEnviroment)
         return {};
 
-    if (m_fileAccess) {
-        m_cachedEnviroment = m_fileAccess->deviceEnvironment();
+    if (auto fileAccess = m_fileAccess.readLocked()->get()) {
+        m_cachedEnviroment = fileAccess->deviceEnvironment();
         return {};
     }
 
