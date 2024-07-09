@@ -8,11 +8,10 @@
 
 #include <utils/algorithm.h>
 #include <utils/guard.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
 #include <QComboBox>
-#include <QHBoxLayout>
-#include <QLabel>
 
 /*!
     \class ProjectExplorer::AbiWidget
@@ -94,65 +93,34 @@ static void setIndex(QComboBox *combo, T value)
 AbiWidget::AbiWidget(QWidget *parent) : QWidget(parent),
     d(std::make_unique<Internal::AbiWidgetPrivate>())
 {
-    auto *layout = new QHBoxLayout(this);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(2);
-
     d->m_abi = new QComboBox(this);
-    d->m_abi->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+    d->m_abi->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
     d->m_abi->setMinimumContentsLength(4);
-    layout->addWidget(d->m_abi);
     connect(d->m_abi, &QComboBox::currentIndexChanged, this, &AbiWidget::mainComboBoxChanged);
 
     d->m_architectureComboBox = new QComboBox(this);
-    layout->addWidget(d->m_architectureComboBox);
     insertSorted(d->m_architectureComboBox, Abi::UnknownArchitecture);
     setIndex(d->m_architectureComboBox, Abi::UnknownArchitecture);
     connect(d->m_architectureComboBox, &QComboBox::currentIndexChanged,
             this, &AbiWidget::customComboBoxesChanged);
 
-    QLabel *separator1 = new QLabel(this);
-    separator1->setText(QLatin1String("-"));
-    separator1->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    layout->addWidget(separator1);
-
     d->m_osComboBox = new QComboBox(this);
-    layout->addWidget(d->m_osComboBox);
     insertSorted(d->m_osComboBox, Abi::UnknownOS);
     setIndex(d->m_osComboBox, Abi::UnknownOS);
     connect(d->m_osComboBox, &QComboBox::currentIndexChanged,
             this, &AbiWidget::customOsComboBoxChanged);
 
-    QLabel *separator2 = new QLabel(this);
-    separator2->setText(QLatin1String("-"));
-    separator2->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    layout->addWidget(separator2);
-
     d->m_osFlavorComboBox = new QComboBox(this);
-    layout->addWidget(d->m_osFlavorComboBox);
     connect(d->m_osFlavorComboBox, &QComboBox::currentIndexChanged,
             this, &AbiWidget::customComboBoxesChanged);
 
-    QLabel *separator3 = new QLabel(this);
-    separator3->setText(QLatin1String("-"));
-    separator3->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    layout->addWidget(separator3);
-
     d->m_binaryFormatComboBox = new QComboBox(this);
-    layout->addWidget(d->m_binaryFormatComboBox);
     insertSorted(d->m_binaryFormatComboBox, Abi::UnknownFormat);
     setIndex(d->m_binaryFormatComboBox, Abi::UnknownFormat);
     connect(d->m_binaryFormatComboBox, &QComboBox::currentIndexChanged,
             this, &AbiWidget::customComboBoxesChanged);
 
-    QLabel *separator4 = new QLabel(this);
-    separator4->setText(QLatin1String("-"));
-    separator4->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    layout->addWidget(separator4);
-
     d->m_wordWidthComboBox = new QComboBox(this);
-    layout->addWidget(d->m_wordWidthComboBox);
-
     d->m_wordWidthComboBox->addItem(Abi::toString(16), 16);
     d->m_wordWidthComboBox->addItem(Abi::toString(32), 32);
     d->m_wordWidthComboBox->addItem(Abi::toString(64), 64);
@@ -162,7 +130,23 @@ AbiWidget::AbiWidget(QWidget *parent) : QWidget(parent),
     connect(d->m_wordWidthComboBox, &QComboBox::currentIndexChanged,
             this, &AbiWidget::customComboBoxesChanged);
 
-    layout->setStretchFactor(d->m_abi, 1);
+    const QLatin1String separator("-");
+
+    using namespace Layouting;
+    Row {
+        d->m_abi,
+        d->m_architectureComboBox,
+        separator,
+        d->m_osComboBox,
+        separator,
+        d->m_osFlavorComboBox,
+        separator,
+        d->m_binaryFormatComboBox,
+        separator,
+        d->m_wordWidthComboBox,
+        st,
+        spacing(2), noMargin,
+    }.attachTo(this);
 
     setAbis(Abis(), Abi::hostAbi());
 }
