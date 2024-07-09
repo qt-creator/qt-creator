@@ -212,11 +212,10 @@ void FancyTabBar::mousePressEvent(QMouseEvent *event)
             continue;
         const QRect rect = tabRect(visibleIndex);
         if (rect.contains(event->pos())) {
-            if (isTabEnabled(index)) {
+            if (isTabEnabled(index) && event->button() == Qt::LeftButton) {
                 if (m_tabs.at(index)->hasMenu
-                    && ((!m_iconsOnly && rect.right() - event->pos().x() <= kMenuButtonWidth)
-                        || event->button() == Qt::RightButton)) {
-                    // menu arrow clicked or right-click
+                    && (!m_iconsOnly && rect.right() - event->pos().x() <= kMenuButtonWidth)) {
+                    // menu arrow clicked
                     emit menuTriggered(index, event);
                 } else {
                     if (index != m_currentIndex) {
@@ -226,11 +225,16 @@ void FancyTabBar::mousePressEvent(QMouseEvent *event)
                         emit currentChanged(m_currentIndex);
                     }
                 }
+            } else if (event->button() == Qt::RightButton) {
+                emit menuTriggered(index, event);
             }
-            break;
+            return;
         }
         ++visibleIndex;
     }
+    // not in a mode button
+    if (event->button() == Qt::RightButton)
+        emit menuTriggered(-1, event);
 }
 
 static void paintSelectedTabBackground(QPainter *painter, const QRect &spanRect)
@@ -457,7 +461,7 @@ public:
         setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
     }
 
-    void mousePressEvent(QMouseEvent *ev) override { emit clicked(ev->button(), ev->modifiers()); }
+    void mousePressEvent(QMouseEvent *ev) override { emit clicked(ev); }
 
     void paintEvent(QPaintEvent *event) override
     {
@@ -475,7 +479,7 @@ public:
     }
 
 signals:
-    void clicked(Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
+    void clicked(QMouseEvent *ev);
 };
 
 //////
@@ -490,7 +494,12 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
 
     auto bar = new StyledBar;
     auto fancyButton = new FancyColorButton;
-    connect(fancyButton, &FancyColorButton::clicked, this, &FancyTabWidget::topAreaClicked);
+    connect(fancyButton, &FancyColorButton::clicked, this, [this](QMouseEvent *event) {
+        if (event->button() == Qt::RightButton)
+            emit menuTriggered(-1, event);
+        else
+            emit topAreaClicked(event);
+    });
 
     m_modesStack = new QStackedLayout;
     m_modesStack->addWidget(new QWidget(this));
@@ -499,6 +508,7 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
 
     QVBoxLayout *vlayout;
 
+    // clang-format off
     using namespace Layouting;
     Row { fancyButton, noMargin }.attachTo(bar);
     Row {
@@ -507,10 +517,9 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
             Column {
                 bar,
                 m_tabBar,
-                st,
                 Widget {
                     bindTo(&m_cornerWidgetContainer),
-                    Column { st, spacing(0), noMargin },
+                    Column { spacing(0), noMargin },
                 },
                 spacing(0), noMargin,
             },
@@ -518,6 +527,7 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
         Column { bindTo(&vlayout), m_modesStack, m_statusBar, spacing(0) },
         spacing(1), noMargin,
     }.attachTo(this);
+    // clang-format on
 
     m_selectionWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
 

@@ -79,6 +79,7 @@
 #include <QDebug>
 #include <QDialogButtonBox>
 #include <QLibraryInfo>
+#include <QLoggingCategory>
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
@@ -95,6 +96,8 @@
 #ifdef Q_OS_LINUX
 #include <malloc.h>
 #endif
+
+Q_LOGGING_CATEGORY(coreLog, "qtc.core", QtWarningMsg)
 
 /*!
     \namespace Core
@@ -1373,8 +1376,8 @@ void ICorePrivate::init()
     QApplication::setStyle(new ManhattanStyle(baseName));
 
     m_modeManager = new ModeManager(m_modeStack);
-    connect(m_modeStack, &FancyTabWidget::topAreaClicked, this, [](Qt::MouseButton, Qt::KeyboardModifiers modifiers) {
-        if (modifiers & Qt::ShiftModifier) {
+    connect(m_modeStack, &FancyTabWidget::topAreaClicked, this, [](QMouseEvent *event) {
+        if (event->modifiers() & Qt::ShiftModifier) {
             QColor color = QColorDialog::getColor(StyleHelper::requestedBaseColor(), ICore::dialogParent());
             if (color.isValid())
                 StyleHelper::setBaseColor(color);
@@ -2412,6 +2415,10 @@ void ICorePrivate::updateContext()
             uniquecontexts.add(id);
     }
 
+    if (coreLog().isDebugEnabled()) {
+        qCDebug(coreLog) << "context changed:"
+                         << Utils::transform<QList<QString>>(uniquecontexts, &Id::toString);
+    }
     ActionManager::setContext(uniquecontexts);
     emit m_core->contextChanged(uniquecontexts);
 }

@@ -10,6 +10,7 @@
 #include <QIcon>
 #include <QMenu>
 
+#include <functional>
 #include <memory.h>
 
 namespace Utils {
@@ -29,7 +30,6 @@ class CORE_EXPORT IMode : public QObject
     Q_PROPERTY(QIcon icon READ icon WRITE setIcon)
     Q_PROPERTY(int priority READ priority WRITE setPriority)
     Q_PROPERTY(Utils::Id id READ id WRITE setId)
-    Q_PROPERTY(QMenu *menu READ menu WRITE setMenu)
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled NOTIFY enabledStateChanged)
 
 public:
@@ -42,7 +42,8 @@ public:
     Utils::Id id() const;
     bool isEnabled() const;
     bool isVisible() const;
-    QMenu *menu() const;
+    bool hasMenu() const;
+    void addToMenu(QMenu *menu) const;
     Context context() const;
     QWidget *widget() const;
 
@@ -52,7 +53,7 @@ public:
     void setIcon(const QIcon &icon);
     void setPriority(int priority);
     void setId(Utils::Id id);
-    void setMenu(QMenu *menu);
+    void setMenu(std::function<void(QMenu *)> menuFunction);
     void setContext(const Context &context);
     void setWidget(QWidget *widget);
 

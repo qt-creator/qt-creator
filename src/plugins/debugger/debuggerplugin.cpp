@@ -497,7 +497,7 @@ public:
         setWidget(splitter);
         setMainWindow(mainWindow);
 
-        setMenu(DebuggerMainWindow::perspectiveMenu());
+        setMenu(&DebuggerMainWindow::addPerspectiveMenu);
     }
 
     ~DebugMode() { delete widget(); }

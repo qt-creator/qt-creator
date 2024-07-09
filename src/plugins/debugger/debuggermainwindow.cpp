@@ -192,15 +192,7 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     m_perspectiveMenu = new QMenu;
     connect(m_perspectiveMenu, &QMenu::aboutToShow, this, [this] {
         m_perspectiveMenu->clear();
-        for (Perspective *perspective : std::as_const(m_perspectives)) {
-            m_perspectiveMenu->addAction(perspective->d->m_name, perspective, [perspective] {
-                if (auto subPerspective = Perspective::findPerspective(
-                        perspective->d->m_lastActiveSubPerspectiveId))
-                    subPerspective->select();
-                else
-                    perspective->select();
-            });
-        }
+        DebuggerMainWindow::addPerspectiveMenu(m_perspectiveMenu);
     });
 
     auto viewButton = new QToolButton;
@@ -511,9 +503,19 @@ void DebuggerMainWindow::addSubPerspectiveSwitcher(QWidget *widget)
     d->m_subPerspectiveSwitcherLayout->addWidget(widget);
 }
 
-QMenu *DebuggerMainWindow::perspectiveMenu()
+void DebuggerMainWindow::addPerspectiveMenu(QMenu *menu)
 {
-    return theMainWindow ? theMainWindow->d->m_perspectiveMenu : nullptr;
+    if (!theMainWindow)
+        return;
+    for (Perspective *perspective : std::as_const(theMainWindow->d->m_perspectives)) {
+        menu->addAction(perspective->d->m_name, perspective, [perspective] {
+            if (auto subPerspective = Perspective::findPerspective(
+                    perspective->d->m_lastActiveSubPerspectiveId))
+                subPerspective->select();
+            else
+                perspective->select();
+        });
+    }
 }
 
 DebuggerMainWindow *DebuggerMainWindow::instance()

@@ -156,7 +156,7 @@ signals:
     void currentAboutToShow(int index);
     void currentChanged(int index);
     void menuTriggered(int index, QMouseEvent *event);
-    void topAreaClicked(Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
+    void topAreaClicked(QMouseEvent *event);
 
 public slots:
     void setCurrentIndex(int index);

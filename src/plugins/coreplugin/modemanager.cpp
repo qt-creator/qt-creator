@@ -104,8 +104,34 @@ static int indexOf(Id id)
 
 void ModeManagerPrivate::showMenu(int index, QMouseEvent *event)
 {
-    QTC_ASSERT(m_modes.at(index)->menu(), return);
-    m_modes.at(index)->menu()->popup(event->globalPosition().toPoint());
+    if (index < 0) {
+        ActionContainer *viewContainer = ActionManager::actionContainer(
+            Constants::M_VIEW_MODESTYLES);
+        QTC_ASSERT(viewContainer, return);
+        QMenu *viewMenu = viewContainer->menu();
+        QTC_ASSERT(viewMenu, return);
+        QList<QAction *> actions = viewMenu->actions();
+        if (actions.isEmpty())
+            return;
+        auto menu = new QMenu(m_actionBar);
+        menu->setAttribute(Qt::WA_DeleteOnClose);
+        for (QAction *a : actions)
+            menu->addAction(a);
+        menu->popup(event->globalPosition().toPoint());
+        return;
+    }
+    IMode *mode = m_modes.value(index);
+    QTC_ASSERT(mode, return);
+    auto menu = new QMenu(m_actionBar);
+    menu->setAttribute(Qt::WA_DeleteOnClose);
+    mode->addToMenu(menu);
+    menu->addSeparator();
+    menu->addAction(Tr::tr("Hide"), mode, [mode] { mode->setVisible(false); });
+    menu->addSeparator();
+    menu->addAction(m_setModeSelectorStyleIconsAndTextAction);
+    menu->addAction(m_setModeSelectorStyleIconsOnlyAction);
+    menu->addAction(m_setModeSelectorStyleHiddenAction);
+    menu->popup(event->globalPosition().toPoint());
 }
 
 ModeManager::ModeManager(Internal::FancyTabWidget *modeStack)
@@ -277,8 +303,7 @@ void ModeManagerPrivate::appendMode(IMode *mode)
 {
     const int index = m_modeCommands.count();
 
-    m_modeStack->insertTab(index, mode->widget(), mode->icon(), mode->displayName(),
-                           mode->menu() != nullptr);
+    m_modeStack->insertTab(index, mode->widget(), mode->icon(), mode->displayName(), mode->hasMenu());
     m_modeStack->setTabEnabled(index, mode->isEnabled());
     m_modeStack->setTabVisible(index, mode->isVisible());
 
