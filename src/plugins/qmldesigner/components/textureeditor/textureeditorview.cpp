@@ -12,17 +12,18 @@
 
 #include <auxiliarydataproperties.h>
 #include <bindingproperty.h>
+#include <createtexture.h>
 #include <dynamicpropertiesmodel.h>
 #include <externaldependenciesinterface.h>
 #include <nodeinstanceview.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
 #include <nodeproperty.h>
-#include <rewritingexception.h>
-#include <variantproperty.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <qmltimeline.h>
+#include <rewritingexception.h>
+#include <variantproperty.h>
 
 #include <theme.h>
 
@@ -50,41 +51,6 @@
 
 using namespace Qt::StringLiterals;
 
-namespace {
-
-QString nameFromId(const QString &id, const QString &defaultName)
-{
-    if (id.isEmpty())
-        return defaultName;
-
-    QString newName = id;
-    static const QRegularExpression sideUnderscores{R"((?:^_+)|(?:_+$))"};
-    static const QRegularExpression underscores{R"((?:_+))"};
-    static const QRegularExpression camelCases{R"((?:[A-Z](?=[a-z]))|(?:(?<=[a-z])[A-Z]))"};
-
-    newName.remove(sideUnderscores);
-
-    // Insert underscore to camel case edges
-    QRegularExpressionMatchIterator caseMatch = camelCases.globalMatch(newName);
-    QStack<int> camelCaseIndexes;
-    while (caseMatch.hasNext())
-        camelCaseIndexes.push(caseMatch.next().capturedStart());
-    while (!camelCaseIndexes.isEmpty())
-        newName.insert(camelCaseIndexes.pop(), '_');
-
-    // Replace underscored joints with space
-    newName.replace(underscores, " ");
-    newName = newName.trimmed();
-
-    if (newName.isEmpty())
-        return defaultName;
-
-    newName[0] = newName[0].toUpper();
-    return newName;
-}
-
-} // namespace
-
 namespace QmlDesigner {
 
 TextureEditorView::TextureEditorView(AsynchronousImageCache &imageCache,
@@ -92,6 +58,7 @@ TextureEditorView::TextureEditorView(AsynchronousImageCache &imageCache,
     : AbstractView{externalDependencies}
     , m_imageCache(imageCache)
     , m_stackedWidget(new QStackedWidget)
+    , m_createTexture(new CreateTexture(this))
     , m_dynamicPropertiesModel(new DynamicPropertiesModel(true, this))
 {
     m_updateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F12), m_stackedWidget);
@@ -413,23 +380,7 @@ void TextureEditorView::handleToolBarAction(int action)
     case TextureEditorContextObject::AddNewTexture: {
         if (!model())
             break;
-        executeInTransaction("TextureEditorView:handleToolBarAction", [&] {
-            ModelNode matLib = Utils3D::materialLibraryNode(this);
-            if (!matLib.isValid())
-                return;
-#ifdef QDS_USE_PROJECTSTORAGE
-            ModelNode newTextureNode = createModelNode("Texture");
-#else
-            NodeMetaInfo metaInfo = model()->metaInfo("QtQuick3D.Texture");
-            ModelNode newTextureNode = createModelNode("QtQuick3D.Texture",
-                                                       metaInfo.majorVersion(),
-                                                       metaInfo.minorVersion());
-#endif
-            newTextureNode.ensureIdExists();
-            VariantProperty textureName = newTextureNode.variantProperty("objectName");
-            textureName.setValue(nameFromId(newTextureNode.id(), "Texture"_L1));
-            matLib.defaultNodeListProperty().reparentHere(newTextureNode);
-        });
+        m_createTexture->execute();
         break;
     }
 
