@@ -417,14 +417,14 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
         if (!results.isEmpty())
             emit testParseResultsReady(results);
     };
-    const Group root {
+    const For recipe {
+        LoopRepeat(filteredFiles.size()),
         parallelLimit(limit),
         storage,
         onGroupSetup([storage, filteredFiles] { *storage = filteredFiles.cbegin(); }),
-        LoopRepeat(filteredFiles.size()),
         AsyncTask<TestParseResultPtr>(onSetup, onDone, CallDoneIf::Success)
     };
-    m_taskTreeRunner.start(root);
+    m_taskTreeRunner.start(recipe);
 }
 
 void TestCodeParser::onTaskStarted(Id type)

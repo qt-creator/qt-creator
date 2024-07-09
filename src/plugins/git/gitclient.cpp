@@ -506,10 +506,10 @@ ShowController::ShowController(IDocument *document, const QString &id)
             updateDescription(*data);
         };
 
-        const Group recipe {
+        const For recipe {
+            iterator,
             parallel,
             continueOnSuccess,
-            iterator,
             ProcessTask(onFollowSetup, onFollowDone, CallDoneIf::Success),
             onGroupDone(onDone, CallDoneIf::Error)
         };

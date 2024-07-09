@@ -2735,12 +2735,12 @@ void tst_Tasking::testTree_data()
     {
         const QList<GroupItem> successItems {
             storage,
-            LoopRepeat(2),
             createSuccessTask(1),
             createSuccessTask(2)
         };
 
-        const Group rootSequentialSuccess {
+        const For rootSequentialSuccess {
+            LoopRepeat(2),
             sequential,
             successItems
         };
@@ -2755,7 +2755,8 @@ void tst_Tasking::testTree_data()
             {2, Handler::Success}
         };
 
-        const Group rootParallelSuccess {
+        const For rootParallelSuccess {
+            LoopRepeat(2),
             parallel,
             successItems
         };
@@ -2770,7 +2771,8 @@ void tst_Tasking::testTree_data()
             {2, Handler::Success}
         };
 
-        const Group rootParallelLimitSuccess {
+        const For rootParallelLimitSuccess {
+            LoopRepeat(2),
             parallelLimit(2),
             successItems
         };
@@ -2787,12 +2789,12 @@ void tst_Tasking::testTree_data()
 
         const QList<GroupItem> errorItems {
             storage,
-            LoopRepeat(2),
             createSuccessTask(1),
             createFailingTask(2)
         };
 
-        const Group rootSequentialError {
+        const For rootSequentialError {
+            LoopRepeat(2),
             sequential,
             errorItems
         };
@@ -2803,7 +2805,8 @@ void tst_Tasking::testTree_data()
             {2, Handler::Error}
         };
 
-        const Group rootParallelError {
+        const For rootParallelError {
+            LoopRepeat(2),
             parallel,
             errorItems
         };
@@ -2818,7 +2821,8 @@ void tst_Tasking::testTree_data()
             {2, Handler::Canceled}
         };
 
-        const Group rootParallelLimitError {
+        const For rootParallelLimitError {
+            LoopRepeat(2),
             parallelLimit(2),
             errorItems
         };
@@ -2873,12 +2877,12 @@ void tst_Tasking::testTree_data()
 
         const QList<GroupItem> items {
             storage,
-            loop,
             TestTask(onSetupContinue(1), onDone(1)),
             TestTask(onSetupStop(2), onDone(2))
         };
 
-        const Group rootSequential {
+        const For rootSequential {
+            loop,
             sequential,
             items
         };
@@ -2896,7 +2900,8 @@ void tst_Tasking::testTree_data()
             {22, Handler::Setup}
         };
 
-        const Group rootParallel {
+        const For rootParallel {
+            loop,
             parallel,
             items
         };
@@ -2914,7 +2919,8 @@ void tst_Tasking::testTree_data()
             {21, Handler::Success}
         };
 
-        const Group rootParallelLimit {
+        const For rootParallelLimit {
+            loop,
             parallelLimit(2),
             items
         };
@@ -2942,9 +2948,9 @@ void tst_Tasking::testTree_data()
 
     {
         // Check if task tree finishes with the right progress value when LoopUntil(false).
-        const Group root {
-            storage,
+        const For root {
             LoopUntil([](int) { return false; }),
+            storage,
             createSuccessTask(1)
         };
         QTest::newRow("ProgressWithLoopUntilFalse")
@@ -2953,10 +2959,10 @@ void tst_Tasking::testTree_data()
 
     {
         // Check if task tree finishes with the right progress value when nested LoopUntil(false).
-        const Group root {
-            storage,
+        const For root {
             LoopUntil([](int index) { return index < 2; }),
-            Group {
+            storage,
+            For {
                 LoopUntil([](int) { return false; }),
                 createSuccessTask(1)
             }
@@ -2978,9 +2984,9 @@ void tst_Tasking::testTree_data()
 
     {
         // Check if task tree finishes with the right progress value when nested LoopUntil(false).
-        const Group root {
-            storage,
+        const For root {
             LoopUntil([](int index) { return index < 2; }),
+            storage,
             Group {
                 onGroupSetup([] { return SetupResult::StopWithSuccess; }),
                 createSuccessTask(1)
@@ -3157,10 +3163,10 @@ void tst_Tasking::testTree_data()
             return DoneResult::Error;
         };
 
-        const Group root {
+        const For root {
+            iterator,
             storage,
             parallel,
-            iterator,
             TestTask(onSetup, onDone)
         };
 

@@ -224,10 +224,10 @@ GroupItem clangToolTask(const AnalyzeUnits &units,
                        error});
     };
 
-    return Group {
+    return For {
+        iterator,
         parallelLimit(qMax(1, input.runSettings.parallelJobs())),
         finishAllAndSuccess,
-        iterator,
         Group {
             storage,
             onGroupSetup(onSetup),

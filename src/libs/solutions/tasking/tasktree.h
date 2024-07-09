@@ -207,13 +207,12 @@ public:
         : m_type(Type::Storage)
         , m_storageList{storage} {}
 
-    GroupItem(const Loop &loop) : GroupItem(GroupData{{}, {}, {}, loop}) {}
-
     // TODO: Add tests.
     GroupItem(const QList<GroupItem> &children) : m_type(Type::List) { addChildren(children); }
     GroupItem(std::initializer_list<GroupItem> children) : m_type(Type::List) { addChildren(children); }
 
 protected:
+    GroupItem(const Loop &loop) : GroupItem(GroupData{{}, {}, {}, loop}) {}
     // Internal, provided by CustomTask
     using InterfaceCreateHandler = std::function<TaskInterface *(void)>;
     // Called prior to task start, just after createHandler
@@ -274,6 +273,7 @@ protected:
 
 private:
     friend class ContainerNode;
+    friend class For;
     friend class TaskNode;
     friend class TaskTreePrivate;
     friend class ParallelLimitFunctor;
@@ -433,11 +433,42 @@ TASKING_EXPORT extern const GroupItem nullItem;
 TASKING_EXPORT extern const ExecutableItem successItem;
 TASKING_EXPORT extern const ExecutableItem errorItem;
 
-class TASKING_EXPORT Forever final : public Group
+class TASKING_EXPORT For : public Group
 {
 public:
-    Forever(const QList<GroupItem> &children) : Group({LoopForever(), children}) {}
-    Forever(std::initializer_list<GroupItem> children) : Group({LoopForever(), children}) {}
+    template <typename ...Args>
+    For(const Loop &loop, const Args &...args)
+        : Group(withLoop(loop, args...)) { }
+
+protected:
+    For(const Loop &loop, const QList<GroupItem> &children) : Group({loop, children}) {}
+    For(const Loop &loop, std::initializer_list<GroupItem> children) : Group({loop, children}) {}
+
+private:
+    template <typename ...Args>
+    QList<GroupItem> withLoop(const Loop &loop, const Args &...args) {
+        QList<GroupItem> children{GroupItem(loop)};
+        appendChildren(std::make_tuple(args...), &children);
+        return children;
+    }
+
+    template <typename Tuple, std::size_t N = 0>
+    void appendChildren(const Tuple &tuple, QList<GroupItem> *children) {
+        constexpr auto TupleSize = std::tuple_size_v<Tuple>;
+        if constexpr (TupleSize > 0) {
+            // static_assert(workflowPolicyCount<Tuple>() <= 1, "Too many workflow policies in one group.");
+            children->append(std::get<N>(tuple));
+            if constexpr (N + 1 < TupleSize)
+                appendChildren<Tuple, N + 1>(tuple, children);
+        }
+    }
+};
+
+class TASKING_EXPORT Forever final : public For
+{
+public:
+    Forever(const QList<GroupItem> &children) : For(LoopForever(), children) {}
+    Forever(std::initializer_list<GroupItem> children) : For(LoopForever(), children) {}
 };
 
 // Synchronous invocation. Similarly to Group - isn't counted as a task inside taskCount()

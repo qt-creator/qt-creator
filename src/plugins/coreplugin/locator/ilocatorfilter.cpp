@@ -383,9 +383,9 @@ void LocatorMatcher::start()
         parallel,
         collectorStorage,
         AsyncTask<LocatorFilterEntries>(onCollectorSetup, onCollectorDone),
-        Group {
-            parallelLimit(d->m_parallelLimit),
+        For {
             iterator,
+            parallelLimit(d->m_parallelLimit),
             TaskTreeTask(onTaskTreeSetup)
         }
     };

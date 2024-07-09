@@ -93,10 +93,10 @@ void Images::process()
             labels[it]->setText(tr("Image\nData\nError."));
     };
 
-    const QList<GroupItem> tasks {
+    const For recipe {
+        iterator,
         finishAllAndSuccess,
         parallel,
-        iterator,
         onGroupSetup(onRootSetup),
         Group {
             storage,
@@ -105,8 +105,7 @@ void Images::process()
         },
         onGroupDone(onRootDone, CallDoneIf::Success)
     };
-
-    taskTreeRunner.start(tasks);
+    taskTreeRunner.start(recipe);
 }
 
 void Images::initLayout(qsizetype count)

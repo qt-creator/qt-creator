@@ -1679,21 +1679,21 @@ private:
             }
         };
 
-        const Group group{
-            Group{
-                parallelIdealThreadCountLimit,
+        const Group recipe {
+            For {
                 iteratorParentDirs,
+                parallelIdealThreadCountLimit,
                 AsyncTask<expected_str<void>>(onCreateDirSetup, onCreateDirDone),
             },
-            Group{
-                parallelLimit(2),
+            For {
                 iterator,
+                parallelLimit(2),
                 counterStorage,
                 AsyncTask<expected_str<void>>(onCopySetup, onCopyDone),
             },
         };
 
-        m_taskTree.start(group, {}, [this](DoneWith result) {
+        m_taskTree.start(recipe, {}, [this](DoneWith result) {
             ProcessResultData resultData;
             if (result != DoneWith::Success) {
                 resultData.m_exitCode = -1;

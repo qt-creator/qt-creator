@@ -278,15 +278,14 @@ GroupItem GenericLinuxDeviceTesterPrivate::commandTasks() const
         emit q->errorMessage(message);
     };
 
-    const Group root {
+    return For {
+        iterator,
         continueOnError,
         onGroupSetup([this] {
             emit q->progressMessage(Tr::tr("Checking if required commands are available..."));
         }),
-        iterator,
         ProcessTask(onSetup, onDone)
     };
-    return root;
 }
 
 } // namespace Internal

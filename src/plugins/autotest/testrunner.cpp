@@ -459,15 +459,15 @@ void TestRunner::runTestsHelper()
         }
     };
 
-    const Group root {
-        finishAllAndSuccess,
+    const For recipe {
         iterator,
+        finishAllAndSuccess,
         Group {
             storage,
             ProcessTask(onSetup, onDone)
         }
     };
-    m_taskTreeRunner.start(root);
+    m_taskTreeRunner.start(recipe);
 }
 
 static void processOutput(TestOutputReader *outputreader, const QString &msg, OutputFormat format)

@@ -142,16 +142,16 @@ DiffFilesController::DiffFilesController(IDocument *document)
         setDiffFiles(finalList);
     };
 
-    const Group root {
+    const For recipe {
+        iterator,
         parallelIdealThreadCountLimit,
         finishAllAndSuccess,
         storage,
-        iterator,
         onGroupSetup(onSetup),
         AsyncTask<FileData>(onDiffSetup, onDiffDone, CallDoneIf::Success),
         onGroupDone(onDone)
     };
-    setReloadRecipe(root);
+    setReloadRecipe(recipe);
 }
 
 class DiffCurrentFileController : public DiffFilesController

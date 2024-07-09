@@ -179,20 +179,19 @@ void AndroidQmlPreviewWorker::startPidWatcher()
 
     const TimeoutTask timeout([](std::chrono::milliseconds &timeout) { timeout = 2s; });
 
-    const Group root {
-        Group {
+    const Group recipe {
+        For {
             pidIterator,
             ProcessTask(onPidSetup, onPidDone, CallDoneIf::Success),
             timeout
         }.withTimeout(20s),
-        Group {
+        For {
             alivePidIterator,
             ProcessTask(onPidSetup, onAlivePidDone),
             timeout
         }
     };
-
-    m_pidRunner.start(root);
+    m_pidRunner.start(recipe);
 }
 
 void AndroidQmlPreviewWorker::startLogcat()

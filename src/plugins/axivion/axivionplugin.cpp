@@ -691,7 +691,7 @@ static Group authorizationRecipe()
                 *serverUrlStorage = unauthorizedDashboardStorage->url;
             }),
         },
-        Group {
+        For {
             LoopUntil(onCredentialLoopCondition),
             CredentialQueryTask(onGetCredentialSetup, onGetCredentialDone),
             Group {

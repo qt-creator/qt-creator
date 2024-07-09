@@ -237,12 +237,12 @@ static QList<FileNode *> scanForFilesHelper(
             }
         };
 
-        const Group group{
-            Utils::HostOsInfo::isLinuxHost() ? parallelLimit(2) : parallelIdealThreadCountLimit,
+        const For recipe {
             iterator,
+            Utils::HostOsInfo::isLinuxHost() ? parallelLimit(2) : parallelIdealThreadCountLimit,
             Utils::AsyncTask<DirectoryScanResult>(onSetup, onDone)
         };
-        TaskTree::runBlocking(group);
+        TaskTree::runBlocking(recipe);
     }
     return fileNodes;
 }

@@ -196,10 +196,10 @@ static Group installRecipe(
         return DoneResult::Success;
     };
 
-    return Group{
+    return For {
+        installOptionsIt,
         storage,
         parallelIdealThreadCountLimit,
-        installOptionsIt,
         Group{
             onGroupSetup([emitResult, storage, installOptionsIt] {
                 const QString fileName = installOptionsIt->url.fileName();
