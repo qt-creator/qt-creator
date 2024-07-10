@@ -4754,8 +4754,11 @@ void TextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block, co
             break;
         if (m_findFlags & FindWholeWords) {
             auto posAtWordSeparator = [](const QString &text, int idx) {
-                if (idx < 0 || idx >= text.length())
-                    return false;
+                if (idx < 0)
+                    return QTC_GUARD(idx == -1);
+                int textLength = text.length();
+                if (idx >= textLength)
+                    return QTC_GUARD(idx == textLength);
                 const QChar c = text.at(idx);
                 return !c.isLetterOrNumber() && c != QLatin1Char('_');
             };
