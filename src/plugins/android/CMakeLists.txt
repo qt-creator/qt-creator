@@ -25,7 +25,6 @@ add_qtc_plugin(Android
     androidpackageinstallationstep.cpp androidpackageinstallationstep.h
     androidplugin.cpp
     androidpotentialkit.cpp androidpotentialkit.h
-    androidqmlpreviewworker.cpp androidqmlpreviewworker.h
     androidqmltoolingsupport.cpp androidqmltoolingsupport.h
     androidqtversion.cpp androidqtversion.h
     androidrunconfiguration.cpp androidrunconfiguration.h

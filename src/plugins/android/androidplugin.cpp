@@ -10,7 +10,6 @@
 #include "androidmanifesteditorfactory.h"
 #include "androidpackageinstallationstep.h"
 #include "androidpotentialkit.h"
-#include "androidqmlpreviewworker.h"
 #include "androidqmltoolingsupport.h"
 #include "androidqtversion.h"
 #include "androidrunconfiguration.h"
@@ -107,7 +106,6 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
         setupAndroidRunWorker();
         setupAndroidDebugWorker();
         setupAndroidQmlToolingSupport();
-        setupAndroidQmlPreviewWorker();
 
         setupJavaEditor();
         setupAndroidManifestEditor();
