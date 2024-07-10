@@ -77,7 +77,7 @@ UseSelectionsTestCase::UseSelectionsTestCase(CppTestDocument &testFile,
     closeEditorAtEndOfTestCase(testFile.m_editor);
 
     testFile.m_editor->setCursorPosition(testFile.m_cursorPosition);
-    waitForRehighlightedSemanticDocument(m_editorWidget);
+    QVERIFY(waitForRehighlightedSemanticDocument(m_editorWidget));
 
     bool hasTimedOut;
     const SelectionList selections = waitForUseSelections(&hasTimedOut);

@@ -310,7 +310,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
 
         // Rehighlight
         if (!useClangd)
-            waitForRehighlightedSemanticDocument(testFile->m_editorWidget);
+            QVERIFY(waitForRehighlightedSemanticDocument(testFile->m_editorWidget));
     }
 
     // Activate editor of initial test file

@@ -164,7 +164,7 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
         QVERIFY(CppModelManager::workingCopy().get(filePath));
 
         // Rehighlight
-        waitForRehighlightedSemanticDocument(editorWidget);
+        QVERIFY(waitForRehighlightedSemanticDocument(editorWidget));
 
         // Run all file actions
         executeActionsOnEditorWidget(editorWidget, fileActions);
