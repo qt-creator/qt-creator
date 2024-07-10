@@ -14,7 +14,8 @@
 
     \ingroup creator-tutorials
 
-    \title Building and Running an Example
+    \keyword {Building and Running an Example}
+    \title Tutorial: Build and run
 
     \brief How to build and run a Qt example.
 

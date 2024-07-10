@@ -8,7 +8,8 @@
 
     \ingroup creator-tutorials
 
-    \title Creating a Qt for Python Application with Qt Quick
+    \keyword {Creating a Qt for Python Application with Qt Quick}
+    \title Tutorial: Qt Quick and Python
 
     \brief How to develop a Qt Quick application with Python.
 
@@ -22,7 +23,7 @@
     \l {https://doc.qt.io/qtforpython/tutorials/index.html}
     {Qt for Python Examples and Tutorials}.
 
-    \section1 Creating an Empty Project
+    \section1 Create an empty project
 
     To create a Qt for Python application that has a main QML file:
 
@@ -65,7 +66,7 @@
             using pip.
     \endlist
 
-    \section1 Adding Qt Quick Imports
+    \section1 Add Qt Quick imports
 
     The wizard adds the following imports to the \c {main.py} source file for
     access to QGuiApplication and QQmlApplicationEngine:
@@ -78,7 +79,7 @@
     from PySide6.QtQml import QQmlApplicationEngine
     \endcode
 
-    \section1 Adding a Main Function
+    \section1 Add a main function
 
     The wizard also adds a main function, where it creates a QGuiApplication
     instance and passes system arguments to the QGuiApplication object:
@@ -89,7 +90,7 @@
         ...
     \endcode
 
-    \section1 Loading the QML File
+    \section1 Load the QML file
 
     The following lines in the main class create a QQmlApplicationEngine
     instance and load the generated QML file to the engine object:
@@ -115,12 +116,12 @@
     ...
     \endcode
 
-    \section1 Designing the UI
+    \section1 Design the UI
 
     Open the \c {main.qml} file in the \uicontrol Edit mode to design a
     Qt Quick UI.
 
-    \section2 Adding Imports
+    \section2 Add imports
 
     Add imports for Qt Quick Controls and Layouts:
 
@@ -131,7 +132,7 @@
     import QtQuick.Layouts
     \endcode
 
-    \section2 Adding Properties and Functions
+    \section2 Add properties and functions
 
     The wizard adds a main window:
 
@@ -158,7 +159,7 @@
     }
     \endcode
 
-    \section2 Adding Qt Quick Controls
+    \section2 Add Qt Quick Controls
 
     Add \l {Text} and \l {Button} QML types within a \l {ColumnLayout} type to
     design the UI:
@@ -182,11 +183,10 @@
 
     You can also use \l{Qt Design Studio Manual}{\QDS} to design Qt Quick UIs.
 
-    \section1 Running the Application
+    \section1 Run the application
 
-    Select the \inlineimage icons/run_small.png
-    button to run the application.
+    Select \inlineimage icons/run_small.png to run the application.
 
-    \sa {Creating a Qt for Python Application with Qt Widgets},
+    \sa {Tutorial: Qt Widgets and Python},
     {Develop Qt for Python Applications}
 */

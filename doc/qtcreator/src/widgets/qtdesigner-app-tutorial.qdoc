@@ -7,9 +7,10 @@
     \nextpage creator-how-tos.html
     \ingroup creator-tutorials
 
-    \title Creating a Qt Widget Based Application
+    \keyword {Creating a Qt Widget Based Application}
+    \title Tutorial: Qt Widgets application
 
-    \brief How to use the integrated \QD to create a Qt widget based application
+    \brief How to use the integrated \QD to create a Qt widget-based application
     for the desktop.
 
     This tutorial describes how to use \QC to create a small Qt application,
@@ -19,54 +20,54 @@
 
     \image qtcreator-textfinder-screenshot.png
 
-    \section1 Creating the Text Finder Project
+    \section1 Create the Text Finder project
 
     \list 1
 
-        \li Select \uicontrol File > \uicontrol {New Project} >
-            \uicontrol {Application (Qt)} > \uicontrol {Qt Widgets Application}
-            > \uicontrol Choose.
+        \li Go to \uicontrol File > \uicontrol {New Project} >
+            \uicontrol {Application (Qt)} > \uicontrol {Qt Widgets Application}.
 
-            \image qtcreator-new-qt-gui-application.png {New Project dialog}
+            \image qtcreator-new-project-qt-widgets.webp {New Project dialog}
 
-            The \uicontrol{Project Location} dialog opens.
+        \li Select \uicontrol Choose to open the \uicontrol {Project Location}
+            dialog.
 
-            \image qtcreator-intro-and-location-qt-gui.png {Project Location dialog}
+            \image qtcreator-new-project-location-qt-widgets.webp {Project Location dialog}
 
-        \li In the \uicontrol{Name} field, type \b {TextFinder}.
+        \li In \uicontrol{Name}, type \b {TextFinder}.
 
-        \li In the \uicontrol {Create in} field, enter the path for the project files.
+        \li In \uicontrol {Create in}, enter the path for the project files.
             For example, \c {C:\Qt\examples}.
 
         \li Select \uicontrol{Next} (on Windows and Linux) or
             \uicontrol Continue (on \macos) to open the
             \uicontrol {Define Build System} dialog.
 
-            \image qtcreator-new-project-build-system-qt-gui.png {Define Build System dialog}
+            \image qtcreator-new-project-build-system.webp {Define Build System dialog}
 
-        \li In the \uicontrol {Build system} field, select \l {CMake}
+        \li In \uicontrol {Build system}, select \l {CMake}
             {CMake} as the build system to use for building the project.
 
         \li Select \uicontrol Next or \uicontrol Continue to open the
             \uicontrol{Class Information} dialog.
 
-            \image qtcreator-class-info-qt-gui.png {Class Information dialog}
+            \image qtcreator-new-project-class-info.webp {Class Information dialog}
 
-        \li In the \uicontrol{Class name} field, type \b {TextFinder} as the class
+        \li In \uicontrol{Class name}, type \b {TextFinder} as the class
             name.
 
-        \li In the \uicontrol{Base class} list, select \b {QWidget} as the base
+        \li In \uicontrol{Base class}, select \b {QWidget} as the base
             class type.
 
-           \note The \uicontrol{Header file}, \uicontrol{Source file} and \uicontrol{Form file}
-            fields are automatically updated to match the name of the class.
+           \note \uicontrol{Header file}, \uicontrol{Source file} and \uicontrol{Form file}
+           s are automatically updated to match the name of the class.
 
         \li Select \uicontrol Next or \uicontrol Continue to open the
             \uicontrol {Translation File} dialog.
 
-            \image qtcreator-new-qt-gui-application-translationfile.png {Translation File dialog}
+            \image qtcreator-new-project-translation-file.webp {Translation File dialog}
 
-        \li In the \uicontrol Language field, you can select a language that you
+        \li In \uicontrol Language, you can select a language that you
             plan to \l {Use Qt Linguist}{translate} the application to. This
             sets up localization support for the application. You can add other
             languages later by editing the project file.
@@ -74,7 +75,7 @@
         \li Select \uicontrol Next or \uicontrol Continue to open the
             \uicontrol {Kit Selection} dialog.
 
-            \image qtcreator-new-project-qt-versions-qt-gui.png {Kit Selection dialog}
+            \image qtcreator-new-project-kit-selection.webp {Kit Selection dialog}
 
         \li Select build and run \l{Kits}{kits} for your
             project.
@@ -82,7 +83,7 @@
         \li Select \uicontrol Next or \uicontrol Continue to open the
             \uicontrol {Project Management} dialog.
 
-            \image qtcreator-new-project-summary-qt-gui.png {Project Management dialog}
+            \image qtcreator-new-project-summary.webp {Project Management dialog}
 
         \li Review the project settings, and select \uicontrol{Finish} (on Windows and
             Linux) or \uicontrol Done (on \macos) to create the project.
@@ -111,12 +112,12 @@
     If you selected CMake as the build system, \QC created a CMakeLists.txt
     project file for you.
 
-    \section1 Filling in the Missing Pieces
+    \section1 Fill in the missing pieces
 
     Begin by designing the user interface and then move on to filling
     in the missing code. Finally, add the find functionality.
 
-    \section2 Designing the User Interface
+    \section2 Design the user interface
 
     \image qtcreator-textfinder-ui.png {Text Finder UI}
 
@@ -141,7 +142,7 @@
         \uicontrol Sidebar. For example, to find the \uicontrol Label widget, start typing
         the word \b label.
 
-        \image qtcreator-textfinder-filter.png {Filter field}
+        \image qtcreator-textfinder-filter.png {Filter}
 
         \li Double-click the \uicontrol{Label} widget and enter the text
             \b{Keyword}.
@@ -199,7 +200,7 @@
     For more information about designing forms with \QD, see the
     \l{\QD Manual}.
 
-    \section2 Completing the Header File
+    \section2 Complete the header file
 
     The textfinder.h file already has the necessary #includes, a constructor,
     a destructor, and the \c{Ui} object. You need to add a private function,
@@ -218,7 +219,7 @@
 
     \endlist
 
-    \section2 Completing the Source File
+    \section2 Complete the source file
 
     Now that the header file is complete, move on to the source file,
     textfinder.cpp.
@@ -258,7 +259,7 @@
     QMetaObject::connectSlotsByName(TextFinder);
     \endcode
 
-    \section2 Creating a Resource File
+    \section2 Create a resource file
 
     You need a resource file (.qrc) within which you embed the input
     text file. The input file can be any .txt file with a paragraph of text.
@@ -269,32 +270,32 @@
 
     \list 1
 
-        \li Select \uicontrol File > \uicontrol {New File} >
+        \li Go to \uicontrol File > \uicontrol {New File} >
             \uicontrol Qt > \uicontrol {Qt Resource File} > \uicontrol Choose.
 
-            \image qtcreator-add-resource-wizard.png {New File dialog}
+            \image qtcreator-new-file-qrc.webp {New File dialog}
 
             The \uicontrol {Choose the Location} dialog opens.
 
-            \image qtcreator-add-resource-wizard2.png {Choose the Location dialog}
+            \image qtcreator-new-file-qrc1.webp {Choose the Location dialog}
 
-        \li In the \uicontrol{Name} field, enter \b{textfinder}.
+        \li In \uicontrol{Name}, enter \b{textfinder}.
 
-        \li In the \uicontrol{Path} field, enter the path to the project,
+        \li In \uicontrol{Path}, enter the path to the project,
             and select \uicontrol Next or \uicontrol Continue.
 
             The \uicontrol{Project Management} dialog opens.
 
-            \image qtcreator-add-resource-wizard3.png {Project Management dialog}
+            \image qtcreator-new-file-qrc2.webp {Project Management dialog}
 
 
-        \li In the \uicontrol{Add to project} field, select \b{TextFinder}
+        \li In \uicontrol{Add to project}, select \b{TextFinder}
             and select \uicontrol{Finish} or \uicontrol Done to open the file
             in the code editor.
 
         \li Select \uicontrol Add > \uicontrol {Add Prefix}.
 
-        \li In the \uicontrol{Prefix} field, replace the default prefix with a slash
+        \li In \uicontrol{Prefix}, replace the default prefix with a slash
             (/).
 
         \li Select \uicontrol Add > \uicontrol {Add Files}, to locate and add
@@ -304,7 +305,7 @@
 
     \endlist
 
-    \section1 Adding Resources to Project File
+    \section1 Add resources to the project file
 
     For the text file to appear when you run the application, you must specify
     the resource file as a source file in the \e CMakeLists.txt file that the
@@ -314,10 +315,9 @@
     \skipto set(PROJECT_SOURCES
     \printuntil )
 
-    \section1 Compiling and Running Your Application
+    \section1 Build and run your application
 
-    Now that you have all the necessary files, select the
-    \inlineimage icons/run_small.png
-    button to compile and run your application.
+    Now that you have all the necessary files, select
+    \inlineimage icons/run_small.png to build and run your application.
 
 */

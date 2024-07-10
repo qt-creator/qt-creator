@@ -227,7 +227,7 @@
 
     If you use CMake as the build system, you must specify the Android package
     source directory, \c QT_ANDROID_PACKAGE_SOURCE_DIR, in the CMakeList.txt
-    file, as instructed in the \l{Locking Device Orientation}
+    file, as instructed in the \l{Lock device orientation}
     {mobile device tutorial}.
 
     To use \QC to create an Android manifest file and to open it in the Android

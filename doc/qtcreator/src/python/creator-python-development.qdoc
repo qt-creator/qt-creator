@@ -113,7 +113,7 @@
     \uicontrol {REPL Import File}. To also import all functions from
     the file, select \uicontrol {REPL Import *}.
 
-    \sa {Creating a Qt for Python Application with Qt Widgets},
-    {Creating a Qt for Python Application with Qt Quick},
+    \sa {Tutorial: Qt Widgets and Python},
+    {Tutorial: Qt Quick and Python},
     {Activate kits for a project}
 */

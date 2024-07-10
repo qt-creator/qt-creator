@@ -8,7 +8,8 @@
 
     \ingroup creator-tutorials
 
-    \title Creating a Qt for Python Application with Qt Widgets
+    \keyword {Creating a Qt for Python Application with Qt Widgets}
+    \title Tutorial: Qt Widgets and Python
 
     \brief How to develop a Qt widget-based application with Python.
 
@@ -22,7 +23,7 @@
     \l {https://doc.qt.io/qtforpython/tutorials/index.html}
     {Qt for Python Examples and Tutorials}.
 
-    \section1 Creating an Empty Window Project
+    \section1 Create an empty window project
 
     To create a Qt for Python application that has the source file for a main
     class:
@@ -75,7 +76,7 @@
             using pip.
     \endlist
 
-    \section1 Adding Qt Widgets Imports
+    \section1 Add Qt Widgets imports
 
     The wizard adds the imports to the \c mywidget.py source file for access to
     the QApplication and the base class you selected in the Qt Widgets module,
@@ -90,7 +91,7 @@
     from PySide6 import QtCore, QtWidgets
     \endcode
 
-   \section1 Adding a Widgets-Based UI
+   \section1 Add a widgets-based UI
 
     The wizard adds a main class with the specified name that inherits from the
     specified base class:
@@ -118,7 +119,7 @@
         ...
     \endcode
 
-    \section1 Adding Signals and Slots
+    \section1 Add signals and slots
 
     Then, add a signal and a slot to implement the random function:
 
@@ -131,7 +132,7 @@
         self.text.setText(random.choice(self.hello))
     \endcode
 
-    \section1 Adding a Main Function
+    \section1 Add a main function
 
     The wizard adds a main function, where it creates a QApplication instance. As
     Qt can receive arguments from the command line, you can pass any arguments to
@@ -144,7 +145,7 @@
         ...
     \endcode
 
-    \section1 Instantiating the MainWindow Class
+    \section1 Instantiate the MainWindow class
 
     The wizard instantiates the \c MainWindow class and shows it:
 
@@ -155,7 +156,7 @@
         ...
     \endcode
 
-    \section1 Executing the Qt Code
+    \section1 Execute the Qt Code
 
     Finally, the wizard calls the \c app.exec() method to enter the Qt
     main loop and start executing the Qt code:
@@ -165,11 +166,11 @@
         sys.exit(app.exec())
     \endcode
 
-    \section1 Running the Application
+    \section1 Run the application
 
     Select the \inlineimage icons/run_small.png
     button to run the application.
 
-    \sa {Creating a Qt for Python Application with Qt Quick},
+    \sa {Tutorial: Qt Quick and Python},
     {Develop Qt for Python Applications}
 */
