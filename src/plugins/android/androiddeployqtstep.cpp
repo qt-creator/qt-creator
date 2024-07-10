@@ -164,7 +164,6 @@ private:
     FilePath m_apkPath;
     QList<FileToPull> m_filesToPull;
 
-    QStringList m_androidABIs;
     BoolAspect m_uninstallPreviousPackage{this};
     bool m_uninstallPreviousPackageRun = false;
     bool m_useAndroiddeployqt = false;
@@ -212,8 +211,8 @@ bool AndroidDeployQtStep::init()
 
     m_androiddeployqtArgs = {};
 
-    m_androidABIs = AndroidManager::applicationAbis(target());
-    if (m_androidABIs.isEmpty()) {
+    const QStringList androidABIs = AndroidManager::applicationAbis(target());
+    if (androidABIs.isEmpty()) {
         reportWarningOrError(Tr::tr("No Android architecture (ABI) is set by the project."),
                              Task::Error);
         return false;
@@ -232,7 +231,7 @@ bool AndroidDeployQtStep::init()
 
     auto androidBuildApkStep = bc->buildSteps()->firstOfType<AndroidBuildApkStep>();
     const int minTargetApi = AndroidManager::minimumSDK(target());
-    qCDebug(deployStepLog) << "Target architecture:" << m_androidABIs
+    qCDebug(deployStepLog) << "Target architecture:" << androidABIs
                            << "Min target API" << minTargetApi;
 
     // Try to re-use user-provided information from an earlier step of the same type.
