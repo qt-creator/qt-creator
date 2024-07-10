@@ -5,6 +5,7 @@
 
 #include "utils_global.h"
 
+#include "expected.h"
 #include "filepath.h"
 
 #include <QCoreApplication>
@@ -79,6 +80,7 @@ public:
     static FilePath commonPath(const FilePath &oldCommonPath, const FilePath &fileName);
     static FilePath commonPath(const FilePaths &paths);
     static FilePath homePath();
+    static expected_str<FilePath> scratchBufferFilePath(const QString &pattern);
 
     static FilePaths toFilePathList(const QStringList &paths);
 

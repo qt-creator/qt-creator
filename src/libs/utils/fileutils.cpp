@@ -15,6 +15,7 @@
 #include <QDataStream>
 #include <QDateTime>
 #include <QDebug>
+#include <QFileInfo>
 #include <QRegularExpression>
 #include <QTemporaryFile>
 #include <QTextStream>
@@ -826,6 +827,27 @@ FilePath FileUtils::commonPath(const FilePath &oldCommonPath, const FilePath &fi
 FilePath FileUtils::homePath()
 {
     return FilePath::fromUserInput(QDir::homePath());
+}
+
+expected_str<FilePath> FileUtils::scratchBufferFilePath(const QString &pattern)
+{
+    QString tmp = pattern;
+    QFileInfo fi(tmp);
+    if (!fi.isAbsolute()) {
+        QString tempPattern = QDir::tempPath();
+        if (!tempPattern.endsWith(QLatin1Char('/')))
+            tempPattern += QLatin1Char('/');
+        tmp = tempPattern + tmp;
+    }
+
+    QTemporaryFile file(tmp);
+    file.setAutoRemove(false);
+    if (!file.open()) {
+        return make_unexpected(Tr::tr("Failed to set up scratch buffer in \"%1\".")
+                                   .arg(FilePath::fromString(tmp).parentDir().toUserOutput()));
+    }
+    file.close();
+    return FilePath::fromString(file.fileName());
 }
 
 FilePaths FileUtils::toFilePathList(const QStringList &paths)

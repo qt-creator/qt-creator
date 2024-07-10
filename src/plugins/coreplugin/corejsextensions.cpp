@@ -3,6 +3,8 @@
 
 #include "corejsextensions.h"
 
+#include "messagemanager.h"
+
 #include <utils/appinfo.h>
 #include <utils/fileutils.h>
 #include <utils/mimeutils.h>
@@ -126,20 +128,12 @@ QString UtilsJsExtension::mktemp(const QString &pattern) const
     QString tmp = pattern;
     if (tmp.isEmpty())
         tmp = QStringLiteral("qt_temp.XXXXXX");
-    QFileInfo fi(tmp);
-    if (!fi.isAbsolute()) {
-        QString tempPattern = QDir::tempPath();
-        if (!tempPattern.endsWith(QLatin1Char('/')))
-            tempPattern += QLatin1Char('/');
-        tmp = tempPattern + tmp;
+    const auto res = FileUtils::scratchBufferFilePath(tmp);
+    if (!res) {
+        MessageManager::writeDisrupting(res.error());
+        return {};
     }
-
-    QTemporaryFile file(tmp);
-    file.setAutoRemove(false);
-    const bool isOpen = file.open();
-    QTC_ASSERT(isOpen, return {});
-    file.close();
-    return file.fileName();
+    return res->toFSPathString();
 }
 
 QString UtilsJsExtension::asciify(const QString &input) const

@@ -10,9 +10,11 @@
 #include "editormanager/editormanager.h"
 #include "find/basetextfind.h"
 #include "icore.h"
+#include "messagemanager.h"
 
 #include <aggregation/aggregate.h>
 
+#include <utils/fileutils.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
 
@@ -294,6 +296,27 @@ void OutputWindow::contextMenuEvent(QContextMenuEvent *event)
         QFileDialog::saveFileContent(toPlainText().toUtf8(), d->outputFileNameHint);
     });
     saveAction->setEnabled(!document()->isEmpty());
+    QAction *openAction = menu->addAction(Tr::tr("Copy Contents to Scratch Buffer"));
+    connect(openAction, &QAction::triggered, this, [this] {
+        QString scratchBufferPrefix = FilePath::fromString(d->outputFileNameHint).baseName();
+        if (scratchBufferPrefix.isEmpty())
+            scratchBufferPrefix = "scratch";
+        const auto tempPath = FileUtils::scratchBufferFilePath(
+            QString::fromUtf8("%1-XXXXXX.txt").arg(scratchBufferPrefix));
+        if (!tempPath) {
+            MessageManager::writeDisrupting(tempPath.error());
+            return;
+        }
+        IEditor * const editor = EditorManager::openEditor(*tempPath);
+        if (!editor) {
+            MessageManager::writeDisrupting(
+                Tr::tr("Failed to open editor for \"%1\".").arg(tempPath->toUserOutput()));
+            return;
+        }
+        editor->document()->setTemporary(true);
+        editor->document()->setContents(toPlainText().toUtf8());
+    });
+    openAction->setEnabled(!document()->isEmpty());
 
     menu->addSeparator();
     QAction *clearAction = menu->addAction(Tr::tr("Clear"));
