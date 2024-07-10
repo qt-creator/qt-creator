@@ -159,7 +159,6 @@ private:
 
     void reportWarningOrError(const QString &message, Task::TaskType type);
 
-    FilePath m_manifestName;
     QString m_serialNumber;
     QString m_avdName;
     FilePath m_apkPath;
@@ -317,9 +316,6 @@ bool AndroidDeployQtStep::init()
     emit addOutput(Tr::tr("Deploying to %1").arg(m_serialNumber), OutputFormat::NormalMessage);
 
     m_uninstallPreviousPackageRun = m_uninstallPreviousPackage();
-    if (m_uninstallPreviousPackageRun)
-        m_manifestName = AndroidManager::manifestPath(target());
-
     m_useAndroiddeployqt = version->qtVersion() >= AndroidManager::firstQtWithAndroidDeployQt;
     if (m_useAndroiddeployqt) {
         const QString buildKey = target()->activeBuildKey();
@@ -330,9 +326,9 @@ bool AndroidDeployQtStep::init()
         }
         m_apkPath = FilePath::fromString(node->data(Constants::AndroidApk).toString());
         if (!m_apkPath.isEmpty()) {
-            m_manifestName = FilePath::fromString(node->data(Constants::AndroidManifest).toString());
             m_command = AndroidConfig::adbToolPath();
-            AndroidManager::setManifestPath(target(), m_manifestName);
+            AndroidManager::setManifestPath(target(),
+                FilePath::fromString(node->data(Constants::AndroidManifest).toString()));
         } else {
             QString jsonFile = AndroidQtVersion::androidDeploymentSettings(target()).toString();
             if (jsonFile.isEmpty()) {
