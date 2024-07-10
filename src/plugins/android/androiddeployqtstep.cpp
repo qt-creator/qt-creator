@@ -51,6 +51,7 @@
 #include <QRegularExpression>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 using namespace std::chrono_literals;
@@ -96,6 +97,39 @@ static DeployErrorFlags parseDeployErrors(const QString &deployOutputLine)
 
 // AndroidDeployQtStep
 
+struct FileToPull
+{
+    QString from;
+    FilePath to;
+};
+
+static QList<FileToPull> filesToPull(Target *target)
+{
+    QList<FileToPull> fileList;
+    const FilePath appProcessDir = AndroidManager::androidAppProcessDir(target);
+
+    QString linkerName("linker");
+    QString libDirName("lib");
+    const QString preferredAbi = AndroidManager::apkDevicePreferredAbi(target);
+    if (preferredAbi == ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A
+        || preferredAbi == ProjectExplorer::Constants::ANDROID_ABI_X86_64) {
+        fileList.append({"/system/bin/app_process64", appProcessDir / "app_process"});
+        libDirName = "lib64";
+        linkerName = "linker64";
+    } else {
+        fileList.append({"/system/bin/app_process32", appProcessDir / "app_process"});
+        fileList.append({"/system/bin/app_process", appProcessDir / "app_process"});
+    }
+
+    fileList.append({"/system/bin/" + linkerName, appProcessDir / linkerName});
+    fileList.append({"/system/" + libDirName + "/libc.so", appProcessDir / "libc.so"});
+
+    for (const FileToPull &file : std::as_const(fileList))
+        qCDebug(deployStepLog).noquote() << "Pulling file from device:" << file.from
+                                         << "to:" << file.to;
+    return fileList;
+}
+
 class AndroidDeployQtStep : public BuildStep
 {
     Q_OBJECT
@@ -110,8 +144,7 @@ private:
     void runCommand(const CommandLine &command);
 
     bool init() override;
-    Tasking::GroupItem runRecipe() final;
-    void gatherFilesToPull();
+    GroupItem runRecipe() final;
     DeployErrorFlags runDeploy(QPromise<void> &promise);
     void slotAskForUninstall(DeployErrorFlags errorFlags);
 
@@ -130,7 +163,7 @@ private:
     QString m_serialNumber;
     QString m_avdName;
     FilePath m_apkPath;
-    QMap<QString, FilePath> m_filesToPull;
+    QList<FileToPull> m_filesToPull;
 
     QStringList m_androidABIs;
     BoolAspect m_uninstallPreviousPackage{this};
@@ -278,7 +311,8 @@ bool AndroidDeployQtStep::init()
     AndroidManager::setDeviceApiLevel(target(), info.sdk);
     AndroidManager::setDeviceAbis(target(), info.cpuAbi);
 
-    gatherFilesToPull();
+    if (m_deviceInfo.isValid())
+        m_filesToPull = filesToPull(target());
 
     emit addOutput(Tr::tr("Deploying to %1").arg(m_serialNumber), OutputFormat::NormalMessage);
 
@@ -503,23 +537,22 @@ void AndroidDeployQtStep::runImpl(QPromise<void> &promise)
 
     // Note that values are not necessarily unique, e.g. app_process is looked up in several
     // directories
-    for (auto itr = m_filesToPull.constBegin(); itr != m_filesToPull.constEnd(); ++itr)
-        itr.value().removeFile();
+    for (const FileToPull &file : std::as_const(m_filesToPull))
+        file.to.removeFile();
 
-    for (auto itr = m_filesToPull.constBegin(); itr != m_filesToPull.constEnd(); ++itr) {
-        const FilePath parentDir = itr.value().parentDir();
+    for (const FileToPull &file : std::as_const(m_filesToPull)) {
+        const FilePath parentDir = file.to.parentDir();
         if (!parentDir.ensureWritableDir()) {
             const QString error = QString("Package deploy: Unable to create directory %1.")
                                       .arg(parentDir.nativePath());
             reportWarningOrError(error, Task::Error);
         }
 
-        runCommand({m_adbPath, {AndroidDeviceInfo::adbSelector(m_serialNumber), "pull", itr.key(),
-                                itr.value().nativePath()}});
-        if (!itr.value().exists()) {
+        runCommand({m_adbPath, {AndroidDeviceInfo::adbSelector(m_serialNumber), "pull", file.from,
+                                file.to.nativePath()}});
+        if (!file.to.exists()) {
             const QString error = Tr::tr("Package deploy: Failed to pull \"%1\" to \"%2\".")
-                    .arg(itr.key())
-                    .arg(itr.value().nativePath());
+                                      .arg(file.from, file.to.nativePath());
             reportWarningOrError(error, Task::Error);
         }
     }
@@ -527,36 +560,7 @@ void AndroidDeployQtStep::runImpl(QPromise<void> &promise)
         promise.future().cancel();
 }
 
-void AndroidDeployQtStep::gatherFilesToPull()
-{
-    m_filesToPull.clear();
-    const FilePath appProcessDir = AndroidManager::androidAppProcessDir(target());
-
-    if (!m_deviceInfo.isValid())
-        return;
-
-    QString linkerName("linker");
-    QString libDirName("lib");
-    const QString preferredAbi = AndroidManager::apkDevicePreferredAbi(target());
-    if (preferredAbi == ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A
-            || preferredAbi == ProjectExplorer::Constants::ANDROID_ABI_X86_64) {
-        m_filesToPull["/system/bin/app_process64"] = appProcessDir / "app_process";
-        libDirName = "lib64";
-        linkerName = "linker64";
-    } else {
-        m_filesToPull["/system/bin/app_process32"] = appProcessDir / "app_process";
-        m_filesToPull["/system/bin/app_process"] = appProcessDir / "app_process";
-    }
-
-    m_filesToPull["/system/bin/" + linkerName] = appProcessDir / linkerName;
-    m_filesToPull["/system/" + libDirName + "/libc.so"] = appProcessDir / "libc.so";
-
-    for (auto itr = m_filesToPull.constBegin(); itr != m_filesToPull.constEnd(); ++itr)
-        qCDebug(deployStepLog).noquote() << "Pulling file from device:" << itr.key()
-                                         << "to:" << itr.value();
-}
-
-Tasking::GroupItem AndroidDeployQtStep::runRecipe()
+GroupItem AndroidDeployQtStep::runRecipe()
 {
     const auto onSetup = [this](Async<void> &async) {
         async.setConcurrentCallData(&AndroidDeployQtStep::runImpl, this);
