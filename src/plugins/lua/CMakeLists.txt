@@ -1,13 +1,14 @@
 
 add_qtc_plugin(Lua
   PLUGIN_DEPENDS Core
-  PUBLIC_DEPENDS lua546 sol2
+  PUBLIC_DEPENDS lua546 sol2 TextEditor
   PUBLIC_DEFINES LUA_AVAILABLE
   SOURCES
-    wizards/wizards.qrc
     bindings/action.cpp
     bindings/async.cpp
     bindings/core.cpp
+    bindings/documents.cpp
+    bindings/documents.h
     bindings/fetch.cpp
     bindings/gui.cpp
     bindings/hook.cpp
@@ -40,6 +41,7 @@ add_qtc_plugin(Lua
     meta/simpletypes.lua
     meta/utils.lua
     meta/widgets.lua
+    wizards/wizards.qrc
     # generateqtbindings.cpp # Use this if you need to generate some code.
 )
 

@@ -3,7 +3,9 @@
 
 #include "../luaengine.h"
 
+#include "documents.h"
 #include <coreplugin/editormanager/editormanager.h>
+#include <texteditor/textdocument.h>
 
 namespace Lua {
 
@@ -27,8 +29,8 @@ namespace Internal {
 void addHookModule()
 {
     LuaEngine::autoRegister([](sol::state_view lua) {
-        auto connection = lua.new_usertype<QMetaObject::Connection>("QMetaConnection",
-                                                                    sol::no_constructor);
+        auto connection
+            = lua.new_usertype<QMetaObject::Connection>("QMetaConnection", sol::no_constructor);
 
         auto hook = lua.new_usertype<Hook>(
             "Hook",
@@ -51,15 +53,24 @@ void addHookModule()
             Core::EditorManager::instance(),
             &Core::EditorManager::documentOpened,
             [func](Core::IDocument *document) {
-                QTC_CHECK_EXPECTED(LuaEngine::void_safe_call(func, document));
+                auto text_document = qobject_cast<TextEditor::TextDocument *>(document);
+                if (text_document) {
+                    QTC_CHECK_EXPECTED(LuaEngine::void_safe_call(
+                        func, std::make_unique<LuaTextDocument>(text_document)));
+                }
             });
     });
+
     LuaEngine::registerHook("editors.documentClosed", [](const sol::protected_function &func) {
         QObject::connect(
             Core::EditorManager::instance(),
             &Core::EditorManager::documentClosed,
             [func](Core::IDocument *document) {
-                QTC_CHECK_EXPECTED(LuaEngine::void_safe_call(func, document));
+                auto text_document = qobject_cast<TextEditor::TextDocument *>(document);
+                if (text_document) {
+                    QTC_CHECK_EXPECTED(LuaEngine::void_safe_call(
+                        func, std::make_unique<LuaTextDocument>(text_document)));
+                }
             });
     });
 }

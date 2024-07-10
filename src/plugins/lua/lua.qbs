@@ -8,6 +8,7 @@ QtcPlugin {
 
     Depends { name: "lua546" }
     Depends { name: "sol2" }
+    Depends { name: "TextEditor" }
 
     files: [
         // "generateqtbindings.cpp", // use this if you need to generate some code
@@ -32,6 +33,8 @@ QtcPlugin {
             "action.cpp",
             "async.cpp",
             "core.cpp",
+            "documents.cpp",
+            "documents.h",
             "fetch.cpp",
             "gui.cpp",
             "hook.cpp",
