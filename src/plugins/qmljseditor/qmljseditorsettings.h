@@ -34,7 +34,7 @@ public:
     Utils::BoolAspect ignoreMinimumQmllsVersion{this};
     Utils::BoolAspect disableBuiltinCodemodel{this};
     Utils::BoolAspect generateQmllsIniFiles{this};
-    Utils::StringAspect uiQmlOpenMode{this};
+    Utils::SelectionAspect uiQmlOpenMode{this};
     Utils::StringAspect formatCommand{this};
     Utils::StringAspect formatCommandOptions{this};
     Utils::IntegersAspect disabledMessages{this};

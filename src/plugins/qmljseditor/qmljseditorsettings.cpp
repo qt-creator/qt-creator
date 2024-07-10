@@ -223,6 +223,12 @@ QmlJsEditingSettings::QmlJsEditingSettings()
     foldAuxData.setLabelText(Tr::tr("Auto-fold auxiliary data"));
 
     uiQmlOpenMode.setSettingsKey(group, UIQML_OPEN_MODE);
+    uiQmlOpenMode.setUseDataAsSavedValue();
+    uiQmlOpenMode.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    uiQmlOpenMode.setLabelText(Tr::tr("Open .ui.qml files with:"));
+    uiQmlOpenMode.addOption({Tr::tr("Always Ask")});
+    uiQmlOpenMode.addOption({Tr::tr("Qt Design Studio"), {}, Core::Constants::MODE_DESIGN});
+    uiQmlOpenMode.addOption({Tr::tr("Qt Creator"), {}, Core::Constants::MODE_EDIT});
 
     useLatestQmlls.setSettingsKey(group, USE_LATEST_QMLLS);
     useLatestQmlls.setEnabler(&useQmlls);
@@ -344,15 +350,6 @@ public:
     {
         QmlJsEditingSettings &s = settings();
 
-        uiQmlOpenComboBox = new QComboBox;
-        uiQmlOpenComboBox->addItem(Tr::tr("Always Ask"), "");
-        uiQmlOpenComboBox->addItem(Tr::tr("Qt Design Studio"), Core::Constants::MODE_DESIGN);
-        uiQmlOpenComboBox->addItem(Tr::tr("Qt Creator"), Core::Constants::MODE_EDIT);
-        const int comboIndex = qMax(0, uiQmlOpenComboBox->findData(s.uiQmlOpenMode()));
-        uiQmlOpenComboBox->setCurrentIndex(comboIndex);
-        uiQmlOpenComboBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
-        uiQmlOpenComboBox->setSizeAdjustPolicy(QComboBox::QComboBox::AdjustToContents);
-
         analyzerMessageModel.setHeader({Tr::tr("Enabled"),
                                         Tr::tr("Disabled for non Qt Quick UI"),
                                         Tr::tr("Message")});
@@ -398,7 +395,7 @@ public:
                 title(Tr::tr("Features")),
                 Column {
                     s.foldAuxData,
-                    Form { Tr::tr("Open .ui.qml files with:"), uiQmlOpenComboBox },
+                    Row { s.uiQmlOpenMode, st }
                 },
             },
             Group{
@@ -432,7 +429,6 @@ public:
     {
         QmlJsEditingSettings &s = settings();
         s.apply();
-        s.uiQmlOpenMode.setValue(uiQmlOpenComboBox->currentData().toString());
         QList<int> disabled;
         QList<int> disabledForNonQuickUi;
 
@@ -481,7 +477,6 @@ private:
         menu.exec(analyzerMessagesView->mapToGlobal(position));
     }
 
-    QComboBox *uiQmlOpenComboBox;
     QTreeView *analyzerMessagesView;
     Utils::TreeModel<AnalyzerMessageItem> analyzerMessageModel;
 };
