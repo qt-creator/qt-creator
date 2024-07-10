@@ -105,6 +105,13 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
     auto sshPortLabel = new QLabel(Tr::tr("&SSH port:"));
     sshPortLabel->setBuddy(m_sshPortSpinBox);
 
+    m_useSshPortForwardingForDebugging = new QCheckBox;
+    m_useSshPortForwardingForDebugging->setText(Tr::tr("Use SSH port forwarding for debugging"));
+    m_useSshPortForwardingForDebugging
+        ->setToolTip(Tr::tr("Enable debugging on remote targes which cannot expose gdbserver ports.\n"
+                            "The ssh tunneling is used to map the remote gdbserver port to localhost.\n"
+                            "The local and remote ports are determined automatically."));
+
     using namespace Layouting;
 
     Form {
@@ -117,7 +124,8 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
         Tr::tr("GDB server executable:"), m_gdbServerLineEdit, br,
         Tr::tr("QML runtime executable:"), m_qmlRuntimeLineEdit, br,
         QString(), m_sourceProfileCheckBox, br,
-        Tr::tr("Access via:"), m_linkDeviceComboBox
+        QString(), m_useSshPortForwardingForDebugging, br,
+        Tr::tr("Access via:"), m_linkDeviceComboBox, br,
     }.attachTo(this);
 
     connect(m_hostLineEdit, &QLineEdit::editingFinished,
@@ -152,6 +160,8 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
             this, &GenericLinuxDeviceConfigurationWidget::sourceProfileCheckingChanged);
     connect(m_linkDeviceComboBox, &QComboBox::currentIndexChanged,
             this, &GenericLinuxDeviceConfigurationWidget::linkDeviceChanged);
+    connect(m_useSshPortForwardingForDebugging, &QCheckBox::toggled,
+            this, &GenericLinuxDeviceConfigurationWidget::sshPortForwardingForDebugging);
 
     initGui();
 }
@@ -253,6 +263,11 @@ void GenericLinuxDeviceConfigurationWidget::linkDeviceChanged(int index)
     device()->setExtraData(Constants::LinkDevice, deviceId);
 }
 
+void GenericLinuxDeviceConfigurationWidget::sshPortForwardingForDebugging(bool on)
+{
+    device()->setExtraData(Constants::SshForwardDebugServerPort, on);
+}
+
 void GenericLinuxDeviceConfigurationWidget::updateDeviceFromUi()
 {
     hostNameEditingFinished();
@@ -266,6 +281,7 @@ void GenericLinuxDeviceConfigurationWidget::updateDeviceFromUi()
     timeoutEditingFinished();
     sourceProfileCheckingChanged(m_sourceProfileCheckBox->isChecked());
     linkDeviceChanged(m_linkDeviceComboBox->currentIndex());
+    sshPortForwardingForDebugging(m_useSshPortForwardingForDebugging->isChecked());
     qmlRuntimeEditingFinished();
 }
 
@@ -331,6 +347,7 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
         sshParams.authenticationType == SshParameters::AuthenticationTypeSpecificKey);
     m_gdbServerLineEdit->setFilePath(device()->debugServerPath());
     m_qmlRuntimeLineEdit->setFilePath(device()->qmlRunCommand());
+    m_useSshPortForwardingForDebugging->setChecked(device()->extraData(Constants::SshForwardDebugServerPort).toBool());
 
     updatePortsWarningLabel();
 }

@@ -14,11 +14,11 @@
 #include "cpplocalrenaming.h"
 #include "cppmodelmanager.h"
 #include "cpppreprocessordialog.h"
-#include "cppquickfixassistant.h"
 #include "cppselectionchanger.h"
 #include "cppsemanticinfo.h"
 #include "cppuseselectionsupdater.h"
 #include "doxygengenerator.h"
+#include "quickfixes/cppquickfixassistant.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -623,6 +623,7 @@ void CppEditorWidget::renameUsages(const QString &replacement, QTextCursor curso
         const CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this, textDocument()};
         CppModelManager::globalRename(cursorInEditor, replacement);
     };
+    NonInteractiveFollowSymbolMarker niMarker;
     CppModelManager::followSymbol(CursorInEditor{cursor,
                                                  textDocument()->filePath(),
                                                  this,

@@ -469,7 +469,6 @@ public:
 
     QSet<QString> m_expandedINames;
     QHash<QString, int> m_maxArrayCount;
-    QTimer m_requestUpdateTimer;
     QTimer m_localsWindowsTimer;
 
     QHash<QString, TypeInfo> m_reportedTypeInfo;
@@ -512,10 +511,6 @@ WatchModel::WatchModel(WatchHandler *handler, DebuggerEngine *engine)
     root->appendChild(m_returnRoot);
     root->appendChild(m_tooltipRoot);
     setRootItem(root);
-
-    m_requestUpdateTimer.setSingleShot(true);
-    connect(&m_requestUpdateTimer, &QTimer::timeout,
-        this, &WatchModel::updateStarted);
 
     m_localsWindowsTimer.setSingleShot(true);
     m_localsWindowsTimer.setInterval(50);
@@ -849,33 +844,33 @@ static inline quint64 pointerValue(QString data)
 }
 
 // Return the type used for editing
-int WatchItem::editType() const
+QMetaType::Type WatchItem::editType() const
 {
     if (type == "bool")
-        return QVariant::Bool;
+        return QMetaType::Bool;
     if (isIntType(type))
-        return type.contains('u') ? QVariant::ULongLong : QVariant::LongLong;
+        return type.contains('u') ? QMetaType::ULongLong : QMetaType::LongLong;
     if (isFloatType(type))
-        return QVariant::Double;
+        return QMetaType::Double;
     // Check for pointers using hex values (0xAD00 "Hallo")
     if (isPointerType(type) && value.startsWith("0x"))
-        return QVariant::ULongLong;
-   return QVariant::String;
+        return QMetaType::ULongLong;
+   return QMetaType::QString;
 }
 
 // Convert to editable (see above)
 QVariant WatchItem::editValue() const
 {
     switch (editType()) {
-    case QVariant::Bool:
+    case QMetaType::Bool:
         return value != "0" && value != "false";
-    case QVariant::ULongLong:
+    case QMetaType::ULongLong:
         if (isPointerType(type)) // Fix pointer values (0xAD00 "Hallo" -> 0xAD00)
             return QVariant(pointerValue(value));
         return QVariant(value.toULongLong());
-    case QVariant::LongLong:
+    case QMetaType::LongLong:
         return QVariant(value.toLongLong());
-    case QVariant::Double:
+    case QMetaType::Double:
         return QVariant(value.toDouble());
     default:
         break;
@@ -983,7 +978,7 @@ static QColor valueColor(const WatchItem *item, int column)
                 color = Theme::Debugger_WatchItem_ValueChanged;
         }
     }
-    return creatorTheme()->color(color);
+    return creatorColor(color);
 }
 
 static DisplayFormats typeFormatList(const WatchItem *item)
@@ -2310,7 +2305,7 @@ void WatchHandler::notifyUpdateStarted(const UpdateParameters &updateParameters)
         }
     }
 
-    m_model->m_requestUpdateTimer.start(80);
+    emit m_model->updateStarted();
     m_model->m_contentsValid = false;
     updateLocalsWindow();
 }
@@ -2350,7 +2345,6 @@ void WatchHandler::notifyUpdateFinished()
     m_model->m_contentsValid = true;
     updateLocalsWindow();
     m_model->reexpandItems();
-    m_model->m_requestUpdateTimer.stop();
     emit m_model->updateFinished();
 }
 
@@ -2894,8 +2888,8 @@ public:
 
         // Value column: Custom editor. Apply integer-specific settings.
         if (index.column() == 1) {
-            auto editType = QVariant::Type(item->editType());
-            if (editType == QVariant::Bool)
+            const QMetaType::Type editType = item->editType();
+            if (editType == QMetaType::Bool)
                 return new BooleanComboBox(parent);
 
             WatchLineEdit *edit = WatchLineEdit::create(editType, parent);

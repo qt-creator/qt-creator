@@ -196,10 +196,7 @@ void FancyTabBar::mousePressEvent(QMouseEvent *event)
                         emit currentAboutToChange(index);
                         m_currentIndex = index;
                         update();
-                        // update tab bar before showing widget
-                        QMetaObject::invokeMethod(this, [this] {
-                            emit currentChanged(m_currentIndex);
-                        }, Qt::QueuedConnection);
+                        emit currentChanged(m_currentIndex);
                     }
                 }
             }
@@ -275,7 +272,7 @@ static void paintIcon(QPainter *painter, const QRect &rect,
         painter->setOpacity(1.0);
         QRect accentRect = rect;
         accentRect.setWidth(2);
-        painter->fillRect(accentRect, creatorTheme()->color(Theme::IconsBaseColor));
+        painter->fillRect(accentRect, creatorColor(Theme::IconsBaseColor));
     }
 }
 
@@ -305,16 +302,16 @@ static void paintIconAndText(QPainter *painter, const QRect &rect,
     if (selected && creatorTheme()->flag(Theme::FlatToolBars)) {
         QRect accentRect = rect;
         accentRect.setWidth(2);
-        painter->fillRect(accentRect, creatorTheme()->color(Theme::IconsBaseColor));
+        painter->fillRect(accentRect, creatorColor(Theme::IconsBaseColor));
     }
     if (enabled) {
         painter->setPen(
-            selected ? creatorTheme()->color(Theme::FancyTabWidgetEnabledSelectedTextColor)
-                     : creatorTheme()->color(Theme::FancyTabWidgetEnabledUnselectedTextColor));
+            selected ? creatorColor(Theme::FancyTabWidgetEnabledSelectedTextColor)
+                     : creatorColor(Theme::FancyTabWidgetEnabledUnselectedTextColor));
     } else {
         painter->setPen(
-            selected ? creatorTheme()->color(Theme::FancyTabWidgetDisabledSelectedTextColor)
-                     : creatorTheme()->color(Theme::FancyTabWidgetDisabledUnselectedTextColor));
+            selected ? creatorColor(Theme::FancyTabWidgetDisabledSelectedTextColor)
+                     : creatorColor(Theme::FancyTabWidgetDisabledUnselectedTextColor));
     }
 
     painter->translate(0, -1);
@@ -341,7 +338,7 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
     if (selected) {
         if (creatorTheme()->flag(Theme::FlatToolBars)) {
             // background color of a fancy tab that is active
-            painter->fillRect(rect, creatorTheme()->color(Theme::FancyTabBarSelectedBackgroundColor));
+            painter->fillRect(rect, creatorColor(Theme::FancyTabBarSelectedBackgroundColor));
         } else {
             paintSelectedTabBackground(painter, rect);
         }
@@ -352,7 +349,7 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex) const
         painter->save();
         painter->setOpacity(fader);
         if (creatorTheme()->flag(Theme::FlatToolBars))
-            painter->fillRect(rect, creatorTheme()->color(Theme::FancyToolButtonHoverColor));
+            painter->fillRect(rect, creatorColor(Theme::FancyToolButtonHoverColor));
         else
             FancyToolButton::hoverOverlay(painter, rect);
         painter->restore();
@@ -464,7 +461,7 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
     QVBoxLayout *vlayout;
 
     using namespace Layouting;
-    Row { fancyButton, noMargin() }.attachTo(bar);
+    Row { fancyButton, noMargin }.attachTo(bar);
     Row {
         Widget {
             bindTo(&m_selectionWidget),
@@ -474,13 +471,13 @@ FancyTabWidget::FancyTabWidget(QWidget *parent)
                 st,
                 Widget {
                     bindTo(&m_cornerWidgetContainer),
-                    Column { st, spacing(0), noMargin() },
+                    Column { st, spacing(0), noMargin },
                 },
-                spacing(0),  noMargin(),
+                spacing(0), noMargin,
             },
         },
         Column { bindTo(&vlayout), m_modesStack, m_statusBar, spacing(0) },
-        spacing(1), noMargin(),
+        spacing(1), noMargin,
     }.attachTo(this);
 
     m_selectionWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);

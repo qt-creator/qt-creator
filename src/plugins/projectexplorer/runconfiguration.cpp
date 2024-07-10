@@ -71,7 +71,7 @@ void GlobalOrProjectAspect::setProjectSettings(AspectContainer *settings)
 void GlobalOrProjectAspect::setGlobalSettings(AspectContainer *settings)
 {
     m_globalSettings = settings;
-    m_projectSettings->setAutoApply(false);
+    m_globalSettings->setAutoApply(false);
 }
 
 void GlobalOrProjectAspect::setUsingGlobalSettings(bool value)
@@ -173,6 +173,9 @@ RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
 
 
     m_commandLineGetter = [this] {
+        Launcher launcher;
+        if (const auto launcherAspect = aspect<LauncherAspect>())
+            launcher = launcherAspect->currentLauncher();
         FilePath executable;
         if (const auto executableAspect = aspect<ExecutableAspect>())
             executable = executableAspect->executable();
@@ -180,7 +183,14 @@ RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
         if (const auto argumentsAspect = aspect<ArgumentsAspect>())
             arguments = argumentsAspect->arguments();
 
-        return CommandLine{executable, arguments, CommandLine::Raw};
+        if (launcher.command.isEmpty())
+            return CommandLine{executable, arguments, CommandLine::Raw};
+
+        CommandLine launcherCommand(launcher.command, launcher.arguments);
+        launcherCommand.addArg(executable.toString());
+        launcherCommand.addArgs(arguments, CommandLine::Raw);
+
+        return launcherCommand;
     };
 }
 
@@ -201,13 +211,13 @@ bool RunConfiguration::isEnabled(Utils::Id) const
 QWidget *RunConfiguration::createConfigurationWidget()
 {
     Layouting::Form form;
+    form.setNoMargins();
     for (BaseAspect *aspect : std::as_const(*this)) {
         if (aspect->isVisible()) {
             form.addItem(aspect);
-            form.addItem(Layouting::br);
+            form.flush();
         }
     }
-    form.addItem(Layouting::noMargin);
     auto widget = form.emerge();
 
     VariableChooser::addSupportForChildWidgets(widget, &m_expander);
@@ -425,6 +435,13 @@ ProcessRunData RunConfiguration::runnable() const
         r.environment = environmentAspect->environment();
     if (m_runnableModifier)
         m_runnableModifier(r);
+
+    // TODO: Do expansion in commandLine()?
+    if (!r.command.isEmpty()) {
+        const FilePath expanded = macroExpander()->expand(r.command.executable());
+        r.command.setExecutable(expanded);
+    }
+
     return r;
 }
 

@@ -156,13 +156,9 @@ StatusBarContext::StatusBarContext(QObject *parent)
 
 Context StatusBarContext::context() const
 {
-    IMode *currentMode = ModeManager::currentMode();
-    QWidget *modeWidget = currentMode ? currentMode->widget() : nullptr;
-    if (modeWidget) {
-        if (IContext *context = ICore::contextObject(modeWidget))
-            return context->context();
-    }
-    return Context();
+    if (IMode *currentMode = ModeManager::currentMode())
+        return currentMode->context();
+    return {};
 }
 
 } // Core

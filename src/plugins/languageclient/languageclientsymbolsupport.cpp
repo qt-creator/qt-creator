@@ -100,9 +100,8 @@ static MessageId sendTextDocumentPositionParamsRequest(Client *client,
             sendMessage = supportedFile;
     } else {
         const auto provider = std::mem_fn(member)(serverCapability);
-        sendMessage = provider.has_value();
-        if (sendMessage && std::holds_alternative<bool>(*provider))
-            sendMessage = std::get<bool>(*provider);
+        const bool *boolvalue = provider.has_value() ? std::get_if<bool>(&*provider) : nullptr;
+        sendMessage = provider.has_value() && (!boolvalue || *boolvalue);
     }
     if (sendMessage) {
         client->sendMessage(request);
@@ -191,9 +190,8 @@ bool SymbolSupport::supportsFindLink(TextEditor::TextDocument *document, LinkTar
         else
             supported = m_client->isSupportedUri(uri);
     } else {
-        supported = provider.has_value();
-        if (supported && std::holds_alternative<bool>(*provider))
-            supported = std::get<bool>(*provider);
+        const bool *boolvalue = provider.has_value() ? std::get_if<bool>(&*provider) : nullptr;
+        supported = provider.has_value() && (!boolvalue || *boolvalue);
     }
     return supported;
 }
@@ -259,8 +257,8 @@ bool SymbolSupport::supportsFindUsages(TextEditor::TextDocument *document) const
             return false;
         }
     } else if (auto referencesProvider = m_client->capabilities().referencesProvider()) {
-        if (std::holds_alternative<bool>(*referencesProvider)) {
-            if (!std::get<bool>(*referencesProvider))
+        if (const auto b = std::get_if<bool>(&*referencesProvider)) {
+            if (!*b)
                 return false;
         }
     } else {
@@ -300,8 +298,9 @@ QStringList SymbolSupport::getFileContents(const Utils::FilePath &filePath)
 
 Utils::SearchResultItems generateSearchResultItems(
     const QMap<Utils::FilePath, QList<ItemData>> &rangesInDocument,
-    Core::SearchResult *search = nullptr,
-    bool limitToProjects = false)
+    Client *client,
+    Core::SearchResult *search,
+    bool limitToProjects)
 {
     Utils::SearchResultItems result;
     const bool renaming = search && search->supportsReplace();
@@ -321,8 +320,15 @@ Utils::SearchResultItems generateSearchResultItems(
         if (renaming && limitToProjects) {
             const ProjectExplorer::Node * const node
                 = ProjectExplorer::ProjectTree::nodeForFile(filePath);
-            item.setSelectForReplacement(node && !node->isGenerated());
-            if (node
+            if (node) {
+                item.setSelectForReplacement(!node->isGenerated());
+            } else {
+                item.setSelectForReplacement(
+                    client->project()
+                    && ProjectExplorer::ProjectManager::isInProjectSourceDir(
+                        filePath, *client->project()));
+            }
+            if (item.selectForReplacement()
                 && filePath.baseName().compare(oldSymbolName, Qt::CaseInsensitive) == 0) {
                 fileRenameCandidates << filePath;
             }
@@ -362,17 +368,17 @@ void filterFileAliases(ItemDataPerPath &itemDataPerPath)
 }
 
 Utils::SearchResultItems generateSearchResultItems(
-    const LanguageClientArray<Location> &locations, const DocumentUri::PathMapper &pathMapper)
+    const LanguageClientArray<Location> &locations, Client *client)
 {
     if (locations.isNull())
         return {};
     ItemDataPerPath rangesInDocument;
     for (const Location &location : locations.toList()) {
-        rangesInDocument[location.uri().toFilePath(pathMapper)]
+        rangesInDocument[location.uri().toFilePath(client->hostPathMapper())]
             << ItemData{SymbolSupport::convertRange(location.range()), {}};
     }
     filterFileAliases(rangesInDocument);
-    return generateSearchResultItems(rangesInDocument);
+    return generateSearchResultItems(rangesInDocument, client, nullptr, false);
 }
 
 void SymbolSupport::handleFindReferencesResponse(const FindReferencesRequest::Response &response,
@@ -388,7 +394,7 @@ void SymbolSupport::handleFindReferencesResponse(const FindReferencesRequest::Re
     if (result) {
         Core::SearchResult *search = Core::SearchResultWindow::instance()->startNewSearch(
             Tr::tr("Find References with %1 for:").arg(m_client->name()), "", wordUnderCursor);
-        search->addResults(generateSearchResultItems(*result, m_client->hostPathMapper()),
+        search->addResults(generateSearchResultItems(*result, m_client),
                            Core::SearchResult::AddOrdered);
         connect(search, &Core::SearchResult::activated, [](const Utils::SearchResultItem &item) {
             Core::EditorManager::openEditorAtSearchResult(item);
@@ -439,13 +445,11 @@ static bool supportsRename(Client *client,
         }
     }
     if (auto renameProvider = client->capabilities().renameProvider()) {
-        if (std::holds_alternative<bool>(*renameProvider)) {
-            if (!std::get<bool>(*renameProvider))
+        if (const auto b = std::get_if<bool>(&*renameProvider)) {
+            if (!*b)
                 return false;
-        } else if (std::holds_alternative<ServerCapabilities::RenameOptions>(*renameProvider)) {
-            prepareSupported = std::get<ServerCapabilities::RenameOptions>(*renameProvider)
-                                   .prepareProvider()
-                                   .value_or(false);
+        } else if (const auto opt = std::get_if<ServerCapabilities::RenameOptions>(&*renameProvider)) {
+            prepareSupported = opt->prepareProvider().value_or(false);
         }
     } else {
         return false;
@@ -516,19 +520,17 @@ void SymbolSupport::requestPrepareRename(TextEditor::TextDocument *document,
 
         const std::optional<PrepareRenameResult> &result = response.result();
         if (result.has_value()) {
-            if (std::holds_alternative<PlaceHolderResult>(*result)) {
-                auto placeHolderResult = std::get<PlaceHolderResult>(*result);
-                startRenameSymbol(params,
-                                  placeholder.isEmpty() ? placeHolderResult.placeHolder()
-                                                        : placeholder,
-                                  oldSymbolName,
-                                  callback,
-                                  preferLowerCaseFileNames);
-            } else if (std::holds_alternative<Range>(*result)) {
-                auto range = std::get<Range>(*result);
+            if (const auto placeHolderResult = std::get_if<PlaceHolderResult>(&*result)) {
+                startRenameSymbol(
+                    params,
+                    placeholder.isEmpty() ? placeHolderResult->placeHolder() : placeholder,
+                    oldSymbolName,
+                    callback,
+                    preferLowerCaseFileNames);
+            } else if (const auto range = std::get_if<Range>(&*result)) {
                 if (document) {
-                    const int start = range.start().toPositionInDocument(document->document());
-                    const int end = range.end().toPositionInDocument(document->document());
+                    const int start = range->start().toPositionInDocument(document->document());
+                    const int end = range->end().toPositionInDocument(document->document());
                     const QString reportedSymbolName = document->textAt(start, end - start);
                     startRenameSymbol(params,
                                       derivePlaceholder(reportedSymbolName, placeholder),
@@ -563,9 +565,9 @@ void SymbolSupport::requestRename(const TextDocumentPositionParams &positionPara
 }
 
 Utils::SearchResultItems generateReplaceItems(const WorkspaceEdit &edits,
+                                              Client *client,
                                               Core::SearchResult *search,
-                                              bool limitToProjects,
-                                              const DocumentUri::PathMapper &pathMapper)
+                                              bool limitToProjects)
 {
     Utils::SearchResultItems items;
     auto convertEdits = [](const QList<TextEdit> &edits) {
@@ -575,30 +577,27 @@ Utils::SearchResultItems generateReplaceItems(const WorkspaceEdit &edits,
     };
     ItemDataPerPath rangesInDocument;
     auto documentChanges = edits.documentChanges().value_or(QList<DocumentChange>());
+    const DocumentUri::PathMapper &pathMapper = client->hostPathMapper();
     if (!documentChanges.isEmpty()) {
         for (const DocumentChange &documentChange : std::as_const(documentChanges)) {
-            if (std::holds_alternative<TextDocumentEdit>(documentChange)) {
-                const TextDocumentEdit edit = std::get<TextDocumentEdit>(documentChange);
-                rangesInDocument[edit.textDocument().uri().toFilePath(pathMapper)] = convertEdits(
-                    edit.edits());
+            if (const auto edit = std::get_if<TextDocumentEdit>(&documentChange)) {
+                rangesInDocument[edit->textDocument().uri().toFilePath(pathMapper)] = convertEdits(
+                    edit->edits());
             } else {
                 Utils::SearchResultItem item;
 
-                if (std::holds_alternative<CreateFileOperation>(documentChange)) {
-                    auto op = std::get<CreateFileOperation>(documentChange);
-                    item.setLineText(op.message(pathMapper));
-                    item.setFilePath(op.uri().toFilePath(pathMapper));
-                    item.setUserData(QVariant(op));
-                } else if (std::holds_alternative<RenameFileOperation>(documentChange)) {
-                    auto op = std::get<RenameFileOperation>(documentChange);
-                    item.setLineText(op.message(pathMapper));
-                    item.setFilePath(op.oldUri().toFilePath(pathMapper));
-                    item.setUserData(QVariant(op));
-                } else if (std::holds_alternative<DeleteFileOperation>(documentChange)) {
-                    auto op = std::get<DeleteFileOperation>(documentChange);
-                    item.setLineText(op.message(pathMapper));
-                    item.setFilePath(op.uri().toFilePath(pathMapper));
-                    item.setUserData(QVariant(op));
+                if (const auto op = std::get_if<CreateFileOperation>(&documentChange)) {
+                    item.setLineText(op->message(pathMapper));
+                    item.setFilePath(op->uri().toFilePath(pathMapper));
+                    item.setUserData(QVariant(*op));
+                } else if (const auto op = std::get_if<RenameFileOperation>(&documentChange)) {
+                    item.setLineText(op->message(pathMapper));
+                    item.setFilePath(op->oldUri().toFilePath(pathMapper));
+                    item.setUserData(QVariant(*op));
+                } else if (const auto op = std::get_if<DeleteFileOperation>(&documentChange)) {
+                    item.setLineText(op->message(pathMapper));
+                    item.setFilePath(op->uri().toFilePath(pathMapper));
+                    item.setUserData(QVariant(*op));
                 }
 
                 items << item;
@@ -610,7 +609,7 @@ Utils::SearchResultItems generateReplaceItems(const WorkspaceEdit &edits,
             rangesInDocument[it.key().toFilePath(pathMapper)] = convertEdits(it.value());
     }
     filterFileAliases(rangesInDocument);
-    items += generateSearchResultItems(rangesInDocument, search, limitToProjects);
+    items += generateSearchResultItems(rangesInDocument, client, search, limitToProjects);
     return items;
 }
 
@@ -686,7 +685,7 @@ void SymbolSupport::handleRenameResponse(Core::SearchResult *search,
     const std::optional<WorkspaceEdit> &edits = response.result();
     if (edits.has_value()) {
         const Utils::SearchResultItems items = generateReplaceItems(
-            *edits, search, m_limitRenamingToProjects, m_client->hostPathMapper());
+            *edits, m_client, search, m_limitRenamingToProjects);
         search->addResults(items, Core::SearchResult::AddOrdered);
         if (m_renameResultsEnhancer) {
             Utils::SearchResultItems additionalItems = m_renameResultsEnhancer(items);

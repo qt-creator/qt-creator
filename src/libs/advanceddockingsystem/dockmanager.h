@@ -458,7 +458,7 @@ public:
 
     /**
      * This function sets the tool button style for the given dock widget state. It is possible to
-     * switch the tool button style depending on the state. If a dock widget is floating, then here 
+     * switch the tool button style depending on the state. If a dock widget is floating, then here
      * are more space and it is possible to select a style that requires more space like
      * Qt::ToolButtonTextUnderIcon. For the docked state Qt::ToolButtonIconOnly might be better.
      */
@@ -783,6 +783,9 @@ signals:
     void lockWorkspaceChanged();
 
 private:
+    static QString readAttribute(const Utils::FilePath &filePath, QStringView key);
+    static bool writeAttribute(const Utils::FilePath &filePath, QStringView key,
+                               const QString &value);
     static Utils::expected_str<void> write(const Utils::FilePath &filePath, const QByteArray &data);
 
     Utils::expected_str<QByteArray> loadWorkspace(const Workspace &workspace) const;

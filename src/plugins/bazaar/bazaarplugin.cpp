@@ -884,7 +884,7 @@ bool BazaarPluginPrivate::managesFile(const FilePath &workingDirectory, const QS
 
 bool BazaarPluginPrivate::isConfigured() const
 {
-    const FilePath binary = settings().binaryPath();
+    const FilePath binary = settings().binaryPath.effectiveBinary();
     return !binary.isEmpty() && binary.isExecutableFile();
 }
 
@@ -947,24 +947,21 @@ VcsCommand *BazaarPluginPrivate::createInitialCheckoutCommand(const QString &url
                                                               const QString &localName,
                                                               const QStringList &extraArgs)
 {
-    QStringList args;
-    args << m_client.vcsCommandString(BazaarClient::CloneCommand)
-         << extraArgs << url << localName;
-
     Environment env = m_client.processEnvironment(baseDirectory);
     env.set("BZR_PROGRESS_BAR", "text");
     auto command = VcsBaseClient::createVcsCommand(this, baseDirectory, env);
-    command->addJob({m_client.vcsBinary(baseDirectory), args}, -1);
+    command->addJob({m_client.vcsBinary(baseDirectory),
+        {m_client.vcsCommandString(BazaarClient::CloneCommand), extraArgs, url, localName}}, -1);
     return command;
 }
 
 void BazaarPluginPrivate::changed(const QVariant &v)
 {
-    switch (v.type()) {
-    case QVariant::String:
+    switch (v.typeId()) {
+    case QMetaType::QString:
         emit repositoryChanged(FilePath::fromVariant(v));
         break;
-    case QVariant::StringList:
+    case QMetaType::QStringList:
         emit filesChanged(v.toStringList());
         break;
     default:

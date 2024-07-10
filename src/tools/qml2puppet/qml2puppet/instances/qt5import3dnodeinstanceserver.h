@@ -3,6 +3,9 @@
 
 #pragma once
 
+#ifdef QUICK3D_MODULE
+#include "generalhelper.h"
+#endif
 #include "qt5nodeinstanceserver.h"
 
 #ifdef QUICK3D_MODULE

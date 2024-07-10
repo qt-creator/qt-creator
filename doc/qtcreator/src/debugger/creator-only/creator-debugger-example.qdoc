@@ -95,5 +95,5 @@
     (\uicontrol {Step Into}), and \inlineimage icons/debugger_stepout_small.png
     (\uicontrol {Step Out}).
 
-    \sa {Creating a Qt Widget Based Application}, {Debugging}
+    \sa {Creating a Qt Widget Based Application}, {Debugging}, {Debuggers}, {Debugger}
 */

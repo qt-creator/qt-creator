@@ -406,8 +406,8 @@ bool CustomParserConfigDialog::checkPattern(QLineEdit *pattern, const QString &o
 
     QPalette palette;
     palette.setColor(QPalette::Text,
-                     Utils::creatorTheme()->color(rx.isValid() ? Utils::Theme::TextColorNormal
-                                                               : Utils::Theme::TextColorError));
+                     Utils::creatorColor(rx.isValid() ? Utils::Theme::TextColorNormal
+                                                      : Utils::Theme::TextColorError));
     pattern->setPalette(palette);
     pattern->setToolTip(rx.isValid() ? QString() : rx.errorString());
 
@@ -415,7 +415,7 @@ bool CustomParserConfigDialog::checkPattern(QLineEdit *pattern, const QString &o
         *match = rx.match(outputText);
     if (rx.pattern().isEmpty() || !rx.isValid() || !match->hasMatch()) {
         *errorMessage = QString::fromLatin1("<font color=\"%1\">%2 ").arg(
-                    Utils::creatorTheme()->color(Utils::Theme::TextColorError).name(),
+                    Utils::creatorColor(Utils::Theme::TextColorError).name(),
                     Tr::tr("Not applicable:"));
         if (rx.pattern().isEmpty())
             *errorMessage += Tr::tr("Pattern is empty.");

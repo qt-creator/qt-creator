@@ -34,7 +34,7 @@ private:
     void makeReadOnly() override { m_changeButton->setEnabled(false); }
     void refresh() override { m_contentLabel->setText(QbsKitAspect::representation(kit())); }
 
-    void addToLayoutImpl(Layouting::LayoutItem &parent) override
+    void addToLayoutImpl(Layouting::Layout &parent) override
     {
         addMutableAction(m_contentLabel);
         parent.addItem(m_contentLabel);

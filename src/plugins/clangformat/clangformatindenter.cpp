@@ -33,7 +33,7 @@ namespace ClangFormat {
 
 static bool isBeautifierPluginActivated()
 {
-    const QVector<ExtensionSystem::PluginSpec *> specs = ExtensionSystem::PluginManager::plugins();
+    const ExtensionSystem::PluginSpecs specs = ExtensionSystem::PluginManager::plugins();
     return std::find_if(specs.begin(),
                         specs.end(),
                         [](ExtensionSystem::PluginSpec *spec) {

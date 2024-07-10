@@ -2,6 +2,7 @@ import qbs.FileInfo
 
 CppApplication {
     Depends { name: "QmlJS" }
+    Depends { name: "Utils" }
     Depends { name: "Qt.gui" }
 
     cpp.cxxLanguageVersion: "c++17"

@@ -108,7 +108,10 @@ public:
     const_iterator constBegin() const { return m_cursorMap.cbegin(); }
     const_iterator constEnd() const { return m_cursorMap.cend(); }
 
-    static bool multiCursorAddEvent(QKeyEvent *e, QKeySequence::StandardKey matchKey);
+    static bool multiCursorEvent(
+        QKeyEvent *e,
+        QKeySequence::StandardKey matchKey,
+        Qt::KeyboardModifiers additionalFilterModifier = {});
 
 private:
     std::list<QTextCursor> m_cursorList;

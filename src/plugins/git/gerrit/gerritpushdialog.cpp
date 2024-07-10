@@ -101,7 +101,7 @@ void GerritPushDialog::initRemoteBranches()
         int refBranchIndex = ref.indexOf('/');
         qint64 timeT = entries.at(1).left(entries.at(1).indexOf(' ')).toLongLong();
         BranchDate bd(ref.mid(refBranchIndex + 1), QDateTime::fromSecsSinceEpoch(timeT).date());
-        m_remoteBranches.insertMulti(ref.left(refBranchIndex), bd);
+        m_remoteBranches.insert(ref.left(refBranchIndex), bd);
     }
     m_remoteComboBox->updateRemotes(false);
 }
@@ -228,7 +228,7 @@ void GerritPushDialog::setChangeRange()
     const int currentRange = range.toInt();
     QPalette palette = QApplication::palette();
     if (currentRange > ReasonableDistance) {
-        const QColor errorColor = Utils::creatorTheme()->color(Utils::Theme::TextColorError);
+        const QColor errorColor = Utils::creatorColor(Utils::Theme::TextColorError);
         palette.setColor(QPalette::WindowText, errorColor);
         palette.setColor(QPalette::ButtonText, errorColor);
         labelText.append("\n" + Git::Tr::tr("Are you sure you selected the right target branch?"));
@@ -339,7 +339,7 @@ void GerritPushDialog::setRemoteBranches(bool includeOld)
             const QStringList remoteBranches =
                     gitClient().synchronousRepositoryBranches(remoteName, m_workingDir);
             for (const QString &branch : remoteBranches)
-                m_remoteBranches.insertMulti(remoteName, {branch, {}});
+                m_remoteBranches.insert(remoteName, {branch, {}});
             if (remoteBranches.isEmpty()) {
                 m_targetBranchComboBox->setEditable(true);
                 m_targetBranchComboBox->setToolTip(

@@ -112,8 +112,8 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
         setupJavaEditor();
         setupAndroidManifestEditor();
 
-        connect(KitManager::instance(), &KitManager::kitsLoaded,
-                this, &AndroidPlugin::kitsRestored);
+        connect(KitManager::instance(), &KitManager::kitsLoaded, this, &AndroidPlugin::kitsRestored,
+                Qt::SingleShotConnection);
 
         LanguageClient::LanguageClientSettings::registerClientType(
             {Android::Constants::JLS_SETTINGS_ID,
@@ -135,7 +135,7 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
                    return v->targetDeviceTypes().contains(Android::Constants::ANDROID_DEVICE_TYPE);
                }).isEmpty();
 
-        if (!androidConfig().sdkFullyConfigured() && qtForAndroidInstalled)
+        if (!AndroidConfig::sdkFullyConfigured() && qtForAndroidInstalled)
             askUserAboutAndroidSetup();
 
         AndroidConfigurations::registerNewToolchains();
@@ -145,8 +145,6 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
                     AndroidConfigurations::registerNewToolchains();
                     AndroidConfigurations::updateAutomaticKitList();
                 });
-        disconnect(KitManager::instance(), &KitManager::kitsLoaded,
-                   this, &AndroidPlugin::kitsRestored);
     }
 
     void askUserAboutAndroidSetup()

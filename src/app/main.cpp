@@ -91,8 +91,6 @@ const char PLUGINPATH_OPTION[] = "-pluginpath";
 const char LANGUAGE_OPTION[] = "-language";
 const char USER_LIBRARY_PATH_OPTION[] = "-user-library-path"; // hidden option for qtcreator.sh
 
-using PluginSpecSet = QVector<PluginSpec *>;
-
 // Helpers for displaying messages. Note that there is no console on Windows.
 
 // Format as <pre> HTML
@@ -179,8 +177,11 @@ static inline int askMsgSendFailed()
 
 static inline QStringList getPluginPaths()
 {
-    QStringList rc(QDir::cleanPath(QApplication::applicationDirPath()
-                                   + '/' + RELATIVE_PLUGIN_PATH));
+    QStringList rc;
+    rc << (QDir::cleanPath(QApplication::applicationDirPath()
+                                   + '/' + RELATIVE_PLUGIN_PATH))
+       << (QDir::cleanPath(QApplication::applicationDirPath()
+                           + '/' + RELATIVE_DATA_PATH + "/lua-plugins"));
     // Local plugin path: <localappdata>/plugins/<ideversion>
     //    where <localappdata> is e.g.
     //    "%LOCALAPPDATA%\QtProject\qtcreator" on Windows Vista and later
@@ -583,11 +584,6 @@ int main(int argc, char **argv)
         QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar);
     }
 
-    if (Utils::HostOsInfo::isLinuxHost() && !qEnvironmentVariableIsSet("GTK_THEME"))
-        // Work around QTCREATORBUG-28497:
-        // Prevent Qt's GTK3 platform theme plugin from enforcing a dark palette
-        qputenv("GTK_THEME", ":light");
-
 #if defined(QTC_FORCE_XCB)
     if (Utils::HostOsInfo::isLinuxHost() && !qEnvironmentVariableIsSet("QT_QPA_PLATFORM")) {
         // Enforce XCB on Linux/Gnome, if the user didn't override via QT_QPA_PLATFORM
@@ -684,10 +680,19 @@ int main(int argc, char **argv)
     setPixmapCacheLimit();
     loadFonts();
 
-    if (Utils::HostOsInfo::isWindowsHost() && !qFuzzyCompare(qApp->devicePixelRatio(), 1.0)
-        && !hasStyleOption) {
-        QApplication::setStyle(QLatin1String("fusion"));
+    if (Utils::HostOsInfo::isWindowsHost() && !hasStyleOption) {
+        // The Windows 11 default style (Qt 6.7) has major issues, therefore
+        // set the previous default style: "windowsvista"
+        // FIXME: check newer Qt Versions
+        QApplication::setStyle(QLatin1String("windowsvista"));
+
+        // On scaling different than 100% or 200% use the "fusion" style
+        qreal tmp;
+        const bool fractionalDpi = !qFuzzyIsNull(std::modf(qApp->devicePixelRatio(), &tmp));
+        if (fractionalDpi)
+            QApplication::setStyle(QLatin1String("fusion"));
     }
+
     const int threadCount = QThreadPool::globalInstance()->maxThreadCount();
     QThreadPool::globalInstance()->setMaxThreadCount(qMax(4, 2 * threadCount));
 
@@ -768,7 +773,7 @@ int main(int argc, char **argv)
     // Load
     const QStringList pluginPaths = getPluginPaths() + installPluginPaths
                                     + options.customPluginPaths;
-    PluginManager::setPluginPaths(pluginPaths);
+    PluginManager::setPluginPaths(Utils::transform(pluginPaths, &Utils::FilePath::fromUserInput));
     QMap<QString, QString> foundAppOptions;
     if (pluginArguments.size() > 1) {
         QMap<QString, bool> appOptions;
@@ -798,7 +803,7 @@ int main(int argc, char **argv)
             settingspath};
     PluginManager::setCreatorProcessData(processData);
 
-    const PluginSpecSet plugins = PluginManager::plugins();
+    const PluginSpecs plugins = PluginManager::plugins();
     PluginSpec *coreplugin = nullptr;
     for (PluginSpec *spec : plugins) {
         if (spec->name() == QLatin1String(corePluginNameC)) {

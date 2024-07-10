@@ -418,7 +418,7 @@ void RunControl::setDevice(const IDevice::ConstPtr &device)
     QTC_CHECK(!d->device);
     d->device = device;
 #ifdef WITH_JOURNALD
-    if (!device.isNull() && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+    if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         JournaldWatcher::instance()->subscribe(this, [this](const JournaldWatcher::LogEntry &entry) {
 
             if (entry.value("_MACHINE_ID") != JournaldWatcher::instance()->machineId())
@@ -500,7 +500,7 @@ RunWorker *RunControl::createWorker(Id workerId)
 {
     const Id deviceType = DeviceTypeKitAspect::deviceTypeId(d->kit);
     for (RunWorkerFactory *factory : std::as_const(g_runWorkerFactories)) {
-        if (factory->canCreate(workerId, deviceType, QString()))
+        if (factory->canCreate(workerId, deviceType, d->runConfigId.toString()))
             return factory->create(this);
     }
     return nullptr;
@@ -852,7 +852,7 @@ void RunControlPrivate::showError(const QString &msg)
 void RunControl::setupFormatter(OutputFormatter *formatter) const
 {
     QList<Utils::OutputLineParser *> parsers = createOutputParsers(target());
-    if (const auto customParsersAspect = aspect<CustomParsersAspect>()) {
+    if (const auto customParsersAspect = aspectData<CustomParsersAspect>()) {
         for (const Id id : std::as_const(customParsersAspect->parsers)) {
             if (auto parser = createCustomParserFromId(id))
                 parsers << parser;
@@ -969,12 +969,12 @@ const MacroExpander *RunControl::macroExpander() const
     return d->macroExpander;
 }
 
-const BaseAspect::Data *RunControl::aspect(Id instanceId) const
+const BaseAspect::Data *RunControl::aspectData(Id instanceId) const
 {
     return d->aspectData.aspect(instanceId);
 }
 
-const BaseAspect::Data *RunControl::aspect(BaseAspect::Data::ClassId classId) const
+const BaseAspect::Data *RunControl::aspectData(BaseAspect::Data::ClassId classId) const
 {
     return d->aspectData.aspect(classId);
 }
@@ -1264,6 +1264,7 @@ public:
 
     bool m_stopReported = false;
     bool m_stopForced = false;
+    bool m_suppressDefaultStdOutHandling = false;
 
     void forwardStarted();
     void forwardDone();
@@ -1319,11 +1320,12 @@ void SimpleTargetRunnerPrivate::stop()
     m_resultData.m_exitStatus = QProcess::CrashExit;
 
     const bool isLocal = !m_command.executable().needsDevice();
+    const auto totalTimeout = 2 * m_process.reaperTimeout();
     if (isLocal) {
         if (!isRunning())
             return;
         m_process.stop();
-        m_process.waitForFinished();
+        m_process.waitForFinished(totalTimeout);
         QTimer::singleShot(100, this, [this] { forwardDone(); });
     } else {
         if (m_stopRequested)
@@ -1333,8 +1335,7 @@ void SimpleTargetRunnerPrivate::stop()
         switch (m_state) {
         case Run:
             m_process.stop();
-            using namespace std::chrono_literals;
-            if (!m_process.waitForFinished(2s)) { // TODO: it may freeze on some devices
+            if (!m_process.waitForFinished(totalTimeout)) {
                 q->appendMessage(Tr::tr("Remote process did not finish in time. "
                                         "Connectivity lost?"), ErrorMessageFormat);
                 m_process.close();
@@ -1372,6 +1373,9 @@ void SimpleTargetRunnerPrivate::handleDone()
 
 void SimpleTargetRunnerPrivate::handleStandardOutput()
 {
+    if (m_suppressDefaultStdOutHandling)
+        return;
+
     const QByteArray data = m_process.readAllRawStandardOutput();
     const QString msg = m_outputCodec->toUnicode(
                 data.constData(), data.length(), &m_outputCodecState);
@@ -1380,6 +1384,9 @@ void SimpleTargetRunnerPrivate::handleStandardOutput()
 
 void SimpleTargetRunnerPrivate::handleStandardError()
 {
+    if (m_suppressDefaultStdOutHandling)
+        return;
+
     const QByteArray data = m_process.readAllRawStandardError();
     const QString msg = m_outputCodec->toUnicode(
                 data.constData(), data.length(), &m_errorCodecState);
@@ -1437,6 +1444,7 @@ void SimpleTargetRunnerPrivate::start()
     else
         m_outputCodec = QTextCodec::codecForName("utf8");
 
+    m_process.setForceDefaultErrorModeOnWindows(true);
     m_process.start();
 }
 
@@ -1502,17 +1510,19 @@ void SimpleTargetRunner::start()
         d->m_startModifier();
 
     bool useTerminal = false;
-    if (auto terminalAspect = runControl()->aspect<TerminalAspect>())
+    if (auto terminalAspect = runControl()->aspectData<TerminalAspect>())
         useTerminal = terminalAspect->useTerminal;
 
     bool runAsRoot = false;
-    if (auto runAsRootAspect = runControl()->aspect<RunAsRootAspect>())
+    if (auto runAsRootAspect = runControl()->aspectData<RunAsRootAspect>())
         runAsRoot = runAsRootAspect->value;
 
     d->m_stopForced = false;
     d->m_stopReported = false;
     d->disconnect(this);
     d->m_process.setTerminalMode(useTerminal ? Utils::TerminalMode::Run : Utils::TerminalMode::Off);
+    d->m_process.setReaperTimeout(
+        std::chrono::seconds(projectExplorerSettings().reaperTimeoutInSeconds));
     d->m_runAsRoot = runAsRoot;
 
     const QString msg = Tr::tr("Starting %1...").arg(d->m_command.displayName());
@@ -1571,6 +1581,16 @@ void SimpleTargetRunner::setProcessMode(Utils::ProcessMode processMode)
     d->m_process.setProcessMode(processMode);
 }
 
+Process *SimpleTargetRunner::process() const
+{
+    return &d->m_process;
+}
+
+void SimpleTargetRunner::suppressDefaultStdOutHandling()
+{
+    d->m_suppressDefaultStdOutHandling = true;
+}
+
 void SimpleTargetRunner::forceRunOnHost()
 {
     const FilePath executable = d->m_command.executable();
@@ -1578,6 +1598,11 @@ void SimpleTargetRunner::forceRunOnHost()
         QTC_CHECK(false);
         d->m_command.setExecutable(FilePath::fromString(executable.path()));
     }
+}
+
+void SimpleTargetRunner::addExtraData(const QString &key, const QVariant &value)
+{
+    d->m_extraData[key] = value;
 }
 
 // RunWorkerPrivate

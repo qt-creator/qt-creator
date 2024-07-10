@@ -4,6 +4,7 @@
 #pragma once
 
 #include "baseeditordocumentparser.h"
+#include "cppcodemodelsettings.h"
 #include "cppcursorinfo.h"
 #include "cppeditor_global.h"
 #include "cppsemanticinfo.h"
@@ -72,6 +73,7 @@ public:
     virtual QFuture<CursorInfo> cursorInfo(const CursorInfoParams &params) = 0;
 
     const Utils::FilePath &filePath() const { return m_filePath; }
+    const CppCodeModelSettings &settings() const { return m_settings; }
 
 signals:
     // Signal interface to implement
@@ -102,6 +104,7 @@ private:
 private:
     Utils::FilePath m_filePath;
     QTextDocument *m_textDocument;
+    CppCodeModelSettings m_settings;
 };
 
 } // namespace CppEditor

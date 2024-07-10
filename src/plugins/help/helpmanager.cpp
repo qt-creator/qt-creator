@@ -2,13 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "helpmanager.h"
+#include "localhelpmanager.h"
 
 #include "helptr.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-
-#include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -140,7 +139,7 @@ void HelpManager::registerDocumentation(const QStringList &files)
     }
 
     QFuture<bool> future = Utils::asyncRun(&registerDocumentationNow, collectionFilePath(), files);
-    ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(future);
+    Utils::futureSynchronizer()->addFuture(future);
     Utils::onResultReady(future, this, [](bool docsChanged){
         if (docsChanged) {
             d->m_helpEngine->setupData();
@@ -203,7 +202,7 @@ void HelpManager::unregisterDocumentation(const QStringList &files)
 
     d->m_userRegisteredFiles.subtract(Utils::toSet(files));
     QFuture<bool> future = Utils::asyncRun(&unregisterDocumentationNow, collectionFilePath(), files);
-    ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(future);
+    Utils::futureSynchronizer()->addFuture(future);
     Utils::onResultReady(future, this, [](bool docsChanged){
         if (docsChanged) {
             d->m_helpEngine->setupData();
@@ -282,6 +281,11 @@ QByteArray HelpManager::fileData(const QUrl &url)
 void HelpManager::showHelpUrl(const QUrl &url, Core::HelpManager::HelpViewerLocation location)
 {
     emit m_instance->helpRequested(url, location);
+}
+
+void HelpManager::addOnlineHelpHandler(const Core::HelpManager::OnlineHelpHandler &handler)
+{
+    LocalHelpManager::addOnlineHelpHandler(handler);
 }
 
 QStringList HelpManager::registeredNamespaces()

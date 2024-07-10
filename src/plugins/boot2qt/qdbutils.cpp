@@ -65,7 +65,7 @@ QString overridingEnvironmentVariable(QdbTool tool)
 
 void showMessage(const QString &message, bool important)
 {
-    const QString fullMessage = Tr::tr("Boot2Qt: %1").arg(message);
+    const QString fullMessage = Tr::tr("Boot to Qt: %1").arg(message);
     if (important)
         Core::MessageManager::writeFlashing(fullMessage);
     else

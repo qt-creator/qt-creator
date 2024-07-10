@@ -429,6 +429,8 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     ow->setWindowIcon(Icons::WINDOW.icon());
     ow->setWordWrapEnabled(m_settings.wrapOutput);
     ow->setMaxCharCount(m_settings.maxCharCount);
+    //: file name suggested for saving application output, %1 = run configuration display name
+    ow->setOutputFileNameHint(Tr::tr("application-output-%1.txt").arg(rc->displayName()));
 
     auto updateFontSettings = [ow] {
         ow->setBaseFont(TextEditor::TextEditorSettings::fontSettings().font());
@@ -659,10 +661,10 @@ void AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
 
 bool AppOutputPane::optionallyPromptToStop(RunControl *runControl)
 {
-    ProjectExplorerSettings settings = ProjectExplorerPlugin::projectExplorerSettings();
-    if (!runControl->promptToStop(&settings.prompToStopRunControl))
+    bool promptToStop = projectExplorerSettings().prompToStopRunControl;
+    if (!runControl->promptToStop(&promptToStop))
         return false;
-    ProjectExplorerPlugin::setProjectExplorerSettings(settings);
+    setPromptToStopSettings(promptToStop);
     return true;
 }
 

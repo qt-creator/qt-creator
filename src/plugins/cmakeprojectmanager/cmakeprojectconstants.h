@@ -11,6 +11,7 @@ const char RUN_CMAKE[] = "CMakeProject.RunCMake";
 const char RUN_CMAKE_PROFILER[] = "CMakeProject.RunCMakeProfiler";
 const char RUN_CMAKE_DEBUGGER[] = "CMakeProject.RunCMakeDebugger";
 const char CLEAR_CMAKE_CACHE[] = "CMakeProject.ClearCache";
+const char CLEAR_CMAKE_CACHE_CONTEXT_MENU[] = "CMakeProject.ClearCacheContextMenu";
 const char RESCAN_PROJECT[] = "CMakeProject.RescanProject";
 const char RUN_CMAKE_CONTEXT_MENU[] = "CMakeProject.RunCMakeContextMenu";
 const char BUILD_FILE_CONTEXT_MENU[] = "CMakeProject.BuildFileContextMenu";
@@ -40,10 +41,11 @@ const char CMAKE_BUILDCONFIGURATION_ID[] = "CMakeProjectManager.CMakeBuildConfig
 const char M_CONTEXT[] = "CMakeEditor.ContextMenu";
 
 namespace Settings {
-const char GENERAL_ID[] = "CMakeSpecifcSettings";
+const char GENERAL_ID[] = "CMakeSpecificSettings";
 const char TOOLS_ID[] = "K.CMake.Tools";
 const char FORMATTER_ID[] = "K.CMake.Formatter";
 const char CATEGORY[] = "K.CMake";
+const char USE_GLOBAL_SETTINGS[] = "UseGlobalSettings";
 } // namespace Settings
 
 // Snippets

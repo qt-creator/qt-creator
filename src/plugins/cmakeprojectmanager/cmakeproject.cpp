@@ -34,6 +34,7 @@ namespace CMakeProjectManager {
 */
 CMakeProject::CMakeProject(const FilePath &fileName)
     : Project(Utils::Constants::CMAKE_MIMETYPE, fileName)
+    , m_settings(this, true)
 {
     setId(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
@@ -118,6 +119,14 @@ Internal::PresetsData CMakeProject::combinePresets(Internal::PresetsData &cmakeP
             result.include->append(cmakeUserPresetsData.include.value());
     } else {
         result.include = cmakeUserPresetsData.include;
+    }
+
+    result.vendor = cmakePresetsData.vendor;
+    if (result.vendor) {
+        if (cmakeUserPresetsData.vendor)
+            result.vendor->insert(cmakeUserPresetsData.vendor.value());
+    } else {
+        result.vendor = cmakeUserPresetsData.vendor;
     }
 
     auto combinePresetsInternal = [](auto &presetsHash,
@@ -230,6 +239,11 @@ void CMakeProject::setupBuildPresets(Internal::PresetsData &presetsData)
                       .environment;
         }
     }
+}
+
+Internal::CMakeSpecificSettings &CMakeProject::settings()
+{
+    return m_settings;
 }
 
 void CMakeProject::readPresets()

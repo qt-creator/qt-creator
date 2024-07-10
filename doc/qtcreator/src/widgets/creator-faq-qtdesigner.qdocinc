@@ -4,7 +4,7 @@
 /*!
 //! [qt designer faq]
 
-    \section1 Qt Designer Integration Questions
+    \section1 \QD Integration Questions
 
     \b {Why are custom widgets not loaded in the \uicontrol Design mode even though
      it works in standalone \QD?}
@@ -13,7 +13,7 @@
     that match its build key. The locations are different for standalone and
     integrated \QD.
 
-    For more information, see \l{Adding Qt Designer Plugins}.
+    For more information, see \l{Adding \QD Plugins}.
 
 //! [qt designer faq]
 */

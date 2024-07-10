@@ -5,6 +5,7 @@
 
 #include "delement.h"
 
+#include <QColor>
 #include <QList>
 #include <QPointF>
 
@@ -15,6 +16,22 @@ class DObject;
 class QMT_EXPORT DRelation : public DElement
 {
 public:
+    enum VisualPrimaryRole {
+        PrimaryRoleNormal,
+        PrimaryRoleCustom1,
+        PrimaryRoleCustom2,
+        PrimaryRoleCustom3,
+        PrimaryRoleCustom4,
+        PrimaryRoleCustom5
+    };
+
+    enum VisualSecondaryRole {
+        SecondaryRoleNone,
+        SecondaryRoleWarning,
+        SecondaryRoleError,
+        SecondaryRoleSoften
+    };
+
     class IntermediatePoint
     {
     public:
@@ -42,6 +59,16 @@ public:
     void setName(const QString &name);
     const QList<IntermediatePoint> intermediatePoints() const { return m_intermediatePoints; }
     void setIntermediatePoints(const QList<IntermediatePoint> &intermediatePoints);
+    VisualPrimaryRole visualPrimaryRole() const { return m_visualPrimaryRole; }
+    void setVisualPrimaryRole(VisualPrimaryRole visualPrimaryRole);
+    VisualSecondaryRole visualSecondaryRole() const { return m_visualSecondaryRole; }
+    void setVisualSecondaryRole(VisualSecondaryRole visualSecondaryRole);
+    bool isVisualEmphasized() const { return m_isVisualEmphasized; }
+    void setVisualEmphasized(bool visualEmphasized);
+    QColor color() const { return m_color; }
+    void setColor(const QColor &color);
+    qreal thickness() const { return m_thickness; }
+    void setThickness(qreal thickness);
 
     void accept(DVisitor *visitor) override;
     void accept(DConstVisitor *visitor) const override;
@@ -53,6 +80,11 @@ private:
     Uid m_endBUid;
     QString m_name;
     QList<IntermediatePoint> m_intermediatePoints;
+    VisualPrimaryRole m_visualPrimaryRole = PrimaryRoleNormal;
+    VisualSecondaryRole m_visualSecondaryRole = SecondaryRoleNone;
+    bool m_isVisualEmphasized = false;
+    QColor m_color;
+    qreal m_thickness = 0;
 };
 
 bool operator==(const DRelation::IntermediatePoint &lhs, const DRelation::IntermediatePoint &rhs);

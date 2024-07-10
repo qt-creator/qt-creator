@@ -251,10 +251,17 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     expander->registerVariable("HostOs:ExecutableSuffix",
                                Tr::tr("The platform executable suffix."),
                                [] { return QString(Utils::HostOsInfo::withExecutableSuffix("")); });
+    expander->registerFileVariables("IDE:Executable",
+                               Tr::tr("The path to the running %1 itself.").arg(QGuiApplication::applicationDisplayName()),
+                               []() { return FilePath::fromUserInput(QCoreApplication::applicationFilePath()); });
     expander->registerVariable("IDE:ResourcePath",
                                Tr::tr("The directory where %1 finds its pre-installed resources.")
                                    .arg(QGuiApplication::applicationDisplayName()),
                                [] { return ICore::resourcePath().toString(); });
+    expander->registerVariable("IDE:UserResourcePath",
+                               Tr::tr("The directory where %1 puts custom user data.")
+                                   .arg(QGuiApplication::applicationDisplayName()),
+                               [] { return ICore::userResourcePath().toString(); });
     expander->registerPrefix("CurrentDate:", Tr::tr("The current date (QDate formatstring)."),
                              [](const QString &fmt) { return QDate::currentDate().toString(fmt); });
     expander->registerPrefix("CurrentTime:", Tr::tr("The current time (QTime formatstring)."),

@@ -4,7 +4,7 @@
 #pragma once
 
 #include <cppeditor/baseeditordocumentparser.h>
-#include <cppeditor/cppcodemodelsettings.h>
+#include <cppeditor/clangdsettings.h>
 #include <cppeditor/cursorineditor.h>
 #include <languageclient/client.h>
 #include <utils/link.h>
@@ -97,9 +97,6 @@ public:
 
     void updateParserConfig(const Utils::FilePath &filePath,
                             const CppEditor::BaseEditorDocumentParser::Configuration &config);
-    void switchIssuePaneEntries(const Utils::FilePath &filePath);
-    void addTask(const ProjectExplorer::Task &task);
-    void clearTasks(const Utils::FilePath &filePath);
     std::optional<bool> hasVirtualFunctionAt(TextEditor::TextDocument *doc, int revision,
                                                const LanguageServerProtocol::Range &range);
 
@@ -151,7 +148,7 @@ private:
     bool fileBelongsToProject(const Utils::FilePath &filePath) const override;
     QList<Utils::Text::Range> additionalDocumentHighlights(
         TextEditor::TextEditorWidget *editorWidget, const QTextCursor &cursor) override;
-
+    bool shouldSendDidSave(const TextEditor::TextDocument *doc) const override;
 
     class Private;
     class VirtualFunctionAssistProcessor;

@@ -99,6 +99,7 @@ public:
     bool useCtrlCStub = false;
     int reaperTimeout = 500;
     bool createConsoleOnWindows = false;
+    bool forceDefaultErrorMode = false;
 
 private:
     void doSerialize(QDataStream &stream) const override;

@@ -28,15 +28,15 @@
     If several functions are available for the same shortcut in the current context,
     \QC will not execute any function due to the conflict.
 
-    A keyboard shortcut might also conflict with a shortcut that a window
-    manager uses for its own purposes. In that case, \QC shortcuts do not work.
+    A keyboard shortcut might also conflict with a shortcut that your window
+    manager uses for its own purposes. If the window manager consumes the key event,
+    the \QC shortcut will not be activated.
     Typically, you can configure the shortcuts in the window manager, but if
     that is not allowed, you can change the \QC shortcuts.
 
-    For example, Unity on
-    Ubuntu 11.10 uses \key F10 in its window manager, and therefore the default
-    \QC keyboard shortcut \key F10 (Step Over) does not work on that system.
-
+    For example, Unity on Ubuntu 11.10 by default uses \key F10 in its window manager,
+    and therefore the default \QC keyboard shortcut \key F10 (Step Over) will not work on
+    that system.
 
     To override the platform default value that determines whether
     keyboard shortcuts are shown in the labels of context menu items,
@@ -141,8 +141,11 @@
             \li  Switch to \uicontrol Projects mode
             \li  Ctrl+5
         \row
-            \li  Switch to \uicontrol Help mode
+            \li  Switch to \uicontrol Extensions mode
             \li  Ctrl+6
+        \row
+            \li  Switch to \uicontrol Help mode
+            \li  Ctrl+7
         \row
             \li  Toggle \uicontrol{Issues}
             \li  Alt+1 (Cmd+1 on \macos)
@@ -570,7 +573,7 @@
             \li  Open project
             \li  Ctrl+Shift+O
         \row
-            \li  Select the \l{glossary-buildandrun-kit}{kit} to build and run your project with
+            \li  Select the \l{Kits}{kit} to build and run your project with
             \li  Ctrl+T
         \row
             \li  Run

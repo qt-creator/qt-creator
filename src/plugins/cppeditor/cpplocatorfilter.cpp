@@ -11,8 +11,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/fuzzymatcher.h>
@@ -108,7 +106,6 @@ LocatorMatcherTask locatorMatcher(IndexItem::ItemType type, const EntryFromIndex
     Storage<LocatorStorage> storage;
 
     const auto onSetup = [=](Async<void> &async) {
-        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(matchesFor, *storage, type, converter);
     };
     return {AsyncTask<void>(onSetup), storage};
@@ -306,7 +303,6 @@ LocatorMatcherTask currentDocumentMatcher()
     Storage<LocatorStorage> storage;
 
     const auto onSetup = [=](Async<void> &async) {
-        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(matchesForCurrentDocument, *storage, currentFileName());
     };
     return {AsyncTask<void>(onSetup), storage};

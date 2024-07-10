@@ -3,10 +3,11 @@
 
 #include "avddialog.h"
 #include "androidtr.h"
-#include "androidavdmanager.h"
-#include "androidconstants.h"
+#include "androidconfigurations.h"
 #include "androiddevice.h"
 #include "androidsdkmanager.h"
+
+#include <coreplugin/icore.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -14,20 +15,22 @@
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/utilsicons.h>
 
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDialogButtonBox>
-#include <QFutureWatcher>
 #include <QKeyEvent>
 #include <QLineEdit>
 #include <QLoggingCategory>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QSpinBox>
 #include <QToolTip>
 
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Android::Internal {
@@ -35,8 +38,8 @@ namespace Android::Internal {
 static Q_LOGGING_CATEGORY(avdDialogLog, "qtc.android.avdDialog", QtWarningMsg)
 
 AvdDialog::AvdDialog(QWidget *parent)
-    : QDialog(parent),
-      m_allowedNameChars(QLatin1String("[a-z|A-Z|0-9|._-]*"))
+    : QDialog(parent)
+    , m_allowedNameChars(QLatin1String("[a-z|A-Z|0-9|._-]*"))
 {
     resize(800, 0);
     setWindowTitle(Tr::tr("Create new AVD"));
@@ -106,6 +109,7 @@ AvdDialog::AvdDialog(QWidget *parent)
     m_deviceTypeToStringMap.insert(AvdDialog::Automotive, "Automotive");
     m_deviceTypeToStringMap.insert(AvdDialog::TV, "TV");
     m_deviceTypeToStringMap.insert(AvdDialog::Wear, "Wear");
+    m_deviceTypeToStringMap.insert(AvdDialog::Desktop, "Desktop");
 
     parseDeviceDefinitionsList();
     for (const QString &type : m_deviceTypeToStringMap)
@@ -118,32 +122,25 @@ int AvdDialog::exec()
 {
     const int execResult = QDialog::exec();
     if (execResult == QDialog::Accepted) {
-        CreateAvdInfo result;
-        result.systemImage = systemImage();
-        result.name = name();
-        result.abi = abi();
-        result.deviceDefinition = deviceDefinition();
-        result.sdcardSize = sdcardSize();
-        result.overwrite = m_overwriteCheckBox->isChecked();
-
-        const AndroidAvdManager avdManager;
-        QFutureWatcher<CreateAvdInfo> createAvdFutureWatcher;
-
-        QEventLoop loop;
-        QObject::connect(&createAvdFutureWatcher, &QFutureWatcher<CreateAvdInfo>::finished,
-                         &loop, &QEventLoop::quit);
-        QObject::connect(&createAvdFutureWatcher, &QFutureWatcher<CreateAvdInfo>::canceled,
-                         &loop, &QEventLoop::quit);
-        createAvdFutureWatcher.setFuture(avdManager.createAvd(result));
-        loop.exec(QEventLoop::ExcludeUserInputEvents);
-
-        const QFuture<CreateAvdInfo> future = createAvdFutureWatcher.future();
-        if (future.isResultReadyAt(0)) {
-            m_createdAvdInfo = future.result();
-            AndroidDeviceManager::instance()->updateAvdsList();
+        const SystemImage *si = systemImage();
+        if (!si || !si->isValid() || name().isEmpty()) {
+            QMessageBox::warning(Core::ICore::dialogParent(),
+                Tr::tr("Create new AVD"), Tr::tr("Cannot create AVD. Invalid input."));
+            return QDialog::Rejected;
         }
-    }
 
+        const CreateAvdInfo avdInfo{si->sdkStylePath(), si->apiLevel(), name(), abi(),
+                                    deviceDefinition(), sdcardSize()};
+        const auto result = AndroidDeviceManager::createAvd(avdInfo,
+                                                            m_overwriteCheckBox->isChecked());
+        if (!result) {
+            QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("Create new AVD"),
+                                 result.error());
+            return QDialog::Rejected;
+        }
+        m_createdAvdInfo = avdInfo;
+        AndroidDeviceManager::updateAvdList();
+    }
     return execResult;
 }
 
@@ -152,23 +149,9 @@ bool AvdDialog::isValid() const
     return !name().isEmpty() && systemImage() && systemImage()->isValid() && !abi().isEmpty();
 }
 
-ProjectExplorer::IDevice::Ptr AvdDialog::device() const
+CreateAvdInfo AvdDialog::avdInfo() const
 {
-    if (!m_createdAvdInfo.systemImage) {
-        qCWarning(avdDialogLog) << "System image of the created AVD is nullptr";
-        return IDevice::Ptr();
-    }
-    AndroidDevice *dev = new AndroidDevice();
-    const Utils::Id deviceId = AndroidDevice::idFromAvdInfo(m_createdAvdInfo);
-    using namespace ProjectExplorer;
-    dev->setupId(IDevice::AutoDetected, deviceId);
-    dev->setMachineType(IDevice::Emulator);
-    dev->settings()->displayName.setValue(m_createdAvdInfo.name);
-    dev->setDeviceState(IDevice::DeviceConnected);
-    dev->setExtraData(Constants::AndroidAvdName, m_createdAvdInfo.name);
-    dev->setExtraData(Constants::AndroidCpuAbi, {m_createdAvdInfo.abi});
-    dev->setExtraData(Constants::AndroidSdk, m_createdAvdInfo.systemImage->apiLevel());
-    return IDevice::Ptr(dev);
+    return m_createdAvdInfo;
 }
 
 AvdDialog::DeviceType AvdDialog::tagToDeviceType(const QString &type_tag)
@@ -179,19 +162,59 @@ AvdDialog::DeviceType AvdDialog::tagToDeviceType(const QString &type_tag)
         return AvdDialog::TV;
     else if (type_tag.contains("android-automotive"))
         return AvdDialog::Automotive;
-    else
-        return AvdDialog::PhoneOrTablet;
+    else if (type_tag.contains("android-desktop"))
+        return AvdDialog::Desktop;
+    return AvdDialog::PhoneOrTablet;
+}
+
+static bool avdManagerCommand(const QStringList &args, QString *output)
+{
+    CommandLine cmd(AndroidConfig::avdManagerToolPath(), args);
+    Process proc;
+    proc.setEnvironment(AndroidConfig::toolsEnvironment());
+    qCDebug(avdDialogLog).noquote() << "Running AVD Manager command:" << cmd.toUserOutput();
+    proc.setCommand(cmd);
+    proc.runBlocking();
+    if (proc.result() == ProcessResult::FinishedWithSuccess) {
+        if (output)
+            *output = proc.allOutput();
+        return true;
+    }
+    return false;
 }
 
 void AvdDialog::parseDeviceDefinitionsList()
 {
     QString output;
 
-    if (!AndroidAvdManager::avdManagerCommand({"list", "device"}, &output)) {
+    if (!avdManagerCommand({"list", "device"}, &output)) {
         qCDebug(avdDialogLog) << "Avd list command failed" << output
-                              << androidConfig().sdkToolsVersion();
+                              << AndroidConfig::sdkToolsVersion();
         return;
     }
+
+    /* Example output:
+Available devices definitions:
+id: 0 or "automotive_1024p_landscape"
+    Name: Automotive (1024p landscape)
+    OEM : Google
+    Tag : android-automotive-playstore
+---------
+id: 1 or "automotive_1080p_landscape"
+    Name: Automotive (1080p landscape)
+    OEM : Google
+    Tag : android-automotive
+---------
+id: 2 or "Galaxy Nexus"
+    Name: Galaxy Nexus
+    OEM : Google
+---------
+id: 3 or "desktop_large"
+    Name: Large Desktop
+    OEM : Google
+    Tag : android-desktop
+...
+     */
 
     QStringList avdDeviceInfo;
 

@@ -79,15 +79,12 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
     if (rowIsPropertyRole(modelIndex.model(), modelIndex) || getModelNode(modelIndex).isRootNode())
         return; // Do not paint icons for property rows or root node
 
-    QWindow *window = dynamic_cast<QWidget*>(painter->device())->window()->windowHandle();
-    QTC_ASSERT(window, return);
-
     const QSize iconSize(16, 16);
     QPoint iconPosition(styleOption.rect.left() + (styleOption.rect.width() - iconSize.width()) / 2,
                         styleOption.rect.top() + 2 + delegateMargin);
 
     const QIcon::State state = isChecked(modelIndex) ? QIcon::State::On : QIcon::State::Off;
-    const QPixmap iconPixmap = m_icon.pixmap(window, iconSize, mode, state);
+    const QPixmap iconPixmap = m_icon.pixmap(iconSize, painter->device()->devicePixelRatio(), mode, state);
 
     // Shift the lock icon (last column) slightly to the left due to vertical scrollbar width
     if (modelIndex.column() == NavigatorTreeModel::ColumnType::Lock)

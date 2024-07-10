@@ -20,11 +20,6 @@ namespace Core { class IEditor; }
 namespace Designer {
 namespace Internal {
 
-/* FormEditorStack: Maintains a stack of Qt Designer form windows embedded
- * into a scrollarea and their associated XML editors.
- * Takes care of updating the XML editor once design mode is left.
- * Also updates the maincontainer resize handles when the active form
- * window changes. */
 class FormEditorStack : public QStackedWidget
 {
     Q_OBJECT

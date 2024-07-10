@@ -7,6 +7,7 @@
 #include "qmt/infrastructure/qmt_global.h"
 
 #include <QPointer>
+#include <QTimer>
 
 namespace qmt {
 
@@ -27,11 +28,17 @@ protected:
     void dragLeaveEvent(QDragLeaveEvent *event) override;
     void dragMoveEvent(QDragMoveEvent *event) override;
     void dropEvent(QDropEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
 
 private:
     void onSceneRectChanged(const QRectF &sceneRect);
+    void onPanTimeout();
 
     QPointer<DiagramSceneModel> m_diagramSceneModel;
+    QPointF m_lastMouse;
+    QTimer m_panTimer;
 };
 
 } // namespace qmt

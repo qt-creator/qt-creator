@@ -30,6 +30,7 @@
 #include <QLineEdit>
 #include <QPointer>
 #include <QPushButton>
+#include <QTimer>
 #include <QTreeWidgetItem>
 
 #include <array>
@@ -341,7 +342,7 @@ ShortcutInput::ShortcutInput()
     QPalette palette = m_warningLabel->palette();
     palette.setColor(QPalette::Active,
                      QPalette::WindowText,
-                     Utils::creatorTheme()->color(Utils::Theme::TextColorError));
+                     Utils::creatorColor(Utils::Theme::TextColorError));
     m_warningLabel->setPalette(palette);
     connect(m_warningLabel, &QLabel::linkActivated, this, &ShortcutInput::showConflictsRequested);
 
@@ -420,6 +421,7 @@ private:
     QGridLayout *m_shortcutLayout;
     std::vector<std::unique_ptr<ShortcutInput>> m_shortcutInputs;
     QPointer<QPushButton> m_addButton = nullptr;
+    QTimer m_updateTimer;
 };
 
 ShortcutSettingsWidget::ShortcutSettingsWidget()
@@ -428,7 +430,12 @@ ShortcutSettingsWidget::ShortcutSettingsWidget()
     setTargetHeader(Tr::tr("Shortcut"));
     setResetVisible(true);
 
+    m_updateTimer.setSingleShot(true);
+    m_updateTimer.setInterval(100);
+
     connect(ActionManager::instance(), &ActionManager::commandListChanged,
+            &m_updateTimer, qOverload<>(&QTimer::start));
+    connect(&m_updateTimer, &QTimer::timeout,
             this, &ShortcutSettingsWidget::initialize);
     connect(this, &ShortcutSettingsWidget::currentCommandChanged,
             this, &ShortcutSettingsWidget::handleCurrentCommandChanged);
@@ -718,15 +725,15 @@ bool ShortcutSettingsWidget::markCollisions(ShortcutItem *item, int index)
             }
             if (currentIsConflicting) {
                 currentItem->m_item->setForeground(2,
-                                                   Utils::creatorTheme()->color(
-                                                       Utils::Theme::TextColorError));
+                                                   Utils::creatorColor(
+                                                   Utils::Theme::TextColorError));
                 hasCollision = true;
             }
         }
     }
     item->m_item->setForeground(2,
                                 hasCollision
-                                    ? Utils::creatorTheme()->color(Utils::Theme::TextColorError)
+                                    ? Utils::creatorColor(Utils::Theme::TextColorError)
                                     : commandList()->palette().windowText());
     return hasCollision;
 }

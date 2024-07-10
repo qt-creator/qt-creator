@@ -85,6 +85,22 @@ enum TextMarkRequestKind
     TaskMarkRequest
 };
 
+namespace OptionalActions {
+enum Mask {
+    None = 0,
+    Format = 1,
+    UnCommentSelection = 2,
+    UnCollapseAll = 4,
+    FollowSymbolUnderCursor = 8,
+    FollowTypeUnderCursor = 16,
+    JumpToFileUnderCursor = 32,
+    RenameSymbol = 64,
+    FindUsage = 128,
+    CallHierarchy = 256,
+    TypeHierarchy = 512,
+};
+} // namespace OptionalActions
+
 class TEXTEDITOR_EXPORT BaseTextEditor : public Core::IEditor
 {
     Q_OBJECT
@@ -153,6 +169,11 @@ public:
 private:
     friend class TextEditorFactory;
     friend class Internal::TextEditorFactoryPrivate;
+
+    void saveCurrentStateForNavigationHistory();
+    void addSavedStateToNavigationHistory();
+    void addCurrentStateToNavigationHistory();
+
     Internal::BaseTextEditorPrivate *d;
 };
 
@@ -441,6 +462,9 @@ public:
     virtual void undo();
     virtual void redo();
 
+    virtual bool isUndoAvailable() const;
+    virtual bool isRedoAvailable() const;
+
     void openLinkUnderCursor();
     void openLinkUnderCursorInNextSplit();
     void openTypeUnderCursor();
@@ -511,8 +535,12 @@ signals:
     void requestUsages(const QTextCursor &cursor);
     void requestRename(const QTextCursor &cursor);
     void requestCallHierarchy(const QTextCursor &cursor);
-    void optionalActionMaskChanged();
     void toolbarOutlineChanged(QWidget *newOutline);
+
+    // used by the IEditor
+    void saveCurrentStateForNavigationHistory();
+    void addSavedStateToNavigationHistory();
+    void addCurrentStateToNavigationHistory();
 
 protected:
     QTextBlock blockForVisibleRow(int row) const;
@@ -568,6 +596,8 @@ protected:
     static QTextCursor flippedCursor(const QTextCursor &cursor);
 
     void setVisualIndentOffset(int offset);
+
+    void updateUndoRedoActions();
 
 public:
     QString selectedText() const;
@@ -689,7 +719,7 @@ public:
     void setSyntaxHighlighterCreator(const SyntaxHighLighterCreator &creator);
     void setUseGenericHighlighter(bool enabled);
     void setAutoCompleterCreator(const AutoCompleterCreator &creator);
-    void setEditorActionHandlers(uint optionalActions);
+    void setOptionalActionMask(int optionalActions);
 
     void addHoverHandler(BaseHoverHandler *handler);
     void setCompletionAssistProvider(CompletionAssistProvider *provider);

@@ -44,8 +44,7 @@ static FilePath defaultBuildDirectory(const FilePath &projectFilePath, const Kit
 {
     const QString projectName = projectFilePath.completeBaseName();
     return BuildConfiguration::buildDirectoryFromTemplate(
-                Project::projectDirectory(projectFilePath),
-                projectFilePath, projectName, k, bcName, buildType, "qbs");
+        projectFilePath.absolutePath(), projectFilePath, projectName, k, bcName, buildType, "qbs");
 }
 
 // ---------------------------------------------------------------------------

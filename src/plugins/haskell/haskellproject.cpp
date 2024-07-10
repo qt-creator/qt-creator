@@ -54,7 +54,6 @@ public:
 
 private:
     void updateApplicationTargets();
-    void refresh();
 
 private:
     ParseGuard m_parseGuard;

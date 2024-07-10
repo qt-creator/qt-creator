@@ -41,7 +41,7 @@ bool DockerApi::canConnect()
 
     bool result = false;
 
-    process.setCommand(CommandLine(dockerExe, QStringList{"info"}));
+    process.setCommand({dockerExe, {"info"}});
     connect(&process, &Process::done, [&process, &result] {
         qCInfo(dockerApiLog) << "'docker info' result:\n" << qPrintable(process.allOutput());
         if (process.result() == ProcessResult::FinishedWithSuccess)
@@ -52,6 +52,26 @@ bool DockerApi::canConnect()
     process.waitForFinished();
 
     return result;
+}
+
+bool DockerApi::isContainerRunning(const QString &containerId)
+{
+    Process process;
+    FilePath dockerExe = dockerClient();
+    if (dockerExe.isEmpty() || !dockerExe.isExecutableFile())
+        return false;
+
+    process.setCommand(
+        CommandLine(dockerExe, QStringList{"inspect", "--format", "{{.State.Running}}", containerId}));
+    process.runBlocking();
+
+    if (process.result() == ProcessResult::FinishedWithSuccess) {
+        QString output = process.readAllStandardOutput().trimmed();
+        if (output == "true")
+            return true;
+    }
+
+    return false;
 }
 
 void DockerApi::checkCanConnect(bool async)
@@ -115,8 +135,7 @@ QFuture<Utils::expected_str<QList<Network>>> DockerApi::networks()
         if (dockerExe.isEmpty() || !dockerExe.isExecutableFile())
             return make_unexpected(Tr::tr("Docker executable not found"));
 
-        process.setCommand(
-            CommandLine(dockerExe, QStringList{"network", "ls", "--format", "{{json .}}"}));
+        process.setCommand({dockerExe, {"network", "ls", "--format", "{{json .}}"}});
         process.runBlocking();
 
         if (process.result() != ProcessResult::FinishedWithSuccess) {

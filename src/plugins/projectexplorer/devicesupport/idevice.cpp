@@ -139,6 +139,7 @@ public:
     IDevice::MachineType machineType = IDevice::Hardware;
     OsType osType = OsTypeOther;
     DeviceFileAccess *fileAccess = nullptr;
+    std::function<DeviceFileAccess *()> fileAccessFactory;
     int version = 0; // This is used by devices that have been added by the SDK.
 
     Utils::SynchronizedValue<SshParameters> sshParameters;
@@ -251,6 +252,9 @@ bool IDevice::isAnyUnixDevice() const
 
 DeviceFileAccess *IDevice::fileAccess() const
 {
+    if (d->fileAccessFactory)
+        return d->fileAccessFactory();
+
     return d->fileAccess;
 }
 
@@ -339,6 +343,11 @@ void IDevice::setOsType(OsType osType)
 void IDevice::setFileAccess(DeviceFileAccess *fileAccess)
 {
     d->fileAccess = fileAccess;
+}
+
+void IDevice::setFileAccess(std::function<Utils::DeviceFileAccess *()> fileAccessFactory)
+{
+    d->fileAccessFactory = fileAccessFactory;
 }
 
 IDevice::DeviceInfo IDevice::deviceInformation() const
@@ -440,6 +449,11 @@ DeviceTester *IDevice::createDeviceTester() const
 {
     QTC_ASSERT(false, qDebug("This should not have been called..."));
     return nullptr;
+}
+
+bool IDevice::canMount(const Utils::FilePath &) const
+{
+    return false;
 }
 
 OsType IDevice::osType() const

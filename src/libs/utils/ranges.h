@@ -3,8 +3,8 @@
 
 #pragma once
 
-#if __cpp_lib_ranges >= 202002L
-#  include <ranges>
+#if defined(__cpp_lib_ranges) && __cpp_lib_ranges >= 201911L
+#include <ranges>
 
 namespace Utils {
 

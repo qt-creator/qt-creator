@@ -875,7 +875,7 @@ void ActionManagerPrivate::readUserSettings(Id id, Command *cmd)
     settings->beginGroup(kKeyboardSettingsKeyV2);
     if (settings->contains(id.toKey())) {
         const QVariant v = settings->value(id.toKey());
-        if (QMetaType::Type(v.type()) == QMetaType::QStringList) {
+        if (v.typeId() == QMetaType::QStringList) {
             cmd->setKeySequences(Utils::transform<QList>(v.toStringList(), [](const QString &s) {
                 return QKeySequence::fromString(s);
             }));

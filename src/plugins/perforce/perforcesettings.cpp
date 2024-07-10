@@ -125,7 +125,7 @@ PerforceSettings::PerforceSettings()
 
         Group environment {
             title(Tr::tr("Environment Variables")),
-            customEnv.groupChecker(),
+            groupChecker(customEnv.groupChecker()),
             Row { p4Port, p4Client, p4User }
         };
 

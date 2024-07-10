@@ -218,7 +218,6 @@ BookmarkView::BookmarkView()
     setDragEnabled(true);
     setDragDropMode(QAbstractItemView::DragDrop);
 
-    connect(this, &QAbstractItemView::doubleClicked, this, &BookmarkView::gotoBookmark);
     connect(this, &QAbstractItemView::activated, this, &BookmarkView::gotoBookmark);
 }
 
@@ -876,6 +875,7 @@ void BookmarkManager::edit()
     auto layout = new QFormLayout(&dlg);
     auto noteEdit = new QLineEdit(b->note());
     noteEdit->setMinimumWidth(300);
+    noteEdit->setFocus();
     auto lineNumberSpinbox = new QSpinBox;
     lineNumberSpinbox->setRange(1, INT_MAX);
     lineNumberSpinbox->setValue(b->lineNumber());

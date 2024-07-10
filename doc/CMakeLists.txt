@@ -25,11 +25,19 @@ function(_find_all_includes _ret_includes _ret_framework_paths)
 
   # framework path
   if (APPLE)
-    # version-less target Qt::Core is an interface library that links to QtX::Core
-    get_target_property(_qt_core Qt::Core INTERFACE_LINK_LIBRARIES)
-    get_target_property(_qt_target ${_qt_core} LOCATION) # <fw_path>/QtCore.framework/QtCore
-    get_filename_component(_qt_loc "${_qt_target}" DIRECTORY)
-    set("${_ret_framework_paths}" "${_qt_loc}/.." PARENT_SCOPE)
+    get_target_property(_qt_type Qt::Core TYPE)
+    if ("${_qt_type}" STREQUAL "INTERFACE_LIBRARY")
+        # version-less target Qt::Core is an interface library that links to QtX::Core
+        get_target_property(_qt_core Qt::Core INTERFACE_LINK_LIBRARIES)
+    else()
+        set(_qt_core "Qt::Core")
+    endif()
+    get_target_property(_qt_target ${_qt_core} LOCATION)
+    # eg <fw_path>/QtCore.framework/QtCore
+    # or <fw_path>/QtCore.framework/Versions/A/QtCore
+    # cut off /QtCore.framework/*
+    string(REGEX REPLACE "/QtCore.framework/.*" "" _qt_loc "${_qt_target}")
+    set("${_ret_framework_paths}" "${_qt_loc}" PARENT_SCOPE)
   endif()
 endfunction()
 
@@ -67,8 +75,14 @@ if(WITH_ONLINE_DOCS)
   _add_doc(${IDE_DOC_FILE_ONLINE} "qtcreatordev/qtcreator-dev-online.qdocconf")
 endif()
 
+if (BUILD_DOCS_BY_DEFAULT)
+set(EXCLUDE_DOCS_FROM_ALL "")
+else()
+set(EXCLUDE_DOCS_FROM_ALL "EXCLUDE_FROM_ALL")
+endif()
+
 install(DIRECTORY config
   DESTINATION ${IDE_HEADER_INSTALL_PATH}/doc
   COMPONENT Devel
-  EXCLUDE_FROM_ALL
+  ${EXCLUDE_DOCS_FROM_ALL}
 )

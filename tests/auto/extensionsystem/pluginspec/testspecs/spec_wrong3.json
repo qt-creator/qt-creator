@@ -11,6 +11,7 @@
             "end of terms"
         ],
         "Description" : [
+            "This spec is wrong because no version is set.",
             "This plugin is just a test.",
             "    it demonstrates the great use of the plugin spec."
         ],

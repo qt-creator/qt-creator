@@ -111,7 +111,7 @@ CppcheckSettings::CppcheckSettings()
     readSettings();
 }
 
-std::function<Layouting::LayoutItem()> CppcheckSettings::layouter()
+std::function<Layouting::Layout()> CppcheckSettings::layouter()
 {
     return [this] {
         using namespace Layouting;

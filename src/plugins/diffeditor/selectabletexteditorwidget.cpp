@@ -91,12 +91,12 @@ DiffSelections SelectableTextEditorWidget::polishedSelections(const DiffSelectio
                 continue;
 
             int j = 0;
-            while (j < workingList.count()) {
+            while (j < workingList.size()) {
                 const DiffSelection existingSelection = workingList.takeAt(j);
                 const QList<DiffSelection> newSelection = subtractSelection(existingSelection, diffSelection);
-                for (int k = 0; k < newSelection.count(); k++)
+                for (int k = 0; k < newSelection.size(); k++)
                     workingList.insert(j + k, newSelection.at(k));
-                j += newSelection.count();
+                j += newSelection.size();
             }
             workingList.append(diffSelection);
         }
@@ -126,8 +126,8 @@ void SelectableTextEditorWidget::paintBlock(QPainter *painter,
             QTextLayout::FormatRange formatRange;
             formatRange.start = qMax(0, diffSelection.start);
             const int end = diffSelection.end < 0
-                    ? block.text().count() + 1
-                    : qMin(block.text().count(), diffSelection.end);
+                    ? block.text().size() + 1
+                    : qMin(block.text().size(), diffSelection.end);
 
             formatRange.length = end - formatRange.start;
             formatRange.format = *diffSelection.format;

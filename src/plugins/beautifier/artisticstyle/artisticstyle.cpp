@@ -221,9 +221,10 @@ public:
 
         setOnApply([&s, configurations] {
             s.customStyle.setValue(configurations->currentConfiguration());
-            settings().apply();
+            s.apply();
             s.save();
         });
+        setOnCancel([&s] { s.cancel(); });
 
         s.read();
 

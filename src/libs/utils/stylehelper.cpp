@@ -107,7 +107,7 @@ QColor StyleHelper::notTooBrightHighlightColor()
 QPalette StyleHelper::sidebarFontPalette(const QPalette &original)
 {
     QPalette palette = original;
-    const QColor textColor = creatorTheme()->color(Theme::ProgressBarTitleColor);
+    const QColor textColor = creatorColor(Theme::ProgressBarTitleColor);
     palette.setColor(QPalette::WindowText, textColor);
     palette.setColor(QPalette::Text, textColor);
     return palette;
@@ -137,7 +137,7 @@ QColor StyleHelper::requestedBaseColor()
 QColor StyleHelper::toolbarBaseColor(bool lightColored)
 {
     if (creatorTheme()->flag(Theme::QDSTheme))
-        return creatorTheme()->color(Utils::Theme::DStoolbarBackground);
+        return creatorColor(Utils::Theme::DStoolbarBackground);
     else
         return StyleHelper::baseColor(lightColored);
 }
@@ -194,7 +194,7 @@ void StyleHelper::setBaseColor(const QColor &newcolor)
 {
     s_requestedBaseColor = newcolor;
 
-    const QColor themeBaseColor = creatorTheme()->color(Theme::PanelStatusBarBackgroundColor);
+    const QColor themeBaseColor = creatorColor(Theme::PanelStatusBarBackgroundColor);
     const QColor defaultBaseColor = QColor(DEFAULT_BASE_COLOR);
     QColor color;
 
@@ -366,11 +366,11 @@ void StyleHelper::drawArrow(QStyle::PrimitiveElement element, QPainter *painter,
         };
 
         if (!enabled) {
-            drawCommonStyleArrow(image.rect(), creatorTheme()->color(Theme::IconsDisabledColor));
+            drawCommonStyleArrow(image.rect(), creatorColor(Theme::IconsDisabledColor));
         } else {
             if (creatorTheme()->flag(Theme::ToolBarIconShadow))
                 drawCommonStyleArrow(image.rect().translated(0, devicePixelRatio), toolBarDropShadowColor());
-            drawCommonStyleArrow(image.rect(), creatorTheme()->color(Theme::IconsBaseColor));
+            drawCommonStyleArrow(image.rect(), creatorColor(Theme::IconsBaseColor));
         }
         painter.end();
         pixmap = QPixmap::fromImage(image);
@@ -463,9 +463,9 @@ void StyleHelper::drawMinimalArrow(QStyle::PrimitiveElement element, QPainter *p
         if (enabled) {
             if (creatorTheme()->flag(Theme::ToolBarIconShadow))
                 drawArrow(image.rect().translated(0, devicePixelRatio), toolBarDropShadowColor());
-            drawArrow(image.rect(), creatorTheme()->color(Theme::IconsBaseColor));
+            drawArrow(image.rect(), creatorColor(Theme::IconsBaseColor));
         } else {
-            drawArrow(image.rect(), creatorTheme()->color(Theme::IconsDisabledColor));
+            drawArrow(image.rect(), creatorColor(Theme::IconsDisabledColor));
         }
         painter.end();
         pixmap = QPixmap::fromImage(image);
@@ -551,8 +551,7 @@ void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
         // return a high-dpi pixmap, which will in that case have a devicePixelRatio
         // different than 1. The shadow drawing caluculations are done in device
         // pixels.
-        QWindow *window = dynamic_cast<QWidget*>(p->device())->window()->windowHandle();
-        QPixmap px = icon.pixmap(window, rect.size(), iconMode);
+        QPixmap px = icon.pixmap(rect.size(), devicePixelRatio, iconMode);
         int radius = int(dipRadius * devicePixelRatio);
         QPoint offset = dipOffset * devicePixelRatio;
         cache = QPixmap(px.size() + QSize(radius * 2, radius * 2));
@@ -563,7 +562,7 @@ void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
             const bool hasDisabledState =
                     icon.availableSizes().count() == icon.availableSizes(QIcon::Disabled).count();
             if (!hasDisabledState)
-                px = disabledSideBarIcon(icon.pixmap(window, rect.size()));
+                px = disabledSideBarIcon(icon.pixmap(rect.size(), devicePixelRatio));
         } else if (creatorTheme()->flag(Theme::ToolBarIconShadow)) {
             // Draw shadow
             QImage tmp(px.size() + QSize(radius * 2, radius * 2 + 1), QImage::Format_ARGB32_Premultiplied);
@@ -716,12 +715,7 @@ Qt::HighDpiScaleFactorRoundingPolicy StyleHelper::defaultHighDpiScaleFactorRound
 
 QIcon StyleHelper::getIconFromIconFont(const QString &fontName, const QList<IconFontHelper> &parameters)
 {
-    QFontDatabase a;
-
-    QTC_ASSERT(a.hasFamily(fontName), {});
-
-    if (!a.hasFamily(fontName))
-        return {};
+    QTC_ASSERT(QFontDatabase::hasFamily(fontName), {});
 
     QIcon icon;
 
@@ -751,38 +745,31 @@ QIcon StyleHelper::getIconFromIconFont(const QString &fontName, const QList<Icon
 
 QIcon StyleHelper::getIconFromIconFont(const QString &fontName, const QString &iconSymbol, int fontSize, int iconSize, QColor color)
 {
-    QFontDatabase a;
+    QTC_ASSERT(QFontDatabase::hasFamily(fontName), {});
 
-    QTC_ASSERT(a.hasFamily(fontName), {});
+    QIcon icon;
+    QSize size(iconSize, iconSize);
 
-    if (a.hasFamily(fontName)) {
+    const int maxDpr = qRound(qApp->devicePixelRatio());
+    for (int dpr = 1; dpr <= maxDpr; dpr++) {
+        QPixmap pixmap(size * dpr);
+        pixmap.setDevicePixelRatio(dpr);
+        pixmap.fill(Qt::transparent);
 
-        QIcon icon;
-        QSize size(iconSize, iconSize);
+        QFont font(fontName);
+        font.setPixelSize(fontSize);
 
-        const int maxDpr = qRound(qApp->devicePixelRatio());
-        for (int dpr = 1; dpr <= maxDpr; dpr++) {
-            QPixmap pixmap(size * dpr);
-            pixmap.setDevicePixelRatio(dpr);
-            pixmap.fill(Qt::transparent);
+        QPainter painter(&pixmap);
+        painter.save();
+        painter.setPen(color);
+        painter.setFont(font);
+        painter.drawText(QRectF(QPoint(0, 0), size), Qt::AlignCenter, iconSymbol);
+        painter.restore();
 
-            QFont font(fontName);
-            font.setPixelSize(fontSize);
-
-            QPainter painter(&pixmap);
-            painter.save();
-            painter.setPen(color);
-            painter.setFont(font);
-            painter.drawText(QRectF(QPoint(0, 0), size), Qt::AlignCenter, iconSymbol);
-            painter.restore();
-
-            icon.addPixmap(pixmap);
-        }
-
-        return icon;
+        icon.addPixmap(pixmap);
     }
 
-    return {};
+    return icon;
 }
 
 QIcon StyleHelper::getIconFromIconFont(const QString &fontName, const QString &iconSymbol, int fontSize, int iconSize)
@@ -794,54 +781,46 @@ QIcon StyleHelper::getIconFromIconFont(const QString &fontName, const QString &i
 QIcon StyleHelper::getCursorFromIconFont(const QString &fontName, const QString &cursorFill, const QString &cursorOutline,
                                          int fontSize, int iconSize)
 {
-    QFontDatabase a;
-
-    QTC_ASSERT(a.hasFamily(fontName), {});
+    QTC_ASSERT(QFontDatabase::hasFamily(fontName), {});
 
     const QColor outlineColor = Qt::black;
     const QColor fillColor = Qt::white;
 
-    if (a.hasFamily(fontName)) {
+    QIcon icon;
+    QSize size(iconSize, iconSize);
 
-        QIcon icon;
-        QSize size(iconSize, iconSize);
+    const int maxDpr = qRound(qApp->devicePixelRatio());
+    for (int dpr = 1; dpr <= maxDpr; dpr++) {
+        QPixmap pixmap(size * dpr);
+        pixmap.setDevicePixelRatio(dpr);
+        pixmap.fill(Qt::transparent);
 
-        const int maxDpr = qRound(qApp->devicePixelRatio());
-        for (int dpr = 1; dpr <= maxDpr; dpr++) {
-            QPixmap pixmap(size * dpr);
-            pixmap.setDevicePixelRatio(dpr);
-            pixmap.fill(Qt::transparent);
+        QFont font(fontName);
+        font.setPixelSize(fontSize);
 
-            QFont font(fontName);
-            font.setPixelSize(fontSize);
+        QPainter painter(&pixmap);
+        painter.save();
+        painter.setRenderHint(QPainter::Antialiasing, true);
+        painter.setRenderHint(QPainter::TextAntialiasing, true);
+        painter.setRenderHint(QPainter::LosslessImageRendering, true);
+        painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
 
-            QPainter painter(&pixmap);
-            painter.save();
-            painter.setRenderHint(QPainter::Antialiasing, true);
-            painter.setRenderHint(QPainter::TextAntialiasing, true);
-            painter.setRenderHint(QPainter::LosslessImageRendering, true);
-            painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+        painter.setFont(font);
+        painter.setPen(outlineColor);
+        painter.drawText(QRectF(QPointF(0.0, 0.0), size),
+                         Qt::AlignCenter, cursorOutline);
 
-            painter.setFont(font);
-            painter.setPen(outlineColor);
-            painter.drawText(QRectF(QPointF(0.0, 0.0), size),
-                             Qt::AlignCenter, cursorOutline);
+        painter.setPen(fillColor);
+        painter.drawText(QRectF(QPointF(0.0, 0.0), size),
+                         Qt::AlignCenter, cursorFill);
 
-            painter.setPen(fillColor);
-            painter.drawText(QRectF(QPointF(0.0, 0.0), size),
-                             Qt::AlignCenter, cursorFill);
+        painter.restore();
 
-            painter.restore();
-
-            icon.addPixmap(pixmap);
-        }
-
-        return icon;
+        icon.addPixmap(pixmap);
     }
 
-    return {};
+    return icon;
 }
-
 
 QString StyleHelper::dpiSpecificImageFile(const QString &fileName)
 {
@@ -970,6 +949,8 @@ static const UiFontMetrics& uiFontMetrics(StyleHelper::UiElement element)
         {StyleHelper::UiElementBody2,               {12, 20, QFont::Light}},
         {StyleHelper::UiElementButtonMedium,        {12, 16, QFont::Bold}},
         {StyleHelper::UiElementButtonSmall,         {10, 12, QFont::Bold}},
+        {StyleHelper::UiElementLabelMedium,         {12, 16, QFont::DemiBold}},
+        {StyleHelper::UiElementLabelSmall,          {10, 12, QFont::DemiBold}},
         {StyleHelper::UiElementCaptionStrong,       {10, 12, QFont::DemiBold}},
         {StyleHelper::UiElementCaption,             {10, 12, QFont::Normal}},
         {StyleHelper::UiElementIconStandard,        {12, 16, QFont::Medium}},

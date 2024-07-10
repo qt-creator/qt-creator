@@ -3777,8 +3777,8 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <translation type="obsolete">Editor de signals/slots</translation>
     </message>
     <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Clase del formulario Qt Designer</translation>
+        <source>Qt Widgets Designer Form Class</source>
+        <translation>Clase del formulario Qt Widgets Designer</translation>
     </message>
     <message>
         <source>%1 - Error</source>
@@ -3825,20 +3825,20 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <translation></translation>
     </message>
     <message>
-        <source>Qt Designer Form</source>
+        <source>Qt Widgets Designer Form</source>
         <translation>Diseñador de formularios de Qt</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form file (.ui).</source>
-        <translation>Crea un archivo de formulario de Qt Designer (.ui).</translation>
+        <source>Creates a Qt Widgets Designer form file (.ui).</source>
+        <translation>Crea un archivo de formulario de Qt Widgets Designer (.ui).</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form file (.ui) with a matching class.</source>
-        <translation>Crea un archivo de formulario de Qt Designer (.ui) para una clase.</translation>
+        <source>Creates a Qt Widgets Designer form file (.ui) with a matching class.</source>
+        <translation>Crea un archivo de formulario de Qt Widgets Designer (.ui) para una clase.</translation>
     </message>
     <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Clase del formulario de Qt Designer</translation>
+        <source>Qt Widgets Designer Form Class</source>
+        <translation>Clase del formulario de Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Object inspector</source>
@@ -3953,8 +3953,8 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>About Qt Designer plugins....</source>
-        <translation>Acerca de los plugins de Qt Designer...</translation>
+        <source>About Qt Widgets Designer plugins....</source>
+        <translation>Acerca de los plugins de Qt Widgets Designer...</translation>
     </message>
     <message>
         <source>Preview in</source>
@@ -3989,8 +3989,8 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <translation>Imposible escribir a %1: %2</translation>
     </message>
     <message>
-        <source>Qt Designer Form</source>
-        <translation>Formulario de Qt Designer</translation>
+        <source>Qt Widgets Designer Form</source>
+        <translation>Formulario de Qt Widgets Designer</translation>
     </message>
     <message>
         <source>The class definition of &apos;%1&apos; could not be found in %2.</source>
@@ -7459,8 +7459,8 @@ al control de versiones (%2)?</translation>
         <translation>Este asistente genera un proyecto de aplicación Qt4 para consola. La aplicación es derivada de QCoreApplication y no provee interfaz gráfica de usuario.</translation>
     </message>
     <message>
-        <source>Qt Designer is not responding (%1).</source>
-        <translation>Qt Designer no está respondiendo (%1).</translation>
+        <source>Qt Widgets Designer is not responding (%1).</source>
+        <translation>Qt Widgets Designer no está respondiendo (%1).</translation>
     </message>
     <message>
         <source>Unable to create server socket: %1</source>

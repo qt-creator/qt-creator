@@ -131,7 +131,7 @@ QString StLinkUtilGdbServerProvider::channelString() const
 
 CommandLine StLinkUtilGdbServerProvider::command() const
 {
-    CommandLine cmd{m_executableFile, {}};
+    CommandLine cmd{m_executableFile};
 
     if (m_extendedMode)
         cmd.addArg("--multi");

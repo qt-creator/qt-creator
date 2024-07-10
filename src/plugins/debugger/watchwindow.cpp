@@ -8,6 +8,7 @@
 #include "debuggertr.h"
 #include "watchhandler.h"
 
+#include <utils/algorithm.h>
 #include <utils/aspects.h>
 #include <utils/qtcassert.h>
 
@@ -28,6 +29,10 @@ WatchTreeView::WatchTreeView(WatchType type)
     setDragEnabled(true);
     setAcceptDrops(true);
     setDropIndicatorShown(true);
+
+    m_progressDelayTimer.setSingleShot(true);
+    m_progressDelayTimer.setInterval(80);
+    connect(&m_progressDelayTimer, &QTimer::timeout, this, &WatchTreeView::showProgressIndicator);
 
     connect(this, &QTreeView::expanded, this, &WatchTreeView::expandNode);
     connect(this, &QTreeView::collapsed, this, &WatchTreeView::collapseNode);
@@ -71,12 +76,10 @@ void WatchTreeView::setModel(QAbstractItemModel *model)
             this, &QAbstractItemView::setCurrentIndex);
     connect(watchModel, &WatchModelBase::itemIsExpanded,
             this, &WatchTreeView::handleItemIsExpanded);
-    if (m_type == LocalsType) {
-        connect(watchModel, &WatchModelBase::updateStarted,
-                this, &WatchTreeView::showProgressIndicator);
-        connect(watchModel, &WatchModelBase::updateFinished,
-                this, &WatchTreeView::hideProgressIndicator);
-    }
+    connect(watchModel, &WatchModelBase::updateStarted,
+            this, &WatchTreeView::handleUpdateStarted);
+    connect(watchModel, &WatchModelBase::updateFinished,
+            this, &WatchTreeView::handleUpdateFinished);
 
     updateTimeColumn();
 }
@@ -93,6 +96,39 @@ void WatchTreeView::handleItemIsExpanded(const QModelIndex &idx)
     QTC_ASSERT(on, return);
     if (!isExpanded(idx))
         expand(idx);
+}
+
+void WatchTreeView::handleUpdateStarted()
+{
+    m_selectedInames = Utils::transform(selectedIndexes(), [this](const QModelIndex &idx) {
+        return model()->data(idx, LocalsINameRole).toString();
+    });
+    m_currentIname = currentIndex().data(LocalsINameRole).toString();
+    if (m_type == LocalsType)
+        m_progressDelayTimer.start();
+}
+
+void WatchTreeView::handleUpdateFinished()
+{
+    m_progressDelayTimer.stop();
+    if (m_type == LocalsType)
+        hideProgressIndicator();
+
+    auto watchModel = qobject_cast<WatchModelBase *>(model());
+    QTC_ASSERT(watchModel, return);
+    QItemSelection selection;
+    QModelIndex currentIndex;
+    watchModel->forAllItems([&](Utils::TreeItem *item) {
+        const QModelIndex index = item->index();
+        const QString iName = index.data(LocalsINameRole).toString();
+        if (m_selectedInames.contains(iName))
+            selection.append(QItemSelectionRange(index));
+        if (iName == m_currentIname)
+            currentIndex = index;
+    });
+    selectionModel()->select(selection, QItemSelectionModel::Select);
+    if (currentIndex.isValid())
+        setCurrentIndex(currentIndex);
 }
 
 void WatchTreeView::reexpand(QTreeView *view, const QModelIndex &idx)

@@ -1,0 +1,22 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-live-preview-desktop.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-design
+
+    \title Preview a QML file on desktop
+
+    To preview the currently active QML file on the desktop:
+
+    \list
+        \li Select \inlineimage icons/live-preview.png (\uicontrol {Live Preview})
+            on the \l{Edit Mode}{editor} toolbar.
+            \image qtcreator-live-preview.webp {Application running on top of the editor view}
+        \li Go to \uicontrol Build > \uicontrol {QML Preview}.
+    \endlist
+
+    \sa {Design UIs}{How To: Design UIs}, {UI Design}
+*/

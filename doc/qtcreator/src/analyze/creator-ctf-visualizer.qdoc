@@ -8,11 +8,14 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-cppcheck.html
     \page creator-ctf-visualizer.html
-    \nextpage creator-autotest.html
+    \previouspage creator-reference.html
 
-    \title Visualizing Chrome Trace Events
+    \ingroup creator-reference-analyzer
+
+    \title Chrome Trace Format Visualizer
+
+    \brief Visualize Chrome trace events generated in Chrome Trace Format (CTF).
 
     You can use \e {full stack tracing} to trace from the top level QML or
     JavaScript down to the C++ and all the way to the kernel space. This
@@ -110,7 +113,7 @@
     LTTng is a tracing toolkit for Linux that you can apply on embedded Linux
     systems to find out how to optimize the startup time of an application.
 
-    Since Qt 5.13, Qt has a set of kernel trace points and a tracing
+    Qt has a set of kernel trace points and a tracing
     subsystem for custom user space trace points.
 
     \section2 Configuring the Kernel
@@ -218,4 +221,6 @@
     \code
     ctf2ctf -o trace.json path/to/lttng trace/
     \endcode
+
+    \sa {Analyze}{How To: Analyze}, {Analyzers}, {Analyzing Code}
 */

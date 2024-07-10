@@ -68,6 +68,8 @@ public:
     void addPackage(const PipPackage &package);
     void setPackages(const QList<PipPackage> &packages);
     void setTargetPath(const Utils::FilePath &targetPath);
+    void setUpgrade(bool upgrade);
+    void setSilent(bool silent);
     void run();
 
 signals:
@@ -86,6 +88,8 @@ private:
     Utils::FilePath m_requirementsFile;
     Utils::FilePath m_targetPath;
     Utils::Process m_process;
+    bool m_upgrade = false;
+    bool m_silent = false;
     QFutureInterface<void> m_future;
     QFutureWatcher<void> m_watcher;
     QTimer m_killTimer;

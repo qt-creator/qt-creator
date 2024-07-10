@@ -6,6 +6,7 @@
 #include "qmt/diagram/dannotation.h"
 #include "qmt/diagram/dobject.h"
 #include "qmt/diagram/dclass.h"
+#include "qmt/diagram/drelation.h"
 
 #include "qark/serialize_enum.h"
 
@@ -16,5 +17,7 @@ QARK_SERIALIZE_ENUM(qmt::DObject::VisualSecondaryRole)
 QARK_SERIALIZE_ENUM(qmt::DObject::StereotypeDisplay)
 QARK_SERIALIZE_ENUM(qmt::DClass::TemplateDisplay)
 QARK_SERIALIZE_ENUM(qmt::DAnnotation::VisualRole)
+QARK_SERIALIZE_ENUM(qmt::DRelation::VisualPrimaryRole)
+QARK_SERIALIZE_ENUM(qmt::DRelation::VisualSecondaryRole)
 
 } // namespace qark

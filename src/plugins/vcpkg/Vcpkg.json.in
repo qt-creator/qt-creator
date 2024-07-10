@@ -14,8 +14,9 @@
     ],
     "Experimental" : true,
     "SoftLoadable" : true,
-    "Description" : "vcpkg integration.",
-    "Url" : "http://www.qt.io",
+    "Description" : "Get and manage libraries from the vcpkg package manager.",
+    "LongDescription" : [],
+    "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [
@@ -27,5 +28,6 @@
         "        <glob pattern='vcpkg.json' weight='71'/>",
         "    </mime-type>",
         "</mime-info>"
-    ]
+    ],
+    "JsonWizardPaths" : [":/vcpkg/wizards/"]
 }

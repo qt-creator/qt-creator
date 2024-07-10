@@ -24,7 +24,6 @@ public:
     UrlLocatorFilter(Utils::Id id);
     UrlLocatorFilter(const QString &displayName, Utils::Id id);
 
-    void restoreState(const QByteArray &state) final;
     bool openConfigDialog(QWidget *parent, bool &needsRefresh) final;
 
     void addDefaultUrl(const QString &urlTemplate);

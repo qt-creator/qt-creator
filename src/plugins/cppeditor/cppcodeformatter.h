@@ -40,6 +40,7 @@ public:
     void indentForNewLineAfter(const QTextBlock &block, int *indent, int *padding);
 
     void setTabSize(int tabSize);
+    void setStatementMacros(const QStringList &macros) { m_statementMacros = macros; }
 
     void invalidateCache(QTextDocument *document);
 
@@ -117,6 +118,8 @@ public: // must be public to make Q_GADGET introspection work
         for_statement_init, // The initializer part of the for statement
         for_statement_condition, // The condition part of the for statement
         for_statement_expression, // The expression part of the for statement
+
+        catch_statement,
 
         switch_statement, // After 'switch' token
         case_start, // after a 'case' or 'default' token
@@ -208,6 +211,8 @@ private:
     void leave(bool statementDone = false);
     void correctIndentation(const QTextBlock &block);
 
+    bool isStatementMacroOrEquivalent() const;
+
 private:
     static QStack<State> initialState();
 
@@ -224,6 +229,7 @@ private:
     int m_paddingDepth = 0;
 
     int m_tabSize = 4;
+    QStringList m_statementMacros;
 
     friend class Internal::CppCodeFormatterData;
 };

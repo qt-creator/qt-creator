@@ -152,8 +152,8 @@
         <translation>Lissage</translation>
     </message>
     <message>
-        <source>Toggles if the smoothing is performed using linear interpolation method. Keeping it unchecked would follow non-smooth method using nearest neighbor. It is mostly applicable on image based items. </source>
-        <translation>Active/désactive l&apos;utilisation de l&apos;interpolation linéaire pour le lissage. Lorsque décoché, la méthode du plus proche voisin sera utilisée. Cela s&apos;applique principalement aux éléments images. </translation>
+        <source>Toggles if the smoothing is performed using linear interpolation method. Keeping it unchecked would follow non-smooth method using nearest neighbor. It is mostly applicable on image based items.</source>
+        <translation>Active/désactive l&apos;utilisation de l&apos;interpolation linéaire pour le lissage. Lorsque décoché, la méthode du plus proche voisin sera utilisée. Cela s&apos;applique principalement aux éléments images.</translation>
     </message>
     <message>
         <source>Antialiasing</source>
@@ -10730,7 +10730,7 @@ dans le navigateur système pour un téléchargement manuel.</translation>
         <translation>Liste des NDK Android&#xa0;:</translation>
     </message>
     <message>
-        <source>Android OpenSSL settings (Optional)</source>
+        <source>Android OpenSSL Settings (Optional)</source>
         <translation>Paramètres Android d&apos;OpenSSL (optionnel)</translation>
     </message>
     <message>
@@ -11066,12 +11066,12 @@ Le kit supporte «&#xa0;%2&#xa0;», mais le périphérique utilise «&#xa0;%3&#x
 </translation>
     </message>
     <message>
-        <source>
-Uninstalling the installed package may solve the issue.
-Do you want to uninstall the existing package?</source>
-        <translation>
-La désinstallation du paquet installé peut résoudre le problème.
-Voulez-vous désinstaller le paquet existant&#xa0;?</translation>
+        <source>Uninstalling the installed package may solve the issue.</source>
+        <translation>La désinstallation du paquet installé peut résoudre le problème.</translation>
+    </message>
+    <message>
+        <source>Do you want to uninstall the existing package?</source>
+        <translation>Voulez-vous désinstaller le paquet existant&#xa0;?</translation>
     </message>
     <message>
         <source>Install failed</source>
@@ -12712,7 +12712,7 @@ Exécutable&#xa0;: %2</translation>
         <translation>Répétition des tests</translation>
     </message>
     <message>
-        <source>Run in parallel</source>
+        <source>Run in Parallel</source>
         <translation>Exécuter en parallèle</translation>
     </message>
     <message>
@@ -20440,8 +20440,8 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Éditeur QMLJS</translation>
     </message>
     <message>
-        <source>Qt Designer</source>
-        <translation>Qt Designer</translation>
+        <source>Qt Widgets Designer</source>
+        <translation>Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Qt Linguist</source>
@@ -22228,7 +22228,7 @@ Le modèle de code intégré gèrera le surlignage, la complétion, etc.</transl
         <translation>Seuil de mise à jour du document :</translation>
     </message>
     <message>
-        <source>Sessions with a single clangd instance</source>
+        <source>Sessions with a Single Clangd Instance</source>
         <translation>Sessions avec une seule instance de clangd</translation>
     </message>
     <message>
@@ -22450,7 +22450,7 @@ devraient être gérés par le même processus clangd, ajoutez-les ici.</transla
         <translation>Convertir en Camel Case</translation>
     </message>
     <message>
-        <source>Add forward declaration for %1</source>
+        <source>Add Forward Declaration for %1</source>
         <translation>Ajouter la déclaration préalable pour %1</translation>
     </message>
     <message>
@@ -22982,8 +22982,8 @@ p.ex. nom = «&#xa0;m_test_toto_&#xa0;» :
         <translation>Modèles de getters et setters personnalisés</translation>
     </message>
     <message>
-        <source>Value types:</source>
-        <translation>Types de valeur :</translation>
+        <source>Value Types</source>
+        <translation>Types de valeur</translation>
     </message>
     <message>
         <source>Projects only</source>
@@ -28811,8 +28811,8 @@ L’accès au module ou la mise en place de points d’arrêt par fichier et par
         <translation>Éditeur d’interface graphique</translation>
     </message>
     <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Classe d’interface graphique Qt Designer</translation>
+        <source>Qt Widgets Designer Form Class</source>
+        <translation>Classe d’interface graphique Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Form Template</source>
@@ -28835,12 +28835,12 @@ L’accès au module ou la mise en place de points d’arrêt par fichier et par
         <translation>Sélectionner un nom de classe</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt Widget Project.</source>
-        <translation>Crée un formulaire Qt Designer avec une classe correspondante (en-tête C++ et fichier source) pour implémentation. Vous pouvez ajouter le formulaire et la classe à un projet Qt Widget existant.</translation>
+        <source>Creates a Qt Widgets Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt Widget Project.</source>
+        <translation>Crée un formulaire Qt Widgets Designer avec une classe correspondante (en-tête C++ et fichier source) pour implémentation. Vous pouvez ajouter le formulaire et la classe à un projet Qt Widget existant.</translation>
     </message>
     <message>
         <source>Widget Box</source>
-        <translatorcomment>this translation must coherent with the translation of Qt Designer</translatorcomment>
+        <translatorcomment>this translation must coherent with the translation of Qt Widgets Designer</translatorcomment>
         <translation>Boite de widget</translation>
     </message>
     <message>
@@ -28937,8 +28937,8 @@ L’accès au module ou la mise en place de points d’arrêt par fichier et par
         <translation>Maj+F4</translation>
     </message>
     <message>
-        <source>About Qt Designer Plugins...</source>
-        <translation>À propos des greffons de Qt Designer…</translation>
+        <source>About Qt Widgets Designer Plugins...</source>
+        <translation>À propos des greffons de Qt Widgets Designer…</translation>
     </message>
     <message>
         <source>Signals &amp;&amp; Slots Editor</source>
@@ -34341,8 +34341,8 @@ Souhaitez-vous les écraser&#xa0;?</translation>
         <translation>Entrez les arguments appropriés pour votre commande de construction.</translation>
     </message>
     <message>
-        <source>Make sure the build command&apos;s multi-job parameter value is large enough (such as -j200 for the JOM or Make build tools)</source>
-        <translation>Assurez vous que le paramètre multi-job de la commande de construction est assez grande (telle que -j200  pour les outils de compilation comme JOM ou Make)</translation>
+        <source>Make sure the build command&apos;s multi-job parameter value is large enough (such as -j200 for the JOM or Make build tools).</source>
+        <translation>Assurez vous que le paramètre multi-job de la commande de construction est assez grande (telle que -j200  pour les outils de compilation comme JOM ou Make).</translation>
     </message>
     <message>
         <source>Keep original jobs number:</source>
@@ -34461,16 +34461,16 @@ Souhaitez-vous les écraser&#xa0;?</translation>
         <translation>Cacher l&apos;entête IncrediBuild dans la sortie&#xa0;:</translation>
     </message>
     <message>
-        <source>Suppresses IncrediBuild&apos;s header in the build output</source>
-        <translation>Supprimer l&apos;entête d&apos;IncrediBuild de la sortie de construction</translation>
+        <source>Suppresses IncrediBuild&apos;s header in the build output.</source>
+        <translation>Supprimer l&apos;entête d&apos;IncrediBuild de la sortie de construction.</translation>
     </message>
     <message>
         <source>Internal IncrediBuild logging level:</source>
         <translation>Niveau de journalisation interne d&apos;IncrediBuild&#xa0;:</translation>
     </message>
     <message>
-        <source>Overrides the internal Incredibuild logging level for this build. Does not affect output or any user accessible logging. Used mainly to troubleshoot issues with the help of IncrediBuild support</source>
-        <translation>Écrase le niveau interne de journalisation d&apos;IncrediBuild pour cette construction. N&apos;affecte pas la sortie ou un quelconque journal accessible par l&apos;utilisateur. Utilisé principalement pour comprendre les problèmes avec l&apos;aide du support d&apos;IncrediBuild</translation>
+        <source>Overrides the internal Incredibuild logging level for this build. Does not affect output or any user accessible logging. Used mainly to troubleshoot issues with the help of IncrediBuild support.</source>
+        <translation>Écrase le niveau interne de journalisation d&apos;IncrediBuild pour cette construction. N&apos;affecte pas la sortie ou un quelconque journal accessible par l&apos;utilisateur. Utilisé principalement pour comprendre les problèmes avec l&apos;aide du support d&apos;IncrediBuild.</translation>
     </message>
     <message>
         <source>Miscellaneous</source>
@@ -34489,16 +34489,16 @@ Souhaitez-vous les écraser&#xa0;?</translation>
         <translation>Arrêter en cas d&apos;erreur&#xa0;:</translation>
     </message>
     <message>
-        <source>When specified, the execution will stop as soon as an error is encountered. This is the default behavior in &quot;Visual Studio&quot; builds, but not the default for &quot;Make and Build tools&quot; or &quot;Dev Tools&quot; builds</source>
-        <translation>Lorsque spécifié, l&apos;exécution s&apos;arrête dès qu&apos;une erreur est rencontrée. C&apos;est le comportement par défaut dans les constructions «&#xa0;Visual Studio&#xa0;», mais ce n&apos;est pas le cas pour les constructions avec «&#xa0;Make et les outils de compilation&#xa0;» ou les «&#xa0;outils de développeur&#xa0;»</translation>
+        <source>When specified, the execution will stop as soon as an error is encountered. This is the default behavior in &quot;Visual Studio&quot; builds, but not the default for &quot;Make and Build tools&quot; or &quot;Dev Tools&quot; builds.</source>
+        <translation>Lorsque spécifié, l&apos;exécution s&apos;arrête dès qu&apos;une erreur est rencontrée. C&apos;est le comportement par défaut dans les constructions «&#xa0;Visual Studio&#xa0;», mais ce n&apos;est pas le cas pour les constructions avec «&#xa0;Make et les outils de compilation&#xa0;» ou les «&#xa0;outils de développeur&#xa0;».</translation>
     </message>
     <message>
         <source>Additional Arguments:</source>
         <translation>Arguments supplémentaires&#xa0;:</translation>
     </message>
     <message>
-        <source>Add additional buildconsole arguments manually. The value of this field will be concatenated to the final buildconsole command line</source>
-        <translation>Ajouter manuellement des arguments pour buildconsole. La valeur de ce champ est concaténé à la ligne de commande finale de buildconsole</translation>
+        <source>Add additional buildconsole arguments manually. The value of this field will be concatenated to the final buildconsole command line.</source>
+        <translation>Ajouter manuellement des arguments pour buildconsole. La valeur de ce champ est concaténé à la ligne de commande finale de buildconsole.</translation>
     </message>
     <message>
         <source>Open Build Monitor:</source>
@@ -40386,8 +40386,8 @@ Présélectionne un Qt optimisé pour le bureau pour compiler l&apos;application
         <translation>Définir l&apos;interpréteur Python</translation>
     </message>
     <message>
-        <source>Creates a Qt for Python application that includes a Qt Designer-based widget (ui file). Requires .ui to Python conversion.</source>
-        <translation>Génère une application Qt pour Python qui inclût un widget basé sur Qt Designer (fichier ui). Nécessite une conversion de .ui vers Python.</translation>
+        <source>Creates a Qt for Python application that includes a Qt Widgets Designer-based widget (ui file). Requires .ui to Python conversion.</source>
+        <translation>Génère une application Qt pour Python qui inclût un widget basé sur Qt Widgets Designer (fichier ui). Nécessite une conversion de .ui vers Python.</translation>
     </message>
     <message>
         <source>Creates a Qt Quick UI project for previewing and prototyping designs.
@@ -40910,10 +40910,10 @@ Utilisez cette version «&#xa0;de compatibilité&#xa0;» si vous souhaitez utili
         <translation>Application Qt Quick (compatibilité)</translation>
     </message>
     <message>
-        <source>Creates a widget-based Qt application that contains a Qt Designer-based main window and C++ source and header files to implement the application logic.
+        <source>Creates a widget-based Qt application that contains a Qt Widgets Designer-based main window and C++ source and header files to implement the application logic.
 
 Preselects a desktop Qt for building the application if available.</source>
-        <translation>Génère une application basée sur les widgets qui contient une fenêtre principale basée sur Qt Designer et un ensemble de fichiers d&apos;entêtes et de sources C++ pour implémenter la logique de l&apos;application.
+        <translation>Génère une application basée sur les widgets qui contient une fenêtre principale basée sur Qt Widgets Designer et un ensemble de fichiers d&apos;entêtes et de sources C++ pour implémenter la logique de l&apos;application.
 
 Sélectionne un Qt optimisé pour bureaux pour compiler l&apos;application, si disponible.</translation>
     </message>
@@ -41254,12 +41254,12 @@ Sélectionne un Qt optimisé pour bureaux pour compiler l&apos;application, si d
         <translation>Modèle d’interface graphique</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.</source>
-        <translation>Crée un formulaire Qt Designer que l’on peut ajouter à un projet Qt Widget. Ceci est utile si vous utilisez déjà une classe pour la logique métier de l’interface.</translation>
+        <source>Creates a Qt Widgets Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.</source>
+        <translation>Crée un formulaire Qt Widgets Designer que l’on peut ajouter à un projet Qt Widget. Ceci est utile si vous utilisez déjà une classe pour la logique métier de l’interface.</translation>
     </message>
     <message>
-        <source>Qt Designer Form</source>
-        <translation>Interface graphique Qt Designer</translation>
+        <source>Qt Widgets Designer Form</source>
+        <translation>Interface graphique Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Creates a source file that you can add to a C/C++ project.</source>
@@ -43130,8 +43130,8 @@ Activez cette option si vous envisagez de créer des binaires x86 32 bits sans u
         <translation>Le répertoire de compilation contient des caractères potentiellement problématiques «&#xa0;%1&#xa0;».</translation>
     </message>
     <message>
-        <source> This warning can be suppressed &lt;a href=&quot;dummy&quot;&gt;here&lt;/a&gt;.</source>
-        <translation> Cet avertissement peut être supprimé &lt;a href=&quot;dummy&quot;&gt;ici&lt;/a&gt;.</translation>
+        <source>This warning can be suppressed &lt;a href=&quot;dummy&quot;&gt;here&lt;/a&gt;.</source>
+        <translation>Cet avertissement peut être supprimé &lt;a href=&quot;dummy&quot;&gt;ici&lt;/a&gt;.</translation>
     </message>
     <message>
         <source>Separate debug info:</source>
@@ -43548,39 +43548,28 @@ au projet «&#xa0;%2&#xa0;».</translation>
         <translation>Le typeId «&#xa0;%1&#xa0;» du générateur est inconnu. Les typesIds pris en charge sont : «&#xa0;%2&#xa0;».</translation>
     </message>
     <message>
-        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.
-</source>
-        <translation>Le chemin «&#xa0;%1&#xa0;» n’existe pas lors de la vérification des chemins de recherche de l’assistant Json.</translation>
+        <source>Path &quot;%1&quot; does not exist when checking JSON wizard search paths.</source>
+        <translation>Le chemin «&#xa0;%1&#xa0;» n’existe pas lors de la vérification des chemins de recherche de l’assistant JSON.</translation>
     </message>
     <message>
-        <source>Checking &quot;%1&quot; for %2.
-</source>
-        <translation>Vérification de «&#xa0;%1&#xa0;» pour %2.
-</translation>
+        <source>Checking &quot;%1&quot; for %2.</source>
+        <translation>Vérification de «&#xa0;%1&#xa0;» pour %2.</translation>
     </message>
     <message>
-        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4
-</source>
-        <translation>* Échec de l’analyse de «&#xa0;%1&#xa0;»:%2:%3 : %4
-</translation>
+        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4</source>
+        <translation>* Échec de l’analyse de «&#xa0;%1&#xa0;»:%2:%3 : %4</translation>
     </message>
     <message>
-        <source>* Did not find a JSON object in &quot;%1&quot;.
-</source>
-        <translation>* N’a pas trouvé d’objet JSON dans «&#xa0;%1&#xa0;».
-</translation>
+        <source>* Did not find a JSON object in &quot;%1&quot;.</source>
+        <translation>* N’a pas trouvé d’objet JSON dans «&#xa0;%1&#xa0;».</translation>
     </message>
     <message>
-        <source>* Configuration found and parsed.
-</source>
-        <translation>* La configuration a été trouvée et analysée.
-</translation>
+        <source>* Configuration found and parsed.</source>
+        <translation>* La configuration a été trouvée et analysée.</translation>
     </message>
     <message>
-        <source>JsonWizard: &quot;%1&quot; not found
-</source>
-        <translation>Assistant Json : «&#xa0;%1&#xa0;» introuvable
-</translation>
+        <source>JsonWizard: &quot;%1&quot; not found</source>
+        <translation>Assistant Json : «&#xa0;%1&#xa0;» introuvable.</translation>
     </message>
     <message>
         <source>Page is not an object.</source>
@@ -43599,16 +43588,12 @@ au projet «&#xa0;%2&#xa0;».</translation>
         <translation>La page avec le typeId «&#xa0;%1&#xa0;» a un «&#xa0;index&#xa0;» invalide.</translation>
     </message>
     <message>
-        <source>* Version %1 not supported.
-</source>
-        <translation>* La version %1 n’est pas prise en charge.
-</translation>
+        <source>* Version %1 not supported.</source>
+        <translation>* La version %1 n’est pas prise en charge.</translation>
     </message>
     <message>
-        <source>* Failed to create: %1
-</source>
-        <translation>* Impossible de créer&#xa0;: %1
-</translation>
+        <source>* Failed to create: %1</source>
+        <translation>* Impossible de créer&#xa0;: %1</translation>
     </message>
     <message>
         <source>key not found.</source>
@@ -44461,8 +44446,8 @@ Ces fichiers sont préservés.</numerusform>
         <translation>Chemin de l&apos;interpréteur Python</translation>
     </message>
     <message>
-        <source>No Python interpreter set for kit &quot;%1&quot;</source>
-        <translation>Aucun interpréteur Python n&apos;est défini pour le kit «&#xa0;%1&#xa0;»</translation>
+        <source>No Python interpreter set for kit &quot;%1&quot;.</source>
+        <translation>Aucun interpréteur Python n&apos;est défini pour le kit «&#xa0;%1&#xa0;».</translation>
     </message>
 </context>
 <context>
@@ -45047,8 +45032,8 @@ Les fichiers affectés sont :
 <context>
     <name>QtC::QmakeProjectManager</name>
     <message>
-        <source>Qt Designer is not responding (%1).</source>
-        <translation>Qt Designer ne répond pas (%1).</translation>
+        <source>Qt Widgets Designer is not responding (%1).</source>
+        <translation>Qt Widgets Designer ne répond pas (%1).</translation>
     </message>
     <message>
         <source>Unable to create server socket: %1</source>
@@ -45419,9 +45404,9 @@ Les fichiers affectés sont :
         <translation>Crée un widget personnalisé ou une collection de widgets personnalisés pour Qt4 Designer.</translation>
     </message>
     <message>
-        <source>This wizard generates a Qt Designer Custom Widget or a Qt Designer Custom Widget Collection project.</source>
-        <translatorcomment>lourd ? &quot;contenant un widget ou une collection de widgets, personnalisé pour Qt Designer&quot; ?</translatorcomment>
-        <translation>Cet assistant génère un projet contenant un widget ou une collection de widgets personnalisés pour Qt Designer.</translation>
+        <source>This wizard generates a Qt Widgets Designer Custom Widget or a Qt Widgets Designer Custom Widget Collection project.</source>
+        <translatorcomment>lourd ? &quot;contenant un widget ou une collection de widgets, personnalisé pour Qt Widgets Designer&quot; ?</translatorcomment>
+        <translation>Cet assistant génère un projet contenant un widget ou une collection de widgets personnalisés pour Qt Widgets Designer.</translation>
     </message>
     <message>
         <source>Custom Widgets</source>
@@ -49563,10 +49548,8 @@ Le processus de contrôle n&apos;a pas pu démarrer.</translation>
         <translation>Connexion au périphérique…</translation>
     </message>
     <message>
-        <source>Connected. Now doing extended checks.
-</source>
-        <translation>Connecté. Exécution des tests étendus.
-</translation>
+        <source>Connected. Now doing extended checks.</source>
+        <translation>Connecté. Exécution des tests étendus.</translation>
     </message>
     <message>
         <source>Basic connectivity test failed, device is considered unusable.</source>
@@ -49893,8 +49876,8 @@ Le processus de contrôle n&apos;a pas pu démarrer.</translation>
         <translation>Utiliser le transfert par défaut. Cela peut être lent.</translation>
     </message>
     <message>
-        <source>Unknown error occurred while trying to create remote directories</source>
-        <translation>Une erreur inconnue s&apos;est produite lors de la création des répertoires distants</translation>
+        <source>Unknown error occurred while trying to create remote directories.</source>
+        <translation>Une erreur inconnue s&apos;est produite lors de la création des répertoires distants.</translation>
     </message>
     <message>
         <source>Transfer method was downgraded from &quot;%1&quot; to &quot;%2&quot;. If this is unexpected, please re-test device &quot;%3&quot;.</source>
@@ -52415,12 +52398,12 @@ Impossible d&apos;ouvrir le fichier «&#xa0;%1&#xa0;».</translation>
         <translation>«&#xa0;%1&#xa0;» n&apos;est pas un exécutable.</translation>
     </message>
     <message>
-        <source>Terminal process exited with code %1</source>
-        <translation>Le processus du terminal s&apos;est terminé avec le code %1</translation>
+        <source>Terminal process exited with code %1.</source>
+        <translation>Le processus du terminal s&apos;est terminé avec le code %1.</translation>
     </message>
     <message>
-        <source>Process exited with code: %1</source>
-        <translation>Le processus s&apos;est terminé avec le code&#xa0;: %1</translation>
+        <source>Process exited with code: %1.</source>
+        <translation>Le processus s&apos;est terminé avec le code&#xa0;: %1.</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -52708,10 +52691,10 @@ En outre, Maj+Entrée insère un caractère d’échappement à la position du c
     <message>
         <source>Doxygen allows &quot;@&quot; and &quot;\&quot; to start commands.
 By default, &quot;@&quot; is used if the surrounding comment starts with &quot;/**&quot; or &quot;///&quot;, and &quot;\&quot; is used
-if the comment starts with &quot;/*!&quot; or &quot;//!</source>
+if the comment starts with &quot;/*!&quot; or &quot;//!&quot;.</source>
         <translation>Doxygen permet d&apos;utiliser «&#xa0;@&#xa0;» et «&#xa0;\&#xa0;» pour démarrer une commande.
 Par défaut, «&#xa0;@&#xa0;» est utilisé si le commentaire l&apos;englobant commence avec «&#xa0;/**&#xa0;» ou «&#xa0;///&#xa0;» et «&#xa0;\&#xa0;» est utilisé
-si le commentaire débute avec «&#xa0;/*!&#xa0;» ou «&#xa0;//!&#xa0;»</translation>
+si le commentaire débute avec «&#xa0;/*!&#xa0;» ou «&#xa0;//!&#xa0;».</translation>
     </message>
     <message>
         <source>Documentation Comments</source>
@@ -52734,7 +52717,7 @@ si le commentaire débute avec «&#xa0;/*!&#xa0;» ou «&#xa0;//!&#xa0;»</trans
         <translation>À la demande</translation>
     </message>
     <message>
-        <source>&amp;Automatically insert matching characters</source>
+        <source>&amp;Automatically Insert Matching Characters</source>
         <translation>Insérer &amp;automatiquement les caractères correspondants</translation>
     </message>
     <message>
@@ -54991,7 +54974,7 @@ francis : en effet, une erreur de ma part --&gt; validé.</translatorcomment>
         <translation>Entre les lignes</translation>
     </message>
     <message>
-        <source>Line annotations</source>
+        <source>Line Annotations</source>
         <translation>Annotations de ligne</translation>
     </message>
     <message>
@@ -55434,7 +55417,7 @@ Influence l’indentation des lignes de continuation.
         <translation>Scanner le sous-projet actuel</translation>
     </message>
     <message>
-        <source>Scanning scope</source>
+        <source>Scanning Scope</source>
         <translation>Portée de la recherche</translation>
     </message>
     <message>

@@ -2,6 +2,7 @@
 add_subdirectory(coreplugin)
 
 # Level 1: (only depends of Level 0)
+add_subdirectory(lua)
 add_subdirectory(texteditor)
 add_subdirectory(serialterminal)
 add_subdirectory(extensionmanager)
@@ -47,7 +48,6 @@ add_subdirectory(autotoolsprojectmanager)
 add_subdirectory(bazaar)
 add_subdirectory(beautifier)
 add_subdirectory(clearcase)
-add_subdirectory(cmakeprojectmanager)
 add_subdirectory(cvs)
 add_subdirectory(designer)
 add_subdirectory(docker)
@@ -79,6 +79,7 @@ if (WITH_QMLDESIGNER)
 endif()
 add_subdirectory(python)
 add_subdirectory(clangformat)
+add_subdirectory(cmakeprojectmanager)
 
 # Level 7:
 add_subdirectory(android)
@@ -98,6 +99,7 @@ add_subdirectory(perfprofiler)
 add_subdirectory(qbsprojectmanager)
 add_subdirectory(ctfvisualizer)
 add_subdirectory(squish)
+add_subdirectory(appstatisticsmonitor)
 
 # Level 8:
 add_subdirectory(boot2qt)
@@ -117,4 +119,3 @@ endif()
 add_subdirectory(qnx)
 add_subdirectory(mcusupport)
 add_subdirectory(qtapplicationmanager)
-

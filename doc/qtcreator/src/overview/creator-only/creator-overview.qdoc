@@ -8,11 +8,11 @@
 // **********************************************************************
 
 /*!
-    \previouspage index.html
+    \previouspage creator-getting-started.html
     \page creator-overview.html
-    \nextpage creator-getting-started.html
+    \nextpage creator-quick-tour.html
 
-    \title Developing with \QC
+    \title Overview
 
     \QC is a cross-platform, complete integrated development environment
     (IDE) that you can use to create applications for desktop, embedded,
@@ -93,6 +93,11 @@
 
             Load C++ plugins for QML to simulate data.
     \endlist
+
+    Use the QML live preview to preview a QML file or an entire Qt Quick
+    application on the desktop, as well as on Android and embedded Linux
+    devices. The changes you make to the UI are instantly visible to you
+    in the preview.
 
     If you need a traditional user interface that has a clear structure and
     enforces a platform look and feel, use \l{Qt Widgets} and the integrated
@@ -176,7 +181,7 @@
 
     Run and deploy Qt applications that you build for different target
     platforms or with different compilers, debuggers, or Qt versions.
-    \l{glossary-buildandrun-kit}{Kits} define the tools, \l{glossary-device}
+    \l{Kits} define the tools, \l{glossary-device}
     {device} type and other settings to use when building and running your
     project.
 
@@ -186,35 +191,66 @@
     build the project.
 
     Build applications for, deploy them to, and run them on the desktop
-    environment or a device. With kits, as well as build, run, and deployment
+    environment or a device. With kits, as well as build, deploy, and run
     configurations, you can quickly switch between different setups and
     target platforms.
 
     For more information, see \l{Build and Run}{How To: Build and Run},
     \l{Build Systems}, \l{Build Configurations}, and \l{Run Configurations}.
 
-    \section2 On Devices
+    \section2 Embedded Platforms
 
-    When you install tool chains for device types as part of a Qt distribution,
-    the build and run configurations for the devices might be set up
-    automatically. However, you might need to install and configure some
-    additional software on the devices to be able to connect to them
-    from the computer.
+    You can develop applications for the following embedded platforms:
 
-    Deployment configurations handle the packaging and copying of the necessary
+    \list
+        \li \l {Bare Metal}
+        \li \l {\B2Q}
+        \li \l {MCUs}
+        \li \l {QNX Neutrino}
+        \li \l {Remote Linux}
+    \endlist
+
+    Install the toolchain for building applications for the targeted
+    embedded platform on the computer, and then use \QOI to install Qt
+    libraries that are built for the platform. Add a kit with the toolchain and
+    the Qt version for the device's architecture. When possible, \QOI creates
+    suitable kits for you.
+
+    You can connect embedded devices to the computer and select the appropriate
+    kit to run, debug, and analyze applications built for them from \QC.
+
+    \e {Deploy configurations} handle the packaging and copying of the necessary
     files to a location you want to run the executable at, such as the file
     system of a device.
 
-    For more information, see \l{Connecting Devices} and \l{Deploying to Devices}.
+    For more information, see \l{Develop for Devices}{How To: Develop for Devices}
+    and \l{Devices}.
 
-    \section2 Previewing QML
+    \section2 Mobile Platforms
 
-    Use the QML live preview to preview a QML file or an entire Qt Quick
-    application on the desktop, as well as on Android and embedded Linux
-    devices. The changes you make to the UI are instantly visible to you
-    in the preview.
+    You can develop applications for the following mobile platforms:
 
-    For more information, see \l{Validating with Target Hardware}.
+    \list
+        \li \l Android
+        \li \l iOS
+    \endlist
+
+    Install the toolchain for building applications for the targeted mobile
+    platform on the computer, and then use \QOI to install Qt libraries that are
+    built for the platform. Add a kit with the toolchain and the Qt version for
+    the device's architecture. When possible, \QOI creates suitable kits for you.
+
+    You can connect mobile devices to the computer and select the
+    appropriate kit to build, run, debug, and analyze applications from \QC.
+
+    Before starting application development, analyze and define the requirements,
+    scope, and functionality of the application to ensure efficient functionality
+    and a smooth user experience on mobile devices.
+
+    For more information, see
+    \l{Develop for Devices}{How To: Develop for Devices},
+    \l{Optimizing Applications for Mobile Devices}, \l {Supported Platforms}, and
+    \l{Deploy Configurations}.
 
     \section1 Debugging Applications
 
@@ -230,10 +266,10 @@
             to find the next one.
     \endlist
 
-    \QC integrates several external native debuggers for inspecting the state of
-    your application while debugging. The debugger plugin automatically selects
-    a suitable native debugger for each kit from the ones it finds on the
-    computer. Edit the kits to override this choice.
+    \QC integrates several debuggers for inspecting the state of your
+    application. It automatically selects a suitable debugger for each
+    kit from the ones it finds on the computer. Edit the kits to override
+    this choice.
 
     If you install \QC with \QOI, the GNU Symbolic Debugger is installed
     automatically and you should be ready to start debugging after you create
@@ -242,20 +278,20 @@
 
     Connect devices to your computer to debug processes running on the devices.
 
-    For more information, see \l{Debugging}.
+    For more information, see \l{Debugging} and \l{Debug}{How To: Debug}.
 
-    \section1 Analyzing Source Code
+    \section1 Finding Issues in Source Code
 
     Devices have limited memory and CPU power, so you should use them carefully.
     \QC integrates code analysis tools for detecting memory leaks, profiling
     function execution, analyzing CPU use, and eliminating unnecessary complexity
     of code. Other tools provide code coverage and visualize trace events.
 
-    Install and configure the tools on your system to use them from \QC.
-    However, the QML Profiler is installed as part of \QC for profiling
-    Qt Quick applications.
+    Some tools, such as QML Profiler and Clang Tools, are installed with
+    \QC. Install and configure the other supported tools on the computer to use
+    them from \QC.
 
-    For more information, see \l{Analyzing Code}.
+    For more information, see \l{Analyzing Code} and \l{Analyze}{How To: Analyze}.
 
     \section1 Running Tests
 
@@ -287,10 +323,32 @@
 
     \image qtcreator-autotests.png
 
-    Map AUTs (Application Under Test) to \QC and run Squish test suites
-    and cases from it.
+    \section2 Using Squish
 
-    For more information, see \l{Test}{How To: Test} and \l{Using Squish}.
+    \brief The experimental Squish plugin integrates Squish into \QC.
+
+    \l{https://www.qt.io/product/quality-assurance/squish}{Squish} is an
+    automated GUI testing framework for testing Android, iOS, Java, \macos,
+    Qt, Tk, Windows, and XView applications, as well as HTML-based web
+    applications running in browsers.
+
+    In \QC, you can:
+
+    \list
+        \li Open existing Squish test suites.
+        \li Create new test suites and test cases.
+        \li Record test cases (in a very limited way compared to what you can do
+            inside the Squish IDE).
+        \li Use Squish Runner and Server to run test suites or cases and view
+            the results in the \uicontrol Squish \l{View output}{output}.
+        \li Set breakpoints before running tests to stop at certain locations and
+            inspect the local variables, similarly to when debugging a test.
+    \endlist
+
+    To use the plugin, you must download and install Squish, create a connection
+    to the Squish Server, and specify the application under test (AUT) to run.
+
+    For more information, see \l{Test}{How To: Test}.
 
     \section1 Publishing Applications
 

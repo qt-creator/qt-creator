@@ -175,7 +175,7 @@ void TerminalRunner::start()
     ProcessRunData stub = m_stubRunnable();
 
     bool runAsRoot = false;
-    if (auto runAsRootAspect = runControl()->aspect<RunAsRootAspect>())
+    if (auto runAsRootAspect = runControl()->aspectData<RunAsRootAspect>())
         runAsRoot = runAsRootAspect->value;
 
     m_stubProc = new Process(this);

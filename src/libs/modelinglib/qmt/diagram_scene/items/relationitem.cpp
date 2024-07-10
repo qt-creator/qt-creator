@@ -380,7 +380,12 @@ void RelationItem::setHandlePos(int index, const QPointF &pos)
     }
 }
 
-void RelationItem::dropHandle(int index, double rasterWidth, double rasterHeight)
+static inline bool between(double v, double mid, double range)
+{
+    return v >= mid-range && v <= mid+range;
+}
+
+void RelationItem::dropHandle(int index, bool extraSnap, double rasterWidth, double rasterHeight)
 {
     if (index == 0) {
         m_grabbedEndA = false;
@@ -398,9 +403,40 @@ void RelationItem::dropHandle(int index, double rasterWidth, double rasterHeight
         QMT_ASSERT(index >= 0 && index < intermediatePoints.size(), return);
 
         QPointF pos = intermediatePoints.at(index).pos();
-        double x = qRound(pos.x() / rasterWidth) * rasterWidth;
-        double y = qRound(pos.y() / rasterHeight) * rasterHeight;
-        intermediatePoints[index].setPos(QPointF(x, y));
+        static constexpr int ANGLE = 20.0;
+        bool roundX = true;
+        bool roundY = true;
+        if (extraSnap) {
+            if (index >= 1) {
+                double angle = GeometryUtilities::calcAngle(QLineF(intermediatePoints.at(index).pos(),
+                    intermediatePoints.at(index - 1).pos()));
+                if (between(qAbs(angle), 90, ANGLE)) {
+                    pos.setX(intermediatePoints.at(index - 1).pos().x());
+                    roundX = false;
+                }
+                if (between(angle, 0, ANGLE) || between(qAbs(angle), 180, ANGLE)) {
+                    pos.setY(intermediatePoints.at(index - 1).pos().y());
+                    roundY = false;
+                }
+            }
+            if (index < intermediatePoints.size() - 1) {
+                double angle = GeometryUtilities::calcAngle(QLineF(intermediatePoints.at(index).pos(),
+                    intermediatePoints.at(index + 1).pos()));
+                if (between(qAbs(angle), 90, ANGLE)) {
+                    pos.setX(intermediatePoints.at(index + 1).pos().x());
+                    roundX = false;
+                }
+                if (between(angle, 0, ANGLE) || between(qAbs(angle), 180, ANGLE)) {
+                    pos.setY(intermediatePoints.at(index + 1).pos().y());
+                    roundY = false;
+                }
+            }
+        }
+        if (roundX)
+            pos.setX(qRound(pos.x() / rasterWidth) * rasterWidth);
+        if (roundY)
+            pos.setY(qRound(pos.y() / rasterHeight) * rasterHeight);
+        intermediatePoints[index].setPos(pos);
 
         m_diagramSceneModel->diagramController()->startUpdateElement(m_relation, m_diagramSceneModel->diagram(), DiagramController::UpdateMinor);
         m_relation->setIntermediatePoints(intermediatePoints);
@@ -507,9 +543,11 @@ void RelationItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 const Style *RelationItem::adaptedStyle()
 {
-    DObject *endAObject = m_diagramSceneModel->diagramController()->findElement<DObject>(m_relation->endAUid(), m_diagramSceneModel->diagram());
-    DObject *endBObject = m_diagramSceneModel->diagramController()->findElement<DObject>(m_relation->endBUid(), m_diagramSceneModel->diagram());
-    StyledRelation styledRelation(m_relation, endAObject, endBObject);
+    const DObject *endAObject = m_diagramSceneModel->diagramController()->findElement<DObject>(m_relation->endAUid(), m_diagramSceneModel->diagram());
+    const DObject *endBObject = m_diagramSceneModel->diagramController()->findElement<DObject>(m_relation->endBUid(), m_diagramSceneModel->diagram());
+    const CustomRelation customRelation = m_diagramSceneModel->stereotypeController()
+                                              ->findCustomRelationByStereotype(m_relation->stereotypes().value(0));
+    StyledRelation styledRelation(m_relation, endAObject, endBObject, &customRelation);
     return m_diagramSceneModel->styleController()->adaptRelationStyle(styledRelation);
 }
 

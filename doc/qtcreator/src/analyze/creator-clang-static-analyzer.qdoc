@@ -15,22 +15,6 @@
 
     \title Analyze code with Clang-Tidy and Clazy
 
-    \QC comes with the following Clang tools for finding problems in C, C++, and
-    Objective-C source code by using static analysis:
-
-    \list
-
-        \li \l{https://clang.llvm.org/extra/clang-tidy/}{Clang-Tidy}, which
-            has diagnostics and fixes for typical programming errors,
-            such as style violations or interface misuse.
-
-        \li \l{https://github.com/KDE/clazy/blob/master/README.md}{Clazy}, which
-            helps Clang understand Qt semantics. It displays Qt related compiler
-            warnings, ranging from unnecessary memory allocation to misuse of
-            API and has refactoring actions for fixing some of the issues.
-
-    \endlist
-
     \note The Clang static analyzer checks are a part of Clang-Tidy. To use
     the checks, you must create a custom configuration for the Clang tools and
     enable them for Clang-Tidy.
@@ -93,6 +77,37 @@
     Select the \inlineimage icons/settings.png
     button to customize diagnostics for the current project.
 
+    \section2 Filter dianostics
+
+    To filter diagnostics:
+
+    \list 1
+        \li Select \inlineimage icons/filtericon.png to open the
+            \uicontrol {Filter Diagnostics} dialog.
+            \image qtcreator-clang-tools-filter-diagnostics.webp {Filter Diagnostics dialog}
+        \li Select the diagnostics to view.
+        \li Select \uicontrol OK.
+    \endlist
+
+    To view all diagnostics, select \uicontrol {Select All}. To view diagnostics
+    that have fixits, select \uicontrol {Select All with Fixits}.
+
+    To hide all diagnostics, select \uicontrol {Clear Selection}.
+
+    To view diagnostics of a particular kind, right-click an entry in
+    \uicontrol Diagnostics and select \uicontrol {Filter for This Diagnostic Kind}
+    in the context menu. To hide diagnostics of that kind, select
+    \uicontrol {Filter out This Diagnostic Kind}.
+
+    \section2 Suppress diagnostics
+
+    To suppress diagnostics, select \uicontrol {Suppress This Diagnostic} or
+    \uicontrol {Suppress This Diagnostic Inline} in the context menu.
+
+    To view the suppression list for a project and to remove
+    diagnostics from it, select \uicontrol Projects >
+    \uicontrol {Project Settings} > \uicontrol {Clang Tools}.
+
     \section1 Disable checks
 
     To disable checks of a particular type either globally or for a
@@ -107,7 +122,8 @@
     using the \c {-export fixes} option.
 
     \sa {Check code syntax}, {Configure Clang Diagnostics},
-    {Specify Clang tools settings}, {Clang Tools}
+    {Analyze}{How To: Analyze}, {Specify Clang tools settings}, {Analyzers},
+    {Clang Tools}
 */
 
 /*!
@@ -270,13 +286,6 @@
             \uicontrol {Web Page} links next to them.
 
     \endlist
-
-    \section2 Suppressing Diagnostics
-
-    To suppress diagnostics, select \uicontrol {Suppress This Diagnostic} in the
-    context menu. To view the suppression list for a project and to remove
-    diagnostics from it, select \uicontrol Projects >
-    \uicontrol {Project Settings} > \uicontrol {Clang Tools}.
 
     \section2 Selecting Clazy Check Levels
 

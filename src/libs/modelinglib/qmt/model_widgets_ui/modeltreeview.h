@@ -5,6 +5,7 @@
 
 #include "qmt/infrastructure/qmt_global.h"
 #include "qmt/model_ui/modeltreeviewinterface.h"
+#include "qmt/model_ui/modeltreefilterdata.h"
 
 #include <QElapsedTimer>
 #include <QTreeView>
@@ -31,6 +32,9 @@ public:
 
     void setTreeModel(SortedTreeModel *model);
     void setElementTasks(IElementTasks *elementTasks);
+
+    void setModelTreeViewData(const ModelTreeViewData &viewData);
+    void setModelTreeFilterData(const ModelTreeFilterData &filterData);
 
     QModelIndex mapToSourceModelIndex(const QModelIndex &index) const;
     void selectFromSourceModelIndex(const QModelIndex &index);

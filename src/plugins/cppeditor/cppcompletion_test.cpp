@@ -10,7 +10,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/codeassist/iassistproposal.h>
-#include <texteditor/syntaxhighlighterrunner.h>
+#include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
@@ -146,12 +146,10 @@ public:
         TextEditor::BaseTextEditor *cppEditor = qobject_cast<TextEditor::BaseTextEditor *>(m_editor);
         if (!cppEditor)
             return false;
-        if (cppEditor->textDocument()->syntaxHighlighterRunner()->syntaxInfoUpdated())
+        if (cppEditor->textDocument()->syntaxHighlighter()->syntaxHighlighterUpToDate())
             return true;
         return ::CppEditor::Tests::waitForSignalOrTimeout(
-            cppEditor->textDocument()->syntaxHighlighterRunner(),
-            &SyntaxHighlighterRunner::highlightingFinished,
-            5000);
+            cppEditor->textDocument()->syntaxHighlighter(), &SyntaxHighlighter::finished, 5000);
     }
 
 private:
@@ -2891,6 +2889,16 @@ void CompletionTest::testCompletionMemberAccessOperator_data()
         ) << _("p->") << QStringList({"S", "m"})
         << false
         << false;
+    QTest::newRow("dot to arrow: template + reference + double typedef")
+        << _("template <typename T> struct C {\n"
+             "    using ref = T &;\n"
+             "    ref operator[](int i);\n"
+             "};\n"
+             "struct S { int m; };\n"
+             "template<typename T> using CS = C<T>;\n"
+             "CS<S *> v;\n"
+             "@\n")
+        << _("v[0].") << QStringList({"S", "m"}) << false << true;
 }
 
 } // namespace CppEditor::Internal

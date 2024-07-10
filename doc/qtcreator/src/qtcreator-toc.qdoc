@@ -13,81 +13,17 @@
     {Qt documentation} portal or in the \l {Get help}{Help} mode.
 
     \list
-        \li \l{Developing with \QC}
-        \list
-            \li \l{Getting Started}
-                \list
-                    \li \l{User Interface}
-                    \li \l{Configuring Qt Creator}
-                \endlist
-            \li \l{Creating Projects}
-            \li \l{Configuring Projects}
-            \li \l{Validating with Target Hardware}
+        \li \l{Installation}
+        \li \l{Getting Started}
             \list
-                \li \l{Previewing on Desktop}
-                \li \l{Previewing on Devices}
-                \li \l{Previewing in Browsers}
+                \li \l{Overview}
+                \li \l{User Interface}
+                \li \l{Configuring Qt Creator}
             \endlist
-            \li \l{Deploying to Devices}
-            \list
-                \li \l{Deploying to Android}
-                \li \l{Deploying to Boot2Qt}
-                \li \l{Deploying to QNX Neutrino}
-                \li \l{Deploying to Remote Linux}
-            \endlist
-            \li \l{Connecting Devices}
-            \list
-                \li \l{Connecting Android Devices}
-                \li \l{Connecting Bare Metal Devices}
-                \li \l{Connecting Boot2Qt Devices}
-                \li \l{Adding Docker Devices}
-                \li \l{Connecting iOS Devices}
-                \li \l{Connecting QNX Devices}
-                \li \l{Connecting Remote Linux Devices}
-                \li \l{Building Applications for the Web}
-            \endlist
-            \li \l{Debugging}
-            \list
-                \li \l{Setting Up Debugger}
-                \li \l{Launching the Debugger}
-                \li \l{Debug Mode Views}
-                    \list
-                        \li \l{Viewing Call Stack Trace}
-                        \li \l{Setting Breakpoints}
-                        \li \l{Viewing Threads}
-                        \li \l{Viewing Modules}
-                        \li \l{Viewing Source Files}
-                        \li \l{Local Variables and Function Parameters}
-                        \li \l{Evaluating Expressions}
-                        \li \l{Viewing and Editing Register State}
-                        \li \l{Debugger Log}
-                        \li \l{Viewing Disassembled Code}
-                    \endlist
-                \li \l{Stopping Applications}
-                \li \l{Examining Data}
-                \li \l{Remote Debugging}
-                \li \l{Debugger Preferences}
-                \li \l{Using Debugging Helpers}
-                \li \l{Debugging Qt Quick Projects}
-                \li \l{Troubleshooting Debugger}
-            \endlist
-            \li \l{Analyzing Code}
-            \list
-                \li \l{Profiling QML Applications}
-                \li \l{Checking Code Coverage}
-                \li \l{Using Valgrind Code Analysis Tools}
-                \list
-                    \li \l{Detecting Memory Leaks with Memcheck}
-                    \li \l{Profiling Function Execution}
-                    \li \l{Running Valgrind Tools on External Applications}
-                \endlist
-                \li \l{Detecting Memory Leaks with Heob}
-                \li \l{Analyzing CPU Usage}
-                \li \l{Analyzing Code with Cppcheck}
-                \li \l{Visualizing Chrome Trace Events}
-            \endlist
-            \li \l{Using Squish}
-        \endlist
+        \li \l{Creating Projects}
+        \li \l{Configuring Projects}
+        \li \l{Debugging}
+        \li \l{Analyzing Code}
         \li \l{Tutorials}
             \generatelist creator-tutorials
         \li \l{How To}
@@ -110,8 +46,24 @@
                 \generatelist creator-how-to-design
             \li Develop for Devices
                 \list
+                    \li Android
+                        \generatelist creator-how-to-android
+                    \li Bare Metal
+                        \generatelist creator-how-to-bare-metal
+                    \li \B2Q
+                        \generatelist creator-how-to-b2qt
+                    \li Docker
+                        \generatelist creator-how-to-docker
+                    \li iOS
+                        \generatelist creator-how-to-ios
                     \li MCUs
                         \generatelist creator-how-to-mcu
+                    \li QNX Neutrino
+                        \generatelist creator-how-to-qnx
+                    \li Remote Linux
+                        \generatelist creator-how-to-remote-linux
+                    \li WebAssembly
+                        \generatelist creator-how-to-webassembly
                 \endlist
             \li Edit Code
                 \generatelist creator-how-to-edit
@@ -147,6 +99,8 @@
             \li \l{Reference}
                 \generatelist creator-reference
                 \list
+                    \li Analyzers
+                        \generatelist creator-reference-analyzer
                     \li Build Systems
                         \generatelist creator-reference-build-systems
                         \list
@@ -156,8 +110,16 @@
                     \li Devices
                         \generatelist creator-reference-devices
                         \list
+                            \li Deploy Configurations
+                                \generatelist creator-reference-deploy-configurations
                             \li Run Configurations
                                 \generatelist creator-reference-run-configurations
+                        \endlist
+                    \li Debugger
+                        \generatelist creator-reference-debugger
+                        \list
+                            \li Debugger Views
+                                \generatelist creator-reference-debugger-views
                         \endlist
                     \li Editors
                         \generatelist creator-reference-editors

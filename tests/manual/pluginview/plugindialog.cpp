@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
     QObject::connect(&app, &QCoreApplication::aboutToQuit,
                      &manager, &ExtensionSystem::PluginManager::shutdown);
     PluginDialog dialog;
-    manager.setPluginPaths(QStringList() << app.applicationDirPath() + "/plugins");
+    manager.setPluginPaths({FilePath::fromUserInput(app.applicationDirPath()) / "plugins"});
     manager.loadPlugins();
     dialog.show();
     app.exec();

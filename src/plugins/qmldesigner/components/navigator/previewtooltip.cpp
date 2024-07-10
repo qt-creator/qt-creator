@@ -21,7 +21,8 @@ PreviewToolTip::PreviewToolTip(QWidget *parent)
     m_ui->idLabel->setElideMode(Qt::ElideLeft);
     m_ui->typeLabel->setElideMode(Qt::ElideLeft);
     m_ui->infoLabel->setElideMode(Qt::ElideLeft);
-    setStyleSheet(QString("QWidget { background-color: %1 }").arg(Utils::creatorTheme()->color(Utils::Theme::BackgroundColorNormal).name()));
+    setStyleSheet(QString("QWidget { background-color: %1 }")
+                  .arg(Utils::creatorColor(Utils::Theme::BackgroundColorNormal).name()));
     m_ui->imageLabel->setStyleSheet("background-color: rgba(0, 0, 0, 0)");
 
     static QPixmap checkers;

@@ -34,9 +34,12 @@ public:
     BoolAspect keepJobNum{this};
 
     TextDisplay t2{this, "<i>" + Tr::tr("Enter the appropriate arguments to your build command.")};
-    TextDisplay t3{this, "<i>" + Tr::tr("Make sure the build command's "
-                                        "multi-job parameter value is large enough (such as "
-                                        "-j200 for the JOM or Make build tools)")};
+    TextDisplay
+        t3{this,
+           "<i>"
+               + Tr::tr("Make sure the build command's "
+                        "multi-job parameter value is large enough (such as "
+                        "-j200 for the JOM or Make build tools).")};
 
     TextDisplay t4{this, "<b>" + Tr::tr("IncrediBuild Distribution Control")};
 

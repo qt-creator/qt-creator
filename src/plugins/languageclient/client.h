@@ -97,6 +97,7 @@ public:
     QString serverName() const;
     QString serverVersion() const;
     const DynamicCapabilities &dynamicCapabilities() const;
+    DynamicCapabilities &dynamicCapabilities();
     void registerCapabilities(const QList<LanguageServerProtocol::Registration> &registrations);
     void unregisterCapabilities(const QList<LanguageServerProtocol::Unregistration> &unregistrations);
 
@@ -214,6 +215,7 @@ signals:
     void documentUpdated(TextEditor::TextDocument *document);
     void workDone(const LanguageServerProtocol::ProgressToken &token);
     void shadowDocumentSwitched(const Utils::FilePath &filePath);
+    void stateChanged(State state);
     void finished();
 
 protected:
@@ -235,6 +237,7 @@ private:
                                       const Utils::FilePath &candidate);
     virtual QList<Utils::Text::Range> additionalDocumentHighlights(
         TextEditor::TextEditorWidget *, const QTextCursor &) { return {}; }
+    virtual bool shouldSendDidSave(const TextEditor::TextDocument *) const { return true; }
 };
 
 } // namespace LanguageClient

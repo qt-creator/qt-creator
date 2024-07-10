@@ -511,7 +511,8 @@ private:
         handler->setWriteData(m_setup.m_writeData);
         handler->setNativeArguments(m_setup.m_nativeArguments);
         handler->setWindowsSpecificStartupFlags(m_setup.m_belowNormalPriority,
-                                                m_setup.m_createConsoleOnWindows);
+                                                m_setup.m_createConsoleOnWindows,
+                                                m_setup.m_forceDefaultErrorMode);
 
         const QProcessEnvironment penv = m_setup.m_environment.toProcessEnvironment();
         if (!penv.isEmpty())
@@ -1316,12 +1317,18 @@ void Process::closeWriteChannel()
     d->sendControlSignal(ControlSignal::CloseWriteChannel);
 }
 
-bool Process::startDetached(const CommandLine &cmd, const FilePath &workingDirectory, qint64 *pid)
+bool Process::startDetached(const CommandLine &cmd, const FilePath &workingDirectory,
+                            DetachedChannelMode channelMode, qint64 *pid)
 {
-    return QProcess::startDetached(cmd.executable().toUserOutput(),
-                                   cmd.splitArguments(),
-                                   workingDirectory.toUserOutput(),
-                                   pid);
+    QProcess process;
+    process.setProgram(cmd.executable().toUserOutput());
+    process.setArguments(cmd.splitArguments());
+    process.setWorkingDirectory(workingDirectory.toUserOutput());
+    if (channelMode == DetachedChannelMode::Discard) {
+        process.setStandardOutputFile(QProcess::nullDevice());
+        process.setStandardErrorFile(QProcess::nullDevice());
+    }
+    return process.startDetached(pid);
 }
 
 void Process::setLowPriority()
@@ -1360,7 +1367,7 @@ QString Process::toStandaloneCommandLine() const
     parts.append("/usr/bin/env");
     if (!d->m_setup.m_workingDirectory.isEmpty()) {
         parts.append("-C");
-        d->m_setup.m_workingDirectory.path();
+        parts.append(d->m_setup.m_workingDirectory.path());
     }
     parts.append("-i");
     if (d->m_setup.m_environment.hasChanges()) {
@@ -1381,6 +1388,16 @@ void Process::setCreateConsoleOnWindows(bool create)
 bool Process::createConsoleOnWindows() const
 {
     return d->m_setup.m_createConsoleOnWindows;
+}
+
+void Process::setForceDefaultErrorModeOnWindows(bool force)
+{
+    d->m_setup.m_forceDefaultErrorMode = force;
+}
+
+bool Process::forceDefaultErrorModeOnWindows() const
+{
+    return d->m_setup.m_forceDefaultErrorMode;
 }
 
 void Process::setExtraData(const QString &key, const QVariant &value)
@@ -2129,9 +2146,10 @@ void ProcessPrivate::setupDebugLog()
         static std::atomic_int startCounter = 0;
         const int currentNumber = startCounter.fetch_add(1);
         qCDebug(processLog).nospace().noquote()
-                << "Process " << currentNumber << " starting ("
-                << qPrintable(blockingMessage(property(QTC_PROCESS_BLOCKING_TYPE)))
-                << "): " << m_setup.m_commandLine.toUserOutput();
+            << "Process " << currentNumber << " starting ("
+            << qPrintable(blockingMessage(property(QTC_PROCESS_BLOCKING_TYPE)))
+            << (isMainThread() ? ", main thread" : "")
+            << "): " << m_setup.m_commandLine.toUserOutput();
         setProperty(QTC_PROCESS_NUMBER, currentNumber);
     });
 

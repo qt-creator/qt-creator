@@ -16,6 +16,7 @@ const char ACTION_ADD_PACKAGE[] = "ModelEditor.Action.AddPackage";
 const char ACTION_ADD_COMPONENT[] = "ModelEditor.Action.AddComponent";
 const char ACTION_ADD_CLASS[] = "ModelEditor.Action.AddClass";
 const char ACTION_ADD_CANVAS_DIAGRAM[] = "ModelEditor.Action.AddCanvasDiagram";
+const char ACTION_TOGGLE_VIEWFILTER[] = "ModelEditor.Action.ToggleViewFilter";
 const char ACTION_SYNC_BROWSER[] = "ModelEditor.Action.SynchronizeBrowser";
 
 const char EXPLORER_GROUP_MODELING[] = "ModelEditor.ProjectFolder.Group.Modeling";

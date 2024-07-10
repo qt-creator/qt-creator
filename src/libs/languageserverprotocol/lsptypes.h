@@ -574,6 +574,13 @@ public:
     { return contains(uriKey) && contains(nameKey); }
 };
 
+enum class SymbolTag {
+    Deprecated = 1,
+};
+namespace Internal {
+std::optional<QList<SymbolTag>> getSymbolTags(const JsonObject &o);
+} // namespace Internal
+
 class LANGUAGESERVERPROTOCOL_EXPORT SymbolInformation : public JsonObject
 {
 public:
@@ -584,6 +591,8 @@ public:
 
     int kind() const { return typedValue<int>(kindKey); }
     void setKind(int kind) { insert(kindKey, kind); }
+
+    std::optional<QList<SymbolTag>> symbolTags() const;
 
     std::optional<bool> deprecated() const { return optionalValue<bool>(deprecatedKey); }
     void setDeprecated(bool deprecated) { insert(deprecatedKey, deprecated); }
@@ -615,6 +624,8 @@ public:
 
     int kind() const { return typedValue<int>(kindKey); }
     void setKind(int kind) { insert(kindKey, kind); }
+
+    std::optional<QList<SymbolTag>> symbolTags() const;
 
     std::optional<bool> deprecated() const { return optionalValue<bool>(deprecatedKey); }
     void setDeprecated(bool deprecated) { insert(deprecatedKey, deprecated); }
@@ -693,4 +704,4 @@ enum Kind {
 };
 } // namespace CompletionItemKind
 
-} // namespace LanguageClient
+} // namespace LanguageServerProtocol

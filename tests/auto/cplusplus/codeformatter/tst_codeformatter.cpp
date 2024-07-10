@@ -107,6 +107,9 @@ private Q_SLOTS:
     void shiftWithinInitializer();
     void lambdaWithReturnType();
     void structuredBinding();
+    void subscriptOperatorInFunctionCall();
+    void statementMacros();
+    void tryCatchClause();
 };
 
 struct Line {
@@ -2196,6 +2199,75 @@ void tst_CodeFormatter::structuredBinding()
          << Line("    return 0;")
          << Line("}")
             ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::subscriptOperatorInFunctionCall()
+{
+    QList<Line> data;
+    data << Line("int main() {")
+         << Line("    func(array[0],")
+         << Line("    ~    0);")
+         << Line("    func(array[i],")
+         << Line("    ~    i);")
+         << Line("}")
+        ;
+    checkIndent(data);
+}
+
+void tst_CodeFormatter::statementMacros()
+{
+    QList<Line> data;
+    data << Line("MY_MACRO")
+         << Line("template<int n = 0>")
+         << Line("~       class C;");
+    checkIndent(data);
+
+    data.clear();
+    CppCodeStyleSettings settings;
+    settings.statementMacros << "MY_MACRO";
+    data << Line("MY_MACRO")
+         << Line("template<int n = 0>")
+         << Line("class C;");
+    checkIndent(data, settings);
+}
+
+void tst_CodeFormatter::tryCatchClause()
+{
+    CppCodeStyleSettings settings;
+    settings.indentFunctionBody = true;
+    settings.indentFunctionBraces = false;
+    settings.indentBlockBody = false;
+    settings.indentBlockBraces = true;
+    QList<Line> data;
+    data << Line("int main()")
+         << Line("{")
+         << Line("    try")
+         << Line("        {")
+         << Line("        throw;")
+         << Line("        }")
+         << Line("    catch (const E &e)")
+         << Line("        {")
+         << Line("        handle(e);")
+         << Line("        }")
+         << Line("    catch (...)")
+         << Line("        {")
+         << Line("        handle();")
+         << Line("        }")
+         << Line("}");
+    checkIndent(data, settings);
+
+    data.clear();
+    data << Line("int main()")
+         << Line("{")
+         << Line("    try {")
+         << Line("        throw;")
+         << Line("    } catch (const E &e) {")
+         << Line("        handle(e);")
+         << Line("    } catch (...) {")
+         << Line("        handle();")
+         << Line("    }")
+         << Line("}");
     checkIndent(data);
 }
 

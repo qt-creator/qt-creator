@@ -114,7 +114,7 @@ def main():
         # make sure QML Debugging is enabled
         switchViewTo(ViewConstants.PROJECTS)
         switchToBuildOrRunSettingsFor(Targets.getDefaultKit(), ProjectSettings.RUN)
-        selectFromCombo(":EnableQMLDebugger_ComboBox", "Enabled")
+        selectFromCombo(":EnableQMLDebugger_ComboBox", "Enable")
         switchViewTo(ViewConstants.EDIT)
         # start debugging
         clickButton(fancyDebugButton)

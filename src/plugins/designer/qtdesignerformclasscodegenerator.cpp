@@ -8,6 +8,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
 #include <cppeditor/abstracteditorsupport.h>
+#include <cppeditor/cpptoolsreuse.h>
 #include <projectexplorer/projecttree.h>
 #include <qtsupport/codegenerator.h>
 #include <qtsupport/codegensettings.h>
@@ -75,7 +76,8 @@ bool QtDesignerFormClassCodeGenerator::generateCpp(const FormClassWizardParamete
     const QString sourceLicense = CppEditor::AbstractEditorSupport::licenseTemplate(
         project, FilePath::fromString(parameters.sourceFile), parameters.className);
     // Include guards
-    const QString guard = Utils::headerGuard(parameters.headerFile, namespaceList);
+    const QString guard
+        = CppEditor::deriveHeaderGuard(FilePath::fromString(parameters.headerFile), project);
 
     const QString uiInclude = "ui_" + QFileInfo(parameters.uiFile).completeBaseName() + ".h";
 

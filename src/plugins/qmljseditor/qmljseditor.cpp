@@ -52,7 +52,6 @@
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/colorpreviewhoverhandler.h>
 #include <texteditor/snippets/snippetprovider.h>
-#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/textmark.h>
 
 #include <utils/algorithm.h>
@@ -268,6 +267,8 @@ bool QmlJSEditorWidget::isOutlineCursorChangesBlocked()
 
 void QmlJSEditorWidget::jumpToOutlineElement(int /*index*/)
 {
+    if (!m_outlineCombo)
+        return;
     QModelIndex index = m_outlineCombo->view()->currentIndex();
     SourceLocation location = m_qmlJsEditorDocument->outlineModel()->sourceLocation(index);
 
@@ -286,6 +287,8 @@ void QmlJSEditorWidget::jumpToOutlineElement(int /*index*/)
 
 void QmlJSEditorWidget::updateOutlineIndexNow()
 {
+    if (!m_outlineCombo)
+        return;
     if (!m_qmlJsEditorDocument->outlineModel()->document())
         return;
 
@@ -571,8 +574,19 @@ void QmlJSEditorWidget::createToolBar()
 
     connect(this, &QmlJSEditorWidget::cursorPositionChanged,
             &m_updateOutlineIndexTimer, QOverload<>::of(&QTimer::start));
+    connect(this, &QmlJSEditorWidget::toolbarOutlineChanged,
+            this, &QmlJSEditorWidget::updateOutline);
 
-    insertExtraToolBarWidget(TextEditorWidget::Left, m_outlineCombo);
+    setToolbarOutline(m_outlineCombo);
+}
+
+void QmlJSEditorWidget::updateOutline(QWidget *newOutline)
+{
+    if (!newOutline) {
+        createToolBar();
+    } else if (newOutline != m_outlineCombo){
+        m_outlineCombo = nullptr;
+    }
 }
 
 class CodeModelInspector : public MemberProcessor
@@ -1169,12 +1183,12 @@ QmlJSEditorFactory::QmlJSEditorFactory(Utils::Id _id)
     addHoverHandler(new ColorPreviewHoverHandler);
     setCompletionAssistProvider(new QmlJSCompletionAssistProvider);
 
-    setEditorActionHandlers(TextEditorActionHandler::Format
-                            | TextEditorActionHandler::UnCommentSelection
-                            | TextEditorActionHandler::UnCollapseAll
-                            | TextEditorActionHandler::FollowSymbolUnderCursor
-                            | TextEditorActionHandler::RenameSymbol
-                            | TextEditorActionHandler::FindUsage);
+    setOptionalActionMask(OptionalActions::Format
+                            | OptionalActions::UnCommentSelection
+                            | OptionalActions::UnCollapseAll
+                            | OptionalActions::FollowSymbolUnderCursor
+                            | OptionalActions::RenameSymbol
+                            | OptionalActions::FindUsage);
 }
 
 static void decorateEditor(TextEditorWidget *editor)

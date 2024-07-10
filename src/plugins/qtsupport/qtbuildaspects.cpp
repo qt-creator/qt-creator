@@ -30,12 +30,12 @@ QmlDebuggingAspect::QmlDebuggingAspect(AspectContainer *container)
     setValue(buildPropertiesSettings().qmlDebugging());
 }
 
-void QmlDebuggingAspect::addToLayout(Layouting::LayoutItem &parent)
+void QmlDebuggingAspect::addToLayout(Layouting::Layout &parent)
 {
     SelectionAspect::addToLayout(parent);
     const auto warningLabel = createSubWidget<InfoLabel>(QString(), InfoLabel::Warning);
     warningLabel->setElideMode(Qt::ElideNone);
-    parent.addRow({{}, warningLabel});
+    parent.addRow({Layouting::empty, warningLabel});
     const auto changeHandler = [this, warningLabel] {
         QString warningText;
         QTC_ASSERT(m_buildConfig, return);
@@ -78,13 +78,13 @@ void QtQuickCompilerAspect::setBuildConfiguration(const BuildConfiguration *buil
     m_buildConfig = buildConfig;
 }
 
-void QtQuickCompilerAspect::addToLayout(Layouting::LayoutItem &parent)
+void QtQuickCompilerAspect::addToLayout(Layouting::Layout &parent)
 {
     SelectionAspect::addToLayout(parent);
     const auto warningLabel = createSubWidget<InfoLabel>(QString(), InfoLabel::Warning);
     warningLabel->setElideMode(Qt::ElideNone);
     warningLabel->setVisible(false);
-    parent.addRow({{}, warningLabel});
+    parent.addRow({Layouting::empty, warningLabel});
     const auto changeHandler = [this, warningLabel] {
         QString warningText;
         QTC_ASSERT(m_buildConfig, return);

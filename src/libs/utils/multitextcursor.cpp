@@ -330,13 +330,10 @@ static QTextLine currentTextLine(const QTextCursor &cursor)
     return layout->lineForTextPosition(relativePos);
 }
 
-bool MultiTextCursor::multiCursorAddEvent(QKeyEvent *e, QKeySequence::StandardKey matchKey)
+bool MultiTextCursor::multiCursorEvent(
+    QKeyEvent *e, QKeySequence::StandardKey matchKey, Qt::KeyboardModifiers filterModifiers)
 {
-    uint searchkey = (e->modifiers() | e->key())
-                     & ~(Qt::KeypadModifier
-                         | Qt::GroupSwitchModifier
-                         | Qt::AltModifier
-                         | Qt::ShiftModifier);
+    uint searchkey = (e->modifiers() | e->key()) & ~(filterModifiers | Qt::AltModifier);
 
     const QList<QKeySequence> bindings = QKeySequence::keyBindings(matchKey);
     return bindings.contains(QKeySequence(searchkey));
@@ -348,42 +345,42 @@ bool MultiTextCursor::handleMoveKeyEvent(QKeyEvent *e,
 {
     if (e->modifiers() & Qt::AltModifier && !Utils::HostOsInfo::isMacHost()) {
         QTextCursor::MoveOperation op = QTextCursor::NoMove;
-        if (multiCursorAddEvent(e, QKeySequence::MoveToNextWord)) {
+        if (multiCursorEvent(e, QKeySequence::MoveToNextWord)) {
             op = QTextCursor::WordRight;
-        } else if (multiCursorAddEvent(e, QKeySequence::MoveToPreviousWord)) {
+        } else if (multiCursorEvent(e, QKeySequence::MoveToPreviousWord)) {
             op = QTextCursor::WordLeft;
-        } else if (multiCursorAddEvent(e, QKeySequence::MoveToEndOfBlock)) {
+        } else if (multiCursorEvent(e, QKeySequence::MoveToEndOfBlock)) {
             op = QTextCursor::EndOfBlock;
-        } else if (multiCursorAddEvent(e, QKeySequence::MoveToStartOfBlock)) {
+        } else if (multiCursorEvent(e, QKeySequence::MoveToStartOfBlock)) {
             op = QTextCursor::StartOfBlock;
-        } else if (multiCursorAddEvent(e, QKeySequence::MoveToNextLine)) {
+        } else if (multiCursorEvent(e, QKeySequence::MoveToNextLine, Qt::ShiftModifier)) {
             op = QTextCursor::Down;
-        } else if (multiCursorAddEvent(e, QKeySequence::MoveToPreviousLine)) {
+        } else if (multiCursorEvent(e, QKeySequence::MoveToPreviousLine, Qt::ShiftModifier)) {
             op = QTextCursor::Up;
-        } else if (multiCursorAddEvent(e, QKeySequence::MoveToStartOfLine)) {
+        } else if (multiCursorEvent(e, QKeySequence::MoveToStartOfLine)) {
             op = QTextCursor::StartOfLine;
-        } else if (multiCursorAddEvent(e, QKeySequence::MoveToEndOfLine)) {
+        } else if (multiCursorEvent(e, QKeySequence::MoveToEndOfLine)) {
             op = QTextCursor::EndOfLine;
-        } else if (multiCursorAddEvent(e, QKeySequence::MoveToStartOfDocument)) {
+        } else if (multiCursorEvent(e, QKeySequence::MoveToStartOfDocument)) {
             op = QTextCursor::Start;
-        } else if (multiCursorAddEvent(e, QKeySequence::MoveToEndOfDocument)) {
+        } else if (multiCursorEvent(e, QKeySequence::MoveToEndOfDocument)) {
             op = QTextCursor::End;
-        } else {
-            return false;
         }
 
-        const std::list<QTextCursor> cursors = m_cursorList;
-        for (QTextCursor cursor : cursors) {
-            if (camelCaseNavigationEnabled && op == QTextCursor::WordRight)
-                CamelCaseCursor::right(&cursor, edit, QTextCursor::MoveAnchor);
-            else if (camelCaseNavigationEnabled && op == QTextCursor::WordLeft)
-                CamelCaseCursor::left(&cursor, edit, QTextCursor::MoveAnchor);
-            else
-                cursor.movePosition(op, QTextCursor::MoveAnchor);
+        if (op != QTextCursor::NoMove) {
+            const std::list<QTextCursor> cursors = m_cursorList;
+            for (QTextCursor cursor : cursors) {
+                if (camelCaseNavigationEnabled && op == QTextCursor::WordRight)
+                    CamelCaseCursor::right(&cursor, edit, QTextCursor::MoveAnchor);
+                else if (camelCaseNavigationEnabled && op == QTextCursor::WordLeft)
+                    CamelCaseCursor::left(&cursor, edit, QTextCursor::MoveAnchor);
+                else
+                    cursor.movePosition(op, QTextCursor::MoveAnchor);
 
-            addCursor(cursor);
+                addCursor(cursor);
+            }
+            return true;
         }
-        return true;
     }
 
     for (auto it = m_cursorList.begin(); it != m_cursorList.end(); ++it) {
@@ -395,28 +392,28 @@ bool MultiTextCursor::handleMoveKeyEvent(QKeyEvent *e,
             op = QTextCursor::Right;
         } else if (e == QKeySequence::MoveToPreviousChar) {
             op = QTextCursor::Left;
-        } else if (e == QKeySequence::SelectNextChar) {
+        } else if (multiCursorEvent(e, QKeySequence::SelectNextChar)) {
             op = QTextCursor::Right;
             mode = QTextCursor::KeepAnchor;
-        } else if (e == QKeySequence::SelectPreviousChar) {
+        } else if (multiCursorEvent(e, QKeySequence::SelectPreviousChar)) {
             op = QTextCursor::Left;
             mode = QTextCursor::KeepAnchor;
-        } else if (e == QKeySequence::SelectNextWord) {
+        } else if (multiCursorEvent(e, QKeySequence::SelectNextWord)) {
             op = QTextCursor::WordRight;
             mode = QTextCursor::KeepAnchor;
-        } else if (e == QKeySequence::SelectPreviousWord) {
+        } else if (multiCursorEvent(e, QKeySequence::SelectPreviousWord)) {
             op = QTextCursor::WordLeft;
             mode = QTextCursor::KeepAnchor;
-        } else if (e == QKeySequence::SelectStartOfLine) {
+        } else if (multiCursorEvent(e, QKeySequence::SelectStartOfLine)) {
             op = QTextCursor::StartOfLine;
             mode = QTextCursor::KeepAnchor;
-        } else if (e == QKeySequence::SelectEndOfLine) {
+        } else if (multiCursorEvent(e, QKeySequence::SelectEndOfLine)) {
             op = QTextCursor::EndOfLine;
             mode = QTextCursor::KeepAnchor;
-        } else if (e == QKeySequence::SelectStartOfBlock) {
+        } else if (multiCursorEvent(e, QKeySequence::SelectStartOfBlock)) {
             op = QTextCursor::StartOfBlock;
             mode = QTextCursor::KeepAnchor;
-        } else if (e == QKeySequence::SelectEndOfBlock) {
+        } else if (multiCursorEvent(e, QKeySequence::SelectEndOfBlock)) {
             op = QTextCursor::EndOfBlock;
             mode = QTextCursor::KeepAnchor;
         } else if (e == QKeySequence::SelectStartOfDocument) {

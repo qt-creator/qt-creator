@@ -33,10 +33,7 @@ void doSemanticHighlighting(
         const Utils::FilePath &filePath,
         const QList<LanguageClient::ExpandedSemanticToken> &tokens,
         const QString &docContents,
-        const ClangdAstNode &ast,
-        const QPointer<TextEditor::TextDocument> &textDocument,
         int docRevision,
-        const QVersionNumber &clangdVersion,
         const TaskTimer &taskTimer
         );
 

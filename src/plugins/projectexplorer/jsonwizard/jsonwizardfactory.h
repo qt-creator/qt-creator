@@ -27,7 +27,6 @@ class PROJECTEXPLORER_EXPORT JsonWizardFactory : public Core::IWizardFactory
 public:
     // Add search paths for wizard.json files. All subdirs are going to be checked.
     static void addWizardPath(const Utils::FilePath &path);
-    static void clearWizardPaths();
 
     // actual interface of the wizard factory:
     class Generator {
@@ -58,6 +57,9 @@ public:
 
     virtual std::pair<int, QStringList> screenSizeInfoFromPage(const QString &pageType) const;
 
+    // internal
+    static void setInstalledWizardsPath(const Utils::FilePath &path);
+
 private:
     Utils::Wizard *runWizardImpl(const Utils::FilePath &path, QWidget *parent, Utils::Id platform,
                                  const QVariantMap &variables, bool showWizard = true) override;
@@ -69,6 +71,7 @@ private:
                                                   const Utils::FilePath &baseDir,
                                                   QString *errorMessage);
     static Utils::FilePaths &searchPaths();
+    static void resetSearchPaths();
 
     static void setVerbose(int level);
     static int verbose();

@@ -30,6 +30,8 @@
 
 #include <QStandardItem>
 
+using Utils::FilePath;
+
 namespace qmt {
 
 class TreeModel::ModelItem : public QStandardItem
@@ -807,7 +809,7 @@ QString TreeModel::createRelationLabel(const MRelation *relation)
 }
 
 QIcon TreeModel::createIcon(StereotypeIcon::Element stereotypeIconElement, StyleEngine::ElementType styleElementType,
-                            const QStringList &stereotypes, const QString &defaultIconPath)
+                            const QStringList &stereotypes, const FilePath &defaultIconPath)
 {
     const Style *style = m_styleController->adaptStyle(styleElementType);
     return m_stereotypeController->createIcon(stereotypeIconElement, stereotypes, defaultIconPath, style,

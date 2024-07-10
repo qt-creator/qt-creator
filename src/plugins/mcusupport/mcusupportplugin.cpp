@@ -262,7 +262,6 @@ void McuSupportPlugin::initialize()
 
     dd->m_options.registerQchFiles();
     dd->m_options.registerExamples();
-    ProjectExplorer::JsonWizardFactory::addWizardPath(":/mcusupport/wizards/");
 
 #if defined(WITH_TESTS) && defined(GOOGLE_TEST_IS_FOUND)
     addTest<Test::McuSupportTest>();

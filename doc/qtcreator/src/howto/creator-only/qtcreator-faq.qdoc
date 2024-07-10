@@ -18,14 +18,6 @@
 
     \section1 General Questions
 
-
-    \b {How do I reset all \QC settings?}
-
-    Remove the settings files created by \QC.
-
-    For more information about where the files are located on each supported
-    platform, see \l {Find settings files}.
-
     \b {\QC comes with \MinGW, should I use this version with Qt?}
 
     Use the version that was built against the Qt version.
@@ -40,15 +32,6 @@
 
     This is especially relevant for the \macos where \c {/usr/local/bin} might
     not be in the path when \QC is started.
-
-    \b {How do I change the interface language for \QC?}
-
-    \QC has been localized into several languages. If the system
-    language is one of the supported languages, it is automatically selected.
-    To change the language, select \preferences >
-    \uicontrol Environment and select a language in the \uicontrol Language
-    field. Select \uicontrol {Restart Now} to restart \QC and have the change
-    take effect.
 
     \b {Has a reported issue been addressed?}
 
@@ -70,8 +53,8 @@
     This also enables code completion of QML code and removes error messages.
 
     The following example illustrates how to specify the import path for qmake
-    projects so that it works when switching between build and run kits for
-    different target platforms:
+    projects so that it works when switching between build and run \l{Kits}{kits}
+    for different target platforms:
 
     \code
     TEMPNAME = $${QMAKE_QMAKE}
@@ -138,14 +121,10 @@
     \b {The Qt API Reference Documentation is missing and context help does
     not find topics. What can I do?}
 
-    \QC comes fully integrated with Qt documentation and examples using
-    the Qt Help plugin. The integrated Qt Reference Documentation is available
-    for Qt 4.4 and later. \QC and other Qt deliverables have
-    documentation as .qch files. All the documentation is accessible in the
-    \uicontrol Help mode.
+    Install a Qt version and Qt documentation with \QOI.
 
-    To view the documentation that is available and to add documentation,
-    select \preferences > \uicontrol Help >
+    To view the installed documentation (.qch files) and to add documentation,
+    go to \preferences > \uicontrol Help >
     \uicontrol Documentation. For more information, see
     \l{Add external documentation}.
 
@@ -164,12 +143,12 @@
 
     You must use Python version 2.6 or 2.7.
 
-    For more information on setting up debugger, see \l{Setting Up Debugger}.
+    For more information, see \l{Supported Debuggers}.
 
     \b {How do I generate a core file in \QC?}
 
     To trigger the GDB command that generates a core file while debugging,
-    select \uicontrol View > \uicontrol Views > \l {Debugger Log}.
+    go to \uicontrol View > \uicontrol Views > \l {Debugger Log}.
     In the \uicontrol Command field, type \c gcore and press \key Enter. The
     core file is created in the current working directory. You can specify
     another location for the file, including a relative or absolute path, as an

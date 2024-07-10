@@ -154,6 +154,7 @@ QtcPlugin {
             "vcsannotatetaskhandler.cpp", "vcsannotatetaskhandler.h",
             "waitforstopdialog.cpp", "waitforstopdialog.h",
             "windebuginterface.cpp", "windebuginterface.h",
+            "workspaceproject.cpp", "workspaceproject.h",
             "xcodebuildparser.cpp", "xcodebuildparser.h"
         ]
     }

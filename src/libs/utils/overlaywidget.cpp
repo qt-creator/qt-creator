@@ -8,16 +8,34 @@
 #include <QEvent>
 #include <QPainter>
 
+namespace Utils::Internal {
+class OverlayWidgetPrivate
+{
+public:
+    OverlayWidget::PaintFunction m_paint;
+    OverlayWidget::ResizeFunction m_resize;
+};
+} // namespace Utils::Internal
+
 Utils::OverlayWidget::OverlayWidget(QWidget *parent)
+    : d(new Internal::OverlayWidgetPrivate)
 {
     setAttribute(Qt::WA_TransparentForMouseEvents);
     if (parent)
         attachToWidget(parent);
+    d->m_resize = [](QWidget *w, const QSize &size) { w->setGeometry(QRect(QPoint(0, 0), size)); };
 }
+
+Utils::OverlayWidget::~OverlayWidget() = default;
 
 void Utils::OverlayWidget::setPaintFunction(const Utils::OverlayWidget::PaintFunction &paint)
 {
-    m_paint = paint;
+    d->m_paint = paint;
+}
+
+void Utils::OverlayWidget::setResizeFunction(const ResizeFunction &resize)
+{
+    d->m_resize = resize;
 }
 
 bool Utils::OverlayWidget::eventFilter(QObject *obj, QEvent *ev)
@@ -29,9 +47,9 @@ bool Utils::OverlayWidget::eventFilter(QObject *obj, QEvent *ev)
 
 void Utils::OverlayWidget::paintEvent(QPaintEvent *ev)
 {
-    if (m_paint) {
+    if (d->m_paint) {
         QPainter p(this);
-        m_paint(this, p, ev);
+        d->m_paint(this, p, ev);
     }
 }
 
@@ -50,5 +68,6 @@ void Utils::OverlayWidget::attachToWidget(QWidget *parent)
 void Utils::OverlayWidget::resizeToParent()
 {
     QTC_ASSERT(parentWidget(), return );
-    setGeometry(QRect(QPoint(0, 0), parentWidget()->size()));
+    if (d->m_resize)
+        d->m_resize(this, parentWidget()->size());
 }

@@ -16,6 +16,9 @@ accept_configuration:
         - condition: property
           property: target.compiler
           equals_value: MSVC2019
+        - condition: property
+          property: target.arch
+          not_equals_value: X86
     - condition: and
       conditions:
         - condition: property

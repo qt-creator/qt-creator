@@ -42,7 +42,7 @@ public:
         Utils::FilePath currentFile;
     };
 
-    void addToLayout(Layouting::LayoutItem &parent) final;
+    void addToLayout(Layouting::Layout &parent) final;
     void toMap(Utils::Store &map) const final;
     void fromMap(const Utils::Store &map) final;
 

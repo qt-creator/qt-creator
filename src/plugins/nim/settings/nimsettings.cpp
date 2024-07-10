@@ -30,7 +30,7 @@ NimSettings::NimSettings()
         using namespace Layouting;
         return Column {
             Group {
-                title("Nimsuggest"),
+                title(QString("Nimsuggest")),
                 Column { nimSuggestPath }
             },
             st

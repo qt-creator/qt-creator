@@ -26,7 +26,6 @@
 #include <texteditor/basehoverhandler.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditoractionhandler.h>
 
 #include <utils/mimeconstants.h>
 #include <utils/textutils.h>
@@ -331,7 +330,8 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
 
     if (auto project = ProjectTree::currentProject()) {
         buffer.replace("${CMAKE_SOURCE_DIR}", project->projectDirectory().path());
-        if (auto bs = ProjectTree::currentBuildSystem(); bs->buildConfiguration()) {
+        auto bs = ProjectTree::currentBuildSystem();
+        if (bs && bs->buildConfiguration()) {
             buffer.replace("${CMAKE_BINARY_DIR}", bs->buildConfiguration()->buildDirectory().path());
 
             // Get the path suffix from current source dir to project source dir and apply it
@@ -533,9 +533,9 @@ public:
         setCompletionAssistProvider(new CMakeFileCompletionAssistProvider);
         setAutoCompleterCreator([] { return new CMakeAutoCompleter; });
 
-        setEditorActionHandlers(TextEditorActionHandler::UnCommentSelection
-                                | TextEditorActionHandler::FollowSymbolUnderCursor
-                                | TextEditorActionHandler::Format);
+        setOptionalActionMask(OptionalActions::UnCommentSelection
+                                | OptionalActions::FollowSymbolUnderCursor
+                                | OptionalActions::Format);
 
         addHoverHandler(new CMakeHoverHandler);
 

@@ -46,7 +46,7 @@ OutputLineParser::Result QMakeParser::handleLine(const QString &line, OutputForm
         BuildSystemTask t(type, description, absoluteFilePath(FilePath::fromUserInput(fileName)),
                           match.captured(2).toInt() /* line */);
         LinkSpecs linkSpecs;
-        addLinkSpecForAbsoluteFilePath(linkSpecs, t.file, t.line, fileNameOffset,
+        addLinkSpecForAbsoluteFilePath(linkSpecs, t.file, t.line, t.column, fileNameOffset,
                                        fileName.length());
         scheduleTask(t, 1);
         return {Status::Done, linkSpecs};

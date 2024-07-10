@@ -14,6 +14,8 @@ namespace Utils {
 // Add more as needed.
 enum OsType { OsTypeWindows, OsTypeLinux, OsTypeMac, OsTypeOtherUnix, OsTypeOther };
 
+enum OsArch { OsArchUnknown, OsArchX86, OsArchAMD64, OsArchItanium, OsArchArm, OsArchArm64 };
+
 inline QString osTypeToString(OsType osType)
 {
     switch (osType) {
@@ -33,15 +35,31 @@ inline QString osTypeToString(OsType osType)
 
 inline OsType osTypeFromString(const QString &string)
 {
-    if (string == "Windows")
+    if (string.compare("windows", Qt::CaseInsensitive) == 0)
         return OsTypeWindows;
-    if (string == "Linux")
+    if (string.compare("linux", Qt::CaseInsensitive) == 0)
         return OsTypeLinux;
-    if (string == "Mac")
+    if (string.compare("mac", Qt::CaseInsensitive) == 0
+        || string.compare("darwin", Qt::CaseInsensitive) == 0)
         return OsTypeMac;
-    if (string == "Other Unix")
+    if (string.compare("other unix", Qt::CaseInsensitive) == 0)
         return OsTypeOtherUnix;
     return OsTypeOther;
+}
+
+inline OsArch osArchFromString(const QString &architecture)
+{
+    if (architecture == QLatin1String("x86_64") || architecture == QLatin1String("amd64"))
+        return OsArchAMD64;
+    if (architecture == QLatin1String("x86"))
+        return OsArchX86;
+    if (architecture == QLatin1String("ia64"))
+        return OsArchItanium;
+    if (architecture == QLatin1String("arm"))
+        return OsArchArm;
+    if (architecture == QLatin1String("arm64") || architecture == QLatin1String("aarch64"))
+        return OsArchArm64;
+    return OsArchUnknown;
 }
 
 namespace OsSpecificAspects {

@@ -31,7 +31,6 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 
@@ -466,9 +465,9 @@ public:
         setParenthesesMatchingEnabled(true);
         setCodeFoldingSupported(true);
 
-        setEditorActionHandlers(TextEditorActionHandler::Format
-                                | TextEditorActionHandler::UnCommentSelection
-                                | TextEditorActionHandler::UnCollapseAll);
+        setOptionalActionMask(OptionalActions::Format
+                                | OptionalActions::UnCommentSelection
+                                | OptionalActions::UnCollapseAll);
     }
 };
 

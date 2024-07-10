@@ -511,7 +511,7 @@ TEST_F(ListModelEditor, convert_string_float_to_float)
     model.setValue(1, 1, "25.5");
 
     ASSERT_THAT(element2.variantProperty("name").value().value<double>(), 25.5);
-    ASSERT_THAT(element2.variantProperty("name").value().type(), QVariant::Double);
+    ASSERT_THAT(element2.variantProperty("name").value().typeId(), QMetaType::Double);
 }
 
 TEST_F(ListModelEditor, convert_string_integer_to_double)
@@ -521,7 +521,7 @@ TEST_F(ListModelEditor, convert_string_integer_to_double)
     model.setValue(1, 1, "25");
 
     ASSERT_THAT(element2.variantProperty("name").value().value<double>(), 25);
-    ASSERT_THAT(element2.variantProperty("name").value().type(), QVariant::Double);
+    ASSERT_THAT(element2.variantProperty("name").value().typeId(), QMetaType::Double);
 }
 
 TEST_F(ListModelEditor, dont_convert_string_to_number)
@@ -531,7 +531,7 @@ TEST_F(ListModelEditor, dont_convert_string_to_number)
     model.setValue(1, 1, "hello");
 
     ASSERT_THAT(element2.variantProperty("name").value().value<QString>(), u"hello");
-    ASSERT_THAT(element2.variantProperty("name").value().type(), QVariant::String);
+    ASSERT_THAT(element2.variantProperty("name").value().typeId(), QMetaType::QString);
 }
 
 TEST_F(ListModelEditor, empty_strings_removes_property)
@@ -558,7 +558,7 @@ TEST_F(ListModelEditor, dispay_value_is_changed_to_double)
 
     model.setValue(1, 1, "25.5");
 
-    ASSERT_THAT(displayValues()[1][1].type(), QVariant::Double);
+    ASSERT_THAT(displayValues()[1][1].typeId(), QMetaType::Double);
 }
 
 TEST_F(ListModelEditor, string_dispay_value_is_not_changed)
@@ -567,7 +567,7 @@ TEST_F(ListModelEditor, string_dispay_value_is_not_changed)
 
     model.setValue(1, 1, "25.5a");
 
-    ASSERT_THAT(displayValues()[1][1].type(), QVariant::String);
+    ASSERT_THAT(displayValues()[1][1].typeId(), QMetaType::QString);
 }
 
 TEST_F(ListModelEditor, set_invalid_to_dark_yellow_background_color)

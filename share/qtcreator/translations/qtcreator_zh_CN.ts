@@ -787,12 +787,12 @@ The kit supports &quot;%2&quot;, but the device uses &quot;%3&quot;.</source>
 </translation>
     </message>
     <message>
-        <source>
-Uninstalling the installed package may solve the issue.
-Do you want to uninstall the existing package?</source>
-        <translation>
-卸载已安装的包可能解决这个问题。
-你想卸载已经存在的包吗？</translation>
+        <source>Uninstalling the installed package may solve the issue.</source>
+        <translation>卸载已安装的包可能解决这个问题。</translation>
+    </message>
+    <message>
+        <source>Do you want to uninstall the existing package?</source>
+        <translation>你想卸载已经存在的包吗？</translation>
     </message>
     <message>
         <source>Install failed</source>
@@ -1900,7 +1900,7 @@ in the system&apos;s browser for manual download.</source>
         <translation>安卓 NDK 列表：</translation>
     </message>
     <message>
-        <source>Android OpenSSL settings (Optional)</source>
+        <source>Android OpenSSL Settings (Optional)</source>
         <translation>安卓 OpenSSL 设置（可选）</translation>
     </message>
     <message>
@@ -2714,7 +2714,7 @@ Executable: %2</source>
         <translation>重复测试</translation>
     </message>
     <message>
-        <source>Run in parallel</source>
+        <source>Run in Parallel</source>
         <translation>并行运行</translation>
     </message>
     <message>
@@ -11600,7 +11600,7 @@ The built-in code model will handle highlighting, completion and so on.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Sessions with a single clangd instance</source>
+        <source>Sessions with a Single Clangd Instance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -12511,7 +12511,7 @@ Flags: %3</source>
         <translation type="unfinished">添加#include %1</translation>
     </message>
     <message>
-        <source>Add forward declaration for %1</source>
+        <source>Add Forward Declaration for %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -12767,7 +12767,7 @@ Flags: %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Value types:</source>
+        <source>Value Types:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -22584,7 +22584,7 @@ Would you like to overwrite them?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Make sure the build command&apos;s multi-job parameter value is large enough (such as -j200 for the JOM or Make build tools)</source>
+        <source>Make sure the build command&apos;s multi-job parameter value is large enough (such as -j200 for the JOM or Make build tools).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -22704,7 +22704,7 @@ Would you like to overwrite them?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Suppresses IncrediBuild&apos;s header in the build output</source>
+        <source>Suppresses IncrediBuild&apos;s header in the build output.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -22712,7 +22712,7 @@ Would you like to overwrite them?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Overrides the internal Incredibuild logging level for this build. Does not affect output or any user accessible logging. Used mainly to troubleshoot issues with the help of IncrediBuild support</source>
+        <source>Overrides the internal Incredibuild logging level for this build. Does not affect output or any user accessible logging. Used mainly to troubleshoot issues with the help of IncrediBuild support.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -22732,7 +22732,7 @@ Would you like to overwrite them?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>When specified, the execution will stop as soon as an error is encountered. This is the default behavior in &quot;Visual Studio&quot; builds, but not the default for &quot;Make and Build tools&quot; or &quot;Dev Tools&quot; builds</source>
+        <source>When specified, the execution will stop as soon as an error is encountered. This is the default behavior in &quot;Visual Studio&quot; builds, but not the default for &quot;Make and Build tools&quot; or &quot;Dev Tools&quot; builds.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -22740,7 +22740,7 @@ Would you like to overwrite them?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Add additional buildconsole arguments manually. The value of this field will be concatenated to the final buildconsole command line</source>
+        <source>Add additional buildconsole arguments manually. The value of this field will be concatenated to the final buildconsole command line.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -28771,33 +28771,27 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.
-</source>
+        <source>Path &quot;%1&quot; does not exist when checking JSON wizard search paths.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Checking &quot;%1&quot; for %2.
-</source>
+        <source>Checking &quot;%1&quot; for %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4
-</source>
+        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>* Did not find a JSON object in &quot;%1&quot;.
-</source>
+        <source>* Did not find a JSON object in &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>* Configuration found and parsed.
-</source>
+        <source>* Configuration found and parsed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>JsonWizard: &quot;%1&quot; not found
-</source>
+        <source>JsonWizard: &quot;%1&quot; not found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -28817,8 +28811,7 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>* Version %1 not supported.
-</source>
+        <source>* Version %1 not supported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -42598,7 +42591,7 @@ Specifies how backspace interacts with indentation.
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Line annotations</source>
+        <source>Line Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -42985,7 +42978,7 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Automatically insert matching characters</source>
+        <source>&amp;Automatically Insert Matching Characters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -44781,7 +44774,7 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>重置</translation>
     </message>
     <message>
-        <source>Scanning scope</source>
+        <source>Scanning Scope</source>
         <translation>扫描范围</translation>
     </message>
     <message>

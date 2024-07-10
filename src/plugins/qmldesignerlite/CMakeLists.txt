@@ -10,6 +10,7 @@ add_feature_info("Treat warnings as errors in QmlDesigner" ${ENABLE_COMPILE_WARN
 
 add_qtc_plugin(QmlDesignerLite
   PLUGIN_DEPENDS QmlDesigner
+  CONDITION TARGET QmlDesigner
   SOURCES
     qmldesignerliteplugin.cpp qmldesignerliteplugin.h
 )

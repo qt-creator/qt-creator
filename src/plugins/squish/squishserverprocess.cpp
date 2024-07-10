@@ -26,9 +26,8 @@ void SquishServerProcess::stop()
 {
     if (m_process.state() != QProcess::NotRunning && m_serverPort > 0) {
         Utils::Process serverKiller;
-        QStringList args;
-        args << "--stop" << "--port" << QString::number(m_serverPort);
-        serverKiller.setCommand({m_process.commandLine().executable(), args});
+        serverKiller.setCommand({m_process.commandLine().executable(),
+                                 {"--stop", "--port", QString::number(m_serverPort)}});
         serverKiller.setEnvironment(m_process.environment());
         serverKiller.start();
         if (!serverKiller.waitForFinished()) {

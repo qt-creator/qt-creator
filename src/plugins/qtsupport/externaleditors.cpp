@@ -118,12 +118,6 @@ static QString locateBinary(const QString &path, const QString &binary)
     return {};
 }
 
-static QString msgStartFailed(const QString &binary, QStringList arguments)
-{
-    arguments.push_front(binary);
-    return Tr::tr("Unable to start \"%1\"").arg(arguments.join(QLatin1Char(' ')));
-}
-
 static QString designerBinary(const QtSupport::QtVersion *qtVersion)
 {
     if (qtVersion)
@@ -227,12 +221,11 @@ static bool startEditorProcess(const LaunchData &data, QString *errorMessage)
 {
     if (debug)
         qDebug() << Q_FUNC_INFO << '\n' << data.binary << data.arguments << data.workingDirectory;
-    qint64 pid = 0;
-    if (!Process::startDetached({FilePath::fromString(data.binary), data.arguments}, data.workingDirectory, &pid)) {
-        *errorMessage = msgStartFailed(data.binary, data.arguments);
-        return false;
-    }
-    return true;
+    const CommandLine cmd{FilePath::fromString(data.binary), data.arguments};
+    if (Process::startDetached(cmd, data.workingDirectory))
+        return true;
+    *errorMessage = Tr::tr("Unable to start \"%1\".").arg(cmd.toUserOutput());
+    return false;
 }
 
 // ExternalDesignerEditorFactory with Designer Tcp remote control.
@@ -263,7 +256,7 @@ public:
     explicit ExternalDesignerFactory(QObject *guard)
     {
         setId("Qt.Designer");
-        setDisplayName(::Core::Tr::tr("Qt Designer"));
+        setDisplayName(::Core::Tr::tr("Qt Widgets Designer"));
         setMimeTypes({Utils::Constants::FORM_MIMETYPE});
 
         setEditorStarter([guard](const FilePath &filePath, QString *errorMessage) {
@@ -276,7 +269,7 @@ public:
             if (HostOsInfo::isMacHost())
                 return startEditorProcess(data, errorMessage);
 
-            /* Qt Designer on the remaining platforms: Uses Designer's own
+            /* Qt Widgets Designer on the remaining platforms: Uses Designer's own
             * Tcp-based communication mechanism to ensure all files are opened
             * in one instance (per version). */
 
@@ -288,7 +281,8 @@ public:
                     qDebug() << Q_FUNC_INFO << "\nWriting to socket:" << data.binary << filePath;
                 QTcpSocket *socket = it.value();
                 if (!socket->write(filePath.toString().toUtf8() + '\n')) {
-                    *errorMessage = Tr::tr("Qt Designer is not responding (%1).").arg(socket->errorString());
+                    *errorMessage = Tr::tr("Qt Widgets Designer is not responding (%1).")
+                                        .arg(socket->errorString());
                     return false;
                 }
                 return true;

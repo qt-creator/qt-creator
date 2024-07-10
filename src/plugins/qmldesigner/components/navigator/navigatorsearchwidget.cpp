@@ -97,10 +97,10 @@ void LineEdit::paintEvent(QPaintEvent *event)
         QPalette p(palette());
         p.setColor(QPalette::Active,
                    QPalette::PlaceholderText,
-                   Utils::creatorTheme()->color(Utils::Theme::DSplaceholderTextColor));
+                   Utils::creatorColor(Utils::Theme::DSplaceholderTextColor));
         p.setColor(QPalette::Inactive,
                    QPalette::PlaceholderText,
-                   Utils::creatorTheme()->color(Utils::Theme::DSplaceholderTextColor));
+                   Utils::creatorColor(Utils::Theme::DSplaceholderTextColor));
         setPalette(p);
     }
     QLineEdit::paintEvent(event);

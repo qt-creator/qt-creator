@@ -194,7 +194,6 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
 
     d->m_buildDirectoryAspect.setBaseFileName(target->project()->projectDirectory());
     d->m_buildDirectoryAspect.setEnvironment(environment());
-    d->m_buildDirectoryAspect.setMacroExpanderProvider([this] { return macroExpander(); });
     connect(&d->m_buildDirectoryAspect, &StringAspect::changed,
             this, &BuildConfiguration::emitBuildDirectoryChanged);
     connect(this, &BuildConfiguration::environmentChanged, this, [this] {
@@ -326,13 +325,13 @@ NamedWidget *BuildConfiguration::createConfigWidget()
     }
 
     Layouting::Form form;
+    form.setNoMargins();
     for (BaseAspect *aspect : aspects()) {
         if (aspect->isVisible()) {
             form.addItem(aspect);
-            form.addItem(Layouting::br);
+            form.flush();
         }
     }
-    form.addItem(Layouting::noMargin);
     form.attachTo(widget);
 
     return named;
@@ -633,16 +632,8 @@ FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectD
 
     auto buildDevice = BuildDeviceKitAspect::device(kit);
 
-    if (buildDir.isAbsolutePath()) {
-        bool isReachable = buildDevice->ensureReachable(buildDir);
-        if (!isReachable)
-            return {};
+    if (buildDir.isAbsolutePath())
         return buildDevice->rootPath().withNewMappedPath(buildDir);
-    }
-
-    bool isReachable = buildDevice->ensureReachable(projectDir);
-    if (!isReachable)
-        return {};
 
     const FilePath baseDir = buildDevice->rootPath().withNewMappedPath(projectDir);
     return baseDir.resolvePath(buildDir);
@@ -664,12 +655,57 @@ BuildConfigurationFactory::~BuildConfigurationFactory()
     g_buildConfigurationFactories.removeOne(this);
 }
 
+static Tasks defaultIssueReporter(
+    Kit *kit, const Utils::FilePath &projectDir, const Utils::FilePath &buildDirectory)
+{
+    auto buildDevice = BuildDeviceKitAspect::device(kit);
+    if (!buildDevice) {
+        return {Task(
+            Task::Error,
+            Tr::tr("No build device is set for the kit \"%1\".").arg(kit->displayName()),
+            {},
+            0,
+            ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)};
+    }
+
+    auto canMountHintFor = [&buildDevice](const FilePath &path) {
+        if (buildDevice->canMount(path))
+            return Tr::tr("You can try mounting the folder in your device settings.");
+        return QString{};
+    };
+
+    if (!buildDevice->ensureReachable(projectDir)) {
+        return {Task(
+            Task::Error,
+            Tr::tr("The build device \"%1\" cannot reach the project directory.")
+                    .arg(buildDevice->displayName())
+                + " " + canMountHintFor(projectDir),
+            {},
+            0,
+            ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)};
+    }
+
+    if (!buildDirectory.isEmpty() && !buildDevice->ensureReachable(buildDirectory)) {
+        return {Task(
+            Task::Error,
+            Tr::tr("The build device \"%1\" cannot reach the build directory.")
+                    .arg(buildDevice->displayName())
+                + " " + canMountHintFor(buildDirectory),
+            {},
+            0,
+            ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM)};
+    }
+
+    return {};
+};
+
 const Tasks BuildConfigurationFactory::reportIssues(Kit *kit, const FilePath &projectPath,
                                                     const FilePath &buildDir) const
 {
+    Tasks issues = defaultIssueReporter(kit, projectPath, buildDir);
     if (m_issueReporter)
-        return m_issueReporter(kit, projectPath, buildDir);
-    return {};
+        issues += m_issueReporter(kit, projectPath, buildDir);
+    return issues;
 }
 
 const QList<BuildInfo> BuildConfigurationFactory::allAvailableBuilds(const Target *parent) const

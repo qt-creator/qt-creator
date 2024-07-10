@@ -17,6 +17,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/datafromprocess.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
@@ -41,8 +42,6 @@
 #include <QDateTime>
 #include <QFormLayout>
 #include <QLabel>
-
-#include <utility>
 
 using namespace Utils;
 
@@ -125,19 +124,19 @@ static QString platformName(MsvcToolchain::Platform t)
 static bool hostPrefersPlatform(MsvcToolchain::Platform platform)
 {
     switch (HostOsInfo::hostArchitecture()) {
-    case HostOsInfo::HostArchitectureAMD64:
+    case Utils::OsArchAMD64:
         return platform == MsvcToolchain::amd64 || platform == MsvcToolchain::amd64_arm
                || platform == MsvcToolchain::amd64_x86 || platform == MsvcToolchain::amd64_arm64;
-    case HostOsInfo::HostArchitectureX86:
+    case Utils::OsArchX86:
         return platform == MsvcToolchain::x86 || platform == MsvcToolchain::x86_amd64
                || platform == MsvcToolchain::x86_ia64 || platform == MsvcToolchain::x86_arm
                || platform == MsvcToolchain::x86_arm64;
-    case HostOsInfo::HostArchitectureArm:
+    case Utils::OsArchArm:
         return platform == MsvcToolchain::arm;
-    case HostOsInfo::HostArchitectureArm64:
+    case Utils::OsArchArm64:
         return platform == MsvcToolchain::arm64
                || platform == MsvcToolchain::arm64_x86 || platform == MsvcToolchain::arm64_amd64;
-    case HostOsInfo::HostArchitectureItanium:
+    case Utils::OsArchItanium:
         return platform == MsvcToolchain::ia64;
     default:
         return false;
@@ -152,12 +151,12 @@ static bool hostSupportsPlatform(MsvcToolchain::Platform platform)
     switch (HostOsInfo::hostArchitecture()) {
     // The x86 host toolchains are not the preferred toolchains on amd64 but they are still
     // supported by that host
-    case HostOsInfo::HostArchitectureAMD64:
+    case Utils::OsArchAMD64:
         return platform == MsvcToolchain::x86 || platform == MsvcToolchain::x86_amd64
                || platform == MsvcToolchain::x86_ia64 || platform == MsvcToolchain::x86_arm
                || platform == MsvcToolchain::x86_arm64;
     // The Arm64 host can run the cross-compilers via emulation of x86 and amd64
-    case HostOsInfo::HostArchitectureArm64:
+    case Utils::OsArchArm64:
         return platform == MsvcToolchain::x86_arm || platform == MsvcToolchain::x86_arm64
                || platform == MsvcToolchain::amd64_arm || platform == MsvcToolchain::amd64_arm64
                || platform == MsvcToolchain::x86 || platform == MsvcToolchain::x86_amd64
@@ -1152,7 +1151,7 @@ static QString wrappedMakeCommand(const QString &command)
 
 FilePath MsvcToolchain::makeCommand(const Environment &environment) const
 {
-    bool useJom = ProjectExplorerPlugin::projectExplorerSettings().useJom;
+    const bool useJom = projectExplorerSettings().useJom;
     const QString jom("jom.exe");
     const QString nmake("nmake.exe");
     Utils::FilePath tmp;
@@ -1229,8 +1228,7 @@ MsvcToolchain::Platform MsvcToolchain::platform() const
     QStringList args = m_varsBatArg.split(' ');
     if (const MsvcPlatform *entry = platformEntryFromName(args.value(0)))
         return entry->platform;
-    return Utils::HostOsInfo::hostArchitecture() == Utils::HostOsInfo::HostArchitectureAMD64 ? amd64
-                                                                                             : x86;
+    return Utils::HostOsInfo::hostArchitecture() == Utils::OsArchAMD64 ? amd64 : x86;
 }
 
 // --------------------------------------------------------------------------
@@ -1309,8 +1307,7 @@ public:
                 m_varsBatPathCombo->addItem(nativeVcVars);
             }
         }
-        const bool isAmd64
-            = Utils::HostOsInfo::hostArchitecture() == Utils::HostOsInfo::HostArchitectureAMD64;
+        const bool isAmd64 = Utils::HostOsInfo::hostArchitecture() == Utils::OsArchAMD64;
         // TODO: Add missing values to MsvcToolChain::Platform
         m_varsBatArchCombo->addItem(Tr::tr("<empty>"), isAmd64 ? MsvcToolchain::amd64 : MsvcToolchain::x86);
         m_varsBatArchCombo->addItem("x86", MsvcToolchain::x86);
@@ -1580,7 +1577,6 @@ private:
     FilePath m_filePath;
     QVersionNumber m_version;
     Abi m_defaultAbi;
-    static inline QHash<FilePath, std::pair<ClangClInfo, QDateTime>> m_cache;
 };
 
 static const MsvcToolchain *selectMsvcToolChain(const QString &displayedVarsBat,
@@ -1797,11 +1793,7 @@ Macros ClangClToolchain::msvcPredefinedMacros(const QStringList &cxxflags,
     Process cpp;
     cpp.setEnvironment(env);
     cpp.setWorkingDirectory(Utils::TemporaryDirectory::masterDirectoryFilePath());
-
-    QStringList arguments = cxxflags;
-    arguments.append(gccPredefinedMacrosOptions(language()));
-    arguments.append("-");
-    cpp.setCommand({compilerCommand(), arguments});
+    cpp.setCommand({compilerCommand(), {cxxflags, gccPredefinedMacrosOptions(language()), "-"}});
     cpp.runBlocking();
     if (cpp.result() != ProcessResult::FinishedWithSuccess) {
         // Show the warning but still parse the output.
@@ -2280,18 +2272,8 @@ ClangClInfo ClangClInfo::getInfo(const FilePath &filePath)
 {
     QTC_ASSERT(!filePath.isEmpty(), return {});
 
-    auto &entry = m_cache[filePath];
-    ClangClInfo &info = entry.first;
-    const QDateTime lastModified = filePath.lastModified();
-    if (entry.second == lastModified)
-        return info;
-
-    entry.second = lastModified;
-    Process clangClProcess;
-    clangClProcess.setCommand({filePath, {"--version"}});
-    clangClProcess.runBlocking();
-    if (clangClProcess.result() == ProcessResult::FinishedWithSuccess) {
-        const QString stdOut = clangClProcess.cleanedStdOut();
+    static const auto parser = [](const QString &stdOut) {
+        ClangClInfo info;
         const QRegularExpressionMatch versionMatch
             = QRegularExpression("clang version (\\d+(\\.\\d+)+)").match(stdOut);
         if (versionMatch.hasMatch())
@@ -2314,9 +2296,10 @@ ClangClInfo ClangClInfo::getInfo(const FilePath &filePath)
                                         detectedAbi.wordWidth());
             }
         }
-    }
-    m_cache.insert(filePath, entry);
-    return info;
+        return info;
+    };
+    const auto info = DataFromProcess<ClangClInfo>::getData({{filePath, {"--version"}}, parser});
+    return info ? *info : ClangClInfo();
 }
 
 } // namespace ProjectExplorer::Internal

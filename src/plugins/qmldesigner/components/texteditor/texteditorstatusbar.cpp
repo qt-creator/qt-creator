@@ -15,7 +15,8 @@ TextEditorStatusBar::TextEditorStatusBar(QWidget *parent) : QToolBar(parent), m_
     addWidget(m_label);
 
     /* We have to set another .css, since the central widget has already a style sheet */
-    m_label->setStyleSheet(QString("QLabel { color :%1 }").arg(Utils::creatorTheme()->color(Utils::Theme::TextColorError).name()));
+    m_label->setStyleSheet(QString("QLabel { color :%1 }")
+                           .arg(Utils::creatorColor(Utils::Theme::TextColorError).name()));
 }
 
 void TextEditorStatusBar::clearText()

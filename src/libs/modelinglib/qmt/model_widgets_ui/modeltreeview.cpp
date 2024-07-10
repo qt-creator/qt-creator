@@ -71,6 +71,46 @@ void ModelTreeView::setElementTasks(IElementTasks *elementTasks)
     m_elementTasks = elementTasks;
 }
 
+static void StoreStatus(QTreeView *view, QSortFilterProxyModel *model, const QModelIndex &parent, QVector<QModelIndex> &expanded_items)
+{
+    for (int index = 0; index < model->rowCount(parent); ++index) {
+        auto proxy_index = model->index(index, 0, parent);
+        if (view->isExpanded(proxy_index)) {
+            auto source_index = model->mapToSource(proxy_index);
+            expanded_items.append(source_index);
+        }
+        StoreStatus(view, model, proxy_index, expanded_items);
+    }
+}
+
+static void ApplyStatus(QTreeView *view, QSortFilterProxyModel *model, QVector<QModelIndex> &expanded_items)
+{
+    for (auto source_index : expanded_items) {
+        auto proxy_index = model->mapFromSource(source_index);
+        view->setExpanded(proxy_index, true);
+    }
+}
+
+void ModelTreeView::setModelTreeViewData(const ModelTreeViewData &viewData)
+{
+    if (m_sortedTreeModel) {
+        QVector<QModelIndex> expanded_items;
+        StoreStatus(this, m_sortedTreeModel, QModelIndex(), expanded_items);
+        m_sortedTreeModel->setModelTreeViewData(viewData);
+        ApplyStatus(this, m_sortedTreeModel, expanded_items);
+    }
+}
+
+void ModelTreeView::setModelTreeFilterData(const ModelTreeFilterData &filterData)
+{
+    if (m_sortedTreeModel) {
+        QVector<QModelIndex> expanded_items;
+        StoreStatus(this, m_sortedTreeModel, QModelIndex(), expanded_items);
+        m_sortedTreeModel->setModelTreeFilterData(filterData);
+        ApplyStatus(this, m_sortedTreeModel, expanded_items);
+    }
+}
+
 QModelIndex ModelTreeView::mapToSourceModelIndex(const QModelIndex &index) const
 {
     return m_sortedTreeModel->mapToSource(index);
@@ -144,7 +184,7 @@ void ModelTreeView::dragMoveEvent(QDragMoveEvent *event)
 {
     QTreeView::dragMoveEvent(event);
     bool accept = false;
-    QModelIndex dropIndex = indexAt(event->pos());
+    QModelIndex dropIndex = indexAt(event->position().toPoint());
     QModelIndex dropSourceModelIndex = m_sortedTreeModel->mapToSource(dropIndex);
     if (dropSourceModelIndex.isValid()) {
         TreeModel *treeModel = m_sortedTreeModel->treeModel();
@@ -175,7 +215,7 @@ void ModelTreeView::dropEvent(QDropEvent *event)
     bool accept = false;
     event->setDropAction(Qt::MoveAction);
     if (event->mimeData()->hasFormat("text/model-elements")) {
-        QModelIndex dropIndex = indexAt(event->pos());
+        QModelIndex dropIndex = indexAt(event->position().toPoint());
         QModelIndex dropSourceModelIndex = m_sortedTreeModel->mapToSource(dropIndex);
         if (dropSourceModelIndex.isValid()) {
             TreeModel *treeModel = m_sortedTreeModel->treeModel();
@@ -237,6 +277,10 @@ void ModelTreeView::contextMenuEvent(QContextMenuEvent *event)
             menu.addAction(new ContextMenuAction(Tr::tr("Open Diagram"), "openDiagram", &menu));
             addSeparator = true;
         }
+        if (m_elementTasks->hasLinkedFile(melement)) {
+            menu.addAction(new ContextMenuAction(Tr::tr("Open Linked File"), "openLinkedFile", &menu));
+            addSeparator = true;
+        }
         if (melement->owner()) {
             if (addSeparator)
                 menu.addSeparator();
@@ -253,6 +297,8 @@ void ModelTreeView::contextMenuEvent(QContextMenuEvent *event)
                 m_elementTasks->openClassDefinition(melement);
             } else if (action->id() == "openDiagram") {
                 m_elementTasks->openDiagram(melement);
+            } else if (action->id() == "openLinkedFile") {
+                m_elementTasks->openLinkedFile(melement);
             } else if (action->id() == "delete") {
                 MSelection selection;
                 selection.append(melement->uid(), melement->owner()->uid());

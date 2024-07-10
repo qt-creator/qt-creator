@@ -132,7 +132,8 @@ void OpenModelElementVisitor::visitMElement(const qmt::MElement *element)
 
 void OpenModelElementVisitor::visitMObject(const qmt::MObject *object)
 {
-    Q_UNUSED(object)
+    if (m_elementTasks->hasLinkedFile(object))
+        m_elementTasks->openLinkedFile(object);
 }
 
 void OpenModelElementVisitor::visitMPackage(const qmt::MPackage *package)
@@ -145,17 +146,26 @@ void OpenModelElementVisitor::visitMPackage(const qmt::MPackage *package)
 
 void OpenModelElementVisitor::visitMClass(const qmt::MClass *klass)
 {
-    m_elementTasks->openClassDefinition(klass);
+    if (m_elementTasks->hasClassDefinition(klass))
+        m_elementTasks->openClassDefinition(klass);
+    else
+        visitMObject(klass);
 }
 
 void OpenModelElementVisitor::visitMComponent(const qmt::MComponent *component)
 {
-    m_elementTasks->openSourceFile(component);
+    if (m_elementTasks->hasSourceFile(component))
+        m_elementTasks->openSourceFile(component);
+    else
+        visitMObject(component);
 }
 
 void OpenModelElementVisitor::visitMDiagram(const qmt::MDiagram *diagram)
 {
-    m_elementTasks->openDiagram(diagram);
+    if (m_elementTasks->hasDiagram(diagram))
+        m_elementTasks->openDiagram(diagram);
+    else
+        visitMObject(diagram);
 }
 
 void OpenModelElementVisitor::visitMCanvasDiagram(const qmt::MCanvasDiagram *diagram)

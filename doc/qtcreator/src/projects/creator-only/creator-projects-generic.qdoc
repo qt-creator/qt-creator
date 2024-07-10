@@ -125,7 +125,7 @@
     you first need to deploy your executable and possibly other files.
     \QC does that for you automatically if you enter the necessary
     information. This works the same way as explained for CMake in
-    \l {Deploying to Remote Linux},
+    \l {Remote Linux Deploy Configuration},
     except that you also need to include your application binary in the list.
 
     \section1 Create a run configuration

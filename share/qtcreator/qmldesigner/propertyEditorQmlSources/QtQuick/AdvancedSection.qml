@@ -33,7 +33,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Smooth")
-            tooltip: qsTr("Toggles if the smoothing is performed using linear interpolation method. Keeping it unchecked would follow non-smooth method using nearest neighbor. It is mostly applicable on image based items. ")
+            tooltip: qsTr("Toggles if the smoothing is performed using linear interpolation method. Keeping it unchecked would follow non-smooth method using nearest neighbor. It is mostly applicable on image based items.")
             blockedByTemplate: !backendValues.smooth.isAvailable
         }
 

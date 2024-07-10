@@ -20,6 +20,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcprocess.h>
 #include <utils/processinfo.h>
 #include <utils/processinterface.h>
@@ -58,11 +59,15 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
 
     const FilePath cmakeExecutable = cmake->cmakeExecutable();
 
+    const QString mountHint = ::CMakeProjectManager::Tr::tr(
+        "You may need to add the project directory to the list of directories that are mounted by "
+        "the build device.");
+
     if (!cmakeExecutable.ensureReachable(parameters.sourceDirectory)) {
         const QString msg = ::CMakeProjectManager::Tr::tr(
                 "The source directory %1 is not reachable by the CMake executable %2.")
             .arg(parameters.sourceDirectory.displayName()).arg(cmakeExecutable.displayName());
-        BuildSystem::appendBuildSystemOutput(addCMakePrefix({QString(), msg}).join('\n'));
+        BuildSystem::appendBuildSystemOutput(addCMakePrefix({QString(), msg, mountHint}).join('\n'));
         emit finished(failedToStartExitCode);
         return;
     }
@@ -71,7 +76,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
         const QString msg = ::CMakeProjectManager::Tr::tr(
                 "The build directory %1 is not reachable by the CMake executable %2.")
             .arg(parameters.buildDirectory.displayName()).arg(cmakeExecutable.displayName());
-        BuildSystem::appendBuildSystemOutput(addCMakePrefix({QString(), msg}).join('\n'));
+        BuildSystem::appendBuildSystemOutput(addCMakePrefix({QString(), msg, mountHint}).join('\n'));
         emit finished(failedToStartExitCode);
         return;
     }
@@ -99,7 +104,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     }
 
     // Copy the "package-manager" CMake code from the ${IDE:ResourcePath} to the build directory
-    if (settings().packageManagerAutoSetup()) {
+    if (settings(parameters.project).packageManagerAutoSetup()) {
         const FilePath localPackageManagerDir = buildDirectory.pathAppended(Constants::PACKAGE_MANAGER_DIR);
         const FilePath idePackageManagerDir = FilePath::fromString(
             parameters.expander->expand(QStringLiteral("%{IDE:ResourcePath}/package-manager")));
@@ -145,10 +150,11 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     });
 
     CommandLine commandLine(cmakeExecutable);
-    commandLine.addArgs({"-S",
-                         CMakeToolManager::mappedFilePath(sourceDirectory).path(),
-                         "-B",
-                         CMakeToolManager::mappedFilePath(buildDirectory).path()});
+    commandLine.addArgs(
+        {"-S",
+         CMakeToolManager::mappedFilePath(parameters.project, sourceDirectory).path(),
+         "-B",
+         CMakeToolManager::mappedFilePath(parameters.project, buildDirectory).path()});
     commandLine.addArgs(arguments);
 
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
@@ -173,16 +179,9 @@ void CMakeProcess::stop()
 
 QString addCMakePrefix(const QString &str)
 {
-    auto qColorToAnsiCode = [] (const QColor &color) {
-        return QString::fromLatin1("\033[38;2;%1;%2;%3m")
-            .arg(color.red()).arg(color.green()).arg(color.blue());
-    };
-    static const QColor bgColor = creatorTheme()->color(Theme::BackgroundColorNormal);
-    static const QColor fgColor = creatorTheme()->color(Theme::TextColorNormal);
-    static const QColor grey = StyleHelper::mergedColors(fgColor, bgColor, 80);
-    static const QString prefixString = qColorToAnsiCode(grey) + Constants::OUTPUT_PREFIX
-                                        + qColorToAnsiCode(fgColor);
-    return QString("%1%2").arg(prefixString, str);
+    static const QString prefix
+        = ansiColoredText(Constants::OUTPUT_PREFIX, creatorColor(Theme::Token_Text_Muted));
+    return prefix + str;
 }
 
 QStringList addCMakePrefix(const QStringList &list)

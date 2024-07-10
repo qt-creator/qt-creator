@@ -10,8 +10,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorsettings.h>
@@ -451,7 +449,6 @@ void UnifiedDiffEditorWidget::showDiff()
     }
 
     m_asyncTask.reset(new Async<UnifiedShowResult>());
-    m_asyncTask->setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
     m_controller.setBusyShowing(true);
     connect(m_asyncTask.get(), &AsyncBase::done, this, [this] {
         if (m_asyncTask->isCanceled() || !m_asyncTask->isResultAvailable()) {

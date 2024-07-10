@@ -1,0 +1,6 @@
+#include "header.h"
+
+void S::fifthFunction() {}
+void S::sixthFunction() {}
+void S::seventhFunction() {}
+void S::eighthFunction() {}

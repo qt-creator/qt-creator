@@ -83,8 +83,6 @@ def main():
     proFiles = [os.path.join(p, "opengl", "2dpainting", "2dpainting.pro")
                 for p in QtPath.getPaths(QtPath.EXAMPLES)]
     cleanUpUserFiles(proFiles)
-    for p in proFiles:
-        removePackagingDirectory(os.path.dirname(p))
 
     example = openExample(examplesLineEdit, "2d painting", "2D Painting.*", "2D Painting Example")
     if example is not None:
@@ -96,17 +94,12 @@ def main():
         waitFor("navTree.model().rowCount(navTree.rootIndex()) == 0", 2000)
         test.verify(not checkIfObjectItemExists(":Qt Creator_Utils::NavigationTreeView", "2dpainting"),
                     "Verifying: The first example is closed.")
-    # clean up created packaging directories
-    for p in proFiles:
-        removePackagingDirectory(os.path.dirname(p))
 
     # go to "Welcome" page and choose another example
     switchViewTo(ViewConstants.WELCOME)
     proFiles = [os.path.join(p, "widgets", "itemviews", "addressbook", "addressbook.pro")
                 for p in QtPath.getPaths(QtPath.EXAMPLES)]
     cleanUpUserFiles(proFiles)
-    for p in proFiles:
-        removePackagingDirectory(os.path.dirname(p))
     examplesLineEdit = waitForObject(search %(expect[1][0], expect[1][1]))
     example = openExample(examplesLineEdit, "address book", "(0000 )?Address Book.*",
                           "Address Book Example", 3)
@@ -122,8 +115,5 @@ def main():
         waitFor("navTree.model().rowCount(navTree.rootIndex()) == 0", 2000)
         test.verify(not checkIfObjectItemExists(":Qt Creator_Utils::NavigationTreeView", "addressbook"),
                     "Verifying: The second example is closed.")
-    # clean up created packaging directories
-    for p in proFiles:
-        removePackagingDirectory(os.path.dirname(p))
     # exit Qt Creator
     invokeMenuItem("File", "Exit")

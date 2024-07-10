@@ -52,7 +52,6 @@ public:
 
     BuildSystem *buildSystem() const;
     BuildConfiguration::BuildType buildType() const;
-    Utils::MacroExpander *macroExpander() const;
 
     enum class OutputFormat {
         Stdout, Stderr, // These are for forwarded output from external tools
@@ -99,7 +98,6 @@ protected:
     void setWidgetExpandedByDefault(bool widgetExpandedByDefault);
     void setImmutable(bool immutable) { m_immutable = immutable; }
     void setSummaryUpdater(const std::function<QString()> &summaryUpdater);
-    void addMacroExpander() { m_addMacroExpander = true; }
     void setSummaryText(const QString &summaryText);
 
     DeployConfiguration *deployConfiguration() const;
@@ -119,7 +117,6 @@ private:
     bool m_enabled = true;
     bool m_immutable = false;
     bool m_widgetExpandedByDefault = true;
-    bool m_addMacroExpander = false;
     std::optional<bool> m_wasExpanded;
     std::function<QString()> m_summaryUpdater;
 

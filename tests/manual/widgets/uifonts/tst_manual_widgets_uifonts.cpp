@@ -29,6 +29,8 @@ int main(int argc, char *argv[])
         { StyleHelper::UiElementBody2, "Body-02" },
         { StyleHelper::UiElementButtonMedium, "Button Medium" },
         { StyleHelper::UiElementButtonSmall, "Button Small" },
+        { StyleHelper::UiElementLabelMedium, "Label Medium" },
+        { StyleHelper::UiElementLabelSmall, "Label Small" },
         { StyleHelper::UiElementCaptionStrong, "Caption strong" },
         { StyleHelper::UiElementCaption, "Caption" },
         { StyleHelper::UiElementIconStandard, "Icon Standard" },
@@ -67,18 +69,20 @@ int main(int argc, char *argv[])
     }
     html.append("</table></body></html>");
 
-    Column {
-        windowTitle("Utils::StyleHelper::uiFont"),
-        Group {
-            title("As QFont in QLabel"),
-            fontLabels,
-        },
-        Group {
-            title("As inline CSS in HTML elements"),
-            Row { html },
-        },
-        st,
-    }.emerge()->show();
+    Widget {
+        windowTitle(QString("Utils::StyleHelper::uiFont")),
+        Column {
+            Group {
+                title(QString("As QFont in QLabel")),
+                fontLabels,
+            },
+            Group {
+                title(QString("As inline CSS in HTML elements")),
+                Row { html },
+            },
+            st,
+        }
+    }.show();
 
     return app.exec();
 }

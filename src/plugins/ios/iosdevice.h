@@ -37,6 +37,7 @@ public:
     QString uniqueDeviceID() const;
     QString uniqueInternalDeviceId() const;
     QString osVersion() const;
+    QString productType() const;
     QString cpuArchitecture() const;
     Utils::Port nextPort() const;
     Handler handler() const;

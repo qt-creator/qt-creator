@@ -28,7 +28,7 @@ PerfProfilerFlameGraphView::PerfProfilerFlameGraphView(QWidget *parent)
     rootContext()->setContextProperty(QStringLiteral("flameGraphModel"), m_model);
     setSource(QUrl(QStringLiteral(
                        "qrc:/qt/qml/QtCreator/PerfProfiler/PerfProfilerFlameGraphView.qml")));
-    setClearColor(Utils::creatorTheme()->color(Utils::Theme::Timeline_BackgroundColor1));
+    setClearColor(Utils::creatorColor(Utils::Theme::Timeline_BackgroundColor1));
 
     setResizeMode(QQuickWidget::SizeRootObjectToView);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);

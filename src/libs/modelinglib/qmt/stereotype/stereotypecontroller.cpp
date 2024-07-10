@@ -10,6 +10,8 @@
 
 #include "qmt/infrastructure/qmtassert.h"
 #include "qmt/style/style.h"
+
+#include <utils/filepath.h>
 #include <utils/algorithm.h>
 
 #include <QHash>
@@ -19,12 +21,14 @@
 
 #include <algorithm>
 
+using Utils::FilePath;
+
 namespace qmt {
 
 namespace {
 
 struct IconKey {
-    IconKey(StereotypeIcon::Element element, const QList<QString> &stereotypes, const QString &defaultIconPath,
+    IconKey(StereotypeIcon::Element element, const QList<QString> &stereotypes, const FilePath &defaultIconPath,
             const Uid &styleUid, const QSize &size, const QMarginsF &margins, qreal lineWidth)
         : m_element(element),
           m_stereotypes(stereotypes),
@@ -53,7 +57,7 @@ struct IconKey {
 
     const StereotypeIcon::Element m_element;
     const QList<QString> m_stereotypes;
-    const QString m_defaultIconPath;
+    const FilePath m_defaultIconPath;
     const Uid m_styleUid;
     const QSize m_size;
     const QMarginsF m_margins;
@@ -68,6 +72,7 @@ public:
     QHash<QPair<StereotypeIcon::Element, QString>, QString> m_stereotypeToIconIdMap;
     QHash<QString, StereotypeIcon> m_iconIdToStereotypeIconsMap;
     QHash<QString, CustomRelation> m_relationIdToCustomRelationMap;
+    QHash<QString, CustomRelation> m_stereotypeToCustomRelationMap;
     QList<Toolbar> m_toolbars;
     QList<Toolbar> m_elementToolbars;
     QHash<IconKey, QIcon> m_iconMap;
@@ -150,8 +155,13 @@ CustomRelation StereotypeController::findCustomRelation(const QString &customRel
     return d->m_relationIdToCustomRelationMap.value(customRelationId);
 }
 
+CustomRelation StereotypeController::findCustomRelationByStereotype(const QString &steoreotype) const
+{
+    return d->m_stereotypeToCustomRelationMap.value(steoreotype);
+}
+
 QIcon StereotypeController::createIcon(StereotypeIcon::Element element, const QList<QString> &stereotypes,
-                                       const QString &defaultIconPath, const Style *style, const QSize &size,
+                                       const FilePath &defaultIconPath, const Style *style, const QSize &size,
                                        const QMarginsF &margins, qreal lineWidth)
 {
     IconKey key(element, stereotypes, defaultIconPath, style->uid(), size, margins, lineWidth);
@@ -225,7 +235,7 @@ QIcon StereotypeController::createIcon(StereotypeIcon::Element element, const QL
         icon = QIcon(pixmap);
     }
     if (icon.isNull() && !defaultIconPath.isEmpty())
-        icon = QIcon(defaultIconPath);
+        icon = QIcon(defaultIconPath.toFSPathString());
     d->m_iconMap.insert(key, icon);
     return icon;
 
@@ -251,6 +261,9 @@ void StereotypeController::addStereotypeIcon(const StereotypeIcon &stereotypeIco
 void StereotypeController::addCustomRelation(const CustomRelation &customRelation)
 {
     d->m_relationIdToCustomRelationMap.insert(customRelation.id(), customRelation);
+    QString stereotype = Utils::toList(customRelation.stereotypes()).value(0);
+    if (!stereotype.isEmpty())
+        d->m_stereotypeToCustomRelationMap.insert(stereotype, customRelation);
 }
 
 void StereotypeController::addToolbar(const Toolbar &toolbar)

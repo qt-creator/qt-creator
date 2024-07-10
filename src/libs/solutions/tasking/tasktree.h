@@ -1,19 +1,20 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 Jarek Kobus
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#pragma once
+#ifndef TASKING_TASKTREE_H
+#define TASKING_TASKTREE_H
 
 #include "tasking_global.h"
 
-#include <QObject>
-#include <QList>
+#include <QtCore/QList>
+#include <QtCore/QObject>
 
 #include <memory>
 
 QT_BEGIN_NAMESPACE
 template <class T>
 class QFuture;
-QT_END_NAMESPACE
 
 namespace Tasking {
 
@@ -41,7 +42,7 @@ enum class WorkflowPolicy
     FinishAllAndSuccess,  // 4  - Reports success after all children finished.
     FinishAllAndError     // 5  - Reports error after all children finished.
 };
-Q_ENUM_NS(WorkflowPolicy);
+Q_ENUM_NS(WorkflowPolicy)
 
 enum class SetupResult
 {
@@ -49,14 +50,14 @@ enum class SetupResult
     StopWithSuccess,
     StopWithError
 };
-Q_ENUM_NS(SetupResult);
+Q_ENUM_NS(SetupResult)
 
 enum class DoneResult
 {
     Success,
     Error
 };
-Q_ENUM_NS(DoneResult);
+Q_ENUM_NS(DoneResult)
 
 enum class DoneWith
 {
@@ -64,7 +65,7 @@ enum class DoneWith
     Error,
     Cancel
 };
-Q_ENUM_NS(DoneWith);
+Q_ENUM_NS(DoneWith)
 
 enum class CallDoneIf
 {
@@ -72,7 +73,7 @@ enum class CallDoneIf
     Success,
     Error
 };
-Q_ENUM_NS(CallDoneIf);
+Q_ENUM_NS(CallDoneIf)
 
 TASKING_EXPORT DoneResult toDoneResult(bool success);
 
@@ -84,7 +85,7 @@ class TASKING_EXPORT TaskInterface : public QObject
 {
     Q_OBJECT
 
-signals:
+Q_SIGNALS:
     void done(DoneResult result);
 
 private:
@@ -187,7 +188,7 @@ public:
     }
 
 private:
-    static StorageConstructor ctor() { return [] { return new StorageStruct; }; }
+    static StorageConstructor ctor() { return [] { return new StorageStruct(); }; }
     static StorageDestructor dtor() {
         return [](void *storage) { delete static_cast<StorageStruct *>(storage); };
     }
@@ -290,10 +291,25 @@ public:
     ExecutableItem withTimeout(std::chrono::milliseconds timeout,
                                const std::function<void()> &handler = {}) const;
     ExecutableItem withLog(const QString &logName) const;
+    template <typename SenderSignalPairGetter>
+    ExecutableItem withCancel(SenderSignalPairGetter &&getter) const
+    {
+        const auto connectWrapper = [getter](QObject *guard, const std::function<void()> &trigger) {
+            const auto senderSignalPair = getter();
+            QObject::connect(senderSignalPair.first, senderSignalPair.second, guard, [trigger] {
+                trigger();
+            }, static_cast<Qt::ConnectionType>(Qt::QueuedConnection | Qt::SingleShotConnection));
+        };
+        return withCancelImpl(connectWrapper);
+    }
 
 protected:
     ExecutableItem() = default;
     ExecutableItem(const TaskHandler &handler) : GroupItem(handler) {}
+
+private:
+    ExecutableItem withCancelImpl(
+        const std::function<void(QObject *, const std::function<void()> &)> &connectWrapper) const;
 };
 
 class TASKING_EXPORT Group : public ExecutableItem
@@ -330,19 +346,23 @@ private:
             std::invoke(handler);
             return SetupResult::Continue;
         };
-    };
+    }
     template <typename Handler>
     static GroupDoneHandler wrapGroupDone(Handler &&handler)
     {
+        static constexpr bool isDoneResultType = std::is_same_v<Handler, DoneResult>;
         // R, V, D stands for: Done[R]esult, [V]oid, [D]oneWith
         static constexpr bool isRD = isInvocable<DoneResult, Handler, DoneWith>();
         static constexpr bool isR = isInvocable<DoneResult, Handler>();
         static constexpr bool isVD = isInvocable<void, Handler, DoneWith>();
         static constexpr bool isV = isInvocable<void, Handler>();
-        static_assert(isRD || isR || isVD || isV,
+        static_assert(isDoneResultType || isRD || isR || isVD || isV,
             "Group done handler needs to take (DoneWith) or (void) as an argument and has to "
-            "return void or DoneResult. The passed handler doesn't fulfill these requirements.");
+            "return void or DoneResult. Alternatively, it may be of DoneResult type. "
+            "The passed handler doesn't fulfill these requirements.");
         return [handler](DoneWith result) {
+            if constexpr (isDoneResultType)
+                return handler;
             if constexpr (isRD)
                 return std::invoke(handler, result);
             if constexpr (isR)
@@ -353,7 +373,7 @@ private:
                 std::invoke(handler);
             return result == DoneWith::Success ? DoneResult::Success : DoneResult::Error;
         };
-    };
+    }
 };
 
 template <typename Handler>
@@ -375,6 +395,7 @@ TASKING_EXPORT extern const GroupItem nullItem;
 
 TASKING_EXPORT extern const GroupItem sequential;
 TASKING_EXPORT extern const GroupItem parallel;
+TASKING_EXPORT extern const GroupItem parallelIdealThreadCountLimit;
 
 TASKING_EXPORT extern const GroupItem stopOnError;
 TASKING_EXPORT extern const GroupItem continueOnError;
@@ -417,7 +438,7 @@ private:
             std::invoke(handler);
             return SetupResult::StopWithSuccess;
         };
-    };
+    }
 };
 
 template <typename Task, typename Deleter = std::default_delete<Task>>
@@ -474,12 +495,13 @@ private:
             std::invoke(handler, *adapter.task());
             return SetupResult::Continue;
         };
-    };
+    }
 
     template <typename Handler>
     static InterfaceDoneHandler wrapDone(Handler &&handler) {
         if constexpr (std::is_same_v<Handler, TaskDoneHandler>)
-            return {}; // When user passed {} for the done handler.
+            return {}; // User passed {} for the done handler.
+        static constexpr bool isDoneResultType = std::is_same_v<Handler, DoneResult>;
         // R, V, T, D stands for: Done[R]esult, [V]oid, [T]ask, [D]oneWith
         static constexpr bool isRTD = isInvocable<DoneResult, Handler, const Task &, DoneWith>();
         static constexpr bool isRT = isInvocable<DoneResult, Handler, const Task &>();
@@ -489,11 +511,14 @@ private:
         static constexpr bool isVT = isInvocable<void, Handler, const Task &>();
         static constexpr bool isVD = isInvocable<void, Handler, DoneWith>();
         static constexpr bool isV = isInvocable<void, Handler>();
-        static_assert(isRTD || isRT || isRD || isR || isVTD || isVT || isVD || isV,
+        static_assert(isDoneResultType || isRTD || isRT || isRD || isR || isVTD || isVT || isVD || isV,
             "Task done handler needs to take (const Task &, DoneWith), (const Task &), "
             "(DoneWith) or (void) as arguments and has to return void or DoneResult. "
+            "Alternatively, it may be of DoneResult type. "
             "The passed handler doesn't fulfill these requirements.");
         return [handler](const TaskInterface &taskInterface, DoneWith result) {
+            if constexpr (isDoneResultType)
+                return handler;
             const Adapter &adapter = static_cast<const Adapter &>(taskInterface);
             if constexpr (isRTD)
                 return std::invoke(handler, *adapter.task(), result);
@@ -513,7 +538,7 @@ private:
                 std::invoke(handler);
             return result == DoneWith::Success ? DoneResult::Success : DoneResult::Error;
         };
-    };
+    }
 };
 
 class TASKING_EXPORT TaskTree final : public QObject
@@ -563,7 +588,7 @@ public:
                             wrapHandler<const StorageStruct>(std::forward<Handler>(handler)));
     }
 
-signals:
+Q_SIGNALS:
     void started();
     void done(DoneWith result);
     void asyncCountChanged(int count);
@@ -608,3 +633,7 @@ using TaskTreeTask = CustomTask<TaskTreeTaskAdapter>;
 using TimeoutTask = CustomTask<TimeoutTaskAdapter>;
 
 } // namespace Tasking
+
+QT_END_NAMESPACE
+
+#endif // TASKING_TASKTREE_H

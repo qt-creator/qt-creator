@@ -52,6 +52,24 @@ static const char kModeSideBarSettingsKey[] = "Help/ModeSideBar";
 namespace Help {
 namespace Internal {
 
+class ButtonWithMenu : public QToolButton
+{
+public:
+    ButtonWithMenu(QWidget *parent = nullptr)
+        : QToolButton(parent)
+    {}
+
+protected:
+    void mousePressEvent(QMouseEvent *e) override
+    {
+        if (e->button() == Qt::RightButton) {
+            showMenu();
+            return;
+        }
+        QToolButton::mousePressEvent(e);
+    }
+};
+
 OpenPagesModel::OpenPagesModel(HelpWidget *parent)
     : m_parent(parent)
 {}
@@ -282,7 +300,9 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     m_backAction->setMenu(m_backMenu);
     cmd = Core::ActionManager::registerAction(m_backAction, Constants::HELP_PREVIOUS, context);
     cmd->setDefaultKeySequence(QKeySequence::Back);
-    button = Core::Command::toolButtonWithAppendedShortcut(m_backAction, cmd);
+    button = new ButtonWithMenu;
+    button->setDefaultAction(m_backAction);
+    cmd->augmentActionWithShortcutToolTip(m_backAction);
     button->setPopupMode(QToolButton::DelayedPopup);
     layout->addWidget(button);
 
@@ -293,7 +313,9 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     m_forwardAction->setMenu(m_forwardMenu);
     cmd = Core::ActionManager::registerAction(m_forwardAction, Constants::HELP_NEXT, context);
     cmd->setDefaultKeySequence(QKeySequence::Forward);
-    button = Core::Command::toolButtonWithAppendedShortcut(m_forwardAction, cmd);
+    button = new ButtonWithMenu;
+    button->setDefaultAction(m_forwardAction);
+    cmd->augmentActionWithShortcutToolTip(m_forwardAction);
     button->setPopupMode(QToolButton::DelayedPopup);
     layout->addWidget(button);
 

@@ -181,7 +181,8 @@ void LauncherSocketHandler::handleStartPacket()
     process->setStandardInputFile(packet.standardInputFile);
     ProcessStartHandler *handler = process->processStartHandler();
     handler->setWindowsSpecificStartupFlags(packet.belowNormalPriority,
-                                            packet.createConsoleOnWindows);
+                                            packet.createConsoleOnWindows,
+                                            packet.forceDefaultErrorMode);
     handler->setProcessMode(packet.processMode);
     handler->setWriteData(packet.writeData);
     handler->setNativeArguments(packet.nativeArguments);

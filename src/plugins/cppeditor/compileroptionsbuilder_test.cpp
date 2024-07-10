@@ -196,7 +196,7 @@ void CompilerOptionsBuilderTest::testHeaderPathOptionsOrder()
 
     QCOMPARE(compilerOptionsBuilder.options(),
              (QStringList{"-nostdinc", "-nostdinc++", "-I" + t.toNative("/tmp/path"),
-                         "-I" + t.toNative("/tmp/system_path"), "-isystem", t.toNative("/dummy"),
+                          "-isystem", t.toNative("/tmp/system_path"), "-isystem", t.toNative("/dummy"),
                           "-isystem", t.toNative("/tmp/builtin_path")}));
 }
 
@@ -212,9 +212,9 @@ void CompilerOptionsBuilderTest::testHeaderPathOptionsOrderMsvc()
 
     QCOMPARE(compilerOptionsBuilder.options(),
              (QStringList{"-nostdinc", "-nostdinc++", "-I" + t.toNative("/tmp/path"),
-                            "-I" + t.toNative("/tmp/system_path"), "/clang:-isystem",
-                          "/clang:" + t.toNative("/dummy"), "/clang:-isystem",
-                          "/clang:" + t.toNative("/tmp/builtin_path")}));
+                          "/clang:-isystem", "/clang:" + t.toNative("/tmp/system_path"),
+                          "/clang:-isystem", "/clang:" + t.toNative("/dummy"),
+                          "/clang:-isystem", "/clang:" + t.toNative("/tmp/builtin_path")}));
 }
 
 void CompilerOptionsBuilderTest::testUseSystemHeader()
@@ -239,7 +239,7 @@ void CompilerOptionsBuilderTest::testNoClangHeadersPath()
     t.compilerOptionsBuilder->addHeaderPathOptions();
 
     QCOMPARE(t.compilerOptionsBuilder->options(),
-             (QStringList{"-I" + t.toNative("/tmp/path"), "-I" + t.toNative("/tmp/system_path")}));
+             (QStringList{"-I" + t.toNative("/tmp/path"), "-isystem", t.toNative("/tmp/system_path")}));
 }
 
 void CompilerOptionsBuilderTest::testClangHeadersAndCppIncludePathsOrderMacOs()
@@ -260,7 +260,7 @@ void CompilerOptionsBuilderTest::testClangHeadersAndCppIncludePathsOrderMacOs()
 
     QCOMPARE(compilerOptionsBuilder.options(),
              (QStringList{"-nostdinc", "-nostdinc++", "-I" + t.toNative("/tmp/path"),
-                          "-I" + t.toNative("/tmp/system_path"),
+                          "-isystem", t.toNative("/tmp/system_path"),
                           "-isystem", t.toNative("/usr/include/c++/4.2.1"),
                           "-isystem", t.toNative("/usr/include/c++/4.2.1/backward"),
                           "-isystem", t.toNative("/usr/local/include"),
@@ -599,7 +599,7 @@ void CompilerOptionsBuilderTest::testBuildAllOptions()
                           wrappedQtHeadersPath,         // contains -I already
                           wrappedQtCoreHeadersPath,     // contains -I already
                           "-I" + t.toNative("/tmp/path"),
-                          "-I" + t.toNative("/tmp/system_path"),
+                          "-isystem", t.toNative("/tmp/system_path"),
                           "-isystem", t.toNative("/dummy"),
                           "-isystem", t.toNative("/tmp/builtin_path")}));
 }
@@ -628,7 +628,7 @@ void CompilerOptionsBuilderTest::testBuildAllOptionsMsvc()
                           wrappedQtHeadersPath,         // contains -I already
                           wrappedQtCoreHeadersPath,     // contains -I already
                           "-I" + t.toNative("/tmp/path"),
-                          "-I" + t.toNative("/tmp/system_path"),
+                          "/clang:-isystem", "/clang:" + t.toNative("/tmp/system_path"),
                           "/clang:-isystem", "/clang:" + t.toNative("/dummy"),
                           "/clang:-isystem", "/clang:" + t.toNative("/tmp/builtin_path")}));
 }
@@ -659,7 +659,7 @@ void CompilerOptionsBuilderTest::testBuildAllOptionsMsvcWithExceptions()
                           wrappedQtHeadersPath,             // contains -I already
                           wrappedQtCoreHeadersPath,         // contains -I already
                           "-I" + t.toNative("/tmp/path"),
-                          "-I" + t.toNative("/tmp/system_path"),
+                          "/clang:-isystem", "/clang:" + t.toNative("/tmp/system_path"),
                           "/clang:-isystem", "/clang:" + t.toNative("/dummy"),
                           "/clang:-isystem", "/clang:" + t.toNative("/tmp/builtin_path")}));
 }

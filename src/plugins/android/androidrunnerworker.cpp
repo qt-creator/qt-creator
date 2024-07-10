@@ -20,20 +20,15 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 
-#include <utils/async.h>
-#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
-#include <utils/stringutils.h>
-#include <utils/temporaryfile.h>
 #include <utils/url.h>
 
 #include <QDate>
 #include <QLoggingCategory>
-#include <QScopeGuard>
 #include <QRegularExpression>
+#include <QScopeGuard>
 #include <QTcpServer>
-#include <QThread>
 
 #include <chrono>
 
@@ -57,17 +52,6 @@ static const QRegularExpression userIdPattern("u(\\d+)_a");
 
 static const std::chrono::milliseconds s_jdbTimeout = 5s;
 
-static int APP_START_TIMEOUT = 45000;
-static bool isTimedOut(const chrono::high_resolution_clock::time_point &start,
-                            int msecs = APP_START_TIMEOUT)
-{
-    bool timedOut = false;
-    auto end = chrono::high_resolution_clock::now();
-    if (chrono::duration_cast<chrono::milliseconds>(end-start).count() > msecs)
-        timedOut = true;
-    return timedOut;
-}
-
 static qint64 extractPID(const QString &output, const QString &packageName)
 {
     qint64 pid = -1;
@@ -80,67 +64,6 @@ static qint64 extractPID(const QString &output, const QString &packageName)
         }
     }
     return pid;
-}
-
-static void findProcessPIDAndUser(QPromise<PidUserPair> &promise,
-                                  QStringList selector,
-                                  const QString &packageName,
-                                  bool preNougat)
-{
-    if (packageName.isEmpty())
-        return;
-
-    static const QString pidScript = "pidof -s '%1'";
-    static const QString pidScriptPreNougat = QStringLiteral("for p in /proc/[0-9]*; "
-                                                    "do cat <$p/cmdline && echo :${p##*/}; done");
-    QStringList args = {selector};
-    FilePath adbPath = androidConfig().adbToolPath();
-    args.append("shell");
-    args.append(preNougat ? pidScriptPreNougat : pidScript.arg(packageName));
-
-    qint64 processPID = -1;
-    chrono::high_resolution_clock::time_point start = chrono::high_resolution_clock::now();
-    do {
-        QThread::msleep(200);
-        Process proc;
-        proc.setCommand({adbPath, args});
-        proc.runBlocking();
-        const QString out = proc.allOutput();
-        if (preNougat) {
-            processPID = extractPID(out, packageName);
-        } else {
-            if (!out.isEmpty())
-                processPID = out.trimmed().toLongLong();
-        }
-    } while ((processPID == -1 || processPID == 0) && !isTimedOut(start) && !promise.isCanceled());
-
-    qCDebug(androidRunWorkerLog) << "PID found:" << processPID << ", PreNougat:" << preNougat;
-
-    qint64 processUser = 0;
-    if (processPID > 0 && !promise.isCanceled()) {
-        args = {selector};
-        args.append({"shell", "ps", "-o", "user", "-p"});
-        args.append(QString::number(processPID));
-        Process proc;
-        proc.setCommand({adbPath, args});
-        proc.runBlocking();
-        const QString out = proc.allOutput();
-        if (!out.isEmpty()) {
-            QRegularExpressionMatch match;
-            qsizetype matchPos = out.indexOf(userIdPattern, 0, &match);
-            if (matchPos >= 0 && match.capturedLength(1) > 0) {
-                bool ok = false;
-                processUser = match.captured(1).toInt(&ok);
-                if (!ok)
-                    processUser = 0;
-            }
-        }
-    }
-
-    qCDebug(androidRunWorkerLog) << "USER found:" << processUser;
-
-    if (!promise.isCanceled())
-        promise.addResult(PidUserPair(processPID, processUser));
 }
 
 static QString gdbServerArch(const QString &androidAbi)
@@ -170,11 +93,9 @@ static FilePath debugServer(bool useLldb, const Target *target)
     QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
     QString preferredAbi = AndroidManager::apkDevicePreferredAbi(target);
 
-    const AndroidConfig &config = androidConfig();
-
     if (useLldb) {
         // Search suitable lldb-server binary.
-        const FilePath prebuilt = config.ndkLocation(qtVersion) / "toolchains/llvm/prebuilt";
+        const FilePath prebuilt = AndroidConfig::ndkLocation(qtVersion) / "toolchains/llvm/prebuilt";
         const QString abiNeedle = lldbServerArch2(preferredAbi);
 
         // The new, built-in LLDB.
@@ -194,7 +115,7 @@ static FilePath debugServer(bool useLldb, const Target *target)
             return lldbServer;
     } else {
         // Search suitable gdbserver binary.
-        const FilePath path = config.ndkLocation(qtVersion)
+        const FilePath path = AndroidConfig::ndkLocation(qtVersion)
                 .pathAppended(QString("prebuilt/android-%1/gdbserver/gdbserver")
                               .arg(gdbServerArch(preferredAbi)));
         if (path.exists())
@@ -210,7 +131,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     auto runControl = runner->runControl();
     m_useLldb = Debugger::DebuggerKitAspect::engineType(runControl->kit())
                     == Debugger::LldbEngineType;
-    auto aspect = runControl->aspect<Debugger::DebuggerRunConfigurationAspect>();
+    auto aspect = runControl->aspectData<Debugger::DebuggerRunConfigurationAspect>();
     Utils::Id runMode = runControl->runMode();
     const bool debuggingMode = runMode == ProjectExplorer::Constants::DEBUG_RUN_MODE;
     m_useCppDebugger = debuggingMode && aspect->useCppDebugger;
@@ -242,7 +163,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     m_deviceSerialNumber = AndroidManager::deviceSerialNumber(target);
     m_apiLevel = AndroidManager::deviceApiLevel(target);
 
-    m_extraEnvVars = runControl->aspect<EnvironmentAspect>()->environment;
+    m_extraEnvVars = runControl->aspectData<EnvironmentAspect>()->environment;
     qCDebug(androidRunWorkerLog).noquote() << "Environment variables for the app"
                                            << m_extraEnvVars.toStringList();
 
@@ -251,14 +172,14 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
 
     if (const Store sd = runControl->settingsData(Constants::ANDROID_AM_START_ARGS);
         !sd.values().isEmpty()) {
-        QTC_CHECK(sd.first().type() == QVariant::String);
+        QTC_CHECK(sd.first().typeId() == QMetaType::QString);
         const QString startArgs = sd.first().toString();
         m_amStartExtraArgs = ProcessArgs::splitArgs(startArgs, OsTypeOtherUnix);
     }
 
     if (const Store sd = runControl->settingsData(Constants::ANDROID_PRESTARTSHELLCMDLIST);
         !sd.values().isEmpty()) {
-        QTC_CHECK(sd.first().type() == QVariant::String);
+        QTC_CHECK(sd.first().typeId() == QMetaType::QString);
         const QStringList commands = sd.first().toString().split('\n', Qt::SkipEmptyParts);
         for (const QString &shellCmd : commands)
             m_beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
@@ -266,7 +187,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
 
     if (const Store sd = runControl->settingsData(Constants::ANDROID_POSTFINISHSHELLCMDLIST);
         !sd.values().isEmpty()) {
-        QTC_CHECK(sd.first().type() == QVariant::String);
+        QTC_CHECK(sd.first().typeId() == QMetaType::QString);
         const QStringList commands = sd.first().toString().split('\n', Qt::SkipEmptyParts);
         for (const QString &shellCmd : commands)
             m_afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
@@ -288,9 +209,6 @@ AndroidRunnerWorker::~AndroidRunnerWorker()
 {
     if (m_processPID != -1)
         forceStop();
-
-    if (!m_pidFinder.isFinished())
-        m_pidFinder.cancel();
 }
 
 bool AndroidRunnerWorker::runAdb(const QStringList &args, QString *stdOut,
@@ -367,12 +285,6 @@ bool AndroidRunnerWorker::packageFileExists(const QString &filePath)
     return success && !output.trimmed().isEmpty();
 }
 
-void AndroidRunnerWorker::adbKill(qint64 pid)
-{
-    if (!runAdb({"shell", "run-as", m_packageName, "kill", "-9", QString::number(pid)}))
-        runAdb({"shell", "kill", "-9", QString::number(pid)});
-}
-
 QStringList AndroidRunnerWorker::selector() const
 {
     return AndroidDeviceInfo::adbSelector(m_deviceSerialNumber);
@@ -385,8 +297,11 @@ void AndroidRunnerWorker::forceStop()
     // try killing it via kill -9
     QString output;
     runAdb({"shell", "pidof", m_packageName}, &output);
-    if (m_processPID != -1 && output == QString::number(m_processPID))
-        adbKill(m_processPID);
+    const QString pidString = QString::number(m_processPID);
+    if (m_processPID != -1 && output == pidString
+        && !runAdb({"shell", "run-as", m_packageName, "kill", "-9", pidString})) {
+        runAdb({"shell", "kill", "-9", pidString});
+    }
 }
 
 void AndroidRunnerWorker::logcatReadStandardError()
@@ -512,7 +427,7 @@ void Android::Internal::AndroidRunnerWorker::asyncStartLogcat()
     }
 
     const QStringList logcatArgs = selector() << "logcat" << timeArg;
-    const FilePath adb = androidConfig().adbToolPath();
+    const FilePath adb = AndroidConfig::adbToolPath();
     qCDebug(androidRunWorkerLog).noquote() << "Running logcat command (async):"
                                            << CommandLine(adb, logcatArgs).toUserOutput();
     m_adbLogcatProcess->setCommand({adb, logcatArgs});
@@ -710,19 +625,69 @@ void AndroidRunnerWorker::asyncStart()
 {
     asyncStartHelper();
 
-    m_pidFinder = Utils::onResultReady(Utils::asyncRun(findProcessPIDAndUser,
-                                                       selector(),
-                                                       m_packageName,
-                                                       m_isPreNougat),
-                                       this,
-                                       bind(&AndroidRunnerWorker::onProcessIdChanged, this, _1));
+    using namespace Tasking;
+
+    const Storage<PidUserPair> pidStorage;
+
+    const FilePath adbPath = AndroidConfig::adbToolPath();
+    const QStringList args = selector();
+    const QString pidScript = m_isPreNougat
+        ? QString("for p in /proc/[0-9]*; do cat <$p/cmdline && echo :${p##*/}; done")
+        : QString("pidof -s '%1'").arg(m_packageName);
+
+    const auto onPidSetup = [adbPath, args, pidScript](Process &process) {
+        process.setCommand({adbPath, {args, "shell", pidScript}});
+    };
+    const auto onPidDone = [pidStorage, packageName = m_packageName,
+                            isPreNougat = m_isPreNougat](const Process &process) {
+        const QString out = process.allOutput();
+        if (isPreNougat)
+            pidStorage->first = extractPID(out, packageName);
+        else if (!out.isEmpty())
+            pidStorage->first = out.trimmed().toLongLong();
+    };
+
+    const auto onUserSetup = [pidStorage, adbPath, args](Process &process) {
+        process.setCommand({adbPath, {args, "shell", "ps", "-o", "user", "-p",
+                                      QString::number(pidStorage->first)}});
+    };
+    const auto onUserDone = [pidStorage](const Process &process) {
+        const QString out = process.allOutput();
+        if (out.isEmpty())
+            return DoneResult::Error;
+
+        QRegularExpressionMatch match;
+        qsizetype matchPos = out.indexOf(userIdPattern, 0, &match);
+        if (matchPos >= 0 && match.capturedLength(1) > 0) {
+            bool ok = false;
+            const qint64 processUser = match.captured(1).toInt(&ok);
+            if (ok) {
+                pidStorage->second = processUser;
+                return DoneResult::Success;
+            }
+        }
+        return DoneResult::Error;
+    };
+
+    const Group root {
+        pidStorage,
+        onGroupSetup([pidStorage] { *pidStorage = {-1, 0}; }),
+        Forever {
+            stopOnSuccess,
+            ProcessTask(onPidSetup, onPidDone, CallDoneIf::Success),
+            TimeoutTask([](std::chrono::milliseconds &timeout) { timeout = 200ms; },
+                        DoneResult::Error)
+        }.withTimeout(45s),
+        ProcessTask(onUserSetup, onUserDone, CallDoneIf::Success),
+        onGroupDone([pidStorage, this] { onProcessIdChanged(*pidStorage); })
+    };
+
+    m_pidRunner.start(root);
 }
 
 void AndroidRunnerWorker::asyncStop()
 {
-    if (!m_pidFinder.isFinished())
-        m_pidFinder.cancel();
-
+    m_pidRunner.reset();
     if (m_processPID != -1)
         forceStop();
 
@@ -742,7 +707,7 @@ void AndroidRunnerWorker::handleJdbWaiting()
     }
     m_afterFinishAdbCommands.push_back(removeForward.join(' '));
 
-    const FilePath jdbPath = androidConfig().openJDKLocation()
+    const FilePath jdbPath = AndroidConfig::openJDKLocation()
             .pathAppended("bin/jdb").withExecutableSuffix();
 
     QStringList jdbArgs("-connect");
@@ -821,10 +786,8 @@ void AndroidRunnerWorker::removeForwardPort(const QString &port)
     }
 }
 
-void AndroidRunnerWorker::onProcessIdChanged(PidUserPair pidUser)
+void AndroidRunnerWorker::onProcessIdChanged(const PidUserPair &pidUser)
 {
-    // Don't write to m_psProc from a different thread
-    QTC_ASSERT(QThread::currentThread() == thread(), return);
     qCDebug(androidRunWorkerLog) << "Process ID changed from:" << m_processPID
                                  << "to:" << pidUser.first;
     m_processPID = pidUser.first;

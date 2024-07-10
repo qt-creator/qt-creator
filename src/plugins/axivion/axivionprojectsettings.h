@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <utils/id.h>
+
 #include <QObject>
 
 namespace ProjectExplorer { class Project; }
@@ -16,6 +18,8 @@ public:
 
     void setDashboardProjectName(const QString &name) { m_dashboardProjectName = name; }
     QString dashboardProjectName() const { return m_dashboardProjectName; }
+    void setDashboardId(const Utils::Id &dashboardId) { m_dashboardId = dashboardId; }
+    Utils::Id dashboardId() const { return m_dashboardId; }
 
     static AxivionProjectSettings *projectSettings(ProjectExplorer::Project *project);
     static void destroyProjectSettings();
@@ -27,6 +31,8 @@ private:
 
     ProjectExplorer::Project *m_project = nullptr;
     QString m_dashboardProjectName;
+    // id of the dashboard in use for this project, or default from settings on initialization
+    Utils::Id m_dashboardId;
 };
 
 } // Axivion::Internal

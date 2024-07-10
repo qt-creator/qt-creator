@@ -152,6 +152,12 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             case T_GREATER_GREATER: break;
             case T_LBRACKET: break;
             case T_NAMESPACE:   leave(); enter(namespace_start); break;
+            case T_IDENTIFIER:
+                if (isStatementMacroOrEquivalent()) {
+                    enter(qt_like_macro);
+                    break;
+                }
+                [[fallthrough]];
             default:            tryExpression(true); break;
             } break;
 
@@ -205,7 +211,7 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             case T_IDENTIFIER:          // '&', id, 'this' are allowed both in the capture list and subscribtion
             case T_AMPER:
             case T_THIS:        break;
-            default:            leave(); leave(); tryExpression(m_currentState.at(m_currentState.size() - 1).type == declaration_start); break;
+            default:            tryExpression(m_currentState.at(m_currentState.size() - 2).type == declaration_start); break;
                                         // any other symbol allowed only in subscribtion operator
             } break;
 
@@ -272,7 +278,16 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             case T_SEMICOLON:   leave(true); break;
             case T_LBRACE:      enter(brace_list_open); break;
             case T_RBRACE:      leave(true); continue;
-            case T_RPAREN:      leave(); break;
+            case T_RPAREN:
+                leave();
+                if (m_currentState.top().type == qt_like_macro && m_currentState.size() > 1
+                    && m_currentState.at(m_currentState.size() - 2).type == declaration_start) {
+                    leave();
+                    leave();
+                } else if (m_currentState.top().type == catch_statement) {
+                    turnInto(substatement);
+                }
+                break;
             default:            tryExpression(); break;
             } break;
 
@@ -399,6 +414,11 @@ void CodeFormatter::recalculateStateAfter(const QTextBlock &block)
             switch (kind) {
             case T_LPAREN:      enter(for_statement_paren_open); break;
             default:            leave(true); continue;
+            } break;
+
+        case catch_statement:
+            switch (kind) {
+            case T_LPAREN:      enter(arglist_open); break;
             } break;
 
         case for_statement_paren_open:
@@ -754,6 +774,16 @@ void CodeFormatter::correctIndentation(const QTextBlock &block)
     adjustIndent(m_tokens, lexerState, &m_indentDepth, &m_paddingDepth);
 }
 
+bool CodeFormatter::isStatementMacroOrEquivalent() const
+{
+    const QStringView tokenText = currentTokenText();
+    return tokenText.startsWith(QLatin1String("Q_"))
+           || tokenText.startsWith(QLatin1String("QT_"))
+           || tokenText.startsWith(QLatin1String("QML_"))
+           || tokenText.startsWith(QLatin1String("QDOC_"))
+           || m_statementMacros.contains(tokenText);
+}
+
 bool CodeFormatter::tryExpression(bool alsoExpression)
 {
     int newState = -1;
@@ -838,11 +868,7 @@ bool CodeFormatter::tryDeclaration()
         return true;
     case T_IDENTIFIER:
         if (m_tokenIndex == 0) {
-            const QStringView tokenText = currentTokenText();
-            if (tokenText.startsWith(QLatin1String("Q_"))
-                    || tokenText.startsWith(QLatin1String("QT_"))
-                    || tokenText.startsWith(QLatin1String("QML_"))
-                    || tokenText.startsWith(QLatin1String("QDOC_"))) {
+            if (isStatementMacroOrEquivalent()) {
                 enter(qt_like_macro);
                 return true;
             }
@@ -945,6 +971,12 @@ bool CodeFormatter::tryStatement()
     case T_DO:
         enter(do_statement);
         enter(substatement);
+        return true;
+    case T_TRY:
+        enter(substatement);
+        return true;
+    case T_CATCH:
+        enter(catch_statement);
         return true;
     case T_CASE:
     case T_DEFAULT:
@@ -1118,6 +1150,7 @@ QtStyleCodeFormatter::QtStyleCodeFormatter(const TabSettings &tabSettings,
     , m_styleSettings(settings)
 {
     setTabSize(tabSettings.m_tabSize);
+    setStatementMacros(m_styleSettings.statementMacros);
 }
 
 void QtStyleCodeFormatter::setTabSettings(const TabSettings &tabSettings)
@@ -1129,6 +1162,7 @@ void QtStyleCodeFormatter::setTabSettings(const TabSettings &tabSettings)
 void QtStyleCodeFormatter::setCodeStyleSettings(const CppCodeStyleSettings &settings)
 {
     m_styleSettings = settings;
+    setStatementMacros(m_styleSettings.statementMacros);
 }
 
 void QtStyleCodeFormatter::saveBlockData(QTextBlock *block, const BlockData &data) const

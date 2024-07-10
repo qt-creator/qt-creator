@@ -55,6 +55,16 @@ public:
 
 using FilePaths = QList<class FilePath>;
 
+class QTCREATOR_UTILS_EXPORT FilePathWatcher : public QObject
+{
+    Q_OBJECT
+public:
+    using QObject::QObject;
+
+signals:
+    void pathChanged(const Utils::FilePath &path);
+};
+
 class QTCREATOR_UTILS_EXPORT FilePath
 {
 public:
@@ -139,7 +149,7 @@ public:
     FilePaths dirEntries(const FileFilter &filter, QDir::SortFlags sort = QDir::NoSort) const;
     FilePaths dirEntries(QDir::Filters filters) const;
     expected_str<QByteArray> fileContents(qint64 maxSize = -1, qint64 offset = 0) const;
-    expected_str<qint64> writeFileContents(const QByteArray &data, qint64 offset = 0) const;
+    expected_str<qint64> writeFileContents(const QByteArray &data) const;
     FilePathInfo filePathInfo() const;
 
     [[nodiscard]] FilePath operator/(const QString &str) const;
@@ -268,6 +278,10 @@ public:
     // FIXME: Avoid. See toSettings, toVariant, toUserOutput, toFSPathString, path, nativePath.
     QString toString() const;
 
+    bool equalsCaseSensitive(const FilePath &other) const;
+
+    Utils::expected_str<std::unique_ptr<FilePathWatcher>> watch() const;
+
 private:
     // These are needed.
     QTCREATOR_UTILS_EXPORT friend bool operator==(const FilePath &first, const FilePath &second);
@@ -281,6 +295,8 @@ private:
     QTCREATOR_UTILS_EXPORT friend size_t qHash(const FilePath &a);
 
     QTCREATOR_UTILS_EXPORT friend QDebug operator<<(QDebug dbg, const FilePath &c);
+
+    static bool equals(const FilePath &first, const FilePath &second, Qt::CaseSensitivity cs);
 
     // Implementation details. May change.
     friend class ::tst_fileutils;

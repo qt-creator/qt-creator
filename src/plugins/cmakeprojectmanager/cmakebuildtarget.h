@@ -7,6 +7,7 @@
 
 #include <projectexplorer/projectmacro.h>
 #include <projectexplorer/projectnodes.h>
+#include <projectexplorer/runconfigurationaspects.h>
 
 #include <utils/fileutils.h>
 
@@ -30,6 +31,7 @@ class CMAKE_EXPORT CMakeBuildTarget
 public:
     QString title;
     Utils::FilePath executable; // TODO: rename to output?
+    QList<ProjectExplorer::Launcher> launchers;
     TargetType targetType = UtilityType;
     bool linksToQtGui = false;
     bool qtcRunnable = true;

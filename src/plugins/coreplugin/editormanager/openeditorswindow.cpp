@@ -161,17 +161,39 @@ void OpenEditorsWindow::setVisible(bool visible)
 bool OpenEditorsWindow::eventFilter(QObject *obj, QEvent *e)
 {
     if (obj == m_editorView) {
-        if (e->type() == QEvent::KeyPress) {
+        if (e->type() == QEvent::ShortcutOverride) {
             auto ke = static_cast<QKeyEvent*>(e);
-            if (ke->key() == Qt::Key_Escape) {
-                setVisible(false);
+            switch (ke->key()) {
+            case Qt::Key_Up:
+            case Qt::Key_P:
+                e->accept();
+                return true;
+            case Qt::Key_Down:
+            case Qt::Key_N:
+                e->accept();
                 return true;
             }
-            if (ke->key() == Qt::Key_Return
-                    || ke->key() == Qt::Key_Enter) {
+        }
+        if (e->type() == QEvent::KeyPress) {
+            auto ke = static_cast<QKeyEvent*>(e);
+            switch (ke->key()) {
+            case Qt::Key_Up:
+            case Qt::Key_P:
+                selectNextEditor();
+                return true;
+            case Qt::Key_Down:
+            case Qt::Key_N:
+                selectPreviousEditor();
+                return true;
+            case Qt::Key_Escape:
+                setVisible(false);
+                return true;
+            case Qt::Key_Return:
+            case Qt::Key_Enter:
                 selectEditor(m_editorView->currentItem());
                 return true;
             }
+
         } else if (e->type() == QEvent::KeyRelease) {
             auto ke = static_cast<QKeyEvent*>(e);
             if (ke->modifiers() == 0

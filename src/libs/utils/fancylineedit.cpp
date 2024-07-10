@@ -5,6 +5,7 @@
 
 #include "camelcasecursor.h"
 #include "execmenu.h"
+#include "futuresynchronizer.h"
 #include "historycompleter.h"
 #include "hostosinfo.h"
 #include "icon.h"
@@ -98,6 +99,7 @@ class FancyLineEditPrivate : public QObject
 {
 public:
     explicit FancyLineEditPrivate(FancyLineEdit *parent);
+    ~FancyLineEditPrivate();
 
     bool eventFilter(QObject *obj, QEvent *event) override;
 
@@ -134,8 +136,8 @@ FancyLineEditPrivate::FancyLineEditPrivate(FancyLineEdit *parent)
     : QObject(parent)
     , m_lineEdit(parent)
     , m_completionShortcut(completionShortcut()->key(), parent)
-    , m_okTextColor(creatorTheme()->color(Theme::TextColorNormal))
-    , m_errorTextColor(creatorTheme()->color(Theme::TextColorError))
+    , m_okTextColor(creatorColor(Theme::TextColorNormal))
+    , m_errorTextColor(creatorColor(Theme::TextColorError))
     , m_placeholderTextColor(QApplication::palette().color(QPalette::PlaceholderText))
     , m_spinner(new SpinnerSolution::Spinner(SpinnerSolution::SpinnerSize::Small, m_lineEdit))
 {
@@ -161,6 +163,12 @@ FancyLineEditPrivate::FancyLineEditPrivate(FancyLineEdit *parent)
         m_menuTabFocusTrigger[i] = false;
         m_iconEnabled[i] = false;
     }
+}
+
+FancyLineEditPrivate::~FancyLineEditPrivate()
+{
+    if (m_validatorWatcher)
+        m_validatorWatcher->cancel();
 }
 
 bool FancyLineEditPrivate::eventFilter(QObject *obj, QEvent *event)
@@ -446,12 +454,27 @@ void FancyLineEdit::setFiltering(bool on)
     }
 }
 
+/*!
+    Set a synchronous or asynchronous validation function \a fn.
+    Asynchronous validation functions can continue to run after destruction of the
+    FancyLineEdit instance. During shutdown asynchronous validation functions can continue
+    to run until before the plugin instances are deleted (at that point the plugin manager
+    waits for them to finish before continuing).
+
+    \sa defaultValidationFunction()
+ */
 void FancyLineEdit::setValidationFunction(const FancyLineEdit::ValidationFunction &fn)
 {
     d->m_validationFunction = fn;
     validate();
 }
 
+/*!
+    Returns the default validation function, which synchonously executes the line edit's
+    validator.
+
+    \sa setValidationFunction()
+*/
 FancyLineEdit::ValidationFunction FancyLineEdit::defaultValidationFunction()
 {
     return &FancyLineEdit::validateWithValidator;
@@ -581,6 +604,7 @@ void FancyLineEdit::validate()
 
         AsyncValidationFuture future = validationFunction(text());
         d->m_validatorWatcher->setFuture(future);
+        Utils::futureSynchronizer()->addFuture(future);
 
         return;
     }

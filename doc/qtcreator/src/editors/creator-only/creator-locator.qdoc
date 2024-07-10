@@ -261,6 +261,16 @@
 
     \endlist
 
+    \section1 Hiding Long Paths
+
+    To hide the common part of absolute paths in the locator:
+
+    \list 1
+        \li Go to \preferences > \uicontrol Environment > \uicontrol Locator.
+        \li Select \uicontrol {Show Paths in Relation to Active Project} to
+            show relative paths.
+    \endlist
+
     \sa {Navigate with locator}, {Search}{How To: Search}, {Perform calculations},
     {Locator}
 */

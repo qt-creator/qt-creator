@@ -9,6 +9,8 @@
 #include <qmt/stereotype/stereotypeicon.h>
 #include <qmt/style/styleengine.h>
 
+#include <utils/filepath.h>
+
 #include <QScopedPointer>
 #include <QHash>
 
@@ -93,8 +95,9 @@ private:
     QString createObjectLabel(const MObject *object);
     QString createRelationLabel(const MRelation *relation);
     QIcon createIcon(StereotypeIcon::Element stereotypeIconElement,
-                     StyleEngine::ElementType styleElementType, const QStringList &stereotypes,
-                     const QString &defaultIconPath);
+                     StyleEngine::ElementType styleElementType,
+                     const QStringList &stereotypes,
+                     const Utils::FilePath &defaultIconPath);
 
     enum Busy {
         NotBusy,

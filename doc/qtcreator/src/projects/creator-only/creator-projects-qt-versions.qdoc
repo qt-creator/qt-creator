@@ -108,28 +108,45 @@
 
     To verify the installation of a particular Qt version, \QC
     calls \c {qmake -query} and checks that the directories referenced in the
-    output exist. When \QC complains about the installation of a self-built Qt
-    version, try running \c {make install} in the build directory to actually
-    install Qt into the configured location. If you installed Qt using the Qt
-    Installer, run \QMT to check for updates or to reinstall
-    the Qt version.
+    output exist. If you installed Qt using \QOI, run
+    \QMT to check for updates or to reinstall the Qt version.
 
-    \section1 Minimum requirements
-    If your build of Qt is incomplete but you still want to use qmake as build
-    system, you need to ensure the following minimum requirements to use that
-    setup with \QC.
+    \section2 Self-built Qt versions
 
-    \list 1
+    To build projects with a self-built Qt version, add it as described in
+    \l{Set up new Qt versions}.
+
+    Your Qt has to meet the following minimum requirements:
+
+    \list
         \li qmake is an executable that understands the \c -query command-line
             argument.
         \li The \c bin and \c include directories have to exist. \QC fetches
             these directories by running \c{qmake -query}.
-        \li The \c mkspecs directory should be complete enough to parse .pro
-            files.
     \endlist
 
-    If your Qt version has no \c libQtCore.so, \QC cannot detect the ABI.
+    Add a kit for the Qt version and configure it for CMake.
 
-    \sa {kits-tab}{Kits}
+    \QC issues warnings if:
+
+    \list
+        \li \c libQtCore.so is missing, so \QC cannot detect the ABI.
+        \li \c toolchain.cmake is missing. For example, you built Qt with the
+            \c -static option for an x86 platform.
+    \endlist
+
+    Try the following:
+
+    \list
+        \li Run \c {make install} in the build directory to install Qt into the
+            configured location.
+        \li Set the value of the \c CMAKE_PREFIX_PATH variable in \preferences >
+            \uicontrol Kits > \uicontrol Kits > \uicontrol {CMake Configuration}
+            to the location where you installed Qt.
+    \endlist
+
+    \image qtcreator-edit-cmake-configuration-self-built-qt.webp {Setting the path to a self-built Qt}
+
+    \sa {Manage Kits}{How To: Manage Kits}, {kits-tab}{Kits}
 */
 

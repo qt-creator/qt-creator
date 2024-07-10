@@ -458,15 +458,14 @@ void FontSettingsPageWidget::updateFontZoom(const FontSettings &fontSettings)
 
 QList<int> FontSettingsPageWidget::pointSizesForSelectedFont() const
 {
-    QFontDatabase db;
     const QString familyName = m_fontComboBox->currentFont().family();
-    QList<int> sizeLst = db.pointSizes(familyName);
+    QList<int> sizeLst = QFontDatabase::pointSizes(familyName);
     if (!sizeLst.isEmpty())
         return sizeLst;
 
-    QStringList styles = db.styles(familyName);
+    QStringList styles = QFontDatabase::styles(familyName);
     if (!styles.isEmpty())
-        sizeLst = db.pointSizes(familyName, styles.first());
+        sizeLst = QFontDatabase::pointSizes(familyName, styles.first());
     if (sizeLst.isEmpty())
         sizeLst = QFontDatabase::standardSizes();
 

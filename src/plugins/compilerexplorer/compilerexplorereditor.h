@@ -11,7 +11,6 @@
 #include <solutions/spinner/spinner.h>
 
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditoractionhandler.h>
 
 #include <utils/fancymainwindow.h>
 
@@ -38,6 +37,9 @@ public:
 
     void undo() override { m_undoStack->undo(); }
     void redo() override { m_undoStack->redo(); }
+
+    bool isUndoAvailable() const override { return m_undoStack->canUndo(); }
+    bool isRedoAvailable() const override { return m_undoStack->canRedo(); }
 
     void focusInEvent(QFocusEvent *event) override
     {
@@ -77,6 +79,7 @@ public:
     {
         TextEditorWidget::focusInEvent(event);
         emit gotFocus();
+        updateUndoRedoActions();
     }
 
     void findLinkAt(const QTextCursor &,
@@ -86,6 +89,9 @@ public:
 
     void undo() override { m_undoStack->undo(); }
     void redo() override { m_undoStack->redo(); }
+
+    bool isUndoAvailable() const override { return m_undoStack->canUndo(); }
+    bool isRedoAvailable() const override { return m_undoStack->canRedo(); }
 
 protected:
     void mouseMoveEvent(QMouseEvent *event) override;
@@ -223,7 +229,6 @@ class EditorWidget : public Utils::FancyMainWindow
 public:
     EditorWidget(const std::shared_ptr<JsonSettingsDocument> &document,
                  QUndoStack *undoStack,
-                 TextEditor::TextEditorActionHandler &actionHandler,
                  QWidget *parent = nullptr);
     ~EditorWidget() override;
 
@@ -253,7 +258,6 @@ protected:
 private:
     std::shared_ptr<JsonSettingsDocument> m_document;
     QUndoStack *m_undoStack;
-    TextEditor::TextEditorActionHandler &m_actionHandler;
 
     QList<QDockWidget *> m_compilerWidgets;
     QList<QDockWidget *> m_sourceWidgets;
@@ -262,7 +266,7 @@ private:
 class Editor : public Core::IEditor
 {
 public:
-    Editor(TextEditor::TextEditorActionHandler &actionHandler);
+    Editor();
     ~Editor();
 
     Core::IDocument *document() const override { return m_document.get(); }
@@ -271,6 +275,8 @@ public:
     std::shared_ptr<JsonSettingsDocument> m_document;
     QUndoStack m_undoStack;
     std::unique_ptr<QToolBar> m_toolBar;
+    QAction *m_undoAction = nullptr;
+    QAction *m_redoAction = nullptr;
 };
 
 class EditorFactory : public Core::IEditorFactory
@@ -279,8 +285,6 @@ public:
     EditorFactory();
 
 private:
-    TextEditor::TextEditorActionHandler m_actionHandler;
-
     QAction m_undoAction;
     QAction m_redoAction;
 };

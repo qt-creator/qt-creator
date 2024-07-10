@@ -98,7 +98,7 @@ void PluginDialog::closeDialog()
 
 void PluginDialog::showInstallWizard()
 {
-    if (PluginInstallWizard::exec())
+    if (executePluginInstallWizard())
         m_isRestartRequired = true;
 }
 

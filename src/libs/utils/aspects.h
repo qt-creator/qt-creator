@@ -7,7 +7,6 @@
 #include "guiutils.h"
 #include "id.h"
 #include "infolabel.h"
-#include "macroexpander.h"
 #include "pathchooser.h"
 #include "qtcsettings.h"
 #include "store.h"
@@ -29,15 +28,14 @@ class QStandardItemModel;
 class QItemSelectionModel;
 QT_END_NAMESPACE
 
-namespace Layouting {
-class LayoutItem;
-}
+namespace Layouting { class Layout; }
 
 namespace Utils {
 
 class AspectContainer;
 class BoolAspect;
 class CheckableDecider;
+class MacroExpander;
 
 namespace Internal {
 class AspectContainerPrivate;
@@ -64,6 +62,7 @@ class QTCREATOR_UTILS_EXPORT BaseAspect : public QObject
 
 public:
     BaseAspect(AspectContainer *container = nullptr);
+    BaseAspect(const BaseAspect &) = delete;
     ~BaseAspect() override;
 
     Id id() const;
@@ -125,9 +124,7 @@ public:
     virtual void toMap(Store &map) const;
     virtual void toActiveMap(Store &map) const { toMap(map); }
     virtual void volatileToMap(Store &map) const;
-
-    virtual void addToLayout(Layouting::LayoutItem &parent);
-
+    virtual void addToLayout(Layouting::Layout &parent);
     virtual void readSettings();
     virtual void writeSettings() const;
 
@@ -205,6 +202,9 @@ public:
     // This is expensive. Do not use without good reason
     void writeToSettingsImmediatly() const;
 
+    void setMacroExpander(MacroExpander *expander);
+    MacroExpander *macroExpander() const;
+
 signals:
     void changed();
     void volatileValueChanged();
@@ -222,8 +222,10 @@ protected:
 
     virtual void handleGuiChanged();
 
+    void addMacroExpansion(QWidget *w);
+
     QLabel *createLabel();
-    void addLabeledItem(Layouting::LayoutItem &parent, QWidget *widget);
+    void addLabeledItem(Layouting::Layout &parent, QWidget *widget);
 
     void setDataCreatorHelper(const DataCreator &creator) const;
     void setDataClonerHelper(const DataCloner &cloner) const;
@@ -276,8 +278,8 @@ private:
     friend class Internal::CheckableAspectImplementation;
 };
 
-QTCREATOR_UTILS_EXPORT void createItem(Layouting::LayoutItem *item, const BaseAspect &aspect);
-QTCREATOR_UTILS_EXPORT void createItem(Layouting::LayoutItem *item, const BaseAspect *aspect);
+QTCREATOR_UTILS_EXPORT void addToLayout(Layouting::Layout *layout, BaseAspect *aspect);
+QTCREATOR_UTILS_EXPORT void addToLayout(Layouting::Layout *layout, BaseAspect &aspect);
 
 template<typename ValueType>
 class
@@ -439,7 +441,7 @@ public:
     BoolAspect(AspectContainer *container = nullptr);
     ~BoolAspect() override;
 
-    void addToLayout(Layouting::LayoutItem &parent) override;
+    void addToLayout(Layouting::Layout &parent) override;
     std::function<void(QObject *)> groupChecker();
 
     Utils::CheckableDecider askAgainCheckableDecider();
@@ -452,10 +454,10 @@ public:
                   LabelPlacement labelPlacement = LabelPlacement::InExtraLabel);
     void setLabelPlacement(LabelPlacement labelPlacement);
 
-    Layouting::LayoutItem adoptButton(QAbstractButton *button);
+    std::function<void(Layouting::Layout *)> adoptButton(QAbstractButton *button);
 
 private:
-    void addToLayoutHelper(Layouting::LayoutItem &parent, QAbstractButton *button);
+    void addToLayoutHelper(Layouting::Layout &parent, QAbstractButton *button);
 
     void bufferToGui() override;
     bool guiToBuffer() override;
@@ -504,7 +506,7 @@ public:
     ColorAspect(AspectContainer *container = nullptr);
     ~ColorAspect() override;
 
-    void addToLayout(Layouting::LayoutItem &parent) override;
+    void addToLayout(Layouting::Layout &parent) override;
 
 private:
     void bufferToGui() override;
@@ -521,7 +523,7 @@ public:
     SelectionAspect(AspectContainer *container = nullptr);
     ~SelectionAspect() override;
 
-    void addToLayout(Layouting::LayoutItem &parent) override;
+    void addToLayout(Layouting::Layout &parent) override;
     void finish() override;
 
     QString stringValue() const;
@@ -569,7 +571,7 @@ public:
     MultiSelectionAspect(AspectContainer *container = nullptr);
     ~MultiSelectionAspect() override;
 
-    void addToLayout(Layouting::LayoutItem &parent) override;
+    void addToLayout(Layouting::Layout &parent) override;
 
     enum class DisplayStyle { ListView };
     void setDisplayStyle(DisplayStyle style);
@@ -596,7 +598,7 @@ public:
     StringAspect(AspectContainer *container = nullptr);
     ~StringAspect() override;
 
-    void addToLayout(Layouting::LayoutItem &parent) override;
+    void addToLayout(Layouting::Layout &parent) override;
 
     QString operator()() const { return expandedValue(); }
     QString expandedValue() const;
@@ -610,8 +612,6 @@ public:
     void setPlaceHolderText(const QString &placeHolderText);
     void setHistoryCompleter(const Key &historyCompleterKey);
     void setAcceptRichText(bool acceptRichText);
-    void setMacroExpanderProvider(const MacroExpanderProvider &expanderProvider);
-    void setUseGlobalMacroExpander();
     void setUseResetButton();
     void setValidationFunction(const FancyLineEdit::ValidationFunction &validator);
     void setAutoApplyOnEditingFinished(bool applyOnEditingFinished);
@@ -666,6 +666,7 @@ public:
     };
 
     FilePath operator()() const;
+    FilePath effectiveBinary() const;
     FilePath expandedValue() const;
     QString value() const;
     void setValue(const FilePath &filePath, Announcement howToAnnounce = DoEmit);
@@ -687,7 +688,6 @@ public:
     void setValidationFunction(const FancyLineEdit::ValidationFunction &validator);
     void setDisplayFilter(const std::function<QString (const QString &)> &displayFilter);
     void setHistoryCompleter(const Key &historyCompleterKey);
-    void setMacroExpanderProvider(const MacroExpanderProvider &expanderProvider);
     void setShowToolTipOnLabel(bool show);
     void setAutoApplyOnEditingFinished(bool applyOnEditingFinished);
 
@@ -703,7 +703,7 @@ public:
 
     PathChooser *pathChooser() const; // Avoid to use.
 
-    void addToLayout(Layouting::LayoutItem &parent) override;
+    void addToLayout(Layouting::Layout &parent) override;
 
     void fromMap(const Utils::Store &map) override;
     void toMap(Utils::Store &map) const override;
@@ -730,7 +730,7 @@ public:
     IntegerAspect(AspectContainer *container = nullptr);
     ~IntegerAspect() override;
 
-    void addToLayout(Layouting::LayoutItem &parent) override;
+    void addToLayout(Layouting::Layout &parent) override;
 
     void setRange(qint64 min, qint64 max);
     void setLabel(const QString &label); // FIXME: Use setLabelText
@@ -759,7 +759,7 @@ public:
     DoubleAspect(AspectContainer *container = nullptr);
     ~DoubleAspect() override;
 
-    void addToLayout(Layouting::LayoutItem &parent) override;
+    void addToLayout(Layouting::Layout &parent) override;
 
     void setRange(double min, double max);
     void setPrefix(const QString &prefix);
@@ -777,11 +777,11 @@ private:
 
 class QTCREATOR_UTILS_EXPORT TriState
 {
-    enum Value { EnabledValue, DisabledValue, DefaultValue };
-    explicit TriState(Value v) : m_value(v) {}
-
 public:
+    enum Value { EnabledValue, DisabledValue, DefaultValue };
+
     TriState() = default;
+    explicit TriState(Value v) : m_value(v) {}
 
     int toInt() const { return int(m_value); }
     QVariant toVariant() const { return int(m_value); }
@@ -805,9 +805,9 @@ class QTCREATOR_UTILS_EXPORT TriStateAspect : public SelectionAspect
 
 public:
     TriStateAspect(AspectContainer *container = nullptr,
-                   const QString &onString = {},
-                   const QString &offString = {},
-                   const QString &defaultString = {});
+                   const QString &enabledDisplay = {},
+                   const QString &disabledDisplay = {},
+                   const QString &defaultDisplay = {});
 
     TriState operator()() const { return value(); }
     TriState value() const;
@@ -816,9 +816,8 @@ public:
     TriState defaultValue() const;
     void setDefaultValue(TriState setting);
 
-    void setOptionTexts(const QString &onString,
-                        const QString &offString,
-                        const QString &defaultString);
+    void setOptionText(const TriState::Value tristate, const QString &display);
+
 private:
     void addOption(const QString &displayName, const QString &toolTip = {}) = delete;
     void addOption(const Option &option) = delete;
@@ -832,12 +831,23 @@ public:
     StringListAspect(AspectContainer *container = nullptr);
     ~StringListAspect() override;
 
-    void addToLayout(Layouting::LayoutItem &parent) override;
+    bool guiToBuffer() override;
+    void bufferToGui() override;
+
+    void addToLayout(Layouting::Layout &parent) override;
 
     void appendValue(const QString &value, bool allowDuplicates = true);
     void removeValue(const QString &value);
     void appendValues(const QStringList &values, bool allowDuplicates = true);
     void removeValues(const QStringList &values);
+
+    void setUiAllowAdding(bool allowAdding);
+    void setUiAllowRemoving(bool allowRemoving);
+    void setUiAllowEditing(bool allowEditing);
+
+    bool uiAllowAdding() const;
+    bool uiAllowRemoving() const;
+    bool uiAllowEditing() const;
 
 private:
     std::unique_ptr<Internal::StringListAspectPrivate> d;
@@ -856,7 +866,7 @@ public:
     bool guiToBuffer() override;
     void bufferToGui() override;
 
-    void addToLayout(Layouting::LayoutItem &parent) override;
+    void addToLayout(Layouting::Layout &parent) override;
     void setPlaceHolderText(const QString &placeHolderText);
 
     void appendValue(const FilePath &path, bool allowDuplicates = true);
@@ -876,7 +886,7 @@ public:
     IntegersAspect(AspectContainer *container = nullptr);
     ~IntegersAspect() override;
 
-    void addToLayout(Layouting::LayoutItem &parent) override;
+    void addToLayout(Layouting::Layout &parent) override;
 };
 
 class QTCREATOR_UTILS_EXPORT TextDisplay : public BaseAspect
@@ -889,7 +899,7 @@ public:
                          InfoLabel::InfoType type = InfoLabel::None);
     ~TextDisplay() override;
 
-    void addToLayout(Layouting::LayoutItem &parent) override;
+    void addToLayout(Layouting::Layout &parent) override;
 
     void setIconType(InfoLabel::InfoType t);
     void setText(const QString &message);
@@ -940,6 +950,8 @@ public:
     AspectContainer(const AspectContainer &) = delete;
     AspectContainer &operator=(const AspectContainer &) = delete;
 
+    void addToLayout(Layouting::Layout &parent) override;
+
     void registerAspect(BaseAspect *aspect, bool takeOwnership = false);
     void registerAspects(const AspectContainer &aspects);
 
@@ -964,6 +976,8 @@ public:
     void setAutoApply(bool on) override;
     bool isDirty() override;
     void setUndoStack(QUndoStack *undoStack) override;
+
+    void setMacroExpander(MacroExpander *expander);
 
     template <typename T> T *aspect() const
     {
@@ -990,8 +1004,8 @@ public:
     const_iterator begin() const;
     const_iterator end() const;
 
-    void setLayouter(const std::function<Layouting::LayoutItem()> &layouter);
-    std::function<Layouting::LayoutItem()> layouter() const;
+    void setLayouter(const std::function<Layouting::Layout()> &layouter);
+    std::function<Layouting::Layout()> layouter() const;
 
 signals:
     void applied();
@@ -1132,7 +1146,7 @@ public:
 
     QVariant volatileVariantValue() const override { return {}; }
 
-    void addToLayout(Layouting::LayoutItem &parent) override;
+    void addToLayout(Layouting::Layout &parent) override;
 
 private:
     std::unique_ptr<Internal::AspectListPrivate> d;
@@ -1144,7 +1158,7 @@ class QTCREATOR_UTILS_EXPORT StringSelectionAspect : public Utils::TypedAspect<Q
 public:
     StringSelectionAspect(Utils::AspectContainer *container = nullptr);
 
-    void addToLayout(Layouting::LayoutItem &parent) override;
+    void addToLayout(Layouting::Layout &parent) override;
 
     using ResultCallback = std::function<void(QList<QStandardItem *> items)>;
     using FillCallback = std::function<void(ResultCallback)>;

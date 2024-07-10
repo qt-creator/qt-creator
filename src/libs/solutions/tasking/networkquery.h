@@ -1,20 +1,21 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 Jarek Kobus
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
 
-#pragma once
+#ifndef TASKING_NETWORKQUERY_H
+#define TASKING_NETWORKQUERY_H
 
 #include "tasking_global.h"
 
 #include "tasktree.h"
 
-#include <QNetworkReply>
-#include <QNetworkRequest>
+#include <QtNetwork/QNetworkReply>
+#include <QtNetwork/QNetworkRequest>
 
 #include <memory>
 
 QT_BEGIN_NAMESPACE
 class QNetworkAccessManager;
-QT_END_NAMESPACE
 
 namespace Tasking {
 
@@ -37,7 +38,7 @@ public:
     QNetworkReply *reply() const { return m_reply.get(); }
     void start();
 
-signals:
+Q_SIGNALS:
     void started();
     void done(DoneResult result);
 
@@ -59,3 +60,7 @@ public:
 using NetworkQueryTask = CustomTask<NetworkQueryTaskAdapter>;
 
 } // namespace Tasking
+
+QT_END_NAMESPACE
+
+#endif // TASKING_NETWORKQUERY_H

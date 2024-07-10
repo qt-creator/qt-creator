@@ -1531,62 +1531,31 @@ QByteArray DockManager::loadFile(const FilePath &filePath)
 
 QString DockManager::readDisplayName(const FilePath &filePath)
 {
-    auto data = loadFile(filePath);
-
-    if (data.isEmpty())
-        return {};
-
-    auto tmp = data.startsWith("<?xml") ? data : qUncompress(data);
-
-    DockingStateReader reader(tmp);
-    if (!reader.readNextStartElement())
-        return {};
-
-    if (reader.name() != QLatin1String("QtAdvancedDockingSystem"))
-        return {};
-
-    return reader.attributes().value(workspaceDisplayNameAttribute.toString()).toString();
+    return readAttribute(filePath, workspaceDisplayNameAttribute);
 }
 
 bool DockManager::writeDisplayName(const FilePath &filePath, const QString &displayName)
 {
-    const expected_str<QByteArray> content = filePath.fileContents();
-
-    QTC_ASSERT_EXPECTED(content, return false);
-
-    QDomDocument doc;
-    QString error_msg;
-    int error_line, error_col;
-    if (!doc.setContent(*content, &error_msg, &error_line, &error_col)) {
-        qWarning() << QString("XML error on line %1, col %2: %3")
-                          .arg(error_line)
-                          .arg(error_col)
-                          .arg(error_msg);
-        return false;
-    }
-
-    QDomElement docElem = doc.documentElement();
-    docElem.setAttribute(workspaceDisplayNameAttribute.toString(), displayName);
-
-    const expected_str<void> result = write(filePath, doc.toByteArray(workspaceXmlFormattingIndent));
-    if (!result) {
-        qWarning() << "Could not write display name" << displayName << "to" << filePath << ":"
-                   << result.error();
-        return false;
-    }
-
-    return true;
+    return writeAttribute(filePath, workspaceDisplayNameAttribute, displayName);
 }
 
 QString DockManager::readMcusEnabled(const FilePath &filePath)
 {
-    auto data = loadFile(filePath);
+    return readAttribute(filePath, workspaceMcusEnabledAttribute);
+}
 
+bool DockManager::writeMcusEnabled(const FilePath &filePath, const QString &mcusEnabled)
+{
+    return writeAttribute(filePath, workspaceMcusEnabledAttribute, mcusEnabled);
+}
+
+QString DockManager::readAttribute(const FilePath &filePath, QStringView key)
+{
+    auto data = loadFile(filePath);
     if (data.isEmpty())
         return {};
 
     auto tmp = data.startsWith("<?xml") ? data : qUncompress(data);
-
     DockingStateReader reader(tmp);
     if (!reader.readNextStartElement())
         return {};
@@ -1594,13 +1563,12 @@ QString DockManager::readMcusEnabled(const FilePath &filePath)
     if (reader.name() != QLatin1String("QtAdvancedDockingSystem"))
         return {};
 
-    return reader.attributes().value(workspaceMcusEnabledAttribute.toString()).toString();
+    return reader.attributes().value(key.toString()).toString();
 }
 
-bool DockManager::writeMcusEnabled(const FilePath &filePath, const QString &mcusEnabled)
+bool DockManager::writeAttribute(const FilePath &filePath, QStringView key, const QString &value)
 {
     const expected_str<QByteArray> content = filePath.fileContents();
-
     QTC_ASSERT_EXPECTED(content, return false);
 
     QDomDocument doc;
@@ -1608,23 +1576,19 @@ bool DockManager::writeMcusEnabled(const FilePath &filePath, const QString &mcus
     int error_line, error_col;
     if (!doc.setContent(*content, &error_msg, &error_line, &error_col)) {
         qWarning() << QString("XML error on line %1, col %2: %3")
-                          .arg(error_line)
-                          .arg(error_col)
-                          .arg(error_msg);
+                          .arg(error_line).arg(error_col).arg(error_msg);
         return false;
     }
 
     QDomElement docElem = doc.documentElement();
-    docElem.setAttribute(workspaceMcusEnabledAttribute.toString(), mcusEnabled);
+    docElem.setAttribute(key.toString(), value);
 
     const expected_str<void> result = write(filePath, doc.toByteArray(workspaceXmlFormattingIndent));
-    if (!result) {
-        qWarning() << "Could not write mcusEnabled" << mcusEnabled << "to" << filePath << ":"
-                   << result.error();
-        return false;
-    }
+    if (result)
+        return true;
 
-    return true;
+    qWarning() << "Could not write" << key << value << "to" << filePath << ":" << result.error();
+    return false;
 }
 
 expected_str<void> DockManager::write(const FilePath &filePath, const QByteArray &data)

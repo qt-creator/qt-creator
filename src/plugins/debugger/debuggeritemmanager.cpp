@@ -9,8 +9,6 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitoptionspage.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -381,7 +379,7 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget()
     // clang-format off
     using namespace Layouting;
     Form {
-        fieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow),
+        fieldGrowthPolicy(int(QFormLayout::AllNonFixedFieldsGrow)),
         Tr::tr("Name:"), m_displayNameLineEdit, br,
         Tr::tr("Path:"), m_binaryChooser, br,
         m_cdbLabel, br,
@@ -488,7 +486,7 @@ void DebuggerItemConfigWidget::binaryPathHasChanged()
                 tmp.reinitializeFromFile();
                 return tmp;
             }));
-            ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(m_updateWatcher.future());
+            Utils::futureSynchronizer()->addFuture(m_updateWatcher.future());
         } else {
             const DebuggerItem tmp;
             setAbis(tmp.abiNames());
@@ -551,8 +549,8 @@ void DebuggerItemModel::autoDetectCdbDebuggers()
 
     for (const QFileInfo &kitFolderFi : kitFolders) {
         const QString path = kitFolderFi.absoluteFilePath();
-        QStringList abis = {"x86", "x64"};
-        if (HostOsInfo::hostArchitecture() == HostOsInfo::HostArchitectureArm64)
+        QStringList abis = {"x64"};
+        if (HostOsInfo::hostArchitecture() == Utils::OsArchArm64)
             abis << "arm64";
         for (const QString &abi: abis) {
             const QFileInfo cdbBinary(path + "/Debuggers/" + abi + "/cdb.exe");
@@ -782,6 +780,12 @@ void DebuggerItemModel::readDebuggers(const FilePath &fileName, bool isSystem)
             if (item.isAutoDetected()) {
                 if (!item.isValid() || item.engineType() == NoEngineType) {
                     qWarning() << QString("DebuggerItem \"%1\" (%2) read from \"%3\" dropped since it is not valid.")
+                                  .arg(item.command().toUserOutput(), item.id().toString(), fileName.toUserOutput());
+                    continue;
+                }
+                if (item.engineType() == CdbEngineType
+                    && Abi::abisOfBinary(item.command()).value(0).wordWidth() == 32) {
+                    qWarning() << QString("32 bit CDB \"%1\" (%2) read from \"%3\" dropped since it is not supported anymore.")
                                   .arg(item.command().toUserOutput(), item.id().toString(), fileName.toUserOutput());
                     continue;
                 }

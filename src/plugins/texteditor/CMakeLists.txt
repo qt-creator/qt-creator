@@ -92,11 +92,9 @@ add_qtc_plugin(TextEditor
     snippets/snippetparser.cpp snippets/snippetparser.h
     snippets/snippetprovider.cpp snippets/snippetprovider.h
     snippets/snippetscollection.cpp snippets/snippetscollection.h
-    snippets/snippetssettings.cpp snippets/snippetssettings.h
     snippets/snippetssettingspage.cpp snippets/snippetssettingspage.h
     storagesettings.cpp storagesettings.h
     syntaxhighlighter.cpp syntaxhighlighter.h
-    syntaxhighlighterrunner.cpp syntaxhighlighterrunner.h
     tabsettings.cpp tabsettings.h
     tabsettingswidget.cpp tabsettingswidget.h
     textdocument.cpp textdocument.h
@@ -105,7 +103,6 @@ add_qtc_plugin(TextEditor
     texteditor.qrc
     texteditor_global.h
     texteditortr.h
-    texteditoractionhandler.cpp texteditoractionhandler.h
     texteditorconstants.cpp texteditorconstants.h
     texteditoroverlay.cpp texteditoroverlay.h
     texteditorplugin.cpp
@@ -113,6 +110,7 @@ add_qtc_plugin(TextEditor
     textindenter.cpp textindenter.h
     textmark.cpp textmark.h
     textstyles.h
+    typehierarchy.cpp typehierarchy.h
     typingsettings.cpp typingsettings.h
 )
 

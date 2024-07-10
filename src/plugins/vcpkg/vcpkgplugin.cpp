@@ -21,8 +21,6 @@ class VcpkgPlugin final : public ExtensionSystem::IPlugin
 public:
     void initialize() final
     {
-        ProjectExplorer::JsonWizardFactory::addWizardPath(":/vcpkg/wizards/");
-
         setupVcpkgManifestEditor();
 
 #ifdef WITH_TESTS

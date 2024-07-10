@@ -189,11 +189,33 @@ void ServerCapabilities::setCallHierarchyProvider(
     const std::variant<bool, WorkDoneProgressOptions> &callHierarchyProvider)
 {
     QJsonValue val;
-    if (std::holds_alternative<bool>(callHierarchyProvider))
-        val = std::get<bool>(callHierarchyProvider);
-    else if (std::holds_alternative<WorkDoneProgressOptions>(callHierarchyProvider))
-        val = QJsonObject(std::get<WorkDoneProgressOptions>(callHierarchyProvider));
+    if (const auto boolvalue = std::get_if<bool>(&callHierarchyProvider))
+        val = *boolvalue;
+    else if (const auto options = std::get_if<WorkDoneProgressOptions>(&callHierarchyProvider))
+        val = QJsonObject(*options);
     insert(callHierarchyProviderKey, val);
+}
+
+std::optional<std::variant<bool, WorkDoneProgressOptions>> ServerCapabilities::typeHierarchyProvider()
+    const
+{
+    const QJsonValue &provider = value(typeHierarchyProviderKey);
+    if (provider.isBool())
+        return provider.toBool();
+    else if (provider.isObject())
+        return WorkDoneProgressOptions(provider.toObject());
+    return std::nullopt;
+}
+
+void ServerCapabilities::setTypeHierarchyProvider(
+    const std::variant<bool, WorkDoneProgressOptions> &typeHierarchyProvider)
+{
+    QJsonValue val;
+    if (const auto boolvalue = std::get_if<bool>(&typeHierarchyProvider))
+        val = *boolvalue;
+    else if (const auto options = std::get_if<WorkDoneProgressOptions>(&typeHierarchyProvider))
+        val = QJsonObject(*options);
+    insert(typeHierarchyProviderKey, val);
 }
 
 std::optional<std::variant<bool, WorkDoneProgressOptions>>

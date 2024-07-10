@@ -156,7 +156,7 @@ QTextCharFormat FontSettings::toTextCharFormat(TextStyle category) const
     QTextCharFormat tf;
 
     if (category == C_TEXT) {
-        tf.setFontFamily(m_family);
+        tf.setFontFamilies({m_family});
         tf.setFontPointSize(m_fontSize * m_fontZoom / 100.);
         tf.setFontStyleStrategy(m_antialias ? QFont::PreferAntialias : QFont::NoAntialias);
     }
@@ -491,8 +491,7 @@ static QString defaultFontFamily()
         return QLatin1String("Menlo");
 
     const QString sourceCodePro(g_sourceCodePro);
-    const QFontDatabase dataBase;
-    if (dataBase.hasFamily(sourceCodePro))
+    if (QFontDatabase::hasFamily(sourceCodePro))
         return sourceCodePro;
 
     if (Utils::HostOsInfo::isAnyUnixHost())

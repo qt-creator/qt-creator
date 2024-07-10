@@ -21,7 +21,7 @@
 
     \QC automatically detects the Meson and Ninja executables specified in the
     \c PATH. You can add paths to other Meson or Ninja executables and use them
-    in different build and run \l{glossary-buildandrun-kit}{kits}.
+    in different build and run \l{Kits}{kits}.
 
     \note Enable the Meson plugin to use it.
 
@@ -54,7 +54,7 @@
 
     \image qtcreator-kits-meson.png "Setting Meson executable in Kit preferences"
 
-    For more information, see \l {kits-tab}{Kits}.
+    For more information, see \l {Kits}.
 
     \section1 Editing Meson Build Descriptions
 

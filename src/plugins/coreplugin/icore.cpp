@@ -54,9 +54,9 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/dropsupport.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/fsengine/fsengine.h>
+#include <utils/guiutils.h>
 #include <utils/historycompleter.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimeutils.h>
@@ -302,7 +302,6 @@ public:
     WindowSupport *m_windowSupport = nullptr;
     EditorManager *m_editorManager = nullptr;
     ExternalToolManager *m_externalToolManager = nullptr;
-    MessageManager *m_messageManager = nullptr;
     ProgressManagerPrivate *m_progressManager = nullptr;
     JsExpander *m_jsExpander = nullptr;
     VcsManager *m_vcsManager = nullptr;
@@ -315,7 +314,7 @@ public:
 
     QList<IContext *> m_activeContext;
 
-    std::unordered_map<QWidget *, IContext *> m_contextWidgets;
+    std::unordered_map<QWidget *, QList<IContext *>> m_contextWidgets;
 
     ShortcutSettings *m_shortcutSettings = nullptr;
     ToolSettings *m_toolSettings = nullptr;
@@ -398,7 +397,7 @@ ICore::ICore()
         QCoreApplication::exit(exitCode);
     });
 
-    Utils::FileUtils::setDialogParentGetter(&ICore::dialogParent);
+    Utils::setDialogParentGetter(&ICore::dialogParent);
 
     d->m_progressManager->init(); // needs the status bar manager
     MessageManager::init();
@@ -835,16 +834,18 @@ QString ICore::versionString()
 }
 
 /*!
-    Returns the top level IContext of the current context, or \c nullptr if
+    Returns a list IContexts for the current top level context widget, or an empty list if
     there is none.
 
     \sa updateAdditionalContexts()
     \sa addContextObject()
     \sa {The Action Manager and Commands}
 */
-IContext *ICore::currentContextObject()
+QList<IContext *> ICore::currentContextObjects()
 {
-    return d->m_activeContext.isEmpty() ? nullptr : d->m_activeContext.first();
+    if (d->m_activeContext.isEmpty())
+        return {};
+    return d->m_contextWidgets[d->m_activeContext.first()->widget()];
 }
 
 /*!
@@ -855,8 +856,7 @@ IContext *ICore::currentContextObject()
 */
 QWidget *ICore::currentContextWidget()
 {
-    IContext *context = currentContextObject();
-    return context ? context->widget() : nullptr;
+    return d->m_activeContext.isEmpty() ? nullptr : d->m_activeContext.first()->widget();
 }
 
 /*!
@@ -1069,6 +1069,8 @@ QString uiConfigInformation()
     QTC_ADD_UIELEMENT_FONT(Body2);
     QTC_ADD_UIELEMENT_FONT(ButtonMedium);
     QTC_ADD_UIELEMENT_FONT(ButtonSmall);
+    QTC_ADD_UIELEMENT_FONT(LabelMedium);
+    QTC_ADD_UIELEMENT_FONT(LabelSmall);
     QTC_ADD_UIELEMENT_FONT(CaptionStrong);
     QTC_ADD_UIELEMENT_FONT(Caption);
     QTC_ADD_UIELEMENT_FONT(IconStandard);
@@ -1405,7 +1407,6 @@ void ICorePrivate::init()
     m_rightNavigationWidget = new NavigationWidget(m_toggleRightSideBarAction, Side::Right);
     m_rightPaneWidget = new RightPaneWidget();
 
-    m_messageManager = new MessageManager;
     m_editorManager = new EditorManager(this);
     m_externalToolManager = new ExternalToolManager();
 
@@ -1464,8 +1465,7 @@ ICorePrivate::~ICorePrivate()
 
     delete m_externalToolManager;
     m_externalToolManager = nullptr;
-    delete m_messageManager;
-    m_messageManager = nullptr;
+    MessageManager::destroy();
     delete m_shortcutSettings;
     m_shortcutSettings = nullptr;
     delete m_toolSettings;
@@ -1534,8 +1534,10 @@ void ICore::extensionsInitialized()
 void ICore::aboutToShutdown()
 {
     disconnect(qApp, &QApplication::focusChanged, d, &ICorePrivate::updateFocusWidget);
-    for (auto contextPair : d->m_contextWidgets)
-        disconnect(contextPair.second, &QObject::destroyed, d->m_mainwindow, nullptr);
+    for (auto contextsPair : d->m_contextWidgets) {
+        for (auto context : contextsPair.second)
+            disconnect(context, &QObject::destroyed, d->m_mainwindow, nullptr);
+    }
     d->m_activeContext.clear();
     d->m_mainwindow->hide();
 }
@@ -1638,6 +1640,7 @@ void ICorePrivate::registerDefaultContainers()
     filemenu->menu()->setTitle(Tr::tr("&File"));
     filemenu->appendGroup(Constants::G_FILE_NEW);
     filemenu->appendGroup(Constants::G_FILE_OPEN);
+    filemenu->appendGroup(Constants::G_FILE_RECENT);
     filemenu->appendGroup(Constants::G_FILE_SESSION);
     filemenu->appendGroup(Constants::G_FILE_PROJECT);
     filemenu->appendGroup(Constants::G_FILE_SAVE);
@@ -1794,7 +1797,7 @@ void ICorePrivate::registerDefaultActions()
 
     // File->Recent Files Menu
     ActionContainer *ac = ActionManager::createMenu(Constants::M_FILE_RECENTFILES);
-    mfile->addMenu(ac, Constants::G_FILE_OPEN);
+    mfile->addMenu(ac, Constants::G_FILE_RECENT);
     ac->menu()->setTitle(Tr::tr("Recent &Files"));
     ac->setOnAllDisabledBehavior(ActionContainer::Show);
 
@@ -2290,13 +2293,14 @@ void ICore::openFileWith()
 }
 
 /*!
-    Returns the registered IContext instance for the specified \a widget,
+    Returns all registered IContext instance for the specified \a widget,
     if any.
 */
-IContext *ICore::contextObject(QWidget *widget)
+QList<IContext *> ICore::contextObjects(QWidget *widget)
 {
-    const auto it = d->m_contextWidgets.find(widget);
-    return it == d->m_contextWidgets.end() ? nullptr : it->second;
+    if (auto it = d->m_contextWidgets.find(widget); it != d->m_contextWidgets.end())
+        return it->second;
+    return {};
 }
 
 /*!
@@ -2315,11 +2319,7 @@ void ICore::addContextObject(IContext *context)
 {
     if (!context)
         return;
-    QWidget *widget = context->widget();
-    if (d->m_contextWidgets.find(widget) != d->m_contextWidgets.end())
-        return;
-
-    d->m_contextWidgets.insert({widget, context});
+    d->m_contextWidgets[context->widget()].append(context);
     connect(context, &QObject::destroyed, m_core, [context] { removeContextObject(context); });
 }
 
@@ -2340,15 +2340,19 @@ void ICore::removeContextObject(IContext *context)
 
     disconnect(context, &QObject::destroyed, m_core, nullptr);
 
-    const auto it = std::find_if(d->m_contextWidgets.cbegin(),
-                                 d->m_contextWidgets.cend(),
-                                 [context](const std::pair<QWidget *, IContext *> &v) {
-                                     return v.second == context;
-                                 });
-    if (it == d->m_contextWidgets.cend())
+    auto it = std::find_if(
+        d->m_contextWidgets.begin(),
+        d->m_contextWidgets.end(),
+        [context](const std::pair<QWidget *, QList<IContext *>> &v) {
+            return v.second.contains(context);
+        });
+    if (it == d->m_contextWidgets.end())
         return;
 
-    d->m_contextWidgets.erase(it);
+    it->second.removeAll(context);
+    if (it->second.isEmpty())
+        d->m_contextWidgets.erase(it);
+
     if (d->m_activeContext.removeAll(context) > 0)
         d->updateContextObject(d->m_activeContext);
 }
@@ -2364,15 +2368,8 @@ void ICorePrivate::updateFocusWidget(QWidget *old, QWidget *now)
         return;
 
     QList<IContext *> newContext;
-    if (QWidget *p = QApplication::focusWidget()) {
-        IContext *context = nullptr;
-        while (p) {
-            context = ICore::contextObject(p);
-            if (context)
-                newContext.append(context);
-            p = p->parentWidget();
-        }
-    }
+    for (QWidget *p = QApplication::focusWidget(); p; p = p->parentWidget())
+        newContext.append(ICore::contextObjects(p));
 
     // ignore toplevels that define no context, like popups without parent
     if (!newContext.isEmpty() || QApplication::focusWidget() == m_mainwindow->focusWidget())

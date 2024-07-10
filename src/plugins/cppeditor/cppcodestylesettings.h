@@ -18,6 +18,7 @@ class CPPEDITOR_EXPORT CppCodeStyleSettings
 public:
     CppCodeStyleSettings();
 
+    QStringList statementMacros;
     bool indentBlockBraces = false;
     bool indentBlockBody = true;
     bool indentClassBraces = false;

@@ -9,20 +9,6 @@
 
     \title Prevent code erosion
 
-    \l{https://www.axivion.com/en/products/axivion-suite/}{Axivion Suite} is
-    a tool suite for protecting software from erosion. With static code analysis,
-    architecture analysis, and code-smells-detection, you can:
-
-    \list
-        \li Check the source code for potential runtime errors.
-        \li Use metrics to generate quantitative information about the
-            internal quality of the source code.
-        \li Run style checks to achieve compliance with coding guidelines.
-        \li Detect both duplicates and similar pieces of code in the source code.
-        \li Recognize cyclical dependencies at different levels.
-        \li Detect unreachable code.
-    \endlist
-
     Connect to an Axivion dashboard server from \QC to view results of code
     analysis.
 
@@ -132,8 +118,9 @@
     select the link in the details or in the \uicontrol {Right Path}
     or \uicontrol {Target Path} column.
 
-    \sa {Enable and disable plugins}, {Link projects to Axivion dashboards},
-    {Axivion}
+    \sa {Enable and disable plugins}, {Analyze}{How To: Analyze},
+    {Link projects to Axivion dashboards}, {Analyzers}, {Axivion},
+    {Analyzing Code}
 */
 
 /*!
@@ -153,12 +140,18 @@
 
     To connect to an Axivion dashboard server:
 
-    \list 1
-        \li Select \uicontrol Edit to create a connection to the Axivion
+    \list
+        \li Select \uicontrol Add to add a new connection to an Axivion
             dashboard server.
+        \li Select \uicontrol Edit to modify an existing connection to
+            an Axivion dashboard server.
             \image qtcreator-edit-dashboard-configuration.webp {Edit Dashboard Configuration dialog}
-        \li In \uicontrol {Dashboard URL}, enter the URL of the server.
-        \li In \uicontrol Username, enter the username to access the server.
+            \list
+                \li In \uicontrol {Dashboard URL}, enter the URL of the server.
+                \li In \uicontrol Username, enter the username to access the server.
+            \endlist
+        \li Select \uicontrol Remove to remove the current selected connection
+            to an Axivion dashboard server.
     \endlist
 
     The first time you access the server, you must enter the password that
@@ -186,6 +179,8 @@
         \li Go to \uicontrol Projects > \uicontrol {Project Settings} >
             \uicontrol Axivion.
             \image qtcreator-preferences-axivion-project.webp {Axivion settings in Project Settings}
+        \li From \uicontrol {Dashboard} select one of the configured Axivion
+            dashboard configurations.
         \li Select \uicontrol {Fetch Projects} to list projects from Axivion.
         \li Select a project, and then select \uicontrol {Link Project} to link
             to it.

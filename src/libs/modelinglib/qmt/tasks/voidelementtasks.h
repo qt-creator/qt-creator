@@ -51,8 +51,13 @@ public:
     void createAndOpenDiagram(const MElement *) override;
     void createAndOpenDiagram(const DElement *, const MDiagram *) override;
 
+    bool hasLinkedFile(const qmt::MElement *) const override;
+    bool hasLinkedFile(const qmt::DElement *, const qmt::MDiagram *) const override;
+    void openLinkedFile(const qmt::MElement *) override;
+    void openLinkedFile(const qmt::DElement *, const qmt::MDiagram *) override;
+
     bool extendContextMenu(const DElement *, const MDiagram *, QMenu *) override;
-    bool handleContextMenuAction(const DElement *, const MDiagram *, const QString &) override;
+    bool handleContextMenuAction(DElement *, MDiagram *, const QString &) override;
 };
 
 } // namespace qmt

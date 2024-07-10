@@ -11,7 +11,7 @@
 
     \brief Settings for building applications with the Conan package manager.
 
-    Specify build settings for the selected \l{glossary-buildandrun-kit}{kit} in
+    Specify build settings for the selected \l{Kits}{kit} in
     \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol Build >
     \uicontrol {Build Settings}.
 
@@ -30,5 +30,5 @@
     Select \uicontrol {Build missing} to build packages from source if binary
     packages are not found.
 
-    \sa {Conan Package Manager}
+    \sa {Activate kits for a project}, {Conan Package Manager}
 */

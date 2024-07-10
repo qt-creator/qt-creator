@@ -44,8 +44,10 @@
         \li Select \uicontrol{Next} or \uicontrol Continue to open the
             \uicontrol {Kit Selection} dialog.
             \image qtcreator-new-project-qt-for-python-kit-selection.webp {Selecting a kit for a Python project}
-        \li Select Qt for Python kits for building, deploying, and running the
-            project.
+        \li Select Python kits for building, deploying, and running the
+            project. By default, this creates a virtual environment for the project inside
+            the source directory. To use the global interpreter, select the build configuration
+            with the same name as the Python of the kit in \uicontrol{Details}.
         \li Review the project settings, and select \uicontrol {Finish} (on
             Windows and Linux) or \uicontrol Done (on \macos) to create the
             project.
@@ -59,7 +61,8 @@
         \li \c {main.py}, which has some boilerplate code.
         \li \c {main.qml}, which imports Qt Quick controls.
         \li \c {reguirements.txt}, which stores the PySide version of the
-            generated code.
+            generated code. You can use this file to install the required PySide version
+            using pip.
     \endlist
 
     \section1 Adding Qt Quick Imports

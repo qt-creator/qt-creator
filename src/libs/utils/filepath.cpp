@@ -19,9 +19,11 @@
 #include <QFileInfo>
 #include <QRegularExpression>
 #include <QStringView>
-#include <QUrl>
-#include <QtGlobal>
 #include <QTemporaryFile>
+#include <QUrl>
+
+#include <QtConcurrent>
+#include <QtGlobal>
 
 #ifdef Q_OS_WIN
 #ifdef QTCREATOR_PCH_H
@@ -289,6 +291,31 @@ QString FilePath::toString() const
     if (isRelativePath())
         return scheme() + "://" + encodedHost() + "/./" + pathView();
     return scheme() + "://" + encodedHost() + pathView();
+}
+
+bool FilePath::equals(const FilePath &first, const FilePath &second, Qt::CaseSensitivity cs)
+{
+    if (first.m_hash != 0 && second.m_hash != 0 && first.m_hash != second.m_hash)
+        return false;
+
+    return first.pathView().compare(second.pathView(), cs) == 0
+           && first.host() == second.host()
+           && first.scheme() == second.scheme();
+}
+
+/*!
+ * Returns true if the two file paths compare equal case-sensitively.
+ * This is relevant on semi-case sensitive systems like Windows with NTFS.
+ * @see QTCREATORBUG-30846
+ */
+bool FilePath::equalsCaseSensitive(const FilePath &other) const
+{
+    return equals(*this, other, Qt::CaseSensitive);
+}
+
+Utils::expected_str<std::unique_ptr<FilePathWatcher>> FilePath::watch() const
+{
+    return fileAccess()->watch(*this);
 }
 
 /*!
@@ -655,9 +682,9 @@ bool FilePath::ensureReachable(const FilePath &other) const
     return false;
 }
 
-expected_str<qint64> FilePath::writeFileContents(const QByteArray &data, qint64 offset) const
+expected_str<qint64> FilePath::writeFileContents(const QByteArray &data) const
 {
-    return fileAccess()->writeFileContents(*this, data, offset);
+    return fileAccess()->writeFileContents(*this, data);
 }
 
 FileStreamHandle FilePath::asyncCopy(const FilePath &target, QObject *context,
@@ -1228,6 +1255,9 @@ FilePathInfo FilePath::filePathInfo() const
 */
 bool FilePath::exists() const
 {
+    if (isEmpty())
+        return false;
+
     const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return false;
@@ -1240,6 +1270,9 @@ bool FilePath::exists() const
 */
 bool FilePath::isExecutableFile() const
 {
+    if (isEmpty())
+        return false;
+
     const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return false;
@@ -1252,6 +1285,9 @@ bool FilePath::isExecutableFile() const
 */
 bool FilePath::isWritableDir() const
 {
+    if (isEmpty())
+        return false;
+
     const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return false;
@@ -1264,6 +1300,9 @@ bool FilePath::isWritableDir() const
 */
 bool FilePath::isWritableFile() const
 {
+    if (isEmpty())
+        return false;
+
     const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return false;
@@ -1271,9 +1310,11 @@ bool FilePath::isWritableFile() const
     return (*access)->isWritableFile(*this);
 }
 
-
 bool FilePath::isReadableFile() const
 {
+    if (isEmpty())
+        return false;
+
     const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return false;
@@ -1283,6 +1324,9 @@ bool FilePath::isReadableFile() const
 
 bool FilePath::isReadableDir() const
 {
+    if (isEmpty())
+        return false;
+
     const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return false;
@@ -1292,6 +1336,9 @@ bool FilePath::isReadableDir() const
 
 bool FilePath::isFile() const
 {
+    if (isEmpty())
+        return false;
+
     const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return false;
@@ -1301,6 +1348,9 @@ bool FilePath::isFile() const
 
 bool FilePath::isDir() const
 {
+    if (isEmpty())
+        return false;
+
     const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return false;
@@ -1310,6 +1360,9 @@ bool FilePath::isDir() const
 
 bool FilePath::isSymLink() const
 {
+    if (isEmpty())
+        return false;
+
     const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
     if (!access)
         return false;
@@ -1365,7 +1418,7 @@ FilePath FilePath::fromUtf8(const char *filename, int filenameSize)
 
 FilePath FilePath::fromSettings(const QVariant &variant)
 {
-    if (variant.type() == QVariant::Url) {
+    if (variant.typeId() == QMetaType::QUrl) {
         const QUrl url = variant.toUrl();
         return FilePath::fromParts(url.scheme(), url.host(), url.path());
     }
@@ -1497,21 +1550,28 @@ FilePath FilePath::relativePathFrom(const FilePath &anchor) const
 
     FilePath absPath;
     QString filename;
-    if (isFile()) {
+
+    const QList<FilePathInfo> infos
+        = QtConcurrent::blockingMapped(QList<FilePath>{*this, anchor}, [](const FilePath &path) {
+              return path.filePathInfo();
+          });
+
+    if (infos.first().fileFlags.testFlag(FilePathInfo::FileFlag::FileType)) {
         absPath = absolutePath();
         filename = fileName();
-    } else if (isDir()) {
+    } else if (infos.first().fileFlags.testFlag(FilePathInfo::FileFlag::DirectoryType)) {
         absPath = absoluteFilePath();
     } else {
         return {};
     }
     FilePath absoluteAnchorPath;
-    if (anchor.isFile())
+    if (infos.last().fileFlags.testFlag(FilePathInfo::FileFlag::FileType))
         absoluteAnchorPath = anchor.absolutePath();
-    else if (anchor.isDir())
+    else if (infos.last().fileFlags.testFlag(FilePathInfo::FileFlag::DirectoryType))
         absoluteAnchorPath = anchor.absoluteFilePath();
     else
         return {};
+
     QString relativeFilePath = calcRelativePath(absPath.pathView(), absoluteAnchorPath.pathView());
     if (!filename.isEmpty()) {
         if (relativeFilePath == ".")
@@ -2319,12 +2379,7 @@ DeviceFileHooks &DeviceFileHooks::instance()
 
 QTCREATOR_UTILS_EXPORT bool operator==(const FilePath &first, const FilePath &second)
 {
-    if (first.m_hash != 0 && second.m_hash != 0 && first.m_hash != second.m_hash)
-        return false;
-
-    return first.pathView().compare(second.pathView(), first.caseSensitivity()) == 0
-        && first.host() == second.host()
-        && first.scheme() == second.scheme();
+    return FilePath::equals(first, second, first.caseSensitivity());
 }
 
 QTCREATOR_UTILS_EXPORT bool operator!=(const FilePath &first, const FilePath &second)

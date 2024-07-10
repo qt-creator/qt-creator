@@ -9,6 +9,7 @@
 #include "qmt/stereotype/stereotypeicon.h"
 
 #include <QBrush>
+#include <QImage>
 #include <QPen>
 
 namespace qmt {
@@ -26,6 +27,9 @@ public:
     void setActualSize(const QSizeF &actualSize);
     void setBrush(const QBrush &brush);
     void setPen(const QPen &pen);
+    QImage image() const { return m_image; }
+    bool hasImage() const { return !m_image.isNull(); }
+    void setImage(const QImage &image);
     StereotypeIcon stereotypeIcon() const { return m_stereotypeIcon; }
     double shapeWidth() const;
     double shapeHeight() const;
@@ -43,6 +47,7 @@ private:
     QSizeF m_actualSize;
     QBrush m_brush;
     QPen m_pen;
+    QImage m_image;
 };
 
 } // namespace qmt

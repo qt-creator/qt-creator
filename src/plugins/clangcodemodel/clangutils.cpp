@@ -9,8 +9,8 @@
 #include <coreplugin/idocument.h>
 #include <cppeditor/baseeditordocumentparser.h>
 #include <cppeditor/clangdiagnosticconfigsmodel.h>
+#include <cppeditor/clangdsettings.h>
 #include <cppeditor/compileroptionsbuilder.h>
-#include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cpptoolsreuse.h>
 #include <cppeditor/editordocumenthandle.h>
@@ -146,27 +146,27 @@ static QJsonObject createFileObject(const FilePath &buildDir,
     return fileObject;
 }
 
-GenerateCompilationDbResult generateCompilationDB(QList<ProjectInfo::ConstPtr> projectInfoList,
-                                                  FilePath baseDir,
-                                                  CompilationDbPurpose purpose,
-                                                  ClangDiagnosticConfig warningsConfig,
-                                                  QStringList projectOptions,
-                                                  FilePath clangIncludeDir)
+void generateCompilationDB(
+    QPromise<expected_str<FilePath>> &promise,
+    const QList<ProjectInfo::ConstPtr> &projectInfoList,
+    const FilePath &baseDir,
+    CompilationDbPurpose purpose,
+    const ClangDiagnosticConfig &warningsConfig,
+    const QStringList &projectOptions,
+    const FilePath &clangIncludeDir)
 {
-    QTC_ASSERT(!baseDir.isEmpty(), return GenerateCompilationDbResult(QString(),
-        Tr::tr("Could not retrieve build directory.")));
-    QTC_ASSERT(!projectInfoList.isEmpty(),
-               return GenerateCompilationDbResult(QString(), "Could not retrieve project info."));
+    QTC_ASSERT(!baseDir.isEmpty(),
+        promise.addResult(make_unexpected(Tr::tr("Could not retrieve build directory."))); return);
     QTC_CHECK(baseDir.ensureWritableDir());
     QFile compileCommandsFile(baseDir.pathAppended("compile_commands.json").toFSPathString());
     const bool fileOpened = compileCommandsFile.open(QIODevice::WriteOnly | QIODevice::Truncate);
     if (!fileOpened) {
-        return GenerateCompilationDbResult(QString(), Tr::tr("Could not create \"%1\": %2")
-                    .arg(compileCommandsFile.fileName(), compileCommandsFile.errorString()));
+        promise.addResult(make_unexpected(Tr::tr("Could not create \"%1\": %2")
+            .arg(compileCommandsFile.fileName(), compileCommandsFile.errorString())));
+        return;
     }
     compileCommandsFile.write("[");
 
-    const UsePrecompiledHeaders usePch = getPchUsage();
     const QJsonArray jsonProjectOptions = QJsonArray::fromStringList(projectOptions);
     for (const ProjectInfo::ConstPtr &projectInfo : std::as_const(projectInfoList)) {
         QTC_ASSERT(projectInfo, continue);
@@ -183,9 +183,17 @@ GenerateCompilationDbResult generateCompilationDB(QList<ProjectInfo::ConstPtr> p
                                                    jsonProjectOptions);
             }
             for (const ProjectFile &projFile : projectPart->files) {
-                const QJsonObject json = createFileObject(baseDir, args, *projectPart, projFile,
-                                                          purpose, ppOptions, usePch,
-                                                          optionsBuilder.isClStyle());
+                if (promise.isCanceled())
+                    return;
+                const QJsonObject json
+                    = createFileObject(baseDir,
+                                       args,
+                                       *projectPart,
+                                       projFile,
+                                       purpose,
+                                       ppOptions,
+                                       projectInfo->settings().usePrecompiledHeaders(),
+                                       optionsBuilder.isClStyle());
                 if (compileCommandsFile.size() > 1)
                     compileCommandsFile.write(",");
                 compileCommandsFile.write(QJsonDocument(json).toJson(QJsonDocument::Compact));
@@ -195,7 +203,7 @@ GenerateCompilationDbResult generateCompilationDB(QList<ProjectInfo::ConstPtr> p
 
     compileCommandsFile.write("]");
     compileCommandsFile.close();
-    return GenerateCompilationDbResult(compileCommandsFile.fileName(), QString());
+    promise.addResult(FilePath::fromUserInput(compileCommandsFile.fileName()));
 }
 
 FilePath currentCppEditorDocumentFilePath()
@@ -256,7 +264,6 @@ QString DiagnosticTextInfo::clazyCheckName(const QString &option)
         return option.mid(8); // Chop "-Wclazy-"
     return option;
 }
-
 
 QJsonArray clangOptionsForFile(const ProjectFile &file, const ProjectPart &projectPart,
                                const QJsonArray &generalOptions, UsePrecompiledHeaders usePch,

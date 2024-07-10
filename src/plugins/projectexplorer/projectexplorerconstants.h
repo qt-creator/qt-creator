@@ -88,6 +88,7 @@ const char BUILD_AND_RUN_SETTINGS_CATEGORY[]  = "K.BuildAndRun";
 
 // Build and Run page
 const char BUILD_AND_RUN_SETTINGS_PAGE_ID[] = "A.ProjectExplorer.BuildAndRunOptions";
+const char SHOW_ALL_KITS_SETTINGS_KEY[] = "ProjectExplorer/Settings/ShowAllKits";
 
 // Device settings page
 const char DEVICE_SETTINGS_CATEGORY[] = "AM.Devices";
@@ -170,6 +171,7 @@ const char NORMAL_RUN_MODE[]="RunConfiguration.NormalRunMode";
 const char DEBUG_RUN_MODE[]="RunConfiguration.DebugRunMode";
 const char DAP_CMAKE_DEBUG_RUN_MODE[]="RunConfiguration.CmakeDebugRunMode";
 const char DAP_GDB_DEBUG_RUN_MODE[]="RunConfiguration.DapGdbDebugRunMode";
+const char DAP_LLDB_DEBUG_RUN_MODE[]="RunConfiguration.DapLldbDebugRunMode";
 const char DAP_PY_DEBUG_RUN_MODE[]="RunConfiguration.DapPyDebugRunMode";
 const char QML_PROFILER_RUN_MODE[]="RunConfiguration.QmlProfilerRunMode";
 const char QML_PROFILER_RUNNER[]="RunConfiguration.QmlProfilerRunner";

@@ -105,6 +105,8 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
     {
         // Delay the restoration to allow the devices to load first.
         QTimer::singleShot(0, this, [] { CMakeToolManager::restoreCMakeTools(); });
+
+        setupOnlineHelpManager();
     }
 
     void updateContextActions(ProjectExplorer::Node *node)

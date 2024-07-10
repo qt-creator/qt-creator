@@ -502,16 +502,30 @@ Project *ProjectManager::projectForFile(const FilePath &fileName)
             [&fileName](const Project *p) { return p->isKnownFile(fileName); })) {
         return project;
     }
-    return Utils::findOrDefault(ProjectManager::projects(),
-                                [&fileName](const Project *p) {
-        for (const Target * const target : p->targets()) {
-            for (const BuildConfiguration * const bc : target->buildConfigurations()) {
-                if (fileName.isChildOf(bc->buildDirectory()))
-                    return false;
+    return Utils::findOrDefault(ProjectManager::projects(), [&fileName](const Project *p) {
+        return isInProjectSourceDir(fileName, *p);
+    });
+}
+
+bool ProjectManager::isInProjectSourceDir(const Utils::FilePath &filePath, const Project &project)
+{
+    for (const Target * const target : project.targets()) {
+        for (const BuildConfiguration * const bc : target->buildConfigurations()) {
+            if (filePath.isChildOf(bc->buildDirectory()))
+                return false;
+            if (const FilePath canonicalBuildDir = bc->buildDirectory().canonicalPath();
+                canonicalBuildDir != bc->buildDirectory() && filePath.isChildOf(canonicalBuildDir)) {
+                return false;
             }
         }
-        return fileName.isChildOf(p->projectDirectory());
-    });
+    }
+    if (filePath.isChildOf(project.projectDirectory()))
+        return true;
+    if (const FilePath canonicalRoot = project.projectDirectory().canonicalPath();
+        canonicalRoot != project.projectDirectory()) {
+        return filePath.isChildOf(canonicalRoot);
+    }
+    return false;
 }
 
 Project *ProjectManager::projectWithProjectFilePath(const FilePath &filePath)

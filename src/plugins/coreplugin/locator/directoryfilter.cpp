@@ -6,8 +6,6 @@
 #include "locator.h"
 #include "../coreplugintr.h"
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/fileutils.h>
@@ -41,7 +39,7 @@ const char kFilesKey[] = "files";
 const char kExclusionFiltersKey[] = "exclusionFilters";
 
 const QStringList kFiltersDefault = {"*.h", "*.cpp", "*.ui", "*.qrc"};
-const QStringList kExclusionFiltersDefault = {"*/.git/*", "*/.cvs/*", "*/.svn/*"};
+const QStringList kExclusionFiltersDefault = {"*/.git/*", "*/.cvs/*", "*/.svn/*", "*/build/*"};
 
 static QString defaultDisplayName()
 {
@@ -89,7 +87,6 @@ DirectoryFilter::DirectoryFilter(Id id)
         return SetupResult::StopWithSuccess; // Group stops, skips async task
     };
     const auto onSetup = [this](Async<FilePaths> &async) {
-        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(&refresh, m_directories, m_filters, m_exclusionFilters,
                                     displayName());
     };
@@ -148,42 +145,6 @@ void DirectoryFilter::restoreState(const QJsonObject &object)
     m_exclusionFilters = toStringList(
         object.value(kExclusionFiltersKey)
             .toArray(QJsonArray::fromStringList(kExclusionFiltersDefault)));
-}
-
-void DirectoryFilter::restoreState(const QByteArray &state)
-{
-    if (isOldSetting(state)) {
-        // TODO read old settings, remove some time after Qt Creator 4.15
-        QString name;
-        QStringList directories;
-        QString shortcut;
-        bool defaultFilter;
-        QStringList files;
-
-        QDataStream in(state);
-        in >> name;
-        in >> directories;
-        in >> m_filters;
-        in >> shortcut;
-        in >> defaultFilter;
-        in >> files;
-        m_cache.setFilePaths(FileUtils::toFilePathList(files));
-        if (!in.atEnd()) // Qt Creator 4.3 and later
-            in >> m_exclusionFilters;
-        else
-            m_exclusionFilters.clear();
-
-        if (m_isCustomFilter) {
-            m_directories = Utils::transform(directories, [](const QString &d) {
-                return FilePath::fromString(d);
-            });
-        }
-        setDisplayName(name);
-        setShortcutString(shortcut);
-        setIncludedByDefault(defaultFilter);
-    } else {
-        ILocatorFilter::restoreState(state);
-    }
 }
 
 class DirectoryFilterOptions : public QDialog

@@ -472,6 +472,21 @@ void popupResultsPane()
         dd->m_resultsPane->popup(Core::IOutputPane::NoModeSwitch);
 }
 
+QString wildcardPatternFromString(const QString &original)
+{
+    QString pattern = original;
+    pattern.replace('\\', "\\\\");
+    pattern.replace('.', "\\.");
+    pattern.replace('^', "\\^").replace('$', "\\$");
+    pattern.replace('(', "\\(").replace(')', "\\)");
+    pattern.replace('[', "\\[").replace(']', "\\]");
+    pattern.replace('{', "\\{").replace('}', "\\}");
+    pattern.replace('+', "\\+");
+    pattern.replace('*', ".*");
+    pattern.replace('?', '.');
+    return pattern;
+}
+
 bool ChoicePair::matches(const ProjectExplorer::RunConfiguration *rc) const
 {
     return rc && rc->displayName() == displayName && rc->runnable().command.executable() == executable;

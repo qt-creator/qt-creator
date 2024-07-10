@@ -207,34 +207,6 @@ void UrlLocatorFilter::restoreState(const QJsonObject &object)
                                     &QVariant::toString);
 }
 
-void UrlLocatorFilter::restoreState(const QByteArray &state)
-{
-    if (isOldSetting(state)) {
-        // TODO read old settings, remove some time after Qt Creator 4.15
-        QDataStream in(state);
-
-        QString value;
-        in >> value;
-        m_remoteUrls = value.split('^', Qt::SkipEmptyParts);
-
-        QString shortcut;
-        in >> shortcut;
-        setShortcutString(shortcut);
-
-        bool defaultFilter;
-        in >> defaultFilter;
-        setIncludedByDefault(defaultFilter);
-
-        if (!in.atEnd()) {
-            QString name;
-            in >> name;
-            setDisplayName(name);
-        }
-    } else {
-        ILocatorFilter::restoreState(state);
-    }
-}
-
 bool UrlLocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
 {
     Q_UNUSED(needsRefresh)

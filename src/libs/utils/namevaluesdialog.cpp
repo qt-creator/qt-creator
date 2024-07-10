@@ -60,11 +60,12 @@ NameValueItemsWidget::NameValueItemsWidget(QWidget *parent)
     const QString helpText = Tr::tr(
         "Enter one environment variable per line.\n"
         "To set or change a variable, use VARIABLE=VALUE.\n"
+        "To disable a variable, prefix this line with \"#\".\n"
         "To append to a variable, use VARIABLE+=VALUE.\n"
         "To prepend to a variable, use VARIABLE=+VALUE.\n"
         "Existing variables can be referenced in a VALUE with ${OTHER}.\n"
         "To clear a variable, put its name on a line with nothing else on it.\n"
-        "To disable a variable, prefix the line with \"#\".");
+        "Lines starting with \"##\" will be treated as comments.");
 
     m_editor = new Internal::TextEditHelper(this);
     auto layout = new QVBoxLayout(this);
@@ -72,21 +73,14 @@ NameValueItemsWidget::NameValueItemsWidget(QWidget *parent)
     layout->addWidget(m_editor);
     layout->addWidget(new QLabel(helpText, this));
 
-    const auto checkForItemChange = [this] {
-        const EnvironmentItems newItems = environmentItems();
-        if (newItems != m_originalItems) {
-            m_originalItems = newItems;
-            emit userChangedItems(newItems);
-        }
-    };
     const auto timer = new QTimer(this);
     timer->setSingleShot(true);
     timer->setInterval(1000);
     connect(m_editor, &QPlainTextEdit::textChanged, timer, qOverload<>(&QTimer::start));
-    connect(timer, &QTimer::timeout, this, checkForItemChange);
-    connect(m_editor, &Internal::TextEditHelper::lostFocus, this, [timer, checkForItemChange] {
+    connect(timer, &QTimer::timeout, this, &NameValueItemsWidget::forceUpdateCheck);
+    connect(m_editor, &Internal::TextEditHelper::lostFocus, this, [this, timer] {
         timer->stop();
-        checkForItemChange();
+        forceUpdateCheck();
     });
 }
 
@@ -141,7 +135,7 @@ bool NameValueItemsWidget::editVariable(const QString &name, Selection selection
         skipWhiteSpace();
         if (offset < line.length()) {
             QChar nextChar = line.at(offset);
-            if (nextChar.isLetterOrNumber())
+            if (nextChar.isLetterOrNumber() || nextChar == '_')
                 continue;
             if (nextChar == '=') {
                 if (++offset < line.length() && line.at(offset) == '+')
@@ -156,6 +150,15 @@ bool NameValueItemsWidget::editVariable(const QString &name, Selection selection
         return true;
     }
     return false;
+}
+
+void NameValueItemsWidget::forceUpdateCheck()
+{
+    const EnvironmentItems newItems = environmentItems();
+    if (newItems != m_originalItems) {
+        m_originalItems = newItems;
+        emit userChangedItems(newItems);
+    }
 }
 
 NameValuesDialog::NameValuesDialog(const QString &windowTitle, QWidget *parent)

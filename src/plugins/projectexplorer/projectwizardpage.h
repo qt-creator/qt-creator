@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "projectexplorer_export.h"
 #include "projectnodes.h"
 
 #include <coreplugin/generatedfile.h>
@@ -25,9 +26,10 @@ namespace ProjectExplorer {
 namespace Internal {
 
 class AddNewTree;
+}
 
 // Documentation inside.
-class ProjectWizardPage : public Utils::WizardPage
+class PROJECTEXPLORER_EXPORT ProjectWizardPage : public Utils::WizardPage
 {
     Q_OBJECT
 
@@ -59,10 +61,12 @@ signals:
     void projectNodeChanged();
     void versionControlChanged(int);
 
+protected:
+    void setVersionControlUiElementsVisible(bool visible);
+
 private:
     void projectChanged(int);
     void manageVcs();
-    void hideVersionControlUiElements();
 
     void setAdditionalInfo(const QString &text);
     void setAddingSubProject(bool addingSubProject);
@@ -87,5 +91,4 @@ private:
     QLabel *m_filesLabel;
 };
 
-} // namespace Internal
 } // namespace ProjectExplorer

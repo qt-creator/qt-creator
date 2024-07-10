@@ -57,6 +57,8 @@ protected:
     bool visit(AST::FunctionDeclaration *ast) override;
     bool visit(AST::FunctionExpression *ast) override;
     bool visit(AST::UiObjectInitializer *) override;
+    bool visit(AST::UiEnumDeclaration *ast) override;
+    bool visit(AST::UiEnumMemberList *ast) override;
 
     bool visit(AST::TemplateLiteral *ast) override;
     bool visit(AST::BinaryExpression *ast) override;

@@ -106,7 +106,7 @@ CommentsSettingsWidget::CommentsSettingsWidget(const CommentsSettings::Data &set
     const auto commandPrefixLabel = new QLabel(Tr::tr("Doxygen command prefix:"));
     const QString commandPrefixToolTip = Tr::tr(R"(Doxygen allows "@" and "\" to start commands.
 By default, "@" is used if the surrounding comment starts with "/**" or "///", and "\" is used
-if the comment starts with "/*!" or "//!)");
+if the comment starts with "/*!" or "//!".)");
     commandPrefixLabel->setToolTip(commandPrefixToolTip);
     d->m_commandPrefixComboBox.setToolTip(commandPrefixToolTip);
     d->m_commandPrefixComboBox.addItem(Tr::tr("Automatic"));

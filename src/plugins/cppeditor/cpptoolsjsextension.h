@@ -39,7 +39,6 @@ public:
     // Fix the filename casing as configured in C++/File Naming:
     Q_INVOKABLE QString classToFileName(const QString &klass,
                                         const QString &extension) const;
-    Q_INVOKABLE QString classToHeaderGuard(const QString &klass, const QString &extension) const;
     Q_INVOKABLE QString openNamespaces(const QString &klass) const;
     Q_INVOKABLE QString closeNamespaces(const QString &klass) const;
     Q_INVOKABLE bool hasQObjectParent(const QString &klassName) const;

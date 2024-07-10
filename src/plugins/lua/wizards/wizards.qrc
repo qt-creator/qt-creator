@@ -1,0 +1,13 @@
+<RCC>
+  <qresource prefix="/lua/wizards">
+    <file>luafile/wizard.json</file>
+    <file>luafile/script.lua</file>
+    <file>plugin/init.lua.tpl</file>
+    <file>plugin/plugin.lua.tpl</file>
+    <file>plugin/project.json</file>
+    <file>plugin/wizard.json</file>
+    <file>plugin/.luarc.json</file>
+    <file>plugin/icon.png</file>
+    <file>plugin/icon@2x.png</file>
+  </qresource>
+</RCC>

@@ -189,18 +189,18 @@ bool AbstractProcessStep::setupProcess(Process &process)
     process.setEnvironment(envWithPwd);
     process.setCommand({d->m_param.effectiveCommand(), d->m_param.effectiveArguments(),
                         CommandLine::Raw});
-    if (d->m_lowPriority && ProjectExplorerPlugin::projectExplorerSettings().lowBuildPriority)
+    if (d->m_lowPriority && projectExplorerSettings().lowBuildPriority)
         process.setLowPriority();
 
     process.setStdOutCodec(buildEnvironment().hasKey("VSLANG")
                                ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForLocale());
     process.setStdErrCodec(QTextCodec::codecForLocale());
 
-    process.setStdOutLineCallback([this](const QString &s){
+    process.setStdOutCallback([this](const QString &s){
         emit addOutput(s, OutputFormat::Stdout, DontAppendNewline);
     });
 
-    process.setStdErrLineCallback([this](const QString &s){
+    process.setStdErrCallback([this](const QString &s){
         emit addOutput(s, OutputFormat::Stderr, DontAppendNewline);
     });
 

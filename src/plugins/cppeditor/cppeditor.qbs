@@ -45,6 +45,8 @@ QtcPlugin {
         "clangdiagnosticconfigsselectionwidget.h",
         "clangdiagnosticconfigswidget.cpp",
         "clangdiagnosticconfigswidget.h",
+        "clangdsettings.cpp",
+        "clangdsettings.h",
         "compileroptionsbuilder.cpp",
         "compileroptionsbuilder.h",
         "cppautocompleter.cpp",
@@ -63,8 +65,6 @@ QtcPlugin {
         "cppcodemodelinspectordumper.h",
         "cppcodemodelsettings.cpp",
         "cppcodemodelsettings.h",
-        "cppcodemodelsettingspage.cpp",
-        "cppcodemodelsettingspage.h",
         "cppcodestylepreferences.cpp",
         "cppcodestylepreferences.h",
         "cppcodestylepreferencesfactory.cpp",
@@ -119,8 +119,6 @@ QtcPlugin {
         "cppincludesfilter.h",
         "cppindexingsupport.cpp",
         "cppindexingsupport.h",
-        "cppinsertvirtualmethods.cpp",
-        "cppinsertvirtualmethods.h",
         "cpplocalrenaming.cpp",
         "cpplocalrenaming.h",
         "cpplocalsymbols.cpp",
@@ -153,22 +151,6 @@ QtcPlugin {
         "cppprojectinfogenerator.h",
         "cppprojectupdater.cpp",
         "cppprojectupdater.h",
-        "cppquickfix.cpp",
-        "cppquickfix.h",
-        "cppquickfixassistant.cpp",
-        "cppquickfixassistant.h",
-        "cppquickfixes.cpp",
-        "cppquickfixes.h",
-        "cppquickfixprojectsettings.cpp",
-        "cppquickfixprojectsettings.h",
-        "cppquickfixprojectsettingswidget.cpp",
-        "cppquickfixprojectsettingswidget.h",
-        "cppquickfixsettings.cpp",
-        "cppquickfixsettings.h",
-        "cppquickfixsettingspage.cpp",
-        "cppquickfixsettingspage.h",
-        "cppquickfixsettingswidget.cpp",
-        "cppquickfixsettingswidget.h",
         "cppqtstyleindenter.cpp",
         "cppqtstyleindenter.h",
         "cpprefactoringchanges.cpp",
@@ -234,6 +216,79 @@ QtcPlugin {
     ]
 
     Group {
+        name: "Quickfixes"
+        prefix: "quickfixes/"
+        files: [
+            "assigntolocalvariable.cpp",
+            "assigntolocalvariable.h",
+            "bringidentifierintoscope.cpp",
+            "bringidentifierintoscope.h",
+            "completeswitchstatement.cpp",
+            "completeswitchstatement.h",
+            "convertfromandtopointer.cpp",
+            "convertfromandtopointer.h",
+            "convertnumericliteral.cpp",
+            "convertnumericliteral.h",
+            "convertqt4connect.cpp",
+            "convertqt4connect.h",
+            "convertstringliteral.cpp",
+            "convertstringliteral.h",
+            "converttocamelcase.cpp",
+            "converttocamelcase.h",
+            "converttometamethodcall.cpp",
+            "converttometamethodcall.h",
+            "cppcodegenerationquickfixes.cpp",
+            "cppcodegenerationquickfixes.h",
+            "cppinsertvirtualmethods.cpp",
+            "cppinsertvirtualmethods.h",
+            "cppquickfix.cpp",
+            "cppquickfix.h",
+            "cppquickfixassistant.cpp",
+            "cppquickfixassistant.h",
+            "cppquickfixhelpers.cpp",
+            "cppquickfixhelpers.h",
+            "cppquickfixprojectsettings.cpp",
+            "cppquickfixprojectsettings.h",
+            "cppquickfixprojectsettingswidget.cpp",
+            "cppquickfixprojectsettingswidget.h",
+            "cppquickfixsettings.cpp",
+            "cppquickfixsettings.h",
+            "cppquickfixsettingspage.cpp",
+            "cppquickfixsettingspage.h",
+            "cppquickfixsettingswidget.cpp",
+            "cppquickfixsettingswidget.h",
+            "createdeclarationfromuse.cpp",
+            "createdeclarationfromuse.h",
+            "extractfunction.cpp",
+            "extractfunction.h",
+            "extractliteralasparameter.cpp",
+            "extractliteralasparameter.h",
+            "insertfunctiondefinition.cpp",
+            "insertfunctiondefinition.h",
+            "logicaloperationquickfixes.cpp",
+            "logicaloperationquickfixes.h",
+            "moveclasstoownfile.cpp",
+            "moveclasstoownfile.h",
+            "movefunctiondefinition.cpp",
+            "movefunctiondefinition.h",
+            "rearrangeparamdeclarationlist.cpp",
+            "rearrangeparamdeclarationlist.h",
+            "reformatpointerdeclaration.cpp",
+            "reformatpointerdeclaration.h",
+            "removeusingnamespace.cpp",
+            "removeusingnamespace.h",
+            "rewritecomment.cpp",
+            "rewritecomment.h",
+            "rewritecontrolstatements.cpp",
+            "rewritecontrolstatements.h",
+            "splitsimpledeclaration.cpp",
+            "splitsimpledeclaration.h",
+            "synchronizememberfunctionorder.cpp",
+            "synchronizememberfunctionorder.h",
+        ]
+    }
+
+    Group {
         name: "TestCase"
         condition: qtc.withPluginTests || qtc.withAutotests
         files: [
@@ -244,6 +299,16 @@ QtcPlugin {
 
     QtcTestFiles {
         cpp.defines: outer.concat(['SRCDIR="' + FileInfo.path(filePath) + '"'])
+
+        Group {
+            name: "Quickfix tests"
+            prefix: "quickfixes/"
+            files: [
+                "cppquickfix_test.cpp",
+                "cppquickfix_test.h",
+            ]
+        }
+
         files: [
             "compileroptionsbuilder_test.cpp",
             "compileroptionsbuilder_test.h",
@@ -263,8 +328,6 @@ QtcPlugin {
             "cppmodelmanager_test.h",
             "cpppointerdeclarationformatter_test.cpp",
             "cpppointerdeclarationformatter_test.h",
-            "cppquickfix_test.cpp",
-            "cppquickfix_test.h",
             "cpprenaming_test.cpp",
             "cpprenaming_test.h",
             "cppsourceprocessor_test.cpp",

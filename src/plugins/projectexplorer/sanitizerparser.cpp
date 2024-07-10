@@ -93,7 +93,8 @@ OutputLineParser::Result SanitizerParser::handleContinuation(const QString &line
                 m_task.file = file;
                 m_task.line = summaryMatch.captured("line").toInt();
                 m_task.column = summaryMatch.captured("column").toInt();
-                addLinkSpecForAbsoluteFilePath(linkSpecs, file, m_task.line, summaryMatch, "file");
+                addLinkSpecForAbsoluteFilePath(
+                    linkSpecs, file, m_task.line, m_task.column, summaryMatch, "file");
                 addLinkSpecs(linkSpecs);
             }
         } else {
@@ -107,7 +108,7 @@ OutputLineParser::Result SanitizerParser::handleContinuation(const QString &line
         const FilePath file = absoluteFilePath(FilePath::fromUserInput(fileMatch.captured("file")));
         if (fileExists(file)) {
             addLinkSpecForAbsoluteFilePath(linkSpecs, file, fileMatch.captured("line").toInt(),
-                                           fileMatch, "file");
+                                           fileMatch.captured("column").toInt(), fileMatch, "file");
             addLinkSpecs(linkSpecs);
         }
     }

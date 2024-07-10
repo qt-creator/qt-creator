@@ -267,13 +267,6 @@ void VcsBaseEditorConfig::executeCommand()
     emit commandExecutionRequested();
 }
 
-VcsBaseEditorConfig::OptionMapping::OptionMapping(const QString &option, QObject *obj) :
-    object(obj)
-{
-    if (!option.isEmpty())
-        options << option;
-}
-
 VcsBaseEditorConfig::OptionMapping::OptionMapping(const QStringList &optionList, QObject *obj) :
     options(optionList),
     object(obj)

@@ -6,8 +6,6 @@
 #include <QString>
 #include <QCryptographicHash>
 
-#include <limits>
-
 namespace LanguageUtils {
 
 // QTC_TEMP
@@ -42,8 +40,8 @@ QString ComponentVersion::toString() const
 
 void ComponentVersion::addToHash(QCryptographicHash &hash) const
 {
-    hash.addData(reinterpret_cast<const char *>(&_major), sizeof(_major));
-    hash.addData(reinterpret_cast<const char *>(&_minor), sizeof(_minor));
+    hash.addData(QByteArrayView(reinterpret_cast<const char *>(&_major), sizeof(_major)));
+    hash.addData(QByteArrayView(reinterpret_cast<const char *>(&_minor), sizeof(_minor)));
 }
 
 } // namespace LanguageUtils

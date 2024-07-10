@@ -669,7 +669,7 @@ bool MercurialPluginPrivate::managesFile(const FilePath &workingDirectory, const
 
 bool MercurialPluginPrivate::isConfigured() const
 {
-    const FilePath binary = settings().binaryPath();
+    const FilePath binary = settings().binaryPath.effectiveBinary();
     if (binary.isEmpty())
         return false;
     QFileInfo fi = binary.toFileInfo();
@@ -734,11 +734,9 @@ VcsCommand *MercurialPluginPrivate::createInitialCheckoutCommand(const QString &
                                                                  const QString &localName,
                                                                  const QStringList &extraArgs)
 {
-    QStringList args;
-    args << QLatin1String("clone") << extraArgs << url << localName;
     auto command = VcsBaseClient::createVcsCommand(this, baseDirectory,
                    mercurialClient().processEnvironment(baseDirectory));
-    command->addJob({settings().binaryPath(), args}, -1);
+    command->addJob({settings().binaryPath(), {"clone", extraArgs, url, localName}}, -1);
     return command;
 }
 
@@ -755,11 +753,11 @@ bool MercurialPluginPrivate::sccManaged(const QString &filename)
 
 void MercurialPluginPrivate::changed(const QVariant &v)
 {
-    switch (v.type()) {
-    case QVariant::String:
+    switch (v.typeId()) {
+    case QMetaType::QString:
         emit repositoryChanged(FilePath::fromVariant(v));
         break;
-    case QVariant::StringList:
+    case QMetaType::QStringList:
         emit filesChanged(v.toStringList());
         break;
     default:

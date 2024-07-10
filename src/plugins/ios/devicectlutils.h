@@ -13,6 +13,7 @@ const char kDeviceName[] = "deviceName";
 const char kDeveloperStatus[] = "developerStatus";
 const char kDeviceConnected[] = "deviceConnected";
 const char kOsVersion[] = "osVersion";
+const char kProductType[] = "productType";
 const char kCpuArchitecture[] = "cpuArchitecture";
 const char kUniqueDeviceId[] = "uniqueDeviceId";
 const char vOff[] = "*off*";

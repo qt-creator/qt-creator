@@ -92,8 +92,9 @@ public:
         Form {
             Tr::tr("Device name:"), iosDevice->deviceName(), br,
             Tr::tr("Identifier:"), iosDevice->uniqueInternalDeviceId(), br,
+            Tr::tr("Product type:"), iosDevice->productType(), br,
+            Tr::tr("CPU Architecture:"), iosDevice->cpuArchitecture(), br,
             Tr::tr("OS Version:"), iosDevice->osVersion(), br,
-            Tr::tr("CPU Architecture:"), iosDevice->cpuArchitecture(),
             noMargin
         }.attachTo(this);
         // clang-format on
@@ -193,6 +194,11 @@ QString IosDevice::osVersion() const
     return m_extraInfo.value(kOsVersion);
 }
 
+QString IosDevice::productType() const
+{
+    return m_extraInfo.value(kProductType);
+}
+
 QString IosDevice::cpuArchitecture() const
 {
     return m_extraInfo.value(kCpuArchitecture);
@@ -227,6 +233,7 @@ IosDeviceManager::TranslationMap IosDeviceManager::translationMap()
     tMap[QLatin1String("NO")]              = Tr::tr("no");
     tMap[QLatin1String("*unknown*")]       = Tr::tr("unknown");
     tMap[kOsVersion]                       = Tr::tr("OS version");
+    tMap[kProductType] = Tr::tr("Product type");
     translationMap = &tMap;
     return tMap;
 }

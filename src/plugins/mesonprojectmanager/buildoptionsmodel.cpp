@@ -118,25 +118,25 @@ bool BuidOptionsModel::hasChanges() const
 
 QWidget *BuildOptionDelegate::makeWidget(QWidget *parent, const QVariant &data)
 {
-    auto type = data.userType();
+    const int type = data.typeId();
     switch (type) {
-    case QVariant::Int: {
+    case QMetaType::Int: {
         auto w = new QSpinBox{parent};
         w->setValue(data.toInt());
         return w;
     }
-    case QVariant::Bool: {
+    case QMetaType::Bool: {
         auto w = new QComboBox{parent};
         w->addItems({"false", "true"});
         w->setCurrentIndex(data.toBool());
         return w;
     }
-    case QVariant::StringList: {
+    case QMetaType::QStringList: {
         auto w = new ArrayOptionLineEdit{parent};
         w->setPlainText(data.toStringList().join(" "));
         return w;
     }
-    case QVariant::String: {
+    case QMetaType::QString: {
         auto w = new QLineEdit{parent};
         w->setText(data.toString());
         return w;

@@ -127,7 +127,6 @@ GdbSettings::GdbSettings()
 
     gdbStartupCommands.setSettingsKey(debugModeGroup, "GdbStartupCommands");
     gdbStartupCommands.setDisplayStyle(StringAspect::TextEditDisplay);
-    gdbStartupCommands.setUseGlobalMacroExpander();
     gdbStartupCommands.setToolTip("<html><head/><body><p>" + Tr::tr(
         "GDB commands entered here will be executed after "
         "GDB has been started, but before the debugged program is started or "
@@ -136,7 +135,6 @@ GdbSettings::GdbSettings()
 
     gdbPostAttachCommands.setSettingsKey(debugModeGroup, "GdbPostAttachCommands");
     gdbPostAttachCommands.setDisplayStyle(StringAspect::TextEditDisplay);
-    gdbPostAttachCommands.setUseGlobalMacroExpander();
     gdbPostAttachCommands.setToolTip("<html><head/><body><p>" + Tr::tr(
         "GDB commands entered here will be executed after "
         "GDB has successfully attached to remote targets.</p>"
@@ -165,6 +163,12 @@ GdbSettings::GdbSettings()
         "its symbol index in a cache on disk and retrieve it from there when loading the same "
         "binary in the future."));
     useIndexCache.setDefaultValue(true);
+
+    useDebugInfoD.setSettingsKey("UseDebugInfoD");
+    useDebugInfoD.setLabelText(Tr::tr("Use debug info daemon"));
+    useDebugInfoD.setOptionText(TriState::DefaultValue, Tr::tr("Use system settings"));
+    useDebugInfoD.setToolTip(Tr::tr("Lets GDB attempt to automatically retrieve "
+                                    "debug information for system packages."));
 
     skipKnownFrames.setSettingsKey(debugModeGroup, "SkipKnownFrames");
     skipKnownFrames.setDisplayName(Tr::tr("Skip Known Frames"));
@@ -221,6 +225,7 @@ GdbSettings::GdbSettings()
                 intelFlavor,
                 usePseudoTracepoints,
                 useIndexCache,
+                Row { useDebugInfoD, st },
                 st
             }
         };

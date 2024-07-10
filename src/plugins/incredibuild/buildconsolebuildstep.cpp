@@ -55,9 +55,12 @@ public:
     CommandBuilderAspect commandBuilder{this};
 
     TextDisplay t2{this, "<i>" + Tr::tr("Enter the appropriate arguments to your build command.")};
-    TextDisplay t3{this, "<i>" + Tr::tr("Make sure the build command's multi-job "
-                                        "parameter value is large enough "
-                                        "(such as -j200 for the JOM or Make build tools)")};
+    TextDisplay
+        t3{this,
+           "<i>"
+               + Tr::tr("Make sure the build command's multi-job "
+                        "parameter value is large enough "
+                        "(such as -j200 for the JOM or Make build tools).")};
     BoolAspect keepJobNum{this};
 
     TextDisplay t4{this, "<b>" + Tr::tr("IncrediBuild Distribution Control")};
@@ -187,7 +190,7 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
 
     hideHeader.setSettingsKey("IncrediBuild.BuildConsole.HideHeader");
     hideHeader.setLabel(Tr::tr("Hide IncrediBuild Header in output:"));
-    hideHeader.setToolTip(Tr::tr("Suppresses IncrediBuild's header in the build output"));
+    hideHeader.setToolTip(Tr::tr("Suppresses IncrediBuild's header in the build output."));
 
     logLevel.setSettingsKey("IncrediBuild.BuildConsole.LogLevel");
     logLevel.setDisplayName(Tr::tr("Internal IncrediBuild logging level:"));
@@ -198,7 +201,7 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
     logLevel.addOption("Detailed");
     logLevel.setToolTip(Tr::tr("Overrides the internal Incredibuild logging level for this build. "
                                "Does not affect output or any user accessible logging. Used mainly "
-                               "to troubleshoot issues with the help of IncrediBuild support"));
+                               "to troubleshoot issues with the help of IncrediBuild support."));
 
     setEnv.setSettingsKey("IncrediBuild.BuildConsole.SetEnv");
     setEnv.setLabelText(Tr::tr("Set an Environment Variable:"));
@@ -210,14 +213,14 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
     stopOnError.setToolTip(Tr::tr("When specified, the execution will stop as soon as an error "
                                   "is encountered. This is the default behavior in "
                                   "\"Visual Studio\" builds, but not the default for "
-                                  "\"Make and Build tools\" or \"Dev Tools\" builds"));
+                                  "\"Make and Build tools\" or \"Dev Tools\" builds."));
 
     additionalArguments.setSettingsKey("IncrediBuild.BuildConsole.AdditionalArguments");
     additionalArguments.setLabelText(Tr::tr("Additional Arguments:"));
     additionalArguments.setDisplayStyle(StringAspect::LineEditDisplay);
     additionalArguments.setToolTip(Tr::tr("Add additional buildconsole arguments manually. "
                                           "The value of this field will be concatenated to the "
-                                          "final buildconsole command line"));
+                                          "final buildconsole command line."));
 
     openMonitor.setSettingsKey("IncrediBuild.BuildConsole.OpenMonitor");
     openMonitor.setLabel(Tr::tr("Open Build Monitor:"));

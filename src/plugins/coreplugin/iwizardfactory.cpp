@@ -127,6 +127,7 @@ QAction *s_inspectWizardAction = nullptr;
 bool s_areFactoriesLoaded = false;
 bool s_isWizardRunning = false;
 QWidget *s_currentWizard = nullptr;
+static QSet<Id> s_plugins;
 
 // NewItemDialog reopening data:
 class NewItemDialogData
@@ -385,8 +386,7 @@ void IWizardFactory::destroyFeatureProvider()
 
 void IWizardFactory::clearWizardFactories()
 {
-    if (!s_areFactoriesLoaded)
-        return;
+    s_plugins.clear();
 
     for (IWizardFactory *factory : std::as_const(s_allFactories))
         ActionManager::unregisterAction(factory->m_action, actionId(factory));
@@ -399,16 +399,15 @@ void IWizardFactory::clearWizardFactories()
 
 QSet<Id> IWizardFactory::pluginFeatures()
 {
-    static QSet<Id> plugins;
-    if (plugins.isEmpty()) {
+    if (s_plugins.isEmpty()) {
         // Implicitly create a feature for each plugin loaded:
-        const QVector<ExtensionSystem::PluginSpec *> pluginVector = ExtensionSystem::PluginManager::plugins();
+        const ExtensionSystem::PluginSpecs pluginVector = ExtensionSystem::PluginManager::plugins();
         for (const ExtensionSystem::PluginSpec *s : pluginVector) {
             if (s->state() == ExtensionSystem::PluginSpec::Running)
-                plugins.insert(Id::fromString(s->name()));
+                s_plugins.insert(Id::fromString(s->name()));
         }
     }
-    return plugins;
+    return s_plugins;
 }
 
 QSet<Id> IWizardFactory::availableFeatures(Id platformId)
@@ -465,7 +464,7 @@ static QIcon iconWithText(const QIcon &icon, const QString &text)
         font.setPixelSize(fontSize);
         font.setStretch(85);
         QPainter p(&pixmap);
-        p.setPen(Utils::creatorTheme()->color(Theme::PanelTextColorDark));
+        p.setPen(Utils::creatorColor(Theme::PanelTextColorDark));
         p.setFont(font);
         QTextOption textOption(Qt::AlignHCenter | Qt::AlignBottom);
         textOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);

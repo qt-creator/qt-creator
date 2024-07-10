@@ -55,7 +55,7 @@ FileContainer AllProjectsFind::filesForProjects(const QStringList &nameFilters,
                                                 const QStringList &exclusionFilters,
                                                 const QList<Project *> &projects)
 {
-    std::function<FilePaths(const FilePaths &)> filterFiles
+    const FilterFilesFunction filterFiles
         = Utils::filterFilesFunction(nameFilters, exclusionFilters);
     const QMap<FilePath, QTextCodec *> openEditorEncodings
         = TextDocument::openedTextDocumentEncodings();
@@ -113,16 +113,22 @@ QWidget *AllProjectsFind::createConfigWidget()
     return m_configWidget;
 }
 
-void AllProjectsFind::writeSettings(QtcSettings *settings)
+const char kDefaultInclusion[] = "*";
+const char kDefaultExclusion[] = "";
+
+Store AllProjectsFind::save() const
 {
-    settings->beginGroup("AllProjectsFind");
-    writeCommonSettings(settings);
-    settings->endGroup();
+    Store s;
+    writeCommonSettings(s, kDefaultInclusion, kDefaultExclusion);
+    return s;
 }
 
-void AllProjectsFind::readSettings(QtcSettings *settings)
+void AllProjectsFind::restore(const Utils::Store &s)
 {
-    settings->beginGroup("AllProjectsFind");
-    readCommonSettings(settings, "*", "");
-    settings->endGroup();
+    readCommonSettings(s, kDefaultInclusion, kDefaultExclusion);
+}
+
+QByteArray AllProjectsFind::settingsKey() const
+{
+    return "AllProjectsFind";
 }

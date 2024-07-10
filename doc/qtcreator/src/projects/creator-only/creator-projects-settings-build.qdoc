@@ -16,7 +16,7 @@
 
     \title Configure projects for building
 
-    Specify build settings for the selected \l{glossary-buildandrun-kit}{kit} in
+    Specify build settings for the selected \l{Kits}{kit} in
     \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol Build >
     \uicontrol {Build Settings}.
 
@@ -56,8 +56,8 @@
 
     \section1 Build on remote devices
 
-    You can build applications on \l{Connecting Remote Linux Devices}
-    {remote Linux} or \l{Adding Docker Devices}{Docker} devices if you
+    You can build applications on \l{Developing for Remote Linux Devices}
+    {remote Linux} or \l{Add Docker devices}{Docker} devices if you
     have kits that specify the devices and toolchains to use. When the
     build device of the kit is a remote device, such as a remote Linux or
     Docker device, the \uicontrol Browse button next to the

@@ -45,7 +45,7 @@ bool ImageCacheConnectionManager::waitForCapturedData()
 void ImageCacheConnectionManager::dispatchCommand(const QVariant &command,
                                                   ConnectionManagerInterface::Connection &)
 {
-    static const int capturedDataCommandType = QMetaType::type("CapturedDataCommand");
+    static const int capturedDataCommandType = QMetaType::fromName("CapturedDataCommand").id();
 
     if (command.typeId() == capturedDataCommandType) {
         m_captureCallback(command.value<CapturedDataCommand>().image);

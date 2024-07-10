@@ -798,7 +798,7 @@ void KitAspect::makeStickySubWidgetsReadOnly()
     makeReadOnly();
 }
 
-void KitAspect::addToLayout(Layouting::LayoutItem &parentItem)
+void KitAspect::addToLayout(Layouting::Layout &parentItem)
 {
     auto label = createSubWidget<QLabel>(m_factory->displayName() + ':');
     label->setToolTip(m_factory->description());

@@ -65,6 +65,31 @@ void DRelation::setIntermediatePoints(const QList<DRelation::IntermediatePoint> 
     m_intermediatePoints = intermediatePoints;
 }
 
+void DRelation::setVisualPrimaryRole(VisualPrimaryRole visualPrimaryRole)
+{
+    m_visualPrimaryRole = visualPrimaryRole;
+}
+
+void DRelation::setVisualSecondaryRole(VisualSecondaryRole visualSecondaryRole)
+{
+    m_visualSecondaryRole = visualSecondaryRole;
+}
+
+void DRelation::setVisualEmphasized(bool visualEmphasized)
+{
+    m_isVisualEmphasized = visualEmphasized;
+}
+
+void DRelation::setColor(const QColor &color)
+{
+    m_color = color;
+}
+
+void DRelation::setThickness(qreal thickness)
+{
+    m_thickness = thickness;
+}
+
 void DRelation::accept(DVisitor *visitor)
 {
     visitor->visitDRelation(this);

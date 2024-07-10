@@ -7,9 +7,9 @@ on:
       - 'doc/**'
 
 env:
-  QT_VERSION: 6.6.2
+  QT_VERSION: 6.7.1
   MACOS_DEPLOYMENT_TARGET: 11.0
-  CLANG_VERSION: 17.0.1
+  CLANG_VERSION: 18.1.7
   ELFUTILS_VERSION: 0.175
   CMAKE_VERSION: 3.21.1
   NINJA_VERSION: 1.10.2
@@ -49,13 +49,12 @@ jobs:
           }
         - {
             name: "macOS Latest Clang", artifact: "macos-universal",
-            # TODO: move back to macos-latest when macos-latest is 13 or higher
-            os: macos-13,
+            os: macos-latest,
             cc: "clang", cxx: "clang++"
           }
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Checkout submodules
       id: git
       shell: cmake -P {0}
@@ -63,10 +62,10 @@ jobs:
         execute_process(COMMAND git submodule set-url -- perfparser https://code.qt.io/qt-creator/perfparser.git)
         execute_process(COMMAND git submodule update --init --recursive)
         file(MAKE_DIRECTORY release)
-        if (${{github.ref}} MATCHES "tags/v([0-9.]+)")
+        if (${{github.ref}} MATCHES "tags/v(([0-9.]+).*)")
             file(APPEND "$ENV{GITHUB_OUTPUT}" "tag=${CMAKE_MATCH_1}\n")
-            if (EXISTS "dist/changelog/changes-${CMAKE_MATCH_1}.md")
-                file(READ "dist/changelog/changes-${CMAKE_MATCH_1}.md" changelog_md)
+            if (EXISTS "dist/changelog/changes-${CMAKE_MATCH_2}.md")
+                file(READ "dist/changelog/changes-${CMAKE_MATCH_2}.md" changelog_md)
             endif()
             file(WRITE "release/changelog.md" "These packages are not officially supported, for official packages please check out https://download.qt.io/official_releases/qtcreator\n\n")
             file(APPEND "release/changelog.md" "${changelog_md}")
@@ -200,7 +199,7 @@ jobs:
           endif()
         elseif ("${{ runner.os }}" STREQUAL "Linux")
           set(url_os "linux_x64")
-          set(qt_package_arch_suffix "gcc_64")
+          set(qt_package_arch_suffix "linux_gcc_64")
           set(qt_dir_prefix "${qt_version}/gcc_64")
           set(qt_package_suffix "-Linux-RHEL_8_8-GCC-Linux-RHEL_8_8-X86_64")
         elseif ("${{ runner.os }}" STREQUAL "macOS")
@@ -267,10 +266,10 @@ jobs:
           )
         endforeach()
 
-        # uic depends on libicu56.so
+        # uic, qmake depend on libicu*.so libraries
         if ("${{ runner.os }}" STREQUAL "Linux")
           downloadAndExtract(
-            "${qt_base_url}/qt.qt6.${qt_version_dotless}.${qt_package_arch_suffix}/${qt_package_version}icu-linux-Rhel7.2-x64.7z"
+            "${qt_base_url}/qt.qt6.${qt_version_dotless}.${qt_package_arch_suffix}/${qt_package_version}icu-linux-Rhel8.6-x86_64.7z"
             icu.7z
           )
         endif()
@@ -695,41 +694,41 @@ jobs:
         endif()
 
     - name: Upload
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: build/qtcreator-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.7z
         name: qtcreator-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.7z
 
     - name: Upload Devel
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: build/qtcreator-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}_dev.7z
         name: qtcreator-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}_dev.7z
 
     - name: Upload wininterrupt
       if: runner.os == 'Windows'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: build/wininterrupt-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.7z
         name: wininterrupt-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.7z
 
     - name: Upload qtcreatorcdbext
       if: runner.os == 'Windows' && matrix.config.is_msvc
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: build/qtcreatorcdbext-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.7z
         name: qtcreatorcdbext-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.7z
 
     - name: Upload Debian package
       if: runner.os == 'Linux'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: build/build/qtcreator-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.deb
         name: qtcreator-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.deb
 
     - name: Upload disk image
       if: runner.os == 'macOS' && contains(github.ref, 'tags/v')
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: build/qt-creator-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.dmg
         name: qt-creator-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.dmg
@@ -739,14 +738,14 @@ jobs:
       run: cmake -E tar cf ../${{ steps.ccache.outputs.archive_name }}.tar .
 
     - name: Upload ccache archive
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: ./${{ steps.ccache.outputs.archive_name }}.tar
         name: ${{ steps.ccache.outputs.archive_name }}
 
     - name: Upload Release Changelog
-      if: contains(github.ref, 'tags/v')
-      uses: actions/upload-artifact@v3
+      if: runner.os == 'macOS' && contains(github.ref, 'tags/v')
+      uses: actions/upload-artifact@v4
       with:
         path: ./release/changelog.md
         name: changelog.md
@@ -758,7 +757,7 @@ jobs:
 
     steps:
     - name: Download artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         path: release-with-dirs
 
@@ -770,7 +769,7 @@ jobs:
 
     - name: Create Release
       id: create_release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:

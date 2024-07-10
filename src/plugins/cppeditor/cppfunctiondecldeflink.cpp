@@ -8,8 +8,8 @@
 #include "cppeditortr.h"
 #include "cppeditorwidget.h"
 #include "cpplocalsymbols.h"
-#include "cppquickfixassistant.h"
 #include "cpptoolsreuse.h"
+#include "quickfixes/cppquickfixassistant.h"
 #include "symbolfinder.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -20,8 +20,6 @@
 #include <cplusplus/declarationcomments.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/TypeOfExpression.h>
-
-#include <extensionsystem/pluginmanager.h>
 
 #include <texteditor/refactoroverlay.h>
 #include <texteditor/texteditorconstants.h>
@@ -239,7 +237,7 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
     m_watcher.reset(new QFutureWatcher<std::shared_ptr<FunctionDeclDefLink> >());
     connect(m_watcher.get(), &QFutureWatcherBase::finished, this, &FunctionDeclDefLinkFinder::onFutureDone);
     m_watcher->setFuture(Utils::asyncRun(findLinkHelper, result, refactoringChanges));
-    ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(m_watcher->future());
+    Utils::futureSynchronizer()->addFuture(m_watcher->future());
 }
 
 bool FunctionDeclDefLink::isValid() const
@@ -269,13 +267,11 @@ void FunctionDeclDefLink::apply(CppEditorWidget *editor, bool jumpToMatch)
     const int targetStart = newTargetFile->position(targetLine, targetColumn);
     const int targetEnd = targetStart + targetInitial.size();
     if (targetInitial == newTargetFile->textOf(targetStart, targetEnd)) {
-        const ChangeSet changeset = changes(snapshot, targetStart);
-        newTargetFile->setChangeSet(changeset);
         if (jumpToMatch) {
             const int jumpTarget = newTargetFile->position(targetFunction->line(), targetFunction->column());
             newTargetFile->setOpenEditor(true, jumpTarget);
         }
-        newTargetFile->apply();
+        newTargetFile->apply(changes(snapshot, targetStart));
     } else {
         ToolTip::show(editor->toolTipPosition(linkSelection),
                       Tr::tr("Target file was changed, could not apply changes"));

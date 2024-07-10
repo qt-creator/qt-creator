@@ -38,7 +38,7 @@
 
     By default, the refactored files are saved automatically. To turn off
     this feature, go to \preferences > \uicontrol Environment >
-    \uicontrol System and select \uicontrol {Auto-save files after refactoring}.
+    \uicontrol System and clear \uicontrol {Auto-save files after refactoring}.
 
     \if defined(qtcreator)
     \section1 Create functions
@@ -93,6 +93,17 @@
     \sa {Find symbols}, {Specify settings for quick fixes}, {Quick Fixes},
     {C++ Quick Fixes}
     \endif
+
+    \section1 Move classes to separate files
+
+    Apply the \uicontrol {Move Class to a Dedicated Set of Source Files} quick
+    fix to move a class to a separate set of header and implementation files.
+
+    \image qtcreator-move-class-to-separate-files.webp {Give names to header and implementation files}
+
+    Specify paths and file names for the header and implementation file.
+
+    To omit the implementation file, select \uicontrol {Header file only}.
 
     \sa {Rename symbols}, {QML Quick Fixes}
 */

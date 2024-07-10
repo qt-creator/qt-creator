@@ -943,11 +943,6 @@ Range::Range(int b, int e, RangeMode m)
     : beginPos(qMin(b, e)), endPos(qMax(b, e)), rangemode(m)
 {}
 
-QString Range::toString() const
-{
-    return QString("%1-%2 (mode: %3)").arg(beginPos).arg(endPos).arg(rangemode);
-}
-
 bool Range::isValid() const
 {
     return beginPos >= 0 && endPos >= 0;
@@ -959,10 +954,6 @@ QDebug operator<<(QDebug ts, const Range &range)
 }
 
 
-ExCommand::ExCommand(const QString &c, const QString &a, const Range &r)
-    : cmd(c), args(a), range(r)
-{}
-
 bool ExCommand::matches(const QString &min, const QString &full) const
 {
     return cmd.startsWith(min) && full.startsWith(cmd);
@@ -971,13 +962,6 @@ bool ExCommand::matches(const QString &min, const QString &full) const
 QDebug operator<<(QDebug ts, const ExCommand &cmd)
 {
     return ts << cmd.cmd << ' ' << cmd.args << ' ' << cmd.range;
-}
-
-QDebug operator<<(QDebug ts, const QList<QTextEdit::ExtraSelection> &sels)
-{
-    for (const QTextEdit::ExtraSelection &sel : sels)
-        ts << "SEL: " << sel.cursor.anchor() << sel.cursor.position();
-    return ts;
 }
 
 QString quoteUnprintable(const QString &ba)
@@ -6139,7 +6123,7 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
         FvBaseAspect *act = s.item(Utils::keyFromString(optionName));
         if (!act) {
             showMessage(MessageError, Tr::tr("Unknown option:") + ' ' + cmd.args);
-        } else if (act->defaultVariantValue().type() == QVariant::Bool) {
+        } else if (act->defaultVariantValue().typeId() == QMetaType::Bool) {
             bool oldValue = act->variantValue().toBool();
             if (printOption) {
                 showMessage(MessageInfo, QLatin1String(oldValue ? "" : "no")

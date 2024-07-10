@@ -477,9 +477,9 @@ SubversionPluginPrivate::SubversionPluginPrivate()
 bool SubversionPluginPrivate::isVcsDirectory(const FilePath &fileName) const
 {
     const QString baseName = fileName.fileName();
-    return fileName.isDir() && contains(m_svnDirectories, [baseName](const QString &s) {
+    return contains(m_svnDirectories, [baseName](const QString &s) {
         return !baseName.compare(s, HostOsInfo::fileNameCaseSensitivity());
-    });
+    }) && fileName.isDir();
 }
 
 bool SubversionPluginPrivate::activateCommit()
@@ -1067,7 +1067,7 @@ bool SubversionPluginPrivate::isVcsFileOrDirectory(const FilePath &filePath) con
 
 bool SubversionPluginPrivate::isConfigured() const
 {
-    const FilePath binary = settings().binaryPath();
+    const FilePath binary = settings().binaryPath.effectiveBinary();
     if (binary.isEmpty())
         return false;
     QFileInfo fi = binary.toFileInfo();

@@ -146,8 +146,7 @@ public:
                                                       "    id: %2\n"
                                                       "    sourceComponent: %1\n"
                                                       "}\n").arg(componentId, loaderId));
-        currentFile->setChangeSet(changes);
-        currentFile->apply();
+        currentFile->apply(changes);
     }
 };
 

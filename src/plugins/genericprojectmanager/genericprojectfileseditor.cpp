@@ -9,7 +9,6 @@
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditoractionhandler.h>
 
 using namespace TextEditor;
 
@@ -29,7 +28,7 @@ public:
         addMimeType("application/vnd.qtcreator.generic.cflags");
 
         setDocumentCreator([]() { return new TextDocument(Constants::FILES_EDITOR_ID); });
-        setEditorActionHandlers(TextEditorActionHandler::None);
+        setOptionalActionMask(OptionalActions::None);
     }
 };
 

@@ -64,6 +64,7 @@ private:
     void initialize(const ProjectExplorer::BuildInfo &info);
     void updateInterpreter(const std::optional<ProjectExplorer::Interpreter> &python);
     void updatePython(const Utils::FilePath &python);
+    void updateDocuments();
     void handlePythonUpdated(const Utils::FilePath &python);
 
     Utils::FilePath m_python;

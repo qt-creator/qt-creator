@@ -14,6 +14,7 @@
 
 #include <QPlainTextEdit>
 
+#include <numeric>
 
 /*!
     \class ProjectExplorer::OutputTaskParser
@@ -57,6 +58,10 @@ class OutputTaskParser::Private
 {
 public:
     QList<TaskInfo> scheduledTasks;
+    Task currentTask;
+    LinkSpecs linkSpecs;
+    int lineCount = 0;
+    bool targetLinkFixed = false;
 };
 
 OutputTaskParser::OutputTaskParser() : d(new Private) { }
@@ -95,6 +100,11 @@ void OutputTaskParser::setDetailsFormat(Task &task, const LinkSpecs &linkSpecs)
     }
 }
 
+void OutputTaskParser::fixTargetLink()
+{
+    d->targetLinkFixed = true;
+}
+
 void OutputTaskParser::runPostPrintActions(QPlainTextEdit *edit)
 {
     int offset = 0;
@@ -110,4 +120,91 @@ void OutputTaskParser::runPostPrintActions(QPlainTextEdit *edit)
     d->scheduledTasks.clear();
 }
 
+void OutputTaskParser::createOrAmendTask(
+    Task::TaskType type,
+    const QString &description,
+    const QString &originalLine,
+    bool forceAmend,
+    const Utils::FilePath &file,
+    int line,
+    int column,
+    const LinkSpecs &linkSpecs)
+{
+    const bool amend = !d->currentTask.isNull() && (forceAmend || isContinuation(originalLine));
+    if (!amend) {
+        flush();
+        d->currentTask = CompileTask(type, description, file, line, column);
+        d->currentTask.details.append(originalLine);
+        d->linkSpecs = linkSpecs;
+        d->lineCount = 1;
+        return;
+    }
+
+    LinkSpecs adaptedLinkSpecs = linkSpecs;
+    const int offset = std::accumulate(
+        d->currentTask.details.cbegin(),
+        d->currentTask.details.cend(),
+        0,
+        [](int total, const QString &line) { return total + line.length() + 1; });
+    for (LinkSpec &ls : adaptedLinkSpecs)
+        ls.startPos += offset;
+    d->linkSpecs << adaptedLinkSpecs;
+    d->currentTask.details.append(originalLine);
+
+    // Check whether the new line is more relevant than the previous ones.
+    if ((d->currentTask.type != Task::Error && type == Task::Error)
+        || (d->currentTask.type == Task::Unknown && type != Task::Unknown)) {
+        d->currentTask.type = type;
+        d->currentTask.summary = description;
+        if (!file.isEmpty() && !d->targetLinkFixed) {
+            d->currentTask.setFile(file);
+            d->currentTask.line = line;
+            d->currentTask.column = column;
+        }
+    }
+
+    ++d->lineCount;
+}
+
+void OutputTaskParser::setCurrentTask(const Task &task)
+{
+    flush();
+    d->currentTask = task;
+    d->lineCount = 1;
+}
+
+Task &OutputTaskParser::currentTask()
+{
+    return d->currentTask;
+}
+
+const Task &OutputTaskParser::currentTask() const
+{
+    return d->currentTask;
+}
+
+bool OutputTaskParser::isContinuation(const QString &line) const
+{
+    Q_UNUSED(line)
+    return false;
+}
+
+void OutputTaskParser::flush()
+{
+    if (d->currentTask.isNull())
+        return;
+
+    // If there is only one line of details, then it is the line that we generated
+    // the summary from. Remove it, because it does not add any information.
+    if (d->currentTask.details.count() == 1)
+        d->currentTask.details.clear();
+
+    setDetailsFormat(d->currentTask, d->linkSpecs);
+    Task t = d->currentTask;
+    d->currentTask.clear();
+    d->linkSpecs.clear();
+    scheduleTask(t, d->lineCount, 1);
+    d->lineCount = 0;
+    d->targetLinkFixed = false;
+}
 } // namespace ProjectExplorer

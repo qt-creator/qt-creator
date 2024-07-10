@@ -12,6 +12,9 @@
 #include "presetsmacros.h"
 
 #include <coreplugin/messagemanager.h>
+#include <debugger/debuggeritem.h>
+#include <debugger/debuggeritemmanager.h>
+#include <debugger/debuggerkitaspect.h>
 
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/kitaspects.h>
@@ -30,7 +33,9 @@
 
 #include <QApplication>
 #include <QLoggingCategory>
+#include <QUuid>
 
+using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace QtSupport;
 using namespace Utils;
@@ -60,6 +65,7 @@ struct DirectoryData
     FilePath sysroot;
     QtProjectImporter::QtVersionData qt;
     QVector<ToolchainDescription> toolchains;
+    QVariant debugger;
 };
 
 static FilePaths scanDirectory(const FilePath &path, const QString &prefix)
@@ -203,6 +209,79 @@ FilePaths CMakeProjectImporter::presetCandidates()
     }
 
     return candidates;
+}
+
+class DebuggerCMakeExpander
+{
+    const PresetsDetails::ConfigurePreset &preset;
+    const Environment &env;
+    const FilePath &projectDirectory;
+
+public:
+    DebuggerCMakeExpander(
+        const PresetsDetails::ConfigurePreset &p, const Environment &e, const FilePath &projectDir)
+        : preset(p)
+        , env(e)
+        , projectDirectory(projectDir)
+    {}
+
+    QString expand(const QString &value) const
+    {
+        QString result{value};
+        CMakePresets::Macros::expand(preset, env, projectDirectory, result);
+        return result;
+    }
+
+    QVariantMap expand(const QVariantMap &map) const
+    {
+        QVariantMap result{map};
+        for (auto it = result.begin(); it != result.end(); ++it)
+            if (it->canConvert<QString>())
+                it->setValue(expand(it->toString()));
+        return result;
+    }
+};
+
+static QVariant findOrRegisterDebugger(
+    Environment &env, const PresetsDetails::ConfigurePreset &preset, const DebuggerCMakeExpander& expander)
+{
+    const QString debuggerKey("debugger");
+    if (!preset.vendor || !preset.vendor.value().contains(debuggerKey))
+        return {};
+
+    const QVariant debuggerVariant = preset.vendor.value().value(debuggerKey);
+    FilePath debuggerPath = FilePath::fromUserInput(expander.expand(debuggerVariant.toString()));
+    if (!debuggerPath.isEmpty()) {
+        if (debuggerPath.isRelativePath())
+            debuggerPath = env.searchInPath(debuggerPath.fileName());
+
+        const QString mainName = Tr::tr("CMake Preset (%1) %2 Debugger");
+        DebuggerItem debugger;
+        debugger.setCommand(debuggerPath);
+        debugger.setUnexpandedDisplayName(
+            mainName.arg(preset.name).arg(debuggerPath.completeBaseName()));
+        debugger.setAutoDetected(false);
+        QString errorMessage;
+        debugger.reinitializeFromFile(&errorMessage, &env);
+        if (!errorMessage.isEmpty())
+            qCWarning(cmInputLog()) << "Error reinitializing debugger" << debuggerPath.toString()
+                                    << "Error:" << errorMessage;
+
+        return DebuggerItemManager::registerDebugger(debugger);
+    } else {
+        auto debuggerMap = debuggerVariant.toMap();
+        if (debuggerMap.isEmpty())
+            return {};
+
+        // Manually create an Id, otrhewise the Kit will not have a debugger set
+        if (!debuggerMap.contains("Id"))
+            debuggerMap.insert("Id", QUuid::createUuid().toString());
+
+        auto store = storeFromMap(expander.expand(debuggerMap));
+        DebuggerItem debugger(store);
+
+        return DebuggerItemManager::registerDebugger(debugger);
+    }
 }
 
 Target *CMakeProjectImporter::preferredTarget(const QList<Target *> &possibleTargets)
@@ -835,6 +914,9 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
 
         data->hasQmlDebugging = CMakeBuildConfiguration::hasQmlDebugging(config);
 
+        data->debugger = findOrRegisterDebugger(
+            env, configurePreset, DebuggerCMakeExpander(configurePreset, env, projectDirectory()));
+
         QByteArrayList buildConfigurationTypes = {cache.valueOf("CMAKE_BUILD_TYPE")};
         if (buildConfigurationTypes.front().isEmpty()) {
             buildConfigurationTypes.clear();
@@ -1055,6 +1137,9 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
         if (!data->cmakePreset.isEmpty())
             ensureBuildDirectory(*data, k);
 
+        if (data->debugger.isValid())
+            DebuggerKitAspect::setDebugger(k, data->debugger);
+
         qCInfo(cmInputLog) << "Temporary Kit created.";
     });
 }
@@ -1071,6 +1156,11 @@ const QList<BuildInfo> CMakeProjectImporter::buildInfoList(void *directoryData) 
         && data->hasQmlDebugging)
         buildType = CMakeBuildConfigurationFactory::BuildTypeProfile;
     BuildInfo info = CMakeBuildConfigurationFactory::createBuildInfo(buildType);
+
+    // For CMake Presets use the provided build type if is not mapped to a known type
+    if (!data->cmakePreset.isEmpty() && info.buildType == BuildConfiguration::Unknown)
+        info.typeName = info.displayName = QString::fromUtf8(data->cmakeBuildType);
+
     info.buildDirectory = data->buildDirectory;
 
     QVariantMap config = info.extraInfo.toMap(); // new empty, or existing one from createBuildInfo

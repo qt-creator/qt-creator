@@ -10,8 +10,6 @@
 #include "suppression.h"
 #include "../valgrindtr.h"
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/async.h>
 #include <utils/expected.h>
 #include <utils/futuresynchronizer.h>
@@ -684,7 +682,7 @@ public:
         if (!m_watcher)
             return;
         m_thread->cancel();
-        ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(m_watcher->future());
+        Utils::futureSynchronizer()->addFuture(m_watcher->future());
     }
 
     void start()

@@ -20,7 +20,8 @@
     has the same XML structure as a \e {.user} file, but only has the
     settings to share.
 
-    \note Use \l{CMake Presets} to share CMake project settings.
+    To share CMake project settings, use \l{CMake Presets} or a
+    \c {CMakeLists.txt.shared} file.
 
     \section1 Create a shared settings file
 
@@ -71,6 +72,39 @@
     user and shared files eventually become identical. This is to avoid
     a permanent sticky setting that was created just because you wanted to try
     something out.
+
+    \section1 Share CMake project settings
+
+    The following is an example of a \c {CMakeLists.txt.shared} file:
+
+    \badcode
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE QtCreatorProject>
+    <qtcreator>
+      <data>
+      <variable>ProjectExplorer.Project.PluginSettings</variable>
+       <valuemap type="QVariantMap">
+        <valuemap type="QVariantMap" key="CMakeSpecificSettings">
+          <value type="bool" key="AskBeforePresetsReload">false</value>
+          <value type="bool" key="AskReConfigureInitialParams">false</value>
+          <value type="bool" key="AutorunCMake">false</value>
+          <value type="bool" key="PackageManagerAutoSetup">false</value>
+          <value type="bool" key="ShowAdvancedOptionsByDefault">true</value>
+          <value type="bool" key="ShowSourceSubFolders">false</value>
+          <value type="bool" key="UseGlobalSettings">false</value>
+          <value type="bool" key="UseJunctionsForSourceAndBuildDirectories">true</value>
+        </valuemap>
+      </valuemap>
+     </data>
+     <data>
+      <variable>Version</variable>
+      <value type="int">22</value>
+     </data>
+    </qtcreator>
+    \endcode
+
+    For more information about the settings, see
+    \l {Override CMake settings for a project}.
 
     \sa {Configuring Projects}, {CMake Presets}
 */

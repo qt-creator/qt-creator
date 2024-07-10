@@ -20,6 +20,7 @@
 #include <QCursor>
 #include <QElapsedTimer>
 #include <QHash>
+#include <QMenu>
 #include <QMimeData>
 #include <QPair>
 #include <QPointer>
@@ -72,6 +73,8 @@ public:
     QTimer scrollTimer;
     QElapsedTimer lastMessage;
     QHash<unsigned int, QPair<int, int>> taskPositions;
+    //: default file name suggested for saving text from output views
+    QString outputFileNameHint{::Core::Tr::tr("output.txt")};
 };
 
 } // namespace Internal
@@ -195,6 +198,8 @@ void OutputWindow::handleLink(const QPoint &pos)
         d->formatter.handleLink(href);
 }
 
+void OutputWindow::adaptContextMenu(QMenu *, const QPoint &) {}
+
 void OutputWindow::mouseReleaseEvent(QMouseEvent *e)
 {
     if (d->linksActive && d->mouseButtonPressed == Qt::LeftButton)
@@ -279,6 +284,28 @@ void OutputWindow::wheelEvent(QWheelEvent *e)
     updateMicroFocus();
 }
 
+void OutputWindow::contextMenuEvent(QContextMenuEvent *event)
+{
+    QMenu *menu = createStandardContextMenu(event->pos());
+    menu->setAttribute(Qt::WA_DeleteOnClose);
+
+    adaptContextMenu(menu, event->pos());
+
+    menu->addSeparator();
+    QAction *saveAction = menu->addAction(Tr::tr("Save Contents..."));
+    connect(saveAction, &QAction::triggered, this, [this] {
+        QFileDialog::saveFileContent(toPlainText().toUtf8(), d->outputFileNameHint);
+    });
+    saveAction->setEnabled(!document()->isEmpty());
+
+    menu->addSeparator();
+    QAction *clearAction = menu->addAction(Tr::tr("Clear"));
+    connect(clearAction, &QAction::triggered, this, [this] { clear(); });
+    clearAction->setEnabled(!document()->isEmpty());
+
+    menu->popup(event->globalPos());
+}
+
 void OutputWindow::setBaseFont(const QFont &newFont)
 {
     float zoom = fontZoom();
@@ -350,6 +377,11 @@ void OutputWindow::updateFilterProperties(
     filterNewContent();
 }
 
+void OutputWindow::setOutputFileNameHint(const QString &fileName)
+{
+    d->outputFileNameHint = fileName;
+}
+
 void OutputWindow::filterNewContent()
 {
     QTextBlock lastBlock = document()->findBlockByNumber(d->lastFilteredBlockNumber);
@@ -366,16 +398,12 @@ void OutputWindow::filterNewContent()
             lastBlock.setVisible(d->filterText.isEmpty()
                                  || regExp.match(lastBlock.text()).hasMatch() != invert);
     } else {
-        if (d->filterMode.testFlag(OutputWindow::FilterModeFlag::CaseSensitive)) {
-            for (; lastBlock != document()->end(); lastBlock = lastBlock.next())
-                lastBlock.setVisible(d->filterText.isEmpty()
-                                     || lastBlock.text().contains(d->filterText) != invert);
-        } else {
-            for (; lastBlock != document()->end(); lastBlock = lastBlock.next()) {
-                lastBlock.setVisible(d->filterText.isEmpty() || lastBlock.text().toLower()
-                                     .contains(d->filterText.toLower()) != invert);
-            }
-        }
+        const auto cs = d->filterMode.testFlag(OutputWindow::FilterModeFlag::CaseSensitive)
+                            ? Qt::CaseSensitive : Qt::CaseInsensitive;
+
+        for (; lastBlock != document()->end(); lastBlock = lastBlock.next())
+            lastBlock.setVisible(d->filterText.isEmpty()
+                                 || lastBlock.text().contains(d->filterText, cs) != invert);
     }
 
     d->lastFilteredBlockNumber = document()->lastBlock().blockNumber();

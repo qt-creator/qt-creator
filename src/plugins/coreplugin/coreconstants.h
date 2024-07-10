@@ -119,6 +119,7 @@ const char GOTOPREVINHISTORY[]     = "QtCreator.GotoPreviousInHistory";
 const char GO_BACK[]               = "QtCreator.GoBack";
 const char GO_FORWARD[]            = "QtCreator.GoForward";
 const char GOTOLASTEDIT[]          = "QtCreator.GotoLastEdit";
+const char REOPEN_CLOSED_EDITOR[]  = "QtCreator.ReopenClosedEditor";
 const char ABOUT_QTCREATOR[]       = "QtCreator.AboutQtCreator";
 const char ABOUT_PLUGINS[]         = "QtCreator.AboutPlugins";
 const char CHANGE_LOG[]            = "QtCreator.ChangeLog";
@@ -144,7 +145,8 @@ const char G_HELP[]                = "QtCreator.Group.Help";
 // File menu groups
 const char G_FILE_NEW[]            = "QtCreator.Group.File.New";
 const char G_FILE_OPEN[]           = "QtCreator.Group.File.Open";
-const char G_FILE_SESSION[]         = "QtCreator.Group.File.Recent";
+const char G_FILE_RECENT[]        = "QtCreator.Group.File.Recent";
+const char G_FILE_SESSION[]        = "QtCreator.Group.File.Session";
 const char G_FILE_PROJECT[]        = "QtCreator.Group.File.Project";
 const char G_FILE_SAVE[]           = "QtCreator.Group.File.Save";
 const char G_FILE_EXPORT[]         = "QtCreator.Group.File.Export";

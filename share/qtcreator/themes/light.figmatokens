@@ -35,3 +35,8 @@ Token_Notification_Alert=ffeb991f
 Token_Notification_Success=ff23b26a
 Token_Notification_Neutral=ff0e7887
 Token_Notification_Danger=ffdc1343
+
+Token_Gradient01_Start=ff23B26A
+Token_Gradient01_End=ff0E7887
+Token_Gradient02_Start=ff949494
+Token_Gradient02_End=ff474747

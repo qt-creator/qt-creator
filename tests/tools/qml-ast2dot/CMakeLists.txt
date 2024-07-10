@@ -1,6 +1,6 @@
 add_qtc_executable(qml_ast2dot
   BUILD_DEFAULT OFF
-  DEPENDS Qt::Core Qt::Gui QmlJS
+  DEPENDS Qt::Core Qt::Gui QmlJS Utils
   SOURCES main.cpp
 )
 

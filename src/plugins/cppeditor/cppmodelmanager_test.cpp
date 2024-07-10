@@ -17,8 +17,10 @@
 
 #include <cplusplus/LookupContext.h>
 
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projectnodes.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -26,6 +28,8 @@
 #include <QDebug>
 #include <QScopeGuard>
 #include <QtTest>
+
+#include <memory>
 
 #define VERIFY_DOCUMENT_REVISION(document, expectedRevision) \
     QVERIFY(document); \
@@ -39,6 +43,7 @@ using CPlusPlus::Document;
 // FIXME: Clean up the namespaces
 using CppEditor::Tests::ModelManagerTestHelper;
 using CppEditor::Tests::ProjectOpenerAndCloser;
+using CppEditor::Tests::SourceFilesRefreshGuard;
 using CppEditor::Tests::TemporaryCopiedDir;
 using CppEditor::Tests::TemporaryDir;
 using CppEditor::Tests::TestCase;
@@ -964,51 +969,143 @@ void ModelManagerTest::testUpdateEditorsAfterProjectUpdate()
     QCOMPARE(documentBProjectPart->topLevelProject, pi->projectFilePath());
 }
 
+void ModelManagerTest::testRenameIncludes_data()
+{
+    QTest::addColumn<QString>("oldRelPath");
+    QTest::addColumn<QString>("newRelPath");
+    QTest::addColumn<bool>("successExpected");
+
+    QTest::addRow("rename in place 1")
+        << "subdir1/header1.h" << "subdir1/header1_renamed.h" << true;
+    QTest::addRow("rename in place 2")
+        << "subdir2/header2.h" << "subdir2/header2_renamed.h" << true;
+    QTest::addRow("rename in place 3") << "header.h" << "header_renamed.h" << true;
+    QTest::addRow("move up") << "subdir1/header1.h" << "header1_moved.h" << true;
+    QTest::addRow("move up (breaks build)") << "subdir2/header2.h" << "header2_moved.h" << false;
+    QTest::addRow("move down") << "header.h" << "subdir1/header_moved.h" << true;
+    QTest::addRow("move across") << "subdir1/header1.h" << "subdir2/header1_moved.h" << true;
+    QTest::addRow("move across (breaks build)")
+        << "subdir2/header2.h" << "subdir1/header2_moved.h" << false;
+}
+
 void ModelManagerTest::testRenameIncludes()
 {
-    struct ModelManagerGCHelper {
-        ~ModelManagerGCHelper() { CppModelManager::GC(); }
-    } GCHelper;
-    Q_UNUSED(GCHelper) // do not warn about being unused
-
+    // Set up project.
     TemporaryDir tmpDir;
     QVERIFY(tmpDir.isValid());
+    const MyTestDataDir sourceDir("testdata_renameheaders");
+    const FilePath srcFilePath = FilePath::fromString(sourceDir.path());
+    const FilePath projectDir = tmpDir.filePath().pathAppended(srcFilePath.fileName());
+    const auto copyResult = srcFilePath.copyRecursively(projectDir);
+    if (!copyResult)
+        qDebug() << copyResult.error();
+    QVERIFY(copyResult);
+    Kit * const kit  = Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
+        return k->isValid() && !k->hasWarning() && k->value("QtSupport.QtInformation").isValid();
+    });
+    if (!kit)
+        QSKIP("The test requires at least one valid kit with a valid Qt");
+    const FilePath projectFile = projectDir.pathAppended(projectDir.fileName() + ".pro");
+    SourceFilesRefreshGuard refreshGuard;
+    ProjectOpenerAndCloser projectMgr;
+    const ProjectInfo::ConstPtr projectInfo = projectMgr.open(projectFile, true, kit);
+    QVERIFY(projectInfo);
+    QVERIFY(refreshGuard.wait());
 
-    const QDir workingDir(tmpDir.path());
-    const QStringList fileNames = {"foo.h", "foo.cpp", "main.cpp"};
-    const FilePath oldHeader = FilePath::fromString(workingDir.filePath("foo.h"));
-    const FilePath newHeader = FilePath::fromString(workingDir.filePath("bar.h"));
-    const MyTestDataDir testDir(_("testdata_project1"));
-
-    // Copy test files to a temporary directory
-    QSet<FilePath> sourceFiles;
-    for (const QString &fileName : std::as_const(fileNames)) {
-        const QString &file = workingDir.filePath(fileName);
-        QVERIFY(QFile::copy(testDir.file(fileName), file));
-        // Saving source file names for the model manager update,
-        // so we can update just the relevant files.
-        if (ProjectFile::classify(file) == ProjectFile::CXXSource)
-            sourceFiles.insert(FilePath::fromString(file));
-    }
-
-    // Update the c++ model manager and check for the old includes
-    CppModelManager::updateSourceFiles(sourceFiles).waitForFinished();
-    QCoreApplication::processEvents();
+    // Verify initial code model state.
+    const auto makeAbs = [&](const QStringList &relPaths) {
+        return Utils::transform<QSet<FilePath>>(relPaths, [&](const QString &relPath) {
+            return projectDir.pathAppended(relPath);
+        });
+    };
+    const QSet<FilePath> allSources = makeAbs({"main.cpp", "subdir1/file1.cpp", "subdir2/file2.cpp"});
+    const QSet<FilePath> allHeaders = makeAbs({"header.h", "subdir1/header1.h", "subdir2/header2.h"});
+    QCOMPARE(projectInfo->sourceFiles(), allSources + allHeaders);
     CPlusPlus::Snapshot snapshot = CppModelManager::snapshot();
-    for (const FilePath &sourceFile : std::as_const(sourceFiles)) {
-        QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<FilePath>{oldHeader});
+    for (const FilePath &srcFile : allSources) {
+        QCOMPARE(snapshot.allIncludesForDocument(srcFile), allHeaders);
     }
 
-    // Renaming the header
+    // Rename the header.
+    QFETCH(QString, oldRelPath);
+    QFETCH(QString, newRelPath);
+    QFETCH(bool, successExpected);
+    const FilePath oldHeader = projectDir.pathAppended(oldRelPath);
+    const FilePath newHeader = projectDir.pathAppended(newRelPath);
+    refreshGuard.reset();
     QVERIFY(ProjectExplorerPlugin::renameFile(oldHeader, newHeader));
 
-    // Update the c++ model manager again and check for the new includes
-    CppModelManager::updateSourceFiles(sourceFiles).waitForFinished();
-    QCoreApplication::processEvents();
+    // Verify new code model state.
+    QVERIFY(refreshGuard.wait());
+    QSet<FilePath> incompleteNewHeadersSet = allHeaders;
+    incompleteNewHeadersSet.remove(oldHeader);
+    QSet<FilePath> completeNewHeadersSet = incompleteNewHeadersSet;
+    completeNewHeadersSet << newHeader;
+
     snapshot = CppModelManager::snapshot();
-    for (const FilePath &sourceFile : std::as_const(sourceFiles)) {
-        QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<FilePath>{newHeader});
+    for (const FilePath &srcFile : allSources) {
+        const QSet<FilePath> &expectedHeaders = srcFile.fileName() == "main.cpp" && !successExpected
+            ? incompleteNewHeadersSet : completeNewHeadersSet;
+        QCOMPARE(snapshot.allIncludesForDocument(srcFile), expectedHeaders);
     }
+}
+
+void ModelManagerTest::testMoveIncludingSources_data()
+{
+    QTest::addColumn<QString>("oldRelPath");
+    QTest::addColumn<QString>("newRelPath");
+
+    QTest::addRow("move up") << "subdir1/file1.cpp" << "file1_moved.cpp";
+    QTest::addRow("move down") << "main.cpp" << "subdir1/main.cpp";
+    QTest::addRow("move across") << "subdir1/file1.cpp" << "subdir2/file1_moved.cpp";
+}
+
+void ModelManagerTest::testMoveIncludingSources()
+{
+    QFETCH(QString, oldRelPath);
+    QFETCH(QString, newRelPath);
+
+    // Set up project.
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const MyTestDataDir sourceDir("testdata_renameheaders");
+    const FilePath srcFilePath = FilePath::fromString(sourceDir.path());
+    const FilePath projectDir = tmpDir.filePath().pathAppended(srcFilePath.fileName());
+    const auto copyResult = srcFilePath.copyRecursively(projectDir);
+    if (!copyResult)
+        qDebug() << copyResult.error();
+    QVERIFY(copyResult);
+    Kit * const kit  = Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
+        return k->isValid() && !k->hasWarning() && k->value("QtSupport.QtInformation").isValid();
+    });
+    if (!kit)
+        QSKIP("The test requires at least one valid kit with a valid Qt");
+    SourceFilesRefreshGuard refreshGuard;
+    const FilePath projectFile = projectDir.pathAppended(projectDir.fileName() + ".pro");
+    ProjectOpenerAndCloser projectMgr;
+    QVERIFY(projectMgr.open(projectFile, true, kit));
+    QVERIFY(refreshGuard.wait());
+
+    // Verify initial code model state.
+    const auto makeAbs = [&](const QStringList &relPaths) {
+        return Utils::transform<QSet<FilePath>>(relPaths, [&](const QString &relPath) {
+            return projectDir.pathAppended(relPath);
+        });
+    };
+    const FilePath oldSource = projectDir.pathAppended(oldRelPath);
+    QVERIFY(oldSource.exists());
+    const QSet<FilePath> includedHeaders = makeAbs(
+        {"header.h", "subdir1/header1.h", "subdir2/header2.h"});
+    QCOMPARE(CppModelManager::snapshot().allIncludesForDocument(oldSource), includedHeaders);
+
+    // Rename the source file.
+    refreshGuard.reset();
+    const FilePath newSource = projectDir.pathAppended(newRelPath);
+    QVERIFY(ProjectExplorerPlugin::renameFile(oldSource, newSource, projectMgr.projects().first()));
+
+    // Verify new code model state.
+    QVERIFY(refreshGuard.wait());
+    QCOMPARE(CppModelManager::snapshot().allIncludesForDocument(newSource), includedHeaders);
 }
 
 void ModelManagerTest::testRenameIncludesInEditor()
@@ -1172,6 +1269,262 @@ void ModelManagerTest::testDocumentsAndRevisions()
     QVERIFY(TestCase::parseFiles(filesToIndex));
     VERIFY_DOCUMENT_REVISION(CppModelManager::document(filePath1), 4U);
     VERIFY_DOCUMENT_REVISION(CppModelManager::document(filePath2), 4U);
+}
+
+void ModelManagerTest::testSettingsChanges()
+{
+    ModelManagerTestHelper helper;
+
+    int refreshCount = 0;
+    QSet<QString> refreshedFiles;
+    connect(CppModelManager::instance(), &CppModelManager::sourceFilesRefreshed,
+            &helper, [&](const QSet<QString> &files) {
+        ++refreshCount;
+        refreshedFiles.unite(files);
+    });
+    const auto waitForRefresh = [] {
+        return ::CppEditor::Tests::waitForSignalOrTimeout(CppModelManager::instance(),
+                                                          &CppModelManager::sourceFilesRefreshed,
+                                                          5000);
+    };
+
+    const auto setupProjectNodes = [](Project &p, const ProjectFiles &projectFiles) {
+        auto rootNode = std::make_unique<ProjectNode>(p.projectFilePath());
+        for (const ProjectFile &sourceFile : projectFiles) {
+            rootNode->addNestedNode(std::make_unique<FileNode>(sourceFile.path,
+                                                               sourceFile.isHeader()
+                                                               ? FileType::Header
+                                                                   : FileType::Source));
+        }
+        p.setRootProjectNode(std::move(rootNode));
+    };
+
+    // Set up projects.
+    const MyTestDataDir p1Dir("testdata_project1");
+    const FilePaths p1Files
+        = Utils::transform({"baz.h", "baz2.h", "baz3.h", "foo.cpp", "foo.h", "main.cpp"},
+                           [&](const QString &fn) { return p1Dir.filePath(fn); });
+    const ProjectFiles p1ProjectFiles = Utils::transform(p1Files, [](const FilePath &fp) {
+        return ProjectFile(fp, ProjectFile::classify(fp.toString()));
+    });
+    Project * const p1 = helper.createProject("testdata_project1", FilePath::fromString("p1.pro"));
+    setupProjectNodes(*p1, p1ProjectFiles);
+    RawProjectPart rpp1;
+    const auto part1 = ProjectPart::create(p1->projectFilePath(), rpp1, {}, p1ProjectFiles);
+    const auto pi1 = ProjectInfo::create(ProjectUpdateInfo(p1, KitInfo(nullptr), {}, {}), {part1});
+    const auto p1Sources = Utils::transform<QSet<QString>>(p1Files, &FilePath::toString);
+    CppModelManager::updateProjectInfo(pi1);
+
+    const MyTestDataDir p2Dir("testdata_project2");
+    const FilePaths p2Files
+        = Utils::transform({"bar.h", "bar.cpp", "foobar2000.h", "foobar4000.h", "main.cpp"},
+                           [&](const QString &fn) { return p1Dir.filePath(fn); });
+    const ProjectFiles p2ProjectFiles = Utils::transform(p2Files, [](const FilePath &fp) {
+        return ProjectFile(fp, ProjectFile::classify(fp.toString()));
+    });
+    Project * const p2 = helper.createProject("testdata_project2", FilePath::fromString("p2.pro"));
+    setupProjectNodes(*p2, p2ProjectFiles);
+    RawProjectPart rpp2;
+    const auto part2 = ProjectPart::create(p2->projectFilePath(), rpp2, {}, p2ProjectFiles);
+    const auto pi2 = ProjectInfo::create(ProjectUpdateInfo(p2, KitInfo(nullptr), {}, {}), {part2});
+    const auto p2Sources = Utils::transform<QSet<QString>>(p2Files, &FilePath::toString);
+    CppModelManager::updateProjectInfo(pi2);
+
+    // Initial check: Have all files been indexed?
+    while (refreshCount < 2)
+        QVERIFY(waitForRefresh());
+    const auto allSources = p1Sources + p2Sources;
+    QCOMPARE(refreshedFiles, allSources);
+
+    // Switch first project from global to local settings. Nothing should get re-indexed,
+    // as the default values are the same.
+    refreshCount = 0;
+    refreshedFiles.clear();
+    QVERIFY(!CppCodeModelSettings::hasCustomSettings(p1));
+    CppCodeModelSettings p1Settings = CppCodeModelSettings::settingsForProject(p1);
+    CppCodeModelSettings::setSettingsForProject(p1, p1Settings);
+    QVERIFY(CppCodeModelSettings::hasCustomSettings(p1));
+    QCOMPARE(refreshCount, 0);
+    QVERIFY(!waitForRefresh());
+
+    // Change global settings. Only the second project should get re-indexed, as the first one
+    // has its own settings, which are still the same.
+    CppCodeModelSettings globalSettings = CppCodeModelSettings::settingsForProject(nullptr);
+    globalSettings.indexerFileSizeLimitInMb = 1;
+    CppCodeModelSettings::setGlobal(globalSettings);
+    if (refreshCount == 0)
+        QVERIFY(waitForRefresh());
+    QVERIFY(!waitForRefresh());
+    QCOMPARE(refreshedFiles, p2Sources);
+
+    // Change first project's settings. Only this project should get re-indexed.
+    refreshCount = 0;
+    refreshedFiles.clear();
+    p1Settings.ignoreFiles = true;
+    p1Settings.ignorePattern = "baz3.h";
+    CppCodeModelSettings::setSettingsForProject(p1, p1Settings);
+    if (refreshCount == 0)
+        QVERIFY(waitForRefresh());
+    QVERIFY(!waitForRefresh());
+    QSet<QString> filteredP1Sources = p1Sources;
+    filteredP1Sources -= p1Dir.filePath("baz3.h").toString();
+    QCOMPARE(refreshedFiles, filteredP1Sources);
+}
+
+static bool True = true;
+static bool False = false;
+
+void ModelManagerTest::testOptionalIndexing_data()
+{
+    QTest::addColumn<bool>("enableGlobally");
+    QTest::addColumn<bool *>("enableForP1");
+    QTest::addColumn<bool *>("enableForP2");
+    QTest::addColumn<bool>("foo1Present");
+    QTest::addColumn<bool>("foo2Present");
+
+    QTest::addRow("globally disabled, no custom settings")
+        << false << (bool *) nullptr << (bool *) nullptr << false << false;
+    QTest::addRow("globally disabled, redundantly disabled for project 2")
+        << false << (bool *) nullptr << &False << false << false;
+    QTest::addRow("globally disabled, enabled for project 2")
+        << false << (bool *) nullptr << &True << false << true;
+    QTest::addRow("globally disabled, redundantly disabled for project 1")
+        << false << &False << (bool *) nullptr << false << false;
+    QTest::addRow("globally disabled, redundantly disabled for both projects")
+        << false << &False << &False << false << false;
+    QTest::addRow("globally disabled, redundantly disabled for project 1, enabled for project 2")
+        << false << &False << &True << false << true;
+    QTest::addRow("globally disabled, enabled for project 1")
+        << false << &True << (bool *) nullptr << true << false;
+    QTest::addRow("globally disabled, enabled for project 1, redundantly disabled for project 2")
+        << false << &True << &False << true << false;
+    QTest::addRow("globally disabled, enabled for both project")
+        << false << &True << &True << true << true;
+    QTest::addRow("globally enabled, no custom settings")
+        << true << (bool *) nullptr << (bool *) nullptr << true << true ;
+    QTest::addRow("globally enabled, disabled for project 2")
+        << true << (bool *) nullptr << &False << true << false;
+    QTest::addRow("globally enabled, redundantly enabled for project 2")
+        << true << (bool *) nullptr << &True << true << true;
+    QTest::addRow("globally enabled, disabled for project 1")
+        << true << &False << (bool *) nullptr << false << true;
+    QTest::addRow("globally enabled, disabled for both projects")
+        << true << &False << &False << false << false;
+    QTest::addRow("globally enabled, disabled for project 1, redundantly enabled for project 2")
+        << true << &False << &True << false << true;
+    QTest::addRow("globally enabled, redundantly enabled for project 1")
+        << true << &True << (bool *) nullptr << true << true;
+    QTest::addRow("globally enabled, redundantly enabled for project 1, disabled for project 2")
+        << true << &True << &False << true << false;
+    QTest::addRow("globally enabled, redundantly enabled for both projects")
+        << true << &True << &True << true << true;
+}
+
+void ModelManagerTest::testOptionalIndexing()
+{
+    if (CppModelManager::isClangCodeModelActive())
+        QSKIP("Test only makes sense with built-in locators");
+
+    QFETCH(bool, enableGlobally);
+    QFETCH(bool *, enableForP1);
+    QFETCH(bool *, enableForP2);
+    QFETCH(bool, foo1Present);
+    QFETCH(bool, foo2Present);
+
+    // Apply global setting, if necessary. Needs to be reverted in the end.
+    class TempIndexingDisabler {
+    public:
+        TempIndexingDisabler(bool enable)
+        {
+            if (!enable)
+                reset(false);
+        }
+        ~TempIndexingDisabler() { reset(true); }
+    private:
+        void reset(bool enable)
+        {
+            CppCodeModelSettings settings = CppCodeModelSettings::global();
+            settings.enableIndexing = enable;
+            CppCodeModelSettings::setGlobal(settings);
+        }
+    };
+    const TempIndexingDisabler disabler(enableGlobally);
+
+    // Set up projects.
+    TemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const MyTestDataDir sourceDir("testdata_optionalindexing");
+    const FilePath srcFilePath = FilePath::fromString(sourceDir.path());
+    const FilePath projectDir = tmpDir.filePath().pathAppended(srcFilePath.fileName());
+    const auto copyResult = srcFilePath.copyRecursively(projectDir);
+    if (!copyResult)
+        qDebug() << copyResult.error();
+    QVERIFY(copyResult);
+    Kit * const kit  = Utils::findOr(KitManager::kits(), nullptr, [](const Kit *k) {
+        return k->isValid() && !k->hasWarning() && k->value("QtSupport.QtInformation").isValid();
+    });
+    if (!kit)
+        QSKIP("The test requires at least one valid kit with a valid Qt");
+    const FilePath p1ProjectFile = projectDir.pathAppended("lib1.pro");
+    auto projectMgr = std::make_unique<ProjectOpenerAndCloser>();
+    SourceFilesRefreshGuard refreshGuard;
+    QVERIFY(projectMgr->open(p1ProjectFile, true, kit));
+    QVERIFY(refreshGuard.wait());
+    refreshGuard.reset();
+    Project *p1 = projectMgr->projects().first();
+    const FilePath p2ProjectFile = projectDir.pathAppended("lib2.pro");
+    QVERIFY(projectMgr->open(p2ProjectFile, true, kit));
+    QVERIFY(refreshGuard.wait());
+    refreshGuard.reset();
+    Project *p2 = projectMgr->projects().last();
+
+    const auto applyProjectSpecificSettings = [&](Project *p, bool *enable) {
+        if (!enable)
+            return;
+        refreshGuard.reset();
+        CppCodeModelSettings settings = CppCodeModelSettings::settingsForProject(p);
+        settings.enableIndexing = *enable;
+        CppCodeModelSettings::setSettingsForProject(p, settings);
+        if (*enable != enableGlobally)
+            QVERIFY(refreshGuard.wait());
+    };
+    applyProjectSpecificSettings(p1, enableForP1);
+    applyProjectSpecificSettings(p2, enableForP2);
+
+    // Compare locator results to expectations.
+    Core::LocatorFilterEntries entries = Core::LocatorMatcher::runBlocking(
+        Core::LocatorMatcher::matchers(Core::MatcherType::Functions), "foo");
+    const auto hasEntry = [&](const QString &name) {
+        return Utils::contains(entries, [&](const Core::LocatorFilterEntry &e) {
+            return e.displayName == name + "()";
+        });
+    };
+    QCOMPARE(hasEntry("foo1"), foo1Present);
+    QCOMPARE(hasEntry("foo2"), foo2Present);
+
+    // Close and re-open projects, then check again, to see whether the settings persisted
+    // and are taking effect.
+    projectMgr.reset(nullptr);
+    projectMgr.reset(new ProjectOpenerAndCloser);
+    refreshGuard.reset();
+    QVERIFY(projectMgr->open(p1ProjectFile, true, kit));
+    p1 = projectMgr->projects().first();
+    QCOMPARE(
+        CppCodeModelSettings::settingsForProject(p1).enableIndexing,
+        enableForP1 ? *enableForP1 : enableGlobally);
+    QVERIFY(refreshGuard.wait());
+    refreshGuard.reset();
+    QVERIFY(projectMgr->open(p2ProjectFile, true, kit));
+    p2 = projectMgr->projects().last();
+    QCOMPARE(
+        CppCodeModelSettings::settingsForProject(p2).enableIndexing,
+        enableForP2 ? *enableForP2 : enableGlobally);
+    QVERIFY(refreshGuard.wait());
+
+    entries = Core::LocatorMatcher::runBlocking(
+        Core::LocatorMatcher::matchers(Core::MatcherType::Functions), "foo");
+    QCOMPARE(hasEntry("foo1"), foo1Present);
+    QCOMPARE(hasEntry("foo2"), foo2Present);
 }
 
 } // CppEditor::Internal

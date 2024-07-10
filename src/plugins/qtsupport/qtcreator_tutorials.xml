@@ -16,14 +16,14 @@
     </tutorial>
     <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-writing-program.html" projectPath="" name="Creating a Qt Widget-Based Application">
       <description><![CDATA[Using Qt Creator to create a small Qt application, Text Finder.]]></description>
-      <tags>qt creator,qt designer,widgets,c++,text,help</tags>
+      <tags>qt creator,qt widgets designer,widgets,c++,text,help</tags>
       <meta>
         <entry name="category">Help</entry>
       </meta>
     </tutorial>
     <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtdoc/qtwidgets/qtwidgets-tutorials-notepad-example.html" projectPath="" name="Getting Started Programming with Qt Widgets">
       <description><![CDATA[Developing Qt applications using C++ and the Qt Widgets module.]]></description>
-      <tags>qt,qt creator,qt designer,widgets,c++,help</tags>
+      <tags>qt,qt creator,qt widgets designer,widgets,c++,help</tags>
       <meta>
         <entry name="category">Help</entry>
       </meta>
@@ -66,7 +66,7 @@
     </tutorial>
     <tutorial imageUrl=":qtsupport/images/icons/youtubeLnVjI0I7cKs.webp" difficulty="" projectPath="" name="Qt Creator - Design and Edit Modes" isVideo="true" videoUrl="https://www.youtube.com/watch?v=LnVjI0I7cKs" videoLength="4:34">
       <description><![CDATA[Developing a Qt Widgets application.]]></description>
-      <tags>qt creator,learning,qt designer,coding,2023</tags>
+      <tags>qt creator,learning,qt widgets designer,coding,2023</tags>
       <meta>
         <entry name="category">Learning</entry>
       </meta>
@@ -276,9 +276,9 @@
         <entry name="category">Talk</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/youtubeB0X5FOev9Lw.webp" difficulty="" projectPath="" name="Qt Designer tutorial: Integrate custom widgets" isVideo="true" videoUrl="https://youtu.be/B0X5FOev9Lw" videoLength="27:07">
-      <description><![CDATA[Integrating custom widgets into Qt Designer.]]></description>
-      <tags>qt designer,widgets,ui,talk,2019</tags>
+    <tutorial imageUrl=":qtsupport/images/icons/youtubeB0X5FOev9Lw.webp" difficulty="" projectPath="" name="Qt Widgets Designer tutorial: Integrate custom widgets" isVideo="true" videoUrl="https://youtu.be/B0X5FOev9Lw" videoLength="27:07">
+      <description><![CDATA[Integrating custom widgets into Qt Widgets Designer.]]></description>
+      <tags>qt widgets designer,widgets,ui,talk,2019</tags>
       <meta>
         <entry name="category">Talk</entry>
       </meta>

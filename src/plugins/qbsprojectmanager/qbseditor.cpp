@@ -149,7 +149,7 @@ IAssistProposal *MergedCompletionAssistProcessor::perform()
         });
         m_qbsProcessor->start(std::make_unique<AssistInterface>(m_interface->cursor(),
                                                                 m_interface->filePath(),
-                                                                ExplicitlyInvoked));
+                                                                m_interface->reason()));
     } else {
         m_qbsProposal = nullptr;
     }
@@ -162,7 +162,7 @@ IAssistProposal *MergedCompletionAssistProcessor::perform()
     return m_qmlProcessor->start(
         std::make_unique<QmlJSCompletionAssistInterface>(qmlJsIface->cursor(),
                                                          qmlJsIface->filePath(),
-                                                         ExplicitlyInvoked,
+                                                         m_interface->reason(),
                                                          qmlJsIface->semanticInfo()));
 }
 

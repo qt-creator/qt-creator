@@ -5235,8 +5235,8 @@ A projekt újraépítése talán segít.</translation>
         <translation>Qt modulnevek használata az #include irányelvekben</translation>
     </message>
     <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Qt Designer forma osztály</translation>
+        <source>Qt Widgets Designer Form Class</source>
+        <translation>Qt Widgets Designer forma osztály</translation>
     </message>
     <message>
         <source>Choose a class name</source>
@@ -5259,16 +5259,16 @@ A projekt újraépítése talán segít.</translation>
         <translation>Qt</translation>
     </message>
     <message>
-        <source>Qt Designer Form</source>
-        <translation>Qt Designer forma</translation>
+        <source>Qt Widgets Designer Form</source>
+        <translation>Qt Widgets Designer forma</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form file (.ui).</source>
-        <translation>Qt Designer forma fájl (.ui) létrehozása.</translation>
+        <source>Creates a Qt Widgets Designer form file (.ui).</source>
+        <translation>Qt Widgets Designer forma fájl (.ui) létrehozása.</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form file (.ui) with a matching class.</source>
-        <translation>Qt Designer forma fájl(.ui) létrehozása illeszkedő osztályokkal.</translation>
+        <source>Creates a Qt Widgets Designer form file (.ui) with a matching class.</source>
+        <translation>Qt Widgets Designer forma fájl(.ui) létrehozása illeszkedő osztályokkal.</translation>
     </message>
     <message>
         <source>Widget Box</source>
@@ -5371,8 +5371,8 @@ A projekt újraépítése talán segít.</translation>
         <translation>Ctrl+Alt+R</translation>
     </message>
     <message>
-        <source>About Qt Designer plugins....</source>
-        <translation>Névjegy a Qt Designer beépülő moduljairól...</translation>
+        <source>About Qt Widgets Designer plugins....</source>
+        <translation>Névjegy a Qt Widgets Designer beépülő moduljairól...</translation>
     </message>
     <message>
         <source>Preview in</source>
@@ -8651,8 +8651,8 @@ SOURCES *= .../ide/main/bin/dumper/dumper.cpp(new line)
         <translation>CVS feltöltési sablon</translation>
     </message>
     <message>
-        <source>Qt Designer file</source>
-        <translation>Qt Designer fájl</translation>
+        <source>Qt Widgets Designer file</source>
+        <translation>Qt Widgets Designer fájl</translation>
     </message>
     <message>
         <source>Generic Qt Creator Project file</source>
@@ -12834,8 +12834,8 @@ p, li { white-space: pre-wrap; }
         <translation>Ez a varázsló egy Qt4 Designer szokásos Widget-t vagy Qt4 Designer szokásos Widget gyűjtemény projektet generál.</translation>
     </message>
     <message>
-        <source>Qt Designer is not responding (%1).</source>
-        <translation>A Qt Designer nem válaszol (%1).</translation>
+        <source>Qt Widgets Designer is not responding (%1).</source>
+        <translation>A Qt Widgets Designer nem válaszol (%1).</translation>
     </message>
     <message>
         <source>Unable to create server socket: %1</source>

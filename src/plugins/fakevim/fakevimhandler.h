@@ -27,7 +27,7 @@ struct Range
 {
     Range() = default;
     Range(int b, int e, RangeMode m = RangeCharMode);
-    QString toString() const;
+
     bool isValid() const;
 
     int beginPos = -1;
@@ -38,7 +38,6 @@ struct Range
 struct ExCommand
 {
     ExCommand() = default;
-    ExCommand(const QString &cmd, const QString &args = {}, const Range &range = {});
 
     bool matches(const QString &min, const QString &full) const;
 

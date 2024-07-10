@@ -26,10 +26,10 @@ inline QDebug &operator<<(QDebug &dbg, const QVariant &var)
     case QMetaType::QStringList:
         dbg << var.toList();
         break;
-    case QVariant::List:
+    case QMetaType::QVariantList:
         dbg << var.toList();
         break;
-    case QVariant::Map:
+    case QMetaType::QVariantMap:
         dbg << var.toMap();
         break;
     default: {

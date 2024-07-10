@@ -35,9 +35,7 @@ MergeTool::MergeTool(QObject *parent) : QObject(parent)
 
 void MergeTool::start(const FilePath &workingDirectory, const QStringList &files)
 {
-    QStringList arguments;
-    arguments << "mergetool" << "-y" << files;
-    const CommandLine cmd = {gitClient().vcsBinary(workingDirectory), arguments};
+    const CommandLine cmd{gitClient().vcsBinary(workingDirectory), {"mergetool", "-y", files}};
     VcsOutputWindow::appendCommand(workingDirectory, cmd);
     m_process.setCommand(cmd);
     m_process.setWorkingDirectory(workingDirectory);

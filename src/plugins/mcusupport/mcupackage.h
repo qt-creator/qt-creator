@@ -41,7 +41,7 @@ public:
                const bool addToPath = false,
                const Utils::PathChooser::Kind &valueType
                = Utils::PathChooser::Kind::ExistingDirectory,
-               const bool useNewestVersionKey = false);
+               const bool allowNewerVersionKey = false);
 
     ~McuPackage() override = default;
 

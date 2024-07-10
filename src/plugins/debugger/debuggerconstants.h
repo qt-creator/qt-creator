@@ -100,6 +100,8 @@ enum DebuggerEngineType
     GdbEngineType     = 0x001,
     CdbEngineType     = 0x004,
     LldbEngineType    = 0x100,
+    GdbDapEngineType  = 0x200,
+    LldbDapEngineType = 0x400,
     UvscEngineType    = 0x1000
 };
 

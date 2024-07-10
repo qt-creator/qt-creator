@@ -45,7 +45,9 @@ public:
         m_indicatorPixmap(indicatorPixmap)
     {
         m_indicatorLabel = new QLabel(this);
-        m_indicatorLabel->setFixedSize(m_indicatorPixmap.size());
+        const QSizeF indicatorSize = m_indicatorPixmap.deviceIndependentSize();
+        m_indicatorLabel->setFixedSize(
+            {qCeil(indicatorSize.width()), qCeil(indicatorSize.height())});
         m_titleLabel = new QLabel(title, this);
         auto l = new QHBoxLayout(this);
         l->setContentsMargins(0, 0, 0, 0);
@@ -276,6 +278,7 @@ public:
     bool m_automaticProgressCreation = true;
     WizardProgress *m_wizardProgress = nullptr;
     QSet<QString> m_fieldNames;
+    bool m_skipForSubproject = false;
 };
 
 Wizard::Wizard(QWidget *parent, Qt::WindowFlags flags) :
@@ -365,8 +368,8 @@ QHash<QString, QVariant> Wizard::variables() const
 QString typeOf(const QVariant &v)
 {
     QString result;
-    switch (v.type()) {
-    case QVariant::Map:
+    switch (v.typeId()) {
+    case QMetaType::QVariantMap:
         result = QLatin1String("Object");
         break;
     default:
@@ -523,6 +526,32 @@ void Wizard::_q_pageRemoved(int pageId)
         prevItem->setNextItems(nextItems);
     }
     d->m_wizardProgress->removeItem(item);
+}
+
+void Wizard::setSkipForSubprojects(bool skip)
+{
+    Q_D(Wizard);
+    d->m_skipForSubproject = skip;
+}
+
+int Wizard::nextId() const
+{
+    Q_D(const Wizard);
+    if (!d->m_skipForSubproject)
+        return QWizard::nextId();
+
+    const QList<int> allIds = pageIds();
+    int index = allIds.indexOf(currentId());
+    QTC_ASSERT(index > -1, return QWizard::nextId());
+
+    while (++index < allIds.size()) {
+        if (auto wp = qobject_cast<WizardPage *>(page(index))) {
+            if (!wp->skipForSubprojects())
+                return index;
+        }
+    }
+    QTC_CHECK(false); // should not happen
+    return QWizard::nextId();
 }
 
 class WizardProgressPrivate

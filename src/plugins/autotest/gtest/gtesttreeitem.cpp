@@ -8,6 +8,7 @@
 #include "gtestframework.h"
 #include "gtestparser.h"
 #include "../autotesttr.h"
+#include "../autotestplugin.h"
 
 #include <cppeditor/cppmodelmanager.h>
 
@@ -56,20 +57,6 @@ TestTreeItem *GTestTreeItem::copyWithoutChildren()
     return copied;
 }
 
-static QString wildCardPattern(const QString &original)
-{
-    QString pattern = original;
-    pattern.replace('.', "\\.");
-    pattern.replace('$', "\\$");
-    pattern.replace('(', "\\(").replace(')', "\\)");
-    pattern.replace('[', "\\[").replace(']', "\\]");
-    pattern.replace('{', "\\{").replace('}', "\\}");
-    pattern.replace('+', "\\+");
-    pattern.replace('*', ".*");
-    pattern.replace('?', '.');
-    return pattern;
-}
-
 static bool matchesFilter(const QString &filter, const QString &fullTestName)
 {
     QStringList positive;
@@ -87,12 +74,12 @@ static bool matchesFilter(const QString &filter, const QString &fullTestName)
         testName.append('.');
 
     for (const QString &curr : negative) {
-        QRegularExpression regex(wildCardPattern(curr));
+        QRegularExpression regex(wildcardPatternFromString(curr));
         if (regex.match(testName).hasMatch())
             return false;
     }
     for (const QString &curr : positive) {
-        QRegularExpression regex(wildCardPattern(curr));
+        QRegularExpression regex(wildcardPatternFromString(curr));
         if (regex.match(testName).hasMatch())
             return true;
     }

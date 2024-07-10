@@ -33,7 +33,8 @@ def qedit__QByteArray(d, value, data):
 
 
 def qdump__QByteArray(d, value):
-    if d.qtVersion() >= 0x60000:
+    d.qtVersionPing(value.typeid)
+    if d.qtVersionAtLeast(0x060000):
         dd, data, length = value.split('ppi')
         if dd:
             _, _, alloc = d.split('iii', dd)
@@ -76,7 +77,8 @@ def qdump__QByteArray(d, value):
 
 
 def qdump__QBitArray(d, value):
-    if d.qtVersion() >= 0x60000:
+    d.qtVersionPing(value.typeid)
+    if d.qtVersionAtLeast(0x060000):
         _, data, basize = value.split('ppi')
     else:
         data, basize, _ = d.qArrayData(value['d'])
@@ -221,24 +223,39 @@ def qdump__Qt__ItemDataRole(d, value):
 
 
 def qdump__QStandardItemData(d, value):
-    d.createType('@Qt::ItemDataRole') # warm up cache
+    #d.createType('@Qt::ItemDataRole') # warm up cache
     role, pad, val = value.split('{@Qt::ItemDataRole}@{@QVariant}')
     d.putPairContents(role.value(), (role, val), 'role', 'value')
 
 
 def qdump__QStandardItem(d, value):
-    d.createType('@QStandardItemData') # warm up cache
-    d.createType('@QStandardItem')
-    d.createType('@QStandardItem*')
+    #d.createType('@QStandardItemData') # warm up cache
+    #d.createType('@QStandardItem')
+    #d.createType('@QStandardItem*')
 
     vtable, dptr = value.split('pp')
-    if d.qtVersion() >= 0x060000:
-        model, parent, values, children, rows, cols, item = \
-            d.split('pp{@QList<@QStandardItemData>}{@QList<@QStandardItem *>}IIp', dptr)
+    if d.qtVersionAtLeast(0x060000):
+        if d.isCdb:
+            if d.isDebugBuild is None:
+                try:
+                    value["d_ptr"]
+                    d.isDebugBuild = True
+                except Exception:
+                    d.isDebugBuild = False
+            if d.isDebugBuild:
+                model = value["d_ptr"]["d"]["model"]
+                values = value["d_ptr"]["d"]["values"]
+                children = value["d_ptr"]["d"]["children"]
+            else:
+                model, parent, values, children, rows, cols, item = \
+                    d.split('pp{@QList<@QStandardItemData>}{@QList<@QStandardItem *>}IIp', dptr)
+        else:
+            model, parent, values, children, rows, cols, item = \
+                d.split('pp{@QList<@QStandardItemData>}{@QList<@QStandardItem *>}IIp', dptr)
     else:
         # There used to be a virtual destructor that got removed in
         # 88b6abcebf29b455438 on Apr 18 17:01:22 2017
-        if d.qtVersion() < 0x050900 and not d.isMsvcTarget():
+        if not d.qtVersionAtLeast(0x050900) and not d.isMsvcTarget():
             dptr += d.ptrSize();
         model, parent, values, children, rows, cols, item = \
             d.split('pp{@QVector<@QStandardItemData>}{@QVector<@QStandardItem *>}IIp', dptr)
@@ -247,7 +264,9 @@ def qdump__QStandardItem(d, value):
     d.putExpandable()
     if d.isExpanded():
         with Children(d):
-            d.putSubItem('[model]', d.createValue(model, '@QStandardItemModel'))
+            if isinstance(model, int):  # Used as address.
+                model = d.createValue(model, '@QStandardItemModel')
+            d.putSubItem('[model]', model)
             d.putSubItem('[values]', values)
             d.putSubItem('[children]', children)
 
@@ -266,7 +285,7 @@ def qdump__QDate(d, value):
                               d.enumExpression('DateFormat', 'TextDate'))
                 d.putCallItem('(ISO)', '@QString', value, 'toString',
                               d.enumExpression('DateFormat', 'ISODate'))
-                if d.qtVersion() < 0x060000:
+                if not d.qtVersionAtLeast(0x060000):
                     d.putCallItem('(SystemLocale)', '@QString', value, 'toString',
                                   d.enumExpression('DateFormat', 'SystemLocaleDate'))
                     d.putCallItem('(Locale)', '@QString', value, 'toString',
@@ -286,7 +305,7 @@ def qdump__QTime(d, value):
                           d.enumExpression('DateFormat', 'TextDate'))
             d.putCallItem('(ISO)', '@QString', value, 'toString',
                           d.enumExpression('DateFormat', 'ISODate'))
-            if d.canCallLocale() and d.qtVersion() < 0x060000:
+            if d.canCallLocale() and not d.qtVersionAtLeast(0x060000):
                 d.putCallItem('(SystemLocale)', '@QString', value, 'toString',
                               d.enumExpression('DateFormat', 'SystemLocaleDate'))
                 d.putCallItem('(Locale)', '@QString', value, 'toString',
@@ -305,13 +324,12 @@ def qdump__QTimeZone(d, value):
 
 
 def qdump__QDateTime(d, value):
-    qtVersion = d.qtVersion()
     isValid = False
     # This relies on the Qt4/Qt5 internal structure layout:
     # {sharedref(4), ...
     base = d.extractPointer(value)
     is32bit = d.ptrSize() == 4
-    if qtVersion >= 0x050200:
+    if d.qtVersionAtLeast(0x050200):
         tiVersion = d.qtTypeInfoVersion()
         #DumperBase.warn('TI VERSION: %s' % tiVersion)
         if tiVersion is None:
@@ -384,9 +402,9 @@ def qdump__QDateTime(d, value):
         # -     [QTime time;]
         # -      -  uint mds;
         # -  Spec spec;
-        dateSize = 8 if qtVersion >= 0x050000 else 4  # Qt5: qint64, Qt4 uint
+        dateSize = 8 if d.qtVersionAtLeast(0x050000) else 4  # Qt5: qint64, Qt4 uint
         # 4 byte padding after 4 byte QAtomicInt if we are on 64 bit and QDate is 64 bit
-        refPlusPadding = 8 if qtVersion >= 0x050000 and d.ptrSize() == 8 else 4
+        refPlusPadding = 8 if d.qtVersionAtLeast(0x050000) and d.ptrSize() == 8 else 4
         dateBase = base + refPlusPadding
         timeBase = dateBase + dateSize
         mds = d.extractInt(timeBase)
@@ -410,7 +428,7 @@ def qdump__QDateTime(d, value):
                               d.enumExpression('DateFormat', 'ISODate'))
                 d.putCallItem('toUTC', '@QDateTime', value, 'toTimeSpec',
                               d.enumExpression('TimeSpec', 'UTC'))
-                if d.qtVersion() < 0x060000:
+                if not d.qtVersionAtLeast(0x060000):
                     d.putCallItem('(SystemLocale)', '@QString', value, 'toString',
                                   d.enumExpression('DateFormat', 'SystemLocaleDate'))
                     d.putCallItem('(Locale)', '@QString', value, 'toString',
@@ -549,14 +567,11 @@ def qdump__QDir(d, value):
                 #d.putCallItem('absolutePath', '@QString', value, 'absolutePath')
                 #d.putCallItem('canonicalPath', '@QString', value, 'canonicalPath')
                 with SubItem(d, 'absolutePath'):
-                    typ = d.lookupType(ns + 'QString')
-                    d.putItem(d.createValue(privAddress + absoluteDirEntryOffset, typ))
+                    d.putItem(d.createValue(privAddress + absoluteDirEntryOffset, '@QString'))
                 with SubItem(d, 'entryInfoList'):
-                    typ = d.lookupType(ns + 'QFileInfo')
-                    qdumpHelper_QList(d, privAddress + fileInfosOffset, typ)
+                    qdumpHelper_QList(d, d.createValue(privAddress + fileInfosOffset, '@QList<@QFileInfo>'), '@QFileInfo')
                 with SubItem(d, 'entryList'):
-                    typ = d.lookupType(ns + 'QStringList')
-                    d.putItem(d.createValue(privAddress + filesOffset, typ))
+                    d.putItem(d.createValue(privAddress + filesOffset, '@QStringList'))
             d.putFields(value)
 
 
@@ -759,7 +774,6 @@ def qdump__QFile(d, value):
 def qdump__QFileInfo(d, value):
     privAddress = d.extractPointer(value)
     #bit32 = d.ptrSize() == 4
-    #qt5 = d.qtVersion() >= 0x050000
     #try:
     #    d.putStringValue(value['d_ptr']['d'].dereference()['fileNames'][3])
     #except:
@@ -879,7 +893,7 @@ def qdump__QVariantHash(d, value):
 
 
 def qdumpHelper_QHash(d, value, keyType, valueType):
-    if d.qtVersion() >= 0x60000:
+    if d.qtVersionAtLeast(0x060000):
         qdumpHelper_QHash_6(d, value, keyType, valueType)
     else:
         qdumpHelper_QHash_5(d, value, keyType, valueType)
@@ -921,7 +935,7 @@ def qdumpHelper_QHash_5(d, value, keyType, valueType):
 
     d.putItemCount(size)
     if d.isExpanded():
-        isShort = d.qtVersion() < 0x050000 and keyType.name == 'int'
+        isShort = not d.qtVersionAtLeast(0x050000) and keyType.name == 'int'
         with Children(d, size):
             node = hashDataFirstNode()
             for i in d.childRange():
@@ -997,7 +1011,7 @@ def qHashIteratorHelper(d, value):
     if d.isExpanded():
         with Children(d):
             node = d.extractPointer(value)
-            isShort = d.qtVersion() < 0x050000 and keyType.name == 'int'
+            isShort = not d.qtVersionAtLeast(0x050000) and keyType.name == 'int'
             if isShort:
                 typeCode = 'P{%s}@{%s}' % (keyType.name, valueType.name)
                 (pnext, key, padding2, val) = d.split(typeCode, node)
@@ -1018,9 +1032,8 @@ def qdump__QHash__iterator(d, value):
 
 def qdump__QHostAddress(d, value):
     dd = d.extractPointer(value)
-    qtVersion = d.qtVersion()
     tiVersion = d.qtTypeInfoVersion()
-    #DumperBase.warn('QT: %x, TI: %s' % (qtVersion, tiVersion))
+    #DumperBase.warn('QT: %x, TI: %s' % (d.qtVersion(), tiVersion))
     mayNeedParse = True
     if tiVersion is not None:
         if tiVersion >= 16:
@@ -1035,14 +1048,14 @@ def qdump__QHostAddress(d, value):
         else:
             (ipString, scopeId, a4, pad, a6, protocol, isParsed) \
                 = d.split('{@QString}{@QString}{@quint32}I16sI{bool}', dd)
-    elif qtVersion >= 0x050600:  # 5.6.0 at f3aabb42
+    elif d.qtVersionAtLeast(0x050600):  # 5.6.0 at f3aabb42
         if d.ptrSize() == 8 or d.isWindowsTarget():
             (ipString, scopeId, a4, pad, a6, protocol, isParsed) \
                 = d.split('{@QString}{@QString}{@quint32}I16sI{bool}', dd)
         else:
             (ipString, scopeId, a4, a6, protocol, isParsed) \
                 = d.split('{@QString}{@QString}{@quint32}16sI{bool}', dd)
-    elif qtVersion >= 0x050000:  # 5.2.0 at 62feb088
+    elif d.qtVersionAtLeast(0x050000):  # 5.2.0 at 62feb088
         (ipString, scopeId, a4, a6, protocol, isParsed) \
             = d.split('{@QString}{@QString}{@quint32}16sI{bool}', dd)
     else:  # 4.8.7 at b05d05f
@@ -1095,18 +1108,20 @@ def qform__QList():
 
 
 def qdump__QList(d, value):
-    return qdumpHelper_QList(d, value, d.createType(value.type[0]))
+    return qdumpHelper_QList(d, value, value.type[0])
 
 
 def qdump__QVariantList(d, value):
-    qdumpHelper_QList(d, value, d.createType('@QVariant'))
+    qdumpHelper_QList(d, value, '@QVariant')
 
 
-def qdumpHelper_QList(d, value, innerType):
+def qdumpHelper_QList(d, value, inner_typish):
+    innerType = d.createType(inner_typish)
     data, size = d.listData(value, check=True)
     d.putItemCount(size)
 
-    if d.qtVersion() >= 0x60000:
+    d.qtVersionPing(value.typeid)
+    if d.qtVersionAtLeast(0x060000):
         d.putPlotData(data, size, innerType)
         return
 
@@ -1147,9 +1162,9 @@ def qform__QImage():
 
 
 def qdump__QImage(d, value):
-    if d.qtVersion() >= 0x060000:
+    if d.qtVersionAtLeast(0x060000):
         vtbl, painters, image_data = value.split('ppp')
-    elif d.qtVersion() >= 0x050000:
+    elif d.qtVersionAtLeast(0x050000):
         vtbl, painters, reserved, image_data = value.split('pppp')
     else:
         vtbl, painters, image_data = value.split('ppp')
@@ -1163,12 +1178,12 @@ def qdump__QImage(d, value):
 
     d.putExpandable()
     if d.isExpanded():
-        if d.qtVersion() < 0x060000:
-            (ref, width, height, depth, nbytes, pad, devicePixelRatio, colorTable,
-                bits, iformat) = d.split('iiiii@dppi', image_data)
-        else:
+        if d.qtVersionAtLeast(0x060000):
             (ref, width, height, depth, nbytes, pad, devicePixelRatio, _, _, _,
                 bits, iformat) = d.split('iiiii@dppppi', image_data)
+        else:
+            (ref, width, height, depth, nbytes, pad, devicePixelRatio, colorTable,
+                bits, iformat) = d.split('iiiii@dppi', image_data)
         with Children(d):
             d.putIntItem('width', width)
             d.putIntItem('height', height)
@@ -1224,7 +1239,7 @@ def qdump__QLocale(d, value):
     #        index = int(value['d']['d']['m_data']...)
     #d.check(index >= 0)
     #d.check(index <= qqLocalesCount)
-    if d.qtVersion() < 0x50000:
+    if not d.qtVersionAtLeast(0x50000):
         d.putStringValue(d.call('const char *', value, 'name'))
         d.putPlainChildren(value)
         return
@@ -1238,14 +1253,20 @@ def qdump__QLocale(d, value):
         = d.split('2s{short}2s'
                   + '{@QChar}{@QChar}{short}{@QChar}{@QChar}'
                   + '{@QChar}{@QChar}{@QChar}', data)
+
+    prefix = ns + 'QLocale::'
     try:
-        d.putStringValue(d.call('const char *', value, 'name'))
+        if d.qtVersionAtLeast(0x060700):
+            res = d.call('const char *', value, 'name', prefix + 'TagSeparator::Underscore')
+        else:
+            res = d.call('const char *', value, 'name')
+        d.putStringValue(res)
     except:
         pass
+
     d.putExpandable()
     if d.isExpanded():
         with Children(d):
-            prefix = ns + 'QLocale::'
             d.putSubItem('country', d.createValue(countryId, prefix + 'Country'))
             d.putSubItem('language', d.createValue(languageId, prefix + 'Language'))
             d.putSubItem('numberOptions', d.createValue(numberOptions, prefix + 'NumberOptions'))
@@ -1342,9 +1363,9 @@ def qdump__QMap(d, value):
 
 
 def qdumpHelper_QMap(d, value, keyType, valueType):
-    if d.qtVersion() >= 0x60000:
+    if d.qtVersionAtLeast(0x060000):
         qdumpHelper_Qt6_QMap(d, value, keyType, valueType)
-    elif d.qtVersion() >= 0x50000:
+    elif d.qtVersionAtLeast(0x50000):
         qdumpHelper_Qt5_QMap(d, value, keyType, valueType)
     else:
         qdumpHelper_Qt4_QMap(d, value, keyType, valueType)
@@ -1364,7 +1385,7 @@ def qdumpHelper_Qt6_QMultiMap(d, value, keyType, valueType):
     d.putBetterType('@QMultiMap<%s, %s>' % (keyType.name, valueType.name))
 
 def qdump__QMultiMap(d, value):
-    if d.qtVersion() >= 0x60000:
+    if d.qtVersionAtLeast(0x060000):
         qdumpHelper_Qt6_QMultiMap(d, value, value.type[0], value.type[1])
     else:
         qdump__QMap(d, value)
@@ -1425,7 +1446,9 @@ if False:
             d.putSpecialValue('minimumitemcount', 0)
 
 
-def qdump__QPair(d, value):
+# FIXME: Qt 5
+# remvign the _xxxx makes GDB work with Qt 5 but breaks LLDB
+def qdump__QPair_xxxx(d, value):
     typeCode = '{%s}@{%s}' % (value.type[0].name, value.type[1].name)
     first, pad, second = value.split(typeCode)
     with Children(d):
@@ -1442,9 +1465,9 @@ def qdump__QProcEnvKey(d, value):
 
 
 def qdump__QPixmap(d, value):
-    if d.qtVersion() >= 0x060000:
+    if d.qtVersionAtLeast(0x060000):
         vtbl, painters, data = value.split('ppp')
-    elif d.qtVersion() >= 0x050000:
+    elif d.qtVersionAtLeast(0x050000):
         vtbl, painters, reserved, data = s = d.split('pppp', value)
     else:
         vtbl, painters, data = value.split('ppp')
@@ -1511,15 +1534,15 @@ def qdump__QRegion(d, value):
     if d_ptr == 0:
         d.putSpecialValue('empty')
     else:
-        if d.qtVersion() >= 0x060000:
+        if d.qtVersionAtLeast(0x060000):
             ref, _, rgn = d.split('i@p', d_ptr)
             numRects, innerArea, rects, extents, innerRect = \
                 d.split('ii{@QList<@QRect>}{@QRect}{@QRect}', rgn)
-        elif d.qtVersion() >= 0x050400:  # Padding removed in ee324e4ed
+        elif d.qtVersionAtLeast(0x050400):  # Padding removed in ee324e4ed
             ref, _, rgn = d.split('i@p', d_ptr)
             numRects, innerArea, rects, extents, innerRect = \
                 d.split('ii{@QVector<@QRect>}{@QRect}{@QRect}', rgn)
-        elif d.qtVersion() >= 0x050000:
+        elif d.qtVersionAtLeast(0x050000):
             ref, _, rgn = d.split('i@p', d_ptr)
             numRects, _, rects, extents, innerRect, innerArea = \
                 d.split('i@{@QVector<@QRect>}{@QRect}{@QRect}i', rgn)
@@ -1557,7 +1580,7 @@ def qdump__QScopedPointer(d, value):
 
 
 def qdump__QSet(d, value):
-    if d.qtVersion() >= 0x060000:
+    if d.qtVersionAtLeast(0x060000):
         qdumpHelper_QSet6(d, value)
     else:
         qdumpHelper_QSet45(d, value)
@@ -1630,7 +1653,7 @@ def qdumpHelper_QSet45(d, value):
     d.putItemCount(length)
     if d.isExpanded():
         keyType = value.type[0]
-        isShort = d.qtVersion() < 0x050000 and keyType.name == 'int'
+        isShort = not d.qtVersionAtLeast(0x050000) and keyType.name == 'int'
         with Children(d, length, childType=keyType):
             node = hashDataFirstNode()
             for i in d.childRange():
@@ -1707,7 +1730,7 @@ def qform__QStack():
 
 
 def qdump__QStack(d, value):
-    if d.qtVersion() >= 0x60000:
+    if d.qtVersionAtLeast(0x060000):
         qdump__QList(d, value)
     else:
         qdump__QVector(d, value)
@@ -1727,7 +1750,7 @@ def qdump__QPolygon(d, value):
 
 def qdump__QGraphicsPolygonItem(d, value):
     (vtbl, dptr) = value.split('pp')
-    if d.qtVersion() >= 0x060000:
+    if d.qtVersionAtLeast(0x060000):
         if d.ptrSize() == 8:
             offset = 424 # sizeof(QGraphicsPolygonItemPrivate), the base
         else:
@@ -1757,6 +1780,7 @@ def qform__QString():
 
 
 def qdump__QString(d, value):
+    d.qtVersionPing(value.typeid)
     d.putStringValue(value)
     data, length, _ = d.stringData(value)
     displayFormat = d.currentItemFormat()
@@ -1857,7 +1881,7 @@ def qdump__QStringRef(d, value):
 
 
 def qdump__QStringList(d, value):
-    qdumpHelper_QList(d, value, d.createType('@QString'))
+    qdumpHelper_QList(d, value, '@QString')
     d.putBetterType(value.type)
 
 
@@ -1917,7 +1941,7 @@ def qdump__QUrl(d, value):
         d.putValue('<invalid>')
         return
 
-    if d.qtVersion() < 0x050000:
+    if not d.qtVersionAtLeast(0x050000):
         d.call('void', value, 'port')  # Warm up internal cache.
         d.call('void', value, 'path')
         st = '{@QString}'
@@ -2147,7 +2171,8 @@ qdumpHelper_QVariants_F = [
 
 
 def qdump__QVariant(d, value):
-    if d.qtVersion() >= 0x060000:
+    d.qtVersionPing(value.typeid, 2 * d.ptrSize())
+    if d.qtVersionAtLeast(0x060000):
         qdumpHelper__QVariant6(d, value)
     else:
         qdumpHelper__QVariant45(d, value)
@@ -2201,12 +2226,12 @@ def qdumpHelper__QVariant45(d, value):
         return None
 
     # Extended Core type (Qt 5)
-    if variantType >= 31 and variantType <= 38 and d.qtVersion() >= 0x050000:
+    if variantType >= 31 and variantType <= 38 and d.qtVersionAtLeast(0x050000):
         qdumpHelper_QVariants_D[variantType - 31](d, value)
         return None
 
     # Extended Core type (Qt 4)
-    if variantType >= 128 and variantType <= 135 and d.qtVersion() < 0x050000:
+    if variantType >= 128 and variantType <= 135 and not d.qtVersionAtLeast(0x050000):
         if variantType == 128:
             d.putBetterType('@QVariant (void *)')
             d.putValue('0x%x' % value.extractPointer())
@@ -2227,7 +2252,7 @@ def qdumpHelper__QVariant45(d, value):
             innert = qdumpHelper_QVariants_B[variantType - 7]
         elif variantType <= 74:
             innert = qdumpHelper_QVariants_E[variantType - 64]
-        elif d.qtVersion() < 0x050000:
+        elif not d.qtVersionAtLeast(0x050000):
             innert = qdumpHelper_QVariants_F[variantType - 76]
         else:
             innert = qdumpHelper_QVariants_F[variantType - 75]
@@ -2301,29 +2326,30 @@ def qform__QVector():
 
 
 def qdump__QVector(d, value):
-    if d.qtVersion() >= 0x060000:
+    d.qtVersionPing(value.typeid)
+    if d.qtVersionAtLeast(0x060000):
         data, length = d.listData(value)
         d.putItemCount(length)
-        d.putPlotData(data, length, d.createType(value.type.ltarget[0]))
+        d.putPlotData(data, length, value.type.target()[0])
         # g++ 9.3 does not add the template parameter list to the debug info.
         # Fake it for the common case:
         if value.type.name == d.qtNamespace() + "QVector":
-            d.putBetterType(value.type.name + '<' + value.type.ltarget[0].name + '>')
+            d.putBetterType(value.type.name + '<' + value.type.target()[0].name + '>')
     else:
         data, length = d.vectorData(value)
         d.putItemCount(length)
-        d.putPlotData(data, length, d.createType(value.type[0]))
+        d.putPlotData(data, length, value.type[0])
 
 
 if False:
     def qdump__QObjectConnectionList(d, value):
         data, length = d.vectorData(value)
         d.putItemCount(length)
-        d.putPlotData(data, length, d.createType('@QObjectPrivate::ConnectionList'))
+        d.putPlotData(data, length, '@QObjectPrivate::ConnectionList')
 
 
 def qdump__QVarLengthArray(d, value):
-    if d.qtVersion() >= 0x060000:
+    if d.qtVersionAtLeast(0x060000):
         cap, length, data = value.split('QQp')
     else:
         cap, length, data = value.split('iip')
@@ -2359,7 +2385,7 @@ def qdump_QWeakPointerHelper(d, value, isWeak, innerType=None):
         d.putValue('<invalid>')
         return
 
-    if d.qtVersion() >= 0x050000:
+    if d.qtVersionAtLeast(0x050000):
         (weakref, strongref) = d.split('ii', d_ptr)
     else:
         (vptr, weakref, strongref) = d.split('pii', d_ptr)
@@ -2865,7 +2891,7 @@ def qdump__QJSValue(d, value):
     if d.ptrSize() == 4:
         qdump_32__QJSValue(d, value)
     else:
-        if d.qtVersion() >= 0x60000:
+        if d.qtVersionAtLeast(0x060000):
             qdump_64__QJSValue_6(d, value)
         else:
             qdump_64__QJSValue_5(d, value)
@@ -2899,7 +2925,7 @@ def qdump_64__QJSValue_6(d, value):
     if dd == 0:
         d.putValue('(undefined)')
         d.putType(value.type.name + ' (undefined)')
-    if d.qtVersion() < 0x60500:
+    if not d.qtVersionAtLeast(0x60500):
         typ = dd >> 47
         if typ == 5:
             d.putValue('(null)')
@@ -2913,15 +2939,13 @@ def qdump_64__QJSValue_6(d, value):
         elif typ > 7:
             val = d.Value(d)
             val.ldata = struct.pack('q', dd ^ 0xfffc000000000000)
-            val._type = d.createType('double')
-            d.putItem(val)
+            d.putItem(val.cast('double'))
             d.putType(value.type.name + ' (double)')
         elif typ <= 3: # Heap
             if dd & 1: # String
                 val = d.Value(d)
                 val.ldata = struct.pack('q', dd & ~1)
-                val._type = d.createType('@QString*')
-                d.putItem(val)
+                d.putItem(val.cast('@QString*'))
                 d.putType(value.type.name + ' (QString)')
             else:
                 # FIXME: Arrays, Objects missing.
@@ -2955,16 +2979,13 @@ def qdump_64__QJSValue_6(d, value):
             val = d.Value(d)
             val.ldata = struct.pack('q', pointer)
             if typ == 1:
-                val._type = d.createType('double*')
-                d.putItem(val)
+                d.putItem(val.cast('double*'))
                 d.putType(value.type.name + ' (double)')
             elif typ == 3:
-                val._type = d.createType('@QV4::Value*')
-                d.putItem(val)
+                d.putItem(val.cast('@QV4::Value*'))
                 d.putType(value.type.name + ' (QV4::Value)')
             elif typ == 5:
-                val._type = d.createType('@QString*')
-                d.putItem(val)
+                d.putItem(val.cast('@QString*'))
                 d.putType(value.type.name + ' (QString)')
 
         else:
@@ -3324,7 +3345,7 @@ def qdumpHelper_QJsonObject(d, data, obj):
 def qdump__QJsonValue(d, value):
     (data, dd, t) = value.split('QpI')
 
-    if d.qtVersion() >= 0x050f00:
+    if d.qtVersionAtLeast(0x050f00):
         value = d.createProxyValue((data, dd, t, False), 'QCborValue_proxy')
         d.putItem(value)
         return
@@ -3359,13 +3380,13 @@ def qdump__QJsonValue(d, value):
 
 
 def qdump__QJsonArray(d, value):
-    if d.qtVersion() >= 0x060000:
+    if d.qtVersionAtLeast(0x060000):
         dptr = d.extractPointer(value)
         if not dptr:
             d.putItemCount(0)
         else:
             qdumpHelper_QCbor_array(d, dptr, False)
-    elif d.qtVersion() >= 0x050f00:
+    elif d.qtVersionAtLeast(0x050f00):
         _, container_ptr = value.split('pp')
         qdumpHelper_QCbor_array(d, container_ptr, False)
     else:
@@ -3373,13 +3394,13 @@ def qdump__QJsonArray(d, value):
 
 
 def qdump__QJsonObject(d, value):
-    if d.qtVersion() >= 0x060000:
+    if d.qtVersionAtLeast(0x060000):
         dptr = d.extractPointer(value)
         if not dptr:
             d.putItemCount(0)
         else:
             qdumpHelper_QCbor_map(d, dptr, False)
-    elif d.qtVersion() >= 0x050f00:
+    elif d.qtVersionAtLeast(0x050f00):
         _, container_ptr = value.split('pp')
         qdumpHelper_QCbor_map(d, container_ptr, False)
     else:
@@ -3454,15 +3475,15 @@ def qdump__qfloat16(d, value):
 def qdumpHelper_QCbor_string(d, container_ptr, element_index, is_bytes):
     # d.split('i@{@QByteArray::size_type}pp', container_ptr) doesn't work with CDB,
     # so be explicit:
-    data_pos = container_ptr + (2 * d.ptrSize() if d.qtVersion() >= 0x060000 else 8)
-    elements_pos = data_pos + (3 * d.ptrSize() if d.qtVersion() >= 0x060000 else d.ptrSize())
+    data_pos = container_ptr + (2 * d.ptrSize() if d.qtVersionAtLeast(0x060000) else 8)
+    elements_pos = data_pos + (3 * d.ptrSize() if d.qtVersionAtLeast(0x060000) else d.ptrSize())
     elements_data_ptr, elements_size = d.vectorData(elements_pos)
     element_at_n_addr = elements_data_ptr + element_index * 16 # sizeof(QtCbor::Element) == 16
     element_value, _, element_flags = d.split('qII', element_at_n_addr)
     enc = 'latin1' if is_bytes or (element_flags & 8) else 'utf16'
     bytedata, _, _ = d.qArrayData(data_pos)
     bytedata += element_value
-    if d.qtVersion() >= 0x060000:
+    if d.qtVersionAtLeast(0x060000):
         bytedata_len = d.extractInt64(bytedata)
         bytedata_data = bytedata + 8
     else:
@@ -3491,8 +3512,8 @@ def qdumpHelper_QCbor_array(d, container_ptr, is_cbor):
         return
     # d.split('i@{@QByteArray::size_type}pp', container_ptr) doesn't work with CDB,
     # so be explicit:
-    data_pos = container_ptr + (2 * d.ptrSize() if d.qtVersion() >= 0x060000 else 8)
-    elements_pos = data_pos + (3 * d.ptrSize() if d.qtVersion() >= 0x060000 else d.ptrSize())
+    data_pos = container_ptr + (2 * d.ptrSize() if d.qtVersionAtLeast(0x060000) else 8)
+    elements_pos = data_pos + (3 * d.ptrSize() if d.qtVersionAtLeast(0x060000) else d.ptrSize())
     elements_data_ptr, elements_size = d.vectorData(elements_pos)
     d.putItemCount(elements_size)
     if d.isExpanded():
@@ -3513,8 +3534,8 @@ def qdumpHelper_QCbor_map(d, container_ptr, is_cbor):
         return
     # d.split('i@{@QByteArray::size_type}pp', container_ptr) doesn't work with CDB,
     # so be explicit:
-    data_pos = container_ptr + (2 * d.ptrSize() if d.qtVersion() >= 0x060000 else 8)
-    elements_pos = data_pos + (3 * d.ptrSize() if d.qtVersion() >= 0x060000 else d.ptrSize())
+    data_pos = container_ptr + (2 * d.ptrSize() if d.qtVersionAtLeast(0x060000) else 8)
+    elements_pos = data_pos + (3 * d.ptrSize() if d.qtVersionAtLeast(0x060000) else d.ptrSize())
     elements_data_ptr, elements_size = d.vectorData(elements_pos)
     elements_size = int(elements_size / 2)
     d.putItemCount(elements_size)
@@ -3538,7 +3559,7 @@ def qdump__QCborValue(d, value):
     d.putPlainChildren(value)
 
 def qdump__QCborValue_proxy(d, value):
-    item_data, container_ptr, item_type, is_cbor = value.data()
+    item_data, container_ptr, item_type, is_cbor = value.ldata
 
     def typename(key, is_cbor):
         if is_cbor:

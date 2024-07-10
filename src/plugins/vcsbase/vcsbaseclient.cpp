@@ -125,7 +125,7 @@ QStringList VcsBaseClientImpl::splitLines(const QString &s)
 QString VcsBaseClientImpl::stripLastNewline(const QString &in)
 {
     if (in.endsWith('\n'))
-        return in.left(in.count() - 1);
+        return in.left(in.size() - 1);
     return in;
 }
 

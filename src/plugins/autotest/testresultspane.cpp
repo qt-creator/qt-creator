@@ -86,8 +86,8 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     visualOutputWidget->setLayout(outputLayout);
 
     QPalette pal;
-    pal.setColor(QPalette::Window, creatorTheme()->color(Theme::InfoBarBackground));
-    pal.setColor(QPalette::WindowText, creatorTheme()->color(Theme::InfoBarText));
+    pal.setColor(QPalette::Window, creatorColor(Theme::InfoBarBackground));
+    pal.setColor(QPalette::WindowText, creatorColor(Theme::InfoBarText));
     m_summaryWidget = new QFrame;
     m_summaryWidget->setPalette(pal);
     m_summaryWidget->setAutoFillBackground(true);

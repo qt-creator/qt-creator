@@ -14,7 +14,7 @@
     ],
     "Category" : "Core",
     "Description" : "Text editor framework and the implementation of the basic text editor.",
-    "Url" : "http://www.qt.io",
+    "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES},
     "Mimetypes" : [
         "<?xml version='1.0'?>",

@@ -23,12 +23,12 @@
 
     To run an example application on an Android or iOS device, you must set up
     the development environment for Android or iOS. For more information, see
-    \l{Connecting Android Devices} and \l{Connecting iOS Devices}.
+    \l{Developing for Android} and \l{Developing for iOS}.
 
-    To run an example application on a Boot2Qt device, you must set up
-    Boot2Qt on the development host and create connections
+    To run an example application on a \B2Q device, you must set up
+    \B2Q on the development host and create connections
     between the host and devices. For more information, see
-    \l{Boot2Qt: Documentation}.
+    \l{\B2Q: Documentation}.
 
     If you have \l{Qt Design Studio Manual}{\QDS} installed, you can open
     \QDS examples from \QC in \QDS.
@@ -47,11 +47,11 @@
         \li Select an example in the list of examples.
 
             You can also use tags (3) to filter examples. For instance, enter
-            the \uicontrol Boot2Qt tag (commercial only) in the search field
-            (4) to list examples that you can run on Boot2Qt devices.
+            the \uicontrol \B2Q tag (commercial only) in the search field
+            (4) to list examples that you can run on \B2Q devices.
 
         \li In \uicontrol {Configure Project}, select
-            \l{glossary-buildandrun-kit}{kits} for building the example for the
+            \l{Kits}{kits} for building the example for the
             target platforms.
 
             \image qtcreator-configure-project.webp {Configure Project view}
@@ -86,6 +86,6 @@
     \endlist
 
     \sa {Manage Kits}{How To: Manage Kits}, {Open projects},
-    {Connecting Android Devices}, {Connecting iOS Devices},
-    {Compile Output}, {Boot2Qt: Documentation}, {Qt Design Studio Manual}
+    {Developing for Android}, {Developing for iOS},
+    {Compile Output}, {\B2Q: Documentation}, {Qt Design Studio Manual}
 */

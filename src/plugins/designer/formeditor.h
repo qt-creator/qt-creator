@@ -35,7 +35,7 @@ namespace Internal {
   * This is based on the assumption that the Designer settings work with
   * no plugins loaded.
   *
-  * The form editor shows a read-only XML editor in edit mode and Qt Designer
+  * The form editor shows a read-only XML editor in edit mode and Qt Widgets Designer
   * in Design mode. */
 
 enum InitializationStage {

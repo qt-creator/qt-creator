@@ -20,7 +20,8 @@ public:
     void handleProcessStart();
     void handleProcessStarted();
     void setNativeArguments(const QString &arguments);
-    void setWindowsSpecificStartupFlags(bool belowNormalPriority, bool createConsoleWindow);
+    void setWindowsSpecificStartupFlags(
+        bool belowNormalPriority, bool createConsoleWindow, bool forceDefaultErrorMode);
 
 private:
     ProcessMode m_processMode = ProcessMode::Reader;

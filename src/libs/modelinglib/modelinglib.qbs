@@ -238,6 +238,8 @@ QtcLibrary {
             "model_controller/mselection.h",
             "model_controller/mvoidvisitor.cpp",
             "model_controller/mvoidvisitor.h",
+            "model_ui/modeltreefilterdata.cpp",
+            "model_ui/modeltreefilterdata.h",
             "model_ui/modeltreeviewinterface.h",
             "model_ui/sortedtreemodel.cpp",
             "model_ui/sortedtreemodel.h",
@@ -247,8 +249,12 @@ QtcLibrary {
             "model_ui/treemodel.h",
             "model_ui/treemodelmanager.cpp",
             "model_ui/treemodelmanager.h",
+            "model_widgets_ui/addrelatedelementsdialog.h",
+            "model_widgets_ui/addrelatedelementsdialog.cpp",
             "model_widgets_ui/classmembersedit.cpp",
             "model_widgets_ui/classmembersedit.h",
+            "model_widgets_ui/modeltreefilter.cpp",
+            "model_widgets_ui/modeltreefilter.h",
             "model_widgets_ui/modeltreeview.cpp",
             "model_widgets_ui/modeltreeview.h",
             "model_widgets_ui/palettebox.cpp",
@@ -295,6 +301,8 @@ QtcLibrary {
             "style/objectvisuals.h",
             "style/relationstarterstyle.cpp",
             "style/relationstarterstyle.h",
+            "style/relationvisuals.cpp",
+            "style/relationvisuals.h",
             "style/style.cpp",
             "style/style.h",
             "style/stylecontroller.cpp",
@@ -388,8 +396,8 @@ QtcLibrary {
 
     Export {
         cpp.includePaths: [
-            ".",
-            "./qtserialization/inc"
+            exportingProduct.sourceDirectory,
+            exportingProduct.sourceDirectory + "/qtserialization/inc"
         ]
     }
 }

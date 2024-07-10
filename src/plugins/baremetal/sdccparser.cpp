@@ -73,8 +73,8 @@ OutputLineParser::Result SdccParser::handleLine(const QString &line, OutputForma
         const QString descr = match.captured(MessageTextIndex);
         newTask(CompileTask(type, descr, absoluteFilePath(fileName), lineno));
         LinkSpecs linkSpecs;
-        addLinkSpecForAbsoluteFilePath(linkSpecs, m_lastTask.file, m_lastTask.line, match,
-                                       FilePathIndex);
+        addLinkSpecForAbsoluteFilePath(
+            linkSpecs, m_lastTask.file, m_lastTask.line, m_lastTask.column, match, FilePathIndex);
         return {Status::InProgress, linkSpecs};
     }
 
@@ -90,8 +90,8 @@ OutputLineParser::Result SdccParser::handleLine(const QString &line, OutputForma
         const QString descr = match.captured(MessageTextIndex);
         newTask(CompileTask(type, descr, absoluteFilePath(fileName), lineno));
         LinkSpecs linkSpecs;
-        addLinkSpecForAbsoluteFilePath(linkSpecs, m_lastTask.file, m_lastTask.line, match,
-                                       FilePathIndex);
+        addLinkSpecForAbsoluteFilePath(
+            linkSpecs, m_lastTask.file, m_lastTask.line, m_lastTask.column, match, FilePathIndex);
         return {Status::InProgress, linkSpecs};
     }
 

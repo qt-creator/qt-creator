@@ -1,6 +1,7 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include <utils/algorithm.h>
 #include <utils/environment.h>
 
 #include <QtTest>
@@ -263,10 +264,18 @@ void tst_Environment::incrementalChanges()
 {
     const Environment origEnv({{"VAR1", "VALUE1"}, {"VAR2", "VALUE2"}, {"PATH", "/usr/bin"}});
     const EnvironmentItems changes({
+        {"VAR1", QString(), EnvironmentItem::Comment},
         {"VAR1", QString(), EnvironmentItem::Unset},
         {"VAR2", "VALUE2", EnvironmentItem::SetDisabled},
+        {"PATH+=/bin", QString(), EnvironmentItem::Comment},
         {"PATH", "/usr/local/bin", EnvironmentItem::Append},
-        {"PATH", "/tmp", EnvironmentItem::Prepend}});
+        {"PATH", "/tmp", EnvironmentItem::Prepend},
+        {"PATH=/opt/bin", QString(), EnvironmentItem::Comment}});
+
+    const QStringList changesStringList = EnvironmentItem::toStringList(changes);
+    const int comments = Utils::count(changesStringList,
+                                      [](const QString &line) { return line.startsWith("##"); });
+    QCOMPARE(comments, 3);
 
     // Check values after change application.
     Environment newEnv = origEnv;
@@ -290,7 +299,7 @@ void tst_Environment::incrementalChanges()
     QCOMPARE(newEnv2, origEnv);
 
     // Check conversion round-trips.
-    QCOMPARE(EnvironmentItem::fromStringList(EnvironmentItem::toStringList(changes)), changes);
+    QCOMPARE(EnvironmentItem::fromStringList(changesStringList), changes);
     QCOMPARE(EnvironmentItem::fromStringList(EnvironmentItem::toStringList(diff)), diff);
     QCOMPARE(EnvironmentItem::fromStringList(EnvironmentItem::toStringList(reverseDiff)), reverseDiff);
     QCOMPARE(EnvironmentItem::itemsFromVariantList(EnvironmentItem::toVariantList(changes)), changes);
@@ -368,9 +377,12 @@ void tst_Environment::pathChanges()
     else
         environment.appendOrSet(variable, value);
 
-    qDebug() << "Actual  :" << environment.toStringList();
-    qDebug() << "Expected:" << expected.toStringList();
-    QCOMPARE(environment, expected);
+    const bool envEqualsExpected = environment == expected;
+    if (!envEqualsExpected) {
+        qDebug() << "Actual  :" << environment.toStringList();
+        qDebug() << "Expected:" << expected.toStringList();
+    }
+    QVERIFY(envEqualsExpected);
 }
 
 void tst_Environment::find_data()

@@ -136,8 +136,8 @@ public:
         setLayout(layout);
 
         QPalette pal;
-        pal.setColor(QPalette::Window, Utils::creatorTheme()->color(Theme::InfoBarBackground));
-        pal.setColor(QPalette::WindowText, Utils::creatorTheme()->color(Theme::InfoBarText));
+        pal.setColor(QPalette::Window, Utils::creatorColor(Theme::InfoBarBackground));
+        pal.setColor(QPalette::WindowText, Utils::creatorColor(Theme::InfoBarText));
         setPalette(pal);
 
         setAutoFillBackground(true);
@@ -277,7 +277,7 @@ public:
         diagnosticItem->setFixitOperations(replacements);
     }
 
-    void apply(ClangToolsDiagnosticModel *model)
+    void apply()
     {
         for (auto it = m_refactoringFileInfos.begin(); it != m_refactoringFileInfos.end(); ++it) {
             RefactoringFileInfo &fileInfo = it.value();
@@ -318,14 +318,12 @@ public:
             QVector<DiagnosticItem *> itemsInvalidated;
 
             fileInfo.file.setReplacements(ops);
-            model->removeWatchedPath(ops.first()->filePath);
             if (fileInfo.file.apply()) {
                 itemsApplied = itemsScheduled;
             } else {
                 itemsFailedToApply = itemsScheduled;
                 itemsInvalidated = itemsSchedulable;
             }
-            model->addWatchedPath(ops.first()->filePath);
 
             // Update DiagnosticItem state
             for (DiagnosticItem *diagnosticItem : std::as_const(itemsScheduled))
@@ -341,7 +339,8 @@ private:
     QMap<FilePath, RefactoringFileInfo> m_refactoringFileInfos;
 };
 
-static FileInfos sortedFileInfos(const QVector<ProjectPart::ConstPtr> &projectParts)
+static FileInfos sortedFileInfos(const CppCodeModelSettings &settings,
+                                 const QVector<ProjectPart::ConstPtr> &projectParts)
 {
     FileInfos fileInfos;
 
@@ -359,7 +358,7 @@ static FileInfos sortedFileInfos(const QVector<ProjectPart::ConstPtr> &projectPa
             if (file.active && (ProjectFile::isSource(file.kind)
                                 || ProjectFile::isHeader(file.kind))) {
                 ProjectFile::Kind sourceKind = ProjectFile::sourceKind(file.kind);
-                fileInfos.emplace_back(file.path, sourceKind, projectPart);
+                fileInfos.emplace_back(file.path, sourceKind, settings, projectPart);
             }
         }
     }
@@ -393,7 +392,7 @@ ClangTool::ClangTool(const QString &name, Id id, ClangToolType type)
     : m_name(name), m_perspective{id.toString(), name}, m_type(type)
 {
     setObjectName(name);
-    m_diagnosticModel = new ClangToolsDiagnosticModel(this);
+    m_diagnosticModel = new ClangToolsDiagnosticModel(type, this);
 
     auto action = new QAction(Tr::tr("Analyze Project with %1...").arg(name), this);
     action->setIcon(Utils::Icons::RUN_SELECTED_TOOLBAR.icon());
@@ -475,11 +474,10 @@ ClangTool::ClangTool(const QString &name, Id id, ClangToolType type)
 
     // Expand/Collapse
     action = new QAction(this);
-    action->setDisabled(true);
     action->setCheckable(true);
     action->setIcon(Utils::Icons::EXPAND_ALL_TOOLBAR.icon());
-    action->setToolTip(Tr::tr("Expand All"));
-    connect(action, &QAction::toggled, this, [this](bool checked){
+    m_expandCollapse = action;
+    const auto handleCollapseExpandToggled = [this](bool checked){
         if (checked) {
             m_expandCollapse->setToolTip(Tr::tr("Collapse All"));
             m_diagnosticView->expandAll();
@@ -487,8 +485,9 @@ ClangTool::ClangTool(const QString &name, Id id, ClangToolType type)
             m_expandCollapse->setToolTip(Tr::tr("Expand All"));
             m_diagnosticView->collapseAll();
         }
-    });
-    m_expandCollapse = action;
+    };
+    connect(action, &QAction::toggled, this, handleCollapseExpandToggled);
+    handleCollapseExpandToggled(action->isChecked());
 
     // Filter button
     action = m_showFilter = new QAction(this);
@@ -534,7 +533,7 @@ ClangTool::ClangTool(const QString &name, Id id, ClangToolType type)
             diagnosticItems += item;
         });
 
-        ApplyFixIts(diagnosticItems).apply(m_diagnosticModel);
+        ApplyFixIts(diagnosticItems).apply();
     });
 
     // Open Project Settings
@@ -901,7 +900,8 @@ FileInfos ClangTool::collectFileInfos(Project *project, FileSelection fileSelect
     const auto projectInfo = CppModelManager::projectInfo(project);
     QTC_ASSERT(projectInfo, return FileInfos());
 
-    const FileInfos allFileInfos = sortedFileInfos(projectInfo->projectParts());
+    const FileInfos allFileInfos = sortedFileInfos(projectInfo->settings(),
+                                                   projectInfo->projectParts());
 
     if (selectionType && *selectionType == FileSelectionType::AllFiles)
         return allFileInfos;
@@ -1242,8 +1242,32 @@ QSet<Diagnostic> ClangTool::diagnostics() const
 
 void ClangTool::onNewDiagnosticsAvailable(const Diagnostics &diagnostics, bool generateMarks)
 {
-    QTC_ASSERT(m_diagnosticModel, return);
+    const int oldLevel1RowCount = m_diagnosticModel->rowCount();
+    const auto getOldLastLevel1Index = [&] {
+        return m_diagnosticModel->index(oldLevel1RowCount - 1, 0);
+    };
+    const auto getLevel2RowCountForOldLastLevel1Index = [&] {
+        return oldLevel1RowCount == 0 ? -1 : m_diagnosticModel->rowCount(getOldLastLevel1Index());
+    };
+    const int oldLevel2RowCount = getLevel2RowCountForOldLastLevel1Index();
     m_diagnosticModel->addDiagnostics(diagnostics, generateMarks);
+    if (!m_expandCollapse->isChecked())
+        return;
+
+    // Now expand newly added items, both in existing file nodes and in newly added ones.
+    // We assume diagnostics arrive "in order", i.e. things are only ever added at the end
+    // (in the source model).
+    const int newLevel2RowCount = getLevel2RowCountForOldLastLevel1Index();
+    for (int i = oldLevel2RowCount; i < newLevel2RowCount; ++i) {
+        m_diagnosticView->expand(m_diagnosticFilterModel->mapFromSource(
+            m_diagnosticModel
+                ->index(i, 0, m_diagnosticFilterModel->mapFromSource(getOldLastLevel1Index()))));
+    }
+    const int newLevel1RowCount = m_diagnosticFilterModel->rowCount();
+    for (int i = oldLevel1RowCount; i < newLevel1RowCount; ++i) {
+        m_diagnosticView->expandRecursively(
+            m_diagnosticFilterModel->mapFromSource(m_diagnosticModel->index(i, 0)));
+    }
 }
 
 void ClangTool::updateForCurrentState()
@@ -1273,7 +1297,6 @@ void ClangTool::updateForCurrentState()
     m_goBack->setEnabled(issuesVisible > 0);
     m_goNext->setEnabled(issuesVisible > 0);
     m_clear->setEnabled(!isRunning);
-    m_expandCollapse->setEnabled(issuesVisible);
     m_loadExported->setEnabled(!isRunning);
     m_showFilter->setEnabled(issuesFound > 1);
 

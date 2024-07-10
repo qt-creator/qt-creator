@@ -115,6 +115,7 @@ CommandLine &operator<<(Utils::CommandLine &command, SubversionClient::AddAuthOp
 
 QString SubversionClient::synchronousTopic(const FilePath &repository) const
 {
+    // TODO: Looks unused
     QStringList args;
 
     QString svnVersionBinary = vcsBinary(repository).toString();

@@ -37,7 +37,7 @@ def getQtCreatorVersionFromFile():
 
 def checkQtCreatorHelpVersion(expectedVersion):
     def rightStart(x):
-        return x.startswith('Qt Creator Manual')
+        return x.startswith('Qt Creator Documentation')
 
     switchViewTo(ViewConstants.HELP)
     try:
@@ -45,7 +45,7 @@ def checkQtCreatorHelpVersion(expectedVersion):
         waitFor("any(map(rightStart, dumpItems(helpContentWidget.model())))", 10000)
         items = dumpItems(helpContentWidget.model())
         test.compare(next(iter(filter(rightStart, items))),
-                     'Qt Creator Manual %s' % expectedVersion,
+                     'Qt Creator Documentation %s' % expectedVersion,
                      'Verifying whether manual uses expected version.')
     except:
         t, v = sys.exc_info()[:2]

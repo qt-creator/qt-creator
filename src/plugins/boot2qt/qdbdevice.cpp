@@ -88,9 +88,9 @@ private:
             }
             showMessage(errorString, true);
             if (!stdOut.isEmpty())
-                showMessage(Tr::tr("stdout was: \"%1\"").arg(stdOut));
+                showMessage(Tr::tr("stdout was: \"%1\".").arg(stdOut));
             if (!stdErr.isEmpty())
-                showMessage(Tr::tr("stderr was: \"%1\"").arg(stdErr));
+                showMessage(Tr::tr("stderr was: \"%1\".").arg(stdErr));
         } else {
             showMessage(Tr::tr("Commands on device \"%1\" finished successfully.")
                         .arg(m_deviceName));
@@ -107,11 +107,11 @@ private:
 
 QdbDevice::QdbDevice()
 {
-    setDisplayType(Tr::tr("Boot2Qt Device"));
+    setDisplayType(Tr::tr("Boot to Qt Device"));
     setType(Constants::QdbLinuxOsType);
 
     addDeviceAction({Tr::tr("Reboot Device"), [](const IDevice::Ptr &device, QWidget *) {
-        (void) new DeviceApplicationObserver(device, {device->filePath("reboot"), {}});
+        (void) new DeviceApplicationObserver(device, CommandLine{device->filePath("reboot")});
     }});
 
     addDeviceAction({Tr::tr("Restore Default App"), [](const IDevice::Ptr &device, QWidget *) {
@@ -218,7 +218,7 @@ public:
     QdbDeviceWizard(QWidget *parent)
         : QWizard(parent)
     {
-        setWindowTitle(Tr::tr("Boot2Qt Network Device Setup"));
+        setWindowTitle(Tr::tr("Boot to Qt Network Device Setup"));
         settingsPage.setCommitPage(true);
 
         enum { SettingsPageId };
@@ -253,7 +253,7 @@ public:
     QdbLinuxDeviceFactory()
         : IDeviceFactory(Constants::QdbLinuxOsType)
     {
-        setDisplayName(Tr::tr("Boot2Qt Device"));
+        setDisplayName(Tr::tr("Boot to Qt Device"));
         setCombinedIcon(":/qdb/images/qdbdevicesmall.png", ":/qdb/images/qdbdevice.png");
         setQuickCreationAllowed(true);
         setConstructionFunction(&QdbDevice::create);

@@ -33,6 +33,6 @@ void cacheRunConfigChoice(const QString &buildTargetKey, const ChoicePair &choic
 ChoicePair cachedChoiceFor(const QString &buildTargetKey);
 void clearChoiceCache();
 void popupResultsPane();
-
+QString wildcardPatternFromString(const QString &original);
 
 } // Autotest::Internal

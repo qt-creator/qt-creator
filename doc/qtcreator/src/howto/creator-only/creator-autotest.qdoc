@@ -359,10 +359,6 @@
             found by the code based test frameworks and are registered as test
             with the build system.
 
-    If a test takes more than a minute to execute, the default timeout might
-    stop the test execution. To increase the timeout, go to \preferences >
-    \uicontrol {Testing} > \uicontrol General.
-
     \section1 Select tests to run
 
     The \uicontrol Tests view shows all the tests found for the currently active
@@ -501,7 +497,7 @@
             the current project.
     \row
         \li \uicontrol {Timeout}
-        \li The maximum time in seconds to execute a test case.
+        \li Set a maximum time in seconds to execute a test case.
      \row
         \li \uicontrol {Reset Cached Choices}
         \li Sometimes, \QC cannot deduce which executable or run configuration to
@@ -519,7 +515,7 @@
             By default, \QC groups tests that are in the same directory.
     \endtable
 
-    To select the testing framework for the current project, go to
+    To override some preferences for the current project, go to
     \uicontrol Projects > \uicontrol {Project Settings} > \uicontrol {Testing}.
 
     \section1 Qt Tests
@@ -719,7 +715,7 @@
         \li Disable statistical analysis and bootstrapping.
     \endtable
 
-    \section2 Specifying Settings for Running CTest-Based Tests
+    \section1 CTest-Based Tests
 
     To specify settings for running CTest-based tests, go to \preferences >
     \uicontrol {Testing} > \uicontrol {CTest}.
@@ -751,7 +747,7 @@
         \li Re-run tests, as determined by \uicontrol {Repetition mode}. Set the
             maximum number of times for repeating a test in \uicontrol {Count}.
     \row
-        \li \uicontrol {Run in parallel}
+        \li \uicontrol {Run in Parallel}
         \li Run the tests in parallel using the specified number of
             \uicontrol {Jobs}. In \uicontrol {Test load}, limit the parallel
             execution. CTest will not start a new test if it would cause the
@@ -853,8 +849,7 @@
 
     \section1 Blacklisting Tests
 
-    Since Qt 5.4, you can add a BLACKLIST file for tests. It is mainly used
-    internally by the Qt CI system.
+    A BLACKLIST file for tests is mainly used internally by the Qt CI system.
 
     \table
         \header

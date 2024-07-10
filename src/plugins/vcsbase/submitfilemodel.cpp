@@ -45,7 +45,7 @@ static QBrush fileStatusTextForeground(SubmitFileModel::FileStatusHint statusHin
         statusTextColor = Theme::VcsBase_FileUnmerged_TextColor;
         break;
     }
-    return QBrush(Utils::creatorTheme()->color(statusTextColor));
+    return QBrush(Utils::creatorColor(statusTextColor));
 }
 
 static QList<QStandardItem *> createFileRow(const FilePath &repositoryRoot,

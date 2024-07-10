@@ -62,12 +62,12 @@ static IWizardFactory::WizardKind wizardKind(JsonWizard *wiz)
 // --------------------------------------------------------------------
 
 JsonSummaryPage::JsonSummaryPage(QWidget *parent) :
-    Internal::ProjectWizardPage(parent),
+    ProjectWizardPage(parent),
     m_wizard(nullptr)
 {
-    connect(this, &Internal::ProjectWizardPage::projectNodeChanged,
+    connect(this, &ProjectWizardPage::projectNodeChanged,
             this, &JsonSummaryPage::summarySettingsHaveChanged);
-    connect(this, &Internal::ProjectWizardPage::versionControlChanged,
+    connect(this, &ProjectWizardPage::versionControlChanged,
             this, &JsonSummaryPage::summarySettingsHaveChanged);
 }
 

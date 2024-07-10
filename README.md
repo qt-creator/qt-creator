@@ -38,12 +38,12 @@ https://doc.qt.io/qtcreator-extending/coding-style.html
 
 Prerequisites:
 
-* Qt 6.2 or later. The Qt version that you use to build Qt Creator defines the
+* Qt 6.4.3 or later. The Qt version that you use to build Qt Creator defines the
   minimum platform versions that the result supports
-  (Windows 10, RHEL/CentOS 8.4, Ubuntu 20.04, macOS 10.15 for Qt 6.2).
+  (Windows 10, RHEL/CentOS 8.4, Ubuntu 20.04, macOS 10.15 for Qt 6.4.3).
 * Qt WebEngine module for QtWebEngine based help viewer
 * On Windows:
-    * MinGW with GCC 9 or Visual Studio 2019 or later
+    * MinGW with GCC 11.2 or Visual Studio 2019 or later
     * Python 3.8 or later (optional, needed for the python enabled debug helper)
     * Debugging Tools for Windows (optional, for MSVC debugging support with CDB)
 * On Mac OS X: latest Xcode
@@ -96,7 +96,7 @@ include the version number and compiler ABI. The path to the online installer
 content is not enough.
 
 Note that `/path/to/Qt` doesn't imply the full path depth like:
-`$USER/Qt/6.2.4/gcc_64/lib/cmake/Qt6`, but only `$USER/Qt/6.2.4/gcc_64`.
+`$USER/Qt/6.4.3/gcc_64/lib/cmake/Qt6`, but only `$USER/Qt/6.4.3/gcc_64`.
 
 See [instructions](#getting-llvmclang-for-the-clang-code-model) on how to
 get LLVM.
@@ -106,6 +106,33 @@ get LLVM.
 
     cmake -DCMAKE_BUILD_TYPE=Debug -G Ninja "-DCMAKE_PREFIX_PATH=/path/to/Qt;/path/to/llvm" /path/to/qtcreator_sources
     cmake --build .
+
+#### Troubleshooting: libxcb plugin not found while using Qt libraries built locally from source
+
+Ensure all prerequisites for building Qt are installed:
+https://doc.qt.io/qt-6/linux.html
+https://doc.qt.io/qt-6/linux-requirements.html
+
+If they were installed before building Qt and xcb plugin is missing try reinstall them with
+
+```sh
+    sudo apt-get --reinstall <package_name>
+```
+
+Reset building configuration for Qt libraries at '/path/to/qt_sources'
+
+```sh
+    cmake --build . --target=clean
+```
+
+and remove CMakeCache.txt
+
+```sh
+    rm CMakeCache.txt
+```
+
+Try building Qt source again.
+
 
 ### Windows
 
@@ -118,7 +145,7 @@ include the version number and compiler ABI. The path to the online installer
 content is not enough.
 
 Note that `\path\to\Qt` doesn't imply the full path depth like:
-`c:\Qt\6.2.4\msvc2019_64\lib\cmake\Qt6`, but only `c:/Qt/6.2.4/msvc2019_64`.
+`c:\Qt\6.4.3\msvc2019_64\lib\cmake\Qt6`, but only `c:/Qt/6.4.3/msvc2019_64`.
 The usage of slashes `/` is intentional, since CMake has issues with backslashes `\`
 in `CMAKE_PREFX_PATH`, they are interpreted as escape codes.
 
@@ -198,7 +225,7 @@ CLion...etc) locally:
       "cacheVariables": {
         "CMAKE_CXX_COMPILER": "cl.exe",
         "CMAKE_C_COMPILER": "cl.exe",
-        "CMAKE_PREFIX_PATH": "c:/Qt/6.2.4/msvc2019_64"
+        "CMAKE_PREFIX_PATH": "c:/Qt/6.4.3/msvc2019_64"
       }
     }
   ]
@@ -286,7 +313,7 @@ http://llvm.org/docs/GettingStarted.html#git-mirror:
 
    1. Clone LLVM/Clang and checkout a suitable branch
 
-          git clone -b release_130-based --recursive https://code.qt.io/clang/llvm-project.git
+          git clone -b release_17.0.6-based --recursive https://code.qt.io/clang/llvm-project.git
 
    2. Build and install LLVM/Clang
 
@@ -313,16 +340,6 @@ http://llvm.org/docs/GettingStarted.html#git-mirror:
             -D CMAKE_INSTALL_PREFIX=<installation location> ^
             ..\llvm-project\llvm
           cmake --build . --target install
-
-### Clang-Format
-
-The ClangFormat plugin depends on the additional patch
-
-    https://code.qt.io/cgit/clang/llvm-project.git/commit/?h=release_130-based&id=42879d1f355fde391ef46b96a659afeb4ad7814a
-
-While the plugin builds without it, it might not be fully functional.
-
-Note that the plugin is disabled by default.
 
 # Licenses and Attributions
 

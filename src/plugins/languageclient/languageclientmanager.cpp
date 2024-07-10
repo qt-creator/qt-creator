@@ -194,7 +194,7 @@ void LanguageClientManager::clientFinished(Client *client)
             openDocumentWithClient(document, nullptr);
     }
 
-    deleteClient(client);
+    deleteClient(client, unexpectedFinish);
     if (isShutdownFinished())
         emit managerInstance->shutdownFinished();
 }
@@ -234,7 +234,7 @@ void LanguageClientManager::shutdownClient(Client *client)
         deleteClient(client);
 }
 
-void LanguageClientManager::deleteClient(Client *client)
+void LanguageClientManager::deleteClient(Client *client, bool unexpected)
 {
     QTC_ASSERT(managerInstance, return);
     QTC_ASSERT(client, return);
@@ -252,7 +252,7 @@ void LanguageClientManager::deleteClient(Client *client)
     managerInstance->trackClientDeletion(client);
 
     if (!PluginManager::isShuttingDown())
-        emit instance()->clientRemoved(client);
+        emit instance()->clientRemoved(client, unexpected);
 }
 
 void LanguageClientManager::shutdown()
@@ -275,13 +275,14 @@ LanguageClientManager *LanguageClientManager::instance()
     return managerInstance;
 }
 
-QList<Client *> LanguageClientManager::clientsSupportingDocument(const TextEditor::TextDocument *doc)
+QList<Client *> LanguageClientManager::clientsSupportingDocument(
+    const TextEditor::TextDocument *doc, bool onlyReachable)
 {
     QTC_ASSERT(managerInstance, return {});
     QTC_ASSERT(doc, return {};);
-    return Utils::filtered(managerInstance->reachableClients(), [doc](Client *client) {
-        return client->isSupportedDocument(doc);
-    });
+    return Utils::filtered(
+        onlyReachable ? managerInstance->reachableClients() : managerInstance->m_clients,
+        [doc](Client *client) { return client->isSupportedDocument(doc); });
 }
 
 void LanguageClientManager::applySettings()
@@ -387,6 +388,7 @@ void LanguageClientManager::enableClientSettings(const QString &settingsId, bool
 QList<Client *> LanguageClientManager::clientsForSetting(const BaseSettings *setting)
 {
     QTC_ASSERT(managerInstance, return {});
+    QTC_ASSERT(setting, return {});
     auto instance = managerInstance;
     return instance->m_clientsForSetting.value(setting->m_id);
 }

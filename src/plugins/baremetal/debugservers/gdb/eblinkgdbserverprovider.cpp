@@ -151,7 +151,7 @@ QString EBlinkGdbServerProvider::channelString() const
 
 CommandLine EBlinkGdbServerProvider::command() const
 {
-    CommandLine cmd{m_executableFile, {}};
+    CommandLine cmd{m_executableFile};
     QStringList interFaceTypeStrings = {"swd", "jtag"};
 
     // Obligatorily -I

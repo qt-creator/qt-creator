@@ -30,13 +30,12 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/algorithm.h>
 #include <utils/commandline.h>
 #include <utils/detailswidget.h>
 #include <utils/futuresynchronizer.h>
 #include <utils/layoutbuilder.h>
+#include <utils/mimeconstants.h>
 #include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
@@ -109,7 +108,7 @@ void PySideBuildStep::checkForPySide(const FilePath &python, const QString &pySi
     });
     const auto future = Pip::instance(python)->info(package);
     m_watcher->setFuture(future);
-    ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(future);
+    Utils::futureSynchronizer()->addFuture(future);
 }
 
 void PySideBuildStep::handlePySidePackageInfo(const PipPackageInfo &pySideInfo,
@@ -265,7 +264,7 @@ PythonBuildConfiguration::PythonBuildConfiguration(Target *target, const Id &id)
 
     updateCacheAndEmitEnvironmentChanged();
 
-    connect(&pySideInstaller(),
+    connect(&PySideInstaller::instance(),
             &PySideInstaller::pySideInstalled,
             this,
             &PythonBuildConfiguration::handlePythonUpdated);
@@ -273,13 +272,7 @@ PythonBuildConfiguration::PythonBuildConfiguration(Target *target, const Id &id)
     auto update = [this] {
         if (isActive()) {
             m_buildSystem->emitBuildSystemUpdated();
-            const FilePaths files = project()->files(Project::AllFiles);
-            for (const FilePath &file : files) {
-                if (auto doc = qobject_cast<PythonDocument *>(
-                        Core::DocumentModel::documentForFilePath(file))) {
-                    doc->updatePython(m_python);
-                }
-            }
+            updateDocuments();
         }
     };
     connect(target, &Target::activeBuildConfigurationChanged, this, update);
@@ -338,16 +331,23 @@ void PythonBuildConfiguration::updatePython(const FilePath &python)
     m_python = python;
     if (auto buildStep = buildSteps()->firstOfType<PySideBuildStep>())
         buildStep->checkForPySide(python);
+    updateDocuments();
+    m_buildSystem->requestParse();
+}
+
+void PythonBuildConfiguration::updateDocuments()
+{
     if (isActive()) {
         const FilePaths files = project()->files(Project::AllFiles);
         for (const FilePath &file : files) {
-            if (auto doc = qobject_cast<PythonDocument *>(
-                    Core::DocumentModel::documentForFilePath(file))) {
-                doc->updatePython(m_python);
+            if (auto doc = TextEditor::TextDocument::textDocumentForFilePath(file)) {
+                if (auto pyDoc = qobject_cast<PythonDocument *>(doc))
+                    pyDoc->updatePython(m_python);
+                else if (doc->mimeType() == Utils::Constants::QML_MIMETYPE)
+                    PySideInstaller::instance().checkPySideInstallation(m_python, doc);
             }
         }
     }
-    m_buildSystem->requestParse();
 }
 
 void PythonBuildConfiguration::handlePythonUpdated(const FilePath &python)

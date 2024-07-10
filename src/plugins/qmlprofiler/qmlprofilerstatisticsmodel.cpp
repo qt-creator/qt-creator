@@ -201,7 +201,7 @@ QVariant QmlProfilerStatisticsModel::dataForMainEntry(const QModelIndex &index, 
     case TypeIdRole:
         return s_mainEntryTypeId;
     case Qt::ForegroundRole:
-        return Utils::creatorTheme()->color(Utils::Theme::Timeline_TextColor);
+        return Utils::creatorColor(Utils::Theme::Timeline_TextColor);
     case SortRole:
         switch (index.column()) {
         case MainTimeInPercent:
@@ -279,8 +279,8 @@ QVariant QmlProfilerStatisticsModel::data(const QModelIndex &index, int role) co
         }
     case Qt::ForegroundRole:
         return (stats.recursive > 0 || m_notes.contains(typeIndex))
-                ? Utils::creatorTheme()->color(Utils::Theme::Timeline_HighlightColor)
-                : Utils::creatorTheme()->color(Utils::Theme::Timeline_TextColor);
+                ? Utils::creatorColor(Utils::Theme::Timeline_HighlightColor)
+                : Utils::creatorColor(Utils::Theme::Timeline_TextColor);
     case SortRole:
         switch (index.column()) {
         case MainLocation:
@@ -547,7 +547,7 @@ QVariant QmlProfilerStatisticsRelativesModel::dataForMainEntry(qint64 totalDurat
     case TypeIdRole:
         return QmlProfilerStatisticsModel::s_mainEntryTypeId;
     case Qt::ForegroundRole:
-        return Utils::creatorTheme()->color(Utils::Theme::Timeline_TextColor);
+        return Utils::creatorColor(Utils::Theme::Timeline_TextColor);
     case SortRole:
         if (column == RelativeTotalTime)
             return totalDuration;
@@ -598,8 +598,8 @@ QVariant QmlProfilerStatisticsRelativesModel::data(const QModelIndex &index, int
         return stats.isRecursive ? Tr::tr("called recursively") : QString();
     case Qt::ForegroundRole:
         return stats.isRecursive
-                ? Utils::creatorTheme()->color(Utils::Theme::Timeline_HighlightColor)
-                : Utils::creatorTheme()->color(Utils::Theme::Timeline_TextColor);
+                ? Utils::creatorColor(Utils::Theme::Timeline_HighlightColor)
+                : Utils::creatorColor(Utils::Theme::Timeline_TextColor);
     case SortRole:
         switch (index.column()) {
         case RelativeLocation:

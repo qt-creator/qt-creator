@@ -79,7 +79,7 @@ FilePropertiesDialog::FilePropertiesDialog(const FilePath &filePath, QWidget *pa
             Tr::tr("Last modified:"), m_lastModified, br,
             Tr::tr("Readable:"), m_readable, br,
             Tr::tr("Writable:"), m_writable, br,
-            Tr::tr("Executable:"), m_executable, br,
+            Tr::tr("Executable:", "adjective"), m_executable, br,
             Tr::tr("Symbolic link:"), m_symLink, br
         },
         buttonBox

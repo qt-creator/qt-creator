@@ -113,16 +113,17 @@ void CppcheckRunner::checkQueued()
     if (m_queue.isEmpty() || !m_binary.isExecutableFile())
         return;
 
+    CommandLine commandLine{m_binary, m_arguments, CommandLine::Raw};
     FilePaths files = m_queue.begin().value();
-    QString arguments = m_arguments + ' ' + m_queue.begin().key();
+    commandLine.addArgs(m_queue.begin().key(), CommandLine::Raw);
     m_currentFiles.clear();
-    int argumentsLength = arguments.length();
+    int argumentsLength = commandLine.arguments().length();
     while (!files.isEmpty()) {
-        argumentsLength += files.first().toString().size() + 1; // +1 for separator
+        argumentsLength += files.first().toString().size() + 3; // +1 for separator +2 for quotes
         if (argumentsLength >= m_maxArgumentsLength)
             break;
         m_currentFiles.push_back(files.first());
-        arguments += ' ' + files.first().toString();
+        commandLine.addArg(files.first().toString());
         files.pop_front();
     }
 
@@ -131,7 +132,7 @@ void CppcheckRunner::checkQueued()
     else
         m_queue.begin().value() = files;
 
-    m_process.setCommand(CommandLine(m_binary, arguments, CommandLine::Raw));
+    m_process.setCommand(commandLine);
     m_process.start();
 }
 
@@ -140,7 +141,7 @@ void CppcheckRunner::handleDone()
     if (m_process.result() == ProcessResult::FinishedWithSuccess)
         m_tool.finishParsing();
     else
-        Core::MessageManager::writeSilently(m_process.exitMessage());
+        m_tool.finishWithFail(m_process.exitMessage());
 
     m_currentFiles.clear();
     m_process.close();

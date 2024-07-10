@@ -84,7 +84,7 @@ QVariant SCAttributeItemModel::data(const QModelIndex &index, int role) const
             }
         } else {
             if (bEditable) {
-                if (m_tag->tagType() > MetadataItem && m_tag->info()->attributes[index.row()].datatype == QVariant::StringList)
+                if (m_tag->tagType() > MetadataItem && m_tag->info()->attributes[index.row()].datatype == QMetaType::QStringList)
                     return QString::fromLatin1(m_tag->info()->attributes[index.row()].value).split(";");
                 else
                     return m_tag->attribute(index.row());
@@ -100,11 +100,11 @@ QVariant SCAttributeItemModel::data(const QModelIndex &index, int role) const
             break;
     case DataTypeRole: {
         if (m_tag->tagType() == Metadata || m_tag->tagType() == MetadataItem)
-            return (int)QVariant::String;
+            return (int)QMetaType::QString;
         else if (index.column() == 1 && m_tag->info()->n_attributes > 0)
             return m_tag->info()->attributes[index.row()].datatype;
         else
-            return QVariant::Invalid;
+            return {};
     }
     case DataRole: {
         if (m_tag->info()->n_attributes > 0)

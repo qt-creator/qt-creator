@@ -5,7 +5,7 @@
 
 #include "cppeditorwidget.h"
 #include "cppmodelmanager.h"
-#include "cppquickfix_test.h"
+#include "quickfixes/cppquickfix_test.h"
 
 #include <texteditor/texteditor.h>
 

@@ -4,6 +4,7 @@
 #include "cpptoolsreuse.h"
 
 #include "clangdiagnosticconfigsmodel.h"
+#include "clangdsettings.h"
 #include "cppautocompleter.h"
 #include "cppcanonicalsymbol.h"
 #include "cppcodemodelsettings.h"
@@ -14,9 +15,9 @@
 #include "cppfilesettingspage.h"
 #include "cpphighlighter.h"
 #include "cppqtstyleindenter.h"
-#include "cppquickfixassistant.h"
 #include "cpprefactoringchanges.h"
 #include "projectinfo.h"
+#include "quickfixes/cppquickfixassistant.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -357,20 +358,9 @@ CppCompletionAssistProcessor *getCppCompletionAssistProcessor()
     return new Internal::InternalCppCompletionAssistProcessor();
 }
 
-CppCodeModelSettings *codeModelSettings()
+QString deriveHeaderGuard(const Utils::FilePath &filePath, ProjectExplorer::Project *project)
 {
-    return &cppCodeModelSettings();
-}
-
-int indexerFileSizeLimitInMb()
-{
-    const CppCodeModelSettings *settings = codeModelSettings();
-    QTC_ASSERT(settings, return -1);
-
-    if (settings->skipIndexingBigFiles())
-        return settings->indexerFileSizeLimitInMb();
-
-    return -1;
+    return Internal::cppFileSettingsForProject(project).headerGuard(filePath);
 }
 
 bool fileSizeExceedsLimit(const FilePath &filePath, int sizeLimitInMb)
@@ -380,24 +370,11 @@ bool fileSizeExceedsLimit(const FilePath &filePath, int sizeLimitInMb)
 
     const qint64 fileSizeInMB = filePath.fileSize() / (1000 * 1000);
     if (fileSizeInMB > sizeLimitInMb) {
-        const QString msg = Tr::tr("C++ Indexer: Skipping file \"%1\" because it is too big.")
-                        .arg(filePath.displayName());
-
-        QMetaObject::invokeMethod(Core::MessageManager::instance(),
-                                  [msg]() { Core::MessageManager::writeSilently(msg); });
-
+        Core::MessageManager::writeSilently(Tr::tr("C++ Indexer: Skipping file \"%1\" because "
+                                                   "it is too big.").arg(filePath.displayName()));
         return true;
     }
-
     return false;
-}
-
-UsePrecompiledHeaders getPchUsage()
-{
-    const CppCodeModelSettings *cms = codeModelSettings();
-    if (cms->pchUsage() == CppCodeModelSettings::PchUse_None)
-        return UsePrecompiledHeaders::No;
-    return UsePrecompiledHeaders::Yes;
 }
 
 static void addBuiltinConfigs(ClangDiagnosticConfigsModel &model)

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "languageclient_global.h"
+
 #include <languageserverprotocol/client.h>
 
 namespace LanguageClient {
@@ -21,7 +23,7 @@ public:
 
     void disable()
     {
-        m_enabled = true;
+        m_enabled = false;
         m_id.clear();
         m_options = QJsonValue();
     }
@@ -37,7 +39,7 @@ private:
 
 };
 
-class DynamicCapabilities
+class LANGUAGECLIENT_EXPORT DynamicCapabilities
 {
 public:
     DynamicCapabilities() = default;

@@ -19,5 +19,5 @@
 
     \image qtcreator-cmake-profiler.webp {CMake profiling information in Chrome Trace Format Visualizer}
 
-    \sa {CMake}, {Visualizing Chrome Trace Events}
+    \sa {CMake}, {Chrome Trace Format Visualizer}
 */

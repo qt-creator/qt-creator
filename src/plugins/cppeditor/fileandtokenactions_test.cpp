@@ -4,20 +4,20 @@
 #include "fileandtokenactions_test.h"
 
 #include "cppeditorwidget.h"
-#include "cppquickfix.h"
-#include "cppquickfixassistant.h"
-#include "cppinsertvirtualmethods.h"
 #include "cppmodelmanager.h"
 #include "cpptoolstestcase.h"
-#include "cpptypehierarchy.h"
 #include "cppworkingcopy.h"
 #include "projectinfo.h"
+#include "quickfixes/cppquickfix.h"
+#include "quickfixes/cppquickfixassistant.h"
+#include "quickfixes/cppinsertvirtualmethods.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/typehierarchy.h>
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/TranslationUnit.h>
@@ -164,7 +164,7 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
         QVERIFY(CppModelManager::workingCopy().get(filePath));
 
         // Rehighlight
-        waitForRehighlightedSemanticDocument(editorWidget);
+        QVERIFY(waitForRehighlightedSemanticDocument(editorWidget));
 
         // Run all file actions
         executeActionsOnEditorWidget(editorWidget, fileActions);
@@ -383,7 +383,7 @@ public:
 
 void OpenTypeHierarchyTokenAction::run(CppEditorWidget *)
 {
-    openCppTypeHierarchy();
+    TextEditor::openTypeHierarchy();
     QApplication::processEvents();
 }
 

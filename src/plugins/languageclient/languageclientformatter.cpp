@@ -69,7 +69,8 @@ QFutureWatcher<ChangeSet> *LanguageClientFormatter::format(
             = m_client->capabilities().documentRangeFormattingProvider();
         if (!provider.has_value())
             return nullptr;
-        if (std::holds_alternative<bool>(*provider) && !std::get<bool>(*provider))
+        const auto boolvalue = std::get_if<bool>(&*provider);
+        if (boolvalue && !*boolvalue)
             return nullptr;
     }
     DocumentRangeFormattingParams params;

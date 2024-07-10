@@ -7,8 +7,6 @@
 #include "remotelinuxtr.h"
 #include "utils/async.h"
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -16,9 +14,10 @@
 #include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/algorithm.h>
-#include <utils/qtcprocess.h>
+#include <utils/async.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
 using namespace ProjectExplorer;
@@ -27,11 +26,6 @@ using namespace Utils;
 
 namespace RemoteLinux {
 namespace Internal {
-
-struct TransferStorage
-{
-    bool useGenericCopy = false;
-};
 
 class GenericLinuxDeviceTesterPrivate
 {
@@ -44,8 +38,7 @@ public:
     GroupItem echoTask(const QString &contents) const;
     GroupItem unameTask() const;
     GroupItem gathererTask() const;
-    GroupItem transferTask(FileTransferMethod method,
-                           const Storage<TransferStorage> &storage) const;
+    GroupItem transferTask(FileTransferMethod method) const;
     GroupItem transferTasks() const;
     GroupItem commandTasks() const;
 
@@ -101,13 +94,12 @@ GroupItem GenericLinuxDeviceTesterPrivate::connectionTask() const
     const auto onSetup = [this](Async<bool> &task) {
         emit q->progressMessage(Tr::tr("Connecting to device..."));
         task.setConcurrentCallData([device = m_device] { return device->tryToConnect(); });
-        task.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
     };
     const auto onDone = [this](const Async<bool> &task) {
         const bool success = task.isResultAvailable() && task.result();
         if (success) {
             // TODO: For master: move the '\n' outside of Tr().
-            emit q->progressMessage(Tr::tr("Connected. Now doing extended checks.\n"));
+            emit q->progressMessage(Tr::tr("Connected. Now doing extended checks.") + "\n");
         } else {
             emit q->errorMessage(
                 Tr::tr("Basic connectivity test failed, device is considered unusable.") + '\n');
@@ -194,8 +186,7 @@ GroupItem GenericLinuxDeviceTesterPrivate::gathererTask() const
     };
 }
 
-GroupItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod method,
-                                           const Storage<TransferStorage> &storage) const
+GroupItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod method) const
 {
     const auto onSetup = [this, method](FileTransfer &transfer) {
         emit q->progressMessage(Tr::tr("Checking whether \"%1\" works...")
@@ -203,7 +194,7 @@ GroupItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod metho
         transfer.setTransferMethod(method);
         transfer.setTestDevice(m_device);
     };
-    const auto onDone = [this, method, storage](const FileTransfer &transfer, DoneWith result) {
+    const auto onDone = [this, method](const FileTransfer &transfer, DoneWith result) {
         const QString methodName = FileTransfer::transferMethodName(method);
         if (result == DoneWith::Success) {
             emit q->progressMessage(Tr::tr("\"%1\" is functional.\n").arg(methodName));
@@ -211,8 +202,6 @@ GroupItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod metho
                 m_device->setExtraData(Constants::SUPPORTS_RSYNC, true);
             else if (method == FileTransferMethod::Sftp)
                 m_device->setExtraData(Constants::SUPPORTS_SFTP, true);
-            else
-                storage->useGenericCopy = true;
             return;
         }
         const ProcessResultData resultData = transfer.resultData();
@@ -253,13 +242,11 @@ GroupItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod metho
 
 GroupItem GenericLinuxDeviceTesterPrivate::transferTasks() const
 {
-    Storage<TransferStorage> storage;
     return Group {
         continueOnSuccess,
-        storage,
-        transferTask(FileTransferMethod::GenericCopy, storage),
-        transferTask(FileTransferMethod::Sftp, storage),
-        transferTask(FileTransferMethod::Rsync, storage),
+        transferTask(FileTransferMethod::GenericCopy),
+        transferTask(FileTransferMethod::Sftp),
+        transferTask(FileTransferMethod::Rsync),
         onGroupDone([this] {
             emit q->errorMessage(Tr::tr("Deployment to this device will not work out of the box.")
                                  + "\n");

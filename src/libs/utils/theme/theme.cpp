@@ -18,6 +18,7 @@
 namespace Utils {
 
 static Theme *m_creatorTheme = nullptr;
+static std::optional<QPalette> m_initialPalette;
 
 ThemePrivate::ThemePrivate()
 {
@@ -37,9 +38,31 @@ Theme *proxyTheme()
     return new Theme(m_creatorTheme);
 }
 
+// Convenience
+QColor creatorColor(Theme::Color role)
+{
+    return m_creatorTheme->color(role);
+}
+
+static bool paletteIsDark(const QPalette &pal)
+{
+    return pal.color(QPalette::Window).lightnessF() < pal.color(QPalette::WindowText).lightnessF();
+}
+
+static bool isOverridingPalette(const Theme *theme)
+{
+    if (theme->flag(Theme::DerivePaletteFromTheme))
+        return true;
+    if (theme->flag(Theme::DerivePaletteFromThemeIfNeeded)
+        && paletteIsDark(Theme::initialPalette()) != theme->flag(Theme::DarkUserInterface)) {
+        return true;
+    }
+    return false;
+}
+
 void setThemeApplicationPalette()
 {
-    if (m_creatorTheme && m_creatorTheme->flag(Theme::ApplyThemePaletteGlobally))
+    if (m_creatorTheme && isOverridingPalette(m_creatorTheme))
         QApplication::setPalette(m_creatorTheme->palette());
 }
 
@@ -185,7 +208,7 @@ void Theme::setDisplayName(const QString &name)
 
 void Theme::readSettingsInternal(QSettings &settings)
 {
-    const QStringList includes = settings.value("Includes").toString().split(",", Qt::SkipEmptyParts);
+    const QStringList includes = settings.value("Includes").toStringList();
 
     for (const QString &include : includes) {
         FilePath path = FilePath::fromString(d->fileName);
@@ -311,7 +334,13 @@ bool Theme::systemUsesDarkMode()
     if (HostOsInfo::isMacHost())
         return macOSSystemIsDark();
 
-    return false;
+    // Avoid enforcing the initial palette.
+    // The initial palette must be set after setting the macOS appearance in setInitialPalette,
+    // but systemUsesDarkMode is used to determine the default theme, which is in turn required
+    // for the setInitialPalette call
+    if (m_initialPalette)
+        return paletteIsDark(*m_initialPalette);
+    return paletteIsDark(QApplication::palette());
 }
 
 // If you copy QPalette, default values stay at default, even if that default is different
@@ -347,14 +376,17 @@ void Theme::setHelpMenu(QMenu *menu)
 
 QPalette Theme::initialPalette()
 {
-    static QPalette palette = copyPalette(QApplication::palette());
-    return palette;
+    if (!m_initialPalette) {
+        m_initialPalette = copyPalette(QApplication::palette());
+        QApplication::setPalette(*m_initialPalette);
+    }
+    return *m_initialPalette;
 }
 
 QPalette Theme::palette() const
 {
     QPalette pal = initialPalette();
-    if (!flag(DerivePaletteFromTheme))
+    if (!isOverridingPalette(this))
         return pal;
 
     const static struct {

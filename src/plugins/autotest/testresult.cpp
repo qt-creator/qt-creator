@@ -135,33 +135,32 @@ QColor TestResult::colorForType(const ResultType type)
     if (type >= ResultType::INTERNAL_MESSAGES_BEGIN && type <= ResultType::INTERNAL_MESSAGES_END)
         return QColor("transparent");
 
-    const Theme *theme = creatorTheme();
     switch (type) {
     case ResultType::Pass:
-        return theme->color(Theme::OutputPanes_TestPassTextColor);
+        return creatorColor(Theme::OutputPanes_TestPassTextColor);
     case ResultType::Fail:
-        return theme->color(Theme::OutputPanes_TestFailTextColor);
+        return creatorColor(Theme::OutputPanes_TestFailTextColor);
     case ResultType::ExpectedFail:
-        return theme->color(Theme::OutputPanes_TestXFailTextColor);
+        return creatorColor(Theme::OutputPanes_TestXFailTextColor);
     case ResultType::UnexpectedPass:
-        return theme->color(Theme::OutputPanes_TestXPassTextColor);
+        return creatorColor(Theme::OutputPanes_TestXPassTextColor);
     case ResultType::Skip:
-        return theme->color(Theme::OutputPanes_TestSkipTextColor);
+        return creatorColor(Theme::OutputPanes_TestSkipTextColor);
     case ResultType::MessageDebug:
     case ResultType::MessageInfo:
-        return theme->color(Theme::OutputPanes_TestDebugTextColor);
+        return creatorColor(Theme::OutputPanes_TestDebugTextColor);
     case ResultType::MessageWarn:
-        return theme->color(Theme::OutputPanes_TestWarnTextColor);
+        return creatorColor(Theme::OutputPanes_TestWarnTextColor);
     case ResultType::MessageFatal:
     case ResultType::MessageSystem:
     case ResultType::MessageError:
-        return theme->color(Theme::OutputPanes_TestFatalTextColor);
+        return creatorColor(Theme::OutputPanes_TestFatalTextColor);
     case ResultType::BlacklistedPass:
     case ResultType::BlacklistedFail:
     case ResultType::BlacklistedXPass:
     case ResultType::BlacklistedXFail:
     default:
-        return theme->color(Theme::OutputPanes_StdOutTextColor);
+        return creatorColor(Theme::OutputPanes_StdOutTextColor);
     }
 }
 

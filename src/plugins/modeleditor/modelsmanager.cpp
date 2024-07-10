@@ -38,10 +38,10 @@
 #include <projectexplorer/projecttree.h>
 #include <utils/fileutils.h>
 
-#include <QFileInfo>
-#include <QDir>
 #include <QTimer>
 #include <QAction>
+
+using Utils::FilePath;
 
 namespace ModelEditor {
 namespace Internal {
@@ -121,7 +121,7 @@ ExtDocumentController *ModelsManager::createModel(ModelDocument *modelDocument)
     auto documentController = new ExtDocumentController(this);
     // TODO error output on reading definition files
     documentController->configController()->readStereotypeDefinitions(
-        Core::ICore::resourcePath("modeleditor").toString());
+        Core::ICore::resourcePath("modeleditor"));
 
     d->managedModels.append(ManagedModel(documentController, modelDocument));
     return documentController;
@@ -238,7 +238,7 @@ void ModelsManager::onOpenDiagramFromProjectExplorer()
 
 void ModelsManager::onOpenDefaultModel(const qmt::Uid &modelUid)
 {
-    const auto modelFile = Utils::FilePath::fromString(d->modelIndexer->findModel(modelUid));
+    const FilePath modelFile = FilePath::fromString(d->modelIndexer->findModel(modelUid));
     if (!modelFile.isEmpty())
         Core::EditorManager::openEditor(modelFile);
 }

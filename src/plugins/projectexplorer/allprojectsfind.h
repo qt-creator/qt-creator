@@ -26,8 +26,12 @@ public:
     bool isEnabled() const override;
 
     QWidget *createConfigWidget() override;
-    void writeSettings(Utils::QtcSettings *settings) override;
-    void readSettings(Utils::QtcSettings *settings) override;
+
+    Utils::Store save() const override;
+    void restore(const Utils::Store &s) override;
+
+    // deprecated
+    QByteArray settingsKey() const override;
 
 protected:
     static Utils::FileContainer filesForProjects(const QStringList &nameFilters,

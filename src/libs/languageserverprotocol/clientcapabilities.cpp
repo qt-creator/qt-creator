@@ -19,6 +19,20 @@ void SymbolCapabilities::SymbolKindCapabilities::setValueSet(const QList<SymbolK
     insert(valueSetKey, enumArrayToJsonArray<SymbolKind>(valueSet));
 }
 
+std::optional<QList<SymbolTag> > SymbolCapabilities::SymbolTagCapabilities::valueSet() const
+{
+    if (std::optional<QList<int>> array = optionalArray<int>(valueSetKey)) {
+        return std::make_optional(
+            Utils::transform(*array, [](int value) { return static_cast<SymbolTag>(value); }));
+    }
+    return std::nullopt;
+}
+
+void SymbolCapabilities::SymbolTagCapabilities::setValueSet(const QList<SymbolTag> &valueSet)
+{
+    insert(valueSetKey, enumArrayToJsonArray<SymbolTag>(valueSet));
+}
+
 WorkspaceClientCapabilities::WorkspaceClientCapabilities()
 {
     setWorkspaceFolders(true);

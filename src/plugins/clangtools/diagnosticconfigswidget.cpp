@@ -10,7 +10,6 @@
 #include "clangtoolsutils.h"
 #include "executableinfo.h"
 
-#include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cpptoolsreuse.h>
 
@@ -1008,10 +1007,10 @@ DiagnosticConfigsWidget::DiagnosticConfigsWidget(const ClangDiagnosticConfigs &c
     connect(m_clazyChecks->enableLowerLevelsCheckBox, &QCheckBox::stateChanged, this, [this] {
         const bool enable = m_clazyChecks->enableLowerLevelsCheckBox->isChecked();
         m_clazyTreeModel->setEnableLowerLevels(enable);
-        codeModelSettings()->setEnableLowerClazyLevels(enable);
+        ClangToolsSettings::instance()->enableLowerClazyLevels.setValue(enable);
     });
     const Qt::CheckState checkEnableLowerClazyLevels
-        = codeModelSettings()->enableLowerClazyLevels() ? Qt::Checked : Qt::Unchecked;
+        = ClangToolsSettings::instance()->enableLowerClazyLevels.value() ? Qt::Checked : Qt::Unchecked;
     m_clazyChecks->enableLowerLevelsCheckBox->setCheckState(checkEnableLowerClazyLevels);
 
     m_tidyChecks = new TidyChecksWidget;
@@ -1263,7 +1262,7 @@ QString removeClangTidyCheck(const QString &checks, const QString &check)
 
 QString removeClazyCheck(const QString &checks, const QString &check)
 {
-    const ClazyStandaloneInfo clazyInfo = ClazyStandaloneInfo::getInfo(toolExecutable(ClangToolType::Clazy));
+    const ClazyStandaloneInfo clazyInfo = ClazyStandaloneInfo(toolExecutable(ClangToolType::Clazy));
     ClazyChecksTreeModel model(clazyInfo.supportedChecks);
     model.enableChecks(checks.split(',', Qt::SkipEmptyParts));
     const QModelIndex index = model.indexForName(check.mid(QString("clazy-").length()));
@@ -1314,7 +1313,7 @@ void disableChecks(const QList<Diagnostic> &diagnostics)
             if (config.clazyMode() == ClangDiagnosticConfig::ClazyMode::UseDefaultChecks) {
                 config.setClazyMode(ClangDiagnosticConfig::ClazyMode::UseCustomChecks);
                 const ClazyStandaloneInfo clazyInfo
-                        = ClazyStandaloneInfo::getInfo(toolExecutable(ClangToolType::Clazy));
+                        = ClazyStandaloneInfo(toolExecutable(ClangToolType::Clazy));
                 config.setChecks(ClangToolType::Clazy, clazyInfo.defaultChecks.join(','));
             }
             config.setChecks(ClangToolType::Clazy,

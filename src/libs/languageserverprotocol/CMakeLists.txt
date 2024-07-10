@@ -22,5 +22,6 @@ add_qtc_library(LanguageServerProtocol
     servercapabilities.cpp servercapabilities.h
     shutdownmessages.cpp shutdownmessages.h
     textsynchronization.cpp textsynchronization.h
+    typehierarchy.cpp typehierarchy.h
     workspace.cpp workspace.h
 )

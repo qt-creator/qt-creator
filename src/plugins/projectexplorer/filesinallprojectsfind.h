@@ -16,8 +16,11 @@ public:
     QString id() const override;
     QString displayName() const override;
 
-    void writeSettings(Utils::QtcSettings *settings) override;
-    void readSettings(Utils::QtcSettings *settings) override;
+    Utils::Store save() const override;
+    void restore(const Utils::Store &s) override;
+
+    // deprecated
+    QByteArray settingsKey() const override;
 
 protected:
     TextEditor::FileContainerProvider fileContainerProvider() const override;

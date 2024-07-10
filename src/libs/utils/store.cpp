@@ -50,10 +50,10 @@ static QVariantList mapListFromStoreList(const QVariantList &storeList);
 
 QVariant storeEntryFromMapEntry(const QVariant &mapEntry)
 {
-    if (mapEntry.type() == QVariant::Map)
+    if (mapEntry.typeId() == QMetaType::QVariantMap)
         return QVariant::fromValue(storeFromMap(mapEntry.toMap()));
 
-    if (mapEntry.type() == QVariant::List)
+    if (mapEntry.typeId() == QMetaType::QVariantList)
         return QVariant::fromValue(storeListFromMapList(mapEntry.toList()));
 
     return mapEntry;
@@ -64,7 +64,7 @@ QVariant mapEntryFromStoreEntry(const QVariant &storeEntry)
     if (storeEntry.metaType() == QMetaType::fromType<Store>())
         return QVariant::fromValue(mapFromStore(storeEntry.value<Store>()));
 
-    if (storeEntry.type() == QVariant::List)
+    if (storeEntry.typeId() == QMetaType::QVariantList)
         return QVariant::fromValue(mapListFromStoreList(storeEntry.toList()));
 
     return storeEntry;

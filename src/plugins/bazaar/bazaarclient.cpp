@@ -147,8 +147,8 @@ void BazaarClient::annotate(const Utils::FilePath &workingDir, const QString &fi
 
 bool BazaarClient::isVcsDirectory(const FilePath &filePath) const
 {
-    return filePath.isDir()
-            && !filePath.fileName().compare(Constants::BAZAARREPO, HostOsInfo::fileNameCaseSensitivity());
+    return !filePath.fileName().compare(Constants::BAZAARREPO, HostOsInfo::fileNameCaseSensitivity())
+           && filePath.isDir();
 }
 
 FilePath BazaarClient::findTopLevelForFile(const FilePath &file) const

@@ -78,8 +78,6 @@ public:
     static void initialize();
     static bool ignoreAllDevices();
     static void setIgnoreAllDevices(bool ignoreDevices);
-    static void setScreenshotDir(const Utils::FilePath &path);
-    static Utils::FilePath screenshotDir();
     static Utils::FilePath developerPath();
     static QVersionNumber xcodeVersion();
     static Utils::FilePath lldbPath();
@@ -103,7 +101,6 @@ private:
     void loadProvisioningData(bool notify = true);
 
     Utils::FilePath m_developerPath;
-    Utils::FilePath m_screenshotDir;
     QVersionNumber m_xcodeVersion;
     bool m_ignoreAllDevices;
     QFileSystemWatcher *m_provisioningDataWatcher = nullptr;

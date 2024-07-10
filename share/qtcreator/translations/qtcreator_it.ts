@@ -3652,8 +3652,8 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
         <translation type="obsolete">Editor di segnali e slot</translation>
     </message>
     <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Classe Form di Qt Designer</translation>
+        <source>Qt Widgets Designer Form Class</source>
+        <translation>Classe Form di Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Choose a class name</source>
@@ -3700,16 +3700,16 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
         <translation>Qt</translation>
     </message>
     <message>
-        <source>Qt Designer Form</source>
-        <translation>Form di Qt Designer</translation>
+        <source>Qt Widgets Designer Form</source>
+        <translation>Form di Qt Widgets Designer</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form file (.ui).</source>
-        <translation>Crea un file form Qt Designer (.ui).</translation>
+        <source>Creates a Qt Widgets Designer form file (.ui).</source>
+        <translation>Crea un file form Qt Widgets Designer (.ui).</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form file (.ui) with a matching class.</source>
-        <translation>Crea un file form Qt Designer (.ui) e la relativa classe.</translation>
+        <source>Creates a Qt Widgets Designer form file (.ui) with a matching class.</source>
+        <translation>Crea un file form Qt Widgets Designer (.ui) e la relativa classe.</translation>
     </message>
     <message>
         <source>Designer widgetbox</source>
@@ -3824,8 +3824,8 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>About Qt Designer plugins....</source>
-        <translation>Informazioni sui plugin Qt Designer...</translation>
+        <source>About Qt Widgets Designer plugins....</source>
+        <translation>Informazioni sui plugin Qt Widgets Designer...</translation>
     </message>
     <message>
         <source>Preview in</source>
@@ -7309,8 +7309,8 @@ al VCS (%2)?</translation>
         <translation>Questa procedura guidata genera un progetto per applicazione console Qt4. L&apos;applicazione deriva da QCoreApplication e non include una GUI.</translation>
     </message>
     <message>
-        <source>Qt Designer is not responding (%1).</source>
-        <translation>Qt Designer non risponde (%1).</translation>
+        <source>Qt Widgets Designer is not responding (%1).</source>
+        <translation>Qt Widgets Designer non risponde (%1).</translation>
     </message>
     <message>
         <source>Unable to create server socket: %1</source>

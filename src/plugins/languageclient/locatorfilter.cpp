@@ -8,8 +8,6 @@
 #include "languageclientmanager.h"
 #include "languageclienttr.h"
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/async.h>
 #include <utils/fuzzymatcher.h>
 
@@ -70,7 +68,6 @@ LocatorMatcherTask locatorMatcher(Client *client, int maxResultCount,
         const QList<SymbolInformation> results = *resultStorage;
         if (results.isEmpty())
             return SetupResult::StopWithSuccess;
-        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(filterResults, *storage, client, results, filter);
         return SetupResult::Continue;
     };
@@ -130,7 +127,6 @@ LocatorMatcherTask currentDocumentMatcher()
     };
 
     const auto onFilterSetup = [storage, resultStorage](Async<void> &async) {
-        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(filterCurrentResults, *storage, *resultStorage);
     };
 

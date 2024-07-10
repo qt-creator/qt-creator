@@ -100,6 +100,41 @@ void ChangeSet::clear()
     m_error = false;
 }
 
+ChangeSet ChangeSet::makeReplace(const Range &range, const QString &replacement)
+{
+    ChangeSet c;
+    c.replace(range, replacement);
+    return c;
+}
+
+ChangeSet ChangeSet::makeReplace(int start, int end, const QString &replacement)
+{
+    ChangeSet c;
+    c.replace(start, end, replacement);
+    return c;
+}
+
+ChangeSet ChangeSet::makeRemove(const Range &range)
+{
+    ChangeSet c;
+    c.remove(range);
+    return c;
+}
+
+ChangeSet ChangeSet::makeFlip(int start1, int end1, int start2, int end2)
+{
+    ChangeSet c;
+    c.flip(start1, end1, start2, end2);
+    return c;
+}
+
+ChangeSet ChangeSet::makeInsert(int pos, const QString &text)
+{
+    ChangeSet c;
+    c.insert(pos, text);
+    return c;
+}
+
 bool ChangeSet::replace_helper(int pos, int length, const QString &replacement)
 {
     if (hasOverlap(pos, length))

@@ -237,7 +237,7 @@ OutputLineParser::Result CustomParser::hasMatch(
     const int lineNumber = match.captured(expression.lineNumberCap()).toInt();
     const QString message = match.captured(expression.messageCap());
     LinkSpecs linkSpecs;
-    addLinkSpecForAbsoluteFilePath(linkSpecs, fileName, lineNumber, match,
+    addLinkSpecForAbsoluteFilePath(linkSpecs, fileName, lineNumber, -1, match,
                                    expression.fileNameCap());
     scheduleTask(CompileTask(taskType, message, fileName, lineNumber), 1);
     return {Status::Done, linkSpecs};

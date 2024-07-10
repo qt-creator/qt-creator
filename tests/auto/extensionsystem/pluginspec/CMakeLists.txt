@@ -5,7 +5,7 @@ add_qtc_test(tst_pluginspec
     PLUGIN_DIR="${CMAKE_CURRENT_BINARY_DIR}"
     PLUGINSPEC_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
     DLL_INFIX="$<$<CONFIG:Debug>:d>"
-  DEPENDS ExtensionSystem
+  DEPENDS ExtensionSystem Utils
   SOURCES
     tst_pluginspec.cpp
 )

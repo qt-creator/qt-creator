@@ -41,7 +41,7 @@
             settings are stored locally.
 
         \li  The Okteta KDE custom widget plugin might be installed as part of
-            some Linux distributions. It can cause Qt Designer to crash. For
+            some Linux distributions. It can cause \QD to crash. For
             more information, see:
 
             \list

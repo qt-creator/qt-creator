@@ -85,29 +85,16 @@ void ClassItem::update()
         m_methodsText.clear();
     }
 
-    // custom icon
-    if (stereotypeIconDisplay() == StereotypeIcon::DisplayIcon) {
-        if (!m_customIcon)
-            m_customIcon = new CustomIconItem(diagramSceneModel(), this);
-        m_customIcon->setStereotypeIconId(stereotypeIconId());
-        m_customIcon->setBaseSize(stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(), CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT));
-        m_customIcon->setBrush(style->fillBrush());
-        m_customIcon->setPen(style->outerLinePen());
-        m_customIcon->setZValue(SHAPE_ZVALUE);
-    } else if (m_customIcon) {
-        m_customIcon->scene()->removeItem(m_customIcon);
-        delete m_customIcon;
-        m_customIcon = nullptr;
-    }
+    updateCustomIcon(style);
 
     // shape
-    if (!m_customIcon) {
+    if (!customIconItem()) {
         if (!m_shape)
             m_shape = new QGraphicsRectItem(this);
         m_shape->setBrush(style->fillBrush());
         m_shape->setPen(style->outerLinePen());
         m_shape->setZValue(SHAPE_ZVALUE);
-    } else if (m_shape){
+    } else if (m_shape) {
         m_shape->scene()->removeItem(m_shape);
         delete m_shape;
         m_shape = nullptr;
@@ -259,7 +246,7 @@ void ClassItem::update()
         m_templateParameterBox = nullptr;
     }
 
-    updateSelectionMarker(m_customIcon);
+    updateSelectionMarker(customIconItem());
     updateRelationStarter();
     updateAlignmentButtons();
     updateGeometry();
@@ -267,8 +254,8 @@ void ClassItem::update()
 
 bool ClassItem::intersectShapeWithLine(const QLineF &line, QPointF *intersectionPoint, QLineF *intersectionLine) const
 {
-    if (m_customIcon) {
-        QList<QPolygonF> polygons = m_customIcon->outline();
+    if (customIconItem()) {
+        QList<QPolygonF> polygons = customIconItem()->outline();
         for (int i = 0; i < polygons.size(); ++i)
             polygons[i].translate(object()->pos() + object()->rect().topLeft());
         if (shapeIcon().textAlignment() == qmt::StereotypeIcon::TextalignBelow) {
@@ -508,7 +495,7 @@ DClass::TemplateDisplay ClassItem::templateDisplay() const
 
     DClass::TemplateDisplay templateDisplay = diagramClass->templateDisplay();
     if (templateDisplay == DClass::TemplateSmart) {
-        if (m_customIcon)
+        if (customIconItem())
             templateDisplay = DClass::TemplateName;
         else
             templateDisplay = DClass::TemplateBox;
@@ -521,8 +508,8 @@ QSizeF ClassItem::calcMinimumGeometry() const
     double width = 0.0;
     double height = 0.0;
 
-    if (m_customIcon) {
-        QSizeF sz = stereotypeIconMinimumSize(m_customIcon->stereotypeIcon(),
+    if (customIconItem()) {
+        QSizeF sz = customIconItemMinimumSize(customIconItem(),
                                               CUSTOM_ICON_MINIMUM_AUTO_WIDTH, CUSTOM_ICON_MINIMUM_AUTO_HEIGHT);
         if (shapeIcon().textAlignment() != qmt::StereotypeIcon::TextalignTop
                 && shapeIcon().textAlignment() != qmt::StereotypeIcon::TextalignCenter)
@@ -589,12 +576,7 @@ void ClassItem::updateGeometry()
     height = geometry.height();
 
     if (object()->isAutoSized()) {
-        if (!m_customIcon) {
-            if (width < MINIMUM_AUTO_WIDTH)
-                width = MINIMUM_AUTO_WIDTH;
-            if (height < MINIMUM_AUTO_HEIGHT)
-                height = MINIMUM_AUTO_HEIGHT;
-        }
+        correctAutoSize(customIconItem(), width, height, MINIMUM_AUTO_WIDTH, MINIMUM_AUTO_HEIGHT);
     } else {
         QRectF rect = object()->rect();
         if (rect.width() > width)
@@ -619,15 +601,15 @@ void ClassItem::updateGeometry()
     // a backup for the graphics item used for manual resized and persistency.
     object()->setRect(rect);
 
-    if (m_customIcon) {
-        m_customIcon->setPos(left, top);
-        m_customIcon->setActualSize(QSizeF(width, height));
+    if (customIconItem()) {
+        customIconItem()->setPos(left, top);
+        customIconItem()->setActualSize(QSizeF(width, height));
     }
 
     if (m_shape)
         m_shape->setRect(rect);
 
-    if (m_customIcon) {
+    if (customIconItem()) {
         switch (shapeIcon().textAlignment()) {
         case qmt::StereotypeIcon::TextalignBelow:
             y += height + BODY_VERT_BORDER;
@@ -679,7 +661,7 @@ void ClassItem::updateGeometry()
         y += nameItem()->boundingRect().height();
     }
     if (m_contextLabel) {
-        if (m_customIcon)
+        if (customIconItem())
             m_contextLabel->resetMaxWidth();
         else
             m_contextLabel->setMaxWidth(width - 2 * BODY_HORIZ_BORDER);
@@ -692,7 +674,7 @@ void ClassItem::updateGeometry()
         y += 8.0;
     }
     if (m_attributes) {
-        if (m_customIcon)
+        if (customIconItem())
             m_attributes->setPos(-m_attributes->boundingRect().width() / 2.0, y);
         else
             m_attributes->setPos(left + BODY_HORIZ_BORDER, y);
@@ -704,7 +686,7 @@ void ClassItem::updateGeometry()
         y += 8.0;
     }
     if (m_methods) {
-        if (m_customIcon)
+        if (customIconItem())
             m_methods->setPos(-m_methods->boundingRect().width() / 2.0, y);
         else
             m_methods->setPos(left + BODY_HORIZ_BORDER, y);
@@ -765,21 +747,22 @@ void ClassItem::updateMembers(const Style *style)
             break;
         }
 
+        bool needBr = false;
         if (text && !text->isEmpty())
-            *text += "<br/>";
+            needBr = true;
 
-        bool addNewline = false;
-        bool addSpace = false;
         if (currentVisibility)
             *currentVisibility = member.visibility();
         if (currentGroup && member.group() != *currentGroup) {
-            *text += QString("[%1]").arg(member.group());
-            addNewline = true;
+            needBr = false;
+            *text += QString("<p style=\"padding:0;margin-top:6;margin-bottom:0;\"><b>[%1]</b></p>").arg(member.group());
             *currentGroup = member.group();
         }
-        if (addNewline)
+
+        if (needBr)
             *text += "<br/>";
 
+        bool addSpace = false;
         bool haveSignal = false;
         bool haveSlot = false;
         if (member.visibility() != MClassMember::VisibilityUndefined) {

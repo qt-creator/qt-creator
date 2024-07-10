@@ -71,7 +71,6 @@ static FilePath pluginInstallPath(bool installIntoApplication)
 }
 
 namespace Core {
-namespace Internal {
 
 class SourcePage : public WizardPage
 {
@@ -145,7 +144,7 @@ struct ArchiveIssue
 // Async. Result is set if any issue was found.
 void checkContents(QPromise<ArchiveIssue> &promise, const FilePath &tempDir)
 {
-    PluginSpec *coreplugin = PluginManager::specForPlugin(CorePlugin::instance());
+    PluginSpec *coreplugin = PluginManager::specForPlugin(Internal::CorePlugin::instance());
 
     // look for plugin
     QDirIterator it(tempDir.path(), libraryNameFilter(), QDir::Files | QDir::NoSymLinks,
@@ -154,16 +153,16 @@ void checkContents(QPromise<ArchiveIssue> &promise, const FilePath &tempDir)
         if (promise.isCanceled())
             return;
         it.next();
-        PluginSpec *spec = PluginSpec::read(it.filePath());
+        expected_str<PluginSpec *> spec = readCppPluginSpec(FilePath::fromUserInput(it.filePath()));
         if (spec) {
             // Is a Qt Creator plugin. Let's see if we find a Core dependency and check the
             // version
-            const QVector<PluginDependency> dependencies = spec->dependencies();
+            const QVector<PluginDependency> dependencies = (*spec)->dependencies();
             const auto found = std::find_if(dependencies.constBegin(), dependencies.constEnd(),
                 [coreplugin](const PluginDependency &d) { return d.name == coreplugin->name(); });
             if (found == dependencies.constEnd())
                 return;
-            if (coreplugin->provides(found->name, found->version))
+            if ((*spec)->provides(coreplugin, *found))
                 return;
             promise.addResult(
                 ArchiveIssue{Tr::tr("Plugin requires an incompatible version of %1 (%2).")
@@ -242,7 +241,6 @@ public:
                 return SetupResult::StopWithError;
 
             async.setConcurrentCallData(checkContents, m_tempDir->path());
-            async.setFutureSynchronizer(PluginManager::futureSynchronizer());
             return SetupResult::Continue;
         };
         const auto onCheckerDone = [this](const Async<ArchiveIssue> &async) {
@@ -398,15 +396,19 @@ static bool copyPluginFile(const FilePath &src, const FilePath &dest)
     return true;
 }
 
-bool PluginInstallWizard::exec()
+bool executePluginInstallWizard(const FilePath &archive)
 {
     Wizard wizard(ICore::dialogParent());
     wizard.setWindowTitle(Tr::tr("Install Plugin"));
 
     Data data;
 
-    auto filePage = new SourcePage(&data, &wizard);
-    wizard.addPage(filePage);
+    if (archive.isEmpty()) {
+        auto filePage = new SourcePage(&data, &wizard);
+        wizard.addPage(filePage);
+    } else {
+        data.sourcePath = archive;
+    }
 
     auto checkArchivePage = new CheckArchivePage(&data, &wizard);
     wizard.addPage(checkArchivePage);
@@ -423,11 +425,12 @@ bool PluginInstallWizard::exec()
             return copyPluginFile(data.sourcePath, installPath);
         } else {
             QString error;
+            FileUtils::CopyAskingForOverwrite copy(ICore::dialogParent(),
+                                              postCopyOperation());
             if (!FileUtils::copyRecursively(data.extractedPath,
                                             installPath,
                                             &error,
-                                            FileUtils::CopyAskingForOverwrite(ICore::dialogParent(),
-                                                                              postCopyOperation()))) {
+                                            copy())) {
                 QMessageBox::warning(ICore::dialogParent(),
                                      Tr::tr("Failed to Copy Plugin Files"),
                                      error);
@@ -439,5 +442,4 @@ bool PluginInstallWizard::exec()
     return false;
 }
 
-} // namespace Internal
 } // namespace Core

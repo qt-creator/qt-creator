@@ -61,6 +61,8 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
     m_outputWindow->setReadOnly(true);
     m_outputWindow->setUndoRedoEnabled(false);
     m_outputWindow->setMaxCharCount(Core::Constants::DEFAULT_MAX_CHAR_COUNT);
+    //: file name suggested for saving compile output
+    m_outputWindow->setOutputFileNameHint(Tr::tr("compile-output.txt"));
 
     Utils::ProxyAction *cancelBuildProxyButton =
             Utils::ProxyAction::proxyActionWithIcon(cancelBuildAction,

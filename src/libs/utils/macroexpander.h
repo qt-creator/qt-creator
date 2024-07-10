@@ -5,7 +5,6 @@
 
 #include "utils_global.h"
 
-#include <QCoreApplication>
 #include <QList>
 
 #include <functional>

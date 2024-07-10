@@ -5,6 +5,8 @@
 
 #include "qmt/infrastructure/qmt_global.h"
 
+#include <utils/filepath.h>
+
 #include <QObject>
 
 namespace qmt {
@@ -24,7 +26,7 @@ public:
 
     void setStereotypeController(StereotypeController *stereotypeController);
 
-    void readStereotypeDefinitions(const QString &path);
+    void readStereotypeDefinitions(const Utils::FilePath &path);
 
 private:
     void onStereotypeIconParsed(const StereotypeIcon &stereotypeIcon);

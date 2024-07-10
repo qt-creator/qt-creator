@@ -909,7 +909,7 @@ def qedit__std__vector(d, value, data):
     values = data.split(',')
     n = len(values)
     innerType = value.type[0].name
-    cmd = "set $d = (%s*)calloc(sizeof(%s)*%s,1)" % (innerType, innerType, n)
+    cmd = "set $d = (%s*)calloc(%s,sizeof(%s))" % (innerType, n, innerType)
     gdb.execute(cmd)
     cmd = "set {void*[3]}%s = {$d, $d+%s, $d+%s}" % (value.address(), n, n)
     gdb.execute(cmd)

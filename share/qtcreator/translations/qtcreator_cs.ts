@@ -764,7 +764,7 @@
         <translation type="obsolete">Automaticky vkládat středníky a uzavírající závorky, kulaté závorky, složené závorky a uvozovky, když je to vhodné.</translation>
     </message>
     <message>
-        <source>&amp;Automatically insert matching characters</source>
+        <source>&amp;Automatically Insert Matching Characters</source>
         <translation type="obsolete">&amp;Automaticky vložit odpovídající znaky</translation>
     </message>
     <message>
@@ -2008,7 +2008,7 @@ Chcete je nechat přepsat?</translation>
         <translation>Když je to vhodné, automaticky vkládat středníky a uzavírající závorky, kulaté závorky, složené závorky a uvozovky.</translation>
     </message>
     <message>
-        <source>&amp;Automatically insert matching characters</source>
+        <source>&amp;Automatically Insert Matching Characters</source>
         <translation>&amp;Automaticky vložit odpovídající znaky</translation>
     </message>
     <message>
@@ -4278,8 +4278,8 @@ Rebuilding the project might help.</source>
 Zkuste projekt vytvořit znovu.</translation>
     </message>
     <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Třída formuláře programu Qt Designer</translation>
+        <source>Qt Widgets Designer Form Class</source>
+        <translation>Třída formuláře programu Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Form Template</source>
@@ -4326,8 +4326,8 @@ Zkuste projekt vytvořit znovu.</translation>
         <translation>Shift+F4</translation>
     </message>
     <message>
-        <source>Qt Designer Form</source>
-        <translation>Formulář programu Qt Designer</translation>
+        <source>Qt Widgets Designer Form</source>
+        <translation>Formulář programu Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Creates a Qt Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.</source>
@@ -4458,8 +4458,8 @@ Zkuste projekt vytvořit znovu.</translation>
         <translation>Alt+Shift+R</translation>
     </message>
     <message>
-        <source>About Qt Designer Plugins...</source>
-        <translation>O přídavných modulech programu Qt Designer...</translation>
+        <source>About Qt Widgets Designer Plugins...</source>
+        <translation>O přídavných modulech programu Qt Widgets Designer...</translation>
     </message>
     <message>
         <source>Views</source>
@@ -10752,8 +10752,8 @@ Vybere pro sestavení programu verzi Qt pro stolní počítač, je-li dostupná.
         <translation>Tento průvodce vytvoří projekt konzolové aplikace v Qt4. Aplikace je odvozena z QCoreApplication a nemá žádné uživatelské rozhraní.</translation>
     </message>
     <message>
-        <source>Qt Designer is not responding (%1).</source>
-        <translation>Qt Designer neodpovídá (%1).</translation>
+        <source>Qt Widgets Designer is not responding (%1).</source>
+        <translation>Qt Widgets Designer neodpovídá (%1).</translation>
     </message>
     <message>
         <source>Unable to create server socket: %1</source>
@@ -16025,8 +16025,8 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <translation type="obsolete">Editor .qmlproject</translation>
     </message>
     <message>
-        <source>Qt Designer</source>
-        <translation>Qt Designer</translation>
+        <source>Qt Widgets Designer</source>
+        <translation>Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Qt Linguist</source>
@@ -17504,7 +17504,7 @@ Důvod: %2</translation>
     </message>
     <message>
         <source>Qt Custom Designer Widget</source>
-        <translation>Uživatelsky stanovený prvek pro Qt Designer</translation>
+        <translation>Uživatelsky stanovený prvek pro Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Creates a Qt Custom Designer Widget or a Custom Widget Collection.</source>
@@ -40550,7 +40550,7 @@ Určuje chování odsazení se zřetelem k navazujícím řádkům.
         <translation>Nastavit znovu</translation>
     </message>
     <message>
-        <source>Scanning scope</source>
+        <source>Scanning Scope</source>
         <translation>Oblast prohledávání</translation>
     </message>
     <message>

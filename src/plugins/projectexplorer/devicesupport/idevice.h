@@ -151,6 +151,8 @@ public:
     virtual bool hasDeviceTester() const { return false; }
     virtual DeviceTester *createDeviceTester() const;
 
+    virtual bool canMount(const Utils::FilePath &filePath) const;
+
     virtual DeviceProcessSignalOperation::Ptr signalOperation() const;
 
     enum DeviceState { DeviceReadyToUse, DeviceConnected, DeviceDisconnected, DeviceStateUnknown };
@@ -239,6 +241,7 @@ protected:
     void setDisplayType(const QString &type);
     void setOsType(Utils::OsType osType);
     void setFileAccess(Utils::DeviceFileAccess *fileAccess);
+    void setFileAccess(std::function<Utils::DeviceFileAccess *()> fileAccessFactory);
 
 private:
     IDevice(const IDevice &) = delete;

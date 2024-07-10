@@ -8,6 +8,8 @@
 #include "mvisitor.h"
 #include "mconstvisitor.h"
 
+using Utils::FilePath;
+
 namespace qmt {
 
 MObject::MObject()
@@ -20,6 +22,7 @@ MObject::MObject()
 MObject::MObject(const MObject &rhs)
     : MElement(rhs),
       m_name(rhs.m_name),
+      m_linkedfilename(rhs.m_linkedfilename),
       m_children(true),
       m_relations(true)
 {
@@ -34,6 +37,7 @@ MObject &MObject::operator =(const MObject &rhs)
     if (this != &rhs) {
         MElement::operator=(rhs);
         m_name = rhs.m_name;
+        m_linkedfilename = rhs.m_linkedfilename;
         // no deep copy; list of children remains unchanged
     }
     return *this;
@@ -42,6 +46,11 @@ MObject &MObject::operator =(const MObject &rhs)
 void MObject::setName(const QString &name)
 {
     m_name = name;
+}
+
+void MObject::setLinkedFileName(const FilePath &linkedfilename)
+{
+    m_linkedfilename = linkedfilename;
 }
 
 void MObject::setChildren(const Handles<MObject> &children)

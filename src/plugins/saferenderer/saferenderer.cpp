@@ -20,9 +20,6 @@ bool SafeRendererPlugin::initialize(const QStringList &arguments, QString *error
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
-    // Add Qt Creator project wizard path
-    ProjectExplorer::JsonWizardFactory::addWizardPath(":/saferenderer/wizards/");
-
     return true;
 }
 

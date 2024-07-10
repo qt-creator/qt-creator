@@ -554,8 +554,8 @@ void SquishTools::startSquishServer(Request request)
             m_perspective.updateStatus(Tr::tr("Running test case"));
     }
 
-    const QStringList arguments = serverArgumentsFromSettings();
-    m_serverProcess.start({toolsSettings.serverPath, arguments}, squishEnvironment());
+    m_serverProcess.start({toolsSettings.serverPath, serverArgumentsFromSettings()},
+                          squishEnvironment());
 }
 
 void SquishTools::stopSquishServer()
@@ -569,13 +569,10 @@ void SquishTools::startSquishRunner()
     if (!isValidToStartRunner() || !setupRunnerPath())
         return;
 
-    const QStringList args = runnerArgumentsFromSettings();
-
     if (m_request == RecordTestRequested)
         m_closeRunnerOnEndRecord = true;
 
-    Utils::CommandLine cmdLine = {toolsSettings.runnerPath, args};
-    setupAndStartSquishRunnerProcess(cmdLine);
+    setupAndStartSquishRunnerProcess({toolsSettings.runnerPath, runnerArgumentsFromSettings()});
 }
 
 void SquishTools::setupAndStartRecorder()
@@ -604,7 +601,7 @@ void SquishTools::setupAndStartRecorder()
 
     m_secondaryRunner = new SquishRunnerProcess(this);
     m_secondaryRunner->setupProcess(SquishRunnerProcess::Record);
-    const CommandLine cmd = {toolsSettings.runnerPath, args};
+    const CommandLine cmd{toolsSettings.runnerPath, args};
     connect(m_secondaryRunner, &SquishRunnerProcess::recorderDone,
             this, &SquishTools::onRecorderFinished);
     qCDebug(LOG) << "Recorder starting:" << cmd.toUserOutput();
@@ -629,7 +626,7 @@ void SquishTools::setupAndStartInspector()
 
     m_secondaryRunner = new SquishRunnerProcess(this);
     m_secondaryRunner->setupProcess(SquishRunnerProcess::Inspect);
-    const CommandLine cmd = {toolsSettings.runnerPath, args};
+    const CommandLine cmd{toolsSettings.runnerPath, args};
     connect(m_secondaryRunner, &SquishRunnerProcess::logOutputReceived,
             this, &SquishTools::logOutputReceived);
     connect(m_secondaryRunner, &SquishRunnerProcess::objectPicked,
@@ -676,8 +673,8 @@ void SquishTools::executeRunnerQuery()
     if (!isValidToStartRunner() || !setupRunnerPath())
         return;
 
-    QStringList arguments = { "--port", QString::number(m_serverProcess.port()) };
-    Utils::CommandLine cmdLine = {toolsSettings.runnerPath, arguments};
+    CommandLine cmdLine{toolsSettings.runnerPath,
+                        {"--port", QString::number(m_serverProcess.port())}};
     switch (m_query) {
     case ServerInfo:
         cmdLine.addArg("--info");
@@ -690,7 +687,7 @@ void SquishTools::executeRunnerQuery()
     case SetGlobalScriptDirs:
         cmdLine.addArg("--config");
         cmdLine.addArg("setGlobalScriptDirs");
-        cmdLine.addArgs(m_queryParameter, Utils::CommandLine::Raw);
+        cmdLine.addArgs(m_queryParameter, CommandLine::Raw);
         break;
     default:
         QTC_ASSERT(false, return);
@@ -1106,10 +1103,9 @@ void SquishTools::interruptRunner()
 {
     qCDebug(LOG) << "Interrupting runner";
     QTC_ASSERT(m_primaryRunner, return);
-    qint64 processId = m_primaryRunner->processId();
-    const CommandLine cmd(toolsSettings.processComPath, {QString::number(processId), "break"});
+    const qint64 processId = m_primaryRunner->processId();
     Process process;
-    process.setCommand(cmd);
+    process.setCommand({toolsSettings.processComPath, {QString::number(processId), "break"}});
     process.start();
     process.waitForFinished();
 }
@@ -1122,10 +1118,9 @@ void SquishTools::terminateRunner()
     m_perspective.updateStatus(Tr::tr("User stop initiated."));
     // should we terminate the AUT instead of the runner?!?
     QTC_ASSERT(m_primaryRunner, return);
-    qint64 processId = m_primaryRunner->processId();
-    const CommandLine cmd(toolsSettings.processComPath, {QString::number(processId), "terminate"});
+    const qint64 processId = m_primaryRunner->processId();
     Process process;
-    process.setCommand(cmd);
+    process.setCommand({toolsSettings.processComPath, {QString::number(processId), "terminate"}});
     process.start();
     process.waitForFinished();
 }
@@ -1263,7 +1258,7 @@ bool SquishTools::setupRunnerPath()
     return true;
 }
 
-void SquishTools::setupAndStartSquishRunnerProcess(const Utils::CommandLine &cmdLine)
+void SquishTools::setupAndStartSquishRunnerProcess(const CommandLine &cmdLine)
 {
     QTC_ASSERT(m_primaryRunner, return);
     // avoid crashes on fast re-usage of Process

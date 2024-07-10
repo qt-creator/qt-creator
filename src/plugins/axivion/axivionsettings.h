@@ -17,12 +17,15 @@ namespace Axivion::Internal {
 class AxivionServer
 {
 public:
+    QString displayString() const { return username + " @ " + dashboard; }
     bool operator==(const AxivionServer &other) const;
     bool operator!=(const AxivionServer &other) const;
 
     QJsonObject toJson() const;
     static AxivionServer fromJson(const QJsonObject &json);
 
+    // id starts empty == invalid; set to generated uuid on first apply of valid dashboard config,
+    // never changes afterwards
     Utils::Id id;
     QString dashboard;
     QString username;
@@ -37,8 +40,17 @@ public:
 
     void toSettings() const;
 
-    AxivionServer server; // shall we have more than one?
+    Utils::Id defaultDashboardId() const;
+    const AxivionServer defaultServer() const;
+    const AxivionServer serverForId(const Utils::Id &id) const;
+    void disableCertificateValidation(const Utils::Id &id);
+    const QList<AxivionServer> allAvailableServers() const { return m_allServers; };
+    void updateDashboardServers(const QList<AxivionServer> &other);
+
     Utils::BoolAspect highlightMarks{this};
+private:
+    Utils::StringAspect m_defaultServerId{this};
+    QList<AxivionServer> m_allServers;
 };
 
 AxivionSettings &settings();

@@ -56,7 +56,7 @@ public:
     void insertHandle(int beforeIndex, const QPointF &pos, double rasterWidth, double rasterHeight) override;
     void deleteHandle(int index) override;
     void setHandlePos(int index, const QPointF &pos) override;
-    void dropHandle(int index, double rasterWidth, double rasterHeight) override;
+    void dropHandle(int index, bool extraSnap, double rasterWidth, double rasterHeight) override;
 
     virtual void update();
 

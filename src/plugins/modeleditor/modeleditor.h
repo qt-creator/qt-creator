@@ -69,6 +69,8 @@ public:
     void zoomInAtPos(const QPoint &pos);
     void zoomOutAtPos(const QPoint &pos);
     void resetZoom();
+    void showModelTreeFilter(bool visible = true);
+    void toggleModelTreeFilter();
 
     qmt::MPackage *guessSelectedPackage() const;
 

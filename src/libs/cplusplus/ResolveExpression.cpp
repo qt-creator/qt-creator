@@ -1062,6 +1062,8 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
         }
 
         typedefsResolver.resolve(&ty, &scope, r.binding());
+        if (auto ref = ty->asReferenceType()) // deref if needed
+            ty = ref->elementType();
 
         if (Q_UNLIKELY(debug))
             qDebug() << "-  after typedef resolving:" << oo.prettyType(ty);
@@ -1080,6 +1082,9 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
                     return binding;
                 }
                 if (ClassOrNamespace *binding = findClass(type, scope))
+                    return binding;
+
+                if (ClassOrNamespace *binding = findClass(type, r.scope())) // local classes and structs
                     return binding;
 
             } else {
@@ -1175,6 +1180,9 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
             }
 
             if (ClassOrNamespace *binding = findClass(ty, scope, enclosingBinding))
+                return binding;
+
+            if (ClassOrNamespace *binding = findClass(ty, r.scope())) // local classes and structs
                 return binding;
         }
     }

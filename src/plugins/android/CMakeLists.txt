@@ -34,7 +34,7 @@ add_qtc_plugin(Android
     androidrunnerworker.cpp androidrunnerworker.h
     androidsdkdownloader.cpp androidsdkdownloader.h
     androidsdkmanager.cpp androidsdkmanager.h
-    androidsdkmanagerwidget.cpp androidsdkmanagerwidget.h
+    androidsdkmanagerdialog.cpp androidsdkmanagerdialog.h
     androidsdkmodel.cpp androidsdkmodel.h
     androidsdkpackage.cpp androidsdkpackage.h
     androidsettingswidget.cpp androidsettingswidget.h

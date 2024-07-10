@@ -11,6 +11,8 @@
 #include <QPair>
 #include <QStringList>
 
+#include <variant>
+
 namespace Utils {
 
 class AbstractMacroExpander;
@@ -120,8 +122,22 @@ public:
     CommandLine();
     ~CommandLine();
 
+    struct ArgRef
+    {
+        ArgRef(const char *arg) : m_arg(arg) {}
+        ArgRef(const QString &arg) : m_arg(arg) {}
+        ArgRef(const QStringList &args) : m_arg(args) {}
+
+    private:
+        friend class CommandLine;
+        const std::variant<const char *,
+                           std::reference_wrapper<const QString>,
+                           std::reference_wrapper<const QStringList>> m_arg;
+    };
+
     explicit CommandLine(const FilePath &executable);
     CommandLine(const FilePath &exe, const QStringList &args);
+    CommandLine(const FilePath &exe, std::initializer_list<ArgRef> args);
     CommandLine(const FilePath &exe, const QStringList &args, OsType osType);
     CommandLine(const FilePath &exe, const QString &unparsedArgs, RawType);
 

@@ -261,6 +261,12 @@ DocumentHighlightsResult::DocumentHighlightsResult(const QJsonValue &value)
     }
 }
 
+template<>
+MarkedString fromJsonValue<MarkedString>(const QJsonValue &value)
+{
+    return MarkedString(value);
+}
+
 MarkedString::MarkedString(const QJsonValue &value)
 {
     if (value.isObject())
@@ -303,8 +309,8 @@ HoverContent::HoverContent(const QJsonValue &value)
 
 bool HoverContent::isValid() const
 {
-    if (std::holds_alternative<MarkedString>(*this))
-        return std::get<MarkedString>(*this).isValid();
+    if (const auto s = std::get_if<MarkedString>(this))
+        return s->isValid();
     return true;
 }
 

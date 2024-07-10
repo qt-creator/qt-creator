@@ -13,7 +13,7 @@ namespace Android {
 namespace Internal {
 
 AndroidSignalOperation::AndroidSignalOperation()
-    : m_adbPath(androidConfig().adbToolPath())
+    : m_adbPath(AndroidConfig::adbToolPath())
     , m_timeout(new QTimer(this))
 {
     m_timeout->setInterval(5000);

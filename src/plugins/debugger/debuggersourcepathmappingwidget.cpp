@@ -309,7 +309,7 @@ QString DebuggerSourcePathMappingWidget::editSourceField() const
 
 QString DebuggerSourcePathMappingWidget::editTargetField() const
 {
-    return m_targetChooser->rawFilePath().toString();
+    return m_targetChooser->unexpandedFilePath().toString();
 }
 
 void DebuggerSourcePathMappingWidget::setEditFieldMapping(const Mapping &m)
@@ -467,7 +467,7 @@ bool SourcePathMapAspect::isDirty()
     return m_internal != m_buffer;
 }
 
-void SourcePathMapAspect::addToLayout(Layouting::LayoutItem &parent)
+void SourcePathMapAspect::addToLayout(Layouting::Layout &parent)
 {
     QTC_CHECK(!d->m_widget);
     d->m_widget = createSubWidget<DebuggerSourcePathMappingWidget>();

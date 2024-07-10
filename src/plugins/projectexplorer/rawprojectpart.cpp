@@ -178,6 +178,12 @@ ToolchainInfo::ToolchainInfo(const Toolchain *toolChain,
     }
 }
 
+static CppSettingsRetriever g_cppSettingsRetriever;
+void provideCppSettingsRetriever(const CppSettingsRetriever &retriever)
+{
+    g_cppSettingsRetriever = retriever;
+}
+
 ProjectUpdateInfo::ProjectUpdateInfo(Project *project,
                                      const KitInfo &kitInfo,
                                      const Utils::Environment &env,
@@ -188,6 +194,8 @@ ProjectUpdateInfo::ProjectUpdateInfo(Project *project,
     , cToolchainInfo(ToolchainInfo(kitInfo.cToolchain, kitInfo.sysRootPath, env))
     , cxxToolchainInfo(ToolchainInfo(kitInfo.cxxToolchain, kitInfo.sysRootPath, env))
 {
+    if (g_cppSettingsRetriever)
+        cppSettings = g_cppSettingsRetriever(project);
     if (project) {
         projectName = project->displayName();
         projectFilePath = project->projectFilePath();

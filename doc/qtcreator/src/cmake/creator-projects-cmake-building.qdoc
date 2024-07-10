@@ -11,15 +11,15 @@
 
     \brief Settings for building applications with CMake.
 
-    Specify build settings for the selected \l{glossary-buildandrun-kit}{kit} in
+    Specify build settings for the selected \l{Kits}{kit} in
     \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol Build >
     \uicontrol {Build Settings}.
 
     Configuring medium-sized to large CMake projects in \QC can be a
     challenge due to the number of variables that you need to pass to
     CMake to configure the project correctly. To make this easier,
-    \QC creates an initial configuration for you based on the kit
-    settings and displays it in \uicontrol {Initial Configuration} in
+    \QC creates an initial configuration for you based on the \l{Kits}
+    {kit preferences} and displays it in \uicontrol {Initial Configuration} in
     the \uicontrol {Build Settings} of the project.
     Or, you can use CMake presets to configure CMake.
 

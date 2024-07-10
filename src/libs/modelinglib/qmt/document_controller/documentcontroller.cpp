@@ -32,7 +32,7 @@
 
 #include "../../modelinglibtr.h"
 
-#include <QFileInfo>
+using Utils::FilePath;
 
 namespace qmt {
 
@@ -233,7 +233,7 @@ MDiagram *DocumentController::findOrCreateRootDiagram()
     return rootDiagram;
 }
 
-void DocumentController::createNewProject(const QString &fileName)
+void DocumentController::createNewProject(const FilePath &fileName)
 {
     m_diagramsManager->removeAllDiagrams();
     m_treeModel->setModelController(nullptr);
@@ -246,7 +246,7 @@ void DocumentController::createNewProject(const QString &fileName)
     m_modelController->setRootPackage(m_projectController->project()->rootPackage());
 }
 
-void DocumentController::loadProject(const QString &fileName)
+void DocumentController::loadProject(const FilePath &fileName)
 {
     m_diagramsManager->removeAllDiagrams();
     m_treeModel->setModelController(nullptr);

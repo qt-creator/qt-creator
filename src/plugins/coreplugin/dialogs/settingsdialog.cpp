@@ -594,11 +594,13 @@ void SettingsDialog::createGui()
     QWidget *emptyWidget = new QWidget(this);
     m_stackedLayout->addWidget(emptyWidget); // no category selected, for example when filtering
 
-    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok |
-                                                       QDialogButtonBox::Apply |
-                                                       QDialogButtonBox::Cancel);
-    connect(buttonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked,
-            this, &SettingsDialog::apply);
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(
+        QDialogButtonBox::Ok | QDialogButtonBox::Apply | QDialogButtonBox::Cancel);
+    connect(
+        buttonBox->button(QDialogButtonBox::Apply),
+        &QAbstractButton::clicked,
+        this,
+        &SettingsDialog::apply);
 
     connect(buttonBox, &QDialogButtonBox::accepted, this, &SettingsDialog::accept);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &SettingsDialog::reject);
@@ -744,8 +746,10 @@ void SettingsDialog::reject()
         return;
     m_finished = true;
     disconnectTabWidgets();
-    for (IOptionsPage *page : std::as_const(m_pages))
+    for (IOptionsPage *page : std::as_const(m_pages)) {
+        page->cancel();
         page->finish();
+    }
     done(QDialog::Rejected);
 }
 
@@ -786,7 +790,7 @@ bool SettingsDialog::execDialog()
             ICore::settings()->setValueWithDefault(kPreferenceDialogSize, size(), initialSize);
             // make sure that the current "single" instance is deleted
             // we can't delete right away, since we still access the m_applied member
-            deleteLater();
+            QMetaObject::invokeMethod(this, [this] { deleteLater(); }, Qt::QueuedConnection);
         });
     }
 

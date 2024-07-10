@@ -63,6 +63,12 @@ const Style *StyleController::adaptObjectStyle(const StyledObject &object)
     return m_defaultStyleEngine->applyObjectStyle(m_defaultStyle.data(), object, &parameters);
 }
 
+const Style *StyleController::adaptRelationStyle(StyleEngine::ElementType elementType, const RelationVisuals &relationVisuals)
+{
+    Parameters parameters(this);
+    return m_defaultStyleEngine->applyRelationStyle(m_defaultStyle.data(), elementType, relationVisuals, &parameters);
+}
+
 const Style *StyleController::adaptRelationStyle(const StyledRelation &relation)
 {
     Parameters parameters(this);

@@ -31,6 +31,9 @@ enum FindFlag {
 };
 Q_DECLARE_FLAGS(FindFlags, FindFlag)
 
+using FilterFileFunction = std::function<bool(const FilePath &filePath)>;
+using FilterFilesFunction = std::function<FilePaths(const FilePaths &filePath)>;
+
 QTCREATOR_UTILS_EXPORT
 QTextDocument::FindFlags textDocumentFlagsForFindFlags(FindFlags flags);
 
@@ -39,8 +42,9 @@ void searchInContents(QPromise<SearchResultItems> &promise, const QString &searc
                       FindFlags flags, const FilePath &filePath, const QString &contents);
 
 QTCREATOR_UTILS_EXPORT
-std::function<FilePaths(const FilePaths &)> filterFilesFunction(const QStringList &filters,
-                                                                const QStringList &exclusionFilters);
+FilterFilesFunction filterFilesFunction(const QStringList &filters,
+                                        const QStringList &exclusionFilters,
+                                        const FilterFileFunction &filterFileFuntion = {});
 
 QTCREATOR_UTILS_EXPORT
 QStringList splitFilterUiText(const QString &text);
@@ -150,9 +154,10 @@ public:
 class QTCREATOR_UTILS_EXPORT SubDirFileContainer : public FileContainer
 {
 public:
+    SubDirFileContainer(const FilePaths &directories, const QStringList &filters,
+                        const QStringList &exclusionFilters, QTextCodec *encoding = nullptr);
     SubDirFileContainer(const FilePaths &directories,
-                        const QStringList &filters,
-                        const QStringList &exclusionFilters,
+                        const FilterFileFunction &filterFileFuntion = {},
                         QTextCodec *encoding = nullptr);
 };
 

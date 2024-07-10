@@ -2,11 +2,15 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
     /*!
-    \previouspage creator-deployment.html
     \page creator-deploying-android.html
-    \nextpage creator-deployment-b2qt.html
+    \previouspage creator-reference.html
 
-    \title Deploying to Android
+    \ingroup creator-reference-deploy-configurations
+
+    \title Android Deploy Configuration
+
+    \brief Create Application Packages (APK) or Android App Bundles (AAB) to
+    install and run on devices or to upload to the Google Play store.
 
     Android applications are packaged as ZIP files called Application Packages
     (APK) or Android App Bundles (AAB). You can install and run APK files on a
@@ -26,7 +30,7 @@
 
             All Qt versions do not support AABs. Qt 6.3.0 and later support
             multi-abi builds for applications that you build with CMake. For
-            more information, see \l{Qt for Android - Building User Projects}.
+            more information, see \l{Deploying an Application on Android}.
     \endlist
 
     \note Since \QC 4.12, Ministro is not supported.
@@ -204,7 +208,8 @@
 
     To add OpenSSL libraries, select \uicontrol {Include prebuilt OpenSSL libraries}
     in the \uicontrol {Additional Libraries} group. This will add the OpenSSL
-    include project defined in \l{Specifying Android Device Settings}{device settings}
+    include project defined in \l{Set up Android development environment}
+    {device settings}
     in \uicontrol {Android OpenSSL} group. This can be used for qmake and CMake
     projects.
 
@@ -492,5 +497,8 @@
     \c {android.permission.ACCESS_BACKGROUND_LOCATION} for \l{Qt Positioning}.
 
     To add a permission, select it from the list, and then click \uicontrol Add.
+
+    \sa {Build and Run}{How To: Build and Run},
+    {Android}{How To: Develop for Android}, {Android Run Settings}, {Kits}
 */
 

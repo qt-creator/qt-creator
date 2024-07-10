@@ -6,6 +6,7 @@
 #include <QObject>
 #include "qmt/infrastructure/exceptions.h"
 #include "qmt/stereotype/customrelation.h"
+#include "qmt/stereotype/shapevalue.h"
 #include "qmt/stereotype/toolbar.h"
 
 #include "sourcepos.h"
@@ -20,7 +21,6 @@ class ITextSource;
 class Token;
 class StereotypeIcon;
 class Toolbar;
-class ShapeValueF;
 
 class QMT_EXPORT StereotypeDefinitionParserError : public Exception
 {
@@ -97,6 +97,7 @@ private:
     bool parseBoolProperty();
     QColor parseColorProperty();
     Value parseProperty();
+    ShapeValueF parseShapeValueProperty(ShapeValueF::Unit unit, ShapeValueF::Origin origin);
 
     QString parseStringExpression();
     qreal parseFloatExpression();

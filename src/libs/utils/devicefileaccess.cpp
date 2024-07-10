@@ -17,9 +17,11 @@
 #endif
 
 #include <QCoreApplication>
+#include <QFileSystemWatcher>
 #include <QOperatingSystemVersion>
 #include <QRandomGenerator>
 #include <QRegularExpression>
+#include <QStandardPaths>
 #include <QStorageInfo>
 #include <QTemporaryFile>
 
@@ -33,7 +35,6 @@
 #include <qplatformdefs.h>
 #endif
 
-#include <QStandardPaths>
 #include <algorithm>
 #include <array>
 
@@ -314,12 +315,10 @@ expected_str<QByteArray> DeviceFileAccess::fileContents(const FilePath &filePath
 }
 
 expected_str<qint64> DeviceFileAccess::writeFileContents(const FilePath &filePath,
-                                                         const QByteArray &data,
-                                                         qint64 offset) const
+                                                         const QByteArray &data) const
 {
     Q_UNUSED(filePath)
     Q_UNUSED(data)
-    Q_UNUSED(offset)
     QTC_CHECK(false);
     return make_unexpected(
         Tr::tr("writeFileContents is not implemented for \"%1\".").arg(filePath.toUserOutput()));
@@ -389,6 +388,13 @@ expected_str<FilePath> DeviceFileAccess::createTempFile(const FilePath &filePath
     QTC_CHECK(false);
     return make_unexpected(
         Tr::tr("createTempFile is not implemented for \"%1\".").arg(filePath.toUserOutput()));
+}
+
+Utils::expected_str<std::unique_ptr<FilePathWatcher>> DeviceFileAccess::watch(
+    const FilePath &path) const
+{
+    Q_UNUSED(path);
+    return make_unexpected(Tr::tr("watch is not implemented."));
 }
 
 // DesktopDeviceFileAccess
@@ -738,8 +744,7 @@ expected_str<QByteArray> DesktopDeviceFileAccess::fileContents(const FilePath &f
 }
 
 expected_str<qint64> DesktopDeviceFileAccess::writeFileContents(const FilePath &filePath,
-                                                                const QByteArray &data,
-                                                                qint64 offset) const
+                                                                const QByteArray &data) const
 {
     QFile file(filePath.path());
     const bool isOpened = file.open(QFile::WriteOnly | QFile::Truncate);
@@ -747,8 +752,6 @@ expected_str<qint64> DesktopDeviceFileAccess::writeFileContents(const FilePath &
         return make_unexpected(
             Tr::tr("Could not open file \"%1\" for writing.").arg(filePath.toUserOutput()));
 
-    if (offset != 0)
-        file.seek(offset);
     qint64 res = file.write(data);
     if (res != data.size())
         return make_unexpected(
@@ -770,6 +773,29 @@ expected_str<FilePath> DesktopDeviceFileAccess::createTempFile(const FilePath &f
                                    .arg(file.errorString()));
     }
     return filePath.withNewPath(file.fileName());
+}
+
+class DesktopFilePathWatcher : public FilePathWatcher
+{
+    QFileSystemWatcher m_watcher;
+
+public:
+    DesktopFilePathWatcher(const FilePath &path) {
+        connect(&m_watcher, &QFileSystemWatcher::fileChanged, this, [this, path] {
+            emit pathChanged(path);
+        });
+        connect(&m_watcher, &QFileSystemWatcher::directoryChanged, this, [this, path] {
+            emit pathChanged(path);
+        });
+
+        m_watcher.addPath(path.path());
+    }
+};
+
+Utils::expected_str<std::unique_ptr<FilePathWatcher>> DesktopDeviceFileAccess::watch(
+    const FilePath &path) const
+{
+    return std::make_unique<DesktopFilePathWatcher>(path);
 }
 
 QDateTime DesktopDeviceFileAccess::lastModified(const FilePath &filePath) const
@@ -1064,6 +1090,10 @@ expected_str<QByteArray> UnixDeviceFileAccess::fileContents(const FilePath &file
     if (disconnected())
         return make_unexpected_disconnected();
 
+    expected_str<FilePath> localSource = filePath.localSource();
+    if (localSource && *localSource != filePath)
+        return localSource->fileContents(limit, offset);
+
     QStringList args = {"if=" + filePath.path()};
     if (limit > 0 || offset > 0) {
         const qint64 gcd = std::gcd(limit, offset);
@@ -1088,17 +1118,16 @@ expected_str<QByteArray> UnixDeviceFileAccess::fileContents(const FilePath &file
 }
 
 expected_str<qint64> UnixDeviceFileAccess::writeFileContents(const FilePath &filePath,
-                                                             const QByteArray &data,
-                                                             qint64 offset) const
+                                                             const QByteArray &data) const
 {
     if (disconnected())
         return make_unexpected_disconnected();
 
+    expected_str<FilePath> localSource = filePath.localSource();
+    if (localSource && *localSource != filePath)
+        return localSource->writeFileContents(data);
+
     QStringList args = {"of=" + filePath.path()};
-    if (offset != 0) {
-        args.append("bs=1");
-        args.append(QString("seek=%1").arg(offset));
-    }
     RunResult result = runInShell({"dd", args, OsType::OsTypeLinux}, data);
 
     if (result.exitCode != 0) {

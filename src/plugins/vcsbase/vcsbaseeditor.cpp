@@ -27,10 +27,9 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 
-#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
-#include <texteditor/syntaxhighlighterrunner.h>
+#include <texteditor/syntaxhighlighter.h>
 
 #include <utils/algorithm.h>
 #include <utils/progressindicator.h>
@@ -436,7 +435,7 @@ bool UrlTextCursorHandler::findContentsUnderCursor(const QTextCursor &cursor)
 
 void UrlTextCursorHandler::highlightCurrentContents()
 {
-    const QColor linkColor = creatorTheme()->color(Theme::TextColorLink);
+    const QColor linkColor = creatorColor(Theme::TextColorLink);
     QTextEdit::ExtraSelection sel;
     sel.cursor = currentCursor();
     sel.cursor.setPosition(currentCursor().position()
@@ -821,7 +820,7 @@ void VcsBaseEditorWidget::setFileLogAnnotateEnabled(bool e)
 
 void VcsBaseEditorWidget::setHighlightingEnabled(bool e)
 {
-    textDocument()->syntaxHighlighterRunner()->setEnabled(e);
+    textDocument()->syntaxHighlighter()->setEnabled(e);
 }
 
 FilePath VcsBaseEditorWidget::workingDirectory() const
@@ -1102,7 +1101,7 @@ void VcsBaseEditorWidget::slotActivateAnnotation()
 
     disconnect(this, &QPlainTextEdit::textChanged, this, &VcsBaseEditorWidget::slotActivateAnnotation);
 
-    if (SyntaxHighlighterRunner *ah = textDocument()->syntaxHighlighterRunner()) {
+    if (SyntaxHighlighter *ah = textDocument()->syntaxHighlighter()) {
         ah->rehighlight();
     } else {
         BaseAnnotationHighlighterCreator creator = annotationHighlighterCreator();
@@ -1639,7 +1638,7 @@ IEditor *VcsBaseEditor::locateEditorByTag(const QString &tag)
     const QList<IDocument *> documents = DocumentModel::openedDocuments();
     for (IDocument *document : documents) {
         const QVariant tagPropertyValue = document->property(tagPropertyC);
-        if (tagPropertyValue.type() == QVariant::String && tagPropertyValue.toString() == tag)
+        if (tagPropertyValue.typeId() == QMetaType::QString && tagPropertyValue.toString() == tag)
             return DocumentModel::editorsForDocument(document).constFirst();
     }
     return nullptr;
@@ -1661,7 +1660,7 @@ VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters &parameters)
     if (parameters.mimeType != DiffEditor::Constants::DIFF_EDITOR_MIMETYPE)
         addMimeType(parameters.mimeType);
 
-    setEditorActionHandlers(TextEditorActionHandler::None);
+    setOptionalActionMask(OptionalActions::None);
     setDuplicatedSupported(false);
 
     setDocumentCreator([parameters] {

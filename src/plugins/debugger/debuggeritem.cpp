@@ -147,26 +147,15 @@ void DebuggerItem::reinitializeFromFile(QString *error, Utils::Environment *cust
 
     Environment env = customEnv ? *customEnv : m_command.deviceEnvironment();
 
-    // Prevent calling lldb on Windows because the lldb from the llvm package is linked against
-    // python but does not contain a python dll.
-    const bool isAndroidNdkLldb = DebuggerItem::addAndroidLldbPythonEnv(m_command, env);
-    const FilePath qtcreatorLldb = Core::ICore::lldbExecutable(CLANG_BINDIR);
-    if (HostOsInfo::isWindowsHost() && m_command.fileName().startsWith("lldb") && !isAndroidNdkLldb
-        && qtcreatorLldb != m_command) {
-        QString errorMessage;
-        m_version = winGetDLLVersion(WinDLLFileVersion,
-                                     m_command.absoluteFilePath().path(),
-                                     &errorMessage);
-        m_engineType = LldbEngineType;
-        m_abis = Abi::abisOfBinary(m_command);
-        return;
-    }
-
     // QNX gdb unconditionally checks whether the QNX_TARGET env variable is
     // set and bails otherwise, even when it is not used by the specific
     // codepath triggered by the --version and --configuration arguments. The
     // hack below tricks it into giving us the information we want.
     env.set("QNX_TARGET", QString());
+
+    // On Windows, we need to prevent the Windows Error Reporting dialog from
+    // popping up when a candidate is missing required DLLs.
+    WindowsCrashDialogBlocker blocker;
 
     Process proc;
     proc.setEnvironment(env);
@@ -282,6 +271,10 @@ QString DebuggerItem::engineTypeName() const
         return QLatin1String("CDB");
     case LldbEngineType:
         return QLatin1String("LLDB");
+    case GdbDapEngineType:
+        return QLatin1String("GDB DAP");
+    case LldbDapEngineType:
+        return QLatin1String("LLDB DAP");
     case UvscEngineType:
         return QLatin1String("UVSC");
     default:
@@ -440,8 +433,11 @@ static DebuggerItem::MatchLevel matchSingle(const Abi &debuggerAbi, const Abi &t
             return matchOnMultiarch;
     }
 
-    if (debuggerAbi.wordWidth() == 64 && targetAbi.wordWidth() == 32)
-        return DebuggerItem::MatchesSomewhat;
+    if (debuggerAbi.wordWidth() == 64 && targetAbi.wordWidth() == 32) {
+        return HostOsInfo::isWindowsHost() && engineType == CdbEngineType
+                   ? DebuggerItem::MatchesPerfectly
+                   : DebuggerItem::MatchesSomewhat;
+    }
     if (debuggerAbi.wordWidth() != 0 && debuggerAbi.wordWidth() != targetAbi.wordWidth())
         return matchOnMultiarch;
 
