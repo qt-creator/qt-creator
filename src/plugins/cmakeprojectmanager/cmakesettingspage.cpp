@@ -16,6 +16,7 @@
 #include <utils/detailswidget.h>
 #include <utils/fileutils.h>
 #include <utils/headerviewstretcher.h>
+#include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -23,7 +24,6 @@
 #include <utils/utilsicons.h>
 
 #include <QCheckBox>
-#include <QFormLayout>
 #include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
@@ -428,12 +428,14 @@ CMakeToolItemConfigWidget::CMakeToolItemConfigWidget(CMakeToolItemModel *model)
 
     m_versionLabel = new QLabel(this);
 
-    auto formLayout = new QFormLayout(this);
-    formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-    formLayout->addRow(new QLabel(Tr::tr("Name:")), m_displayNameLineEdit);
-    formLayout->addRow(new QLabel(Tr::tr("Path:")), m_binaryChooser);
-    formLayout->addRow(new QLabel(Tr::tr("Version:")), m_versionLabel);
-    formLayout->addRow(new QLabel(Tr::tr("Help file:")), m_qchFileChooser);
+    using namespace Layouting;
+    Form {
+        Tr::tr("Name:"), m_displayNameLineEdit, br,
+        Tr::tr("Path:"), m_binaryChooser, br,
+        Tr::tr("Version:"), m_versionLabel, br,
+        Tr::tr("Help file:"), m_qchFileChooser, br,
+        noMargin,
+    }.attachTo(this);
 
     connect(m_binaryChooser, &PathChooser::browsingFinished, this, &CMakeToolItemConfigWidget::onBinaryPathEditingFinished);
     connect(m_binaryChooser, &PathChooser::editingFinished, this, &CMakeToolItemConfigWidget::onBinaryPathEditingFinished);
@@ -530,21 +532,20 @@ public:
         header->setSectionResizeMode(1, QHeaderView::Stretch);
         (void) new HeaderViewStretcher(header, 0);
 
-        auto buttonLayout = new QVBoxLayout();
-        buttonLayout->setContentsMargins(0, 0, 0, 0);
-        buttonLayout->addWidget(m_addButton);
-        buttonLayout->addWidget(m_cloneButton);
-        buttonLayout->addWidget(m_delButton);
-        buttonLayout->addWidget(m_makeDefButton);
-        buttonLayout->addItem(new QSpacerItem(10, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
-
-        auto verticalLayout = new QVBoxLayout();
-        verticalLayout->addWidget(m_cmakeToolsView);
-        verticalLayout->addWidget(m_container);
-
-        auto horizontalLayout = new QHBoxLayout(this);
-        horizontalLayout->addLayout(verticalLayout);
-        horizontalLayout->addLayout(buttonLayout);
+        using namespace Layouting;
+        Row {
+            Column {
+                m_cmakeToolsView,
+                m_container,
+            },
+            Column {
+                m_addButton,
+                m_cloneButton,
+                m_delButton,
+                m_makeDefButton,
+                st,
+            },
+        }.attachTo(this);
 
         connect(m_cmakeToolsView->selectionModel(), &QItemSelectionModel::currentChanged,
                 this, &CMakeToolConfigWidget::currentCMakeToolChanged, Qt::QueuedConnection);
