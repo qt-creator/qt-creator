@@ -763,6 +763,11 @@ bool ToolBarBackend::isDocumentDirty() const
            && Core::EditorManager::currentDocument()->isModified();
 }
 
+bool ToolBarBackend::isLiteModeEnabled() const
+{
+    return QmlDesignerBasePlugin::isLiteModeEnabled();
+}
+
 void ToolBarBackend::launchGlobalAnnotations()
 {
     QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TOOLBAR_EDIT_GLOBAL_ANNOTATION);

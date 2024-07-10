@@ -102,6 +102,9 @@ public:
     bool m_wasShown = false;
     bool m_workspaceOrderDirty = false;
 
+    bool m_mcusProject = false;
+    bool m_liteModeEnabled = false;
+
     /**
      * Private data constructor
      */
@@ -498,7 +501,10 @@ void DockManager::initialize()
 
     openWorkspace(workspace);
 
-    lockWorkspace(d->m_settings->value(Constants::LOCK_WORKSPACE_SETTINGS_KEY, false).toBool());
+    if (d->m_liteModeEnabled)
+        lockWorkspace(true);
+    else
+        lockWorkspace(d->m_settings->value(Constants::LOCK_WORKSPACE_SETTINGS_KEY, false).toBool());
 }
 
 DockAreaWidget *DockManager::addDockWidget(DockWidgetArea area,
@@ -1749,11 +1755,21 @@ void DockManager::saveLockWorkspace()
 }
 
 void DockManager::setMcusProject(bool value) {
-    m_mcusProject = value;
+    d->m_mcusProject = value;
 }
 
 bool DockManager::mcusProject() const {
-   return m_mcusProject;
+    return d->m_mcusProject;
+}
+
+void DockManager::setLiteMode(bool value)
+{
+    d->m_liteModeEnabled = value;
+}
+
+bool DockManager::isLiteModeEnabled() const
+{
+    return d->m_liteModeEnabled;
 }
 
 } // namespace ADS
