@@ -751,7 +751,7 @@ static Utils::FilePath qmllsForFile(const Utils::FilePath &file,
         && QVersionNumber::fromString(pInfo.qtVersionString) < settings.mininumQmllsVersion) {
         return {};
     }
-    return pInfo.qmllsPath;
+    return pInfo.qmllsPath.exists() ? pInfo.qmllsPath : Utils::FilePath();
 }
 
 void QmlJSEditorDocumentPrivate::settingsChanged()
