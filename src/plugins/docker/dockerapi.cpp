@@ -3,9 +3,11 @@
 
 #include "dockerapi.h"
 
+#include "dockersettings.h"
 #include "dockertr.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
+
 #include <utils/async.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>

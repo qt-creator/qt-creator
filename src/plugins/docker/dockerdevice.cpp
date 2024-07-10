@@ -6,6 +6,7 @@
 #include "dockerapi.h"
 #include "dockerconstants.h"
 #include "dockerdevicewidget.h"
+#include "dockersettings.h"
 #include "dockertr.h"
 #include "kitdetector.h"
 
