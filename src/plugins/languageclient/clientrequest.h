@@ -67,7 +67,7 @@ public:
     bool preStartCheck() override;
 };
 
-class LANGUAGECLIENT_EXPORT ClientWorkspaceSymbolRequestTaskAdapter
+class LANGUAGECLIENT_EXPORT ClientWorkspaceSymbolRequestTaskAdapter final
     : public Tasking::TaskAdapter<ClientWorkspaceSymbolRequest>
 {
 public:

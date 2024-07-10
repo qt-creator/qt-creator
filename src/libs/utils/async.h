@@ -202,7 +202,7 @@ private:
 };
 
 template <typename ResultType>
-class AsyncTaskAdapter : public Tasking::TaskAdapter<Async<ResultType>>
+class AsyncTaskAdapter final : public Tasking::TaskAdapter<Async<ResultType>>
 {
 public:
     AsyncTaskAdapter() {

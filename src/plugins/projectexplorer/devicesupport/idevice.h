@@ -290,7 +290,7 @@ private:
     QString m_errorString;
 };
 
-class PROJECTEXPLORER_EXPORT DeviceProcessKillerTaskAdapter
+class PROJECTEXPLORER_EXPORT DeviceProcessKillerTaskAdapter final
     : public Tasking::TaskAdapter<DeviceProcessKiller>
 {
 public:

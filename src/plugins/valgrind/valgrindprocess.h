@@ -61,7 +61,7 @@ private:
     std::unique_ptr<ValgrindProcessPrivate> d;
 };
 
-class ValgrindProcessTaskAdapter : public Tasking::TaskAdapter<ValgrindProcess>
+class ValgrindProcessTaskAdapter final : public Tasking::TaskAdapter<ValgrindProcess>
 {
 public:
     ValgrindProcessTaskAdapter() {

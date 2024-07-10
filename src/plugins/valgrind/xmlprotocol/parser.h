@@ -51,7 +51,7 @@ private:
     std::unique_ptr<ParserPrivate> d;
 };
 
-class ParserTaskAdapter : public Tasking::TaskAdapter<Parser>
+class ParserTaskAdapter final : public Tasking::TaskAdapter<Parser>
 {
 public:
     ParserTaskAdapter() { connect(task(), &Parser::done, this, &Tasking::TaskInterface::done); }

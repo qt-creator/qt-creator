@@ -213,7 +213,7 @@ public:
     std::function<ProcessInterface *(const FilePath &)> processImplHook;
 };
 
-class QTCREATOR_UTILS_EXPORT ProcessTaskAdapter : public Tasking::TaskAdapter<Process>
+class QTCREATOR_UTILS_EXPORT ProcessTaskAdapter final : public Tasking::TaskAdapter<Process>
 {
 public:
     ProcessTaskAdapter();

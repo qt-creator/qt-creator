@@ -40,7 +40,7 @@ private:
     QbsRequestObject *m_requestObject = nullptr;
 };
 
-class QbsRequestTaskAdapter : public Tasking::TaskAdapter<QbsRequest>
+class QbsRequestTaskAdapter final : public Tasking::TaskAdapter<QbsRequest>
 {
 public:
     QbsRequestTaskAdapter() { connect(task(), &QbsRequest::done, this, &TaskInterface::done); }

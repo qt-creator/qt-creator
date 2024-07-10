@@ -30,7 +30,7 @@ private:
     friend class CredentialQueryTaskAdapter;
 };
 
-class CredentialQueryTaskAdapter : public Tasking::TaskAdapter<CredentialQuery>
+class CredentialQueryTaskAdapter final : public Tasking::TaskAdapter<CredentialQuery>
 {
 private:
     ~CredentialQueryTaskAdapter();

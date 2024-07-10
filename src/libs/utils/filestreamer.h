@@ -48,7 +48,7 @@ private:
     class FileStreamerPrivate *d = nullptr;
 };
 
-class FileStreamerTaskAdapter : public Tasking::TaskAdapter<FileStreamer>
+class FileStreamerTaskAdapter final : public Tasking::TaskAdapter<FileStreamer>
 {
 public:
     FileStreamerTaskAdapter() {
