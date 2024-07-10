@@ -29,6 +29,8 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 
+#include <qmldesignerbase/qmldesignerbaseplugin.h>
+
 #include <qmldesigner/components/componentcore/theme.h>
 #include <qmldesigner/dynamiclicensecheck.h>
 #include <qmldesigner/qmldesignerconstants.h>
@@ -208,6 +210,7 @@ public:
 
     Q_PROPERTY(bool communityVersion MEMBER m_communityVersion NOTIFY communityVersionChanged)
     Q_PROPERTY(bool enterpriseVersion MEMBER m_enterpriseVersion NOTIFY enterpriseVersionChanged)
+    Q_PROPERTY(bool liteDesignerEnabled MEMBER m_liteDesignerEnabled CONSTANT)
     Q_PROPERTY(int count READ count NOTIFY countChanged)
 
     explicit ProjectModel(QObject *parent = nullptr);
@@ -376,6 +379,7 @@ private:
     bool m_communityVersion = true;
     bool m_enterpriseVersion = false;
     bool m_blockOpenRecent = false;
+    bool m_liteDesignerEnabled = false;
 };
 
 void ProjectModel::setupVersion()
@@ -383,6 +387,7 @@ void ProjectModel::setupVersion()
     QmlDesigner::FoundLicense license = QmlDesigner::checkLicense();
     m_communityVersion = license == QmlDesigner::FoundLicense::community;
     m_enterpriseVersion = license == QmlDesigner::FoundLicense::enterprise;
+    m_liteDesignerEnabled = QmlDesigner::QmlDesignerBasePlugin::isLiteModeEnabled();
 }
 
 ProjectModel::ProjectModel(QObject *parent)
