@@ -89,15 +89,7 @@ GTestFramework::GTestFramework()
 
     groupMode.setSettingsKey("GroupMode");
     groupMode.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
-    groupMode.setFromSettingsTransformation([this](const QVariant &savedValue) -> QVariant {
-        // avoid problems if user messes around with the settings file
-        bool ok = false;
-        const int tmp = savedValue.toInt(&ok);
-        return groupMode.indexForItemValue(ok ? tmp : GTest::Constants::Directory);
-    });
-    groupMode.setToSettingsTransformation([this](const QVariant &value) {
-        return groupMode.itemValueForIndex(value.toInt());
-    });
+    groupMode.setUseDataAsSavedValue();
     groupMode.addOption({Tr::tr("Directory"), {}, GTest::Constants::Directory});
     groupMode.addOption({Tr::tr("GTest Filter"), {}, GTest::Constants::GTestFilter});
     groupMode.setDefaultValue(groupMode.indexForItemValue(GTest::Constants::Directory));
