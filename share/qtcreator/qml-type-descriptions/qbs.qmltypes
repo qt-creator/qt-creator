@@ -19,7 +19,6 @@ Module {
         exports: [ "qbs/Depends 1.0" ]
         prototype: "QQuickItem"
         Property { name: "condition"; type: "bool" }
-        Property { name: "enableFallback"; type: "bool" }
         Property { name: "limitToSubProject"; type: "bool" }
         Property { name: "multiplexConfigurationIds"; type: "string"; isList: true }
         Property { name: "name"; type: "string" }
@@ -93,6 +92,8 @@ Module {
         name: "ModuleProvider"
         exports: [ "qbs/ModuleProvider 1.0" ]
         prototype: "QQuickItem"
+        Property { name: "isEager"; type: "bool" }
+        Property { name: "moduleName"; type: "string" }
         Property { name: "name"; type: "string" }
         Property { name: "outputBaseDir"; type: "string" }
         Property { name: "relativeSearchPaths"; type: "string"; isList: true }
