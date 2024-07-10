@@ -64,7 +64,6 @@ public slots:
     void setBackward(bool backward);
 
 protected:
-    bool focusNextPrevChild(bool next) override;
     void resizeEvent(QResizeEvent *event) override;
 
 private:
