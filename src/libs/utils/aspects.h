@@ -547,6 +547,8 @@ public:
     enum class DisplayStyle { RadioButtons, ComboBox };
     void setDisplayStyle(DisplayStyle style);
 
+    void setUseDataAsSavedValue();
+
     class Option
     {
     public:

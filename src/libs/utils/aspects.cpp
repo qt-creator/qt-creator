@@ -2233,6 +2233,17 @@ void SelectionAspect::setDisplayStyle(SelectionAspect::DisplayStyle style)
     d->m_displayStyle = style;
 }
 
+void SelectionAspect::setUseDataAsSavedValue()
+{
+    setFromSettingsTransformation([this](const QVariant &savedValue) {
+        const int index = indexForItemValue(savedValue);
+        return index >= 0 ? index : defaultVariantValue();
+    });
+    setToSettingsTransformation([this](const QVariant &valueToSave) {
+        return itemValueForIndex(valueToSave.toInt());
+    });
+}
+
 void SelectionAspect::setStringValue(const QString &val)
 {
     const int index = indexForDisplay(val);
