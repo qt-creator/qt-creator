@@ -13,8 +13,11 @@
 
 #include <aggregation/aggregate.h>
 
+#include <utils/fileutils.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
+
+#include <coreplugin/messagemanager.h>
 
 #include <QAction>
 #include <QCursor>
@@ -294,7 +297,16 @@ void OutputWindow::contextMenuEvent(QContextMenuEvent *event)
     menu->addSeparator();
     QAction *saveAction = menu->addAction(Tr::tr("Save Contents..."));
     connect(saveAction, &QAction::triggered, this, [this] {
-        QFileDialog::saveFileContent(toPlainText().toUtf8(), d->outputFileNameHint);
+        const FilePath file = FileUtils::getSaveFilePath(
+            ICore::dialogParent(), {}, FileUtils::homePath() / d->outputFileNameHint);
+        if (!file.isEmpty()) {
+            QString error;
+            Utils::TextFileFormat format;
+            format.codec = EditorManager::defaultTextCodec();
+            format.lineTerminationMode = EditorManager::defaultLineEnding();
+            if (!format.writeFile(file, toPlainText(), &error))
+                MessageManager::writeDisrupting(error);
+        }
     });
     saveAction->setEnabled(!document()->isEmpty());
 
