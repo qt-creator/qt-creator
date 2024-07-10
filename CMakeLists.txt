@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.20)
 
 option(BUILD_DESIGNSTUDIO "Build and install design studio plugins, examples and settings." OFF)
 if (BUILD_DESIGNSTUDIO)

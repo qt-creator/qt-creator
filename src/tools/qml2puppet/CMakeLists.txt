@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.20)
 
 # standalone build
 if (NOT QT_CREATOR_API_DEFINED)
