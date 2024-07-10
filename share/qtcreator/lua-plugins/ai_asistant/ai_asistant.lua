@@ -8,7 +8,7 @@ return {
     Category = "Language Client",
     Description = "The AI Assistant Server",
     Experimental = true,
-    DisabledByDefault = false,
+    DisabledByDefault = true,
     LongDescription = [[
 This plugin provides the AI Assistant Server.
 It will try to install it if it is not found.
@@ -16,6 +16,12 @@ It will try to install it if it is not found.
     Dependencies = {
         { Name = "Lua",               Version = "14.0.0" },
         { Name = "LuaLanguageClient", Version = "14.0.0" }
+    },
+    hooks = {
+        editors = {
+            documentOpened = function(document) require 'init'.Hooks.onDocumentOpened(document) end,
+            documentClosed = function(document) require 'init'.Hooks.onDocumentClosed(document) end,
+        }
     },
     setup = function()
         require 'init'.setup()

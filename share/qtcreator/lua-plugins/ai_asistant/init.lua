@@ -5,8 +5,7 @@ local Utils = require('Utils')
 local S = require('Settings')
 local Gui = require('Gui')
 local a = require('async')
-
-Settings = {}
+local Documents = require('Documents')
 
 local function createCommand()
   local cmd = { Settings.binary.expandedValue:nativePath() }
@@ -50,7 +49,6 @@ local function using(tbl)
 end
 
 local function layoutSettings()
-  --- "using namespace Gui"
   local _ENV = using(Gui)
 
   local layout = Form {
@@ -69,14 +67,12 @@ local function layoutSettings()
 end
 
 local function setupAspect()
-  ---@class Settings: AspectContainer
   Settings = S.AspectContainer.create({
     autoApply = false,
     layouter = layoutSettings,
-  });
+  })
 
   Settings.binary = S.FilePathAspect.create({
-
     settingsKey = "AiAssistant.Binary",
     displayName = "Binary",
     labelText = "Binary:",
@@ -88,11 +84,58 @@ local function setupAspect()
   return Settings
 end
 
+local function fetchSuggestions()
+  print("Fetching suggestions ...")
+end
+
+local function fetchSuggestionsSafe()
+  local ok, err = pcall(fetchSuggestions)
+  if not ok then
+    print("echo Error fetching: " .. err)
+  end
+end
+
+Hooks = {}
+
+local function onDocumentChanged()
+  print("onDocumentChanged() called")
+  -- TODO:
+  -- All the necessary checks before sending the request
+  -- Create request:
+    -- Get/Set the current document
+    -- Get/Set the current cursor position
+    -- Get/Set the document version
+    -- Set response callback to handle the response
+ end
+
+function Hooks.onDocumentOpened(document)
+    if document then
+        print("LuaTextDocument found: ", document)
+        document:setChangedCallback(onDocumentChanged)
+    else
+        error("Expected a LuaTextDocument but got nil or incorrect type")
+    end
+end
+
+
+function Hooks.onDocumentClosed(document)
+  print("Document closed:", document)
+  -- TODO: Cleanup the document references and requests
+end
+
 local function setup(parameters)
   setupAspect()
   setupClient()
+
+  Action = require("Action")
+  Action.create("Trigger.suggestions", {
+    text = "Trigger AI suggestions",
+    onTrigger = function() a.sync(fetchSuggestionsSafe)() end,
+    defaultKeySequences = { "Meta+Shift+A", "Ctrl+Shift+Alt+A" },
+  })
 end
 
 return {
   setup = function() a.sync(setup)() end,
+  Hooks = Hooks,
 }
