@@ -139,11 +139,13 @@ void expand(const PresetType &preset, Environment &env, const FilePath &sourceDi
             return presetEnv.value(macroName);
         });
 
-        bool append = true;
+        enum Operation { set, appendOrSet, prependOrSet };
+        Operation op = set;
         if (key.compare("PATH", Qt::CaseInsensitive) == 0) {
+            op = appendOrSet;
             const int index = value.indexOf("$penv{PATH}", 0, Qt::CaseInsensitive);
             if (index != 0)
-                append = false;
+                op = prependOrSet;
             value.replace("$penv{PATH}", "", Qt::CaseInsensitive);
         }
 
@@ -154,10 +156,17 @@ void expand(const PresetType &preset, Environment &env, const FilePath &sourceDi
         // Make sure to expand the CMake macros also for environment variables
         expandAllButEnv(preset, sourceDirectory, value);
 
-        if (append)
+        switch (op) {
+        case set:
+            env.set(key, value);
+            break;
+        case appendOrSet:
             env.appendOrSet(key, value);
-        else
+            break;
+        case prependOrSet:
             env.prependOrSet(key, value);
+            break;
+        }
     });
 }
 

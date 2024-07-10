@@ -133,6 +133,7 @@ public:
                              const StringLiteral **fileName = nullptr) const;
     int getTokenPositionInDocument(const Token token, const QTextDocument *doc) const;
     int getTokenEndPositionInDocument(const Token &token, const QTextDocument *doc) const;
+    std::pair<int, int> getExpansionPosition(int tokenIndex) const;
 
     void pushLineOffset(int offset);
     void pushPreprocessorLine(int utf16charOffset,
@@ -183,6 +184,11 @@ private:
     std::vector<Token> *_comments;
     std::vector<int> _lineOffsets;
     std::vector<PPLine> _ppLines;
+
+    // Offset and length. Note that in contrast to token offsets, this is a raw file offset
+    // with no preprocessor prefix.
+    std::unordered_map<int, std::pair<int, int>> _expansionPositions;
+
     typedef std::unordered_map<unsigned, std::pair<int, int> > TokenLineColumn;
     TokenLineColumn _expandedLineColumn;
     MemoryPool *_pool;

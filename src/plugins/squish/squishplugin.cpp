@@ -68,8 +68,6 @@ private:
                 SquishServerSettingsDialog dialog;
                 dialog.exec();
             });
-
-        ProjectExplorer::JsonWizardFactory::addWizardPath(":/squish/wizard/");
     }
 
     bool initializeGlobalScripts()

@@ -22,6 +22,7 @@ public:
     Utils::BoolAspect intelFlavor{this};
     Utils::BoolAspect usePseudoTracepoints{this};
     Utils::BoolAspect useIndexCache{this};
+    Utils::TriStateAspect useDebugInfoD{this};
     Utils::StringAspect gdbStartupCommands{this};
     Utils::StringAspect gdbPostAttachCommands{this};
 

@@ -13,8 +13,6 @@
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <texteditor/textdocument.h>
 
 #include <utils/async.h>
@@ -121,7 +119,6 @@ DiffFilesController::DiffFilesController(IDocument *document)
             const auto onDiffSetup = [this, reloadInput = inputList.at(i)](Async<FileData> &async) {
                 async.setConcurrentCallData(
                     DiffFile(ignoreWhitespace(), contextLineCount()), reloadInput);
-                async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
             };
 
             const auto onDiffDone = [outputList, i](const Async<FileData> &async) {

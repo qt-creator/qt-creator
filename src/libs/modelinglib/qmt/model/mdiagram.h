@@ -21,7 +21,7 @@ public:
 
     MDiagram &operator=(const MDiagram &rhs);
 
-    const QList<DElement *> &diagramElements() const { return m_elements; }
+    const QList<DElement *> diagramElements() const { return m_elements; }
     DElement *findDiagramElement(const Uid &key) const;
     DElement *findDelegate(const Uid &modelUid) const;
     void setDiagramElements(const QList<DElement *> &elements);

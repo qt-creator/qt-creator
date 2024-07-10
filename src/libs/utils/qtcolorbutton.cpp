@@ -171,7 +171,7 @@ void QtColorButton::paintEvent(QPaintEvent *event)
         constexpr int size = 11;
         const qreal horPadding = (width() - size) / 2.0;
         const qreal verPadding = (height() - size) / 2.0;
-        const QPen pen(creatorTheme()->color(overlayColor), 2);
+        const QPen pen(creatorColor(overlayColor), 2);
 
         p.save();
         p.setOpacity(overlayOpacity);
@@ -202,7 +202,7 @@ void QtColorButton::paintEvent(QPaintEvent *event)
         p.setPen(pen);
         p.setCompositionMode(QPainter::CompositionMode_Difference);
     } else {
-        p.setPen(creatorTheme()->color(overlayColor));
+        p.setPen(creatorColor(overlayColor));
         p.setOpacity(overlayOpacity);
     }
     p.drawRect(rect().adjusted(0, 0, -1, -1));

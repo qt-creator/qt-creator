@@ -40,7 +40,6 @@ private:
     ShapeGeometry calcMinimumGeometry() const;
     void updateGeometry();
 
-    CustomIconItem *m_customIcon = nullptr;
     QGraphicsPolygonItem *m_shape = nullptr;
     ContextLabelItem *m_contextLabel = nullptr;
 };

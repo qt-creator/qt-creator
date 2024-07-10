@@ -166,6 +166,7 @@ void Locator::loadSettings()
     const Settings def;
     DB::beginGroup(settingsGroup);
     m_refreshTimer.setInterval(minutes(DB::value("RefreshInterval", 60).toInt()));
+    m_relativePaths = DB::value("RelativePaths", false).toBool();
     m_settings.useCenteredPopup = DB::value(kUseCenteredPopup, def.useCenteredPopup).toBool();
 
     for (ILocatorFilter *filter : std::as_const(m_filters)) {
@@ -294,6 +295,7 @@ void Locator::saveSettings() const
     DB::beginGroup("Locator");
     DB::remove(QString());
     DB::setValue("RefreshInterval", refreshInterval());
+    DB::setValue("RelativePaths", relativePaths());
     DB::setValueWithDefault(kUseCenteredPopup, m_settings.useCenteredPopup, def.useCenteredPopup);
     for (ILocatorFilter *filter : m_filters) {
         if (!m_customFilters.contains(filter) && filter->id().isValid()) {
@@ -361,6 +363,16 @@ void Locator::setRefreshInterval(int interval)
     }
     m_refreshTimer.setInterval(minutes(interval));
     m_refreshTimer.start();
+}
+
+bool Locator::relativePaths() const
+{
+    return m_relativePaths;
+}
+
+void Locator::setRelativePaths(bool use)
+{
+    m_relativePaths = use;
 }
 
 bool Locator::useCenteredPopupForShortcut()

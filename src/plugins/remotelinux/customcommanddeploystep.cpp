@@ -31,8 +31,6 @@ public:
         commandLine.setHistoryCompleter("RemoteLinuxCustomCommandDeploymentStep.History");
 
         setInternalInitializer([this] { return isDeploymentPossible(); });
-
-        addMacroExpander();
     }
 
     expected_str<void> isDeploymentPossible() const final;

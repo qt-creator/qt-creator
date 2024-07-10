@@ -72,7 +72,7 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
         details->setState(DetailsWidget::Expanded);
         auto innerPane = new QWidget;
         details->setWidget(innerPane);
-        builder.addItem(Layouting::noMargin);
+        builder.setNoMargins();
         builder.attachTo(innerPane);
 
         const auto setSummaryText = [this, details] {
@@ -116,15 +116,15 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
 
     m_cppAspect.setSettingsKey("RunConfiguration.UseCppDebugger");
     m_cppAspect.setLabelText(Tr::tr("C++ debugger:"));
-    m_cppAspect.setOptionTexts(Tr::tr("Enabled"), Tr::tr("Disabled"), Tr::tr("Automatic"));
+    m_cppAspect.setOptionText(TriState::DefaultValue, Tr::tr("Automatic"));
 
     m_qmlAspect.setSettingsKey("RunConfiguration.UseQmlDebugger");
     m_qmlAspect.setLabelText(Tr::tr("QML debugger:"));
-    m_qmlAspect.setOptionTexts(Tr::tr("Enabled"), Tr::tr("Disabled"), Tr::tr("Automatic"));
+    m_qmlAspect.setOptionText(TriState::DefaultValue, Tr::tr("Automatic"));
 
     m_pythonAspect.setSettingsKey("RunConfiguration.UsePythonDebugger");
     m_pythonAspect.setLabelText(Tr::tr("Python debugger:"));
-    m_pythonAspect.setOptionTexts(Tr::tr("Enabled"), Tr::tr("Disabled"), Tr::tr("Automatic"));
+    m_pythonAspect.setOptionText(TriState::DefaultValue, Tr::tr("Automatic"));
 
     // Make sure at least one of the debuggers is set to be active.
     connect(&m_cppAspect, &TriStateAspect::changed, this, [this] {

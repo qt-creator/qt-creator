@@ -20,7 +20,7 @@ public:
     virtual void insertHandle(int beforeIndex, const QPointF &pos, double rasterWidth, double rasterHeight) = 0;
     virtual void deleteHandle(int index) = 0;
     virtual void setHandlePos(int index, const QPointF &pos) = 0;
-    virtual void dropHandle(int index, double rasterWidth, double rasterHeight) = 0;
+    virtual void dropHandle(int index, bool extraSnap, double rasterWidth, double rasterHeight) = 0;
 };
 
 } // namespace qmt

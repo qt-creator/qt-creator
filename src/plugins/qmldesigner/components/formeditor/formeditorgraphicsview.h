@@ -46,7 +46,7 @@ private:
     void stopPanning(QEvent *event);
 
     Panning m_isPanning = Panning::NotStarted;
-    QPoint m_panningStartPosition;
+    QPointF m_panningStartPosition;
     QRectF m_rootItemRect;
     QImage m_backgroundImage;
 };

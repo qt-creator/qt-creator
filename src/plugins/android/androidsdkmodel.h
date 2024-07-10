@@ -41,11 +41,8 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const override;
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
 
-    void selectMissingEssentials();
-    QList<const AndroidSdkPackage *> userSelection() const;
     void resetSelection();
-
-    QStringList missingEssentials() const { return m_missingEssentials; }
+    InstallationChange installationChange() const;
 
 private:
     void clearContainers();
@@ -55,7 +52,6 @@ private:
     QList<const SdkPlatform *> m_sdkPlatforms;
     QList<const AndroidSdkPackage *> m_tools;
     QSet<const AndroidSdkPackage *> m_changeState;
-    QStringList m_missingEssentials;
 };
 
 } // namespace Internal

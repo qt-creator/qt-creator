@@ -88,9 +88,9 @@ QString PropertyEditorContextObject::convertColorToString(const QVariant &color)
 {
     QString colorString;
     QColor theColor;
-    if (color.canConvert(QVariant::Color)) {
+    if (color.canConvert(QMetaType(QMetaType::QColor))) {
         theColor = color.value<QColor>();
-    } else if (color.canConvert(QVariant::Vector3D)) {
+    } else if (color.canConvert(QMetaType(QMetaType::QVector3D))) {
         auto vec = color.value<QVector3D>();
         theColor = QColor::fromRgbF(vec.x(), vec.y(), vec.z());
     }
@@ -586,8 +586,7 @@ int PropertyEditorContextObject::devicePixelRatio()
 
 QStringList PropertyEditorContextObject::styleNamesForFamily(const QString &family)
 {
-    const QFontDatabase dataBase;
-    return dataBase.styles(family);
+    return QFontDatabase::styles(family);
 }
 
 QStringList PropertyEditorContextObject::allStatesForId(const QString &id)

@@ -111,7 +111,7 @@ private slots:
                 const FilePath executable = Environment::systemEnvironment()
                                                 .searchInPath(shell, {"/usr/local/bin"});
                 if (executable.exists())
-                    m_availableShells.append({executable, {}});
+                    m_availableShells.append(CommandLine{executable});
             }
         }
 
@@ -210,7 +210,7 @@ private slots:
 
         QRandomGenerator generator;
 
-        const RunResult result = shell.runInShell({"cat", {}}, testData.toUtf8());
+        const RunResult result = shell.runInShell(CommandLine{"cat"}, testData.toUtf8());
         QCOMPARE(result.exitCode, 0);
         const QString resultAsUtf8 = QString::fromUtf8(result.stdOut);
         QCOMPARE(resultAsUtf8.size(), testData.size());
@@ -236,7 +236,7 @@ private slots:
         TestShell shell(cmdLine);
         QCOMPARE(shell.state(), DeviceShell::State::Succeeded);
 
-        const RunResult result = shell.runInShell({"cat", {}}, m_asciiTestData);
+        const RunResult result = shell.runInShell(CommandLine{"cat"}, m_asciiTestData);
         QCOMPARE(result.stdOut, m_asciiTestData);
     }
 
@@ -259,7 +259,7 @@ private slots:
         TestShell shell(cmdLine);
         QCOMPARE(shell.state(), DeviceShell::State::Succeeded);
 
-        const RunResult result = shell.runInShell({"cat", {}}, m_asciiTestData);
+        const RunResult result = shell.runInShell(CommandLine{"cat"}, m_asciiTestData);
         QCOMPARE(result.stdOut, m_asciiTestData);
         QVERIFY(result.stdErr.isEmpty());
 

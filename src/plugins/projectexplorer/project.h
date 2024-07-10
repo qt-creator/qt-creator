@@ -68,9 +68,8 @@ public:
 
     BuildSystem *createBuildSystem(Target *target) const;
 
-    Utils::FilePath projectFilePath() const;
-    Utils::FilePath projectDirectory() const;
-    static Utils::FilePath projectDirectory(const Utils::FilePath &top);
+    virtual Utils::FilePath projectFilePath() const;
+    virtual Utils::FilePath projectDirectory() const;
 
     // This does not affect nodes, only the root path.
     void changeRootProjectDirectory();

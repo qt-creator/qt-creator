@@ -599,6 +599,17 @@ protected:
         return true;
     }
 
+    bool visit(UiEnumDeclaration *node) override
+    {
+        if (containsOffset(node->identifierToken)) {
+            _name = node->name.toString();
+            _scope = _doc->bind()->findQmlObject(_objectNode);
+            _targetValue = _scopeChain->context()->lookupType(_doc.data(), QStringList(_name));
+            return false;
+        }
+        return true;
+    }
+
     bool visit(FunctionDeclaration *node) override
     {
         return visit(static_cast<FunctionExpression *>(node));

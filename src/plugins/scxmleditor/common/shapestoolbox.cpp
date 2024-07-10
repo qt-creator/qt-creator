@@ -33,7 +33,7 @@ ShapesToolbox::ShapesToolbox(QWidget *parent)
     Column {
         spacing(0),
         scrollArea,
-        noMargin,
+        noMargin
     }.attachTo(this);
 }
 

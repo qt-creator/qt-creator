@@ -24,7 +24,7 @@ public:
     bool validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage) override;
 };
 
-// A wizard page embedding Qt Designer's QDesignerNewFormWidgetInterface
+// A wizard page embedding Qt Widgets Designer's QDesignerNewFormWidgetInterface
 // widget.
 
 // Sets FormContents property.

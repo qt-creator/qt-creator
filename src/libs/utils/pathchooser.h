@@ -67,10 +67,10 @@ public:
     bool isValid() const;
     QString errorMessage() const;
 
-    FilePath filePath() const; // Close to what's in the line edit.
+    FilePath filePath() const; // Close to what's in the line edit. Expands macros.
     FilePath absoluteFilePath() const; // Relative paths resolved wrt the specified base dir.
 
-    FilePath rawFilePath() const; // The raw unexpanded input as FilePath.
+    FilePath unexpandedFilePath() const; // The raw unexpanded input as FilePath.
 
     FilePath baseDirectory() const;
     void setBaseDirectory(const FilePath &base);
@@ -99,8 +99,6 @@ public:
     QStringList commandVersionArguments() const;
     void setCommandVersionArguments(const QStringList &arguments);
 
-    // Utility to run a tool and return its stdout.
-    static QString toolVersion(const CommandLine &cmd);
     // Install a tooltip on lineedits used for binaries showing the version.
     static void installLineEditVersionToolTip(QLineEdit *le, const QStringList &arguments);
 

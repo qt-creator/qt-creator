@@ -56,11 +56,11 @@ inline QByteArray generateFingerPrint(const QList<CPlusPlus::Macro> &definedMacr
         } else {
             static const QByteArray def("#define ");
             hash.addData(macro.name());
-            hash.addData(" ", 1);
+            hash.addData(QByteArrayView(" ", 1));
             hash.addData(def);
             hash.addData(macro.definitionText());
         }
-        hash.addData("\n", 1);
+        hash.addData(QByteArrayView("\n", 1));
     }
     return hash.result();
 }

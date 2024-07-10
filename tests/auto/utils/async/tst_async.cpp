@@ -392,8 +392,7 @@ public:
 
 void tst_Async::onResultReady()
 {
-// TODO: Re-enable when QTBUG-119169 is fixed.
-#if 0
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
     { // lambda
         QObject context;
         QFuture<QString> f = Utils::asyncRun([](QPromise<QString> &fi) {

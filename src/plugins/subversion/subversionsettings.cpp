@@ -76,7 +76,7 @@ SubversionSettings::SubversionSettings()
 
             Group {
                 title(Tr::tr("Authentication")),
-                useAuthentication.groupChecker(),
+                groupChecker(useAuthentication.groupChecker()),
                 Form {
                     userName, br,
                     password,

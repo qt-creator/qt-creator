@@ -31,9 +31,7 @@ EnvironmentAspect::EnvironmentAspect(AspectContainer *container)
     setConfigWidgetCreator([this] { return new EnvironmentAspectWidget(this); });
     addDataExtractor(this, &EnvironmentAspect::environment, &Data::environment);
     if (qobject_cast<RunConfiguration *>(container)) {
-        addModifier([](Environment &env) {
-            env.modify(ProjectExplorerPlugin::projectExplorerSettings().appEnvChanges);
-        });
+        addModifier([](Environment &env) { env.modify(projectExplorerSettings().appEnvChanges); });
         connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
                 this, &EnvironmentAspect::environmentChanged);
     }
@@ -71,7 +69,7 @@ void EnvironmentAspect::setUserEnvironmentChanges(const Utils::EnvironmentItems 
 Utils::Environment EnvironmentAspect::environment() const
 {
     Environment env = modifiedBaseEnvironment();
-    env.modify(m_userChanges);
+    env.modify(userEnvironmentChanges());
     return env;
 }
 
@@ -167,4 +165,9 @@ Environment EnvironmentAspect::BaseEnvironment::unmodifiedBaseEnvironment() cons
     return getter ? getter() : Environment();
 }
 
+Utils::EnvironmentItems EnvironmentAspect::userEnvironmentChanges() const
+{
+    emit userChangesUpdateRequested();
+    return m_userChanges;
+}
 } // namespace ProjectExplorer

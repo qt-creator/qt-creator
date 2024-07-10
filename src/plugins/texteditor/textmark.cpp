@@ -371,7 +371,7 @@ bool TextMark::addToolTipContent(QLayout *target) const
 QColor TextMark::annotationColor() const
 {
     if (m_color.has_value())
-        return Utils::creatorTheme()->color(*m_color).toHsl();
+        return Utils::creatorColor(*m_color).toHsl();
     return {};
 }
 

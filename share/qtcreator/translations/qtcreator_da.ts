@@ -338,12 +338,12 @@ Minimum API-niveauet krævet af kittet er %1.</translation>
 </translation>
     </message>
     <message>
-        <source>
-Uninstalling the installed package may solve the issue.
-Do you want to uninstall the existing package?</source>
-        <translation>
-Afinstallation af den installerede pakke løser måske problemstillingen.
-Vil du afinstallere den eksisterende pakke?</translation>
+        <source>Uninstalling the installed package may solve the issue.</source>
+        <translation>Afinstallation af den installerede pakke løser måske problemstillingen.</translation>
+    </message>
+    <message>
+        <source>Do you want to uninstall the existing package?</source>
+        <translation>Vil du afinstallere den eksisterende pakke?</translation>
     </message>
     <message>
         <source>Install failed</source>
@@ -13547,8 +13547,8 @@ Det hjælper måske at genbygge projektet.</translation>
         <translation>Designer</translation>
     </message>
     <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Qt Designer-udformningsklasse</translation>
+        <source>Qt Widgets Designer Form Class</source>
+        <translation>Qt Widgets Designer-udformningsklasse</translation>
     </message>
     <message>
         <source>Choose a Class Name</source>
@@ -13571,8 +13571,8 @@ Det hjælper måske at genbygge projektet.</translation>
         <translation>Skift kilde/udformning</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt Widget Project.</source>
-        <translation>Opretter en Qt Designer-udformning sammen med en matchende klasse (C++-header og kildefil) til implementeringsformål. Du kan tilføje udformningen og klassen til et eksisterende Qt widget-projekt.</translation>
+        <source>Creates a Qt Widgets Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt Widget Project.</source>
+        <translation>Opretter en Qt Widgets Designer-udformning sammen med en matchende klasse (C++-header og kildefil) til implementeringsformål. Du kan tilføje udformningen og klassen til et eksisterende Qt widget-projekt.</translation>
     </message>
     <message>
         <source>For&amp;m Editor</source>
@@ -14990,8 +14990,8 @@ når de ikke kræves, hvilket i de fleste tilfælde vil forbedre ydelsen.</trans
         <translation>Alt+Skift+R</translation>
     </message>
     <message>
-        <source>About Qt Designer Plugins...</source>
-        <translation>Om Qt Designer-plugins...</translation>
+        <source>About Qt Widgets Designer Plugins...</source>
+        <translation>Om Qt Widgets Designer-plugins...</translation>
     </message>
     <message>
         <source>Preview in</source>
@@ -19970,8 +19970,8 @@ Fejl: %5</translation>
         <translation>Python-redigering</translation>
     </message>
     <message>
-        <source>Qt Designer</source>
-        <translation>Qt Designer</translation>
+        <source>Qt Widgets Designer</source>
+        <translation>Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Qt Linguist</source>
@@ -23386,12 +23386,12 @@ til projektet &quot;%2&quot;.</translation>
         <translation>Udformningsskabelon</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.</source>
-        <translation>Opretter en Qt Designer-udformning som du kan tilføje til et Qt widget-projekt. Dette er nyttigt hvis du allerede har en eksisterende klasse til brugerflade travlhedslogik.</translation>
+        <source>Creates a Qt Widgets Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.</source>
+        <translation>Opretter en Qt Widgets Designer-udformning som du kan tilføje til et Qt widget-projekt. Dette er nyttigt hvis du allerede har en eksisterende klasse til brugerflade travlhedslogik.</translation>
     </message>
     <message>
-        <source>Qt Designer Form</source>
-        <translation>Qt Designer-udformning</translation>
+        <source>Qt Widgets Designer Form</source>
+        <translation>Qt Widgets Designer-udformning</translation>
     </message>
     <message>
         <source>Creates a Java file with boilerplate code.</source>
@@ -24002,52 +24002,36 @@ Brug det kun hvis du prototyper. Du kan ikke oprette et fuldt program med dette.
         <translation>Page med typeId&apos;et &quot;%1&quot; har ugyldigt &quot;index&quot;.</translation>
     </message>
     <message>
-        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.
-</source>
-        <translation>Stien &quot;%1&quot; findes ikke under tjek af Json-assistentens søgestier.
-</translation>
+        <source>Path &quot;%1&quot; does not exist when checking JSON wizard search paths.</source>
+        <translation>Stien &quot;%1&quot; findes ikke under tjek af JSON-assistentens søgestier.</translation>
     </message>
     <message>
-        <source>Checking &quot;%1&quot; for %2.
-</source>
-        <translation>Tjekker &quot;%1&quot; for %2.
-</translation>
+        <source>Checking &quot;%1&quot; for %2.</source>
+        <translation>Tjekker &quot;%1&quot; for %2.</translation>
     </message>
     <message>
-        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4
-</source>
-        <translation>* Kunne ikke parse &quot;%1&quot;:%2:%3: %4
-</translation>
+        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4</source>
+        <translation>* Kunne ikke parse &quot;%1&quot;:%2:%3: %4</translation>
     </message>
     <message>
-        <source>* Did not find a JSON object in &quot;%1&quot;.
-</source>
-        <translation>* Fandt ikke et JSON-objekt i &quot;%1&quot;.
-</translation>
+        <source>* Did not find a JSON object in &quot;%1&quot;.</source>
+        <translation>* Fandt ikke et JSON-objekt i &quot;%1&quot;.</translation>
     </message>
     <message>
-        <source>* Configuration found and parsed.
-</source>
-        <translation>* Konfiguration fundet og parset.
-</translation>
+        <source>* Configuration found and parsed.</source>
+        <translation>* Konfiguration fundet og parset.</translation>
     </message>
     <message>
-        <source>* Version %1 not supported.
-</source>
-        <translation>* Version %1 understøttes ikke.
-</translation>
+        <source>* Version %1 not supported.</source>
+        <translation>* Version %1 understøttes ikke.</translation>
     </message>
     <message>
-        <source>* Failed to create: %1
-</source>
-        <translation>* Kunne ikke oprette: %1
-</translation>
+        <source>* Failed to create: %1</source>
+        <translation>* Kunne ikke oprette: %1</translation>
     </message>
     <message>
-        <source>JsonWizard: &quot;%1&quot; not found
-</source>
-        <translation>JsonWizard: &quot;%1&quot; ikke fundet
-</translation>
+        <source>JsonWizard: &quot;%1&quot; not found.</source>
+        <translation>JsonWizard: &quot;%1&quot; ikke fundet.</translation>
     </message>
     <message>
         <source>key not found.</source>
@@ -26282,12 +26266,12 @@ Opdater venligst dit kit eller vælg en mkspec for qmake som matcher dit mål-mi
         <translation>Opretter et Qt brugerdefineret Designer-widget eller en brugerdefineret widget-samling.</translation>
     </message>
     <message>
-        <source>This wizard generates a Qt Designer Custom Widget or a Qt Designer Custom Widget Collection project.</source>
-        <translation>Denne assistent genererer en Qt Designer brugerdefineret widget eller et Qt Designer brugerdefineret widget-samling-projekt.</translation>
+        <source>This wizard generates a Qt Widgets Designer Custom Widget or a Qt Widgets Designer Custom Widget Collection project.</source>
+        <translation>Denne assistent genererer en Qt Widgets Designer brugerdefineret widget eller et Qt Widgets Designer brugerdefineret widget-samling-projekt.</translation>
     </message>
     <message>
-        <source>Qt Designer is not responding (%1).</source>
-        <translation>Qt Designer svarer ikke (%1).</translation>
+        <source>Qt Widgets Designer is not responding (%1).</source>
+        <translation>Qt Widgets Designer svarer ikke (%1).</translation>
     </message>
     <message>
         <source>Unable to create server socket: %1</source>
@@ -26358,10 +26342,10 @@ Opdater venligst dit kit eller vælg en mkspec for qmake som matcher dit mål-mi
         <translation>Qt widgets-program</translation>
     </message>
     <message>
-        <source>Creates a Qt application for the desktop. Includes a Qt Designer-based main window.
+        <source>Creates a Qt application for the desktop. Includes a Qt Widgets Designer-based main window.
 
 Preselects a desktop Qt for building the application if available.</source>
-        <translation>Opretter et Qt-program til desktop. Inkluderer et Qt Designer-baseret hovedvindue.
+        <translation>Opretter et Qt-program til desktop. Inkluderer et Qt Widgets Designer-baseret hovedvindue.
 
 Prævælger en desktop Qt til bygning af programmet, hvis tilgængeligt.</translation>
     </message>
@@ -33820,7 +33804,7 @@ Derudover indsætter Skift+Enter et undvigetegn ved markørens placering og flyt
         <translation>Opdel strenge automatisk</translation>
     </message>
     <message>
-        <source>&amp;Automatically insert matching characters</source>
+        <source>&amp;Automatically Insert Matching Characters</source>
         <translation>&amp;Indsæt automatisk matchende tegn</translation>
     </message>
     <message>
@@ -34000,7 +33984,7 @@ Derudover indsætter Skift+Enter et undvigetegn ved markørens placering og flyt
         <translation>Justeret til højre side</translation>
     </message>
     <message>
-        <source>Line annotations</source>
+        <source>Line Annotations</source>
         <translation>Linjeannotationer</translation>
     </message>
     <message>
@@ -35607,7 +35591,7 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
         <translation>Nulstil</translation>
     </message>
     <message>
-        <source>Scanning scope</source>
+        <source>Scanning Scope</source>
         <translation>Skanningsområde</translation>
     </message>
     <message>

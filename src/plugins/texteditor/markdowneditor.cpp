@@ -16,8 +16,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 
-#include <texteditor/texteditoractionhandler.h>
-
 #include <utils/action.h>
 #include <utils/ranges.h>
 #include <utils/qtcsettings.h>
@@ -73,7 +71,7 @@ class MarkdownEditor : public IEditor
 {
     Q_OBJECT
 public:
-    MarkdownEditor(const TextEditor::TextEditorActionHandler *actionHandler)
+    MarkdownEditor()
         : m_document(new TextDocument(MARKDOWNVIEWER_ID))
     {
         m_document->setMimeType(MARKDOWNVIEWER_MIME_TYPE);
@@ -108,10 +106,25 @@ public:
 
         // editor
         m_textEditorWidget = new MarkdownEditorWidget;
-        m_textEditorWidget->setOptionalActions(actionHandler->optionalActions());
+        m_textEditorWidget->setOptionalActions(OptionalActions::FollowSymbolUnderCursor);
         m_textEditorWidget->setTextDocument(m_document);
         m_textEditorWidget->setupGenericHighlighter();
         m_textEditorWidget->setMarksVisible(false);
+        QObject::connect(
+            m_textEditorWidget,
+            &TextEditorWidget::saveCurrentStateForNavigationHistory,
+            this,
+            &MarkdownEditor::saveCurrentStateForNavigationHistory);
+        QObject::connect(
+            m_textEditorWidget,
+            &TextEditorWidget::addSavedStateToNavigationHistory,
+            this,
+            &MarkdownEditor::addSavedStateToNavigationHistory);
+        QObject::connect(
+            m_textEditorWidget,
+            &TextEditorWidget::addCurrentStateToNavigationHistory,
+            this,
+            &MarkdownEditor::addCurrentStateToNavigationHistory);
         auto context = new IContext(this);
         context->setWidget(m_textEditorWidget);
         context->setContext(Context(MARKDOWNVIEWER_TEXT_CONTEXT));
@@ -478,6 +491,18 @@ private:
         }
     }
 
+    void saveCurrentStateForNavigationHistory() { m_savedNavigationState = saveState(); }
+
+    void addSavedStateToNavigationHistory()
+    {
+        EditorManager::addCurrentPositionToNavigationHistory(m_savedNavigationState);
+    }
+
+    void addCurrentStateToNavigationHistory()
+    {
+        EditorManager::addCurrentPositionToNavigationHistory();
+    }
+
 private:
     QTimer m_previewTimer;
     bool m_performDelayedUpdate = false;
@@ -493,6 +518,7 @@ private:
     QAction *m_togglePreviewVisibleAction;
     QAction *m_swapViewsAction;
     std::optional<QPoint> m_previewRestoreScrollPosition;
+    QByteArray m_savedNavigationState;
 };
 
 class MarkdownEditorFactory final : public IEditorFactory
@@ -501,7 +527,6 @@ public:
     MarkdownEditorFactory();
 
 private:
-    TextEditorActionHandler m_actionHandler;
     Action m_emphasisAction;
     Action m_strongAction;
     Action m_inlineCodeAction;
@@ -512,17 +537,11 @@ private:
 };
 
 MarkdownEditorFactory::MarkdownEditorFactory()
-    : m_actionHandler(MARKDOWNVIEWER_ID,
-                      MARKDOWNVIEWER_TEXT_CONTEXT,
-                      TextEditor::TextEditorActionHandler::FollowSymbolUnderCursor,
-                      [](IEditor *editor) {
-                          return static_cast<MarkdownEditor *>(editor)->textEditorWidget();
-                      })
 {
     setId(MARKDOWNVIEWER_ID);
     setDisplayName(::Core::Tr::tr("Markdown Editor"));
     addMimeType(MARKDOWNVIEWER_MIME_TYPE);
-    setEditorCreator([this] { return new MarkdownEditor{&m_actionHandler}; });
+    setEditorCreator([] { return new MarkdownEditor; });
 
     const auto textContext = Context(MARKDOWNVIEWER_TEXT_CONTEXT);
     const auto context = Context(MARKDOWNVIEWER_ID);

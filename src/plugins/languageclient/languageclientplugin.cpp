@@ -1,7 +1,7 @@
 // Copyright (C) 2018 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "callhierarchy.h"
+#include "callandtypehierarchy.h"
 #include "languageclientmanager.h"
 #include "languageclientoutline.h"
 #include "languageclientsettings.h"
@@ -13,6 +13,8 @@
 
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
+
+#include <projectexplorer/taskhub.h>
 
 #include <QAction>
 #include <QMenu>
@@ -43,6 +45,7 @@ void LanguageClientPlugin::initialize()
     using namespace Core;
 
     setupCallHierarchyFactory();
+    setupTypeHierarchyFactory();
     setupLanguageClientProjectPanel();
     setupLanguageClientManager(this);
 
@@ -58,6 +61,11 @@ void LanguageClientPlugin::initialize()
     inspectAction.setText(Tr::tr("Inspect Language Clients..."));
     inspectAction.addToContainer(Core::Constants::M_TOOLS_DEBUG);
     inspectAction.addOnTriggered(this, &LanguageClientManager::showInspector);
+
+    ProjectExplorer::TaskHub::addCategory(
+                {Constants::TASK_CATEGORY_DIAGNOSTICS,
+                 Tr::tr("Language Server Diagnostics"),
+                 Tr::tr("Issues provided by the Language Server in the current document.")});
 }
 
 void LanguageClientPlugin::extensionsInitialized()

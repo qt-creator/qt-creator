@@ -17,10 +17,12 @@ class SelectableFilesFromDirModel;
 
 namespace Cppcheck::Internal {
 
+class CppcheckSettings;
+
 class ManualRunDialog : public QDialog
 {
 public:
-    explicit ManualRunDialog(const ProjectExplorer::Project *project);
+    explicit ManualRunDialog(const ProjectExplorer::Project *project, CppcheckSettings *settings);
 
     Utils::FilePaths filePaths() const;
     QSize sizeHint() const override;

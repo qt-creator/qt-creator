@@ -16,6 +16,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/icon.h>
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcprocess.h>
@@ -209,8 +210,7 @@ static bool isChildOf(const FilePath &path, const FilePaths &prefixes)
 static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
                                       const FilePath &sourceDirectory,
                                       const FilePath &buildDirectory,
-                                      bool relativeLibs,
-                                      const QSet<FilePath> &artifacts)
+                                      bool relativeLibs)
 {
     const FilePath currentBuildDir = buildDirectory.resolvePath(t.buildDir);
 
@@ -306,7 +306,6 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
                 if (f.role == "libraries")
                     tmp = tmp.parentDir();
 
-                std::optional<QString> dllName;
                 if (buildDir.osType() == OsTypeWindows && (f.role == "libraries")) {
                     const auto partAsFilePath = FilePath::fromUserInput(part);
                     part = partAsFilePath.fileName();
@@ -314,24 +313,6 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
                     // Skip object libraries on Windows. This case can happen with static qml plugins
                     if (part.endsWith(".obj") || part.endsWith(".o"))
                         continue;
-
-                    // Only consider dlls, not static libraries
-                    for (const QString &suffix :
-                         {QString(".lib"), QString(".dll.a"), QString(".a")}) {
-                        if (part.endsWith(suffix) && !dllName)
-                            dllName = part.chopped(suffix.length()).append(".dll");
-                    }
-
-                    // MinGW has libQt6Core.a -> Qt6Core.dll
-                    // but libFoo.dll.a was already handled above
-                    const QString mingwPrefix("lib");
-                    const QString mingwSuffix("a");
-                    const QString completeSuffix = partAsFilePath.completeSuffix();
-                    if (part.startsWith(mingwPrefix) && completeSuffix == mingwSuffix) {
-                        dllName = part.chopped(mingwSuffix.length() + 1/*the '.'*/)
-                                      .sliced(mingwPrefix.length())
-                                      .append(".dll");
-                    }
                 }
 
                 if (!tmp.isEmpty() && tmp.isDir()) {
@@ -340,23 +321,20 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
                     // "/usr/local/lib" since these are usually in the standard search
                     // paths. There probably are more, but the naming schemes are arbitrary
                     // so we'd need to ask the linker ("ld --verbose | grep SEARCH_DIR").
-                    if (buildDir.osType() != OsTypeWindows
-                        && !isChildOf(tmp,
-                                      {"/lib", "/lib64", "/usr/lib", "/usr/lib64", "/usr/local/lib"}))
+                    if (buildDir.osType() == OsTypeWindows
+                        || !isChildOf(tmp,
+                                      {"/lib",
+                                       "/lib64",
+                                       "/usr/lib",
+                                       "/usr/lib64",
+                                       "/usr/local/lib"})) {
                         librarySeachPaths.append(tmp);
-
-                    if (buildDir.osType() == OsTypeWindows && dllName) {
-                        const auto validPath = [&artifacts](const FilePath& path) {
-                            return path.exists() || artifacts.contains(path);
-                        };
-                        if (validPath(tmp.pathAppended(*dllName)))
-                            librarySeachPaths.append(tmp);
 
                         // Libraries often have their import libs in ../lib and the
                         // actual dll files in ../bin on windows. Qt is one example of that.
-                        if (tmp.fileName() == "lib") {
+                        if (tmp.fileName() == "lib" && buildDir.osType() == OsTypeWindows) {
                             const FilePath path = tmp.parentDir().pathAppended("bin");
-                            if (path.isDir() && validPath(path.pathAppended(*dllName)))
+                            if (path.isDir())
                                 librarySeachPaths.append(path);
                         }
                     }
@@ -365,6 +343,22 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
         }
         ct.libraryDirectories = filteredUnique(librarySeachPaths);
         qCInfo(cmakeLogger) << "libraryDirectories for target" << ct.title << ":" << ct.libraryDirectories;
+
+        // If there are start programs, there should also be an option to select none
+        if (!t.launcherInfos.isEmpty()) {
+            LauncherInfo info { "unused", Utils::FilePath(), QStringList() };
+            ct.launchers.append(Launcher(info, sourceDirectory));
+        }
+        // if there is a test and an emulator launcher, add the emulator and
+        // also a combination as the last entry, but not the "test" launcher
+        // as it will not work for cross-compiled executables
+        if (t.launcherInfos.size() == 2 && t.launcherInfos[0].type == "test" && t.launcherInfos[1].type == "emulator") {
+            ct.launchers.append(Launcher(t.launcherInfos[1], sourceDirectory));
+            ct.launchers.append(Launcher(t.launcherInfos[0], t.launcherInfos[1], sourceDirectory));
+        } else if (t.launcherInfos.size() == 1) {
+            Launcher launcher(t.launcherInfos[0], sourceDirectory);
+            ct.launchers.append(launcher);
+        }
     }
     return ct;
 }
@@ -375,17 +369,12 @@ static QList<CMakeBuildTarget> generateBuildTargets(const QFuture<void> &cancelF
                                                     const FilePath &buildDirectory,
                                                     bool relativeLibs)
 {
-    QSet<FilePath> artifacts;
-    for (const TargetDetails &t : input.targetDetails)
-        for (const FilePath &p: t.artifacts)
-            artifacts.insert(buildDirectory.resolvePath(p));
-
     QList<CMakeBuildTarget> result;
     result.reserve(input.targetDetails.size());
     for (const TargetDetails &t : input.targetDetails) {
         if (cancelFuture.isCanceled())
             return {};
-        result.append(toBuildTarget(t, sourceDirectory, buildDirectory, relativeLibs, artifacts));
+        result.append(toBuildTarget(t, sourceDirectory, buildDirectory, relativeLibs));
     }
     return result;
 }
@@ -639,7 +628,7 @@ static FolderNode *createSourceGroupNode(const QString &sourceGroupName,
             if (!existingNode) {
                 auto node = createCMakeVFolder(sourceDirectory, Node::DefaultFolderPriority + 5, p);
                 node->setListInProject(false);
-                node->setIcon([] { return Icon::fromTheme("edit-copy"); });
+                node->setIcon([] { return FileIconProvider::icon(QFileIconProvider::Folder); });
 
                 existingNode = node.get();
 
@@ -688,7 +677,23 @@ static void addCompileGroups(ProjectNode *targetRoot,
         if (isPchFile(buildDirectory, sourcePath) || isUnityFile(buildDirectory, sourcePath))
             node->setIsGenerated(true);
 
-        const bool showSourceFolders = settings().showSourceSubFolders()
+        // Hide some of the QML files that we not marked as generated by the Qt QML CMake code
+        const bool buildDirQmldirOrRcc = sourcePath.isChildOf(buildDirectory)
+                                         && (sourcePath.parentDir().fileName() == ".rcc"
+                                             || sourcePath.fileName() == "qmldir");
+        const bool otherDirQmldirOrMetatypes = !sourcePath.isChildOf(buildDirectory)
+                                               && !sourcePath.isChildOf(sourceDirectory)
+                                               && (sourcePath.parentDir().fileName() == "metatypes"
+                                                   || sourcePath.fileName() == "qmldir");
+        const bool buildDirPluginCpp = sourcePath.isChildOf(buildDirectory)
+                                       && td.type.endsWith("_LIBRARY")
+                                       && sourcePath.fileName().startsWith(td.name)
+                                       && sourcePath.fileName().endsWith("Plugin.cpp");
+
+        if (buildDirQmldirOrRcc || otherDirQmldirOrMetatypes || buildDirPluginCpp)
+            node->setIsGenerated(true);
+
+        const bool showSourceFolders = settings(targetRoot->getProject()).showSourceSubFolders()
                                        && defaultCMakeSourceGroupFolder(td.sourceGroups[si.sourceGroup]);
 
         // Where does the file node need to go?
@@ -702,7 +707,7 @@ static void addCompileGroups(ProjectNode *targetRoot,
     }
 
     for (size_t i = 0; i < sourceGroupFileNodes.size(); ++i) {
-        const bool showSourceFolders = settings().showSourceSubFolders()
+        const bool showSourceFolders = settings(targetRoot->getProject()).showSourceSubFolders()
                                        && defaultCMakeSourceGroupFolder(td.sourceGroups[i]);
 
         std::vector<std::unique_ptr<FileNode>> &current = sourceGroupFileNodes[i];

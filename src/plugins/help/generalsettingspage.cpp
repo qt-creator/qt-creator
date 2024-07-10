@@ -63,7 +63,6 @@ private:
 
     QFont m_font;
     int m_fontZoom = 100;
-    QFontDatabase m_fontDatabase;
 
     QString m_homePage;
     int m_contextOption;
@@ -400,9 +399,9 @@ void GeneralSettingsPageWidget::exportBookmarks()
 void GeneralSettingsPageWidget::updateFontSizeSelector()
 {
     const QString &family = m_font.family();
-    const QString &fontStyle = m_fontDatabase.styleString(m_font);
+    const QString &fontStyle = QFontDatabase::styleString(m_font);
 
-    QList<int> pointSizes = m_fontDatabase.pointSizes(family, fontStyle);
+    QList<int> pointSizes = QFontDatabase::pointSizes(family, fontStyle);
     if (pointSizes.empty())
         pointSizes = QFontDatabase::standardSizes();
 
@@ -424,8 +423,8 @@ void GeneralSettingsPageWidget::updateFontSizeSelector()
 
 void GeneralSettingsPageWidget::updateFontStyleSelector()
 {
-    const QString &fontStyle = m_fontDatabase.styleString(m_font);
-    const QStringList &styles = m_fontDatabase.styles(m_font.family());
+    const QString &fontStyle = QFontDatabase::styleString(m_font);
+    const QStringList &styles = QFontDatabase::styles(m_font.family());
 
     QSignalBlocker blocker(styleComboBox);
     styleComboBox->clear();

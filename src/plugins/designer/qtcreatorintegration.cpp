@@ -627,10 +627,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
         const RefactoringFilePtr file = refactoring.file(location.filePath());
         const int insertionPos = Utils::Text::positionInText(file->document(),
                                                              location.line(), location.column());
-        ChangeSet changeSet;
-        changeSet.insert(insertionPos, definition);
-        file->setChangeSet(changeSet);
-        file->apply();
+        file->apply(ChangeSet::makeInsert(insertionPos, definition));
         const int indentationPos = file->document()->toPlainText().indexOf('}', insertionPos) - 1;
         QTextCursor cursor(editor->textDocument()->document());
         cursor.setPosition(indentationPos);
@@ -747,7 +744,8 @@ void QtCreatorIntegration::handleSymbolRenameStage2(
     // In the case of clangd, this entails doing a "virtual rename" on the TextDocument,
     // as the LanguageClient cannot be forced into taking a document and assuming a different
     // file path.
-    const bool usesClangd = CppEditor::CppModelManager::usesClangd(editorWidget->textDocument());
+    const bool usesClangd
+        = CppEditor::CppModelManager::usesClangd(editorWidget->textDocument()).has_value();
     if (usesClangd)
         editorWidget->textDocument()->setFilePath(uiHeader);
     editorWidget->textDocument()->setPlainText(QString::fromUtf8(virtualContent));

@@ -1,0 +1,6 @@
+#include "theclass.h"
+#include "theheader.h"
+
+
+void SomeClass::func() {}
+

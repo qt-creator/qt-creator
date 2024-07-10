@@ -162,9 +162,8 @@ void ConsoleView::onRowActivated(const QModelIndex &index)
 
     const Utils::FilePath fp
         = m_finder.findFile(model()->data(index, ConsoleItem::FileRole).toString()).constFirst();
-    if (fp.exists() && fp.isFile() && fp.isReadableFile()) {
+    if (fp.isReadableFile())
         Core::EditorManager::openEditorAt({fp, model()->data(index, ConsoleItem::LineRole).toInt()});
-    }
 }
 
 void ConsoleView::copyToClipboard(const QModelIndex &index)

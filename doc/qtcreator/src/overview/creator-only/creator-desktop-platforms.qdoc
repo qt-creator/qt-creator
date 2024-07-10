@@ -45,8 +45,7 @@
         \li libxft-dev
         \li libxi-dev
         \li libxrandr-dev
-        \li libgl-dev and libglu-dev if you use Qt OpenGL (deprecated
-            in Qt 5) or Qt GUI OpenGL functions
+        \li libgl-dev and libglu-dev if you use Qt GUI OpenGL functions
     \endlist
 
     \section1 macOS

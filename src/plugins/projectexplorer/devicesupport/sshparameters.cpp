@@ -75,12 +75,11 @@ QStringList SshParameters::connectionOptions(const FilePath &binary) const
     return args;
 }
 
-bool SshParameters::setupSshEnvironment(Process *process)
+void SshParameters::setupSshEnvironment(Process *process)
 {
     Environment env = process->controlEnvironment();
     if (!env.hasChanges())
         env = Environment::systemEnvironment();
-    const bool hasDisplay = env.hasKey("DISPLAY") && (env.value("DISPLAY") != QString(":0"));
     if (SshSettings::askpassFilePath().exists()) {
         env.set("SSH_ASKPASS", SshSettings::askpassFilePath().toUserOutput());
         env.set("SSH_ASKPASS_REQUIRE", "force");
@@ -93,7 +92,6 @@ bool SshParameters::setupSshEnvironment(Process *process)
 
     // Otherwise, ssh will ignore SSH_ASKPASS and read from /dev/tty directly.
     process->setDisableUnixTerminal();
-    return hasDisplay;
 }
 
 bool operator==(const SshParameters &p1, const SshParameters &p2)

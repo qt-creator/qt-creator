@@ -245,7 +245,7 @@ void MakeInstallStep::updateArgsFromAspect()
 
 void MakeInstallStep::updateFullCommandLine()
 {
-    CommandLine cmd{makeExecutable(), userArguments(), CommandLine::Raw};
+    const CommandLine cmd{makeExecutable(), userArguments(), CommandLine::Raw};
     m_fullCommand.setValue(cmd.toUserOutput());
 }
 

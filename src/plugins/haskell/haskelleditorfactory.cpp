@@ -13,7 +13,6 @@
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/textindenter.h>
 
 #include <QAction>
@@ -42,8 +41,8 @@ public:
         setId(Constants::C_HASKELLEDITOR_ID);
         setDisplayName(::Core::Tr::tr("Haskell Editor"));
         addMimeType("text/x-haskell");
-        setEditorActionHandlers(TextEditorActionHandler::UnCommentSelection
-                              | TextEditorActionHandler::FollowSymbolUnderCursor);
+        setOptionalActionMask(
+                    OptionalActions::UnCommentSelection | OptionalActions::FollowSymbolUnderCursor);
         setDocumentCreator([] { return new TextDocument(Constants::C_HASKELLEDITOR_ID); });
         setIndenterCreator([](QTextDocument *doc) { return new TextIndenter(doc); });
         setEditorWidgetCreator(&createEditorWidget);

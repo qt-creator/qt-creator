@@ -117,8 +117,8 @@ OutputLineParser::Result IarParser::parseWarningOrErrorOrFatalErrorDetailsMessag
     m_expectSnippet = false;
     m_expectFilePath = false;
     LinkSpecs linkSpecs;
-    addLinkSpecForAbsoluteFilePath(linkSpecs, m_lastTask.file, m_lastTask.line, match,
-                                   FilePathIndex);
+    addLinkSpecForAbsoluteFilePath(
+        linkSpecs, m_lastTask.file, m_lastTask.line, m_lastTask.column, match, FilePathIndex);
     return {Status::InProgress, linkSpecs};
 }
 

@@ -77,7 +77,7 @@ bool AndroidToolchain::isValid() const
     }
 
     const bool isChildofNdk = compilerCommand().isChildOf(m_ndkLocation);
-    const bool isChildofSdk = compilerCommand().isChildOf(androidConfig().sdkLocation());
+    const bool isChildofSdk = compilerCommand().isChildOf(AndroidConfig::sdkLocation());
 
     return GccToolchain::isValid() && typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID
            && targetAbi().isValid() && (isChildofNdk || isChildofSdk)
@@ -86,9 +86,8 @@ bool AndroidToolchain::isValid() const
 
 void AndroidToolchain::addToEnvironment(Environment &env) const
 {
-    const AndroidConfig &config = androidConfig();
-    env.set(QLatin1String("ANDROID_NDK_HOST"), config.toolchainHostFromNdk(m_ndkLocation));
-    const FilePath javaHome = config.openJDKLocation();
+    env.set(QLatin1String("ANDROID_NDK_HOST"), AndroidConfig::toolchainHostFromNdk(m_ndkLocation));
+    const FilePath javaHome = AndroidConfig::openJDKLocation();
     if (javaHome.exists()) {
         env.set(Constants::JAVA_HOME_ENV_VAR, javaHome.toUserOutput());
         const FilePath javaBin = javaHome.pathAppended("bin");
@@ -97,8 +96,8 @@ void AndroidToolchain::addToEnvironment(Environment &env) const
         if (!currentJavaFilePath.isChildOf(javaBin))
             env.prependOrSetPath(javaBin);
     }
-    env.set(QLatin1String("ANDROID_HOME"), config.sdkLocation().toUserOutput());
-    env.set(QLatin1String("ANDROID_SDK_ROOT"), config.sdkLocation().toUserOutput());
+    env.set(QLatin1String("ANDROID_HOME"), AndroidConfig::sdkLocation().toUserOutput());
+    env.set(QLatin1String("ANDROID_SDK_ROOT"), AndroidConfig::sdkLocation().toUserOutput());
 }
 
 void AndroidToolchain::fromMap(const Store &data)
@@ -118,7 +117,7 @@ QStringList AndroidToolchain::suggestedMkspecList() const
 FilePath AndroidToolchain::makeCommand(const Environment &env) const
 {
     Q_UNUSED(env)
-    FilePath makePath = androidConfig().makePathFromNdk(m_ndkLocation);
+    FilePath makePath = AndroidConfig::makePathFromNdk(m_ndkLocation);
     return makePath.exists() ? makePath : FilePath("make");
 }
 
@@ -147,7 +146,7 @@ static FilePaths uniqueNdksForCurrentQtVersions()
 
     FilePaths uniqueNdks;
     for (const QtSupport::QtVersion *version : androidQtVersions) {
-        FilePath ndk = androidConfig().ndkLocation(version);
+        FilePath ndk = AndroidConfig::ndkLocation(version);
         if (!uniqueNdks.contains(ndk))
             uniqueNdks.append(ndk);
     }
@@ -161,15 +160,13 @@ ToolchainList autodetectToolchainsFromNdks(
     const bool isCustom)
 {
     QList<Toolchain *> result;
-    const AndroidConfig config = androidConfig();
-
     const Id LanguageIds[] {
         ProjectExplorer::Constants::CXX_LANGUAGE_ID,
         ProjectExplorer::Constants::C_LANGUAGE_ID
     };
 
     for (const FilePath &ndkLocation : ndkLocations) {
-        FilePath clangPath = config.clangPathFromNdk(ndkLocation);
+        const FilePath clangPath = AndroidConfig::clangPathFromNdk(ndkLocation);
         if (!clangPath.exists()) {
             qCDebug(androidTCLog) << "Clang toolchains detection fails. Can not find Clang"
                                   << clangPath;
@@ -193,11 +190,11 @@ ToolchainList autodetectToolchainsFromNdks(
                 const QString target = targetItr.key();
                 Toolchain *tc = findToolchain(compilerCommand, lang, target, alreadyKnown);
 
-                QLatin1String customStr = isCustom ? QLatin1String("Custom ") : QLatin1String();
+                const QString customStr = isCustom ? "Custom " : QString();
                 const QString displayName(customStr + QString("Android Clang (%1, %2, NDK %3)")
-                                              .arg(ToolchainManager::displayNameOfLanguageId(lang),
-                                                   AndroidConfig::displayName(abi),
-                                                   config.ndkVersion(ndkLocation).toString()));
+                                         .arg(ToolchainManager::displayNameOfLanguageId(lang),
+                                              AndroidConfig::displayName(abi),
+                                              AndroidConfig::ndkVersion(ndkLocation).toString()));
                 if (tc) {
                     // make sure to update the toolchain with current name format
                     if (tc->displayName() != displayName)

@@ -69,10 +69,11 @@ protected:
                                                   qint64 offset) const;
 
     virtual expected_str<qint64> writeFileContents(const FilePath &filePath,
-                                                   const QByteArray &data,
-                                                   qint64 offset) const;
+                                                   const QByteArray &data) const;
 
     virtual expected_str<FilePath> createTempFile(const FilePath &filePath);
+
+    virtual Utils::expected_str<std::unique_ptr<FilePathWatcher>> watch(const FilePath &path) const;
 };
 
 class QTCREATOR_UTILS_EXPORT DesktopDeviceFileAccess : public DeviceFileAccess
@@ -125,11 +126,11 @@ protected:
                                           qint64 limit,
                                           qint64 offset) const override;
     expected_str<qint64> writeFileContents(const FilePath &filePath,
-                                           const QByteArray &data,
-                                           qint64 offset) const override;
+                                           const QByteArray &data) const override;
 
     expected_str<FilePath> createTempFile(const FilePath &filePath) override;
 
+    Utils::expected_str<std::unique_ptr<FilePathWatcher>> watch(const FilePath &path) const override;
 };
 
 class QTCREATOR_UTILS_EXPORT UnixDeviceFileAccess : public DeviceFileAccess
@@ -178,8 +179,7 @@ protected:
                                           qint64 limit,
                                           qint64 offset) const override;
     expected_str<qint64> writeFileContents(const FilePath &filePath,
-                                           const QByteArray &data,
-                                           qint64 offset) const override;
+                                           const QByteArray &data) const override;
 
     expected_str<FilePath> createTempFile(const FilePath &filePath) override;
 

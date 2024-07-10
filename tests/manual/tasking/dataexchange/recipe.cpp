@@ -76,7 +76,7 @@ Group recipe(const Storage<ExternalData> &externalStorage)
         ConcurrentCallTask<QImage>(onReadSetup, onReadDone),
         Group {
             repeater,
-            parallelLimit(QThread::idealThreadCount() - 1),
+            parallelIdealThreadCountLimit,
             ConcurrentCallTask<QImage>(onScaleSetup, onScaleDone)
         }
     };

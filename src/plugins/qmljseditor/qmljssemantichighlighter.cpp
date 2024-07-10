@@ -348,6 +348,13 @@ protected:
         return visit(static_cast<FunctionExpression *>(ast));
     }
 
+    bool visit(UiEnumMemberList *ast) override
+    {
+        for (auto it = ast; it; it = it->next)
+            addUse(it->memberToken, SemanticHighlighter::FieldType);
+        return true;
+    }
+
     bool visit(PatternElement *ast) override
     {
         if (ast->isVariableDeclaration())
@@ -359,6 +366,47 @@ protected:
     {
         processName(ast->name, ast->identifierToken);
         return false;
+    }
+
+    bool visit(FieldMemberExpression *ast) override
+    {
+        if (ast->name.isEmpty() || ast->name.first().isLower())
+            return true;
+        // we only support IdentifierExpression.FieldMemberExpression (enum)
+        const FieldMemberExpression *right = ast;
+        if (const IdentifierExpression *idExp = cast<IdentifierExpression *>(ast->base)) {
+            const ObjectValue *scope = nullptr;
+            const Value *value = m_scopeChain.lookup(idExp->name.toString(), &scope);
+            if (auto aov = value->asAstObjectValue()) {
+                const ObjectValue *inObject = nullptr;
+                const Value *enumValue = aov->lookupMember(right->name.toString(),
+                                                           m_scopeChain.context(), &inObject);
+                if (enumValue && enumValue->asNumberValue()) // can we do better?
+                    addUse(right->identifierToken, SemanticHighlighter::FieldType);
+            }
+            return true;
+        }
+        // or IdentifierExpression.FieldMemberExpression.FieldMemberExpression (enum)
+        const FieldMemberExpression *it = cast<FieldMemberExpression *>(ast->base);
+        if (!it)
+            return true;
+        const IdentifierExpression *idExp = cast<IdentifierExpression *>(it->base);
+        if (!idExp)
+            return true;
+        const ObjectValue *scope = nullptr;
+        const Value *value = m_scopeChain.lookup(idExp->name.toString(), &scope);
+        const ASTObjectValue *aoValue= value->asAstObjectValue();
+        if (!aoValue)
+            return true;
+        if (auto maybeEnum = aoValue->lookupMember(it->name.toString(), m_scopeChain.context())) {
+            if (const UiEnumValue *enumObject = maybeEnum->asUiEnumValue()) {
+                addUse(it->identifierToken, SemanticHighlighter::QmlTypeType);
+                if (enumObject->keys().contains(right->name))
+                    addUse(right->identifierToken, SemanticHighlighter::FieldType);
+            }
+        }
+
+        return true;
     }
 
     bool visit(StringLiteral *ast) override
@@ -569,7 +617,7 @@ void SemanticHighlighter::applyResults(int from, int to)
 
     if (m_enableHighlighting)
         TextEditor::SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
-            m_document->syntaxHighlighterRunner(), m_watcher.future(), from, to, m_extraFormats);
+            m_document->syntaxHighlighter(), m_watcher.future(), from, to, m_extraFormats);
 }
 
 void SemanticHighlighter::finished()
@@ -584,7 +632,7 @@ void SemanticHighlighter::finished()
 
     if (m_enableHighlighting)
         TextEditor::SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(
-            m_document->syntaxHighlighterRunner(), m_watcher.future());
+            m_document->syntaxHighlighter(), m_watcher.future());
 }
 
 void SemanticHighlighter::run(QPromise<Use> &promise,

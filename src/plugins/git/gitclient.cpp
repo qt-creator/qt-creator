@@ -69,8 +69,8 @@ const char graphOption[] = "--graph";
 const char decorateOption[] = "--decorate";
 const char showFormatC[] =
         "--pretty=format:commit %H%d%n"
-        "Author: %an <%ae>, %ad (%ar)%n"
-        "Committer: %cn <%ce>, %cd (%cr)%n"
+        "Author: %aN <%aE>, %ad (%ar)%n"
+        "Committer: %cN <%cE>, %cd (%cr)%n"
         "%n"
         "%B";
 
@@ -686,7 +686,7 @@ public:
                     "--pretty=format:"
                     "%C(%1)%h%Creset "
                     "%C(%2)%d%Creset "
-                    "%C(%3)%an%Creset "
+                    "%C(%3)%aN%Creset "
                     "%C(%4)%s%Creset "
                     "%C(%5)%ci%Creset"
                     ).arg(commitHash, decoration, authorName, commitSubject, commitDate);
@@ -696,7 +696,7 @@ public:
         if (gitHasRgbColors())
             graphArgs << formatArg;
         else
-            graphArgs << "--pretty=format:%h %d %an %s %ci";
+            graphArgs << "--pretty=format:%h %d %aN %s %ci";
 
         return graphArgs;
     }
@@ -1021,7 +1021,7 @@ static QStringList normalLogArguments()
     const QString logArgs = QStringLiteral(
                 "--pretty=format:"
                 "commit %C(%1)%H%Creset %C(%2)%d%Creset%n"
-                "Author: %C(%3)%an <%ae>%Creset%n"
+                "Author: %C(%3)%aN <%aE>%Creset%n"
                 "Date:   %C(%4)%cD %Creset%n%n"
                 "%C(%5)%w(0,4,4)%s%Creset%n%n%b"
                 ).arg(commitHash, decoration, authorName, commitDate, commitSubject);
@@ -1593,7 +1593,7 @@ QString GitClient::synchronousShortDescription(const FilePath &workingDirectory,
     const QString quoteReplacement = "_-_";
 
     // Short SHA1, author, subject
-    const QString defaultShortLogFormat = "%h (%an " + quoteReplacement + "%s";
+    const QString defaultShortLogFormat = "%h (%aN " + quoteReplacement + "%s";
     const int maxShortLogLength = 120;
 
     // Short SHA 1, author, subject
@@ -1626,7 +1626,7 @@ QString GitClient::synchronousCurrentLocalBranch(const FilePath &workingDirector
     if (!branch.isEmpty()) {
         const QString refsHeadsPrefix = "refs/heads/";
         if (branch.startsWith(refsHeadsPrefix)) {
-            branch.remove(0, refsHeadsPrefix.count());
+            branch.remove(0, refsHeadsPrefix.size());
             return branch;
         }
     }
@@ -2531,7 +2531,7 @@ bool GitClient::launchGitBash(const FilePath &workingDirectory)
         success = false;
     } else {
         const FilePath gitBash = git.absolutePath().parentDir() / "git-bash.exe";
-        success = Process::startDetached({gitBash, {}}, workingDirectory);
+        success = Process::startDetached(CommandLine{gitBash}, workingDirectory);
     }
 
     if (!success)
@@ -2569,7 +2569,7 @@ bool GitClient::readDataFromCommit(const FilePath &repoDirectory, const QString 
                                    QString *commitTemplate)
 {
     // Get commit data as "SHA1<lf>author<lf>email<lf>message".
-    const QStringList arguments = {"log", "--max-count=1", "--pretty=format:%h\n%an\n%ae\n%B", commit};
+    const QStringList arguments = {"log", "--max-count=1", "--pretty=format:%h\n%aN\n%aE\n%B", commit};
     const CommandResult result = vcsSynchronousExec(repoDirectory, arguments, RunFlags::NoOutput);
 
     if (result.result() != ProcessResult::FinishedWithSuccess) {
@@ -3154,7 +3154,7 @@ void GitClient::push(const FilePath &workingDirectory, const QStringList &pushAr
             return;
 
         if (pushFailure == PushFailure::NonFastForward) {
-            const QColor warnColor = Utils::creatorTheme()->color(Theme::TextColorError);
+            const QColor warnColor = Utils::creatorColor(Theme::TextColorError);
             if (QMessageBox::question(
                     Core::ICore::dialogParent(), Tr::tr("Force Push"),
                     Tr::tr("Push failed. Would you like to force-push <span style=\"color:#%1\">"

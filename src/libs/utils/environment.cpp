@@ -433,60 +433,82 @@ const NameValueDictionary &Environment::resolved() const
             m_dict = Environment::systemEnvironment().toDictionary();
             m_fullDict = true;
             break;
-        case SetFixedDictionary:
-            m_dict = std::get<SetFixedDictionary>(item);
-            m_fullDict = true;
-            break;
-        case SetValue: {
-            auto [key, value, enabled] = std::get<SetValue>(item);
-            m_dict.set(key, value, enabled);
-            break;
-        }
-        case SetFallbackValue: {
-            auto [key, value] = std::get<SetFallbackValue>(item);
-            if (m_fullDict) {
-                if (m_dict.value(key).isEmpty())
-                    m_dict.set(key, value, true);
-            } else {
-                QTC_ASSERT(false, qDebug() << "operating on partial dictionary");
-                m_dict.set(key, value, true);
+        case SetFixedDictionary: {
+            const auto dict = std::get_if<SetFixedDictionary>(&item);
+            if (QTC_GUARD(dict)) {
+                m_dict = *dict;
+                m_fullDict = true;
             }
             break;
         }
-        case UnsetValue:
-            m_dict.unset(std::get<UnsetValue>(item));
+        case SetValue: {
+            const auto setvalue = std::get_if<SetValue>(&item);
+            if (QTC_GUARD(setvalue)) {
+                auto [key, value, enabled] = *setvalue;
+                m_dict.set(key, value, enabled);
+            }
             break;
+        }
+        case SetFallbackValue: {
+            const auto fallbackvalue = std::get_if<SetFallbackValue>(&item);
+            if (QTC_GUARD(fallbackvalue)) {
+                auto [key, value] = *fallbackvalue;
+                if (m_fullDict) {
+                    if (m_dict.value(key).isEmpty())
+                        m_dict.set(key, value, true);
+                } else {
+                    QTC_ASSERT(false, qDebug() << "operating on partial dictionary");
+                    m_dict.set(key, value, true);
+                }
+            }
+            break;
+        }
+        case UnsetValue: {
+            const auto unsetvalue = std::get_if<UnsetValue>(&item);
+            if (QTC_GUARD(unsetvalue))
+                m_dict.unset(*unsetvalue);
+            break;
+        }
         case PrependOrSet: {
-            auto [key, value, sep] = std::get<PrependOrSet>(item);
-            QTC_ASSERT(!key.contains('='), return m_dict);
-            const auto it = m_dict.findKey(key);
-            if (it == m_dict.m_values.end()) {
-                m_dict.m_values.insert(DictKey(key, m_dict.nameCaseSensitivity()), {value, true});
-            } else {
-                // Prepend unless it is already there
-                const QString toPrepend = value + pathListSeparator(sep);
-                if (!it.value().first.startsWith(toPrepend))
-                    it.value().first.prepend(toPrepend);
+            const auto prependorset = std::get_if<PrependOrSet>(&item);
+            if (QTC_GUARD(prependorset)) {
+                auto [key, value, sep] = *prependorset;
+                QTC_ASSERT(!key.contains('='), return m_dict);
+                const auto it = m_dict.findKey(key);
+                if (it == m_dict.m_values.end()) {
+                    m_dict.m_values.insert(DictKey(key, m_dict.nameCaseSensitivity()), {value, true});
+                } else {
+                    // Prepend unless it is already there
+                    const QString toPrepend = value + pathListSeparator(sep);
+                    if (!it.value().first.startsWith(toPrepend))
+                        it.value().first.prepend(toPrepend);
+                }
             }
             break;
         }
         case AppendOrSet: {
-            auto [key, value, sep] = std::get<AppendOrSet>(item);
-            QTC_ASSERT(!key.contains('='), return m_dict);
-            const auto it = m_dict.findKey(key);
-            if (it == m_dict.m_values.end()) {
-                m_dict.m_values.insert(DictKey(key, m_dict.nameCaseSensitivity()), {value, true});
-            } else {
-                // Prepend unless it is already there
-                const QString toAppend = pathListSeparator(sep) + value;
-                if (!it.value().first.endsWith(toAppend))
-                    it.value().first.append(toAppend);
+            const auto appendorset = std::get_if<AppendOrSet>(&item);
+            if (QTC_GUARD(appendorset)) {
+                auto [key, value, sep] = *appendorset;
+                QTC_ASSERT(!key.contains('='), return m_dict);
+                const auto it = m_dict.findKey(key);
+                if (it == m_dict.m_values.end()) {
+                    m_dict.m_values.insert(DictKey(key, m_dict.nameCaseSensitivity()), {value, true});
+                } else {
+                    // Prepend unless it is already there
+                    const QString toAppend = pathListSeparator(sep) + value;
+                    if (!it.value().first.endsWith(toAppend))
+                        it.value().first.append(toAppend);
+                }
             }
             break;
         }
         case Modify: {
-            EnvironmentItems items = std::get<Modify>(item);
-            m_dict.modify(items);
+            const auto modify = std::get_if<Modify>(&item);
+            if (QTC_GUARD(modify)) {
+                EnvironmentItems items = *modify;
+                m_dict.modify(items);
+            }
             break;
         }
         case SetupEnglishOutput:

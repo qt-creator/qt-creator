@@ -181,7 +181,7 @@
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "GNU General Public License v2.0 OR BSD 2-Clause \"Simplified\" License",
         "LicenseFile": "doc/qtcreator/src/overview/license-BSD-2-clause.txt",
-        "Copyright": "Copyright 2008 Darrin Yeager. http://www.dyeager.org/ Dual-Licensed under both GPL and BSD licenses. Extended 2009 Claes Holmerson. http://github.com/claes/kate-markdown/ Extended 2019 Nibaldo Gonz√°lez S. <nibgonz@gmail.com> (changes under MIT license)."
+        "Copyright": "Copyright 2008 Darrin Yeager. http://www.dyeager.org/ Dual-Licensed under both GPL and BSD licenses. Extended 2009 Claes Holmerson. http://github.com/claes/kate-markdown/ Extended 2019 Nibaldo Gonz·lez S. <nibgonz@gmail.com> (changes under MIT license)."
     },
     {
         "Id": "ksyntaxhighlighting-modelines",
@@ -259,7 +259,7 @@
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "GNU Lesser General Public License v2.0 or later",
         "LicenseFile": "doc/qtcreator/src/overview/license-LGPLv2.0.txt",
-        "Copyright": "Copyright (C) 2004 by Sebastian Vuorinen (sebastian dot vuorinen at helsinki dot fi). Copyright (C) 2004 by Stefan Lang (langstefan@gmx.at). Copyright (C) 2008 by Robin Pedersen (robinpeder@gmail.com). Copyright (C) 2011 by Miquel Sabat√© (mikisabate@gmail.com)."
+        "Copyright": "Copyright (C) 2004 by Sebastian Vuorinen (sebastian dot vuorinen at helsinki dot fi). Copyright (C) 2004 by Stefan Lang (langstefan@gmx.at). Copyright (C) 2008 by Robin Pedersen (robinpeder@gmail.com). Copyright (C) 2011 by Miquel SabatÈ (mikisabate@gmail.com)."
     },
     {
         "Id": "ksyntaxhighlighting-toml",
@@ -311,7 +311,7 @@
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "GNU Lesser General Public License v2.1",
         "LicenseFile": "doc/qtcreator/src/overview/license-LGPLv2.1.txt",
-        "Copyright": "Copyright (C) 2004, Jan Villat <jan.villat@net2000.ch>. Changes by: 2018 Nibaldo Gonz√°lez <nibgonz@gmail.com>, 2007 Sebastian Pipping <webmaster@hartwork.org>."
+        "Copyright": "Copyright (C) 2004, Jan Villat <jan.villat@net2000.ch>. Changes by: 2018 Nibaldo Gonz·lez <nibgonz@gmail.com>, 2007 Sebastian Pipping <webmaster@hartwork.org>."
     },
     {
         "Id": "ksyntaxhighlighting-yaml",
@@ -324,7 +324,7 @@
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "GNU Lesser General Public License v2.1",
         "LicenseFile": "doc/qtcreator/src/overview/license-LGPLv2.1.txt",
-        "Copyright": "Copyright (C) Dr Orlovsky MA (dr.orlovsky@gmail.com), Nibaldo Gonz√°lez (nibgonz@gmail.com)"
+        "Copyright": "Copyright (C) Dr Orlovsky MA (dr.orlovsky@gmail.com), Nibaldo Gonz·lez (nibgonz@gmail.com)"
     },
     {
         "Id": "std-span-martinmoene",
@@ -436,6 +436,7 @@
         "Path": "src/libs/3rdparty/winpty",
         "Description": "winpty is a Windows software package providing an interface similar to a Unix pty-master for communicating with Windows console programs.",
         "Homepage": "https://github.com/rprichard/winpty",
+        "Version": "7e59fe2d09",
         "License": "MIT License",
         "LicenseFile": "src/libs/3rdparty/winpty/LICENSE",
         "Copyright": "Copyright (c) 2011-2016 Ryan Prichard"
@@ -449,9 +450,24 @@
         "Path": "src/libs/3rdparty/libptyqt",
         "Description": "Pty-Qt is small library for access to console applications by pseudo-terminal interface on Mac, Linux and Windows.",
         "Homepage": "https://github.com/kafeg/ptyqt",
+        "Version" : "045ca5f09f",
         "License": "MIT License",
         "LicenseFile": "src/libs/3rdparty/libptyqt/LICENSE",
         "Copyright": "Copyright (c) 2019 Vitaly Petrov"
+    },
+    {
+        "Id": "ptyqt-conpty",
+        "Name": "Pty-Qt/ConPty",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Used for the integrated terminal.",
+        "Path": "src/libs/3rdparty/libptyqt",
+        "Description": "Major parts of src/winconpty/ have been ported from microsofts terminal source code and integrated into ptyqt's conptyprocess.cpp.",
+        "Homepage": "https://github.com/microsoft/terminal",
+        "Version" : "a38388615e",
+        "License": "MIT License",
+        "LicenseFile": "src/libs/3rdparty/libptyqt/LICENSE-CONPTY",
+        "Copyright": "Copyright (c) Microsoft Corporation"
     },
     {
         "Id": "libvterm",
@@ -462,6 +478,7 @@
         "Path": "src/libs/3rdparty/libvterm",
         "Description": "An abstract C99 library which implements a VT220 or xterm-like terminal emulator.",
         "Homepage": "https://www.leonerd.org.uk/code/libvterm",
+        "Version" : "0.3.3",
         "License": "MIT License",
         "LicenseFile": "src/libs/3rdparty/libvterm/LICENSE",
         "Copyright": "Copyright (c) 2008 Paul Evans"
@@ -475,6 +492,7 @@
         "Path": "src/plugins/terminal/shellintegrations",
         "Description": "Scripts for integrating with various shells.",
         "Homepage": "https://github.com/microsoft/vscode/tree/main/src/vs/workbench/contrib/terminal/browser/media",
+        "Version" : "463d9933a4",
         "License": "MIT License",
         "LicenseFile": "src/plugins/terminal/shellintegrations/LICENSE.vscode",
         "Copyright": "Copyright (c) 2015 - present Microsoft Corporation"
@@ -488,6 +506,7 @@
         "Path": "src/plugins/terminal/shellintegrations",
         "Description": "A library of Lua scripts for use with Clink.",
         "Homepage": "https://github.com/chrisant996/clink-gizmos",
+        "Version" : "680716f3d9",
         "License": "MIT License",
         "LicenseFile": "src/plugins/terminal/shellintegrations/LICENSE.clink",
         "Copyright": "Copyright (c) 2022 Chris Antos"
@@ -545,6 +564,74 @@
         "Copyright": "Copyright (C) 2011-2015 Frank Osterfeld, Copyright (C) 2016 Mathias Hasselmann"
     },
     {
+        "Id": "pyprof2calltree",
+        "Name": "pyprof2calltree",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Used for converting profile data of debugger dumper execution to kcachegrind-compatible input in visualize.py",
+        "Path": "share/qtcreator/debugger",
+        "Description": "Creates python profiling output which is readable by kcachegrind",
+        "Homepage": "https://github.com/pwaller/pyprof2calltree",
+        "License": "MIT License",
+        "LicenseId": "MIT",
+        "LicenseFile": "share/qtcreator/debugger/LICENSE.MIT",
+        "Copyright": "Copyright(C) 2006-2008, David Allouche, Jp Calderone, Itamar Shtull-Trauring, Copyright(C) 2006-2017, Johan Dahlin, Copyright(C) 2008, Olivier Grisel <olivier.grisel@ensta.org>, Copyright(C) 2008, David Glick, Copyright(C) 2013, Steven Maude, Copyright(C) 2013-2018, Peter Waller <p@pwaller.net>, Copyright(C) 2013, Lukas Graf <lukas.graf@4teamwork.ch>, Copyright(C) 2013, Jamie Wong <http://jamie-wong.com>, Copyright(C) 2013, Yury V. Zaytsev <yury@shurup.com>, Copyright(C) 2014, Michael Droettboom <mdroe@stsci.edu>, Copyright(C) 2015, Zev Benjamin <zev@mit.edu>, Copyright(C) 2018, Jon Dufresne <jon.dufresne@gmail.com>"
+    },
+    {
+        "Id": "lua",
+        "Name": "Lua",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Used for scripting plugins.",
+        "Path": "src/libs/3rdparty/lua",
+        "Description": "Lua is a powerful, efficient, lightweight, embeddable scripting language.",
+        "Homepage": "https://www.lua.org/",
+        "License": "MIT License",
+        "LicenseFile": "src/libs/3rdparty/lua/LICENSE",
+        "Copyright": "Copyright © 1994-2023 Lua.org, PUC-Rio.",
+        "Version": "5.4.6"
+    },
+    {
+        "Id": "sol2",
+        "Name": "sol2",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Used for binding C++ and Lua.",
+        "Path": "src/libs/3rdparty/sol2",
+        "Description": "sol2 is a C++ library binding to Lua.",
+        "Homepage": "https://github.com/ThePhD/sol2",
+        "License": "MIT License",
+        "LicenseFile": "src/libs/3rdparty/sol2/LICENSE.txt",
+        "Copyright": "Copyright (c) 2008 Paul Evans",
+        "Version": "3.3.1 (revision 9c882a28)"
+    },
+    {
+        "Id": "ms-jpq-lua-async-await",
+        "Name": "ms-jpq/lua-async-await",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Used for async/await support in Lua modules.",
+        "Path": "src/plugins/lua/bindings",
+        "Description": "lua-async-await implements the async/await pattern in Lua.",
+        "Homepage": "https://github.com/ms-jpq/lua-async-await",
+        "License": "MIT License",
+        "LicenseFile": "src/plugins/lua/bindings/ASYNC-LICENSE.txt",
+        "Copyright": "Copyright (c) 2008 Paul Evans"
+    },
+    {
+        "Id": "kikito/inspect.lua",
+        "Name": "kikito/inspect.lua",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Used for pretty printing from Lua scripts.",
+        "Path": "share/qtcreator/lua-plugins/luatests",
+        "Description": "inspect.lua is a library for pretty printing complex objects in Lua.",
+        "Homepage": "https://github.com/kikito/inspect.lua",
+        "License": "MIT License",
+        "LicenseFile": "share/qtcreator/lua-plugins/luatests/INSPECT-LICENSE.txt",
+        "Copyright": "Copyright (c) 2022 Enrique GarcÌa Cota"
+    },
+    {
         "Id": "zlib",
         "Name": "ZLib",
         "QDocModule": "qtcreator",
@@ -559,3 +646,4 @@
         "Copyright": "Copyright (C) 1995-2024 Jean-loup Gailly and Mark Adler"
     }
 ]
+

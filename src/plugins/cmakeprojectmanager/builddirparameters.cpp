@@ -26,6 +26,43 @@ namespace CMakeProjectManager::Internal {
 
 BuildDirParameters::BuildDirParameters() = default;
 
+static void updateCMakePathsFromQMake(QStringList &initialCMakeArguments)
+{
+    const CMakeConfigItem qmake = CMakeConfigItem::fromString(
+        Utils::findOrDefault(initialCMakeArguments, [](const QString &arg) {
+            return arg.startsWith("-DQT_QMAKE_EXECUTABLE");
+        }));
+    const FilePath qmakeFilePath = FilePath::fromUtf8(qmake.value);
+    if (qmakeFilePath.isEmpty())
+        return;
+
+    // ~Qt/6.x/platform/bin/qmake -> ~Qt/6.x/platform
+    const QByteArray qmakePrefixPath = qmakeFilePath.parentDir().parentDir().path().toUtf8();
+    const QByteArrayList cmakePathsVariables = {"CMAKE_PREFIX_PATH", "CMAKE_FIND_ROOT_PATH"};
+
+    for (const QByteArray &var : cmakePathsVariables) {
+        const QString varPrefix = QString("-D") + var;
+        auto it = std::find_if(
+            initialCMakeArguments.begin(),
+            initialCMakeArguments.end(),
+            [varPrefix](const QString &arg) { return arg.startsWith(varPrefix); });
+
+        if (it == initialCMakeArguments.end())
+            continue;
+
+        CMakeConfigItem cmakeVar = CMakeConfigItem::fromString(*it);
+        if (cmakeVar.isNull())
+            continue;
+
+        if (cmakeVar.value.isEmpty())
+            cmakeVar.value = qmakePrefixPath;
+        else
+            cmakeVar.value += ";" + qmakePrefixPath;
+
+        *it = cmakeVar.toString();
+    }
+}
+
 BuildDirParameters::BuildDirParameters(CMakeBuildSystem *buildSystem)
 {
     QTC_ASSERT(buildSystem, return);
@@ -40,6 +77,11 @@ BuildDirParameters::BuildDirParameters(CMakeBuildSystem *buildSystem)
                                                            });
     initialCMakeArguments = Utils::filtered(expandedArguments,
                                             [](const QString &s) { return !s.isEmpty(); });
+
+    const bool noQtInstallPrefix = expander->expand(QString("%{Qt:QT_INSTALL_PREFIX}")).isEmpty();
+    if (noQtInstallPrefix)
+        updateCMakePathsFromQMake(initialCMakeArguments);
+
     configurationChangesArguments = Utils::transform(buildSystem->configurationChangesArguments(),
                                                      [this](const QString &s) {
                                                          return expander->expand(s);
@@ -50,13 +92,13 @@ BuildDirParameters::BuildDirParameters(CMakeBuildSystem *buildSystem)
                                                 });
     const Target *t = bc->target();
     const Kit *k = t->kit();
-    const Project *p = t->project();
 
-    projectName = p->displayName();
+    project = t->project();
+    projectName = project->displayName();
 
     sourceDirectory = bc->sourceDirectory();
     if (sourceDirectory.isEmpty())
-        sourceDirectory = p->projectDirectory();
+        sourceDirectory = project->projectDirectory();
     buildDirectory = bc->buildDirectory();
 
     cmakeBuildType = buildSystem->cmakeBuildType();

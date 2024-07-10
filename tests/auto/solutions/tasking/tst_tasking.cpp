@@ -117,6 +117,8 @@ private slots:
     void storageIO();
     void storageOperators();
     void storageDestructor();
+    void storageZeroInitialization();
+    void nestedBrokenStorage();
     void restart();
     void destructorOfTaskEmittingDone();
 };
@@ -708,6 +710,60 @@ void tst_Tasking::testTree_data()
         QTest::newRow("ErrorAndStopOnSuccessOrError") << errorData(WorkflowPolicy::StopOnSuccessOrError);
         QTest::newRow("ErrorAndFinishAllAndSuccess") << errorData(WorkflowPolicy::FinishAllAndSuccess);
         QTest::newRow("ErrorAndFinishAllAndError") << errorData(WorkflowPolicy::FinishAllAndError);
+    }
+
+    {
+        // These tests ensure that tweaking the done result in group's done handler takes priority
+        // over the group's workflow policy. In this case the group's workflow policy is ignored.
+        const auto setupGroup = [=](DoneResult doneResult, WorkflowPolicy policy) {
+            return Group {
+                storage,
+                Group {
+                    workflowPolicy(policy),
+                    onGroupDone([doneResult] { return doneResult; })
+                },
+                groupDone(0)
+            };
+        };
+
+        const auto doneData = [storage, setupGroup](WorkflowPolicy policy) {
+            return TestData{storage, setupGroup(DoneResult::Success, policy),
+                            Log{{0, Handler::GroupSuccess}}, 0, DoneWith::Success, 0};
+        };
+        const auto errorData = [storage, setupGroup](WorkflowPolicy policy) {
+            return TestData{storage, setupGroup(DoneResult::Error, policy),
+                            Log{{0, Handler::GroupError}}, 0, DoneWith::Error, 0};
+        };
+
+        QTest::newRow("GroupDoneTweakSuccessWithStopOnError")
+            << doneData(WorkflowPolicy::StopOnError);
+        QTest::newRow("GroupDoneTweakSuccessWithContinueOnError")
+            << doneData(WorkflowPolicy::ContinueOnError);
+        QTest::newRow("GroupDoneTweakSuccessWithStopOnSuccess")
+            << doneData(WorkflowPolicy::StopOnSuccess);
+        QTest::newRow("GroupDoneTweakSuccessWithContinueOnSuccess")
+            << doneData(WorkflowPolicy::ContinueOnSuccess);
+        QTest::newRow("GroupDoneTweakSuccessWithStopOnSuccessOrError")
+            << doneData(WorkflowPolicy::StopOnSuccessOrError);
+        QTest::newRow("GroupDoneTweakSuccessWithFinishAllAndSuccess")
+            << doneData(WorkflowPolicy::FinishAllAndSuccess);
+        QTest::newRow("GroupDoneTweakSuccessWithFinishAllAndError")
+            << doneData(WorkflowPolicy::FinishAllAndError);
+
+        QTest::newRow("GroupDoneTweakErrorWithStopOnError")
+            << errorData(WorkflowPolicy::StopOnError);
+        QTest::newRow("GroupDoneTweakErrorWithContinueOnError")
+            << errorData(WorkflowPolicy::ContinueOnError);
+        QTest::newRow("GroupDoneTweakErrorWithStopOnSuccess")
+            << errorData(WorkflowPolicy::StopOnSuccess);
+        QTest::newRow("GroupDoneTweakErrorWithContinueOnSuccess")
+            << errorData(WorkflowPolicy::ContinueOnSuccess);
+        QTest::newRow("GroupDoneTweakErrorWithStopOnSuccessOrError")
+            << errorData(WorkflowPolicy::StopOnSuccessOrError);
+        QTest::newRow("GroupDoneTweakErrorWithFinishAllAndSuccess")
+            << errorData(WorkflowPolicy::FinishAllAndSuccess);
+        QTest::newRow("GroupDoneTweakErrorWithFinishAllAndError")
+            << errorData(WorkflowPolicy::FinishAllAndError);
     }
 
     {
@@ -3083,10 +3139,83 @@ void tst_Tasking::testTree_data()
                         logErrorLong, 1, DoneWith::Error, 1};
     }
 
+    {
+        // This tests ensures the task done handlers are invoked in a different order
+        // than the corresponding setup handlers.
+
+        const QList<milliseconds> tasks { 1000000ms, 0ms };
+        const LoopList iterator(tasks);
+
+        const auto onSetup = [storage, iterator](TaskObject &taskObject) {
+            taskObject = *iterator;
+            storage->m_log.append({iterator.iteration(), Handler::Setup});
+        };
+
+        const auto onDone = [storage, iterator](DoneWith result) {
+            const Handler handler = result == DoneWith::Cancel ? Handler::Canceled : Handler::Error;
+            storage->m_log.append({iterator.iteration(), handler});
+            return DoneResult::Error;
+        };
+
+        const Group root {
+            storage,
+            parallel,
+            iterator,
+            TestTask(onSetup, onDone)
+        };
+
+        const Log log {
+            {0, Handler::Setup},
+            {1, Handler::Setup},
+            {1, Handler::Error},
+            {0, Handler::Canceled}
+        };
+
+        QTest::newRow("ParallelDisorder") << TestData{storage, root, log, 2, DoneWith::Error, 1};
+    }
+
+    {
+        // This tests ensures the task done handler or onGroupDone accepts the DoneResult as an
+        // argument.
+
+        const Group groupSuccess {
+            storage,
+            Group {
+                onGroupDone(DoneResult::Success)
+            },
+            groupDone(0)
+        };
+        const Group groupError {
+            storage,
+            Group {
+                onGroupDone(DoneResult::Error)
+            },
+            groupDone(0)
+        };
+        const Group taskSuccess {
+            storage,
+            TestTask({}, DoneResult::Success),
+            groupDone(0)
+        };
+        const Group taskError {
+            storage,
+            TestTask({}, DoneResult::Error),
+            groupDone(0)
+        };
+
+        QTest::newRow("DoneResultGroupSuccess")
+            << TestData{storage, groupSuccess, {{0, Handler::GroupSuccess}}, 0, DoneWith::Success, 0};
+        QTest::newRow("DoneResultGroupError")
+            << TestData{storage, groupError, {{0, Handler::GroupError}}, 0, DoneWith::Error, 0};
+        QTest::newRow("DoneResultTaskSuccess")
+            << TestData{storage, taskSuccess, {{0, Handler::GroupSuccess}}, 1, DoneWith::Success, 1};
+        QTest::newRow("DoneResultTaskError")
+            << TestData{storage, taskError, {{0, Handler::GroupError}}, 1, DoneWith::Error, 1};
+    }
+
     // This test checks if storage shadowing works OK.
     QTest::newRow("StorageShadowing") << storageShadowingData();
 }
-
 
 static QtMessageHandler s_oldMessageHandler = nullptr;
 static QStringList s_messages;
@@ -3380,7 +3509,7 @@ void tst_Tasking::storageDestructor()
     };
     QCOMPARE(CustomStorage::instanceCount(), 0);
     {
-        Storage<CustomStorage> storage;
+        const Storage<CustomStorage> storage;
         const auto setupSleepingTask = [](TaskObject &taskObject) {
             taskObject = 1000ms;
         };
@@ -3399,6 +3528,70 @@ void tst_Tasking::storageDestructor()
     QCOMPARE(CustomStorage::instanceCount(), 0);
     QVERIFY(setupCalled);
     QVERIFY(!doneCalled);
+}
+
+// This test ensures that the storage data is zero-initialized.
+void tst_Tasking::storageZeroInitialization()
+{
+    const Storage<int> storage;
+    std::optional<int> defaultValue;
+
+    const auto onSetup = [storage, &defaultValue] { defaultValue = *storage; };
+
+    TaskTree taskTree({ storage, onGroupSetup(onSetup) });
+    taskTree.runBlocking();
+
+    QVERIFY(defaultValue);
+    QCOMPARE(defaultValue, 0);
+}
+
+// This test ensures that when a missing storage object inside the nested task tree is accessed
+// directly from the outer task tree's handler, containing the same storage object, then we
+// detect this misconfigured recipe, issue a warning, and return nullptr for the storage
+// being accessed (instead of returning parent's task tree's storage instance).
+// This test should also trigger a runtime assert that we are accessing the nullptr storage.
+void tst_Tasking::nestedBrokenStorage()
+{
+    int *outerStorage = nullptr;
+    int *innerStorage1 = nullptr;
+    int *innerStorage2 = nullptr;
+    const Storage<int> storage;
+
+    const auto onOuterSync = [storage, &outerStorage, &innerStorage1, &innerStorage2] {
+        outerStorage = &*storage;
+
+        const auto onInnerSync1 = [storage, &innerStorage1] {
+            innerStorage1 = &*storage; // Triggers the runtime assert on purpose.
+        };
+        const auto onInnerSync2 = [storage, &innerStorage2] {
+            innerStorage2 = &*storage; // Storage is accessible in currently running tree - all OK.
+        };
+
+        const Group innerRecipe {
+            Group {
+                // Broken subrecipe, the storage wasn't placed inside the recipe.
+                // storage,
+                Sync(onInnerSync1)
+            },
+            Group {
+                storage, // Subrecipe OK, another instance for the nested storage will be created.
+                Sync(onInnerSync2)
+            }
+        };
+
+        TaskTree::runBlocking(innerRecipe);
+    };
+
+    const Group outerRecipe {
+        storage,
+        Sync(onOuterSync)
+    };
+
+    TaskTree::runBlocking(outerRecipe);
+    QVERIFY(outerStorage != nullptr);
+    QCOMPARE(innerStorage1, nullptr);
+    QVERIFY(innerStorage2 != nullptr);
+    QVERIFY(innerStorage2 != outerStorage);
 }
 
 void tst_Tasking::restart()

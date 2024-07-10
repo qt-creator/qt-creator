@@ -12,8 +12,6 @@
 
 #include <coreplugin/messagemanager.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <projectexplorer/projectexplorer.h>
 
 #include <utils/algorithm.h>
@@ -132,7 +130,8 @@ void FileApiReader::parse(bool forceCMakeRun,
     //  * A query file is newer than the reply file
     const bool hasArguments = !args.isEmpty();
     const bool replyFileMissing = !replyFile.exists();
-    const bool cmakeFilesChanged = m_parameters.cmakeTool() && settings().autorunCMake()
+    const bool cmakeFilesChanged = m_parameters.cmakeTool()
+                                   && settings(m_parameters.project).autorunCMake()
                                    && anyOf(m_cmakeFiles, [&replyFile](const CMakeFileInfo &info) {
                                           return !info.isGenerated
                                                  && info.path.lastModified() > replyFile.lastModified();
@@ -172,7 +171,7 @@ void FileApiReader::stop()
 
     if (m_future) {
         m_future->cancel();
-        ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(*m_future);
+        Utils::futureSynchronizer()->addFuture(*m_future);
     }
     m_future = {};
     m_isParsing = false;
@@ -332,7 +331,7 @@ void FileApiReader::makeBackupConfiguration(bool store)
 void FileApiReader::writeConfigurationIntoBuildDirectory(const QStringList &configurationArguments)
 {
     const FilePath buildDir = m_parameters.buildDirectory;
-    QTC_CHECK(buildDir.ensureWritableDir());
+    QTC_ASSERT_EXPECTED(buildDir.ensureWritableDir(), return);
 
     QByteArray contents;
     QStringList unknownOptions;
@@ -344,7 +343,7 @@ void FileApiReader::writeConfigurationIntoBuildDirectory(const QStringList &conf
             .toUtf8());
 
     const FilePath settingsFile = buildDir / "qtcsettings.cmake";
-    QTC_CHECK(settingsFile.writeFileContents(contents));
+    QTC_ASSERT_EXPECTED(settingsFile.writeFileContents(contents), return);
 }
 
 std::unique_ptr<CMakeProjectNode> FileApiReader::rootProjectNode()

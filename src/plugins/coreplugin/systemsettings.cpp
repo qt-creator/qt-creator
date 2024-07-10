@@ -129,7 +129,7 @@ SystemSettings::SystemSettings()
     reloadSetting.addOption(Tr::tr("Always Ask"));
     reloadSetting.addOption(Tr::tr("Reload All Unchanged Editors"));
     reloadSetting.addOption(Tr::tr("Ignore Modifications"));
-    reloadSetting.setDefaultValue(IDocument::AlwaysAsk);
+    reloadSetting.setDefaultValue(IDocument::ReloadUnmodified);
     reloadSetting.setLabelText(Tr::tr("When files are externally modified:"));
 
     askBeforeExit.setSettingsKey("AskBeforeExit");

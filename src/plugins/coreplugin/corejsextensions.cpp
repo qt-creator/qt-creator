@@ -29,6 +29,11 @@ QString UtilsJsExtension::qtCreatorVersion() const
     return appInfo().displayVersion;
 }
 
+QString UtilsJsExtension::qtCreatorIdeVersion() const
+{
+    return QCoreApplication::applicationVersion();
+}
+
 QString UtilsJsExtension::toNativeSeparators(const QString &in) const
 {
     return QDir::toNativeSeparators(in);

@@ -28,15 +28,13 @@ public:
 
         m_targetAspect.setSettingsKey(TARGET_KEY);
         m_targetAspect.setLabelText(Tr::tr("Target:"));
-
-        addMacroExpander();
     }
 
 protected:
     bool init() final
     {
-        m_source = m_sourceAspect();
-        m_target = m_targetAspect();
+        m_source = m_sourceAspect.expandedValue();
+        m_target = m_targetAspect.expandedValue();
         return m_source.exists();
     }
 

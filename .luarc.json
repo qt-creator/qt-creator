@@ -1,0 +1,9 @@
+{
+    "workspace.library": [
+        "src/plugins/lua/meta"
+    ],
+    "hint.paramName": "Literal",
+    "hint.enable": true,
+    "hint.await": true,
+    "hint.arrayIndex": "Disable"
+}

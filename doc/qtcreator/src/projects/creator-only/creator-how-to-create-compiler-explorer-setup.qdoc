@@ -9,18 +9,26 @@
 
     \title Create compiler explorer sessions
 
-    To create a compiler explorer session for a C++ or Python project:
+    \note Enable the Compiler Explorer plugin to use it.
+
+    To create a compiler explorer session for a Qt and C++, C++, or Python
+    project:
 
     \list 1
         \li Go to \uicontrol File > \uicontrol {New File}.
-        \li Select \uicontrol {Compiler Explorer} > \uicontrol C++ or
-            \uicontrol Python > \uicontrol Choose.
+        \li Select \uicontrol {Compiler Explorer}, and then select one of the
+            following:
+            \list
+                \li \uicontrol {Compiler Explorer C++ Source}
+                \li \uicontrol {Compiler Explorer Python Source}
+                \li \uicontrol {Compiler Explorer Qt & C++ Source}
+            \endlist
+            \image qtcreator-new-project-compiler-explorer.webp {New File dialog}
+        \li Select \uicontrol Choose.
         \li Follow the instructions of the wizard to create an example
             compiler explorer session as a JSON-based \c .qtce file and to open
             it.
     \endlist
-
-    \note Enable the Compiler Explorer plugin to use it.
 
     \sa {Create files}, {Enable and disable plugins}, {Explore compiler code}
 */

@@ -178,6 +178,7 @@ function toolingParameters(llvmConfig)
         "-Wno-unknown-warning",
         "-Wno-unused-command-line-argument",
         "-fPIC",
+        "-fno-rtti",
         "-pedantic",
         "-Wstring-conversion",
         "-gsplit-dwarf"

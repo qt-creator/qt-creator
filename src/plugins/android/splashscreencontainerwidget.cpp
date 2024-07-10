@@ -73,7 +73,7 @@ static SplashScreenWidget *addWidgetToPage(QWidget *page,
                                            const QString &splashScreenPath,
                                            int scalingRatio, int maxScalingRatio,
                                            QHBoxLayout *pageLayout,
-                                           QVector<SplashScreenWidget *> &widgetContainer)
+                                           QList<SplashScreenWidget *> &widgetContainer)
 {
     auto splashScreenWidget = new SplashScreenWidget(page,
                                                      size,
@@ -90,9 +90,9 @@ static SplashScreenWidget *addWidgetToPage(QWidget *page,
 }
 
 static QWidget *createPage(TextEditor::TextEditorWidget *textEditorWidget,
-                           QVector<SplashScreenWidget *> &widgetContainer,
-                           QVector<SplashScreenWidget *> &portraitWidgetContainer,
-                           QVector<SplashScreenWidget *> &landscapeWidgetContainer,
+                           QList<SplashScreenWidget *> &widgetContainer,
+                           QList<SplashScreenWidget *> &portraitWidgetContainer,
+                           QList<SplashScreenWidget *> &landscapeWidgetContainer,
                            int scalingRatio,
                            const QSize &size,
                            const QSize &portraitSize,

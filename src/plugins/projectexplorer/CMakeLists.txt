@@ -179,6 +179,7 @@ add_qtc_plugin(ProjectExplorer
     vcsannotatetaskhandler.cpp vcsannotatetaskhandler.h
     waitforstopdialog.cpp waitforstopdialog.h
     windebuginterface.cpp windebuginterface.h
+    workspaceproject.h workspaceproject.cpp
     xcodebuildparser.cpp xcodebuildparser.h
 )
 

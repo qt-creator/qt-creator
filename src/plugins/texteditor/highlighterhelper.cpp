@@ -9,7 +9,6 @@
 #include "texteditor.h"
 #include "texteditorsettings.h"
 #include "texteditortr.h"
-#include "syntaxhighlighterrunner.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/icore.h>
@@ -210,8 +209,8 @@ void reload()
     highlightRepository()->reload();
     for (auto editor : Core::DocumentModel::editorsForOpenedDocuments()) {
         if (auto textEditor = qobject_cast<BaseTextEditor *>(editor)) {
-            if (auto highlighterRunner = textEditor->textDocument()->syntaxHighlighterRunner();
-                highlighterRunner && highlighterRunner->useGenericHighlighter()) {
+            if (auto highlighter = textEditor->textDocument()->syntaxHighlighter();
+                highlighter && qobject_cast<SyntaxHighlighter*>(highlighter)) {
                 textEditor->editorWidget()->configureGenericHighlighter();
             }
         }

@@ -31,6 +31,7 @@ add_qtc_library(Utils
     completingtextedit.cpp completingtextedit.h
     cpplanguage_details.h
     crumblepath.cpp crumblepath.h
+    datafromprocess.h
     delegates.cpp delegates.h
     detailsbutton.cpp detailsbutton.h
     detailswidget.cpp detailswidget.h
@@ -93,6 +94,7 @@ add_qtc_library(Utils
     link.cpp link.h
     listmodel.h
     listutils.h
+    lua.cpp lua.h
     macroexpander.cpp macroexpander.h
     mathutils.cpp mathutils.h
     mimeconstants.h
@@ -270,7 +272,6 @@ extend_qtc_library(Utils
           fsengine/fsengine_impl.h
           fsengine/diriterator.h
           fsengine/fileiteratordevicesappender.h
-          fsengine/rootinjectfsengine.h
           fsengine/fixedlistfsengine.h
           fsengine/fsenginehandler.cpp
           fsengine/fsenginehandler.h

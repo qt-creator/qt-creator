@@ -1224,6 +1224,7 @@ void DebuggerPluginPrivate::createDapDebuggerPerspective(QWidget *globalLogWindo
                        ProjectExplorer::Constants::DAP_CMAKE_DEBUG_RUN_MODE,
                        /*forceSkipDeploy=*/true},
         DapPerspective{Tr::tr("GDB Preset"), ProjectExplorer::Constants::DAP_GDB_DEBUG_RUN_MODE},
+        DapPerspective{Tr::tr("LLDB Preset"), ProjectExplorer::Constants::DAP_LLDB_DEBUG_RUN_MODE},
         DapPerspective{Tr::tr("Python Preset"), ProjectExplorer::Constants::DAP_PY_DEBUG_RUN_MODE},
     };
 
@@ -1993,7 +1994,7 @@ void DebuggerPluginPrivate::setInitialState()
 
 void DebuggerPluginPrivate::updateDebugWithoutDeployMenu()
 {
-    const bool state = ProjectExplorerPlugin::projectExplorerSettings().deployBeforeRun;
+    const bool state = projectExplorerSettings().deployBeforeRun;
     m_debugWithoutDeployAction.setVisible(state);
 }
 

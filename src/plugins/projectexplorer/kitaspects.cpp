@@ -61,7 +61,7 @@ public:
 private:
     void makeReadOnly() override { m_chooser->setReadOnly(true); }
 
-    void addToLayoutImpl(Layouting::LayoutItem &builder) override
+    void addToLayoutImpl(Layouting::Layout &builder) override
     {
         addMutableAction(m_chooser);
         builder.addItem(Layouting::Span(2, m_chooser));
@@ -238,7 +238,7 @@ public:
     }
 
 private:
-    void addToLayoutImpl(Layouting::LayoutItem &builder) override
+    void addToLayoutImpl(Layouting::Layout &builder) override
     {
         addMutableAction(m_mainWidget);
         builder.addItem(m_mainWidget);
@@ -739,7 +739,7 @@ public:
     ~DeviceTypeKitAspectImpl() override { delete m_comboBox; }
 
 private:
-    void addToLayoutImpl(Layouting::LayoutItem &builder) override
+    void addToLayoutImpl(Layouting::Layout &builder) override
     {
         addMutableAction(m_comboBox);
         builder.addItem(m_comboBox);
@@ -889,7 +889,7 @@ public:
     }
 
 private:
-    void addToLayoutImpl(Layouting::LayoutItem &builder) override
+    void addToLayoutImpl(Layouting::Layout &builder) override
     {
         addMutableAction(m_comboBox);
         builder.addItem(m_comboBox);
@@ -1170,7 +1170,7 @@ public:
     }
 
 private:
-    void addToLayoutImpl(Layouting::LayoutItem &builder) override
+    void addToLayoutImpl(Layouting::Layout &builder) override
     {
         addMutableAction(m_comboBox);
         builder.addItem(m_comboBox);
@@ -1433,7 +1433,7 @@ public:
     }
 
 private:
-    void addToLayoutImpl(Layouting::LayoutItem &builder) override
+    void addToLayoutImpl(Layouting::Layout &builder) override
     {
         addMutableAction(m_mainWidget);
         builder.addItem(m_mainWidget);
@@ -1539,7 +1539,7 @@ Tasks EnvironmentKitAspectFactory::validate(const Kit *k) const
     QTC_ASSERT(k, return result);
 
     const QVariant variant = k->value(EnvironmentKitAspect::id());
-    if (!variant.isNull() && !variant.canConvert(QVariant::List))
+    if (!variant.isNull() && !variant.canConvert(QMetaType(QMetaType::QVariantList)))
         result << BuildSystemTask(Task::Error, Tr::tr("The environment setting value is invalid."));
 
     return result;
@@ -1550,7 +1550,7 @@ void EnvironmentKitAspectFactory::fix(Kit *k)
     QTC_ASSERT(k, return);
 
     const QVariant variant = k->value(EnvironmentKitAspect::id());
-    if (!variant.isNull() && !variant.canConvert(QVariant::List)) {
+    if (!variant.isNull() && !variant.canConvert(QMetaType(QMetaType::QVariantList))) {
         qWarning("Kit \"%s\" has a wrong environment value set.", qPrintable(k->displayName()));
         EnvironmentKitAspect::setEnvironmentChanges(k, EnvironmentItems());
     }

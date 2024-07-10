@@ -143,7 +143,7 @@ AssetExportDialog::AssetExportDialog(const FilePath &exportPath,
         m_exportAssetsCheck,
         m_perComponentExportCheck,
         st,
-        noMargin(),
+        noMargin,
     }.attachTo(optionsWidget);
 
     Column {

@@ -48,6 +48,11 @@ IDocument *EditorArea::currentDocument() const
     return m_currentDocument;
 }
 
+EditorView *EditorArea::currentView() const
+{
+    return m_currentView;
+}
+
 void EditorArea::focusChanged(QWidget *old, QWidget *now)
 {
     Q_UNUSED(old)
@@ -102,6 +107,11 @@ void EditorArea::updateCloseSplitButton()
 {
     if (EditorView *v = view())
         v->setCloseSplitEnabled(false);
+}
+
+void EditorArea::hideEvent(QHideEvent *)
+{
+    emit hidden();
 }
 
 } // Internal

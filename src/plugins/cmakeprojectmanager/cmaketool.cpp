@@ -36,7 +36,6 @@ static Q_LOGGING_CATEGORY(cmakeToolLog, "qtc.cmake.tool", QtWarningMsg);
 const char CMAKE_INFORMATION_ID[] = "Id";
 const char CMAKE_INFORMATION_COMMAND[] = "Binary";
 const char CMAKE_INFORMATION_DISPLAYNAME[] = "DisplayName";
-const char CMAKE_INFORMATION_AUTORUN[] = "AutoRun";
 const char CMAKE_INFORMATION_QCH_FILE_PATH[] = "QchFile";
 // obsolete since Qt Creator 5. Kept for backward compatibility
 const char CMAKE_INFORMATION_AUTO_CREATE_BUILD_DIRECTORY[] = "AutoCreateBuildDirectory";
@@ -113,7 +112,6 @@ CMakeTool::CMakeTool(const Store &map, bool fromSdk) :
               Id::fromSetting(map.value(CMAKE_INFORMATION_ID)))
 {
     m_displayName = map.value(CMAKE_INFORMATION_DISPLAYNAME).toString();
-    m_isAutoRun = map.value(CMAKE_INFORMATION_AUTORUN, true).toBool();
     m_autoCreateBuildDirectory = map.value(CMAKE_INFORMATION_AUTO_CREATE_BUILD_DIRECTORY, false).toBool();
     m_readerType = Internal::readerTypeFromString(
         map.value(CMAKE_INFORMATION_READERTYPE).toString());
@@ -183,7 +181,6 @@ Store CMakeTool::toMap() const
     data.insert(CMAKE_INFORMATION_ID, m_id.toSetting());
     data.insert(CMAKE_INFORMATION_COMMAND, m_executable.toString());
     data.insert(CMAKE_INFORMATION_QCH_FILE_PATH, m_qchFilePath.toString());
-    data.insert(CMAKE_INFORMATION_AUTORUN, m_isAutoRun);
     data.insert(CMAKE_INFORMATION_AUTO_CREATE_BUILD_DIRECTORY, m_autoCreateBuildDirectory);
     if (m_readerType)
         data.insert(CMAKE_INFORMATION_READERTYPE,
@@ -231,11 +228,6 @@ FilePath CMakeTool::cmakeExecutable(const FilePath &path)
         return path;
 
     return resolvedPath;
-}
-
-bool CMakeTool::isAutoRun() const
-{
-    return m_isAutoRun;
 }
 
 QList<CMakeTool::Generator> CMakeTool::supportedGenerators() const

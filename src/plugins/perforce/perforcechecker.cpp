@@ -52,8 +52,7 @@ void PerforceChecker::resetOverrideCursor()
 }
 
 void PerforceChecker::start(const FilePath &binary, const FilePath &workingDirectory,
-                            const QStringList &basicArgs,
-                            int timeoutMS)
+                            const QStringList &basicArgs, int timeoutMS)
 {
     if (isRunning()) {
         emitFailed(QLatin1String("Internal error: process still running"));
@@ -64,13 +63,10 @@ void PerforceChecker::start(const FilePath &binary, const FilePath &workingDirec
         return;
     }
     m_binary = binary;
-    QStringList args = basicArgs;
-    args << QLatin1String("client") << QLatin1String("-o");
-
     if (!workingDirectory.isEmpty())
         m_process.setWorkingDirectory(workingDirectory);
 
-    m_process.setCommand({m_binary, args});
+    m_process.setCommand({m_binary, {basicArgs, "client", "-o"}});
     m_process.start();
     // Timeout handling
     m_timeOutMS = timeoutMS;

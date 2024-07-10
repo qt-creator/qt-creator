@@ -19,7 +19,7 @@
 #include <coreplugin/session.h>
 #include <coreplugin/vcsmanager.h>
 
-#include <cppeditor/cppcodemodelsettings.h>
+#include <cppeditor/clangdsettings.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppeditorwidget.h>
 #include <cppeditor/cppfollowsymbolundercursor.h>
@@ -45,6 +45,7 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/infobar.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
@@ -424,9 +425,12 @@ void ClangModelManagerSupport::checkUnused(const Link &link, SearchResult *searc
                 CppModelManager::Backend::Builtin)->checkUnused(link, search, callback);
 }
 
-bool ClangModelManagerSupport::usesClangd(const TextEditor::TextDocument *document) const
+std::optional<QVersionNumber> ClangModelManagerSupport::usesClangd(
+    const TextEditor::TextDocument *document) const
 {
-    return clientForFile(document->filePath());
+    if (const auto client = clientForFile(document->filePath()))
+        return client->versionNumber();
+    return {};
 }
 
 BaseEditorDocumentProcessor *ClangModelManagerSupport::createEditorDocumentProcessor(
@@ -453,10 +457,8 @@ void ClangModelManagerSupport::onCurrentEditorChanged(IEditor *editor)
     const FilePath filePath = editor->document()->filePath();
     if (auto processor = ClangEditorDocumentProcessor::get(filePath)) {
         processor->semanticRehighlight();
-        if (const auto client = clientForFile(filePath)) {
+        if (const auto client = clientForFile(filePath))
             client->updateParserConfig(filePath, processor->parserConfig());
-            client->switchIssuePaneEntries(filePath);
-        }
     }
 }
 
@@ -469,17 +471,15 @@ void ClangModelManagerSupport::connectToWidgetsMarkContextMenuRequested(QWidget 
     }
 }
 
-static FilePath getJsonDbDir(const Project *project)
+static FilePath getJsonDbDir(Project *project)
 {
-    static const QString dirName(".qtc_clangd");
-    if (!project) {
-        const QString sessionDirName = FileUtils::fileSystemFriendlyName(
-                    SessionManager::activeSession());
-        return ICore::userResourcePath() / dirName / sessionDirName; // TODO: Make configurable?
-    }
-    if (const Target * const target = project->activeTarget()) {
-        if (const BuildConfiguration * const bc = target->activeBuildConfiguration())
-            return bc->buildDirectory() / dirName;
+    if (!project)
+        return ClangdSettings::instance().sessionIndexPath(*globalMacroExpander());
+    if (const Target *const target = project->activeTarget()) {
+        if (const BuildConfiguration *const bc = target->activeBuildConfiguration()) {
+            return ClangdSettings(ClangdProjectSettings(project).settings())
+                .projectIndexPath(*bc->macroExpander());
+        }
     }
     return {};
 }
@@ -540,11 +540,15 @@ void ClangModelManagerSupport::updateLanguageClient(Project *project)
         generatorWatcher->deleteLater();
         if (!isProjectDataUpToDate(project, projectInfo, jsonDbDir))
             return;
-        const GenerateCompilationDbResult result = generatorWatcher->result();
-        if (!result.error.isEmpty()) {
+        if (generatorWatcher->future().resultCount() == 0) {
             MessageManager::writeDisrupting(
-                        Tr::tr("Cannot use clangd: Failed to generate compilation database:\n%1")
-                        .arg(result.error));
+                Tr::tr("Cannot use clangd: Generating compilation database canceled."));
+            return;
+        }
+        const GenerateCompilationDbResult result = generatorWatcher->result();
+        if (!result) {
+            MessageManager::writeDisrupting(Tr::tr("Cannot use clangd: "
+                "Failed to generate compilation database:\n%1").arg(result.error()));
             return;
         }
         Id previousId;
@@ -693,7 +697,7 @@ ClangdClient *ClangModelManagerSupport::clientWithProject(const Project *project
 void ClangModelManagerSupport::updateStaleIndexEntries()
 {
     QHash<FilePath, QDateTime> lastModifiedCache;
-    for (const Project * const project : ProjectManager::projects()) {
+    for (Project * const project : ProjectManager::projects()) {
         const FilePath jsonDbDir = getJsonDbDir(project);
         if (jsonDbDir.isEmpty())
             continue;
@@ -724,8 +728,8 @@ void ClangModelManagerSupport::updateStaleIndexEntries()
             const QDateTime sourceIndexedTime = indexFilesIt->minLastModifiedTime;
 
             bool rescan = false;
-            QSet<FilePath> allIncludes = snapshot.allIncludesForDocument(sourceFile);
-            for (const FilePath &includeFile : qAsConst(allIncludes)) {
+            const QSet<FilePath> allIncludes = snapshot.allIncludesForDocument(sourceFile);
+            for (const FilePath &includeFile : allIncludes) {
                 auto includeFileTimeIt = lastModifiedCache.find(includeFile);
                 if (includeFileTimeIt == lastModifiedCache.end()) {
                     includeFileTimeIt = lastModifiedCache.insert(includeFile,

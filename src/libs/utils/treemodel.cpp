@@ -459,13 +459,13 @@ void ModelTest::data()
     // General Purpose roles that should return a QString
     QVariant variant = model->data(model->index(0, 0), Qt::ToolTipRole);
     if (variant.isValid())
-        Q_ASSERT(variant.canConvert(QVariant::String));
+        Q_ASSERT(variant.canConvert(QMetaType::QString));
     variant = model->data(model->index(0, 0), Qt::StatusTipRole);
     if (variant.isValid())
-        Q_ASSERT(variant.canConvert(QVariant::String));
+        Q_ASSERT(variant.canConvert(QMetaType::QString));
     variant = model->data(model->index(0, 0), Qt::WhatsThisRole);
     if (variant.isValid())
-        Q_ASSERT(variant.canConvert(QVariant::String));
+        Q_ASSERT(variant.canConvert(QMetaType::QString));
 
     // General Purpose roles that should return a QSize
     variant = model->data(model->index(0, 0), Qt::SizeHintRole);

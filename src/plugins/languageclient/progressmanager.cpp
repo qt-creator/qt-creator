@@ -69,10 +69,10 @@ bool ProgressManager::isProgressEndMessage(const LanguageServerProtocol::Progres
 Utils::Id languageClientProgressId(const ProgressToken &token)
 {
     constexpr char k_LanguageClientProgressId[] = "LanguageClient.ProgressId.";
-    auto toString = [](const ProgressToken &token){
-        if (std::holds_alternative<int>(token))
-            return QString::number(std::get<int>(token));
-        return std::get<QString>(token);
+    auto toString = [](const ProgressToken &token) {
+        if (const auto i = std::get_if<int>(&token))
+            return QString::number(*i);
+        return *std::get_if<QString>(&token);
     };
     return Utils::Id(k_LanguageClientProgressId).withSuffix(toString(token));
 }

@@ -7,7 +7,6 @@
 #include "snippetprovider.h"
 #include "snippet.h"
 #include "snippetscollection.h"
-#include "snippetssettings.h"
 #include "../fontsettings.h"
 #include "../textdocument.h"
 #include "../texteditorconstants.h"
@@ -38,6 +37,8 @@
 using namespace Utils;
 
 namespace TextEditor::Internal {
+
+const char kLastUsedSnippetGroup[] = "TextSnippetsSettings/LastUsedSnippetGroup";
 
 // SnippetsTableModel
 
@@ -244,8 +245,6 @@ void SnippetsTableModel::replaceSnippet(const Snippet &snippet, const QModelInde
     }
 }
 
-// SnippetsSettingsWidget
-
 class SnippetsSettingsWidget : public Core::IOptionsPageWidget
 {
 public:
@@ -275,10 +274,9 @@ private:
     bool settingsChanged() const;
     void writeSettings();
 
-    const Key m_settingsPrefix{"Text"};
     SnippetsTableModel m_model;
     bool m_snippetsCollectionChanged = false;
-    SnippetsSettings m_settings;
+    QString m_lastUsedSnippetGroup;
 
     QStackedWidget *m_snippetsEditorStack;
     QComboBox *m_groupCombo;
@@ -407,9 +405,8 @@ void SnippetsSettingsWidget::loadSettings()
     if (m_groupCombo->count() == 0)
         return;
 
-    m_settings.fromSettings(m_settingsPrefix, Core::ICore::settings());
-    const QString &lastGroupName = m_settings.lastUsedSnippetGroup();
-    const int index = m_groupCombo->findText(lastGroupName);
+    m_lastUsedSnippetGroup = Core::ICore::settings()->value(kLastUsedSnippetGroup, QString()).toString();
+    const int index = m_groupCombo->findText(m_lastUsedSnippetGroup);
     if (index != -1)
         m_groupCombo->setCurrentIndex(index);
     else
@@ -421,15 +418,13 @@ void SnippetsSettingsWidget::writeSettings()
     if (m_groupCombo->count() == 0)
         return;
 
-    m_settings.setLastUsedSnippetGroup(m_groupCombo->currentText());
-    m_settings.toSettings(m_settingsPrefix, Core::ICore::settings());
+    m_lastUsedSnippetGroup = m_groupCombo->currentText();
+    Core::ICore::settings()->setValue(kLastUsedSnippetGroup, m_lastUsedSnippetGroup);
 }
 
 bool SnippetsSettingsWidget::settingsChanged() const
 {
-    if (m_settings.lastUsedSnippetGroup() != m_groupCombo->currentText())
-        return true;
-    return false;
+    return m_lastUsedSnippetGroup != m_groupCombo->currentText();
 }
 
 void SnippetsSettingsWidget::loadSnippetGroup(int index)

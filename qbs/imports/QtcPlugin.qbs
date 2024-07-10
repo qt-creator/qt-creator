@@ -46,6 +46,6 @@ QtcProduct {
     Export {
         Depends { name: "cpp" }
         Depends { name: "ExtensionSystem" }
-        cpp.includePaths: ".."
+        cpp.includePaths: exportingProduct.sourceDirectory + "/.."
     }
 }

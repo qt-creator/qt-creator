@@ -174,7 +174,7 @@ void FileUtils::removeFiles(const FilePaths &filePaths, bool deleteFromFS)
 bool FileUtils::renameFile(const FilePath &orgFilePath, const FilePath &newFilePath,
                            HandleIncludeGuards handleGuards)
 {
-    if (orgFilePath == newFilePath)
+    if (orgFilePath.equalsCaseSensitive(newFilePath))
         return false;
 
     const FilePath dir = orgFilePath.absolutePath();

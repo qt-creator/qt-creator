@@ -60,6 +60,7 @@ DebuggerSettings::DebuggerSettings() :
     intelFlavor{gdbSettings().intelFlavor},
     usePseudoTracepoints{gdbSettings().usePseudoTracepoints},
     useIndexCache{gdbSettings().useIndexCache},
+    useDebugInfoD{gdbSettings().useDebugInfoD},
     gdbStartupCommands{gdbSettings().gdbStartupCommands},
     gdbPostAttachCommands{gdbSettings().gdbPostAttachCommands},
     targetAsync{gdbSettings().targetAsync},

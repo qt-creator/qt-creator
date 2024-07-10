@@ -8,18 +8,26 @@
 #include <QWidget>
 
 #include <functional>
+#include <memory>
 
 namespace Utils {
+
+namespace Internal {
+class OverlayWidgetPrivate;
+}
 
 class QTCREATOR_UTILS_EXPORT OverlayWidget : public QWidget
 {
 public:
     using PaintFunction = std::function<void(QWidget *, QPainter &, QPaintEvent *)>;
+    using ResizeFunction = std::function<void(QWidget *, QSize)>;
 
     explicit OverlayWidget(QWidget *parent = nullptr);
+    ~OverlayWidget();
 
     void attachToWidget(QWidget *parent);
     void setPaintFunction(const PaintFunction &paint);
+    void setResizeFunction(const ResizeFunction &resize);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *ev) override;
@@ -28,7 +36,7 @@ protected:
 private:
     void resizeToParent();
 
-    PaintFunction m_paint;
+    std::unique_ptr<Internal::OverlayWidgetPrivate> d;
 };
 
 } // namespace Utils

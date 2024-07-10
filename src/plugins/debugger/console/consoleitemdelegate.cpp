@@ -53,7 +53,6 @@ QColor ConsoleItemDelegate::drawBackground(QPainter *painter, const QRect &rect,
 void ConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                                    const QModelIndex &index) const
 {
-    const Utils::Theme *theme = Utils::creatorTheme();
     QStyleOptionViewItem opt = option;
     initStyleOption(&opt, index);
     painter->save();
@@ -65,23 +64,23 @@ void ConsoleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
                 ConsoleItem::TypeRole).toInt();
     switch (type) {
     case ConsoleItem::DebugType:
-        textColor = theme->color(Utils::Theme::OutputPanes_NormalMessageTextColor);
+        textColor = creatorColor(Utils::Theme::OutputPanes_NormalMessageTextColor);
         taskIcon = m_logIcon;
         break;
     case ConsoleItem::WarningType:
-        textColor = theme->color(Utils::Theme::OutputPanes_WarningMessageTextColor);
+        textColor = creatorColor(Utils::Theme::OutputPanes_WarningMessageTextColor);
         taskIcon = m_warningIcon;
         break;
     case ConsoleItem::ErrorType:
-        textColor = theme->color(Utils::Theme::OutputPanes_ErrorMessageTextColor);
+        textColor = creatorColor(Utils::Theme::OutputPanes_ErrorMessageTextColor);
         taskIcon = m_errorIcon;
         break;
     case ConsoleItem::InputType:
-        textColor = theme->color(Utils::Theme::TextColorNormal);
+        textColor = creatorColor(Utils::Theme::TextColorNormal);
         taskIcon = m_prompt;
         break;
     default:
-        textColor = theme->color(Utils::Theme::TextColorNormal);
+        textColor = creatorColor(Utils::Theme::TextColorNormal);
         break;
     }
 

@@ -77,6 +77,7 @@ QtcLibrary {
         "cpplanguage_details.h",
         "crumblepath.cpp",
         "crumblepath.h",
+        "datafromprocess.h",
         "delegates.cpp",
         "delegates.h",
         "detailsbutton.cpp",
@@ -184,6 +185,8 @@ QtcLibrary {
         "link.h",
         "listmodel.h",
         "listutils.h",
+        "lua.cpp",
+        "lua.h",
         "macroexpander.cpp",
         "macroexpander.h",
         "mathutils.cpp",
@@ -257,6 +260,7 @@ QtcLibrary {
         "qtcolorbutton.h",
         "qtcsettings.cpp",
         "qtcsettings.h",
+        "ranges.h",
         "reloadpromptutils.cpp",
         "reloadpromptutils.h",
         "removefiledialog.cpp",
@@ -372,8 +376,7 @@ QtcLibrary {
             "fsenginehandler.cpp",
             "fsenginehandler.h",
             "fsengine_impl.cpp",
-            "fsengine_impl.h",
-            "rootinjectfsengine.h",
+            "fsengine_impl.h"
         ]
     }
 
@@ -472,6 +475,6 @@ QtcLibrary {
     Export {
         Depends { name: "Qt"; submodules: ["concurrent", "widgets" ] }
         Depends { name: "Tasking" }
-        cpp.includePaths: "mimetypes2"
+        cpp.includePaths: exportingProduct.sourceDirectory + "/mimetypes2"
     }
 }

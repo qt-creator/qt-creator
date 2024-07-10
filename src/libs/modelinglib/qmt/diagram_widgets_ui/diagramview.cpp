@@ -14,8 +14,13 @@
 #include <QDragLeaveEvent>
 #include <QDropEvent>
 #include <QMimeData>
+#include <QScrollBar>
 
 namespace qmt {
+
+namespace {
+const qreal ADJUSTMENT = 80;
+};
 
 DiagramView::DiagramView(QWidget *parent)
     : QGraphicsView(parent)
@@ -25,6 +30,9 @@ DiagramView::DiagramView(QWidget *parent)
     setDragMode(QGraphicsView::RubberBandDrag);
     setFrameShape(QFrame::NoFrame);
     setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
+    m_panTimer.setInterval(200);
+    m_panTimer.setSingleShot(false);
+    connect(&m_panTimer, &QTimer::timeout, this, &DiagramView::onPanTimeout);
 }
 
 DiagramView::~DiagramView()
@@ -104,7 +112,7 @@ void DiagramView::dropEvent(QDropEvent *event)
                 if (diagramSceneController->isAddingAllowed(Uid(QUuid(key)),
                                                             m_diagramSceneModel->diagram())) {
                     diagramSceneController->addExistingModelElement(Uid(QUuid(key)),
-                                                                    mapToScene(event->pos()),
+                                                                    mapToScene(event->position().toPoint()),
                                                                     m_diagramSceneModel->diagram());
                 }
             }
@@ -118,10 +126,10 @@ void DiagramView::dropEvent(QDropEvent *event)
             QString stereotype;
             dataStream >> newElementId >> name >> stereotype;
             if (!newElementId.isEmpty()) {
-                QPointF pos = mapToScene(event->pos());
+                QPointF pos = mapToScene(event->position().toPoint());
                 diagramSceneController->dropNewElement(
                             newElementId, name, stereotype, m_diagramSceneModel->findTopmostElement(pos),
-                            pos, m_diagramSceneModel->diagram(), event->pos(), size());
+                            pos, m_diagramSceneModel->diagram(), event->position().toPoint(), size());
             }
         }
         event->accept();
@@ -130,12 +138,41 @@ void DiagramView::dropEvent(QDropEvent *event)
     }
 }
 
+void DiagramView::mousePressEvent(QMouseEvent *event)
+{
+    m_panTimer.start();
+    QGraphicsView::mousePressEvent(event);
+}
+
+void DiagramView::mouseReleaseEvent(QMouseEvent *event)
+{
+    m_panTimer.stop();
+    QGraphicsView::mouseReleaseEvent(event);
+}
+
+void DiagramView::mouseMoveEvent(QMouseEvent *event)
+{
+    QGraphicsView::mouseMoveEvent(event);
+    m_lastMouse = event->pos();
+}
+
 void DiagramView::onSceneRectChanged(const QRectF &sceneRect)
 {
     // add some adjustment to all 4 sides
-    static const qreal ADJUSTMENT = 80;
     QRectF rect = sceneRect.adjusted(-ADJUSTMENT, -ADJUSTMENT, ADJUSTMENT, ADJUSTMENT);
     setSceneRect(rect);
+}
+
+void DiagramView::onPanTimeout()
+{
+    if (m_lastMouse.x() < ADJUSTMENT)
+        horizontalScrollBar()->triggerAction(QScrollBar::SliderSingleStepSub);
+    else if (m_lastMouse.x() > viewport()->size().width() - ADJUSTMENT)
+        horizontalScrollBar()->triggerAction(QScrollBar::SliderSingleStepAdd);
+    if (m_lastMouse.y() < ADJUSTMENT)
+        verticalScrollBar()->triggerAction(QScrollBar::SliderSingleStepSub);
+    else if (m_lastMouse.y() > viewport()->size().height() - ADJUSTMENT)
+        verticalScrollBar()->triggerAction(QScrollBar::SliderSingleStepAdd);
 }
 
 } // namespace qmt

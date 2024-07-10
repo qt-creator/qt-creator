@@ -29,7 +29,7 @@ qreal ShapeValueF::mapScaledTo(qreal scaledOrigin, qreal originalSize, qreal bas
         v = originalSize != 0 ? (m_value * actualSize / originalSize) : m_value;
         break;
     case UnitPercentage:
-        v = m_value * actualSize;
+        v = m_value * actualSize / 100.0;
         break;
     }
     switch (m_origin) {

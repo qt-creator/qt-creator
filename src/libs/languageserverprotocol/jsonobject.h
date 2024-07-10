@@ -10,26 +10,11 @@
 #include <QDebug>
 #include <QJsonObject>
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
 #include <QLatin1StringView>
-#else
-#include <QLatin1String>
-#endif
 
 namespace LanguageServerProtocol {
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
 using Key = QLatin1StringView;
-#else
-class Key : public QLatin1String
-{
-public:
-    using QLatin1String::QLatin1String;
-    constexpr inline explicit Key(const char *s) noexcept
-        : QLatin1String(s, std::char_traits<char>::length(s))
-    {}
-};
-#endif
 
 class LANGUAGESERVERPROTOCOL_EXPORT JsonObject
 {
@@ -108,7 +93,8 @@ private:
 template<typename T, typename V>
 JsonObject::iterator JsonObject::insertVariant(const Key key, const V &variant)
 {
-    return std::holds_alternative<T>(variant) ? insert(key, std::get<T>(variant)) : end();
+    const auto v = std::get_if<T>(&variant);
+    return v ? insert(key, *v) : end();
 }
 
 template<typename T1, typename T2, typename... Args, typename V>

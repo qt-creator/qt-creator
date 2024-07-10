@@ -15,6 +15,10 @@ class MacroExpander;
 class OutputLineParser;
 } // namespace Utils
 
+namespace ProjectExplorer {
+class Project;
+}
+
 namespace CMakeProjectManager::Internal {
 
 class CMakeBuildSystem;
@@ -29,6 +33,7 @@ public:
     CMakeTool *cmakeTool() const;
 
     QString projectName;
+    ProjectExplorer::Project *project = nullptr;
 
     Utils::FilePath sourceDirectory;
     Utils::FilePath buildDirectory;

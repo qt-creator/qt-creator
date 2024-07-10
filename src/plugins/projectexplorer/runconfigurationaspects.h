@@ -29,7 +29,7 @@ class PROJECTEXPLORER_EXPORT TerminalAspect : public Utils::BaseAspect
 public:
     explicit TerminalAspect(Utils::AspectContainer *container = nullptr);
 
-    void addToLayout(Layouting::LayoutItem &parent) override;
+    void addToLayout(Layouting::Layout &parent) override;
 
     bool useTerminal() const;
     void setUseTerminalHint(bool useTerminal);
@@ -61,7 +61,7 @@ class PROJECTEXPLORER_EXPORT WorkingDirectoryAspect : public Utils::BaseAspect
 public:
     explicit WorkingDirectoryAspect(Utils::AspectContainer *container = nullptr);
 
-    void addToLayout(Layouting::LayoutItem &parent) override;
+    void addToLayout(Layouting::Layout &parent) override;
 
     Utils::FilePath operator()() const { return workingDirectory(); }
     Utils::FilePath workingDirectory() const;
@@ -93,7 +93,7 @@ class PROJECTEXPLORER_EXPORT ArgumentsAspect : public Utils::BaseAspect
 public:
     explicit ArgumentsAspect(Utils::AspectContainer *container = nullptr);
 
-    void addToLayout(Layouting::LayoutItem &parent) override;
+    void addToLayout(Layouting::Layout &parent) override;
 
     QString operator()() const { return arguments(); }
     QString arguments() const;
@@ -171,7 +171,7 @@ public:
     void setDeviceSelector(Target *target, ExecutionDeviceSelector selector);
     void setSettingsKey(const Utils::Key &key);
     void makeOverridable(const Utils::Key &overridingKey, const Utils::Key &useOverridableKey);
-    void addToLayout(Layouting::LayoutItem &parent) override;
+    void addToLayout(Layouting::Layout &parent) override;
     void setLabelText(const QString &labelText);
     void setPlaceHolderText(const QString &placeHolderText);
     void setHistoryCompleter(const Utils::Key &historyCompleterKey);
@@ -225,6 +225,36 @@ public:
     Utils::FilePath command;
     bool autoDetected = true;
     QString detectionSource;
+};
+
+class PROJECTEXPLORER_EXPORT LauncherAspect : public Utils::BaseAspect
+{
+    Q_OBJECT
+
+public:
+    LauncherAspect(Utils::AspectContainer *container = nullptr);
+
+    Launcher currentLauncher() const;
+    void updateLaunchers(const QList<Launcher> &launchers);
+    void setDefaultLauncher(const Launcher &launcher);
+    void setCurrentLauncher(const Launcher &launcher);
+    void setSettingsDialogId(Utils::Id id) { m_settingsDialogId = id; }
+
+    void fromMap(const Utils::Store &) override;
+    void toMap(Utils::Store &) const override;
+    void addToLayout(Layouting::Layout &parent) override;
+
+    struct Data : Utils::BaseAspect::Data { Launcher launcher; };
+
+private:
+    void setCurrentLauncherId(const QString &id);
+    void updateCurrentLauncher();
+    void updateComboBox();
+    QList<Launcher> m_launchers;
+    QPointer<QComboBox> m_comboBox;
+    QString m_defaultId;
+    QString m_currentId;
+    Utils::Id m_settingsDialogId;
 };
 
 class PROJECTEXPLORER_EXPORT MainScriptAspect : public Utils::FilePathAspect

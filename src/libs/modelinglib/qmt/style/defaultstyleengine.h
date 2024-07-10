@@ -37,6 +37,9 @@ public:
                                   const Parameters *parameters) override;
     const Style *applyObjectStyle(const Style *baseStyle, const StyledObject &styledObject,
                                   const Parameters *parameters) override;
+    const Style *applyRelationStyle(const Style *baseStyle, ElementType elementType,
+                                    const RelationVisuals &relationVisuals,
+                                    const Parameters *parameters) override;
     const Style *applyRelationStyle(const Style *baseStyle, const StyledRelation &styledRelation,
                                     const Parameters *parameters) override;
     const Style *applyAnnotationStyle(const Style *baseStyle, const DAnnotation *annotation,
@@ -53,6 +56,11 @@ private:
     const Style *applySwimlaneStyle(const Style *baseStyle, const Parameters *parameters);
 
     ElementType objectType(const DObject *object);
+
+    bool areStackingRoles(DObject::VisualPrimaryRole rhsPrimaryRole,
+                          DObject::VisualSecondaryRole rhsSecondaryRole,
+                          DObject::VisualPrimaryRole lhsPrimaryRole,
+                          DObject::VisualSecondaryRole lhsSecondaryRols);
 
     QColor baseColor(ElementType elementType, ObjectVisuals objectVisuals);
     QColor lineColor(ElementType elementType, const ObjectVisuals &objectVisuals);

@@ -40,6 +40,7 @@ class CppcheckPluginPrivate final : public QObject
 {
 public:
     explicit CppcheckPluginPrivate();
+    ~CppcheckPluginPrivate();
 
     CppcheckTextMarkManager marks;
     CppcheckTool tool{marks, Constants::CHECK_PROGRESS_ID};
@@ -49,16 +50,19 @@ public:
     Utils::Perspective perspective{Constants::PERSPECTIVE_ID, ::Cppcheck::Tr::tr("Cppcheck")};
 
     Action *manualRunAction = nullptr;
+    QHash<Project *, CppcheckSettings *> projectSettings;
 
     void startManualRun();
     void updateManualRunAction();
+    void saveProjectSettings(Project *project);
+    void loadProjectSettings(Project *project);
 };
 
 CppcheckPluginPrivate::CppcheckPluginPrivate()
 {
-    tool.updateOptions();
+    tool.updateOptions(settings());
     connect(&settings(), &AspectContainer::changed, this, [this] {
-        tool.updateOptions();
+        tool.updateOptions(settings());
         trigger.recheck();
     });
 
@@ -104,6 +108,29 @@ CppcheckPluginPrivate::CppcheckPluginPrivate()
                 action, &QAction::setEnabled);
         perspective.addToolBarAction(action);
     }
+    connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
+            this, [this](Project *project) {
+        if (!project)
+            return;
+        CppcheckSettings *settings = projectSettings.value(project, nullptr);
+        if (!settings) {
+            settings = new CppcheckSettings;
+            settings->readSettings();
+            settings->setAutoApply(true);
+            connect(project, &Project::aboutToSaveSettings,
+                    this, [this, project]{ saveProjectSettings(project); });
+            connect(project, &Project::settingsLoaded,
+                    this, [this, project]{ loadProjectSettings(project); });
+            projectSettings.insert(project, settings);
+            loadProjectSettings(project);
+        }
+    });
+}
+
+CppcheckPluginPrivate::~CppcheckPluginPrivate()
+{
+    qDeleteAll(projectSettings);
+    projectSettings.clear();
 }
 
 void CppcheckPluginPrivate::startManualRun()
@@ -112,9 +139,9 @@ void CppcheckPluginPrivate::startManualRun()
     if (!project)
         return;
 
-    manualRunTool.updateOptions();
-
-    ManualRunDialog dialog(project);
+    CppcheckSettings *settings = projectSettings.value(project, nullptr);
+    QTC_ASSERT(settings, return);
+    ManualRunDialog dialog(project, settings);
     if (dialog.exec() == ManualRunDialog::Rejected)
         return;
 
@@ -125,7 +152,7 @@ void CppcheckPluginPrivate::startManualRun()
         return;
 
     manualRunTool.setProject(project);
-    manualRunTool.updateOptions();
+    manualRunTool.updateOptions(*settings);
     manualRunTool.check(files);
     perspective.select();
 }
@@ -138,6 +165,30 @@ void CppcheckPluginPrivate::updateManualRunAction()
     const bool canRun = target && project->projectLanguages().contains(cxx)
                   && ToolchainKitAspect::cxxToolchain(target->kit());
     manualRunAction->setEnabled(canRun);
+}
+
+void CppcheckPluginPrivate::saveProjectSettings(Project *project)
+{
+    QTC_ASSERT(project, return);
+    CppcheckSettings *settings = projectSettings.value(project, nullptr);
+    QTC_ASSERT(settings, return);
+
+    Store store;
+    settings->toMap(store);
+    project->setNamedSettings("CppcheckManual", Utils::variantFromStore(store));
+}
+
+void CppcheckPluginPrivate::loadProjectSettings(Project *project)
+{
+    QTC_ASSERT(project, return);
+    CppcheckSettings *settings = projectSettings.value(project, nullptr);
+    QTC_ASSERT(settings, return);
+
+    const QVariant variant = project->namedSettings("CppcheckManual");
+    if (!variant.isValid())
+        return;
+    Store store = Utils::storeFromVariant(project->namedSettings("CppcheckManual"));
+    settings->fromMap(store);
 }
 
 class CppcheckPlugin final : public ExtensionSystem::IPlugin

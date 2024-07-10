@@ -722,7 +722,7 @@ void Target::updateDefaultRunConfigurations()
     configuredCount -= toRemove.count();
 
     bool removeExistingUnconfigured = false;
-    if (ProjectExplorerPlugin::projectExplorerSettings().automaticallyCreateRunConfigurations) {
+    if (projectExplorerSettings().automaticallyCreateRunConfigurations) {
         // Create new "automatic" RCs and put them into newConfigured/newUnconfigured
         for (const RunConfigurationCreationInfo &item : creators) {
             if (item.creationMode == RunConfigurationCreationInfo::ManualCreationOnly)

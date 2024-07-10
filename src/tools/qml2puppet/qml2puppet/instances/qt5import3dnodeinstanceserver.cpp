@@ -22,6 +22,7 @@
 #ifdef QUICK3D_MODULE
 #include <private/qquick3dnode_p.h>
 #include <private/qquick3dviewport_p.h>
+#include <private/qquick3dcamera_p.h>
 #include <private/qquick3dperspectivecamera_p.h>
 #endif
 
@@ -248,9 +249,9 @@ void Qt5Import3dNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 
     if (!inFunction) {
         inFunction = true;
-
+#ifdef QUICK3D_MODULE
         QQuickDesignerSupport::polishItems(quickWindow());
-
+#endif
         render();
 
         inFunction = false;

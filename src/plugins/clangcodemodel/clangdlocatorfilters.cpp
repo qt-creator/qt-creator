@@ -10,8 +10,6 @@
 #include <cppeditor/cppeditortr.h>
 #include <cppeditor/cpplocatorfilter.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <languageclient/currentdocumentsymbolsrequest.h>
 #include <languageclient/locatorfilter.h>
 
@@ -186,7 +184,6 @@ static LocatorMatcherTask currentDocumentMatcher()
     };
 
     const auto onFilterSetup = [=](Async<void> &async) {
-        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(filterCurrentResults, *storage, *resultStorage,
                                     TextDocument::currentTextDocument()->plainText());
     };

@@ -128,14 +128,15 @@ public:
     QString toolTip() const final { return {}; }
     QWidget *widget() const final { return m_widget; }
 
-    void readSettings(QtcSettings *settings) final
+    void readSettings(const Store &s) final
     {
-        m_searchOptionsLineEdit->setText(settings->value(s_searchOptionsString).toString());
+        m_searchOptionsLineEdit->setText(s.value(s_searchOptionsString).toString());
     }
 
-    void writeSettings(QtcSettings *settings) const final
+    void writeSettings(Store &s) const final
     {
-        settings->setValue(s_searchOptionsString, m_searchOptionsLineEdit->text());
+        if (!m_searchOptionsLineEdit->text().isEmpty())
+            s.insert(s_searchOptionsString, m_searchOptionsLineEdit->text());
     }
 
     SearchExecutor searchExecutor() const final

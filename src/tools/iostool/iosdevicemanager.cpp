@@ -1662,6 +1662,7 @@ void DevInfoSession::deviceCallbackReturned()
     const QString osVersionKey = "osVersion";
     const QString cpuArchitectureKey = "cpuArchitecture";
     const QString uniqueDeviceId = "uniqueDeviceId";
+    const QString productType = "productType";
     bool failure = !device;
     if (!failure) {
         failure = !connectDevice();
@@ -1669,6 +1670,7 @@ void DevInfoSession::deviceCallbackReturned()
             res[deviceConnectedKey] = QLatin1String("YES");
             res[deviceNameKey] = getStringValue(device, nullptr, CFSTR("DeviceName"));
             res[uniqueDeviceId] = getStringValue(device, nullptr, CFSTR("UniqueDeviceID"));
+            res[productType] = getStringValue(device, nullptr, CFSTR("ProductType"));
             const QString productVersion = getStringValue(device, nullptr, CFSTR("ProductVersion"));
             res[developerStatusKey] = getStringValue(device,
                                                      CFSTR("com.apple.xcode.developerdomain"),

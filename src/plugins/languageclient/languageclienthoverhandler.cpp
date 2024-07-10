@@ -87,9 +87,8 @@ void HoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
 
     const std::optional<std::variant<bool, WorkDoneProgressOptions>> &provider
         = m_client->capabilities().hoverProvider();
-    bool sendMessage = provider.has_value();
-    if (sendMessage && std::holds_alternative<bool>(*provider))
-        sendMessage = std::get<bool>(*provider);
+    const bool *boolvalue = provider.has_value() ? std::get_if<bool>(&*provider) : nullptr;
+    bool sendMessage = provider.has_value() && (!boolvalue || *boolvalue);
     if (std::optional<bool> registered = m_client->dynamicCapabilities().isRegistered(
             HoverRequest::methodName)) {
         sendMessage = *registered;

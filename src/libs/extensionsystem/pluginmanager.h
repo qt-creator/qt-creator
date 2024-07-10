@@ -6,6 +6,7 @@
 #include "extensionsystem_global.h"
 
 #include <aggregation/aggregate.h>
+#include <utils/filepath.h>
 #include <utils/qtcsettings.h>
 
 #include <QObject>
@@ -14,8 +15,6 @@
 QT_BEGIN_NAMESPACE
 class QTextStream;
 QT_END_NAMESPACE
-
-namespace Utils { class FutureSynchronizer; }
 
 namespace ExtensionSystem {
 class IPlugin;
@@ -69,8 +68,8 @@ public:
     static QVector<PluginSpec *> loadQueue();
     static void loadPlugins();
     static void loadPluginsAtRuntime(const QSet<PluginSpec *> &plugins);
-    static QStringList pluginPaths();
-    static void setPluginPaths(const QStringList &paths);
+    static Utils::FilePaths pluginPaths();
+    static void setPluginPaths(const Utils::FilePaths &paths);
     static QString pluginIID();
     static void setPluginIID(const QString &iid);
     static const QVector<PluginSpec *> plugins();
@@ -81,6 +80,8 @@ public:
     static const QSet<PluginSpec *> pluginsRequiredByPlugin(PluginSpec *spec);
     static void checkForProblematicPlugins();
     static PluginSpec *specForPlugin(IPlugin *plugin);
+
+    static void addPlugins(const QVector<PluginSpec *> &specs);
 
     // Settings
     static void setSettings(Utils::QtcSettings *settings);
@@ -104,7 +105,7 @@ public:
 
     static bool testRunRequested();
 
-#ifdef WITH_TESTS
+#ifdef EXTENSIONSYSTEM_WITH_TESTOPTION
     static bool registerScenario(const QString &scenarioId, std::function<bool()> scenarioStarter);
     static bool isScenarioRequested();
     static bool runScenario();
@@ -135,8 +136,6 @@ public:
     static void shutdown();
 
     static QString systemInformation();
-
-    static Utils::FutureSynchronizer *futureSynchronizer();
 
 signals:
     void objectAdded(QObject *obj);

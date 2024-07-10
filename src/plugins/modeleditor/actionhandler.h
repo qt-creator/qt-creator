@@ -43,6 +43,7 @@ public:
     QAction *deleteAction() const;
     QAction *selectAllAction() const;
     QAction *openParentDiagramAction() const;
+    QAction *toggleViewFilterAction() const;
     QAction *synchronizeBrowserAction() const;
     QAction *exportDiagramAction() const;
     QAction *exportSelectedElementsAction() const;

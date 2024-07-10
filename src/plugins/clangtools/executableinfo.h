@@ -5,8 +5,6 @@
 
 #include <utils/filepath.h>
 
-#include <QDateTime>
-#include <QHash>
 #include <QPair>
 #include <QStringList>
 #include <QVector>
@@ -40,16 +38,11 @@ using ClazyChecks = QVector<ClazyCheck>;
 class ClazyStandaloneInfo
 {
 public:
-    static ClazyStandaloneInfo getInfo(const Utils::FilePath &executablePath);
+    ClazyStandaloneInfo(const Utils::FilePath &executablePath);
 
     QVersionNumber version;
     QStringList defaultChecks;
     ClazyChecks supportedChecks;
-
-private:
-    ClazyStandaloneInfo(const Utils::FilePath &executablePath);
-
-    static QHash<Utils::FilePath, QPair<QDateTime, ClazyStandaloneInfo>> cache;
 };
 
 } // namespace Internal

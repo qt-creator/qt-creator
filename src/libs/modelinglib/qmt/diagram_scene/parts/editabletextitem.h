@@ -19,6 +19,7 @@ signals:
     void returnKeyPressed();
 
 public:
+    void setEditable(bool editable);
     void setShowFocus(bool showFocus);
     void setFilterReturnKey(bool filterReturnKey);
     void setFilterTabKey(bool filterTabKey);
@@ -30,7 +31,6 @@ public:
 protected:
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
-    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
     void focusOutEvent(QFocusEvent *event) override;
 
 private:

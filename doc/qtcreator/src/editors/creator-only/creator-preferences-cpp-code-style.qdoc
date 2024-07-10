@@ -54,6 +54,8 @@
 
     \list
         \li Interpret the \key Tab and \key Backspace key presses.
+        \li Add macros that the indenter interprets as complete statements that
+            don't require a semicolon at the end.
         \li Indent the contents of classes, functions, blocks, and namespaces.
         \li Indent braces in classes, namespaces, enums, functions, and blocks.
         \li Control switch statements and their contents.

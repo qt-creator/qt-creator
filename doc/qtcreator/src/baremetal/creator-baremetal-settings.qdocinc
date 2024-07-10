@@ -1,16 +1,19 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 //! [baremetal-common]
 
-    \li In the \uicontrol Name field, enter a name for the connection.
-    \li In the \uicontrol {Startup mode} field, select the mode to start
+    \li Go to \preferences > \uicontrol Devices > \uicontrol {Bare Metal}.
+    \li Select \uicontrol Add.
+    \li Select \uicontrol {\1}.
+    \li In \uicontrol Name, enter a name for the connection.
+    \li In \uicontrol {Startup mode}, select the mode to start
         the debug server provider in.
-    \li In the \uicontrol {Peripheral description file} field, specify a path to
+    \li In \uicontrol {Peripheral description file}, specify a path to
         a file that describes the peripherals on the device.
-    \li In the \uicontrol Host field, select the host name and port number
+    \li In \uicontrol Host, select the host name and port number
         to connect to the debug server provider.
-    \li In the \uicontrol {Executable file} field, enter the path to the
+    \li In \uicontrol {Executable file}, enter the path to the
         debug server provider executable.
 
 //! [baremetal-common]
@@ -18,10 +21,10 @@
 
 //! [baremetal-init-reset]
 
-    \li In the \uicontrol {Init commands} field, enter the commands
-        to  execute when initializing the connection.
-    \li In the \uicontrol {Reset commands} field, enter the commands
-        to  execute when resetting the connection.
+    \li In \uicontrol {Init commands}, enter the commands
+        to execute when initializing the connection.
+    \li In \uicontrol {Reset commands}, enter the commands
+        to execute when resetting the connection.
     \li Select \uicontrol Apply to add the debug server provider.
 
 //! [baremetal-init-reset]
@@ -29,14 +32,16 @@
 
 //! [uvision-common]
 
-    \li In the \uicontrol Name field, enter a name for the connection.
-    \li In the \uicontrol Host field, select the host name and port
+    \li Go to \preferences > \uicontrol Devices > \uicontrol {Bare Metal}.
+    \li Select \uicontrol Add.
+    \li Select \uicontrol {\1}.
+    \li In \uicontrol Name, enter a name for the connection.
+    \li In \uicontrol Host, select the host name and port
         number to connect to the debug server provider.
-    \li In the \uicontrol {Tools file path} field, enter the path to
+    \li In \uicontrol {Tools file path}, enter the path to
         the Keil toolset configuration file.
-    \li In the \uicontrol {Target device} field, select the device to
-        debug.
-    \li In the \uicontrol {Target driver} field, select the driver for
+    \li In \uicontrol {Target device}, select the device to debug.
+    \li In \uicontrol {Target driver}, select the driver for
         connecting to the target device.
 
 //! [uvision-common]

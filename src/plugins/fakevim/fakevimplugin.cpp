@@ -1502,7 +1502,7 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
 
     handler->modeChanged.set([tew, this, editor](bool insertMode) {
         HandlerAndData &handlerAndData = m_editorToHandler[editor];
-        if (!handlerAndData.handler->inFakeVimMode())
+        if (!handlerAndData.handler || !handlerAndData.handler->inFakeVimMode())
             return;
 
         // We don't want to show suggestions unless we are in insert mode.
@@ -1651,11 +1651,13 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
             keepOnlyWindow();
         else if (key == "P" || key == "<C-P>")
             triggerAction(Core::Constants::GOTO_PREV_SPLIT);
-        else if (key == "S" || key == "<C-S>")
+        else if (key == "S" || key == "<C-S>") {
             triggerAction(Core::Constants::SPLIT);
-        else if (key == "V" || key == "<C-V>")
+            updateAllHightLights();
+        } else if (key == "V" || key == "<C-V>") {
             triggerAction(Core::Constants::SPLIT_SIDE_BY_SIDE);
-        else if (key == "W" || key == "<C-W>")
+            updateAllHightLights();
+        } else if (key == "W" || key == "<C-W>")
             triggerAction(Core::Constants::GOTO_NEXT_SPLIT);
         else if (key.contains("RIGHT") || key == "L" || key == "<S-L>" || key == "<C-L>")
             moveSomewhere(handler, &moveRightWeight, key == "<S-L>" ? -1 : count);

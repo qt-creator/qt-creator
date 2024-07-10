@@ -1,0 +1,18 @@
+#ifndef THE_HEADER_H
+#define THE_HEADER_H
+
+#include "theclass.h"
+
+
+namespace Project {
+namespace Internal {
+
+class SomeClass {};
+
+
+
+
+}
+}
+
+#endif

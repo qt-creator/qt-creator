@@ -795,7 +795,7 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
             // File node
             Q_ASSERT(file);
             if (!file->exists())
-                result = Utils::creatorTheme()->color(Utils::Theme::TextColorError);
+                result = Utils::creatorColor(Utils::Theme::TextColorError);
         }
         break;
     default:

@@ -71,10 +71,7 @@ QString ClangFixItOperation::firstRefactoringFileContent_forTestOnly() const
 void ClangFixItOperation::applyFixitsToFile(TextEditor::RefactoringFile &refactoringFile,
         const QList<ClangFixIt> fixIts)
 {
-    const Utils::ChangeSet changeSet = toChangeSet(refactoringFile, fixIts);
-
-    refactoringFile.setChangeSet(changeSet);
-    refactoringFile.apply();
+    refactoringFile.apply(toChangeSet(refactoringFile, fixIts));
 }
 
 Utils::ChangeSet ClangFixItOperation::toChangeSet(

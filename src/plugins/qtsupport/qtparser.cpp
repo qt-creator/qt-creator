@@ -45,7 +45,7 @@ Utils::OutputLineParser::Result QtParser::handleLine(const QString &line, Utils:
         LinkSpecs linkSpecs;
         const Utils::FilePath file
                 = absoluteFilePath(Utils::FilePath::fromUserInput(match.captured("file")));
-        addLinkSpecForAbsoluteFilePath(linkSpecs, file, lineno, match, "file");
+        addLinkSpecForAbsoluteFilePath(linkSpecs, file, lineno, -1, match, "file");
         CompileTask task(type, match.captured("description").trimmed(), file, lineno);
         task.column = match.captured("column").toInt();
         scheduleTask(task, 1);
@@ -62,7 +62,7 @@ Utils::OutputLineParser::Result QtParser::handleLine(const QString &line, Utils:
             message.prepend(": ").prepend(fileName);
         } else if (fileName.endsWith(".ui")) {
             filePath = absoluteFilePath(Utils::FilePath::fromUserInput(fileName));
-            addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, -1, match, "file");
+            addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, -1, -1, match, "file");
         } else {
             isUicMessage = false;
         }
@@ -79,7 +79,7 @@ Utils::OutputLineParser::Result QtParser::handleLine(const QString &line, Utils:
         LinkSpecs linkSpecs;
         const Utils::FilePath file
                 = absoluteFilePath(Utils::FilePath::fromUserInput(match.captured("file")));
-        addLinkSpecForAbsoluteFilePath(linkSpecs, file, 0, match, "file");
+        addLinkSpecForAbsoluteFilePath(linkSpecs, file, -1, -1, match, "file");
         CompileTask task(type, match.captured("description"), file);
         scheduleTask(task, 1);
         return {Status::Done, linkSpecs};
@@ -95,7 +95,7 @@ Utils::OutputLineParser::Result QtParser::handleLine(const QString &line, Utils:
         if (!ok)
             lineno = -1;
         LinkSpecs linkSpecs;
-        addLinkSpecForAbsoluteFilePath(linkSpecs, file, lineno, match, "file");
+        addLinkSpecForAbsoluteFilePath(linkSpecs, file, lineno, -1, match, "file");
         CompileTask task(type, match.captured("description"), file, lineno,
                          match.captured("column").toInt());
         scheduleTask(task, 1);

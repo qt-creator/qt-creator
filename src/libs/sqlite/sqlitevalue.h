@@ -373,18 +373,18 @@ private:
         if (value.isNull())
             return VariantType{NullValue{}};
 
-        switch (value.userType()) {
-        case QVariant::Int:
+        switch (value.typeId()) {
+        case QMetaType::Int:
             return VariantType{static_cast<long long>(value.toInt())};
-        case QVariant::LongLong:
+        case QMetaType::LongLong:
             return VariantType{value.toLongLong()};
-        case QVariant::UInt:
+        case QMetaType::UInt:
             return VariantType{static_cast<long long>(value.toUInt())};
-        case QVariant::Double:
+        case QMetaType::Double:
             return VariantType{value.toFloat()};
-        case QVariant::String:
+        case QMetaType::QString:
             return VariantType{value.toString()};
-        case QVariant::ByteArray:
+        case QMetaType::QByteArray:
             return VariantType{Blob{value.toByteArray()}};
         default:
             throw CannotConvert();

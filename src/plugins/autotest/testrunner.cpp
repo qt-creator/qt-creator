@@ -23,7 +23,6 @@
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/runconfiguration.h>
@@ -169,11 +168,9 @@ void TestRunner::runTests(TestRunMode mode, const QList<ITestConfiguration *> &s
 
     m_skipTargetsCheck = false;
     m_runMode = mode;
-    const ProjectExplorerSettings projectExplorerSettings
-            = ProjectExplorerPlugin::projectExplorerSettings();
     if (mode != TestRunMode::RunAfterBuild
-            && projectExplorerSettings.buildBeforeDeploy != BuildBeforeRunMode::Off
-            && !projectExplorerSettings.saveBeforeBuild) {
+            && projectExplorerSettings().buildBeforeDeploy != BuildBeforeRunMode::Off
+            && !projectExplorerSettings().saveBeforeBuild) {
         if (!ProjectExplorerPlugin::saveModifiedFiles())
             return;
     }
@@ -203,7 +200,7 @@ void TestRunner::runTests(TestRunMode mode, const QList<ITestConfiguration *> &s
     m_targetConnect = connect(project, &Project::activeTargetChanged,
                               this, [this] { cancelCurrent(KitChanged); });
 
-    if (projectExplorerSettings.buildBeforeDeploy == BuildBeforeRunMode::Off
+    if (projectExplorerSettings().buildBeforeDeploy == BuildBeforeRunMode::Off
             || mode == TestRunMode::DebugWithoutDeploy
             || mode == TestRunMode::RunWithoutDeploy || mode == TestRunMode::RunAfterBuild) {
         runOrDebugTests();
@@ -386,7 +383,7 @@ void TestRunner::runTestsHelper()
         connect(testStorage->m_outputReader.get(), &TestOutputReader::newOutputLineAvailable,
                 TestResultsPane::instance(), &TestResultsPane::addOutputLine);
 
-        CommandLine command{config->testExecutable(), {}};
+        CommandLine command{config->testExecutable()};
         if (config->testBase()->type() == ITestBase::Framework) {
             TestConfiguration *current = static_cast<TestConfiguration *>(config);
             QStringList omitted;
@@ -415,8 +412,10 @@ void TestRunner::runTestsHelper()
         }
         process.setEnvironment(environment);
 
-        m_cancelTimer.setInterval(testSettings().timeout());
-        m_cancelTimer.start();
+        if (testSettings().useTimeout()) {
+            m_cancelTimer.setInterval(testSettings().timeout());
+            m_cancelTimer.start();
+        }
 
         qCInfo(runnerLog) << "Command:" << process.commandLine().executable();
         qCInfo(runnerLog) << "Arguments:" << process.commandLine().arguments();

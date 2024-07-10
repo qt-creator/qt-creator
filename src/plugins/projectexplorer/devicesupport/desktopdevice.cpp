@@ -6,7 +6,6 @@
 #include "../projectexplorerconstants.h"
 #include "../projectexplorertr.h"
 #include "desktopprocesssignaloperation.h"
-#include "processlist.h"
 
 #include <coreplugin/fileutils.h>
 
@@ -21,7 +20,6 @@
 #include <utils/url.h>
 
 #include <QCoreApplication>
-#include <QDateTime>
 
 #ifdef Q_OS_WIN
 #include <cstring>
@@ -65,7 +63,7 @@ DesktopDevice::DesktopDevice()
         Process process;
         process.setTerminalMode(TerminalMode::Detached);
         process.setEnvironment(realEnv);
-        process.setCommand({*shell, {}});
+        process.setCommand(CommandLine{*shell});
         process.setWorkingDirectory(path);
         process.start();
 

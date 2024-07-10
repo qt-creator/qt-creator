@@ -2,6 +2,7 @@ QtcLibrary {
     name: "ExtensionSystem"
 
     cpp.defines: base.concat(["EXTENSIONSYSTEM_LIBRARY", "IDE_TEST_DIR=\".\""])
+                     .concat(qtc.withPluginTests ? ["EXTENSIONSYSTEM_WITH_TESTOPTION"] : [])
 
     Depends { name: "Qt"; submodules: ["core", "widgets"] }
     Depends { name: "Qt.testlib"; condition: qtc.withPluginTests }
@@ -29,12 +30,13 @@ QtcLibrary {
         "pluginmanager_p.h",
         "pluginspec.cpp",
         "pluginspec.h",
-        "pluginspec_p.h",
         "pluginview.cpp",
         "pluginview.h",
     ]
 
     Export {
         Depends { name: "Qt.core" }
+        Depends { name: "qtc" }
+        cpp.defines: qtc.withPluginTests ? ["EXTENSIONSYSTEM_WITH_TESTOPTION"] : []
     }
 }

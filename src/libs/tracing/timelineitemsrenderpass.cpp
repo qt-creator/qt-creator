@@ -464,11 +464,7 @@ bool TimelineItemsMaterialShader::updateUniformData(RenderState &state,
 TimelineItemsMaterial::TimelineItemsMaterial() : m_selectedItem(-1)
 {
     setFlag(QSGMaterial::Blending, false);
-#if QT_VERSION >= QT_VERSION_CHECK(6, 3, 0)
     setFlag(QSGMaterial::NoBatching, true);
-#else
-    setFlag(QSGMaterial::CustomCompileStep, true);
-#endif // >= Qt 6.3/6.0
 }
 
 QVector2D TimelineItemsMaterial::scale() const

@@ -139,11 +139,13 @@ class DesignerPlugin final : public ExtensionSystem::IPlugin
             IWizardFactory *wizard = new FormClassWizard;
             wizard->setCategory(Core::Constants::WIZARD_CATEGORY_QT);
             wizard->setDisplayCategory(::Core::Tr::tr(Core::Constants::WIZARD_TR_CATEGORY_QT));
-            wizard->setDisplayName(Tr::tr("Qt Designer Form Class"));
+            wizard->setDisplayName(Tr::tr("Qt Widgets Designer Form Class"));
             wizard->setIcon({}, "ui/h");
             wizard->setId("C.FormClass");
-            wizard->setDescription(Tr::tr("Creates a Qt Designer form along with a matching class (C++ header and source file) "
-                                          "for implementation purposes. You can add the form and class to an existing Qt Widget Project."));
+            wizard->setDescription(Tr::tr("Creates a Qt Widgets Designer form along with a matching "
+                                          "class (C++ header and source file) "
+                                          "for implementation purposes. You can add the form and "
+                                          "class to an existing Qt Widget Project."));
 
             return wizard;
         });

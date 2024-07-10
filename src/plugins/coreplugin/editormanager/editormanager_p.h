@@ -61,6 +61,7 @@ public:
     static EditorArea *mainEditorArea();
     static EditorView *currentEditorView();
     static QList<EditorView *> allEditorViews();
+    static bool hasMoreThanOneview();
     static void setCurrentEditor(IEditor *editor, bool ignoreNavigationHistory = false);
     static IEditor *openEditor(EditorView *view,
                                const Utils::FilePath &filePath,
@@ -100,6 +101,7 @@ public:
                                            Qt::CaseSensitivity sensitivity);
 
     static EditorWindow *createEditorWindow();
+    static void addEditorArea(EditorArea *area);
     static void splitNewWindow(Internal::EditorView *view);
     static void closeView(Internal::EditorView *view);
     static const QList<IEditor *> emptyView(Internal::EditorView *view);
@@ -117,6 +119,13 @@ public:
 
     static void updateAutoSave();
 
+    static void handleFileRenamed(
+        const Utils::FilePath &originalFilePath,
+        const Utils::FilePath &newFilePath,
+        Utils::Id originalType = {});
+
+    static void addClosedDocumentToCloseHistory(IEditor *editor);
+
 public slots:
     static bool saveDocument(Core::IDocument *document);
     static bool saveDocumentAs(Core::IDocument *document);
@@ -126,11 +135,15 @@ public slots:
     static void gotoPreviousSplit();
     static void gotoNextSplit();
 
+    static void reopenLastClosedDocument();
+
     void handleDocumentStateChange(Core::IDocument *document);
     void editorAreaDestroyed(QObject *area);
 
 signals:
     void placeholderTextChanged(const QString &text);
+    void currentViewChanged();
+    void viewCountChanged();
 
 private:
     static void gotoNextDocHistory();
@@ -192,7 +205,7 @@ private:
     QList<EditorArea *> m_editorAreas;
     QPointer<IEditor> m_currentEditor;
     QPointer<IEditor> m_scheduledCurrentEditor;
-    QPointer<EditorView> m_currentView;
+    QList<QPointer<EditorView>> m_currentView;
     QTimer *m_autoSaveTimer = nullptr;
 
     // actions
@@ -207,6 +220,7 @@ private:
     QAction *m_gotoPreviousDocHistoryAction = nullptr;
     QAction *m_goBackAction = nullptr;
     QAction *m_goForwardAction = nullptr;
+    QAction *m_reopenLastClosedDocumenAction = nullptr;
     QAction *m_gotoLastEditAction = nullptr;
     QAction *m_splitAction = nullptr;
     QAction *m_splitSideBySideAction = nullptr;

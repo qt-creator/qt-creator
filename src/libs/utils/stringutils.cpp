@@ -637,7 +637,7 @@ void MarkdownHighlighter::highlightBlock(const QString &text)
                 image.fill(QColor(0, 0, 0, 0).rgba());
                 image.setPixel(0,
                                height - 1,
-                               Utils::creatorTheme()->color(Theme::TextColorDisabled).rgba());
+                               Utils::creatorColor(Theme::TextColorDisabled).rgba());
 
                 h2Brush = QBrush(image);
             }
@@ -670,6 +670,12 @@ void MarkdownHighlighter::highlightBlock(const QString &text)
             setFormat(fragment.position() - block.position(), fragment.length(), fmt);
         }
     }
+}
+
+QString ansiColoredText(const QString &text, const QColor &color)
+{
+    static const QString formatString("\033[38;2;%1;%2;%3m%4\033[0m");
+    return formatString.arg(color.red()).arg(color.green()).arg(color.blue()).arg(text);
 }
 
 } // namespace Utils

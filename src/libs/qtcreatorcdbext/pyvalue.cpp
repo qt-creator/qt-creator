@@ -13,8 +13,23 @@ constexpr bool debuggingValueEnabled() { return debugPyValue || debugPyCdbextMod
 
 static std::map<CIDebugSymbolGroup *, std::list<PyValue *>> valuesForSymbolGroup;
 
+void dumpSymbolGroup(CIDebugSymbolGroup *symbolGroup)
+{
+    if (!debuggingValueEnabled())
+        return;
+
+    ULONG count;
+    if (FAILED(symbolGroup->GetNumberSymbols(&count)))
+        return;
+    DebugPrint() << "Symbol group " << symbolGroup << " has " << count << " symbols";
+    for (ULONG i = 0; i < count; ++i)
+        DebugPrint() << "  " << i << ": " << PyValue(i, symbolGroup).name();
+}
+
 void PyValue::indicesMoved(CIDebugSymbolGroup *symbolGroup, ULONG start, ULONG delta)
 {
+    if (debuggingValueEnabled())
+        DebugPrint() << "PyValue::indicesMoved " << symbolGroup << " start " << start << " delta " << delta << "\n";
     if (delta == 0)
         return;
     ULONG count;
@@ -26,6 +41,7 @@ void PyValue::indicesMoved(CIDebugSymbolGroup *symbolGroup, ULONG start, ULONG d
         if (val->m_index >= start && val->m_index + delta < count)
             val->m_index += delta;
     }
+    dumpSymbolGroup(symbolGroup);
 }
 
 PyValue::PyValue(unsigned long index, CIDebugSymbolGroup *symbolGroup)
@@ -146,6 +162,7 @@ bool PyValue::expand()
         return false;
     if (params.Flags & DEBUG_SYMBOL_EXPANDED)
         return true;
+    dumpSymbolGroup(m_symbolGroup);
     if (FAILED(m_symbolGroup->ExpandSymbol(m_index, TRUE)))
         return false;
     if (FAILED(m_symbolGroup->GetSymbolParameters(m_index, 1, &params)))

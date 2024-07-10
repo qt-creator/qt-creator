@@ -76,7 +76,7 @@
 
             \image qtcreator-new-project-qt-versions-qt-gui.png {Kit Selection dialog}
 
-        \li Select build and run \l{glossary-buildandrun-kit}{kits} for your
+        \li Select build and run \l{Kits}{kits} for your
             project.
 
         \li Select \uicontrol Next or \uicontrol Continue to open the
@@ -197,7 +197,7 @@
     \endlist
 
     For more information about designing forms with \QD, see the
-    \l{Qt Designer Manual}.
+    \l{\QD Manual}.
 
     \section2 Completing the Header File
 

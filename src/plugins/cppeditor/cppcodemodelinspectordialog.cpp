@@ -1445,11 +1445,11 @@ CppCodeModelInspectorDialog::CppCodeModelInspectorDialog(QWidget *parent)
         Tab("&Defines",
             Column {
                 Group {
-                    title("Toolchain Defines"),
+                    title(QString("Toolchain Defines")),
                     Column { m_partToolchainDefinesEdit },
                 },
                 Group {
-                    title("Project Defines"),
+                    title(QString("Project Defines")),
                     Column { m_partProjectDefinesEdit },
                 }
             }

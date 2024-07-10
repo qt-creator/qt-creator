@@ -11,6 +11,9 @@
 
 #include "qmt/diagram/delement.h"
 #include "qmt/diagram/dpackage.h"
+#include "qmt/diagram_controller/dselection.h"
+#include "qmt/diagram_scene/diagramscenemodel.h"
+#include "qmt/diagram_ui/diagramsmanager.h"
 #include "qmt/document_controller/documentcontroller.h"
 #include "qmt/infrastructure/contextmenuaction.h"
 #include "qmt/model/melement.h"
@@ -19,6 +22,7 @@
 #include "qmt/model/mcanvasdiagram.h"
 #include "qmt/model/mpackage.h"
 #include "qmt/model_controller/modelcontroller.h"
+#include "qmt/model_widgets_ui/addrelatedelementsdialog.h"
 #include "qmt/tasks/finddiagramvisitor.h"
 #include "qmt/project_controller/projectcontroller.h"
 #include "qmt/project/project.h"
@@ -28,12 +32,15 @@
 #include <cppeditor/indexitem.h>
 #include <cppeditor/searchsymbols.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 
 #include <QMenu>
+#include <QMessageBox>
 
 using namespace Core;
 using namespace CppEditor;
+using Utils::FilePath;
 
 namespace ModelEditor {
 namespace Internal {
@@ -42,12 +49,14 @@ class ElementTasks::ElementTasksPrivate {
 public:
     qmt::DocumentController *documentController = nullptr;
     ComponentViewController *componentViewController = nullptr;
+    QScopedPointer<qmt::AddRelatedElementsDialog> addRelatedElementsDialog;
 };
 
 ElementTasks::ElementTasks(QObject *parent)
     : QObject(parent),
       d(new ElementTasksPrivate)
 {
+    d->addRelatedElementsDialog.reset(new qmt::AddRelatedElementsDialog(Core::ICore::dialogParent()));
 }
 
 ElementTasks::~ElementTasks()
@@ -58,6 +67,7 @@ ElementTasks::~ElementTasks()
 void ElementTasks::setDocumentController(qmt::DocumentController *documentController)
 {
     d->documentController = documentController;
+    d->addRelatedElementsDialog->setDiagramSceneController(documentController->diagramSceneController());
 }
 
 void ElementTasks::setComponentViewController(ComponentViewController *componentViewController)
@@ -392,9 +402,77 @@ void ElementTasks::createAndOpenDiagram(const qmt::DElement *element, const qmt:
     createAndOpenDiagram(melement);
 }
 
+FilePath ElementTasks::linkedFile(const qmt::MObject *mobject) const
+{
+    FilePath filepath = mobject->linkedFileName();
+    if (!filepath.isEmpty()) {
+        FilePath projectName = d->documentController->projectController()->project()->fileName();
+        filepath = projectName.absolutePath().resolvePath(filepath).canonicalPath();
+    }
+    return filepath;
+}
+
+bool ElementTasks::hasLinkedFile(const qmt::MElement *element) const
+{
+    if (auto mobject = dynamic_cast<const qmt::MObject *>(element)) {
+        FilePath filepath = linkedFile(mobject);
+        if (!filepath.isEmpty())
+            return filepath.exists();
+    }
+    return false;
+}
+
+bool ElementTasks::hasLinkedFile(const qmt::DElement *element, const qmt::MDiagram *diagram) const
+{
+    Q_UNUSED(diagram)
+
+    qmt::MElement *melement = d->documentController->modelController()->findElement(element->modelUid());
+    if (!melement)
+        return false;
+    return hasLinkedFile(melement);
+}
+
+void ElementTasks::openLinkedFile(const qmt::MElement *element)
+{
+    if (auto mobject = dynamic_cast<const qmt::MObject *>(element)) {
+        FilePath filepath = linkedFile(mobject);
+        if (!filepath.isEmpty()) {
+            if (filepath.exists()) {
+                Core::EditorFactories list = Core::IEditorFactory::preferredEditorFactories(filepath);
+                if (list.empty() || (list.count() <= 1 && list.at(0)->id() == "Core.BinaryEditor")) {
+                    // intentionally ignore return code
+                    (void) Core::EditorManager::openExternalEditor(filepath, "CorePlugin.OpenWithSystemEditor");
+                } else {
+                    // intentionally ignore return code
+                    (void) Core::EditorManager::openEditor(filepath);
+                }
+            } else {
+                QMessageBox::critical(
+                    Core::ICore::dialogParent(),
+                    Tr::tr("Opening File"),
+                    Tr::tr("File \"%1\" does not exist.").arg(filepath.toUserOutput()));
+            }
+        }
+    }
+}
+
+void ElementTasks::openLinkedFile(const qmt::DElement *element, const qmt::MDiagram *diagram)
+{
+    Q_UNUSED(diagram)
+
+    qmt::MElement *melement = d->documentController->modelController()->findElement(element->modelUid());
+    if (!melement)
+        return;
+    openLinkedFile(melement);
+}
+
 bool ElementTasks::extendContextMenu(const qmt::DElement *delement, const qmt::MDiagram *, QMenu *menu)
 {
     bool extended = false;
+    if (dynamic_cast<const qmt::DObject *>(delement)) {
+        menu->addAction(new qmt::ContextMenuAction(Tr::tr("Add Related Elements..."), "addRelatedElementsDialog", menu));
+        extended = true;
+    }
     if (dynamic_cast<const qmt::DPackage *>(delement)) {
         menu->addAction(new qmt::ContextMenuAction(Tr::tr("Update Include Dependencies"), "updateIncludeDependencies", menu));
         extended = true;
@@ -402,9 +480,14 @@ bool ElementTasks::extendContextMenu(const qmt::DElement *delement, const qmt::M
     return extended;
 }
 
-bool ElementTasks::handleContextMenuAction(const qmt::DElement *element, const qmt::MDiagram *, const QString &id)
+bool ElementTasks::handleContextMenuAction(qmt::DElement *element, qmt::MDiagram *diagram, const QString &id)
 {
-    if (id == "updateIncludeDependencies") {
+    if (id == "addRelatedElementsDialog") {
+        qmt::DSelection selection = d->documentController->diagramsManager()->diagramSceneModel(diagram)->selectedElements();
+        d->addRelatedElementsDialog->setElements(selection, diagram);
+        d->addRelatedElementsDialog->open();
+        return true;
+    } else if (id == "updateIncludeDependencies") {
         qmt::MPackage *mpackage = d->documentController->modelController()->findElement<qmt::MPackage>(element->modelUid());
         if (mpackage)
             d->componentViewController->updateIncludeDependencies(mpackage);

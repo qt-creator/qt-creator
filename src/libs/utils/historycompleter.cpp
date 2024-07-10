@@ -54,11 +54,11 @@ public:
             optCopy.state |= QStyle::State_HasFocus;
         QItemDelegate::paint(painter,option,index);
         // add remove button
-        QWindow *window = view->window()->windowHandle();
-        const QPixmap iconPixmap = icon.pixmap(window, option.rect.size());
+        const qreal devicePixelRatio = painter->device()->devicePixelRatio();
+        const QPixmap iconPixmap = icon.pixmap(option.rect.size(), devicePixelRatio);
         QRect pixmapRect = QStyle::alignedRect(option.direction,
                                                Qt::AlignRight | Qt::AlignVCenter,
-                                               iconPixmap.size() / window->devicePixelRatio(),
+                                               iconPixmap.size() / devicePixelRatio,
                                                option.rect);
         if (!clearIconSize.isValid())
             clearIconSize = pixmapRect.size();

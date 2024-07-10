@@ -4,6 +4,7 @@
 #pragma once
 
 #include <cppeditor/cppprojectfile.h>
+#include <utils/synchronizedvalue.h>
 
 #include <QHash>
 
@@ -29,7 +30,7 @@ public:
     QStringList extras;
 };
 
-using MimeBinaryCache = QHash<QString, bool>;
+using MimeBinaryCache = Utils::SynchronizedValue<QHash<QString, bool>>;
 
 QStringList filterFromFileName(const QStringList &flags, const QString &fileName);
 

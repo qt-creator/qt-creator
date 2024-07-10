@@ -7,6 +7,8 @@
 #include "sshparameters.h"
 #include "../projectexplorertr.h"
 
+#include <remotelinux/remotelinux_constants.h>
+
 #include <utils/port.h>
 #include <utils/portlist.h>
 #include <utils/qtcprocess.h>
@@ -179,7 +181,10 @@ public:
     void start() final
     {
         m_channel.setScheme(urlTcpScheme());
-        m_channel.setHost(device()->toolControlChannel(IDevice::ControlChannelHint()).host());
+        if (device()->extraData(RemoteLinux::Constants::SshForwardDebugServerPort).toBool())
+            m_channel.setHost("localhost");
+        else
+            m_channel.setHost(device()->toolControlChannel(IDevice::ControlChannelHint()).host());
         if (m_portGatherer)
             m_channel.setPort(m_portGatherer->findEndPoint().port());
         reportStarted();

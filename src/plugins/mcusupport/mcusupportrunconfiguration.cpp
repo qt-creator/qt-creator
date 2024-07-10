@@ -81,7 +81,7 @@ public:
     {
         setStartModifier([this, runControl] {
             const Target *target = runControl->target();
-            setCommandLine({cmakeFilePath(target), runControl->aspect<StringAspect>()->value,
+            setCommandLine({cmakeFilePath(target), runControl->aspectData<StringAspect>()->value,
                             CommandLine::Raw});
             setWorkingDirectory(target->activeBuildConfiguration()->buildDirectory());
             setEnvironment(target->activeBuildConfiguration()->environment());

@@ -9,7 +9,7 @@
     \previouspage creator-how-tos.html
     \endif
 
-    \ingroup creator-how-to-edit
+    \ingroup creator-how-to-analyze
     \ingroup studio-how-to-code
 
     \title Check code syntax
@@ -68,7 +68,7 @@
 
     To specify the position where the annotations are displayed, go to
     \preferences > \uicontrol {Text Editor} >
-    \uicontrol Display > \uicontrol {Line annotations}, and then select
+    \uicontrol Display > \uicontrol {Line Annotations}, and then select
     whether to display the annotations directly next to the code, aligned
     to the right of the code, or in the right margin. Showing annotations
     between lines can be useful if there is usually not enough space to
@@ -79,11 +79,11 @@
     If you hide the annotations, you can move the mouse pointer over an icon to
     view them.
 
-    \if defined(qtcreator)
-    \sa {Analyze code with Clang-Tidy and Clazy}
-    \endif
-
     \sa {JavaScript and QML Checks}
+
+    \if defined(qtcreator)
+    \sa {Analyze}{How To: Analyze}, {Analyzers}, {Analyzing Code}
+    \endif
 */
 
 /*!
@@ -766,6 +766,10 @@
     \uicontrol {Reset Code Model}.
 
     \sa {Check code syntax}, {Using QML Modules with Plugins}
+
+    \if defined(qtcreator)
+    \sa {Analyzing Code}
+    \endif
 */
 
 /*!

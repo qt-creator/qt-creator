@@ -35,11 +35,7 @@ FSEngineImpl::~FSEngineImpl()
     delete m_tempStorage;
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 3, 0)
 bool FSEngineImpl::open(QIODeviceBase::OpenMode openMode, std::optional<QFile::Permissions>)
-#else
-bool FSEngineImpl::open(QIODevice::OpenMode openMode)
-#endif
 {
     const FilePathInfoCache::CachedData data = g_filePathInfoCache.cached(m_filePath,
                                                                           createCacheData);
@@ -162,12 +158,8 @@ bool FSEngineImpl::link(const QString &newName)
     return false;
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 3, 0)
 bool FSEngineImpl::mkdir(const QString &dirName, bool createParentDirectories,
                          std::optional<QFile::Permissions>) const
-#else
-bool FSEngineImpl::mkdir(const QString &dirName, bool createParentDirectories) const
-#endif
 {
     Q_UNUSED(createParentDirectories)
     return FilePath::fromString(dirName).createDir();

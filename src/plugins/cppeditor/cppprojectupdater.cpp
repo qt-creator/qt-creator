@@ -12,29 +12,44 @@
 
 #include <projectexplorer/extracompiler.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectupdater.h>
+#include <projectexplorer/rawprojectpart.h>
+
+#include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/futuresynchronizer.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
 using namespace Tasking;
 using namespace Utils;
 
-namespace CppEditor {
+namespace CppEditor::Internal {
+
+class CppProjectUpdater final : public ProjectUpdater
+{
+public:
+    void update(const ProjectUpdateInfo &projectUpdateInfo,
+                const QList<ExtraCompiler *> &extraCompilers) final;
+    void cancel() final;
+
+private:
+    FutureSynchronizer m_futureSynchronizer;
+    TaskTreeRunner m_taskTreeRunner;
+};
 
 void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
-                               const QList<ProjectExplorer::ExtraCompiler *> &extraCompilers)
+                               const QList<ExtraCompiler *> &extraCompilers)
 {
     // Stop previous update.
     cancel();
 
-    const QList<QPointer<ProjectExplorer::ExtraCompiler>> compilers =
+    const QList<QPointer<ExtraCompiler>> compilers =
         Utils::transform(extraCompilers, [](ExtraCompiler *compiler) {
             return QPointer<ExtraCompiler>(compiler);
         });
-
-    using namespace ProjectExplorer;
 
     // Run the project info generator in a worker thread and continue if that one is finished.
     const auto infoGenerator = [=](QPromise<ProjectInfo::ConstPtr> &promise) {
@@ -45,7 +60,6 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
         promise.addResult(generator.generate(promise));
     };
 
-    using namespace Tasking;
     struct UpdateStorage {
         ProjectInfo::ConstPtr projectInfo = nullptr;
     };
@@ -112,4 +126,4 @@ void setupCppProjectUpdater()
     static CppProjectUpdaterFactory theCppProjectUpdaterFactory;
 }
 
-} // namespace CppEditor
+} //  CppEditor::Internal

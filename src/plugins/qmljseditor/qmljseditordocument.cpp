@@ -728,10 +728,11 @@ void QmlJSEditorDocumentPrivate::setSourcesWithCapabilities(
         setSemanticWarningSource(QmllsStatus::Source::Qmlls);
     else
         setSemanticWarningSource(QmllsStatus::Source::EmbeddedCodeModel);
-    if (cap.semanticTokensProvider())
-        setSemanticHighlightSource(QmllsStatus::Source::Qmlls);
-    else
-        setSemanticHighlightSource(QmllsStatus::Source::EmbeddedCodeModel);
+    // TODO: uncomment when qmlls semantic tokens reach a stable state
+    // if (cap.semanticTokensProvider())
+    //     setSemanticHighlightSource(QmllsStatus::Source::Qmlls);
+    // else
+    setSemanticHighlightSource(QmllsStatus::Source::EmbeddedCodeModel);
 }
 
 static Utils::FilePath qmllsForFile(const Utils::FilePath &file,
@@ -745,6 +746,11 @@ static Utils::FilePath qmllsForFile(const Utils::FilePath &file,
     if (settings.useLatestQmlls)
         return settingsManager->latestQmlls();
     QmlJS::ModelManagerInterface::ProjectInfo pInfo = modelManager->projectInfoForPath(file);
+
+    if (!settings.ignoreMinimumQmllsVersion
+        && QVersionNumber::fromString(pInfo.qtVersionString) < settings.mininumQmllsVersion) {
+        return {};
+    }
     return pInfo.qmllsPath;
 }
 
@@ -762,7 +768,7 @@ void QmlJSEditorDocumentPrivate::settingsChanged()
         qCDebug(qmllsLog) << "disabling qmlls for" << q->filePath();
         if (LanguageClient::Client *client = lspClientManager->clientForDocument(q)) {
             qCDebug(qmllsLog) << "deactivating " << q->filePath() << "in qmlls" << newQmlls;
-            client->deactivateDocument(q);
+            lspClientManager->openDocumentWithClient(q, nullptr);
         } else
             qCWarning(qmllsLog) << "Could not find client to disable for document " << q->filePath()
                                 << " in LanguageClient::LanguageClientManager";

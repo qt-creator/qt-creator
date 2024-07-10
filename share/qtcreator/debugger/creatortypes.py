@@ -53,7 +53,7 @@ def readTemplateName(d, value):
 def readLiteral(d, value):
     if not value.integer():
         return "<null>"
-    type = typeTarget(value.type.unqualified())
+    type = typeTarget(value.type)
     if type and (type.name == "CPlusPlus::TemplateNameId"):
         return readTemplateName(d, value)
     elif type and (type.name == "CPlusPlus::QualifiedNameId"):

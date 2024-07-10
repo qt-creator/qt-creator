@@ -214,6 +214,9 @@ void RefactoringFile::setOpenEditor(bool activate, int pos)
 
 bool RefactoringFile::apply()
 {
+    if (m_changes.isEmpty())
+        return true;
+
     // test file permissions
     if (!m_filePath.isWritableFile()) {
         ReadOnlyFilesDialog roDialog(m_filePath, ICore::dialogParent());
@@ -285,6 +288,12 @@ bool RefactoringFile::apply()
 
     m_appliedOnce = true;
     return result;
+}
+
+bool RefactoringFile::apply(const Utils::ChangeSet &changeSet)
+{
+    setChangeSet(changeSet);
+    return apply();
 }
 
 void RefactoringFile::setupFormattingRanges(const QList<ChangeSet::EditOp> &replaceList)
@@ -359,7 +368,7 @@ void RefactoringFile::doFormatting()
     Utils::sort(m_formattingCursors, [](const auto &tc1, const auto &tc2) {
         return tc1.first.selectionStart() < tc2.first.selectionStart();
     });
-    static const QString clangFormatLineRemovalBlocker("// QTC_TEMP");
+    static const QString clangFormatLineRemovalBlocker("");
     for (auto &[formattingCursor, _] : m_formattingCursors) {
         const QTextBlock firstBlock = document->findBlock(formattingCursor.selectionStart());
         const QTextBlock lastBlock = document->findBlock(formattingCursor.selectionEnd());

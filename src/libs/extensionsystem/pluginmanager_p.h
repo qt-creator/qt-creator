@@ -36,8 +36,6 @@ class PluginManager;
 
 namespace Internal {
 
-class PluginSpecPrivate;
-
 class EXTENSIONSYSTEM_TEST_EXPORT PluginManagerPrivate : public QObject
 {
 public:
@@ -52,8 +50,10 @@ public:
     void checkForProblematicPlugins();
     void loadPlugins();
     void loadPluginsAtRuntime(const QSet<PluginSpec *> &plugins);
+    void addPlugins(const QVector<PluginSpec *> &specs);
+
     void shutdown();
-    void setPluginPaths(const QStringList &paths);
+    void setPluginPaths(const Utils::FilePaths &paths);
     const QVector<ExtensionSystem::PluginSpec *> loadQueue();
     void loadPlugin(PluginSpec *spec, PluginSpec::State destState);
     void resolveDependencies();
@@ -91,7 +91,7 @@ public:
     QHash<QString, QVector<PluginSpec *>> pluginCategories;
     QVector<PluginSpec *> pluginSpecs;
     std::vector<TestSpec> testSpecs;
-    QStringList pluginPaths;
+    Utils::FilePaths pluginPaths;
     QString pluginIID;
     QVector<QObject *> allObjects;      // ### make this a QVector<QPointer<QObject> > > ?
     QStringList defaultDisabledPlugins; // Plugins/Ignored from install settings
@@ -119,10 +119,6 @@ public:
     PluginSpec *pluginForOption(const QString &option, bool *requiresArgument) const;
     PluginSpec *pluginByName(const QString &name) const;
 
-    // used by tests
-    static PluginSpec *createSpec();
-    static PluginSpecPrivate *privateSpec(PluginSpec *spec);
-
     static void addTestCreator(IPlugin *plugin, const std::function<QObject *()> &testCreator);
 
     mutable QReadWriteLock m_lock;
@@ -140,7 +136,6 @@ public:
     QWaitCondition m_scenarioWaitCondition;
 
     PluginManager::ProcessData m_creatorProcessData;
-    std::unique_ptr<Utils::FutureSynchronizer> m_futureSynchronizer;
 
 private:
     PluginManager *q;
@@ -155,7 +150,7 @@ private:
     void deleteAll();
     void checkForDuplicatePlugins();
 
-#ifdef WITH_TESTS
+#ifdef EXTENSIONSYSTEM_WITH_TESTOPTION
     void startTests();
 #endif
 };

@@ -50,8 +50,6 @@ private:
 
 TestSettingsWidget::TestSettingsWidget()
 {
-    auto timeoutLabel = new QLabel(Tr::tr("Timeout:"));
-    timeoutLabel->setToolTip(Tr::tr("Timeout used when executing each test case."));
     auto scanThreadLabel = new QLabel(Tr::tr("Scan threads:"));
     scanThreadLabel->setToolTip("Number of worker threads used when scanning for tests.");
 
@@ -77,7 +75,7 @@ TestSettingsWidget::TestSettingsWidget()
 
     PushButton resetChoicesButton {
         text(Tr::tr("Reset Cached Choices")),
-        tooltip(Tr::tr("Clear all cached choices of run configurations for "
+        Layouting::toolTip(Tr::tr("Clear all cached choices of run configurations for "
                        "tests where the executable could not be deduced.")),
         onClicked(&clearChoiceCache, this)
     };
@@ -98,7 +96,7 @@ TestSettingsWidget::TestSettingsWidget()
             s.displayApplication,
             s.processArgs,
             Row { Tr::tr("Automatically run"), s.runAfterBuild, st },
-            Row { timeoutLabel, s.timeout, st },
+            Row { s.useTimeout, s.timeout, st },
             Row { resetChoicesButton, st }
          }
     };
@@ -153,6 +151,8 @@ TestSettingsWidget::TestSettingsWidget()
         if (!changedIds.isEmpty())
             TestTreeModel::instance()->rebuild(changedIds);
     });
+
+    setOnCancel([] { Internal::testSettings().cancel(); });
 }
 
 enum TestBaseInfo

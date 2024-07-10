@@ -5,7 +5,7 @@
 #pragma once
 
 #include <QAbstractListModel>
-#include <QVector>
+#include <QList>
 #include <QPair>
 
 namespace Android {
@@ -17,12 +17,12 @@ public:
     CertificatesModel(const QString &rowCertificates, QObject *parent);
 
 protected:
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int rowCount(const QModelIndex &parent = {}) const override;
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
 private:
-    QVector<QPair<QString, QString> > m_certs;
+    QList<QPair<QString, QString>> m_certs;
 };
 
 }

@@ -20,48 +20,24 @@ using namespace Utils;
 namespace ClangTools {
 namespace Internal {
 
+static TextMarkCategory clangToolsCategory()
+{
+    return {Tr::tr("Clang Tools"), Id(Constants::DIAGNOSTIC_MARK_ID)};
+}
+
 DiagnosticMark::DiagnosticMark(const Diagnostic &diagnostic, TextDocument *document)
-    : TextMark(document,
-               diagnostic.location.line,
-               {Tr::tr("Clang Tools"), Id(Constants::DIAGNOSTIC_MARK_ID)})
+    : TextMark(document, diagnostic.location.line, clangToolsCategory())
     , m_diagnostic(diagnostic)
 {
-    setSettingsPage(Constants::SETTINGS_PAGE_ID);
-
-    const bool isError = diagnostic.type == "error" || diagnostic.type == "fatal";
-    setColor(isError ? Theme::CodeModel_Error_TextMarkColor : Theme::CodeModel_Warning_TextMarkColor);
-    setPriority(isError ? TextEditor::TextMark::HighPriority : TextEditor::TextMark::NormalPriority);
-    QIcon markIcon = diagnostic.icon();
-    setIcon(markIcon.isNull() ? Icons::CODEMODEL_WARNING.icon() : markIcon);
-    setToolTip(createDiagnosticToolTipString(diagnostic, std::nullopt, true));
-    setLineAnnotation(diagnostic.description);
-    setActionsProvider([diagnostic] {
-        // Copy to clipboard action
-        QList<QAction *> actions;
-        QAction *action = new QAction();
-        action->setIcon(Icon::fromTheme("edit-copy"));
-        action->setToolTip(Tr::tr("Copy to Clipboard"));
-        QObject::connect(action, &QAction::triggered, [diagnostic] {
-            const QString text = createFullLocationString(diagnostic.location)
-                                 + ": "
-                                 + diagnostic.description;
-            setClipboardAndSelection(text);
-        });
-        actions << action;
-
-        // Disable diagnostic action
-        action = new QAction();
-        action->setIcon(Icons::BROKEN.icon());
-        action->setToolTip(Tr::tr("Disable Diagnostic"));
-        QObject::connect(action, &QAction::triggered, [diagnostic] { disableChecks({diagnostic}); });
-        actions << action;
-        return actions;
-    });
+    initialize();
 }
 
 DiagnosticMark::DiagnosticMark(const Diagnostic &diagnostic)
-    : DiagnosticMark(diagnostic, TextDocument::textDocumentForFilePath(diagnostic.location.filePath))
-{}
+    : TextMark(diagnostic.location.filePath, diagnostic.location.line, clangToolsCategory())
+    , m_diagnostic(diagnostic)
+{
+    initialize();
+}
 
 void DiagnosticMark::disable()
 {
@@ -83,6 +59,41 @@ bool DiagnosticMark::enabled() const
 Diagnostic DiagnosticMark::diagnostic() const
 {
     return m_diagnostic;
+}
+
+void DiagnosticMark::initialize()
+{
+    setSettingsPage(Constants::SETTINGS_PAGE_ID);
+
+    const bool isError = m_diagnostic.type == "error" || m_diagnostic.type == "fatal";
+    setColor(isError ? Theme::CodeModel_Error_TextMarkColor : Theme::CodeModel_Warning_TextMarkColor);
+    setPriority(isError ? TextEditor::TextMark::HighPriority : TextEditor::TextMark::NormalPriority);
+    QIcon markIcon = m_diagnostic.icon();
+    setIcon(markIcon.isNull() ? Icons::CODEMODEL_WARNING.icon() : markIcon);
+    setToolTip(createDiagnosticToolTipString(m_diagnostic, std::nullopt, true));
+    setLineAnnotation(m_diagnostic.description);
+    setActionsProvider([diagnostic = m_diagnostic] {
+        // Copy to clipboard action
+        QList<QAction *> actions;
+        QAction *action = new QAction();
+        action->setIcon(Icon::fromTheme("edit-copy"));
+        action->setToolTip(Tr::tr("Copy to Clipboard"));
+        QObject::connect(action, &QAction::triggered, [diagnostic] {
+            const QString text = createFullLocationString(diagnostic.location)
+            + ": "
+                + diagnostic.description;
+            setClipboardAndSelection(text);
+        });
+        actions << action;
+
+        // Disable diagnostic action
+        action = new QAction();
+        action->setIcon(Icons::BROKEN.icon());
+        action->setToolTip(Tr::tr("Disable Diagnostic"));
+        QObject::connect(action, &QAction::triggered, [diagnostic] { disableChecks({diagnostic}); });
+        actions << action;
+        return actions;
+    });
 }
 
 } // namespace Internal

@@ -19,6 +19,10 @@ EnvironmentItems EnvironmentItem::fromStringList(const QStringList &list)
 {
     EnvironmentItems result;
     for (const QString &string : list) {
+        if (string.startsWith("##")) {
+            result.append({string.mid(2), {}, EnvironmentItem::Comment});
+            continue;
+        }
         int pos = string.indexOf("+=");
         if (pos != -1) {
             result.append({string.left(pos), string.mid(pos + 2), EnvironmentItem::Append});
@@ -59,6 +63,8 @@ QStringList EnvironmentItem::toStringList(const EnvironmentItems &list)
             return QString('#' + item.name + '=' + item.value);
         case EnvironmentItem::SetEnabled:
             return QString(item.name + '=' + item.value);
+        case EnvironmentItem::Comment:
+            return QString("##" + item.name);
         }
         return QString();
     });
@@ -170,6 +176,8 @@ void EnvironmentItem::apply(NameValueDictionary *dictionary, Operation op) const
             apply(dictionary, SetEnabled);
         }
     } break;
+    case Comment: // ignore comments when applying to environment
+        break;
     }
 }
 
@@ -194,6 +202,9 @@ QDebug operator<<(QDebug debug, const EnvironmentItem &i)
         break;
     case EnvironmentItem::Append:
         debug << "append to \"" << i.name << "\":\"" << i.value << '"';
+        break;
+    case EnvironmentItem::Comment:
+        debug << "comment:" << i.name;
         break;
     }
     debug << ')';

@@ -81,11 +81,14 @@ void CppHighlighter::highlightBlock(const QString &text)
         return;
     }
 
-    const int firstNonSpace = tokens.first().utf16charsBegin();
-
     // Keep "semantic parentheses".
-    Parentheses parentheses = Utils::filtered(TextDocumentLayout::parentheses(currentBlock()),
-            [](const Parenthesis &p) { return p.source.isValid(); });
+    Parentheses parentheses;
+    if (TextBlockUserData *userData = TextDocumentLayout::textUserData(currentBlock())) {
+        parentheses = Utils::filtered(userData->parentheses(), [](const Parenthesis &p) {
+            return p.source.isValid();
+        });
+    }
+
     const auto insertParen = [&parentheses](const Parenthesis &p) { insertSorted(parentheses, p); };
     parentheses.reserve(5);
 
@@ -116,9 +119,16 @@ void CppHighlighter::highlightBlock(const QString &text)
             if (tk.is(T_LBRACE)) {
                 ++braceDepth;
 
-                // if a folding block opens at the beginning of a line, treat the entire line
-                // as if it were inside the folding block
-                if (tk.utf16charsBegin() == firstNonSpace) {
+                // if a folding block opens at the beginning of a line, treat the line before
+                // as if it were inside the folding block except if it is a comment or the line does
+                // end with ;
+                const int firstNonSpace = tokens.first().utf16charsBegin();
+                const QString prevBlockText = currentBlock().previous().isValid()
+                                                  ? currentBlock().previous().text().trimmed()
+                                                  : QString();
+                if (!prevBlockText.isEmpty() && !prevBlockText.startsWith("//")
+                    && !prevBlockText.endsWith("*/") && !prevBlockText.endsWith(";")
+                    && tk.utf16charsBegin() == firstNonSpace) {
                     ++foldingIndent;
                     TextDocumentLayout::userData(currentBlock())->setFoldingStartIncluded(true);
                 }
@@ -235,7 +245,8 @@ void CppHighlighter::highlightBlock(const QString &text)
     // if the block is ifdefed out, we only store the parentheses, but
 
     // do not adjust the brace depth.
-    if (TextDocumentLayout::ifdefedOut(currentBlock())) {
+    if (TextBlockUserData *userData = TextDocumentLayout::textUserData(currentBlock());
+            userData && userData->ifdefedOut()) {
         braceDepth = initialBraceDepth;
         foldingIndent = initialBraceDepth;
     }
@@ -645,6 +656,32 @@ void CppHighlighterTest::testParentheses()
     QTextBlock block = m_doc.findBlockByNumber(line - 1);
     QVERIFY(block.isValid());
     QCOMPARE(TextDocumentLayout::parentheses(block).count(), expectedParenCount);
+}
+
+void CppHighlighterTest::testFoldingIndent_data()
+{
+    QTest::addColumn<int>("line");
+    QTest::addColumn<int>("expectedFoldingIndent");
+    QTest::addColumn<int>("expectedFoldingIndentNextLine");
+
+    QTest::newRow("braces after one line comment") << 52 << 0 << 1;
+    QTest::newRow("braces after multiline comment") << 59 << 0 << 1;
+    QTest::newRow("braces after completed line") << 67 << 1 << 2;
+}
+
+void CppHighlighterTest::testFoldingIndent()
+{
+    QFETCH(int, line);
+    QFETCH(int, expectedFoldingIndent);
+    QFETCH(int, expectedFoldingIndentNextLine);
+
+    QTextBlock block = m_doc.findBlockByNumber(line - 1);
+    QVERIFY(block.isValid());
+    QCOMPARE(TextDocumentLayout::foldingIndent(block), expectedFoldingIndent);
+
+    QTextBlock nextBlock = m_doc.findBlockByNumber(line);
+    QVERIFY(nextBlock.isValid());
+    QCOMPARE(TextDocumentLayout::foldingIndent(nextBlock), expectedFoldingIndentNextLine);
 }
 
 } // namespace Internal

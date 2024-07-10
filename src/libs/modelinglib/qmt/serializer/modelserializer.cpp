@@ -95,6 +95,7 @@ inline void Access<Archive, MObject>::serialize(Archive &archive, MObject &objec
     archive || tag(object)
             || base<MElement>(object)
             || attr("name", object, &MObject::name, &MObject::setName)
+            || attr("linkedfilename", object, &MObject::linkedFileName, &MObject::setLinkedFileName)
             || attr("children", object, &MObject::children, &MObject::setChildren)
             || attr("relations", object, &MObject::relations, &MObject::setRelations)
             || end;

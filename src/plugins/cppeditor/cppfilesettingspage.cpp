@@ -6,15 +6,19 @@
 #include "cppeditortr.h"
 #include "cppheadersource.h"
 
+#include <extensionsystem/iplugin.h>
+
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
 
+#include <utils/aspects.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
+#include <utils/macroexpander.h>
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/pathchooser.h>
@@ -29,10 +33,30 @@
 #include <QTextStream>
 #include <QVBoxLayout>
 
+#ifdef WITH_TESTS
+#include <QtTest>
+#endif
+
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace CppEditor::Internal {
+namespace {
+class HeaderGuardExpander : public MacroExpander
+{
+public:
+    HeaderGuardExpander(const FilePath &filePath) : m_filePath(filePath)
+    {
+        setDisplayName(Tr::tr("Header File Variables"));
+        registerFileVariables("Header", Tr::tr("Header file"), [this] {
+            return m_filePath;
+        });
+    }
+
+private:
+    const FilePath m_filePath;
+};
+} // namespace
 
 const char projectSettingsKeyC[] = "CppEditorFileNames";
 const char useGlobalKeyC[] = "UseGlobal";
@@ -44,6 +68,7 @@ const char headerSearchPathsKeyC[] = "HeaderSearchPaths";
 const char sourceSearchPathsKeyC[] = "SourceSearchPaths";
 const char headerPragmaOnceC[] = "HeaderPragmaOnce";
 const char licenseTemplatePathKeyC[] = "LicenseTemplate";
+const char headerGuardTemplateKeyC[] = "HeaderGuardTemplate";
 
 const char *licenseTemplateTemplate = QT_TRANSLATE_NOOP("QtC::CppEditor",
 "/**************************************************************************\n"
@@ -67,6 +92,7 @@ void CppFileSettings::toSettings(QtcSettings *s) const
     s->setValueWithDefault(headerPragmaOnceC, headerPragmaOnce, def.headerPragmaOnce);
     s->setValueWithDefault(licenseTemplatePathKeyC, licenseTemplatePath.toSettings(),
                            def.licenseTemplatePath.toSettings());
+    s->setValueWithDefault(headerGuardTemplateKeyC, headerGuardTemplate, def.headerGuardTemplate);
     s->endGroup();
 }
 
@@ -84,6 +110,7 @@ void CppFileSettings::fromSettings(QtcSettings *s)
     headerPragmaOnce = s->value(headerPragmaOnceC, def.headerPragmaOnce).toBool();
     licenseTemplatePath = FilePath::fromSettings(s->value(licenseTemplatePathKeyC,
                                                           def.licenseTemplatePath.toSettings()));
+    headerGuardTemplate = s->value(headerGuardTemplateKeyC, def.headerGuardTemplate).toString();
     s->endGroup();
 }
 
@@ -124,6 +151,7 @@ bool CppFileSettings::equals(const CppFileSettings &rhs) const
            && sourceSuffix == rhs.sourceSuffix
            && headerSearchPaths == rhs.headerSearchPaths
            && sourceSearchPaths == rhs.sourceSearchPaths
+           && headerGuardTemplate == rhs.headerGuardTemplate
            && licenseTemplatePath == rhs.licenseTemplatePath;
 }
 
@@ -237,6 +265,11 @@ QString CppFileSettings::licenseTemplate() const
     return license;
 }
 
+QString CppFileSettings::headerGuard(const Utils::FilePath &headerFilePath) const
+{
+    return HeaderGuardExpander(headerFilePath).expand(headerGuardTemplate);
+}
+
 // ------------------ CppFileSettingsWidget
 
 class CppFileSettingsWidget final : public Core::IOptionsPageWidget
@@ -269,6 +302,8 @@ private:
     QLineEdit *m_sourcePrefixesEdit = nullptr;
     QCheckBox *m_lowerCaseFileNamesCheckBox = nullptr;
     PathChooser *m_licenseTemplatePathChooser = nullptr;
+    StringAspect m_headerGuardAspect;
+    HeaderGuardExpander m_headerGuardExpander{{}};
 };
 
 CppFileSettingsWidget::CppFileSettingsWidget(CppFileSettings *settings)
@@ -276,7 +311,7 @@ CppFileSettingsWidget::CppFileSettingsWidget(CppFileSettings *settings)
     , m_headerSuffixComboBox(new QComboBox)
     , m_headerSearchPathsEdit(new QLineEdit)
     , m_headerPrefixesEdit(new QLineEdit)
-    , m_headerPragmaOnceCheckBox(new QCheckBox(Tr::tr("Use \"#pragma once\" instead of \"#ifndef\" guards")))
+    , m_headerPragmaOnceCheckBox(new QCheckBox(Tr::tr("Use \"#pragma once\" instead")))
     , m_sourceSuffixComboBox(new QComboBox)
     , m_sourceSearchPathsEdit(new QLineEdit)
     , m_sourcePrefixesEdit(new QLineEdit)
@@ -301,6 +336,8 @@ CppFileSettingsWidget::CppFileSettingsWidget(CppFileSettings *settings)
     m_sourcePrefixesEdit->setToolTip(Tr::tr("Comma-separated list of source prefixes.\n"
         "\n"
         "These prefixes are used in addition to current file name on Switch Header/Source."));
+    m_headerGuardAspect.setDisplayStyle(Utils::StringAspect::LineEditDisplay);
+    m_headerGuardAspect.setMacroExpander(&m_headerGuardExpander);
 
     using namespace Layouting;
 
@@ -311,8 +348,8 @@ CppFileSettingsWidget::CppFileSettingsWidget(CppFileSettings *settings)
                 Tr::tr("&Suffix:"), m_headerSuffixComboBox, st, br,
                 Tr::tr("S&earch paths:"), m_headerSearchPathsEdit, br,
                 Tr::tr("&Prefixes:"), m_headerPrefixesEdit, br,
-                Tr::tr("Include guards"), m_headerPragmaOnceCheckBox
-            }
+                Tr::tr("Include guard template:"), m_headerPragmaOnceCheckBox, m_headerGuardAspect
+            },
         },
         Group {
             title(Tr::tr("Sources")),
@@ -361,12 +398,21 @@ CppFileSettingsWidget::CppFileSettingsWidget(CppFileSettings *settings)
             this, &CppFileSettingsWidget::userChange);
     connect(m_sourcePrefixesEdit, &QLineEdit::textEdited,
             this, &CppFileSettingsWidget::userChange);
-    connect(m_headerPragmaOnceCheckBox, &QCheckBox::stateChanged,
-            this, &CppFileSettingsWidget::userChange);
     connect(m_lowerCaseFileNamesCheckBox, &QCheckBox::stateChanged,
             this, &CppFileSettingsWidget::userChange);
     connect(m_licenseTemplatePathChooser, &PathChooser::textChanged,
             this, &CppFileSettingsWidget::userChange);
+    const auto updateHeaderGuardAspectState = [this] {
+        m_headerGuardAspect.setEnabled(!m_headerPragmaOnceCheckBox->isChecked());
+    };
+    connect(m_headerPragmaOnceCheckBox, &QCheckBox::stateChanged,
+            this, [this, updateHeaderGuardAspectState] {
+        updateHeaderGuardAspectState();
+        emit userChange();
+    });
+    connect(&m_headerGuardAspect, &StringAspect::changed,
+            this, &CppFileSettingsWidget::userChange);
+    updateHeaderGuardAspectState();
 }
 
 FilePath CppFileSettingsWidget::licenseTemplatePath() const
@@ -417,6 +463,7 @@ void CppFileSettingsWidget::setSettings(const CppFileSettings &s)
     m_headerSearchPathsEdit->setText(s.headerSearchPaths.join(comma));
     m_sourceSearchPathsEdit->setText(s.sourceSearchPaths.join(comma));
     setLicenseTemplatePath(s.licenseTemplatePath);
+    m_headerGuardAspect.setValue(s.headerGuardTemplate);
 }
 
 CppFileSettings CppFileSettingsWidget::currentSettings() const
@@ -431,6 +478,7 @@ CppFileSettings CppFileSettingsWidget::currentSettings() const
     rc.headerSearchPaths = trimmedPaths(m_headerSearchPathsEdit->text());
     rc.sourceSearchPaths = trimmedPaths(m_sourceSearchPathsEdit->text());
     rc.licenseTemplatePath = licenseTemplatePath();
+    rc.headerGuardTemplate = m_headerGuardAspect.value();
     return rc;
 }
 
@@ -536,6 +584,8 @@ void CppFileSettingsForProject::loadSettings()
                                                  m_customSettings.lowerCaseFiles).toBool();
     m_customSettings.headerPragmaOnce = data.value(headerPragmaOnceC,
                                                    m_customSettings.headerPragmaOnce).toBool();
+    m_customSettings.headerGuardTemplate
+        = data.value(headerGuardTemplateKeyC, m_customSettings.headerGuardTemplate).toString();
     m_customSettings.licenseTemplatePath
         = FilePath::fromSettings(data.value(licenseTemplatePathKeyC,
                                             m_customSettings.licenseTemplatePath.toSettings()));
@@ -560,6 +610,7 @@ void CppFileSettingsForProject::saveSettings()
     data.insert(sourceSearchPathsKeyC, m_customSettings.sourceSearchPaths);
     data.insert(Constants::LOWERCASE_CPPFILES_KEY, m_customSettings.lowerCaseFiles);
     data.insert(headerPragmaOnceC, m_customSettings.headerPragmaOnce);
+    data.insert(headerGuardTemplateKeyC, m_customSettings.headerGuardTemplate);
     data.insert(licenseTemplatePathKeyC, m_customSettings.licenseTemplatePath.toSettings());
     m_project->setNamedSettings(projectSettingsKeyC, data);
 }
@@ -631,16 +682,6 @@ public:
     }
 };
 
-void setupCppFileSettings()
-{
-    static CppFileSettingsProjectPanelFactory theCppFileSettingsProjectPanelFactory;
-
-    static CppFileSettingsPage theCppFileSettingsPage;
-
-    globalCppFileSettings().fromSettings(Core::ICore::settings());
-    globalCppFileSettings().addMimeInitializer();
-}
-
 CppFileSettings &globalCppFileSettings()
 {
     // This is the global instance. There could be more.
@@ -651,6 +692,61 @@ CppFileSettings &globalCppFileSettings()
 CppFileSettings cppFileSettingsForProject(ProjectExplorer::Project *project)
 {
     return CppFileSettingsForProject(project).settings();
+}
+
+#ifdef WITH_TESTS
+namespace {
+class CppFileSettingsTest : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testHeaderGuard_data()
+    {
+        QTest::addColumn<QString>("guardTemplate");
+        QTest::addColumn<QString>("headerFile");
+        QTest::addColumn<QString>("expectedGuard");
+
+        QTest::newRow("default template, .h")
+            << QString() << QString("/tmp/header.h") << QString("HEADER_H");
+        QTest::newRow("default template, .hpp")
+            << QString() << QString("/tmp/header.hpp") << QString("HEADER_HPP");
+        QTest::newRow("default template, two extensions")
+            << QString() << QString("/tmp/header.in.h") << QString("HEADER_IN_H");
+        QTest::newRow("non-default template")
+            << QString("%{JS: '%{Header:FilePath}'.toUpperCase().replace(/[.]/, '_').replace(/[/]/g, '_')}")
+            << QString("/tmp/header.h") << QString("_TMP_HEADER_H");
+    }
+
+    void testHeaderGuard()
+    {
+        QFETCH(QString, guardTemplate);
+        QFETCH(QString, headerFile);
+        QFETCH(QString, expectedGuard);
+
+        CppFileSettings settings;
+        if (!guardTemplate.isEmpty())
+            settings.headerGuardTemplate = guardTemplate;
+        QCOMPARE(settings.headerGuard(FilePath::fromUserInput(headerFile)), expectedGuard);
+    }
+};
+} // namespace
+#endif // WITH_TESTS
+
+void setupCppFileSettings(ExtensionSystem::IPlugin &plugin)
+{
+    static CppFileSettingsProjectPanelFactory theCppFileSettingsProjectPanelFactory;
+
+    static CppFileSettingsPage theCppFileSettingsPage;
+
+    globalCppFileSettings().fromSettings(Core::ICore::settings());
+    globalCppFileSettings().addMimeInitializer();
+
+#ifdef WITH_TESTS
+    plugin.addTestCreator([] { return new CppFileSettingsTest; });
+#else
+    Q_UNUSED(plugin)
+#endif
 }
 
 } // namespace CppEditor::Internal

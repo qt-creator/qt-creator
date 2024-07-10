@@ -36,6 +36,7 @@
             \l{Outline} view or in the \uicontrol Symbols list on the
             \l{Edit Mode}{editor toolbar}
         \li \l{Call Hierarchy}{Viewing the callers and callees of a function}
+        \li \l{Type Hierarchy}{Viewing the base classes and derived classes of a class}
         \li \l{Find references to a symbol}{Finding references to symbols}
         \li \l{Rename symbols}{Renaming the symbol under the cursor}
         \li Code actions
@@ -72,7 +73,7 @@
 
     \image qtcreator-language-server-json.webp {Prompt to install JSON language server}
 
-    \l{Add a Java language server} for \l{Connecting Android Devices}
+    \l{Add a Java language server} for  \l{Developing for Android}
     {Android development}. For other languages,
     \l{Add generic language servers}{add generic stdIO language servers}.
 
@@ -84,11 +85,23 @@
     To enable a language server, select the checkbox next to the language
     server name and set server preferences.
 
-    To turn on \l{Turn on \QMLLS}{\QMLLS}, go to
-    \preferences > \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing} and
-    select \uicontrol {Enable \QMLLS}.
+    To configure \l{Configure \QMLLS}{\QMLLS}, go to
+    \preferences > \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing}.
 
     To remove language servers from the list, select \uicontrol Delete.
+
+    \section1 Updating Python Language Server
+
+    \QC offers to update the Python language server when you open a Python
+    file in the editor.
+
+    \image qtcreator-python-update-language-server.webp {Message about updating Python Language Server}
+
+    To update the language server, select \uicontrol Update. To save your choice,
+    select \uicontrol {Always Update}.
+
+    To skip updating and hide the message for future updates, select
+    \uicontrol Never.
 
     \section1 Supported Locator Filters
 
@@ -223,32 +236,33 @@
 
     \ingroup creator-how-to-lsp
 
-    \title Turn on \QMLLS
+    \title Configure \QMLLS
 
-    Since Qt 6.4, \QMLLS offers code completion and
-    issues warnings for QML. To use it, go to \preferences >
-    \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing} and select
-    \uicontrol {Enable \QMLLS}.
+    Since Qt 6.4, \QMLLS offers code completion and issues warnings for QML.
 
-    By default, enabling \QMLLS will only enable warning messages
-    and code completion, while advanced features such as renaming and finding usages
-    will be handled by the embedded code model.
-    To disable the embedded code model and use \QMLLS for everything,
-    select \uicontrol {Use \QMLLS advanced features}.
+    To turn off \QMLLS, go to \preferences > \uicontrol {Qt Quick} >
+    \uicontrol {QML/JS Editing} and clear \uicontrol {Turn on}.
 
-    Also, \QC tries to use \QMLLS shipped with
-    the Qt version in your current kit. To override that behavior and always use
+    By default, \QMLLS issues warning messages and provides code completion,
+    while the embedded code model handles advanced features, such as renaming
+    symbols and finding usages. To disable the embedded code model and use
+    \QMLLS for everything, select \uicontrol {Use advanced features}.
+
+    Also, \QC tries to use \QMLLS shipped with the Qt version in your current
+    \l{Kits}{kit}. To override that behavior and always use
     \QMLLS of the highest registered Qt version, select
-    \uicontrol {Use \QMLLS from latest Qt version}.
+    \uicontrol {Use from latest Qt version}.
+
+    To use older \QMLLS versions, select
+    \uicontrol{Allow versions below Qt 6.8}.
 
     \image qtcreator-qml-js-editing.webp {QML/JS Editing preferences}
 
-    When using \c qmlls from Qt 6.7 or later, set \l{QT_QML_GENERATE_QMLLS_INI}
-    to \c{ON} in \uicontrol Projects > \uicontrol {Build Settings}
-    > \uicontrol {Initial Configuration}.
+    To automatically configure new CMake projects, select
+    \uicontrol {Create .qmlls.ini files for new projects}.
 
     \sa {Manage Language Servers}{How To: Manage Language Servers},
-    {Enabling and Disabling Messages}, {CMake Build Configuration},
+    {Enabling and Disabling Messages}, {CMake Build Configuration}, {Kits},
     {Language Servers}
 */
 

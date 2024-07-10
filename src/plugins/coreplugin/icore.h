@@ -87,9 +87,9 @@ public:
     static void raiseWindow(QWidget *widget);
     static void raiseMainWindow();
 
-    static IContext *currentContextObject();
+    static QList<IContext *> currentContextObjects();
     static QWidget *currentContextWidget();
-    static IContext *contextObject(QWidget *widget);
+    static QList<IContext *> contextObjects(QWidget *widget);
     static void updateAdditionalContexts(const Context &remove, const Context &add,
                                          ContextPriority priority = ContextPriority::Low);
     static void addAdditionalContext(const Context &context,

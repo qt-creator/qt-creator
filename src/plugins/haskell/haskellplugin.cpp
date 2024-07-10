@@ -39,8 +39,6 @@ public:
                                                    Tr::tr("Haskell", "SnippetProvider"));
 
         setupHaskellActions(this);
-
-        ProjectExplorer::JsonWizardFactory::addWizardPath(":/haskell/share/wizards/");
     }
 };
 

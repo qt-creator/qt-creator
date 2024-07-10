@@ -397,7 +397,8 @@ EnvironmentItems EnvironmentModel::userChanges() const
 void EnvironmentModel::setUserChanges(const EnvironmentItems &items)
 {
     EnvironmentItems filtered = Utils::filtered(items, [](const EnvironmentItem &i) {
-        return i.name != "export " && !i.name.contains('=');
+        return i.operation == EnvironmentItem::Comment
+                || (i.name != "export " && !i.name.contains('='));
     });
     // We assume nobody is reordering the items here.
     if (filtered == d->m_items)

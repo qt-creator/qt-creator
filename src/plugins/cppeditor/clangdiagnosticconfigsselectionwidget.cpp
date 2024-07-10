@@ -90,11 +90,7 @@ void ClangDiagnosticConfigsSelectionWidget::onButtonClicked()
     connect(buttonsBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
     connect(buttonsBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
 
-    const bool previousEnableLowerClazyLevels = codeModelSettings()->enableLowerClazyLevels();
     if (dialog.exec() == QDialog::Accepted) {
-        if (previousEnableLowerClazyLevels != codeModelSettings()->enableLowerClazyLevels())
-            codeModelSettings()->toSettings(Core::ICore::settings());
-
         m_diagnosticConfigsModel = ClangDiagnosticConfigsModel(widget->configs());
         m_currentConfigId = widget->currentConfig().id();
         m_button->setText(widget->currentConfig().displayName());

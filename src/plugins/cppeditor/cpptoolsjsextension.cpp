@@ -42,7 +42,7 @@ static QString fileName(const QString &path, const QString &extension)
 
 QString CppToolsJsExtension::headerGuard(const QString &in) const
 {
-    return Utils::headerGuard(in);
+    return fileSettings().headerGuard(Utils::FilePath::fromString(in));
 }
 
 QString CppToolsJsExtension::licenseTemplate() const
@@ -96,11 +96,6 @@ QString CppToolsJsExtension::classToFileName(const QString &klass, const QString
     if (!ext.isEmpty())
         ext = QString(QLatin1Char('.')) + ext;
     return finalPath + name + ext;
-}
-
-QString CppToolsJsExtension::classToHeaderGuard(const QString &klass, const QString &extension) const
-{
-    return Utils::headerGuard(fileName(className(klass), extension), namespaces(klass));
 }
 
 QString CppToolsJsExtension::openNamespaces(const QString &klass) const

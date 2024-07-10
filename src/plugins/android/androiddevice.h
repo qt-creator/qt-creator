@@ -4,14 +4,16 @@
 
 #pragma once
 
-#include "androidavdmanager.h"
 #include "androidconfigurations.h"
 #include "androiddeviceinfo.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
-#include <QFutureWatcher>
+#include <solutions/tasking/tasktreerunner.h>
+
+#include <utils/guard.h>
+
 #include <QFileSystemWatcher>
 #include <QSettings>
 
@@ -27,7 +29,6 @@ public:
     static IDevice::Ptr create();
     static AndroidDeviceInfo androidDeviceInfoFromIDevice(const IDevice *dev);
 
-    static QString displayNameFromInfo(const AndroidDeviceInfo &info);
     static Utils::Id idFromDeviceInfo(const AndroidDeviceInfo &info);
     static Utils::Id idFromAvdInfo(const CreateAvdInfo &info);
 
@@ -69,40 +70,13 @@ private:
     std::unique_ptr<QSettings> m_avdSettings;
 };
 
-class AndroidDeviceManager : public QObject
-{
-public:
-    static AndroidDeviceManager *instance();
-    void setupDevicesWatcher();
-    void updateAvdsList();
-    IDevice::DeviceState getDeviceState(const QString &serial, IDevice::MachineType type) const;
-    void updateDeviceState(const ProjectExplorer::IDevice::ConstPtr &device);
+namespace AndroidDeviceManager {
 
-    void startAvd(const ProjectExplorer::IDevice::Ptr &device, QWidget *parent = nullptr);
-    void eraseAvd(const ProjectExplorer::IDevice::Ptr &device, QWidget *parent = nullptr);
-    void setupWifiForDevice(const ProjectExplorer::IDevice::Ptr &device, QWidget *parent = nullptr);
+void setupDevicesWatcher();
+void updateAvdList();
+Utils::expected_str<void> createAvd(const CreateAvdInfo &info, bool force);
 
-    void setEmulatorArguments(QWidget *parent = nullptr);
-
-    QString getRunningAvdsSerialNumber(const QString &name) const;
-
-private:
-    explicit AndroidDeviceManager(QObject *parent);
-    ~AndroidDeviceManager();
-
-    void HandleDevicesListChange(const QString &serialNumber);
-    void HandleAvdsListChange();
-
-    QString emulatorName(const QString &serialNumber) const;
-
-    QFutureWatcher<AndroidDeviceInfoList> m_avdsFutureWatcher;
-    std::unique_ptr<Utils::Process> m_removeAvdProcess;
-    QFileSystemWatcher m_avdFileSystemWatcher;
-    std::unique_ptr<Utils::Process> m_adbDeviceWatcherProcess;
-    AndroidAvdManager m_avdManager;
-
-    friend void setupAndroidDeviceManager(QObject *guard);
-};
+} // namespace AndroidDeviceManager
 
 void setupAndroidDevice();
 void setupAndroidDeviceManager(QObject *guard);

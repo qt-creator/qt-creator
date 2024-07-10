@@ -79,7 +79,7 @@ bool JsonWizardFileGenerator::setup(const QVariant &data, QString *errorMessage)
         return false;
 
     for (const QVariant &d : list) {
-        if (d.type() != QVariant::Map) {
+        if (d.typeId() != QMetaType::QVariantMap) {
             *errorMessage = Tr::tr("Files data list entry is not an object.");
             return false;
         }

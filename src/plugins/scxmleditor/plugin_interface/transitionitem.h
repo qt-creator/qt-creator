@@ -143,6 +143,7 @@ private:
     bool m_lineSelected = false;
 
     TagTextItem *m_eventTagItem;
+    TagTextItem *m_condTagItem;
     TransitionWarningItem *m_warningItem = nullptr;
     TransitionTargetType m_targetType = ExternalTarget;
     bool m_movingFirstPoint = false;

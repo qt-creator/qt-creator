@@ -12,7 +12,6 @@ class CORE_EXPORT DirectoryFilter : public ILocatorFilter
 {
 public:
     DirectoryFilter(Utils::Id id);
-    void restoreState(const QByteArray &state) override;
     bool openConfigDialog(QWidget *parent, bool &needsRefresh) override;
 
 protected:

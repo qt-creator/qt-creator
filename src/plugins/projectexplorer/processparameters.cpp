@@ -158,7 +158,7 @@ static QString invalidCommandMessage(const QString &displayName)
     return QString("<b>%1:</b> <font color='%3'>%2</font>")
                     .arg(displayName,
                          ::Utils::Tr::tr("Invalid command"),
-                         creatorTheme()->color(Theme::TextColorError).name());
+                         creatorColor(Theme::TextColorError).name());
 }
 
 QString ProcessParameters::summary(const QString &displayName) const

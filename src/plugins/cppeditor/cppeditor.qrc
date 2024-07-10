@@ -4,5 +4,58 @@
         <file>images/dark_qt_h.png</file>
         <file>images/dark_qt_c.png</file>
         <file>testcases/highlightingtestcase.cpp</file>
+        <file>testcases/move-class/complex/complex.pro</file>
+        <file>testcases/move-class/complex/main.cpp</file>
+        <file>testcases/move-class/complex/main.cpp_expected</file>
+        <file>testcases/move-class/complex/theclass.cpp_expected</file>
+        <file>testcases/move-class/complex/theheader.h</file>
+        <file>testcases/move-class/complex/theheader.h_expected</file>
+        <file>testcases/move-class/complex/thesource.cpp</file>
+        <file>testcases/move-class/complex/thesource.cpp_expected</file>
+        <file>testcases/move-class/complex/complex.pro_expected</file>
+        <file>testcases/move-class/nested/main.cpp</file>
+        <file>testcases/move-class/nested/nested.pro</file>
+        <file>testcases/move-class/match1/match1.pro</file>
+        <file>testcases/move-class/match1/TheClass.h</file>
+        <file>testcases/move-class/match2/match2.pro</file>
+        <file>testcases/move-class/match2/theclass.h</file>
+        <file>testcases/move-class/match3/match3.pro</file>
+        <file>testcases/move-class/match3/the_class.h</file>
+        <file>testcases/move-class/single/single.pro</file>
+        <file>testcases/move-class/single/theheader.h</file>
+        <file>testcases/move-class/header-only/header-only.pro</file>
+        <file>testcases/move-class/header-only/header-only.pro_expected</file>
+        <file>testcases/move-class/header-only/theclass.h_expected</file>
+        <file>testcases/move-class/header-only/theheader.h</file>
+        <file>testcases/move-class/header-only/thesource.cpp</file>
+        <file>testcases/move-class/header-only/theheader.h_expected</file>
+        <file>testcases/move-class/header-only/thesource.cpp_expected</file>
+        <file>testcases/move-class/decl-in-source/decl-in-source.pro</file>
+        <file>testcases/move-class/decl-in-source/decl-in-source.pro_expected</file>
+        <file>testcases/move-class/decl-in-source/theclass.h_expected</file>
+        <file>testcases/move-class/decl-in-source/thesource.cpp</file>
+        <file>testcases/move-class/decl-in-source/thesource.cpp_expected</file>
+        <file>testcases/move-class/template/template.pro</file>
+        <file>testcases/move-class/template/template.pro_expected</file>
+        <file>testcases/move-class/template/theclass.h_expected</file>
+        <file>testcases/move-class/template/theheader.h</file>
+        <file>testcases/move-class/template/theheader.h_expected</file>
+        <file>testcases/move-class/complex/theclass.h_expected</file>
+        <file>testcases/reorder-member-impls/different-locations/different-locations.pro</file>
+        <file>testcases/reorder-member-impls/different-locations/header.h</file>
+        <file>testcases/reorder-member-impls/different-locations/header.h_expected</file>
+        <file>testcases/reorder-member-impls/different-locations/impl1.cpp</file>
+        <file>testcases/reorder-member-impls/different-locations/impl1.cpp_expected</file>
+        <file>testcases/reorder-member-impls/different-locations/impl2.cpp</file>
+        <file>testcases/reorder-member-impls/different-locations/impl2.cpp_expected</file>
+        <file>testcases/reorder-member-impls/already-sorted/already-sorted.pro</file>
+        <file>testcases/reorder-member-impls/already-sorted/header.h</file>
+        <file>testcases/reorder-member-impls/no-out-of-line/header.h</file>
+        <file>testcases/reorder-member-impls/no-out-of-line/no-out-of-line.pro</file>
+        <file>testcases/reorder-member-impls/already-sorted/header.h_expected</file>
+        <file>testcases/reorder-member-impls/no-out-of-line/header.h_expected</file>
+        <file>testcases/reorder-member-impls/templates/header.h</file>
+        <file>testcases/reorder-member-impls/templates/header.h_expected</file>
+        <file>testcases/reorder-member-impls/templates/templates.pro</file>
     </qresource>
 </RCC>

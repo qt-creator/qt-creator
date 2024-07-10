@@ -13,6 +13,8 @@
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-projects-configure
+    \ingroup creator-how-to-manage-kits
+    \ingroup creator-how-to-projects
 
     \title Open projects
 
@@ -48,6 +50,15 @@
             \endlist
     \endlist
 
+    \section1 Open directories as projects
+
+    To open a directory as a project, go to \uicontrol File >
+    \uicontrol {Open Workspace}.
+
+    \QC generates the \e .qtcreator/project.json project file in the directory
+    for setting a project name and file exclusion filters. You can open either
+    the JSON file or the workspace to open the project the next time.
+
     \section1 Re-configure projects
 
     \QC stores information that it needs to build projects in a .user file. If
@@ -64,7 +75,7 @@
 
     \list 1
         \li In \uicontrol {Configure Project}, select
-            \l{glossary-buildandrun-kit}{kits} for building
+            \l{Kits}{kits} for building
             and running your project.
             \image qtcreator-configure-project.webp {Configure Project view}
         \li Select \uicontrol {Configure Project}.
@@ -112,5 +123,5 @@
     later. Select the \inlineimage icons/pin.png
     (\uicontrol Pin) button to pin the progress bar back to the toggle button.
 
-    \sa {Activate kits for a project}, {Add kits}, {kits-tab}{Kits},
+    \sa {Manage Kits}{How To: Manage Kits}, {Kits},
 */

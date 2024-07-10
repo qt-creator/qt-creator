@@ -933,12 +933,12 @@ The files in the Android package source directory are copied to the build direct
 </translation>
     </message>
     <message>
-        <source>
-Uninstalling the installed package may solve the issue.
-Do you want to uninstall the existing package?</source>
-        <translation>
-Удаление установленного пакета может решить проблему.
-Желаете его удалить?</translation>
+        <source>Uninstalling the installed package may solve the issue.</source>
+        <translation>Удаление установленного пакета может решить проблему.</translation>
+    </message>
+    <message>
+        <source>Do you want to uninstall the existing package?</source>
+        <translation>Желаете его удалить?</translation>
     </message>
     <message>
         <source>Pulling files necessary for debugging.</source>
@@ -2169,7 +2169,7 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
         <translation>Настроить SDK</translation>
     </message>
     <message>
-        <source>Android OpenSSL settings (Optional)</source>
+        <source>Android OpenSSL Settings (Optional)</source>
         <translation>Настройки Android OpenSSL (опционально)</translation>
     </message>
     <message>
@@ -11815,7 +11815,7 @@ Flags: %3</source>
         <translation>Добавить #include %1</translation>
     </message>
     <message>
-        <source>Add forward declaration for %1</source>
+        <source>Add Forward Declaration for %1</source>
         <translation>Добавление предъобъявления %1</translation>
     </message>
     <message>
@@ -16950,8 +16950,8 @@ Rebuilding the project might help.</source>
 Пересборка проекта может помочь.</translation>
     </message>
     <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Класс формы Qt Designer</translation>
+        <source>Qt Widgets Designer Form Class</source>
+        <translation>Класс формы Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Class Details</source>
@@ -16982,7 +16982,7 @@ Rebuilding the project might help.</source>
         <translation>Shift+F4</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt Widget Project.</source>
+        <source>Creates a Qt Widgets Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt Widget Project.</source>
         <translation>Создание формы дизайнера Qt и соответствующего класса (исходный и заголовочный файлы C++) для реализации. Их можно будет добавить к существующему проекту Qt Widget.</translation>
     </message>
     <message>
@@ -18313,7 +18313,13 @@ will also disable the following plugins:
     </message>
     <message>
         <source>Executable:</source>
+        <comment>adjective</comment>
         <translation>Можно запускать:</translation>
+    </message>
+    <message>
+        <source>Executable:</source>
+        <comment>noun</comment>
+        <translation>Программа:</translation>
     </message>
     <message>
         <source>Symbolic link:</source>
@@ -18681,8 +18687,8 @@ when they are not required, which will improve performance in most cases.</sourc
         <translation>Alt+Shift+R</translation>
     </message>
     <message>
-        <source>About Qt Designer Plugins...</source>
-        <translation>О модулях Qt Designer...</translation>
+        <source>About Qt Widgets Designer Plugins...</source>
+        <translation>О модулях Qt Widgets Designer...</translation>
     </message>
     <message>
         <source>Preview in</source>
@@ -22415,8 +22421,8 @@ Would you like to overwrite them?</source>
         <translation>Максимальное количество ЦП для сборки:</translation>
     </message>
     <message>
-        <source>When specified, the execution will stop as soon as an error is encountered.  This is the default behavior in &apos;Visual Studio&apos; builds, but not the default for &apos;Make and Build tools&apos; or &apos;Dev Tools&apos; builds</source>
-        <translation>Включение остановки выполнения при возникновении ошибки. Это поведение по умолчанию в сборках «Visual Studio», но не по умолчанию для сборок «Make and Build tools» или «Dev Tools»</translation>
+        <source>When specified, the execution will stop as soon as an error is encountered.  This is the default behavior in &apos;Visual Studio&apos; builds, but not the default for &apos;Make and Build tools&apos; or &apos;Dev Tools&apos; builds.</source>
+        <translation>Включение остановки выполнения при возникновении ошибки. Это поведение по умолчанию в сборках «Visual Studio», но не по умолчанию для сборок «Make and Build tools» или «Dev Tools».</translation>
     </message>
     <message>
         <source>Stop On Errors</source>
@@ -22467,7 +22473,7 @@ Would you like to overwrite them?</source>
         <translation type="unfinished">Помощник запуска:</translation>
     </message>
     <message>
-        <source>Add additional buildconsole arguments manually. The value of this field will be concatenated to the final buildconsole command line</source>
+        <source>Add additional buildconsole arguments manually. The value of this field will be concatenated to the final buildconsole command line.</source>
         <translation>Дополнительные параметры buildconsole. Значение поля будет добавлено к итоговой командной строке buildconsole.</translation>
     </message>
     <message>
@@ -22495,7 +22501,7 @@ Would you like to overwrite them?</source>
         <translation>Исходное число задач</translation>
     </message>
     <message>
-        <source>Overrides the internal Incredibuild logging level for this build. Does not affect output or any user accessible logging. Used mainly to troubleshoot issues with the help of IncrediBuild support</source>
+        <source>Overrides the internal Incredibuild logging level for this build. Does not affect output or any user accessible logging. Used mainly to troubleshoot issues with the help of IncrediBuild support.</source>
         <translation>Меняет для этой сборки уровень ведения внутреннего журнала Incredibuild. Не влияет на вывод или любые доступные пользователю журналы. В основном используется для устранения проблем через службу поддержки IncrediBuild.</translation>
     </message>
     <message>
@@ -25534,8 +25540,8 @@ If set to false, the target will be moved straight to the current mouse position
         <translation>Редактор QMLJS</translation>
     </message>
     <message>
-        <source>Qt Designer</source>
-        <translation>Qt Designer</translation>
+        <source>Qt Widgets Designer</source>
+        <translation>Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Qt Linguist</source>
@@ -29867,12 +29873,12 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
         <translation>Шаблон формы</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.</source>
-        <translation>Создание формы Qt Designer, которую можно добавить в проект Qt Widget. Имеет смысл, если у вас уже есть класс с бизнес-логикой.</translation>
+        <source>Creates a Qt Widgets Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.</source>
+        <translation>Создание формы Qt Widgets Designer, которую можно добавить в проект Qt Widget. Имеет смысл, если у вас уже есть класс с бизнес-логикой.</translation>
     </message>
     <message>
-        <source>Qt Designer Form</source>
-        <translation>Форма Qt Designer</translation>
+        <source>Qt Widgets Designer Form</source>
+        <translation>Форма Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Creates a Java file with boilerplate code.</source>
@@ -30627,7 +30633,7 @@ Use this only if you are prototyping. You cannot create a full application with 
         <translation>Информация о классе</translation>
     </message>
     <message>
-        <source>Creates a Qt application for the desktop. Includes a Qt Designer-based main window.
+        <source>Creates a Qt application for the desktop. Includes a Qt Widgets Designer-based main window.
 
 Preselects a desktop Qt for building the application if available.</source>
         <translation>Создание приложения Qt для настольных компьютеров. Включает основное окно в виде формы дизайнера Qt.
@@ -30707,8 +30713,8 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>Qt для Python - Приложение Qt Quick - Пустое</translation>
     </message>
     <message>
-        <source>Creates a Qt for Python application that includes a Qt Designer-based widget (ui file)</source>
-        <translation>Создание приложения на Qt для Python, включающее виджет Qt Designer (файл ui)</translation>
+        <source>Creates a Qt for Python application that includes a Qt Widgets Designer-based widget (ui file)</source>
+        <translation>Создание приложения на Qt для Python, включающее виджет Qt Widgets Designer (файл ui)</translation>
     </message>
     <message>
         <source>Qt for Python - Window (UI file)</source>
@@ -30999,40 +31005,28 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>У страницы с typeId «%1» неверный «index».</translation>
     </message>
     <message>
-        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.
-</source>
-        <translation>При проверке путей мастера Json: путь «%1» не существует.
-</translation>
+        <source>Path &quot;%1&quot; does not exist when checking JSON wizard search paths.</source>
+        <translation>При проверке путей мастера JSON: путь «%1» не существует.</translation>
     </message>
     <message>
-        <source>Checking &quot;%1&quot; for %2.
-</source>
-        <translation>Проверяется «%1» у %2.
-</translation>
+        <source>Checking &quot;%1&quot; for %2.</source>
+        <translation>Проверяется «%1» у %2.</translation>
     </message>
     <message>
-        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4
-</source>
-        <translation>* Не удалось разобрать «%1»:%2:%3: %4
-</translation>
+        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4</source>
+        <translation>* Не удалось разобрать «%1»:%2:%3: %4</translation>
     </message>
     <message>
-        <source>* Did not find a JSON object in &quot;%1&quot;.
-</source>
-        <translation>* Объект JSON не был найден в «%1».
-</translation>
+        <source>* Did not find a JSON object in &quot;%1&quot;.</source>
+        <translation>* Объект JSON не был найден в «%1».</translation>
     </message>
     <message>
-        <source>* Configuration found and parsed.
-</source>
-        <translation>* Конфигурация обнаружена и разобрана.
-</translation>
+        <source>* Configuration found and parsed.</source>
+        <translation>* Конфигурация обнаружена и разобрана.</translation>
     </message>
     <message>
-        <source>* Version %1 not supported.
-</source>
-        <translation>* Версия %1 не поддерживается.
-</translation>
+        <source>* Version %1 not supported.</source>
+        <translation>* Версия %1 не поддерживается.</translation>
     </message>
     <message>
         <source>The platform selected for the wizard.</source>
@@ -31063,16 +31057,12 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>Файл изображения «%1» не найден.</translation>
     </message>
     <message>
-        <source>* Failed to create: %1
-</source>
-        <translation>* Не удалось создать: %1
-</translation>
+        <source>* Failed to create: %1</source>
+        <translation>* Не удалось создать: %1</translation>
     </message>
     <message>
-        <source>JsonWizard: &quot;%1&quot; not found
-</source>
-        <translation>JsonWizard: «%1» не найден
-</translation>
+        <source>JsonWizard: &quot;%1&quot; not found.</source>
+        <translation>JsonWizard: «%1» не найден.</translation>
     </message>
     <message>
         <source>key not found.</source>
@@ -33673,19 +33663,19 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
     </message>
     <message>
         <source>Qt Custom Designer Widget</source>
-        <translation>Пользовательский виджет Qt Designer</translation>
+        <translation>Пользовательский виджет Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Creates a Qt Custom Designer Widget or a Custom Widget Collection.</source>
-        <translation>Создание пользовательского виджета Qt Designer или набора пользовательских виджетов.</translation>
+        <translation>Создание пользовательского виджета Qt Widgets Designer или набора пользовательских виджетов.</translation>
     </message>
     <message>
-        <source>This wizard generates a Qt Designer Custom Widget or a Qt Designer Custom Widget Collection project.</source>
-        <translation>Этот мастер создаст пользовательский виджет или набор пользовательских виджетов для Qt Designer.</translation>
+        <source>This wizard generates a Qt Widgets Designer Custom Widget or a Qt Widgets Designer Custom Widget Collection project.</source>
+        <translation>Этот мастер создаст пользовательский виджет или набор пользовательских виджетов для Qt Widgets Designer.</translation>
     </message>
     <message>
-        <source>Qt Designer is not responding (%1).</source>
-        <translation>Qt Designer не отвечает (%1).</translation>
+        <source>Qt Widgets Designer is not responding (%1).</source>
+        <translation>Qt Widgets Designer не отвечает (%1).</translation>
     </message>
     <message>
         <source>Unable to create server socket: %1</source>
@@ -35227,7 +35217,7 @@ Neither the path to the library nor the path to its includes is added to the .pr
     </message>
     <message>
         <source>Warn about unsupported features of Qt Quick Designer in the code editor</source>
-        <translation>Предупреждать о неподдерживаемых особенностях Qt Designer в редакторе кода</translation>
+        <translation>Предупреждать о неподдерживаемых особенностях Qt Quick Designer в редакторе кода</translation>
     </message>
     <message>
         <source>Debugging</source>
@@ -43141,7 +43131,7 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <translation>Автоматически разделять строки</translation>
     </message>
     <message>
-        <source>&amp;Automatically insert matching characters</source>
+        <source>&amp;Automatically Insert Matching Characters</source>
         <translation>&amp;Автоматически вставлять парные символы</translation>
     </message>
     <message>
@@ -43325,7 +43315,7 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <translation>Прижать к правому краю</translation>
     </message>
     <message>
-        <source>Line annotations</source>
+        <source>Line Annotations</source>
         <translation>Построчная аннотация</translation>
     </message>
     <message>
@@ -45147,7 +45137,7 @@ The trace data is lost.</source>
         <translation>Сбросить</translation>
     </message>
     <message>
-        <source>Scanning scope</source>
+        <source>Scanning Scope</source>
         <translation>Область поиска</translation>
     </message>
     <message>

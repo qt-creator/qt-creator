@@ -41,6 +41,7 @@ const char LANGUAGECLIENT_WORKSPACE_METHOD_FILTER_DESCRIPTION[]
                         "Locates functions and methods in the language server workspace.");
 
 const char CALL_HIERARCHY_FACTORY_ID[] = "LanguageClient.CallHierarchy";
+const char TASK_CATEGORY_DIAGNOSTICS[] = "LanguageClient.DiagnosticTask";
 
 } // namespace Constants
 } // namespace LanguageClient

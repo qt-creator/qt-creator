@@ -27,7 +27,7 @@ public:
     virtual QVariant modelData() const;
     virtual void setModelData(const QVariant &);
 
-    static WatchLineEdit *create(QVariant::Type t, QWidget *parent = nullptr);
+    static WatchLineEdit *create(QMetaType::Type typeId, QWidget *parent = nullptr);
 };
 
 /* Watch delegate line edit for integer numbers based on quint64/qint64.

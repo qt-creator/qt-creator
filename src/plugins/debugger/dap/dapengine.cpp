@@ -6,6 +6,7 @@
 #include "cmakedapengine.h"
 #include "dapclient.h"
 #include "gdbdapengine.h"
+#include "lldbdapengine.h"
 #include "pydapengine.h"
 
 #include <debugger/breakhandler.h>
@@ -644,6 +645,7 @@ void DapEngine::readDapStandardError()
 void DapEngine::handleResponse(DapResponseType type, const QJsonObject &response)
 {
     const QString command = response.value("command").toString();
+    const bool success = response.value("success").toBool();
 
     switch (type) {
     case DapResponseType::Initialize:
@@ -674,7 +676,7 @@ void DapEngine::handleResponse(DapResponseType type, const QJsonObject &response
     case DapResponseType::StepIn:
     case DapResponseType::StepOut:
     case DapResponseType::StepOver:
-        if (response.value("success").toBool()) {
+        if (success) {
             showMessage(command, LogDebug);
             notifyInferiorRunOk();
         } else {
@@ -691,11 +693,21 @@ void DapEngine::handleResponse(DapResponseType type, const QJsonObject &response
     case DapResponseType::SetBreakpoints:
         handleBreakpointResponse(response);
         break;
+    case DapResponseType::Launch:
+        if (!success) {
+            notifyEngineRunFailed();
+            AsynchronousMessageBox::critical(
+                Tr::tr("Failed to Start Application"),
+                Tr::tr("\"%1\" could not be started. Error message: %2")
+                    .arg(runParameters().inferior.command.toUserOutput())
+                    .arg(response.value("message").toString()));
+        }
+        break;
     default:
         showMessage("UNKNOWN RESPONSE:" + command);
     };
 
-    if (response.contains("success") && !response.value("success").toBool()) {
+    if (!success) {
         showMessage(QString("DAP COMMAND FAILED: %1").arg(command));
         qCDebug(logCategory()) << "DAP COMMAND FAILED:" << command;
         return;
@@ -1058,6 +1070,8 @@ DebuggerEngine *createDapEngine(Utils::Id runMode)
         return new CMakeDapEngine;
     if (runMode == ProjectExplorer::Constants::DAP_GDB_DEBUG_RUN_MODE)
         return new GdbDapEngine;
+    if (runMode == ProjectExplorer::Constants::DAP_LLDB_DEBUG_RUN_MODE)
+        return new LldbDapEngine;
     if (runMode == ProjectExplorer::Constants::DAP_PY_DEBUG_RUN_MODE)
         return new PyDapEngine;
 

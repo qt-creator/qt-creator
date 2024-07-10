@@ -177,7 +177,7 @@ SettingsPageWidget::SettingsPageWidget()
 void SettingsPageWidget::apply()
 {
     ClearCaseSettings rc;
-    rc.ccCommand = commandPathChooser->rawFilePath().toString();
+    rc.ccCommand = commandPathChooser->unexpandedFilePath().toString();
     rc.ccBinaryPath = commandPathChooser->filePath();
     rc.timeOutS = timeOutSpinBox->value();
     rc.autoCheckOut = autoCheckOutCheckBox->isChecked();

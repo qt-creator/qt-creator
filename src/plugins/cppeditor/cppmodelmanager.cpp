@@ -77,6 +77,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QFutureWatcher>
+#include <QHash>
 #include <QMutexLocker>
 #include <QReadLocker>
 #include <QReadWriteLock>
@@ -89,6 +90,7 @@
 #include <QWriteLocker>
 
 #include <memory>
+#include <unordered_map>
 
 #if defined(QTCREATOR_WITH_DUMP_AST) && defined(Q_CC_GNU)
 #define WITH_AST_DUMP
@@ -407,7 +409,7 @@ void CppModelManager::showPreprocessedFile(bool inNextSplit)
         saveAndOpen(outFilePath, content.append(preprocessedDoc->utf8Source()), inNextSplit);
     };
 
-    if (codeModelSettings()->useBuiltinPreprocessor()) {
+    if (CppCodeModelSettings::settingsForFile(filePath).useBuiltinPreprocessor) {
         useBuiltinPreprocessor();
         return;
     }
@@ -551,7 +553,7 @@ using FindUnusedActionsEnabledSwitcherPtr = std::shared_ptr<FindUnusedActionsEna
 
 static void checkNextFunctionForUnused(
         const QPointer<SearchResult> &search,
-        const std::shared_ptr<QFutureInterface<bool>> &findRefsFuture,
+        const std::shared_ptr<QFutureInterface<void>> &findRefsFuture,
         const FindUnusedActionsEnabledSwitcherPtr &actionsSwitcher)
 {
     if (!search || findRefsFuture->isCanceled())
@@ -648,14 +650,14 @@ void CppModelManager::findUnusedFunctions(const FilePath &folder)
             Utils::transform<QVariantList>(links, [](const Link &l) { return QVariant::fromValue(l);
         }));
         search->setUserData(remainingAndActiveLinks);
-        const auto findRefsFuture = std::make_shared<QFutureInterface<bool>>();
+        const auto findRefsFuture = std::make_shared<QFutureInterface<void>>();
         FutureProgress *const progress = ProgressManager::addTask(findRefsFuture->future(),
                                                           Tr::tr("Finding Unused Functions"),
                                                           "CppEditor.FindUnusedFunctions");
         connect(progress,
                 &FutureProgress::canceled,
                 search,
-                [search, future = std::weak_ptr<QFutureInterface<bool>>(findRefsFuture)] {
+                [search, future = std::weak_ptr<QFutureInterface<void>>(findRefsFuture)] {
             search->finishSearch(true);
             if (const auto f = future.lock()) {
                 f->cancel();
@@ -1301,16 +1303,19 @@ CppLocatorData *CppModelManager::locatorData()
     return &d->m_locatorData;
 }
 
-static QSet<QString> filteredFilesRemoved(const QSet<QString> &files, int fileSizeLimitInMb,
-                                          bool ignoreFiles,
-                                          const QString& ignorePattern)
+static QSet<QString> filteredFilesRemoved(const QSet<QString> &files,
+                                          const CppCodeModelSettings &settings)
 {
-    if (fileSizeLimitInMb <= 0 && !ignoreFiles)
+    if (!settings.enableIndexing)
+        return {};
+
+    const int fileSizeLimitInMb = settings.effectiveIndexerFileSizeLimitInMb();
+    if (fileSizeLimitInMb <= 0 && !settings.ignoreFiles)
         return files;
 
     QSet<QString> result;
     QList<QRegularExpression> regexes;
-    const QStringList wildcards = ignorePattern.split('\n');
+    const QStringList wildcards = settings.ignorePattern.split('\n');
 
     for (const QString &wildcard : wildcards)
         regexes.append(QRegularExpression::fromWildcard(wildcard, Qt::CaseInsensitive,
@@ -1321,15 +1326,12 @@ static QSet<QString> filteredFilesRemoved(const QSet<QString> &files, int fileSi
         if (fileSizeLimitInMb > 0 && fileSizeExceedsLimit(filePath, fileSizeLimitInMb))
             continue;
         bool skip = false;
-        if (ignoreFiles) {
+        if (settings.ignoreFiles) {
             for (const QRegularExpression &rx: std::as_const(regexes)) {
                 QRegularExpressionMatch match = rx.match(filePath.absoluteFilePath().path());
                 if (match.hasMatch()) {
-                    const QString msg = Tr::tr("C++ Indexer: Skipping file \"%1\" "
-                                               "because its path matches the ignore pattern.")
-                                    .arg(filePath.displayName());
-                    QMetaObject::invokeMethod(MessageManager::instance(),
-                                              [msg] { MessageManager::writeSilently(msg); });
+                    MessageManager::writeSilently(Tr::tr("C++ Indexer: Skipping file \"%1\" "
+                        "because its path matches the ignore pattern.").arg(filePath.displayName()));
                     skip = true;
                     break;
                 }
@@ -1349,11 +1351,25 @@ QFuture<void> CppModelManager::updateSourceFiles(const QSet<FilePath> &sourceFil
     if (sourceFiles.isEmpty() || !d->m_indexerEnabled)
         return QFuture<void>();
 
-    const QSet<QString> filteredFiles = filteredFilesRemoved(transform(sourceFiles, &FilePath::toString),
-                                                             indexerFileSizeLimitInMb(),
-                                                             codeModelSettings()->ignoreFiles(),
-                                                             codeModelSettings()->ignorePattern());
+    std::unordered_map<Project *, QSet<QString>> sourcesPerProject;
+    for (const FilePath &fp : sourceFiles)
+        sourcesPerProject[ProjectManager::projectForFile(fp)] << fp.toString();
+    std::vector<std::pair<QSet<QString>, CppCodeModelSettings>> sourcesAndSettings;
+    for (const auto &it : sourcesPerProject) {
+        sourcesAndSettings
+            .emplace_back(it.second, CppCodeModelSettings::settingsForProject(it.first));
+    }
 
+    const auto filteredFiles = [sourcesAndSettings = std::move(sourcesAndSettings)] {
+        QSet<QString> result;
+        for (const auto &it : sourcesAndSettings)
+            result.unite(filteredFilesRemoved(it.first, it.second));
+        return result;
+    };
+
+    // "ReservedProgressNotification" should be shown if there is more than one source file.
+    if (sourceFiles.size() > 1)
+        mode = ForcedProgressNotification;
     return d->m_internalIndexingSupport->refreshSourceFiles(filteredFiles, mode);
 }
 
@@ -1378,14 +1394,20 @@ ProjectInfo::ConstPtr CppModelManager::projectInfo(Project *project)
 void CppModelManager::removeProjectInfoFilesAndIncludesFromSnapshot(const ProjectInfo &projectInfo)
 {
     QMutexLocker snapshotLocker(&d->m_snapshotMutex);
+    QStringList removedFiles;
     for (const ProjectPart::ConstPtr &projectPart : projectInfo.projectParts()) {
         for (const ProjectFile &cxxFile : std::as_const(projectPart->files)) {
             const QSet<FilePath> filePaths = d->m_snapshot.allIncludesForDocument(cxxFile.path);
-            for (const FilePath &filePath : filePaths)
+            for (const FilePath &filePath : filePaths) {
                 d->m_snapshot.remove(filePath);
+                removedFiles << filePath.toString();
+            }
             d->m_snapshot.remove(cxxFile.path);
+            removedFiles << cxxFile.path.toString();
         }
     }
+
+    emit m_instance->aboutToRemoveFiles(removedFiles);
 }
 
 const QList<CppEditorDocumentHandle *> CppModelManager::cppEditorDocuments()
@@ -1714,7 +1736,7 @@ bool CppModelManager::isCppEditor(IEditor *editor)
     return editor->context().contains(ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 }
 
-bool CppModelManager::usesClangd(const TextEditor::TextDocument *document)
+std::optional<QVersionNumber> CppModelManager::usesClangd(const TextEditor::TextDocument *document)
 {
     return d->m_activeModelManagerSupport->usesClangd(document);
 }
@@ -1864,20 +1886,29 @@ QSet<QString> CppModelManager::internalTargets(const FilePath &filePath)
 //       the renamings yet, i.e. they still refer to the old file paths.
 void CppModelManager::renameIncludes(const QList<std::pair<FilePath, FilePath>> &oldAndNewPaths)
 {
+    using IncludingFile = std::pair<FilePath, FilePath>; // old and new path; might be identical
+    struct RewriteCandidate {
+        FilePath oldHeaderFilePath;
+        FilePath newHeaderFilePath;
+        QString oldHeaderFileName;
+        QString newHeaderFileName;
+        int includeLine;
+        bool isUiHeader;
+    };
+    QHash<IncludingFile, QList<RewriteCandidate>> rewriteCandidates;
+
+    const Snapshot theSnapshot = snapshot();
     for (const auto &[oldFilePath, newFilePath] : oldAndNewPaths) {
         if (oldFilePath.isEmpty() || newFilePath.isEmpty())
             continue;
 
-        // We just want to handle renamings so return when the file was actually moved.
-        if (oldFilePath.absolutePath() != newFilePath.absolutePath())
-            continue;
-
-        const TextEditor::PlainRefactoringFileFactory changes;
-
         QString oldFileName = oldFilePath.fileName();
         QString newFileName = newFilePath.fileName();
         const bool isUiFile = oldFilePath.suffix() == "ui" && newFilePath.suffix() == "ui";
+        const bool moved = oldFilePath.absolutePath() != newFilePath.absolutePath();
         if (isUiFile) {
+            if (moved)
+                return; // This is out of scope.
             oldFileName = "ui_" + oldFilePath.baseName() + ".h";
             newFileName = "ui_" + newFilePath.baseName() + ".h";
         }
@@ -1896,7 +1927,8 @@ void CppModelManager::renameIncludes(const QList<std::pair<FilePath, FilePath>> 
         if (isUiFile && !productNodeForUiFile)
             continue;
 
-        const QList<Snapshot::IncludeLocation> locations = snapshot().includeLocationsOfDocument(
+        // Handle locations where this file is included.
+        const QList<Snapshot::IncludeLocation> locations = theSnapshot.includeLocationsOfDocument(
             isUiFile ? FilePath::fromString(oldFileName) : oldFilePath);
         for (const Snapshot::IncludeLocation &loc : locations) {
             const FilePath includingFileOld = loc.first->filePath();
@@ -1913,18 +1945,72 @@ void CppModelManager::renameIncludes(const QList<std::pair<FilePath, FilePath>> 
             if (isUiFile && getProductNode(includingFileOld) != productNodeForUiFile)
                 continue;
 
-            TextEditor::RefactoringFilePtr file = changes.file(includingFileNew);
-            const QTextBlock &block = file->document()->findBlockByNumber(loc.second - 1);
-            const int replaceStart = block.text().indexOf(oldFileName);
-            if (replaceStart > -1) {
-                ChangeSet changeSet;
+            rewriteCandidates[std::make_pair(includingFileOld, includingFileNew)].append(
+                {oldFilePath, newFilePath, oldFileName, newFileName, loc.second, isUiFile});
+        }
+
+        // Handle the includes of this file: If its location changed, its own local includes
+        // need to get adapted as well.
+        if (isUiFile || !moved)
+            continue;
+        const CPlusPlus::Document::Ptr cppDoc = theSnapshot.document(oldFilePath);
+        if (!cppDoc)
+            continue;
+        const auto key = std::make_pair(oldFilePath, newFilePath);
+        for (const CPlusPlus::Document::Include &include : cppDoc->resolvedIncludes()) {
+            const FilePath oldHeaderPath = include.resolvedFileName();
+            const QString oldHeaderName = oldHeaderPath.fileName();
+            const bool isUiHeader = oldHeaderName.startsWith("ui_") && oldHeaderName.endsWith(".h");
+            if (!isUiHeader && include.type() != CPlusPlus::Client::IncludeLocal)
+                continue;
+            FilePath newHeaderPath = oldHeaderPath;
+            for (const auto &pathPair : oldAndNewPaths) {
+                if (oldHeaderPath == pathPair.first) {
+                    newHeaderPath = pathPair.second;
+                    break;
+                }
+            }
+            rewriteCandidates[key].append(
+                {oldHeaderPath,
+                 newHeaderPath,
+                 oldHeaderName,
+                 newHeaderPath.fileName(),
+                 include.line(),
+                 isUiHeader});
+        }
+    }
+
+    const TextEditor::PlainRefactoringFileFactory changes;
+    for (auto it = rewriteCandidates.cbegin(); it != rewriteCandidates.cend(); ++it) {
+        const FilePath &includingFileOld = it.key().first;
+        const FilePath &includingFileNew = it.key().second;
+        TextEditor::RefactoringFilePtr file = changes.file(includingFileNew);
+        ChangeSet changeSet;
+        for (const RewriteCandidate &candidate : it.value()) {
+            const QTextBlock &block = file->document()->findBlockByNumber(
+                candidate.includeLine - 1);
+            const FilePath relPathOld = FilePath::fromString(FilePath::calcRelativePath(
+                candidate.oldHeaderFilePath.toString(), includingFileOld.parentDir().toString()));
+            const FilePath relPathNew = FilePath::fromString(FilePath::calcRelativePath(
+                candidate.newHeaderFilePath.toString(), includingFileNew.parentDir().toString()));
+            int replaceStart = block.text().indexOf(relPathOld.toString());
+            QString oldString;
+            QString newString;
+            if (candidate.isUiHeader || replaceStart == -1) {
+                replaceStart = block.text().indexOf(candidate.oldHeaderFileName);
+                oldString = candidate.oldHeaderFileName;
+                newString = candidate.newHeaderFileName;
+            } else {
+                oldString = relPathOld.toString();
+                newString = relPathNew.toString();
+            }
+            if (replaceStart > -1 && oldString != newString) {
                 changeSet.replace(block.position() + replaceStart,
-                                  block.position() + replaceStart + oldFileName.length(),
-                                  newFileName);
-                file->setChangeSet(changeSet);
-                file->apply();
+                                  block.position() + replaceStart + oldString.length(),
+                                  newString);
             }
         }
+        file->apply(changeSet);
     }
 }
 
@@ -1988,6 +2074,21 @@ void CppModelManager::onCoreAboutToClose()
     d->m_fallbackProjectPartTimer.stop();
     ProgressManager::cancelTasks(Constants::TASK_INDEX);
     d->m_enableGC = false;
+}
+
+void CppModelManager::handleSettingsChange(Project *project)
+{
+    ProjectInfoList info;
+    if (project)
+        info << projectInfo(project);
+    else
+        info << projectInfos();
+    for (const ProjectInfo::ConstPtr &pi : std::as_const(info)) {
+        const CppCodeModelSettings newSettings = CppCodeModelSettings::settingsForProject(
+            pi->projectFilePath());
+        if (pi->settings() != newSettings)
+            updateProjectInfo(ProjectInfo::cloneWithNewSettings(pi, newSettings));
+    }
 }
 
 void CppModelManager::setupFallbackProjectPart()

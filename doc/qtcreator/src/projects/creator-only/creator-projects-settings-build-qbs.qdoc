@@ -11,7 +11,7 @@
 
     \brief Settings for building applications with Qbs.
 
-    Specify build settings for the selected \l{glossary-buildandrun-kit}{kit} in
+    Specify build settings for the selected \l{Kits}{kit} in
     \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol Build >
     \uicontrol {Build Settings}.
 
@@ -30,7 +30,7 @@
     If debug info is being generated, you can have it placed into separate
     files, rather than embedded into the binary, by selecting
     \uicontrol Enable in the \uicontrol {Separate debug info} field. For
-    more information, see \l{Using the Performance Analyzer}. To use default
+    more information, see \l{Analyze CPU usage}. To use default
     settings, select \uicontrol {Leave at Default}.
 
     For more information about the QML debugging options, see
@@ -59,7 +59,7 @@
             \endlist
 
         \li In the \uicontrol ABIs field, select the ABIs for
-            the \l{Connecting Android Devices}{Android} device
+            the \l{Developing for Android}{Android} device
             architectures to build the project for.
 
         \li In the \uicontrol {Parallel jobs} field, specify the number of

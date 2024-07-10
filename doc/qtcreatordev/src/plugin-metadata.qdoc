@@ -323,6 +323,27 @@
     }
     \endcode
 
+    \section2 Other Meta Data
+
+    \table
+        \header
+            \li Key
+            \li Value Type
+            \li Meaning
+        \row
+            \li Mimetypes
+            \li String or array of strings
+            \li Possibly multiple lines of
+                \l{https://www.freedesktop.org/wiki/Specifications/shared-mime-info-spec/}{XML MIME-info}
+                used for registering additional or adapting built-in MIME types.
+        \row
+            \li JsonWizardPaths
+            \li Array of strings
+            \li A list of paths relative to the plugin location or paths to the
+                \l{The Qt Resource System}{Qt resource system} that are searched for
+                \l{http://doc.qt.io/qtcreator/creator-project-wizards.html}{template-based wizards}.
+    \endtable
+
     \section2 A Note on Plugin Versions
 
     Plugin versions are in the form \c{x.y.z_n} where, \c x, \c y, \c z and \c n are

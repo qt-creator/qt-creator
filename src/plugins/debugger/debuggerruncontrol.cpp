@@ -30,6 +30,8 @@
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
 
+#include <remotelinux/remotelinux_constants.h>
+
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/environment.h>
@@ -497,6 +499,12 @@ void DebuggerRunTool::start()
             case LldbEngineType:
                 m_engines << createLldbEngine();
                 break;
+            case GdbDapEngineType:
+                m_engines << createDapEngine(ProjectExplorer::Constants::DAP_GDB_DEBUG_RUN_MODE);
+                break;
+            case LldbDapEngineType:
+                m_engines << createDapEngine(ProjectExplorer::Constants::DAP_LLDB_DEBUG_RUN_MODE);
+                break;
             case UvscEngineType:
                 m_engines << createUvscEngine();
                 break;
@@ -526,8 +534,8 @@ void DebuggerRunTool::start()
         return;
     }
 
-    if (auto interpreterAspect = runControl()->aspect<FilePathAspect>()) {
-        if (auto mainScriptAspect = runControl()->aspect<MainScriptAspect>()) {
+    if (auto interpreterAspect = runControl()->aspectData<FilePathAspect>()) {
+        if (auto mainScriptAspect = runControl()->aspectData<MainScriptAspect>()) {
             const FilePath mainScript = mainScriptAspect->filePath;
             const FilePath interpreter = interpreterAspect->filePath;
             if (!interpreter.isEmpty() && mainScript.endsWith(".py")) {
@@ -541,11 +549,11 @@ void DebuggerRunTool::start()
     for (auto engine : m_engines) {
         engine->setRunParameters(m_runParameters);
         engine->setRunId(d->runId);
-        engine->setRunTool(this);
         for (auto companion : m_engines) {
             if (companion != engine)
                 engine->addCompanionEngine(companion);
         }
+        engine->setRunTool(this);
         if (!first)
             engine->setSecondaryEngine();
         auto rc = runControl();
@@ -828,11 +836,11 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
 
     m_runParameters.displayName = runControl->displayName();
 
-    if (auto symbolsAspect = runControl->aspect<SymbolFileAspect>())
+    if (auto symbolsAspect = runControl->aspectData<SymbolFileAspect>())
         m_runParameters.symbolFile = symbolsAspect->filePath;
-    if (auto terminalAspect = runControl->aspect<TerminalAspect>())
+    if (auto terminalAspect = runControl->aspectData<TerminalAspect>())
         m_runParameters.useTerminal = terminalAspect->useTerminal;
-    if (auto runAsRootAspect = runControl->aspect<RunAsRootAspect>())
+    if (auto runAsRootAspect = runControl->aspectData<RunAsRootAspect>())
         m_runParameters.runAsRoot = runAsRootAspect->value;
 
     Kit *kit = runControl->kit();
@@ -847,7 +855,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
     if (QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit))
         m_runParameters.qtSourceLocation = qtVersion->sourcePath();
 
-    if (auto aspect = runControl->aspect<DebuggerRunConfigurationAspect>()) {
+    if (auto aspect = runControl->aspectData<DebuggerRunConfigurationAspect>()) {
         if (!aspect->useCppDebugger)
             m_runParameters.cppEngineType = NoEngineType;
         m_runParameters.isQmlDebugging = aspect->useQmlDebugger;
@@ -896,7 +904,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
 
     if (QtSupport::QtVersion *baseQtVersion = QtSupport::QtKitAspect::qtVersion(kit)) {
         const QVersionNumber qtVersion = baseQtVersion->qtVersion();
-        m_runParameters.fallbackQtVersion = 0x10000 * qtVersion.majorVersion()
+        m_runParameters.qtVersion = 0x10000 * qtVersion.majorVersion()
                                             + 0x100 * qtVersion.minorVersion()
                                             + qtVersion.microVersion();
     }
@@ -1060,7 +1068,15 @@ DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGat
                     cmd.addArg("--multi");
                 if (m_pid.isValid())
                     cmd.addArg("--attach");
-                cmd.addArg(QString(":%1").arg(portsGatherer->gdbServer().port()));
+
+                const auto port = portsGatherer->gdbServer().port();
+                cmd.addArg(QString(":%1").arg(port));
+
+                if (runControl->device()->extraData(RemoteLinux::Constants::SshForwardDebugServerPort).toBool()) {
+                    addExtraData(RemoteLinux::Constants::SshForwardPort, port);
+                    addExtraData(RemoteLinux::Constants::DisableSharing, true);
+                }
+
                 if (m_pid.isValid())
                     cmd.addArg(QString::number(m_pid.pid()));
             }
@@ -1091,6 +1107,7 @@ DebuggerRunWorkerFactory::DebuggerRunWorkerFactory()
     addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     addSupportedRunMode(ProjectExplorer::Constants::DAP_CMAKE_DEBUG_RUN_MODE);
     addSupportedRunMode(ProjectExplorer::Constants::DAP_GDB_DEBUG_RUN_MODE);
+    addSupportedRunMode(ProjectExplorer::Constants::DAP_LLDB_DEBUG_RUN_MODE);
     addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
     addSupportedDeviceType("DockerDeviceType");
 

@@ -9,11 +9,10 @@
 
 #include "qmt/stereotype/stereotypecontroller.h"
 
-#include <QDir>
-#include <QFileInfo>
-#include <QFile>
-
 #include <QDebug>
+
+using Utils::FilePath;
+using Utils::FilePaths;
 
 namespace qmt {
 
@@ -39,7 +38,7 @@ void ConfigController::setStereotypeController(StereotypeController *stereotypeC
     d->m_stereotypeController = stereotypeController;
 }
 
-void ConfigController::readStereotypeDefinitions(const QString &path)
+void ConfigController::readStereotypeDefinitions(const FilePath &path)
 {
     if (path.isEmpty()) {
         // TODO add error handling
@@ -54,25 +53,19 @@ void ConfigController::readStereotypeDefinitions(const QString &path)
     connect(&parser, &StereotypeDefinitionParser::toolbarParsed,
             this, &ConfigController::onToolbarParsed);
 
-    QStringList fileNames;
-    QDir dir;
-    QFileInfo fileInfo(path);
-    if (fileInfo.isFile()) {
-        dir.setPath(fileInfo.path());
-        fileNames.append(fileInfo.fileName());
-    } else if (fileInfo.isDir()) {
-        dir.setPath(path);
-        dir.setNameFilters(QStringList("*.def"));
-        fileNames = dir.entryList(QDir::Files);
+    FilePaths paths;
+    if (path.isFile()) {
+        paths.append(path);
+    } else if (path.isDir()) {
+        paths = path.dirEntries({ { "*.def" } });
     } else {
         // TODO add error handling
         return;
     }
-    for (const QString &fileName : std::as_const(fileNames)) {
-        QFile file(QFileInfo(dir, fileName).absoluteFilePath());
-        if (file.open(QIODevice::ReadOnly)) {
-            QString text = QString::fromUtf8(file.readAll());
-            file.close();
+    for (const FilePath &filePath : std::as_const(paths)) {
+        auto data = filePath.fileContents();
+        if (data.has_value()) {
+            QString text = QString::fromUtf8(data.value());
             StringTextSource source;
             source.setSourceId(1);
             source.setText(text);

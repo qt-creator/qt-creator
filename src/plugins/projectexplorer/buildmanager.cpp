@@ -209,10 +209,10 @@ static int queue(const QList<Project *> &projects, const QList<Id> &stepIds,
     if (!ProjectExplorerPlugin::saveModifiedFiles())
         return -1;
 
-    const ProjectExplorerSettings &settings = ProjectExplorerPlugin::projectExplorerSettings();
-    if (settings.stopBeforeBuild != StopBeforeBuild::None
+    const StopBeforeBuild stopBeforeBuild = projectExplorerSettings().stopBeforeBuild;
+    if (stopBeforeBuild != StopBeforeBuild::None
             && stepIds.contains(Constants::BUILDSTEPS_BUILD)) {
-        StopBeforeBuild stopCondition = settings.stopBeforeBuild;
+        StopBeforeBuild stopCondition = stopBeforeBuild;
         if (stopCondition == StopBeforeBuild::SameApp && !forRunConfig)
             stopCondition = StopBeforeBuild::SameBuildDir;
         const auto isStoppableRc = [&projects, stopCondition, configSelection, forRunConfig,
@@ -258,7 +258,7 @@ static int queue(const QList<Project *> &projects, const QList<Id> &stepIds,
 
         if (!toStop.isEmpty()) {
             bool stopThem = true;
-            if (settings.prompToStopRunControl) {
+            if (projectExplorerSettings().prompToStopRunControl) {
                 QStringList names = Utils::transform(toStop, &RunControl::displayName);
                 if (QMessageBox::question(ICore::dialogParent(),
                         Tr::tr("Stop Applications"),
@@ -516,7 +516,7 @@ void BuildManager::rebuildProjects(const QList<Project *> &projects,
 void BuildManager::deployProjects(const QList<Project *> &projects)
 {
     QList<Id> steps;
-    if (ProjectExplorerPlugin::projectExplorerSettings().buildBeforeDeploy != BuildBeforeRunMode::Off)
+    if (projectExplorerSettings().buildBeforeDeploy != BuildBeforeRunMode::Off)
         steps << Id(Constants::BUILDSTEPS_BUILD);
     steps << Id(Constants::BUILDSTEPS_DEPLOY);
     queue(projects, steps, ConfigSelection::Active);
@@ -525,10 +525,9 @@ void BuildManager::deployProjects(const QList<Project *> &projects)
 BuildForRunConfigStatus BuildManager::potentiallyBuildForRunConfig(RunConfiguration *rc)
 {
     QList<Id> stepIds;
-    const ProjectExplorerSettings &settings = ProjectExplorerPlugin::projectExplorerSettings();
-    if (settings.deployBeforeRun) {
+    if (projectExplorerSettings().deployBeforeRun) {
         if (!isBuilding()) {
-            switch (settings.buildBeforeDeploy) {
+            switch (projectExplorerSettings().buildBeforeDeploy) {
             case BuildBeforeRunMode::AppOnly:
                 if (rc->target()->activeBuildConfiguration())
                     rc->target()->activeBuildConfiguration()->restrictNextBuild(rc);
@@ -721,8 +720,7 @@ void BuildManager::startBuildQueue()
     };
 
     const GroupItem abortPolicy
-        = ProjectExplorerPlugin::projectExplorerSettings().abortBuildAllOnError
-              ? stopOnError : continueOnError;
+        = projectExplorerSettings().abortBuildAllOnError ? stopOnError : continueOnError;
 
     QList<GroupItem> topLevel { abortPolicy, ParserAwaiterTask(onAwaiterSetup) };
     Project *lastProject = nullptr;
@@ -856,7 +854,7 @@ bool BuildManager::buildQueueAppend(const QList<BuildItem> &items, const QString
 {
     if (!d->m_taskTreeRunner.isRunning()) {
         d->m_outputWindow->clearContents();
-        if (ProjectExplorerPlugin::projectExplorerSettings().clearIssuesOnRebuild) {
+        if (projectExplorerSettings().clearIssuesOnRebuild) {
             TaskHub::clearTasks(Constants::TASK_CATEGORY_COMPILE);
             TaskHub::clearTasks(Constants::TASK_CATEGORY_BUILDSYSTEM);
             TaskHub::clearTasks(Constants::TASK_CATEGORY_DEPLOYMENT);

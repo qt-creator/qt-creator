@@ -31,7 +31,7 @@ inline QColor studioTextColor(bool enabled, bool active, bool checked)
                                                      : Theme::DStextColor)
                                            : Theme::DStextColorDisabled;
 
-    return creatorTheme()->color(themePenColorId);
+    return creatorColor(themePenColorId);
 }
 }; // namespace
 
@@ -39,7 +39,7 @@ StudioStylePrivate::StudioStylePrivate(StudioStyle *q)
     : QObject(q)
     , q(q)
 {
-    auto color = [](Theme::Color c) { return creatorTheme()->color(c); };
+    auto color = [](Theme::Color c) { return creatorColor(c); };
 
     {
         stdPalette.setColorGroup(QPalette::Disabled,                        // group

@@ -32,8 +32,6 @@ def getOrModifyFilePatternsFor(mimeType, filter='', toBePresent=None):
     result = []
     invokeMenuItem("Edit", "Preferences...")
     mouseClick(waitForObjectItem(":Options_QListView", "Environment"))
-    waitForObject("{container=':Options.qt_tabwidget_tabbar_QTabBar' type='TabItem' "
-                  "text='MIME Types'}")
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "MIME Types")
     replaceEditorContent(waitForObject("{name='filterLineEdit' type='Utils::FancyLineEdit' "
                                        "visible='1'}"), filter)
@@ -95,8 +93,6 @@ def addHighlighterDefinition(*languages):
     test.log("Updating highlighter definitions...")
     invokeMenuItem("Edit", "Preferences...")
     mouseClick(waitForObjectItem(":Options_QListView", "Text Editor"))
-    waitForObject("{container=':Options.qt_tabwidget_tabbar_QTabBar' type='TabItem' "
-                  "text='Generic Highlighter'}")
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Generic Highlighter")
 
     test.log("Trying to download definitions...")

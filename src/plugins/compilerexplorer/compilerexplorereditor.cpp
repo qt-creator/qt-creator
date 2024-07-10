@@ -18,7 +18,6 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/textmark.h>
 
@@ -53,6 +52,7 @@ using namespace std::chrono_literals;
 using namespace Aggregation;
 using namespace TextEditor;
 using namespace Utils;
+using namespace Core;
 
 namespace CompilerExplorer {
 
@@ -66,7 +66,11 @@ constexpr char SourceEditorHoverLine[] = "SourceEditor.HoveredLine";
 CodeEditorWidget::CodeEditorWidget(const std::shared_ptr<SourceSettings> &settings,
                                    QUndoStack *undoStack)
     : m_settings(settings)
-    , m_undoStack(undoStack){};
+    , m_undoStack(undoStack)
+{
+    connect(undoStack, &QUndoStack::canUndoChanged, this, [this]() { updateUndoRedoActions(); });
+    connect(undoStack, &QUndoStack::canRedoChanged, this, [this]() { updateUndoRedoActions(); });
+};
 
 void CodeEditorWidget::updateHighlighter()
 {
@@ -254,13 +258,13 @@ SourceEditorWidget::SourceEditorWidget(const std::shared_ptr<SourceSettings> &se
         settings->languageId,
         addCompilerButton,
         removeSourceButton,
-        customMargin({6, 0, 0, 0}), spacing(0),
+        customMargins(6, 0, 0, 0), spacing(0),
     }.attachTo(toolBar);
 
     Column {
         toolBar,
         m_codeEditor,
-        noMargin(), spacing(0),
+        noMargin, spacing(0),
     }.attachTo(this);
     // clang-format on
 
@@ -366,7 +370,6 @@ CompilerWidget::CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSett
     connect(m_asmEditor, &AsmEditorWidget::gotFocus, this, &CompilerWidget::gotFocus);
 
     auto advButton = new QToolButton;
-    QSplitter *splitter{nullptr};
 
     auto advDlg = new QAction;
     advDlg->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
@@ -396,53 +399,51 @@ CompilerWidget::CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSett
     });
 
     // clang-format off
-
     Row {
         m_compilerSettings->compiler,
         advButton,
         removeCompilerBtn,
-        customMargin({6, 0, 0, 0}), spacing(0),
+        customMargins(6, 0, 0, 0), spacing(0),
     }.attachTo(toolBar);
 
     Column {
         toolBar,
         Splitter {
-            bindTo(&splitter),
             m_asmEditor,
             createTerminal()
         },
-        noMargin(), spacing(0),
+        noMargin, spacing(0),
     }.attachTo(this);
     // clang-format on
 
     m_spinner = new SpinnerSolution::Spinner(SpinnerSolution::SpinnerSize::Large, this);
 }
 
-Core::SearchableTerminal *CompilerWidget::createTerminal()
+SearchableTerminal *CompilerWidget::createTerminal()
 {
-    m_resultTerminal = new Core::SearchableTerminal();
+    m_resultTerminal = new SearchableTerminal();
     m_resultTerminal->setAllowBlinkingCursor(false);
-    std::array<QColor, 20> colors{Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi0),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi1),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi2),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi3),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi4),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi5),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi6),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi7),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi8),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi9),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi10),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi11),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi12),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi13),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi14),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalAnsi15),
+    std::array<QColor, 20> colors{Utils::creatorColor(Utils::Theme::TerminalAnsi0),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi1),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi2),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi3),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi4),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi5),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi6),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi7),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi8),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi9),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi10),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi11),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi12),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi13),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi14),
+                                  Utils::creatorColor(Utils::Theme::TerminalAnsi15),
 
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalForeground),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalBackground),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalSelection),
-                                  Utils::creatorTheme()->color(Utils::Theme::TerminalFindMatch)};
+                                  Utils::creatorColor(Utils::Theme::TerminalForeground),
+                                  Utils::creatorColor(Utils::Theme::TerminalBackground),
+                                  Utils::creatorColor(Utils::Theme::TerminalSelection),
+                                  Utils::creatorColor(Utils::Theme::TerminalFindMatch)};
 
     m_resultTerminal->setColors(colors);
 
@@ -554,7 +555,7 @@ void CompilerWidget::doCompile()
             const QList<QTextEdit::ExtraSelection> links = m_asmDocument->setCompileResult(r);
             m_asmEditor->setExtraSelections(AsmEditorLinks, links);
         } catch (const std::exception &e) {
-            Core::MessageManager::writeDisrupting(
+            MessageManager::writeDisrupting(
                 Tr::tr("Failed to compile: \"%1\".").arg(QString::fromUtf8(e.what())));
         }
     });
@@ -564,12 +565,10 @@ void CompilerWidget::doCompile()
 
 EditorWidget::EditorWidget(const std::shared_ptr<JsonSettingsDocument> &document,
                            QUndoStack *undoStack,
-                           TextEditorActionHandler &actionHandler,
                            QWidget *parent)
     : Utils::FancyMainWindow(parent)
     , m_document(document)
     , m_undoStack(undoStack)
-    , m_actionHandler(actionHandler)
 {
     setContextMenuPolicy(Qt::NoContextMenu);
     setDockNestingEnabled(true);
@@ -588,10 +587,6 @@ EditorWidget::EditorWidget(const std::shared_ptr<JsonSettingsDocument> &document
             &JsonSettingsDocument::settingsChanged,
             this,
             &EditorWidget::recreateEditors);
-
-    connect(this, &EditorWidget::gotFocus, this, [&actionHandler] {
-        actionHandler.updateCurrentEditor();
-    });
 
     setupHelpWidget();
 }
@@ -626,10 +621,6 @@ CompilerWidget *EditorWidget::addCompiler(const std::shared_ptr<SourceSettings> 
             [sourceSettings = sourceSettings.get(), compilerSettings = compilerSettings.get()] {
                 sourceSettings->compilers.removeItem(compilerSettings->shared_from_this());
             });
-
-    connect(compiler, &CompilerWidget::gotFocus, this, [this] {
-        m_actionHandler.updateCurrentEditor();
-    });
 
     return compiler;
 }
@@ -667,10 +658,6 @@ void EditorWidget::addSourceEditor(const std::shared_ptr<SourceSettings> &source
         m_document->settings()->m_sources.removeItem(sourceSettings->shared_from_this());
         m_undoStack->endMacro();
         setupHelpWidget();
-    });
-
-    connect(sourceEditor, &SourceEditorWidget::gotFocus, this, [this] {
-        m_actionHandler.updateCurrentEditor();
     });
 
     dockWidget->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
@@ -842,35 +829,30 @@ TextEditor::TextEditorWidget *EditorWidget::focusedEditorWidget() const
     return nullptr;
 }
 
-Editor::Editor(TextEditorActionHandler &actionHandler)
+Editor::Editor()
     : m_document(new JsonSettingsDocument(&m_undoStack))
 {
-    setContext(Core::Context(Constants::CE_EDITOR_ID));
-    setWidget(new EditorWidget(m_document, &m_undoStack, actionHandler));
+    setContext(Context(Constants::CE_EDITOR_ID));
+    setWidget(new EditorWidget(m_document, &m_undoStack));
 
-    connect(&m_undoStack, &QUndoStack::canUndoChanged, this, [&actionHandler] {
-        actionHandler.updateActions();
-    });
-    connect(&m_undoStack, &QUndoStack::canRedoChanged, this, [&actionHandler] {
-        actionHandler.updateActions();
-    });
+    m_undoAction = ActionBuilder(this, Core::Constants::UNDO)
+                       .setContext(m_context)
+                       .addOnTriggered([this] { m_undoStack.undo(); })
+                       .setScriptable(true)
+                       .contextAction();
+    m_redoAction = ActionBuilder(this, Core::Constants::REDO)
+                       .setContext(m_context)
+                       .addOnTriggered([this] { m_undoStack.redo(); })
+                       .setScriptable(true)
+                       .contextAction();
+
+    connect(&m_undoStack, &QUndoStack::canUndoChanged, m_undoAction, &QAction::setEnabled);
+    connect(&m_undoStack, &QUndoStack::canRedoChanged, m_redoAction, &QAction::setEnabled);
 }
 
 Editor::~Editor()
 {
     delete widget();
-}
-
-static bool childHasFocus(QWidget *parent)
-{
-    if (parent->hasFocus())
-        return true;
-
-    for (QWidget *child : parent->findChildren<QWidget *>())
-        if (childHasFocus(child))
-            return true;
-
-    return false;
 }
 
 QWidget *Editor::toolBar()
@@ -909,65 +891,11 @@ QWidget *Editor::toolBar()
 }
 
 EditorFactory::EditorFactory()
-    : m_actionHandler(Constants::CE_EDITOR_ID,
-                      Constants::CE_EDITOR_ID,
-                      TextEditor::TextEditorActionHandler::None,
-                      [](Core::IEditor *editor) -> TextEditorWidget * {
-                          return static_cast<EditorWidget *>(editor->widget())->focusedEditorWidget();
-                      })
 {
     setId(Constants::CE_EDITOR_ID);
     setDisplayName(Tr::tr("Compiler Explorer Editor"));
     setMimeTypes({"application/compiler-explorer"});
-
-    auto undoStackFromEditor = [](Core::IEditor *editor) -> QUndoStack * {
-        if (!editor)
-            return nullptr;
-        return &static_cast<Editor *>(editor)->m_undoStack;
-    };
-
-    m_actionHandler.setCanUndoCallback([undoStackFromEditor](Core::IEditor *editor) {
-        if (auto undoStack = undoStackFromEditor(editor))
-            return undoStack->canUndo();
-        return false;
-    });
-
-    m_actionHandler.setCanRedoCallback([undoStackFromEditor](Core::IEditor *editor) {
-        if (auto undoStack = undoStackFromEditor(editor))
-            return undoStack->canRedo();
-        return false;
-    });
-
-    m_actionHandler.setUnhandledCallback(
-        [undoStackFromEditor](Utils::Id cmdId, Core::IEditor *editor) {
-            if (cmdId == TextEditor::Constants::INCREASE_FONT_SIZE) {
-                TextEditor::TextEditorSettings::instance()->increaseFontZoom();
-                return true;
-            } else if (cmdId == TextEditor::Constants::DECREASE_FONT_SIZE) {
-                TextEditor::TextEditorSettings::instance()->decreaseFontZoom();
-                return true;
-            }
-
-            if (cmdId != Core::Constants::UNDO && cmdId != Core::Constants::REDO)
-                return false;
-
-            if (!childHasFocus(editor->widget()))
-                return false;
-
-            QUndoStack *undoStack = undoStackFromEditor(editor);
-
-            if (!undoStack)
-                return false;
-
-            if (cmdId == Core::Constants::UNDO)
-                undoStack->undo();
-            else
-                undoStack->redo();
-
-            return true;
-        });
-
-    setEditorCreator([this]() { return new Editor(m_actionHandler); });
+    setEditorCreator([] { return new Editor; });
 }
 
 QList<QTextEdit::ExtraSelection> AsmDocument::setCompileResult(

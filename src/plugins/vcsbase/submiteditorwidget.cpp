@@ -585,8 +585,7 @@ void SubmitEditorWidget::verifyDescription()
     }
 
     auto fontColor = [](Utils::Theme::Color color) {
-        return QString("<font color=\"%1\">")
-                .arg(Utils::creatorTheme()->color(color).name());
+        return QString("<font color=\"%1\">").arg(Utils::creatorColor(color).name());
     };
     const QString hint = fontColor(Utils::Theme::OutputPanes_TestWarnTextColor);
     const QString warning = fontColor(Utils::Theme::TextColorError);

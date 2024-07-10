@@ -4,47 +4,39 @@
 
 #include "androidsdkpackage.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QObject>
-#include <QFuture>
 
 #include <memory>
 
-namespace Android {
+QT_BEGIN_NAMESPACE
+class QRegularExpression;
+QT_END_MOC_NAMESPACE
 
-class AndroidConfig;
-
-namespace Internal {
+namespace Android::Internal {
 
 class AndroidSdkManagerPrivate;
+
+struct InstallationChange
+{
+    QStringList toInstall;
+    QStringList toUninstall = {};
+    int count() const { return toInstall.count() + toUninstall.count(); }
+};
 
 class AndroidSdkManager : public QObject
 {
     Q_OBJECT
+
 public:
-    enum CommandType
-    {
-        None,
-        UpdateAll,
-        UpdatePackage,
-        LicenseCheck,
-        LicenseWorkflow
-    };
-
-    struct OperationOutput
-    {
-        bool success = false;
-        CommandType type = None;
-        QString stdOutput;
-        QString stdError;
-    };
-
     AndroidSdkManager();
-    ~AndroidSdkManager() override;
+    ~AndroidSdkManager();
 
     SdkPlatformList installedSdkPlatforms();
     const AndroidSdkPackageList &allSdkPackages();
+    QStringList notFoundEssentialSdkPackages();
+    QStringList missingEssentialSdkPackages();
     AndroidSdkPackageList installedSdkPackages();
     SystemImageList installedSystemImages();
     NdkList installedNdkPackages();
@@ -57,31 +49,23 @@ public:
     BuildToolsList filteredBuildTools(int minApiLevel,
                                       AndroidSdkPackage::PackageState state
                                       = AndroidSdkPackage::Installed);
-    void reloadPackages(bool forceReload = false);
-    bool isBusy() const;
+    void refreshPackages();
+    void reloadPackages();
 
     bool packageListingSuccessful() const;
 
-    QFuture<QString> availableArguments() const;
-    QFuture<OperationOutput> updateAll();
-    QFuture<OperationOutput> update(const QStringList &install, const QStringList &uninstall);
-    QFuture<OperationOutput> checkPendingLicenses();
-    QFuture<OperationOutput> runLicenseCommand();
-
-    void cancelOperatons();
-    void acceptSdkLicense(bool accept);
+    void runInstallationChange(const InstallationChange &change, const QString &extraMessage = {});
+    void runUpdate();
 
 signals:
     void packageReloadBegin();
     void packageReloadFinished();
-    void cancelActiveOperations();
 
 private:
     friend class AndroidSdkManagerPrivate;
     std::unique_ptr<AndroidSdkManagerPrivate> m_d;
 };
 
+const QRegularExpression &assertionRegExp();
 
-int parseProgress(const QString &out, bool &foundAssertion);
-} // namespace Internal
-} // namespace Android
+} // namespace Android::Internal

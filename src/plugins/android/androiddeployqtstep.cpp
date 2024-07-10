@@ -66,27 +66,45 @@ const QLatin1String InstallFailedUpdateIncompatible("INSTALL_FAILED_UPDATE_INCOM
 const QLatin1String InstallFailedPermissionModelDowngrade("INSTALL_FAILED_PERMISSION_MODEL_DOWNGRADE");
 const QLatin1String InstallFailedVersionDowngrade("INSTALL_FAILED_VERSION_DOWNGRADE");
 
+enum DeployErrorFlag
+{
+    NoError = 0,
+    InconsistentCertificates = 0x0001,
+    UpdateIncompatible = 0x0002,
+    PermissionModelDowngrade = 0x0004,
+    VersionDowngrade = 0x0008,
+    Failure = 0x0010
+};
+
+Q_DECLARE_FLAGS(DeployErrorFlags, DeployErrorFlag)
+
+static DeployErrorFlags parseDeployErrors(const QString &deployOutputLine)
+{
+    DeployErrorFlags errorCode = NoError;
+
+    if (deployOutputLine.contains(InstallFailedInconsistentCertificatesString))
+        errorCode |= InconsistentCertificates;
+    if (deployOutputLine.contains(InstallFailedUpdateIncompatible))
+        errorCode |= UpdateIncompatible;
+    if (deployOutputLine.contains(InstallFailedPermissionModelDowngrade))
+        errorCode |= PermissionModelDowngrade;
+    if (deployOutputLine.contains(InstallFailedVersionDowngrade))
+        errorCode |= VersionDowngrade;
+
+    return errorCode;
+}
+
 // AndroidDeployQtStep
 
 class AndroidDeployQtStep : public BuildStep
 {
     Q_OBJECT
 
-    enum DeployErrorCode
-    {
-        NoError = 0,
-        InconsistentCertificates = 0x0001,
-        UpdateIncompatible = 0x0002,
-        PermissionModelDowngrade = 0x0004,
-        VersionDowngrade = 0x0008,
-        Failure = 0x0010
-    };
-
 public:
     AndroidDeployQtStep(BuildStepList *bc, Id id);
 
 signals:
-    void askForUninstall(DeployErrorCode errorCode);
+    void askForUninstall(DeployErrorFlags errorCode);
 
 private:
     void runCommand(const CommandLine &command);
@@ -94,26 +112,17 @@ private:
     bool init() override;
     Tasking::GroupItem runRecipe() final;
     void gatherFilesToPull();
-    DeployErrorCode runDeploy(QPromise<void> &promise);
-    void slotAskForUninstall(DeployErrorCode errorCode);
+    DeployErrorFlags runDeploy(QPromise<void> &promise);
+    void slotAskForUninstall(DeployErrorFlags errorFlags);
 
     void runImpl(QPromise<void> &promise);
 
     QWidget *createConfigWidget() override;
 
-    void processReadyReadStdOutput(DeployErrorCode &errorCode);
+    void processReadyReadStdOutput(DeployErrorFlags &errorCode);
     void stdOutput(const QString &line);
-    void processReadyReadStdError(DeployErrorCode &errorCode);
+    void processReadyReadStdError(DeployErrorFlags &errorCode);
     void stdError(const QString &line);
-    DeployErrorCode parseDeployErrors(const QString &deployOutputLine) const;
-
-    friend void operator|=(DeployErrorCode &e1, const DeployErrorCode &e2) {
-        e1 = static_cast<AndroidDeployQtStep::DeployErrorCode>((int)e1 | (int)e2);
-    }
-
-    friend DeployErrorCode operator|(const DeployErrorCode &e1, const DeployErrorCode &e2) {
-        return static_cast<AndroidDeployQtStep::DeployErrorCode>((int)e1 | (int)e2);
-    }
 
     void reportWarningOrError(const QString &message, Task::TaskType type);
 
@@ -149,7 +158,7 @@ AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Id id)
     m_uninstallPreviousPackage.setValue(false);
 
     const QtSupport::QtVersion * const qt = QtSupport::QtKitAspect::qtVersion(kit());
-    const bool forced = qt && qt->qtVersion() < QVersionNumber(5, 4, 0);
+    const bool forced = qt && qt->qtVersion() < AndroidManager::firstQtWithAndroidDeployQt;
     if (forced) {
         m_uninstallPreviousPackage.setValue(true);
         m_uninstallPreviousPackage.setEnabled(false);
@@ -169,7 +178,7 @@ bool AndroidDeployQtStep::init()
         return false;
     }
 
-    m_androiddeployqtArgs = CommandLine();
+    m_androiddeployqtArgs = {};
 
     m_androidABIs = AndroidManager::applicationAbis(target());
     if (m_androidABIs.isEmpty()) {
@@ -277,7 +286,7 @@ bool AndroidDeployQtStep::init()
     if (m_uninstallPreviousPackageRun)
         m_manifestName = AndroidManager::manifestPath(target());
 
-    m_useAndroiddeployqt = version->qtVersion() >= QVersionNumber(5, 4, 0);
+    m_useAndroiddeployqt = version->qtVersion() >= AndroidManager::firstQtWithAndroidDeployQt;
     if (m_useAndroiddeployqt) {
         const QString buildKey = target()->activeBuildKey();
         const ProjectNode *node = target()->project()->findNodeForBuildKey(buildKey);
@@ -288,7 +297,7 @@ bool AndroidDeployQtStep::init()
         m_apkPath = FilePath::fromString(node->data(Constants::AndroidApk).toString());
         if (!m_apkPath.isEmpty()) {
             m_manifestName = FilePath::fromString(node->data(Constants::AndroidManifest).toString());
-            m_command = androidConfig().adbToolPath();
+            m_command = AndroidConfig::adbToolPath();
             AndroidManager::setManifestPath(target(), m_manifestName);
         } else {
             QString jsonFile = AndroidQtVersion::androidDeploymentSettings(target()).toString();
@@ -326,22 +335,21 @@ bool AndroidDeployQtStep::init()
         }
     } else {
         m_uninstallPreviousPackageRun = true;
-        m_command = androidConfig().adbToolPath();
+        m_command = AndroidConfig::adbToolPath();
         m_apkPath = AndroidManager::packagePath(target());
         m_workingDirectory = bc ? AndroidManager::buildDirectory(target()): FilePath();
     }
     m_environment = bc ? bc->environment() : Environment();
 
-    m_adbPath = androidConfig().adbToolPath();
+    m_adbPath = AndroidConfig::adbToolPath();
 
-    AndroidAvdManager avdManager;
     // Start the AVD if not running.
-    if (!m_avdName.isEmpty() && avdManager.findAvd(m_avdName).isEmpty())
-        avdManager.startAvdAsync(m_avdName);
+    if (!m_avdName.isEmpty() && AndroidAvdManager::findAvd(m_avdName).isEmpty())
+        AndroidAvdManager::startAvdAsync(m_avdName);
     return true;
 }
 
-AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy(QPromise<void> &promise)
+DeployErrorFlags AndroidDeployQtStep::runDeploy(QPromise<void> &promise)
 {
     CommandLine cmd(m_command);
     if (m_useAndroiddeployqt && m_apkPath.isEmpty()) {
@@ -356,23 +364,24 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy(QPromise<voi
 
     } else {
         RunConfiguration *rc = target()->activeRunConfiguration();
-        QTC_ASSERT(rc, return DeployErrorCode::Failure);
+        QTC_ASSERT(rc, return Failure);
         QString packageName;
 
         if (m_uninstallPreviousPackageRun) {
-            packageName = AndroidManager::packageName(m_manifestName);
+            packageName = AndroidManager::packageName(target());
             if (packageName.isEmpty()) {
-                reportWarningOrError(Tr::tr("Cannot find the package name from the Android Manifest "
-                                            "file \"%1\".").arg(m_manifestName.toUserOutput()),
-                                     Task::Error);
+                reportWarningOrError(
+                    Tr::tr("Cannot find the package name from AndroidManifest.xml nor "
+                           "build.gradle files at \"%1\".")
+                        .arg(AndroidManager::androidBuildDirectory(target()).toUserOutput()),
+                    Task::Error);
                 return Failure;
             }
             const QString msg = Tr::tr("Uninstalling the previous package \"%1\".").arg(packageName);
             qCDebug(deployStepLog) << msg;
             emit addOutput(msg, OutputFormat::NormalMessage);
             runCommand({m_adbPath,
-                       AndroidDeviceInfo::adbSelector(m_serialNumber)
-                       << "uninstall" << packageName});
+                        {AndroidDeviceInfo::adbSelector(m_serialNumber), "uninstall", packageName}});
         }
 
         cmd.addArgs(AndroidDeviceInfo::adbSelector(m_serialNumber));
@@ -385,7 +394,7 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy(QPromise<voi
     process.setEnvironment(m_environment);
     process.setUseCtrlCStub(true);
 
-    DeployErrorCode deployError = NoError;
+    DeployErrorFlags deployError = NoError;
 
     process.setStdOutLineCallback([this, &deployError](const QString &line) {
         deployError |= parseDeployErrors(line);
@@ -442,46 +451,32 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy(QPromise<voi
     return deployError;
 }
 
-void AndroidDeployQtStep::slotAskForUninstall(DeployErrorCode errorCode)
+void AndroidDeployQtStep::slotAskForUninstall(DeployErrorFlags errorFlags)
 {
-    Q_ASSERT(errorCode > 0);
+    Q_ASSERT(errorFlags > 0);
 
-    QString uninstallMsg = Tr::tr("Deployment failed with the following errors:\n\n");
-    uint errorCodeFlags = errorCode;
-    uint mask = 1;
-    while (errorCodeFlags) {
-      switch (errorCodeFlags & mask) {
-      case DeployErrorCode::PermissionModelDowngrade:
-          uninstallMsg += InstallFailedPermissionModelDowngrade+"\n";
-          break;
-      case InconsistentCertificates:
-          uninstallMsg += InstallFailedInconsistentCertificatesString+"\n";
-          break;
-      case UpdateIncompatible:
-          uninstallMsg += InstallFailedUpdateIncompatible+"\n";
-          break;
-      case VersionDowngrade:
-          uninstallMsg += InstallFailedVersionDowngrade+"\n";
-          break;
-      default:
-          break;
-      }
-      errorCodeFlags &= ~mask;
-      mask <<= 1;
-    }
+    QString uninstallMsg = Tr::tr("Deployment failed with the following errors:") + "\n\n";
+    if (errorFlags & InconsistentCertificates)
+        uninstallMsg += InstallFailedInconsistentCertificatesString + '\n';
+    if (errorFlags & UpdateIncompatible)
+        uninstallMsg += InstallFailedUpdateIncompatible + '\n';
+    if (errorFlags & PermissionModelDowngrade)
+        uninstallMsg += InstallFailedPermissionModelDowngrade + '\n';
+    if (errorFlags & VersionDowngrade)
+        uninstallMsg += InstallFailedVersionDowngrade + '\n';
+    uninstallMsg += '\n';
+    uninstallMsg.append(Tr::tr("Uninstalling the installed package may solve the issue.") + '\n');
+    uninstallMsg.append(Tr::tr("Do you want to uninstall the existing package?"));
 
-    uninstallMsg.append(Tr::tr("\nUninstalling the installed package may solve the issue.\n"
-                               "Do you want to uninstall the existing package?"));
-    int button = QMessageBox::critical(nullptr, Tr::tr("Install failed"), uninstallMsg,
-                                       QMessageBox::Yes, QMessageBox::No);
-    m_askForUninstall = button == QMessageBox::Yes;
+    m_askForUninstall = QMessageBox::critical(nullptr, Tr::tr("Install failed"), uninstallMsg,
+                        QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes;
 }
 
 // TODO: This implementation is not thread safe.
 void AndroidDeployQtStep::runImpl(QPromise<void> &promise)
 {
     if (!m_avdName.isEmpty()) {
-        const QString serialNumber = AndroidAvdManager().waitForAvd(m_avdName, promise.future());
+        const QString serialNumber = AndroidAvdManager::waitForAvd(m_avdName, promise.future());
         qCDebug(deployStepLog) << "Deploying to AVD:" << m_avdName << serialNumber;
         if (serialNumber.isEmpty()) {
             reportWarningOrError(Tr::tr("The deployment AVD \"%1\" cannot be started.")
@@ -494,8 +489,8 @@ void AndroidDeployQtStep::runImpl(QPromise<void> &promise)
         AndroidManager::setDeviceSerialNumber(target(), serialNumber);
     }
 
-    DeployErrorCode returnValue = runDeploy(promise);
-    if (returnValue > DeployErrorCode::NoError && returnValue < DeployErrorCode::Failure) {
+    DeployErrorFlags returnValue = runDeploy(promise);
+    if (returnValue > NoError && returnValue < Failure) {
         emit askForUninstall(returnValue);
         if (m_askForUninstall) {
             m_uninstallPreviousPackageRun = true;
@@ -519,9 +514,8 @@ void AndroidDeployQtStep::runImpl(QPromise<void> &promise)
             reportWarningOrError(error, Task::Error);
         }
 
-        runCommand({m_adbPath,
-                   AndroidDeviceInfo::adbSelector(m_serialNumber)
-                   << "pull" << itr.key() << itr.value().nativePath()});
+        runCommand({m_adbPath, {AndroidDeviceInfo::adbSelector(m_serialNumber), "pull", itr.key(),
+                                itr.value().nativePath()}});
         if (!itr.value().exists()) {
             const QString error = Tr::tr("Package deploy: Failed to pull \"%1\" to \"%2\".")
                     .arg(itr.key())
@@ -635,22 +629,6 @@ void AndroidDeployQtStep::stdError(const QString &line)
     }
 }
 
-AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::parseDeployErrors(
-        const QString &deployOutputLine) const
-{
-    DeployErrorCode errorCode = NoError;
-
-    if (deployOutputLine.contains(InstallFailedInconsistentCertificatesString))
-        errorCode |= InconsistentCertificates;
-    if (deployOutputLine.contains(InstallFailedUpdateIncompatible))
-        errorCode |= UpdateIncompatible;
-    if (deployOutputLine.contains(InstallFailedPermissionModelDowngrade))
-        errorCode |= PermissionModelDowngrade;
-    if (deployOutputLine.contains(InstallFailedVersionDowngrade))
-        errorCode |= VersionDowngrade;
-
-    return errorCode;
-}
 
 void AndroidDeployQtStep::reportWarningOrError(const QString &message, Task::TaskType type)
 {

@@ -26,6 +26,7 @@
 
 #include <QCheckBox>
 #include <QComboBox>
+#include <QGroupBox>
 #include <QLabel>
 #include <QSpinBox>
 
@@ -106,9 +107,10 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(ICodeStylePreferenc
 
     QWidget *globalSettingsGroupBoxWidget = nullptr;
 
+    // clang-format off
     Group globalSettingsGroupBox {
         bindTo(&globalSettingsGroupBoxWidget),
-        title(Tr::tr("ClangFormat settings:")),
+        title(Tr::tr("ClangFormat Settings")),
         Column {
             m_useGlobalSettings,
             Form {
@@ -127,6 +129,7 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(ICodeStylePreferenc
         globalSettingsGroupBox,
         noMargin
     }.attachTo(this);
+    // clang-format on
 
     initCheckBoxes();
     initIndentationOrFormattingCombobox();
@@ -253,8 +256,8 @@ void ClangFormatGlobalConfigWidget::initCurrentProjectLabel()
 
 bool ClangFormatGlobalConfigWidget::projectClangFormatFileExists()
 {
-    llvm::Expected<clang::format::FormatStyle> styleFromProjectFolder
-        = clang::format::getStyle("file", m_project->projectFilePath().path().toStdString(), "none");
+    llvm::Expected<clang::format::FormatStyle> styleFromProjectFolder = clang::format::getStyle(
+        "file", m_project->projectFilePath().path().toStdString(), "none", "", nullptr, true);
 
     return styleFromProjectFolder && !(*styleFromProjectFolder == clang::format::getNoStyle());
 }

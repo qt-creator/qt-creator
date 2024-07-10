@@ -100,11 +100,6 @@ static void clearAlwaysOpenWithMode()
     ICore::settings()->remove(QmlProjectManager::Constants::ALWAYS_OPEN_UI_MODE);
 }
 
-class QmlProjectPluginPrivate
-{
-public:
-};
-
 void openQDS(const FilePath &fileName)
 {
     const FilePath qdsPath = qdsInstallationEntry();
@@ -229,6 +224,26 @@ static QmlBuildSystem *qmlBuildSystemforFileNode(const FileNode *fileNode)
     return nullptr;
 }
 
+class ExternalDesignStudioFactory : public Core::IEditorFactory
+{
+public:
+    ExternalDesignStudioFactory()
+    {
+        setId("Qt.QtDesignStudio");
+        setDisplayName(Tr::tr("Qt Design Studio"));
+        setMimeTypes({Utils::Constants::QMLUI_MIMETYPE});
+        setEditorStarter([](const FilePath &filePath, [[maybe_unused]] QString *errorMessage) {
+            openInQDSWithProject(filePath);
+            return true;
+        });
+    }
+};
+
+void setupExternalDesignStudio()
+{
+    static ExternalDesignStudioFactory theExternalDesignStudioFactory;
+}
+
 class QmlProjectPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -274,6 +289,7 @@ private:
 void QmlProjectPlugin::initialize()
 {
     setupQmlProjectRunConfiguration();
+    setupExternalDesignStudio();
 
     if (!qmlDesignerEnabled()) {
         m_landingPage = new QdsLandingPage();

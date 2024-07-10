@@ -4,40 +4,121 @@
 #include "androidconfigurations.h"
 #include "androidsdkmanager.h"
 #include "androidtr.h"
-#include "avdmanageroutputparser.h"
 #include "sdkmanageroutputparser.h"
 
-#include <utils/algorithm.h>
-#include <utils/async.h>
-#include <utils/qtcprocess.h>
-#include <utils/qtcassert.h>
-#include <utils/stringutils.h>
+#include <coreplugin/icore.h>
 
-#include <QFutureWatcher>
+#include <solutions/tasking/tasktreerunner.h>
+
+#include <utils/algorithm.h>
+#include <utils/layoutbuilder.h>
+#include <utils/outputformatter.h>
+#include <utils/qtcprocess.h>
+
+#include <QDialogButtonBox>
+#include <QLabel>
 #include <QLoggingCategory>
-#include <QReadWriteLock>
+#include <QMessageBox>
+#include <QPlainTextEdit>
+#include <QProgressBar>
 #include <QRegularExpression>
 #include <QTextCodec>
 
 namespace {
 Q_LOGGING_CATEGORY(sdkManagerLog, "qtc.android.sdkManager", QtWarningMsg)
-const char commonArgsKey[] = "Common Arguments:";
 }
 
+using namespace Tasking;
 using namespace Utils;
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
-const int sdkManagerCmdTimeoutS = 60;
-const int sdkManagerOperationTimeoutS = 600;
+class QuestionProgressDialog : public QDialog
+{
+    Q_OBJECT
 
-using SdkCmdPromise = QPromise<AndroidSdkManager::OperationOutput>;
+public:
+    QuestionProgressDialog(QWidget *parent)
+        : QDialog(parent)
+        , m_outputTextEdit(new QPlainTextEdit)
+        , m_questionLabel(new QLabel(Tr::tr("Do you want to accept the Android SDK license?")))
+        , m_answerButtonBox(new QDialogButtonBox)
+        , m_progressBar(new QProgressBar)
+        , m_dialogButtonBox(new QDialogButtonBox)
+        , m_formatter(new OutputFormatter)
+    {
+        setWindowTitle(Tr::tr("Android SDK Manager"));
+        m_outputTextEdit->setReadOnly(true);
+        m_questionLabel->setAlignment(Qt::AlignRight | Qt::AlignTrailing | Qt::AlignVCenter);
+        m_answerButtonBox->setStandardButtons(QDialogButtonBox::No | QDialogButtonBox::Yes);
+        m_dialogButtonBox->setStandardButtons(QDialogButtonBox::Cancel);
+        m_formatter->setPlainTextEdit(m_outputTextEdit);
+        m_formatter->setParent(this);
 
-static const QRegularExpression &assertionRegExp()
+        using namespace Layouting;
+
+        Column {
+            m_outputTextEdit,
+            Row { m_questionLabel, m_answerButtonBox },
+            m_progressBar,
+            m_dialogButtonBox
+        }.attachTo(this);
+
+        setQuestionVisible(false);
+        setQuestionEnabled(false);
+
+        connect(m_answerButtonBox, &QDialogButtonBox::rejected, this, [this] {
+            emit answerClicked(false);
+        });
+        connect(m_answerButtonBox, &QDialogButtonBox::accepted, this, [this] {
+            emit answerClicked(true);
+        });
+        connect(m_dialogButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+        // GUI tuning
+        setModal(true);
+        resize(800, 600);
+        show();
+    }
+
+    void setQuestionEnabled(bool enable)
+    {
+        m_questionLabel->setEnabled(enable);
+        m_answerButtonBox->setEnabled(enable);
+    }
+    void setQuestionVisible(bool visible)
+    {
+        m_questionLabel->setVisible(visible);
+        m_answerButtonBox->setVisible(visible);
+    }
+    void appendMessage(const QString &text, OutputFormat format)
+    {
+        m_formatter->appendMessage(text, format);
+        m_outputTextEdit->ensureCursorVisible();
+    }
+    void setProgress(int value) { m_progressBar->setValue(value); }
+
+signals:
+    void answerClicked(bool accepted);
+
+private:
+    QPlainTextEdit *m_outputTextEdit = nullptr;
+    QLabel *m_questionLabel = nullptr;
+    QDialogButtonBox *m_answerButtonBox = nullptr;
+    QProgressBar *m_progressBar = nullptr;
+    QDialogButtonBox *m_dialogButtonBox = nullptr;
+    OutputFormatter *m_formatter = nullptr;
+};
+
+static QString sdkRootArg()
+{
+    return "--sdk_root=" + AndroidConfig::sdkLocation().toString();
+}
+
+const QRegularExpression &assertionRegExp()
 {
     static const QRegularExpression theRegExp
         (R"((\(\s*y\s*[\/\\]\s*n\s*\)\s*)(?<mark>[\:\?]))", // (y/N)?
@@ -46,112 +127,201 @@ static const QRegularExpression &assertionRegExp()
     return theRegExp;
 }
 
-int parseProgress(const QString &out, bool &foundAssertion)
+static std::optional<int> parseProgress(const QString &out)
 {
-    int progress = -1;
     if (out.isEmpty())
-        return progress;
+        return {};
+
     static const QRegularExpression reg("(?<progress>\\d*)%");
     static const QRegularExpression regEndOfLine("[\\n\\r]");
     const QStringList lines = out.split(regEndOfLine, Qt::SkipEmptyParts);
+    std::optional<int> progress;
     for (const QString &line : lines) {
         QRegularExpressionMatch match = reg.match(line);
         if (match.hasMatch()) {
-            progress = match.captured("progress").toInt();
-            if (progress < 0 || progress > 100)
-                progress = -1;
+            const int parsedProgress = match.captured("progress").toInt();
+            if (parsedProgress >= 0 && parsedProgress <= 100)
+                progress = parsedProgress;
         }
-        if (!foundAssertion)
-            foundAssertion = assertionRegExp().match(line).hasMatch();
     }
     return progress;
 }
 
-void watcherDeleter(QFutureWatcher<void> *watcher)
+struct DialogStorage
 {
-    if (!watcher->isFinished() && !watcher->isCanceled())
-        watcher->cancel();
+    DialogStorage() { m_dialog.reset(new QuestionProgressDialog(Core::ICore::dialogParent())); };
+    std::unique_ptr<QuestionProgressDialog> m_dialog;
+};
 
-    if (!watcher->isFinished())
-        watcher->waitForFinished();
-
-    delete watcher;
-}
-
-static QString sdkRootArg(const AndroidConfig &config)
+static GroupItem licensesRecipe(const Storage<DialogStorage> &dialogStorage)
 {
-    return "--sdk_root=" + config.sdkLocation().toString();
-}
-/*!
-    Runs the \c sdkmanger tool with arguments \a args. Returns \c true if the command is
-    successfully executed. Output is copied into \a output. The function blocks the calling thread.
- */
-static bool sdkManagerCommand(const AndroidConfig &config, const QStringList &args,
-                              QString *output, int timeout = sdkManagerCmdTimeoutS)
-{
-    QStringList newArgs = args;
-    newArgs.append(sdkRootArg(config));
-    qCDebug(sdkManagerLog).noquote() << "Running SDK Manager command (sync):"
-                                     << CommandLine(config.sdkManagerToolPath(), newArgs)
-                                        .toUserOutput();
-    Process proc;
-    proc.setEnvironment(config.toolsEnvironment());
-    proc.setTimeOutMessageBoxEnabled(true);
-    proc.setCommand({config.sdkManagerToolPath(), newArgs});
-    proc.runBlocking(seconds(timeout), EventLoopMode::On);
-    if (output)
-        *output = proc.allOutput();
-    return proc.result() == ProcessResult::FinishedWithSuccess;
-}
+    struct OutputData
+    {
+        QString buffer;
+        int current = 0;
+        int total = 0;
+    };
 
-/*!
-    Runs the \c sdkmanger tool with arguments \a args. The operation command progress is updated in
-    to the future interface \a fi and \a output is populated with command output. The command listens
-    to cancel signal emmitted by \a sdkManager and kill the commands. The command is also killed
-    after the lapse of \a timeout seconds. The function blocks the calling thread.
- */
-static void sdkManagerCommand(const AndroidConfig &config, const QStringList &args,
-                              AndroidSdkManager &sdkManager, SdkCmdPromise &promise,
-                              AndroidSdkManager::OperationOutput &output, double progressQuota,
-                              bool interruptible = true, int timeout = sdkManagerOperationTimeoutS)
-{
-    QStringList newArgs = args;
-    newArgs.append(sdkRootArg(config));
-    qCDebug(sdkManagerLog).noquote() << "Running SDK Manager command (async):"
-                                     << CommandLine(config.sdkManagerToolPath(), newArgs)
-                                        .toUserOutput();
-    int offset = promise.future().progressValue();
-    Process proc;
-    proc.setEnvironment(config.toolsEnvironment());
-    bool assertionFound = false;
-    proc.setStdOutCallback([offset, progressQuota, &proc, &assertionFound, &promise](const QString &out) {
-        int progressPercent = parseProgress(out, assertionFound);
-        if (assertionFound)
-            proc.stop();
-        if (progressPercent != -1)
-            promise.setProgressValue(offset + qRound((progressPercent / 100.0) * progressQuota));
-    });
-    proc.setStdErrCallback([&output](const QString &err) {
-        output.stdError = err;
-    });
-    if (interruptible) {
-        QObject::connect(&sdkManager, &AndroidSdkManager::cancelActiveOperations, &proc, [&proc] {
-           proc.stop();
-           proc.waitForFinished();
+    const Storage<OutputData> outputStorage;
+
+    const auto onLicenseSetup = [dialogStorage, outputStorage](Process &process) {
+        QuestionProgressDialog *dialog = dialogStorage->m_dialog.get();
+        dialog->setProgress(0);
+        dialog->appendMessage(Tr::tr("Checking pending licenses...") + "\n", NormalMessageFormat);
+        dialog->appendMessage(Tr::tr("The installation of Android SDK packages may fail if the "
+                                     "respective licenses are not accepted.") + "\n\n",
+                              LogMessageFormat);
+        process.setProcessMode(ProcessMode::Writer);
+        process.setEnvironment(AndroidConfig::toolsEnvironment());
+        process.setCommand(CommandLine(AndroidConfig::sdkManagerToolPath(),
+                                       {"--licenses", sdkRootArg()}));
+        process.setUseCtrlCStub(true);
+
+        Process *processPtr = &process;
+        OutputData *outputPtr = outputStorage.activeStorage();
+        QObject::connect(processPtr, &Process::readyReadStandardOutput, dialog,
+                         [processPtr, outputPtr, dialog] {
+            QTextCodec *codec = QTextCodec::codecForLocale();
+            const QString stdOut = codec->toUnicode(processPtr->readAllRawStandardOutput());
+            outputPtr->buffer += stdOut;
+            dialog->appendMessage(stdOut, StdOutFormat);
+            const auto progress = parseProgress(stdOut);
+            if (progress)
+                dialog->setProgress(*progress);
+            if (assertionRegExp().match(outputPtr->buffer).hasMatch()) {
+                dialog->setQuestionVisible(true);
+                dialog->setQuestionEnabled(true);
+                if (outputPtr->total == 0) {
+                    // Example output to match:
+                    //   5 of 6 SDK package licenses not accepted.
+                    //   Review licenses that have not been accepted (y/N)?
+                    static const QRegularExpression reg(R"(((?<steps>\d+)\sof\s)\d+)");
+                    const QRegularExpressionMatch match = reg.match(outputPtr->buffer);
+                    if (match.hasMatch()) {
+                        outputPtr->total = match.captured("steps").toInt();
+                        const QByteArray reply = "y\n";
+                        dialog->appendMessage(QString::fromUtf8(reply), NormalMessageFormat);
+                        processPtr->writeRaw(reply);
+                        dialog->setProgress(0);
+                    }
+                }
+                outputPtr->buffer.clear();
+            }
         });
-    }
-    proc.setCommand({config.sdkManagerToolPath(), newArgs});
-    proc.runBlocking(seconds(timeout), EventLoopMode::On);
-    if (assertionFound) {
-        output.success = false;
-        output.stdOutput = proc.cleanedStdOut();
-        output.stdError = Tr::tr("The operation requires user interaction. "
-                                 "Use the \"sdkmanager\" command-line tool.");
-    } else {
-        output.success = proc.result() == ProcessResult::FinishedWithSuccess;
-    }
+
+        QObject::connect(dialog, &QuestionProgressDialog::answerClicked, processPtr,
+                         [processPtr, outputPtr, dialog](bool accepted) {
+            dialog->setQuestionEnabled(false);
+            const QByteArray reply = accepted ? "y\n" : "n\n";
+            dialog->appendMessage(QString::fromUtf8(reply), NormalMessageFormat);
+            processPtr->writeRaw(reply);
+            ++outputPtr->current;
+            if (outputPtr->total != 0)
+                dialog->setProgress(outputPtr->current * 100.0 / outputPtr->total);
+        });
+    };
+
+    return Group { outputStorage, ProcessTask(onLicenseSetup) };
 }
 
+static void setupSdkProcess(const QStringList &args, Process *process,
+                            QuestionProgressDialog *dialog, int current, int total)
+{
+    process->setEnvironment(AndroidConfig::toolsEnvironment());
+    process->setCommand({AndroidConfig::sdkManagerToolPath(),
+                         args + AndroidConfig::sdkManagerToolArgs()});
+    QObject::connect(process, &Process::readyReadStandardOutput, dialog,
+                     [process, dialog, current, total] {
+        QTextCodec *codec = QTextCodec::codecForLocale();
+        const auto progress = parseProgress(codec->toUnicode(process->readAllRawStandardOutput()));
+        if (!progress)
+            return;
+        dialog->setProgress((current * 100.0 + *progress) / total);
+    });
+    QObject::connect(process, &Process::readyReadStandardError, dialog, [process, dialog] {
+        QTextCodec *codec = QTextCodec::codecForLocale();
+        dialog->appendMessage(codec->toUnicode(process->readAllRawStandardError()), StdErrFormat);
+    });
+};
+
+static void handleSdkProcess(QuestionProgressDialog *dialog, DoneWith result)
+{
+    if (result == DoneWith::Success)
+        dialog->appendMessage(Tr::tr("Finished successfully.") + "\n\n", StdOutFormat);
+    else
+        dialog->appendMessage(Tr::tr("Failed.") + "\n\n", StdErrFormat);
+}
+
+static GroupItem installationRecipe(const Storage<DialogStorage> &dialogStorage,
+                                    const InstallationChange &change)
+{
+    const auto onSetup = [dialogStorage] {
+        dialogStorage->m_dialog->appendMessage(
+            Tr::tr("Installing / Uninstalling selected packages...") + '\n', NormalMessageFormat);
+        const QString optionsMessage = HostOsInfo::isMacHost()
+            ? Tr::tr("Closing the preferences dialog will cancel the running and scheduled SDK "
+                     "operations.")
+            : Tr::tr("Closing the options dialog will cancel the running and scheduled SDK "
+                     "operations.");
+        dialogStorage->m_dialog->appendMessage(optionsMessage + '\n', LogMessageFormat);
+    };
+
+    const int total = change.count();
+    const LoopList uninstallIterator(change.toUninstall);
+    const auto onUninstallSetup = [dialogStorage, uninstallIterator, total](Process &process) {
+        const QStringList args = {"--uninstall", *uninstallIterator, sdkRootArg()};
+        QuestionProgressDialog *dialog = dialogStorage->m_dialog.get();
+        setupSdkProcess(args, &process, dialog, uninstallIterator.iteration(), total);
+        dialog->appendMessage(Tr::tr("Uninstalling %1...").arg(*uninstallIterator) + '\n',
+                              StdOutFormat);
+        dialog->setProgress(uninstallIterator.iteration() * 100.0 / total);
+    };
+
+    const LoopList installIterator(change.toInstall);
+    const int offset = change.toUninstall.count();
+    const auto onInstallSetup = [dialogStorage, installIterator, offset, total](Process &process) {
+        const QStringList args = {*installIterator, sdkRootArg()};
+        QuestionProgressDialog *dialog = dialogStorage->m_dialog.get();
+        setupSdkProcess(args, &process, dialog, offset + installIterator.iteration(), total);
+        dialog->appendMessage(Tr::tr("Installing %1...").arg(*installIterator) + '\n',
+                              StdOutFormat);
+        dialog->setProgress((offset + installIterator.iteration()) * 100.0 / total);
+    };
+
+    const auto onDone = [dialogStorage](DoneWith result) {
+        handleSdkProcess(dialogStorage->m_dialog.get(), result);
+    };
+
+    return Group {
+        onGroupSetup(onSetup),
+        Group {
+            finishAllAndSuccess,
+            uninstallIterator,
+            ProcessTask(onUninstallSetup, onDone)
+        },
+        Group {
+            finishAllAndSuccess,
+            installIterator,
+            ProcessTask(onInstallSetup, onDone)
+        }
+    };
+}
+
+static GroupItem updateRecipe(const Storage<DialogStorage> &dialogStorage)
+{
+    const auto onUpdateSetup = [dialogStorage](Process &process) {
+        const QStringList args = {"--update", sdkRootArg()};
+        QuestionProgressDialog *dialog = dialogStorage->m_dialog.get();
+        setupSdkProcess(args, &process, dialog, 0, 1);
+        dialog->appendMessage(Tr::tr("Updating installed packages...") + '\n', NormalMessageFormat);
+        dialog->setProgress(0);
+    };
+    const auto onDone = [dialogStorage](DoneWith result) {
+        handleSdkProcess(dialogStorage->m_dialog.get(), result);
+    };
+
+    return ProcessTask(onUpdateSetup, onDone);
+}
 
 class AndroidSdkManagerPrivate
 {
@@ -160,62 +330,67 @@ public:
     ~AndroidSdkManagerPrivate();
 
     AndroidSdkPackageList filteredPackages(AndroidSdkPackage::PackageState state,
-                                           AndroidSdkPackage::PackageType type,
-                                           bool forceUpdate = false);
-    const AndroidSdkPackageList &allPackages(bool forceUpdate = false);
-    void refreshSdkPackages(bool forceReload = false);
+                                           AndroidSdkPackage::PackageType type)
+    {
+        m_sdkManager.refreshPackages();
+        return Utils::filtered(m_allPackages, [state, type](const AndroidSdkPackage *p) {
+            return p->state() & state && p->type() & type;
+        });
+    }
+    const AndroidSdkPackageList &allPackages();
 
-    void parseCommonArguments(QPromise<QString> &promise);
-    void updateInstalled(SdkCmdPromise &fi);
-    void update(SdkCmdPromise &fi, const QStringList &install,
-                const QStringList &uninstall);
-    void checkPendingLicense(SdkCmdPromise &fi);
-    void getPendingLicense(SdkCmdPromise &fi);
-
-    void addWatcher(const QFuture<AndroidSdkManager::OperationOutput> &future);
-    void setLicenseInput(bool acceptLicense);
-
-    std::unique_ptr<QFutureWatcher<void>, decltype(&watcherDeleter)> m_activeOperation;
-
-private:
-    QByteArray getUserInput() const;
-    void clearUserInput();
     void reloadSdkPackages();
-    void clearPackages();
-    bool onLicenseStdOut(const QString &output, bool notify,
-                         AndroidSdkManager::OperationOutput &result, SdkCmdPromise &fi);
+
+    void runDialogRecipe(const Storage<DialogStorage> &dialogStorage,
+                         const GroupItem &licenseRecipe, const GroupItem &continuationRecipe);
 
     AndroidSdkManager &m_sdkManager;
     AndroidSdkPackageList m_allPackages;
     FilePath lastSdkManagerPath;
-    QString m_licenseTextCache;
-    QByteArray m_licenseUserInput;
-    mutable QReadWriteLock m_licenseInputLock;
-
-public:
     bool m_packageListingSuccessful = false;
+    TaskTreeRunner m_taskTreeRunner;
 };
 
-AndroidSdkManager::AndroidSdkManager()
-    : m_d(new AndroidSdkManagerPrivate(*this))
-{
-}
+AndroidSdkManager::AndroidSdkManager() : m_d(new AndroidSdkManagerPrivate(*this)) {}
 
-AndroidSdkManager::~AndroidSdkManager()
-{
-    cancelOperatons();
-}
+AndroidSdkManager::~AndroidSdkManager() = default;
 
 SdkPlatformList AndroidSdkManager::installedSdkPlatforms()
 {
-    AndroidSdkPackageList list = m_d->filteredPackages(AndroidSdkPackage::Installed,
-                                                       AndroidSdkPackage::SdkPlatformPackage);
+    const AndroidSdkPackageList list = m_d->filteredPackages(AndroidSdkPackage::Installed,
+                                                             AndroidSdkPackage::SdkPlatformPackage);
     return Utils::static_container_cast<SdkPlatform *>(list);
 }
 
 const AndroidSdkPackageList &AndroidSdkManager::allSdkPackages()
 {
     return m_d->allPackages();
+}
+
+QStringList AndroidSdkManager::notFoundEssentialSdkPackages()
+{
+    QStringList essentials = AndroidConfig::allEssentials();
+    const AndroidSdkPackageList &packages = allSdkPackages();
+    for (AndroidSdkPackage *package : packages) {
+        essentials.removeOne(package->sdkStylePath());
+        if (essentials.isEmpty())
+            return {};
+    }
+    return essentials;
+}
+
+QStringList AndroidSdkManager::missingEssentialSdkPackages()
+{
+    const QStringList essentials = AndroidConfig::allEssentials();
+    const AndroidSdkPackageList &packages = allSdkPackages();
+    QStringList missingPackages;
+    for (AndroidSdkPackage *package : packages) {
+        if (essentials.contains(package->sdkStylePath())
+            && package->state() != AndroidSdkPackage::Installed) {
+            missingPackages.append(package->sdkStylePath());
+        }
+    }
+    return missingPackages;
 }
 
 AndroidSdkPackageList AndroidSdkManager::installedSdkPackages()
@@ -225,23 +400,21 @@ AndroidSdkPackageList AndroidSdkManager::installedSdkPackages()
 
 SystemImageList AndroidSdkManager::installedSystemImages()
 {
-    AndroidSdkPackageList list = m_d->filteredPackages(AndroidSdkPackage::AnyValidState,
-                                                       AndroidSdkPackage::SdkPlatformPackage);
-    QList<SdkPlatform *> platforms = Utils::static_container_cast<SdkPlatform *>(list);
-
+    const AndroidSdkPackageList list = m_d->filteredPackages(AndroidSdkPackage::AnyValidState,
+                                                             AndroidSdkPackage::SdkPlatformPackage);
+    const QList<SdkPlatform *> platforms = Utils::static_container_cast<SdkPlatform *>(list);
     SystemImageList result;
     for (SdkPlatform *platform : platforms) {
         if (platform->systemImages().size() > 0)
             result.append(platform->systemImages());
     }
-
     return result;
 }
 
 NdkList AndroidSdkManager::installedNdkPackages()
 {
-    AndroidSdkPackageList list = m_d->filteredPackages(AndroidSdkPackage::Installed,
-                                                       AndroidSdkPackage::NDKPackage);
+    const AndroidSdkPackageList list = m_d->filteredPackages(AndroidSdkPackage::Installed,
+                                                             AndroidSdkPackage::NDKPackage);
     return Utils::static_container_cast<Ndk *>(list);
 }
 
@@ -263,7 +436,6 @@ SdkPlatformList AndroidSdkManager::filteredSdkPlatforms(int minApiLevel,
 {
     const AndroidSdkPackageList list = m_d->filteredPackages(state,
                                                              AndroidSdkPackage::SdkPlatformPackage);
-
     SdkPlatformList result;
     for (AndroidSdkPackage *p : list) {
         auto platform = static_cast<SdkPlatform *>(p);
@@ -287,14 +459,15 @@ BuildToolsList AndroidSdkManager::filteredBuildTools(int minApiLevel,
     return result;
 }
 
-void AndroidSdkManager::reloadPackages(bool forceReload)
+void AndroidSdkManager::refreshPackages()
 {
-    m_d->refreshSdkPackages(forceReload);
+    if (AndroidConfig::sdkManagerToolPath() != m_d->lastSdkManagerPath)
+        reloadPackages();
 }
 
-bool AndroidSdkManager::isBusy() const
+void AndroidSdkManager::reloadPackages()
 {
-    return m_d->m_activeOperation && !m_d->m_activeOperation->isFinished();
+    m_d->reloadSdkPackages();
 }
 
 bool AndroidSdkManager::packageListingSuccessful() const
@@ -302,95 +475,51 @@ bool AndroidSdkManager::packageListingSuccessful() const
     return m_d->m_packageListingSuccessful;
 }
 
-QFuture<QString> AndroidSdkManager::availableArguments() const
+/*!
+    Runs the \c sdkmanger tool with arguments \a args. Returns \c true if the command is
+    successfully executed. Output is copied into \a output. The function blocks the calling thread.
+ */
+static bool sdkManagerCommand(const QStringList &args, QString *output)
 {
-    return Utils::asyncRun(&AndroidSdkManagerPrivate::parseCommonArguments, m_d.get());
+    QStringList newArgs = args;
+    newArgs.append(sdkRootArg());
+    Process proc;
+    proc.setEnvironment(AndroidConfig::toolsEnvironment());
+    proc.setTimeOutMessageBoxEnabled(true);
+    proc.setCommand({AndroidConfig::sdkManagerToolPath(), newArgs});
+    qCDebug(sdkManagerLog).noquote() << "Running SDK Manager command (sync):"
+                                     << proc.commandLine().toUserOutput();
+    proc.runBlocking(60s, EventLoopMode::On);
+    if (output)
+        *output = proc.allOutput();
+    return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
-QFuture<AndroidSdkManager::OperationOutput> AndroidSdkManager::updateAll()
-{
-    if (isBusy()) {
-        return QFuture<AndroidSdkManager::OperationOutput>();
-    }
-    auto future = Utils::asyncRun(&AndroidSdkManagerPrivate::updateInstalled, m_d.get());
-    m_d->addWatcher(future);
-    return future;
-}
-
-QFuture<AndroidSdkManager::OperationOutput>
-AndroidSdkManager::update(const QStringList &install, const QStringList &uninstall)
-{
-    if (isBusy())
-        return QFuture<AndroidSdkManager::OperationOutput>();
-    auto future = Utils::asyncRun(&AndroidSdkManagerPrivate::update, m_d.get(), install, uninstall);
-    m_d->addWatcher(future);
-    return future;
-}
-
-QFuture<AndroidSdkManager::OperationOutput> AndroidSdkManager::checkPendingLicenses()
-{
-    if (isBusy())
-        return QFuture<AndroidSdkManager::OperationOutput>();
-    auto future = Utils::asyncRun(&AndroidSdkManagerPrivate::checkPendingLicense, m_d.get());
-    m_d->addWatcher(future);
-    return future;
-}
-
-QFuture<AndroidSdkManager::OperationOutput> AndroidSdkManager::runLicenseCommand()
-{
-    if (isBusy())
-        return QFuture<AndroidSdkManager::OperationOutput>();
-    auto future = Utils::asyncRun(&AndroidSdkManagerPrivate::getPendingLicense, m_d.get());
-    m_d->addWatcher(future);
-    return future;
-}
-
-void AndroidSdkManager::cancelOperatons()
-{
-    emit cancelActiveOperations();
-    m_d->m_activeOperation.reset();
-}
-
-void AndroidSdkManager::acceptSdkLicense(bool accept)
-{
-    m_d->setLicenseInput(accept);
-}
-
-AndroidSdkManagerPrivate::AndroidSdkManagerPrivate(AndroidSdkManager &sdkManager):
-    m_activeOperation(nullptr, watcherDeleter),
-    m_sdkManager(sdkManager)
+AndroidSdkManagerPrivate::AndroidSdkManagerPrivate(AndroidSdkManager &sdkManager)
+    : m_sdkManager(sdkManager)
 {}
 
 AndroidSdkManagerPrivate::~AndroidSdkManagerPrivate()
 {
-    clearPackages();
+    qDeleteAll(m_allPackages);
 }
 
-AndroidSdkPackageList
-AndroidSdkManagerPrivate::filteredPackages(AndroidSdkPackage::PackageState state,
-                                           AndroidSdkPackage::PackageType type, bool forceUpdate)
+const AndroidSdkPackageList &AndroidSdkManagerPrivate::allPackages()
 {
-    refreshSdkPackages(forceUpdate);
-    return Utils::filtered(m_allPackages, [state, type](const AndroidSdkPackage *p) {
-       return p->state() & state && p->type() & type;
-    });
-}
-
-const AndroidSdkPackageList &AndroidSdkManagerPrivate::allPackages(bool forceUpdate)
-{
-    refreshSdkPackages(forceUpdate);
+    m_sdkManager.refreshPackages();
     return m_allPackages;
 }
 
 void AndroidSdkManagerPrivate::reloadSdkPackages()
 {
     emit m_sdkManager.packageReloadBegin();
-    clearPackages();
+    qDeleteAll(m_allPackages);
+    m_allPackages.clear();
 
-    lastSdkManagerPath = androidConfig().sdkManagerToolPath();
+    lastSdkManagerPath = AndroidConfig::sdkManagerToolPath();
     m_packageListingSuccessful = false;
 
-    if (androidConfig().sdkToolsVersion().isNull()) {
+    if (AndroidConfig::sdkToolsVersion().isNull()) {
         // Configuration has invalid sdk path or corrupt installation.
         emit m_sdkManager.packageReloadFinished();
         return;
@@ -398,8 +527,8 @@ void AndroidSdkManagerPrivate::reloadSdkPackages()
 
     QString packageListing;
     QStringList args({"--list", "--verbose"});
-    args << androidConfig().sdkManagerToolArgs();
-    m_packageListingSuccessful = sdkManagerCommand(androidConfig(), args, &packageListing);
+    args << AndroidConfig::sdkManagerToolArgs();
+    m_packageListingSuccessful = sdkManagerCommand(args, &packageListing);
     if (m_packageListingSuccessful) {
         SdkManagerOutputParser parser(m_allPackages);
         parser.parsePackageListing(packageListing);
@@ -410,239 +539,67 @@ void AndroidSdkManagerPrivate::reloadSdkPackages()
     emit m_sdkManager.packageReloadFinished();
 }
 
-void AndroidSdkManagerPrivate::refreshSdkPackages(bool forceReload)
+void AndroidSdkManagerPrivate::runDialogRecipe(const Storage<DialogStorage> &dialogStorage,
+                                               const GroupItem &licensesRecipe,
+                                               const GroupItem &continuationRecipe)
 {
-    // Sdk path changed. Updated packages.
-    // QTC updates the package listing only
-    if (androidConfig().sdkManagerToolPath() != lastSdkManagerPath || forceReload)
-        reloadSdkPackages();
-}
-
-void AndroidSdkManagerPrivate::updateInstalled(SdkCmdPromise &promise)
-{
-    promise.setProgressRange(0, 100);
-    promise.setProgressValue(0);
-    AndroidSdkManager::OperationOutput result;
-    result.type = AndroidSdkManager::UpdateAll;
-    result.stdOutput = Tr::tr("Updating installed packages.");
-    promise.addResult(result);
-    QStringList args("--update");
-    args << androidConfig().sdkManagerToolArgs();
-    if (!promise.isCanceled())
-        sdkManagerCommand(androidConfig(), args, m_sdkManager, promise, result, 100);
-    else
-        qCDebug(sdkManagerLog) << "Update: Operation cancelled before start";
-
-    if (result.stdError.isEmpty() && !result.success)
-        result.stdError = Tr::tr("Failed.");
-    result.stdOutput = Tr::tr("Done") + "\n\n";
-    promise.addResult(result);
-    promise.setProgressValue(100);
-}
-
-void AndroidSdkManagerPrivate::update(SdkCmdPromise &fi, const QStringList &install,
-                                      const QStringList &uninstall)
-{
-    fi.setProgressRange(0, 100);
-    fi.setProgressValue(0);
-    double progressQuota = 100.0 / (install.count() + uninstall.count());
-    int currentProgress = 0;
-
-    QString installTag = Tr::tr("Installing");
-    QString uninstallTag = Tr::tr("Uninstalling");
-
-    auto doOperation = [&](const QString& packagePath, const QStringList& args,
-            bool isInstall) {
-        AndroidSdkManager::OperationOutput result;
-        result.type = AndroidSdkManager::UpdatePackage;
-        result.stdOutput = QString("%1 %2").arg(isInstall ? installTag : uninstallTag)
-                .arg(packagePath);
-        fi.addResult(result);
-        if (fi.isCanceled())
-            qCDebug(sdkManagerLog) << args << "Update: Operation cancelled before start";
-        else
-            sdkManagerCommand(androidConfig(), args, m_sdkManager, fi, result, progressQuota, isInstall);
-        currentProgress += progressQuota;
-        fi.setProgressValue(currentProgress);
-        if (result.stdError.isEmpty() && !result.success)
-            result.stdError = Tr::tr("Failed");
-        result.stdOutput = Tr::tr("Done") + "\n\n";
-        fi.addResult(result);
-        return fi.isCanceled();
+    const auto onCancelSetup = [dialogStorage] {
+        return std::make_pair(dialogStorage->m_dialog.get(), &QDialog::rejected);
     };
+    const Group root {
+        dialogStorage,
+        Group {
+            licensesRecipe,
+            Sync([dialogStorage] { dialogStorage->m_dialog->setQuestionVisible(false); }),
+            continuationRecipe
+        }.withCancel(onCancelSetup)
+    };
+    m_taskTreeRunner.start(root, {}, [this](DoneWith) {
+        QMetaObject::invokeMethod(&m_sdkManager, &AndroidSdkManager::reloadPackages,
+                                  Qt::QueuedConnection);
+    });
+}
 
+void AndroidSdkManager::runInstallationChange(const InstallationChange &change,
+                                              const QString &extraMessage)
+{
+    QString message = Tr::tr("%n Android SDK packages shall be updated.", "", change.count());
+    if (!extraMessage.isEmpty())
+        message.prepend(extraMessage + "\n\n");
 
-    // Uninstall packages
-    for (const QString &sdkStylePath : uninstall) {
-        // Uninstall operations are not interptible. We don't want to leave half uninstalled.
-        QStringList args;
-        args << "--uninstall" << sdkStylePath << androidConfig().sdkManagerToolArgs();
-        if (doOperation(sdkStylePath, args, false))
-            break;
+    QMessageBox messageDlg(QMessageBox::Information, Tr::tr("Android SDK Changes"),
+                           message, QMessageBox::Ok | QMessageBox::Cancel,
+                           Core::ICore::dialogParent());
+
+    QString details;
+    if (!change.toUninstall.isEmpty()) {
+        QStringList toUninstall = {Tr::tr("[Packages to be uninstalled:]")};
+        toUninstall += change.toUninstall;
+        details += toUninstall.join("\n   ");
     }
-
-    // Install packages
-    for (const QString &sdkStylePath : install) {
-        QStringList args(sdkStylePath);
-        args << androidConfig().sdkManagerToolArgs();
-        if (doOperation(sdkStylePath, args, true))
-            break;
+    if (!change.toInstall.isEmpty()) {
+        if (!change.toUninstall.isEmpty())
+            details.append("\n\n");
+        QStringList toInstall = {Tr::tr("[Packages to be installed:]")};
+        toInstall += change.toInstall;
+        details += toInstall.join("\n   ");
     }
-    fi.setProgressValue(100);
-}
-
-void AndroidSdkManagerPrivate::checkPendingLicense(SdkCmdPromise &fi)
-{
-    fi.setProgressRange(0, 100);
-    fi.setProgressValue(0);
-    AndroidSdkManager::OperationOutput result;
-    result.type = AndroidSdkManager::LicenseCheck;
-    const QStringList args = {"--licenses", sdkRootArg(androidConfig())};
-    if (!fi.isCanceled()) {
-        const int timeOutS = 4; // Short timeout as workaround for QTCREATORBUG-25667
-        sdkManagerCommand(androidConfig(), args, m_sdkManager, fi, result, 100.0, true, timeOutS);
-    } else {
-        qCDebug(sdkManagerLog) << "Update: Operation cancelled before start";
-    }
-
-    fi.addResult(result);
-    fi.setProgressValue(100);
-}
-
-void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdPromise &fi)
-{
-    fi.setProgressRange(0, 100);
-    fi.setProgressValue(0);
-
-    AndroidSdkManager::OperationOutput result;
-    result.type = AndroidSdkManager::LicenseWorkflow;
-
-    Process licenseCommand;
-    licenseCommand.setProcessMode(ProcessMode::Writer);
-    licenseCommand.setEnvironment(androidConfig().toolsEnvironment());
-    bool reviewingLicenses = false;
-    licenseCommand.setCommand(CommandLine(androidConfig().sdkManagerToolPath(),
-                                          {"--licenses", sdkRootArg(androidConfig())}));
-    licenseCommand.setUseCtrlCStub(true);
-    licenseCommand.start();
-    QTextCodec *codec = QTextCodec::codecForLocale();
-    int inputCounter = 0, steps = -1;
-    while (!licenseCommand.waitForFinished(200ms)) {
-        QString stdOut = codec->toUnicode(licenseCommand.readAllRawStandardOutput());
-        bool assertionFound = false;
-        if (!stdOut.isEmpty())
-            assertionFound = onLicenseStdOut(stdOut, reviewingLicenses, result, fi);
-
-        if (reviewingLicenses) {
-            // Check user input
-            QByteArray userInput = getUserInput();
-            if (!userInput.isEmpty()) {
-                clearUserInput();
-                licenseCommand.writeRaw(userInput);
-                ++inputCounter;
-                if (steps != -1)
-                    fi.setProgressValue(qRound((inputCounter / (double)steps) * 100));
-            }
-        } else if (assertionFound) {
-            // The first assertion is to start reviewing licenses. Always accept.
-            reviewingLicenses = true;
-            static const QRegularExpression reg(R"((\d+\sof\s)(?<steps>\d+))");
-            QRegularExpressionMatch match = reg.match(stdOut);
-            if (match.hasMatch())
-                steps = match.captured("steps").toInt();
-            licenseCommand.write("Y\n");
-        }
-
-        if (fi.isCanceled()) {
-            licenseCommand.terminate();
-            if (!licenseCommand.waitForFinished(300ms)) {
-                licenseCommand.kill();
-                licenseCommand.waitForFinished(200ms);
-            }
-        }
-        if (licenseCommand.state() == QProcess::NotRunning)
-            break;
-    }
-
-    m_licenseTextCache.clear();
-    result.success = licenseCommand.exitStatus() == QProcess::NormalExit;
-    if (!result.success)
-        result.stdError = Tr::tr("License command failed.") + "\n\n";
-    fi.addResult(result);
-    fi.setProgressValue(100);
-}
-
-void AndroidSdkManagerPrivate::setLicenseInput(bool acceptLicense)
-{
-    QWriteLocker locker(&m_licenseInputLock);
-    m_licenseUserInput = acceptLicense ? "Y\n" : "n\n";
-}
-
-QByteArray AndroidSdkManagerPrivate::getUserInput() const
-{
-    QReadLocker locker(&m_licenseInputLock);
-    return m_licenseUserInput;
-}
-
-void AndroidSdkManagerPrivate::clearUserInput()
-{
-    QWriteLocker locker(&m_licenseInputLock);
-    m_licenseUserInput.clear();
-}
-
-bool AndroidSdkManagerPrivate::onLicenseStdOut(const QString &output, bool notify,
-                                               AndroidSdkManager::OperationOutput &result,
-                                               SdkCmdPromise &fi)
-{
-    m_licenseTextCache.append(output);
-    const QRegularExpressionMatch assertionMatch = assertionRegExp().match(m_licenseTextCache);
-    if (assertionMatch.hasMatch()) {
-        if (notify) {
-            result.stdOutput = m_licenseTextCache;
-            fi.addResult(result);
-        }
-        // Clear the current contents. The found license text is dispatched. Continue collecting the
-        // next license text.
-        m_licenseTextCache.clear();
-        return true;
-    }
-    return false;
-}
-
-void AndroidSdkManagerPrivate::addWatcher(const QFuture<AndroidSdkManager::OperationOutput> &future)
-{
-    if (future.isFinished())
+    messageDlg.setDetailedText(details);
+    if (messageDlg.exec() == QMessageBox::Cancel)
         return;
-    m_activeOperation.reset(new QFutureWatcher<void>());
-    m_activeOperation->setFuture(QFuture<void>(future));
+
+    const Storage<DialogStorage> dialogStorage;
+    m_d->runDialogRecipe(dialogStorage,
+        change.toInstall.count() ? licensesRecipe(dialogStorage) : nullItem,
+        installationRecipe(dialogStorage, change));
 }
 
-void AndroidSdkManagerPrivate::parseCommonArguments(QPromise<QString> &promise)
+void AndroidSdkManager::runUpdate()
 {
-    QString argumentDetails;
-    QString output;
-    sdkManagerCommand(androidConfig(), QStringList("--help"), &output);
-    bool foundTag = false;
-    const auto lines = output.split('\n');
-    for (const QString& line : lines) {
-        if (promise.isCanceled())
-            break;
-        if (foundTag)
-            argumentDetails.append(line + "\n");
-        else if (line.startsWith(commonArgsKey))
-            foundTag = true;
-    }
-
-    if (!promise.isCanceled())
-        promise.addResult(argumentDetails);
+    const Storage<DialogStorage> dialogStorage;
+    m_d->runDialogRecipe(dialogStorage, licensesRecipe(dialogStorage), updateRecipe(dialogStorage));
 }
 
-void AndroidSdkManagerPrivate::clearPackages()
-{
-    for (AndroidSdkPackage *p : std::as_const(m_allPackages))
-        delete p;
-    m_allPackages.clear();
-}
+} // namespace Android::Internal
 
-} // namespace Internal
-} // namespace Android
+#include "androidsdkmanager.moc"

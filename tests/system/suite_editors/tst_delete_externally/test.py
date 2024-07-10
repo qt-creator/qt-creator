@@ -10,6 +10,9 @@ def main():
     startQC()
     if not startedWithoutPluginError():
         return
+
+    setReloadBehavior("Always Ask")
+
     for currentFile in files:
         test.log("Opening file %s" % currentFile)
         invokeMenuItem("File", "Open File or Project...")

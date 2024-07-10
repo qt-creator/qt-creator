@@ -57,6 +57,7 @@ protected:
     bool visit(AST::UiScriptBinding *ast) override;
     bool visit(AST::UiArrayBinding *ast) override;
     bool visit(AST::UiInlineComponent *ast) override;
+    bool visit(AST::UiEnumDeclaration *ast) override;
 
     // QML/JS
     bool visit(AST::TemplateLiteral *ast) override;

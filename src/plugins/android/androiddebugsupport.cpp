@@ -110,8 +110,7 @@ void AndroidDebugSupport::start()
 
     QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
     if (!HostOsInfo::isWindowsHost()
-        && (qtVersion
-            && androidConfig().ndkVersion(qtVersion) >= QVersionNumber(11, 0, 0))) {
+        && (qtVersion && AndroidConfig::ndkVersion(qtVersion) >= QVersionNumber(11, 0, 0))) {
         qCDebug(androidDebugSupportLog) << "UseTargetAsync: " << true;
         setUseTargetAsync(true);
     }
@@ -165,7 +164,7 @@ void AndroidDebugSupport::start()
 
         int sdkVersion = qMax(AndroidManager::minimumSDK(kit), minimumNdk);
         if (qtVersion) {
-            const FilePath ndkLocation = androidConfig().ndkLocation(qtVersion);
+            const FilePath ndkLocation = AndroidConfig::ndkLocation(qtVersion);
             FilePath sysRoot = ndkLocation
                     / "platforms"
                     / QString("android-%1").arg(sdkVersion)

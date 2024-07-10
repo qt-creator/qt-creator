@@ -6,6 +6,7 @@
 #include "dashboard/dto.h"
 
 #include <utils/expected.h>
+#include <utils/id.h>
 
 #include <QHash>
 #include <QUrl>
@@ -25,6 +26,12 @@ namespace Axivion::Internal {
 
 constexpr int DefaultSearchLimit = 2048;
 
+enum class QueryMode {
+    SimpleQuery,            // just kind and version start and end
+    FilterQuery,            // + all filters if available
+    FullQuery               // + offset, limit, computeTotalRowCount
+};
+
 struct IssueListSearch
 {
     QString kind;
@@ -38,7 +45,7 @@ struct IssueListSearch
     int limit = DefaultSearchLimit;
     bool computeTotalRowCount = false;
 
-    QString toQuery() const;
+    QUrlQuery toUrlQuery(QueryMode mode) const;
 };
 
 class DashboardInfo
@@ -77,6 +84,7 @@ QIcon iconForIssue(const std::optional<Dto::IssueKind> &issueKind);
 QString anyToSimpleString(const Dto::Any &any);
 void fetchIssueInfo(const QString &id);
 
+void switchActiveDashboardId(const Utils::Id &toDashboardId);
 const std::optional<DashboardInfo> currentDashboardInfo();
 
 Utils::FilePath findFileForIssuePath(const Utils::FilePath &issuePath);

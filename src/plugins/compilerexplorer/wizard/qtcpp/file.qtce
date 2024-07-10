@@ -1,0 +1,18 @@
+{
+    "Sources": [
+        {
+            "Compilers": [
+                {
+                    "ExecuteCode": true,
+                    "Id": "clang_trunk",
+                    "Libraries": {
+                        "pcre2": "1042",
+                        "qt": "660"
+                    },
+                    "Options": "-O3"
+                }
+            ],
+            "Source": "#include <QString>\\n#include <QDebug>\\n\\nint main() {\\n  QString msg = \\"Hello World!\\";\\n  qDebug() << msg;\\n  return 0;\\n}"
+        }
+    ]
+}

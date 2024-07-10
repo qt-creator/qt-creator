@@ -37,6 +37,7 @@ public:
     Utils::ProcessResultData resultData() const;
 
     static QString transferMethodName(FileTransferMethod method);
+    QString transferMethodName() const { return transferMethodName(transferMethod()); }
 
 signals:
     void progress(const QString &progressMessage);

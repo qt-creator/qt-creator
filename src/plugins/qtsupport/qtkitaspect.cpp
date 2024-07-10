@@ -62,7 +62,7 @@ public:
 private:
     void makeReadOnly() final { m_combo->setEnabled(false); }
 
-    void addToLayoutImpl(Layouting::LayoutItem &parent) override
+    void addToLayoutImpl(Layouting::Layout &parent) override
     {
         addMutableAction(m_combo);
         parent.addItem(m_combo);
@@ -364,7 +364,7 @@ int QtKitAspect::qtVersionId(const Kit *k)
 
     int id = -1;
     QVariant data = k->value(QtKitAspect::id(), -1);
-    if (data.typeId() == QVariant::Int) {
+    if (data.typeId() == QMetaType::Int) {
         bool ok;
         id = data.toInt(&ok);
         if (!ok)

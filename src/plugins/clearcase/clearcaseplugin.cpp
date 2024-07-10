@@ -2265,14 +2265,10 @@ void ClearCasePluginPrivate::diffGraphical(const QString &file1, const QString &
 QString ClearCasePluginPrivate::runExtDiff(const FilePath &workingDir, const QStringList &arguments,
                                            int timeOutS, QTextCodec *outputCodec)
 {
-    CommandLine diff("diff");
-    diff.addArgs(m_settings.diffArgs.split(' ', Qt::SkipEmptyParts));
-    diff.addArgs(arguments);
-
     Process process;
     process.setWorkingDirectory(workingDir);
     process.setCodec(outputCodec ? outputCodec : QTextCodec::codecForName("UTF-8"));
-    process.setCommand(diff);
+    process.setCommand({"diff", {m_settings.diffArgs.split(' ', Qt::SkipEmptyParts), arguments}});
     process.runBlocking(seconds(timeOutS), EventLoopMode::On);
     if (process.result() != ProcessResult::FinishedWithSuccess)
         return {};

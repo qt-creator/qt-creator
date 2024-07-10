@@ -41,14 +41,15 @@ public:
     static void restartClient(Client *client);
 
     static void shutdownClient(Client *client);
-    static void deleteClient(Client *client);
+    static void deleteClient(Client *client, bool unexpected = false);
 
     static void shutdown();
     static bool isShutdownFinished();
 
     static LanguageClientManager *instance();
 
-    static QList<Client *> clientsSupportingDocument(const TextEditor::TextDocument *doc);
+    static QList<Client *> clientsSupportingDocument(
+        const TextEditor::TextDocument *doc, bool onlyReachable = true);
 
     static void applySettings();
     static QList<BaseSettings *> currentSettings();
@@ -87,7 +88,7 @@ public slots:
 signals:
     void clientAdded(Client *client);
     void clientInitialized(Client *client);
-    void clientRemoved(Client *client);
+    void clientRemoved(Client *client, bool unexpected);
     void shutdownFinished();
     void openCallHierarchy();
 

@@ -151,7 +151,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Toggles if the smoothing is performed using linear interpolation method. Keeping it unchecked would follow non-smooth method using nearest neighbor. It is mostly applicable on image based items. </source>
+        <source>Toggles if the smoothing is performed using linear interpolation method. Keeping it unchecked would follow non-smooth method using nearest neighbor. It is mostly applicable on image based items.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -9917,7 +9917,7 @@ in the system&apos;s browser for manual download.</source>
         <translation>Lista Android NDK:</translation>
     </message>
     <message>
-        <source>Android OpenSSL settings (Optional)</source>
+        <source>Android OpenSSL Settings (Optional)</source>
         <translation>Ustawienia Android OpenSSL (opcjonalne)</translation>
     </message>
     <message>
@@ -10692,12 +10692,12 @@ The kit supports &quot;%2&quot;, but the device uses &quot;%3&quot;.</source>
         <translation>Błąd instalacji, przyczyna nieznana.</translation>
     </message>
     <message>
-        <source>
-Uninstalling the installed package may solve the issue.
-Do you want to uninstall the existing package?</source>
-        <translation>
-Deinstalacja uprzednio zainstalowanego pakietu może rozwiązać problem.
-Czy zdeinstalować istniejący pakiet?</translation>
+        <source>Uninstalling the installed package may solve the issue.</source>
+        <translation>Deinstalacja uprzednio zainstalowanego pakietu może rozwiązać problem.</translation>
+    </message>
+    <message>
+        <source>Do you want to uninstall the existing package?</source>
+        <translation>Czy zdeinstalować istniejący pakiet?</translation>
     </message>
     <message>
         <source>The deployment AVD &quot;%1&quot; cannot be started.</source>
@@ -12496,7 +12496,7 @@ See also Google Test settings.</source>
         <translation>Powtarzanie testów</translation>
     </message>
     <message>
-        <source>Run in parallel</source>
+        <source>Run in Parallel</source>
         <translation>Uruchomianie równoległe</translation>
     </message>
     <message>
@@ -15958,8 +15958,8 @@ tylko przez wbudowane narzędzie.</translation>
         <translation>Użyj globalnych ustawień</translation>
     </message>
     <message>
-        <source>ClangFormat settings:</source>
-        <translation>Ustawienia ClangFormat:</translation>
+        <source>ClangFormat Settings</source>
+        <translation>Ustawienia ClangFormat</translation>
     </message>
     <message>
         <source>Indenting only</source>
@@ -17866,8 +17866,8 @@ Otherwise you need to specify the path to the %2 file from the Copilot neovim pl
         <translation>Edytor QMLJS</translation>
     </message>
     <message>
-        <source>Qt Designer</source>
-        <translation>Qt Designer</translation>
+        <source>Qt Widgets Designer</source>
+        <translation>Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Qt Linguist</source>
@@ -21384,7 +21384,7 @@ The built-in code model will handle highlighting, completion and so on.</source>
         <translation>Próg uaktualniania dokumentu:</translation>
     </message>
     <message>
-        <source>Sessions with a single clangd instance</source>
+        <source>Sessions with a Single Clangd Instance</source>
         <translation>Sesje z pojedynczą instancją clangd</translation>
     </message>
     <message>
@@ -21537,7 +21537,7 @@ managed by the same clangd process, add them here.</source>
         <translation>Skonwertuj do pliku binarnego</translation>
     </message>
     <message>
-        <source>Add forward declaration for %1</source>
+        <source>Add Forward Declaration for %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -22069,8 +22069,8 @@ e.g. name = &quot;m_test_foo_&quot;:
         <translation>Własne szablony pobieraczy i ustawiaczy</translation>
     </message>
     <message>
-        <source>Value types:</source>
-        <translation>Typy wartości:</translation>
+        <source>Value Types</source>
+        <translation>Typy wartości</translation>
     </message>
     <message>
         <source>Projects only</source>
@@ -27865,8 +27865,8 @@ Please select a 64 bit Debugger in the kit settings for this kit.</source>
         <translation>Podaj nazwę klasy</translation>
     </message>
     <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Klasa formularza Qt Designer</translation>
+        <source>Qt Widgets Designer Form Class</source>
+        <translation>Klasa formularza Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Designer</source>
@@ -27901,8 +27901,8 @@ Spróbuj ponownie przebudować projekt.</translation>
         <translation>Shift+F4</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt Widget Project.</source>
-        <translation>Tworzy formularz Qt Designera wraz z klasą implementującą (plik nagłówkowy i źródłowy C++). Utworzony formularz i klasę można dodać do istniejącego projektu Qt Widget.</translation>
+        <source>Creates a Qt Widgets Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt Widget Project.</source>
+        <translation>Tworzy formularz Qt Widgets Designera wraz z klasą implementującą (plik nagłówkowy i źródłowy C++). Utworzony formularz i klasę można dodać do istniejącego projektu Qt Widget.</translation>
     </message>
     <message>
         <source>Choose a Form Template</source>
@@ -28053,8 +28053,8 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
         <translation>Alt+Shift+R</translation>
     </message>
     <message>
-        <source>About Qt Designer Plugins...</source>
-        <translation>Informacje o wtyczkach Qt Designera...</translation>
+        <source>About Qt Widgets Designer Plugins...</source>
+        <translation>Informacje o wtyczkach Qt Widgets Designera...</translation>
     </message>
     <message>
         <source>Preview in</source>
@@ -33297,7 +33297,7 @@ Czy nadpisać je?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Make sure the build command&apos;s multi-job parameter value is large enough (such as -j200 for the JOM or Make build tools)</source>
+        <source>Make sure the build command&apos;s multi-job parameter value is large enough (such as -j200 for the JOM or Make build tools).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -33425,7 +33425,7 @@ Czy nadpisać je?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Suppresses IncrediBuild&apos;s header in the build output</source>
+        <source>Suppresses IncrediBuild&apos;s header in the build output.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -33433,7 +33433,7 @@ Czy nadpisać je?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Overrides the internal Incredibuild logging level for this build. Does not affect output or any user accessible logging. Used mainly to troubleshoot issues with the help of IncrediBuild support</source>
+        <source>Overrides the internal Incredibuild logging level for this build. Does not affect output or any user accessible logging. Used mainly to troubleshoot issues with the help of IncrediBuild support.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -33449,7 +33449,7 @@ Czy nadpisać je?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>When specified, the execution will stop as soon as an error is encountered. This is the default behavior in &quot;Visual Studio&quot; builds, but not the default for &quot;Make and Build tools&quot; or &quot;Dev Tools&quot; builds</source>
+        <source>When specified, the execution will stop as soon as an error is encountered. This is the default behavior in &quot;Visual Studio&quot; builds, but not the default for &quot;Make and Build tools&quot; or &quot;Dev Tools&quot; builds.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -33457,7 +33457,7 @@ Czy nadpisać je?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Add additional buildconsole arguments manually. The value of this field will be concatenated to the final buildconsole command line</source>
+        <source>Add additional buildconsole arguments manually. The value of this field will be concatenated to the final buildconsole command line.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -40741,10 +40741,10 @@ You can select an option to create a project that you can open in Qt Design Stud
         <translation>Informacje o klasie</translation>
     </message>
     <message>
-        <source>Creates a widget-based Qt application that contains a Qt Designer-based main window and C++ source and header files to implement the application logic.
+        <source>Creates a widget-based Qt application that contains a Qt Widgets Designer-based main window and C++ source and header files to implement the application logic.
 
 Preselects a desktop Qt for building the application if available.</source>
-        <translation>Tworzy aplikację Qt bazującą na widżetach, zawierającą główne okno do edycji w Qt Designerze wraz z plikami: źródłowym oraz nagłówkowym C++, przeznaczonymi do zaimplementowania logiki aplikacji.
+        <translation>Tworzy aplikację Qt bazującą na widżetach, zawierającą główne okno do edycji w Qt Widgets Designerze wraz z plikami: źródłowym oraz nagłówkowym C++, przeznaczonymi do zaimplementowania logiki aplikacji.
 
 Wstępnie wybiera platformę desktopową Qt do budowania aplikacji, jeśli jest ona dostępna.</translation>
     </message>
@@ -41115,12 +41115,12 @@ You should not mix multiple test frameworks in a project.</source>
         <translation>Szablon formularza</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.</source>
-        <translation>Tworzy formularz Qt Designer, który można dodać do projektu typu Qt Widget. Jest to przydatne w sytuacji, kiedy istnieje już klasa zarządzająca logiką UI.</translation>
+        <source>Creates a Qt Widgets Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.</source>
+        <translation>Tworzy formularz Qt Widgets Designer, który można dodać do projektu typu Qt Widget. Jest to przydatne w sytuacji, kiedy istnieje już klasa zarządzająca logiką UI.</translation>
     </message>
     <message>
-        <source>Qt Designer Form</source>
-        <translation>Formularz Qt Designer</translation>
+        <source>Qt Widgets Designer Form</source>
+        <translation>Formularz Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Creates a Java file with boilerplate code.</source>
@@ -41748,40 +41748,28 @@ To develop a full application, create a Qt Quick Application project instead.</s
         <translation>Strona z typeid &quot;%1&quot; posiada niepoprawny &quot;index&quot;.</translation>
     </message>
     <message>
-        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.
-</source>
-        <translation>Ścieżka &quot;%1&quot; nie istnieje podczas sprawdzania ścieżek poszukiwań kreatora Json.
-</translation>
+        <source>Path &quot;%1&quot; does not exist when checking JSON wizard search paths.</source>
+        <translation>Ścieżka &quot;%1&quot; nie istnieje podczas sprawdzania ścieżek poszukiwań kreatora JSON.</translation>
     </message>
     <message>
-        <source>Checking &quot;%1&quot; for %2.
-</source>
-        <translation>Sprawdzanie &quot;%1&quot; dla &quot;%2&quot;.
-</translation>
+        <source>Checking &quot;%1&quot; for %2.</source>
+        <translation>Sprawdzanie &quot;%1&quot; dla &quot;%2&quot;.</translation>
     </message>
     <message>
-        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4
-</source>
-        <translation>* Nie można sparsować &quot;%1&quot;:%2:%3: %4
-</translation>
+        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4</source>
+        <translation>* Nie można sparsować &quot;%1&quot;:%2:%3: %4</translation>
     </message>
     <message>
-        <source>* Did not find a JSON object in &quot;%1&quot;.
-</source>
-        <translation>* Nie odnaleziono obiektu JSON w &quot;%1&quot;.
-</translation>
+        <source>* Did not find a JSON object in &quot;%1&quot;.</source>
+        <translation>* Nie odnaleziono obiektu JSON w &quot;%1&quot;.</translation>
     </message>
     <message>
-        <source>* Configuration found and parsed.
-</source>
-        <translation>* Konfiguracja odnaleziona i przeparsowana.
-</translation>
+        <source>* Configuration found and parsed.</source>
+        <translation>* Konfiguracja odnaleziona i przeparsowana.</translation>
     </message>
     <message>
-        <source>* Version %1 not supported.
-</source>
-        <translation>* Wersja %1 nieobsługiwana.
-</translation>
+        <source>* Version %1 not supported.</source>
+        <translation>* Wersja %1 nieobsługiwana.</translation>
     </message>
     <message>
         <source>The platform selected for the wizard.</source>
@@ -41812,10 +41800,8 @@ To develop a full application, create a Qt Quick Application project instead.</s
         <translation>Brak pliku graficznego &quot;%1&quot;.</translation>
     </message>
     <message>
-        <source>JsonWizard: &quot;%1&quot; not found
-</source>
-        <translation>JsonWizard: Nie znaleziono &quot;%1&quot;
-</translation>
+        <source>JsonWizard: &quot;%1&quot; not found.</source>
+        <translation>JsonWizard: Nie znaleziono &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>key not found.</source>
@@ -43972,15 +43958,15 @@ The affected files are:
     </message>
     <message>
         <source>Qt Custom Designer Widget</source>
-        <translation>Własny widżet Qt Designera</translation>
+        <translation>Własny widżet Qt Widgets Designera</translation>
     </message>
     <message>
         <source>Creates a Qt Custom Designer Widget or a Custom Widget Collection.</source>
-        <translation>Tworzy własny widżet Qt Designera lub kolekcję własnych widżetów.</translation>
+        <translation>Tworzy własny widżet Qt Widgets Designera lub kolekcję własnych widżetów.</translation>
     </message>
     <message>
-        <source>This wizard generates a Qt Designer Custom Widget or a Qt Designer Custom Widget Collection project.</source>
-        <translation>Ten kreator generuje projekt własnego widżetu Qt Designera lub projekt kolekcji własnych widżetów Qt4 Designera.</translation>
+        <source>This wizard generates a Qt Widgets Designer Custom Widget or a Qt Widgets Designer Custom Widget Collection project.</source>
+        <translation>Ten kreator generuje projekt własnego widżetu Qt Widgets Designera lub projekt kolekcji własnych widżetów Qt4 Widget Designera.</translation>
     </message>
     <message>
         <source>Creating multiple widget libraries (%1, %2) in one project (%3) is not supported.</source>
@@ -43999,8 +43985,8 @@ The affected files are:
         <translation>Nie można odnaleźć aplikacji &quot;%1&quot;.</translation>
     </message>
     <message>
-        <source>Qt Designer is not responding (%1).</source>
-        <translation>Qt Designer nie odpowiada (%1).</translation>
+        <source>Qt Widgets Designer is not responding (%1).</source>
+        <translation>Qt Widgets Designer nie odpowiada (%1).</translation>
     </message>
     <message>
         <source>Unable to create server socket: %1</source>
@@ -48594,7 +48580,7 @@ Błąd uruchamiania procesu kontrolnego.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Unknown error occurred while trying to create remote directories</source>
+        <source>Unknown error occurred while trying to create remote directories.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -51127,11 +51113,11 @@ Nie można otworzyć pliku &quot;%1&quot;.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Terminal process exited with code %1</source>
+        <source>Terminal process exited with code %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Process exited with code: %1</source>
+        <source>Process exited with code: %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -52785,7 +52771,7 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
         <translation>Pomiędzy liniami</translation>
     </message>
     <message>
-        <source>Line annotations</source>
+        <source>Line Annotations</source>
         <translation>Adnotacje linii</translation>
     </message>
     <message>
@@ -53763,7 +53749,7 @@ po naciśnięciu klawisza Enter</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Automatically insert matching characters</source>
+        <source>&amp;Automatically Insert Matching Characters</source>
         <translation>&amp;Automatyczne wstawianie znaków</translation>
     </message>
     <message>
@@ -53843,7 +53829,7 @@ po naciśnięciu klawisza backspace</translation>
     <message>
         <source>Doxygen allows &quot;@&quot; and &quot;\&quot; to start commands.
 By default, &quot;@&quot; is used if the surrounding comment starts with &quot;/**&quot; or &quot;///&quot;, and &quot;\&quot; is used
-if the comment starts with &quot;/*!&quot; or &quot;//!</source>
+if the comment starts with &quot;/*!&quot; or &quot;//!&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -54158,7 +54144,7 @@ if the comment starts with &quot;/*!&quot; or &quot;//!</source>
         <translation>Zresetuj</translation>
     </message>
     <message>
-        <source>Scanning scope</source>
+        <source>Scanning Scope</source>
         <translation>Zakres skanowania</translation>
     </message>
     <message>

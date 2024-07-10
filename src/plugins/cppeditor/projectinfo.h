@@ -5,6 +5,7 @@
 
 #include "cppeditor_global.h"
 
+#include "cppcodemodelsettings.h"
 #include "projectpart.h"
 
 #include <projectexplorer/project.h>
@@ -28,6 +29,8 @@ public:
     using ConstPtr = std::shared_ptr<const ProjectInfo>;
     static ConstPtr create(const ProjectExplorer::ProjectUpdateInfo &updateInfo,
                            const QVector<ProjectPart::ConstPtr> &projectParts);
+    static ConstPtr cloneWithNewSettings(const ProjectInfo::ConstPtr &pi,
+                                         const CppCodeModelSettings &settings);
 
     const QVector<ProjectPart::ConstPtr> &projectParts() const { return m_projectParts; }
     const QSet<Utils::FilePath> &sourceFiles() const { return m_sourceFiles; }
@@ -35,6 +38,7 @@ public:
     Utils::FilePath projectFilePath() const { return m_projectFilePath; }
     Utils::FilePath projectRoot() const { return m_projectFilePath.parentDir(); }
     Utils::FilePath buildRoot() const { return m_buildRoot; }
+    const CppCodeModelSettings &settings() const { return m_settings; }
 
     // Comparisons
     bool operator ==(const ProjectInfo &other) const;
@@ -46,6 +50,7 @@ public:
 private:
     ProjectInfo(const ProjectExplorer::ProjectUpdateInfo &updateInfo,
                 const QVector<ProjectPart::ConstPtr> &projectParts);
+    ProjectInfo(const ProjectInfo::ConstPtr &pi, const CppCodeModelSettings &settings);
 
     const QVector<ProjectPart::ConstPtr> m_projectParts;
     const QString m_projectName;
@@ -54,6 +59,7 @@ private:
     const ProjectExplorer::HeaderPaths m_headerPaths;
     const QSet<Utils::FilePath> m_sourceFiles;
     const ProjectExplorer::Macros m_defines;
+    const CppCodeModelSettings m_settings;
 };
 
 using ProjectInfoList = QList<ProjectInfo::ConstPtr>;

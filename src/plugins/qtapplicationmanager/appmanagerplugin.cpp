@@ -36,6 +36,7 @@ class AppManagerPlugin final : public ExtensionSystem::IPlugin
         setupAppManagerRunWorker();
         setupAppManagerDebugWorker();
         setupAppManagerQmlToolingWorker();
+        setupAppManagerPerfProfilerWorker();
     }
 };
 

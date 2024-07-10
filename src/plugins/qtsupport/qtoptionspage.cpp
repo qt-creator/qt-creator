@@ -1036,7 +1036,7 @@ void QtSettingsPageWidget::linkWithQt()
     dialog.exec();
     if (dialog.result() == QDialog::Accepted) {
         const std::optional<FilePath> settingsDir = settingsDirForQtDir(pathInput->baseDirectory(),
-                                                                        pathInput->rawFilePath());
+                                                                        pathInput->unexpandedFilePath());
         if (QTC_GUARD(settingsDir)) {
             const QString settingsFilePath = settingsFile(ICore::resourcePath().toString());
             QSettings settings(settingsFilePath, QSettings::IniFormat);

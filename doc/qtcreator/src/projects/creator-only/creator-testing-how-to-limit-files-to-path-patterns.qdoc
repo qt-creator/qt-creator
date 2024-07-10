@@ -1,0 +1,32 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-limit-files-to-path-patterns.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-test
+    \ingroup creator-how-to-projects-configure
+
+    \title Apply filters before scanning for tests
+
+    To override testing preferences for the current project:
+
+    \list 1
+        \li Go to \uicontrol Projects > \uicontrol {Project Settings} >
+            \uicontrol {Testing}.
+            \image qtcreator-projects-settings-testing.webp {Testing settings in Projects mode}
+        \li Clear \uicontrol {Use global settings} to select the tests to handle
+            for the project.
+        \li To automatically run all or selected tests after successfully
+            building the current project, select \uicontrol All or
+            \uicontrol Selected in \uicontrol {Automatically run tests after build}.
+        \li To apply path filters before scanning for tests, select
+            \uicontrol {Limit Files to Path Patterns}.
+        \li Select \uicontrol Add to add the filters as wildcard expressions.
+    \endlist
+
+    To remove the selected filter, select \uicontrol Remove.
+
+    \sa {Test}{How To: Test}, {Test Results}, {Testing}
+*/

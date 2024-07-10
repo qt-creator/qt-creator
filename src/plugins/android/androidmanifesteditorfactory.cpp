@@ -9,7 +9,6 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
-#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
 
 namespace Android::Internal {
@@ -18,10 +17,6 @@ class AndroidManifestEditorFactory final : public Core::IEditorFactory
 {
 public:
     AndroidManifestEditorFactory()
-        : m_actionHandler(Constants::ANDROID_MANIFEST_EDITOR_ID,
-                          Constants::ANDROID_MANIFEST_EDITOR_CONTEXT,
-                          TextEditor::TextEditorActionHandler::UnCommentSelection,
-                          [](Core::IEditor *editor) { return static_cast<AndroidManifestEditor *>(editor)->textEditor(); })
     {
         setId(Constants::ANDROID_MANIFEST_EDITOR_ID);
         setDisplayName(Tr::tr("Android Manifest editor"));
@@ -31,9 +26,6 @@ public:
             return androidManifestEditorWidget->editor();
         });
     }
-
-private:
-    TextEditor::TextEditorActionHandler m_actionHandler;
 };
 
 void setupAndroidManifestEditor()

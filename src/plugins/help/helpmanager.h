@@ -57,6 +57,8 @@ public:
         const QUrl &url,
         Core::HelpManager::HelpViewerLocation location = Core::HelpManager::HelpModeAlways) override;
 
+    void addOnlineHelpHandler(const Core::HelpManager::OnlineHelpHandler &handler) override;
+
     static void setupHelpManager();
 
 signals:

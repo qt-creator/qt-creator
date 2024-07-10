@@ -123,7 +123,7 @@ void BuildDirectoryAspect::fromMap(const Store &map)
     }
 }
 
-void BuildDirectoryAspect::addToLayout(Layouting::LayoutItem &parent)
+void BuildDirectoryAspect::addToLayout(Layouting::Layout &parent)
 {
     FilePathAspect::addToLayout(parent);
     d->genericProblemSpacer = new QLabel;
@@ -190,15 +190,15 @@ QString BuildDirectoryAspect::updateProblemLabelsHelper(const QString &value)
 
     QString genericProblem;
     QString genericProblemLabelString;
-    if (ProjectExplorerPlugin::projectExplorerSettings().warnAgainstNonAsciiBuildDir) {
+    if (projectExplorerSettings().warnAgainstNonAsciiBuildDir) {
         const auto isInvalid = [](QChar c) { return c.isSpace() || !isascii(c.toLatin1()); };
         if (const auto invalidChar = Utils::findOr(value, std::nullopt, isInvalid)) {
             genericProblem = Tr::tr(
                                  "Build directory contains potentially problematic character \"%1\".")
                                  .arg(*invalidChar);
             genericProblemLabelString
-                = genericProblem
-                  + Tr::tr(" This warning can be suppressed <a href=\"dummy\">here</a>.");
+                = genericProblem + " "
+                  + Tr::tr("This warning can be suppressed <a href=\"dummy\">here</a>.");
         }
     }
 

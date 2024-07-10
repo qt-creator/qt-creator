@@ -21,6 +21,9 @@ const char KillAppStepId[] = "RemoteLinux.KillAppStep";
 
 const char SourceProfile[] = "RemoteLinux.SourceProfile";
 const char LinkDevice[] = "RemoteLinux.LinkDevice";
+const char SshForwardDebugServerPort[] = "RemoteLinux.SshForwardDebugServerPort";
+const char SshForwardPort[] = "RemoteLinux.SshForwardPort";
+const char DisableSharing[] = "RemoteLinux.DisableSharing";
 
 const char RunConfigId[] = "RemoteLinuxRunConfiguration:";
 const char CustomRunConfigId[] = "RemoteLinux.CustomRunConfig";

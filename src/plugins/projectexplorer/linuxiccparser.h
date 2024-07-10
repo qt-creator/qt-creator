@@ -4,7 +4,6 @@
 #pragma once
 
 #include "ioutputparser.h"
-#include "task.h"
 
 #include <QRegularExpression>
 
@@ -23,7 +22,6 @@ public:
 
 private:
     Result handleLine(const QString &line, Utils::OutputFormat type) override;
-    void flush() override;
 
     QRegularExpression m_firstLine;
     QRegularExpression m_continuationLines;
@@ -31,8 +29,6 @@ private:
     QRegularExpression m_pchInfoLine;
 
     bool m_expectFirstLine = true;
-    Task m_temporary;
-    int m_lines = 0;
 };
 
 } // namespace ProjectExplorer

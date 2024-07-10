@@ -9,7 +9,7 @@
 #include "qmt/project_controller/projectcontroller.h"
 #include "qmt/tasks/diagramscenecontroller.h"
 
-#include <QFileInfo>
+using Utils::FilePath;
 
 namespace ModelEditor {
 namespace Internal {
@@ -51,10 +51,9 @@ PxNodeController *ExtDocumentController::pxNodeController() const
     return d->pxNodeController;
 }
 
-void ExtDocumentController::onProjectFileNameChanged(const QString &fileName)
+void ExtDocumentController::onProjectFileNameChanged(const FilePath &fileName)
 {
-    QFileInfo fileInfo(fileName);
-    d->pxNodeController->setAnchorFolder(fileInfo.path());
+    d->pxNodeController->setAnchorFolder(fileName.path());
 }
 
 } // namespace Internal

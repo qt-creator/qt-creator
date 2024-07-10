@@ -36,6 +36,7 @@
 #include "qmt/model_controller/mselection.h"
 #include "qmt/model_ui/treemodel.h"
 #include "qmt/model_ui/treemodelmanager.h"
+#include "qmt/model_widgets_ui/modeltreefilter.h"
 #include "qmt/model_widgets_ui/modeltreeview.h"
 #include "qmt/model_widgets_ui/propertiesview.h"
 #include "qmt/stereotype/shapepaintvisitor.h"
@@ -61,7 +62,6 @@
 #include <QAction>
 #include <QActionGroup>
 #include <QComboBox>
-#include <QDir>
 #include <QEvent>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -110,6 +110,10 @@ public:
     EditorDiagramView *diagramView = nullptr;
     QLabel *noDiagramLabel = nullptr;
     DiagramsViewManager *diagramsViewManager = nullptr;
+    QWidget *rightPanel = nullptr;
+    QVBoxLayout *rightPanelLayout = nullptr;
+    QScrollArea *viewFilterScrollArea = nullptr;
+    qmt::ModelTreeFilter *viewFilterWidget = nullptr;
     MiniSplitter *rightHorizSplitter = nullptr;
     qmt::ModelTreeView *modelTreeView = nullptr;
     qmt::TreeModelManager *modelTreeViewServant = nullptr;
@@ -122,6 +126,7 @@ public:
     QAction *syncBrowserWithDiagramAction = nullptr;
     QAction *syncDiagramWithBrowserAction = nullptr;
     QAction *syncEachOtherAction = nullptr;
+    int formerViewFilterHeight = 0;
 };
 
 ModelEditor::ModelEditor(UiController *uiController, ActionHandler *actionHandler)
@@ -254,7 +259,22 @@ void ModelEditor::init()
     d->leftGroupLayout->addWidget(frame, 0);
     d->leftGroupLayout->addWidget(d->diagramStack, 1);
 
-    d->rightHorizSplitter = new MiniSplitter(d->rightSplitter);
+    d->rightPanel = new QWidget(d->rightSplitter);
+    d->rightPanelLayout = new QVBoxLayout(d->rightPanel);
+    d->rightPanelLayout->setContentsMargins(0, 0, 0, 0);
+    d->rightPanelLayout->setSpacing(0);
+
+    d->viewFilterScrollArea = new QScrollArea(d->rightPanel);
+    d->viewFilterScrollArea->setFrameShape(QFrame::NoFrame);
+    d->viewFilterScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    d->viewFilterScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    d->viewFilterScrollArea->setWidgetResizable(true);
+    d->viewFilterScrollArea->setVisible(false);
+
+    d->viewFilterWidget = new qmt::ModelTreeFilter(d->viewFilterScrollArea);
+    d->viewFilterScrollArea->setWidget(d->viewFilterWidget);
+
+    d->rightHorizSplitter = new MiniSplitter(d->rightPanel);
     d->rightHorizSplitter->setOrientation(Qt::Vertical);
     connect(d->rightHorizSplitter, &QSplitter::splitterMoved,
             this, &ModelEditor::onRightHorizSplitterMoved);
@@ -263,6 +283,10 @@ void ModelEditor::init()
 
     d->modelTreeView = new qmt::ModelTreeView(d->rightHorizSplitter);
     d->modelTreeView->setFrameShape(QFrame::NoFrame);
+    connect(d->viewFilterWidget, &qmt::ModelTreeFilter::viewDataChanged,
+            d->modelTreeView, &qmt::ModelTreeView::setModelTreeViewData);
+    connect(d->viewFilterWidget, &qmt::ModelTreeFilter::filterDataChanged,
+            d->modelTreeView, &qmt::ModelTreeView::setModelTreeFilterData);
 
     d->modelTreeViewServant = new qmt::TreeModelManager(this);
     d->modelTreeViewServant->setModelTreeView(d->modelTreeView);
@@ -278,8 +302,11 @@ void ModelEditor::init()
     d->rightHorizSplitter->setStretchFactor(0, 2); // magic stretch factors for equal sizing
     d->rightHorizSplitter->setStretchFactor(1, 3);
 
+    d->rightPanelLayout->addWidget(d->viewFilterScrollArea, 0);
+    d->rightPanelLayout->addWidget(d->rightHorizSplitter, 1);
+
     d->rightSplitter->insertWidget(0, d->leftGroup);
-    d->rightSplitter->insertWidget(1, d->rightHorizSplitter);
+    d->rightSplitter->insertWidget(1, d->rightPanel);
     d->rightSplitter->setStretchFactor(0, 1);
     d->rightSplitter->setStretchFactor(1, 0);
 
@@ -327,6 +354,11 @@ void ModelEditor::init()
                                                         [this] { onAddCanvasDiagram(); },
                                                         d->toolbar));
     toolbarLayout->addSpacing(20);
+
+    auto toggleViewFilterButton
+        = Command::toolButtonWithAppendedShortcut(d->actionHandler->toggleViewFilterAction(),
+                                                  Constants::ACTION_TOGGLE_VIEWFILTER);
+    toolbarLayout->addWidget(toggleViewFilterButton);
 
     auto syncToggleButton
         = Command::toolButtonWithAppendedShortcut(d->actionHandler->synchronizeBrowserAction(),
@@ -583,7 +615,7 @@ void ModelEditor::exportToImage(bool selectedElements)
         QString fileName = FileUtils::getSaveFilePath(
                     nullptr,
                     selectedElements ? Tr::tr("Export Selected Elements") : Tr::tr("Export Diagram"),
-                    FilePath::fromString(d->lastExportDirPath), filter).toString();
+                    FilePath::fromString(d->lastExportDirPath), filter).toFSPathString();
         if (!fileName.isEmpty()) {
             qmt::DocumentController *documentController = d->document->documentController();
             qmt::DiagramSceneModel *sceneModel = documentController->diagramsManager()->diagramSceneModel(diagram);
@@ -666,6 +698,16 @@ void ModelEditor::resetZoom()
 {
     d->diagramView->setTransform(QTransform());
     showZoomIndicator();
+}
+
+void ModelEditor::showModelTreeFilter(bool visible)
+{
+    d->viewFilterScrollArea->setVisible(visible);
+}
+
+void ModelEditor::toggleModelTreeFilter()
+{
+    d->viewFilterScrollArea->setVisible(!d->viewFilterScrollArea->isVisible());
 }
 
 qmt::MPackage *ModelEditor::guessSelectedPackage() const
@@ -959,7 +1001,7 @@ void ModelEditor::onTreeViewDoubleClicked(const QModelIndex &index)
     QModelIndex treeModelIndex = d->modelTreeView->mapToSourceModelIndex(index);
     qmt::MElement *melement = documentController->treeModel()->element(treeModelIndex);
     // double click on package is already used for toggeling tree
-    if (melement && !dynamic_cast<qmt::MPackage *>(melement))
+    if (melement && !d->modelTreeView->model()->hasChildren(index))
         documentController->elementTasks()->openElement(melement);
 }
 
@@ -1108,8 +1150,13 @@ void ModelEditor::initToolbars()
                 if (!tool.m_stereotype.isEmpty() && stereotypeIconElement != qmt::StereotypeIcon::ElementAny) {
                     const qmt::Style *style = documentController->styleController()->adaptStyle(styleEngineElementType);
                     icon = stereotypeController->createIcon(
-                                stereotypeIconElement, {tool.m_stereotype},
-                                QString(), style, QSize(128, 128), QMarginsF(6.0, 4.0, 6.0, 8.0), 8.0);
+                        stereotypeIconElement,
+                        {tool.m_stereotype},
+                        {},
+                        style,
+                        QSize(128, 128),
+                        QMarginsF(6.0, 4.0, 6.0, 8.0),
+                        8.0);
                     if (!icon.isNull()) {
                         QString stereotypeIconId = stereotypeController->findStereotypeIconId(
                                     stereotypeIconElement, {tool.m_stereotype});

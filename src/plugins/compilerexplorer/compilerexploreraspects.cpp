@@ -91,7 +91,7 @@ void LibrarySelectionAspect::setVariantValue(const QVariant &value, Announcement
     setValue(map, howToAnnounce);
 }
 
-void LibrarySelectionAspect::addToLayout(Layouting::LayoutItem &parent)
+void LibrarySelectionAspect::addToLayout(Layouting::Layout &parent)
 {
     using namespace Layouting;
 
@@ -223,12 +223,12 @@ void LibrarySelectionAspect::addToLayout(Layouting::LayoutItem &parent)
     // clang-format off
     QStackedWidget *stack = static_cast<QStackedWidget*>(
         Stack {
-            noMargin,
             Row { noMargin, displayLabel, editBtn },
             Row { noMargin, nameCombo, versionCombo, clearBtn }
         }.emerge()
     );
     // clang-format on
+    stack->setContentsMargins({});
     connect(editBtn, &QPushButton::clicked, stack, [stack] { stack->setCurrentIndex(1); });
     connect(this, &LibrarySelectionAspect::returnToDisplay, stack, [stack] {
         stack->setCurrentIndex(0);

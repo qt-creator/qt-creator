@@ -17,6 +17,7 @@
 
 #include <utils/qtcassert.h>
 
+static const char statementMacrosKey[] = "StatementMacros";
 static const char indentBlockBracesKey[] = "IndentBlockBraces";
 static const char indentBlockBodyKey[] = "IndentBlockBody";
 static const char indentClassBracesKey[] = "IndentClassBraces";
@@ -50,6 +51,7 @@ CppCodeStyleSettings::CppCodeStyleSettings() = default;
 Store CppCodeStyleSettings::toMap() const
 {
     return {
+        {statementMacrosKey, statementMacros},
         {indentBlockBracesKey, indentBlockBraces},
         {indentBlockBodyKey, indentBlockBody},
         {indentClassBracesKey, indentClassBraces},
@@ -76,6 +78,7 @@ Store CppCodeStyleSettings::toMap() const
 
 void CppCodeStyleSettings::fromMap(const Store &map)
 {
+    statementMacros = map.value(statementMacrosKey, statementMacros).toStringList();
     indentBlockBraces = map.value(indentBlockBracesKey, indentBlockBraces).toBool();
     indentBlockBody = map.value(indentBlockBodyKey, indentBlockBody).toBool();
     indentClassBraces = map.value(indentClassBracesKey, indentClassBraces).toBool();
@@ -128,6 +131,7 @@ bool CppCodeStyleSettings::equals(const CppCodeStyleSettings &rhs) const
            && bindStarToRightSpecifier == rhs.bindStarToRightSpecifier
            && extraPaddingForConditionsIfConfusingAlign == rhs.extraPaddingForConditionsIfConfusingAlign
            && alignAssignments == rhs.alignAssignments
+           && statementMacros == rhs.statementMacros
            && preferGetterNameWithoutGetPrefix == rhs.preferGetterNameWithoutGetPrefix
 #ifdef WITH_TESTS
            && forceFormatting == rhs.forceFormatting

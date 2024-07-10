@@ -217,7 +217,6 @@ FossilPluginPrivate::FossilPluginPrivate()
     m_commandLocator = new CommandLocator("Fossil", "fossil", "fossil", this);
     m_commandLocator->setDescription(Tr::tr("Triggers a Fossil version control operation."));
 
-    ProjectExplorer::JsonWizardFactory::addWizardPath(FilePath::fromString(Constants::WIZARD_PATH));
     JsExpander::registerGlobalObject("Fossil", [] { return new FossilJsExtension; });
 
     connect(&settings(), &AspectContainer::changed,
@@ -959,12 +958,9 @@ VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sou
         //
         // So here we want Fossil to save the remote details when specified.
 
-        QStringList args;
-        args << fossilClient().vcsCommandString(FossilClient::CloneCommand)
-             << extraOptions
-             << sourceUrl
-             << fossilFileNative;
-        command->addJob({fossilClient().vcsBinary(checkoutPath), args}, -1);
+        command->addJob({fossilClient().vcsBinary(checkoutPath),
+            {fossilClient().vcsCommandString(FossilClient::CloneCommand), extraOptions,
+             sourceUrl, fossilFileNative}}, -1);
     }
 
     // check out the cloned repository file into the working copy directory;
@@ -978,15 +974,14 @@ VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sou
     // set user default to admin user if specified
     if (!isLocalRepository
         && !adminUser.isEmpty()) {
-        const QStringList args({ "user", "default", adminUser, "--user", adminUser});
-        command->addJob({fossilClient().vcsBinary(checkoutPath), args}, -1);
+        command->addJob({fossilClient().vcsBinary(checkoutPath),
+                         {"user", "default", adminUser, "--user", adminUser}}, -1);
     }
 
     // turn-off autosync if requested
-    if (!isLocalRepository
-        && disableAutosync) {
-        const QStringList args({"settings", "autosync", "off"});
-        command->addJob({fossilClient().vcsBinary(checkoutPath), args}, -1);
+    if (!isLocalRepository && disableAutosync) {
+        command->addJob({fossilClient().vcsBinary(checkoutPath), {"settings", "autosync", "off"}},
+                        -1);
     }
 
     return command;
@@ -994,11 +989,11 @@ VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sou
 
 void FossilPluginPrivate::changed(const QVariant &v)
 {
-    switch (v.type()) {
-    case QVariant::String:
+    switch (v.typeId()) {
+    case QMetaType::QString:
         emit repositoryChanged(FilePath::fromVariant(v));
         break;
-    case QVariant::StringList:
+    case QMetaType::QStringList:
         emit filesChanged(v.toStringList());
         break;
     default:

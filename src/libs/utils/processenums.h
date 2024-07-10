@@ -41,6 +41,11 @@ enum class Channel {
     Error
 };
 
+enum class DetachedChannelMode {
+    Forward,
+    Discard
+};
+
 enum class TextChannelMode {
                 // Keep | Emit | Emit
                 //  raw | text | content

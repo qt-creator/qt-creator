@@ -8,7 +8,7 @@
 namespace Todo {
 namespace Internal {
 
-Keyword::Keyword() : color(Utils::creatorTheme()->color(Utils::Theme::TextColorNormal))
+Keyword::Keyword() : color(Utils::creatorColor(Utils::Theme::TextColorNormal))
 {
 }
 

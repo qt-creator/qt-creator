@@ -160,15 +160,6 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     setProperty(StyleHelper::C_TOP_BORDER, true);
     setSingleRow(false);
 
-    QWidget::setTabOrder(m_findEdit, m_replaceEdit);
-    QWidget::setTabOrder(m_replaceEdit, m_findPreviousButton);
-    QWidget::setTabOrder(m_findPreviousButton, m_findNextButton);
-    QWidget::setTabOrder(m_findNextButton, m_replaceButton);
-    QWidget::setTabOrder(m_replaceButton, m_replaceNextButton);
-    QWidget::setTabOrder(m_replaceNextButton, m_replaceAllButton);
-    QWidget::setTabOrder(m_replaceAllButton, m_advancedButton);
-    QWidget::setTabOrder(m_advancedButton, m_close);
-
     connect(m_findEdit, &Utils::FancyLineEdit::editingFinished,
             this, &FindToolBar::invokeResetIncrementalSearch);
     connect(m_findEdit, &Utils::FancyLineEdit::textChanged,
@@ -447,6 +438,17 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     connect(&m_findStepTimer, &QTimer::timeout, this, &FindToolBar::invokeFindStep);
 
     setLightColoredIcon(isLightColored());
+
+    QWidget::setTabOrder(m_findEdit->button(FancyLineEdit::Left), m_findEdit);
+    QWidget::setTabOrder(m_findEdit, m_replaceEdit);
+    QWidget::setTabOrder(m_replaceEdit, m_findPreviousButton);
+    QWidget::setTabOrder(m_findPreviousButton, m_findNextButton);
+    QWidget::setTabOrder(m_findNextButton, m_selectAllButton);
+    QWidget::setTabOrder(m_selectAllButton, m_replaceButton);
+    QWidget::setTabOrder(m_replaceButton, m_replaceNextButton);
+    QWidget::setTabOrder(m_replaceNextButton, m_replaceAllButton);
+    QWidget::setTabOrder(m_replaceAllButton, m_advancedButton);
+    QWidget::setTabOrder(m_advancedButton, m_close);
 }
 
 FindToolBar::~FindToolBar() = default;
@@ -1024,27 +1026,43 @@ void FindToolBar::selectAll()
     }
 }
 
-bool FindToolBar::focusNextPrevChild(bool next)
-{
-    QAbstractButton *optionsButton = m_findEdit->button(Utils::FancyLineEdit::Left);
-    // close tab order
-    if (next && m_advancedButton->hasFocus())
-        optionsButton->setFocus(Qt::TabFocusReason);
-    else if (next && optionsButton->hasFocus())
-        m_findEdit->setFocus(Qt::TabFocusReason);
-    else if (!next && optionsButton->hasFocus())
-        m_advancedButton->setFocus(Qt::TabFocusReason);
-    else if (!next && m_findEdit->hasFocus())
-        optionsButton->setFocus(Qt::TabFocusReason);
-    else
-        return Utils::StyledBar::focusNextPrevChild(next);
-    return true;
-}
-
 void FindToolBar::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event)
     QMetaObject::invokeMethod(this, &FindToolBar::updateToolBar, Qt::QueuedConnection);
+}
+
+void FindToolBar::restore(const Store &s)
+{
+    FindFlags flags;
+    if (s.value("Backward", false).toBool())
+        flags |= FindBackward;
+    if (s.value("CaseSensitively", false).toBool())
+        flags |= FindCaseSensitively;
+    if (s.value("WholeWords", false).toBool())
+        flags |= FindWholeWords;
+    if (s.value("RegularExpression", false).toBool())
+        flags |= FindRegularExpression;
+    if (s.value("PreserveCase", false).toBool())
+        flags |= FindPreserveCase;
+    m_findFlags = flags;
+    findFlagsChanged();
+}
+
+Store FindToolBar::save() const
+{
+    Store s;
+    if (m_findFlags & FindBackward)
+        s.insert("Backward", true);
+    if (m_findFlags & FindCaseSensitively)
+        s.insert("CaseSensitively", true);
+    if (m_findFlags & FindWholeWords)
+        s.insert("WholeWords", true);
+    if (m_findFlags & FindRegularExpression)
+        s.insert("RegularExpression", true);
+    if (m_findFlags & FindPreserveCase)
+        s.insert("PreserveCase", true);
+    return s;
 }
 
 void FindToolBar::writeSettings()

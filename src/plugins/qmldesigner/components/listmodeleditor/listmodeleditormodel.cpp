@@ -29,10 +29,10 @@ public:
 
     QVariant maybeConvertToNumber(const QVariant &value)
     {
-        if (value.typeId() == QVariant::Bool)
+        if (value.typeId() == QMetaType::Bool)
             return value;
 
-        if (value.typeId() == QVariant::String) {
+        if (value.typeId() == QMetaType::QString) {
             const QString text = value.toString();
             if (text == "true")
                 return QVariant(true);

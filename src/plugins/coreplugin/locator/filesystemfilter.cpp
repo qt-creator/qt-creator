@@ -10,8 +10,6 @@
 #include "../vcsmanager.h"
 #include "locatormanager.h"
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/checkablemessagebox.h>
@@ -312,7 +310,6 @@ LocatorMatcherTasks FileSystemFilter::matchers()
 
     const auto onSetup = [storage, includeHidden = m_includeHidden, shortcut = shortcutString()]
         (Async<void> &async) {
-        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(matches, *storage, shortcut,
                                     DocumentManager::fileDialogInitialDirectory(), includeHidden);
     };
@@ -390,27 +387,6 @@ void FileSystemFilter::saveState(QJsonObject &object) const
 void FileSystemFilter::restoreState(const QJsonObject &object)
 {
     m_includeHidden = object.value(kIncludeHiddenKey).toBool(s_includeHiddenDefault);
-}
-
-void FileSystemFilter::restoreState(const QByteArray &state)
-{
-    if (isOldSetting(state)) {
-        // TODO read old settings, remove some time after Qt Creator 4.15
-        QDataStream in(state);
-        in >> m_includeHidden;
-
-        // An attempt to prevent setting this on old configuration
-        if (!in.atEnd()) {
-            QString shortcut;
-            bool defaultFilter;
-            in >> shortcut;
-            in >> defaultFilter;
-            setShortcutString(shortcut);
-            setIncludedByDefault(defaultFilter);
-        }
-    } else {
-        ILocatorFilter::restoreState(state);
-    }
 }
 
 } // namespace Core::Internal

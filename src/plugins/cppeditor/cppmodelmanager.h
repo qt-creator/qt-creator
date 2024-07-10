@@ -19,9 +19,11 @@
 #include <QFuture>
 #include <QObject>
 #include <QStringList>
+#include <QVersionNumber>
 
 #include <functional>
 #include <memory>
+#include <optional>
 #include <utility>
 
 namespace Core {
@@ -108,6 +110,8 @@ public:
     static QFuture<void> updateProjectInfo(const ProjectInfo::ConstPtr &newProjectInfo,
                                            const QSet<Utils::FilePath> &additionalFiles = {});
 
+    static void handleSettingsChange(ProjectExplorer::Project *project);
+
     /// \return The project part with the given project file
     static ProjectPart::ConstPtr projectPartForId(const QString &projectPartId);
     /// \return All project parts that mention the given file name as one of the sources/headers.
@@ -132,7 +136,7 @@ public:
     static void emitAbstractEditorSupportRemoved(const QString &filePath);
 
     static bool isCppEditor(Core::IEditor *editor);
-    static bool usesClangd(const TextEditor::TextDocument *document);
+    static std::optional<QVersionNumber> usesClangd(const TextEditor::TextDocument *document);
     static bool isClangCodeModelActive();
 
     static QSet<AbstractEditorSupport*> abstractEditorSupports();

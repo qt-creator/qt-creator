@@ -55,12 +55,13 @@ void ProcessStartHandler::setNativeArguments(const QString &arguments)
 #endif // Q_OS_WIN
 }
 
-void ProcessStartHandler::setWindowsSpecificStartupFlags(bool belowNormalPriority,
-                                                         bool createConsoleWindow)
+void ProcessStartHandler::setWindowsSpecificStartupFlags(
+    bool belowNormalPriority, bool createConsoleWindow, bool forceDefaultErrorMode)
 {
 #ifdef Q_OS_WIN
     m_process->setCreateProcessArgumentsModifier(
-        [belowNormalPriority, createConsoleWindow](QProcess::CreateProcessArguments *args) {
+        [belowNormalPriority, createConsoleWindow, forceDefaultErrorMode](
+            QProcess::CreateProcessArguments *args) {
             if (createConsoleWindow) {
                 args->flags |= CREATE_NEW_CONSOLE;
                 args->startupInfo->dwFlags &= ~STARTF_USESTDHANDLES;
@@ -69,11 +70,13 @@ void ProcessStartHandler::setWindowsSpecificStartupFlags(bool belowNormalPriorit
             if (belowNormalPriority)
                 args->flags |= BELOW_NORMAL_PRIORITY_CLASS;
 
-            args->flags |= CREATE_DEFAULT_ERROR_MODE;
+            if (forceDefaultErrorMode)
+                args->flags |= CREATE_DEFAULT_ERROR_MODE;
         });
 #else // Q_OS_WIN
     Q_UNUSED(belowNormalPriority)
     Q_UNUSED(createConsoleWindow)
+    Q_UNUSED(forceDefaultErrorMode)
 #endif
 }
 

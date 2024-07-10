@@ -10,6 +10,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 
+#include <utils/synchronizedvalue.h>
 #include <utils/temporarydirectory.h>
 
 namespace ProjectExplorer {
@@ -221,7 +222,7 @@ private:
 
     ProjectExplorer::TreeScanner m_treeScanner;
     std::shared_ptr<ProjectExplorer::FolderNode> m_allFiles;
-    QHash<QString, bool> m_mimeBinaryCache;
+    Utils::SynchronizedValue<QHash<QString, bool>> m_mimeBinaryCache;
 
     bool m_waitingForParse = false;
     bool m_combinedScanAndParseResult = false;

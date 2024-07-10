@@ -29,7 +29,7 @@ CtfTimelineModel::CtfTimelineModel(Timeline::TimelineModelAggregator *parent,
 {
     updateName();
     setCollapsedRowCount(1);
-    setCategoryColor(colorByHue(qHash(pid)));
+    setCategoryColor(colorByHue(int(qHash(pid))));
     setHasMixedTypesInExpandedState(true);
 }
 

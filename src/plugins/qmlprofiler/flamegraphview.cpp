@@ -31,7 +31,7 @@ FlameGraphView::FlameGraphView(QmlProfilerModelManager *manager, QWidget *parent
     m_content->rootContext()->setContextProperty(QStringLiteral("flameGraphModel"), m_model);
     m_content->setSource(QUrl(QStringLiteral(
                                   "qrc:/qt/qml/QtCreator/QmlProfiler/QmlProfilerFlameGraphView.qml")));
-    m_content->setClearColor(Utils::creatorTheme()->color(Utils::Theme::Timeline_BackgroundColor1));
+    m_content->setClearColor(Utils::creatorColor(Utils::Theme::Timeline_BackgroundColor1));
 
     m_content->setResizeMode(QQuickWidget::SizeRootObjectToView);
     m_content->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);

@@ -23,6 +23,7 @@ public:
     virtual QMultiMap<QString, QUrl> linksForKeyword(const QString &keyword) = 0;
     virtual QByteArray fileData(const QUrl &url) = 0;
     virtual void showHelpUrl(const QUrl &url, HelpViewerLocation location = HelpModeAlways) = 0;
+    virtual void addOnlineHelpHandler(const OnlineHelpHandler &handler) = 0;
 };
 
 } // HelpManager

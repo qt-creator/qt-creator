@@ -30,3 +30,12 @@ using expected_str = tl::expected<T, QString>;
     } \
     do { \
     } while (0)
+
+#define QTC_CHECK_EXPECTED(expected) \
+    if (Q_LIKELY(expected)) { \
+    } else { \
+        ::Utils::writeAssertLocation( \
+            QString("%1:%2: %3").arg(__FILE__).arg(__LINE__).arg(expected.error()).toUtf8().data()); \
+    } \
+    do { \
+    } while (0)

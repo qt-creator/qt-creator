@@ -131,7 +131,7 @@ public:
         addDataExtractor(this, &WebBrowserSelectionAspect::currentBrowser, &Data::currentBrowser);
     }
 
-    void addToLayout(Layouting::LayoutItem &parent) override
+    void addToLayout(Layouting::Layout &parent) override
     {
         QTC_CHECK(!m_webBrowserComboBox);
         m_webBrowserComboBox = new QComboBox;
@@ -210,7 +210,7 @@ public:
 
         setStartModifier([this, runControl, portsGatherer] {
             const QString browserId =
-                    runControl->aspect<WebBrowserSelectionAspect>()->currentBrowser;
+                    runControl->aspectData<WebBrowserSelectionAspect>()->currentBrowser;
             setCommandLine(emrunCommand(runControl->target(),
                                         runControl->buildKey(),
                                         browserId,

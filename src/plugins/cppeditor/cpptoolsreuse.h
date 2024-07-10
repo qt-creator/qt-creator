@@ -6,7 +6,6 @@
 #include "cppeditor_global.h"
 
 #include "clangdiagnosticconfig.h"
-#include "compileroptionsbuilder.h"
 #include "projectpart.h"
 
 #include <texteditor/quickfix.h>
@@ -65,6 +64,9 @@ quickFixOperations(const TextEditor::AssistInterface *interface);
 
 CppCompletionAssistProcessor CPPEDITOR_EXPORT *getCppCompletionAssistProcessor();
 
+QString CPPEDITOR_EXPORT
+deriveHeaderGuard(const Utils::FilePath &filePath, ProjectExplorer::Project *project);
+
 enum class CacheUsage { ReadWrite, ReadOnly };
 
 Utils::FilePath CPPEDITOR_EXPORT correspondingHeaderOrSource(
@@ -73,13 +75,10 @@ Utils::FilePath CPPEDITOR_EXPORT correspondingHeaderOrSource(
 
 void CPPEDITOR_EXPORT openEditor(const Utils::FilePath &filePath, bool inNextSplit,
                                  Utils::Id editorId = {});
-class CppCodeModelSettings;
-CppCodeModelSettings CPPEDITOR_EXPORT *codeModelSettings();
 
 QString CPPEDITOR_EXPORT preferredCxxHeaderSuffix(ProjectExplorer::Project *project);
 QString CPPEDITOR_EXPORT preferredCxxSourceSuffix(ProjectExplorer::Project *project);
 bool CPPEDITOR_EXPORT preferLowerCaseFileNames(ProjectExplorer::Project *project);
-
 
 QList<Utils::Text::Range> CPPEDITOR_EXPORT symbolOccurrencesInText(
     const QTextDocument &doc, QStringView text, int offset, const QString &symbolName);
@@ -88,9 +87,6 @@ symbolOccurrencesInDeclarationComments(const Utils::SearchResultItems &symbolOcc
 QList<Utils::Text::Range> CPPEDITOR_EXPORT symbolOccurrencesInDeclarationComments(
     CppEditorWidget *editorWidget, const QTextCursor &cursor);
 
-UsePrecompiledHeaders CPPEDITOR_EXPORT getPchUsage();
-
-int indexerFileSizeLimitInMb();
 bool fileSizeExceedsLimit(const Utils::FilePath &filePath, int sizeLimitInMb);
 
 ProjectExplorer::Project CPPEDITOR_EXPORT *projectForProjectInfo(const ProjectInfo &info);

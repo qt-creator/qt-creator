@@ -101,7 +101,7 @@ GroupItem GenericDeployStep::mkdirTask(const Storage<FilesToTransfer> &storage)
         const int numResults = async.future().resultCount();
         if (numResults == 0) {
             addErrorMessage(
-                Tr::tr("Unknown error occurred while trying to create remote directories") + '\n');
+                Tr::tr("Unknown error occurred while trying to create remote directories.") + '\n');
             return;
         }
 
@@ -176,12 +176,16 @@ GroupItem GenericDeployStep::transferTask(const Storage<FilesToTransfer> &storag
     const auto onError = [this](const FileTransfer &transfer) {
         const ProcessResultData result = transfer.resultData();
         if (result.m_error == QProcess::FailedToStart) {
-            addErrorMessage(Tr::tr("rsync failed to start: %1").arg(result.m_errorString));
+            addErrorMessage(Tr::tr("%1 failed to start: %2")
+                                .arg(transfer.transferMethodName(), result.m_errorString));
         } else if (result.m_exitStatus == QProcess::CrashExit) {
-            addErrorMessage(Tr::tr("rsync crashed."));
+            addErrorMessage(Tr::tr("%1 crashed.").arg(transfer.transferMethodName()));
         } else if (result.m_exitCode != 0) {
-            addErrorMessage(Tr::tr("rsync failed with exit code %1.").arg(result.m_exitCode)
-                            + "\n" + result.m_errorString);
+            addErrorMessage(
+                Tr::tr("%1 failed with exit code %2.")
+                    .arg(transfer.transferMethodName())
+                    .arg(result.m_exitCode)
+                + "\n" + result.m_errorString);
         }
     };
     return FileTransferTask(onSetup, onError, CallDoneIf::Error);

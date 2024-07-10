@@ -189,25 +189,25 @@ void IntegerWatchLineEdit::setModelData(const QVariant &v)
         qDebug(">IntegerLineEdit::setModelData(%s, '%s'): base=%d, signed=%d, bigint=%d",
                v.typeName(), qPrintable(v.toString()),
                base(), isSigned(), isBigInt());
-    switch (v.type()) {
-    case QVariant::Int:
-    case QVariant::LongLong: {
+    switch (v.typeId()) {
+    case QMetaType::Int:
+    case QMetaType::LongLong: {
         const qint64 iv = v.toLongLong();
         setSigned(true);
         setText(QString::number(iv, base()));
     }
         break;
-    case QVariant::UInt:
-    case QVariant::ULongLong: {
+    case QMetaType::UInt:
+    case QMetaType::ULongLong: {
          const quint64 iv = v.toULongLong();
          setSigned(false);
          setText(QString::number(iv, base()));
         }
         break;
-    case QVariant::ByteArray:
+    case QMetaType::QByteArray:
         setNumberText(QString::fromLatin1(v.toByteArray()));
         break;
-    case QVariant::String:
+    case QMetaType::QString:
         setNumberText(v.toString());
         break;
     default:
@@ -243,12 +243,12 @@ void FloatWatchLineEdit::setModelData(const QVariant &v)
     if (debug)
         qDebug("FloatWatchLineEdit::setModelData(%s, '%s')",
                v.typeName(), qPrintable(v.toString()));
-    switch (v.type()) {
-    case QVariant::Double:
-    case QVariant::String:
+    switch (v.typeId()) {
+    case QMetaType::Double:
+    case QMetaType::QString:
         setText(v.toString());
         break;
-    case QVariant::ByteArray:
+    case QMetaType::QByteArray:
         setText(QString::fromLatin1(v.toByteArray()));
         break;
     default:
@@ -259,17 +259,17 @@ void FloatWatchLineEdit::setModelData(const QVariant &v)
     }
 }
 
-WatchLineEdit *WatchLineEdit::create(QVariant::Type t, QWidget *parent)
+WatchLineEdit *WatchLineEdit::create(QMetaType::Type typeId, QWidget *parent)
 {
-    switch (t) {
-    case QVariant::Bool:
-    case QVariant::Int:
-    case QVariant::UInt:
-    case QVariant::LongLong:
-    case QVariant::ULongLong:
+    switch (typeId) {
+    case QMetaType::Bool:
+    case QMetaType::Int:
+    case QMetaType::UInt:
+    case QMetaType::LongLong:
+    case QMetaType::ULongLong:
         return new IntegerWatchLineEdit(parent);
         break;
-    case QVariant::Double:
+    case QMetaType::Double:
         return new FloatWatchLineEdit(parent);
     default:
         break;
@@ -297,14 +297,14 @@ void BooleanComboBox::setModelData(const QVariant &v)
         qDebug("BooleanComboBox::setModelData(%s, '%s')", v.typeName(), qPrintable(v.toString()));
 
     bool value = false;
-    switch (v.type()) {
-    case QVariant::Bool:
+    switch (v.typeId()) {
+    case QMetaType::Bool:
         value = v.toBool();
         break;
-    case QVariant::Int:
-    case QVariant::UInt:
-    case QVariant::LongLong:
-    case QVariant::ULongLong:
+    case QMetaType::Int:
+    case QMetaType::UInt:
+    case QMetaType::LongLong:
+    case QMetaType::ULongLong:
         value = v.toInt() != 0;
         break;
     default:

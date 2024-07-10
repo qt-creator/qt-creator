@@ -93,12 +93,13 @@ protected:
     Utils::FilePath absoluteFilePath(const Utils::FilePath &filePath) const;
     static QString createLinkTarget(const FilePath &filePath, int line, int column);
     static void addLinkSpecForAbsoluteFilePath(LinkSpecs &linkSpecs, const FilePath &filePath,
-                                               int lineNo, int pos, int len);
+                                               int lineNo, int column, int pos, int len);
     static void addLinkSpecForAbsoluteFilePath(LinkSpecs &linkSpecs, const FilePath &filePath,
-                                               int lineNo, const QRegularExpressionMatch &match,
-                                               int capIndex);
+                                               int lineNo, int column,
+                                               const QRegularExpressionMatch &match, int capIndex);
     static void addLinkSpecForAbsoluteFilePath(LinkSpecs &linkSpecs, const FilePath &filePath,
-                                               int lineNo, const QRegularExpressionMatch &match,
+                                               int lineNo, int column,
+                                               const QRegularExpressionMatch &match,
                                                const QString &capName);
     bool fileExists(const Utils::FilePath &fp) const;
 

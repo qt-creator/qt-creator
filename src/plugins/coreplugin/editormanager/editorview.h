@@ -40,6 +40,9 @@ class EditLocation
 public:
     QByteArray save() const;
     static EditLocation load(const QByteArray &data);
+    static EditLocation forEditor(const IEditor *editor, const QByteArray &saveState = {});
+
+    QString displayName() const;
 
     QPointer<IDocument> document;
     Utils::FilePath filePath;
@@ -82,13 +85,17 @@ public:
 
     bool canGoForward() const;
     bool canGoBack() const;
+    bool canReopen() const;
 
     void goBackInNavigationHistory();
     void goForwardInNavigationHistory();
 
+    void reopenLastClosedDocument();
+
     void goToEditLocation(const EditLocation &location);
 
     void addCurrentPositionToNavigationHistory(const QByteArray &saveState = QByteArray());
+    void addClosedEditorToCloseHistory(IEditor *editor);
     void cutForwardNavigationHistory();
 
     QList<EditLocation> editorHistory() const { return m_editorHistory; }
@@ -124,6 +131,8 @@ private:
     void checkProjectLoaded(IEditor *editor);
 
     void updateCurrentPositionInNavigationHistory();
+    bool openEditorFromNavigationHistory(int index);
+    void goToNavigationHistory(int index);
 
     SplitterOrView *m_parentSplitterOrView;
     EditorToolBar *m_toolBar;
@@ -140,7 +149,10 @@ private:
     QLabel *m_emptyViewLabel;
 
     QList<EditLocation> m_navigationHistory;
+    QMenu *m_backMenu;
+    QMenu *m_forwardMenu;
     QList<EditLocation> m_editorHistory;
+    QList<EditLocation> m_closedEditorHistory;
     int m_currentNavigationHistoryPosition = 0;
 };
 

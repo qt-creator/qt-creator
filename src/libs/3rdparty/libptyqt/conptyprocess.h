@@ -20,7 +20,6 @@
 
 typedef VOID* HPCON;
 
-#define TOO_OLD_WINSDK
 #endif
 
 class QWinEventNotifier;

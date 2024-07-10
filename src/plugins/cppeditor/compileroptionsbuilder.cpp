@@ -692,8 +692,7 @@ void CompilerOptionsBuilder::addIncludeDirOptionForPath(const HeaderPath &path)
     if (path.type == HeaderPathType::BuiltIn) {
         systemPath = true;
     } else if (path.type == HeaderPathType::System) {
-        if (m_useSystemHeader == UseSystemHeader::Yes)
-            systemPath = true;
+        systemPath = true;
     } else {
         // ProjectExplorer::HeaderPathType::User
         if (m_useSystemHeader == UseSystemHeader::Yes && m_projectPart.hasProject()
@@ -900,8 +899,8 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
             continue;
         }
 
-        // GCC option that clang doesn't know.
-        if (option.contains("direct-extern-access"))
+        // GCC options that clang doesn't know.
+        if (option.contains("direct-extern-access") || option == "-fnothrow-opt")
             continue;
 
         // These were already parsed into ProjectPart::includedFiles.

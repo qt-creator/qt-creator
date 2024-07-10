@@ -33,7 +33,12 @@ static QString extractColorString(const QString &s, int pos)
         QChar c = s[firstPos];
         if (c == QLatin1Char('#'))
             break;
-
+        // color from string literal, i.e "red", 'red';
+        // strip leading and trailing quotes
+        if (c == QLatin1Char('\"') || c == QLatin1Char('\'')) {
+            firstPos += 1;
+            break;
+        }
         if (c == QLatin1Char(':')
                 && (firstPos > 3)
                 && (s.mid(firstPos-3, 4) == QLatin1String("Qt::"))) {
@@ -51,6 +56,8 @@ static QString extractColorString(const QString &s, int pos)
         return QString();
 
     int lastPos = firstPos + 1;
+    if (lastPos >= s.length())
+        return QString();
     do {
         QChar c = s[lastPos];
         if (!(c.isLetterOrNumber() || c == QLatin1Char(':')))
@@ -106,7 +113,7 @@ static QColor checkColorText(const QString &str)
         return fromEnumString(colorStr);
     }
 
-    return QColor();
+    return QColor::fromString(str);
 }
 
 // looks backwards through a string for the opening brace of a function

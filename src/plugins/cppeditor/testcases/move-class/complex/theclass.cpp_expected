@@ -1,0 +1,20 @@
+
+#include "theclass.h"
+
+namespace Project {
+namespace Internal {
+
+bool TheClass::needsDefinition = true;
+
+class TheClass::Private
+{
+    void func();
+    int m_member = 0;
+};
+
+void TheClass::defined() {}
+
+void TheClass::Private::func() {}
+
+} // namespace Internal
+} // namespace Project

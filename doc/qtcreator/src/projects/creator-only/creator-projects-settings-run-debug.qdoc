@@ -10,7 +10,7 @@
 
     \title Enable debugging
 
-    Specify settings for running applications on the \l {kits-tab}{Run device} that
+    Specify settings for running applications on the \l {Kits}{Run device} that
     you select for a kit in \uicontrol Projects > \uicontrol {Build & Run} >
     \uicontrol Run > \uicontrol {Run Settings}.
 
@@ -30,7 +30,7 @@
 
     \list
         \li \l{Adding Custom Debugging Helpers}{Custom debugging helpers}
-        \li \l{Specifying GDB Settings}{GDB commands} to execute after GDB
+        \li \l{GDB}{GDB commands} to execute after GDB
             has started, but before the debugged program is started or
             attached, and before the debugging helpers are initialized
     \endlist
@@ -42,5 +42,5 @@
     {enable QML debugging} either globally or in the \uicontrol {Build Settings}
     of the project.
 
-    \sa {Configuring Projects}, {Debugging}
+    \sa {Configuring Projects}, {Debugging}, {Debuggers}, {Debugger}
 */

@@ -6,7 +6,6 @@
 #include <cplusplus/MatchingText.h>
 
 #include <texteditor/tabsettings.h>
-#include <texteditor/syntaxhighlighterrunner.h>
 
 #include <QTextBlock>
 #include <QTextCursor>
@@ -17,6 +16,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/icodestylepreferences.h>
+#include <texteditor/syntaxhighlighter.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
@@ -276,9 +276,9 @@ void AutoCompleterTest::testAutoComplete()
 
     TextEditor::BaseTextEditor *cppEditor = creteCppEditor(text);
     QVERIFY(cppEditor);
-    QTRY_VERIFY(cppEditor->textDocument()->syntaxHighlighterRunner()->syntaxInfoUpdated());
+    QTRY_VERIFY(cppEditor->textDocument()->syntaxHighlighter()->syntaxHighlighterUpToDate());
     QTextCursor tc = openEditor(cppEditor);
-    QTRY_VERIFY(cppEditor->textDocument()->syntaxHighlighterRunner()->syntaxInfoUpdated());
+    QTRY_VERIFY(cppEditor->textDocument()->syntaxHighlighter()->syntaxHighlighterUpToDate());
 
     QVERIFY(!tc.isNull());
 
@@ -339,9 +339,9 @@ void AutoCompleterTest::testSurroundWithSelection()
     const QScopeGuard cleanup([] { Core::EditorManager::closeAllEditors(false); });
     TextEditor::BaseTextEditor *cppEditor = creteCppEditor(text);
     QVERIFY(cppEditor);
-    QTRY_VERIFY(cppEditor->textDocument()->syntaxHighlighterRunner()->syntaxInfoUpdated());
+    QTRY_VERIFY(cppEditor->textDocument()->syntaxHighlighter()->syntaxHighlighterUpToDate());
     QTextCursor tc = openEditor(cppEditor);
-    QTRY_VERIFY(cppEditor->textDocument()->syntaxHighlighterRunner()->syntaxInfoUpdated());
+    QTRY_VERIFY(cppEditor->textDocument()->syntaxHighlighter()->syntaxHighlighterUpToDate());
 
     QVERIFY(!tc.isNull());
 
@@ -376,9 +376,9 @@ void AutoCompleterTest::testAutoBackspace()
     const QScopeGuard cleanup([] { Core::EditorManager::closeAllEditors(false); });
     TextEditor::BaseTextEditor *cppEditor = creteCppEditor(text);
     QVERIFY(cppEditor);
-    QTRY_VERIFY(cppEditor->textDocument()->syntaxHighlighterRunner()->syntaxInfoUpdated());
+    QTRY_VERIFY(cppEditor->textDocument()->syntaxHighlighter()->syntaxHighlighterUpToDate());
     QTextCursor tc = openEditor(cppEditor);
-    QTRY_VERIFY(cppEditor->textDocument()->syntaxHighlighterRunner()->syntaxInfoUpdated());
+    QTRY_VERIFY(cppEditor->textDocument()->syntaxHighlighter()->syntaxHighlighterUpToDate());
 
     QVERIFY(!tc.isNull());
 
@@ -420,9 +420,9 @@ void AutoCompleterTest::testInsertParagraph()
     const QScopeGuard cleanup([] { Core::EditorManager::closeAllEditors(false); });
     TextEditor::BaseTextEditor *cppEditor = creteCppEditor(text);
     QVERIFY(cppEditor);
-    QTRY_VERIFY(cppEditor->textDocument()->syntaxHighlighterRunner()->syntaxInfoUpdated());
+    QTRY_VERIFY(cppEditor->textDocument()->syntaxHighlighter()->syntaxHighlighterUpToDate());
     QTextCursor tc = openEditor(cppEditor);
-    QTRY_VERIFY(cppEditor->textDocument()->syntaxHighlighterRunner()->syntaxInfoUpdated());
+    QTRY_VERIFY(cppEditor->textDocument()->syntaxHighlighter()->syntaxHighlighterUpToDate());
 
     QVERIFY(!tc.isNull());
 

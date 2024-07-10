@@ -798,6 +798,8 @@ static void getExpandedCompilerFlags(QStringList &cFlags, QStringList &cxxFlags,
             cxxFlags << "/std:c++20";
         else if (cxxLanguageVersion.contains("c++17"))
             cxxFlags << "/std:c++17";
+    } else {
+        cFlags = cxxFlags = commonFlags;
     }
 }
 

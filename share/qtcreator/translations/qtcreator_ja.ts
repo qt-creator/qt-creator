@@ -785,7 +785,7 @@
         <translation>SDK のセットアップ</translation>
     </message>
     <message>
-        <source>Android OpenSSL settings (Optional)</source>
+        <source>Android OpenSSL Settings (Optional)</source>
         <translation>Android OpenSSL の設定 (オプション)</translation>
     </message>
     <message>
@@ -1895,7 +1895,7 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <translation>文字列を自動的に分割する</translation>
     </message>
     <message>
-        <source>&amp;Automatically insert matching characters</source>
+        <source>&amp;Automatically Insert Matching Characters</source>
         <translation>マッチング文字を自動的に挿入する(&amp;A)</translation>
     </message>
     <message>
@@ -6322,7 +6322,7 @@ Backspace キーが押された時のインデントの動作を指定します�
         <translation>ファイル内のナビゲーションをアニメーション化する</translation>
     </message>
     <message>
-        <source>Line annotations</source>
+        <source>Line Annotations</source>
         <translation>ラインアノテーション</translation>
     </message>
     <message>
@@ -6678,7 +6678,7 @@ Influences the indentation of continuation lines.
         <translation>リセット</translation>
     </message>
     <message>
-        <source>Scanning scope</source>
+        <source>Scanning Scope</source>
         <translation>スキャンする範囲</translation>
     </message>
     <message>
@@ -10949,12 +10949,12 @@ with a password, which you can enter below.</source>
 </translation>
     </message>
     <message>
-        <source>
-Uninstalling the installed package may solve the issue.
-Do you want to uninstall the existing package?</source>
-        <translation>
-インストールされているパッケージをアンインストールすると、問題が解決する場合があります。
-既存のパッケージをアンインストールしますか？</translation>
+        <source>Uninstalling the installed package may solve the issue.</source>
+        <translation>インストールされているパッケージをアンインストールすると、問題が解決する場合があります。</translation>
+    </message>
+    <message>
+        <source>Do you want to uninstall the existing package?</source>
+        <translation>既存のパッケージをアンインストールしますか？</translation>
     </message>
     <message>
         <source>Package deploy: Running command &quot;%1&quot;.</source>
@@ -12152,8 +12152,8 @@ in the system&apos;s browser for manual download.</source>
         <translation>Python エディタ</translation>
     </message>
     <message>
-        <source>Qt Designer</source>
-        <translation>Qt Designer</translation>
+        <source>Qt Widgets Designer</source>
+        <translation>Qt Widgets Designer</translation>
     </message>
     <message>
         <source>Qt Linguist</source>
@@ -14319,7 +14319,7 @@ to version control (%2)
         <translation>#include %1 を追加</translation>
     </message>
     <message>
-        <source>Add forward declaration for %1</source>
+        <source>Add Forward Declaration for %1</source>
         <translation>%1 の前方宣言を追加する</translation>
     </message>
     <message>
@@ -18978,8 +18978,8 @@ Rebuilding the project might help.</source>
 プロジェクトのリビルドをお奨めします。</translation>
     </message>
     <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Qt Designer フォームクラス</translation>
+        <source>Qt Widgets Designer Form Class</source>
+        <translation>Qt Widgets Designer フォームクラス</translation>
     </message>
     <message>
         <source>Switch Source/Form</source>
@@ -18994,8 +18994,8 @@ Rebuilding the project might help.</source>
         <translation>Shift+F4</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt Widget Project.</source>
-        <translation>既存の Qt ウィジェットプロジェクトに追加可能な Qt Designer フォームとそれに対応したクラス (C++ ヘッダとソースファイル) を作成します。</translation>
+        <source>Creates a Qt Widgets Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt Widget Project.</source>
+        <translation>既存の Qt ウィジェットプロジェクトに追加可能な Qt Widgets Designer フォームとそれに対応したクラス (C++ ヘッダとソースファイル) を作成します。</translation>
     </message>
     <message>
         <source>Choose a Form Template</source>
@@ -25088,8 +25088,8 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <translation>Qt カスタム Designer ウィジェットかカスタムウィジェットコレクションを作成します。</translation>
     </message>
     <message>
-        <source>This wizard generates a Qt Designer Custom Widget or a Qt Designer Custom Widget Collection project.</source>
-        <translation>このウィザードは Qt Designer カスタムウィジェットあるいは Qt Designer カスタムウィジェットコレクションプロジェクトを生成します。</translation>
+        <source>This wizard generates a Qt Widgets Designer Custom Widget or a Qt Widgets Designer Custom Widget Collection project.</source>
+        <translation>このウィザードは Qt Widgets Designer カスタムウィジェットあるいは Qt Widgets Designer カスタムウィジェットコレクションプロジェクトを生成します。</translation>
     </message>
     <message>
         <source>Creating multiple widget libraries (%1, %2) in one project (%3) is not supported.</source>
@@ -25140,8 +25140,8 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <translation>アプリケーション &quot;%1&quot; が見つかりませんでした。</translation>
     </message>
     <message>
-        <source>Qt Designer is not responding (%1).</source>
-        <translation>Qt Designer が無応答です(%1)。</translation>
+        <source>Qt Widgets Designer is not responding (%1).</source>
+        <translation>Qt Widgets Designer が無応答です(%1)。</translation>
     </message>
     <message>
         <source>Unable to create server socket: %1</source>
@@ -25612,10 +25612,10 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <translation>Qt ウィジェットアプリケーション</translation>
     </message>
     <message>
-        <source>Creates a Qt application for the desktop. Includes a Qt Designer-based main window.
+        <source>Creates a Qt application for the desktop. Includes a Qt Widgets Designer-based main window.
 
 Preselects a desktop Qt for building the application if available.</source>
-        <translation>Qt Designer ベースのメインウィンドウを持つデスクトップ用 Qt アプリケーションを作成します。
+        <translation>Qt Widgets Designer ベースのメインウィンドウを持つデスクトップ用 Qt アプリケーションを作成します。
 
 デスクトップ用 Qt が存在する場合、アプリケーションのビルド用に選択します。</translation>
     </message>
@@ -37181,8 +37181,8 @@ Affected are breakpoints %1</source>
         <translation>Alt+Shift+R</translation>
     </message>
     <message>
-        <source>About Qt Designer Plugins...</source>
-        <translation>Qt Designer プラグインについて...</translation>
+        <source>About Qt Widgets Designer Plugins...</source>
+        <translation>Qt Widgets Designer プラグインについて...</translation>
     </message>
     <message>
         <source>Preview in</source>
@@ -37506,12 +37506,12 @@ Affected are breakpoints %1</source>
         <translation>フォームテンプレート</translation>
     </message>
     <message>
-        <source>Creates a Qt Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.</source>
-        <translation>Qt ウィジェットプロジェクトに追加可能な Qt Designer フォームを作成します。これは既に UI ビジネスロジックを実装したクラスを持っている場合に役立ちます。</translation>
+        <source>Creates a Qt Widgets Designer form that you can add to a Qt Widget Project. This is useful if you already have an existing class for the UI business logic.</source>
+        <translation>Qt ウィジェットプロジェクトに追加可能な Qt Widgets Designer フォームを作成します。これは既に UI ビジネスロジックを実装したクラスを持っている場合に役立ちます。</translation>
     </message>
     <message>
-        <source>Qt Designer Form</source>
-        <translation>Qt Designer フォーム</translation>
+        <source>Qt Widgets Designer Form</source>
+        <translation>Qt Widgets Designer フォーム</translation>
     </message>
     <message>
         <source>Creates a Java file with boilerplate code.</source>
@@ -39137,40 +39137,28 @@ Would you like to overwrite it?</source>
         <translation>typeId が &quot;%1&quot; のページの &quot;index&quot; が無効です。</translation>
     </message>
     <message>
-        <source>Path &quot;%1&quot; does not exist when checking Json wizard search paths.
-</source>
-        <translation>Json ウィザードの検索パスを確認しましたが、パス &quot;%1&quot; は存在しません。
-</translation>
+        <source>Path &quot;%1&quot; does not exist when checking JSON wizard search paths.</source>
+        <translation>JSON ウィザードの検索パスを確認しましたが、パス &quot;%1&quot; は存在しません。</translation>
     </message>
     <message>
-        <source>Checking &quot;%1&quot; for %2.
-</source>
-        <translation>%2 向けに &quot;%1&quot; を確認しています。
-</translation>
+        <source>Checking &quot;%1&quot; for %2.</source>
+        <translation>%2 向けに &quot;%1&quot; を確認しています。</translation>
     </message>
     <message>
-        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4
-</source>
-        <translation>・&quot;%1&quot; の解析に失敗しました:%2:%3: %4
-</translation>
+        <source>* Failed to parse &quot;%1&quot;:%2:%3: %4</source>
+        <translation>・&quot;%1&quot; の解析に失敗しました:%2:%3: %4</translation>
     </message>
     <message>
-        <source>* Did not find a JSON object in &quot;%1&quot;.
-</source>
-        <translation>・&quot;%1&quot; に JSON オブジェクトが見つかりませんでした。
-</translation>
+        <source>* Did not find a JSON object in &quot;%1&quot;.</source>
+        <translation>・&quot;%1&quot; に JSON オブジェクトが見つかりませんでした。</translation>
     </message>
     <message>
-        <source>* Configuration found and parsed.
-</source>
-        <translation>・設定が見つかり、解析しました。
-</translation>
+        <source>* Configuration found and parsed.</source>
+        <translation>・設定が見つかり、解析しました。</translation>
     </message>
     <message>
-        <source>* Version %1 not supported.
-</source>
-        <translation>・バージョン %1 には未対応です。
-</translation>
+        <source>* Version %1 not supported.</source>
+        <translation>・バージョン %1 には未対応です。</translation>
     </message>
     <message>
         <source>The platform selected for the wizard.</source>
@@ -39201,16 +39189,12 @@ Would you like to overwrite it?</source>
         <translation>画像ファイル &quot;%1&quot; が見つかりません。</translation>
     </message>
     <message>
-        <source>* Failed to create: %1
-</source>
-        <translation>・作成に失敗しました: %1
-</translation>
+        <source>* Failed to create: %1</source>
+        <translation>・作成に失敗しました: %1</translation>
     </message>
     <message>
-        <source>JsonWizard: &quot;%1&quot; not found
-</source>
-        <translation>JsonWizard: &quot;%1&quot; が見つかりません
-</translation>
+        <source>JsonWizard: &quot;%1&quot; not found.</source>
+        <translation>JsonWizard: &quot;%1&quot; が見つかりません。</translation>
     </message>
     <message>
         <source>key not found.</source>

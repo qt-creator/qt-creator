@@ -66,7 +66,7 @@ public:
     }
 
 private:
-    void addToLayoutImpl(Layouting::LayoutItem &parent) override
+    void addToLayoutImpl(Layouting::Layout &parent) override
     {
         addMutableAction(m_comboBox);
         parent.addItem(m_comboBox);
@@ -329,7 +329,7 @@ public:
                 }
                 if (!item.detectionSource().isEmpty() && item.detectionSource() == k->autoDetectionSource())
                     level = DebuggerItem::MatchLevel(level + 2);
-            } else if (rawId.type() == QVariant::String) {
+            } else if (rawId.typeId() == QMetaType::QString) {
                 // New structure.
                 if (item.id() == rawId) {
                     // Detected by ID.
@@ -386,6 +386,15 @@ public:
 
         // Use the best id we found, or an invalid one.
         k->setValue(DebuggerKitAspect::id(), bestLevel != DebuggerItem::DoesNotMatch ? bestItem.id() : QVariant());
+    }
+
+    void fix(Kit *k) override
+    {
+        const QVariant id = k->value(DebuggerKitAspect::id());
+        if (Utils::anyOf(DebuggerItemManager::debuggers(), Utils::equal(&DebuggerItem::id, id)))
+            return;
+        k->removeKeySilently(DebuggerKitAspect::id());
+        setup(k);
     }
 
     KitAspect *createKitAspect(Kit *k) const override

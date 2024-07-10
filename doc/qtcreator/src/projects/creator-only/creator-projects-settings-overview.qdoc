@@ -16,7 +16,7 @@
 
     When you install Qt for a development or target platform, such as Linux,
     \macos, Windows, Android or QNX, \l{https://www.qt.io/download-qt-installer}
-    {\QOI} creates \l{glossary-buildandrun-kit}{kits} for the development targets.
+    {\QOI} creates \l{Kits}{kits} for the development targets.
 
     Select the kits to use for a project in the \uicontrol {Configure Projects}
     view when you open the project for the first time. At least one kit must be
@@ -65,7 +65,7 @@
     \section1 Specifying Run Settings
 
     The run settings to specify depend on the type of the project and on the
-    \l{kits-tab}{Run device} that you select for the kit.
+    \l{Kits}{Run device} that you select for the kit.
 
     \QC automatically creates deploy and run configurations for your project.
 
@@ -84,7 +84,9 @@
                 \li \l{Link projects to Axivion dashboards}{Axivion}
                 \li \l{Specify clangd settings}{Clangd}
                 \li \l{Specify Clang tools settings}{Clang Tools}
+                \li \l{Override CMake settings for a project}{CMake}
                 \li \l{Set Copilot preferences}{Copilot}
+                \li \l{Configure C++ code model}{C++ Code Model}
                 \li \l{Specify code style}{C++ Code Style}
                 \li \l{Set C++ file naming preferences}{C++ File Naming}
                 \li \l{Specify dependencies}{Dependencies}
@@ -94,7 +96,7 @@
                 \li \l{Link projects with GitLab}{GitLab}
                 \li \l{Configure language server workspace}{Language Server}
                 \li \l{Specify settings for quick fixes}{Quick Fixes}
-                \li \l{Testing}
+                \li \l{Apply filters before scanning for tests}{Testing}
                 \li \l{Exclude files from to-do lists}{To-Do} (experimental)
             \endlist
 
@@ -111,6 +113,7 @@
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-projects-configure
+    \ingroup creator-how-to-manage-kits
 
     \title Activate kits for a project
 
@@ -125,6 +128,9 @@
     is not suitable for the project type. To view the warning and error messages,
     move the mouse pointer over the kit name.
 
+    To hide inactive kits from the list, select \uicontrol {Hide Inactive Kits}.
+    To show them again, select \uicontrol {Show All Kits}.
+
     \section1 Manage kits
 
     To modify kit configuration or to \l{Add kits}{add kits} to the list or to
@@ -132,7 +138,7 @@
 
     Each kit consists of a set of values that define one environment, such as a
     \l{glossary-device}{device}, \l{Add compilers}{compiler},
-    \l{Add debuggers}{debugger}, and \l{Add Qt versions}{Qt version}, as well
+    \l{Add debuggers}{Debugging}, and \l{Add Qt versions}{Qt version}, as well
     as steps for building, deploying, and running applications.
 
     To copy the build, deploy, and run steps from another kit, select
@@ -174,5 +180,5 @@
     might still see them listed for existing projects. You can copy the build,
     deploy, and run steps from them to other kits.
 
-    \sa {Add kits}, {Configuring Projects}, {kits-tab}{Kits}
+    \sa {Manage Kits}{How To: Manage Kits}, {Configuring Projects}, {Kits}
 */

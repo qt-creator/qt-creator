@@ -33,19 +33,17 @@ public:
             const FilePath shExecutable = Environment::systemEnvironment()
                                                 .searchInPath("sh", {"/usr/local/bin"});
 
-            if (dockerExecutable.exists()) {
+            if (dockerExecutable.exists())
                 cmd = {dockerExecutable, {"run", "-i", "--rm","alpine"}};
-            } else if (dashExecutable.exists()) {
-                cmd = {dashExecutable, {}};
-            } else if (bashExecutable.exists()) {
-                cmd = {bashExecutable, {}};
-            } else if (shExecutable.exists()) {
-                cmd = {shExecutable, {}};
-            }
+            else if (dashExecutable.exists())
+                cmd = CommandLine{dashExecutable};
+            else if (bashExecutable.exists())
+                cmd = CommandLine{bashExecutable};
+            else if (shExecutable.exists())
+                cmd = CommandLine{shExecutable};
 
-            if (cmd.isEmpty()) {
+            if (cmd.isEmpty())
                 return cmd;
-            }
 
             qDebug() << "Using shell cmd:" << cmd;
         }
@@ -97,7 +95,7 @@ class tst_DeviceShell : public QObject
         t.start();
 
         const auto cat = [&shell](const QByteArray &data) {
-            return shell.runInShell({"cat", {}}, data).stdOut;
+            return shell.runInShell(CommandLine{"cat"}, data).stdOut;
         };
         const QList<QByteArray> results = QtConcurrent::blockingMapped(testArray, cat);
         QCOMPARE(results, testArray);
@@ -164,7 +162,7 @@ private slots:
         TestShell shell;
         QCOMPARE(shell.state(), DeviceShell::State::Succeeded);
 
-        const RunResult r = shell.runInShell({"cat", {}}, utf8string.toUtf8());
+        const RunResult r = shell.runInShell(CommandLine{"cat"}, utf8string.toUtf8());
         const QString output = QString::fromUtf8(r.stdOut);
         QCOMPARE(output, utf8string);
     }

@@ -3,611 +3,461 @@
 
 #include "cppcodemodelsettings.h"
 
-#include "clangdiagnosticconfigsmodel.h"
+#include "compileroptionsbuilder.h"
 #include "cppeditorconstants.h"
 #include "cppeditortr.h"
-#include "cpptoolsreuse.h"
+#include "cppmodelmanager.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/session.h>
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/projectsettingswidget.h>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
+#include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcsettings.h>
+#include <utils/store.h>
 
+#include <QCheckBox>
 #include <QDateTime>
+#include <QDir>
 #include <QHash>
 #include <QPair>
+#include <QPlainTextEdit>
 #include <QSettings>
-#include <QStandardPaths>
+#include <QSpinBox>
+#include <QTimer>
+#include <QVBoxLayout>
 
+using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace CppEditor {
 
-static Id initialClangDiagnosticConfigId() { return Constants::CPP_CLANG_DIAG_CONFIG_BUILDSYSTEM; }
-static CppCodeModelSettings::PCHUsage initialPchUsage()
-    { return CppCodeModelSettings::PchUse_BuildSystem; }
-static Key enableLowerClazyLevelsKey() { return "enableLowerClazyLevels"; }
+namespace CppEditor {
+namespace {
+class CppCodeModelProjectSettings
+{
+public:
+    CppCodeModelProjectSettings(ProjectExplorer::Project *project);
+
+    CppCodeModelSettings settings() const;
+    void setSettings(const CppCodeModelSettings &settings);
+    void forceCustomSettingsSettings(const CppCodeModelSettings &settings);
+    bool useGlobalSettings() const { return m_useGlobalSettings; }
+    void setUseGlobalSettings(bool useGlobal);
+
+private:
+    void loadSettings();
+    void saveSettings();
+
+    ProjectExplorer::Project * const m_project;
+    CppCodeModelSettings m_customSettings;
+    bool m_useGlobalSettings = true;
+};
+} // namespace
+
 static Key pchUsageKey() { return Constants::CPPEDITOR_MODEL_MANAGER_PCH_USAGE; }
 static Key interpretAmbiguousHeadersAsCHeadersKey()
     { return Constants::CPPEDITOR_INTERPRET_AMBIGIUOUS_HEADERS_AS_C_HEADERS; }
+static Key enableIndexingKey() { return "EnableIndexing"; }
 static Key skipIndexingBigFilesKey() { return Constants::CPPEDITOR_SKIP_INDEXING_BIG_FILES; }
 static Key ignoreFilesKey() { return Constants::CPPEDITOR_IGNORE_FILES; }
 static Key ignorePatternKey() { return Constants::CPPEDITOR_IGNORE_PATTERN; }
 static Key useBuiltinPreprocessorKey() { return Constants::CPPEDITOR_USE_BUILTIN_PREPROCESSOR; }
 static Key indexerFileSizeLimitKey() { return Constants::CPPEDITOR_INDEXER_FILE_SIZE_LIMIT; }
+static Key useGlobalSettingsKey() { return "useGlobalSettings"; }
 
-static Key clangdSettingsKey() { return "ClangdSettings"; }
-static Key useClangdKey() { return "UseClangdV7"; }
-static Key clangdPathKey() { return "ClangdPath"; }
-static Key clangdIndexingKey() { return "ClangdIndexing"; }
-static Key clangdIndexingPriorityKey() { return "ClangdIndexingPriority"; }
-static Key clangdHeaderSourceSwitchModeKey() { return "ClangdHeaderSourceSwitchMode"; }
-static Key clangdCompletionRankingModelKey() { return "ClangdCompletionRankingModel"; }
-static Key clangdHeaderInsertionKey() { return "ClangdHeaderInsertion"; }
-static Key clangdThreadLimitKey() { return "ClangdThreadLimit"; }
-static Key clangdDocumentThresholdKey() { return "ClangdDocumentThreshold"; }
-static Key clangdSizeThresholdEnabledKey() { return "ClangdSizeThresholdEnabled"; }
-static Key clangdSizeThresholdKey() { return "ClangdSizeThreshold"; }
-static Key clangdUseGlobalSettingsKey() { return "useGlobalSettings"; }
-static Key clangdblockIndexingSettingsKey() { return "blockIndexing"; }
-static Key sessionsWithOneClangdKey() { return "SessionsWithOneClangd"; }
-static Key diagnosticConfigIdKey() { return "diagnosticConfigId"; }
-static Key checkedHardwareKey() { return "checkedHardware"; }
-static Key completionResultsKey() { return "completionResults"; }
-
-static FilePath g_defaultClangdFilePath;
-static FilePath fallbackClangdFilePath()
+bool operator==(const CppEditor::CppCodeModelSettings &s1,
+                const CppEditor::CppCodeModelSettings &s2)
 {
-    if (g_defaultClangdFilePath.exists())
-        return g_defaultClangdFilePath;
-    return Environment::systemEnvironment().searchInPath("clangd");
+    return s1.pchUsage == s2.pchUsage
+           && s1.interpretAmbigiousHeadersAsC == s2.interpretAmbigiousHeadersAsC
+           && s1.enableIndexing == s2.enableIndexing
+           && s1.skipIndexingBigFiles == s2.skipIndexingBigFiles
+           && s1.useBuiltinPreprocessor == s2.useBuiltinPreprocessor
+           && s1.indexerFileSizeLimitInMb == s2.indexerFileSizeLimitInMb
+           && s1.m_categorizeFindReferences == s2.m_categorizeFindReferences
+           && s1.interactiveFollowSymbol == s2.interactiveFollowSymbol
+           && s1.ignoreFiles == s2.ignoreFiles && s1.ignorePattern == s2.ignorePattern;
 }
 
-CppCodeModelSettings::CppCodeModelSettings()
+Store CppCodeModelSettings::toMap() const
 {
-    fromSettings(Core::ICore::settings());
+    Store store;
+    store.insert(pchUsageKey(), pchUsage);
+    store.insert(interpretAmbiguousHeadersAsCHeadersKey(), interpretAmbigiousHeadersAsC);
+    store.insert(enableIndexingKey(), enableIndexing);
+    store.insert(skipIndexingBigFilesKey(), skipIndexingBigFiles);
+    store.insert(ignoreFilesKey(), ignoreFiles);
+    store.insert(ignorePatternKey(), ignorePattern);
+    store.insert(useBuiltinPreprocessorKey(), useBuiltinPreprocessor);
+    store.insert(indexerFileSizeLimitKey(), indexerFileSizeLimitInMb);
+    return store;
+}
+
+void CppCodeModelSettings::fromMap(const Utils::Store &store)
+{
+    const CppCodeModelSettings def;
+    pchUsage = static_cast<PCHUsage>(store.value(pchUsageKey(), def.pchUsage).toInt());
+    interpretAmbigiousHeadersAsC
+        = store.value(interpretAmbiguousHeadersAsCHeadersKey(), def.interpretAmbigiousHeadersAsC)
+              .toBool();
+    enableIndexing = store.value(enableIndexingKey(), def.enableIndexing).toBool();
+    skipIndexingBigFiles
+        = store.value(skipIndexingBigFilesKey(), def.skipIndexingBigFiles).toBool();
+    ignoreFiles = store.value(ignoreFilesKey(), def.ignoreFiles).toBool();
+    ignorePattern = store.value(ignorePatternKey(), def.ignorePattern).toString();
+    useBuiltinPreprocessor
+        = store.value(useBuiltinPreprocessorKey(), def.useBuiltinPreprocessor).toBool();
+    indexerFileSizeLimitInMb
+        = store.value(indexerFileSizeLimitKey(), def.indexerFileSizeLimitInMb).toInt();
 }
 
 void CppCodeModelSettings::fromSettings(QtcSettings *s)
 {
-    s->beginGroup(Constants::CPPEDITOR_SETTINGSGROUP);
-
-    setEnableLowerClazyLevels(s->value(enableLowerClazyLevelsKey(), true).toBool());
-
-    const QVariant pchUsageVariant = s->value(pchUsageKey(), initialPchUsage());
-    setPCHUsage(static_cast<PCHUsage>(pchUsageVariant.toInt()));
-
-    const QVariant interpretAmbiguousHeadersAsCHeaders
-            = s->value(interpretAmbiguousHeadersAsCHeadersKey(), false);
-    setInterpretAmbigiousHeadersAsCHeaders(interpretAmbiguousHeadersAsCHeaders.toBool());
-
-    const QVariant skipIndexingBigFiles = s->value(skipIndexingBigFilesKey(), true);
-    setSkipIndexingBigFiles(skipIndexingBigFiles.toBool());
-
-    const QVariant ignoreFiles = s->value(ignoreFilesKey(), false);
-    setIgnoreFiles(ignoreFiles.toBool());
-
-    const QVariant ignorePattern = s->value(ignorePatternKey(), "");
-    setIgnorePattern(ignorePattern.toString());
-
-    setUseBuiltinPreprocessor(s->value(useBuiltinPreprocessorKey(), true).toBool());
-
-    const QVariant indexerFileSizeLimit = s->value(indexerFileSizeLimitKey(), 5);
-    setIndexerFileSizeLimitInMb(indexerFileSizeLimit.toInt());
-
-    s->endGroup();
-
-    emit changed();
+    fromMap(storeFromSettings(Constants::CPPEDITOR_SETTINGSGROUP, s));
 }
 
 void CppCodeModelSettings::toSettings(QtcSettings *s)
 {
-    s->beginGroup(Constants::CPPEDITOR_SETTINGSGROUP);
-
-    s->setValue(enableLowerClazyLevelsKey(), enableLowerClazyLevels());
-    s->setValue(pchUsageKey(), pchUsage());
-
-    s->setValue(interpretAmbiguousHeadersAsCHeadersKey(), interpretAmbigiousHeadersAsCHeaders());
-    s->setValue(skipIndexingBigFilesKey(), skipIndexingBigFiles());
-    s->setValue(ignoreFilesKey(), ignoreFiles());
-    s->setValue(ignorePatternKey(), QVariant(ignorePattern()));
-    s->setValue(useBuiltinPreprocessorKey(), useBuiltinPreprocessor());
-    s->setValue(indexerFileSizeLimitKey(), indexerFileSizeLimitInMb());
-
-    s->endGroup();
-
-    emit changed();
+    storeToSettingsWithDefault(
+        Constants::CPPEDITOR_SETTINGSGROUP, s, toMap(), CppCodeModelSettings().toMap());
 }
 
-CppCodeModelSettings::PCHUsage CppCodeModelSettings::pchUsage() const
+CppCodeModelSettings &CppCodeModelSettings::globalInstance()
 {
-    return m_pchUsage;
-}
-
-void CppCodeModelSettings::setPCHUsage(CppCodeModelSettings::PCHUsage pchUsage)
-{
-    m_pchUsage = pchUsage;
-}
-
-bool CppCodeModelSettings::interpretAmbigiousHeadersAsCHeaders() const
-{
-    return m_interpretAmbigiousHeadersAsCHeaders;
-}
-
-void CppCodeModelSettings::setInterpretAmbigiousHeadersAsCHeaders(bool yesno)
-{
-    m_interpretAmbigiousHeadersAsCHeaders = yesno;
-}
-
-bool CppCodeModelSettings::skipIndexingBigFiles() const
-{
-    return m_skipIndexingBigFiles;
-}
-
-void CppCodeModelSettings::setSkipIndexingBigFiles(bool yesno)
-{
-    m_skipIndexingBigFiles = yesno;
-}
-
-int CppCodeModelSettings::indexerFileSizeLimitInMb() const
-{
-    return m_indexerFileSizeLimitInMB;
-}
-
-void CppCodeModelSettings::setIndexerFileSizeLimitInMb(int sizeInMB)
-{
-    m_indexerFileSizeLimitInMB = sizeInMB;
-}
-
-bool CppCodeModelSettings::ignoreFiles() const
-{
-   return m_ignoreFiles;
-}
-
-void CppCodeModelSettings::setIgnoreFiles(bool ignoreFiles)
-{
-    m_ignoreFiles = ignoreFiles;
-}
-
-QString CppCodeModelSettings::ignorePattern() const
-{
-   return m_ignorePattern;
-}
-
-void CppCodeModelSettings::setIgnorePattern(const QString& ignorePattern)
-{
-    m_ignorePattern = ignorePattern;
-}
-
-
-bool CppCodeModelSettings::enableLowerClazyLevels() const
-{
-    return m_enableLowerClazyLevels;
-}
-
-void CppCodeModelSettings::setEnableLowerClazyLevels(bool yesno)
-{
-    m_enableLowerClazyLevels = yesno;
-}
-
-
-QString ClangdSettings::priorityToString(const IndexingPriority &priority)
-{
-    switch (priority) {
-    case IndexingPriority::Background: return "background";
-    case IndexingPriority::Normal: return "normal";
-    case IndexingPriority::Low: return "low";
-    case IndexingPriority::Off: return {};
-    }
-    return {};
-}
-
-QString ClangdSettings::priorityToDisplayString(const IndexingPriority &priority)
-{
-    switch (priority) {
-    case IndexingPriority::Background: return Tr::tr("Background Priority");
-    case IndexingPriority::Normal: return Tr::tr("Normal Priority");
-    case IndexingPriority::Low: return Tr::tr("Low Priority");
-    case IndexingPriority::Off: return Tr::tr("Off");
-    }
-    return {};
-}
-
-QString ClangdSettings::headerSourceSwitchModeToDisplayString(HeaderSourceSwitchMode mode)
-{
-    switch (mode) {
-    case HeaderSourceSwitchMode::BuiltinOnly: return Tr::tr("Use Built-in Only");
-    case HeaderSourceSwitchMode::ClangdOnly: return Tr::tr("Use Clangd Only");
-    case HeaderSourceSwitchMode::Both: return Tr::tr("Try Both");
-    }
-    return {};
-}
-
-QString ClangdSettings::rankingModelToCmdLineString(CompletionRankingModel model)
-{
-    switch (model) {
-    case CompletionRankingModel::Default: break;
-    case CompletionRankingModel::DecisionForest: return "decision_forest";
-    case CompletionRankingModel::Heuristics: return "heuristics";
-    }
-    QTC_ASSERT(false, return {});
-}
-
-QString ClangdSettings::rankingModelToDisplayString(CompletionRankingModel model)
-{
-    switch (model) {
-    case CompletionRankingModel::Default: return Tr::tr("Default");
-    case CompletionRankingModel::DecisionForest: return Tr::tr("Decision Forest");
-    case CompletionRankingModel::Heuristics: return Tr::tr("Heuristics");
-    }
-    QTC_ASSERT(false, return {});
-}
-
-ClangdSettings &ClangdSettings::instance()
-{
-    static ClangdSettings settings;
-    return settings;
-}
-
-ClangdSettings::ClangdSettings()
-{
-    loadSettings();
-    const auto sessionMgr = Core::SessionManager::instance();
-    connect(sessionMgr, &Core::SessionManager::sessionRemoved, this, [this](const QString &name) {
-        m_data.sessionsWithOneClangd.removeOne(name);
-    });
-    connect(sessionMgr,
-            &Core::SessionManager::sessionRenamed,
-            this,
-            [this](const QString &oldName, const QString &newName) {
-                const auto index = m_data.sessionsWithOneClangd.indexOf(oldName);
-                if (index != -1)
-                    m_data.sessionsWithOneClangd[index] = newName;
-            });
-}
-
-bool ClangdSettings::useClangd() const
-{
-    return m_data.useClangd && clangdVersion(clangdFilePath()) >= minimumClangdVersion();
-}
-
-void ClangdSettings::setUseClangd(bool use) { instance().m_data.useClangd = use; }
-
-void ClangdSettings::setUseClangdAndSave(bool use)
-{
-    setUseClangd(use);
-    instance().saveSettings();
-}
-
-bool ClangdSettings::hardwareFulfillsRequirements()
-{
-    instance().m_data.haveCheckedHardwareReqirements = true;
-    instance().saveSettings();
-    const quint64 minRam = quint64(12) * 1024 * 1024 * 1024;
-    const std::optional<quint64> totalRam = Utils::HostOsInfo::totalMemoryInstalledInBytes();
-    return !totalRam || *totalRam >= minRam;
-}
-
-bool ClangdSettings::haveCheckedHardwareRequirements()
-{
-    return instance().data().haveCheckedHardwareReqirements;
-}
-
-void ClangdSettings::setDefaultClangdPath(const FilePath &filePath)
-{
-    g_defaultClangdFilePath = filePath;
-}
-
-void ClangdSettings::setCustomDiagnosticConfigs(const ClangDiagnosticConfigs &configs)
-{
-    if (instance().customDiagnosticConfigs() == configs)
-        return;
-    instance().m_data.customDiagnosticConfigs = configs;
-    instance().saveSettings();
-}
-
-FilePath ClangdSettings::clangdFilePath() const
-{
-    if (!m_data.executableFilePath.isEmpty())
-        return m_data.executableFilePath;
-    return fallbackClangdFilePath();
-}
-
-bool ClangdSettings::sizeIsOkay(const Utils::FilePath &fp) const
-{
-    return !sizeThresholdEnabled() || sizeThresholdInKb() * 1024 >= fp.fileSize();
-}
-
-ClangDiagnosticConfigs ClangdSettings::customDiagnosticConfigs() const
-{
-    return m_data.customDiagnosticConfigs;
-}
-
-Id ClangdSettings::diagnosticConfigId() const
-{
-    if (!diagnosticConfigsModel().hasConfigWithId(m_data.diagnosticConfigId))
-        return initialClangDiagnosticConfigId();
-    return m_data.diagnosticConfigId;
-}
-
-ClangDiagnosticConfig ClangdSettings::diagnosticConfig() const
-{
-    return diagnosticConfigsModel(customDiagnosticConfigs()).configWithId(diagnosticConfigId());
-}
-
-ClangdSettings::Granularity ClangdSettings::granularity() const
-{
-    if (m_data.sessionsWithOneClangd.contains(Core::SessionManager::activeSession()))
-        return Granularity::Session;
-    return Granularity::Project;
-}
-
-void ClangdSettings::setData(const Data &data)
-{
-    if (this == &instance() && data != m_data) {
-        m_data = data;
-        saveSettings();
-        emit changed();
-    }
-}
-
-static FilePath getClangHeadersPathFromClang(const FilePath &clangdFilePath)
-{
-    const FilePath clangFilePath = clangdFilePath.absolutePath().pathAppended("clang")
-            .withExecutableSuffix();
-    if (!clangFilePath.exists())
-        return {};
-    Process clang;
-    clang.setCommand({clangFilePath, {"-print-resource-dir"}});
-    clang.start();
-    if (!clang.waitForFinished())
-        return {};
-    const FilePath resourceDir = FilePath::fromUserInput(QString::fromLocal8Bit(
-            clang.rawStdOut().trimmed()));
-    if (resourceDir.isEmpty() || !resourceDir.exists())
-        return {};
-    const FilePath includeDir = resourceDir.pathAppended("include");
-    if (!includeDir.exists())
-        return {};
-    return includeDir;
-}
-
-static FilePath getClangHeadersPath(const FilePath &clangdFilePath)
-{
-    const FilePath headersPath = getClangHeadersPathFromClang(clangdFilePath);
-    if (!headersPath.isEmpty())
-        return headersPath;
-
-    const QVersionNumber version = Utils::clangdVersion(clangdFilePath);
-    QTC_ASSERT(!version.isNull(), return {});
-    static const QStringList libDirs{"lib", "lib64"};
-    const QStringList versionStrings{QString::number(version.majorVersion()), version.toString()};
-    for (const QString &libDir : libDirs) {
-        for (const QString &versionString : versionStrings) {
-            const FilePath includePath = clangdFilePath.absolutePath().parentDir()
-                                             .pathAppended(libDir).pathAppended("clang")
-                                             .pathAppended(versionString).pathAppended("include");
-            if (includePath.exists())
-                return includePath;
-        }
-    }
-    QTC_CHECK(false);
-    return {};
-}
-
-FilePath ClangdSettings::clangdIncludePath() const
-{
-    QTC_ASSERT(useClangd(), return {});
-    FilePath clangdPath = clangdFilePath();
-    QTC_ASSERT(!clangdPath.isEmpty() && clangdPath.exists(), return {});
-    static QHash<FilePath, FilePath> headersPathCache;
-    const auto it = headersPathCache.constFind(clangdPath);
-    if (it != headersPathCache.constEnd())
-        return *it;
-    const FilePath headersPath = getClangHeadersPath(clangdPath);
-    if (!headersPath.isEmpty())
-        headersPathCache.insert(clangdPath, headersPath);
-    return headersPath;
-}
-
-FilePath ClangdSettings::clangdUserConfigFilePath()
-{
-    return FilePath::fromString(
-                QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation))
-            / "clangd/config.yaml";
-}
-
-void ClangdSettings::loadSettings()
-{
-    const auto settings = Core::ICore::settings();
-
-    m_data.fromMap(Utils::storeFromSettings(clangdSettingsKey(), settings));
-
-    settings->beginGroup(Constants::CPPEDITOR_SETTINGSGROUP);
-    m_data.customDiagnosticConfigs = diagnosticConfigsFromSettings(settings);
-
-    // Pre-8.0 compat
-    static const Key oldKey("ClangDiagnosticConfig");
-    const QVariant configId = settings->value(oldKey);
-    if (configId.isValid()) {
-        m_data.diagnosticConfigId = Id::fromSetting(configId);
-        settings->setValue(oldKey, {});
-    }
-
-    settings->endGroup();
-}
-
-void ClangdSettings::saveSettings()
-{
-    const auto settings = Core::ICore::settings();
-    const ClangdSettings::Data defaultData;
-    Utils::storeToSettingsWithDefault(clangdSettingsKey(),
-                                      settings,
-                                      m_data.toMap(),
-                                      defaultData.toMap());
-    settings->beginGroup(Constants::CPPEDITOR_SETTINGSGROUP);
-    diagnosticConfigsToSettings(settings, m_data.customDiagnosticConfigs);
-    settings->endGroup();
-}
-
-#ifdef WITH_TESTS
-void ClangdSettings::setClangdFilePath(const FilePath &filePath)
-{
-    instance().m_data.executableFilePath = filePath;
-}
-#endif
-
-ClangdProjectSettings::ClangdProjectSettings(ProjectExplorer::Project *project) : m_project(project)
-{
-    loadSettings();
-}
-
-ClangdSettings::Data ClangdProjectSettings::settings() const
-{
-    const ClangdSettings::Data globalData = ClangdSettings::instance().data();
-    ClangdSettings::Data data = globalData;
-    if (!m_useGlobalSettings) {
-        data = m_customSettings;
-    // This property is global by definition.
-    data.sessionsWithOneClangd = ClangdSettings::instance().data().sessionsWithOneClangd;
-
-    // This list exists only once.
-    data.customDiagnosticConfigs = ClangdSettings::instance().data().customDiagnosticConfigs;
-}
-    if (m_blockIndexing)
-        data.indexingPriority = ClangdSettings::IndexingPriority::Off;
-    return data;
-}
-
-void ClangdProjectSettings::setSettings(const ClangdSettings::Data &data)
-{
-    m_customSettings = data;
-    saveSettings();
-    ClangdSettings::setCustomDiagnosticConfigs(data.customDiagnosticConfigs);
-    emit ClangdSettings::instance().changed();
-}
-
-void ClangdProjectSettings::setUseGlobalSettings(bool useGlobal)
-{
-    m_useGlobalSettings = useGlobal;
-    saveSettings();
-    emit ClangdSettings::instance().changed();
-}
-
-void ClangdProjectSettings::setDiagnosticConfigId(Utils::Id configId)
-{
-    m_customSettings.diagnosticConfigId = configId;
-    saveSettings();
-    emit ClangdSettings::instance().changed();
-}
-
-void ClangdProjectSettings::blockIndexing()
-{
-    if (m_blockIndexing)
-        return;
-    m_blockIndexing = true;
-    saveSettings();
-    emit ClangdSettings::instance().changed();
-}
-
-void ClangdProjectSettings::unblockIndexing()
-{
-    if (!m_blockIndexing)
-        return;
-    m_blockIndexing = false;
-    saveSettings();
-    // Do not emit changed here since that would restart clients with blocked indexing
-}
-
-void ClangdProjectSettings::loadSettings()
-{
-    if (!m_project)
-        return;
-    const Store data = storeFromVariant(m_project->namedSettings(clangdSettingsKey()));
-    m_useGlobalSettings = data.value(clangdUseGlobalSettingsKey(), true).toBool();
-    m_blockIndexing = data.value(clangdblockIndexingSettingsKey(), false).toBool();
-    if (!m_useGlobalSettings)
-        m_customSettings.fromMap(data);
-}
-
-void ClangdProjectSettings::saveSettings()
-{
-    if (!m_project)
-        return;
-    Store data;
-    if (!m_useGlobalSettings)
-        data = m_customSettings.toMap();
-    data.insert(clangdUseGlobalSettingsKey(), m_useGlobalSettings);
-    data.insert(clangdblockIndexingSettingsKey(), m_blockIndexing);
-    m_project->setNamedSettings(clangdSettingsKey(), variantFromStore(data));
-}
-
-Store ClangdSettings::Data::toMap() const
-{
-    Store map;
-    map.insert(useClangdKey(), useClangd);
-    map.insert(clangdPathKey(),
-               executableFilePath != fallbackClangdFilePath() ? executableFilePath.toString()
-                                                              : QString());
-    map.insert(clangdIndexingKey(), indexingPriority != IndexingPriority::Off);
-    map.insert(clangdIndexingPriorityKey(), int(indexingPriority));
-    map.insert(clangdHeaderSourceSwitchModeKey(), int(headerSourceSwitchMode));
-    map.insert(clangdCompletionRankingModelKey(), int(completionRankingModel));
-    map.insert(clangdHeaderInsertionKey(), autoIncludeHeaders);
-    map.insert(clangdThreadLimitKey(), workerThreadLimit);
-    map.insert(clangdDocumentThresholdKey(), documentUpdateThreshold);
-    map.insert(clangdSizeThresholdEnabledKey(), sizeThresholdEnabled);
-    map.insert(clangdSizeThresholdKey(), sizeThresholdInKb);
-    map.insert(sessionsWithOneClangdKey(), sessionsWithOneClangd);
-    map.insert(diagnosticConfigIdKey(), diagnosticConfigId.toSetting());
-    map.insert(checkedHardwareKey(), true);
-    map.insert(completionResultsKey(), completionResults);
-    return map;
-}
-
-void ClangdSettings::Data::fromMap(const Store &map)
-{
-    useClangd = map.value(useClangdKey(), true).toBool();
-    executableFilePath = FilePath::fromString(map.value(clangdPathKey()).toString());
-    indexingPriority = IndexingPriority(
-        map.value(clangdIndexingPriorityKey(), int(this->indexingPriority)).toInt());
-    const auto it = map.find(clangdIndexingKey());
-    if (it != map.end() && !it->toBool())
-        indexingPriority = IndexingPriority::Off;
-    headerSourceSwitchMode = HeaderSourceSwitchMode(map.value(clangdHeaderSourceSwitchModeKey(),
-                                                              int(headerSourceSwitchMode)).toInt());
-    completionRankingModel = CompletionRankingModel(map.value(clangdCompletionRankingModelKey(),
-                                                              int(completionRankingModel)).toInt());
-    autoIncludeHeaders = map.value(clangdHeaderInsertionKey(), false).toBool();
-    workerThreadLimit = map.value(clangdThreadLimitKey(), 0).toInt();
-    documentUpdateThreshold = map.value(clangdDocumentThresholdKey(), 500).toInt();
-    sizeThresholdEnabled = map.value(clangdSizeThresholdEnabledKey(), false).toBool();
-    sizeThresholdInKb = map.value(clangdSizeThresholdKey(), 1024).toLongLong();
-    sessionsWithOneClangd = map.value(sessionsWithOneClangdKey()).toStringList();
-    diagnosticConfigId = Id::fromSetting(map.value(diagnosticConfigIdKey(),
-                                                   initialClangDiagnosticConfigId().toSetting()));
-    haveCheckedHardwareReqirements = map.value(checkedHardwareKey(), false).toBool();
-    completionResults = map.value(completionResultsKey(), defaultCompletionResults()).toInt();
-}
-
-int ClangdSettings::Data::defaultCompletionResults()
-{
-    // Default clangd --limit-results value is 100
-    bool ok = false;
-    const int userValue = qtcEnvironmentVariableIntValue("QTC_CLANGD_COMPLETION_RESULTS", &ok);
-    return ok ? userValue : 100;
-}
-
-CppCodeModelSettings &cppCodeModelSettings()
-{
-    static CppCodeModelSettings theCppCodeModelSettings;
+    static CppCodeModelSettings theCppCodeModelSettings(Core::ICore::settings());
     return theCppCodeModelSettings;
 }
 
+CppCodeModelSettings CppCodeModelSettings::settingsForProject(const ProjectExplorer::Project *project)
+{
+    return {CppCodeModelProjectSettings(const_cast<ProjectExplorer::Project *>(project)).settings()};
+}
+
+CppCodeModelSettings CppCodeModelSettings::settingsForProject(const Utils::FilePath &projectFile)
+{
+    return settingsForProject(ProjectManager::projectWithProjectFilePath(projectFile));
+}
+
+CppCodeModelSettings CppCodeModelSettings::settingsForFile(const Utils::FilePath &file)
+{
+    return settingsForProject(ProjectManager::projectForFile(file));
+}
+
+bool CppCodeModelSettings::hasCustomSettings(const ProjectExplorer::Project *project)
+{
+    return !CppCodeModelProjectSettings(const_cast<ProjectExplorer::Project *>(project))
+                .useGlobalSettings();
+}
+
+void CppCodeModelSettings::setSettingsForProject(
+    ProjectExplorer::Project *project, const CppCodeModelSettings &settings)
+{
+    CppCodeModelProjectSettings pSettings(project);
+    pSettings.forceCustomSettingsSettings(settings);
+}
+
+void CppCodeModelSettings::setGlobal(const CppCodeModelSettings &settings)
+{
+    if (globalInstance() == settings)
+        return;
+
+    globalInstance() = settings;
+    globalInstance().toSettings(Core::ICore::settings());
+    CppModelManager::handleSettingsChange(nullptr);
+}
+
+CppCodeModelSettings::PCHUsage CppCodeModelSettings::pchUsageForProject(const Project *project)
+{
+    return CppCodeModelSettings::settingsForProject(project).pchUsage;
+}
+
+UsePrecompiledHeaders CppCodeModelSettings::usePrecompiledHeaders() const
+{
+    return pchUsage == CppCodeModelSettings::PchUse_None ? UsePrecompiledHeaders::No
+                                                         : UsePrecompiledHeaders::Yes;
+}
+
+UsePrecompiledHeaders CppCodeModelSettings::usePrecompiledHeaders(const Project *project)
+{
+    return CppCodeModelSettings::settingsForProject(project).usePrecompiledHeaders();
+}
+
+int CppCodeModelSettings::effectiveIndexerFileSizeLimitInMb() const
+{
+    return skipIndexingBigFiles ? indexerFileSizeLimitInMb : -1;
+}
+
+bool CppCodeModelSettings::categorizeFindReferences()
+{
+    return globalInstance().m_categorizeFindReferences;
+}
+
+void CppCodeModelSettings::setCategorizeFindReferences(bool categorize)
+{
+    globalInstance().m_categorizeFindReferences = categorize;
+}
+
+bool CppCodeModelSettings::isInteractiveFollowSymbol()
+{
+    return globalInstance().interactiveFollowSymbol;
+}
+
+void CppCodeModelSettings::setInteractiveFollowSymbol(bool interactive)
+{
+    globalInstance().interactiveFollowSymbol = interactive;
+}
+
+CppCodeModelProjectSettings::CppCodeModelProjectSettings(ProjectExplorer::Project *project)
+    : m_project(project)
+{
+    loadSettings();
+}
+
+CppCodeModelSettings CppCodeModelProjectSettings::settings() const
+{
+    return m_useGlobalSettings ? CppCodeModelSettings::global() : m_customSettings;
+}
+
+void CppCodeModelProjectSettings::setSettings(const CppCodeModelSettings &settings)
+{
+    m_customSettings = settings;
+    saveSettings();
+    CppModelManager::handleSettingsChange(m_project);
+}
+
+void CppCodeModelProjectSettings::forceCustomSettingsSettings(const CppCodeModelSettings &settings)
+{
+    m_useGlobalSettings = false;
+    setSettings(settings);
+}
+
+void CppCodeModelProjectSettings::setUseGlobalSettings(bool useGlobal)
+{
+    m_useGlobalSettings = useGlobal;
+    saveSettings();
+    CppModelManager::handleSettingsChange(m_project);
+}
+
+void CppCodeModelProjectSettings::loadSettings()
+{
+    if (!m_project)
+        return;
+    const Store data = storeFromVariant(m_project->namedSettings(Constants::CPPEDITOR_SETTINGSGROUP));
+    m_useGlobalSettings = data.value(useGlobalSettingsKey(), true).toBool();
+    m_customSettings.fromMap(data);
+}
+
+void CppCodeModelProjectSettings::saveSettings()
+{
+    if (!m_project)
+        return;
+    Store data = m_customSettings.toMap();
+    data.insert(useGlobalSettingsKey(), m_useGlobalSettings);
+    m_project->setNamedSettings(Constants::CPPEDITOR_SETTINGSGROUP, variantFromStore(data));
+}
+
+namespace Internal {
+
+class CppCodeModelSettingsWidget final : public Core::IOptionsPageWidget
+{
+    Q_OBJECT
+public:
+    CppCodeModelSettingsWidget(const CppCodeModelSettings &settings);
+    CppCodeModelSettings settings() const;
+
+signals:
+    void settingsDataChanged();
+
+private:
+    void apply() final { CppCodeModelSettings::setGlobal(settings()); }
+
+    QCheckBox *m_interpretAmbiguousHeadersAsCHeaders;
+    QCheckBox *m_ignorePchCheckBox;
+    QCheckBox *m_useBuiltinPreprocessorCheckBox;
+    QCheckBox *m_enableIndexingCheckBox;
+    QCheckBox *m_skipIndexingBigFilesCheckBox;
+    QSpinBox *m_bigFilesLimitSpinBox;
+    QCheckBox *m_ignoreFilesCheckBox;
+    QPlainTextEdit *m_ignorePatternTextEdit;
+};
+
+CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(const CppCodeModelSettings &settings)
+{
+    m_interpretAmbiguousHeadersAsCHeaders
+        = new QCheckBox(Tr::tr("Interpret ambiguous headers as C headers"));
+
+    m_enableIndexingCheckBox = new QCheckBox(Tr::tr("Enable indexing"));
+    m_enableIndexingCheckBox->setChecked(settings.enableIndexing);
+    m_enableIndexingCheckBox->setToolTip(Tr::tr(
+        "Indexing should almost always be kept enabled, as disabling it will severely limit the "
+        "capabilities of the code model."));
+
+    m_skipIndexingBigFilesCheckBox = new QCheckBox(Tr::tr("Do not index files greater than"));
+    m_skipIndexingBigFilesCheckBox->setChecked(settings.skipIndexingBigFiles);
+
+    m_bigFilesLimitSpinBox = new QSpinBox;
+    m_bigFilesLimitSpinBox->setSuffix(Tr::tr("MB"));
+    m_bigFilesLimitSpinBox->setRange(1, 500);
+    m_bigFilesLimitSpinBox->setValue(settings.indexerFileSizeLimitInMb);
+
+    m_ignoreFilesCheckBox = new QCheckBox(Tr::tr("Ignore files"));
+    m_ignoreFilesCheckBox->setToolTip(
+        "<html><head/><body><p>"
+        + Tr::tr("Ignore files that match these wildcard patterns, one wildcard per line.")
+        + "</p></body></html>");
+
+    m_ignoreFilesCheckBox->setChecked(settings.ignoreFiles);
+    m_ignorePatternTextEdit = new QPlainTextEdit(settings.ignorePattern);
+    m_ignorePatternTextEdit->setToolTip(m_ignoreFilesCheckBox->toolTip());
+    m_ignorePatternTextEdit->setEnabled(m_ignoreFilesCheckBox->isChecked());
+
+    connect(m_ignoreFilesCheckBox, &QCheckBox::stateChanged, this, [this] {
+        m_ignorePatternTextEdit->setEnabled(m_ignoreFilesCheckBox->isChecked());
+    });
+
+    m_ignorePchCheckBox = new QCheckBox(Tr::tr("Ignore precompiled headers"));
+    m_ignorePchCheckBox->setToolTip(Tr::tr(
+        "<html><head/><body><p>When precompiled headers are not ignored, the parsing for code "
+        "completion and semantic highlighting will process the precompiled header before "
+        "processing any file.</p></body></html>"));
+
+    m_useBuiltinPreprocessorCheckBox = new QCheckBox(Tr::tr("Use built-in preprocessor to show "
+                                                            "pre-processed files"));
+    m_useBuiltinPreprocessorCheckBox->setToolTip
+        (Tr::tr("Uncheck this to invoke the actual compiler "
+                "to show a pre-processed source file in the editor."));
+
+    m_interpretAmbiguousHeadersAsCHeaders->setChecked(settings.interpretAmbigiousHeadersAsC);
+    m_ignorePchCheckBox->setChecked(settings.pchUsage == CppCodeModelSettings::PchUse_None);
+    m_useBuiltinPreprocessorCheckBox->setChecked(settings.useBuiltinPreprocessor);
+
+    using namespace Layouting;
+
+    Column {
+        Group {
+            title(Tr::tr("General")),
+            Column {
+                   m_interpretAmbiguousHeadersAsCHeaders,
+                   m_ignorePchCheckBox,
+                   m_useBuiltinPreprocessorCheckBox,
+                   m_enableIndexingCheckBox,
+                   Row { m_skipIndexingBigFilesCheckBox, m_bigFilesLimitSpinBox, st },
+                   Row { Column { m_ignoreFilesCheckBox, st }, m_ignorePatternTextEdit },
+                   }
+        },
+        st
+    }.attachTo(this);
+
+    for (const QCheckBox *const b : {m_interpretAmbiguousHeadersAsCHeaders,
+                                     m_ignorePchCheckBox,
+                                     m_enableIndexingCheckBox,
+                                     m_useBuiltinPreprocessorCheckBox,
+                                     m_skipIndexingBigFilesCheckBox,
+                                     m_ignoreFilesCheckBox}) {
+        connect(b, &QCheckBox::toggled, this, &CppCodeModelSettingsWidget::settingsDataChanged);
+    }
+    connect(m_bigFilesLimitSpinBox, &QSpinBox::valueChanged,
+            this, &CppCodeModelSettingsWidget::settingsDataChanged);
+
+    const auto timer = new QTimer(this);
+    timer->setSingleShot(true);
+    timer->setInterval(1000);
+    connect(timer, &QTimer::timeout, this, &CppCodeModelSettingsWidget::settingsDataChanged);
+    connect(m_ignorePatternTextEdit, &QPlainTextEdit::textChanged,
+            timer, qOverload<>(&QTimer::start));
+}
+
+CppCodeModelSettings CppCodeModelSettingsWidget::settings() const
+{
+    CppCodeModelSettings settings;
+    settings.interpretAmbigiousHeadersAsC = m_interpretAmbiguousHeadersAsCHeaders->isChecked();
+    settings.enableIndexing = m_enableIndexingCheckBox->isChecked();
+    settings.skipIndexingBigFiles = m_skipIndexingBigFilesCheckBox->isChecked();
+    settings.useBuiltinPreprocessor = m_useBuiltinPreprocessorCheckBox->isChecked();
+    settings.ignoreFiles = m_ignoreFilesCheckBox->isChecked();
+    settings.ignorePattern = m_ignorePatternTextEdit->toPlainText();
+    settings.indexerFileSizeLimitInMb = m_bigFilesLimitSpinBox->value();
+    settings.pchUsage = m_ignorePchCheckBox->isChecked() ? CppCodeModelSettings::PchUse_None
+                                                         : CppCodeModelSettings::PchUse_BuildSystem;
+    return settings;
+}
+
+class CppCodeModelSettingsPage final : public Core::IOptionsPage
+{
+public:
+    CppCodeModelSettingsPage()
+    {
+        setId(Constants::CPP_CODE_MODEL_SETTINGS_ID);
+        setDisplayName(Tr::tr("Code Model"));
+        setCategory(Constants::CPP_SETTINGS_CATEGORY);
+        setDisplayCategory(Tr::tr("C++"));
+        setCategoryIconPath(":/projectexplorer/images/settingscategory_cpp.png");
+        setWidgetCreator(
+            [] { return new CppCodeModelSettingsWidget(CppCodeModelSettings::global()); });
+    }
+};
+
+void setupCppCodeModelSettingsPage()
+{
+    static CppCodeModelSettingsPage theCppCodeModelSettingsPage;
+}
+
+class CppCodeModelProjectSettingsWidget : public ProjectSettingsWidget
+{
+public:
+    CppCodeModelProjectSettingsWidget(const CppCodeModelProjectSettings &settings)
+        : m_settings(settings), m_widget(settings.settings())
+    {
+        setGlobalSettingsId(Constants::CPP_CODE_MODEL_SETTINGS_ID);
+        const auto layout = new QVBoxLayout(this);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->addWidget(&m_widget);
+
+        setUseGlobalSettings(m_settings.useGlobalSettings());
+        m_widget.setEnabled(!useGlobalSettings());
+        connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged, this,
+                [this](bool checked) {
+                    m_widget.setEnabled(!checked);
+                    m_settings.setUseGlobalSettings(checked);
+                    if (!checked)
+                        m_settings.setSettings(m_widget.settings());
+                });
+
+        connect(&m_widget, &CppCodeModelSettingsWidget::settingsDataChanged,
+                this, [this] { m_settings.setSettings(m_widget.settings()); });
+    }
+
+private:
+    CppCodeModelProjectSettings m_settings;
+    CppCodeModelSettingsWidget m_widget;
+};
+
+class CppCodeModelProjectSettingsPanelFactory final : public ProjectPanelFactory
+{
+public:
+    CppCodeModelProjectSettingsPanelFactory()
+    {
+        setPriority(100);
+        setDisplayName(Tr::tr("C++ Code Model"));
+        setCreateWidgetFunction([](Project *project) {
+            return new CppCodeModelProjectSettingsWidget(project);
+        });
+    }
+};
+void setupCppCodeModelProjectSettingsPanel()
+{
+    static CppCodeModelProjectSettingsPanelFactory factory;
+}
+
+} // namespace Internal
 } // namespace CppEditor
+
+#include <cppcodemodelsettings.moc>

@@ -79,7 +79,7 @@ public:
                      const FilePath &repository);
 
 protected:
-    void contextMenuEvent(QContextMenuEvent *event) override;
+    void adaptContextMenu(QMenu *menu, const QPoint &pos) override;
     void handleLink(const QPoint &pos) override;
 
 private:
@@ -138,15 +138,15 @@ QString OutputWindowPlainTextEdit::identifierUnderCursor(const QPoint &widgetPos
     return endPos > startPos ? block.mid(startPos, endPos - startPos) : QString();
 }
 
-void OutputWindowPlainTextEdit::contextMenuEvent(QContextMenuEvent *event)
+void OutputWindowPlainTextEdit::adaptContextMenu(QMenu *menu, const QPoint &pos)
 {
-    const QString href = anchorAt(event->pos());
-    QMenu *menu = href.isEmpty() ? createStandardContextMenu(event->pos()) : new QMenu;
-    menu->setAttribute(Qt::WA_DeleteOnClose);
+    const QString href = anchorAt(pos);
+    if (!href.isEmpty())
+        menu->clear();
 
     // Add 'open file'
     FilePath repo;
-    const QString token = identifierUnderCursor(event->pos(), &repo);
+    const QString token = identifierUnderCursor(pos, &repo);
     if (!repo.isEmpty() && !href.isEmpty())
         m_parser->fillLinkContextMenu(menu, repo, href);
     QAction *openAction = nullptr;
@@ -157,26 +157,9 @@ void OutputWindowPlainTextEdit::contextMenuEvent(QContextMenuEvent *event)
         if (repo.isFile())  {
             menu->addSeparator();
             openAction = menu->addAction(Tr::tr("Open \"%1\"").arg(repo.nativePath()));
-            openAction->setData(repo.absoluteFilePath().toVariant());
-        }
-    }
-    QAction *clearAction = nullptr;
-    if (href.isEmpty()) {
-        // Add 'clear'
-        menu->addSeparator();
-        clearAction = menu->addAction(Tr::tr("Clear"));
-    }
-
-    // Run
-    QAction *action = menu->exec(event->globalPos());
-    if (action) {
-        if (action == clearAction) {
-            clear();
-            return;
-        }
-        if (action == openAction) {
-            const auto fileName = FilePath::fromVariant(action->data());
-            EditorManager::openEditor(fileName);
+            connect(openAction, &QAction::triggered, this, [fp = repo.absoluteFilePath()] {
+                EditorManager::openEditor(fp);
+            });
         }
     }
 }

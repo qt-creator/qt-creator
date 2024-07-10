@@ -287,7 +287,7 @@ void PerfDataReader::collectArguments(CommandLine *cmd, const QString &exe, cons
                      .arg(qt->pluginPath().nativePath())
                      .arg(qt->hostBinPath().nativePath())
                      .arg(qt->qmlPath().nativePath())
-                     .arg(cmd->executable().osType() == OsTypeWindows ? u';' : u':'));
+                     .arg(cmd->executable().pathListSeparator()));
     }
 
     if (auto toolChain = ToolchainKitAspect::cxxToolchain(kit)) {

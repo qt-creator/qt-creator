@@ -81,4 +81,6 @@ extend_qtc_library(Sqlite
 extend_qtc_library(Sqlite
   CONDITION QTC_STATIC_BUILD
   PRIVATE_COMPILE_OPTIONS $<IF:$<CXX_COMPILER_ID:MSVC>,/FIsqlite_static_config.h,-includesqlite_static_config.h>
+  PROPERTIES
+    INTERFACE_COMPILE_OPTIONS $<IF:$<CXX_COMPILER_ID:MSVC>,/FI../3rdparty/sqlite/sqlite_static_config.h,-include../3rdparty/sqlite/sqlite_static_config.h>
 )

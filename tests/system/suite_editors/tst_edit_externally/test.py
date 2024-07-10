@@ -23,6 +23,8 @@ def main():
     if not startedWithoutPluginError():
         return
 
+    setReloadBehavior("Always Ask")
+
     mBox = ("{text?='The file * has been changed on disk. Do you want to reload it?' "
             "type='QMessageBox' unnamed='1' visible='1'}")
     popupText = ("<p>The file <i>%s</i> has been changed on disk. Do you want to reload it?</p>"

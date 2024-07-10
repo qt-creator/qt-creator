@@ -6,7 +6,12 @@
 #include <QObject>
 #include "qmt/tasks/ielementtasks.h"
 
-namespace qmt { class DocumentController; }
+#include <utils/filepath.h>
+
+namespace qmt {
+class DocumentController;
+class MObject;
+}
 
 namespace ModelEditor {
 namespace Internal {
@@ -66,10 +71,17 @@ public:
     void createAndOpenDiagram(const qmt::MElement *element) override;
     void createAndOpenDiagram(const qmt::DElement *element, const qmt::MDiagram *diagram) override;
 
-    bool extendContextMenu(const qmt::DElement *delement, const qmt::MDiagram *, QMenu *menu) override;
-    bool handleContextMenuAction(const qmt::DElement *element, const qmt::MDiagram *, const QString &id) override;
+    bool hasLinkedFile(const qmt::MElement *element) const override;
+    bool hasLinkedFile(const qmt::DElement *element, const qmt::MDiagram *diagram) const override;
+    void openLinkedFile(const qmt::MElement *element) override;
+    void openLinkedFile(const qmt::DElement *element, const qmt::MDiagram *diagram) override;
+
+    bool extendContextMenu(const qmt::DElement *delement, const qmt::MDiagram *diagram, QMenu *menu) override;
+    bool handleContextMenuAction(qmt::DElement *element, qmt::MDiagram *diagram, const QString &id) override;
 
 private:
+    Utils::FilePath linkedFile(const qmt::MObject *mobject) const;
+
     ElementTasksPrivate *d;
 };
 

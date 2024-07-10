@@ -51,6 +51,27 @@ void AndroidSdkManagerTest::testAndroidSdkManagerProgressParser_data()
         << true;
 }
 
+static int parseProgress(const QString &out, bool &foundAssertion)
+{
+    int progress = -1;
+    if (out.isEmpty())
+        return progress;
+    static const QRegularExpression reg("(?<progress>\\d*)%");
+    static const QRegularExpression regEndOfLine("[\\n\\r]");
+    const QStringList lines = out.split(regEndOfLine, Qt::SkipEmptyParts);
+    for (const QString &line : lines) {
+        QRegularExpressionMatch match = reg.match(line);
+        if (match.hasMatch()) {
+            progress = match.captured("progress").toInt();
+            if (progress < 0 || progress > 100)
+                progress = -1;
+        }
+        if (!foundAssertion)
+            foundAssertion = assertionRegExp().match(line).hasMatch();
+    }
+    return progress;
+}
+
 void AndroidSdkManagerTest::testAndroidSdkManagerProgressParser()
 {
     QFETCH(QString, output);

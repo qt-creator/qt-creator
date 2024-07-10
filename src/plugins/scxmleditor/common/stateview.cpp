@@ -33,7 +33,7 @@ StateView::StateView(StateItem *state, QWidget *parent)
 
     using namespace Layouting;
     Row {
-        PushButton{ text("Back"), onClicked([this] { closeView(); }, this) },
+        PushButton{ text(QString("Back")), onClicked([this] { closeView(); }, this) },
         stateNameLabel,
         noMargin
     }.attachTo(titleBar);

@@ -4,6 +4,8 @@
 #include "cpprefactoringchanges.h"
 
 #include "cppeditorconstants.h"
+#include "cppeditorwidget.h"
+#include "cppsemanticinfo.h"
 #include "cppworkingcopy.h"
 
 #include <projectexplorer/editorconfiguration.h>
@@ -19,6 +21,7 @@
 
 #include <utility>
 
+using namespace Core;
 using namespace CPlusPlus;
 using namespace Utils;
 
@@ -41,10 +44,15 @@ CppRefactoringChanges::CppRefactoringChanges(const Snapshot &snapshot)
 {
 }
 
-CppRefactoringFilePtr CppRefactoringChanges::file(TextEditor::TextEditorWidget *editor, const Document::Ptr &document)
+CppRefactoringFilePtr CppRefactoringChanges::file(
+    TextEditor::TextEditorWidget *editor, const Document::Ptr &document)
 {
     CppRefactoringFilePtr result(new CppRefactoringFile(editor));
     result->setCppDocument(document);
+    if (const auto cppEditorWidget = qobject_cast<CppEditorWidget *>(editor)) {
+        result->m_data = QSharedPointer<CppRefactoringChangesData>::create(
+            cppEditorWidget->semanticInfo().snapshot);
+    }
     return result;
 }
 
@@ -55,6 +63,18 @@ TextEditor::RefactoringFilePtr CppRefactoringChanges::file(const FilePath &fileP
 
 CppRefactoringFilePtr CppRefactoringChanges::cppFile(const Utils::FilePath &filePath) const
 {
+    // Prefer documents from editors, as these are already parsed and up to date with regards to
+    // unsaved changes.
+    const QList<IEditor *> editors = DocumentModel::editorsForFilePath(filePath);
+    for (IEditor *editor : editors) {
+        if (const auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor)) {
+            if (const auto editorWidget = qobject_cast<CppEditorWidget *>(
+                    textEditor->editorWidget())) {
+                return file(editorWidget, editorWidget->semanticInfo().doc);
+            }
+        }
+    }
+
     return CppRefactoringFilePtr(new CppRefactoringFile(filePath, m_data));
 }
 
@@ -144,13 +164,23 @@ bool CppRefactoringFile::isCursorOn(const AST *ast) const
 
 QList<Token> CppRefactoringFile::tokensForCursor() const
 {
-    QTextCursor c = cursor();
-    int pos = c.selectionStart();
-    int endPos = c.selectionEnd();
+    return tokensForCursor(cursor());
+}
+
+QList<Token> CppRefactoringFile::tokensForCursor(const QTextCursor &cursor) const
+{
+    int pos = cursor.selectionStart();
+    int endPos = cursor.selectionEnd();
     if (pos > endPos)
         std::swap(pos, endPos);
 
-    const std::vector<Token> &allTokens = m_cppDocument->translationUnit()->allTokens();
+    // Skip whitespace.
+    while (pos < endPos && document()->characterAt(pos).isSpace())
+        ++pos;
+    while (endPos > pos && document()->characterAt(endPos).isSpace())
+        --endPos;
+
+    const std::vector<Token> &allTokens = cppDocument()->translationUnit()->allTokens();
     const int firstIndex = tokenIndexForPosition(allTokens, pos, 0);
     if (firstIndex == -1)
         return {};
@@ -165,6 +195,14 @@ QList<Token> CppRefactoringFile::tokensForCursor() const
     for (int i = firstIndex; i <= lastIndex; ++i)
         result.push_back(allTokens.at(i));
     return result;
+}
+
+QList<Token> CppRefactoringFile::tokensForLine(int line) const
+{
+    const QTextBlock block = document()->findBlockByNumber(line - 1);
+    QTextCursor cursor(block);
+    cursor.select(QTextCursor::BlockUnderCursor);
+    return tokensForCursor(cursor);
 }
 
 ChangeSet::Range CppRefactoringFile::range(unsigned tokenIndex) const
@@ -183,6 +221,9 @@ ChangeSet::Range CppRefactoringFile::range(const AST *ast) const
 
 int CppRefactoringFile::startOf(unsigned index) const
 {
+    if (const auto loc = expansionLoc(index))
+        return loc->first;
+
     int line, column;
     cppDocument()->translationUnit()->getPosition(tokenAt(index).utf16charsBegin(), &line, &column);
     return document()->findBlockByNumber(line - 1).position() + column - 1;
@@ -191,15 +232,14 @@ int CppRefactoringFile::startOf(unsigned index) const
 int CppRefactoringFile::startOf(const AST *ast) const
 {
     QTC_ASSERT(ast, return 0);
-    int firstToken = ast->firstToken();
-    const int lastToken = ast->lastToken();
-    while (tokenAt(firstToken).generated() && firstToken < lastToken)
-        ++firstToken;
-    return startOf(firstToken);
+    return startOf(ast->firstToken());
 }
 
 int CppRefactoringFile::endOf(unsigned index) const
 {
+    if (const auto loc = expansionLoc(index))
+        return loc->first + loc->second;
+
     int line, column;
     cppDocument()->translationUnit()->getPosition(tokenAt(index).utf16charsEnd(), &line, &column);
     return document()->findBlockByNumber(line - 1).position() + column - 1;
@@ -210,19 +250,29 @@ int CppRefactoringFile::endOf(const AST *ast) const
     QTC_ASSERT(ast, return 0);
     int lastToken = ast->lastToken() - 1;
     QTC_ASSERT(lastToken >= 0, return -1);
-    const int firstToken = ast->firstToken();
-    while (tokenAt(lastToken).generated() && lastToken > firstToken)
-        --lastToken;
     return endOf(lastToken);
 }
 
 void CppRefactoringFile::startAndEndOf(unsigned index, int *start, int *end) const
 {
+    if (const auto loc = expansionLoc(index)) {
+        *start = loc->first;
+        *end = loc->first + loc->second;
+        return;
+    }
+
     int line, column;
     Token token(tokenAt(index));
     cppDocument()->translationUnit()->getPosition(token.utf16charsBegin(), &line, &column);
     *start = document()->findBlockByNumber(line - 1).position() + column - 1;
     *end = *start + token.utf16chars();
+}
+
+std::optional<std::pair<int, int> > CppRefactoringFile::expansionLoc(unsigned int index) const
+{
+    if (!tokenAt(index).expanded())
+        return {};
+    return cppDocument()->translationUnit()->getExpansionPosition(index);
 }
 
 QString CppRefactoringFile::textOf(const AST *ast) const
@@ -250,7 +300,7 @@ Id CppRefactoringFile::indenterId() const
 int CppRefactoringFile::tokenIndexForPosition(const std::vector<CPlusPlus::Token> &tokens,
                                               int pos, int startIndex) const
 {
-    const TranslationUnit * const tu = m_cppDocument->translationUnit();
+    const TranslationUnit * const tu = cppDocument()->translationUnit();
 
     // Binary search
     for (int l = startIndex, u = int(tokens.size()) - 1; l <= u; ) {

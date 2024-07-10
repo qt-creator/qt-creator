@@ -11,6 +11,7 @@
 #include <projectexplorer/rawprojectpart.h>
 
 #include <utils/algorithm.h>
+#include <utils/filepath.h>
 #include <utils/qtcassert.h>
 
 #include <QGuiApplication>
@@ -650,6 +651,19 @@ static TargetDetails extractTargetDetails(const QJsonObject &root, QString &erro
                                                             };
                                                         });
     }
+    {
+        const QJsonArray launchers = root.value("launchers").toArray();
+        if (launchers.size() > 0) {
+            t.launcherInfos = transform<QList>(launchers, [](const QJsonValue &v) {
+                const QJsonObject o = v.toObject();
+                QList<QString> arguments;
+                for (const QJsonValue &arg : o.value("arguments").toArray())
+                    arguments.append(arg.toString());
+                FilePath command = FilePath::fromString(o.value("command").toString());
+                return ProjectExplorer::LauncherInfo { o.value("type").toString(), command, arguments };
+            });
+        }
+    }
 
     return t;
 }
@@ -874,8 +888,10 @@ FileApiData FileApiParser::parseData(QPromise<std::shared_ptr<FileApiQtcData>> &
                                          errorMessage);
 
     if (codeModels.size() == 0) {
-        errorMessage = Tr::tr("CMake project configuration failed. No CMake configuration for "
-                              "build type \"%1\" found.")
+        //: General Messages refers to the output view
+        errorMessage = Tr::tr(
+                           "CMake project configuration failed. No CMake configuration for "
+                           "build type \"%1\" found. Check General Messages for more information.")
                            .arg(cmakeBuildType);
         return result;
     }

@@ -42,7 +42,7 @@ public:
 
     CppEditor::BaseEditorDocumentProcessor *createEditorDocumentProcessor(
                 TextEditor::TextDocument *baseTextDocument) override;
-    bool usesClangd(const TextEditor::TextDocument *document) const override;
+    std::optional<QVersionNumber> usesClangd(const TextEditor::TextDocument *document) const override;
 
     static QList<LanguageClient::Client *> clientsForOpenProjects();
     static ClangdClient *clientForProject(const ProjectExplorer::Project *project);

@@ -4,6 +4,7 @@
 #include "baseannotationhighlighter.h"
 
 #include <texteditor/fontsettings.h>
+#include <texteditor/syntaxhighlighter.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/algorithm.h>
@@ -163,7 +164,7 @@ void BaseAnnotationHighlighter::rehighlight()
         return;
 
     setChangeNumbers(changes);
-    TextEditor::SyntaxHighlighter::rehighlight();
+    SyntaxHighlighter::rehighlight();
 }
 
 } // namespace VcsBase

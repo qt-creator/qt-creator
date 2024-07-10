@@ -5,6 +5,7 @@
 
 #include "remotelinuxtr.h"
 
+#include <projectexplorer/projectexplorersettings.h>
 #include <utils/commandline.h>
 #include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
@@ -50,8 +51,10 @@ static QString signalProcessGroupByNameCommandLine(const QString &filePath, int 
 
 QString RemoteLinuxSignalOperation::killProcessByNameCommandLine(const QString &filePath) const
 {
-    return QString::fromLatin1("%1; %2").arg(signalProcessGroupByNameCommandLine(filePath, 15),
-                                             signalProcessGroupByNameCommandLine(filePath, 9));
+    return QString::fromLatin1("%1; sleep %2; %3")
+        .arg(signalProcessGroupByNameCommandLine(filePath, 15))
+        .arg(projectExplorerSettings().reaperTimeoutInSeconds)
+        .arg(signalProcessGroupByNameCommandLine(filePath, 9));
 }
 
 QString RemoteLinuxSignalOperation::interruptProcessByNameCommandLine(const QString &filePath) const

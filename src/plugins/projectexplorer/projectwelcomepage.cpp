@@ -105,12 +105,12 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
     RecentProjectsEntry data = m_projects.at(index.row());
     switch (role) {
     case Qt::DisplayRole:
-        return data.second;
+        return data.displayName;
     case Qt::ToolTipRole:
     case FilePathRole:
-        return data.first.toVariant();
+        return data.filePath.toVariant();
     case PrettyFilePathRole:
-        return data.first.withTildeHomePath(); // FIXME: FilePath::displayName() ?
+        return data.filePath.withTildeHomePath(); // FIXME: FilePath::displayName() ?
     case ShortcutRole: {
         const Id projectBase = PROJECT_BASE_ID;
         if (Command *cmd = ActionManager::command(projectBase.withSuffix(index.row() + 1)))
@@ -219,11 +219,6 @@ void ProjectWelcomePage::createActions()
 
 ///////////////////
 
-static QColor themeColor(Theme::Color role)
-{
-    return Utils::creatorTheme()->color(role);
-}
-
 static QPixmap pixmap(const QString &id, const Theme::Color color)
 {
     const QString fileName = QString(":/welcome/images/%1.png").arg(id);
@@ -232,8 +227,8 @@ static QPixmap pixmap(const QString &id, const Theme::Color color)
 
 static void drawBackgroundRect(QPainter *painter, const QRectF &rect, bool hovered)
 {
-    const QColor fill(themeColor(hovered ? cardHoverBackground : cardDefaultBackground));
-    const QPen pen(themeColor(hovered ? cardHoverStroke : cardDefaultStroke));
+    const QColor fill(creatorColor(hovered ? cardHoverBackground : cardDefaultBackground));
+    const QPen pen(creatorColor(hovered ? cardHoverStroke : cardDefaultStroke));
 
     const qreal rounding = s(defaultCardBackgroundRounding * 1000) / 1000.0;
     const qreal saneRounding = rounding <= 2 ? 0 : rounding;
@@ -369,7 +364,7 @@ public:
                                                                    : bgR.height()));
 
         const QSize iconS = icon().deviceIndependentSize().toSize();
-        static const QPixmap arrow = Icon({{FilePath::fromString(":/core/images/expandarrow"),
+        static const QPixmap arrow = Icon({{FilePath::fromString(":/core/images/expandarrow.png"),
                                             Theme::Token_Text_Muted}}, Icon::Tint).pixmap();
         const QSize arrowS = arrow.deviceIndependentSize().toSize();
         const bool arrowVisible = hovered || expanded;
@@ -514,7 +509,7 @@ public:
                                           .contains(mousePos) && !isDisabled;
                 if (isActive) {
                     WelcomePageHelpers::drawCardBackground(painter, actionR, Qt::transparent,
-                                                           themeColor(Theme::Token_Text_Muted));
+                                                           creatorColor(Theme::Token_Text_Muted));
                     m_activeActionRects[i] = actionR;
                 }
                 painter->setFont(actionFont);
@@ -524,7 +519,7 @@ public:
                 xx += actionR.width();
                 if (i < actions.count() - 1) {
                     const QRect dividerR(xx + s(HGapXs), yy, actionSepWidth, buttonHeight);
-                    painter->fillRect(dividerR, themeColor(Theme::Token_Text_Muted));
+                    painter->fillRect(dividerR, creatorColor(Theme::Token_Text_Muted));
                 }
                 xx += gapWidth;
             }
@@ -789,7 +784,7 @@ public:
 
         auto sessions = new QWidget;
         {
-            auto sessionsLabel = new Label(Tr::tr("Sessions"), Label::Primary);
+            auto sessionsLabel = new Core::Label(Tr::tr("Sessions"), Core::Label::Primary);
             auto manageSessionsButton = new Button(Tr::tr("Manage..."), Button::MediumSecondary);
             auto sessionsList = new TreeView(this, "Sessions");
             sessionsList->setModel(projectWelcomePage->m_sessionModel);
@@ -804,11 +799,11 @@ public:
                     sessionsLabel,
                     st,
                     manageSessionsButton,
-                    customMargin({HPaddingS, 0, sessionScrollBarGap, 0}),
+                    customMargins(HPaddingS, 0, sessionScrollBarGap, 0),
                 },
                 sessionsList,
                 spacing(ExPaddingGapL),
-                customMargin({ExVPaddingGapXl, ExVPaddingGapXl, 0, 0}),
+                customMargins(ExVPaddingGapXl, ExVPaddingGapXl, 0, 0),
             }.attachTo(sessions);
             connect(manageSessionsButton, &Button::clicked,
                     this, &SessionManager::showSessionManager);
@@ -816,7 +811,7 @@ public:
 
         auto projects = new QWidget;
         {
-            auto projectsLabel = new Label(Tr::tr("Projects"), Label::Primary);
+            auto projectsLabel = new Core::Label(Tr::tr("Projects"), Core::Label::Primary);
             auto projectsList = new TreeView(this, "Recent Projects");
             projectsList->setUniformRowHeights(true);
             projectsList->setModel(projectWelcomePage->m_projectModel);
@@ -828,11 +823,11 @@ public:
             Column {
                 Row {
                     projectsLabel,
-                    customMargin({HPaddingS, 0, 0, 0}),
+                    customMargins(HPaddingS, 0, 0, 0),
                 },
                 projectsList,
                 spacing(ExPaddingGapL),
-                customMargin({ExVPaddingGapXl - sessionScrollBarGap, ExVPaddingGapXl, 0, 0}),
+                customMargins(ExVPaddingGapXl - sessionScrollBarGap, ExVPaddingGapXl, 0, 0),
             }.attachTo(projects);
         }
 
@@ -840,7 +835,7 @@ public:
             sessions,
             projects,
             spacing(0),
-            noMargin(),
+            noMargin,
         }.attachTo(this);
     }
 

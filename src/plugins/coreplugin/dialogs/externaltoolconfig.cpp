@@ -563,7 +563,7 @@ ExternalToolConfig::ExternalToolConfig()
 
     Form {
         Tr::tr("Description:"), m_description, br,
-        Tr::tr("Executable:"), m_executable, br,
+        Tr::tr("Executable:", "noun"), m_executable, br,
         Tr::tr("Arguments:"), m_arguments, br,
         Tr::tr("Working directory:"), m_workingDirectory, br,
         outputLabel, m_outputBehavior, br,
@@ -700,12 +700,12 @@ void ExternalToolConfig::updateItem(const QModelIndex &index)
     tool->setDescription(m_description->text());
     FilePaths executables = tool->executables();
     if (executables.size() > 0)
-        executables[0] = m_executable->rawFilePath();
+        executables[0] = m_executable->unexpandedFilePath();
     else
-        executables << m_executable->rawFilePath();
+        executables << m_executable->unexpandedFilePath();
     tool->setExecutables(executables);
     tool->setArguments(m_arguments->text());
-    tool->setWorkingDirectory(m_workingDirectory->rawFilePath());
+    tool->setWorkingDirectory(m_workingDirectory->unexpandedFilePath());
     tool->setBaseEnvironmentProviderId(Id::fromSetting(m_baseEnvironment->currentData()));
     tool->setEnvironmentUserChanges(m_environment);
     tool->setOutputHandling(ExternalTool::OutputHandling(m_outputBehavior->currentIndex()));

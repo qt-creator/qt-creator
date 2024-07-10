@@ -1,0 +1,17 @@
+{
+    "$schema": "https://download.qt.io/official_releases/qtcreator/latest/installer_source/jsonschemas/project.json",
+    "files.exclude": [".qtcreator/project.json.user"],
+    "targets": [
+        {
+            "name": "Qt Creator",
+            "executable": "%\{IDE:Executable:FilePath\}",
+            "arguments": [
+                "-tcs",
+                "-load",
+                "Lua",
+                "-pluginpath",
+                "%\{ActiveProject:ProjectDirectory\}"
+            ]
+        }
+    ]
+}

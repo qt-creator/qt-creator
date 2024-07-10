@@ -64,10 +64,11 @@ ExecuteCommandParams::ExecuteCommandParams(const Command &command)
 
 LanguageServerProtocol::WorkSpaceFolderResult::operator const QJsonValue() const
 {
-    if (!std::holds_alternative<QList<WorkSpaceFolder>>(*this))
+    const auto folders = std::get_if<QList<WorkSpaceFolder>>(this);
+    if (!folders)
         return QJsonValue::Null;
     QJsonArray array;
-    for (const auto &folder : std::get<QList<WorkSpaceFolder>>(*this))
+    for (const auto &folder : *folders)
         array.append(QJsonValue(folder));
     return array;
 }

@@ -5,6 +5,8 @@
 
 #include "exceptions.h"
 
+#include <utils/filepath.h>
+
 namespace qmt {
 
 class IOException : public Exception
@@ -16,51 +18,51 @@ public:
 class FileIOException : public IOException
 {
 public:
-    explicit FileIOException(const QString &errorMsg, const QString &fileName = QString(),
+    explicit FileIOException(const QString &errorMsg, const Utils::FilePath &fileName = {},
                              int lineNumber = -1);
 
-    QString fileName() const { return m_fileName; }
+    Utils::FilePath fileName() const { return m_fileName; }
     int lineNumber() const { return m_lineNumber; }
 
 private:
-    QString m_fileName;
+    Utils::FilePath m_fileName;
     int m_lineNumber = -1;
 };
 
 class FileNotFoundException : public FileIOException
 {
 public:
-    explicit FileNotFoundException(const QString &fileName);
+    explicit FileNotFoundException(const Utils::FilePath &fileName);
 };
 
 class FileCreationException : public FileIOException
 {
 public:
-    explicit FileCreationException(const QString &fileName);
+    explicit FileCreationException(const Utils::FilePath &fileName);
 };
 
 class FileWriteError : public FileIOException
 {
 public:
-    explicit FileWriteError(const QString &fileName, int lineNumber = -1);
+    explicit FileWriteError(const Utils::FilePath &fileName, int lineNumber = -1);
 };
 
 class FileReadError : public FileIOException
 {
 public:
-    explicit FileReadError(const QString &fileName, int lineNumber = -1);
+    explicit FileReadError(const Utils::FilePath &fileName, int lineNumber = -1);
 };
 
 class IllegalXmlFile : public FileIOException
 {
 public:
-    explicit IllegalXmlFile(const QString &fileName, int lineNumber = -1);
+    explicit IllegalXmlFile(const Utils::FilePath &fileName, int lineNumber = -1);
 };
 
 class UnknownFileVersion : public FileIOException
 {
 public:
-    UnknownFileVersion(int version, const QString &fileName, int lineNumber = -1);
+    UnknownFileVersion(int version, const Utils::FilePath &fileName, int lineNumber = -1);
 };
 
 } // namespace qmt

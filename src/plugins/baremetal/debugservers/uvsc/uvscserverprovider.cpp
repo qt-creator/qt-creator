@@ -168,11 +168,7 @@ QString UvscServerProvider::channelString() const
 bool UvscServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMessage) const
 {
     QTC_ASSERT(runTool, return false);
-    const RunControl *runControl = runTool->runControl();
-    const auto exeAspect = runControl->aspect<ExecutableAspect>();
-    QTC_ASSERT(exeAspect, return false);
-
-    const FilePath bin = exeAspect->executable;
+    const FilePath bin = runTool->runControl()->runnable().command.executable();
     if (bin.isEmpty()) {
         errorMessage = Tr::tr("Cannot debug: Local executable is not set.");
         return false;
@@ -210,10 +206,8 @@ ProjectExplorer::RunWorker *UvscServerProvider::targetRunner(RunControl *runCont
 {
     // Get uVision executable path.
     const ProcessRunData uv = DebuggerKitAspect::runnable(runControl->kit());
-    CommandLine server(uv.command.executable());
-    server.addArg("-j0");
-    server.addArg(QStringLiteral("-s%1").arg(m_channel.port()));
-
+    const CommandLine server{uv.command.executable(),
+                             {"-j0", QStringLiteral("-s%1").arg(m_channel.port())}};
     ProcessRunData r;
     r.command = server;
     return new UvscServerProviderRunner(runControl, r);

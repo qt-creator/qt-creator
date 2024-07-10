@@ -245,7 +245,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
         textRect.setHeight(fm.height() + 4);
 
         p.setFont(fnt);
-        p.setPen(creatorTheme()->color(Theme::ProgressBarTitleColor));
+        p.setPen(creatorColor(Theme::ProgressBarTitleColor));
         p.drawText(textRect, alignment | Qt::AlignBottom, elidedtitle);
 
         if (!m_subtitle.isEmpty()) {
@@ -255,7 +255,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
             subtextRect.moveTop(progressY + progressHeight);
 
             p.setFont(fnt);
-            p.setPen(creatorTheme()->color(Theme::ProgressBarTitleColor));
+            p.setPen(creatorColor(Theme::ProgressBarTitleColor));
             p.drawText(subtextRect, alignment | Qt::AlignBottom, elidedsubtitle);
         }
     }
@@ -274,12 +274,11 @@ void ProgressBar::paintEvent(QPaintEvent *)
         themeColor = Theme::ProgressBarColorError;
     else if (m_finished)
         themeColor = Theme::ProgressBarColorFinished;
-    const QColor c = creatorTheme()->color(themeColor);
+    const QColor c = creatorColor(themeColor);
 
     //draw the progress bar
     if (creatorTheme()->flag(Theme::FlatToolBars)) {
-        p.fillRect(rect.adjusted(2, 2, -2, -2),
-                   creatorTheme()->color(Theme::ProgressBarBackgroundColor));
+        p.fillRect(rect.adjusted(2, 2, -2, -2), creatorColor(Theme::ProgressBarBackgroundColor));
         p.fillRect(inner, c);
     } else {
         const static QImage bar(StyleHelper::dpiSpecificImageFile(

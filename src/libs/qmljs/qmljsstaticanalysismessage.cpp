@@ -153,7 +153,7 @@ StaticAnalysisMessages::StaticAnalysisMessages()
            Tr::tr("Invalid property type \"%1\"."), 1);
     newMsg(WarnEqualityTypeCoercion, Error,
            Tr::tr("== and != perform type coercion, use === or !== to avoid it."));
-    newMsg(WarnExpectedNewWithUppercaseFunction, Error,
+    newMsg(WarnExpectedNewWithUppercaseFunction, Warning,
            Tr::tr("Calls of functions that start with an uppercase letter should use 'new'."));
     newMsg(WarnNewWithLowercaseFunction, Error,
            Tr::tr("Use 'new' only with functions that start with an uppercase letter."));

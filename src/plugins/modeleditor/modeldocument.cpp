@@ -19,8 +19,7 @@
 #include <utils/id.h>
 #include <utils/fileutils.h>
 
-#include <QFileInfo>
-#include <QDir>
+using Utils::FilePath;
 
 namespace ModelEditor {
 namespace Internal {
@@ -46,23 +45,23 @@ ModelDocument::~ModelDocument()
 }
 
 Core::IDocument::OpenResult ModelDocument::open(QString *errorString,
-                                                const Utils::FilePath &filePath,
-                                                const Utils::FilePath &realFilePath)
+                                                const FilePath &filePath,
+                                                const FilePath &realFilePath)
 {
     Q_UNUSED(filePath)
 
-    OpenResult result = load(errorString, realFilePath.toString());
+    OpenResult result = load(errorString, realFilePath);
     return result;
 }
 
-bool ModelDocument::saveImpl(QString *errorString, const Utils::FilePath &filePath, bool autoSave)
+bool ModelDocument::saveImpl(QString *errorString, const FilePath &filePath, bool autoSave)
 {
     if (!d->documentController) {
         *errorString = Tr::tr("No model loaded. Cannot save.");
         return false;
     }
 
-    d->documentController->projectController()->setFileName(filePath.toString());
+    d->documentController->projectController()->setFileName(filePath);
     try {
         d->documentController->projectController()->save();
     } catch (const qmt::Exception &ex) {
@@ -73,7 +72,7 @@ bool ModelDocument::saveImpl(QString *errorString, const Utils::FilePath &filePa
     if (autoSave) {
         d->documentController->projectController()->setModified();
     } else {
-        setFilePath(Utils::FilePath::fromString(d->documentController->projectController()->project()->fileName()));
+        setFilePath(d->documentController->projectController()->project()->fileName());
         emit changed();
     }
 
@@ -102,12 +101,13 @@ bool ModelDocument::reload(QString *errorString, Core::IDocument::ReloadFlag fla
     if (flag == FlagIgnore)
         return true;
     try {
-        d->documentController->loadProject(filePath().toString());
+        d->documentController->loadProject(filePath());
     } catch (const qmt::FileNotFoundException &ex) {
         *errorString = ex.errorMessage();
         return false;
     } catch (const qmt::Exception &ex) {
-        *errorString = Tr::tr("Could not open \"%1\" for reading: %2.").arg(filePath().toString()).arg(ex.errorMessage());
+        *errorString = Tr::tr("Could not open \"%1\" for reading: %2.")
+                           .arg(filePath().toUserOutput(), ex.errorMessage());
         return false;
     }
     emit contentSet();
@@ -119,25 +119,25 @@ ExtDocumentController *ModelDocument::documentController() const
     return d->documentController;
 }
 
-Core::IDocument::OpenResult ModelDocument::load(QString *errorString, const QString &fileName)
+Core::IDocument::OpenResult ModelDocument::load(QString *errorString, const FilePath &fileName)
 {
     d->documentController = ModelEditorPlugin::modelsManager()->createModel(this);
     connect(d->documentController, &qmt::DocumentController::changed, this, &IDocument::changed);
 
     try {
         d->documentController->loadProject(fileName);
-        setFilePath(Utils::FilePath::fromString(d->documentController->projectController()->project()->fileName()));
+        setFilePath(d->documentController->projectController()->project()->fileName());
     } catch (const qmt::FileNotFoundException &ex) {
         *errorString = ex.errorMessage();
         return OpenResult::ReadError;
     } catch (const qmt::Exception &ex) {
-        *errorString = Tr::tr("Could not open \"%1\" for reading: %2.").arg(fileName).arg(ex.errorMessage());
+        *errorString = Tr::tr("Could not open \"%1\" for reading: %2.").arg(fileName.toUserOutput(), ex.errorMessage());
         return OpenResult::CannotHandle;
     }
 
-    QString configPath = d->documentController->projectController()->project()->configPath();
+    FilePath configPath = d->documentController->projectController()->project()->configPath();
     if (!configPath.isEmpty()) {
-        QString canonicalPath = QFileInfo(QDir(QFileInfo(fileName).path()).filePath(configPath)).canonicalFilePath();
+        FilePath canonicalPath =fileName.absolutePath().resolvePath(configPath);
         if (!canonicalPath.isEmpty()) {
             // TODO error output on reading definition files
             d->documentController->configController()->readStereotypeDefinitions(canonicalPath);

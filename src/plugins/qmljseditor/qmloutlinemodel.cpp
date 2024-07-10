@@ -233,6 +233,19 @@ private:
         m_model->leavePublicMember();
     }
 
+    bool visit(AST::UiEnumDeclaration *enumDecl) override
+    {
+        QModelIndex index = m_model->enterEnumDeclaration(enumDecl);
+        m_nodeToIndex.insert(enumDecl, index);
+
+        return true;
+    }
+
+    void endVisit(AST::UiEnumDeclaration *) override
+    {
+        m_model->leavePublicMember();
+    }
+
     bool visit(AST::FunctionDeclaration *functionDeclaration) override
     {
         QModelIndex index = m_model->enterFunctionDeclaration(functionDeclaration);
@@ -576,6 +589,33 @@ void QmlOutlineModel::leavePublicMember()
     leaveNode();
 }
 
+QModelIndex QmlOutlineModel::enterEnumDeclaration(AST::UiEnumDeclaration *enumDecl)
+{
+    QMap<int, QVariant> objectData;
+    if (!enumDecl->name.isEmpty())
+        objectData.insert(Qt::DisplayRole, enumDecl->name.toString());
+    objectData.insert(ItemTypeRole, ElementBindingType);
+
+    QmlOutlineItem *item = enterNode(objectData, enumDecl, nullptr, Icons::enumMemberIcon());
+
+    for (auto member = enumDecl->members; member; member = member->next) {
+        QMap<int, QVariant> memberData;
+        if (!member->member.isEmpty())
+            memberData.insert(Qt::DisplayRole, member->member.toString());
+        memberData.insert(ItemTypeRole, ElementBindingType);
+        memberData.insert(AnnotationRole, QString::number(member->value));
+        enterNode(memberData, member, nullptr, Icons::publicMemberIcon());
+        leaveNode();
+    }
+
+    return item->index();
+}
+
+void QmlOutlineModel::leaveEnumDeclaration()
+{
+    leaveNode();
+}
+
 static QString functionDisplayName(QStringView name, AST::FormalParameterList *formals)
 {
     QString display;
@@ -857,10 +897,8 @@ void QmlOutlineModel::reparentNodes(QmlOutlineItem *targetItem, int row, QList<Q
         changedRanges << range;
     }
 
-    QmlJSRefactoringChanges refactoring(ModelManagerInterface::instance(), m_semanticInfo.snapshot);
-    TextEditor::RefactoringFilePtr file = refactoring.file(m_semanticInfo.document->fileName());
-    file->setChangeSet(changeSet);
-    file->apply();
+    QmlJSRefactoringChanges(ModelManagerInterface::instance(), m_semanticInfo.snapshot)
+        .file(m_semanticInfo.document->fileName())->apply(changeSet);
 }
 
 void QmlOutlineModel::moveObjectMember(AST::Node *toMove,

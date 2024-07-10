@@ -126,12 +126,15 @@ add_qtc_library(Modeling
     qmt/model/mrelation.cpp qmt/model/mrelation.h
     qmt/model/msourceexpansion.cpp qmt/model/msourceexpansion.h
     qmt/model/mvisitor.h
+    qmt/model_ui/modeltreefilterdata.h qmt/model_ui/modeltreefilterdata.cpp
     qmt/model_ui/modeltreeviewinterface.h
     qmt/model_ui/sortedtreemodel.cpp qmt/model_ui/sortedtreemodel.h
     qmt/model_ui/stereotypescontroller.cpp qmt/model_ui/stereotypescontroller.h
     qmt/model_ui/treemodel.cpp qmt/model_ui/treemodel.h
     qmt/model_ui/treemodelmanager.cpp qmt/model_ui/treemodelmanager.h
+    qmt/model_widgets_ui/addrelatedelementsdialog.h qmt/model_widgets_ui/addrelatedelementsdialog.cpp
     qmt/model_widgets_ui/classmembersedit.cpp qmt/model_widgets_ui/classmembersedit.h
+    qmt/model_widgets_ui/modeltreefilter.h qmt/model_widgets_ui/modeltreefilter.cpp
     qmt/model_widgets_ui/modeltreeview.cpp qmt/model_widgets_ui/modeltreeview.h
     qmt/model_widgets_ui/palettebox.cpp qmt/model_widgets_ui/palettebox.h
     qmt/model_widgets_ui/propertiesview.cpp qmt/model_widgets_ui/propertiesview.h
@@ -158,6 +161,7 @@ add_qtc_library(Modeling
     qmt/style/defaultstyle.h
     qmt/style/objectvisuals.cpp qmt/style/objectvisuals.h
     qmt/style/relationstarterstyle.cpp qmt/style/relationstarterstyle.h
+    qmt/style/relationvisuals.cpp qmt/style/relationvisuals.h
     qmt/style/stylecontroller.cpp qmt/style/stylecontroller.h
     qmt/style/style.cpp
     qmt/style/styledobject.cpp qmt/style/styledobject.h

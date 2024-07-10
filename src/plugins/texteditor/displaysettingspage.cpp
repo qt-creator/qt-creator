@@ -108,7 +108,7 @@ public:
         rightAligned->setChecked(true);
         betweenLines = new QRadioButton(Tr::tr("Between lines"));
 
-        displayAnnotations = new QGroupBox(Tr::tr("Line annotations")),
+        displayAnnotations = new QGroupBox(Tr::tr("Line Annotations")),
         displayAnnotations->setCheckable(true);
 
         using namespace Layouting;

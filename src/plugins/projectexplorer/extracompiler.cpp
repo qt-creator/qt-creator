@@ -11,8 +11,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/idocument.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/async.h>
@@ -301,8 +299,7 @@ void ExtraCompiler::setContent(const FilePath &file, const QByteArray &contents)
     }
 }
 
-ExtraCompilerFactory::ExtraCompilerFactory(QObject *parent)
-    : QObject(parent)
+ExtraCompilerFactory::ExtraCompilerFactory()
 {
     factories->append(this);
 }
@@ -327,7 +324,6 @@ GroupItem ProcessExtraCompiler::taskItemImpl(const ContentProvider &provider)
     const auto onSetup = [this, provider](Async<FileNameToContentsHash> &async) {
         async.setThreadPool(extraCompilerThreadPool());
         // The passed synchronizer has cancelOnWait set to true by default.
-        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(&ProcessExtraCompiler::runInThread, this, command(),
                                     workingDirectory(), arguments(), provider, buildEnvironment());
     };
@@ -383,7 +379,7 @@ void ProcessExtraCompiler::runInThread(QPromise<FileNameToContentsHash> &promise
     process.setEnvironment(env);
     if (!workDir.isEmpty())
         process.setWorkingDirectory(workDir);
-    process.setCommand({ cmd, args });
+    process.setCommand({cmd, args});
     process.setWriteData(sourceContents);
     process.start();
     if (!process.waitForStarted())

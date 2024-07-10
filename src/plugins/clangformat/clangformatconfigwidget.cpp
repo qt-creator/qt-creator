@@ -214,7 +214,7 @@ void ClangFormatConfigWidget::initEditor(TextEditor::ICodeStylePreferences *code
             return;
         }
         m_clangFileIsCorrectText->show();
-        m_clangFileIsCorrectText->setText(Tr::tr("Warning: ") + success.error());
+        m_clangFileIsCorrectText->setText(Tr::tr("Warning:") + " " + success.error());
         m_clangFileIsCorrectText->setType(Utils::InfoLabel::Warning);
     });
 
@@ -326,28 +326,8 @@ void ClangFormatConfigWidget::apply()
     if (!m_editorWidget->isEnabled())
         return;
 
-    clang::format::FormatStyle currentSettingsStyle;
-    const Utils::expected_str<void> success
-        = parseConfigurationContent(m_editor->document()->contents().toStdString(),
-                                    currentSettingsStyle);
-
-    auto saveSettings = [this] {
-        QString errorString;
-        m_editor->document()->save(&errorString, m_config->filePath());
-    };
-
-    if (success) {
-        saveSettings();
-        return;
-    }
-
-    QMessageBox mBox;
-    mBox.setText(Tr::tr("The current ClangFormat (C++ > Code Style > ClangFormat) settings are not "
-                        "valid. Are you sure you want to apply them?"));
-    mBox.setStandardButtons(QMessageBox::No | QMessageBox::Yes);
-    mBox.setDefaultButton(QMessageBox::No);
-    if (mBox.exec() == QMessageBox::Yes)
-        saveSettings();
+    QString errorString;
+    m_editor->document()->save(&errorString, m_config->filePath());
 }
 
 TextEditor::CodeStyleEditorWidget *createClangFormatConfigWidget(

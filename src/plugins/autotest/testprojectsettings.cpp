@@ -22,6 +22,8 @@ namespace Internal {
 static const char SK_ACTIVE_FRAMEWORKS[]        = "AutoTest.ActiveFrameworks";
 static const char SK_RUN_AFTER_BUILD[]          = "AutoTest.RunAfterBuild";
 static const char SK_CHECK_STATES[]             = "AutoTest.CheckStates";
+static const char SK_APPLY_FILTER[]             = "AutoTest.ApplyFilter";
+static const char SK_PATH_FILTERS[]             = "AutoTest.PathFilters";
 
 static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.projectsettings", QtWarningMsg)
 
@@ -100,6 +102,8 @@ void TestProjectSettings::load()
     m_runAfterBuild = runAfterBuild.isValid() ? RunAfterBuildMode(runAfterBuild.toInt())
                                               : RunAfterBuildMode::None;
     m_checkStateCache.fromSettings(m_project->namedSettings(SK_CHECK_STATES).toMap());
+    m_limitToFilter = m_project->namedSettings(SK_APPLY_FILTER).toBool();
+    m_pathFilters = m_project->namedSettings(SK_PATH_FILTERS).toStringList();
 }
 
 void TestProjectSettings::save()
@@ -115,6 +119,8 @@ void TestProjectSettings::save()
     m_project->setNamedSettings(SK_ACTIVE_FRAMEWORKS, activeFrameworks);
     m_project->setNamedSettings(SK_RUN_AFTER_BUILD, int(m_runAfterBuild));
     m_project->setNamedSettings(SK_CHECK_STATES, m_checkStateCache.toSettings(Qt::Checked));
+    m_project->setNamedSettings(SK_APPLY_FILTER, m_limitToFilter);
+    m_project->setNamedSettings(SK_PATH_FILTERS, m_pathFilters);
 }
 
 } // namespace Internal

@@ -14,29 +14,26 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/buildsystem.h>
-#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/environmentaspect.h>
-#include <projectexplorer/kit.h>
-#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <qmlprojectmanager/qmlprojectconstants.h>
 
-#include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 
-#include <utils/async.h>
 #include <utils/qtcprocess.h>
 
 #include <QDateTime>
-#include <QDeadlineTimer>
-#include <QFutureWatcher>
-#include <QThread>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
+
+using namespace std::chrono_literals;
 
 namespace Android::Internal {
 
@@ -45,7 +42,17 @@ namespace Android::Internal {
 class ApkInfo
 {
 public:
-    ApkInfo();
+    ApkInfo()
+        : abis{ProjectExplorer::Constants::ANDROID_ABI_X86,
+               ProjectExplorer::Constants::ANDROID_ABI_X86_64,
+               ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A,
+               ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A}
+        , appId(APP_ID)
+        , uploadDir("/data/local/tmp/" APP_ID "/")
+        // TODO Add possibility to run Qt5 built version of Qt Design Viewer
+        , activityId(APP_ID "/org.qtproject.qt.android.bindings.QtActivity")
+        , name("Qt Design Viewer")
+    {}
     const QStringList abis;
     const QString appId;
     const QString uploadDir;
@@ -53,18 +60,6 @@ public:
     const QString name;
 };
 
-ApkInfo::ApkInfo() :
-    abis({ProjectExplorer::Constants::ANDROID_ABI_X86,
-            ProjectExplorer::Constants::ANDROID_ABI_X86_64,
-            ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A,
-            ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A}),
-    appId(APP_ID),
-    uploadDir("/data/local/tmp/" APP_ID "/"),
-    // TODO Add possibility to run Qt5 built version of Qt Design Viewer
-    activityId(APP_ID "/org.qtproject.qt.android.bindings.QtActivity"),
-    name("Qt Design Viewer")
-{
-}
 
 Q_GLOBAL_STATIC(ApkInfo, apkInfo)
 
@@ -82,7 +77,6 @@ class AndroidQmlPreviewWorker : public RunWorker
     Q_OBJECT
 public:
     AndroidQmlPreviewWorker(RunControl *runControl);
-    ~AndroidQmlPreviewWorker();
 
 signals:
     void previewPidChanged();
@@ -96,10 +90,9 @@ private:
     bool preparePreviewArtefacts();
     bool uploadPreviewArtefacts();
 
+    CommandLine adbCommand(const QStringList &arguments) const;
     SdkToolResult runAdbCommand(const QStringList &arguments) const;
     SdkToolResult runAdbShellCommand(const QStringList &arguments) const;
-    int pidofPreview() const;
-    bool isPreviewRunning(int lastKnownPid = -1) const;
 
     void startPidWatcher();
     void startLogcat();
@@ -108,15 +101,15 @@ private:
     bool startPreviewApp();
     bool stopPreviewApp();
 
-    Utils::FilePath designViewerApkPath(const QString &abi) const;
-    Utils::FilePath createQmlrcFile(const Utils::FilePath &workFolder, const QString &basename);
+    FilePath designViewerApkPath(const QString &abi) const;
+    FilePath createQmlrcFile(const FilePath &workFolder, const QString &basename);
 
     RunControl *m_rc = nullptr;
     QString m_serialNumber;
     QStringList m_avdAbis;
     int m_viewerPid = -1;
-    QFutureWatcher<void> m_pidFutureWatcher;
-    Utils::Process m_logcatProcess;
+    TaskTreeRunner m_pidRunner;
+    Process m_logcatProcess;
     QString m_logcatStartTimeStamp;
     UploadInfo m_uploadInfo;
 };
@@ -133,6 +126,16 @@ FilePath AndroidQmlPreviewWorker::designViewerApkPath(const QString &abi) const
     return {};
 }
 
+CommandLine AndroidQmlPreviewWorker::adbCommand(const QStringList &arguments) const
+{
+    CommandLine cmd{AndroidConfig::adbToolPath()};
+    if (!m_serialNumber.isEmpty())
+        cmd.addArgs(AndroidDeviceInfo::adbSelector(m_serialNumber));
+    cmd.addArg("shell");
+    cmd.addArgs(arguments);
+    return cmd;
+}
+
 SdkToolResult AndroidQmlPreviewWorker::runAdbCommand(const QStringList &arguments) const
 {
     QStringList args;
@@ -147,44 +150,49 @@ SdkToolResult AndroidQmlPreviewWorker::runAdbShellCommand(const QStringList &arg
     return runAdbCommand(QStringList() << "shell" << arguments);
 }
 
-int AndroidQmlPreviewWorker::pidofPreview() const
-{
-    const QStringList command{"pidof", apkInfo()->appId};
-    const SdkToolResult res = runAdbShellCommand(command);
-    return res.success() ? res.stdOut().toInt() : -1;
-}
-
-bool AndroidQmlPreviewWorker::isPreviewRunning(int lastKnownPid) const
-{
-    const int pid = pidofPreview();
-    return (lastKnownPid > 1) ? lastKnownPid == pid : pid > 1;
-}
-
 void AndroidQmlPreviewWorker::startPidWatcher()
 {
-    m_pidFutureWatcher.setFuture(Utils::asyncRun([this] {
-        // wait for started
-        const int sleepTimeMs = 2000;
-        QDeadlineTimer deadline(20000);
-        while (!m_pidFutureWatcher.isCanceled() && !deadline.hasExpired()) {
-            if (m_viewerPid == -1) {
-                m_viewerPid = pidofPreview();
-                if (m_viewerPid > 0) {
-                    emit previewPidChanged();
-                    break;
-                }
-            }
-            QThread::msleep(sleepTimeMs);
-        }
+    const LoopUntil pidIterator([this](int) { return m_viewerPid <= 0; });
+    const LoopUntil alivePidIterator([this](int) { return m_viewerPid > 0; });
 
-        while (!m_pidFutureWatcher.isCanceled()) {
-            if (!isPreviewRunning(m_viewerPid)) {
-                stop();
-                break;
-            }
-            QThread::msleep(sleepTimeMs);
+    const auto onPidSetup = [this](Process &process) {
+        process.setCommand(adbCommand({"pidof", apkInfo()->appId}));
+    };
+    const auto onPidDone = [this](const Process &process) {
+        bool ok = false;
+        const int pid = process.cleanedStdOut().trimmed().toInt(&ok);
+        if (ok && pid > 0) {
+            m_viewerPid = pid;
+            // TODO: make a continuation task (logcat)
+            emit previewPidChanged();
         }
-    }));
+    };
+
+    const auto onAlivePidDone = [this](const Process &process) {
+        bool ok = false;
+        const int pid = process.cleanedStdOut().trimmed().toInt(&ok);
+        if (!ok || pid != m_viewerPid) {
+            m_viewerPid = -1;
+            stop();
+        }
+    };
+
+    const TimeoutTask timeout([](std::chrono::milliseconds &timeout) { timeout = 2s; });
+
+    const Group root {
+        Group {
+            pidIterator,
+            ProcessTask(onPidSetup, onPidDone, CallDoneIf::Success),
+            timeout
+        }.withTimeout(20s),
+        Group {
+            alivePidIterator,
+            ProcessTask(onPidSetup, onAlivePidDone),
+            timeout
+        }
+    };
+
+    m_pidRunner.start(root);
 }
 
 void AndroidQmlPreviewWorker::startLogcat()
@@ -192,7 +200,7 @@ void AndroidQmlPreviewWorker::startLogcat()
     QString args = QString("logcat --pid=%1").arg(m_viewerPid);
     if (!m_logcatStartTimeStamp.isEmpty())
         args += QString(" -T '%1'").arg(m_logcatStartTimeStamp);
-    CommandLine cmd(androidConfig().adbToolPath());
+    CommandLine cmd(AndroidConfig::adbToolPath());
     cmd.setArguments(args);
     m_logcatProcess.setCommand(cmd);
     m_logcatProcess.setUseCtrlCStub(true);
@@ -220,7 +228,7 @@ AndroidQmlPreviewWorker::AndroidQmlPreviewWorker(RunControl *runControl)
       m_rc(runControl)
 {
     connect(this, &RunWorker::started, this, &AndroidQmlPreviewWorker::startPidWatcher);
-    connect(this, &RunWorker::stopped, &m_pidFutureWatcher, &QFutureWatcher<void>::cancel);
+    connect(this, &RunWorker::stopped, &m_pidRunner, &TaskTreeRunner::reset);
     connect(this, &AndroidQmlPreviewWorker::previewPidChanged,
             this, &AndroidQmlPreviewWorker::startLogcat);
 
@@ -228,12 +236,6 @@ AndroidQmlPreviewWorker::AndroidQmlPreviewWorker(RunControl *runControl)
     m_logcatProcess.setStdOutCallback([this](const QString &stdOut) {
         filterLogcatAndAppendMessage(stdOut);
     });
-}
-
-AndroidQmlPreviewWorker::~AndroidQmlPreviewWorker()
-{
-    m_pidFutureWatcher.cancel();
-    m_pidFutureWatcher.waitForFinished();
 }
 
 void AndroidQmlPreviewWorker::start()
@@ -254,7 +256,7 @@ void AndroidQmlPreviewWorker::start()
 
 void AndroidQmlPreviewWorker::stop()
 {
-    if (!isPreviewRunning(m_viewerPid) || stopPreviewApp())
+    if (m_viewerPid <= 0 || stopPreviewApp())
         appendMessage(Tr::tr("%1 has been stopped.").arg(apkInfo()->name), NormalMessageFormat);
     m_viewerPid = -1;
     reportStopped();
@@ -262,13 +264,12 @@ void AndroidQmlPreviewWorker::stop()
 
 bool AndroidQmlPreviewWorker::ensureAvdIsRunning()
 {
-    AndroidAvdManager avdMananager;
     QString devSN = AndroidManager::deviceSerialNumber(m_rc->target());
 
     if (devSN.isEmpty())
         devSN = m_serialNumber;
 
-    if (!avdMananager.isAvdBooted(devSN)) {
+    if (!AndroidAvdManager::isAvdBooted(devSN)) {
         const IDevice *dev = DeviceKitAspect::device(m_rc->target()->kit()).get();
         if (!dev) {
             appendMessage(Tr::tr("Selected device is invalid."), ErrorMessageFormat);
@@ -283,13 +284,13 @@ bool AndroidQmlPreviewWorker::ensureAvdIsRunning()
         if (devInfoLocal.isValid()) {
             if (dev->machineType() == IDevice::Emulator) {
                 appendMessage(Tr::tr("Launching AVD."), NormalMessageFormat);
-                devInfoLocal.serialNumber = avdMananager.startAvd(devInfoLocal.avdName);
+                devInfoLocal.serialNumber = AndroidAvdManager::startAvd(devInfoLocal.avdName);
             }
             if (devInfoLocal.serialNumber.isEmpty()) {
                 appendMessage(Tr::tr("Could not start AVD."), ErrorMessageFormat);
             } else {
                 m_serialNumber = devInfoLocal.serialNumber;
-                m_avdAbis = androidConfig().getAbis(m_serialNumber);
+                m_avdAbis = AndroidConfig::getAbis(m_serialNumber);
             }
             return !devInfoLocal.serialNumber.isEmpty();
         } else {
@@ -297,7 +298,7 @@ bool AndroidQmlPreviewWorker::ensureAvdIsRunning()
         }
         return false;
     }
-    m_avdAbis = androidConfig().getAbis(m_serialNumber);
+    m_avdAbis = AndroidConfig::getAbis(m_serialNumber);
     return true;
 }
 
@@ -459,7 +460,7 @@ bool AndroidQmlPreviewWorker::startPreviewApp()
     const QDir destDir(apkInfo()->uploadDir);
     const QString qmlrcPath = destDir.filePath(m_uploadInfo.uploadPackage.baseName()
                                                + packageSuffix);
-    const QStringList envVars = m_rc->aspect<EnvironmentAspect>()->environment.toStringList();
+    const QStringList envVars = m_rc->aspectData<EnvironmentAspect>()->environment.toStringList();
 
     const QStringList command {
         "am", "start",

@@ -3,6 +3,7 @@
 
 #include "checkablemessagebox.h"
 
+#include "guiutils.h"
 #include "hostosinfo.h"
 #include "qtcassert.h"
 #include "qtcsettings.h"
@@ -95,7 +96,7 @@ static QMessageBox::StandardButton exec(
             return acceptButton;
     }
 
-    QMessageBox msgBox(parent);
+    QMessageBox msgBox(dialogParent(parent));
     prepare(icon, title, text, decider, buttons, defaultButton, buttonTextOverrides, msg, msgBox);
     msgBox.exec();
 
@@ -131,7 +132,7 @@ static void show(QWidget *parent,
         return;
     }
 
-    QMessageBox *msgBox = new QMessageBox(parent);
+    QMessageBox *msgBox = new QMessageBox(dialogParent(parent));
     prepare(icon, title, text, decider, buttons, defaultButton, buttonTextOverrides, msg, *msgBox);
 
     std::optional<QPointer<QObject>> guardPtr;

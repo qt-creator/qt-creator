@@ -93,7 +93,7 @@
         \row
             \li -installsettingspath <path>
             \li Override the default path from where user-independent settings are read
-                (for example written by the installer).
+                (for example, those written by the installer).
 
         \row
             \li -temporarycleansettings, -tcs
@@ -103,6 +103,10 @@
         \row
             \li -language <locale>
             \li Set the UI language.
+
+                Use a lowercase, two-letter
+                \l {https://www.iso.org/iso-639-language-codes.html}
+                {ISO 639 language code}, such as \e de, \e en, or \e fr.
 
        \row
             \li -test <plugin>[,testfunction[:testdata]] ...

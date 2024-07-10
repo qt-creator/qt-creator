@@ -11,11 +11,11 @@
 
     \brief Settings for running Qt Quick UI Prototype projects (.qmlproject).
 
-    Specify settings for running applications on the \l {kits-tab}{Run device} that
+    Specify settings for running applications on the \l {Kits}{Run device} that
     you select for a kit in \uicontrol Projects > \uicontrol {Build & Run} >
     \uicontrol Run > \uicontrol {Run Settings}.
 
-    \note Select the \uicontrol Desktop device type for the \l{kits-tab}{Run device}
+    \note Select the \uicontrol Desktop device type for the \l{Kits}{Run device}
     in the kit.
 
     \image qtquick-ui-prototype-run-settings.webp {Run Settings for a Qt Quick UI Prototype project}
@@ -42,5 +42,5 @@
     \endtable
 
     \sa {Create Qt Quick UI Prototypes}, {Activate kits for a project},
-    {Configure projects for running}, {kits-tab}{Kits}
+    {Configure projects for running}, {Kits}
 */

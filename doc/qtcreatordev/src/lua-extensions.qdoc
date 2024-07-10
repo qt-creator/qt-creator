@@ -1,0 +1,275 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
+/*!
+    \page lua-extensions.html
+    \title Extending \QC with Lua
+
+    \QC can be extended with Lua scripts. The included Lua engine is based on Lua 5.4.6.
+
+    \section1 Writing Lua Extensions
+
+    To create a new Lua extension, choose \uicontrol {File} > \uicontrol {New Project} >
+    \uicontrol {Library} > \uicontrol {\QC Lua Plugin}.
+
+    To test your new extension, start your project. Your \uicontrol {Application Output}
+    should show \e {Hello from Lua!}.
+
+    \section1 Lua Extension Specification
+
+    A Lua extension consists of a Lua script with the same name as the folder it is in.
+    This is necessary for the extension to be loaded.
+
+    This script defines the specification of the extension, such as its display name, vendor, copyright.
+
+    \code
+        --- MyExtension.lua
+        return {
+            Name = "MyExtension",
+            Version = "1.0.0",
+            CompatVersion = "1.0.0",
+            Vendor = "My Company",
+            Category = "Tests",
+            Description = "Describe what your extension does in a sentence.",
+            LongDescription = [[
+                Tell users more about your extension.
+            ]],
+            Dependencies = {
+                { Name = "Core", Version = "13.0.82", Required = true },
+                { Name = "Lua",  Version = "13.0.82", Required = true }
+            },
+            setup = function() print("Hello from Lua!") end,
+            printToOutputPane = true,
+        } --[[@as QtcPlugin]]
+    \endcode
+
+    \section1 The Setup Function
+
+    The setup function is called when the extension is loaded. This is where you can set up the
+    functionality of your extension. Since the specification file is parsed with very limited
+    permissions, you need to require a module where you implement the actual functionality.
+
+    \code
+        --- MyExtension.lua
+        return {
+            Name = "MyExtension",
+            Version = "1.0.0",
+            ...,
+            --- This is the setup function that is called when the extension is loaded.
+            --- It requires the 'init' module and calls the setup function from the returned table.
+            setup = function() require 'init'.setup() end,
+        }
+    \endcode
+
+    \code
+        --- init.lua
+        function setup()
+            print("Hello from Lua!")
+        end
+
+        -- Returns a table with a single field 'setup' that points to the setup function.
+        return {
+            setup = setup
+        }
+    \endcode
+
+
+    \section1 Asynchronous Operations
+
+    Some of the built-in operations work asynchronously. To handle this, use the Async module.
+
+    \code
+        local a = require 'async'
+        local u = require 'Utils'
+
+        a.sync(function()
+            print("Lets wait for 5 seconds ...")
+            a.wait(u.waitms(5000))
+            print("... done!")
+        end)
+    \endcode
+
+    \section1 Interactive Help
+
+    When you open a .lua file in the editor the first time, you are asked to download the Lua
+    Language Server. This is extremely useful as it gives you context sensitive help and
+    auto-completion.
+
+    \section1 \QC API
+
+    The \QC API is available to Lua extensions via a number of modules that you can import
+    using the \c {require} function. C++ extensions may provide additional modules. One example of that
+    is the LanguageServer Extension that provides a module for creating Language Server clients.
+
+    You can find the API documentation files for the Lua modules in your \QC installation.
+    On \macos you can find them in \c{Qt Creator.app/Contents/Resources/lua/meta}.
+
+    \annotatedlist lua-modules
+
+    \section1 Extending the Lua API with C++
+
+    To add functionality to the Lua Interface, you need to register a new module with the Lua Engine.
+
+    \code
+    #include <lua/luaengine.h>
+
+    class MyCppExtension final : public ExtensionSystem::IPlugin
+    {
+        Q_OBJECT
+        Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "MyCppExtension.json")
+
+    public:
+        MyCppExtension() {}
+
+    private:
+        void initialize() final {
+            // The registered function will be called when the Lua module 'MyCppExtension' is required.
+            // The returned table will be returned from the require call in Lua.
+            ::Lua::LuaEngine::registerProvider("MyCppExtension", [](sol::state_view lua) -> sol::object {
+                sol::table result = lua.create_table();
+                result["myFunction"] = [](int a, int b) { return a + b; };
+                return result;
+            });
+         }
+    };
+    \endcode
+
+    You can then access \c{MyCppExtension.myFunction} from your Lua scripts like this:
+
+    \code
+    local MyCppExtension = require 'MyCppExtension'
+    --- MyCppExtension is now a table with a single field 'myFunction', as it is returned from the
+    --- C++ function registered via 'LuaEngine::registerProvider(...)'.
+    print(MyCppExtension.myFunction(1, 2))
+    \endcode
+
+    For more information on how to register C++ functionality, see
+    \l {https://sol2.readthedocs.io/en/latest/index.html} {sol2}.
+
+    \section1 Examples
+
+    \section2 Language Server
+
+    The \QC LuaLanguageClient Plugin provides support for registering your own Language Server
+    clients. You can find an example of how to use this in the \QC Extension "Lua Language Server"
+    and "Rust Language Server".
+*/
+
+/*!
+    \page lua-extension-meta-core
+    \ingroup lua-modules
+    \title Core.lua
+    \brief Access and interact with the core functionality of \QC.
+
+    \quotefile ../../../src/plugins/lua/meta/core.lua
+*/
+
+/*!
+    \page lua-extension-meta-action
+    \ingroup lua-modules
+    \title action.lua
+    \brief Create user interface actions in \QC.
+
+    \quotefile ../../../src/plugins/lua/meta/action.lua
+*/
+
+/*!
+    \page lua-extension-meta-async
+    \ingroup lua-modules
+    \title async.lua
+    \brief Handle asynchronouse operations with the async/await Lua API.
+
+    \quotefile ../../../src/plugins/lua/meta/async.lua
+*/
+
+/*!
+    \page lua-extension-meta-fetch
+    \ingroup lua-modules
+    \title fetch.lua
+    \brief Fetch data from the internet.
+
+    \quotefile ../../../src/plugins/lua/meta/fetch.lua
+*/
+
+/*!
+    \page lua-extension-meta-gui
+    \ingroup lua-modules
+    \title gui.lua
+    \brief Create user interfaces.
+
+    \quotefile ../../../src/plugins/lua/meta/gui.lua
+*/
+
+/*!
+    \page lua-extension-meta-lsp
+    \ingroup lua-modules
+    \title lsp.lua
+    \brief Register Language Server clients.
+
+    \quotefile ../../../src/plugins/lua/meta/lsp.lua
+*/
+
+/*!
+    \page lua-extension-meta-messagemanager
+    \ingroup lua-modules
+    \title messagemanager.lua
+    \brief Display messages to the user.
+
+    \quotefile ../../../src/plugins/lua/meta/messagemanager.lua
+*/
+
+/*!
+    \page lua-extension-meta-process
+    \ingroup lua-modules
+    \title process.lua
+    \brief Run external processes.
+
+    \quotefile ../../../src/plugins/lua/meta/process.lua
+*/
+
+/*!
+    \page lua-extension-meta-qt
+    \ingroup lua-modules
+    \title qt.lua
+    \brief Access Qt functionality.
+
+    \quotefile ../../../src/plugins/lua/meta/qt.lua
+*/
+
+/*!
+    \page lua-extension-meta-qtc
+    \ingroup lua-modules
+    \title qtc.lua
+    \brief Access and extend \QC.
+
+    \quotefile ../../../src/plugins/lua/meta/qtc.lua
+*/
+
+/*!
+    \page lua-extension-meta-settings
+    \ingroup lua-modules
+    \title settings.lua
+    \brief Read and write settings.
+
+    \quotefile ../../../src/plugins/lua/meta/settings.lua
+*/
+
+/*!
+    \page lua-extension-meta-simpletypes
+    \ingroup lua-modules
+    \title simpletypes.lua
+    \brief Access simple types.
+
+    \quotefile ../../../src/plugins/lua/meta/simpletypes.lua
+*/
+
+/*!
+    \page lua-extension-meta-utils
+    \ingroup lua-modules
+    \title utils.lua
+    \brief Common utility functions and classes.
+
+    \quotefile ../../../src/plugins/lua/meta/utils.lua
+*/
+
+

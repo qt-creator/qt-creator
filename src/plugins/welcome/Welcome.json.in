@@ -20,6 +20,6 @@
             "Description" : "Do not ask for taking a UI tour on startup"
         }
     ],
-    "Url" : "http://www.qt.io",
+    "Url" : "https://www.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

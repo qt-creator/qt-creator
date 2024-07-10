@@ -18,6 +18,8 @@
 
 #include <languageclient/languageclientmanager.h>
 
+#include <projectexplorer/projectmanager.h>
+
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
@@ -84,7 +86,12 @@ void ClangEditorDocumentProcessor::forceUpdate(TextEditor::TextDocument *doc)
 {
     if (const auto client = qobject_cast<ClangdClient *>(
             LanguageClient::LanguageClientManager::clientForDocument(doc))) {
-        client->documentContentsChanged(doc, 0, 0, 0);
+        const CppEditor::ClangdSettings settings(
+            CppEditor::ClangdProjectSettings(
+                ProjectExplorer::ProjectManager::projectForFile(doc->filePath()))
+                .settings());
+        if (settings.updateDependentSources())
+            client->documentContentsChanged(doc, 0, 0, 0);
     }
 }
 

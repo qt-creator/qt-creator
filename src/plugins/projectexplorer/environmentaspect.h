@@ -32,7 +32,7 @@ public:
     int baseEnvironmentBase() const;
     void setBaseEnvironmentBase(int base);
 
-    Utils::EnvironmentItems userEnvironmentChanges() const { return m_userChanges; }
+    Utils::EnvironmentItems userEnvironmentChanges() const;
     void setUserEnvironmentChanges(const Utils::EnvironmentItems &diff);
 
     int addSupportedBaseEnvironment(const QString &displayName,
@@ -68,6 +68,7 @@ signals:
     void baseEnvironmentChanged();
     void userEnvironmentChangesChanged(const Utils::EnvironmentItems &diff);
     void environmentChanged();
+    void userChangesUpdateRequested() const;
 
 protected:
     void fromMap(const Utils::Store &map) override;

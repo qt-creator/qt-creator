@@ -183,15 +183,21 @@ public:
                 &PerfProfilerTool::onRunControlFinished);
 
         PerfDataReader *reader = m_perfParserWorker->reader();
+        Process *perfProcess = nullptr;
         if (auto prw = qobject_cast<LocalPerfRecordWorker *>(m_perfRecordWorker)) {
             // That's the local case.
-            Process *recorder = prw->recorder();
-            connect(recorder, &Process::readyReadStandardError, this, [this, recorder] {
-                appendMessage(QString::fromLocal8Bit(recorder->readAllRawStandardError()),
+            perfProcess = prw->recorder();
+        } else {
+            perfProcess = runControl()->property("PerfProcess").value<Process *>();
+        }
+
+        if (perfProcess) {
+            connect(perfProcess, &Process::readyReadStandardError, this, [this, perfProcess] {
+                appendMessage(QString::fromLocal8Bit(perfProcess->readAllRawStandardError()),
                               StdErrFormat);
             });
-            connect(recorder, &Process::readyReadStandardOutput, this, [this, reader, recorder] {
-                if (!reader->feedParser(recorder->readAllRawStandardOutput()))
+            connect(perfProcess, &Process::readyReadStandardOutput, this, [this, reader, perfProcess] {
+                if (!reader->feedParser(perfProcess->readAllRawStandardOutput()))
                     reportFailure(Tr::tr("Failed to transfer Perf data to perfparser."));
             });
         }

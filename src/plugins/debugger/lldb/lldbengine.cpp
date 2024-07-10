@@ -238,7 +238,7 @@ void LldbEngine::handleLldbStarted()
         executeCommand(commands);
 
     const FilePath path = settings().extraDumperFile();
-    if (!path.isEmpty() && path.isReadableFile()) {
+    if (path.isReadableFile()) {
         DebuggerCommand cmd("addDumperModule");
         cmd.arg("path", path.path());
         runCommand(cmd);
@@ -346,10 +346,6 @@ void LldbEngine::handleLldbStarted()
 
     cmd2.flags = Silent;
     runCommand(cmd2);
-
-    DebuggerCommand cmd0("setFallbackQtVersion");
-    cmd0.arg("version", rp.fallbackQtVersion);
-    runCommand(cmd0);
 }
 
 void LldbEngine::runEngine()
@@ -768,6 +764,8 @@ void LldbEngine::doUpdateLocals(const UpdateParameters &params)
     cmd.arg("partialvar", params.partialVariable);
     cmd.arg("qobjectnames", s.showQObjectNames());
     cmd.arg("timestamps", s.logTimeStamps());
+    cmd.arg("qtversion", runParameters().qtVersion);
+    cmd.arg("qtnamespace", runParameters().qtNamespace);
 
     StackFrame frame = stackHandler()->currentFrame();
     cmd.arg("context", frame.context);

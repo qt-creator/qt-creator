@@ -41,7 +41,7 @@
             you can inspect the state of your UI while debugging.
 
             The memory and CPU power available on devices are limited and
-            you should use them carefully. The QML Profiler enables you to
-            profile Qt Quick UIs.
+            you should use them carefully. With QML Profiler, you can find
+            problems in QML code.
     \endlist
 */

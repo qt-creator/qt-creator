@@ -154,6 +154,18 @@ public:
     QHash<QString, PerspectiveState> m_lastTypePerspectiveStates;  // Perspective::settingsId() -> MainWindow::state()
 };
 
+class TweakedCombo : public QComboBox // ensures that all items of the popup are readable
+{
+public:
+    explicit TweakedCombo(QWidget *parent = nullptr) : QComboBox(parent) {}
+    void showPopup() override
+    {
+        QTC_ASSERT(view(), return);
+        view()->setMinimumWidth(view()->sizeHintForColumn(0));
+        QComboBox::showPopup();
+    }
+};
+
 DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     : q(parent)
 {
@@ -164,7 +176,7 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
     m_statusLabel->setIndent(2 * QFontMetrics(q->font()).horizontalAdvance(QChar('x')));
     m_editorPlaceHolder = new EditorManagerPlaceHolder;
 
-    m_perspectiveChooser = new QComboBox;
+    m_perspectiveChooser = new TweakedCombo;
     m_perspectiveChooser->setObjectName("PerspectiveChooser");
     StyleHelper::setPanelWidget(m_perspectiveChooser);
     m_perspectiveChooser->setSizeAdjustPolicy(QComboBox::AdjustToContents);

@@ -25,6 +25,18 @@
 
 using namespace Utils;
 
+/*!
+    \class Core::DesignMode
+    \inmodule QtCreator
+
+    \brief The DesignMode class implements the mode for the Design mode, which is
+    for example used by \QMLD and \QD.
+
+    Other plugins can register themselves with registerDesignWidget(),
+    giving a list of MIME types that the editor understands, as well as an instance
+    to the main editor widget itself.
+*/
+
 namespace Core {
 
 struct DesignEditorInfo

@@ -97,10 +97,10 @@ TimelineAnimationForm::TimelineAnimationForm(QWidget *parent)
     using namespace Layouting;
     Grid {
         Span(4, mainL), br,
-        empty(), br,
+        empty, br,
         idL, Span(2, m_idLineEdit), Span(2, Row{ runningL, m_running }), br,
-        empty(), startFrameL, m_startFrame, endFrameL, m_endFrame, durationL, m_duration, br,
-        empty(), continuousL, m_continuous, loopsL, m_loops, pingPongL, m_pingPong, str, br,
+        empty, startFrameL, m_startFrame, endFrameL, m_endFrame, durationL, m_duration, br,
+        empty, continuousL, m_continuous, loopsL, m_loops, pingPongL, m_pingPong, str, br,
         tr("Transition to state:"), transitionToStateL, m_transitionToState, br,
     }.attachTo(this);
 

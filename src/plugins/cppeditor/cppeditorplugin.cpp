@@ -1,10 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "clangdsettings.h"
 #include "cppautocompleter.h"
 #include "cppcodemodelinspectordialog.h"
 #include "cppcodemodelsettings.h"
-#include "cppcodemodelsettingspage.h"
 #include "cppcodestylesettingspage.h"
 #include "cppeditorconstants.h"
 #include "cppeditordocument.h"
@@ -16,12 +16,12 @@
 #include "cppmodelmanager.h"
 #include "cppoutline.h"
 #include "cppprojectupdater.h"
-#include "cppquickfixes.h"
-#include "cppquickfixprojectsettingswidget.h"
-#include "cppquickfixsettingspage.h"
 #include "cpptoolsreuse.h"
 #include "cpptoolssettings.h"
 #include "cpptypehierarchy.h"
+#include "quickfixes/cppquickfix.h"
+#include "quickfixes/cppquickfixprojectsettingswidget.h"
+#include "quickfixes/cppquickfixsettingspage.h"
 #include "resourcepreviewhoverhandler.h"
 
 #ifdef WITH_TESTS
@@ -31,12 +31,10 @@
 #include "cppdoxygen_test.h"
 #include "cpphighlighter.h"
 #include "cppincludehierarchy_test.h"
-#include "cppinsertvirtualmethods.h"
 #include "cpplocalsymbols_test.h"
 #include "cpplocatorfilter_test.h"
 #include "cppmodelmanager_test.h"
 #include "cpppointerdeclarationformatter_test.h"
-#include "cppquickfix_test.h"
 #include "cpprenaming_test.h"
 #include "cppsourceprocessor_test.h"
 #include "cppuseselections_test.h"
@@ -70,11 +68,11 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
+#include <projectexplorer/rawprojectpart.h>
 
 #include <texteditor/colorpreviewhoverhandler.h>
 #include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/texteditor.h>
-#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
 
 #include <utils/algorithm.h>
@@ -138,13 +136,14 @@ public:
         setCodeFoldingSupported(true);
         setParenthesesMatchingEnabled(true);
 
-        setEditorActionHandlers(TextEditorActionHandler::Format
-                                | TextEditorActionHandler::UnCommentSelection
-                                | TextEditorActionHandler::UnCollapseAll
-                                | TextEditorActionHandler::FollowSymbolUnderCursor
-                                | TextEditorActionHandler::FollowTypeUnderCursor
-                                | TextEditorActionHandler::RenameSymbol
-                                | TextEditorActionHandler::FindUsage);
+        setOptionalActionMask(OptionalActions::Format
+                                | OptionalActions::UnCommentSelection
+                                | OptionalActions::UnCollapseAll
+                                | OptionalActions::FollowSymbolUnderCursor
+                                | OptionalActions::FollowTypeUnderCursor
+                                | OptionalActions::RenameSymbol
+                                | OptionalActions::TypeHierarchy
+                                | OptionalActions::FindUsage);
     }
 };
 
@@ -176,7 +175,7 @@ class CppEditorPlugin final : public ExtensionSystem::IPlugin
 public:
     ~CppEditorPlugin() final
     {
-        destroyCppQuickFixes();
+        destroyCppQuickFixFactories();
         delete d;
         d = nullptr;
     }
@@ -201,7 +200,10 @@ void CppEditorPlugin::initialize()
     d = new CppEditorPluginPrivate;
 
     setupCppQuickFixSettings();
-    setupCppCodeModelSettings();
+    setupCppCodeModelSettingsPage();
+    provideCppSettingsRetriever([](const Project *p) {
+        return CppCodeModelSettings::settingsForProject(p).toMap();
+    });
     setupCppOutline();
     setupCppCodeStyleSettings();
     setupCppProjectUpdater();
@@ -210,7 +212,7 @@ void CppEditorPlugin::initialize()
 
     setupMenus();
     registerVariables();
-    createCppQuickFixes();
+    createCppQuickFixFactories();
     registerTests();
 
     SnippetProvider::registerGroup(Constants::CPP_SNIPPETS_GROUP_ID, Tr::tr("C++", "SnippetProvider"),
@@ -225,7 +227,8 @@ void CppEditorPlugin::initialize()
 void CppEditorPlugin::extensionsInitialized()
 {
     setupCppQuickFixProjectPanel();
-    setupCppFileSettings();
+    setupCppFileSettings(*this);
+    setupCppCodeModelProjectSettingsPanel();
 
     if (CppModelManager::isClangCodeModelActive()) {
         setupClangdProjectSettingsPanel();
@@ -348,9 +351,9 @@ void CppEditorPlugin::addPerSymbolActions()
     findRefsCategorized.addToContainers(menus, Constants::G_SYMBOL);
     findRefsCategorized.addOnTriggered(this, [] {
         if (const auto w = currentCppEditorWidget()) {
-            codeModelSettings()->setCategorizeFindReferences(true);
+            CppCodeModelSettings::setCategorizeFindReferences(true);
             w->findUsages();
-            codeModelSettings()->setCategorizeFindReferences(false);
+            CppCodeModelSettings::setCategorizeFindReferences(false);
         }
     });
 
@@ -358,6 +361,7 @@ void CppEditorPlugin::addPerSymbolActions()
 
     setupCppTypeHierarchy();
 
+    addSymbolActionToMenus(TextEditor::Constants::OPEN_TYPE_HIERARCHY);
     addSymbolActionToMenus(TextEditor::Constants::OPEN_CALL_HIERARCHY);
 
     // Refactoring sub-menu
@@ -508,8 +512,6 @@ void CppEditorPlugin::registerTests()
     addTest<Tests::FileAndTokenActionsTest>();
     addTest<Tests::FollowSymbolTest>();
     addTest<Tests::IncludeHierarchyTest>();
-    addTest<Tests::InsertVirtualMethodsTest>();
-    addTest<Tests::QuickfixTest>();
     addTest<Tests::GlobalRenamingTest>();
     addTest<Tests::SelectionsTest>();
 #endif

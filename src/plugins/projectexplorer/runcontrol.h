@@ -27,6 +27,7 @@ class Icon;
 class MacroExpander;
 class OutputLineParser;
 class ProcessRunData;
+class Process;
 } // Utils
 
 namespace ProjectExplorer {
@@ -186,10 +187,10 @@ public:
     Kit *kit() const;
     const Utils::MacroExpander *macroExpander() const;
 
-    const Utils::BaseAspect::Data *aspect(Utils::Id instanceId) const;
-    const Utils::BaseAspect::Data *aspect(Utils::BaseAspect::Data::ClassId classId) const;
-    template <typename T> const typename T::Data *aspect() const {
-        return dynamic_cast<const typename T::Data *>(aspect(&T::staticMetaObject));
+    const Utils::BaseAspect::Data *aspectData(Utils::Id instanceId) const;
+    const Utils::BaseAspect::Data *aspectData(Utils::BaseAspect::Data::ClassId classId) const;
+    template <typename T> const typename T::Data *aspectData() const {
+        return dynamic_cast<const typename T::Data *>(aspectData(&T::staticMetaObject));
     }
 
     QString buildKey() const;
@@ -271,8 +272,11 @@ protected:
     void setEnvironment(const Utils::Environment &environment);
     void setWorkingDirectory(const Utils::FilePath &workingDirectory);
     void setProcessMode(Utils::ProcessMode processMode);
+    Utils::Process *process() const;
 
+    void suppressDefaultStdOutHandling();
     void forceRunOnHost();
+    void addExtraData(const QString &key, const QVariant &value);
 
 private:
     void start() final;

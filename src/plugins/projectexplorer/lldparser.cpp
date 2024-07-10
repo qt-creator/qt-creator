@@ -46,7 +46,7 @@ Utils::OutputLineParser::Result LldParser::handleLine(const QString &line, Utils
         const auto file = absoluteFilePath(Utils::FilePath::fromUserInput(
                 trimmedLine.mid(filePathOffset, filePathLen).trimmed()));
         LinkSpecs linkSpecs;
-        addLinkSpecForAbsoluteFilePath(linkSpecs, file, lineNo, filePathOffset, filePathLen);
+        addLinkSpecForAbsoluteFilePath(linkSpecs, file, lineNo, -1, filePathOffset, filePathLen);
         scheduleTask(CompileTask(Task::Unknown, trimmedLine.mid(4).trimmed(),
                                  file, lineNo), 1);
         return {Status::Done, linkSpecs};

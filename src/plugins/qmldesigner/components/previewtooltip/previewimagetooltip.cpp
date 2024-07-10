@@ -20,7 +20,8 @@ PreviewImageTooltip::PreviewImageTooltip(QWidget *parent)
     m_ui->nameLabel->setElideMode(Qt::ElideLeft);
     m_ui->pathLabel->setElideMode(Qt::ElideLeft);
     m_ui->infoLabel->setElideMode(Qt::ElideLeft);
-    setStyleSheet(QString("QWidget { background-color: %1 }").arg(Utils::creatorTheme()->color(Utils::Theme::BackgroundColorNormal).name()));
+    setStyleSheet(QString("QWidget { background-color: %1 }")
+                  .arg(Utils::creatorColor(Utils::Theme::BackgroundColorNormal).name()));
 }
 
 PreviewImageTooltip::~PreviewImageTooltip() = default;

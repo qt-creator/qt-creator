@@ -103,5 +103,11 @@ void setBlockedDocumentation(const QStringList &fileNames)
         m_instance->setBlockedDocumentation(fileNames);
 }
 
+void addOnlineHelpHandler(const OnlineHelpHandler &handler)
+{
+    if (checkInstance())
+        m_instance->addOnlineHelpHandler(handler);
+}
+
 } // HelpManager
 } // Core

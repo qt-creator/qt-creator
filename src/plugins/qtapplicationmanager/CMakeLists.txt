@@ -4,6 +4,7 @@ add_qtc_plugin(QtApplicationManagerIntegration
   PLUGIN_DEPENDS
     Core Debugger ProjectExplorer
     QtSupport RemoteLinux
+  PLUGIN_CLASS AppManagerPlugin
   DEPENDS Qt::Network Qt::Widgets ExtensionSystem Utils yaml-cpp
   SOURCES
     appmanagerconstants.h

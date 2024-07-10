@@ -50,6 +50,20 @@ QGroupBox *createGroupBox(SpinnerSize size, QWidget *widget)
     return groupBox;
 }
 
+QGroupBox *createColorsGroupBox()
+{
+    QGroupBox *groupBox = new QGroupBox("Spinner::setColor(const QColor &color)");
+    auto layout = new QHBoxLayout(groupBox);
+    for (auto color : {Qt::red, Qt::darkGreen, Qt::blue, Qt::darkYellow}) {
+        auto widget = new QWidget;
+        widget->setFixedSize(30, 30);
+        auto spinner = new Spinner(SpinnerSize::Medium, widget);
+        spinner->setColor(color);
+        layout->addWidget(widget);
+    }
+    return groupBox;
+}
+
 static QWidget *hr()
 {
     auto frame = new QFrame;
@@ -90,6 +104,8 @@ int main(int argc, char *argv[])
     largeWidget->setText(pangram(25));
     QGroupBox *largeGroupBox = createGroupBox(SpinnerSize::Large, largeWidget);
     mainLayout->addWidget(largeGroupBox);
+
+    mainLayout->addWidget(createColorsGroupBox());
 
     mainWidget.show();
 

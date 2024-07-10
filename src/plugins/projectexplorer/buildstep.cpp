@@ -85,6 +85,9 @@ BuildStep::BuildStep(BuildStepList *bsl, Id id)
     : ProjectConfiguration(bsl->target(), id)
     , m_stepList(bsl)
 {
+    if (auto bc = buildConfiguration())
+        setMacroExpander(bc->macroExpander());
+
     connect(this, &ProjectConfiguration::displayNameChanged, this, &BuildStep::updateSummary);
 }
 
@@ -113,17 +116,15 @@ QWidget *BuildStep::doCreateConfigWidget()
 QWidget *BuildStep::createConfigWidget()
 {
     Layouting::Form form;
+    form.setNoMargins();
     for (BaseAspect *aspect : std::as_const(*this)) {
-        if (aspect->isVisible())
-            form.addItems({aspect, Layouting::br()});
+        if (aspect->isVisible()) {
+            form.addItem(aspect);
+            form.flush();
+        }
     }
-    form.addItem(Layouting::noMargin);
-    auto widget = form.emerge();
 
-    if (m_addMacroExpander)
-        VariableChooser::addSupportForChildWidgets(widget, macroExpander());
-
-    return widget;
+    return form.emerge();
 }
 
 void BuildStep::fromMap(const Store &map)
@@ -192,13 +193,6 @@ BuildConfiguration::BuildType BuildStep::buildType() const
     if (auto bc = buildConfiguration())
         return bc->buildType();
     return BuildConfiguration::Unknown;
-}
-
-MacroExpander *BuildStep::macroExpander() const
-{
-    if (auto bc = buildConfiguration())
-        return bc->macroExpander();
-    return globalMacroExpander();
 }
 
 QString BuildStep::fallbackWorkingDirectory() const

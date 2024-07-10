@@ -141,6 +141,10 @@
 
     Use the following syntax to enter environment variable names and values:
     \c {<VARIABLE>=<VALUE>}.
+    To temporarily disable a variable, add a hash character (#) to the beginning
+    of the line.
+    \note Using this approach for a different statement (append, prepend, unset)
+    may result in unexpected changes of the environment.
 
     To remove a variable value from the environment, enter the variable name.
     For example, \c TEST sets the value of the \c TEST variable empty when
@@ -160,8 +164,8 @@
     following lines. However, you can remove a value after you have referred to
     it on an earlier line.
 
-    To temporarily disable a variable, add a hash character (#) to the beginning
-    of the line.
+    To add a comment or disable any of the above actions, prefix it with two hash
+    characters (##).
 
     \sa {Specify the environment for projects}, {Configure projects for building},
     {Configure projects for running}, {Use Qt Creator variables}

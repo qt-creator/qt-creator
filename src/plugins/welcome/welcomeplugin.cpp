@@ -162,10 +162,10 @@ public:
                 welcomeLabel,
                 st,
                 spacing(ExVPaddingGapXl),
-                customMargin({HPaddingM, VPaddingM, HPaddingM, VPaddingM}),
+                customMargins(HPaddingM, VPaddingM, HPaddingM, VPaddingM),
             },
             createRule(Qt::Horizontal),
-            noMargin(), spacing(0),
+            noMargin, spacing(0),
         }.attachTo(this);
     }
 };
@@ -188,13 +188,13 @@ public:
 
         Column mainColumn {
             spacing(0),
-            customMargin({ExVPaddingGapXl, 0, ExVPaddingGapXl, 0}),
+            customMargins(ExVPaddingGapXl, 0, ExVPaddingGapXl, 0),
         };
 
         m_essentials = new QWidget;
         Column essentials {
             spacing(0),
-            noMargin(),
+            noMargin,
         };
 
         {
@@ -205,7 +205,7 @@ public:
                 newButton,
                 openButton,
                 spacing(ExPaddingGapL),
-                customMargin({0, ExVPaddingGapXl, 0, ExVPaddingGapXl}),
+                customMargins(0, ExVPaddingGapXl, 0, ExVPaddingGapXl),
             };
 
             essentials.addItem(projectButtons);
@@ -232,13 +232,13 @@ public:
         mainColumn.addItem(st);
 
         {
-            auto label = new Label(Tr::tr("Explore more"), Label::Secondary);
+            auto label = new Core::Label(Tr::tr("Explore more"), Core::Label::Secondary);
             label->setContentsMargins(HPaddingXxs, 0, 0, 0); // Is indented in Figma design
 
             Column linksLayout {
                 label,
                 spacing(VGapS),
-                customMargin({0, VGapL, 0, ExVPaddingGapXl}),
+                customMargins(0, VGapL, 0, ExVPaddingGapXl),
             };
 
             const struct {
@@ -275,7 +275,7 @@ public:
         Row {
             mainColumn,
             createRule(Qt::Vertical),
-            noMargin(), spacing(0),
+            noMargin, spacing(0),
         }.attachTo(mainWidget);
 
         setWidget(mainWidget);
@@ -342,7 +342,7 @@ WelcomeMode::WelcomeMode()
             m_sideArea,
             m_pageStack,
         },
-        noMargin(),
+        noMargin,
         spacing(0),
     }.attachTo(m_modeWidget);
 

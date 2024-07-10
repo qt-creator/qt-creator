@@ -33,7 +33,7 @@ public:
     QString toToolTip() const;
 
     QVariant editValue() const;
-    int editType() const;
+    QMetaType::Type editType() const;
 
     static const qint64 InvalidId = -1;
     constexpr static char loadMoreName[] = "<load more>";

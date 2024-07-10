@@ -86,20 +86,18 @@ static expected_str<void> runCommand(
 }
 
 static expected_str<void> runSimCtlCommand(
-    QStringList args,
+    const QStringList &args,
     QString *output,
     QString *allOutput = nullptr,
     std::function<bool()> shouldStop = [] { return false; })
 {
-    args.prepend("simctl");
-
     // Cache xcrun's path, as this function will be called often.
     static FilePath xcrun = FilePath::fromString("xcrun").searchInPath();
     if (xcrun.isEmpty())
         return make_unexpected(Tr::tr("Cannot find xcrun."));
     else if (!xcrun.isExecutableFile())
         return make_unexpected(Tr::tr("xcrun is not executable."));
-    return runCommand({xcrun, args}, output, allOutput, shouldStop);
+    return runCommand({xcrun, {"simctl", args}}, output, allOutput, shouldStop);
 }
 
 static expected_str<void> launchSimulator(const QString &simUdid, std::function<bool()> shouldStop)

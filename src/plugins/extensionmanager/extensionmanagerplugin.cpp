@@ -5,6 +5,9 @@
 
 #include "extensionmanagerconstants.h"
 #include "extensionmanagerwidget.h"
+#ifdef WITH_TESTS
+#include "extensionmanager_test.h"
+#endif // WITH_TESTS
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -15,7 +18,6 @@
 #include <coreplugin/imode.h>
 
 #include <extensionsystem/iplugin.h>
-#include <extensionsystem/pluginspec.h>
 
 #include <utils/icon.h>
 #include <utils/layoutbuilder.h>
@@ -24,7 +26,6 @@
 #include <QAction>
 #include <QMainWindow>
 
-using namespace ExtensionSystem;
 using namespace Core;
 using namespace Utils;
 
@@ -43,13 +44,13 @@ public:
                           Theme::IconsBaseColor}});
         const Icon FLAT_ACTIVE({{":/extensionmanager/images/mode_extensionmanager_mask.png",
                                  Theme::IconsModeWelcomeActiveColor}});
-        setIcon(Utils::Icon::modeIcon(FLAT, FLAT, FLAT_ACTIVE));
+        setIcon(Icon::modeIcon(FLAT, FLAT, FLAT_ACTIVE));
         setPriority(72);
 
         using namespace Layouting;
         auto widget = Column {
             new StyledBar,
-            new ExtensionManagerWidget,
+            createExtensionManagerWidget(),
             noMargin, spacing(0),
         }.emerge();
 
@@ -73,6 +74,10 @@ public:
     void initialize() final
     {
         m_mode = new ExtensionManagerMode;
+
+#ifdef WITH_TESTS
+        addTestCreator(createExtensionsModelTest);
+#endif // WITH_TESTS
     }
 
 private:

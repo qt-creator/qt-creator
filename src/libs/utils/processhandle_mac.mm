@@ -10,8 +10,7 @@ bool ProcessHandle::activate()
 {
     NSRunningApplication *app = [NSRunningApplication
             runningApplicationWithProcessIdentifier:pid()];
-    return app && [app activateWithOptions:static_cast<NSApplicationActivationOptions>(
-            NSApplicationActivateIgnoringOtherApps)];
+    return app && [app activateWithOptions:NSApplicationActivateAllWindows];
 }
 
 } // Utils

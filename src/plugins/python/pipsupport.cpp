@@ -66,12 +66,10 @@ void PipInstallTask::run()
         emit finished(false);
         return;
     }
-    const QString taskTitle = Tr::tr("Install Python Packages");
-    Core::ProgressManager::addTask(m_future.future(), taskTitle, pipInstallTaskId);
     QStringList arguments = {"-m", "pip", "install"};
-    if (!m_requirementsFile.isEmpty())
+    if (!m_requirementsFile.isEmpty()) {
         arguments << "-r" << m_requirementsFile.toString();
-    else {
+    } else {
         for (const PipPackage &package : m_packages) {
             QString pipPackage = package.packageName;
             if (!package.version.isEmpty())
@@ -87,10 +85,27 @@ void PipInstallTask::run()
         arguments << "--user"; // add --user to global pythons, but skip it for venv pythons
     }
 
+    if (m_upgrade)
+        arguments << "--upgrade";
+
+    QString operation;
+    if (!m_requirementsFile.isEmpty()) {
+        operation = m_upgrade ? Tr::tr("Update Requirements") : Tr::tr("Install Requirements");
+    } else if (m_packages.count() == 1) {
+        //: %1 = package name
+        operation = m_upgrade ? Tr::tr("Update %1")
+                              //: %1 = package name
+                              : Tr::tr("Install %1");
+        operation = operation.arg(m_packages.first().displayName);
+    } else {
+        operation = m_upgrade ? Tr::tr("Update Packages") : Tr::tr("Install Packages");
+    }
+
     m_process.setCommand({m_python, arguments});
-    m_process.setTerminalMode(TerminalMode::Run);
+    m_process.setTerminalMode(m_silent ? TerminalMode::Off : TerminalMode::Run);
     m_process.start();
 
+    Core::ProgressManager::addTask(m_future.future(), operation, pipInstallTaskId);
     Core::MessageManager::writeSilently(
         Tr::tr("Running \"%1\" to install %2.")
             .arg(m_process.commandLine().toUserOutput(), packagesDisplayName()));
@@ -141,6 +156,16 @@ QString PipInstallTask::packagesDisplayName() const
     return m_requirementsFile.isEmpty()
                ? Utils::transform(m_packages, &PipPackage::displayName).join(", ")
                : m_requirementsFile.toUserOutput();
+}
+
+void PipInstallTask::setUpgrade(bool upgrade)
+{
+    m_upgrade = upgrade;
+}
+
+void PipInstallTask::setSilent(bool silent)
+{
+    m_silent = silent;
 }
 
 void PipPackageInfo::parseField(const QString &field, const QStringList &data)

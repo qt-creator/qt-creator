@@ -9,6 +9,9 @@ class QWidget;
 
 namespace Utils {
 
-void QTCREATOR_UTILS_EXPORT setWheelScrollingWithoutFocusBlocked(QWidget *widget);
+QTCREATOR_UTILS_EXPORT void setWheelScrollingWithoutFocusBlocked(QWidget *widget);
+
+QTCREATOR_UTILS_EXPORT QWidget *dialogParent(QWidget *parent);
+QTCREATOR_UTILS_EXPORT void setDialogParentGetter(QWidget *(*getter)());
 
 } // namespace Utils

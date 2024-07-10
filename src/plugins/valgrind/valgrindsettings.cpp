@@ -116,7 +116,7 @@ SuppressionAspect::~SuppressionAspect()
     delete d;
 }
 
-void SuppressionAspect::addToLayout(Layouting::LayoutItem &parent)
+void SuppressionAspect::addToLayout(Layouting::Layout &parent)
 {
     QTC_CHECK(!d->addEntry);
     QTC_CHECK(!d->removeEntry);
@@ -392,19 +392,8 @@ ValgrindSettings::ValgrindSettings(bool global)
         // clang-format on
     });
 
-    if (global) {
+    if (global)
         readSettings();
-    } else {
-        // FIXME: Is this needed?
-        connect(this, &AspectContainer::fromMapFinished, [this] {
-            // FIXME: Update project page e.g. on "Restore Global", aspects
-            // there are 'autoapply', and Aspect::cancel() is normally part of
-            // the 'manual apply' machinery.
-            setAutoApply(false);
-            cancel();
-            setAutoApply(true);
-        });
-    }
 }
 
 ValgrindSettings &globalSettings()

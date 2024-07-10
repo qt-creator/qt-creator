@@ -29,7 +29,6 @@ class CustomParserSettings;
 class FolderNode;
 class Node;
 class Project;
-class ProjectExplorerSettings;
 class RunControl;
 class RunConfiguration;
 
@@ -38,7 +37,14 @@ class AppOutputSettings;
 class MiniProjectTargetSelector;
 }
 
-using RecentProjectsEntry = QPair<Utils::FilePath, QString>;
+class RecentProjectsEntry
+{
+public:
+    Utils::FilePath filePath;
+    QString displayName;
+    bool exists = true;
+};
+
 using RecentProjectsEntries = QList<RecentProjectsEntry>;
 
 class PROJECTEXPLORER_EXPORT OpenProjectResult
@@ -110,9 +116,6 @@ public:
     bool delayedInitialize() override;
     ShutdownFlag aboutToShutdown() override;
 
-    static void setProjectExplorerSettings(const ProjectExplorerSettings &pes);
-    static const ProjectExplorerSettings &projectExplorerSettings();
-
     static void setAppOutputSettings(const Internal::AppOutputSettings &settings);
     static const Internal::AppOutputSettings &appOutputSettings();
 
@@ -128,7 +131,8 @@ public:
     renameFiles(const QList<std::pair<Node *, Utils::FilePath>> &nodesAndNewFilePaths);
 
 #ifdef WITH_TESTS
-    static bool renameFile(const Utils::FilePath &source, const Utils::FilePath &target);
+    static bool renameFile(const Utils::FilePath &source, const Utils::FilePath &target,
+                           Project *project = nullptr);
 #endif
 
     static QStringList projectFilePatterns();
@@ -178,6 +182,8 @@ signals:
     void customParsersChanged();
 
     void runActionsUpdated();
+    void runControlStarted(ProjectExplorer::RunControl *runControl);
+    void runControlStoped(ProjectExplorer::RunControl *runControl);
 
     void filesRenamed(const QList<std::pair<Utils::FilePath, Utils::FilePath>> &oldAndNewPaths);
 

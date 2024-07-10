@@ -25,8 +25,8 @@
         \li \l{Configure Python language servers}
         \li \l{Run Python applications}
         \li \l{Python Run Settings}
-        \li \l{PDB}
-        \li \l{Launching the Debugger}
+        \li \l{PDB versions}
+        \li \l{Supported Debuggers}
     \endlist
 
     For more information about developing with Qt for Python, including
@@ -74,7 +74,7 @@
 
     \section1 Select the Python version
 
-    The \l{kits-tab}{kits} you select for the project in \uicontrol Projects >
+    The \l{Kits}{kits} you select for the project in \uicontrol Projects >
     \uicontrol {Build & Run} set the Python version to use.
 
     The \l {Edit Mode}{Edit mode} toolbar shows the current Python version.

@@ -49,21 +49,6 @@ bool CustomExecutableRunConfiguration::isEnabled(Id) const
     return true;
 }
 
-ProcessRunData CustomExecutableRunConfiguration::runnable() const
-{
-    ProcessRunData r;
-    r.command = commandLine();
-    r.environment = environment.environment();
-    r.workingDirectory = workingDir();
-
-    if (!r.command.isEmpty()) {
-        const FilePath expanded = macroExpander()->expand(r.command.executable());
-        r.command.setExecutable(expanded);
-    }
-
-    return r;
-}
-
 QString CustomExecutableRunConfiguration::defaultDisplayName() const
 {
     if (executable().isEmpty())

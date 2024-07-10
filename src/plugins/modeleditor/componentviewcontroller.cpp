@@ -31,6 +31,7 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
+using Utils::FilePath;
 
 namespace ModelEditor {
 namespace Internal {
@@ -52,9 +53,9 @@ private:
 
 void FindComponentFromFilePath::setFilePath(const QString &filePath)
 {
-    m_elementName = qmt::NameController::convertFileNameToElementName(filePath);
+    m_elementName = qmt::NameController::convertFileNameToElementName(FilePath::fromString(filePath));
     QFileInfo fileInfo(filePath);
-    m_elementsPath = qmt::NameController::buildElementsPath(fileInfo.path(), false);
+    m_elementsPath = qmt::NameController::buildElementsPath(FilePath::fromString(fileInfo.path()), false);
 }
 
 void FindComponentFromFilePath::visitMComponent(qmt::MComponent *component)
@@ -154,7 +155,7 @@ void UpdateIncludeDependenciesVisitor::visitMComponent(qmt::MComponent *componen
         if (document) {
             const QList<CPlusPlus::Document::Include> includes = document->resolvedIncludes();
             for (const CPlusPlus::Document::Include &include : includes) {
-                Utils::FilePath includeFilePath = include.resolvedFileName();
+                FilePath includeFilePath = include.resolvedFileName();
                 // replace proxy header with real one
                 CPlusPlus::Document::Ptr includeDocument = snapshot.document(includeFilePath);
                 if (includeDocument) {
@@ -218,10 +219,10 @@ void UpdateIncludeDependenciesVisitor::collectElementPaths(const ProjectExplorer
                                                            QMultiHash<QString, Node> *filePathsMap)
 {
     folderNode->forEachFileNode([&](FileNode *fileNode) {
-        QString elementName = qmt::NameController::convertFileNameToElementName(fileNode->filePath().toString());
+        QString elementName = qmt::NameController::convertFileNameToElementName(fileNode->filePath());
         QFileInfo fileInfo = fileNode->filePath().toFileInfo();
         QString nodePath = fileInfo.path();
-        QStringList elementsPath = qmt::NameController::buildElementsPath(nodePath, false);
+        QStringList elementsPath = qmt::NameController::buildElementsPath(FilePath::fromString(nodePath), false);
         filePathsMap->insert(elementName, Node(fileNode->filePath().toString(), elementsPath));
     });
     folderNode->forEachFolderNode([&](FolderNode *subNode) {
@@ -309,7 +310,7 @@ void ComponentViewController::doCreateComponentModel(const QString &filePath, qm
 {
     for (const QString &fileName : QDir(filePath).entryList(QDir::Files)) {
         QString file = filePath + "/" + fileName;
-        QString componentName = qmt::NameController::convertFileNameToElementName(file);
+        QString componentName = qmt::NameController::convertFileNameToElementName(FilePath::fromString(file));
         qmt::MComponent *component = nullptr;
         bool isSource = false;
         CppEditor::ProjectFile::Kind kind = CppEditor::ProjectFile::classify(file);
@@ -341,7 +342,7 @@ void ComponentViewController::doCreateComponentModel(const QString &filePath, qm
         }
         if (component) {
             QStringList relativeElements = qmt::NameController::buildElementsPath(
-                        d->pxnodeUtilities->calcRelativePath(file, anchorFolder), false);
+                FilePath::fromString(d->pxnodeUtilities->calcRelativePath(file, anchorFolder)), false);
             if (d->pxnodeUtilities->findSameObject(relativeElements, component)) {
                 delete component;
             } else {

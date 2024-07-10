@@ -260,6 +260,7 @@ void CallerHandle::start(const QString &program, const QStringList &arguments)
     p.useCtrlCStub = m_setup->m_useCtrlCStub;
     p.reaperTimeout = m_setup->m_reaperTimeout.count();
     p.createConsoleOnWindows = m_setup->m_createConsoleOnWindows;
+    p.forceDefaultErrorMode = m_setup->m_forceDefaultErrorMode;
     sendPacket(p);
 }
 

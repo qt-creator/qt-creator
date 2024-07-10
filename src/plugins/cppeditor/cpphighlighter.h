@@ -54,6 +54,8 @@ private slots:
     void test();
     void testParentheses_data();
     void testParentheses();
+    void testFoldingIndent_data();
+    void testFoldingIndent();
 
 private:
     QTextDocument m_doc;

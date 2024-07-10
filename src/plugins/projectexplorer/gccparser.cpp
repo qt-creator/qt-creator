@@ -8,37 +8,123 @@
 
 #include <utils/qtcassert.h>
 
-#include <numeric>
+#include <QLoggingCategory>
+
+#include <optional>
 
 using namespace Utils;
 
 namespace ProjectExplorer {
 
-// opt. drive letter + filename: (2 brackets)
-static const char FILE_PATTERN[] = "(<command[ -]line>|([A-Za-z]:)?[^:]+):";
+static Q_LOGGING_CATEGORY(gccParserLog, "qtc.gccparser", QtWarningMsg)
+
+static const QString &filePattern()
+{
+    static const QString pattern = [] {
+        const QString pseudoFile = "<command[ -]line>";
+        const QString driveSpec = "[A-Za-z]:";
+        const QString realFile = QString::fromLatin1("(?:%1)?[^:]+").arg(driveSpec);
+        return QString::fromLatin1("(?<file>%1|%2):").arg(pseudoFile, realFile);
+    }();
+    return pattern;
+}
+
 static const char COMMAND_PATTERN[] = "^(.*?[\\\\/])?([a-z0-9]+-[a-z0-9]+-[a-z0-9]+-)?(gcc|g\\+\\+)(-[0-9.]+)?(\\.exe)?: ";
+
+namespace {
+class MainRegEx
+{
+public:
+    struct Data {
+        QString rawFilePath;
+        QString description;
+        Task::TaskType type = Task::Unknown;
+        int line = -1;
+        int column = -1;
+        int fileOffset = -1;
+    };
+
+    static std::optional<Data> parse(const QString &line)
+    {
+        qCDebug(gccParserLog) << "checking regex" << theRegEx().pattern();
+        const QRegularExpressionMatch match = theRegEx().match(line);
+        if (!match.hasMatch())
+            return {};
+
+        // Quick plausability test: If there's no slashes or dots, it's probably not a file.
+        const QString possibleFile = match.captured("file");
+        if (!possibleFile.contains('/') && !possibleFile.contains("'\\")
+            && !possibleFile.contains('.')) {
+            return {};
+        }
+
+        // Defer to the LdParser for some file types
+        if (possibleFile.endsWith(".o") || possibleFile.endsWith(".a")
+            || possibleFile.endsWith("dll") || possibleFile.contains(".so")
+            || possibleFile.endsWith("ld") || possibleFile.endsWith("ranlib")) {
+            return {};
+        }
+
+        Data data;
+        data.rawFilePath = possibleFile;
+        data.fileOffset = match.capturedStart("file");
+        data.line = match.captured("line").toInt();
+        data.column = match.captured("column").toInt();
+        data.description = match.captured("description");
+        if (match.captured("type") == QLatin1String("warning")) {
+            data.type = Task::Warning;
+        } else if (match.captured("type") == QLatin1String("error") ||
+                   data.description.startsWith(QLatin1String("undefined reference to")) ||
+                   data.description.startsWith(QLatin1String("multiple definition of"))) {
+            data.type = Task::Error;
+        }
+
+        // Prepend "#warning" or "#error" if that triggered the match on (warning|error)
+        // We want those to show how the warning was triggered
+        if (match.captured("fullTypeString").startsWith(QLatin1Char('#')))
+            data.description.prepend(match.captured("fullTypeString"));
+
+        return data;
+    }
+
+private:
+    static const QRegularExpression &theRegEx()
+    {
+        static const QRegularExpression re = [] {
+            const QRegularExpression re(constructPattern());
+            QTC_CHECK(re.isValid());
+            return re;
+        }();
+        return re;
+    }
+
+    static QString constructPattern()
+    {
+        const QString type = "(?<type>warning|error|note)";
+        const QString typePrefix = "(?:fatal |#)";
+        const QString fullTypeString
+            = QString::fromLatin1("(?<fullTypeString>%1?%2:?\\s)").arg(typePrefix, type);
+        const QString optionalLineAndColumn = "(?:(?:(?<line>\\d+)(?::(?<column>\\d+))?):)?";
+        const QString binaryLocation = "\\(.*\\)"; // E.g. "(.text+0x40)"
+        const QString fullLocation = QString::fromLatin1("%1(?:%2|%3)")
+                                         .arg(filePattern(), optionalLineAndColumn, binaryLocation);
+        const QString description = "(?<description>[^\\s].+)";
+
+        return QString::fromLatin1("^%1\\s+%2?%3$").arg(fullLocation, fullTypeString, description);
+    }
+};
+} // namespace
 
 GccParser::GccParser()
 {
     setObjectName(QLatin1String("GCCParser"));
-    m_regExp.setPattern(QLatin1Char('^') + QLatin1String(FILE_PATTERN)
-                        + QLatin1String("(?:(?:(\\d+):(?:(\\d+):)?)|\\(.*\\):)\\s+((fatal |#)?(warning|error|note):?\\s)?([^\\s].+)$"));
-    QTC_CHECK(m_regExp.isValid());
 
-    m_regExpScope.setPattern(QLatin1Char('^') + FILE_PATTERN
-                                    + "(?:(\\d+):)?(\\d+:)?\\s+((?:In .*(?:function|constructor) .*|At global scope|At top level):)$");
-    QTC_CHECK(m_regExpScope.isValid());
-
-    m_regExpIncluded.setPattern(QString::fromLatin1("\\bfrom\\s") + QLatin1String(FILE_PATTERN)
+    m_regExpIncluded.setPattern(QString::fromLatin1("\\bfrom\\s") + filePattern()
                                 + QLatin1String("(\\d+)(:\\d+)?[,:]?$"));
     QTC_CHECK(m_regExpIncluded.isValid());
 
-    m_regExpInlined.setPattern(QString::fromLatin1("\\binlined from\\s.* at ")
-                               + FILE_PATTERN + "(\\d+)(:\\d+)?[,:]?$");
-    QTC_CHECK(m_regExpInlined.isValid());
-
     m_regExpCc1plus.setPattern(QLatin1Char('^') + "cc1plus.*(error|warning): ((?:"
-                               + FILE_PATTERN + " No such file or directory)?.*)");
+                               + filePattern() + " No such file or directory)?.*)");
     QTC_CHECK(m_regExpCc1plus.isValid());
 
     // optional path with trailing slash
@@ -60,82 +146,36 @@ QList<OutputLineParser *> GccParser::gccParserSuite()
     return {new GccParser, new Internal::LldParser, new LdParser};
 }
 
-void GccParser::createOrAmendTask(
-        Task::TaskType type,
-        const QString &description,
-        const QString &originalLine,
-        bool forceAmend,
-        const FilePath &file,
-        int line,
-        int column,
-        const LinkSpecs &linkSpecs
-        )
+void GccParser::gccCreateOrAmendTask(
+    Task::TaskType type,
+    const QString &description,
+    const QString &originalLine,
+    bool forceAmend,
+    const Utils::FilePath &file,
+    int line,
+    int column,
+    const LinkSpecs &linkSpecs)
 {
-    const bool amend = !m_currentTask.isNull() && (forceAmend || isContinuation(originalLine));
-    if (!amend) {
-        flush();
-        m_currentTask = CompileTask(type, description, file, line, column);
-        m_currentTask.details.append(originalLine);
-        m_linkSpecs = linkSpecs;
-        m_lines = 1;
-        return;
-    }
-
-    LinkSpecs adaptedLinkSpecs = linkSpecs;
-    const int offset = std::accumulate(m_currentTask.details.cbegin(), m_currentTask.details.cend(),
-            0, [](int total, const QString &line) { return total + line.length() + 1;});
-    for (LinkSpec &ls : adaptedLinkSpecs)
-        ls.startPos += offset;
-    m_linkSpecs << adaptedLinkSpecs;
-    m_currentTask.details.append(originalLine);
-
-    // Check whether the new line is more relevant than the previous ones.
-    if ((m_currentTask.type != Task::Error && type == Task::Error)
-            || (m_currentTask.type == Task::Unknown && type != Task::Unknown)) {
-        m_currentTask.type = type;
-        m_currentTask.summary = description;
-        if (!file.isEmpty() && !m_requiredFromHereFound) {
-            m_currentTask.setFile(file);
-            m_currentTask.line = line;
-            m_currentTask.column = column;
-        }
-    }
+    createOrAmendTask(type, description, originalLine, forceAmend, file, line, column, linkSpecs);
 
     // If a "required from here" line is present, it is almost always the cause of the problem,
     // so that's where we should go when the issue is double-clicked.
     if ((originalLine.endsWith("required from here") || originalLine.endsWith("requested here")
-         || originalLine.endsWith("note: here")) && !file.isEmpty() && line > 0) {
-        m_requiredFromHereFound = true;
-        m_currentTask.setFile(file);
-        m_currentTask.line = line;
-        m_currentTask.column = column;
+         || originalLine.endsWith("note: here"))
+        && !file.isEmpty() && line > 0) {
+        fixTargetLink();
+        currentTask().setFile(file);
+        currentTask().line = line;
+        currentTask().column = column;
     }
-
-    ++m_lines;
-}
-
-void GccParser::flush()
-{
-    if (m_currentTask.isNull())
-        return;
-
-    // If there is only one line of details, then it is the line that we generated
-    // the summary from. Remove it, because it does not add any information.
-    if (m_currentTask.details.count() == 1)
-        m_currentTask.details.clear();
-
-    setDetailsFormat(m_currentTask, m_linkSpecs);
-    Task t = m_currentTask;
-    m_currentTask.clear();
-    m_linkSpecs.clear();
-    scheduleTask(t, m_lines, 1);
-    m_lines = 0;
-    m_requiredFromHereFound = false;
 }
 
 OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat type)
 {
+    qCDebug(gccParserLog) << "incoming line" << line;
+
     if (type == StdOutFormat) {
+        qCDebug(gccParserLog) << "not parsing stdout";
         flush();
         return Status::NotHandled;
     }
@@ -143,109 +183,95 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
     const QString lne = rightTrimmed(line);
 
     // Blacklist some lines to not handle them:
-    if (lne.startsWith(QLatin1String("TeamBuilder ")) ||
-        lne.startsWith(QLatin1String("distcc["))) {
+    if (lne.startsWith(QLatin1String("TeamBuilder "))
+        || lne.startsWith(QLatin1String("distcc["))
+        || lne.contains("undefined reference")
+        || lne.contains("undefined symbol")
+        || lne.contains("duplicate symbol")
+        || lne.contains("multiple definition")
+        || lne.contains("ar: creating")) {
         return Status::NotHandled;
     }
 
     // Handle misc issues:
     if (lne.startsWith(QLatin1String("ERROR:")) || lne == QLatin1String("* cpp failed")) {
-        createOrAmendTask(Task::Error, lne, lne);
+        gccCreateOrAmendTask(Task::Error, lne, lne);
         return Status::InProgress;
     }
 
+    qCDebug(gccParserLog) << "checking regex" << m_regExpGccNames.pattern();
     QRegularExpressionMatch match = m_regExpGccNames.match(lne);
     if (match.hasMatch()) {
         QString description = lne.mid(match.capturedLength());
         Task::TaskType type = Task::Error;
         if (description.startsWith(QLatin1String("warning: "))) {
             type = Task::Warning;
-            description = description.mid(9);
+            description = description.mid(8);
         } else if (description.startsWith(QLatin1String("fatal: ")))  {
-            description = description.mid(7);
+            description = description.mid(6);
         }
-        createOrAmendTask(type, description, lne);
+        gccCreateOrAmendTask(type, description, lne);
         return Status::InProgress;
     }
 
+    qCDebug(gccParserLog) << "checking regex" << m_regExpIncluded.pattern();
     match = m_regExpIncluded.match(lne);
-    if (!match.hasMatch())
-        match = m_regExpInlined.match(lne);
     if (match.hasMatch()) {
-        const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured(1)));
-        const int lineNo = match.captured(3).toInt();
-        const int column = match.captured(4).toInt();
+        const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured("file")));
+        const int lineNo = match.captured(2).toInt();
+        const int column = match.captured(3).toInt();
         LinkSpecs linkSpecs;
-        addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, match, 1);
-        createOrAmendTask(Task::Unknown, lne.trimmed(), lne, false, filePath, lineNo, column, linkSpecs);
+        addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineNo, column, match, "file");
+        gccCreateOrAmendTask(
+            Task::Unknown, lne.trimmed(), lne, false, filePath, lineNo, column, linkSpecs);
         return {Status::InProgress, linkSpecs};
     }
 
+    qCDebug(gccParserLog) << "checking regex" << m_regExpCc1plus.pattern();
     match = m_regExpCc1plus.match(lne);
     if (match.hasMatch()) {
         const Task::TaskType type = match.captured(1) == "error" ? Task::Error : Task::Warning;
         const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured(3)));
         LinkSpecs linkSpecs;
         if (!filePath.isEmpty())
-            addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, -1, match, 3);
-        createOrAmendTask(type, match.captured(2), lne, false, filePath, -1, 0, linkSpecs);
-        flush();
+            addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, -1, -1, match, 3);
+        gccCreateOrAmendTask(type, match.captured(2), lne, false, filePath, -1, 0, linkSpecs);
         return {Status::Done, linkSpecs};
     }
 
-    match = m_regExp.match(lne);
-    if (match.hasMatch()) {
-        int lineno = match.captured(3).toInt();
-        int column = match.captured(4).toInt();
-        Task::TaskType type = Task::Unknown;
-        QString description = match.captured(8);
-        if (match.captured(7) == QLatin1String("warning"))
-            type = Task::Warning;
-        else if (match.captured(7) == QLatin1String("error") ||
-                 description.startsWith(QLatin1String("undefined reference to")) ||
-                 description.startsWith(QLatin1String("multiple definition of")))
-            type = Task::Error;
-        // Prepend "#warning" or "#error" if that triggered the match on (warning|error)
-        // We want those to show how the warning was triggered
-        if (match.captured(5).startsWith(QLatin1Char('#')))
-            description = match.captured(5) + description;
-
-        const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured(1)));
+    if (const auto data = MainRegEx::parse(lne)) {
+        const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(data->rawFilePath));
         LinkSpecs linkSpecs;
-        addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineno, match, 1);
-        createOrAmendTask(type, description, lne, false, filePath, lineno, column, linkSpecs);
+        addLinkSpecForAbsoluteFilePath(
+            linkSpecs,
+            filePath,
+            data->line,
+            data->column,
+            data->fileOffset,
+            data->rawFilePath.size());
+        gccCreateOrAmendTask(
+            data->type, data->description, lne, false, filePath, data->line, data->column, linkSpecs);
         return {Status::InProgress, linkSpecs};
     }
 
-    match = m_regExpScope.match(lne);
-    if (match.hasMatch()) {
-        const int lineno = match.captured(3).toInt();
-        const int column = match.captured(4).toInt();
-        const QString description = match.captured(5);
-        const FilePath filePath = absoluteFilePath(FilePath::fromUserInput(match.captured(1)));
-        LinkSpecs linkSpecs;
-        addLinkSpecForAbsoluteFilePath(linkSpecs, filePath, lineno, match, 1);
-        createOrAmendTask(Task::Unknown, description, lne, false, filePath, lineno, column, linkSpecs);
-        return {Status::InProgress, linkSpecs};
-    }
-
-    if ((lne.startsWith(' ') && !m_currentTask.isNull()) || isContinuation(lne)) {
-        createOrAmendTask(Task::Unknown, lne, lne, true);
+    if ((lne.startsWith(' ') && !currentTask().isNull()) || isContinuation(lne)) {
+        gccCreateOrAmendTask(Task::Unknown, lne, lne, true);
         return Status::InProgress;
     }
 
+    qCDebug(gccParserLog) << "no match";
     flush();
     return Status::NotHandled;
 }
 
 bool GccParser::isContinuation(const QString &newLine) const
 {
-    return !m_currentTask.isNull()
-            && (m_currentTask.details.last().endsWith(':')
-                || m_currentTask.details.last().endsWith(',')
-                || m_currentTask.details.last().contains(" required from ")
-                || newLine.contains("within this context")
-                || newLine.contains("note:"));
+    return !currentTask().isNull()
+           && (currentTask().details.last().endsWith(':')
+               || currentTask().details.last().endsWith(',')
+               || currentTask().details.last().contains(" required from ")
+               || newLine.contains("within this context")
+               || newLine.contains("note:"));
 }
 
 } // ProjectExplorer
@@ -322,9 +348,9 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                9, 0,
                                QVector<QTextLayout::FormatRange>()
                                    << formatRange(46, 0)
-                                   << formatRange(46, 29, "olpfile:///temp/test/untitled8/main.cpp::0::-1")
+                                   << formatRange(46, 29, "olpfile:///temp/test/untitled8/main.cpp::0::0")
                                    << formatRange(75, 39)
-                                   << formatRange(114, 29, "olpfile:///temp/test/untitled8/main.cpp::9::-1")
+                                   << formatRange(114, 29, "olpfile:///temp/test/untitled8/main.cpp::9::0")
                                    << formatRange(143, 56))
                 << CompileTask(Task::Error,
                                "(Each undeclared identifier is reported only once for each function it appears in.)",
@@ -410,8 +436,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                FilePath::fromUserInput("C:\\temp\\test\\untitled8/main.cpp"),
                                8, 0,
                                formatRanges)
-                << CompileTask(Task::Error,
-                               "collect2: ld returned 1 exit status"))
+                << CompileTask(Task::Error, "collect2: ld returned 1 exit status"))
             << QString();
 
     formatRanges.clear();
@@ -436,8 +461,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                FilePath::fromUserInput("C:\\temp\\test\\untitled8/main.cpp"),
                                -1, 0,
                                formatRanges)
-                << CompileTask(Task::Error,
-                               "collect2: ld returned 1 exit status"))
+                << CompileTask(Task::Error, "collect2: ld returned 1 exit status"))
             << QString();
 
     QTest::newRow("linker: dll format not recognized")
@@ -495,9 +519,9 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                264, 0,
                                QVector<QTextLayout::FormatRange>()
                                    << formatRange(45, 0)
-                                   << formatRange(45, 68, "olpfile:///home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp::0::-1")
+                                   << formatRange(45, 68, "olpfile:///home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp::0::0")
                                    << formatRange(113, 106)
-                                   << formatRange(219, 68, "olpfile:///home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp::264::-1")
+                                   << formatRange(219, 68, "olpfile:///home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp::264::0")
                                    << formatRange(287, 57))
                 << CompileTask(Task::Error,
                                "expected ';' before ':' token",
@@ -564,9 +588,9 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                 194, 0,
                                 QVector<QTextLayout::FormatRange>()
                                     << formatRange(50, 0)
-                                    << formatRange(50, 67, "olpfile:///Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c::0::-1")
+                                    << formatRange(50, 67, "olpfile:///Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c::0::0")
                                     << formatRange(117, 216)
-                                    << formatRange(333, 67, "olpfile:///Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c::194::-1")
+                                    << formatRange(333, 67, "olpfile:///Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c::194::0")
                                     << formatRange(400, 64)))
             << QString();
 
@@ -803,9 +827,9 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                       1134, 26,
                       QVector<QTextLayout::FormatRange>()
                           << formatRange(26, 22)
-                          << formatRange(48, 39, "olpfile:///Symbian/SDK/EPOC32/INCLUDE/GCCE/GCCE.h::15::-1")
+                          << formatRange(48, 39, "olpfile:///Symbian/SDK/EPOC32/INCLUDE/GCCE/GCCE.h::15::0")
                           << formatRange(87, 46)
-                          << formatRange(133, 50, "olpfile:///Symbian/SDK/epoc32/include/variant/Symbian_OS.hrh::1134::-1")
+                          << formatRange(133, 50, "olpfile:///Symbian/SDK/epoc32/include/variant/Symbian_OS.hrh::1134::26")
                           << formatRange(183, 44))}
             << QString();
 
@@ -910,7 +934,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                    14, 25,
                    QVector<QTextLayout::FormatRange>()
                        << formatRange(41, 22)
-                       << formatRange(63, 67, "olpfile:///home/code/src/creator/src/libs/extensionsystem/pluginerrorview.cpp::31::-1")
+                       << formatRange(63, 67, "olpfile:///home/code/src/creator/src/libs/extensionsystem/pluginerrorview.cpp::31::0")
                        << formatRange(130, 146))}
             << QString();
 
@@ -934,11 +958,11 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                    597, 5,
                    QVector<QTextLayout::FormatRange>()
                        << formatRange(43, 22)
-                       << formatRange(65, 31, "olpfile:///usr/include/qt4/QtCore/QString::1::-1")
+                       << formatRange(65, 31, "olpfile:///usr/include/qt4/QtCore/QString::1::0")
                        << formatRange(96, 40)
-                       << formatRange(136, 33, "olpfile:///usr/include/qt4/QtCore/qstring.h::0::-1")
+                       << formatRange(136, 33, "olpfile:///usr/include/qt4/QtCore/qstring.h::0::0")
                        << formatRange(169, 28)
-                       << formatRange(197, 33, "olpfile:///usr/include/qt4/QtCore/qstring.h::597::-1")
+                       << formatRange(197, 33, "olpfile:///usr/include/qt4/QtCore/qstring.h::597::5")
                        << formatRange(230, 99))}
             << QString();
 
@@ -960,7 +984,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                    << formatRange(31, 28)
                                    << formatRange(59, 23, "olpfile:///home/user/test/foo.cpp::2::-1")
                                    << formatRange(82, 34))
-                << CompileTask(Task::Unknown,
+                << CompileTask(Task::Error,
                                "first defined here",
                                FilePath::fromUserInput("/home/user/test/bar.cpp"),
                                4)
@@ -978,7 +1002,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                 << CompileTask(Task::Error,
                                "multiple definition of `foo'",
                                FilePath::fromUserInput("foo.o"), -1)
-                << CompileTask(Task::Unknown,
+                << CompileTask(Task::Error,
                                "first defined here",
                                FilePath::fromUserInput("bar.o"), -1)
                 << CompileTask(Task::Error,
@@ -993,10 +1017,11 @@ void ProjectExplorerTest::testGccOutputParsers_data()
             << OutputParserTester::STDERR
             << QString() << QString()
             << Tasks({CompileTask(Task::Error,
-                                     "Undefined symbols for architecture x86_64:\n"
-                                  "  \"SvgLayoutTest()\", referenced from:\n"
-                                  "      _main in main.cpp.o",
-                                  "main.cpp.o")})
+                              "Undefined symbols for architecture x86_64:\n"
+                              "Undefined symbols for architecture x86_64:\n"
+                              "  \"SvgLayoutTest()\", referenced from:\n"
+                              "      _main in main.cpp.o",
+                              "main.cpp.o")})
             << QString();
 
     QTest::newRow("ld: undefined member function reference")
@@ -1213,17 +1238,17 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                  273, 25,
                                  QVector<QTextLayout::FormatRange>()
                                      << formatRange(140, 22)
-                                     << formatRange(162, 32, "olpfile:///usr/include/qt/QtCore/qlocale.h::43::-1")
+                                     << formatRange(162, 32, "olpfile:///usr/include/qt/QtCore/qlocale.h::43::0")
                                      << formatRange(194, 27)
-                                     << formatRange(221, 36, "olpfile:///usr/include/qt/QtCore/qtextstream.h::46::-1")
+                                     << formatRange(221, 36, "olpfile:///usr/include/qt/QtCore/qtextstream.h::46::0")
                                      << formatRange(257, 27)
-                                     << formatRange(284, 38, "olpfile:///qtc/src/shared/proparser/proitems.cpp::31::-1")
+                                     << formatRange(284, 38, "olpfile:///qtc/src/shared/proparser/proitems.cpp::31::0")
                                      << formatRange(322, 5)
-                                     << formatRange(327, 33, "olpfile:///usr/include/qt/QtCore/qvariant.h::0::-1")
+                                     << formatRange(327, 33, "olpfile:///usr/include/qt/QtCore/qvariant.h::0::0")
                                      << formatRange(360, 51)
-                                     << formatRange(411, 33, "olpfile:///usr/include/qt/QtCore/qvariant.h::273::-1")
+                                     << formatRange(411, 33, "olpfile:///usr/include/qt/QtCore/qvariant.h::273::25")
                                      << formatRange(444, 229)
-                                     << formatRange(673, 33, "olpfile:///usr/include/qt/QtCore/qvariant.h::399::-1")
+                                     << formatRange(673, 33, "olpfile:///usr/include/qt/QtCore/qvariant.h::399::16")
                                      << formatRange(706, 221)),
                      compileTask(Task::Error,
                                  "no match for ‘operator+’ (operand types are ‘boxed_value<double>’ and ‘boxed_value<double>’)\n"
@@ -1435,6 +1460,37 @@ void ProjectExplorerTest::testGccOutputParsers_data()
             << Tasks{CompileTask(Task::Error, "blubb", "/home/tim/path/to/sources/and/more.h",
                                  15, 22)}
             << QString();
+
+    QTest::newRow("no line number")
+        << QString::fromUtf8("In file included from /data/dev/creator/src/libs/utils/aspects.cpp:12:\n"
+                             "/data/dev/creator/src/libs/utils/layoutbuilder.h: In instantiation of ‘Layouting::BuilderItem<X, XInterface>::I::I(const Inner&) [with Inner = Utils::BaseAspect; X = Layouting::Row; XInterface = Layouting::LayoutInterface]’:\n"
+                             "/data/dev/creator/src/libs/utils/aspects.cpp:3454:13:   required from here\n"
+                             "/data/dev/creator/src/libs/utils/layoutbuilder.h:79:51: error: use of deleted function ‘Utils::BaseAspect::BaseAspect(const Utils::BaseAspect&)’\n"
+                             "   79 |             apply = [p](XInterface *x) { doit_nest(x, p); };\n"
+                             "      |                                          ~~~~~~~~^~~~~")
+        << OutputParserTester::STDERR
+        << QString() << QString()
+        << (Tasks{compileTask(
+               Task::Error,
+               "use of deleted function ‘Utils::BaseAspect::BaseAspect(const Utils::BaseAspect&)’\n"
+               "In file included from /data/dev/creator/src/libs/utils/aspects.cpp:12:\n"
+               "/data/dev/creator/src/libs/utils/layoutbuilder.h: In instantiation of ‘Layouting::BuilderItem<X, XInterface>::I::I(const Inner&) [with Inner = Utils::BaseAspect; X = Layouting::Row; XInterface = Layouting::LayoutInterface]’:\n"
+               "/data/dev/creator/src/libs/utils/aspects.cpp:3454:13:   required from here\n"
+               "/data/dev/creator/src/libs/utils/layoutbuilder.h:79:51: error: use of deleted function ‘Utils::BaseAspect::BaseAspect(const Utils::BaseAspect&)’\n"
+               "   79 |             apply = [p](XInterface *x) { doit_nest(x, p); };\n"
+               "      |                                          ~~~~~~~~^~~~~",
+               FilePath::fromUserInput("/data/dev/creator/src/libs/utils/aspects.cpp"), 3454, 13,
+               QVector<QTextLayout::FormatRange>{
+                   formatRange(82, 22),
+                   formatRange(104, 44, "olpfile:///data/dev/creator/src/libs/utils/aspects.cpp::12::0"),
+                   formatRange(148, 5),
+                   formatRange(153, 48, "olpfile:///data/dev/creator/src/libs/utils/layoutbuilder.h::0::0"),
+                   formatRange(201, 177),
+                   formatRange(378, 44, "olpfile:///data/dev/creator/src/libs/utils/aspects.cpp::3454::13"),
+                   formatRange(422, 31),
+                   formatRange(453, 48, "olpfile:///data/dev/creator/src/libs/utils/layoutbuilder.h::79::51"),
+                   formatRange(501, 228)})})
+        << QString();
 }
 
 void ProjectExplorerTest::testGccOutputParsers()
