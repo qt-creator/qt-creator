@@ -373,12 +373,16 @@ DockManager::DockManager(QWidget *parent)
 
 DockManager::~DockManager()
 {
-    if (d->m_wasShown) {
-        emit aboutToUnloadWorkspace(d->m_workspace.fileName());
-        save();
+    // Only save startup workspace and lock state if not in lite design mode
+    if (!d->m_liteModeEnabled) {
+        if (d->m_wasShown) {
+            emit aboutToUnloadWorkspace(d->m_workspace.fileName());
+            save();
+        }
+
+        saveStartupWorkspace();
+        saveLockWorkspace();
     }
-    saveStartupWorkspace();
-    saveLockWorkspace();
 
     // Fix memory leaks, see https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/307
     std::vector<ADS::DockAreaWidget *> areas;
@@ -474,29 +478,33 @@ void DockManager::initialize()
 
     QString workspace = ADS::Constants::DEFAULT_WORKSPACE;
 
-    // Determine workspace to restore at startup
-    if (autoRestoreWorkspace()) {
-        const QString lastWorkspace = startupWorkspace();
-        if (!lastWorkspace.isEmpty()) {
-            if (!workspaceExists(lastWorkspace)) {
-                // This is a fallback mechanism for pre 4.1 settings which stored the workspace name
-                // instead of the file name.
+    if (d->m_liteModeEnabled && workspaceExists(ADS::Constants::LITE_WORKSPACE)) {
+        workspace = ADS::Constants::LITE_WORKSPACE;
+    } else {
+        // Determine workspace to restore at startup
+        if (autoRestoreWorkspace()) {
+            const QString lastWorkspace = startupWorkspace();
+            if (!lastWorkspace.isEmpty()) {
+                if (!workspaceExists(lastWorkspace)) {
+                    // This is a fallback mechanism for pre 4.1 settings which stored the workspace
+                    // name instead of the file name.
 
-                const std::vector<QString> separators = {"-", "_"};
+                    const std::vector<QString> separators = {"-", "_"};
 
-                for (const QString &separator : separators) {
-                    QString workspaceVariant = lastWorkspace;
-                    workspaceVariant.replace(" ", separator);
-                    workspaceVariant.append("." + workspaceFileExtension);
+                    for (const QString &separator : separators) {
+                        QString workspaceVariant = lastWorkspace;
+                        workspaceVariant.replace(" ", separator);
+                        workspaceVariant.append("." + workspaceFileExtension);
 
-                    if (workspaceExists(workspaceVariant))
-                        workspace = workspaceVariant;
+                        if (workspaceExists(workspaceVariant))
+                            workspace = workspaceVariant;
+                    }
+                } else {
+                    workspace = lastWorkspace;
                 }
-            } else {
-                workspace = lastWorkspace;
-            }
-        } else
-            qWarning() << "Could not restore workspace:" << lastWorkspace;
+            } else
+                qWarning() << "Could not restore workspace:" << lastWorkspace;
+        }
     }
 
     openWorkspace(workspace);
