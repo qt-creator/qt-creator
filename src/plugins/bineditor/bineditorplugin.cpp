@@ -226,6 +226,12 @@ public:
     void requestNewRange(quint64 address) { if (m_newRangeRequestHandler) m_newRangeRequestHandler(address); }
     void announceChangedData(quint64 address, const QByteArray &ba) { if (m_dataChangedHandler) m_dataChangedHandler(address, ba); }
 
+    QLineEdit *addressEdit() const { return m_addressEdit; }
+
+    void updateCursorPosition(qint64 position) {
+        m_addressEdit->setText(QString::number(baseAddress() + position, 16));
+    }
+
 signals:
     void modificationChanged(bool modified);
     void undoAvailable(bool);
@@ -345,6 +351,8 @@ private:
     int m_addressBytes = 4;
     bool m_canRequestNewWindow = false;
     QList<Markup> m_markup;
+
+    QLineEdit *m_addressEdit = nullptr;
 };
 
 const QChar MidpointChar(u'\u00B7');
@@ -381,6 +389,20 @@ BinEditorWidget::BinEditorWidget(QWidget *parent)
     const QByteArray setting = ICore::settings()->value(Constants::C_ENCODING_SETTING).toByteArray();
     if (!setting.isEmpty())
         setCodec(QTextCodec::codecForName(setting));
+
+    m_addressEdit = new QLineEdit;
+    auto addressValidator = new QRegularExpressionValidator(QRegularExpression("[0-9a-fA-F]{1,16}"), m_addressEdit);
+    m_addressEdit->setValidator(addressValidator);
+
+    connect(this, &BinEditorWidget::cursorPositionChanged,
+            this, &BinEditorWidget::updateCursorPosition);
+    connect(m_addressEdit, &QLineEdit::editingFinished,
+            this, [this] {
+        jumpToAddress(m_addressEdit->text().toULongLong(nullptr, 16));
+        updateCursorPosition(cursorPosition());
+    });
+
+    updateCursorPosition(cursorPosition());
 }
 
 EditorService *BinEditorWidget::editorService()
@@ -2233,9 +2255,6 @@ public:
     {
         using namespace TextEditor;
         setWidget(widget);
-        m_addressEdit = new QLineEdit;
-        auto addressValidator = new QRegularExpressionValidator(QRegularExpression("[0-9a-fA-F]{1,16}"), m_addressEdit);
-        m_addressEdit->setValidator(addressValidator);
         m_codecChooser = new CodecChooser(CodecChooser::Filter::SingleByte);
         m_codecChooser->prependNone();
 
@@ -2244,7 +2263,7 @@ public:
         l->setContentsMargins(0, 0, 5, 0);
         l->addStretch(1);
         l->addWidget(m_codecChooser);
-        l->addWidget(m_addressEdit);
+        l->addWidget(widget->addressEdit());
         w->setLayout(l);
 
         m_toolBar = new QToolBar;
@@ -2253,15 +2272,10 @@ public:
 
         widget->setEditor(this);
 
-        connect(widget, &BinEditorWidget::cursorPositionChanged,
-                this, &BinEditorImpl::updateCursorPosition);
-        connect(m_addressEdit, &QLineEdit::editingFinished,
-                this, &BinEditorImpl::jumpToAddress);
         connect(m_codecChooser, &CodecChooser::codecChanged,
                 widget, &BinEditorWidget::setCodec);
         connect(widget, &BinEditorWidget::modificationChanged,
                 m_document, &IDocument::changed);
-        updateCursorPosition(widget->cursorPosition());
         const QVariant setting = ICore::settings()->value(Constants::C_ENCODING_SETTING);
         if (!setting.isNull())
             m_codecChooser->setAssignedCodec(QTextCodec::codecForName(setting.toByteArray()));
@@ -2277,15 +2291,6 @@ public:
     QWidget *toolBar() override { return m_toolBar; }
 
 private:
-    void updateCursorPosition(qint64 position) {
-        m_addressEdit->setText(QString::number(editorWidget()->baseAddress() + position, 16));
-    }
-
-    void jumpToAddress() {
-        editorWidget()->jumpToAddress(m_addressEdit->text().toULongLong(nullptr, 16));
-        updateCursorPosition(editorWidget()->cursorPosition());
-    }
-
     BinEditorWidget *editorWidget() const
     {
         QTC_ASSERT(qobject_cast<BinEditorWidget *>(m_widget.data()), return nullptr);
@@ -2295,7 +2300,6 @@ private:
 private:
     BinEditorDocument *m_document;
     QToolBar *m_toolBar;
-    QLineEdit *m_addressEdit;
     TextEditor::CodecChooser *m_codecChooser;
 };
 
