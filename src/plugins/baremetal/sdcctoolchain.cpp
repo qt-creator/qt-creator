@@ -179,7 +179,7 @@ class SdccToolchain;
 class SdccToolchainConfigWidget final : public ToolchainConfigWidget
 {
 public:
-    explicit SdccToolchainConfigWidget(SdccToolchain *tc);
+    explicit SdccToolchainConfigWidget(const ToolchainBundle &bundle);
 
 private:
     void applyImpl() final;
@@ -190,7 +190,6 @@ private:
     void setFromToolchain();
     void handleCompilerCommandChange();
 
-    PathChooser *m_compilerCommand = nullptr;
     AbiWidget *m_abiWidget = nullptr;
     Macros m_macros;
 };
@@ -215,8 +214,6 @@ public:
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(const Environment &) const final;
     void addToEnvironment(Environment &env) const final;
     QList<OutputLineParser *> createOutputParsers() const final  { return {new SdccParser}; }
-
-    std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget() final;
 
     bool operator==(const Toolchain &other) const final;
 
@@ -281,11 +278,6 @@ void SdccToolchain::addToEnvironment(Environment &env) const
         env.prependOrSetPath(compilerCommand().parentDir());
 }
 
-std::unique_ptr<ToolchainConfigWidget> SdccToolchain::createConfigurationWidget()
-{
-    return std::make_unique<SdccToolchainConfigWidget>(this);
-}
-
 bool SdccToolchain::operator==(const Toolchain &other) const
 {
     if (!Toolchain::operator==(other))
@@ -311,6 +303,11 @@ public:
     }
 
     Toolchains autoDetect(const ToolchainDetector &detector) const final;
+    std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget(
+        const ToolchainBundle &bundle) const final
+    {
+        return std::make_unique<SdccToolchainConfigWidget>(bundle);
+    }
 
 private:
     Toolchains autoDetectToolchains(const Candidates &candidates,
@@ -445,14 +442,10 @@ Toolchains SdccToolchainFactory::autoDetectToolchain(const Candidate &candidate,
 
 // SdccToolchainConfigWidget
 
-SdccToolchainConfigWidget::SdccToolchainConfigWidget(SdccToolchain *tc) :
-    ToolchainConfigWidget(tc),
-    m_compilerCommand(new PathChooser),
+SdccToolchainConfigWidget::SdccToolchainConfigWidget(const ToolchainBundle &bundle) :
+    ToolchainConfigWidget(bundle),
     m_abiWidget(new AbiWidget)
 {
-    m_compilerCommand->setExpectedKind(PathChooser::ExistingCommand);
-    m_compilerCommand->setHistoryCompleter("PE.SDCC.Command.History");
-    m_mainLayout->addRow(Tr::tr("&Compiler path:"), m_compilerCommand);
     m_mainLayout->addRow(Tr::tr("&ABI:"), m_abiWidget);
 
     m_abiWidget->setEnabled(false);
@@ -460,7 +453,7 @@ SdccToolchainConfigWidget::SdccToolchainConfigWidget(SdccToolchain *tc) :
     addErrorLabel();
     setFromToolchain();
 
-    connect(m_compilerCommand, &PathChooser::rawPathChanged,
+    connect(this, &ToolchainConfigWidget::compilerCommandChanged,
             this, &SdccToolchainConfigWidget::handleCompilerCommandChange);
     connect(m_abiWidget, &AbiWidget::abiChanged,
             this, &ToolchainConfigWidget::dirty);
@@ -468,51 +461,42 @@ SdccToolchainConfigWidget::SdccToolchainConfigWidget(SdccToolchain *tc) :
 
 void SdccToolchainConfigWidget::applyImpl()
 {
-    if (toolchain()->isAutoDetected())
+    if (bundle().isAutoDetected())
         return;
 
-    const auto tc = static_cast<SdccToolchain *>(toolchain());
-    const QString displayName = tc->displayName();
-    tc->setCompilerCommand(m_compilerCommand->filePath());
-    tc->setTargetAbi(m_abiWidget->currentAbi());
-    tc->setDisplayName(displayName);
-
+    bundle().setTargetAbi(m_abiWidget->currentAbi());
     if (m_macros.isEmpty())
         return;
 
-    const auto languageVersion = Toolchain::languageVersion(tc->language(), m_macros);
-    tc->predefinedMacrosCache()->insert({}, {m_macros, languageVersion});
-
+    bundle().forEach<SdccToolchain>([this](SdccToolchain &tc) {
+        const auto languageVersion = Toolchain::languageVersion(tc.language(), m_macros);
+        tc.predefinedMacrosCache()->insert({}, {m_macros, languageVersion});
+    });
     setFromToolchain();
 }
 
 bool SdccToolchainConfigWidget::isDirtyImpl() const
 {
-    const auto tc = static_cast<SdccToolchain *>(toolchain());
-    return m_compilerCommand->filePath() != tc->compilerCommand()
-            || m_abiWidget->currentAbi() != tc->targetAbi()
-            ;
+    return m_abiWidget->currentAbi() != bundle().targetAbi();
 }
 
 void SdccToolchainConfigWidget::makeReadOnlyImpl()
 {
-    m_compilerCommand->setReadOnly(true);
     m_abiWidget->setEnabled(false);
 }
 
 void SdccToolchainConfigWidget::setFromToolchain()
 {
     const QSignalBlocker blocker(this);
-    const auto tc = static_cast<SdccToolchain *>(toolchain());
-    m_compilerCommand->setFilePath(tc->compilerCommand());
-    m_abiWidget->setAbis({}, tc->targetAbi());
-    const bool haveCompiler = m_compilerCommand->filePath().isExecutableFile();
-    m_abiWidget->setEnabled(haveCompiler && !tc->isAutoDetected());
+    m_abiWidget->setAbis({}, bundle().targetAbi());
+    const bool haveCompiler
+        = compilerCommand(ProjectExplorer::Constants::C_LANGUAGE_ID).isExecutableFile();
+    m_abiWidget->setEnabled(haveCompiler && !bundle().isAutoDetected());
 }
 
 void SdccToolchainConfigWidget::handleCompilerCommandChange()
 {
-    const FilePath compilerPath = m_compilerCommand->filePath();
+    const FilePath compilerPath = compilerCommand(ProjectExplorer::Constants::C_LANGUAGE_ID);
     const bool haveCompiler = compilerPath.isExecutableFile();
     if (haveCompiler) {
         const auto env = Environment::systemEnvironment();

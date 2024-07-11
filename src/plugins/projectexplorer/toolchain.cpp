@@ -5,13 +5,17 @@
 
 #include "abi.h"
 #include "devicesupport/idevice.h"
+#include "gcctoolchain.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "toolchainmanager.h"
 #include "task.h"
 
 #include <utils/async.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 
+#include <QHash>
 #include <QUuid>
 
 #include <utility>
@@ -19,9 +23,11 @@
 using namespace Utils;
 
 namespace ProjectExplorer {
+
 namespace Internal {
 
 const char ID_KEY[] = "ProjectExplorer.ToolChain.Id";
+const char BUNDLE_ID_KEY[] = "ProjectExplorer.ToolChain.BundleId";
 const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ToolChain.DisplayName";
 const char AUTODETECT_KEY[] = "ProjectExplorer.ToolChain.Autodetect";
 const char DETECTION_SOURCE_KEY[] = "ProjectExplorer.ToolChain.DetectionSource";
@@ -55,6 +61,7 @@ public:
     }
 
     QByteArray m_id;
+    Id m_bundleId;
     FilePath m_compilerCommand;
     Key m_compilerCommandKey;
     Abi m_targetAbi;
@@ -125,9 +132,14 @@ Toolchain::Toolchain(Id typeId) :
 {
 }
 
+bool Toolchain::canShareBundleImpl(const Toolchain &other) const
+{
+    Q_UNUSED(other)
+    return true;
+}
+
 void Toolchain::setLanguage(Id language)
 {
-    QTC_ASSERT(!d->m_language.isValid() || isAutoDetected(), return);
     QTC_ASSERT(language.isValid(), return);
     QTC_ASSERT(ToolchainManager::isLanguageSupported(language), return);
 
@@ -175,6 +187,38 @@ ToolchainFactory *Toolchain::factory() const
 QByteArray Toolchain::id() const
 {
     return d->m_id;
+}
+
+Id Toolchain::bundleId() const
+{
+    return d->m_bundleId;
+}
+
+void Toolchain::setBundleId(Utils::Id id)
+{
+    d->m_bundleId = id;
+}
+
+bool Toolchain::canShareBundle(const Toolchain &other) const
+{
+    QTC_ASSERT(typeId() == other.typeId(), return false);
+    QTC_ASSERT(language() != other.language(), return false);
+
+    if (int(factory()->supportedLanguages().size()) == 1)
+        return false;
+    if (detection() != other.detection())
+        return false;
+
+    if (typeId() != Constants::MSVC_TOOLCHAIN_TYPEID
+            && typeId() != Constants::CLANG_CL_TOOLCHAIN_TYPEID
+            && (targetAbi() != other.targetAbi() || supportedAbis() != other.supportedAbis()
+                || extraCodeModelFlags() != other.extraCodeModelFlags()
+                || suggestedMkspecList() != other.suggestedMkspecList() || sysRoot() != other.sysRoot()
+                || correspondingCompilerCommand(other.language()) != other.compilerCommand())) {
+        return false;
+    }
+
+    return canShareBundleImpl(other);
 }
 
 QStringList Toolchain::suggestedMkspecList() const
@@ -251,6 +295,7 @@ void Toolchain::toMap(Store &result) const
 
     QString idToSave = d->m_typeId.toString() + QLatin1Char(':') + QString::fromUtf8(id());
     result.insert(ID_KEY, idToSave);
+    result.insert(BUNDLE_ID_KEY, d->m_bundleId.toSetting());
     result.insert(DISPLAY_NAME_KEY, displayName());
     result.insert(AUTODETECT_KEY, isAutoDetected());
     result.insert(DETECTION_SOURCE_KEY, d->m_detectionSource);
@@ -366,6 +411,7 @@ void Toolchain::fromMap(const Store &data)
     QTC_ASSERT(pos > 0, reportError(); return);
     d->m_typeId = Id::fromString(id.left(pos));
     d->m_id = id.mid(pos + 1).toUtf8();
+    d->m_bundleId = Id::fromSetting(data.value(BUNDLE_ID_KEY));
 
     const bool autoDetect = data.value(AUTODETECT_KEY, false).toBool();
     d->m_detection = autoDetect ? AutoDetection : ManualDetection;
@@ -479,6 +525,12 @@ LanguageVersion Toolchain::languageVersion(const Id &language, const Macros &mac
         QTC_CHECK(false && "Unexpected toolchain language, assuming latest C++ we support.");
         return LanguageVersion::LatestCxx;
     }
+}
+
+FilePath Toolchain::correspondingCompilerCommand(Utils::Id otherLanguage) const
+{
+    QTC_ASSERT(language() != otherLanguage, return compilerCommand());
+    return factory()->correspondingCompilerCommand(compilerCommand(), otherLanguage);
 }
 
 FilePaths Toolchain::includedFiles(const QString &option,
@@ -595,6 +647,13 @@ Toolchains ToolchainFactory::detectForImport(const ToolchainDescription &tcd) co
     return {};
 }
 
+FilePath ToolchainFactory::correspondingCompilerCommand(
+    const Utils::FilePath &srcPath, Utils::Id targetLang) const
+{
+    Q_UNUSED(targetLang)
+    return srcPath;
+}
+
 bool ToolchainFactory::canCreate() const
 {
     return m_userCreatable;
@@ -660,6 +719,17 @@ Toolchain *ToolchainFactory::createToolchain(Id toolchainType)
 QList<Id> ToolchainFactory::supportedLanguages() const
 {
     return m_supportedLanguages;
+}
+
+LanguageCategory ToolchainFactory::languageCategory() const
+{
+    const QList<Id> langs = supportedLanguages();
+    if (langs.size() == 1
+        && (langs.first() == Constants::C_LANGUAGE_ID
+            || langs.first() == Constants::CXX_LANGUAGE_ID)) {
+        return {Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID};
+    }
+    return LanguageCategory(langs.cbegin(), langs.cend());
 }
 
 Id ToolchainFactory::supportedToolchainType() const
@@ -795,6 +865,194 @@ void AsyncToolchainDetector::run()
                          watcher->deleteLater();
                      });
     watcher->setFuture(Utils::asyncRun(m_func, m_detector));
+}
+
+/*
+ * PRE:
+ *   - The list of toolchains is not empty.
+ *   - All toolchains in the list have the same bundle id.
+ *   - All toolchains in the list have the same type (and thus were created by the same factory)
+ *     and are also otherwise "compatible" (target ABI etc).
+ *   - No two toolchains in the list are for the same language.
+ * POST:
+ *   - PRE.
+ *   - There is exactly one toolchain in the list for every language supported by the factory.
+ *   - If there is a C compiler, it comes first in the list.
+ */
+ToolchainBundle::ToolchainBundle(const Toolchains &toolchains) : m_toolchains(toolchains)
+{
+    // Check pre-conditions.
+    QTC_ASSERT(!m_toolchains.isEmpty(), return);
+    QTC_ASSERT(m_toolchains.size() <= factory()->supportedLanguages().size(), return);
+    for (const Toolchain * const tc : toolchains)
+        QTC_ASSERT(factory()->supportedLanguages().contains(tc->language()), return);
+    for (int i = 1; i < int(toolchains.size()); ++i) {
+        const Toolchain * const tc = toolchains.at(i);
+        QTC_ASSERT(tc->typeId() == toolchains.first()->typeId(), return);
+        QTC_ASSERT(tc->bundleId() == toolchains.first()->bundleId(), return);
+    }
+
+    addMissingToolchains();
+
+    // Check post-conditions.
+    QTC_ASSERT(m_toolchains.size() == m_toolchains.first()->factory()->supportedLanguages().size(),
+               return);
+    for (auto i = toolchains.size(); i < m_toolchains.size(); ++i)
+        QTC_ASSERT(m_toolchains.at(i)->typeId() == m_toolchains.first()->typeId(), return);
+
+    Utils::sort(m_toolchains, [](const Toolchain *tc1, const Toolchain *tc2) {
+        return tc1 != tc2 && tc1->language() == Constants::C_LANGUAGE_ID;
+    });
+}
+
+QList<ToolchainBundle> ToolchainBundle::collectBundles()
+{
+    return collectBundles(ToolchainManager::toolchains());
+}
+
+QList<ToolchainBundle> ToolchainBundle::collectBundles(const Toolchains &toolchains)
+{
+    QHash<Id, Toolchains> toolchainsPerBundleId;
+    for (Toolchain * const tc : toolchains)
+        toolchainsPerBundleId[tc->bundleId()] << tc;
+
+    QList<ToolchainBundle> bundles;
+    if (const auto unbundled = toolchainsPerBundleId.constFind(Id());
+        unbundled != toolchainsPerBundleId.constEnd()) {
+        bundles = bundleUnbundledToolchains(*unbundled);
+        toolchainsPerBundleId.erase(unbundled);
+    }
+
+    for (const Toolchains &tcs : toolchainsPerBundleId)
+        bundles << tcs;
+    return bundles;
+}
+
+ToolchainFactory *ToolchainBundle::factory() const
+{
+    QTC_ASSERT(!m_toolchains.isEmpty(), return nullptr);
+    return m_toolchains.first()->factory();
+}
+
+QString ToolchainBundle::displayName() const
+{
+    if (!isAutoDetected() || !dynamic_cast<GccToolchain *>(m_toolchains.first()))
+        return get(&Toolchain::displayName);
+
+    // Auto-detected GCC toolchains encode language and compiler command in their display names.
+    // We need to omit the language and we always want to use the C compiler command
+    // for consistency.
+    FilePath cmd;
+    for (const Toolchain * const tc : std::as_const(m_toolchains)) {
+        if (!tc->isValid())
+            continue;
+        cmd = tc->compilerCommand();
+        if (tc->language() == Constants::C_LANGUAGE_ID)
+            break;
+    }
+
+    QString name = typeDisplayName();
+    const Abi abi = targetAbi();
+    if (abi.architecture() != Abi::UnknownArchitecture)
+        name.append(' ').append(Abi::toString(abi.architecture()));
+    if (abi.wordWidth() != 0)
+        name.append(' ').append(Abi::toString(abi.wordWidth()));
+    if (!cmd.exists())
+        return name;
+    return Tr::tr("%1 at %2").arg(name, cmd.toUserOutput());
+}
+
+ToolchainBundle::Valid ToolchainBundle::validity() const
+{
+    if (Utils::allOf(m_toolchains, &Toolchain::isValid))
+        return Valid::All;
+    if (Utils::contains(m_toolchains, &Toolchain::isValid))
+        return Valid::Some;
+    return Valid::None;
+}
+
+QList<ToolchainBundle> ToolchainBundle::bundleUnbundledToolchains(const Toolchains &unbundled)
+{
+    QList<ToolchainBundle> bundles;
+    QHash<Id, QHash<Id, Toolchains>> unbundledByTypeAndLanguage;
+    for (Toolchain * const tc : unbundled)
+        unbundledByTypeAndLanguage[tc->typeId()][tc->language()] << tc;
+    for (const auto &tcsByLang : std::as_const(unbundledByTypeAndLanguage)) {
+        QList<Toolchains> remainingUnbundled;
+        for (const auto &tcs : tcsByLang)
+            remainingUnbundled << tcs;
+        while (true) {
+            Toolchains nextBundle;
+            for (Toolchains &list : remainingUnbundled) {
+                for (auto it = list.begin(); it != list.end(); ++it) {
+                    if (nextBundle.isEmpty() || nextBundle.first()->canShareBundle((**it))) {
+                        nextBundle << *it;
+                        list.erase(it);
+                        break;
+                    }
+                }
+            }
+            if (nextBundle.isEmpty())
+                break;
+            const Id newBundleId = Id::generate();
+            for (Toolchain * const tc : nextBundle)
+                tc->setBundleId(newBundleId);
+            bundles << nextBundle;
+        }
+    }
+
+    return bundles;
+}
+
+void ToolchainBundle::setCompilerCommand(Utils::Id language, const Utils::FilePath &cmd)
+{
+    for (Toolchain *const tc : std::as_const(m_toolchains)) {
+        if (tc->language() == language) {
+            tc->setCompilerCommand(cmd);
+            break;
+        }
+    }
+}
+
+FilePath ToolchainBundle::compilerCommand(Utils::Id language) const
+{
+    for (Toolchain *const tc : std::as_const(m_toolchains)) {
+        if (tc->language() == language)
+            return tc->compilerCommand();
+    }
+    return {};
+}
+
+void ToolchainBundle::deleteToolchains()
+{
+    qDeleteAll(m_toolchains);
+    m_toolchains.clear();
+}
+
+ToolchainBundle ToolchainBundle::clone() const
+{
+    const Toolchains clones = Utils::transform(m_toolchains, &Toolchain::clone);
+    const Id newBundleId = Id::generate();
+    for (Toolchain * const tc : clones)
+        tc->setBundleId(newBundleId);
+    return clones;
+}
+
+void ToolchainBundle::addMissingToolchains()
+{
+    const QList<Id> missingLanguages
+        = Utils::filtered(m_toolchains.first()->factory()->supportedLanguages(), [this](Id lang) {
+              return !Utils::contains(m_toolchains, [lang](const Toolchain *tc) {
+                  return tc->language() == lang;
+              });
+          });
+    for (const Id lang : missingLanguages) {
+        Toolchain * const tc = m_toolchains.first()->clone();
+        tc->setLanguage(lang);
+        tc->setCompilerCommand(m_toolchains.first()->correspondingCompilerCommand(lang));
+        m_toolchains << tc;
+        m_createdToolchains << tc;
+    }
 }
 
 } // namespace ProjectExplorer

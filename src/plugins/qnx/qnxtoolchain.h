@@ -12,8 +12,6 @@ class QnxToolchain : public ProjectExplorer::GccToolchain
 public:
     QnxToolchain();
 
-    std::unique_ptr<ProjectExplorer::ToolchainConfigWidget> createConfigurationWidget() override;
-
     void addToEnvironment(Utils::Environment &env) const override;
     QStringList suggestedMkspecList() const override;
 

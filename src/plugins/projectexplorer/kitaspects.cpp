@@ -205,25 +205,28 @@ public:
         layout->setContentsMargins(0, 0, 0, 0);
         layout->setColumnStretch(1, 2);
 
-        const QList<Id> languageList = sorted(ToolchainManager::allLanguages(), [](Id l1, Id l2) {
-            return ToolchainManager::displayNameOfLanguageId(l1)
-                    < ToolchainManager::displayNameOfLanguageId(l2);
-        });
-        QTC_ASSERT(!languageList.isEmpty(), return);
+        const QList<LanguageCategory> languageCategories = sorted(
+            ToolchainManager::languageCategories(),
+            [](const LanguageCategory &l1, const LanguageCategory &l2) {
+                return ToolchainManager::displayNameOfLanguageCategory(l1)
+                       < ToolchainManager::displayNameOfLanguageCategory(l2);
+            });
+        QTC_ASSERT(!languageCategories.isEmpty(), return);
         int row = 0;
-        for (Id l : std::as_const(languageList)) {
-            layout->addWidget(new QLabel(ToolchainManager::displayNameOfLanguageId(l) + ':'), row, 0);
+        for (const LanguageCategory &lc : std::as_const(languageCategories)) {
+            layout->addWidget(
+                new QLabel(ToolchainManager::displayNameOfLanguageCategory(lc) + ':'), row, 0);
             auto cb = new QComboBox;
             cb->setSizePolicy(QSizePolicy::Ignored, cb->sizePolicy().verticalPolicy());
             cb->setToolTip(factory->description());
             setWheelScrollingWithoutFocusBlocked(cb);
 
-            m_languageComboboxMap.insert(l, cb);
+            m_languageComboboxMap.insert(lc, cb);
             layout->addWidget(cb, row, 1);
             ++row;
 
-            connect(cb, &QComboBox::currentIndexChanged, this, [this, l](int idx) {
-                currentToolchainChanged(l, idx);
+            connect(cb, &QComboBox::currentIndexChanged, this, [this, lc](int idx) {
+                currentToolchainChanged(lc, idx);
             });
         }
 
@@ -250,8 +253,9 @@ private:
 
         const GuardLocker locker(m_ignoreChanges);
         for (auto it = m_languageComboboxMap.cbegin(); it != m_languageComboboxMap.cend(); ++it) {
-            const Id l = it.key();
-            const Toolchains ltcList = ToolchainManager::toolchains(equal(&Toolchain::language, l));
+            const LanguageCategory lc = it.key();
+            const Toolchains ltcList = ToolchainManager::toolchains(
+                [lc](const Toolchain *tc) { return lc.contains(tc->language()); });
 
             QComboBox *cb = *it;
             cb->clear();
@@ -264,18 +268,36 @@ private:
                 return !tc->compilerCommand().isSameDevice(device->rootPath());
             });
 
-            for (Toolchain *item : same)
-                cb->addItem(item->displayName(), item->id());
+            const QList<ToolchainBundle> sameBundles = ToolchainBundle::collectBundles(same);
+            const QList<ToolchainBundle> otherBundles = ToolchainBundle::collectBundles(other);
+            for (const ToolchainBundle &b : sameBundles)
+                cb->addItem(b.displayName(), b.bundleId().toSetting());
 
-            if (!same.isEmpty() && !other.isEmpty())
+            if (!sameBundles.isEmpty() && !otherBundles.isEmpty())
                 cb->insertSeparator(cb->count());
 
-            for (Toolchain *item : other)
-                cb->addItem(item->displayName(), item->id());
+            for (const ToolchainBundle &b : otherBundles)
+                cb->addItem(b.displayName(), b.bundleId().toSetting());
 
             cb->setEnabled(cb->count() > 1 && !m_isReadOnly);
-            const int index = indexOf(cb, ToolchainKitAspect::toolchain(m_kit, l));
-            cb->setCurrentIndex(index);
+            Id currentBundleId;
+            for (const Id lang : lc) {
+                Toolchain * const currentTc = ToolchainKitAspect::toolchain(m_kit, lang);
+                if (!currentTc)
+                    continue;
+                for (const QList<ToolchainBundle> &bundles : {sameBundles, otherBundles})
+                    for (const ToolchainBundle &b : bundles) {
+                        if (b.bundleId() == currentTc->bundleId()) {
+                            currentBundleId = b.bundleId();
+                            break;
+                        }
+                        if (currentBundleId.isValid())
+                            break;
+                    }
+                if (currentBundleId.isValid())
+                    break;
+            }
+            cb->setCurrentIndex(currentBundleId.isValid() ? indexOf(cb, currentBundleId) : -1);
         }
     }
 
@@ -286,32 +308,37 @@ private:
             cb->setEnabled(false);
     }
 
-    void currentToolchainChanged(Id language, int idx)
+    void currentToolchainChanged(const LanguageCategory &languageCategory, int idx)
     {
         if (m_ignoreChanges.isLocked() || idx < 0)
             return;
 
-        const QByteArray id = m_languageComboboxMap.value(language)->itemData(idx).toByteArray();
-        Toolchain *tc = ToolchainManager::findToolchain(id);
-        QTC_ASSERT(!tc || tc->language() == language, return);
-        if (tc)
-            ToolchainKitAspect::setToolchain(m_kit, tc);
-        else
-            ToolchainKitAspect::clearToolchain(m_kit, language);
+        const Id bundleId = Id::fromSetting(
+            m_languageComboboxMap.value(languageCategory)->itemData(idx));
+        const Toolchains bundleTcs = ToolchainManager::toolchains(
+            [bundleId](const Toolchain *tc) { return tc->bundleId() == bundleId; });
+        for (const Id lang : languageCategory) {
+            Toolchain *const tc = Utils::findOrDefault(bundleTcs, [lang](const Toolchain *tc) {
+                return tc->language() == lang;
+            });
+            if (tc)
+                ToolchainKitAspect::setToolchain(m_kit, tc);
+            else
+                ToolchainKitAspect::clearToolchain(m_kit, lang);
+        }
     }
 
-    int indexOf(QComboBox *cb, const Toolchain *tc)
+    int indexOf(QComboBox *cb, Id bundleId)
     {
-        const QByteArray id = tc ? tc->id() : QByteArray();
         for (int i = 0; i < cb->count(); ++i) {
-            if (id == cb->itemData(i).toByteArray())
+            if (bundleId.toSetting() == cb->itemData(i))
                 return i;
         }
         return -1;
     }
 
     QWidget *m_mainWidget = nullptr;
-    QHash<Id, QComboBox *> m_languageComboboxMap;
+    QHash<LanguageCategory, QComboBox *> m_languageComboboxMap;
     Guard m_ignoreChanges;
     bool m_isReadOnly = false;
 };

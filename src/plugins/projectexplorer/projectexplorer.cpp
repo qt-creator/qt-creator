@@ -855,6 +855,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     // Register languages
     ToolchainManager::registerLanguage(Constants::C_LANGUAGE_ID, Tr::tr("C"));
     ToolchainManager::registerLanguage(Constants::CXX_LANGUAGE_ID, Tr::tr("C++"));
+    ToolchainManager::registerLanguageCategory(
+                {Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID}, Tr::tr("C/C++"));
 
     IWizardFactory::registerFeatureProvider(new KitFeatureProvider);
     IWizardFactory::registerFactoryCreator([] { return new SimpleProjectWizard; });

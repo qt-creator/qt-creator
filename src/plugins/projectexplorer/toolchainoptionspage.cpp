@@ -17,6 +17,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/detailswidget.h>
+#include <utils/guard.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
@@ -48,8 +49,8 @@ namespace Internal {
 class ToolChainTreeItem : public TreeItem
 {
 public:
-    ToolChainTreeItem(QStackedWidget *parentWidget, Toolchain *tc, bool c) :
-        toolChain(tc), changed(c), m_parentWidget(parentWidget)
+    ToolChainTreeItem(QStackedWidget *parentWidget, const ToolchainBundle &bundle, bool c) :
+        bundle(bundle), changed(c), m_parentWidget(parentWidget)
     {}
 
     QVariant data(int column, int role) const override
@@ -57,8 +58,8 @@ public:
         switch (role) {
             case Qt::DisplayRole:
                 if (column == 0)
-                    return toolChain->displayName();
-                return toolChain->typeDisplayName();
+                    return bundle.displayName();
+                return bundle.typeDisplayName();
             case Qt::FontRole: {
                 QFont font;
                 font.setBold(changed);
@@ -66,18 +67,31 @@ public:
              }
             case Qt::ToolTipRole: {
                 QString toolTip;
-                if (toolChain->isValid()) {
+                const ToolchainBundle::Valid validity = bundle.validity();
+                if (validity != ToolchainBundle::Valid::None) {
                     toolTip = Tr::tr("<nobr><b>ABI:</b> %1").arg(
                                 changed ? Tr::tr("not up-to-date")
-                                        : toolChain->targetAbi().toString());
+                                        : bundle.targetAbi().toString());
+                    if (validity == ToolchainBundle::Valid::Some)
+                        toolTip.append("<br/>").append(
+                            Tr::tr("Not all compilers are set up correctly."));
                 } else {
                     toolTip = Tr::tr("This toolchain is invalid.");
                 }
                 return QVariant("<div style=\"white-space:pre\">" + toolTip + "</div>");
             }
             case Qt::DecorationRole:
-                return column == 0 && !toolChain->isValid()
-                        ? Utils::Icons::CRITICAL.icon() : QVariant();
+                if (column == 0) {
+                    switch (bundle.validity()) {
+                    case ToolchainBundle::Valid::All:
+                        break;
+                    case ToolchainBundle::Valid::Some:
+                        return Utils::Icons::WARNING.icon();
+                    case ToolchainBundle::Valid::None:
+                        return Utils::Icons::CRITICAL.icon();
+                    }
+                }
+                return QVariant();
         }
         return {};
     }
@@ -85,10 +99,10 @@ public:
     ToolchainConfigWidget *widget()
     {
         if (!m_widget) {
-           m_widget = toolChain->createConfigurationWidget().release();
+           m_widget = bundle.factory()->createConfigurationWidget(bundle).release();
            if (m_widget) {
                 m_parentWidget->addWidget(m_widget);
-                if (toolChain->isAutoDetected())
+                if (bundle.isAutoDetected())
                     m_widget->makeReadOnly();
                 QObject::connect(m_widget, &ToolchainConfigWidget::dirty,
                                  [this] {
@@ -100,7 +114,7 @@ public:
         return m_widget;
     }
 
-    Toolchain *toolChain;
+    ToolchainBundle bundle;
     bool changed;
 
 private:
@@ -163,16 +177,15 @@ public:
                                            {ProjectExplorer::Constants::msgAutoDetectedToolTip()});
         auto manualRoot = new StaticTreeItem(ProjectExplorer::Constants::msgManual());
 
-        const QList<Utils::Id> languages = ToolchainManager::allLanguages();
-        for (const Utils::Id &l : languages) {
-            const QString dn = ToolchainManager::displayNameOfLanguageId(l);
+        for (const LanguageCategory &category : ToolchainManager::languageCategories()) {
+            const QString dn = ToolchainManager::displayNameOfLanguageCategory(category);
             auto autoNode = new StaticTreeItem(dn);
             auto manualNode = new StaticTreeItem(dn);
 
             autoRoot->appendChild(autoNode);
             manualRoot->appendChild(manualNode);
 
-            m_languageMap.insert(l, {autoNode, manualNode});
+            m_languageMap.insert(category, {autoNode, manualNode});
         }
 
         m_model.rootItem()->appendChild(autoRoot);
@@ -199,23 +212,14 @@ public:
             if (languages.isEmpty())
                 continue;
 
-            if (languages.count() == 1) {
-                addMenu->addAction(createAction(factory->displayName(), factory, languages.at(0)));
-            } else {
-                Utils::sort(languages, [](const Utils::Id &l1, const Utils::Id &l2) {
-                                return ToolchainManager::displayNameOfLanguageId(l1) < ToolchainManager::displayNameOfLanguageId(l2);
-                            });
-                auto subMenu = addMenu->addMenu(factory->displayName());
-                for (const Utils::Id &l : std::as_const(languages))
-                    subMenu->addAction(createAction(ToolchainManager::displayNameOfLanguageId(l), factory, l));
-            }
+            addMenu->addAction(createAction(factory->displayName(), factory, languages));
         }
         m_addButton->setMenu(addMenu);
         if (HostOsInfo::isMacHost())
             m_addButton->setStyleSheet("text-align:center;");
 
         m_cloneButton = new QPushButton(Tr::tr("Clone"), this);
-        connect(m_cloneButton, &QAbstractButton::clicked, this, [this] { cloneToolChain(); });
+        connect(m_cloneButton, &QAbstractButton::clicked, this, [this] { cloneToolchains(); });
 
         m_delButton = new QPushButton(Tr::tr("Remove"), this);
 
@@ -227,7 +231,7 @@ public:
                 if (item->level() != 3)
                     return;
                 const auto tcItem = static_cast<ToolChainTreeItem *>(item);
-                if (!tcItem->toolChain->isSdkProvided())
+                if (!tcItem->bundle.isSdkProvided())
                     itemsToRemove << tcItem;
             });
             for (ToolChainTreeItem * const tcItem : std::as_const(itemsToRemove))
@@ -253,8 +257,11 @@ public:
         m_widgetStack = new QStackedWidget;
         m_container->setWidget(m_widgetStack);
 
-        for (Toolchain *tc : ToolchainManager::toolchains())
-            insertToolChain(tc);
+        const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles();
+        for (const ToolchainBundle &b : bundles) {
+            ToolchainManager::registerToolchains(b.createdToolchains());
+            insertBundle(b);
+        }
 
         auto buttonLayout = new QVBoxLayout;
         buttonLayout->setSpacing(6);
@@ -295,21 +302,23 @@ public:
 
     void toolChainSelectionChanged();
     void updateState();
-    void createToolChain(ToolchainFactory *factory, const Utils::Id &language);
-    void cloneToolChain();
+    void createToolchains(ToolchainFactory *factory, const QList<Id> &languages);
+    void cloneToolchains();
     ToolChainTreeItem *currentTreeItem();
 
     void markForRemoval(ToolChainTreeItem *item);
-    ToolChainTreeItem *insertToolChain(ProjectExplorer::Toolchain *tc, bool changed = false); // Insert directly into model
+    ToolChainTreeItem *insertBundle(const ToolchainBundle &bundle, bool changed = false); // Insert directly into model
     void handleToolchainsRegistered(const Toolchains &toolchains);
     void handleToolchainsDeregistered(const Toolchains &toolchains);
 
-    StaticTreeItem *parentForToolChain(Toolchain *tc);
-    QAction *createAction(const QString &name, ToolchainFactory *factory, Utils::Id language)
+    StaticTreeItem *rootItem(const LanguageCategory &languageCategory, bool autoDetected);
+    StaticTreeItem *parentForBundle(const ToolchainBundle &bundle);
+    StaticTreeItem *parentForToolchain(const Toolchain &tc);
+    QAction *createAction(const QString &name, ToolchainFactory *factory, const QList<Id> &languages)
     {
         auto action = new QAction(name, this);
         connect(action, &QAction::triggered, this,
-                [this, factory, language] { createToolChain(factory, language); });
+                [this, factory, languages] { createToolchains(factory, languages); });
         return action;
     }
 
@@ -331,10 +340,13 @@ public:
     QPushButton *m_redetectButton;
     QPushButton *m_detectionSettingsButton;
 
-    QHash<Utils::Id, QPair<StaticTreeItem *, StaticTreeItem *>> m_languageMap;
+    QHash<LanguageCategory, QPair<StaticTreeItem *, StaticTreeItem *>> m_languageMap;
 
-    QList<ToolChainTreeItem *> m_toAddList;
-    QList<ToolChainTreeItem *> m_toRemoveList;
+    using AddRemoveList = QList<ToolChainTreeItem *>;
+    AddRemoveList m_toAddList;
+    AddRemoveList m_toRemoveList;
+    Guard m_registerGuard;
+    Guard m_deregisterGuard;
 
     ToolchainDetectionSettings m_detectionSettings;
 };
@@ -342,20 +354,21 @@ public:
 void ToolChainOptionsWidget::markForRemoval(ToolChainTreeItem *item)
 {
     m_model.takeItem(item);
-    if (m_toAddList.contains(item)) {
-        delete item->toolChain;
-        item->toolChain = nullptr;
-        m_toAddList.removeOne(item);
+    if (const auto it = std::find(m_toAddList.begin(), m_toAddList.end(), item);
+        it != m_toAddList.end()) {
+        item->bundle.deleteToolchains();
+        m_toAddList.erase(it);
         delete item;
     } else {
         m_toRemoveList.append(item);
     }
 }
 
-ToolChainTreeItem *ToolChainOptionsWidget::insertToolChain(Toolchain *tc, bool changed)
+ToolChainTreeItem *ToolChainOptionsWidget::insertBundle(
+    const ToolchainBundle &bundle, bool changed)
 {
-    StaticTreeItem *parent = parentForToolChain(tc);
-    auto item = new ToolChainTreeItem(m_widgetStack, tc, changed);
+    StaticTreeItem *parent = parentForBundle(bundle);
+    auto item = new ToolChainTreeItem(m_widgetStack, bundle, changed);
     parent->appendChild(item);
 
     return item;
@@ -363,86 +376,148 @@ ToolChainTreeItem *ToolChainOptionsWidget::insertToolChain(Toolchain *tc, bool c
 
 void ToolChainOptionsWidget::handleToolchainsRegistered(const Toolchains &toolchains)
 {
-    for (Toolchain * const tc : toolchains) {
-        if (Utils::eraseOne(m_toAddList, [tc](const ToolChainTreeItem *item) {
-                return item->toolChain == tc; })) {
-            // do not delete here!
-            continue;
-        }
+    if (m_registerGuard.isLocked())
+        return;
+    GuardLocker locker(m_registerGuard);
 
-        insertToolChain(tc);
+    if (const auto it = std::find_if(
+            m_toAddList.begin(),
+            m_toAddList.end(),
+            [&toolchains](ToolChainTreeItem * const item) {
+                return item->bundle.bundleId() == toolchains.first()->bundleId();
+            });
+        it != m_toAddList.end()) {
+        if ((*it)->bundle.toolchains().size() == toolchains.size())
+            m_toAddList.erase(it);
+        return;
+    }
+
+    const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(toolchains);
+    for (const ToolchainBundle &bundle : bundles) {
+        ToolchainManager::registerToolchains(bundle.createdToolchains());
+        insertBundle(bundle);
     }
     updateState();
 }
 
 void ToolChainOptionsWidget::handleToolchainsDeregistered(const Toolchains &toolchains)
 {
-    for (Toolchain * const tc : toolchains) {
-        if (auto it = std::find_if(
-                m_toRemoveList.begin(),
-                m_toRemoveList.end(),
-                [tc](const ToolChainTreeItem *item) { return item->toolChain == tc; });
-            it != m_toRemoveList.end()) {
-            m_toRemoveList.erase(it);
-            delete *it;
-            continue;
-        }
+    if (m_deregisterGuard.isLocked())
+        return;
+    GuardLocker locker(m_deregisterGuard);
 
-        StaticTreeItem *parent = parentForToolChain(tc);
-        auto item = parent->findChildAtLevel(1, [tc](TreeItem *item) {
-            return static_cast<ToolChainTreeItem *>(item)->toolChain == tc;
-        });
+    if (const auto it = std::find_if(
+            m_toRemoveList.begin(),
+            m_toRemoveList.end(),
+            [&toolchains](const ToolChainTreeItem *item) {
+                return item->bundle.toolchains() == toolchains;
+            });
+        it != m_toRemoveList.end()) {
+        ToolChainTreeItem * const item = *it;
+        m_toRemoveList.erase(it);
+        delete item;
+        return;
+    }
+
+    QList<ToolChainTreeItem *> affectedItems;
+    for (Toolchain * const tc : toolchains) {
+        StaticTreeItem *parent = parentForToolchain(*tc);
+        auto item = static_cast<ToolChainTreeItem *>(
+            parent->findChildAtLevel(1, [tc](TreeItem *item) {
+                return static_cast<ToolChainTreeItem *>(item)->bundle.bundleId() == tc->bundleId();
+            }));
+        const bool removed = item->bundle.removeToolchain(tc);
+        QTC_CHECK(removed);
+        affectedItems << item;
+    }
+
+    for (ToolChainTreeItem *item : std::as_const(affectedItems)) {
+        ToolchainManager::deregisterToolchains(item->bundle.toolchains());
+        item->bundle.clearToolchains();
         m_model.destroyItem(item);
     }
 
     updateState();
 }
 
-StaticTreeItem *ToolChainOptionsWidget::parentForToolChain(Toolchain *tc)
+StaticTreeItem *ToolChainOptionsWidget::rootItem(
+    const LanguageCategory &languageCategory, bool autoDetected)
 {
-    QPair<StaticTreeItem *, StaticTreeItem *> nodes = m_languageMap.value(tc->language());
-    return tc->isAutoDetected() ? nodes.first : nodes.second;
+    QPair<StaticTreeItem *, StaticTreeItem *> nodes = m_languageMap.value(languageCategory);
+    return autoDetected ? nodes.first : nodes.second;
+}
+
+StaticTreeItem *ToolChainOptionsWidget::parentForBundle(const ToolchainBundle &bundle)
+{
+    return rootItem(bundle.factory()->languageCategory(), bundle.isAutoDetected());
+}
+
+StaticTreeItem *ToolChainOptionsWidget::parentForToolchain(const Toolchain &tc)
+{
+    return rootItem(tc.factory()->languageCategory(), tc.isAutoDetected());
 }
 
 void ToolChainOptionsWidget::redetectToolchains()
 {
-    QList<ToolChainTreeItem *> itemsToRemove;
+    // The second element is the set of toolchains for the respective bundle that were re-discovered.
+    using ItemToCheck = std::pair<ToolChainTreeItem *, Toolchains>;
+    QList<ItemToCheck> itemsToRemove;
+
     Toolchains knownTcs;
+
+    // Step 1: All previously auto-detected items are candidates for removal.
     m_model.forAllItems([&itemsToRemove, &knownTcs](TreeItem *item) {
         if (item->level() != 3)
             return;
         const auto tcItem = static_cast<ToolChainTreeItem *>(item);
-        if (tcItem->toolChain->isAutoDetected() && !tcItem->toolChain->isSdkProvided())
-            itemsToRemove << tcItem;
+        if (tcItem->bundle.isAutoDetected() && !tcItem->bundle.isSdkProvided())
+            itemsToRemove << std::make_pair(tcItem, Toolchains());
         else
-            knownTcs << tcItem->toolChain;
+            knownTcs << tcItem->bundle.toolchains();
     });
+
     Toolchains toAdd;
-    QSet<Toolchain *> toDelete;
     ToolchainManager::resetBadToolchains();
+
+    // Step 2: Re-detect toolchains.
     for (ToolchainFactory *f : ToolchainFactory::allToolchainFactories()) {
         const ToolchainDetector detector(knownTcs, DeviceManager::defaultDesktopDevice(), {});  // FIXME: Pass search paths
         for (Toolchain * const tc : f->autoDetect(detector)) {
-            if (knownTcs.contains(tc) || toDelete.contains(tc))
+            if (knownTcs.contains(tc))
                 continue;
-            const auto matchItem = [tc](const ToolChainTreeItem *item) {
-                return *item->toolChain == *tc;
+            knownTcs << tc;
+            const auto matchItem = [&](const ItemToCheck &item) {
+                return Utils::contains(item.first->bundle.toolchains(), [&](Toolchain *btc) {
+                    return *btc == *tc;
+                });
             };
-            ToolChainTreeItem * const item = findOrDefault(itemsToRemove, matchItem);
-            if (item) {
-                itemsToRemove.removeOne(item);
-                toDelete << tc;
+            if (const auto item
+                = std::find_if(itemsToRemove.begin(), itemsToRemove.end(), matchItem);
+                item != itemsToRemove.end()) {
+                item->second << tc;
                 continue;
             }
-            knownTcs << tc;
             toAdd << tc;
         }
     }
-    for (ToolChainTreeItem * const tcItem : std::as_const(itemsToRemove))
-        markForRemoval(tcItem);
-    for (Toolchain * const newTc : std::as_const(toAdd))
-        m_toAddList.append(insertToolChain(newTc, true));
-    qDeleteAll(toDelete);
+
+    // Step 3: Items whose toolchains were all re-discovered are no longer candidates for removal.
+    //    Instead, delete the re-discovered toolchains.
+    //    Conversely, if not all toolchains of the bundle were re-discovered, we remove the existing
+    //    item and the newly discovered toolchains are marked for re-bundling.
+    for (const auto &[item, newToolchains] : itemsToRemove) {
+        if (item->bundle.toolchains().size() == newToolchains.size()) {
+            qDeleteAll(newToolchains);
+        } else {
+            toAdd << newToolchains;
+            markForRemoval(item);
+        }
+    }
+
+    // Step 4: Create new bundles and add items for them.
+    const QList<ToolchainBundle> newBundles = ToolchainBundle::collectBundles(toAdd);
+    for (const ToolchainBundle &bundle : newBundles)
+        m_toAddList << insertBundle(bundle, true);
 }
 
 void ToolChainOptionsWidget::toolChainSelectionChanged()
@@ -459,8 +534,9 @@ void ToolChainOptionsWidget::toolChainSelectionChanged()
 void ToolChainOptionsWidget::apply()
 {
     // Remove unused tool chains:
-    ToolchainManager::deregisterToolchains(
-        Utils::transform(m_toRemoveList, &ToolChainTreeItem::toolChain));
+    const AddRemoveList toRemove = m_toRemoveList;
+    for (const ToolChainTreeItem * const item : toRemove)
+        ToolchainManager::deregisterToolchains(item->bundle.toolchains());
 
     Q_ASSERT(m_toRemoveList.isEmpty());
 
@@ -469,8 +545,7 @@ void ToolChainOptionsWidget::apply()
         for (StaticTreeItem *parent : {autoAndManual.first, autoAndManual.second}) {
             for (TreeItem *item : *parent) {
                 auto tcItem = static_cast<ToolChainTreeItem *>(item);
-                Q_ASSERT(tcItem->toolChain);
-                if (!tcItem->toolChain->isAutoDetected() && tcItem->widget() && tcItem->changed)
+                if (!tcItem->bundle.isAutoDetected() && tcItem->widget() && tcItem->changed)
                     tcItem->widget()->apply();
                 tcItem->changed = false;
                 tcItem->update();
@@ -478,16 +553,18 @@ void ToolChainOptionsWidget::apply()
         }
     }
 
-    // Add new (and already updated) tool chains
-    const Toolchains notRegistered = ToolchainManager::registerToolchains(
-        Utils::transform(m_toAddList, &ToolChainTreeItem::toolChain));
-    const QStringList removedTcs = Utils::transform(notRegistered, &Toolchain::displayName);
-
-    const QList<ToolChainTreeItem *> toAddList = m_toAddList;
-    for (ToolChainTreeItem *n : toAddList)
-        markForRemoval(n);
-
-    qDeleteAll(m_toAddList);
+    // Add new (and already updated) toolchains
+    QStringList removedTcs;
+    const AddRemoveList toAdd = m_toAddList;
+    for (ToolChainTreeItem * const item : toAdd) {
+        const Toolchains notRegistered = ToolchainManager::registerToolchains(item->bundle.toolchains());
+        removedTcs << Utils::transform(notRegistered, &Toolchain::displayName);
+    }
+    for (ToolChainTreeItem * const item : std::as_const(m_toAddList)) {
+        item->bundle.deleteToolchains();
+        delete item;
+    }
+    m_toAddList.clear();
 
     if (removedTcs.count() == 1) {
         QMessageBox::warning(Core::ICore::dialogParent(),
@@ -508,41 +585,41 @@ void ToolChainOptionsWidget::apply()
     ToolchainManager::setDetectionSettings(m_detectionSettings);
 }
 
-void ToolChainOptionsWidget::createToolChain(ToolchainFactory *factory, const Utils::Id &language)
+void ToolChainOptionsWidget::createToolchains(ToolchainFactory *factory, const QList<Id> &languages)
 {
     QTC_ASSERT(factory, return);
     QTC_ASSERT(factory->canCreate(), return);
-    QTC_ASSERT(language.isValid(), return);
 
-    Toolchain *tc = factory->create();
-    if (!tc)
-        return;
+    const Id bundleId = Id::generate();
+    Toolchains toolchains;
+    for (const Id lang : languages) {
+        Toolchain *tc = factory->create();
+        QTC_ASSERT(tc, return);
 
-    tc->setDetection(Toolchain::ManualDetection);
-    tc->setLanguage(language);
+        tc->setDetection(Toolchain::ManualDetection);
+        tc->setLanguage(lang);
+        tc->setBundleId(bundleId);
+        toolchains << tc;
+    }
 
-    auto item = insertToolChain(tc, true);
-    m_toAddList.append(item);
-
+    const ToolchainBundle bundle(toolchains);
+    ToolChainTreeItem * const item = insertBundle(bundle, true);
+    m_toAddList << item;
     m_toolChainView->setCurrentIndex(m_sortModel.mapFromSource(m_model.indexForItem(item)));
 }
 
-void ToolChainOptionsWidget::cloneToolChain()
+void ToolChainOptionsWidget::cloneToolchains()
 {
     ToolChainTreeItem *current = currentTreeItem();
     if (!current)
         return;
 
-    Toolchain *tc = current->toolChain->clone();
-    if (!tc)
-        return;
+    ToolchainBundle bundle = current->bundle.clone();
+    bundle.setDetection(Toolchain::ManualDetection);
+    bundle.setDisplayName(Tr::tr("Clone of %1").arg(current->bundle.displayName()));
 
-    tc->setDetection(Toolchain::ManualDetection);
-    tc->setDisplayName(Tr::tr("Clone of %1").arg(current->toolChain->displayName()));
-
-    auto item = insertToolChain(tc, true);
-    m_toAddList.append(item);
-
+    ToolChainTreeItem * const item = insertBundle(bundle, true);
+    m_toAddList << item;
     m_toolChainView->setCurrentIndex(m_sortModel.mapFromSource(m_model.indexForItem(item)));
 }
 
@@ -551,9 +628,8 @@ void ToolChainOptionsWidget::updateState()
     bool canCopy = false;
     bool canDelete = false;
     if (ToolChainTreeItem *item = currentTreeItem()) {
-        Toolchain *tc = item->toolChain;
-        canCopy = tc->isValid();
-        canDelete = !tc->isSdkProvided();
+        canCopy = item->bundle.validity() != ToolchainBundle::Valid::None;
+        canDelete = !item->bundle.isSdkProvided();
     }
 
     m_cloneButton->setEnabled(canCopy);

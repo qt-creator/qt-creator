@@ -12,8 +12,6 @@
 #include <QSet>
 #include <QString>
 
-#include <functional>
-
 namespace Utils { class FilePath; }
 
 namespace ProjectExplorer {
@@ -53,7 +51,11 @@ public:
 
     static QList<Utils::Id> allLanguages();
     static bool registerLanguage(const Utils::Id &language, const QString &displayName);
+    static void registerLanguageCategory(
+        const LanguageCategory &languages, const QString &displayName);
     static QString displayNameOfLanguageId(const Utils::Id &id);
+    static QString displayNameOfLanguageCategory(const LanguageCategory &category);
+    static const QList<LanguageCategory> languageCategories();
     static bool isLanguageSupported(const Utils::Id &id);
 
     static void aboutToShutdown();

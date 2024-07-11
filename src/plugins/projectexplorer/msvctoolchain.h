@@ -39,7 +39,6 @@ public:
     void toMap(Utils::Store &data) const override;
     void fromMap(const Utils::Store &data) override;
 
-    std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget() override;
     bool hostPrefersToolchain() const override;
 
     MacroInspectionRunner createMacroInspectionRunner() const override;
@@ -97,6 +96,7 @@ protected:
     virtual Utils::LanguageVersion msvcLanguageVersion(const QStringList &cxxflags,
                                                        const Utils::Id &language,
                                                        const Macros &macros) const;
+    bool canShareBundleImpl(const Toolchain &other) const override;
 
     struct GenerateEnvResult
     {
@@ -135,10 +135,10 @@ public:
     QStringList suggestedMkspecList() const override;
     void addToEnvironment(Utils::Environment &env) const override;
     Utils::FilePath compilerCommand() const override; // FIXME: Remove
+    void setCompilerCommand(const Utils::FilePath &cmd) override { setClangPath(cmd); }
     QList<Utils::OutputLineParser *> createOutputParsers() const override;
     void toMap(Utils::Store &data) const override;
     void fromMap(const Utils::Store &data) override;
-    std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget() override;
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(
             const Utils::Environment &env) const override;
 
@@ -157,6 +157,8 @@ public:
     int priority() const override;
 
 private:
+    bool canShareBundleImpl(const Toolchain &other) const override;
+
     Utils::FilePath m_clangPath;
 };
 

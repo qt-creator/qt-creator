@@ -13,6 +13,7 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacro.h>
+#include <projectexplorer/toolchainconfigwidget.h>
 #include <projectexplorer/toolchainmanager.h>
 
 #include <qtsupport/qtkitaspect.h>
@@ -183,9 +184,15 @@ public:
         setUserCreatable(true);
     }
 
-    Toolchains autoDetect(const ToolchainDetector &detector) const
+    Toolchains autoDetect(const ToolchainDetector &detector) const override
     {
         return doAutoDetect(detector);
+    }
+
+    std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget(
+        const ToolchainBundle &bundle) const override
+    {
+        return GccToolchain::createConfigurationWidget(bundle);
     }
 };
 

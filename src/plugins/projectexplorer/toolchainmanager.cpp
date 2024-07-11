@@ -43,6 +43,7 @@ public:
     Toolchains m_toolChains; // prioritized List
     BadToolchains m_badToolchains;   // to be skipped when auto-detecting
     QVector<LanguageDisplayPair> m_languages;
+    QList<std::pair<LanguageCategory, QString>> m_languageCategories;
     ToolchainDetectionSettings m_detectionSettings;
     bool m_loaded = false;
 };
@@ -255,12 +256,47 @@ bool ToolchainManager::registerLanguage(const Utils::Id &language, const QString
     return true;
 }
 
+void ToolchainManager::registerLanguageCategory(const LanguageCategory &languages, const QString &displayName)
+{
+    d->m_languageCategories.push_back(std::make_pair(languages, displayName));
+}
+
 QString ToolchainManager::displayNameOfLanguageId(const Utils::Id &id)
 {
     QTC_ASSERT(id.isValid(), return Tr::tr("None"));
     auto entry = Utils::findOrDefault(d->m_languages, Utils::equal(&LanguageDisplayPair::id, id));
     QTC_ASSERT(entry.id.isValid(), return Tr::tr("None"));
     return entry.displayName;
+}
+
+QString ToolchainManager::displayNameOfLanguageCategory(const LanguageCategory &category)
+{
+    if (int(category.size()) == 1)
+        return displayNameOfLanguageId(*category.begin());
+    QString name = Utils::findOrDefault(d->m_languageCategories, [&category](const auto &e) {
+                       return e.first == category;
+                   }).second;
+    QTC_ASSERT(!name.isEmpty(), return Tr::tr("None"));
+    return name;
+}
+
+const QList<LanguageCategory> ToolchainManager::languageCategories()
+{
+    QList<LanguageCategory> categories
+        = Utils::transform<QList<LanguageCategory>>(d->m_languageCategories, [](const auto &e) {
+              return e.first;
+          });
+    const QList<Utils::Id> languages = allLanguages();
+    for (const Utils::Id &l : languages) {
+        if (Utils::contains(categories, [l](const LanguageCategory &lc) {
+                return lc.contains(l);
+            })) {
+            continue;
+        }
+        categories.push_back({l});
+    }
+
+    return categories;
 }
 
 bool ToolchainManager::isLanguageSupported(const Utils::Id &id)

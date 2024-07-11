@@ -326,12 +326,12 @@ public:
     void addToEnvironment(Environment &env) const override { Q_UNUSED(env) }
     FilePath makeCommand(const Environment &) const override { return "make"; }
     QList<OutputLineParser *> createOutputParsers() const override { return {}; }
-    std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget() override { return nullptr; }
     bool operator ==(const Toolchain &other) const override {
         if (!Toolchain::operator==(other))
             return false;
         return static_cast<const TTC *>(&other)->token == token;
     }
+    bool canShareBundleImpl(const Toolchain &) const override { return false; }
 
     void fromMap(const Store &data) final
     {
@@ -369,6 +369,11 @@ void ProjectExplorerTest::testToolChainMerging_data()
         TestToolchainFactory() {
             setSupportedToolchainType(TestToolChainType);
             setToolchainConstructor([] { return new TTC; });
+        }
+        std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget(
+            const ToolchainBundle &) const override
+        {
+            return nullptr;
         }
     };
 

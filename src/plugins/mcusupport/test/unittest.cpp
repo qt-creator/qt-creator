@@ -213,7 +213,6 @@ auto expandTargetsAndPackages = [](Targets &targets, Packages &packages) {
 
 void verifyIarToolchain(const McuToolchainPackagePtr &iarToolchainPackage)
 {
-    ProjectExplorer::ToolchainFactory toolchainFactory;
     Id iarId{BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID};
     Toolchain *iarToolchain{ProjectExplorer::ToolchainFactory::createToolchain(iarId)};
     iarToolchain->setLanguage(cxxLanguageId);
@@ -236,7 +235,6 @@ void verifyIarToolchain(const McuToolchainPackagePtr &iarToolchainPackage)
 void verifyArmGccToolchain(const McuToolchainPackagePtr &armGccPackage, const QStringList &versions)
 {
     //Fake register and fake detect compiler.
-    ProjectExplorer::ToolchainFactory toolchainFactory;
     Id armGccId{ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID};
 
     Toolchain *armToolchain{ProjectExplorer::ToolchainFactory::createToolchain(armGccId)};

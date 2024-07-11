@@ -391,7 +391,7 @@ class KeilToolchain;
 class KeilToolchainConfigWidget final : public ToolchainConfigWidget
 {
 public:
-    explicit KeilToolchainConfigWidget(KeilToolchain *tc);
+    explicit KeilToolchainConfigWidget(const ToolchainBundle &bundle);
 
 private:
     void applyImpl() final;
@@ -400,10 +400,9 @@ private:
     void makeReadOnlyImpl() final;
 
     void setFromToolchain();
-    void handleCompilerCommandChange();
+    void handleCompilerCommandChange(Id language);
     void handlePlatformCodeGenFlagsChange();
 
-    PathChooser *m_compilerCommand = nullptr;
     AbiWidget *m_abiWidget = nullptr;
     QLineEdit *m_platformCodeGenFlagsLineEdit = nullptr;
     Macros m_macros;
@@ -435,8 +434,6 @@ public:
     void addToEnvironment(Environment &env) const final;
 
     QList<OutputLineParser *> createOutputParsers() const final { return {new KeilParser}; }
-
-    std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget() final;
 
     bool operator==(const Toolchain &other) const final;
 
@@ -508,11 +505,6 @@ void KeilToolchain::addToEnvironment(Environment &env) const
         env.prependOrSetPath(compilerCommand().parentDir());
 }
 
-std::unique_ptr<ToolchainConfigWidget> KeilToolchain::createConfigurationWidget()
-{
-    return std::make_unique<KeilToolchainConfigWidget>(this);
-}
-
 bool KeilToolchain::operator ==(const Toolchain &other) const
 {
     if (!Toolchain::operator ==(other))
@@ -545,6 +537,11 @@ public:
     }
 
     Toolchains autoDetect(const ToolchainDetector &detector) const final;
+    std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget(
+        const ToolchainBundle &bundle) const final
+    {
+        return std::make_unique<KeilToolchainConfigWidget>(bundle);
+    }
 
 private:
     Toolchains autoDetectToolchains(const Candidates &candidates,
@@ -717,16 +714,11 @@ Toolchains KeilToolchainFactory::autoDetectToolchain(const Candidate &candidate,
 
 // KeilToolchainConfigWidget
 
-KeilToolchainConfigWidget::KeilToolchainConfigWidget(KeilToolchain *tc) :
-    ToolchainConfigWidget(tc),
-    m_compilerCommand(new PathChooser),
+KeilToolchainConfigWidget::KeilToolchainConfigWidget(const ToolchainBundle &bundle) :
+    ToolchainConfigWidget(bundle),
     m_abiWidget(new AbiWidget)
 {
-    m_compilerCommand->setExpectedKind(PathChooser::ExistingCommand);
-    m_compilerCommand->setHistoryCompleter("PE.KEIL.Command.History");
-    m_mainLayout->addRow(Tr::tr("&Compiler path:"), m_compilerCommand);
     m_platformCodeGenFlagsLineEdit = new QLineEdit(this);
-    m_platformCodeGenFlagsLineEdit->setText(ProcessArgs::joinArgs(tc->extraCodeModelFlags()));
     m_mainLayout->addRow(Tr::tr("Platform codegen flags:"), m_platformCodeGenFlagsLineEdit);
     m_mainLayout->addRow(Tr::tr("&ABI:"), m_abiWidget);
 
@@ -735,7 +727,7 @@ KeilToolchainConfigWidget::KeilToolchainConfigWidget(KeilToolchain *tc) :
     addErrorLabel();
     setFromToolchain();
 
-    connect(m_compilerCommand, &PathChooser::rawPathChanged,
+    connect(this, &ToolchainConfigWidget::compilerCommandChanged,
             this, &KeilToolchainConfigWidget::handleCompilerCommandChange);
     connect(m_platformCodeGenFlagsLineEdit, &QLineEdit::editingFinished,
             this, &KeilToolchainConfigWidget::handlePlatformCodeGenFlagsChange);
@@ -745,37 +737,34 @@ KeilToolchainConfigWidget::KeilToolchainConfigWidget(KeilToolchain *tc) :
 
 void KeilToolchainConfigWidget::applyImpl()
 {
-    if (toolchain()->isAutoDetected())
+    if (bundle().isAutoDetected())
         return;
 
-    const auto tc = static_cast<KeilToolchain *>(toolchain());
-    const QString displayName = tc->displayName();
-    tc->setCompilerCommand(m_compilerCommand->filePath());
-    tc->m_extraCodeModelFlags.setValue(splitString(m_platformCodeGenFlagsLineEdit->text()));
-    tc->setTargetAbi(m_abiWidget->currentAbi());
-    tc->setDisplayName(displayName);
+    bundle().setTargetAbi(m_abiWidget->currentAbi());
+    bundle().forEach<KeilToolchain>([this](KeilToolchain &tc) {
+        tc.m_extraCodeModelFlags.setValue(splitString(m_platformCodeGenFlagsLineEdit->text()));
+    });
 
     if (m_macros.isEmpty())
         return;
 
-    const auto languageVersion = Toolchain::languageVersion(tc->language(), m_macros);
-    tc->predefinedMacrosCache()->insert({}, {m_macros, languageVersion});
+    bundle().forEach<KeilToolchain>([this](KeilToolchain &tc) {
+        const auto languageVersion = Toolchain::languageVersion(tc.language(), m_macros);
+        tc.predefinedMacrosCache()->insert({}, {m_macros, languageVersion});
+    });
 
     setFromToolchain();
 }
 
 bool KeilToolchainConfigWidget::isDirtyImpl() const
 {
-    const auto tc = static_cast<KeilToolchain *>(toolchain());
-    return m_compilerCommand->filePath() != tc->compilerCommand()
-            || m_platformCodeGenFlagsLineEdit->text() != ProcessArgs::joinArgs(tc->extraCodeModelFlags())
-            || m_abiWidget->currentAbi() != tc->targetAbi()
-            ;
+    return m_platformCodeGenFlagsLineEdit->text()
+               != ProcessArgs::joinArgs(bundle().extraCodeModelFlags())
+           || m_abiWidget->currentAbi() != bundle().targetAbi();
 }
 
 void KeilToolchainConfigWidget::makeReadOnlyImpl()
 {
-    m_compilerCommand->setReadOnly(true);
     m_platformCodeGenFlagsLineEdit->setEnabled(false);
     m_abiWidget->setEnabled(false);
 }
@@ -783,19 +772,15 @@ void KeilToolchainConfigWidget::makeReadOnlyImpl()
 void KeilToolchainConfigWidget::setFromToolchain()
 {
     const QSignalBlocker blocker(this);
-    const auto tc = static_cast<KeilToolchain *>(toolchain());
-    m_compilerCommand->setFilePath(tc->compilerCommand());
-    m_platformCodeGenFlagsLineEdit->setText(ProcessArgs::joinArgs(tc->extraCodeModelFlags()));
-    m_abiWidget->setAbis({}, tc->targetAbi());
-    const bool haveCompiler = m_compilerCommand->filePath().isExecutableFile();
-    m_abiWidget->setEnabled(haveCompiler && !tc->isAutoDetected());
+    m_platformCodeGenFlagsLineEdit->setText(ProcessArgs::joinArgs(bundle().extraCodeModelFlags()));
+    m_abiWidget->setAbis({}, bundle().targetAbi());
+    m_abiWidget->setEnabled(hasAnyCompiler() && !bundle().isAutoDetected());
 }
 
-void KeilToolchainConfigWidget::handleCompilerCommandChange()
+void KeilToolchainConfigWidget::handleCompilerCommandChange(Id language)
 {
-    const FilePath compilerPath = m_compilerCommand->filePath();
-    const bool haveCompiler = compilerPath.isExecutableFile();
-    if (haveCompiler) {
+    const FilePath compilerPath = compilerCommand(language);
+    if (compilerPath.isExecutableFile()) {
         const auto env = Environment::systemEnvironment();
         const QStringList prevExtraArgs = splitString(m_platformCodeGenFlagsLineEdit->text());
         QStringList newExtraArgs = prevExtraArgs;
@@ -807,7 +792,7 @@ void KeilToolchainConfigWidget::handleCompilerCommandChange()
         m_abiWidget->setAbis({}, guessed);
     }
 
-    m_abiWidget->setEnabled(haveCompiler);
+    m_abiWidget->setEnabled(hasAnyCompiler());
     emit dirty();
 }
 
@@ -815,10 +800,12 @@ void KeilToolchainConfigWidget::handlePlatformCodeGenFlagsChange()
 {
     const QString str1 = m_platformCodeGenFlagsLineEdit->text();
     const QString str2 = ProcessArgs::joinArgs(splitString(str1));
-    if (str1 != str2)
+    if (str1 != str2) {
         m_platformCodeGenFlagsLineEdit->setText(str2);
-    else
-        handleCompilerCommandChange();
+    } else {
+        handleCompilerCommandChange(ProjectExplorer::Constants::C_LANGUAGE_ID);
+        handleCompilerCommandChange(ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+    }
 }
 
 } // BareMetal::Internal
