@@ -481,6 +481,10 @@ QmlJSEditorDocumentPrivate::QmlJSEditorDocumentPrivate(QmlJSEditorDocument *pare
             &QmllsSettingsManager::settingsChanged,
             this,
             &Internal::QmlJSEditorDocumentPrivate::settingsChanged);
+    connect(modelManager,
+            &ModelManagerInterface::projectInfoUpdated,
+            this,
+            &Internal::QmlJSEditorDocumentPrivate::settingsChanged);
 
     // semantic info
     m_semanticInfoUpdater = new SemanticInfoUpdater();
