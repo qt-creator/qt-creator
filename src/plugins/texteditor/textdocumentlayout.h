@@ -199,7 +199,7 @@ public:
     static int lexerState(const QTextBlock &block);
     static void changeFoldingIndent(QTextBlock &block, int delta);
     static bool canFold(const QTextBlock &block);
-    static void doFoldOrUnfold(const QTextBlock& block, bool unfold);
+    static void doFoldOrUnfold(const QTextBlock &block, bool unfold, bool recursive = false);
     static bool isFolded(const QTextBlock &block);
     static void setFolded(const QTextBlock &block, bool folded);
     static void setExpectedRawStringSuffix(const QTextBlock &block, const QByteArray &suffix);

@@ -633,7 +633,7 @@ void TextDocumentLayout::requestExtraAreaUpdate()
     emit updateExtraArea();
 }
 
-void TextDocumentLayout::doFoldOrUnfold(const QTextBlock& block, bool unfold)
+void TextDocumentLayout::doFoldOrUnfold(const QTextBlock &block, bool unfold, bool recursive)
 {
     if (!canFold(block))
         return;
@@ -643,7 +643,10 @@ void TextDocumentLayout::doFoldOrUnfold(const QTextBlock& block, bool unfold)
     while (b.isValid() && foldingIndent(b) > indent && (unfold || b.next().isValid())) {
         b.setVisible(unfold);
         b.setLineCount(unfold? qMax(1, b.layout()->lineCount()) : 0);
-        if (unfold) { // do not unfold folded sub-blocks
+        if (recursive) {
+            if ((unfold && isFolded(b)) || (!unfold && canFold(b)))
+                setFolded(b, !unfold);
+        } else if (unfold) { // do not unfold folded sub-blocks
             if (isFolded(b) && b.next().isValid()) {
                 int jndent = foldingIndent(b);
                 b = b.next();

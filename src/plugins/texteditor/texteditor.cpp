@@ -4235,7 +4235,7 @@ void TextEditorWidgetPrivate::registerActions()
         .setScriptable(true);
     m_unfoldAllAction = ActionBuilder(this, UNFOLD_ALL)
                             .setContext(m_editorContext)
-                            .addOnTriggered([this] { q->unfoldAll(); })
+                            .addOnTriggered([this] { q->toggleFoldAll(); })
                             .setScriptable(true)
                             .contextAction();
     ActionBuilder(this, INCREASE_FONT_SIZE).setContext(m_editorContext).addOnTriggered([this] {
@@ -7097,8 +7097,38 @@ void TextEditorWidget::extraAreaLeaveEvent(QEvent *)
     extraAreaMouseEvent(&me);
 }
 
+static bool xIsInsideFoldingRegion(int x, int extraAreaWidth, const QFontMetrics &fm)
+{
+    int boxWidth = 0;
+    if (TextEditorSettings::fontSettings().relativeLineSpacing() == 100)
+        boxWidth = foldBoxWidth(fm);
+    else
+        boxWidth = foldBoxWidth();
+
+    return x > extraAreaWidth - boxWidth && x <= extraAreaWidth;
+}
+
 void TextEditorWidget::extraAreaContextMenuEvent(QContextMenuEvent *e)
 {
+    if (d->m_codeFoldingVisible
+        && xIsInsideFoldingRegion(e->pos().x(), extraArea()->width(), fontMetrics())) {
+        const QTextCursor cursor = cursorForPosition(QPoint(0, e->pos().y()));
+        const QTextBlock block = cursor.block();
+        auto menu = new QMenu(this);
+
+        menu->addAction(Tr::tr("Fold"), this, [&] { fold(block); });
+        menu->addAction(Tr::tr("Fold recursively"), this, [&] { fold(block, true); });
+        menu->addAction(Tr::tr("Fold all"), this, [this] { unfoldAll(/* unfold  = */ false); });
+        menu->addAction(Tr::tr("Unfold"), this, [&] { unfold(block); });
+        menu->addAction(Tr::tr("Unfold recursively"), this, [&] { unfold(block, true); });
+        menu->addAction(Tr::tr("Unfold all"), this, [this] { unfoldAll(/* fold  = */ true); });
+        menu->exec(e->globalPos());
+
+        delete menu;
+        e->accept();
+        return;
+    }
+
     if (d->m_marksVisible) {
         QTextCursor cursor = cursorForPosition(QPoint(0, e->pos().y()));
         auto contextMenu = new QMenu(this);
@@ -7119,14 +7149,8 @@ void TextEditorWidget::updateFoldingHighlight(const QPoint &pos)
         return;
 
     // Update which folder marker is highlighted
-    int boxWidth = 0;
-    if (TextEditorSettings::fontSettings().relativeLineSpacing() == 100)
-        boxWidth = foldBoxWidth(fontMetrics());
-    else
-        boxWidth = foldBoxWidth();
-
     QTextCursor cursor;
-    if (pos.x() > extraArea()->width() - boxWidth)
+    if (xIsInsideFoldingRegion(pos.x(), extraArea()->width(), fontMetrics()))
         cursor = cursorForPosition(QPoint(0, pos.y()));
     else if (d->m_displaySettings.m_highlightBlocks)
         cursor = textCursor();
@@ -8907,7 +8931,7 @@ void TextEditorWidget::foldCurrentBlock()
     fold(textCursor().block());
 }
 
-void TextEditorWidget::fold(const QTextBlock &block)
+void TextEditorWidget::fold(const QTextBlock &block, bool recursive)
 {
     if (singleShotAfterHighlightingDone([this, block] { fold(block); }))
         return;
@@ -8923,14 +8947,14 @@ void TextEditorWidget::fold(const QTextBlock &block)
             b = b.previous();
     }
     if (b.isValid()) {
-        TextDocumentLayout::doFoldOrUnfold(b, false);
+        TextDocumentLayout::doFoldOrUnfold(b, false, recursive);
         d->moveCursorVisible();
         documentLayout->requestUpdate();
         documentLayout->emitDocumentSizeChanged();
     }
 }
 
-void TextEditorWidget::unfold(const QTextBlock &block)
+void TextEditorWidget::unfold(const QTextBlock &block, bool recursive)
 {
     if (singleShotAfterHighlightingDone([this, block] { unfold(block); }))
         return;
@@ -8941,7 +8965,7 @@ void TextEditorWidget::unfold(const QTextBlock &block)
     QTextBlock b = block;
     while (b.isValid() && !b.isVisible())
         b = b.previous();
-    TextDocumentLayout::doFoldOrUnfold(b, true);
+    TextDocumentLayout::doFoldOrUnfold(b, true, recursive);
     d->moveCursorVisible();
     documentLayout->requestUpdate();
     documentLayout->emitDocumentSizeChanged();
@@ -8952,16 +8976,14 @@ void TextEditorWidget::unfoldCurrentBlock()
     unfold(textCursor().block());
 }
 
-void TextEditorWidget::unfoldAll()
+void TextEditorWidget::toggleFoldAll()
 {
-    if (singleShotAfterHighlightingDone([this] { unfoldAll(); }))
+    if (singleShotAfterHighlightingDone([this] { toggleFoldAll(); }))
         return;
 
     QTextDocument *doc = document();
-    auto documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
-    QTC_ASSERT(documentLayout, return);
-
     QTextBlock block = doc->firstBlock();
+
     bool makeVisible = true;
     while (block.isValid()) {
         if (block.isVisible() && TextDocumentLayout::canFold(block) && block.next().isVisible()) {
@@ -8971,11 +8993,23 @@ void TextEditorWidget::unfoldAll()
         block = block.next();
     }
 
-    block = doc->firstBlock();
+    unfoldAll(makeVisible);
+}
+
+void TextEditorWidget::unfoldAll(bool unfold)
+{
+    if (singleShotAfterHighlightingDone([this, unfold] { unfoldAll(unfold); }))
+        return;
+
+    QTextDocument *doc = document();
+    auto documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
+    QTC_ASSERT(documentLayout, return);
+
+    QTextBlock block = doc->firstBlock();
 
     while (block.isValid()) {
         if (TextDocumentLayout::canFold(block))
-            TextDocumentLayout::doFoldOrUnfold(block, makeVisible);
+            TextDocumentLayout::doFoldOrUnfold(block, unfold);
         block = block.next();
     }
 

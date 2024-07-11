@@ -387,10 +387,11 @@ public:
     void deleteStartOfLine();
     void deleteStartOfWord();
     void deleteStartOfWordCamelCase();
-    void unfoldAll();
-    void fold(const QTextBlock &block);
+    void toggleFoldAll();
+    void unfoldAll(bool unfold);
+    void fold(const QTextBlock &block, bool recursive = false);
     void foldCurrentBlock();
-    void unfold(const QTextBlock &block);
+    void unfold(const QTextBlock &block, bool recursive = false);
     void unfoldCurrentBlock();
     void selectEncoding();
     void updateTextCodecLabel();
