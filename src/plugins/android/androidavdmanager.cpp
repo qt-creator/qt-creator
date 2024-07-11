@@ -14,7 +14,6 @@
 #include <utils/qtcprocess.h>
 
 #include <QLoggingCategory>
-#include <QMainWindow>
 #include <QMessageBox>
 
 using namespace Tasking;
@@ -42,36 +41,6 @@ static bool is32BitUserSpace()
     return false;
 }
 
-bool startAvdAsync(const QString &avdName)
-{
-    const FilePath emulatorPath = AndroidConfig::emulatorToolPath();
-    if (!emulatorPath.exists()) {
-        QMetaObject::invokeMethod(Core::ICore::mainWindow(), [emulatorPath] {
-            QMessageBox::critical(Core::ICore::dialogParent(),
-                                  Tr::tr("Emulator Tool Is Missing"),
-                                  Tr::tr("Install the missing emulator tool (%1) to the"
-                                         " installed Android SDK.")
-                                  .arg(emulatorPath.displayName()));
-        });
-        return false;
-    }
-
-    CommandLine cmd(emulatorPath);
-    if (is32BitUserSpace())
-        cmd.addArg("-force-32bit");
-    cmd.addArgs(AndroidConfig::emulatorArgs(), CommandLine::Raw);
-    cmd.addArgs({"-avd", avdName});
-    qCDebug(avdManagerLog).noquote() << "Running command (startAvdAsync):" << cmd.toUserOutput();
-    if (Process::startDetached(cmd, {}, DetachedChannelMode::Discard))
-        return true;
-
-    QMetaObject::invokeMethod(Core::ICore::mainWindow(), [avdName] {
-        QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("AVD Start Error"),
-                              Tr::tr("Failed to start AVD emulator for \"%1\" device.").arg(avdName));
-    });
-    return false;
-}
-
 static void startAvdDetached(QPromise<void> &promise, const CommandLine &avdCommand)
 {
     qCDebug(avdManagerLog).noquote() << "Running command (startAvdDetached):" << avdCommand.toUserOutput();
@@ -89,7 +58,7 @@ static CommandLine avdCommand(const QString &avdName)
     return cmd;
 }
 
-ExecutableItem startAvdAsyncRecipe(const QString &avdName)
+static ExecutableItem startAvdAsyncRecipe(const QString &avdName)
 {
     const auto onSetup = [avdName](Async<void> &async) {
         const FilePath emulatorPath = AndroidConfig::emulatorToolPath();
@@ -110,25 +79,7 @@ ExecutableItem startAvdAsyncRecipe(const QString &avdName)
     return AsyncTask<void>(onSetup, onDone, CallDoneIf::Error);
 }
 
-QString findAvd(const QString &avdName)
-{
-    const QStringList lines = AndroidConfig::devicesCommandOutput();
-    for (const QString &line : lines) {
-        // skip the daemon logs
-        if (line.startsWith("* daemon"))
-            continue;
-
-        const QString serialNumber = line.left(line.indexOf('\t')).trimmed();
-        if (!serialNumber.startsWith("emulator"))
-            continue;
-
-        if (AndroidConfig::getAvdName(serialNumber) == avdName)
-            return serialNumber;
-    }
-    return {};
-}
-
-ExecutableItem serialNumberRecipe(const QString &avdName, const Storage<QString> &serialNumberStorage)
+static ExecutableItem serialNumberRecipe(const QString &avdName, const Storage<QString> &serialNumberStorage)
 {
     const Storage<QStringList> outputStorage;
     const Storage<QString> currentSerialNumberStorage;
@@ -206,7 +157,7 @@ static ExecutableItem isAvdBootedRecipe(const Storage<QString> &serialNumberStor
     return ProcessTask(onSetup, onDone);
 }
 
-ExecutableItem waitForAvdRecipe(const QString &avdName, const Storage<QString> &serialNumberStorage)
+static ExecutableItem waitForAvdRecipe(const QString &avdName, const Storage<QString> &serialNumberStorage)
 {
     const Storage<QStringList> outputStorage;
     const Storage<bool> stopStorage;
@@ -255,19 +206,6 @@ ExecutableItem startAvdRecipe(const QString &avdName, const Storage<QString> &se
             errorItem
         }
     };
-}
-
-bool isAvdBooted(const QString &device)
-{
-    const CommandLine cmd{AndroidConfig::adbToolPath(), {AndroidDeviceInfo::adbSelector(device),
-                          "shell", "getprop", "init.svc.bootanim"}};
-    qCDebug(avdManagerLog).noquote() << "Running command (isAvdBooted):" << cmd.toUserOutput();
-    Process adbProc;
-    adbProc.setCommand(cmd);
-    adbProc.runBlocking();
-    if (adbProc.result() != ProcessResult::FinishedWithSuccess)
-        return false;
-    return adbProc.allOutput().trimmed() == "stopped";
 }
 
 } // namespace Android::Internal::AndroidAvdManager

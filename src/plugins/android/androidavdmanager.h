@@ -6,15 +6,6 @@
 
 namespace Android::Internal::AndroidAvdManager {
 
-bool startAvdAsync(const QString &avdName);
-QString findAvd(const QString &avdName);
-bool isAvdBooted(const QString &device);
-
-Tasking::ExecutableItem serialNumberRecipe(
-    const QString &avdName, const Tasking::Storage<QString> &serialNumberStorage);
-Tasking::ExecutableItem startAvdAsyncRecipe(const QString &avdName);
-Tasking::ExecutableItem waitForAvdRecipe(
-    const QString &avdName, const Tasking::Storage<QString> &serialNumberStorage);
 Tasking::ExecutableItem startAvdRecipe(
     const QString &avdName, const Tasking::Storage<QString> &serialNumberStorage);
 
