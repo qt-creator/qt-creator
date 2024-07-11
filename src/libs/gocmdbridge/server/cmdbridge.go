@@ -197,7 +197,7 @@ func processRemoveAll(cmd command, out chan<- []byte) {
 	}
 
 	result, _ := cbor.Marshal(voidresult{
-		Type: "removeresult",
+		Type: "removeallresult",
 		Id:   cmd.Id,
 	})
 	out <- result
