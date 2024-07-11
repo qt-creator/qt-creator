@@ -296,6 +296,8 @@ void JsonSummaryPage::updateProjectData(FolderNode *node)
 
     updateFileList();
     setStatusVisible(false);
+    if (wizardKind(m_wizard) != IWizardFactory::ProjectWizard)
+        return;
     if (node && !m_fileList.isEmpty()) {
         const FilePath parentFolder = node->directory();
         const FilePath subProjectFolder = m_fileList.first().file.filePath().parentDir();
