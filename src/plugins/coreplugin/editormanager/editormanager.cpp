@@ -396,6 +396,25 @@ EditorManagerPrivate::~EditorManagerPrivate()
     d = nullptr;
 }
 
+static void openDocumentByIdx(int idx)
+{
+    DocumentModel::Entry *entry = DocumentModel::entryAtRow(idx + 1);
+    if (!entry)
+        return;
+    EditorManager::activateEditorForEntry(entry);
+};
+
+static void openDocumentByDelta(int delta)
+{
+    const int count = DocumentModel::entryCount();
+    const std::optional<int> curIdx = DocumentModel::indexOfDocument(
+        EditorManager::currentDocument());
+    if (!curIdx)
+        return;
+    const int newIdx = (*curIdx + delta + count) % count;
+    openDocumentByIdx(newIdx);
+};
+
 void EditorManagerPrivate::init()
 {
     DocumentModel::init();
@@ -595,6 +614,22 @@ void EditorManagerPrivate::init()
     goForward.setDefaultKeySequence(::Core::Tr::tr("Ctrl+Alt+Right"), ::Core::Tr::tr("Alt+Right"));
     goForward.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_NAVIGATE);
     goForward.addOnTriggered(this, &EditorManager::goForwardInNavigationHistory);
+
+    ActionBuilder openPreviousDocument(this, Constants::OPEN_PREVIOUS_DOCUMENT);
+    openPreviousDocument.setIcon(Utils::Icons::PREV.icon());
+    openPreviousDocument.setText(::Core::Tr::tr("Open Previous Document"));
+    openPreviousDocument.bindContextAction(&m_prevDocAction);
+    openPreviousDocument.setContext(editDesignContext);
+    openPreviousDocument.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_NAVIGATE);
+    openPreviousDocument.addOnTriggered(this, [] { openDocumentByDelta(-1); });
+
+    ActionBuilder openNextDocument(this, Constants::OPEN_NEXT_DOCUMENT);
+    openNextDocument.setIcon(Utils::Icons::NEXT.icon());
+    openNextDocument.setText(::Core::Tr::tr("Open Next Document"));
+    openPreviousDocument.bindContextAction(&m_nextDocAction);
+    openNextDocument.setContext(editDesignContext);
+    openNextDocument.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_NAVIGATE);
+    openNextDocument.addOnTriggered(this, [] { openDocumentByDelta(1); });
 
     // Reopen last closed document
     ActionBuilder reopenLastClosedDocument(this, Constants::REOPEN_CLOSED_EDITOR);
@@ -2078,6 +2113,8 @@ void EditorManagerPrivate::updateActions()
     EditorView *view  = currentEditorView();
     d->m_goBackAction->setEnabled(view ? view->canGoBack() : false);
     d->m_goForwardAction->setEnabled(view ? view->canGoForward() : false);
+    d->m_nextDocAction->setEnabled(DocumentModel::entryCount() > 1);
+    d->m_prevDocAction->setEnabled(DocumentModel::entryCount() > 1);
     d->m_reopenLastClosedDocumenAction->setEnabled(view ? view->canReopen() : false);
 
     SplitterOrView *viewParent = (view ? view->parentSplitterOrView() : nullptr);
