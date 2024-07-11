@@ -579,8 +579,70 @@ QWidget *AndroidDeployQtStep::createConfigWidget()
                                              Tr::tr("Qt Android Installer"),
                                              FileUtils::homePath(),
                                              Tr::tr("Android package (*.apk)"));
-        if (!packagePath.isEmpty())
-            AndroidManager::installQASIPackage(target(), packagePath);
+        if (packagePath.isEmpty())
+            return;
+
+        // TODO: Write error messages on all the early returns below.
+        Target *currentTarget = target();
+        if (currentTarget == nullptr)
+            return;
+
+        const QStringList appAbis = AndroidManager::applicationAbis(currentTarget);
+        if (appAbis.isEmpty())
+            return;
+
+        const IDevice::ConstPtr device = DeviceKitAspect::device(currentTarget->kit());
+        const AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromIDevice(device.get());
+        if (!info.isValid()) // aborted
+            return;
+
+        const Storage<QString> serialNumberStorage;
+
+        const auto onSetup = [serialNumberStorage, info] {
+            if (info.type == IDevice::Emulator)
+                return SetupResult::Continue;
+            if (info.serialNumber.isEmpty())
+                return SetupResult::StopWithError;
+            *serialNumberStorage = info.serialNumber;
+            return SetupResult::StopWithSuccess;
+        };
+        const auto onDone = [serialNumberStorage, info](DoneWith result) {
+            if (info.type == IDevice::Emulator && serialNumberStorage->isEmpty()) {
+                Core::MessageManager::writeDisrupting(Tr::tr("Starting Android virtual device failed."));
+                return false;
+            }
+            return result == DoneWith::Success;
+        };
+
+        const auto onAdbSetup = [serialNumberStorage, packagePath](Process &process) {
+            const CommandLine cmd{AndroidConfig::adbToolPath(),
+                                  {AndroidDeviceInfo::adbSelector(*serialNumberStorage),
+                                   "install", "-r", packagePath.path()}};
+            process.setCommand(cmd);
+        };
+        const auto onAdbDone = [](const Process &process, DoneWith result) {
+            if (result == DoneWith::Success) {
+                Core::MessageManager::writeSilently(
+                    Tr::tr("Android package installation finished with success."));
+            } else {
+                Core::MessageManager::writeDisrupting(Tr::tr("Android package installation failed.")
+                                                      + '\n' + process.cleanedStdErr());
+            }
+        };
+
+        const Group recipe {
+            serialNumberStorage,
+            Group {
+                onGroupSetup(onSetup),
+                AndroidAvdManager::startAvdRecipe(info.avdName, serialNumberStorage),
+                onGroupDone(onDone)
+            },
+            ProcessTask(onAdbSetup, onAdbDone)
+        };
+
+        TaskTreeRunner *runner = new TaskTreeRunner;
+        runner->setParent(currentTarget);
+        runner->start(recipe);
     });
 
     using namespace Layouting;

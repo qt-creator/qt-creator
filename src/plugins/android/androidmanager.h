@@ -72,8 +72,6 @@ bool skipInstallationAndPackageSteps(const ProjectExplorer::Target *target);
 
 QString androidNameForApiLevel(int x);
 
-void installQASIPackage(ProjectExplorer::Target *target, const Utils::FilePath &packagePath);
-
 bool checkKeystorePassword(const Utils::FilePath &keystorePath,
                            const QString &keystorePasswd);
 bool checkCertificatePassword(const Utils::FilePath &keystorePath,

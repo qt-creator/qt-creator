@@ -583,36 +583,6 @@ QString androidNameForApiLevel(int x)
     }
 }
 
-void installQASIPackage(Target *target, const FilePath &packagePath)
-{
-    const QStringList appAbis = AndroidManager::applicationAbis(target);
-    if (appAbis.isEmpty())
-        return;
-    const IDevice::ConstPtr device = DeviceKitAspect::device(target->kit());
-    AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromIDevice(device.get());
-    if (!info.isValid()) // aborted
-        return;
-
-    QString deviceSerialNumber = info.serialNumber;
-    if (info.type == IDevice::Emulator) {
-        deviceSerialNumber = AndroidAvdManager::startAvd(info.avdName);
-        if (deviceSerialNumber.isEmpty())
-            MessageManager::writeDisrupting(Tr::tr("Starting Android virtual device failed."));
-    }
-
-    QStringList arguments = AndroidDeviceInfo::adbSelector(deviceSerialNumber);
-    arguments << "install" << "-r " << packagePath.path();
-    QString error;
-    Process *process = startAdbProcess(arguments, &error);
-    if (process) {
-        // TODO: Potential leak when the process is still running on Creator shutdown.
-        QObject::connect(process, &Process::done, process, &QObject::deleteLater);
-    } else {
-        MessageManager::writeDisrupting(
-            Tr::tr("Android package installation failed.\n%1").arg(error));
-    }
-}
-
 bool checkKeystorePassword(const FilePath &keystorePath, const QString &keystorePasswd)
 {
     if (keystorePasswd.isEmpty())
