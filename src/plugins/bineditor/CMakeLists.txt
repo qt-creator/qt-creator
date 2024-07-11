@@ -6,7 +6,6 @@ add_qtc_plugin(BinEditor
     bineditorconstants.h
     bineditorplugin.cpp
     bineditorservice.h
-    bineditorwidget.cpp
-    bineditorwidget.h
-    markup.cpp markup.h
+    markup.cpp
+    markup.h
 )

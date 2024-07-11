@@ -14,8 +14,6 @@ QtcPlugin {
         "bineditor_global.h",
         "bineditortr.h",
         "bineditorconstants.h",
-        "bineditorwidget.cpp",
-        "bineditorwidget.h",
         "bineditorplugin.cpp",
         "bineditorservice.h",
         "markup.cpp",
