@@ -240,6 +240,18 @@ auto HasPropertyTypeId(const Matcher &matcher)
     return Field(&Storage::Synchronization::PropertyDeclaration::propertyTypeId, matcher);
 }
 
+template<typename Matcher>
+auto HasTypeName(const Matcher &matcher)
+{
+    return Field(&Storage::Synchronization::Type::typeName, matcher);
+}
+
+template<typename Matcher>
+auto HasDefaultPropertyName(const Matcher &matcher)
+{
+    return Field(&Storage::Synchronization::Type::defaultPropertyName, matcher);
+}
+
 class HasNameMatcher
 {
 public:
@@ -1165,6 +1177,11 @@ protected:
         return storage.fetchTypeIdByName(sourceId, name);
     }
 
+    auto fetchType(SourceId sourceId, Utils::SmallStringView name)
+    {
+        return storage.fetchTypeByTypeId(storage.fetchTypeIdByName(sourceId, name));
+    }
+
     static auto &findType(Storage::Synchronization::SynchronizationPackage &package,
                           Utils::SmallStringView name)
     {
@@ -1570,8 +1587,7 @@ TEST_F(ProjectStorage, synchronize_types_adds_unknown_prototype_as_unresolved_ty
 
     storage.synchronize(std::move(package));
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
-                HasPrototypeId(IsUnresolvedTypeId()));
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"), HasPrototypeId(IsUnresolvedTypeId()));
 }
 
 TEST_F(ProjectStorage, synchronize_types_updates_unresolved_prototype_after_exported_type_name_is_added)
@@ -1583,8 +1599,7 @@ TEST_F(ProjectStorage, synchronize_types_updates_unresolved_prototype_after_expo
 
     storage.synchronize(std::move(package));
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
-                HasPrototypeId(fetchTypeId(sourceId2, "QObject")));
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"), HasPrototypeId(fetchTypeId(sourceId2, "QObject")));
 }
 
 TEST_F(ProjectStorage,
@@ -1598,8 +1613,7 @@ TEST_F(ProjectStorage,
 
     storage.synchronize(std::move(package));
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
-                HasPrototypeId(IsUnresolvedTypeId()));
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"), HasPrototypeId(IsUnresolvedTypeId()));
 }
 
 TEST_F(ProjectStorage,
@@ -1614,8 +1628,7 @@ TEST_F(ProjectStorage,
 
     storage.synchronize(std::move(package));
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
-                HasPrototypeId(fetchTypeId(sourceId2, "QObject")));
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"), HasPrototypeId(fetchTypeId(sourceId2, "QObject")));
 }
 
 TEST_F(ProjectStorage,
@@ -1631,8 +1644,7 @@ TEST_F(ProjectStorage,
 
     storage.synchronize(std::move(package));
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
-                HasPrototypeId(IsUnresolvedTypeId()));
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"), HasPrototypeId(IsUnresolvedTypeId()));
 }
 
 TEST_F(ProjectStorage,
@@ -1660,8 +1672,7 @@ TEST_F(ProjectStorage, synchronize_types_updates_unresolved_extension_after_expo
 
     storage.synchronize(std::move(package));
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
-                HasExtensionId(fetchTypeId(sourceId2, "QObject")));
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"), HasExtensionId(fetchTypeId(sourceId2, "QObject")));
 }
 
 TEST_F(ProjectStorage,
@@ -1675,8 +1686,7 @@ TEST_F(ProjectStorage,
 
     storage.synchronize(std::move(package));
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
-                HasExtensionId(IsUnresolvedTypeId()));
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"), HasExtensionId(IsUnresolvedTypeId()));
 }
 
 TEST_F(ProjectStorage,
@@ -1691,8 +1701,7 @@ TEST_F(ProjectStorage,
 
     storage.synchronize(std::move(package));
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
-                HasExtensionId(fetchTypeId(sourceId2, "QObject")));
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"), HasExtensionId(fetchTypeId(sourceId2, "QObject")));
 }
 
 TEST_F(ProjectStorage,
@@ -1708,8 +1717,7 @@ TEST_F(ProjectStorage,
 
     storage.synchronize(std::move(package));
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
-                HasExtensionId(IsUnresolvedTypeId()));
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"), HasExtensionId(IsUnresolvedTypeId()));
 }
 
 TEST_F(ProjectStorage,
@@ -2162,8 +2170,7 @@ TEST_F(ProjectStorage, breaking_prototype_chain_by_deleting_base_component_has_u
     storage.synchronize(
         SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1, sourceId2}});
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
-                HasPrototypeId(IsUnresolvedTypeId()));
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"), HasPrototypeId(IsUnresolvedTypeId()));
 }
 
 TEST_F(ProjectStorage, repairing_prototype_chain_by_fixing_base_component)
@@ -2176,8 +2183,7 @@ TEST_F(ProjectStorage, repairing_prototype_chain_by_fixing_base_component)
 
     storage.synchronize(SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}});
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
-                HasPrototypeId(fetchTypeId(sourceId2, "QObject")));
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"), HasPrototypeId(fetchTypeId(sourceId2, "QObject")));
 }
 
 TEST_F(ProjectStorage,
@@ -2202,8 +2208,7 @@ TEST_F(ProjectStorage, breaking_extension_chain_by_deleting_base_component_has_u
     storage.synchronize(
         SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1, sourceId2}});
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
-                HasExtensionId(IsUnresolvedTypeId()));
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"), HasExtensionId(IsUnresolvedTypeId()));
 }
 
 TEST_F(ProjectStorage, repairing_extension_chain_by_fixing_base_component)
@@ -2216,8 +2221,7 @@ TEST_F(ProjectStorage, repairing_extension_chain_by_fixing_base_component)
 
     storage.synchronize(SynchronizationPackage{importsSourceId2, {package.types[1]}, {sourceId2}});
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
-                HasExtensionId(fetchTypeId(sourceId2, "QObject")));
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"), HasExtensionId(fetchTypeId(sourceId2, "QObject")));
 }
 
 TEST_F(ProjectStorage, synchronize_types_add_property_declarations)
@@ -2262,7 +2266,7 @@ TEST_F(ProjectStorage, synchronize_adds_property_declarations_with_missing_impor
 
     storage.synchronize(package);
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"),
                 PropertyDeclarations(Contains(HasPropertyTypeId(IsNullTypeId()))));
 }
 
@@ -2274,7 +2278,7 @@ TEST_F(ProjectStorage, synchronize_fixes_unresolved_property_declarations_with_m
 
     storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"),
                 PropertyDeclarations(
                     Contains(IsPropertyDeclaration("data", fetchTypeId(sourceId2, "QObject")))));
 }
@@ -2487,7 +2491,7 @@ TEST_F(ProjectStorage, using_non_existing_property_type_has_null_type_id)
 
     storage.synchronize(package);
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"),
                 PropertyDeclarations(Contains(HasPropertyTypeId(IsNullTypeId()))));
 }
 
@@ -2504,7 +2508,7 @@ TEST_F(ProjectStorage, resolve_type_id_after_fixing_non_existing_property_type)
 
     storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"),
                 PropertyDeclarations(Contains(HasPropertyTypeId(fetchTypeId(sourceId2, "QObject")))));
 }
 
@@ -2529,7 +2533,7 @@ TEST_F(ProjectStorage,
 
     storage.synchronize(package);
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"),
                 PropertyDeclarations(Contains(HasPropertyTypeId(IsNullTypeId()))));
 }
 
@@ -2544,7 +2548,7 @@ TEST_F(ProjectStorage, resolve_type_id_after_fixing_non_existing_qualified_prope
 
     storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"),
                 PropertyDeclarations(
                     Contains(IsPropertyDeclaration("data", fetchTypeId(sourceId2, "QObject")))));
 }
@@ -2576,7 +2580,7 @@ TEST_F(ProjectStorage,
 
     storage.synchronize(package);
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"),
                 PropertyDeclarations(Contains(HasPropertyTypeId(IsNullTypeId()))));
 }
 
@@ -2593,7 +2597,7 @@ TEST_F(ProjectStorage, resolve_qualified_exported_property_type_with_fixed_modul
 
     storage.synchronize(SynchronizationPackage{importsSourceId1, {package.types[0]}, {sourceId1}});
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"),
                 PropertyDeclarations(Contains(HasPropertyTypeId(IsNullTypeId()))));
 }
 
@@ -2621,7 +2625,7 @@ TEST_F(ProjectStorage, breaking_property_declaration_type_dependency_by_deleting
 
     storage.synchronize(package);
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"),
                 PropertyDeclarations(Contains(IsPropertyDeclaration("data", IsNullTypeId()))));
 }
 
@@ -2637,7 +2641,7 @@ TEST_F(ProjectStorage, fixing_broken_property_declaration_type_dependenc_has_val
 
     storage.synchronize({{importsSourceId2}, {objectType}, {sourceId2}});
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"),
                 PropertyDeclarations(
                     Contains(IsPropertyDeclaration("data", fetchTypeId(sourceId2, "QObject")))));
 }
@@ -3483,7 +3487,7 @@ TEST_F(ProjectStorage, synchronize_types_add_alias_declarations_set_null_type_id
 
     storage.synchronize(package);
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId3, "QAliasItem")),
+    ASSERT_THAT(fetchType(sourceId3, "QAliasItem"),
                 PropertyDeclarations(Contains(IsPropertyDeclaration("items", IsNullTypeId()))));
 }
 
@@ -3499,7 +3503,7 @@ TEST_F(ProjectStorage, synchronize_types_fixes_null_type_id_after_add_alias_decl
     storage.synchronize(
         {moduleDependenciesSourceId3 + importsSourceId3, {package.types[2]}, {sourceId3}});
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId3, "QAliasItem")),
+    ASSERT_THAT(fetchType(sourceId3, "QAliasItem"),
                 PropertyDeclarations(
                     Contains(IsPropertyDeclaration("items", fetchTypeId(sourceId1, "QQuickItem")))));
 }
@@ -3769,7 +3773,7 @@ TEST_F(ProjectStorage,
 
     storage.synchronize(SynchronizationPackage{{sourceId4}});
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId3, "QAliasItem")),
+    ASSERT_THAT(fetchType(sourceId3, "QAliasItem"),
                 PropertyDeclarations(Contains(IsPropertyDeclaration("objects", IsNullTypeId()))));
 }
 
@@ -3786,7 +3790,7 @@ TEST_F(ProjectStorage, synchronize_fixes_type_with_alias_target_property_declara
                                                {package.types[3]},
                                                {sourceId4}});
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId3, "QAliasItem")),
+    ASSERT_THAT(fetchType(sourceId3, "QAliasItem"),
                 PropertyDeclarations(
                     Contains(IsPropertyDeclaration("objects", fetchTypeId(sourceId2, "QObject")))));
 }
@@ -3981,7 +3985,7 @@ TEST_F(ProjectStorage, not_relinked_alias_property_for_qualified_imported_type_n
                                                {package.types[3]},
                                                {sourceId4}});
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId3, "QAliasItem")),
+    ASSERT_THAT(fetchType(sourceId3, "QAliasItem"),
                 PropertyDeclarations(Contains(IsPropertyDeclaration("objects", IsNullTypeId()))));
 }
 
@@ -4002,7 +4006,7 @@ TEST_F(ProjectStorage,
                                                {package.types[3]},
                                                {sourceId4}});
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId3, "QAliasItem")),
+    ASSERT_THAT(fetchType(sourceId3, "QAliasItem"),
                 PropertyDeclarations(
                     Contains(IsPropertyDeclaration("objects", fetchTypeId(sourceId4, "QObject2")))));
 }
@@ -4167,7 +4171,7 @@ TEST_F(ProjectStorage, not_relinked_property_type_has_null_type_id)
 
     storage.synchronize({{sourceId4}});
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId2, "QObject")),
+    ASSERT_THAT(fetchType(sourceId2, "QObject"),
                 PropertyDeclarations(Contains(IsPropertyDeclaration("objects", IsNullTypeId()))));
 }
 
@@ -4184,7 +4188,7 @@ TEST_F(ProjectStorage, not_relinked_property_type_fixed_after_adding_property_ty
     storage.synchronize(
         {importsSourceId4 + moduleDependenciesSourceId4, {package.types[3]}, {sourceId4}});
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId2, "QObject")),
+    ASSERT_THAT(fetchType(sourceId2, "QObject"),
                 PropertyDeclarations(
                     Contains(IsPropertyDeclaration("objects", fetchTypeId(sourceId4, "QObject2")))));
 }
@@ -4202,7 +4206,7 @@ TEST_F(ProjectStorage, not_relinked_property_type_fixed_after_type_is_added_agai
     storage.synchronize(
         {importsSourceId4 + moduleDependenciesSourceId4, {package.types[3]}, {sourceId4}});
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId2, "QObject")),
+    ASSERT_THAT(fetchType(sourceId2, "QObject"),
                 PropertyDeclarations(
                     Contains(IsPropertyDeclaration("objects", fetchTypeId(sourceId4, "QObject2")))));
 }
@@ -4230,7 +4234,7 @@ TEST_F(ProjectStorage, not_relinked_alias_property_type_has_null_type_id)
 
     storage.synchronize(SynchronizationPackage{{sourceId1}});
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId3, "QAliasItem")),
+    ASSERT_THAT(fetchType(sourceId3, "QAliasItem"),
                 PropertyDeclarations(Contains(IsPropertyDeclaration("objects", IsNullTypeId()))));
 }
 
@@ -4246,7 +4250,7 @@ TEST_F(ProjectStorage, not_relinked_alias_property_type_fixed_after_referenced_t
     storage.synchronize(
         {importsSourceId1 + moduleDependenciesSourceId1, {package.types[0]}, {sourceId1}});
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId3, "QAliasItem")),
+    ASSERT_THAT(fetchType(sourceId3, "QAliasItem"),
                 PropertyDeclarations(
                     Contains(IsPropertyDeclaration("objects", fetchTypeId(sourceId4, "QObject2")))));
 }
@@ -5068,7 +5072,7 @@ TEST_F(ProjectStorage,
 
     storage.synchronize(package);
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"),
                 PropertyDeclarations(Contains(HasPropertyTypeId(IsNullTypeId()))));
 }
 
@@ -5084,7 +5088,7 @@ TEST_F(ProjectStorage, borken_qualified_property_declaration_type_name_down_the_
     storage.synchronize(
         {importsSourceId1 + moduleDependenciesSourceId1, {package.types[0]}, {sourceId1}});
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"),
                 PropertyDeclarations(Not(Contains(HasPropertyTypeId(IsNullTypeId())))));
 }
 
@@ -5158,7 +5162,7 @@ TEST_F(ProjectStorage, change_property_type_module_id_with_qualified_type_sets_t
                                                {package.types[1]},
                                                {sourceId2}});
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"),
                 PropertyDeclarations(Contains(HasPropertyTypeId(IsNullTypeId()))));
 }
 
@@ -5179,7 +5183,7 @@ TEST_F(ProjectStorage,
                                                {package.types[1]},
                                                {sourceId2}});
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"),
                 PropertyDeclarations(Not(Contains(HasPropertyTypeId(IsNullTypeId())))));
 }
 
@@ -6512,7 +6516,7 @@ TEST_F(ProjectStorage,
         importsSourceId3, {package.types[2]}, {sourceId3}, moduleDependenciesSourceId3, {sourceId3}});
 
     auto type = storage.fetchTypeByTypeId(fetchTypeId(sourceId3, "QAliasItem"));
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId3, "QAliasItem")),
+    ASSERT_THAT(fetchType(sourceId3, "QAliasItem"),
                 PropertyDeclarations(Contains(IsPropertyDeclaration("objects", IsNullTypeId()))));
 }
 
@@ -6532,7 +6536,7 @@ TEST_F(ProjectStorage,
         importsSourceId3, {package.types[2]}, {sourceId3}, moduleDependenciesSourceId3, {sourceId3}});
 
     auto type = storage.fetchTypeByTypeId(fetchTypeId(sourceId3, "QAliasItem"));
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId3, "QAliasItem")),
+    ASSERT_THAT(fetchType(sourceId3, "QAliasItem"),
                 PropertyDeclarations(Not(Contains(IsPropertyDeclaration("objects", IsNullTypeId())))));
 }
 
@@ -7374,9 +7378,7 @@ TEST_F(ProjectStorage, synchronize_default_property)
     storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(Field(&Storage::Synchronization::Type::typeName, Eq("QQuickItem")),
-                               Field(&Storage::Synchronization::Type::defaultPropertyName,
-                                     Eq("children")))));
+                Contains(AllOf(HasTypeName(Eq("QQuickItem")), HasDefaultPropertyName(Eq("children")))));
 }
 
 TEST_F(ProjectStorage, synchronize_default_property_to_a_different_name)
@@ -7389,9 +7391,7 @@ TEST_F(ProjectStorage, synchronize_default_property_to_a_different_name)
     storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(
-                    AllOf(Field(&Storage::Synchronization::Type::typeName, Eq("QQuickItem")),
-                          Field(&Storage::Synchronization::Type::defaultPropertyName, Eq("data")))));
+                Contains(AllOf(HasTypeName(Eq("QQuickItem")), HasDefaultPropertyName(Eq("data")))));
 }
 
 TEST_F(ProjectStorage, synchronize_to_removed_default_property)
@@ -7404,9 +7404,7 @@ TEST_F(ProjectStorage, synchronize_to_removed_default_property)
     storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(
-                    AllOf(Field(&Storage::Synchronization::Type::typeName, Eq("QQuickItem")),
-                          Field(&Storage::Synchronization::Type::defaultPropertyName, IsEmpty()))));
+                Contains(AllOf(HasTypeName(Eq("QQuickItem")), HasDefaultPropertyName(IsEmpty()))));
 }
 
 TEST_F(ProjectStorage, synchronize_default_property_throws_for_missing_default_property)
@@ -7440,9 +7438,7 @@ TEST_F(ProjectStorage, synchronize_changes_default_property_and_removes_old_defa
     storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(
-                    AllOf(Field(&Storage::Synchronization::Type::typeName, Eq("QQuickItem")),
-                          Field(&Storage::Synchronization::Type::defaultPropertyName, Eq("data")))));
+                Contains(AllOf(HasTypeName(Eq("QQuickItem")), HasDefaultPropertyName(Eq("data")))));
 }
 
 TEST_F(ProjectStorage, synchronize_add_new_default_property_and_removes_old_default_property)
@@ -7462,9 +7458,7 @@ TEST_F(ProjectStorage, synchronize_add_new_default_property_and_removes_old_defa
     storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(
-                    AllOf(Field(&Storage::Synchronization::Type::typeName, Eq("QQuickItem")),
-                          Field(&Storage::Synchronization::Type::defaultPropertyName, Eq("data2")))));
+                Contains(AllOf(HasTypeName(Eq("QQuickItem")), HasDefaultPropertyName(Eq("data2")))));
 }
 
 TEST_F(ProjectStorage, synchronize_default_property_to_the_prototype_property)
@@ -7479,9 +7473,7 @@ TEST_F(ProjectStorage, synchronize_default_property_to_the_prototype_property)
     storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(Field(&Storage::Synchronization::Type::typeName, Eq("QQuickItem")),
-                               Field(&Storage::Synchronization::Type::defaultPropertyName,
-                                     Eq("children")))));
+                Contains(AllOf(HasTypeName(Eq("QQuickItem")), HasDefaultPropertyName(Eq("children")))));
 }
 
 TEST_F(ProjectStorage, synchronize_default_property_to_the_extension_property)
@@ -7497,9 +7489,7 @@ TEST_F(ProjectStorage, synchronize_default_property_to_the_extension_property)
     storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(Field(&Storage::Synchronization::Type::typeName, Eq("QQuickItem")),
-                               Field(&Storage::Synchronization::Type::defaultPropertyName,
-                                     Eq("children")))));
+                Contains(AllOf(HasTypeName(Eq("QQuickItem")), HasDefaultPropertyName(Eq("children")))));
 }
 
 TEST_F(ProjectStorage, synchronize_move_the_default_property_to_the_prototype_property)
@@ -7515,9 +7505,7 @@ TEST_F(ProjectStorage, synchronize_move_the_default_property_to_the_prototype_pr
     storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(Field(&Storage::Synchronization::Type::typeName, Eq("QQuickItem")),
-                               Field(&Storage::Synchronization::Type::defaultPropertyName,
-                                     Eq("children")))));
+                Contains(AllOf(HasTypeName(Eq("QQuickItem")), HasDefaultPropertyName(Eq("children")))));
 }
 
 TEST_F(ProjectStorage, synchronize_move_the_default_property_to_the_extension_property)
@@ -7534,9 +7522,7 @@ TEST_F(ProjectStorage, synchronize_move_the_default_property_to_the_extension_pr
     storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
-                Contains(AllOf(Field(&Storage::Synchronization::Type::typeName, Eq("QQuickItem")),
-                               Field(&Storage::Synchronization::Type::defaultPropertyName,
-                                     Eq("children")))));
+                Contains(AllOf(HasTypeName(Eq("QQuickItem")), HasDefaultPropertyName(Eq("children")))));
 }
 
 TEST_F(ProjectStorage, get_type)
@@ -8049,8 +8035,7 @@ TEST_F(ProjectStorage, synchronize_document_imports_removes_import_which_makes_p
 
     storage.synchronizeDocumentImports({}, sourceId1);
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
-                HasPrototypeId(IsUnresolvedTypeId()));
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"), HasPrototypeId(IsUnresolvedTypeId()));
 }
 
 TEST_F(ProjectStorage, synchronize_document_imports_adds_import_which_makes_prototype_resolved)
@@ -8063,8 +8048,7 @@ TEST_F(ProjectStorage, synchronize_document_imports_adds_import_which_makes_prot
 
     storage.synchronizeDocumentImports(imports, sourceId1);
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
-                HasPrototypeId(fetchTypeId(sourceId2, "QObject")));
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"), HasPrototypeId(fetchTypeId(sourceId2, "QObject")));
 }
 
 TEST_F(ProjectStorage, get_exported_type_names)
@@ -8863,8 +8847,7 @@ TEST_F(ProjectStorage, removed_document_import_changes_prototype_to_unresolved)
 
     storage.synchronize(package);
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
-                HasPrototypeId(IsUnresolvedTypeId()));
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"), HasPrototypeId(IsUnresolvedTypeId()));
 }
 
 TEST_F(ProjectStorage, removed_document_import_changes_extension_to_unresolved)
@@ -8880,8 +8863,7 @@ TEST_F(ProjectStorage, removed_document_import_changes_extension_to_unresolved)
 
     storage.synchronize(package);
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
-                HasExtensionId(IsUnresolvedTypeId()));
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"), HasExtensionId(IsUnresolvedTypeId()));
 }
 
 TEST_F(ProjectStorage, added_document_import_fixes_unresolved_prototype)
@@ -8896,8 +8878,7 @@ TEST_F(ProjectStorage, added_document_import_fixes_unresolved_prototype)
 
     storage.synchronize(package);
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
-                HasPrototypeId(fetchTypeId(sourceId2, "QObject")));
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"), HasPrototypeId(fetchTypeId(sourceId2, "QObject")));
 }
 
 TEST_F(ProjectStorage, added_document_import_fixes_unresolved_extension)
@@ -8912,8 +8893,7 @@ TEST_F(ProjectStorage, added_document_import_fixes_unresolved_extension)
 
     storage.synchronize(package);
 
-    ASSERT_THAT(storage.fetchTypeByTypeId(fetchTypeId(sourceId1, "QQuickItem")),
-                HasExtensionId(fetchTypeId(sourceId2, "QObject")));
+    ASSERT_THAT(fetchType(sourceId1, "QQuickItem"), HasExtensionId(fetchTypeId(sourceId2, "QObject")));
 }
 
 } // namespace
