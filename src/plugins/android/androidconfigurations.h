@@ -16,8 +16,6 @@
 
 #include <utils/filepath.h>
 
-#include <QHash>
-#include <QMap>
 #include <QStringList>
 #include <QVersionNumber>
 
@@ -40,7 +38,6 @@ public:
 
 namespace AndroidConfig {
 
-QString getAvdName(const QString &serialnumber);
 QStringList apiLevelNamesFor(const SdkPlatformList &platforms);
 QString apiLevelNameFor(const SdkPlatform *platform);
 
@@ -99,7 +96,6 @@ QString bestNdkPlatformMatch(int target, const QtSupport::QtVersion *qtVersion);
 QLatin1String displayName(const ProjectExplorer::Abi &abi);
 
 QString getProductModel(const QString &device);
-bool isConnected(const QString &serialNumber);
 
 bool sdkFullyConfigured();
 void setSdkFullyConfigured(bool allEssentialsInstalled);

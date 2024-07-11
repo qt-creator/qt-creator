@@ -41,7 +41,6 @@
 #include <QApplication>
 #include <QDirIterator>
 #include <QFileInfo>
-#include <QHostAddress>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -49,8 +48,6 @@
 #include <QRegularExpression>
 #include <QSettings>
 #include <QStandardPaths>
-#include <QStringList>
-#include <QTcpSocket>
 
 #include <functional>
 #include <memory>
@@ -284,33 +281,6 @@ static FilePath ndkSubPathFromQtVersion(const QtVersion &version)
 //////////////////////////////////
 // AndroidConfig
 //////////////////////////////////
-
-QString getAvdName(const QString &serialnumber)
-{
-    const int index = serialnumber.indexOf(QLatin1String("-"));
-    if (index == -1)
-        return {};
-    bool ok;
-    const int port = serialnumber.mid(index + 1).toInt(&ok);
-    if (!ok)
-        return {};
-
-    QTcpSocket tcpSocket;
-    tcpSocket.connectToHost(QHostAddress(QHostAddress::LocalHost), port);
-    if (!tcpSocket.waitForConnected(100)) // Don't wait more than 100ms for a local connection
-        return {};
-
-    tcpSocket.write("avd name\nexit\n");
-    tcpSocket.waitForDisconnected(500);
-
-    const QByteArrayList response = tcpSocket.readAll().split('\n');
-    // The input "avd name" might not be echoed as-is, but contain ASCII control sequences.
-    for (int i = response.size() - 1; i > 1; --i) {
-        if (response.at(i).startsWith("OK"))
-            return QString::fromLatin1(response.at(i - 1)).trimmed();
-    }
-    return {};
-}
 
 QLatin1String displayName(const Abi &abi)
 {
@@ -697,17 +667,6 @@ ExecutableItem devicesCommandOutputRecipe(const Storage<QStringList> &outputStor
         *outputStorage = process.allOutput().split('\n', Qt::SkipEmptyParts).mid(1);
     };
     return ProcessTask(onSetup, onDone);
-}
-
-bool isConnected(const QString &serialNumber)
-{
-    const QStringList lines = devicesCommandOutput();
-    for (const QString &line : lines) {
-        // skip the daemon logs
-        if (!line.startsWith("* daemon") && line.left(line.indexOf('\t')).trimmed() == serialNumber)
-            return true;
-    }
-    return false;
 }
 
 bool sdkFullyConfigured() { return config().m_sdkFullyConfigured; }
