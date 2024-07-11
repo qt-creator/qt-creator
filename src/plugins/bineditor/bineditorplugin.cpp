@@ -75,6 +75,50 @@ using namespace Core;
 
 namespace BinEditor::Internal {
 
+class BinEditorWidget;
+
+class BinEditorDocument : public IDocument
+{
+    Q_OBJECT
+public:
+    BinEditorDocument(BinEditorWidget *parent);
+
+    QByteArray contents() const final;
+    bool setContents(const QByteArray &contents) final;
+
+    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const final
+    {
+        return type == TypeRemoved ? BehaviorSilent : IDocument::reloadBehavior(state, type);
+    }
+
+    OpenResult open(QString *errorString, const FilePath &filePath,
+                    const FilePath &realFilePath) final
+    {
+        QTC_CHECK(filePath == realFilePath); // The bineditor can do no autosaving
+        return openImpl(errorString, filePath);
+    }
+
+    OpenResult openImpl(QString *errorString, const FilePath &filePath, quint64 offset = 0);
+
+    void provideData(quint64 address);
+
+    void provideNewRange(quint64 offset)
+    {
+        if (filePath().exists())
+            openImpl(nullptr, filePath(), offset);
+    }
+
+    bool isModified() const final;
+
+    bool isSaveAsAllowed() const final { return true; }
+
+    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) final;
+    bool saveImpl(QString *errorString, const Utils::FilePath &filePath, bool autoSave) final;
+
+private:
+    BinEditorWidget *m_widget;
+};
+
 class BinEditorWidget final : public QAbstractScrollArea, public EditorService
 {
     Q_OBJECT
@@ -2065,148 +2109,120 @@ private:
 };
 
 
-class BinEditorDocument : public IDocument
+// BinEditorDocument
+
+BinEditorDocument::BinEditorDocument(BinEditorWidget *parent)
+    : IDocument(parent)
 {
-    Q_OBJECT
-public:
-    BinEditorDocument(BinEditorWidget *parent) :
-        IDocument(parent)
-    {
-        setId(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
-        setMimeType(Utils::Constants::OCTET_STREAM_MIMETYPE);
-        m_widget = parent;
-        EditorService *es = m_widget->editorService();
-        es->setFetchDataHandler([this](quint64 address) { provideData(address); });
-        es->setNewRangeRequestHandler([this](quint64 offset) { provideNewRange(offset); });
-        es->setDataChangedHandler([this](quint64, const QByteArray &) { contentsChanged(); });
+    setId(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
+    setMimeType(Utils::Constants::OCTET_STREAM_MIMETYPE);
+    m_widget = parent;
+    EditorService *es = m_widget->editorService();
+    es->setFetchDataHandler([this](quint64 address) { provideData(address); });
+    es->setNewRangeRequestHandler([this](quint64 offset) { provideNewRange(offset); });
+    es->setDataChangedHandler([this](quint64, const QByteArray &) { contentsChanged(); });
+}
+
+QByteArray BinEditorDocument::contents() const
+{
+    return m_widget->contents();
+}
+
+bool BinEditorDocument::setContents(const QByteArray &contents)
+{
+    m_widget->clear();
+    if (!contents.isEmpty()) {
+        m_widget->setSizes(0, contents.length(), contents.length());
+        m_widget->addData(0, contents);
+    }
+    return true;
+}
+
+IDocument::OpenResult BinEditorDocument::openImpl(QString *errorString, const FilePath &filePath, quint64 offset)
+{
+    const qint64 size = filePath.fileSize();
+    if (size < 0) {
+        QString msg = Tr::tr("Cannot open %1: %2").arg(filePath.toUserOutput(), Tr::tr("File Error"));
+        // FIXME: Was: file.errorString(), but we don't have a file anymore.
+        if (errorString)
+            *errorString = msg;
+        else
+            QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), msg);
+        return OpenResult::ReadError;
     }
 
-    QByteArray contents() const override
-    {
-        return m_widget->contents();
+    if (size == 0) {
+        QString msg = Tr::tr("The Binary Editor cannot open empty files.");
+        if (errorString)
+            *errorString = msg;
+        else
+            QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), msg);
+        return OpenResult::CannotHandle;
     }
 
-    bool setContents(const QByteArray &contents) override
-    {
-        m_widget->clear();
-        if (!contents.isEmpty()) {
-            m_widget->setSizes(0, contents.length(), contents.length());
-            m_widget->addData(0, contents);
-        }
-        return true;
+    if (size / 16 >= qint64(1) << 31) {
+        // The limit is 2^31 lines (due to QText* interfaces) * 16 bytes per line.
+        QString msg = Tr::tr("The file is too big for the Binary Editor (max. 32GB).");
+        if (errorString)
+            *errorString = msg;
+        else
+            QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), msg);
+        return OpenResult::CannotHandle;
     }
 
-    ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override
-    {
-        return type == TypeRemoved ? BehaviorSilent : IDocument::reloadBehavior(state, type);
-    }
+    if (offset >= quint64(size))
+        return OpenResult::CannotHandle;
 
-    OpenResult open(QString *errorString, const FilePath &filePath,
-                    const FilePath &realFilePath) override
-    {
-        QTC_CHECK(filePath == realFilePath); // The bineditor can do no autosaving
-        return openImpl(errorString, filePath);
-    }
+    setFilePath(filePath);
+    m_widget->setSizes(offset, size);
+    return OpenResult::Success;
+}
 
-    OpenResult openImpl(QString *errorString, const FilePath &filePath, quint64 offset = 0)
-    {
-        const qint64 size = filePath.fileSize();
-        if (size < 0) {
-            QString msg = Tr::tr("Cannot open %1: %2").arg(filePath.toUserOutput(), Tr::tr("File Error"));
-            // FIXME: Was: file.errorString(), but we don't have a file anymore.
-            if (errorString)
-                *errorString = msg;
-            else
-                QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), msg);
-            return OpenResult::ReadError;
-        }
-
-        if (size == 0) {
-            QString msg = Tr::tr("The Binary Editor cannot open empty files.");
-            if (errorString)
-                *errorString = msg;
-            else
-                QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), msg);
-            return OpenResult::CannotHandle;
-        }
-
-        if (size / 16 >= qint64(1) << 31) {
-            // The limit is 2^31 lines (due to QText* interfaces) * 16 bytes per line.
-            QString msg = Tr::tr("The file is too big for the Binary Editor (max. 32GB).");
-            if (errorString)
-                *errorString = msg;
-            else
-                QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"), msg);
-            return OpenResult::CannotHandle;
-        }
-
-        if (offset >= quint64(size))
-            return OpenResult::CannotHandle;
-
-        setFilePath(filePath);
-        m_widget->setSizes(offset, size);
-        return OpenResult::Success;
-    }
-
-    void provideData(quint64 address)
-    {
-        const FilePath fn = filePath();
-        if (fn.isEmpty())
-            return;
-        const int blockSize = m_widget->dataBlockSize();
-        QByteArray data = fn.fileContents(blockSize, address).value_or(QByteArray());
-        const int dataSize = data.size();
-        if (dataSize != blockSize)
-            data += QByteArray(blockSize - dataSize, 0);
-        m_widget->addData(address, data);
+void BinEditorDocument::provideData(quint64 address)
+{
+    const FilePath fn = filePath();
+    if (fn.isEmpty())
+        return;
+    const int blockSize = m_widget->dataBlockSize();
+    QByteArray data = fn.fileContents(blockSize, address).value_or(QByteArray());
+    const int dataSize = data.size();
+    if (dataSize != blockSize)
+        data += QByteArray(blockSize - dataSize, 0);
+    m_widget->addData(address, data);
 //       QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"),
 //                             Tr::tr("Cannot open %1: %2").arg(
 //                                   fn.toUserOutput(), file.errorString()));
+}
+
+bool BinEditorDocument::isModified() const
+{
+    return isTemporary()/*e.g. memory view*/ ? false
+                                             : m_widget->isModified();
+}
+
+bool BinEditorDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)
+{
+    Q_UNUSED(type)
+    if (flag == FlagIgnore)
+        return true;
+    emit aboutToReload();
+    int cPos = m_widget->cursorPosition();
+    m_widget->clear();
+    const bool success = (openImpl(errorString, filePath()) == OpenResult::Success);
+    m_widget->setCursorPosition(cPos);
+    emit reloadFinished(success);
+    return success;
+}
+
+bool BinEditorDocument::saveImpl(QString *errorString, const Utils::FilePath &filePath, bool autoSave)
+{
+    QTC_ASSERT(!autoSave, return true); // bineditor does not support autosave - it would be a bit expensive
+    if (m_widget->save(errorString, this->filePath(), filePath)) {
+        setFilePath(filePath);
+        return true;
     }
-
-    void provideNewRange(quint64 offset)
-    {
-        if (filePath().exists())
-            openImpl(nullptr, filePath(), offset);
-    }
-
-public:
-    bool isModified() const override
-    {
-        return isTemporary()/*e.g. memory view*/ ? false
-                                                 : m_widget->isModified();
-    }
-
-    bool isSaveAsAllowed() const override { return true; }
-
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override
-    {
-        Q_UNUSED(type)
-        if (flag == FlagIgnore)
-            return true;
-        emit aboutToReload();
-        int cPos = m_widget->cursorPosition();
-        m_widget->clear();
-        const bool success = (openImpl(errorString, filePath()) == OpenResult::Success);
-        m_widget->setCursorPosition(cPos);
-        emit reloadFinished(success);
-        return success;
-    }
-
-protected:
-    bool saveImpl(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override
-    {
-        QTC_ASSERT(!autoSave, return true); // bineditor does not support autosave - it would be a bit expensive
-        if (m_widget->save(errorString, this->filePath(), filePath)) {
-            setFilePath(filePath);
-            return true;
-        }
-        return false;
-    }
-
-private:
-    BinEditorWidget *m_widget;
-};
+    return false;
+}
 
 class BinEditorImpl: public IEditor
 {
