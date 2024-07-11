@@ -24,23 +24,6 @@ namespace Android::Internal::AndroidAvdManager {
 
 static Q_LOGGING_CATEGORY(avdManagerLog, "qtc.android.avdManager", QtWarningMsg)
 
-// TODO: Make async and move out of startAvdImpl, make it a part of startAvdRecipe.
-static bool is32BitUserSpace()
-{
-    // Do a similar check as android's emulator is doing:
-    if (HostOsInfo::isLinuxHost()) {
-        if (QSysInfo::WordSize == 32) {
-            Process proc;
-            proc.setCommand({"getconf", {"LONG_BIT"}});
-            proc.runBlocking(3s);
-            if (proc.result() != ProcessResult::FinishedWithSuccess)
-                return true;
-            return proc.allOutput().trimmed() == "32";
-        }
-    }
-    return false;
-}
-
 static void startAvdDetached(QPromise<void> &promise, const CommandLine &avdCommand)
 {
     qCDebug(avdManagerLog).noquote() << "Running command (startAvdDetached):" << avdCommand.toUserOutput();
@@ -48,10 +31,10 @@ static void startAvdDetached(QPromise<void> &promise, const CommandLine &avdComm
         promise.future().cancel();
 }
 
-static CommandLine avdCommand(const QString &avdName)
+static CommandLine avdCommand(const QString &avdName, bool is32BitUserSpace)
 {
     CommandLine cmd(AndroidConfig::emulatorToolPath());
-    if (is32BitUserSpace())
+    if (is32BitUserSpace)
         cmd.addArg("-force-32bit");
     cmd.addArgs(AndroidConfig::emulatorArgs(), CommandLine::Raw);
     cmd.addArgs({"-avd", avdName});
@@ -60,23 +43,48 @@ static CommandLine avdCommand(const QString &avdName)
 
 static ExecutableItem startAvdAsyncRecipe(const QString &avdName)
 {
-    const auto onSetup = [avdName](Async<void> &async) {
+    const Storage<bool> is32Storage;
+
+    const auto onSetup = [] {
         const FilePath emulatorPath = AndroidConfig::emulatorToolPath();
-        if (!emulatorPath.exists()) {
-            QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("Emulator Tool Is Missing"),
-                                  Tr::tr("Install the missing emulator tool (%1) to the "
-                                         "installed Android SDK.").arg(emulatorPath.displayName()));
-            return SetupResult::StopWithError;
-        }
-        async.setConcurrentCallData(startAvdDetached, avdCommand(avdName));
+        if (emulatorPath.exists())
+            return SetupResult::Continue;
+
+        QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("Emulator Tool Is Missing"),
+                              Tr::tr("Install the missing emulator tool (%1) to the "
+                                     "installed Android SDK.").arg(emulatorPath.displayName()));
+        return SetupResult::StopWithError;
+    };
+
+    const auto onGetConfSetup = [](Process &process) {
+        if (!HostOsInfo::isLinuxHost() || QSysInfo::WordSize != 32)
+            return SetupResult::StopWithSuccess; // is64
+
+        process.setCommand({"getconf", {"LONG_BIT"}});
         return SetupResult::Continue;
     };
-    const auto onDone = [avdName] {
+    const auto onGetConfDone = [is32Storage](const Process &process, DoneWith result) {
+        if (result == DoneWith::Success)
+            *is32Storage = process.allOutput().trimmed() == "32";
+        else
+            *is32Storage = true;
+        return true;
+    };
+
+    const auto onAvdSetup = [avdName, is32Storage](Async<void> &async) {
+        async.setConcurrentCallData(startAvdDetached, avdCommand(avdName, *is32Storage));
+    };
+    const auto onAvdDone = [avdName] {
         QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("AVD Start Error"),
                               Tr::tr("Failed to start AVD emulator for \"%1\" device.").arg(avdName));
     };
 
-    return AsyncTask<void>(onSetup, onDone, CallDoneIf::Error);
+    return Group {
+        is32Storage,
+        onGroupSetup(onSetup),
+        ProcessTask(onGetConfSetup, onGetConfDone),
+        AsyncTask<void>(onAvdSetup, onAvdDone, CallDoneIf::Error)
+    };
 }
 
 static ExecutableItem serialNumberRecipe(const QString &avdName, const Storage<QString> &serialNumberStorage)
