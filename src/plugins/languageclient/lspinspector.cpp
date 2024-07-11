@@ -5,6 +5,7 @@
 
 #include "client.h"
 #include "languageclientmanager.h"
+#include "languageclientsettings.h"
 #include "languageclienttr.h"
 
 #include <coreplugin/icore.h>
@@ -13,11 +14,17 @@
 #include <languageserverprotocol/jsonkeys.h>
 #include <languageserverprotocol/jsonrpcmessages.h>
 
+#include <texteditor/texteditor.h>
+
 #include <utils/jsontreeitem.h>
+#include <utils/layoutbuilder.h>
 #include <utils/listmodel.h>
+#include <utils/macroexpander.h>
+#include <utils/variablechooser.h>
 
 #include <QAction>
 #include <QApplication>
+#include <QBuffer>
 #include <QComboBox>
 #include <QDialog>
 #include <QDialogButtonBox>
@@ -28,7 +35,6 @@
 #include <QJsonDocument>
 #include <QLabel>
 #include <QListWidget>
-#include <QPlainTextEdit>
 #include <QPushButton>
 #include <QSplitter>
 #include <QStyledItemDelegate>
@@ -331,10 +337,12 @@ private:
     LspLogWidget *log() const;
     LspCapabilitiesWidget *capabilities() const;
 
-    LspInspector * const m_inspector = nullptr;
-    QTabWidget * const m_tabWidget;
+    LspInspector *const m_inspector = nullptr;
+    LspLogWidget *m_logWidget = nullptr;
+    LspCapabilitiesWidget *m_capWidget = nullptr;
+    QTabWidget *m_tabWidget = nullptr;
+    const int m_numFixedTabs = 2;
 
-    enum class TabIndex { Log, Capabilities, Custom };
     QComboBox *m_clients = nullptr;
 };
 
@@ -399,8 +407,37 @@ void LspInspector::onInspectorClosed()
     m_currentWidget = nullptr;
 }
 
+static QString sendMessage(Client *client, const QString &msg)
+{
+    if (!client)
+        return Tr::tr("No client selected");
+
+    QString parseError;
+    BaseMessage baseMsg;
+    QByteArray asUtf8 = msg.toUtf8();
+    QBuffer buf;
+    buf.open(QIODevice::WriteOnly);
+    buf.write(QString("Content-Length: %1\r\n\r\n").arg(asUtf8.size()).toUtf8());
+    buf.write(asUtf8);
+    buf.close();
+
+    buf.open(QIODevice::ReadOnly);
+    BaseMessage::parse(&buf, parseError, baseMsg);
+
+    if (!parseError.isEmpty())
+        return parseError;
+
+    auto rpcMessage = JsonRpcMessage(baseMsg);
+    if (!rpcMessage.parseError().isEmpty())
+        return rpcMessage.parseError();
+
+    client->sendMessage(rpcMessage, Client::SendDocUpdates::Send, LanguageClient::Schedule::Delayed);
+
+    return {};
+}
+
 LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)
-    : m_inspector(inspector), m_tabWidget(new QTabWidget(this))
+    : m_inspector(inspector)
 {
     setWindowTitle(Tr::tr("Language Client Inspector"));
 
@@ -409,22 +446,14 @@ LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)
             this, &LspInspectorWidget::updateCapabilities);
     connect(Core::ICore::instance(), &Core::ICore::coreAboutToClose, this, &QWidget::close);
 
-    auto mainLayout = new QVBoxLayout;
-
     m_clients = new QComboBox;
     m_clients->addItem(Tr::tr("<Select>"));
     m_clients->addItems(inspector->clients());
-    QHBoxLayout *hbox = new QHBoxLayout;
-    hbox->addWidget(new QLabel(Tr::tr("Language Server:")));
-    hbox->addWidget(m_clients);
-    hbox->addStretch();
-    mainLayout->addLayout(hbox);
 
-    m_tabWidget->addTab(new LspLogWidget, Tr::tr("Log"));
-    m_tabWidget->addTab(new LspCapabilitiesWidget, Tr::tr("Capabilities"));
-    mainLayout->addWidget(m_tabWidget);
+    m_logWidget = new LspLogWidget;
+    m_capWidget = new LspCapabilitiesWidget;
 
-    auto buttonBox = new QDialogButtonBox(this);
+    auto buttonBox = new QDialogButtonBox;
     buttonBox->setStandardButtons(QDialogButtonBox::Save | QDialogButtonBox::Close);
     const auto clearButton = buttonBox->addButton(Tr::tr("Clear"), QDialogButtonBox::ResetRole);
     connect(clearButton, &QPushButton::clicked, this, [this] {
@@ -432,13 +461,55 @@ LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)
         if (m_clients->currentIndex() != 0)
             currentClientChanged(m_clients->currentText());
     });
-    mainLayout->addWidget(buttonBox);
-    setLayout(mainLayout);
 
-    connect(m_clients,
-            &QComboBox::currentTextChanged,
-            this,
-            &LspInspectorWidget::currentClientChanged);
+    TextEditor::BaseTextEditor *messageEditor = LanguageClient::jsonEditor();
+    messageEditor->setParent(this);
+    messageEditor->editorWidget()->setVisible(false);
+    messageEditor->document()->setContents(R"({
+    "jsonrpc": "2.0",
+    "id": "%{UUID}",
+    "method": "checkStatus",
+    "params": { "options": {"localChecksOnly": true} }
+})");
+
+    VariableChooser *vc = new VariableChooser(messageEditor->editorWidget());
+    vc->addMacroExpanderProvider(&Utils::globalMacroExpander);
+    vc->addSupportedWidget(messageEditor->editorWidget());
+
+    auto errorLabel = new QLabel();
+    auto send = [this, messageEditor, errorLabel]() {
+        if (messageEditor->editorWidget()->isHidden()) {
+            messageEditor->editorWidget()->setVisible(true);
+            return;
+        }
+        QList<Client *> clients = LanguageClientManager::instance()->clientsByName(
+            m_clients->currentText());
+        QString errMsg;
+        for (Client *client : clients) {
+            errMsg += sendMessage(
+                client,
+                Utils::globalMacroExpander()->expand(
+                    QString::fromUtf8(messageEditor->document()->contents())));
+        }
+        errorLabel->setText(errMsg);
+    };
+
+    // clang-format off
+    using namespace Layouting;
+    Column {
+        Row { Tr::tr("Language Server:"), m_clients, st, errorLabel, PushButton { text(Tr::tr("Send message")), onClicked(send, this) } },
+        messageEditor->editorWidget(),
+        TabWidget {
+            bindTo(&m_tabWidget),
+            Tab(Tr::tr("Log"), Column { m_logWidget }),
+            Tab(Tr::tr("Capabilities"), Column {new LspCapabilitiesWidget}),
+        },
+        buttonBox,
+    }.attachTo(this);
+    // clang-format on
+
+    connect(
+        m_clients, &QComboBox::currentTextChanged, this, &LspInspectorWidget::currentClientChanged);
 
     // save
     connect(buttonBox, &QDialogButtonBox::accepted, log(), &LspLogWidget::saveLog);
@@ -475,28 +546,24 @@ void LspInspectorWidget::currentClientChanged(const QString &clientName)
 {
     log()->setMessages(m_inspector->messages(clientName));
     capabilities()->setCapabilities(m_inspector->capabilities(clientName));
-    for (int i = m_tabWidget->count() - 1; i >= int(TabIndex::Custom); --i) {
-        QWidget * const w = m_tabWidget->widget(i);
-        m_tabWidget->removeTab(i);
-        delete w;
-    }
-    for (Client * const c : LanguageClientManager::clients()) {
-        if (c->name() != clientName)
-            continue;
+
+    while (m_tabWidget->count() > m_numFixedTabs)
+        delete m_tabWidget->widget(m_tabWidget->count() - 1);
+
+    for (Client *const c : LanguageClientManager::clientsByName(clientName)) {
         for (const Client::CustomInspectorTab &tab : c->createCustomInspectorTabs())
             m_tabWidget->addTab(tab.first, tab.second);
-        break;
     }
 }
 
 LspLogWidget *LspInspectorWidget::log() const
 {
-    return static_cast<LspLogWidget *>(m_tabWidget->widget(int(TabIndex::Log)));
+    return m_logWidget;
 }
 
 LspCapabilitiesWidget *LspInspectorWidget::capabilities() const
 {
-    return static_cast<LspCapabilitiesWidget *>(m_tabWidget->widget(int(TabIndex::Capabilities)));
+    return m_capWidget;
 }
 
 MessageDetailWidget::MessageDetailWidget()
@@ -538,8 +605,7 @@ QString LspLogMessage::displayText() const
 {
     if (!m_displayText.has_value()) {
         m_displayText = QString(time.toString("hh:mm:ss.zzz") + '\n');
-        m_displayText->append(
-            message.toJsonObject().value(methodKey).toString(id().toString()));
+        m_displayText->append(message.toJsonObject().value(methodKey).toString(id().toString()));
     }
     return *m_displayText;
 }
