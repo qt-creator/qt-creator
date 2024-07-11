@@ -214,7 +214,6 @@ QmlJsEditingSettings::QmlJsEditingSettings()
     autoFormatOnSave.setLabelText(Tr::tr("Enable auto format on file save"));
 
     autoFormatOnlyCurrentProject.setSettingsKey(group, AUTO_FORMAT_ONLY_CURRENT_PROJECT);
-    autoFormatOnlyCurrentProject.setEnabler(&autoFormatOnSave);
     autoFormatOnlyCurrentProject.setLabelText(
         Tr::tr("Restrict to files contained in the current project"));
 
@@ -231,22 +230,18 @@ QmlJsEditingSettings::QmlJsEditingSettings()
     uiQmlOpenMode.addOption({Tr::tr("Qt Creator"), {}, Core::Constants::MODE_EDIT});
 
     useLatestQmlls.setSettingsKey(group, USE_LATEST_QMLLS);
-    useLatestQmlls.setEnabler(&useQmlls);
     useLatestQmlls.setLabelText(Tr::tr("Use from latest Qt version"));
 
     disableBuiltinCodemodel.setSettingsKey(group, DISABLE_BUILTIN_CODEMODEL);
-    disableBuiltinCodemodel.setEnabler(&useQmlls);
     disableBuiltinCodemodel.setLabelText(
         Tr::tr("Use advanced features (renaming, find usages, and so on) "
                "(experimental)"));
 
     generateQmllsIniFiles.setSettingsKey(group, GENERATE_QMLLS_INI_FILES);
-    generateQmllsIniFiles.setEnabler(&useQmlls);
     generateQmllsIniFiles.setLabelText(
         Tr::tr("Create .qmlls.ini files for new projects"));
 
     ignoreMinimumQmllsVersion.setSettingsKey(group, IGNORE_MINIMUM_QMLLS_VERSION);
-    ignoreMinimumQmllsVersion.setEnabler(&useQmlls);
     ignoreMinimumQmllsVersion.setLabelText(
         Tr::tr("Allow versions below Qt %1")
             .arg(QmlJsEditingSettings::mininumQmllsVersion.toString()));
@@ -256,13 +251,11 @@ QmlJsEditingSettings::QmlJsEditingSettings()
         Tr::tr("Use custom command instead of built-in formatter"));
 
     formatCommand.setSettingsKey(group, FORMAT_COMMAND);
-    formatCommand.setEnabler(&useCustomFormatCommand);
     formatCommand.setDisplayStyle(StringAspect::LineEditDisplay);
     formatCommand.setPlaceHolderText(defaultFormatCommand());
     formatCommand.setLabelText(Tr::tr("Command:"));
 
     formatCommandOptions.setSettingsKey(group, FORMAT_COMMAND_OPTIONS);
-    formatCommandOptions.setEnabler(&useCustomFormatCommand);
     formatCommandOptions.setDisplayStyle(StringAspect::LineEditDisplay);
     formatCommandOptions.setLabelText(Tr::tr("Arguments:"));
 
@@ -280,6 +273,14 @@ QmlJsEditingSettings::QmlJsEditingSettings()
     disabledMessagesForNonQuickUi.setToSettingsTransformation(&toSettingsTransformation);
 
     readSettings();
+
+    autoFormatOnlyCurrentProject.setEnabler(&autoFormatOnSave);
+    useLatestQmlls.setEnabler(&useQmlls);
+    disableBuiltinCodemodel.setEnabler(&useQmlls);
+    generateQmllsIniFiles.setEnabler(&useQmlls);
+    ignoreMinimumQmllsVersion.setEnabler(&useQmlls);
+    formatCommand.setEnabler(&useCustomFormatCommand);
+    formatCommandOptions.setEnabler(&useCustomFormatCommand);
 }
 
 QString QmlJsEditingSettings::defaultFormatCommand() const
