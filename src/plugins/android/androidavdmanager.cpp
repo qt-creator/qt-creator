@@ -25,13 +25,6 @@ namespace Android::Internal::AndroidAvdManager {
 
 static Q_LOGGING_CATEGORY(avdManagerLog, "qtc.android.avdManager", QtWarningMsg)
 
-QString startAvd(const QString &name, const std::optional<QFuture<void>> &future)
-{
-    if (!findAvd(name).isEmpty() || startAvdAsync(name))
-        return waitForAvd(name, future);
-    return {};
-}
-
 // TODO: Make async and move out of startAvdImpl, make it a part of startAvdRecipe.
 static bool is32BitUserSpace()
 {
@@ -196,37 +189,6 @@ ExecutableItem serialNumberRecipe(const QString &avdName, const Storage<QString>
             }
         }
     };
-}
-
-static bool waitForBooted(const QString &serialNumber, const std::optional<QFuture<void>> &future)
-{
-    // found a serial number, now wait until it's done booting...
-    for (int i = 0; i < 60; ++i) {
-        if (future && future->isCanceled())
-            return false;
-        if (isAvdBooted(serialNumber))
-            return true;
-        QThread::sleep(2);
-        if (!AndroidConfig::isConnected(serialNumber)) // device was disconnected
-            return false;
-    }
-    return false;
-}
-
-QString waitForAvd(const QString &avdName, const std::optional<QFuture<void>> &future)
-{
-    // we cannot use adb -e wait-for-device, since that doesn't work if a emulator is already running
-    // 60 rounds of 2s sleeping, two minutes for the avd to start
-    QString serialNumber;
-    for (int i = 0; i < 60; ++i) {
-        if (future && future->isCanceled())
-            return {};
-        serialNumber = findAvd(avdName);
-        if (!serialNumber.isEmpty())
-            return waitForBooted(serialNumber, future) ? serialNumber : QString();
-        QThread::sleep(2);
-    }
-    return {};
 }
 
 static ExecutableItem isAvdBootedRecipe(const Storage<QString> &serialNumberStorage)
