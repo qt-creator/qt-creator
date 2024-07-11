@@ -104,7 +104,7 @@ BaseQuickFixTestCase::BaseQuickFixTestCase(const QList<TestDocumentPtr> &testDoc
         }
 
         // Rehighlight
-        waitForRehighlightedSemanticDocument(document->m_editorWidget);
+        QVERIFY(waitForRehighlightedSemanticDocument(document->m_editorWidget));
     }
 
     // Enforce the default cpp code style, so we are independent of config file settings.

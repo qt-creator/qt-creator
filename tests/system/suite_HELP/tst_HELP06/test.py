@@ -17,7 +17,7 @@ def invokeContextMenuItemOnBookmarkFolder(view, item, menuItem):
                                    "window=':Add Bookmark_BookmarkDialog'}", menuItem))
 
 def textForQtVersion(text):
-    suffix = "Qt Creator Manual"
+    suffix = "Qt Creator Documentation"
     if text != suffix:
         text += " | " + suffix
     return text
@@ -28,15 +28,14 @@ def main():
         return
     # goto help mode and click on topic
     switchViewTo(ViewConstants.HELP)
-    manualQModelIndex = getQModelIndexStr("text?='Qt Creator Manual *'",
+    manualQModelIndex = getQModelIndexStr("text?='Qt Creator Documentation *'",
                                           ":Qt Creator_QHelpContentWidget")
     manualQMIObj = waitForObject(manualQModelIndex)
     doubleClick(manualQMIObj, 5, 5, 0, Qt.LeftButton)
     if not waitFor("not manualQMIObj.collapsed", 2000):
         test.warning("It takes more than two seconds to expand the help content tree.")
-    devQModelIndex = getQModelIndexStr("text='Developing with Qt Creator'", manualQModelIndex)
-    doubleClick(devQModelIndex)
-    gettingStartedQModelIndex = getQModelIndexStr("text='Getting Started'", devQModelIndex)
+
+    gettingStartedQModelIndex = getQModelIndexStr("text='Getting Started'", manualQModelIndex)
     doubleClick(gettingStartedQModelIndex)
     pageTitle = "Configuring Qt Creator"
     mouseClick(waitForObject(getQModelIndexStr("text='%s'" % pageTitle,
@@ -80,7 +79,7 @@ def main():
     configQModelIndex = getQModelIndexStr("text?='%s'" % textForQtVersion("%s*" % pageTitle),
                                           folder2QModelIndex)
     newFolderQModelIndex = getQModelIndexStr("text='New Folder'", sampleQModelIndex)
-    manualQModelIndex = getQModelIndexStr("text='%s'" % textForQtVersion("Qt Creator Manual"),
+    manualQModelIndex = getQModelIndexStr("text='%s'" % textForQtVersion("Qt Creator Documentation"),
                                              newFolderQModelIndex)
     test.verify(checkIfObjectExists(sampleQModelIndex, verboseOnFail = True) and
                 checkIfObjectExists(folder1QModelIndex, verboseOnFail = True) and
@@ -99,7 +98,7 @@ def main():
     type(waitForObject(":Qt Creator_Bookmarks_TreeView"), "<Right>")
     type(waitForObject(":Qt Creator_Bookmarks_TreeView"), "<Down>")
     type(waitForObject(":Qt Creator_Bookmarks_TreeView"), "<Return>")
-    test.verify(textForQtVersion("Qt Creator Manual") in getHelpTitle(),
+    test.verify(textForQtVersion("Qt Creator Documentation") in getHelpTitle(),
                 "Verifying if second bookmark is opened")
     # delete previously created directory
     clickButton(waitForObject(":Qt Creator.Add Bookmark_QToolButton"))

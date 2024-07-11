@@ -400,6 +400,11 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
                    && thisWorkingDirectory == tab.runControl->workingDirectory()
                    && thisEnvironment == tab.runControl->environment();
         });
+    const auto updateOutputFileName = [this](int index, RunControl *rc) {
+        qobject_cast<OutputWindow *>(m_tabWidget->widget(index))
+            //: file name suggested for saving application output, %1 = run configuration display name
+            ->setOutputFileNameHint(Tr::tr("application-output-%1.txt").arg(rc->displayName()));
+    };
     if (tab != m_runControlTabs.end()) {
         // Reuse this tab
         if (tab->runControl)
@@ -415,6 +420,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
         const int tabIndex = m_tabWidget->indexOf(tab->window);
         QTC_ASSERT(tabIndex != -1, return);
         m_tabWidget->setTabText(tabIndex, rc->displayName());
+        updateOutputFileName(tabIndex, rc);
 
         tab->window->scrollToBottom();
         qCDebug(appOutputLog) << "AppOutputPane::createNewOutputWindow: Reusing tab"
@@ -430,8 +436,6 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     ow->setWindowIcon(Icons::WINDOW.icon());
     ow->setWordWrapEnabled(m_settings.wrapOutput);
     ow->setMaxCharCount(m_settings.maxCharCount);
-    //: file name suggested for saving application output, %1 = run configuration display name
-    ow->setOutputFileNameHint(Tr::tr("application-output-%1.txt").arg(rc->displayName()));
 
     auto updateFontSettings = [ow] {
         ow->setBaseFont(TextEditor::TextEditorSettings::fontSettings().font());
@@ -457,6 +461,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
 
     m_runControlTabs.push_back(RunControlTab(rc, ow));
     m_tabWidget->addTab(ow, rc->displayName());
+    updateOutputFileName(m_tabWidget->count() - 1, rc);
     qCDebug(appOutputLog) << "AppOutputPane::createNewOutputWindow: Adding tab for" << rc;
     updateCloseActions();
     setFilteringEnabled(m_tabWidget->count() > 0);

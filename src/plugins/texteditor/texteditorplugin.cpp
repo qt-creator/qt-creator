@@ -453,7 +453,8 @@ void TextEditorPlugin::createEditorCommands()
     TextActionBuilder(this, VISUALIZE_WHITESPACE)
         .setText(Tr::tr("&Visualize Whitespace"))
         .setDefaultKeySequence(Tr::tr("Meta+E, Meta+V"), Tr::tr("Ctrl+E, Ctrl+V"))
-        .addToContainer(M_EDIT_ADVANCED, G_EDIT_FORMAT);
+        .addToContainer(M_EDIT_ADVANCED, G_EDIT_FORMAT)
+        .setCheckable(true);
     TextActionBuilder(this, CLEAN_WHITESPACE)
         .setText(Tr::tr("Clean Whitespace"))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_FORMAT);

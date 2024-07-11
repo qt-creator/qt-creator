@@ -10765,7 +10765,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Verifying package integrity...</source>
-        <translation type="unfinished"></translation>
+        <translation>Prüfe die Integrität des Pakets...</translation>
     </message>
     <message>
         <source>Unarchiving error.</source>
@@ -10963,7 +10963,7 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>Android support is not yet configured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Android-Unterstützung ist noch nicht konfiguriert.</translation>
     </message>
     <message>
         <source>The device info returned from AvdDialog is invalid.</source>
@@ -11169,11 +11169,11 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>Cannot find the package name from AndroidManifest.xml nor build.gradle files at &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte den Paketnamen nicht aus den Informationen in der AndroidManifest.xml-Datei oder der build.gradle-Datei in &quot;%1&quot; bestimmen.</translation>
     </message>
     <message>
         <source>Deployment failed with the following errors:</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Deployment ist mit den folgenden Fehlern fehlgeschlagen:</translation>
     </message>
     <message>
         <source>Install an APK File</source>
@@ -11397,7 +11397,7 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     </message>
     <message>
         <source>Cannot open &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; kann nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Cannot parse &quot;%1&quot;.</source>
@@ -11599,39 +11599,39 @@ Installieren Sie diese manuell, nachdem der aktuelle Vorgang abgeschlossen ist.
     </message>
     <message>
         <source>Finished successfully.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erfolgreich abgeschlossen.</translation>
     </message>
     <message>
         <source>Installing / Uninstalling selected packages...</source>
-        <translation type="unfinished"></translation>
+        <translation>Installiere / Deinstalliere ausgewählte Pakete...</translation>
     </message>
     <message>
         <source>Closing the preferences dialog will cancel the running and scheduled SDK operations.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn Sie den Einstellungsdialog schließen, werden die laufenden und geplanten SDK-Operationen abgebrochen.</translation>
     </message>
     <message>
         <source>Closing the options dialog will cancel the running and scheduled SDK operations.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn Sie den Einstellungsdialog schließen, werden die laufenden und geplanten SDK-Operationen abgebrochen.</translation>
     </message>
     <message>
         <source>Uninstalling %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Deinstalliere %1...</translation>
     </message>
     <message>
         <source>Installing %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Installiere %1...</translation>
     </message>
     <message>
         <source>Updating installed packages...</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualisiere installierte Pakete...</translation>
     </message>
     <message>
         <source>[Packages to be uninstalled:]</source>
-        <translation type="unfinished"></translation>
+        <translation>[Pakete, die deinstalliert werden sollen:]</translation>
     </message>
     <message>
         <source>[Packages to be installed:]</source>
-        <translation type="unfinished"></translation>
+        <translation>[Pakete, die installiert werden sollen:]</translation>
     </message>
     <message>
         <source>Android SDK Changes</source>
@@ -11720,7 +11720,7 @@ Installieren Sie diese manuell, nachdem der aktuelle Vorgang abgeschlossen ist.
     </message>
     <message>
         <source>Failed to start AVD emulator for &quot;%1&quot; device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Starten des AVD-Emulators für das Gerät &quot;%1&quot; ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Clean Environment</source>
@@ -12340,11 +12340,11 @@ und das Überschreiben Ihrer Einstellungen erfordert. Das Überschreiben erlaube
     </message>
     <message>
         <source>Use a timeout while executing test cases.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeitlimit für das Ausführen von Testfällen verwenden.</translation>
     </message>
     <message>
         <source>Timeout used when executing test cases. This will apply for each test case on its own, not the whole project. Overrides test framework or build system defaults.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeitlimit, das für das Ausführen von Testfällen benutzt wird. Dieses wird für jeden Testfall einzeln angewendet, nicht für das gesamte Projekt. Überschreibt die Vorgaben des Test-Frameworks und des Build-Systems.</translation>
     </message>
     <message>
         <source>Omit run configuration warnings</source>
@@ -12494,23 +12494,23 @@ Warnung: Dies ist eine experimentelle Funktion und könnte dazu führen, dass di
     </message>
     <message>
         <source>Apply path filters before scanning for tests.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfade vor dem Suchen nach Tests filtern.</translation>
     </message>
     <message>
         <source>Wildcard expressions for filtering:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausdrücke mit Platzhaltern, die zum Filtern benutzt werden:</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished">Hinzufügen</translation>
+        <translation>Hinzufügen</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Limit Files to Path Patterns</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateien auf Suchmuster beschränken</translation>
     </message>
     <message>
         <source>Scanning for Tests</source>
@@ -13028,7 +13028,7 @@ Dies könnte Probleme während der Ausführung verursachen.
     </message>
     <message>
         <source>Repeat Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>Tests wiederholen</translation>
     </message>
     <message>
         <source>Output on failure</source>
@@ -13728,7 +13728,7 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>No Data</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Daten</translation>
     </message>
     <message>
         <source>Axivion</source>
@@ -13744,15 +13744,15 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Open Issue in Dashboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Problem im Dashboard anzeigen</translation>
     </message>
     <message>
         <source>Open Table in Dashboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Tabelle im Dashboard anzeigen</translation>
     </message>
     <message>
         <source>Copy Dashboard Link to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Dashboard-Link in die Zwischenablage kopieren</translation>
     </message>
     <message>
         <source>Show rule details</source>
@@ -13792,7 +13792,7 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>Unauthenticated access failed (wrong user), using authenticated access...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zugriff ohne Authentifizierung ist fehlgeschlagen (falscher Benutzer), verwende authentifizierten Zugriff...</translation>
     </message>
     <message>
         <source>Enter the password for:
@@ -13830,7 +13830,7 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Search for issues inside the Axivion dashboard or request issue details for Axivion inline annotations to see them here.</source>
-        <translation type="unfinished"></translation>
+        <translation>Suchen Sie nach Problemen im Axivion-Dashboard oder fordern Sie Problemdetails für Inline-Annotationen von Axivion an, um sie hier anzuzeigen.</translation>
     </message>
     <message>
         <source>Fetch Projects</source>
@@ -13882,7 +13882,7 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Add...</source>
-        <translation type="unfinished">Hinzufügen...</translation>
+        <translation>Hinzufügen...</translation>
     </message>
     <message>
         <source>Edit...</source>
@@ -13890,27 +13890,27 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Default dashboard server:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorgabe-Dashboardserver:</translation>
     </message>
     <message>
         <source>unset</source>
-        <translation type="unfinished"></translation>
+        <translation>nicht gesetzt</translation>
     </message>
     <message>
         <source>Remove Server Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Server-Konfiguration löschen</translation>
     </message>
     <message>
         <source>Remove the server configuration &quot;%1&quot;?</source>
-        <translation type="unfinished"></translation>
+        <translation>Server-Konfiguration &quot;%1&quot; löschen?</translation>
     </message>
     <message>
         <source>Add Dashboard Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Dashboard-Konfiguration hinzufügen</translation>
     </message>
     <message>
         <source>Edit Dashboard Configuration</source>
@@ -16270,7 +16270,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>You may need to add the project directory to the list of directories that are mounted by the build device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie müssen das Projektverzeichnis möglicherweise zur Liste der vom Gerät eingehängten Pfade hinzufügen.</translation>
     </message>
     <message>
         <source>The source directory %1 is not reachable by the CMake executable %2.</source>
@@ -16310,7 +16310,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>CMake Preset (%1) %2 Debugger</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake-Preset (%1) %2 Debugger</translation>
     </message>
     <message>
         <source>Unexpected source directory &quot;%1&quot;, expected &quot;%2&quot;. This can be correct in some situations, for example when importing a standalone Qt test, but usually this is an error. Import the build anyway?</source>
@@ -16435,7 +16435,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     <message>
         <source>CMake project configuration failed. No CMake configuration for build type &quot;%1&quot; found. Check General Messages for more information.</source>
         <extracomment>General Messages refers to the output view</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Die CMake-Konfiguration des Projekts ist fehlgeschlagen. Es wurde keine CMake-Konfiguration für den Build-Typ &quot;%1&quot; gefunden. Überprüfen Sie &quot;Allgemeine Ausgaben&quot; für weitere Informationen.</translation>
     </message>
     <message>
         <source>No &quot;%1&quot; CMake configuration found. Available configurations: &quot;%2&quot;.
@@ -16475,15 +16475,15 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Invalid &quot;configurePresets&quot; section in file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Abschnitt &quot;configurePresets&quot; in Datei &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Invalid &quot;buildPresets&quot; section in file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Abschnitt &quot;buildPresets&quot; in Datei &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Invalid &quot;vendor&quot; section in file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Abschnitt &quot;vendor&quot; in Datei &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>&lt;File System&gt;</source>
@@ -16871,7 +16871,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Generating Clang compilation database canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzeugen der Clang-Kompilierungsdatenbank wurde abgebrochen.</translation>
     </message>
     <message>
         <source>Generate Compilation Database for &quot;%1&quot;</source>
@@ -16973,7 +16973,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Cannot use clangd: Generating compilation database canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann Clangd nicht nutzen: Erstellen der Kompilierungsdatenbank wurde abgebrochen.</translation>
     </message>
     <message>
         <source>Cannot use clangd: Failed to generate compilation database:
@@ -17008,7 +17008,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Could not retrieve project info.</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt-Information konnte nicht abgefragt werden.</translation>
     </message>
     <message>
         <source>Could not create &quot;%1&quot;: %2</source>
@@ -17194,11 +17194,11 @@ Ausgabe:
     </message>
     <message>
         <source>Suppress Selected Diagnostics Inline</source>
-        <translation type="unfinished"></translation>
+        <translation>Inline-Anzeige der ausgewählten Meldungen unterdrücken</translation>
     </message>
     <message>
         <source>Suppress This Diagnostic Inline</source>
-        <translation type="unfinished"></translation>
+        <translation>Inline-Anzeige dieser Meldung unterdrücken</translation>
     </message>
     <message>
         <source>Disable These Checks</source>
@@ -18677,17 +18677,17 @@ Der Code wurde in die Zwischenablage kopiert.</translation>
     <message>
         <source>Path to %1:</source>
         <extracomment>%1 is the filename of the copilot language server</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zu %1:</translation>
     </message>
     <message>
         <source>%1 path</source>
         <extracomment>%1 is the filename of the copilot language server</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zu %1</translation>
     </message>
     <message>
         <source>Select path to %2 in Copilot Neovim plugin. See %1 for installation instructions.</source>
         <extracomment>%1 is the URL to copilot.vim getting started, %2 is the filename of the copilot language server</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie den Pfad zu %2 im Copilot-Plugin für Neovim. Siehe auch %1 für eine Installationsanleitung.</translation>
     </message>
     <message>
         <source>Auto Request</source>
@@ -18786,7 +18786,9 @@ Der Code wurde in die Zwischenablage kopiert.</translation>
 
 Otherwise you need to specify the path to the %2 file from the Copilot neovim plugin.</source>
         <comment>Markdown text for the copilot instruction label</comment>
-        <translation type="unfinished"></translation>
+        <translation>Das Copilot-Plugin benötigt node.js und das Copilot-Plugin für Neovim. Wenn Sie das Neovim-Plugin wie in der %1 beschrieben installieren, findet das Plugin die Datei %3 automatisch.
+
+Ansonsten müssen Sie den Pfad zur Datei %2 aus dem Copilot-Plugin für Neovim angeben.</translation>
     </message>
     <message>
         <source>Note</source>
@@ -20157,11 +20159,11 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
     <message>
         <source>output.txt</source>
         <extracomment>default file name suggested for saving text from output views</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ausgabe.txt</translation>
     </message>
     <message>
         <source>Save Contents...</source>
-        <translation type="unfinished"></translation>
+        <translation>Inhalt speichern...</translation>
     </message>
     <message numerus="yes">
         <source>Elided %n characters due to Application Output settings</source>
@@ -20527,7 +20529,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt von einem Leerzeiche
     </message>
     <message>
         <source>Locator filters show relative paths to the active project when possible.</source>
-        <translation type="unfinished"></translation>
+        <translation>Locator-Filter zeigen relative Pfade zum aktiven Projekt an, wenn möglich.</translation>
     </message>
     <message>
         <source>Files in Directories</source>
@@ -20997,7 +20999,7 @@ Möchten Sie es beenden?</translation>
     </message>
     <message>
         <source>The path to the running %1 itself.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad zum laufenden %1 selbst.</translation>
     </message>
     <message>
         <source>The directory where %1 finds its pre-installed resources.</source>
@@ -21005,7 +21007,7 @@ Möchten Sie es beenden?</translation>
     </message>
     <message>
         <source>The directory where %1 puts custom user data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Verzeichnis, in dem %1 Benutzerdaten speichert.</translation>
     </message>
     <message>
         <source>The current date (QDate formatstring).</source>
@@ -21245,7 +21247,7 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Reopen Last Closed Document</source>
-        <translation type="unfinished"></translation>
+        <translation>Zuletzt geschlossenes Dokument erneut öffnen</translation>
     </message>
     <message>
         <source>Meta+E,2</source>
@@ -23003,11 +23005,11 @@ Namensraum-Definition</translation>
     </message>
     <message>
         <source>Macros that can be used as statements without a trailing semicolon.</source>
-        <translation type="unfinished"></translation>
+        <translation>Makros, die ohne abschließendes Semikolon benutzt werden können.</translation>
     </message>
     <message>
         <source>Statement Macros</source>
-        <translation type="unfinished"></translation>
+        <translation>Anweisungs-Makros</translation>
     </message>
     <message>
         <source>Braces</source>
@@ -23274,15 +23276,15 @@ Diese Präfixe werden zusätzlich zum Dateinamen beim Wechseln zwischen Header- 
     </message>
     <message>
         <source>Header File Variables</source>
-        <translation type="unfinished"></translation>
+        <translation>Variablen für Header-Dateien</translation>
     </message>
     <message>
         <source>Header file</source>
-        <translation type="unfinished"></translation>
+        <translation>Header-Datei</translation>
     </message>
     <message>
         <source>Use &quot;#pragma once&quot; instead</source>
-        <translation type="unfinished"></translation>
+        <translation>Stattdessen &quot;#pragma once&quot; benutzen</translation>
     </message>
     <message>
         <source>&amp;Lower case file names</source>
@@ -23290,7 +23292,7 @@ Diese Präfixe werden zusätzlich zum Dateinamen beim Wechseln zwischen Header- 
     </message>
     <message>
         <source>Include guard template:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorlage für Include-Guards:</translation>
     </message>
     <message>
         <source>License &amp;template:</source>
@@ -23727,11 +23729,11 @@ z.B. name = &quot;m_test_foo_&quot;:
     </message>
     <message>
         <source>Enable indexing</source>
-        <translation type="unfinished"></translation>
+        <translation>Indizieren aktivieren</translation>
     </message>
     <message>
         <source>Indexing should almost always be kept enabled, as disabling it will severely limit the capabilities of the code model.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Indizieren sollte nahezu immer aktiviert bleiben, da das Deaktivieren die Fähigkeiten des Codemodells erheblich einschränkt.</translation>
     </message>
     <message>
         <source>Do not index files greater than</source>
@@ -23775,11 +23777,11 @@ z.B. name = &quot;m_test_foo_&quot;:
     </message>
     <message>
         <source>The location of the per-project clangd index.&lt;p&gt;This is also where the compile_commands.json file will go.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad zum Clangd-Index pro Projekt.&lt;p&gt;Dies ist auch der Ort, an dem die compile_commands.json-Datei gespeichert wird.</translation>
     </message>
     <message>
         <source>The location of the per-session clangd index.&lt;p&gt;This is also where the compile_commands.json file will go.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad zum Clangd-Index pro Sitzung.&lt;p&gt;Dies ist auch der Ort, an dem die compile_commands.json-Datei gespeichert wird.</translation>
     </message>
     <message>
         <source>&lt;p&gt;The C/C++ backend to use for switching between header and source files.&lt;/p&gt;&lt;p&gt;While the clangd implementation has more capabilities than the built-in code model, it tends to find false positives.&lt;/p&gt;&lt;p&gt;When &quot;Try Both&quot; is selected, clangd is used only if the built-in variant does not find anything.&lt;/p&gt;</source>
@@ -23799,7 +23801,7 @@ z.B. name = &quot;m_test_foo_&quot;:
     </message>
     <message>
         <source>&lt;p&gt;Controls whether when editing a header file, clangd should re-parse all source files including that header.&lt;/p&gt;&lt;p&gt;Note that enabling this option can cause considerable CPU load when editing widely included headers.&lt;/p&gt;&lt;p&gt;If this option is disabled, the dependent source files are only re-parsed when the header file is saved.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Bestimmt, ob Clangd beim Bearbeiten einer Header-Datei alle Quelldateien, die diesen Header benutzen, neu auswerten soll.&lt;/p&gt;&lt;p&gt;Beachten Sie, dass das Aktivieren dieser Einstellung erhebliche Prozessorauslastung beim Bearbeiten weitgenutzter Header-Dateien zur Folge haben kann.&lt;/p&gt;&lt;p&gt;Wenn diese Einstellung deaktiviert ist, werden abhängige Quelldateien erst erneut ausgewertet, wenn die Header-Datei gespeichert wird.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Defines the amount of time %1 waits before sending document changes to the server.
@@ -23827,7 +23829,7 @@ Das integrierte Codemodell übernimmt Syntaxhervorhebung, Code-Vervollständigun
     </message>
     <message>
         <source>Update dependent sources</source>
-        <translation type="unfinished"></translation>
+        <translation>Abhängige Quellen aktualisieren</translation>
     </message>
     <message>
         <source>Automatic</source>
@@ -23855,11 +23857,11 @@ Das integrierte Codemodell übernimmt Syntaxhervorhebung, Code-Vervollständigun
     </message>
     <message>
         <source>Per-project index location:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad des Index pro Projekt:</translation>
     </message>
     <message>
         <source>Per-session index location:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad des Index pro Sitzung:</translation>
     </message>
     <message>
         <source>Header/source switch mode:</source>
@@ -24227,40 +24229,41 @@ Flags: %3</translation>
     </message>
     <message>
         <source>Convert Function Call to Qt Meta-Method Invocation</source>
-        <translation type="unfinished"></translation>
+        <translation>Funktionsaufruf in Qt Meta-Methodenaufruf umwandeln</translation>
     </message>
     <message>
         <source>Move Class to a Dedicated Set of Source Files</source>
-        <translation type="unfinished"></translation>
+        <translation>Klasse in dedizierten Satz Quelldateien verschieben</translation>
     </message>
     <message>
         <source>Header file only</source>
-        <translation type="unfinished"></translation>
+        <translation>Nur Header-Datei</translation>
     </message>
     <message>
         <source>Project:</source>
-        <translation type="unfinished">Projekt:</translation>
+        <translation>Projekt:</translation>
     </message>
     <message>
         <source>Header file:</source>
-        <translation type="unfinished">Header-Datei:</translation>
+        <translation>Header-Datei:</translation>
     </message>
     <message>
         <source>Implementation file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Implementationsdatei:</translation>
     </message>
     <message>
         <source>Refusing to overwrite the following files: %1
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Folgende Dateien existieren und werden nicht überschrieben: %1
+</translation>
     </message>
     <message>
         <source>Failed to add to project file &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Hinzufügen zur Projektdatei &quot;%1&quot; fehlgeschlagen: %2</translation>
     </message>
     <message>
         <source>Re-order Member Function Definitions According to Declaration Order</source>
-        <translation type="unfinished"></translation>
+        <translation>Definitionen der Memberfunktionen entsprechend der Deklarationsreihenfolge anordnen</translation>
     </message>
 </context>
 <context>
@@ -24914,11 +24917,11 @@ Möchten Sie die Daten trotzdem anzeigen?</translation>
     </message>
     <message>
         <source>Disable All Breakpoints</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Haltepunkte deaktivieren</translation>
     </message>
     <message>
         <source>Enable All Breakpoints</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Haltepunkte aktivieren</translation>
     </message>
     <message>
         <source>Disable Selected Locations</source>
@@ -25747,15 +25750,15 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>Use debug info daemon</source>
-        <translation type="unfinished"></translation>
+        <translation>Debuginfo-Daemon benutzen</translation>
     </message>
     <message>
         <source>Use system settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Systemeinstellungen benutzen</translation>
     </message>
     <message>
         <source>Lets GDB attempt to automatically retrieve debug information for system packages.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lässt GDB versuchen, die Debuginformation für Systempakete automatisch abzurufen.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enables stepping backwards.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; This feature is very slow and unstable on the GDB side. It exhibits unpredictable behavior when going backwards over system calls and is very likely to destroy your debugging session.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -26626,7 +26629,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>&quot;%1&quot; could not be started. Error message: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; konnte nicht gestartet werden. Fehlermeldung: %2</translation>
     </message>
     <message>
         <source>Python Error</source>
@@ -27152,7 +27155,7 @@ Sie werden möglicherweise gebeten, den Inhalt dieses Logs mitzuteilen, wenn Sie
     </message>
     <message>
         <source>LLDB Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>LLDB Voreinstellung</translation>
     </message>
     <message>
         <source>Python Preset</source>
@@ -27950,7 +27953,7 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>Behavior</source>
-        <translation type="unfinished">Verhalten</translation>
+        <translation>Verhalten</translation>
     </message>
     <message>
         <source>Extra Debugging Helpers</source>
@@ -28224,7 +28227,7 @@ Bitte wählen Sie einen 64-bit-Debugger in den Kit-Einstellungen für dieses Kit
     </message>
     <message>
         <source>Launching %1 Debugger</source>
-        <translation type="unfinished"></translation>
+        <translation>Starte Debugger %1</translation>
     </message>
     <message>
         <source>Loading finished.</source>
@@ -29984,102 +29987,102 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     <name>QtC::ExtensionManager</name>
     <message>
         <source>Extensions</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterungen</translation>
     </message>
     <message>
         <source>More information</source>
-        <translation type="unfinished"></translation>
+        <translation>Mehr Informationen</translation>
     </message>
     <message>
         <source>Extension details</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterungsdetails</translation>
     </message>
     <message numerus="yes">
         <source>Pack contains %n plugins.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Paket enthält ein Plugin.</numerusform>
+            <numerusform>Paket enthält %n Plugins.</numerusform>
         </translation>
     </message>
     <message>
         <source>Load on start</source>
-        <translation type="unfinished"></translation>
+        <translation>Beim Start laden</translation>
     </message>
     <message>
         <source>Restart Now</source>
-        <translation type="unfinished">Jetzt neu starten</translation>
+        <translation>Jetzt neu starten</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <source>Loaded</source>
-        <translation type="unfinished">Geladen</translation>
+        <translation>Geladen</translation>
     </message>
     <message>
         <source>Not loaded</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht geladen</translation>
     </message>
     <message>
         <source>Tags</source>
-        <translation type="unfinished">Tags</translation>
+        <translation>Tags</translation>
     </message>
     <message>
         <source>Platforms</source>
-        <translation type="unfinished"></translation>
+        <translation>Plattformen</translation>
     </message>
     <message>
         <source>Dependencies</source>
-        <translation type="unfinished">Abhängigkeiten</translation>
+        <translation>Abhängigkeiten</translation>
     </message>
     <message>
         <source>Extensions in pack</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterungen im Paket</translation>
     </message>
     <message>
         <source>Downloading...</source>
-        <translation type="unfinished"></translation>
+        <translation>Lade herunter...</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">Abbrechen</translation>
+        <translation>Abbrechen</translation>
     </message>
     <message>
         <source>Download Extension</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterung herunterladen</translation>
     </message>
     <message>
         <source>Download Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ladefehler</translation>
     </message>
     <message>
         <source>Cannot download extension</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterung kann nicht heruntergeladen werden</translation>
     </message>
     <message>
         <source>Code: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Code: %1.</translation>
     </message>
     <message>
         <source>Manage Extensions</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterungen verwalten</translation>
     </message>
     <message>
         <source>Search</source>
-        <translation type="unfinished">Suche</translation>
+        <translation>Suche</translation>
     </message>
     <message>
         <source>Install...</source>
-        <translation type="unfinished"></translation>
+        <translation>Installieren...</translation>
     </message>
     <message>
         <source>Use external repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Externes Repository benutzen</translation>
     </message>
     <message>
         <source>Repository: %1</source>
-        <translation type="unfinished">Repository: %1</translation>
+        <translation>Repository: %1</translation>
     </message>
 </context>
 <context>
@@ -30118,7 +30121,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Loadable without restart:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann ohne Neustart geladen werden:</translation>
     </message>
     <message>
         <source>Plugin Details of %1</source>
@@ -30286,7 +30289,7 @@ Grund: %3</translation>
     </message>
     <message>
         <source>Cannot open file</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei kann nicht geöffnet werden</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is missing</source>
@@ -30314,11 +30317,11 @@ Grund: %3</translation>
     </message>
     <message>
         <source>No IID found</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine IID gefunden</translation>
     </message>
     <message>
         <source>Expected IID &quot;%1&quot;, but found &quot;%2&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>IID &quot;%1&quot; erwartet, aber &quot;%2&quot; gefunden</translation>
     </message>
     <message>
         <source>Resolving dependencies failed because state != Read</source>
@@ -30390,7 +30393,7 @@ Grund: %3</translation>
     </message>
     <message>
         <source>Load on Startup</source>
-        <translation>Beim Start Laden</translation>
+        <translation>Beim Start laden</translation>
     </message>
     <message>
         <source>Utilities</source>
@@ -30444,7 +30447,7 @@ Plugin durch ein Kommandozeilenargument deaktiviert.</translation>
     </message>
     <message>
         <source>Load on startup</source>
-        <translation>Beim Start Laden</translation>
+        <translation>Beim Start laden</translation>
     </message>
     <message>
         <source>Enabling Plugins</source>
@@ -35076,7 +35079,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Product type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Produkttyp:</translation>
     </message>
     <message>
         <source>Device name</source>
@@ -35109,7 +35112,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Product type</source>
-        <translation type="unfinished"></translation>
+        <translation>Produkttyp</translation>
     </message>
     <message>
         <source>An iOS device in user mode has been detected.</source>
@@ -35178,7 +35181,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Update</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualisieren</translation>
     </message>
     <message>
         <source>iOS Simulator</source>
@@ -35274,7 +35277,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Configure available simulator devices in &lt;a href=&quot;%1&quot;&gt;Xcode&lt;/a&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurieren Sie verfügbare Simulator-Geräte in &lt;a href=&quot;%1&quot;&gt;Xcode&lt;/a&gt;.</translation>
     </message>
     <message>
         <source>Devices</source>
@@ -35623,7 +35626,7 @@ Beispiel: *.cpp%1*.h</translation>
     </message>
     <message>
         <source>File pattern:</source>
-        <translation type="unfinished"></translation>
+        <translation>Suchmuster für Dateinamen:</translation>
     </message>
     <message>
         <source>Executable:</source>
@@ -35767,11 +35770,11 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Language Server Diagnostics</source>
-        <translation type="unfinished"></translation>
+        <translation>Language Server-Meldungen</translation>
     </message>
     <message>
         <source>Issues provided by the Language Server in the current document.</source>
-        <translation type="unfinished"></translation>
+        <translation>Probleme, die der Language Server im aktuellen Dokument gefunden hat.</translation>
     </message>
     <message>
         <source>Always On</source>
@@ -35880,7 +35883,7 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Deprecated</source>
-        <translation type="unfinished"></translation>
+        <translation>Veraltet</translation>
     </message>
     <message>
         <source>Incoming</source>
@@ -35892,11 +35895,11 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Bases</source>
-        <translation type="unfinished">Basisklassen</translation>
+        <translation>Basistypen</translation>
     </message>
     <message>
         <source>Derived</source>
-        <translation type="unfinished">Abgeleitet</translation>
+        <translation>Abgeleitet</translation>
     </message>
     <message>
         <source>Call Hierarchy</source>
@@ -35950,129 +35953,134 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     <name>QtC::Lua</name>
     <message>
         <source>Network Access</source>
-        <translation type="unfinished"></translation>
+        <translation>Netzwerkzugriff</translation>
     </message>
     <message>
         <source>Allow Internet Access</source>
-        <translation type="unfinished"></translation>
+        <translation>Internetzugriff erlauben</translation>
     </message>
     <message>
         <source>Allow the extension &quot;%1&quot; to fetch from the following URL:
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Erweiterung &quot;%1&quot; erlauben, auf folgende URL zuzugreifen:
+%2</translation>
     </message>
     <message>
         <source>Remember choice</source>
-        <translation type="unfinished"></translation>
+        <translation>Auswahl speichern</translation>
     </message>
     <message>
         <source>Allow the extension &quot;%1&quot; to fetch data from the internet?</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Erweiterung &quot;%1&quot; erlauben, Daten aus dem Internet zu laden?</translation>
     </message>
     <message>
         <source>Allow the extension &quot;%1&quot; to fetch datafrom the following URL:
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Der Erweiterung &quot;%1&quot; erlauben, Daten von der folgenden URL zu laden:
+
+</translation>
     </message>
     <message>
         <source>Always Allow</source>
-        <translation type="unfinished"></translation>
+        <translation>Immer erlauben</translation>
     </message>
     <message>
         <source>Allow Once</source>
-        <translation type="unfinished"></translation>
+        <translation>Einmal erlauben</translation>
     </message>
     <message>
         <source>Deny</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbieten</translation>
     </message>
     <message>
         <source>Fetching is not allowed for the extension &quot;%1&quot;. (You can edit permissions in Preferences &gt; Lua.)</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Laden von Daten ist der Erweiterung &quot;%1&quot; nicht erlaubt. (Sie können die Rechte in Einstellungen &gt; Lua ändern.)</translation>
     </message>
     <message>
         <source>Package info is not an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>Paketinformation ist kein Objekt.</translation>
     </message>
     <message>
         <source>Installed package info is not an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>Installierte Paketinformation ist kein Objekt.</translation>
     </message>
     <message>
         <source>Cannot create app data directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Verzeichnis für Anwendungsdaten konnte nicht angelegt werden.</translation>
     </message>
     <message>
         <source>Cannot write to package info: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Paketinformation konnte nicht geschrieben werden: %1</translation>
     </message>
     <message>
         <source>Cannot write to temporary file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Temporäre Datei konnte nicht geschrieben werden.</translation>
     </message>
     <message>
         <source>Unarchiving failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Entpacken fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Cannot open temporary file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Temporäre Datei konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Installing package(s) %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Installiere Paket(e) %1</translation>
     </message>
     <message>
         <source>Install Package</source>
-        <translation type="unfinished"></translation>
+        <translation>Installiere Paket</translation>
     </message>
     <message>
         <source>The extension &quot;%1&quot; wants to install the following package(s):
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Die Erweiterung &quot;%1&quot; möchte folgende Pakete installieren:
+
+</translation>
     </message>
     <message>
         <source>Install</source>
-        <translation type="unfinished">Installieren</translation>
+        <translation>Installieren</translation>
     </message>
     <message>
         <source>* %1 - %2 (from: [%3](%3))</source>
         <extracomment>Markdown list item: %1 = package name, %2 = version, %3 = URL</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>* %1 - %2 (von: [%3](%3))</translation>
     </message>
     <message>
         <source>Failed to run script %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Ausführen des Skripts %1 ist fehlgeschlagen: %2</translation>
     </message>
     <message>
         <source>No hook with the name &quot;%1&quot; found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Einsprungpunkt mit dem Namen &quot;%1&quot; gefunden.</translation>
     </message>
     <message>
         <source>Script did not return a table.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Skript hat keine Tabelle zurückgeliefert.</translation>
     </message>
     <message>
         <source>Extension info table did not contain a setup function.</source>
-        <translation type="unfinished"></translation>
+        <translation>Informationstabelle der Erweiterung enthält keine Setup-Funktion.</translation>
     </message>
     <message>
         <source>Failed to load plugin %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Laden des Plugins %1 ist fehlgeschlagen: %2</translation>
     </message>
     <message>
         <source>Cannot prepare extension setup: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Setup der Erweiterung kann nicht vorbereitet werden: %1</translation>
     </message>
     <message>
         <source>Extension setup function returned false.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Setup-Funktion der Erweiterung hat &quot;false&quot; zurückgeliefert.</translation>
     </message>
     <message>
         <source>Extension setup function returned error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Setup-Funktion der Erweiterung hat einen Fehler zurückgeliefert: %1</translation>
     </message>
 </context>
 <context>
@@ -37254,11 +37262,11 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>Toggle View and Filter Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen für Ansicht und Filter umschalten</translation>
     </message>
     <message>
         <source>Ctrl+Shift+L</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+L</translation>
     </message>
     <message>
         <source>Synchronize Browser and Diagram</source>
@@ -37403,15 +37411,15 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>Add Package Link to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket-Link zu %1 hinzufügen</translation>
     </message>
     <message>
         <source>Add Diagram Link to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Diagramm-Link zu %1 hinzufügen</translation>
     </message>
     <message>
         <source>Add Document Link to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Dokument-Link zu %1 hinzufügen</translation>
     </message>
     <message>
         <source>Add Package %1</source>
@@ -37443,19 +37451,19 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>Select File Target</source>
-        <translation type="unfinished"></translation>
+        <translation>Zieldatei auswählen</translation>
     </message>
     <message>
         <source>Linked file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Verlinkte Datei:</translation>
     </message>
     <message>
         <source>Select Image File</source>
-        <translation type="unfinished"></translation>
+        <translation>Bilddatei auswählen</translation>
     </message>
     <message>
         <source>Image:</source>
-        <translation type="unfinished"></translation>
+        <translation>Bild:</translation>
     </message>
     <message>
         <source>&lt;font color=red&gt;Model file must be reloaded.&lt;/font&gt;</source>
@@ -37463,11 +37471,11 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>Selecting Image</source>
-        <translation type="unfinished"></translation>
+        <translation>Bild auswählen</translation>
     </message>
     <message>
         <source>Unable to read image file &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bilddatei &quot;%1&quot; konnte nicht gelesen werden.</translation>
     </message>
     <message>
         <source>Zoom: %1%</source>
@@ -37475,15 +37483,15 @@ Dies ist hilfreich, wenn das Build-Verzeichnis beschädigt ist oder das Projekt 
     </message>
     <message>
         <source>Opening File</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffne Datei</translation>
     </message>
     <message>
         <source>File &quot;%1&quot; does not exist.</source>
-        <translation type="unfinished">Datei &quot;%1&quot; existiert nicht.</translation>
+        <translation>Datei &quot;%1&quot; existiert nicht.</translation>
     </message>
     <message>
         <source>Add Related Elements...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zugehörige Elemente hinzufügen...</translation>
     </message>
     <message>
         <source>Update Include Dependencies</source>
@@ -38970,7 +38978,7 @@ Außer: %2
     <message>
         <source>compile-output.txt</source>
         <extracomment>file name suggested for saving compile output</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>kompilierungsausgabe.txt</translation>
     </message>
     <message>
         <source>Show Compile &amp;Output</source>
@@ -39330,7 +39338,7 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
     </message>
     <message>
         <source>Open Workspace...</source>
-        <translation type="unfinished"></translation>
+        <translation>Workspace öffnen...</translation>
     </message>
     <message>
         <source>Open File</source>
@@ -39656,7 +39664,7 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Open Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>Workspace öffnen</translation>
     </message>
     <message>
         <source>Sanitizer</source>
@@ -40314,19 +40322,19 @@ Rename %2 to %3 anyway?</source>
     </message>
     <message>
         <source>No build device is set for the kit &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es ist kein Gerät (Erstellung) für das Kit &quot;%1&quot; eingerichtet.</translation>
     </message>
     <message>
         <source>You can try mounting the folder in your device settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie können in den Geräteeinstellungen versuchen, das Verzeichnis einzuhängen.</translation>
     </message>
     <message>
         <source>The build device &quot;%1&quot; cannot reach the project directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Gerät &quot;%1&quot; für das Erstellen kann das Projektverzeichnis nicht erreichen.</translation>
     </message>
     <message>
         <source>The build device &quot;%1&quot; cannot reach the build directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Gerät &quot;%1&quot; für das Erstellen kann das Build-Verzeichnis nicht erreichen.</translation>
     </message>
     <message>
         <source>Default</source>
@@ -40619,7 +40627,7 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     <message>
         <source>application-output-%1.txt</source>
         <extracomment>file name suggested for saving application output, %1 = run configuration display name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>anwendungsausgabe-%1.txt</translation>
     </message>
     <message>
         <source>Application Output</source>
@@ -42975,7 +42983,8 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     <message>
         <source>* Did not find a JSON object in &quot;%1&quot;.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>* Konnte kein JSON-Objekt in &quot;%1&quot; finden.
+</translation>
     </message>
     <message>
         <source>* Version %1 not supported.</source>
@@ -43132,7 +43141,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     <message>
         <source>%1: Full path to Project Directory.</source>
         <extracomment>%1 is something like &quot;Active project&quot;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1: Vollständiger Pfad zum Projektverzeichnis.</translation>
     </message>
     <message>
         <source>%1: The name of the active kit.</source>
@@ -43487,11 +43496,11 @@ Sie werden erhalten.</numerusform>
     </message>
     <message>
         <source>Show All Kits</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Kits anzeigen</translation>
     </message>
     <message>
         <source>Hide Inactive Kits</source>
-        <translation type="unfinished"></translation>
+        <translation>Inaktive Kits verbergen</translation>
     </message>
     <message>
         <source>Enable Kit for Project &quot;%1&quot;</source>
@@ -43688,11 +43697,11 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Emulator</source>
-        <translation type="unfinished">Emulator</translation>
+        <translation>Emulator</translation>
     </message>
     <message>
         <source>Launcher:</source>
-        <translation type="unfinished"></translation>
+        <translation>Startprogramm:</translation>
     </message>
     <message>
         <source>X11 Forwarding:</source>
@@ -44148,11 +44157,11 @@ Was soll %1 tun?</translation>
     <message>
         <source>s</source>
         <extracomment>Suffix for &quot;seconds&quot;</extracomment>
-        <translation type="unfinished">s</translation>
+        <translation>s</translation>
     </message>
     <message>
         <source>The amount of seconds to wait between a &quot;soft kill&quot; and a &quot;hard kill&quot; of a running application.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Zeit in Sekunden, die zwischen einem &quot;soft kill&quot; und einem &quot;hard kill&quot; einer laufenden Anwendung gewartet werden soll.</translation>
     </message>
     <message>
         <source>Current directory</source>
@@ -44252,11 +44261,11 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Show all kits in &quot;Build &amp; Run&quot; in &quot;Projects&quot; mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Kits in &quot;Erstellung und Ausführung&quot; im Modus &quot;Projekte&quot; anzeigen</translation>
     </message>
     <message>
         <source>Show also inactive kits in &quot;Build &amp; Run&quot; in &quot;Projects&quot; mode.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeige auch inaktive Kits in &quot;Erstellung und Ausführung&quot; im Modus &quot;Projekte&quot;.</translation>
     </message>
     <message>
         <source>Environment changes to apply to run configurations, but not build configurations.</source>
@@ -44292,7 +44301,7 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Time to wait before force-stopping applications:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu wartende Zeit vor dem erzwungenen Beenden von Anwendungen:</translation>
     </message>
     <message>
         <source>Files</source>
@@ -44392,7 +44401,7 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Template used to construct the default build directory.&lt;br&gt;&lt;br&gt;The default value can be set using the environment variable &lt;tt&gt;%1&lt;/tt&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorlage für das Standard-Build-Verzeichnis.&lt;br&gt;&lt;br&gt;Der Standardwert kann über die Umgebungsvariable &lt;tt&gt;%1&lt;/tt&gt; gesetzt werden.</translation>
     </message>
     <message>
         <source>QML debugging:</source>
@@ -44615,15 +44624,15 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>You can edit this configuration inside the .qtcreator/project.json file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie können diese Konfiguration über die Datei &quot;.qtcreator/project.json&quot; bearbeiten.</translation>
     </message>
     <message>
         <source>Exclude from Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Vom Projekt ausschließen</translation>
     </message>
     <message>
         <source>Rescan Workspace</source>
-        <translation type="unfinished"></translation>
+        <translation>Workspace erneut durchsuchen</translation>
     </message>
 </context>
 <context>
@@ -44786,28 +44795,28 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Update Requirements</source>
-        <translation type="unfinished"></translation>
+        <translation>Requirements aktualisieren</translation>
     </message>
     <message>
         <source>Install Requirements</source>
-        <translation type="unfinished"></translation>
+        <translation>Requirements installieren</translation>
     </message>
     <message>
         <source>Update %1</source>
         <extracomment>%1 = package name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 aktualisieren</translation>
     </message>
     <message>
         <source>Install %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 installieren</translation>
     </message>
     <message>
         <source>Update Packages</source>
-        <translation type="unfinished"></translation>
+        <translation>Pakete aktualisieren</translation>
     </message>
     <message>
         <source>Install Packages</source>
-        <translation type="unfinished"></translation>
+        <translation>Pakete installieren</translation>
     </message>
     <message>
         <source>Running &quot;%1&quot; to install %2.</source>
@@ -44912,19 +44921,19 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Update Python language server (PyLS) for %1 (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>Python Language Server (PyLS) für %1 (%2) aktualisieren.</translation>
     </message>
     <message>
         <source>Always Update</source>
-        <translation type="unfinished"></translation>
+        <translation>Immer aktualisieren</translation>
     </message>
     <message>
         <source>Update</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualisieren</translation>
     </message>
     <message>
         <source>Never</source>
-        <translation type="unfinished">Niemals</translation>
+        <translation>Niemals</translation>
     </message>
     <message>
         <source>Searching Python binaries...</source>
@@ -45952,7 +45961,7 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
     <message>
         <source>Unable to start &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; kann nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Qt Widgets Designer is not responding (%1).</source>
@@ -59540,31 +59549,31 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished">Zurücksetzen</translation>
+        <translation>Zurücksetzen</translation>
     </message>
     <message>
         <source>Relations</source>
-        <translation type="unfinished"></translation>
+        <translation>Beziehungen</translation>
     </message>
     <message>
         <source>Diagram Elements</source>
-        <translation type="unfinished"></translation>
+        <translation>Diagrammelemente</translation>
     </message>
     <message>
         <source>Clear</source>
-        <translation type="unfinished">Löschen</translation>
+        <translation>Löschen</translation>
     </message>
     <message>
         <source>View</source>
-        <translation type="unfinished"></translation>
+        <translation>Ansicht</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">Filter</translation>
+        <translation>Filter</translation>
     </message>
     <message>
         <source>Type:</source>
-        <translation type="unfinished">Typ:</translation>
+        <translation>Typ:</translation>
     </message>
     <message>
         <source>Stereotypes:</source>
@@ -59836,11 +59845,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished">Warnung</translation>
+        <translation>Warnung</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <source>Intermediate points:</source>
@@ -59972,7 +59981,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Open Linked File</source>
-        <translation type="unfinished"></translation>
+        <translation>Verlinkte Datei öffnen</translation>
     </message>
     <message>
         <source>Align Bottom</source>
@@ -60040,27 +60049,27 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
     <message>
         <source>Relation Attributes</source>
-        <translation type="unfinished"></translation>
+        <translation>Beziehungsattribute</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>Direction</source>
-        <translation type="unfinished"></translation>
+        <translation>Richtung</translation>
     </message>
     <message>
         <source>Stereotypes</source>
-        <translation type="unfinished"></translation>
+        <translation>Stereotype</translation>
     </message>
     <message>
         <source>Other Element Attributes</source>
-        <translation type="unfinished"></translation>
+        <translation>Andere Elementattribute</translation>
     </message>
     <message>
         <source>Number of matching elements: </source>
-        <translation type="unfinished"></translation>
+        <translation>Anzahl der übereinstimmenden Elemente: </translation>
     </message>
 </context>
 <context>

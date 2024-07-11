@@ -37,7 +37,7 @@ static void updateCMakePathsFromQMake(QStringList &initialCMakeArguments)
         return;
 
     // ~Qt/6.x/platform/bin/qmake -> ~Qt/6.x/platform
-    const QByteArray qmakePrefixPath = qmakeFilePath.parentDir().parentDir().toString().toUtf8();
+    const QByteArray qmakePrefixPath = qmakeFilePath.parentDir().parentDir().path().toUtf8();
     const QByteArrayList cmakePathsVariables = {"CMAKE_PREFIX_PATH", "CMAKE_FIND_ROOT_PATH"};
 
     for (const QByteArray &var : cmakePathsVariables) {

@@ -215,6 +215,7 @@ signals:
     void documentUpdated(TextEditor::TextDocument *document);
     void workDone(const LanguageServerProtocol::ProgressToken &token);
     void shadowDocumentSwitched(const Utils::FilePath &filePath);
+    void stateChanged(State state);
     void finished();
 
 protected:

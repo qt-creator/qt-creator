@@ -399,12 +399,10 @@ static SnippetAndLocation generateSnippetAndLocationForSources(
 static expected_str<bool> insertSnippetSilently(const FilePath &cmakeFile,
                                                 const SnippetAndLocation &snippetLocation)
 {
-    BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(
-        Core::EditorManager::openEditorAt({cmakeFile,
-                                           int(snippetLocation.line),
-                                           int(snippetLocation.column)},
-                                          Constants::CMAKE_EDITOR_ID,
-                                          Core::EditorManager::DoNotMakeVisible));
+    BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(Core::EditorManager::openEditorAt(
+        {cmakeFile, int(snippetLocation.line), int(snippetLocation.column)},
+        Constants::CMAKE_EDITOR_ID,
+        Core::EditorManager::DoNotMakeVisible | Core::EditorManager::DoNotChangeCurrentEditor));
     if (!editor) {
         return make_unexpected("BaseTextEditor cannot be obtained for " + cmakeFile.toUserOutput()
                                + ":" + QString::number(snippetLocation.line) + ":"
@@ -864,12 +862,13 @@ RemovedFilesFromProject CMakeBuildSystem::removeFiles(Node *context,
                 }
 
                 BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(
-                    Core::EditorManager::openEditorAt({filePos.value().cmakeFile,
-                                                       static_cast<int>(filePos.value().argumentPosition.Line),
-                                                       static_cast<int>(filePos.value().argumentPosition.Column
-                                                                        - 1)},
-                                                      Constants::CMAKE_EDITOR_ID,
-                                                      Core::EditorManager::DoNotMakeVisible));
+                    Core::EditorManager::openEditorAt(
+                        {filePos.value().cmakeFile,
+                         static_cast<int>(filePos.value().argumentPosition.Line),
+                         static_cast<int>(filePos.value().argumentPosition.Column - 1)},
+                        Constants::CMAKE_EDITOR_ID,
+                        Core::EditorManager::DoNotMakeVisible
+                            | Core::EditorManager::DoNotChangeCurrentEditor));
                 if (!editor) {
                     badFiles << file;
 
@@ -976,7 +975,8 @@ bool CMakeBuildSystem::renameFile(Node *context,
                          static_cast<int>(fileToRename->argumentPosition.Line),
                          static_cast<int>(fileToRename->argumentPosition.Column - 1)},
                         Constants::CMAKE_EDITOR_ID,
-                        Core::EditorManager::DoNotMakeVisible));
+                        Core::EditorManager::DoNotMakeVisible
+                            | Core::EditorManager::DoNotChangeCurrentEditor));
                 if (!editor) {
                     qCCritical(cmakeBuildSystemLog).noquote()
                         << "BaseTextEditor cannot be obtained for" << fileToRename->cmakeFile.path()

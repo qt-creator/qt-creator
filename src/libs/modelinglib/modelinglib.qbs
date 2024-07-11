@@ -396,8 +396,8 @@ QtcLibrary {
 
     Export {
         cpp.includePaths: [
-            ".",
-            "./qtserialization/inc"
+            exportingProduct.sourceDirectory,
+            exportingProduct.sourceDirectory + "/qtserialization/inc"
         ]
     }
 }

@@ -140,7 +140,7 @@ public:
             const Utils::FilePath &filePath, int timeOutInMs = 5000);
 
     static CPlusPlus::Document::Ptr waitForRehighlightedSemanticDocument(
-            CppEditorWidget *editorWidget);
+        CppEditorWidget *editorWidget, int timeoutInMs = defaultTimeOutInMs);
 
     enum { defaultTimeOutInMs = 30 * 1000 /*= 30 secs*/ };
     static bool waitUntilProjectIsFullyOpened(ProjectExplorer::Project *project,
