@@ -21,8 +21,13 @@
 Q_LOGGING_CATEGORY(clientLog, "qtc.cmdbridge.client", QtWarningMsg)
 
 #define ASSERT_TYPE(expectedtype) \
-    QTC_ASSERT(map.value("Type").toString() == expectedtype, promise.finish(); \
-               return JobResult::Done)
+    if (map.value("Type").toString() != expectedtype) { \
+        const QString err = QString("Unexpected result type: %1, expected: %2") \
+                                .arg(map.value("Type").toString(), expectedtype); \
+        promise.setException(std::make_exception_ptr(std::runtime_error(err.toStdString()))); \
+        promise.finish(); \
+        return JobResult::Done; \
+    }
 
 using namespace Utils;
 
