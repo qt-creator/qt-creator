@@ -49,7 +49,7 @@ void WizardFactories::sortByCategoryAndId()
 void WizardFactories::filter()
 {
     QList<JsonWizardFactory *> acceptedFactories = Utils::filtered(m_factories, [&](auto *wizard) {
-        return wizard->isAvailable(m_platform)
+        return wizard->isAvailable(m_platform) && !wizard->detailsPageQmlPath().isEmpty()
                && wizard->kind() == JsonWizardFactory::ProjectWizard;
     });
 
