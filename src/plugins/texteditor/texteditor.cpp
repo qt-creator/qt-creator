@@ -7105,8 +7105,6 @@ void TextEditorWidget::updateFoldingHighlight(const QPoint &pos)
     if (!d->m_codeFoldingVisible)
         return;
 
-    QTextCursor cursor = cursorForPosition(QPoint(0, pos.y()));
-
     // Update which folder marker is highlighted
     int boxWidth = 0;
     if (TextEditorSettings::fontSettings().relativeLineSpacing() == 100)
@@ -7114,14 +7112,13 @@ void TextEditorWidget::updateFoldingHighlight(const QPoint &pos)
     else
         boxWidth = foldBoxWidth();
 
-    if (pos.x() > extraArea()->width() - boxWidth) {
-        updateFoldingHighlight(cursor);
-    } else if (d->m_displaySettings.m_highlightBlocks) {
-        QTextCursor cursor = textCursor();
-        updateFoldingHighlight(cursor);
-    } else {
-        updateFoldingHighlight(QTextCursor());
-    }
+    QTextCursor cursor;
+    if (pos.x() > extraArea()->width() - boxWidth)
+        cursor = cursorForPosition(QPoint(0, pos.y()));
+    else if (d->m_displaySettings.m_highlightBlocks)
+        cursor = textCursor();
+
+    updateFoldingHighlight(cursor);
 }
 
 void TextEditorWidget::updateFoldingHighlight(const QTextCursor &cursor)
