@@ -10,7 +10,7 @@
     "fontIconName": "wizardsGeneric",
     "enabled": "%{JS: [ %{Plugins} ].indexOf('QmlProjectManager') >= 0}",
     "platformIndependent": true,
-    "featuresRequired": [ "QDS.3D" ],
+    "featuresRequired": [ "QmlDesigner.Wizards.FullQDS" ],
 
     "options":
         [

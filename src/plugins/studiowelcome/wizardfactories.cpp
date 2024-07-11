@@ -49,9 +49,8 @@ void WizardFactories::sortByCategoryAndId()
 void WizardFactories::filter()
 {
     QList<JsonWizardFactory *> acceptedFactories = Utils::filtered(m_factories, [&](auto *wizard) {
-        const bool liteDesigner = QmlDesigner::QmlDesignerBasePlugin::isLiteModeEnabled();
-        return wizard->isAvailable(m_platform) && wizard->kind() == JsonWizardFactory::ProjectWizard
-               && (!liteDesigner || !wizard->requiredFeatures().contains("QDS.3D"));
+        return wizard->isAvailable(m_platform)
+               && wizard->kind() == JsonWizardFactory::ProjectWizard;
     });
 
     m_factories = acceptedFactories;
