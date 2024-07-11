@@ -632,6 +632,9 @@ class DumperBase():
         self.register_struct('@QList<@QStandardItemData>', p5=1, p6=3)
         self.register_struct('@QList<@QRect>', p5=1, p6=3)
 
+        typeid_string_list = self.register_struct('@QList<@QString>', p5=1, p6=3)
+        self.register_typedef('@QStringList', typeid_string_list)
+
         typeid_var_list = self.register_struct('@QList<@QVariant>', p5=1, p6=3)
         self.register_typedef('@QVariantList', typeid_var_list)
 
