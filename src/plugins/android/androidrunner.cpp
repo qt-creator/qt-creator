@@ -2,17 +2,15 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "androidrunner.h"
+
 #include "androidavdmanager.h"
-#include "androidconfigurations.h"
 #include "androiddevice.h"
 #include "androidmanager.h"
-#include "androidrunner.h"
 #include "androidrunnerworker.h"
 #include "androidtr.h"
 
-#include <coreplugin/messagemanager.h>
 #include <projectexplorer/projectexplorersettings.h>
-#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/qtkitaspect.h>
 #include <utils/url.h>
@@ -25,10 +23,10 @@ static Q_LOGGING_CATEGORY(androidRunnerLog, "qtc.android.run.androidrunner", QtW
 }
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 AndroidRunner::AndroidRunner(RunControl *runControl, const QString &intentName)
     : RunWorker(runControl), m_target(runControl->target())
@@ -40,9 +38,6 @@ AndroidRunner::AndroidRunner(RunControl *runControl, const QString &intentName)
         qRegisterMetaType<AndroidDeviceInfo>("Android::AndroidDeviceInfo")
     };
     Q_UNUSED(metaTypes)
-
-    m_checkAVDTimer.setInterval(2000);
-    connect(&m_checkAVDTimer, &QTimer::timeout, this, &AndroidRunner::checkAVD);
 
     QString intent = intentName;
     if (intent.isEmpty())
@@ -87,27 +82,40 @@ AndroidRunner::~AndroidRunner()
 
 void AndroidRunner::start()
 {
-    if (!projectExplorerSettings().deployBeforeRun) {
+    if (!projectExplorerSettings().deployBeforeRun && m_target && m_target->project()) {
         qCDebug(androidRunnerLog) << "Run without deployment";
-       launchAVD();
-       if (!m_launchedAVDName.isEmpty()) {
-           m_checkAVDTimer.start();
-           return;
-       }
-    }
 
+        const IDevice::ConstPtr device = DeviceKitAspect::device(m_target->kit());
+        AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromIDevice(device.get());
+        AndroidManager::setDeviceSerialNumber(m_target, info.serialNumber);
+        emit androidDeviceInfoChanged(info);
+
+        if (!info.avdName.isEmpty()) {
+            const Storage<QString> serialNumberStorage;
+
+            const Group recipe {
+                serialNumberStorage,
+                AndroidAvdManager::startAvdRecipe(info.avdName, serialNumberStorage)
+            };
+
+            m_startAvdRunner.start(recipe, {}, [this](DoneWith result) {
+                if (result == DoneWith::Success)
+                    emit asyncStart();
+            });
+            return;
+        }
+    }
     emit asyncStart();
 }
 
 void AndroidRunner::stop()
 {
-    if (m_checkAVDTimer.isActive()) {
-        m_checkAVDTimer.stop();
+    if (m_startAvdRunner.isRunning()) {
+        m_startAvdRunner.reset();
         appendMessage("\n\n" + Tr::tr("\"%1\" terminated.").arg(m_packageName),
                       Utils::NormalMessageFormat);
         return;
     }
-
     emit asyncStop();
 }
 
@@ -153,42 +161,4 @@ void AndroidRunner::handleRemoteProcessFinished(const QString &errString)
     reportStopped();
 }
 
-void AndroidRunner::launchAVD()
-{
-    if (!m_target || !m_target->project())
-        return;
-
-    // TODO: is this still needed?
-    AndroidManager::applicationAbis(m_target);
-
-    // Get AVD info
-    const IDevice::ConstPtr device = DeviceKitAspect::device(m_target->kit());
-    AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromIDevice(device.get());
-    AndroidManager::setDeviceSerialNumber(m_target, info.serialNumber);
-    emit androidDeviceInfoChanged(info);
-    if (info.isValid()) {
-        if (!info.avdName.isEmpty() && AndroidAvdManager::findAvd(info.avdName).isEmpty())
-            m_launchedAVDName = AndroidAvdManager::startAvdAsync(info.avdName) ? info.avdName : "";
-        else
-            m_launchedAVDName.clear();
-    }
-}
-
-void AndroidRunner::checkAVD()
-{
-    const QString serialNumber = AndroidAvdManager::findAvd(m_launchedAVDName);
-    if (!serialNumber.isEmpty())
-        return; // try again on next timer hit
-
-    if (AndroidAvdManager::isAvdBooted(serialNumber)) {
-        m_checkAVDTimer.stop();
-        AndroidManager::setDeviceSerialNumber(m_target, serialNumber);
-        emit asyncStart();
-    } else if (!AndroidConfig::isConnected(serialNumber)) {
-        // device was disconnected
-        m_checkAVDTimer.stop();
-    }
-}
-
-} // namespace Internal
-} // namespace Android
+} // namespace Android::Internal
