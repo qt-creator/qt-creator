@@ -601,7 +601,7 @@ void installQASIPackage(Target *target, const FilePath &packagePath)
     }
 
     QStringList arguments = AndroidDeviceInfo::adbSelector(deviceSerialNumber);
-    arguments << "install" << "-r " << packagePath.path();
+    arguments << "install" << "-r" << packagePath.path();
     QString error;
     Process *process = startAdbProcess(arguments, &error);
     if (process) {
