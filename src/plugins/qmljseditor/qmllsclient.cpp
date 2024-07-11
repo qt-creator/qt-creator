@@ -85,11 +85,6 @@ QmllsClient::~QmllsClient()
 
 void QmllsClient::startImpl()
 {
-    LanguageServerProtocol::Unregistration unregister;
-    unregister.setMethod("textDocument/semanticTokens");
-    unregister.setId({});
-    dynamicCapabilities().unregisterCapability({unregister});
-
     Client::startImpl();
 }
 

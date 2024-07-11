@@ -732,11 +732,10 @@ void QmlJSEditorDocumentPrivate::setSourcesWithCapabilities(
         setSemanticWarningSource(QmllsStatus::Source::Qmlls);
     else
         setSemanticWarningSource(QmllsStatus::Source::EmbeddedCodeModel);
-    // TODO: uncomment when qmlls semantic tokens reach a stable state
-    // if (cap.semanticTokensProvider())
-    //     setSemanticHighlightSource(QmllsStatus::Source::Qmlls);
-    // else
-    setSemanticHighlightSource(QmllsStatus::Source::EmbeddedCodeModel);
+    if (cap.semanticTokensProvider())
+        setSemanticHighlightSource(QmllsStatus::Source::Qmlls);
+    else
+        setSemanticHighlightSource(QmllsStatus::Source::EmbeddedCodeModel);
 }
 
 static FilePath qmllsForFile(const FilePath &file, QmlJS::ModelManagerInterface *modelManager)
