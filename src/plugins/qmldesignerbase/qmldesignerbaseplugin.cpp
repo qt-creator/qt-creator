@@ -83,9 +83,9 @@ bool QmlDesignerBasePlugin::isLiteModeEnabled()
     return global->m_enableLiteMode;
 }
 
-bool QmlDesignerBasePlugin::initialize(const QStringList &, QString *)
+bool QmlDesignerBasePlugin::initialize(const QStringList &arguments, QString *)
 {
-    if (QCoreApplication::arguments().contains("-qml-lite-designer"))
+    if (arguments.contains("-qml-lite-designer"))
         enbableLiteMode();
 
     d = std::make_unique<Data>();
