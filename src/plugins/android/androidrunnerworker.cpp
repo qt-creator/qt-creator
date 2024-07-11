@@ -203,6 +203,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
 
     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
     m_useAppParamsForQmlDebugger = version->qtVersion() >= QVersionNumber(5, 12);
+    m_pidRunner.setParent(this); // Move m_pidRunner object together with *this into a separate thread.
 }
 
 AndroidRunnerWorker::~AndroidRunnerWorker()
