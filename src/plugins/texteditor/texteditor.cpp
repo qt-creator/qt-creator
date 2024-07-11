@@ -4234,6 +4234,14 @@ void TextEditorWidgetPrivate::registerActions()
         .setContext(m_editorContext)
         .addOnTriggered([this] { q->unfoldCurrentBlock(); })
         .setScriptable(true);
+    ActionBuilder(this, FOLD_RECURSIVELY)
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->fold(q->textCursor().block(), true); })
+        .setScriptable(true);
+    ActionBuilder(this, UNFOLD_RECURSIVELY)
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->unfold(q->textCursor().block(), true); })
+        .setScriptable(true);
     m_unfoldAllAction = ActionBuilder(this, UNFOLD_ALL)
                             .setContext(m_editorContext)
                             .addOnTriggered([this] { q->toggleFoldAll(); })

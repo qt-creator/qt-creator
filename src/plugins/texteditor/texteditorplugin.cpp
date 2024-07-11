@@ -512,6 +512,12 @@ void TextEditorPlugin::createEditorCommands()
         .setText(Tr::tr("Unfold"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+>")))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_COLLAPSING);
+    TextActionBuilder(this, FOLD_RECURSIVELY)
+        .setText(Tr::tr("Fold Recursively"))
+        .addToContainer(M_EDIT_ADVANCED, G_EDIT_COLLAPSING);
+    TextActionBuilder(this, UNFOLD_RECURSIVELY)
+        .setText(Tr::tr("Unfold Recursively"))
+        .addToContainer(M_EDIT_ADVANCED, G_EDIT_COLLAPSING);
     TextActionBuilder(this, UNFOLD_ALL)
         .setText(Tr::tr("Toggle &Fold All"))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_COLLAPSING);
