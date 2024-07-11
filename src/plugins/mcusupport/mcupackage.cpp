@@ -447,13 +447,8 @@ static Toolchain *armGccToolchain(const FilePath &path, Id language)
         return t->compilerCommand() == path && t->language() == language;
     });
     if (!toolChain) {
-        ToolchainFactory *gccFactory
-            = Utils::findOrDefault(ToolchainFactory::allToolchainFactories(),
-                                   [](ToolchainFactory *f) {
-                                       return f->supportedToolchainType()
-                                              == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID;
-                                   });
-        if (gccFactory) {
+        if (ToolchainFactory * const gccFactory = ToolchainFactory::factoryForType(
+                ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID)) {
             const QList<Toolchain *> detected = gccFactory->detectForImport({path, language});
             if (!detected.isEmpty()) {
                 toolChain = detected.first();
@@ -474,13 +469,8 @@ static Toolchain *iarToolchain(const FilePath &path, Id language)
                && t->language() == language;
     });
     if (!toolChain) {
-        ToolchainFactory *iarFactory
-            = Utils::findOrDefault(ToolchainFactory::allToolchainFactories(),
-                                   [](ToolchainFactory *f) {
-                                       return f->supportedToolchainType()
-                                              == BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID;
-                                   });
-        if (iarFactory) {
+        if (ToolchainFactory * const iarFactory = ToolchainFactory::factoryForType(
+                BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID)) {
             Toolchains detected = iarFactory->autoDetect(
                 {{}, DeviceManager::defaultDesktopDevice(), {}});
             if (detected.isEmpty())

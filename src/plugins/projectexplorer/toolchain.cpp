@@ -220,17 +220,15 @@ bool Toolchain::operator == (const Toolchain &tc) const
 
 Toolchain *Toolchain::clone() const
 {
-    for (ToolchainFactory *f : std::as_const(toolchainFactories())) {
-        if (f->supportedToolchainType() == d->m_typeId) {
-            Toolchain *tc = f->create();
-            QTC_ASSERT(tc, return nullptr);
-            Store data;
-            toMap(data);
-            tc->fromMap(data);
-            // New ID for the clone. It's different.
-            tc->d->m_id = QUuid::createUuid().toByteArray();
-            return tc;
-        }
+    if (ToolchainFactory *const f = ToolchainFactory::factoryForType(d->m_typeId)) {
+        Toolchain *tc = f->create();
+        QTC_ASSERT(tc, return nullptr);
+        Store data;
+        toMap(data);
+        tc->fromMap(data);
+        // New ID for the clone. It's different.
+        tc->d->m_id = QUuid::createUuid().toByteArray();
+        return tc;
     }
     QTC_CHECK(false);
     return nullptr;
@@ -571,6 +569,13 @@ ToolchainFactory::~ToolchainFactory()
 const QList<ToolchainFactory *> ToolchainFactory::allToolchainFactories()
 {
     return toolchainFactories();
+}
+
+ToolchainFactory *ToolchainFactory::factoryForType(Id typeId)
+{
+    return Utils::findOrDefault(allToolchainFactories(), [typeId](ToolchainFactory *factory) {
+        return factory->supportedToolchainType() == typeId;
+    });
 }
 
 Toolchains ToolchainFactory::autoDetect(const ToolchainDetector &detector) const

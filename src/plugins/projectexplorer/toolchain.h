@@ -265,6 +265,7 @@ public:
     virtual ~ToolchainFactory();
 
     static const QList<ToolchainFactory *> allToolchainFactories();
+    static ToolchainFactory *factoryForType(Utils::Id typeId);
 
     QString displayName() const { return m_displayName; }
     Utils::Id supportedToolchainType() const;

@@ -267,13 +267,11 @@ Toolchains ToolchainSettingsAccessor::toolChains(const Store &data) const
         bool restored = false;
         const Utils::Id tcType = ToolchainFactory::typeIdFromMap(tcMap);
         if (tcType.isValid()) {
-            for (ToolchainFactory *f : factories) {
-                if (f->supportedToolchainType() == tcType) {
-                    if (Toolchain *tc = f->restore(tcMap)) {
-                        result.append(tc);
-                        restored = true;
-                        break;
-                    }
+            if (ToolchainFactory * const f = ToolchainFactory::factoryForType(tcType)) {
+                if (Toolchain *tc = f->restore(tcMap)) {
+                    result.append(tc);
+                    restored = true;
+                    break;
                 }
             }
         }
