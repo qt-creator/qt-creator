@@ -13,7 +13,10 @@
 
     "options":
     [
-        { "key": "ProjectFile", "value": "%{JS: value('BuildSystem') === 'qmake' ? value('ProFile') : value('BuildSystem') === 'cmake' ? value('CMakeFile') : value('BuildSystem') === 'meson' ? value('MesonFile') : value('QbsFile')}" },
+        {
+            "key": "ProjectFile",
+            "value": "%{JS: value(\\{qmake: 'ProFile', cmake: 'CMakeFile', meson: 'MesonFile', qbs: 'QbsFile', 'cmake-qt6': 'CMakeFile'\\}[value('BuildSystem')]) }"
+        },
         { "key": "ProFile", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'pro')}" },
         { "key": "CMakeFile", "value": "%{ProjectDirectory}/CMakeLists.txt" },
         { "key": "MesonFile", "value": "%{ProjectDirectory}/meson.build" },
@@ -58,6 +61,11 @@
                             {
                                 "trKey": "CMake",
                                 "value": "cmake",
+                                "condition": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0}"
+                            },
+                            {
+                                "trKey": "CMake for Qt 6",
+                                "value": "cmake-qt6",
                                 "condition": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0}"
                             },
                             {
@@ -181,6 +189,12 @@
                     "source": "CMakeLists.txt",
                     "openAsProject": true,
                     "condition": "%{JS: value('BuildSystem') === 'cmake'}"
+                },
+                {
+                    "source": "CMakeLists-Qt6.txt",
+                    "target": "CMakeLists.txt",
+                    "openAsProject": true,
+                    "condition": "%{JS: value('BuildSystem') === 'cmake-qt6'}"
                 },
                 {
                     "source": "project.qbs",
