@@ -239,6 +239,12 @@ void MultiTextCursor::removeSelectedText()
     mergeCursors();
 }
 
+void MultiTextCursor::clearSelection()
+{
+    for (auto cursor = m_cursorList.begin(); cursor != m_cursorList.end(); ++cursor)
+        cursor->clearSelection();
+}
+
 static void insertAndSelect(QTextCursor &cursor, const QString &text, bool selectNewText)
 {
     if (selectNewText) {

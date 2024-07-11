@@ -2343,6 +2343,13 @@ void TextEditorWidget::selectWordUnderCursor()
     setMultiTextCursor(cursor);
 }
 
+void TextEditorWidget::clearSelection()
+{
+    MultiTextCursor cursor = multiTextCursor();
+    cursor.clearSelection();
+    setMultiTextCursor(cursor);
+}
+
 void TextEditorWidget::showContextMenu()
 {
     QTextCursor tc = textCursor();
@@ -4243,6 +4250,10 @@ void TextEditorWidgetPrivate::registerActions()
     ActionBuilder(this, SELECT_WORD_UNDER_CURSOR)
         .setContext(m_editorContext)
         .addOnTriggered([this] { q->selectWordUnderCursor(); })
+        .setScriptable(true);
+    ActionBuilder(this, CLEAR_SELECTION)
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->clearSelection(); })
         .setScriptable(true);
 
     ActionBuilder(this, GOTO_DOCUMENT_START)
