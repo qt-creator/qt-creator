@@ -605,7 +605,7 @@ void installQASIPackage(Target *target, const FilePath &packagePath)
     QString error;
     Process *process = startAdbProcess(arguments, &error);
     if (process) {
-        // TODO: Potential leak when the process is still running on Creator shutdown.
+        process->setParent(target);
         QObject::connect(process, &Process::done, target, [process] {
             if (process->result() == ProcessResult::FinishedWithSuccess) {
                 MessageManager::writeSilently(
