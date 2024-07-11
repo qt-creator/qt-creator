@@ -136,6 +136,8 @@ public:
             m_aboutToBeDestroyedHandler();
     }
 
+    void init();
+
     EditorService *editorService();
 
     quint64 baseAddress() const { return m_baseAddr; }
@@ -312,7 +314,6 @@ private:
 
     QBasicTimer m_cursorBlinkTimer;
 
-    void init();
     std::optional<qint64> posAt(const QPoint &pos, bool includeEmptyArea = true) const;
     bool inTextArea(const QPoint &pos) const;
     QRect cursorRect() const;
@@ -368,7 +369,6 @@ static QByteArray calculateHexPattern(const QByteArray &pattern)
 BinEditorWidget::BinEditorWidget(QWidget *parent)
     : QAbstractScrollArea(parent)
 {
-    init();
     setFocusPolicy(Qt::WheelFocus);
     setFrameStyle(QFrame::Plain);
 
@@ -2228,11 +2228,11 @@ class BinEditorImpl: public IEditor
 {
     Q_OBJECT
 public:
-    BinEditorImpl(BinEditorWidget *widget)
+    BinEditorImpl(BinEditorWidget *widget, BinEditorDocument *doc)
+        : m_document(doc)
     {
         using namespace TextEditor;
         setWidget(widget);
-        m_file = new BinEditorDocument(widget);
         m_addressEdit = new QLineEdit;
         auto addressValidator = new QRegularExpressionValidator(QRegularExpression("[0-9a-fA-F]{1,16}"), m_addressEdit);
         m_addressEdit->setValidator(addressValidator);
@@ -2260,7 +2260,7 @@ public:
         connect(m_codecChooser, &CodecChooser::codecChanged,
                 widget, &BinEditorWidget::setCodec);
         connect(widget, &BinEditorWidget::modificationChanged,
-                m_file, &IDocument::changed);
+                m_document, &IDocument::changed);
         updateCursorPosition(widget->cursorPosition());
         const QVariant setting = ICore::settings()->value(Constants::C_ENCODING_SETTING);
         if (!setting.isNull())
@@ -2272,7 +2272,7 @@ public:
         delete m_widget;
     }
 
-    IDocument *document() const override { return m_file; }
+    IDocument *document() const override { return m_document; }
 
     QWidget *toolBar() override { return m_toolBar; }
 
@@ -2293,7 +2293,7 @@ private:
     }
 
 private:
-    BinEditorDocument *m_file;
+    BinEditorDocument *m_document;
     QToolBar *m_toolBar;
     QLineEdit *m_addressEdit;
     TextEditor::CodecChooser *m_codecChooser;
@@ -2359,7 +2359,9 @@ public:
 
         setEditorCreator([this] {
             auto widget = new BinEditorWidget();
-            auto editor = new BinEditorImpl(widget);
+            widget->init();
+            auto doc = new BinEditorDocument(widget);
+            auto editor = new BinEditorImpl(widget, doc);
 
             connect(m_undoAction, &QAction::triggered, widget, &BinEditorWidget::undo);
             connect(m_redoAction, &QAction::triggered, widget, &BinEditorWidget::redo);
