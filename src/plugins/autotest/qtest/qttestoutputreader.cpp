@@ -475,6 +475,8 @@ void QtTestOutputReader::sendCompleteInformation()
         }
     }
     testResult.setDescription(m_description);
+    if (!m_duration.isEmpty())
+        testResult.setDuration(m_duration);
     reportResult(testResult);
 }
 
@@ -510,6 +512,7 @@ void QtTestOutputReader::sendFinishMessage(bool isFunction)
     if (!m_duration.isEmpty()) {
         result.setDescription(isFunction ? Tr::tr("Execution took %1 ms.").arg(m_duration)
                                          : Tr::tr("Test execution took %1 ms.").arg(m_duration));
+        result.setDuration(m_duration);
     } else {
         result.setDescription(isFunction ? Tr::tr("Test function finished.")
                                          : Tr::tr("Test finished."));

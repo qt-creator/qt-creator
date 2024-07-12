@@ -115,6 +115,7 @@ private:
     QToolButton *m_stopTestRun;
     QToolButton *m_filterButton;
     QToolButton *m_outputToggleButton;
+    QToolButton *m_showDurationButton;
     Core::OutputWindow *m_textOutput;
     QMenu *m_filterMenu;
     bool m_autoScroll = false;

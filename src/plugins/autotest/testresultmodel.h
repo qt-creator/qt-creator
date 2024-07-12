@@ -37,7 +37,8 @@ public:
     };
 
     void updateResult(bool &changed, ResultType addedChildType,
-                      const std::optional<SummaryEvaluation> &summary);
+                      const std::optional<SummaryEvaluation> &summary,
+                      const std::optional<QString> duration);
 
     TestResultItem *intermediateFor(const TestResultItem *item) const;
     TestResultItem *createAndAddIntermediateFor(const TestResultItem *child);

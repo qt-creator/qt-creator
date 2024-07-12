@@ -213,6 +213,22 @@ void TestResultsPane::createToolButtons()
     m_outputToggleButton->setToolTip(Tr::tr("Switch Between Visual and Text Display"));
     m_outputToggleButton->setEnabled(true);
     connect(m_outputToggleButton, &QToolButton::clicked, this, &TestResultsPane::toggleOutputStyle);
+    m_showDurationButton = new QToolButton(m_treeView);
+    auto icon = Utils::Icon({{":/utils/images/stopwatch.png", Utils::Theme::IconsBaseColor}});
+    m_showDurationButton->setIcon(icon.icon());
+    m_showDurationButton->setToolTip(Tr::tr("Show Durations"));
+    m_showDurationButton->setCheckable(true);
+    m_showDurationButton->setChecked(true);
+    connect(m_showDurationButton, &QToolButton::toggled, this, [this](bool checked) {
+        if (auto trd = qobject_cast<TestResultDelegate *>(m_treeView->itemDelegate())) {
+            trd->setShowDuration(checked);
+            if (auto rowCount = m_model->rowCount()) {
+                QModelIndex tl = m_model->index(0, 0);
+                QModelIndex br = m_model->index(rowCount - 1, 0);
+                emit m_model->dataChanged(tl, br, {Qt::DisplayRole});
+            }
+        }
+    });
 }
 
 static TestResultsPane *s_instance = nullptr;
@@ -272,7 +288,8 @@ QWidget *TestResultsPane::outputWidget(QWidget *parent)
 QList<QWidget *> TestResultsPane::toolBarWidgets() const
 {
     QList<QWidget *> result = {m_expandCollapse, m_runAll, m_runSelected, m_runFailed,
-                               m_runFile, m_stopTestRun, m_outputToggleButton, m_filterButton};
+                               m_runFile, m_stopTestRun, m_showDurationButton,
+                               m_outputToggleButton, m_filterButton};
     for (QWidget *widget : IOutputPane::toolBarWidgets())
         result.append(widget);
     return result;

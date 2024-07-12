@@ -117,11 +117,15 @@ static bool isSignificant(ResultType type)
 }
 
 void TestResultItem::updateResult(bool &changed, ResultType addedChildType,
-                                  const std::optional<SummaryEvaluation> &summary)
+                                  const std::optional<SummaryEvaluation> &summary,
+                                  const std::optional<QString> duration)
 {
     changed = false;
     if (m_testResult.result() != ResultType::TestStart)
         return;
+
+    if (addedChildType == ResultType::TestEnd && duration)
+        m_testResult.setDuration(*duration);
 
     if (!isSignificant(addedChildType) || (addedChildType == ResultType::TestStart && !summary))
         return;
@@ -244,7 +248,8 @@ void TestResultModel::updateParent(const TestResultItem *item)
     if (parentItem == rootItem()) // do not update invisible root item
         return;
     bool changed = false;
-    parentItem->updateResult(changed, item->testResult().result(), item->summaryResult());
+    parentItem->updateResult(changed, item->testResult().result(), item->summaryResult(),
+                             item->testResult().duration());
     bool changedType = parentItem->updateDescendantTypes(item->testResult().result());
     if (!changed && !changedType)
         return;
