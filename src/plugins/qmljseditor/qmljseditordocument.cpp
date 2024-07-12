@@ -770,7 +770,7 @@ void QmlJSEditorDocumentPrivate::settingsChanged()
     auto lspClientManager = LanguageClient::LanguageClientManager::instance();
     if (newQmlls.isEmpty()) {
         qCDebug(qmllsLog) << "disabling qmlls for" << q->filePath();
-        if (LanguageClient::Client *client = lspClientManager->clientForDocument(q)) {
+        if (lspClientManager->clientForDocument(q)) {
             qCDebug(qmllsLog) << "deactivating " << q->filePath() << "in qmlls" << newQmlls;
             lspClientManager->openDocumentWithClient(q, nullptr);
         } else
