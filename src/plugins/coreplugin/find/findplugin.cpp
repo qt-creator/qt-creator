@@ -378,6 +378,11 @@ void Find::setWholeWord(bool wholeOnly)
     d->setFindFlag(FindWholeWords, wholeOnly);
 }
 
+void Find::setIgnoreBinaryFiles(bool ignoreBinaryFiles)
+{
+    d->setFindFlag(DontFindBinaryFiles, ignoreBinaryFiles);
+}
+
 void Find::setBackward(bool backward)
 {
     d->setFindFlag(FindBackward, backward);
@@ -420,6 +425,8 @@ void FindPrivate::writeSettings()
     settings->setValueWithDefault("Backward", bool(m_findFlags & FindBackward), false);
     settings->setValueWithDefault("CaseSensitively", bool(m_findFlags & FindCaseSensitively), false);
     settings->setValueWithDefault("WholeWords", bool(m_findFlags & FindWholeWords), false);
+    settings
+        ->setValueWithDefault("IgnoreBinaryFiles", bool(m_findFlags & DontFindBinaryFiles), false);
     settings->setValueWithDefault("RegularExpression",
                                   bool(m_findFlags & FindRegularExpression),
                                   false);
@@ -437,6 +444,8 @@ void FindPrivate::writeSettings()
         s.insert("Backward", true);
     if (m_findFlags & FindCaseSensitively)
         s.insert("CaseSensitively", true);
+    if (m_findFlags & DontFindBinaryFiles)
+        s.insert("IgnoreBinaryFiles", true);
     if (m_findFlags & FindWholeWords)
         s.insert("WholeWords", true);
     if (m_findFlags & FindRegularExpression)
@@ -472,6 +481,7 @@ void FindPrivate::readSettings()
             Find::setWholeWord(settings->value("WholeWords", false).toBool());
             Find::setRegularExpression(settings->value("RegularExpression", false).toBool());
             Find::setPreserveCase(settings->value("PreserveCase", false).toBool());
+            Find::setIgnoreBinaryFiles(settings->value("IgnoreBinaryFiles", false).toBool());
         }
         m_findCompletionModel.readSettings(settings);
         m_replaceCompletions = settings->value("ReplaceStrings").toStringList();
@@ -487,6 +497,7 @@ void FindPrivate::readSettings()
             Find::setWholeWord(s.value("WholeWords", false).toBool());
             Find::setRegularExpression(s.value("RegularExpression", false).toBool());
             Find::setPreserveCase(s.value("PreserveCase", false).toBool());
+            Find::setIgnoreBinaryFiles(s.value("IgnoreBinaryFiles", false).toBool());
         }
         m_findCompletionModel.restore(storeFromVariant(s.value("FindCompletions")));
         m_replaceCompletions = s.value("ReplaceStrings").toStringList();

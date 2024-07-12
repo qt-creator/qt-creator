@@ -38,6 +38,11 @@ private:
 
     QPointer<Core::IDocument> m_currentDocument;
 
+    Utils::FindFlags supportedFindFlags() const override
+    {
+        return FindCaseSensitively | FindRegularExpression | FindWholeWords;
+    }
+
     // deprecated
     QByteArray settingsKey() const final;
 };

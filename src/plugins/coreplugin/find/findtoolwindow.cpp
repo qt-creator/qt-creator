@@ -83,6 +83,9 @@ FindToolWindow::FindToolWindow(QWidget *parent)
     m_wholeWords = new QCheckBox(m_optionsWidget);
     m_wholeWords->setText(Tr::tr("Whole words o&nly", nullptr));
 
+    m_ignoreBinaryFiles = new QCheckBox(m_optionsWidget);
+    m_ignoreBinaryFiles->setText(Tr::tr("Ignore binary files", nullptr));
+
     m_regExp = new QCheckBox(m_optionsWidget);
     m_regExp->setText(Tr::tr("Use re&gular expressions", nullptr));
 
@@ -108,6 +111,7 @@ FindToolWindow::FindToolWindow(QWidget *parent)
         m_matchCase,
         m_wholeWords,
         m_regExp,
+        m_ignoreBinaryFiles,
         st,
         noMargin
     }.attachTo(m_optionsWidget);
@@ -126,6 +130,7 @@ FindToolWindow::FindToolWindow(QWidget *parent)
     connect(m_replaceButton, &QAbstractButton::clicked, this, &FindToolWindow::replace);
     connect(m_matchCase, &QAbstractButton::toggled, Find::instance(), &Find::setCaseSensitive);
     connect(m_wholeWords, &QAbstractButton::toggled, Find::instance(), &Find::setWholeWord);
+    connect(m_ignoreBinaryFiles, &QAbstractButton::toggled, Find::instance(), &Find::setIgnoreBinaryFiles);
     connect(m_regExp, &QAbstractButton::toggled, Find::instance(), &Find::setRegularExpression);
     connect(m_filterList, &QComboBox::activated, this, &FindToolWindow::setCurrentFilterIndex);
 
@@ -199,19 +204,22 @@ void FindToolWindow::updateButtonStates()
     if (m_configWidget)
         m_configWidget->setEnabled(filterEnabled);
 
+    Utils::FindFlags supportedFlags = m_currentFilter ? m_currentFilter->supportedFindFlags()
+                                                      : Utils::FindFlags();
+
     if (m_currentFilter) {
         m_searchTerm->setVisible(m_currentFilter->showSearchTermInput());
         m_searchLabel->setVisible(m_currentFilter->showSearchTermInput());
-        m_optionsWidget->setVisible(m_currentFilter->supportedFindFlags()
-                                       & (FindCaseSensitively | FindWholeWords | FindRegularExpression));
+        m_optionsWidget->setVisible(
+            supportedFlags
+            & (FindCaseSensitively | FindWholeWords | FindRegularExpression | DontFindBinaryFiles));
     }
 
-    m_matchCase->setEnabled(filterEnabled
-                               && (m_currentFilter->supportedFindFlags() & FindCaseSensitively));
-    m_wholeWords->setEnabled(filterEnabled
-                                && (m_currentFilter->supportedFindFlags() & FindWholeWords));
-    m_regExp->setEnabled(filterEnabled
-                            && (m_currentFilter->supportedFindFlags() & FindRegularExpression));
+    m_matchCase->setEnabled(filterEnabled && (supportedFlags & FindCaseSensitively));
+    m_wholeWords->setEnabled(filterEnabled && (supportedFlags & FindWholeWords));
+    m_ignoreBinaryFiles->setEnabled(filterEnabled && (supportedFlags & DontFindBinaryFiles));
+
+    m_regExp->setEnabled(filterEnabled && (supportedFlags & FindRegularExpression));
     m_searchTerm->setEnabled(filterEnabled);
 }
 
@@ -220,6 +228,7 @@ void FindToolWindow::updateFindFlags()
     m_matchCase->setChecked(Find::hasFindFlag(FindCaseSensitively));
     m_wholeWords->setChecked(Find::hasFindFlag(FindWholeWords));
     m_regExp->setChecked(Find::hasFindFlag(FindRegularExpression));
+    m_ignoreBinaryFiles->setChecked(Find::hasFindFlag(DontFindBinaryFiles));
 }
 
 
@@ -284,11 +293,15 @@ void FindToolWindow::setCurrentFilterIndex(int index)
                            this, &FindToolWindow::updateButtonStates);
                 disconnect(m_currentFilter, &IFindFilter::validChanged,
                            this, &FindToolWindow::updateButtonStates);
+                disconnect(m_currentFilter, &IFindFilter::supportedFlagsChanged,
+                           this, &FindToolWindow::updateButtonStates);
             }
             m_currentFilter = m_filters.at(i);
             connect(m_currentFilter, &IFindFilter::enabledChanged,
                     this, &FindToolWindow::updateButtonStates);
             connect(m_currentFilter, &IFindFilter::validChanged,
+                    this, &FindToolWindow::updateButtonStates);
+            connect(m_currentFilter, &IFindFilter::supportedFlagsChanged,
                     this, &FindToolWindow::updateButtonStates);
             updateButtonStates();
             if (m_configWidget)

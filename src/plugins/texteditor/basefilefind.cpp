@@ -149,6 +149,11 @@ public:
         };
     }
 
+    Utils::FindFlags supportedFindFlags() const override
+    {
+        return FindCaseSensitively | FindWholeWords | FindRegularExpression | DontFindBinaryFiles;
+    }
+
 private:
     QWidget *m_widget;
 };
@@ -285,6 +290,7 @@ void BaseFileFind::setCurrentSearchEngine(int index)
         return;
     d->m_currentSearchEngineIndex = index;
     emit currentSearchEngineChanged();
+    emit supportedFlagsChanged();
 }
 
 void BaseFileFind::runNewSearch(const QString &txt, FindFlags findFlags,

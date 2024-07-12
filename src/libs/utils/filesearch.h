@@ -27,7 +27,8 @@ enum FindFlag {
     FindCaseSensitively = 0x02,
     FindWholeWords = 0x04,
     FindRegularExpression = 0x08,
-    FindPreserveCase = 0x10
+    FindPreserveCase = 0x10,
+    DontFindBinaryFiles = 0x20,
 };
 Q_DECLARE_FLAGS(FindFlags, FindFlag)
 
