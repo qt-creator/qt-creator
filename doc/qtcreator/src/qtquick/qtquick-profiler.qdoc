@@ -160,7 +160,7 @@
     \if defined(qtdesignstudio)
     \note In this section, you are using advanced menu items. These are not
     visible by default. To toggle the visibility of advanced menu items, see
-    \l{Customizing the Menu}.
+    \l{Customizing the Menu Bar}.
     \endif
 
     With QML Profiler, you can find causes for typical performance problems
