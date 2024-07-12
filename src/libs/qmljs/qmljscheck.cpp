@@ -950,7 +950,7 @@ bool Check::visit(UiObjectBinding *ast)
     if (!ast->hasOnToken) {
         checkProperty(ast->qualifiedId);
     } else {
-        addMessage(ErrBehavioursNotSupportedInQmlUi, locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()));
+        //addMessage(ErrBehavioursNotSupportedInQmlUi, locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()));
     }
 
     visitQmlObject(ast, ast->qualifiedTypeNameId, ast->initializer);
