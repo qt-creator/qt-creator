@@ -25,7 +25,6 @@ local function setupClient()
     transport = 'stdio',
     languageFilter = {
       patterns = { '*.*' },
-      mimeTypes = { 'text/plain' }
     },
     settings = Settings,
     startBehavior = "AlwaysOn",
@@ -108,16 +107,15 @@ local function onDocumentChanged()
     -- Set response callback to handle the response
  end
 
+---Called when a document is opened.
+---@param document TextDocument
 function Hooks.onDocumentOpened(document)
-    if document then
-        print("LuaTextDocument found: ", document)
-        document:setChangedCallback(onDocumentChanged)
-    else
-        error("Expected a LuaTextDocument but got nil or incorrect type")
-    end
+    print("TextDocument found: ", document)
+    document:setChangedCallback(onDocumentChanged)
 end
 
-
+---Called when a document is closed.
+---@param document TextDocument
 function Hooks.onDocumentClosed(document)
   print("Document closed:", document)
   -- TODO: Cleanup the document references and requests

@@ -22,7 +22,7 @@ using namespace Utils;
 
 namespace Lua {
 
-static Q_LOGGING_CATEGORY(LOGLSPLUA, "qtc.lua.engine", QtWarningMsg);
+static Q_LOGGING_CATEGORY(logLuaEngine, "qtc.lua.engine", QtWarningMsg);
 
 class LuaInterfaceImpl : public Utils::LuaInterface
 {
@@ -163,15 +163,15 @@ void LuaEngine::registerHook(QString name, const std::function<void(sol::functio
 expected_str<void> LuaEngine::connectHooks(
     sol::state_view lua, const sol::table &table, const QString &path)
 {
-    qCDebug(LOGLSPLUA) << "connectHooks called with path: " << path;
+    qCDebug(logLuaEngine) << "connectHooks called with path: " << path;
 
     for (const auto &[k, v] : table) {
-        qCDebug(LOGLSPLUA) << "Processing key: " << k.as<QString>();
+        qCDebug(logLuaEngine) << "Processing key: " << k.as<QString>();
         if (v.get_type() == sol::type::table) {
             return connectHooks(lua, v.as<sol::table>(), QStringList{path, k.as<QString>()}.join("."));
         } else if (v.get_type() == sol::type::function) {
             QString hookName = QStringList{path, k.as<QString>()}.join(".");
-            qCDebug(LOGLSPLUA) << "Connecting function to hook: " << hookName;
+            qCDebug(logLuaEngine) << "Connecting function to hook: " << hookName;
             auto it = d->m_hooks.find(hookName);
             if (it == d->m_hooks.end())
                 return make_unexpected(Tr::tr("No hook with the name \"%1\" found.").arg(hookName));
@@ -277,15 +277,17 @@ expected_str<sol::protected_function> LuaEngine::prepareSetup(
     if (!pluginTable)
         return make_unexpected(Tr::tr("Script did not return a table."));
 
-    qCDebug(LOGLSPLUA) << "Script returned table with keys:";
-    for (const auto &pair : *pluginTable) {
-        qCDebug(LOGLSPLUA) << "Key:" << QByteArrayView(pair.first.as<std::string>());
-        qCDebug(LOGLSPLUA) << "Value:" << QByteArrayView(pair.second.as<std::string>());
+    if (logLuaEngine().isDebugEnabled()) {
+        qCDebug(logLuaEngine) << "Script returned table with keys:";
+        for (const auto &[key, value] : *pluginTable) {
+            qCDebug(logLuaEngine) << "Key:" << key.as<QString>();
+            qCDebug(logLuaEngine) << "Value:" << value.as<QString>();
+        }
     }
 
     auto hookTable = pluginTable->get<sol::optional<sol::table>>("hooks");
 
-    qCDebug(LOGLSPLUA) << "Hooks table found: " << hookTable.has_value();
+    qCDebug(logLuaEngine) << "Hooks table found: " << hookTable.has_value();
     if (hookTable) {
         auto connectResult = connectHooks(lua, *hookTable, {});
         if (!connectResult)

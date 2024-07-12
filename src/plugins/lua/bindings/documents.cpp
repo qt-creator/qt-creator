@@ -15,7 +15,7 @@ void addDocumentsModule()
         sol::table documents = lua.create_table();
 
         documents.new_usertype<LuaTextDocument>(
-            "LuaTextDocument",
+            "TextDocument",
             sol::no_constructor,
             "setChangedCallback",
             [](LuaTextDocument &self, sol::function callback) {
