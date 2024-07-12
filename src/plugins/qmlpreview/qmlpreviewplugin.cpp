@@ -120,22 +120,6 @@ public:
     void checkFile(const QString &fileName);
     void triggerPreview(const QString &changedFile, const QByteArray &contents);
 
-    QString previewedFile() const;
-    void setPreviewedFile(const QString &previewedFile);
-    QmlPreviewRunControlList runningPreviews() const;
-
-    QmlPreviewFileClassifier fileClassifier() const;
-    void setFileClassifier(QmlPreviewFileClassifier fileClassifier);
-
-    float zoomFactor() const;
-    void setZoomFactor(float zoomFactor);
-
-    QmlPreview::QmlPreviewFpsHandler fpsHandler() const;
-    void setFpsHandler(QmlPreview::QmlPreviewFpsHandler fpsHandler);
-
-    QString locale() const;
-    void setLocale(const QString &locale);
-
     QmlPreviewPlugin *q = nullptr;
     QThread m_parseThread;
     QString m_previewedFile;
