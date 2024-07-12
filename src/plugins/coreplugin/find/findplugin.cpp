@@ -15,12 +15,14 @@
 #include "findtoolbar.h"
 #include "findtoolwindow.h"
 #include "ifindfilter.h"
+#include "itemviewfind.h"
 #include "searchresultwindow.h"
 #include "textfindconstants.h"
 
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/itemviews.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
@@ -261,6 +263,10 @@ void Find::initialize()
         &FindPrivate::writeSettings);
     QObject::connect(
         SessionManager::instance(), &SessionManager::sessionLoaded, d, &FindPrivate::readSettings);
+
+    Utils::Internal::setViewSearchCallback([](QAbstractItemView *view, int role) {
+        Aggregation::aggregate({view, new ItemViewFind(view, role)});
+    });
 }
 
 void Find::extensionsInitialized()

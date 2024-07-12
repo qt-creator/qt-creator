@@ -14,9 +14,6 @@
 
 #include <utils/utilsicons.h>
 
-#include <aggregation/aggregate.h>
-#include <coreplugin/find/itemviewfind.h>
-
 #include <QAction>
 #include <QToolButton>
 #include <QLabel>
@@ -77,8 +74,7 @@ Console::Console()
     connect(m_consoleView->selectionModel(), &QItemSelectionModel::currentChanged,
             itemDelegate, &ConsoleItemDelegate::currentChanged);
     m_consoleView->setItemDelegate(itemDelegate);
-
-    Aggregation::aggregate({m_consoleView, new Core::ItemViewFind(m_consoleView)});
+    m_consoleView->setSearchRole(Qt::DisplayRole);
 
     vbox->addWidget(m_consoleView);
     vbox->addWidget(new Core::FindToolBarPlaceHolder(m_consoleWidget));

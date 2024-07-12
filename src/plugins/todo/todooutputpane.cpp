@@ -10,10 +10,7 @@
 #include "todooutputtreeview.h"
 #include "todotr.h"
 
-#include <aggregation/aggregate.h>
-
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/icore.h>
 
 #include <QIcon>
@@ -213,8 +210,6 @@ void TodoOutputPane::createTreeView()
 
     m_todoTreeView = new TodoOutputTreeView();
     m_todoTreeView->setModel(m_filteredTodoItemsModel);
-
-    Aggregation::aggregate({m_todoTreeView, new Core::ItemViewFind(m_todoTreeView)});
 
     connect(m_todoTreeView, &TodoOutputTreeView::activated, this, &TodoOutputPane::todoTreeViewClicked);
 }

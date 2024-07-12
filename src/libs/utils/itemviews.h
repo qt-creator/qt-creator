@@ -28,6 +28,7 @@ public:
     View(QWidget *parent = nullptr)
         : BaseT(parent)
     {}
+
     void setActivationMode(ActivationMode mode)
     {
         if (mode == PlatformDefaultActivation)
@@ -81,6 +82,8 @@ class QTCREATOR_UTILS_EXPORT TreeView : public View<QTreeView>
 {
 public:
     TreeView(QWidget *parent = nullptr);
+
+    void setSearchRole(int role);
 };
 
 class QTCREATOR_UTILS_EXPORT TreeWidget : public View<QTreeWidget>
@@ -100,5 +103,12 @@ class QTCREATOR_UTILS_EXPORT ListWidget : public View<QListWidget>
 public:
     ListWidget(QWidget *parent = nullptr);
 };
+
+namespace Internal {
+
+using ViewSearchCallback = std::function<void(QAbstractItemView *view, int role)>;
+QTCREATOR_UTILS_EXPORT void setViewSearchCallback(const ViewSearchCallback &cb);
+
+} // Internal
 
 } // Utils

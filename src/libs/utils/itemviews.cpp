@@ -53,10 +53,37 @@ namespace Utils {
     Also adds sane keyboard navigation for mac.
  */
 
+static Internal::ViewSearchCallback &viewSearchCallback()
+{
+    static Internal::ViewSearchCallback theViewSearchCallback;
+    return theViewSearchCallback;
+}
+
+static void makeViewSearchable(QAbstractItemView *view, int role)
+{
+    if (viewSearchCallback())
+        viewSearchCallback()(view, role);
+}
+
+/*!
+    \internal
+
+    \note Only use once from Core initialization.
+*/
+void Internal::setViewSearchCallback(const ViewSearchCallback &cb)
+{
+    viewSearchCallback() = cb;
+}
+
 TreeView::TreeView(QWidget *parent)
     : View<QTreeView>(parent)
 {
     setUniformRowHeights(true);
+}
+
+void TreeView::setSearchRole(int role)
+{
+    makeViewSearchable(this, role);
 }
 
 TreeWidget::TreeWidget(QWidget *parent)

@@ -26,6 +26,7 @@ TodoOutputTreeView::TodoOutputTreeView(QWidget *parent) :
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setSelectionBehavior(QTreeView::SelectRows);
     setItemDelegate(new TodoOutputTreeViewDelegate(this));
+    setSearchRole(Qt::DisplayRole);
 
     header()->setSectionResizeMode(QHeaderView::Interactive);
     header()->setStretchLastSection(true);
