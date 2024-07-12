@@ -11,6 +11,8 @@
 #include "tests/qmlpreviewplugin_test.h"
 #endif
 
+#include <android/androidconstants.h>
+
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -40,10 +42,11 @@
 #include <qtsupport/qtversionmanager.h>
 #include <qtsupport/baseqtversion.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <texteditor/texteditor.h>
 
-#include <android/androidconstants.h>
-
+#include <utils/async.h>
 #include <utils/icon.h>
 #include <utils/mimeconstants.h>
 #include <utils/proxyaction.h>
@@ -55,21 +58,9 @@
 #include <QToolBar>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 
 namespace QmlPreview {
-
-class QmlPreviewParser : public QObject
-{
-    Q_OBJECT
-public:
-    QmlPreviewParser();
-    void parse(const QString &name, const QByteArray &contents,
-               QmlJS::Dialect::Enum dialect);
-
-signals:
-    void success(const QString &changedFile, const QByteArray &contents);
-    void failure();
-};
 
 static QByteArray defaultFileLoader(const QString &filename, bool *success)
 {
@@ -119,9 +110,9 @@ public:
     void checkEditor();
     void checkFile(const QString &fileName);
     void triggerPreview(const QString &changedFile, const QByteArray &contents);
+    void checkDocument(const QString &name, const QByteArray &contents, QmlJS::Dialect::Enum dialect);
 
     QmlPreviewPlugin *q = nullptr;
-    QThread m_parseThread;
     QString m_previewedFile;
     QPointer<Core::IEditor> m_lastEditor;
     QmlPreviewRunControlList m_runningPreviews;
@@ -132,6 +123,8 @@ public:
 
     QmlPreviewRunnerSetting m_settings;
     QmlPreviewRunWorkerFactory runWorkerFactory;
+
+    TaskTreeRunner m_parseRunner;
 };
 
 QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
@@ -210,13 +203,7 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
         toolBar->insertAction(nullptr, action);
     });
 
-    m_parseThread.start();
-    QmlPreviewParser *parser = new QmlPreviewParser;
-    parser->moveToThread(&m_parseThread);
-    connect(&m_parseThread, &QThread::finished, parser, &QObject::deleteLater);
-    connect(q, &QmlPreviewPlugin::checkDocument, parser, &QmlPreviewParser::parse);
     connect(q, &QmlPreviewPlugin::previewedFileChanged, this, &QmlPreviewPluginPrivate::checkFile);
-    connect(parser, &QmlPreviewParser::success, this, &QmlPreviewPluginPrivate::triggerPreview);
 }
 
 QmlPreviewPlugin::~QmlPreviewPlugin()
@@ -232,13 +219,6 @@ void QmlPreviewPlugin::initialize()
     addTestCreator(createQmlPreviewClientTest);
     addTestCreator(createQmlPreviewPluginTest);
 #endif
-}
-
-ExtensionSystem::IPlugin::ShutdownFlag QmlPreviewPlugin::aboutToShutdown()
-{
-    d->m_parseThread.quit();
-    d->m_parseThread.wait();
-    return SynchronousShutdown;
 }
 
 QString QmlPreviewPlugin::previewedFile() const
@@ -405,7 +385,7 @@ void QmlPreviewPluginPrivate::onEditorAboutToClose(Core::IEditor *editor)
 void QmlPreviewPluginPrivate::setDirty()
 {
     m_dirty = true;
-    QTimer::singleShot(1000, this, [&](){
+    QTimer::singleShot(1000, this, [this] {
         if (m_dirty && m_lastEditor) {
             m_dirty = false;
             checkEditor();
@@ -479,7 +459,7 @@ void QmlPreviewPluginPrivate::checkEditor()
         dialect = QmlJS::Dialect::QmlQtQuick2Ui;
     else
         dialect = QmlJS::Dialect::NoLanguage;
-    emit q->checkDocument(doc->filePath().toString(), doc->contents(), dialect);
+    checkDocument(doc->filePath().toString(), doc->contents(), dialect);
 }
 
 void QmlPreviewPluginPrivate::checkFile(const QString &fileName)
@@ -491,11 +471,8 @@ void QmlPreviewPluginPrivate::checkFile(const QString &fileName)
     const QByteArray contents = m_settings.fileLoader(fileName, &success);
 
     if (success) {
-        emit q->checkDocument(fileName,
-                              contents,
-                              QmlJS::ModelManagerInterface::guessLanguageOfFile(
-                                  Utils::FilePath::fromUserInput(fileName))
-                                  .dialect());
+        checkDocument(fileName, contents, QmlJS::ModelManagerInterface::guessLanguageOfFile(
+                                              Utils::FilePath::fromUserInput(fileName)).dialect());
     }
 }
 
@@ -507,29 +484,29 @@ void QmlPreviewPluginPrivate::triggerPreview(const QString &changedFile, const Q
         emit q->updatePreviews(m_previewedFile, changedFile, contents);
 }
 
-QmlPreviewParser::QmlPreviewParser()
+static void parse(QPromise<void> &promise, const QString &name, const QByteArray &contents,
+                  QmlJS::Dialect::Enum dialect)
 {
-    static const int dialectMeta = qRegisterMetaType<QmlJS::Dialect::Enum>();
-    Q_UNUSED(dialectMeta)
+    if (!QmlJS::Dialect(dialect).isQmlLikeOrJsLanguage())
+        return;
+
+    auto qmljsDoc = QmlJS::Document::create(Utils::FilePath::fromString(name), dialect);
+    if (promise.isCanceled())
+        return;
+
+    qmljsDoc->setSource(QString::fromUtf8(contents));
+    if (!qmljsDoc->parse())
+        promise.future().cancel();
 }
 
-void QmlPreviewParser::parse(const QString &name, const QByteArray &contents,
-                             QmlJS::Dialect::Enum dialect)
+void QmlPreviewPluginPrivate::checkDocument(const QString &name, const QByteArray &contents,
+                                            QmlJS::Dialect::Enum dialect)
 {
-    if (!QmlJS::Dialect(dialect).isQmlLikeOrJsLanguage()) {
-        emit success(name, contents);
-        return;
-    }
-
-    QmlJS::Document::MutablePtr qmljsDoc = QmlJS::Document::create(Utils::FilePath::fromString(name),
-                                                                   dialect);
-    qmljsDoc->setSource(QString::fromUtf8(contents));
-    if (qmljsDoc->parse())
-        emit success(name, contents);
-    else
-        emit failure();
+    const auto onParseSetup = [name, contents, dialect](Utils::Async<void> &async) {
+        async.setConcurrentCallData(parse, name, contents, dialect);
+    };
+    const auto onParseDone = [this, name, contents] { triggerPreview(name, contents); };
+    m_parseRunner.start({Utils::AsyncTask<void>(onParseSetup, onParseDone, CallDoneIf::Success)});
 }
 
 } // namespace QmlPreview
-
-#include <qmlpreviewplugin.moc>
