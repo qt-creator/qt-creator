@@ -16,7 +16,6 @@
 #include <utils/fancylineedit.h>
 #include <utils/fileutils.h>
 #include <utils/infolabel.h>
-#include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
 
 #include <coreplugin/icore.h>
@@ -25,6 +24,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QListWidget>
 #include <QTextBrowser>
 
 using namespace Utils;
@@ -50,7 +50,7 @@ private:
     const VcpkgManifest m_projectManifest;
 
     FancyLineEdit *m_packagesFilter;
-    ListWidget *m_packagesList;
+    QListWidget *m_packagesList;
     QLineEdit *m_vcpkgName;
     QLabel *m_vcpkgVersion;
     QLabel *m_vcpkgLicense;
@@ -75,7 +75,7 @@ VcpkgPackageSearchDialog::VcpkgPackageSearchDialog(const VcpkgManifest &preexist
     m_packagesFilter->setFocus();
     m_packagesFilter->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
 
-    m_packagesList = new ListWidget;
+    m_packagesList = new QListWidget;
     m_packagesList->setMaximumWidth(300);
 
     m_vcpkgName = new QLineEdit;
@@ -127,7 +127,7 @@ VcpkgPackageSearchDialog::VcpkgPackageSearchDialog(const VcpkgManifest &preexist
 
     connect(m_packagesFilter, &FancyLineEdit::filterChanged,
             this, &VcpkgPackageSearchDialog::listPackages);
-    connect(m_packagesList, &ListWidget::currentTextChanged,
+    connect(m_packagesList, &QListWidget::currentTextChanged,
             this, &VcpkgPackageSearchDialog::showPackageDetails);
     connect(m_buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
