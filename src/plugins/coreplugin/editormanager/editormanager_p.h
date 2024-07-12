@@ -250,7 +250,8 @@ private:
     QAction *m_filePropertiesAction = nullptr;
     QAction *m_pinAction = nullptr;
     DocumentModel::Entry *m_contextMenuEntry = nullptr;
-    IEditor *m_contextMenuEditor = nullptr;
+    QPointer<IDocument> m_contextMenuDocument;
+    QPointer<IEditor> m_contextMenuEditor;
 
     OpenEditorsWindow *m_windowPopup = nullptr;
 
