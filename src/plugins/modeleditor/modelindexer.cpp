@@ -7,14 +7,11 @@
 
 #include "qmt/infrastructure/exceptions.h"
 #include "qmt/infrastructure/uid.h"
-
-#include "qmt/serializer/projectserializer.h"
-
-#include "qmt/project/project.h"
-#include "qmt/model_controller/mvoidvisitor.h"
-#include "qmt/model/mpackage.h"
 #include "qmt/model/mdiagram.h"
-
+#include "qmt/model/mpackage.h"
+#include "qmt/model_controller/mvoidvisitor.h"
+#include "qmt/project/project.h"
+#include "qmt/serializer/projectserializer.h"
 #include "qmt/tasks/findrootdiagramvisitor.h"
 
 #include <projectexplorer/project.h>
@@ -23,77 +20,65 @@
 
 #include <utils/algorithm.h>
 #include <utils/mimeutils.h>
-#include <utils/qtcassert.h>
 
-#include <QQueue>
-#include <QMutex>
-#include <QMutexLocker>
-#include <QThread>
 #include <QDateTime>
-
 #include <QLoggingCategory>
-#include <QDebug>
 #include <QPointer>
 
+Q_LOGGING_CATEGORY(log, "qtc.modeleditor.modelindexer", QtWarningMsg)
+
 using namespace ProjectExplorer;
-using Utils::FilePath;
-using Utils::FilePaths;
+using namespace Utils;
 
-namespace ModelEditor {
-namespace Internal {
+namespace ModelEditor::Internal {
 
-class ModelIndexer::QueuedFile
+class QueuedFile
 {
-    friend size_t qHash(const ModelIndexer::QueuedFile &queuedFile);
-    friend bool operator==(const ModelIndexer::QueuedFile &lhs,
-                           const ModelIndexer::QueuedFile &rhs);
+    friend size_t qHash(const QueuedFile &queuedFile);
+    friend bool operator==(const QueuedFile &lhs, const QueuedFile &rhs);
 
 public:
     QueuedFile() = default;
 
-    QueuedFile(const QString &file, ProjectExplorer::Project *project)
-        : m_file(file),
-          m_project(project)
-    {
-    }
+    QueuedFile(const QString &file, Project *project)
+        : m_file(file)
+        , m_project(project)
+    {}
 
-    QueuedFile(const QString &file, ProjectExplorer::Project *project,
-               const QDateTime &lastModified)
-        : m_file(file),
-          m_project(project),
-          m_lastModified(lastModified)
-    {
-    }
+    QueuedFile(const QString &file, Project *project, const QDateTime &lastModified)
+        : m_file(file)
+        , m_project(project)
+        , m_lastModified(lastModified)
+    {}
 
     bool isValid() const { return !m_file.isEmpty() && m_project; }
     QString file() const { return m_file; }
-    ProjectExplorer::Project *project() const { return m_project; }
+    Project *project() const { return m_project; }
     QDateTime lastModified() const { return m_lastModified; }
 
 private:
     QString m_file;
-    ProjectExplorer::Project *m_project = nullptr;
+    Project *m_project = nullptr;
     QDateTime m_lastModified;
 };
 
-bool operator==(const ModelIndexer::QueuedFile &lhs, const ModelIndexer::QueuedFile &rhs)
+bool operator==(const QueuedFile &lhs, const QueuedFile &rhs)
 {
     return lhs.m_file == rhs.m_file && lhs.m_project == rhs.m_project;
 }
 
-size_t qHash(const ModelIndexer::QueuedFile &queuedFile)
+size_t qHash(const QueuedFile &queuedFile)
 {
     return qHash(queuedFile.m_project) + qHash(queuedFile.m_project);
 }
 
-class ModelIndexer::IndexedModel
+class IndexedModel
 {
 public:
     IndexedModel(const QString &modelFile, const QDateTime &lastModified)
-        : m_modelFile(modelFile),
-          m_lastModified(lastModified)
-    {
-    }
+        : m_modelFile(modelFile)
+        , m_lastModified(lastModified)
+    {}
 
     void reset(const QDateTime &lastModified)
     {
@@ -104,9 +89,9 @@ public:
 
     QString file() const { return m_modelFile; }
     QDateTime lastModified() const { return m_lastModified; }
-    QSet<ProjectExplorer::Project *> owningProjects() const { return m_owningProjects; }
-    void addOwningProject(ProjectExplorer::Project *project) { m_owningProjects.insert(project); }
-    void removeOwningProject(ProjectExplorer::Project *project)
+    QSet<Project *> owningProjects() const { return m_owningProjects; }
+    void addOwningProject(Project *project) { m_owningProjects.insert(project); }
+    void removeOwningProject(Project *project)
     {
         m_owningProjects.remove(project);
     }
@@ -118,19 +103,18 @@ public:
 private:
     QString m_modelFile;
     QDateTime m_lastModified;
-    QSet<ProjectExplorer::Project *> m_owningProjects;
+    QSet<Project *> m_owningProjects;
     qmt::Uid m_modelUid;
     QSet<qmt::Uid> m_diagrams;
 };
 
-class ModelIndexer::IndexedDiagramReference
+class IndexedDiagramReference
 {
 public:
     IndexedDiagramReference(const QString &file, const QDateTime &lastModified)
-        : m_file(file),
-          m_lastModified(lastModified)
-    {
-    }
+        : m_file(file)
+        , m_lastModified(lastModified)
+    {}
 
     void reset(const QDateTime &lastModified)
     {
@@ -141,9 +125,9 @@ public:
 
     QString file() const { return m_file; }
     QDateTime lastModified() const { return m_lastModified; }
-    QSet<ProjectExplorer::Project *> owningProjects() const { return m_owningProjects; }
-    void addOwningProject(ProjectExplorer::Project *project) { m_owningProjects.insert(project); }
-    void removeOwningProject(ProjectExplorer::Project *project)
+    QSet<Project *> owningProjects() const { return m_owningProjects; }
+    void addOwningProject(Project *project) { m_owningProjects.insert(project); }
+    void removeOwningProject(Project *project)
     {
         m_owningProjects.remove(project);
     }
@@ -155,48 +139,27 @@ public:
 private:
     QString m_file;
     QDateTime m_lastModified;
-    QSet<ProjectExplorer::Project *> m_owningProjects;
+    QSet<Project *> m_owningProjects;
     qmt::Uid m_modelUid;
     qmt::Uid m_diagramUid;
 };
 
-class ModelIndexer::IndexerThread :
-        public QThread
+class DiagramsCollectorVisitor : public qmt::MVoidConstVisitor
 {
 public:
-    IndexerThread(ModelIndexer *indexer)
-        : QThread(),
-          m_indexer(indexer)
-    {
-    }
-
-    void onQuitIndexerThread();
-    void onFilesQueued();
-
-private:
-    ModelIndexer *m_indexer;
-};
-
-class ModelIndexer::DiagramsCollectorVisitor :
-        public qmt::MVoidConstVisitor
-{
-public:
-    DiagramsCollectorVisitor(ModelIndexer::IndexedModel *indexedModel);
+    DiagramsCollectorVisitor(IndexedModel *indexedModel)
+        : qmt::MVoidConstVisitor()
+        , m_indexedModel(indexedModel)
+    {}
 
     void visitMObject(const qmt::MObject *object) final;
     void visitMDiagram(const qmt::MDiagram *diagram) final;
 
 private:
-    ModelIndexer::IndexedModel *m_indexedModel;
+    IndexedModel *m_indexedModel;
 };
 
-ModelIndexer::DiagramsCollectorVisitor::DiagramsCollectorVisitor(IndexedModel *indexedModel)
-    : qmt::MVoidConstVisitor(),
-      m_indexedModel(indexedModel)
-{
-}
-
-void ModelIndexer::DiagramsCollectorVisitor::visitMObject(const qmt::MObject *object)
+void DiagramsCollectorVisitor::visitMObject(const qmt::MObject *object)
 {
     for (const qmt::Handle<qmt::MObject> &child : object->children()) {
         if (child.hasTarget())
@@ -205,14 +168,14 @@ void ModelIndexer::DiagramsCollectorVisitor::visitMObject(const qmt::MObject *ob
     visitMElement(object);
 }
 
-void ModelIndexer::DiagramsCollectorVisitor::visitMDiagram(const qmt::MDiagram *diagram)
+void DiagramsCollectorVisitor::visitMDiagram(const qmt::MDiagram *diagram)
 {
-    qCDebug(logger) << "add diagram " << diagram->name() << " to index";
+    qCDebug(log) << "add diagram " << diagram->name() << " to index";
     m_indexedModel->addDiagram(diagram->uid());
     visitMObject(diagram);
 }
 
-class ModelIndexer::ModelIndexerPrivate
+class ModelIndexerPrivate
 {
 public:
     ~ModelIndexerPrivate()
@@ -223,56 +186,43 @@ public:
         QMT_CHECK(indexedModelsByUid.isEmpty());
         QMT_CHECK(indexedDiagramReferences.isEmpty());
         QMT_CHECK(indexedDiagramReferencesByDiagramUid.isEmpty());
-        delete indexerThread;
     }
 
-    QMutex indexerMutex;
+    QList<QueuedFile> filesQueue;
+    QSet<QueuedFile> queuedFilesSet;
+    QSet<QueuedFile> defaultModelFiles;
 
-    QQueue<ModelIndexer::QueuedFile> filesQueue;
-    QSet<ModelIndexer::QueuedFile> queuedFilesSet;
-    QSet<ModelIndexer::QueuedFile> defaultModelFiles;
+    QHash<QString, IndexedModel *> indexedModels;
+    QHash<qmt::Uid, QSet<IndexedModel *> > indexedModelsByUid;
 
-    QHash<QString, ModelIndexer::IndexedModel *> indexedModels;
-    QHash<qmt::Uid, QSet<ModelIndexer::IndexedModel *> > indexedModelsByUid;
-
-    QHash<QString, ModelIndexer::IndexedDiagramReference *> indexedDiagramReferences;
-    QHash<qmt::Uid, QSet<ModelIndexer::IndexedDiagramReference *> > indexedDiagramReferencesByDiagramUid;
-
-    ModelIndexer::IndexerThread *indexerThread = nullptr;
+    QHash<QString, IndexedDiagramReference *> indexedDiagramReferences;
+    QHash<qmt::Uid, QSet<IndexedDiagramReference *> > indexedDiagramReferencesByDiagramUid;
 };
 
-void ModelIndexer::IndexerThread::onQuitIndexerThread()
+void ModelIndexer::handleQueuedFiles()
 {
-    QThread::exit(0);
-}
-
-void ModelIndexer::IndexerThread::onFilesQueued()
-{
-    QMutexLocker locker(&m_indexer->d->indexerMutex);
-
-    while (!m_indexer->d->filesQueue.isEmpty()) {
-        ModelIndexer::QueuedFile queuedFile = m_indexer->d->filesQueue.takeFirst();
-        m_indexer->d->queuedFilesSet.remove(queuedFile);
-        qCDebug(logger) << "handle queued file " << queuedFile.file()
+    while (!d->filesQueue.isEmpty()) {
+        QueuedFile queuedFile = d->filesQueue.takeFirst();
+        d->queuedFilesSet.remove(queuedFile);
+        qCDebug(log) << "handle queued file " << queuedFile.file()
                         << "from project " << queuedFile.project()->displayName();
 
         bool scanModel = false;
-        IndexedModel *indexedModel = m_indexer->d->indexedModels.value(queuedFile.file());
+        IndexedModel *indexedModel = d->indexedModels.value(queuedFile.file());
         if (!indexedModel) {
-            qCDebug(logger) << "create new indexed model";
+            qCDebug(log) << "create new indexed model";
             indexedModel = new IndexedModel(queuedFile.file(),
                                             queuedFile.lastModified());
             indexedModel->addOwningProject(queuedFile.project());
-            m_indexer->d->indexedModels.insert(queuedFile.file(), indexedModel);
+            d->indexedModels.insert(queuedFile.file(), indexedModel);
             scanModel = true;
         } else if (queuedFile.lastModified() > indexedModel->lastModified()) {
-            qCDebug(logger) << "update indexed model";
+            qCDebug(log) << "update indexed model";
             indexedModel->addOwningProject(queuedFile.project());
             indexedModel->reset(queuedFile.lastModified());
             scanModel = true;
         }
         if (scanModel) {
-            locker.unlock();
             // load model file
             qmt::ProjectSerializer projectSerializer;
             qmt::Project project;
@@ -282,57 +232,47 @@ void ModelIndexer::IndexerThread::onFilesQueued()
                 qWarning() << e.errorMessage();
                 return;
             }
-            locker.relock();
             indexedModel->setModelUid(project.uid());
             // add indexedModel to set of indexedModelsByUid
-            QSet<IndexedModel *> indexedModels = m_indexer->d->indexedModelsByUid.value(project.uid());
+            QSet<IndexedModel *> indexedModels = d->indexedModelsByUid.value(project.uid());
             indexedModels.insert(indexedModel);
-            m_indexer->d->indexedModelsByUid.insert(project.uid(), indexedModels);
+            d->indexedModelsByUid.insert(project.uid(), indexedModels);
             // collect all diagrams of model
             DiagramsCollectorVisitor visitor(indexedModel);
             project.rootPackage()->accept(&visitor);
-            if (m_indexer->d->defaultModelFiles.remove(queuedFile)) {
+            if (d->defaultModelFiles.remove(queuedFile)) {
                 // check if model has a diagram which could be opened
                 qmt::FindRootDiagramVisitor diagramVisitor;
                 project.rootPackage()->accept(&diagramVisitor);
                 if (diagramVisitor.diagram())
-                    emit m_indexer->openDefaultModel(project.uid());
+                    emit openDefaultModel(project.uid());
             }
         }
     }
 }
 
 ModelIndexer::ModelIndexer(QObject *parent)
-    : QObject(parent),
-      d(new ModelIndexerPrivate())
+    : QObject(parent)
+    , d(new ModelIndexerPrivate)
 {
-    d->indexerThread = new IndexerThread(this);
-    connect(this, &ModelIndexer::quitIndexerThread,
-            d->indexerThread, &ModelIndexer::IndexerThread::onQuitIndexerThread);
-    connect(this, &ModelIndexer::filesQueued,
-            d->indexerThread, &ModelIndexer::IndexerThread::onFilesQueued);
-    d->indexerThread->start();
-    connect(ProjectExplorer::ProjectManager::instance(), &ProjectExplorer::ProjectManager::projectAdded,
+    connect(ProjectManager::instance(), &ProjectManager::projectAdded,
             this, &ModelIndexer::onProjectAdded);
-    connect(ProjectExplorer::ProjectManager::instance(), &ProjectExplorer::ProjectManager::aboutToRemoveProject,
+    connect(ProjectManager::instance(), &ProjectManager::aboutToRemoveProject,
             this, &ModelIndexer::onAboutToRemoveProject);
 }
 
 ModelIndexer::~ModelIndexer()
 {
-    emit quitIndexerThread();
-    d->indexerThread->wait();
     delete d;
 }
 
 QString ModelIndexer::findModel(const qmt::Uid &modelUid)
 {
-    QMutexLocker locker(&d->indexerMutex);
     QSet<IndexedModel *> indexedModels = d->indexedModelsByUid.value(modelUid);
     if (indexedModels.isEmpty())
-        return QString();
+        return {};
     IndexedModel *indexedModel = *indexedModels.cbegin();
-    QMT_ASSERT(indexedModel, return QString());
+    QMT_ASSERT(indexedModel, return {});
     return indexedModel->file();
 }
 
@@ -340,7 +280,6 @@ QString ModelIndexer::findDiagram(const qmt::Uid &modelUid, const qmt::Uid &diag
 {
     Q_UNUSED(modelUid) // avoid warning in release mode
 
-    QMutexLocker locker(&d->indexerMutex);
     QSet<IndexedDiagramReference *> indexedDiagramReferences = d->indexedDiagramReferencesByDiagramUid.value(diagramUid);
     if (indexedDiagramReferences.isEmpty())
         return QString();
@@ -350,38 +289,37 @@ QString ModelIndexer::findDiagram(const qmt::Uid &modelUid, const qmt::Uid &diag
     return indexedDiagramReference->file();
 }
 
-void ModelIndexer::onProjectAdded(ProjectExplorer::Project *project)
+void ModelIndexer::onProjectAdded(Project *project)
 {
-    connect(project,
-            &ProjectExplorer::Project::fileListChanged,
-            this,
-            [this, p = QPointer(project)] { if (p) onProjectFileListChanged(p.data()); },
-            Qt::QueuedConnection);
+    connect(project, &Project::fileListChanged, this, [this, p = QPointer(project)] {
+        if (p)
+            onProjectFileListChanged(p.data());
+    }, Qt::QueuedConnection);
     scanProject(project);
 }
 
-void ModelIndexer::onAboutToRemoveProject(ProjectExplorer::Project *project)
+void ModelIndexer::onAboutToRemoveProject(Project *project)
 {
-    disconnect(project, &ProjectExplorer::Project::fileListChanged, this, nullptr);
+    disconnect(project, &Project::fileListChanged, this, nullptr);
     forgetProject(project);
 }
 
-void ModelIndexer::onProjectFileListChanged(ProjectExplorer::Project *project)
+void ModelIndexer::onProjectFileListChanged(Project *project)
 {
     scanProject(project);
 }
 
-void ModelIndexer::scanProject(ProjectExplorer::Project *project)
+void ModelIndexer::scanProject(Project *project)
 {
     if (!project->rootProjectNode())
         return;
 
     // TODO harmonize following code with findFirstModel()?
-    const FilePaths files = project->files(ProjectExplorer::Project::SourceFiles);
-    QQueue<QueuedFile> filesQueue;
+    const FilePaths files = project->files(Project::SourceFiles);
+    QList<QueuedFile> filesQueue;
     QSet<QueuedFile> filesSet;
 
-    const Utils::MimeType modelMimeType = Utils::mimeTypeForName(Constants::MIME_TYPE_MODEL);
+    const MimeType modelMimeType = Utils::mimeTypeForName(Constants::MIME_TYPE_MODEL);
     if (modelMimeType.isValid()) {
         for (const FilePath &file : files) {
             if (modelMimeType.suffixes().contains(file.completeSuffix())) {
@@ -397,8 +335,6 @@ void ModelIndexer::scanProject(ProjectExplorer::Project *project)
 
     bool filesAreQueued = false;
     {
-        QMutexLocker locker(&d->indexerMutex);
-
         // remove deleted files from queue
         for (int i = 0; i < d->filesQueue.size();) {
             if (d->filesQueue.at(i).project() == project) {
@@ -442,11 +378,10 @@ void ModelIndexer::scanProject(ProjectExplorer::Project *project)
     }
 
     if (filesAreQueued)
-        emit filesQueued();
+        handleQueuedFiles();
 }
 
-QString ModelIndexer::findFirstModel(ProjectExplorer::FolderNode *folderNode,
-                                     const Utils::MimeType &mimeType)
+QString ModelIndexer::findFirstModel(FolderNode *folderNode, const MimeType &mimeType)
 {
     if (!mimeType.isValid())
         return QString();
@@ -466,11 +401,10 @@ QString ModelIndexer::findFirstModel(ProjectExplorer::FolderNode *folderNode,
     return modelFileName;
 }
 
-void ModelIndexer::forgetProject(ProjectExplorer::Project *project)
+void ModelIndexer::forgetProject(Project *project)
 {
-    const FilePaths files = project->files(ProjectExplorer::Project::SourceFiles);
+    const FilePaths files = project->files(Project::SourceFiles);
 
-    QMutexLocker locker(&d->indexerMutex);
     for (const FilePath &file : files) {
         const QString fileString = file.toString();
         // remove file from queue
@@ -485,15 +419,15 @@ void ModelIndexer::forgetProject(ProjectExplorer::Project *project)
     }
 }
 
-void ModelIndexer::removeModelFile(const QString &file, ProjectExplorer::Project *project)
+void ModelIndexer::removeModelFile(const QString &file, Project *project)
 {
     IndexedModel *indexedModel = d->indexedModels.value(file);
     if (indexedModel && indexedModel->owningProjects().contains(project)) {
-        qCDebug(logger) << "remove model file " << file
+        qCDebug(log) << "remove model file " << file
                         << " from project " << project->displayName();
         indexedModel->removeOwningProject(project);
         if (indexedModel->owningProjects().isEmpty()) {
-            qCDebug(logger) << "delete indexed model " << project->displayName();
+            qCDebug(log) << "delete indexed model " << project->displayName();
             d->indexedModels.remove(file);
 
             // remove indexedModel from set of indexedModelsByUid
@@ -511,17 +445,16 @@ void ModelIndexer::removeModelFile(const QString &file, ProjectExplorer::Project
     }
 }
 
-void ModelIndexer::removeDiagramReferenceFile(const QString &file,
-                                              ProjectExplorer::Project *project)
+void ModelIndexer::removeDiagramReferenceFile(const QString &file, Project *project)
 {
     IndexedDiagramReference *indexedDiagramReference = d->indexedDiagramReferences.value(file);
     if (indexedDiagramReference) {
         QMT_CHECK(indexedDiagramReference->owningProjects().contains(project));
-        qCDebug(logger) << "remove diagram reference file "
+        qCDebug(log) << "remove diagram reference file "
                         << file << " from project " << project->displayName();
         indexedDiagramReference->removeOwningProject(project);
         if (indexedDiagramReference->owningProjects().isEmpty()) {
-            qCDebug(logger) << "delete indexed diagram reference from " << file;
+            qCDebug(log) << "delete indexed diagram reference from " << file;
             d->indexedDiagramReferences.remove(file);
 
             // remove indexedDiagramReference from set of indexedDiagramReferecesByDiagramUid
@@ -542,11 +475,4 @@ void ModelIndexer::removeDiagramReferenceFile(const QString &file,
     }
 }
 
-const QLoggingCategory &ModelIndexer::logger()
-{
-    static const QLoggingCategory category("qtc.modeleditor.modelindexer", QtWarningMsg);
-    return category;
-}
-
-} // namespace Internal
-} // namespace ModelEditor
+} // namespace ModelEditor::Internal
