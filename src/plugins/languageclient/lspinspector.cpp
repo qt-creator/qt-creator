@@ -462,8 +462,7 @@ LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)
             currentClientChanged(m_clients->currentText());
     });
 
-    TextEditor::BaseTextEditor *messageEditor = LanguageClient::jsonEditor();
-    messageEditor->setParent(this);
+    TextEditor::BaseTextEditor *messageEditor = LanguageClient::createJsonEditor(this);
     messageEditor->editorWidget()->setVisible(false);
     messageEditor->document()->setContents(R"({
     "jsonrpc": "2.0",

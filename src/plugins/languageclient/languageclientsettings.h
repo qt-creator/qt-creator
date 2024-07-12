@@ -212,7 +212,7 @@ private:
     QByteArray m_json;
 };
 
-LANGUAGECLIENT_EXPORT TextEditor::BaseTextEditor *jsonEditor();
+LANGUAGECLIENT_EXPORT TextEditor::BaseTextEditor *createJsonEditor(QObject *parent = nullptr);
 
 void setupLanguageClientProjectPanel();
 

@@ -1073,7 +1073,7 @@ bool LanguageFilter::operator!=(const LanguageFilter &other) const
     return this->filePattern != other.filePattern || this->mimeTypes != other.mimeTypes;
 }
 
-TextEditor::BaseTextEditor *jsonEditor()
+TextEditor::BaseTextEditor *createJsonEditor(QObject *parent)
 {
     using namespace TextEditor;
     using namespace Utils::Text;
@@ -1085,6 +1085,8 @@ TextEditor::BaseTextEditor *jsonEditor()
         delete editor;
     }
     QTC_ASSERT(textEditor, textEditor = createPlainTextEditor());
+    textEditor->setParent(parent);
+
     TextDocument *document = textEditor->textDocument();
     TextEditorWidget *widget = textEditor->editorWidget();
     widget->configureGenericHighlighter(mimeTypeForName(Utils::Constants::JSON_MIMETYPE));
@@ -1162,7 +1164,7 @@ public:
         setGlobalSettingsId(Constants::LANGUAGECLIENT_SETTINGS_PAGE);
         setExpanding(true);
 
-        TextEditor::BaseTextEditor *editor = jsonEditor();
+        TextEditor::BaseTextEditor *editor = createJsonEditor(this);
         editor->document()->setContents(m_settings.json());
 
         auto layout = new QVBoxLayout;

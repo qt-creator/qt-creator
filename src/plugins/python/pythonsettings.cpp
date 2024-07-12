@@ -412,13 +412,11 @@ class PyLSConfigureWidget : public Core::IOptionsPageWidget
 {
 public:
     PyLSConfigureWidget()
-        : m_editor(LanguageClient::jsonEditor())
+        : m_editor(LanguageClient::createJsonEditor(this))
         , m_advancedLabel(new QLabel)
         , m_pluginsGroup(new QGroupBox(Tr::tr("Plugins:")))
         , m_mainGroup(new QGroupBox(Tr::tr("Use Python Language Server")))
-
     {
-        m_editor->setParent(this);
         m_mainGroup->setCheckable(true);
 
         auto mainGroupLayout = new QVBoxLayout;
