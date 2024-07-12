@@ -119,7 +119,7 @@ private:
     BinEditorWidget *m_widget;
 };
 
-class BinEditorWidget final : public QAbstractScrollArea, public EditorService
+class BinEditorWidget final : public QAbstractScrollArea
 {
     Q_OBJECT
     Q_PROPERTY(bool modified READ isModified WRITE setModified DESIGNABLE false)
@@ -138,31 +138,29 @@ public:
 
     void init();
 
-    EditorService *editorService();
-
     quint64 baseAddress() const { return m_baseAddr; }
 
-    void setSizes(quint64 startAddr, qint64 range, int blockSize = 4096) final;
+    void setSizes(quint64 startAddr, qint64 range, int blockSize = 4096);
     int dataBlockSize() const { return m_blockSize; }
     QByteArray contents() const { return dataMid(0, m_size); }
 
-    void addData(quint64 addr, const QByteArray &data) final;
+    void addData(quint64 addr, const QByteArray &data);
 
     bool newWindowRequestAllowed() const { return m_canRequestNewWindow; }
 
-    void updateContents() final;
+    void updateContents();
     bool save(QString *errorString, const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath);
 
     void zoomF(float delta);
 
     qint64 cursorPosition() const;
-    void setCursorPosition(qint64 pos, MoveMode moveMode = MoveAnchor) final;
+    void setCursorPosition(qint64 pos, MoveMode moveMode = MoveAnchor);
     void jumpToAddress(quint64 address);
 
     void setModified(bool);
     bool isModified() const;
 
-    void setReadOnly(bool) final;
+    void setReadOnly(bool);
     bool isReadOnly() const;
 
     qint64 find(const QByteArray &pattern, qint64 from = 0, QTextDocument::FindFlags findFlags = {});
@@ -173,15 +171,10 @@ public:
     void undo();
     void redo();
 
-    Core::IEditor *editor() final { return m_ieditor; }
-    void setEditor(Core::IEditor *ieditor) { m_ieditor = ieditor; }
-
-    QWidget *widget() final { return this; }
-
     qint64 selectionStart() const { return qMin(m_anchorPosition, m_cursorPosition); }
     qint64 selectionEnd() const { return qMax(m_anchorPosition, m_cursorPosition); }
 
-    bool event(QEvent*) override;
+    bool event(QEvent*) final;
 
     bool isUndoAvailable() const { return !m_undoStack.isEmpty(); }
     bool isRedoAvailable() const { return !m_redoStack.isEmpty(); }
@@ -196,10 +189,10 @@ public:
     void highlightSearchResults(const QByteArray &pattern, QTextDocument::FindFlags findFlags = {});
     void copy(bool raw = false);
     void setMarkup(const QList<Markup> &markup);
-    void setNewWindowRequestAllowed(bool c) final;
+    void setNewWindowRequestAllowed(bool c);
     void setCodec(QTextCodec *codec);
 
-    void setFinished() override
+    void setFinished()
     {
         setReadOnly(true);
         m_fetchDataHandler = {};
@@ -209,16 +202,9 @@ public:
         m_watchPointRequestHandler = {};
     }
 
-    void clearMarkup() override { m_markup.clear(); }
-    void addMarkup(quint64 a, quint64 l, const QColor &c, const QString &t) override { m_markup.append(Markup(a, l, c, t)); }
-    void commitMarkup() override { setMarkup(m_markup); }
-
-    void setFetchDataHandler(const std::function<void(quint64)> &cb) override { m_fetchDataHandler = cb; }
-    void setNewWindowRequestHandler(const std::function<void(quint64)> &cb) override { m_newWindowRequestHandler = cb; }
-    void setNewRangeRequestHandler(const std::function<void(quint64)> &cb) override { m_newRangeRequestHandler = cb; }
-    void setDataChangedHandler(const std::function<void(quint64, const QByteArray &)> &cb) override { m_dataChangedHandler = cb; }
-    void setWatchPointRequestHandler(const std::function<void(quint64, uint)> &cb) override { m_watchPointRequestHandler = cb; }
-    void setAboutToBeDestroyedHandler(const std::function<void()> & cb) override { m_aboutToBeDestroyedHandler = cb; }
+    void clearMarkup() { m_markup.clear(); }
+    void addMarkup(quint64 a, quint64 l, const QColor &c, const QString &t) { m_markup.append(Markup(a, l, c, t)); }
+    void commitMarkup() { setMarkup(m_markup); }
 
     void fetchData(quint64 address) { if (m_fetchDataHandler) m_fetchDataHandler(address); }
     void requestNewWindow(quint64 address) { if (m_newWindowRequestHandler) m_newWindowRequestHandler(address); }
@@ -238,20 +224,20 @@ signals:
     void redoAvailable(bool);
     void cursorPositionChanged(int position);
 
-private:
-    void scrollContentsBy(int dx, int dy) override;
-    void paintEvent(QPaintEvent *e) override;
-    void resizeEvent(QResizeEvent *) override;
-    void changeEvent(QEvent *) override;
-    void wheelEvent(QWheelEvent *e) override;
-    void mousePressEvent(QMouseEvent *e) override;
-    void mouseMoveEvent(QMouseEvent *e) override;
-    void mouseReleaseEvent(QMouseEvent *e) override;
-    void keyPressEvent(QKeyEvent *e) override;
-    void focusInEvent(QFocusEvent *) override;
-    void focusOutEvent(QFocusEvent *) override;
-    void timerEvent(QTimerEvent *) override;
-    void contextMenuEvent(QContextMenuEvent *event) override;
+public:
+    void scrollContentsBy(int dx, int dy) final;
+    void paintEvent(QPaintEvent *e) final;
+    void resizeEvent(QResizeEvent *) final;
+    void changeEvent(QEvent *) final;
+    void wheelEvent(QWheelEvent *e) final;
+    void mousePressEvent(QMouseEvent *e) final;
+    void mouseMoveEvent(QMouseEvent *e) final;
+    void mouseReleaseEvent(QMouseEvent *e) final;
+    void keyPressEvent(QKeyEvent *e) final;
+    void focusInEvent(QFocusEvent *) final;
+    void focusOutEvent(QFocusEvent *) final;
+    void timerEvent(QTimerEvent *) final;
+    void contextMenuEvent(QContextMenuEvent *event) final;
     QChar displayChar(char ch) const;
 
     using BlockMap = QMap<qint64, QByteArray>;
@@ -346,7 +332,6 @@ private:
     QStack<BinEditorEditCommand> m_undoStack, m_redoStack;
 
     QBasicTimer m_autoScrollTimer;
-    Core::IEditor *m_ieditor = nullptr;
     QString m_addressString;
     int m_addressBytes = 4;
     bool m_canRequestNewWindow = false;
@@ -403,11 +388,6 @@ BinEditorWidget::BinEditorWidget(QWidget *parent)
     });
 
     updateCursorPosition(cursorPosition());
-}
-
-EditorService *BinEditorWidget::editorService()
-{
-    return this;
 }
 
 void BinEditorWidget::init()
@@ -2139,10 +2119,9 @@ BinEditorDocument::BinEditorDocument(BinEditorWidget *parent)
     setId(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
     setMimeType(Utils::Constants::OCTET_STREAM_MIMETYPE);
     m_widget = parent;
-    EditorService *es = m_widget->editorService();
-    es->setFetchDataHandler([this](quint64 address) { provideData(address); });
-    es->setNewRangeRequestHandler([this](quint64 offset) { provideNewRange(offset); });
-    es->setDataChangedHandler([this](quint64, const QByteArray &) { contentsChanged(); });
+    m_widget->m_fetchDataHandler = [this](quint64 address) { provideData(address); };
+    m_widget->m_newRangeRequestHandler = [this](quint64 offset) { provideNewRange(offset); };
+    m_widget->m_dataChangedHandler = [this](quint64, const QByteArray &) { contentsChanged(); };
 }
 
 QByteArray BinEditorDocument::contents() const
@@ -2270,8 +2249,6 @@ public:
         m_toolBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
         m_toolBar->addWidget(w);
 
-        widget->setEditor(this);
-
         connect(m_codecChooser, &CodecChooser::codecChanged,
                 widget, &BinEditorWidget::setCodec);
         connect(widget, &BinEditorWidget::modificationChanged,
@@ -2305,7 +2282,41 @@ private:
 
 ///////////////////////////////// BinEditor Services //////////////////////////////////
 
-class FactoryServiceImpl final : public QObject, public FactoryService
+class BinEditorService final : public EditorService
+{
+public:
+    ~BinEditorService() = default;
+
+    QWidget *widget() { return m_widget; }
+    Core::IEditor *editor() { return m_editor; }
+
+    // "Slots"
+    void setSizes(quint64 address, qint64 range, int blockSize) final { m_widget->setSizes(address, range, blockSize); }
+    void setReadOnly(bool on) final { m_widget->setReadOnly(on); }
+    void setFinished() final { m_widget->setFinished(); }
+    void setNewWindowRequestAllowed(bool on) final { m_widget->setNewWindowRequestAllowed(on); }
+    void setCursorPosition(qint64 pos, MoveMode moveMode = MoveAnchor) final { m_widget->setCursorPosition(pos, moveMode); }
+    void updateContents() final { m_widget->updateContents(); }
+    void addData(quint64 address, const QByteArray &data) final { m_widget->addData(address, data); }
+
+    void clearMarkup() final { m_widget->clearMarkup(); }
+    void addMarkup(quint64 address, quint64 len, const QColor &color, const QString &toolTip) final
+        { m_widget->addMarkup(address, len, color, toolTip); }
+    void commitMarkup() final { m_widget->commitMarkup(); }
+
+    // "Signals"
+    void setFetchDataHandler(const std::function<void(quint64)> &cb) final { m_widget->m_fetchDataHandler = cb; }
+    void setNewWindowRequestHandler(const std::function<void(quint64)> &cb) final { m_widget->m_newWindowRequestHandler = cb; }
+    void setNewRangeRequestHandler(const std::function<void(quint64)> &cb) final { m_widget->m_newRangeRequestHandler = cb; }
+    void setDataChangedHandler(const std::function<void(quint64, const QByteArray &)> &cb) final { m_widget->m_dataChangedHandler = cb; }
+    void setWatchPointRequestHandler(const std::function<void(quint64, uint)> &cb) final { m_widget->m_watchPointRequestHandler = cb; }
+    void setAboutToBeDestroyedHandler(const std::function<void()> & cb) final { m_widget->m_aboutToBeDestroyedHandler = cb; }
+
+    BinEditorWidget *m_widget = nullptr;
+    BinEditorImpl *m_editor = nullptr;
+};
+
+class BinEditorFactoryService final : public QObject, public FactoryService
 {
     Q_OBJECT
     Q_INTERFACES(BinEditor::FactoryService)
@@ -2313,27 +2324,30 @@ class FactoryServiceImpl final : public QObject, public FactoryService
 public:
     EditorService *createEditorService(const QString &title0, bool wantsEditor) final
     {
-        BinEditorWidget *widget = nullptr;
-        if (wantsEditor) {
-            QString title = title0;
-            IEditor *editor = EditorManager::openEditorWithContents(
-                Core::Constants::K_DEFAULT_BINARY_EDITOR_ID, &title);
-            if (!editor)
-                return nullptr;
-            widget = qobject_cast<BinEditorWidget *>(editor->widget());
-            widget->setEditor(editor);
-        } else {
-            widget = new BinEditorWidget;
-            widget->setWindowTitle(title0);
+        if (!wantsEditor) {
+            auto service = new BinEditorService;
+            service->m_widget = new BinEditorWidget;
+            service->m_widget->setWindowTitle(title0);
+            return service;
         }
-        return widget->editorService();
+
+        QString title = title0;
+        IEditor *editor = EditorManager::openEditorWithContents(
+                    Core::Constants::K_DEFAULT_BINARY_EDITOR_ID, &title);
+        if (!editor)
+            return nullptr;
+
+        auto service = new BinEditorService;
+        service->m_editor = qobject_cast<BinEditorImpl *>(editor);
+        service->m_widget = qobject_cast<BinEditorWidget *>(editor->widget());
+        return service;
     }
 };
 
-static FactoryServiceImpl &binEditorService()
+static BinEditorFactoryService &binEditorService()
 {
-    static FactoryServiceImpl theFactoryService;
-    return theFactoryService;
+    static BinEditorFactoryService theBinEditorFactoryService;
+    return theBinEditorFactoryService;
 }
 
 ///////////////////////////////// BinEditorFactory //////////////////////////////////

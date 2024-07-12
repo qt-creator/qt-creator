@@ -13,6 +13,8 @@ namespace Core { class IEditor; }
 
 namespace BinEditor {
 
+enum MoveMode { MoveAnchor, KeepAnchor };
+
 class EditorService
 {
 public:
@@ -26,7 +28,6 @@ public:
     virtual void setReadOnly(bool on) = 0;
     virtual void setFinished() = 0;
     virtual void setNewWindowRequestAllowed(bool on) = 0;
-    enum MoveMode { MoveAnchor, KeepAnchor };
     virtual void setCursorPosition(qint64 pos, MoveMode moveMode = MoveAnchor) = 0;
     virtual void updateContents() = 0;
     virtual void addData(quint64 address, const QByteArray &data) = 0;
