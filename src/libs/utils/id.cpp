@@ -11,6 +11,7 @@
 #include <QDebug>
 #include <QHash>
 #include <QReadWriteLock>
+#include <QUuid>
 #include <QVariant>
 
 namespace Utils {
@@ -131,6 +132,11 @@ static quintptr theId(const QByteArray &ba)
 Id::Id(const char *name)
     : m_id(theId(name, 0))
 {}
+
+Id Id::generate()
+{
+    return {QUuid::createUuid().toByteArray()};
+}
 
 /*!
   Returns an internal representation of the id.

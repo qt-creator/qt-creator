@@ -5,8 +5,6 @@
 
 #include <utils/qtcprocess.h>
 
-#include <QUuid>
-
 namespace MesonProjectManager {
 namespace Internal {
 
@@ -14,7 +12,7 @@ ToolWrapper::ToolWrapper(const QString &name, const Utils::FilePath &path, bool 
     : m_version(read_version(path))
     , m_isValid{path.exists() && m_version.isValid}
     , m_autoDetected{autoDetected}
-    , m_id{Utils::Id::fromString(QUuid::createUuid().toString())}
+    , m_id{Utils::Id::generate()}
     , m_exe{path}
     , m_name{name}
 {}
@@ -30,7 +28,7 @@ ToolWrapper::ToolWrapper(const QString &name,
     , m_exe{path}
     , m_name{name}
 {
-    QTC_ASSERT(m_id.isValid(), m_id = Utils::Id::fromString(QUuid::createUuid().toString()));
+    QTC_ASSERT(m_id.isValid(), m_id = Utils::Id::generate());
 }
 
 void ToolWrapper::setExe(const Utils::FilePath &newExe)

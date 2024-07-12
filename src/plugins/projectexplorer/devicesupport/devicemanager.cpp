@@ -530,7 +530,6 @@ IDevice::ConstPtr DeviceManager::defaultDevice(Id deviceType) const
 #include <projectexplorer/projectexplorer_test.h>
 #include <QSignalSpy>
 #include <QTest>
-#include <QUuid>
 
 namespace ProjectExplorer {
 
@@ -539,7 +538,7 @@ class TestDevice : public IDevice
 public:
     TestDevice()
     {
-        setupId(AutoDetected, Id::fromString(QUuid::createUuid().toString()));
+        setupId(AutoDetected, Id::generate());
         setType(testTypeId());
         setMachineType(Hardware);
         setOsType(HostOsInfo::hostOs());

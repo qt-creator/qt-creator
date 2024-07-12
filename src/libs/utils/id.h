@@ -25,6 +25,8 @@ public:
     Id(const char *name); // Good to use.
     Id(const QLatin1String &) = delete;
 
+    static Id generate();
+
     Id withSuffix(int suffix) const;
     Id withSuffix(const char *suffix) const;
     Id withSuffix(const QString &suffix) const;

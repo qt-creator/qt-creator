@@ -19,7 +19,6 @@
 #include <QDir>
 #include <QMenu>
 #include <QTextCodec>
-#include <QUuid>
 
 using namespace Core;
 using namespace Utils;

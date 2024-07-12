@@ -29,7 +29,6 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QTreeView>
-#include <QUuid>
 
 using namespace Utils;
 
@@ -95,7 +94,7 @@ public:
                       const FilePath &qchFile,
                       bool autoRun,
                       bool autodetected)
-        : m_id(Id::fromString(QUuid::createUuid().toString()))
+        : m_id(Id::generate())
         , m_name(name)
         , m_executable(executable)
         , m_qchFile(qchFile)

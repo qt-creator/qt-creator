@@ -28,7 +28,6 @@
 #include <QHBoxLayout>
 #include <QLineEdit>
 #include <QPlainTextEdit>
-#include <QUuid>
 
 using namespace Utils;
 

@@ -23,7 +23,6 @@
 
 #include <QIcon>
 #include <QTextStream>
-#include <QUuid>
 
 #include <numeric>
 #include <optional>
@@ -60,7 +59,7 @@ public:
         m_id(id)
     {
         if (!id.isValid())
-            m_id = Id::fromString(QUuid::createUuid().toString());
+            m_id = Id::generate();
 
         m_unexpandedDisplayName.setDefaultValue(Tr::tr("Unnamed"));
 

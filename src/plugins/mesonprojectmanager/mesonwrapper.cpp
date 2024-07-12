@@ -6,8 +6,6 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-#include <QUuid>
-
 namespace {
 template<typename First>
 void impl_option_cat(QStringList &list, const First &first)

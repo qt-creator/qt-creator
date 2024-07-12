@@ -42,7 +42,6 @@
 #include <QTreeView>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
-#include <QUuid>
 
 using namespace CppEditor;
 using namespace Utils;
@@ -1295,7 +1294,7 @@ void disableChecks(const QList<Diagnostic> &diagnostics)
         QTC_ASSERT(configs.isEmpty(), return);
         config = builtinConfig();
         config.setIsReadOnly(false);
-        config.setId(Utils::Id::fromString(QUuid::createUuid().toString()));
+        config.setId(Id::generate());
         config.setDisplayName(Tr::tr("Custom Configuration"));
         configs << config;
         RunSettings runSettings = settings->runSettings();

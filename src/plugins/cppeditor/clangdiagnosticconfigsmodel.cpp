@@ -10,7 +10,6 @@
 #include <utils/algorithm.h>
 
 #include <QCoreApplication>
-#include <QUuid>
 
 namespace CppEditor {
 
@@ -70,7 +69,7 @@ ClangDiagnosticConfig ClangDiagnosticConfigsModel::createCustomConfig(
     const ClangDiagnosticConfig &baseConfig, const QString &displayName)
 {
     ClangDiagnosticConfig copied = baseConfig;
-    copied.setId(Utils::Id::fromString(QUuid::createUuid().toString()));
+    copied.setId(Utils::Id::generate());
     copied.setDisplayName(displayName);
     copied.setIsReadOnly(false);
 

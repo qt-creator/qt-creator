@@ -30,7 +30,6 @@
 #include <QDateTime>
 #include <QReadWriteLock>
 #include <QString>
-#include <QUuid>
 
 /*!
  * \class ProjectExplorer::IDevice::DeviceAction
@@ -89,7 +88,7 @@ namespace ProjectExplorer {
 
 static Id newId()
 {
-    return Id::fromString(QUuid::createUuid().toString());
+    return Id::generate();
 }
 
 const char DisplayNameKey[] = "Name";

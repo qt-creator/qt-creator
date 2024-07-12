@@ -22,7 +22,6 @@
 #include <QRegularExpression>
 #include <QSet>
 #include <QXmlStreamReader>
-#include <QUuid>
 
 #include <memory>
 
@@ -104,7 +103,7 @@ CMakeTool::CMakeTool(Detection d, const Id &id)
     , m_isAutoDetected(d == AutoDetection)
     , m_introspection(std::make_unique<Internal::IntrospectionData>())
 {
-    QTC_ASSERT(m_id.isValid(), m_id = Id::fromString(QUuid::createUuid().toString()));
+    QTC_ASSERT(m_id.isValid(), m_id = Id::generate());
 }
 
 CMakeTool::CMakeTool(const Store &map, bool fromSdk) :
@@ -133,7 +132,7 @@ CMakeTool::~CMakeTool() = default;
 
 Id CMakeTool::createId()
 {
-    return Id::fromString(QUuid::createUuid().toString());
+    return Id::generate();
 }
 
 void CMakeTool::setFilePath(const FilePath &executable)

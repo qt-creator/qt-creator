@@ -128,7 +128,7 @@ class ClientPrivate : public QObject
 public:
     ClientPrivate(Client *client, BaseClientInterface *clientInterface, const Utils::Id &id)
         : q(client)
-        , m_id(id.isValid() ? id : Utils::Id::fromString(QUuid::createUuid().toString()))
+        , m_id(id.isValid() ? id : Id::generate())
         , m_clientCapabilities(q->defaultClientCapabilities())
         , m_clientInterface(new InterfaceController(clientInterface))
         , m_documentSymbolCache(q)
