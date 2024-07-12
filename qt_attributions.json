@@ -181,7 +181,7 @@
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "GNU General Public License v2.0 OR BSD 2-Clause \"Simplified\" License",
         "LicenseFile": "doc/qtcreator/src/overview/license-BSD-2-clause.txt",
-        "Copyright": "Copyright 2008 Darrin Yeager. http://www.dyeager.org/ Dual-Licensed under both GPL and BSD licenses. Extended 2009 Claes Holmerson. http://github.com/claes/kate-markdown/ Extended 2019 Nibaldo Gonz·lez S. <nibgonz@gmail.com> (changes under MIT license)."
+        "Copyright": "Copyright 2008 Darrin Yeager. http://www.dyeager.org/ Dual-Licensed under both GPL and BSD licenses. Extended 2009 Claes Holmerson. http://github.com/claes/kate-markdown/ Extended 2019 Nibaldo Gonz√°lez S. <nibgonz@gmail.com> (changes under MIT license)."
     },
     {
         "Id": "ksyntaxhighlighting-modelines",
@@ -259,7 +259,7 @@
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "GNU Lesser General Public License v2.0 or later",
         "LicenseFile": "doc/qtcreator/src/overview/license-LGPLv2.0.txt",
-        "Copyright": "Copyright (C) 2004 by Sebastian Vuorinen (sebastian dot vuorinen at helsinki dot fi). Copyright (C) 2004 by Stefan Lang (langstefan@gmx.at). Copyright (C) 2008 by Robin Pedersen (robinpeder@gmail.com). Copyright (C) 2011 by Miquel SabatÈ (mikisabate@gmail.com)."
+        "Copyright": "Copyright (C) 2004 by Sebastian Vuorinen (sebastian dot vuorinen at helsinki dot fi). Copyright (C) 2004 by Stefan Lang (langstefan@gmx.at). Copyright (C) 2008 by Robin Pedersen (robinpeder@gmail.com). Copyright (C) 2011 by Miquel Sabat√© (mikisabate@gmail.com)."
     },
     {
         "Id": "ksyntaxhighlighting-toml",
@@ -311,7 +311,7 @@
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "GNU Lesser General Public License v2.1",
         "LicenseFile": "doc/qtcreator/src/overview/license-LGPLv2.1.txt",
-        "Copyright": "Copyright (C) 2004, Jan Villat <jan.villat@net2000.ch>. Changes by: 2018 Nibaldo Gonz·lez <nibgonz@gmail.com>, 2007 Sebastian Pipping <webmaster@hartwork.org>."
+        "Copyright": "Copyright (C) 2004, Jan Villat <jan.villat@net2000.ch>. Changes by: 2018 Nibaldo Gonz√°lez <nibgonz@gmail.com>, 2007 Sebastian Pipping <webmaster@hartwork.org>."
     },
     {
         "Id": "ksyntaxhighlighting-yaml",
@@ -324,7 +324,7 @@
         "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
         "License": "GNU Lesser General Public License v2.1",
         "LicenseFile": "doc/qtcreator/src/overview/license-LGPLv2.1.txt",
-        "Copyright": "Copyright (C) Dr Orlovsky MA (dr.orlovsky@gmail.com), Nibaldo Gonz·lez (nibgonz@gmail.com)"
+        "Copyright": "Copyright (C) Dr Orlovsky MA (dr.orlovsky@gmail.com), Nibaldo Gonz√°lez (nibgonz@gmail.com)"
     },
     {
         "Id": "std-span-martinmoene",
@@ -588,7 +588,7 @@
         "Homepage": "https://www.lua.org/",
         "License": "MIT License",
         "LicenseFile": "src/libs/3rdparty/lua/LICENSE",
-        "Copyright": "Copyright © 1994-2023 Lua.org, PUC-Rio.",
+        "Copyright": "Copyright ¬© 1994-2023 Lua.org, PUC-Rio.",
         "Version": "5.4.6"
     },
     {
@@ -629,7 +629,7 @@
         "Homepage": "https://github.com/kikito/inspect.lua",
         "License": "MIT License",
         "LicenseFile": "share/qtcreator/lua-plugins/luatests/INSPECT-LICENSE.txt",
-        "Copyright": "Copyright (c) 2022 Enrique GarcÌa Cota"
+        "Copyright": "Copyright (c) 2022 Enrique Garc√≠a Cota"
     },
     {
         "Id": "zlib",
