@@ -122,10 +122,6 @@ private:
 class BinEditorWidget final : public QAbstractScrollArea
 {
     Q_OBJECT
-    Q_PROPERTY(bool modified READ isModified WRITE setModified DESIGNABLE false)
-    Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly DESIGNABLE false)
-    Q_PROPERTY(QList<BinEditor::Markup> markup READ markup WRITE setMarkup DESIGNABLE false)
-    Q_PROPERTY(bool newWindowRequestAllowed READ newWindowRequestAllowed WRITE setNewWindowRequestAllowed DESIGNABLE false)
 
 public:
     BinEditorWidget(QWidget *parent = nullptr);
@@ -392,8 +388,7 @@ BinEditorWidget::BinEditorWidget(QWidget *parent)
 
 void BinEditorWidget::init()
 {
-    const int addressStringWidth =
-        2*m_addressBytes + (m_addressBytes - 1) / 2;
+    const int addressStringWidth = 2 * m_addressBytes + (m_addressBytes - 1) / 2;
     m_addressString = QString(addressStringWidth, QLatin1Char(':'));
     QFontMetrics fm(fontMetrics());
     m_descent = fm.descent();
@@ -2225,9 +2220,10 @@ bool BinEditorDocument::saveImpl(QString *errorString, const Utils::FilePath &fi
     return false;
 }
 
-class BinEditorImpl: public IEditor
+class BinEditorImpl final : public IEditor
 {
     Q_OBJECT
+
 public:
     BinEditorImpl(BinEditorWidget *widget, BinEditorDocument *doc)
         : m_document(doc)
@@ -2258,21 +2254,9 @@ public:
             m_codecChooser->setAssignedCodec(QTextCodec::codecForName(setting.toByteArray()));
     }
 
-    ~BinEditorImpl() override
-    {
-        delete m_widget;
-    }
-
-    IDocument *document() const override { return m_document; }
-
-    QWidget *toolBar() override { return m_toolBar; }
-
-private:
-    BinEditorWidget *editorWidget() const
-    {
-        QTC_ASSERT(qobject_cast<BinEditorWidget *>(m_widget.data()), return nullptr);
-        return static_cast<BinEditorWidget *>(m_widget.data());
-    }
+    ~BinEditorImpl() final { delete m_widget; }
+    IDocument *document() const final { return m_document; }
+    QWidget *toolBar() final { return m_toolBar; }
 
 private:
     BinEditorDocument *m_document;
