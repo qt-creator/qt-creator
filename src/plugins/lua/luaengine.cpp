@@ -279,8 +279,8 @@ expected_str<sol::protected_function> LuaEngine::prepareSetup(
 
     qCDebug(LOGLSPLUA) << "Script returned table with keys:";
     for (const auto &pair : *pluginTable) {
-        qCDebug(LOGLSPLUA) << "Key:" << pair.first.as<std::string>();
-        qCDebug(LOGLSPLUA) << "Value:" << pair.second.as<std::string>();
+        qCDebug(LOGLSPLUA) << "Key:" << QByteArrayView(pair.first.as<std::string>());
+        qCDebug(LOGLSPLUA) << "Value:" << QByteArrayView(pair.second.as<std::string>());
     }
 
     auto hookTable = pluginTable->get<sol::optional<sol::table>>("hooks");
