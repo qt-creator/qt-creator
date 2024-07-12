@@ -29,6 +29,7 @@ add_qtc_plugin(Lua
     meta/action.lua
     meta/async.lua
     meta/core.lua
+    meta/documents.lua
     meta/fetch.lua
     meta/gui.lua
     meta/install.lua
@@ -69,6 +70,7 @@ set(META_FILES
   meta/action.lua
   meta/async.lua
   meta/core.lua
+  meta/documents.lua
   meta/fetch.lua
   meta/gui.lua
   meta/lsp.lua

@@ -65,6 +65,7 @@ QtcPlugin {
             "action.lua",
             "async.lua",
             "core.lua",
+            "documents.lua",
             "fetch.lua",
             "gui.lua",
             "install.lua",
