@@ -50,8 +50,8 @@ public:
 
     OpenResult open(QString *errorString, const FilePath &filePath,
                     const FilePath &realFilePath) final;
-    QString plainText() const;
-    QByteArray contents() const final;
+    QString plainText() const { return m_model.contents(); }
+    QByteArray contents() const final { return m_model.contents().toUtf8(); }
     bool setContents(const QByteArray &contents) final;
     bool shouldAutoSave() const final { return m_shouldAutoSave; }
     bool isModified() const final { return m_model.dirty(); }
@@ -238,16 +238,6 @@ bool ResourceEditorDocument::saveImpl(QString *errorString, const FilePath &file
 
     emit changed();
     return true;
-}
-
-QString ResourceEditorDocument::plainText() const
-{
-    return m_model.contents();
-}
-
-QByteArray ResourceEditorDocument::contents() const
-{
-    return m_model.contents().toUtf8();
 }
 
 bool ResourceEditorDocument::setContents(const QByteArray &contents)
