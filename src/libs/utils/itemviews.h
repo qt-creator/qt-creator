@@ -86,12 +86,6 @@ public:
     void setSearchRole(int role);
 };
 
-class QTCREATOR_UTILS_EXPORT TreeWidget : public View<QTreeWidget>
-{
-public:
-    TreeWidget(QWidget *parent = nullptr);
-};
-
 class QTCREATOR_UTILS_EXPORT ListView : public View<QListView>
 {
 public:

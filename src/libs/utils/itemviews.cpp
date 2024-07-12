@@ -86,12 +86,6 @@ void TreeView::setSearchRole(int role)
     makeViewSearchable(this, role);
 }
 
-TreeWidget::TreeWidget(QWidget *parent)
-    : View<QTreeWidget>(parent)
-{
-    setUniformRowHeights(true);
-}
-
 ListView::ListView(QWidget *parent)
     : View<QListView>(parent)
 {}
