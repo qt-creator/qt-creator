@@ -1071,14 +1071,12 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     , m_editorContext(Id::generate())
 {
     m_selectionHighlightOverlay->show();
-    auto aggregate = new Aggregation::Aggregate;
     m_find = new TextEditorWidgetFind(q);
     connect(m_find, &BaseTextFind::highlightAllRequested,
             this, &TextEditorWidgetPrivate::highlightSearchResultsSlot);
     connect(m_find, &BaseTextFind::findScopeChanged,
             this, &TextEditorWidgetPrivate::setFindScope);
-    aggregate->add(m_find);
-    aggregate->add(q);
+    Aggregation::aggregate({q, m_find});
 
     m_extraArea = new TextEditExtraArea(q);
     m_extraArea->setMouseTracking(true);

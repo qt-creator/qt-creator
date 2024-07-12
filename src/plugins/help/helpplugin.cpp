@@ -341,9 +341,7 @@ HelpViewer *createHelpViewer()
                      viewer, &HelpViewer::setScrollWheelZoomingEnabled);
 
     // add find support
-    auto agg = new Aggregation::Aggregate;
-    agg->add(viewer);
-    agg->add(new HelpViewerFindSupport(viewer));
+    Aggregation::aggregate({viewer, new HelpViewerFindSupport(viewer)});
 
     return viewer;
 }

@@ -213,9 +213,7 @@ void VcsBaseSubmitEditor::setParameters(const VcsBaseSubmitEditorParameters &par
             updateFileModel();
     });
 
-    auto aggregate = new Aggregation::Aggregate;
-    aggregate->add(new BaseTextFind(descriptionEdit));
-    aggregate->add(this);
+    Aggregation::aggregate({this, new BaseTextFind(descriptionEdit)});
 }
 
 VcsBaseSubmitEditor::~VcsBaseSubmitEditor()

@@ -213,9 +213,8 @@ void TodoOutputPane::createTreeView()
 
     m_todoTreeView = new TodoOutputTreeView();
     m_todoTreeView->setModel(m_filteredTodoItemsModel);
-    auto agg = new Aggregation::Aggregate;
-    agg->add(m_todoTreeView);
-    agg->add(new Core::ItemViewFind(m_todoTreeView));
+
+    Aggregation::aggregate({m_todoTreeView, new Core::ItemViewFind(m_todoTreeView)});
 
     connect(m_todoTreeView, &TodoOutputTreeView::activated, this, &TodoOutputPane::todoTreeViewClicked);
 }

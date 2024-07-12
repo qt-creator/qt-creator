@@ -174,9 +174,7 @@ OutputWindow::OutputWindow(Context context, const Key &settingsKey, QWidget *par
     p.setColor(QPalette::HighlightedText, activeHighlightedText);
     setPalette(p);
 
-    auto agg = new Aggregation::Aggregate;
-    agg->add(this);
-    agg->add(new BaseTextFind(this));
+    Aggregation::aggregate({this, new BaseTextFind(this)});
 }
 
 OutputWindow::~OutputWindow()

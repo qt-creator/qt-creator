@@ -2531,9 +2531,7 @@ void ICorePrivate::changeLog()
     auto textEdit = new QTextBrowser;
     textEdit->setOpenExternalLinks(true);
 
-    auto aggregate = new Aggregation::Aggregate;
-    aggregate->add(textEdit);
-    aggregate->add(new Core::BaseTextFind(textEdit));
+    Aggregation::aggregate({textEdit, new BaseTextFind(textEdit)});
 
     new MarkdownHighlighter(textEdit->document());
 

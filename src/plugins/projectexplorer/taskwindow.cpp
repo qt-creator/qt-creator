@@ -172,9 +172,8 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
     d->m_filter = new Internal::TaskFilterModel(d->m_model);
     d->m_filter->setAutoAcceptChildRows(true);
 
-    auto agg = new Aggregation::Aggregate;
-    agg->add(&d->m_treeView);
-    agg->add(new Core::ItemViewFind(&d->m_treeView, TaskModel::Description));
+    auto find = new Core::ItemViewFind(&d->m_treeView, TaskModel::Description);
+    Aggregation::aggregate({&d->m_treeView, find});
 
     d->m_treeView.setHeaderHidden(true);
     d->m_treeView.setExpandsOnDoubleClick(false);

@@ -64,9 +64,8 @@ QWidget *LocatorManager::createLocatorInputWidget(QWidget *window)
 {
     auto locatorWidget = createStaticLocatorWidget(Locator::instance());
     // register locator widget for this window
-    auto agg = new Aggregation::Aggregate;
-    agg->add(window);
-    agg->add(locatorWidget);
+    Aggregation::aggregate({window, locatorWidget});
+
     return locatorWidget;
 }
 

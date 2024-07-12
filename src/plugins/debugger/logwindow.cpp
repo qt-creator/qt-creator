@@ -410,13 +410,8 @@ LogWindow::LogWindow(DebuggerEngine *engine)
     layout->addWidget(new Core::FindToolBarPlaceHolder(this));
     setLayout(layout);
 
-    auto aggregate = new Aggregation::Aggregate;
-    aggregate->add(m_combinedText);
-    aggregate->add(new Core::BaseTextFind(m_combinedText));
-
-    aggregate = new Aggregation::Aggregate;
-    aggregate->add(m_inputText);
-    aggregate->add(new Core::BaseTextFind(m_inputText));
+    Aggregation::aggregate({m_combinedText, new Core::BaseTextFind(m_combinedText)});
+    Aggregation::aggregate({m_inputText, new Core::BaseTextFind(m_inputText)});
 
     connect(m_inputText, &InputPane::statusMessageRequested,
             this, &LogWindow::statusMessageRequested);
@@ -657,13 +652,8 @@ GlobalLogWindow::GlobalLogWindow()
     layout->addWidget(new Core::FindToolBarPlaceHolder(this));
     setLayout(layout);
 
-    auto aggregate = new Aggregation::Aggregate;
-    aggregate->add(m_rightPane);
-    aggregate->add(new Core::BaseTextFind(m_rightPane));
-
-    aggregate = new Aggregation::Aggregate;
-    aggregate->add(m_leftPane);
-    aggregate->add(new Core::BaseTextFind(m_leftPane));
+    Aggregation::aggregate({m_rightPane, new Core::BaseTextFind(m_rightPane)});
+    Aggregation::aggregate({m_leftPane, new Core::BaseTextFind(m_leftPane)});
 
     connect(m_leftPane->clearContentsAction(), &QAction::triggered,
             this, &GlobalLogWindow::clearContents);

@@ -116,10 +116,9 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
             this, &SearchResultWidget::filterInvalidated);
     connect(m_searchResultTreeView, &SearchResultTreeView::filterChanged,
             this, &SearchResultWidget::filterChanged);
-    auto  agg = new Aggregation::Aggregate;
-    agg->add(m_searchResultTreeView);
-    agg->add(new ItemViewFind(m_searchResultTreeView,
-                                      ItemDataRoles::ResultLineRole));
+
+    auto find = new ItemViewFind(m_searchResultTreeView, ItemDataRoles::ResultLineRole);
+    Aggregation::aggregate({m_searchResultTreeView, find});
     layout->addWidget(m_searchResultTreeView);
 
     m_infoBarDisplay.setTarget(layout, 2);

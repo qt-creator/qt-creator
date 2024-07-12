@@ -78,9 +78,7 @@ Console::Console()
             itemDelegate, &ConsoleItemDelegate::currentChanged);
     m_consoleView->setItemDelegate(itemDelegate);
 
-    auto aggregate = new Aggregation::Aggregate();
-    aggregate->add(m_consoleView);
-    aggregate->add(new Core::ItemViewFind(m_consoleView));
+    Aggregation::aggregate({m_consoleView, new Core::ItemViewFind(m_consoleView)});
 
     vbox->addWidget(m_consoleView);
     vbox->addWidget(new Core::FindToolBarPlaceHolder(m_consoleWidget));
