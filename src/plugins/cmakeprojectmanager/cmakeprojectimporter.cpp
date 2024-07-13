@@ -46,6 +46,19 @@ namespace CMakeProjectManager::Internal {
 
 static Q_LOGGING_CATEGORY(cmInputLog, "qtc.cmake.import", QtWarningMsg);
 
+class ToolchainDescriptionEx
+{
+public:
+    Utils::FilePath compilerPath;
+    Utils::Id language;
+    QString originalTargetTriple;
+
+    operator ProjectExplorer::ToolchainDescription() const
+    {
+        return ProjectExplorer::ToolchainDescription{compilerPath, language};
+    }
+};
+
 struct DirectoryData
 {
     // Project Stuff:
@@ -64,7 +77,7 @@ struct DirectoryData
     QString toolset;
     FilePath sysroot;
     QtProjectImporter::QtVersionData qt;
-    QVector<ToolchainDescription> toolchains;
+    QVector<ToolchainDescriptionEx> toolchains;
     QVariant debugger;
 };
 
@@ -321,12 +334,30 @@ static CMakeConfig configurationFromPresetProbe(
     const PresetsDetails::ConfigurePreset &configurePreset)
 {
     const FilePath cmakeListTxt = importPath / Constants::CMAKE_LISTS_TXT;
-    cmakeListTxt.writeFileContents(QByteArray("cmake_minimum_required(VERSION 3.15)\n"
-                                              "\n"
-                                              "project(preset-probe)\n"
-                                              "set(CMAKE_C_COMPILER \"${CMAKE_C_COMPILER}\" CACHE FILEPATH \"\" FORCE)\n"
-                                              "set(CMAKE_CXX_COMPILER \"${CMAKE_CXX_COMPILER}\" CACHE FILEPATH \"\" FORCE)\n"
-                                              "\n"));
+    cmakeListTxt.writeFileContents(QByteArray(R"(
+        cmake_minimum_required(VERSION 3.15)
+
+        project(preset-probe)
+
+        foreach (file_path_value
+            CMAKE_C_COMPILER CMAKE_CXX_COMPILER CMAKE_SYSROOT QT_HOST_PATH CMAKE_MAKE_PROGRAM)
+            if (${file_path_value})
+                set(${file_path_value} "${${file_path_value}}" CACHE FILEPATH "" FORCE)
+            endif()
+        endforeach()
+
+        foreach (path_value CMAKE_PREFIX_PATH CMAKE_FIND_ROOT_PATH)
+            if (${path_value})
+                set(${path_value} "${${path_value}}" CACHE PATH "" FORCE)
+            endif()
+        endforeach()
+
+        foreach (string_value CMAKE_C_COMPILER_TARGET CMAKE_CXX_COMPILER_TARGET)
+            if (${string_value})
+                set(${string_value} "${${string_value}}" CACHE STRING "" FORCE)
+            endif()
+        endforeach()
+    )"));
 
     Process cmake;
     cmake.setDisableUnixTerminal();
@@ -574,9 +605,9 @@ static QMakeAndCMakePrefixPath qtInfoFromCMakeCache(const CMakeConfig &config,
     return {qmakeLocation, resultedPrefixPath};
 }
 
-static QVector<ToolchainDescription> extractToolchainsFromCache(const CMakeConfig &config)
+static QVector<ToolchainDescriptionEx> extractToolchainsFromCache(const CMakeConfig &config)
 {
-    QVector<ToolchainDescription> result;
+    QVector<ToolchainDescriptionEx> result;
     bool haveCCxxCompiler = false;
     for (const CMakeConfigItem &i : config) {
         if (!i.key.startsWith("CMAKE_") || !i.key.endsWith("_COMPILER"))
@@ -593,7 +624,10 @@ static QVector<ToolchainDescription> extractToolchainsFromCache(const CMakeConfi
         }
         else
             languageId = Id::fromName(language);
-        result.append({FilePath::fromUtf8(i.value), languageId});
+        result.append(
+            {FilePath::fromUtf8(i.value),
+             languageId,
+             config.stringValueOf("CMAKE_" + language + "_COMPILER_TARGET")});
     }
 
     if (!haveCCxxCompiler) {
@@ -612,10 +646,14 @@ static QVector<ToolchainDescription> extractToolchainsFromCache(const CMakeConfi
             const FilePath linker = config.filePathValueOf("CMAKE_LINKER");
             if (!linker.isEmpty()) {
                 const FilePath compilerPath = linker.parentDir();
-                result.append({compilerPath.pathAppended(cCompilerName),
-                               ProjectExplorer::Constants::C_LANGUAGE_ID});
-                result.append({compilerPath.pathAppended(cxxCompilerName),
-                               ProjectExplorer::Constants::CXX_LANGUAGE_ID});
+                result.append(
+                    {compilerPath.pathAppended(cCompilerName),
+                     ProjectExplorer::Constants::C_LANGUAGE_ID,
+                     {}});
+                result.append(
+                    {compilerPath.pathAppended(cxxCompilerName),
+                     ProjectExplorer::Constants::CXX_LANGUAGE_ID,
+                     {}});
             }
         }
     }
@@ -1052,7 +1090,7 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
 
     const bool compilersMatch = [k, data] {
         const QList<Id> allLanguages = ToolchainManager::allLanguages();
-        for (const ToolchainDescription &tcd : data->toolchains) {
+        for (const ToolchainDescriptionEx &tcd : data->toolchains) {
             if (!Utils::contains(allLanguages,
                                  [&tcd](const Id &language) { return language == tcd.language; }))
                 continue;
@@ -1065,7 +1103,7 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
     }();
     const bool noCompilers = [k, data] {
         const QList<Id> allLanguages = ToolchainManager::allLanguages();
-        for (const ToolchainDescription &tcd : data->toolchains) {
+        for (const ToolchainDescriptionEx &tcd : data->toolchains) {
             if (!Utils::contains(allLanguages,
                                  [&tcd](const Id &language) { return language == tcd.language; }))
                 continue;
@@ -1117,7 +1155,7 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
 
         SysRootKitAspect::setSysRoot(k, data->sysroot);
 
-        for (const ToolchainDescription &cmtcd : data->toolchains) {
+        for (const ToolchainDescriptionEx &cmtcd : data->toolchains) {
             const ToolchainData tcd = findOrCreateToolchains(cmtcd);
             QTC_ASSERT(!tcd.tcs.isEmpty(), continue);
 
@@ -1126,7 +1164,11 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
                     addTemporaryData(ToolchainKitAspect::id(), tc->id(), k);
             }
 
-            ToolchainKitAspect::setToolchain(k, tcd.tcs.at(0));
+            Toolchain* toolchain = tcd.tcs.at(0);
+            if (!cmtcd.originalTargetTriple.isEmpty())
+                toolchain->setExplicitCodeModelTargetTriple(cmtcd.originalTargetTriple);
+
+            ToolchainKitAspect::setToolchain(k, toolchain);
         }
 
         if (!data->cmakePresetDisplayname.isEmpty()) {
@@ -1335,7 +1377,7 @@ void CMakeProjectImporterTest::testCMakeProjectImporterToolchain()
         config.append(CMakeConfigItem(key.toUtf8(), value.toUtf8()));
     }
 
-    const QVector<ToolchainDescription> tcs = extractToolchainsFromCache(config);
+    const QVector<ToolchainDescriptionEx> tcs = extractToolchainsFromCache(config);
     QCOMPARE(tcs.count(), expectedLanguages.count());
     for (int i = 0; i < tcs.count(); ++i) {
         QCOMPARE(tcs.at(i).language, expectedLanguages.at(i));
