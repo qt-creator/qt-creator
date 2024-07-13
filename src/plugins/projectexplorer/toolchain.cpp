@@ -167,6 +167,11 @@ QString Toolchain::detectionSource() const
     return d->m_detectionSource;
 }
 
+ToolchainFactory *Toolchain::factory() const
+{
+    return ToolchainFactory::factoryForType(typeId());
+}
+
 QByteArray Toolchain::id() const
 {
     return d->m_id;
@@ -220,7 +225,7 @@ bool Toolchain::operator == (const Toolchain &tc) const
 
 Toolchain *Toolchain::clone() const
 {
-    if (ToolchainFactory *const f = ToolchainFactory::factoryForType(d->m_typeId)) {
+    if (ToolchainFactory * const f = factory()) {
         Toolchain *tc = f->create();
         QTC_ASSERT(tc, return nullptr);
         Store data;

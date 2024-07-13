@@ -42,6 +42,7 @@ QString languageId(Language l);
 
 class GccToolchain;
 class ToolchainConfigWidget;
+class ToolchainFactory;
 class Kit;
 
 namespace Internal { class ToolchainSettingsAccessor; }
@@ -78,6 +79,7 @@ public:
     bool isSdkProvided() const { return detection() == AutoDetectionFromSdk; }
     Detection detection() const;
     QString detectionSource() const;
+    ToolchainFactory *factory() const;
 
     QByteArray id() const;
 
