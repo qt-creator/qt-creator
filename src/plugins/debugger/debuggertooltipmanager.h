@@ -22,18 +22,18 @@ public:
     QString toolTip() const;
 
     Utils::FilePath fileName;
-    int position;
-    int line;
-    int column;
-    int scopeFromLine;
-    int scopeToLine;
+    int position = 0;
+    int line = 0;
+    int column = 0;
+    int scopeFromLine = 0;
+    int scopeToLine = 0;
     QString function; //!< Optional, informational only.
     QString engineType;
 
     QPoint mousePosition;
     QString expression;
     QString iname;
-    bool isCppEditor;
+    bool isCppEditor = true;
 };
 
 using DebuggerToolTipContexts = QList<DebuggerToolTipContext>;

@@ -570,11 +570,6 @@ void DebuggerToolTipManagerPrivate::hideAllToolTips()
     on restoring.
 */
 
-DebuggerToolTipContext::DebuggerToolTipContext()
-    : position(0), line(0), column(0), scopeFromLine(0), scopeToLine(0), isCppEditor(true)
-{
-}
-
 static bool filesMatch(const FilePath &file1, const FilePath &file2)
 {
     return file1.canonicalPath() == file2.canonicalPath();
