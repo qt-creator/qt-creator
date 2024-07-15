@@ -445,16 +445,16 @@ bool MakefileParser::maybeParseCPPFlag(const QString &term)
     return false;
 }
 
+static QStringList extensions()
+{
+    static const QStringList extList = {".c", ".cpp", ".cc", ".cxx", ".ccg"};
+    return extList;
+}
+
 void MakefileParser::addAllSources()
 {
-    QStringList extensions;
-    extensions << QLatin1String(".c")
-               << QLatin1String(".cpp")
-               << QLatin1String(".cc")
-               << QLatin1String(".cxx")
-               << QLatin1String(".ccg");
-    QFileInfo info(m_makefile);
-    m_outputData.m_sources.append(directorySources(info.absolutePath(), extensions));
+    const QFileInfo info(m_makefile);
+    m_outputData.m_sources.append(directorySources(info.absolutePath(), extensions()));
     m_outputData.m_sources.removeDuplicates();
 }
 
