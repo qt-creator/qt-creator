@@ -3,12 +3,8 @@
 
 #pragma once
 
-#include "debuggerconstants.h"
-
 #include <utils/filepath.h>
 
-#include <QCoreApplication>
-#include <QDate>
 #include <QPoint>
 
 namespace Debugger::Internal {
@@ -33,7 +29,6 @@ public:
     int scopeToLine;
     QString function; //!< Optional, informational only.
     QString engineType;
-    QDate creationDate;
 
     QPoint mousePosition;
     QString expression;
