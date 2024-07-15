@@ -647,6 +647,7 @@ public:
     void positionShow(const TextEditorWidget *editorWidget);
 
     void updateTooltip(DebuggerEngine *engine);
+    void updateTooltip2(DebuggerEngine *engine);
 
     void setState(DebuggerTooltipState newState);
     void destroy();
@@ -782,6 +783,11 @@ DebuggerToolTipHolder::DebuggerToolTipHolder(const DebuggerToolTipContext &conte
 // after normal WatchModel update.
 
 void DebuggerToolTipHolder::updateTooltip(DebuggerEngine *engine)
+{
+    QTimer::singleShot(0, [this, engine] { updateTooltip2(engine); });
+}
+
+void DebuggerToolTipHolder::updateTooltip2(DebuggerEngine *engine)
 {
     widget->setEngine(engine);
 
