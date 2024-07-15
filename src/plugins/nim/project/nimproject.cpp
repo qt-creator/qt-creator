@@ -46,7 +46,7 @@ NimProject::NimProject(const FilePath &filePath) : Project(Constants::C_NIM_MIME
     // ensure debugging is enabled (Nim plugin translates nim code to C code)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 
-    setBuildSystemCreator([](Target *t) { return new NimBuildSystem(t); });
+    setBuildSystemCreator<NimBuildSystem>();
 }
 
 Tasks NimProject::projectIssues(const Kit *k) const

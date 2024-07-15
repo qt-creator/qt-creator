@@ -413,7 +413,7 @@ CompilationDatabaseProject::CompilationDatabaseProject(const Utils::FilePath &pr
     setId(Constants::COMPILATIONDATABASEPROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
     setDisplayName(projectDirectory().fileName());
-    setBuildSystemCreator([](Target *t) { return new CompilationDatabaseBuildSystem(t); });
+    setBuildSystemCreator<CompilationDatabaseBuildSystem>();
     setExtraProjectFiles(
         {projectFile.stringAppended(Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX)});
 }

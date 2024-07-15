@@ -121,7 +121,7 @@ public:
     {
         setId(Constants::C_HASKELL_PROJECT_ID);
         setDisplayName(fileName.toFileInfo().completeBaseName());
-        setBuildSystemCreator([](Target *t) { return new HaskellBuildSystem(t); });
+        setBuildSystemCreator<HaskellBuildSystem>();
     }
 };
 

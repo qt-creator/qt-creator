@@ -232,10 +232,13 @@ protected:
 
     static ProjectExplorer::Task createProjectTask(ProjectExplorer::Task::TaskType type,
                                                    const QString &description);
-
-    void setBuildSystemCreator(const std::function<BuildSystem *(Target *)> &creator);
-
+    template <typename BuildSystemImpl>
+    void setBuildSystemCreator() {
+        setBuildSystemCreatorImpl([](Target *t) { return new BuildSystemImpl(t); });
+    }
 private:
+    void setBuildSystemCreatorImpl(const std::function<BuildSystem *(Target *)> &creator);
+
     void addTarget(std::unique_ptr<Target> &&target);
 
     void addProjectLanguage(Utils::Id id);

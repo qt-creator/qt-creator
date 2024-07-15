@@ -179,7 +179,7 @@ public:
         setId(Constants::GENERICPROJECT_ID);
         setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
         setDisplayName(filePath.completeBaseName());
-        setBuildSystemCreator([](Target *t) { return new GenericBuildSystem(t); });
+        setBuildSystemCreator<GenericBuildSystem>();
     }
 
     void editFilesTriggered();

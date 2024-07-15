@@ -44,7 +44,7 @@ public:
 
         setHasMakeInstallEquivalent(true);
 
-        setBuildSystemCreator([](Target *t) { return new AutotoolsBuildSystem(t); });
+        setBuildSystemCreator<AutotoolsBuildSystem>();
     }
 };
 

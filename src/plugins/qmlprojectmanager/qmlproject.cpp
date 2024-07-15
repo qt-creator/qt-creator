@@ -51,7 +51,7 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
     setDisplayName(fileName.completeBaseName());
 
     setNeedsBuildConfigurations(false);
-    setBuildSystemCreator([](Target *t) { return new QmlBuildSystem(t); });
+    setBuildSystemCreator<QmlBuildSystem>();
 
     if (Core::ICore::isQtDesignStudio()) {
         if (allowOnlySingleProject()) {

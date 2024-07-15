@@ -262,7 +262,7 @@ public:
 
         setId(Id::fromString(WORKSPACE_PROJECT_ID));
         setDisplayName(projectDirectory().fileName());
-        setBuildSystemCreator([](Target *t) { return new WorkspaceBuildSystem(t); });
+        setBuildSystemCreator<WorkspaceBuildSystem>();
     }
 
     FilePath projectDirectory() const override

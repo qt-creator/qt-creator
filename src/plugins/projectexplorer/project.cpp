@@ -1032,7 +1032,7 @@ Task Project::createProjectTask(Task::TaskType type, const QString &description)
     return Task(type, description, FilePath(), -1, Id());
 }
 
-void Project::setBuildSystemCreator(const std::function<BuildSystem *(Target *)> &creator)
+void Project::setBuildSystemCreatorImpl(const std::function<BuildSystem *(Target *)> &creator)
 {
     d->m_buildSystemCreator = creator;
 }
@@ -1404,7 +1404,7 @@ public:
     {
         setId(TEST_PROJECT_ID);
         setDisplayName(TEST_PROJECT_DISPLAYNAME);
-        setBuildSystemCreator([](Target *t) { return new TestBuildSystem(t); });
+        setBuildSystemCreator<TestBuildSystem>();
         setNeedsBuildConfigurations(false);
         setNeedsDeployConfigurations(false);
 
