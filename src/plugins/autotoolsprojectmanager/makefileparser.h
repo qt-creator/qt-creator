@@ -21,12 +21,23 @@ namespace AutotoolsProjectManager::Internal {
 class MakefileParserOutputData final
 {
 public:
+    // File name of the executable.
     QString m_executable;
+    // List of sources that are set for the _SOURCES target.
+    // Sources in sub directorties contain the sub directory as prefix.
     QStringList m_sources;
+    // List of Makefile.am files from the current directory and all sub directories.
+    // The values for sub directories contain the sub directory as prefix.
     QStringList m_makefiles;
+    // List of include paths. Should be invoked, after the signal finished() has been emitted.
     QStringList m_includePaths;
+    // Concatenated normalized defines, just like in code:
+    // #define X12_DEPRECATED __attribute__((deprecated))
+    // #define X12_HAS_DEPRECATED
     ProjectExplorer::Macros m_macros;
+    // List of compiler flags for C.
     QStringList m_cflags;
+    // List of compiler flags for C++.
     QStringList m_cxxflags;
 };
 
@@ -62,50 +73,6 @@ public:
     bool parse();
 
     MakefileParserOutputData outputData() const { return m_outputData; }
-
-    /**
-     * @return List of sources that are set for the _SOURCES target.
-     *         Sources in sub directorties contain the sub directory as
-     *         prefix.
-     */
-    QStringList sources() const;
-
-    /**
-     * @return List of Makefile.am files from the current directory and
-     *         all sub directories. The values for sub directories contain
-     *         the sub directory as prefix.
-     */
-    QStringList makefiles() const;
-
-    /**
-     * @return File name of the executable.
-     */
-    QString executable() const;
-
-    /**
-     * @return List of include paths. Should be invoked, after the signal
-     *         finished() has been emitted.
-     */
-    QStringList includePaths() const;
-
-    /**
-     * @return Concatenated normalized defines, just like in code:
-     * @code
-     * #define X12_DEPRECATED __attribute__((deprecated))
-     * #define X12_HAS_DEPRECATED
-     * @endcode
-     */
-     Macros macros() const;
-
-    /**
-     * @return List of compiler flags for C.
-     */
-    QStringList cflags() const;
-
-    /**
-     * @return List of compiler flags for C++.
-     */
-    QStringList cxxflags() const;
 
     /**
      * Cancels the parsing. Calling this function only makes sense, if the

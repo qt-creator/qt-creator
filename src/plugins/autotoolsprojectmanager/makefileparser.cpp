@@ -13,6 +13,7 @@
 #include <QFile>
 #include <QFileInfo>
 
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace AutotoolsProjectManager::Internal {
@@ -67,41 +68,6 @@ bool MakefileParser::parse()
         m_success = false;
 
     return m_success;
-}
-
-QStringList MakefileParser::sources() const
-{
-    return m_outputData.m_sources;
-}
-
-QStringList MakefileParser::makefiles() const
-{
-    return m_outputData.m_makefiles;
-}
-
-QString MakefileParser::executable() const
-{
-    return m_outputData.m_executable;
-}
-
-QStringList MakefileParser::includePaths() const
-{
-    return m_outputData.m_includePaths;
-}
-
-ProjectExplorer::Macros MakefileParser::macros() const
-{
-    return m_outputData.m_macros;
-}
-
-QStringList MakefileParser::cflags() const
-{
-    return m_cppflags + m_outputData.m_cflags;
-}
-
-QStringList MakefileParser::cxxflags() const
-{
-    return m_cppflags + m_outputData.m_cxxflags;
 }
 
 void MakefileParser::cancel()
@@ -263,28 +229,26 @@ void MakefileParser::parseSubDirs()
         if (!success)
             m_success = false;
 
+        const MakefileParserOutputData result = parser.outputData();
+
         m_outputData.m_makefiles.append(subDir + slash + makefileName);
 
-        // Append the sources of the sub directory to the
-        // current sources
-        const QStringList sources = parser.sources();
-        for (const QString &source : sources)
+        // Append the sources of the sub directory to the current sources
+        for (const QString &source : result.m_sources)
             m_outputData.m_sources.append(subDir + slash + source);
 
         // Append the include paths of the sub directory
-        m_outputData.m_includePaths.append(parser.includePaths());
+        m_outputData.m_includePaths.append(result.m_includePaths);
 
         // Append the flags of the sub directory
-        m_outputData.m_cflags.append(parser.cflags());
-        m_outputData.m_cxxflags.append(parser.cxxflags());
+        m_outputData.m_cflags.append(result.m_cflags);
+        m_outputData.m_cxxflags.append(result.m_cxxflags);
 
         // Append the macros of the sub directory
-        const Macros macros = parser.macros();
-        for (const auto &macro : macros) {
+        for (const Macro &macro : result.m_macros) {
             if (!m_outputData.m_macros.contains(macro))
                 m_outputData.m_macros.append(macro);
         }
-
     }
 
     // Duplicates might be possible in combination with several
@@ -444,7 +408,7 @@ bool MakefileParser::maybeParseDefine(const QString &term)
 {
     if (term.startsWith(QLatin1String("-D"))) {
         QString def = term.mid(2); // remove the "-D"
-        m_outputData.m_macros += ProjectExplorer::Macro::fromKeyValue(def);
+        m_outputData.m_macros += Macro::fromKeyValue(def);
         return true;
     }
     return false;
