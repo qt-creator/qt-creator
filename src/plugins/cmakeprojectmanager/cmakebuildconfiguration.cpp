@@ -1546,15 +1546,10 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                 // and sysroot in the CMake configuration, but that currently doesn't work with Qt/CMake
                 // https://gitlab.kitware.com/cmake/cmake/-/issues/21276
                 const Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
-                // TODO the architectures are probably not correct with Apple Silicon in the mix...
-                const QString architecture = deviceType == Ios::Constants::IOS_DEVICE_TYPE
-                                                 ? QLatin1String("arm64")
-                                                 : QLatin1String("x86_64");
                 const QString sysroot = deviceType == Ios::Constants::IOS_DEVICE_TYPE
                                             ? QLatin1String("iphoneos")
                                             : QLatin1String("iphonesimulator");
                 cmd.addArg(CMAKE_QT6_TOOLCHAIN_FILE_ARG);
-                cmd.addArg("-DCMAKE_OSX_ARCHITECTURES:STRING=" + architecture);
                 cmd.addArg("-DCMAKE_OSX_SYSROOT:STRING=" + sysroot);
                 cmd.addArg("%{" + QLatin1String(DEVELOPMENT_TEAM_FLAG) + "}");
                 cmd.addArg("%{" + QLatin1String(PROVISIONING_PROFILE_FLAG) + "}");
