@@ -26,7 +26,7 @@ namespace AutotoolsProjectManager::Internal {
  * is part of a SOURCES target, a fallback will be done and all
  * sub directories get parsed for C- and C++ files.
  */
-class MakefileParser : public QObject
+class MakefileParser final
 {
 public:
     /**
