@@ -39,7 +39,7 @@ public:
 
 static const QNetworkRequest constructRequest(const QString &collection)
 {
-    QString url("");
+    QString url("https://example.com");
     if (collection.isEmpty())
         url.append("/collections.json");
     else
