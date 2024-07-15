@@ -76,6 +76,10 @@ QmllsClient::QmllsClient(StdIOClientInterface *interface)
         &ProjectExplorer::BuildManager::buildQueueFinished,
         this,
         [this]() { LanguageClientManager::restartClient(this); });
+    QJsonObject initializationOptions {
+        {"qtCreatorHighlighting", true}
+    };
+    setInitializationOptions(initializationOptions);
 }
 
 QmllsClient::~QmllsClient()
