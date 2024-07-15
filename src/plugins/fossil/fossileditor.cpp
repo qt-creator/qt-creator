@@ -10,37 +10,35 @@
 
 #include <utils/qtcassert.h>
 
+#include <vcsbase/vcsbaseeditor.h>
+
 #include <QRegularExpression>
 #include <QTextCursor>
 
 namespace Fossil::Internal {
 
-class FossilEditorWidgetPrivate
+class FossilEditorWidget final : public VcsBase::VcsBaseEditorWidget
 {
 public:
-    FossilEditorWidgetPrivate() :
-        m_exactChangesetId(Constants::CHANGESET_ID_EXACT)
+    FossilEditorWidget()
+        : m_exactChangesetId(Constants::CHANGESET_ID_EXACT)
     {
-        QTC_ASSERT(m_exactChangesetId.isValid(), return);
+        QTC_CHECK(m_exactChangesetId.isValid());
+        setAnnotateRevisionTextFormat(Tr::tr("&Annotate %1"));
+        setAnnotatePreviousRevisionTextFormat(Tr::tr("Annotate &Parent Revision %1"));
+        setDiffFilePattern(Constants::DIFFFILE_ID_EXACT);
+        setLogEntryPattern("^.*\\[([0-9a-f]{5,40})\\]");
+        setAnnotationEntryPattern(QString("^") + Constants::CHANGESET_ID + " ");
     }
+
+private:
+    QString changeUnderCursor(const QTextCursor &cursor) const final;
+    QString decorateVersion(const QString &revision) const final;
+    QStringList annotationPreviousVersions(const QString &revision) const final;
+    VcsBase::BaseAnnotationHighlighterCreator annotationHighlighterCreator() const final;
 
     const QRegularExpression m_exactChangesetId;
 };
-
-FossilEditorWidget::FossilEditorWidget() :
-    d(new FossilEditorWidgetPrivate)
-{
-    setAnnotateRevisionTextFormat(Tr::tr("&Annotate %1"));
-    setAnnotatePreviousRevisionTextFormat(Tr::tr("Annotate &Parent Revision %1"));
-    setDiffFilePattern(Constants::DIFFFILE_ID_EXACT);
-    setLogEntryPattern("^.*\\[([0-9a-f]{5,40})\\]");
-    setAnnotationEntryPattern(QString("^") + Constants::CHANGESET_ID + " ");
-}
-
-FossilEditorWidget::~FossilEditorWidget()
-{
-    delete d;
-}
 
 QString FossilEditorWidget::changeUnderCursor(const QTextCursor &cursorIn) const
 {
@@ -48,7 +46,7 @@ QString FossilEditorWidget::changeUnderCursor(const QTextCursor &cursorIn) const
     cursor.select(QTextCursor::WordUnderCursor);
     if (cursor.hasSelection()) {
         const QString change = cursor.selectedText();
-        const QRegularExpressionMatch exactChangesetIdMatch = d->m_exactChangesetId.match(change);
+        const QRegularExpressionMatch exactChangesetIdMatch = m_exactChangesetId.match(change);
         if (exactChangesetIdMatch.hasMatch())
             return change;
     }
@@ -92,6 +90,11 @@ QStringList FossilEditorWidget::annotationPreviousVersions(const QString &revisi
 VcsBase::BaseAnnotationHighlighterCreator FossilEditorWidget::annotationHighlighterCreator() const
 {
     return VcsBase::getAnnotationHighlighterCreator<FossilAnnotationHighlighter>();
+}
+
+QWidget *createFossilEditorWidget()
+{
+    return new FossilEditorWidget;
 }
 
 } // namespace Fossil::Internal
