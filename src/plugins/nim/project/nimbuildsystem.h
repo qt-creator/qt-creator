@@ -47,7 +47,7 @@ private:
     Utils::FileSystemWatcher m_directoryWatcher;
 };
 
-class NimBuildSystem : public ProjectExplorer::BuildSystem
+class NimBuildSystem final : public ProjectExplorer::BuildSystem
 {
     Q_OBJECT
 

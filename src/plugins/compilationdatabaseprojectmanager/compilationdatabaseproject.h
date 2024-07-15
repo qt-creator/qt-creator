@@ -36,7 +36,7 @@ private:
     void configureAsExampleProject(ProjectExplorer::Kit *kit) override;
 };
 
-class CompilationDatabaseBuildSystem : public ProjectExplorer::BuildSystem
+class CompilationDatabaseBuildSystem final : public ProjectExplorer::BuildSystem
 {
 public:
     explicit CompilationDatabaseBuildSystem(ProjectExplorer::Target *target);

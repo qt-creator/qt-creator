@@ -9,7 +9,7 @@ namespace Python::Internal {
 
 class PythonBuildConfiguration;
 
-class PythonBuildSystem : public ProjectExplorer::BuildSystem
+class PythonBuildSystem final : public ProjectExplorer::BuildSystem
 {
 public:
     explicit PythonBuildSystem(PythonBuildConfiguration *buildConfig);

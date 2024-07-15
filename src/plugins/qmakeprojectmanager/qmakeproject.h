@@ -56,7 +56,7 @@ private:
     mutable ProjectExplorer::ProjectImporter *m_projectImporter = nullptr;
 };
 
-class QmakeBuildSystem : public ProjectExplorer::BuildSystem
+class QmakeBuildSystem final : public ProjectExplorer::BuildSystem
 {
     Q_OBJECT
 

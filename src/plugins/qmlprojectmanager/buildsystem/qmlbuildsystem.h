@@ -18,7 +18,7 @@ class QmlProject;
 class QmlProjectItem;
 class QmlProjectFile;
 
-class QMLPROJECTMANAGER_EXPORT QmlBuildSystem : public ProjectExplorer::BuildSystem
+class QMLPROJECTMANAGER_EXPORT QmlBuildSystem final : public ProjectExplorer::BuildSystem
 {
     Q_OBJECT
 

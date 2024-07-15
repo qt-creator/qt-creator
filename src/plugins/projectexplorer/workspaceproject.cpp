@@ -58,7 +58,7 @@ static bool checkEnabled(FolderNode *fn)
     return false;
 }
 
-class WorkspaceBuildSystem : public BuildSystem
+class WorkspaceBuildSystem final : public BuildSystem
 {
 public:
     WorkspaceBuildSystem(Target *t)

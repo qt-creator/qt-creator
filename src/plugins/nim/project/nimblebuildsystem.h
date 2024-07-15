@@ -31,7 +31,7 @@ struct NimbleMetadata
     }
 };
 
-class NimbleBuildSystem : public ProjectExplorer::BuildSystem
+class NimbleBuildSystem final : public ProjectExplorer::BuildSystem
 {
     Q_OBJECT
 
