@@ -57,6 +57,11 @@ static bool containsTexture(const ModelNode &node)
     return false;
 };
 
+static bool showPrincipledMaterialEx()
+{
+    return Core::ICore::settings()->value("QML/Designer/ShowPrincipledMaterialEx", false).toBool();
+}
+
 MaterialEditorView::MaterialEditorView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
     , m_stackedWidget(new QStackedWidget)
@@ -719,12 +724,20 @@ void MaterialEditorView::updatePossibleTypes()
     if (!m_qmlBackEnd)
         return;
 
-    static const QStringList basicTypes {
-        "CustomMaterial",
-        "DefaultMaterial",
-        "PrincipledMaterial",
-        "SpecularGlossyMaterial"
-    };
+    static const QStringList basicTypes = []() {
+        QStringList types = {
+            "CustomMaterial",
+            "DefaultMaterial",
+            "PrincipledMaterial",
+            "PrincipledMaterialEx",
+            "SpecularGlossyMaterial",
+        };
+
+        if (!showPrincipledMaterialEx())
+            types.removeOne("PrincipledMaterialEx");
+
+        return types;
+    }();
 
     const QString matType = m_selectedMaterial.simplifiedTypeName();
 
