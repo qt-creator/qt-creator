@@ -31,11 +31,6 @@ private:
      */
     void makefileParsingFinished();
 
-    /**
-     * This function is in charge of the code completion.
-     */
-    void updateCppCodeModel();
-
     /// Return value for AutotoolsProject::files()
     QStringList m_files;
 

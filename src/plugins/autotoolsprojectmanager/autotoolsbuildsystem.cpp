@@ -52,6 +52,23 @@ void AutotoolsBuildSystem::triggerParsing()
     m_makefileParserThread->start();
 }
 
+static QStringList filterIncludes(const QString &absSrc, const QString &absBuild,
+                                  const QStringList &in)
+{
+    QStringList result;
+    for (const QString &i : in) {
+        QString out = i;
+        out.replace(QLatin1String("$(top_srcdir)"), absSrc);
+        out.replace(QLatin1String("$(abs_top_srcdir)"), absSrc);
+
+        out.replace(QLatin1String("$(top_builddir)"), absBuild);
+        out.replace(QLatin1String("$(abs_top_builddir)"), absBuild);
+
+        result << out;
+    }
+    return result;
+}
+
 void AutotoolsBuildSystem::makefileParsingFinished()
 {
     // The parsing has been cancelled by the user. Don't show any project data at all.
@@ -104,33 +121,6 @@ void AutotoolsBuildSystem::makefileParsingFinished()
     setRootProjectNode(std::move(newRoot));
     project()->setExtraProjectFiles(filesToWatch);
 
-    updateCppCodeModel();
-
-    m_makefileParserThread.release()->deleteLater();
-
-    emitBuildSystemUpdated();
-}
-
-static QStringList filterIncludes(const QString &absSrc, const QString &absBuild,
-                                  const QStringList &in)
-{
-    QStringList result;
-    for (const QString &i : in) {
-        QString out = i;
-        out.replace(QLatin1String("$(top_srcdir)"), absSrc);
-        out.replace(QLatin1String("$(abs_top_srcdir)"), absSrc);
-
-        out.replace(QLatin1String("$(top_builddir)"), absBuild);
-        out.replace(QLatin1String("$(abs_top_builddir)"), absBuild);
-
-        result << out;
-    }
-
-    return result;
-}
-
-void AutotoolsBuildSystem::updateCppCodeModel()
-{
     QtSupport::CppKitInfo kitInfo(kit());
     QTC_ASSERT(kitInfo.isValid(), return );
 
@@ -157,6 +147,10 @@ void AutotoolsBuildSystem::updateCppCodeModel()
     rpp.setFiles(m_files);
 
     m_cppCodeModelUpdater->update({project(), kitInfo, activeParseEnvironment(), {rpp}});
+
+    m_makefileParserThread.release()->deleteLater();
+
+    emitBuildSystemUpdated();
 }
 
 } // AutotoolsProjectManager::Internal
