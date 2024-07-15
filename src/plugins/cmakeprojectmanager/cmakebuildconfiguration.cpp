@@ -1455,20 +1455,11 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                                           return QString();
                                       });
 
-    macroExpander()->registerVariable(CMAKE_OSX_ARCHITECTURES_FLAG,
-                                      Tr::tr("The CMake flag for the architecture on macOS"),
-                                      [target] {
-                                          if (HostOsInfo::isRunningUnderRosetta()) {
-                                              if (auto *qt = QtSupport::QtKitAspect::qtVersion(target->kit())) {
-                                                  const Abis abis = qt->qtAbis();
-                                                  for (const Abi &abi : abis) {
-                                                      if (abi.architecture() == Abi::ArmArchitecture)
-                                                          return QLatin1String("-DCMAKE_OSX_ARCHITECTURES=arm64");
-                                                  }
-                                              }
-                                          }
-                                          return QLatin1String();
-                                      });
+    macroExpander()->registerVariable(
+        CMAKE_OSX_ARCHITECTURES_FLAG, Tr::tr("The CMake flag for the architecture on macOS"), [] {
+            // TODO deprecated since Qt Creator 15, remove later
+            return QString();
+        });
     macroExpander()->registerVariable(QT_QML_DEBUG_FLAG,
                                       Tr::tr("The CMake flag for QML debugging, if enabled"),
                                       [this] {
@@ -1568,8 +1559,6 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                 cmd.addArg("%{" + QLatin1String(DEVELOPMENT_TEAM_FLAG) + "}");
                 cmd.addArg("%{" + QLatin1String(PROVISIONING_PROFILE_FLAG) + "}");
             }
-        } else if (device && device->osType() == Utils::OsTypeMac) {
-            cmd.addArg("%{" + QLatin1String(CMAKE_OSX_ARCHITECTURES_FLAG) + "}");
         }
 
         if (isWebAssembly(k) || isQnx(k) || isWindowsARM64(k)) {

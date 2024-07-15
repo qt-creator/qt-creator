@@ -36,17 +36,6 @@ OsArch HostOsInfo::hostArchitecture()
     return arch;
 }
 
-bool HostOsInfo::isRunningUnderRosetta()
-{
-#ifdef Q_OS_MACOS
-    int translated = 0;
-    auto size = sizeof(translated);
-    if (sysctlbyname("sysctl.proc_translated", &translated, &size, nullptr, 0) == 0)
-        return translated;
-#endif
-    return false;
-}
-
 void HostOsInfo::setOverrideFileNameCaseSensitivity(Qt::CaseSensitivity sensitivity)
 {
     m_useOverrideFileNameCaseSensitivity = true;

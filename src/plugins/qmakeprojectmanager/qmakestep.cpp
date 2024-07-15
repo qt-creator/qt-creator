@@ -648,12 +648,6 @@ void QMakeStep::updateAbiWidgets()
                         }
                     }
                 }
-            } else if (qtVersion->hasAbi(Abi::DarwinOS) && !isIos(target()->kit()) && HostOsInfo::isRunningUnderRosetta()) {
-                // Automatically select arm64 when running under Rosetta
-                for (const Abi &abi : abis) {
-                    if (abi.architecture() == Abi::ArmArchitecture)
-                        selectedAbis.append(abi.param());
-                }
             }
         }
 
