@@ -123,7 +123,7 @@
 
     \list 1
 
-        \li In the \uicontrol{Editor} mode, double-click the textfinder.ui file in the
+        \li In the \uicontrol {Edit} mode, double-click the textfinder.ui file in the
             \uicontrol{Projects} view to launch the integrated \QD.
 
         \li Drag the following widgets to the form:
@@ -139,8 +139,8 @@
         \image qtcreator-textfinder-ui-widgets.png {Adding widgets to Text Finder UI}
 
         \note To easily locate the widgets, use the search box at the top of the
-        \uicontrol Sidebar. For example, to find the \uicontrol Label widget, start typing
-        the word \b label.
+        \uicontrol {Widget Box}. For example, to find the \uicontrol Label widget,
+        start typing the word \b label.
 
         \image qtcreator-textfinder-filter.png {Filter}
 
