@@ -28,8 +28,14 @@ MakefileParser::~MakefileParser()
 
 bool MakefileParser::parse()
 {
-    m_cancel = false;
+    QFutureInterface<void> fi;
+    fi.reportStarted(); // The default constructed future is canceled otherwise.
+    return parse(fi.future());
+}
 
+bool MakefileParser::parse(const QFuture<void> &future)
+{
+    m_future = future;
     m_success = true;
     m_outputData.m_executable.clear();
     m_outputData.m_sources.clear();
@@ -68,16 +74,6 @@ bool MakefileParser::parse()
         m_success = false;
 
     return m_success;
-}
-
-void MakefileParser::cancel()
-{
-    m_cancel = true;
-}
-
-bool MakefileParser::isCanceled() const
-{
-    return m_cancel;
 }
 
 MakefileParser::TopTarget MakefileParser::topTarget() const
@@ -164,7 +160,7 @@ void MakefileParser::parseDefaultSourceExtensions()
 void MakefileParser::parseSubDirs()
 {
     QTC_ASSERT(m_line.contains(QLatin1String("SUBDIRS")), return);
-    if (isCanceled()) {
+    if (m_future.isCanceled()) {
         m_success = false;
         return;
     }
@@ -222,7 +218,7 @@ void MakefileParser::parseSubDirs()
 
         MakefileParser parser(subDirMakefile);
         connect(&parser, &MakefileParser::status, this, &MakefileParser::status);
-        const bool success = parser.parse();
+        const bool success = parser.parse(m_future);
 
         // Don't return, try to parse as many sub directories
         // as possible
@@ -262,7 +258,7 @@ void MakefileParser::parseSubDirs()
 QStringList MakefileParser::directorySources(const QString &directory,
                                              const QStringList &extensions)
 {
-    if (isCanceled()) {
+    if (m_future.isCanceled()) {
         m_success = false;
         return {};
     }

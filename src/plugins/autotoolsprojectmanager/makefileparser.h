@@ -5,12 +5,10 @@
 
 #include <projectexplorer/projectmacro.h>
 
+#include <QFuture>
+#include <QObject>
 #include <QStringList>
 #include <QTextStream>
-#include <QObject>
-#include <QVector>
-
-#include <atomic>
 
 QT_BEGIN_NAMESPACE
 class QDir;
@@ -71,21 +69,9 @@ public:
      *         the makefile could not be opened.
      */
     bool parse();
+    bool parse(const QFuture<void> &future);
 
     MakefileParserOutputData outputData() const { return m_outputData; }
-
-    /**
-     * Cancels the parsing. Calling this function only makes sense, if the
-     * parser runs in a different thread than the caller of this function.
-     * The function is thread-safe.
-     */
-    void cancel();
-
-    /**
-     * @return True, if the parser has been cancelled by MakefileParser::cancel().
-     *         The function is thread-safe.
-     */
-    bool isCanceled() const;
 
 signals:
     /**
@@ -224,7 +210,7 @@ private:
     bool m_success = false;     ///< Return value for MakefileParser::parse().
     bool m_subDirsEmpty = false;///< States if last subdirs var was empty
 
-    std::atomic_bool m_cancel = false;      ///< True, if the parsing should be cancelled.
+    QFuture<void> m_future;     ///< For periodic checking of cancelled state.
 
     QString m_makefile;         ///< Filename of the makefile
     MakefileParserOutputData m_outputData;

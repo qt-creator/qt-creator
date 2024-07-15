@@ -34,7 +34,7 @@ AutotoolsBuildSystem::~AutotoolsBuildSystem() = default;
 static void parseMakefile(QPromise<MakefileParserOutputData> &promise, const QString &makefile)
 {
     MakefileParser parser(makefile);
-    if (parser.parse())
+    if (parser.parse(QFuture<void>(promise.future())))
         promise.addResult(parser.outputData());
     else
         promise.future().cancel();
