@@ -34,6 +34,7 @@
 
 #include <QAbstractItemModel>
 #include <QDebug>
+#include <QGuiApplication>
 #include <QLabel>
 #include <QScrollBar>
 #include <QStack>
