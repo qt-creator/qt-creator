@@ -30,9 +30,9 @@ bool MakefileParser::parse()
     m_cancel = false;
 
     m_success = true;
-    m_executable.clear();
-    m_sources.clear();
-    m_makefiles.clear();
+    m_outputData.m_executable.clear();
+    m_outputData.m_sources.clear();
+    m_outputData.m_makefiles.clear();
 
     auto file = new QFile(m_makefile);
     if (!file->open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -42,7 +42,7 @@ bool MakefileParser::parse()
     }
 
     QFileInfo info(m_makefile);
-    m_makefiles.append(info.fileName());
+    m_outputData.m_makefiles.append(info.fileName());
 
     emit status(Tr::tr("Parsing %1 in directory %2").arg(info.fileName()).arg(info.absolutePath()));
 
@@ -71,37 +71,37 @@ bool MakefileParser::parse()
 
 QStringList MakefileParser::sources() const
 {
-    return m_sources;
+    return m_outputData.m_sources;
 }
 
 QStringList MakefileParser::makefiles() const
 {
-    return m_makefiles;
+    return m_outputData.m_makefiles;
 }
 
 QString MakefileParser::executable() const
 {
-    return m_executable;
+    return m_outputData.m_executable;
 }
 
 QStringList MakefileParser::includePaths() const
 {
-    return m_includePaths;
+    return m_outputData.m_includePaths;
 }
 
 ProjectExplorer::Macros MakefileParser::macros() const
 {
-    return m_macros;
+    return m_outputData.m_macros;
 }
 
 QStringList MakefileParser::cflags() const
 {
-    return m_cppflags + m_cflags;
+    return m_cppflags + m_outputData.m_cflags;
 }
 
 QStringList MakefileParser::cxxflags() const
 {
-    return m_cppflags + m_cxxflags;
+    return m_cppflags + m_outputData.m_cxxflags;
 }
 
 void MakefileParser::cancel()
@@ -147,7 +147,7 @@ void MakefileParser::parseBinPrograms()
     // TODO: are multiple values possible?
     if (binPrograms.size() == 1) {
         QFileInfo info(binPrograms.first());
-        m_executable = info.fileName();
+        m_outputData.m_executable = info.fileName();
     }
 }
 
@@ -156,7 +156,7 @@ void MakefileParser::parseSources()
     QTC_ASSERT(m_line.contains("_SOURCES") || m_line.contains("_HEADERS"), return);
 
     bool hasVariables = false;
-    m_sources.append(targetValues(&hasVariables));
+    m_outputData.m_sources.append(targetValues(&hasVariables));
 
     // Skip parsing of Makefile.am for getting the sub directories,
     // as variables have been used. As fallback all sources will be added.
@@ -164,15 +164,15 @@ void MakefileParser::parseSources()
         addAllSources();
 
     // Duplicates might be possible in combination with 'AM_DEFAULT_SOURCE_EXT ='
-    m_sources.removeDuplicates();
+    m_outputData.m_sources.removeDuplicates();
 
     // TODO: Definitions like "SOURCES = ../src.cpp" are ignored currently.
     // This case must be handled correctly in MakefileParser::parseSubDirs(),
     // where the current sub directory must be shortened.
-    QStringList::iterator it = m_sources.begin();
-    while (it != m_sources.end()) {
+    QStringList::iterator it = m_outputData.m_sources.begin();
+    while (it != m_outputData.m_sources.end()) {
         if ((*it).startsWith(QLatin1String("..")))
-            it = m_sources.erase(it);
+            it = m_outputData.m_sources.erase(it);
         else
             ++it;
     }
@@ -189,10 +189,10 @@ void MakefileParser::parseDefaultSourceExtensions()
 
     QFileInfo info(m_makefile);
     const QString dirName = info.absolutePath();
-    m_sources.append(directorySources(dirName, extensions));
+    m_outputData.m_sources.append(directorySources(dirName, extensions));
 
     // Duplicates might be possible in combination with '_SOURCES ='
-    m_sources.removeDuplicates();
+    m_outputData.m_sources.removeDuplicates();
 }
 
 void MakefileParser::parseSubDirs()
@@ -263,34 +263,34 @@ void MakefileParser::parseSubDirs()
         if (!success)
             m_success = false;
 
-        m_makefiles.append(subDir + slash + makefileName);
+        m_outputData.m_makefiles.append(subDir + slash + makefileName);
 
         // Append the sources of the sub directory to the
         // current sources
         const QStringList sources = parser.sources();
         for (const QString &source : sources)
-            m_sources.append(subDir + slash + source);
+            m_outputData.m_sources.append(subDir + slash + source);
 
         // Append the include paths of the sub directory
-        m_includePaths.append(parser.includePaths());
+        m_outputData.m_includePaths.append(parser.includePaths());
 
         // Append the flags of the sub directory
-        m_cflags.append(parser.cflags());
-        m_cxxflags.append(parser.cxxflags());
+        m_outputData.m_cflags.append(parser.cflags());
+        m_outputData.m_cxxflags.append(parser.cxxflags());
 
         // Append the macros of the sub directory
         const Macros macros = parser.macros();
         for (const auto &macro : macros) {
-            if (!m_macros.contains(macro))
-                m_macros.append(macro);
+            if (!m_outputData.m_macros.contains(macro))
+                m_outputData.m_macros.append(macro);
         }
 
     }
 
     // Duplicates might be possible in combination with several
     // "..._SUBDIRS" targets
-    m_makefiles.removeDuplicates();
-    m_sources.removeDuplicates();
+    m_outputData.m_makefiles.removeDuplicates();
+    m_outputData.m_sources.removeDuplicates();
 
     m_subDirsEmpty = subDirs.isEmpty();
 }
@@ -444,7 +444,7 @@ bool MakefileParser::maybeParseDefine(const QString &term)
 {
     if (term.startsWith(QLatin1String("-D"))) {
         QString def = term.mid(2); // remove the "-D"
-        m_macros += ProjectExplorer::Macro::fromKeyValue(def);
+        m_outputData.m_macros += ProjectExplorer::Macro::fromKeyValue(def);
         return true;
     }
     return false;
@@ -457,7 +457,7 @@ bool MakefileParser::maybeParseInclude(const QString &term, const QString &dirNa
         if (includePath == QLatin1String("."))
             includePath = dirName;
         if (!includePath.isEmpty())
-            m_includePaths += includePath;
+            m_outputData.m_includePaths += includePath;
         return true;
     }
     return false;
@@ -466,7 +466,7 @@ bool MakefileParser::maybeParseInclude(const QString &term, const QString &dirNa
 bool MakefileParser::maybeParseCFlag(const QString &term)
 {
     if (term.startsWith(QLatin1Char('-'))) {
-        m_cflags += term;
+        m_outputData.m_cflags += term;
         return true;
     }
     return false;
@@ -475,7 +475,7 @@ bool MakefileParser::maybeParseCFlag(const QString &term)
 bool MakefileParser::maybeParseCXXFlag(const QString &term)
 {
     if (term.startsWith(QLatin1Char('-'))) {
-        m_cxxflags += term;
+        m_outputData.m_cxxflags += term;
         return true;
     }
     return false;
@@ -499,8 +499,8 @@ void MakefileParser::addAllSources()
                << QLatin1String(".cxx")
                << QLatin1String(".ccg");
     QFileInfo info(m_makefile);
-    m_sources.append(directorySources(info.absolutePath(), extensions));
-    m_sources.removeDuplicates();
+    m_outputData.m_sources.append(directorySources(info.absolutePath(), extensions));
+    m_outputData.m_sources.removeDuplicates();
 }
 
 void MakefileParser::parseIncludePaths()
@@ -552,9 +552,9 @@ void MakefileParser::parseIncludePaths()
         }
     } while (!line.isNull());
 
-    m_includePaths.removeDuplicates();
-    m_cflags.removeDuplicates();
-    m_cxxflags.removeDuplicates();
+    m_outputData.m_includePaths.removeDuplicates();
+    m_outputData.m_cflags.removeDuplicates();
+    m_outputData.m_cxxflags.removeDuplicates();
 }
 
 } // AutotoolsProjectManager::Internal

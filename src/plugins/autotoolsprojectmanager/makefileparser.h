@@ -18,6 +18,18 @@ QT_END_NAMESPACE
 
 namespace AutotoolsProjectManager::Internal {
 
+class MakefileParserOutputData final
+{
+public:
+    QString m_executable;
+    QStringList m_sources;
+    QStringList m_makefiles;
+    QStringList m_includePaths;
+    ProjectExplorer::Macros m_macros;
+    QStringList m_cflags;
+    QStringList m_cxxflags;
+};
+
 /**
  * @brief Parses the autotools makefile Makefile.am.
  *
@@ -48,6 +60,8 @@ public:
      *         the makefile could not be opened.
      */
     bool parse();
+
+    MakefileParserOutputData outputData() const { return m_outputData; }
 
     /**
      * @return List of sources that are set for the _SOURCES target.
@@ -246,13 +260,7 @@ private:
     std::atomic_bool m_cancel = false;      ///< True, if the parsing should be cancelled.
 
     QString m_makefile;         ///< Filename of the makefile
-    QString m_executable;       ///< Return value for MakefileParser::executable()
-    QStringList m_sources;      ///< Return value for MakefileParser::sources()
-    QStringList m_makefiles;    ///< Return value for MakefileParser::makefiles()
-    QStringList m_includePaths; ///< Return value for MakefileParser::includePaths()
-    Macros m_macros;            ///< Return value for MakefileParser::macros()
-    QStringList m_cflags;       ///< Return value for MakefileParser::cflags()
-    QStringList m_cxxflags;     ///< Return value for MakefileParser::cxxflags()
+    MakefileParserOutputData m_outputData;
     QStringList m_cppflags;     ///< The cpp flags, which will be part of both cflags and cxxflags
 
     QString m_line;             ///< Current line of the makefile
