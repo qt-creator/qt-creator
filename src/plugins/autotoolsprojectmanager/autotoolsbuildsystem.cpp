@@ -31,11 +31,11 @@ AutotoolsBuildSystem::AutotoolsBuildSystem(Target *target)
 
 AutotoolsBuildSystem::~AutotoolsBuildSystem() = default;
 
-static void parseMakefile(QPromise<MakefileParserOutputData> &promise, const QString &makefile)
+static void parseMakefileImpl(QPromise<MakefileParserOutputData> &promise, const QString &makefile)
 {
-    MakefileParser parser(makefile);
-    if (parser.parse(QFuture<void>(promise.future())))
-        promise.addResult(parser.outputData());
+    const auto result = parseMakefile(makefile, QFuture<void>(promise.future()));
+    if (result)
+        promise.addResult(*result);
     else
         promise.future().cancel();
 }
@@ -46,7 +46,7 @@ void AutotoolsBuildSystem::triggerParsing()
 
     const auto onSetup = [this, storage](Async<MakefileParserOutputData> &async) {
         *storage = guardParsingRun();
-        async.setConcurrentCallData(parseMakefile, projectFilePath().toString());
+        async.setConcurrentCallData(parseMakefileImpl, projectFilePath().toString());
     };
     const auto onDone = [this, storage](const Async<MakefileParserOutputData> &async) {
         (*storage)->markAsSuccess();
