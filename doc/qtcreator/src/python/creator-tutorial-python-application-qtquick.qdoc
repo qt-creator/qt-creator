@@ -66,6 +66,15 @@
             using pip.
     \endlist
 
+    //! [install-pyside6]
+    \section1 Install PySide6 for the project
+
+    In the \uicontrol {Edit} mode, select \uicontrol {Install} to set up PySide6
+    for the project.
+
+    \image qtcreator-python-install.webp {Prompt to install PySide6}
+    //! [install-pyside6]
+
     \section1 Add Qt Quick imports
 
     The wizard adds the following imports to the \c {main.py} source file for
@@ -187,6 +196,6 @@
 
     Select \inlineimage icons/run_small.png to run the application.
 
-    \sa {Tutorial: Qt Widgets and Python},
+    \sa {Tutorial: Qt Widgets and Python}, {Tutorial: Qt Widgets UI and Python},
     {Develop Qt for Python Applications}
 */

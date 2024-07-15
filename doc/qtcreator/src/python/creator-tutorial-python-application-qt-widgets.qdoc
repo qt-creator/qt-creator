@@ -76,6 +76,8 @@
             using pip.
     \endlist
 
+    \include creator-tutorial-python-application-qtquick.qdoc install-pyside6
+
     \section1 Add Qt Widgets imports
 
     The wizard adds the imports to the \c mywidget.py source file for access to
@@ -171,6 +173,6 @@
     Select the \inlineimage icons/run_small.png
     button to run the application.
 
-    \sa {Tutorial: Qt Quick and Python},
+    \sa {Tutorial: Qt Quick and Python}, {Tutorial: Qt Widgets UI and Python},
     {Develop Qt for Python Applications}
 */

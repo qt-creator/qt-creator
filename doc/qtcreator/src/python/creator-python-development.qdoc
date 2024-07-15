@@ -35,8 +35,9 @@
 
     \section1 Set up PySide6
 
-    If you have not installed the required version of PySide6, \QC prompts you to
-    do so when you open a .py file.
+    The recommended way to run PySide6 projects from \QC is to install PySide6
+    for each project. \QC prompts you to do so the first time you open a .py file
+    for a project.
 
     \image qtcreator-python-install.webp {Prompts to install PySide6 and Python language server}
 
@@ -54,12 +55,6 @@
     In addition, the widget-based UI wizard creates a \c {.ui} file that has a
     \QD form, and the Qt Quick Application wizard creates a \c {.qml} file that
     imports Qt Quick controls.
-
-    \note Before importing UI classes and after editing them, create the Python
-    code from your UI form. In PySide6, run \c{pyside6-uic form.ui -o ui_form.py}
-    in the \l Terminal view.
-
-    \image qtcreator-new-qt-for-python-app-window-ui-uic.webp {Creating Python code in Terminal}
 
     The \uicontrol Window wizard adds code to the source file, without the UI
     file.
@@ -113,7 +108,7 @@
     \uicontrol {REPL Import File}. To also import all functions from
     the file, select \uicontrol {REPL Import *}.
 
-    \sa {Tutorial: Qt Widgets and Python},
+    \sa {Tutorial: Qt Widgets and Python}, {Tutorial: Qt Widgets UI and Python},
     {Tutorial: Qt Quick and Python},
     {Activate kits for a project}
 */
