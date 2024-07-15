@@ -60,8 +60,6 @@ public:
      */
     MakefileParser(const QString &makefile);
 
-    ~MakefileParser();
-
     /**
      * Parses the makefile. Must be invoked at least once, otherwise
      * the getter functions of MakefileParser will return empty values.
@@ -97,13 +95,13 @@ private:
     /**
      * Parses the bin_PROGRAM target and stores it in m_executable.
      */
-    void parseBinPrograms();
+    void parseBinPrograms(QTextStream *textStream);
 
     /**
      * Parses all values from a _SOURCE target and appends them to
      * the m_sources list.
      */
-    void parseSources();
+    void parseSources(QTextStream *textStream);
 
     /**
      * Parses all sub directories for files having the extension
@@ -111,14 +109,14 @@ private:
      * append to the m_sources list. Corresponding header files
      * will automatically be attached too.
      */
-    void parseDefaultSourceExtensions();
+    void parseDefaultSourceExtensions(QTextStream *textStream);
 
     /**
      * Parses all sub directories specified by the SUBDIRS target and
      * adds the found sources to the m_sources list. The found makefiles
      * get added to the m_makefiles list.
      */
-    void parseSubDirs();
+    void parseSubDirs(QTextStream *textStream);
 
     /**
      * Helper function for parseDefaultExtensions(). Returns recursively all sources
@@ -145,7 +143,7 @@ private:
      *                     contained a variable like $(test). Note that all variables are not
      *                     part of the return value, as they cannot get interpreted currently.
      */
-    QStringList targetValues(bool *hasVariables = nullptr);
+    QStringList targetValues(QTextStream *textStream, bool *hasVariables = nullptr);
 
     /**
      * Adds recursively all sources of the current folder to m_sources and removes
@@ -217,7 +215,6 @@ private:
     QStringList m_cppflags;     ///< The cpp flags, which will be part of both cflags and cxxflags
 
     QString m_line;             ///< Current line of the makefile
-    QTextStream m_textStream;   ///< Textstream that represents the makefile
 };
 
 } // AutotoolsProjectManager::Internal

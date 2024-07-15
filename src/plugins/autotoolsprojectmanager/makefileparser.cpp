@@ -18,13 +18,9 @@ using namespace Utils;
 
 namespace AutotoolsProjectManager::Internal {
 
-MakefileParser::MakefileParser(const QString &makefile) : m_makefile(makefile)
-{ }
-
-MakefileParser::~MakefileParser()
-{
-    delete m_textStream.device();
-}
+MakefileParser::MakefileParser(const QString &makefile)
+    : m_makefile(makefile)
+{}
 
 bool MakefileParser::parse()
 {
@@ -41,10 +37,9 @@ bool MakefileParser::parse(const QFuture<void> &future)
     m_outputData.m_sources.clear();
     m_outputData.m_makefiles.clear();
 
-    auto file = new QFile(m_makefile);
-    if (!file->open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qWarning("%s: %s", qPrintable(m_makefile), qPrintable(file->errorString()));
-        delete file;
+    QFile file(m_makefile);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning("%s: %s", qPrintable(m_makefile), qPrintable(file.errorString()));
         return false;
     }
 
@@ -53,16 +48,16 @@ bool MakefileParser::parse(const QFuture<void> &future)
 
     emit status(Tr::tr("Parsing %1 in directory %2").arg(info.fileName()).arg(info.absolutePath()));
 
-    m_textStream.setDevice(file);
+    QTextStream textStream(&file);
 
     do {
-        m_line = m_textStream.readLine();
+        m_line = textStream.readLine();
         switch (topTarget()) {
-        case AmDefaultSourceExt: parseDefaultSourceExtensions(); break;
-        case BinPrograms: parseBinPrograms(); break;
+        case AmDefaultSourceExt: parseDefaultSourceExtensions(&textStream); break;
+        case BinPrograms: parseBinPrograms(&textStream); break;
         case BuiltSources: break; // TODO: Add to m_sources?
-        case Sources: parseSources(); break;
-        case SubDirs: parseSubDirs(); break;
+        case Sources: parseSources(&textStream); break;
+        case SubDirs: parseSubDirs(&textStream); break;
         case Undefined:
         default: break;
         }
@@ -101,10 +96,10 @@ MakefileParser::TopTarget MakefileParser::topTarget() const
     return Undefined;
 }
 
-void MakefileParser::parseBinPrograms()
+void MakefileParser::parseBinPrograms(QTextStream *textStream)
 {
     QTC_ASSERT(m_line.contains(QLatin1String("bin_PROGRAMS")), return);
-    const QStringList binPrograms = targetValues();
+    const QStringList binPrograms = targetValues(textStream);
 
     // TODO: are multiple values possible?
     if (binPrograms.size() == 1) {
@@ -113,12 +108,12 @@ void MakefileParser::parseBinPrograms()
     }
 }
 
-void MakefileParser::parseSources()
+void MakefileParser::parseSources(QTextStream *textStream)
 {
     QTC_ASSERT(m_line.contains("_SOURCES") || m_line.contains("_HEADERS"), return);
 
     bool hasVariables = false;
-    m_outputData.m_sources.append(targetValues(&hasVariables));
+    m_outputData.m_sources.append(targetValues(textStream, &hasVariables));
 
     // Skip parsing of Makefile.am for getting the sub directories,
     // as variables have been used. As fallback all sources will be added.
@@ -140,10 +135,10 @@ void MakefileParser::parseSources()
     }
 }
 
-void MakefileParser::parseDefaultSourceExtensions()
+void MakefileParser::parseDefaultSourceExtensions(QTextStream *textStream)
 {
     QTC_ASSERT(m_line.contains(QLatin1String("AM_DEFAULT_SOURCE_EXT")), return);
-    const QStringList extensions = targetValues();
+    const QStringList extensions = targetValues(textStream);
     if (extensions.isEmpty()) {
         m_success = false;
         return;
@@ -157,7 +152,7 @@ void MakefileParser::parseDefaultSourceExtensions()
     m_outputData.m_sources.removeDuplicates();
 }
 
-void MakefileParser::parseSubDirs()
+void MakefileParser::parseSubDirs(QTextStream *textStream)
 {
     QTC_ASSERT(m_line.contains(QLatin1String("SUBDIRS")), return);
     if (m_future.isCanceled()) {
@@ -170,7 +165,7 @@ void MakefileParser::parseSubDirs()
     const QString makefileName = info.fileName();
 
     bool hasVariables = false;
-    QStringList subDirs = targetValues(&hasVariables);
+    QStringList subDirs = targetValues(textStream, &hasVariables);
     if (hasVariables) {
         // Skip parsing of Makefile.am for getting the sub directories,
         // as variables have been used. As fallback all sources will be added.
@@ -294,7 +289,7 @@ QStringList MakefileParser::directorySources(const QString &directory,
     return list;
 }
 
-QStringList MakefileParser::targetValues(bool *hasVariables)
+QStringList MakefileParser::targetValues(QTextStream *textStream, bool *hasVariables)
 {
     QStringList values;
     if (hasVariables)
@@ -340,7 +335,7 @@ QStringList MakefileParser::targetValues(bool *hasVariables)
                     lineValues.push_back(last);
 
                 values.append(lineValues);
-                m_line = m_textStream.readLine();
+                m_line = textStream->readLine();
                 endReached = m_line.isNull();
             } else {
                 values.append(lineValues);
