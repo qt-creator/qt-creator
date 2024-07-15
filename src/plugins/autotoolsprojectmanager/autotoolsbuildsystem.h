@@ -5,13 +5,13 @@
 
 #include <projectexplorer/buildsystem.h>
 
-#include <memory>
+#include <solutions/tasking/tasktreerunner.h>
 
 namespace ProjectExplorer { class ProjectUpdater; }
 
 namespace AutotoolsProjectManager::Internal {
 
-class MakefileParserThread;
+class MakefileParserOutputData;
 
 class AutotoolsBuildSystem final : public ProjectExplorer::BuildSystem
 {
@@ -29,15 +29,15 @@ private:
      * takes care listen to file changes for Makefile.am and configure.ac
      * files.
      */
-    void makefileParsingFinished();
+    void makefileParsingFinished(const MakefileParserOutputData &outputData);
 
     /// Return value for AutotoolsProject::files()
     QStringList m_files;
 
     /// Responsible for parsing the makefiles asynchronously in a thread
-    std::unique_ptr<MakefileParserThread> m_makefileParserThread;
+    Tasking::TaskTreeRunner m_parserRunner;
 
-    ProjectExplorer::ProjectUpdater *m_cppCodeModelUpdater = nullptr;
+    std::unique_ptr<ProjectExplorer::ProjectUpdater> m_cppCodeModelUpdater;
 };
 
 } // AutotoolsProjectManager::Internal
