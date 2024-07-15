@@ -51,7 +51,7 @@ signals:
     void changed();
 
 private:
-    friend void aggregate(QList<QObject *>);
+    friend AGGREGATION_EXPORT void aggregate(QList<QObject *>);
     enum PrivateConstructor { PrivateConstructor };
     Aggregate(enum PrivateConstructor);
     void construct();
