@@ -15,7 +15,6 @@ class StackFrame;
 class DebuggerToolTipContext
 {
 public:
-    DebuggerToolTipContext();
     bool isValid() const { return !expression.isEmpty(); }
     bool matchesFrame(const StackFrame &frame) const;
     bool isSame(const DebuggerToolTipContext &other) const;
