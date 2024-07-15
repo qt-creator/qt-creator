@@ -693,7 +693,7 @@ void Edit3DView::createSeekerSliderAction()
 QPoint Edit3DView::resolveToolbarPopupPos(Edit3DAction *action) const
 {
     QPoint pos;
-    const QList<QObject *> &objects = action->action()->associatedObjects();
+    const QObjectList &objects = action->action()->associatedObjects();
     for (QObject *obj : objects) {
         if (auto button = qobject_cast<QToolButton *>(obj)) {
             if (auto toolBar = qobject_cast<QWidget *>(button->parent())) {

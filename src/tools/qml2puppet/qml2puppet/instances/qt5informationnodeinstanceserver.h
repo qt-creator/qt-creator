@@ -151,7 +151,7 @@ private:
     QSet<QObject *> m_view3Ds;
     QMultiHash<QObject *, QObject *> m_3DSceneMap; // key: scene root, value: node
     QObject *m_active3DView = nullptr;
-    QList<QObject *> m_priorityView3DsToRender;
+    QObjectList m_priorityView3DsToRender;
     QObject *m_active3DScene = nullptr;
     QSet<ServerNodeInstance> m_parentChangedSet;
     QList<ServerNodeInstance> m_completedComponentList;

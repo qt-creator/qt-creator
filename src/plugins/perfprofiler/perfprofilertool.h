@@ -99,7 +99,7 @@ private:
     QMenu *m_filterMenu = nullptr;
     QToolButton *m_aggregateButton = nullptr;
     QToolButton *m_tracePointsButton = nullptr;
-    QList<QObject *> m_objectsToDelete;
+    QObjectList m_objectsToDelete;
 
     PerfProfilerTraceView *m_traceView = nullptr;
     PerfProfilerStatisticsView *m_statisticsView = nullptr;

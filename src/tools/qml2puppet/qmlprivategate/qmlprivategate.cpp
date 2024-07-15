@@ -762,7 +762,7 @@ void doComponentCompleteRecursive(QObject *object, NodeInstanceServer *nodeInsta
 
         if (!nodeInstanceServer->hasInstanceForObject(item))
             emitComponentComplete(object);
-        QList<QObject*> childList = object->children();
+        QObjectList childList = object->children();
 
         if (item) {
             const QList<QQuickItem *> childItems = item->childItems();

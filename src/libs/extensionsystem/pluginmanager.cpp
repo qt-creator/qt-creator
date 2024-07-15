@@ -297,7 +297,7 @@ void PluginManager::removeObject(QObject *obj)
 
     \sa PluginManager::getObject()
 */
-QVector<QObject *> PluginManager::allObjects()
+QObjectList PluginManager::allObjects()
 {
     return d->allObjects;
 }
@@ -1152,7 +1152,7 @@ static QStringList matchingTestFunctions(const QStringList &testFunctions,
     return matchingFunctions;
 }
 
-static QObject *objectWithClassName(const QVector<QObject *> &objects, const QString &className)
+static QObject *objectWithClassName(const QObjectList &objects, const QString &className)
 {
     return Utils::findOr(objects, nullptr, [className] (QObject *object) -> bool {
         QString candidate = QString::fromUtf8(object->metaObject()->className());
@@ -1193,7 +1193,7 @@ static int executeTestPlan(const TestPlan &testPlan)
 
 /// Resulting plan consists of all test functions of the plugin object and
 /// all test functions of all test objects of the plugin.
-static TestPlan generateCompleteTestPlan(IPlugin *plugin, const QVector<QObject *> &testObjects)
+static TestPlan generateCompleteTestPlan(IPlugin *plugin, const QObjectList &testObjects)
 {
     TestPlan testPlan;
 
@@ -1214,7 +1214,7 @@ static TestPlan generateCompleteTestPlan(IPlugin *plugin, const QVector<QObject 
 /// Since multiple match texts can match the same function, a test function might
 /// be included multiple times for a test object.
 static TestPlan generateCustomTestPlan(IPlugin *plugin,
-                                       const QVector<QObject *> &testObjects,
+                                       const QObjectList &testObjects,
                                        const QStringList &matchTexts)
 {
     TestPlan testPlan;
@@ -1222,7 +1222,7 @@ static TestPlan generateCustomTestPlan(IPlugin *plugin,
     const QStringList testFunctionsOfPluginObject = testFunctions(plugin->metaObject());
     QStringList matchedTestFunctionsOfPluginObject;
     QStringList remainingMatchTexts = matchTexts;
-    QVector<QObject *> remainingTestObjectsOfPlugin = testObjects;
+    QObjectList remainingTestObjectsOfPlugin = testObjects;
 
     while (!remainingMatchTexts.isEmpty()) {
         const QString matchText = remainingMatchTexts.takeFirst();
@@ -1289,7 +1289,7 @@ void PluginManagerPrivate::startTests()
             continue; // plugin not loaded
 
         const QList<TestCreator> testCreators = g_testCreators[plugin];
-        const QVector<QObject *> testObjects = Utils::transform(testCreators, &TestCreator::operator());
+        const QObjectList testObjects = Utils::transform(testCreators, &TestCreator::operator());
         const QScopeGuard cleanup([&] { qDeleteAll(testObjects); });
 
         const bool hasDuplicateTestObjects = testObjects.size()

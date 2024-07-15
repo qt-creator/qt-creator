@@ -150,7 +150,7 @@ class GenericModel : public TreeModel<GenericItem, GenericItem>
 public:
     GenericModel(QObject *parent) : TreeModel(parent) { }
 
-    void rebuild(const QList<QObject *> &objects)
+    void rebuild(const QObjectList &objects)
     {
         clear();
         for (QObject * const e : objects)
@@ -249,8 +249,8 @@ public:
     explicit ProjectListView(QWidget *parent = nullptr) : SelectorView(parent)
     {
         const auto model = new GenericModel(this);
-        model->rebuild(transform<QList<QObject *>>(ProjectManager::projects(),
-                                                   [](Project *p) { return p; }));
+        model->rebuild(transform<QObjectList>(ProjectManager::projects(),
+                                              [](Project *p) { return p; }));
         connect(ProjectManager::instance(), &ProjectManager::projectAdded,
                 this, [this, model](Project *project) {
             const GenericItem *projectItem = model->addItemForObject(project);
@@ -322,7 +322,7 @@ signals:
     void changeActiveProjectConfiguration(QObject *pc);
 
 public:
-    void setProjectConfigurations(const QList<QObject *> &list, QObject *active)
+    void setProjectConfigurations(const QObjectList &list, QObject *active)
     {
         theModel()->rebuild(list);
         resetOptimalWidth();
@@ -1194,13 +1194,13 @@ void MiniProjectTargetSelector::changeStartupProject(Project *project)
     }
 
     if (project) {
-        QList<QObject *> list;
+        QObjectList list;
         const QList<Target *> targets = project->targets();
         for (Target *t : targets)
             list.append(t);
         m_listWidgets[TARGET]->setProjectConfigurations(list, project->activeTarget());
     } else {
-        m_listWidgets[TARGET]->setProjectConfigurations(QList<QObject *>(), nullptr);
+        m_listWidgets[TARGET]->setProjectConfigurations({}, nullptr);
     }
 
     updateActionAndSummary();
@@ -1239,17 +1239,17 @@ void MiniProjectTargetSelector::activeTargetChanged(Target *target)
                    this, &MiniProjectTargetSelector::updateActionAndSummary);
 
     if (m_target) {
-        QList<QObject *> bl;
+        QObjectList bl;
         for (BuildConfiguration *bc : target->buildConfigurations())
             bl.append(bc);
         m_listWidgets[BUILD]->setProjectConfigurations(bl, target->activeBuildConfiguration());
 
-        QList<QObject *> dl;
+        QObjectList dl;
         for (DeployConfiguration *dc : target->deployConfigurations())
             dl.append(dc);
         m_listWidgets[DEPLOY]->setProjectConfigurations(dl, target->activeDeployConfiguration());
 
-        QList<QObject *> rl;
+        QObjectList rl;
         for (RunConfiguration *rc : target->runConfigurations())
             rl.append(rc);
         m_listWidgets[RUN]->setProjectConfigurations(rl, target->activeRunConfiguration());
@@ -1278,9 +1278,9 @@ void MiniProjectTargetSelector::activeTargetChanged(Target *target)
         connect(m_target, &Target::activeRunConfigurationChanged,
                 this, &MiniProjectTargetSelector::activeRunConfigurationChanged);
     } else {
-        m_listWidgets[BUILD]->setProjectConfigurations(QList<QObject *>(), nullptr);
-        m_listWidgets[DEPLOY]->setProjectConfigurations(QList<QObject *>(), nullptr);
-        m_listWidgets[RUN]->setProjectConfigurations(QList<QObject *>(), nullptr);
+        m_listWidgets[BUILD]->setProjectConfigurations({}, nullptr);
+        m_listWidgets[DEPLOY]->setProjectConfigurations({}, nullptr);
+        m_listWidgets[RUN]->setProjectConfigurations({}, nullptr);
         m_buildConfiguration = nullptr;
         m_deployConfiguration = nullptr;
         m_runConfiguration = nullptr;

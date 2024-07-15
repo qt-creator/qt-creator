@@ -376,7 +376,7 @@ void FormEditorData::fullInit()
     /**
      * This will initialize our TabOrder, Signals and slots and Buddy editors.
      */
-    const QList<QObject *> plugins = QPluginLoader::staticInstances() + m_formeditor->pluginInstances();
+    const QObjectList plugins = QPluginLoader::staticInstances() + m_formeditor->pluginInstances();
     for (QObject *plugin : plugins) {
         if (QDesignerFormEditorPluginInterface *formEditorPlugin = qobject_cast<QDesignerFormEditorPluginInterface*>(plugin)) {
             if (!formEditorPlugin->isInitialized())

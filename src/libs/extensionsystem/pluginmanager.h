@@ -35,14 +35,14 @@ public:
     // Object pool operations
     static void addObject(QObject *obj);
     static void removeObject(QObject *obj);
-    static QVector<QObject *> allObjects();
+    static QObjectList allObjects();
     static QReadWriteLock *listLock();
 
     // This is useful for soft dependencies using pure interfaces.
     template <typename T> static T *getObject()
     {
         QReadLocker lock(listLock());
-        const QVector<QObject *> all = allObjects();
+        const QObjectList all = allObjects();
         for (QObject *obj : all) {
             if (T *result = qobject_cast<T *>(obj))
                 return result;
@@ -52,7 +52,7 @@ public:
     template <typename T, typename Predicate> static T *getObject(Predicate predicate)
     {
         QReadLocker lock(listLock());
-        const QVector<QObject *> all = allObjects();
+        const QObjectList all = allObjects();
         for (QObject *obj : all) {
             if (T *result = qobject_cast<T *>(obj))
                 if (predicate(result))

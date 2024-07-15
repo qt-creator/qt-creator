@@ -217,7 +217,7 @@ QStringList QuickItemNodeInstance::allStates() const
 {
     QStringList list;
 
-    QList<QObject*> stateList = QQuickDesignerSupport::statesForItem(quickItem());
+    QObjectList stateList = QQuickDesignerSupport::statesForItem(quickItem());
     for (QObject *state : stateList) {
         QQmlProperty property(state, "name");
         if (property.isValid())
@@ -493,7 +493,7 @@ bool QuickItemNodeInstance::isRenderable() const
 QList<ServerNodeInstance> QuickItemNodeInstance::stateInstances() const
 {
     QList<ServerNodeInstance> instanceList;
-    const QList<QObject*> stateList = QQuickDesignerSupport::statesForItem(quickItem());
+    const QObjectList stateList = QQuickDesignerSupport::statesForItem(quickItem());
     for (QObject *state : stateList)
     {
         if (state && nodeInstanceServer()->hasInstanceForObject(state))

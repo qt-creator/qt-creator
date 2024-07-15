@@ -93,7 +93,7 @@ public:
     std::vector<TestSpec> testSpecs;
     Utils::FilePaths pluginPaths;
     QString pluginIID;
-    QVector<QObject *> allObjects;      // ### make this a QVector<QPointer<QObject> > > ?
+    QObjectList allObjects;      // ### make this a QList<QPointer<QObject> > > ?
     QStringList defaultDisabledPlugins; // Plugins/Ignored from install settings
     QStringList defaultEnabledPlugins; // Plugins/ForceEnabled from install settings
     QStringList disabledPlugins;

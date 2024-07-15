@@ -185,7 +185,7 @@ Aggregate::Aggregate(QObject *parent)
 */
 Aggregate::~Aggregate()
 {
-    QList<QObject *> components;
+    QObjectList components;
     {
         QWriteLocker locker(&lock());
         for (QObject *component : std::as_const(m_components)) {
@@ -262,11 +262,11 @@ void Aggregate::remove(QObject *component)
 
     \sa Aggregate
 */
-void aggregate(QList<QObject *> components)
+void aggregate(const QObjectList &components)
 {
     QWriteLocker locker(&Aggregate::lock());
     Aggregate *agg = nullptr;
-    QList<QObject *> toAdd;
+    QObjectList toAdd;
     for (QObject *comp : components) {
         Aggregate *existing = Aggregate::aggregateMap().value(comp);
         if (existing) {
