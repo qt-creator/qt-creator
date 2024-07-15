@@ -11,7 +11,6 @@ MakefileParserThread::MakefileParserThread(ProjectExplorer::BuildSystem *bs)
     : m_parser(bs->projectFilePath().toString()),
       m_guard(bs->guardParsingRun())
 {
-    connect(&m_parser, &MakefileParser::status, this, &MakefileParserThread::status);
     connect(this, &QThread::finished, this, &MakefileParserThread::done, Qt::QueuedConnection);
 }
 

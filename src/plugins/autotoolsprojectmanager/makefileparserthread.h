@@ -99,14 +99,6 @@ public:
 
 signals:
     /**
-     * Is emitted periodically during parsing the Makefile.am files
-     * and the sub directories. \p status provides a translated
-     * string, that can be shown to indicate the current state
-     * of the parsing.
-     */
-    void status(const QString &status);
-
-    /**
       * Similar to finished, but emitted from MakefileParserThread thread, i.e. from the
       * thread where the MakefileParserThread lives in, not the tread that it creates.
       * This helps to avoid race condition when connecting to finished() signal.
