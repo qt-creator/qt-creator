@@ -14,7 +14,6 @@
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 
-#include <QDesktopServices>
 #include <QLabel>
 #include <QLineEdit>
 #include <QShowEvent>
@@ -80,16 +79,13 @@ public:
             QFont f(m_errorLabel->font());
             f.setPixelSize(20);
             m_errorLabel->setFont(f);
-            const QString txt
-                    = Tr::tr(
-                        "<p>Could not fetch data from Qt Marketplace.</p><p>Try with your browser "
-                        "instead: <a href='https://marketplace.qt.io'>https://marketplace.qt.io</a>"
-                        "</p><br/><p><small><i>Error: %1</i></small></p>").arg(message);
+          const QString txt = Tr::tr(
+                        "<p>Could not fetch data from Qt Marketplace.</p>"
+                        "<p><small><i>Error: %1</i></small></p>").arg(message);
             m_errorLabel->setText(txt);
             m_errorLabel->setVisible(true);
             m_searcher->setVisible(false);
-            connect(m_errorLabel, &QLabel::linkActivated,
-                    this, []() { QDesktopServices::openUrl(QUrl("https://marketplace.qt.io")); });
+          
         });
 
         connect(m_searcher,

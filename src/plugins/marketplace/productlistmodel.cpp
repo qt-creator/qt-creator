@@ -34,15 +34,12 @@ public:
     void clickAction(const Core::ListItem *item) const override
     {
         QTC_ASSERT(item, return);
-        auto productItem = static_cast<const ProductItem *>(item);
-        const QUrl url(QString("https://marketplace.qt.io/products/").append(productItem->handle));
-        QDesktopServices::openUrl(url);
     }
 };
 
 static const QNetworkRequest constructRequest(const QString &collection)
 {
-    QString url("https://marketplace.qt.io");
+    QString url("");
     if (collection.isEmpty())
         url.append("/collections.json");
     else
