@@ -88,6 +88,8 @@ using namespace std::placeholders;
 
 namespace Git::Internal {
 
+static Q_LOGGING_CATEGORY(log, "qtc.vcs.git", QtWarningMsg);
+
 using GitClientMemberFunc = void (GitClient::*)(const FilePath &) const;
 
 class GitReflogEditorWidget : public GitEditorWidget
@@ -214,6 +216,7 @@ public:
     void diffCurrentFile();
     void diffProjectDirectory();
     void logFile();
+    void logSelection();
     void blameFile();
     void logProjectDirectory();
     void logRepository();
@@ -379,6 +382,9 @@ public:
         [] { return new GitEditorWidget; },
         std::bind(&GitPluginPrivate::vcsDescribe, this, _1, _2)
     }};
+
+private:
+    QStringList lineRange(int &firstLine, bool allowSingleLine = false) const;
 };
 
 static GitPluginPrivate *dd = nullptr;
@@ -584,6 +590,11 @@ GitPluginPrivate::GitPluginPrivate()
                      Tr::tr("Log of \"%1\"", "Avoid translating \"Log\""),
                      "Git.Log", context, true, std::bind(&GitPluginPrivate::logFile, this),
                      QKeySequence(useMacShortcuts ? Tr::tr("Meta+G,Meta+L") : Tr::tr("Alt+G,Alt+L")));
+
+    createFileAction(currentFileMenu, Tr::tr("Log Current Selection", "Avoid translating \"Log\""),
+                     Tr::tr("Log of \"%1\" Selection", "Avoid translating \"Log\""),
+                     "Git.LogSelection", context, true, std::bind(&GitPluginPrivate::logSelection, this),
+                     QKeySequence(useMacShortcuts ? Tr::tr("Meta+G,Meta+S") : Tr::tr("Alt+G,Alt+S")));
 
     createFileAction(currentFileMenu, Tr::tr("Blame Current File", "Avoid translating \"Blame\""),
                      Tr::tr("Blame for \"%1\"", "Avoid translating \"Blame\""),
@@ -958,13 +969,17 @@ void GitPluginPrivate::logFile()
     gitClient().log(state.currentFileTopLevel(), state.relativeCurrentFile(), true);
 }
 
-void GitPluginPrivate::blameFile()
+/**
+ * Returns the current editors selected lines as string list suitable for git.
+ *
+ * The returned list has maximum one element in the following format: {"-L 1,2"}.
+ * An empty list is returned when no editor is open or @a allowSingleLine is false
+ * and there is no selection.
+ *
+ * @internal
+ */
+QStringList GitPluginPrivate::lineRange(int &firstLine, bool allowSingleLine) const
 {
-    const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasFile(), return);
-    const int lineNumber = VcsBaseEditor::lineNumberOfCurrentEditor(state.currentFile());
-    QStringList extraOptions;
-    int firstLine = -1;
     if (BaseTextEditor *textEditor = BaseTextEditor::currentTextEditor()) {
         QTextCursor cursor = textEditor->textCursor();
         if (cursor.hasSelection()) {
@@ -986,15 +1001,48 @@ void GitPluginPrivate::blameFile()
                 }
                 argument += QString::number(firstLine) + ',';
                 argument += QString::number(endBlock + firstLine - startBlock);
-                extraOptions << argument;
+                return {argument};
             }
+        } else if (allowSingleLine) {
+            firstLine = cursor.blockNumber() + 1;
+            return {"-L " + QString::number(firstLine) + ',' + QString::number(firstLine)};
         }
     }
+    return {};
+}
+
+void GitPluginPrivate::logSelection()
+{
+    const VcsBasePluginState state = currentState();
+    QTC_ASSERT(state.hasFile(), return);
+
+    int firstLine = -1;
+    QStringList lines = lineRange(firstLine, true);
+    if (lines.isEmpty())
+        return;
+
+    lines.first().append(":" + state.relativeCurrentFile());
+    lines.append("--no-patch");
+
+    qCDebug(log) << "logSelection" << lines;
+    gitClient().log(state.currentFileTopLevel(), {}, true, lines);
+}
+
+void GitPluginPrivate::blameFile()
+{
+    const VcsBasePluginState state = currentState();
+    QTC_ASSERT(state.hasFile(), return);
+    const int lineNumber = VcsBaseEditor::lineNumberOfCurrentEditor(state.currentFile());
+    int firstLine = -1;
+    const QStringList extraOptions = lineRange(firstLine);
     const FilePath fileName = state.currentFile().canonicalPath();
     FilePath topLevel;
     VcsManager::findVersionControlForDirectory(fileName.parentDir(), &topLevel);
+    const QString filePath = fileName.relativeChildPath(topLevel).path();
+
+    qCDebug(log) << "blameFile" << topLevel << filePath << lineNumber << extraOptions << firstLine;
     gitClient().annotate(topLevel,
-                         fileName.relativeChildPath(topLevel).path(),
+                         filePath,
                          lineNumber,
                          {},
                          extraOptions,
