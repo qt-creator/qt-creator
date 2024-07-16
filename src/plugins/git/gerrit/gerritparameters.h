@@ -12,19 +12,11 @@ namespace Gerrit::Internal {
 class GerritParameters
 {
 public:
-    GerritParameters();
-
     bool isValid() const;
-    bool equals(const GerritParameters &rhs) const;
     void toSettings() const;
     void saveQueries() const;
     void fromSettings();
     void setPortFlagBySshType();
-
-    friend bool operator==(const GerritParameters &p1, const GerritParameters &p2)
-    { return p1.equals(p2); }
-    friend bool operator!=(const GerritParameters &p1, const GerritParameters &p2)
-    { return !p1.equals(p2); }
 
     GerritServer server;
     Utils::FilePath ssh;
@@ -32,6 +24,10 @@ public:
     QStringList savedQueries;
     bool https = true;
     QString portFlag;
+
+private:
+    friend GerritParameters &gerritSettings();
+    GerritParameters();
 };
 
 GerritParameters &gerritSettings();

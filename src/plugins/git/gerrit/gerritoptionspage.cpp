@@ -18,6 +18,8 @@
 #include <QCheckBox>
 #include <QFormLayout>
 
+using namespace Utils;
+
 namespace Gerrit::Internal {
 
 class GerritOptionsWidget : public Core::IOptionsPageWidget
@@ -70,24 +72,26 @@ public:
                     httpsCheckBox,
                     onChanged] {
             GerritParameters &s = gerritSettings();
-            GerritParameters newParameters;
-            newParameters.server = GerritServer(hostLineEdit->text().trimmed(),
-                                         static_cast<unsigned short>(portSpinBox->value()),
-                                         userLineEdit->text().trimmed(),
-                                         GerritServer::Ssh);
-            newParameters.ssh = sshChooser->filePath();
-            newParameters.curl = curlChooser->filePath();
-            newParameters.https = httpsCheckBox->isChecked();
 
-            if (newParameters != s) {
-                if (s.ssh == newParameters.ssh)
-                    newParameters.portFlag = s.portFlag;
-                else
-                    newParameters.setPortFlagBySshType();
-                s = newParameters;
-                s.toSettings();
-                emit onChanged();
-            }
+            GerritServer server(hostLineEdit->text().trimmed(),
+                                static_cast<unsigned short>(portSpinBox->value()),
+                                userLineEdit->text().trimmed(),
+                                GerritServer::Ssh);
+            FilePath ssh = sshChooser->filePath();
+            FilePath curl = curlChooser->filePath();
+            bool https = httpsCheckBox->isChecked();
+
+            if (server == s.server && ssh == s.ssh && curl == s.curl && https == s.https)
+                return;
+
+            s.server = server;
+            s.ssh = ssh;
+            s.curl = curl;
+            s.https = https;
+            if (s.ssh != ssh)
+                s.setPortFlagBySshType();
+            s.toSettings();
+            emit onChanged();
         });
     }
 };

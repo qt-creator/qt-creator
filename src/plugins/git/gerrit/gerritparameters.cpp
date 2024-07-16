@@ -89,11 +89,6 @@ GerritParameters::GerritParameters()
 {
 }
 
-bool GerritParameters::equals(const GerritParameters &rhs) const
-{
-    return server == rhs.server && ssh == rhs.ssh && curl == rhs.curl && https == rhs.https;
-}
-
 void GerritParameters::toSettings() const
 {
     QtcSettings *s = ICore::settings();
