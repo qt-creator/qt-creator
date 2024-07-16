@@ -40,6 +40,7 @@ void addFetchModule();
 void addGuiModule();
 void addHookModule();
 void addInstallModule();
+void addJsonModule();
 void addMessageManagerModule();
 void addProcessModule();
 void addQtModule();
@@ -254,6 +255,7 @@ public:
         addGuiModule();
         addHookModule();
         addInstallModule();
+        addJsonModule();
         addMessageManagerModule();
         addProcessModule();
         addQtModule();
