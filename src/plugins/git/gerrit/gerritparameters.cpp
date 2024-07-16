@@ -3,6 +3,7 @@
 
 #include "gerritparameters.h"
 #include "gerritplugin.h"
+#include "../gitclient.h"
 
 #include <coreplugin/icore.h>
 
@@ -40,7 +41,7 @@ static FilePath detectApp(const QString &defaultExe)
     if (!app.isEmpty() || !HostOsInfo::isWindowsHost())
         return FilePath::fromString(app);
     // Windows: Use app.exe from git if it cannot be found.
-    const FilePath gitBinDir = GerritPlugin::gitBinDirectory();
+    const FilePath gitBinDir = Git::Internal::gitClient().gitBinDirectory();
     if (gitBinDir.isEmpty())
         return {};
     FilePath path = gitBinDir.pathAppended(defaultApp);

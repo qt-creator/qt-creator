@@ -39,12 +39,12 @@ using namespace Git::Internal;
 
 enum { debug = 0 };
 
-namespace Gerrit {
+namespace Gerrit::Internal {
+
 namespace Constants {
 const char GERRIT_OPEN_VIEW[] = "Gerrit.OpenView";
 const char GERRIT_PUSH[] = "Gerrit.Push";
 }
-namespace Internal {
 
 enum FetchMode
 {
@@ -263,17 +263,6 @@ void GerritPlugin::push()
     push(currentRepository());
 }
 
-Utils::FilePath GerritPlugin::gitBinDirectory()
-{
-    return gitClient().gitBinDirectory();
-}
-
-// Find the branch of a repository.
-QString GerritPlugin::branch(const FilePath &repository)
-{
-    return gitClient().synchronousCurrentLocalBranch(repository);
-}
-
 void GerritPlugin::fetch(const std::shared_ptr<GerritChange> &change, int mode)
 {
     // Locate git.
@@ -385,7 +374,9 @@ FilePath GerritPlugin::findLocalRepository(const QString &project, const QString
             if (branch.isEmpty())  {
                 return repository;
             } else {
-                const QString repositoryBranch = GerritPlugin::branch(repository);
+                // Find the branch of a repository.
+                const QString repositoryBranch =
+                        gitClient().synchronousCurrentLocalBranch(repository);
                 if (repositoryBranch.isEmpty() || repositoryBranch == branch)
                     return repository;
             } // !branch.isEmpty()
@@ -398,7 +389,6 @@ FilePath GerritPlugin::findLocalRepository(const QString &project, const QString
     return FilePath::currentWorkingPath();
 }
 
-} // namespace Internal
-} // namespace Gerrit
+} // Gerrit::Internal
 
 #include "gerritplugin.moc"

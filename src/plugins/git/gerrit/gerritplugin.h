@@ -34,8 +34,6 @@ public:
 
     void addToMenu(Core::ActionContainer *ac);
 
-    static Utils::FilePath gitBinDirectory();
-    static QString branch(const Utils::FilePath &repository);
     void addToLocator(Core::CommandLocator *locator);
     void push(const Utils::FilePath &topLevel);
 
