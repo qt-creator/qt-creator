@@ -165,6 +165,7 @@ public:
                     LinkTarget target);
     DocumentSymbolCache *documentSymbolCache();
     HoverHandler *hoverHandler();
+    SemanticTokenSupport *semanticTokenSupport();
     QList<LanguageServerProtocol::Diagnostic> diagnosticsAt(const Utils::FilePath &filePath,
                                                             const QTextCursor &cursor) const;
     bool hasDiagnostic(const Utils::FilePath &filePath,

@@ -1815,6 +1815,11 @@ HoverHandler *Client::hoverHandler()
     return &d->m_hoverHandler;
 }
 
+SemanticTokenSupport *Client::semanticTokenSupport()
+{
+    return &d->m_tokenSupport;
+}
+
 void ClientPrivate::log(const ShowMessageParams &message)
 {
     q->log(message.toString());

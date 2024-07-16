@@ -39,7 +39,7 @@ public:
 using SemanticTokensHandler = std::function<void(TextEditor::TextDocument *,
                                                  const QList<ExpandedSemanticToken> &, int, bool)>;
 
-class SemanticTokenSupport : public QObject
+class LANGUAGECLIENT_EXPORT SemanticTokenSupport : public QObject
 {
 public:
     explicit SemanticTokenSupport(Client *client);
