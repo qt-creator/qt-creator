@@ -385,12 +385,17 @@ void LanguageClientManager::enableClientSettings(const QString &settingsId, bool
     managerInstance->applySettings();
 }
 
-QList<Client *> LanguageClientManager::clientsForSetting(const BaseSettings *setting)
+QList<Client *> LanguageClientManager::clientsForSettingId(const QString &settingsId)
 {
     QTC_ASSERT(managerInstance, return {});
-    QTC_ASSERT(setting, return {});
     auto instance = managerInstance;
-    return instance->m_clientsForSetting.value(setting->m_id);
+    return instance->m_clientsForSetting.value(settingsId);
+}
+
+QList<Client *> LanguageClientManager::clientsForSetting(const BaseSettings *setting)
+{
+    QTC_ASSERT(setting, return {});
+    return clientsForSettingId(setting->m_id);
 }
 
 const BaseSettings *LanguageClientManager::settingForClient(Client *client)
