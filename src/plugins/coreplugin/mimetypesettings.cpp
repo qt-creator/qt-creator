@@ -275,7 +275,6 @@ public:
     MimeTypeSettingsModel *m_model;
     MimeFilterModel *m_filterModel;
     UserMimeTypeHash m_pendingModifiedMimeTypes; // currently edited in the options page
-    QString m_filterPattern;
 };
 
 MimeTypeSettingsPrivate::UserMimeTypeHash MimeTypeSettingsPrivate::m_userModifiedMimeTypes
@@ -609,7 +608,6 @@ void MimeTypeSettingsWidget::resetMimeTypes()
 
 void MimeTypeSettingsWidget::setFilterPattern(const QString &pattern)
 {
-    d->m_filterPattern = pattern;
     d->m_filterModel->setFilterWildcard(pattern);
 }
 
