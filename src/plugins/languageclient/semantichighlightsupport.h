@@ -42,6 +42,7 @@ using SemanticTokensHandler = std::function<void(TextEditor::TextDocument *,
 class LANGUAGECLIENT_EXPORT SemanticTokenSupport : public QObject
 {
 public:
+    using TokenToTextStyle = std::optional<TextEditor::TextStyle> (*)(int);
     explicit SemanticTokenSupport(Client *client);
 
     void refresh();
@@ -61,6 +62,7 @@ public:
 //    void setAdditionalTokenModifierStyles(const QHash<int, TextEditor::TextStyle> &modifierStyles);
 
     void setTokensHandler(const SemanticTokensHandler &handler) { m_tokensHandler = handler; }
+    void setTextStyleForTokenType(TokenToTextStyle callback){ m_textStyleForTokenType = callback; }
 
 private:
     void reloadSemanticTokensImpl(TextEditor::TextDocument *doc, int remainingRerequests = 3);
@@ -99,6 +101,7 @@ private:
     QStringList m_tokenModifierStrings;
     QSet<TextEditor::TextDocument *> m_docReloadQueue;
     QHash<Utils::FilePath, LanguageServerProtocol::MessageId> m_runningRequests;
+    TokenToTextStyle m_textStyleForTokenType;
 };
 
 } // namespace LanguageClient

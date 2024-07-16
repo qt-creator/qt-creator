@@ -36,6 +36,29 @@ SemanticTokenSupport::SemanticTokenSupport(Client *client)
                      &Core::EditorManager::currentEditorChanged,
                      this,
                      &SemanticTokenSupport::onCurrentEditorChanged);
+    m_textStyleForTokenType = [](int tokenType) -> std::optional<TextStyle> {
+        switch (tokenType) {
+        case namespaceToken: return C_NAMESPACE;
+        case typeToken: return C_TYPE;
+        case classToken: return C_TYPE;
+        case structToken: return C_TYPE;
+        case enumMemberToken: return C_ENUMERATION;
+        case typeParameterToken: return C_FIELD;
+        case parameterToken: return C_PARAMETER;
+        case variableToken: return C_LOCAL;
+        case functionToken: return C_FUNCTION;
+        case methodToken: return C_FUNCTION;
+        case macroToken: return C_MACRO;
+        case keywordToken: return C_KEYWORD;
+        case commentToken: return C_COMMENT;
+        case stringToken: return C_STRING;
+        case numberToken: return C_NUMBER;
+        case operatorToken: return C_OPERATOR;
+        default:
+            break;
+        }
+        return std::nullopt;
+    };
 }
 
 void SemanticTokenSupport::refresh()
@@ -239,31 +262,13 @@ void SemanticTokenSupport::updateFormatHash()
     for (int tokenType : std::as_const(m_tokenTypes)) {
         if (tokenType < 0)
             continue;
-        TextStyle style;
-        switch (tokenType) {
-        case namespaceToken: style = C_NAMESPACE; break;
-        case typeToken: style = C_TYPE; break;
-        case classToken: style = C_TYPE; break;
-        case structToken: style = C_TYPE; break;
-        case enumMemberToken: style = C_ENUMERATION; break;
-        case typeParameterToken: style = C_FIELD; break;
-        case parameterToken: style = C_PARAMETER; break;
-        case variableToken: style = C_LOCAL; break;
-        case functionToken: style = C_FUNCTION; break;
-        case methodToken: style = C_FUNCTION; break;
-        case macroToken: style = C_MACRO; break;
-        case keywordToken: style = C_KEYWORD; break;
-        case commentToken: style = C_COMMENT; break;
-        case stringToken: style = C_STRING; break;
-        case numberToken: style = C_NUMBER; break;
-        case operatorToken: style = C_OPERATOR; break;
-        default:
+        const std::optional<TextStyle> style = m_textStyleForTokenType(tokenType);
+        if (!style)
             continue;
-        }
         int mainHashPart = tokenType << tokenTypeBitOffset;
-        m_formatHash[mainHashPart] = fontSettings.toTextCharFormat(style);
+        m_formatHash[mainHashPart] = fontSettings.toTextCharFormat(*style);
         TextStyles styles;
-        styles.mainStyle = style;
+        styles.mainStyle = *style;
         styles.mixinStyles.initializeElements();
         addModifiers(mainHashPart, &m_formatHash, styles, m_tokenModifiers, fontSettings);
     }
