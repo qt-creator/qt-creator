@@ -175,8 +175,6 @@ public:
     std::optional<sol::protected_function> m_startFailedCallback;
     QMap<QString, sol::protected_function> m_messageCallbacks;
 
-    LuaClientSettings *m_settings{nullptr};
-
 public:
     static BaseSettings::StartBehavior startBehaviorFromString(const QString &str)
     {
@@ -189,8 +187,6 @@ public:
 
         throw sol::error("Unknown start behavior: " + str.toStdString());
     }
-
-    void setSettings(LuaClientSettings *settings) { m_settings = settings; }
 
     LuaClientWrapper(const sol::table &options)
     {
@@ -329,7 +325,7 @@ public:
 
     void updateMessageCallbacks()
     {
-        for (Client *c : LanguageClientManager::clientsForSetting(m_settings)) {
+        for (Client *c : LanguageClientManager::clientsForSettingId(m_settingsTypeId.toString())) {
             if (!c)
                 continue;
             for (const auto &[msg, func] : m_messageCallbacks.asKeyValueRange()) {
@@ -358,7 +354,7 @@ public:
         if (!messageValue.isObject())
             throw sol::error("Message is not an object");
         const LanguageServerProtocol::JsonRpcMessage jsonrpcmessage(messageValue.toObject());
-        for (Client *c : LanguageClientManager::clientsForSetting(m_settings)) {
+        for (Client *c : LanguageClientManager::clientsForSettingId(m_settingsTypeId.toString())) {
             if (c)
                 c->sendMessage(jsonrpcmessage);
         }
@@ -529,7 +525,6 @@ static void registerLuaApi()
             [](const sol::table &options) -> std::shared_ptr<LuaClientWrapper> {
                 auto luaClient = std::make_shared<LuaClientWrapper>(options);
                 auto client = new LuaClientSettings(luaClient);
-                luaClient->setSettings(client);
 
                 // The order is important!
                 // First restore the settings ...
