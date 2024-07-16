@@ -5,6 +5,7 @@
 
 #include "coreconstants.h"
 #include "coreplugintr.h"
+#include "dialogs/ioptionspage.h"
 #include "editormanager/ieditorfactory.h"
 #include "editormanager/ieditorfactory_p.h"
 #include "icore.h"
@@ -767,6 +768,19 @@ void MimeTypeSettingsPrivate::applyUserModifiedMimeTypes(const UserMimeTypeHash 
 
 // MimeTypeSettingsPage
 
+class MimeTypeSettings final : public IOptionsPage
+{
+public:
+    MimeTypeSettings();
+
+    ~MimeTypeSettings() final { delete d; }
+
+    QStringList keywords() const final;
+
+private:
+    MimeTypeSettingsPrivate *d;
+};
+
 MimeTypeSettings::MimeTypeSettings()
     : d(new MimeTypeSettingsPrivate)
 {
@@ -774,11 +788,6 @@ MimeTypeSettings::MimeTypeSettings()
     setDisplayName(Tr::tr("MIME Types"));
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
     setWidgetCreator([this] { return new MimeTypeSettingsWidget(d); });
-}
-
-MimeTypeSettings::~MimeTypeSettings()
-{
-    delete d;
 }
 
 QStringList MimeTypeSettings::keywords() const
@@ -793,14 +802,6 @@ QStringList MimeTypeSettings::keywords() const
         Tr::tr("Remove"),
         Tr::tr("Details")
     };
-}
-
-void MimeTypeSettings::restoreSettings()
-{
-    MimeTypeSettingsPrivate::UserMimeTypeHash mimetypes
-        = MimeTypeSettingsPrivate::readUserModifiedMimeTypes();
-    MimeTypeSettingsPrivate::m_userModifiedMimeTypes = mimetypes;
-    Utils::addMimeInitializer([mimetypes] { registerUserModifiedMimeTypes(mimetypes); });
 }
 
 QWidget *MimeEditorDelegate::createEditor(QWidget *parent,
@@ -834,6 +835,17 @@ void MimeEditorDelegate::setModelData(QWidget *editor,
     model->setData(index,
                    box->currentData(Qt::UserRole),
                    int(MimeTypeSettingsModel::Role::DefaultHandler));
+}
+
+void setupMimeTypeSettings(QObject *guard)
+{
+    auto page = new MimeTypeSettings;
+    QObject::connect(guard, &QObject::destroyed, [page] { delete page; });
+
+    MimeTypeSettingsPrivate::UserMimeTypeHash mimetypes
+        = MimeTypeSettingsPrivate::readUserModifiedMimeTypes();
+    MimeTypeSettingsPrivate::m_userModifiedMimeTypes = mimetypes;
+    Utils::addMimeInitializer([mimetypes] { registerUserModifiedMimeTypes(mimetypes); });
 }
 
 } // Core::Internal

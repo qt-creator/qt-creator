@@ -318,7 +318,6 @@ public:
 
     ShortcutSettings *m_shortcutSettings = nullptr;
     ToolSettings *m_toolSettings = nullptr;
-    MimeTypeSettings *m_mimeTypeSettings = nullptr;
     SystemEditor *m_systemEditor = nullptr;
 
     // actions
@@ -1343,7 +1342,6 @@ void ICorePrivate::init()
     m_modeStack = new FancyTabWidget(m_mainwindow);
     m_shortcutSettings = new ShortcutSettings;
     m_toolSettings = new ToolSettings;
-    m_mimeTypeSettings = new MimeTypeSettings;
     m_systemEditor = new SystemEditor;
     m_toggleLeftSideBarButton = new QToolButton;
     m_toggleRightSideBarButton = new QToolButton;
@@ -1455,8 +1453,6 @@ ICorePrivate::~ICorePrivate()
     m_shortcutSettings = nullptr;
     delete m_toolSettings;
     m_toolSettings = nullptr;
-    delete m_mimeTypeSettings;
-    m_mimeTypeSettings = nullptr;
     delete m_systemEditor;
     m_systemEditor = nullptr;
     delete m_printer;
@@ -1497,7 +1493,7 @@ ICorePrivate::~ICorePrivate()
 void ICore::extensionsInitialized()
 {
     EditorManagerPrivate::extensionsInitialized();
-    MimeTypeSettings::restoreSettings();
+    setupMimeTypeSettings(d);
     d->m_windowSupport = new WindowSupport(d->m_mainwindow, Context("Core.MainWindow"));
     d->m_windowSupport->setCloseActionEnabled(false);
     OutputPaneManager::initialize();
