@@ -4,7 +4,7 @@
     "id": "R.QtCreatorPlugin",
     "category": "G.Library",
     "trDescription": "Creates a custom Qt Creator plugin.",
-    "trDisplayName": "Qt Creator Plugin",
+    "trDisplayName": "Qt Creator C++ Plugin",
     "trDisplayCategory": "Library",
     "icon": "qtcreatorplugin.png",
     "iconKind": "Themed",
