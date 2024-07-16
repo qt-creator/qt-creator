@@ -396,27 +396,30 @@ Utils::FilePath filePathToCurrentSettings(const TextEditor::ICodeStylePreference
            / QLatin1String(Constants::SETTINGS_FILE_NAME);
 }
 
-static QString s_errorMessage;
 Utils::expected_str<void> parseConfigurationContent(const std::string &fileContent,
                                                     clang::format::FormatStyle &style,
                                                     bool allowUnknownOptions)
 {
-    auto diagHandler = [](const llvm::SMDiagnostic &diag, void * /*context*/) {
-        s_errorMessage = QString::fromStdString(diag.getMessage().str()) + " "
-                         + QString::number(diag.getLineNo()) + ":"
-                         + QString::number(diag.getColumnNo());
+    llvm::SourceMgr::DiagHandlerTy diagHandler = [](const llvm::SMDiagnostic &diag, void *context) {
+        QString *errorMessage = reinterpret_cast<QString *>(context);
+        *errorMessage = QString::fromStdString(diag.getMessage().str()) + " "
+                        + QString::number(diag.getLineNo()) + ":"
+                        + QString::number(diag.getColumnNo());
     };
 
+    QString errorMessage;
     style.Language = clang::format::FormatStyle::LK_Cpp;
     const std::error_code error = parseConfiguration(
         llvm::MemoryBufferRef(fileContent, "YAML"),
         &style,
         allowUnknownOptions,
         diagHandler,
-        nullptr);
+        &errorMessage);
 
+    errorMessage = errorMessage.trimmed().isEmpty() ? QString::fromStdString(error.message())
+                                                    : errorMessage;
     if (error)
-        return make_unexpected(s_errorMessage);
+        return make_unexpected(errorMessage);
     return {};
 }
 
