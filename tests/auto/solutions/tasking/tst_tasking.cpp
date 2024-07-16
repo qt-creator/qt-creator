@@ -43,7 +43,8 @@ enum class Handler {
     Sync,
     BarrierAdvance,
     Timeout,
-    Storage
+    Storage,
+    Iteration
 };
 Q_ENUM_NS(Handler);
 
@@ -2969,6 +2970,27 @@ void tst_Tasking::testTree_data()
         };
         QTest::newRow("ProgressWithNestedLoopUntilFalse")
             << TestData{storage, root, {}, 1, DoneWith::Success, 0};
+    }
+
+    {
+        // Check if LoopUntil is executed with empty loop body.
+        const For root {
+            LoopUntil([storage](int iteration) {
+                storage->m_log.append({iteration, Handler::Iteration});
+                return iteration < 3;
+            }),
+            storage
+        };
+
+        const Log log {
+            {0, Handler::Iteration},
+            {1, Handler::Iteration},
+            {2, Handler::Iteration},
+            {3, Handler::Iteration} // The last iteration returns false
+        };
+
+        QTest::newRow("EmptyLoopUntil")
+            << TestData{storage, root, log, 0, DoneWith::Success, 0};
     }
 
     {

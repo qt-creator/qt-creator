@@ -2185,13 +2185,6 @@ SetupResult TaskTreePrivate::start(RuntimeContainer *container)
             container->m_successBit = startAction == SetupResult::StopWithSuccess;
         }
     }
-    if (startAction == SetupResult::Continue
-        && (containerNode.m_children.empty()
-            || (containerNode.m_loop && !invokeLoopHandler(container)))) {
-        if (isProgressive(container))
-            advanceProgress(containerNode.m_taskCount);
-        startAction = toSetupResult(container->m_successBit);
-    }
     return continueStart(container, startAction);
 }
 
@@ -2225,14 +2218,14 @@ SetupResult TaskTreePrivate::startChildren(RuntimeContainer *container)
     const int childCount = int(containerNode.m_children.size());
 
     if (container->m_iterationCount == 0) {
+        if (container->m_shouldIterate && !invokeLoopHandler(container)) {
+            if (isProgressive(container))
+                advanceProgress(containerNode.m_taskCount);
+            return toSetupResult(container->m_successBit);
+        }
         container->m_iterations.emplace_back(
             std::make_unique<RuntimeIteration>(container->m_iterationCount, container));
         ++container->m_iterationCount;
-    } else if (containerNode.m_parallelLimit == 0) {
-        container->deleteFinishedIterations();
-        if (container->m_iterations.empty())
-            return toSetupResult(container->m_successBit);
-        return SetupResult::Continue;
     }
 
     GuardLocker locker(container->m_startGuard);
@@ -2241,17 +2234,20 @@ SetupResult TaskTreePrivate::startChildren(RuntimeContainer *container)
            || container->m_runningChildren < containerNode.m_parallelLimit) {
         container->deleteFinishedIterations();
         if (container->m_nextToStart == childCount) {
-            if (container->m_shouldIterate && invokeLoopHandler(container)) {
+            if (invokeLoopHandler(container)) {
                 container->m_nextToStart = 0;
                 container->m_iterations.emplace_back(
                     std::make_unique<RuntimeIteration>(container->m_iterationCount, container));
                 ++container->m_iterationCount;
+            } else if (container->m_iterations.empty()) {
+                return toSetupResult(container->m_successBit);
             } else {
-                if (container->m_iterations.empty())
-                    return toSetupResult(container->m_successBit);
                 return SetupResult::Continue;
             }
         }
+        if (containerNode.m_children.size() == 0) // Empty loop body.
+            continue;
+
         RuntimeIteration *iteration = container->m_iterations.back().get();
         RuntimeTask *newTask = new RuntimeTask{containerNode.m_children.at(container->m_nextToStart),
                                                iteration};
