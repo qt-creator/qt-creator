@@ -25,8 +25,7 @@ using namespace Git::Internal;
 using namespace Utils;
 using namespace VcsBase;
 
-namespace Gerrit {
-namespace Internal {
+namespace Gerrit::Internal {
 
 static const char defaultHostC[] = "codereview.qt-project.org";
 static const char accountUrlC[] = "/accounts/self";
@@ -115,9 +114,7 @@ QString GerritServer::url(UrlType urlType) const
     return res;
 }
 
-bool GerritServer::fillFromRemote(const QString &remote,
-                                  const GerritParameters &parameters,
-                                  bool forceReload)
+bool GerritServer::fillFromRemote(const QString &remote, bool forceReload)
 {
     const GitRemote r(remote);
     if (!r.isValid)
@@ -136,11 +133,11 @@ bool GerritServer::fillFromRemote(const QString &remote,
         return false;
     host = r.host;
     port = r.port;
-    user.userName = r.userName.isEmpty() ? parameters.server.user.userName : r.userName;
+    user.userName = r.userName.isEmpty() ? gerritSettings().server.user.userName : r.userName;
     if (type == GerritServer::Ssh) {
-        return resolveVersion(parameters, forceReload);
+        return resolveVersion(forceReload);
     }
-    curlBinary = parameters.curl;
+    curlBinary = gerritSettings().curl;
     if (curlBinary.isEmpty() || !curlBinary.exists())
         return false;
     const StoredHostValidity validity = forceReload ? Invalid : loadSettings();
@@ -152,7 +149,7 @@ bool GerritServer::fillFromRemote(const QString &remote,
         // (can be http://example.net/review)
         ascendPath();
         if (resolveRoot()) {
-            if (!resolveVersion(parameters, forceReload))
+            if (!resolveVersion(forceReload))
                 return false;
             saveSettings(Valid);
             return true;
@@ -161,7 +158,7 @@ bool GerritServer::fillFromRemote(const QString &remote,
     case NotGerrit:
         return false;
     case Valid:
-        return resolveVersion(parameters, false);
+        return resolveVersion(false);
     }
     return true;
 }
@@ -307,8 +304,9 @@ bool GerritServer::resolveRoot()
     return false;
 }
 
-bool GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
+bool GerritServer::resolveVersion(bool forceReload)
 {
+    const GerritParameters &p = gerritSettings();
     QtcSettings *settings = Core::ICore::settings();
     const Key fullVersionKey = "Gerrit/" + keyFromString(host) + '/' + versionKey;
     version = settings->value(fullVersionKey).toString();
@@ -346,5 +344,4 @@ bool GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
     return true;
 }
 
-} // namespace Internal
-} // namespace Gerrit
+} // Gerrit::Internal

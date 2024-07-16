@@ -39,20 +39,17 @@
 
 using namespace Utils;
 
-namespace Gerrit {
-namespace Internal {
+namespace Gerrit::Internal {
 
 static const int maxTitleWidth = 350;
 
-GerritDialog::GerritDialog(const std::shared_ptr<GerritParameters> &p,
-                           const std::shared_ptr<GerritServer> &s,
+GerritDialog::GerritDialog(const std::shared_ptr<GerritServer> &s,
                            const FilePath &repository,
                            QWidget *parent)
     : QDialog(parent)
-    , m_parameters(p)
     , m_server(s)
     , m_filterModel(new QSortFilterProxyModel(this))
-    , m_model(new GerritModel(p, this))
+    , m_model(new GerritModel(this))
     , m_queryModel(new QStringListModel(this))
 {
     setWindowTitle(Git::Tr::tr("Gerrit"));
@@ -95,9 +92,8 @@ GerritDialog::GerritDialog(const std::shared_ptr<GerritParameters> &p,
     auto queryLabel = new QLabel(Git::Tr::tr("&Query:"), changesGroup);
     queryLabel->setBuddy(m_queryLineEdit);
 
-    m_remoteComboBox->setParameters(m_parameters);
     m_remoteComboBox->setFallbackEnabled(true);
-    m_queryModel->setStringList(m_parameters->savedQueries);
+    m_queryModel->setStringList(gerritSettings().savedQueries);
     m_filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     m_filterModel->setSourceModel(m_model);
     m_filterModel->setFilterRole(GerritModel::FilterRole);
@@ -210,11 +206,11 @@ void GerritDialog::updateCompletions(const QString &query)
 {
     if (query.isEmpty())
         return;
-    QStringList &queries = m_parameters->savedQueries;
+    QStringList &queries = gerritSettings().savedQueries;
     queries.removeAll(query);
     queries.prepend(query);
     m_queryModel->setStringList(queries);
-    m_parameters->saveQueries(Core::ICore::settings());
+    gerritSettings().saveQueries();
 }
 
 GerritDialog::~GerritDialog() = default;
@@ -300,7 +296,7 @@ void GerritDialog::updateRemotes(bool forceReload)
     m_remoteComboBox->setRepository(m_repository);
     if (m_repository.isEmpty() || !m_repository.isDir())
         return;
-    *m_server = m_parameters->server;
+    *m_server = gerritSettings().server;
     m_remoteComboBox->updateRemotes(forceReload);
 }
 
@@ -360,5 +356,4 @@ void GerritDialog::setProgressIndicatorVisible(bool v)
     m_progressIndicator->setVisible(v);
 }
 
-} // namespace Internal
-} // namespace Gerrit
+} // Gerrit::Internal

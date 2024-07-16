@@ -19,11 +19,9 @@ QT_END_NAMESPACE
 
 namespace Git::Internal { class LogChangeWidget; }
 
-namespace Gerrit {
-namespace Internal {
+namespace Gerrit::Internal {
 
 class BranchComboBox;
-class GerritParameters;
 class GerritRemoteChooser;
 
 class GerritPushDialog : public QDialog
@@ -32,7 +30,7 @@ class GerritPushDialog : public QDialog
 
 public:
     GerritPushDialog(const Utils::FilePath &workingDir, const QString &reviewerList,
-                     std::shared_ptr<GerritParameters> parameters, QWidget *parent);
+                     QWidget *parent);
 
     QString selectedCommit() const;
     QString selectedRemoteName() const;
@@ -76,6 +74,4 @@ private:
     bool m_currentSupportsWip = false;
 };
 
-
-} // namespace Internal
-} // namespace Gerrit
+} // Gerrit::Internal

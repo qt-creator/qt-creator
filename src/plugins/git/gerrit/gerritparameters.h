@@ -7,10 +7,7 @@
 
 #include <utils/filepath.h>
 
-namespace Utils { class QtcSettings; }
-
-namespace Gerrit {
-namespace Internal {
+namespace Gerrit::Internal {
 
 class GerritParameters
 {
@@ -19,9 +16,9 @@ public:
 
     bool isValid() const;
     bool equals(const GerritParameters &rhs) const;
-    void toSettings(Utils::QtcSettings *) const;
-    void saveQueries(Utils::QtcSettings *) const;
-    void fromSettings(const Utils::QtcSettings *);
+    void toSettings() const;
+    void saveQueries() const;
+    void fromSettings();
     void setPortFlagBySshType();
 
     friend bool operator==(const GerritParameters &p1, const GerritParameters &p2)
@@ -37,5 +34,6 @@ public:
     QString portFlag;
 };
 
-} // namespace Internal
-} // namespace Gerrit
+GerritParameters &gerritSettings();
+
+} // Gerrit::Internal
