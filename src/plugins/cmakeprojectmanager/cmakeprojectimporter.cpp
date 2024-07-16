@@ -1168,6 +1168,10 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
             if (!cmtcd.originalTargetTriple.isEmpty())
                 toolchain->setExplicitCodeModelTargetTriple(cmtcd.originalTargetTriple);
 
+            // Mark CMake presets toolchains as manual
+            if (!data->cmakePresetDisplayname.isEmpty() && tcd.areTemporary)
+                toolchain->setDetection(Toolchain::ManualDetection);
+
             ToolchainKitAspect::setToolchain(k, toolchain);
         }
 
