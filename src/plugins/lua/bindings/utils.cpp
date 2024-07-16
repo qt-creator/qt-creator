@@ -81,6 +81,8 @@ void addUtilsModule()
 
             utils["waitms"] = wrap(utils["waitms_cb"]);
 
+            utils["pid"] = QCoreApplication::applicationPid();
+
             auto hostOsInfoType = utils.new_usertype<HostOsInfo>("HostOsInfo");
             hostOsInfoType["isWindowsHost"] = &HostOsInfo::isWindowsHost;
             hostOsInfoType["isMacHost"] = &HostOsInfo::isMacHost;

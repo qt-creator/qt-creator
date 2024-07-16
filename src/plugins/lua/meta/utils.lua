@@ -2,6 +2,9 @@
 
 local utils = {}
 
+---The Process ID of Qt Creator.
+utils.pid = 0
+
 ---Suspends the current coroutine for the given amount of milliseconds. Call `a.wait` on the returned value to get the result.
 ---@param ms number The amount of milliseconds to wait.
 function utils.waitms(ms) end
