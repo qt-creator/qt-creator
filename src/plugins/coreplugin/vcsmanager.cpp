@@ -370,11 +370,15 @@ QString VcsManager::msgAddToVcsFailedTitle()
 
 QString VcsManager::msgToAddToVcsFailed(const QStringList &files, const IVersionControl *vc)
 {
-    return files.size() == 1
-        ? Tr::tr("Could not add the file\n%1\nto version control (%2)\n")
-              .arg(files.front(), vc->displayName())
-        : Tr::tr("Could not add the following files to version control (%1)\n%2")
-              .arg(vc->displayName(), files.join(QString(QLatin1Char('\n'))));
+    QStringList fileList = files;
+    const qsizetype size = files.size();
+    const qsizetype maxSize = 10;
+    if (size > maxSize) {
+        fileList = files.first(maxSize);
+        fileList.append(Tr::tr("... and %1 more.").arg(size - maxSize));
+    }
+    return Tr::tr("Could not add the following files to version control (%1)\n%2")
+        .arg(vc->displayName(), fileList.join(QString(QLatin1Char('\n'))));
 }
 
 FilePaths VcsManager::additionalToolsPath()
