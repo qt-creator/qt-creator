@@ -339,7 +339,8 @@ static QTextLine currentTextLine(const QTextCursor &cursor)
 bool MultiTextCursor::multiCursorEvent(
     QKeyEvent *e, QKeySequence::StandardKey matchKey, Qt::KeyboardModifiers filterModifiers)
 {
-    uint searchkey = (e->modifiers() | e->key()) & ~(filterModifiers | Qt::AltModifier);
+    filterModifiers |= (Utils::HostOsInfo::isMacHost() ? Qt::KeypadModifier : Qt::AltModifier);
+    uint searchkey = (e->modifiers() | e->key()) & ~filterModifiers;
 
     const QList<QKeySequence> bindings = QKeySequence::keyBindings(matchKey);
     return bindings.contains(QKeySequence(searchkey));
