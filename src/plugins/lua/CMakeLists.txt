@@ -15,6 +15,7 @@ add_qtc_plugin(Lua
     bindings/inheritance.h
     bindings/install.cpp
     bindings/json.cpp
+    bindings/localsocket.cpp
     bindings/messagemanager.cpp
     bindings/qtcprocess.cpp
     bindings/settings.cpp
@@ -35,6 +36,7 @@ add_qtc_plugin(Lua
     meta/gui.lua
     meta/json.lua
     meta/install.lua
+    meta/localsocket.lua
     meta/lsp.lua
     meta/messagemanager.lua
     meta/process.lua

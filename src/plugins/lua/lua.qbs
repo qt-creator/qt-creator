@@ -41,6 +41,7 @@ QtcPlugin {
             "inheritance.h",
             "install.cpp",
             "json.cpp"
+            "localsocket.cpp",
             "messagemanager.cpp",
             "qtcprocess.cpp",
             "settings.cpp",
@@ -71,6 +72,7 @@ QtcPlugin {
             "gui.lua",
             "install.lua",
             "json.lua",
+            "localsocket.lua",
             "lsp.lua",
             "messagemanager.lua",
             "process.lua",

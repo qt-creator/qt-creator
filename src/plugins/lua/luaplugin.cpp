@@ -41,6 +41,7 @@ void addGuiModule();
 void addHookModule();
 void addInstallModule();
 void addJsonModule();
+void addLocalSocketModule();
 void addMessageManagerModule();
 void addProcessModule();
 void addQtModule();
@@ -256,6 +257,7 @@ public:
         addHookModule();
         addInstallModule();
         addJsonModule();
+        addLocalSocketModule();
         addMessageManagerModule();
         addProcessModule();
         addQtModule();
