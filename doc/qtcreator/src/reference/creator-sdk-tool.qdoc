@@ -144,13 +144,13 @@
 
     \section1 Adding a System Architecture (ABI)
 
-    \section2 Syntax
+    \section2 addAbiFlavor
 
     \badcode
     sdktool addAbiFlavor --flavor <NAME> --oses <OS>(,<OS>)*
     \endcode
 
-    \section2 Options
+    \section2 addAbiFlavor Options
 
     The following table summarizes the available options.
 
@@ -181,13 +181,13 @@
 
     \section1 Adding CMake Tools
 
-    \section2 Syntax
+    \section2 addCMake
 
     \badcode
     sdktool addCMake --id <ID> --name <NAME> --path <PATH> [<KEY> <TYPE:VALUE>]
     \endcode
 
-    \section2 Options
+    \section2 addCMake Options
 
     The following table summarizes the available options.
 
@@ -234,13 +234,13 @@
 
     \section1 Adding Compilers
 
-    \section2 Syntax
+    \section2 addTC
 
     \badcode
     sdktool addTC --id <ID> --language <ID> --name <NAME> --path <PATH> --abi <ABI STRING> [OPTIONS]
     \endcode
 
-    \section2 Options
+    \section2 addTC Options
 
     The following table summarizes the available options.
 
@@ -322,13 +322,13 @@
 
     \section1 Adding Debuggers
 
-    \section2 Syntax
+    \section2 addDebugger
 
     \badcode
     sdktool addDebugger --id <ID> --name <NAME> [OPTIONS]
     \endcode
 
-    \section2 Options
+    \section2 addDebugger Options
 
     The following table summarizes the available options.
 
@@ -355,6 +355,9 @@
                     \li 4 for CDB
                     \li 8 for PDB
                     \li 256 for LLDB
+                    \li 512 for GDB DAP
+                    \li 1024 for LLDB DAP
+                    \li 4096 for uVision Debugger
                 \endlist
             \li
         \row
@@ -388,13 +391,13 @@
 
     \section1 Adding Devices
 
-    \section2 Syntax
+    \section2 addDev
 
     \badcode
     sdktool addDev --id <ID> --name <NAME> --type <INT> [OPTIONS]
     \endcode
 
-    \section2 Options
+    \section2 addDev Options
 
     The following table summarizes the available options. The options to use
     depend on the device type.
@@ -541,13 +544,13 @@
 
     \section1 Adding Qt Versions
 
-    \section2 Syntax
+    \section2 addQt
 
     \badcode
     sdktool addQt --id <ID> --name <NAME> --qmake <PATH> --type <TYPE> [OPTIONS]
     \endcode
 
-    \section2 Options
+    \section2 addQt Options
 
     The following table summarizes the available options.
 
@@ -609,13 +612,13 @@
 
     \section1 Adding Kits
 
-    \section2 Syntax
+    \section2 addKit
 
     \badcode
     sdktool addKit --id <ID> --name <NAME> --devicetype <TYPE> [OPTIONS]
     \endcode
 
-    \section2 Options
+    \section2 addKit Options
 
     The following table summarizes the available options.
 
