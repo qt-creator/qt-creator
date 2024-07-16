@@ -484,6 +484,8 @@ public:
 
         mainWindow->addSubPerspectiveSwitcher(EngineManager::engineChooser());
         mainWindow->addSubPerspectiveSwitcher(EngineManager::dapEngineChooser());
+
+        IContext::attach(this, Context(CC::C_EDITORMANAGER));
     }
 };
 
@@ -1167,8 +1169,6 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
 
     // Debug mode setup
     m_mode = new DebugMode;
-
-    IContext::attach(m_mode->widget(), Context(CC::C_EDITORMANAGER));
 
     //
     //  Connections
