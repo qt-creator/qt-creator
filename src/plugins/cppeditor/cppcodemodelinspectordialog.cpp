@@ -42,7 +42,6 @@
 #include <QTreeView>
 
 #include <algorithm>
-#include <numeric>
 
 using namespace CPlusPlus;
 using namespace Utils;
@@ -57,14 +56,9 @@ template <class T> void resizeColumns(QTreeView *view)
         view->resizeColumnToContents(column);
 }
 
-TextEditor::BaseTextEditor *currentEditor()
-{
-    return qobject_cast<TextEditor::BaseTextEditor*>(Core::EditorManager::currentEditor());
-}
-
 FilePath fileInCurrentEditor()
 {
-    if (TextEditor::BaseTextEditor *editor = currentEditor())
+    if (auto editor = TextEditor::BaseTextEditor::currentTextEditor())
         return editor->document()->filePath();
     return {};
 }
@@ -1660,9 +1654,8 @@ void CppCodeModelInspectorDialog::refresh()
     m_snapshotSelector->addItem(globalSnapshotTitle);
     dumper.dumpSnapshot(globalSnapshot, globalSnapshotTitle, /*isGlobalSnapshot=*/ true);
 
-    TextEditor::BaseTextEditor *editor = currentEditor();
     CppEditorDocumentHandle *cppEditorDocument = nullptr;
-    if (editor) {
+    if (auto editor = TextEditor::BaseTextEditor::currentTextEditor()) {
         const FilePath editorFilePath = editor->document()->filePath();
         cppEditorDocument = CppModelManager::cppEditorDocument(editorFilePath);
         if (auto documentProcessor = CppModelManager::cppEditorDocumentProcessor(editorFilePath)) {

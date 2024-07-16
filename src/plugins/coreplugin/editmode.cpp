@@ -85,8 +85,8 @@ void EditMode::grabEditorManager(Utils::Id mode)
     if (mode != id())
         return;
 
-    if (EditorManager::currentEditor())
-        EditorManager::currentEditor()->widget()->setFocus();
+    if (IEditor *editor = EditorManager::currentEditor())
+        editor->widget()->setFocus();
 }
 
 } // namespace Core::Internal

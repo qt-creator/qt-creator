@@ -371,8 +371,7 @@ void Manager::gotoLocations(const QList<QVariant> &list)
     if (locations.size() > 1) {
         // The symbol has multiple locations. Check if we are already at one location,
         // and if so, cycle to the "next" one
-        auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(EditorManager::currentEditor());
-        if (textEditor) {
+        if (auto textEditor = TextEditor::BaseTextEditor::currentTextEditor()) {
             // check if current cursor position is a known location of the symbol
             const FilePath filePath = textEditor->document()->filePath();
             int line;

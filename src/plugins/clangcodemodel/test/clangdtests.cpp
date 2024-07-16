@@ -772,7 +772,7 @@ void ClangdTestTooltips::test()
 
     TextEditor::TextDocument * const doc = document("tooltips.cpp");
     QVERIFY(doc);
-    const auto editor = qobject_cast<TextEditor::BaseTextEditor *>(EditorManager::currentEditor());
+    const auto editor = TextEditor::BaseTextEditor::currentTextEditor();
     QVERIFY(editor);
     QCOMPARE(editor->document(), doc);
     QVERIFY(editor->editorWidget());

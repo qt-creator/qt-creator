@@ -406,7 +406,7 @@ void CppIncludeHierarchyWidget::perform()
 {
     showNoIncludeHierarchyLabel();
 
-    m_editor = qobject_cast<BaseTextEditor *>(EditorManager::currentEditor());
+    m_editor = BaseTextEditor::currentTextEditor();
     if (!m_editor)
         return;
 
@@ -471,7 +471,7 @@ void CppIncludeHierarchyWidget::syncFromEditorManager()
     if (!m_toggleSync->isChecked())
         return;
 
-    const auto editor = qobject_cast<BaseTextEditor *>(EditorManager::currentEditor());
+    const auto editor = BaseTextEditor::currentTextEditor();
     if (!editor)
         return;
 
