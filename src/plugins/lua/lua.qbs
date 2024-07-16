@@ -33,8 +33,6 @@ QtcPlugin {
             "action.cpp",
             "async.cpp",
             "core.cpp",
-            "documents.cpp",
-            "documents.h",
             "fetch.cpp",
             "gui.cpp",
             "hook.cpp",
@@ -45,6 +43,7 @@ QtcPlugin {
             "messagemanager.cpp",
             "qtcprocess.cpp",
             "settings.cpp",
+            "textdocument.cpp",
             "utils.cpp",
         ]
 

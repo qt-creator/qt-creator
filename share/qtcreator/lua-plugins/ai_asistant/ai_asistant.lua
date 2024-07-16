@@ -19,8 +19,11 @@ It will try to install it if it is not found.
     },
     hooks = {
         editors = {
-            documentOpened = function(document) require 'init'.Hooks.onDocumentOpened(document) end,
-            documentClosed = function(document) require 'init'.Hooks.onDocumentClosed(document) end,
+            text = {
+                opened = function(document) require 'init'.Hooks.onDocumentOpened(document) end,
+                closed = function(document) require 'init'.Hooks.onDocumentClosed(document) end,
+                contentsChanged = function(document) require 'init'.Hooks.onDocumentContentsChanged(document) end,
+            }
         }
     },
     setup = function()

@@ -34,9 +34,16 @@ QtcPluginDependency = {}
 
 
 ---@class EditorHooks
----@field documentOpened function function(document)
----@field documentClosed function function(document)
+---@field documentOpened? function function(document)
+---@field documentClosed? function function(document)
+---@field text? TextEditorHooks
 EditorHooks = {}
+
+---@class TextEditorHooks
+---@field opened? function function(Documents.TextDocument)
+---@field closed? function function(Documents.TextDocument)
+---@field currentChanged? function function(Documents.TextDocument)
+---@field contentsChanged? function function(Documents.TextDocument)
 
 ---@class Hooks
 ---@field editors? EditorHooks

@@ -5,7 +5,7 @@ local Utils = require('Utils')
 local S = require('Settings')
 local Gui = require('Gui')
 local a = require('async')
-local Documents = require('Documents')
+local TextDocument = require('TextDocument')
 
 local function createCommand()
   local cmd = { Settings.binary.expandedValue:nativePath() }
@@ -96,8 +96,8 @@ end
 
 Hooks = {}
 
-local function onDocumentChanged()
-  print("onDocumentChanged() called")
+function Hooks.onDocumentContentsChanged(document)
+  print("onDocumentContentsChanged() called", document)
   -- TODO:
   -- All the necessary checks before sending the request
   -- Create request:
@@ -110,8 +110,7 @@ local function onDocumentChanged()
 ---Called when a document is opened.
 ---@param document TextDocument
 function Hooks.onDocumentOpened(document)
-    print("TextDocument found: ", document)
-    document:setChangedCallback(onDocumentChanged)
+  print("TextDocument found: ", document)
 end
 
 ---Called when a document is closed.

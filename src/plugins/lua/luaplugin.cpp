@@ -35,7 +35,6 @@ namespace Lua::Internal {
 void addActionModule();
 void addAsyncModule();
 void addCoreModule();
-void addDocumentsModule();
 void addFetchModule();
 void addGuiModule();
 void addHookModule();
@@ -46,6 +45,7 @@ void addMessageManagerModule();
 void addProcessModule();
 void addQtModule();
 void addSettingsModule();
+void addTextDocumentsModule();
 void addUtilsModule();
 
 class LuaJsExtension : public QObject
@@ -251,7 +251,6 @@ public:
         addActionModule();
         addAsyncModule();
         addCoreModule();
-        addDocumentsModule();
         addFetchModule();
         addGuiModule();
         addHookModule();
@@ -262,6 +261,7 @@ public:
         addProcessModule();
         addQtModule();
         addSettingsModule();
+        addTextDocumentsModule();
         addUtilsModule();
 
         Core::JsExpander::registerGlobalObject("Lua", [] { return new LuaJsExtension(); });
