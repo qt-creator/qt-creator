@@ -279,7 +279,6 @@ void QtTestOutputReader::processXMLOutput(const QByteArray &outputLine)
             if (currentTag == QStringLiteral("TestFunction")) {
                 sendFinishMessage(true);
                 // TODO: bump progress?
-                m_dataTag.clear();
                 m_formerTestCase = m_testCase;
                 m_testCase.clear();
             } else if (currentTag == QStringLiteral("TestCase")) {
@@ -503,6 +502,9 @@ void QtTestOutputReader::sendStartMessage(bool isFunction)
 
 void QtTestOutputReader::sendFinishMessage(bool isFunction)
 {
+    m_dataTag.clear();
+    if (!isFunction)
+        m_testCase.clear();
     TestResult result = createDefaultResult();
     result.setResult(ResultType::TestEnd);
     if (!m_duration.isEmpty()) {
