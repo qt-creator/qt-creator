@@ -76,8 +76,6 @@ namespace BinEditor::Internal {
 
 const int SearchStride = 1024 * 1024;
 
-class BinEditorWidget;
-
 class BinEditorDocument : public IDocument
 {
     Q_OBJECT
@@ -207,10 +205,7 @@ class BinEditorWidget final : public QAbstractScrollArea
     Q_OBJECT
 
 public:
-    BinEditorWidget(QWidget *parent = nullptr) : QAbstractScrollArea(parent) {}
-    ~BinEditorWidget() final = default;
-
-    void setup(BinEditorDocument *doc);
+    explicit BinEditorWidget(BinEditorDocument *doc);
     void init();
 
     quint64 baseAddress() const { return m_doc->m_baseAddr; }
@@ -364,7 +359,7 @@ static QByteArray calculateHexPattern(const QByteArray &pattern)
     return result;
 }
 
-void BinEditorWidget::setup(BinEditorDocument *doc)
+BinEditorWidget::BinEditorWidget(BinEditorDocument *doc)
 {
     m_doc = doc;
     setFocusPolicy(Qt::WheelFocus);
@@ -403,6 +398,8 @@ void BinEditorWidget::setup(BinEditorDocument *doc)
     });
 
     updateCursorPosition(cursorPosition());
+
+    init();
 }
 
 void BinEditorWidget::init()
@@ -2316,10 +2313,8 @@ public:
     {
         if (!wantsEditor) {
             auto document = new BinEditorDocument;
-            auto widget = new BinEditorWidget;
-            widget->setup(document);
+            auto widget = new BinEditorWidget(document);
             widget->setWindowTitle(title0);
-            widget->init();
 
             auto service = new BinEditorService;
             service->m_widget = widget;
@@ -2374,9 +2369,7 @@ public:
 
         setEditorCreator([this] {
             auto doc = new BinEditorDocument;
-            auto widget = new BinEditorWidget;
-            widget->setup(doc);
-            widget->init();
+            auto widget = new BinEditorWidget(doc);
             auto editor = new BinEditorImpl(widget, doc);
 
             connect(m_undoAction, &QAction::triggered, doc, &BinEditorDocument::undo);
