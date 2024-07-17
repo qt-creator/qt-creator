@@ -90,8 +90,6 @@ signals:
     void addOutput(const QString &string, OutputFormat format,
                    OutputNewlineSetting newlineSetting = DoAppendNewline);
 
-    void enabledChanged();
-
     void progress(int percentage, const QString &message);
 
 protected:

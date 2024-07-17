@@ -174,9 +174,6 @@ public:
 
     const Utils::MacroExpander *macroExpander() const { return &m_expander; }
 
-signals:
-    void enabledChanged();
-
 protected:
     RunConfiguration(Target *target, Utils::Id id);
 
