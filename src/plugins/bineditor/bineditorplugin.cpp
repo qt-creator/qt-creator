@@ -31,7 +31,6 @@
 #include <utils/fileutils.h>
 #include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcassert.h>
 #include <utils/reloadpromptutils.h>
 #include <utils/stringutils.h>
 
@@ -84,7 +83,7 @@ class BinEditorDocument : public IDocument
     Q_OBJECT
 
 public:
-    BinEditorDocument(BinEditorWidget *parent);
+    BinEditorDocument();
 
     ~BinEditorDocument()
     {
@@ -166,10 +165,12 @@ signals:
     void modificationChanged(bool modified);
     void undoAvailable(bool);
     void redoAvailable(bool);
+    void dataAdded();
+    void sizesChanged();
+    void cursorWanted(qint64 pos);
+    void cleared();
 
 public:
-    BinEditorWidget *m_widget = nullptr;
-
     qint64 m_size = 0;
     quint64 m_baseAddr = 0;
 
@@ -261,8 +262,12 @@ public:
         m_addressEdit->setText(QString::number(baseAddress() + position, 16));
     }
 
-signals:
-    void cursorPositionChanged(int position);
+    void onDataAdded() { viewport()->update(); }
+    void onSizesChanged() { init(); viewport()->update(); }
+    void onCursorWanted(qint64 pos) { setCursorPosition(pos);  }
+
+    void aboutToReload() { m_savedCursorPosition = m_cursorPosition; }
+    void reloadFinished(bool) { m_cursorPosition = m_savedCursorPosition; }
 
 public:
     void scrollContentsBy(int dx, int dy) final;
@@ -302,6 +307,7 @@ public:
     qint64 m_numVisibleLines = 0;
 
     qint64 m_cursorPosition = 0;
+    qint64 m_savedCursorPosition = 0;
     qint64 m_anchorPosition = 0;
     bool m_cursorVisible = false;
     bool m_hexCursor = true;
@@ -364,6 +370,19 @@ void BinEditorWidget::setup(BinEditorDocument *doc)
     setFocusPolicy(Qt::WheelFocus);
     setFrameStyle(QFrame::Plain);
 
+    connect(doc, &BinEditorDocument::dataAdded,
+            this, &BinEditorWidget::onDataAdded);
+    connect(doc, &BinEditorDocument::sizesChanged,
+            this, &BinEditorWidget::onSizesChanged);
+    connect(doc, &BinEditorDocument::cursorWanted,
+            this, &BinEditorWidget::onCursorWanted);
+    connect(doc, &BinEditorDocument::cleared,
+            this, &BinEditorWidget::clear);
+    connect(doc, &BinEditorDocument::aboutToReload,
+            this, &BinEditorWidget::aboutToReload);
+    connect(doc, &BinEditorDocument::reloadFinished,
+            this, &BinEditorWidget::reloadFinished);
+
     // Font settings
     setFontSettings(TextEditor::TextEditorSettings::fontSettings());
     connect(TextEditor::TextEditorSettings::instance(),
@@ -378,10 +397,7 @@ void BinEditorWidget::setup(BinEditorDocument *doc)
     auto addressValidator = new QRegularExpressionValidator(QRegularExpression("[0-9a-fA-F]{1,16}"), m_addressEdit);
     m_addressEdit->setValidator(addressValidator);
 
-    connect(this, &BinEditorWidget::cursorPositionChanged,
-            this, &BinEditorWidget::updateCursorPosition);
-    connect(m_addressEdit, &QLineEdit::editingFinished,
-            this, [this] {
+    connect(m_addressEdit, &QLineEdit::editingFinished, this, [this] {
         jumpToAddress(m_addressEdit->text().toULongLong(nullptr, 16));
         updateCursorPosition(cursorPosition());
     });
@@ -446,7 +462,7 @@ void BinEditorDocument::addData(quint64 addr, const QByteArray &data)
         const qint64 translatedBlock = (addr - m_baseAddr) / m_blockSize;
         m_data.insert(translatedBlock, data);
         m_requests.remove(translatedBlock);
-        m_widget->viewport()->update();
+        emit dataAdded();
     }
 }
 
@@ -688,11 +704,8 @@ void BinEditorDocument::setSizes(quint64 startAddr, qint64 range, int blockSize)
     m_undoStack.clear();
     m_redoStack.clear();
 
-    if (m_widget) {
-        m_widget->init();
-        m_widget->setCursorPosition(startAddr - m_baseAddr);
-        m_widget->viewport()->update();
-    }
+    emit sizesChanged();
+    emit cursorWanted(startAddr - m_baseAddr);
 }
 
 void BinEditorWidget::resizeEvent(QResizeEvent *)
@@ -1253,9 +1266,8 @@ void BinEditorWidget::setCursorPosition(qint64 pos, MoveMode moveMode)
 
     updateLines(oldCursorPosition, m_cursorPosition);
     ensureCursorVisible();
-    emit cursorPositionChanged(m_cursorPosition);
+    updateCursorPosition(m_cursorPosition);
 }
-
 
 void BinEditorWidget::ensureCursorVisible()
 {
@@ -1325,6 +1337,8 @@ void BinEditorDocument::clear()
     m_unmodifiedState = 0;
     m_undoStack.clear();
     m_redoStack.clear();
+
+    emit cleared();
 }
 
 void BinEditorWidget::clear()
@@ -1333,7 +1347,7 @@ void BinEditorWidget::clear()
     m_cursorPosition = 0;
     verticalScrollBar()->setValue(0);
 
-    emit cursorPositionChanged(m_cursorPosition);
+    updateCursorPosition(m_cursorPosition);
     viewport()->update();
 }
 
@@ -1780,7 +1794,7 @@ void BinEditorDocument::undo()
     changeDataAt(cmd.position, (char)cmd.character);
     cmd.character = c;
     m_redoStack.push(cmd);
-    m_widget->setCursorPosition(cmd.position);
+    emit cursorWanted(cmd.position);
     if (emitModificationChanged)
         emit modificationChanged(m_undoStack.size() != m_unmodifiedState);
     if (m_undoStack.isEmpty())
@@ -1799,7 +1813,7 @@ void BinEditorDocument::redo()
     cmd.character = c;
     bool emitModificationChanged = (m_undoStack.size() == m_unmodifiedState);
     m_undoStack.push(cmd);
-    m_widget->setCursorPosition(cmd.position + 1);
+    emit cursorWanted(cmd.position + 1);
     if (emitModificationChanged)
         emit modificationChanged(m_undoStack.size() != m_unmodifiedState);
     if (m_undoStack.size() == 1)
@@ -2107,12 +2121,10 @@ private:
 
 // BinEditorDocument
 
-BinEditorDocument::BinEditorDocument(BinEditorWidget *parent)
-    : IDocument(parent)
+BinEditorDocument::BinEditorDocument()
 {
     setId(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
     setMimeType(Utils::Constants::OCTET_STREAM_MIMETYPE);
-    m_widget = parent;
     m_fetchDataHandler = [this](quint64 address) { provideData(address); };
     m_newRangeRequestHandler = [this](quint64 offset) { provideNewRange(offset); };
     m_dataChangedHandler = [this](quint64, const QByteArray &) { contentsChanged(); };
@@ -2121,7 +2133,6 @@ BinEditorDocument::BinEditorDocument(BinEditorWidget *parent)
 bool BinEditorDocument::setContents(const QByteArray &contents)
 {
     clear();
-    m_widget->clear();
     if (!contents.isEmpty()) {
         setSizes(0, contents.length(), contents.length());
         addData(0, contents);
@@ -2199,10 +2210,7 @@ bool BinEditorDocument::reload(QString *errorString, ReloadFlag flag, ChangeType
         return true;
     emit aboutToReload();
     clear();
-    int cPos = m_widget->cursorPosition();
-    m_widget->clear();
     const bool success = (openImpl(errorString, filePath()) == OpenResult::Success);
-    m_widget->setCursorPosition(cPos);
     emit reloadFinished(success);
     return success;
 }
@@ -2251,7 +2259,7 @@ public:
             m_codecChooser->setAssignedCodec(QTextCodec::codecForName(setting.toByteArray()));
     }
 
-    ~BinEditorImpl() final { delete m_widget; }
+    ~BinEditorImpl() final { delete m_widget; delete m_document; }
     IDocument *document() const final { return m_document; }
     QWidget *toolBar() final { return m_toolBar; }
 
@@ -2307,8 +2315,8 @@ public:
     EditorService *createEditorService(const QString &title0, bool wantsEditor) final
     {
         if (!wantsEditor) {
+            auto document = new BinEditorDocument;
             auto widget = new BinEditorWidget;
-            auto document = new BinEditorDocument(widget);
             widget->setup(document);
             widget->setWindowTitle(title0);
             widget->init();
@@ -2365,8 +2373,8 @@ public:
         ActionManager::registerAction(m_selectAllAction, Core::Constants::SELECTALL, context);
 
         setEditorCreator([this] {
+            auto doc = new BinEditorDocument;
             auto widget = new BinEditorWidget;
-            auto doc = new BinEditorDocument(widget);
             widget->setup(doc);
             widget->init();
             auto editor = new BinEditorImpl(widget, doc);
