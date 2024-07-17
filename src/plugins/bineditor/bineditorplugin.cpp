@@ -160,7 +160,6 @@ public:
     void redo();
 
 signals:
-    void modificationChanged(bool modified);
     void undoAvailable(bool);
     void redoAvailable(bool);
     void dataAdded();
@@ -604,7 +603,7 @@ void BinEditorDocument::setModified(bool modified)
     if (unmodifiedState == m_unmodifiedState)
         return;
     m_unmodifiedState = unmodifiedState;
-    emit modificationChanged(m_undoStack.size() != m_unmodifiedState);
+    emit changed();
 }
 
 void BinEditorWidget::setReadOnly(bool readOnly)
@@ -1767,7 +1766,7 @@ void BinEditorDocument::changeData(qint64 position, uchar character, bool highNi
     bool emitModificationChanged = (m_undoStack.size() == m_unmodifiedState);
     m_undoStack.push(cmd);
     if (emitModificationChanged)
-        emit modificationChanged(m_undoStack.size() != m_unmodifiedState);
+        emit changed();
 
     if (m_undoStack.size() == 1)
         emit undoAvailable(true);
@@ -1786,7 +1785,7 @@ void BinEditorDocument::undo()
     m_redoStack.push(cmd);
     emit cursorWanted(cmd.position);
     if (emitModificationChanged)
-        emit modificationChanged(m_undoStack.size() != m_unmodifiedState);
+        emit changed();
     if (m_undoStack.isEmpty())
         emit undoAvailable(false);
     if (m_redoStack.size() == 1)
@@ -1805,7 +1804,7 @@ void BinEditorDocument::redo()
     m_undoStack.push(cmd);
     emit cursorWanted(cmd.position + 1);
     if (emitModificationChanged)
-        emit modificationChanged(m_undoStack.size() != m_unmodifiedState);
+        emit changed();
     if (m_undoStack.size() == 1)
         emit undoAvailable(true);
     if (m_redoStack.isEmpty())
@@ -2242,8 +2241,6 @@ public:
 
         connect(m_codecChooser, &CodecChooser::codecChanged,
                 widget, &BinEditorWidget::setCodec);
-        connect(m_document, &BinEditorDocument::modificationChanged,
-                m_document, &IDocument::changed);
         const QVariant setting = ICore::settings()->value(Constants::C_ENCODING_SETTING);
         if (!setting.isNull())
             m_codecChooser->setAssignedCodec(QTextCodec::codecForName(setting.toByteArray()));
