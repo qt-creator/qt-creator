@@ -133,6 +133,15 @@ public:
     void requestNewRange(quint64 address) { if (m_newRangeRequestHandler) m_newRangeRequestHandler(address); }
     void announceChangedData(quint64 address, const QByteArray &ba) { if (m_dataChangedHandler) m_dataChangedHandler(address, ba); }
 
+    void setFinished()
+    {
+        m_fetchDataHandler = {};
+        m_newWindowRequestHandler = {};
+        m_newRangeRequestHandler = {};
+        m_dataChangedHandler = {};
+        m_watchPointRequestHandler = {};
+    }
+
     qint64 dataIndexOf(const QByteArray &pattern, qint64 from, bool caseSensitive = true) const;
     qint64 dataLastIndexOf(const QByteArray &pattern, qint64 from, bool caseSensitive = true) const;
     void changeData(qint64 position, uchar character, bool highNibble = false);
@@ -205,8 +214,6 @@ public:
 
     quint64 baseAddress() const { return m_doc->m_baseAddr; }
     int addressLength() const { return m_doc->m_addressBytes; }
-
-    int dataBlockSize() const { return m_doc->m_blockSize; }
     qint64 documentSize() const { return m_doc->m_size; }
 
     bool newWindowRequestAllowed() const { return m_canRequestNewWindow; }
@@ -243,16 +250,6 @@ public:
     void setMarkup(const QList<Markup> &markup);
     void setNewWindowRequestAllowed(bool c);
     void setCodec(QTextCodec *codec);
-
-    void setFinished()
-    {
-        setReadOnly(true);
-        m_doc->m_fetchDataHandler = {};
-        m_doc->m_newWindowRequestHandler = {};
-        m_doc->m_newRangeRequestHandler = {};
-        m_doc->m_dataChangedHandler = {};
-        m_doc->m_watchPointRequestHandler = {};
-    }
 
     void clearMarkup() { m_markup.clear(); }
     void addMarkup(quint64 a, quint64 l, const QColor &c, const QString &t) { m_markup.append(Markup(a, l, c, t)); }
@@ -955,7 +952,6 @@ qint64 BinEditorWidget::findPattern(const QByteArray &data, const QByteArray &da
 
     return -1;
 }
-
 
 void BinEditorWidget::drawItems(QPainter *painter, int x, int y, const QString &itemString)
 {
@@ -2178,11 +2174,10 @@ void BinEditorDocument::provideData(quint64 address)
     const FilePath fn = filePath();
     if (fn.isEmpty())
         return;
-    const int blockSize = m_widget->dataBlockSize();
-    QByteArray data = fn.fileContents(blockSize, address).value_or(QByteArray());
+    QByteArray data = fn.fileContents(m_blockSize, address).value_or(QByteArray());
     const int dataSize = data.size();
-    if (dataSize != blockSize)
-        data += QByteArray(blockSize - dataSize, 0);
+    if (dataSize != m_blockSize)
+        data += QByteArray(m_blockSize - dataSize, 0);
     addData(address, data);
 //       QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"),
 //                             Tr::tr("Cannot open %1: %2").arg(
@@ -2279,7 +2274,7 @@ public:
     // "Slots"
     void setSizes(quint64 address, qint64 range, int blockSize) final { m_document->setSizes(address, range, blockSize); }
     void setReadOnly(bool on) final { m_widget->setReadOnly(on); }
-    void setFinished() final { m_widget->setFinished(); }
+    void setFinished() final { m_widget->setReadOnly(true); m_document->setFinished(); }
     void setNewWindowRequestAllowed(bool on) final { m_widget->setNewWindowRequestAllowed(on); }
     void setCursorPosition(qint64 pos, MoveMode moveMode = MoveAnchor) final { m_widget->setCursorPosition(pos, moveMode); }
     void updateContents() final { m_document->updateContents(); }
