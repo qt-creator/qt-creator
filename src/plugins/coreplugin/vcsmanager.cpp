@@ -375,8 +375,12 @@ QString VcsManager::msgToAddToVcsFailed(const QStringList &files, const IVersion
     const qsizetype maxSize = 10;
     if (size > maxSize) {
         fileList = files.first(maxSize);
-        fileList.append(Tr::tr("... and %1 more.").arg(size - maxSize));
+        //: %1 = name of VCS system, %2 = lines with file paths
+        return Tr::tr("Could not add the following files to version control (%1)\n%2\n"
+                      "... and %n more.", "", size - maxSize)
+            .arg(vc->displayName(), fileList.join(QString(QLatin1Char('\n'))));
     }
+    //: %1 = name of VCS system, %2 = lines with file paths
     return Tr::tr("Could not add the following files to version control (%1)\n%2")
         .arg(vc->displayName(), fileList.join(QString(QLatin1Char('\n'))));
 }
