@@ -776,11 +776,6 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
 
 SideBySideDiffEditorWidget::~SideBySideDiffEditorWidget() = default;
 
-TextEditorWidget *SideBySideDiffEditorWidget::sideEditorWidget(DiffSide side) const
-{
-    return m_editor[side];
-}
-
 void SideBySideDiffEditorWidget::setDocument(DiffEditorDocument *document)
 {
     m_controller.setDocument(document);

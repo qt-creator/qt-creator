@@ -16,8 +16,6 @@ class QToolBar;
 class QStackedWidget;
 QT_END_NAMESPACE
 
-namespace TextEditor { class TextEditorWidget; }
-
 namespace DiffEditor::Internal {
 
 class DescriptionEditorWidget;
@@ -37,9 +35,6 @@ public:
     Core::IEditor *duplicate() override;
     Core::IDocument *document() const override;
     QWidget *toolBar() override;
-    TextEditor::TextEditorWidget *descriptionWidget() const;
-    TextEditor::TextEditorWidget *unifiedEditorWidget() const;
-    TextEditor::TextEditorWidget *sideEditorWidget(DiffSide side) const;
 
 private:
     DiffEditor();

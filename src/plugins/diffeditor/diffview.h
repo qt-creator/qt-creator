@@ -15,8 +15,6 @@ QT_BEGIN_NAMESPACE
 class QWidget;
 QT_END_NAMESPACE
 
-namespace TextEditor { class TextEditorWidget; }
-
 namespace DiffEditor {
 
 class FileData;
@@ -77,7 +75,6 @@ public:
     UnifiedView();
 
     QWidget *widget() override;
-    TextEditor::TextEditorWidget *textEditorWidget();
 
     void setDocument(DiffEditorDocument *document) override;
 
@@ -101,7 +98,6 @@ public:
     SideBySideView();
 
     QWidget *widget() override;
-    TextEditor::TextEditorWidget *sideEditorWidget(DiffSide side);
 
     void setDocument(DiffEditorDocument *document) override;
 

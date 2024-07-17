@@ -13,7 +13,6 @@ namespace Core { class IContext; }
 
 namespace TextEditor {
 class FontSettings;
-class TextEditorWidget;
 }
 
 namespace Utils {
@@ -99,8 +98,6 @@ class SideBySideDiffEditorWidget : public QWidget
 public:
     explicit SideBySideDiffEditorWidget(QWidget *parent = nullptr);
     ~SideBySideDiffEditorWidget();
-
-    TextEditor::TextEditorWidget *sideEditorWidget(DiffSide side) const;
 
     void setDocument(DiffEditorDocument *document);
     DiffEditorDocument *diffDocument() const;

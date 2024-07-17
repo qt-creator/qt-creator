@@ -290,21 +290,6 @@ QWidget *DiffEditor::toolBar()
     return m_toolBar;
 }
 
-TextEditorWidget *DiffEditor::descriptionWidget() const
-{
-    return m_descriptionWidget;
-}
-
-TextEditorWidget *DiffEditor::unifiedEditorWidget() const
-{
-    return m_unifiedView->textEditorWidget();
-}
-
-TextEditorWidget *DiffEditor::sideEditorWidget(DiffSide side) const
-{
-    return m_sideBySideView->sideEditorWidget(side);
-}
-
 void DiffEditor::documentHasChanged()
 {
     GuardLocker guard(m_ignoreChanges);

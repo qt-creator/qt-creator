@@ -78,11 +78,6 @@ UnifiedView::UnifiedView()
 
 QWidget *UnifiedView::widget()
 {
-    return textEditorWidget();
-}
-
-TextEditor::TextEditorWidget *UnifiedView::textEditorWidget()
-{
     if (!m_widget) {
         m_widget = new UnifiedDiffEditorWidget;
         connect(m_widget, &UnifiedDiffEditorWidget::currentDiffFileIndexChanged,
@@ -164,12 +159,6 @@ QWidget *SideBySideView::widget()
                 this, &SideBySideView::currentDiffFileIndexChanged);
     }
     return m_widget;
-}
-
-TextEditor::TextEditorWidget *SideBySideView::sideEditorWidget(DiffSide side)
-{
-    widget(); // ensure widget creation
-    return m_widget->sideEditorWidget(side);
 }
 
 void SideBySideView::setDocument(DiffEditorDocument *document)
