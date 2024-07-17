@@ -38,7 +38,6 @@ class GitGrepParameters
 public:
     QString ref;
     bool recurseSubmodules = false;
-    QString id() const { return recurseSubmodules ? ref + ".Rec" : ref; }
 };
 
 static QStringView nextLine(QStringView *remainingInput)
