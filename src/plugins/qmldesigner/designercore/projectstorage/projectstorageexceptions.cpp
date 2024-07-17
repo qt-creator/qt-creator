@@ -98,16 +98,6 @@ TypeNameDoesNotExists::TypeNameDoesNotExists(std::string_view typeName, SourceId
                            keyValue("source id", sourceId));
 }
 
-PropertyNameDoesNotExists::PropertyNameDoesNotExists()
-{
-    category().threadEvent("PropertyNameDoesNotExists"_t);
-}
-
-const char *PropertyNameDoesNotExists::what() const noexcept
-{
-    return "The property name does not exist!";
-}
-
 PrototypeChainCycle::PrototypeChainCycle()
 {
     category().threadEvent("PrototypeChainCycle"_t);

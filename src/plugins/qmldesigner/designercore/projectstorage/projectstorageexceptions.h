@@ -95,13 +95,6 @@ public:
     TypeNameDoesNotExists(std::string_view typeName, SourceId sourceId = SourceId{});
 };
 
-class QMLDESIGNERCORE_EXPORT PropertyNameDoesNotExists : public ProjectStorageError
-{
-public:
-    PropertyNameDoesNotExists();
-    const char *what() const noexcept override;
-};
-
 class QMLDESIGNERCORE_EXPORT PrototypeChainCycle : public ProjectStorageError
 {
 public:

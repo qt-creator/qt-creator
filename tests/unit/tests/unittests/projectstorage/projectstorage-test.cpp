@@ -216,6 +216,11 @@ auto IsNullTypeId()
     return Property(&QmlDesigner::TypeId::isNull, true);
 }
 
+auto IsNullPropertyDeclarationId()
+{
+    return Property(&QmlDesigner::PropertyDeclarationId::isNull, true);
+}
+
 template<typename Matcher>
 auto HasPrototypeId(const Matcher &matcher)
 {
@@ -1180,6 +1185,19 @@ protected:
     auto fetchType(SourceId sourceId, Utils::SmallStringView name)
     {
         return storage.fetchTypeByTypeId(storage.fetchTypeIdByName(sourceId, name));
+    }
+
+    auto defaultPropertyDeclarationId(SourceId sourceId, Utils::SmallStringView typeName)
+    {
+        return storage.defaultPropertyDeclarationId(storage.fetchTypeIdByName(sourceId, typeName));
+    }
+
+    auto propertyDeclarationId(SourceId sourceId,
+                               Utils::SmallStringView typeName,
+                               Utils::SmallStringView propertyName)
+    {
+        return storage.propertyDeclarationId(storage.fetchTypeIdByName(sourceId, typeName),
+                                             propertyName);
     }
 
     static auto &findType(Storage::Synchronization::SynchronizationPackage &package,
@@ -3508,17 +3526,46 @@ TEST_F(ProjectStorage, synchronize_types_fixes_null_type_id_after_add_alias_decl
                     Contains(IsPropertyDeclaration("items", fetchTypeId(sourceId1, "QQuickItem")))));
 }
 
-TEST_F(ProjectStorage, synchronize_types_add_alias_declarations_throws_for_wrong_property_name)
+TEST_F(ProjectStorage, synchronize_types_add_alias_declarations_notifies_error_for_wrong_property_name)
 {
     auto package{createSynchronizationPackageWithAliases()};
     package.types[2].propertyDeclarations[1].aliasPropertyName = "childrenWrong";
 
-    ASSERT_THROW(storage.synchronize(SynchronizationPackage{package.imports,
-                                                            package.types,
-                                                            {sourceId4},
-                                                            package.moduleDependencies,
-                                                            {sourceId4}}),
-                 QmlDesigner::PropertyNameDoesNotExists);
+    EXPECT_CALL(errorNotifierMock, propertyNameDoesNotExists(Eq("childrenWrong"), sourceId3))
+        .Times(AtLeast(1));
+
+    storage.synchronize(
+        {package.imports, package.types, {sourceId4}, package.moduleDependencies, {sourceId4}});
+}
+
+TEST_F(ProjectStorage,
+       synchronize_types_add_alias_declarations_returns_invalid_type_for_wrong_property_name)
+{
+    auto package{createSynchronizationPackageWithAliases()};
+    package.types[2].propertyDeclarations[1].aliasPropertyName = "childrenWrong";
+
+    storage.synchronize(
+        {package.imports, package.types, {sourceId4}, package.moduleDependencies, {sourceId4}});
+
+    ASSERT_THAT(fetchType(sourceId3, "QAliasItem"),
+                PropertyDeclarations(Contains(IsPropertyDeclaration("items", IsNullTypeId()))));
+}
+
+TEST_F(ProjectStorage,
+       synchronize_types_update_alias_declarations_returns_item_type_for_fixed_property_name)
+{
+    auto package{createSynchronizationPackageWithAliases()};
+    package.types[2].propertyDeclarations[1].aliasPropertyName = "childrenWrong";
+    storage.synchronize(
+        {package.imports, package.types, {sourceId4}, package.moduleDependencies, {sourceId4}});
+    package.types[2].propertyDeclarations[1].aliasPropertyName = "children";
+
+    storage.synchronize(
+        {importsSourceId3 + moduleDependenciesSourceId3, {package.types[2]}, {sourceId3}});
+
+    ASSERT_THAT(fetchType(sourceId3, "QAliasItem"),
+                PropertyDeclarations(
+                    Contains(IsPropertyDeclaration("items", fetchTypeId(sourceId1, "QQuickItem")))));
 }
 
 TEST_F(ProjectStorage, synchronize_types_change_alias_declarations_type_name)
@@ -6540,33 +6587,94 @@ TEST_F(ProjectStorage,
                 PropertyDeclarations(Not(Contains(IsPropertyDeclaration("objects", IsNullTypeId())))));
 }
 
-TEST_F(ProjectStorage, synchronize_types_add_indirect_alias_declarations_throws_for_wrong_property_name)
+TEST_F(ProjectStorage,
+       synchronize_types_add_indirect_alias_declarations_notifies_error_for_wrong_property_name)
 {
     auto package{createSynchronizationPackageWithIndirectAliases()};
     storage.synchronize(package);
     package.types[2].propertyDeclarations[1].aliasPropertyName = "childrenWrong";
 
-    ASSERT_THROW(storage.synchronize(SynchronizationPackage{importsSourceId3,
-                                                            {package.types[2]},
-                                                            {sourceId3},
-                                                            moduleDependenciesSourceId3,
-                                                            {sourceId3}}),
-                 QmlDesigner::PropertyNameDoesNotExists);
+    EXPECT_CALL(errorNotifierMock, propertyNameDoesNotExists(Eq("childrenWrong.objects"), sourceId3));
+
+    storage.synchronize(
+        {importsSourceId3, {package.types[2]}, {sourceId3}, moduleDependenciesSourceId3, {sourceId3}});
 }
 
 TEST_F(ProjectStorage,
-       synchronize_types_add_indirect_alias_declarations_throws_for_wrong_property_name_tail)
+       synchronize_types_add_indirect_alias_declarations_returns_null_type_id_for_wrong_property_name)
+{
+    auto package{createSynchronizationPackageWithIndirectAliases()};
+    storage.synchronize(package);
+    package.types[2].propertyDeclarations[1].aliasPropertyName = "childrenWrong";
+
+    storage.synchronize(
+        {importsSourceId3, {package.types[2]}, {sourceId3}, moduleDependenciesSourceId3, {sourceId3}});
+
+    ASSERT_THAT(fetchType(sourceId3, "QAliasItem"),
+                PropertyDeclarations(Contains(IsPropertyDeclaration("objects", IsNullTypeId()))));
+}
+
+TEST_F(ProjectStorage,
+       synchronize_types_updated_indirect_alias_declarations_returns_item_type_id_for_wrong_property_name)
+{
+    auto package{createSynchronizationPackageWithIndirectAliases()};
+    storage.synchronize(package);
+    package.types[2].propertyDeclarations[1].aliasPropertyName = "childrenWrong";
+    storage.synchronize(
+        {importsSourceId3, {package.types[2]}, {sourceId3}, moduleDependenciesSourceId3, {sourceId3}});
+    package.types[2].propertyDeclarations[1].aliasPropertyName = "children";
+
+    storage.synchronize(
+        {importsSourceId3 + moduleDependenciesSourceId3, {package.types[2]}, {sourceId3}});
+
+    ASSERT_THAT(fetchType(sourceId3, "QAliasItem"),
+                PropertyDeclarations(
+                    Contains(IsPropertyDeclaration("objects", fetchTypeId(sourceId2, "QObject")))));
+}
+
+TEST_F(ProjectStorage,
+       synchronize_types_add_indirect_alias_declarations_notifies_error_for_wrong_property_name_tail)
 {
     auto package{createSynchronizationPackageWithIndirectAliases()};
     storage.synchronize(package);
     package.types[2].propertyDeclarations[1].aliasPropertyNameTail = "objectsWrong";
 
-    ASSERT_THROW(storage.synchronize(SynchronizationPackage{importsSourceId3,
-                                                            {package.types[2]},
-                                                            {sourceId3},
-                                                            moduleDependenciesSourceId3,
-                                                            {sourceId3}}),
-                 QmlDesigner::PropertyNameDoesNotExists);
+    EXPECT_CALL(errorNotifierMock, propertyNameDoesNotExists(Eq("children.objectsWrong"), sourceId3));
+
+    storage.synchronize(SynchronizationPackage{
+        importsSourceId3, {package.types[2]}, {sourceId3}, moduleDependenciesSourceId3, {sourceId3}});
+}
+
+TEST_F(ProjectStorage,
+       synchronize_types_add_indirect_alias_declarations_sets_property_declaration_id_to_null_for_the_wrong_property_name_tail)
+{
+    auto package{createSynchronizationPackageWithIndirectAliases()};
+    storage.synchronize(package);
+    package.types[2].propertyDeclarations[1].aliasPropertyNameTail = "objectsWrong";
+
+    storage.synchronize(SynchronizationPackage{
+        importsSourceId3, {package.types[2]}, {sourceId3}, moduleDependenciesSourceId3, {sourceId3}});
+
+    ASSERT_THAT(fetchType(sourceId3, "QAliasItem"),
+                PropertyDeclarations(Contains(IsPropertyDeclaration("objects", IsNullTypeId()))));
+}
+
+TEST_F(ProjectStorage,
+       synchronize_types_updates_indirect_alias_declarations_fixed_property_declaration_id_for_property_name_tail)
+{
+    auto package{createSynchronizationPackageWithIndirectAliases()};
+    storage.synchronize(package);
+    package.types[2].propertyDeclarations[1].aliasPropertyNameTail = "objectsWrong";
+    storage.synchronize(
+        {importsSourceId3, {package.types[2]}, {sourceId3}, moduleDependenciesSourceId3, {sourceId3}});
+    package.types[2].propertyDeclarations[1].aliasPropertyNameTail = "objects";
+
+    storage.synchronize(
+        {importsSourceId3 + moduleDependenciesSourceId3, {package.types[2]}, {sourceId3}});
+
+    ASSERT_THAT(fetchType(sourceId3, "QAliasItem"),
+                PropertyDeclarations(Contains(
+                    IsPropertyDeclaration("objects", Eq(fetchTypeId(sourceId2, "QObject"))))));
 }
 
 TEST_F(ProjectStorage, synchronize_types_change_indirect_alias_declaration_type_name)
@@ -7407,23 +7515,64 @@ TEST_F(ProjectStorage, synchronize_to_removed_default_property)
                 Contains(AllOf(HasTypeName(Eq("QQuickItem")), HasDefaultPropertyName(IsEmpty()))));
 }
 
-TEST_F(ProjectStorage, synchronize_default_property_throws_for_missing_default_property)
+TEST_F(ProjectStorage, synchronize_default_property_notifies_error_for_missing_default_property)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types.front().defaultPropertyName = "child";
 
-    ASSERT_THROW(storage.synchronize(package), QmlDesigner::PropertyNameDoesNotExists);
+    EXPECT_CALL(errorNotifierMock, missingDefaultProperty(Eq("QQuickItem"), Eq("child"), sourceId1));
+
+    storage.synchronize(package);
+}
+
+TEST_F(ProjectStorage, gets_null_default_property_id_for_broken_default_property_name)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types.front().defaultPropertyName = "child";
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(defaultPropertyDeclarationId(sourceId1, "QQuickItem"), IsNullPropertyDeclarationId());
+}
+
+TEST_F(ProjectStorage, synchronize_default_fixes_default_property_name)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types.front().defaultPropertyName = "child";
+    storage.synchronize(package);
+    package.types.front().defaultPropertyName = "data";
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(defaultPropertyDeclarationId(sourceId1, "QQuickItem"),
+                Eq(propertyDeclarationId(sourceId1, "QQuickItem", "data")));
 }
 
 TEST_F(ProjectStorage,
-       synchronize_default_property_throws_for_removing_property_without_changing_default_property)
+       synchronize_default_property_notifies_error_for_removing_property_without_changing_default_property)
 {
     auto package{createSimpleSynchronizationPackage()};
     package.types.front().defaultPropertyName = "children";
     storage.synchronize(package);
     removeProperty(package, "QQuickItem", "children");
 
-    ASSERT_THROW(storage.synchronize(package), QmlDesigner::PropertyNameDoesNotExists);
+    EXPECT_CALL(errorNotifierMock,
+                missingDefaultProperty(Eq("QQuickItem"), Eq("children"), sourceId1));
+
+    storage.synchronize(package);
+}
+
+TEST_F(ProjectStorage,
+       synchronize_default_property_has_null_id_for_removing_property_without_changing_default_property)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types.front().defaultPropertyName = "children";
+    storage.synchronize(package);
+    removeProperty(package, "QQuickItem", "children");
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(defaultPropertyDeclarationId(sourceId1, "QQuickItem"), IsNullPropertyDeclarationId());
 }
 
 TEST_F(ProjectStorage, synchronize_changes_default_property_and_removes_old_default_property)

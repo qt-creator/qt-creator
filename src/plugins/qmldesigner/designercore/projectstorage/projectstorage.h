@@ -411,6 +411,14 @@ private:
             convertToString(string, dict);
         }
 
+        Utils::PathString composedProperyName() const
+        {
+            if (aliasPropertyNameTail.empty())
+                return aliasPropertyName;
+
+            return Utils::PathString::join({aliasPropertyName, ".", aliasPropertyNameTail});
+        }
+
     public:
         TypeId typeId;
         PropertyDeclarationId propertyDeclarationId;
@@ -991,10 +999,7 @@ private:
         Storage::PropertyDeclarationTraits propertyTraits;
     };
 
-    std::optional<FetchPropertyDeclarationResult> fetchOptionalPropertyDeclarationByTypeIdAndNameUngarded(
-        TypeId typeId, Utils::SmallStringView name);
-
-    FetchPropertyDeclarationResult fetchPropertyDeclarationByTypeIdAndNameUngarded(
+    std::optional<FetchPropertyDeclarationResult> fetchPropertyDeclarationByTypeIdAndNameUngarded(
         TypeId typeId, Utils::SmallStringView name);
 
     PropertyDeclarationId fetchPropertyDeclarationIdByTypeIdAndNameUngarded(TypeId typeId,

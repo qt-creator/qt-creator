@@ -3165,21 +3165,25 @@ void ProjectStorage::relinkAliasPropertyDeclarations(AliasPropertyDeclarations &
             auto typeId = fetchTypeId(alias.aliasImportedTypeNameId);
 
             if (typeId) {
-                auto [propertyImportedTypeNameId, propertyTypeId, aliasId, propertyTraits]
-                    = fetchPropertyDeclarationByTypeIdAndNameUngarded(typeId, alias.aliasPropertyName);
+                auto propertyDeclaration = fetchPropertyDeclarationByTypeIdAndNameUngarded(
+                    typeId, alias.aliasPropertyName);
+                if (propertyDeclaration) {
+                    auto [propertyImportedTypeNameId, propertyTypeId, aliasId, propertyTraits] = *propertyDeclaration;
 
-                s->updatePropertyDeclarationWithAliasAndTypeStatement.write(alias.propertyDeclarationId,
-                                                                            propertyTypeId,
-                                                                            propertyTraits,
-                                                                            propertyImportedTypeNameId,
-                                                                            aliasId);
-            } else {
-                errorNotifier->typeNameCannotBeResolved(fetchImportedTypeName(
-                                                            alias.aliasImportedTypeNameId),
-                                                        fetchTypeSourceId(alias.typeId));
-                s->resetAliasPropertyDeclarationStatement.write(alias.propertyDeclarationId,
-                                                                Storage::PropertyDeclarationTraits{});
+                    s->updatePropertyDeclarationWithAliasAndTypeStatement
+                        .write(alias.propertyDeclarationId,
+                               propertyTypeId,
+                               propertyTraits,
+                               propertyImportedTypeNameId,
+                               aliasId);
+                    return;
+                }
             }
+
+            errorNotifier->typeNameCannotBeResolved(fetchImportedTypeName(alias.aliasImportedTypeNameId),
+                                                    fetchTypeSourceId(alias.typeId));
+            s->resetAliasPropertyDeclarationStatement.write(alias.propertyDeclarationId,
+                                                            Storage::PropertyDeclarationTraits{});
         },
         TypeCompare<AliasPropertyDeclaration>{});
 }
@@ -3321,7 +3325,10 @@ PropertyDeclarationId ProjectStorage::fetchAliasId(TypeId aliasTypeId,
 
     auto stemAlias = fetchPropertyDeclarationByTypeIdAndNameUngarded(aliasTypeId, aliasPropertyName);
 
-    return fetchPropertyDeclarationIdByTypeIdAndNameUngarded(stemAlias.propertyTypeId,
+    if (!stemAlias)
+        return PropertyDeclarationId{};
+
+    return fetchPropertyDeclarationIdByTypeIdAndNameUngarded(stemAlias->propertyTypeId,
                                                              aliasPropertyNameTail);
 }
 
@@ -3341,10 +3348,22 @@ void ProjectStorage::linkAliasPropertyDeclarationAliasIds(
                                         aliasDeclaration.aliasPropertyName,
                                         aliasDeclaration.aliasPropertyNameTail);
 
-            s->updatePropertyDeclarationAliasIdAndTypeNameIdStatement
-                .write(aliasDeclaration.propertyDeclarationId,
-                       aliasId,
-                       aliasDeclaration.aliasImportedTypeNameId);
+            if (aliasId) {
+                s->updatePropertyDeclarationAliasIdAndTypeNameIdStatement
+                    .write(aliasDeclaration.propertyDeclarationId,
+                           aliasId,
+                           aliasDeclaration.aliasImportedTypeNameId);
+            } else {
+                s->resetAliasPropertyDeclarationStatement.write(aliasDeclaration.propertyDeclarationId,
+                                                                Storage::PropertyDeclarationTraits{});
+                s->updatePropertyAliasDeclarationRecursivelyWithTypeAndTraitsStatement
+                    .write(aliasDeclaration.propertyDeclarationId,
+                           TypeId{},
+                           Storage::PropertyDeclarationTraits{});
+
+                errorNotifier->propertyNameDoesNotExists(aliasDeclaration.composedProperyName(),
+                                                         aliasDeclaration.sourceId);
+            }
         } else if (raiseError == RaiseError::Yes) {
             errorNotifier->typeNameCannotBeResolved(fetchImportedTypeName(
                                                         aliasDeclaration.aliasImportedTypeNameId),
@@ -4516,10 +4535,18 @@ void ProjectStorage::syncDefaultProperties(Storage::Synchronization::Types &type
                                    keyValue("view", view)};
 
         PropertyDeclarationId valueDefaultPropertyId;
-        if (value.defaultPropertyName.size())
-            valueDefaultPropertyId = fetchPropertyDeclarationByTypeIdAndNameUngarded(value.typeId,
-                                                                                     value.defaultPropertyName)
-                                         .propertyDeclarationId;
+        if (value.defaultPropertyName.size()) {
+            auto defaultPropertyDeclaration = fetchPropertyDeclarationByTypeIdAndNameUngarded(
+                value.typeId, value.defaultPropertyName);
+
+            if (defaultPropertyDeclaration) {
+                valueDefaultPropertyId = defaultPropertyDeclaration->propertyDeclarationId;
+            } else {
+                errorNotifier->missingDefaultProperty(value.typeName,
+                                                      value.defaultPropertyName,
+                                                      value.sourceId);
+            }
+        }
 
         if (compareInvalidAreTrue(valueDefaultPropertyId, view.defaultPropertyId))
             return Sqlite::UpdateChange::No;
@@ -4563,10 +4590,8 @@ void ProjectStorage::resetDefaultPropertiesIfChanged(Storage::Synchronization::T
 
         PropertyDeclarationId valueDefaultPropertyId;
         if (value.defaultPropertyName.size()) {
-            auto optionalValueDefaultPropertyId = fetchOptionalPropertyDeclarationByTypeIdAndNameUngarded(
+            valueDefaultPropertyId = fetchPropertyDeclarationIdByTypeIdAndNameUngarded(
                 value.typeId, value.defaultPropertyName);
-            if (optionalValueDefaultPropertyId)
-                valueDefaultPropertyId = optionalValueDefaultPropertyId->propertyDeclarationId;
         }
 
         if (compareInvalidAreTrue(valueDefaultPropertyId, view.defaultPropertyId))
@@ -4814,8 +4839,8 @@ TypeId ProjectStorage::fetchTypeId(ImportedTypeNameId typeNameId,
 }
 
 std::optional<ProjectStorage::FetchPropertyDeclarationResult>
-ProjectStorage::fetchOptionalPropertyDeclarationByTypeIdAndNameUngarded(TypeId typeId,
-                                                                        Utils::SmallStringView name)
+ProjectStorage::fetchPropertyDeclarationByTypeIdAndNameUngarded(TypeId typeId,
+                                                                Utils::SmallStringView name)
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"fetch optional property declaration by type id and name ungarded"_t,
@@ -4833,24 +4858,6 @@ ProjectStorage::fetchOptionalPropertyDeclarationByTypeIdAndNameUngarded(TypeId t
     return propertyDeclaration;
 }
 
-ProjectStorage::FetchPropertyDeclarationResult ProjectStorage::fetchPropertyDeclarationByTypeIdAndNameUngarded(
-    TypeId typeId, Utils::SmallStringView name)
-{
-    using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"fetch property declaration by type id and name ungarded"_t,
-                               projectStorageCategory(),
-                               keyValue("type id", typeId),
-                               keyValue("property name", name)};
-
-    auto propertyDeclaration = fetchOptionalPropertyDeclarationByTypeIdAndNameUngarded(typeId, name);
-    tracer.end(keyValue("property declaration", propertyDeclaration));
-
-    if (propertyDeclaration)
-        return *propertyDeclaration;
-
-    throw PropertyNameDoesNotExists{};
-}
-
 PropertyDeclarationId ProjectStorage::fetchPropertyDeclarationIdByTypeIdAndNameUngarded(
     TypeId typeId, Utils::SmallStringView name)
 {
@@ -4864,10 +4871,7 @@ PropertyDeclarationId ProjectStorage::fetchPropertyDeclarationIdByTypeIdAndNameU
 
     tracer.end(keyValue("property declaration id", propertyDeclarationId));
 
-    if (propertyDeclarationId)
-        return propertyDeclarationId;
-
-    throw PropertyNameDoesNotExists{};
+    return propertyDeclarationId;
 }
 
 SourceContextId ProjectStorage::readSourceContextId(Utils::SmallStringView sourceContextPath)

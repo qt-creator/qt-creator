@@ -18,7 +18,12 @@ public:
     ProjectStorageErrorNotifierInterface(const ProjectStorageErrorNotifierInterface &) = delete;
     ProjectStorageErrorNotifierInterface &operator=(const ProjectStorageErrorNotifierInterface &) = delete;
 
-    virtual void typeNameCannotBeResolved(Utils::SmallStringView typeName, SourceId souceId) = 0;
+    virtual void typeNameCannotBeResolved(Utils::SmallStringView typeName, SourceId sourceId) = 0;
+    virtual void missingDefaultProperty(Utils::SmallStringView typeName,
+                                        Utils::SmallStringView propertyName,
+                                        SourceId sourceId)
+        = 0;
+    virtual void propertyNameDoesNotExists(Utils::SmallStringView propertyName, SourceId sourceId) = 0;
 
 protected:
     ~ProjectStorageErrorNotifierInterface() = default;
