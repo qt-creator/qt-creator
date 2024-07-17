@@ -10,14 +10,13 @@
 #include "editormanager/editormanager.h"
 #include "find/basetextfind.h"
 #include "icore.h"
+#include "messagemanager.h"
 
 #include <aggregation/aggregate.h>
 
 #include <utils/fileutils.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
-
-#include <coreplugin/messagemanager.h>
 
 #include <QAction>
 #include <QCursor>
