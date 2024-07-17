@@ -52,7 +52,7 @@
     which plugins you have installed. If you do not get to choose,
     the project usually uses CMake as the build system.
 
-    \image qtcreator-new-project-build-system-qt-gui.png {Define Build System dialog}
+    \image qtcreator-new-project-build-system.webp {Define Build System dialog}
 
     You can use wizards also to create plain C or C++ projects that use
     qmake, Qbs, or CMake, but do not use the Qt library.

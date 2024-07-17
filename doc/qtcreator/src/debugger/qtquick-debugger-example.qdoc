@@ -19,7 +19,8 @@
 
     \ingroup creator-tutorials
 
-    \title Debugging a Qt Quick Application
+    \keyword {Debugging a Qt Quick Application}
+    \title Tutorial: Qt Quick debugging
 
     \brief How to debug a Qt Quick application.
 

@@ -98,14 +98,24 @@
     You can turn the Copilot suggestions on and off either globally for all
     projects or at project level for a particular project.
 
+    \section2 Toggle Copilot suggestions
+
     To turn Copilot suggestions on or off globally, select
     \inlineimage icons/copilot.png (\uicontrol {Toggle Copilot}). This also
     sets the value of \uicontrol {Enable Copilot} in \preferences >
     \uicontrol Copilot accordingly.
 
-    To turn Copilot suggestions on or off for a particular project,
-    go to \uicontrol Projects > \uicontrol {Project Settings} >
-    \uicontrol Copilot and then select or clear \uicontrol {Enable Copilot}.
+    \section2 Turn suggestions on or off for a project
+
+    To turn Copilot suggestions on or off for a particular project:
+
+    \list 1
+        \li Go to \uicontrol Projects > \uicontrol {Project Settings} >
+            \uicontrol Copilot.
+            \image qtcreator-project-settings-copilot.webp {Copilot project settings}
+        \li Clear \uicontrol {Use global settings}.
+        \li Select or clear \uicontrol {Enable Copilot}.
+    \endlist
 
     \sa {Enable and disable plugins}, {Edit Mode}
 */

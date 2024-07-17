@@ -47079,7 +47079,7 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
     </message>
     <message>
         <source>JavaScript can break the visual tooling in Qt Design Studio.</source>
-        <translation type="unfinished"></translation>
+        <translation>JavaScript kann das visuelle Tooling in Qt Design Studio stören.</translation>
     </message>
     <message>
         <source>Duplicate import (%1).</source>
@@ -47464,23 +47464,23 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Turn on</source>
-        <translation type="unfinished"></translation>
+        <translation>Einschalten</translation>
     </message>
     <message>
         <source>Allow versions below Qt %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Versionen niedriger als Qt %1 erlauben</translation>
     </message>
     <message>
         <source>Use advanced features (renaming, find usages, and so on) (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterte Funktionen verwenden (umbenennen, Verweise finden und weiteres) (experimentell)</translation>
     </message>
     <message>
         <source>Use from latest Qt version</source>
-        <translation type="unfinished"></translation>
+        <translation>Neueste Qt-Version verwenden</translation>
     </message>
     <message>
         <source>Create .qmlls.ini files for new projects</source>
-        <translation type="unfinished"></translation>
+        <translation>.qmlls.ini-Dateien für neue Projekte erstellen</translation>
     </message>
     <message>
         <source>QML Language Server</source>
@@ -48579,7 +48579,7 @@ Speichern fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Override device QML viewer:</source>
-        <translation type="unfinished"></translation>
+        <translation>Statt QML-Viewer auf Gerät verwenden:</translation>
     </message>
     <message>
         <source>System Environment</source>
@@ -48592,31 +48592,31 @@ Speichern fehlgeschlagen.</translation>
     <message>
         <source>QML Utility</source>
         <comment>QMLRunConfiguration display name.</comment>
-        <translation type="unfinished"></translation>
+        <translation>QML-Werkzeug</translation>
     </message>
     <message>
         <source>No QML utility found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein QML-Werkzeug gefunden.</translation>
     </message>
     <message>
         <source>No QML utility specified for target device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für das Zielgerät wurde kein QML-Werkzeug angegeben.</translation>
     </message>
     <message>
         <source>Qt Version:</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt-Version:</translation>
     </message>
     <message>
         <source>Qt 6</source>
-        <translation type="unfinished">Qt 6</translation>
+        <translation>Qt 6</translation>
     </message>
     <message>
         <source>Qt 5</source>
-        <translation type="unfinished">Qt 5</translation>
+        <translation>Qt 5</translation>
     </message>
     <message>
         <source>QML Runtime</source>
-        <translation type="unfinished"></translation>
+        <translation>QML-Runtime</translation>
     </message>
     <message>
         <source>No script file to execute.</source>
@@ -48632,7 +48632,7 @@ Speichern fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Update QmlProject File</source>
-        <translation type="unfinished"></translation>
+        <translation>QmlProject-Datei aktualisieren</translation>
     </message>
     <message>
         <source>Warning while loading project file %1.</source>
@@ -48640,164 +48640,169 @@ Speichern fehlgeschlagen.</translation>
     </message>
     <message>
         <source>No Qt Design Studio installation found</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurde keine Installation von Qt Design Studio gefunden</translation>
     </message>
     <message>
         <source>Would you like to install it now?</source>
-        <translation type="unfinished"></translation>
+        <translation>Möchten Sie es jetzt installieren?</translation>
     </message>
     <message>
         <source>Install</source>
-        <translation type="unfinished">Installieren</translation>
+        <translation>Installieren</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Unbekannt</translation>
+        <translation>Unbekannt</translation>
     </message>
     <message>
         <source>QML PROJECT FILE INFO</source>
-        <translation type="unfinished"></translation>
+        <translation>QML PROJECT FILE INFO</translation>
     </message>
     <message>
         <source>Qt Version - </source>
-        <translation type="unfinished"></translation>
+        <translation>Qt-Version - </translation>
     </message>
     <message>
         <source>Qt Design Studio Version - </source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Design Studio-Version - </translation>
     </message>
     <message>
         <source>No QML project file found - Would you like to create one?</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine QML-Projektdatei gefunden - möchten Sie eine erstellen?</translation>
     </message>
     <message>
         <source>Generate</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellen</translation>
     </message>
     <message>
         <source>Qt Design Studio</source>
-        <translation type="unfinished">Qt Design Studio</translation>
+        <translation>Qt Design Studio</translation>
     </message>
     <message>
         <source>Open with Qt Design Studio</source>
-        <translation type="unfinished"></translation>
+        <translation>Mit Qt Design Studio öffnen</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished">Öffnen</translation>
+        <translation>Öffnen</translation>
     </message>
     <message>
         <source>Open with Qt Creator - Text Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Mit Qt Creator im Textmodus öffnen</translation>
     </message>
     <message>
         <source>Remember my choice</source>
-        <translation type="unfinished"></translation>
+        <translation>Meine Auswahl speichern</translation>
     </message>
     <message>
         <source>Export Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt exportieren</translation>
     </message>
     <message>
         <source>Enable Automatic CMake Generation</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatische CMake-Erstellung aktivieren</translation>
     </message>
     <message>
         <source>Use MultiLanguage in 2D view</source>
-        <translation type="unfinished"></translation>
+        <translation>MultiLanguage in der 2D-Ansicht verwenden</translation>
     </message>
     <message>
         <source>Reads translations from MultiLanguage plugin.</source>
-        <translation type="unfinished"></translation>
+        <translation>Liest Übersetzungen aus dem MultiLanguage-Plugin.</translation>
     </message>
     <message>
         <source>Failed to start Qt Design Studio.</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Design Studio konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>No project file (*.qmlproject) found for Qt Design Studio.
 Qt Design Studio requires a .qmlproject based project to open the .ui.qml file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurde keine Projektdatei (*.qmlproject) für Qt Design Studio gefunden.
+Qt Design Studio benötigt zum Öffnen der .ui.qml-Datei ein .qmlproject-basiertes Projekt.</translation>
     </message>
     <message>
         <source>Set as Main .qml File</source>
-        <translation type="unfinished"></translation>
+        <translation>Als .qml-Hauptdatei setzen</translation>
     </message>
     <message>
         <source>Set as Main .ui.qml File</source>
-        <translation type="unfinished"></translation>
+        <translation>Als .ui.qml-Hauptdatei setzen</translation>
     </message>
     <message>
         <source>Project File Generated</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektdatei erstellt</translation>
     </message>
     <message>
         <source>File created:
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei erstellt:
+
+%1</translation>
     </message>
     <message>
         <source>Select File Location</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateipfad auswählen</translation>
     </message>
     <message>
         <source>Qt Design Studio Project Files (*.qmlproject)</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Design Studio Projektdateien (*.qmlproject)</translation>
     </message>
     <message>
         <source>Invalid Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiges Verzeichnis</translation>
     </message>
     <message>
         <source>Project file must be placed in a parent directory of the QML files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Projektdatei muss in einem den QML-Dateien übergeordneten Verzeichnis erstellt werden.</translation>
     </message>
     <message>
         <source>Problem</source>
-        <translation type="unfinished"></translation>
+        <translation>Problem</translation>
     </message>
     <message>
         <source>Selected directory is far away from the QML file. This can cause unexpected results.
 
 Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Das ausgewählte Verzeichnis liegt weit entfernt von der QML-Datei. Dies kann zu unerwarteten Ergebnissen führen.
+
+Sind Sie sicher?</translation>
     </message>
     <message>
         <source>Cannot find a valid build system.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es kann kein gültiges Build-System gefunden werden.</translation>
     </message>
     <message>
         <source>Cannot create a valid build directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es kann kein gültiges Build-Verzeichnis erstellt werden.</translation>
     </message>
     <message>
         <source>Command:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommando:</translation>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">Argumente:</translation>
+        <translation>Argumente:</translation>
     </message>
     <message>
         <source>Build directory:</source>
-        <translation type="unfinished">Build-Verzeichnis:</translation>
+        <translation>Build-Verzeichnis:</translation>
     </message>
     <message>
         <source>The Selected Kit Is Not Supported</source>
-        <translation type="unfinished"></translation>
+        <translation>Das gewählte Kit wird nicht unterstützt</translation>
     </message>
     <message>
         <source>You cannot use the selected kit to preview Qt for MCUs applications.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das gewählte Kit kann nicht zur Vorschau von Qt for MCUs-Anwendungen verwendet werden.</translation>
     </message>
     <message>
         <source>Cannot find a valid Qt for MCUs kit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es kann kein gültiges Kit für Qt for MCUs gefunden werden.</translation>
     </message>
     <message>
         <source>Qt for MCUs Deploy Step</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt for MCUs Deployment-Schritt</translation>
     </message>
 </context>
 <context>
@@ -50098,13 +50103,15 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
     <message>
         <source>Use SSH port forwarding for debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>SSH-Portweiterleitung zum Debuggen verwenden</translation>
     </message>
     <message>
         <source>Enable debugging on remote targes which cannot expose gdbserver ports.
 The ssh tunneling is used to map the remote gdbserver port to localhost.
 The local and remote ports are determined automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mache Debuggen auf entfernten Zielen möglich, die gdbserver-Ports nicht direkt bereitstellen können.
+Es wird SSH-Tunneling verwendet, um die entfernten gdbserver-Ports auf localhost abzubilden.
+Die lokalen und entfernten Ports werden automatisch bestimmt.</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
@@ -50207,7 +50214,7 @@ Der Steuerprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Device &quot;%1&quot; is disconnected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerät &quot;%1&quot; ist nicht verbunden.</translation>
     </message>
     <message>
         <source>Remote Linux</source>
@@ -50232,17 +50239,19 @@ Der Steuerprozess konnte nicht gestartet werden.</translation>
     <message>
         <source>Created directory: &quot;%1&quot;.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis wurde erstellt: &quot;%1&quot;.
+</translation>
     </message>
     <message>
         <source>Copied %1/%2: &quot;%3&quot; -&gt; &quot;%4&quot;.
 </source>
         <extracomment>%1/%2 = progress in the form 4/15, %3 and %4 = source and target file paths</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1/%2 kopiert: &quot;%3 -&gt; &quot;%4&quot;.
+</translation>
     </message>
     <message>
         <source>Failed to deploy files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Deployment der Dateien ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Device is considered unconnected. Re-run device test to reset state.</source>
@@ -50384,15 +50393,15 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>%1 failed to start: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 konnte nicht gestartet werden: %2</translation>
     </message>
     <message>
         <source>%1 crashed.</source>
-        <translation type="unfinished">%1 ist abgestürzt.</translation>
+        <translation>%1 ist abgestürzt.</translation>
     </message>
     <message>
         <source>%1 failed with exit code %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ist mit Rückgabewert %2 fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Deploy files</source>
@@ -50770,7 +50779,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Cropping</source>
-        <translation type="unfinished"></translation>
+        <translation>Zuschneiden</translation>
     </message>
     <message>
         <source>Crop and Trim...</source>
@@ -54535,15 +54544,15 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
     <message>
         <source>Open Type Hierarchy</source>
-        <translation type="unfinished">Klassenhierarchie öffnen</translation>
+        <translation>Klassenhierarchie öffnen</translation>
     </message>
     <message>
         <source>Meta+Shift+T</source>
-        <translation type="unfinished">Meta+Shift+T</translation>
+        <translation>Meta+Shift+T</translation>
     </message>
     <message>
         <source>Ctrl+Shift+T</source>
-        <translation type="unfinished">Ctrl+Shift+T</translation>
+        <translation>Ctrl+Shift+T</translation>
     </message>
     <message>
         <source>Move the View a Page Up and Keep the Cursor Position</source>
@@ -54731,23 +54740,23 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
     <message>
         <source>Sort Lines</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeilen sortieren</translation>
     </message>
     <message>
         <source>Go to Previous Word (Camel Case)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zum vorhergehenden Wort springen (Camel Case)</translation>
     </message>
     <message>
         <source>Go to Next Word (Camel Case)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zum nächsten Wort springen (Camel Case)</translation>
     </message>
     <message>
         <source>Go to Previous Word (Camel Case) with Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorhergehendes Wort markieren (Camel Case)</translation>
     </message>
     <message>
         <source>Go to Next Word (Camel Case) with Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Nächstes Wort markieren (Camel Case)</translation>
     </message>
     <message>
         <source>Meta+Shift+S</source>
@@ -55987,15 +55996,15 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Type Hierarchy</source>
-        <translation type="unfinished">Klassenhierarchie</translation>
+        <translation>Typenhierarchie</translation>
     </message>
     <message>
         <source>No type hierarchy available</source>
-        <translation type="unfinished">Keine Klassenhierarchie verfügbar</translation>
+        <translation>Keine Typenhierarchie verfügbar</translation>
     </message>
     <message>
         <source>Reloads the type hierarchy for the symbol under the cursor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lädt die Typenhierarchie für das Symbol unter der Einfügemarke neu.</translation>
     </message>
 </context>
 <context>
@@ -56753,7 +56762,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>watch is not implemented.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;watch&quot; ist nicht implementiert.</translation>
     </message>
     <message>
         <source>Refusing to remove the standard directory &quot;%1&quot;.</source>
@@ -57224,11 +57233,11 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Failed to open output file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Ausgabedatei konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Failed to write output file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Ausgabedatei konnte nicht geschrieben werden.</translation>
     </message>
     <message>
         <source>Command failed.</source>
@@ -57259,7 +57268,7 @@ in &quot;%2&quot; aus.
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished">Vorgabe</translation>
+        <translation>Vorgabe</translation>
     </message>
     <message>
         <source>Show %1 Column</source>
@@ -57336,7 +57345,14 @@ To prepend to a variable, use VARIABLE=+VALUE.
 Existing variables can be referenced in a VALUE with ${OTHER}.
 To clear a variable, put its name on a line with nothing else on it.
 Lines starting with &quot;##&quot; will be treated as comments.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie eine Umgebungsvariable pro Zeile ein.
+Um eine Variable zu setzen oder zu ändern, verwenden Sie VARIABLE=WERT.
+Um eine Variable zu deaktivieren, stellen Sie der Zeile &quot;#&quot; voran.
+Um einen Wert an eine Variable anzufügen, verwenden Sie VARIABLE+=WERT.
+Um einen Wert einer Variable voranzustellen, verwenden Sie VARIABLE=+WERT.
+Existierende Variablen können in einem WERT mit ${ANDERE} verwendet werden.
+Um eine Variable zu leeren, schreiben Sie nichts als ihren Namen in eine Zeile.
+Zeilen, die mit &quot;##&quot; beginnen, werden als Kommentare behandelt.</translation>
     </message>
     <message>
         <source>&amp;OK</source>
@@ -57454,7 +57470,7 @@ Lines starting with &quot;##&quot; will be treated as comments.</source>
     </message>
     <message>
         <source>No Lua interface set</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Lua-Schnittstelle eingestellt</translation>
     </message>
 </context>
 <context>
