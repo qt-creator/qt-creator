@@ -173,26 +173,6 @@ void createProjectNode(const QHash<Utils::FilePath, ProjectNode *> &cmakeListsNo
     pn->setDisplayName(displayName);
 }
 
-CMakeTargetNode *createTargetNode(const QHash<Utils::FilePath, ProjectNode *> &cmakeListsNodes,
-                                  const Utils::FilePath &dir,
-                                  const QString &displayName)
-{
-    ProjectNode *cmln = cmakeListsNodes.value(dir);
-    QTC_ASSERT(cmln, return nullptr);
-
-    QString targetId = displayName;
-
-    CMakeTargetNode *tn = static_cast<CMakeTargetNode *>(
-        cmln->findNode([&targetId](const Node *n) { return n->buildKey() == targetId; }));
-    if (!tn) {
-        auto newNode = std::make_unique<CMakeTargetNode>(dir, displayName);
-        tn = newNode.get();
-        cmln->addNode(std::move(newNode));
-    }
-    tn->setDisplayName(displayName);
-    return tn;
-}
-
 template<typename Result>
 static std::unique_ptr<Result> cloneFolderNode(FolderNode *node)
 {

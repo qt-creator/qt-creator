@@ -33,6 +33,8 @@ namespace CMakeProjectManager::Internal {
 
 static Q_LOGGING_CATEGORY(cmakeLogger, "qtc.cmake.fileApiExtractor", QtWarningMsg);
 
+static const char QTC_RUNNABLE[] = "qtc_runnable";
+
 // --------------------------------------------------------------------
 // Helpers:
 // --------------------------------------------------------------------
@@ -275,7 +277,8 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
                                                          || f.fragment.contains("Qt6Gui"));
                                           });
 
-        ct.qtcRunnable = t.folderTargetProperty == "qtc_runnable";
+        // FIXME: remove the usage of "qtc_runnable" by parsing the CMake code instead
+        ct.qtcRunnable = t.folderTargetProperty == QTC_RUNNABLE;
 
         // Extract library directories for executables:
         for (const FragmentInfo &f : t.link.value().fragments) {
@@ -761,7 +764,8 @@ static void addGeneratedFilesNode(ProjectNode *targetRoot, const FilePath &topLe
     addCMakeVFolder(targetRoot, buildDir, 10, Tr::tr("<Generated Files>"), std::move(nodes));
 }
 
-static void addTargets(const QFuture<void> &cancelFuture,
+static void addTargets(FolderNode *root,
+                       const QFuture<void> &cancelFuture,
                        const QHash<FilePath, ProjectNode *> &cmakeListsNodes,
                        const Configuration &config,
                        const std::vector<TargetDetails> &targetDetails,
@@ -772,13 +776,34 @@ static void addTargets(const QFuture<void> &cancelFuture,
     for (const TargetDetails &t : targetDetails)
         targetDetailsHash.insert(t.id, &t);
     const TargetDetails defaultTargetDetails;
-    auto getTargetDetails = [&targetDetailsHash, &defaultTargetDetails](const QString &id)
-            -> const TargetDetails & {
+    auto getTargetDetails = [&targetDetailsHash,
+                             &defaultTargetDetails](const QString &id) -> const TargetDetails & {
         auto it = targetDetailsHash.constFind(id);
         if (it != targetDetailsHash.constEnd())
             return *it.value();
         return defaultTargetDetails;
     };
+
+    auto createTargetNode = [](auto &cmakeListsNodes,
+                               const Utils::FilePath &dir,
+                               const QString &displayName) -> CMakeTargetNode * {
+        auto *cmln = cmakeListsNodes.value(dir);
+        QTC_ASSERT(cmln, return nullptr);
+
+        QString targetId = displayName;
+
+        CMakeTargetNode *tn = static_cast<CMakeTargetNode *>(
+            cmln->findNode([&targetId](const Node *n) { return n->buildKey() == targetId; }));
+        if (!tn) {
+            auto newNode = std::make_unique<CMakeTargetNode>(dir, displayName);
+            tn = newNode.get();
+            cmln->addNode(std::move(newNode));
+        }
+        tn->setDisplayName(displayName);
+        return tn;
+    };
+
+    QHash<FilePath, FolderNode *> folderNodes;
 
     for (const FileApiDetails::Target &t : config.targets) {
         if (cancelFuture.isCanceled())
@@ -786,9 +811,20 @@ static void addTargets(const QFuture<void> &cancelFuture,
 
         const TargetDetails &td = getTargetDetails(t.id);
 
+        CMakeTargetNode *tNode{nullptr};
         const FilePath dir = directorySourceDir(config, sourceDir, t.directory);
 
-        CMakeTargetNode *tNode = createTargetNode(cmakeListsNodes, dir, t.name);
+        // FIXME: remove the usage of "qtc_runnable" by parsing the CMake code instead
+        if (!td.folderTargetProperty.isEmpty() && td.folderTargetProperty != QTC_RUNNABLE) {
+            const FilePath folderDir = FilePath::fromString(td.folderTargetProperty);
+            if (!folderNodes.contains(folderDir))
+                folderNodes.insert(
+                    folderDir, createSourceGroupNode(td.folderTargetProperty, folderDir, root));
+
+            tNode = createTargetNode(folderNodes, folderDir, t.name);
+        } else {
+            tNode = createTargetNode(cmakeListsNodes, dir, t.name);
+        }
         QTC_ASSERT(tNode, continue);
 
         tNode->setTargetInformation(td.artifacts, td.type);
@@ -821,7 +857,8 @@ static std::unique_ptr<CMakeProjectNode> generateRootProjectNode(const QFuture<v
     if (cancelFuture.isCanceled())
         return {};
 
-    addTargets(cancelFuture,
+    addTargets(result.get(),
+               cancelFuture,
                cmakeListsNodes,
                data.codemodel,
                data.targetDetails,
