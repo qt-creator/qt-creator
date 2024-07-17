@@ -25,13 +25,6 @@ public:
     const Arg arg; // FIXME: Could be const &, but this would currently break bindTo().
 };
 
-template <typename ...Args>
-struct ArgTuple
-{
-    ArgTuple(Args &&...args) : args(std::forward<Args>(args)...) {}
-    const std::tuple<std::decay_t<Args>...> args;
-};
-
 // The main dispatcher
 
 void doit(auto x, auto id, auto p);
@@ -60,11 +53,11 @@ public:
 class name##_TAG {}; \
 template <typename ...Args> \
 inline auto name(Args &&...args) { \
-    return Building::IdAndArg{name##_TAG{}, Building::ArgTuple<Args...>{std::forward<Args>(args)...}}; \
+    return Building::IdAndArg{name##_TAG{}, std::tuple<Args...>{std::forward<Args>(args)...}}; \
 } \
 template <typename L, typename ...Args> \
-inline void doit(L *x, name##_TAG, const Building::ArgTuple<Args...> &arg) { \
-    std::apply(&L::setter, std::tuple_cat(std::make_tuple(x), arg.args)); \
+inline void doit(L *x, name##_TAG, const std::tuple<Args...> &arg) { \
+    std::apply(&L::setter, std::tuple_cat(std::make_tuple(x), arg)); \
 }
 
 } // Building
