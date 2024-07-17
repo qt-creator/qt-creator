@@ -41022,7 +41022,7 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     </message>
     <message>
         <source>%1 (%2, %3 %4 at %5)</source>
-        <translation>%1 (%2, %3 %4 an %5)</translation>
+        <translation>%1 (%2, %3 %4: %5)</translation>
     </message>
     <message>
         <source>Remove</source>
