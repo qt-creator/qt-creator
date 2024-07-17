@@ -69,5 +69,5 @@
     \MinGW or installing a Qt version that was built with Microsoft Visual Studio,
     depending on which configuration you want to use for your applications.
 
-    \sa {Creating a Qt Widget Based Application}, {\QD}
+    \sa {Tutorial: Qt Widgets application}, {\QD}
 */

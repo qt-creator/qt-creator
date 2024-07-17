@@ -1,0 +1,115 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-tutorial-python-application-qt-widgets-ui.html
+    \previouspage creator-tutorials.html
+    \nextpage creator-how-tos.html
+
+    \ingroup creator-tutorials
+
+    \title Tutorial: Qt Widgets UI and Python
+
+    \brief How to develop a Qt widget-based application that contains a
+    \l {UI file} (.ui) with Python.
+
+    First, create a Qt for Python application project. Then, use the integrated
+    \QD to design a widgets-based UI.
+
+    \image qtcreator-new-project-python-window-ui-ready.webp {A small Qt Widgets application}
+
+    For more examples of creating Qt for Python applications, see
+    \l {https://doc.qt.io/qtforpython/tutorials/index.html}
+    {Qt for Python Examples and Tutorials}.
+
+    \section1 Create a window UI project
+
+    To create a Qt for Python application that has the source file for a main
+    class:
+
+    \list 1
+        \li Go to \uicontrol File > \uicontrol {New Project}.
+        \li Select \uicontrol {Application (Qt for Python)} >
+            \uicontrol {Window UI} > \uicontrol Choose to open the
+            \uicontrol {Project Location} dialog.
+            \image qtcreator-new-project-python-window-ui.webp {Project Location dialog}
+        \li In \uicontrol {Name}, enter the project name. For example,
+            \e {hello_world_ui}.
+        \li In \uicontrol {Create in}, enter the path for the project files.
+            For example, \c {C:\Examples}.
+        \li Select \uicontrol{Next} (on Windows and Linux) or \uicontrol Continue
+            (on \macos) to open the \uicontrol {Define Class} dialog.
+            \image qtcreator-new-project-python-window-ui-define-class.webp {Define Class dialog}
+        \li In \uicontrol {Class name}, select \b {MainWindow} as the class
+            name.
+        \li In \uicontrol {Base class}, select \b {QMainWindow} as the base class.
+            \note The \uicontrol {Source file} field is automatically updated to
+            match the name of the class.
+        \li In \uicontrol {Project file}, enter a name for the project file.
+        \li Select \uicontrol{Next} or \uicontrol Continue to open the
+            \uicontrol {Define Python Interpreter} dialog.
+            \image qtcreator-new-project-python-window-ui-define-python-interpreter.webp {Define Python Interpreter dialog}
+        \li In \uicontrol {PySide version}, select the PySide version of the
+            generated code.
+        \li Select \uicontrol {Next} or \uicontrol {Continue} to open the
+            \uicontrol {Kit Selection} dialog.
+            \image qtcreator-new-project-qt-for-python-kit-selection.webp {Selecting a kit for a Python project}
+        \li Select Python kits for building, deploying, and running the
+            project. By default, this creates a virtual environment for the
+            project inside the source directory. To use the global interpreter,
+            select the build configuration with the same name as the Python of
+            the kit in \uicontrol {Details}.
+        \li Select \uicontrol {Next} or \uicontrol {Continue}.
+        \li Review the project settings, and select \uicontrol {Finish} (on
+            Windows and Linux) or \uicontrol Done (on \macos) to create the
+            project.
+    \endlist
+
+    The wizard generates the following files:
+
+    \list
+        \li \c {form.ui}, which is the UI file for the window UI.
+        \li \c {hello_world_ui.pyproject}, which lists the files in the Python
+            project.
+        \li \c {mainwindow.py}, which has some boilerplate code for a class.
+        \li \c {reguirements.txt}, which stores the PySide version of the
+            generated code. You can use this file to install the required PySide
+            version using pip.
+    \endlist
+
+    \include creator-tutorial-python-application-qtquick.qdoc install-pyside6
+
+   \section1 Design a widgets-based UI
+
+    \list 1
+        \li In the \uicontrol {Edit} mode, double-click the \c {form.ui} file
+            in the \uicontrol{Projects} view to launch the integrated \QD.
+        \li Drag the following widgets from \uicontrol {Widget Box} to the form:
+        \list
+            \li \uicontrol {Text Edit} (QTextEdit)
+            \li \uicontrol {Check Box} (QCheckBox)
+            \li \uicontrol {Push Button} (QPushButton)
+        \endlist
+        \image qtcreator-new-project-python-window-ui-widgets.webp {Adding widgets to the UI}
+        \note To easily locate the widgets, use the search box at the top of the
+        \uicontrol {Widget Box}. For example, to find the \uicontrol {Text Edit}
+        widget, start typing the word \b text.
+        \li Double-click the \uicontrol {Text Edit} widget and enter the text
+            \b{Enter text here}.
+        \li Double-click the \uicontrol {Check Box} widget and enter the text
+            \b{Select me}.
+        \li Double-click the \uicontrol {Push Button} widget and enter the text
+            \b{Click me}.
+        \li Press \key {Ctrl+S} (or \key {Cmd+S}) to save your changes.
+    \endlist
+
+    For more information about designing UIs with \QD, see \l{\QD Manual}.
+
+    \section1 Run the application
+
+    Select the \inlineimage icons/run_small.png
+    button to run the application.
+
+    \sa {Tutorial: Qt Quick and Python}, {Tutorial: Qt Widgets and Python},
+    {Develop Qt for Python Applications}
+*/

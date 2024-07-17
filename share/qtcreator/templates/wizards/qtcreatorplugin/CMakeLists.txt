@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 
 # Remove when sharing with others.
-@if %{JS: Util.isDirectory('%{QtCreatorBuild}/Qt Creator.app/Contents/Resources')}
+@if %{JS: Util.isDirectory('%{QtCreatorBuild}/Qt Creator.app/Contents/Resources/lib/cmake/QtCreator')}
 list(APPEND CMAKE_PREFIX_PATH "%{QtCreatorBuild}/Qt Creator.app/Contents/Resources")
 @else
-  @if %{JS: Util.isDirectory('%{QtCreatorBuild}/Contents/Resources')}
+  @if %{JS: Util.isDirectory('%{QtCreatorBuild}/Contents/Resources/lib/cmake/QtCreator')}
 list(APPEND CMAKE_PREFIX_PATH "%{QtCreatorBuild}/Contents/Resources")
   @else
 list(APPEND CMAKE_PREFIX_PATH "%{QtCreatorBuild}")

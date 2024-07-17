@@ -430,6 +430,7 @@ public:
     virtual bool selectBlockUp();
     virtual bool selectBlockDown();
     void selectWordUnderCursor();
+    void clearSelection();
 
     void showContextMenu();
 

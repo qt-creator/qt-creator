@@ -91,7 +91,7 @@
     For more information about the project file settings, see
     \l{Declaring Other Libraries}{qmake Manual: Declaring Other Libraries}.
 
-    \sa {Using an Internal Library in a qmake Project}{Tutorial: Using an Internal Library in a qmake Project},
+    \sa {Tutorial: Use internal libraries with qmake},
     {Add subprojects to projects}, {Add libraries to CMake projects},
     {Use project wizards}, {Creating Projects}
 */
@@ -103,7 +103,7 @@
 
     \ingroup creator-tutorials
 
-    \title Using an Internal Library in a qmake Project
+    \title Tutorial: Use internal libraries with qmake
 
     \brief How to create your own library and link your application against it
     when using qmake as the build system.
@@ -114,7 +114,7 @@
     \note This tutorial only applies when you select qmake as the build
     system for the subdirs project.
 
-    \section1 Creating a shared library
+    \section1 Create a shared library
 
     To create a shared library:
 
@@ -154,7 +154,7 @@
             list, select a subdirs project. For example, \e MyApplication.
     \endlist
 
-    \section1 Linking an application to the library
+    \section1 Link an application to the library
 
     To link a project to the shared library:
 

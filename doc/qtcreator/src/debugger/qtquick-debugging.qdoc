@@ -26,7 +26,7 @@
     JavaScript variables, as well as change their values temporarily at runtime.
 
     For an example of how to debug Qt Quick Projects, see
-    \l{Debugging a Qt Quick Application}.
+    \l{Tutorial: Qt Quick debugging}.
 
     \if defined(qtdesignstudio)
     \note In this section, you are using advanced menu items. These are not

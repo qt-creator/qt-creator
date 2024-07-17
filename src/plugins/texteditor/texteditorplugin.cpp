@@ -544,6 +544,8 @@ void TextEditorPlugin::createEditorCommands()
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Shift+Alt+U")))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_BLOCKS);
     TextActionBuilder(this, SELECT_WORD_UNDER_CURSOR).setText(Tr::tr("Select Word Under Cursor"));
+    TextActionBuilder(this, CLEAR_SELECTION)
+        .setText(QCoreApplication::translate("QtC::Terminal", "Clear Selection"));
 
     TextActionBuilder(this, GOTO_DOCUMENT_START).setText(Tr::tr("Go to Document Start"));
     TextActionBuilder(this, GOTO_DOCUMENT_END).setText(Tr::tr("Go to Document End"));

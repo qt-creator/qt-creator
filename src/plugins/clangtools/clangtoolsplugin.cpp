@@ -177,10 +177,11 @@ void ClangToolsPlugin::registerAnalyzeActions()
         widget->toolBar()->addWidget(button);
         const auto toolsMenu = new QMenu(widget);
         button->setMenu(toolsMenu);
-        for (const auto &toolInfo : {std::make_pair(ClangTidyTool::instance(),
-                                                    Constants::RUN_CLANGTIDY_ON_CURRENT_FILE),
-                                     std::make_pair(ClazyTool::instance(),
-                                                    Constants::RUN_CLAZY_ON_CURRENT_FILE)}) {
+        for (const auto &toolInfo :
+             {std::pair<ClangTool *, Utils::Id>(
+                  ClangTidyTool::instance(), Constants::RUN_CLANGTIDY_ON_CURRENT_FILE),
+              std::pair<ClangTool *, Utils::Id>(
+                  ClazyTool::instance(), Constants::RUN_CLAZY_ON_CURRENT_FILE)}) {
             ClangTool * const tool = toolInfo.first;
             Command * const cmd = ActionManager::command(toolInfo.second);
             QAction *const action = toolsMenu->addAction(tool->name(), [editor, tool] {

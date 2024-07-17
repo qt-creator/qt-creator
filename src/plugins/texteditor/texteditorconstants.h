@@ -143,6 +143,7 @@ const char GOTO_BLOCK_END_WITH_SELECTION[] = "TextEditor.GotoBlockEndWithSelecti
 const char SELECT_BLOCK_UP[]       = "TextEditor.SelectBlockUp";
 const char SELECT_BLOCK_DOWN[]     = "TextEditor.SelectBlockDown";
 const char SELECT_WORD_UNDER_CURSOR[]   = "TextEditor.SelectWordUnderCursor";
+const char CLEAR_SELECTION[]       = "TextEditor.ClearSelection";
 const char VIEW_PAGE_UP[] = "TextEditor.viewPageUp";
 const char VIEW_PAGE_DOWN[] = "TextEditor.viewPageDown";
 const char VIEW_LINE_UP[] = "TextEditor.viewLineUp";

@@ -480,6 +480,11 @@ QmlJSEditorDocumentPrivate::QmlJSEditorDocumentPrivate(QmlJSEditorDocument *pare
             this, &QmlJSEditorDocumentPrivate::onDocumentUpdated);
     connect(QmllsSettingsManager::instance(), &QmllsSettingsManager::settingsChanged,
             this, &QmlJSEditorDocumentPrivate::settingsChanged);
+    connect(
+        modelManager,
+        &ModelManagerInterface::projectInfoUpdated,
+        this,
+        &QmlJSEditorDocumentPrivate::settingsChanged);
 
     // semantic info
     m_semanticInfoUpdater = new SemanticInfoUpdater();
@@ -749,7 +754,7 @@ static FilePath qmllsForFile(const FilePath &file, QmlJS::ModelManagerInterface 
                < QmlJsEditingSettings::mininumQmllsVersion) {
         return {};
     }
-    return pInfo.qmllsPath;
+    return pInfo.qmllsPath.exists() ? pInfo.qmllsPath : Utils::FilePath();
 }
 
 void QmlJSEditorDocumentPrivate::settingsChanged()

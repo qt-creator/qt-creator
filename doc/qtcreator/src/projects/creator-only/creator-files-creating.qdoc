@@ -150,7 +150,7 @@
     \list 1
         \li Select \uicontrol File > \uicontrol {New File} > \uicontrol {Qt} >
             \uicontrol {Qt Resource File} > \uicontrol Choose.
-            \image qtcreator-add-resource-wizard.png {New File dialog}
+            \image qtcreator-new-file-qrc.webp {New File dialog}
         \li Follow the instructions of the wizard to create a resource
             collection file (.qrc).
         \li Open the resource file in the resource editor.
