@@ -216,7 +216,7 @@ public:
 
     void zoomF(float delta);
 
-    qint64 cursorPosition() const;
+    qint64 cursorPosition() const { return m_cursorPosition; }
     void setCursorPosition(qint64 pos, MoveMode moveMode = MoveAnchor);
     void jumpToAddress(quint64 address);
 
@@ -253,8 +253,8 @@ public:
 
     QLineEdit *addressEdit() const { return m_addressEdit; }
 
-    void updateCursorPosition(qint64 position) {
-        m_addressEdit->setText(QString::number(baseAddress() + position, 16));
+    void updateAddressDisplay() {
+        m_addressEdit->setText(QString::number(baseAddress() + m_cursorPosition, 16));
     }
 
     void onDataAdded() { viewport()->update(); }
@@ -394,10 +394,9 @@ BinEditorWidget::BinEditorWidget(BinEditorDocument *doc)
 
     connect(m_addressEdit, &QLineEdit::editingFinished, this, [this] {
         jumpToAddress(m_addressEdit->text().toULongLong(nullptr, 16));
-        updateCursorPosition(cursorPosition());
     });
 
-    updateCursorPosition(cursorPosition());
+    updateAddressDisplay();
 
     init();
 }
@@ -1243,12 +1242,6 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
     }
 }
 
-
-qint64 BinEditorWidget::cursorPosition() const
-{
-    return m_cursorPosition;
-}
-
 void BinEditorWidget::setCursorPosition(qint64 pos, MoveMode moveMode)
 {
     pos = qMin(m_doc->m_size - 1, qMax(qint64(0), pos));
@@ -1263,7 +1256,7 @@ void BinEditorWidget::setCursorPosition(qint64 pos, MoveMode moveMode)
 
     updateLines(oldCursorPosition, m_cursorPosition);
     ensureCursorVisible();
-    updateCursorPosition(m_cursorPosition);
+    updateAddressDisplay();
 }
 
 void BinEditorWidget::ensureCursorVisible()
@@ -1344,7 +1337,7 @@ void BinEditorWidget::clear()
     m_cursorPosition = 0;
     verticalScrollBar()->setValue(0);
 
-    updateCursorPosition(m_cursorPosition);
+    updateAddressDisplay();
     viewport()->update();
 }
 
