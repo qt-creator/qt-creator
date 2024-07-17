@@ -5,14 +5,6 @@
 
 #include <functional>
 
-#if defined(UTILS_LIBRARY)
-#  define QTCREATOR_UTILS_EXPORT Q_DECL_EXPORT
-#elif defined(UTILS_STATIC_LIBRARY)
-#  define QTCREATOR_UTILS_EXPORT
-#else
-#  define QTCREATOR_UTILS_EXPORT Q_DECL_IMPORT
-#endif
-
 namespace Building {
 
 class NestId {};
