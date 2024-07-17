@@ -851,7 +851,6 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     const QFont tagsLabelFont = tagsLabelTF.font();
     const QFontMetrics tagsLabelFM(tagsLabelFont);
     const QFont descriptionFont = descriptionTF.font();
-    const QFontMetrics descriptionFM(descriptionFont);
 
     const QRect bgRGlobal = option.rect.adjusted(0, 0, -ExVPaddingGapXl, -ExVPaddingGapXl);
     const QRect bgR = bgRGlobal.translated(-option.rect.topLeft());
