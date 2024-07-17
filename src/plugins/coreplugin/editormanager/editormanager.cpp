@@ -1662,11 +1662,6 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
 
     qDeleteAll(acceptedEditors);
 
-    if (!EditorManager::currentEditor()) {
-        emit m_instance->currentEditorChanged(nullptr);
-        updateActions();
-    }
-
     return !closingFailed;
 }
 
