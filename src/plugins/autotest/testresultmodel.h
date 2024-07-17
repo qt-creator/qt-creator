@@ -70,6 +70,7 @@ public:
 
     int resultTypeCount(ResultType type) const;
     int disabledTests() const { return m_disabled; }
+    std::optional<int> reportedDuration() const { return m_reportedDurations; }
     void raiseDisabledTests(int amount) { m_disabled += amount; }
 
 private:
@@ -80,6 +81,7 @@ private:
     void updateParent(const TestResultItem *item);
     QHash<QString, QMap<ResultType, int>> m_testResultCount;
     QHash<QString, QHash<ResultType, int>> m_reportedSummary;
+    std::optional<int> m_reportedDurations = std::nullopt;
     int m_widthOfLineNumber = 0;
     int m_maxWidthOfFileName = 0;
     int m_disabled = 0;

@@ -500,7 +500,10 @@ void TestResultsPane::updateSummaryLabel()
     count = m_model->disabledTests();
     if (count)
         labelText += ", " + QString::number(count) + ' ' + Tr::tr("disabled");
-    labelText.append(".</p>");
+    if (auto millisec = m_model->reportedDuration())
+        labelText += ".&nbsp;&nbsp;&nbsp;(" + QString::number(*millisec) + " ms)</p>";
+    else
+        labelText.append(".</p>");
     m_summaryLabel->setText(labelText);
 }
 

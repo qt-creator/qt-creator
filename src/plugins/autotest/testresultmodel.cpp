@@ -238,6 +238,10 @@ TestResultModel::TestResultModel(QObject *parent)
             this, [this](const QString &id, const QHash<ResultType, int> &summary){
         m_reportedSummary.insert(id, summary);
     });
+    connect(TestRunner::instance(), &TestRunner::reportDuration,
+            this, [this](int duration){
+        m_reportedDurations.emplace(m_reportedDurations.value_or(0) + duration);
+    });
 }
 
 void TestResultModel::updateParent(const TestResultItem *item)
@@ -354,6 +358,7 @@ void TestResultModel::clearTestResults()
     clear();
     m_testResultCount.clear();
     m_reportedSummary.clear();
+    m_reportedDurations.reset();
     m_disabled = 0;
     m_fileNames.clear();
     m_maxWidthOfFileName = 0;

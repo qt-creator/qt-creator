@@ -71,6 +71,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
         testResult.setResult(ResultType::TestEnd);
         testResult.setDescription(Tr::tr("Test execution took %1.").arg(match.captured(2)));
         testResult.setDuration(match.captured(3));
+        m_executionDuration = m_executionDuration.value_or(0) + match.captured(3).toInt();
         reportResult(testResult);
         m_currentTestSuite.clear();
         m_currentTestCase.clear();

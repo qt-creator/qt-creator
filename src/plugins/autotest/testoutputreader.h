@@ -25,6 +25,8 @@ public:
     int disabledTests() const { return m_disabled; }
     bool hasSummary() const { return !m_summary.isEmpty(); }
     QHash<ResultType, int> summary() const { return m_summary; }
+    bool hasDuration() const { return m_executionDuration.has_value(); }
+    int duration() const { return m_executionDuration.value(); }
     void setId(const QString &id) { m_id = id; }
     QString id() const { return m_id; }
 
@@ -49,6 +51,8 @@ protected:
     QString m_id;
     QHash<ResultType, int> m_summary;
     int m_disabled = -1;
+    std::optional<int> m_executionDuration;
+
 private:
     enum class SanitizerOutputMode { None, Asan, Ubsan};
     TestResult m_sanitizerResult;
