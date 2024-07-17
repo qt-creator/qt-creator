@@ -126,7 +126,12 @@ public:
     void requestNewWindow(quint64 address) { if (m_newWindowRequestHandler) m_newWindowRequestHandler(address); }
     void requestWatchPoint(quint64 address, int size) { if (m_watchPointRequestHandler) m_watchPointRequestHandler(address, size); }
     void requestNewRange(quint64 address) { if (m_newRangeRequestHandler) m_newRangeRequestHandler(address); }
-    void announceChangedData(quint64 address, const QByteArray &ba) { if (m_dataChangedHandler) m_dataChangedHandler(address, ba); }
+
+    void announceChangedData(quint64 address, const QByteArray &ba)
+    {
+        if (m_dataChangedHandler)
+            m_dataChangedHandler(address, ba);
+    }
 
     void setFinished()
     {
@@ -202,7 +207,7 @@ class BinEditorWidget final : public QAbstractScrollArea
     Q_OBJECT
 
 public:
-    explicit BinEditorWidget(BinEditorDocument *doc);
+    explicit BinEditorWidget(const std::shared_ptr<BinEditorDocument> &doc);
     void init();
 
     quint64 baseAddress() const { return m_doc->m_baseAddr; }
@@ -284,7 +289,7 @@ public:
     void asDouble(qint64 offset, double &value, bool old) const;
     QString toolTip(const QHelpEvent *helpEvent) const;
 
-    BinEditorDocument *m_doc = nullptr;
+    std::shared_ptr<BinEditorDocument> m_doc;
     int m_bytesPerLine = 16;
     int m_readOnly = false;
     int m_margin = 0;
@@ -356,24 +361,28 @@ static QByteArray calculateHexPattern(const QByteArray &pattern)
     return result;
 }
 
-BinEditorWidget::BinEditorWidget(BinEditorDocument *doc)
+BinEditorWidget::BinEditorWidget(const std::shared_ptr<BinEditorDocument> &doc)
 {
     m_doc = doc;
     setFocusPolicy(Qt::WheelFocus);
     setFrameStyle(QFrame::Plain);
 
-    connect(doc, &BinEditorDocument::dataAdded,
+    connect(doc.get(), &BinEditorDocument::dataAdded,
             this, &BinEditorWidget::onDataAdded);
-    connect(doc, &BinEditorDocument::sizesChanged,
+    connect(doc.get(), &BinEditorDocument::sizesChanged,
             this, &BinEditorWidget::onSizesChanged);
-    connect(doc, &BinEditorDocument::cursorWanted,
+    connect(doc.get(), &BinEditorDocument::cursorWanted,
             this, &BinEditorWidget::onCursorWanted);
-    connect(doc, &BinEditorDocument::cleared,
+    connect(doc.get(), &BinEditorDocument::cleared,
             this, &BinEditorWidget::clear);
-    connect(doc, &BinEditorDocument::aboutToReload,
+    connect(doc.get(), &BinEditorDocument::aboutToReload,
             this, &BinEditorWidget::aboutToReload);
-    connect(doc, &BinEditorDocument::reloadFinished,
+    connect(doc.get(), &BinEditorDocument::reloadFinished,
             this, &BinEditorWidget::reloadFinished);
+    connect(doc.get(), &BinEditorDocument::contentsChanged, this, [this] {
+        update();
+        viewport()->update();
+    });
 
     // Font settings
     setFontSettings(TextEditorSettings::fontSettings());
@@ -503,6 +512,7 @@ void BinEditorDocument::changeDataAt(qint64 pos, char c)
         }
     }
 
+    emit contentsChanged();
     announceChangedData(m_baseAddr + pos, QByteArray(1, c));
 }
 
@@ -2083,7 +2093,6 @@ BinEditorDocument::BinEditorDocument()
     setMimeType(Utils::Constants::OCTET_STREAM_MIMETYPE);
     m_fetchDataHandler = [this](quint64 address) { provideData(address); };
     m_newRangeRequestHandler = [this](quint64 offset) { provideNewRange(offset); };
-    m_dataChangedHandler = [this](quint64, const QByteArray &) { contentsChanged(); };
 }
 
 bool BinEditorDocument::setContents(const QByteArray &contents)
@@ -2184,10 +2193,11 @@ bool BinEditorDocument::saveImpl(QString *errorString, const FilePath &filePath,
 class BinEditorImpl final : public IEditor
 {
 public:
-    BinEditorImpl(BinEditorWidget *widget, BinEditorDocument *doc)
-        : m_document(doc)
+    BinEditorImpl(BinEditorWidget *widget, const std::shared_ptr<BinEditorDocument> &doc)
+        : m_document(doc), m_widget(widget)
     {
         setWidget(widget);
+        setDuplicateSupported(true);
         auto codecChooser = new CodecChooser(CodecChooser::Filter::SingleByte);
         codecChooser->prependNone();
 
@@ -2210,12 +2220,24 @@ public:
             codecChooser->setAssignedCodec(QTextCodec::codecForName(setting.toByteArray()));
     }
 
-    ~BinEditorImpl() final { delete m_widget; delete m_document; }
-    IDocument *document() const final { return m_document; }
+    ~BinEditorImpl() final { delete m_widget; }
+
+    IDocument *document() const final { return m_document.get(); }
+
     QWidget *toolBar() final { return m_toolBar; }
 
+    IEditor *duplicate() final
+    {
+        auto widget = new BinEditorWidget(m_document);
+        widget->setCursorPosition(m_widget->cursorPosition());
+        auto editor = new BinEditorImpl(widget, m_document);
+        emit editorDuplicated(editor);
+        return editor;
+    }
+
 private:
-    BinEditorDocument *m_document;
+    std::shared_ptr<BinEditorDocument> m_document;
+    BinEditorWidget *m_widget = nullptr;
     QToolBar *m_toolBar;
 };
 
@@ -2264,13 +2286,13 @@ class BinEditorFactoryService final : public QObject, public FactoryService
 public:
     EditorService *createEditorService(const QString &title, bool wantsEditor) final
     {
-        auto document = new BinEditorDocument;
+        auto document = std::make_shared<BinEditorDocument>();
         auto widget = new BinEditorWidget(document);
         widget->setWindowTitle(title);
 
         auto service = new BinEditorService;
         service->m_widget = widget;
-        service->m_document = document;
+        service->m_document = document.get();
         service->m_editor = new BinEditorImpl(widget, document);
         if (wantsEditor)
             EditorManager::activateEditor(service->m_editor);
@@ -2310,12 +2332,12 @@ public:
         ActionManager::registerAction(m_selectAllAction, Core::Constants::SELECTALL, context);
 
         setEditorCreator([this] {
-            auto doc = new BinEditorDocument;
+            auto doc = std::make_shared<BinEditorDocument>();
             auto widget = new BinEditorWidget(doc);
             auto editor = new BinEditorImpl(widget, doc);
 
-            connect(m_undoAction, &QAction::triggered, doc, &BinEditorDocument::undo);
-            connect(m_redoAction, &QAction::triggered, doc, &BinEditorDocument::redo);
+            connect(m_undoAction, &QAction::triggered, doc.get(), &BinEditorDocument::undo);
+            connect(m_redoAction, &QAction::triggered, doc.get(), &BinEditorDocument::redo);
             connect(m_copyAction, &QAction::triggered, widget, &BinEditorWidget::copy);
             connect(m_selectAllAction, &QAction::triggered, widget, &BinEditorWidget::selectAll);
 
@@ -2325,8 +2347,8 @@ public:
                 m_redoAction->setEnabled(widget->isRedoAvailable());
             };
 
-            connect(doc, &BinEditorDocument::undoAvailable, widget, updateActions);
-            connect(doc, &BinEditorDocument::redoAvailable, widget, updateActions);
+            connect(doc.get(), &BinEditorDocument::undoAvailable, widget, updateActions);
+            connect(doc.get(), &BinEditorDocument::redoAvailable, widget, updateActions);
 
             auto aggregate = new Aggregation::Aggregate;
             auto binEditorFind = new BinEditorFind(widget);
