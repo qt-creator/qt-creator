@@ -218,8 +218,8 @@ static Extension extensionFromPluginSpec(const PluginSpec *pluginSpec)
         .version = pluginSpec->version(),
     };
 
-    const QStringList lines = pluginSpec->description().split('\n', Qt::SkipEmptyParts)
-                              + pluginSpec->longDescription().split('\n', Qt::SkipEmptyParts);
+    const QStringList lines = pluginSpec->description().split('\n')
+                              + pluginSpec->longDescription().split('\n');
     const TextData text = {{ pluginSpec->name(), lines }};
     LinksData links;
     if (const QString url = pluginSpec->url(); !url.isEmpty())
