@@ -270,7 +270,6 @@ Toolchains ToolchainSettingsAccessor::toolChains(const Store &data) const
                 if (Toolchain *tc = f->restore(tcMap)) {
                     result.append(tc);
                     restored = true;
-                    break;
                 }
             }
         }
