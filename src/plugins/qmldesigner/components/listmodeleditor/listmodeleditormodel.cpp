@@ -100,7 +100,7 @@ QList<PropertyName> getPropertyNames(const ModelNode &listElementNode)
     names.reserve(properties.size());
 
     for (const auto &property : properties)
-        names.push_back(property.name());
+        names.push_back(property.name().toByteArray());
 
     std::sort(names.begin(), names.end());
 

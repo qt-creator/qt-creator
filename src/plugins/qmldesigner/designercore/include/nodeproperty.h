@@ -24,10 +24,13 @@ public:
     void setDynamicTypeNameAndsetModelNode(const TypeName &typeName, const ModelNode &modelNode);
 
     NodeProperty();
-    NodeProperty(const PropertyName &propertyName,
+
+    NodeProperty(PropertyNameView propertyName,
                  const Internal::InternalNodePointer &internalNode,
                  Model *model,
-                 AbstractView *view);
+                 AbstractView *view)
+        : NodeAbstractProperty(propertyName, internalNode, model, view)
+    {}
 };
 
 } // namespace QmlDesigner

@@ -30,8 +30,8 @@ public:
     static bool isValidQml3DNode(const ModelNode &modelNode);
     static bool isValidVisualRoot(const ModelNode &modelNode);
 
-    bool handleEulerRotation(const PropertyName &name);
-    bool isBlocked(const PropertyName &propName) const;
+    bool handleEulerRotation(PropertyNameView name);
+    bool isBlocked(PropertyNameView propName) const;
 
     friend auto qHash(const Qml3DNode &node) { return qHash(node.modelNode()); }
 

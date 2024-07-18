@@ -12,10 +12,10 @@
 
 QT_BEGIN_NAMESPACE
 
-std::ostream &operator<<(std::ostream &out, const QByteArray &byteArray)
+std::ostream &operator<<(std::ostream &out, QByteArrayView byteArray)
 {
     if (byteArray.contains('\n')) {
-        QByteArray formattedArray = byteArray;
+        QByteArray formattedArray = byteArray.toByteArray();
         formattedArray.replace("\n", "\n\t");
         out << "\n\t";
         out.write(formattedArray.data(), formattedArray.size());
@@ -26,6 +26,11 @@ std::ostream &operator<<(std::ostream &out, const QByteArray &byteArray)
     }
 
     return out;
+}
+
+std::ostream &operator<<(std::ostream &out, const QByteArray &byteArray)
+{
+    return out << QByteArrayView{byteArray};
 }
 
 std::ostream &operator<<(std::ostream &out, const QString &text)

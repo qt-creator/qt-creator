@@ -47,12 +47,12 @@ enum {
 
 namespace QmlDesigner {
 
-static bool propertyIsAttachedLayoutProperty(const PropertyName &propertyName)
+static bool propertyIsAttachedLayoutProperty(PropertyNameView propertyName)
 {
     return propertyName.contains("Layout.");
 }
 
-static bool propertyIsAttachedInsightProperty(const PropertyName &propertyName)
+static bool propertyIsAttachedInsightProperty(PropertyNameView propertyName)
 {
     return propertyName.contains("InsightCategory.");
 }
@@ -317,7 +317,7 @@ void PropertyEditorView::refreshMetaInfos(const TypeIds &deletedTypeIds)
 }
 
 void PropertyEditorView::setExpressionOnObjectNode(const QmlObjectNode &constObjectNode,
-                                                   const PropertyName &name,
+                                                   PropertyNameView name,
                                                    const QString &newExpression)
 {
     auto qmlObjectNode = constObjectNode;
@@ -662,7 +662,7 @@ void PropertyEditorView::setupQmlBackend()
 #endif // QDS_USE_PROJECTSTORAGE
 }
 
-void PropertyEditorView::commitVariantValueToModel(const PropertyName &propertyName, const QVariant &value)
+void PropertyEditorView::commitVariantValueToModel(PropertyNameView propertyName, const QVariant &value)
 {
     m_locked = true;
     try {
@@ -680,11 +680,11 @@ void PropertyEditorView::commitVariantValueToModel(const PropertyName &propertyN
     m_locked = false;
 }
 
-void PropertyEditorView::commitAuxValueToModel(const PropertyName &propertyName, const QVariant &value)
+void PropertyEditorView::commitAuxValueToModel(PropertyNameView propertyName, const QVariant &value)
 {
     m_locked = true;
 
-    PropertyName name = propertyName;
+    PropertyNameView name = propertyName;
     name.chop(5);
 
     try {
@@ -704,7 +704,7 @@ void PropertyEditorView::commitAuxValueToModel(const PropertyName &propertyName,
     m_locked = false;
 }
 
-void PropertyEditorView::removePropertyFromModel(const PropertyName &propertyName)
+void PropertyEditorView::removePropertyFromModel(PropertyNameView propertyName)
 {
     m_locked = true;
     try {
@@ -794,45 +794,51 @@ void PropertyEditorView::propertiesRemoved(const QList<AbstractProperty> &proper
         if (node == m_selectedNode || QmlObjectNode(m_selectedNode).propertyChangeForCurrentState() == node) {
             m_locked = true;
 
-            PropertyName propertyName = property.name();
-            propertyName.replace('.', '_');
+            const PropertyName propertyName = property.name().toByteArray();
+            PropertyName convertedpropertyName = propertyName;
+
+            convertedpropertyName.replace('.', '_');
 
             PropertyEditorValue *value = m_qmlBackEndForCurrentType->propertyValueForName(
-                QString::fromUtf8(propertyName));
+                QString::fromUtf8(convertedpropertyName));
 
             if (value) {
                 value->resetValue();
                 m_qmlBackEndForCurrentType
                     ->setValue(m_selectedNode,
-                               property.name(),
-                               QmlObjectNode(m_selectedNode).instanceValue(property.name()));
+                               propertyName,
+                               QmlObjectNode(m_selectedNode).instanceValue(propertyName));
             }
             m_locked = false;
 
-            if (propertyIsAttachedLayoutProperty(property.name())) {
-                m_qmlBackEndForCurrentType->setValueforLayoutAttachedProperties(m_selectedNode, property.name());
+            if (propertyIsAttachedLayoutProperty(propertyName)) {
+                m_qmlBackEndForCurrentType->setValueforLayoutAttachedProperties(m_selectedNode,
+                                                                                propertyName);
 
-                if (property.name() == "Layout.margins") {
-                    m_qmlBackEndForCurrentType->setValueforLayoutAttachedProperties(m_selectedNode, "Layout.topMargin");
-                    m_qmlBackEndForCurrentType->setValueforLayoutAttachedProperties(m_selectedNode, "Layout.bottomMargin");
-                    m_qmlBackEndForCurrentType->setValueforLayoutAttachedProperties(m_selectedNode, "Layout.leftMargin");
-                    m_qmlBackEndForCurrentType->setValueforLayoutAttachedProperties(m_selectedNode, "Layout.rightMargin");
-
+                if (propertyName == "Layout.margins") {
+                    m_qmlBackEndForCurrentType
+                        ->setValueforLayoutAttachedProperties(m_selectedNode, "Layout.topMargin");
+                    m_qmlBackEndForCurrentType
+                        ->setValueforLayoutAttachedProperties(m_selectedNode, "Layout.bottomMargin");
+                    m_qmlBackEndForCurrentType
+                        ->setValueforLayoutAttachedProperties(m_selectedNode, "Layout.leftMargin");
+                    m_qmlBackEndForCurrentType
+                        ->setValueforLayoutAttachedProperties(m_selectedNode, "Layout.rightMargin");
                 }
             }
 
-            if (propertyIsAttachedInsightProperty(property.name())) {
+            if (propertyIsAttachedInsightProperty(propertyName)) {
                 m_qmlBackEndForCurrentType->setValueforInsightAttachedProperties(m_selectedNode,
-                                                                                 property.name());
+                                                                                 propertyName);
             }
 
-            if ("width" == property.name() || "height" == property.name()) {
+            if ("width" == propertyName || "height" == propertyName) {
                 const QmlItemNode qmlItemNode = m_selectedNode;
                 if (qmlItemNode.isInLayout())
                     resetPuppet();
             }
 
-            if (property.name().contains("anchor"))
+            if (propertyName.contains("anchor"))
                 m_qmlBackEndForCurrentType->backendAnchorBinding().invalidate(m_selectedNode);
         }
     }
@@ -1066,7 +1072,7 @@ void PropertyEditorView::dragEnded()
 }
 
 void PropertyEditorView::setValue(const QmlObjectNode &qmlObjectNode,
-                                  const PropertyName &name,
+                                  PropertyNameView name,
                                   const QVariant &value)
 {
     m_locked = true;

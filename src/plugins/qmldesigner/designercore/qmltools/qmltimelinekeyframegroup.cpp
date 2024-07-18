@@ -57,7 +57,7 @@ PropertyName QmlTimelineKeyframeGroup::propertyName() const
     return modelNode().variantProperty("property").value().toString().toUtf8();
 }
 
-void QmlTimelineKeyframeGroup::setPropertyName(const PropertyName &propertyName)
+void QmlTimelineKeyframeGroup::setPropertyName(PropertyNameView propertyName)
 {
     modelNode().variantProperty("property").setValue(QString::fromUtf8(propertyName));
 }

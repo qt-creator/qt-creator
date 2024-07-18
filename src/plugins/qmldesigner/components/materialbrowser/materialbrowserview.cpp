@@ -100,26 +100,33 @@ WidgetInfo MaterialBrowserView::widgetInfo()
             executeInTransaction(__FUNCTION__, [&] {
                 if (all) { // all material properties copied
                     // remove current properties
-                    PropertyNameList propNames;
                     if (mat.isInBaseState()) {
                         const QList<AbstractProperty> baseProps = material.properties();
+                        PropertyNameViews propNames;
                         for (const auto &baseProp : baseProps) {
                             if (!baseProp.isDynamic())
                                 propNames.append(baseProp.name());
                         }
+
+                        for (PropertyNameView propName : propNames) {
+                            if (propName != "objectName" && propName != "data")
+                                mat.removeProperty(propName);
+                        }
                     } else {
                         QmlPropertyChanges changes = mat.propertyChangeForCurrentState();
                         if (changes.isValid()) {
+                            PropertyNameViews propNames;
                             const QList<AbstractProperty> changedProps = changes.targetProperties();
                             for (const auto &changedProp : changedProps) {
                                 if (!changedProp.isDynamic())
                                     propNames.append(changedProp.name());
                             }
+
+                            for (PropertyNameView propName : propNames) {
+                                if (propName != "objectName" && propName != "data")
+                                    mat.removeProperty(propName);
+                            }
                         }
-                    }
-                    for (const PropertyName &propName : std::as_const(propNames)) {
-                        if (propName != "objectName" && propName != "data")
-                            mat.removeProperty(propName);
                     }
                 }
 

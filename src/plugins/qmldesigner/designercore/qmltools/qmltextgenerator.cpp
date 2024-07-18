@@ -38,7 +38,7 @@ static bool isLowPrecisionProperties(PropertyNameView property)
     return std::find(std::begin(properties), std::end(properties), property) != std::end(properties);
 }
 
-static QString doubleToString(const PropertyName &propertyName, double d)
+static QString doubleToString(PropertyNameView propertyName, double d)
 {
     int precision = 5;
     if (propertyName.contains("anchors") || propertyName.contains("font")

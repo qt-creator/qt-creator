@@ -97,7 +97,7 @@ public slots:
 
 protected:
     void timerEvent(QTimerEvent *event) override;
-    void setValue(const QmlObjectNode &fxObjectNode, const PropertyName &name, const QVariant &value);
+    void setValue(const QmlObjectNode &fxObjectNode, PropertyNameView name, const QVariant &value);
     bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
@@ -111,9 +111,9 @@ private:
 
     void setupQmlBackend();
 
-    void commitVariantValueToModel(const PropertyName &propertyName, const QVariant &value);
-    void commitAuxValueToModel(const PropertyName &propertyName, const QVariant &value);
-    void removePropertyFromModel(const PropertyName &propertyName);
+    void commitVariantValueToModel(PropertyNameView propertyName, const QVariant &value);
+    void commitAuxValueToModel(PropertyNameView propertyName, const QVariant &value);
+    void removePropertyFromModel(PropertyNameView propertyName);
     void renameMaterial(ModelNode &material, const QString &newName);
     void duplicateMaterial(const ModelNode &material);
 

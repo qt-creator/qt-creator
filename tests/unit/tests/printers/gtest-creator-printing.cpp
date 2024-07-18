@@ -24,6 +24,8 @@
 #include <utils/fileutils.h>
 #include <variantproperty.h>
 
+#include <utils/smallstringio.h>
+
 namespace std {
 template <typename T> ostream &operator<<(ostream &out, const QVector<T> &vector)
 {

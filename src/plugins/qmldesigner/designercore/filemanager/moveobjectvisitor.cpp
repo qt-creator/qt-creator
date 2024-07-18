@@ -18,16 +18,16 @@ class Inserter: public QMLRewriter
 public:
     Inserter(TextModifier &modifier,
              quint32 targetParentObjectLocation,
-             const PropertyName &targetPropertyName,
+             PropertyNameView targetPropertyName,
              bool targetIsArrayBinding,
              TextModifier::MoveInfo moveInfo,
-             const PropertyNameList &propertyOrder):
-        QMLRewriter(modifier),
-        targetParentObjectLocation(targetParentObjectLocation),
-        targetPropertyName(targetPropertyName),
-        targetIsArrayBinding(targetIsArrayBinding),
-        moveInfo(moveInfo),
-        propertyOrder(propertyOrder)
+             const PropertyNameList &propertyOrder)
+        : QMLRewriter(modifier)
+        , targetParentObjectLocation(targetParentObjectLocation)
+        , targetPropertyName(targetPropertyName)
+        , targetIsArrayBinding(targetIsArrayBinding)
+        , moveInfo(moveInfo)
+        , propertyOrder(propertyOrder)
     {}
 
 protected:
@@ -124,7 +124,7 @@ private:
 
 private:
     quint32 targetParentObjectLocation;
-    PropertyName targetPropertyName;
+    PropertyNameView targetPropertyName;
     bool targetIsArrayBinding;
     TextModifier::MoveInfo moveInfo;
     PropertyNameList propertyOrder;
@@ -132,16 +132,16 @@ private:
 
 MoveObjectVisitor::MoveObjectVisitor(TextModifier &modifier,
                                      quint32 objectLocation,
-                                     const PropertyName &targetPropertyName,
+                                     PropertyNameView targetPropertyName,
                                      bool targetIsArrayBinding,
                                      quint32 targetParentObjectLocation,
-                                     const PropertyNameList &propertyOrder):
-    QMLRewriter(modifier),
-    objectLocation(objectLocation),
-    targetPropertyName(targetPropertyName),
-    targetIsArrayBinding(targetIsArrayBinding),
-    targetParentObjectLocation(targetParentObjectLocation),
-    propertyOrder(propertyOrder)
+                                     const PropertyNameList &propertyOrder)
+    : QMLRewriter(modifier)
+    , objectLocation(objectLocation)
+    , targetPropertyName(targetPropertyName)
+    , targetIsArrayBinding(targetIsArrayBinding)
+    , targetParentObjectLocation(targetParentObjectLocation)
+    , propertyOrder(propertyOrder)
 {
 }
 

@@ -12,20 +12,30 @@ namespace QmlDesigner {
 static PropertyName lineTypeToString(AnchorLineType lineType)
 {
     switch (lineType) {
-        case AnchorLineLeft:             return PropertyName("left");
-        case AnchorLineTop:              return PropertyName("top");
-        case AnchorLineRight:            return PropertyName("right");
-        case AnchorLineBottom:           return PropertyName("bottom");
-        case AnchorLineHorizontalCenter: return PropertyName("horizontalCenter");
-        case AnchorLineVerticalCenter:   return PropertyName("verticalCenter");
-        case AnchorLineBaseline:         return PropertyName("baseline");
-        case AnchorLineFill:             return PropertyName("fill");
-        case AnchorLineCenter:           return PropertyName("centerIn");
-        default:                           return PropertyName();
+    case AnchorLineLeft:
+        return QByteArrayLiteral("left");
+    case AnchorLineTop:
+        return QByteArrayLiteral("top");
+    case AnchorLineRight:
+        return QByteArrayLiteral("right");
+    case AnchorLineBottom:
+        return QByteArrayLiteral("bottom");
+    case AnchorLineHorizontalCenter:
+        return QByteArrayLiteral("horizontalCenter");
+    case AnchorLineVerticalCenter:
+        return QByteArrayLiteral("verticalCenter");
+    case AnchorLineBaseline:
+        return QByteArrayLiteral("baseline");
+    case AnchorLineFill:
+        return QByteArrayLiteral("fill");
+    case AnchorLineCenter:
+        return QByteArrayLiteral("centerIn");
+    default:
+        return {};
     }
 }
 
-static AnchorLineType propertyNameToLineType(const PropertyName & name)
+static AnchorLineType propertyNameToLineType(PropertyNameView name)
 {
     if (name == "left")
         return AnchorLineLeft;
@@ -49,29 +59,51 @@ static AnchorLineType propertyNameToLineType(const PropertyName & name)
     return AnchorLineInvalid;
 }
 
-static PropertyName marginPropertyName(AnchorLineType lineType)
+static PropertyNameView marginPropertyName(AnchorLineType lineType)
 {
     switch (lineType) {
-        case AnchorLineLeft:             return PropertyName("anchors.leftMargin");
-        case AnchorLineTop:              return PropertyName("anchors.topMargin");
-        case AnchorLineRight:            return PropertyName("anchors.rightMargin");
-        case AnchorLineBottom:           return PropertyName("anchors.bottomMargin");
-        case AnchorLineHorizontalCenter: return PropertyName("anchors.horizontalCenterOffset");
-        case AnchorLineVerticalCenter:   return PropertyName("anchors.verticalCenterOffset");
-        default:                           return PropertyName();
+    case AnchorLineLeft:
+        return {"anchors.leftMargin"};
+    case AnchorLineTop:
+        return {"anchors.topMargin"};
+    case AnchorLineRight:
+        return {"anchors.rightMargin"};
+    case AnchorLineBottom:
+        return {"anchors.bottomMargin"};
+    case AnchorLineHorizontalCenter:
+        return {"anchors.horizontalCenterOffset"};
+    case AnchorLineVerticalCenter:
+        return {"anchors.verticalCenterOffset"};
+    default:
+        return {};
     }
 }
 
-static PropertyName anchorPropertyName(AnchorLineType lineType)
+static PropertyNameView anchorPropertyName(AnchorLineType lineType)
 {
-    const PropertyName typeString = lineTypeToString(lineType);
-
-    if (typeString.isEmpty())
-        return PropertyName();
-    else
-        return PropertyName("anchors.") + typeString;
+    switch (lineType) {
+    case AnchorLineLeft:
+        return {"anchors.left"};
+    case AnchorLineTop:
+        return {"anchors.top"};
+    case AnchorLineRight:
+        return {"anchors.right"};
+    case AnchorLineBottom:
+        return {"anchors.bottom"};
+    case AnchorLineHorizontalCenter:
+        return {"anchors.horizontalCenter"};
+    case AnchorLineVerticalCenter:
+        return {"anchors.verticalCenter"};
+    case AnchorLineBaseline:
+        return {"anchors.baseline"};
+    case AnchorLineFill:
+        return {"anchors.fill"};
+    case AnchorLineCenter:
+        return {"anchors.centerIn"};
+    default:
+        return {};
+    }
 }
-
 
 QmlAnchors::QmlAnchors(const QmlItemNode &fxItemNode) : m_qmlItemNode(fxItemNode)
 {
@@ -95,7 +127,7 @@ bool QmlAnchors::modelHasAnchors() const
 
 bool QmlAnchors::modelHasAnchor(AnchorLineType sourceAnchorLineType) const
 {
-    const PropertyName propertyName = anchorPropertyName(sourceAnchorLineType);
+    const PropertyNameView propertyName = anchorPropertyName(sourceAnchorLineType);
 
     if (sourceAnchorLineType & AnchorLineFill)
         return qmlItemNode().modelNode().hasBindingProperty(propertyName) || qmlItemNode().modelNode().hasBindingProperty("anchors.fill");
@@ -117,7 +149,7 @@ AnchorLine QmlAnchors::modelAnchor(AnchorLineType sourceAnchorLineType) const
      targetAnchorLinePair.first = lineTypeToString(sourceAnchorLineType);
  } else {
      AbstractProperty binding = qmlItemNode().modelNode().bindingProperty(anchorPropertyName(sourceAnchorLineType)).resolveToProperty();
-     targetAnchorLinePair.first = binding.name();
+     targetAnchorLinePair.first = binding.name().toByteArray();
      targetAnchorLinePair.second = binding.parentModelNode();
  }
 
@@ -146,7 +178,7 @@ void QmlAnchors::setAnchor(AnchorLineType sourceAnchorLine,
                 removeAnchor(sourceAnchorLine);
             }
 
-            const PropertyName propertyName = anchorPropertyName(sourceAnchorLine);
+            const PropertyNameView propertyName = anchorPropertyName(sourceAnchorLine);
             ModelNode targetModelNode = targetQmlItemNode.modelNode();
             QString targetExpression = targetModelNode.validId();
             if (targetQmlItemNode.modelNode() == qmlItemNode().modelNode().parentProperty().parentModelNode())
@@ -296,7 +328,7 @@ void QmlAnchors::removeAnchor(AnchorLineType sourceAnchorLine)
 {
     qmlItemNode().view()->executeInTransaction("QmlAnchors::removeAnchor", [this, sourceAnchorLine](){
         if (qmlItemNode().isInBaseState()) {
-            const PropertyName propertyName = anchorPropertyName(sourceAnchorLine);
+            const PropertyNameView propertyName = anchorPropertyName(sourceAnchorLine);
             if (qmlItemNode().nodeInstance().hasAnchor("anchors.fill") && (sourceAnchorLine & AnchorLineFill)) {
                 qmlItemNode().modelNode().removeProperty("anchors.fill");
                 qmlItemNode().modelNode().bindingProperty("anchors.top").setExpression(QLatin1String("parent.top"));
@@ -344,7 +376,7 @@ bool QmlAnchors::instanceHasAnchor(AnchorLineType sourceAnchorLine) const
     if (!qmlItemNode().isValid())
         return false;
 
-    const PropertyName propertyName = anchorPropertyName(sourceAnchorLine);
+    const PropertyNameView propertyName = anchorPropertyName(sourceAnchorLine);
 
     if (sourceAnchorLine & AnchorLineFill)
         return qmlItemNode().nodeInstance().hasAnchor(propertyName) || qmlItemNode().nodeInstance().hasAnchor("anchors.fill");
@@ -418,7 +450,7 @@ double QmlAnchors::instanceAnchorLine(AnchorLineType anchorLine) const
 
 void QmlAnchors::setMargin(AnchorLineType sourceAnchorLineType, double margin) const
 {
-    PropertyName propertyName = marginPropertyName(sourceAnchorLineType);
+    PropertyNameView propertyName = marginPropertyName(sourceAnchorLineType);
     qmlItemNode().setVariantProperty(propertyName, qRound(margin));
 }
 
@@ -506,7 +538,7 @@ double QmlAnchors::instanceMargin(AnchorLineType sourceAnchorLineType) const
 void QmlAnchors::removeMargin(AnchorLineType sourceAnchorLineType)
 {
     if (qmlItemNode().isInBaseState()) {
-        PropertyName propertyName = marginPropertyName(sourceAnchorLineType);
+        PropertyNameView propertyName = marginPropertyName(sourceAnchorLineType);
         qmlItemNode().modelNode().removeProperty(propertyName);
     }
 }

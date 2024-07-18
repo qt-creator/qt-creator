@@ -36,7 +36,7 @@ public:
 
     void setup(const QmlObjectNode &selectedMaterialNode, const QString &stateName, const QUrl &qmlSpecificsFile,
                MaterialEditorView *materialEditor);
-    void setValue(const QmlObjectNode &fxObjectNode, const PropertyName &name, const QVariant &value);
+    void setValue(const QmlObjectNode &fxObjectNode, PropertyNameView name, const QVariant &value);
 
     QQmlContext *context() const;
     MaterialEditorContextObject *contextObject() const;
@@ -59,9 +59,10 @@ public:
 
 private:
     void createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
-                                   const PropertyName &name, const QVariant &value,
+                                   PropertyNameView name,
+                                   const QVariant &value,
                                    MaterialEditorView *materialEditor);
-    PropertyName auxNamePostFix(const PropertyName &propertyName);
+    PropertyName auxNamePostFix(PropertyNameView propertyName);
 
     // to avoid a crash while destructing DesignerPropertyMap in the QQmlData
     // this needs be destructed after m_quickWidget->engine() is destructed

@@ -640,7 +640,7 @@ void MaterialEditorView::setupQmlBackend()
 #endif
 }
 
-void MaterialEditorView::commitVariantValueToModel(const PropertyName &propertyName, const QVariant &value)
+void MaterialEditorView::commitVariantValueToModel(PropertyNameView propertyName, const QVariant &value)
 {
     m_locked = true;
     executeInTransaction(__FUNCTION__, [&] {
@@ -649,11 +649,11 @@ void MaterialEditorView::commitVariantValueToModel(const PropertyName &propertyN
     m_locked = false;
 }
 
-void MaterialEditorView::commitAuxValueToModel(const PropertyName &propertyName, const QVariant &value)
+void MaterialEditorView::commitAuxValueToModel(PropertyNameView propertyName, const QVariant &value)
 {
     m_locked = true;
 
-    PropertyName name = propertyName;
+    PropertyNameView name = propertyName;
     name.chop(5);
 
     try {
@@ -668,7 +668,7 @@ void MaterialEditorView::commitAuxValueToModel(const PropertyName &propertyName,
     m_locked = false;
 }
 
-void MaterialEditorView::removePropertyFromModel(const PropertyName &propertyName)
+void MaterialEditorView::removePropertyFromModel(PropertyNameView propertyName)
 {
     m_locked = true;
     executeInTransaction(__FUNCTION__, [&] {
@@ -1210,7 +1210,9 @@ void MaterialEditorView::dragEnded()
 }
 
 // from model to material editor
-void MaterialEditorView::setValue(const QmlObjectNode &qmlObjectNode, const PropertyName &name, const QVariant &value)
+void MaterialEditorView::setValue(const QmlObjectNode &qmlObjectNode,
+                                  PropertyNameView name,
+                                  const QVariant &value)
 {
     m_locked = true;
     m_qmlBackEnd->setValue(qmlObjectNode, name, value);

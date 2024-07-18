@@ -78,7 +78,7 @@ bool QmlModelStateOperation::isValidQmlModelStateOperation(const ModelNode &mode
     return isValidQmlModelNodeFacade(modelNode) && modelNode.metaInfo().isQtQuickStateOperation();
 }
 
-void QmlPropertyChanges::removeProperty(const PropertyName &name)
+void QmlPropertyChanges::removeProperty(PropertyNameView name)
 {
     RewriterTransaction transaction(view()->beginRewriterTransaction(QByteArrayLiteral("QmlPropertyChanges::removeProperty")));
     if (name == "name")

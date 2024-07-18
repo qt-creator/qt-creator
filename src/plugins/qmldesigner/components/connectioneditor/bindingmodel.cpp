@@ -211,7 +211,7 @@ QHash<int, QByteArray> BindingModel::roleNames() const
 
 std::optional<int> BindingModel::rowForProperty(const AbstractProperty &property) const
 {
-    PropertyName name = property.name();
+    PropertyNameView name = property.name();
     int internalId = property.parentModelNode().internalId();
 
     for (int i = 0; i < rowCount(); ++i) {

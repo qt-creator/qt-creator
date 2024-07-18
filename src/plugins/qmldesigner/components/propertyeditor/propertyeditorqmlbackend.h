@@ -38,8 +38,8 @@ public:
 
     void setup(const QmlObjectNode &fxObjectNode, const QString &stateName, const QUrl &qmlSpecificsFile, PropertyEditorView *propertyEditor);
     void initialSetup(const TypeName &typeName, const QUrl &qmlSpecificsFile, PropertyEditorView *propertyEditor);
-    void setValue(const QmlObjectNode &fxObjectNode, const PropertyName &name, const QVariant &value);
-    void setExpression(const PropertyName &propName, const QString &exp);
+    void setValue(const QmlObjectNode &fxObjectNode, PropertyNameView name, const QVariant &value);
+    void setExpression(PropertyNameView propName, const QString &exp);
 
     QQmlContext *context();
     PropertyEditorContextObject* contextObject();
@@ -66,9 +66,9 @@ public:
     void emitSelectionChanged();
 
     void setValueforLayoutAttachedProperties(const QmlObjectNode &qmlObjectNode,
-                                             const PropertyName &name);
+                                             PropertyNameView name);
     void setValueforInsightAttachedProperties(const QmlObjectNode &qmlObjectNode,
-                                              const PropertyName &name);
+                                              PropertyNameView name);
     void setValueforAuxiliaryProperties(const QmlObjectNode &qmlObjectNode, AuxiliaryDataKeyView key);
 
     void setupLayoutAttachedProperties(const QmlObjectNode &qmlObjectNode,
@@ -79,7 +79,7 @@ public:
                                   PropertyEditorView *propertyEditor);
 
     void handleInstancePropertyChangedInModelNodeProxy(const ModelNode &modelNode,
-                                                       const PropertyName &propertyName);
+                                                       PropertyNameView propertyName);
 
     void handleVariantPropertyChangedInModelNodeProxy(const VariantProperty &property);
     void handleBindingPropertyChangedInModelNodeProxy(const BindingProperty &property);
@@ -89,9 +89,10 @@ public:
 
 private:
     void createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
-                                   const PropertyName &name, const QVariant &value,
+                                   PropertyNameView name,
+                                   const QVariant &value,
                                    PropertyEditorView *propertyEditor);
-    void setupPropertyEditorValue(const PropertyName &name,
+    void setupPropertyEditorValue(PropertyNameView name,
                                   PropertyEditorView *propertyEditor,
                                   const NodeMetaInfo &type);
 

@@ -8,6 +8,8 @@
 #include "nodelistproperty.h"
 #include "nodemetainfo.h"
 
+#include <utils/smallstringio.h>
+
 using namespace QmlDesigner;
 using namespace QmlDesigner::Internal;
 using namespace QmlDesigner;
@@ -287,7 +289,7 @@ bool ReparentNodeRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePo
     const bool isArrayBinding = m_targetProperty.isNodeListProperty();
     bool result = false;
 
-    PropertyName targetPropertyName;
+    PropertyNameView targetPropertyName;
     if (!m_targetProperty.isDefaultProperty())
         targetPropertyName = m_targetProperty.name();
 

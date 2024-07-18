@@ -41,7 +41,8 @@ void QmlTimeline::destroy()
     modelNode().destroy();
 }
 
-QmlTimelineKeyframeGroup QmlTimeline::keyframeGroup(const ModelNode &node, const PropertyName &propertyName)
+QmlTimelineKeyframeGroup QmlTimeline::keyframeGroup(const ModelNode &node,
+                                                    PropertyNameView propertyName)
 {
     if (isValid()) {
         addKeyframeGroupIfNotExists(node, propertyName);
@@ -60,7 +61,7 @@ QmlTimelineKeyframeGroup QmlTimeline::keyframeGroup(const ModelNode &node, const
     return QmlTimelineKeyframeGroup(); //not found
 }
 
-bool QmlTimeline::hasTimeline(const ModelNode &node, const PropertyName &propertyName)
+bool QmlTimeline::hasTimeline(const ModelNode &node, PropertyNameView propertyName)
 {
     if (isValid()) {
         for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
@@ -185,7 +186,7 @@ void QmlTimeline::destroyKeyframesForTarget(const ModelNode &target)
 }
 
 void QmlTimeline::removeKeyframesForTargetAndProperty(const ModelNode &target,
-                                                      const PropertyName &propertyName)
+                                                      PropertyNameView propertyName)
 {
     for (QmlTimelineKeyframeGroup frames : keyframeGroupsForTarget(target)) {
         if (frames.propertyName() == propertyName)
@@ -236,7 +237,7 @@ void QmlTimeline::resetGroupRecording() const
     }
 }
 
-void QmlTimeline::addKeyframeGroupIfNotExists(const ModelNode &node, const PropertyName &propertyName)
+void QmlTimeline::addKeyframeGroupIfNotExists(const ModelNode &node, PropertyNameView propertyName)
 {
     if (!isValid())
         return;
@@ -253,8 +254,7 @@ void QmlTimeline::addKeyframeGroupIfNotExists(const ModelNode &node, const Prope
     }
 }
 
-
-bool QmlTimeline::hasKeyframeGroup(const ModelNode &node, const PropertyName &propertyName) const
+bool QmlTimeline::hasKeyframeGroup(const ModelNode &node, PropertyNameView propertyName) const
 {
     for (const QmlTimelineKeyframeGroup &frames : allKeyframeGroups()) {
         if (frames.target().isValid()
@@ -279,7 +279,7 @@ bool QmlTimeline::hasKeyframeGroupForTarget(const ModelNode &node) const
     return false;
 }
 
-void QmlTimeline::insertKeyframe(const ModelNode &target, const PropertyName &propertyName)
+void QmlTimeline::insertKeyframe(const ModelNode &target, PropertyNameView propertyName)
 {
     ModelNode targetNode = target;
     QmlTimelineKeyframeGroup timelineFrames(keyframeGroup(targetNode, propertyName));

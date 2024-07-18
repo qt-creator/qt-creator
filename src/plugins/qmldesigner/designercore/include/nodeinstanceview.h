@@ -240,7 +240,8 @@ private: // functions
     void handleQsbProcessExit(Utils::Process *qsbProcess, const QString &shader);
     void updateQsbPathToFilterMap();
     void updateRotationBlocks();
-    void maybeResetOnPropertyChange(const PropertyName &name, const ModelNode &node,
+    void maybeResetOnPropertyChange(PropertyNameView name,
+                                    const ModelNode &node,
                                     PropertyChangeFlags flags);
 
 private:

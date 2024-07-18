@@ -14,7 +14,7 @@ public:
     using Pointer = std::shared_ptr<InternalVariantProperty>;
     static constexpr PropertyType type = PropertyType::Variant;
 
-    InternalVariantProperty(const PropertyName &name, const InternalNodePointer &propertyOwner);
+    InternalVariantProperty(PropertyNameView name, const InternalNodePointer &propertyOwner);
 
     bool isValid() const override;
 

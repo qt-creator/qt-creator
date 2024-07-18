@@ -39,10 +39,12 @@ public:
 
     static QVariant convertToLiteral(const TypeName &typeName, const QString &expression);
 
-    BindingProperty(const PropertyName &propertyName,
+    BindingProperty(Utils::SmallStringView propertyName,
                     const Internal::InternalNodePointer &internalNode,
                     Model *model,
-                    AbstractView *view);
+                    AbstractView *view)
+        : AbstractProperty(propertyName, internalNode, model, view)
+    {}
 
 private:
     ModelNode resolveBinding(const QString &binding, ModelNode currentNode) const;

@@ -102,7 +102,7 @@ QVariant DynamicPropertiesProxyModel::data(const QModelIndex &index, int role) c
         QTC_ASSERT(property.isValid(), return QVariant());
 
         if (role == propertyNameRole)
-            return property.name();
+            return property.name().toByteArray();
 
         if (propertyTypeRole)
             return property.dynamicTypeName();
@@ -353,7 +353,7 @@ void DynamicPropertyRow::commitValue(const QVariant &value)
                     variantProperty.setDynamicTypeNameAndValue(variantProperty.dynamicTypeName(), value);
             } else {
                 QTC_CHECK(objectNode.isValid());
-                PropertyName name = variantProperty.name();
+                PropertyNameView name = variantProperty.name();
                 if (objectNode.isValid() && objectNode.modelValue(name) != value)
                     objectNode.setVariantProperty(name, value);
             }
@@ -400,7 +400,7 @@ void DynamicPropertyRow::commitExpression(const QString &expression)
         } else {
             QmlObjectNode objectNode = bindingProperty.parentQmlObjectNode();
             QTC_CHECK(objectNode.isValid());
-            PropertyName name = bindingProperty.name();
+            PropertyNameView name = bindingProperty.name();
             if (objectNode.isValid() && objectNode.expression(name) != theExpression)
                 objectNode.setBindingProperty(name, theExpression);
         }
@@ -444,7 +444,7 @@ void DynamicPropertyRow::resetValue()
         try {
             QmlObjectNode objectNode = property.parentQmlObjectNode();
             QTC_CHECK(objectNode.isValid());
-            PropertyName name = property.name();
+            PropertyNameView name = property.name();
             if (objectNode.isValid() && objectNode.propertyAffectedByCurrentState(name))
                 objectNode.removeProperty(name);
 

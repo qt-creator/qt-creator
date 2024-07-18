@@ -231,9 +231,10 @@ QmlJS::AST::UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(QmlJS::AS
 }
 
 // FIXME: duplicate code in the QmlJS::Rewriter class, remove this
-QmlJS::AST::UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(QmlJS::AST::UiObjectMemberList *members,
-                                                           const QmlDesigner::PropertyName &propertyName,
-                                                           const QmlDesigner::PropertyNameList &propertyOrder)
+QmlJS::AST::UiObjectMemberList *QMLRewriter::searchMemberToInsertAfter(
+    QmlJS::AST::UiObjectMemberList *members,
+    PropertyNameView propertyName,
+    const QmlDesigner::PropertyNameList &propertyOrder)
 {
     if (!members)
         return nullptr; // empty members

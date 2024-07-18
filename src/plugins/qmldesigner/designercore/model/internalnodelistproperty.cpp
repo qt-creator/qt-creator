@@ -8,7 +8,7 @@
 namespace QmlDesigner {
 namespace Internal {
 
-InternalNodeListProperty::InternalNodeListProperty(const PropertyName &name,
+InternalNodeListProperty::InternalNodeListProperty(PropertyNameView name,
                                                    const InternalNodePointer &propertyOwner)
     : InternalNodeAbstractProperty(name, propertyOwner, PropertyType::NodeList)
 {

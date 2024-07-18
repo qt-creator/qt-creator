@@ -67,17 +67,17 @@ TextureEditorQmlBackend::~TextureEditorQmlBackend()
 {
 }
 
-PropertyName TextureEditorQmlBackend::auxNamePostFix(const PropertyName &propertyName)
+PropertyName TextureEditorQmlBackend::auxNamePostFix(PropertyNameView propertyName)
 {
     return propertyName + "__AUX";
 }
 
 void TextureEditorQmlBackend::createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
-                                                         const PropertyName &name,
-                                                         const QVariant &value,
-                                                         TextureEditorView *textureEditor)
+                                                        PropertyNameView name,
+                                                        const QVariant &value,
+                                                        TextureEditorView *textureEditor)
 {
-    PropertyName propertyName(name);
+    PropertyName propertyName(name.toByteArray());
     propertyName.replace('.', '_');
     auto valueObject = qobject_cast<PropertyEditorValue *>(variantToQObject(backendValuesPropertyMap().value(QString::fromUtf8(propertyName))));
     if (!valueObject) {
@@ -107,7 +107,9 @@ void TextureEditorQmlBackend::createPropertyEditorValue(const QmlObjectNode &qml
     }
 }
 
-void TextureEditorQmlBackend::setValue(const QmlObjectNode &, const PropertyName &name, const QVariant &value)
+void TextureEditorQmlBackend::setValue(const QmlObjectNode &,
+                                       PropertyNameView name,
+                                       const QVariant &value)
 {
     // Vector*D values need to be split into their subcomponents
     if (value.typeId() == QVariant::Vector2D) {
@@ -145,7 +147,7 @@ void TextureEditorQmlBackend::setValue(const QmlObjectNode &, const PropertyName
                 propertyValue->setValue(QVariant(vecValue[i]));
         }
     } else {
-        PropertyName propertyName = name;
+        PropertyName propertyName = name.toByteArray();
         propertyName.replace('.', '_');
         auto propertyValue = qobject_cast<PropertyEditorValue *>(variantToQObject(m_backendValuesPropertyMap.value(QString::fromUtf8(propertyName))));
         if (propertyValue)

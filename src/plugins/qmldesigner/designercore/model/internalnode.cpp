@@ -129,8 +129,17 @@ AuxiliaryDatasForType InternalNode::auxiliaryData(AuxiliaryDataType type) const
 
 PropertyNameList InternalNode::propertyNameList() const
 {
-    return Utils::transform<PropertyNameList>(m_nameProperties,
-                                              [](const auto &entry) { return entry.first; });
+    return Utils::transform<PropertyNameList>(m_nameProperties, [](const auto &entry) {
+        return entry.first.toQByteArray();
+    });
+}
+
+PropertyNameViews InternalNode::propertyNameViews() const
+{
+    return Utils::transform<PropertyNameViews>(m_nameProperties,
+                                               [](const auto &entry) -> PropertyNameView {
+                                                   return entry.first;
+                                               });
 }
 
 QList<InternalNode::Pointer> InternalNode::allSubNodes() const

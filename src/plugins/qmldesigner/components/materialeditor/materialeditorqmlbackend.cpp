@@ -61,17 +61,17 @@ MaterialEditorQmlBackend::~MaterialEditorQmlBackend()
 {
 }
 
-PropertyName MaterialEditorQmlBackend::auxNamePostFix(const PropertyName &propertyName)
+PropertyName MaterialEditorQmlBackend::auxNamePostFix(PropertyNameView propertyName)
 {
     return propertyName + "__AUX";
 }
 
 void MaterialEditorQmlBackend::createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
-                                                         const PropertyName &name,
+                                                         PropertyNameView name,
                                                          const QVariant &value,
                                                          MaterialEditorView *materialEditor)
 {
-    PropertyName propertyName(name);
+    PropertyName propertyName(name.toByteArray());
     propertyName.replace('.', '_');
     auto valueObject = qobject_cast<PropertyEditorValue *>(variantToQObject(backendValuesPropertyMap().value(QString::fromUtf8(propertyName))));
     if (!valueObject) {
@@ -101,7 +101,9 @@ void MaterialEditorQmlBackend::createPropertyEditorValue(const QmlObjectNode &qm
     }
 }
 
-void MaterialEditorQmlBackend::setValue(const QmlObjectNode &, const PropertyName &name, const QVariant &value)
+void MaterialEditorQmlBackend::setValue(const QmlObjectNode &,
+                                        PropertyNameView name,
+                                        const QVariant &value)
 {
     // Vector*D values need to be split into their subcomponents
     if (value.typeId() == QVariant::Vector2D) {
@@ -139,7 +141,7 @@ void MaterialEditorQmlBackend::setValue(const QmlObjectNode &, const PropertyNam
                 propertyValue->setValue(QVariant(vecValue[i]));
         }
     } else {
-        PropertyName propertyName = name;
+        PropertyName propertyName = name.toByteArray();
         propertyName.replace('.', '_');
         auto propertyValue = qobject_cast<PropertyEditorValue *>(variantToQObject(m_backendValuesPropertyMap.value(QString::fromUtf8(propertyName))));
         if (propertyValue)

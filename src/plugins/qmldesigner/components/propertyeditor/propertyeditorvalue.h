@@ -30,15 +30,17 @@ public:
 
     Q_INVOKABLE void deleteModelNode();
 
-    void setValueFromModel(const PropertyName &name, const QVariant &value);
-    void resetValue(const PropertyName &name);
+    void setValueFromModel(PropertyNameView name, const QVariant &value);
+    void resetValue(PropertyNameView name);
 
     bool isRelevantModelNode(const ModelNode &modelNode) const;
 
 private:
     void changeValue(const QString &name);
     void changeExpression(const QString &propertyName);
-    void createPropertyEditorValue(const QmlObjectNode &qmlObjectNode, const PropertyName &name, const QVariant &value);
+    void createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
+                                   PropertyNameView name,
+                                   const QVariant &value);
     void exportPropertyAsAlias(const QString &name);
     void removeAliasExport(const QString &name);
     bool locked() const;
@@ -46,8 +48,8 @@ private:
     ModelNode m_modelNode;
     QQmlPropertyMap m_valuesPropertyMap;
     bool m_locked = false;
-    void removePropertyFromModel(const PropertyName &propertyName);
-    void commitVariantValueToModel(const PropertyName &propertyName, const QVariant &value);
+    void removePropertyFromModel(PropertyNameView propertyName);
+    void commitVariantValueToModel(PropertyNameView propertyName, const QVariant &value);
     AbstractView *view() const;
 };
 
@@ -67,7 +69,7 @@ public:
     QString type() const;
     QQmlPropertyMap *properties();
     ModelNode parentModelNode() const;
-    PropertyName propertyName() const;
+    PropertyNameView propertyName() const;
 
 public slots:
     void add(const QString &type = QString());
@@ -142,9 +144,9 @@ public:
 
     bool isAvailable() const;
 
-    PropertyName name() const;
+    PropertyNameView name() const;
     QString nameAsQString() const;
-    void setName(const PropertyName &name);
+    void setName(PropertyNameView name);
 
     ModelNode modelNode() const;
     void setModelNode(const ModelNode &modelNode);
@@ -205,7 +207,7 @@ private:
     ModelNode m_modelNode;
     QVariant m_value;
     QString m_expression;
-    PropertyName m_name;
+    Utils::SmallString m_name;
     bool m_isInSubState = false;
     bool m_isInModel = false;
     bool m_isBound = false;

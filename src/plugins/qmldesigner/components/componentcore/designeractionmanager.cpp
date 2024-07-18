@@ -733,7 +733,7 @@ public:
                             signalHandler.view()
                                 ->emitCustomNotification(EditConnectionNotification,
                                                          {signalHandler.parentModelNode()},
-                                                         {signalHandler.name()});
+                                                         {signalHandler.name().toByteArray()});
                             //ActionEditor::invokeEditor(signalHandler, removeSignal);
                         });
 

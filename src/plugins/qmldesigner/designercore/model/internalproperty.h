@@ -103,7 +103,7 @@ public:
 
     virtual bool isValid() const;
 
-    PropertyName name() const;
+    PropertyNameView name() const;
 
     bool isBindingProperty() const { return m_propertyType == PropertyType::Binding; }
     bool isVariantProperty() const { return m_propertyType == PropertyType::Variant; }
@@ -182,14 +182,14 @@ public:
     PropertyType type() const { return m_propertyType; }
 
 protected: // functions
-    InternalProperty(const PropertyName &name,
+    InternalProperty(PropertyNameView name,
                      const InternalNodePointer &propertyOwner,
                      PropertyType propertyType);
 
     void setDynamicTypeName(const TypeName &name);
 
 private:
-    PropertyName m_name;
+    Utils::SmallString m_name;
     TypeName m_dynamicType;
     std::weak_ptr<InternalNode> m_propertyOwner;
     PropertyType m_propertyType = PropertyType::None;

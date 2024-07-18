@@ -259,7 +259,7 @@ void ConnectionModel::updateTargetNode(int rowNumber)
 void ConnectionModel::updateCustomData(QStandardItem *item, const SignalHandlerProperty &signalHandlerProperty)
 {
     item->setData(signalHandlerProperty.parentModelNode().internalId(), UserRoles::InternalIdRole);
-    item->setData(signalHandlerProperty.name(), UserRoles::TargetPropertyNameRole);
+    item->setData(signalHandlerProperty.name().toByteArray(), UserRoles::TargetPropertyNameRole);
     item->setData(signalHandlerProperty.parentModelNode()
                       .bindingProperty("target")
                       .resolveToModelNode()

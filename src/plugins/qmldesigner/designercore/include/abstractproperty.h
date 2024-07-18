@@ -3,9 +3,12 @@
 
 #pragma once
 
+#include "qmldesignercorelib_global.h"
+
+#include <utils/smallstring.h>
+
 #include <QPointer>
 #include <QSharedPointer>
-#include "qmldesignercorelib_global.h"
 
 #include <memory>
 
@@ -53,12 +56,12 @@ public:
     AbstractProperty &operator=(AbstractProperty &&) noexcept = default;
     ~AbstractProperty();
     AbstractProperty(const AbstractProperty &property, AbstractView *view);
-    AbstractProperty(const PropertyName &propertyName,
+    AbstractProperty(PropertyNameView propertyName,
                      const Internal::InternalNodePointer &internalNode,
                      Model *model,
                      AbstractView *view);
 
-    const PropertyName &name() const;
+    PropertyNameView name() const & { return m_propertyName; }
 
     bool isValid() const;
     explicit operator bool() const { return isValid(); }
@@ -139,7 +142,7 @@ protected:
     Internal::ModelPrivate *privateModel() const;
 
 private:
-    PropertyName m_propertyName;
+    Utils::SmallString m_propertyName;
     Internal::InternalNodePointer m_internalNode;
     QPointer<Model> m_model;
     QPointer<AbstractView> m_view;

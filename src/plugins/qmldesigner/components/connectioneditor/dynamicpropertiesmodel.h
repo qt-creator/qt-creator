@@ -46,13 +46,13 @@ public:
     void reset(const QList<ModelNode> &modelNodes = {});
     void setCurrentIndex(int i);
     void setCurrentProperty(const AbstractProperty &property);
-    void setCurrent(int internalId, const PropertyName &name);
+    void setCurrent(int internalId, PropertyNameView name);
 
     void updateItem(const AbstractProperty &property);
     void removeItem(const AbstractProperty &property);
 
     void commitPropertyType(int row, const TypeName &type);
-    void commitPropertyName(int row, const PropertyName &name);
+    void commitPropertyName(int row, PropertyNameView name);
     void commitPropertyValue(int row, const QVariant &value);
 
     void dispatchPropertyChanges(const AbstractProperty &abstractProperty);
@@ -61,7 +61,7 @@ protected:
     QHash<int, QByteArray> roleNames() const override;
 
 private:
-    std::optional<int> findRow(int nodeId, const PropertyName &name) const;
+    std::optional<int> findRow(int nodeId, PropertyNameView name) const;
     DynamicPropertiesItem *itemForRow(int row) const;
     DynamicPropertiesItem *itemForProperty(const AbstractProperty &property) const;
     ModelNode modelNodeForItem(DynamicPropertiesItem *item);

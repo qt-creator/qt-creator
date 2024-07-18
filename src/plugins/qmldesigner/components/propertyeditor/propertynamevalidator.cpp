@@ -11,7 +11,7 @@ PropertyNameValidator::PropertyNameValidator(QObject *parent)
     : QValidator(parent)
 {}
 
-QValidator::State PropertyNameValidator::validate(QString &input, int &pos) const
+QValidator::State PropertyNameValidator::validate(QString &input, int &) const
 {
     if (input.isEmpty())
         return QValidator::Intermediate;

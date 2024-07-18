@@ -175,7 +175,7 @@ void convertPropertyType(const T &property, const QVariant &value)
     if (!node.isValid())
         return;
 
-    PropertyName name = property.name();
+    PropertyNameView name = property.name();
     TypeName type = property.dynamicTypeName();
     node.removeProperty(name);
 

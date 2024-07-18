@@ -347,9 +347,9 @@ InternalNodePointer ModelPrivate::createNode(TypeNameView typeName,
 
     notifyNodeCreated(newNode);
 
-    if (!newNode->propertyNameList().isEmpty())
+    if (newNode->hasProperties())
         notifyVariantPropertiesChanged(newNode,
-                                       newNode->propertyNameList(),
+                                       newNode->propertyNameViews(),
                                        AbstractView::PropertiesAdded);
 
     return newNode;
@@ -473,7 +473,7 @@ void ModelPrivate::removeNode(const InternalNodePointer &node)
     removeNodeFromModel(node);
 
     InternalNodePointer parentNode;
-    PropertyName parentPropertyName;
+    PropertyNameView parentPropertyName;
     if (oldParentProperty) {
         parentNode = oldParentProperty->propertyOwner();
         parentPropertyName = oldParentProperty->name();
@@ -923,7 +923,7 @@ void ModelPrivate::notifyNodeAboutToBeRemoved(const InternalNodePointer &interna
 
 void ModelPrivate::notifyNodeRemoved(const InternalNodePointer &removedNode,
                                      const InternalNodePointer &parentNode,
-                                     const PropertyName &parentPropertyName,
+                                     PropertyNameView parentPropertyName,
                                      AbstractView::PropertyChangeFlags propertyChange)
 {
     notifyNormalViewsLast([&](AbstractView *view) {
@@ -1026,12 +1026,12 @@ void ModelPrivate::notifyScriptFunctionsChanged(const InternalNodePointer &node,
 }
 
 void ModelPrivate::notifyVariantPropertiesChanged(const InternalNodePointer &node,
-                                                  const PropertyNameList &propertyNameList,
+                                                  const PropertyNameViews &propertyNameViews,
                                                   AbstractView::PropertyChangeFlags propertyChange)
 {
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         QList<VariantProperty> propertyList;
-        for (const PropertyName &propertyName : propertyNameList) {
+        for (PropertyNameView propertyName : propertyNameViews) {
             VariantProperty property(propertyName, node, m_model, view);
             propertyList.append(property);
         }
@@ -1042,9 +1042,9 @@ void ModelPrivate::notifyVariantPropertiesChanged(const InternalNodePointer &nod
 
 void ModelPrivate::notifyNodeAboutToBeReparent(const InternalNodePointer &node,
                                                const InternalNodePointer &newParent,
-                                               const PropertyName &newPropertyName,
+                                               PropertyNameView newPropertyName,
                                                const InternalNodePointer &oldParent,
-                                               const PropertyName &oldPropertyName,
+                                               PropertyNameView oldPropertyName,
                                                AbstractView::PropertyChangeFlags propertyChange)
 {
     notifyNodeInstanceViewLast([&](AbstractView *view) {
@@ -1069,7 +1069,7 @@ void ModelPrivate::notifyNodeAboutToBeReparent(const InternalNodePointer &node,
 void ModelPrivate::notifyNodeReparent(const InternalNodePointer &node,
                                       const InternalNodeAbstractProperty *newPropertyParent,
                                       const InternalNodePointer &oldParent,
-                                      const PropertyName &oldPropertyName,
+                                      PropertyNameView oldPropertyName,
                                       AbstractView::PropertyChangeFlags propertyChange)
 {
     notifyNodeInstanceViewLast([&](AbstractView *view) {
@@ -1348,7 +1348,7 @@ void ModelPrivate::removeProperties(const QList<InternalProperty *> &properties)
 }
 
 void ModelPrivate::setBindingProperty(const InternalNodePointer &node,
-                                      const PropertyName &name,
+                                      PropertyNameView name,
                                       const QString &expression)
 {
     AbstractView::PropertyChangeFlags propertyChange = AbstractView::NoAdditionalChanges;
@@ -1381,7 +1381,9 @@ void ModelPrivate::setBindingProperties(const ModelResourceSet::SetExpressions &
     notifyBindingPropertiesChanged(bindingProperties, propertyChange);
 }
 
-void ModelPrivate::setSignalHandlerProperty(const InternalNodePointer &node, const PropertyName &name, const QString &source)
+void ModelPrivate::setSignalHandlerProperty(const InternalNodePointer &node,
+                                            PropertyNameView name,
+                                            const QString &source)
 {
     AbstractView::PropertyChangeFlags propertyChange = AbstractView::NoAdditionalChanges;
     InternalSignalHandlerProperty *signalHandlerProperty = nullptr;
@@ -1396,7 +1398,9 @@ void ModelPrivate::setSignalHandlerProperty(const InternalNodePointer &node, con
     notifySignalHandlerPropertiesChanged({signalHandlerProperty}, propertyChange);
 }
 
-void ModelPrivate::setSignalDeclarationProperty(const InternalNodePointer &node, const PropertyName &name, const QString &signature)
+void ModelPrivate::setSignalDeclarationProperty(const InternalNodePointer &node,
+                                                PropertyNameView name,
+                                                const QString &signature)
 {
     AbstractView::PropertyChangeFlags propertyChange = AbstractView::NoAdditionalChanges;
     InternalSignalDeclarationProperty *signalDeclarationProperty = nullptr;
@@ -1411,7 +1415,9 @@ void ModelPrivate::setSignalDeclarationProperty(const InternalNodePointer &node,
     notifySignalDeclarationPropertiesChanged({signalDeclarationProperty}, propertyChange);
 }
 
-void ModelPrivate::setVariantProperty(const InternalNodePointer &node, const PropertyName &name, const QVariant &value)
+void ModelPrivate::setVariantProperty(const InternalNodePointer &node,
+                                      PropertyNameView name,
+                                      const QVariant &value)
 {
     AbstractView::PropertyChangeFlags propertyChange = AbstractView::NoAdditionalChanges;
     InternalVariantProperty *variantProperty = nullptr;
@@ -1424,11 +1430,11 @@ void ModelPrivate::setVariantProperty(const InternalNodePointer &node, const Pro
 
     variantProperty->setValue(value);
     variantProperty->resetDynamicTypeName();
-    notifyVariantPropertiesChanged(node, PropertyNameList({name}), propertyChange);
+    notifyVariantPropertiesChanged(node, PropertyNameViews({name}), propertyChange);
 }
 
 void ModelPrivate::setDynamicVariantProperty(const InternalNodePointer &node,
-                                             const PropertyName &name,
+                                             PropertyNameView name,
                                              const TypeName &dynamicPropertyType,
                                              const QVariant &value)
 {
@@ -1442,11 +1448,11 @@ void ModelPrivate::setDynamicVariantProperty(const InternalNodePointer &node,
     }
 
     variantProperty->setDynamicValue(dynamicPropertyType, value);
-    notifyVariantPropertiesChanged(node, PropertyNameList({name}), propertyChange);
+    notifyVariantPropertiesChanged(node, PropertyNameViews({name}), propertyChange);
 }
 
 void ModelPrivate::setDynamicBindingProperty(const InternalNodePointer &node,
-                                             const PropertyName &name,
+                                             PropertyNameView name,
                                              const TypeName &dynamicPropertyType,
                                              const QString &expression)
 {
@@ -1465,7 +1471,7 @@ void ModelPrivate::setDynamicBindingProperty(const InternalNodePointer &node,
 }
 
 void ModelPrivate::reparentNode(const InternalNodePointer &parentNode,
-                                const PropertyName &name,
+                                PropertyNameView name,
                                 const InternalNodePointer &childNode,
                                 bool list,
                                 const TypeName &dynamicTypeName)
@@ -1474,7 +1480,7 @@ void ModelPrivate::reparentNode(const InternalNodePointer &parentNode,
 
     InternalNodeAbstractPropertyPointer oldParentProperty(childNode->parentProperty());
     InternalNodePointer oldParentNode;
-    PropertyName oldParentPropertyName;
+    Utils::SmallString oldParentPropertyName;
     if (oldParentProperty && oldParentProperty->isValid()) {
         oldParentNode = childNode->parentProperty()->propertyOwner();
         oldParentPropertyName = childNode->parentProperty()->name();
@@ -1519,7 +1525,7 @@ void ModelPrivate::clearParent(const InternalNodePointer &node)
 {
     InternalNodeAbstractPropertyPointer oldParentProperty(node->parentProperty());
     InternalNodePointer oldParentNode;
-    PropertyName oldParentPropertyName;
+    Utils::SmallString oldParentPropertyName;
     if (oldParentProperty->isValid()) {
         oldParentNode = node->parentProperty()->propertyOwner();
         oldParentPropertyName = node->parentProperty()->name();
@@ -1563,7 +1569,10 @@ void ModelPrivate::setNodeSource(const InternalNodePointer &node, const QString 
     notifyNodeSourceChanged(node, nodeSource);
 }
 
-void ModelPrivate::changeNodeOrder(const InternalNodePointer &parentNode, const PropertyName &listPropertyName, int from, int to)
+void ModelPrivate::changeNodeOrder(const InternalNodePointer &parentNode,
+                                   PropertyNameView listPropertyName,
+                                   int from,
+                                   int to)
 {
     auto nodeList = parentNode->nodeListProperty(listPropertyName);
     Q_ASSERT(nodeList);

@@ -52,7 +52,10 @@ protected:
     void includeLeadingEmptyLine(int &start) const;
 
     static QmlJS::AST::UiObjectMemberList *searchMemberToInsertAfter(QmlJS::AST::UiObjectMemberList *members, const PropertyNameList &propertyOrder);
-    static QmlJS::AST::UiObjectMemberList *searchMemberToInsertAfter(QmlJS::AST::UiObjectMemberList *members, const QmlDesigner::PropertyName &propertyName, const PropertyNameList &propertyOrder);
+    static QmlJS::AST::UiObjectMemberList *searchMemberToInsertAfter(
+        QmlJS::AST::UiObjectMemberList *members,
+        PropertyNameView propertyName,
+        const PropertyNameList &propertyOrder);
 
 protected:
     bool didRewriting() const

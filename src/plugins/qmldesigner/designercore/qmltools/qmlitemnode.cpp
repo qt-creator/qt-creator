@@ -1009,7 +1009,7 @@ ModelNode QmlFlowViewNode::createTransition()
     return transition;
 }
 
-QList<ModelNode> QmlFlowViewNode::transitionsForProperty(const PropertyName &propertyName,
+QList<ModelNode> QmlFlowViewNode::transitionsForProperty(PropertyNameView propertyName,
                                                          const ModelNode &modelNode)
 {
     QList<ModelNode> list;

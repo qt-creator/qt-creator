@@ -470,7 +470,7 @@ void NodeInstanceView::propertiesAboutToBeRemoved(const QList<AbstractProperty>&
     m_nodeInstanceServer->removeProperties(createRemovePropertiesCommand(nonNodePropertyList));
 
     for (const AbstractProperty &property : propertyList) {
-        const PropertyName &name = property.name();
+        const PropertyNameView name = property.name();
         if (name == "anchors.fill") {
             resetHorizontalAnchors(property.parentModelNode());
             resetVerticalAnchors(property.parentModelNode());
@@ -602,7 +602,7 @@ void NodeInstanceView::nodeOrderChanged(const NodeListProperty &listProperty)
 {
     QTC_ASSERT(m_nodeInstanceServer, return);
     QVector<ReparentContainer> containerList;
-    PropertyName propertyName = listProperty.name();
+    PropertyNameView propertyName = listProperty.name();
     qint32 containerInstanceId = -1;
     ModelNode containerNode = listProperty.parentModelNode();
     if (hasInstanceForModelNode(containerNode))
@@ -613,7 +613,11 @@ void NodeInstanceView::nodeOrderChanged(const NodeListProperty &listProperty)
         qint32 instanceId = -1;
         if (hasInstanceForModelNode(node)) {
             instanceId = instanceForModelNode(node).instanceId();
-            ReparentContainer container(instanceId, containerInstanceId, propertyName, containerInstanceId, propertyName);
+            ReparentContainer container(instanceId,
+                                        containerInstanceId,
+                                        propertyName.toByteArray(),
+                                        containerInstanceId,
+                                        propertyName.toByteArray());
             containerList.append(container);
         }
     }
@@ -1135,7 +1139,11 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     for (const NodeInstance &instance : std::as_const(instanceList)) {
         if (instance.modelNode().hasParentProperty()) {
             NodeAbstractProperty parentProperty = instance.modelNode().parentProperty();
-            ReparentContainer container(instance.instanceId(), -1, PropertyName(), instanceForModelNode(parentProperty.parentModelNode()).instanceId(), parentProperty.name());
+            ReparentContainer container(instance.instanceId(),
+                                        -1,
+                                        PropertyName(),
+                                        instanceForModelNode(parentProperty.parentModelNode()).instanceId(),
+                                        parentProperty.name().toByteArray());
             reparentContainerList.append(container);
         }
     }
@@ -1167,7 +1175,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
             const QString expression = fullyQualifyPropertyIfApplies(property);
 
             PropertyBindingContainer container(instance.instanceId(),
-                                               property.name(),
+                                               property.name().toByteArray(),
                                                expression,
                                                property.dynamicTypeName());
             bindingContainerList.append(container);
@@ -1312,7 +1320,11 @@ ReparentInstancesCommand NodeInstanceView::createReparentInstancesCommand(const 
     for (const NodeInstance &instance : instanceList) {
         if (instance.modelNode().hasParentProperty()) {
             NodeAbstractProperty parentProperty = instance.modelNode().parentProperty();
-            ReparentContainer container(instance.instanceId(), -1, PropertyName(), instanceForModelNode(parentProperty.parentModelNode()).instanceId(), parentProperty.name());
+            ReparentContainer container(instance.instanceId(),
+                                        -1,
+                                        PropertyName(),
+                                        instanceForModelNode(parentProperty.parentModelNode()).instanceId(),
+                                        parentProperty.name().toByteArray());
             containerList.append(container);
         }
     }
@@ -1334,8 +1346,11 @@ ReparentInstancesCommand NodeInstanceView::createReparentInstancesCommand(const 
     if (oldPropertyParent.isValid() && hasInstanceForModelNode(oldPropertyParent.parentModelNode()))
         oldParentInstanceId = instanceForModelNode(oldPropertyParent.parentModelNode()).instanceId();
 
-
-    ReparentContainer container(instanceForModelNode(node).instanceId(), oldParentInstanceId, oldPropertyParent.name(), newParentInstanceId, newPropertyParent.name());
+    ReparentContainer container(instanceForModelNode(node).instanceId(),
+                                oldParentInstanceId,
+                                oldPropertyParent.name().toByteArray(),
+                                newParentInstanceId,
+                                newPropertyParent.name().toByteArray());
 
     containerList.append(container);
 
@@ -1380,7 +1395,7 @@ ChangeBindingsCommand NodeInstanceView::createChangeBindingCommand(const QList<B
             NodeInstance instance = instanceForModelNode(node);
             const QString expression = fullyQualifyPropertyIfApplies(property);
             PropertyBindingContainer container(instance.instanceId(),
-                                               property.name(),
+                                               property.name().toByteArray(),
                                                expression,
                                                property.dynamicTypeName());
             containerList.append(container);
@@ -1455,7 +1470,9 @@ RemovePropertiesCommand NodeInstanceView::createRemovePropertiesCommand(const QL
         ModelNode node = property.parentModelNode();
         if (node.isValid() && hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
-            PropertyAbstractContainer container(instance.instanceId(), property.name(), property.dynamicTypeName());
+            PropertyAbstractContainer container(instance.instanceId(),
+                                                property.name().toByteArray(),
+                                                property.dynamicTypeName());
             containerList.append(container);
         }
 
@@ -2307,7 +2324,8 @@ void NodeInstanceView::updateRotationBlocks()
     }
 }
 
-void NodeInstanceView::maybeResetOnPropertyChange(const PropertyName &name, const ModelNode &node,
+void NodeInstanceView::maybeResetOnPropertyChange(PropertyNameView name,
+                                                  const ModelNode &node,
                                                   PropertyChangeFlags flags)
 {
     bool reset = false;

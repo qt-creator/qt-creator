@@ -338,7 +338,7 @@ bool ModelNode::hasParentProperty() const
   \return BindingProperty named name
   */
 
-BindingProperty ModelNode::bindingProperty(const PropertyName &name) const
+BindingProperty ModelNode::bindingProperty(PropertyNameView name) const
 {
     if (!isValid())
         return {};
@@ -346,7 +346,7 @@ BindingProperty ModelNode::bindingProperty(const PropertyName &name) const
     return BindingProperty(name, m_internalNode, model(), view());
 }
 
-SignalHandlerProperty ModelNode::signalHandlerProperty(const PropertyName &name) const
+SignalHandlerProperty ModelNode::signalHandlerProperty(PropertyNameView name) const
 {
     if (!isValid())
         return {};
@@ -354,7 +354,7 @@ SignalHandlerProperty ModelNode::signalHandlerProperty(const PropertyName &name)
     return SignalHandlerProperty(name, m_internalNode, model(), view());
 }
 
-SignalDeclarationProperty ModelNode::signalDeclarationProperty(const PropertyName &name) const
+SignalDeclarationProperty ModelNode::signalDeclarationProperty(PropertyNameView name) const
 {
     if (!isValid())
         return {};
@@ -372,7 +372,7 @@ SignalDeclarationProperty ModelNode::signalDeclarationProperty(const PropertyNam
   \return NodeProperty named name
   */
 
-NodeProperty ModelNode::nodeProperty(const PropertyName &name) const
+NodeProperty ModelNode::nodeProperty(PropertyNameView name) const
 {
     if (!isValid())
         return {};
@@ -390,7 +390,7 @@ NodeProperty ModelNode::nodeProperty(const PropertyName &name) const
   \return NodeListProperty named name
   */
 
-NodeListProperty ModelNode::nodeListProperty(const PropertyName &name) const
+NodeListProperty ModelNode::nodeListProperty(PropertyNameView name) const
 {
     if (!isValid())
         return {};
@@ -398,7 +398,7 @@ NodeListProperty ModelNode::nodeListProperty(const PropertyName &name) const
     return NodeListProperty(name, m_internalNode, model(), view());
 }
 
-NodeAbstractProperty ModelNode::nodeAbstractProperty(const PropertyName &name) const
+NodeAbstractProperty ModelNode::nodeAbstractProperty(PropertyNameView name) const
 {
     if (!isValid())
         return {};
@@ -431,7 +431,7 @@ NodeProperty ModelNode::defaultNodeProperty() const
   \return VariantProperty named name
   */
 
-VariantProperty ModelNode::variantProperty(const PropertyName &name) const
+VariantProperty ModelNode::variantProperty(PropertyNameView name) const
 {
     if (!isValid())
         return {};
@@ -439,7 +439,7 @@ VariantProperty ModelNode::variantProperty(const PropertyName &name) const
     return VariantProperty(name, m_internalNode, model(), view());
 }
 
-AbstractProperty ModelNode::property(const PropertyName &name) const
+AbstractProperty ModelNode::property(PropertyNameView name) const
 {
     if (!isValid())
         return {};

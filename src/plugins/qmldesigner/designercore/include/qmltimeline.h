@@ -25,8 +25,8 @@ public:
     static bool isValidQmlTimeline(const ModelNode &modelNode);
     void destroy();
 
-    QmlTimelineKeyframeGroup keyframeGroup(const ModelNode &modelNode, const PropertyName &propertyName);
-    bool hasTimeline(const ModelNode &modelNode, const PropertyName &propertyName);
+    QmlTimelineKeyframeGroup keyframeGroup(const ModelNode &modelNode, PropertyNameView propertyName);
+    bool hasTimeline(const ModelNode &modelNode, PropertyNameView propertyName);
 
     qreal startKeyframe() const;
     qreal endKeyframe() const;
@@ -45,8 +45,7 @@ public:
     QList<QmlTimelineKeyframeGroup> keyframeGroupsForTarget(const ModelNode &target) const;
     void destroyKeyframesForTarget(const ModelNode &target);
 
-    void removeKeyframesForTargetAndProperty(const ModelNode &target,
-                                             const PropertyName &propertyName);
+    void removeKeyframesForTargetAndProperty(const ModelNode &target, PropertyNameView propertyName);
 
     static bool hasActiveTimeline(AbstractView *view);
 
@@ -54,13 +53,13 @@ public:
     void toogleRecording(bool b) const;
 
     void resetGroupRecording() const;
-    bool hasKeyframeGroup(const ModelNode &node, const PropertyName &propertyName) const;
+    bool hasKeyframeGroup(const ModelNode &node, PropertyNameView propertyName) const;
     bool hasKeyframeGroupForTarget(const ModelNode &node) const;
 
-    void insertKeyframe(const ModelNode &target, const PropertyName &propertyName);
+    void insertKeyframe(const ModelNode &target, PropertyNameView propertyName);
 
 private:
-    void addKeyframeGroupIfNotExists(const ModelNode &node, const PropertyName &propertyName);
+    void addKeyframeGroupIfNotExists(const ModelNode &node, PropertyNameView propertyName);
     QList<QmlTimelineKeyframeGroup> allKeyframeGroups() const;
 };
 

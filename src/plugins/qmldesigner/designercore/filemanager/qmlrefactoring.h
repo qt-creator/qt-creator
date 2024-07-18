@@ -30,21 +30,27 @@ public:
     bool addImport(const Import &import);
     bool removeImport(const Import &import);
 
-    bool addToArrayMemberList(int parentLocation, const PropertyName &propertyName, const QString &content);
+    bool addToArrayMemberList(int parentLocation, PropertyNameView propertyName, const QString &content);
     bool addToObjectMemberList(int parentLocation, const QString &content);
     bool addProperty(int parentLocation,
-                     const PropertyName &name,
+                     PropertyNameView name,
                      const QString &value,
                      PropertyType propertyType,
                      const TypeName &dynamicTypeName = TypeName());
-    bool changeProperty(int parentLocation, const PropertyName &name, const QString &value, PropertyType propertyType);
+    bool changeProperty(int parentLocation,
+                        PropertyNameView name,
+                        const QString &value,
+                        PropertyType propertyType);
     bool changeObjectType(int nodeLocation, const QString &newType);
 
-    bool moveObject(int objectLocation, const PropertyName &targetPropertyName, bool targetIsArray, int targetParentObjectLocation);
+    bool moveObject(int objectLocation,
+                    PropertyNameView targetPropertyName,
+                    bool targetIsArray,
+                    int targetParentObjectLocation);
     bool moveObjectBeforeObject(int movingObjectLocation, int beforeObjectLocation, bool inDefaultProperty);
 
     bool removeObject(int nodeLocation);
-    bool removeProperty(int parentLocation, const PropertyName &name);
+    bool removeProperty(int parentLocation, PropertyNameView name);
 
 private:
     QmlJS::Document::Ptr qmlDocument;

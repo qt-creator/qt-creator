@@ -85,7 +85,7 @@ public:
     void refreshMetaInfos(const TypeIds &deletedTypeIds) override;
 
     static void setExpressionOnObjectNode(const QmlObjectNode &objectNode,
-                                          const PropertyName &name,
+                                          PropertyNameView name,
                                           const QString &expression);
 
     static void generateAliasForProperty(const ModelNode &modelNode,
@@ -97,7 +97,7 @@ public:
 protected:
     void timerEvent(QTimerEvent *event) override;
     void setupPane(const TypeName &typeName);
-    void setValue(const QmlObjectNode &fxObjectNode, const PropertyName &name, const QVariant &value);
+    void setValue(const QmlObjectNode &fxObjectNode, PropertyNameView name, const QVariant &value);
     bool eventFilter(QObject *obj, QEvent *event) override;
 
 private: //functions
@@ -111,9 +111,9 @@ private: //functions
     void delayedResetView();
     void setupQmlBackend();
 
-    void commitVariantValueToModel(const PropertyName &propertyName, const QVariant &value);
-    void commitAuxValueToModel(const PropertyName &propertyName, const QVariant &value);
-    void removePropertyFromModel(const PropertyName &propertyName);
+    void commitVariantValueToModel(PropertyNameView propertyName, const QVariant &value);
+    void commitAuxValueToModel(PropertyNameView propertyName, const QVariant &value);
+    void removePropertyFromModel(PropertyNameView propertyName);
 
     bool noValidSelection() const;
 

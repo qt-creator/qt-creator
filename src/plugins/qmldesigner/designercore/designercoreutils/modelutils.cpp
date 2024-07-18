@@ -268,7 +268,7 @@ PropertyMetaInfo metainfo(const AbstractProperty &property)
     return metainfo(property.parentModelNode(), property.name());
 }
 
-PropertyMetaInfo metainfo(const ModelNode &node, const PropertyName &propertyName)
+PropertyMetaInfo metainfo(const ModelNode &node, PropertyNameView propertyName)
 {
     return node.metaInfo().property(propertyName);
 }

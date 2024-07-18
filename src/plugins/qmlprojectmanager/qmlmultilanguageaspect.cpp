@@ -29,16 +29,6 @@ static bool isMultilanguagePresent()
            != specs.cend();
 }
 
-static FilePath getMultilanguageDatabaseFilePath(ProjectExplorer::Target *target)
-{
-    if (target) {
-        auto filePath = target->project()->projectDirectory().pathAppended("translations.db");
-        if (filePath.exists())
-            return filePath;
-    }
-    return {};
-}
-
 static QObject *getPlugin(const QString &pluginName)
 {
     const ExtensionSystem::PluginSpecs &specs = ExtensionSystem::PluginManager::plugins();

@@ -39,7 +39,7 @@ bool Qml3DNode::isValidVisualRoot(const ModelNode &modelNode)
            && (modelNode.metaInfo().isQtQuick3DNode() || modelNode.metaInfo().isQtQuick3DMaterial());
 }
 
-bool Qml3DNode::handleEulerRotation(const PropertyName &name)
+bool Qml3DNode::handleEulerRotation(PropertyNameView name)
 {
     if (isBlocked(name))
         return false;
@@ -50,7 +50,7 @@ bool Qml3DNode::handleEulerRotation(const PropertyName &name)
     return true;
 }
 
-bool Qml3DNode::isBlocked(const PropertyName &propName) const
+bool Qml3DNode::isBlocked(PropertyNameView propName) const
 {
     if (modelNode().isValid() && propName.startsWith("eulerRotation"))
         return modelNode().auxiliaryDataWithDefault(rotBlockProperty).toBool();

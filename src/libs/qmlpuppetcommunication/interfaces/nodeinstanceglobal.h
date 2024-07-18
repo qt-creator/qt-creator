@@ -5,13 +5,16 @@
 
 #include <QByteArray>
 #include <QList>
+#include <QVarLengthArray>
 
 #include <vector>
 
 namespace QmlDesigner {
 
 using PropertyName = QByteArray;
+using PropertyNameView = QByteArrayView;
 using PropertyNameList = QList<PropertyName>;
+using PropertyNameViews = QVarLengthArray<PropertyNameView, 64>;
 using PropertyNames = std::vector<PropertyName>;
 using TypeName = QByteArray;
 

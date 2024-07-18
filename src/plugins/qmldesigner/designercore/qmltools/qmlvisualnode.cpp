@@ -206,7 +206,7 @@ void QmlVisualNode::translate(const QVector3D &vector)
     setPosition(position() + vector);
 }
 
-void QmlVisualNode::setDoubleProperty(const PropertyName &name, double value)
+void QmlVisualNode::setDoubleProperty(PropertyNameView name, double value)
 {
     modelNode().variantProperty(name).setValue(value);
 }
@@ -389,7 +389,7 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
         }
 
         if (parentProperty.isValid()) {
-            const PropertyName propertyName = parentProperty.name();
+            const PropertyNameView propertyName = parentProperty.name();
             const ModelNode parentNode = parentProperty.parentModelNode();
             const NodeMetaInfo metaInfo = parentNode.metaInfo();
 

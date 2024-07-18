@@ -1950,7 +1950,7 @@ PropertyMetaInfos NodeMetaInfo::localProperties() const
     }
 }
 
-PropertyMetaInfo NodeMetaInfo::property(const PropertyName &propertyName) const
+PropertyMetaInfo NodeMetaInfo::property(PropertyNameView propertyName) const
 {
     if (!isValid())
         return {};
@@ -4287,10 +4287,10 @@ PropertyMetaInfo &PropertyMetaInfo::operator=(PropertyMetaInfo &&) = default;
 
 PropertyMetaInfo::PropertyMetaInfo(
     [[maybe_unused]] std::shared_ptr<NodeMetaInfoPrivate> nodeMetaInfoPrivateData,
-    [[maybe_unused]] const PropertyName &propertyName)
+    [[maybe_unused]] PropertyNameView propertyName)
 #ifndef QDS_USE_PROJECTSTORAGE
     : m_nodeMetaInfoPrivateData{nodeMetaInfoPrivateData}
-    , m_propertyName{propertyName}
+    , m_propertyName{propertyName.toByteArray()}
 #endif
 {}
 

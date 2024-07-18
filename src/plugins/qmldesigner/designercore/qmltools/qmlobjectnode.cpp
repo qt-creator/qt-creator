@@ -30,7 +30,7 @@
 
 namespace QmlDesigner {
 
-void QmlObjectNode::setVariantProperty(const PropertyName &name, const QVariant &value)
+void QmlObjectNode::setVariantProperty(PropertyNameView name, const QVariant &value)
 {
     if (!isValid())
         return;
@@ -77,7 +77,7 @@ void QmlObjectNode::setVariantProperty(const PropertyName &name, const QVariant 
     }
 }
 
-void QmlObjectNode::setBindingProperty(const PropertyName &name, const QString &expression)
+void QmlObjectNode::setBindingProperty(PropertyNameView name, const QString &expression)
 {
     if (!isValid())
         return;
@@ -123,13 +123,12 @@ bool QmlObjectNode::isRootModelNode() const
     actual instance. The return value is not the value in the model, but the
     value of a real instantiated instance of this object.
 */
-QVariant  QmlObjectNode::instanceValue(const PropertyName &name) const
+QVariant QmlObjectNode::instanceValue(PropertyNameView name) const
 {
     return nodeInstance().property(name);
 }
 
-
-bool QmlObjectNode::hasProperty(const PropertyName &name) const
+bool QmlObjectNode::hasProperty(PropertyNameView name) const
 {
     if (!isValid())
         return false;
@@ -143,7 +142,7 @@ bool QmlObjectNode::hasProperty(const PropertyName &name) const
     return modelNode().hasProperty(name);
 }
 
-bool QmlObjectNode::hasBindingProperty(const PropertyName &name) const
+bool QmlObjectNode::hasBindingProperty(PropertyNameView name) const
 {
     if (!isValid())
         return false;
@@ -157,7 +156,7 @@ bool QmlObjectNode::hasBindingProperty(const PropertyName &name) const
     return modelNode().hasBindingProperty(name);
 }
 
-NodeAbstractProperty QmlObjectNode::nodeAbstractProperty(const PropertyName &name) const
+NodeAbstractProperty QmlObjectNode::nodeAbstractProperty(PropertyNameView name) const
 {
     return modelNode().nodeAbstractProperty(name);
 }
@@ -167,22 +166,22 @@ NodeAbstractProperty QmlObjectNode::defaultNodeAbstractProperty() const
     return modelNode().defaultNodeAbstractProperty();
 }
 
-NodeProperty QmlObjectNode::nodeProperty(const PropertyName &name) const
+NodeProperty QmlObjectNode::nodeProperty(PropertyNameView name) const
 {
     return modelNode().nodeProperty(name);
 }
 
-NodeListProperty QmlObjectNode::nodeListProperty(const PropertyName &name) const
+NodeListProperty QmlObjectNode::nodeListProperty(PropertyNameView name) const
 {
     return modelNode().nodeListProperty(name);
 }
 
-bool QmlObjectNode::instanceHasValue(const PropertyName &name) const
+bool QmlObjectNode::instanceHasValue(PropertyNameView name) const
 {
     return nodeInstance().hasProperty(name);
 }
 
-bool QmlObjectNode::propertyAffectedByCurrentState(const PropertyName &name) const
+bool QmlObjectNode::propertyAffectedByCurrentState(PropertyNameView name) const
 {
     if (!isValid())
         return false;
@@ -199,7 +198,7 @@ bool QmlObjectNode::propertyAffectedByCurrentState(const PropertyName &name) con
     return currentState().propertyChanges(modelNode()).modelNode().hasProperty(name);
 }
 
-QVariant QmlObjectNode::modelValue(const PropertyName &name) const
+QVariant QmlObjectNode::modelValue(PropertyNameView name) const
 {
     if (!isValid())
         return false;
@@ -233,7 +232,7 @@ QVariant QmlObjectNode::modelValue(const PropertyName &name) const
     return propertyChanges.modelNode().variantProperty(name).value();
 }
 
-bool QmlObjectNode::isTranslatableText(const PropertyName &name) const
+bool QmlObjectNode::isTranslatableText(PropertyNameView name) const
 {
     if (modelNode().metaInfo().isValid() && modelNode().metaInfo().hasProperty(name)
         && modelNode().metaInfo().property(name).propertyType().isString()) {
@@ -249,7 +248,7 @@ bool QmlObjectNode::isTranslatableText(const PropertyName &name) const
     return false;
 }
 
-QString QmlObjectNode::stripedTranslatableText(const PropertyName &name) const
+QString QmlObjectNode::stripedTranslatableText(PropertyNameView name) const
 {
     if (modelNode().hasBindingProperty(name)) {
         static QRegularExpression regularExpressionPattern(
@@ -263,7 +262,7 @@ QString QmlObjectNode::stripedTranslatableText(const PropertyName &name) const
     return instanceValue(name).toString();
 }
 
-BindingProperty QmlObjectNode::bindingProperty(const PropertyName &name) const
+BindingProperty QmlObjectNode::bindingProperty(PropertyNameView name) const
 {
     if (!isValid())
         return {};
@@ -282,7 +281,7 @@ BindingProperty QmlObjectNode::bindingProperty(const PropertyName &name) const
     return propertyChanges.modelNode().bindingProperty(name);
 }
 
-QString QmlObjectNode::expression(const PropertyName &name) const
+QString QmlObjectNode::expression(PropertyNameView name) const
 {
     return bindingProperty(name).expression();
 }
@@ -487,7 +486,7 @@ QList<ModelNode> QmlObjectNode::getAllConnections() const
     model.
 */
 
-void  QmlObjectNode::removeProperty(const PropertyName &name)
+void QmlObjectNode::removeProperty(PropertyNameView name)
 {
     if (!isValid())
         return;
@@ -528,7 +527,7 @@ bool QmlObjectNode::isAncestorOf(const QmlObjectNode &objectNode) const
     return modelNode().isAncestorOf(objectNode.modelNode());
 }
 
-QVariant QmlObjectNode::instanceValue(const ModelNode &modelNode, const PropertyName &name)
+QVariant QmlObjectNode::instanceValue(const ModelNode &modelNode, PropertyNameView name)
 {
     Q_ASSERT(modelNode.view()->nodeInstanceView()->hasInstanceForModelNode(modelNode));
     return modelNode.view()->nodeInstanceView()->instanceForModelNode(modelNode).property(name);
@@ -569,12 +568,12 @@ QString QmlObjectNode::convertToCorrectTranslatableFunction(const QString &text,
     return generateTranslatableText(stripedTranslatableTextFunction(text), designerSettings);
 }
 
-TypeName QmlObjectNode::instanceType(const PropertyName &name) const
+TypeName QmlObjectNode::instanceType(PropertyNameView name) const
 {
     return nodeInstance().instanceType(name);
 }
 
-bool QmlObjectNode::instanceHasBinding(const PropertyName &name) const
+bool QmlObjectNode::instanceHasBinding(PropertyNameView name) const
 {
     return nodeInstance().hasBindingForProperty(name);
 }

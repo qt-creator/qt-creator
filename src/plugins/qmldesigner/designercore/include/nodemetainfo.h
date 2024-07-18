@@ -94,7 +94,7 @@ public:
     bool hasProperty(::Utils::SmallStringView propertyName) const;
     PropertyMetaInfos properties() const;
     PropertyMetaInfos localProperties() const;
-    PropertyMetaInfo property(const PropertyName &propertyName) const;
+    PropertyMetaInfo property(PropertyNameView propertyName) const;
     PropertyNameList signalNames() const;
     PropertyNameList slotNames() const;
     PropertyName defaultPropertyName() const;

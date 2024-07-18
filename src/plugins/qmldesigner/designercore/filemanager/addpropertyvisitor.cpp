@@ -10,18 +10,18 @@ namespace Internal {
 
 AddPropertyVisitor::AddPropertyVisitor(TextModifier &modifier,
                                        quint32 parentLocation,
-                                       const PropertyName &name,
+                                       PropertyNameView name,
                                        const QString &value,
                                        QmlRefactoring::PropertyType propertyType,
                                        const PropertyNameList &propertyOrder,
-                                       const TypeName &dynamicTypeName) :
-    QMLRewriter(modifier),
-    m_parentLocation(parentLocation),
-    m_name(name),
-    m_value(value),
-    m_propertyType(propertyType),
-    m_propertyOrder(propertyOrder),
-    m_dynamicTypeName(dynamicTypeName)
+                                       const TypeName &dynamicTypeName)
+    : QMLRewriter(modifier)
+    , m_parentLocation(parentLocation)
+    , m_name(name)
+    , m_value(value)
+    , m_propertyType(propertyType)
+    , m_propertyOrder(propertyOrder)
+    , m_dynamicTypeName(dynamicTypeName)
 {
 }
 

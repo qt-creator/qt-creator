@@ -6,7 +6,7 @@
 namespace QmlDesigner {
 namespace Internal {
 
-InternalBindingProperty::InternalBindingProperty(const PropertyName &name,
+InternalBindingProperty::InternalBindingProperty(PropertyNameView name,
                                                  const InternalNodePointer &propertyOwner)
     : InternalProperty(name, propertyOwner, PropertyType::Binding)
 {

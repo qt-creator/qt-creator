@@ -144,7 +144,7 @@ public:
     auto nodeProperty(PropertyNameView name) const { return property<InternalNodeProperty>(name); }
 
     template<typename Type>
-    Type *addProperty(const PropertyName &name)
+    Type *addProperty(PropertyNameView name)
     {
         auto newProperty = std::make_shared<Type>(name, shared_from_this());
         auto pointer = newProperty.get();
@@ -153,32 +153,32 @@ public:
         return pointer;
     }
 
-    auto addBindingProperty(const PropertyName &name)
+    auto addBindingProperty(PropertyNameView name)
     {
         return addProperty<InternalBindingProperty>(name);
     }
 
-    auto addSignalHandlerProperty(const PropertyName &name)
+    auto addSignalHandlerProperty(PropertyNameView name)
     {
         return addProperty<InternalSignalHandlerProperty>(name);
     }
 
-    auto addSignalDeclarationProperty(const PropertyName &name)
+    auto addSignalDeclarationProperty(PropertyNameView name)
     {
         return addProperty<InternalSignalDeclarationProperty>(name);
     }
 
-    auto addNodeListProperty(const PropertyName &name)
+    auto addNodeListProperty(PropertyNameView name)
     {
         return addProperty<InternalNodeListProperty>(name);
     }
 
-    auto addVariantProperty(const PropertyName &name)
+    auto addVariantProperty(PropertyNameView name)
     {
         return addProperty<InternalVariantProperty>(name);
     }
 
-    auto addNodeProperty(const PropertyName &name, const TypeName &dynamicTypeName)
+    auto addNodeProperty(PropertyNameView name, const TypeName &dynamicTypeName)
     {
         auto property = addProperty<InternalNodeProperty>(name);
         property->setDynamicTypeName(dynamicTypeName);
@@ -187,6 +187,9 @@ public:
     }
 
     PropertyNameList propertyNameList() const;
+    PropertyNameViews propertyNameViews() const;
+
+    bool hasProperties() const { return m_nameProperties.size(); }
 
     QList<InternalNode::Pointer> allSubNodes() const;
     QList<InternalNode::Pointer> allDirectSubNodes() const;
@@ -215,7 +218,7 @@ public:
         m_nameProperties.erase(found); // C++ 23 -> m_nameProperties.erase(name)
     }
 
-    using PropertyDict = std::map<PropertyName, InternalPropertyPointer, std::less<>>;
+    using PropertyDict = std::map<Utils::SmallString, InternalPropertyPointer, std::less<>>;
 
     PropertyDict::const_iterator begin() const { return m_nameProperties.begin(); }
 

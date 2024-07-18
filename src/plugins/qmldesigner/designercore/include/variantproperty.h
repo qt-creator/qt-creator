@@ -37,7 +37,13 @@ public:
 
     VariantProperty();
     VariantProperty(const VariantProperty &property, AbstractView *view);
-    VariantProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
+
+    VariantProperty(PropertyNameView propertyName,
+                    const Internal::InternalNodePointer &internalNode,
+                    Model *model,
+                    AbstractView *view)
+        : AbstractProperty(propertyName, internalNode, model, view)
+    {}
 };
 
 QMLDESIGNERCORE_EXPORT QTextStream& operator<<(QTextStream &stream, const VariantProperty &property);

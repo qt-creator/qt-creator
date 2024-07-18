@@ -31,8 +31,7 @@ QMLDESIGNERCORE_EXPORT bool addImportWithCheck(const QString &importName,
 QMLDESIGNERCORE_EXPORT bool addImportWithCheck(const QString &importName, Model *model);
 
 QMLDESIGNERCORE_EXPORT PropertyMetaInfo metainfo(const AbstractProperty &property);
-QMLDESIGNERCORE_EXPORT PropertyMetaInfo metainfo(const ModelNode &node,
-                                                 const PropertyName &propertyName);
+QMLDESIGNERCORE_EXPORT PropertyMetaInfo metainfo(const ModelNode &node, PropertyNameView propertyName);
 
 QMLDESIGNERCORE_EXPORT QString componentFilePath(const PathCacheType &pathCache,
                                                  const NodeMetaInfo &metaInfo);

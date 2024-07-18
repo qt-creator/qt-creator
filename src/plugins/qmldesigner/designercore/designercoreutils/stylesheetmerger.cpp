@@ -89,7 +89,7 @@ void StylesheetMerger::syncNodeProperties(ModelNode &outputNode, const ModelNode
             continue;
         ModelNode newNode = createReplacementNode(oldNode, oldNode);
         // cache the property name as removing it will invalidate it
-        PropertyName propertyName = nodeProperty.name();
+        PropertyNameView propertyName = nodeProperty.name();
         // remove property first to prevent invalid reparenting situation
         outputNode.removeProperty(propertyName);
         outputNode.nodeProperty(propertyName).reparentHere(newNode);
@@ -169,7 +169,8 @@ ModelNode StylesheetMerger::createReplacementNode(const ModelNode& styleNode, Mo
             continue;
         if (isTextAlignmentProperty(variantProperty) && !m_options.preserveTextAlignment && !styleNode.hasProperty(variantProperty.name()))
             continue;
-        propertyList.append(QPair<PropertyName, QVariant>(variantProperty.name(), variantProperty.value()));
+        propertyList.append(QPair<PropertyName, QVariant>(variantProperty.name().toByteArray(),
+                                                          variantProperty.value()));
     }
 
 #ifdef QDS_USE_PROJECTSTORAGE
@@ -278,7 +279,7 @@ void StylesheetMerger::replaceNode(ModelNode &replacedNode, ModelNode &newNode)
     for (const NodeProperty &prop : parentModelNode.nodeProperties()) {
         if (prop.modelNode().id() == replacedNode.id()) {
             isNodeProperty = true;
-            reparentName = prop.name();
+            reparentName = prop.name().toByteArray();
         }
     }
     ReparentInfo info;
