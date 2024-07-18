@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/buildstep.h>
-
 namespace RemoteLinux::Internal {
 
-class GenericDeployStepFactory : public ProjectExplorer::BuildStepFactory
-{
-public:
-    GenericDeployStepFactory();
-};
+void setupGenericDeployStep();
 
 } // namespace RemoteLinux::Internal

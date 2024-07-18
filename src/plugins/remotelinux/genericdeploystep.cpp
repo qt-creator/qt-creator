@@ -7,6 +7,7 @@
 #include "remotelinux_constants.h"
 #include "remotelinuxtr.h"
 
+#include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
@@ -28,9 +29,9 @@ using namespace Utils;
 
 namespace RemoteLinux::Internal {
 
-// RsyncDeployStep
+// GenericDeployStep
 
-class GenericDeployStep : public AbstractRemoteLinuxDeployStep
+class GenericDeployStep final : public AbstractRemoteLinuxDeployStep
 {
 public:
     GenericDeployStep(BuildStepList *bsl, Id id)
@@ -223,10 +224,21 @@ GroupItem GenericDeployStep::deployRecipe()
 
 // Factory
 
-GenericDeployStepFactory::GenericDeployStepFactory()
+class GenericDeployStepFactory final : public BuildStepFactory
 {
-    registerStep<GenericDeployStep>(Constants::GenericDeployStepId);
-    setDisplayName(Tr::tr("Deploy files"));
+public:
+    GenericDeployStepFactory()
+    {
+        registerStep<GenericDeployStep>(Constants::GenericDeployStepId);
+        setDisplayName(Tr::tr("Deploy files"));
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+        setSupportedDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+    }
+};
+
+void setupGenericDeployStep()
+{
+    static GenericDeployStepFactory theGenericDeployStepFactory;
 }
 
 } // RemoteLinux::Internal
