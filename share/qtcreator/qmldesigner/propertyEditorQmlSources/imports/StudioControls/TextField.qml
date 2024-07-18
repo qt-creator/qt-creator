@@ -47,7 +47,6 @@ T.TextField {
     readOnly: false
     selectByMouse: true
     persistentSelection: contextMenu.visible || control.focus
-    clip: true
 
     width: control.style.controlSize.width
     height: control.style.controlSize.height

@@ -831,6 +831,7 @@ extend_qtc_plugin(QmlDesigner
     propertyeditorvalue.cpp propertyeditorvalue.h
     propertyeditorview.cpp propertyeditorview.h
     propertyeditorwidget.cpp propertyeditorwidget.h
+    propertynamevalidator.cpp propertynamevalidator.h
     tooltip.cpp tooltip.h
     qmlanchorbindingproxy.cpp qmlanchorbindingproxy.h
     qmlmodelnodeproxy.cpp qmlmodelnodeproxy.h
