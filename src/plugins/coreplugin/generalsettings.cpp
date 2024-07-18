@@ -218,18 +218,18 @@ static bool hasQmFilesForLocale(const QString &locale, const QString &creatorTrP
 
 void GeneralSettingsWidget::fillLanguageBox() const
 {
-    const QString currentLocale = language();
+    const QString currentLocale = Core::ICore::isQtDesignStudio() ? QString("C") : language();
 
     m_languageBox->addItem(Tr::tr("<System Language>"), QString());
+
+    using Item = std::pair<QString, QString>;
+    QList<Item> items;
     // need to add this explicitly, since there is no qm file for English
-    m_languageBox->addItem(QLatin1String("English"), QLatin1String("C"));
-    if (currentLocale == QLatin1String("C") || Core::ICore::isQtDesignStudio())
-        m_languageBox->setCurrentIndex(m_languageBox->count() - 1);
+    items.append({QString("English"), QString("C")});
 
     const FilePath creatorTrPath = ICore::resourcePath("translations");
     const FilePaths languageFiles = creatorTrPath.dirEntries(
         QStringList(QLatin1String("qtcreator*.qm")));
-
     for (const FilePath &languageFile : languageFiles) {
         const QString name = languageFile.fileName();
         int start = name.indexOf('_') + 1;
@@ -240,10 +240,15 @@ void GeneralSettingsWidget::fillLanguageBox() const
             QLocale tmpLocale(locale);
             QString languageItem = QLocale::languageToString(tmpLocale.language()) + QLatin1String(" (")
                                    + QLocale::territoryToString(tmpLocale.territory()) + QLatin1Char(')');
-            m_languageBox->addItem(languageItem, locale);
-            if (locale == currentLocale)
-                m_languageBox->setCurrentIndex(m_languageBox->count() - 1);
+            items.append({languageItem, locale});
         }
+    }
+
+    Utils::sort(items, &Item::first);
+    for (const Item &i : std::as_const(items)) {
+        m_languageBox->addItem(i.first, i.second);
+        if (i.second == currentLocale)
+            m_languageBox->setCurrentIndex(m_languageBox->count() - 1);
     }
 }
 
