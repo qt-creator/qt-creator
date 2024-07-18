@@ -27,18 +27,16 @@ public:
     // Property setter
     template <typename Id, typename Arg>
     BuilderItem(IdAndArg<Id, Arg> && idarg)
-    {
-        apply = [&idarg](X *x) { doit(x, Id{}, idarg.arg); };
-    }
+        : apply([&idarg](X *x) { doit(x, Id{}, idarg.arg); })
+    {}
 
     // Nested child object
     template <typename Inner>
     BuilderItem(Inner && p)
-    {
-        apply = [&p](X *x) { doit(x, NestId{}, std::forward<Inner>(p)); };
-    }
+        : apply([&p](X *x) { doit(x, NestId{}, std::forward<Inner>(p)); })
+    {}
 
-    std::function<void(X *)> apply;
+    const std::function<void(X *)> apply;
 };
 
 #define QTC_DEFINE_BUILDER_SETTER(name, setter) \
