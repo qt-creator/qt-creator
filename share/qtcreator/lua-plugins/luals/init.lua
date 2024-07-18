@@ -102,7 +102,7 @@ local function setupClient()
       mimeTypes = { 'text/x-lua' }
     },
     settings = Settings,
-    startBehavior = "RequiresFile",
+    startBehavior = "RequiresProject",
     onStartFailed = function()
       a.sync(function()
         if IsTryingToInstall == true then
