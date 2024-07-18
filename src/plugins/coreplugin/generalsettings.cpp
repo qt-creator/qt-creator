@@ -222,10 +222,17 @@ void GeneralSettingsWidget::fillLanguageBox() const
 
     m_languageBox->addItem(Tr::tr("<System Language>"), QString());
 
-    using Item = std::pair<QString, QString>;
+    struct Item
+    {
+        QString display;
+        QString locale;
+        QString comparisonId;
+    };
+
     QList<Item> items;
     // need to add this explicitly, since there is no qm file for English
-    items.append({QString("English"), QString("C")});
+    const QString english = QLocale::languageToString(QLocale::English);
+    items.append({english, QString("C"), english});
 
     const FilePath creatorTrPath = ICore::resourcePath("translations");
     const FilePaths languageFiles = creatorTrPath.dirEntries(
@@ -238,16 +245,39 @@ void GeneralSettingsWidget::fillLanguageBox() const
         // no need to show a language that creator will not load anyway
         if (hasQmFilesForLocale(locale, creatorTrPath.toString())) {
             QLocale tmpLocale(locale);
-            QString languageItem = QLocale::languageToString(tmpLocale.language()) + QLatin1String(" (")
-                                   + QLocale::territoryToString(tmpLocale.territory()) + QLatin1Char(')');
-            items.append({languageItem, locale});
+            const auto languageItem = QString("%1 (%2) - %3 (%4)")
+                                          .arg(
+                                              tmpLocale.nativeLanguageName(),
+                                              tmpLocale.nativeTerritoryName(),
+                                              QLocale::languageToString(tmpLocale.language()),
+                                              QLocale::territoryToString(tmpLocale.territory()));
+            // Create a fancy comparison string.
+            // We cannot use a "locale aware comparison" because we are comparing different locales.
+            // The probably "optimal solution" would be to compare by "latinized native name",
+            // but that's hard. Instead
+            // - for non-Latin-script locales use the english name, otherwise the native name
+            // - get rid of fancy characters like 'č' by decomposing them (e.g. to 'c')
+            QString comparisonId = tmpLocale.script() == QLocale::LatinScript
+                                       ? (tmpLocale.nativeLanguageName() + " "
+                                          + tmpLocale.nativeTerritoryName())
+                                       : (QLocale::languageToString(tmpLocale.language()) + " "
+                                          + QLocale::territoryToString(tmpLocale.territory()));
+            for (int i = 0; i < comparisonId.size(); ++i) {
+                QChar &c = comparisonId[i];
+                if (c.decomposition().isEmpty())
+                    continue;
+                c = c.decomposition().at(0);
+            }
+            items.append({languageItem, locale, comparisonId});
         }
     }
 
-    Utils::sort(items, &Item::first);
+    Utils::sort(items, [](const Item &a, const Item &b) {
+        return a.comparisonId.compare(b.comparisonId, Qt::CaseInsensitive) < 0;
+    });
     for (const Item &i : std::as_const(items)) {
-        m_languageBox->addItem(i.first, i.second);
-        if (i.second == currentLocale)
+        m_languageBox->addItem(i.display, i.locale);
+        if (i.locale == currentLocale)
             m_languageBox->setCurrentIndex(m_languageBox->count() - 1);
     }
 }
