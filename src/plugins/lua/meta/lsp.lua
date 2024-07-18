@@ -1,4 +1,4 @@
----@meta LSP.
+---@meta LSP
 
 local lsp = {}
 
