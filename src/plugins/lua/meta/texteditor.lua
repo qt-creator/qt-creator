@@ -1,4 +1,5 @@
 ---@meta TextEditor
+local textEditor = {}
 
 ---@class TextCursor
 ---@field position integer The position of the cursor.
@@ -39,4 +40,8 @@ function TextEditor:document() end
 ---@return MultiTextCursor cursor The cursor of the editor.
 function TextEditor:cursor() end
 
-return TextDocument
+---Returns the current editor or nil.
+---@return TextEditor|nil editor The currently active editor or nil if there is none.
+function textEditor.currentEditor() end
+
+return textEditor

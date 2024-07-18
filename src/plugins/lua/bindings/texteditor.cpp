@@ -97,10 +97,14 @@ void addTextEditorModule()
 {
     TextEditorRegistry::instance();
 
-    LuaEngine::registerProvider("TextDocument", [](sol::state_view lua) -> sol::object {
-        sol::table documents = lua.create_table();
+    LuaEngine::registerProvider("TextEditor", [](sol::state_view lua) -> sol::object {
+        sol::table result = lua.create_table();
 
-        documents.new_usertype<Utils::MultiTextCursor>(
+        result["currentEditor"] = []() -> TextEditor::BaseTextEditor * {
+            return TextEditor::BaseTextEditor::currentTextEditor();
+        };
+
+        result.new_usertype<Utils::MultiTextCursor>(
             "MultiTextCursor",
             sol::no_constructor,
             "mainCursor",
@@ -108,7 +112,7 @@ void addTextEditorModule()
             "cursors",
             &Utils::MultiTextCursor::cursors);
 
-        documents.new_usertype<QTextCursor>(
+        result.new_usertype<QTextCursor>(
             "TextCursor",
             sol::no_constructor,
             "position",
@@ -118,7 +122,7 @@ void addTextEditorModule()
             "columnNumber",
             &QTextCursor::columnNumber);
 
-        documents.new_usertype<TextEditor::BaseTextEditor>(
+        result.new_usertype<TextEditor::BaseTextEditor>(
             "TextEditor",
             sol::no_constructor,
             "document",
@@ -128,7 +132,7 @@ void addTextEditorModule()
                 return textEditor->editorWidget()->multiTextCursor();
             });
 
-        documents.new_usertype<TextEditor::TextDocument>(
+        result.new_usertype<TextEditor::TextDocument>(
             "TextDocument",
             sol::no_constructor,
             "file",
@@ -147,7 +151,7 @@ void addTextEditorModule()
             "blockCount",
             [](TextEditor::TextDocument *document) { return document->document()->blockCount(); });
 
-        return documents;
+        return result;
     });
 
     LuaEngine::registerHook("editors.text.currentChanged", [](sol::function func, QObject *guard) {
