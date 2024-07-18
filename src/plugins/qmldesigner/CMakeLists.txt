@@ -676,6 +676,7 @@ extend_qtc_plugin(QmlDesigner
   edit3dwidget.cpp edit3dwidget.h
   edit3dcanvas.cpp edit3dcanvas.h
   edit3dactions.cpp edit3dactions.h
+  edit3dmaterialsaction.cpp edit3dmaterialsaction.h
   edit3dtoolbarmenu.cpp edit3dtoolbarmenu.h
   backgroundcolorselection.cpp backgroundcolorselection.h
   bakelights.cpp bakelights.h

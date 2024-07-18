@@ -548,4 +548,157 @@ TEST(ModelUtils, empty_is_not_banned_Qml_id)
     ASSERT_THAT(isBannedQmlId, IsFalse());
 }
 
+TEST(ModelUtils, expressionToList_empty_expression_returns_empty_list)
+{
+    QString expression = "";
+
+    QStringList list = QmlDesigner::ModelUtils::expressionToList(expression);
+
+    ASSERT_THAT(list, IsEmpty());
+}
+
+TEST(ModelUtils, expressionToList_empty_array_returns_empty_list)
+{
+    QString expression = "[]";
+
+    QStringList list = QmlDesigner::ModelUtils::expressionToList(expression);
+
+    ASSERT_THAT(list, IsEmpty());
+}
+
+TEST(ModelUtils, expressionToList_comma_only_array_returns_empty_list)
+{
+    QString expression = "[,,,]";
+
+    QStringList list = QmlDesigner::ModelUtils::expressionToList(expression);
+
+    ASSERT_THAT(list, IsEmpty());
+}
+
+TEST(ModelUtils, expressionToList_space_only_array_returns_empty_list)
+{
+    QString expression = "[ , , , ]";
+
+    QStringList list = QmlDesigner::ModelUtils::expressionToList(expression);
+
+    ASSERT_THAT(list, IsEmpty());
+}
+
+TEST(ModelUtils, expressionToList_single_expression_returns_single_item_list)
+{
+    QString expression = "aaa";
+
+    QStringList list = QmlDesigner::ModelUtils::expressionToList(expression);
+
+    ASSERT_THAT(list, UnorderedElementsAre("aaa"));
+}
+
+TEST(ModelUtils, expressionToList_single_expression_keeps_middle_spaces)
+{
+    QString expression = "aa a  b";
+
+    QStringList list = QmlDesigner::ModelUtils::expressionToList(expression);
+
+    ASSERT_THAT(list, UnorderedElementsAre("aa a  b"));
+}
+
+TEST(ModelUtils, expressionToList_single_expression_omites_side_spaces)
+{
+    QString expression = "  aa a  b ";
+
+    QStringList list = QmlDesigner::ModelUtils::expressionToList(expression);
+
+    ASSERT_THAT(list, UnorderedElementsAre("aa a  b"));
+}
+
+TEST(ModelUtils, expressionToList_single_item_array_returns_single_item_list)
+{
+    QString expression = "[aaa]";
+
+    QStringList list = QmlDesigner::ModelUtils::expressionToList(expression);
+
+    ASSERT_THAT(list, UnorderedElementsAre("aaa"));
+}
+
+TEST(ModelUtils, expressionToList_array_with_multiple_items_returns_all)
+{
+    QString expression = "[bbb,aaa,ccc]";
+
+    QStringList list = QmlDesigner::ModelUtils::expressionToList(expression);
+
+    ASSERT_THAT(list, UnorderedElementsAre("bbb", "aaa", "ccc"));
+}
+
+TEST(ModelUtils, expressionToList_array_with_empty_items_returns_clean_list)
+{
+    QString expression = "[,aaa,,bbb,ccc,,]";
+
+    QStringList list = QmlDesigner::ModelUtils::expressionToList(expression);
+
+    ASSERT_THAT(list, UnorderedElementsAre("aaa", "bbb", "ccc"));
+}
+
+TEST(ModelUtils, expressionToList_keeps_middle_spaces_in_tokens)
+{
+    QString expression = "[aaa,,a bb  b,ccc]";
+
+    QStringList list = QmlDesigner::ModelUtils::expressionToList(expression);
+
+    ASSERT_THAT(list, UnorderedElementsAre("aaa", "a bb  b", "ccc"));
+}
+
+TEST(ModelUtils, expressionToList_omits_side_spaces_in_tokens)
+{
+    QString expression = "[aaa,,  a bb  b ,ccc]";
+
+    QStringList list = QmlDesigner::ModelUtils::expressionToList(expression);
+
+    ASSERT_THAT(list, UnorderedElementsAre("aaa", "a bb  b", "ccc"));
+}
+
+TEST(ModelUtils, expressionToList_unicodes_supported)
+{
+    QString expression = "[你好, foo]";
+
+    QStringList list = QmlDesigner::ModelUtils::expressionToList(expression);
+
+    ASSERT_THAT(list, UnorderedElementsAre("你好", "foo"));
+}
+
+TEST(ModelUtils, listToExpression_returns_non_array_expression_for_single_items)
+{
+    QStringList list = {"aaa"};
+
+    QString expression = QmlDesigner::ModelUtils::listToExpression(list);
+
+    ASSERT_THAT(expression, Eq("aaa"));
+}
+
+TEST(ModelUtils, listToExpression_returns_expression)
+{
+    QStringList list = {"aaa", "bbb", "ccc"};
+
+    QString expression = QmlDesigner::ModelUtils::listToExpression(list);
+
+    ASSERT_THAT(expression, Eq("[aaa,bbb,ccc]"));
+}
+
+TEST(ModelUtils, listToExpression_returns_expression_with_empty_items)
+{
+    QStringList list = {"aaa", "bbb", "", "ccc"};
+
+    QString expression = QmlDesigner::ModelUtils::listToExpression(list);
+
+    ASSERT_THAT(expression, Eq("[aaa,bbb,,ccc]"));
+}
+
+TEST(ModelUtils, listToExpression_returns_empty_for_empty_expressions)
+{
+    QStringList list = {};
+
+    QString expression = QmlDesigner::ModelUtils::listToExpression(list);
+
+    ASSERT_THAT(expression, IsEmpty());
+}
+
 } // namespace

@@ -469,4 +469,33 @@ bool isValidQmlIdentifier(QStringView id)
     return id.contains(idExpr);
 }
 
+QStringList expressionToList(QStringView expression)
+{
+    QStringView cleanedExp = (expression.startsWith('[') && expression.endsWith(']'))
+                                 ? expression.sliced(1, expression.size() - 2)
+                                 : expression;
+    QList<QStringView> tokens = cleanedExp.split(',');
+
+    QStringList expList;
+    expList.reserve(tokens.size());
+    for (QStringView token : tokens) {
+        token = token.trimmed();
+        if (!token.isEmpty())
+            expList.append(token.toString());
+    }
+
+    return expList;
+}
+
+QString listToExpression(const QStringList &stringList)
+{
+    if (stringList.size() > 1)
+        return QString("[" + stringList.join(",") + "]");
+
+    if (stringList.size() == 1)
+        return stringList.first();
+
+    return QString();
+}
+
 } // namespace QmlDesigner::ModelUtils

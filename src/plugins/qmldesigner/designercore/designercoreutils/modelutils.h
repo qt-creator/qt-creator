@@ -56,4 +56,9 @@ constexpr std::u16string_view toStdStringView(QStringView view)
     return {view.utf16(), Utils::usize(view)};
 }
 
+QMLDESIGNERCORE_EXPORT QStringList expressionToList(QStringView exp);
+
+QMLDESIGNERCORE_EXPORT QString listToExpression(const QStringList &stringList);
+;
+
 } // namespace QmlDesigner::ModelUtils

@@ -437,36 +437,14 @@ void ContentLibraryView::applyBundleMaterialToDropTarget(const ModelNode &bundle
 
     executeInTransaction("ContentLibraryView::applyBundleMaterialToDropTarget", [&] {
         ModelNode newMatNode = typeName.size() ? createMaterial(typeName) : bundleMat;
-
-        // TODO: unify this logic as it exist elsewhere also
-        auto expToList = [](const QString &exp) {
-            QString copy = exp;
-            copy = copy.remove("[").remove("]");
-
-            QStringList tmp = copy.split(',', Qt::SkipEmptyParts);
-            for (QString &str : tmp)
-                str = str.trimmed();
-
-            return tmp;
-        };
-
-        auto listToExp = [](QStringList &stringList) {
-            if (stringList.size() > 1)
-                return QString("[" + stringList.join(",") + "]");
-
-            if (stringList.size() == 1)
-                return stringList.first();
-
-            return QString();
-        };
-
         for (const ModelNode &target : std::as_const(m_bundleMaterialTargets)) {
             if (target.isValid() && target.metaInfo().isQtQuick3DModel()) {
                 QmlObjectNode qmlObjNode(target);
                 if (m_bundleMaterialAddToSelected) {
-                    QStringList matList = expToList(qmlObjNode.expression("materials"));
+                    QStringList matList = ModelUtils::expressionToList(
+                        qmlObjNode.expression("materials"));
                     matList.append(newMatNode.id());
-                    QString updatedExp = listToExp(matList);
+                    QString updatedExp = ModelUtils::listToExpression(matList);
                     qmlObjNode.setBindingProperty("materials", updatedExp);
                 } else {
                     qmlObjNode.setBindingProperty("materials", newMatNode.id());
@@ -488,35 +466,14 @@ void ContentLibraryView::applyBundleMaterialToDropTarget(const ModelNode &bundle
     executeInTransaction("ContentLibraryView::applyBundleMaterialToDropTarget", [&] {
         ModelNode newMatNode = metaInfo.isValid() ? createMaterial(metaInfo) : bundleMat;
 
-        // TODO: unify this logic as it exist elsewhere also
-        auto expToList = [](const QString &exp) {
-            QString copy = exp;
-            copy = copy.remove("[").remove("]");
-
-            QStringList tmp = copy.split(',', Qt::SkipEmptyParts);
-            for (QString &str : tmp)
-                str = str.trimmed();
-
-            return tmp;
-        };
-
-        auto listToExp = [](QStringList &stringList) {
-            if (stringList.size() > 1)
-                return QString("[" + stringList.join(",") + "]");
-
-            if (stringList.size() == 1)
-                return stringList.first();
-
-            return QString();
-        };
-
         for (const ModelNode &target : std::as_const(m_bundleMaterialTargets)) {
             if (target.isValid() && target.metaInfo().isQtQuick3DModel()) {
                 QmlObjectNode qmlObjNode(target);
                 if (m_bundleMaterialAddToSelected) {
-                    QStringList matList = expToList(qmlObjNode.expression("materials"));
+                    QStringList matList = ModelUtils::expressionToList(
+                        qmlObjNode.expression("materials"));
                     matList.append(newMatNode.id());
-                    QString updatedExp = listToExp(matList);
+                    QString updatedExp = ModelUtils::listToExpression(matList);
                     qmlObjNode.setBindingProperty("materials", updatedExp);
                 } else {
                     qmlObjNode.setBindingProperty("materials", newMatNode.id());

@@ -24,6 +24,7 @@
 #include "qmldesignerplugin.h"
 #include "qmltimeline.h"
 #include "variantproperty.h"
+#include <modelutils.h>
 #include <uniquename.h>
 #include <utils3d.h>
 
@@ -380,34 +381,14 @@ void MaterialEditorView::applyMaterialToSelectedModels(const ModelNode &material
 
     QTC_ASSERT(material.isValid(), return);
 
-    auto expToList = [](const QString &exp) {
-        QString copy = exp;
-        copy = copy.remove("[").remove("]");
-
-        QStringList tmp = copy.split(',', Qt::SkipEmptyParts);
-        for (QString &str : tmp)
-            str = str.trimmed();
-
-        return tmp;
-    };
-
-    auto listToExp = [](QStringList &stringList) {
-        if (stringList.size() > 1)
-            return QString("[" + stringList.join(",") + "]");
-
-        if (stringList.size() == 1)
-            return stringList.first();
-
-        return QString();
-    };
-
     executeInTransaction(__FUNCTION__, [&] {
         for (const ModelNode &node : std::as_const(m_selectedModels)) {
             QmlObjectNode qmlObjNode(node);
             if (add) {
-                QStringList matList = expToList(qmlObjNode.expression("materials"));
+                QStringList matList = ModelUtils::expressionToList(
+                    qmlObjNode.expression("materials"));
                 matList.append(material.id());
-                QString updatedExp = listToExp(matList);
+                QString updatedExp = ModelUtils::listToExpression(matList);
                 qmlObjNode.setBindingProperty("materials", updatedExp);
             } else {
                 qmlObjNode.setBindingProperty("materials", material.id());
