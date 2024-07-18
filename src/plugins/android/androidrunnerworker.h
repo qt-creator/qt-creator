@@ -37,7 +37,6 @@ public:
     void setAndroidDeviceInfo(const AndroidDeviceInfo &info);
     void asyncStart();
     void asyncStop();
-    void setIsPreNougat(bool isPreNougat) { m_isPreNougat = isPreNougat; }
     void setIntentName(const QString &intentName) { m_intentName = intentName; }
 
 signals:
@@ -75,9 +74,9 @@ private:
         Settled
     };
     void onProcessIdChanged(const PidUserPair &pidUser);
+    bool isPreNougat() const { return m_apiLevel > 0 && m_apiLevel <= 23; }
 
     // Create the processes and timer in the worker thread, for correct thread affinity
-    bool m_isPreNougat = false;
     QString m_packageName;
     QString m_intentName;
     QStringList m_beforeStartAdbCommands;

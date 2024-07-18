@@ -162,6 +162,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     auto target = runControl->target();
     m_deviceSerialNumber = AndroidManager::deviceSerialNumber(target);
     m_apiLevel = AndroidManager::deviceApiLevel(target);
+    qCDebug(androidRunWorkerLog) << "Device API:" << m_apiLevel;
 
     m_extraEnvVars = runControl->aspectData<EnvironmentAspect>()->environment;
     qCDebug(androidRunWorkerLog).noquote() << "Environment variables for the app"
@@ -631,7 +632,7 @@ void AndroidRunnerWorker::asyncStart()
 
     const FilePath adbPath = AndroidConfig::adbToolPath();
     const QStringList args = selector();
-    const QString pidScript = m_isPreNougat
+    const QString pidScript = isPreNougat()
         ? QString("for p in /proc/[0-9]*; do cat <$p/cmdline && echo :${p##*/}; done")
         : QString("pidof -s '%1'").arg(m_packageName);
 
@@ -639,7 +640,7 @@ void AndroidRunnerWorker::asyncStart()
         process.setCommand({adbPath, {args, "shell", pidScript}});
     };
     const auto onPidDone = [pidStorage, packageName = m_packageName,
-                            isPreNougat = m_isPreNougat](const Process &process) {
+                            isPreNougat = isPreNougat()](const Process &process) {
         const QString out = process.allOutput();
         if (isPreNougat)
             pidStorage->first = extractPID(out, packageName);

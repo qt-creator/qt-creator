@@ -46,12 +46,8 @@ AndroidRunner::AndroidRunner(RunControl *runControl, const QString &intentName)
     m_packageName = intent.left(intent.indexOf('/'));
     qCDebug(androidRunnerLog) << "Intent name:" << intent << "Package name" << m_packageName;
 
-    const int apiLevel = AndroidManager::deviceApiLevel(m_target);
-    qCDebug(androidRunnerLog) << "Device API:" << apiLevel;
-
     m_worker.reset(new AndroidRunnerWorker(this, m_packageName));
     m_worker->setIntentName(intent);
-    m_worker->setIsPreNougat(apiLevel <= 23);
 
     m_worker->moveToThread(&m_thread);
 
