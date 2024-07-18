@@ -1,0 +1,152 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page design-effect-example.html
+    \ingroup studioexamples
+
+    \title Design Effect
+    \brief Illustrates how to use the \QDS design effect.
+
+    \image studio-design-effects-demo-gallery.webp
+
+    The \e{Design Effects Demo Gallery} example illustrates the use cases of the
+    design effects in \QDS. Learn more about design effects
+    \l {https://doc.qt.io/qtdesignstudio/quick-design-effects.html}{here}.
+
+    In this example, you see and interact with the implementation of the following design effect
+    principles:
+    \table
+      \header
+        \li Design Effect
+        \li Description
+      \row
+        \li Neumorphism
+        \li Creates a soft and light look with elements that appear to protrude from or dent
+            into the background rather than float on top of it.
+      \row
+        \li Skeuomorphism
+        \li Emulates the appearance of physical objects.
+      \row
+        \li Glassmorphism
+        \li Uses transparency and blur to emulate the appearance of frosted glass.
+    \endtable
+
+    You can also try the \uicontrol {Demo Project} in the example. This project
+    represents Neumorphism, Skeuomorphism, and Glassmorphism effects used in a digital calculator
+    environment.
+
+    Watch this video tutorial to learn how to create these effects using \QDS design effects:
+    \youtube h0p27_HScxc
+
+    \section1 Using Neumorphism Example
+
+    \image studio-neumorphism.webp
+
+    In the \e {Design Effects Demo Gallery}, go to the \uicontrol Intro,
+    \uicontrol {Design Studies}, or \uicontrol Animation to see the Neumorphism effects
+    created using design effects in \QDS. To access these sections:
+
+    \list 1
+      \li Select \uicontrol Neumorphism.
+      \li Select \uicontrol Intro, \uicontrol {Design Studies}, \uicontrol {Design Studies 2},
+          \uicontrol or \uicontrol Animation to see the corresponding section in display.
+    \endlist
+
+    \note These design studies show different Neumorphism effects achieved using Figma, and how
+          accurately they translate into \QDS design effects.
+          The animation gives a real-time animated Neumorphism design effect in \QDS.
+
+    \section1 Using Skeuomorphism Example
+
+    \image studio-skeuomorphism.webp
+
+    In the \e {Design Effects Demo Gallery}, go to the \uicontrol Intro,
+    \uicontrol {Design Studies}, or \uicontrol Interaction to see the Skeuomorphism effects
+    created using design effects in \QDS. To access these sections:
+
+    \list 1
+      \li Select \uicontrol Skeuomorphism.
+      \li Select \uicontrol Intro, \uicontrol {Design Studies}, or \uicontrol Interaction
+          to see the corresponding section in display.
+      \li To try the Skeuomorphism effects further, go to \uicontrol Skeuomorphism >
+          \uicontrol Interaction and select the \e{Actual Qt Quick Buttons}.
+    \endlist
+
+    \note The design study here shows the Skeuomorphism effects achieved using Figma, and how
+          accurately they translate into \QDS design effects. The \e{Actual Qt Quick Buttons} are
+          interactive buttons where Skeuomorphism design principles work. You can click
+          these buttons to test different stages of the Skeuomorphism effect.
+
+
+    \section1 Using Glassmorphism Example
+
+    \image studio-glassmorphism.webp
+
+    In the \e {Design Effects Demo Gallery}, go to the \uicontrol Intro,
+    \uicontrol {Design studies}, or \uicontrol Interaction to see the Glassmorphism effects
+    created using design effects in \QDS. To access these sections:
+
+    \list 1
+      \li Select \uicontrol Glassmorphism.
+      \li Select \uicontrol Intro, \uicontrol {Design Studies}, \uicontrol Animation, or
+          \uicontrol Interaction to see the corresponding section in the display area.
+      \li Try the Glassmorphism effects further in \uicontrol Interaction. Go to
+          \uicontrol Glassmorphism > \uicontrol Interaction, and drag the window with the
+          Glassmorphism effect where you want to move it. Due to the Glassmorphism effect, the
+          part of the image hidden behind it would become blurred.
+    \endlist
+
+    \section1 Using the Design Effect Demo Project
+
+    \image studio-design-effects-demo-project.webp
+
+    The \uicontrol {Demo Project} combines design effects, including \uicontrol Neumorphism,
+    \uicontrol Skeuomorphism, and \uicontrol Glassmorphism. It also includes sound effects using
+    \l {https://doc.qt.io/qt-6/qtmultimedia-index.html} {\QM}. In the \uicontrol {Demo Project},
+    you can interact with a Single Toggle Operation Integer Calculator.
+
+    To run the Single Toggle Operation Integer Calculator, go to \uicontrol {Demo Project},
+    and select \uicontrol {Run Demo}.
+
+    To remove the previous calculation data and make the calculator ready for a new
+    arithmetic operation, select \uicontrol CLR.
+
+    To change the theme of the calculator between light and dark, select \uicontrol DARK.
+
+    \section2 Using Shadow or Blur Effects
+
+      To change the direction of the shadows on the calculator, drag \uicontrol {SHADOW DIR}
+      up or down.
+
+      To control how much the shadow can spread on the calculator, go to \uicontrol SPREAD,
+      click and hold, and then move the mouse in a circular motion to the left or right.
+
+      To adjust the level of blur in the calculator control and display, go to \uicontrol BLUR,
+      click and hold, and then move the mouse in a circular motion to the left or right.
+
+      To turn the design effects on or off in the calculator, select \uicontrol FX.
+
+    \section2 Using Music or Sound Effects
+
+      To play sound or music in the calculator:
+      \list
+        \li To play music in a loop, select \uicontrol CHRD, \uicontrol TECH, or
+            \uicontrol DUB.
+        \li To play brief sounds, select \uicontrol KCK or \uicontrol WMP. You can also play these
+            sounds while one of the \uicontrol CHRD, \uicontrol TECH, or \uicontrol DUB music
+            is playing.
+        \li To play laughter, select \uicontrol {":)"}.
+
+        \note You cannot play \uicontrol CHRD, \uicontrol TECH, and \uicontrol DUB music together.
+              When you select one of them, the other stops immediately.
+      \endlist
+
+      To change the volume of the sound effects in the calculator, go to \uicontrol VOLUME,
+      and then move the mouse in a circular motion to the left or right.
+
+      To stop all the sounds and music, select \uicontrol MUTE. If the \uicontrol MUTE is inactive,
+      each button you select for the arithmetic operation also plays a brief sound.
+
+
+*/
