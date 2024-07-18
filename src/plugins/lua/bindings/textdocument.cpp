@@ -61,9 +61,13 @@ public:
         if (!textDocument)
             return;
 
-        connect(textDocument, &TextEditor::TextDocument::contentsChanged, this, [this, textDocument] {
-            emit documentContentsChanged(textDocument);
-        });
+        connect(
+            textDocument,
+            &TextEditor::TextDocument::contentsChangedWithPosition,
+            this,
+            [this, textDocument](int position, int charsRemoved, int charsAdded) {
+                emit documentContentsChanged(textDocument, position, charsRemoved, charsAdded);
+            });
 
         emit documentOpened(textDocument);
     }
@@ -82,7 +86,8 @@ signals:
     void documentOpened(TextEditor::TextDocument *document);
     void currentDocumentChanged(TextEditor::TextDocument *document);
     void documentClosed(TextEditor::TextDocument *document);
-    void documentContentsChanged(TextEditor::TextDocument *document);
+    void documentContentsChanged(
+        TextEditor::TextDocument *document, int position, int charsRemoved, int charsAdded);
 };
 
 void addTextDocumentsModule()
@@ -93,7 +98,21 @@ void addTextDocumentsModule()
         sol::table documents = lua.create_table();
 
         documents.new_usertype<TextEditor::TextDocument>(
-            "TextDocument", sol::no_constructor, "file", &TextEditor::TextDocument::filePath);
+            "TextDocument",
+            sol::no_constructor,
+            "file",
+            &TextEditor::TextDocument::filePath,
+            "lineAndColumn",
+            [](TextEditor::TextDocument *document,
+               int position) -> std::optional<std::pair<int, int>> {
+                QTextBlock block = document->document()->findBlock(position);
+                if (!block.isValid())
+                    return std::nullopt;
+
+                int column = position - block.position();
+
+                return std::make_pair(block.blockNumber() + 1, column + 1);
+            });
 
         return documents;
     });
@@ -122,8 +141,9 @@ void addTextDocumentsModule()
         QObject::connect(
             TextDocumentRegistry::instance(),
             &TextDocumentRegistry::documentContentsChanged,
-            [func](TextEditor::TextDocument *document) {
-                Utils::expected_str<void> res = LuaEngine::void_safe_call(func, document);
+            [func](TextEditor::TextDocument *document, int position, int charsRemoved, int charsAdded) {
+                Utils::expected_str<void> res
+                    = LuaEngine::void_safe_call(func, document, position, charsRemoved, charsAdded);
                 QTC_CHECK_EXPECTED(res);
             });
     });

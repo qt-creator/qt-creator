@@ -43,7 +43,7 @@ EditorHooks = {}
 ---@field opened? function function(Documents.TextDocument)
 ---@field closed? function function(Documents.TextDocument)
 ---@field currentChanged? function function(Documents.TextDocument)
----@field contentsChanged? function function(Documents.TextDocument)
+---@field contentsChanged? function function(document: Documents.TextDocument, position: integer, charsRemoved: integer, charsAdded: integer)
 
 ---@class Hooks
 ---@field editors? EditorHooks
