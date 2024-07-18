@@ -69,4 +69,40 @@ private:
     QList<Utils::Id> m_typeIds;
 };
 
+template <typename Generator>
+class JsonWizardGeneratorTypedFactory : public JsonWizardGeneratorFactory
+{
+public:
+    JsonWizardGeneratorTypedFactory(const QString &suffix) { setTypeIdsSuffix(suffix); }
+
+    JsonWizardGenerator *create(Utils::Id typeId, const QVariant &data,
+                                const QString &path, Utils::Id platform,
+                                const QVariantMap &variables) final
+    {
+        Q_UNUSED(path)
+        Q_UNUSED(platform)
+        Q_UNUSED(variables)
+        QTC_ASSERT(canCreate(typeId), return nullptr);
+
+        auto gen = new Generator;
+        QString errorMessage;
+        gen->setup(data, &errorMessage);
+
+        if (!errorMessage.isEmpty()) {
+            qWarning() << "JsonWizardGeneratorTypedFactory for " << typeId << "setup error:"
+                       << errorMessage;
+            delete gen;
+            return nullptr;
+        }
+        return gen;
+    }
+
+    bool validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage) final
+    {
+        QTC_ASSERT(canCreate(typeId), return false);
+        QScopedPointer<Generator> gen(new Generator);
+        return gen->setup(data, errorMessage);
+    }
+};
+
 } // namespace ProjectExplorer
