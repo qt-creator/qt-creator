@@ -92,6 +92,22 @@ public:
      * Returns true is the VCS is configured to run.
      */
     virtual bool isConfigured() const = 0;
+
+    /*!
+     * Returns true is the file has modification compare to version control
+     */
+    virtual bool hasModification(const Utils::FilePath &path) const;
+
+    /*!
+     * Starts monitoring modified files inside path
+     */
+    virtual void monitorDirectory(const Utils::FilePath &path);
+
+    /*!
+     * Stops monitoring modified files inside path
+     */
+    virtual void stopMonitoringDirectory(const Utils::FilePath &path);
+
     /*!
      * Called to query whether a VCS supports the respective operations.
      *
@@ -207,6 +223,7 @@ public:
 signals:
     void repositoryChanged(const Utils::FilePath &repository);
     void filesChanged(const QStringList &files);
+    void updateFileStatus(const Utils::FilePath &repository, const QStringList &files);
     void configurationChanged();
 
 private:

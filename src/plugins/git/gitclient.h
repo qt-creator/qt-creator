@@ -109,6 +109,12 @@ public:
         PushAction m_pushAction = NoPush;
     };
 
+    struct ModificationInfo
+    {
+        Utils::FilePath rootPath;
+        QSet<QString> modifiedFiles;
+    };
+
     GitClient();
     ~GitClient();
 
@@ -124,6 +130,10 @@ public:
     Utils::FilePath findGitDirForRepository(const Utils::FilePath &repositoryDir) const;
     bool managesFile(const Utils::FilePath &workingDirectory, const QString &fileName) const;
     Utils::FilePaths unmanagedFiles(const Utils::FilePaths &filePaths) const;
+    bool hasModification(const Utils::FilePath &workingDirectory,
+                         const Utils::FilePath &fileName) const;
+    void monitorDirectory(const Utils::FilePath &path);
+    void stopMonitoring(const Utils::FilePath &path);
 
     void diffFile(const Utils::FilePath &workingDirectory, const QString &fileName) const;
     void diffFiles(const Utils::FilePath &workingDirectory,
@@ -373,6 +383,7 @@ private:
                                  const Utils::FilePath &oldGitBinDir) const;
     bool cleanList(const Utils::FilePath &workingDirectory, const QString &modulePath,
                    const QString &flag, QStringList *files, QString *errorMessage);
+    void updateModificationInfos();
 
     enum ContinueCommandMode {
         ContinueOnly,
@@ -390,6 +401,8 @@ private:
 
     QString m_gitQtcEditor;
     QMap<Utils::FilePath, StashInfo> m_stashInfo;
+    QHash<Utils::FilePath, ModificationInfo> m_modifInfos;
+    std::unique_ptr<QTimer> m_timer;
     QString m_diffCommit;
     Utils::FilePaths m_updatedSubmodules;
     bool m_disableEditor = false;

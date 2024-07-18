@@ -137,6 +137,17 @@ static void stage(DiffEditorController *diffController, const QString &patch, bo
     }
 }
 
+///////////////////////////////
+
+static QList<FilePath> submoduleDataToAbsolutePath(const SubmoduleDataMap &submodules,
+                                                   const FilePath &rootDir)
+{
+    QList<FilePath> res;
+    std::transform(std::begin(submodules), std::end(submodules), std::back_inserter(res),
+                   [rootDir](const SubmoduleData &data) { return rootDir.pathAppended(data.dir); });
+    return res;
+}
+
 class GitBaseDiffEditorController : public VcsBaseDiffEditorController
 {
     Q_OBJECT
@@ -822,10 +833,14 @@ GitClient &gitClient()
 
 GitClient::GitClient()
     : VcsBase::VcsBaseClientImpl(&Internal::settings())
+    , m_timer(new QTimer)
 {
     m_gitQtcEditor = QString::fromLatin1("\"%1\" -client -block -pid %2")
             .arg(QCoreApplication::applicationFilePath())
             .arg(QCoreApplication::applicationPid());
+
+    connect(m_timer.get(), &QTimer::timeout, this, &GitClient::updateModificationInfos);
+    m_timer->setInterval(10000); // 10s
 }
 
 GitClient::~GitClient() = default;
@@ -897,6 +912,83 @@ FilePaths GitClient::unmanagedFiles(const FilePaths &filePaths) const
         res += FileUtils::toFilePathList(filtered);
     }
     return res;
+}
+
+bool GitClient::hasModification(const Utils::FilePath &workingDirectory,
+                                const Utils::FilePath &fileName) const
+{
+    const ModificationInfo &info = m_modifInfos[workingDirectory];
+    QString fileNameFromRoot = fileName.absoluteFilePath().toString();
+    int length = workingDirectory.toString().size();
+    fileNameFromRoot.remove(0, length + 1);
+    return info.modifiedFiles.contains(fileNameFromRoot);
+}
+
+void GitClient::stopMonitoring(const Utils::FilePath &path)
+{
+    const FilePath directory = path;
+    // Submodule management
+    QList<FilePath> subPaths = submoduleDataToAbsolutePath(submoduleList(directory), directory);
+    std::for_each(std::begin(subPaths), std::end(subPaths),
+                  [this](const FilePath &subModule) { m_modifInfos.remove(subModule); });
+    m_modifInfos.remove(directory);
+    if (m_modifInfos.isEmpty())
+        m_timer->stop();
+}
+
+void GitClient::monitorDirectory(const Utils::FilePath &path)
+{
+    const FilePath directory = path;
+    if (directory.isEmpty())
+        return;
+    m_modifInfos.insert(directory, {directory, {}});
+    // Submodule management
+    QList<FilePath> subPaths = submoduleDataToAbsolutePath(submoduleList(directory), directory);
+    std::for_each(std::begin(subPaths), std::end(subPaths), [this](const FilePath &subModule) {
+        m_modifInfos.insert(subModule, {subModule, {}});
+    });
+    if (!m_timer->isActive())
+        m_timer->start();
+    updateModificationInfos();
+}
+
+void GitClient::updateModificationInfos()
+{
+    for (ModificationInfo &info : m_modifInfos) {
+        const FilePath &path = info.rootPath;
+        const auto command = [&info](const CommandResult &result){
+            const QStringList res = result.cleanedStdOut().split("\n", Qt::SkipEmptyParts);
+            QSet<QString> modifiedFiles;
+            for (const QString &line : res)
+            {
+                if (line.size() <= 3)
+                    continue;
+
+                QString file = line;
+                // can't use stateFor() function from commitdata.cpp
+                static const QSet<QChar> gitStates{'M', 'A'};
+
+                if (gitStates.contains(line.at(0)) || gitStates.contains(line.at(1)))
+                    modifiedFiles.insert(file.remove(0, 3).trimmed());
+            }
+
+            const QSet<QString> oldfiles = info.modifiedFiles;
+            info.modifiedFiles = modifiedFiles;
+
+            QStringList newList = modifiedFiles.values();
+            QStringList list = oldfiles.values();
+            std::sort(std::begin(list), std::end(list));
+            std::sort(std::begin(newList), std::end(newList));
+            QStringList statusChangedFiles;
+
+            std::set_symmetric_difference(std::begin(list), std::end(list),
+                                          std::begin(newList), std::end(newList),
+                                          std::back_inserter(statusChangedFiles));
+
+            emitFileStatusChanged(info.rootPath, statusChangedFiles);
+        };
+        vcsExecWithHandler(path, {"status", "-s", "--porcelain"}, this, command, RunFlags::NoOutput);
+    }
 }
 
 QTextCodec *GitClient::defaultCommitEncoding() const

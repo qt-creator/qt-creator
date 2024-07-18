@@ -201,6 +201,8 @@ public:
     void setHasError(const bool error);
     void setHasError(const bool error) const;
 
+    bool hasModification() const;
+
     QIcon icon() const;
     void setIcon(const QIcon icon);
 

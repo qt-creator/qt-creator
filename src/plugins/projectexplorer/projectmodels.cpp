@@ -241,6 +241,8 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
         return font;
     }
     case Qt::ForegroundRole:
+        if (fileNode && fileNode->hasModification())
+            return Utils::creatorColor(Utils::Theme::VcsBase_FileModified_TextColor);
         return node->isEnabled() ? QVariant()
                                  : Utils::creatorColor(Utils::Theme::TextColorDisabled);
     case Project::FilePathRole:
@@ -447,12 +449,39 @@ void FlatModel::handleProjectAdded(Project *project)
             parsingStateChanged(project);
         emit ProjectTree::instance()->nodeActionsChanged();
     });
+
+    const FilePath &rootPath = project->rootProjectDirectory();
+    IVersionControl *vc = VcsManager::findVersionControlForDirectory(rootPath);
+    if (!vc)
+        return;
+    vc->monitorDirectory(rootPath);
+    connect(vc, &IVersionControl::updateFileStatus, this, &FlatModel::updateVCStatusFor);
+
     addOrRebuildProjectModel(project);
+}
+
+void FlatModel::updateVCStatusFor(const Utils::FilePath root, const QStringList &files)
+{
+    std::for_each(std::begin(files), std::end(files), [root, this](const QString &file) {
+        const Node *node = ProjectTree::nodeForFile(root.pathAppended(file));
+
+        if (!node)
+            return;
+
+        const QModelIndex index = indexForNode(node);
+        emit dataChanged(index, index, {Qt::ForegroundRole});
+    });
 }
 
 void FlatModel::handleProjectRemoved(Project *project)
 {
     destroyItem(nodeForProject(project));
+
+    if (!project)
+        return;
+    const FilePath &rootPath = project->rootProjectDirectory();
+    if (IVersionControl *vc = VcsManager::findVersionControlForDirectory(rootPath))
+        vc->stopMonitoringDirectory(rootPath);
 }
 
 WrapperNode *FlatModel::nodeForProject(const Project *project) const
