@@ -16,7 +16,7 @@ add_qtc_plugin(Lua
     bindings/messagemanager.cpp
     bindings/qtcprocess.cpp
     bindings/settings.cpp
-    bindings/textdocument.cpp
+    bindings/texteditor.cpp
     bindings/utils.cpp
     luaengine.cpp
     luaengine.h

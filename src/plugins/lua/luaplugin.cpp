@@ -45,7 +45,7 @@ void addMessageManagerModule();
 void addProcessModule();
 void addQtModule();
 void addSettingsModule();
-void addTextDocumentsModule();
+void addTextEditorModule();
 void addUtilsModule();
 
 class LuaJsExtension : public QObject
@@ -261,7 +261,7 @@ public:
         addProcessModule();
         addQtModule();
         addSettingsModule();
-        addTextDocumentsModule();
+        addTextEditorModule();
         addUtilsModule();
 
         Core::JsExpander::registerGlobalObject("Lua", [] { return new LuaJsExtension(); });
