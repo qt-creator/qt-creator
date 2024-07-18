@@ -8,7 +8,6 @@ add_qtc_plugin(DiffEditor
     diffeditorconstants.h
     diffeditorcontroller.cpp diffeditorcontroller.h
     diffeditordocument.cpp diffeditordocument.h
-    diffeditorfactory.cpp diffeditorfactory.h
     diffeditoricons.h
     diffeditorplugin.cpp diffeditorplugin.h
     diffeditorwidgetcontroller.cpp diffeditorwidgetcontroller.h

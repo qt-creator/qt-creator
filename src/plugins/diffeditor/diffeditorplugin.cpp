@@ -5,7 +5,7 @@
 #include "diffeditorconstants.h"
 #include "diffeditorcontroller.h"
 #include "diffeditordocument.h"
-#include "diffeditorfactory.h"
+#include "diffeditor.h"
 #include "diffeditortr.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -412,12 +412,13 @@ public:
     QAction *m_diffCurrentFileAction = nullptr;
     QAction *m_diffOpenFilesAction = nullptr;
 
-    DiffEditorFactory m_editorFactory;
     DiffEditorServiceImpl m_service;
 };
 
 DiffEditorPluginPrivate::DiffEditorPluginPrivate()
 {
+    setupDiffEditorFactory();
+
     //register actions
     ActionContainer *toolsContainer = ActionManager::actionContainer(Core::Constants::M_TOOLS);
     toolsContainer->insertGroup(Core::Constants::G_TOOLS_DEBUG, Constants::G_TOOLS_DIFF);

@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "diffeditor.h"
+
+#include "diffenums.h"
 #include "diffeditorconstants.h"
 #include "diffeditordocument.h"
 #include "diffeditoricons.h"
@@ -10,6 +12,9 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
+#include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/minisplitter.h>
 
 #include <texteditor/displaysettings.h>
@@ -22,6 +27,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/guard.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -122,6 +128,69 @@ void DescriptionEditorWidget::applyFontSettings()
 }
 
 ///////////////////////////////// DiffEditor //////////////////////////////////
+
+class DiffEditor : public Core::IEditor
+{
+public:
+    DiffEditor(DiffEditorDocument *doc);
+    ~DiffEditor() override;
+
+    Core::IEditor *duplicate() override;
+    Core::IDocument *document() const override;
+    QWidget *toolBar() override;
+
+private:
+    DiffEditor();
+    void setDocument(std::shared_ptr<DiffEditorDocument> doc);
+
+    void documentHasChanged();
+    void toggleDescription();
+    void updateDescription();
+    void contextLineCountHasChanged(int lines);
+    void ignoreWhitespaceHasChanged();
+    void prepareForReload();
+    void reloadHasFinished(bool success);
+    void currentIndexChanged(int index);
+    void setCurrentDiffFileIndex(int index);
+    void documentStateChanged();
+
+    void toggleSync();
+
+    IDiffView *loadSettings();
+    void saveSetting(const Utils::Key &key, const QVariant &value) const;
+    void updateEntryToolTip();
+    void showDiffView(IDiffView *view);
+    void updateDiffEditorSwitcher();
+    void addView(IDiffView *view);
+    IDiffView *currentView() const;
+    void setCurrentView(IDiffView *view);
+    IDiffView *nextView();
+    void setupView(IDiffView *view);
+
+    std::shared_ptr<DiffEditorDocument> m_document;
+    DescriptionEditorWidget *m_descriptionWidget = nullptr;
+    UnifiedView *m_unifiedView = nullptr;
+    SideBySideView *m_sideBySideView = nullptr;
+    QStackedWidget *m_stackedWidget = nullptr;
+    QList<IDiffView *> m_views;
+    QToolBar *m_toolBar = nullptr;
+    QComboBox *m_entriesComboBox = nullptr;
+    QSpinBox *m_contextSpinBox = nullptr;
+    QAction *m_contextSpinBoxAction = nullptr;
+    QAction *m_toggleSyncAction = nullptr;
+    QAction *m_whitespaceButtonAction = nullptr;
+    QAction *m_toggleDescriptionAction = nullptr;
+    QAction *m_reloadAction = nullptr;
+    QAction *m_contextLabelAction = nullptr;
+    QAction *m_viewSwitcherAction = nullptr;
+    QPair<QString, QString> m_currentFileChunk;
+    int m_currentViewIndex = -1;
+    int m_currentDiffFileIndex = -1;
+    int m_descriptionHeight = 8;
+    Utils::Guard m_ignoreChanges;
+    bool m_sync = false;
+    bool m_showDescription = true;
+};
 
 DiffEditor::DiffEditor()
 {
@@ -599,6 +668,23 @@ void DiffEditor::showDiffView(IDiffView *view)
     setupView(view);
 }
 
-} // namespace DiffEditor::Internal
+class DiffEditorFactory : public Core::IEditorFactory
+{
+public:
+    DiffEditorFactory()
+    {
+        setId(Constants::DIFF_EDITOR_ID);
+        setDisplayName(Tr::tr("Diff Editor"));
+        addMimeType(Constants::DIFF_EDITOR_MIMETYPE);
+        setEditorCreator([] { return new DiffEditor(new DiffEditorDocument); });
+    }
+};
+
+void setupDiffEditorFactory()
+{
+    static DiffEditorFactory theDiffEditorFactory;
+}
+
+} // DiffEditor::Internal
 
 #include "diffeditor.moc"

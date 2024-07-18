@@ -24,8 +24,6 @@ QtcPlugin {
         "diffeditorcontroller.h",
         "diffeditordocument.cpp",
         "diffeditordocument.h",
-        "diffeditorfactory.cpp",
-        "diffeditorfactory.h",
         "diffeditorplugin.cpp",
         "diffeditorplugin.h",
         "diffeditorwidgetcontroller.cpp",
