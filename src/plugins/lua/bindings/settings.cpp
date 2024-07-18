@@ -67,10 +67,20 @@ std::unique_ptr<LuaAspectContainer> aspectContainerCreate(const sol::table &opti
                             QTC_ASSERT_EXPECTED(res, return {});
                             return *res;
                         });
+            } else if (key == "onApplied") {
+                QObject::connect(
+                    container.get(),
+                    &AspectContainer::applied,
+                    container.get(),
+                    [func = v.as<sol::function>()]() { Lua::LuaEngine::void_safe_call(func); });
+            } else if (key == "settingsGroup") {
+                container->setSettingsGroup(v.as<QString>());
             } else {
                 container->m_entries[key] = v;
                 if (v.is<BaseAspect>()) {
                     container->registerAspect(v.as<BaseAspect *>());
+                } else {
+                    qWarning() << "Unknown key:" << key.c_str();
                 }
             }
         }

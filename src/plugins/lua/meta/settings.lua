@@ -41,8 +41,10 @@ settings.AspectContainer = {}
 ---Options for creating an AspectContainer.
 ---@class AspectContainerCreate
 ---@field autoApply? boolean Whether the aspects should be applied automatically or not.
+---@field onApplied? function Called when the aspects are applied.
+---@field layouter? function The layouter of the aspect container.
+---@field settingsGroup? string The settings group of the aspect container.
 AspectContainerCreate = {}
-
 
 ---Create a new AspectContainer.
 ---@param options AspectContainerCreate
