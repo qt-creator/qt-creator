@@ -15,6 +15,7 @@
 #include <utils/ranges.h>
 
 #include <algorithm>
+#include <array>
 
 #include <QRegularExpression>
 
@@ -24,32 +25,110 @@ namespace {
 
 enum class ImportError { EmptyImportName, HasAlreadyImport, NoModule };
 
-constexpr std::u16string_view qmlKeywords[]{
-    u"alias",  u"as",         u"break", u"case",    u"catch",  u"continue", u"debugger", u"default",
-    u"delete", u"do",         u"else",  u"finally", u"for",    u"function", u"if",       u"import",
-    u"in",     u"instanceof", u"new",   u"print",   u"return", u"switch",   u"this",     u"throw",
-    u"try",    u"typeof",     u"var",   u"void",    u"while",  u"with",
-};
+template<typename Type, typename... Entries>
+constexpr auto toSortedArray(const Entries &...entries)
+{
+    std::array<Type, sizeof...(entries)> sortedArray = {entries...};
 
-constexpr std::u16string_view qmlDiscouragedIds[]{
-    u"action",  u"anchors",        u"baseState", u"border", u"bottom",     u"clip",
-    u"data",    u"enabled",        u"flow",      u"focus",  u"font",       u"height",
-    u"id",      u"item",           u"layer",     u"left",   u"margin",     u"opacity",
-    u"padding", u"parent",         u"right",     u"scale",  u"shaderInfo", u"source",
-    u"sprite",  u"spriteSequence", u"state",     u"text",   u"texture",    u"time",
-    u"top",     u"visible",        u"width",     u"x",      u"y",          u"z",
-};
+    std::sort(std::begin(sortedArray), std::end(sortedArray));
 
-constexpr std::u16string_view qmlBuiltinTypes[]{
-    u"bool",   u"color",    u"date",      u"double",   u"enumeration", u"font",
-    u"int",    u"list",     u"matrix4x4", u"point",    u"quaternion",  u"real",
-    u"rect",   u"size",     u"string",    u"url",      u"var",         u"variant",
-    u"vector", u"vector2d", u"vector3d",  u"vector4d",
-};
+    return sortedArray;
+}
+
+constexpr auto qmlKeywords = toSortedArray<std::u16string_view>(u"alias",
+                                                                u"as",
+                                                                u"break",
+                                                                u"case",
+                                                                u"catch",
+                                                                u"continue",
+                                                                u"debugger",
+                                                                u"default",
+                                                                u"delete",
+                                                                u"do",
+                                                                u"else",
+                                                                u"finally",
+                                                                u"for",
+                                                                u"function",
+                                                                u"if",
+                                                                u"import",
+                                                                u"in",
+                                                                u"instanceof",
+                                                                u"new",
+                                                                u"print",
+                                                                u"return",
+                                                                u"switch",
+                                                                u"this",
+                                                                u"throw",
+                                                                u"try",
+                                                                u"typeof",
+                                                                u"var",
+                                                                u"void",
+                                                                u"while",
+                                                                u"with");
+
+constexpr auto qmlDiscouragedIds = toSortedArray<std::u16string_view>(u"action",
+                                                                      u"anchors",
+                                                                      u"baseState",
+                                                                      u"border",
+                                                                      u"bottom",
+                                                                      u"clip",
+                                                                      u"data",
+                                                                      u"enabled",
+                                                                      u"flow",
+                                                                      u"focus",
+                                                                      u"font",
+                                                                      u"height",
+                                                                      u"id",
+                                                                      u"item",
+                                                                      u"layer",
+                                                                      u"left",
+                                                                      u"margin",
+                                                                      u"opacity",
+                                                                      u"padding",
+                                                                      u"parent",
+                                                                      u"right",
+                                                                      u"scale",
+                                                                      u"shaderInfo",
+                                                                      u"source",
+                                                                      u"sprite",
+                                                                      u"spriteSequence",
+                                                                      u"state",
+                                                                      u"text",
+                                                                      u"texture",
+                                                                      u"time",
+                                                                      u"top",
+                                                                      u"visible",
+                                                                      u"width",
+                                                                      u"x",
+                                                                      u"y",
+                                                                      u"z");
+
+constexpr auto qmlBuiltinTypes = toSortedArray<std::u16string_view>(u"bool",
+                                                                    u"color",
+                                                                    u"date",
+                                                                    u"double",
+                                                                    u"enumeration",
+                                                                    u"font",
+                                                                    u"int",
+                                                                    u"list",
+                                                                    u"matrix4x4",
+                                                                    u"point",
+                                                                    u"quaternion",
+                                                                    u"real",
+                                                                    u"rect",
+                                                                    u"size",
+                                                                    u"string",
+                                                                    u"url",
+                                                                    u"var",
+                                                                    u"variant",
+                                                                    u"vector",
+                                                                    u"vector2d",
+                                                                    u"vector3d",
+                                                                    u"vector4d");
 
 constexpr auto createBannedQmlIds()
 {
-    std::array<std::u16string_view, sizeof(qmlKeywords) + sizeof(qmlDiscouragedIds) + sizeof(qmlBuiltinTypes)> ids;
+    std::array<std::u16string_view, qmlKeywords.size() + qmlDiscouragedIds.size() + qmlBuiltinTypes.size()> ids;
 
     auto idsEnd = std::copy(std::begin(qmlKeywords), std::end(qmlKeywords), ids.begin());
     idsEnd = std::copy(std::begin(qmlDiscouragedIds), std::end(qmlDiscouragedIds), idsEnd);
