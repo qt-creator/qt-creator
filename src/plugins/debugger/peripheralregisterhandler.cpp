@@ -6,6 +6,7 @@
 #include "debuggeractions.h"
 #include "debuggercore.h"
 #include "debuggertr.h"
+#include "registerhandler.h"
 
 #include <utils/basetreeview.h>
 
@@ -448,89 +449,6 @@ void PeripheralRegisterItem::triggerChange()
                                          m_reg.currentValue.v);
 }
 
-// PeripheralRegisterDelegate
-
-class PeripheralRegisterDelegate final : public QItemDelegate
-{
-public:
-    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &,
-        const QModelIndex &index) const final
-    {
-        if (index.column() == PeripheralRegisterValueColumn) {
-            const auto lineEdit = new QLineEdit(parent);
-            lineEdit->setAlignment(Qt::AlignLeft);
-            lineEdit->setFrame(false);
-            return lineEdit;
-        }
-        return nullptr;
-    }
-
-    void setEditorData(QWidget *editor, const QModelIndex &index) const final
-    {
-        const auto lineEdit = qobject_cast<QLineEdit *>(editor);
-        QTC_ASSERT(lineEdit, return);
-        lineEdit->setText(index.data(Qt::EditRole).toString());
-    }
-
-    void setModelData(QWidget *editor, QAbstractItemModel *model,
-        const QModelIndex &index) const final
-    {
-        if (index.column() == PeripheralRegisterValueColumn) {
-            const auto lineEdit = qobject_cast<QLineEdit *>(editor);
-            QTC_ASSERT(lineEdit, return);
-            model->setData(index, lineEdit->text(), Qt::EditRole);
-        }
-    }
-
-    void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
-        const QModelIndex &) const final
-    {
-        editor->setGeometry(option.rect);
-    }
-
-    void paint(QPainter *painter, const QStyleOptionViewItem &option,
-        const QModelIndex &index) const final
-    {
-        if (index.column() == PeripheralRegisterValueColumn) {
-            const bool paintRed = index.data(PeripheralRegisterChangedRole).toBool();
-            const QPen oldPen = painter->pen();
-            const QColor lightColor(140, 140, 140);
-            if (paintRed)
-                painter->setPen(QColor(200, 0, 0));
-            else
-                painter->setPen(lightColor);
-            // FIXME: performance? this changes only on real font changes.
-            const QFontMetrics fm(option.font);
-            const int charWidth = qMax(fm.horizontalAdvance('x'),
-                                       fm.horizontalAdvance('0'));
-            const QString str = index.data(Qt::DisplayRole).toString();
-            int x = option.rect.x();
-            bool light = !paintRed;
-            for (int i = 0; i < str.size(); ++i) {
-                const QChar c = str.at(i);
-                const int uc = c.unicode();
-                if (light && (uc != 'x' && uc != '0')) {
-                    light = false;
-                    painter->setPen(oldPen.color());
-                }
-                if (uc == ' ') {
-                    light = true;
-                    painter->setPen(lightColor);
-                } else {
-                    QRect r = option.rect;
-                    r.setX(x);
-                    r.setWidth(charWidth);
-                    painter->drawText(r, Qt::AlignHCenter, c);
-                }
-                x += charWidth;
-            }
-            painter->setPen(oldPen);
-        } else {
-            QItemDelegate::paint(painter, option, index);
-        }
-    }
-};
-
 // PeripheralRegisterHandler
 
 PeripheralRegisterHandler::PeripheralRegisterHandler(DebuggerEngine *engine)
@@ -732,8 +650,7 @@ QList<quint64> PeripheralRegisterHandler::activeRegisters() const
 QVariant PeripheralRegisterHandler::data(const QModelIndex &idx, int role) const
 {
     if (role == BaseTreeView::ItemDelegateRole) {
-        return QVariant::fromValue(static_cast<QAbstractItemDelegate *>(
-                                       new PeripheralRegisterDelegate));
+        return QVariant::fromValue(createRegisterDelegate(PeripheralRegisterValueColumn));
     }
     return PeripheralRegisterModel::data(idx, role);
 }
