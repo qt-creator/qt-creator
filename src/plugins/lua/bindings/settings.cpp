@@ -305,9 +305,57 @@ void addSettingsModule()
 
         addTypedAspect<BoolAspect>(settings, "BoolAspect");
         addTypedAspect<ColorAspect>(settings, "ColorAspect");
-        addTypedAspect<SelectionAspect>(settings, "SelectionAspect");
         addTypedAspect<MultiSelectionAspect>(settings, "MultiSelectionAspect");
         addTypedAspect<StringAspect>(settings, "StringAspect");
+
+        settings.new_usertype<SelectionAspect>(
+            "SelectionAspect",
+            "create",
+            [](const sol::table &options) {
+                return createAspectFromTable<SelectionAspect>(
+                    options,
+                    [](SelectionAspect *aspect, const std::string &key, const sol::object &value) {
+                        if (key == "options") {
+                            sol::table options = value.as<sol::table>();
+                            for (size_t i = 1; i <= options.size(); ++i) {
+                                sol::optional<sol::table> optiontable
+                                    = options[i].get<sol::optional<sol::table>>();
+                                if (optiontable) {
+                                    sol::table option = *optiontable;
+                                    sol::optional<QString> data = option["data"];
+                                    if (data) {
+                                        aspect->addOption(
+                                            {option["name"],
+                                             option["tooltip"].get_or(QString()),
+                                             *data});
+                                    } else {
+                                        aspect->addOption(
+                                            option["name"], option["tooltip"].get_or(QString()));
+                                    }
+                                } else if (
+                                    sol::optional<QString> name
+                                    = options[i].get<sol::optional<QString>>()) {
+                                    aspect->addOption(*name);
+                                } else {
+                                    throw sol::error("Invalid option type");
+                                }
+                            }
+                        } else if (key == "displayStyle") {
+                            aspect->setDisplayStyle((SelectionAspect::DisplayStyle) value.as<int>());
+                        } else
+                            typedAspectCreate(aspect, key, value);
+                    });
+            },
+            "stringValue",
+            sol::property(&SelectionAspect::stringValue, &SelectionAspect::setStringValue),
+            "addOption",
+            sol::overload(
+                [](SelectionAspect &self, const QString &name) { self.addOption(name); },
+                [](SelectionAspect &self, const QString &name, const QString &tooltip) {
+                    self.addOption(name, tooltip);
+                }),
+            sol::base_classes,
+            sol::bases<TypedAspect<int>, BaseAspect>());
 
         auto filePathAspectType = addTypedAspect<FilePathAspect>(settings, "FilePathAspect");
         filePathAspectType.set(
@@ -522,6 +570,11 @@ void addSettingsModule()
             "LineEdit", StringAspect::DisplayStyle::LineEditDisplay,
             "TextEdit", StringAspect::DisplayStyle::TextEditDisplay,
             "PasswordLineEdit", StringAspect::DisplayStyle::PasswordLineEditDisplay
+        );
+
+        settings["SelectionDisplayStyle"] = l.create_table_with(
+            "RadioButtons", SelectionAspect::DisplayStyle::RadioButtons,
+            "ComboBox", SelectionAspect::DisplayStyle::ComboBox
         );
 
         settings["CheckBoxPlacement"] = l.create_table_with(
