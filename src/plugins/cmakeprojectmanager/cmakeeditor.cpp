@@ -87,7 +87,7 @@ CMakeEditor::CMakeEditor()
         const QString word = Text::wordUnderCursor(editorWidget()->textCursor());
         const QString id = helpPrefix(word) + word;
         if (id.startsWith("unknown/")) {
-            BaseTextEditor::contextHelp(callback);
+            editorWidget()->contextHelpItem(callback);
             return;
         }
 
