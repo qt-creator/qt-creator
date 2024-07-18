@@ -43,7 +43,7 @@ QtcPlugin {
             "messagemanager.cpp",
             "qtcprocess.cpp",
             "settings.cpp",
-            "textdocument.cpp",
+            "texteditor.cpp",
             "utils.cpp",
         ]
 
