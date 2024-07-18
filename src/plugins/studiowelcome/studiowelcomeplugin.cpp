@@ -70,6 +70,7 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
+using namespace Core;
 
 namespace StudioWelcome {
 namespace Internal {
@@ -200,6 +201,22 @@ private:
     bool m_usageStatisticEnabled = false;
     bool m_crashReporterEnabled = false;
     QString m_versionString;
+};
+
+class StudioUsageStatisticPluginModel : public QObject
+{
+    Q_OBJECT
+public:
+    explicit StudioUsageStatisticPluginModel(QObject *parent = nullptr)
+        : QObject(parent)
+    {
+    }
+
+    Q_INVOKABLE void setInsightEnabled(bool b)
+    {
+        Core::ICore::settings()->setValue("InsightTracking", b);
+        Core::ICore::askForRestart(tr("The change will take effect after restart."));
+    }
 };
 
 class ProjectModel : public QAbstractListModel
@@ -577,6 +594,7 @@ void StudioWelcomePlugin::initialize()
 {
     qmlRegisterType<ProjectModel>("projectmodel", 1, 0, "ProjectModel");
     qmlRegisterType<UsageStatisticPluginModel>("usagestatistics", 1, 0, "UsageStatisticModel");
+    qmlRegisterType<StudioUsageStatisticPluginModel>("studiousagestatistics", 1, 0, "StudioUsageStatisticModel");
 
     m_welcomeMode = new WelcomeMode;
 }
