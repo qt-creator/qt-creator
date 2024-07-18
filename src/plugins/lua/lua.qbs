@@ -38,7 +38,7 @@ QtcPlugin {
             "hook.cpp",
             "inheritance.h",
             "install.cpp",
-            "json.cpp"
+            "json.cpp",
             "localsocket.cpp",
             "messagemanager.cpp",
             "qtcprocess.cpp",
@@ -61,27 +61,7 @@ QtcPlugin {
     Group {
         name: "Meta"
         prefix: "meta/"
-
-        files: [
-            "action.lua",
-            "async.lua",
-            "core.lua",
-            "documents.lua",
-            "fetch.lua",
-            "gui.lua",
-            "install.lua",
-            "json.lua",
-            "localsocket.lua",
-            "lsp.lua",
-            "messagemanager.lua",
-            "process.lua",
-            "qt.lua",
-            "qtc.lua",
-            "settings.lua",
-            "simpletypes.lua",
-            "utils.lua",
-            "widgets.lua",
-        ]
+        files: "*.lua"
         qbs.install: true
         qbs.installDir: qtc.ide_data_path + "/lua/meta/"
     }
