@@ -60,7 +60,8 @@ public:
 
     static void registerProvider(const QString &packageName, const PackageProvider &provider);
     static void autoRegister(const std::function<void(sol::state_view)> &registerFunction);
-    static void registerHook(QString name, const std::function<void(sol::function)> &hookProvider);
+    static void registerHook(
+        QString name, const std::function<void(sol::function, QObject *guard)> &hookProvider);
 
     static bool isCoroutine(lua_State *state);
 
@@ -115,7 +116,7 @@ public:
 
 protected:
     Utils::expected_str<void> connectHooks(
-        sol::state_view lua, const sol::table &table, const QString &path);
+        sol::state_view lua, const sol::table &table, const QString &path, QObject *guard);
 
 private:
     std::unique_ptr<LuaEnginePrivate> d;

@@ -117,30 +117,33 @@ void addTextDocumentsModule()
         return documents;
     });
 
-    LuaEngine::registerHook("editors.text.opened", [](sol::function func) {
+    LuaEngine::registerHook("editors.text.opened", [](sol::function func, QObject *guard) {
         QObject::connect(
             TextDocumentRegistry::instance(),
             &TextDocumentRegistry::documentOpened,
+            guard,
             [func](TextEditor::TextDocument *document) {
                 Utils::expected_str<void> res = LuaEngine::void_safe_call(func, document);
                 QTC_CHECK_EXPECTED(res);
             });
     });
 
-    LuaEngine::registerHook("editors.text.closed", [](sol::function func) {
+    LuaEngine::registerHook("editors.text.closed", [](sol::function func, QObject *guard) {
         QObject::connect(
             TextDocumentRegistry::instance(),
             &TextDocumentRegistry::documentClosed,
+            guard,
             [func](TextEditor::TextDocument *document) {
                 Utils::expected_str<void> res = LuaEngine::void_safe_call(func, document);
                 QTC_CHECK_EXPECTED(res);
             });
     });
 
-    LuaEngine::registerHook("editors.text.contentsChanged", [](sol::function func) {
+    LuaEngine::registerHook("editors.text.contentsChanged", [](sol::function func, QObject *guard) {
         QObject::connect(
             TextDocumentRegistry::instance(),
             &TextDocumentRegistry::documentContentsChanged,
+            guard,
             [func](TextEditor::TextDocument *document, int position, int charsRemoved, int charsAdded) {
                 Utils::expected_str<void> res
                     = LuaEngine::void_safe_call(func, document, position, charsRemoved, charsAdded);
@@ -148,10 +151,11 @@ void addTextDocumentsModule()
             });
     });
 
-    LuaEngine::registerHook("editors.text.currentChanged", [](sol::function func) {
+    LuaEngine::registerHook("editors.text.currentChanged", [](sol::function func, QObject *guard) {
         QObject::connect(
             TextDocumentRegistry::instance(),
             &TextDocumentRegistry::currentDocumentChanged,
+            guard,
             [func](TextEditor::TextDocument *document) {
                 Utils::expected_str<void> res = LuaEngine::void_safe_call(func, document);
                 QTC_CHECK_EXPECTED(res);

@@ -51,7 +51,7 @@ public:
     QHash<QString, LuaEngine::PackageProvider> m_providers;
     QList<std::function<void(sol::state_view)>> m_autoProviders;
 
-    QMap<QString, std::function<void(sol::function)>> m_hooks;
+    QMap<QString, std::function<void(sol::function, QObject *)>> m_hooks;
 
     std::unique_ptr<LuaInterfaceImpl> m_luaInterface;
 };
@@ -155,20 +155,22 @@ void LuaEngine::autoRegister(const std::function<void(sol::state_view)> &registe
     instance().d->m_autoProviders.append(registerFunction);
 }
 
-void LuaEngine::registerHook(QString name, const std::function<void(sol::function)> &hook)
+void LuaEngine::registerHook(
+    QString name, const std::function<void(sol::function, QObject *guard)> &hook)
 {
     instance().d->m_hooks.insert("." + name, hook);
 }
 
 expected_str<void> LuaEngine::connectHooks(
-    sol::state_view lua, const sol::table &table, const QString &path)
+    sol::state_view lua, const sol::table &table, const QString &path, QObject *guard)
 {
     qCDebug(logLuaEngine) << "connectHooks called with path: " << path;
 
     for (const auto &[k, v] : table) {
         qCDebug(logLuaEngine) << "Processing key: " << k.as<QString>();
         if (v.get_type() == sol::type::table) {
-            return connectHooks(lua, v.as<sol::table>(), QStringList{path, k.as<QString>()}.join("."));
+            return connectHooks(
+                lua, v.as<sol::table>(), QStringList{path, k.as<QString>()}.join("."), guard);
         } else if (v.get_type() == sol::type::function) {
             QString hookName = QStringList{path, k.as<QString>()}.join(".");
             qCDebug(logLuaEngine) << "Connecting function to hook: " << hookName;
@@ -176,7 +178,7 @@ expected_str<void> LuaEngine::connectHooks(
             if (it == d->m_hooks.end())
                 return make_unexpected(Tr::tr("No hook with the name \"%1\" found.").arg(hookName));
             else
-                it.value()(v.as<sol::function>());
+                it.value()(v.as<sol::function>(), guard);
         }
     }
 
@@ -255,8 +257,10 @@ expected_str<sol::protected_function> LuaEngine::prepareSetup(
             return self.name;
         }));
 
-    lua["PluginSpec"]
-        = ScriptPluginSpec{pluginSpec.name(), appDataPath, std::make_unique<QObject>()};
+    auto guardObject = std::make_unique<QObject>();
+    auto guardObjectPtr = guardObject.get();
+
+    lua["PluginSpec"] = ScriptPluginSpec{pluginSpec.name(), appDataPath, std::move(guardObject)};
 
     // TODO: only register what the plugin requested
     for (const auto &[name, func] : d->m_providers.asKeyValueRange()) {
@@ -289,7 +293,7 @@ expected_str<sol::protected_function> LuaEngine::prepareSetup(
 
     qCDebug(logLuaEngine) << "Hooks table found: " << hookTable.has_value();
     if (hookTable) {
-        auto connectResult = connectHooks(lua, *hookTable, {});
+        auto connectResult = connectHooks(lua, *hookTable, {}, guardObjectPtr);
         if (!connectResult)
             return make_unexpected(connectResult.error());
     }
