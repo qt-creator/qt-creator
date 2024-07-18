@@ -3,19 +3,19 @@
 
 #pragma once
 
-#include <qmldesignercorelib_global.h>
+#include "qmldesignercomponents_global.h"
 
 #include "dsconstants.h"
+#include "dsthemegroup.h"
 
 #include <modelnode.h>
 
 namespace QmlDesigner {
-class DSThemeGroup;
 
 using ThemeName = PropertyName;
 
 class DSTheme;
-class QMLDESIGNERCORE_EXPORT DSThemeManager
+class QMLDESIGNERCOMPONENTS_EXPORT DSThemeManager
 {
 
 public:

@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
-
+#include "qmldesignercomponents_global.h"
 #include "dsconstants.h"
 #include "nodeinstanceglobal.h"
+
 #include <modelnode.h>
 
 #include <map>
@@ -12,7 +13,7 @@
 
 namespace QmlDesigner {
 
-class DSThemeGroup
+class QMLDESIGNERCOMPONENTS_EXPORT DSThemeGroup
 {
     struct PropertyData
     {
