@@ -343,7 +343,7 @@ private:
     void onKitsLoaded() override;
 
     void toolChainUpdated(Toolchain *tc);
-    void toolChainRemoved(Toolchain *tc);
+    void toolChainsDeregistered();
 };
 
 ToolchainKitAspectFactory::ToolchainKitAspectFactory()
@@ -695,8 +695,8 @@ void ToolchainKitAspectFactory::onKitsLoaded()
     for (Kit *k : KitManager::kits())
         fix(k);
 
-    connect(ToolchainManager::instance(), &ToolchainManager::toolchainRemoved,
-            this, &ToolchainKitAspectFactory::toolChainRemoved);
+    connect(ToolchainManager::instance(), &ToolchainManager::toolchainsDeregistered,
+            this, &ToolchainKitAspectFactory::toolChainsDeregistered);
     connect(ToolchainManager::instance(), &ToolchainManager::toolchainUpdated,
             this, &ToolchainKitAspectFactory::toolChainUpdated);
 }
@@ -709,9 +709,8 @@ void ToolchainKitAspectFactory::toolChainUpdated(Toolchain *tc)
     }
 }
 
-void ToolchainKitAspectFactory::toolChainRemoved(Toolchain *tc)
+void ToolchainKitAspectFactory::toolChainsDeregistered()
 {
-    Q_UNUSED(tc)
     for (Kit *k : KitManager::kits())
         fix(k);
 }

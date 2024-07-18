@@ -318,23 +318,21 @@ static Toolchain *toolChainFromVariant(const QVariant &v)
 
 void ProjectImporter::cleanupTemporaryToolchains(Kit *k, const QVariantList &vl)
 {
-    for (const QVariant &v : vl) {
-        Toolchain *tc = toolChainFromVariant(v);
-        QTC_ASSERT(tc, continue);
-        ToolchainManager::deregisterToolchain(tc);
-        ToolchainKitAspect::setToolchain(k, nullptr);
-    }
+    ToolchainManager::deregisterToolchains(Utils::transform(vl, toolChainFromVariant));
+    ToolchainKitAspect::setToolchain(k, nullptr);
 }
 
 void ProjectImporter::persistTemporaryToolchains(Kit *k, const QVariantList &vl)
 {
+    Toolchains toDeregister;
     for (const QVariant &v : vl) {
         Toolchain *tmpTc = toolChainFromVariant(v);
         QTC_ASSERT(tmpTc, continue);
         Toolchain *actualTc = ToolchainKitAspect::toolchain(k, tmpTc->language());
         if (tmpTc && actualTc != tmpTc)
-            ToolchainManager::deregisterToolchain(tmpTc);
+            toDeregister << tmpTc;
     }
+    ToolchainManager::deregisterToolchains(toDeregister);
 }
 
 void ProjectImporter::useTemporaryKitAspect(Utils::Id id,
@@ -374,10 +372,7 @@ static ProjectImporter::ToolchainData createToolChains(const ToolchainDescriptio
         data.tcs = factory->detectForImport(tcd);
         if (data.tcs.isEmpty())
             continue;
-
-        for (Toolchain *tc : std::as_const(data.tcs))
-            ToolchainManager::registerToolchain(tc);
-
+        ToolchainManager::registerToolchains(data.tcs);
         data.areTemporary = true;
         break;
     }

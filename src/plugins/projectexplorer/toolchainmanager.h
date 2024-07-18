@@ -48,8 +48,8 @@ public:
 
     static bool isLoaded();
 
-    static bool registerToolchain(Toolchain *tc);
-    static void deregisterToolchain(Toolchain *tc);
+    static Toolchains registerToolchains(const Toolchains &toolchains);
+    static void deregisterToolchains(const Toolchains &toolchains);
 
     static QList<Utils::Id> allLanguages();
     static bool registerLanguage(const Utils::Id &language, const QString &displayName);
@@ -68,9 +68,9 @@ public:
     void saveToolchains();
 
 signals:
-    void toolhainAdded(ProjectExplorer::Toolchain *);
-    // Toolchain is still valid when this call happens!
-    void toolchainRemoved(ProjectExplorer::Toolchain *);
+    void toolchainsRegistered(const Toolchains &registered);
+    // Toolchains are still valid when this call happens!
+    void toolchainsDeregistered(const Toolchains &deregistered);
     // Toolchain was updated.
     void toolchainUpdated(ProjectExplorer::Toolchain *);
     // Something changed.

@@ -78,8 +78,9 @@ ToolchainManager::ToolchainManager(QObject *parent) :
 
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
             this, &ToolchainManager::saveToolchains);
-    connect(this, &ToolchainManager::toolhainAdded, this, &ToolchainManager::toolchainsChanged);
-    connect(this, &ToolchainManager::toolchainRemoved, this, &ToolchainManager::toolchainsChanged);
+    connect(this, &ToolchainManager::toolchainsRegistered,
+            this, &ToolchainManager::toolchainsChanged);
+    connect(this, &ToolchainManager::toolchainsDeregistered, this, &ToolchainManager::toolchainsChanged);
     connect(this, &ToolchainManager::toolchainUpdated, this, &ToolchainManager::toolchainsChanged);
 
     QtcSettings * const s = Core::ICore::settings();
@@ -106,8 +107,7 @@ void ToolchainManager::restoreToolchains()
     QTC_ASSERT(!d->m_accessor, return);
     d->m_accessor = std::make_unique<Internal::ToolchainSettingsAccessor>();
 
-    for (Toolchain *tc : d->m_accessor->restoreToolchains(Core::ICore::dialogParent()))
-        registerToolchain(tc);
+    registerToolchains(d->m_accessor->restoreToolchains(Core::ICore::dialogParent()));
 
     d->m_loaded = true;
     emit m_instance->toolchainsLoaded();
@@ -191,37 +191,54 @@ void ToolchainManager::notifyAboutUpdate(Toolchain *tc)
     emit m_instance->toolchainUpdated(tc);
 }
 
-bool ToolchainManager::registerToolchain(Toolchain *tc)
+Toolchains ToolchainManager::registerToolchains(const Toolchains &toolchains)
 {
-    QTC_ASSERT(tc, return false);
-    QTC_ASSERT(isLanguageSupported(tc->language()),
-               qDebug() << qPrintable("language \"" + tc->language().toString()
-                                      + "\" unknown while registering \""
-                                      + tc->compilerCommand().toString() + "\"");
-               return false);
-    QTC_ASSERT(d->m_accessor, return false);
+    Toolchains registered;
+    Toolchains notRegistered;
 
-    if (d->m_toolChains.contains(tc))
-        return true;
-    for (const Toolchain *current : std::as_const(d->m_toolChains)) {
-        if (*tc == *current && !tc->isAutoDetected())
-            return false;
-        QTC_ASSERT(current->id() != tc->id(), return false);
+    for (Toolchain * const tc : toolchains) {
+        QTC_ASSERT(tc, notRegistered << tc; continue);
+        QTC_ASSERT(isLanguageSupported(tc->language()),
+                   qDebug() << qPrintable("language \"" + tc->language().toString()
+                                          + "\" unknown while registering \""
+                                          + tc->compilerCommand().toString() + "\"");
+                   notRegistered << tc;
+                   continue);
+        QTC_ASSERT(d->m_accessor, notRegistered << tc; continue);
+        QTC_ASSERT(!d->m_toolChains.contains(tc), continue);
+        QTC_ASSERT(!Utils::contains(d->m_toolChains, Utils::equal(&Toolchain::id, tc->id())),
+                   notRegistered << tc;
+                   continue);
+        if (!tc->isAutoDetected()
+            && Utils::contains(d->m_toolChains, [tc](const Toolchain *existing) {
+                   return *tc == *existing;
+               })) {
+            notRegistered << tc;
+            continue;
+        }
+        d->m_toolChains << tc;
+        registered << tc;
     }
 
-    d->m_toolChains.append(tc);
-    emit m_instance->toolhainAdded(tc);
-    return true;
+    if (!registered.isEmpty())
+        emit m_instance->toolchainsRegistered(registered);
+    return notRegistered;
 }
 
-void ToolchainManager::deregisterToolchain(Toolchain *tc)
+void ToolchainManager::deregisterToolchains(const Toolchains &toolchains)
 {
     QTC_CHECK(d->m_loaded);
-    if (!tc || !d->m_toolChains.contains(tc))
-        return;
-    d->m_toolChains.removeOne(tc);
-    emit m_instance->toolchainRemoved(tc);
-    delete tc;
+    Toolchains deregistered;
+    for (Toolchain * const tc : toolchains) {
+        QTC_ASSERT(tc, continue);
+        const bool removed = d->m_toolChains.removeOne(tc);
+        QTC_ASSERT(removed, continue);
+        deregistered << tc;
+    }
+
+    if (!deregistered.isEmpty())
+        emit m_instance->toolchainsDeregistered(deregistered);
+    qDeleteAll(toolchains);
 }
 
 QList<Id> ToolchainManager::allLanguages()

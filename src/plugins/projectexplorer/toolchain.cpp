@@ -787,14 +787,16 @@ void AsyncToolchainDetector::run()
                      [watcher,
                       alreadyRegistered = m_alreadyRegistered]() {
                          Toolchains existingTcs = ToolchainManager::toolchains();
+                         Toolchains toRegister;
                          for (Toolchain *tc : watcher->result()) {
                              if (tc->isValid() && !alreadyRegistered(tc, existingTcs)) {
-                                 ToolchainManager::registerToolchain(tc);
+                                 toRegister << tc;
                                  existingTcs << tc;
                              } else {
                                  delete tc;
                              }
                          }
+                         ToolchainManager::registerToolchains(toRegister);
                          watcher->deleteLater();
                      });
     watcher->setFuture(Utils::asyncRun(m_func, m_detector));

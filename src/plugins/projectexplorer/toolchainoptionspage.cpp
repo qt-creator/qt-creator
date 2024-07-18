@@ -275,10 +275,10 @@ public:
         horizontalLayout->addLayout(verticalLayout);
         horizontalLayout->addLayout(buttonLayout);
 
-        connect(ToolchainManager::instance(), &ToolchainManager::toolhainAdded,
-                this, &ToolChainOptionsWidget::addToolChain);
-        connect(ToolchainManager::instance(), &ToolchainManager::toolchainRemoved,
-                this, &ToolChainOptionsWidget::removeToolChain);
+        connect(ToolchainManager::instance(), &ToolchainManager::toolchainsRegistered,
+                this, &ToolChainOptionsWidget::handleToolchainsRegistered);
+        connect(ToolchainManager::instance(), &ToolchainManager::toolchainsDeregistered,
+                this, &ToolChainOptionsWidget::handleToolchainsDeregistered);
 
         connect(m_toolChainView->selectionModel(), &QItemSelectionModel::currentChanged,
                 this, &ToolChainOptionsWidget::toolChainSelectionChanged);
@@ -301,8 +301,8 @@ public:
 
     void markForRemoval(ToolChainTreeItem *item);
     ToolChainTreeItem *insertToolChain(ProjectExplorer::Toolchain *tc, bool changed = false); // Insert directly into model
-    void addToolChain(ProjectExplorer::Toolchain *);
-    void removeToolChain(ProjectExplorer::Toolchain *);
+    void handleToolchainsRegistered(const Toolchains &toolchains);
+    void handleToolchainsDeregistered(const Toolchains &toolchains);
 
     StaticTreeItem *parentForToolChain(Toolchain *tc);
     QAction *createAction(const QString &name, ToolchainFactory *factory, Utils::Id language)
@@ -361,33 +361,39 @@ ToolChainTreeItem *ToolChainOptionsWidget::insertToolChain(Toolchain *tc, bool c
     return item;
 }
 
-void ToolChainOptionsWidget::addToolChain(Toolchain *tc)
+void ToolChainOptionsWidget::handleToolchainsRegistered(const Toolchains &toolchains)
 {
-    if (Utils::eraseOne(m_toAddList, [tc](const ToolChainTreeItem *item) {
-                        return item->toolChain == tc; })) {
-        // do not delete here!
-        return;
-    }
+    for (Toolchain * const tc : toolchains) {
+        if (Utils::eraseOne(m_toAddList, [tc](const ToolChainTreeItem *item) {
+                return item->toolChain == tc; })) {
+            // do not delete here!
+            continue;
+        }
 
-    insertToolChain(tc);
+        insertToolChain(tc);
+    }
     updateState();
 }
 
-void ToolChainOptionsWidget::removeToolChain(Toolchain *tc)
+void ToolChainOptionsWidget::handleToolchainsDeregistered(const Toolchains &toolchains)
 {
-    if (auto it = std::find_if(m_toRemoveList.begin(), m_toRemoveList.end(),
-            [tc](const ToolChainTreeItem *item) { return item->toolChain == tc; });
+    for (Toolchain * const tc : toolchains) {
+        if (auto it = std::find_if(
+                m_toRemoveList.begin(),
+                m_toRemoveList.end(),
+                [tc](const ToolChainTreeItem *item) { return item->toolChain == tc; });
             it != m_toRemoveList.end()) {
-        m_toRemoveList.erase(it);
-        delete *it;
-        return;
-    }
+            m_toRemoveList.erase(it);
+            delete *it;
+            continue;
+        }
 
-    StaticTreeItem *parent = parentForToolChain(tc);
-    auto item = parent->findChildAtLevel(1, [tc](TreeItem *item) {
-        return static_cast<ToolChainTreeItem *>(item)->toolChain == tc;
-    });
-    m_model.destroyItem(item);
+        StaticTreeItem *parent = parentForToolChain(tc);
+        auto item = parent->findChildAtLevel(1, [tc](TreeItem *item) {
+            return static_cast<ToolChainTreeItem *>(item)->toolChain == tc;
+        });
+        m_model.destroyItem(item);
+    }
 
     updateState();
 }
@@ -453,9 +459,8 @@ void ToolChainOptionsWidget::toolChainSelectionChanged()
 void ToolChainOptionsWidget::apply()
 {
     // Remove unused tool chains:
-    QList<ToolChainTreeItem *> nodes = m_toRemoveList;
-    for (const ToolChainTreeItem *n : std::as_const(nodes))
-        ToolchainManager::deregisterToolchain(n->toolChain);
+    ToolchainManager::deregisterToolchains(
+        Utils::transform(m_toRemoveList, &ToolChainTreeItem::toolChain));
 
     Q_ASSERT(m_toRemoveList.isEmpty());
 
@@ -474,13 +479,10 @@ void ToolChainOptionsWidget::apply()
     }
 
     // Add new (and already updated) tool chains
-    QStringList removedTcs;
-    nodes = m_toAddList;
-    for (const ToolChainTreeItem *n : std::as_const(nodes)) {
-        if (!ToolchainManager::registerToolchain(n->toolChain))
-            removedTcs << n->toolChain->displayName();
-    }
-    //
+    const Toolchains notRegistered = ToolchainManager::registerToolchains(
+        Utils::transform(m_toAddList, &ToolChainTreeItem::toolChain));
+    const QStringList removedTcs = Utils::transform(notRegistered, &Toolchain::displayName);
+
     const QList<ToolChainTreeItem *> toAddList = m_toAddList;
     for (ToolChainTreeItem *n : toAddList)
         markForRemoval(n);

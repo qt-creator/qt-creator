@@ -106,13 +106,11 @@ void KitDetectorPrivate::undoAutoDetect() const
     };
 
     emit q->logOutput('\n' + ProjectExplorer::Tr::tr("Removing toolchain entries..."));
-    const Toolchains toolchains = ToolchainManager::toolchains();
-    for (Toolchain *toolchain : toolchains) {
-        if (toolchain && toolchain->detectionSource() == m_sharedId) {
-            emit q->logOutput(ProjectExplorer::Tr::tr("Removed \"%1\"").arg(toolchain->displayName()));
-            ToolchainManager::deregisterToolchain(toolchain);
-        }
-    };
+    const Toolchains toDeregister = Utils::filtered(
+        ToolchainManager::toolchains(), Utils::equal(&Toolchain::detectionSource, m_sharedId));
+    for (Toolchain * toolchain : toDeregister)
+        emit q->logOutput(ProjectExplorer::Tr::tr("Removed \"%1\"").arg(toolchain->displayName()));
+    ToolchainManager::deregisterToolchains(toDeregister);
 
     if (auto cmakeManager = ExtensionSystem::PluginManager::getObjectByName("CMakeToolManager")) {
         QString logMessage;
@@ -260,11 +258,12 @@ Toolchains KitDetectorPrivate::autoDetectToolchains()
         const ToolchainDetector detector(alreadyKnown, m_device, m_searchPaths);
         const Toolchains newToolchains = factory->autoDetect(detector);
         for (Toolchain *toolchain : newToolchains) {
-            emit q->logOutput(ProjectExplorer::Tr::tr("Found \"%1\"").arg(toolchain->compilerCommand().toUserOutput()));
+            emit q->logOutput(ProjectExplorer::Tr::tr("Found \"%1\"")
+                                  .arg(toolchain->compilerCommand().toUserOutput()));
             toolchain->setDetectionSource(m_sharedId);
-            ToolchainManager::registerToolchain(toolchain);
-            alreadyKnown.append(toolchain);
         }
+        ToolchainManager::registerToolchains(newToolchains);
+        alreadyKnown.append(newToolchains);
         allNewToolchains.append(newToolchains);
     }
     emit q->logOutput(ProjectExplorer::Tr::tr("%1 new toolchains found.").arg(allNewToolchains.size()));

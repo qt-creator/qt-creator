@@ -1248,23 +1248,17 @@ void AndroidConfigurations::registerNewToolchains()
 {
     const Toolchains existingAndroidToolchains
             = ToolchainManager::toolchains(Utils::equal(&Toolchain::typeId, Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
-
-    const Toolchains newToolchains = autodetectToolchains(existingAndroidToolchains);
-
-    for (Toolchain *tc : newToolchains)
-        ToolchainManager::registerToolchain(tc);
-
+    ToolchainManager::registerToolchains(autodetectToolchains(existingAndroidToolchains));
     registerCustomToolchainsAndDebuggers();
 }
 
 void AndroidConfigurations::removeOldToolchains()
 {
-    const auto tcs = ToolchainManager::toolchains(Utils::equal(&Toolchain::typeId,
-                                                               Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
-    for (Toolchain *tc : tcs) {
-        if (!tc->isValid())
-            ToolchainManager::deregisterToolchain(tc);
-    }
+    const auto tcs = Utils::filtered(
+        ToolchainManager::toolchains(
+            Utils::equal(&Toolchain::typeId, Id(Constants::ANDROID_TOOLCHAIN_TYPEID))),
+        &Toolchain::isValid);
+    ToolchainManager::deregisterToolchains(tcs);
 }
 
 void AndroidConfigurations::removeUnusedDebuggers()
@@ -1411,8 +1405,8 @@ void AndroidConfigurations::registerCustomToolchainsAndDebuggers()
     const Toolchains customToolchains
         = autodetectToolchainsFromNdks(existingAndroidToolchains, customNdks, true);
 
+    ToolchainManager::registerToolchains(customToolchains);
     for (Toolchain *tc : customToolchains) {
-        ToolchainManager::registerToolchain(tc);
         const auto androidToolchain = static_cast<AndroidToolchain *>(tc);
         QString abiStr;
         if (androidToolchain)

@@ -1769,18 +1769,28 @@ GccToolchainConfigWidget::GccToolchainConfigWidget(GccToolchain *tc) :
                     updateParentToolchainComboBox();
             }));
         m_parentToolchainConnections.append(
-            connect(tcManager, &ToolchainManager::toolhainAdded, this, [this](Toolchain *tc) {
-                if (tc->typeId() == Constants::MINGW_TOOLCHAIN_TYPEID)
+            connect(tcManager, &ToolchainManager::toolchainsRegistered,
+                    this, [this](const Toolchains &toolchains) {
+                if (Utils::contains(
+                        toolchains,
+                        Utils::equal(&Toolchain::typeId, Id(Constants::MINGW_TOOLCHAIN_TYPEID)))) {
                     updateParentToolchainComboBox();
+                }
             }));
         m_parentToolchainConnections.append(
-            connect(tcManager, &ToolchainManager::toolchainRemoved, this, [this](Toolchain *tc) {
-                if (tc->id() == toolchain()->id()) {
-                    for (QMetaObject::Connection &connection : m_parentToolchainConnections)
-                        QObject::disconnect(connection);
-                    return;
+            connect(tcManager, &ToolchainManager::toolchainsDeregistered, this,
+                    [this](const Toolchains &toolchains) {
+                bool updateParentComboBox = false;
+                for (Toolchain * const tc : toolchains) {
+                    if (tc->id() == toolchain()->id()) {
+                        for (QMetaObject::Connection &connection : m_parentToolchainConnections)
+                            QObject::disconnect(connection);
+                        return;
+                        if (tc->typeId() == Constants::MINGW_TOOLCHAIN_TYPEID)
+                            updateParentComboBox = true;
+                    }
                 }
-                if (tc->typeId() == Constants::MINGW_TOOLCHAIN_TYPEID)
+                if (updateParentComboBox)
                     updateParentToolchainComboBox();
             }));
 
@@ -1980,20 +1990,33 @@ void GccToolchain::syncAutodetectedWithParentToolchains()
     // Subscribe only autodetected toolchains.
     ToolchainManager *tcManager = ToolchainManager::instance();
     m_mingwToolchainAddedConnection
-        = connect(tcManager, &ToolchainManager::toolhainAdded, this, [this](Toolchain *tc) {
-              if (tc->typeId() == Constants::MINGW_TOOLCHAIN_TYPEID
-                  && !mingwToolchainFromId(m_parentToolchainId)) {
-                  m_parentToolchainId = tc->id();
+        = connect(tcManager, &ToolchainManager::toolchainsRegistered, this,
+                  [this](const Toolchains &toolchains) {
+              if (mingwToolchainFromId(m_parentToolchainId))
+                  return;
+              for (Toolchain * const tc : toolchains) {
+                  if (tc->typeId() == Constants::MINGW_TOOLCHAIN_TYPEID) {
+                      m_parentToolchainId = tc->id();
+                      break;
+                  }
               }
           });
     m_thisToolchainRemovedConnection
-        = connect(tcManager, &ToolchainManager::toolchainRemoved, this, [this](Toolchain *tc) {
-              if (tc == this) {
-                  QObject::disconnect(m_thisToolchainRemovedConnection);
-                  QObject::disconnect(m_mingwToolchainAddedConnection);
-              } else if (m_parentToolchainId == tc->id()) {
+        = connect(tcManager, &ToolchainManager::toolchainsDeregistered, this,
+                  [this](const Toolchains &toolchains) {
+              bool updateParentId = false;
+              for (Toolchain * const tc : toolchains) {
+                  if (tc == this) {
+                      QObject::disconnect(m_thisToolchainRemovedConnection);
+                      QObject::disconnect(m_mingwToolchainAddedConnection);
+                  } else if (m_parentToolchainId == tc->id()) {
+                      updateParentId = true;
+                  }
+              }
+              if (updateParentId) {
                   const Toolchains mingwTCs = mingwToolchains();
-                  m_parentToolchainId = mingwTCs.isEmpty() ? QByteArray() : mingwTCs.front()->id();
+                  m_parentToolchainId = mingwTCs.isEmpty() ? QByteArray()
+                                                           : mingwTCs.front()->id();
               }
           });
 }

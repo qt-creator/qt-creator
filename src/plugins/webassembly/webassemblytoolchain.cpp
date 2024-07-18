@@ -146,17 +146,13 @@ static Toolchains doAutoDetect(const ToolchainDetector &detector)
 void registerToolChains()
 {
     // Remove old toolchains
-    for (Toolchain *tc : ToolchainManager::findToolchains(toolChainAbi())) {
-         if (tc->detection() != Toolchain::AutoDetection)
-             continue;
-         ToolchainManager::deregisterToolchain(tc);
-    };
+    const Toolchains oldToolchains = Utils::filtered(
+        ToolchainManager::findToolchains(toolChainAbi()),
+        Utils::equal(&Toolchain::detection, Toolchain::AutoDetection));
+    ToolchainManager::deregisterToolchains(oldToolchains);
 
     // Create new toolchains and register them
-    ToolchainDetector detector({}, {}, {});
-    const Toolchains toolchains = doAutoDetect(detector);
-    for (auto toolChain : toolchains)
-        ToolchainManager::registerToolchain(toolChain);
+    ToolchainManager::registerToolchains(doAutoDetect(ToolchainDetector({}, {}, {})));
 
     // Let kits pick up the new toolchains
     for (Kit *kit : KitManager::kits()) {

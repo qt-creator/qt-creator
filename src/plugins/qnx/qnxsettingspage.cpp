@@ -187,8 +187,7 @@ void QnxConfiguration::deactivate()
         }
     }
 
-    for (Toolchain *tc : toolChainsToRemove)
-        ToolchainManager::deregisterToolchain(tc);
+    ToolchainManager::deregisterToolchains(toolChainsToRemove);
 
     for (const DebuggerItem &debuggerItem : std::as_const(debuggersToRemove))
         DebuggerItemManager::deregisterDebugger(debuggerItem.id());
@@ -227,26 +226,25 @@ QVariant QnxConfiguration::createDebugger(const QnxTarget &target)
 
 Toolchains QnxConfiguration::createToolChains(const QnxTarget &target)
 {
-    Toolchains toolChains;
+    Toolchains toolchains;
 
     for (const Id language : {ProjectExplorer::Constants::C_LANGUAGE_ID,
                               ProjectExplorer::Constants::CXX_LANGUAGE_ID}) {
-        auto toolChain = new QnxToolchain;
-        toolChain->setDetection(Toolchain::ManualDetection);
-        toolChain->setLanguage(language);
-        toolChain->setTargetAbi(target.m_abi);
-        toolChain->setDisplayName(Tr::tr("QCC for %1 (%2)")
+        auto toolchain = new QnxToolchain;
+        toolchain->setDetection(Toolchain::ManualDetection);
+        toolchain->setLanguage(language);
+        toolchain->setTargetAbi(target.m_abi);
+        toolchain->setDisplayName(Tr::tr("QCC for %1 (%2)")
                     .arg(m_configName)
                     .arg(target.shortDescription()));
-        toolChain->sdpPath.setValue(m_envFile.parentDir());
-        toolChain->cpuDir.setValue(target.cpuDir());
-        toolChain->resetToolchain(m_qccCompiler);
-        ToolchainManager::registerToolchain(toolChain);
-
-        toolChains.append(toolChain);
+        toolchain->sdpPath.setValue(m_envFile.parentDir());
+        toolchain->cpuDir.setValue(target.cpuDir());
+        toolchain->resetToolchain(m_qccCompiler);
+        toolchains.append(toolchain);
     }
 
-    return toolChains;
+    ToolchainManager::registerToolchains(toolchains);
+    return toolchains;
 }
 
 void QnxConfiguration::createKit(const QnxTarget &target)
