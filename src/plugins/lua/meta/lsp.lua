@@ -1,6 +1,7 @@
 ---@meta LSP
-
 local lsp = {}
+
+---@module "TextEditor"
 
 ---@class ClientOptions
 ---@field name string The name under which to register the language server.
@@ -30,14 +31,25 @@ function lsp.Client:registerMessage(msg, callback) end
 
 ---@param msg table the message to send.
 ---Sends a message to the language server.
-function lsp.Client:sendMessage(msg, callback) end
+function lsp.Client:sendMessage(msg) end
+
+---Sends a message to the language server for a specific document.
+---@param document TextDocument The document for which to send the message
+---@param msg table The message to send.
+function lsp.Client:sendMessageForDocument(document, msg) end
+
+---@async
+---Sends a message with an auto generated unique id to the language server for a specific document. Use a.wait(...) to wait for the response.
+---@param document TextDocument The document for which to send the message
+---@param msg table The message to send.
+function lsp.Client:sendMessageWithIdForDocument(document, msg) end
 
 ---@param filePath FilePath to get the version of.
----@return int Returns -1 on error, otherwise current document version.
+---@return integer Returns -1 on error, otherwise current document version.
 function lsp.Client:documentVersion(filePath) end
 ---
 ---@param filePath table file path to get the uri of.
----@return QString Returns empty string on error, otherwise the server URI string.
+---@return string Returns empty string on error, otherwise the server URI string.
 function lsp.Client:hostPathToServerUri(filePath) end
 
 ---Creates a new Language Client.
