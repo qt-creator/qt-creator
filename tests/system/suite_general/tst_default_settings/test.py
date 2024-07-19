@@ -16,10 +16,10 @@ def main():
     if not startedWithoutPluginError():
         return
     invokeMenuItem("Edit", "Preferences...")
-    __checkKits__()
+    qmakeFound = __checkKits__()
     clickButton(waitForObject(":Options.Cancel_QPushButton"))
     invokeMenuItem("File", "Exit")
-    __checkCreatedSettings__(emptySettings)
+    __checkCreatedSettings__(emptySettings, qmakeFound)
 
 def __createMinimumIni__(emptyParent):
     qtProjDir = os.path.join(emptyParent, "QtProject")
@@ -61,6 +61,10 @@ def __checkKits__():
         test.log(str(genericDebuggers))
     # check Qt versions
     qmakePath = which("qmake")
+    if qmakePath and (not "Using Qt version" in
+                      getOutputFromCmdline([qmakePath, "--version"], acceptedError=1)):
+        # ignore dysfunctional qmake, e.g. incomplete qtchooser
+        qmakePath = None
     foundQt = []
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Qt Versions")
     __iterateTree__(":qtdirList_QTreeView", __qtFunc__, foundQt, qmakePath)
@@ -71,6 +75,7 @@ def __checkKits__():
     # check kits
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Kits")
     __iterateTree__(":BuildAndRun_QTreeView", __kitFunc__, foundQt, foundCompilerNames)
+    return qmakePath != None
 
 def __processSubItems__(treeObjStr, section, parModelIndexStr, doneItems,
                         additionalFunc, *additionalParameters):
@@ -377,7 +382,7 @@ def __lowerStrs__(iterable):
         else:
             yield it
 
-def __checkCreatedSettings__(settingsFolder):
+def __checkCreatedSettings__(settingsFolder, qmakeFound):
     waitForCleanShutdown()
     qtProj = os.path.join(settingsFolder, "QtProject")
     creatorFolder = os.path.join(qtProj, "qtcreator")
@@ -390,8 +395,9 @@ def __checkCreatedSettings__(settingsFolder):
              os.path.join(creatorFolder, "devices.xml"):0,
              os.path.join(creatorFolder, "helpcollection.qhc"):0,
              os.path.join(creatorFolder, "profiles.xml"):0,
-             os.path.join(creatorFolder, "qtversion.xml"):0,
              os.path.join(creatorFolder, "toolchains.xml"):0}
+    if qmakeFound:
+        files[os.path.join(creatorFolder, "qtversion.xml")] = 0
     for f in folders:
         test.verify(os.path.isdir(f),
                     "Verifying whether folder '%s' has been created." % os.path.basename(f))
