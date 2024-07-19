@@ -6,6 +6,7 @@
 #include "backendmodel.h"
 
 #include "bindingproperty.h"
+#include "connectioneditorutils.h"
 #include "connectionview.h"
 #include "exception.h"
 #include "nodemetainfo.h"
@@ -203,7 +204,7 @@ void BackendModel::addNewBackend()
     if (dialog.applied()) {
         QStringList importSplit = dialog.importString().split(" ");
         if (importSplit.size() != 2) {
-            qWarning() << Q_FUNC_INFO << "invalid import" << importSplit;
+            qCWarning(ConnectionEditorLog) << __FUNCTION__ << "invalid import" << importSplit;
             QTC_ASSERT(false, return);
         }
 
@@ -278,7 +279,7 @@ void BackendModel::updatePropertyName(int rowNumber)
             rootModelNode.removeProperty(oldName);
             rootModelNode.bindingProperty(newName).setDynamicTypeNameAndExpression(typeName, expression);
         } else {
-            qWarning() << Q_FUNC_INFO << oldName << newName << "failed...";
+            qCWarning(ConnectionEditorLog) << __FUNCTION__ << oldName << newName << "failed...";
             QTC_ASSERT(false, return);
         }
     });
@@ -290,7 +291,7 @@ void BackendModel::handleDataChanged(const QModelIndex &topLeft, const QModelInd
         return;
 
     if (topLeft != bottomRight) {
-        qWarning() << "BackendModel::handleDataChanged multi edit?";
+        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "multi edit?";
         return;
     }
 
@@ -307,7 +308,8 @@ void BackendModel::handleDataChanged(const QModelIndex &topLeft, const QModelInd
         updatePropertyName(currentRow);
     } break;
 
-    default: qWarning() << "BindingModel::handleDataChanged column" << currentColumn;
+    default:
+        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "column" << currentColumn;
     }
 
     m_lock = false;

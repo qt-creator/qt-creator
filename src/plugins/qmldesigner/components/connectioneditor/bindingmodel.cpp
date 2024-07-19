@@ -89,7 +89,7 @@ void BindingModel::add()
             }
         }
     } else {
-        qWarning() << __FUNCTION__ << " Requires exactly one selected node";
+        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "Requires exactly one selected node";
     }
 }
 

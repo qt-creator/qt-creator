@@ -24,6 +24,8 @@
 
 namespace QmlDesigner {
 
+Q_LOGGING_CATEGORY(ConnectionEditorLog, "qtc.qtquickdesigner.connectioneditor", QtWarningMsg)
+
 void callLater(const std::function<void()> &fun)
 {
     QTimer::singleShot(0, fun);
@@ -78,7 +80,7 @@ NodeMetaInfo dynamicTypeNameToNodeMetaInfo(const TypeName &typeName, Model *mode
     else if (typeName == "var" || typeName == "variant")
         return model->metaInfo("QML.variant");
     else
-        qWarning() << __FUNCTION__ << " type " << typeName << "not found";
+        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "type" << typeName << "not found";
     return {};
 }
 
@@ -330,7 +332,7 @@ QStringList availableTargetProperties(const BindingProperty &bindingProperty)
 {
     const ModelNode modelNode = bindingProperty.parentModelNode();
     if (!modelNode.isValid()) {
-        qWarning() << __FUNCTION__ << " invalid model node";
+        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "invalid model node";
         return {};
     }
 
@@ -372,7 +374,7 @@ QStringList availableSourceProperties(const QString &id,
     } else if (auto metaInfo = targetProperty.parentModelNode().metaInfo(); metaInfo.isValid()) {
         targetType = metaInfo.property(targetProperty.name()).propertyType();
     } else
-        qWarning() << __FUNCTION__ << " no meta info for target node";
+        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "no meta info for target node";
 
     QStringList possibleProperties;
     if (!modelNode.isValid()) {
@@ -384,7 +386,7 @@ QStringList availableSourceProperties(const QString &id,
             }
             return possibleProperties;
         }
-        qWarning() << __FUNCTION__ << " invalid model node: " << id;
+        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "invalid model node:" << id;
         return {};
     }
 
@@ -410,7 +412,7 @@ QStringList availableSourceProperties(const QString &id,
                 possibleProperties.push_back(QString::fromUtf8(property.name()));
         }
     } else {
-        qWarning() << __FUNCTION__ << " no meta info for source node";
+        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "no meta info for source node";
     }
 
     return possibleProperties;

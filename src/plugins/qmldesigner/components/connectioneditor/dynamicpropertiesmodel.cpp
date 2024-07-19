@@ -68,7 +68,7 @@ void DynamicPropertiesModel::add()
             showErrorMessage(e.description());
         }
     } else {
-        qWarning() << "DynamicPropertiesModel::add not one node selected";
+        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "not one node selected";
     }
 }
 

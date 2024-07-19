@@ -7,10 +7,13 @@
 #include "propertymetainfo.h"
 
 #include <QList>
+#include <QLoggingCategory>
 #include <QString>
 #include <QVariant>
 
 namespace QmlDesigner {
+
+Q_DECLARE_LOGGING_CATEGORY(ConnectionEditorLog)
 
 class AbstractView;
 class AbstractProperty;
