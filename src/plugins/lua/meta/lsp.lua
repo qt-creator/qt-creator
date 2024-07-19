@@ -32,6 +32,14 @@ function lsp.Client:registerMessage(msg, callback) end
 ---Sends a message to the language server.
 function lsp.Client:sendMessage(msg, callback) end
 
+---@param filePath FilePath to get the version of.
+---@return int Returns -1 on error, otherwise current document version.
+function lsp.Client:documentVersion(filePath) end
+---
+---@param filePath table file path to get the uri of.
+---@return QString Returns empty string on error, otherwise the server URI string.
+function lsp.Client:hostPathToServerUri(filePath) end
+
 ---Creates a new Language Client.
 ---@param options ClientOptions
 ---@return Client

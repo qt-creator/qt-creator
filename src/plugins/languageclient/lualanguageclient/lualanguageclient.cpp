@@ -26,6 +26,43 @@ using namespace Core;
 using namespace TextEditor;
 using namespace ProjectExplorer;
 
+namespace {
+
+class RequestWithResponse : public LanguageServerProtocol::JsonRpcMessage
+{
+    sol::function m_callback;
+    LanguageServerProtocol::MessageId m_id;
+
+public:
+    RequestWithResponse(const QJsonObject &obj, const sol::function &cb)
+        : LanguageServerProtocol::JsonRpcMessage(obj)
+        , m_callback(cb)
+    {
+        m_id = LanguageServerProtocol::MessageId(obj["id"]);
+    }
+
+    std::optional<LanguageServerProtocol::ResponseHandler> responseHandler() const override
+    {
+        if (!m_id.isValid())
+            qWarning() << "Invalid 'id' in request:" << toJsonObject();
+        return std::nullopt;
+
+        return LanguageServerProtocol::ResponseHandler{
+            m_id, [callback = m_callback](const JsonRpcMessage &msg) {
+                if (!callback.valid()) {
+                    qWarning() << "Invalid Lua callback";
+                    return;
+                }
+
+                auto result = ::Lua::LuaEngine::void_safe_call(
+                    callback, ::Lua::LuaEngine::toTable(callback.lua_state(), msg.toJsonObject()));
+                QTC_CHECK_EXPECTED(result);
+            }};
+    }
+};
+
+} // anonymous namespace
+
 namespace LanguageClient::Lua {
 
 static void registerLuaApi();
@@ -73,14 +110,16 @@ public:
         }
         m_process = new Process;
         m_process->setProcessMode(ProcessMode::Writer);
-        connect(m_process,
-                &Process::readyReadStandardError,
-                this,
-                &LuaLocalSocketClientInterface::readError);
-        connect(m_process,
-                &Process::readyReadStandardOutput,
-                this,
-                &LuaLocalSocketClientInterface::readOutput);
+        connect(
+            m_process,
+            &Process::readyReadStandardError,
+            this,
+            &LuaLocalSocketClientInterface::readError);
+        connect(
+            m_process,
+            &Process::readyReadStandardOutput,
+            this,
+            &LuaLocalSocketClientInterface::readOutput);
         connect(m_process, &Process::started, this, [this]() {
             this->LocalSocketClientInterface::startImpl();
             emit started();
@@ -348,15 +387,24 @@ public:
         }
     }
 
-    void sendMessage(const sol::table &message)
+    void sendMessage(const sol::table &message, const sol::function &callback)
     {
         const QJsonValue messageValue = ::Lua::LuaEngine::toJson(message);
         if (!messageValue.isObject())
             throw sol::error("Message is not an object");
-        const LanguageServerProtocol::JsonRpcMessage jsonrpcmessage(messageValue.toObject());
+
+        auto make_request = [&]() -> std::unique_ptr<LanguageServerProtocol::JsonRpcMessage> {
+            if (callback.valid()) {
+                return std::make_unique<RequestWithResponse>(messageValue.toObject(), callback);
+            }
+
+            return std::make_unique<LanguageServerProtocol::JsonRpcMessage>(messageValue.toObject());
+        };
+
+        auto const request = make_request();
         for (Client *c : LanguageClientManager::clientsForSettingId(m_settingsTypeId.toString())) {
             if (c)
-                c->sendMessage(jsonrpcmessage);
+                c->sendMessage(*request);
         }
     }
 
@@ -545,6 +593,27 @@ static void registerLuaApi()
                 LanguageClientSettings::registerClientType(type);
 
                 return luaClient;
+            },
+            "documentVersion",
+            [](const Utils::FilePath &path) -> int {
+                auto client = LanguageClientManager::clientForFilePath(path);
+                if (!client) {
+                    qWarning() << "documentVersion(). No client for file path:" << path;
+                    return -1;
+                }
+
+                return client->documentVersion(path);
+            },
+
+            "hostPathToServerUri",
+            [](const Utils::FilePath &path) -> QString {
+                auto client = LanguageClientManager::clientForFilePath(path);
+                if (!client) {
+                    qWarning() << "hostPathToServerUri(). No client for file path:" << path;
+                    return {};
+                }
+
+                return client->hostPathToServerUri(path).toString();
             });
 
         return result;
