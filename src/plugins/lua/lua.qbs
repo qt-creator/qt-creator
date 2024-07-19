@@ -9,6 +9,11 @@ QtcPlugin {
     Depends { name: "lua546" }
     Depends { name: "sol2" }
 
+    Properties {
+        condition: qbs.toolchain.contains("mingw")
+        cpp.optimization: "fast"
+    }
+
     files: [
         // "generateqtbindings.cpp", // use this if you need to generate some code
         "lua_global.h",
