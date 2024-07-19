@@ -29,6 +29,17 @@ function TextDocument:blockAndColumn(position) end
 ---@return integer blockCount The number of blocks in the document.
 function TextDocument:blockCount() end
 
+---@class Suggestion
+local Suggestion = {}
+
+---@param startLine integer Start position line where to apply the suggestion.
+---@param startCharacter integer Start position character where to apply the suggestion.
+---@param endLine integer  End position line where to apply the suggestion.
+---@param endCharacter integer End position character where to apply the suggestion.
+---@param text string Suggestions text.
+---@return Suggestion suggestion The created suggestion.
+function Suggestion:create(startLine, startCharacter, endLine, endCharacter, text) end
+
 ---@class TextEditor
 local TextEditor = {}
 
@@ -39,6 +50,9 @@ function TextEditor:document() end
 ---Returns the cursor of the editor.
 ---@return MultiTextCursor cursor The cursor of the editor.
 function TextEditor:cursor() end
+
+---@param suggestions Suggestion[] A list of possible suggestions to display
+function TextEditor:setSuggestions(suggestions) end
 
 ---Returns the current editor or nil.
 ---@return TextEditor|nil editor The currently active editor or nil if there is none.

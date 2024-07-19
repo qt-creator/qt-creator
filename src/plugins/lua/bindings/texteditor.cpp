@@ -3,12 +3,137 @@
 
 #include "../luaengine.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-
 #include <texteditor/textdocument.h>
+#include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
+#include <utils/stringutils.h>
 
 #include "sol/sol.hpp"
+
+namespace {
+
+class Suggestion
+{
+public:
+    Suggestion(
+        Utils::Text::Position start,
+        Utils::Text::Position end,
+        Utils::Text::Position position,
+        const QString &text)
+        : m_start(start)
+        , m_end(end)
+        , m_position(position)
+        , m_text(text)
+    {}
+
+    Suggestion(const Suggestion &other)
+        : m_start(other.m_start)
+        , m_end(other.m_end)
+        , m_position(other.m_position)
+        , m_text(other.m_text)
+    {}
+
+    Utils::Text::Position start() const { return m_start; }
+    Utils::Text::Position end() const { return m_end; }
+    Utils::Text::Position position() const { return m_position; }
+    QString text() const { return m_text; }
+
+private:
+    Utils::Text::Position m_start;
+    Utils::Text::Position m_end;
+    Utils::Text::Position m_position;
+    QString m_text;
+};
+
+QTextCursor toTextCursor(QTextDocument *doc, const Utils::Text::Position &position)
+{
+    QTextCursor cursor(doc);
+    cursor.setPosition(position.toPositionInDocument(doc));
+    return cursor;
+}
+
+QTextCursor toSelection(
+    QTextDocument *doc, const Utils::Text::Position &start, const Utils::Text::Position &end)
+{
+    QTC_ASSERT(doc, return {});
+    QTextCursor cursor = toTextCursor(doc, start);
+    cursor.setPosition(end.toPositionInDocument(doc), QTextCursor::KeepAnchor);
+
+    return cursor;
+}
+
+class CyclicSuggestion : public TextEditor::TextSuggestion
+{
+public:
+    CyclicSuggestion(
+        const QList<Suggestion> &suggestions, QTextDocument *origin, int current_suggestion = 0)
+        : m_current_suggestion(current_suggestion)
+        , m_suggestions(suggestions)
+    {
+        QTC_ASSERT(current_suggestion < suggestions.size(), return);
+        const auto &suggestion = m_suggestions.at(m_current_suggestion);
+        const auto start = suggestion.start();
+        const auto end = suggestion.end();
+
+        QString text = toTextCursor(origin, start).block().text();
+        int length = text.length() - start.column;
+        if (start.line == end.line)
+            length = end.column - start.column;
+
+        text.replace(start.column, length, suggestion.text());
+        document()->setPlainText(text);
+
+        m_start = toTextCursor(origin, suggestion.position());
+        m_start.setKeepPositionOnInsert(true);
+        setCurrentPosition(m_start.position());
+    }
+
+    virtual bool apply() override
+    {
+        QTC_ASSERT(m_current_suggestion < m_suggestions.size(), return false);
+        reset();
+        const auto &suggestion = m_suggestions.at(m_current_suggestion);
+        QTextCursor cursor = toSelection(m_start.document(), suggestion.start(), suggestion.end());
+        cursor.insertText(suggestion.text());
+        return true;
+    }
+
+    // Returns true if the suggestion was applied completely, false if it was only partially applied.
+    virtual bool applyWord(TextEditor::TextEditorWidget *widget) override
+    {
+        QTC_ASSERT(m_current_suggestion < m_suggestions.size(), return false);
+        const auto &suggestion = m_suggestions.at(m_current_suggestion);
+        QTextCursor cursor = toSelection(m_start.document(), suggestion.start(), suggestion.end());
+        QTextCursor currentCursor = widget->textCursor();
+        const QString text = suggestion.text();
+        const int startPos = currentCursor.positionInBlock() - cursor.positionInBlock()
+                             + (cursor.selectionEnd() - cursor.selectionStart());
+        const int next = Utils::endOfNextWord(text, startPos);
+
+        if (next == -1)
+            return apply();
+
+        // TODO: Allow adding more than one line
+        QString subText = text.mid(startPos, next - startPos);
+        subText = subText.left(subText.indexOf('\n'));
+        if (subText.isEmpty())
+            return false;
+
+        currentCursor.insertText(subText);
+        return false;
+    }
+
+    virtual void reset() override { m_start.removeSelectedText(); }
+
+    virtual int position() override { return m_start.selectionEnd(); }
+
+private:
+    int m_current_suggestion;
+    QTextCursor m_start;
+    QList<Suggestion> m_suggestions;
+};
+
+} // namespace
 
 namespace Lua::Internal {
 
@@ -132,6 +257,20 @@ void addTextEditorModule()
                 return textEditor->editorWidget()->multiTextCursor();
             });
 
+        result.new_usertype<Suggestion>(
+            "Suggestion",
+            "create",
+            [](int start_line,
+               int start_character,
+               int end_line,
+               int end_character,
+               const QString &text) -> Suggestion {
+                auto one_based = [](int zero_based) { return zero_based + 1; };
+                Utils::Text::Position start_pos = {one_based(start_line), start_character};
+                Utils::Text::Position end_pos = {one_based(end_line), end_character};
+                return {start_pos, end_pos, start_pos, text};
+            });
+
         result.new_usertype<TextEditor::TextDocument>(
             "TextDocument",
             sol::no_constructor,
@@ -149,7 +288,26 @@ void addTextEditorModule()
                 return std::make_pair(block.blockNumber() + 1, column + 1);
             },
             "blockCount",
-            [](TextEditor::TextDocument *document) { return document->document()->blockCount(); });
+            [](TextEditor::TextDocument *document) { return document->document()->blockCount(); },
+
+            "setSuggestions",
+            [](TextEditor::TextDocument *document, QList<Suggestion> suggestions) {
+                if (suggestions.isEmpty())
+                    return;
+
+                const auto textEditor = TextEditor::BaseTextEditor::currentTextEditor();
+                if (!textEditor || textEditor->document() != document)
+                    return;
+
+                auto *widget = textEditor->editorWidget();
+                if (widget->isReadOnly() || widget->multiTextCursor().hasMultipleCursors())
+                    return;
+
+                widget->insertSuggestion(
+                    std::make_unique<CyclicSuggestion>(suggestions, document->document()));
+            }
+
+        );
 
         return result;
     });
