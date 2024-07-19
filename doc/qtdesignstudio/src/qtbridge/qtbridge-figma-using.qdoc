@@ -72,7 +72,19 @@
     handle, such as gradient fill colors or a mixed radius, the frames are
     exported as images.
 
-
+    \section2 Using Variables
+    With \QDS 4.6, variables are exported as a QML module named \e DesignSystem. A QML singleton
+    is created for each collection. Modes of the collection are exported as theme objects.
+    A collection has a \e currentTheme property, updating the property changes the active theme.
+    
+    When a variable is bound to a property of a layer, the \e DesignSystem module import
+    is added to the generated code and the property binding is created accordingly.
+    
+    To export variables, select \uicontrol {Export Variables} from \l{Settings}.
+    
+    \note Remote variables are not supported. Setting the active mode on the page or
+    layer does not affect the generated code.
+ 
     \section2 Using Variants
     Figma variants are exported as a component with states. All variants
     inside a \e component-set are merged together and the differences across
@@ -241,6 +253,9 @@
         \li \uicontrol {Create page hierarchy}
         \li Organize the generated UI in \QDS under the directory named after the
             parent page of the respective component.
+    \row
+        \li \uicontrol {Export Variables}
+        \li Enable exporting variables.
     \row
         \li \uicontrol {Reset plugin data}
         \li Resets all settings for all layers and groups (also in the
