@@ -484,10 +484,14 @@ void installApp(QPromise<SimulatorControl::Response> &promise,
                                                  nullptr,
                                                  &response.commandOutput,
                                                  [&promise] { return promise.isCanceled(); });
-    if (!result)
-        promise.addResult(make_unexpected(result.error()));
-    else
+    if (!result) {
+        const QString error = result.error().isEmpty()
+                                  ? response.commandOutput
+                                  : (result.error() + "\n" + response.commandOutput);
+        promise.addResult(make_unexpected(error));
+    } else {
         promise.addResult(response);
+    }
 }
 
 void launchApp(QPromise<SimulatorControl::Response> &promise,

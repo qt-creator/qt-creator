@@ -54,12 +54,14 @@ public:
                        int progress, int maxProgress, const QString &info) {
             emit progressValueChanged(progress * 100 / maxProgress, info);
         });
-        connect(m_toolHandler.get(), &IosToolHandler::errorMsg, this,
-                [this](IosToolHandler *, const QString &message) {
-            if (message.contains(QLatin1String("AMDeviceInstallApplication returned -402653103")))
-                TaskHub::addTask(DeploymentTask(Task::Warning, Tr::tr("The Info.plist might be incorrect.")));
-            emit errorMessage(message);
-        });
+        connect(
+            m_toolHandler.get(),
+            &IosToolHandler::errorMsg,
+            this,
+            [this](IosToolHandler *, const QString &message) {
+                TaskHub::addTask(DeploymentTask(Task::Error, message));
+                emit errorMessage(message);
+            });
         connect(m_toolHandler.get(), &IosToolHandler::didTransferApp, this,
                 [this](IosToolHandler *, const FilePath &, const QString &,
                        IosToolHandler::OpStatus status) {
