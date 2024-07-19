@@ -8,6 +8,7 @@
 
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildstep.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -99,12 +100,21 @@ private:
  * The factory is used to create instances of AutoreconfStep.
  */
 
-AutoreconfStepFactory::AutoreconfStepFactory()
+class AutoreconfStepFactory final : public ProjectExplorer::BuildStepFactory
 {
-    registerStep<AutoreconfStep>(Constants::AUTORECONF_STEP_ID);
-    setDisplayName(Tr::tr("Autoreconf", "Display name for AutotoolsProjectManager::AutoreconfStep id."));
-    setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+public:
+    AutoreconfStepFactory()
+    {
+        registerStep<AutoreconfStep>(Constants::AUTORECONF_STEP_ID);
+        setDisplayName(Tr::tr("Autoreconf", "Display name for AutotoolsProjectManager::AutoreconfStep id."));
+        setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    }
+};
+
+void setupAutoreconfStep()
+{
+    static AutoreconfStepFactory theAutoreconfStepFactory;
 }
 
 } // AutotoolsProjectManager::Internal

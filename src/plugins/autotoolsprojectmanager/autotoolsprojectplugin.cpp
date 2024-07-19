@@ -69,22 +69,10 @@ public:
  * - MakefileEditorFactory: Provides a specialized editor with automatic
  *   syntax highlighting for Makefile.am files.
  *
- * - AutotoolsTargetFactory: Our current target is desktop.
- *
  * - AutotoolsBuildConfigurationFactory: Creates build configurations that
  *   contain the steps (make, autogen, autoreconf or configure) that will
  *   be executed in the build process)
  */
-
-class AutotoolsProjectPluginPrivate
-{
-public:
-    AutotoolsBuildConfigurationFactory buildConfigFactory;
-    MakeStepFactory makeStepFactory;
-    AutogenStepFactory autogenStepFactory;
-    ConfigureStepFactory configureStepFactory;
-    AutoreconfStepFactory autoreconfStepFactory;
-};
 
 class AutotoolsProjectPlugin final : public ExtensionSystem::IPlugin
 {
@@ -94,10 +82,13 @@ class AutotoolsProjectPlugin final : public ExtensionSystem::IPlugin
     void initialize() final
     {
         ProjectManager::registerProjectType<AutotoolsProject>(Utils::Constants::MAKEFILE_MIMETYPE);
-        d = std::make_unique<AutotoolsProjectPluginPrivate>();
-    }
 
-    std::unique_ptr<AutotoolsProjectPluginPrivate> d;
+        setupAutogenStep();
+        setupConfigureStep();
+        setupAutoreconfStep();
+        setupAutotoolsMakeStep();
+        setupAutotoolsBuildConfiguration();
+    }
 };
 
 } // AutotoolsProjectManager::Internal

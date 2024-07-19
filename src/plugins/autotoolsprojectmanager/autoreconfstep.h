@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/buildstep.h>
-
 namespace AutotoolsProjectManager::Internal {
 
-class AutoreconfStepFactory final : public ProjectExplorer::BuildStepFactory
-{
-public:
-    AutoreconfStepFactory();
-};
+void setupAutoreconfStep();
 
 } // AutotoolsProjectManager::Internal
