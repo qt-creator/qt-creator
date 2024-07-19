@@ -34,7 +34,7 @@ QByteArray FastPreprocessor::run(Document::Ptr newDoc,
         _merged.insert(filePath);
 
         for (Snapshot::const_iterator i = _snapshot.begin(), ei = _snapshot.end(); i != ei; ++i) {
-            if (isInjectedFile(i.key().toString()))
+            if (isInjectedFile(i.key().path()))
                 mergeEnvironment(i.key());
         }
 
