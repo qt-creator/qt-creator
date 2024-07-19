@@ -14,7 +14,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
-#include <projectexplorer/target.h>
 
 #include <extensionsystem/iplugin.h>
 
@@ -41,10 +40,8 @@ public:
         setId(Constants::AUTOTOOLS_PROJECT_ID);
         setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
         setDisplayName(projectDirectory().fileName());
-
         setHasMakeInstallEquivalent(true);
-
-        setBuildSystemCreator<AutotoolsBuildSystem>();
+        setBuildSystemCreator(&createAutotoolsBuildSystem);
     }
 };
 

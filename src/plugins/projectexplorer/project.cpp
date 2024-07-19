@@ -1032,7 +1032,7 @@ Task Project::createProjectTask(Task::TaskType type, const QString &description)
     return Task(type, description, FilePath(), -1, Id());
 }
 
-void Project::setBuildSystemCreatorImpl(const std::function<BuildSystem *(Target *)> &creator)
+void Project::setBuildSystemCreator(const std::function<BuildSystem *(Target *)> &creator)
 {
     d->m_buildSystemCreator = creator;
 }

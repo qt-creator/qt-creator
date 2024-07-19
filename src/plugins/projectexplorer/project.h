@@ -234,11 +234,11 @@ protected:
                                                    const QString &description);
     template <typename BuildSystemImpl>
     void setBuildSystemCreator() {
-        setBuildSystemCreatorImpl([](Target *t) { return new BuildSystemImpl(t); });
+        setBuildSystemCreator([](Target *t) { return new BuildSystemImpl(t); });
     }
-private:
-    void setBuildSystemCreatorImpl(const std::function<BuildSystem *(Target *)> &creator);
+    void setBuildSystemCreator(const std::function<BuildSystem *(Target *)> &creator);
 
+private:
     void addTarget(std::unique_ptr<Target> &&target);
 
     void addProjectLanguage(Utils::Id id);

@@ -12,6 +12,8 @@
 
 #include <qtsupport/qtcppkitinfo.h>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <utils/async.h>
 #include <utils/qtcassert.h>
 
@@ -20,6 +22,33 @@ using namespace Tasking;
 using namespace Utils;
 
 namespace AutotoolsProjectManager::Internal {
+
+class AutotoolsBuildSystem final : public BuildSystem
+{
+public:
+    explicit AutotoolsBuildSystem(Target *target);
+    ~AutotoolsBuildSystem() final;
+
+private:
+    void triggerParsing() final;
+    QString name() const final { return QLatin1String("autotools"); }
+
+    /**
+     * Is invoked when the makefile parsing by m_makefileParserThread has
+     * been finished. Adds all sources and files into the project tree and
+     * takes care listen to file changes for Makefile.am and configure.ac
+     * files.
+     */
+    void makefileParsingFinished(const MakefileParserOutputData &outputData);
+
+    /// Return value for AutotoolsProject::files()
+    QStringList m_files;
+
+    /// Responsible for parsing the makefiles asynchronously in a thread
+    Tasking::TaskTreeRunner m_parserRunner;
+
+    std::unique_ptr<ProjectUpdater> m_cppCodeModelUpdater;
+};
 
 AutotoolsBuildSystem::AutotoolsBuildSystem(Target *target)
     : BuildSystem(target)
@@ -147,6 +176,12 @@ void AutotoolsBuildSystem::makefileParsingFinished(const MakefileParserOutputDat
 
     m_cppCodeModelUpdater->update({project(), kitInfo, activeParseEnvironment(), {rpp}});
 
-    emitBuildSystemUpdated();}
+    emitBuildSystemUpdated();
+}
+
+BuildSystem *createAutotoolsBuildSystem(Target *target)
+{
+    return new AutotoolsBuildSystem(target);
+}
 
 } // AutotoolsProjectManager::Internal
