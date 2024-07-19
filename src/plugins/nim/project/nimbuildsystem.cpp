@@ -139,6 +139,29 @@ bool NimProjectScanner::renameFile(const QString &, const QString &to)
     return true;
 }
 
+// NimBuildSystem
+
+class NimBuildSystem final : public BuildSystem
+{
+public:
+    explicit NimBuildSystem(Target *target);
+
+    bool supportsAction(Node *, ProjectAction action, const Node *node) const final;
+    bool addFiles(Node *node, const FilePaths &filePaths, FilePaths *) final;
+    RemovedFilesFromProject removeFiles(Node *node,
+                                        const FilePaths &filePaths,
+                                        FilePaths *) final;
+    bool deleteFiles(Node *, const FilePaths &) final;
+    bool renameFile(Node *, const FilePath &oldFilePath, const FilePath &newFilePath) final;
+    QString name() const final { return QLatin1String("nim"); }
+
+    void triggerParsing() final;
+
+protected:
+    ParseGuard m_guard;
+    NimProjectScanner m_projectScanner;
+};
+
 NimBuildSystem::NimBuildSystem(Target *target)
     : BuildSystem(target), m_projectScanner(target->project())
 {
@@ -217,6 +240,11 @@ bool NimBuildSystem::deleteFiles(Node *, const FilePaths &)
 bool NimBuildSystem::renameFile(Node *, const FilePath &oldFilePath, const FilePath &newFilePath)
 {
     return m_projectScanner.renameFile(oldFilePath.toString(), newFilePath.toString());
+}
+
+BuildSystem *createNimBuildSystem(Target *target)
+{
+    return new NimBuildSystem(target);
 }
 
 } // namespace Nim
