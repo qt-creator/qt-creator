@@ -209,11 +209,11 @@ public:
 
     using Callback = std::function<void()>;
     void addOnChanged(QObject *guard, const Callback &callback);
-    void addVolatileValueChanged(QObject *guard, const Callback &callback);
-    void addCheckedChanged(QObject *guard, const Callback &callback);
-    void addEnabledChanged(QObject *guard, const Callback &callback);
-    void addLabelTextChanged(QObject *guard, const Callback &callback);
-    void addLabelPixmapChanged(QObject *guard, const Callback &callback);
+    void addOnVolatileValueChanged(QObject *guard, const Callback &callback);
+    void addOnCheckedChanged(QObject *guard, const Callback &callback);
+    void addOnEnabledChanged(QObject *guard, const Callback &callback);
+    void addOnLabelTextChanged(QObject *guard, const Callback &callback);
+    void addOnLabelPixmapChanged(QObject *guard, const Callback &callback);
 
 signals:
     void changed();

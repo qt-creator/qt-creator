@@ -746,27 +746,27 @@ void BaseAspect::addOnChanged(QObject *guard, const Callback &callback)
     connect(this, &BaseAspect::changed, guard, callback);
 }
 
-void BaseAspect::addVolatileValueChanged(QObject *guard, const Callback &callback)
+void BaseAspect::addOnVolatileValueChanged(QObject *guard, const Callback &callback)
 {
     connect(this, &BaseAspect::volatileValueChanged, guard, callback);
 }
 
-void BaseAspect::addCheckedChanged(QObject *guard, const Callback &callback)
+void BaseAspect::addOnCheckedChanged(QObject *guard, const Callback &callback)
 {
     connect(this, &BaseAspect::checkedChanged, guard, callback);
 }
 
-void BaseAspect::addEnabledChanged(QObject *guard, const Callback &callback)
+void BaseAspect::addOnEnabledChanged(QObject *guard, const Callback &callback)
 {
     connect(this, &BaseAspect::enabledChanged, guard, callback);
 }
 
-void BaseAspect::addLabelTextChanged(QObject *guard, const Callback &callback)
+void BaseAspect::addOnLabelTextChanged(QObject *guard, const Callback &callback)
 {
     connect(this, &BaseAspect::labelTextChanged, guard, callback);
 }
 
-void BaseAspect::addLabelPixmapChanged(QObject *guard, const Callback &callback)
+void BaseAspect::addOnLabelPixmapChanged(QObject *guard, const Callback &callback)
 {
     connect(this, &BaseAspect::labelPixmapChanged, guard, callback);
 }
@@ -899,16 +899,14 @@ public:
                                               ? BoolAspect::LabelPlacement::InExtraLabel
                                               : BoolAspect::LabelPlacement::AtCheckBox);
         m_checked->setSettingsKey(checkerKey);
-
-        QObject::connect(m_checked.get(), &BoolAspect::changed, aspect, [aspect] {
+        m_checked->addOnChanged(aspect, [aspect] {
             // FIXME: Check.
             aspect->internalToBuffer();
             aspect->bufferToGui();
             emit aspect->changed();
             aspect->checkedChanged();
         });
-
-        QObject::connect(m_checked.get(), &BoolAspect::volatileValueChanged, aspect, [aspect] {
+        m_checked->addOnVolatileValueChanged(aspect, [aspect] {
             // FIXME: Check.
             aspect->internalToBuffer();
             aspect->bufferToGui();
