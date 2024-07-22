@@ -24,50 +24,20 @@ public:
     static bool isMesonWrapper(const Tool_t &tool);
     static bool isNinjaWrapper(const Tool_t &tool);
 
-    static inline void addTool(const Utils::Id &itemId,
-                               const QString &name,
-                               const Utils::FilePath &exe)
-    {
-        // TODO improve this
-        if (exe.fileName().contains("ninja"))
-            addTool(std::make_shared<ToolWrapper>(ToolType::Ninja, name, exe, itemId));
-        else
-            addTool(std::make_shared<ToolWrapper>(ToolType::Meson, name, exe, itemId));
-    }
+    static void addTool(const Utils::Id &itemId,
+                        const QString &name,
+                        const Utils::FilePath &exe);
 
-    static inline void addTool(Tool_t meson)
-    {
-        auto self = instance();
-        self->m_tools.emplace_back(std::move(meson));
-        emit self->toolAdded(self->m_tools.back());
-    }
+    static void addTool(Tool_t meson);
 
     static void setTools(std::vector<Tool_t> &&tools);
 
     static inline const std::vector<Tool_t> &tools() { return instance()->m_tools; }
 
-    static inline void updateTool(const Utils::Id &itemId,
-                                  const QString &name,
-                                  const Utils::FilePath &exe)
-    {
-        auto self = instance();
-        auto item = std::find_if(std::begin(self->m_tools),
-                                 std::end(self->m_tools),
-                                 [&itemId](const Tool_t &tool) { return tool->id() == itemId; });
-        if (item != std::end(self->m_tools)) {
-            (*item)->setExe(exe);
-            (*item)->setName(name);
-        } else {
-            addTool(itemId, name, exe);
-        }
-    }
-    static void removeTool(const Utils::Id &id)
-    {
-        auto self = instance();
-        auto item = Utils::take(self->m_tools, [&id](const auto &item) { return item->id() == id; });
-        QTC_ASSERT(item, return );
-        emit self->toolRemoved(*item);
-    }
+    static void updateTool(const Utils::Id &itemId,
+                           const QString &name,
+                           const Utils::FilePath &exe);
+    static void removeTool(const Utils::Id &id);
 
     static std::shared_ptr<ToolWrapper> ninjaWrapper(const Utils::Id &id);
     static std::shared_ptr<ToolWrapper> mesonWrapper(const Utils::Id &id);

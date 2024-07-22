@@ -27,6 +27,7 @@ class ToolWrapper final
 {
 public:
     ToolWrapper() = delete;
+    explicit ToolWrapper(const Utils::Store &data);
     ToolWrapper(ToolType toolType,
                 const QString &name,
                 const Utils::FilePath &path,
@@ -52,7 +53,6 @@ public:
     static Version read_version(const Utils::FilePath &toolPath);
 
     Utils::Store toVariantMap() const;
-    static ToolWrapper *fromVariantMap(const Utils::Store &, ToolType toolType);
 
     ToolType toolType() const { return m_toolType; }
     void setToolType(ToolType newToolType) { m_toolType = newToolType; }
@@ -67,7 +67,7 @@ public:
                             const Utils::FilePath &buildDirectory) const;
     Command introspect(const Utils::FilePath &sourceDirectory) const;
 
-protected:
+private:
     ToolType m_toolType;
     Version m_version;
     bool m_isValid;

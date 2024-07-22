@@ -82,8 +82,6 @@ MesonToolKitAspectImpl::MesonToolKitAspectImpl(Kit *kit,
             this, &MesonToolKitAspectImpl::setCurrentToolIndex);
 }
 
-
-
 void MesonToolKitAspectImpl::addTool(const MesonTools::Tool_t &tool)
 {
     QTC_ASSERT(tool, return );

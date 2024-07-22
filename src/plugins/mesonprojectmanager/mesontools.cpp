@@ -10,7 +10,7 @@ using namespace Utils;
 namespace MesonProjectManager {
 namespace Internal {
 
-MesonTools::Tool_t tool(const Utils::Id &id,
+MesonTools::Tool_t tool(const Id &id,
                         const std::vector<MesonTools::Tool_t> &tools,
                         ToolType toolType)
 {
@@ -65,6 +65,22 @@ bool MesonTools::isNinjaWrapper(const MesonTools::Tool_t &tool)
     return tool->toolType() == ToolType::Ninja;
 }
 
+void MesonTools::addTool(const Id &itemId, const QString &name, const FilePath &exe)
+{
+    // TODO improve this
+    if (exe.fileName().contains("ninja"))
+        addTool(std::make_shared<ToolWrapper>(ToolType::Ninja, name, exe, itemId));
+    else
+        addTool(std::make_shared<ToolWrapper>(ToolType::Meson, name, exe, itemId));
+}
+
+void MesonTools::addTool(Tool_t meson)
+{
+    auto self = instance();
+    self->m_tools.emplace_back(std::move(meson));
+    emit self->toolAdded(self->m_tools.back());
+}
+
 void MesonTools::setTools(std::vector<MesonTools::Tool_t> &&tools)
 {
     auto self = instance();
@@ -73,12 +89,34 @@ void MesonTools::setTools(std::vector<MesonTools::Tool_t> &&tools)
     fixAutoDetected(self->m_tools, ToolType::Ninja);
 }
 
-std::shared_ptr<ToolWrapper> MesonTools::ninjaWrapper(const Utils::Id &id)
+void MesonTools::updateTool(const Id &itemId, const QString &name, const FilePath &exe)
+{
+    auto self = instance();
+    auto item = std::find_if(std::begin(self->m_tools),
+                             std::end(self->m_tools),
+                             [&itemId](const Tool_t &tool) { return tool->id() == itemId; });
+    if (item != std::end(self->m_tools)) {
+        (*item)->setExe(exe);
+        (*item)->setName(name);
+    } else {
+        addTool(itemId, name, exe);
+    }
+}
+
+void MesonTools::removeTool(const Id &id)
+{
+    auto self = instance();
+    auto item = Utils::take(self->m_tools, [&id](const auto &item) { return item->id() == id; });
+    QTC_ASSERT(item, return );
+    emit self->toolRemoved(*item);
+}
+
+std::shared_ptr<ToolWrapper> MesonTools::ninjaWrapper(const Id &id)
 {
     return tool(id, MesonTools::instance()->m_tools, ToolType::Ninja);
 }
 
-std::shared_ptr<ToolWrapper> MesonTools::mesonWrapper(const Utils::Id &id)
+std::shared_ptr<ToolWrapper> MesonTools::mesonWrapper(const Id &id)
 {
     return tool(id, MesonTools::instance()->m_tools, ToolType::Meson);
 }

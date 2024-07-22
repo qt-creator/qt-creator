@@ -20,6 +20,25 @@ using namespace Utils;
 namespace MesonProjectManager {
 namespace Internal {
 
+static ToolType typeFromId(const QString &id)
+{
+    if (id == Constants::ToolsSettings::TOOL_TYPE_NINJA)
+        return ToolType::Ninja;
+    if (id == Constants::ToolsSettings::TOOL_TYPE_MESON)
+        return ToolType::Meson;
+    QTC_CHECK(false);
+    return ToolType::Meson;
+}
+
+ToolWrapper::ToolWrapper(const Store &data)
+{
+    m_toolType = typeFromId(data.value(Constants::ToolsSettings::TOOL_TYPE_KEY).toString());
+    m_name = data[Constants::ToolsSettings::NAME_KEY].toString();
+    m_exe = FilePath::fromSettings(data[Constants::ToolsSettings::EXE_KEY]);
+    m_id = Id::fromSetting(data[Constants::ToolsSettings::ID_KEY]);
+    m_autoDetected =  data[Constants::ToolsSettings::AUTO_DETECTED_KEY].toBool();
+}
+
 ToolWrapper::ToolWrapper(ToolType toolType,
                          const QString &name,
                          const FilePath &path,
@@ -81,15 +100,6 @@ Store ToolWrapper::toVariantMap() const
     else
         data.insert(Constants::ToolsSettings::TOOL_TYPE_KEY, Constants::ToolsSettings::TOOL_TYPE_NINJA);
     return data;
-}
-
-ToolWrapper *ToolWrapper::fromVariantMap(const Store &data, ToolType toolType)
-{
-    return new ToolWrapper(toolType,
-                           data[Constants::ToolsSettings::NAME_KEY].toString(),
-                           Utils::FilePath::fromSettings(data[Constants::ToolsSettings::EXE_KEY]),
-                           Utils::Id::fromSetting(data[Constants::ToolsSettings::ID_KEY]),
-                           data[Constants::ToolsSettings::AUTO_DETECTED_KEY].toBool());
 }
 
 static std::optional<FilePath> findTool(const QStringList &exeNames)

@@ -31,8 +31,8 @@ class ToolsSettingsAccessor final : public UpgradingSettingsAccessor
 public:
     ToolsSettingsAccessor();
 
-    void saveMesonTools(const std::vector<MesonTools::Tool_t> &tools);
-    std::vector<MesonTools::Tool_t> loadMesonTools();
+    void saveMesonTools();
+    void loadMesonTools();
 };
 
 ToolsSettingsAccessor::ToolsSettingsAccessor()
@@ -41,19 +41,19 @@ ToolsSettingsAccessor::ToolsSettingsAccessor()
     setApplicationDisplayName(QGuiApplication::applicationDisplayName());
     setBaseFilePath(ICore::userResourcePath(Constants::ToolsSettings::FILENAME));
 
-    MesonTools::setTools(loadMesonTools());
+    loadMesonTools();
 
     QObject::connect(ICore::instance(), &ICore::saveSettingsRequested, [this] {
-        saveMesonTools(MesonTools::tools());
+        saveMesonTools();
     });
 }
 
-void ToolsSettingsAccessor::saveMesonTools(const std::vector<MesonTools::Tool_t> &tools)
+void ToolsSettingsAccessor::saveMesonTools()
 {
     using namespace Constants;
     Store data;
     int entry_count = 0;
-    for (const MesonTools::Tool_t &tool : tools) {
+    for (const MesonTools::Tool_t &tool : MesonTools::tools()) {
         data.insert(entryName(entry_count), variantFromStore(tool->toVariantMap()));
         ++entry_count;
     }
@@ -61,7 +61,7 @@ void ToolsSettingsAccessor::saveMesonTools(const std::vector<MesonTools::Tool_t>
     saveSettings(data, ICore::dialogParent());
 }
 
-std::vector<MesonTools::Tool_t> ToolsSettingsAccessor::loadMesonTools()
+void ToolsSettingsAccessor::loadMesonTools()
 {
     using namespace Constants;
     auto data = restoreSettings(ICore::dialogParent());
@@ -70,15 +70,10 @@ std::vector<MesonTools::Tool_t> ToolsSettingsAccessor::loadMesonTools()
     for (auto toolIndex = 0; toolIndex < entry_count; toolIndex++) {
         Key name = entryName(toolIndex);
         Store store = storeFromVariant(data[name]);
-        QString type = store.value(ToolsSettings::TOOL_TYPE_KEY).toString();
-        if (type == ToolsSettings::TOOL_TYPE_NINJA)
-            result.emplace_back(ToolWrapper::fromVariantMap(storeFromVariant(data[name]), ToolType::Ninja));
-        else if (type == ToolsSettings::TOOL_TYPE_MESON)
-            result.emplace_back(ToolWrapper::fromVariantMap(storeFromVariant(data[name]), ToolType::Meson));
-        else
-            QTC_CHECK(false);
+        result.emplace_back(new ToolWrapper(store));
     }
-    return result;
+
+    MesonTools::setTools(std::move(result));
 }
 
 void setupToolsSettingsAccessor()
