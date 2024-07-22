@@ -858,7 +858,7 @@ void CppFindReferences::createWatcher(const QFuture<CPlusPlus::Usage> &future, S
     connect(search, &SearchResult::canceled, watcher, [watcher]() { watcher->cancel(); });
     connect(search, &SearchResult::paused, watcher, [watcher](bool paused) {
         if (!paused || watcher->isRunning()) // guard against pausing when the search is finished
-            watcher->setPaused(paused);
+            watcher->setSuspended(paused);
     });
     watcher->setPendingResultsLimit(1);
     watcher->setFuture(future);

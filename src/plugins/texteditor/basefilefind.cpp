@@ -347,7 +347,7 @@ void BaseFileFind::runSearch(SearchResult *search)
     connect(search, &SearchResult::canceled, watcher, &QFutureWatcherBase::cancel);
     connect(search, &SearchResult::paused, watcher, [watcher](bool paused) {
         if (!paused || watcher->isRunning()) // guard against pausing when the search is finished
-            watcher->setPaused(paused);
+            watcher->setSuspended(paused);
     });
     connect(watcher, &QFutureWatcherBase::resultReadyAt, search, [watcher, search](int index) {
         search->addResults(watcher->resultAt(index), SearchResult::AddOrdered);
