@@ -324,12 +324,11 @@ void TimelineToolBar::createCenterControls()
 
     addSpacing(10);
 
-    auto *loopAnimation = createAction(
-        TimelineConstants::C_LOOP_PLAYBACK,
-        Theme::iconFromName(Theme::Icon::loopPlayback_medium),
-        tr("Loop Playback"),
-        QKeySequence((Qt::ControlModifier | Qt::ShiftModifier)
-                     + Qt::Key_Space)); // TODO: Toggles looping. Select shortcut for this QDS-4941
+    // TODO: Toggles looping. Select shortcut for this QDS-4941
+    auto *loopAnimation = createAction(TimelineConstants::C_LOOP_PLAYBACK,
+                                       Theme::iconFromName(Theme::Icon::loopPlayback_medium),
+                                       tr("Loop Playback"),
+                                       Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_Space);
 
     loopAnimation->setCheckable(true);
     connect(loopAnimation, &QAction::toggled, [&](bool value) { emit loopPlaybackToggled(value);} );
