@@ -443,7 +443,7 @@ static FilePath rootPathFromSettings(Project *project)
     FilePath rootPath;
 #ifndef WITH_TESTS
     rootPath = FilePath::fromString(
-        namedSettings(ProjectExplorer::Constants::PROJECT_ROOT_PATH_KEY).toString());
+        project->namedSettings(ProjectExplorer::Constants::PROJECT_ROOT_PATH_KEY).toString());
 #endif
     if (rootPath.isEmpty())
         rootPath = project->projectDirectory();
