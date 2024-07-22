@@ -327,7 +327,7 @@ bool MesonProjectParser::run(const Command &command,
     setupProcess(command, env, projectName, captureStdo);
     m_elapsed.start();
     m_process->start();
-    qCDebug(mesonProcessLog()) << "Starting:" << command.toUserOutput();
+    qCDebug(mesonProcessLog()) << "Starting:" << command.cmdLine.toUserOutput();
     return true;
 }
 
@@ -372,18 +372,18 @@ void MesonProjectParser::setupProcess(const Command &command, const Environment 
                 this, &MesonProjectParser::processStandardError);
     }
 
-    m_process->setWorkingDirectory(command.workDir());
+    m_process->setWorkingDirectory(command.workDir);
     m_process->setEnvironment(env);
     MessageManager::writeFlashing(Tr::tr("Running %1 in %2.")
-                                  .arg(command.toUserOutput(), command.workDir().toUserOutput()));
-    m_process->setCommand(command.cmdLine());
+                                  .arg(command.cmdLine.toUserOutput(), command.workDir.toUserOutput()));
+    m_process->setCommand(command.cmdLine);
     ProcessProgress *progress = new ProcessProgress(m_process.get());
     progress->setDisplayName(Tr::tr("Configuring \"%1\".").arg(projectName));
 }
 
 bool MesonProjectParser::sanityCheck(const Command &command) const
 {
-    const auto &exe = command.cmdLine().executable();
+    const auto &exe = command.cmdLine.executable();
     if (!exe.exists()) {
         //Should only reach this point if Meson exe is removed while a Meson project is opened
         TaskHub::addTask(

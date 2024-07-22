@@ -7,10 +7,7 @@
 #include "versionhelper.h"
 
 #include <utils/commandline.h>
-#include <utils/environment.h>
 #include <utils/id.h>
-#include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/store.h>
 
 #include <optional>
@@ -20,20 +17,9 @@ namespace Internal {
 
 class Command
 {
-    Utils::CommandLine m_cmd;
-    Utils::FilePath m_workDir;
-
 public:
-    Command() = default;
-    Command(const Utils::FilePath &exe, const Utils::FilePath &workDir, const QStringList &args)
-        : m_cmd{exe, args}
-        , m_workDir{workDir}
-    {}
-    const Utils::CommandLine &cmdLine() const { return m_cmd; }
-    const Utils::FilePath &workDir() const { return m_workDir; }
-    Utils::FilePath executable() const { return m_cmd.executable(); }
-    QStringList arguments() const { return m_cmd.splitArguments(); }
-    QString toUserOutput() const { return m_cmd.toUserOutput(); }
+    Utils::CommandLine cmdLine;
+    Utils::FilePath workDir;
 };
 
 class ToolWrapper

@@ -4,6 +4,7 @@
 #include "toolwrapper.h"
 
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -94,42 +95,42 @@ QStringList options_cat(const T &...args)
     return result;
 }
 
-Command MesonWrapper::setup(const Utils::FilePath &sourceDirectory,
-                            const Utils::FilePath &buildDirectory,
+Command MesonWrapper::setup(const FilePath &sourceDirectory,
+                            const FilePath &buildDirectory,
                             const QStringList &options) const
 {
-    return {m_exe,
-            sourceDirectory,
-            options_cat("setup", options, sourceDirectory.toString(), buildDirectory.toString())};
+    return {{m_exe, options_cat("setup", options, sourceDirectory.path(), buildDirectory.path())},
+            sourceDirectory};
 }
 
-Command MesonWrapper::configure(const Utils::FilePath &sourceDirectory,
-                                const Utils::FilePath &buildDirectory,
+Command MesonWrapper::configure(const FilePath &sourceDirectory,
+                                const FilePath &buildDirectory,
                                 const QStringList &options) const
 {
     if (!isSetup(buildDirectory))
         return setup(sourceDirectory, buildDirectory, options);
-    return {m_exe, buildDirectory, options_cat("configure", options, buildDirectory.toString())};
+    return {{m_exe, options_cat("configure", options, buildDirectory.path())},
+            buildDirectory};
 }
 
-Command MesonWrapper::regenerate(const Utils::FilePath &sourceDirectory,
-                                 const Utils::FilePath &buildDirectory) const
+Command MesonWrapper::regenerate(const FilePath &sourceDirectory,
+                                 const FilePath &buildDirectory) const
 {
-    return {m_exe,
-            buildDirectory,
+    return {{m_exe,
             options_cat("--internal",
                         "regenerate",
-                        sourceDirectory.toString(),
-                        buildDirectory.toString(),
+                        sourceDirectory.path(),
+                        buildDirectory.path(),
                         "--backend",
-                        "ninja")};
+                        "ninja")},
+            buildDirectory};
 }
 
 Command MesonWrapper::introspect(const Utils::FilePath &sourceDirectory) const
 {
-    return {m_exe,
-            sourceDirectory,
-            {"introspect", "--all", QString("%1/meson.build").arg(sourceDirectory.toString())}};
+    return {{m_exe,
+            {"introspect", "--all", QString("%1/meson.build").arg(sourceDirectory.path())}},
+            sourceDirectory};
 }
 
 std::optional<FilePath> MesonWrapper::find()
@@ -152,8 +153,8 @@ bool containsFiles(const QString &path, const File_t &file, const T &...files)
 bool run_meson(const Command &command, QIODevice *output)
 {
     Utils::Process process;
-    process.setWorkingDirectory(command.workDir());
-    process.setCommand(command.cmdLine());
+    process.setWorkingDirectory(command.workDir);
+    process.setCommand(command.cmdLine);
     process.start();
     if (!process.waitForFinished())
         return false;

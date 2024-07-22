@@ -16,6 +16,8 @@
 #include <QFuture>
 #include <QQueue>
 
+#include <utils/qtcprocess.h>
+
 namespace MesonProjectManager {
 namespace Internal {
 
