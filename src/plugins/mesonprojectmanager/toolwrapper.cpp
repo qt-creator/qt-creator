@@ -102,17 +102,6 @@ Store ToolWrapper::toVariantMap() const
     return data;
 }
 
-static std::optional<FilePath> findTool(const QStringList &exeNames)
-{
-    Environment systemEnvironment = Environment::systemEnvironment();
-    for (const auto &exe : exeNames) {
-        const FilePath exe_path = systemEnvironment.searchInPath(exe);
-        if (exe_path.exists())
-            return exe_path;
-    }
-    return std::nullopt;
-}
-
 template<typename First>
 void impl_option_cat(QStringList &list, const First &first)
 {
@@ -212,14 +201,25 @@ bool isSetup(const Utils::FilePath &buildPath)
                          Constants::MESON_INTRO_BUILDSYSTEM_FILES);
 }
 
-std::optional<FilePath> findMesonTool()
+static std::optional<FilePath> findToolHelper(const QStringList &exeNames)
 {
-    return findTool({"meson.py", "meson"});
+    Environment systemEnvironment = Environment::systemEnvironment();
+    for (const auto &exe : exeNames) {
+        const FilePath exe_path = systemEnvironment.searchInPath(exe);
+        if (exe_path.exists())
+            return exe_path;
+    }
+    return std::nullopt;
 }
 
-std::optional<FilePath> findNinjaTool()
+std::optional<FilePath> findTool(ToolType toolType)
 {
-    return findTool({"ninja", "ninja-build"});
+    if (toolType == ToolType::Meson)
+        return findToolHelper({"meson.py", "meson"});
+    if (toolType == ToolType::Ninja)
+        return findToolHelper({"ninja", "ninja-build"});
+    QTC_CHECK(false);
+    return {};
 }
 
 } // namespace Internal

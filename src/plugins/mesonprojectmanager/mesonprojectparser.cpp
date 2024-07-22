@@ -120,10 +120,10 @@ bool MesonProjectParser::configure(const FilePath &sourcePath,
     m_srcDir = sourcePath;
     m_buildDir = buildPath;
     m_outputParser.setSourceDirectory(sourcePath);
-    auto cmd = MesonTools::mesonWrapper(m_meson)->configure(sourcePath, buildPath, args);
+    auto cmd = MesonTools::toolById(m_meson, ToolType::Meson)->configure(sourcePath, buildPath, args);
     // see comment near m_pendingCommands declaration
     m_pendingCommands.enqueue(
-        std::make_tuple(MesonTools::mesonWrapper(m_meson)->regenerate(sourcePath, buildPath),
+        std::make_tuple(MesonTools::toolById(m_meson, ToolType::Meson)->regenerate(sourcePath, buildPath),
                         false));
     return run(cmd, m_env, m_projectName);
 }
@@ -147,7 +147,7 @@ bool MesonProjectParser::setup(const FilePath &sourcePath,
     auto cmdArgs = args;
     if (forceWipe || isSetup(buildPath))
         cmdArgs << "--wipe";
-    auto cmd = MesonTools::mesonWrapper(m_meson)->setup(sourcePath, buildPath, cmdArgs);
+    auto cmd = MesonTools::toolById(m_meson, ToolType::Meson)->setup(sourcePath, buildPath, cmdArgs);
     return run(cmd, m_env, m_projectName);
 }
 
@@ -169,7 +169,7 @@ bool MesonProjectParser::parse(const FilePath &sourcePath)
     m_srcDir = sourcePath;
     m_introType = IntroDataType::stdo;
     m_outputParser.setSourceDirectory(sourcePath);
-    return run(MesonTools::mesonWrapper(m_meson)->introspect(sourcePath),
+    return run(MesonTools::toolById(m_meson, ToolType::Meson)->introspect(sourcePath),
                m_env,
                m_projectName,
                true);
@@ -310,10 +310,9 @@ bool MesonProjectParser::matchesKit(const KitData &kit)
 bool MesonProjectParser::usesSameMesonVersion(const FilePath &buildPath)
 {
     auto info = MesonInfoParser::mesonInfo(buildPath);
-    auto meson = MesonTools::mesonWrapper(m_meson);
+    auto meson = MesonTools::toolById(m_meson, ToolType::Meson);
     return info && meson && info->mesonVersion == meson->version();
 }
-
 
 bool MesonProjectParser::run(const Command &command,
                              const Environment &env,

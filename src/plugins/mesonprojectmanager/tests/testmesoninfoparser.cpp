@@ -34,7 +34,7 @@ static const QList<projectData> projectList{
     { \
         QTemporaryFile _intro_file; \
         _intro_file.open(); \
-        const auto tool = findMesonTool(); \
+        const auto tool = findTool(ToolType::Meson); \
         QVERIFY(tool.has_value()); \
         const ToolWrapper _meson(ToolType::Meson, "name", *tool); \
         run_meson(_meson.introspect(Utils::FilePath::fromString(_source_dir)), &_intro_file); \
@@ -53,7 +53,7 @@ private slots:
         Utils::LauncherInterface::setPathToLauncher(qApp->applicationDirPath() + '/'
                                                     + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
 
-        const auto path = findMesonTool();
+        const auto path = findTool(ToolType::Meson);
         if (!path)
             QSKIP("Meson not found");
     }
@@ -76,7 +76,7 @@ private slots:
         {
             QTemporaryDir build_dir{"test-meson"};
             FilePath buildDir = FilePath::fromString(build_dir.path());
-            const auto tool = findMesonTool();
+            const auto tool = findTool(ToolType::Meson);
             QVERIFY(tool.has_value());
             ToolWrapper meson(ToolType::Meson, "name", *tool);
             run_meson(meson.setup(FilePath::fromString(src_dir), buildDir));

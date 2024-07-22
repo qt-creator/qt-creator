@@ -81,8 +81,7 @@ bool run_meson(const Command &command, QIODevice *output = nullptr);
 
 bool isSetup(const Utils::FilePath &buildPath);
 
-std::optional<Utils::FilePath> findMesonTool();
-std::optional<Utils::FilePath> findNinjaTool();
+std::optional<Utils::FilePath> findTool(ToolType toolType);
 
 } // namespace Internal
 } // namespace MesonProjectManager

@@ -5,12 +5,9 @@
 
 #include "toolwrapper.h"
 
-#include <utils/algorithm.h>
-
 #include <memory>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 class MesonTools : public QObject
 {
@@ -32,31 +29,21 @@ public:
 
     static void setTools(std::vector<Tool_t> &&tools);
 
-    static inline const std::vector<Tool_t> &tools() { return instance()->m_tools; }
+    static const std::vector<Tool_t> &tools();
 
     static void updateTool(const Utils::Id &itemId,
                            const QString &name,
                            const Utils::FilePath &exe);
     static void removeTool(const Utils::Id &id);
 
-    static std::shared_ptr<ToolWrapper> ninjaWrapper(const Utils::Id &id);
-    static std::shared_ptr<ToolWrapper> mesonWrapper(const Utils::Id &id);
+    static std::shared_ptr<ToolWrapper> toolById(const Utils::Id &id, ToolType toolType);
 
-    static std::shared_ptr<ToolWrapper> autoDetectedNinja();
-    static std::shared_ptr<ToolWrapper> autoDetectedMeson();
+    static std::shared_ptr<ToolWrapper> autoDetectedTool(ToolType toolType);
 
     Q_SIGNAL void toolAdded(const Tool_t &tool);
     Q_SIGNAL void toolRemoved(const Tool_t &tool);
 
-    static MesonTools *instance()
-    {
-        static MesonTools inst;
-        return &inst;
-    }
-
-private:
-    std::vector<Tool_t> m_tools;
+    static MesonTools *instance();
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // MesonProjectManager::Internal
