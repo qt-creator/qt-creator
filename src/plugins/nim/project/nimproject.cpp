@@ -19,7 +19,7 @@ using namespace Utils;
 
 namespace Nim {
 
-class NimProject : public Project
+class NimProject final : public Project
 {
 public:
     explicit NimProject(const FilePath &filePath);
@@ -86,9 +86,9 @@ void NimProject::setExcludedFiles(const QStringList &excludedFiles)
     m_excludedFiles = excludedFiles;
 }
 
-// Factory
+// Setup
 
-NimProjectFactory::NimProjectFactory()
+void setupNimProject()
 {
     ProjectManager::registerProjectType<NimProject>(Constants::C_NIM_PROJECT_MIMETYPE);
 }
