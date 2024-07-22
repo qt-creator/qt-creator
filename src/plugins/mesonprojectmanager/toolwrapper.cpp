@@ -20,8 +20,12 @@ namespace Internal {
 
 // ToolWrapper base
 
-ToolWrapper::ToolWrapper(const QString &name, const Utils::FilePath &path, bool autoDetected)
-    : m_version(read_version(path))
+ToolWrapper::ToolWrapper(ToolType toolType,
+                         const QString &name,
+                         const FilePath &path,
+                         bool autoDetected)
+    : m_toolType(toolType)
+    , m_version(read_version(path))
     , m_isValid{path.exists() && m_version.isValid}
     , m_autoDetected{autoDetected}
     , m_id{Utils::Id::generate()}
@@ -29,11 +33,13 @@ ToolWrapper::ToolWrapper(const QString &name, const Utils::FilePath &path, bool 
     , m_name{name}
 {}
 
-ToolWrapper::ToolWrapper(const QString &name,
-                         const Utils::FilePath &path,
-                         const Utils::Id &id,
+ToolWrapper::ToolWrapper(ToolType toolType,
+                         const QString &name,
+                         const FilePath &path,
+                         const Id &id,
                          bool autoDetected)
-    : m_version(read_version(path))
+    : m_toolType(toolType)
+    , m_version(read_version(path))
     , m_isValid{path.exists() && m_version.isValid}
     , m_autoDetected{autoDetected}
     , m_id{id}
@@ -59,6 +65,29 @@ Version ToolWrapper::read_version(const Utils::FilePath &toolPath)
             return Version::fromString(process.cleanedStdOut());
     }
     return {};
+}
+
+Store ToolWrapper::toVariantMap() const
+{
+    Utils::Store data;
+    data.insert(Constants::ToolsSettings::NAME_KEY, m_name);
+    data.insert(Constants::ToolsSettings::EXE_KEY, m_exe.toSettings());
+    data.insert(Constants::ToolsSettings::AUTO_DETECTED_KEY, m_autoDetected);
+    data.insert(Constants::ToolsSettings::ID_KEY, m_id.toSetting());
+    if (m_toolType == ToolType::Meson)
+        data.insert(Constants::ToolsSettings::TOOL_TYPE_KEY, Constants::ToolsSettings::TOOL_TYPE_MESON);
+    else
+        data.insert(Constants::ToolsSettings::TOOL_TYPE_KEY, Constants::ToolsSettings::TOOL_TYPE_NINJA);
+    return data;
+}
+
+ToolWrapper *ToolWrapper::fromVariantMap(const Store &data, ToolType toolType)
+{
+    return new ToolWrapper(toolType,
+                           data[Constants::ToolsSettings::NAME_KEY].toString(),
+                           Utils::FilePath::fromSettings(data[Constants::ToolsSettings::EXE_KEY]),
+                           Utils::Id::fromSetting(data[Constants::ToolsSettings::ID_KEY]),
+                           data[Constants::ToolsSettings::AUTO_DETECTED_KEY].toBool());
 }
 
 static std::optional<FilePath> findTool(const QStringList &exeNames)
@@ -133,11 +162,6 @@ Command MesonWrapper::introspect(const Utils::FilePath &sourceDirectory) const
             sourceDirectory};
 }
 
-std::optional<FilePath> MesonWrapper::find()
-{
-    return findTool({"meson.py", "meson"});
-}
-
 template<typename File_t>
 bool containsFiles(const QString &path, const File_t &file)
 {
@@ -178,9 +202,12 @@ bool isSetup(const Utils::FilePath &buildPath)
                          Constants::MESON_INTRO_BUILDSYSTEM_FILES);
 }
 
-// NinjaWrapper
+std::optional<FilePath> findMesonTool()
+{
+    return findTool({"meson.py", "meson"});
+}
 
-std::optional<FilePath> NinjaWrapper::find()
+std::optional<FilePath> findNinjaTool()
 {
     return findTool({"ninja", "ninja-build"});
 }

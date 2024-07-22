@@ -14,7 +14,6 @@
 
 #include <QGuiApplication>
 
-#include <iterator>
 #include <vector>
 
 using namespace Core;
@@ -55,15 +54,8 @@ void ToolsSettingsAccessor::saveMesonTools(const std::vector<MesonTools::Tool_t>
     Store data;
     int entry_count = 0;
     for (const MesonTools::Tool_t &tool : tools) {
-        auto asMeson = std::dynamic_pointer_cast<MesonWrapper>(tool);
-        if (asMeson)
-            data.insert(entryName(entry_count), variantFromStore(toVariantMap<MesonWrapper>(*asMeson)));
-        else {
-            auto asNinja = std::dynamic_pointer_cast<NinjaWrapper>(tool);
-            if (asNinja)
-                data.insert(entryName(entry_count), variantFromStore(toVariantMap<NinjaWrapper>(*asNinja)));
-        }
-        entry_count++;
+        data.insert(entryName(entry_count), variantFromStore(tool->toVariantMap()));
+        ++entry_count;
     }
     data.insert(ToolsSettings::ENTRY_COUNT, entry_count);
     saveSettings(data, ICore::dialogParent());
@@ -80,9 +72,9 @@ std::vector<MesonTools::Tool_t> ToolsSettingsAccessor::loadMesonTools()
         Store store = storeFromVariant(data[name]);
         QString type = store.value(ToolsSettings::TOOL_TYPE_KEY).toString();
         if (type == ToolsSettings::TOOL_TYPE_NINJA)
-            result.emplace_back(fromVariantMap<NinjaWrapper *>(storeFromVariant(data[name])));
+            result.emplace_back(ToolWrapper::fromVariantMap(storeFromVariant(data[name]), ToolType::Ninja));
         else if (type == ToolsSettings::TOOL_TYPE_MESON)
-            result.emplace_back(fromVariantMap<MesonWrapper *>(storeFromVariant(data[name])));
+            result.emplace_back(ToolWrapper::fromVariantMap(storeFromVariant(data[name]), ToolType::Meson));
         else
             QTC_CHECK(false);
     }

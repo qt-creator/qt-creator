@@ -30,9 +30,9 @@ public:
     {
         // TODO improve this
         if (exe.fileName().contains("ninja"))
-            addTool(std::make_shared<NinjaWrapper>(name, exe, itemId));
+            addTool(std::make_shared<ToolWrapper>(ToolType::Ninja, name, exe, itemId));
         else
-            addTool(std::make_shared<MesonWrapper>(name, exe, itemId));
+            addTool(std::make_shared<ToolWrapper>(ToolType::Meson, name, exe, itemId));
     }
 
     static inline void addTool(Tool_t meson)

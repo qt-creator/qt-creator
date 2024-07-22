@@ -18,8 +18,6 @@ using namespace Utils;
 
 namespace MesonProjectManager::Internal {
 
-enum class ToolType { Meson, Ninja };
-
 // Meson/Ninja KitAspect base
 
 class MesonToolKitAspectImpl final : public KitAspect

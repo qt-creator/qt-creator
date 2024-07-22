@@ -3,6 +3,10 @@
 
 #include "mesontools.h"
 
+#include <utils/environment.h>
+
+using namespace Utils;
+
 namespace MesonProjectManager {
 namespace Internal {
 
@@ -26,27 +30,34 @@ std::shared_ptr<T> tool(const Utils::Id &id, const std::vector<MesonTools::Tool_
     return nullptr;
 }
 
-template<typename T>
-std::shared_ptr<T> autoDetected(const std::vector<MesonTools::Tool_t> &tools)
+static MesonTools::Tool_t autoDetected(const std::vector<MesonTools::Tool_t> &tools, ToolType toolType)
 {
-    static_assert(std::is_base_of<ToolWrapper, T>::value, "Type must derive from ToolWrapper");
     for (const auto &tool : tools) {
-        if (tool->autoDetected() && is<T>(tool)) {
-            return std::dynamic_pointer_cast<T>(tool);
-        }
+        if (tool->autoDetected() && tool->toolType() == toolType)
+            return tool;
     }
     return nullptr;
 }
 
-template<typename T>
-void fixAutoDetected(std::vector<MesonTools::Tool_t> &tools)
+static void fixAutoDetected(std::vector<MesonTools::Tool_t> &tools, ToolType toolType)
 {
-    auto autoDetectedTool = autoDetected<T>(tools);
+    MesonTools::Tool_t autoDetectedTool = autoDetected(tools, toolType);
     if (!autoDetectedTool) {
-        auto path = T::find();
-        if (path)
-            tools.emplace_back(std::make_shared<T>(
-                QString("System %1 at %2").arg(T::toolName()).arg(path->toString()), *path, true));
+        QStringList exeNames;
+        QString toolName;
+        if (toolType == ToolType::Meson) {
+            if (std::optional<FilePath> path = findMesonTool()) {
+                tools.emplace_back(
+                    std::make_shared<ToolWrapper>(toolType,
+                        QString("System %1 at %2").arg("Meson").arg(path->toString()), *path, true));
+            }
+        } else if (toolType == ToolType::Ninja) {
+            if (std::optional<FilePath> path = findNinjaTool()) {
+                tools.emplace_back(
+                    std::make_shared<ToolWrapper>(toolType,
+                        QString("System %1 at %2").arg("Ninja").arg(path->toString()), *path, true));
+            }
+        }
     }
 }
 
@@ -64,8 +75,8 @@ void MesonTools::setTools(std::vector<MesonTools::Tool_t> &&tools)
 {
     auto self = instance();
     std::swap(self->m_tools, tools);
-    fixAutoDetected<MesonWrapper>(self->m_tools);
-    fixAutoDetected<NinjaWrapper>(self->m_tools);
+    fixAutoDetected(self->m_tools, ToolType::Meson);
+    fixAutoDetected(self->m_tools, ToolType::Ninja);
 }
 
 std::shared_ptr<NinjaWrapper> MesonTools::ninjaWrapper(const Utils::Id &id)
@@ -79,12 +90,14 @@ std::shared_ptr<MesonWrapper> MesonTools::mesonWrapper(const Utils::Id &id)
 
 std::shared_ptr<NinjaWrapper> MesonTools::ninjaWrapper()
 {
-    return autoDetected<NinjaWrapper>(MesonTools::instance()->m_tools);
+    return std::dynamic_pointer_cast<NinjaWrapper>(
+                autoDetected(MesonTools::instance()->m_tools, ToolType::Ninja));
 }
 
 std::shared_ptr<MesonWrapper> MesonTools::mesonWrapper()
 {
-    return autoDetected<MesonWrapper>(MesonTools::instance()->m_tools);
+    return std::dynamic_pointer_cast<MesonWrapper>(
+                autoDetected(MesonTools::instance()->m_tools, ToolType::Meson));
 }
 
 } // namespace Internal

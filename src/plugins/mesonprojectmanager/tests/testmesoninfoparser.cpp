@@ -16,8 +16,6 @@
 #include <QTemporaryFile>
 #include <QtTest/QtTest>
 
-#include <iostream>
-
 using namespace MesonProjectManager::Internal;
 using namespace Utils;
 
@@ -36,9 +34,9 @@ static const QList<projectData> projectList{
     { \
         QTemporaryFile _intro_file; \
         _intro_file.open(); \
-        const auto tool = MesonWrapper::find(); \
+        const auto tool = findMesonTool(); \
         QVERIFY(tool.has_value()); \
-        const auto _meson = MesonWrapper("name", *tool); \
+        const MesonWrapper _meson(ToolType::Meson, "name", *tool); \
         run_meson(_meson.introspect(Utils::FilePath::fromString(_source_dir)), &_intro_file); \
         __VA_ARGS__ \
     }
@@ -55,7 +53,7 @@ private slots:
         Utils::LauncherInterface::setPathToLauncher(qApp->applicationDirPath() + '/'
                                                     + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
 
-        const auto path = MesonWrapper::find();
+        const auto path = findMesonTool();
         if (!path)
             QSKIP("Meson not found");
     }
@@ -78,9 +76,9 @@ private slots:
         {
             QTemporaryDir build_dir{"test-meson"};
             FilePath buildDir = FilePath::fromString(build_dir.path());
-            const auto tool = MesonWrapper::find();
+            const auto tool = findMesonTool();
             QVERIFY(tool.has_value());
-            MesonWrapper meson("name", *tool);
+            MesonWrapper meson(ToolType::Meson, "name", *tool);
             run_meson(meson.setup(FilePath::fromString(src_dir), buildDir));
             QVERIFY(isSetup(buildDir));
 
