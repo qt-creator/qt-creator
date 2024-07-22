@@ -74,7 +74,7 @@ public:
 
     KitAspect *createKitAspect(Kit *k) const final
     {
-        return new ToolKitAspectWidget(k, this, ToolKitAspectWidget::ToolType::Ninja);
+        return new MesonToolKitAspectImpl(k, this, MesonToolKitAspectImpl::ToolType::Ninja);
     }
 };
 

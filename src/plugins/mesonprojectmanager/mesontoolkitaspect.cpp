@@ -65,7 +65,7 @@ public:
 
     KitAspect *createKitAspect(Kit *k) const override
     {
-        return new ToolKitAspectWidget{k, this, ToolKitAspectWidget::ToolType::Meson};
+        return new MesonToolKitAspectImpl{k, this, MesonToolKitAspectImpl::ToolType::Meson};
     }
 
     ItemList toUserOutput(const Kit *k) const override

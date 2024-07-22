@@ -12,18 +12,17 @@
 #include <QComboBox>
 #include <QCoreApplication>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
-class ToolKitAspectWidget final : public ProjectExplorer::KitAspect
+class MesonToolKitAspectImpl final : public ProjectExplorer::KitAspect
 {
 public:
     enum class ToolType { Meson, Ninja };
 
-    ToolKitAspectWidget(ProjectExplorer::Kit *kit,
+    MesonToolKitAspectImpl(ProjectExplorer::Kit *kit,
                         const ProjectExplorer::KitAspectFactory *factory,
                         ToolType type);
-    ~ToolKitAspectWidget();
+    ~MesonToolKitAspectImpl();
 
 private:
     void addTool(const MesonTools::Tool_t &tool);
@@ -56,5 +55,4 @@ private:
     ToolType m_type;
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // MesonProjectManager::Internal

@@ -9,13 +9,14 @@
 
 #include <utils/qtcassert.h>
 
-namespace MesonProjectManager {
-namespace Internal {
+using namespace ProjectExplorer;
 
-ToolKitAspectWidget::ToolKitAspectWidget(ProjectExplorer::Kit *kit,
-                                         const ProjectExplorer::KitAspectFactory *factory,
-                                         ToolType type)
-    : ProjectExplorer::KitAspect(kit, factory)
+namespace MesonProjectManager::Internal {
+
+MesonToolKitAspectImpl::MesonToolKitAspectImpl(Kit *kit,
+                                               const KitAspectFactory *factory,
+                                               ToolType type)
+    : KitAspect(kit, factory)
     , m_toolsComboBox(createSubWidget<QComboBox>())
     , m_type{type}
 {
@@ -28,26 +29,26 @@ ToolKitAspectWidget::ToolKitAspectWidget(ProjectExplorer::Kit *kit,
     loadTools();
 
     connect(MesonTools::instance(), &MesonTools::toolAdded,
-            this, &ToolKitAspectWidget::addTool);
+            this, &MesonToolKitAspectImpl::addTool);
     connect(MesonTools::instance(), &MesonTools::toolRemoved,
-            this, &ToolKitAspectWidget::removeTool);
+            this, &MesonToolKitAspectImpl::removeTool);
     connect(m_toolsComboBox, &QComboBox::currentIndexChanged,
-            this, &ToolKitAspectWidget::setCurrentToolIndex);
+            this, &MesonToolKitAspectImpl::setCurrentToolIndex);
 }
 
-ToolKitAspectWidget::~ToolKitAspectWidget()
+MesonToolKitAspectImpl::~MesonToolKitAspectImpl()
 {
     delete m_toolsComboBox;
 }
 
-void ToolKitAspectWidget::addTool(const MesonTools::Tool_t &tool)
+void MesonToolKitAspectImpl::addTool(const MesonTools::Tool_t &tool)
 {
     QTC_ASSERT(tool, return );
     if (isCompatible(tool))
         this->m_toolsComboBox->addItem(tool->name(), tool->id().toSetting());
 }
 
-void ToolKitAspectWidget::removeTool(const MesonTools::Tool_t &tool)
+void MesonToolKitAspectImpl::removeTool(const MesonTools::Tool_t &tool)
 {
     QTC_ASSERT(tool, return );
     if (!isCompatible(tool))
@@ -59,7 +60,7 @@ void ToolKitAspectWidget::removeTool(const MesonTools::Tool_t &tool)
     m_toolsComboBox->removeItem(index);
 }
 
-void ToolKitAspectWidget::setCurrentToolIndex(int index)
+void MesonToolKitAspectImpl::setCurrentToolIndex(int index)
 {
     if (m_toolsComboBox->count() == 0)
         return;
@@ -70,7 +71,7 @@ void ToolKitAspectWidget::setCurrentToolIndex(int index)
         NinjaToolKitAspect::setNinjaTool(m_kit, id);
 }
 
-int ToolKitAspectWidget::indexOf(const Utils::Id &id)
+int MesonToolKitAspectImpl::indexOf(const Utils::Id &id)
 {
     for (int i = 0; i < m_toolsComboBox->count(); ++i) {
         if (id == Utils::Id::fromSetting(m_toolsComboBox->itemData(i)))
@@ -79,13 +80,13 @@ int ToolKitAspectWidget::indexOf(const Utils::Id &id)
     return -1;
 }
 
-bool ToolKitAspectWidget::isCompatible(const MesonTools::Tool_t &tool)
+bool MesonToolKitAspectImpl::isCompatible(const MesonTools::Tool_t &tool)
 {
     return (m_type == ToolType::Meson && MesonTools::isMesonWrapper(tool))
            || (m_type == ToolType::Ninja && MesonTools::isNinjaWrapper(tool));
 }
 
-void ToolKitAspectWidget::loadTools()
+void MesonToolKitAspectImpl::loadTools()
 {
     for (const MesonTools::Tool_t &tool : MesonTools::tools()) {
         addTool(tool);
@@ -94,7 +95,7 @@ void ToolKitAspectWidget::loadTools()
     m_toolsComboBox->setEnabled(m_toolsComboBox->count());
 }
 
-void ToolKitAspectWidget::setToDefault()
+void MesonToolKitAspectImpl::setToDefault()
 {
     const MesonTools::Tool_t autoDetected = [this] {
         if (m_type == ToolType::Meson)
@@ -112,5 +113,4 @@ void ToolKitAspectWidget::setToDefault()
     }
 }
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // MesonProjectManager::Internal
