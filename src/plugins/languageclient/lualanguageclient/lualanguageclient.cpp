@@ -177,8 +177,10 @@ class LuaClientWrapper;
 class LuaClientSettings : public BaseSettings
 {
     std::weak_ptr<LuaClientWrapper> m_wrapper;
+    QObject guard;
 
 public:
+    LuaClientSettings(const LuaClientSettings &wrapper);
     LuaClientSettings(const std::weak_ptr<LuaClientWrapper> &wrapper);
     ~LuaClientSettings() override = default;
 
@@ -200,9 +202,11 @@ enum class TransportType { StdIO, LocalSocket };
 
 class LuaClientWrapper : public QObject
 {
+    Q_OBJECT
 public:
     TransportType m_transportType{TransportType::StdIO};
     std::function<expected_str<void>(CommandLine &)> m_cmdLineCallback;
+    std::function<expected_str<void>(QString &)> m_initOptionsCallback;
     AspectContainer *m_aspects{nullptr};
     QString m_name;
     Utils::Id m_settingsTypeId;
@@ -242,6 +246,23 @@ public:
                 return cmdFromTable(res.get<sol::table>());
             });
 
+        m_initOptionsCallback = addValue<QString>(
+            options,
+            "initializationOptions",
+            m_initializationOptions,
+            [](const sol::protected_function_result &res) -> expected_str<QString> {
+                if (res.get_type(0) == sol::type::table)
+                    return ::Lua::LuaEngine::toJsonString(res.get<sol::table>());
+                else if (res.get_type(0) == sol::type::string)
+                    return res.get<QString>(0);
+                return make_unexpected(QString("init callback did not return a table or string"));
+            });
+
+        if (auto initOptionsTable = options.get<sol::optional<sol::table>>("initializationOptions"))
+            m_initializationOptions = ::Lua::LuaEngine::toJsonString(*initOptionsTable);
+        else if (auto initOptionsString = options.get<sol::optional<QString>>("initializationOptions"))
+            m_initializationOptions = *initOptionsString;
+
         m_name = options.get<QString>("name");
         m_settingsTypeId = Utils::Id::fromString(QString("Lua_%1").arg(m_name));
         m_serverName = options.get_or<QString>("serverName", "");
@@ -272,22 +293,6 @@ public:
                 for (auto [_, v] : *mimeTypes)
                     m_languageFilter.mimeTypes.push_back(v.as<QString>());
         }
-
-        auto initOptionsTable = options.get<sol::optional<sol::table>>("initializationOptions");
-        if (initOptionsTable) {
-            QJsonValue json = ::Lua::LuaEngine::toJson(*initOptionsTable);
-            QJsonDocument doc;
-            if (json.isArray()) {
-                doc.setArray(json.toArray());
-                m_initializationOptions = QString::fromUtf8(doc.toJson());
-            } else if (json.isObject()) {
-                doc.setObject(json.toObject());
-                m_initializationOptions = QString::fromUtf8(doc.toJson());
-            }
-        }
-        auto initOptionsString = options.get<sol::optional<QString>>("initializationOptions");
-        if (initOptionsString)
-            m_initializationOptions = *initOptionsString;
 
         // get<sol::optional<>> because on MSVC, get_or(..., nullptr) fails to compile
         m_aspects = options.get<sol::optional<AspectContainer *>>("settings").value_or(nullptr);
@@ -461,6 +466,16 @@ public:
             if (!result)
                 qWarning() << "Error applying option callback:" << result.error();
         }
+        if (m_initOptionsCallback) {
+            expected_str<void> result = m_initOptionsCallback(m_initializationOptions);
+            if (!result)
+                qWarning() << "Error applying init option callback:" << result.error();
+
+            // Right now there is only one option that needs to be mirrored to the LSP Settings,
+            // so we only emit optionsChanged() here. If another setting should need to be dynamic
+            // optionsChanged() needs to be called for it as well, but only once per updateOptions()
+            emit optionsChanged();
+        }
     }
 
     static CommandLine cmdFromTable(const sol::table &tbl)
@@ -528,7 +543,22 @@ public:
         }
         return nullptr;
     }
+
+signals:
+    void optionsChanged();
 };
+
+LuaClientSettings::LuaClientSettings(const LuaClientSettings &other)
+    : BaseSettings::BaseSettings(other)
+    , m_wrapper(other.m_wrapper)
+{
+    if (auto w = m_wrapper.lock()) {
+        QObject::connect(w.get(), &LuaClientWrapper::optionsChanged, &guard, [this] {
+            if (auto w = m_wrapper.lock())
+                m_initializationOptions = w->m_initializationOptions;
+        });
+    }
+}
 
 LuaClientSettings::LuaClientSettings(const std::weak_ptr<LuaClientWrapper> &wrapper)
     : m_wrapper(wrapper)
@@ -539,6 +569,10 @@ LuaClientSettings::LuaClientSettings(const std::weak_ptr<LuaClientWrapper> &wrap
         m_languageFilter = w->m_languageFilter;
         m_initializationOptions = w->m_initializationOptions;
         m_startBehavior = w->m_startBehavior;
+        QObject::connect(w.get(), &LuaClientWrapper::optionsChanged, &guard, [this] {
+            if (auto w = m_wrapper.lock())
+                m_initializationOptions = w->m_initializationOptions;
+        });
     }
 }
 
@@ -548,7 +582,8 @@ bool LuaClientSettings::applyFromSettingsWidget(QWidget *widget)
 
     if (auto w = m_wrapper.lock()) {
         w->m_name = m_name;
-        w->m_initializationOptions = m_initializationOptions;
+        if (!w->m_initOptionsCallback)
+            w->m_initializationOptions = m_initializationOptions;
         w->m_languageFilter = m_languageFilter;
         w->m_startBehavior = m_startBehavior;
         w->applySettings();
@@ -570,7 +605,8 @@ void LuaClientSettings::fromMap(const Utils::Store &map)
     BaseSettings::fromMap(map);
     if (auto w = m_wrapper.lock()) {
         w->m_name = m_name;
-        w->m_initializationOptions = m_initializationOptions;
+        if (!w->m_initOptionsCallback)
+            w->m_initializationOptions = m_initializationOptions;
         w->m_languageFilter = m_languageFilter;
         w->m_startBehavior = m_startBehavior;
         w->fromMap(map);
