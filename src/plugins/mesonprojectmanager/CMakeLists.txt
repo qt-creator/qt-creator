@@ -37,13 +37,10 @@ add_qtc_plugin(MesonProjectManager
   mesonrunconfiguration.h
   mesontools.cpp
   mesontools.h
-  mesonwrapper.cpp
-  mesonwrapper.h
   ninjabuildstep.cpp
   ninjabuildstep.h
   ninjaparser.cpp
   ninjaparser.h
-  ninjawrapper.h
   projecttree.cpp
   projecttree.h
   resources_meson.qrc
@@ -84,9 +81,6 @@ add_qtc_test(tst_mesonwrapper
      TEST_RELATIVE_LIBEXEC_PATH="${TEST_RELATIVE_LIBEXEC_PATH}"
   SOURCES
     tests/testmesonwrapper.cpp
-    mesonwrapper.cpp
-    mesonwrapper.h
-    ninjawrapper.h
     toolwrapper.h
     toolwrapper.cpp
     mesontools.h
@@ -105,9 +99,6 @@ add_qtc_test(tst_mesoninfoparser
      TEST_RELATIVE_LIBEXEC_PATH="${TEST_RELATIVE_LIBEXEC_PATH}"
   SOURCES
     tests/testmesoninfoparser.cpp
-    mesonwrapper.cpp
-    mesonwrapper.h
-    ninjawrapper.h
     toolwrapper.h
     toolwrapper.cpp
     mesontools.h
