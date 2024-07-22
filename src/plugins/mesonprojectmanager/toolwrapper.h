@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "mesonpluginconstants.h"
 #include "versionhelper.h"
 
 #include <utils/commandline.h>
@@ -24,10 +23,9 @@ public:
     Utils::FilePath workDir;
 };
 
-class ToolWrapper
+class ToolWrapper final
 {
 public:
-    virtual ~ToolWrapper() {}
     ToolWrapper() = delete;
     ToolWrapper(ToolType toolType,
                 const QString &name,
@@ -38,10 +36,8 @@ public:
                 const Utils::FilePath &path,
                 const Utils::Id &id,
                 bool autoDetected = false);
-    ToolWrapper(const ToolWrapper &other) = default;
-    ToolWrapper(ToolWrapper &&other) = default;
-    ToolWrapper &operator=(const ToolWrapper &other) = default;
-    ToolWrapper &operator=(ToolWrapper &&other) = default;
+
+    ~ToolWrapper();
 
     const Version &version() const noexcept { return m_version; }
     bool isValid() const noexcept { return m_isValid; }
@@ -50,8 +46,8 @@ public:
     Utils::FilePath exe() const noexcept { return m_exe; }
     QString name() const noexcept { return m_name; }
 
-    inline void setName(const QString &newName) { m_name = newName; }
-    virtual void setExe(const Utils::FilePath &newExe);
+    void setName(const QString &newName) { m_name = newName; }
+    void setExe(const Utils::FilePath &newExe);
 
     static Version read_version(const Utils::FilePath &toolPath);
 
@@ -60,6 +56,16 @@ public:
 
     ToolType toolType() const { return m_toolType; }
     void setToolType(ToolType newToolType) { m_toolType = newToolType; }
+
+    Command setup(const Utils::FilePath &sourceDirectory,
+                       const Utils::FilePath &buildDirectory,
+                       const QStringList &options = {}) const;
+    Command configure(const Utils::FilePath &sourceDirectory,
+                           const Utils::FilePath &buildDirectory,
+                           const QStringList &options = {}) const;
+    Command regenerate(const Utils::FilePath &sourceDirectory,
+                            const Utils::FilePath &buildDirectory) const;
+    Command introspect(const Utils::FilePath &sourceDirectory) const;
 
 protected:
     ToolType m_toolType;
@@ -74,30 +80,6 @@ protected:
 bool run_meson(const Command &command, QIODevice *output = nullptr);
 
 bool isSetup(const Utils::FilePath &buildPath);
-
-class MesonWrapper final : public ToolWrapper
-{
-public:
-    using ToolWrapper::ToolWrapper;
-
-    Command setup(const Utils::FilePath &sourceDirectory,
-                  const Utils::FilePath &buildDirectory,
-                  const QStringList &options = {}) const;
-    Command configure(const Utils::FilePath &sourceDirectory,
-                      const Utils::FilePath &buildDirectory,
-                      const QStringList &options = {}) const;
-
-    Command regenerate(const Utils::FilePath &sourceDirectory,
-                       const Utils::FilePath &buildDirectory) const;
-
-    Command introspect(const Utils::FilePath &sourceDirectory) const;
-};
-
-class NinjaWrapper final : public ToolWrapper
-{
-public:
-    using ToolWrapper::ToolWrapper;
-};
 
 std::optional<Utils::FilePath> findMesonTool();
 std::optional<Utils::FilePath> findNinjaTool();

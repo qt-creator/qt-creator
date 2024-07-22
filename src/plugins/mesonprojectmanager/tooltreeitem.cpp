@@ -108,7 +108,7 @@ void ToolTreeItem::update_tooltip(const Version &version)
 
 void ToolTreeItem::update_tooltip()
 {
-    update_tooltip(MesonWrapper::read_version(m_executable));
+    update_tooltip(ToolWrapper::read_version(m_executable));
 }
 
 } // namespace Internal

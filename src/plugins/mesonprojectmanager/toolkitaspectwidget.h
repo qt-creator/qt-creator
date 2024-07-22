@@ -17,7 +17,7 @@ public:
     static Utils::Id mesonToolId(const ProjectExplorer::Kit *kit);
 
     static bool isValid(const ProjectExplorer::Kit *kit);
-    static std::shared_ptr<MesonWrapper> mesonTool(const ProjectExplorer::Kit *kit);
+    static std::shared_ptr<ToolWrapper> mesonTool(const ProjectExplorer::Kit *kit);
 };
 
 class NinjaToolKitAspect final
@@ -27,7 +27,7 @@ public:
     static Utils::Id ninjaToolId(const ProjectExplorer::Kit *kit);
 
     static bool isValid(const ProjectExplorer::Kit *kit);
-    static std::shared_ptr<NinjaWrapper> ninjaTool(const ProjectExplorer::Kit *kit);
+    static std::shared_ptr<ToolWrapper> ninjaTool(const ProjectExplorer::Kit *kit);
 };
 
 } // MesonProjectManager::Internal

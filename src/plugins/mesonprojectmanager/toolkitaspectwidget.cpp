@@ -142,8 +142,8 @@ void MesonToolKitAspectImpl::setToDefault()
 {
     const MesonTools::Tool_t autoDetected = [this] {
         if (m_type == ToolType::Meson)
-            return std::dynamic_pointer_cast<ToolWrapper>(MesonTools::mesonWrapper());
-        return std::dynamic_pointer_cast<ToolWrapper>(MesonTools::ninjaWrapper());
+            return MesonTools::autoDetectedMeson();
+        return MesonTools::autoDetectedNinja();
     }();
 
     if (autoDetected) {
@@ -172,7 +172,7 @@ Id MesonToolKitAspect::mesonToolId(const Kit *kit)
     return Id::fromSetting(kit->value(MESON_TOOL_ID));
 }
 
-std::shared_ptr<MesonWrapper> MesonToolKitAspect::mesonTool(const Kit *kit)
+std::shared_ptr<ToolWrapper> MesonToolKitAspect::mesonTool(const Kit *kit)
 {
     return MesonTools::mesonWrapper(MesonToolKitAspect::mesonToolId(kit));
 }
@@ -210,7 +210,7 @@ public:
     {
         const auto tool = MesonToolKitAspect::mesonTool(k);
         if (!tool) {
-            const auto autoDetected = MesonTools::mesonWrapper();
+            const auto autoDetected = MesonTools::autoDetectedMeson();
             if (autoDetected)
                 MesonToolKitAspect::setMesonTool(k, autoDetected->id());
         }
@@ -253,7 +253,7 @@ Id NinjaToolKitAspect::ninjaToolId(const Kit *kit)
     return Id::fromSetting(kit->value(NINJA_TOOL_ID));
 }
 
-std::shared_ptr<NinjaWrapper> NinjaToolKitAspect::ninjaTool(const Kit *kit)
+std::shared_ptr<ToolWrapper> NinjaToolKitAspect::ninjaTool(const Kit *kit)
 {
     return MesonTools::ninjaWrapper(NinjaToolKitAspect::ninjaToolId(kit));
 }
@@ -291,7 +291,7 @@ public:
     {
         const auto tool = NinjaToolKitAspect::ninjaTool(k);
         if (!tool) {
-            const auto autoDetected = MesonTools::ninjaWrapper();
+            const auto autoDetected = MesonTools::autoDetectedNinja();
             if (autoDetected)
                 NinjaToolKitAspect::setNinjaTool(k, autoDetected->id());
         }

@@ -3,6 +3,8 @@
 
 #include "toolwrapper.h"
 
+#include "mesonpluginconstants.h"
+
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
@@ -17,8 +19,6 @@ using namespace Utils;
 
 namespace MesonProjectManager {
 namespace Internal {
-
-// ToolWrapper base
 
 ToolWrapper::ToolWrapper(ToolType toolType,
                          const QString &name,
@@ -48,6 +48,8 @@ ToolWrapper::ToolWrapper(ToolType toolType,
 {
     QTC_ASSERT(m_id.isValid(), m_id = Utils::Id::generate());
 }
+
+ToolWrapper::~ToolWrapper() = default;
 
 void ToolWrapper::setExe(const Utils::FilePath &newExe)
 {
@@ -101,8 +103,6 @@ static std::optional<FilePath> findTool(const QStringList &exeNames)
     return std::nullopt;
 }
 
-// MesonWrapper
-
 template<typename First>
 void impl_option_cat(QStringList &list, const First &first)
 {
@@ -124,17 +124,17 @@ QStringList options_cat(const T &...args)
     return result;
 }
 
-Command MesonWrapper::setup(const FilePath &sourceDirectory,
-                            const FilePath &buildDirectory,
-                            const QStringList &options) const
+Command ToolWrapper::setup(const FilePath &sourceDirectory,
+                           const FilePath &buildDirectory,
+                           const QStringList &options) const
 {
     return {{m_exe, options_cat("setup", options, sourceDirectory.path(), buildDirectory.path())},
             sourceDirectory};
 }
 
-Command MesonWrapper::configure(const FilePath &sourceDirectory,
-                                const FilePath &buildDirectory,
-                                const QStringList &options) const
+Command ToolWrapper::configure(const FilePath &sourceDirectory,
+                               const FilePath &buildDirectory,
+                               const QStringList &options) const
 {
     if (!isSetup(buildDirectory))
         return setup(sourceDirectory, buildDirectory, options);
@@ -142,8 +142,8 @@ Command MesonWrapper::configure(const FilePath &sourceDirectory,
             buildDirectory};
 }
 
-Command MesonWrapper::regenerate(const FilePath &sourceDirectory,
-                                 const FilePath &buildDirectory) const
+Command ToolWrapper::regenerate(const FilePath &sourceDirectory,
+                                const FilePath &buildDirectory) const
 {
     return {{m_exe,
             options_cat("--internal",
@@ -155,7 +155,7 @@ Command MesonWrapper::regenerate(const FilePath &sourceDirectory,
             buildDirectory};
 }
 
-Command MesonWrapper::introspect(const Utils::FilePath &sourceDirectory) const
+Command ToolWrapper::introspect(const Utils::FilePath &sourceDirectory) const
 {
     return {{m_exe,
             {"introspect", "--all", QString("%1/meson.build").arg(sourceDirectory.path())}},

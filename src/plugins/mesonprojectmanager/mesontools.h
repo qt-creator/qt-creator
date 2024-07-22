@@ -69,11 +69,11 @@ public:
         emit self->toolRemoved(*item);
     }
 
-    static std::shared_ptr<NinjaWrapper> ninjaWrapper(const Utils::Id &id);
-    static std::shared_ptr<MesonWrapper> mesonWrapper(const Utils::Id &id);
+    static std::shared_ptr<ToolWrapper> ninjaWrapper(const Utils::Id &id);
+    static std::shared_ptr<ToolWrapper> mesonWrapper(const Utils::Id &id);
 
-    static std::shared_ptr<NinjaWrapper> ninjaWrapper();
-    static std::shared_ptr<MesonWrapper> mesonWrapper();
+    static std::shared_ptr<ToolWrapper> autoDetectedNinja();
+    static std::shared_ptr<ToolWrapper> autoDetectedMeson();
 
     Q_SIGNAL void toolAdded(const Tool_t &tool);
     Q_SIGNAL void toolRemoved(const Tool_t &tool);

@@ -36,7 +36,7 @@ static const QList<projectData> projectList{
         _intro_file.open(); \
         const auto tool = findMesonTool(); \
         QVERIFY(tool.has_value()); \
-        const MesonWrapper _meson(ToolType::Meson, "name", *tool); \
+        const ToolWrapper _meson(ToolType::Meson, "name", *tool); \
         run_meson(_meson.introspect(Utils::FilePath::fromString(_source_dir)), &_intro_file); \
         __VA_ARGS__ \
     }
@@ -78,7 +78,7 @@ private slots:
             FilePath buildDir = FilePath::fromString(build_dir.path());
             const auto tool = findMesonTool();
             QVERIFY(tool.has_value());
-            MesonWrapper meson(ToolType::Meson, "name", *tool);
+            ToolWrapper meson(ToolType::Meson, "name", *tool);
             run_meson(meson.setup(FilePath::fromString(src_dir), buildDir));
             QVERIFY(isSetup(buildDir));
 

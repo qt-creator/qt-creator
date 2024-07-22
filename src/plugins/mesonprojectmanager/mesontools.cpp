@@ -10,23 +10,17 @@ using namespace Utils;
 namespace MesonProjectManager {
 namespace Internal {
 
-template<typename T>
-inline bool is(const MesonTools::Tool_t &tool)
+MesonTools::Tool_t tool(const Utils::Id &id,
+                        const std::vector<MesonTools::Tool_t> &tools,
+                        ToolType toolType)
 {
-    return bool(std::dynamic_pointer_cast<T>(tool));
-}
-
-template<typename T>
-std::shared_ptr<T> tool(const Utils::Id &id, const std::vector<MesonTools::Tool_t> &tools)
-{
-    static_assert(std::is_base_of<ToolWrapper, T>::value, "Type must derive from ToolWrapper");
     const auto tool = std::find_if(std::cbegin(tools),
                                    std::cend(tools),
                                    [&id](const MesonTools::Tool_t &tool) {
                                        return tool->id() == id;
                                    });
-    if (tool != std::cend(tools) && is<T>(*tool))
-        return std::dynamic_pointer_cast<T>(*tool);
+    if (tool != std::cend(tools) && (*tool)->toolType() == toolType)
+        return *tool;
     return nullptr;
 }
 
@@ -63,12 +57,12 @@ static void fixAutoDetected(std::vector<MesonTools::Tool_t> &tools, ToolType too
 
 bool MesonTools::isMesonWrapper(const MesonTools::Tool_t &tool)
 {
-    return is<MesonWrapper>(tool);
+    return tool->toolType() == ToolType::Meson;
 }
 
 bool MesonTools::isNinjaWrapper(const MesonTools::Tool_t &tool)
 {
-    return is<NinjaWrapper>(tool);
+    return tool->toolType() == ToolType::Ninja;
 }
 
 void MesonTools::setTools(std::vector<MesonTools::Tool_t> &&tools)
@@ -79,25 +73,24 @@ void MesonTools::setTools(std::vector<MesonTools::Tool_t> &&tools)
     fixAutoDetected(self->m_tools, ToolType::Ninja);
 }
 
-std::shared_ptr<NinjaWrapper> MesonTools::ninjaWrapper(const Utils::Id &id)
+std::shared_ptr<ToolWrapper> MesonTools::ninjaWrapper(const Utils::Id &id)
 {
-    return tool<NinjaWrapper>(id, MesonTools::instance()->m_tools);
-}
-std::shared_ptr<MesonWrapper> MesonTools::mesonWrapper(const Utils::Id &id)
-{
-    return tool<MesonWrapper>(id, MesonTools::instance()->m_tools);
+    return tool(id, MesonTools::instance()->m_tools, ToolType::Ninja);
 }
 
-std::shared_ptr<NinjaWrapper> MesonTools::ninjaWrapper()
+std::shared_ptr<ToolWrapper> MesonTools::mesonWrapper(const Utils::Id &id)
 {
-    return std::dynamic_pointer_cast<NinjaWrapper>(
-                autoDetected(MesonTools::instance()->m_tools, ToolType::Ninja));
+    return tool(id, MesonTools::instance()->m_tools, ToolType::Meson);
 }
 
-std::shared_ptr<MesonWrapper> MesonTools::mesonWrapper()
+std::shared_ptr<ToolWrapper> MesonTools::autoDetectedNinja()
 {
-    return std::dynamic_pointer_cast<MesonWrapper>(
-                autoDetected(MesonTools::instance()->m_tools, ToolType::Meson));
+    return autoDetected(MesonTools::instance()->m_tools, ToolType::Ninja);
+}
+
+std::shared_ptr<ToolWrapper> MesonTools::autoDetectedMeson()
+{
+    return autoDetected(MesonTools::instance()->m_tools, ToolType::Meson);
 }
 
 } // namespace Internal

@@ -14,13 +14,9 @@
 #include <QTemporaryDir>
 #include <QtTest/QtTest>
 
-#include <iostream>
-
 using namespace MesonProjectManager::Internal;
 
-namespace {
-static const QList<QPair<const char *, QString>> projectList{{"Simple C Project", "simplecproject"}};
-} // namespace
+static const QPair<const char *, QString> projectList[] = {{"Simple C Project", "simplecproject"}};
 
 class AMesonWrapper : public QObject
 {
@@ -69,7 +65,7 @@ private slots:
     {
         QFETCH(QString, src_dir);
         QTemporaryDir build_dir{"test-meson"};
-        const MesonWrapper meson(ToolType::Meson, "name", *findMesonTool());
+        const ToolWrapper meson(ToolType::Meson, "name", *findMesonTool());
         QVERIFY(run_meson(meson.setup(Utils::FilePath::fromString(src_dir),
                                       Utils::FilePath::fromString(build_dir.path()))));
         QVERIFY(
@@ -90,7 +86,7 @@ private slots:
     {
         QFETCH(QString, src_dir);
         QTemporaryDir build_dir{"test-meson"};
-        const MesonWrapper meson(ToolType::Meson, "name", *findMesonTool());
+        const ToolWrapper meson(ToolType::Meson, "name", *findMesonTool());
         QVERIFY(run_meson(meson.setup(Utils::FilePath::fromString(src_dir),
                                       Utils::FilePath::fromString(build_dir.path()))));
         QVERIFY(run_meson(meson.configure(Utils::FilePath::fromString(src_dir),
@@ -101,8 +97,6 @@ private slots:
     {
         Utils::Singleton::deleteAll();
     }
-
-private:
 };
 
 QTEST_GUILESS_MAIN(AMesonWrapper)
