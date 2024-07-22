@@ -121,11 +121,10 @@ static bool isTextKeySequence(const QKeySequence &sequence)
 {
     if (sequence.isEmpty())
         return false;
-    int key = sequence[0];
-    key &= ~(Qt::ShiftModifier | Qt::KeypadModifier);
-    if (key < Qt::Key_Escape)
-        return true;
-    return false;
+    const QKeyCombination keyCombination = sequence[0];
+    if (keyCombination.keyboardModifiers() & ~(Qt::ShiftModifier | Qt::KeypadModifier))
+        return false;
+    return keyCombination.key() < Qt::Key_Escape;
 }
 
 static FilePath schemesPath()
