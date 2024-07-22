@@ -55010,7 +55010,7 @@ Drücken Sie zusätzlich die Umschalttaste, wird ein Escape-Zeichen an der aktue
     </message>
     <message>
         <source>Documentation Comments</source>
-        <translation>Kommentare für Dokumentation</translation>
+        <translation>Dokumentationskommentare</translation>
     </message>
     <message>
         <source>Automatically creates a Doxygen comment upon pressing enter after a &apos;/**&apos;, &apos;/*!&apos;, &apos;//!&apos; or &apos;///&apos;.</source>
