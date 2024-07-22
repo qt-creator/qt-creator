@@ -3456,7 +3456,7 @@ The foreground component should be transparent, and the background component sho
     <name>FontSection</name>
     <message>
         <source>Font</source>
-        <translation>Zeichensatz</translation>
+        <translation>Schrift</translation>
     </message>
     <message>
         <source>Sets the font of the text.</source>
@@ -9554,7 +9554,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Font Files</source>
-        <translation>Schriftart-Dateien</translation>
+        <translation>Schriftdateien</translation>
     </message>
     <message>
         <source>Sound Files</source>
@@ -34044,11 +34044,11 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>Font</source>
-        <translation>Zeichensatz</translation>
+        <translation>Schrift</translation>
     </message>
     <message>
         <source>Family:</source>
-        <translation>Name:</translation>
+        <translation>Familie:</translation>
     </message>
     <message>
         <source>Style:</source>
@@ -52820,11 +52820,11 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Family:</source>
-        <translation>Name:</translation>
+        <translation>Familie:</translation>
     </message>
     <message>
         <source>The font family used in the terminal.</source>
-        <translation>Der Name der Zeichensatz-Familie, die im Terminal verwendet wird.</translation>
+        <translation>Die Schriftfamilie, die im Terminal verwendet wird.</translation>
     </message>
     <message>
         <source>Size:</source>
@@ -52832,7 +52832,7 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>The font size used in the terminal (in points).</source>
-        <translation>Die Größe des Zeichensatzes, der im Terminal verwendet wird (in Punkten).</translation>
+        <translation>Die Größe der Schrift, die im Terminal verwendet wird (in Punkten).</translation>
     </message>
     <message>
         <source>Allow blinking cursor</source>
@@ -52912,7 +52912,7 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Font</source>
-        <translation>Zeichensatz</translation>
+        <translation>Schrift</translation>
     </message>
     <message>
         <source>Colors</source>
@@ -53221,7 +53221,7 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Font</source>
-        <translation>Zeichensatz</translation>
+        <translation>Schrift</translation>
     </message>
     <message>
         <source>Underline</source>
@@ -53255,7 +53255,7 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Family:</source>
-        <translation>Name:</translation>
+        <translation>Familie:</translation>
     </message>
     <message>
         <source>Size:</source>
@@ -53353,7 +53353,7 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
     </message>
     <message>
         <source>Font &amp;&amp; Colors</source>
-        <translation>Zeichensatz &amp;&amp; Farben</translation>
+        <translation>Schrift &amp;&amp; Farben</translation>
     </message>
     <message>
         <source>Jumps to the given line in the current document.</source>
@@ -53972,7 +53972,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>&lt;i&gt;Set &lt;a href=&quot;font zoom&quot;&gt;font line spacing&lt;/a&gt; to 100% to enable text wrapping option.&lt;/i&gt;</source>
-        <translation>&lt;i&gt;Setzen Sie den &lt;a href=&quot;font zoom&quot;&gt;Zeilenabstand&lt;/a&gt; des Zeichensatzes auf 100%, um die Einstellung für Textumbruch zu aktivieren.&lt;/i&gt;</translation>
+        <translation>&lt;i&gt;Setzen Sie den &lt;a href=&quot;font zoom&quot;&gt;Zeilenabstand&lt;/a&gt; der Schrift auf 100%, um die Einstellung für Textumbruch zu aktivieren.&lt;/i&gt;</translation>
     </message>
     <message>
         <source>Tint whole margin area</source>
