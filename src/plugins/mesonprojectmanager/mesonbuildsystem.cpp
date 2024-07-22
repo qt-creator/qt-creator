@@ -6,8 +6,8 @@
 #include "kitdata.h"
 #include "mesonbuildconfiguration.h"
 #include "mesonprojectmanagertr.h"
-#include "mesontoolkitaspect.h"
 #include "settings.h"
+#include "toolkitaspectwidget.h"
 
 #include <coreplugin/icore.h>
 
@@ -23,8 +23,6 @@
 
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
-
-#include <optional>
 
 #include <QLoggingCategory>
 

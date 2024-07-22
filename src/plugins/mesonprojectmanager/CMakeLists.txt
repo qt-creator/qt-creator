@@ -35,8 +35,6 @@ add_qtc_plugin(MesonProjectManager
   mesonprojectplugin.cpp
   mesonrunconfiguration.cpp
   mesonrunconfiguration.h
-  mesontoolkitaspect.cpp
-  mesontoolkitaspect.h
   mesontools.cpp
   mesontools.h
   mesonwrapper.cpp
@@ -45,8 +43,6 @@ add_qtc_plugin(MesonProjectManager
   ninjabuildstep.h
   ninjaparser.cpp
   ninjaparser.h
-  ninjatoolkitaspect.cpp
-  ninjatoolkitaspect.h
   ninjawrapper.h
   projecttree.cpp
   projecttree.h

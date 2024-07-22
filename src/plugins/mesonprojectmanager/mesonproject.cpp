@@ -5,8 +5,7 @@
 
 #include "mesonpluginconstants.h"
 #include "mesonprojectmanagertr.h"
-#include "mesontoolkitaspect.h"
-#include "ninjatoolkitaspect.h"
+#include "toolkitaspectwidget.h"
 
 #include <coreplugin/icontext.h>
 
