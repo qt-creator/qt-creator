@@ -44,9 +44,10 @@ public:
 
     std::optional<LanguageServerProtocol::ResponseHandler> responseHandler() const override
     {
-        if (!m_id.isValid())
+        if (!m_id.isValid()) {
             qWarning() << "Invalid 'id' in request:" << toJsonObject();
-        return std::nullopt;
+            return std::nullopt;
+        }
 
         return LanguageServerProtocol::ResponseHandler{
             m_id, [callback = m_callback](const JsonRpcMessage &msg) {
