@@ -6,6 +6,9 @@
 #include <coreplugin/icontext.h>
 
 namespace QmlDesigner {
+
+class TextEditorWidget;
+
 namespace Internal {
 
 /**
@@ -70,8 +73,11 @@ class TextEditorContext : public Core::IContext
     Q_OBJECT
 
 public:
-    TextEditorContext(QWidget *widget);
+    TextEditorContext(TextEditorWidget *parent);
     void contextHelp(const Core::IContext::HelpCallback &callback) const override;
+
+private:
+    TextEditorWidget *m_parent = nullptr;
 };
 } // namespace Internal
 } // namespace QmlDesigner
