@@ -7811,7 +7811,7 @@ Please check the output pane for more information.</source>
     </message>
     <message>
         <source>Also warns in the code editor about QML features that are not properly supported by the Qt Quick Designer.</source>
-        <translation>Zeigt auch im Code-Editor eine Warnung bei QML-Features an, die vom Qt Quick Designer nicht vollständig unterstützt werden.</translation>
+        <translation>Zeigt auch im Code-Editor eine Warnung bei QML-Funktionen an, die vom Qt Quick Designer nicht vollständig unterstützt werden.</translation>
     </message>
     <message>
         <source>Internationalization</source>
@@ -10927,7 +10927,7 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>The device has to be connected with ADB debugging enabled to use this feature.</source>
-        <translation>Das Gerät muss mit aktiviertem ADB-Debuggen angeschlossen sein, um diese Funktionalität nutzen zu können.</translation>
+        <translation>Das Gerät muss mit aktiviertem ADB-Debuggen angeschlossen sein, um diese Funktion nutzen zu können.</translation>
     </message>
     <message>
         <source>Opening connection port %1 failed.</source>
@@ -11088,7 +11088,7 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>Include default features for Qt modules.</source>
-        <translation>Standard-Features für Qt-Module einschließen.</translation>
+        <translation>Standardfunktionen für Qt-Module einschließen.</translation>
     </message>
     <message>
         <source>Add</source>
@@ -25744,7 +25744,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enables stepping backwards.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; This feature is very slow and unstable on the GDB side. It exhibits unpredictable behavior when going backwards over system calls and is very likely to destroy your debugging session.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rückwärts-Debuggen aktivieren.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Hinweis:&lt;/b&gt; Diese Funktionalität ist sehr langsam und instabil innerhalb von GDB. Es kann unvorhergesehenes Verhalten auftreten, wenn man rückwärts über einen Systemaufruf springt, und die Debugger-Sitzung kann leicht zerstört werden.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rückwärts-Debuggen aktivieren.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Hinweis:&lt;/b&gt; Diese Funktion ist sehr langsam und instabil innerhalb von GDB. Es kann unvorhergesehenes Verhalten auftreten, wenn man rückwärts über einen Systemaufruf springt, und die Debugger-Sitzung kann leicht zerstört werden.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Debug all child processes</source>
@@ -28125,7 +28125,7 @@ Bitte wählen Sie einen 64-bit-Debugger in den Kit-Einstellungen für dieses Kit
     </message>
     <message>
         <source>This feature is very slow and unstable on the GDB side. It exhibits unpredictable behavior when going backwards over system calls and is very likely to destroy your debugging session.</source>
-        <translation>Diese Funktionalität ist sehr langsam und instabil innerhalb von GDB. Es kann unvorhergesehenes Verhalten auftreten, wenn man rückwärts über einen Systemaufruf springt, und die Debugger-Sitzung kann leicht unbenutzbar werden.</translation>
+        <translation>Diese Funktion ist sehr langsam und instabil innerhalb von GDB. Es kann unvorhergesehenes Verhalten auftreten, wenn man rückwärts über einen Systemaufruf springt, und die Debugger-Sitzung kann leicht unbenutzbar werden.</translation>
     </message>
     <message>
         <source>Reverse Direction</source>
@@ -30618,7 +30618,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Does not interpret key sequences like Ctrl-S in FakeVim but handles them as regular shortcuts. This gives easier access to core functionality at the price of losing some features of FakeVim.</source>
-        <translation>Tastensequenzen wie Strg-S nicht in FakeVim verarbeiten, sondern sie als gewöhnliche Tastenkombinationen behandeln. Dies erleichtert den Zugriff auf die Kernfunktionalität auf Kosten eingeschränkter Funktionalität von FakeVim.</translation>
+        <translation>Tastensequenzen wie Strg-S nicht in FakeVim verarbeiten, sondern sie als gewöhnliche Tastenkombinationen behandeln. Dies erleichtert den Zugriff auf die Kernfunktionalität auf Kosten eingeschränkter Funktion von FakeVim.</translation>
     </message>
     <message>
         <source>Does not interpret some key presses in insert mode so that code can be properly completed and expanded.</source>
@@ -43192,7 +43192,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>At least one required feature is not present.</source>
-        <translation>Mindestens ein benötigtes Feature ist nicht vorhanden.</translation>
+        <translation>Mindestens eine benötigte Funktion ist nicht vorhanden.</translation>
     </message>
     <message>
         <source>Platform is not supported.</source>
@@ -43200,7 +43200,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>At least one preferred feature is not present.</source>
-        <translation>Mindestens ein bevorzugtes Feature ist nicht vorhanden.</translation>
+        <translation>Mindestens eine bevorzugte Funktion ist nicht vorhanden.</translation>
     </message>
     <message>
         <source>Feature list is set and not of type list.</source>
