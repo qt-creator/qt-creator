@@ -279,6 +279,8 @@ public:
             }
         });
 
+        connect(ExtensionSystem::PluginManager::instance(),
+                &ExtensionSystem::PluginManager::pluginsChanged, this, &PluginStatusWidget::update);
         connect(m_restartButton, &QAbstractButton::clicked,
                 ICore::instance(), &ICore::restart, Qt::QueuedConnection);
 
