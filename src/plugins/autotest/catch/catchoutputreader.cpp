@@ -67,6 +67,12 @@ void CatchOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
                 recordTestInformation(m_xmlReader.attributes());
                 sendResult(ResultType::TestStart);
             } else if (m_currentTagName == CatchXml::TestCaseResultElement) {
+                const QXmlStreamAttributes attributes = m_xmlReader.attributes();
+                if (attributes.hasAttribute("durationInSeconds")) {
+                    double durationInSec = attributes.value("durationInSeconds").toDouble();
+                    m_duration = durationInSec * 1000.;
+                    m_overallDuration += m_duration;
+                }
                 if (m_currentTestNode == OverallNode || m_currentTestNode == GroupNode)
                     continue;
                 if (m_reportedResult)
@@ -88,6 +94,7 @@ void CatchOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
                     if (m_xpassCount)
                         m_summary[ResultType::UnexpectedPass] = m_xpassCount;
                 }
+                m_executionDuration = qRound(m_overallDuration);
                 if (m_currentTestNode == OverallNode || m_currentTestNode == GroupNode)
                     continue;
                 if (attributes.value("failures").toInt() == 0)
@@ -142,9 +149,11 @@ void CatchOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
 
             if (currentTag == QLatin1String(CatchXml::SectionElement)) {
                 sendResult(ResultType::TestEnd);
+                m_duration = 0;
                 testOutputNodeFinished(SectionNode);
             } else if (currentTag == QLatin1String(CatchXml::TestCaseElement)) {
                 sendResult(ResultType::TestEnd);
+                m_duration = 0;
                 testOutputNodeFinished(TestCaseNode);
             } else if (currentTag == QLatin1String(CatchXml::GroupElement)) {
                 testOutputNodeFinished(GroupNode);
@@ -262,6 +271,7 @@ void CatchOutputReader::sendResult(const ResultType result)
             m_reportedSectionResult = true;
         m_reportedResult = true;
     } else if (result == ResultType::TestEnd) {
+        catchResult.setDuration(QString::number(m_duration, 'f', 3));
         catchResult.setDescription(Tr::tr("Finished executing %1 \"%2\".")
                    .arg(testOutputNodeToString().toLower(), catchResult.description()));
     } else if (result == ResultType::Benchmark || result == ResultType::MessageFatal) {
