@@ -21,7 +21,6 @@ public:
     Utils::FilePathAspect emSdk{this};
 
 private:
-    QWidget *m_emSdkEnvGroupBox = nullptr;
     Utils::InfoLabel *m_emSdkVersionDisplay = nullptr;
     QTextBrowser *m_emSdkEnvDisplay = nullptr;
     Utils::InfoLabel *m_qtVersionDisplay = nullptr;

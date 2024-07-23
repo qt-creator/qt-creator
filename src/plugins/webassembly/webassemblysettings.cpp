@@ -103,7 +103,6 @@ WebAssemblySettings::WebAssemblySettings()
             },
             Group {
                 title(Tr::tr("Emscripten SDK environment:")),
-                bindTo(&m_emSdkEnvGroupBox),
                 Column {
                     m_emSdkEnvDisplay,
                 },
@@ -115,9 +114,7 @@ WebAssemblySettings::WebAssemblySettings()
         connect(emSdk.pathChooser(), &Utils::PathChooser::textChanged,
                 this, &WebAssemblySettings::updateStatus);
 
-        // updateStatus() uses m_emSdkEnvGroupBox which only exists
-        // after this here emerges. So delay the update a bit.
-        QTimer::singleShot(0, this, &WebAssemblySettings::updateStatus);
+        updateStatus();
 
         return col;
     });
@@ -132,10 +129,8 @@ void WebAssemblySettings::updateStatus()
     const Utils::FilePath newEmSdk = emSdk.pathChooser()->filePath();
     const bool sdkValid = newEmSdk.exists() && WebAssemblyEmSdk::isValid(newEmSdk);
 
-    QTC_ASSERT(m_emSdkVersionDisplay, return);
-    QTC_ASSERT(m_emSdkEnvGroupBox, return);
     m_emSdkVersionDisplay->setVisible(sdkValid);
-    m_emSdkEnvGroupBox->setEnabled(sdkValid);
+    m_emSdkEnvDisplay->setEnabled(sdkValid);
 
     if (sdkValid) {
         const QVersionNumber sdkVersion = WebAssemblyEmSdk::version(newEmSdk);
