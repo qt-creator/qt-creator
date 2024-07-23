@@ -51,7 +51,6 @@ const char buildVersionTag[] = "buildversion";
 static expected_str<void> runCommand(
     const CommandLine &command,
     QString *stdOutput,
-    QString *allOutput = nullptr,
     std::function<bool()> shouldStop = [] { return false; })
 {
     Process p;
@@ -76,11 +75,15 @@ static expected_str<void> runCommand(
 
     if (stdOutput)
         *stdOutput = p.cleanedStdOut();
-    if (allOutput)
-        *allOutput = p.allOutput();
 
-    if (p.result() != ProcessResult::FinishedWithSuccess)
-        return make_unexpected(p.errorString());
+    if (p.result() != ProcessResult::FinishedWithSuccess) {
+        QStringList error;
+        if (const QString procError = p.errorString(); !procError.isEmpty())
+            error << procError;
+        if (const QString stdError = p.cleanedStdErr(); !stdError.isEmpty())
+            error << stdError;
+        return make_unexpected(error.join('\n'));
+    }
 
     return {};
 }
@@ -88,7 +91,6 @@ static expected_str<void> runCommand(
 static expected_str<void> runSimCtlCommand(
     const QStringList &args,
     QString *output,
-    QString *allOutput = nullptr,
     std::function<bool()> shouldStop = [] { return false; })
 {
     // Cache xcrun's path, as this function will be called often.
@@ -97,7 +99,7 @@ static expected_str<void> runSimCtlCommand(
         return make_unexpected(Tr::tr("Cannot find xcrun."));
     else if (!xcrun.isExecutableFile())
         return make_unexpected(Tr::tr("xcrun is not executable."));
-    return runCommand({xcrun, {"simctl", args}}, output, allOutput, shouldStop);
+    return runCommand({xcrun, {"simctl", args}}, output, shouldStop);
 }
 
 static expected_str<void> launchSimulator(const QString &simUdid, std::function<bool()> shouldStop)
@@ -109,14 +111,13 @@ static expected_str<void> launchSimulator(const QString &simUdid, std::function<
     if (IosConfigurations::xcodeVersion() >= QVersionNumber(9)) {
         // For XCode 9 boot the second device instead of launching simulator app twice.
         QString psOutput;
-        expected_str<void> result
-            = runCommand({"ps", {"-A", "-o", "comm"}}, &psOutput, nullptr, shouldStop);
+        expected_str<void> result = runCommand({"ps", {"-A", "-o", "comm"}}, &psOutput, shouldStop);
         if (!result)
             return result;
 
         for (const QString &comm : psOutput.split('\n')) {
             if (comm == simulatorAppPath.toString())
-                return runSimCtlCommand({"boot", simUdid}, nullptr, nullptr, shouldStop);
+                return runSimCtlCommand({"boot", simUdid}, nullptr, shouldStop);
         }
     }
     const bool started = Process::startDetached(
@@ -480,15 +481,12 @@ void installApp(QPromise<SimulatorControl::Response> &promise,
         return;
     }
 
-    QString allOutput;
-    expected_str<void> result = runSimCtlCommand(
-        {"install", simUdid, bundlePath.toString()}, nullptr, &allOutput, [&promise] {
-            return promise.isCanceled();
-        });
+    expected_str<void> result
+        = runSimCtlCommand({"install", simUdid, bundlePath.toString()}, nullptr, [&promise] {
+              return promise.isCanceled();
+          });
     if (!result) {
-        const QString error = result.error().isEmpty() ? allOutput
-                                                       : (result.error() + "\n" + allOutput);
-        promise.addResult(make_unexpected(error));
+        promise.addResult(make_unexpected(result.error()));
     } else {
         promise.addResult(response);
     }
@@ -527,7 +525,7 @@ void launchApp(QPromise<SimulatorControl::Response> &promise,
     }
 
     QString stdOutput;
-    expected_str<void> result = runSimCtlCommand(args, &stdOutput, nullptr, [&promise] {
+    expected_str<void> result = runSimCtlCommand(args, &stdOutput, [&promise] {
         return promise.isCanceled();
     });
 
@@ -552,7 +550,7 @@ void launchApp(QPromise<SimulatorControl::Response> &promise,
 void deleteSimulator(QPromise<SimulatorControl::Response> &promise, const QString &simUdid)
 {
     SimulatorControl::ResponseData response(simUdid);
-    expected_str<void> result = runSimCtlCommand({"delete", simUdid}, nullptr, nullptr, [&promise] {
+    expected_str<void> result = runSimCtlCommand({"delete", simUdid}, nullptr, [&promise] {
         return promise.isCanceled();
     });
 
@@ -565,7 +563,7 @@ void deleteSimulator(QPromise<SimulatorControl::Response> &promise, const QStrin
 void resetSimulator(QPromise<SimulatorControl::Response> &promise, const QString &simUdid)
 {
     SimulatorControl::ResponseData response(simUdid);
-    expected_str<void> result = runSimCtlCommand({"erase", simUdid}, nullptr, nullptr, [&promise] {
+    expected_str<void> result = runSimCtlCommand({"erase", simUdid}, nullptr, [&promise] {
         return promise.isCanceled();
     });
 
@@ -580,10 +578,9 @@ void renameSimulator(QPromise<SimulatorControl::Response> &promise,
                      const QString &newName)
 {
     SimulatorControl::ResponseData response(simUdid);
-    expected_str<void> result
-        = runSimCtlCommand({"rename", simUdid, newName}, nullptr, nullptr, [&promise] {
-              return promise.isCanceled();
-          });
+    expected_str<void> result = runSimCtlCommand({"rename", simUdid, newName}, nullptr, [&promise] {
+        return promise.isCanceled();
+    });
     if (!result)
         promise.addResult(make_unexpected(result.error()));
     else
@@ -604,10 +601,9 @@ void createSimulator(QPromise<SimulatorControl::Response> &promise,
 
     QString stdOutput;
     expected_str<void> result = runSimCtlCommand(
-        {"create", name, deviceType.identifier, runtime.identifier},
-        &stdOutput,
-        nullptr,
-        [&promise] { return promise.isCanceled(); });
+        {"create", name, deviceType.identifier, runtime.identifier}, &stdOutput, [&promise] {
+            return promise.isCanceled();
+        });
 
     if (result)
         response.simUdid = stdOutput.trimmed();
@@ -624,7 +620,7 @@ void takeSceenshot(QPromise<SimulatorControl::Response> &promise,
 {
     SimulatorControl::ResponseData response(simUdid);
     expected_str<void> result
-        = runSimCtlCommand({"io", simUdid, "screenshot", filePath}, nullptr, nullptr, [&promise] {
+        = runSimCtlCommand({"io", simUdid, "screenshot", filePath}, nullptr, [&promise] {
               return promise.isCanceled();
           });
 
