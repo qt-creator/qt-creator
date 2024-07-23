@@ -85,7 +85,7 @@ static QString translatedOrUntranslatedText(QVariantMap &map, const QString &key
 {
     if (key.size() >= 1) {
         const QString trKey = "tr" + key.at(0).toUpper() + key.mid(1); // "text" -> "trText"
-        const QString trValue = JsonWizardFactory::localizedString(consumeValue(map, trKey).toString());
+        const QString trValue = JsonWizardFactory::localizedString(consumeValue(map, trKey));
         if (!trValue.isEmpty())
             return trValue;
     }
@@ -188,9 +188,10 @@ JsonFieldPage::Field *JsonFieldPage::Field::parse(const QVariant &input, QString
         *errorMessage = Tr::tr("Field \"%1\" has unsupported type \"%2\".").arg(name).arg(type);
         return nullptr;
     }
-    data->setTexts(name,
-                   JsonWizardFactory::localizedString(consumeValue(tmp, DISPLAY_NAME_KEY).toString()),
-                   JsonWizardFactory::localizedString(consumeValue(tmp, TOOLTIP_KEY).toString()));
+    data->setTexts(
+        name,
+        JsonWizardFactory::localizedString(consumeValue(tmp, DISPLAY_NAME_KEY)),
+        JsonWizardFactory::localizedString(consumeValue(tmp, TOOLTIP_KEY)));
 
     data->setVisibleExpression(consumeValue(tmp, VISIBLE_KEY, true));
     data->setEnabledExpression(consumeValue(tmp, ENABLED_KEY, true));
@@ -837,6 +838,7 @@ void PathChooserField::setup(JsonFieldPage *page, const QString &name)
     QTC_ASSERT(w, return);
     page->registerFieldWithName(name, w, "path", SIGNAL(textChanged(QString)));
     QObject::connect(w, &PathChooser::textChanged, page, &WizardPage::completeChanged);
+    QObject::connect(w, &PathChooser::validChanged, page, &WizardPage::completeChanged);
 }
 
 bool PathChooserField::validate(MacroExpander *expander, QString *message)
@@ -973,7 +975,7 @@ std::unique_ptr<QStandardItem> createStandardItemFromListItem(const QVariant &it
     auto standardItem = std::make_unique<QStandardItem>();
     if (item.typeId() == QMetaType::QVariantMap) {
         QVariantMap tmp = item.toMap();
-        const QString key = JsonWizardFactory::localizedString(consumeValue(tmp, "trKey", QString()).toString());
+        const QString key = JsonWizardFactory::localizedString(consumeValue(tmp, "trKey"));
         const QVariant value = consumeValue(tmp, "value", key);
 
         if (key.isNull() || key.isEmpty()) {
@@ -984,7 +986,7 @@ std::unique_ptr<QStandardItem> createStandardItemFromListItem(const QVariant &it
         standardItem->setData(value, ListField::ValueRole);
         standardItem->setData(consumeValue(tmp, "condition", true), ListField::ConditionRole);
         standardItem->setData(consumeValue(tmp, "icon"), ListField::IconStringRole);
-        standardItem->setToolTip(JsonWizardFactory::localizedString(consumeValue(tmp, "trToolTip", QString()).toString()));
+        standardItem->setToolTip(JsonWizardFactory::localizedString(consumeValue(tmp, "trToolTip")));
         warnAboutUnsupportedKeys(tmp, QString(), "List");
     } else {
         const QString keyvalue = item.toString();

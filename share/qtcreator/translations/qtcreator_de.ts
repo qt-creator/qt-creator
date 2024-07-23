@@ -7811,7 +7811,7 @@ Please check the output pane for more information.</source>
     </message>
     <message>
         <source>Also warns in the code editor about QML features that are not properly supported by the Qt Quick Designer.</source>
-        <translation>Zeigt auch im Code-Editor eine Warnung bei QML-Features an, die vom Qt Quick Designer nicht vollständig unterstützt werden.</translation>
+        <translation>Zeigt auch im Code-Editor eine Warnung bei QML-Funktionen an, die vom Qt Quick Designer nicht vollständig unterstützt werden.</translation>
     </message>
     <message>
         <source>Internationalization</source>
@@ -10765,7 +10765,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Verifying package integrity...</source>
-        <translation type="unfinished"></translation>
+        <translation>Prüfe die Integrität des Pakets...</translation>
     </message>
     <message>
         <source>Unarchiving error.</source>
@@ -10927,7 +10927,7 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>The device has to be connected with ADB debugging enabled to use this feature.</source>
-        <translation>Das Gerät muss mit aktiviertem ADB-Debuggen angeschlossen sein, um diese Funktionalität nutzen zu können.</translation>
+        <translation>Das Gerät muss mit aktiviertem ADB-Debuggen angeschlossen sein, um diese Funktion nutzen zu können.</translation>
     </message>
     <message>
         <source>Opening connection port %1 failed.</source>
@@ -10963,7 +10963,7 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>Android support is not yet configured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Android-Unterstützung ist noch nicht konfiguriert.</translation>
     </message>
     <message>
         <source>The device info returned from AvdDialog is invalid.</source>
@@ -11088,7 +11088,7 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>Include default features for Qt modules.</source>
-        <translation>Standard-Features für Qt-Module einschließen.</translation>
+        <translation>Standardfunktionen für Qt-Module einschließen.</translation>
     </message>
     <message>
         <source>Add</source>
@@ -11169,11 +11169,11 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>Cannot find the package name from AndroidManifest.xml nor build.gradle files at &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte den Paketnamen nicht aus den Informationen in der AndroidManifest.xml-Datei oder der build.gradle-Datei in &quot;%1&quot; bestimmen.</translation>
     </message>
     <message>
         <source>Deployment failed with the following errors:</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Deployment ist mit den folgenden Fehlern fehlgeschlagen:</translation>
     </message>
     <message>
         <source>Install an APK File</source>
@@ -11397,7 +11397,7 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     </message>
     <message>
         <source>Cannot open &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; kann nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Cannot parse &quot;%1&quot;.</source>
@@ -11599,39 +11599,39 @@ Installieren Sie diese manuell, nachdem der aktuelle Vorgang abgeschlossen ist.
     </message>
     <message>
         <source>Finished successfully.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erfolgreich abgeschlossen.</translation>
     </message>
     <message>
         <source>Installing / Uninstalling selected packages...</source>
-        <translation type="unfinished"></translation>
+        <translation>Installiere / Deinstalliere ausgewählte Pakete...</translation>
     </message>
     <message>
         <source>Closing the preferences dialog will cancel the running and scheduled SDK operations.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn Sie den Einstellungsdialog schließen, werden die laufenden und geplanten SDK-Operationen abgebrochen.</translation>
     </message>
     <message>
         <source>Closing the options dialog will cancel the running and scheduled SDK operations.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn Sie den Einstellungsdialog schließen, werden die laufenden und geplanten SDK-Operationen abgebrochen.</translation>
     </message>
     <message>
         <source>Uninstalling %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Deinstalliere %1...</translation>
     </message>
     <message>
         <source>Installing %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>Installiere %1...</translation>
     </message>
     <message>
         <source>Updating installed packages...</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktualisiere installierte Pakete...</translation>
     </message>
     <message>
         <source>[Packages to be uninstalled:]</source>
-        <translation type="unfinished"></translation>
+        <translation>[Pakete, die deinstalliert werden sollen:]</translation>
     </message>
     <message>
         <source>[Packages to be installed:]</source>
-        <translation type="unfinished"></translation>
+        <translation>[Pakete, die installiert werden sollen:]</translation>
     </message>
     <message>
         <source>Android SDK Changes</source>
@@ -11720,7 +11720,7 @@ Installieren Sie diese manuell, nachdem der aktuelle Vorgang abgeschlossen ist.
     </message>
     <message>
         <source>Failed to start AVD emulator for &quot;%1&quot; device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Starten des AVD-Emulators für das Gerät &quot;%1&quot; ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Clean Environment</source>
@@ -12340,11 +12340,11 @@ und das Überschreiben Ihrer Einstellungen erfordert. Das Überschreiben erlaube
     </message>
     <message>
         <source>Use a timeout while executing test cases.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeitlimit für das Ausführen von Testfällen verwenden.</translation>
     </message>
     <message>
         <source>Timeout used when executing test cases. This will apply for each test case on its own, not the whole project. Overrides test framework or build system defaults.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeitlimit, das für das Ausführen von Testfällen benutzt wird. Dieses wird für jeden Testfall einzeln angewendet, nicht für das gesamte Projekt. Überschreibt die Vorgaben des Test-Frameworks und des Build-Systems.</translation>
     </message>
     <message>
         <source>Omit run configuration warnings</source>
@@ -12494,23 +12494,23 @@ Warnung: Dies ist eine experimentelle Funktion und könnte dazu führen, dass di
     </message>
     <message>
         <source>Apply path filters before scanning for tests.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfade vor dem Suchen nach Tests filtern.</translation>
     </message>
     <message>
         <source>Wildcard expressions for filtering:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausdrücke mit Platzhaltern, die zum Filtern benutzt werden:</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished">Hinzufügen</translation>
+        <translation>Hinzufügen</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Limit Files to Path Patterns</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateien auf Suchmuster beschränken</translation>
     </message>
     <message>
         <source>Scanning for Tests</source>
@@ -13028,7 +13028,7 @@ Dies könnte Probleme während der Ausführung verursachen.
     </message>
     <message>
         <source>Repeat Tests</source>
-        <translation type="unfinished"></translation>
+        <translation>Tests wiederholen</translation>
     </message>
     <message>
         <source>Output on failure</source>
@@ -13728,7 +13728,7 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>No Data</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Daten</translation>
     </message>
     <message>
         <source>Axivion</source>
@@ -13744,15 +13744,15 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Open Issue in Dashboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Problem im Dashboard anzeigen</translation>
     </message>
     <message>
         <source>Open Table in Dashboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Tabelle im Dashboard anzeigen</translation>
     </message>
     <message>
         <source>Copy Dashboard Link to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Dashboard-Link in die Zwischenablage kopieren</translation>
     </message>
     <message>
         <source>Show rule details</source>
@@ -13792,7 +13792,7 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>Unauthenticated access failed (wrong user), using authenticated access...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zugriff ohne Authentifizierung ist fehlgeschlagen (falscher Benutzer), verwende authentifizierten Zugriff...</translation>
     </message>
     <message>
         <source>Enter the password for:
@@ -13830,7 +13830,7 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Search for issues inside the Axivion dashboard or request issue details for Axivion inline annotations to see them here.</source>
-        <translation type="unfinished"></translation>
+        <translation>Suchen Sie nach Problemen im Axivion-Dashboard oder fordern Sie Problemdetails für Inline-Annotationen von Axivion an, um sie hier anzuzeigen.</translation>
     </message>
     <message>
         <source>Fetch Projects</source>
@@ -13882,7 +13882,7 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Add...</source>
-        <translation type="unfinished">Hinzufügen...</translation>
+        <translation>Hinzufügen...</translation>
     </message>
     <message>
         <source>Edit...</source>
@@ -13890,27 +13890,27 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Default dashboard server:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorgabe-Dashboardserver:</translation>
     </message>
     <message>
         <source>unset</source>
-        <translation type="unfinished"></translation>
+        <translation>nicht gesetzt</translation>
     </message>
     <message>
         <source>Remove Server Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Server-Konfiguration löschen</translation>
     </message>
     <message>
         <source>Remove the server configuration &quot;%1&quot;?</source>
-        <translation type="unfinished"></translation>
+        <translation>Server-Konfiguration &quot;%1&quot; löschen?</translation>
     </message>
     <message>
         <source>Add Dashboard Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Dashboard-Konfiguration hinzufügen</translation>
     </message>
     <message>
         <source>Edit Dashboard Configuration</source>
@@ -16965,7 +16965,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>With clangd enabled, Qt Creator fully supports modern C++ when highlighting code, completing symbols and so on.&lt;br&gt;This comes at a higher cost in terms of CPU load and memory usage compared to the built-in code model, which therefore might be the better choice on older machines and/or with legacy code.&lt;br&gt;You can enable/disable and fine-tune clangd &lt;a href=&quot;dummy&quot;&gt;here&lt;/a&gt;.</source>
-        <translation>Wenn Clangd aktiviert ist, unterstützt Qt Creator semantische Hervorhebung, Symbolvervollständigung und so weiter für Code, der modernes C++ nutzt.&lt;br/&gt;Das wirkt sich nachteilig auf CPU-Last und Speicherverbrauch im Vergleich zum eingebauten Codemodell aus, das deshalb eine bessere Wahl für ältere Maschinen und/oder für Legacy Code sein kann.&lt;br/&gt;Sie können Clangd &lt;a href=&quot;dummy&quot;&gt;hier&lt;/a&gt; aktivieren/deaktivieren und anpassen.</translation>
+        <translation>Wenn Clangd aktiviert ist, unterstützt Qt Creator semantische Hervorhebung, Symbolvervollständigung und so weiter für Code, der modernes C++ nutzt.&lt;br/&gt;Das wirkt sich nachteilig auf CPU-Last und Speicherverbrauch im Vergleich zum integrierten Codemodell aus, das deshalb eine bessere Wahl für ältere Maschinen und/oder für Legacy Code sein kann.&lt;br/&gt;Sie können Clangd &lt;a href=&quot;dummy&quot;&gt;hier&lt;/a&gt; aktivieren/deaktivieren und anpassen.</translation>
     </message>
     <message>
         <source>Enable Anyway</source>
@@ -25744,7 +25744,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enables stepping backwards.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; This feature is very slow and unstable on the GDB side. It exhibits unpredictable behavior when going backwards over system calls and is very likely to destroy your debugging session.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rückwärts-Debuggen aktivieren.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Hinweis:&lt;/b&gt; Diese Funktionalität ist sehr langsam und instabil innerhalb von GDB. Es kann unvorhergesehenes Verhalten auftreten, wenn man rückwärts über einen Systemaufruf springt, und die Debugger-Sitzung kann leicht zerstört werden.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rückwärts-Debuggen aktivieren.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Hinweis:&lt;/b&gt; Diese Funktion ist sehr langsam und instabil innerhalb von GDB. Es kann unvorhergesehenes Verhalten auftreten, wenn man rückwärts über einen Systemaufruf springt, und die Debugger-Sitzung kann leicht zerstört werden.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Debug all child processes</source>
@@ -28125,7 +28125,7 @@ Bitte wählen Sie einen 64-bit-Debugger in den Kit-Einstellungen für dieses Kit
     </message>
     <message>
         <source>This feature is very slow and unstable on the GDB side. It exhibits unpredictable behavior when going backwards over system calls and is very likely to destroy your debugging session.</source>
-        <translation>Diese Funktionalität ist sehr langsam und instabil innerhalb von GDB. Es kann unvorhergesehenes Verhalten auftreten, wenn man rückwärts über einen Systemaufruf springt, und die Debugger-Sitzung kann leicht unbenutzbar werden.</translation>
+        <translation>Diese Funktion ist sehr langsam und instabil innerhalb von GDB. Es kann unvorhergesehenes Verhalten auftreten, wenn man rückwärts über einen Systemaufruf springt, und die Debugger-Sitzung kann leicht unbenutzbar werden.</translation>
     </message>
     <message>
         <source>Reverse Direction</source>
@@ -30618,7 +30618,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Does not interpret key sequences like Ctrl-S in FakeVim but handles them as regular shortcuts. This gives easier access to core functionality at the price of losing some features of FakeVim.</source>
-        <translation>Tastensequenzen wie Strg-S nicht in FakeVim verarbeiten, sondern sie als gewöhnliche Tastenkombinationen behandeln. Dies erleichtert den Zugriff auf die Kernfunktionalität auf Kosten eingeschränkter Funktionalität von FakeVim.</translation>
+        <translation>Tastensequenzen wie Strg-S nicht in FakeVim verarbeiten, sondern sie als gewöhnliche Tastenkombinationen behandeln. Dies erleichtert den Zugriff auf die Kernfunktionalität auf Kosten eingeschränkter Funktion von FakeVim.</translation>
     </message>
     <message>
         <source>Does not interpret some key presses in insert mode so that code can be properly completed and expanded.</source>
@@ -41022,7 +41022,7 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     </message>
     <message>
         <source>%1 (%2, %3 %4 at %5)</source>
-        <translation>%1 (%2, %3 %4 an %5)</translation>
+        <translation>%1 (%2, %3 %4: %5)</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -43192,7 +43192,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>At least one required feature is not present.</source>
-        <translation>Mindestens ein benötigtes Feature ist nicht vorhanden.</translation>
+        <translation>Mindestens eine benötigte Funktion ist nicht vorhanden.</translation>
     </message>
     <message>
         <source>Platform is not supported.</source>
@@ -43200,7 +43200,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>At least one preferred feature is not present.</source>
-        <translation>Mindestens ein bevorzugtes Feature ist nicht vorhanden.</translation>
+        <translation>Mindestens eine bevorzugte Funktion ist nicht vorhanden.</translation>
     </message>
     <message>
         <source>Feature list is set and not of type list.</source>
@@ -47061,7 +47061,7 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
     </message>
     <message>
         <source>JavaScript can break the visual tooling in Qt Design Studio.</source>
-        <translation type="unfinished"></translation>
+        <translation>JavaScript kann das visuelle Tooling in Qt Design Studio stören.</translation>
     </message>
     <message>
         <source>Duplicate import (%1).</source>
@@ -47446,23 +47446,23 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Turn on</source>
-        <translation type="unfinished"></translation>
+        <translation>Einschalten</translation>
     </message>
     <message>
         <source>Allow versions below Qt %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Versionen niedriger als Qt %1 erlauben</translation>
     </message>
     <message>
         <source>Use advanced features (renaming, find usages, and so on) (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterte Funktionen verwenden (umbenennen, Verweise finden und weiteres) (experimentell)</translation>
     </message>
     <message>
         <source>Use from latest Qt version</source>
-        <translation type="unfinished"></translation>
+        <translation>Neueste Qt-Version verwenden</translation>
     </message>
     <message>
         <source>Create .qmlls.ini files for new projects</source>
-        <translation type="unfinished"></translation>
+        <translation>.qmlls.ini-Dateien für neue Projekte erstellen</translation>
     </message>
     <message>
         <source>QML Language Server</source>
@@ -48561,7 +48561,7 @@ Speichern fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Override device QML viewer:</source>
-        <translation type="unfinished"></translation>
+        <translation>Statt QML-Viewer auf Gerät verwenden:</translation>
     </message>
     <message>
         <source>System Environment</source>
@@ -48574,31 +48574,31 @@ Speichern fehlgeschlagen.</translation>
     <message>
         <source>QML Utility</source>
         <comment>QMLRunConfiguration display name.</comment>
-        <translation type="unfinished"></translation>
+        <translation>QML-Werkzeug</translation>
     </message>
     <message>
         <source>No QML utility found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein QML-Werkzeug gefunden.</translation>
     </message>
     <message>
         <source>No QML utility specified for target device.</source>
-        <translation type="unfinished"></translation>
+        <translation>Für das Zielgerät wurde kein QML-Werkzeug angegeben.</translation>
     </message>
     <message>
         <source>Qt Version:</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt-Version:</translation>
     </message>
     <message>
         <source>Qt 6</source>
-        <translation type="unfinished">Qt 6</translation>
+        <translation>Qt 6</translation>
     </message>
     <message>
         <source>Qt 5</source>
-        <translation type="unfinished">Qt 5</translation>
+        <translation>Qt 5</translation>
     </message>
     <message>
         <source>QML Runtime</source>
-        <translation type="unfinished"></translation>
+        <translation>QML-Runtime</translation>
     </message>
     <message>
         <source>No script file to execute.</source>
@@ -48614,7 +48614,7 @@ Speichern fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Update QmlProject File</source>
-        <translation type="unfinished"></translation>
+        <translation>QmlProject-Datei aktualisieren</translation>
     </message>
     <message>
         <source>Warning while loading project file %1.</source>
@@ -48622,164 +48622,169 @@ Speichern fehlgeschlagen.</translation>
     </message>
     <message>
         <source>No Qt Design Studio installation found</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurde keine Installation von Qt Design Studio gefunden</translation>
     </message>
     <message>
         <source>Would you like to install it now?</source>
-        <translation type="unfinished"></translation>
+        <translation>Möchten Sie es jetzt installieren?</translation>
     </message>
     <message>
         <source>Install</source>
-        <translation type="unfinished">Installieren</translation>
+        <translation>Installieren</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Unbekannt</translation>
+        <translation>Unbekannt</translation>
     </message>
     <message>
         <source>QML PROJECT FILE INFO</source>
-        <translation type="unfinished"></translation>
+        <translation>QML PROJECT FILE INFO</translation>
     </message>
     <message>
         <source>Qt Version - </source>
-        <translation type="unfinished"></translation>
+        <translation>Qt-Version - </translation>
     </message>
     <message>
         <source>Qt Design Studio Version - </source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Design Studio-Version - </translation>
     </message>
     <message>
         <source>No QML project file found - Would you like to create one?</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine QML-Projektdatei gefunden - möchten Sie eine erstellen?</translation>
     </message>
     <message>
         <source>Generate</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellen</translation>
     </message>
     <message>
         <source>Qt Design Studio</source>
-        <translation type="unfinished">Qt Design Studio</translation>
+        <translation>Qt Design Studio</translation>
     </message>
     <message>
         <source>Open with Qt Design Studio</source>
-        <translation type="unfinished"></translation>
+        <translation>Mit Qt Design Studio öffnen</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished">Öffnen</translation>
+        <translation>Öffnen</translation>
     </message>
     <message>
         <source>Open with Qt Creator - Text Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Mit Qt Creator im Textmodus öffnen</translation>
     </message>
     <message>
         <source>Remember my choice</source>
-        <translation type="unfinished"></translation>
+        <translation>Meine Auswahl speichern</translation>
     </message>
     <message>
         <source>Export Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt exportieren</translation>
     </message>
     <message>
         <source>Enable Automatic CMake Generation</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatische CMake-Erstellung aktivieren</translation>
     </message>
     <message>
         <source>Use MultiLanguage in 2D view</source>
-        <translation type="unfinished"></translation>
+        <translation>MultiLanguage in der 2D-Ansicht verwenden</translation>
     </message>
     <message>
         <source>Reads translations from MultiLanguage plugin.</source>
-        <translation type="unfinished"></translation>
+        <translation>Liest Übersetzungen aus dem MultiLanguage-Plugin.</translation>
     </message>
     <message>
         <source>Failed to start Qt Design Studio.</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Design Studio konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>No project file (*.qmlproject) found for Qt Design Studio.
 Qt Design Studio requires a .qmlproject based project to open the .ui.qml file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurde keine Projektdatei (*.qmlproject) für Qt Design Studio gefunden.
+Qt Design Studio benötigt zum Öffnen der .ui.qml-Datei ein .qmlproject-basiertes Projekt.</translation>
     </message>
     <message>
         <source>Set as Main .qml File</source>
-        <translation type="unfinished"></translation>
+        <translation>Als .qml-Hauptdatei setzen</translation>
     </message>
     <message>
         <source>Set as Main .ui.qml File</source>
-        <translation type="unfinished"></translation>
+        <translation>Als .ui.qml-Hauptdatei setzen</translation>
     </message>
     <message>
         <source>Project File Generated</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektdatei erstellt</translation>
     </message>
     <message>
         <source>File created:
 
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei erstellt:
+
+%1</translation>
     </message>
     <message>
         <source>Select File Location</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateipfad auswählen</translation>
     </message>
     <message>
         <source>Qt Design Studio Project Files (*.qmlproject)</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Design Studio Projektdateien (*.qmlproject)</translation>
     </message>
     <message>
         <source>Invalid Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiges Verzeichnis</translation>
     </message>
     <message>
         <source>Project file must be placed in a parent directory of the QML files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Projektdatei muss in einem den QML-Dateien übergeordneten Verzeichnis erstellt werden.</translation>
     </message>
     <message>
         <source>Problem</source>
-        <translation type="unfinished"></translation>
+        <translation>Problem</translation>
     </message>
     <message>
         <source>Selected directory is far away from the QML file. This can cause unexpected results.
 
 Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Das ausgewählte Verzeichnis liegt weit entfernt von der QML-Datei. Dies kann zu unerwarteten Ergebnissen führen.
+
+Sind Sie sicher?</translation>
     </message>
     <message>
         <source>Cannot find a valid build system.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es kann kein gültiges Build-System gefunden werden.</translation>
     </message>
     <message>
         <source>Cannot create a valid build directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es kann kein gültiges Build-Verzeichnis erstellt werden.</translation>
     </message>
     <message>
         <source>Command:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommando:</translation>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">Argumente:</translation>
+        <translation>Argumente:</translation>
     </message>
     <message>
         <source>Build directory:</source>
-        <translation type="unfinished">Build-Verzeichnis:</translation>
+        <translation>Build-Verzeichnis:</translation>
     </message>
     <message>
         <source>The Selected Kit Is Not Supported</source>
-        <translation type="unfinished"></translation>
+        <translation>Das gewählte Kit wird nicht unterstützt</translation>
     </message>
     <message>
         <source>You cannot use the selected kit to preview Qt for MCUs applications.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das gewählte Kit kann nicht zur Vorschau von Qt for MCUs-Anwendungen verwendet werden.</translation>
     </message>
     <message>
         <source>Cannot find a valid Qt for MCUs kit.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es kann kein gültiges Kit für Qt for MCUs gefunden werden.</translation>
     </message>
     <message>
         <source>Qt for MCUs Deploy Step</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt for MCUs Deployment-Schritt</translation>
     </message>
 </context>
 <context>
@@ -50080,13 +50085,15 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
     <message>
         <source>Use SSH port forwarding for debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>SSH-Portweiterleitung zum Debuggen verwenden</translation>
     </message>
     <message>
         <source>Enable debugging on remote targes which cannot expose gdbserver ports.
 The ssh tunneling is used to map the remote gdbserver port to localhost.
 The local and remote ports are determined automatically.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mache Debuggen auf entfernten Zielen möglich, die gdbserver-Ports nicht direkt bereitstellen können.
+Es wird SSH-Tunneling verwendet, um die entfernten gdbserver-Ports auf localhost abzubilden.
+Die lokalen und entfernten Ports werden automatisch bestimmt.</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
@@ -50189,7 +50196,7 @@ Der Steuerprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Device &quot;%1&quot; is disconnected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gerät &quot;%1&quot; ist nicht verbunden.</translation>
     </message>
     <message>
         <source>Remote Linux</source>
@@ -50214,17 +50221,19 @@ Der Steuerprozess konnte nicht gestartet werden.</translation>
     <message>
         <source>Created directory: &quot;%1&quot;.
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Verzeichnis wurde erstellt: &quot;%1&quot;.
+</translation>
     </message>
     <message>
         <source>Copied %1/%2: &quot;%3&quot; -&gt; &quot;%4&quot;.
 </source>
         <extracomment>%1/%2 = progress in the form 4/15, %3 and %4 = source and target file paths</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1/%2 kopiert: &quot;%3 -&gt; &quot;%4&quot;.
+</translation>
     </message>
     <message>
         <source>Failed to deploy files.</source>
-        <translation type="unfinished"></translation>
+        <translation>Deployment der Dateien ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Device is considered unconnected. Re-run device test to reset state.</source>
@@ -50366,15 +50375,15 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>%1 failed to start: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 konnte nicht gestartet werden: %2</translation>
     </message>
     <message>
         <source>%1 crashed.</source>
-        <translation type="unfinished">%1 ist abgestürzt.</translation>
+        <translation>%1 ist abgestürzt.</translation>
     </message>
     <message>
         <source>%1 failed with exit code %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ist mit Rückgabewert %2 fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Deploy files</source>
@@ -50752,7 +50761,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Cropping</source>
-        <translation type="unfinished"></translation>
+        <translation>Zuschneiden</translation>
     </message>
     <message>
         <source>Crop and Trim...</source>
@@ -53586,7 +53595,7 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
     </message>
     <message>
         <source>%1 [built-in]</source>
-        <translation>%1 [eingebaut]</translation>
+        <translation>%1 [integriert]</translation>
     </message>
     <message>
         <source>%1 [customizable]</source>
@@ -53795,7 +53804,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>Enable built-in camel case &amp;navigation</source>
-        <translation>Eingebaute CamelCase-&amp;Navigation aktivieren</translation>
+        <translation>Integrierte CamelCase-&amp;Navigation aktivieren</translation>
     </message>
     <message>
         <source>On Mouseover</source>
@@ -54517,15 +54526,15 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
     <message>
         <source>Open Type Hierarchy</source>
-        <translation type="unfinished">Klassenhierarchie öffnen</translation>
+        <translation>Klassenhierarchie öffnen</translation>
     </message>
     <message>
         <source>Meta+Shift+T</source>
-        <translation type="unfinished">Meta+Shift+T</translation>
+        <translation>Meta+Shift+T</translation>
     </message>
     <message>
         <source>Ctrl+Shift+T</source>
-        <translation type="unfinished">Ctrl+Shift+T</translation>
+        <translation>Ctrl+Shift+T</translation>
     </message>
     <message>
         <source>Move the View a Page Up and Keep the Cursor Position</source>
@@ -54713,23 +54722,23 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
     <message>
         <source>Sort Lines</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeilen sortieren</translation>
     </message>
     <message>
         <source>Go to Previous Word (Camel Case)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zum vorhergehenden Wort springen (Camel Case)</translation>
     </message>
     <message>
         <source>Go to Next Word (Camel Case)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zum nächsten Wort springen (Camel Case)</translation>
     </message>
     <message>
         <source>Go to Previous Word (Camel Case) with Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorhergehendes Wort markieren (Camel Case)</translation>
     </message>
     <message>
         <source>Go to Next Word (Camel Case) with Selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Nächstes Wort markieren (Camel Case)</translation>
     </message>
     <message>
         <source>Meta+Shift+S</source>
@@ -55001,7 +55010,7 @@ Drücken Sie zusätzlich die Umschalttaste, wird ein Escape-Zeichen an der aktue
     </message>
     <message>
         <source>Documentation Comments</source>
-        <translation>Kommentare für Dokumentation</translation>
+        <translation>Dokumentationskommentare</translation>
     </message>
     <message>
         <source>Automatically creates a Doxygen comment upon pressing enter after a &apos;/**&apos;, &apos;/*!&apos;, &apos;//!&apos; or &apos;///&apos;.</source>
@@ -55969,15 +55978,15 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Type Hierarchy</source>
-        <translation type="unfinished">Klassenhierarchie</translation>
+        <translation>Typenhierarchie</translation>
     </message>
     <message>
         <source>No type hierarchy available</source>
-        <translation type="unfinished">Keine Klassenhierarchie verfügbar</translation>
+        <translation>Keine Typenhierarchie verfügbar</translation>
     </message>
     <message>
         <source>Reloads the type hierarchy for the symbol under the cursor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lädt die Typenhierarchie für das Symbol unter der Einfügemarke neu.</translation>
     </message>
 </context>
 <context>
@@ -56735,7 +56744,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>watch is not implemented.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;watch&quot; ist nicht implementiert.</translation>
     </message>
     <message>
         <source>Refusing to remove the standard directory &quot;%1&quot;.</source>
@@ -57206,11 +57215,11 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Failed to open output file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Ausgabedatei konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Failed to write output file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Ausgabedatei konnte nicht geschrieben werden.</translation>
     </message>
     <message>
         <source>Command failed.</source>
@@ -57241,7 +57250,7 @@ in &quot;%2&quot; aus.
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished">Vorgabe</translation>
+        <translation>Vorgabe</translation>
     </message>
     <message>
         <source>Show %1 Column</source>
@@ -57318,7 +57327,14 @@ To prepend to a variable, use VARIABLE=+VALUE.
 Existing variables can be referenced in a VALUE with ${OTHER}.
 To clear a variable, put its name on a line with nothing else on it.
 Lines starting with &quot;##&quot; will be treated as comments.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie eine Umgebungsvariable pro Zeile ein.
+Um eine Variable zu setzen oder zu ändern, verwenden Sie VARIABLE=WERT.
+Um eine Variable zu deaktivieren, stellen Sie der Zeile &quot;#&quot; voran.
+Um einen Wert an eine Variable anzufügen, verwenden Sie VARIABLE+=WERT.
+Um einen Wert einer Variable voranzustellen, verwenden Sie VARIABLE=+WERT.
+Existierende Variablen können in einem WERT mit ${ANDERE} verwendet werden.
+Um eine Variable zu leeren, schreiben Sie nichts als ihren Namen in eine Zeile.
+Zeilen, die mit &quot;##&quot; beginnen, werden als Kommentare behandelt.</translation>
     </message>
     <message>
         <source>&amp;OK</source>
@@ -57436,7 +57452,7 @@ Lines starting with &quot;##&quot; will be treated as comments.</source>
     </message>
     <message>
         <source>No Lua interface set</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Lua-Schnittstelle eingestellt</translation>
     </message>
 </context>
 <context>

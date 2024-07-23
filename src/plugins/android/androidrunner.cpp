@@ -54,23 +54,24 @@ AndroidRunner::AndroidRunner(RunControl *runControl, const QString &intentName)
     const int apiLevel = AndroidManager::deviceApiLevel(m_target);
     qCDebug(androidRunnerLog) << "Device API:" << apiLevel;
 
-    m_worker.reset(new AndroidRunnerWorker(this, m_packageName));
+    m_worker = new AndroidRunnerWorker(this, m_packageName);
     m_worker->setIntentName(intent);
     m_worker->setIsPreNougat(apiLevel <= 23);
 
     m_worker->moveToThread(&m_thread);
+    QObject::connect(&m_thread, &QThread::finished, m_worker, &QObject::deleteLater);
 
-    connect(this, &AndroidRunner::asyncStart, m_worker.data(), &AndroidRunnerWorker::asyncStart);
-    connect(this, &AndroidRunner::asyncStop, m_worker.data(), &AndroidRunnerWorker::asyncStop);
+    connect(this, &AndroidRunner::asyncStart, m_worker, &AndroidRunnerWorker::asyncStart);
+    connect(this, &AndroidRunner::asyncStop, m_worker, &AndroidRunnerWorker::asyncStop);
     connect(this, &AndroidRunner::androidDeviceInfoChanged,
-            m_worker.data(), &AndroidRunnerWorker::setAndroidDeviceInfo);
-    connect(m_worker.data(), &AndroidRunnerWorker::remoteProcessStarted,
+            m_worker, &AndroidRunnerWorker::setAndroidDeviceInfo);
+
+    connect(m_worker, &AndroidRunnerWorker::remoteProcessStarted,
             this, &AndroidRunner::handleRemoteProcessStarted);
-    connect(m_worker.data(), &AndroidRunnerWorker::remoteProcessFinished,
+    connect(m_worker, &AndroidRunnerWorker::remoteProcessFinished,
             this, &AndroidRunner::handleRemoteProcessFinished);
-    connect(m_worker.data(), &AndroidRunnerWorker::remoteOutput,
-            this, &AndroidRunner::remoteOutput);
-    connect(m_worker.data(), &AndroidRunnerWorker::remoteErrorOutput,
+    connect(m_worker, &AndroidRunnerWorker::remoteOutput, this, &AndroidRunner::remoteOutput);
+    connect(m_worker, &AndroidRunnerWorker::remoteErrorOutput,
             this, &AndroidRunner::remoteErrorOutput);
 
     connect(&m_outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,

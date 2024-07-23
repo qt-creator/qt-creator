@@ -85,16 +85,16 @@ void NavigatorContext::contextHelp(const HelpCallback &callback) const
     qobject_cast<NavigatorWidget *>(m_widget)->contextHelp(callback);
 }
 
-TextEditorContext::TextEditorContext(QWidget *widget)
-  : IContext(widget)
+TextEditorContext::TextEditorContext(TextEditorWidget *parent)
+    : IContext(parent)
+    , m_parent(parent)
 {
-    setWidget(widget);
     setContext(Core::Context(Constants::C_QMLTEXTEDITOR, Constants::C_QT_QUICK_TOOLS_MENU));
 }
 
 void TextEditorContext::contextHelp(const HelpCallback &callback) const
 {
-    qobject_cast<TextEditorWidget *>(m_widget)->contextHelp(callback);
+    m_parent->contextHelp(callback);
 }
 
 } // namespace QmlDesigner::Internal

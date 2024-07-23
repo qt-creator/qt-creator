@@ -4,11 +4,11 @@
 /*!
 //! [qtquick empty application]
 
-    \section1 Creating the Project
+    \section1 Create the project
 
     \list 1
 
-        \li Select \uicontrol File > \uicontrol {New Project} >
+        \li Go to \uicontrol File > \uicontrol {New Project} >
             \uicontrol {Application (Qt)} > \uicontrol {Qt Quick Application}.
 
             \image qtcreator-project-qt-quick.webp {New Project dialog}
@@ -16,11 +16,11 @@
         \li Select \uicontrol Choose to open the
             \uicontrol {Project Location} dialog.
 
-        \li In the \uicontrol Name field, enter a name for the application.
+        \li In \uicontrol Name, enter a name for the application.
             When naming your own projects, keep in mind that you cannot
             easily rename them later.
 
-        \li In the \uicontrol {Create in} field, enter the path for the project
+        \li In \uicontrol {Create in}, enter the path for the project
             files. You can move project folders later without problems.
 
         \li Select \uicontrol Next to open the
@@ -28,11 +28,10 @@
 
             \image qtcreator-project-qt-quick-details.webp {Define Project Details dialog}
 
-        \li Deselect the \uicontrol {Create a project that you can open in \QDS}
-            check box.
+        \li Clear \uicontrol {Create a project that you can open in \QDS}.
 
             \note This tutorial shows how to create the application in the
-            \uicontrol Edit mode. If you leave the check box selected, the
+            \uicontrol Edit mode. If you leave the checkbox selected, the
             following instructions won't apply.
 
         \li Select \uicontrol Next to open the \uicontrol {Kit Selection} dialog.

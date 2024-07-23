@@ -20,10 +20,13 @@
 
 #include <QFocusEvent>
 #include <QHeaderView>
-#include <QVBoxLayout>
+#include <QLoggingCategory>
 #include <QScrollBar>
+#include <QVBoxLayout>
 
 using namespace Utils;
+
+Q_LOGGING_CATEGORY(openEditorsLog, "qtc.core.openeditorswindow", QtWarningMsg);
 
 namespace Core::Internal {
 
@@ -196,9 +199,13 @@ bool OpenEditorsWindow::eventFilter(QObject *obj, QEvent *e)
 
         } else if (e->type() == QEvent::KeyRelease) {
             auto ke = static_cast<QKeyEvent*>(e);
+            qCDebug(openEditorsLog()) << ke;
             if (ke->modifiers() == 0
-                    /*HACK this is to overcome some event inconsistencies between platforms*/
-                    || (ke->modifiers() == Qt::AltModifier
+                /* On some platforms, the key event can claim both that Ctrl is released and that
+                  Ctrl is still pressed, see QTCREATORBUG-31228 */
+                || (ke->modifiers() == Qt::ControlModifier && ke->key() == Qt::Key_Control)
+                /*HACK this is to overcome some event inconsistencies between platforms*/
+                || (ke->modifiers() == Qt::AltModifier
                     && (ke->key() == Qt::Key_Alt || ke->key() == -1))) {
                 selectAndHide();
             }

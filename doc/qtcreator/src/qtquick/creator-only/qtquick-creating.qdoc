@@ -95,9 +95,9 @@
     \QC creates a QML file, \e Main.qml, that you can modify in the
     \uicontrol Edit mode.
 
-    \sa {Create Qt Quick UI Prototypes}, {Creating a Mobile Application},
-    {Creating a Qt for Python Application with Qt Quick},
-    {Creating a Qt Quick Application}, {Creating Projects},
+    \sa {Create Qt Quick UI Prototypes}, {Tutorial: Mobile application},
+    {Tutorial: Qt Quick and Python},
+    {Tutorial: Qt Quick application}, {Creating Projects},
     {Developing Qt Quick Applications}
 */
 

@@ -69,6 +69,7 @@ public:
     QString selectedText() const;
     /// removes the selected text of all cursors that have a selection from the document
     void removeSelectedText();
+    void clearSelection();
 
     /// inserts \param text into all cursors, potentially removing correctly selected text
     void insertText(const QString &text, bool selectNewText = false);

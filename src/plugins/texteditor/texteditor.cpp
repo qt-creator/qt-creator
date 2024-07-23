@@ -2343,6 +2343,13 @@ void TextEditorWidget::selectWordUnderCursor()
     setMultiTextCursor(cursor);
 }
 
+void TextEditorWidget::clearSelection()
+{
+    MultiTextCursor cursor = multiTextCursor();
+    cursor.clearSelection();
+    setMultiTextCursor(cursor);
+}
+
 void TextEditorWidget::showContextMenu()
 {
     QTextCursor tc = textCursor();
@@ -4244,6 +4251,10 @@ void TextEditorWidgetPrivate::registerActions()
         .setContext(m_editorContext)
         .addOnTriggered([this] { q->selectWordUnderCursor(); })
         .setScriptable(true);
+    ActionBuilder(this, CLEAR_SELECTION)
+        .setContext(m_editorContext)
+        .addOnTriggered([this] { q->clearSelection(); })
+        .setScriptable(true);
 
     ActionBuilder(this, GOTO_DOCUMENT_START)
         .setContext(m_editorContext)
@@ -4754,8 +4765,11 @@ void TextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block, co
             break;
         if (m_findFlags & FindWholeWords) {
             auto posAtWordSeparator = [](const QString &text, int idx) {
-                if (idx < 0 || idx >= text.length())
-                    return false;
+                if (idx < 0)
+                    return QTC_GUARD(idx == -1);
+                int textLength = text.length();
+                if (idx >= textLength)
+                    return QTC_GUARD(idx == textLength);
                 const QChar c = text.at(idx);
                 return !c.isLetterOrNumber() && c != QLatin1Char('_');
             };

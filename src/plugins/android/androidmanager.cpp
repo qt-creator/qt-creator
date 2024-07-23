@@ -601,12 +601,21 @@ void installQASIPackage(Target *target, const FilePath &packagePath)
     }
 
     QStringList arguments = AndroidDeviceInfo::adbSelector(deviceSerialNumber);
-    arguments << "install" << "-r " << packagePath.path();
+    arguments << "install" << "-r" << packagePath.path();
     QString error;
     Process *process = startAdbProcess(arguments, &error);
     if (process) {
-        // TODO: Potential leak when the process is still running on Creator shutdown.
-        QObject::connect(process, &Process::done, process, &QObject::deleteLater);
+        process->setParent(target);
+        QObject::connect(process, &Process::done, target, [process] {
+            if (process->result() == ProcessResult::FinishedWithSuccess) {
+                MessageManager::writeSilently(
+                    Tr::tr("Android package installation finished with success."));
+            } else {
+                MessageManager::writeDisrupting(Tr::tr("Android package installation failed.")
+                                                + '\n' + process->cleanedStdErr());
+            }
+            process->deleteLater();
+        });
     } else {
         MessageManager::writeDisrupting(
             Tr::tr("Android package installation failed.\n%1").arg(error));

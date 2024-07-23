@@ -53,7 +53,10 @@ void WizardHandler::setupWizard()
 
     initializeProjectPage(m_wizard->page(0));
     initializeFieldsPage(m_wizard->page(1));
-
+    if (!m_detailsPage) {
+        emit wizardCreationFailed();
+        return;
+    }
     auto *screenFactorModel = getScreenFactorModel(m_detailsPage);
     auto *styleModel = getStyleModel(m_detailsPage);
 

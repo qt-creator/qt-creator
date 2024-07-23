@@ -56,7 +56,7 @@ private:
     QString m_launchedAVDName;
     QThread m_thread;
     QTimer m_checkAVDTimer;
-    QScopedPointer<AndroidRunnerWorker> m_worker;
+    AndroidRunnerWorker *m_worker = nullptr;
     QPointer<ProjectExplorer::Target> m_target;
     Utils::Port m_debugServerPort;
     QUrl m_qmlServer;

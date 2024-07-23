@@ -1,4 +1,4 @@
-// Copyright (C) 2018 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -14,11 +14,12 @@
 
     \ingroup creator-tutorials
 
-    \title Debugging a C++ Application
+    \keyword {Debugging a C++ Application}
+    \title Tutorial: C++ debugging
 
     \brief How to debug a C++ application.
 
-    This tutorial uses the \l{Creating a Qt Widget Based Application}{TextFinder}
+    This tutorial uses the \l{Tutorial: Qt Widgets application}{TextFinder}
     example to illustrate how to debug Qt C++ applications in the
     \uicontrol Debug mode.
 
@@ -95,5 +96,5 @@
     (\uicontrol {Step Into}), and \inlineimage icons/debugger_stepout_small.png
     (\uicontrol {Step Out}).
 
-    \sa {Creating a Qt Widget Based Application}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Tutorial: Qt Widgets application}, {Debugging}, {Debuggers}, {Debugger}
 */

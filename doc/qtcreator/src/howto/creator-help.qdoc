@@ -39,10 +39,16 @@
             \uicontrol Help mode, go to \preferences > \uicontrol Help.
     \endlist
 
+    \if defined(qtdesignstudio)
+    The following image shows the context sensitive help in the \l Code view.
+
+    \image qds-help-in-code-view.webp {Context-sensitive help in the Code view.}
+    \else
     The following image shows the context sensitive help in the \uicontrol Edit
     mode.
 
     \image qtcreator-context-sensitive-help.webp {Context-sensitive help in Edit mode}
+    \endif
 
     \section1 Change the font
 
@@ -88,7 +94,13 @@
     To use a keyboard shortcut for viewing help tooltips, select
     \uicontrol {Show help tooltips using keyboard shortcut (Alt)}.
 
+    \if defined(qtdesignstudio)
+    \section1 See Also
+
+    \generatelist creator-how-to-get-help
+    \else
     \sa {Read Documentation}{How To: Read Documentation}
+    \endif
 */
 
 /*!
@@ -140,7 +152,9 @@
 
     \endlist
 
+    \if defined(qtcreator)
     \sa {Read Documentation}{How To: Read Documentation}
+    \endif
 */
 
 /*!
@@ -180,7 +194,9 @@
     \uicontrol General and select \uicontrol {Import Bookmarks} or
     \uicontrol {Export Bookmarks}.
 
+    \if defined(qtcreator)
     \sa {Read Documentation}{How To: Read Documentation}
+    \endif
 */
 
 /*!
@@ -236,7 +252,9 @@
     punctuation, such as domain names, use the asterisk as a wild card. For
     example, to find \c {Pastebin.Com}, enter the search term \c {Pastebin*}.
 
+    \if defined(qtcreator)
     \sa {Read Documentation}{How To: Read Documentation}
+    \endif
 */
 
 /*!
@@ -268,7 +286,9 @@
 
     \endlist
 
+    \if defined(qtcreator)
     \sa {Read Documentation}{How To: Read Documentation}
+    \endif
 */
 
 /*!
@@ -287,7 +307,11 @@
     code editor when you press \key F1. If there is not enough vertical
     space, the help opens in the full-screen help mode.
 
+    \if defined(qtdesignstudio)
+    \image qds-help-in-code-view.webp {Context-sensitive help in the Code view.}
+    \else
     \image qtcreator-context-sensitive-help.webp {Context-sensitive help in Edit mode}
+    \endif
 
     To specify that the help always opens in full-screen mode or in an external
     window, go to \preferences > \uicontrol Help > \uicontrol General.
@@ -300,7 +324,9 @@
 
     To change this setting in a help view, select \inlineimage icons/linkicon.png.
 
+    \if defined(qtcreator)
     \sa {Read Documentation}{How To: Read Documentation}
+    \endif
 */
 
 /*!
@@ -335,7 +361,9 @@
             home page.
     \endlist
 
+    \if defined(qtcreator)
     \sa {Read Documentation}{How To: Read Documentation}
+    \endif
 */
 
 /*!
@@ -401,5 +429,7 @@
 
     To remove the selected filter, select \inlineimage icons/minus.png.
 
+    \if defined(qtcreator)
     \sa {Read Documentation}{How To: Read Documentation}
+    \endif
 */

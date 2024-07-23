@@ -140,7 +140,7 @@
 
     \l{https://docs.python.org/3/library/pdb.html}{PDB} is a source code debugger
     for Python applications. You can use it to debug projects that have a
-    \l {Creating a Qt for Python Application with Qt Widgets}{.pyproject}
+    \l {Tutorial: Qt Widgets and Python}{.pyproject}
     configuration file.
 
     Install Python and set the interpreter to use in \uicontrol Projects

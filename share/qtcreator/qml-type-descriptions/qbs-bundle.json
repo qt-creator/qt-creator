@@ -24,6 +24,7 @@
         "qbs.Probes",
         "qbs.Process",
         "qbs.PropertyList",
+        "qbs.ProviderUtils",
         "qbs.TemporaryDir",
         "qbs.TextFile",
         "qbs.UnixUtils",

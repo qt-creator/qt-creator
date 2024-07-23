@@ -126,6 +126,9 @@
     To speed up the process on Windows, specify the \c CMAKE_C_COMPILER and
     \c CMAKE_CXX_COMPILER in the \c cacheVariables section.
 
+    For possible values of some of the \c debugger parameters, see
+    \l{Adding Debuggers}.
+
     \section1 Ninja Generator Example
 
     The following configure and build presets set Ninja Multi-Config as the
@@ -297,5 +300,5 @@
     }
     \endcode
 
-    \sa {CMake Build Configuration}, {CMake}
+    \sa {CMake Build Configuration}, {CMake}, {SDK Tool}
 */

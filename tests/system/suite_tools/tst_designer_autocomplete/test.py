@@ -3,6 +3,15 @@
 
 source("../../shared/qtcreator.py")
 
+
+def closeMainWindowCppIfOpen():
+    mainWindow = waitForObject(":Qt Creator_Core::Internal::MainWindow", 1000)
+    mainWindowCppClosed = lambda: "mainwindow.cpp " not in str(mainWindow.windowTitle)
+    if "mainwindow.cpp " in str(mainWindow.windowTitle):
+        invokeMenuItem('File', 'Close "mainwindow.cpp"')
+    waitFor(mainWindowCppClosed, 2000)
+
+
 def main():
     startQC()
     if not startedWithoutPluginError():
@@ -15,11 +24,14 @@ def main():
         earlyExit()
         return
 
-    invokeMenuItem('Build', 'Build Project "%s"' % projectName)
+    closeMainWindowCppIfOpen()
     selectFromLocator("mainwindow.ui")
     dragAndDrop(waitForObject("{container=':qdesigner_internal::WidgetBoxCategoryListView'"
                               "text='Push Button' type='QModelIndex'}"), 5, 5,
                 ":FormEditorStack_qdesigner_internal::FormWindow", 20, 50, Qt.CopyAction)
+    proposalExists = lambda: object.exists(':popupFrame_TextEditor::GenericProposalWidget')
+    fileNameCombo = waitForObject(":Qt Creator_FilenameQComboBox", 1000)
+    fileSaved = lambda: not str(fileNameCombo.currentText).endswith('*')
     for buttonName in [None, "aDifferentName", "anotherDifferentName", "pushButton"]:
         if buttonName:
             openContextMenu(waitForObject("{container=':*Qt Creator.FormEditorStack_Designer::Internal::FormEditorStack'"
@@ -31,8 +43,13 @@ def main():
         else:
             # Verify that everything works without ever changing the name
             buttonName = "pushButton"
+        invokeMenuItem("File", "Save All")
+        waitFor(fileSaved, 1000)
+        invokeMenuItem('Build', 'Build Project "%s"' % projectName)
+        waitForCompile()
         selectFromLocator("mainwindow.cpp")
         editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
+        snooze(1)
         for tryDotOperator in [False, True]:
             if not placeCursorToLine(editor, "ui->setupUi(this);"):
                 earlyExit("Maybe the project template changed.")
@@ -42,21 +59,34 @@ def main():
             if tryDotOperator:
                 snooze(1)
                 type(editor, ".")
-                waitFor("object.exists(':popupFrame_TextEditor::GenericProposalWidget')", 1500)
             else:
                 type(editor, "-")
                 snooze(1)
                 type(editor, ">")
+
+            if not test.verify(waitFor(proposalExists, 1500), "Proposal should be shown"):
+                type(editor, "<Shift+Delete>")
+                continue
+
+            proposalListView = waitForObject(':popupFrame_Proposal_QListView')
+            items = dumpItems(proposalListView.model())
+            if test.verify(" %s" % buttonName in items, "Button present in proposal?"):
+                type(proposalListView, str(buttonName[0]))
+            else:
+                test.log(str(items))
             snooze(1)
-            proposalExists = lambda: object.exists(':popupFrame_TextEditor::GenericProposalWidget')
-            nativeType("%s" % buttonName[0])
             if test.verify(waitFor(proposalExists, 4000),
                            "Verify that GenericProposalWidget is being shown."):
-                nativeType("<Return>")
+                singleProposal = lambda: (object.exists(':popupFrame_Proposal_QListView')
+                                          and findObject(':popupFrame_Proposal_QListView').model().rowCount() == 1)
+                waitFor(singleProposal, 4000)
+                type(proposalListView, "<Return>")
                 lineCorrect = lambda: str(lineUnderCursor(editor)).strip() == "ui->%s" % buttonName
-                test.verify(waitFor(lineCorrect, 1000),
+                test.verify(waitFor(lineCorrect, 4000),
                             ('Comparing line "%s" to expected "%s"'
                              % (lineUnderCursor(editor), "ui->%s" % buttonName)))
-            type(editor, "<Shift+Delete>") # Delete line
+                type(editor, "<Shift+Delete>") # Delete line
+        invokeMenuItem("File", "Save All")
+        closeMainWindowCppIfOpen()
         selectFromLocator("mainwindow.ui")
-    saveAndExit()
+    invokeMenuItem("File", "Exit")

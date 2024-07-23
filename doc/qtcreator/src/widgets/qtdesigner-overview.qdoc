@@ -119,5 +119,5 @@
     To import device profiles from .qdp files, select \uicontrol Open. To save
     them as .qdp files, select \uicontrol Save.
 
-    \sa {Creating a Qt Widget Based Application}, {Adding \QD Plugins}
+    \sa {Tutorial: Qt Widgets application}, {Adding \QD Plugins}
 */

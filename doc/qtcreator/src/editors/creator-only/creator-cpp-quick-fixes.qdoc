@@ -58,7 +58,7 @@
     and \c <cur> to access the parameter and current value. Use \c <type> to
     access the type and \c <T> for the template parameter.
 
-    \image qtcreator-refactoring-options-templates.png {Settings for handling custom parameter types}
+    \image qtcreator-refactoring-options-templates.webp {Settings for handling custom parameter types}
 
     Usually, arguments are passed by using a \c const reference. To pass
     arguments of a particular type as values, list them in the
