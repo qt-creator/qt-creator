@@ -178,7 +178,6 @@ signals:
 private:
     mutable CompilerExplorerSettings m_ceSettings;
     std::function<Utils::Store()> m_windowStateCallback;
-    QUndoStack *m_undoStack;
 };
 
 class SourceEditorWidget : public QWidget
@@ -372,7 +371,6 @@ public:
 };
 
 JsonSettingsDocument::JsonSettingsDocument(QUndoStack *undoStack)
-    : m_undoStack(undoStack)
 {
     setId(Constants::CE_EDITOR_ID);
     setMimeType("application/compiler-explorer");
