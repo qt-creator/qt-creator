@@ -3,6 +3,8 @@
 
 #include "webassemblyemsdk.h"
 
+#include "webassemblyconstants.h"
+
 #include <coreplugin/icore.h>
 #include <coreplugin/settingsdatabase.h>
 
@@ -26,7 +28,7 @@ const char emSdkVersionKey[] = "WebAssembly/emSdkVersion1";
 
 const FilePath timeStampFile(const FilePath &sdkRoot)
 {
-    return sdkRoot / ".emscripten";
+    return sdkRoot / Constants::WEBASSEMBLY_EMSDK_CONFIG_FILE;
 }
 
 static QString emSdkEnvOutput(const FilePath &sdkRoot)
