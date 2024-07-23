@@ -3,6 +3,8 @@
 
 #include "workspaceproject.h"
 
+#include "buildconfiguration.h"
+#include "buildinfo.h"
 #include "buildsystem.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
@@ -245,6 +247,42 @@ public:
     }
 };
 
+class WorkspaceBuildConfiguration : public BuildConfiguration
+{
+public:
+    WorkspaceBuildConfiguration(Target *target, Id id)
+        : BuildConfiguration(target, id)
+    {
+        setBuildDirectoryHistoryCompleter("Workspace.BuildDir.History");
+        setConfigWidgetDisplayName(Tr::tr("Workspace Manager"));
+
+        //appendInitialBuildStep(Constants::CUSTOM_PROCESS_STEP);
+    }
+};
+
+class WorkspaceBuildConfigurationFactory : public BuildConfigurationFactory
+{
+public:
+    WorkspaceBuildConfigurationFactory()
+    {
+        registerBuildConfiguration<WorkspaceBuildConfiguration>
+                ("WorkspaceProject.BuildConfiguration");
+
+        setSupportedProjectType(Id::fromString(WORKSPACE_PROJECT_ID));
+
+        setBuildGenerator([](const Kit *, const FilePath &projectPath, bool forSetup) {
+            BuildInfo info;
+            info.typeName = ::ProjectExplorer::Tr::tr("Build");
+            info.buildDirectory = projectPath.parentDir().parentDir().pathAppended("build");
+            if (forSetup) {
+                //: The name of the build configuration created by default for a workspace project.
+                info.displayName = ::ProjectExplorer::Tr::tr("Default");
+            }
+            return QList<BuildInfo>{info};
+        });
+    }
+};
+
 class WorkspaceProject : public Project
 {
     Q_OBJECT
@@ -365,6 +403,7 @@ void setupWorkspaceProject(QObject *guard)
 
     static WorkspaceProjectRunConfigurationFactory theRunConfigurationFactory;
     static WorkspaceProjectRunWorkerFactory theRunWorkerFactory;
+    static WorkspaceBuildConfigurationFactory theBuildConfigurationFactory;
 }
 
 } // namespace ProjectExplorer
