@@ -253,9 +253,12 @@ expected_str<sol::protected_function> LuaEngine::prepareSetup(
                                  / pluginSpec.location().fileName();
 
     lua.new_usertype<ScriptPluginSpec>(
-        "PluginSpec", sol::no_constructor, "name", sol::property([](ScriptPluginSpec &self) {
-            return self.name;
-        }));
+        "PluginSpec",
+        sol::no_constructor,
+        "name",
+        sol::property([](ScriptPluginSpec &self) { return self.name; }),
+        "pluginDirectory",
+        sol::property([p = pluginSpec.location()]() { return p; }));
 
     auto guardObject = std::make_unique<QObject>();
     auto guardObjectPtr = guardObject.get();
