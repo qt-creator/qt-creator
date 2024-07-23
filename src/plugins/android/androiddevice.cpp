@@ -441,12 +441,12 @@ AndroidDeviceInfo AndroidDevice::androidDeviceInfoFromIDevice(const IDevice *dev
 Id AndroidDevice::idFromDeviceInfo(const AndroidDeviceInfo &info)
 {
     const QString id = (info.type == IDevice::Hardware ? info.serialNumber : info.avdName);
-    return  Id(Constants::ANDROID_DEVICE_ID).withSuffix(':' + id);
+    return  Id(Constants::ANDROID_DEVICE_ID).withSuffix(':').withSuffix(id);
 }
 
 Id AndroidDevice::idFromAvdInfo(const CreateAvdInfo &info)
 {
-    return Id(Constants::ANDROID_DEVICE_ID).withSuffix(':' + info.name);
+    return Id(Constants::ANDROID_DEVICE_ID).withSuffix(':').withSuffix(info.name);
 }
 
 QStringList AndroidDevice::supportedAbis() const
@@ -650,10 +650,10 @@ static void handleDevicesListChange(const QString &serialNumber)
 
     if (isEmulator) {
         const QString avdName = emulatorName(serial);
-        const Id avdId = Id(Constants::ANDROID_DEVICE_ID).withSuffix(':' + avdName);
+        const Id avdId = Id(Constants::ANDROID_DEVICE_ID).withSuffix(':').withSuffix(avdName);
         devMgr->setDeviceState(avdId, state);
     } else {
-        const Id id = Id(Constants::ANDROID_DEVICE_ID).withSuffix(':' + serial);
+        const Id id = Id(Constants::ANDROID_DEVICE_ID).withSuffix(':').withSuffix(serial);
         QString displayName = AndroidConfig::getProductModel(serial);
         // Check if the device is connected via WiFi. A sample serial of such devices can be
         // like: "192.168.1.190:5555"

@@ -29,7 +29,7 @@ public:
 
     Id withSuffix(int suffix) const;
     Id withSuffix(const char *suffix) const;
-    Id withSuffix(const QString &suffix) const;
+    Id withSuffix(const QStringView suffix) const;
     Id withPrefix(const char *prefix) const;
 
     QByteArray name() const;
@@ -47,8 +47,8 @@ public:
     bool alphabeticallyBefore(Id other) const;
 
     quintptr uniqueIdentifier() const { return m_id; } // Avoid.
-    static Id fromString(const QString &str); // FIXME: avoid.
-    static Id fromName(const QByteArray &ba); // FIXME: avoid.
+    static Id fromString(const QStringView str); // FIXME: avoid.
+    static Id fromName(const QByteArrayView ba); // FIXME: avoid.
     static Id fromSetting(const QVariant &variant); // Good to use.
 
     static QSet<Id> fromStringList(const QStringList &list);

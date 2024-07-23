@@ -38,7 +38,7 @@ static Utils::Id fullId(Utils::Id id)
     const QString idStr = id.toString();
     QTC_ASSERT(!idStr.startsWith(prefix), return Utils::Id::fromString(idStr));
 
-    return Utils::Id::fromString(prefix + idStr);
+    return Utils::Id::fromString(prefix).withSuffix(idStr);
 }
 
 static bool hasOtherUsers(Utils::Id id, const QVariant &v, Kit *k)

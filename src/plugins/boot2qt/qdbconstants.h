@@ -16,7 +16,7 @@ const char QdbDeployConfigurationId[] = "Qt4ProjectManager.Qdb.QdbDeployConfigur
 const char QdbStopApplicationStepId[] = "Qdb.StopApplicationStep";
 const char QdbMakeDefaultAppStepId[] = "Qdb.MakeDefaultAppStep";
 
-const Utils::Id QdbHardwareDevicePrefix = "QdbHardwareDevice";
+const char QdbHardwareDevicePrefix[] = "QdbHardwareDevice";
 const char AppcontrollerFilepath[] = "/usr/bin/appcontroller";
 
 } // namespace Constants

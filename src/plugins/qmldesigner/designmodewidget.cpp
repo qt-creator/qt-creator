@@ -347,7 +347,7 @@ void DesignModeWidget::setup()
 
         // Create menu action
         auto command = Core::ActionManager::registerAction(dockWidget->toggleViewAction(),
-                                                           actionToggle.withSuffix(uniqueId + "Widget"),
+                                                           actionToggle.withSuffix(uniqueId).withSuffix("Widget"),
                                                            designContext);
         command->setAttribute(Core::Command::CA_Hide);
         viewCommands.append(command);
@@ -368,8 +368,7 @@ void DesignModeWidget::setup()
 
         // Create menu action
         auto command = Core::ActionManager::registerAction(dockWidget->toggleViewAction(),
-                                                           actionToggle.withSuffix(
-                                                               widgetInfo.uniqueId + "Widget"),
+                                                           actionToggle.withSuffix(widgetInfo.uniqueId).withSuffix("Widget"),
                                                            designContext);
         command->setAttribute(Core::Command::CA_Hide);
         viewCommands.append(command);

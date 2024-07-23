@@ -351,8 +351,9 @@ void addInstallModule()
                         return;
                     }
 
-                    const Utils::Id infoBarId = Utils::Id::fromString(
-                        "Install" + pluginSpec->name + QString::number(qHash(installOptionsList)));
+                    const Utils::Id infoBarId = Utils::Id("Install")
+                            .withSuffix(pluginSpec->name)
+                            .withSuffix(QString::number(qHash(installOptionsList)));
 
                     InfoBarEntry entry(infoBarId, msg, InfoBarEntry::GlobalSuppression::Enabled);
 

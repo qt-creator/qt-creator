@@ -225,7 +225,7 @@ static QSet<Id> versionedIds(const QByteArray &prefix, int major, int minor)
     if (major < 0)
         return result;
 
-    const QByteArray majorStr = QString::number(major).toLatin1();
+    const QByteArray majorStr = QByteArray::number(major);
     const QByteArray featureMajor = prefix + majorStr;
     const QByteArray featureDotMajor = prefix + '.' + majorStr;
 
@@ -233,9 +233,8 @@ static QSet<Id> versionedIds(const QByteArray &prefix, int major, int minor)
     result.insert(Id::fromName(featureDotMajor));
 
     for (int i = 0; i <= minor; ++i) {
-        const QByteArray minorStr = QString::number(i).toLatin1();
-        result.insert(Id::fromName(featureMajor + '.' + minorStr));
-        result.insert(Id::fromName(featureDotMajor + '.' + minorStr));
+        result.insert(Id::fromName(featureMajor).withSuffix('.').withSuffix(i));
+        result.insert(Id::fromName(featureDotMajor).withSuffix('.').withSuffix(i));
     }
 
     // FIXME: Terrible hack. Get rid of using version numbers as tags!

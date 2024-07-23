@@ -120,7 +120,7 @@ TaskProgress::TaskProgress(TaskTree *taskTree)
         d->m_futureInterface.reportStarted();
         d->advanceProgress(0);
 
-        const Id id = d->m_id.isValid() ? d->m_id : Id::fromString(d->m_displayName + ".action");
+        const Id id = d->m_id.isValid() ? d->m_id : Id::fromString(d->m_displayName).withSuffix(".action");
         d->m_futureProgress = ProgressManager::addTask(d->m_futureInterface.future(),
                                                        d->m_displayName, id);
         d->m_futureProgress->setKeepOnFinish(d->m_keep);

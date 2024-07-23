@@ -16,6 +16,7 @@
 #include "floatingdockcontainer.h"
 
 #include <QAbstractButton>
+#include <QCoreApplication>
 #include <QDebug>
 #include <QGridLayout>
 #include <QList>

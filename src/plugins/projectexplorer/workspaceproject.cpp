@@ -26,20 +26,20 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
-const QLatin1StringView FOLDER_MIMETYPE{"inode/directory"};
-const QLatin1StringView WORKSPACE_MIMETYPE{"text/x-workspace-project"};
-const QLatin1StringView WORKSPACE_PROJECT_ID{"ProjectExplorer.WorkspaceProject"};
-const QLatin1StringView WORKSPACE_PROJECT_RUNCONFIG_ID{"WorkspaceProject.RunConfiguration:"};
-
-const QLatin1StringView PROJECT_NAME_KEY{"project.name"};
-const QLatin1StringView FILES_EXCLUDE_KEY{"files.exclude"};
-const QLatin1StringView EXCLUDE_ACTION_ID{"ProjectExplorer.ExcludeFromWorkspace"};
-const QLatin1StringView RESCAN_ACTION_ID{"ProjectExplorer.RescanWorkspace"};
-
 using namespace Utils;
 using namespace Core;
 
 namespace ProjectExplorer {
+
+const QLatin1StringView FOLDER_MIMETYPE{"inode/directory"};
+const QLatin1StringView WORKSPACE_MIMETYPE{"text/x-workspace-project"};
+const char WORKSPACE_PROJECT_ID[] = "ProjectExplorer.WorkspaceProject";
+const char WORKSPACE_PROJECT_RUNCONFIG_ID[] = "WorkspaceProject.RunConfiguration:";
+
+const QLatin1StringView PROJECT_NAME_KEY{"project.name"};
+const QLatin1StringView FILES_EXCLUDE_KEY{"files.exclude"};
+const char EXCLUDE_ACTION_ID[] = "ProjectExplorer.ExcludeFromWorkspace";
+const char RESCAN_ACTION_ID[] = "ProjectExplorer.RescanWorkspace";
 
 const expected_str<QJsonObject> projectDefinition(const Project *project)
 {
@@ -231,8 +231,8 @@ public:
     WorkspaceProjectRunConfigurationFactory()
     {
         registerRunConfiguration<WorkspaceRunConfiguration>(
-            Id::fromString(WORKSPACE_PROJECT_RUNCONFIG_ID));
-        addSupportedProjectType(Id::fromString(WORKSPACE_PROJECT_ID));
+            Id(WORKSPACE_PROJECT_RUNCONFIG_ID));
+        addSupportedProjectType(WORKSPACE_PROJECT_ID);
     }
 };
 
@@ -243,7 +243,7 @@ public:
     {
         setProduct<SimpleTargetRunner>();
         addSupportedRunMode(Constants::NORMAL_RUN_MODE);
-        addSupportedRunConfig(Id::fromString(WORKSPACE_PROJECT_RUNCONFIG_ID));
+        addSupportedRunConfig(WORKSPACE_PROJECT_RUNCONFIG_ID);
     }
 };
 
@@ -268,7 +268,7 @@ public:
         registerBuildConfiguration<WorkspaceBuildConfiguration>
                 ("WorkspaceProject.BuildConfiguration");
 
-        setSupportedProjectType(Id::fromString(WORKSPACE_PROJECT_ID));
+        setSupportedProjectType(WORKSPACE_PROJECT_ID);
 
         setBuildGenerator([](const Kit *, const FilePath &projectPath, bool forSetup) {
             BuildInfo info;
@@ -298,7 +298,7 @@ public:
             projectFilePath().writeFileContents(QJsonDocument(projectJson).toJson());
         }
 
-        setId(Id::fromString(WORKSPACE_PROJECT_ID));
+        setId(WORKSPACE_PROJECT_ID);
         setDisplayName(projectDirectory().fileName());
         setBuildSystemCreator<WorkspaceBuildSystem>();
     }
@@ -347,8 +347,8 @@ void setupWorkspaceProject(QObject *guard)
     ProjectManager::registerProjectType<WorkspaceProject>(WORKSPACE_MIMETYPE);
 
     QAction *excludeAction = nullptr;
-    ActionBuilder(guard, Id::fromString(EXCLUDE_ACTION_ID))
-        .setContext(Id::fromString(WORKSPACE_PROJECT_ID))
+    ActionBuilder(guard, EXCLUDE_ACTION_ID)
+        .setContext(WORKSPACE_PROJECT_ID)
         .setText(Tr::tr("Exclude from Project"))
         .addToContainer(Constants::M_FOLDERCONTEXT, Constants::G_FOLDER_OTHER)
         .addToContainer(Constants::M_FILECONTEXT, Constants::G_FILE_OTHER)
@@ -363,8 +363,8 @@ void setupWorkspaceProject(QObject *guard)
         });
 
     QAction *rescanAction = nullptr;
-    ActionBuilder(guard, Id::fromString(RESCAN_ACTION_ID))
-        .setContext(Id::fromString(WORKSPACE_PROJECT_ID))
+    ActionBuilder(guard, RESCAN_ACTION_ID)
+        .setContext(WORKSPACE_PROJECT_ID)
         .setText(Tr::tr("Rescan Workspace"))
         .addToContainer(Constants::M_PROJECTCONTEXT, Constants::G_PROJECT_REBUILD)
         .bindContextAction(&rescanAction)

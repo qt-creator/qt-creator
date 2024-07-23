@@ -204,7 +204,7 @@ void addFetchModule()
             }
 
             Utils::InfoBarEntry entry{
-                Utils::Id::fromString("Fetch" + pluginName),
+                Utils::Id("Fetch").withSuffix(pluginName),
                 Tr::tr("Allow the extension \"%1\" to fetch data from the internet?")
                     .arg(pluginName)};
             entry.setDetailsWidgetCreator([pluginName, url] {
@@ -221,16 +221,16 @@ void addFetchModule()
             });
             entry.addCustomButton(Tr::tr("Always Allow"), [mod, pluginName, fetch]() {
                 mod->setAllowedToFetch(pluginName, Module::IsAllowed::Yes);
-                Core::ICore::infoBar()->removeInfo(Utils::Id::fromString("Fetch" + pluginName));
+                Core::ICore::infoBar()->removeInfo(Utils::Id("Fetch").withSuffix(pluginName));
                 fetch();
             });
             entry.addCustomButton(Tr::tr("Allow Once"), [pluginName, fetch]() {
-                Core::ICore::infoBar()->removeInfo(Utils::Id::fromString("Fetch" + pluginName));
+                Core::ICore::infoBar()->removeInfo(Utils::Id("Fetch").withSuffix(pluginName));
                 fetch();
             });
 
             entry.setCancelButtonInfo(Tr::tr("Deny"), [mod, notAllowed, pluginName]() {
-                Core::ICore::infoBar()->removeInfo(Utils::Id::fromString("Fetch" + pluginName));
+                Core::ICore::infoBar()->removeInfo(Utils::Id("Fetch").withSuffix(pluginName));
                 mod->setAllowedToFetch(pluginName, Module::IsAllowed::No);
                 notAllowed();
             });

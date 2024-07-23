@@ -159,7 +159,7 @@ static JsonWizardFactory::Generator parseGenerator(const QVariant &value, QStrin
         *errorMessage = Tr::tr("Generator has no typeId set.");
         return gen;
     }
-    Id typeId = Id::fromString(QLatin1String(Constants::GENERATOR_ID_PREFIX) + strVal);
+    Id typeId = Id(Constants::GENERATOR_ID_PREFIX).withSuffix(strVal);
     JsonWizardGeneratorFactory *factory
             = findOr(generatorFactories(), nullptr, [typeId](JsonWizardGeneratorFactory *f) { return f->canCreate(typeId); });
     if (!factory) {
@@ -326,7 +326,7 @@ std::pair<int, QStringList> JsonWizardFactory::screenSizeInfoFromPage(const QStr
      * pages[i] is the page of type `pageType` and data[j] is the data item with name ScreenFactor
     */
 
-    const Utils::Id id = Utils::Id::fromString(Constants::PAGE_ID_PREFIX + pageType);
+    const Utils::Id id = Utils::Id(Constants::PAGE_ID_PREFIX).withSuffix(pageType);
 
     const auto it = std::find_if(std::cbegin(m_pages), std::cend(m_pages), [&id](const Page &page) {
         return page.typeId == id;
@@ -393,7 +393,7 @@ JsonWizardFactory::Page JsonWizardFactory::parsePage(const QVariant &value, QStr
         *errorMessage = Tr::tr("Page has no typeId set.");
         return p;
     }
-    Id typeId = Id::fromString(QLatin1String(Constants::PAGE_ID_PREFIX) + strVal);
+    Id typeId = Id(Constants::PAGE_ID_PREFIX).withSuffix(strVal);
 
     JsonWizardPageFactory *factory
             = Utils::findOr(pageFactories(), nullptr, [typeId](JsonWizardPageFactory *f) { return f->canCreate(typeId); });
