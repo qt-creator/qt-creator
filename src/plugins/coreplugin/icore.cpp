@@ -1331,8 +1331,6 @@ static bool hideToolsMenu()
     return Core::ICore::settings()->value(Constants::SETTINGS_MENU_HIDE_TOOLS, false).toBool();
 }
 
-enum { debugMainWindow = 0 };
-
 namespace Internal {
 
 void ICorePrivate::init()
@@ -2332,11 +2330,6 @@ void ICorePrivate::updateContextObject(const QList<IContext *> &context)
     emit m_core->contextAboutToChange(context);
     m_activeContext = context;
     updateContext();
-    if (debugMainWindow) {
-        qDebug() << "new context objects =" << context;
-        for (const IContext *c : context)
-            qDebug() << (c ? c->widget() : nullptr) << (c ? c->widget()->metaObject()->className() : nullptr);
-    }
 }
 
 void ICorePrivate::readSettings()
@@ -2417,8 +2410,17 @@ void ICorePrivate::updateContext()
     }
 
     if (coreLog().isDebugEnabled()) {
-        qCDebug(coreLog) << "context changed:"
+        qCDebug(coreLog) << "Context changed:";
+        qCDebug(coreLog) << "    "
                          << Utils::transform<QList<QString>>(uniquecontexts, &Id::toString);
+        qCDebug(coreLog) << "    "
+                         << Utils::transform<QList<QString>>(m_activeContext, [](IContext *c) {
+                                return QString("%1: %2").arg(
+                                    QString::fromUtf8(c->metaObject()->className()),
+                                    c->widget()
+                                        ? QString::fromUtf8(c->widget()->metaObject()->className())
+                                        : QString("<no widget>"));
+                            });
     }
     ActionManager::setContext(uniquecontexts);
     emit m_core->contextChanged(uniquecontexts);
