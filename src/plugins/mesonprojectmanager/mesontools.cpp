@@ -46,7 +46,7 @@ ToolWrapper::ToolWrapper(ToolType toolType,
     , m_version(read_version(path))
     , m_isValid{path.exists() && m_version.isValid}
     , m_autoDetected{autoDetected}
-    , m_id{Utils::Id::generate()}
+    , m_id{Id::generate()}
     , m_exe{path}
     , m_name{name}
 {}
@@ -64,21 +64,21 @@ ToolWrapper::ToolWrapper(ToolType toolType,
     , m_exe{path}
     , m_name{name}
 {
-    QTC_ASSERT(m_id.isValid(), m_id = Utils::Id::generate());
+    QTC_ASSERT(m_id.isValid(), m_id = Id::generate());
 }
 
 ToolWrapper::~ToolWrapper() = default;
 
-void ToolWrapper::setExe(const Utils::FilePath &newExe)
+void ToolWrapper::setExe(const FilePath &newExe)
 {
     m_exe = newExe;
     m_version = read_version(m_exe);
 }
 
-Version ToolWrapper::read_version(const Utils::FilePath &toolPath)
+Version ToolWrapper::read_version(const FilePath &toolPath)
 {
     if (toolPath.toFileInfo().isExecutable()) {
-        Utils::Process process;
+        Process process;
         process.setCommand({ toolPath, { "--version" } });
         process.start();
         if (process.waitForFinished())
@@ -89,7 +89,7 @@ Version ToolWrapper::read_version(const Utils::FilePath &toolPath)
 
 Store ToolWrapper::toVariantMap() const
 {
-    Utils::Store data;
+    Store data;
     data.insert(Constants::ToolsSettings::NAME_KEY, m_name);
     data.insert(Constants::ToolsSettings::EXE_KEY, m_exe.toSettings());
     data.insert(Constants::ToolsSettings::AUTO_DETECTED_KEY, m_autoDetected);
@@ -154,7 +154,7 @@ Command ToolWrapper::regenerate(const FilePath &sourceDirectory,
             buildDirectory};
 }
 
-Command ToolWrapper::introspect(const Utils::FilePath &sourceDirectory) const
+Command ToolWrapper::introspect(const FilePath &sourceDirectory) const
 {
     return {{m_exe,
             {"introspect", "--all", QString("%1/meson.build").arg(sourceDirectory.path())}},
@@ -175,7 +175,7 @@ bool containsFiles(const QString &path, const File_t &file, const T &...files)
 
 bool run_meson(const Command &command, QIODevice *output)
 {
-    Utils::Process process;
+    Process process;
     process.setWorkingDirectory(command.workDir);
     process.setCommand(command.cmdLine);
     process.start();
@@ -187,9 +187,8 @@ bool run_meson(const Command &command, QIODevice *output)
     return process.exitCode() == 0;
 }
 
-bool isSetup(const Utils::FilePath &buildPath)
+bool isSetup(const FilePath &buildPath)
 {
-    using namespace Utils;
     return containsFiles(buildPath.pathAppended(Constants::MESON_INFO_DIR).toString(),
                          Constants::MESON_INTRO_TESTS,
                          Constants::MESON_INTRO_TARGETS,
@@ -268,31 +267,6 @@ static void fixAutoDetected(ToolType toolType)
     }
 }
 
-bool MesonTools::isMesonWrapper(const MesonTools::Tool_t &tool)
-{
-    return tool->toolType() == ToolType::Meson;
-}
-
-bool MesonTools::isNinjaWrapper(const MesonTools::Tool_t &tool)
-{
-    return tool->toolType() == ToolType::Ninja;
-}
-
-void MesonTools::addTool(const Id &itemId, const QString &name, const FilePath &exe)
-{
-    // TODO improve this
-    if (exe.fileName().contains("ninja"))
-        addTool(std::make_shared<ToolWrapper>(ToolType::Ninja, name, exe, itemId));
-    else
-        addTool(std::make_shared<ToolWrapper>(ToolType::Meson, name, exe, itemId));
-}
-
-void MesonTools::addTool(Tool_t meson)
-{
-    s_tools.emplace_back(std::move(meson));
-    emit instance()->toolAdded(s_tools.back());
-}
-
 void MesonTools::setTools(std::vector<MesonTools::Tool_t> &&tools)
 {
     std::swap(s_tools, tools);
@@ -314,7 +288,10 @@ void MesonTools::updateTool(const Id &itemId, const QString &name, const FilePat
         (*item)->setExe(exe);
         (*item)->setName(name);
     } else {
-        addTool(itemId, name, exe);
+        // TODO improve this
+        const ToolType toolType = exe.fileName().contains("ninja") ? ToolType::Ninja : ToolType::Meson;
+        s_tools.emplace_back(std::make_shared<ToolWrapper>(toolType, name, exe, itemId));
+        emit instance()->toolAdded(s_tools.back());
     }
 }
 

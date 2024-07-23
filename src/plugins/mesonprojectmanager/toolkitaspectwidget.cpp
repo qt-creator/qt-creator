@@ -86,7 +86,7 @@ void MesonToolKitAspectImpl::addTool(const MesonTools::Tool_t &tool)
 {
     QTC_ASSERT(tool, return );
     if (isCompatible(tool))
-        this->m_toolsComboBox->addItem(tool->name(), tool->id().toSetting());
+        m_toolsComboBox->addItem(tool->name(), tool->id().toSetting());
 }
 
 void MesonToolKitAspectImpl::removeTool(const MesonTools::Tool_t &tool)
@@ -123,8 +123,7 @@ int MesonToolKitAspectImpl::indexOf(const Id &id)
 
 bool MesonToolKitAspectImpl::isCompatible(const MesonTools::Tool_t &tool)
 {
-    return (m_type == ToolType::Meson && MesonTools::isMesonWrapper(tool))
-           || (m_type == ToolType::Ninja && MesonTools::isNinjaWrapper(tool));
+    return m_type == tool->toolType();
 }
 
 void MesonToolKitAspectImpl::loadTools()
