@@ -215,11 +215,9 @@ AndroidRunnerWorker::~AndroidRunnerWorker()
         forceStop();
 }
 
-bool AndroidRunnerWorker::runAdb(const QStringList &args, QString *stdOut,
-                                 QString *stdErr, const QByteArray &writeData)
+bool AndroidRunnerWorker::runAdb(const QStringList &args, QString *stdOut, QString *stdErr)
 {
-    QStringList adbArgs = selector() + args;
-    SdkToolResult result = AndroidManager::runAdbCommand(adbArgs, writeData);
+    const SdkToolResult result = AndroidManager::runAdbCommand(selector() + args);
     if (!result.success())
         emit remoteErrorOutput(result.stdErr());
     if (stdOut)

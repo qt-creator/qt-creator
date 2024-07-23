@@ -47,8 +47,7 @@ signals:
     void remoteErrorOutput(const QString &output);
 
 private:
-    bool runAdb(const QStringList &args, QString *stdOut = nullptr, QString *stdErr = nullptr,
-                const QByteArray &writeData = {});
+    bool runAdb(const QStringList &args, QString *stdOut = nullptr, QString *stdErr = nullptr);
     QStringList selector() const;
     void forceStop();
     void logcatReadStandardError();
