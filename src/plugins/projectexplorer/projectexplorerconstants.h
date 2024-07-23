@@ -126,6 +126,7 @@ const char BUILDSTEPS_DEPLOY[] = "ProjectExplorer.BuildSteps.Deploy";
 const char COPY_FILE_STEP[] = "ProjectExplorer.CopyFileStep";
 const char COPY_DIRECTORY_STEP[] = "ProjectExplorer.CopyDirectoryStep";
 const char DEVICE_CHECK_STEP[] =  "ProjectExplorer.DeviceCheckBuildStep";
+const char CUSTOM_PROCESS_STEP[] =  "ProjectExplorer.ProcessStep";
 
 // Language
 

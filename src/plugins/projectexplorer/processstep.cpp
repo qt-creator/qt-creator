@@ -78,7 +78,7 @@ private:
 
 ProcessStepFactory::ProcessStepFactory()
 {
-    registerStep<ProcessStep>("ProjectExplorer.ProcessStep");
+    registerStep<ProcessStep>(Constants::CUSTOM_PROCESS_STEP);
     //: Default ProcessStep display name
     setDisplayName(Tr::tr("Custom Process Step"));
 }
