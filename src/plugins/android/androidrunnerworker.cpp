@@ -761,22 +761,9 @@ void AndroidRunnerWorker::handleJdbSettled()
 
 void AndroidRunnerWorker::removeForwardPort(const QString &port)
 {
-    bool found = false;
-    SdkToolResult result = AndroidManager::runAdbCommand({"forward", "--list"});
-
-    QString string = result.stdOut();
-    const auto lines = string.split('\n');
-    for (const QString &line : lines) {
-        if (line.contains(port)) {
-            found = true;
-            break;
-        }
-    }
-
-    if (found) {
-        QStringList removeForward{"forward", "--remove", port};
-        runAdb(removeForward);
-    }
+    const SdkToolResult result = AndroidManager::runAdbCommand({"forward", "--list"});
+    if (result.stdOut().contains(port))
+        runAdb({"forward", "--remove", port});
 }
 
 void AndroidRunnerWorker::onProcessIdChanged(const PidUserPair &pidUser)
