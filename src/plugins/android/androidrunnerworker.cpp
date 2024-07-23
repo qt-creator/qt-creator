@@ -38,6 +38,7 @@ static const int GdbTempFileMaxCounter = 20;
 }
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 using namespace std;
@@ -206,7 +207,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
 
     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
     m_useAppParamsForQmlDebugger = version->qtVersion() >= QVersionNumber(5, 12);
-    m_pidRunner.setParent(this); // Move m_pidRunner object together with *this into a separate thread.
+    m_taskTreeRunner.setParent(this); // Move m_taskTreeRunner object together with *this into a separate thread.
 }
 
 AndroidRunnerWorker::~AndroidRunnerWorker()
@@ -443,6 +444,7 @@ void AndroidRunnerWorker::asyncStartHelper()
     forceStop();
     asyncStartLogcat();
 
+    // 1. For loop
     for (const QString &entry : std::as_const(m_beforeStartAdbCommands))
         runAdb(entry.split(' ', Qt::SkipEmptyParts));
 
@@ -454,6 +456,7 @@ void AndroidRunnerWorker::asyncStartHelper()
     if (m_qmlDebugServices != QmlDebug::NoQmlDebugServices) {
         // currently forward to same port on device and host
         const QString port = "tcp:" + QString::number(m_qmlServer.port());
+        // 2. removeForwardPort recipe
         if (!removeForwardPort(port, port, "QML"))
             return;
 
@@ -488,6 +491,7 @@ void AndroidRunnerWorker::asyncStartHelper()
     }
 
     QString stdErr;
+    // 3. run adb recipe
     const bool startResult = runAdb(args, nullptr, &stdErr);
     if (!startResult) {
         emit remoteProcessFinished(Tr::tr("Failed to start the activity."));
@@ -602,12 +606,8 @@ void AndroidRunnerWorker::startDebuggerServer(const QString &packageDir,
     }
 }
 
-void AndroidRunnerWorker::asyncStart()
+ExecutableItem AndroidRunnerWorker::pidRecipe()
 {
-    asyncStartHelper();
-
-    using namespace Tasking;
-
     const Storage<PidUserPair> pidStorage;
 
     const FilePath adbPath = AndroidConfig::adbToolPath();
@@ -650,7 +650,7 @@ void AndroidRunnerWorker::asyncStart()
         return DoneResult::Error;
     };
 
-    const Group root {
+    return Group {
         pidStorage,
         onGroupSetup([pidStorage] { *pidStorage = {-1, 0}; }),
         Forever {
@@ -662,13 +662,18 @@ void AndroidRunnerWorker::asyncStart()
         ProcessTask(onUserSetup, onUserDone, CallDoneIf::Success),
         onGroupDone([pidStorage, this] { onProcessIdChanged(*pidStorage); })
     };
+}
 
-    m_pidRunner.start(root);
+void AndroidRunnerWorker::asyncStart()
+{
+    asyncStartHelper();
+
+    m_taskTreeRunner.start({pidRecipe()});
 }
 
 void AndroidRunnerWorker::asyncStop()
 {
-    m_pidRunner.reset();
+    m_taskTreeRunner.reset();
     if (m_processPID != -1)
         forceStop();
 

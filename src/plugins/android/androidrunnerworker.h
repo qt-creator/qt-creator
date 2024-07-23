@@ -74,6 +74,7 @@ private:
     };
     void onProcessIdChanged(const PidUserPair &pidUser);
     bool isPreNougat() const { return m_apiLevel > 0 && m_apiLevel <= 23; }
+    Tasking::ExecutableItem pidRecipe();
 
     // Create the processes and timer in the worker thread, for correct thread affinity
     QString m_packageName;
@@ -87,7 +88,7 @@ private:
     std::unique_ptr<Utils::Process> m_psIsAlive;
     QByteArray m_stdoutBuffer;
     QByteArray m_stderrBuffer;
-    Tasking::TaskTreeRunner m_pidRunner;
+    Tasking::TaskTreeRunner m_taskTreeRunner;
     bool m_useCppDebugger = false;
     bool m_useLldb = false; // FIXME: Un-implemented currently.
     QmlDebug::QmlDebugServicesPreset m_qmlDebugServices;
