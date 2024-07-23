@@ -202,7 +202,7 @@ settings.OptionsPage = {}
 ---@field displayName string
 ---@field categoryId string
 ---@field displayCategory string
----@field categoryIconPath string
+---@field categoryIconPath string|FilePath
 ---@field aspectContainer AspectContainer
 OptionsPageCreate = {}
 

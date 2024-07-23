@@ -553,8 +553,10 @@ void addSettingsModule()
                 setDisplayName(options.get<QString>("displayName"));
                 setCategory(Id::fromString(options.get<QString>("categoryId")));
                 setDisplayCategory(options.get<QString>("displayCategory"));
-                setCategoryIconPath(
-                    FilePath::fromUserInput(options.get<QString>("categoryIconPath")));
+                const FilePath catIcon = options.get<std::optional<FilePath>>("categoryIconPath")
+                                             .value_or(FilePath::fromUserInput(
+                                                 options.get_or<QString>("categoryIconPath", {})));
+                setCategoryIconPath(catIcon);
                 AspectContainer *container = options.get<AspectContainer *>("aspectContainer");
                 setSettingsProvider([container]() { return container; });
             }
