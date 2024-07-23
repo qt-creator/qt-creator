@@ -452,14 +452,9 @@ void AndroidRunnerWorker::asyncStartHelper()
 
     if (m_qmlDebugServices != QmlDebug::NoQmlDebugServices) {
         // currently forward to same port on device and host
-        const QString port = QString("tcp:%1").arg(m_qmlServer.port());
-        QStringList removeForward{{"forward", "--remove", port}};
-        removeForwardPort(port);
-        if (!runAdb({"forward", port, port})) {
-            emit remoteProcessFinished(Tr::tr("Failed to forward QML debugging ports."));
+        const QString port = "tcp:" + QString::number(m_qmlServer.port());
+        if (!removeForwardPort(port, port, "QML"))
             return;
-        }
-        m_afterFinishAdbCommands.push_back(removeForward.join(' '));
 
         const QString qmljsdebugger = QString("port:%1,block,services:%2")
                 .arg(m_qmlServer.port()).arg(QmlDebug::qmlDebugServices(m_qmlDebugServices));
@@ -601,16 +596,8 @@ void AndroidRunnerWorker::startDebuggerServer(const QString &packageDir,
         qCDebug(androidRunWorkerLog) << "Debugger process started";
         m_debugServerProcess->setObjectName("AndroidDebugServerProcess");
 
-        // TODO: Repeats 3 times, refactor...
-        const QString port = "tcp:" + m_localDebugServerPort.toString();
-        const QStringList removeForward{"forward", "--remove", port};
-        removeForwardPort(port);
-        if (!runAdb({"forward", port,
-                    "localfilesystem:" + gdbServerSocket})) {
-            emit remoteProcessFinished(Tr::tr("Failed to forward C++ debugging ports."));
-            return;
-        }
-        m_afterFinishAdbCommands.push_back(removeForward.join(' '));
+        removeForwardPort("tcp:" + m_localDebugServerPort.toString(),
+                          "localfilesystem:" + gdbServerSocket, "C++");
     }
 }
 
@@ -690,15 +677,9 @@ void AndroidRunnerWorker::asyncStop()
 
 void AndroidRunnerWorker::handleJdbWaiting()
 {
-    const QString port = "tcp:" + m_localJdbServerPort.toString();
-    const QStringList removeForward{"forward", "--remove", port};
-    removeForwardPort(port);
-    if (!runAdb({"forward", port,
-                "jdwp:" + QString::number(m_processPID)})) {
-        emit remoteProcessFinished(Tr::tr("Failed to forward JDB debugging ports."));
+    if (!removeForwardPort("tcp:" + m_localJdbServerPort.toString(),
+                           "jdwp:" + QString::number(m_processPID), "JDB"))
         return;
-    }
-    m_afterFinishAdbCommands.push_back(removeForward.join(' '));
 
     const FilePath jdbPath = AndroidConfig::openJDKLocation()
             .pathAppended("bin/jdb").withExecutableSuffix();
@@ -759,11 +740,18 @@ void AndroidRunnerWorker::handleJdbSettled()
     emit remoteProcessFinished(Tr::tr("Cannot attach JDB to the running application."));
 }
 
-void AndroidRunnerWorker::removeForwardPort(const QString &port)
+bool AndroidRunnerWorker::removeForwardPort(const QString &port, const QString &adbArg,
+                                            const QString &portType)
 {
     const SdkToolResult result = AndroidManager::runAdbCommand({"forward", "--list"});
     if (result.stdOut().contains(port))
         runAdb({"forward", "--remove", port});
+    if (runAdb({"forward", port, adbArg})) {
+        m_afterFinishAdbCommands.push_back("forward --remove " + port);
+        return true;
+    }
+    emit remoteProcessFinished(Tr::tr("Failed to forward %1 debugging ports.").arg(portType));
+    return false;
 }
 
 void AndroidRunnerWorker::onProcessIdChanged(const PidUserPair &pidUser)

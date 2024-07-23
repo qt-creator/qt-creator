@@ -58,7 +58,7 @@ private:
     void handleJdbWaiting();
     void handleJdbSettled();
 
-    void removeForwardPort(const QString &port);
+    bool removeForwardPort(const QString &port, const QString &adbArg, const QString &portType);
 
     void asyncStartHelper();
     void startNativeDebugging();
