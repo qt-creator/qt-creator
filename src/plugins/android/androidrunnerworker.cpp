@@ -445,65 +445,6 @@ void AndroidRunnerWorker::asyncStartHelper()
 {
     forceStop();
     asyncStartLogcat();
-
-    // 1. For loop
-    for (const QString &entry : std::as_const(m_beforeStartAdbCommands))
-        runAdb(entry.split(' ', Qt::SkipEmptyParts));
-
-    QStringList args({"shell", "am", "start"});
-    args << "-n" << m_intentName;
-    if (m_useCppDebugger)
-        args << "-D";
-
-    if (m_qmlDebugServices != QmlDebug::NoQmlDebugServices) {
-        // currently forward to same port on device and host
-        const QString port = "tcp:" + QString::number(m_qmlServer.port());
-        // 2. removeForwardPort recipe
-        if (!removeForwardPort(port, port, "QML"))
-            return;
-
-        const QString qmljsdebugger = QString("port:%1,block,services:%2")
-                .arg(m_qmlServer.port()).arg(QmlDebug::qmlDebugServices(m_qmlDebugServices));
-
-        if (m_useAppParamsForQmlDebugger) {
-            if (!m_extraAppParams.isEmpty())
-                m_extraAppParams.prepend(' ');
-            m_extraAppParams.prepend("-qmljsdebugger=" + qmljsdebugger);
-        } else {
-            args << "-e" << "qml_debug" << "true"
-                 << "-e" << "qmljsdebugger"
-                 << qmljsdebugger;
-        }
-    }
-
-    args << m_amStartExtraArgs;
-
-    if (!m_extraAppParams.isEmpty()) {
-        QStringList appArgs =
-                Utils::ProcessArgs::splitArgs(m_extraAppParams, Utils::OsType::OsTypeLinux);
-        qCDebug(androidRunWorkerLog).noquote() << "Using application arguments: " << appArgs;
-        args << "-e" << "extraappparams"
-             << QString::fromLatin1(appArgs.join(' ').toUtf8().toBase64());
-    }
-
-    if (m_extraEnvVars.hasChanges()) {
-        args << "-e" << "extraenvvars"
-             << QString::fromLatin1(m_extraEnvVars.toStringList().join('\t')
-                                    .toUtf8().toBase64());
-    }
-
-    QString stdErr;
-    // 3. run adb recipe
-    const bool startResult = runAdb(args, nullptr, &stdErr);
-    if (!startResult) {
-        emit remoteProcessFinished(Tr::tr("Failed to start the activity."));
-        return;
-    }
-
-    if (!stdErr.isEmpty()) {
-        emit remoteErrorOutput(Tr::tr("Activity Manager threw the error: %1").arg(stdErr));
-        return;
-    }
 }
 
 void AndroidRunnerWorker::startNativeDebugging()
@@ -644,6 +585,85 @@ ExecutableItem AndroidRunnerWorker::removeForwardPortRecipe(
     };
 }
 
+ExecutableItem AndroidRunnerWorker::preStartRecipe()
+{
+    const QString port = "tcp:" + QString::number(m_qmlServer.port());
+
+    const Storage<QStringList> argsStorage;
+    const LoopList iterator(m_beforeStartAdbCommands);
+
+    const auto onArgsSetup = [this, argsStorage] {
+        *argsStorage = {"shell", "am", "start", "-n", m_intentName};
+        if (m_useCppDebugger)
+            *argsStorage << "-D";
+    };
+
+    const auto onPreCommandSetup = [this, iterator](Process &process) {
+        process.setCommand({AndroidConfig::adbToolPath(),
+                            {selector(), iterator->split(' ', Qt::SkipEmptyParts)}});
+    };
+    const auto onPreCommandDone = [this](const Process &process) {
+        emit remoteErrorOutput(process.cleanedStdErr().trimmed());
+    };
+
+    const auto onQmlDebugSetup = [this] {
+        return m_qmlDebugServices == QmlDebug::NoQmlDebugServices ? SetupResult::StopWithSuccess
+                                                                  : SetupResult::Continue;
+    };
+    const auto onQmlDebugDone = [this, argsStorage] {
+        const QString qmljsdebugger = QString("port:%1,block,services:%2")
+            .arg(m_qmlServer.port()).arg(QmlDebug::qmlDebugServices(m_qmlDebugServices));
+
+        if (m_useAppParamsForQmlDebugger) {
+            if (!m_extraAppParams.isEmpty())
+                m_extraAppParams.prepend(' ');
+            m_extraAppParams.prepend("-qmljsdebugger=" + qmljsdebugger);
+        } else {
+            *argsStorage << "-e" << "qml_debug" << "true"
+                         << "-e" << "qmljsdebugger" << qmljsdebugger;
+        }
+    };
+
+    const auto onActivitySetup = [this, argsStorage](Process &process) {
+        QStringList args = *argsStorage;
+        args << m_amStartExtraArgs;
+
+        if (!m_extraAppParams.isEmpty()) {
+            const QStringList appArgs =
+                ProcessArgs::splitArgs(m_extraAppParams, Utils::OsType::OsTypeLinux);
+            qCDebug(androidRunWorkerLog).noquote() << "Using application arguments: " << appArgs;
+            args << "-e" << "extraappparams"
+                 << QString::fromLatin1(appArgs.join(' ').toUtf8().toBase64());
+        }
+
+        if (m_extraEnvVars.hasChanges()) {
+            args << "-e" << "extraenvvars"
+                 << QString::fromLatin1(m_extraEnvVars.toStringList().join('\t')
+                                            .toUtf8().toBase64());
+        }
+        process.setCommand({AndroidConfig::adbToolPath(), {selector(), args}});
+    };
+    const auto onActivityDone = [this](const Process &process) {
+        emit remoteProcessFinished(Tr::tr("Activity Manager error: %1")
+                                       .arg(process.cleanedStdErr().trimmed()));
+    };
+
+    return Group {
+        argsStorage,
+        onGroupSetup(onArgsSetup),
+        For {
+            iterator,
+            ProcessTask(onPreCommandSetup, onPreCommandDone, CallDoneIf::Error)
+        },
+        Group {
+            onGroupSetup(onQmlDebugSetup),
+            removeForwardPortRecipe(port, port, "QML"),
+            onGroupDone(onQmlDebugDone, CallDoneIf::Success)
+        },
+        ProcessTask(onActivitySetup, onActivityDone, CallDoneIf::Error)
+    };
+}
+
 ExecutableItem AndroidRunnerWorker::pidRecipe()
 {
     const Storage<PidUserPair> pidStorage;
@@ -706,7 +726,12 @@ void AndroidRunnerWorker::asyncStart()
 {
     asyncStartHelper();
 
-    m_taskTreeRunner.start({pidRecipe()});
+    const Group recipe {
+        preStartRecipe(),
+        pidRecipe()
+    };
+
+    m_taskTreeRunner.start(recipe);
 }
 
 void AndroidRunnerWorker::asyncStop()

@@ -76,6 +76,7 @@ private:
     bool isPreNougat() const { return m_apiLevel > 0 && m_apiLevel <= 23; }
     Tasking::ExecutableItem removeForwardPortRecipe(const QString &port, const QString &adbArg,
                                                     const QString &portType);
+    Tasking::ExecutableItem preStartRecipe();
     Tasking::ExecutableItem pidRecipe();
 
     // Create the processes and timer in the worker thread, for correct thread affinity
