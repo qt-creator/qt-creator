@@ -1,5 +1,9 @@
 ---@meta
 
+---@class PluginSpec
+---@field name string The name of the plugin.
+---@field pluginDirectory FilePath The directory of the plugin.
+PluginSpec = {}
 ---The global qtc object defined in the Lua plugin.
 ---@class qtc
 Qtc = {}
@@ -24,6 +28,7 @@ Qtc = {}
 ---@field Mimetypes? string XML MIME-info for registering additional or adapting built-in MIME types.
 ---@field JsonWizardPaths? string[] A list of paths relative to the plugin location or paths to the Qt resource system that are searched for template-based wizards.
 ---@field printToOutputPane? boolean Whether the `print(...)` function should print to the output pane or not. ( Default: false )
+---@field languages? string[] A list of languages that the plugin supports.
 QtcPlugin = {}
 
 ---@class QtcPluginDependency

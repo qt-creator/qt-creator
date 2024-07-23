@@ -192,8 +192,9 @@ expected_str<LuaPluginSpec *> LuaEngine::loadPlugin(const Utils::FilePath &path)
         return make_unexpected(contents.error());
 
     sol::state lua;
+    lua["tr"] = [](const QString &str) { return str; };
 
-    auto result = lua.safe_script(
+    sol::protected_function_result result = lua.safe_script(
         std::string_view(contents->data(), contents->size()),
         sol::script_pass_on_error,
         path.fileName().toUtf8().constData());
