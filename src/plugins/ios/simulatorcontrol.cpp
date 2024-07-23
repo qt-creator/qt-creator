@@ -480,14 +480,14 @@ void installApp(QPromise<SimulatorControl::Response> &promise,
         return;
     }
 
-    expected_str<void> result = runSimCtlCommand({"install", simUdid, bundlePath.toString()},
-                                                 nullptr,
-                                                 &response.commandOutput,
-                                                 [&promise] { return promise.isCanceled(); });
+    QString allOutput;
+    expected_str<void> result = runSimCtlCommand(
+        {"install", simUdid, bundlePath.toString()}, nullptr, &allOutput, [&promise] {
+            return promise.isCanceled();
+        });
     if (!result) {
-        const QString error = result.error().isEmpty()
-                                  ? response.commandOutput
-                                  : (result.error() + "\n" + response.commandOutput);
+        const QString error = result.error().isEmpty() ? allOutput
+                                                       : (result.error() + "\n" + allOutput);
         promise.addResult(make_unexpected(error));
     } else {
         promise.addResult(response);
@@ -527,10 +527,9 @@ void launchApp(QPromise<SimulatorControl::Response> &promise,
     }
 
     QString stdOutput;
-    expected_str<void> result = runSimCtlCommand(args,
-                                                 &stdOutput,
-                                                 &response.commandOutput,
-                                                 [&promise] { return promise.isCanceled(); });
+    expected_str<void> result = runSimCtlCommand(args, &stdOutput, nullptr, [&promise] {
+        return promise.isCanceled();
+    });
 
     if (!result) {
         promise.addResult(make_unexpected(result.error()));
@@ -553,10 +552,9 @@ void launchApp(QPromise<SimulatorControl::Response> &promise,
 void deleteSimulator(QPromise<SimulatorControl::Response> &promise, const QString &simUdid)
 {
     SimulatorControl::ResponseData response(simUdid);
-    expected_str<void> result = runSimCtlCommand({"delete", simUdid},
-                                                 nullptr,
-                                                 &response.commandOutput,
-                                                 [&promise] { return promise.isCanceled(); });
+    expected_str<void> result = runSimCtlCommand({"delete", simUdid}, nullptr, nullptr, [&promise] {
+        return promise.isCanceled();
+    });
 
     if (!result)
         promise.addResult(make_unexpected(result.error()));
@@ -567,10 +565,9 @@ void deleteSimulator(QPromise<SimulatorControl::Response> &promise, const QStrin
 void resetSimulator(QPromise<SimulatorControl::Response> &promise, const QString &simUdid)
 {
     SimulatorControl::ResponseData response(simUdid);
-    expected_str<void> result = runSimCtlCommand({"erase", simUdid},
-                                                 nullptr,
-                                                 &response.commandOutput,
-                                                 [&promise] { return promise.isCanceled(); });
+    expected_str<void> result = runSimCtlCommand({"erase", simUdid}, nullptr, nullptr, [&promise] {
+        return promise.isCanceled();
+    });
 
     if (!result)
         promise.addResult(make_unexpected(result.error()));
@@ -583,10 +580,10 @@ void renameSimulator(QPromise<SimulatorControl::Response> &promise,
                      const QString &newName)
 {
     SimulatorControl::ResponseData response(simUdid);
-    expected_str<void> result = runSimCtlCommand({"rename", simUdid, newName},
-                                                 nullptr,
-                                                 &response.commandOutput,
-                                                 [&promise] { return promise.isCanceled(); });
+    expected_str<void> result
+        = runSimCtlCommand({"rename", simUdid, newName}, nullptr, nullptr, [&promise] {
+              return promise.isCanceled();
+          });
     if (!result)
         promise.addResult(make_unexpected(result.error()));
     else
@@ -606,11 +603,11 @@ void createSimulator(QPromise<SimulatorControl::Response> &promise,
     }
 
     QString stdOutput;
-    expected_str<void> result
-        = runSimCtlCommand({"create", name, deviceType.identifier, runtime.identifier},
-                           &stdOutput,
-                           &response.commandOutput,
-                           [&promise] { return promise.isCanceled(); });
+    expected_str<void> result = runSimCtlCommand(
+        {"create", name, deviceType.identifier, runtime.identifier},
+        &stdOutput,
+        nullptr,
+        [&promise] { return promise.isCanceled(); });
 
     if (result)
         response.simUdid = stdOutput.trimmed();
@@ -626,10 +623,10 @@ void takeSceenshot(QPromise<SimulatorControl::Response> &promise,
                    const QString &filePath)
 {
     SimulatorControl::ResponseData response(simUdid);
-    expected_str<void> result = runSimCtlCommand({"io", simUdid, "screenshot", filePath},
-                                                 nullptr,
-                                                 &response.commandOutput,
-                                                 [&promise] { return promise.isCanceled(); });
+    expected_str<void> result
+        = runSimCtlCommand({"io", simUdid, "screenshot", filePath}, nullptr, nullptr, [&promise] {
+              return promise.isCanceled();
+          });
 
     if (!result)
         promise.addResult(make_unexpected(result.error()));

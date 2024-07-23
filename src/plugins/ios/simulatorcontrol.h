@@ -60,7 +60,6 @@ public:
 
         QString simUdid;
         qint64 inferiorPid{-1};
-        QString commandOutput;
     };
 
     using Response = Utils::expected_str<ResponseData>;
