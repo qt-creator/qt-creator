@@ -62,7 +62,7 @@ private:
 
     void asyncStartHelper();
     void startNativeDebugging();
-    bool startDebuggerServer(const QString &packageDir, const QString &debugServerFile, QString *errorStr = nullptr);
+    void startDebuggerServer(const QString &packageDir, const QString &debugServerFile);
     bool deviceFileExists(const QString &filePath);
     bool packageFileExists(const QString& filePath);
     bool uploadDebugServer(const QString &debugServerFileName);

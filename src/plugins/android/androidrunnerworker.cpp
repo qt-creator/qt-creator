@@ -402,7 +402,7 @@ void AndroidRunnerWorker::setAndroidDeviceInfo(const AndroidDeviceInfo &info)
                                  << m_deviceSerialNumber << m_apiLevel;
 }
 
-void Android::Internal::AndroidRunnerWorker::asyncStartLogcat()
+void AndroidRunnerWorker::asyncStartLogcat()
 {
     // Its assumed that the device or avd returned by selector() is online.
     // Start the logcat process before app starts.
@@ -555,16 +555,11 @@ void AndroidRunnerWorker::startNativeDebugging()
             }
         }
     }
-    QString debuggerServerErr;
-    if (!startDebuggerServer(packageDir, debugServerFile, &debuggerServerErr)) {
-        emit remoteProcessFinished(debuggerServerErr);
-        return;
-    }
+    startDebuggerServer(packageDir, debugServerFile);
 }
 
-bool AndroidRunnerWorker::startDebuggerServer(const QString &packageDir,
-                                              const QString &debugServerFile,
-                                              QString *errorStr)
+void AndroidRunnerWorker::startDebuggerServer(const QString &packageDir,
+                                              const QString &debugServerFile)
 {
     QStringList adbArgs = {"shell", "run-as", m_packageName};
     if (m_processUser > 0)
@@ -581,9 +576,8 @@ bool AndroidRunnerWorker::startDebuggerServer(const QString &packageDir,
 
         if (!m_debugServerProcess) {
             qCDebug(androidRunWorkerLog) << "Debugger process failed to start" << lldbServerErr;
-            if (errorStr)
-                *errorStr = Tr::tr("Failed to start debugger server.");
-            return false;
+            emit remoteProcessFinished(Tr::tr("Failed to start debugger server."));
+            return;
         }
         qCDebug(androidRunWorkerLog) << "Debugger process started";
         m_debugServerProcess->setObjectName("AndroidDebugServerProcess");
@@ -601,25 +595,23 @@ bool AndroidRunnerWorker::startDebuggerServer(const QString &packageDir,
 
         if (!m_debugServerProcess) {
             qCDebug(androidRunWorkerLog) << "Debugger process failed to start" << gdbServerErr;
-            if (errorStr)
-                *errorStr = Tr::tr("Failed to start debugger server.");
-            return false;
+            emit remoteProcessFinished(Tr::tr("Failed to start debugger server."));
+            return;
         }
         qCDebug(androidRunWorkerLog) << "Debugger process started";
         m_debugServerProcess->setObjectName("AndroidDebugServerProcess");
 
+        // TODO: Repeats 3 times, refactor...
         const QString port = "tcp:" + m_localDebugServerPort.toString();
         const QStringList removeForward{"forward", "--remove", port};
         removeForwardPort(port);
         if (!runAdb({"forward", port,
                     "localfilesystem:" + gdbServerSocket})) {
-            if (errorStr)
-                *errorStr = Tr::tr("Failed to forward C++ debugging ports.");
-            return false;
+            emit remoteProcessFinished(Tr::tr("Failed to forward C++ debugging ports."));
+            return;
         }
         m_afterFinishAdbCommands.push_back(removeForward.join(' '));
     }
-    return true;
 }
 
 void AndroidRunnerWorker::asyncStart()
