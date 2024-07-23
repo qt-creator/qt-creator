@@ -59,8 +59,6 @@ add_qtc_plugin(MesonProjectManager
   toolssettingspage.h
   tooltreeitem.cpp
   tooltreeitem.h
-  toolwrapper.cpp
-  toolwrapper.h
   versionhelper.h
 )
 
@@ -81,8 +79,7 @@ add_qtc_test(tst_mesonwrapper
      TEST_RELATIVE_LIBEXEC_PATH="${TEST_RELATIVE_LIBEXEC_PATH}"
   SOURCES
     tests/testmesonwrapper.cpp
-    toolwrapper.h
-    toolwrapper.cpp
+    mesontools.cpp
     mesontools.h
 )
 
@@ -99,10 +96,9 @@ add_qtc_test(tst_mesoninfoparser
      TEST_RELATIVE_LIBEXEC_PATH="${TEST_RELATIVE_LIBEXEC_PATH}"
   SOURCES
     tests/testmesoninfoparser.cpp
-    toolwrapper.h
-    toolwrapper.cpp
-    mesontools.h
     mesoninfoparser.h
+    mesontools.cpp
+    mesontools.h
 )
 
 add_qtc_test(tst_ninjaparser

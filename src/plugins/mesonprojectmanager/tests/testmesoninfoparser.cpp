@@ -1,8 +1,8 @@
 // Copyright (C) 2020 Alexis Jeandet.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "toolwrapper.h"
 #include "mesoninfoparser.h"
+#include "mesontools.h"
 
 #include <utils/launcherinterface.h>
 #include <utils/singleton.h>
@@ -19,15 +19,15 @@
 using namespace MesonProjectManager::Internal;
 using namespace Utils;
 
-struct projectData
+struct ProjectData
 {
     const char *name;
     QString path;
     QStringList targets;
 };
 
-static const QList<projectData> projectList{
-    {"Simple C Project", "simplecproject", {"SimpleCProject"}}};
+static const ProjectData projectList[] =
+    {{"Simple C Project", "simplecproject", {"SimpleCProject"}}};
 
 
 #define WITH_UNCONFIGURED_PROJECT(_source_dir, _intro_file, ...) \

@@ -20,8 +20,6 @@ Project {
         files: [
             "mesontools.cpp",
             "mesontools.h",
-            "toolwrapper.cpp",
-            "toolwrapper.h",
             "kitdata.h",
             "mesonactionsmanager.cpp",
             "mesonactionsmanager.h",
@@ -91,8 +89,6 @@ Project {
         cpp.includePaths: "."
 
         files: [
-            "toolwrapper.h",
-            "toolwrapper.cpp",
             "mesontools.h",
             "tests/testmesonwrapper.cpp",
         ]
@@ -108,8 +104,6 @@ Project {
         cpp.includePaths: "."
 
         files: [
-            "toolwrapper.h",
-            "toolwrapper.cpp",
             "mesontools.h",
             "mesoninfoparser.h",
             "tests/testmesoninfoparser.cpp",

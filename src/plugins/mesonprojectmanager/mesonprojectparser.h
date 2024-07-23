@@ -7,7 +7,7 @@
 #include "mesoninfoparser.h"
 #include "mesonoutputparser.h"
 #include "mesonprojectnodes.h"
-#include "toolwrapper.h"
+#include "mesontools.h"
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/kit.h>

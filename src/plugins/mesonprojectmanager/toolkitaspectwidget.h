@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "toolwrapper.h"
+#include "mesontools.h"
 
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
