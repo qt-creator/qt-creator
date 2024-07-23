@@ -179,11 +179,10 @@
         \li Go to \uicontrol Projects > \uicontrol {Project Settings} >
             \uicontrol Axivion.
             \image qtcreator-preferences-axivion-project.webp {Axivion settings in Project Settings}
-        \li From \uicontrol {Dashboard} select one of the configured Axivion
-            dashboard configurations.
-        \li Select \uicontrol {Fetch Projects} to list projects from Axivion.
-        \li Select a project, and then select \uicontrol {Link Project} to link
-            to it.
+        \li Select the Axivion dashboard server to fetch projects from.
+        \li Select \uicontrol {Fetch Projects} to list projects from the server.
+        \li In \uicontrol {Dashboard projects} select a project.
+        \li Select \uicontrol {Link Project} to link to the project.
     \endlist
 
     To unlink a project, select \uicontrol {Unlink Project}.

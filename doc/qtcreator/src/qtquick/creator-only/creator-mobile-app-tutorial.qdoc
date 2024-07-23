@@ -7,7 +7,8 @@
     \nextpage creator-how-tos.html
     \ingroup creator-tutorials
 
-    \title Creating a Mobile Application
+    \keyword {Creating a Mobile Application}
+    \title Tutorial: Mobile application
 
     \brief How to create a Qt Quick application that uses Qt Quick Controls and
     runs on Android and iOS devices.
@@ -24,7 +25,7 @@
 
     \image creator_android_tutorial_ex_app.png
 
-    \section1 Setting up the Development Environment
+    \section1 Set up the development environment
 
     To build the application for and run it on a mobile device, you must
     set up the development environment for the device platform and configure a
@@ -41,7 +42,7 @@
 
     \include qtquick-tutorial-create-empty-project.qdocinc qtquick empty application
 
-    \section1 Adding Images as Resources
+    \section1 Add images as resources
 
     The main view of the application displays an SVG bubble image that moves
     around the screen when you tilt the device.
@@ -54,7 +55,7 @@
     \skipto qt_add_qml_module
     \printuntil )
 
-    \section1 Creating the Accelbubble Main View
+    \section1 Create the Accelbubble main view
 
     Create the main view in the \e main.qml file by adding an \l Image
     component with \e Bluebubble.svg as the source:
@@ -113,7 +114,7 @@
     \printuntil }
     \printuntil }
 
-     \section1 Locking Device Orientation
+     \section1 Lock device orientation
 
      The device display is rotated by default when the device orientation
      changes between portrait and landscape. For this example, it would be
@@ -153,7 +154,7 @@
     \skipto set_target_properties
     \printuntil )
 
-    \section1 Adding Dependencies
+    \section1 Add dependencies
 
     You must tell the build system which Qt modules your application needs by
     specifying dependencies in the project file. Select \uicontrol Projects to
@@ -184,7 +185,7 @@
     For more information about the CMakeLists.txt file, see
     \l{Getting started with CMake}.
 
-    \section1 Running the Application
+    \section1 Run the application
 
     You can now deploy the application to a device:
 

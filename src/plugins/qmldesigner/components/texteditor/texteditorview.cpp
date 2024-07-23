@@ -48,10 +48,7 @@ const char TEXTEDITOR_CONTEXT_ID[] = "QmlDesigner.TextEditorContext";
 TextEditorView::TextEditorView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
     , m_widget(new TextEditorWidget(this))
-    , m_textEditorContext(new Internal::TextEditorContext(m_widget))
 {
-    Core::ICore::addContextObject(m_textEditorContext);
-
     Core::Context context(TEXTEDITOR_CONTEXT_ID);
 
     /*
@@ -87,7 +84,11 @@ void TextEditorView::modelAttached(Model *model)
     // Set the context of the text editor, but we add another special context to override shortcuts.
     Core::Context context = textEditor->context();
     context.prepend(TEXTEDITOR_CONTEXT_ID);
+
+    m_textEditorContext = new Internal::TextEditorContext(m_widget);
+    m_textEditorContext->setWidget(textEditor->widget()); // toplevel focus widget of the editor
     m_textEditorContext->setContext(context);
+    Core::ICore::addContextObject(m_textEditorContext);
 
     m_widget->setTextEditor(std::move(textEditor));
 }

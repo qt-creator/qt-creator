@@ -1239,6 +1239,7 @@ void CMakeBuildSystem::clearCMakeCache()
         path.removeRecursively();
 
     emit configurationCleared();
+    emitParsingFinished(false);
 }
 
 void CMakeBuildSystem::combineScanAndParse(bool restoredFromBackup)

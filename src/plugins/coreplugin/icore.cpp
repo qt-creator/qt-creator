@@ -852,7 +852,7 @@ QList<IContext *> ICore::currentContextObjects()
     Returns the widget of the top level IContext of the current context, or \c
     nullptr if there is none.
 
-    \sa currentContextObject()
+    \sa currentContextObjects()
 */
 QWidget *ICore::currentContextWidget()
 {
@@ -2311,7 +2311,7 @@ QList<IContext *> ICore::contextObjects(QWidget *widget)
 
     \sa removeContextObject()
     \sa updateAdditionalContexts()
-    \sa currentContextObject()
+    \sa currentContextObjects()
     \sa {The Action Manager and Commands}
 */
 
@@ -2330,7 +2330,7 @@ void ICore::addContextObject(IContext *context)
 
     \sa addContextObject()
     \sa updateAdditionalContexts()
-    \sa currentContextObject()
+    \sa currentContextObjects()
 */
 
 void ICore::removeContextObject(IContext *context)

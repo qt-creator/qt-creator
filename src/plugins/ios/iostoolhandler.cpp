@@ -992,12 +992,12 @@ IosToolTaskAdapter::IosToolTaskAdapter() {}
 
 void IosToolTaskAdapter::start()
 {
-    task()->m_iosToolHandler = new IosToolHandler(Internal::IosDeviceType(task()->m_deviceType));
-    connect(task()->m_iosToolHandler, &IosToolHandler::finished, this, [this] {
-        task()->m_iosToolHandler->deleteLater();
+    task()->m_iosToolHandler.reset(new IosToolHandler(Internal::IosDeviceType(task()->m_deviceType)));
+    connect(task()->m_iosToolHandler.get(), &IosToolHandler::finished, this, [this] {
+        task()->m_iosToolHandler.release()->deleteLater();
         emit done(Tasking::DoneResult::Success);
     });
-    task()->m_startHandler(task()->m_iosToolHandler);
+    task()->m_startHandler(task()->m_iosToolHandler.get());
 }
 
 } // namespace Ios

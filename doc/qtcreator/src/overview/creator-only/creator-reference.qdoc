@@ -114,6 +114,8 @@
 
     \section2 Debugger
 
+    Preferences for debugging.
+
     \annotatedlist creator-reference-preferences-debugger
 
     \section2 Kits

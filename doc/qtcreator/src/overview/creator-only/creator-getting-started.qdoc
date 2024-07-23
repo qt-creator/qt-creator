@@ -39,18 +39,18 @@
             \li \inlineimage icons/tutorials.png
             \li \inlineimage icons/api-reference.png
         \row
-            \li \b {\l{Building and Running an Example}}
+            \li \b {\l{Tutorial: Build and run}{Building and Running an Example}}
 
                 To check that \l{https://www.qt.io/download-qt-installer}
                 {\QOI} created \l{Kits}
                 {build and run kits}, open an example application and run it.
                 If you have not done so before, go to
-                \l{Building and Running an Example}.
+                \l{Tutorial: Build and run}.
             \li \b {\l{Tutorials}}
 
                 Now you are ready to start developing your own applications.
                 Pick a tutorial to follow in \l{Tutorials}. To start developing
-                for mobile devices, select \l{Creating a Mobile Application}.
+                for mobile devices, select \l{Tutorial: Mobile application}.
             \li \b{\l {Qt Documentation}}
 
                 For more examples, as well as the details about using Qt tools

@@ -481,6 +481,10 @@ QmlJSEditorDocumentPrivate::QmlJSEditorDocumentPrivate(QmlJSEditorDocument *pare
             &QmllsSettingsManager::settingsChanged,
             this,
             &Internal::QmlJSEditorDocumentPrivate::settingsChanged);
+    connect(modelManager,
+            &ModelManagerInterface::projectInfoUpdated,
+            this,
+            &Internal::QmlJSEditorDocumentPrivate::settingsChanged);
 
     // semantic info
     m_semanticInfoUpdater = new SemanticInfoUpdater();
@@ -751,7 +755,7 @@ static Utils::FilePath qmllsForFile(const Utils::FilePath &file,
         && QVersionNumber::fromString(pInfo.qtVersionString) < settings.mininumQmllsVersion) {
         return {};
     }
-    return pInfo.qmllsPath;
+    return pInfo.qmllsPath.exists() ? pInfo.qmllsPath : Utils::FilePath();
 }
 
 void QmlJSEditorDocumentPrivate::settingsChanged()
@@ -766,7 +770,7 @@ void QmlJSEditorDocumentPrivate::settingsChanged()
     auto lspClientManager = LanguageClient::LanguageClientManager::instance();
     if (newQmlls.isEmpty()) {
         qCDebug(qmllsLog) << "disabling qmlls for" << q->filePath();
-        if (LanguageClient::Client *client = lspClientManager->clientForDocument(q)) {
+        if (lspClientManager->clientForDocument(q)) {
             qCDebug(qmllsLog) << "deactivating " << q->filePath() << "in qmlls" << newQmlls;
             lspClientManager->openDocumentWithClient(q, nullptr);
         } else

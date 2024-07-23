@@ -167,7 +167,7 @@ def main():
     startQC()
     if not startedWithoutPluginError():
         return
-    createProject_Qt_GUI(tempDir(), "DesignerTestApp", False)
+    createProject_Qt_GUI(tempDir(), "DesignerTestApp", False, targets=[Targets.DESKTOP_6_2_4])
     selectFromLocator("mainwindow.ui")
     replaceEditorContent(waitForObject("{container=':*Qt Creator.Widget Box_QDockWidget' "
                                        "type='QLineEdit' visible='1'}"), "combo")

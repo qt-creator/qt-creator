@@ -763,10 +763,9 @@ QString JsonWizardFactory::localizedString(const QVariant &value)
         return {};
     if (value.typeId() == QMetaType::QVariantMap) {
         QVariantMap tmp = value.toMap();
-        const QString locale = languageSetting().toLower();
-        QStringList locales;
-        locales << locale << QLatin1String("en") << QLatin1String("C") << tmp.keys();
-        for (const QString &locale : std::as_const(locales)) {
+        const QString currentLocale = languageSetting().toLower();
+        const QStringList locales{currentLocale, "en", "C"};
+        for (const QString &locale : locales) {
             QString result = tmp.value(locale, QString()).toString();
             if (!result.isEmpty())
                 return result;

@@ -107,6 +107,6 @@
     To pin toolbars by default, select \uicontrol {Pin Qt Quick Toolbar}.
 
     \if defined(qtcreator)
-    \sa {Creating a Qt Quick Application}
+    \sa {Tutorial: Qt Quick application}
     \endif
 */

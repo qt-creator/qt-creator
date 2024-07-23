@@ -259,7 +259,7 @@ void handleInactiveRegions(LanguageClient::Client *client, const JsonRpcMessage 
     const QList<Range> inactiveRegions = params->inactiveRegions();
     QList<BlockRange> ifdefedOutBlocks;
     for (const Range &r : inactiveRegions) {
-        const int startPos = r.start().toPositionInDocument(doc->document());
+        const int startPos = Position(r.start().line(), 0).toPositionInDocument(doc->document());
         const int endPos = r.end().toPositionInDocument(doc->document()) + 1;
         ifdefedOutBlocks.emplaceBack(startPos, endPos);
     }

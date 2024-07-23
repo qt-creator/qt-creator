@@ -85,7 +85,7 @@ public:
 
 private:
     QPointer<TextEditorWidget> m_widget;
-    Internal::TextEditorContext *m_textEditorContext;
+    Internal::TextEditorContext *m_textEditorContext = nullptr;
     bool m_errorState = false;
 };
 

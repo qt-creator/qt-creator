@@ -25,4 +25,17 @@ QtcPlugin {
         "haskelltokenizer.cpp", "haskelltokenizer.h",
         "stackbuildstep.cpp", "stackbuildstep.h"
     ]
+
+    Qt.core.resourceFileBaseName: "HaskellWizards" // avoid conflicting qrc file
+    Group {
+        name: "Wizard files"
+        Qt.core.resourceSourceBase: sourceDirectory
+        Qt.core.resourcePrefix: "haskell/"
+        fileTags: "qt.core.resource_data"
+        prefix: "share/wizards/"
+        files: [
+            "module/file.hs",
+            "module/wizard.json",
+        ]
+    }
 }

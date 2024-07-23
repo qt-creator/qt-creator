@@ -207,9 +207,9 @@
     expressions.
 
     For more information, see \l{Debugging Qt Quick Projects} and
-    \l{Debugging a Qt Quick Application}.
+    \l{Tutorial: Qt Quick debugging}.
 
-    \sa {Debugging a C++ Application}, {Debug}{How To: Debug}, {Debuggers},
+    \sa {Tutorial: C++ debugging}, {Debug}{How To: Debug}, {Debuggers},
     {Debugger}, {Kits}
 */
 
@@ -263,7 +263,7 @@
 
     \section1 Debug Python projects
 
-    For \l {Creating a Qt for Python Application with Qt Widgets}{Python} projects,
+    For \l {Tutorial: Qt Widgets and Python}{Python} projects,
     start debugging the \c main.py file. If you encounter problems, check the
     active build target in the \l{Build for many platforms}{kit selector}.
 

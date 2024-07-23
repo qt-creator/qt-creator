@@ -7,7 +7,8 @@
     \nextpage creator-how-tos.html
     \ingroup creator-tutorials
 
-    \title Creating a Qt Quick Application
+    \keyword {Creating a Qt Quick Application}
+    \title Tutorial: Qt Quick application
 
     \brief How to create a Qt Quick Application in the \uicontrol Edit mode.
 
@@ -33,7 +34,7 @@
     \QC generates a component file, \e Main.qml, and opens it in the
     \uicontrol Edit mode.
 
-    \section1 Deploying Applications
+    \section1 Deploy applications
 
     The main view of the application displays a Qt logo inside a rectangle in
     the top left corner of the view and two empty rectangles.
@@ -46,7 +47,7 @@
     \skipto qt_add_qml_module
     \printuntil )
 
-    \section1 Creating Custom QML Types
+    \section1 Create a custom QML type
 
     Because the \l Window QML type requires that you add states into child
     components, use the wizard to create a custom QML type called
@@ -58,7 +59,7 @@
         \li Go to \uicontrol File > \uicontrol {New File}.
         \li Select \uicontrol Qt > \uicontrol {QML File (Qt Quick 2)}.
         \li Select \uicontrol Choose to open the \uicontrol Location dialog.
-        \li In the \uicontrol {File name} field, enter a name for the custom
+        \li In \uicontrol {File name}, enter a name for the custom
             QML type: \e Page.
         \li Select \uicontrol Next to open the \uicontrol {Project Management}
             dialog.
@@ -117,7 +118,7 @@
     Next, make the image move between the rectangles when users click
     them by adding states and by connecting mouse clicks to state changes.
 
-    \section1 Connecting Mouse Clicks to State Changes
+    \section1 Connect mouse clicks to state changes
 
     To make the image move between the rectangles when users click them, add
     states to the Page component where you change the values of the \c x and
@@ -139,7 +140,7 @@
 
     Because you develop with Qt 6, you must specify the connections as functions.
 
-    \section1 Adding Page to the Main View
+    \section1 Add Page to the main view
 
     Open \e Main.qml for editing and add an instance of the Page custom
     component to it:
@@ -151,7 +152,7 @@
     Press \key {Ctrl+R} to run the application, and click the rectangles to
     move the Qt logo from one rectangle to another.
 
-    \section1 Animating Transitions
+    \section1 Animate transitions
 
     Create transitions to apply animation to the image. For example,
     the image bounces back when it moves to \e middleRightRect and eases into

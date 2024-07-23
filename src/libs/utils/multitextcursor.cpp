@@ -239,6 +239,12 @@ void MultiTextCursor::removeSelectedText()
     mergeCursors();
 }
 
+void MultiTextCursor::clearSelection()
+{
+    for (auto cursor = m_cursorList.begin(); cursor != m_cursorList.end(); ++cursor)
+        cursor->clearSelection();
+}
+
 static void insertAndSelect(QTextCursor &cursor, const QString &text, bool selectNewText)
 {
     if (selectNewText) {
@@ -333,7 +339,8 @@ static QTextLine currentTextLine(const QTextCursor &cursor)
 bool MultiTextCursor::multiCursorEvent(
     QKeyEvent *e, QKeySequence::StandardKey matchKey, Qt::KeyboardModifiers filterModifiers)
 {
-    uint searchkey = (e->modifiers() | e->key()) & ~(filterModifiers | Qt::AltModifier);
+    filterModifiers |= (Utils::HostOsInfo::isMacHost() ? Qt::KeypadModifier : Qt::AltModifier);
+    uint searchkey = (e->modifiers() | e->key()) & ~filterModifiers;
 
     const QList<QKeySequence> bindings = QKeySequence::keyBindings(matchKey);
     return bindings.contains(QKeySequence(searchkey));
