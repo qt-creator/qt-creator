@@ -102,7 +102,7 @@ public:
     void setDescription(const QString &description) { m_description = description; }
     void setFileName(const Utils::FilePath &fileName) { m_file = fileName; }
     void setLine(int line) { m_line = line; }
-    void setDuration(const QString &milliSeconds) { m_duration.emplace(milliSeconds); }
+    void setDuration(const QString &milliSeconds);
     void setResult(ResultType type) { m_result = type; }
 
     static ResultType resultFromString(const QString &resultString);
