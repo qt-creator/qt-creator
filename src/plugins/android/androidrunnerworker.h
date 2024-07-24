@@ -11,19 +11,11 @@
 #include <utils/environment.h>
 #include <utils/port.h>
 
-namespace Utils {
-class FilePath;
-class Process;
-}
+namespace Android { class AndroidDeviceInfo; }
 namespace ProjectExplorer { class RunWorker; }
+namespace Utils { class Process; }
 
-namespace Android {
-
-class AndroidDeviceInfo;
-
-namespace Internal {
-
-const int MIN_SOCKET_HANDSHAKE_PORT = 20001;
+namespace Android::Internal {
 
 using PidUserPair = std::pair<qint64, qint64>;
 
@@ -109,5 +101,4 @@ private:
     bool m_useAppParamsForQmlDebugger = false;
 };
 
-} // namespace Internal
-} // namespace Android
+} // namespace Android::Internal

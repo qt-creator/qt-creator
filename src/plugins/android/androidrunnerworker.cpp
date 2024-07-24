@@ -47,8 +47,7 @@ using namespace std;
 using namespace std::chrono_literals;
 using namespace std::placeholders;
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 static const QString pidPollingScript = QStringLiteral("while [ -d /proc/%1 ]; do sleep 1; done");
 static const QRegularExpression userIdPattern("u(\\d+)_a");
@@ -861,5 +860,4 @@ void AndroidRunnerWorker::onProcessIdChanged(const PidUserPair &pidUser)
     }
 }
 
-} // namespace Internal
-} // namespace Android
+} // namespace Android::Internal
