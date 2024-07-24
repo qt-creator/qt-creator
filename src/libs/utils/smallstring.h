@@ -660,8 +660,27 @@ public:
         return operator+(SmallStringView(first), second);
     }
 
-unittest_public:
-    constexpr bool isShortString() const noexcept
+    size_type count(SmallStringView text) const noexcept
+    {
+        auto found = begin();
+
+        size_type count = 0;
+
+        while (true) {
+            found = std::search(found, end(), text.begin(), text.end());
+            if (found == end())
+                break;
+
+            ++count;
+            found += text.size();
+        }
+
+        return count;
+    }
+
+    size_type count(char character) const noexcept { return std::count(begin(), end(), character); }
+
+    unittest_public : constexpr bool isShortString() const noexcept
     {
         return m_data.isShortString();
     }
@@ -686,27 +705,6 @@ unittest_public:
         size_type cacheLineBlocks = (size - 1) / cacheLineSize;
 
         return (cacheLineBlocks  + 1) * cacheLineSize;
-    }
-
-    size_type countOccurrence(SmallStringView text) noexcept
-    {
-        auto found = begin();
-
-        size_type count = 0;
-
-        while (true) {
-            found = std::search(found,
-                                end(),
-                                text.begin(),
-                                text.end());
-            if (found == end())
-                break;
-
-            ++count;
-            found += text.size();
-        }
-
-        return count;
     }
 
 private:
@@ -850,7 +848,7 @@ private:
         size_type startIndex = 0;
 
         size_type replacementTextSizeDifference = toText.size() - fromText.size();
-        size_type occurrences = countOccurrence(fromText);
+        size_type occurrences = count(fromText);
         size_type newSize = size() + (replacementTextSizeDifference * occurrences);
 
         if (occurrences > 0) {
@@ -907,6 +905,17 @@ inline SmallString operator+(SmallStringView first, SmallStringView second) noex
     return text;
 }
 
+inline SmallString operator+(SmallStringView first, char second) noexcept
+{
+    SmallString text;
+    text.reserve(first.size() + 1);
+
+    text.append(first);
+    text.append(second);
+
+    return text;
+}
+
 template<std::size_t Size>
 inline SmallString operator+(SmallStringView first, const char (&second)[Size]) noexcept
 {
@@ -921,3 +930,5 @@ SmallString operator+(const char(&first)[Size], SmallStringView second)
 }
 
 } // namespace Utils
+
+Q_DECLARE_METATYPE(Utils::SmallString)

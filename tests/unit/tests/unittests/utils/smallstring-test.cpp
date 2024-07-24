@@ -1257,7 +1257,7 @@ TYPED_TEST(SmallString, no_occurrences_for_empty_text)
     using SmallString = typename TestFixture::String;
     SmallString text;
 
-    auto occurrences = text.countOccurrence("text");
+    auto occurrences = text.count("text");
 
     ASSERT_THAT(occurrences, 0);
 }
@@ -1267,7 +1267,7 @@ TYPED_TEST(SmallString, no_occurrences_in_text)
     using SmallString = typename TestFixture::String;
     SmallString text("here is some text, here is some text, here is some text");
 
-    auto occurrences = text.countOccurrence("texts");
+    auto occurrences = text.count("texts");
 
     ASSERT_THAT(occurrences, 0);
 }
@@ -1277,7 +1277,7 @@ TYPED_TEST(SmallString, some_occurrences)
     using SmallString = typename TestFixture::String;
     SmallString text("here is some text, here is some text, here is some text");
 
-    auto occurrences = text.countOccurrence("text");
+    auto occurrences = text.count("text");
 
     ASSERT_THAT(occurrences, 3);
 }
@@ -1287,7 +1287,7 @@ TYPED_TEST(SmallString, some_more_occurrences)
     using SmallString = typename TestFixture::String;
     SmallString text("texttexttext");
 
-    auto occurrences = text.countOccurrence("text");
+    auto occurrences = text.count("text");
 
     ASSERT_THAT(occurrences, 3);
 }
