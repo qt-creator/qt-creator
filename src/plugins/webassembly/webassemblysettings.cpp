@@ -22,6 +22,7 @@
 #include <utils/utilsicons.h>
 
 #include <QGroupBox>
+#include <QGuiApplication>
 #include <QTextBrowser>
 #include <QTimer>
 
