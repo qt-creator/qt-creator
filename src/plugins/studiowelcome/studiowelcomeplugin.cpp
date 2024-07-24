@@ -214,6 +214,11 @@ public:
 
     Q_INVOKABLE void setInsightEnabled(bool b)
     {
+        bool currentTrackingStatus = Core::ICore::settings()->value("InsightTracking", false).toBool();
+
+        if (currentTrackingStatus == b)
+            return;
+
         Core::ICore::settings()->setValue("InsightTracking", b);
         Core::ICore::askForRestart(tr("The change will take effect after restart."));
     }
