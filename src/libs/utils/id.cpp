@@ -231,18 +231,6 @@ Id Id::fromSetting(const QVariant &variant)
     return Id(theId(ba));
 }
 
-Id Id::versionedId(const QByteArray &prefix, int major, int minor)
-{
-    QTC_ASSERT(major >= 0, return fromName(prefix));
-
-    QByteArray result = prefix + '.';
-    result += QString::number(major).toLatin1();
-
-    if (minor < 0)
-        return fromName(result);
-    return fromName(result + '.' + QString::number(minor).toLatin1());
-}
-
 QSet<Id> Id::fromStringList(const QStringList &list)
 {
     return transform<QSet<Id>>(list, &Id::fromString);
