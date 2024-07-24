@@ -108,23 +108,16 @@ static expected_str<void> launchSimulator(const QString &simUdid, std::function<
     const FilePath simulatorAppPath = IosConfigurations::developerPath()
             .pathAppended("Applications/Simulator.app/Contents/MacOS/Simulator");
 
-    if (IosConfigurations::xcodeVersion() >= QVersionNumber(9)) {
-        // For XCode 9 boot the second device instead of launching simulator app twice.
-        QString psOutput;
-        expected_str<void> result = runCommand({"ps", {"-A", "-o", "comm"}}, &psOutput, shouldStop);
-        if (!result)
-            return result;
+    // boot the requested simulator device
+    const expected_str<void> bootResult = runSimCtlCommand({"boot", simUdid}, nullptr, shouldStop);
+    if (!bootResult)
+        return bootResult;
 
-        for (const QString &comm : psOutput.split('\n')) {
-            if (comm == simulatorAppPath.toString())
-                return runSimCtlCommand({"boot", simUdid}, nullptr, shouldStop);
-        }
-    }
-    const bool started = Process::startDetached(
-        {simulatorAppPath, {"--args", "-CurrentDeviceUDID", simUdid}});
-    if (!started)
-        return make_unexpected(Tr::tr("Failed to start simulator app."));
-    return {};
+    // open Simulator.app if not running yet
+    return runCommand(
+        {"/usr/bin/open",
+         {IosConfigurations::developerPath().pathAppended("Applications/Simulator.app").nativePath()}},
+        nullptr);
 }
 
 static bool isAvailable(const QJsonObject &object)
