@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include <QObject>
-#include <utils/crumblepath.h>
-#include <utils/fileutils.h>
 #include <modelnode.h>
+
+#include <utils/crumblepath.h>
+#include <utils/filepath.h>
 
 namespace QmlDesigner {
 

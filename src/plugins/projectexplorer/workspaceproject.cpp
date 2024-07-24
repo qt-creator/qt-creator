@@ -20,6 +20,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/stringutils.h>
 
 #include <QJsonArray>

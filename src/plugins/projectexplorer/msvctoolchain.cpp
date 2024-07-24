@@ -19,6 +19,7 @@
 #include <utils/async.h>
 #include <utils/datafromprocess.h>
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>

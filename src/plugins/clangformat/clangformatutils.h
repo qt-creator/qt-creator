@@ -5,14 +5,12 @@
 
 #include "clangformatsettings.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/id.h>
 
 #include <clang/Format/Format.h>
 
 #include <QFile>
-
-#include <fstream>
 
 namespace TextEditor {
 class ICodeStylePreferences;
@@ -20,6 +18,7 @@ class TabSettings;
 }
 namespace ProjectExplorer { class Project; }
 namespace CppEditor { class CppCodeStyleSettings; }
+
 namespace ClangFormat {
 
 QString projectUniqueId(ProjectExplorer::Project *project);

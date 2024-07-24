@@ -13,7 +13,7 @@
 #include <utils/async.h>
 #include <utils/differ.h>
 #include <utils/expected.h>
-#include <utils/qtcprocess.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/temporarydirectory.h>

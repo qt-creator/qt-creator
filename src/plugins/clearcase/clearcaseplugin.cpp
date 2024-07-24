@@ -32,6 +32,7 @@
 #include <utils/action.h>
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/infobar.h>
 #include <utils/layoutbuilder.h>

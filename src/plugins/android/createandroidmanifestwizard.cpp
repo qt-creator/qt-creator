@@ -18,6 +18,7 @@
 
 #include <qtsupport/qtkitaspect.h>
 
+#include <utils/fileutils.h>
 #include <utils/infolabel.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
@@ -25,7 +26,6 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDir>
-#include <QFileInfo>
 #include <QFormLayout>
 #include <QLabel>
 #include <QMessageBox>

@@ -16,6 +16,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/fileutils.h>
 #include <utils/futuresynchronizer.h>
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>

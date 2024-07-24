@@ -16,6 +16,7 @@
 
 #include <texteditor/texteditor.h>
 
+#include <utils/fileutils.h>
 #include <utils/jsontreeitem.h>
 #include <utils/layoutbuilder.h>
 #include <utils/listmodel.h>

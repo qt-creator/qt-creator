@@ -27,7 +27,7 @@
 #include <utils/algorithm.h>
 #include <utils/asset.h>
 #include <utils/environment.h>
-#include <utils/filepath.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QFileDialog>

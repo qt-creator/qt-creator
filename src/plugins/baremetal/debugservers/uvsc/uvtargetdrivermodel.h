@@ -6,7 +6,7 @@
 #include "uvtargetdriverselection.h"
 
 #include <utils/basetreeview.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/treemodel.h>
 
 namespace BareMetal::Internal::Uv {

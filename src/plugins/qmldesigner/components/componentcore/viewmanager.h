@@ -9,7 +9,7 @@
 
 #include <coreplugin/icontext.h>
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QWidgetAction>
 

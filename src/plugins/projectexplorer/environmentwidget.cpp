@@ -13,6 +13,7 @@
 #include <utils/environment.h>
 #include <utils/environmentdialog.h>
 #include <utils/environmentmodel.h>
+#include <utils/fileutils.h>
 #include <utils/headerviewstretcher.h>
 #include <utils/hostosinfo.h>
 #include <utils/itemviews.h>

@@ -8,7 +8,7 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
-#include <utils/filepath.h>
+#include <utils/fileutils.h>
 #include <utils/utilsicons.h>
 
 #include <QCheckBox>

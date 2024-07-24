@@ -4,18 +4,14 @@
 
 #include "abstractview.h"
 
-#include "utils/fileutils.h"
+#include <utils/filepath.h>
 
 #include <QObject>
 #include <QTimer>
 
-#include <memory>
+namespace Core { class IEditor; }
 
-namespace Core {
-class IEditor;
-}
 namespace QmlDesigner {
-
 
 class AssetExporterView : public AbstractView
 {

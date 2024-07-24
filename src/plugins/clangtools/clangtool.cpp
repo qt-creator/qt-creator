@@ -44,6 +44,7 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/fancylineedit.h>
 #include <utils/fancymainwindow.h>
+#include <utils/fileutils.h>
 #include <utils/infolabel.h>
 #include <utils/progressindicator.h>
 #include <utils/proxyaction.h>

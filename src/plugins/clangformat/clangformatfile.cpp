@@ -14,6 +14,8 @@
 
 #include <utils/qtcassert.h>
 
+#include <fstream>
+
 using namespace ClangFormat;
 
 ClangFormatFile::ClangFormatFile(

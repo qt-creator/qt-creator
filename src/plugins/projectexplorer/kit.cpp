@@ -14,7 +14,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/displayname.h>
-#include <utils/filepath.h>
+#include <utils/fileutils.h>
 #include <utils/icon.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>

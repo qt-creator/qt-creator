@@ -7,7 +7,7 @@
 #include <cppeditor/cppprojectfile.h>
 #include <cppeditor/projectpart.h>
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QSet>
 

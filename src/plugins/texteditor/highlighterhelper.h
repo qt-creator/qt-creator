@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
-
 #include <KSyntaxHighlighting/Definition>
+
+namespace Utils { class FilePath; }
 
 namespace TextEditor {
 class TextDocument;

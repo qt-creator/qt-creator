@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/treemodel.h>
 
 #include <QList>

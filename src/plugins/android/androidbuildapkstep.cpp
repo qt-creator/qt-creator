@@ -33,6 +33,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
+#include <utils/fileutils.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
@@ -52,12 +53,9 @@
 #include <QListView>
 #include <QLoggingCategory>
 #include <QMessageBox>
-#include <QProcess>
 #include <QPushButton>
 #include <QTimer>
-#include <QToolButton>
 
-#include <algorithm>
 #include <memory>
 
 using namespace ProjectExplorer;

@@ -22,7 +22,7 @@
 #include <utils/algorithm.h>
 #include <utils/buildablehelperlibrary.h>
 #include <utils/detailswidget.h>
-#include <utils/filepath.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>

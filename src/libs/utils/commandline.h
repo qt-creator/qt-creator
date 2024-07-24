@@ -114,6 +114,13 @@ private:
     bool m_isWindows;
 };
 
+struct QTCREATOR_UTILS_EXPORT RunResult
+{
+    int exitCode = -1;
+    QByteArray stdOut;
+    QByteArray stdErr;
+};
+
 class QTCREATOR_UTILS_EXPORT CommandLine
 {
 public:

@@ -5,7 +5,7 @@
 
 #include "projectexplorer_export.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 namespace ProjectExplorer {
 

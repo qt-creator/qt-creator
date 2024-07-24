@@ -35,7 +35,7 @@
 #include <projectexplorer/target.h>
 
 #include <utils/algorithm.h>
-#include <utils/filepath.h>
+#include <utils/fileutils.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/qtcassert.h>
 

@@ -3,8 +3,8 @@
 
 #pragma once
 
+#include "commandline.h"
 #include "expected.h"
-#include "fileutils.h"
 #include "utils_global.h"
 
 #include <QHash>
@@ -17,7 +17,6 @@
 
 namespace Utils {
 
-class CommandLine;
 class ProcessResultData;
 class Process;
 

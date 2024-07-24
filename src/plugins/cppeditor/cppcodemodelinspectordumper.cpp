@@ -9,9 +9,12 @@
 #include "cppworkingcopy.h"
 
 #include <coreplugin/icore.h>
+
 #include <projectexplorer/projectmacro.h>
 #include <projectexplorer/project.h>
+
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/temporarydirectory.h>
 
 #include <cplusplus/CppDocument.h>

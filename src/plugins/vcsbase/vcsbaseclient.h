@@ -8,11 +8,9 @@
 #include "vcscommand.h"
 #include "vcsenums.h"
 
-#include <utils/fileutils.h>
 #include <utils/id.h>
 #include <utils/processenums.h>
 
-#include <QObject>
 #include <QStringList>
 #include <QVariant>
 

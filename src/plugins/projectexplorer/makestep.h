@@ -7,7 +7,7 @@
 #include "runconfigurationaspects.h"
 
 #include <utils/aspects.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 namespace Utils { class Environment; }
 

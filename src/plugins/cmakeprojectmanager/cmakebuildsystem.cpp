@@ -45,6 +45,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/fileutils.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeconstants.h>
 #include <utils/qtcprocess.h>

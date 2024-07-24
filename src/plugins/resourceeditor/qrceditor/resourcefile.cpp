@@ -12,7 +12,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/algorithm.h>
-#include <utils/filepath.h>
+#include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/removefiledialog.h>
 #include <utils/theme/theme.h>

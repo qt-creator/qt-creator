@@ -5,7 +5,7 @@
 
 #include "qmljseditor_global.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <languageclient/client.h>
 #include <languageclient/languageclientinterface.h>

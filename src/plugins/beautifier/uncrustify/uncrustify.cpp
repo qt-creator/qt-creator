@@ -27,6 +27,7 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/aspects.h>
+#include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>

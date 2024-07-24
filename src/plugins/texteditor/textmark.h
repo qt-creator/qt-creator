@@ -5,7 +5,7 @@
 
 #include "texteditor_global.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/id.h>
 #include <utils/theme/theme.h>
 

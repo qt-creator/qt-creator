@@ -3,14 +3,13 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
 #include <qmldesigner/utils/filedownloader.h>
 
 #include <QObject>
 #include <QTimer>
 #include <QtQml>
 
-#include <memory>
+namespace Utils { class FilePath; }
 
 struct ExampleCheckout
 {

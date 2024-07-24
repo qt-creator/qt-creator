@@ -6,7 +6,7 @@
 #include "selectioncontext.h"
 #include <qmldesignercomponents_global.h>
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 namespace QmlDesigner {
 

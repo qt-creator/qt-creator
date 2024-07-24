@@ -83,6 +83,7 @@
 #include <utils/basetreeview.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/fancymainwindow.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/processinfo.h>
 #include <utils/proxyaction.h>

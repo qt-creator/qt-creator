@@ -13,10 +13,7 @@
 
 #include <utils/cpplanguage_details.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
 #include <utils/store.h>
-
-#include <QPointer>
 
 #include <functional>
 

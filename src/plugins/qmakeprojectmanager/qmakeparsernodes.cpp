@@ -4,7 +4,6 @@
 #include "qmakeparsernodes.h"
 
 #include "qmakeproject.h"
-#include "qmakeprojectmanagerconstants.h"
 #include "qmakeprojectmanagertr.h"
 
 #include <android/androidconstants.h>
@@ -30,6 +29,7 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/filesystemwatcher.h>
+#include <utils/fileutils.h>
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcprocess.h>

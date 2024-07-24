@@ -3,13 +3,12 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/wizard.h>
 
 namespace ProjectExplorer { class BuildSystem; }
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 class CreateAndroidManifestWizard : public Utils::Wizard
 {
@@ -36,5 +35,4 @@ private:
     bool m_copyGradle;
 };
 
-} // namespace Internal
-} // namespace Android
+} // Android::Internal

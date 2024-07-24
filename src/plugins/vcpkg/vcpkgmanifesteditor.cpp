@@ -10,6 +10,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/fileutils.h>
 #include <utils/icon.h>
 #include <utils/layoutbuilder.h>
 #include <utils/stringutils.h>

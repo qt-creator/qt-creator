@@ -20,6 +20,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/expected.h>
+#include <utils/fileutils.h>
 
 #include <QCryptographicHash>
 #include <QLoggingCategory>

@@ -5,6 +5,7 @@
 #include "androidcreatekeystorecertificate.h"
 #include "androidtr.h"
 
+#include <utils/fileutils.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcprocess.h>

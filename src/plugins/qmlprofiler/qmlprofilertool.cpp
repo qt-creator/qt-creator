@@ -48,6 +48,7 @@
 
 #include <utils/fancymainwindow.h>
 #include <utils/fileinprojectfinder.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/url.h>

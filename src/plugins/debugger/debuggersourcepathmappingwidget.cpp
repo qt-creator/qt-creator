@@ -9,6 +9,7 @@
 
 #include <utils/buildablehelperlibrary.h>
 #include <utils/fancylineedit.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>

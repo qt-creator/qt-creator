@@ -53,11 +53,12 @@
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/fileutils.h>
 #include <utils/macroexpander.h>
-#include <utils/qtcprocess.h>
 #include <utils/processhandle.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/styledbar.h>
 #include <utils/utilsicons.h>
 
@@ -66,7 +67,6 @@
 #include <QDebug>
 #include <QDir>
 #include <QDockWidget>
-#include <QFileInfo>
 #include <QHeaderView>
 #include <QTextBlock>
 #include <QTimer>

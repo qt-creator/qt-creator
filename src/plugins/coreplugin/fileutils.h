@@ -5,7 +5,7 @@
 
 #include "core_global.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 QT_BEGIN_NAMESPACE
 class QWidget;

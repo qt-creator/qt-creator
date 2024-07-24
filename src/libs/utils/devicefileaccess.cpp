@@ -7,6 +7,7 @@
 #include "commandline.h"
 #include "environment.h"
 #include "expected.h"
+#include "fileutils.h"
 #include "hostosinfo.h"
 #include "osspecificaspects.h"
 #include "qtcassert.h"
@@ -16,7 +17,6 @@
 #include "qtcprocess.h"
 #endif
 
-#include <QCoreApplication>
 #include <QFileSystemWatcher>
 #include <QOperatingSystemVersion>
 #include <QRandomGenerator>

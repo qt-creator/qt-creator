@@ -24,6 +24,7 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/guard.h>
+#include <utils/fileutils.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 

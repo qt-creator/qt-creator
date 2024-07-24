@@ -29,6 +29,7 @@
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>

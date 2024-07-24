@@ -38,6 +38,7 @@
 
 #include <utils/appinfo.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/icon.h>
 #include <utils/infobar.h>

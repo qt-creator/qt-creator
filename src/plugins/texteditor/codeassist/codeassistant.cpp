@@ -19,6 +19,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QCoreApplication>
 #include <QKeyEvent>
 #include <QList>
 #include <QObject>

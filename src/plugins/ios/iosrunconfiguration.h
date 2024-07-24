@@ -8,8 +8,6 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runconfigurationaspects.h>
 
-#include <utils/fileutils.h>
-
 #include <QStandardItemModel>
 
 QT_BEGIN_NAMESPACE

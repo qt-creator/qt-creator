@@ -13,10 +13,6 @@
 #include "contentlibraryiconprovider.h"
 #include "contentlibraryusermodel.h"
 
-#include "utils/filedownloader.h"
-#include "utils/fileextractor.h"
-#include "utils/multifiledownloader.h"
-
 #include <coreplugin/icore.h>
 #include <designerpaths.h>
 #include <nodemetainfo.h>
@@ -27,7 +23,11 @@
 #include <theme.h>
 
 #include <utils/algorithm.h>
+#include <utils/filedownloader.h>
+#include <utils/fileextractor.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/multifiledownloader.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>

@@ -11,8 +11,8 @@
 
 #include <utils/aspects.h>
 
-#include <QObject>
 #include <QPair>
+#include <QPushButton>
 #include <QSet>
 
 #include <functional>

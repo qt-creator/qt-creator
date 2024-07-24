@@ -38,6 +38,7 @@
 #include <model/modelutils.h>
 
 #include <utils/asset.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 

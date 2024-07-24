@@ -46,6 +46,7 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/commandline.h>
+#include <utils/fileutils.h>
 #include <utils/infobar.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>

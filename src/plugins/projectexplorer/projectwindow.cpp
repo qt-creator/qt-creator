@@ -35,6 +35,7 @@
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
 #include <utils/hostosinfo.h>
+#include <utils/fileutils.h>
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>

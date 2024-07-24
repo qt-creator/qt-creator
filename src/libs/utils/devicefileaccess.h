@@ -6,11 +6,14 @@
 #include "hostosinfo.h"
 #include "utils_global.h"
 
-#include "fileutils.h"
+#include "filepath.h"
 
 class tst_unixdevicefileaccess; // For testing.
 
 namespace Utils {
+
+class CommandLine;
+class RunResult;
 
 // Base class including dummy implementation usable as fallback.
 class QTCREATOR_UTILS_EXPORT DeviceFileAccess

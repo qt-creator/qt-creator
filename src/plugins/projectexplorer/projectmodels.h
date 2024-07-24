@@ -6,13 +6,10 @@
 #include "expanddata.h"
 #include "projectnodes.h"
 
-#include <utils/fileutils.h>
 #include <utils/treemodel.h>
 
-#include <QPointer>
 #include <QSet>
 #include <QTimer>
-#include <QTreeView>
 
 namespace ProjectExplorer {
 

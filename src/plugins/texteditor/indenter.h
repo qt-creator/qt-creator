@@ -4,17 +4,13 @@
 #pragma once
 
 #include <utils/changeset.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QMap>
 #include <QTextBlock>
 
 #include <optional>
 #include <vector>
-
-namespace Utils {
-class FilePath;
-}
 
 namespace TextEditor {
 

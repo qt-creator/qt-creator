@@ -26,10 +26,10 @@
 #include <qtsupport/qtkitaspect.h>
 
 #include <utils/mimeconstants.h>
+#include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
-#include <QCoreApplication>
 #include <QCryptographicHash>
 
 using namespace ProjectExplorer;

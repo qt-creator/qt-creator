@@ -13,6 +13,7 @@
 #include <tracing/timelinezoomcontrol.h>
 #include <utils/fileinprojectfinder.h>
 
+#include <QCoreApplication>
 #include <QLabel>
 #include <QToolButton>
 

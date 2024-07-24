@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/temporarydirectory.h>
 
 #include <QHash>
@@ -11,8 +11,7 @@
 
 namespace Core { class IDocument; }
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 class VirtualFileSystemOverlay
 {
@@ -38,5 +37,4 @@ private:
     QMap<Utils::FilePath, Utils::FilePath> m_mapping;
 };
 
-} // namespace Internal
-} // namespace ClangTools
+} // ClangTools::Internal

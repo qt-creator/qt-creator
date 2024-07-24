@@ -22,6 +22,7 @@
 #include <coreplugin/vcsmanager.h>
 
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 #include <utils/processinterface.h>
 

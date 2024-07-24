@@ -39,14 +39,18 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
+
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 #include <utils/mimeconstants.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljstools/qmljsmodelmanager.h>
+
 #include <qtsupport/qtcppkitinfo.h>
 #include <qtsupport/qtkitaspect.h>
 
@@ -57,9 +61,6 @@
 #include <QMessageBox>
 #include <QSet>
 #include <QVariantMap>
-
-#include <algorithm>
-#include <type_traits>
 
 using namespace Core;
 using namespace ProjectExplorer;

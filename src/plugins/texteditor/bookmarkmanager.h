@@ -7,7 +7,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 
 #include <utils/itemviews.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QAbstractItemModel>
 #include <QMultiMap>

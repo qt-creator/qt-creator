@@ -8,7 +8,7 @@
 #include <QIcon>
 #include <QStringList>
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/id.h>
 
 #include <functional>

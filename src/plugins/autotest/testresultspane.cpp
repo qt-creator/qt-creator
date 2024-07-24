@@ -30,6 +30,7 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <utils/fileutils.h>
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>

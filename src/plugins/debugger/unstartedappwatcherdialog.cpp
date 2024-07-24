@@ -7,8 +7,6 @@
 #include "debuggerkitaspect.h"
 #include "debuggertr.h"
 
-#include <utils/pathchooser.h>
-
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitchooser.h>
@@ -20,11 +18,12 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
+#include <utils/fileutils.h>
+#include <utils/pathchooser.h>
 #include <utils/processinterface.h>
 
 #include <QCheckBox>
 #include <QDialogButtonBox>
-#include <QFileDialog>
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QKeyEvent>

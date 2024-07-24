@@ -11,6 +11,7 @@
 #include <cplusplus/Overview.h>
 
 #include <QSharedPointer>
+#include <QTimer>
 
 #include <utility>
 

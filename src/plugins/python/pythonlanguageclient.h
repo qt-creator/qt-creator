@@ -3,20 +3,18 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/temporarydirectory.h>
 
 #include <languageclient/client.h>
 #include <languageclient/languageclientsettings.h>
 
-namespace Core { class IDocument; }
 namespace ProjectExplorer { class ExtraCompiler; }
 namespace TextEditor { class TextDocument; }
 
 namespace Python::Internal {
 
 class PySideUicExtraCompiler;
-class PythonLanguageServerState;
 class PyLSInterface;
 
 class PyLSClient : public LanguageClient::Client

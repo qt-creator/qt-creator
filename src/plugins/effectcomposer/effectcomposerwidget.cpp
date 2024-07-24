@@ -10,7 +10,6 @@
 #include "effectutils.h"
 #include "propertyhandler.h"
 
-
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -26,6 +25,7 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QHBoxLayout>

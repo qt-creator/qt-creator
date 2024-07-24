@@ -7,8 +7,6 @@
 
 #include "toolchain.h"
 
-#include <utils/fileutils.h>
-
 namespace ProjectExplorer {
 
 class BuildInfo;

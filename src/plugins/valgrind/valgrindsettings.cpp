@@ -13,6 +13,7 @@
 #include <debugger/debuggertr.h>
 
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>

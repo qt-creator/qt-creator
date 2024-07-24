@@ -6,16 +6,14 @@
 #include "projectexplorer_export.h"
 
 #include <utils/id.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QIcon>
 #include <QMetaType>
 #include <QStringList>
 #include <QTextLayout>
 
-namespace TextEditor {
-class TextMark;
-}
+namespace TextEditor { class TextMark; }
 
 namespace ProjectExplorer {
 
@@ -122,6 +120,6 @@ using Tasks = QList<Task>;
 PROJECTEXPLORER_EXPORT QString toHtml(const Tasks &issues);
 PROJECTEXPLORER_EXPORT bool containsType(const Tasks &issues, Task::TaskType);
 
-} //namespace ProjectExplorer
+} // ProjectExplorer
 
 Q_DECLARE_METATYPE(ProjectExplorer::Task)

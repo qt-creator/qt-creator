@@ -24,9 +24,10 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
+#include <utils/fileutils.h>
 #include <utils/guard.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/url.h>
 
 #include <QFileSystemWatcher>

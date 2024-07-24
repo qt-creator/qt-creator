@@ -10,10 +10,8 @@
 
 #include <debugger/analyzer/detailederrorview.h>
 #include <utils/filesystemwatcher.h>
-#include <utils/fileutils.h>
 #include <utils/treemodel.h>
 
-#include <QFileSystemWatcher>
 #include <QPointer>
 #include <QSortFilterProxyModel>
 #include <QVector>

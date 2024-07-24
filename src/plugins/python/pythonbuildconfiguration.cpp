@@ -33,6 +33,7 @@
 #include <utils/algorithm.h>
 #include <utils/commandline.h>
 #include <utils/detailswidget.h>
+#include <utils/fileutils.h>
 #include <utils/futuresynchronizer.h>
 #include <utils/layoutbuilder.h>
 #include <utils/mimeconstants.h>

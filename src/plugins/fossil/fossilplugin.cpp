@@ -30,6 +30,7 @@
 
 #include <utils/action.h>
 #include <utils/commandline.h>
+#include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
