@@ -245,7 +245,9 @@ void addTextEditorModule()
             "blockNumber",
             &QTextCursor::blockNumber,
             "columnNumber",
-            &QTextCursor::columnNumber);
+            &QTextCursor::columnNumber,
+            "hasSelection",
+            &QTextCursor::hasSelection);
 
         result.new_usertype<TextEditor::BaseTextEditor>(
             "TextEditor",
