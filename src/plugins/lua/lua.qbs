@@ -44,6 +44,7 @@ QtcPlugin {
             "qtcprocess.cpp",
             "settings.cpp",
             "texteditor.cpp",
+            "translate.cpp",
             "utils.cpp",
         ]
 
