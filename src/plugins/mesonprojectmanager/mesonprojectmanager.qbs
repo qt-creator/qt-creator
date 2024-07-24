@@ -86,6 +86,7 @@ Project {
 
         files: [
             "mesontools.h",
+            "mesontools.cpp",
             "tests/testmesonwrapper.cpp",
         ]
     }
@@ -101,6 +102,7 @@ Project {
 
         files: [
             "mesontools.h",
+            "mesontools.cpp",
             "mesoninfoparser.h",
             "tests/testmesoninfoparser.cpp",
         ]
