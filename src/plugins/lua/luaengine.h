@@ -66,7 +66,10 @@ public:
     static bool isCoroutine(lua_State *state);
 
     static sol::table toTable(const sol::state_view &lua, const QJsonValue &v);
+    static sol::table toTable(const sol::state_view &lua, const QJsonDocument &doc);
+
     static QJsonValue toJson(const sol::table &t);
+    static QString toJsonString(const sol::table &t);
 
     template<class T>
     static void checkKey(const sol::table &table, const QString &key)

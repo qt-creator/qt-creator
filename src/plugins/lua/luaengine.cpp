@@ -15,6 +15,7 @@
 #include <utils/theme/theme.h>
 
 #include <QJsonArray>
+#include <QJsonDocument>
 #include <QJsonObject>
 #include <QStandardPaths>
 
@@ -348,6 +349,15 @@ sol::table LuaEngine::toTable(const sol::state_view &lua, const QJsonValue &v)
     return table;
 }
 
+sol::table LuaEngine::toTable(const sol::state_view &lua, const QJsonDocument &doc)
+{
+    if (doc.isArray())
+        return toTable(lua, doc.array());
+    else if (doc.isObject())
+        return toTable(lua, doc.object());
+    return sol::table();
+}
+
 QJsonValue toJsonValue(const sol::object &object);
 
 QJsonValue toJsonValue(const sol::table &table)
@@ -395,6 +405,16 @@ QJsonValue toJsonValue(const sol::object &object)
 QJsonValue LuaEngine::toJson(const sol::table &table)
 {
     return toJsonValue(table);
+}
+
+QString LuaEngine::toJsonString(const sol::table &t)
+{
+    QJsonValue v = toJson(t);
+    if (v.isArray())
+        return QString::fromUtf8(QJsonDocument(v.toArray()).toJson(QJsonDocument::Compact));
+    else if (v.isObject())
+        return QString::fromUtf8(QJsonDocument(v.toObject()).toJson(QJsonDocument::Compact));
+    return {};
 }
 
 QStringList LuaEngine::variadicToStringList(const sol::variadic_args &vargs)

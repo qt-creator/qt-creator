@@ -288,14 +288,8 @@ void addFetchModule()
                                 callback(error.errorString());
                                 return;
                             }
-                            if (doc.isObject()) {
-                                callback(LuaEngine::toTable(thisState, doc.object()));
-                            } else if (doc.isArray()) {
-                                callback(LuaEngine::toTable(thisState, doc.array()));
-                            } else {
-                                sol::state_view lua(thisState);
-                                callback(lua.create_table());
-                            }
+
+                            callback(LuaEngine::toTable(thisState, doc));
                         });
 
                 } else {

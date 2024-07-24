@@ -11,18 +11,7 @@ void addJsonModule()
 {
     LuaEngine::registerProvider("Json", [](sol::state_view lua) -> sol::object {
         sol::table json = lua.create_table();
-        json["encode"] = [](const sol::table &tbl) -> QString {
-            QJsonValue value = LuaEngine::toJson(tbl);
-            QJsonDocument doc;
-            if (value.isObject())
-                doc.setObject(value.toObject());
-            else if (value.isArray())
-                doc.setArray(value.toArray());
-            else
-                return QString();
-
-            return QString::fromUtf8(doc.toJson());
-        };
+        json["encode"] = &LuaEngine::toJsonString;
 
         json["decode"] = [](sol::this_state l, const QString &str) -> sol::table {
             QJsonParseError error;
@@ -30,12 +19,7 @@ void addJsonModule()
             if (error.error != QJsonParseError::NoError)
                 throw sol::error(error.errorString().toStdString());
 
-            if (doc.isObject())
-                return LuaEngine::toTable(l.lua_state(), doc.object());
-            else if (doc.isArray())
-                return LuaEngine::toTable(l.lua_state(), doc.array());
-
-            return sol::table();
+            return LuaEngine::toTable(l.lua_state(), doc);
         };
 
         return json;
