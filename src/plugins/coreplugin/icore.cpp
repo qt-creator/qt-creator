@@ -1047,7 +1047,8 @@ QString uiConfigInformation()
     info.append(QString("Language: %1\n").arg(userInterfaceLanguage));
     info.append(QString("Device pixel ratio: %1, Qt::HighDpiScaleFactorRoundingPolicy::%2\n")
                     .arg(qApp->devicePixelRatio()).arg(policy));
-    info.append(QString("Font DPI: %1\n").arg(qApp->fontMetrics().fontDpi()));
+    const QFontMetricsF fm(qApp->font());
+    info.append(QString("Font DPI: %1\n").arg(fm.fontDpi()));
 
     info.append(QString("Utils::StyleHelper::UiElement:\n"));
 #define QTC_ADD_UIELEMENT_FONT(uiElement) (                                              \
