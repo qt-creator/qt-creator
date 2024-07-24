@@ -73,8 +73,6 @@ Project {
             "toolssettingsaccessor.h",
             "toolssettingspage.cpp",
             "toolssettingspage.h",
-            "tooltreeitem.cpp",
-            "tooltreeitem.h",
             "versionhelper.h",
         ]
     }

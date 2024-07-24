@@ -7,7 +7,6 @@
 #include "mesonprojectmanagertr.h"
 #include "toolitemsettings.h"
 #include "toolsmodel.h"
-#include "tooltreeitem.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
 

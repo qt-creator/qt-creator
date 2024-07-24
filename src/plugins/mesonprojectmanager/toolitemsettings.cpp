@@ -4,7 +4,7 @@
 #include "toolitemsettings.h"
 
 #include "mesonprojectmanagertr.h"
-#include "tooltreeitem.h"
+#include "toolsmodel.h"
 
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
