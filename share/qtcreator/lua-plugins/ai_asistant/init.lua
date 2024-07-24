@@ -5,7 +5,30 @@ local Utils = require('Utils')
 local S = require('Settings')
 local Gui = require('Gui')
 local a = require('async')
-local TextDocument = require('TextDocument')
+local TextEditor = require('TextEditor')
+
+Hooks = {}
+
+local function collectSuggestions(responseTable)
+  local suggestions = {}
+
+  if type(responseTable.result) == "table" and type(responseTable.result.completions) == "table" then
+    for _, completion in pairs(responseTable.result.completions) do
+      if type(completion) == "table" then
+        local text = completion.text or ""
+        local startLine = completion.range and completion.range.start and completion.range.start.line or 0
+        local startCharacter = completion.range and completion.range.start and completion.range.start.character or 0
+        local endLine = completion.range and completion.range["end"] and completion.range["end"].line or 0
+        local endCharacter = completion.range and completion.range["end"] and completion.range["end"].character or 0
+
+        local suggestion = TextEditor.Suggestion.create(startLine, startCharacter, endLine, endCharacter, text)
+        table.insert(suggestions, suggestion)
+      end
+    end
+  end
+
+  return suggestions
+end
 
 local function createCommand()
   local cmd = { Settings.binary.expandedValue:nativePath() }
@@ -83,41 +106,111 @@ local function setupAspect()
   return Settings
 end
 
-local function fetchSuggestions()
-  print("Fetching suggestions ...")
+local function buildRequest()
+  local editor = TextEditor.currentEditor()
+  if editor == nil then
+    print("No editor found")
+    return
+  end
+
+  local document = editor:document()
+  local filePath = document:file()
+  local doc_version = Client.documentVersion(filePath)
+  if doc_version == -1 then
+    print("No document version found")
+    return
+  end
+
+  local doc_uri = Client.hostPathToServerUri(filePath)
+  if doc_uri == nil or doc_uri == "" then
+    print("No document uri found")
+    return
+  end
+
+  local main_cursor = editor:cursor():mainCursor()
+  local block = main_cursor:blockNumber()
+  local column = main_cursor:columnNumber()
+
+  local request_msg = {
+    jsonrpc = "2.0",
+    method = "getCompletionsCycling",
+    params = {
+      doc = {
+        position = {
+          character = column,
+          line = block
+        },
+        uri = doc_uri,
+        version = doc_version
+      }
+    }
+  }
+
+  return request_msg
 end
 
-local function fetchSuggestionsSafe()
-  local ok, err = pcall(fetchSuggestions)
+local function completionResponseCallback(response)
+  print("completionResponseCallback() called")
+
+  local editor = TextEditor.currentEditor()
+  if editor == nil then
+    print("No editor found")
+    return
+  end
+
+  local suggestions = collectSuggestions(response)
+  if next(suggestions) == nil then
+    print("No suggestions found")
+    return
+  end
+
+  local document = editor:document()
+  document:setSuggestions(suggestions)
+end
+
+local function sendRequest(request)
+  print("sendRequest() called")
+
+  if Client == nil then
+    print("No client found")
+    return
+  end
+
+  local editor = TextEditor.currentEditor()
+  if editor == nil or editor == "" then
+    print("No editor found")
+    return
+  end
+
+  local document = editor:document()
+  local result = a.wait(Client:sendMessageWithIdForDocument(document, request))
+  completionResponseCallback(result)
+
+end
+
+local function requestSuggestions()
+  local request_msg = buildRequest()
+  if(request_msg == nil) then
+    print("requestSuggestions() failed to build request message")
+    return
+  end
+
+  sendRequest(request_msg)
+end
+
+local function requstSuggestionsSafe()
+  local ok, err = pcall(requestSuggestions)
   if not ok then
     print("echo Error fetching: " .. err)
   end
 end
 
-Hooks = {}
+function Hooks.onDocumentContentsChanged(document, position, charsRemoved, charsAdded)
+  print("onDocumentcontentsChanged() called, position, charsRemoved, charsAdded:", position, charsRemoved, charsAdded)
 
-function Hooks.onDocumentContentsChanged(document)
-  print("onDocumentContentsChanged() called", document)
-  -- TODO:
-  -- All the necessary checks before sending the request
-  -- Create request:
-    -- Get/Set the current document
-    -- Get/Set the current cursor position
-    -- Get/Set the document version
-    -- Set response callback to handle the response
- end
-
----Called when a document is opened.
----@param document TextDocument
-function Hooks.onDocumentOpened(document)
-  print("TextDocument found: ", document)
-end
-
----Called when a document is closed.
----@param document TextDocument
-function Hooks.onDocumentClosed(document)
-  print("Document closed:", document)
-  -- TODO: Cleanup the document references and requests
+  Position = position
+  local line, char = document:blockAndColumn(position)
+  print("Line: ", line, "Char: ", char)
 end
 
 local function setup(parameters)
@@ -127,7 +220,7 @@ local function setup(parameters)
   Action = require("Action")
   Action.create("Trigger.suggestions", {
     text = "Trigger AI suggestions",
-    onTrigger = function() a.sync(fetchSuggestionsSafe)() end,
+    onTrigger = function() a.sync(requstSuggestionsSafe)() end,
     defaultKeySequences = { "Meta+Shift+A", "Ctrl+Shift+Alt+A" },
   })
 end

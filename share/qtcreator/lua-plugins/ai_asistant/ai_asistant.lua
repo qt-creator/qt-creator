@@ -20,9 +20,9 @@ It will try to install it if it is not found.
     hooks = {
         editors = {
             text = {
-                opened = function(document) require 'init'.Hooks.onDocumentOpened(document) end,
-                closed = function(document) require 'init'.Hooks.onDocumentClosed(document) end,
-                contentsChanged = function(document) require 'init'.Hooks.onDocumentContentsChanged(document) end,
+                contentsChanged = function(document, position, charsRemoved, charsAdded)
+                                    require 'init'.Hooks.onDocumentContentsChanged(document, position, charsRemoved, charsAdded)
+                                  end,
             }
         }
     },
