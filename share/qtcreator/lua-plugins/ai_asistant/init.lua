@@ -189,6 +189,17 @@ local function sendRequest(request)
 end
 
 local function requestSuggestions()
+  local main_cursor = TextEditor.currentEditor():cursor():mainCursor()
+  if main_cursor == nil then
+    print("No cursor found")
+    return
+  end
+
+  if(main_cursor:hasSelection()) then
+    print("Ignoring requestSuggestions() due to cursor selection")
+    return
+  end
+
   local request_msg = buildRequest()
   if(request_msg == nil) then
     print("requestSuggestions() failed to build request message")
