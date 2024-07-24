@@ -304,6 +304,7 @@ public:
     Splitter(std::initializer_list<I> items);
     void setOrientation(Qt::Orientation);
     void setStretchFactor(int index, int stretch);
+    void setChildrenCollapsible(bool collapsible);
 };
 
 class QTCREATOR_UTILS_EXPORT Stack : public Widget
@@ -402,9 +403,16 @@ void doit(Interface *x, IdId, auto p)
 
 // Setter dispatchers
 
+QTC_DEFINE_BUILDER_SETTER(childrenCollapsible, setChildrenCollapsible)
+QTC_DEFINE_BUILDER_SETTER(columnStretch, setColumnStretch)
+QTC_DEFINE_BUILDER_SETTER(customMargins, setContentsMargins)
 QTC_DEFINE_BUILDER_SETTER(fieldGrowthPolicy, setFieldGrowthPolicy)
 QTC_DEFINE_BUILDER_SETTER(groupChecker, setGroupChecker)
+QTC_DEFINE_BUILDER_SETTER(onClicked, onClicked)
+QTC_DEFINE_BUILDER_SETTER(onLinkHovered, onLinkHovered)
+QTC_DEFINE_BUILDER_SETTER(onTextChanged, onTextChanged)
 QTC_DEFINE_BUILDER_SETTER(openExternalLinks, setOpenExternalLinks)
+QTC_DEFINE_BUILDER_SETTER(orientation, setOrientation);
 QTC_DEFINE_BUILDER_SETTER(size, setSize)
 QTC_DEFINE_BUILDER_SETTER(text, setText)
 QTC_DEFINE_BUILDER_SETTER(textFormat, setTextFormat)
@@ -413,12 +421,6 @@ QTC_DEFINE_BUILDER_SETTER(title, setTitle)
 QTC_DEFINE_BUILDER_SETTER(toolTip, setToolTip)
 QTC_DEFINE_BUILDER_SETTER(windowTitle, setWindowTitle)
 QTC_DEFINE_BUILDER_SETTER(wordWrap, setWordWrap);
-QTC_DEFINE_BUILDER_SETTER(orientation, setOrientation);
-QTC_DEFINE_BUILDER_SETTER(columnStretch, setColumnStretch)
-QTC_DEFINE_BUILDER_SETTER(onClicked, onClicked)
-QTC_DEFINE_BUILDER_SETTER(onLinkHovered, onLinkHovered)
-QTC_DEFINE_BUILDER_SETTER(onTextChanged, onTextChanged)
-QTC_DEFINE_BUILDER_SETTER(customMargins, setContentsMargins)
 
 // Nesting dispatchers
 

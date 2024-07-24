@@ -899,6 +899,11 @@ void Splitter::setStretchFactor(int index, int stretch)
     access(this)->setStretchFactor(index, stretch);
 }
 
+void Splitter::setChildrenCollapsible(bool collapsible)
+{
+    access(this)->setChildrenCollapsible(collapsible);
+}
+
 void addToSplitter(Splitter *splitter, QWidget *inner)
 {
     access(splitter)->addWidget(inner);
