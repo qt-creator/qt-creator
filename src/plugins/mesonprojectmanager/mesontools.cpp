@@ -236,7 +236,7 @@ static MesonTools::Tool_t findTool(const Id &id, ToolType toolType)
     return nullptr;
 }
 
-MesonTools::Tool_t autoDetectedTool(ToolType toolType)
+MesonTools::Tool_t MesonTools::autoDetectedTool(ToolType toolType)
 {
     for (const auto &tool : s_tools) {
         if (tool->autoDetected() && tool->toolType() == toolType)
@@ -247,7 +247,7 @@ MesonTools::Tool_t autoDetectedTool(ToolType toolType)
 
 static void fixAutoDetected(ToolType toolType)
 {
-    MesonTools::Tool_t autoDetected = autoDetectedTool(toolType);
+    MesonTools::Tool_t autoDetected = MesonTools::autoDetectedTool(toolType);
     if (!autoDetected) {
         QStringList exeNames;
         QString toolName;
