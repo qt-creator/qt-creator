@@ -20,6 +20,7 @@
         "- Access to a Squish server"
 ],
 "Url" : "https://www.qt.io",
+"DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-reference-squish-output.html",
 ${IDE_PLUGIN_DEPENDENCIES},
 
 "Mimetypes" : [

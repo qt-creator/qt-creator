@@ -22,6 +22,7 @@
             "- A Qt version supported by the Qt Safe Renderer"
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/QtSafeRenderer/qtsaferenderer-index.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "JsonWizardPaths" : [":/saferenderer/wizards/"]

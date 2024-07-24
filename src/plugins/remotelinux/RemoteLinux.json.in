@@ -20,5 +20,6 @@
             "- A toolchain for embedded development"
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-developing-generic-linux.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

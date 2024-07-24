@@ -21,6 +21,7 @@
             "- Android development tools"
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-developing-android.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

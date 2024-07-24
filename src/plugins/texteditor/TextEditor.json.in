@@ -15,6 +15,7 @@
     "Category" : "Core",
     "Description" : "Text editor framework and the implementation of the basic text editor.",
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-how-tos.html#edit-code",
     ${IDE_PLUGIN_DEPENDENCIES},
     "Mimetypes" : [
         "<?xml version='1.0'?>",

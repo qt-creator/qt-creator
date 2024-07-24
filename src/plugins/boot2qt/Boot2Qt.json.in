@@ -23,5 +23,6 @@
             "- Build tools and other dependencies related to the development host"
 ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-developing-b2qt.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

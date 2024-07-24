@@ -15,5 +15,6 @@
     "Description" : "Run the main editor in a manner similar to the Vim editor.",
     "LongDescription" : [],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-editor-fakevim.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

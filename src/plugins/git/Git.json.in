@@ -19,6 +19,7 @@
             "- Git"
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-vcs-git.html",
     "Arguments" : [
         {
             "Name" : "-git-show",

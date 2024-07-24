@@ -18,5 +18,6 @@
     "Build system based testing is independent from any testing frameworks. It retrieves information directly from the underlying build system and uses it or even the build system as such to execute the respective tests."
 ],
 "Url" : "https://www.qt.io",
+"DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-how-tos.html#test",
 ${IDE_PLUGIN_DEPENDENCIES}
 }

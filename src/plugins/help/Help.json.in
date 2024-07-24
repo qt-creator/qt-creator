@@ -19,5 +19,6 @@
         "- Qt documentation as help files (.qch)"
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-how-tos.html#read-documentation",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

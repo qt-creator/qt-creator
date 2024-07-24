@@ -15,6 +15,7 @@
     "Category" : "Build Systems",
     "Description" : "Generic support.",
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-project-generic.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

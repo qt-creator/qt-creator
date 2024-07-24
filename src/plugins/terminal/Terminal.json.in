@@ -17,5 +17,6 @@
         "Instead of using an external terminal."
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-reference-terminal-view.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

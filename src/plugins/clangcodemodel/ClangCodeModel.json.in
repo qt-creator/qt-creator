@@ -18,5 +18,6 @@
         "The code model is the part of an IDE that understands the programming language you are using to write your application. With it, Qt Creator can help you code faster and avoid errors."
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-clang-codemodel.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

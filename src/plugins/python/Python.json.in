@@ -20,6 +20,7 @@
             "- Tools for Python development"
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-python-development.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

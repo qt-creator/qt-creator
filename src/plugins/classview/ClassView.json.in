@@ -16,5 +16,6 @@
     "Description" : "View the class hierarchy of currently open projects.",
     "LongDescription" : [],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-class-view.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

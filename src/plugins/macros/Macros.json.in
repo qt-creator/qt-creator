@@ -17,5 +17,6 @@
         "When you have a file open in the code editor, you can record a keyboard sequence as a macro. You can then play the macro to repeat the sequence. You can save the latest macro and assign a keyboard shortcut for running it or run it from the locator."
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-macros.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

@@ -19,5 +19,6 @@
             "- Docker CLI"
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-adding-docker-devices.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

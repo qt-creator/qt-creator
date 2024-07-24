@@ -20,5 +20,6 @@
             "- Silver Searcher"
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-how-to-silver-searcher.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

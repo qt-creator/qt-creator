@@ -18,6 +18,7 @@
         "Use the shaders to display hardware-accelerated 3D graphics alongside a more conventional UI."
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-how-to-create-opengl-shaders.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

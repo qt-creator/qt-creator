@@ -19,6 +19,7 @@
             "- Subversion"
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-vcs-subversion.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

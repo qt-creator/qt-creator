@@ -21,5 +21,6 @@
         "You also need:",
             "- A toolchain for bare metal development"
     ],
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-developing-baremetal.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

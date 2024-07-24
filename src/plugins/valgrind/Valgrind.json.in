@@ -20,5 +20,6 @@
             "- Valgrind's Tool Suite"
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-analyze-mode.html#profiling-with-valgrind-tools",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

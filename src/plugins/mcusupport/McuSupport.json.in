@@ -21,6 +21,7 @@
             "- Qt for MCUs"
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-developing-mcu.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "JsonWizardPaths" : [":/mcusupport/wizards/"]

@@ -21,6 +21,7 @@
             "- Qt Application Manager"
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-how-to-run-in-app-manager.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

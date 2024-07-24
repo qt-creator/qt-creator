@@ -20,5 +20,6 @@
             "- GitHub Copilot Neovim plugin installed (requires Node.js)"
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-copilot.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

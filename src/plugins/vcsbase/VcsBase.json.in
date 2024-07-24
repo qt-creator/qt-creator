@@ -19,5 +19,6 @@
             "- An extension for a VCS tool, such as Git, and the tool"
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-version-control.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

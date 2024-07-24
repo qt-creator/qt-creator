@@ -15,5 +15,6 @@
     "Description" : "Compare two files or two versions of a file.",
     "LongDescription" : [],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-diff-editor.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

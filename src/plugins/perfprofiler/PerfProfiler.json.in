@@ -20,5 +20,6 @@
             "- Perf tool (bundled with the Linux kernel)"
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-cpu-usage-analyzer.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

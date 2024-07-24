@@ -15,6 +15,7 @@
     "Description" : "View images, and create pixmaps from SVG images.",
     "LongDescription" : [],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-how-to-view-images.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

@@ -16,6 +16,7 @@
     "Description" : "Edit C++ source and header files.",
     "LongDescription" : [],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-coding-navigating.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

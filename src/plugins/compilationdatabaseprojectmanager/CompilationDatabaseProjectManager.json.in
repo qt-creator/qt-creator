@@ -22,6 +22,7 @@
             "- A compilation database"
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-clang-codemodel.html",
     ${IDE_PLUGIN_DEPENDENCIES},
     "Mimetypes" : [
         "<?xml version='1.0'?>",

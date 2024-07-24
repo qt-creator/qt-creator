@@ -18,6 +18,7 @@
         "Create structured and behavioral diagrams that offer different views to your system. However, the editor uses a variant of UML and has only a subset of properties for specifying the appearance of model elements."
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-modeling.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

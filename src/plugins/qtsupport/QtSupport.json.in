@@ -15,6 +15,7 @@
     "Category" : "Build Systems",
     "Description" : "Provides support code for build systems.",
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-project-qmake.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

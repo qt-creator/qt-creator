@@ -17,5 +17,6 @@
         "Paste snippets of text, such as code or diffs, to a server or fetch them from the server."
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-editor-codepasting.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

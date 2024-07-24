@@ -18,6 +18,7 @@
         "Visualize how a system reacts to events. State charts define the states that the system can be in, and how the system can move from one state to another."
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-scxml.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

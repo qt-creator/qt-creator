@@ -16,6 +16,7 @@
     ],
     "Description" : "Integrates https://godbolt.org into Qt Creator.",
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-how-to-explore-compiler-code.html",
     ${IDE_PLUGIN_DEPENDENCIES},
     "Mimetypes" : [
         "<?xml version='1.0'?>",

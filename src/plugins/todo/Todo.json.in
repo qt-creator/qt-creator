@@ -18,5 +18,6 @@
         "List the BUG, FIXME, NOTE, TODO, and WARNING keywords from the current file, from all project files, or from a subproject."
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-reference-to-do-entries-view.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

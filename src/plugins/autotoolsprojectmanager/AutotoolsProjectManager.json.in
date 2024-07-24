@@ -21,5 +21,6 @@
             "- An Autotools-based project"
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-projects-autotools.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

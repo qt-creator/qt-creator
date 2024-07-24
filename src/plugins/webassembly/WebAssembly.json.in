@@ -22,5 +22,6 @@
             "- Qt for WebAssembly"
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-setup-webassembly.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

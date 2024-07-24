@@ -19,6 +19,7 @@
             "- Nimble packaging manager"
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-project-nimble.html",
     "Experimental" : true,
     ${IDE_PLUGIN_DEPENDENCIES},
 

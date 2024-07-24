@@ -21,6 +21,7 @@
             "- ClearCase"
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-vcs-clearcase.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

@@ -19,5 +19,6 @@
         "- GitLab account"
 ],
 "Url" : "https://www.qt.io",
+"DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-vcs-gitlab.html",
 ${IDE_PLUGIN_DEPENDENCIES}
 }

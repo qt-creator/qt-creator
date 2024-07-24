@@ -18,6 +18,7 @@
         "Store files in the application's executable with the platform-independent Qt Resource System."
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-how-to-create-resource-files.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

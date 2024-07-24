@@ -18,5 +18,6 @@
             "ClangFormat is an alternative for the built-in indenter."
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-code-style-settings.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

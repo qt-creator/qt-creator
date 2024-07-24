@@ -17,6 +17,7 @@
     "Description" : "Get and manage libraries from the vcpkg package manager.",
     "LongDescription" : [],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-vcpkg.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

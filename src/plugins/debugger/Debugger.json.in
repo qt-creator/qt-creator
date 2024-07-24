@@ -21,6 +21,7 @@
             "- A debugger"
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-debugging.html",
     "Arguments" : [
         {
             "Name" : "-debug",

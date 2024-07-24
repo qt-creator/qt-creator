@@ -15,6 +15,7 @@
     "Category" : "Core",
     "Description" : "ProjectExplorer framework that can be extended with different kind of project types.",
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-how-tos.html#manage-projects",
     "Arguments" : [
         {
             "Name" : "-customwizard-verbose",

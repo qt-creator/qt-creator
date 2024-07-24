@@ -17,5 +17,6 @@
     "Experimental": true,
     "DisabledByDefault": false,
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-how-to-load-extensions.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

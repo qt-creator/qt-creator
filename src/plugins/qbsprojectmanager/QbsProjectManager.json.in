@@ -18,5 +18,6 @@
         "Generate a build graph from a high-level project description (like with qmake or CMake) and execute the commands in the low-level build graph (like with make)."
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-project-qbs.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

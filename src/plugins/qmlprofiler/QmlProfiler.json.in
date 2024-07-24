@@ -18,5 +18,6 @@
         "Find causes for typical performance problems, such as slowness and unresponsive, stuttering user interfaces."
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-qml-performance-monitor.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

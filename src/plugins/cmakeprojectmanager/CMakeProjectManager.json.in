@@ -21,6 +21,7 @@
         "Qt Online Installer installs a CMake version that you can use."
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-project-cmake.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

@@ -18,6 +18,7 @@
         "Use .pro project configuration files and tools that automate the generation of Makefiles."
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-build-settings-qmake.html#global-qmake-settings",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

@@ -29,5 +29,6 @@
         "Also it's worth mentioning that EmacsKeys plugin forces disabling of menu mnemonics by calling Qt's qt_set_sequence_auto_mnemonic function with false argument. Many of the english menu mnemonics get into the way of typical emacs keys, this includes: Alt+F (File), Alt+B (Build), Alt+W (Window). It's a temporary solution, it remains until there is a better one."
     ],
     "Url" : "https://nosmileface.ru",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-keyboard-shortcuts.html#emacs-shortcuts",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

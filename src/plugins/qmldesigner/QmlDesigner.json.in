@@ -16,6 +16,7 @@
     "Description" : "Visual Designer for QML files.",
     "Deprecated" : true,
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-qtquickdesigner-plugin.html",
     "Arguments" : [
         {
             "Name" : "-capture-puppet-stream",

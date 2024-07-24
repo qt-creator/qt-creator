@@ -23,5 +23,6 @@
             "- Ninja"
     ],
     "Url" : "https://www.mesonbuild.com",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-project-meson.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

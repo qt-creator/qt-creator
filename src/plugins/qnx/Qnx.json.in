@@ -21,5 +21,6 @@
             "- QNX Software Development Platform (SDP)"
     ],
     "Url" : "https://www.blackberry.com",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-developing-qnx.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

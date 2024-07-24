@@ -18,6 +18,7 @@
         "Offers code completion, highlighting of the symbol under cursor, and jumping to the symbol definition, as well as diagnostics from the language server."
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-language-servers.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

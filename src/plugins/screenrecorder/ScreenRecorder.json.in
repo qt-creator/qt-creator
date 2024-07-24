@@ -17,5 +17,6 @@
     "Description" : "Record screens.",
     "LongDescription" : [],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-how-to-record-screens.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

@@ -19,5 +19,6 @@
             "- Conan"
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-project-conan.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

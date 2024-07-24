@@ -16,5 +16,6 @@
     "Description" : "Preview QML files and Qt Quick applications.",
     "LongDescription" : [],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-live-preview-desktop.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }
