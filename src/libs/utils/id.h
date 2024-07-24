@@ -46,7 +46,6 @@ public:
     bool operator>(Id id) const { return m_id > id.m_id; }
     bool alphabeticallyBefore(Id other) const;
 
-    quintptr uniqueIdentifier() const { return m_id; } // Avoid.
     static Id fromString(const QStringView str); // FIXME: avoid.
     static Id fromName(const QByteArrayView ba); // FIXME: avoid.
     static Id fromSetting(const QVariant &variant); // Good to use.
@@ -54,7 +53,7 @@ public:
     static QSet<Id> fromStringList(const QStringList &list);
     static QStringList toStringList(const QSet<Id> &ids);
 
-    friend size_t qHash(Id id) { return static_cast<size_t>(id.uniqueIdentifier()); }
+    friend size_t qHash(Id id) { return static_cast<size_t>(id.m_id); }
     friend QTCREATOR_UTILS_EXPORT QDataStream &operator<<(QDataStream &ds, Id id);
     friend QTCREATOR_UTILS_EXPORT QDataStream &operator>>(QDataStream &ds, Id &id);
     friend QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const Id &id);
