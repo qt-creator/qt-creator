@@ -20,6 +20,8 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 
+#include <solutions/tasking/conditional.h>
+
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 #include <utils/url.h>
@@ -604,6 +606,42 @@ void AndroidRunnerWorker::startDebuggerServer(const QString &packageDir,
         removeForwardPort("tcp:" + m_localDebugServerPort.toString(),
                           "localfilesystem:" + gdbServerSocket, "C++");
     }
+}
+
+ExecutableItem AndroidRunnerWorker::removeForwardPortRecipe(
+    const QString &port, const QString &adbArg, const QString &portType)
+{
+    const auto onForwardListSetup = [](Process &process) {
+        process.setCommand({AndroidConfig::adbToolPath(), {"forward", "--list"}});
+    };
+    const auto onForwardListDone = [port](const Process &process) {
+        return process.cleanedStdOut().trimmed().contains(port);
+    };
+
+    const auto onForwardRemoveSetup = [this, port](Process &process) {
+        process.setCommand({AndroidConfig::adbToolPath(), {selector(), "--remove", port}});
+    };
+    const auto onForwardRemoveDone = [this](const Process &process) {
+        emit remoteErrorOutput(process.cleanedStdErr().trimmed());
+        return true;
+    };
+
+    const auto onForwardPortSetup = [this, port, adbArg](Process &process) {
+        process.setCommand({AndroidConfig::adbToolPath(), {selector(), port, adbArg}});
+    };
+    const auto onForwardPortDone = [this, port, portType](DoneWith result) {
+        if (result == DoneWith::Success)
+            m_afterFinishAdbCommands.push_back("forward --remove " + port);
+        else
+            emit remoteProcessFinished(Tr::tr("Failed to forward %1 debugging ports.").arg(portType));
+    };
+
+    return Group {
+        If (ProcessTask(onForwardListSetup, onForwardListDone)) >> Then {
+            ProcessTask(onForwardRemoveSetup, onForwardRemoveDone, CallDoneIf::Error)
+        },
+        ProcessTask(onForwardPortSetup, onForwardPortDone)
+    };
 }
 
 ExecutableItem AndroidRunnerWorker::pidRecipe()
