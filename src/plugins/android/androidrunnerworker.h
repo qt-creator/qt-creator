@@ -6,6 +6,7 @@
 
 #include <qmldebug/qmldebugcommandlinearguments.h>
 
+#include <solutions/tasking/barrier.h>
 #include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/environment.h>
@@ -41,32 +42,22 @@ private:
     bool runAdb(const QStringList &args, QString *stdOut = nullptr, QString *stdErr = nullptr);
     QStringList selector() const;
     void forceStop();
-    void logcatReadStandardError();
-    void logcatReadStandardOutput();
-    void logcatProcess(const QByteArray &text, QByteArray &buffer, bool onlyError);
-
-    void handleJdbWaiting();
-    void handleJdbSettled();
 
     bool removeForwardPort(const QString &port, const QString &adbArg, const QString &portType);
 
-    void asyncStartHelper();
     void startNativeDebugging();
     void startDebuggerServer(const QString &packageDir, const QString &debugServerFile);
     bool deviceFileExists(const QString &filePath);
-    bool packageFileExists(const QString& filePath);
+    bool packageFileExists(const QString &filePath);
     bool uploadDebugServer(const QString &debugServerFileName);
-    void asyncStartLogcat();
 
-    enum class JDBState {
-        Idle,
-        Waiting,
-        Settled
-    };
     void onProcessIdChanged(const PidUserPair &pidUser);
     bool isPreNougat() const { return m_apiLevel > 0 && m_apiLevel <= 23; }
     Tasking::ExecutableItem removeForwardPortRecipe(const QString &port, const QString &adbArg,
                                                     const QString &portType);
+    Tasking::ExecutableItem jdbRecipe(const Tasking::SingleBarrier &startBarrier,
+                                      const Tasking::SingleBarrier &settledBarrier);
+    Tasking::ExecutableItem logcatRecipe();
     Tasking::ExecutableItem preStartRecipe();
     Tasking::ExecutableItem pidRecipe();
 
@@ -78,18 +69,13 @@ private:
     QStringList m_amStartExtraArgs;
     qint64 m_processPID = -1;
     qint64 m_processUser = -1;
-    std::unique_ptr<Utils::Process> m_adbLogcatProcess;
     std::unique_ptr<Utils::Process> m_psIsAlive;
-    QByteArray m_stdoutBuffer;
-    QByteArray m_stderrBuffer;
     Tasking::TaskTreeRunner m_taskTreeRunner;
     bool m_useCppDebugger = false;
     bool m_useLldb = false; // FIXME: Un-implemented currently.
     QmlDebug::QmlDebugServicesPreset m_qmlDebugServices;
     QUrl m_qmlServer;
-    JDBState m_jdbState = JDBState::Idle;
     std::unique_ptr<Utils::Process> m_debugServerProcess; // gdbserver or lldb-server
-    std::unique_ptr<Utils::Process> m_jdbProcess;
     QString m_deviceSerialNumber;
     int m_apiLevel = -1;
     QString m_extraAppParams;

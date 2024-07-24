@@ -20,6 +20,7 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 
+#include <solutions/tasking/barrier.h>
 #include <solutions/tasking/conditional.h>
 
 #include <utils/hostosinfo.h>
@@ -309,142 +310,12 @@ void AndroidRunnerWorker::forceStop()
     }
 }
 
-void AndroidRunnerWorker::logcatReadStandardError()
-{
-    if (m_processPID != -1)
-        logcatProcess(m_adbLogcatProcess->readAllRawStandardError(), m_stderrBuffer, true);
-}
-
-void AndroidRunnerWorker::logcatReadStandardOutput()
-{
-    if (m_processPID != -1)
-        logcatProcess(m_adbLogcatProcess->readAllRawStandardOutput(), m_stdoutBuffer, false);
-}
-
-void AndroidRunnerWorker::logcatProcess(const QByteArray &text, QByteArray &buffer, bool onlyError)
-{
-    QList<QByteArray> lines = text.split('\n');
-    // lines always contains at least one item
-    lines[0].prepend(buffer);
-    if (!lines.last().endsWith('\n')) {
-        // incomplete line
-        buffer = lines.last();
-        lines.removeLast();
-    } else {
-        buffer.clear();
-    }
-
-    QString pidString = QString::number(m_processPID);
-    for (const QByteArray &msg : std::as_const(lines)) {
-        const QString line = QString::fromUtf8(msg).trimmed() + QLatin1Char('\n');
-        if (!line.contains(pidString))
-            continue;
-        if (m_useCppDebugger) {
-            switch (m_jdbState) {
-            case JDBState::Idle:
-                if (msg.trimmed().endsWith("Sending WAIT chunk")) {
-                    m_jdbState = JDBState::Waiting;
-                    handleJdbWaiting();
-                }
-                break;
-            case JDBState::Waiting:
-                if (msg.indexOf("debugger has settled") > 0) {
-                    m_jdbState = JDBState::Settled;
-                    handleJdbSettled();
-                }
-                break;
-            default:
-                break;
-            }
-        }
-
-        static const QRegularExpression regExpLogcat{"^[0-9\\-]*" // date
-                                                     "\\s+"
-                                                     "[0-9\\-:.]*"// time
-                                                     "\\s*"
-                                                     "(\\d*)"     // pid           1. capture
-                                                     "\\s+"
-                                                     "\\d*"       // unknown
-                                                     "\\s+"
-                                                     "(\\w)"      // message type  2. capture
-                                                     "\\s+"
-                                                     "(.*): "     // source        3. capture
-                                                     "(.*)"       // message       4. capture
-                                                     "[\\n\\r]*$"};
-
-        const QRegularExpressionMatch match = regExpLogcat.match(line);
-        if (match.hasMatch()) {
-            // Android M
-            if (match.captured(1) == pidString) {
-                const QString messagetype = match.captured(2);
-                const QString output = line.mid(match.capturedStart(2));
-
-                if (onlyError
-                        || messagetype == QLatin1String("F")
-                        || messagetype == QLatin1String("E")
-                        || messagetype == QLatin1String("W"))
-                    emit remoteErrorOutput(output);
-                else
-                    emit remoteOutput(output);
-            }
-        } else {
-            if (onlyError || line.startsWith("F/")
-                    || line.startsWith("E/")
-                    || line.startsWith("W/"))
-                emit remoteErrorOutput(line);
-            else
-                emit remoteOutput(line);
-        }
-    }
-}
-
 void AndroidRunnerWorker::setAndroidDeviceInfo(const AndroidDeviceInfo &info)
 {
     m_deviceSerialNumber = info.serialNumber;
     m_apiLevel = info.sdk;
     qCDebug(androidRunWorkerLog) << "Android Device Info changed"
                                  << m_deviceSerialNumber << m_apiLevel;
-}
-
-void AndroidRunnerWorker::asyncStartLogcat()
-{
-    // Its assumed that the device or avd returned by selector() is online.
-    // Start the logcat process before app starts.
-    QTC_CHECK(!m_adbLogcatProcess);
-
-    // Ideally AndroidManager::runAdbCommandDetached() should be used, but here
-    // we need to connect the readyRead signals from logcat otherwise we might
-    // lost some output between the process start and connecting those signals.
-    m_adbLogcatProcess.reset(new Process);
-
-    connect(m_adbLogcatProcess.get(), &Process::readyReadStandardOutput,
-            this, &AndroidRunnerWorker::logcatReadStandardOutput);
-    connect(m_adbLogcatProcess.get(), &Process::readyReadStandardError,
-            this, &AndroidRunnerWorker::logcatReadStandardError);
-
-    // Get target current time to fetch only recent logs
-    QString dateInSeconds;
-    QStringList timeArg;
-    if (runAdb({"shell", "date", "+%s"}, &dateInSeconds)) {
-        timeArg << "-T";
-        timeArg << QDateTime::fromSecsSinceEpoch(dateInSeconds.toInt())
-                       .toString("MM-dd hh:mm:ss.mmm");
-    }
-
-    const QStringList logcatArgs = selector() << "logcat" << timeArg;
-    const FilePath adb = AndroidConfig::adbToolPath();
-    qCDebug(androidRunWorkerLog).noquote() << "Running logcat command (async):"
-                                           << CommandLine(adb, logcatArgs).toUserOutput();
-    m_adbLogcatProcess->setCommand({adb, logcatArgs});
-    m_adbLogcatProcess->start();
-    if (m_adbLogcatProcess->waitForStarted(500ms) && m_adbLogcatProcess->state() == QProcess::Running)
-        m_adbLogcatProcess->setObjectName("AdbLogcatProcess");
-}
-
-void AndroidRunnerWorker::asyncStartHelper()
-{
-    forceStop();
-    asyncStartLogcat();
 }
 
 void AndroidRunnerWorker::startNativeDebugging()
@@ -570,6 +441,166 @@ ExecutableItem AndroidRunnerWorker::removeForwardPortRecipe(
             ProcessTask(onForwardRemoveSetup, onForwardRemoveDone, CallDoneIf::Error)
         },
         ProcessTask(onForwardPortSetup, onForwardPortDone)
+    };
+}
+
+// The startBarrier is passed when logcat process received "Sending WAIT chunk" message.
+// The settledBarrier is passed when logcat process received "debugger has settled" message.
+ExecutableItem AndroidRunnerWorker::jdbRecipe(const SingleBarrier &startBarrier,
+                                              const SingleBarrier &settledBarrier)
+{
+    const auto onSetup = [this] {
+        return m_useCppDebugger ? SetupResult::Continue : SetupResult::StopWithSuccess;
+    };
+
+    const auto onTaskTreeSetup = [this](TaskTree &taskTree) {
+        taskTree.setRecipe({
+            removeForwardPortRecipe("tcp:" + s_localJdbServerPort.toString(),
+                                    "jdwp:" + QString::number(m_processPID), "JDB")
+        });
+    };
+
+    const auto onJdbSetup = [this, settledBarrier](Process &process) {
+        const FilePath jdbPath = AndroidConfig::openJDKLocation().pathAppended("bin/jdb")
+                                     .withExecutableSuffix();
+        const QString portArg = QString("com.sun.jdi.SocketAttach:hostname=localhost,port=%1")
+                                    .arg(s_localJdbServerPort.toString());
+        process.setCommand({jdbPath, {"-connect", portArg}});
+        process.setProcessMode(ProcessMode::Writer);
+        process.setProcessChannelMode(QProcess::MergedChannels);
+        process.setReaperTimeout(s_jdbTimeout);
+        connect(settledBarrier->barrier(), &Barrier::done, &process, [processPtr = &process] {
+            processPtr->write("ignore uncaught java.lang.Throwable\n"
+                              "threads\n"
+                              "cont\n"
+                              "exit\n");
+        });
+    };
+    const auto onJdbDone = [](const Process &process, DoneWith result) {
+        qCDebug(androidRunWorkerLog) << qPrintable(process.allOutput());
+        if (result == DoneWith::Cancel)
+            qCCritical(androidRunWorkerLog) << "Terminating JDB due to timeout";
+    };
+
+    return Group {
+        onGroupSetup(onSetup),
+        waitForBarrierTask(startBarrier),
+        TaskTreeTask(onTaskTreeSetup),
+        ProcessTask(onJdbSetup, onJdbDone).withTimeout(60s)
+    };
+}
+
+ExecutableItem AndroidRunnerWorker::logcatRecipe()
+{
+    struct Buffer {
+        QStringList timeArgs;
+        QByteArray stdOutBuffer;
+        QByteArray stdErrBuffer;
+    };
+
+    const Storage<Buffer> storage;
+    const SingleBarrier startJdbBarrier;   // When logcat received "Sending WAIT chunk".
+    const SingleBarrier settledJdbBarrier; // When logcat received "debugger has settled".
+
+    const auto onTimeSetup = [this](Process &process) {
+        process.setCommand({AndroidConfig::adbToolPath(), {selector(), "shell", "date", "+%s"}});
+    };
+    const auto onTimeDone = [storage](const Process &process) {
+        storage->timeArgs = {"-T", QDateTime::fromSecsSinceEpoch(
+            process.cleanedStdOut().trimmed().toInt()).toString("MM-dd hh:mm:ss.mmm")};
+    };
+
+    const auto onLogcatSetup = [this, storage, startJdbBarrier, settledJdbBarrier](Process &process) {
+        Buffer *bufferPtr = storage.activeStorage();
+        const auto parseLogcat = [this, bufferPtr, start = startJdbBarrier->barrier(),
+                                  settled = settledJdbBarrier->barrier(), processPtr = &process](
+                                     QProcess::ProcessChannel channel) {
+            if (m_processPID == -1)
+                return;
+
+            QByteArray &buffer = channel == QProcess::StandardOutput ? bufferPtr->stdOutBuffer
+                                                                     : bufferPtr->stdErrBuffer;
+            const QByteArray &text = channel == QProcess::StandardOutput
+                                         ? processPtr->readAllRawStandardOutput()
+                                         : processPtr->readAllRawStandardError();
+            QList<QByteArray> lines = text.split('\n');
+            // lines always contains at least one item
+            lines[0].prepend(buffer);
+            if (lines.last().endsWith('\n'))
+                buffer.clear();
+            else
+                buffer = lines.takeLast(); // incomplete line
+
+            const QString pidString = QString::number(m_processPID);
+            for (const QByteArray &msg : std::as_const(lines)) {
+                const QString line = QString::fromUtf8(msg).trimmed() + QLatin1Char('\n');
+                if (!line.contains(pidString))
+                    continue;
+
+                if (m_useCppDebugger) {
+                    if (start->current() == 0 && msg.trimmed().endsWith("Sending WAIT chunk"))
+                        start->advance();
+                    else if (settled->current() == 0 && msg.indexOf("debugger has settled") > 0)
+                        settled->advance();
+                }
+
+                static const QRegularExpression regExpLogcat{
+                    "^[0-9\\-]*" // date
+                    "\\s+"
+                    "[0-9\\-:.]*"// time
+                    "\\s*"
+                    "(\\d*)"     // pid           1. capture
+                    "\\s+"
+                    "\\d*"       // unknown
+                    "\\s+"
+                    "(\\w)"      // message type  2. capture
+                    "\\s+"
+                    "(.*): "     // source        3. capture
+                    "(.*)"       // message       4. capture
+                    "[\\n\\r]*$"
+                };
+
+                const bool onlyError = channel == QProcess::StandardError;
+                const QRegularExpressionMatch match = regExpLogcat.match(line);
+                if (match.hasMatch()) {
+                    // Android M
+                    if (match.captured(1) == pidString) {
+                        const QString msgType = match.captured(2);
+                        const QString output = line.mid(match.capturedStart(2));
+                        if (onlyError || msgType == "F" || msgType == "E" || msgType == "W")
+                            emit remoteErrorOutput(output);
+                        else
+                            emit remoteOutput(output);
+                    }
+                } else {
+                    if (onlyError || line.startsWith("F/") || line.startsWith("E/")
+                        || line.startsWith("W/")) {
+                        emit remoteErrorOutput(line);
+                    } else {
+                        emit remoteOutput(line);
+                    }
+                }
+            }
+        };
+        connect(&process, &Process::readyReadStandardOutput, this, [parseLogcat] {
+            parseLogcat(QProcess::StandardOutput);
+        });
+        connect(&process, &Process::readyReadStandardError, this, [parseLogcat] {
+            parseLogcat(QProcess::StandardError);
+        });
+        process.setCommand({AndroidConfig::adbToolPath(), {selector(), "logcat", storage->timeArgs}});
+    };
+
+    return Group {
+        parallel,
+        startJdbBarrier,
+        settledJdbBarrier,
+        Group {
+            storage,
+            ProcessTask(onTimeSetup, onTimeDone, CallDoneIf::Success) || successItem,
+            ProcessTask(onLogcatSetup)
+        },
+        jdbRecipe(startJdbBarrier, settledJdbBarrier)
     };
 }
 
@@ -712,11 +743,15 @@ ExecutableItem AndroidRunnerWorker::pidRecipe()
 
 void AndroidRunnerWorker::asyncStart()
 {
-    asyncStartHelper();
+    forceStop();
 
     const Group recipe {
-        preStartRecipe(),
-        pidRecipe()
+        parallel,
+        logcatRecipe(),
+        Group {
+            preStartRecipe(),
+            pidRecipe()
+        }
     };
 
     m_taskTreeRunner.start(recipe);
@@ -728,55 +763,7 @@ void AndroidRunnerWorker::asyncStop()
     if (m_processPID != -1)
         forceStop();
 
-    m_jdbProcess.reset();
     m_debugServerProcess.reset();
-}
-
-void AndroidRunnerWorker::handleJdbWaiting()
-{
-    if (!removeForwardPort("tcp:" + s_localJdbServerPort.toString(),
-                           "jdwp:" + QString::number(m_processPID), "JDB"))
-        return;
-
-    const FilePath jdbPath = AndroidConfig::openJDKLocation()
-            .pathAppended("bin/jdb").withExecutableSuffix();
-
-    QStringList jdbArgs("-connect");
-    jdbArgs << QString("com.sun.jdi.SocketAttach:hostname=localhost,port=%1")
-               .arg(s_localJdbServerPort.toString());
-    qCDebug(androidRunWorkerLog).noquote()
-            << "Starting JDB:" << CommandLine(jdbPath, jdbArgs).toUserOutput();
-    m_jdbProcess.reset(new Process);
-    m_jdbProcess->setProcessChannelMode(QProcess::MergedChannels);
-    m_jdbProcess->setCommand({jdbPath, jdbArgs});
-    m_jdbProcess->setReaperTimeout(s_jdbTimeout);
-    m_jdbProcess->setProcessMode(ProcessMode::Writer);
-    m_jdbProcess->start();
-    if (!m_jdbProcess->waitForStarted()) {
-        emit remoteProcessFinished(Tr::tr("Failed to start JDB."));
-        m_jdbProcess.reset();
-        return;
-    }
-    m_jdbProcess->setObjectName("JdbProcess");
-}
-
-void AndroidRunnerWorker::handleJdbSettled()
-{
-    qCDebug(androidRunWorkerLog) << "Handle JDB settled";
-    m_jdbProcess->write("ignore uncaught java.lang.Throwable\n"
-                        "threads\n"
-                        "cont\n"
-                        "exit\n");
-    if (!m_jdbProcess->waitForFinished(s_jdbTimeout)) {
-        qCDebug(androidRunWorkerLog) << qPrintable(m_jdbProcess->allOutput());
-        qCCritical(androidRunWorkerLog) << "Terminating JDB due to timeout";
-        m_jdbProcess.reset();
-    } else if (m_jdbProcess->exitStatus() == QProcess::NormalExit && m_jdbProcess->exitCode() == 0) {
-        qCDebug(androidRunWorkerLog) << qPrintable(m_jdbProcess->allOutput());
-        qCDebug(androidRunWorkerLog) << "JDB settled";
-        return;
-    }
-    emit remoteProcessFinished(Tr::tr("Cannot attach JDB to the running application."));
 }
 
 bool AndroidRunnerWorker::removeForwardPort(const QString &port, const QString &adbArg,
@@ -803,9 +790,7 @@ void AndroidRunnerWorker::onProcessIdChanged(const PidUserPair &pidUser)
         emit remoteProcessFinished(QLatin1String("\n\n") + Tr::tr("\"%1\" died.")
                                    .arg(m_packageName));
         // App died/killed. Reset log, monitor, jdb & gdbserver/lldb-server processes.
-        m_adbLogcatProcess.reset();
         m_psIsAlive.reset();
-        m_jdbProcess.reset();
         m_debugServerProcess.reset();
 
         // Run adb commands after application quit.
@@ -817,7 +802,8 @@ void AndroidRunnerWorker::onProcessIdChanged(const PidUserPair &pidUser)
         // In debugging cases this will be funneled to the engine to actually start
         // and attach gdb. Afterwards this ends up in handleRemoteDebuggerRunning() below.
         emit remoteProcessStarted(s_localDebugServerPort, m_qmlServer, m_processPID);
-        logcatReadStandardOutput();
+        // TODO: Add a pidBarrier and activate it -> it should start parsing the logcat output.
+        // logcatReadStandardOutput();
         QTC_ASSERT(!m_psIsAlive, /**/);
         QStringList isAliveArgs = selector() << "shell" << pidPollingScript.arg(m_processPID);
         m_psIsAlive.reset(AndroidManager::startAdbProcess(isAliveArgs));
