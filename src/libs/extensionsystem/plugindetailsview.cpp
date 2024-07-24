@@ -156,7 +156,7 @@ void PluginDetailsView::update(PluginSpec *spec)
     if (!description.isEmpty() && !spec->longDescription().isEmpty())
         description += "\n\n";
     description += spec->longDescription();
-    d->description->setText(description);
+    d->description->setMarkdown(description);
     d->copyright->setText(spec->copyright());
     d->license->setText(spec->license());
     d->dependencies->addItems(Utils::transform<QList>(spec->dependencies(),
