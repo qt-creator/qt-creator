@@ -65,8 +65,6 @@ Project {
             "settings.h",
             "toolkitaspectwidget.cpp",
             "toolkitaspectwidget.h",
-            "toolitemsettings.cpp",
-            "toolitemsettings.h",
             "toolsmodel.cpp",
             "toolsmodel.h",
             "toolssettingsaccessor.cpp",

@@ -47,8 +47,6 @@ add_qtc_plugin(MesonProjectManager
   settings.cpp
   settings.h
   target.h
-  toolitemsettings.cpp
-  toolitemsettings.h
   toolkitaspectwidget.cpp
   toolkitaspectwidget.h
   toolsmodel.cpp
