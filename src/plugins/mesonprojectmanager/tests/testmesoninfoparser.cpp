@@ -31,17 +31,6 @@ static const ProjectData projectList[] =
     {{"Simple C Project", "simplecproject", {"SimpleCProject"}}};
 
 
-#define WITH_UNCONFIGURED_PROJECT(_source_dir, _intro_file, ...) \
-    { \
-        QTemporaryFile _intro_file; \
-        _intro_file.open(); \
-        const auto tool = findTool(ToolType::Meson); \
-        QVERIFY(tool.has_value()); \
-        const ToolWrapper _meson(ToolType::Meson, "name", *tool); \
-        run_meson(_meson.introspect(Utils::FilePath::fromString(_source_dir)), &_intro_file); \
-        __VA_ARGS__ \
-    }
-
 class AMesonInfoParser : public QObject
 {
     Q_OBJECT
@@ -83,7 +72,8 @@ private slots:
             run_meson(meson.setup(FilePath::fromString(src_dir), buildDir));
             QVERIFY(isSetup(buildDir));
 
-            auto result = MesonInfoParser::parse(buildDir);
+            MesonInfoParser::Result result = MesonInfoParser::parse(buildDir);
+
             QStringList targetsNames;
             std::transform(std::cbegin(result.targets),
                            std::cend(result.targets),
@@ -92,23 +82,30 @@ private slots:
             QVERIFY(targetsNames == expectedTargets);
         }
 
-        WITH_UNCONFIGURED_PROJECT(src_dir, introFile, {
-            auto result = MesonInfoParser::parse(&introFile);
+        {
+            // With unconfigured project
+            QTemporaryFile introFile;
+            introFile.open();
+            const auto tool = findTool(ToolType::Meson);
+            QVERIFY(tool.has_value());
+            const ToolWrapper meson(ToolType::Meson, "name", *tool);
+            run_meson(meson.introspect(Utils::FilePath::fromString(src_dir)), &introFile);
+
+            MesonInfoParser::Result result = MesonInfoParser::parse(&introFile);
+
             QStringList targetsNames;
             std::transform(std::cbegin(result.targets),
                            std::cend(result.targets),
                            std::back_inserter(targetsNames),
                            [](const auto &target) { return target.name; });
             QVERIFY(targetsNames == expectedTargets);
-        })
+        }
     }
 
     void cleanupTestCase()
     {
         Utils::Singleton::deleteAll();
     }
-
-private:
 };
 
 QTEST_GUILESS_MAIN(AMesonInfoParser)
