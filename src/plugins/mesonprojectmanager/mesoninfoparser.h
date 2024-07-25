@@ -5,7 +5,6 @@
 
 #include "buildoptions.h"
 #include "buildoptionsparser.h"
-#include "buildsystemfilesparser.h"
 #include "infoparser.h"
 #include "mesoninfo.h"
 #include "target.h"

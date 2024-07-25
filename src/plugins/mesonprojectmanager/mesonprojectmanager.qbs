@@ -27,7 +27,6 @@ Project {
             "mesoninfo.h",
             "mesoninfoparser.h",
             "buildoptionsparser.h",
-            "buildsystemfilesparser.h",
             "common.h",
             "infoparser.h",
             "target.h",
