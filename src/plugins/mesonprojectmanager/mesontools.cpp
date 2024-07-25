@@ -12,10 +12,6 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
-#include <QFile>
-#include <QFileInfo>
-#include <QTemporaryFile>
-
 using namespace Utils;
 
 namespace MesonProjectManager::Internal {
@@ -78,7 +74,7 @@ void ToolWrapper::setExe(const FilePath &newExe)
 
 QVersionNumber ToolWrapper::read_version(const FilePath &toolPath)
 {
-    if (toolPath.toFileInfo().isExecutable()) {
+    if (toolPath.isExecutableFile()) {
         Process process;
         process.setCommand({ toolPath, { "--version" } });
         process.start();
