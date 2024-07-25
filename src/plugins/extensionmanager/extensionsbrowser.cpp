@@ -657,7 +657,7 @@ void ExtensionsBrowser::fetchExtensions()
     const auto onQuerySetup = [this](NetworkQuery &query) {
         const QString url = "%1/api/v1/search?request=";
         const QString requestTemplate
-            = R"({"version":"%1","host_os":"%2","host_os_version":"%3","host_architecture":"%4","page_size":200})";
+            = R"({"qtc_version":"%1","host_os":"%2","host_os_version":"%3","host_architecture":"%4","page_size":200})";
         const QString request = url.arg(settings().externalRepoUrl()) + requestTemplate
                                                     .arg(QCoreApplication::applicationVersion())
                                                     .arg(customOsTypeToString(HostOsInfo::hostOs()))
@@ -676,7 +676,7 @@ void ExtensionsBrowser::fetchExtensions()
                                           << QLocale::system().formattedDataSize(response.size());
             d->model->setExtensionsJson(response);
         } else {
-            qCDebug(browserLog).noquote() << response;
+            qCWarning(browserLog).noquote() << response;
             d->model->setExtensionsJson({});
         }
         d->m_spinner->hide();
