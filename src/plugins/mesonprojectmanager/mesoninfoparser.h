@@ -121,7 +121,6 @@ struct Result
     TargetsList targets;
     BuildOptionsList buildOptions;
     Utils::FilePaths buildSystemFiles;
-    std::optional<QVersionNumber> mesonInfo;
 };
 
 inline QVersionNumber versionNumber(const Utils::FilePath &buildDir)
@@ -138,8 +137,7 @@ inline Result parse(const Utils::FilePath &buildDir)
 {
     return {TargetParser::targetList(buildDir),
             BuildOptionsParser{buildDir}.takeBuildOptions(),
-            BuildSystemFilesParser::files(buildDir),
-            versionNumber(buildDir)};
+            BuildSystemFilesParser::files(buildDir)};
 }
 
 inline Result parse(const QByteArray &data)
@@ -147,8 +145,7 @@ inline Result parse(const QByteArray &data)
     auto json = QJsonDocument::fromJson(data);
     return {TargetParser::targetList(json),
             BuildOptionsParser{json}.takeBuildOptions(),
-            BuildSystemFilesParser::files(json),
-            std::nullopt};
+            BuildSystemFilesParser::files(json)};
 }
 
 inline Result parse(QIODevice *introFile)
