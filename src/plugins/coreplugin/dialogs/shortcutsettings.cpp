@@ -3,15 +3,14 @@
 
 #include "shortcutsettings.h"
 
+#include "ioptionspage.h"
+#include "../actionmanager/actionmanager.h"
+#include "../actionmanager/command.h"
+#include "../actionmanager/commandmappings.h"
 #include "../coreconstants.h"
 #include "../coreplugintr.h"
 #include "../documentmanager.h"
 #include "../icore.h"
-#include "../actionmanager/actionmanager.h"
-#include "../actionmanager/command.h"
-#include "../actionmanager/commandsfile.h"
-#include "../actionmanager/commandmappings.h"
-#include "ioptionspage.h"
 
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
@@ -22,8 +21,9 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QDateTime>
 #include <QDebug>
-#include <QFileDialog>
+#include <QFile>
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QKeyEvent>
@@ -34,19 +34,168 @@
 #include <QPushButton>
 #include <QTimer>
 #include <QTreeWidgetItem>
+#include <QXmlStreamAttributes>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 #include <array>
 
 using namespace Utils;
 
-Q_DECLARE_METATYPE(Core::Internal::ShortcutItem*)
-
 namespace Core::Internal {
 
 const char kSeparator[] = " | ";
 
-static int translateModifiers(Qt::KeyboardModifiers state,
-                                         const QString &text)
+struct ShortcutItem final
+{
+    Command *m_cmd;
+    QList<QKeySequence> m_keys;
+    QTreeWidgetItem *m_item;
+};
+
+/*!
+    \class Core::Internal::CommandsFile
+    \internal
+    \inmodule QtCreator
+    \brief The CommandsFile class provides a collection of import and export commands.
+*/
+
+class CommandsFile final
+{
+public:
+    CommandsFile(const FilePath &filePath) : m_filePath(filePath) {}
+
+    QMap<QString, QList<QKeySequence> > importCommands() const;
+    bool exportCommands(const QList<ShortcutItem *> &items);
+
+private:
+    const QString mappingElement = "mapping";
+    const QString shortCutElement = "shortcut";
+    const QString idAttribute = "id";
+    const QString keyElement = "key";
+    const QString valueAttribute = "value";
+
+    FilePath m_filePath;
+};
+
+
+// XML attributes cannot contain these characters, and
+// QXmlStreamWriter just bails out with an error.
+// QKeySequence::toString() should probably not result in these
+// characters, but it currently does, see QTCREATORBUG-29431
+static bool containsInvalidCharacters(const QString &s)
+{
+    const auto end = s.constEnd();
+    for (auto it = s.constBegin(); it != end; ++it) {
+        // from QXmlStreamWriterPrivate::writeEscaped
+        if (*it == u'\v' || *it == u'\f' || *it <= u'\x1F' || *it >= u'\uFFFE') {
+            return true;
+        }
+    }
+    return false;
+}
+
+static QString toAttribute(const QString &s)
+{
+    if (containsInvalidCharacters(s))
+        return "0x" + QString::fromUtf8(s.toUtf8().toHex());
+    return s;
+}
+
+static QString fromAttribute(const QStringView &s)
+{
+    if (s.startsWith(QLatin1String("0x")))
+        return QString::fromUtf8(QByteArray::fromHex(s.sliced(2).toUtf8()));
+    return s.toString();
+}
+
+/*!
+    \internal
+*/
+QMap<QString, QList<QKeySequence>> CommandsFile::importCommands() const
+{
+    QMap<QString, QList<QKeySequence>> result;
+
+    QFile file(m_filePath.toString());
+    if (!file.open(QIODevice::ReadOnly|QIODevice::Text))
+        return result;
+
+    QXmlStreamReader r(&file);
+
+    QString currentId;
+
+    while (!r.atEnd()) {
+        switch (r.readNext()) {
+        case QXmlStreamReader::StartElement: {
+            const auto name = r.name();
+            if (name == shortCutElement) {
+                currentId = r.attributes().value(idAttribute).toString();
+                if (!result.contains(currentId))
+                    result.insert(currentId, {});
+            } else if (name == keyElement) {
+                QTC_ASSERT(!currentId.isEmpty(), continue);
+                const QXmlStreamAttributes attributes = r.attributes();
+                if (attributes.hasAttribute(valueAttribute)) {
+                    QString keyString = fromAttribute(attributes.value(valueAttribute));
+                    if (HostOsInfo::isMacHost())
+                        keyString = keyString.replace("AlwaysCtrl", "Meta");
+                    else
+                        keyString = keyString.replace("AlwaysCtrl", "Ctrl");
+
+                    QList<QKeySequence> keys = result.value(currentId);
+                    result.insert(currentId, keys << QKeySequence(keyString));
+                }
+            } // if key element
+        } // case QXmlStreamReader::StartElement
+        default:
+            break;
+        } // switch
+    } // while !atEnd
+    file.close();
+    return result;
+}
+
+/*!
+    \internal
+*/
+bool CommandsFile::exportCommands(const QList<ShortcutItem *> &items)
+{
+    FileSaver saver(m_filePath, QIODevice::Text);
+    if (!saver.hasError()) {
+        QXmlStreamWriter w(saver.file());
+        w.setAutoFormatting(true);
+        w.setAutoFormattingIndent(1); // Historical, used to be QDom.
+        w.writeStartDocument();
+        w.writeDTD(QLatin1String("<!DOCTYPE KeyboardMappingScheme>"));
+        w.writeComment(QString::fromLatin1(" Written by %1, %2. ").
+                       arg(ICore::versionString(),
+                           QDateTime::currentDateTime().toString(Qt::ISODate)));
+        w.writeStartElement(mappingElement);
+        for (const ShortcutItem *item : std::as_const(items)) {
+            const Id id = item->m_cmd->id();
+            if (item->m_keys.isEmpty() || item->m_keys.first().isEmpty()) {
+                w.writeEmptyElement(shortCutElement);
+                w.writeAttribute(idAttribute, id.toString());
+            } else {
+                w.writeStartElement(shortCutElement);
+                w.writeAttribute(idAttribute, id.toString());
+                for (const QKeySequence &k : item->m_keys) {
+                    w.writeEmptyElement(keyElement);
+                    w.writeAttribute(valueAttribute, toAttribute(k.toString()));
+                }
+                w.writeEndElement(); // Shortcut
+            }
+        }
+        w.writeEndElement();
+        w.writeEndDocument();
+
+        if (!saver.setResult(&w))
+            qWarning() << saver.errorString();
+    }
+    return saver.finalize();
+}
+
+static int translateModifiers(Qt::KeyboardModifiers state, const QString &text)
 {
     int result = 0;
     // The shift modifier only counts when it is not used to type a symbol

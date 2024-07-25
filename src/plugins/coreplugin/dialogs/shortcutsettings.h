@@ -3,22 +3,8 @@
 
 #pragma once
 
-#include "../actionmanager/commandmappings.h"
-
-namespace Core {
-
-class Command;
-
-namespace Internal {
-
-struct ShortcutItem
-{
-    Command *m_cmd;
-    QList<QKeySequence> m_keys;
-    QTreeWidgetItem *m_item;
-};
+namespace Core::Internal {
 
 void setupShortcutSettings();
 
-} // namespace Internal
-} // namespace Core
+} // Core::Core
