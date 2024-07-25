@@ -52,7 +52,7 @@ void MacroEvent::load(QDataStream &stream)
 
 void MacroEvent::save(QDataStream &stream) const
 {
-    stream << m_id.name();
+    stream << m_id.toByteArray();
     stream << int(m_values.count());
     for (auto i = m_values.cbegin(), end = m_values.cend(); i != end; ++i)
         stream << i.key() << i.value();

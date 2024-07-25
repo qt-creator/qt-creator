@@ -158,7 +158,7 @@ Environment ExternalTool::baseEnvironment() const
 {
     if (m_baseEnvironmentProviderId.isValid()) {
         const std::optional<EnvironmentProvider> provider = EnvironmentProvider::provider(
-            m_baseEnvironmentProviderId.name());
+            m_baseEnvironmentProviderId.toByteArray());
         if (provider && provider->environment)
             return provider->environment();
     }

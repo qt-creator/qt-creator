@@ -597,7 +597,7 @@ TouchBarActionContainer::TouchBarActionContainer(Id id,
                                                  const QIcon &icon,
                                                  const QString &text)
     : ActionContainerPrivate(id, actionManagerPrivate)
-    , m_touchBar(std::make_unique<TouchBar>(id.withPrefix(ID_PREFIX).name(), icon, text))
+    , m_touchBar(std::make_unique<TouchBar>(id.withPrefix(ID_PREFIX).toByteArray(), icon, text))
 {
 }
 
@@ -623,7 +623,7 @@ QAction *TouchBarActionContainer::actionForItem(QObject *item) const
 void TouchBarActionContainer::insertAction(QAction *before, Command *command)
 {
     m_touchBar->insertAction(before,
-                             command->id().withPrefix(ID_PREFIX).name(),
+                             command->id().withPrefix(ID_PREFIX).toByteArray(),
                              command->touchBarAction());
 }
 

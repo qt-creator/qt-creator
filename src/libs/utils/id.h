@@ -34,7 +34,8 @@ public:
     Id withSuffix(const QStringView suffix) const;
     Id withPrefix(const char *prefix) const;
 
-    QByteArray name() const;
+    QByteArrayView name() const;
+    QByteArray toByteArray() const; // Avoid
     QString toString() const; // Avoid.
     Key toKey() const; // FIXME: Replace uses with .name() after Store/key transition.
     QVariant toSetting() const; // Good to use.

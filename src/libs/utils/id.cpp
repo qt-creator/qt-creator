@@ -137,10 +137,17 @@ Id Id::generate()
   Returns an internal representation of the id.
 */
 
-QByteArray Id::name() const
+QByteArrayView Id::name() const
 {
     QReadLocker lock(&s_cacheMutex);
-    return stringFromId.value(m_id).str;
+    StringHolder holder = stringFromId.value(m_id);
+    return QByteArrayView(holder.str, holder.n);
+}
+
+/*! \internal */
+QByteArray Id::toByteArray() const
+{
+    return name().toByteArray();
 }
 
 /*!
@@ -155,8 +162,7 @@ QByteArray Id::name() const
 
 QString Id::toString() const
 {
-    QReadLocker lock(&s_cacheMutex);
-    return QString::fromUtf8(stringFromId.value(m_id).str);
+    return QString::fromUtf8(name());
 }
 
 /*! \internal */
@@ -335,14 +341,14 @@ bool Id::alphabeticallyBefore(Id other) const
 
 QString Id::suffixAfter(Id baseId) const
 {
-    const QByteArray b = baseId.name();
-    const QByteArray n = name();
+    const QByteArrayView b = baseId.name();
+    const QByteArrayView n = name();
     return n.startsWith(b) ? QString::fromUtf8(n.mid(b.size())) : QString();
 }
 
 QDataStream &operator<<(QDataStream &ds, Id id)
 {
-    return ds << id.name();
+    return ds << id.name().toByteArray();
 }
 
 QDataStream &operator>>(QDataStream &ds, Id &id)
