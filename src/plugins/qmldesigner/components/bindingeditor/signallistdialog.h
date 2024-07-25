@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <utils/uniqueobjectptr.h>
+
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
@@ -26,11 +28,12 @@ public:
 
     void initialize(QStandardItemModel *model);
 
-    QTableView *tableView() const;
+    class SignalListDelegate *signalListDelegate() const;
 
 private:
-    QTableView *m_table;
-    Utils::FancyLineEdit *m_searchLine;
+    Utils::UniqueObjectPtr<SignalListDelegate> m_signalListDelegate;
+    Utils::UniqueObjectPtr<QTableView> m_table;
+    Utils::UniqueObjectPtr<Utils::FancyLineEdit> m_searchLine;
 };
 
 } // QmlDesigner namespace

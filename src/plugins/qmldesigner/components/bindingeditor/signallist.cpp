@@ -73,7 +73,7 @@ void SignalList::prepareDialog()
     m_dialog->setWindowTitle(::QmlDesigner::SignalList::tr("Signal List for %1")
                              .arg(m_modelNode.validId()));
 
-    auto *delegate = static_cast<SignalListDelegate *>(m_dialog->tableView()->itemDelegate());
+    auto delegate = m_dialog->signalListDelegate();
     connect(delegate, &SignalListDelegate::connectClicked, this, &SignalList::connectClicked);
 }
 
@@ -88,11 +88,9 @@ void SignalList::hideWidget()
 {
     if (m_dialog)
         m_dialog->close();
-
-    m_dialog = nullptr;
 }
 
-SignalList* SignalList::showWidget(const ModelNode &modelNode)
+void SignalList::showWidget(const ModelNode &modelNode)
 {
     auto signalList = new SignalList;
     signalList->setModelNode(modelNode);
@@ -102,8 +100,6 @@ SignalList* SignalList::showWidget(const ModelNode &modelNode)
     connect(signalList->m_dialog.get(), &QDialog::destroyed, [signalList]() {
         signalList->deleteLater();
     });
-
-    return signalList;
 }
 
 void SignalList::setModelNode(const ModelNode &modelNode)

@@ -12,10 +12,6 @@
 
 namespace QmlDesigner {
 
-SignalListDelegate::SignalListDelegate(QObject *parent)
-    : QStyledItemDelegate(parent)
-{}
-
 QWidget *SignalListDelegate::createEditor(QWidget *parent,
                                           const QStyleOptionViewItem &option,
                                           const QModelIndex &index) const
