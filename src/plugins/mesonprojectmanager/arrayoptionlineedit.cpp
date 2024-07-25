@@ -3,8 +3,7 @@
 
 #include "arrayoptionlineedit.h"
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 ArrayOptionLineEdit::ArrayOptionLineEdit(QWidget *parent)
     : QPlainTextEdit(parent)
@@ -65,5 +64,4 @@ void RegexHighlighter::highlightBlock(const QString &text)
     }
 }
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Internal

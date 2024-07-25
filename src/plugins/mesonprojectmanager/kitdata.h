@@ -7,8 +7,7 @@
 
 #include <QString>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 struct KitData
 {
@@ -20,5 +19,4 @@ struct KitData
     Utils::QtMajorVersion qtVersion;
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Internal

@@ -20,8 +20,7 @@
 
 #include <utils/qtcprocess.h>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 class MesonProjectParser : public QObject
 {
@@ -118,5 +117,4 @@ private:
     QByteArray m_stderr;
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Internal

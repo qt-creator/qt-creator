@@ -8,8 +8,7 @@
 
 #include <utils/fileutils.h>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 class ProjectTree
 {
@@ -20,5 +19,4 @@ public:
                                                        const Utils::FilePaths &bsFiles);
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Internal

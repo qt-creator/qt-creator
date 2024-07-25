@@ -13,8 +13,7 @@
 #include <QStyledItemDelegate>
 #include <QTextEdit>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 // this could be relaxed once we have something able to link reliably meson build type
 // to QTC build type and update it, this must not break any features like tests/debug/profiling...
@@ -192,5 +191,4 @@ void BuildOptionDelegate::setModelData(QWidget *editor,
     }
 }
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Internal

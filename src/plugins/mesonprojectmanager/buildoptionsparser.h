@@ -17,8 +17,7 @@
 
 #include <memory>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 class BuildOptionsParser
 {
@@ -95,5 +94,4 @@ public:
     }
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Internal

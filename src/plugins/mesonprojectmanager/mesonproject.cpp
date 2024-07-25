@@ -15,8 +15,7 @@
 
 using namespace ProjectExplorer;
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 MesonProject::MesonProject(const Utils::FilePath &path)
     : Project{Constants::Project::MIMETYPE, path}
@@ -57,5 +56,4 @@ DeploymentKnowledge MesonProject::deploymentKnowledge() const
     return DeploymentKnowledge::Bad;
 }
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Internal

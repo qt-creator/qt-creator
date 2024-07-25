@@ -5,8 +5,7 @@
 
 #include <set>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 ProjectTree::ProjectTree() {}
 
@@ -76,5 +75,4 @@ std::unique_ptr<MesonProjectNode> ProjectTree::buildTree(const Utils::FilePath &
     return root;
 }
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Internal

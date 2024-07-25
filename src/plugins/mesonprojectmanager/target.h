@@ -11,8 +11,7 @@
 
 #include <optional>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 inline QStringList cleanPath(QStringList &&paths)
 {
@@ -125,5 +124,4 @@ void for_each_source_group(const TargetsList &targets, const function &f)
     }
 }
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Internal

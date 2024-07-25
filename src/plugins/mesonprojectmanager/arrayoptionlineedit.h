@@ -8,8 +8,7 @@
 #include <QRegularExpression>
 #include <QSyntaxHighlighter>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 class RegexHighlighter : public QSyntaxHighlighter
 {
@@ -35,5 +34,4 @@ protected:
     void keyPressEvent(QKeyEvent *e) override;
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Internal

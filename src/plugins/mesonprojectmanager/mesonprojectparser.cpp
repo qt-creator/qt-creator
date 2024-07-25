@@ -29,8 +29,7 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 static Q_LOGGING_CATEGORY(mesonProcessLog, "qtc.meson.buildsystem", QtWarningMsg);
 
@@ -418,5 +417,4 @@ void MesonProjectParser::processStandardError()
     MessageManager::writeSilently(QString::fromLocal8Bit(m_process->readAllRawStandardError()));
 }
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Internal

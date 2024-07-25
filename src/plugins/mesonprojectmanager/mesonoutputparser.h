@@ -11,8 +11,7 @@
 
 #include <array>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 class MesonOutputParser final : public ProjectExplorer::OutputTaskParser
 {
@@ -39,5 +38,4 @@ public:
     void setSourceDirectory(const Utils::FilePath &sourceDir);
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Internal

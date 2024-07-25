@@ -9,8 +9,7 @@
 #include <projectexplorer/projectimporter.h>
 #include <projectexplorer/task.h>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 class MesonProject final : public ProjectExplorer::Project
 {
@@ -28,5 +27,4 @@ private:
     mutable std::unique_ptr<MesonProjectImporter> m_projectImporter;
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Internal
