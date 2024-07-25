@@ -4,7 +4,6 @@
 #pragma once
 
 #include "../actionmanager/commandmappings.h"
-#include "ioptionspage.h"
 
 namespace Core {
 
@@ -19,11 +18,7 @@ struct ShortcutItem
     QTreeWidgetItem *m_item;
 };
 
-class ShortcutSettings final : public IOptionsPage
-{
-public:
-    ShortcutSettings();
-};
+void setupShortcutSettings();
 
 } // namespace Internal
 } // namespace Core

@@ -10,6 +10,8 @@
 #include "../actionmanager/actionmanager.h"
 #include "../actionmanager/command.h"
 #include "../actionmanager/commandsfile.h"
+#include "../actionmanager/commandmappings.h"
+#include "ioptionspage.h"
 
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
@@ -762,12 +764,21 @@ public:
 
 // ShortcutSettings
 
-ShortcutSettings::ShortcutSettings()
+class ShortcutSettings final : public IOptionsPage
 {
-    setId(Constants::SETTINGS_ID_SHORTCUTS);
-    setDisplayName(Tr::tr("Keyboard"));
-    setCategory(Constants::SETTINGS_CATEGORY_CORE);
-    setWidgetCreator([] { return new ShortcutSettingsPageWidget; });
+public:
+    ShortcutSettings()
+    {
+        setId(Constants::SETTINGS_ID_SHORTCUTS);
+        setDisplayName(Tr::tr("Keyboard"));
+        setCategory(Constants::SETTINGS_CATEGORY_CORE);
+        setWidgetCreator([] { return new ShortcutSettingsPageWidget; });
+    }
+};
+
+void setupShortcutSettings()
+{
+    static ShortcutSettings theShortcutSettings;
 }
 
 } // namespace Core::Internal

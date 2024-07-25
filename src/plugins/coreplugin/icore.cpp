@@ -10,6 +10,7 @@
 #include "coreplugintr.h"
 #include "coreplugintr.h"
 #include "dialogs/externaltoolconfig.h"
+#include "dialogs/ioptionspage.h"
 #include "dialogs/settingsdialog.h"
 #include "dialogs/shortcutsettings.h"
 #include "documentmanager.h"
@@ -315,10 +316,6 @@ public:
     QList<IContext *> m_activeContext;
 
     std::unordered_map<QWidget *, QList<IContext *>> m_contextWidgets;
-
-    ShortcutSettings *m_shortcutSettings = nullptr;
-    ToolSettings *m_toolSettings = nullptr;
-    SystemEditor *m_systemEditor = nullptr;
 
     // actions
     QAction *m_toggleLeftSideBarAction = nullptr;
@@ -1341,9 +1338,11 @@ void ICorePrivate::init()
     m_jsExpander = JsExpander::createGlobalJsExpander();
     m_vcsManager = new VcsManager;
     m_modeStack = new FancyTabWidget(m_mainwindow);
-    m_shortcutSettings = new ShortcutSettings;
-    m_toolSettings = new ToolSettings;
-    m_systemEditor = new SystemEditor;
+
+    setupShortcutSettings();
+    setupExternalToolSettings();
+    setupSystemEditor();
+
     m_toggleLeftSideBarButton = new QToolButton;
     m_toggleRightSideBarButton = new QToolButton;
 
@@ -1450,12 +1449,6 @@ ICorePrivate::~ICorePrivate()
     delete m_externalToolManager;
     m_externalToolManager = nullptr;
     MessageManager::destroy();
-    delete m_shortcutSettings;
-    m_shortcutSettings = nullptr;
-    delete m_toolSettings;
-    m_toolSettings = nullptr;
-    delete m_systemEditor;
-    m_systemEditor = nullptr;
     delete m_printer;
     m_printer = nullptr;
     delete m_vcsManager;

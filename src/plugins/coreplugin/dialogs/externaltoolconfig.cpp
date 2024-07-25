@@ -40,8 +40,7 @@
 
 using namespace Utils;
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 const Qt::ItemFlags TOOLSMENU_ITEM_FLAGS = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDropEnabled;
 const Qt::ItemFlags CATEGORY_ITEM_FLAGS = Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDropEnabled | Qt::ItemIsEditable;
@@ -949,15 +948,23 @@ void ExternalToolConfig::updateEnvironmentLabel()
     m_environmentLabel->setText(shortSummary.isEmpty() ? Tr::tr("No changes to apply.") : shortSummary);
 }
 
-// ToolSettingsPage
+// ExternalToolSettings
 
-ToolSettings::ToolSettings()
+class ExternalToolSettings final : public IOptionsPage
 {
-    setId(Constants::SETTINGS_ID_TOOLS);
-    setDisplayName(Tr::tr("External Tools"));
-    setCategory(Constants::SETTINGS_CATEGORY_CORE);
-    setWidgetCreator([] { return new ExternalToolConfig; });
+public:
+    ExternalToolSettings()
+    {
+        setId(Constants::SETTINGS_ID_TOOLS);
+        setDisplayName(Tr::tr("External Tools"));
+        setCategory(Constants::SETTINGS_CATEGORY_CORE);
+        setWidgetCreator([] { return new ExternalToolConfig; });
+    }
+};
+
+void setupExternalToolSettings()
+{
+    static ExternalToolSettings theExternalToolSettings;
 }
 
-} // Internal
-} // Core
+} // Core::Internal
