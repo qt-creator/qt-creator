@@ -311,7 +311,7 @@ bool MesonProjectParser::usesSameMesonVersion(const FilePath &buildPath)
 {
     auto info = MesonInfoParser::mesonInfo(buildPath);
     auto meson = MesonTools::toolById(m_meson, ToolType::Meson);
-    return info && meson && info->mesonVersion == meson->version();
+    return info && meson && *info == meson->version();
 }
 
 bool MesonProjectParser::run(const Command &command,

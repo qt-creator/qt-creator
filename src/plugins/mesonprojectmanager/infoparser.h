@@ -4,7 +4,6 @@
 #pragma once
 
 #include "common.h"
-#include "mesoninfo.h"
 #include "mesonpluginconstants.h"
 
 #include <QFile>
@@ -12,19 +11,18 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
+#include <QVersionNumber>
 
 namespace MesonProjectManager::Internal {
 
 class InfoParser
 {
-    static inline MesonInfo load_info(const QJsonObject &obj)
+    static inline QVersionNumber load_info(const QJsonObject &obj)
     {
-        MesonInfo info;
-        auto v = obj["meson_version"].toObject();
-        info.mesonVersion = {v["major"].toInt(), v["minor"].toInt(), v["patch"].toInt()};
-        return info;
+        auto version = obj["meson_version"].toObject();
+        return {version["major"].toInt(), version["minor"].toInt(), version["patch"].toInt()};
     }
-    MesonInfo m_info;
+    QVersionNumber m_info;
 
 public:
     InfoParser(const Utils::FilePath &buildDir)
@@ -35,7 +33,7 @@ public:
             m_info = load_info(*obj);
     }
 
-    MesonInfo info() { return m_info; }
+    QVersionNumber info() { return m_info; }
 };
 
 } // namespace MesonProjectManager::Internal

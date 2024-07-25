@@ -24,7 +24,6 @@ Project {
             "mesonactionsmanager.cpp",
             "mesonactionsmanager.h",
             "buildoptions.h",
-            "mesoninfo.h",
             "mesoninfoparser.h",
             "buildoptionsparser.h",
             "common.h",

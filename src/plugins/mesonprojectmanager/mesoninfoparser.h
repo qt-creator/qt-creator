@@ -6,7 +6,6 @@
 #include "buildoptions.h"
 #include "buildoptionsparser.h"
 #include "infoparser.h"
-#include "mesoninfo.h"
 #include "target.h"
 
 #include <utils/filepath.h>
@@ -123,7 +122,7 @@ struct Result
     TargetsList targets;
     BuildOptionsList buildOptions;
     Utils::FilePaths buildSystemFiles;
-    std::optional<MesonInfo> mesonInfo;
+    std::optional<QVersionNumber> mesonInfo;
 };
 
 inline Result parse(const Utils::FilePath &buildDir)
@@ -155,7 +154,7 @@ inline Result parse(QIODevice *introFile)
     return {};
 }
 
-inline std::optional<MesonInfo> mesonInfo(const Utils::FilePath &buildDir)
+inline std::optional<QVersionNumber> mesonInfo(const Utils::FilePath &buildDir)
 {
     return InfoParser{buildDir}.info();
 }
