@@ -32,6 +32,9 @@ public:
     */
     FilePath userPluginsRoot;
 
+    FilePath luaPlugins;
+    FilePath userLuaPlugins;
+
     FilePath resources;
     FilePath userResources;
 };

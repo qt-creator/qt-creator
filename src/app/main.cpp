@@ -179,7 +179,7 @@ static inline int askMsgSendFailed()
 static inline FilePaths getPluginPaths()
 {
     FilePaths rc;
-    rc << appInfo().plugins << appInfo().resources / "lua-plugins";
+    rc << appInfo().plugins << appInfo().luaPlugins << appInfo().userLuaPlugins;
 
     const auto version = [](int micro) {
         return QString::number(IDE_VERSION_MAJOR) + '.' + QString::number(IDE_VERSION_MINOR) + '.'
@@ -756,6 +756,8 @@ int main(int argc, char **argv)
     info.userPluginsRoot = userPluginsRoot();
     info.resources = (appDirPath / RELATIVE_DATA_PATH).cleanPath();
     info.userResources = userResourcePath(settings->fileName(), Constants::IDE_ID);
+    info.luaPlugins = info.resources / "lua-plugins";
+    info.userLuaPlugins = info.userResources / "lua-plugins";
 
     Utils::Internal::setAppInfo(info);
 
