@@ -38,26 +38,13 @@ ToolWrapper::ToolWrapper(const Store &data)
 ToolWrapper::ToolWrapper(ToolType toolType,
                          const QString &name,
                          const FilePath &path,
-                         bool autoDetected)
-    : m_toolType(toolType)
-    , m_version(read_version(path))
-    , m_isValid{path.exists() && !m_version.isNull()}
-    , m_autoDetected{autoDetected}
-    , m_id{Id::generate()}
-    , m_exe{path}
-    , m_name{name}
-{}
-
-ToolWrapper::ToolWrapper(ToolType toolType,
-                         const QString &name,
-                         const FilePath &path,
                          const Id &id,
                          bool autoDetected)
     : m_toolType(toolType)
     , m_version(read_version(path))
     , m_isValid{path.exists() && !m_version.isNull()}
     , m_autoDetected{autoDetected}
-    , m_id{id}
+    , m_id{id.isValid() ? id : Id::generate()}
     , m_exe{path}
     , m_name{name}
 {
@@ -251,13 +238,13 @@ static void fixAutoDetected(ToolType toolType)
             if (std::optional<FilePath> path = findTool(toolType)) {
                 s_tools.emplace_back(
                     std::make_shared<ToolWrapper>(toolType,
-                        QString("System %1 at %2").arg("Meson").arg(path->toString()), *path, true));
+                        QString("System %1 at %2").arg("Meson").arg(path->toString()), *path, Id{}, true));
             }
         } else if (toolType == ToolType::Ninja) {
             if (std::optional<FilePath> path = findTool(toolType)) {
                 s_tools.emplace_back(
                     std::make_shared<ToolWrapper>(toolType,
-                        QString("System %1 at %2").arg("Ninja").arg(path->toString()), *path, true));
+                        QString("System %1 at %2").arg("Ninja").arg(path->toString()), *path, Id{}, true));
             }
         }
     }

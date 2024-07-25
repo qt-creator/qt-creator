@@ -26,11 +26,7 @@ public:
     ToolWrapper(ToolType toolType,
                 const QString &name,
                 const Utils::FilePath &path,
-                bool autoDetected = false);
-    ToolWrapper(ToolType toolType,
-                const QString &name,
-                const Utils::FilePath &path,
-                const Utils::Id &id,
+                const Utils::Id &id = {},
                 bool autoDetected = false);
 
     ~ToolWrapper();
