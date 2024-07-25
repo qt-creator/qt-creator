@@ -234,6 +234,7 @@ public:
     NetworkAccessManager m_networkAccessManager;
     std::optional<DashboardInfo> m_dashboardInfo;
     std::optional<Dto::ProjectInfoDto> m_currentProjectInfo;
+    std::optional<QString> m_analysisVersion;
     Project *m_project = nullptr;
     bool m_runningQuery = false;
     TaskTreeRunner m_taskTreeRunner;
@@ -342,6 +343,7 @@ void AxivionPluginPrivate::onStartupProjectChanged(Project *project)
     m_project = project;
     clearAllMarks();
     m_currentProjectInfo = {};
+    m_analysisVersion = {};
     updateDashboard();
 
     if (!m_project) {
@@ -791,9 +793,10 @@ Group lineMarkerRecipe(const FilePath &filePath, const LineMarkerHandler &handle
 {
     QTC_ASSERT(dd->m_currentProjectInfo, return {}); // TODO: Call handler with unexpected?
     QTC_ASSERT(!filePath.isEmpty(), return {}); // TODO: Call handler with unexpected?
+    QTC_ASSERT(dd->m_analysisVersion, return {}); // TODO: Call handler with unexpected?
 
     const QString fileName = QString::fromUtf8(QUrl::toPercentEncoding(filePath.path()));
-    const QUrlQuery query({{"filename", fileName}});
+    const QUrlQuery query({{"filename", fileName}, {"version", *dd->m_analysisVersion}});
     const QUrl url = constructUrl(dd->m_currentProjectInfo.value().name, "files", query);
     return fetchDataRecipe<Dto::FileViewDto>(url, handler);
 }
@@ -816,6 +819,7 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
     clearAllMarks();
     if (projectName.isEmpty()) {
         m_currentProjectInfo = {};
+        m_analysisVersion = {};
         updateDashboard();
         return;
     }
@@ -1072,6 +1076,17 @@ const std::optional<DashboardInfo> currentDashboardInfo()
 {
     QTC_ASSERT(dd, return std::nullopt);
     return dd->m_dashboardInfo;
+}
+
+void setAnalysisVersion(const QString &version)
+{
+    QTC_ASSERT(dd, return);
+    if (dd->m_analysisVersion.value_or("") == version)
+        return;
+    dd->m_analysisVersion = version;
+    // refetch issues for already opened docs
+    dd->clearAllMarks();
+    dd->handleOpenedDocs();
 }
 
 Utils::FilePath findFileForIssuePath(const Utils::FilePath &issuePath)

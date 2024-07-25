@@ -86,6 +86,7 @@ void fetchIssueInfo(const QString &id);
 
 void switchActiveDashboardId(const Utils::Id &toDashboardId);
 const std::optional<DashboardInfo> currentDashboardInfo();
+void setAnalysisVersion(const QString &version);
 
 Utils::FilePath findFileForIssuePath(const Utils::FilePath &issuePath);
 

@@ -135,6 +135,7 @@ void DashboardWidget::updateUi()
         return;
 
     const Dto::AnalysisVersionDto &last = info.versions.back();
+    setAnalysisVersion(last.date);
     if (last.linesOfCode.has_value())
         m_loc->setText(QString::number(last.linesOfCode.value()));
     const QDateTime timeStamp = QDateTime::fromString(last.date, Qt::ISODate);
@@ -331,7 +332,11 @@ IssuesWidget::IssuesWidget(QWidget *parent)
 
     m_versionEnd = new QComboBox(this);
     m_versionEnd->setMinimumContentsLength(25);
-    connect(m_versionEnd, &QComboBox::activated, this, &IssuesWidget::onSearchParameterChanged);
+    connect(m_versionEnd, &QComboBox::activated, this, [this](int index) {
+        onSearchParameterChanged();
+        QTC_ASSERT(index > -1 && index < m_versionDates.size(), return);
+        setAnalysisVersion(m_versionDates.at(index));
+    });
 
     m_addedFilter = new QPushButton(this);
     m_addedFilter->setIcon(trendIcon(1, 0));
