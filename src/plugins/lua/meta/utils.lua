@@ -107,4 +107,19 @@ function utils.HostOsInfo.isMacHost() end
 function utils.HostOsInfo.isLinuxHost() end
 
 
+---@class Timer
+utils.Timer = {}
+
+---@param timeoutMs integer The timeout in milliseconds.
+---@param singleShot boolean Whether the timer should only fire once.
+---@param callback function The callback to call when the timeout is reached.
+---@return Timer timer The created timer.
+function utils.Timer.create(timeoutMs, singleShot, callback) end
+
+--- Starts the timer. Calling start on a running timer restarts the timer.
+function utils.Timer:start() end
+
+--- Stops the timer.
+function utils.Timer:stop() end
+
 return utils

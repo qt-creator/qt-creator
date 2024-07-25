@@ -164,6 +164,26 @@ void addUtilsModule()
             utils["FilePath"]["searchInPath_cb"] = utils["__searchInPath_cb__"];
             utils["FilePath"]["searchInPath"] = wrap(utils["__searchInPath_cb__"]);
 
+            utils.new_usertype<QTimer>(
+                "Timer",
+                "create",
+                [guard = pluginSpec](int timeout, bool singleShort, sol::function callback)
+                    -> std::unique_ptr<QTimer> {
+                    auto timer = std::make_unique<QTimer>();
+                    timer->setInterval(timeout);
+                    timer->setSingleShot(singleShort);
+                    QObject::connect(
+                        timer.get(), &QTimer::timeout, guard->connectionGuard.get(), [callback]() {
+                            ::Lua::LuaEngine::void_safe_call(callback);
+                        });
+
+                    return timer;
+                },
+                "start",
+                [](QTimer *timer) { timer->start(); },
+                "stop",
+                [](QTimer *timer) { timer->stop(); });
+
             return utils;
         });
 }
