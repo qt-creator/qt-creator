@@ -804,10 +804,11 @@ Group lineMarkerRecipe(const FilePath &filePath, const LineMarkerHandler &handle
 Group issueHtmlRecipe(const QString &issueId, const HtmlHandler &handler)
 {
     QTC_ASSERT(dd->m_currentProjectInfo, return {}); // TODO: Call handler with unexpected?
+    QTC_ASSERT(dd->m_analysisVersion, return {}); // TODO: Call handler with unexpected?
 
     const QUrl url = constructUrl(dd->m_currentProjectInfo.value().name,
                                   QString("issues/" + issueId + "/properties/"),
-                                  {});
+                                  {{"version", *dd->m_analysisVersion}});
     return fetchHtmlRecipe(url, handler);
 }
 
