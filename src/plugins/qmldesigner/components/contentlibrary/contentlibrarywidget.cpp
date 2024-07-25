@@ -72,13 +72,13 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
             if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 20) {
                 QByteArray data;
-                QMimeData *mimeData = new QMimeData;
+                auto mimeData = std::make_unique<QMimeData>();
                 QDataStream stream(&data, QIODevice::WriteOnly);
                 stream << m_itemToDrag->type();
                 mimeData->setData(Constants::MIME_TYPE_BUNDLE_ITEM, data);
 
                 emit bundleItemDragStarted(m_itemToDrag);
-                model->startDrag(mimeData, m_itemToDrag->icon().toLocalFile());
+                model->startDrag(std::move(mimeData), m_itemToDrag->icon().toLocalFile(), this);
                 m_itemToDrag = nullptr;
             }
         } else if (m_materialToDrag) {
@@ -86,21 +86,21 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
             if ((me->globalPosition().toPoint() - m_dragStartPoint).manhattanLength() > 20
                 && m_materialsModel->isMaterialDownloaded(m_materialToDrag)) {
                 QByteArray data;
-                QMimeData *mimeData = new QMimeData;
+                auto mimeData = std::make_unique<QMimeData>();
                 QDataStream stream(&data, QIODevice::WriteOnly);
                 stream << m_materialToDrag->type();
                 mimeData->setData(Constants::MIME_TYPE_BUNDLE_MATERIAL, data);
                 mimeData->removeFormat("text/plain");
 
                 emit bundleMaterialDragStarted(m_materialToDrag);
-                model->startDrag(mimeData, m_materialToDrag->icon().toLocalFile());
+                model->startDrag(std::move(mimeData), m_materialToDrag->icon().toLocalFile(), this);
                 m_materialToDrag = nullptr;
             }
         } else if (m_textureToDrag) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
             if ((me->globalPosition().toPoint() - m_dragStartPoint).manhattanLength() > 20
                 && m_textureToDrag->isDownloaded()) {
-                QMimeData *mimeData = new QMimeData;
+                auto mimeData = std::make_unique<QMimeData>();
                 mimeData->setData(Constants::MIME_TYPE_BUNDLE_TEXTURE,
                                   {m_textureToDrag->texturePath().toUtf8()});
 
@@ -108,7 +108,7 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                 mimeData->setUrls({QUrl::fromLocalFile(m_textureToDrag->texturePath())});
 
                 emit bundleTextureDragStarted(m_textureToDrag);
-                model->startDrag(mimeData, m_textureToDrag->icon().toLocalFile());
+                model->startDrag(std::move(mimeData), m_textureToDrag->icon().toLocalFile(), this);
                 m_textureToDrag = nullptr;
             }
         }
@@ -438,8 +438,6 @@ QStringList ContentLibraryWidget::saveNewTextures(const QDir &bundleDir, const Q
 
                 bool hasFile = (o["file"] == file);
                 return hasFile;
-
-                return false;
             });
             return !contains;
         });

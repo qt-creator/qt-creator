@@ -104,14 +104,18 @@ bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
             if ((me->globalPosition().toPoint() - m_dragStartPoint).manhattanLength() > 20) {
                 bool isMaterial = m_materialToDrag.isValid();
-                QMimeData *mimeData = new QMimeData;
+                auto mimeData = std::make_unique<QMimeData>();
                 QByteArray internalId;
 
                 if (isMaterial) {
                     internalId.setNum(m_materialToDrag.internalId());
                     mimeData->setData(Constants::MIME_TYPE_MATERIAL, internalId);
-                    model->startDrag(mimeData, m_previewImageProvider->requestPixmap(
-                                     QString::number(m_materialToDrag.internalId()), nullptr, {128, 128}));
+                    model->startDrag(std::move(mimeData),
+                                     m_previewImageProvider->requestPixmap(
+                                         QString::number(m_materialToDrag.internalId()),
+                                         nullptr,
+                                         {128, 128}),
+                                     this);
                 } else {
                     internalId.setNum(m_textureToDrag.internalId());
                     mimeData->setData(Constants::MIME_TYPE_TEXTURE, internalId);
@@ -129,7 +133,7 @@ bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
                         pixmap = Utils::StyleHelper::dpiSpecificImageFile(iconPath);
                     if (pixmap.isNull())
                         pixmap = Utils::StyleHelper::dpiSpecificImageFile(":/textureeditor/images/texture_default.png");
-                    model->startDrag(mimeData, pixmap.scaled({128, 128}));
+                    model->startDrag(std::move(mimeData), pixmap.scaled({128, 128}), this);
                 }
                 m_materialToDrag = {};
                 m_textureToDrag = {};

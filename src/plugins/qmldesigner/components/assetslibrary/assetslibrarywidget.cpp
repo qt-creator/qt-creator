@@ -43,6 +43,8 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
+#include <memory>
+
 namespace QmlDesigner {
 
 static QString propertyEditorResourcesPath()
@@ -63,7 +65,7 @@ bool AssetsLibraryWidget::eventFilter(QObject *obj, QEvent *event)
         if (!m_assetsToDrag.isEmpty() && m_assetsView->model()) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
             if ((me->globalPosition().toPoint() - m_dragStartPoint).manhattanLength() > 10) {
-                QMimeData *mimeData = new QMimeData;
+                auto mimeData = std::make_unique<QMimeData>();
                 mimeData->setData(Constants::MIME_TYPE_ASSETS, m_assetsToDrag.join(',').toUtf8());
 
                 QList<QUrl> urlsToDrag = Utils::transform(m_assetsToDrag, [](const QString &path) {
@@ -72,8 +74,11 @@ bool AssetsLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 
                 mimeData->setUrls(urlsToDrag);
 
-                m_assetsView->model()->startDrag(mimeData, m_assetsIconProvider->requestPixmap(
-                                                     m_assetsToDrag[0], nullptr, {128, 128}));
+                m_assetsView->model()->startDrag(std::move(mimeData),
+                                                 m_assetsIconProvider->requestPixmap(m_assetsToDrag[0],
+                                                                                     nullptr,
+                                                                                     {128, 128}),
+                                                 this);
 
                 m_assetsToDrag.clear();
             }
@@ -159,6 +164,8 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFon
 
     setFocusProxy(m_assetsWidget->quickWidget());
 }
+
+AssetsLibraryWidget::~AssetsLibraryWidget() = default;
 
 void AssetsLibraryWidget::contextHelp(const Core::IContext::HelpCallback &callback) const
 {

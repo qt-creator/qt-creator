@@ -12,6 +12,7 @@
 #include <projectstorage/projectstorageinfotypes.h>
 #include <projectstorage/projectstorageobserver.h>
 #include <projectstorageids.h>
+#include <utils/uniqueobjectptr.h>
 
 #include <QMimeData>
 #include <QObject>
@@ -258,7 +259,7 @@ public:
 
     QString generateNewId(const QString &prefixName, const QString &fallbackPrefix = "element") const;
 
-    void startDrag(QMimeData *mimeData, const QPixmap &icon);
+    void startDrag(std::unique_ptr<QMimeData> mimeData, const QPixmap &icon, QWidget *sourceWidget);
     void endDrag();
 
     void setCurrentStateNode(const ModelNode &node);

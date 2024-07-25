@@ -58,16 +58,17 @@ bool AssetsLibraryView::hasWidget() const
 
 WidgetInfo AssetsLibraryView::widgetInfo()
 {
-    if (m_widget.isNull()) {
-        m_widget = new AssetsLibraryWidget{imageCacheData()->asynchronousFontImageCache,
-                                           imageCacheData()->synchronousFontImageCache,
-                                           this};
+    if (!m_widget) {
+        m_widget = Utils::makeUniqueObjectPtr<AssetsLibraryWidget>(
+            imageCacheData()->asynchronousFontImageCache,
+            imageCacheData()->synchronousFontImageCache,
+            this);
 
-        auto context = new Internal::AssetsLibraryContext(m_widget.data());
+        auto context = new Internal::AssetsLibraryContext(m_widget.get());
         Core::ICore::addContextObject(context);
     }
 
-    return createWidgetInfo(m_widget.data(), "Assets", WidgetInfo::LeftPane, tr("Assets"));
+    return createWidgetInfo(m_widget.get(), "Assets", WidgetInfo::LeftPane, tr("Assets"));
 }
 
 void AssetsLibraryView::customNotification(const AbstractView * /*view*/,
@@ -101,10 +102,11 @@ void AssetsLibraryView::setResourcePath(const QString &resourcePath)
 
     m_lastResourcePath = resourcePath;
 
-    if (m_widget.isNull()) {
-        m_widget = new AssetsLibraryWidget{imageCacheData()->asynchronousFontImageCache,
-                                           imageCacheData()->synchronousFontImageCache,
-                                           this};
+    if (!m_widget) {
+        m_widget = Utils::makeUniqueObjectPtr<AssetsLibraryWidget>(
+            imageCacheData()->asynchronousFontImageCache,
+            imageCacheData()->synchronousFontImageCache,
+            this);
     }
 
     m_widget->setResourcePath(resourcePath);

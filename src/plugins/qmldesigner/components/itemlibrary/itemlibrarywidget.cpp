@@ -96,7 +96,8 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                 if (model) {
                     model->startDrag(m_itemLibraryModel->getMimeData(entry),
                                      ::Utils::StyleHelper::dpiSpecificImageFile(
-                                         entry.libraryEntryIconPath()));
+                                         entry.libraryEntryIconPath()),
+                                     this);
                 }
 
                 m_itemToDrag = {};

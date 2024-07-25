@@ -1906,22 +1906,21 @@ QString Model::generateNewId(const QString &prefixName, const QString &fallbackP
     });
 }
 
-void Model::startDrag(QMimeData *mimeData, const QPixmap &icon)
+void Model::startDrag(std::unique_ptr<QMimeData> mimeData, const QPixmap &icon, QWidget *dragSource)
 {
-    d->notifyDragStarted(mimeData);
+    d->notifyDragStarted(mimeData.get());
 
-    auto drag = new QDrag(this);
-    drag->setPixmap(icon);
-    drag->setMimeData(mimeData);
-    if (drag->exec() == Qt::IgnoreAction)
+    d->drag = Utils::makeUniqueObjectPtr<QDrag>(dragSource);
+    d->drag->setPixmap(icon);
+    d->drag->setMimeData(mimeData.release());
+    if (d->drag->exec() == Qt::IgnoreAction)
         endDrag();
-
-    drag->deleteLater();
 }
 
 void Model::endDrag()
 {
     d->notifyDragEnded();
+    d->drag.reset();
 }
 
 void Model::setCurrentStateNode(const ModelNode &node)

@@ -486,9 +486,9 @@ void ItemLibraryModel::update(Model *model)
     endResetModel();
 }
 
-QMimeData *ItemLibraryModel::getMimeData(const ItemLibraryEntry &itemLibraryEntry)
+std::unique_ptr<QMimeData> ItemLibraryModel::getMimeData(const ItemLibraryEntry &itemLibraryEntry)
 {
-    auto mimeData = new QMimeData();
+    auto mimeData = std::make_unique<QMimeData>();
 
     QByteArray data;
     QDataStream stream(&data, QIODevice::WriteOnly);

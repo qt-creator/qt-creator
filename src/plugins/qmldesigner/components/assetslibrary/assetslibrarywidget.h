@@ -53,7 +53,7 @@ class AssetsLibraryWidget : public QFrame
 public:
     AssetsLibraryWidget(AsynchronousImageCache &asynchronousFontImageCache,
                         SynchronousImageCache &synchronousFontImageCache, AssetsLibraryView *view);
-    ~AssetsLibraryWidget() = default;
+    ~AssetsLibraryWidget();
 
     QList<QToolButton *> createToolBarWidgets();
     void contextHelp(const Core::IContext::HelpCallback &callback) const;
