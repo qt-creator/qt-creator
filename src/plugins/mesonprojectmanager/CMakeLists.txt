@@ -38,8 +38,6 @@ add_qtc_plugin(MesonProjectManager
   ninjabuildstep.h
   ninjaparser.cpp
   ninjaparser.h
-  projecttree.cpp
-  projecttree.h
   resources_meson.qrc
   settings.cpp
   settings.h

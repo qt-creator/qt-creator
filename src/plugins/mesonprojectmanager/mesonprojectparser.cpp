@@ -7,10 +7,9 @@
 #include "mesonprojectmanagertr.h"
 #include "mesonprojectnodes.h"
 #include "mesontools.h"
-#include "projecttree.h"
 
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/messagemanager.h>
+#include <coreplugin/progressmanager/processprogress.h>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -22,8 +21,6 @@
 #include <utils/stringutils.h>
 
 #include <optional>
-
-#include <coreplugin/progressmanager/processprogress.h>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -39,6 +36,58 @@ struct CompilerArgs
     QStringList includePaths;
     Macros macros;
 };
+
+static void buildTargetTree(std::unique_ptr<MesonProjectNode> &root, const Target &target)
+{
+    const auto path = FilePath::fromString(target.definedIn);
+    for (const auto &group : target.sources) {
+        for (const auto &file : group.sources) {
+            root->addNestedNode(std::make_unique<FileNode>(FilePath::fromString(file),
+                                                           FileType::Source));
+        }
+    }
+    for (const auto &extraFile : target.extraFiles) {
+        root->addNestedNode(std::make_unique<FileNode>(FilePath::fromString(extraFile),
+                                                       FileType::Unknown));
+    }
+}
+
+static void addTargetNode(std::unique_ptr<MesonProjectNode> &root, const Target &target)
+{
+    root->findNode([&root, &target, path = FilePath::fromString(target.definedIn)](Node *node) {
+        if (node->filePath() == path.absolutePath()) {
+            auto asFolder = dynamic_cast<FolderNode *>(node);
+            if (asFolder) {
+                auto targetNode = std::make_unique<MesonTargetNode>(
+                    path.absolutePath().pathAppended(target.name),
+                    Target::fullName(root->path(), target));
+                targetNode->setDisplayName(target.name);
+                asFolder->addNode(std::move(targetNode));
+            }
+            return true;
+        }
+        return false;
+    });
+}
+
+static std::unique_ptr<MesonProjectNode> buildTree(const FilePath &srcDir,
+                                                   const TargetsList &targets,
+                                                   const FilePaths &bsFiles)
+{
+    std::set<FilePath> targetPaths;
+    auto root = std::make_unique<MesonProjectNode>(srcDir);
+    for (const Target &target : targets) {
+        buildTargetTree(root, target);
+        targetPaths.insert(FilePath::fromString(target.definedIn).absolutePath());
+        addTargetNode(root, target);
+    }
+    for (FilePath bsFile : bsFiles) {
+        if (!bsFile.toFileInfo().isAbsolute())
+            bsFile = srcDir.pathAppended(bsFile.toString());
+        root->addNestedNode(std::make_unique<FileNode>(bsFile, FileType::Project));
+    }
+    return root;
+}
 
 static std::optional<QString> extractValueIfMatches(const QString &arg,
                                                     const QStringList &candidates)
@@ -196,16 +245,13 @@ QList<BuildTargetInfo> MesonProjectParser::appsTargets() const
 
 bool MesonProjectParser::startParser()
 {
-    m_parserFutureResult = Utils::asyncRun(
-                ProjectExplorerPlugin::sharedThreadPool(),
-                [processOutput = m_stdo, introType = m_introType,
-                buildDir = m_buildDir, srcDir = m_srcDir] {
+    m_parserFutureResult = Utils::asyncRun(ProjectExplorerPlugin::sharedThreadPool(),
+        [processOutput = m_stdo, introType = m_introType, buildDir = m_buildDir, srcDir = m_srcDir] {
         if (introType == IntroDataType::file)
             return extractParserResults(srcDir, MesonInfoParser::parse(buildDir));
         else
             return extractParserResults(srcDir, MesonInfoParser::parse(processOutput));
     });
-
     Utils::onFinished(m_parserFutureResult, this, &MesonProjectParser::update);
     return true;
 }
@@ -213,9 +259,7 @@ bool MesonProjectParser::startParser()
 MesonProjectParser::ParserData *MesonProjectParser::extractParserResults(
     const FilePath &srcDir, MesonInfoParser::Result &&parserResult)
 {
-    auto rootNode = ProjectTree::buildTree(srcDir,
-                                           parserResult.targets,
-                                           parserResult.buildSystemFiles);
+    auto rootNode = buildTree(srcDir, parserResult.targets, parserResult.buildSystemFiles);
     return new ParserData{std::move(parserResult), std::move(rootNode)};
 }
 
@@ -309,7 +353,7 @@ bool MesonProjectParser::matchesKit(const KitData &kit)
 
 static QVersionNumber versionNumber(const FilePath &buildDir)
 {
-    const Utils::FilePath jsonFile = buildDir / Constants::MESON_INFO_DIR / Constants::MESON_INFO;
+    const FilePath jsonFile = buildDir / Constants::MESON_INFO_DIR / Constants::MESON_INFO;
     auto obj = load<QJsonObject>(jsonFile.toFSPathString());
     if (!obj)
         return {};

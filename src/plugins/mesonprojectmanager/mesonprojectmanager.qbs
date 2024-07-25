@@ -55,8 +55,6 @@ Project {
             "ninjaparser.h",
             "mesonprojectnodes.cpp",
             "mesonprojectnodes.h",
-            "projecttree.cpp",
-            "projecttree.h",
             "resources_meson.qrc",
             "settings.cpp",
             "settings.h",
