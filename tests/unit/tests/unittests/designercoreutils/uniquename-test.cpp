@@ -81,6 +81,71 @@ TEST(UniqueName, generateId_prefixes_with_underscore_if_id_is_a_number)
     ASSERT_THAT(uniqueId, "_436");
 }
 
+TEST(UniqueName, generateId_stable_captilzation)
+{
+    QString id = "A CaMeL*cAsE";
+
+    QString uniqueId = UniqueName::generateId(id);
+
+    ASSERT_THAT(uniqueId, "aCaMeLCAsE");
+}
+
+TEST(UniqueName, generateId_begins_with_non_latin)
+{
+    QString id = "😂_saneId";
+
+    QString uniqueId = UniqueName::generateId(id);
+
+    ASSERT_THAT(uniqueId, "_saneId");
+}
+
+TEST(UniqueName, generateId_non_latin_chars)
+{
+    QString id = "😂1😂test😅*chars";
+
+    QString uniqueId = UniqueName::generateId(id);
+
+    ASSERT_THAT(uniqueId, "_1TestChars");
+}
+
+TEST(UniqueName, generateId_use_fallback_id)
+{
+    QString id = "😂😂  😅*    ";
+
+    QString uniqueId = UniqueName::generateId(id, "validFallbackId");
+
+    ASSERT_THAT(uniqueId, "validFallbackId");
+}
+
+TEST(UniqueName, generateId_unused_fallback_id)
+{
+    QString id = "saneId";
+
+    QString uniqueId = UniqueName::generateId(id, "fallbackId");
+
+    ASSERT_THAT(uniqueId, "saneId");
+}
+
+TEST(UniqueName, generateId_use_emtpy_fallback)
+{
+    QString id = "😂😂  😅*    ";
+
+    QString uniqueId = UniqueName::generateId(id, QString{});
+
+    ASSERT_TRUE(uniqueId.isEmpty());
+}
+
+TEST(UniqueName, generateId_use_fallback_when_id_exists)
+{
+    QStringList existingIds = {"validFallbackId", "validFallbackId1"};
+    auto pred = [&](const QString &id) -> bool { return existingIds.contains(id); };
+    QString id = "😂😂  😅*    ";
+
+    QString uniqueId = UniqueName::generateId(id, "validFallbackId", pred);
+
+    ASSERT_THAT(uniqueId, "validFallbackId2");
+}
+
 TEST(UniqueName, generatePath_returns_same_path_when_path_doesnt_exist)
 {
     QString path = "<<<non/existing/path>>>";

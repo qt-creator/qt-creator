@@ -774,11 +774,8 @@ void ContentLibraryView::exportLib3DComponent(const ModelNode &node)
 
 QString ContentLibraryView::nodeNameToComponentFileName(const QString &name) const
 {
-    QString fileName = UniqueName::generateId(name);
-    if (fileName.isEmpty())
-        fileName = "Component";
-    else
-        fileName[0] = fileName.at(0).toUpper();
+    QString fileName = UniqueName::generateId(name, "Component");
+    fileName[0] = fileName.at(0).toUpper();
     fileName.prepend("My");
 
     return fileName + ".qml";

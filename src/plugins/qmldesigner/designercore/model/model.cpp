@@ -1890,12 +1890,7 @@ bool Model::hasImport(const QString &importUrl) const
 
 QString Model::generateNewId(const QString &prefixName, const QString &fallbackPrefix) const
 {
-    QString newId = prefixName;
-
-    if (newId.isEmpty())
-        newId = fallbackPrefix;
-
-    return UniqueName::generateId(prefixName, [&] (const QString &id) {
+    return UniqueName::generateId(prefixName, fallbackPrefix, [&](const QString &id) {
         // Properties of the root node are not allowed for ids, because they are available in the
         // complete context without qualification.
         return hasId(id) || d->rootNode()->property(id.toUtf8());

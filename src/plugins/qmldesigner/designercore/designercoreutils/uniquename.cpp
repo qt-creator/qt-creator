@@ -5,8 +5,6 @@
 
 #include <modelutils.h>
 
-#include <utils/span.h>
-
 #include <QFileInfo>
 #include <QRegularExpression>
 
@@ -16,20 +14,53 @@ using namespace Qt::Literals;
 
 namespace {
 
-QString toCamelCase(const QString &input)
+bool isAsciiLetter(QChar c)
 {
-    QString result = input.at(0).toLower();
+    return (c >= u'A' && c <= u'Z') || (c >= u'a' && c <= u'z');
+}
+
+bool isValidLetter(QChar c)
+{
+    return c == u'_' || c.isDigit() || isAsciiLetter(c);
+}
+
+QString filterInvalidLettersAndCapitalizeAfterInvalidLetter(QStringView id)
+{
+    QString result;
     bool capitalizeNext = false;
-
-    for (const QChar &c : Utils::span{input}.subspan(1)) {
-        bool isValidChar = c.isLetterOrNumber() || c == '_';
-        if (isValidChar)
+    for (const QChar &c : id) {
+        if (isValidLetter(c)) {
             result += capitalizeNext ? c.toUpper() : c;
-
-        capitalizeNext = !isValidChar;
+            capitalizeNext = false;
+        } else {
+            capitalizeNext = true;
+        }
     }
 
     return result;
+}
+
+void lowerFirstLetter(QString &id)
+{
+    if (id.size())
+        id.front() = id.front().toLower();
+}
+
+void prependUnderscoreIfBanned(QString &id)
+{
+    if (id.size() && (id.front().isDigit() || ModelUtils::isBannedQmlId(id)))
+        id.prepend(u'_');
+}
+
+QString toValidId(QStringView id)
+{
+    QString validId = filterInvalidLettersAndCapitalizeAfterInvalidLetter(id);
+
+    lowerFirstLetter(validId);
+
+    prependUnderscoreIfBanned(validId);
+
+    return validId;
 }
 
 } // namespace
@@ -114,30 +145,47 @@ QString generatePath(const QString &path)
  * @brief Generates a unique ID based on the provided id
  *
  *  This works similar to get() with additional restrictions:
- *  - Removes non-Latin1 characters
- *  - Removes spaces
+ *  - Removes all characters except A-Z, a-z, 0-9, and underscore.
  *  - Ensures the first letter is lowercase
- *  - Converts spaces to camel case
+ *  - Converts to camel case by making the following character of an invalid character uppercase.
  *  - Prepends an underscore if id starts with a number or is a reserved word
  *
  * @param id The original id to be made unique.
+ * @param predicate Called with a new version of generated id until predicate returns true.
  * @return A unique Id (when predicate() returns false)
  */
-QString generateId(const QString &id, std::function<bool(const QString &)> predicate)
+QString generateId(QStringView id, std::function<bool(const QString &)> predicate)
 {
-    if (id.isEmpty())
-        return {};
+    QString newId = toValidId(id);
+    if (!predicate || newId.isEmpty())
+        return newId;
 
-    // remove non word (non A-Z, a-z, 0-9) or space characters
-    QString newId = id.trimmed();
+    return UniqueName::generate(newId, predicate);
+}
 
-    newId = toCamelCase(newId);
+/**
+ * @brief Generates a unique ID based on the provided id
+ *
+ *  This works similar to get() with additional restrictions:
+ *  - Removes all characters except A-Z, a-z, 0-9, and underscore.
+ *  - Ensures the first letter is lowercase
+ *  - Converts to camel case by making the following character of an invalid character uppercase.
+ *  - Prepends an underscore if id starts with a number or is a reserved word
+ *
+ * @param id The original id to be made unique.
+ * @param fallbackId This is used when the id is empty or contains only invalid chars.
+ * @param predicate Called with a new version of generated id until predicate returns true.
+ * @return A unique Id (when predicate() returns false)
+ */
+QString generateId(QStringView id,
+                   const QString &fallbackId,
+                   std::function<bool(const QString &)> predicate)
+{
+    QString newId = toValidId(id);
+    if (newId.isEmpty())
+        newId = fallbackId;
 
-    // prepend _ if starts with a digit or invalid id (such as reserved words)
-    if (newId.at(0).isDigit() || ModelUtils::isBannedQmlId(newId))
-        newId.prepend('_');
-
-    if (!predicate)
+    if (newId.isEmpty() || !predicate)
         return newId;
 
     return UniqueName::generate(newId, predicate);
