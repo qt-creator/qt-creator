@@ -13,8 +13,6 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <projectexplorer/projectmanager.h>
-
 #include <utils/fsengine/fileiconprovider.h>
 
 using namespace ProjectExplorer;
@@ -39,9 +37,9 @@ class MesonProjectPlugin final : public ExtensionSystem::IPlugin
         setupMesonRunConfiguration();
         setupMesonRunAndDebugWorkers();
 
-        setupMesonActions(this);
+        setupMesonProject();
 
-        ProjectManager::registerProjectType<MesonProject>(Constants::Project::MIMETYPE);
+        setupMesonActions(this);
 
         FileIconProvider::registerIconOverlayForFilename(Constants::Icons::MESON, "meson.build");
         FileIconProvider::registerIconOverlayForFilename(Constants::Icons::MESON, "meson_options.txt");
