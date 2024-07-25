@@ -9,11 +9,10 @@
 #include <modelnode.h>
 #include <modelutils.h>
 #include <qmldesignerplugin.h>
+#include <qmleditormenu.h>
 #include <variantproperty.h>
 
 #include <utils/qtcassert.h>
-
-#include <QMenu>
 
 using namespace Qt::StringLiterals;
 
@@ -120,7 +119,7 @@ static QList<ModelNode> commonMaterialsOfNodes(const QList<ModelNode> &selectedN
 Edit3DMaterialsAction::Edit3DMaterialsAction(const QIcon &icon, QObject *parent)
     : QAction(icon, tr("Materials"), parent)
 {
-    this->setMenu(new QMenu("Materials"));
+    this->setMenu(new QmlEditorMenu("Materials"));
     connect(this, &QObject::destroyed, this->menu(), &QObject::deleteLater);
 }
 
@@ -170,7 +169,7 @@ QAction *Edit3DMaterialsAction::createMaterialAction(const ModelNode &material,
     QString materialName = getMaterialName(material);
 
     QAction *action = new QAction(materialName, parentMenu);
-    QMenu *menu = new QMenu(materialName, parentMenu);
+    QMenu *menu = new QmlEditorMenu(materialName, parentMenu);
     connect(action, &QObject::destroyed, menu, &QObject::deleteLater);
 
     QAction *removeMaterialAction = new QAction(tr("Remove"), menu);
@@ -186,8 +185,8 @@ QAction *Edit3DMaterialsAction::createMaterialAction(const ModelNode &material,
             materialView->emitCustomNotification("select_material", {material});
     });
 
-    menu->addAction(removeMaterialAction);
     menu->addAction(editMaterialAction);
+    menu->addAction(removeMaterialAction);
     action->setMenu(menu);
 
     return action;
