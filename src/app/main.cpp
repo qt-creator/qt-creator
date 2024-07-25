@@ -534,10 +534,6 @@ int main(int argc, char **argv)
     Options options = parseCommandLine(argc, argv);
     applicationDirPath(argv[0]);
 
-    const bool hasStyleOption = Utils::findOrDefault(options.appArguments, [](char *arg) {
-        return strcmp(arg, "-style") == 0;
-    });
-
     if (qEnvironmentVariableIsSet("QTC_DO_NOT_PROPAGATE_LD_PRELOAD")) {
         Utils::Environment::modifySystemEnvironment(
             {{"LD_PRELOAD", "", Utils::EnvironmentItem::Unset}});
@@ -680,17 +676,22 @@ int main(int argc, char **argv)
     setPixmapCacheLimit();
     loadFonts();
 
-    if (Utils::HostOsInfo::isWindowsHost() && !hasStyleOption) {
-        // The Windows 11 default style (Qt 6.7) has major issues, therefore
-        // set the previous default style: "windowsvista"
-        // FIXME: check newer Qt Versions
-        QApplication::setStyle(QLatin1String("windowsvista"));
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        const bool hasStyleOption = Utils::findOrDefault(options.appArguments, [](char *arg) {
+            return strcmp(arg, "-style") == 0;
+        });
+        if (!hasStyleOption) {
+            // The Windows 11 default style (Qt 6.7) has major issues, therefore
+            // set the previous default style: "windowsvista"
+            // FIXME: check newer Qt Versions
+            QApplication::setStyle(QLatin1String("windowsvista"));
 
-        // On scaling different than 100% or 200% use the "fusion" style
-        qreal tmp;
-        const bool fractionalDpi = !qFuzzyIsNull(std::modf(qApp->devicePixelRatio(), &tmp));
-        if (fractionalDpi)
-            QApplication::setStyle(QLatin1String("fusion"));
+            // On scaling different than 100% or 200% use the "fusion" style
+            qreal tmp;
+            const bool fractionalDpi = !qFuzzyIsNull(std::modf(qApp->devicePixelRatio(), &tmp));
+            if (fractionalDpi)
+                QApplication::setStyle(QLatin1String("fusion"));
+        }
     }
 
     const int threadCount = QThreadPool::globalInstance()->maxThreadCount();
