@@ -26,16 +26,4 @@ private:
     QString m_name;
 };
 
-class MesonFileNode : public ProjectExplorer::ProjectNode
-{
-public:
-    MesonFileNode(const Utils::FilePath &file);
-
-    bool showInSimpleTree() const final { return false; }
-    std::optional<Utils::FilePath> visibleAfterAddFileAction() const override
-    {
-        return filePath().pathAppended("meson.build");
-    }
-};
-
 } // MesonProjectManager:Internal

@@ -23,13 +23,6 @@ MesonProjectNode::MesonProjectNode(const FilePath &directory)
     setListInProject(false);
 }
 
-MesonFileNode::MesonFileNode(const FilePath &file)
-    : ProjectNode(file)
-{
-    setIcon(DirectoryIcon(Constants::Icons::MESON));
-    setListInProject(true);
-}
-
 MesonTargetNode::MesonTargetNode(const FilePath &directory, const QString &name)
     : ProjectNode(directory)
     , m_name(name)
