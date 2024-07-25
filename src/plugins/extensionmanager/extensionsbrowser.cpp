@@ -622,6 +622,23 @@ void ExtensionsBrowser::showEvent(QShowEvent *event)
     QWidget::showEvent(event);
 }
 
+static QString customOsTypeToString(OsType osType)
+{
+    switch (osType) {
+    case OsTypeWindows:
+        return "Windows";
+    case OsTypeLinux:
+        return "Linux";
+    case OsTypeMac:
+        return "macOS";
+    case OsTypeOtherUnix:
+        return "Other Unix";
+    case OsTypeOther:
+    default:
+        return "Other";
+    }
+}
+
 void ExtensionsBrowser::fetchExtensions()
 {
 #ifdef WITH_TESTS
@@ -643,7 +660,7 @@ void ExtensionsBrowser::fetchExtensions()
             = R"({"version":"%1","host_os":"%2","host_os_version":"%3","host_architecture":"%4","page_size":200})";
         const QString request = url.arg(settings().externalRepoUrl()) + requestTemplate
                                                     .arg(QCoreApplication::applicationVersion())
-                                                    .arg(osTypeToString(HostOsInfo::hostOs()))
+                                                    .arg(customOsTypeToString(HostOsInfo::hostOs()))
                                                     .arg(QSysInfo::productVersion())
                                                     .arg(QSysInfo::currentCpuArchitecture());
         query.setRequest(QNetworkRequest(QUrl::fromUserInput(request)));
