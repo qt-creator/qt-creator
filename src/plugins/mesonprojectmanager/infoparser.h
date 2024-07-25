@@ -13,18 +13,15 @@
 #include <QJsonObject>
 #include <QJsonValue>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 class InfoParser
 {
     static inline MesonInfo load_info(const QJsonObject &obj)
     {
         MesonInfo info;
-        auto version = obj["meson_version"].toObject();
-        info.mesonVersion = Version{version["major"].toInt(),
-                                    version["minor"].toInt(),
-                                    version["patch"].toInt()};
+        auto v = obj["meson_version"].toObject();
+        info.mesonVersion = {v["major"].toInt(), v["minor"].toInt(), v["patch"].toInt()};
         return info;
     }
     MesonInfo m_info;
@@ -41,5 +38,4 @@ public:
     MesonInfo info() { return m_info; }
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Internal

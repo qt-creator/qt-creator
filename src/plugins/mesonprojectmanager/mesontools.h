@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include "versionhelper.h"
-
 #include <utils/commandline.h>
 #include <utils/id.h>
 #include <utils/store.h>
+
+#include <QVersionNumber>
 
 #include <optional>
 #include <memory>
@@ -40,7 +40,7 @@ public:
 
     ~ToolWrapper();
 
-    const Version &version() const noexcept { return m_version; }
+    const QVersionNumber &version() const noexcept { return m_version; }
     bool isValid() const noexcept { return m_isValid; }
     bool autoDetected() const noexcept { return m_autoDetected; }
     Utils::Id id() const noexcept { return m_id; }
@@ -50,7 +50,7 @@ public:
     void setName(const QString &newName) { m_name = newName; }
     void setExe(const Utils::FilePath &newExe);
 
-    static Version read_version(const Utils::FilePath &toolPath);
+    static QVersionNumber read_version(const Utils::FilePath &toolPath);
 
     Utils::Store toVariantMap() const;
 
@@ -69,7 +69,7 @@ public:
 
 private:
     ToolType m_toolType;
-    Version m_version;
+    QVersionNumber m_version;
     bool m_isValid;
     bool m_autoDetected;
     Utils::Id m_id;

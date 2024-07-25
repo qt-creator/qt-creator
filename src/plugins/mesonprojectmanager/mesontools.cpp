@@ -44,7 +44,7 @@ ToolWrapper::ToolWrapper(ToolType toolType,
                          bool autoDetected)
     : m_toolType(toolType)
     , m_version(read_version(path))
-    , m_isValid{path.exists() && m_version.isValid}
+    , m_isValid{path.exists() && !m_version.isNull()}
     , m_autoDetected{autoDetected}
     , m_id{Id::generate()}
     , m_exe{path}
@@ -58,7 +58,7 @@ ToolWrapper::ToolWrapper(ToolType toolType,
                          bool autoDetected)
     : m_toolType(toolType)
     , m_version(read_version(path))
-    , m_isValid{path.exists() && m_version.isValid}
+    , m_isValid{path.exists() && !m_version.isNull()}
     , m_autoDetected{autoDetected}
     , m_id{id}
     , m_exe{path}
@@ -75,14 +75,14 @@ void ToolWrapper::setExe(const FilePath &newExe)
     m_version = read_version(m_exe);
 }
 
-Version ToolWrapper::read_version(const FilePath &toolPath)
+QVersionNumber ToolWrapper::read_version(const FilePath &toolPath)
 {
     if (toolPath.toFileInfo().isExecutable()) {
         Process process;
         process.setCommand({ toolPath, { "--version" } });
         process.start();
         if (process.waitForFinished())
-            return Version::fromString(process.cleanedStdOut());
+            return QVersionNumber::fromString(process.cleanedStdOut());
     }
     return {};
 }

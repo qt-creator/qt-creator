@@ -70,7 +70,6 @@ Project {
             "toolssettingsaccessor.h",
             "toolssettingspage.cpp",
             "toolssettingspage.h",
-            "versionhelper.h",
         ]
     }
 

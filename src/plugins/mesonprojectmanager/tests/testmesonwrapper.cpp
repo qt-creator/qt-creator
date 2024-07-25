@@ -46,10 +46,10 @@ private slots:
     {
         ToolWrapper meson(ToolType::Meson, "name", *findTool(ToolType::Meson));
         QVERIFY(meson.isValid());
-        QVERIFY(meson.version().major == 0);
-        QVERIFY(meson.version().minor >= 50);
-        QVERIFY(meson.version().minor <= 100);
-        QVERIFY(meson.version().patch >= 0);
+        QVERIFY(meson.version().majorVersion() == 0);
+        QVERIFY(meson.version().minorVersion() >= 50);
+        QVERIFY(meson.version().minorVersion() <= 100);
+        QVERIFY(meson.version().microVersion() >= 0);
     }
 
     void shouldSetupGivenProjects_data()

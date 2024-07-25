@@ -3,14 +3,14 @@
 
 #pragma once
 
-#include "versionhelper.h"
+#include <QVersionNumber>
 
 namespace MesonProjectManager {
 namespace Internal {
 
 struct MesonInfo
 {
-    Version mesonVersion;
+    QVersionNumber mesonVersion;
 };
 
 } // namespace Internal

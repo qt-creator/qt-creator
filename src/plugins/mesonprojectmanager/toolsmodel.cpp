@@ -34,7 +34,7 @@ ToolTreeItem::ToolTreeItem(const MesonTools::Tool_t &tool)
     , m_id{tool->id()}
     , m_autoDetected{tool->autoDetected()}
 {
-    m_tooltip = Tr::tr("Version: %1").arg(tool->version().toQString());
+    m_tooltip = Tr::tr("Version: %1").arg(tool->version().toString());
     self_check();
 }
 
@@ -104,12 +104,12 @@ void ToolTreeItem::self_check()
     m_pathIsExecutable = m_executable.toFileInfo().isExecutable();
 }
 
-void ToolTreeItem::update_tooltip(const Version &version)
+void ToolTreeItem::update_tooltip(const QVersionNumber &version)
 {
-    if (version.isValid)
-        m_tooltip = Tr::tr("Version: %1").arg(version.toQString());
-    else
+    if (version.isNull())
         m_tooltip = Tr::tr("Cannot get tool version.");
+    else
+        m_tooltip = Tr::tr("Version: %1").arg(version.toString());
 }
 
 void ToolTreeItem::update_tooltip()

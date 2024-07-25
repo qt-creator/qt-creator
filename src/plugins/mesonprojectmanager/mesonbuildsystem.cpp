@@ -66,9 +66,9 @@ static KitData createKitData(const Kit *kit)
     data.qmakePath = expander->expand(QString("%{Qt:qmakeExecutable}"));
     data.qtVersionStr = expander->expand(QString("%{Qt:Version}"));
     data.qtVersion = Utils::QtMajorVersion::None;
-    auto version = Version::fromString(data.qtVersionStr);
-    if (version.isValid) {
-        switch (version.major) {
+    auto version = QVersionNumber::fromString(data.qtVersionStr);
+    if (!version.isNull()) {
+        switch (version.majorVersion()) {
         case 4:
             data.qtVersion = Utils::QtMajorVersion::Qt4;
             break;
