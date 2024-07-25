@@ -18,6 +18,7 @@ Qtc = {}
 ---@field Description? string A short one line description of the plugin.
 ---@field LongDescription? string A long description of the plugin. Can contain newlines.
 ---@field Url? string The url of the plugin.
+---@field DocumentationUrl? string The url of the online documentation for the plugin.
 ---@field License? string The license text of the plugin.
 ---@field Revision? string The revision of the plugin.
 ---@field Copyright? string The copyright of the plugin.

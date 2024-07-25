@@ -8,6 +8,7 @@ return {
     Category = "My Plugins",
     Description = "%{Description}",
     Url = "%{Url}",
+    DocumentationUrl = "",
     Experimental = true,
     DisabledByDefault = false,
     LongDescription = [[

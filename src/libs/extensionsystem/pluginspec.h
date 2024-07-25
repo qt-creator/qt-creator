@@ -104,6 +104,7 @@ public:
     virtual QString description() const;
     virtual QString longDescription() const;
     virtual QString url() const;
+    virtual QString documentationUrl() const;
     virtual QString category() const;
     virtual QString revision() const;
     virtual QRegularExpression platformSpecification() const;

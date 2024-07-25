@@ -3,6 +3,8 @@
 
 #include "extensionsmodel.h"
 
+#include "extensionmanagertr.h"
+
 #include "utils/algorithm.h"
 
 #include <coreplugin/coreconstants.h>
@@ -224,6 +226,8 @@ static Extension extensionFromPluginSpec(const PluginSpec *pluginSpec)
     LinksData links;
     if (const QString url = pluginSpec->url(); !url.isEmpty())
         links.append({{}, url});
+    if (const QString docUrl = pluginSpec->documentationUrl(); !docUrl.isEmpty())
+        links.append({{Tr::tr("Documentation")}, docUrl});
     const Description description = {
         .images = {},
         .links = links,

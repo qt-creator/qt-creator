@@ -193,6 +193,7 @@ public:
     QString description;
     QString longDescription;
     QString url;
+    QString documentationUrl;
     QString license;
     QString revision;
     QString copyright;
@@ -322,6 +323,15 @@ QString PluginSpec::longDescription() const
 QString PluginSpec::url() const
 {
     return d->url;
+}
+
+/*!
+    Returns the documentation URL where you can find the online manual about the plugin.
+    This is valid after the PluginSpec::Read state is reached.
+*/
+QString PluginSpec::documentationUrl() const
+{
+    return d->documentationUrl;
 }
 
 /*!
@@ -676,6 +686,7 @@ namespace {
     const char DESCRIPTION[] = "Description";
     const char LONGDESCRIPTION[] = "LongDescription";
     const char URL[] = "Url";
+    const char DOCUMENTATIONURL[] = "DocumentationUrl";
     const char CATEGORY[] = "Category";
     const char PLATFORM[] = "Platform";
     const char DEPENDENCIES[] = "Dependencies";
@@ -876,6 +887,11 @@ Utils::expected_str<void> PluginSpecPrivate::readMetaData(const QJsonObject &dat
     if (!value.isUndefined() && !value.isString())
         return reportError(msgValueIsNotAString(URL));
     url = value.toString();
+
+    value = metaData.value(QLatin1String(DOCUMENTATIONURL));
+    if (!value.isUndefined() && !value.isString())
+        return reportError(msgValueIsNotAString(DOCUMENTATIONURL));
+    documentationUrl = value.toString();
 
     value = metaData.value(QLatin1String(CATEGORY));
     if (!value.isUndefined() && !value.isString())

@@ -132,6 +132,11 @@
             \li String
             \li Link to further information about the plugin, like
                 \c{http://www.mycompany-online.com/products/greatplugin}.
+        \row
+            \li DocumentationUrl
+            \li String
+            \li Link to online documentation for the plugin, like
+                \c{https://www.mycompany-online.com/docs/greatplugin/manual.html}.
     \endtable
 
     \section2 Dependencies
@@ -309,6 +314,7 @@
             "It demonstrates the great use of the plugin meta data."
         ],
         "Url" : "http://www.mycompany-online.com/products/greatplugin",
+        "DocumentationUrl" : "https://www.mycompany-online.com/docs/greatplugin/manual.html",
         "Arguments" : [
             {
                 "Name" : "-variant",

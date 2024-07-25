@@ -7,5 +7,6 @@
     \"License\" : \"%{License}\",
     \"Description\" : \"%{Description}\",
     \"Url\" : \"%{Url}\",
+    \"DocumentationUrl\" : \"\",
     ${IDE_PLUGIN_DEPENDENCIES}
 }
