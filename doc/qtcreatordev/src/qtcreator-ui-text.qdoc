@@ -474,7 +474,7 @@
             \li  Mode
             \li  Modes correspond to complete screens of controls, specialized
                  for a task.
-                 \image qtcreator-mode-selector.png {Mode selector}
+                 \image qtcreator-mode-selector.webp {Mode selector}
             \li  You can add a mode for a new type of editor, for example.
                  Use descriptive, but short mode names. They have to fit in the
                  \uicontrol {Mode selector}.

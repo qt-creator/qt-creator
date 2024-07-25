@@ -43,7 +43,7 @@ def main():
     progressBarWait(warn=False)
     # select a text tutorial
     mouseClick(waitForObjectItem(listView, str(tutorial.text)))
-    test.verify("Building and Running an Example" in
+    test.verify("Tutorial: Build and run" in
                 str(waitForObject(":Help Widget_Help::Internal::HelpWidget").windowTitle),
                 "Verifying: The tutorial is opened inside Help.")
     # close help widget again to avoid focus issues

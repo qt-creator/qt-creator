@@ -49,7 +49,7 @@ QString uniqueProjectName(const QString &path)
 /***********************/
 
 QdsNewDialog::QdsNewDialog(QWidget *parent)
-    : m_dialog{new QQuickWidget(parent)}
+    : m_dialog{Utils::makeUniqueObjectPtr<QQuickWidget>(parent)}
     , m_categoryModel{new PresetCategoryModel(&m_presetData, this)}
     , m_presetModel{new PresetModel(&m_presetData, this)}
     , m_screenSizeModel{new ScreenSizeModel(this)}
@@ -57,7 +57,7 @@ QdsNewDialog::QdsNewDialog(QWidget *parent)
     , m_recentsStore{"RecentPresets.json", StorePolicy::UniqueValues}
     , m_userPresetsStore{"UserPresets.json", StorePolicy::UniqueNames}
 {
-    setParent(m_dialog);
+    connect(m_dialog.get(), &QObject::destroyed, this, &QObject::deleteLater);
 
     m_recentsStore.setReverseOrder();
     m_recentsStore.setMaximum(10);
@@ -89,9 +89,10 @@ QdsNewDialog::QdsNewDialog(QWidget *parent)
     m_dialog->installEventFilter(this);
 
     QObject::connect(&m_wizard, &WizardHandler::wizardCreationFailed, this, [this] {
-        QMessageBox::critical(m_dialog, tr("New Project"), tr("Failed to initialize data."));
+        // TODO: if the dialog itself could react on the error
+        // the would not be necessary
+        QMessageBox::critical(m_dialog.get(), tr("New Project"), tr("Failed to initialize data."));
         reject();
-        deleteLater();
     });
 
     QObject::connect(m_styleModel.data(), &StyleModel::modelAboutToBeReset, this, [this] {
@@ -101,7 +102,7 @@ QdsNewDialog::QdsNewDialog(QWidget *parent)
 
 bool QdsNewDialog::eventFilter(QObject *obj, QEvent *event)
 {
-    if (obj == m_dialog && event->type() == QEvent::KeyPress
+    if (obj == m_dialog.get() && event->type() == QEvent::KeyPress
         && static_cast<QKeyEvent *>(event)->key() == Qt::Key_Escape) {
         reject();
         return true;
@@ -314,7 +315,7 @@ void QdsNewDialog::setWizardFactories(QList<Core::IWizardFactory *> factories_,
 {
     Utils::Id platform = Utils::Id::fromSetting("Desktop");
 
-    WizardFactories factories{factories_, m_dialog, platform};
+    WizardFactories factories{factories_, m_dialog.get(), platform};
 
     std::vector<UserPresetData> recents = m_recentsStore.fetchAll();
     std::vector<UserPresetData> userPresets =  m_userPresetsStore.fetchAll();
@@ -404,8 +405,6 @@ void QdsNewDialog::accept()
     m_recentsStore.save(preset);
 
     m_dialog->close();
-    m_dialog->deleteLater();
-    m_dialog = nullptr;
 }
 
 void QdsNewDialog::reject()
@@ -415,12 +414,13 @@ void QdsNewDialog::reject()
     m_wizard.destroyWizard();
 
     m_dialog->close();
-    m_dialog = nullptr;
+    m_dialog.reset();
 }
 
 QString QdsNewDialog::chooseProjectLocation()
 {
-    Utils::FilePath newPath = Utils::FileUtils::getExistingDirectory(m_dialog, tr("Choose Directory"),
+    Utils::FilePath newPath = Utils::FileUtils::getExistingDirectory(m_dialog.get(),
+                                                                     tr("Choose Directory"),
                                                                      m_qmlProjectLocation);
 
     return QDir::toNativeSeparators(newPath.toString());
@@ -473,7 +473,7 @@ void QdsNewDialog::savePresetDialogAccept()
     UserPresetData preset = currentUserPresetData(m_qmlPresetName);
 
     if (!m_userPresetsStore.save(preset)) {
-        QMessageBox::warning(m_dialog,
+        QMessageBox::warning(m_dialog.get(),
                              tr("Save Preset"),
                              tr("A preset with this name already exists."));
         return;

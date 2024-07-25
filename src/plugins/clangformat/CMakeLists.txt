@@ -37,3 +37,8 @@ extend_qtc_plugin(ClangFormat
   DEFINES
     TESTDATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/data"
 )
+
+extend_qtc_plugin(ClangFormat
+  CONDITION TARGET LLVM
+  DEPENDS LLVM
+)

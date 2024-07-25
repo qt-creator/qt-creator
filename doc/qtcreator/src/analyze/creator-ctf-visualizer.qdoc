@@ -60,32 +60,32 @@
     The \uicontrol Timeline view displays a graphical representation of trace
     events and a condensed view of all recorded events.
 
-    \image qtcreator-ctf-visualizer-timeline.png "Chrome Trace Format Visualizer"
+    \image qtcreator-ctf-visualizer-timeline.webp {Timeline view}
 
     Each category in the timeline describes a thread in the application. Move
-    the cursor on an event (1) on a row to view its duration and event category.
+    the cursor on an event (5) on a row to view its duration and event category.
     To display the information only when an event is selected, disable the
-    \uicontrol {View Event Information on Mouseover} button (2).
+    \uicontrol {View Event Information on Mouseover} button (4).
 
-    The outline (3) summarizes the period for which data was collected. Drag
-    the zoom range (4) or click the outline to move on the outline. To move
+    The outline (10) summarizes the period for which data was collected. Drag
+    the zoom range (8) or click the outline to move on the outline. To move
     between events, select the \uicontrol {Jump to Previous Event} and
-    \uicontrol {Jump to Next Event} buttons (5).
+    \uicontrol {Jump to Next Event} buttons (1).
 
-    Select the \uicontrol {Show Zoom Slider} button (6) to open a slider that
-    you can use to set the zoom level. You can also drag the zoom handles (7).
+    Select the \uicontrol {Show Zoom Slider} button (2) to open a slider that
+    you can use to set the zoom level. You can also drag the zoom handles (9).
     To reset the default zoom level, right-click the timeline to open the
     context menu, and select \uicontrol {Reset Zoom}.
 
     Select the \inlineimage icons/filtericon.png
-    (\uicontrol {Restrict to Threads}) button (10) to select the threads to
+    (\uicontrol {Restrict to Threads}) button (6) to select the threads to
     show.
 
     \section2 Selecting Event Ranges
 
-    You can select an event range (8) to view the time it represents or to zoom
+    You can select an event range (7) to view the time it represents or to zoom
     into a specific region of the trace. Select the \uicontrol {Select Range}
-    button (9) to activate the selection tool. Then click in the timeline to
+    button (3) to activate the selection tool. Then click in the timeline to
     specify the beginning of the event range. Drag the selection handle to
     define the end of the range.
 

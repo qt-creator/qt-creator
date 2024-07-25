@@ -51,7 +51,7 @@ private:
 
     QString m_packageName;
     QThread m_thread;
-    QScopedPointer<AndroidRunnerWorker> m_worker;
+    AndroidRunnerWorker *m_worker = nullptr;
     QPointer<ProjectExplorer::Target> m_target;
     Utils::Port m_debugServerPort;
     QUrl m_qmlServer;

@@ -3456,7 +3456,7 @@ The foreground component should be transparent, and the background component sho
     <name>FontSection</name>
     <message>
         <source>Font</source>
-        <translation>Zeichensatz</translation>
+        <translation>Schrift</translation>
     </message>
     <message>
         <source>Sets the font of the text.</source>
@@ -7811,7 +7811,7 @@ Please check the output pane for more information.</source>
     </message>
     <message>
         <source>Also warns in the code editor about QML features that are not properly supported by the Qt Quick Designer.</source>
-        <translation>Zeigt auch im Code-Editor eine Warnung bei QML-Features an, die vom Qt Quick Designer nicht vollständig unterstützt werden.</translation>
+        <translation>Zeigt auch im Code-Editor eine Warnung bei QML-Funktionen an, die vom Qt Quick Designer nicht vollständig unterstützt werden.</translation>
     </message>
     <message>
         <source>Internationalization</source>
@@ -9554,7 +9554,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Font Files</source>
-        <translation>Schriftart-Dateien</translation>
+        <translation>Schriftdateien</translation>
     </message>
     <message>
         <source>Sound Files</source>
@@ -10927,7 +10927,7 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>The device has to be connected with ADB debugging enabled to use this feature.</source>
-        <translation>Das Gerät muss mit aktiviertem ADB-Debuggen angeschlossen sein, um diese Funktionalität nutzen zu können.</translation>
+        <translation>Das Gerät muss mit aktiviertem ADB-Debuggen angeschlossen sein, um diese Funktion nutzen zu können.</translation>
     </message>
     <message>
         <source>Opening connection port %1 failed.</source>
@@ -11088,7 +11088,7 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>Include default features for Qt modules.</source>
-        <translation>Standard-Features für Qt-Module einschließen.</translation>
+        <translation>Standardfunktionen für Qt-Module einschließen.</translation>
     </message>
     <message>
         <source>Add</source>
@@ -13902,11 +13902,11 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Remove Server Configuration</source>
-        <translation>Server-Konfiguration löschen</translation>
+        <translation>Server-Konfiguration entfernen</translation>
     </message>
     <message>
         <source>Remove the server configuration &quot;%1&quot;?</source>
-        <translation>Server-Konfiguration &quot;%1&quot; löschen?</translation>
+        <translation>Server-Konfiguration &quot;%1&quot; entfernen?</translation>
     </message>
     <message>
         <source>Add Dashboard Configuration</source>
@@ -16965,7 +16965,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>With clangd enabled, Qt Creator fully supports modern C++ when highlighting code, completing symbols and so on.&lt;br&gt;This comes at a higher cost in terms of CPU load and memory usage compared to the built-in code model, which therefore might be the better choice on older machines and/or with legacy code.&lt;br&gt;You can enable/disable and fine-tune clangd &lt;a href=&quot;dummy&quot;&gt;here&lt;/a&gt;.</source>
-        <translation>Wenn Clangd aktiviert ist, unterstützt Qt Creator semantische Hervorhebung, Symbolvervollständigung und so weiter für Code, der modernes C++ nutzt.&lt;br/&gt;Das wirkt sich nachteilig auf CPU-Last und Speicherverbrauch im Vergleich zum eingebauten Codemodell aus, das deshalb eine bessere Wahl für ältere Maschinen und/oder für Legacy Code sein kann.&lt;br/&gt;Sie können Clangd &lt;a href=&quot;dummy&quot;&gt;hier&lt;/a&gt; aktivieren/deaktivieren und anpassen.</translation>
+        <translation>Wenn Clangd aktiviert ist, unterstützt Qt Creator semantische Hervorhebung, Symbolvervollständigung und so weiter für Code, der modernes C++ nutzt.&lt;br/&gt;Das wirkt sich nachteilig auf CPU-Last und Speicherverbrauch im Vergleich zum integrierten Codemodell aus, das deshalb eine bessere Wahl für ältere Maschinen und/oder für Legacy Code sein kann.&lt;br/&gt;Sie können Clangd &lt;a href=&quot;dummy&quot;&gt;hier&lt;/a&gt; aktivieren/deaktivieren und anpassen.</translation>
     </message>
     <message>
         <source>Enable Anyway</source>
@@ -19953,7 +19953,7 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
     </message>
     <message>
         <source>Remove tool.</source>
-        <translation>Werkzeug löschen.</translation>
+        <translation>Werkzeug entfernen.</translation>
     </message>
     <message>
         <source>Revert tool to default.</source>
@@ -25762,7 +25762,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enables stepping backwards.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; This feature is very slow and unstable on the GDB side. It exhibits unpredictable behavior when going backwards over system calls and is very likely to destroy your debugging session.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rückwärts-Debuggen aktivieren.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Hinweis:&lt;/b&gt; Diese Funktionalität ist sehr langsam und instabil innerhalb von GDB. Es kann unvorhergesehenes Verhalten auftreten, wenn man rückwärts über einen Systemaufruf springt, und die Debugger-Sitzung kann leicht zerstört werden.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rückwärts-Debuggen aktivieren.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Hinweis:&lt;/b&gt; Diese Funktion ist sehr langsam und instabil innerhalb von GDB. Es kann unvorhergesehenes Verhalten auftreten, wenn man rückwärts über einen Systemaufruf springt, und die Debugger-Sitzung kann leicht zerstört werden.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Debug all child processes</source>
@@ -27297,7 +27297,7 @@ Soll es erneut versucht werden?</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation>Löschen</translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Source Paths Mapping</source>
@@ -28143,7 +28143,7 @@ Bitte wählen Sie einen 64-bit-Debugger in den Kit-Einstellungen für dieses Kit
     </message>
     <message>
         <source>This feature is very slow and unstable on the GDB side. It exhibits unpredictable behavior when going backwards over system calls and is very likely to destroy your debugging session.</source>
-        <translation>Diese Funktionalität ist sehr langsam und instabil innerhalb von GDB. Es kann unvorhergesehenes Verhalten auftreten, wenn man rückwärts über einen Systemaufruf springt, und die Debugger-Sitzung kann leicht unbenutzbar werden.</translation>
+        <translation>Diese Funktion ist sehr langsam und instabil innerhalb von GDB. Es kann unvorhergesehenes Verhalten auftreten, wenn man rückwärts über einen Systemaufruf springt, und die Debugger-Sitzung kann leicht unbenutzbar werden.</translation>
     </message>
     <message>
         <source>Reverse Direction</source>
@@ -28685,11 +28685,11 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>Remove All Breakpoints</source>
-        <translation>Alle Haltepunkte löschen</translation>
+        <translation>Alle Haltepunkte entfernen</translation>
     </message>
     <message>
         <source>Are you sure you want to remove all breakpoints from all files in the current session?</source>
-        <translation>Möchten Sie wirklich alle Haltepunkte aus allen Dateien der aktuellen Sitzung löschen?</translation>
+        <translation>Möchten Sie wirklich alle Haltepunkte aus allen Dateien der aktuellen Sitzung entfernen?</translation>
     </message>
     <message>
         <source>Perspective</source>
@@ -30636,7 +30636,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Does not interpret key sequences like Ctrl-S in FakeVim but handles them as regular shortcuts. This gives easier access to core functionality at the price of losing some features of FakeVim.</source>
-        <translation>Tastensequenzen wie Strg-S nicht in FakeVim verarbeiten, sondern sie als gewöhnliche Tastenkombinationen behandeln. Dies erleichtert den Zugriff auf die Kernfunktionalität auf Kosten eingeschränkter Funktionalität von FakeVim.</translation>
+        <translation>Tastensequenzen wie Strg-S nicht in FakeVim verarbeiten, sondern sie als gewöhnliche Tastenkombinationen behandeln. Dies erleichtert den Zugriff auf die Kernfunktionalität auf Kosten eingeschränkter Funktion von FakeVim.</translation>
     </message>
     <message>
         <source>Does not interpret some key presses in insert mode so that code can be properly completed and expanded.</source>
@@ -34062,11 +34062,11 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>Font</source>
-        <translation>Zeichensatz</translation>
+        <translation>Schrift</translation>
     </message>
     <message>
         <source>Family:</source>
-        <translation>Name:</translation>
+        <translation>Familie:</translation>
     </message>
     <message>
         <source>Style:</source>
@@ -36111,7 +36111,7 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Remove</source>
-        <translation>Löschen</translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Macros</source>
@@ -38937,11 +38937,11 @@ Außer: %2
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Remove Build Configuration</source>
-        <translation>Build abbrechen und Build-Konfiguration löschen</translation>
+        <translation>Build abbrechen und Build-Konfiguration entfernen</translation>
     </message>
     <message>
         <source>Remove Build Configuration %1?</source>
-        <translation>Build-Konfiguration %1 löschen?</translation>
+        <translation>Build-Konfiguration %1 entfernen?</translation>
     </message>
     <message>
         <source>The build configuration &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
@@ -38949,11 +38949,11 @@ Außer: %2
     </message>
     <message>
         <source>Do you want to cancel the build process and remove the Build Configuration anyway?</source>
-        <translation>Möchten Sie die Erstellung abbrechen und die Build-Konfiguration trotzdem löschen?</translation>
+        <translation>Möchten Sie die Build-Konfiguration trotzdem entfernen und die Erstellung abbrechen?</translation>
     </message>
     <message>
         <source>Remove Build Configuration?</source>
-        <translation>Build-Konfiguration löschen?</translation>
+        <translation>Build-Konfiguration entfernen?</translation>
     </message>
     <message>
         <source>Do you really want to delete build configuration &lt;b&gt;%1&lt;/b&gt;?</source>
@@ -39207,7 +39207,7 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Remove Run Configuration?</source>
-        <translation>Aktive Ausführungskonfiguration löschen?</translation>
+        <translation>Aktive Ausführungskonfiguration entfernen?</translation>
     </message>
     <message>
         <source>Do you really want to delete the run configuration &lt;b&gt;%1&lt;/b&gt;?</source>
@@ -39238,7 +39238,7 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
     </message>
     <message>
         <source>Remove Run Configurations?</source>
-        <translation>Ausführungskonfiguration löschen?</translation>
+        <translation>Ausführungskonfigurationen entfernen?</translation>
     </message>
     <message>
         <source>Do you really want to delete all run configurations?</source>
@@ -39250,11 +39250,11 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Remove Deploy Configuration</source>
-        <translation>Build abbrechen und Deployment-Konfiguration löschen</translation>
+        <translation>Build abbrechen und Deployment-Konfiguration entfernen</translation>
     </message>
     <message>
         <source>Remove Deploy Configuration %1?</source>
-        <translation>Deployment-Konfiguration %1 löschen?</translation>
+        <translation>Deployment-Konfiguration %1 entfernen?</translation>
     </message>
     <message>
         <source>The deploy configuration &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
@@ -39262,11 +39262,11 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
     </message>
     <message>
         <source>Do you want to cancel the build process and remove the Deploy Configuration anyway?</source>
-        <translation>Möchten Sie die Erstellung abbrechen und die Deployment-Konfiguration trotzdem löschen?</translation>
+        <translation>Möchten Sie die Deployment-Konfiguration trotzdem entfernen und die Erstellung abbrechen?</translation>
     </message>
     <message>
         <source>Remove Deploy Configuration?</source>
-        <translation>Deployment-Konfiguration löschen?</translation>
+        <translation>Deployment-Konfiguration entfernen?</translation>
     </message>
     <message>
         <source>Do you really want to delete deploy configuration &lt;b&gt;%1&lt;/b&gt;?</source>
@@ -39924,7 +39924,7 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Run Configuration Removed</source>
-        <translation>Ausführungskonfiguration gelöscht</translation>
+        <translation>Ausführungskonfiguration entfernt</translation>
     </message>
     <message>
         <source>The configuration that was supposed to run is no longer available.</source>
@@ -40374,7 +40374,7 @@ The name of the build configuration created by default for a generic project.</e
     </message>
     <message>
         <source>Remove Item</source>
-        <translation>Element löschen</translation>
+        <translation>Element entfernen</translation>
     </message>
     <message>
         <source>Removing Step failed</source>
@@ -41040,7 +41040,7 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     </message>
     <message>
         <source>%1 (%2, %3 %4 at %5)</source>
-        <translation>%1 (%2, %3 %4 an %5)</translation>
+        <translation>%1 (%2, %3 %4: %5)</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -43210,7 +43210,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>At least one required feature is not present.</source>
-        <translation>Mindestens ein benötigtes Feature ist nicht vorhanden.</translation>
+        <translation>Mindestens eine benötigte Funktion ist nicht vorhanden.</translation>
     </message>
     <message>
         <source>Platform is not supported.</source>
@@ -43218,7 +43218,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>At least one preferred feature is not present.</source>
-        <translation>Mindestens ein bevorzugtes Feature ist nicht vorhanden.</translation>
+        <translation>Mindestens eine bevorzugte Funktion ist nicht vorhanden.</translation>
     </message>
     <message>
         <source>Feature list is set and not of type list.</source>
@@ -49027,7 +49027,7 @@ Möchten Sie fortfahren?</translation>
  %1?</source>
         <translation>Möchten Sie
  %1
-wirklich löschen?</translation>
+wirklich entfernen?</translation>
     </message>
     <message>
         <source>QNX</source>
@@ -50560,7 +50560,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Remove Prefix...</source>
-        <translation>Präfix löschen...</translation>
+        <translation>Präfix entfernen...</translation>
     </message>
     <message>
         <source>Remove Missing Files</source>
@@ -50604,11 +50604,11 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Remove Prefix</source>
-        <translation>Präfix löschen</translation>
+        <translation>Präfix entfernen</translation>
     </message>
     <message>
         <source>Remove prefix %1 and all its files?</source>
-        <translation>Präfix %1 und alle zugehörigen Dateien löschen?</translation>
+        <translation>Präfix %1 und alle zugehörigen Dateien entfernen?</translation>
     </message>
     <message>
         <source>File Removal Failed</source>
@@ -51976,7 +51976,7 @@ Testfall &quot;%2&quot; wird nicht aufgezeichnet.</translation>
     </message>
     <message>
         <source>Remove Shared Folder</source>
-        <translation>Gemeinsames Verzeichnis löschen</translation>
+        <translation>Gemeinsames Verzeichnis entfernen</translation>
     </message>
     <message>
         <source>Open Squish Suites...</source>
@@ -52012,7 +52012,7 @@ Testfall &quot;%2&quot; wird nicht aufgezeichnet.</translation>
     </message>
     <message>
         <source>Remove Shared File</source>
-        <translation>Gemeinsame Datei löschen</translation>
+        <translation>Gemeinsame Datei entfernen</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -52020,7 +52020,7 @@ Testfall &quot;%2&quot; wird nicht aufgezeichnet.</translation>
     </message>
     <message>
         <source>Failed to remove &quot;%1&quot;.</source>
-        <translation>&quot;%1&quot; konnte nicht gelöscht werden.</translation>
+        <translation>&quot;%1&quot; konnte nicht entfernt werden.</translation>
     </message>
     <message>
         <source>Remove &quot;%1&quot; from the list of shared folders?</source>
@@ -52838,11 +52838,11 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Family:</source>
-        <translation>Name:</translation>
+        <translation>Familie:</translation>
     </message>
     <message>
         <source>The font family used in the terminal.</source>
-        <translation>Der Name der Zeichensatz-Familie, die im Terminal verwendet wird.</translation>
+        <translation>Die Schriftfamilie, die im Terminal verwendet wird.</translation>
     </message>
     <message>
         <source>Size:</source>
@@ -52850,7 +52850,7 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>The font size used in the terminal (in points).</source>
-        <translation>Die Größe des Zeichensatzes, der im Terminal verwendet wird (in Punkten).</translation>
+        <translation>Die Größe der Schrift, die im Terminal verwendet wird (in Punkten).</translation>
     </message>
     <message>
         <source>Allow blinking cursor</source>
@@ -52930,7 +52930,7 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Font</source>
-        <translation>Zeichensatz</translation>
+        <translation>Schrift</translation>
     </message>
     <message>
         <source>Colors</source>
@@ -53045,11 +53045,11 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Remove All Bookmarks</source>
-        <translation>Alle Lesezeichen löschen</translation>
+        <translation>Alle Lesezeichen entfernen</translation>
     </message>
     <message>
         <source>Are you sure you want to remove all bookmarks from all files in the current session?</source>
-        <translation>Möchten Sie wirklich alle Lesezeichen aus allen Dateien der aktuellen Sitzung löschen?</translation>
+        <translation>Möchten Sie wirklich alle Lesezeichen aus allen Dateien der aktuellen Sitzung entfernen?</translation>
     </message>
     <message>
         <source>&amp;Bookmarks</source>
@@ -53239,7 +53239,7 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Font</source>
-        <translation>Zeichensatz</translation>
+        <translation>Schrift</translation>
     </message>
     <message>
         <source>Underline</source>
@@ -53273,7 +53273,7 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Family:</source>
-        <translation>Name:</translation>
+        <translation>Familie:</translation>
     </message>
     <message>
         <source>Size:</source>
@@ -53371,7 +53371,7 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
     </message>
     <message>
         <source>Font &amp;&amp; Colors</source>
-        <translation>Zeichensatz &amp;&amp; Farben</translation>
+        <translation>Schrift &amp;&amp; Farben</translation>
     </message>
     <message>
         <source>Jumps to the given line in the current document.</source>
@@ -53613,7 +53613,7 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
     </message>
     <message>
         <source>%1 [built-in]</source>
-        <translation>%1 [eingebaut]</translation>
+        <translation>%1 [integriert]</translation>
     </message>
     <message>
         <source>%1 [customizable]</source>
@@ -53822,7 +53822,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>Enable built-in camel case &amp;navigation</source>
-        <translation>Eingebaute CamelCase-&amp;Navigation aktivieren</translation>
+        <translation>Integrierte CamelCase-&amp;Navigation aktivieren</translation>
     </message>
     <message>
         <source>On Mouseover</source>
@@ -53990,7 +53990,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>&lt;i&gt;Set &lt;a href=&quot;font zoom&quot;&gt;font line spacing&lt;/a&gt; to 100% to enable text wrapping option.&lt;/i&gt;</source>
-        <translation>&lt;i&gt;Setzen Sie den &lt;a href=&quot;font zoom&quot;&gt;Zeilenabstand&lt;/a&gt; des Zeichensatzes auf 100%, um die Einstellung für Textumbruch zu aktivieren.&lt;/i&gt;</translation>
+        <translation>&lt;i&gt;Setzen Sie den &lt;a href=&quot;font zoom&quot;&gt;Zeilenabstand&lt;/a&gt; der Schrift auf 100%, um die Einstellung für Textumbruch zu aktivieren.&lt;/i&gt;</translation>
     </message>
     <message>
         <source>Tint whole margin area</source>
@@ -55028,7 +55028,7 @@ Drücken Sie zusätzlich die Umschalttaste, wird ein Escape-Zeichen an der aktue
     </message>
     <message>
         <source>Documentation Comments</source>
-        <translation>Kommentare für Dokumentation</translation>
+        <translation>Dokumentationskommentare</translation>
     </message>
     <message>
         <source>Automatically creates a Doxygen comment upon pressing enter after a &apos;/**&apos;, &apos;/*!&apos;, &apos;//!&apos; or &apos;///&apos;.</source>
@@ -55582,7 +55582,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Applied to removed characters in differences (in side-by-side diff editor).</source>
-        <translation>Wird auf gelöschte Zeichen in den Unterschieden angewendet (bei Anzeige mit Gegenüberstellung der Unterschiede).</translation>
+        <translation>Wird auf entfernte Zeichen in den Unterschieden angewendet (bei Anzeige mit Gegenüberstellung der Unterschiede).</translation>
     </message>
     <message>
         <source>Diff Destination Line</source>
@@ -56766,15 +56766,15 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Refusing to remove the standard directory &quot;%1&quot;.</source>
-        <translation>Das Standardverzeichnis &quot;%1&quot; kann nicht entfernt werden.</translation>
+        <translation>Das Standardverzeichnis &quot;%1&quot; kann nicht gelöscht werden.</translation>
     </message>
     <message>
         <source>Refusing to remove root directory.</source>
-        <translation>Das Wurzelverzeichnis kann nicht entfernt werden.</translation>
+        <translation>Das Wurzelverzeichnis kann nicht gelöscht werden.</translation>
     </message>
     <message>
         <source>Refusing to remove your home directory.</source>
-        <translation>Das Benutzerverzeichnis (Home) kann nicht entfernt werden.</translation>
+        <translation>Das Benutzerverzeichnis (Home) kann nicht gelöscht werden.</translation>
     </message>
     <message>
         <source>Failed to remove directory &quot;%1&quot;.</source>
@@ -57118,7 +57118,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Remove File</source>
-        <translation>Datei entfernen</translation>
+        <translation>Datei löschen</translation>
     </message>
     <message>
         <source>Remove Folder</source>
@@ -57126,7 +57126,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>File to remove:</source>
-        <translation>Zu entfernende Datei:</translation>
+        <translation>Zu löschende Datei:</translation>
     </message>
     <message>
         <source>Folder to remove:</source>

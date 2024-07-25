@@ -49,11 +49,6 @@ TextEditorView::TextEditorView(ExternalDependenciesInterface &externalDependenci
     : AbstractView{externalDependencies}
     , m_widget(new TextEditorWidget(this))
 {
-    IContext::attach(m_widget,
-                     Context(Constants::C_QMLTEXTEDITOR, Constants::C_QT_QUICK_TOOLS_MENU),
-                     [this](const IContext::HelpCallback &callback) {
-                         m_widget->contextHelp(callback);
-                     });
 }
 
 TextEditorView::~TextEditorView()
@@ -70,7 +65,11 @@ void TextEditorView::modelAttached(Model *model)
 
     auto textEditor = Utils::UniqueObjectLatePtr<TextEditor::BaseTextEditor>(
         QmlDesignerPlugin::instance()->currentDesignDocument()->textEditor()->duplicate());
-
+    IContext::attach(textEditor->widget(),
+                     Context(Constants::C_QMLTEXTEDITOR, Constants::C_QT_QUICK_TOOLS_MENU),
+                     [this](const IContext::HelpCallback &callback) {
+                         m_widget->contextHelp(callback);
+                     });
     m_widget->setTextEditor(std::move(textEditor));
 }
 

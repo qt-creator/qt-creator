@@ -7,6 +7,7 @@
 
 #include <coreplugin/dialogs/newdialog.h>
 #include <utils/infolabel.h>
+#include <utils/uniqueobjectptr.h>
 
 #include "wizardhandler.h"
 #include "presetmodel.h"
@@ -64,7 +65,7 @@ public:
 
     explicit QdsNewDialog(QWidget *parent);
 
-    QWidget *widget() override { return m_dialog; }
+    QWidget *widget() override { return m_dialog.get(); }
 
     void setWizardFactories(QList<Core::IWizardFactory *> factories, const Utils::FilePath &defaultLocation,
                             const QVariantMap &extraVariables) override;
@@ -139,7 +140,7 @@ private slots:
     void onWizardCreated(QStandardItemModel *screenSizeModel, QStandardItemModel *styleModel);
 
 private:
-    QQuickWidget *m_dialog = nullptr;
+    Utils::UniqueObjectPtr<QQuickWidget> m_dialog;
 
     PresetData m_presetData;
     QPointer<PresetCategoryModel> m_categoryModel;

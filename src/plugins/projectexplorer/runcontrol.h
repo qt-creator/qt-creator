@@ -150,6 +150,7 @@ public:
 
     void copyDataFromRunConfiguration(RunConfiguration *runConfig);
     void copyDataFromRunControl(RunControl *runControl);
+    void resetDataForAttachToCore();
 
     void setAutoDeleteOnStop(bool autoDelete);
 

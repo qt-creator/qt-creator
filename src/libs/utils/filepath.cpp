@@ -304,9 +304,9 @@ bool FilePath::equals(const FilePath &first, const FilePath &second, Qt::CaseSen
 }
 
 /*!
- * Returns true if the two file paths compare equal case-sensitively.
+ * Returns \c true if this file path compares equal to \a other case-sensitively.
  * This is relevant on semi-case sensitive systems like Windows with NTFS.
- * @see QTCREATORBUG-30846
+ * \sa {https://bugreports.qt.io/browse/QTCREATORBUG-30846}{QTCREATORBUG-30846}
  */
 bool FilePath::equalsCaseSensitive(const FilePath &other) const
 {

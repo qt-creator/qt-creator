@@ -52,13 +52,13 @@
     translations in the .json file using the following syntax:
 
     \code
-    "trDisplayName": { "C": "default", "en_US": "english", "de_DE": "deutsch" }
+    "trDisplayName": { "C": "default", "en": "english", "de": "deutsch" }
     \endcode
 
     For example:
 
     \code
-    "trDisplayName": { "C": "Project Location", "en_US": "Project Location", "de_DE": "Projekt Verzeichnis" }
+    "trDisplayName": { "C": "Project Location", "en": "Project Location", "de": "Projektverzeichnis" }
     \endcode
 
     \section1 Creating Wizards
