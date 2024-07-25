@@ -18,7 +18,6 @@ Qt version for the respective toolchain with the components (if available):
 The exact versions and toolchains are:
 
 Linux:
-Qt 5.4.1 (gcc)
 Qt 5.10.1 (gcc)
 Qt 5.14.1 (gcc)
 Qt 6.2.4 (gcc)

@@ -533,7 +533,7 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False, ignoreVali
             result = result.union(set([Targets.DESKTOP_5_10_1_DEFAULT,
                                        Targets.DESKTOP_5_14_1_DEFAULT,
                                        Targets.DESKTOP_6_2_4]))
-            if platform.system() != 'Darwin':
+            if platform.system() in ('Windows', 'Microsoft'):
                 result.add(Targets.DESKTOP_5_4_1_GCC)
     elif 'Platform independent' in text:
         result = Targets.desktopTargetClasses()
