@@ -299,7 +299,6 @@ public:
     QStringList m_aboutInformation;
     Context m_highPrioAdditionalContexts;
     Context m_lowPrioAdditionalContexts{Constants::C_GLOBAL};
-    mutable QPrinter *m_printer = nullptr;
     WindowSupport *m_windowSupport = nullptr;
     EditorManager *m_editorManager = nullptr;
     ExternalToolManager *m_externalToolManager = nullptr;
@@ -580,9 +579,8 @@ QtcSettings *ICore::settings(QSettings::Scope scope)
 */
 QPrinter *ICore::printer()
 {
-    if (!d->m_printer)
-        d->m_printer = new QPrinter(QPrinter::HighResolution);
-    return d->m_printer;
+    static QPrinter thePrinter(QPrinter::HighResolution);
+    return &thePrinter;
 }
 
 /*!
@@ -1449,8 +1447,6 @@ ICorePrivate::~ICorePrivate()
     delete m_externalToolManager;
     m_externalToolManager = nullptr;
     MessageManager::destroy();
-    delete m_printer;
-    m_printer = nullptr;
     delete m_vcsManager;
     m_vcsManager = nullptr;
     //we need to delete editormanager and statusbarmanager explicitly before the end of the destructor,
