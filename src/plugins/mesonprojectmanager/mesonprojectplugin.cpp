@@ -4,6 +4,7 @@
 #include "mesonactionsmanager.h"
 #include "mesonbuildconfiguration.h"
 #include "mesonbuildsystem.h"
+#include "mesonpluginconstants.h"
 #include "mesonproject.h"
 #include "mesonrunconfiguration.h"
 #include "ninjabuildstep.h"

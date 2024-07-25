@@ -3,7 +3,9 @@
 
 #include "mesonprojectparser.h"
 
+#include "common.h"
 #include "mesoninfoparser.h"
+#include "mesonpluginconstants.h"
 #include "mesonprojectmanagertr.h"
 #include "mesonprojectnodes.h"
 #include "mesontools.h"

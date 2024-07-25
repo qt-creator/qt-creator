@@ -24,8 +24,8 @@ Project {
             "mesonactionsmanager.cpp",
             "mesonactionsmanager.h",
             "buildoptions.h",
+            "mesoninfoparser.cpp",
             "mesoninfoparser.h",
-            "buildoptionsparser.h",
             "common.h",
             "target.h",
             "mesonpluginconstants.h",
@@ -93,8 +93,9 @@ Project {
         cpp.includePaths: "."
 
         files: [
-            "mesontools.h",
             "mesontools.cpp",
+            "mesontools.h",
+            "mesoninfoparser.cpp",
             "mesoninfoparser.h",
             "tests/testmesoninfoparser.cpp",
         ]

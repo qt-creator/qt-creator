@@ -6,7 +6,6 @@ add_qtc_plugin(MesonProjectManager
   buildoptions.h
   buildoptionsmodel.cpp
   buildoptionsmodel.h
-  buildoptionsparser.h
   common.h
   kitdata.h
   mesonactionsmanager.cpp
@@ -15,6 +14,7 @@ add_qtc_plugin(MesonProjectManager
   mesonbuildconfiguration.h
   mesonbuildsystem.cpp
   mesonbuildsystem.h
+  mesoninfoparser.cpp
   mesoninfoparser.h
   mesonoutputparser.cpp
   mesonoutputparser.h
@@ -84,6 +84,7 @@ add_qtc_test(tst_mesoninfoparser
      TEST_RELATIVE_LIBEXEC_PATH="${TEST_RELATIVE_LIBEXEC_PATH}"
   SOURCES
     tests/testmesoninfoparser.cpp
+    mesoninfoparser.cpp
     mesoninfoparser.h
     mesontools.cpp
     mesontools.h

@@ -5,6 +5,7 @@
 
 #include "kitdata.h"
 #include "mesonbuildconfiguration.h"
+#include "mesonpluginconstants.h"
 #include "mesonprojectmanagertr.h"
 #include "settings.h"
 #include "toolkitaspectwidget.h"
