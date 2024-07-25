@@ -5,6 +5,7 @@
 #include "mesontools.h"
 
 #include <utils/launcherinterface.h>
+#include <utils/processinterface.h>
 #include <utils/singleton.h>
 #include <utils/temporarydirectory.h>
 

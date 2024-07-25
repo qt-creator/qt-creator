@@ -8,6 +8,7 @@
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
@@ -123,17 +124,17 @@ QStringList options_cat(const T &...args)
     return result;
 }
 
-Command ToolWrapper::setup(const FilePath &sourceDirectory,
-                           const FilePath &buildDirectory,
-                           const QStringList &options) const
+ProcessRunData ToolWrapper::setup(const FilePath &sourceDirectory,
+                                  const FilePath &buildDirectory,
+                                  const QStringList &options) const
 {
     return {{m_exe, options_cat("setup", options, sourceDirectory.path(), buildDirectory.path())},
             sourceDirectory};
 }
 
-Command ToolWrapper::configure(const FilePath &sourceDirectory,
-                               const FilePath &buildDirectory,
-                               const QStringList &options) const
+ProcessRunData ToolWrapper::configure(const FilePath &sourceDirectory,
+                                      const FilePath &buildDirectory,
+                                      const QStringList &options) const
 {
     if (!isSetup(buildDirectory))
         return setup(sourceDirectory, buildDirectory, options);
@@ -141,8 +142,8 @@ Command ToolWrapper::configure(const FilePath &sourceDirectory,
             buildDirectory};
 }
 
-Command ToolWrapper::regenerate(const FilePath &sourceDirectory,
-                                const FilePath &buildDirectory) const
+ProcessRunData ToolWrapper::regenerate(const FilePath &sourceDirectory,
+                                       const FilePath &buildDirectory) const
 {
     return {{m_exe,
             options_cat("--internal",
@@ -154,7 +155,7 @@ Command ToolWrapper::regenerate(const FilePath &sourceDirectory,
             buildDirectory};
 }
 
-Command ToolWrapper::introspect(const FilePath &sourceDirectory) const
+ProcessRunData ToolWrapper::introspect(const FilePath &sourceDirectory) const
 {
     return {{m_exe,
             {"introspect", "--all", QString("%1/meson.build").arg(sourceDirectory.path())}},
@@ -173,11 +174,10 @@ bool containsFiles(const QString &path, const File_t &file, const T &...files)
     return containsFiles(path, file) && containsFiles(path, files...);
 }
 
-bool run_meson(const Command &command, QIODevice *output)
+bool run_meson(const ProcessRunData &runData, QIODevice *output)
 {
     Process process;
-    process.setWorkingDirectory(command.workDir);
-    process.setCommand(command.cmdLine);
+    process.setRunData(runData);
     process.start();
     if (!process.waitForFinished())
         return false;

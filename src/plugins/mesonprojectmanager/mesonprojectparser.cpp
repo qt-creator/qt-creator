@@ -121,11 +121,12 @@ bool MesonProjectParser::configure(const FilePath &sourcePath,
     m_buildDir = buildPath;
     m_outputParser.setSourceDirectory(sourcePath);
     auto cmd = MesonTools::toolById(m_meson, ToolType::Meson)->configure(sourcePath, buildPath, args);
+    cmd.environment = m_env;
     // see comment near m_pendingCommands declaration
-    m_pendingCommands.enqueue(
-        std::make_tuple(MesonTools::toolById(m_meson, ToolType::Meson)->regenerate(sourcePath, buildPath),
-                        false));
-    return run(cmd, m_env, m_projectName);
+    auto enqCmd = MesonTools::toolById(m_meson, ToolType::Meson)->regenerate(sourcePath, buildPath);
+    enqCmd.environment = m_env;
+    m_pendingCommands.enqueue(std::make_tuple(enqCmd, false));
+    return run(cmd, m_projectName);
 }
 
 bool MesonProjectParser::wipe(const FilePath &sourcePath,
@@ -148,7 +149,8 @@ bool MesonProjectParser::setup(const FilePath &sourcePath,
     if (forceWipe || isSetup(buildPath))
         cmdArgs << "--wipe";
     auto cmd = MesonTools::toolById(m_meson, ToolType::Meson)->setup(sourcePath, buildPath, cmdArgs);
-    return run(cmd, m_env, m_projectName);
+    cmd.environment = m_env;
+    return run(cmd, m_projectName);
 }
 
 bool MesonProjectParser::parse(const FilePath &sourcePath, const FilePath &buildPath)
@@ -169,10 +171,9 @@ bool MesonProjectParser::parse(const FilePath &sourcePath)
     m_srcDir = sourcePath;
     m_introType = IntroDataType::stdo;
     m_outputParser.setSourceDirectory(sourcePath);
-    return run(MesonTools::toolById(m_meson, ToolType::Meson)->introspect(sourcePath),
-               m_env,
-               m_projectName,
-               true);
+    auto cmd = MesonTools::toolById(m_meson, ToolType::Meson)->introspect(sourcePath);
+    cmd.environment = m_env;
+    return run(cmd, m_projectName, true);
 }
 
 QList<BuildTargetInfo> MesonProjectParser::appsTargets() const
@@ -324,19 +325,17 @@ bool MesonProjectParser::usesSameMesonVersion(const FilePath &buildPath)
     return !version.isNull() && meson && version == meson->version();
 }
 
-bool MesonProjectParser::run(const Command &command,
-                             const Environment &env,
-                             const QString &projectName,
+bool MesonProjectParser::run(const ProcessRunData &runData, const QString &projectName,
                              bool captureStdo)
 {
-    if (!sanityCheck(command))
+    if (!sanityCheck(runData))
         return false;
     m_stdo.clear();
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
-    setupProcess(command, env, projectName, captureStdo);
+    setupProcess(runData, projectName, captureStdo);
     m_elapsed.start();
     m_process->start();
-    qCDebug(mesonProcessLog()) << "Starting:" << command.cmdLine.toUserOutput();
+    qCDebug(mesonProcessLog()) << "Starting:" << runData.command.toUserOutput();
     return true;
 }
 
@@ -351,12 +350,12 @@ void MesonProjectParser::handleProcessDone()
     MessageManager::writeSilently(elapsedTime);
 
     if (m_process->exitCode() == 0 && m_process->exitStatus() == QProcess::NormalExit) {
-        if (m_pendingCommands.isEmpty())
+        if (m_pendingCommands.isEmpty()) {
             startParser();
-        else {
+        } else {
             // see comment near m_pendingCommands declaration
-            std::tuple<Command, bool> args = m_pendingCommands.dequeue();
-            run(std::get<0>(args), m_env, m_projectName, std::get<1>(args));
+            std::tuple<ProcessRunData, bool> args = m_pendingCommands.dequeue();
+            run(std::get<0>(args), m_projectName, std::get<1>(args));
         }
     } else {
         if (m_introType == IntroDataType::stdo) {
@@ -367,8 +366,8 @@ void MesonProjectParser::handleProcessDone()
     }
 }
 
-void MesonProjectParser::setupProcess(const Command &command, const Environment &env,
-                                const QString &projectName, bool captureStdo)
+void MesonProjectParser::setupProcess(const ProcessRunData &runData, const QString &projectName,
+                                      bool captureStdo)
 {
     if (m_process)
         m_process.release()->deleteLater();
@@ -381,18 +380,16 @@ void MesonProjectParser::setupProcess(const Command &command, const Environment 
                 this, &MesonProjectParser::processStandardError);
     }
 
-    m_process->setWorkingDirectory(command.workDir);
-    m_process->setEnvironment(env);
     MessageManager::writeFlashing(Tr::tr("Running %1 in %2.")
-                                  .arg(command.cmdLine.toUserOutput(), command.workDir.toUserOutput()));
-    m_process->setCommand(command.cmdLine);
+        .arg(runData.command.toUserOutput(), runData.workingDirectory.toUserOutput()));
+    m_process->setRunData(runData);
     ProcessProgress *progress = new ProcessProgress(m_process.get());
     progress->setDisplayName(Tr::tr("Configuring \"%1\".").arg(projectName));
 }
 
-bool MesonProjectParser::sanityCheck(const Command &command) const
+bool MesonProjectParser::sanityCheck(const ProcessRunData &runData) const
 {
-    const auto &exe = command.cmdLine.executable();
+    const auto &exe = runData.command.executable();
     if (!exe.exists()) {
         //Should only reach this point if Meson exe is removed while a Meson project is opened
         TaskHub::addTask(

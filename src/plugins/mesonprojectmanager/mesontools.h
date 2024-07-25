@@ -12,16 +12,11 @@
 #include <optional>
 #include <memory>
 
+namespace Utils { class ProcessRunData; }
+
 namespace MesonProjectManager::Internal {
 
 enum class ToolType { Meson, Ninja };
-
-class Command
-{
-public:
-    Utils::CommandLine cmdLine;
-    Utils::FilePath workDir;
-};
 
 class ToolWrapper final
 {
@@ -57,15 +52,15 @@ public:
     ToolType toolType() const { return m_toolType; }
     void setToolType(ToolType newToolType) { m_toolType = newToolType; }
 
-    Command setup(const Utils::FilePath &sourceDirectory,
-                       const Utils::FilePath &buildDirectory,
-                       const QStringList &options = {}) const;
-    Command configure(const Utils::FilePath &sourceDirectory,
-                           const Utils::FilePath &buildDirectory,
-                           const QStringList &options = {}) const;
-    Command regenerate(const Utils::FilePath &sourceDirectory,
-                            const Utils::FilePath &buildDirectory) const;
-    Command introspect(const Utils::FilePath &sourceDirectory) const;
+    Utils::ProcessRunData setup(const Utils::FilePath &sourceDirectory,
+                                const Utils::FilePath &buildDirectory,
+                                const QStringList &options = {}) const;
+    Utils::ProcessRunData configure(const Utils::FilePath &sourceDirectory,
+                                    const Utils::FilePath &buildDirectory,
+                                    const QStringList &options = {}) const;
+    Utils::ProcessRunData regenerate(const Utils::FilePath &sourceDirectory,
+                                     const Utils::FilePath &buildDirectory) const;
+    Utils::ProcessRunData introspect(const Utils::FilePath &sourceDirectory) const;
 
 private:
     ToolType m_toolType;
@@ -77,7 +72,7 @@ private:
     QString m_name;
 };
 
-bool run_meson(const Command &command, QIODevice *output = nullptr);
+bool run_meson(const Utils::ProcessRunData &runData, QIODevice *output = nullptr);
 
 bool isSetup(const Utils::FilePath &buildPath);
 

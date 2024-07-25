@@ -13,6 +13,8 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/rawprojectpart.h>
 
+#include <utils/processinterface.h>
+
 #include <QFuture>
 #include <QQueue>
 
@@ -98,15 +100,14 @@ private:
     QString m_projectName;
     // maybe moving meson to build step could make this class simpler
     // also this should ease command dependencies
-    QQueue<std::tuple<Command, bool>> m_pendingCommands;
+    QQueue<std::tuple<Utils::ProcessRunData, bool>> m_pendingCommands;
 
-    bool run(const Command &command, const Utils::Environment &env,
-             const QString &projectName, bool captureStdo = false);
+    bool run(const Utils::ProcessRunData &runData, const QString &projectName, bool captureStdo = false);
 
     void handleProcessDone();
-    void setupProcess(const Command &command, const Utils::Environment &env,
-                      const QString &projectName, bool captureStdo);
-    bool sanityCheck(const Command &command) const;
+    void setupProcess(const Utils::ProcessRunData &runData, const QString &projectName,
+                      bool captureStdo);
+    bool sanityCheck(const Utils::ProcessRunData &runData) const;
 
     void processStandardOutput();
     void processStandardError();
