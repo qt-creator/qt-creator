@@ -2146,6 +2146,12 @@ FilePath FilePath::operator/(const QString &str) const
     return pathAppended(str);
 }
 
+FilePath &FilePath::operator/=(const QString &str)
+{
+    *this = pathAppended(str);
+    return *this;
+}
+
 /*!
     \brief Clears all parts of the FilePath.
 */
