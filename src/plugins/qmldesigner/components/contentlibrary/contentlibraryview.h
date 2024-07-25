@@ -27,6 +27,27 @@ class ContentLibraryTexture;
 class ContentLibraryWidget;
 class Model;
 
+struct AssetPath
+{
+    QString basePath;
+    QString relativePath;
+
+    Utils::FilePath absFilPath() const
+    {
+        return Utils::FilePath::fromString(basePath).pathAppended(relativePath);
+    }
+
+    bool operator==(const AssetPath &other) const
+    {
+        return basePath == other.basePath && relativePath == other.relativePath;
+    }
+
+    friend size_t qHash(const AssetPath &asset)
+    {
+        return ::qHash(asset.relativePath);
+    }
+};
+
 class ContentLibraryView : public AbstractView
 {
     Q_OBJECT
@@ -54,6 +75,9 @@ public:
     void auxiliaryDataChanged(const ModelNode &node,
                               AuxiliaryDataKeyView type,
                               const QVariant &data) override;
+    void modelNodePreviewPixmapChanged(const ModelNode &node,
+                                       const QPixmap &pixmap,
+                                       const QByteArray &requestId) override;
 
 private:
     void connectImporter();
@@ -70,10 +94,13 @@ private:
     void importBundleToProject();
     void getImageFromCache(const QString &qmlPath,
                            std::function<void(const QImage &image)> successCallback);
+    QSet<AssetPath> getBundleComponentDependencies(const ModelNode &node) const;
     QString getExportPath(const ModelNode &node) const;
     QString getImportPath() const;
     QString nodeNameToComponentFileName(const QString &name) const;
-    QPair<QString, QSet<QString>> modelNodeToQmlString(const ModelNode &node, int depth = 0);
+    QPair<QString, QSet<AssetPath>> modelNodeToQmlString(const ModelNode &node, int depth = 0);
+    void addIconAndCloseZip(const auto &image);
+    void saveIconToBundle(const auto &image);
 
 #ifdef QDS_USE_PROJECTSTORAGE
     void applyBundleMaterialToDropTarget(const ModelNode &bundleMat, const TypeName &typeName = {});
@@ -107,6 +134,8 @@ private:
     std::unique_ptr<QTemporaryDir> m_tempDir;
 
     static constexpr char BUNDLE_VERSION[] = "1.0";
+    static constexpr char ADD_ITEM_REQ_ID[] = "AddItemReqId";
+    static constexpr char EXPORT_ITEM_REQ_ID[] = "ExportItemReqId";
 };
 
 } // namespace QmlDesigner

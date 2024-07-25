@@ -16,7 +16,6 @@ class ContentLibraryItem : public QObject
 
     Q_PROPERTY(QString bundleItemName MEMBER m_name CONSTANT)
     Q_PROPERTY(QUrl bundleItemIcon MEMBER m_icon CONSTANT)
-    Q_PROPERTY(QStringList bundleItemFiles READ allFiles CONSTANT)
     Q_PROPERTY(bool bundleItemVisible MEMBER m_visible NOTIFY itemVisibleChanged)
     Q_PROPERTY(bool bundleItemImported READ imported WRITE setImported NOTIFY itemImportedChanged)
     Q_PROPERTY(QString bundleId READ bundleId CONSTANT)
@@ -42,7 +41,6 @@ public:
 
     bool setImported(bool imported);
     bool imported() const;
-    QStringList allFiles() const;
 
 signals:
     void itemVisibleChanged();
@@ -58,7 +56,6 @@ private:
     bool m_visible = true;
     bool m_imported = false;
 
-    QStringList m_allFiles;
     const QString m_bundleId;
 };
 

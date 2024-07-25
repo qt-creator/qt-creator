@@ -15,8 +15,6 @@ ContentLibraryItem::ContentLibraryItem(QObject *parent,
     : QObject(parent), m_name(name), m_qml(qml), m_type(type), m_icon(icon), m_files(files),
     m_bundleId(bundleId)
 {
-    m_allFiles = m_files;
-    m_allFiles.push_back(m_qml);
 }
 
 bool ContentLibraryItem::filter(const QString &searchText)
@@ -68,11 +66,6 @@ bool ContentLibraryItem::setImported(bool imported)
 bool ContentLibraryItem::imported() const
 {
     return m_imported;
-}
-
-QStringList ContentLibraryItem::allFiles() const
-{
-    return m_allFiles;
 }
 
 QString ContentLibraryItem::bundleId() const
