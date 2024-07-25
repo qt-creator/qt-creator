@@ -1020,7 +1020,7 @@ Rectangle {
         return;
     }
 
-    m_nodeInstanceView->setTarget(m_view->nodeInstanceView()->target());
+    m_nodeInstanceView->setTarget(ProjectExplorer::ProjectManager::startupTarget());
 
     auto previewIconCallback = [this](const QString &assetName, const QImage &image) {
         if (!m_importData.contains(assetName)) {
