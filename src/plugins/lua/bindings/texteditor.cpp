@@ -26,13 +26,6 @@ public:
         , m_text(text)
     {}
 
-    Suggestion(const Suggestion &other)
-        : m_start(other.m_start)
-        , m_end(other.m_end)
-        , m_position(other.m_position)
-        , m_text(other.m_text)
-    {}
-
     Utils::Text::Position start() const { return m_start; }
     Utils::Text::Position end() const { return m_end; }
     Utils::Text::Position position() const { return m_position; }

@@ -107,7 +107,7 @@ void searchInProcessOutput(QPromise<SearchResultItems> &promise,
         process.close();
         loop.quit();
     });
-    QObject::connect(&watcher, &QFutureWatcherBase::paused, &loop, [&state] { state = Paused; });
+    QObject::connect(&watcher, &QFutureWatcherBase::suspending, &loop, [&state] { state = Paused; });
     QObject::connect(&watcher, &QFutureWatcherBase::resumed, &loop, [&] {
         state = Resumed;
         for (const QString &output : outputBuffer) {

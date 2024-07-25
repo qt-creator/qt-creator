@@ -2350,7 +2350,8 @@ void TextEditorWidget::showContextMenu()
 {
     QTextCursor tc = textCursor();
     const QPoint cursorPos = mapToGlobal(cursorRect(tc).bottomRight() + QPoint(1,1));
-    qGuiApp->postEvent(this, new QContextMenuEvent(QContextMenuEvent::Keyboard, cursorPos));
+    qGuiApp->postEvent(
+        this, new QContextMenuEvent(QContextMenuEvent::Keyboard, cursorPos, QCursor::pos()));
 }
 
 void TextEditorWidget::copyLineUp()
