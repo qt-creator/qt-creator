@@ -5,6 +5,8 @@
 
 #include "utils_global.h"
 
+#include "filepath.h"
+
 #include <QString>
 
 namespace Utils {
@@ -19,9 +21,22 @@ public:
     QString revision;
     QString revisionUrl;
     QString userFileExtension;
+
+    FilePath plugins;
+
+    /*! Local plugin path: <localappdata>/plugins
+        where <localappdata> is e.g.
+        "%LOCALAPPDATA%\QtProject\qtcreator" on Windows Vista and later
+        "$XDG_DATA_HOME/data/QtProject/qtcreator" or "~/.local/share/data/QtProject/qtcreator" on Linux
+        "~/Library/Application Support/QtProject/Qt Creator" on Mac
+    */
+    FilePath userPluginsRoot;
+
+    FilePath resources;
+    FilePath userResources;
 };
 
-QTCREATOR_UTILS_EXPORT AppInfo appInfo();
+QTCREATOR_UTILS_EXPORT const AppInfo &appInfo();
 
 namespace Internal {
 QTCREATOR_UTILS_EXPORT void setAppInfo(const AppInfo &info);
