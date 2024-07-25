@@ -89,7 +89,7 @@ signals:
     void keyChanged(const QKeySequence &key);
 
 private:
-    QKeySequence m_key = Qt::Key_Space + HostOsInfo::controlModifier();
+    QKeySequence m_key = Qt::Key_Space | HostOsInfo::controlModifier();
 };
 Q_GLOBAL_STATIC(CompletionShortcut, completionShortcut)
 

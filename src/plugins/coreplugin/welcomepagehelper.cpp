@@ -463,7 +463,7 @@ GridView::GridView(QWidget *parent)
 
 void GridView::leaveEvent(QEvent *)
 {
-    QHoverEvent hev(QEvent::HoverLeave, QPointF(), QPointF());
+    QHoverEvent hev(QEvent::HoverLeave, QPointF(), QPointF(), QPointF());
     viewportEvent(&hev); // Seemingly needed to kill the hover paint.
 }
 

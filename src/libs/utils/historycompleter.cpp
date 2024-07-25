@@ -93,9 +93,9 @@ private:
     {
         const QSize clearButtonSize = delegate->clearIconSize;
         if (clearButtonSize.isValid()) {
-            int rr = event->x();
+            int rr = event->position().x();
             if (layoutDirection() == Qt::LeftToRight)
-                rr = viewport()->width() - event->x();
+                rr = viewport()->width() - event->position().x();
             if (rr < clearButtonSize.width()) {
                 const QModelIndex index = indexAt(event->pos());
                 if (index.isValid()) {

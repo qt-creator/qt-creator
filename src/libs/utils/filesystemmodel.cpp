@@ -1472,13 +1472,13 @@ bool FileSystemModel::setData(const QModelIndex &idx, const QVariant &value, int
         const PathKey newNameKey{newName, indexNode->caseSensitivity()};
         const PathKey oldNameKey{oldName, indexNode->caseSensitivity()};
         parentNode->visibleChildren.removeAt(visibleLocation);
-        QScopedPointer<FileSystemNode> nodeToRename(parentNode->children.take(oldNameKey));
+        std::unique_ptr<FileSystemNode> nodeToRename(parentNode->children.take(oldNameKey));
         nodeToRename->fileName = newNameKey;
         nodeToRename->parent = parentNode;
         if (useFileSystemWatcher())
             nodeToRename->populate(d->fileInfoGatherer.getInfo(QFileInfo(parentPath, newName)));
         nodeToRename->isVisible = true;
-        parentNode->children[newNameKey] = nodeToRename.take();
+        parentNode->children[newNameKey] = nodeToRename.release();
         parentNode->visibleChildren.insert(visibleLocation, newNameKey);
 
         d->delayedSort();
