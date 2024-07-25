@@ -22,7 +22,10 @@ class QTCREATOR_UTILS_EXPORT Id
 {
 public:
     Id() = default;
-    Id(const char *name); // Good to use.
+
+    template <int N>
+    Id(const char (&s)[N]) : Id(s, N - 1) {}
+
     Id(const QLatin1String &) = delete;
 
     static Id generate();
@@ -62,6 +65,7 @@ public:
     friend QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const Id &id);
 
 private:
+    Id(const char *s, size_t len);
     explicit Id(quintptr uid) : m_id(uid) {}
 
     quintptr m_id = 0;

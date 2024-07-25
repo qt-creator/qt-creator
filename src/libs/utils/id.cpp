@@ -124,13 +124,14 @@ static quintptr theId(const char *str, int n)
     \QC process.
 
 */
-Id::Id(const char *name)
-    : m_id(theId(name, 0))
+Id::Id(const char *s, size_t len)
+    : m_id(theId(s, len))
 {}
 
 Id Id::generate()
 {
-    return Id{QUuid::createUuid().toByteArray()};
+    const QByteArray ba = QUuid::createUuid().toByteArray();
+    return Id(theId(ba.data(), ba.size()));
 }
 
 /*!
