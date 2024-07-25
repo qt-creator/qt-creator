@@ -282,6 +282,8 @@ public:
             }
         });
 
+        connect(ExtensionSystem::PluginManager::instance(),
+                &ExtensionSystem::PluginManager::pluginsChanged, this, &PluginStatusWidget::update);
         connect(m_restartButton, &QAbstractButton::clicked,
                 ICore::instance(), &ICore::restart, Qt::QueuedConnection);
 
@@ -429,6 +431,7 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     m_linksTitle = sectionTitle(h6CapitalTF, Tr::tr("More information"));
     m_links = tfLabel(contentTF, false);
     m_links->setOpenExternalLinks(true);
+    m_links->setTextInteractionFlags(Qt::TextBrowserInteraction);
     m_imageTitle = sectionTitle(h6CapitalTF, {});
     m_image = new QLabel;
     m_imageMovie.setDevice(&m_imageDataBuffer);

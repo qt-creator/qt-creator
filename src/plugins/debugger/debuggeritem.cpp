@@ -146,6 +146,7 @@ void DebuggerItem::reinitializeFromFile(QString *error, Utils::Environment *cust
     }
 
     Environment env = customEnv ? *customEnv : m_command.deviceEnvironment();
+    DebuggerItem::addAndroidLldbPythonEnv(m_command, env);
 
     // QNX gdb unconditionally checks whether the QNX_TARGET env variable is
     // set and bails otherwise, even when it is not used by the specific

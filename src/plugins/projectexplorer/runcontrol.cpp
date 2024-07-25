@@ -364,6 +364,12 @@ void RunControl::copyDataFromRunControl(RunControl *runControl)
     d->copyData(runControl->d.get());
 }
 
+void RunControl::resetDataForAttachToCore()
+{
+    d->m_workers.clear();
+    d->state = RunControlState::Initialized;
+}
+
 void RunControl::copyDataFromRunConfiguration(RunConfiguration *runConfig)
 {
     QTC_ASSERT(runConfig, return);

@@ -63,7 +63,8 @@ const char CUSTOM_COMMAND[] = "QmlJSEditor.useCustomFormatCommand";
 const char CUSTOM_ANALYZER[] = "QmlJSEditor.useCustomAnalyzer";
 const char DISABLED_MESSAGES[] = "QmlJSEditor.disabledMessages";
 const char DISABLED_MESSAGES_NONQUICKUI[] = "QmlJSEditor.disabledMessagesNonQuickUI";
-const char DEFAULT_CUSTOM_FORMAT_COMMAND[] = "%{CurrentDocument:Project:QT_HOST_BINS}/qmlformat";
+const char DEFAULT_CUSTOM_FORMAT_COMMAND[]
+    = "%{CurrentDocument:Project:QT_HOST_BINS}/qmlformat%{HostOs:ExecutableSuffix}";
 
 QmlJsEditingSettings &settings()
 {
