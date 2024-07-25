@@ -30,8 +30,6 @@ Project {
             "target.h",
             "mesonpluginconstants.h",
             "mesonprojectplugin.cpp",
-            "arrayoptionlineedit.cpp",
-            "arrayoptionlineedit.h",
             "buildoptionsmodel.cpp",
             "buildoptionsmodel.h",
             "mesonbuildconfiguration.cpp",

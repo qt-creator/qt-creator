@@ -3,8 +3,6 @@ add_qtc_plugin(MesonProjectManager
   DEPENDS QmlJS
   PLUGIN_DEPENDS Core ProjectExplorer TextEditor QtSupport
   SOURCES
-  arrayoptionlineedit.cpp
-  arrayoptionlineedit.h
   buildoptions.h
   buildoptionsmodel.cpp
   buildoptionsmodel.h
