@@ -1,9 +1,10 @@
 {
     "Name" : "LuaLanguageClient",
     "Version" : "${IDE_VERSION}",
+    "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "LuaCompatibleVersion" : "14.0.0",
     "DisabledByDefault" : true,
     "SoftLoadable" : true,
-    "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "Vendor" : "The Qt Company Ltd",
     "Copyright" : "(C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
     "License" : [ "Commercial Usage",

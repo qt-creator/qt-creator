@@ -98,10 +98,18 @@ bool LuaPluginSpec::provides(PluginSpec *spec, const PluginDependency &dependenc
     if (QString::compare(dependency.name, spec->name(), Qt::CaseInsensitive) != 0)
         return false;
 
-    // Since we first released the lua support with Qt Creator 14.0.0, but the internal version
-    // number was still 13.0.82, we needed to special case this version.
-    if (versionCompare(dependency.version, "14.0.0") <= 0)
-        return true;
+    const QString luaCompatibleVersion = spec->metaData().value("LuaCompatibleVersion").toString();
+
+    if (luaCompatibleVersion.isEmpty()) {
+        qCWarning(luaPluginSpecLog)
+            << "The plugin" << spec->name()
+            << "does not specify a \"LuaCompatibleVersion\", but the lua plugin" << name()
+            << "requires it.";
+        return false;
+    }
+
+    if (versionCompare(luaCompatibleVersion, dependency.version) > 0)
+        return false;
 
     return (versionCompare(spec->version(), dependency.version) >= 0);
 }
@@ -114,6 +122,7 @@ bool LuaPluginSpec::loadLibrary()
     setState(PluginSpec::State::Loaded);
     return true;
 }
+
 bool LuaPluginSpec::initializePlugin()
 {
     QTC_ASSERT(!d->activeLuaState, return false);

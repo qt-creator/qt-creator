@@ -2,6 +2,7 @@
     "Name" : "Lua",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "LuaCompatibleVersion" : "14.0.0",
     "DisabledByDefault" : true,
     "SoftLoadable" : true,
     "Vendor" : "The Qt Company Ltd",
