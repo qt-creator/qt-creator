@@ -613,9 +613,7 @@ static QString pathHelper(const QString &rel)
 */
 FilePath ICore::resourcePath(const QString &rel)
 {
-    return FilePath::fromString(
-               QDir::cleanPath(QCoreApplication::applicationDirPath() + '/' + RELATIVE_DATA_PATH))
-           / rel;
+    return appInfo().resources / rel;
 }
 
 /*!
@@ -630,17 +628,7 @@ FilePath ICore::resourcePath(const QString &rel)
 
 FilePath ICore::userResourcePath(const QString &rel)
 {
-    // Create qtcreator dir if it doesn't yet exist
-    const QString configDir = QFileInfo(settings(QSettings::UserScope)->fileName()).path();
-    const QString urp = configDir + '/' + appInfo().id;
-
-    if (!QFileInfo::exists(urp + QLatin1Char('/'))) {
-        QDir dir;
-        if (!dir.mkpath(urp))
-            qWarning() << "could not create" << urp;
-    }
-
-    return FilePath::fromString(urp + pathHelper(rel));
+    return appInfo().userResources / rel;
 }
 
 /*!
