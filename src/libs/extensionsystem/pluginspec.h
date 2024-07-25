@@ -147,6 +147,8 @@ public:
 
     virtual void setEnabledBySettings(bool value);
 
+    virtual Utils::FilePath installLocation(bool inUserFolder) const = 0;
+
 protected:
     virtual void setEnabledByDefault(bool value);
     virtual void setEnabledIndirectly(bool value);
@@ -174,6 +176,10 @@ private:
     std::unique_ptr<Internal::PluginSpecPrivate> d;
 };
 
+using PluginFromArchiveFactory = std::function<QList<PluginSpec *>(const Utils::FilePath &path)>;
+EXTENSIONSYSTEM_EXPORT QList<PluginFromArchiveFactory> &pluginSpecsFromArchiveFactories();
+EXTENSIONSYSTEM_EXPORT QList<PluginSpec *> pluginSpecsFromArchive(const Utils::FilePath &path);
+
 EXTENSIONSYSTEM_EXPORT Utils::expected_str<PluginSpec *> readCppPluginSpec(
     const Utils::FilePath &filePath);
 EXTENSIONSYSTEM_EXPORT Utils::expected_str<PluginSpec *> readCppPluginSpec(
@@ -200,6 +206,8 @@ public:
     void kill() override;
 
     Utils::expected_str<void> readMetaData(const QJsonObject &pluginMetaData) override;
+
+    Utils::FilePath installLocation(bool inUserFolder) const override;
 
 protected:
     CppPluginSpec();

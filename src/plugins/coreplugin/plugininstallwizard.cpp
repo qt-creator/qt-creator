@@ -46,28 +46,14 @@ struct Data
     FilePath sourcePath;
     FilePath extractedPath;
     bool installIntoApplication = false;
+    std::unique_ptr<PluginSpec> pluginSpec = nullptr;
 };
-
-static QStringList libraryNameFilter()
-{
-    if (HostOsInfo::isWindowsHost())
-        return {"*.dll"};
-    if (HostOsInfo::isLinuxHost())
-        return {"*.so"};
-    return {"*.dylib"};
-}
 
 static bool hasLibSuffix(const FilePath &path)
 {
     return (HostOsInfo::isWindowsHost() && path.endsWith(".dll"))
            || (HostOsInfo::isLinuxHost() && path.completeSuffix().startsWith("so"))
            || (HostOsInfo::isMacHost() && path.endsWith(".dylib"));
-}
-
-static FilePath pluginInstallPath(bool installIntoApplication)
-{
-    return FilePath::fromString(installIntoApplication ? Core::ICore::pluginPath()
-                                                       : Core::ICore::userPluginPath());
 }
 
 namespace Core {
@@ -135,45 +121,31 @@ public:
     Data *m_data = nullptr;
 };
 
-struct ArchiveIssue
-{
-    QString message;
-    InfoLabel::InfoType type;
-};
+using CheckResult = expected_str<PluginSpec *>;
 
 // Async. Result is set if any issue was found.
-void checkContents(QPromise<ArchiveIssue> &promise, const FilePath &tempDir)
+void checkContents(QPromise<CheckResult> &promise, const FilePath &tempDir)
 {
-    PluginSpec *coreplugin = PluginManager::specForPlugin(Internal::CorePlugin::instance());
-
-    // look for plugin
-    QDirIterator it(tempDir.path(), libraryNameFilter(), QDir::Files | QDir::NoSymLinks,
-                    QDirIterator::Subdirectories);
-    while (it.hasNext()) {
-        if (promise.isCanceled())
-            return;
-        it.next();
-        expected_str<PluginSpec *> spec = readCppPluginSpec(FilePath::fromUserInput(it.filePath()));
-        if (spec) {
-            // Is a Qt Creator plugin. Let's see if we find a Core dependency and check the
-            // version
-            const QVector<PluginDependency> dependencies = (*spec)->dependencies();
-            const auto found = std::find_if(dependencies.constBegin(), dependencies.constEnd(),
-                [coreplugin](const PluginDependency &d) { return d.name == coreplugin->name(); });
-            if (found == dependencies.constEnd())
-                return;
-            if ((*spec)->provides(coreplugin, *found))
-                return;
-            promise.addResult(
-                ArchiveIssue{Tr::tr("Plugin requires an incompatible version of %1 (%2).")
-                                 .arg(QGuiApplication::applicationDisplayName(), found->version),
-                             InfoLabel::Error});
-            return; // successful / no error
-        }
+    QList<PluginSpec *> plugins = pluginSpecsFromArchive(tempDir);
+    if (plugins.isEmpty()) {
+        promise.addResult(Utils::make_unexpected(Tr::tr("No plugins found.")));
+        return;
     }
-    promise.addResult(
-        ArchiveIssue{Tr::tr("Did not find %1 plugin.").arg(QGuiApplication::applicationDisplayName()),
-                     InfoLabel::Error});
+    if (plugins.size() > 1) {
+        promise.addResult(Utils::make_unexpected(Tr::tr("More than one plugin found.")));
+        qDeleteAll(plugins);
+        return;
+    }
+
+    if (!plugins.front()->resolveDependencies(PluginManager::plugins())) {
+        promise.addResult(Utils::make_unexpected(
+            Tr::tr("Plugin failed to resolve dependencies:") + " "
+            + plugins.front()->errorString()));
+        qDeleteAll(plugins);
+        return;
+    }
+
+    promise.addResult(plugins.front());
 }
 
 class CheckArchivePage : public WizardPage
@@ -236,30 +208,33 @@ public:
             m_label->setText(Tr::tr("There was an error while unarchiving."));
         };
 
-        const auto onCheckerSetup = [this](Async<ArchiveIssue> &async) {
+        const auto onCheckerSetup = [this](Async<CheckResult> &async) {
             if (!m_tempDir)
                 return SetupResult::StopWithError;
 
             async.setConcurrentCallData(checkContents, m_tempDir->path());
             return SetupResult::Continue;
         };
-        const auto onCheckerDone = [this](const Async<ArchiveIssue> &async) {
-            m_isComplete = !async.isResultAvailable();
-            if (m_isComplete) {
+        const auto onCheckerDone = [this](const Async<CheckResult> &async) {
+            expected_str<PluginSpec *> result = async.result();
+            if (!result) {
+                m_label->setType(InfoLabel::Error);
+                m_label->setText(result.error());
+            } else {
                 m_label->setType(InfoLabel::Ok);
                 m_label->setText(Tr::tr("Archive is OK."));
-            } else {
-                const ArchiveIssue issue = async.result();
-                m_label->setType(issue.type);
-                m_label->setText(issue.message);
+                m_data->pluginSpec.reset(*result);
+                m_isComplete = true;
             }
             emit completeChanged();
         };
 
-        const Group root {
+        // clang-format off
+        const Group root{
             UnarchiverTask(onUnarchiverSetup, onUnarchiverError, CallDoneIf::Error),
-            AsyncTask<ArchiveIssue>(onCheckerSetup, onCheckerDone, CallDoneIf::Success)
+            AsyncTask<CheckResult>(onCheckerSetup, onCheckerDone, CallDoneIf::Success)
         };
+        // clang-format on
         m_cancelButton->setVisible(true);
         m_taskTreeRunner.start(root, {}, [this](DoneWith) { m_cancelButton->setVisible(false); });
     }
@@ -346,8 +321,9 @@ public:
     {
         m_summaryLabel->setText(
             Tr::tr("\"%1\" will be installed into \"%2\".")
-                .arg(m_data->sourcePath.toUserOutput(),
-                     pluginInstallPath(m_data->installIntoApplication).toUserOutput()));
+                .arg(m_data->sourcePath.toUserOutput())
+                .arg(m_data->pluginSpec->installLocation(!m_data->installIntoApplication)
+                         .toUserOutput()));
     }
 
 private:
@@ -420,7 +396,7 @@ bool executePluginInstallWizard(const FilePath &archive)
     wizard.addPage(summaryPage);
 
     if (wizard.exec()) {
-        const FilePath installPath = pluginInstallPath(data.installIntoApplication);
+        const FilePath installPath = data.pluginSpec->installLocation(!data.installIntoApplication);
         if (hasLibSuffix(data.sourcePath)) {
             return copyPluginFile(data.sourcePath, installPath);
         } else {

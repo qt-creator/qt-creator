@@ -266,6 +266,21 @@ public:
 
         Core::JsExpander::registerGlobalObject("Lua", [] { return new LuaJsExtension(); });
 
+        pluginSpecsFromArchiveFactories().push_back([](const FilePath &path) {
+            QList<PluginSpec *> plugins;
+            auto dirs = path.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+            for (const auto &dir : dirs) {
+                const auto specFilePath = dir / (dir.fileName() + ".lua");
+                if (specFilePath.exists()) {
+                    Utils::expected_str<PluginSpec *> spec = loadPlugin(specFilePath);
+                    QTC_CHECK_EXPECTED(spec);
+                    if (spec)
+                        plugins.push_back(*spec);
+                }
+            }
+            return plugins;
+        });
+
         m_pane = new LuaPane(this);
     }
 

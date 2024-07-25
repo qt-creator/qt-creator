@@ -8,6 +8,7 @@
 #include "pluginmanager.h"
 
 #include <utils/algorithm.h>
+#include <utils/appinfo.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -1277,4 +1278,54 @@ void CppPluginSpec::kill()
     d->plugin = nullptr;
     setState(PluginSpec::Deleted);
 }
+
+Utils::FilePath CppPluginSpec::installLocation(bool inUserFolder) const
+{
+    return inUserFolder ? appInfo().userPluginsRoot : appInfo().plugins;
+}
+
+static QStringList libraryNameFilter()
+{
+    if (HostOsInfo::isWindowsHost())
+        return {"*.dll"};
+    if (HostOsInfo::isLinuxHost())
+        return {"*.so"};
+    return {"*.dylib"};
+}
+
+static QList<PluginSpec *> createCppPluginsFromArchive(const FilePath &path)
+{
+    QList<PluginSpec *> results;
+
+    // look for plugin
+    QDirIterator
+        it(path.path(),
+           libraryNameFilter(),
+           QDir::Files | QDir::NoSymLinks,
+           QDirIterator::Subdirectories);
+
+    while (it.hasNext()) {
+        it.next();
+        expected_str<PluginSpec *> spec = readCppPluginSpec(FilePath::fromUserInput(it.filePath()));
+        if (spec)
+            results.push_back(spec.value());
+    }
+    return results;
+}
+
+QList<PluginFromArchiveFactory> &pluginSpecsFromArchiveFactories()
+{
+    static QList<PluginFromArchiveFactory> factories = {&createCppPluginsFromArchive};
+    return factories;
+}
+
+QList<PluginSpec *> pluginSpecsFromArchive(const Utils::FilePath &path)
+{
+    QList<PluginSpec *> results;
+    for (const PluginFromArchiveFactory &factory : pluginSpecsFromArchiveFactories()) {
+        results += factory(path);
+    }
+    return results;
+}
+
 } // namespace ExtensionSystem

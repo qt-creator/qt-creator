@@ -170,4 +170,12 @@ bool LuaPluginSpec::printToOutputPane() const
     return d->printToOutputPane;
 }
 
+Utils::FilePath LuaPluginSpec::installLocation(bool inUserFolder) const
+{
+    if (inUserFolder)
+        return appInfo().userLuaPlugins;
+
+    return appInfo().luaPlugins;
+}
+
 } // namespace Lua
