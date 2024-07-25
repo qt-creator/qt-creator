@@ -729,8 +729,8 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url)
         if (storage->packageData.isEmpty())
             return;
         const FilePath source = FilePath::fromUrl(storage->url);
-        TempFileSaver saver(TemporaryDirectory::masterDirectoryPath()
-                            + "/XXXXXX" + source.fileName());
+        TempFileSaver saver(
+            TemporaryDirectory::masterDirectoryPath() + "/XXXXXX-" + source.fileName());
 
         saver.write(storage->packageData);
         if (saver.finalize(ICore::dialogParent()))

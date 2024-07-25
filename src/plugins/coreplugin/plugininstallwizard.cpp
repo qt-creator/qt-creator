@@ -26,6 +26,7 @@
 #include <utils/wizardpage.h>
 
 #include <QButtonGroup>
+#include <QCheckBox>
 #include <QDir>
 #include <QDirIterator>
 #include <QGuiApplication>
@@ -47,6 +48,7 @@ struct Data
     FilePath extractedPath;
     bool installIntoApplication = false;
     std::unique_ptr<PluginSpec> pluginSpec = nullptr;
+    bool loadImmediately = false;
 };
 
 static bool hasLibSuffix(const FilePath &path)
@@ -314,20 +316,44 @@ public:
 
         m_summaryLabel = new QLabel(this);
         m_summaryLabel->setWordWrap(true);
-        Layouting::Column { m_summaryLabel }.attachTo(this);
+        m_summaryLabel->setTextFormat(Qt::MarkdownText);
+        m_summaryLabel->setTextInteractionFlags(Qt::LinksAccessibleByMouse);
+        m_summaryLabel->setOpenExternalLinks(true);
+
+        m_loadImmediately = new QCheckBox(Tr::tr("Load plugin immediately"));
+        connect(m_loadImmediately, &QCheckBox::toggled, this, [this](bool checked) {
+            m_data->loadImmediately = checked;
+        });
+
+        // clang-format off
+        using namespace Layouting;
+        Column {
+            m_summaryLabel,
+            m_loadImmediately
+        }.attachTo(this);
+        // clang-format on
     }
 
     void initializePage() final
     {
-        m_summaryLabel->setText(
-            Tr::tr("\"%1\" will be installed into \"%2\".")
-                .arg(m_data->sourcePath.toUserOutput())
-                .arg(m_data->pluginSpec->installLocation(!m_data->installIntoApplication)
-                         .toUserOutput()));
+        const FilePath installLocation = m_data->pluginSpec->installLocation(
+            !m_data->installIntoApplication);
+        installLocation.ensureWritableDir();
+
+        m_summaryLabel->setText(Tr::tr("%1 will be installed into %2.")
+                                    .arg(QString("[%1](%2)")
+                                             .arg(m_data->sourcePath.fileName())
+                                             .arg(m_data->sourcePath.parentDir().toUrl().toString()))
+                                    .arg(QString("[%1](%2)")
+                                             .arg(installLocation.fileName())
+                                             .arg(installLocation.toUrl().toString())));
+
+        m_loadImmediately->setVisible(m_data->pluginSpec && m_data->pluginSpec->isSoftLoadable());
     }
 
 private:
     QLabel *m_summaryLabel;
+    QCheckBox *m_loadImmediately;
     Data *m_data = nullptr;
 };
 
@@ -395,27 +421,36 @@ bool executePluginInstallWizard(const FilePath &archive)
     auto summaryPage = new SummaryPage(&data, &wizard);
     wizard.addPage(summaryPage);
 
-    if (wizard.exec()) {
-        const FilePath installPath = data.pluginSpec->installLocation(!data.installIntoApplication);
-        if (hasLibSuffix(data.sourcePath)) {
-            return copyPluginFile(data.sourcePath, installPath);
-        } else {
-            QString error;
-            FileUtils::CopyAskingForOverwrite copy(ICore::dialogParent(),
-                                              postCopyOperation());
-            if (!FileUtils::copyRecursively(data.extractedPath,
-                                            installPath,
-                                            &error,
-                                            copy())) {
-                QMessageBox::warning(ICore::dialogParent(),
-                                     Tr::tr("Failed to Copy Plugin Files"),
-                                     error);
-                return false;
+    auto install = [&wizard, &data]() {
+        if (wizard.exec()) {
+            const FilePath installPath = data.pluginSpec->installLocation(
+                !data.installIntoApplication);
+            if (hasLibSuffix(data.sourcePath)) {
+                return copyPluginFile(data.sourcePath, installPath);
+            } else {
+                QString error;
+                FileUtils::CopyAskingForOverwrite copy(ICore::dialogParent(), postCopyOperation());
+                if (!FileUtils::copyRecursively(data.extractedPath, installPath, &error, copy())) {
+                    QMessageBox::warning(
+                        ICore::dialogParent(), Tr::tr("Failed to Copy Plugin Files"), error);
+                    return false;
+                }
+                return true;
             }
-            return true;
         }
+        return false;
+    };
+
+    if (!install())
+        return false;
+
+    if (data.loadImmediately) {
+        auto spec = data.pluginSpec.release();
+        spec->setEnabledBySettings(true);
+        PluginManager::addPlugins({spec});
+        PluginManager::loadPluginsAtRuntime({spec});
     }
-    return false;
+    return true;
 }
 
 } // namespace Core
