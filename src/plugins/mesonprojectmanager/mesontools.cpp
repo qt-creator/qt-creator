@@ -207,18 +207,6 @@ std::optional<FilePath> findTool(ToolType toolType)
 
 std::vector<MesonTools::Tool_t> s_tools;
 
-static MesonTools::Tool_t findTool(const Id &id, ToolType toolType)
-{
-    const auto tool = std::find_if(std::cbegin(s_tools),
-                                   std::cend(s_tools),
-                                   [&id](const MesonTools::Tool_t &tool) {
-                                       return tool->id() == id;
-                                   });
-    if (tool != std::cend(s_tools) && (*tool)->toolType() == toolType)
-        return *tool;
-    return nullptr;
-}
-
 MesonTools::Tool_t MesonTools::autoDetectedTool(ToolType toolType)
 {
     for (const auto &tool : s_tools) {
@@ -287,7 +275,14 @@ void MesonTools::removeTool(const Id &id)
 
 std::shared_ptr<ToolWrapper> MesonTools::toolById(const Id &id, ToolType toolType)
 {
-    return findTool(id, toolType);
+    const auto tool = std::find_if(std::cbegin(s_tools),
+                                   std::cend(s_tools),
+                                   [&id](const MesonTools::Tool_t &tool) {
+                                       return tool->id() == id;
+                                   });
+    if (tool != std::cend(s_tools) && (*tool)->toolType() == toolType)
+        return *tool;
+    return nullptr;
 }
 
 MesonTools *MesonTools::instance()

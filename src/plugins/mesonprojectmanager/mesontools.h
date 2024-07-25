@@ -77,6 +77,7 @@ std::optional<Utils::FilePath> findTool(ToolType toolType);
 class MesonTools : public QObject
 {
     Q_OBJECT
+
     MesonTools() {}
     ~MesonTools() {}
 
@@ -94,10 +95,11 @@ public:
     static std::shared_ptr<ToolWrapper> toolById(const Utils::Id &id, ToolType toolType);
     static std::shared_ptr<ToolWrapper> autoDetectedTool(ToolType toolType);
 
-    Q_SIGNAL void toolAdded(const Tool_t &tool);
-    Q_SIGNAL void toolRemoved(const Tool_t &tool);
-
     static MesonTools *instance();
+
+signals:
+    void toolAdded(const Tool_t &tool);
+    void toolRemoved(const Tool_t &tool);
 };
 
 } // MesonProjectManager::Internal
