@@ -304,7 +304,7 @@ void DesignModeWidget::setup()
             continue;
 
         hideToolButtons(navigationView.dockToolBarWidgets);
-        navigationView.widget->setWindowTitle(tr(factory->id().name()));
+        navigationView.widget->setWindowTitle(factory->displayName());
 
         QString idString = factory->id().toSetting().toString();
         const QString title = idString;
