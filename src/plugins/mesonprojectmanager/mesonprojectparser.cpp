@@ -307,9 +307,19 @@ bool MesonProjectParser::matchesKit(const KitData &kit)
     return matches;
 }
 
+static QVersionNumber versionNumber(const FilePath &buildDir)
+{
+    const Utils::FilePath jsonFile = buildDir / Constants::MESON_INFO_DIR / Constants::MESON_INFO;
+    auto obj = load<QJsonObject>(jsonFile.toFSPathString());
+    if (!obj)
+        return {};
+    auto version = obj->value("meson_version").toObject();
+    return {version["major"].toInt(), version["minor"].toInt(), version["patch"].toInt()};
+}
+
 bool MesonProjectParser::usesSameMesonVersion(const FilePath &buildPath)
 {
-    auto version = MesonInfoParser::versionNumber(buildPath);
+    auto version = versionNumber(buildPath);
     auto meson = MesonTools::toolById(m_meson, ToolType::Meson);
     return !version.isNull() && meson && version == meson->version();
 }

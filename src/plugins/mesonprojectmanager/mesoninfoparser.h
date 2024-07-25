@@ -5,12 +5,9 @@
 
 #include "buildoptions.h"
 #include "buildoptionsparser.h"
-#include "common.h"
 #include "target.h"
 
 #include <utils/filepath.h>
-
-#include <QVersionNumber>
 
 #include <optional>
 
@@ -122,16 +119,6 @@ struct Result
     BuildOptionsList buildOptions;
     Utils::FilePaths buildSystemFiles;
 };
-
-inline QVersionNumber versionNumber(const Utils::FilePath &buildDir)
-{
-    const Utils::FilePath jsonFile = buildDir / Constants::MESON_INFO_DIR / Constants::MESON_INFO;
-    auto obj = load<QJsonObject>(jsonFile.toFSPathString());
-    if (!obj)
-        return {};
-    auto version = obj->value("meson_version").toObject();
-    return {version["major"].toInt(), version["minor"].toInt(), version["patch"].toInt()};
-}
 
 inline Result parse(const Utils::FilePath &buildDir)
 {
