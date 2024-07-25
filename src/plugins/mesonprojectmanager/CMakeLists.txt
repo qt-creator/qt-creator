@@ -10,7 +10,6 @@ add_qtc_plugin(MesonProjectManager
   buildoptionsmodel.h
   buildoptionsparser.h
   common.h
-  infoparser.h
   kitdata.h
   mesonactionsmanager.cpp
   mesonactionsmanager.h

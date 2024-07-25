@@ -5,16 +5,16 @@
 
 #include "buildoptions.h"
 #include "buildoptionsparser.h"
-#include "infoparser.h"
+#include "common.h"
 #include "target.h"
 
 #include <utils/filepath.h>
 
+#include <QVersionNumber>
+
 #include <optional>
 
-namespace MesonProjectManager {
-namespace Internal {
-namespace MesonInfoParser {
+namespace MesonProjectManager::Internal::MesonInfoParser {
 
 class TargetParser
 {
@@ -116,7 +116,6 @@ public:
     }
 };
 
-
 struct Result
 {
     TargetsList targets;
@@ -125,12 +124,22 @@ struct Result
     std::optional<QVersionNumber> mesonInfo;
 };
 
+inline QVersionNumber versionNumber(const Utils::FilePath &buildDir)
+{
+    const Utils::FilePath jsonFile = buildDir / Constants::MESON_INFO_DIR / Constants::MESON_INFO;
+    auto obj = load<QJsonObject>(jsonFile.toFSPathString());
+    if (!obj)
+        return {};
+    auto version = obj->value("meson_version").toObject();
+    return {version["major"].toInt(), version["minor"].toInt(), version["patch"].toInt()};
+}
+
 inline Result parse(const Utils::FilePath &buildDir)
 {
     return {TargetParser::targetList(buildDir),
             BuildOptionsParser{buildDir}.takeBuildOptions(),
             BuildSystemFilesParser::files(buildDir),
-            InfoParser{buildDir}.info()};
+            versionNumber(buildDir)};
 }
 
 inline Result parse(const QByteArray &data)
@@ -154,11 +163,4 @@ inline Result parse(QIODevice *introFile)
     return {};
 }
 
-inline std::optional<QVersionNumber> mesonInfo(const Utils::FilePath &buildDir)
-{
-    return InfoParser{buildDir}.info();
-}
-
-} // namespace MesonInfoParser
-} // namespace Internal
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Internal::MesonInfoParser

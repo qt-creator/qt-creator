@@ -309,9 +309,9 @@ bool MesonProjectParser::matchesKit(const KitData &kit)
 
 bool MesonProjectParser::usesSameMesonVersion(const FilePath &buildPath)
 {
-    auto info = MesonInfoParser::mesonInfo(buildPath);
+    auto version = MesonInfoParser::versionNumber(buildPath);
     auto meson = MesonTools::toolById(m_meson, ToolType::Meson);
-    return info && meson && *info == meson->version();
+    return !version.isNull() && meson && version == meson->version();
 }
 
 bool MesonProjectParser::run(const Command &command,
