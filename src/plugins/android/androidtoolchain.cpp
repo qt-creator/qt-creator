@@ -160,7 +160,8 @@ ToolchainList autodetectToolchainsFromNdks(
     const QList<FilePath> &ndkLocations,
     const bool isCustom)
 {
-    QList<Toolchain *> result;
+    QList<Toolchain *> newToolchains;
+
     const Id LanguageIds[] {
         ProjectExplorer::Constants::CXX_LANGUAGE_ID,
         ProjectExplorer::Constants::C_LANGUAGE_ID
@@ -212,6 +213,8 @@ ToolchainList autodetectToolchainsFromNdks(
                     atc->setPlatformLinkerFlags({"-target", target});
                     atc->setDisplayName(displayName);
                     tc = atc;
+
+                    newToolchains << tc;
                 }
 
                 // Do not only reset newly created toolchains. This triggers call to
@@ -220,13 +223,12 @@ ToolchainList autodetectToolchainsFromNdks(
                     gccTc->resetToolchain(compilerCommand);
 
                 tc->setDetection(Toolchain::AutoDetection);
-                result << tc;
                 ++targetItr;
             }
         }
     }
 
-    return result;
+    return newToolchains;
 }
 
 ToolchainList autodetectToolchains(const ToolchainList &alreadyKnown)
