@@ -23,6 +23,9 @@ It will try to install it if it is not found.
                 contentsChanged = function(document, position, charsRemoved, charsAdded)
                                     require 'init'.Hooks.onDocumentContentsChanged(document, position, charsRemoved, charsAdded)
                                   end,
+                currentChanged = function(editor)
+                                    require 'init'.Hooks.onCurrentChanged(editor)
+                                  end,
             }
         }
     },

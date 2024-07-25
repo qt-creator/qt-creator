@@ -8,6 +8,7 @@ local a = require('async')
 local TextEditor = require('TextEditor')
 
 Hooks = {}
+AutoSuggestionDelay = 500
 
 local function collectSuggestions(responseTable)
   local suggestions = {}
@@ -209,19 +210,24 @@ local function requestSuggestions()
   sendRequest(request_msg)
 end
 
-local function requstSuggestionsSafe()
+local function requestSuggestionsSafe()
   local ok, err = pcall(requestSuggestions)
   if not ok then
     print("echo Error fetching: " .. err)
   end
 end
 
-function Hooks.onDocumentContentsChanged(document, position, charsRemoved, charsAdded)
-  print("onDocumentcontentsChanged() called, position, charsRemoved, charsAdded:", position, charsRemoved, charsAdded)
+AutoSuggestionTimer = Utils.Timer.create(AutoSuggestionDelay, true,
+  function() a.sync(requestSuggestionsSafe)() end)
 
-  Position = position
-  local line, char = document:blockAndColumn(position)
-  print("Line: ", line, "Char: ", char)
+function Hooks.onDocumentContentsChanged(document, position, charsRemoved, charsAdded)
+  print("onDocumentContentsChanged() called, position, charsRemoved, charsAdded:", position, charsRemoved, charsAdded)
+  AutoSuggestionTimer:start()
+end
+
+function Hooks.onCurrentChanged(editor)
+  print("onCurrentChanged() called")
+  AutoSuggestionTimer:stop()
 end
 
 local function setup(parameters)
@@ -231,7 +237,7 @@ local function setup(parameters)
   Action = require("Action")
   Action.create("Trigger.suggestions", {
     text = "Trigger AI suggestions",
-    onTrigger = function() a.sync(requstSuggestionsSafe)() end,
+    onTrigger = function() a.sync(requestSuggestionsSafe)() end,
     defaultKeySequences = { "Meta+Shift+A", "Ctrl+Shift+Alt+A" },
   })
 end
