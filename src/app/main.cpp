@@ -176,37 +176,31 @@ static inline int askMsgSendFailed()
                 QMessageBox::Retry);
 }
 
-static inline QStringList getPluginPaths()
+static inline FilePaths getPluginPaths()
 {
-    QStringList rc;
-    rc << (QDir::cleanPath(QApplication::applicationDirPath()
-                                   + '/' + RELATIVE_PLUGIN_PATH))
-       << (QDir::cleanPath(QApplication::applicationDirPath()
-                           + '/' + RELATIVE_DATA_PATH + "/lua-plugins"));
+    FilePaths rc;
+    rc << appInfo().plugins << appInfo().resources / "lua-plugins";
+
+    const auto version = [](int micro) {
+        return QString::number(IDE_VERSION_MAJOR) + '.' + QString::number(IDE_VERSION_MINOR) + '.'
+               + QString::number(micro);
+    };
+
+    const int minPatchVersion = qMin(
+        IDE_VERSION_RELEASE,
+        QVersionNumber::fromString(Core::Constants::IDE_VERSION_COMPAT).microVersion());
+
     // Local plugin path: <localappdata>/plugins/<ideversion>
     //    where <localappdata> is e.g.
     //    "%LOCALAPPDATA%\QtProject\qtcreator" on Windows Vista and later
     //    "$XDG_DATA_HOME/data/QtProject/qtcreator" or "~/.local/share/data/QtProject/qtcreator" on Linux
     //    "~/Library/Application Support/QtProject/Qt Creator" on Mac
-    QString pluginPath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation);
-    if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost())
-        pluginPath += QLatin1String("/data");
-    pluginPath += QLatin1Char('/')
-            + QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR)
-            + QLatin1Char('/');
-    pluginPath += QLatin1String(HostOsInfo::isMacHost() ?
-                                    Core::Constants::IDE_DISPLAY_NAME :
-                                    Core::Constants::IDE_ID);
-    pluginPath += QLatin1String("/plugins/");
+    const FilePath userPluginPath = appInfo().userPluginsRoot;
+
     // Qt Creator X.Y.Z can load plugins from X.Y.(Z-1) etc, so add current and previous
     // patch versions
-    const QString minorVersion = QString::number(IDE_VERSION_MAJOR) + '.'
-                                 + QString::number(IDE_VERSION_MINOR) + '.';
-    const int minPatchVersion
-        = qMin(IDE_VERSION_RELEASE,
-               QVersionNumber::fromString(Core::Constants::IDE_VERSION_COMPAT).microVersion());
     for (int patchVersion = IDE_VERSION_RELEASE; patchVersion >= minPatchVersion; --patchVersion)
-        rc.push_back(pluginPath + minorVersion + QString::number(patchVersion));
+        rc << userPluginPath / version(patchVersion);
     return rc;
 }
 
@@ -808,9 +802,10 @@ int main(int argc, char **argv)
     QNetworkProxyFactory::setUseSystemConfiguration(true);
 
     // Load
-    const QStringList pluginPaths = getPluginPaths() + installPluginPaths
-                                    + options.customPluginPaths;
-    PluginManager::setPluginPaths(Utils::transform(pluginPaths, &FilePath::fromUserInput));
+    const QStringList pluginPaths = installPluginPaths + options.customPluginPaths;
+    PluginManager::setPluginPaths(
+        getPluginPaths() + Utils::transform(pluginPaths, &FilePath::fromUserInput));
+
     QMap<QString, QString> foundAppOptions;
     if (pluginArguments.size() > 1) {
         QMap<QString, bool> appOptions;
