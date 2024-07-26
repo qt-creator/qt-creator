@@ -19,12 +19,12 @@ namespace Android::Internal {
 class AndroidRunSupport final : public AndroidRunner
 {
 public:
-    explicit AndroidRunSupport(RunControl *runControl, const QString &intentName = QString());
+    explicit AndroidRunSupport(RunControl *runControl);
     ~AndroidRunSupport() override;
 };
 
-AndroidRunSupport::AndroidRunSupport(RunControl *runControl, const QString &intentName)
-    : AndroidRunner(runControl, intentName)
+AndroidRunSupport::AndroidRunSupport(RunControl *runControl)
+    : AndroidRunner(runControl)
 {
     runControl->setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
 }

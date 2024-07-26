@@ -86,7 +86,7 @@ public:
     {
         setId("AndroidDebugger");
         setLldbPlatform("remote-android");
-        m_runner = new AndroidRunner(runControl, {});
+        m_runner = new AndroidRunner(runControl);
         addStartDependency(m_runner);
     }
 

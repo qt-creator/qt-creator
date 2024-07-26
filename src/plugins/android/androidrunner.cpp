@@ -28,8 +28,9 @@ using namespace Utils;
 
 namespace Android::Internal {
 
-AndroidRunner::AndroidRunner(RunControl *runControl, const QString &intentName)
-    : RunWorker(runControl), m_target(runControl->target())
+AndroidRunner::AndroidRunner(RunControl *runControl)
+    : RunWorker(runControl)
+    , m_target(runControl->target())
 {
     setId("AndroidRunner");
     static const int metaTypes[] = {
@@ -39,15 +40,13 @@ AndroidRunner::AndroidRunner(RunControl *runControl, const QString &intentName)
     };
     Q_UNUSED(metaTypes)
 
-    QString intent = intentName;
-    if (intent.isEmpty())
-        intent = AndroidManager::packageName(m_target) + '/' + AndroidManager::activityName(m_target);
+    m_packageName = AndroidManager::packageName(m_target);
+    const QString intentName = m_packageName + '/' + AndroidManager::activityName(m_target);
 
-    m_packageName = intent.left(intent.indexOf('/'));
-    qCDebug(androidRunnerLog) << "Intent name:" << intent << "Package name" << m_packageName;
+    qCDebug(androidRunnerLog) << "Intent name:" << intentName << "Package name" << m_packageName;
 
     m_worker = new AndroidRunnerWorker(this, m_packageName);
-    m_worker->setIntentName(intent);
+    m_worker->setIntentName(intentName);
 
     m_worker->moveToThread(&m_thread);
     QObject::connect(&m_thread, &QThread::finished, m_worker, &QObject::deleteLater);

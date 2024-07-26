@@ -23,8 +23,7 @@ class AndroidRunner : public ProjectExplorer::RunWorker
     Q_OBJECT
 
 public:
-    explicit AndroidRunner(ProjectExplorer::RunControl *runControl,
-                           const QString &intentName = QString());
+    explicit AndroidRunner(ProjectExplorer::RunControl *runControl);
     ~AndroidRunner() override;
 
     Utils::Port debugServerPort() const { return m_debugServerPort; } // GDB or LLDB
