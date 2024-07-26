@@ -88,7 +88,7 @@ return {
 }
 )";
 
-void addAsyncModule()
+void setupAsyncModule()
 {
     LuaEngine::registerProvider("async", [](sol::state_view lua) -> sol::object {
         sol::protected_function_result res = lua.script(async_source, "async.cpp");

@@ -7,7 +7,7 @@
 
 namespace Lua::Internal {
 
-void addMessageManagerModule()
+void setupMessageManagerModule()
 {
     LuaEngine::registerProvider("MessageManager", [](sol::state_view lua) -> sol::object {
         sol::table mm = lua.create_table();

@@ -15,7 +15,7 @@ using namespace Utils;
 
 namespace Lua::Internal {
 
-void addUtilsModule()
+void setupUtilsModule()
 {
     LuaEngine::registerProvider(
         "Utils",

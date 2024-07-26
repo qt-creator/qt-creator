@@ -9,7 +9,7 @@ using namespace Utils;
 
 namespace Lua::Internal {
 
-void addActionModule()
+void setupActionModule()
 {
     LuaEngine::registerProvider("Action", [](sol::state_view lua) -> sol::object {
         sol::table result = lua.create_table();

@@ -15,7 +15,7 @@ public:
     using QLocalSocket::QLocalSocket;
 };
 
-void addLocalSocketModule()
+void setupLocalSocketModule()
 {
     LuaEngine::registerProvider("LocalSocket", [](sol::state_view lua) -> sol::object {
         sol::table async = lua.script("return require('async')", "_localsocket_").get<sol::table>();

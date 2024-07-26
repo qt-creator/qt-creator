@@ -282,7 +282,7 @@ sol::usertype<T> addTypedAspect(sol::table &lua, const QString &name)
         sol::bases<TypedAspect<typename T::valueType>, BaseAspect>());
 }
 
-void addSettingsModule()
+void setupSettingsModule()
 {
     LuaEngine::registerProvider("Settings", [](sol::state_view l) -> sol::object {
         sol::table settings = l.create_table();
@@ -472,19 +472,19 @@ void addSettingsModule()
                             const QString type = value.as<QString>().toLower();
 
                             if (type.isEmpty() || type == "None")
-                                aspect->setIconType(Utils::InfoLabel::InfoType::None);
+                                aspect->setIconType(InfoLabel::InfoType::None);
                             else if (type == "information")
-                                aspect->setIconType(Utils::InfoLabel::InfoType::Information);
+                                aspect->setIconType(InfoLabel::InfoType::Information);
                             else if (type == "warning")
-                                aspect->setIconType(Utils::InfoLabel::InfoType::Warning);
+                                aspect->setIconType(InfoLabel::InfoType::Warning);
                             else if (type == "error")
-                                aspect->setIconType(Utils::InfoLabel::InfoType::Error);
+                                aspect->setIconType(InfoLabel::InfoType::Error);
                             else if (type == "ok")
-                                aspect->setIconType(Utils::InfoLabel::InfoType::Ok);
+                                aspect->setIconType(InfoLabel::InfoType::Ok);
                             else if (type == "notok")
-                                aspect->setIconType(Utils::InfoLabel::InfoType::NotOk);
+                                aspect->setIconType(InfoLabel::InfoType::NotOk);
                             else
-                                aspect->setIconType(Utils::InfoLabel::InfoType::None);
+                                aspect->setIconType(InfoLabel::InfoType::None);
                         } else {
                             baseAspectCreate(aspect, key, value);
                         }

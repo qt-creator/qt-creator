@@ -10,15 +10,17 @@
 
 #include "sol/sol.hpp"
 
+using namespace Utils;
+
 namespace {
 
 class Suggestion
 {
 public:
     Suggestion(
-        Utils::Text::Position start,
-        Utils::Text::Position end,
-        Utils::Text::Position position,
+        Text::Position start,
+        Text::Position end,
+        Text::Position position,
         const QString &text)
         : m_start(start)
         , m_end(end)
@@ -26,19 +28,19 @@ public:
         , m_text(text)
     {}
 
-    Utils::Text::Position start() const { return m_start; }
-    Utils::Text::Position end() const { return m_end; }
-    Utils::Text::Position position() const { return m_position; }
+    Text::Position start() const { return m_start; }
+    Text::Position end() const { return m_end; }
+    Text::Position position() const { return m_position; }
     QString text() const { return m_text; }
 
 private:
-    Utils::Text::Position m_start;
-    Utils::Text::Position m_end;
-    Utils::Text::Position m_position;
+    Text::Position m_start;
+    Text::Position m_end;
+    Text::Position m_position;
     QString m_text;
 };
 
-QTextCursor toTextCursor(QTextDocument *doc, const Utils::Text::Position &position)
+QTextCursor toTextCursor(QTextDocument *doc, const Text::Position &position)
 {
     QTextCursor cursor(doc);
     cursor.setPosition(position.toPositionInDocument(doc));
@@ -46,7 +48,7 @@ QTextCursor toTextCursor(QTextDocument *doc, const Utils::Text::Position &positi
 }
 
 QTextCursor toSelection(
-    QTextDocument *doc, const Utils::Text::Position &start, const Utils::Text::Position &end)
+    QTextDocument *doc, const Text::Position &start, const Text::Position &end)
 {
     QTC_ASSERT(doc, return {});
     QTextCursor cursor = toTextCursor(doc, start);
@@ -205,13 +207,13 @@ signals:
     void documentContentsChanged(
         TextEditor::TextDocument *document, int position, int charsRemoved, int charsAdded);
 
-    void currentCursorChanged(TextEditor::BaseTextEditor *editor, Utils::MultiTextCursor cursor);
+    void currentCursorChanged(TextEditor::BaseTextEditor *editor, MultiTextCursor cursor);
 
 protected:
     QPointer<TextEditor::BaseTextEditor> m_currentTextEditor = nullptr;
 };
 
-void addTextEditorModule()
+void setupTextEditorModule()
 {
     TextEditorRegistry::instance();
 
@@ -222,13 +224,13 @@ void addTextEditorModule()
             return TextEditor::BaseTextEditor::currentTextEditor();
         };
 
-        result.new_usertype<Utils::MultiTextCursor>(
+        result.new_usertype<MultiTextCursor>(
             "MultiTextCursor",
             sol::no_constructor,
             "mainCursor",
-            &Utils::MultiTextCursor::mainCursor,
+            &MultiTextCursor::mainCursor,
             "cursors",
-            &Utils::MultiTextCursor::cursors);
+            &MultiTextCursor::cursors);
 
         result.new_usertype<QTextCursor>(
             "TextCursor",
@@ -261,8 +263,8 @@ void addTextEditorModule()
                int end_character,
                const QString &text) -> Suggestion {
                 auto one_based = [](int zero_based) { return zero_based + 1; };
-                Utils::Text::Position start_pos = {one_based(start_line), start_character};
-                Utils::Text::Position end_pos = {one_based(end_line), end_character};
+                Text::Position start_pos = {one_based(start_line), start_character};
+                Text::Position end_pos = {one_based(end_line), end_character};
                 return {start_pos, end_pos, start_pos, text};
             });
 
@@ -335,7 +337,7 @@ void addTextEditorModule()
             TextEditorRegistry::instance(),
             &TextEditorRegistry::currentCursorChanged,
             guard,
-            [func](TextEditor::BaseTextEditor *editor, const Utils::MultiTextCursor &cursor) {
+            [func](TextEditor::BaseTextEditor *editor, const MultiTextCursor &cursor) {
                 Utils::expected_str<void> res = LuaEngine::void_safe_call(func, editor, cursor);
                 QTC_CHECK_EXPECTED(res);
             });

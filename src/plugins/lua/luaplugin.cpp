@@ -32,22 +32,22 @@ using namespace ExtensionSystem;
 
 namespace Lua::Internal {
 
-void addActionModule();
-void addAsyncModule();
-void addCoreModule();
-void addFetchModule();
-void addGuiModule();
-void addHookModule();
-void addInstallModule();
-void addJsonModule();
-void addLocalSocketModule();
-void addMessageManagerModule();
-void addProcessModule();
-void addQtModule();
-void addSettingsModule();
-void addTextEditorModule();
-void addTranslateModule();
-void addUtilsModule();
+void setupActionModule();
+void setupAsyncModule();
+void setupCoreModule();
+void setupFetchModule();
+void setupGuiModule();
+void setupHookModule();
+void setupInstallModule();
+void setupJsonModule();
+void setupLocalSocketModule();
+void setupMessageManagerModule();
+void setupProcessModule();
+void setupQtModule();
+void setupSettingsModule();
+void setupTextEditorModule();
+void setupTranslateModule();
+void setupUtilsModule();
 
 class LuaJsExtension : public QObject
 {
@@ -249,22 +249,22 @@ public:
     {
         m_luaEngine.reset(new LuaEngine());
 
-        addActionModule();
-        addAsyncModule();
-        addCoreModule();
-        addFetchModule();
-        addGuiModule();
-        addHookModule();
-        addInstallModule();
-        addJsonModule();
-        addLocalSocketModule();
-        addMessageManagerModule();
-        addProcessModule();
-        addQtModule();
-        addSettingsModule();
-        addTextEditorModule();
-        addTranslateModule();
-        addUtilsModule();
+        setupActionModule();
+        setupAsyncModule();
+        setupCoreModule();
+        setupFetchModule();
+        setupGuiModule();
+        setupHookModule();
+        setupInstallModule();
+        setupJsonModule();
+        setupLocalSocketModule();
+        setupMessageManagerModule();
+        setupProcessModule();
+        setupQtModule();
+        setupSettingsModule();
+        setupTextEditorModule();
+        setupTranslateModule();
+        setupUtilsModule();
 
         Core::JsExpander::registerGlobalObject("Lua", [] { return new LuaJsExtension(); });
 

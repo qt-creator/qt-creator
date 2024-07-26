@@ -6,11 +6,9 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/textdocument.h>
 
-namespace Lua {
+namespace Lua::Internal {
 
-namespace Internal {
-
-void addHookModule()
+void setupHookModule()
 {
     LuaEngine::registerHook(
         "editors.documentOpened", [](const sol::protected_function &func, QObject *guard) {
@@ -37,6 +35,4 @@ void addHookModule()
         });
 }
 
-} // namespace Internal
-
-} // namespace Lua
+} // namespace Lua::Internal

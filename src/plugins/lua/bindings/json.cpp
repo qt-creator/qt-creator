@@ -7,7 +7,7 @@
 
 namespace Lua::Internal {
 
-void addJsonModule()
+void setupJsonModule()
 {
     LuaEngine::registerProvider("Json", [](sol::state_view lua) -> sol::object {
         sol::table json = lua.create_table();

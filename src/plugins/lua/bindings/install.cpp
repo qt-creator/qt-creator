@@ -230,7 +230,7 @@ static Group installRecipe(
     };
 }
 
-void addInstallModule()
+void setupInstallModule()
 {
     class State
     {

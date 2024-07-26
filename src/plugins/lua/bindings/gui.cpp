@@ -231,7 +231,7 @@ std::unique_ptr<Splitter> constructSplitter(const sol::table &children)
     return item;
 }
 
-void addGuiModule()
+void setupGuiModule()
 {
     LuaEngine::registerProvider("Gui", [](sol::state_view l) -> sol::object {
         const ScriptPluginSpec *pluginSpec = l.get<ScriptPluginSpec *>("PluginSpec");

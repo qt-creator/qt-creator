@@ -7,7 +7,7 @@
 
 namespace Lua::Internal {
 
-void addTranslateModule()
+void setupTranslateModule()
 {
     ::Lua::LuaEngine::autoRegister([](sol::state_view lua) {
         const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec");
