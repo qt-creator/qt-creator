@@ -2,11 +2,16 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "../luaengine.h"
+#include "./luatr.h"
 
+#include <texteditor/basehoverhandler.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
 #include <utils/stringutils.h>
+#include <utils/tooltip/tooltip.h>
+#include <utils/utilsicons.h>
+#include <QToolBar>
 
 #include "sol/sol.hpp"
 
@@ -122,11 +127,163 @@ public:
 
     virtual int position() override { return m_start.selectionEnd(); }
 
+    const QList<Suggestion> &suggestions() const { return m_suggestions; }
+
+    int currentSuggestion() const { return m_current_suggestion; }
+
 private:
     int m_current_suggestion;
     QTextCursor m_start;
     QList<Suggestion> m_suggestions;
 };
+
+class SuggestionToolTip : public QToolBar
+{
+public:
+    SuggestionToolTip(
+        const QList<Suggestion> &suggestions,
+        int currentSuggestion,
+        TextEditor::TextEditorWidget *editor)
+        : m_numberLabel(new QLabel)
+        , m_suggestions(suggestions)
+        , m_currentSuggestion(std::max(0, std::min<int>(currentSuggestion, suggestions.size() - 1)))
+        , m_editor(editor)
+    {
+        QAction *prev
+            = addAction(Utils::Icons::PREV_TOOLBAR.icon(), Lua::Tr::tr("Select Previous Suggestion"));
+        prev->setEnabled(m_suggestions.size() > 1);
+        addWidget(m_numberLabel);
+        QAction *next
+            = addAction(Utils::Icons::NEXT_TOOLBAR.icon(), Lua::Tr::tr("Select Next Suggestion"));
+        next->setEnabled(m_suggestions.size() > 1);
+
+        auto apply = addAction(Lua::Tr::tr("Apply (%1)").arg(QKeySequence(Qt::Key_Tab).toString()));
+        auto applyWord = addAction(Lua::Tr::tr("Apply Word (%1)")
+                                       .arg(QKeySequence(QKeySequence::MoveToNextWord).toString()));
+
+        connect(prev, &QAction::triggered, this, &SuggestionToolTip::selectPrevious);
+        connect(next, &QAction::triggered, this, &SuggestionToolTip::selectNext);
+        connect(apply, &QAction::triggered, this, &SuggestionToolTip::apply);
+        connect(applyWord, &QAction::triggered, this, &SuggestionToolTip::applyWord);
+
+        updateLabels();
+    }
+
+private:
+    void updateLabels()
+    {
+        m_numberLabel->setText(
+            Lua::Tr::tr("%1 of %2").arg(m_currentSuggestion + 1).arg(m_suggestions.count()));
+    }
+
+    void selectPrevious()
+    {
+        m_currentSuggestion = (m_currentSuggestion - 1 + m_suggestions.size())
+                              % m_suggestions.size();
+        setCurrentSuggestion();
+    }
+
+    void selectNext()
+    {
+        m_currentSuggestion = (m_currentSuggestion + 1) % m_suggestions.size();
+        setCurrentSuggestion();
+    }
+
+    void setCurrentSuggestion()
+    {
+        updateLabels();
+        if (TextEditor::TextSuggestion *suggestion = m_editor->currentSuggestion())
+            suggestion->reset();
+
+        m_editor->insertSuggestion(std::make_unique<CyclicSuggestion>(
+            m_suggestions, m_editor->document(), m_currentSuggestion));
+    }
+
+    void apply()
+    {
+        if (TextEditor::TextSuggestion *suggestion = m_editor->currentSuggestion()) {
+            if (!suggestion->apply())
+                return;
+        }
+        Utils::ToolTip::hide();
+    }
+
+    void applyWord()
+    {
+        if (TextEditor::TextSuggestion *suggestion = m_editor->currentSuggestion()) {
+            if (!suggestion->applyWord(m_editor))
+                return;
+        }
+        Utils::ToolTip::hide();
+    }
+
+    QLabel *m_numberLabel;
+    QList<Suggestion> m_suggestions;
+    int m_currentSuggestion;
+    TextEditor::TextEditorWidget *m_editor;
+};
+
+class SuggestionHoverHandler final : public TextEditor::BaseHoverHandler
+{
+public:
+    SuggestionHoverHandler() = default;
+
+protected:
+    void identifyMatch(
+        TextEditor::TextEditorWidget *editorWidget, int pos, ReportPriority report) final
+    {
+        QScopeGuard cleanup([&] { report(Priority_None); });
+        if (!editorWidget->suggestionVisible())
+            return;
+
+        QTextCursor cursor(editorWidget->document());
+        cursor.setPosition(pos);
+        m_block = cursor.block();
+
+        auto *cyclic_suggestion = dynamic_cast<CyclicSuggestion *>(
+            TextEditor::TextDocumentLayout::suggestion(m_block));
+        if (!cyclic_suggestion || cyclic_suggestion->suggestions().isEmpty())
+            return;
+
+        cleanup.dismiss();
+        report(Priority_Suggestion);
+    }
+
+    void operateTooltip(TextEditor::TextEditorWidget *editorWidget, const QPoint &point) final
+    {
+        Q_UNUSED(point)
+
+        auto *cyclic_suggestion = dynamic_cast<CyclicSuggestion *>(
+            TextEditor::TextDocumentLayout::suggestion(m_block));
+        if (!cyclic_suggestion)
+            return;
+
+        auto tooltipWidget = new SuggestionToolTip(
+            cyclic_suggestion->suggestions(), cyclic_suggestion->currentSuggestion(), editorWidget);
+
+        const QRect cursorRect = editorWidget->cursorRect(editorWidget->textCursor());
+        QPoint pos = editorWidget->viewport()->mapToGlobal(cursorRect.topLeft())
+                     - Utils::ToolTip::offsetFromPosition();
+        pos.ry() -= tooltipWidget->sizeHint().height();
+        Utils::ToolTip::show(pos, tooltipWidget, editorWidget);
+    }
+
+private:
+    QTextBlock m_block;
+};
+
+TextEditor::TextEditorWidget *getSuggestionReadyEditorWidget(TextEditor::TextDocument *document)
+{
+    const auto textEditor = TextEditor::BaseTextEditor::currentTextEditor();
+    if (!textEditor || textEditor->document() != document)
+        return nullptr;
+
+    auto *widget = textEditor->editorWidget();
+    if (widget->isReadOnly() || widget->multiTextCursor().hasMultipleCursors())
+        return nullptr;
+
+    return widget;
+}
 
 } // namespace
 
@@ -286,25 +443,21 @@ void setupTextEditorModule()
             },
             "blockCount",
             [](TextEditor::TextDocument *document) { return document->document()->blockCount(); },
-
             "setSuggestions",
             [](TextEditor::TextDocument *document, QList<Suggestion> suggestions) {
                 if (suggestions.isEmpty())
                     return;
 
-                const auto textEditor = TextEditor::BaseTextEditor::currentTextEditor();
-                if (!textEditor || textEditor->document() != document)
-                    return;
-
-                auto *widget = textEditor->editorWidget();
-                if (widget->isReadOnly() || widget->multiTextCursor().hasMultipleCursors())
+                auto widget = getSuggestionReadyEditorWidget(document);
+                if (!widget)
                     return;
 
                 widget->insertSuggestion(
                     std::make_unique<CyclicSuggestion>(suggestions, document->document()));
-            }
 
-        );
+                static SuggestionHoverHandler hover_handler;
+                widget->addHoverHandler(&hover_handler);
+            });
 
         return result;
     });
