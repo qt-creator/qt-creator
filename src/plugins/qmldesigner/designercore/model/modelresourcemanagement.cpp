@@ -30,10 +30,7 @@ void forEachAction(NodeActions &nodeActions, ActionCall actionCall);
 
 struct Base
 {
-    Base(ModelResourceSet &resourceSet, NodeActions &nodeActions)
-        : resourceSet{resourceSet}
-        , nodeActions{nodeActions}
-    {}
+    Base() = default;
 
     void removeNodes(ModelNodes newModelNodes, CheckRecursive checkRecursive)
     {
@@ -53,7 +50,7 @@ struct Base
 
         std::sort(newModelNodes.begin(), newModelNodes.end());
 
-        checkNewModelNodes(newModelNodes, resourceSet.removeModelNodes);
+        checkNewModelNodes(newModelNodes, resourceSet->removeModelNodes);
     }
 
     void removeProperties(AbstractProperties newProperties, CheckRecursive checkRecursive)
@@ -69,7 +66,7 @@ struct Base
 
     void addSetExpressions(ModelResourceSet::SetExpressions newSetExpressions)
     {
-        auto &setExpressions = resourceSet.setExpressions;
+        auto &setExpressions = resourceSet->setExpressions;
         setExpressions.append(std::move(newSetExpressions));
     }
 
@@ -79,6 +76,12 @@ struct Base
 
     void finally() {}
 
+    void setNodeActionsAndModelResourceSet(NodeActions &actions, ModelResourceSet &resources)
+    {
+        nodeActions = &actions;
+        resourceSet = &resources;
+    }
+
 private:
     ModelNodes removeNodes(ModelNodes &newModelNodes)
     {
@@ -87,15 +90,15 @@ private:
         newModelNodes.erase(std::unique(newModelNodes.begin(), newModelNodes.end()),
                             newModelNodes.end());
 
-        auto oldModelNodes = std::move(resourceSet.removeModelNodes);
-        resourceSet.removeModelNodes = {};
-        resourceSet.removeModelNodes.reserve(oldModelNodes.size() + newModelNodes.size());
+        auto oldModelNodes = std::move(resourceSet->removeModelNodes);
+        resourceSet->removeModelNodes = {};
+        resourceSet->removeModelNodes.reserve(oldModelNodes.size() + newModelNodes.size());
 
         std::set_union(newModelNodes.begin(),
                        newModelNodes.end(),
                        oldModelNodes.begin(),
                        oldModelNodes.end(),
-                       std::back_inserter(resourceSet.removeModelNodes));
+                       std::back_inserter(resourceSet->removeModelNodes));
 
         return oldModelNodes;
     }
@@ -107,15 +110,15 @@ private:
         newProperties.erase(std::unique(newProperties.begin(), newProperties.end()),
                             newProperties.end());
 
-        auto oldProperties = std::move(resourceSet.removeProperties);
-        resourceSet.removeProperties = {};
-        resourceSet.removeProperties.reserve(oldProperties.size() + newProperties.size());
+        auto oldProperties = std::move(resourceSet->removeProperties);
+        resourceSet->removeProperties = {};
+        resourceSet->removeProperties.reserve(oldProperties.size() + newProperties.size());
 
         std::set_union(newProperties.begin(),
                        newProperties.end(),
                        oldProperties.begin(),
                        oldProperties.end(),
-                       std::back_inserter(resourceSet.removeProperties));
+                       std::back_inserter(resourceSet->removeProperties));
 
         return oldProperties;
     }
@@ -132,7 +135,7 @@ private:
                             std::back_inserter(addedModelNodes));
 
         if (addedModelNodes.size())
-            forEachAction(nodeActions, [&](auto &action) { action.handleNodes(addedModelNodes); });
+            forEachAction(*nodeActions, [&](auto &action) { action.handleNodes(addedModelNodes); });
     }
 
     void checkNewProperties(const AbstractProperties &newProperties,
@@ -148,13 +151,13 @@ private:
                             std::back_inserter(addedProperties));
 
         if (addedProperties.size())
-            forEachAction(nodeActions,
+            forEachAction(*nodeActions,
                           [&](auto &action) { action.handleProperties(addedProperties); });
     }
 
 private:
-    ModelResourceSet &resourceSet;
-    NodeActions &nodeActions;
+    ModelResourceSet *resourceSet = nullptr;
+    NodeActions *nodeActions = nullptr;
 };
 
 struct CheckChildNodes : public Base
@@ -295,11 +298,8 @@ using NodesProperties = std::vector<NodesProperty>;
 
 struct RemoveDependentBindings : public Base
 {
-    RemoveDependentBindings(ModelResourceSet &resourceSet,
-                            NodeActions &nodeActions,
-                            BindingDependencies dependencies)
-        : Base{resourceSet, nodeActions}
-        , dependencies{std::move(dependencies)}
+    RemoveDependentBindings(BindingDependencies dependencies)
+        : dependencies{std::move(dependencies)}
     {}
 
     AbstractProperties collectProperties(const ModelNodes &nodes)
@@ -326,11 +326,8 @@ struct RemoveDependentBindings : public Base
 
 struct RemoveDependencies : public Base
 {
-    RemoveDependencies(ModelResourceSet &resourceSet,
-                       NodeActions &nodeActions,
-                       NodeDependencies dependencies)
-        : Base{resourceSet, nodeActions}
-        , dependencies{std::move(dependencies)}
+    RemoveDependencies(NodeDependencies dependencies)
+        : dependencies{std::move(dependencies)}
     {}
 
     ModelNodes collectNodes(const ModelNodes &nodes) const
@@ -357,12 +354,8 @@ struct RemoveDependencies : public Base
 
 struct RemoveTargetsSources : public Base
 {
-    RemoveTargetsSources(ModelResourceSet &resourceSet,
-                         NodeActions &nodeActions,
-                         NodeDependencies dependencies,
-                         NodesProperties nodesProperties)
-        : Base{resourceSet, nodeActions}
-        , dependencies{std::move(dependencies)}
+    RemoveTargetsSources(NodeDependencies dependencies, NodesProperties nodesProperties)
+        : dependencies{std::move(dependencies)}
         , nodesProperties{std::move(nodesProperties)}
     {}
 
@@ -722,12 +715,45 @@ using NodeActionsTuple = std::tuple<CheckChildNodes,
 
 class NodeActions : public NodeActionsTuple
 {
+public:
+    template<typename... Actions>
+    NodeActions(ModelResourceSet &modelResourceSet, Actions &&...actions)
+        : NodeActionsTuple(std::forward<Actions>(actions)...)
+        , modelResourceSet{modelResourceSet}
+    {
+        forEachAction(*this, [&](auto &action) {
+            action.setNodeActionsAndModelResourceSet(*this, modelResourceSet);
+        });
+    }
+
     NodeActions(const NodeActions &) = delete;
     NodeActions &opertor(const NodeActions &) = delete;
     NodeActions(NodeActions &&) = delete;
     NodeActions &opertor(NodeActions &&) = delete;
 
-    using NodeActionsTuple::NodeActionsTuple;
+    void removeProperties(const AbstractProperties &properties, CheckRecursive checkRecursive)
+    {
+        Base base;
+        base.setNodeActionsAndModelResourceSet(*this, modelResourceSet);
+
+        base.removeProperties(properties, checkRecursive);
+    }
+
+    void removeNodes(const ModelNodes &nodes, CheckRecursive checkRecursive)
+    {
+        Base base;
+        base.setNodeActionsAndModelResourceSet(*this, modelResourceSet);
+
+        base.removeNodes(nodes, checkRecursive);
+    }
+
+    ~NodeActions()
+    {
+        forEachAction(*this, [&](auto &action) { action.finally(); });
+    }
+
+private:
+    ModelResourceSet &modelResourceSet;
 };
 
 template<typename ActionCall>
@@ -747,20 +773,16 @@ ModelResourceSet ModelResourceManagement::removeNodes(ModelNodes nodes, Model *m
 
     DependenciesSet set = createDependenciesSet(model);
 
-    NodeActions nodeActions = {
-        CheckChildNodes{resourceSet, nodeActions},
-        CheckNodesInNodeAbstractProperties{resourceSet, nodeActions},
-        RemoveLayerEnabled{resourceSet, nodeActions},
-        RemoveDependentBindings{resourceSet, nodeActions, std::move(set.bindingDependencies)},
-        RemoveDependencies{resourceSet, nodeActions, std::move(set.nodeDependencies)},
-        RemoveTargetsSources{resourceSet,
-                             nodeActions,
-                             std::move(set.targetsDependencies),
-                             std::move(set.targetsNodesProperties)}};
+    NodeActions nodeActions = {resourceSet,
+                               CheckChildNodes{},
+                               CheckNodesInNodeAbstractProperties{},
+                               RemoveLayerEnabled{},
+                               RemoveDependentBindings{std::move(set.bindingDependencies)},
+                               RemoveDependencies{std::move(set.nodeDependencies)},
+                               RemoveTargetsSources{std::move(set.targetsDependencies),
+                                                    std::move(set.targetsNodesProperties)}};
 
-    Base{resourceSet, nodeActions}.removeNodes(nodes, CheckRecursive::Yes);
-
-    forEachAction(nodeActions, [&](auto &action) { action.finally(); });
+    nodeActions.removeNodes(nodes, CheckRecursive::Yes);
 
     return resourceSet;
 }
@@ -774,20 +796,16 @@ ModelResourceSet ModelResourceManagement::removeProperties(AbstractProperties pr
 
     DependenciesSet set = createDependenciesSet(model);
 
-    NodeActions nodeActions = {
-        CheckChildNodes{resourceSet, nodeActions},
-        CheckNodesInNodeAbstractProperties{resourceSet, nodeActions},
-        RemoveLayerEnabled{resourceSet, nodeActions},
-        RemoveDependentBindings{resourceSet, nodeActions, std::move(set.bindingDependencies)},
-        RemoveDependencies{resourceSet, nodeActions, std::move(set.nodeDependencies)},
-        RemoveTargetsSources{resourceSet,
-                             nodeActions,
-                             std::move(set.targetsDependencies),
-                             std::move(set.targetsNodesProperties)}};
+    NodeActions nodeActions = {resourceSet,
+                               CheckChildNodes{},
+                               CheckNodesInNodeAbstractProperties{},
+                               RemoveLayerEnabled{},
+                               RemoveDependentBindings{std::move(set.bindingDependencies)},
+                               RemoveDependencies{std::move(set.nodeDependencies)},
+                               RemoveTargetsSources{std::move(set.targetsDependencies),
+                                                    std::move(set.targetsNodesProperties)}};
 
-    Base{resourceSet, nodeActions}.removeProperties(properties, CheckRecursive::Yes);
-
-    forEachAction(nodeActions, [&](auto &action) { action.finally(); });
+    nodeActions.removeProperties(properties, CheckRecursive::Yes);
 
     return resourceSet;
 }
