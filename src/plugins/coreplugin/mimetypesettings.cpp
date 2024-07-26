@@ -252,7 +252,7 @@ bool MimeFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source
 
 const QChar kSemiColon(QLatin1Char(';'));
 
-class MimeTypeSettingsPage final : public QObject, public IOptionsPage
+class MimeTypeSettingsPage final : public IOptionsPage
 {
 public:
     MimeTypeSettingsPage();
@@ -283,6 +283,7 @@ public:
         Core::Internal::setUserPreferredEditorTypes(d->m_model.m_userDefault);
         d->m_pendingModifiedMimeTypes.clear();
         d->m_model.load();
+        d->writeUserModifiedMimeTypes();
     }
 
     void finish() final
@@ -748,8 +749,6 @@ MimeTypeSettingsPage::MimeTypeSettingsPage()
     m_filterModel.setSourceModel(&m_model);
     m_filterModel.setFilterKeyColumn(-1);
     m_filterModel.setFilterCaseSensitivity(Qt::CaseInsensitive);
-    connect(ICore::instance(), &ICore::saveSettingsRequested,
-            this, &MimeTypeSettingsPage::writeUserModifiedMimeTypes);
 
     m_userModifiedMimeTypes = readUserModifiedMimeTypes();
     Utils::addMimeInitializer([this] { registerUserModifiedMimeTypes(m_userModifiedMimeTypes); });
