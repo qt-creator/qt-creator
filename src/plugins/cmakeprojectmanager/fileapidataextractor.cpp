@@ -942,6 +942,31 @@ static void setupLocationInfoForTargets(const QFuture<void> &cancelFuture,
     }
 }
 
+static void markCMakeModulesFromPrefixPathAsGenerated(FileApiQtcData &result)
+{
+    const QSet<FilePath> paths = [&result]() {
+        QSet<FilePath> paths;
+        for (const QByteArray &var : {"CMAKE_PREFIX_PATH", "CMAKE_FIND_ROOT_PATH"}) {
+            const QStringList pathList = result.cache.stringValueOf(var).split(";");
+            for (const QString &path : pathList)
+                paths.insert(FilePath::fromString(path));
+        }
+        return paths;
+    }();
+
+    if (!result.rootProjectNode)
+        return;
+
+    result.rootProjectNode->forEachGenericNode([&paths](Node *node) {
+        for (const FilePath &path : paths) {
+            if (node->path().isChildOf(path)) {
+                node->setIsGenerated(true);
+                break;
+            }
+        }
+    });
+}
+
 // --------------------------------------------------------------------
 // extractData:
 // --------------------------------------------------------------------
@@ -988,6 +1013,8 @@ FileApiQtcData extractData(const QFuture<void> &cancelFuture, FileApiData &input
     result.isMultiConfig = input.replyFile.isMultiConfig;
     if (input.replyFile.isMultiConfig && input.replyFile.generator != "Ninja Multi-Config")
         result.usesAllCapsTargets = true;
+
+    markCMakeModulesFromPrefixPathAsGenerated(result);
 
     return result;
 }
