@@ -252,10 +252,10 @@ bool MimeFilterModel::filterAcceptsRow(int source_row, const QModelIndex &source
 
 const QChar kSemiColon(QLatin1Char(';'));
 
-class MimeTypeSettings final : public QObject, public IOptionsPage
+class MimeTypeSettingsPage final : public QObject, public IOptionsPage
 {
 public:
-    MimeTypeSettings();
+    MimeTypeSettingsPage();
 
     QStringList keywords() const final;
 
@@ -275,7 +275,7 @@ public:
 class MimeTypeSettingsWidget : public IOptionsPageWidget
 {
 public:
-    MimeTypeSettingsWidget(MimeTypeSettings *settings);
+    MimeTypeSettingsWidget(MimeTypeSettingsPage *settings);
 
     void apply() final
     {
@@ -304,7 +304,7 @@ public:
 
     void ensurePendingMimeType(const Utils::MimeType &mimeType);
 
-    MimeTypeSettings *d;
+    MimeTypeSettingsPage *d;
     QPointer<QWidget> m_widget;
     MimeEditorDelegate m_delegate;
 
@@ -317,7 +317,7 @@ public:
     QPushButton *m_removeMagicButton;
 };
 
-MimeTypeSettingsWidget::MimeTypeSettingsWidget(MimeTypeSettings *settings)
+MimeTypeSettingsWidget::MimeTypeSettingsWidget(MimeTypeSettingsPage *settings)
     : d(settings)
 {
     auto filterLineEdit = new FancyLineEdit;
@@ -602,7 +602,7 @@ void MimeTypeSettingsWidget::ensurePendingMimeType(const Utils::MimeType &mimeTy
     }
 }
 
-void MimeTypeSettings::writeUserModifiedMimeTypes()
+void MimeTypeSettingsPage::writeUserModifiedMimeTypes()
 {
     static Utils::FilePath modifiedMimeTypesFile = ICore::userResourcePath(kModifiedMimeTypesFile);
 
@@ -663,7 +663,7 @@ static QPair<int, int> rangeFromString(const QString &offset)
     return range;
 }
 
-MimeTypeSettings::UserMimeTypeHash MimeTypeSettings::readUserModifiedMimeTypes()
+MimeTypeSettingsPage::UserMimeTypeHash MimeTypeSettingsPage::readUserModifiedMimeTypes()
 {
     static Utils::FilePath modifiedMimeTypesPath = ICore::userResourcePath(kModifiedMimeTypesFile);
     UserMimeTypeHash userMimeTypes;
@@ -719,7 +719,7 @@ MimeTypeSettings::UserMimeTypeHash MimeTypeSettings::readUserModifiedMimeTypes()
     return userMimeTypes;
 }
 
-static void registerUserModifiedMimeTypes(const MimeTypeSettings::UserMimeTypeHash &mimeTypes)
+static void registerUserModifiedMimeTypes(const MimeTypeSettingsPage::UserMimeTypeHash &mimeTypes)
 {
     for (auto it = mimeTypes.constBegin(); it != mimeTypes.constEnd(); ++it) {
         Utils::MimeType mt = Utils::mimeTypeForName(it.key());
@@ -730,7 +730,7 @@ static void registerUserModifiedMimeTypes(const MimeTypeSettings::UserMimeTypeHa
     }
 }
 
-void MimeTypeSettings::applyUserModifiedMimeTypes(const UserMimeTypeHash &mimeTypes)
+void MimeTypeSettingsPage::applyUserModifiedMimeTypes(const UserMimeTypeHash &mimeTypes)
 {
     // register in mime data base, and remember for later
     for (auto it = mimeTypes.constBegin(); it != mimeTypes.constEnd(); ++it)
@@ -738,7 +738,7 @@ void MimeTypeSettings::applyUserModifiedMimeTypes(const UserMimeTypeHash &mimeTy
     registerUserModifiedMimeTypes(mimeTypes);
 }
 
-MimeTypeSettings::MimeTypeSettings()
+MimeTypeSettingsPage::MimeTypeSettingsPage()
 {
     setId(Constants::SETTINGS_ID_MIMETYPES);
     setDisplayName(Tr::tr("MIME Types"));
@@ -749,13 +749,13 @@ MimeTypeSettings::MimeTypeSettings()
     m_filterModel.setFilterKeyColumn(-1);
     m_filterModel.setFilterCaseSensitivity(Qt::CaseInsensitive);
     connect(ICore::instance(), &ICore::saveSettingsRequested,
-            this, &MimeTypeSettings::writeUserModifiedMimeTypes);
+            this, &MimeTypeSettingsPage::writeUserModifiedMimeTypes);
 
     m_userModifiedMimeTypes = readUserModifiedMimeTypes();
     Utils::addMimeInitializer([this] { registerUserModifiedMimeTypes(m_userModifiedMimeTypes); });
 }
 
-QStringList MimeTypeSettings::keywords() const
+QStringList MimeTypeSettingsPage::keywords() const
 {
     return {
         Tr::tr("Reset MIME Types"),
@@ -804,7 +804,7 @@ void MimeEditorDelegate::setModelData(QWidget *editor,
 
 void setupMimeTypeSettings()
 {
-    static MimeTypeSettings theMimeTypeSettings;
+    static MimeTypeSettingsPage theMimeTypeSettingsPage;
 }
 
 } // Core::Internal
