@@ -23,13 +23,12 @@ class AndroidRunnerWorker : public QObject
 {
     Q_OBJECT
 public:
-    AndroidRunnerWorker(ProjectExplorer::RunWorker *runner, const QString &packageName);
+    AndroidRunnerWorker(ProjectExplorer::RunWorker *runner);
     ~AndroidRunnerWorker() override;
 
     void setAndroidDeviceInfo(const AndroidDeviceInfo &info);
     void asyncStart();
     void asyncStop();
-    void setIntentName(const QString &intentName) { m_intentName = intentName; }
 
 signals:
     void remoteProcessStarted(Utils::Port debugServerPort, const QUrl &qmlServer, qint64 pid);

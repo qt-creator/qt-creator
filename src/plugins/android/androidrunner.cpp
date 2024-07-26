@@ -40,14 +40,7 @@ AndroidRunner::AndroidRunner(RunControl *runControl)
     };
     Q_UNUSED(metaTypes)
 
-    m_packageName = AndroidManager::packageName(m_target);
-    const QString intentName = m_packageName + '/' + AndroidManager::activityName(m_target);
-
-    qCDebug(androidRunnerLog) << "Intent name:" << intentName << "Package name" << m_packageName;
-
-    m_worker = new AndroidRunnerWorker(this, m_packageName);
-    m_worker->setIntentName(intentName);
-
+    m_worker = new AndroidRunnerWorker(this);
     m_worker->moveToThread(&m_thread);
     QObject::connect(&m_thread, &QThread::finished, m_worker, &QObject::deleteLater);
 
@@ -108,7 +101,7 @@ void AndroidRunner::stop()
 {
     if (m_startAvdRunner.isRunning()) {
         m_startAvdRunner.reset();
-        appendMessage("\n\n" + Tr::tr("\"%1\" terminated.").arg(m_packageName),
+        appendMessage("\n\n" + Tr::tr("\"%1\" terminated.").arg(AndroidManager::packageName(m_target)),
                       Utils::NormalMessageFormat);
         return;
     }

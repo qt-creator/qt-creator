@@ -127,8 +127,7 @@ static FilePath debugServer(bool useLldb, const Target *target)
     return {};
 }
 
-AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packageName)
-    : m_packageName(packageName)
+AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner)
 {
     auto runControl = runner->runControl();
     m_useLldb = Debugger::DebuggerKitAspect::engineType(runControl->kit())
@@ -162,8 +161,12 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     QTC_CHECK(m_localJdbServerPort.isValid());
 
     auto target = runControl->target();
+    m_packageName = AndroidManager::packageName(target);
+    m_intentName = m_packageName + '/' + AndroidManager::activityName(target);
     m_deviceSerialNumber = AndroidManager::deviceSerialNumber(target);
     m_apiLevel = AndroidManager::deviceApiLevel(target);
+    qCDebug(androidRunWorkerLog) << "Intent name:" << m_intentName
+                                 << "Package name:" << m_packageName;
     qCDebug(androidRunWorkerLog) << "Device API:" << m_apiLevel;
 
     m_extraEnvVars = runControl->aspectData<EnvironmentAspect>()->environment;

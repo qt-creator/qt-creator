@@ -48,7 +48,6 @@ private:
     void handleRemoteProcessStarted(Utils::Port debugServerPort, const QUrl &qmlServer, qint64 pid);
     void handleRemoteProcessFinished(const QString &errString = QString());
 
-    QString m_packageName;
     QThread m_thread;
     AndroidRunnerWorker *m_worker = nullptr;
     QPointer<ProjectExplorer::Target> m_target;
