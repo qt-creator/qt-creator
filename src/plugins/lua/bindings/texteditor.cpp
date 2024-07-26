@@ -217,7 +217,7 @@ void setupTextEditorModule()
 {
     TextEditorRegistry::instance();
 
-    LuaEngine::registerProvider("TextEditor", [](sol::state_view lua) -> sol::object {
+    registerProvider("TextEditor", [](sol::state_view lua) -> sol::object {
         sol::table result = lua.create_table();
 
         result["currentEditor"] = []() -> TextEditor::BaseTextEditor * {
@@ -309,36 +309,36 @@ void setupTextEditorModule()
         return result;
     });
 
-    LuaEngine::registerHook("editors.text.currentChanged", [](sol::function func, QObject *guard) {
+    registerHook("editors.text.currentChanged", [](sol::function func, QObject *guard) {
         QObject::connect(
             TextEditorRegistry::instance(),
             &TextEditorRegistry::currentEditorChanged,
             guard,
             [func](TextEditor::BaseTextEditor *editor) {
-                Utils::expected_str<void> res = LuaEngine::void_safe_call(func, editor);
+                Utils::expected_str<void> res = void_safe_call(func, editor);
                 QTC_CHECK_EXPECTED(res);
             });
     });
 
-    LuaEngine::registerHook("editors.text.contentsChanged", [](sol::function func, QObject *guard) {
+    registerHook("editors.text.contentsChanged", [](sol::function func, QObject *guard) {
         QObject::connect(
             TextEditorRegistry::instance(),
             &TextEditorRegistry::documentContentsChanged,
             guard,
             [func](TextEditor::TextDocument *document, int position, int charsRemoved, int charsAdded) {
                 Utils::expected_str<void> res
-                    = LuaEngine::void_safe_call(func, document, position, charsRemoved, charsAdded);
+                    = void_safe_call(func, document, position, charsRemoved, charsAdded);
                 QTC_CHECK_EXPECTED(res);
             });
     });
 
-    LuaEngine::registerHook("editors.text.cursorChanged", [](sol::function func, QObject *guard) {
+    registerHook("editors.text.cursorChanged", [](sol::function func, QObject *guard) {
         QObject::connect(
             TextEditorRegistry::instance(),
             &TextEditorRegistry::currentCursorChanged,
             guard,
             [func](TextEditor::BaseTextEditor *editor, const MultiTextCursor &cursor) {
-                Utils::expected_str<void> res = LuaEngine::void_safe_call(func, editor, cursor);
+                Utils::expected_str<void> res = void_safe_call(func, editor, cursor);
                 QTC_CHECK_EXPECTED(res);
             });
     });

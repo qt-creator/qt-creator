@@ -125,10 +125,9 @@ public:
         QFile f(":/lua/scripts/ilua.lua");
         f.open(QIODevice::ReadOnly);
         const auto ilua = QString::fromUtf8(f.readAll());
-        m_luaState = LuaEngine::instance().runScript(ilua, "ilua.lua", [this](sol::state &lua) {
+        m_luaState = runScript(ilua, "ilua.lua", [this](sol::state &lua) {
             lua["print"] = [this](sol::variadic_args va) {
-                const QString msgs
-                    = LuaEngine::variadicToStringList(va).join("\t").replace("\r\n", "\n");
+                const QString msgs = variadicToStringList(va).join("\t").replace("\r\n", "\n");
                 m_model.setStringList(m_model.stringList() << msgs);
                 scrollToBottom();
             };
@@ -239,7 +238,6 @@ class LuaPlugin : public IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Lua.json")
 
 private:
-    std::unique_ptr<LuaEngine> m_luaEngine;
     LuaPane *m_pane = nullptr;
 
 public:
@@ -247,7 +245,7 @@ public:
 
     void initialize() final
     {
-        m_luaEngine.reset(new LuaEngine());
+        setupLuaEngine(this);
 
         setupActionModule();
         setupAsyncModule();
@@ -288,7 +286,7 @@ public:
                 if (!script.exists())
                     continue;
 
-                const expected_str<LuaPluginSpec *> result = m_luaEngine->loadPlugin(script);
+                const expected_str<LuaPluginSpec *> result = loadPlugin(script);
 
                 if (!result) {
                     qWarning() << "Failed to load plugin" << script << ":" << result.error();

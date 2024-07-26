@@ -133,7 +133,7 @@ void setupFetchModule()
 
     std::shared_ptr<Module> module = std::make_shared<Module>();
 
-    LuaEngine::registerProvider("Fetch", [mod = std::move(module)](sol::state_view lua) -> sol::object {
+    registerProvider("Fetch", [mod = std::move(module)](sol::state_view lua) -> sol::object {
         const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec");
 
         sol::table async = lua.script("return require('async')", "_fetch_").get<sol::table>();
@@ -290,7 +290,7 @@ void setupFetchModule()
                                 return;
                             }
 
-                            callback(LuaEngine::toTable(thisState, doc));
+                            callback(toTable(thisState, doc));
                         });
 
                 } else {

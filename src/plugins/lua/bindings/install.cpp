@@ -124,10 +124,10 @@ static Group installRecipe(
 
     const auto emitResult = [callback](const QString &error = QString()) {
         if (error.isEmpty()) {
-            LuaEngine::void_safe_call(callback, true);
+            void_safe_call(callback, true);
             return DoneResult::Success;
         }
-        LuaEngine::void_safe_call(callback, false, error);
+        void_safe_call(callback, false, error);
         return DoneResult::Error;
     };
 
@@ -255,7 +255,7 @@ void setupInstallModule()
         QList<QPointer<TaskTree>> m_trees;
     };
 
-    LuaEngine::registerProvider(
+    registerProvider(
         "Install", [state = State()](sol::state_view lua) mutable -> sol::object {
             sol::table async
                 = lua.script("return require('async')", "_install_async_").get<sol::table>();

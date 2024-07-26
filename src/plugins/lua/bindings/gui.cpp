@@ -34,7 +34,7 @@ static void processChildren(T *item, const sol::table &children)
             item->addItem(child.get<QString>());
         } else if (child.is<sol::function>()) {
             const sol::function f = child.get<sol::function>();
-            auto res = LuaEngine::void_safe_call(f, item);
+            auto res = void_safe_call(f, item);
             QTC_ASSERT_EXPECTED(res, continue);
         } else if (child.is<Span>()) {
             const Span &span = child.get<Span>();
@@ -114,7 +114,7 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
         if (onTextChanged) {
             item->onTextChanged(
                 [f = *onTextChanged](const QString &text) {
-                    auto res = LuaEngine::void_safe_call(f, text);
+                    auto res = void_safe_call(f, text);
                     QTC_CHECK_EXPECTED(res);
                 },
                 guard);
@@ -126,7 +126,7 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
         if (onClicked) {
             item->onClicked(
                 [f = *onClicked]() {
-                    auto res = LuaEngine::void_safe_call(f);
+                    auto res = void_safe_call(f);
                     QTC_CHECK_EXPECTED(res);
                 },
                 guard);
@@ -233,7 +233,7 @@ std::unique_ptr<Splitter> constructSplitter(const sol::table &children)
 
 void setupGuiModule()
 {
-    LuaEngine::registerProvider("Gui", [](sol::state_view l) -> sol::object {
+    registerProvider("Gui", [](sol::state_view l) -> sol::object {
         const ScriptPluginSpec *pluginSpec = l.get<ScriptPluginSpec *>("PluginSpec");
         QObject *guard = pluginSpec->connectionGuard.get();
 

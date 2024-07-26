@@ -11,7 +11,7 @@ namespace Lua::Internal {
 
 void setupCoreModule()
 {
-    LuaEngine::registerProvider("Core", [](sol::state_view lua) -> sol::object {
+    registerProvider("Core", [](sol::state_view lua) -> sol::object {
         sol::table core = lua.create_table();
 
         auto generatedFileType = core.new_usertype<GeneratedFile>(

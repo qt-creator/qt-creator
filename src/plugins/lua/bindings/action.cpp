@@ -11,7 +11,7 @@ namespace Lua::Internal {
 
 void setupActionModule()
 {
-    LuaEngine::registerProvider("Action", [](sol::state_view lua) -> sol::object {
+    registerProvider("Action", [](sol::state_view lua) -> sol::object {
         sol::table result = lua.create_table();
 
         result.new_enum("CommandAttribute",
@@ -35,7 +35,7 @@ void setupActionModule()
                     b.setContext(Id::fromString(v.as<QString>()));
                 else if (key == "onTrigger")
                     b.addOnTriggered([f = v.as<sol::function>()]() {
-                        auto res = Lua::LuaEngine::void_safe_call(f);
+                        auto res = void_safe_call(f);
                         QTC_CHECK_EXPECTED(res);
                     });
                 else if (key == "text")

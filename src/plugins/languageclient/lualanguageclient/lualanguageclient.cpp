@@ -56,8 +56,8 @@ public:
                     return;
                 }
 
-                auto result = ::Lua::LuaEngine::void_safe_call(
-                    callback, ::Lua::LuaEngine::toTable(callback.lua_state(), msg.toJsonObject()));
+                auto result = ::Lua::void_safe_call(
+                    callback, ::Lua::toTable(callback.lua_state(), msg.toJsonObject()));
                 QTC_CHECK_EXPECTED(result);
             }};
     }
@@ -252,14 +252,14 @@ public:
             m_initializationOptions,
             [](const sol::protected_function_result &res) -> expected_str<QString> {
                 if (res.get_type(0) == sol::type::table)
-                    return ::Lua::LuaEngine::toJsonString(res.get<sol::table>());
+                    return ::Lua::toJsonString(res.get<sol::table>());
                 else if (res.get_type(0) == sol::type::string)
                     return res.get<QString>(0);
                 return make_unexpected(QString("init callback did not return a table or string"));
             });
 
         if (auto initOptionsTable = options.get<sol::optional<sol::table>>("initializationOptions"))
-            m_initializationOptions = ::Lua::LuaEngine::toJsonString(*initOptionsTable);
+            m_initializationOptions = ::Lua::toJsonString(*initOptionsTable);
         else if (auto initOptionsString = options.get<sol::optional<QString>>("initializationOptions"))
             m_initializationOptions = *initOptionsString;
 
@@ -311,7 +311,7 @@ public:
             [this](Client *c) {
                 auto luaClient = qobject_cast<LuaClient *>(c);
                 if (luaClient && luaClient->m_settingsId == m_settingsTypeId && m_onInstanceStart) {
-                    QTC_CHECK(::Lua::LuaEngine::void_safe_call(*m_onInstanceStart, c));
+                    QTC_CHECK(::Lua::void_safe_call(*m_onInstanceStart, c));
                     updateMessageCallbacks();
                 }
             });
@@ -330,7 +330,7 @@ public:
             return;
 
         if (unexpected && m_startFailedCallback) {
-            QTC_CHECK_EXPECTED(::Lua::LuaEngine::void_safe_call(*m_startFailedCallback));
+            QTC_CHECK_EXPECTED(::Lua::void_safe_call(*m_startFailedCallback));
         }
     }
 
@@ -384,7 +384,7 @@ public:
                             return;
 
                         auto func = self->m_messageCallbacks.value(name);
-                        auto table = ::Lua::LuaEngine::toTable(func.lua_state(), m.toJsonObject());
+                        auto table = ::Lua::toTable(func.lua_state(), m.toJsonObject());
                         auto result = func.call(table);
                         if (!result.valid()) {
                             qWarning() << "Error calling message callback for:" << name << ":"
@@ -397,7 +397,7 @@ public:
 
     void sendMessage(const sol::table &message)
     {
-        const QJsonValue messageValue = ::Lua::LuaEngine::toJson(message);
+        const QJsonValue messageValue = ::Lua::toJson(message);
         if (!messageValue.isObject())
             throw sol::error("Message is not an object");
 
@@ -423,7 +423,7 @@ public:
 
     void sendMessageForDocument(Core::IDocument *document, const sol::table &message)
     {
-        const QJsonValue messageValue = ::Lua::LuaEngine::toJson(message);
+        const QJsonValue messageValue = ::Lua::toJson(message);
         if (!messageValue.isObject())
             throw sol::error("Message is not an object");
 
@@ -441,7 +441,7 @@ public:
     void sendMessageWithIdForDocument_cb(
         TextEditor::TextDocument *document, const sol::table &message, const sol::function callback)
     {
-        const QJsonValue messageValue = ::Lua::LuaEngine::toJson(message);
+        const QJsonValue messageValue = ::Lua::toJson(message);
         if (!messageValue.isObject())
             throw sol::error("Message is not an object");
 
@@ -639,7 +639,7 @@ BaseClientInterface *LuaClientSettings::createInterface(ProjectExplorer::Project
 
 static void registerLuaApi()
 {
-    ::Lua::LuaEngine::registerProvider("LSP", [](sol::state_view lua) -> sol::object {
+    ::Lua::registerProvider("LSP", [](sol::state_view lua) -> sol::object {
         sol::table async = lua.script("return require('async')", "_process_").get<sol::table>();
         sol::function wrap = async["wrap"];
 

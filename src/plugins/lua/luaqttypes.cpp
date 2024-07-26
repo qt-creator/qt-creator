@@ -246,7 +246,7 @@ namespace Lua::Internal {
 
 void setupQtModule()
 {
-    LuaEngine::registerProvider("Qt", [](sol::state_view lua) {
+    registerProvider("Qt", [](sol::state_view lua) {
         sol::table qt(lua, sol::create);
 
         // clang-format off

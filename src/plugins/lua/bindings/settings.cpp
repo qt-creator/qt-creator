@@ -63,7 +63,7 @@ std::unique_ptr<LuaAspectContainer> aspectContainerCreate(const sol::table &opti
                 if (v.is<sol::function>())
                     container->setLayouter(
                         [func = v.as<sol::function>()]() -> Layouting::Layout {
-                            auto res = Lua::LuaEngine::safe_call<Layouting::Layout>(func);
+                            auto res = safe_call<Layouting::Layout>(func);
                             QTC_ASSERT_EXPECTED(res, return {});
                             return *res;
                         });
@@ -72,7 +72,7 @@ std::unique_ptr<LuaAspectContainer> aspectContainerCreate(const sol::table &opti
                     container.get(),
                     &AspectContainer::applied,
                     container.get(),
-                    [func = v.as<sol::function>()]() { Lua::LuaEngine::void_safe_call(func); });
+                    [func = v.as<sol::function>()] { void_safe_call(func); });
             } else if (key == "settingsGroup") {
                 container->setSettingsGroup(v.as<QString>());
             } else {
@@ -103,15 +103,13 @@ void baseAspectCreate(BaseAspect *aspect, const std::string &key, const sol::obj
         aspect->setToolTip(value.as<QString>());
     else if (key == "onValueChanged") {
         QObject::connect(aspect, &BaseAspect::changed, aspect, [func = value.as<sol::function>()]() {
-            Lua::LuaEngine::void_safe_call(func);
+            void_safe_call(func);
         });
     } else if (key == "onVolatileValueChanged") {
         QObject::connect(aspect,
                          &BaseAspect::volatileValueChanged,
                          aspect,
-                         [func = value.as<sol::function>()]() {
-                             Lua::LuaEngine::void_safe_call(func);
-                         });
+                         [func = value.as<sol::function>()] { void_safe_call(func); });
     } else if (key == "enabler")
         aspect->setEnabler(value.as<BoolAspect *>());
     else
@@ -140,7 +138,7 @@ void typedAspectCreate(StringAspect *aspect, const std::string &key, const sol::
         aspect->setValueAcceptor([func = value.as<sol::function>()](const QString &oldValue,
                                                                     const QString &newValue)
                                      -> std::optional<QString> {
-            auto res = Lua::LuaEngine::safe_call<std::optional<QString>>(func, oldValue, newValue);
+            auto res = safe_call<std::optional<QString>>(func, oldValue, newValue);
             QTC_ASSERT_EXPECTED(res, return std::nullopt);
             return *res;
         });
@@ -148,7 +146,7 @@ void typedAspectCreate(StringAspect *aspect, const std::string &key, const sol::
         aspect->setShowToolTipOnLabel(value.as<bool>());
     else if (key == "displayFilter")
         aspect->setDisplayFilter([func = value.as<sol::function>()](const QString &value) {
-            auto res = Lua::LuaEngine::safe_call<QString>(func, value);
+            auto res = safe_call<QString>(func, value);
             QTC_ASSERT_EXPECTED(res, return value);
             return *res;
         });
@@ -183,7 +181,7 @@ void typedAspectCreate(FilePathAspect *aspect, const std::string &key, const sol
         aspect->setValidatePlaceHolder(value.as<bool>());
     else if (key == "openTerminalHandler")
         aspect->setOpenTerminalHandler([func = value.as<sol::function>()]() {
-            auto res = Lua::LuaEngine::void_safe_call(func);
+            auto res = void_safe_call(func);
             QTC_CHECK_EXPECTED(res);
         });
     else if (key == "expectedKind")
@@ -196,7 +194,7 @@ void typedAspectCreate(FilePathAspect *aspect, const std::string &key, const sol
         aspect->setValueAcceptor([func = value.as<sol::function>()](const QString &oldValue,
                                                                     const QString &newValue)
                                      -> std::optional<QString> {
-            auto res = Lua::LuaEngine::safe_call<std::optional<QString>>(func, oldValue, newValue);
+            auto res = safe_call<std::optional<QString>>(func, oldValue, newValue);
             QTC_ASSERT_EXPECTED(res, return std::nullopt);
             return *res;
         });
@@ -212,7 +210,7 @@ void typedAspectCreate(FilePathAspect *aspect, const std::string &key, const sol
     */
     else if (key == "displayFilter")
         aspect->setDisplayFilter([func = value.as<sol::function>()](const QString &path) {
-            auto res = Lua::LuaEngine::safe_call<QString>(func, path);
+            auto res = safe_call<QString>(func, path);
             QTC_ASSERT_EXPECTED(res, return path);
             return *res;
         });
@@ -284,7 +282,7 @@ sol::usertype<T> addTypedAspect(sol::table &lua, const QString &name)
 
 void setupSettingsModule()
 {
-    LuaEngine::registerProvider("Settings", [](sol::state_view l) -> sol::object {
+    registerProvider("Settings", [](sol::state_view l) -> sol::object {
         sol::table settings = l.create_table();
 
         settings.new_usertype<BaseAspect>("Aspect", "apply", &BaseAspect::apply);
@@ -503,7 +501,7 @@ void setupSettingsModule()
                         if (key == "createItemFunction") {
                             aspect->setCreateItemFunction([func = value.as<sol::function>()]()
                                                               -> std::shared_ptr<BaseAspect> {
-                                auto res = Lua::LuaEngine::safe_call<std::shared_ptr<BaseAspect>>(
+                                auto res = safe_call<std::shared_ptr<BaseAspect>>(
                                     func);
                                 QTC_ASSERT_EXPECTED(res, return nullptr);
                                 return *res;
@@ -511,13 +509,13 @@ void setupSettingsModule()
                         } else if (key == "onItemAdded") {
                             aspect->setItemAddedCallback([func = value.as<sol::function>()](
                                                              std::shared_ptr<BaseAspect> item) {
-                                auto res = Lua::LuaEngine::void_safe_call(func, item);
+                                auto res = void_safe_call(func, item);
                                 QTC_CHECK_EXPECTED(res);
                             });
                         } else if (key == "onItemRemoved") {
                             aspect->setItemRemovedCallback([func = value.as<sol::function>()](
                                                                std::shared_ptr<BaseAspect> item) {
-                                auto res = Lua::LuaEngine::void_safe_call(func, item);
+                                auto res = void_safe_call(func, item);
                                 QTC_CHECK_EXPECTED(res);
                             });
                         } else {
@@ -530,14 +528,14 @@ void setupSettingsModule()
             "foreach",
             [](AspectList *a, const sol::function &clbk) {
                 a->forEachItem<BaseAspect>([clbk](std::shared_ptr<BaseAspect> item) {
-                    auto res = Lua::LuaEngine::void_safe_call(clbk, item);
+                    auto res = void_safe_call(clbk, item);
                     QTC_CHECK_EXPECTED(res);
                 });
             },
             "enumerate",
             [](AspectList *a, const sol::function &clbk) {
                 a->forEachItem<BaseAspect>([clbk](std::shared_ptr<BaseAspect> item, int idx) {
-                    auto res = Lua::LuaEngine::void_safe_call(clbk, item, idx);
+                    auto res = void_safe_call(clbk, item, idx);
                     QTC_CHECK_EXPECTED(res);
                 });
             },

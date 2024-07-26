@@ -54,7 +54,7 @@ expected_str<LuaPluginSpec *> LuaPluginSpec::create(const FilePath &filePath, so
     if (!pluginTable.get_or<sol::function>("setup", {}))
         return make_unexpected(QString("Plugin info table did not contain a setup function"));
 
-    QJsonValue v = LuaEngine::toJson(pluginTable);
+    QJsonValue v = toJson(pluginTable);
     if (luaPluginSpecLog().isDebugEnabled()) {
         qCDebug(luaPluginSpecLog).noquote()
             << "Plugin info table:" << QJsonDocument(v.toObject()).toJson(QJsonDocument::Indented);
@@ -120,8 +120,7 @@ bool LuaPluginSpec::initializePlugin()
 
     std::unique_ptr<sol::state> activeLuaState = std::make_unique<sol::state>();
 
-    expected_str<sol::protected_function> setupResult
-        = LuaEngine::instance().prepareSetup(*activeLuaState, *this);
+    expected_str<sol::protected_function> setupResult = prepareSetup(*activeLuaState, *this);
 
     if (!setupResult) {
         setError(Lua::Tr::tr("Cannot prepare extension setup: %1").arg(setupResult.error()));

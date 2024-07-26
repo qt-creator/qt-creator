@@ -9,7 +9,7 @@ namespace Lua::Internal {
 
 void setupTranslateModule()
 {
-    ::Lua::LuaEngine::autoRegister([](sol::state_view lua) {
+    autoRegister([](sol::state_view lua) {
         const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec");
         const QString trContext
             = QString(pluginSpec->name).replace(QRegularExpression("[^a-zA-Z]"), "_");

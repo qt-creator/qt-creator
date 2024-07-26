@@ -17,7 +17,7 @@ public:
 
 void setupLocalSocketModule()
 {
-    LuaEngine::registerProvider("LocalSocket", [](sol::state_view lua) -> sol::object {
+    registerProvider("LocalSocket", [](sol::state_view lua) -> sol::object {
         sol::table async = lua.script("return require('async')", "_localsocket_").get<sol::table>();
         sol::function wrap = async["wrap"];
 
@@ -46,7 +46,7 @@ void setupLocalSocketModule()
             *connection = QObject::connect(
                 socket, &QLocalSocket::connected, socket, [connectionError, connection, cb]() {
                     qDebug() << "CONNECTED";
-                    auto res = LuaEngine::void_safe_call(cb, true);
+                    auto res = void_safe_call(cb, true);
                     QTC_CHECK_EXPECTED(res);
                     QObject::disconnect(*connection);
                     delete connection;
@@ -59,7 +59,7 @@ void setupLocalSocketModule()
                 socket,
                 [socket, connection, connectionError, cb]() {
                     qDebug() << "CONNECT ERROR";
-                    auto res = LuaEngine::void_safe_call(cb, false, socket->errorString());
+                    auto res = void_safe_call(cb, false, socket->errorString());
                     QTC_CHECK_EXPECTED(res);
                     QObject::disconnect(*connection);
                     delete connection;
@@ -86,7 +86,7 @@ void setupLocalSocketModule()
 
             if (socket->bytesAvailable() > 0) {
                 QTimer::singleShot(0, [cb, socket]() {
-                    LuaEngine::void_safe_call(cb, socket->readAll().toStdString());
+                    void_safe_call(cb, socket->readAll().toStdString());
                 });
                 return;
             }
@@ -94,7 +94,7 @@ void setupLocalSocketModule()
             auto connection = new QMetaObject::Connection;
             *connection = QObject::connect(
                 socket, &QLocalSocket::readyRead, socket, [connection, cb, socket]() {
-                    auto res = LuaEngine::void_safe_call(cb, socket->readAll().toStdString());
+                    auto res = void_safe_call(cb, socket->readAll().toStdString());
                     QTC_CHECK_EXPECTED(res);
                     QObject::disconnect(*connection);
                     delete connection;

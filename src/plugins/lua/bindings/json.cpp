@@ -9,9 +9,9 @@ namespace Lua::Internal {
 
 void setupJsonModule()
 {
-    LuaEngine::registerProvider("Json", [](sol::state_view lua) -> sol::object {
+    registerProvider("Json", [](sol::state_view lua) -> sol::object {
         sol::table json = lua.create_table();
-        json["encode"] = &LuaEngine::toJsonString;
+        json["encode"] = &toJsonString;
 
         json["decode"] = [](sol::this_state l, const QString &str) -> sol::table {
             QJsonParseError error;
@@ -19,7 +19,7 @@ void setupJsonModule()
             if (error.error != QJsonParseError::NoError)
                 throw sol::error(error.errorString().toStdString());
 
-            return LuaEngine::toTable(l.lua_state(), doc);
+            return toTable(l.lua_state(), doc);
         };
 
         return json;

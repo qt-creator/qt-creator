@@ -17,7 +17,7 @@ namespace Lua::Internal {
 
 void setupUtilsModule()
 {
-    LuaEngine::registerProvider(
+    registerProvider(
         "Utils",
         [futureSync = Utils::FutureSynchronizer()](sol::state_view lua) mutable -> sol::object {
             const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec");
@@ -173,8 +173,8 @@ void setupUtilsModule()
                     timer->setInterval(timeout);
                     timer->setSingleShot(singleShort);
                     QObject::connect(
-                        timer.get(), &QTimer::timeout, guard->connectionGuard.get(), [callback]() {
-                            ::Lua::LuaEngine::void_safe_call(callback);
+                        timer.get(), &QTimer::timeout, guard->connectionGuard.get(), [callback] {
+                            void_safe_call(callback);
                         });
 
                     return timer;
