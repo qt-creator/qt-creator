@@ -27,12 +27,13 @@ static ToolType typeFromId(const QString &id)
 }
 
 ToolWrapper::ToolWrapper(const Store &data)
+    : ToolWrapper(
+          typeFromId(data.value(Constants::ToolsSettings::TOOL_TYPE_KEY).toString()),
+          data[Constants::ToolsSettings::NAME_KEY].toString(),
+          FilePath::fromSettings(data[Constants::ToolsSettings::EXE_KEY]),
+          Id::fromSetting(data[Constants::ToolsSettings::ID_KEY]),
+          data[Constants::ToolsSettings::AUTO_DETECTED_KEY].toBool())
 {
-    m_toolType = typeFromId(data.value(Constants::ToolsSettings::TOOL_TYPE_KEY).toString());
-    m_name = data[Constants::ToolsSettings::NAME_KEY].toString();
-    m_exe = FilePath::fromSettings(data[Constants::ToolsSettings::EXE_KEY]);
-    m_id = Id::fromSetting(data[Constants::ToolsSettings::ID_KEY]);
-    m_autoDetected =  data[Constants::ToolsSettings::AUTO_DETECTED_KEY].toBool();
 }
 
 ToolWrapper::ToolWrapper(ToolType toolType,
