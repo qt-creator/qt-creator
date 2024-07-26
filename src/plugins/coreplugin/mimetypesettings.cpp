@@ -802,10 +802,9 @@ void MimeEditorDelegate::setModelData(QWidget *editor,
                    int(MimeTypeSettingsModel::Role::DefaultHandler));
 }
 
-void setupMimeTypeSettings(QObject *guard)
+void setupMimeTypeSettings()
 {
-    auto page = new MimeTypeSettings;
-    QObject::connect(guard, &QObject::destroyed, [page] { delete page; });
+    static MimeTypeSettings theMimeTypeSettings;
 }
 
 } // Core::Internal

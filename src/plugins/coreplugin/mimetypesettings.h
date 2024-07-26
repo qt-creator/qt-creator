@@ -3,10 +3,8 @@
 
 #pragma once
 
-#include <QObject>
-
 namespace Core::Internal {
 
-void setupMimeTypeSettings(QObject *guard);
+void setupMimeTypeSettings();
 
 } // Core::Internal

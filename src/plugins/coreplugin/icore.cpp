@@ -1494,7 +1494,7 @@ ICorePrivate::~ICorePrivate()
 void ICore::extensionsInitialized()
 {
     EditorManagerPrivate::extensionsInitialized();
-    setupMimeTypeSettings(d);
+    setupMimeTypeSettings();
     d->m_windowSupport = new WindowSupport(d->m_mainwindow, Context("Core.MainWindow"));
     d->m_windowSupport->setCloseActionEnabled(false);
     OutputPaneManager::initialize();
