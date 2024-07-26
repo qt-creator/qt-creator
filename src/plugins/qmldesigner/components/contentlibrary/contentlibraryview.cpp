@@ -86,7 +86,7 @@ WidgetInfo ContentLibraryView::widgetInfo()
             });
         });
 
-        connect(m_widget, &ContentLibraryWidget::updateSceneEnvStateRequested, this, [&]() {
+        connect(m_widget, &ContentLibraryWidget::updateSceneEnvStateRequested, this, [this] {
             ModelNode activeSceneEnv = m_createTexture.resolveSceneEnv(m_sceneId);
             const bool sceneEnvExists = activeSceneEnv.isValid();
             m_widget->texturesModel()->setHasSceneEnv(sceneEnvExists);

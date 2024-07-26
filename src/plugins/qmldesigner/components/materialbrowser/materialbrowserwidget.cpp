@@ -192,12 +192,12 @@ MaterialBrowserWidget::MaterialBrowserWidget(AsynchronousImageCache &imageCache,
     m_qmlSourceUpdateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F8), this);
     connect(m_qmlSourceUpdateShortcut, &QShortcut::activated, this, &MaterialBrowserWidget::reloadQmlSource);
 
-    connect(m_materialBrowserModel, &MaterialBrowserModel::isEmptyChanged, this, [&] {
+    connect(m_materialBrowserModel, &MaterialBrowserModel::isEmptyChanged, this, [this] {
         if (m_materialBrowserModel->isEmpty())
             focusMaterialSection(false);
     });
 
-    connect(m_materialBrowserTexturesModel, &MaterialBrowserTexturesModel::isEmptyChanged, this, [&] {
+    connect(m_materialBrowserTexturesModel, &MaterialBrowserTexturesModel::isEmptyChanged, this, [this] {
         if (m_materialBrowserTexturesModel->isEmpty())
             focusMaterialSection(true);
     });

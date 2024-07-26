@@ -68,7 +68,7 @@ LanguageClientManager::LanguageClientManager(QObject *parent)
     connect(ProjectManager::instance(), &ProjectManager::projectAdded,
             this, &LanguageClientManager::projectAdded);
     connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
-            this, [&](Project *project) { project->disconnect(this); });
+            this, [this](Project *project) { project->disconnect(this); });
 
     ExtensionSystem::PluginManager::addObject(this);
 }

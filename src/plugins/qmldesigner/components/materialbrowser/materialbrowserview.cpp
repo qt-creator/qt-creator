@@ -64,7 +64,7 @@ WidgetInfo MaterialBrowserView::widgetInfo()
         // custom notifications below are sent to the MaterialEditor
         MaterialBrowserModel *matBrowserModel = m_widget->materialBrowserModel().data();
 
-        connect(matBrowserModel, &MaterialBrowserModel::selectedIndexChanged, this, [&] (int idx) {
+        connect(matBrowserModel, &MaterialBrowserModel::selectedIndexChanged, this, [this](int idx) {
             ModelNode matNode = m_widget->materialBrowserModel()->materialAt(idx);
             emitCustomNotification("selected_material_changed", {matNode}, {});
         });
@@ -79,7 +79,7 @@ WidgetInfo MaterialBrowserView::widgetInfo()
             emitCustomNotification("rename_material", {material}, {newName});
         });
 
-        connect(matBrowserModel, &MaterialBrowserModel::addNewMaterialTriggered, this, [&] {
+        connect(matBrowserModel, &MaterialBrowserModel::addNewMaterialTriggered, this, [this] {
             emitCustomNotification("add_new_material");
         });
 
@@ -153,7 +153,7 @@ WidgetInfo MaterialBrowserView::widgetInfo()
 
         // custom notifications below are sent to the TextureEditor
         MaterialBrowserTexturesModel *texturesModel = m_widget->materialBrowserTexturesModel().data();
-        connect(texturesModel, &MaterialBrowserTexturesModel::selectedIndexChanged, this, [&] (int idx) {
+        connect(texturesModel, &MaterialBrowserTexturesModel::selectedIndexChanged, this, [this](int idx) {
             ModelNode texNode = m_widget->materialBrowserTexturesModel()->textureAt(idx);
             emitCustomNotification("selected_texture_changed", {texNode});
         });
@@ -177,17 +177,17 @@ WidgetInfo MaterialBrowserView::widgetInfo()
             applyTextureToModel3D(m_selectedModels[0], texture);
         });
 
-        connect(texturesModel, &MaterialBrowserTexturesModel::addNewTextureTriggered, this, [&] {
+        connect(texturesModel, &MaterialBrowserTexturesModel::addNewTextureTriggered, this, [this] {
             emitCustomNotification("add_new_texture");
         });
 
-        connect(texturesModel, &MaterialBrowserTexturesModel::updateSceneEnvStateRequested, this, [&]() {
+        connect(texturesModel, &MaterialBrowserTexturesModel::updateSceneEnvStateRequested, this, [this] {
             ModelNode activeSceneEnv = CreateTexture(this).resolveSceneEnv(m_sceneId);
             const bool sceneEnvExists = activeSceneEnv.isValid();
             m_widget->materialBrowserTexturesModel()->setHasSceneEnv(sceneEnvExists);
         });
 
-        connect(texturesModel, &MaterialBrowserTexturesModel::updateModelSelectionStateRequested, this, [&]() {
+        connect(texturesModel, &MaterialBrowserTexturesModel::updateModelSelectionStateRequested, this, [this] {
             bool hasModel = false;
             if (m_selectedModels.size() == 1)
                 hasModel = getMaterialOfModel(m_selectedModels.at(0)).isValid();
