@@ -516,25 +516,25 @@ public:
         const NodeMetaInfo &propertyTypeMetaInfo = propertyMetaInfo.propertyType();
 
         if (propertyTypeMetaInfo.isColor())
-            return PropertyParser::read(QVariant::Color, cleanedValue);
+            return PropertyParser::read(QMetaType::Type::QColor, cleanedValue);
         else if (propertyTypeMetaInfo.isUrl())
-            return PropertyParser::read(QVariant::Url, cleanedValue);
+            return PropertyParser::read(QMetaType::Type::QUrl, cleanedValue);
         else if (propertyTypeMetaInfo.isVector2D())
-            return PropertyParser::read(QVariant::Vector2D, cleanedValue);
+            return PropertyParser::read(QMetaType::Type::QVector2D, cleanedValue);
         else if (propertyTypeMetaInfo.isVector3D())
-            return PropertyParser::read(QVariant::Vector3D, cleanedValue);
+            return PropertyParser::read(QMetaType::Type::QVector3D, cleanedValue);
         else if (propertyTypeMetaInfo.isVector4D())
-            return PropertyParser::read(QVariant::Vector4D, cleanedValue);
+            return PropertyParser::read(QMetaType::Type::QVector4D, cleanedValue);
 
         QVariant value(cleanedValue);
         if (propertyTypeMetaInfo.isBool()) {
-            value.convert(QVariant::Bool);
+            value.convert(QMetaType::Type::Bool);
             return value;
         } else if (propertyTypeMetaInfo.isInteger()) {
-            value.convert(QVariant::Int);
+            value.convert(QMetaType::Type::Int);
             return value;
         } else if (propertyTypeMetaInfo.isFloat()) {
-            value.convert(QVariant::Double);
+            value.convert(QMetaType::Type::Double);
             return value;
         } else if (propertyTypeMetaInfo.isString()) {
             // nothing to do
