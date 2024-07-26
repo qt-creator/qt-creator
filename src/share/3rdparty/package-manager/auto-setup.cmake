@@ -7,6 +7,13 @@ foreach(qtcreator_var
   set(__just_reference_${qtcreator_var} ${${qtcreator_var}})
 endforeach()
 
+option(QT_CREATOR_SOURCE_GROUPS "Qt Creator source groups extensions" ON)
+if (QT_CREATOR_SOURCE_GROUPS)
+  source_group("Resources" REGULAR_EXPRESSION "\\.(pdf|plist|png|jpeg|jpg|storyboard|xcassets|qrc|svg|gif|ico|webp)$")
+  source_group("Forms" REGULAR_EXPRESSION "\\.(ui)$")
+  source_group("State charts" REGULAR_EXPRESSION "\\.(scxml)$")
+endif()
+
 if (EXISTS "${CMAKE_SOURCE_DIR}/QtCreatorPackageManager.cmake")
   include("${CMAKE_SOURCE_DIR}/QtCreatorPackageManager.cmake")
 endif()
