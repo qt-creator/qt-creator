@@ -77,6 +77,7 @@ public:
 
     bool persistCMakeState();
     void clearCMakeCache();
+    void disableCMakeBuildMenuActions();
 
     // Context menu actions:
     void buildCMakeTarget(const QString &buildTarget);

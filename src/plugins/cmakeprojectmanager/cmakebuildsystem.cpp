@@ -1239,6 +1239,11 @@ void CMakeBuildSystem::clearCMakeCache()
         path.removeRecursively();
 
     emit configurationCleared();
+}
+
+void CMakeBuildSystem::disableCMakeBuildMenuActions()
+{
+    emitParsingStarted();
     emitParsingFinished(false);
 }
 
