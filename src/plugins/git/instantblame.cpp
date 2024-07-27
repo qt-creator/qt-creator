@@ -204,8 +204,13 @@ void InstantBlame::setup()
     });
 }
 
-// Porcelain format of git blame output
-// 8b649d2d61416205977aba56ef93e1e1f155005e 5 5 1
+// Porcelain format of git blame output:
+// Consists of 12 or 13 lines (line 11 can be missing, "boundary", or "previous")
+// The first line contains SHA-1, original line, current line,
+// and optional the  number of lines in this group when blaming multiple lines.
+// The last line starts with a tab and is followed by the actual file content.
+// ----------------------------------------------------------------------------
+// 8b649d2d61416205977aba56ef93e1e1f155005e 4 5 1
 // author John Doe
 // author-mail <john.doe@gmail.com>
 // author-time 1613752276
@@ -215,9 +220,10 @@ void InstantBlame::setup()
 // committer-time 1613752312
 // committer-tz +0100
 // summary Add greeting to script
-// (boundary/previous f6b5868032a5dc0e73b82b09184086d784949646 oldfile)
+// (missing/boundary/previous f6b5868032a5dc0e73b82b09184086d784949646 oldfile)
 // filename foo
-//     echo Hello World!
+// <TAB>echo Hello World!
+// ----------------------------------------------------------------------------
 
 static CommitInfo parseBlameOutput(const QStringList &blame, const Utils::FilePath &filePath,
                                    int line, const Git::Internal::Author &author)
