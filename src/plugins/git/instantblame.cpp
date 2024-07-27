@@ -79,8 +79,8 @@ bool BlameMark::addToolTipContent(QLayout *target) const
             const QString originalFileName = m_info.originalFileName;
             if (link.startsWith("blame")) {
                 qCInfo(log).nospace().noquote() << "Blaming: \"" << path << "/" << originalFileName
-                                                << "\":" << m_info.line << " @ " << sha1;
-                gitClient().annotate(path, originalFileName, m_info.line, sha1);
+                                                << "\":" << m_info.originalLine << " @ " << sha1;
+                gitClient().annotate(path, originalFileName, m_info.originalLine, sha1);
             } else {
                 qCInfo(log).nospace().noquote() << "Showing file: \"" << path << "/"
                                                 << originalFileName << "\" @ " << sha1;
@@ -226,7 +226,8 @@ static CommitInfo parseBlameOutput(const QStringList &blame, const Utils::FilePa
     if (blame.size() <= 12)
         return result;
 
-    result.sha1 = blame.at(0).left(40);
+    const QStringList firstLineParts = blame.at(0).split(" ");
+    result.sha1 = firstLineParts.first();
     result.author = blame.at(1).mid(7);
     result.authorMail = blame.at(2).mid(13).chopped(1);
     if (result.author == author.name || result.authorMail == author.email)
@@ -243,6 +244,10 @@ static CommitInfo parseBlameOutput(const QStringList &blame, const Utils::FilePa
     else
         result.originalFileName = blame.at(11).mid(9);
     result.line = line;
+    if (firstLineParts.size() > 1)
+        result.originalLine = firstLineParts.at(1).toInt();
+    else
+        result.originalLine = line;
     return result;
 }
 

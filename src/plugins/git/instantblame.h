@@ -25,9 +25,10 @@ public:
     QString authorMail;
     QDateTime authorTime;
     QString summary;
-    Utils::FilePath filePath;
-    QString originalFileName; // relative file path from project root
-    int line = -1;
+    Utils::FilePath filePath; ///< absolute file path for current file
+    QString originalFileName; ///< relative file path from project root for the original file
+    int line = -1;            ///< current line number in current file
+    int originalLine = -1;    ///< original line number in the original file
 };
 
 class BlameMark : public TextEditor::TextMark
