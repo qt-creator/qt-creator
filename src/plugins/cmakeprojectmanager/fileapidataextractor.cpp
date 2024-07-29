@@ -624,7 +624,8 @@ static FolderNode *createSourceGroupNode(const QString &sourceGroupName,
     FolderNode *currentNode = targetRoot;
 
     if (!sourceGroupName.isEmpty()) {
-        const QStringList parts = sourceGroupName.split("\\");
+        static const QRegularExpression separators("(\\\\|/)");
+        const QStringList parts = sourceGroupName.split(separators);
 
         for (const QString &p : parts) {
             FolderNode *existingNode = currentNode->findChildFolderNode(
