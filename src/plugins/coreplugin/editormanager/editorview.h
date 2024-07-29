@@ -111,6 +111,7 @@ protected:
     void paintEvent(QPaintEvent *) override;
     void mousePressEvent(QMouseEvent *e) override;
     void focusInEvent(QFocusEvent *) override;
+    bool event(QEvent *e) override;
 
 private:
     friend class SplitterOrView; // for setParentSplitterOrView

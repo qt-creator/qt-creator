@@ -324,6 +324,23 @@ void EditorView::focusInEvent(QFocusEvent *)
     EditorManagerPrivate::setCurrentView(this);
 }
 
+bool EditorView::event(QEvent *e)
+{
+    if (e->type() == QEvent::NativeGesture) {
+        auto ev = static_cast<QNativeGestureEvent *>(e);
+        if (ev->gestureType() == Qt::SwipeNativeGesture) {
+            if (ev->value() > 0 && canGoBack()) { // swipe from right to left == go back
+                goBackInNavigationHistory();
+                return true;
+            } else if (ev->value() <= 0 && canGoForward()) {
+                goForwardInNavigationHistory();
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 void EditorView::addEditor(IEditor *editor)
 {
     if (m_editors.contains(editor))
