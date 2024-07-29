@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "../luaengine.h"
-#include "./luatr.h"
+#include "../luatr.h"
 
 #include <texteditor/basehoverhandler.h>
 #include <texteditor/textdocument.h>
