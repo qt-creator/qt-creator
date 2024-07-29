@@ -65,8 +65,6 @@ using namespace Utils;
 
 namespace Android::Internal {
 
-class AndroidManifestEditor;
-
 const char infoBarId[] = "Android.AndroidManifestEditor.InfoBar";
 
 static bool checkPackageName(const QString &packageName)
@@ -127,7 +125,6 @@ public:
     void preSave();
     void postSave();
 
-    Core::IEditor *editor() const;
     TextEditor::TextEditorWidget *textEditorWidget() const;
 
     void setDirty(bool dirty = true);
@@ -211,33 +208,8 @@ private:
 
     QTimer m_timerParseCheck;
     TextEditor::TextEditorWidget *m_textEditorWidget;
-    AndroidManifestEditor *m_editor;
     QString m_androidNdkPlatform;
     QTabWidget *m_advanvedTabWidget = nullptr;
-};
-
-// AndroidManifestEditor
-
-class AndroidManifestEditor : public Core::IEditor
-{
-public:
-    explicit AndroidManifestEditor(AndroidManifestEditorWidget *editorWidget);
-
-    QWidget *toolBar() override;
-    Core::IDocument *document() const override;
-    TextEditor::TextEditorWidget *textEditor() const;
-
-    int currentLine() const override;
-    int currentColumn() const override;
-    void gotoLine(int line, int column = 0, bool centerLine = true)  override;
-
-private:
-    AndroidManifestEditorWidget *ownWidget() const;
-    void changeEditorPage(QAction *action);
-
-    QString m_displayName;
-    QToolBar *m_toolBar;
-    QActionGroup *m_actionGroup;
 };
 
 class AndroidManifestTextEditorWidget : public TextEditor::TextEditorWidget
@@ -258,8 +230,6 @@ AndroidManifestEditorWidget::AndroidManifestEditorWidget()
 
     m_timerParseCheck.setInterval(800);
     m_timerParseCheck.setSingleShot(true);
-
-    m_editor = new AndroidManifestEditor(this);
 
     connect(&m_timerParseCheck, &QTimer::timeout,
             this, &AndroidManifestEditorWidget::delayedParseCheck);
@@ -742,11 +712,6 @@ void AndroidManifestEditorWidget::postSave()
             }
         }
     }
-}
-
-Core::IEditor *AndroidManifestEditorWidget::editor() const
-{
-    return m_editor;
 }
 
 TextEditor::TextEditorWidget *AndroidManifestEditorWidget::textEditorWidget() const
@@ -1591,6 +1556,28 @@ AndroidManifestTextEditorWidget::AndroidManifestTextEditorWidget(AndroidManifest
 
 // AndroidManifestEditor
 
+class AndroidManifestEditor : public Core::IEditor
+{
+public:
+    explicit AndroidManifestEditor(AndroidManifestEditorWidget *editorWidget);
+
+    QWidget *toolBar() override;
+    Core::IDocument *document() const override;
+    TextEditor::TextEditorWidget *textEditor() const;
+
+    int currentLine() const override;
+    int currentColumn() const override;
+    void gotoLine(int line, int column = 0, bool centerLine = true)  override;
+
+private:
+    AndroidManifestEditorWidget *ownWidget() const;
+    void changeEditorPage(QAction *action);
+
+    QString m_displayName;
+    QToolBar *m_toolBar;
+    QActionGroup *m_actionGroup;
+};
+
 AndroidManifestEditor::AndroidManifestEditor(AndroidManifestEditorWidget *editorWidget)
     : m_toolBar(nullptr)
 {
@@ -1674,8 +1661,9 @@ public:
         setDisplayName(Tr::tr("Android Manifest editor"));
         addMimeType(Constants::ANDROID_MANIFEST_MIME_TYPE);
         setEditorCreator([] {
-            auto androidManifestEditorWidget = new AndroidManifestEditorWidget;
-            return androidManifestEditorWidget->editor();
+            auto widget = new AndroidManifestEditorWidget;
+            auto editor = new AndroidManifestEditor(widget);
+            return editor;
         });
     }
 };
