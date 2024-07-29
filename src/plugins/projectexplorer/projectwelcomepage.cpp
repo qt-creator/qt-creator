@@ -22,6 +22,7 @@
 #include <utils/fileutils.h>
 #include <utils/icon.h>
 #include <utils/layoutbuilder.h>
+#include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/stylehelper.h>
@@ -271,6 +272,18 @@ protected:
     }
 };
 
+static FilePaths pathsForSessionName(const QString &session)
+{
+    const FilePath fileName = SessionManager::sessionNameToFileName(session);
+    PersistentSettingsReader reader;
+    if (fileName.exists()) {
+        if (!reader.load(fileName))
+            return {};
+    }
+    // qDebug() << reader.restoreValue("EditorSettings").toByteArray();
+    return {};
+}
+
 class SessionDelegate : public BaseDelegate
 {
 protected:
@@ -478,6 +491,10 @@ public:
                     yy += projectPathLineHeight;
                 }
                 yy += s(VPaddingXxs);
+            }
+            if (projects.isEmpty()) {
+                // check if there are files to show instead
+                const FilePaths paths = pathsForSessionName(sessionName);
             }
             yy += s(VGapXs);
 

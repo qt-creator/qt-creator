@@ -3630,6 +3630,62 @@ QByteArray EditorManager::saveState()
     return bytes;
 }
 
+class FileStateEntry
+{
+public:
+    QString filePath;
+    QString displayName;
+    Id id;
+    bool pinned = false;
+};
+
+static void restore(
+    const QByteArray &state,
+    const std::function<void(QMap<QString, QVariant>)> &editorStatesHandler,
+    const std::function<void(FileStateEntry)> &fileHandler,
+    const std::function<void(QByteArray)> &splitterStateHandler,
+    const std::function<void(QVector<QVariantHash>)> &windowStateHandler)
+{
+    QDataStream stream(state);
+    QByteArray version;
+    stream >> version;
+    const bool isVersion5 = version == "EditorManagerV5";
+    if (version != "EditorManagerV4" && !isVersion5)
+        return;
+
+    QMap<QString, QVariant> editorStates;
+    stream >> editorStates;
+    if (editorStatesHandler)
+        editorStatesHandler(editorStates);
+
+    int editorCount = 0;
+    stream >> editorCount;
+    while (--editorCount >= 0) {
+        FileStateEntry file;
+        stream >> file.filePath;
+        stream >> file.displayName;
+        stream >> file.id;
+        if (isVersion5)
+            stream >> file.pinned;
+
+        if (fileHandler)
+            fileHandler(file);
+    }
+
+    QByteArray splitterstates;
+    stream >> splitterstates;
+    if (splitterStateHandler)
+        splitterStateHandler(splitterstates);
+
+    if (!stream.atEnd()) { // safety for settings from Qt Creator 4.5 and earlier
+        // restore windows
+        QVector<QVariantHash> windowStates;
+        stream >> windowStates;
+        if (windowStateHandler)
+            windowStateHandler(windowStates);
+    }
+}
+
 /*!
     \internal
 
@@ -3647,62 +3703,38 @@ void EditorManager::restoreState(const QByteArray &state)
         delete d->m_editorAreas.at(i); // automatically removes it from list
     if (d->m_editorAreas.first()->isSplitter())
         EditorManagerPrivate::removeAllSplits();
-    QDataStream stream(state);
-
-    QByteArray version;
-    stream >> version;
-
-    const bool isVersion5 = version == "EditorManagerV5";
-    if (version != "EditorManagerV4" && !isVersion5)
-        return;
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
-    stream >> d->m_editorStates;
-
-    int editorCount = 0;
-    stream >> editorCount;
-    while (--editorCount >= 0) {
-        QString fileName;
-        stream >> fileName;
-        QString displayName;
-        stream >> displayName;
-        Id id;
-        stream >> id;
-        bool pinned = false;
-        if (isVersion5)
-            stream >> pinned;
-
-        if (!fileName.isEmpty() && !displayName.isEmpty()) {
-            const FilePath filePath = FilePath::fromUserInput(fileName);
+    const auto setEditorStates = [](const QMap<QString, QVariant> &s) { d->m_editorStates = s; };
+    const auto openFile = [](const FileStateEntry &file) {
+        if (!file.filePath.isEmpty() && !file.displayName.isEmpty()) {
+            const FilePath filePath = FilePath::fromUserInput(file.filePath);
             if (!filePath.exists())
-                continue;
+                return;
             const FilePath rfp = autoSaveName(filePath);
             if (rfp.exists() && filePath.lastModified() < rfp.lastModified()) {
-                if (IEditor *editor = openEditor(filePath, id, DoNotMakeVisible))
-                    DocumentModelPrivate::setPinned(DocumentModel::entryForDocument(editor->document()), pinned);
+                if (IEditor *editor = openEditor(filePath, file.id, DoNotMakeVisible))
+                    DocumentModelPrivate::setPinned(
+                        DocumentModel::entryForDocument(editor->document()), file.pinned);
             } else {
-                 if (DocumentModel::Entry *entry = DocumentModelPrivate::addSuspendedDocument(
-                        filePath, displayName, id))
-                     DocumentModelPrivate::setPinned(entry, pinned);
+                if (DocumentModel::Entry *entry
+                    = DocumentModelPrivate::addSuspendedDocument(filePath, file.displayName, file.id))
+                    DocumentModelPrivate::setPinned(entry, file.pinned);
             }
         }
-    }
-
-    QByteArray splitterstates;
-    stream >> splitterstates;
-    d->m_editorAreas.first()->restoreState(splitterstates); // TODO
-
-    if (!stream.atEnd()) { // safety for settings from Qt Creator 4.5 and earlier
-        // restore windows
-        QVector<QVariantHash> windowStates;
-        stream >> windowStates;
-        for (const QVariantHash &windowState : std::as_const(windowStates)) {
+    };
+    const auto restoreSplitterState = [](const QByteArray &state) {
+        d->m_editorAreas.first()->restoreState(state);
+    };
+    const auto restoreWindows = [](const QVector<QVariantHash> &states) {
+        for (const QVariantHash &windowState : std::as_const(states)) {
             EditorWindow *window = d->createEditorWindow();
             window->restoreState(windowState);
             window->show();
         }
-    }
+    };
+    restore(state, setEditorStates, openFile, restoreSplitterState, restoreWindows);
 
     // splitting and stuff results in focus trouble, that's why we set the focus again after restoration
     if (d->m_currentEditor) {
