@@ -643,38 +643,6 @@ FilePath ICore::installerResourcePath(const QString &rel)
 }
 
 /*!
-    Returns the path to the plugins that are included in the \QC installation.
-
-    \internal
-*/
-QString ICore::pluginPath()
-{
-    return QDir::cleanPath(QCoreApplication::applicationDirPath() + '/' + RELATIVE_PLUGIN_PATH);
-}
-
-/*!
-    Returns the path where user-specific plugins should be written.
-
-    \internal
-*/
-QString ICore::userPluginPath()
-{
-    const QVersionNumber appVersion = QVersionNumber::fromString(
-        QCoreApplication::applicationVersion());
-    QString pluginPath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation);
-    if (Utils::HostOsInfo::isAnyUnixHost() && !Utils::HostOsInfo::isMacHost())
-        pluginPath += "/data";
-    pluginPath += '/' + QCoreApplication::organizationName() + '/';
-    pluginPath += Utils::HostOsInfo::isMacHost() ? QGuiApplication::applicationDisplayName()
-                                                 : appInfo().id;
-    pluginPath += "/plugins/";
-    pluginPath += QString::number(appVersion.majorVersion()) + '.'
-                  + QString::number(appVersion.minorVersion()) + '.'
-                  + QString::number(appVersion.microVersion());
-    return pluginPath;
-}
-
-/*!
     Returns the path, based on the relative path \a rel, to the command line tools that are
     included in the \QC installation.
  */

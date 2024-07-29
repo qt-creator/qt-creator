@@ -147,8 +147,6 @@ public:
     static QString aboutInformationHtml();
     static QString systemInformation();
     static void setupScreenShooter(const QString &name, QWidget *w, const QRect &rc = QRect());
-    static QString pluginPath();
-    static QString userPluginPath();
     static Utils::FilePath clangExecutable(const Utils::FilePath &clangBinDirectory);
     static Utils::FilePath clangdExecutable(const Utils::FilePath &clangBinDirectory);
     static Utils::FilePath clangTidyExecutable(const Utils::FilePath &clangBinDirectory);
