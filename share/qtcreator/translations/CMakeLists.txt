@@ -1,4 +1,4 @@
-set(languages cs da de fr hr ja pl ru sl uk zh_CN zh_TW)
+set(languages cs da de en fr hr ja pl ru sl uk zh_CN zh_TW)
 set(bad_languages hu) # Fix these before including them in languages!
 
 find_package(Python3 COMPONENTS Interpreter)
