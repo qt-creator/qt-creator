@@ -7,11 +7,10 @@
 #include "qmldebugtranslationclient.h"
 
 #include <extensionsystem/iplugin.h>
+#include <projectexplorer/runcontrol.h>
 #include <qmljs/qmljsdialect.h>
 
 namespace Core { class IEditor; }
-
-namespace ProjectExplorer { class RunControl; }
 
 namespace QmlDebug { class QmlDebugConnection; }
 
