@@ -254,6 +254,23 @@ Id Id::withSuffix(int suffix) const
 /*!
   \overload
 */
+Id Id::withSuffix(qsizetype suffix) const
+{
+    return withSuffix(int(suffix));
+}
+
+/*!
+  \overload
+*/
+Id Id::withSuffix(const char suffix) const
+{
+    const QByteArray ba = name() + suffix;
+    return Id(theId(ba.data(), ba.size()));
+}
+
+/*!
+  \overload
+*/
 
 Id Id::withSuffix(const char *suffix) const
 {

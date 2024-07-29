@@ -28,6 +28,8 @@ public:
     static Id generate();
 
     Id withSuffix(int suffix) const;
+    Id withSuffix(qsizetype suffix) const;
+    Id withSuffix(const char suffix) const;
     Id withSuffix(const char *suffix) const;
     Id withSuffix(const QStringView suffix) const;
     Id withPrefix(const char *prefix) const;
