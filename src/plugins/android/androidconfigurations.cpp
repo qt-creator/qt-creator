@@ -239,7 +239,6 @@ struct AndroidConfigData
     QUrl m_sdkToolsUrl;
     QByteArray m_sdkToolsSha256;
     QStringList m_commonEssentialPkgs;
-    SdkForQtVersions m_defaultSdkDepends;
     QList<SdkForQtVersions> m_specificQtVersions;
     QStringList m_customNdkList;
     FilePath m_defaultNdk;
@@ -276,7 +275,7 @@ static FilePath ndkSubPathFromQtVersion(const QtVersion &version)
         if (item.containsVersion(version.qtVersion()))
             return ndkSubPath(item);
     }
-    return ndkSubPath(config().m_defaultSdkDepends);
+    return {};
 }
 
 //////////////////////////////////
@@ -441,10 +440,7 @@ void AndroidConfigData::parseDependenciesJson()
             for (const QJsonValue &pkg : versions)
                 specificVersion.versions.append(fillQtVersionsRange(pkg.toString()));
 
-            if (itemObj[VersionsKey].toArray().first().toString() == DefaultVersionKey)
-                m_defaultSdkDepends = specificVersion;
-            else
-                m_specificQtVersions.append(specificVersion);
+            m_specificQtVersions.append(specificVersion);
         }
     }
 }
@@ -883,16 +879,9 @@ QUrl sdkToolsUrl() { return config().m_sdkToolsUrl; }
 
 QByteArray getSdkToolsSha256() { return config().m_sdkToolsSha256; }
 
-static QStringList defaultEssentials()
+static QStringList commonEssentials()
 {
-    return config().m_defaultSdkDepends.essentialPackages + config().m_commonEssentialPkgs;
-}
-
-static QStringList packagesExcludingBuiltWithDefaults(const QStringList &packages)
-{
-    return Utils::filtered(packages, [] (const QString &p) {
-        return !p.startsWith(ndkPackageMarker()) && !p.startsWith(platformsPackageMarker())
-               && !p.startsWith(buildToolsPackageMarker()); });
+    return config().m_commonEssentialPkgs;
 }
 
 static QString essentialBuiltWithBuildToolsPackage(int builtWithApiVersion)
@@ -939,8 +928,7 @@ static QStringList essentialsFromQtVersion(const QtVersion &version)
             builtWithPackages.append(platformsPackageMarker() + "android-" + apiVersion);
             builtWithPackages.append(essentialBuiltWithBuildToolsPackage(bw.apiVersion));
 
-            return builtWithPackages + packagesExcludingBuiltWithDefaults(
-                       config().m_defaultSdkDepends.essentialPackages);
+            return builtWithPackages;
         }
     }
 
@@ -949,7 +937,7 @@ static QStringList essentialsFromQtVersion(const QtVersion &version)
         if (item.containsVersion(qtVersion))
             return item.essentialPackages;
     }
-    return config().m_defaultSdkDepends.essentialPackages;
+    return {};
 }
 
 QStringList allEssentials()
@@ -959,7 +947,7 @@ QStringList allEssentials()
             return v->targetDeviceTypes().contains(Android::Constants::ANDROID_DEVICE_TYPE);
         });
 
-    QStringList allPackages(defaultEssentials());
+    QStringList allPackages(commonEssentials());
     for (const QtVersion *version : installedVersions)
         allPackages.append(essentialsFromQtVersion(*version));
     allPackages.removeDuplicates();
