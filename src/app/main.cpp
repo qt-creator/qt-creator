@@ -700,7 +700,7 @@ int main(int argc, char **argv)
 
     if (HostOsInfo::isWindowsHost()) {
         const bool hasStyleOption = Utils::findOrDefault(options.appArguments, [](char *arg) {
-            return strcmp(arg, "-style") == 0;
+            return arg && strcmp(arg, "-style") == 0;
         });
         if (!hasStyleOption) {
             // The Windows 11 default style (Qt 6.7) has major issues, therefore
