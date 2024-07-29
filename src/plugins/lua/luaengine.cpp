@@ -394,7 +394,7 @@ QStringList variadicToStringList(const sol::variadic_args &vargs)
         size_t l;
         const char *s = luaL_tolstring(vargs.lua_state(), int(i), &l);
         if (s != nullptr)
-            strings.append(QString::fromUtf8(s, l).replace('\0', "\\0"));
+            strings.append(QString::fromUtf8(s, l).replace(QLatin1Char('\0'), "\\0"));
     }
 
     return strings;
