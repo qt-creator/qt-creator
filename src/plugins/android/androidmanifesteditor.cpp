@@ -6,7 +6,6 @@
 #include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androidmanager.h"
-#include "androidmanifestdocument.h"
 #include "androidmanifesteditoriconcontainerwidget.h"
 #include "androidtr.h"
 #include "splashscreencontainerwidget.h"
@@ -25,6 +24,7 @@
 #include <projectexplorer/projectwindow.h>
 #include <projectexplorer/target.h>
 
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
 
@@ -1421,6 +1421,41 @@ int PermissionsModel::rowCount(const QModelIndex &parent) const
     return m_permissions.count();
 }
 
+// AndroidManifestDocument
+
+class AndroidManifestDocument : public TextEditor::TextDocument
+{
+public:
+    explicit AndroidManifestDocument(AndroidManifestEditorWidget *editorWidget)
+        : m_editorWidget(editorWidget)
+    {
+        setId(Constants::ANDROID_MANIFEST_EDITOR_ID);
+        setMimeType(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
+        setSuspendAllowed(false);
+        connect(editorWidget, &AndroidManifestEditorWidget::guiChanged,
+                this, &Core::IDocument::changed);
+    }
+
+private:
+    bool isModified() const override
+    {
+        return TextDocument::isModified() ||  m_editorWidget->isModified();
+    }
+
+    bool isSaveAsAllowed() const override { return false; }
+
+    bool saveImpl(QString *errorString, const FilePath &filePath, bool autoSave = false) override
+    {
+        m_editorWidget->preSave();
+        bool result = TextDocument::saveImpl(errorString, filePath, autoSave);
+        m_editorWidget->postSave();
+        return result;
+    }
+
+    AndroidManifestEditorWidget *m_editorWidget;
+};
+
+// AndroidManifestEditorWidget
 
 AndroidManifestTextEditorWidget::AndroidManifestTextEditorWidget(AndroidManifestEditorWidget *parent)
     : TextEditor::TextEditorWidget(parent)
