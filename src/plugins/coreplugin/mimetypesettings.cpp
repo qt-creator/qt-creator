@@ -368,41 +368,35 @@ MimeTypeSettingsWidget::MimeTypeSettingsWidget(MimeTypeSettingsPage *settings)
     m_removeMagicButton = new QPushButton;
     m_removeMagicButton->setText(Tr::tr("Remove"));
 
-    auto mimeTypesGroupBox = new QGroupBox;
-    mimeTypesGroupBox->setTitle(Tr::tr("Registered MIME Types"));
-
-    auto detailsGroupBox = new QGroupBox;
-    detailsGroupBox->setTitle(Tr::tr("Details"));
-
-    auto splitter = new QSplitter(this);
-    splitter->setOrientation(Qt::Vertical);
-    splitter->setChildrenCollapsible(false);
-    splitter->addWidget(mimeTypesGroupBox);
-    splitter->addWidget(detailsGroupBox);
-
     using namespace Layouting;
 
     Column {
-        filterLineEdit,
-        m_mimeTypesTreeView,
-        Row { resetButton, m_resetHandlersButton, st }
-    }.attachTo(mimeTypesGroupBox);
-
-    Column {
-        Form { patternsLabel, m_patternsLineEdit, br, },
-        Row {
-            m_magicHeadersTreeWidget,
-            Column {
-                m_addMagicButton,
-                m_editMagicButton,
-                m_removeMagicButton,
-                st
+        Splitter {
+            childrenCollapsible(false),
+            Group {
+                title(Tr::tr("Registered MIME Types")),
+                Column {
+                    filterLineEdit,
+                    m_mimeTypesTreeView,
+                    Row { resetButton, m_resetHandlersButton, st }
+                }
+            },
+            Group {
+                title(Tr::tr("Details")),
+                Column {
+                    Form { patternsLabel, m_patternsLineEdit },
+                    Row {
+                        m_magicHeadersTreeWidget,
+                        Column {
+                            m_addMagicButton,
+                            m_editMagicButton,
+                            m_removeMagicButton,
+                            st
+                        }
+                    }
+                }
             }
         }
-    }.attachTo(detailsGroupBox);
-
-    Column {
-        splitter
     }.attachTo(this);
 
     d->m_model.load();
