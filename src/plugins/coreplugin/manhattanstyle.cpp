@@ -302,7 +302,8 @@ void ManhattanStyle::polish(QWidget *widget)
 
         widget->setAttribute(Qt::WA_LayoutUsesWidgetRect, true);
         // So that text isn't cutoff in line-edits, comboboxes... etc.
-        const int height = qMax(StyleHelper::navigationWidgetHeight(), QApplication::fontMetrics().height());
+        const int height = qMax(StyleHelper::navigationWidgetHeight(),
+                                QFontMetrics(QApplication::font()).height());
         if (qobject_cast<QToolButton*>(widget)) {
             widget->setMinimumWidth(
                 StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyleCompact ? 24 : 28);

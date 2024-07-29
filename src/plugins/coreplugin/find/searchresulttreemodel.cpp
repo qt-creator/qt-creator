@@ -209,7 +209,7 @@ QVariant SearchResultTreeModel::data(const QModelIndex &idx, int role) const
     QVariant result;
 
     if (role == Qt::SizeHintRole) {
-        int height = QApplication::fontMetrics().height();
+        int height = QFontMetrics(QApplication::font()).height();
         if (m_editorFontIsUsed) {
             const int editorFontHeight = QFontMetrics(m_textEditorFont).height();
             height = qMax(height, editorFontHeight);
