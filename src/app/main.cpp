@@ -182,8 +182,7 @@ static inline FilePaths getPluginPaths()
     rc << appInfo().plugins << appInfo().luaPlugins << appInfo().userLuaPlugins;
 
     const auto version = [](int micro) {
-        return QString::number(IDE_VERSION_MAJOR) + '.' + QString::number(IDE_VERSION_MINOR) + '.'
-               + QString::number(micro);
+        return QString("%1.%2.%3").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR).arg(micro);
     };
 
     const int minPatchVersion = qMin(
