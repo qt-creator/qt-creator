@@ -1,0 +1,53 @@
+{
+  "name": "%{PluginName}",
+  "vendor": "%{VendorName}",
+  "tags": [
+    "Some tag",
+    "Other tag"
+  ],
+  "compatibility": "Qt 6.0",
+  "platforms": [
+    "Windows",
+    "macOS",
+    "Linux"
+  ],
+  "license": "os",
+  "version": "0.0.1",
+  "status": "draft",
+  "is_pack": false,
+  "released_at": null,
+  "version_history": [
+    {
+      "version": "0.0.1",
+      "is_latest": true,
+      "released_at": "2024-01-24T15:00:00Z"
+    }
+  ],
+  "icon": "https://url/to/icon-image",
+  "small_icon": "https://url/to/small-icon-image",
+  "description_paragraphs": [
+    {
+      "header": "Description",
+      "text": [
+        "Put a short description of your plugin here"
+      ]
+    }
+  ],
+  "description_links": [
+    {
+      "url": "https://www.qt.io",
+      "link_text": "Online documentation"
+    }
+  ],
+  "description_images": [
+    {
+      "url": "https://www.qt.io/hs-fs/hubfs/Outrun_QT_INT_0310.jpg?width=600&name=Outrun_QT_INT_0310.jpg",
+      "image_label": "Example 1."
+    }
+  ],
+  "copyright": "%{Copyright}",
+  "download_history": {
+    "download_count": 0
+  },
+  "plugin_sets": []
+}
