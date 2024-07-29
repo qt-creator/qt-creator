@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "androidmanifestdocument.h"
-#include "androidmanifesteditorwidget.h"
+#include "androidmanifesteditor.h"
 #include "androidconstants.h"
 
 #include <coreplugin/editormanager/ieditor.h>
