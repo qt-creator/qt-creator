@@ -832,8 +832,10 @@ void DebuggerToolTipManager::closeAllToolTips()
 
 void DebuggerToolTipManagerPrivate::closeAllToolTips()
 {
-    for (DebuggerToolTipWidget *tooltip : std::as_const(m_tooltips))
-        tooltip->destroy();
+    for (DebuggerToolTipWidget *tooltip : std::as_const(m_tooltips)) {
+        if (tooltip)
+            tooltip->destroy();
+    }
     m_tooltips.clear();
 }
 
@@ -1008,6 +1010,7 @@ DebuggerToolTipContexts DebuggerToolTipManager::pendingTooltips() const
 {
     StackFrame frame = d->m_engine->stackHandler()->currentFrame();
     DebuggerToolTipContexts rc;
+    d->purgeClosedToolTips();
     for (DebuggerToolTipWidget *tooltip : std::as_const(d->m_tooltips)) {
         const DebuggerToolTipContext &context = tooltip->context;
         if (context.iname.startsWith("tooltip") && context.matchesFrame(frame))
