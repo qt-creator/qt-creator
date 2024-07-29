@@ -48,6 +48,7 @@ add_qtc_library(QmlDesignerUtils STATIC
     ktximage.cpp ktximage.h
     imageutils.cpp imageutils.h
     qmldesignerutils_global.h
+    version.cpp version.h
 )
 
 extend_qtc_library(QmlDesignerUtils

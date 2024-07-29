@@ -4,6 +4,7 @@
 #pragma once
 
 #include <utils/filepath.h>
+#include <utils/version.h>
 
 #include <QAbstractListModel>
 #include <QJsonObject>
@@ -60,7 +61,7 @@ signals:
     void matBundleExistsChanged();
 
 private:
-    void loadMaterialBundle();
+    void loadMaterialBundle(bool forceReload = false);
     bool fetchBundleIcons();
     bool fetchBundleJsonFile();
     bool isValidIndex(int idx) const;
@@ -76,9 +77,7 @@ private:
     bool m_isEmpty = true;
     bool m_bundleExists = false;
 
-    int m_quick3dMajorVersion = -1;
-    int m_quick3dMinorVersion = -1;
-
+    Version m_quick3dVersion;
     Utils::FilePath m_bundlePath;
     QString m_baseUrl;
 };

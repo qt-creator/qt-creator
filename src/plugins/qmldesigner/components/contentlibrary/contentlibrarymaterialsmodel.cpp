@@ -211,11 +211,11 @@ QString ContentLibraryMaterialsModel::bundleId() const
     return m_bundleId;
 }
 
-void ContentLibraryMaterialsModel::loadMaterialBundle()
+void ContentLibraryMaterialsModel::loadMaterialBundle(bool forceReload)
 {
     auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
 
-    if (m_bundleExists && m_bundleId == compUtils.materialsBundleId())
+    if (!forceReload && m_bundleExists && m_bundleId == compUtils.materialsBundleId())
         return;
 
     // clean up
@@ -257,6 +257,13 @@ void ContentLibraryMaterialsModel::loadMaterialBundle()
         for (const QString &matName : matsNames) {
             const QJsonObject matObj = matsObj.value(matName).toObject();
 
+            if (matObj.contains("minQtVersion")) {
+                const Version minQtVersion = Version::fromString(
+                    matObj.value("minQtVersion").toString());
+                if (minQtVersion > m_quick3dVersion)
+                    continue;
+            }
+
             QStringList files;
             const QJsonArray assetsArr = matObj.value("files").toArray();
             for (const QJsonValueConstRef &asset : assetsArr)
@@ -289,7 +296,7 @@ void ContentLibraryMaterialsModel::loadMaterialBundle()
 
 bool ContentLibraryMaterialsModel::hasRequiredQuick3DImport() const
 {
-    return m_widget->hasQuick3DImport() && m_quick3dMajorVersion == 6 && m_quick3dMinorVersion >= 3;
+    return m_widget->hasQuick3DImport() && m_quick3dVersion >= Version{6, 3};
 }
 
 bool ContentLibraryMaterialsModel::matBundleExists() const
@@ -335,8 +342,11 @@ void ContentLibraryMaterialsModel::setQuick3DImportVersion(int major, int minor)
 {
     bool oldRequiredImport = hasRequiredQuick3DImport();
 
-    m_quick3dMajorVersion = major;
-    m_quick3dMinorVersion = minor;
+    const Version newVersion{major, minor};
+    if (m_quick3dVersion != newVersion) {
+        m_quick3dVersion = newVersion;
+        loadMaterialBundle(true);
+    }
 
     bool newRequiredImport = hasRequiredQuick3DImport();
 

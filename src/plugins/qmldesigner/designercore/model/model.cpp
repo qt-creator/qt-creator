@@ -40,6 +40,7 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <utils/algorithm.h>
+#include <utils/version.h>
 
 #include <QDrag>
 #include <QFileInfo>
