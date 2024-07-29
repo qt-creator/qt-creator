@@ -5,7 +5,6 @@
 #include "androidconstants.h"
 #include "androidmanager.h"
 #include "androidmanifestdocument.h"
-#include "androidmanifesteditor.h"
 #include "androidmanifesteditoriconcontainerwidget.h"
 #include "androidmanifesteditorwidget.h"
 #include "androidtr.h"
@@ -26,6 +25,7 @@
 #include <projectexplorer/target.h>
 
 #include <texteditor/texteditor.h>
+#include <texteditor/texteditorconstants.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -33,12 +33,12 @@
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
+#include <QActionGroup>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDebug>
 #include <QDomDocument>
 #include <QFileDialog>
-#include <QFileInfo>
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -50,13 +50,14 @@
 #include <QRegularExpression>
 #include <QScrollArea>
 #include <QSpinBox>
+#include <QTextBlock>
 #include <QTimer>
+#include <QToolBar>
 #include <QToolButton>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
 #include <algorithm>
-#include <limits>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -99,6 +100,28 @@ protected:
 
 private:
     QStringList m_permissions;
+};
+
+class AndroidManifestEditor : public Core::IEditor
+{
+public:
+    explicit AndroidManifestEditor(AndroidManifestEditorWidget *editorWidget);
+
+    QWidget *toolBar() override;
+    Core::IDocument *document() const override;
+    TextEditor::TextEditorWidget *textEditor() const;
+
+    int currentLine() const override;
+    int currentColumn() const override;
+    void gotoLine(int line, int column = 0, bool centerLine = true)  override;
+
+private:
+    AndroidManifestEditorWidget *ownWidget() const;
+    void changeEditorPage(QAction *action);
+
+    QString m_displayName;
+    QToolBar *m_toolBar;
+    QActionGroup *m_actionGroup;
 };
 
 class AndroidManifestTextEditorWidget : public TextEditor::TextEditorWidget
@@ -1415,5 +1438,100 @@ AndroidManifestTextEditorWidget::AndroidManifestTextEditorWidget(AndroidManifest
 }
 
 
+// AndroidManifestEditor
+
+AndroidManifestEditor::AndroidManifestEditor(AndroidManifestEditorWidget *editorWidget)
+    : m_toolBar(nullptr)
+{
+    m_toolBar = new QToolBar(editorWidget);
+    m_actionGroup = new QActionGroup(this);
+    connect(m_actionGroup, &QActionGroup::triggered,
+            this, &AndroidManifestEditor::changeEditorPage);
+
+    QAction *generalAction = m_toolBar->addAction(Tr::tr("General"));
+    generalAction->setData(AndroidManifestEditorWidget::General);
+    generalAction->setCheckable(true);
+    m_actionGroup->addAction(generalAction);
+
+    QAction *sourceAction = m_toolBar->addAction(Tr::tr("XML Source"));
+    sourceAction->setData(AndroidManifestEditorWidget::Source);
+    sourceAction->setCheckable(true);
+    m_actionGroup->addAction(sourceAction);
+
+    generalAction->setChecked(true);
+
+    setWidget(editorWidget);
+}
+
+QWidget *AndroidManifestEditor::toolBar()
+{
+    return m_toolBar;
+}
+
+AndroidManifestEditorWidget *AndroidManifestEditor::ownWidget() const
+{
+    return static_cast<AndroidManifestEditorWidget *>(widget());
+}
+
+Core::IDocument *AndroidManifestEditor::document() const
+{
+    return textEditor()->textDocument();
+}
+
+TextEditor::TextEditorWidget *AndroidManifestEditor::textEditor() const
+{
+    return ownWidget()->textEditorWidget();
+}
+
+int AndroidManifestEditor::currentLine() const
+{
+    return textEditor()->textCursor().blockNumber() + 1;
+}
+
+int AndroidManifestEditor::currentColumn() const
+{
+    QTextCursor cursor = textEditor()->textCursor();
+    return cursor.position() - cursor.block().position() + 1;
+}
+
+void AndroidManifestEditor::gotoLine(int line, int column, bool centerLine)
+{
+    textEditor()->gotoLine(line, column, centerLine);
+}
+
+void AndroidManifestEditor::changeEditorPage(QAction *action)
+{
+    if (!ownWidget()->setActivePage(static_cast<AndroidManifestEditorWidget::EditorPage>(action->data().toInt()))) {
+        const QList<QAction *> actions = m_actionGroup->actions();
+        for (QAction *action : actions) {
+            if (action->data().toInt() == ownWidget()->activePage()) {
+                action->setChecked(true);
+                break;
+            }
+        }
+    }
+}
+
+// Factory
+
+class AndroidManifestEditorFactory final : public Core::IEditorFactory
+{
+public:
+    AndroidManifestEditorFactory()
+    {
+        setId(Constants::ANDROID_MANIFEST_EDITOR_ID);
+        setDisplayName(Tr::tr("Android Manifest editor"));
+        addMimeType(Constants::ANDROID_MANIFEST_MIME_TYPE);
+        setEditorCreator([] {
+            auto androidManifestEditorWidget = new AndroidManifestEditorWidget;
+            return androidManifestEditorWidget->editor();
+        });
+    }
+};
+
+void setupAndroidManifestEditor()
+{
+    static AndroidManifestEditorFactory theAndroidManifestEditorFactory;
+}
 
 } // Android::Internal

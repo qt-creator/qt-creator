@@ -140,4 +140,6 @@ private:
     QTabWidget *m_advanvedTabWidget = nullptr;
 };
 
+void setupAndroidManifestEditor();
+
 } // Android::Internal
