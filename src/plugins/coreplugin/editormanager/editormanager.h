@@ -113,7 +113,7 @@ public:
     static bool closeEditors(const QList<IEditor *> &editorsToClose, bool askAboutModifiedEditors = true);
 
     static QByteArray saveState();
-    static bool restoreState(const QByteArray &state);
+    static void restoreState(const QByteArray &state);
     static bool hasSplitter();
 
     static void showEditorStatusBar(const QString &id,
