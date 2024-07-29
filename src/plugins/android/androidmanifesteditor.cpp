@@ -13,8 +13,7 @@
 #include <QToolBar>
 #include <QTextBlock>
 
-using namespace Android;
-using namespace Internal;
+namespace Android::Internal {
 
 AndroidManifestEditor::AndroidManifestEditor(AndroidManifestEditorWidget *editorWidget)
     : m_toolBar(nullptr)
@@ -87,3 +86,27 @@ void AndroidManifestEditor::changeEditorPage(QAction *action)
         }
     }
 }
+
+// Factory
+
+class AndroidManifestEditorFactory final : public Core::IEditorFactory
+{
+public:
+    AndroidManifestEditorFactory()
+    {
+        setId(Constants::ANDROID_MANIFEST_EDITOR_ID);
+        setDisplayName(Tr::tr("Android Manifest editor"));
+        addMimeType(Constants::ANDROID_MANIFEST_MIME_TYPE);
+        setEditorCreator([] {
+            auto androidManifestEditorWidget = new AndroidManifestEditorWidget;
+            return androidManifestEditorWidget->editor();
+        });
+    }
+};
+
+void setupAndroidManifestEditor()
+{
+    static AndroidManifestEditorFactory theAndroidManifestEditorFactory;
+}
+
+} // Android::Internal

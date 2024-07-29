@@ -7,7 +7,7 @@
 #include "androiddebugsupport.h"
 #include "androiddeployqtstep.h"
 #include "androiddevice.h"
-#include "androidmanifesteditorfactory.h"
+#include "androidmanifesteditor.h"
 #include "androidpackageinstallationstep.h"
 #include "androidpotentialkit.h"
 #include "androidqmltoolingsupport.h"

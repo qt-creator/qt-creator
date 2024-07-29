@@ -46,8 +46,6 @@ QtcPlugin {
         "androidmanifesteditoriconwidget.h",
         "androidmanifesteditoriconcontainerwidget.cpp",
         "androidmanifesteditoriconcontainerwidget.h",
-        "androidmanifesteditorfactory.cpp",
-        "androidmanifesteditorfactory.h",
         "androidmanifesteditorwidget.cpp",
         "androidmanifesteditorwidget.h",
         "androidpackageinstallationstep.cpp",

@@ -14,8 +14,7 @@ class QToolBar;
 class QActionGroup;
 QT_END_NAMESPACE
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 class AndroidManifestEditor : public Core::IEditor
 {
@@ -41,5 +40,6 @@ private:
     QActionGroup *m_actionGroup;
 };
 
-} // namespace Internal
-} // namespace Android
+void setupAndroidManifestEditor();
+
+} // Android::Internal

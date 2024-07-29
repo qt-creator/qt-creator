@@ -1414,4 +1414,6 @@ AndroidManifestTextEditorWidget::AndroidManifestTextEditorWidget(AndroidManifest
     Core::ICore::addContextObject(m_context);
 }
 
+
+
 } // Android::Internal
