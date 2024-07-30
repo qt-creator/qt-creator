@@ -100,11 +100,11 @@ FilePath ProcessParameters::effectiveCommand() const
         if (m_macroExpander)
             cmd = m_macroExpander->expand(cmd);
         if (cmd.needsDevice()) {
-            // Assume this is already good. FIXME: It is possibly not, so better fix  searchInPath.
+            // Assume this is already good. FIXME: It is possibly not, so better fix searchInPath.
             m_effectiveCommand = cmd;
         } else {
-            m_effectiveCommand = m_runData.environment.searchInPath(cmd.toString(),
-                                                                    {effectiveWorkingDirectory()});
+            m_effectiveCommand
+                = m_runData.environment.searchInPath(cmd.path(), {effectiveWorkingDirectory()});
         }
         m_commandMissing = m_effectiveCommand.isEmpty();
         if (m_commandMissing)
@@ -135,10 +135,10 @@ QString ProcessParameters::effectiveArguments() const
 
 QString ProcessParameters::prettyCommand() const
 {
-    QString cmd = m_runData.command.executable().toString();
+    FilePath cmd = m_runData.command.executable();
     if (m_macroExpander)
         cmd = m_macroExpander->expand(cmd);
-    return FilePath::fromString(cmd).fileName();
+    return cmd.fileName();
 }
 
 QString ProcessParameters::prettyArguments() const
@@ -183,7 +183,7 @@ QString ProcessParameters::summaryInWorkdir(const QString &displayName) const
             displayName,
             ProcessArgs::quoteArg(prettyCommand()).toHtmlEscaped(),
             prettyArguments().toHtmlEscaped(),
-            QDir::toNativeSeparators(effectiveWorkingDirectory().toString()));
+            effectiveWorkingDirectory().toUserOutput());
 }
 
 } // ProcessExplorer
