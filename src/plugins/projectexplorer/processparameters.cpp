@@ -167,9 +167,10 @@ QString ProcessParameters::summary(const QString &displayName) const
         return invalidCommandMessage(displayName);
 
     return QString::fromLatin1("<b>%1:</b> %2 %3")
-            .arg(displayName,
-                 ProcessArgs::quoteArg(prettyCommand()),
-                 prettyArguments());
+        .arg(
+            displayName,
+            ProcessArgs::quoteArg(prettyCommand()).toHtmlEscaped(),
+            prettyArguments().toHtmlEscaped());
 }
 
 QString ProcessParameters::summaryInWorkdir(const QString &displayName) const
@@ -178,10 +179,11 @@ QString ProcessParameters::summaryInWorkdir(const QString &displayName) const
         return invalidCommandMessage(displayName);
 
     return QString::fromLatin1("<b>%1:</b> %2 %3 in %4")
-            .arg(displayName,
-                 ProcessArgs::quoteArg(prettyCommand()),
-                 prettyArguments(),
-                 QDir::toNativeSeparators(effectiveWorkingDirectory().toString()));
+        .arg(
+            displayName,
+            ProcessArgs::quoteArg(prettyCommand()).toHtmlEscaped(),
+            prettyArguments().toHtmlEscaped(),
+            QDir::toNativeSeparators(effectiveWorkingDirectory().toString()));
 }
 
 } // ProcessExplorer
