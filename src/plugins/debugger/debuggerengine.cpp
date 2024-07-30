@@ -512,6 +512,7 @@ public:
     QAction m_abortAction{Tr::tr("Abort Debugging")};
     QAction m_stepIntoAction{Tr::tr("Step Into")};
     QAction m_stepOutAction{Tr::tr("Step Out")};
+    QAction m_toggleEnableBreakpointsAction{Tr::tr("Disable all Breakpoints")};
     QAction m_runToLineAction{Tr::tr("Run to Line")}; // In the debug menu
     QAction m_runToSelectedFunctionAction{Tr::tr("Run to Selected Function")};
     QAction m_jumpToLineAction{Tr::tr("Jump to Line")};
@@ -793,6 +794,28 @@ void DebuggerEnginePrivate::setupViews()
 
     connect(&m_watchAction, &QAction::triggered,
             m_engine, &DebuggerEngine::handleAddToWatchWindow);
+
+    m_toggleEnableBreakpointsAction.setIcon(Icons::BREAKPOINT_DISABLED.icon()); // FIXME better icon
+    m_toggleEnableBreakpointsAction.setCheckable(true);
+    m_perspective->addToolBarAction(&m_toggleEnableBreakpointsAction);
+    connect(&m_toggleEnableBreakpointsAction, &QAction::triggered,
+            m_engine, [this](bool checked) {
+        BreakHandler *handler = m_engine->breakHandler();
+        const auto bps = m_engine->breakHandler()->breakpoints();
+        for (const auto &bp : bps) {
+            if (auto gbp = bp->globalBreakpoint())
+                gbp->setEnabled(!checked, false);
+            handler->requestBreakpointEnabling(bp, !checked);
+        }
+    });
+    connect(m_engine->breakHandler(), &BreakHandler::dataChanged,
+            m_engine, [this] {
+        const auto bps = m_engine->breakHandler()->breakpoints();
+        const auto [enabled, disabled] = Utils::partition(bps, &BreakpointItem::isEnabled);
+        if (!enabled.isEmpty() && !disabled.isEmpty())
+            return;
+        m_toggleEnableBreakpointsAction.setChecked(!disabled.isEmpty());
+    });
 
     m_perspective->addToolBarAction(&m_recordForReverseOperationAction);
     connect(&m_recordForReverseOperationAction, &QAction::triggered,
