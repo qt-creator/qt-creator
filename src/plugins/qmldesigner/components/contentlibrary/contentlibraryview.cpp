@@ -429,7 +429,8 @@ void ContentLibraryView::auxiliaryDataChanged(const ModelNode &,
         active3DSceneChanged(data.toInt());
 }
 
-void ContentLibraryView::modelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap,
+void ContentLibraryView::modelNodePreviewPixmapChanged(const ModelNode &,
+                                                       const QPixmap &pixmap,
                                                        const QByteArray &requestId)
 {
     if (requestId == ADD_ITEM_REQ_ID)
@@ -496,6 +497,19 @@ void ContentLibraryView::applyBundleMaterialToDropTarget(const ModelNode &bundle
     });
 }
 #endif
+
+namespace {
+Utils::FilePath componentPath([[maybe_unused]] const NodeMetaInfo &metaInfo)
+{
+#ifdef QDS_USE_PROJECTSTORAGE
+    // TODO
+    return {};
+#else
+    return Utils::FilePath::fromString(metaInfo.importDirectoryPath());
+#endif
+}
+
+} // namespace
 
 QPair<QString, QSet<AssetPath>> ContentLibraryView::modelNodeToQmlString(const ModelNode &node, int depth)
 {
@@ -590,7 +604,7 @@ QPair<QString, QSet<AssetPath>> ContentLibraryView::modelNodeToQmlString(const M
 
         if (depth > 0) {
             // add component file to the dependency assets
-            Utils::FilePath compFilePath = Utils::FilePath::fromString(node.metaInfo().componentFileName());
+            Utils::FilePath compFilePath = componentPath(node.metaInfo());
             assets.insert({compFilePath.parentDir().path(), compFilePath.fileName()});
         }
 
@@ -1194,7 +1208,7 @@ QSet<AssetPath> ContentLibraryView::getBundleComponentDependencies(const ModelNo
 {
     const QString compFileName = node.simplifiedTypeName() + ".qml";
 
-    Utils::FilePath compPath = Utils::FilePath::fromString(node.metaInfo().importDirectoryPath());
+    Utils::FilePath compPath = componentPath(node.metaInfo());
 
     QTC_ASSERT(compPath.exists(), return {});
 
