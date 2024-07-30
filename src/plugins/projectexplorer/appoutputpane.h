@@ -59,9 +59,7 @@ public:
 
     bool hasFilterContext() const override;
 
-    void createNewOutputWindow(RunControl *rc);
     void showTabFor(RunControl *rc);
-    void setBehaviorOnOutput(RunControl *rc, AppOutputPaneMode mode);
 
     bool aboutToClose() const;
     void closeTabs(CloseTabMode mode);
@@ -69,12 +67,17 @@ public:
     QList<RunControl *> allRunControls() const;
 
     // ApplicationOutput specifics
-    void projectRemoved();
-
     const AppOutputSettings &settings() const { return m_settings; }
     void setSettings(const AppOutputSettings &settings);
 
+    void prepareRunControlStart(RunControl *runControl);
+    void showOutputPaneForRunControl(RunControl *runControl);
+
 private:
+    void setBehaviorOnOutput(RunControl *rc, AppOutputPaneMode mode);
+    void projectRemoved();
+
+    void createNewOutputWindow(RunControl *rc);
     void appendMessage(ProjectExplorer::RunControl *rc, const QString &out,
                        Utils::OutputFormat format);
     void reRunRunControl();

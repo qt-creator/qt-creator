@@ -470,7 +470,6 @@ public:
 
     void addToRecentProjects(const FilePath &filePath, const QString &displayName);
     void startRunControl(RunControl *runControl);
-    void showOutputPaneForRunControl(RunControl *runControl);
 
     void updateActions();
     void updateContext();
@@ -919,9 +918,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     dd->m_projectsMode.setEnabled(false);
 
     ICore::addPreCloseListener([]() -> bool { return coreAboutToClose(); });
-
-    connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
-            &dd->m_outputPane, &AppOutputPane::projectRemoved);
 
     // ProjectPanelFactories
 
@@ -2463,7 +2459,7 @@ void ProjectExplorerPlugin::startRunControl(RunControl *runControl)
 
 void ProjectExplorerPlugin::showOutputPaneForRunControl(RunControl *runControl)
 {
-    dd->showOutputPaneForRunControl(runControl);
+    dd->m_outputPane.showOutputPaneForRunControl(runControl);
 }
 
 QList<std::pair<FilePath, FilePath>> ProjectExplorerPlugin::renameFiles(
@@ -2498,16 +2494,7 @@ bool ProjectExplorerPlugin::renameFile(const Utils::FilePath &source, const Util
 
 void ProjectExplorerPluginPrivate::startRunControl(RunControl *runControl)
 {
-    m_outputPane.createNewOutputWindow(runControl);
-    m_outputPane.flash(); // one flash for starting
-    m_outputPane.showTabFor(runControl);
-    Id runMode = runControl->runMode();
-    const auto popupMode = runMode == Constants::NORMAL_RUN_MODE
-            ? m_outputPane.settings().runOutputMode
-            : runMode == Constants::DEBUG_RUN_MODE
-                ? m_outputPane.settings().debugOutputMode
-                : AppOutputPaneMode::FlashOnOutput;
-    m_outputPane.setBehaviorOnOutput(runControl, popupMode);
+    m_outputPane.prepareRunControlStart(runControl);
     connect(runControl, &QObject::destroyed, this, &ProjectExplorerPluginPrivate::checkForShutdown,
             Qt::QueuedConnection);
     ++m_activeRunControlCount;
@@ -2519,12 +2506,6 @@ void ProjectExplorerPluginPrivate::startRunControl(RunControl *runControl)
     connect(runControl, &RunControl::stopped, m_instance, [runControl] {
         emit m_instance->runControlStoped(runControl);
     });
-}
-
-void ProjectExplorerPluginPrivate::showOutputPaneForRunControl(RunControl *runControl)
-{
-    m_outputPane.showTabFor(runControl);
-    m_outputPane.popup(IOutputPane::NoModeSwitch | IOutputPane::WithFocus);
 }
 
 void ProjectExplorerPluginPrivate::checkForShutdown()

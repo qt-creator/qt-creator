@@ -7,6 +7,7 @@
 #include "projectexplorerconstants.h"
 #include "projectexplorericons.h"
 #include "projectexplorertr.h"
+#include "projectmanager.h"
 #include "runcontrol.h"
 #include "showoutputtaskhandler.h"
 #include "windebuginterface.h"
@@ -218,6 +219,8 @@ AppOutputPane::AppOutputPane() :
 
     connect(SessionManager::instance(), &SessionManager::aboutToUnloadSession,
             this, &AppOutputPane::aboutToUnloadSession);
+    connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
+            this, &AppOutputPane::projectRemoved);
 
     setupFilterUi("AppOutputPane.Filter");
     setFilteringEnabled(false);
@@ -517,6 +520,26 @@ void AppOutputPane::setSettings(const AppOutputSettings &settings)
     m_settings = settings;
     storeSettings();
     updateFromSettings();
+}
+
+void AppOutputPane::prepareRunControlStart(RunControl *runControl)
+{
+    createNewOutputWindow(runControl);
+    flash(); // one flash for starting
+    showTabFor(runControl);
+    Id runMode = runControl->runMode();
+    const auto popupMode = runMode == Constants::NORMAL_RUN_MODE
+            ? settings().runOutputMode
+            : runMode == Constants::DEBUG_RUN_MODE
+                ? settings().debugOutputMode
+                : AppOutputPaneMode::FlashOnOutput;
+    setBehaviorOnOutput(runControl, popupMode);
+}
+
+void AppOutputPane::showOutputPaneForRunControl(RunControl *runControl)
+{
+    showTabFor(runControl);
+    popup(IOutputPane::NoModeSwitch | IOutputPane::WithFocus);
 }
 
 const AppOutputPaneMode kRunOutputModeDefault = AppOutputPaneMode::PopupOnFirstOutput;
