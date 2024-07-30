@@ -15,8 +15,7 @@ QT_END_NAMESPACE
 
 namespace TextEditor { class TextEditorWidget; }
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 class SplashScreenWidget;
 
@@ -62,5 +61,4 @@ private:
     QToolButton *m_convertSplashscreen = nullptr;
 };
 
-} // namespace Internal
-} // namespace Android
+} // namespace Android::Internal

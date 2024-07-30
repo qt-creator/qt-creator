@@ -95,8 +95,6 @@ QtcPlugin {
         "javaparser.h",
         "splashscreencontainerwidget.cpp",
         "splashscreencontainerwidget.h",
-        "splashscreenwidget.cpp",
-        "splashscreenwidget.h",
         "sdkmanageroutputparser.cpp",
         "sdkmanageroutputparser.h"
     ]
