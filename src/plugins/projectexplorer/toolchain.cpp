@@ -659,7 +659,7 @@ Toolchain *ToolchainFactory::createToolchain(Id toolchainType)
 
 QList<Id> ToolchainFactory::supportedLanguages() const
 {
-    return m_supportsAllLanguages ? ToolchainManager::allLanguages() : m_supportedLanguages;
+    return m_supportedLanguages;
 }
 
 Id ToolchainFactory::supportedToolchainType() const
@@ -681,11 +681,6 @@ void ToolchainFactory::setSupportedToolchainType(const Id &supportedToolchainTyp
 void ToolchainFactory::setSupportedLanguages(const QList<Id> &supportedLanguages)
 {
     m_supportedLanguages = supportedLanguages;
-}
-
-void ToolchainFactory::setSupportsAllLanguages(bool supportsAllLanguages)
-{
-    m_supportsAllLanguages = supportsAllLanguages;
 }
 
 void ToolchainFactory::setToolchainConstructor(const ToolchainConstructor &toolchainContructor)

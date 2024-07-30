@@ -564,7 +564,7 @@ public:
     {
         setDisplayName(Tr::tr("Custom"));
         setSupportedToolchainType(Constants::CUSTOM_TOOLCHAIN_TYPEID);
-        setSupportsAllLanguages(true);
+        setSupportedLanguages({Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID});
         setToolchainConstructor([] { return new CustomToolchain; });
         setUserCreatable(true);
     }

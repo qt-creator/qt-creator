@@ -296,7 +296,6 @@ protected:
     void setDisplayName(const QString &name) { m_displayName = name; }
     void setSupportedToolchainType(const Utils::Id &supportedToolchainType);
     void setSupportedLanguages(const QList<Utils::Id> &supportedLanguages);
-    void setSupportsAllLanguages(bool supportsAllLanguages);
     using ToolchainConstructor = std::function<Toolchain *()>;
     void setToolchainConstructor(const ToolchainConstructor &constructor);
     ToolchainConstructor toolchainConstructor() const;
@@ -318,7 +317,6 @@ private:
     QString m_displayName;
     Utils::Id m_supportedToolchainType;
     QList<Utils::Id> m_supportedLanguages;
-    bool m_supportsAllLanguages = false;
     bool m_userCreatable = false;
     ToolchainConstructor m_toolchainConstructor;
 };
