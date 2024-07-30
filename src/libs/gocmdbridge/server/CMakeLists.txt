@@ -11,7 +11,7 @@ function(go_build NAME SOURCES PLATFORMS ARCHITECTURES LDFLAGS)
             if ((${PLATFORM} STREQUAL "linux" OR (${PLATFORM} STREQUAL "windows" AND ${ARCHITECTURE} STREQUAL "amd64")) AND NOT UPX_BIN STREQUAL "UPX_BIN-NOTFOUND")
                 add_custom_command(
                     OUTPUT "${OUTPUT}"
-                    COMMAND ${CMAKE_COMMAND} -E env GOARCH=${ARCHITECTURE} GOOS=${PLATFORM} go build -ldflags "-s -w ${LDFLAGS}" -o ${OUTPUT}
+                    COMMAND ${CMAKE_COMMAND} -E env GOARCH=${ARCHITECTURE} GOOS=${PLATFORM} ${GO_BIN} build -ldflags "-s -w ${LDFLAGS}" -o ${OUTPUT}
                     COMMAND ${UPX_BIN} -9 ${OUTPUT}
                     DEPENDS ${SOURCES}
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -22,7 +22,7 @@ function(go_build NAME SOURCES PLATFORMS ARCHITECTURES LDFLAGS)
             else()
                 add_custom_command(
                     OUTPUT "${OUTPUT}"
-                    COMMAND ${CMAKE_COMMAND} -E env GOARCH=${ARCHITECTURE} GOOS=${PLATFORM} go build -ldflags "-s -w ${LDFLAGS}" -o ${OUTPUT}
+                    COMMAND ${CMAKE_COMMAND} -E env GOARCH=${ARCHITECTURE} GOOS=${PLATFORM} ${GO_BIN} build -ldflags "-s -w ${LDFLAGS}" -o ${OUTPUT}
                     DEPENDS ${SOURCES}
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                     COMMENT "Building ${TARGET_NAME}"
