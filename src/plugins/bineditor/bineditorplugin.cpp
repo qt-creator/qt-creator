@@ -2262,29 +2262,18 @@ class BinEditorFactoryService final : public QObject, public FactoryService
     Q_INTERFACES(BinEditor::FactoryService)
 
 public:
-    EditorService *createEditorService(const QString &title0, bool wantsEditor) final
+    EditorService *createEditorService(const QString &title, bool wantsEditor) final
     {
-        if (!wantsEditor) {
-            auto document = new BinEditorDocument;
-            auto widget = new BinEditorWidget(document);
-            widget->setWindowTitle(title0);
-
-            auto service = new BinEditorService;
-            service->m_widget = widget;
-            service->m_document = document;
-            return service;
-        }
-
-        QString title = title0;
-        IEditor *editor = EditorManager::openEditorWithContents(
-                    Core::Constants::K_DEFAULT_BINARY_EDITOR_ID, &title);
-        if (!editor)
-            return nullptr;
+        auto document = new BinEditorDocument;
+        auto widget = new BinEditorWidget(document);
+        widget->setWindowTitle(title);
 
         auto service = new BinEditorService;
-        service->m_editor = editor;
-        service->m_widget = qobject_cast<BinEditorWidget *>(editor->widget());
-        service->m_document = qobject_cast<BinEditorDocument *>(editor->document());
+        service->m_widget = widget;
+        service->m_document = document;
+        service->m_editor = new BinEditorImpl(widget, document);
+        if (wantsEditor)
+            EditorManager::activateEditor(service->m_editor);
         return service;
     }
 };
