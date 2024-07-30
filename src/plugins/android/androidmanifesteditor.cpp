@@ -107,8 +107,6 @@ private:
 
 class AndroidManifestEditorWidget : public QStackedWidget
 {
-    Q_OBJECT
-
 public:
     enum EditorPage {
         General = 0,
@@ -128,9 +126,6 @@ public:
     TextEditor::TextEditorWidget *textEditorWidget() const;
 
     void setDirty(bool dirty = true);
-
-signals:
-    void guiChanged();
 
 protected:
     void focusInEvent(QFocusEvent *event) override;
@@ -647,7 +642,7 @@ void AndroidManifestEditorWidget::setDirty(bool dirty)
     if (m_stayClean || dirty == m_dirty)
         return;
     m_dirty = dirty;
-    emit guiChanged();
+    m_textEditorWidget->textDocument()->changed();
 }
 
 bool AndroidManifestEditorWidget::isModified() const
@@ -1512,8 +1507,6 @@ public:
         setId(Constants::ANDROID_MANIFEST_EDITOR_ID);
         setMimeType(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
         setSuspendAllowed(false);
-        connect(editorWidget, &AndroidManifestEditorWidget::guiChanged,
-                this, &Core::IDocument::changed);
     }
 
 private:
@@ -1674,6 +1667,3 @@ void setupAndroidManifestEditor()
 }
 
 } // Android::Internal
-
-
-#include "androidmanifesteditor.moc"
