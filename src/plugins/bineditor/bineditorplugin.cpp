@@ -2352,7 +2352,7 @@ static BinEditorFactoryService &binEditorService()
 
 ///////////////////////////////// BinEditorFactory //////////////////////////////////
 
-class BinEditorFactory final : public QObject, public IEditorFactory
+class BinEditorFactory final : public IEditorFactory
 {
 public:
     BinEditorFactory()
@@ -2367,12 +2367,10 @@ public:
     }
 };
 
-static BinEditorFactory &binEditorFactory()
+void setupBinEditor()
 {
     static BinEditorFactory theBinEditorFactory;
-    return theBinEditorFactory;
 }
-
 
 ///////////////////////////////// BinEditorPlugin //////////////////////////////////
 
@@ -2384,13 +2382,12 @@ class BinEditorPlugin final : public ExtensionSystem::IPlugin
     ~BinEditorPlugin() final
     {
         ExtensionSystem::PluginManager::removeObject(&binEditorService());
-        ExtensionSystem::PluginManager::removeObject(&binEditorFactory());
     }
 
     void initialize() final
     {
+        setupBinEditor();
         ExtensionSystem::PluginManager::addObject(&binEditorService());
-        ExtensionSystem::PluginManager::addObject(&binEditorFactory());
     }
 };
 
