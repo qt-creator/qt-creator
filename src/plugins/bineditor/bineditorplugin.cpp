@@ -1562,25 +1562,6 @@ QString BinEditorWidget::toolTip(const QHelpEvent *helpEvent) const
 
 void BinEditorWidget::keyPressEvent(QKeyEvent *e)
 {
-
-    if (e == QKeySequence::SelectAll) {
-            e->accept();
-            selectAll();
-            return;
-    } else if (e == QKeySequence::Copy) {
-        e->accept();
-        copy();
-        return;
-    } else if (e == QKeySequence::Undo) {
-        e->accept();
-        m_doc->undo();
-        return;
-    } else if (e == QKeySequence::Redo) {
-        e->accept();
-        m_doc->redo();
-        return;
-    }
-
     MoveMode moveMode = e->modifiers() & Qt::ShiftModifier ? KeepAnchor : MoveAnchor;
     bool ctrlPressed = e->modifiers() & Qt::ControlModifier;
     switch (e->key()) {
@@ -2218,6 +2199,38 @@ public:
         const QVariant setting = ICore::settings()->value(Constants::C_ENCODING_SETTING);
         if (!setting.isNull())
             codecChooser->setAssignedCodec(QTextCodec::codecForName(setting.toByteArray()));
+
+        m_undoAction = new QAction(Tr::tr("&Undo"), this);
+        m_redoAction = new QAction(Tr::tr("&Redo"), this);
+        m_copyAction = new QAction(this);
+        m_selectAllAction = new QAction(this);
+
+        Context context(Id::generate());
+        IContext::attach(m_widget, context);
+
+        ActionManager::registerAction(m_undoAction, Core::Constants::UNDO, context);
+        ActionManager::registerAction(m_redoAction, Core::Constants::REDO, context);
+        ActionManager::registerAction(m_copyAction, Core::Constants::COPY, context);
+        ActionManager::registerAction(m_selectAllAction, Core::Constants::SELECTALL, context);
+
+        connect(m_undoAction, &QAction::triggered, doc.get(), &BinEditorDocument::undo);
+        connect(m_redoAction, &QAction::triggered, doc.get(), &BinEditorDocument::redo);
+        connect(m_copyAction, &QAction::triggered, m_widget, &BinEditorWidget::copy);
+        connect(m_selectAllAction, &QAction::triggered, m_widget, &BinEditorWidget::selectAll);
+
+        auto updateActions = [this] {
+            m_selectAllAction->setEnabled(true);
+            m_undoAction->setEnabled(m_widget->isUndoAvailable());
+            m_redoAction->setEnabled(m_widget->isRedoAvailable());
+        };
+
+        connect(doc.get(), &BinEditorDocument::undoAvailable, m_widget, updateActions);
+        connect(doc.get(), &BinEditorDocument::redoAvailable, m_widget, updateActions);
+
+        auto aggregate = new Aggregation::Aggregate;
+        auto binEditorFind = new BinEditorFind(m_widget);
+        aggregate->add(binEditorFind);
+        aggregate->add(m_widget);
     }
 
     ~BinEditorImpl() final { delete m_widget; }
@@ -2306,6 +2319,11 @@ private:
     std::shared_ptr<BinEditorDocument> m_document;
     QPointer<BinEditorWidget> m_widget;
     QToolBar *m_toolBar;
+
+    QAction *m_undoAction = nullptr;
+    QAction *m_redoAction = nullptr;
+    QAction *m_copyAction = nullptr;
+    QAction *m_selectAllAction = nullptr;
 };
 
 class BinEditorFactoryService final : public QObject, public FactoryService
@@ -2343,52 +2361,10 @@ public:
         setDisplayName(::Core::Tr::tr("Binary Editor"));
         addMimeType(Utils::Constants::OCTET_STREAM_MIMETYPE);
 
-        m_undoAction = new QAction(Tr::tr("&Undo"), this);
-        m_redoAction = new QAction(Tr::tr("&Redo"), this);
-        m_copyAction = new QAction(this);
-        m_selectAllAction = new QAction(this);
-
-        Context context;
-        context.add(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
-        context.add(Constants::C_BINEDITOR);
-
-        ActionManager::registerAction(m_undoAction, Core::Constants::UNDO, context);
-        ActionManager::registerAction(m_redoAction, Core::Constants::REDO, context);
-        ActionManager::registerAction(m_copyAction, Core::Constants::COPY, context);
-        ActionManager::registerAction(m_selectAllAction, Core::Constants::SELECTALL, context);
-
-        setEditorCreator([this] {
-            auto doc = std::make_shared<BinEditorDocument>();
-            auto editor = new BinEditorImpl(doc);
-            BinEditorWidget *widget = dynamic_cast<BinEditorWidget *>(editor->widget());
-
-            connect(m_undoAction, &QAction::triggered, doc.get(), &BinEditorDocument::undo);
-            connect(m_redoAction, &QAction::triggered, doc.get(), &BinEditorDocument::redo);
-            connect(m_copyAction, &QAction::triggered, widget, &BinEditorWidget::copy);
-            connect(m_selectAllAction, &QAction::triggered, widget, &BinEditorWidget::selectAll);
-
-            auto updateActions = [this, widget] {
-                m_selectAllAction->setEnabled(true);
-                m_undoAction->setEnabled(widget->isUndoAvailable());
-                m_redoAction->setEnabled(widget->isRedoAvailable());
-            };
-
-            connect(doc.get(), &BinEditorDocument::undoAvailable, widget, updateActions);
-            connect(doc.get(), &BinEditorDocument::redoAvailable, widget, updateActions);
-
-            auto aggregate = new Aggregation::Aggregate;
-            auto binEditorFind = new BinEditorFind(widget);
-            aggregate->add(binEditorFind);
-            aggregate->add(widget);
-
-            return editor;
+        setEditorCreator([] {
+            return new BinEditorImpl(std::make_shared<BinEditorDocument>());
         });
     }
-
-    QAction *m_undoAction = nullptr;
-    QAction *m_redoAction = nullptr;
-    QAction *m_copyAction = nullptr;
-    QAction *m_selectAllAction = nullptr;
 };
 
 static BinEditorFactory &binEditorFactory()

@@ -5,7 +5,6 @@
 
 namespace BinEditor::Constants {
 
-const char C_BINEDITOR[] = "BinEditor.BinaryEditor";
 const char C_ENCODING_SETTING[] = "BinEditor/TextEncoding";
 
 } // BinEditor::Constants
