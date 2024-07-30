@@ -5,12 +5,12 @@
 
 #include "contentlibrarybundleimporter.h"
 #include "contentlibraryeffectsmodel.h"
+#include "contentlibraryiconprovider.h"
 #include "contentlibraryitem.h"
 #include "contentlibrarymaterial.h"
 #include "contentlibrarymaterialsmodel.h"
 #include "contentlibrarytexture.h"
 #include "contentlibrarytexturesmodel.h"
-#include "contentlibraryiconprovider.h"
 #include "contentlibraryusermodel.h"
 
 #include "utils/filedownloader.h"
@@ -123,7 +123,8 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 }
 
 ContentLibraryWidget::ContentLibraryWidget()
-    : m_quickWidget(Utils::makeUniqueObjectPtr<StudioQuickWidget>(this))
+    : m_iconProvider(Utils::makeUniqueObjectPtr<ContentLibraryIconProvider>())
+    , m_quickWidget(Utils::makeUniqueObjectPtr<StudioQuickWidget>(this))
     , m_materialsModel(new ContentLibraryMaterialsModel(this))
     , m_texturesModel(new ContentLibraryTexturesModel("Textures", this))
     , m_environmentsModel(new ContentLibraryTexturesModel("Environments", this))
@@ -138,8 +139,7 @@ ContentLibraryWidget::ContentLibraryWidget()
 
     m_quickWidget->quickWidget()->setObjectName(Constants::OBJECT_NAME_CONTENT_LIBRARY);
     m_quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
-    m_quickWidget->engine()->addImageProvider(QStringLiteral("contentlibrary"),
-                                              new Internal::ContentLibraryIconProvider);
+    m_quickWidget->engine()->addImageProvider("contentlibrary", m_iconProvider.get());
     m_quickWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_quickWidget->setClearColor(Theme::getColor(Theme::Color::DSpanelBackground));
 
@@ -181,6 +181,10 @@ ContentLibraryWidget::ContentLibraryWidget()
     createImporter();
 }
 
+ContentLibraryWidget::~ContentLibraryWidget()
+{
+}
+
 void ContentLibraryWidget::createImporter()
 {
     m_importer = new ContentLibraryBundleImporter();
@@ -210,6 +214,11 @@ void ContentLibraryWidget::createImporter()
                 setImporterRunning(false);
                 updateImportedState(bundleId);
     });
+}
+
+ContentLibraryIconProvider *ContentLibraryWidget::iconProvider() const
+{
+    return m_iconProvider.get();
 }
 
 void ContentLibraryWidget::updateImportedState(const QString &bundleId)

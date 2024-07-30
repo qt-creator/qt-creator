@@ -4,6 +4,7 @@
 #include "contentlibraryview.h"
 
 #include "contentlibrarybundleimporter.h"
+#include "contentlibraryiconprovider.h"
 #include "contentlibraryitem.h"
 #include "contentlibraryeffectsmodel.h"
 #include "contentlibrarymaterial.h"
@@ -890,10 +891,18 @@ void ContentLibraryView::addLibItem(const ModelNode &node, const QPixmap &iconPi
     m_widget->userModel()->addItem(m_bundleId, name, qml, m_iconSavePath.toUrl(), depAssetsRelativePaths);
 
     // generate and save icon
-    if (iconPixmap.isNull())
+    QPixmap iconPixmapToSave;
+    if (node.metaInfo().isQtQuick3DCamera())
+        iconPixmapToSave = m_widget->iconProvider()->requestPixmap("camera.png", nullptr, {});
+    else if (node.metaInfo().isQtQuick3DLight())
+        iconPixmapToSave = m_widget->iconProvider()->requestPixmap("light.png", nullptr, {});
+    else
+        iconPixmapToSave = iconPixmap;
+
+    if (iconPixmapToSave.isNull())
         model()->nodeInstanceView()->previewImageDataForGenericNode(node, {}, {}, ADD_ITEM_REQ_ID);
     else
-        saveIconToBundle(iconPixmap);
+        saveIconToBundle(iconPixmapToSave);
 }
 
 QString ContentLibraryView::getExportPath(const ModelNode &node) const

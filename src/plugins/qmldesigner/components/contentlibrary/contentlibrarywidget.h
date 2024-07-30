@@ -24,13 +24,13 @@ namespace QmlDesigner {
 
 class ContentLibraryBundleImporter;
 class ContentLibraryEffectsModel;
+class ContentLibraryIconProvider;
 class ContentLibraryItem;
 class ContentLibraryMaterial;
 class ContentLibraryMaterialsModel;
 class ContentLibraryTexture;
 class ContentLibraryTexturesModel;
 class ContentLibraryUserModel;
-class NodeMetaInfo;
 
 class ContentLibraryWidget : public QFrame
 {
@@ -48,6 +48,7 @@ class ContentLibraryWidget : public QFrame
 
 public:
     ContentLibraryWidget();
+    ~ContentLibraryWidget();
 
     QList<QToolButton *> createToolBarWidgets();
 
@@ -94,6 +95,7 @@ public:
     QSize sizeHint() const override;
 
     ContentLibraryBundleImporter *importer() const;
+    ContentLibraryIconProvider *iconProvider() const;
 
 signals:
     void bundleItemDragStarted(QmlDesigner::ContentLibraryItem *item);
@@ -129,6 +131,7 @@ private:
     void populateTextureBundleModels();
     void createImporter();
 
+    Utils::UniqueObjectPtr<ContentLibraryIconProvider> m_iconProvider;
     Utils::UniqueObjectPtr<StudioQuickWidget> m_quickWidget;
     QPointer<ContentLibraryMaterialsModel> m_materialsModel;
     QPointer<ContentLibraryTexturesModel> m_texturesModel;
