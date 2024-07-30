@@ -1113,7 +1113,6 @@ void ProjectStorageUpdater::parseQmlComponent(Utils::SmallStringView relativeFil
     package.updatedSourceIds.push_back(sourceId);
 
     type.typeName = SourcePath{qmlFilePath}.name();
-    type.traits = Storage::TypeTraitsKind::Reference;
     type.sourceId = sourceId;
     type.exportedTypes = std::move(exportedTypes);
 

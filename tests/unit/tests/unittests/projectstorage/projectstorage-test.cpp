@@ -5829,7 +5829,7 @@ TEST_F(ProjectStorage, minimal_updates)
         "QQuickItem",
         {},
         Storage::Synchronization::ImportedType{},
-        TypeTraitsKind::Reference,
+        TypeTraitsKind::None,
         sourceId1,
         {Storage::Synchronization::ExportedType{qtQuickModuleId, "Item", Storage::Version{2, 0}},
          Storage::Synchronization::ExportedType{qtQuickNativeModuleId, "QQuickItem"}},

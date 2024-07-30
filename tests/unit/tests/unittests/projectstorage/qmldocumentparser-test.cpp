@@ -21,6 +21,7 @@ using QmlDesigner::ModuleId;
 using QmlDesigner::SourceContextId;
 using QmlDesigner::SourceId;
 using QmlDesigner::Storage::ModuleKind;
+using Storage::TypeTraits;
 
 MATCHER_P(HasPrototype, prototype, std::string(negation ? "isn't " : "is ") + PrintToString(prototype))
 {
@@ -517,4 +518,27 @@ TEST_F(QmlDocumentParser, default_property)
 
     ASSERT_THAT(type.defaultPropertyName, Eq("foos"));
 }
+
+TEST_F(QmlDocumentParser, has_file_component_trait)
+{
+    QString component = R"(import Example
+                           Item{
+                           })";
+
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+
+    ASSERT_TRUE(type.traits.isFileComponent);
+}
+
+TEST_F(QmlDocumentParser, has_is_reference_trait)
+{
+    QString component = R"(import Example
+                           Item{
+                           })";
+
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+
+    ASSERT_THAT(type.traits.kind, QmlDesigner::Storage::TypeTraitsKind::Reference);
+}
+
 } // namespace

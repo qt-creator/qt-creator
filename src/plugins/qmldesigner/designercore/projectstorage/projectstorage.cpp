@@ -2624,6 +2624,9 @@ void ProjectStorage::synchronizeTypeAnnotations(Storage::Synchronization::TypeAn
 
 void ProjectStorage::synchronizeTypeTrait(const Storage::Synchronization::Type &type)
 {
+    if (type.changeLevel == Storage::Synchronization::ChangeLevel::Minimal)
+        return;
+
     s->updateTypeTraitStatement.write(type.typeId, type.traits.type);
 }
 

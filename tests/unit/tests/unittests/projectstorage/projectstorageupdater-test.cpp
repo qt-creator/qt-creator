@@ -185,8 +185,11 @@ public:
         });
 
         firstType.prototype = Storage::Synchronization::ImportedType{"Object"};
+        firstType.traits = TypeTraitsKind::Reference;
         secondType.prototype = Storage::Synchronization::ImportedType{"Object2"};
+        secondType.traits = TypeTraitsKind::Reference;
         thirdType.prototype = Storage::Synchronization::ImportedType{"Object3"};
+        thirdType.traits = TypeTraitsKind::Reference;
 
         setContent(u"/path/First.qml", qmlDocument1);
         setContent(u"/path/First2.qml", qmlDocument2);
@@ -842,7 +845,7 @@ TEST_F(ProjectStorageUpdater, synchronize_add_only_qml_document_in_directory)
                           UnorderedElementsAre(
                               AllOf(IsStorageType("First.qml",
                                                   Storage::Synchronization::ImportedType{},
-                                                  TypeTraitsKind::Reference,
+                                                  TypeTraitsKind::None,
                                                   qmlDocumentSourceId1,
                                                   Storage::Synchronization::ChangeLevel::Minimal),
                                     Field(&Storage::Synchronization::Type::exportedTypes,
@@ -903,7 +906,7 @@ TEST_F(ProjectStorageUpdater, synchronize_removes_qml_document)
                           UnorderedElementsAre(
                               AllOf(IsStorageType("First.qml",
                                                   Storage::Synchronization::ImportedType{},
-                                                  TypeTraitsKind::Reference,
+                                                  TypeTraitsKind::None,
                                                   qmlDocumentSourceId1,
                                                   Storage::Synchronization::ChangeLevel::Minimal),
                                     Field(&Storage::Synchronization::Type::exportedTypes,
@@ -912,7 +915,7 @@ TEST_F(ProjectStorageUpdater, synchronize_removes_qml_document)
                                               IsExportedType(pathModuleId, "First", -1, -1)))),
                               AllOf(IsStorageType("First2.qml",
                                                   Storage::Synchronization::ImportedType{},
-                                                  TypeTraitsKind::Reference,
+                                                  TypeTraitsKind::None,
                                                   qmlDocumentSourceId2,
                                                   Storage::Synchronization::ChangeLevel::Minimal),
                                     Field(&Storage::Synchronization::Type::exportedTypes,
@@ -964,7 +967,7 @@ TEST_F(ProjectStorageUpdater, synchronize_removes_qml_document_in_qmldir_only)
                   UnorderedElementsAre(
                       AllOf(IsStorageType("First.qml",
                                           Storage::Synchronization::ImportedType{},
-                                          TypeTraitsKind::Reference,
+                                          TypeTraitsKind::None,
                                           qmlDocumentSourceId1,
                                           Storage::Synchronization::ChangeLevel::Minimal),
                             Field(&Storage::Synchronization::Type::exportedTypes,
@@ -972,7 +975,7 @@ TEST_F(ProjectStorageUpdater, synchronize_removes_qml_document_in_qmldir_only)
                                                        IsExportedType(pathModuleId, "First", -1, -1)))),
                       AllOf(IsStorageType("First2.qml",
                                           Storage::Synchronization::ImportedType{},
-                                          TypeTraitsKind::Reference,
+                                          TypeTraitsKind::None,
                                           qmlDocumentSourceId2,
                                           Storage::Synchronization::ChangeLevel::Minimal),
                             Field(&Storage::Synchronization::Type::exportedTypes,
@@ -1021,7 +1024,7 @@ TEST_F(ProjectStorageUpdater, synchronize_add_qml_document_to_qmldir)
                 UnorderedElementsAre(
                     AllOf(IsStorageType("First.qml",
                                         Storage::Synchronization::ImportedType{},
-                                        TypeTraitsKind::Reference,
+                                        TypeTraitsKind::None,
                                         qmlDocumentSourceId1,
                                         Storage::Synchronization::ChangeLevel::Minimal),
                           Field(&Storage::Synchronization::Type::exportedTypes,
@@ -1029,7 +1032,7 @@ TEST_F(ProjectStorageUpdater, synchronize_add_qml_document_to_qmldir)
                                                      IsExportedType(pathModuleId, "First", -1, -1)))),
                     AllOf(IsStorageType("First2.qml",
                                         Storage::Synchronization::ImportedType{},
-                                        TypeTraitsKind::Reference,
+                                        TypeTraitsKind::None,
                                         qmlDocumentSourceId2,
                                         Storage::Synchronization::ChangeLevel::Minimal),
                           Field(&Storage::Synchronization::Type::exportedTypes,
@@ -1077,7 +1080,7 @@ TEST_F(ProjectStorageUpdater, synchronize_remove_qml_document_from_qmldir)
                   UnorderedElementsAre(
                       AllOf(IsStorageType("First.qml",
                                           Storage::Synchronization::ImportedType{},
-                                          TypeTraitsKind::Reference,
+                                          TypeTraitsKind::None,
                                           qmlDocumentSourceId1,
                                           Storage::Synchronization::ChangeLevel::Minimal),
                             Field(&Storage::Synchronization::Type::exportedTypes,
@@ -1085,7 +1088,7 @@ TEST_F(ProjectStorageUpdater, synchronize_remove_qml_document_from_qmldir)
                                                        IsExportedType(pathModuleId, "First", -1, -1)))),
                       AllOf(IsStorageType("First2.qml",
                                           Storage::Synchronization::ImportedType{},
-                                          TypeTraitsKind::Reference,
+                                          TypeTraitsKind::None,
                                           qmlDocumentSourceId2,
                                           Storage::Synchronization::ChangeLevel::Minimal),
                             Field(&Storage::Synchronization::Type::exportedTypes,
@@ -1145,7 +1148,7 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_documents_dont_update_if_up_to_dat
                                                      IsExportedType(pathModuleId, "First2", -1, -1)))),
                     AllOf(IsStorageType("Second.qml",
                                         Storage::Synchronization::ImportedType{},
-                                        TypeTraitsKind::Reference,
+                                        TypeTraitsKind::None,
                                         qmlDocumentSourceId3,
                                         Storage::Synchronization::ChangeLevel::Minimal),
                           Field(&Storage::Synchronization::Type::exportedTypes,
@@ -1306,7 +1309,7 @@ TEST_F(ProjectStorageUpdater, synchroniz_if_qmldir_file_has_changed_and_some_rem
                   UnorderedElementsAre(AllOf(
                       IsStorageType("First2.qml",
                                     Storage::Synchronization::ImportedType{},
-                                    TypeTraitsKind::Reference,
+                                    TypeTraitsKind::None,
                                     qmlDocumentSourceId2,
                                     Storage::Synchronization::ChangeLevel::Minimal),
                       Field(&Storage::Synchronization::Type::exportedTypes,
@@ -2569,7 +2572,7 @@ TEST_F(ProjectStorageUpdater, watcher_updates_add_only_qml_document_in_directory
                           UnorderedElementsAre(
                               AllOf(IsStorageType("First.qml",
                                                   Storage::Synchronization::ImportedType{},
-                                                  TypeTraitsKind::Reference,
+                                                  TypeTraitsKind::None,
                                                   qmlDocumentSourceId1,
                                                   Storage::Synchronization::ChangeLevel::Minimal),
                                     Field(&Storage::Synchronization::Type::exportedTypes,
@@ -2630,7 +2633,7 @@ TEST_F(ProjectStorageUpdater, watcher_updates_removes_qml_document)
                           UnorderedElementsAre(
                               AllOf(IsStorageType("First.qml",
                                                   Storage::Synchronization::ImportedType{},
-                                                  TypeTraitsKind::Reference,
+                                                  TypeTraitsKind::None,
                                                   qmlDocumentSourceId1,
                                                   Storage::Synchronization::ChangeLevel::Minimal),
                                     Field(&Storage::Synchronization::Type::exportedTypes,
@@ -2639,7 +2642,7 @@ TEST_F(ProjectStorageUpdater, watcher_updates_removes_qml_document)
                                               IsExportedType(pathModuleId, "First", -1, -1)))),
                               AllOf(IsStorageType("First2.qml",
                                                   Storage::Synchronization::ImportedType{},
-                                                  TypeTraitsKind::Reference,
+                                                  TypeTraitsKind::None,
                                                   qmlDocumentSourceId2,
                                                   Storage::Synchronization::ChangeLevel::Minimal),
                                     Field(&Storage::Synchronization::Type::exportedTypes,
@@ -2691,7 +2694,7 @@ TEST_F(ProjectStorageUpdater, watcher_updates_removes_qml_document_in_qmldir_onl
                   UnorderedElementsAre(
                       AllOf(IsStorageType("First.qml",
                                           Storage::Synchronization::ImportedType{},
-                                          TypeTraitsKind::Reference,
+                                          TypeTraitsKind::None,
                                           qmlDocumentSourceId1,
                                           Storage::Synchronization::ChangeLevel::Minimal),
                             Field(&Storage::Synchronization::Type::exportedTypes,
@@ -2699,7 +2702,7 @@ TEST_F(ProjectStorageUpdater, watcher_updates_removes_qml_document_in_qmldir_onl
                                                        IsExportedType(pathModuleId, "First", -1, -1)))),
                       AllOf(IsStorageType("First2.qml",
                                           Storage::Synchronization::ImportedType{},
-                                          TypeTraitsKind::Reference,
+                                          TypeTraitsKind::None,
                                           qmlDocumentSourceId2,
                                           Storage::Synchronization::ChangeLevel::Minimal),
                             Field(&Storage::Synchronization::Type::exportedTypes,
@@ -2748,7 +2751,7 @@ TEST_F(ProjectStorageUpdater, watcher_updates_directories_add_qml_document_to_qm
                 UnorderedElementsAre(
                     AllOf(IsStorageType("First.qml",
                                         Storage::Synchronization::ImportedType{},
-                                        TypeTraitsKind::Reference,
+                                        TypeTraitsKind::None,
                                         qmlDocumentSourceId1,
                                         Storage::Synchronization::ChangeLevel::Minimal),
                           Field(&Storage::Synchronization::Type::exportedTypes,
@@ -2756,7 +2759,7 @@ TEST_F(ProjectStorageUpdater, watcher_updates_directories_add_qml_document_to_qm
                                                      IsExportedType(pathModuleId, "First", -1, -1)))),
                     AllOf(IsStorageType("First2.qml",
                                         Storage::Synchronization::ImportedType{},
-                                        TypeTraitsKind::Reference,
+                                        TypeTraitsKind::None,
                                         qmlDocumentSourceId2,
                                         Storage::Synchronization::ChangeLevel::Minimal),
                           Field(&Storage::Synchronization::Type::exportedTypes,
@@ -2804,7 +2807,7 @@ TEST_F(ProjectStorageUpdater, watcher_updates_directories_remove_qml_document_fr
                   UnorderedElementsAre(
                       AllOf(IsStorageType("First.qml",
                                           Storage::Synchronization::ImportedType{},
-                                          TypeTraitsKind::Reference,
+                                          TypeTraitsKind::None,
                                           qmlDocumentSourceId1,
                                           Storage::Synchronization::ChangeLevel::Minimal),
                             Field(&Storage::Synchronization::Type::exportedTypes,
@@ -2812,7 +2815,7 @@ TEST_F(ProjectStorageUpdater, watcher_updates_directories_remove_qml_document_fr
                                                        IsExportedType(pathModuleId, "First", -1, -1)))),
                       AllOf(IsStorageType("First2.qml",
                                           Storage::Synchronization::ImportedType{},
-                                          TypeTraitsKind::Reference,
+                                          TypeTraitsKind::None,
                                           qmlDocumentSourceId2,
                                           Storage::Synchronization::ChangeLevel::Minimal),
                             Field(&Storage::Synchronization::Type::exportedTypes,
@@ -2872,7 +2875,7 @@ TEST_F(ProjectStorageUpdater, watcher_updates_directories_dont_update_qml_docume
                                                      IsExportedType(pathModuleId, "First2", -1, -1)))),
                     AllOf(IsStorageType("Second.qml",
                                         Storage::Synchronization::ImportedType{},
-                                        TypeTraitsKind::Reference,
+                                        TypeTraitsKind::None,
                                         qmlDocumentSourceId3,
                                         Storage::Synchronization::ChangeLevel::Minimal),
                           Field(&Storage::Synchronization::Type::exportedTypes,
@@ -2942,7 +2945,7 @@ TEST_F(ProjectStorageUpdater, watcher_updates_qmldirs_dont_update_qml_documents_
                                                      IsExportedType(pathModuleId, "First2", -1, -1)))),
                     AllOf(IsStorageType("Second.qml",
                                         Storage::Synchronization::ImportedType{},
-                                        TypeTraitsKind::Reference,
+                                        TypeTraitsKind::None,
                                         qmlDocumentSourceId3,
                                         Storage::Synchronization::ChangeLevel::Minimal),
                           Field(&Storage::Synchronization::Type::exportedTypes,
