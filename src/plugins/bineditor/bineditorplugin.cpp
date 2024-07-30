@@ -2190,13 +2190,13 @@ bool BinEditorDocument::saveImpl(QString *errorString, const FilePath &filePath,
     return false;
 }
 
-class BinEditorImpl final : public IEditor
+class BinEditorImpl final : public IEditor, public EditorService
 {
 public:
-    BinEditorImpl(BinEditorWidget *widget, const std::shared_ptr<BinEditorDocument> &doc)
-        : m_document(doc), m_widget(widget)
+    BinEditorImpl(const std::shared_ptr<BinEditorDocument> &doc)
+        : m_document(doc), m_widget(new BinEditorWidget(doc))
     {
-        setWidget(widget);
+        setWidget(m_widget);
         setDuplicateSupported(true);
         auto codecChooser = new CodecChooser(CodecChooser::Filter::SingleByte);
         codecChooser->prependNone();
@@ -2206,7 +2206,7 @@ public:
         l->setContentsMargins(0, 0, 5, 0);
         l->addStretch(1);
         l->addWidget(codecChooser);
-        l->addWidget(widget->addressEdit());
+        l->addWidget(m_widget->addressEdit());
         w->setLayout(l);
 
         m_toolBar = new QToolBar;
@@ -2214,7 +2214,7 @@ public:
         m_toolBar->addWidget(w);
 
         connect(codecChooser, &CodecChooser::codecChanged,
-                widget, &BinEditorWidget::setCodec);
+                m_widget, &BinEditorWidget::setCodec);
         const QVariant setting = ICore::settings()->value(Constants::C_ENCODING_SETTING);
         if (!setting.isNull())
             codecChooser->setAssignedCodec(QTextCodec::codecForName(setting.toByteArray()));
@@ -2228,42 +2228,29 @@ public:
 
     IEditor *duplicate() final
     {
-        auto widget = new BinEditorWidget(m_document);
-        widget->setCursorPosition(m_widget->cursorPosition());
-        auto editor = new BinEditorImpl(widget, m_document);
+        auto editor = new BinEditorImpl(m_document);
+        editor->m_widget->setCursorPosition(m_widget->cursorPosition());
         emit editorDuplicated(editor);
         return editor;
     }
 
-private:
-    std::shared_ptr<BinEditorDocument> m_document;
-    BinEditorWidget *m_widget = nullptr;
-    QToolBar *m_toolBar;
-};
-
-///////////////////////////////// BinEditor Services //////////////////////////////////
-
-class BinEditorService final : public EditorService
-{
-public:
-    ~BinEditorService() = default;
-
+    // Service interface
     QWidget *widget() { return m_widget; }
-    Core::IEditor *editor() { return m_editor; }
+    Core::IEditor *editor() { return this; }
 
     // "Slots"
-    void setSizes(quint64 address, qint64 range, int blockSize) final { m_document->setSizes(address, range, blockSize); }
-    void setReadOnly(bool on) final { m_widget->setReadOnly(on); }
-    void setFinished() final { m_widget->setReadOnly(true); m_document->setFinished(); }
-    void setNewWindowRequestAllowed(bool on) final { m_widget->setNewWindowRequestAllowed(on); }
-    void setCursorPosition(qint64 pos, MoveMode moveMode = MoveAnchor) final { m_widget->setCursorPosition(pos, moveMode); }
-    void updateContents() final { m_document->updateContents(); }
-    void addData(quint64 address, const QByteArray &data) final { m_document->addData(address, data); }
+    void setSizes(quint64 address, qint64 range, int blockSize) { m_document->setSizes(address, range, blockSize); }
+    void setReadOnly(bool on) { m_widget->setReadOnly(on); }
+    void setFinished() { m_widget->setReadOnly(true); m_document->setFinished(); }
+    void setNewWindowRequestAllowed(bool on) { m_widget->setNewWindowRequestAllowed(on); }
+    void setCursorPosition(qint64 pos, MoveMode moveMode = MoveAnchor) { m_widget->setCursorPosition(pos, moveMode); }
+    void updateContents() { m_document->updateContents(); }
+    void addData(quint64 address, const QByteArray &data) { m_document->addData(address, data); }
 
-    void clearMarkup() final { m_widget->clearMarkup(); }
-    void addMarkup(quint64 address, quint64 len, const QColor &color, const QString &toolTip) final
+    void clearMarkup() { m_widget->clearMarkup(); }
+    void addMarkup(quint64 address, quint64 len, const QColor &color, const QString &toolTip)
         { m_widget->addMarkup(address, len, color, toolTip); }
-    void commitMarkup() final { m_widget->commitMarkup(); }
+    void commitMarkup() { m_widget->commitMarkup(); }
 
     // "Signals"
     void setFetchDataHandler(const std::function<void(quint64)> &cb) final { m_document->m_fetchDataHandler = cb; }
@@ -2273,9 +2260,10 @@ public:
     void setWatchPointRequestHandler(const std::function<void(quint64, uint)> &cb) final { m_document->m_watchPointRequestHandler = cb; }
     void setAboutToBeDestroyedHandler(const std::function<void()> & cb) final { m_document->m_aboutToBeDestroyedHandler = cb; }
 
-    IEditor *m_editor = nullptr;
-    BinEditorDocument *m_document = nullptr;
+private:
+    std::shared_ptr<BinEditorDocument> m_document;
     BinEditorWidget *m_widget = nullptr;
+    QToolBar *m_toolBar;
 };
 
 class BinEditorFactoryService final : public QObject, public FactoryService
@@ -2287,15 +2275,10 @@ public:
     EditorService *createEditorService(const QString &title, bool wantsEditor) final
     {
         auto document = std::make_shared<BinEditorDocument>();
-        auto widget = new BinEditorWidget(document);
-        widget->setWindowTitle(title);
-
-        auto service = new BinEditorService;
-        service->m_widget = widget;
-        service->m_document = document.get();
-        service->m_editor = new BinEditorImpl(widget, document);
+        auto service = new BinEditorImpl(document);
+        service->widget()->setWindowTitle(title);
         if (wantsEditor)
-            EditorManager::activateEditor(service->m_editor);
+            EditorManager::activateEditor(service);
         return service;
     }
 };
@@ -2333,8 +2316,8 @@ public:
 
         setEditorCreator([this] {
             auto doc = std::make_shared<BinEditorDocument>();
-            auto widget = new BinEditorWidget(doc);
-            auto editor = new BinEditorImpl(widget, doc);
+            auto editor = new BinEditorImpl(doc);
+            BinEditorWidget *widget = dynamic_cast<BinEditorWidget *>(editor->widget());
 
             connect(m_undoAction, &QAction::triggered, doc.get(), &BinEditorDocument::undo);
             connect(m_redoAction, &QAction::triggered, doc.get(), &BinEditorDocument::redo);
