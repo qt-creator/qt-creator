@@ -11,6 +11,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iwizardfactory.h>
@@ -44,6 +45,7 @@ using namespace Utils;
 using namespace Utils::StyleHelper::SpacingTokens;
 
 const char PROJECT_BASE_ID[] = "Welcome.OpenRecentProject";
+static const qsizetype kMaxPathsDisplay = 5;
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -85,6 +87,25 @@ static int itemSpacing()
 static bool withIcon()
 {
     return s(100) > 60; // Hide icons if spacings are scaled to below 60%
+}
+
+static FilePaths pathsForSession(const QString &session, QString *title = nullptr)
+{
+    const FilePaths projects = ProjectManager::projectsForSessionName(session);
+    if (projects.size()) {
+        if (title) {
+            //: title in expanded session items in welcome mode
+            *title = Tr::tr("Projects");
+        }
+        return projects;
+    }
+    const FilePaths allPaths = SessionManager::openFilesForSessionName(
+        session, kMaxPathsDisplay + 1 /* +1 so we know if there are more */);
+    if (title) {
+        //: title in expanded session items in welcome mode
+        *title = Tr::tr("Files");
+    }
+    return allPaths;
 }
 
 ProjectModel::ProjectModel(QObject *parent)
@@ -272,18 +293,6 @@ protected:
     }
 };
 
-static FilePaths pathsForSessionName(const QString &session)
-{
-    const FilePath fileName = SessionManager::sessionNameToFileName(session);
-    PersistentSettingsReader reader;
-    if (fileName.exists()) {
-        if (!reader.load(fileName))
-            return {};
-    }
-    // qDebug() << reader.restoreValue("EditorSettings").toByteArray();
-    return {};
-}
-
 class SessionDelegate : public BaseDelegate
 {
 protected:
@@ -335,17 +344,17 @@ public:
         //      |            |(w:6)   |        +------------+        +-------------+        |       |            |                     |    |
         //      |            |        |        |(VPaddingXs)|        |(VPaddingXs) |        |       |            |                     |    |
         //      |------------+--------+--------+------------+--------+-------------+--------+-------+            |                     |  --+
-        //      |                                               +--  |         (VPaddingXxs)        |            |                     |    |
-        //      |                                               |    +------------------------------+(HPaddingXs)|                     |    |
-        //      |                                               |    |         <projectName>        |            |                     |    |
-        //      |                                               |    +------------------------------+            |                     |    |
-        //      |                      Per project in session --+    |        (ExPaddingGapS)       |            |(sessionScrollBarGap)|    |
-        //      |                                               |    +------------------------------+            |                     |    |
-        //      |                                               |    |         <projectPath>        |            |                     |    |
-        //      |                                               |    +------------------------------+            |                     |    +-- Expansion
+        //      |                                                    |         (VPaddingXxs)        |            |                     |    |
+        //      |                                                    +------------------------------+(HPaddingXs)|                     |    |
+        //      |                                                    |      <Projects | Files>      |            |                     |    |
+        //      |                                                    +------------------------------+            |                     |    |
+        //      |                                                    |        (ExPaddingGapS)       |            |(sessionScrollBarGap)|    |
+        //      |                                               +--  +------------------------------+            |                     |    |
+        //      |                                               |    |            <path>            |            |                     |    |
+        //      |                  Per open project or file   --+    +------------------------------+            |                     |    +-- Expansion
         //      |                                               +--  |         (VPaddingXxs)        |            |                     |    |
         //      +----------------------------------------------------+------------------------------+------------+                     |    |
-        //      |                                          (VPaddingXs)                                          |                     |    |
+        //      |                                            (VGapXs)                                            |                     |    |
         //      +---------------------------------------+--------------+-----------------------------------------+                     |    |
         // +--  |                           <cloneButton>|<renameButton>|<deleteButton>                          |                     |    |
         // |    +---------------------------------------+--------------+-----------------------------------------+                     |    |
@@ -454,47 +463,49 @@ public:
 
         int yy = hdR.bottom();
         if (expanded) {
-            const QFont projectNameFont = sessionProjectNameTF.font();
-            const QFontMetrics projectNameFm(projectNameFont);
-            const int projectNameLineHeight = sessionProjectNameTF.lineHeight();
-            const QFont projectPathFont = projectPathTF.font();
-            const QFontMetrics projectPathFm(projectPathFont);
-            const int projectPathLineHeight = projectPathTF.lineHeight();
+            const QFont titleFont = sessionProjectNameTF.font();
+            const QFontMetrics titleNameFm(titleFont);
+            const int titleLineHeight = sessionProjectNameTF.lineHeight();
+            const QFont pathFont = projectPathTF.font();
+            const QFontMetrics pathFm(pathFont);
+            const int pathLineHeight = projectPathTF.lineHeight();
             const int textWidth = bgR.right() - s(HPaddingXs) - textX;
+            const auto getDisplayPath = [](const FilePath &p) {
+                return p.osType() == OsTypeWindows ? p.displayName() : p.withTildeHomePath();
+            };
 
-            const FilePaths projects = ProjectManager::projectsForSessionName(sessionName);
-            for (const FilePath &projectPath : projects) {
+            QString title;
+            const FilePaths allPaths = pathsForSession(sessionName, &title);
+            const qsizetype count = allPaths.size();
+            const FilePaths paths = allPaths.first(std::min(kMaxPathsDisplay, count));
+            const QStringList pathDisplay = Utils::transform(paths, getDisplayPath)
+                                            + (count > kMaxPathsDisplay ? QStringList("...")
+                                                                        : QStringList());
+            if (pathDisplay.size()) {
                 yy += s(VPaddingXxs);
+                // title
                 {
-                    painter->setFont(projectNameFont);
+                    painter->setFont(titleFont);
                     painter->setPen(sessionProjectNameTF.color());
-                    const QRect projectNameR(textX, yy, textWidth, projectNameLineHeight);
-                    const QString projectNameElided =
-                        projectNameFm.elidedText(projectPath.completeBaseName(), Qt::ElideMiddle,
-                                                 textWidth);
-                    painter->drawText(projectNameR, sessionProjectNameTF.drawTextFlags,
-                                      projectNameElided);
-                    yy += projectNameLineHeight;
+                    const QRect titleR(textX, yy, textWidth, titleLineHeight);
+                    const QString titleElided
+                        = titleNameFm.elidedText(title, Qt::ElideMiddle, textWidth);
+                    painter->drawText(titleR, sessionProjectNameTF.drawTextFlags, titleElided);
+                    yy += titleLineHeight;
                     yy += s(ExPaddingGapS);
                 }
                 {
-                    const QString displayPath =
-                        projectPath.osType() == OsTypeWindows ? projectPath.displayName()
-                                                              : projectPath.withTildeHomePath();
-                    painter->setFont(projectPathFont);
+                    painter->setFont(pathFont);
                     painter->setPen(projectPathTF.color());
-                    const QRect projectPathR(textX, yy, textWidth, projectPathLineHeight);
-                    const QString projectPathElided =
-                        projectPathFm.elidedText(displayPath, Qt::ElideMiddle, textWidth);
-                    painter->drawText(projectPathR, projectPathTF.drawTextFlags,
-                                      projectPathElided);
-                    yy += projectPathLineHeight;
+                    for (const QString &displayPath : pathDisplay) {
+                        const QRect pathR(textX, yy, textWidth, pathLineHeight);
+                        const QString pathElided
+                            = pathFm.elidedText(displayPath, Qt::ElideMiddle, textWidth);
+                        painter->drawText(pathR, projectPathTF.drawTextFlags, pathElided);
+                        yy += pathLineHeight;
+                        yy += s(VPaddingXxs);
+                    }
                 }
-                yy += s(VPaddingXxs);
-            }
-            if (projects.isEmpty()) {
-                // check if there are files to show instead
-                const FilePaths paths = pathsForSessionName(sessionName);
             }
             yy += s(VGapXs);
 
@@ -560,17 +571,14 @@ public:
         int h = headerHeight();
         if (expanded(idx)) {
             const QString sessionName = idx.data(Qt::DisplayRole).toString();
-            const FilePaths projects = ProjectManager::projectsForSessionName(sessionName);
-            const int projectEntryHeight =
-                s(VPaddingXxs)
-                + projectNameTF.lineHeight()
-                + s(ExPaddingGapS)
-                + projectPathTF.lineHeight()
-                + s(VPaddingXxs);
-            h += projects.size() * projectEntryHeight
-                 + s(VGapXs)
-                 + actionButtonHeight()
-                 + s(VGapXs);
+            const FilePaths paths = pathsForSession(sessionName);
+            const int displayPathCount = std::min(kMaxPathsDisplay + 1, paths.size());
+            const int contentHeight
+                = displayPathCount == 0
+                      ? 0
+                      : s(VPaddingXxs) + sessionProjectNameTF.lineHeight() + s(ExPaddingGapS)
+                            + displayPathCount * (projectPathTF.lineHeight() + s(VPaddingXxs));
+            h += contentHeight + s(VGapXs) + actionButtonHeight() + s(VGapXs);
         }
         return QSize(-1, h + itemSpacing());
     }

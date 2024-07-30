@@ -10,6 +10,7 @@
 #include "coreconstants.h"
 #include "coreplugin.h"
 #include "editormanager/editormanager.h"
+#include "editormanager/editormanager_p.h"
 #include "icore.h"
 #include "modemanager.h"
 #include "progressmanager/progressmanager.h"
@@ -554,6 +555,18 @@ void SessionManagerPrivate::restoreEditors()
         EditorManager::restoreState(QByteArray::fromBase64(editorsettings.toByteArray()));
         SessionManager::sessionLoadingProgress();
     }
+}
+
+FilePaths SessionManager::openFilesForSessionName(const QString &session, int max)
+{
+    const FilePath fileName = sessionNameToFileName(session);
+    PersistentSettingsReader reader;
+    if (fileName.exists()) {
+        if (!reader.load(fileName))
+            return {};
+    }
+    return Internal::EditorManagerPrivate::openFilesForState(
+        QByteArray::fromBase64(reader.restoreValue("EditorSettings").toByteArray()), max);
 }
 
 /*!

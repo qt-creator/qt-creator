@@ -3639,10 +3639,14 @@ public:
     bool pinned = false;
 };
 
+/*
+    Calls the "handler"s with the extracted data.
+    If the fileHandler returns false, the parsing is aborted.
+*/
 static void restore(
     const QByteArray &state,
     const std::function<void(QMap<QString, QVariant>)> &editorStatesHandler,
-    const std::function<void(FileStateEntry)> &fileHandler,
+    const std::function<bool(FileStateEntry)> &fileHandler,
     const std::function<void(QByteArray)> &splitterStateHandler,
     const std::function<void(QVector<QVariantHash>)> &windowStateHandler)
 {
@@ -3668,8 +3672,8 @@ static void restore(
         if (isVersion5)
             stream >> file.pinned;
 
-        if (fileHandler)
-            fileHandler(file);
+        if (fileHandler && !fileHandler(file))
+            return;
     }
 
     QByteArray splitterstates;
@@ -3711,7 +3715,7 @@ void EditorManager::restoreState(const QByteArray &state)
         if (!file.filePath.isEmpty() && !file.displayName.isEmpty()) {
             const FilePath filePath = FilePath::fromUserInput(file.filePath);
             if (!filePath.exists())
-                return;
+                return true;
             const FilePath rfp = autoSaveName(filePath);
             if (rfp.exists() && filePath.lastModified() < rfp.lastModified()) {
                 if (IEditor *editor = openEditor(filePath, file.id, DoNotMakeVisible))
@@ -3723,6 +3727,7 @@ void EditorManager::restoreState(const QByteArray &state)
                     DocumentModelPrivate::setPinned(entry, file.pinned);
             }
         }
+        return true;
     };
     const auto restoreSplitterState = [](const QByteArray &state) {
         d->m_editorAreas.first()->restoreState(state);
@@ -3747,6 +3752,21 @@ void EditorManager::restoreState(const QByteArray &state)
     }
 
     QApplication::restoreOverrideCursor();
+}
+
+FilePaths EditorManagerPrivate::openFilesForState(const QByteArray &state, int max)
+{
+    FilePaths result;
+    restore(
+        state,
+        {},
+        [&result, max](const FileStateEntry &entry) {
+            result << FilePath::fromUserInput(entry.filePath);
+            return max < 0 || result.size() <= max;
+        },
+        {},
+        {});
+    return result;
 }
 
 /*!

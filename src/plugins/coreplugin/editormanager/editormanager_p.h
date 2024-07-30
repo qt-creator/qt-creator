@@ -99,6 +99,7 @@ public:
     static Qt::CaseSensitivity readFileSystemSensitivity(Utils::QtcSettings *settings);
     static void writeFileSystemSensitivity(Utils::QtcSettings *settings,
                                            Qt::CaseSensitivity sensitivity);
+    static Utils::FilePaths openFilesForState(const QByteArray &state, int max);
 
     static EditorWindow *createEditorWindow();
     static void addEditorArea(EditorArea *area);
