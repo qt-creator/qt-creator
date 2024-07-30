@@ -146,7 +146,7 @@ public:
         if (watchers.contains(path))
             return false;
 
-        auto res = path.watch();
+        expected_str<std::unique_ptr<FilePathWatcher>> res = path.watch();
         QTC_ASSERT_EXPECTED(res, return false;);
 
         connect(res->get(), &FilePathWatcher::pathChanged, this, [this, path] {
@@ -322,10 +322,8 @@ static void addFileInfos(const QList<IDocument *> &documents)
         addFileInfo(document, filePath, filePath);
         if (isLink) {
             addFileInfo(document, resolvedFilePath, resolvedFilePath);
-            if (!filePath.needsDevice()) {
-                linkPathsToWatch.append(d->m_states.value(filePath).watchedFilePath);
-                pathsToWatch.append(d->m_states.value(resolvedFilePath).watchedFilePath);
-            }
+            linkPathsToWatch.append(d->m_states.value(filePath).watchedFilePath);
+            pathsToWatch.append(d->m_states.value(resolvedFilePath).watchedFilePath);
         } else {
             pathsToWatch.append(d->m_states.value(filePath).watchedFilePath);
         }
@@ -402,11 +400,9 @@ static void removeFileInfo(IDocument *document)
         d->m_states[filePath].lastUpdatedState.remove(document);
         if (d->m_states.value(filePath).lastUpdatedState.isEmpty()) {
             const FilePath &watchedFilePath = d->m_states.value(filePath).watchedFilePath;
-            if (!watchedFilePath.needsDevice()) {
-                if (d->m_fileWatcher.files().contains(watchedFilePath)) {
-                    qCDebug(log) << "removing watch for" << watchedFilePath;
-                    d->m_fileWatcher.removePath(watchedFilePath);
-                }
+            if (d->m_fileWatcher.files().contains(watchedFilePath)) {
+                qCDebug(log) << "removing watch for" << watchedFilePath;
+                d->m_fileWatcher.removePath(watchedFilePath);
             }
             d->m_states.remove(filePath);
         }
