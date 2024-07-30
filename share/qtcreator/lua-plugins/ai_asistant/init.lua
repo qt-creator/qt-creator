@@ -36,6 +36,27 @@ local function createCommand()
   return cmd
 end
 
+local function createInitOptions()
+  local llm_config = {
+    cppLLM = Settings.cppLLM.stringValue,
+    qmlLLM = Settings.qmlLLM.stringValue,
+    otherLLM = Settings.otherLLM.stringValue,
+    debugLLM = Settings.debugLLM.stringValue,
+    reviewLLM = Settings.reviewLLM.stringValue,
+    explainLLM = Settings.explainLLM.stringValue
+  }
+
+  local auth_token_config = {
+    authTokenLama35 = Settings.authTokenLlama3.value,
+    authTokenClaude35 = Settings.authTokenClaude35.value
+  }
+
+  return {
+    llm_config = llm_config,
+    auth_token_config = auth_token_config
+  }
+end
+
 local function installOrUpdateServer()
   -- TODO: Download/Update/Install
 end
@@ -47,6 +68,7 @@ local function setupClient()
     name = 'AI Assistant Server',
     cmd = createCommand,
     transport = 'stdio',
+    initializationOptions = createInitOptions,
     languageFilter = {
       patterns = { '*.*' },
     },
@@ -83,10 +105,43 @@ local function layoutSettings()
         br,
       },
       st
-    }
+    },
+    br,
+    Settings.cppLLM, br,
+    Settings.qmlLLM, br,
+    Settings.otherLLM, br,
+    Settings.debugLLM, br,
+    Settings.reviewLLM, br,
+    Settings.explainLLM, br,
+    Settings.authTokenLlama3, br,
+    Settings.authTokenClaude35
   }
 
   return layout
+end
+
+local available_llms = {"Llama 3 70B Fine-Tuned", "Claude 3.5 Sonnet"}
+
+local function createSelectionAspect(settingsKey, displayName)
+  return S.SelectionAspect.create({
+    settingsKey = settingsKey,
+    options = available_llms,
+    displayStyle = S.SelectionDisplayStyle.ComboBox,
+    displayName = displayName
+  })
+end
+
+local function addLLMSetting(keySuffix, displayText)
+  Settings[keySuffix] = createSelectionAspect("AiAssistant." .. keySuffix, displayText)
+end
+
+local function addAuthTokenSetting(llm_name, displayText)
+  Settings["authToken" .. llm_name] = S.StringAspect.create({
+    settingsKey = "AiAssistant.AuthToken." .. llm_name,
+    labelText = displayText .. ":",
+    displayStyle = S.StringDisplayStyle.LineEdit,
+    defaultValue = "AUTH_TOKEN",
+  })
 end
 
 local function setupAspect()
@@ -102,6 +157,25 @@ local function setupAspect()
     toolTip = "The path to the AI Assistant Server",
     expectedKind = S.Kind.ExistingCommand,
     defaultPath = Utils.FilePath.fromUserInput("/path/to/server"),
+  })
+
+  addLLMSetting("cppLLM", "LLM for C++:")
+  addLLMSetting("qmlLLM", "LLM for QML:")
+  addLLMSetting("otherLLM", "LLM for other languages:")
+  addLLMSetting("debugLLM", "LLM for debug:")
+  addLLMSetting("reviewLLM", "LLM for review")
+  addLLMSetting("explainLLM", "LLM for explain:")
+
+  addAuthTokenSetting("Llama3", "Llama 3 API authentication Token")
+  addAuthTokenSetting("Claude35", "Claude 3.5 API authentication Token")
+
+  Options = S.OptionsPage.create({
+    aspectContainer = Settings,
+    categoryId = "AiAssistant.OptionsPage",
+    displayName = tr("AI Assistant"),
+    id = "AiAssistant.Settings",
+    displayCategory = "AI Assistant",
+    categoryIconPath = PluginSpec.pluginDirectory:resolvePath("images/settingscategory_ai_assistant.png")
   })
 
   return Settings
