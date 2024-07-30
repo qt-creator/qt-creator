@@ -101,6 +101,12 @@ LUA_EXPORT std::unique_ptr<Utils::LuaState> runScript(
     const QString &name,
     std::function<void(sol::state &)> customizeState = {});
 
+sol::protected_function_result runFunction(
+    sol::state &lua,
+    const QString &script,
+    const QString &name,
+    std::function<void(sol::state &)> customizeState = {});
+
 void setupLuaEngine(QObject *guard);
 
 } // namespace Lua

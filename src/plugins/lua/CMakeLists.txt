@@ -13,6 +13,7 @@ add_qtc_plugin(Lua
     bindings/install.cpp
     bindings/json.cpp
     bindings/localsocket.cpp
+    bindings/macro.cpp
     bindings/messagemanager.cpp
     bindings/qtcprocess.cpp
     bindings/settings.cpp
@@ -21,6 +22,7 @@ add_qtc_plugin(Lua
     bindings/utils.cpp
     luaengine.cpp
     luaengine.h
+    luaexpander.cpp
     luaplugin.cpp
     luapluginspec.cpp
     luapluginspec.h

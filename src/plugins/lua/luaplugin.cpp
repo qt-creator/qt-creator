@@ -15,6 +15,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcprocess.h>
 #include <utils/theme/theme.h>
 
@@ -41,6 +42,7 @@ void setupHookModule();
 void setupInstallModule();
 void setupJsonModule();
 void setupLocalSocketModule();
+void setupMacroModule();
 void setupMessageManagerModule();
 void setupProcessModule();
 void setupQtModule();
@@ -48,6 +50,8 @@ void setupSettingsModule();
 void setupTextEditorModule();
 void setupTranslateModule();
 void setupUtilsModule();
+
+void setupLuaExpander(MacroExpander *expander);
 
 class LuaJsExtension : public QObject
 {
@@ -256,6 +260,7 @@ public:
         setupInstallModule();
         setupJsonModule();
         setupLocalSocketModule();
+        setupMacroModule();
         setupMessageManagerModule();
         setupProcessModule();
         setupQtModule();
@@ -265,6 +270,8 @@ public:
         setupUtilsModule();
 
         Core::JsExpander::registerGlobalObject("Lua", [] { return new LuaJsExtension(); });
+
+        setupLuaExpander(globalMacroExpander());
 
         pluginSpecsFromArchiveFactories().push_back([](const FilePath &path) {
             QList<PluginSpec *> plugins;

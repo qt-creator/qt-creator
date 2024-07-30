@@ -54,13 +54,10 @@ public:
     sol::state lua;
 };
 
-// Runs the gives script in a new Lua state. The returned Object manages the lifetime of the state.
-std::unique_ptr<Utils::LuaState> runScript(
-    const QString &script, const QString &name, std::function<void(sol::state &)> customizeState)
+void prepareLuaState(
+    sol::state &lua, const QString &name, const std::function<void(sol::state &)> &customizeState)
 {
-    std::unique_ptr<LuaStateImpl> opaque = std::make_unique<LuaStateImpl>();
-
-    opaque->lua.open_libraries(
+    lua.open_libraries(
         sol::lib::base,
         sol::lib::bit32,
         sol::lib::coroutine,
@@ -73,7 +70,7 @@ std::unique_ptr<Utils::LuaState> runScript(
         sol::lib::table,
         sol::lib::utf8);
 
-    opaque->lua["print"] = [prefix = name, printToOutputPane = true](sol::variadic_args va) {
+    lua["print"] = [prefix = name, printToOutputPane = true](sol::variadic_args va) {
         const QString msg = variadicToStringList(va).join("\t");
 
         qDebug().noquote() << "[" << prefix << "]" << msg;
@@ -84,23 +81,33 @@ std::unique_ptr<Utils::LuaState> runScript(
         }
     };
 
-    opaque->lua.new_usertype<ScriptPluginSpec>(
+    lua.new_usertype<ScriptPluginSpec>(
         "PluginSpec", sol::no_constructor, "name", sol::property([](ScriptPluginSpec &self) {
             return self.name;
         }));
 
-    opaque->lua["PluginSpec"] = ScriptPluginSpec{name, {}, std::make_unique<QObject>()};
+    lua["PluginSpec"] = ScriptPluginSpec{name, {}, std::make_unique<QObject>()};
 
     for (const auto &[name, func] : d->m_providers.asKeyValueRange()) {
-        opaque->lua["package"]["preload"][name.toStdString()] =
-            [func = func](const sol::this_state &s) { return func(s); };
+        lua["package"]["preload"][name.toStdString()] = [func = func](const sol::this_state &s) {
+            return func(s);
+        };
     }
 
     for (const auto &func : d->m_autoProviders)
-        func(opaque->lua);
+        func(lua);
 
     if (customizeState)
-        customizeState(opaque->lua);
+        customizeState(lua);
+}
+
+// Runs the gives script in a new Lua state. The returned Object manages the lifetime of the state.
+std::unique_ptr<Utils::LuaState> runScript(
+    const QString &script, const QString &name, std::function<void(sol::state &)> customizeState)
+{
+    std::unique_ptr<LuaStateImpl> opaque = std::make_unique<LuaStateImpl>();
+
+    prepareLuaState(opaque->lua, name, customizeState);
 
     auto result
         = opaque->lua
@@ -114,6 +121,16 @@ std::unique_ptr<Utils::LuaState> runScript(
     }
 
     return opaque;
+}
+
+sol::protected_function_result runFunction(
+    sol::state &lua,
+    const QString &script,
+    const QString &name,
+    std::function<void(sol::state &)> customizeState)
+{
+    prepareLuaState(lua, name, customizeState);
+    return lua.safe_script(script.toStdString(), sol::script_pass_on_error, name.toStdString());
 }
 
 void registerProvider(const QString &packageName, const PackageProvider &provider)
