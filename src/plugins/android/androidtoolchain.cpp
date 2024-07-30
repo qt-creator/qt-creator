@@ -241,7 +241,9 @@ public:
     {
         setDisplayName(Tr::tr("Android Clang"));
         setSupportedToolchainType(Constants::ANDROID_TOOLCHAIN_TYPEID);
-        setSupportedLanguages({ProjectExplorer::Constants::CXX_LANGUAGE_ID});
+        setSupportedLanguages(
+            {ProjectExplorer::Constants::C_LANGUAGE_ID,
+             ProjectExplorer::Constants::CXX_LANGUAGE_ID});
         setToolchainConstructor([] { return new AndroidToolchain; });
     }
 };
