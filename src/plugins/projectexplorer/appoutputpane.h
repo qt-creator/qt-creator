@@ -79,7 +79,7 @@ private:
     void stopRunControl();
     void attachToRunControl();
     void tabChanged(int);
-    void contextMenuRequested(const QPoint &pos, int index);
+    void contextMenuRequested(const QPoint &pos);
     void runControlFinished(RunControl *runControl);
 
     void aboutToUnloadSession();

@@ -79,15 +79,11 @@ static QString msgAttachDebuggerTooltip(const QString &handleDescription = QStri
 
 class TabWidget : public QTabWidget
 {
-    Q_OBJECT
 public:
     TabWidget(QWidget *parent = nullptr);
-signals:
-    void contextMenuRequested(const QPoint &pos, int index);
-protected:
-    bool eventFilter(QObject *object, QEvent *event) override;
+
 private:
-    void slotContextMenuRequested(const QPoint &pos);
+    bool eventFilter(QObject *object, QEvent *event) override;
     int m_tabIndexForMiddleClick = -1;
 };
 
@@ -96,8 +92,6 @@ TabWidget::TabWidget(QWidget *parent)
 {
     tabBar()->installEventFilter(this);
     setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this, &QWidget::customContextMenuRequested,
-            this, &TabWidget::slotContextMenuRequested);
 }
 
 bool TabWidget::eventFilter(QObject *object, QEvent *event)
@@ -123,11 +117,6 @@ bool TabWidget::eventFilter(QObject *object, QEvent *event)
         }
     }
     return QTabWidget::eventFilter(object, event);
-}
-
-void TabWidget::slotContextMenuRequested(const QPoint &pos)
-{
-    emit contextMenuRequested(pos, tabBar()->tabAt(pos));
 }
 
 AppOutputPane::RunControlTab::RunControlTab(RunControl *runControl, Core::OutputWindow *w) :
@@ -216,7 +205,7 @@ AppOutputPane::AppOutputPane() :
 
     connect(m_tabWidget, &QTabWidget::currentChanged,
             this, &AppOutputPane::tabChanged);
-    connect(m_tabWidget, &TabWidget::contextMenuRequested,
+    connect(m_tabWidget, &QWidget::customContextMenuRequested,
             this, &AppOutputPane::contextMenuRequested);
 
     connect(SessionManager::instance(), &SessionManager::aboutToUnloadSession,
@@ -774,8 +763,9 @@ void AppOutputPane::tabChanged(int i)
     }
 }
 
-void AppOutputPane::contextMenuRequested(const QPoint &pos, int index)
+void AppOutputPane::contextMenuRequested(const QPoint &pos)
 {
+    const int index = m_tabWidget->tabBar()->tabAt(pos);
     const QList<QAction *> actions = {m_closeCurrentTabAction, m_closeAllTabsAction, m_closeOtherTabsAction};
     QAction *action = QMenu::exec(actions, m_tabWidget->mapToGlobal(pos), nullptr, m_tabWidget);
     if (action == m_closeAllTabsAction) {
@@ -951,5 +941,3 @@ void destroyAppOutputPane()
 
 } // namespace Internal
 } // namespace ProjectExplorer
-
-#include "appoutputpane.moc"
