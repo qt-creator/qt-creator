@@ -3,10 +3,9 @@
 
 #pragma once
 
-#include "projectexplorersettings.h"
-
-#include <coreplugin/ioutputpane.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/ioutputpane.h>
 
 #include <utils/outputformat.h>
 
@@ -30,19 +29,26 @@ namespace Internal {
 class ShowOutputTaskHandler;
 class TabWidget;
 
+enum class AppOutputPaneMode { FlashOnOutput, PopupOnOutput, PopupOnFirstOutput };
+
+class AppOutputSettings
+{
+public:
+    AppOutputPaneMode runOutputMode = AppOutputPaneMode::PopupOnFirstOutput;
+    AppOutputPaneMode debugOutputMode = AppOutputPaneMode::FlashOnOutput;
+    bool cleanOldOutput = false;
+    bool mergeChannels = false;
+    bool wrapOutput = false;
+    int maxCharCount = Core::Constants::DEFAULT_MAX_CHAR_COUNT;
+};
+
 class AppOutputPane final : public Core::IOutputPane
 {
 public:
-    enum CloseTabMode {
-        CloseTabNoPrompt,
-        CloseTabWithPrompt
-    };
-
     AppOutputPane();
     ~AppOutputPane() final;
 
     bool aboutToClose() const;
-    void closeTabs(CloseTabMode mode);
 
     QList<RunControl *> allRunControls() const;
 
@@ -52,7 +58,15 @@ public:
     void prepareRunControlStart(RunControl *runControl);
     void showOutputPaneForRunControl(RunControl *runControl);
 
+    void closeTabsWithoutPrompt();
+
 private:
+    enum CloseTabMode {
+        CloseTabNoPrompt,
+        CloseTabWithPrompt
+    };
+
+    void closeTabs(CloseTabMode mode);
     void showTabFor(RunControl *rc);
 
     void setBehaviorOnOutput(RunControl *rc, AppOutputPaneMode mode);

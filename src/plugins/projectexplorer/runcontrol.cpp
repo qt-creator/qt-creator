@@ -3,6 +3,7 @@
 
 #include "runcontrol.h"
 
+#include "appoutputpane.h"
 #include "buildconfiguration.h"
 #include "customparser.h"
 #include "devicesupport/devicemanager.h"

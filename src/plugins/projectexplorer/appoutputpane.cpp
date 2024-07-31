@@ -6,6 +6,7 @@
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorericons.h"
+#include "projectexplorersettings.h"
 #include "projectexplorertr.h"
 #include "projectmanager.h"
 #include "runcontrol.h"
@@ -540,6 +541,11 @@ void AppOutputPane::showOutputPaneForRunControl(RunControl *runControl)
 {
     showTabFor(runControl);
     popup(IOutputPane::NoModeSwitch | IOutputPane::WithFocus);
+}
+
+void AppOutputPane::closeTabsWithoutPrompt()
+{
+    closeTabs(CloseTabNoPrompt);
 }
 
 const AppOutputPaneMode kRunOutputModeDefault = AppOutputPaneMode::PopupOnFirstOutput;

@@ -2155,7 +2155,7 @@ IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
     if (dd->m_activeRunControlCount == 0)
         return SynchronousShutdown;
 
-    dd->m_outputPane.closeTabs(AppOutputPane::CloseTabNoPrompt /* No prompt any more */);
+    dd->m_outputPane.closeTabsWithoutPrompt();
     dd->m_shutdownWatchDogId = dd->startTimer(10 * 1000); // Make sure we shutdown *somehow*
     return AsynchronousShutdown;
 }
