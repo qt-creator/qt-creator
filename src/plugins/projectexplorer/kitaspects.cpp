@@ -620,6 +620,13 @@ void ToolchainKitAspect::setToolchain(Kit *k, Toolchain *tc)
     k->setValue(id(), variantFromStore(result));
 }
 
+void ToolchainKitAspect::setBundle(Kit *k, const ToolchainBundle &bundle)
+{
+    bundle.forEach<Toolchain>([k](Toolchain &tc) {
+        setToolchain(k, &tc);
+    });
+}
+
 /**
  * @brief ToolchainKitAspect::setAllToolchainsToMatch
  *

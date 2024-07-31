@@ -246,7 +246,7 @@ public:
             std::invoke(setter, static_cast<T &>(*tc), args...);
     }
 
-    template<typename T> void forEach(const std::function<void(T &toolchain)> &modifier)
+    template<typename T> void forEach(const std::function<void(T &toolchain)> &modifier) const
     {
         for (Toolchain * const tc : std::as_const(m_toolchains))
             modifier(static_cast<T &>(*tc));
