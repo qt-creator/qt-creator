@@ -72,7 +72,7 @@ protected:
     Utils::CommandLine m_cmd;
     Utils::FilePath m_workingDirectory;
     Utils::Process *m_process = nullptr;
-    Utils::Environment m_env;
+    std::optional<Utils::Environment> m_env;
 
 private:
     void readError();
