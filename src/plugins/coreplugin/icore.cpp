@@ -273,7 +273,6 @@ public:
 
     static void setFocusToEditor();
     void aboutQtCreator();
-    void aboutPlugins();
     void changeLog();
     void contact();
     void updateFocusWidget(QWidget *old, QWidget *now);
@@ -2045,7 +2044,7 @@ void ICorePrivate::registerDefaultActions()
     aboutPluginsAction.setMenuRole(QAction::ApplicationSpecificRole);
     aboutPluginsAction.addToContainer(Constants::M_HELP, Constants::G_HELP_ABOUT);
     aboutPluginsAction.setEnabled(true);
-    aboutPluginsAction.addOnTriggered(this, [this] { aboutPlugins(); });
+    aboutPluginsAction.addOnTriggered(this, &showAboutPlugins);
 
     // Change Log Action
     ActionBuilder changeLogAction(this, Constants::CHANGE_LOG);
@@ -2449,12 +2448,6 @@ void ICorePrivate::destroyVersionDialog()
         m_versionDialog->deleteLater();
         m_versionDialog = nullptr;
     }
-}
-
-void ICorePrivate::aboutPlugins()
-{
-    PluginDialog dialog(m_mainwindow);
-    dialog.exec();
 }
 
 class LogDialog : public QDialog

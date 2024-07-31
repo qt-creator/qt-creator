@@ -25,11 +25,31 @@
 using namespace ExtensionSystem;
 using namespace Utils;
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
-PluginDialog::PluginDialog(QWidget *parent)
-    : QDialog(parent),
+class PluginDialog final : public QDialog
+{
+public:
+    explicit PluginDialog();
+
+private:
+    void updateButtons();
+    void openDetails(ExtensionSystem::PluginSpec *spec);
+    void openErrorDetails();
+    void closeDialog();
+    void showInstallWizard();
+
+    ExtensionSystem::PluginView *m_view;
+
+    QPushButton *m_detailsButton;
+    QPushButton *m_errorDetailsButton;
+    QPushButton *m_installButton;
+    bool m_isRestartRequired = false;
+    QSet<ExtensionSystem::PluginSpec *> m_softLoad;
+};
+
+PluginDialog::PluginDialog()
+    : QDialog(ICore::dialogParent()),
       m_view(new ExtensionSystem::PluginView(this))
 {
     auto filterEdit = new Utils::FancyLineEdit(this);
@@ -144,5 +164,10 @@ void PluginDialog::openErrorDetails()
     dialog.exec();
 }
 
-} // namespace Internal
-} // namespace Core
+void showAboutPlugins()
+{
+    PluginDialog dialog;
+    dialog.exec();
+}
+
+} // Core::Internal
