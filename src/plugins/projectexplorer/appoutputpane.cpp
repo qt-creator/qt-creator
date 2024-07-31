@@ -3,6 +3,7 @@
 
 #include "appoutputpane.h"
 
+#include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorericons.h"
