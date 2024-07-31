@@ -857,7 +857,7 @@ class AppOutputSettingsWidget : public Core::IOptionsPageWidget
 public:
     AppOutputSettingsWidget()
     {
-        const AppOutputSettings &settings = ProjectExplorerPlugin::appOutputSettings();
+        const AppOutputSettings &settings = appOutputPane().settings();
         m_wrapOutputCheckBox.setText(Tr::tr("Word-wrap output"));
         m_wrapOutputCheckBox.setChecked(settings.wrapOutput);
         m_cleanOldOutputCheckBox.setText(Tr::tr("Clear old output on a new run"));
@@ -909,7 +909,7 @@ public:
                     m_debugOutputModeComboBox.currentData().toInt());
         s.maxCharCount = m_maxCharsBox.value();
 
-        ProjectExplorerPlugin::setAppOutputSettings(s);
+        appOutputPane().setSettings(s);
     }
 
 private:
@@ -929,8 +929,27 @@ AppOutputSettingsPage::AppOutputSettingsPage()
     setWidgetCreator([] { return new AppOutputSettingsWidget; });
 }
 
+static QPointer<AppOutputPane> theAppOutputPane;
+
+AppOutputPane &appOutputPane()
+{
+    QTC_CHECK(!theAppOutputPane.isNull());
+    return *theAppOutputPane;
+}
+
+void setupAppOutputPane()
+{
+    QTC_CHECK(theAppOutputPane.isNull());
+    theAppOutputPane = new AppOutputPane;
+}
+
+void destroyAppOutputPane()
+{
+    QTC_CHECK(!theAppOutputPane.isNull());
+    delete theAppOutputPane;
+}
+
 } // namespace Internal
 } // namespace ProjectExplorer
 
 #include "appoutputpane.moc"
-

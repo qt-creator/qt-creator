@@ -33,7 +33,6 @@ class RunControl;
 class RunConfiguration;
 
 namespace Internal {
-class AppOutputSettings;
 class MiniProjectTargetSelector;
 }
 
@@ -115,9 +114,6 @@ public:
     void extensionsInitialized() override;
     bool delayedInitialize() override;
     ShutdownFlag aboutToShutdown() override;
-
-    static void setAppOutputSettings(const Internal::AppOutputSettings &settings);
-    static const Internal::AppOutputSettings &appOutputSettings();
 
     static void setCustomParsers(const QList<CustomParserSettings> &settings);
     static void addCustomParser(const CustomParserSettings &settings);

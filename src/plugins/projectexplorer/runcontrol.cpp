@@ -1281,7 +1281,7 @@ public:
 
 static QProcess::ProcessChannelMode defaultProcessChannelMode()
 {
-    return ProjectExplorerPlugin::appOutputSettings().mergeChannels
+    return appOutputPane().settings().mergeChannels
             ? QProcess::MergedChannels : QProcess::SeparateChannels;
 }
 

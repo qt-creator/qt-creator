@@ -460,7 +460,7 @@ public:
 class ProjectExplorerPluginPrivate : public QObject
 {
 public:
-    ProjectExplorerPluginPrivate();
+    ProjectExplorerPluginPrivate() = default;
 
     void updateContextMenuActions(Node *currentNode);
     void updateLocationSubMenus();
@@ -664,8 +664,6 @@ public:
     ConfigTaskHandler m_configTaskHandler{Task::compilerMissingTask(), Constants::KITS_SETTINGS_PAGE_ID};
 
     ProjectManager m_sessionManager;
-    AppOutputPane m_outputPane;
-
     ProjectTree m_projectTree;
 
     AllProjectsFilter m_allProjectsFilter;
@@ -770,6 +768,9 @@ ProjectExplorerPlugin::~ProjectExplorerPlugin()
     delete dd->m_toolChainManager;
     delete dd;
     dd = nullptr;
+
+    destroyAppOutputPane();
+
     m_instance = nullptr;
 
 #ifdef WITH_TESTS
@@ -820,6 +821,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     setupProjectExplorerSettings();
 
     dd = new ProjectExplorerPluginPrivate;
+
+    setupAppOutputPane();
 
     setupDesktopRunConfigurations();
     setupDesktopRunWorker();
@@ -2155,7 +2158,7 @@ IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
     if (dd->m_activeRunControlCount == 0)
         return SynchronousShutdown;
 
-    dd->m_outputPane.closeTabsWithoutPrompt();
+    appOutputPane().closeTabsWithoutPrompt();
     dd->m_shutdownWatchDogId = dd->startTimer(10 * 1000); // Make sure we shutdown *somehow*
     return AsynchronousShutdown;
 }
@@ -2459,7 +2462,7 @@ void ProjectExplorerPlugin::startRunControl(RunControl *runControl)
 
 void ProjectExplorerPlugin::showOutputPaneForRunControl(RunControl *runControl)
 {
-    dd->m_outputPane.showOutputPaneForRunControl(runControl);
+    appOutputPane().showOutputPaneForRunControl(runControl);
 }
 
 QList<std::pair<FilePath, FilePath>> ProjectExplorerPlugin::renameFiles(
@@ -2494,7 +2497,7 @@ bool ProjectExplorerPlugin::renameFile(const Utils::FilePath &source, const Util
 
 void ProjectExplorerPluginPrivate::startRunControl(RunControl *runControl)
 {
-    m_outputPane.prepareRunControlStart(runControl);
+    appOutputPane().prepareRunControlStart(runControl);
     connect(runControl, &QObject::destroyed, this, &ProjectExplorerPluginPrivate::checkForShutdown,
             Qt::QueuedConnection);
     ++m_activeRunControlCount;
@@ -2714,8 +2717,6 @@ bool ProjectExplorerPlugin::saveModifiedFiles()
     return true;
 }
 
-ProjectExplorerPluginPrivate::ProjectExplorerPluginPrivate() {}
-
 void ProjectExplorerPluginPrivate::extendFolderNavigationWidgetFactory()
 {
     auto folderNavigationWidgetFactory = FolderNavigationWidgetFactory::instance();
@@ -2905,7 +2906,7 @@ bool ProjectExplorerPlugin::coreAboutToClose()
         if (box.clickedButton() != closeAnyway)
             return false;
     }
-    return dd->m_outputPane.aboutToClose();
+    return appOutputPane().aboutToClose();
 }
 
 void ProjectExplorerPlugin::handleCommandLineArguments(const QStringList &arguments)
@@ -2991,7 +2992,7 @@ void ProjectExplorerPlugin::runRunConfiguration(RunConfiguration *rc,
 
 QList<RunControl *> ProjectExplorerPlugin::allRunControls()
 {
-    return dd->m_outputPane.allRunControls();
+    return appOutputPane().allRunControls();
 }
 
 void ProjectExplorerPluginPrivate::projectAdded(Project *pro)
@@ -3995,16 +3996,6 @@ ProjectExplorerPlugin::renameFile(Node *node, const QString &newFileName)
 void ProjectExplorerPluginPrivate::handleSetStartupProject()
 {
     setStartupProject(ProjectTree::currentProject());
-}
-
-void ProjectExplorerPlugin::setAppOutputSettings(const AppOutputSettings &settings)
-{
-    dd->m_outputPane.setSettings(settings);
-}
-
-const AppOutputSettings &ProjectExplorerPlugin::appOutputSettings()
-{
-    return dd->m_outputPane.settings();
 }
 
 void ProjectExplorerPlugin::setCustomParsers(const QList<CustomParserSettings> &settings)

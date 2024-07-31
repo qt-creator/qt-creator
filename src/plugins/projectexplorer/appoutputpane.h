@@ -157,5 +157,10 @@ public:
     AppOutputSettingsPage();
 };
 
+AppOutputPane &appOutputPane();
+
+void setupAppOutputPane();
+void destroyAppOutputPane();
+
 } // namespace Internal
 } // namespace ProjectExplorer
