@@ -204,7 +204,6 @@ Q_LOGGING_CATEGORY(coreLog, "qtc.core", QtWarningMsg)
     from the focus object as well as the additional context.
 */
 
-#include "dialogs/newdialogwidget.h"
 #include "dialogs/newdialog.h"
 #include "iwizardfactory.h"
 #include "documentmanager.h"
@@ -255,10 +254,6 @@ static QColor s_overrideColor;
 // The Core Singleton
 static ICore *m_core = nullptr;
 
-static NewDialog *defaultDialogFactory(QWidget *parent)
-{
-    return new NewDialogWidget(parent);
-}
 class ICorePrivate : public QObject
 {
 public:
@@ -332,7 +327,7 @@ static QMenuBar *globalMenuBar()
 
 static ICorePrivate *d = nullptr;
 
-static std::function<NewDialog *(QWidget *)> m_newDialogFactory = defaultDialogFactory;
+static std::function<NewDialog *(QWidget *)> m_newDialogFactory = &createDefaultNewDialog;
 
 /*!
     Returns the pointer to the instance. Only use for connecting to signals.
@@ -438,7 +433,7 @@ void ICore::showNewItemDialog(const QString &title,
     });
 
     if (!haveProjectWizards)
-        dialogFactory = defaultDialogFactory;
+        dialogFactory = &createDefaultNewDialog;
 
     NewDialog *newDialog = dialogFactory(dialogParent());
     connect(newDialog->widget(), &QObject::destroyed, m_core, &ICore::updateNewItemDialogState);

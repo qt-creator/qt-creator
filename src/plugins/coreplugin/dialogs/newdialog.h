@@ -17,7 +17,8 @@ namespace Core {
 
 class IWizardFactory;
 
-class CORE_EXPORT NewDialog {
+class CORE_EXPORT NewDialog
+{
 public:
     NewDialog();
     virtual ~NewDialog() = 0;
@@ -36,5 +37,7 @@ public:
 private:
     inline static NewDialog *m_currentDialog = nullptr;
 };
+
+namespace Internal { NewDialog *createDefaultNewDialog(QWidget *parent); }
 
 } // namespace Core
