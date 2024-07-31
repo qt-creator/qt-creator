@@ -3766,7 +3766,7 @@ bool GdbEngine::handleCliDisassemblerResult(const QString &output, DisassemblerA
     for (const QString &line : lineList)
         dlines.appendUnparsed(line);
 
-    QVector<DisassemblerLine> lines = dlines.data();
+    QList<DisassemblerLine> lines = dlines.data();
 
     using LineMap = QMap<quint64, LineData>;
     LineMap lineMap;

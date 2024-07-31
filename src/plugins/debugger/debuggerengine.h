@@ -464,8 +464,8 @@ public:
 
     void openMemoryEditor();
 
-    static void showModuleSymbols(const Utils::FilePath &moduleName, const QVector<Symbol> &symbols);
-    static void showModuleSections(const Utils::FilePath &moduleName, const QVector<Section> &sections);
+    static void showModuleSymbols(const Utils::FilePath &moduleName, const QList<Symbol> &symbols);
+    static void showModuleSections(const Utils::FilePath &moduleName, const QList<Section> &sections);
 
     void handleExecDetach();
     void handleExecContinue();

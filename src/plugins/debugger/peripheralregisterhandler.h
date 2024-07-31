@@ -88,7 +88,7 @@ public:
     PeripheralRegisterAccess access = PeripheralRegisterAccess::Unknown;
     PeripheralRegisterFormat format = PeripheralRegisterFormat::Hexadecimal;
 
-    QVector<PeripheralRegisterField> fields;
+    QList<PeripheralRegisterField> fields;
 
     PeripheralRegisterValue currentValue;
     PeripheralRegisterValue previousValue;
@@ -107,12 +107,12 @@ public:
     int size = 0; // in bits
     PeripheralRegisterAccess access = PeripheralRegisterAccess::Unknown;
     bool active = false;
-    QVector<PeripheralRegister> registers;
+    QList<PeripheralRegister> registers;
 };
 
 // PeripheralRegisterGroups
 
-using PeripheralRegisterGroups = QVector<PeripheralRegisterGroup>;
+using PeripheralRegisterGroups = QList<PeripheralRegisterGroup>;
 
 // PeripheralRegisterItem's
 

@@ -97,7 +97,7 @@ public:
     QString m_name;
     QString m_parentPerspectiveId;
     QString m_settingsId;
-    QVector<DockOperation> m_dockOperations;
+    QList<DockOperation> m_dockOperations;
     QPointer<QWidget> m_centralWidget;
     Perspective::Callback m_aboutToActivateCallback;
     QPointer<QWidget> m_innerToolBar;

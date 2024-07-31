@@ -656,7 +656,7 @@ public:
 
     ActionContainer *m_menu = nullptr;
 
-    QVector<DebuggerRunTool *> m_scheduledStarts;
+    QList<DebuggerRunTool *> m_scheduledStarts;
 
     ProxyAction m_visibleStartAction; // The fat debug button
     ProxyAction m_hiddenStopAction;

@@ -32,7 +32,7 @@ public:
     QString demangled;
 };
 
-using Symbols = QVector<Symbol>;
+using Symbols = QList<Symbol>;
 
 //////////////////////////////////////////////////////////////////
 //
@@ -50,7 +50,7 @@ public:
     QString flags;
 };
 
-using Sections = QVector<Section>;
+using Sections = QList<Section>;
 
 //////////////////////////////////////////////////////////////////
 //
@@ -79,7 +79,7 @@ public:
     Utils::ElfData elfData;
 };
 
-using Modules = QVector<Module>;
+using Modules = QList<Module>;
 
 //////////////////////////////////////////////////////////////////
 //

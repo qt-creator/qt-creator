@@ -97,7 +97,7 @@ using MemoryMarkupList = QList<MemoryMarkup>;
 // over the children.
 
 using ColorNumberToolTip = QPair<int, QString>;
-using ColorNumberToolTips = QVector<ColorNumberToolTip>;
+using ColorNumberToolTips = QList<ColorNumberToolTip>;
 
 struct TypeInfo
 {

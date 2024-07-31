@@ -99,7 +99,7 @@ public:
 
 public:
     DebuggerEngine *m_engine;
-    QVector<QPointer<DebuggerToolTipWidget>> m_tooltips;
+    QList<QPointer<DebuggerToolTipWidget>> m_tooltips;
     bool m_debugModeActive = false;
 };
 
