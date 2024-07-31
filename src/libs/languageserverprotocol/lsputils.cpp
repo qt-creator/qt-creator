@@ -5,7 +5,6 @@
 
 #include <QHash>
 #include <QLoggingCategory>
-#include <QVector>
 
 namespace LanguageServerProtocol {
 
