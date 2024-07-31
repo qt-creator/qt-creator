@@ -2120,15 +2120,13 @@ void ProjectExplorerPlugin::extensionsInitialized()
     // Load devices immediately, as other plugins might want to use them
     DeviceManager::instance()->load();
 
-    Core::ICore::instance()->setRelativePathToProjectFunction([=](const FilePath& path) -> FilePath
+    Core::ICore::setRelativePathToProjectFunction([](const FilePath &path)
     {
-        ProjectExplorer::Project* p = ProjectExplorer::ProjectTree::currentProject();
-        if (p) {
+        if (Project *p = ProjectTree::currentProject()) {
             FilePath relPath = path.relativeChildPath(p->projectFilePath().absolutePath());
             return !relPath.isEmpty() ? relPath : path;
-        } else {
-            return path;
         }
+        return path;
     });
 }
 

@@ -171,9 +171,6 @@ public:
     static IDocument *openFiles(const Utils::FilePaths &filePaths,
                                 OpenFilesFlags flags = None,
                                 const Utils::FilePath &workingDirectory = {});
-
-private:
-    std::function<Utils::FilePath(const Utils::FilePath &)> m_relativePathToProject = nullptr;
 };
 
 } // namespace Core
