@@ -272,7 +272,6 @@ public:
     void aboutToShowRecentFiles();
 
     static void setFocusToEditor();
-    void aboutQtCreator();
     void changeLog();
     void contact();
     void updateFocusWidget(QWidget *old, QWidget *now);
@@ -309,7 +308,6 @@ public:
     NavigationWidget *m_leftNavigationWidget = nullptr;
     NavigationWidget *m_rightNavigationWidget = nullptr;
     RightPaneWidget *m_rightPaneWidget = nullptr;
-    VersionDialog *m_versionDialog = nullptr;
 
     QList<IContext *> m_activeContext;
 
@@ -2036,7 +2034,7 @@ void ICorePrivate::registerDefaultActions()
     aboutIdeAction.setMenuRole(QAction::AboutRole);
     aboutIdeAction.addToContainer(Constants::M_HELP, Constants::G_HELP_ABOUT);
     aboutIdeAction.setEnabled(true);
-    aboutIdeAction.addOnTriggered(this, [this] { aboutQtCreator(); });
+    aboutIdeAction.addOnTriggered(this, &showAboutQtCreator);
 
     // About Plugins Action
     ActionBuilder aboutPluginsAction(this, Constants::ABOUT_PLUGINS);
@@ -2426,27 +2424,6 @@ void ICorePrivate::aboutToShowRecentFiles()
         QAction *action = menu->addAction(Tr::tr(Constants::TR_CLEAR_MENU));
         connect(action, &QAction::triggered,
                 DocumentManager::instance(), &DocumentManager::clearRecentFiles);
-    }
-}
-
-void ICorePrivate::aboutQtCreator()
-{
-    if (!m_versionDialog) {
-        m_versionDialog = new VersionDialog(m_mainwindow);
-        connect(m_versionDialog, &QDialog::finished,
-                this, &ICorePrivate::destroyVersionDialog);
-        ICore::registerWindow(m_versionDialog, Context("Core.VersionDialog"));
-        m_versionDialog->show();
-    } else {
-        ICore::raiseWindow(m_versionDialog);
-    }
-}
-
-void ICorePrivate::destroyVersionDialog()
-{
-    if (m_versionDialog) {
-        m_versionDialog->deleteLater();
-        m_versionDialog = nullptr;
     }
 }
 
