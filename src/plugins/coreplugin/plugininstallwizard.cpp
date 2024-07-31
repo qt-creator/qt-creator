@@ -162,7 +162,9 @@ public:
         m_label = new InfoLabel;
         m_label->setElideMode(Qt::ElideNone);
         m_label->setWordWrap(true);
+        m_label->setAlignment(Qt::AlignTop);
         m_cancelButton = new QPushButton(Tr::tr("Cancel"));
+        m_cancelButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         connect(m_cancelButton, &QPushButton::clicked, this, [this] {
             m_taskTreeRunner.reset();
             m_cancelButton->setVisible(false);
@@ -174,7 +176,7 @@ public:
 
         using namespace Layouting;
         Column {
-            Row { m_label, st, m_cancelButton },
+            Row { m_label, m_cancelButton },
             m_output,
         }.attachTo(this);
     }
