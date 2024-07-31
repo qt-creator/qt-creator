@@ -137,13 +137,13 @@ private:
  * RunControls are created by RunControlFactories.
  */
 
-class PROJECTEXPLORER_EXPORT RunControl : public QObject
+class PROJECTEXPLORER_EXPORT RunControl final : public QObject
 {
     Q_OBJECT
 
 public:
     explicit RunControl(Utils::Id mode);
-    ~RunControl() override;
+    ~RunControl() final;
 
     void setTarget(Target *target);
     void setKit(Kit *kit);
