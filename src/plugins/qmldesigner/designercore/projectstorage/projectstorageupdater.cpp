@@ -260,11 +260,13 @@ std::vector<IdPaths> createIdPaths(ProjectStorageUpdater::WatchedSourceIdsIds wa
 
 } // namespace
 
-void ProjectStorageUpdater::update(QStringList directories,
-                                   QStringList qmlTypesPaths,
-                                   const QString &propertyEditorResourcesPath,
-                                   const QStringList &typeAnnotationPaths)
+void ProjectStorageUpdater::update(Update update)
 {
+    QStringList directories = std::move(update.directories);
+    QStringList qmlTypesPaths = std::move(update.qmlTypesPaths);
+    const QString &propertyEditorResourcesPath = update.propertyEditorResourcesPath;
+    const QStringList &typeAnnotationPaths = update.typeAnnotationPaths;
+
     NanotraceHR::Tracer tracer{"update"_t,
                                category(),
                                keyValue("directories", directories),

@@ -586,15 +586,15 @@ void QmlDesignerProjectManager::update()
         return;
 
     if constexpr (isUsingQmlDesignerLite()) {
-        m_projectData->projectStorageData->updater.update(directoriesForLiteDesigner(),
-                                                          qmlTypesForLiteDesigner(),
-                                                          propertyEditorResourcesPath(),
-                                                          {qtCreatorItemLibraryPath()});
+        m_projectData->projectStorageData->updater.update({directoriesForLiteDesigner(),
+                                                           qmlTypesForLiteDesigner(),
+                                                           propertyEditorResourcesPath(),
+                                                           {qtCreatorItemLibraryPath()}});
     } else {
-        m_projectData->projectStorageData->updater.update(directories(m_projectData->activeTarget),
-                                                          qmlTypes(m_projectData->activeTarget),
-                                                          propertyEditorResourcesPath(),
-                                                          {qtCreatorItemLibraryPath()});
+        m_projectData->projectStorageData->updater.update({directories(m_projectData->activeTarget),
+                                                           qmlTypes(m_projectData->activeTarget),
+                                                           propertyEditorResourcesPath(),
+                                                           {qtCreatorItemLibraryPath()}});
     }
 }
 
