@@ -111,7 +111,24 @@ void ContentLibraryUserModel::addTextures(const Utils::FilePaths &paths)
     updateIsEmpty();
 }
 
-void ContentLibraryUserModel::removeTexture(ContentLibraryTexture *tex)
+void ContentLibraryUserModel::removeTextures(const QStringList &fileNames)
+{
+    // note: this method doesn't refresh the model after textures removal
+
+    auto texCat = qobject_cast<UserTextureCategory *>(m_userCategories[TexturesSectionIdx]);
+    QTC_ASSERT(texCat, return);
+
+    const QObjectList items = texCat->items();
+    for (QObject *item : items) {
+        ContentLibraryTexture *castedItem = qobject_cast<ContentLibraryTexture *>(item);
+        QTC_ASSERT(castedItem, continue);
+
+        if (fileNames.contains(castedItem->fileName()))
+            removeTexture(castedItem, false);
+    }
+}
+
+void ContentLibraryUserModel::removeTexture(ContentLibraryTexture *tex, bool refresh)
 {
     // remove resources
     Utils::FilePath::fromString(tex->texturePath()).removeFile();
@@ -121,8 +138,10 @@ void ContentLibraryUserModel::removeTexture(ContentLibraryTexture *tex)
     m_userCategories[TexturesSectionIdx]->removeItem(tex);
 
     // update model
-    emit dataChanged(index(TexturesSectionIdx), index(TexturesSectionIdx));
-    updateIsEmpty();
+    if (refresh) {
+        emit dataChanged(index(TexturesSectionIdx), index(TexturesSectionIdx));
+        updateIsEmpty();
+    }
 }
 
 void ContentLibraryUserModel::removeFromContentLib(QObject *item)

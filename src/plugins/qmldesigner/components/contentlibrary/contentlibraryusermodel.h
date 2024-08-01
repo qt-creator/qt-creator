@@ -51,6 +51,7 @@ public:
                  const QStringList &files);
     void refreshSection(const QString &bundleId);
     void addTextures(const Utils::FilePaths &paths);
+    void removeTextures(const QStringList &fileNames);
 
     void removeItemByName(const QString &qmlFileName, const QString &bundleId);
 
@@ -62,7 +63,7 @@ public:
     Q_INVOKABLE void applyToSelected(QmlDesigner::ContentLibraryItem *mat, bool add = false);
     Q_INVOKABLE void addToProject(ContentLibraryItem *item);
     Q_INVOKABLE void removeFromProject(QObject *item);
-    Q_INVOKABLE void removeTexture(QmlDesigner::ContentLibraryTexture *tex);
+    Q_INVOKABLE void removeTexture(QmlDesigner::ContentLibraryTexture *tex, bool refresh = true);
     Q_INVOKABLE void removeFromContentLib(QObject *item);
 
 signals:

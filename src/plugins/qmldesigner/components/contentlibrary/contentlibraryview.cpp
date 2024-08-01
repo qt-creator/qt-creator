@@ -619,22 +619,43 @@ QPair<QString, QSet<AssetPath>> ContentLibraryView::modelNodeToQmlString(const M
 void ContentLibraryView::addLibAssets(const QStringList &paths)
 {
     auto bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/textures");
-    Utils::FilePaths pathsInBundle;
+    Utils::FilePaths sourcePathsToAdd;
+    Utils::FilePaths targetPathsToAdd;
+    QStringList fileNamesToRemove;
 
-    const QStringList existingTextures = Utils::transform(bundlePath.dirEntries(QDir::Files),
+    const QStringList existingAssetsFileNames = Utils::transform(bundlePath.dirEntries(QDir::Files),
                                                     [](const Utils::FilePath &path) {
         return path.fileName();
     });
 
     for (const QString &path : paths) {
         auto assetFilePath = Utils::FilePath::fromString(path);
-        if (existingTextures.contains(assetFilePath.fileName()))
-            continue;
+        QString assetFileName = assetFilePath.fileName();
 
-        Asset asset(path);
+        // confirm overwrite if an item with same name exists
+        if (existingAssetsFileNames.contains(assetFileName)) {
+            QMessageBox::StandardButton reply = QMessageBox::question(m_widget, tr("Texture Exists"),
+                  tr("A texture with the same name '%1' already exists in the Content Library, are you sure you want to overwrite it?")
+                      .arg(assetFileName), QMessageBox::Yes | QMessageBox::No);
+            if (reply == QMessageBox::No)
+                continue;
+
+            fileNamesToRemove.append(assetFileName);
+        }
+
+        sourcePathsToAdd.append(assetFilePath);
+    }
+
+    // remove the to-be-overwritten resources from target bundle path
+    m_widget->userModel()->removeTextures(fileNamesToRemove);
+
+    // copy resources to target bundle path
+    for (const Utils::FilePath &sourcePath : sourcePathsToAdd) {
+        Utils::FilePath targetPath = bundlePath.pathAppended(sourcePath.fileName());
+        Asset asset{sourcePath.toFSPathString()};
 
         // save icon
-        QString iconSavePath = bundlePath.pathAppended("icons/" + assetFilePath.baseName() + ".png")
+        QString iconSavePath = bundlePath.pathAppended("icons/" + sourcePath.baseName() + ".png")
                                    .toFSPathString();
         QPixmap icon = asset.pixmap({120, 120});
         bool iconSaved = icon.save(iconSavePath);
@@ -642,13 +663,13 @@ void ContentLibraryView::addLibAssets(const QStringList &paths)
             qWarning() << __FUNCTION__ << "icon save failed";
 
         // save asset
-        auto result = assetFilePath.copyFile(bundlePath.pathAppended(asset.fileName()));
+        auto result = sourcePath.copyFile(targetPath);
         QTC_ASSERT_EXPECTED(result,);
 
-        pathsInBundle.append(bundlePath.pathAppended(asset.fileName()));
+        targetPathsToAdd.append(targetPath);
     }
 
-    m_widget->userModel()->addTextures(pathsInBundle);
+    m_widget->userModel()->addTextures(targetPathsToAdd);
 }
 
 void ContentLibraryView::addLib3DComponent(const ModelNode &node)

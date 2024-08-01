@@ -42,6 +42,7 @@ public:
     QString texturePath() const;
     QString parentDirPath() const;
     QString textureKey() const;
+    QString fileName() const;
 
     void setHasUpdate(bool value);
     bool hasUpdate() const;
