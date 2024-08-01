@@ -75,8 +75,6 @@ public:
 
     MetaInfoType type() const;
     bool isFileComponent() const;
-    bool isProjectComponent() const;
-    bool isInProjectModule() const;
     FlagIs canBeContainer() const;
     FlagIs forceClip() const;
     FlagIs doesLayoutChildren() const;

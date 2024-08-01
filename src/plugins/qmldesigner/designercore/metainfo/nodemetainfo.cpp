@@ -1538,44 +1538,6 @@ bool NodeMetaInfo::isFileComponent() const
     }
 }
 
-bool NodeMetaInfo::isProjectComponent() const
-{
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return false;
-
-        using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"is project component"_t, category(), keyValue("type id", m_typeId)};
-
-        auto isProjectComponent = typeData().traits.isProjectComponent;
-
-        tracer.end(keyValue("is project component", isProjectComponent));
-
-        return isProjectComponent;
-    }
-
-    return false;
-}
-
-bool NodeMetaInfo::isInProjectModule() const
-{
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return false;
-
-        using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"is project module"_t, category(), keyValue("type id", m_typeId)};
-
-        auto isInProjectModule = typeData().traits.isInProjectModule;
-
-        tracer.end(keyValue("is project module", isInProjectModule));
-
-        return isInProjectModule;
-    }
-
-    return false;
-}
-
 FlagIs NodeMetaInfo::canBeContainer() const
 {
     if constexpr (useProjectStorage()) {

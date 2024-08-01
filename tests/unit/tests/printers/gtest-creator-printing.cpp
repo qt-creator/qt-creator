@@ -614,12 +614,6 @@ std::ostream &operator<<(std::ostream &out, TypeTraits traits)
     if (traits.isFileComponent)
         out << " | isFileComponent";
 
-    if (traits.isProjectComponent)
-        out << " | isProjectComponent";
-
-    if (traits.isInProjectModule)
-        out << " | isInProjectModule";
-
     if (traits.usesCustomParser)
         out << " | usesCustomParser";
 

@@ -131,8 +131,6 @@ struct TypeTraits
         : kind{TypeTraitsKind::None}
         , isEnum{false}
         , isFileComponent{false}
-        , isProjectComponent{false}
-        , isInProjectModule{false}
         , usesCustomParser{false}
         , dummy{0U}
         , canBeContainer{FlagIs::False}
@@ -181,8 +179,6 @@ struct TypeTraits
             keyValue("kind", typeTraits.kind),
             keyValue("is enum", typeTraits.isEnum),
             keyValue("is file component", typeTraits.isFileComponent),
-            keyValue("is project component", typeTraits.isProjectComponent),
-            keyValue("is in project module", typeTraits.isInProjectModule),
             keyValue("uses custom parser", typeTraits.usesCustomParser),
             keyValue("can be container", typeTraits.canBeContainer),
             keyValue("force clip", typeTraits.forceClip),
@@ -207,10 +203,8 @@ struct TypeTraits
             TypeTraitsKind kind : 4;
             unsigned int isEnum : 1;
             unsigned int isFileComponent : 1;
-            unsigned int isProjectComponent : 1;
-            unsigned int isInProjectModule : 1;
             unsigned int usesCustomParser : 1;
-            unsigned int dummy : 23;
+            unsigned int dummy : 25;
         };
 
         unsigned int type;
