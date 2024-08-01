@@ -6,6 +6,8 @@ local S = require('Settings')
 local Gui = require('Gui')
 local a = require('async')
 local TextEditor = require('TextEditor')
+local mm = require('MessageManager')
+local Install = require('Install')
 
 Hooks = {}
 AutoSuggestionDelay = 500
@@ -57,8 +59,35 @@ local function createInitOptions()
   }
 end
 
+
 local function installOrUpdateServer()
-  -- TODO: Download/Update/Install
+  local lspPkgInfo = Install.packageInfo("qtaiassistantserver")
+
+  -- TODO: Support multiple platforms
+
+  local url = "https://qtaiassistant.gitlab-pages.qt.io/qtails/downloads/qtaiassistantserver-x86_64-unknown-linux-gnu.gz"
+  local res, err = a.wait(Install.install(
+    "Do you want to install the qtaiassistantserver?", {
+      name = "qtaiassistantserver",
+      url = url,
+      version = "0.0.1"
+    }))
+
+  if not res then
+    mm.writeFlashing("Failed to install qtaiassistantserver: " .. err)
+    return
+  end
+
+  lspPkgInfo = Install.packageInfo("qtaiassistantserver")
+  print("Installed:", lspPkgInfo.name, "version:", lspPkgInfo.version, "at", lspPkgInfo.path)
+
+  local binary = "qtaiassistantserver"
+  if Utils.HostOsInfo.isWindowsHost() then
+    binary = "qtaiassistantserver.exe"
+  end
+
+  Settings.binary:setValue(lspPkgInfo.path:resolvePath(binary))
+  Settings:apply()
 end
 
 IsTryingToInstall = false
