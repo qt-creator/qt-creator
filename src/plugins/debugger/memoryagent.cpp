@@ -215,9 +215,8 @@ MemoryAgent::MemoryAgent(const MemoryViewSetupData &data, DebuggerEngine *engine
     m_service->setNewWindowRequestHandler([this](quint64 address) {
         MemoryViewSetupData data;
         data.startAddress = address;
-        auto agent = new MemoryAgent(data, m_engine);
-        if (!agent->isUsable())
-            delete agent;
+        data.separateView = true;
+        m_engine->openMemoryView(data);
     });
 
     m_service->setDataChangedHandler([this](quint64 address, const QByteArray &data) {
