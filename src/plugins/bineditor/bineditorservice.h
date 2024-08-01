@@ -20,7 +20,6 @@ class EditorService
 public:
     virtual ~EditorService() = default;
 
-    virtual QWidget *widget() = 0;
     virtual Core::IEditor *editor() = 0;
 
     // "Slots"

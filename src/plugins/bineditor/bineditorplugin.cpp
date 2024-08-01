@@ -2220,10 +2220,7 @@ public:
             codecChooser->setAssignedCodec(QTextCodec::codecForName(setting.toByteArray()));
     }
 
-    ~BinEditorImpl() final
-    {
-        delete m_widget;
-    }
+    ~BinEditorImpl() final { delete m_widget; }
 
     IDocument *document() const final { return m_document.get(); }
 
@@ -2238,8 +2235,7 @@ public:
     }
 
     // Service interface
-    QWidget *widget() { return m_widget; }
-    Core::IEditor *editor() { return this; }
+    IEditor *editor() { return this; }
 
     // "Slots"
     void setSizes(quint64 address, qint64 range, int blockSize)

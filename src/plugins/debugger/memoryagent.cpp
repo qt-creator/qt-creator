@@ -52,7 +52,7 @@ public:
     {
         setAttribute(Qt::WA_DeleteOnClose);
         auto layout = new QVBoxLayout(this);
-        layout->addWidget(service->widget());
+        layout->addWidget(service->editor()->widget());
         layout->setContentsMargins(0, 0, 0, 0);
         setMinimumWidth(400);
         resize(800, 200);
