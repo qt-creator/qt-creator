@@ -131,28 +131,6 @@ ProcessInterface *QdbDevice::createProcessInterface() const
     return new QdbProcessImpl(shared_from_this());
 }
 
-void QdbDevice::setSerialNumber(const QString &serial)
-{
-    m_serialNumber = serial;
-}
-
-QString QdbDevice::serialNumber() const
-{
-    return m_serialNumber;
-}
-
-void QdbDevice::fromMap(const Store &map)
-{
-    IDevice::fromMap(map);
-    setSerialNumber(map.value("Qdb.SerialNumber").toString());
-}
-
-void QdbDevice::toMap(Store &map) const
-{
-    IDevice::toMap(map);
-    map.insert("Qdb.SerialNumber", serialNumber());
-}
-
 void QdbDevice::setupDefaultNetworkSettings(const QString &host)
 {
     setFreePorts(PortList::fromString("10000-10100"));
