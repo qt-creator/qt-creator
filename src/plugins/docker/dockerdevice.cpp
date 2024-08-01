@@ -1022,11 +1022,10 @@ void DockerDevice::fromMap(const Store &map)
     d->deviceSettings->fromMap(map);
 }
 
-Store DockerDevice::toMap() const
+void DockerDevice::toMap(Store &map) const
 {
-    Store map = ProjectExplorer::IDevice::toMap();
+    IDevice::toMap(map);
     d->deviceSettings->toMap(map);
-    return map;
 }
 
 ProcessInterface *DockerDevice::createProcessInterface() const

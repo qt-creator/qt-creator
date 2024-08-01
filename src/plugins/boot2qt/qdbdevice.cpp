@@ -143,15 +143,14 @@ QString QdbDevice::serialNumber() const
 
 void QdbDevice::fromMap(const Store &map)
 {
-    ProjectExplorer::IDevice::fromMap(map);
+    IDevice::fromMap(map);
     setSerialNumber(map.value("Qdb.SerialNumber").toString());
 }
 
-Store QdbDevice::toMap() const
+void QdbDevice::toMap(Store &map) const
 {
-    Store map = ProjectExplorer::IDevice::toMap();
+    IDevice::toMap(map);
     map.insert("Qdb.SerialNumber", serialNumber());
-    return map;
 }
 
 void QdbDevice::setupDefaultNetworkSettings(const QString &host)

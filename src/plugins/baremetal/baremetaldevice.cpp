@@ -81,11 +81,10 @@ void BareMetalDevice::fromMap(const Store &map)
     }
 }
 
-Store BareMetalDevice::toMap() const
+void BareMetalDevice::toMap(Store &map) const
 {
-    Store map = IDevice::toMap();
+    IDevice::toMap(map);
     map.insert(debugServerProviderIdKeyC, debugServerProviderId());
-    return map;
 }
 
 IDeviceWidget *BareMetalDevice::createWidget()

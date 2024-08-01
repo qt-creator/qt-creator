@@ -541,9 +541,8 @@ void IDevice::fromMap(const Store &map)
     call the base class implementation.
 */
 
-Store IDevice::toMap() const
+void IDevice::toMap(Store &map) const
 {
-    Store map;
     d->settings->toMap(map);
 
     map.insert(TypeKey, d->type.toString());
@@ -570,21 +569,21 @@ Store IDevice::toMap() const
     map.insert(QmlRuntimeKey, d->qmlRunCommand.toSettings());
 
     map.insert(ExtraDataKey, variantFromStore(d->extraData));
-
-    return map;
 }
 
 IDevice::Ptr IDevice::clone() const
 {
     IDeviceFactory *factory = IDeviceFactory::find(d->type);
     QTC_ASSERT(factory, return {});
+    Store store;
+    toMap(store);
     IDevice::Ptr device = factory->construct();
     QTC_ASSERT(device, return {});
     device->d->deviceState = d->deviceState;
     device->d->deviceActions = d->deviceActions;
     device->d->deviceIcons = d->deviceIcons;
     device->d->osType = d->osType;
-    device->fromMap(toMap());
+    device->fromMap(store);
     return device;
 }
 

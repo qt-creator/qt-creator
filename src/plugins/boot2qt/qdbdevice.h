@@ -27,7 +27,7 @@ public:
 
 protected:
     void fromMap(const Utils::Store &map) final;
-    Utils::Store toMap() const final;
+    void toMap(Utils::Store &map) const final;
 
 private:
     QdbDevice();

@@ -1082,11 +1082,10 @@ void LinuxDevice::fromMap(const Utils::Store &map)
     d->m_disconnected = map.value(DisconnectedKey, false).toBool();
 }
 
-Store LinuxDevice::toMap() const
+void LinuxDevice::toMap(Utils::Store &map) const
 {
-    Store map = IDevice::toMap();
+    IDevice::toMap(map);
     map.insert(DisconnectedKey, d->m_disconnected);
-    return map;
 }
 
 void LinuxDevice::_setOsType(Utils::OsType osType)

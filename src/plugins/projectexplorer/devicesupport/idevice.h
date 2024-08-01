@@ -233,7 +233,7 @@ protected:
     IDevice(std::unique_ptr<DeviceSettings> settings = nullptr);
 
     virtual void fromMap(const Utils::Store &map);
-    virtual Utils::Store toMap() const;
+    virtual void toMap(Utils::Store &map) const;
 
     using OpenTerminal = std::function<Utils::expected_str<void>(const Utils::Environment &,
                                                                  const Utils::FilePath &)>;

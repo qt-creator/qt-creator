@@ -241,8 +241,11 @@ Store DeviceManager::toMap() const
 
     map.insert(DefaultDevicesKey, variantFromStore(defaultDeviceMap));
     QVariantList deviceList;
-    for (const IDevice::Ptr &device : std::as_const(d->devices))
-        deviceList << variantFromStore(device->toMap());
+    for (const IDevice::Ptr &device : std::as_const(d->devices)) {
+        Store store;
+        device->toMap(store);
+        deviceList << variantFromStore(store);
+    }
     map.insert(DeviceListKey, deviceList);
     return map;
 }
