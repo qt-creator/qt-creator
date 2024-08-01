@@ -58,8 +58,6 @@ using namespace Utils;
 
 namespace RemoteLinux {
 
-const char DisconnectedKey[] = "Disconnected";
-
 const QByteArray s_pidMarker = "__qtc";
 
 static Q_LOGGING_CATEGORY(linuxDeviceLog, "qtc.remotelinux.device", QtWarningMsg);
@@ -329,7 +327,6 @@ public:
     void queryOsType(std::function<RunResult(const CommandLine &)> run);
 
     void setDisconnected(bool disconnected);
-    bool disconnected() const;
     bool checkDisconnectedWithWarning();
 
     LinuxDevice *q = nullptr;
@@ -340,7 +337,6 @@ public:
 
     QReadWriteLock m_environmentCacheLock;
     std::optional<Environment> m_environmentCache;
-    bool m_disconnected = false;
 };
 
 void LinuxDevicePrivate::invalidateEnvironmentCache()
@@ -360,7 +356,7 @@ Environment LinuxDevicePrivate::getEnvironment()
     if (m_environmentCache.has_value())
         return m_environmentCache.value();
 
-    if (m_disconnected)
+    if (q->disconnected())
         return {};
 
     Process getEnvProc;
@@ -1028,6 +1024,8 @@ LinuxDevice::LinuxDevice()
     sshParams.timeout = 10;
     setSshParameters(sshParams);
 
+    disconnected.setSettingsKey("Disconnected");
+
     addDeviceAction({Tr::tr("Deploy Public Key..."), [](const IDevice::Ptr &device, QWidget *parent) {
         if (auto d = Internal::PublicKeyDeploymentDialog::createDialog(device, parent)) {
             d->exec();
@@ -1070,18 +1068,6 @@ LinuxDevice::LinuxDevice()
                      }});
 }
 
-void LinuxDevice::fromMap(const Utils::Store &map)
-{
-    IDevice::fromMap(map);
-    d->m_disconnected = map.value(DisconnectedKey, false).toBool();
-}
-
-void LinuxDevice::toMap(Utils::Store &map) const
-{
-    IDevice::toMap(map);
-    map.insert(DisconnectedKey, d->m_disconnected);
-}
-
 void LinuxDevice::_setOsType(Utils::OsType osType)
 {
     qCDebug(linuxDeviceLog) << "Setting OS type to" << osType << "for" << displayName();
@@ -1091,15 +1077,6 @@ void LinuxDevice::_setOsType(Utils::OsType osType)
 LinuxDevice::~LinuxDevice()
 {
     delete d;
-}
-
-IDevice::Ptr LinuxDevice::clone() const
-{
-    IDevice::Ptr clone = IDevice::clone();
-    Ptr linuxClone = std::dynamic_pointer_cast<LinuxDevice>(clone);
-    QTC_ASSERT(linuxClone, return clone);
-    linuxClone->d->setDisconnected(d->disconnected());
-    return clone;
 }
 
 IDeviceWidget *LinuxDevice::createWidget()
@@ -1187,19 +1164,14 @@ void LinuxDevicePrivate::queryOsType(std::function<RunResult(const CommandLine &
 
 void LinuxDevicePrivate::setDisconnected(bool disconnected)
 {
-    if (disconnected == m_disconnected)
+    if (disconnected == q->disconnected())
         return;
 
-    m_disconnected = disconnected;
+    q->disconnected.setValue(disconnected);
 
-    if (m_disconnected)
+    if (disconnected)
         m_handler->closeShell();
 
-}
-
-bool LinuxDevicePrivate::disconnected() const
-{
-    return m_disconnected;
 }
 
 void LinuxDevicePrivate::checkOsType()
@@ -1271,7 +1243,7 @@ void LinuxDevicePrivate::unannounceConnectionAttempt()
 
 bool LinuxDevicePrivate::checkDisconnectedWithWarning()
 {
-    if (!disconnected())
+    if (!q->disconnected())
         return false;
 
     QMetaObject::invokeMethod(Core::ICore::infoBar(), [id = q->id(), name = q->displayName()] {
@@ -1735,11 +1707,7 @@ QString LinuxDevice::deviceStateToString() const
 
 bool LinuxDevice::isDisconnected() const
 {
-    return d->disconnected();
-}
-void LinuxDevice::setDisconnected(bool disconnected)
-{
-    d->setDisconnected(disconnected);
+    return disconnected();
 }
 
 bool LinuxDevice::tryToConnect()
