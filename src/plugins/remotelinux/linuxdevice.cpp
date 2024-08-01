@@ -307,12 +307,6 @@ public:
     LinuxDevicePrivate *m_dev;
 };
 
-class LinuxDeviceSettings : public DeviceSettings
-{
-public:
-    LinuxDeviceSettings() { displayName.setDefaultValue(Tr::tr("Remote Linux Device")); }
-};
-
 class LinuxDevicePrivate
 {
 public:
@@ -1019,12 +1013,12 @@ private:
 // LinuxDevice
 
 LinuxDevice::LinuxDevice()
-    : IDevice(std::make_unique<LinuxDeviceSettings>())
-    , d(new LinuxDevicePrivate(this))
+    : d(new LinuxDevicePrivate(this))
 {
     setFileAccess(&d->m_fileAccess);
     setDisplayType(Tr::tr("Remote Linux"));
     setOsType(OsTypeLinux);
+    displayName.setDefaultValue(Tr::tr("Remote Linux Device"));
 
     setupId(IDevice::ManuallyAdded, Utils::Id());
     setType(Constants::GenericLinuxOsType);

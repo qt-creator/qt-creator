@@ -26,7 +26,7 @@ ProjectExplorer::IDevice::Ptr BareMetalDeviceConfigurationWizard::device() const
 {
     const auto dev = BareMetalDevice::create();
     dev->setupId(ProjectExplorer::IDevice::ManuallyAdded, Utils::Id());
-    dev->settings()->displayName.setDefaultValue(m_setupPage->configurationName());
+    dev->displayName.setDefaultValue(m_setupPage->configurationName());
     dev->setType(Constants::BareMetalOsType);
     dev->setMachineType(ProjectExplorer::IDevice::Hardware);
     dev->setDebugServerProviderId(m_setupPage->debugServerProviderId());

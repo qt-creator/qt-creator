@@ -84,7 +84,7 @@ void DeviceDetector::handleDeviceEvent(QdbDeviceTracker::DeviceEventType eventTy
         const QString name = Tr::tr("Boot to Qt device %1").arg(serial);
         QdbDevice::Ptr device = QdbDevice::create();
         device->setupId(IDevice::AutoDetected, deviceId);
-        device->settings()->displayName.setValue(name);
+        device->displayName.setValue(name);
         device->setType(Qdb::Constants::QdbLinuxOsType);
         device->setMachineType(IDevice::Hardware);
         device->setExtraData(ProjectExplorer::Constants::SUPPORTS_RSYNC, true);

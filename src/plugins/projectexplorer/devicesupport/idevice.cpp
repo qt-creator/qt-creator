@@ -120,16 +120,10 @@ const IDevice::MachineType DefaultMachineType = IDevice::Hardware;
 const int DefaultTimeout = 10;
 
 namespace Internal {
+
 class IDevicePrivate
 {
 public:
-    IDevicePrivate(std::unique_ptr<DeviceSettings> s)
-        : settings(std::move(s))
-    {
-        if (!settings)
-            settings = std::make_unique<DeviceSettings>();
-    }
-
     QString displayType;
     Id type;
     IDevice::Origin origin = IDevice::AutoDetected;
@@ -153,12 +147,14 @@ public:
     QList<IDevice::DeviceAction> deviceActions;
     Store extraData;
     IDevice::OpenTerminal openTerminal;
-
-    std::unique_ptr<DeviceSettings> settings;
 };
+
 } // namespace Internal
 
-DeviceSettings::DeviceSettings()
+DeviceTester::DeviceTester(QObject *parent) : QObject(parent) { }
+
+IDevice::IDevice()
+    : d(new Internal::IDevicePrivate)
 {
     setAutoApply(false);
 
@@ -199,13 +195,6 @@ DeviceSettings::DeviceSettings()
 
             return newValue;
         });
-}
-
-DeviceTester::DeviceTester(QObject *parent) : QObject(parent) { }
-
-IDevice::IDevice(std::unique_ptr<DeviceSettings> settings)
-    : d(new Internal::IDevicePrivate(std::move(settings)))
-{
 }
 
 IDevice::~IDevice() = default;
@@ -317,11 +306,6 @@ expected_str<Environment> IDevice::systemEnvironmentWithError() const
     DeviceFileAccess *access = fileAccess();
     QTC_ASSERT(access, return Environment::systemEnvironment());
     return access->deviceEnvironment();
-}
-
-QString IDevice::displayName() const
-{
-    return d->settings->displayName();
 }
 
 QString IDevice::displayType() const
@@ -495,8 +479,8 @@ Id IDevice::idFromMap(const Store &map)
 
 void IDevice::fromMap(const Store &map)
 {
+    AspectContainer::fromMap(map);
     d->type = typeFromMap(map);
-    settings()->fromMap(map);
 
     d->id = Id::fromSetting(map.value(IdKey));
     d->osType = osTypeFromString(map.value(ClientOsTypeKey).toString()).value_or(OsTypeLinux);
@@ -543,7 +527,7 @@ void IDevice::fromMap(const Store &map)
 
 void IDevice::toMap(Store &map) const
 {
-    d->settings->toMap(map);
+    AspectContainer::toMap(map);
 
     map.insert(TypeKey, d->type.toString());
     map.insert(ClientOsTypeKey, osTypeToString(d->osType));
@@ -585,11 +569,6 @@ IDevice::Ptr IDevice::clone() const
     device->d->osType = d->osType;
     device->fromMap(store);
     return device;
-}
-
-DeviceSettings *IDevice::settings() const
-{
-    return d->settings.get();
 }
 
 QString IDevice::deviceStateToString() const
@@ -723,6 +702,11 @@ bool IDevice::prepareForBuild(const Target *target)
 std::optional<Utils::FilePath> IDevice::clangdExecutable() const
 {
     return std::nullopt;
+}
+
+void IDevice::doApply() const
+{
+    const_cast<IDevice *>(this)->apply();
 }
 
 void DeviceProcessSignalOperation::setDebuggerCommand(const FilePath &cmd)

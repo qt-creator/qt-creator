@@ -83,16 +83,9 @@ public:
     std::function<QList<Utils::Port>(const QByteArray &commandOutput)> parsePorts;
 };
 
-class PROJECTEXPLORER_EXPORT DeviceSettings : public Utils::AspectContainer
-{
-public:
-    DeviceSettings();
-
-    Utils::StringAspect displayName{this};
-};
-
 // See cpp file for documentation.
-class PROJECTEXPLORER_EXPORT IDevice : public std::enable_shared_from_this<IDevice>
+class PROJECTEXPLORER_EXPORT IDevice
+        : public Utils::AspectContainer, public std::enable_shared_from_this<IDevice>
 {
     friend class Internal::IDevicePrivate;
 public:
@@ -107,9 +100,7 @@ public:
 
     virtual Ptr clone() const;
 
-    DeviceSettings *settings() const;
-
-    QString displayName() const;
+    Utils::StringAspect displayName{this};
 
     // Provide some information on the device suitable for formated
     // output, e.g. in tool tips. Get a list of name value pairs.
@@ -229,8 +220,10 @@ public:
 
     virtual void checkOsType() {}
 
+    void doApply() const;
+
 protected:
-    IDevice(std::unique_ptr<DeviceSettings> settings = nullptr);
+    IDevice();
 
     virtual void fromMap(const Utils::Store &map);
     virtual void toMap(Utils::Store &map) const;

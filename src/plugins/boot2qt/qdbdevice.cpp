@@ -207,7 +207,7 @@ public:
     {
         QdbDevice::Ptr device = QdbDevice::create();
 
-        device->settings()->displayName.setValue(settingsPage.deviceName());
+        device->displayName.setValue(settingsPage.deviceName());
         device->setupId(ProjectExplorer::IDevice::ManuallyAdded, Utils::Id());
         device->setType(Constants::QdbLinuxOsType);
         device->setMachineType(ProjectExplorer::IDevice::Hardware);

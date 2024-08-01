@@ -42,7 +42,7 @@ DesktopDevice::DesktopDevice()
 
     setupId(IDevice::AutoDetected, DESKTOP_DEVICE_ID);
     setType(DESKTOP_DEVICE_TYPE);
-    settings()->displayName.setDefaultValue(Tr::tr("Local PC"));
+    displayName.setDefaultValue(Tr::tr("Local PC"));
     setDisplayType(Tr::tr("Desktop"));
 
     setDeviceState(IDevice::DeviceStateUnknown);

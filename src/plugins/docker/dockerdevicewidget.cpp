@@ -34,8 +34,6 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     auto dockerDevice = std::dynamic_pointer_cast<DockerDevice>(device);
     QTC_ASSERT(dockerDevice, return);
 
-    DockerDeviceSettings *deviceSettings = static_cast<DockerDeviceSettings *>(device->settings());
-
     using namespace Layouting;
 
     auto daemonStateLabel = new QLabel(Tr::tr("Daemon state:"));
@@ -58,13 +56,13 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     auto pathListLabel = new InfoLabel(Tr::tr("Paths to mount:"));
     pathListLabel->setAdditionalToolTip(Tr::tr("Source directory list should not be empty."));
 
-    auto markupMounts = [deviceSettings, pathListLabel] {
-        const bool isEmpty = deviceSettings->mounts.volatileValue().isEmpty();
+    auto markupMounts = [dockerDevice, pathListLabel] {
+        const bool isEmpty = dockerDevice->mounts.volatileValue().isEmpty();
         pathListLabel->setType(isEmpty ? InfoLabel::Warning : InfoLabel::None);
     };
     markupMounts();
 
-    connect(&deviceSettings->mounts, &FilePathListAspect::volatileValueChanged, this, markupMounts);
+    connect(&dockerDevice->mounts, &FilePathListAspect::volatileValueChanged, this, markupMounts);
 
     auto logView = new QTextBrowser;
     connect(&m_kitItemDetector, &KitDetector::logOutput,
@@ -104,7 +102,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     connect(autoDetectButton,
             &QPushButton::clicked,
             this,
-            [this, logView, dockerDevice, searchPaths, deviceSettings] {
+            [this, logView, dockerDevice, searchPaths] {
                 logView->clear();
                 expected_str<void> startResult = dockerDevice->updateContainerAccess();
 
@@ -121,7 +119,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
                           });
 
                 if (!clangdPath.isEmpty())
-                    deviceSettings->clangdExecutable.setValue(clangdPath);
+                    dockerDevice->clangdExecutableAspect.setValue(clangdPath);
 
                 m_kitItemDetector.autoDetect(dockerDevice->id().toString(), searchPaths());
 
@@ -169,20 +167,20 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     Column {
         noMargin,
         Form {
-            deviceSettings->repo, br,
-            deviceSettings->tag, br,
-            deviceSettings->imageId, br,
+            dockerDevice->repo, br,
+            dockerDevice->tag, br,
+            dockerDevice->imageId, br,
             daemonStateLabel, m_daemonReset, m_daemonState, br,
-            Tr::tr("Container state:"), deviceSettings->containerStatus, br,
-            deviceSettings->useLocalUidGid, br,
-            deviceSettings->keepEntryPoint, br,
-            deviceSettings->enableLldbFlags, br,
-            deviceSettings->clangdExecutable, br,
-            deviceSettings->network, br,
-            deviceSettings->extraArgs, br,
+            Tr::tr("Container state:"), dockerDevice->containerStatus, br,
+            dockerDevice->useLocalUidGid, br,
+            dockerDevice->keepEntryPoint, br,
+            dockerDevice->enableLldbFlags, br,
+            dockerDevice->clangdExecutableAspect, br,
+            dockerDevice->network, br,
+            dockerDevice->extraArgs, br,
             Column {
                 pathListLabel,
-                deviceSettings->mounts,
+                dockerDevice->mounts,
             }, br,
             If { dockerDevice->isAutoDetected(), {}, {detectionControls} },
             noMargin,
@@ -199,7 +197,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     };
     QObject::connect(searchDirsComboBox, &QComboBox::activated, this, updateDirectoriesLineEdit);
 
-    connect(deviceSettings, &AspectContainer::applied, this, [createLineLabel, dockerDevice] {
+    connect(&*dockerDevice, &AspectContainer::applied, this, [createLineLabel, dockerDevice] {
         createLineLabel->setText(dockerDevice->createCommandLine().toUserOutput());
     });
 }

@@ -177,7 +177,7 @@ static IDevice::Ptr createDeviceFromInfo(const CreateAvdInfo &info)
     const Id deviceId = AndroidDevice::idFromAvdInfo(info);
     dev->setupId(IDevice::AutoDetected, deviceId);
     dev->setMachineType(IDevice::Emulator);
-    dev->settings()->displayName.setValue(info.name);
+    dev->displayName.setValue(info.name);
     dev->setDeviceState(IDevice::DeviceConnected);
     dev->setAvdPath(avdFilePath() / (info.name + ".avd"));
     dev->setExtraData(Constants::AndroidAvdName, info.name);
@@ -349,7 +349,7 @@ AndroidDevice::AndroidDevice()
 {
     setupId(IDevice::AutoDetected, Constants::ANDROID_DEVICE_ID);
     setType(Constants::ANDROID_DEVICE_TYPE);
-    settings()->displayName.setDefaultValue(Tr::tr("Run on Android"));
+    displayName.setDefaultValue(Tr::tr("Run on Android"));
     setDisplayType(Tr::tr("Android"));
     setMachineType(IDevice::Hardware);
     setOsType(OsType::OsTypeOtherUnix);
@@ -672,7 +672,7 @@ static void handleDevicesListChange(const QString &serialNumber)
         } else {
             AndroidDevice *newDev = new AndroidDevice();
             newDev->setupId(IDevice::AutoDetected, id);
-            newDev->settings()->displayName.setValue(displayName);
+            newDev->displayName.setValue(displayName);
             newDev->setMachineType(IDevice::Hardware);
             newDev->setDeviceState(state);
 
@@ -758,7 +758,7 @@ static void handleAvdListChange(const AndroidDeviceInfoList &avdList)
 
         AndroidDevice *newDev = new AndroidDevice;
         newDev->setupId(IDevice::AutoDetected, deviceId);
-        newDev->settings()->displayName.setValue(displayName);
+        newDev->displayName.setValue(displayName);
         newDev->setMachineType(item.type);
         newDev->setDeviceState(item.state);
 

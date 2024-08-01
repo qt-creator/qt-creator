@@ -12,46 +12,18 @@
 
 namespace Docker::Internal {
 
-class DockerDeviceSettings : public ProjectExplorer::DeviceSettings
-{
-public:
-    DockerDeviceSettings();
-
-    void fromMap(const Utils::Store &map) override;
-
-    QString repoAndTag() const;
-    QString repoAndTagEncoded() const;
-    Utils::FilePath rootPath() const;
-
-    Utils::StringAspect imageId{this};
-    Utils::StringAspect repo{this};
-    Utils::StringAspect tag{this};
-    Utils::BoolAspect useLocalUidGid{this};
-    Utils::FilePathListAspect mounts{this};
-    Utils::BoolAspect keepEntryPoint{this};
-    Utils::BoolAspect enableLldbFlags{this};
-    Utils::FilePathAspect clangdExecutable{this};
-    Utils::StringSelectionAspect network{this};
-    Utils::StringAspect extraArgs{this};
-
-    Utils::TextDisplay containerStatus{this};
-};
-
 class DockerDevice : public ProjectExplorer::IDevice
 {
 public:
     using Ptr = std::shared_ptr<DockerDevice>;
     using ConstPtr = std::shared_ptr<const DockerDevice>;
 
-    explicit DockerDevice(std::unique_ptr<DockerDeviceSettings> settings);
+    DockerDevice();
     ~DockerDevice();
 
     void shutdown();
 
-    static Ptr create(std::unique_ptr<DockerDeviceSettings> settings)
-    {
-        return Ptr(new DockerDevice(std::move(settings)));
-    }
+    static Ptr create() { return Ptr(new DockerDevice); }
 
     Utils::CommandLine createCommandLine() const;
 
@@ -84,6 +56,22 @@ public:
 
     bool prepareForBuild(const ProjectExplorer::Target *target) override;
     std::optional<Utils::FilePath> clangdExecutable() const override;
+
+    QString repoAndTag() const;
+    QString repoAndTagEncoded() const;
+
+    Utils::StringAspect imageId{this};
+    Utils::StringAspect repo{this};
+    Utils::StringAspect tag{this};
+    Utils::BoolAspect useLocalUidGid{this};
+    Utils::FilePathListAspect mounts{this};
+    Utils::BoolAspect keepEntryPoint{this};
+    Utils::BoolAspect enableLldbFlags{this};
+    Utils::FilePathAspect clangdExecutableAspect{this};
+    Utils::StringSelectionAspect network{this};
+    Utils::StringAspect extraArgs{this};
+
+    Utils::TextDisplay containerStatus{this};
 
 protected:
     void fromMap(const Utils::Store &map) final;

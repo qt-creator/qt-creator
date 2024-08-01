@@ -79,7 +79,7 @@ IDevice::Ptr IDeviceFactory::construct() const
 
     IDevice::Ptr device = m_constructor();
     QTC_ASSERT(device, return {});
-    device->settings()->displayName.setDefaultValue(displayName());
+    device->displayName.setDefaultValue(displayName());
     return device;
 }
 

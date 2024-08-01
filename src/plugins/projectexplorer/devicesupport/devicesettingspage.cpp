@@ -274,7 +274,7 @@ void DeviceSettingsWidget::setDeviceInfoWidgetsEnabled(bool enable)
 
 void DeviceSettingsWidget::updateDeviceFromUi()
 {
-    currentDevice()->settings()->apply();
+    currentDevice()->doApply();
     if (m_configWidget)
         m_configWidget->updateDeviceFromUi();
 }
@@ -340,7 +340,7 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
     }
 
     Layouting::Column item{Layouting::noMargin};
-    device->settings()->displayName.addToLayout(item);
+    device->displayName.addToLayout(item);
     QWidget *newEdit = item.emerge();
     QLayoutItem *oldItem = m_generalFormLayout->replaceWidget(m_deviceNameEditWidget, newEdit);
     QTC_CHECK(oldItem);
