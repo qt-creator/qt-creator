@@ -25,13 +25,11 @@ public:
     void setDebugServerProviderId(const QString &id);
     void unregisterDebugServerProvider(class IDebugServerProvider *provider);
 
-protected:
-    void fromMap(const Utils::Store &map) final;
-    void toMap(Utils::Store &map) const final;
-
 private:
+    void fromMap(const Utils::Store &map) final;
+
     BareMetalDevice();
-    QString m_debugServerProviderId;
+    Utils::StringAspect m_debugServerProviderId{this};
 };
 
 void setupBareMetalDevice();
