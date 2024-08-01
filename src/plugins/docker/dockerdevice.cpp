@@ -604,8 +604,12 @@ DockerDevice::DockerDevice(std::unique_ptr<DockerDeviceSettings> deviceSettings)
             return make_unexpected(cmdBridgePath.error());
 
         auto fAccess = std::make_unique<DockerDeviceFileAccess>(d);
-        expected_str<void> initResult = fAccess->init(
-            rootPath().withNewPath("/tmp/_qtc_cmdbridge"));
+        expected_str<void> initResult;
+        if (!cmdBridgePath->isSameDevice(Docker::Internal::settings().dockerBinaryPath())) {
+            initResult = fAccess->deployAndInit(Core::ICore::libexecPath(), rootPath());
+        } else {
+            initResult = fAccess->init(rootPath().withNewPath("/tmp/_qtc_cmdbridge"));
+        }
         if (!initResult)
             return make_unexpected(initResult.error());
 
@@ -873,7 +877,7 @@ QStringList DockerDevicePrivate::createMountArgs() const
     for (const FilePath &m : deviceSettings->mounts())
         mounts.append({m, m});
 
-    if (cmdBridgePath)
+    if (cmdBridgePath && cmdBridgePath->isSameDevice(settings().dockerBinaryPath()))
         mounts.append({cmdBridgePath.value(), FilePath("/tmp/_qtc_cmdbridge")});
 
     for (const MountPair &mi : mounts) {
