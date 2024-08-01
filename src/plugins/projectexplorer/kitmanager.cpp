@@ -157,10 +157,8 @@ static bool kitMatchesAbiList(const Kit *kit, const Abis &abis)
     for (const Toolchain * const tc : toolchains) {
         const Abi tcAbi = tc->targetAbi();
         for (const Abi &abi : abis) {
-            if (tcAbi.os() == abi.os() && tcAbi.architecture() == abi.architecture()
-                && (tcAbi.os() != Abi::LinuxOS || tcAbi.osFlavor() == abi.osFlavor())) {
+            if (tcAbi == abi)
                 return true;
-            }
         }
     }
     return false;
