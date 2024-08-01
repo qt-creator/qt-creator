@@ -1700,9 +1700,17 @@ Toolchains GccToolchainFactory::autoDetectToolchain(const ToolchainDescription &
         tc->setTargetAbi(abi);
         tc->setOriginalTargetTriple(detectedAbis.originalTargetTriple);
         tc->setDisplayName(tc->defaultDisplayName()); // reset displayname
+
         // lower priority of g++/gcc on macOS - usually just a frontend to clang
         if (detectedSubType == GccToolchain::RealGcc && abi.binaryFormat() == Abi::MachOFormat)
             tc->setPriority(Toolchain::PriorityLow);
+
+        // GCC is still "more native" than clang on Linux.
+        if (detectedSubType == GccToolchain::Clang && abi.binaryFormat() == Abi::ElfFormat
+            && abi.os() == Abi::LinuxOS) {
+            tc->setPriority(Toolchain::PriorityLow);
+        }
+
         result.append(tc);
     }
     return result;
