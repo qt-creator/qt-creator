@@ -3,11 +3,8 @@
 
 #pragma once
 
-#include "debuggerconstants.h"
-
 #include <QObject>
 #include <QPoint>
-#include <QPointer>
 #include <QColor>
 
 namespace BinEditor { class EditorService; }
@@ -16,7 +13,7 @@ namespace Debugger::Internal {
 
 class DebuggerEngine;
 
-class MemoryMarkup
+class MemoryMarkup final
 {
 public:
     MemoryMarkup() = default;
@@ -30,7 +27,7 @@ public:
     QString toolTip;
 };
 
-class MemoryViewSetupData
+class MemoryViewSetupData final
 {
 public:
     MemoryViewSetupData() = default;
@@ -45,11 +42,11 @@ public:
     bool trackRegisters = false;  // Address parameter is register number to track
 };
 
-class MemoryAgent : public QObject
+class MemoryAgent final : public QObject
 {
 public:
     MemoryAgent(const MemoryViewSetupData &data, DebuggerEngine *engine);
-    ~MemoryAgent() override;
+    ~MemoryAgent() final;
 
     void updateContents();
     void addData(quint64 address, const QByteArray &data);
