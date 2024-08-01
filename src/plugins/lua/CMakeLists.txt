@@ -15,6 +15,7 @@ add_qtc_plugin(Lua
     bindings/localsocket.cpp
     bindings/macro.cpp
     bindings/messagemanager.cpp
+    bindings/qt.cpp
     bindings/qtcprocess.cpp
     bindings/settings.cpp
     bindings/texteditor.cpp
