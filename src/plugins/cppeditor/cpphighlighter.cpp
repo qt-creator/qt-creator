@@ -439,6 +439,9 @@ void CppHighlighter::highlightStringLiteral(QStringView text, const CPlusPlus::T
     case T_UTF8_STRING_LITERAL:
     case T_UTF16_STRING_LITERAL:
     case T_UTF32_STRING_LITERAL:
+    case T_WIDE_CHAR_LITERAL:
+    case T_UTF16_CHAR_LITERAL:
+    case T_UTF32_CHAR_LITERAL:
         break;
     default:
         if (!tk.userDefinedLiteral()) { // Simple case: No prefix, no suffix.
@@ -448,16 +451,17 @@ void CppHighlighter::highlightStringLiteral(QStringView text, const CPlusPlus::T
         }
     }
 
+    const char quote = tk.isStringLiteral() ? '"' : '\'';
     int stringOffset = 0;
     if (!tk.f.joined) {
-        stringOffset = text.indexOf('"', tk.utf16charsBegin());
+        stringOffset = text.indexOf(quote, tk.utf16charsBegin());
         QTC_ASSERT(stringOffset > 0, return);
         setFormat(tk.utf16charsBegin(), stringOffset - tk.utf16charsBegin(),
                   formatForCategory(C_KEYWORD));
     }
     int operatorOffset = tk.utf16charsBegin() + tk.utf16chars();
     if (tk.userDefinedLiteral()) {
-        const int closingQuoteOffset = text.lastIndexOf('"', operatorOffset);
+        const int closingQuoteOffset = text.lastIndexOf(quote, operatorOffset);
         QTC_ASSERT(closingQuoteOffset >= tk.utf16charsBegin(), return);
         operatorOffset = closingQuoteOffset + 1;
     }
@@ -465,7 +469,10 @@ void CppHighlighter::highlightStringLiteral(QStringView text, const CPlusPlus::T
                         formatForCategory(C_STRING));
     if (const int operatorLength = tk.utf16charsBegin() + tk.utf16chars() - operatorOffset;
         operatorLength > 0) {
-        setFormat(operatorOffset, operatorLength, formatForCategory(C_OPERATOR));
+        setFormat(
+            operatorOffset,
+            operatorLength,
+            formatForCategory(tk.userDefinedLiteral() ? C_OVERLOADED_OPERATOR : C_OPERATOR));
     }
 }
 
@@ -586,6 +593,12 @@ void CppHighlighterTest::test_data()
         << 49 << 1 << 49 << 1 << C_STRING;
     QTest::newRow("multi-line raw string literal with consecutive closing parens (suffix)")
         << 49 << 2 << 49 << 3 << C_KEYWORD;
+    QTest::newRow("wide char literal with user-defined suffix (prefix)")
+        << 73 << 16 << 73 << 16 << C_KEYWORD;
+    QTest::newRow("wide char literal with user-defined suffix (content)")
+        << 73 << 17 << 73 << 18 << C_STRING;
+    QTest::newRow("wide char literal with user-defined suffix (suffix)")
+        << 73 << 20 << 73 << 22 << C_OVERLOADED_OPERATOR;
 }
 
 void CppHighlighterTest::test()
