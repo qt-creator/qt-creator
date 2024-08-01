@@ -8,7 +8,7 @@
 namespace QmlDesigner {
 
 void ProjectStorageErrorNotifier::typeNameCannotBeResolved(Utils::SmallStringView typeName,
-                                                        SourceId sourceId)
+                                                           SourceId sourceId)
 {
     qDebug() << "Missing type name: " << typeName
              << " in file: " << m_pathCache.sourcePath(sourceId).toStringView();

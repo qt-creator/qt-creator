@@ -324,26 +324,21 @@ public:
                 fetchSourceContextId,
                 (::Utils::SmallStringView SourceContextPath),
                 ());
-    MOCK_METHOD(QmlDesigner::SourceId,
-                fetchSourceId,
-                (QmlDesigner::SourceContextId SourceContextId, ::Utils::SmallStringView sourceName),
-                ());
+    MOCK_METHOD(QmlDesigner::SourceNameId, fetchSourceNameId, (::Utils::SmallStringView sourceName), ());
     MOCK_METHOD(QmlDesigner::SourceContextId,
                 fetchSourceContextIdUnguarded,
-                (::Utils::SmallStringView SourceContextPath),
+                (::Utils::SmallStringView sourceContextPath),
                 ());
-    MOCK_METHOD(QmlDesigner::SourceId,
-                fetchSourceIdUnguarded,
-                (QmlDesigner::SourceContextId SourceContextId, ::Utils::SmallStringView sourceName),
+    MOCK_METHOD(QmlDesigner::SourceNameId,
+                fetchSourceNameIdUnguarded,
+                (::Utils::SmallStringView sourceName),
                 ());
     MOCK_METHOD(::Utils::PathString,
                 fetchSourceContextPath,
                 (QmlDesigner::SourceContextId sourceContextId));
-    MOCK_METHOD(QmlDesigner::Cache::SourceNameAndSourceContextId,
-                fetchSourceNameAndSourceContextId,
-                (QmlDesigner::SourceId sourceId));
+    MOCK_METHOD(Utils::SmallString, fetchSourceName, (QmlDesigner::SourceNameId sourceId));
     MOCK_METHOD(std::vector<QmlDesigner::Cache::SourceContext>, fetchAllSourceContexts, (), ());
-    MOCK_METHOD(std::vector<QmlDesigner::Cache::Source>, fetchAllSources, (), ());
+    MOCK_METHOD(std::vector<QmlDesigner::Cache::SourceName>, fetchAllSourceNames, (), ());
 
     MOCK_METHOD(QmlDesigner::SourceId,
                 propertyEditorPathId,

@@ -223,18 +223,15 @@ public:
 
     Cache::SourceContexts fetchAllSourceContexts() const;
 
-    SourceId fetchSourceId(SourceContextId sourceContextId, Utils::SmallStringView sourceName);
+    SourceNameId fetchSourceNameId(Utils::SmallStringView sourceName);
 
-    Cache::SourceNameAndSourceContextId fetchSourceNameAndSourceContextId(SourceId sourceId) const;
+    Utils::SmallString fetchSourceName(SourceNameId sourceId) const;
 
     void clearSources();
 
-    SourceContextId fetchSourceContextId(SourceId sourceId) const;
+    Cache::SourceNames fetchAllSourceNames() const;
 
-    Cache::Sources fetchAllSources() const;
-
-    SourceId fetchSourceIdUnguarded(SourceContextId sourceContextId,
-                                    Utils::SmallStringView sourceName);
+    SourceNameId fetchSourceNameIdUnguarded(Utils::SmallStringView sourceName);
 
     FileStatuses fetchAllFileStatuses() const;
 
@@ -1009,9 +1006,9 @@ private:
 
     SourceContextId writeSourceContextId(Utils::SmallStringView sourceContextPath);
 
-    SourceId writeSourceId(SourceContextId sourceContextId, Utils::SmallStringView sourceName);
+    SourceNameId writeSourceNameId(Utils::SmallStringView sourceName);
 
-    SourceId readSourceId(SourceContextId sourceContextId, Utils::SmallStringView sourceName);
+    SourceNameId readSourceNameId(Utils::SmallStringView sourceName);
 
     Storage::Synchronization::ExportedTypes fetchExportedTypes(TypeId typeId);
 

@@ -19,8 +19,8 @@
 
 namespace {
 
-using QmlDesigner::Cache::Source;
 using QmlDesigner::Cache::SourceContext;
+using QmlDesigner::Cache::SourceName;
 using QmlDesigner::FileStatus;
 using QmlDesigner::FileStatuses;
 using QmlDesigner::FlagIs;
@@ -29,6 +29,7 @@ using QmlDesigner::PropertyDeclarationId;
 using QmlDesigner::SourceContextId;
 using QmlDesigner::SourceId;
 using QmlDesigner::SourceIds;
+using QmlDesigner::SourceNameId;
 using QmlDesigner::Storage::ModuleKind;
 using QmlDesigner::Storage::Synchronization::SynchronizationPackage;
 using QmlDesigner::Storage::Synchronization::TypeAnnotations;
@@ -64,18 +65,6 @@ MATCHER_P2(IsSourceContext,
     const SourceContext &sourceContext = arg;
 
     return sourceContext.id == id && sourceContext.value == value;
-}
-
-MATCHER_P2(IsSourceNameAndSourceContextId,
-           name,
-           id,
-           std::string(negation ? "isn't " : "is ")
-               + PrintToString(QmlDesigner::Cache::SourceNameAndSourceContextId{name, id}))
-{
-    const QmlDesigner::Cache::SourceNameAndSourceContextId &sourceNameAndSourceContextId = arg;
-
-    return sourceNameAndSourceContextId.sourceName == name
-           && sourceNameAndSourceContextId.sourceContextId == id;
 }
 
 MATCHER_P4(IsStorageType,
@@ -352,18 +341,14 @@ protected:
 
     void addSomeDummyData()
     {
-        auto sourceContextId1 = storage.fetchSourceContextId("/path/dummy");
-        auto sourceContextId2 = storage.fetchSourceContextId("/path/dummy2");
-        auto sourceContextId3 = storage.fetchSourceContextId("/path/");
+        storage.fetchSourceContextId("/path/dummy");
+        storage.fetchSourceContextId("/path/dummy2");
+        storage.fetchSourceContextId("/path/");
 
-        storage.fetchSourceId(sourceContextId1, "foo");
-        storage.fetchSourceId(sourceContextId1, "dummy");
-        storage.fetchSourceId(sourceContextId2, "foo");
-        storage.fetchSourceId(sourceContextId2, "bar");
-        storage.fetchSourceId(sourceContextId3, "foo");
-        storage.fetchSourceId(sourceContextId3, "bar");
-        storage.fetchSourceId(sourceContextId1, "bar");
-        storage.fetchSourceId(sourceContextId3, "bar");
+        storage.fetchSourceNameId("foo");
+        storage.fetchSourceNameId("dummy");
+        storage.fetchSourceNameId("bar");
+        storage.fetchSourceNameId("bar");
     }
 
     auto createVerySimpleSynchronizationPackage()
@@ -1342,92 +1327,53 @@ TEST_F(ProjectStorage, fetch_all_source_contexts)
 TEST_F(ProjectStorage, fetch_source_id_first_time)
 {
     addSomeDummyData();
-    auto sourceContextId = storage.fetchSourceContextId("/path/to");
 
-    auto sourceId = storage.fetchSourceId(sourceContextId, "foo");
+    auto sourceNameId = storage.fetchSourceNameId("foo");
 
-    ASSERT_TRUE(sourceId.isValid());
+    ASSERT_TRUE(sourceNameId.isValid());
 }
 
 TEST_F(ProjectStorage, fetch_existing_source_id)
 {
     addSomeDummyData();
-    auto sourceContextId = storage.fetchSourceContextId("/path/to");
-    auto createdSourceId = storage.fetchSourceId(sourceContextId, "foo");
+    auto createdSourceNameId = storage.fetchSourceNameId("foo");
 
-    auto sourceId = storage.fetchSourceId(sourceContextId, "foo");
+    auto sourceNameId = storage.fetchSourceNameId("foo");
 
-    ASSERT_THAT(sourceId, createdSourceId);
-}
-
-TEST_F(ProjectStorage, fetch_source_id_with_different_context_id_are_not_equal)
-{
-    addSomeDummyData();
-    auto sourceContextId = storage.fetchSourceContextId("/path/to");
-    auto sourceContextId2 = storage.fetchSourceContextId("/path/to2");
-    auto sourceId2 = storage.fetchSourceId(sourceContextId2, "foo");
-
-    auto sourceId = storage.fetchSourceId(sourceContextId, "foo");
-
-    ASSERT_THAT(sourceId, Ne(sourceId2));
+    ASSERT_THAT(sourceNameId, createdSourceNameId);
 }
 
 TEST_F(ProjectStorage, fetch_source_id_with_different_name_are_not_equal)
 {
     addSomeDummyData();
-    auto sourceContextId = storage.fetchSourceContextId("/path/to");
-    auto sourceId2 = storage.fetchSourceId(sourceContextId, "foo");
+    auto sourceNameId2 = storage.fetchSourceNameId("foo");
 
-    auto sourceId = storage.fetchSourceId(sourceContextId, "foo2");
+    auto sourceNameId = storage.fetchSourceNameId("foo2");
 
-    ASSERT_THAT(sourceId, Ne(sourceId2));
-}
-
-TEST_F(ProjectStorage, fetch_source_id_with_non_existing_source_context_id_throws)
-{
-    ASSERT_THROW(storage.fetchSourceId(SourceContextId::create(42), "foo"),
-                 Sqlite::ConstraintPreventsModification);
+    ASSERT_THAT(sourceNameId, Ne(sourceNameId2));
 }
 
 TEST_F(ProjectStorage, fetch_source_name_and_source_context_id_for_non_existing_source_id)
 {
-    ASSERT_THROW(storage.fetchSourceNameAndSourceContextId(SourceId::create(212)),
-                 QmlDesigner::SourceIdDoesNotExists);
+    ASSERT_THROW(storage.fetchSourceName(SourceNameId::create(212)),
+                 QmlDesigner::SourceNameIdDoesNotExists);
 }
 
-TEST_F(ProjectStorage, fetch_source_name_and_source_context_id_for_non_existing_entry)
+TEST_F(ProjectStorage, fetch_source_name_for_non_existing_entry)
 {
     addSomeDummyData();
-    auto sourceContextId = storage.fetchSourceContextId("/path/to");
-    auto sourceId = storage.fetchSourceId(sourceContextId, "foo");
+    auto sourceNameId = storage.fetchSourceNameId("foo");
 
-    auto sourceNameAndSourceContextId = storage.fetchSourceNameAndSourceContextId(sourceId);
+    auto sourceName = storage.fetchSourceName(sourceNameId);
 
-    ASSERT_THAT(sourceNameAndSourceContextId, IsSourceNameAndSourceContextId("foo", sourceContextId));
-}
-
-TEST_F(ProjectStorage, fetch_source_context_id_for_non_existing_source_id)
-{
-    ASSERT_THROW(storage.fetchSourceContextId(SourceId::create(212)),
-                 QmlDesigner::SourceIdDoesNotExists);
-}
-
-TEST_F(ProjectStorage, fetch_source_context_id_for_existing_source_id)
-{
-    addSomeDummyData();
-    auto originalSourceContextId = storage.fetchSourceContextId("/path/to3");
-    auto sourceId = storage.fetchSourceId(originalSourceContextId, "foo");
-
-    auto sourceContextId = storage.fetchSourceContextId(sourceId);
-
-    ASSERT_THAT(sourceContextId, Eq(originalSourceContextId));
+    ASSERT_THAT(sourceName, Eq("foo"));
 }
 
 TEST_F(ProjectStorage, fetch_all_sources)
 {
     storage.clearSources();
 
-    auto sources = storage.fetchAllSources();
+    auto sources = storage.fetchAllSourceNames();
 
     ASSERT_THAT(toValues(sources), IsEmpty());
 }
@@ -1435,10 +1381,9 @@ TEST_F(ProjectStorage, fetch_all_sources)
 TEST_F(ProjectStorage, fetch_source_id_unguarded_first_time)
 {
     addSomeDummyData();
-    auto sourceContextId = storage.fetchSourceContextId("/path/to");
     std::lock_guard lock{database};
 
-    auto sourceId = storage.fetchSourceIdUnguarded(sourceContextId, "foo");
+    auto sourceId = storage.fetchSourceNameIdUnguarded("foo");
 
     ASSERT_TRUE(sourceId.isValid());
 }
@@ -1446,46 +1391,23 @@ TEST_F(ProjectStorage, fetch_source_id_unguarded_first_time)
 TEST_F(ProjectStorage, fetch_existing_source_id_unguarded)
 {
     addSomeDummyData();
-    auto sourceContextId = storage.fetchSourceContextId("/path/to");
     std::lock_guard lock{database};
-    auto createdSourceId = storage.fetchSourceIdUnguarded(sourceContextId, "foo");
+    auto createdSourceId = storage.fetchSourceNameIdUnguarded("foo");
 
-    auto sourceId = storage.fetchSourceIdUnguarded(sourceContextId, "foo");
+    auto sourceId = storage.fetchSourceNameIdUnguarded("foo");
 
     ASSERT_THAT(sourceId, createdSourceId);
-}
-
-TEST_F(ProjectStorage, fetch_source_id_unguarded_with_different_context_id_are_not_equal)
-{
-    addSomeDummyData();
-    auto sourceContextId = storage.fetchSourceContextId("/path/to");
-    auto sourceContextId2 = storage.fetchSourceContextId("/path/to2");
-    std::lock_guard lock{database};
-    auto sourceId2 = storage.fetchSourceIdUnguarded(sourceContextId2, "foo");
-
-    auto sourceId = storage.fetchSourceIdUnguarded(sourceContextId, "foo");
-
-    ASSERT_THAT(sourceId, Ne(sourceId2));
 }
 
 TEST_F(ProjectStorage, fetch_source_id_unguarded_with_different_name_are_not_equal)
 {
     addSomeDummyData();
-    auto sourceContextId = storage.fetchSourceContextId("/path/to");
     std::lock_guard lock{database};
-    auto sourceId2 = storage.fetchSourceIdUnguarded(sourceContextId, "foo");
+    auto sourceId2 = storage.fetchSourceNameIdUnguarded("foo");
 
-    auto sourceId = storage.fetchSourceIdUnguarded(sourceContextId, "foo2");
+    auto sourceId = storage.fetchSourceNameIdUnguarded("foo2");
 
     ASSERT_THAT(sourceId, Ne(sourceId2));
-}
-
-TEST_F(ProjectStorage, fetch_source_id_unguarded_with_non_existing_source_context_id_throws)
-{
-    std::lock_guard lock{database};
-
-    ASSERT_THROW(storage.fetchSourceIdUnguarded(SourceContextId::create(42), "foo"),
-                 Sqlite::ConstraintPreventsModification);
 }
 
 TEST_F(ProjectStorage, synchronize_types_adds_new_types)

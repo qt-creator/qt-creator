@@ -23,6 +23,8 @@ enum class LockingMode : char;
 class TimeStamp;
 template<auto Type, typename InternalIntegerType>
 class BasicId;
+template<auto Type, auto ContextType>
+class CompoundBasicId;
 
 std::ostream &operator<<(std::ostream &out, const Value &value);
 std::ostream &operator<<(std::ostream &out, const ValueView &value);
@@ -35,6 +37,12 @@ template<auto Type, typename InternalIntegerType>
 std::ostream &operator<<(std::ostream &out, const BasicId<Type, InternalIntegerType> &id)
 {
     return out << "id=" << id.internalId();
+}
+
+template<auto Type, auto ContextType>
+std::ostream &operator<<(std::ostream &out, const CompoundBasicId<Type, ContextType> &id)
+{
+    return out << "id=(" << id.mainId().internalId() << ", " << id.contextId().internalId() << ")";
 }
 
 namespace SessionChangeSetInternal {

@@ -127,13 +127,16 @@ public:
 
             ids.push_back(id);
 
-            outputIterator = std::transform(
-                idPath.sourceIds.begin(), idPath.sourceIds.end(), outputIterator, [&](SourceId sourceId) {
-                    return WatcherEntry{id,
-                                        m_pathCache.sourceContextId(sourceId),
-                                        sourceId,
-                                        m_fileStatusCache.lastModifiedTime(sourceId)};
-                });
+            outputIterator = std::transform(idPath.sourceIds.begin(),
+                                            idPath.sourceIds.end(),
+                                            outputIterator,
+                                            [&](SourceId sourceId) {
+                                                return WatcherEntry{id,
+                                                                    sourceId.contextId(),
+                                                                    sourceId,
+                                                                    m_fileStatusCache.lastModifiedTime(
+                                                                        sourceId)};
+                                            });
         }
 
         std::sort(entries.begin(), entries.end());

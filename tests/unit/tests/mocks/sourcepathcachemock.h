@@ -41,10 +41,6 @@ public:
                 sourceContextPath,
                 (QmlDesigner::SourceContextId directoryPathId),
                 (const, override));
-    MOCK_METHOD(QmlDesigner::SourceContextId,
-                sourceContextId,
-                (QmlDesigner::SourceId sourceId),
-                (const, override));
     MOCK_METHOD(void, populateIfEmpty, (), (override));
 };
 

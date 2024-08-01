@@ -55,10 +55,10 @@ public:
     const char *what() const noexcept override;
 };
 
-class QMLDESIGNERCORE_EXPORT SourceIdDoesNotExists : public ProjectStorageError
+class QMLDESIGNERCORE_EXPORT SourceNameIdDoesNotExists : public ProjectStorageError
 {
 public:
-    SourceIdDoesNotExists();
+    SourceNameIdDoesNotExists();
     const char *what() const noexcept override;
 };
 

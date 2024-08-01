@@ -15,7 +15,7 @@ enum class BasicIdType {
     Type,
     PropertyType,
     PropertyDeclaration,
-    Source,
+    SourceName,
     SourceContext,
     StorageCacheIndex,
     FunctionDeclaration,
@@ -51,10 +51,10 @@ using SourceContextIds = std::vector<SourceContextId>;
 template<std::size_t size>
 using SmallSourceContextIds = QVarLengthArray<SourceContextId, size>;
 
-using SourceId = Sqlite::BasicId<BasicIdType::Source, int>;
-using SourceIds = std::vector<SourceId>;
+using SourceNameId = Sqlite::BasicId<BasicIdType::SourceName, int>;
+using SourceNameIds = std::vector<SourceNameId>;
 template<std::size_t size>
-using SmallSourceIds = QVarLengthArray<SourceId, size>;
+using SmallSourceNameIds = QVarLengthArray<SourceNameId, size>;
 
 using ModuleId = Sqlite::BasicId<BasicIdType::Module, int>;
 using ModuleIds = std::vector<ModuleId>;
@@ -74,5 +74,10 @@ using ExportedTypeNameIds = std::vector<ExportedTypeNameId>;
 
 using ModuleExportedImportId = Sqlite::BasicId<BasicIdType::ModuleExportedImport>;
 using ModuleExportedImportIds = std::vector<ModuleExportedImportId>;
+
+using SourceId = Sqlite::CompoundBasicId<BasicIdType::SourceName, BasicIdType::SourceContext>;
+using SourceIds = std::vector<SourceId>;
+template<std::size_t size>
+using SmallSourceIds = QVarLengthArray<SourceId, size>;
 
 } // namespace QmlDesigner

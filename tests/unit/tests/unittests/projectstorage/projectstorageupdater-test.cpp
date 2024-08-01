@@ -2413,7 +2413,7 @@ TEST_F(ProjectStorageUpdater, watcher_watches_directories_after_directory_change
     setContent(u"/path/qmldir", qmldir);
     setFilesChanged({directoryPathSourceId});
     setFilesDontChanged({qmlDirPathSourceId});
-    auto directorySourceContextId = sourcePathCache.sourceContextId(directoryPathSourceId);
+    auto directorySourceContextId = directoryPathSourceId.contextId();
 
     EXPECT_CALL(patchWatcherMock,
                 updateContextIdPaths(
@@ -2526,7 +2526,7 @@ TEST_F(ProjectStorageUpdater, watcher_watches_directories_after_qmldir_changes)
                       FirstType 2.2 First2.qml
                       SecondType 2.2 Second.qml)"};
     setContent(u"/path/qmldir", qmldir);
-    auto directorySourceContextId = sourcePathCache.sourceContextId(qmlDirPathSourceId);
+    auto directorySourceContextId = qmlDirPathSourceId.contextId();
 
     EXPECT_CALL(patchWatcherMock,
                 updateContextIdPaths(

@@ -156,7 +156,7 @@ protected:
     QmlDesigner::QmlDocumentParser parser{storage, sourcePathCache};
     Storage::Imports imports;
     SourceId qmlFileSourceId{sourcePathCache.sourceId("/path/to/qmlfile.qml")};
-    SourceContextId qmlFileSourceContextId{sourcePathCache.sourceContextId(qmlFileSourceId)};
+    SourceContextId qmlFileSourceContextId{qmlFileSourceId.contextId()};
     Utils::PathString directoryPath{sourcePathCache.sourceContextPath(qmlFileSourceContextId)};
     ModuleId directoryModuleId{storage.moduleId(directoryPath, ModuleKind::PathLibrary)};
 };

@@ -184,7 +184,7 @@ protected:
                                              qmltypesFileSourceId,
                                              qtQmlNativeModuleId,
                                              Synchronization::FileType::QmlTypes};
-    SourceContextId qmltypesFileSourceContextId{sourcePathCache.sourceContextId(qmltypesFileSourceId)};
+    SourceContextId qmltypesFileSourceContextId{qmltypesFileSourceId.contextId()};
 };
 
 TEST_F(QmlTypesParser, imports)

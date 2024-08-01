@@ -483,7 +483,7 @@ void ProjectStorageUpdater::updateSubdirectories(const Utils::PathString &direct
     auto subdirectorySourceIds = m_projectStorage.fetchSubdirectorySourceIds(directorySourceId);
     auto subdirectories = Utils::transform<Directories>(
         subdirectorySourceIds, [&](SourceId sourceId) -> Directory {
-            auto sourceContextId = m_pathCache.sourceContextId(sourceId);
+            auto sourceContextId = sourceId.contextId();
             auto subdirectoryPath = m_pathCache.sourceContextPath(sourceContextId);
             return {subdirectoryPath, sourceContextId, sourceId};
         });
@@ -495,10 +495,9 @@ void ProjectStorageUpdater::updateSubdirectories(const Utils::PathString &direct
             || subdirectory.endsWith("/QtQuick/Scene3D"))
             continue;
         Utils::PathString subdirectoryPath = subdirectory;
-        auto [sourceContextId, sourceId] = m_pathCache.sourceContextAndSourceId(
-            SourcePath{subdirectoryPath + "/."});
-        subdirectories.emplace_back(subdirectoryPath, sourceContextId, sourceId);
-        existingSubdirecories.emplace_back(subdirectoryPath, sourceContextId, sourceId);
+        SourceId sourceId = m_pathCache.sourceId(SourcePath{subdirectoryPath + "/."});
+        subdirectories.emplace_back(subdirectoryPath, sourceId.contextId(), sourceId);
+        existingSubdirecories.emplace_back(subdirectoryPath, sourceId.contextId(), sourceId);
     }
 
     std::sort(subdirectories.begin(), subdirectories.end());
@@ -828,12 +827,10 @@ void ProjectStorageUpdater::updatePropertyEditorFilePath(
 }
 
 namespace {
-SourceContextIds filterUniqueSourceContextIds(const SourceIds &sourceIds,
-                                              ProjectStorageUpdater::PathCache &pathCache)
+SourceContextIds filterUniqueSourceContextIds(const SourceIds &sourceIds)
 {
-    auto sourceContextIds = Utils::transform(sourceIds, [&](SourceId sourceId) {
-        return pathCache.sourceContextId(sourceId);
-    });
+    auto sourceContextIds = Utils::transform(sourceIds,
+                                             [](SourceId sourceId) { return sourceId.contextId(); });
 
     std::sort(sourceContextIds.begin(), sourceContextIds.end());
     auto newEnd = std::unique(sourceContextIds.begin(), sourceContextIds.end());
@@ -899,7 +896,7 @@ void ProjectStorageUpdater::pathsWithIdsChanged(const std::vector<IdPaths> &chan
         }
     }
 
-    auto directorySourceContextIds = filterUniqueSourceContextIds(directorySourceIds, m_pathCache);
+    auto directorySourceContextIds = filterUniqueSourceContextIds(directorySourceIds);
 
     for (auto sourceContextId : directorySourceContextIds) {
         Utils::PathString directory = m_pathCache.sourceContextPath(sourceContextId);
@@ -911,13 +908,13 @@ void ProjectStorageUpdater::pathsWithIdsChanged(const std::vector<IdPaths> &chan
     }
 
     for (SourceId sourceId : filterUniqueSourceIds(qmlDocumentSourceIds)) {
-        if (!contains(directorySourceContextIds, m_pathCache.sourceContextId(sourceId)))
+        if (!contains(directorySourceContextIds, sourceId.contextId()))
             parseQmlComponent(sourceId, package, notUpdatedSourceIds);
     }
 
     try {
         for (SourceId sourceId : filterUniqueSourceIds(std::move(qmltypesSourceIds))) {
-            if (!contains(directorySourceContextIds, m_pathCache.sourceContextId(sourceId))) {
+            if (!contains(directorySourceContextIds, sourceId.contextId())) {
                 auto qmltypesPath = m_pathCache.sourcePath(sourceId);
                 auto directoryInfo = m_projectStorage.fetchDirectoryInfo(sourceId);
                 if (directoryInfo)

@@ -15,6 +15,9 @@ namespace Sqlite {
 template<auto Type, typename InternalIntegerType = long long>
 class BasicId
 {
+    template<auto, auto>
+    friend class CompoundBasicId;
+
 public:
     using IsBasicId = std::true_type;
     using DatabaseType = InternalIntegerType;
@@ -95,6 +98,104 @@ public:
 
 protected:
     InternalIntegerType id = 0;
+};
+
+template<auto Type, auto ContextType>
+class CompoundBasicId
+{
+public:
+    using IsBasicId = std::true_type;
+    using DatabaseType = long long;
+
+    using MainId = BasicId<Type, int>;
+    using ContextId = BasicId<ContextType, int>;
+
+    constexpr explicit CompoundBasicId() = default;
+
+    static constexpr CompoundBasicId create(MainId id, ContextId contextId)
+    {
+        CompoundBasicId compoundId;
+        compoundId.id = (static_cast<long long>(contextId.id) << 32) | static_cast<long long>(id.id);
+
+        return compoundId;
+    }
+
+    static constexpr CompoundBasicId create(long long idNumber)
+    {
+        CompoundBasicId id;
+        id.id = idNumber;
+
+        return id;
+    }
+
+    constexpr MainId mainId() const { return MainId::create(id); }
+
+    constexpr ContextId contextId() const { return ContextId::create(id >> 32); }
+
+    friend constexpr bool compareInvalidAreTrue(CompoundBasicId first, CompoundBasicId second)
+    {
+        return first.id, second.id;
+    }
+
+    friend constexpr bool operator==(CompoundBasicId first, CompoundBasicId second)
+    {
+        return first.id == second.id;
+    }
+
+    friend constexpr bool operator!=(CompoundBasicId first, CompoundBasicId second)
+    {
+        return !(first == second);
+    }
+
+    friend constexpr bool operator<(CompoundBasicId first, CompoundBasicId second)
+    {
+        return first.id < second.id;
+    }
+
+    friend constexpr bool operator>(CompoundBasicId first, CompoundBasicId second)
+    {
+        return first.id > second.id;
+    }
+
+    friend constexpr bool operator<=(CompoundBasicId first, CompoundBasicId second)
+    {
+        return first.id <= second.id;
+    }
+
+    friend constexpr bool operator>=(CompoundBasicId first, CompoundBasicId second)
+    {
+        return first.id >= second.id;
+    }
+
+    friend constexpr long long operator-(CompoundBasicId first, CompoundBasicId second)
+    {
+        return first.id - second.id;
+    }
+
+    constexpr bool isValid() const { return id != 0; }
+
+    constexpr bool isNull() const { return id == 0; }
+
+    explicit operator bool() const { return isValid(); }
+
+    long long internalId() const { return id; }
+
+    explicit operator std::size_t() const { return static_cast<std::size_t>(id | 0xFFFFFFFFULL); }
+
+    template<typename String>
+    friend void convertToString(String &string, CompoundBasicId id)
+    {
+        convertToString(string, id.id);
+        convertToString(string, id.contextId);
+    }
+
+    friend bool compareId(CompoundBasicId first, CompoundBasicId second)
+    {
+        return first.id == second.id;
+    }
+
+protected:
+    long long id = 0;
 };
 
 template<typename Container>
