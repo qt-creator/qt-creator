@@ -2220,7 +2220,10 @@ public:
             codecChooser->setAssignedCodec(QTextCodec::codecForName(setting.toByteArray()));
     }
 
-    ~BinEditorImpl() final { delete m_widget; }
+    ~BinEditorImpl() final
+    {
+        delete m_widget;
+    }
 
     IDocument *document() const final { return m_document.get(); }
 
@@ -2239,18 +2242,61 @@ public:
     Core::IEditor *editor() { return this; }
 
     // "Slots"
-    void setSizes(quint64 address, qint64 range, int blockSize) { m_document->setSizes(address, range, blockSize); }
-    void setReadOnly(bool on) { m_widget->setReadOnly(on); }
-    void setFinished() { m_widget->setReadOnly(true); m_document->setFinished(); }
-    void setNewWindowRequestAllowed(bool on) { m_widget->setNewWindowRequestAllowed(on); }
-    void setCursorPosition(qint64 pos, MoveMode moveMode = MoveAnchor) { m_widget->setCursorPosition(pos, moveMode); }
-    void updateContents() { m_document->updateContents(); }
-    void addData(quint64 address, const QByteArray &data) { m_document->addData(address, data); }
+    void setSizes(quint64 address, qint64 range, int blockSize)
+    {
+        m_document->setSizes(address, range, blockSize);
+    }
 
-    void clearMarkup() { m_widget->clearMarkup(); }
+    void setReadOnly(bool on)
+    {
+        if (m_widget)
+            m_widget->setReadOnly(on);
+    }
+
+    void setFinished()
+    {
+        if (m_widget)
+            m_widget->setReadOnly(true);
+        m_document->setFinished();
+    }
+
+    void setNewWindowRequestAllowed(bool on)
+    {
+        if (m_widget)
+            m_widget->setNewWindowRequestAllowed(on);
+    }
+
+    void setCursorPosition(qint64 pos, MoveMode moveMode = MoveAnchor)
+    {
+        if (m_widget)
+            m_widget->setCursorPosition(pos, moveMode);
+    }
+
+    void updateContents()
+    {
+        m_document->updateContents();
+    }
+
+    void addData(quint64 address, const QByteArray &data)
+    {
+        m_document->addData(address, data);
+    }
+
+    void clearMarkup()
+    {
+        if (m_widget)
+            m_widget->clearMarkup();
+    }
     void addMarkup(quint64 address, quint64 len, const QColor &color, const QString &toolTip)
-        { m_widget->addMarkup(address, len, color, toolTip); }
-    void commitMarkup() { m_widget->commitMarkup(); }
+    {
+        if (m_widget)
+            m_widget->addMarkup(address, len, color, toolTip);
+    }
+    void commitMarkup()
+    {
+        if (m_widget)
+            m_widget->commitMarkup();
+    }
 
     // "Signals"
     void setFetchDataHandler(const std::function<void(quint64)> &cb) final { m_document->m_fetchDataHandler = cb; }
@@ -2262,7 +2308,7 @@ public:
 
 private:
     std::shared_ptr<BinEditorDocument> m_document;
-    BinEditorWidget *m_widget = nullptr;
+    QPointer<BinEditorWidget> m_widget;
     QToolBar *m_toolBar;
 };
 
