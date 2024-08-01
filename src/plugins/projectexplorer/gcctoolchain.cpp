@@ -1453,6 +1453,8 @@ Toolchains GccToolchainFactory::autoDetect(const ToolchainDetector &detector) co
          executables.removeOne(FilePath::fromPathPart(u"/usr/bin/g++"));
     }
 
+    Utils::sort(executables);
+
     const OsType os = detector.device->osType();
 
     Toolchains result;
