@@ -309,6 +309,12 @@ AxivionPluginPrivate::AxivionPluginPrivate()
     connect(&m_networkAccessManager, &QNetworkAccessManager::sslErrors,
             this, &AxivionPluginPrivate::handleSslErrors);
 #endif // ssl
+    connect(&settings().highlightMarks, &BoolAspect::changed, this, [this] {
+        if (settings().highlightMarks())
+            handleOpenedDocs();
+        else
+            clearAllMarks();
+    });
 }
 
 void AxivionPluginPrivate::handleSslErrors(QNetworkReply *reply, const QList<QSslError> &errors)

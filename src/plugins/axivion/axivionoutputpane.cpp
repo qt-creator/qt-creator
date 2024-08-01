@@ -4,6 +4,7 @@
 #include "axivionoutputpane.h"
 
 #include "axivionplugin.h"
+#include "axivionsettings.h"
 #include "axiviontr.h"
 #include "dashboard/dto.h"
 #include "issueheaderview.h"
@@ -813,6 +814,18 @@ public:
             m_showDashboard->setChecked(idx == 0);
             m_showIssues->setChecked(idx == 1);
         });
+
+        m_toggleIssues = new QToolButton(m_outputWidget);
+        m_toggleIssues->setIcon(Utils::Icons::WARNING_TOOLBAR.icon());
+        m_toggleIssues->setToolTip(Tr::tr("Show issue markers inline"));
+        m_toggleIssues->setCheckable(true);
+        m_toggleIssues->setChecked(settings().highlightMarks());
+        connect(m_toggleIssues, &QToolButton::toggled, this, [](bool checked) {
+            settings().highlightMarks.setValue(checked);
+        });
+        connect(&settings().highlightMarks, &BaseAspect::changed, this, [this] {
+            m_toggleIssues->setChecked(settings().highlightMarks());
+        });
     }
 
     ~AxivionOutputPane()
@@ -832,7 +845,7 @@ public:
 
     QList<QWidget *> toolBarWidgets() const final
     {
-        return {m_showDashboard, m_showIssues};
+        return {m_showDashboard, m_showIssues, m_toggleIssues};
     }
 
     void clearContents() final {}
@@ -909,6 +922,7 @@ private:
     QStackedWidget *m_outputWidget = nullptr;
     QToolButton *m_showDashboard = nullptr;
     QToolButton *m_showIssues = nullptr;
+    QToolButton *m_toggleIssues = nullptr;
 };
 
 
