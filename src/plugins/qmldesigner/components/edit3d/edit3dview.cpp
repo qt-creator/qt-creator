@@ -45,6 +45,11 @@
 #include <utils/utilsicons.h>
 #include <QToolButton>
 
+static const QByteArray operator""_actionId(const char *text, size_t size)
+{
+    return QString("QmlDesigner.Edit3D.%1").arg(QLatin1String(text, size)).toLatin1();
+}
+
 namespace QmlDesigner {
 
 inline static QIcon contextIcon(const DesignerIcons::IconId &iconId)
@@ -127,23 +132,24 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
         m_activeSplit = 0;
     }
 
-    const QString sceneKey           = QStringLiteral("sceneInstanceId");
-    const QString selectKey          = QStringLiteral("selectionMode");
-    const QString transformKey       = QStringLiteral("transformMode");
-    const QString perspectiveKey     = QStringLiteral("usePerspective");
-    const QString orientationKey     = QStringLiteral("globalOrientation");
-    const QString editLightKey       = QStringLiteral("showEditLight");
-    const QString gridKey            = QStringLiteral("showGrid");
-    const QString showLookAtKey      = QStringLiteral("showLookAt");
-    const QString selectionBoxKey    = QStringLiteral("showSelectionBox");
-    const QString iconGizmoKey       = QStringLiteral("showIconGizmo");
-    const QString cameraFrustumKey   = QStringLiteral("showCameraFrustum");
-    const QString particleEmitterKey = QStringLiteral("showParticleEmitter");
-    const QString particlesPlayKey   = QStringLiteral("particlePlay");
-    const QString syncEnvBgKey       = QStringLiteral("syncEnvBackground");
-    const QString splitViewKey       = QStringLiteral("splitView");
-    const QString matOverrideKey     = QStringLiteral("matOverride");
-    const QString showWireframeKey   = QStringLiteral("showWireframe");
+    const QString sceneKey              = QStringLiteral("sceneInstanceId");
+    const QString selectKey             = QStringLiteral("selectionMode");
+    const QString transformKey          = QStringLiteral("transformMode");
+    const QString perspectiveKey        = QStringLiteral("usePerspective");
+    const QString orientationKey        = QStringLiteral("globalOrientation");
+    const QString editLightKey          = QStringLiteral("showEditLight");
+    const QString gridKey               = QStringLiteral("showGrid");
+    const QString showLookAtKey         = QStringLiteral("showLookAt");
+    const QString selectionBoxKey       = QStringLiteral("showSelectionBox");
+    const QString iconGizmoKey          = QStringLiteral("showIconGizmo");
+    const QString cameraFrustumKey      = QStringLiteral("showCameraFrustum");
+    const QString cameraViewModeKey     = QStringLiteral("cameraViewMode");
+    const QString particleEmitterKey    = QStringLiteral("showParticleEmitter");
+    const QString particlesPlayKey      = QStringLiteral("particlePlay");
+    const QString syncEnvBgKey          = QStringLiteral("syncEnvBackground");
+    const QString splitViewKey          = QStringLiteral("splitView");
+    const QString matOverrideKey        = QStringLiteral("matOverride");
+    const QString showWireframeKey      = QStringLiteral("showWireframe");
 
     if (sceneState.contains(sceneKey)) {
         qint32 newActiveScene = sceneState[sceneKey].value<qint32>();
@@ -208,6 +214,11 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
         m_showCameraFrustumAction->action()->setChecked(sceneState[cameraFrustumKey].toBool());
     else
         m_showCameraFrustumAction->action()->setChecked(false);
+
+    if (sceneState.contains(cameraViewModeKey))
+        m_cameraViewAction->setMode(sceneState[cameraViewModeKey].toString());
+    else
+        m_cameraViewAction->setMode("");
 
     if (sceneState.contains(particleEmitterKey))
         m_showParticleEmitterAction->action()->setChecked(sceneState[particleEmitterKey].toBool());
@@ -1100,6 +1111,10 @@ void Edit3DView::createEdit3DActions()
             "Toggle between always showing the camera frustum visualization and only showing it "
             "when the camera is selected."));
 
+    m_cameraViewAction = std::make_unique<Edit3DCameraViewAction>("CamerView"_actionId,
+                                                                  View3DActionType::CameraViewMode,
+                                                                  this);
+
     m_showParticleEmitterAction = std::make_unique<Edit3DAction>(
         QmlDesigner::Constants::EDIT3D_EDIT_SHOW_PARTICLE_EMITTER,
         View3DActionType::ShowParticleEmitter,
@@ -1368,6 +1383,7 @@ void Edit3DView::createEdit3DActions()
     m_visibilityToggleActions << m_showSelectionBoxAction.get();
     m_visibilityToggleActions << m_showIconGizmoAction.get();
     m_visibilityToggleActions << m_showCameraFrustumAction.get();
+    m_visibilityToggleActions << m_cameraViewAction.get();
     m_visibilityToggleActions << m_showParticleEmitterAction.get();
 
     createSyncEnvBackgroundAction();

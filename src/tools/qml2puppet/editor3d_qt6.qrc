@@ -26,6 +26,7 @@
         <file>mockfiles/qt6/AutoScaleHelper.qml</file>
         <file>mockfiles/qt6/CameraFrustum.qml</file>
         <file>mockfiles/qt6/CameraGizmo.qml</file>
+        <file>mockfiles/qt6/CameraView.qml</file>
         <file>mockfiles/qt6/DirectionalDraggable.qml</file>
         <file>mockfiles/qt6/EditCameraController.qml</file>
         <file>mockfiles/qt6/EditView3D.qml</file>

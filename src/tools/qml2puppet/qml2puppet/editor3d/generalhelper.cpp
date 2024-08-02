@@ -682,6 +682,16 @@ bool GeneralHelper::isPickable(QQuick3DNode *node) const
     return true;
 }
 
+bool GeneralHelper::isCamera(QQuick3DNode *node) const
+{
+    return node && qobject_cast<QQuick3DCamera *>(node);
+}
+
+bool GeneralHelper::isOrthographicCamera(QQuick3DNode *node) const
+{
+    return node && qobject_cast<QQuick3DOrthographicCamera *>(node);
+}
+
 // Emitter gizmo model creation is done in C++ as creating dynamic properties and
 // assigning materials to dynamically created models is lot simpler in C++
 QQuick3DNode *GeneralHelper::createParticleEmitterGizmoModel(QQuick3DNode *emitter,
@@ -1546,6 +1556,28 @@ void GeneralHelper::requestTimerEvent(const QString &timerId, qint64 delay)
     }
 }
 
+QQuick3DCamera *GeneralHelper::activeScenePreferredCamera() const
+{
+    return m_activeScenePreferredCamera.get();
+}
+
+void GeneralHelper::setActiveScenePreferredCamera(QQuick3DCamera *camera)
+{
+    if (m_activeScenePreferredCamera.get() != camera) {
+        if (m_activeScenePreferredCamera)
+            disconnect(m_activeScenePreferredCamera.get(), &QObject::destroyed, this, 0);
+
+        m_activeScenePreferredCamera = camera;
+
+        connect(
+            m_activeScenePreferredCamera.get(),
+            &QObject::destroyed,
+            this,
+            &GeneralHelper::requestActiveScenePreferredCamera);
+
+        emit activeScenePreferredCameraChanged();
+    }
+}
 }
 }
 

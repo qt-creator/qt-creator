@@ -177,6 +177,7 @@ private:
     std::unique_ptr<Edit3DAction> m_showSelectionBoxAction;
     std::unique_ptr<Edit3DAction> m_showIconGizmoAction;
     std::unique_ptr<Edit3DAction> m_showCameraFrustumAction;
+    std::unique_ptr<Edit3DCameraViewAction> m_cameraViewAction;
     std::unique_ptr<Edit3DAction> m_showParticleEmitterAction;
     std::unique_ptr<Edit3DAction> m_particleViewModeAction;
     std::unique_ptr<Edit3DAction> m_particlesPlayAction;

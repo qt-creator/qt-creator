@@ -40,6 +40,11 @@ class GeneralHelper : public QObject
     Q_PROPERTY(double minGridStep READ minGridStep NOTIFY minGridStepChanged FINAL)
     Q_PROPERTY(double cameraSpeed READ cameraSpeed NOTIFY cameraSpeedChanged FINAL)
 
+    Q_PROPERTY(
+        QQuick3DCamera *activeScenePreferredCamera
+        READ activeScenePreferredCamera
+        NOTIFY activeScenePreferredCameraChanged FINAL)
+
 public:
     GeneralHelper();
 
@@ -90,6 +95,8 @@ public:
     Q_INVOKABLE bool isLocked(QQuick3DNode *node) const;
     Q_INVOKABLE bool isHidden(QQuick3DNode *node) const;
     Q_INVOKABLE bool isPickable(QQuick3DNode *node) const;
+    Q_INVOKABLE bool isCamera(QQuick3DNode *node) const;
+    Q_INVOKABLE bool isOrthographicCamera(QQuick3DNode *node) const;
     Q_INVOKABLE QQuick3DNode *createParticleEmitterGizmoModel(QQuick3DNode *emitter,
                                                               QQuick3DMaterial *material) const;
 
@@ -168,6 +175,9 @@ public:
 
     Q_INVOKABLE void requestTimerEvent(const QString &timerId, qint64 delay);
 
+    QQuick3DCamera *activeScenePreferredCamera() const;
+    void setActiveScenePreferredCamera(QQuick3DCamera *camera);
+
 signals:
     void overlayUpdateNeeded();
     void toolStateChanged(const QString &sceneId, const QString &tool, const QVariant &toolState);
@@ -180,8 +190,10 @@ signals:
     void sceneEnvDataChanged();
     void requestCameraMove(QQuick3DCamera *camera, const QVector3D &moveVector);
     void requestRender();
+    void requestActiveScenePreferredCamera();
     void cameraSpeedChanged();
     void requestedTimerEvent(const QString &timerId);
+    void activeScenePreferredCameraChanged();
 
 private:
     void handlePendingToolStateUpdate();
@@ -228,6 +240,8 @@ private:
     QQuick3DNode *m_multiSelectRootNode = nullptr;
     QList<QMetaObject::Connection> m_multiSelectConnections;
     bool m_blockMultiSelectionNodePositioning = false;
+
+    QPointer<QQuick3DCamera> m_activeScenePreferredCamera;
 
     bool m_snapAbsolute = true;
     bool m_snapPosition = false;

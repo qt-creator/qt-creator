@@ -40,6 +40,7 @@ Item {
     property bool splitView: false
     property bool flyMode: false
     property bool showCameraSpeed: false
+    property string cameraViewMode
 
     enum SelectionMode { Item, Group }
     enum TransformMode { Move, Rotate, Scale }
@@ -72,6 +73,7 @@ Item {
     onShowSelectionBoxChanged:    _generalHelper.storeToolState(sceneId, "showSelectionBox", showSelectionBox);
     onShowIconGizmoChanged:       _generalHelper.storeToolState(sceneId, "showIconGizmo", showIconGizmo);
     onShowCameraFrustumChanged:   _generalHelper.storeToolState(sceneId, "showCameraFrustum", showCameraFrustum);
+    onCameraViewModeChanged:      _generalHelper.storeToolState(sceneId, "cameraViewMode", cameraViewMode)
     onShowParticleEmitterChanged: _generalHelper.storeToolState(sceneId, "showParticleEmitter", showParticleEmitter);
     onSelectionModeChanged:       _generalHelper.storeToolState(sceneId, "selectionMode", selectionMode);
     onTransformModeChanged:       _generalHelper.storeToolState(sceneId, "transformMode", transformMode);
@@ -334,6 +336,11 @@ Item {
         else if (resetToDefault)
             showCameraFrustum = false;
 
+        if ("cameraViewMode" in toolStates)
+            cameraViewMode = toolStates.cameraViewMode
+        else if (resetToDefault)
+            cameraViewMode = "CameraOff"
+
         if ("showParticleEmitter" in toolStates)
             showParticleEmitter = toolStates.showParticleEmitter;
         else if (resetToDefault)
@@ -405,6 +412,7 @@ Item {
         _generalHelper.storeToolState(sceneId, "showSelectionBox", showSelectionBox)
         _generalHelper.storeToolState(sceneId, "showIconGizmo", showIconGizmo)
         _generalHelper.storeToolState(sceneId, "showCameraFrustum", showCameraFrustum)
+        _generalHelper.storeToolState(sceneId, "cameraViewMode", cameraViewMode)
         _generalHelper.storeToolState(sceneId, "showParticleEmitter", showParticleEmitter)
         _generalHelper.storeToolState(sceneId, "usePerspective", usePerspective)
         _generalHelper.storeToolState(sceneId, "globalOrientation", globalOrientation)
@@ -1081,6 +1089,35 @@ Item {
                     id: lightGizmoLabelText
                     text: activeOverlayView.lightGizmo.currentLabel
                     anchors.centerIn: parent
+                }
+            }
+
+            CameraView {
+                id: cameraView
+
+                showCameraView: viewRoot.cameraViewMode === "ShowSelectedCamera"
+                alwaysOn: viewRoot.cameraViewMode === "AlwaysShowCamera"
+                targetNode: viewRoot.selectedNode
+                activeScene: viewRoot.activeScene
+                activeSceneEnvironment: viewRoot.activeEditView.sceneEnv
+                preferredCamera: _generalHelper.activeScenePreferredCamera
+                preferredSize: Qt.size(viewRoot.width * 0.3, viewRoot.height * 0.3)
+                viewPortSize: Qt.size(viewRoot.viewPortRect.width, viewRoot.viewPortRect.height)
+
+                function updateSnapping() {
+                    if (!viewRoot.splitView)
+                        cameraView.snapLeft = true
+                    else if (viewRoot.activeSplit === 2)
+                        cameraView.snapLeft = false
+                    else if (viewRoot.activeSplit === 3)
+                        cameraView.snapLeft = true
+                }
+
+                Connections {
+                    target: viewRoot
+
+                    onSplitViewChanged: cameraView.updateSnapping()
+                    onActiveSplitChanged: cameraView.updateSnapping()
                 }
             }
         }

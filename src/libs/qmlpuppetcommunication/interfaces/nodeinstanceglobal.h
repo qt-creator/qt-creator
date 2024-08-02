@@ -44,6 +44,7 @@ enum class View3DActionType {
     ShowSelectionBox,
     ShowIconGizmo,
     ShowCameraFrustum,
+    CameraViewMode,
     ShowParticleEmitter,
     Edit3DParticleModeToggle,
     ParticlesPlay,
