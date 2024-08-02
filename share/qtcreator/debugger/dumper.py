@@ -288,8 +288,6 @@ class DumperBase():
         # A hack to cover most of the changes from Qt 5 to 6
         if version == 0x60000 and self.qtversionAtLeast6 is not None:
             return self.qtversionAtLeast6
-        if version == 0x50000: # FIXME: This drops unknown 4.x for now
-            return True
         return self.qtVersion() >= version
 
     def qtVersionPing(self, typeid, size_for_qt5=-1):
