@@ -3,10 +3,7 @@
 
 #pragma once
 
-#include <utils/id.h>
-
-namespace Qdb {
-namespace Constants {
+namespace Qdb::Constants {
 
 const char QdbLinuxOsType[] = "QdbLinuxOsType";
 
@@ -19,10 +16,4 @@ const char QdbMakeDefaultAppStepId[] = "Qdb.MakeDefaultAppStep";
 const char QdbHardwareDevicePrefix[] = "QdbHardwareDevice";
 const char AppcontrollerFilepath[] = "/usr/bin/appcontroller";
 
-} // namespace Constants
-
-namespace Internal {
-enum VmState { VmReady, VmNotReady, VmShutDown };
-}
-
-} // namespace Qdb
+} // namespace Qdb::Constants
