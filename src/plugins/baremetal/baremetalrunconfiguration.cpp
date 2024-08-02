@@ -66,6 +66,7 @@ public:
 
         setDefaultDisplayName(RunConfigurationFactory::decoratedTargetName(
             Tr::tr("Custom Executable"), target));
+        setUsesEmptyBuildKeys();
     }
 
 public:

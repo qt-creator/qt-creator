@@ -185,6 +185,8 @@ protected:
 
     Task createConfigurationIssue(const QString &description) const;
 
+    void setUsesEmptyBuildKeys() { m_usesEmptyBuildKeys = true; }
+
 private:
     // Any additional data should be handled by aspects.
     void fromMap(const Utils::Store &map) final;
@@ -204,6 +206,7 @@ private:
     Utils::MacroExpander m_expander;
     Utils::Store m_pristineState;
     bool m_customized = false;
+    bool m_usesEmptyBuildKeys = false;
 };
 
 class RunConfigurationCreationInfo

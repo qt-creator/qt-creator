@@ -311,7 +311,13 @@ void RunConfiguration::toMap(Store &map) const
 void RunConfiguration::toMapSimple(Store &map) const
 {
     ProjectConfiguration::toMap(map);
-    QTC_CHECK(!m_buildKey.isEmpty());
+
+    if (m_usesEmptyBuildKeys) {
+        QTC_CHECK(m_buildKey.isEmpty());
+    } else {
+        QTC_CHECK(!m_buildKey.isEmpty());
+    }
+
     map.insert(BUILD_KEY, m_buildKey);
 }
 
@@ -372,7 +378,12 @@ void RunConfiguration::fromMap(const Store &map)
 
     m_customized = m_customized || map.value(CUSTOMIZED_KEY, false).toBool();
     m_buildKey = map.value(BUILD_KEY).toString();
-    QTC_CHECK(!m_buildKey.isEmpty());
+
+    if (m_usesEmptyBuildKeys) {
+        QTC_CHECK(m_buildKey.isEmpty());
+    } else {
+        QTC_CHECK(!m_buildKey.isEmpty());
+    }
 }
 
 /*!

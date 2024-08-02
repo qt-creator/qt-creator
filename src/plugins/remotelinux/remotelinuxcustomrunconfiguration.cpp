@@ -61,6 +61,7 @@ RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *tar
     x11Forwarding.setMacroExpander(macroExpander());
 
     setDefaultDisplayName(runConfigDefaultDisplayName());
+    setUsesEmptyBuildKeys();
 }
 
 QString RemoteLinuxCustomRunConfiguration::runConfigDefaultDisplayName()

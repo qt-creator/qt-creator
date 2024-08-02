@@ -42,6 +42,7 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *targe
     });
 
     setDefaultDisplayName(defaultDisplayName());
+    setUsesEmptyBuildKeys();
 }
 
 bool CustomExecutableRunConfiguration::isEnabled(Id) const
