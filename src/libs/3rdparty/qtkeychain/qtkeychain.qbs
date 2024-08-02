@@ -74,8 +74,6 @@ QtcLibrary {
             cpp.defines: outer.concat(["KEYCHAIN_DBUS=1"])
             cpp.cxxFlags: outer.concat("-Wno-cast-function-type")
             files: [
-                "gnomekeyring.cpp",
-                "gnomekeyring_p.h",
                 "keychain_unix.cpp",
                 "libsecret.cpp",
                 "libsecret_p.h",

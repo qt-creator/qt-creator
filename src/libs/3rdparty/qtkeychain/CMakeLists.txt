@@ -58,7 +58,6 @@ if (UNIX AND NOT APPLE)
     DEFINES KEYCHAIN_DBUS=1
     DEPENDS Qt::DBus
     SOURCES
-      gnomekeyring.cpp
       keychain_unix.cpp
       libsecret.cpp
       plaintextstore.cpp
