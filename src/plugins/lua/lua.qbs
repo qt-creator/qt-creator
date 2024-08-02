@@ -48,6 +48,7 @@ QtcPlugin {
             "localsocket.cpp",
             "macro.cpp",
             "messagemanager.cpp",
+            "qt.cpp",
             "qtcprocess.cpp",
             "settings.cpp",
             "texteditor.cpp",
