@@ -45,7 +45,9 @@ BlameMark::BlameMark(const FilePath &fileName, int lineNumber, const CommitInfo 
                            {Tr::tr("Git Blame"), Constants::TEXT_MARK_CATEGORY_BLAME})
     , m_info(info)
 {
-    const QString text = info.shortAuthor + " " + info.authorTime.toString("yyyy-MM-dd");
+    QString text = info.shortAuthor + " " + info.authorTime.toString("yyyy-MM-dd");
+    if (settings().instantBlameShowSubject())
+        text += " • " + info.summary;
 
     setPriority(TextEditor::TextMark::LowPriority);
     setToolTip(toolTipText(info));
@@ -195,6 +197,10 @@ void InstantBlame::setup()
     });
 
     connect(&settings().instantBlameIgnoreLineMoves, &BaseAspect::changed, this, [setupBlameForEditor] {
+        setupBlameForEditor(EditorManager::currentEditor());
+    });
+
+    connect(&settings().instantBlameShowSubject, &BaseAspect::changed, this, [setupBlameForEditor] {
         setupBlameForEditor(EditorManager::currentEditor());
     });
 

@@ -102,6 +102,11 @@ GitSettings::GitSettings()
     instantBlameIgnoreLineMoves.setLabelText(trIgnoreLineMoves());
     instantBlameIgnoreLineMoves.setToolTip(
         Tr::tr("Finds the commit that introduced the line before it was moved."));
+    instantBlameShowSubject.setSettingsKey("GitInstantShowSubject");
+    instantBlameShowSubject.setDefaultValue(false);
+    instantBlameShowSubject.setLabelText(Tr::tr("Show commit subject"));
+    instantBlameShowSubject.setToolTip(
+        Tr::tr("Adds the commit subject directly to the annotation."));
 
     graphLog.setSettingsKey("GraphLog");
 
@@ -152,7 +157,12 @@ GitSettings::GitSettings()
             Group {
                 title(Tr::tr("Instant Blame")),
                 groupChecker(instantBlame.groupChecker()),
-                Row { instantBlameIgnoreSpaceChanges, instantBlameIgnoreLineMoves, st },
+                Row {
+                    instantBlameIgnoreSpaceChanges,
+                    instantBlameIgnoreLineMoves,
+                    instantBlameShowSubject,
+                    st
+                },
             },
 
             st

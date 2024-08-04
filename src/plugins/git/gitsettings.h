@@ -40,6 +40,7 @@ public:
     Utils::BoolAspect instantBlame{this};
     Utils::BoolAspect instantBlameIgnoreSpaceChanges{this};
     Utils::BoolAspect instantBlameIgnoreLineMoves{this};
+    Utils::BoolAspect instantBlameShowSubject{this};
 
     mutable Utils::FilePath resolvedBinPath;
     mutable bool tryResolve = true;
