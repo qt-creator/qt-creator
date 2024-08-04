@@ -130,7 +130,7 @@ Id::Id(const char *name)
 
 Id Id::generate()
 {
-    return {QUuid::createUuid().toByteArray()};
+    return Id{QUuid::createUuid().toByteArray()};
 }
 
 /*!

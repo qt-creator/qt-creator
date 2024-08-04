@@ -6,9 +6,9 @@
 #include <qmldebug/qmldebug_global.h>
 #include <qmldebug/qmldebugclient.h>
 
-#include <QPointer>
 #include <QTimer>
 #include <QUrl>
+#include <memory>
 
 namespace QmlDebug {
 
@@ -49,7 +49,7 @@ private:
     void connectToTcpServer();
     void startLocalServer();
 
-    QScopedPointer<QmlDebug::QmlDebugConnection> m_connection;
+    std::unique_ptr<QmlDebug::QmlDebugConnection> m_connection;
     QTimer m_connectionTimer;
     QUrl m_server;
 

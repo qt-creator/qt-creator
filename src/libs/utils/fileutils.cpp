@@ -807,7 +807,7 @@ QString FileUtils::normalizedPathName(const QString &name)
     TCHAR buffer[MAX_PATH];
     const bool success = SHGetPathFromIDList(file, buffer);
     ILFree(file);
-    return success ? QDir::fromNativeSeparators(QString::fromUtf16(reinterpret_cast<const ushort *>(buffer)))
+    return success ? QDir::fromNativeSeparators(QString::fromUtf16(reinterpret_cast<const char16_t *>(buffer)))
                    : name;
 #elif defined(Q_OS_MACOS)
     return Internal::normalizePathName(name);

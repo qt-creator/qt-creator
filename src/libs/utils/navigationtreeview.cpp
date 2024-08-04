@@ -44,7 +44,7 @@ void NavigationTreeView::scrollTo(const QModelIndex &index, QAbstractItemView::S
     const int viewportWidth = viewport()->width();
     QRect itemRect = visualRect(index);
 
-    QAbstractItemDelegate *delegate = itemDelegate(index);
+    QAbstractItemDelegate *delegate = itemDelegateForIndex(index);
     if (delegate) {
         QStyleOptionViewItem option;
         initViewItemOption(&option);

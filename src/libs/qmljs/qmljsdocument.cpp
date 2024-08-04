@@ -370,7 +370,7 @@ QByteArray LibraryInfo::calculateFingerprint() const
 {
     QCryptographicHash hash(QCryptographicHash::Sha1);
     auto addData = [&hash](auto p, size_t len) {
-        hash.addData(reinterpret_cast<const char *>(p), len);
+        hash.addData(QByteArrayView(reinterpret_cast<const char *>(p), len));
     };
 
     addData(&_status, sizeof(_status));
@@ -621,10 +621,10 @@ LibraryInfo Snapshot::libraryInfo(const Utils::FilePath &path) const
 void ModuleApiInfo::addToHash(QCryptographicHash &hash) const
 {
     int len = uri.length();
-    hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
-    hash.addData(reinterpret_cast<const char *>(uri.constData()), len * sizeofQChar);
+    hash.addData(QByteArrayView(reinterpret_cast<const char *>(&len), sizeof(len)));
+    hash.addData(QByteArrayView(reinterpret_cast<const char *>(uri.constData()), len * sizeofQChar));
     version.addToHash(hash);
     len = cppName.length();
-    hash.addData(reinterpret_cast<const char *>(&len), sizeof(len));
-    hash.addData(reinterpret_cast<const char *>(cppName.constData()), len * sizeofQChar);
+    hash.addData(QByteArrayView(reinterpret_cast<const char *>(&len), sizeof(len)));
+    hash.addData(QByteArrayView(reinterpret_cast<const char *>(cppName.constData()), len * sizeofQChar));
 }

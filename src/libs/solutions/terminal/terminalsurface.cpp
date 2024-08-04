@@ -226,7 +226,7 @@ struct TerminalSurfacePrivate
     {
         TerminalCell result;
         result.width = cell.width;
-        result.text = QString::fromUcs4(cell.chars);
+        result.text = QString::fromUcs4(reinterpret_cast<const char32_t *>(cell.chars));
 
         const VTermColor *bg = &cell.bg;
         const VTermColor *fg = &cell.fg;
@@ -459,7 +459,8 @@ std::u32string::value_type TerminalSurface::fetchCharAt(int x, int y) const
     if (cell->chars[0] == 0xffffffff)
         return 0;
 
-    QString s = QString::fromUcs4(cell->chars, 6).normalized(QString::NormalizationForm_C);
+    QString s = QString::fromUcs4(reinterpret_cast<const char32_t *>(cell->chars), 6)
+                    .normalized(QString::NormalizationForm_C);
     const QList<uint> ucs4 = s.toUcs4();
     return std::u32string(ucs4.begin(), ucs4.end()).front();
 }
