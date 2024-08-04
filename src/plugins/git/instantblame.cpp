@@ -50,7 +50,7 @@ BlameMark::BlameMark(const FilePath &fileName, int lineNumber, const CommitInfo 
         text += " • " + info.subject;
 
     setPriority(TextEditor::TextMark::LowPriority);
-    setToolTip(toolTipText(info));
+    setToolTipProvider([this] { return toolTipText(m_info); });
     setLineAnnotation(text);
     setSettingsPage(VcsBase::Constants::VCS_ID_GIT);
     setActionsProvider([info] {
@@ -132,6 +132,29 @@ QString BlameMark::toolTipText(const CommitInfo &info) const
                               colors.date, info.authorDate.toString("yyyy-MM-dd hh:mm:ss"),
                               colors.subject, info.subject);
 
+    QString diff;
+    if (!info.oldLines.isEmpty()) {
+        const QString removed = GitClient::styleColorName(TextEditor::C_REMOVED_LINE);
+
+        QStringList oldLines = info.oldLines;
+        if (oldLines.size() > 5) {
+            oldLines = info.oldLines.first(2);
+            oldLines.append("- ...");
+            oldLines.append(info.oldLines.last(2));
+        }
+
+        for (const QString &oldLine : std::as_const(oldLines)) {
+            diff.append("<p style=\"margin: 0px; color: " + removed + " ;\">" + oldLine.toHtmlEscaped() + "</p>");
+        }
+    }
+    if (!info.newLine.isEmpty()) {
+        const QString added = GitClient::styleColorName(TextEditor::C_ADDED_LINE);
+        diff.append("<p style=\"margin-top: 0px; color: " + added + ";\">" + info.newLine.toHtmlEscaped() + "</p>");
+    }
+
+    if (!diff.isEmpty())
+        result.append("<pre>" + diff + "</pre>");
+
     if (settings().instantBlameIgnoreSpaceChanges()
         || settings().instantBlameIgnoreLineMoves()) {
         result.append(
@@ -144,6 +167,16 @@ QString BlameMark::toolTipText(const CommitInfo &info) const
             + "</p>");
     }
     return result;
+}
+
+void BlameMark::addOldLine(const QString &oldLine)
+{
+    m_info.oldLines.append(oldLine);
+}
+
+void BlameMark::addNewLine(const QString &newLine)
+{
+    m_info.newLine = newLine;
 }
 
 InstantBlame::InstantBlame()
@@ -337,7 +370,30 @@ void InstantBlame::perform()
     const QFileInfo fi(filePath.toString());
     const Utils::FilePath workingDirectory = Utils::FilePath::fromString(fi.path());
     const QString lineString = QString("%1,%1").arg(line);
-    const auto commandHandler = [this, filePath, line](const CommandResult &result) {
+    const auto lineDiffHandler = [this](const CommandResult &result) {
+        const QString error = result.cleanedStdErr();
+        if (!error.isEmpty()) {
+            qCWarning(log) << error;
+        }
+        if (!m_blameMark) {
+            qCInfo(log) << "m_blameMark is invalid";
+            return;
+        }
+
+        static const QRegularExpression re("^[-+][^-+].*");
+        const QStringList lines = result.cleanedStdOut().split("\n").filter(re);
+        for (const QString &line : lines) {
+            if (line.startsWith("-")) {
+                m_blameMark->addOldLine(line);
+                qCDebug(log) << "Found removed line: " << line;
+            } else if (line.startsWith("+")) {
+                m_blameMark->addNewLine(line);
+                qCDebug(log) << "Found added line: " << line;
+            }
+        }
+    };
+    const auto commandHandler = [this, filePath, line, lineDiffHandler]
+        (const CommandResult &result) {
         if (result.result() == ProcessResult::FinishedWithError &&
             result.cleanedStdErr().contains("no such path")) {
             stop();
@@ -350,6 +406,16 @@ void InstantBlame::perform()
         }
         const CommitInfo info = parseBlameOutput(output.split('\n'), filePath, line, m_author);
         m_blameMark.reset(new BlameMark(filePath, line, info));
+
+        // Get line diff: `git log -n 1 -p -L47,47:README.md a5c4c34c9ab4`
+        const QString origLineString = QString("%1,%1").arg(info.originalLine);
+        const QString fileLineRange = "-L" + origLineString + ":" + info.originalFileName;
+        const QStringList lineDiffOptions = {"log", "-n 1", "-p", fileLineRange, info.hash};
+        const FilePath topLevel = currentState().topLevel();
+
+        qCDebug(log) << "Running git" << lineDiffOptions.join(' ');
+        gitClient().vcsExecWithHandler(topLevel, lineDiffOptions, this,
+                                       lineDiffHandler, RunFlags::NoOutput, m_codec);
     };
     QStringList options = {"blame", "-p"};
     if (settings().instantBlameIgnoreSpaceChanges())

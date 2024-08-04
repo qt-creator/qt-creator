@@ -25,6 +25,8 @@ public:
     QString authorMail;
     QDateTime authorDate;
     QString subject;
+    QStringList oldLines;     ///< the previous line contents
+    QString newLine;          ///< the new line contents
     Utils::FilePath filePath; ///< absolute file path for current file
     QString originalFileName; ///< relative file path from project root for the original file
     int line = -1;            ///< current line number in current file
@@ -37,9 +39,11 @@ public:
     BlameMark(const Utils::FilePath &fileName, int lineNumber, const CommitInfo &info);
     bool addToolTipContent(QLayout *target) const;
     QString toolTipText(const CommitInfo &info) const;
+    void addOldLine(const QString &oldLine);
+    void addNewLine(const QString &newLine);
 
 private:
-    const CommitInfo m_info;
+    CommitInfo m_info;
 };
 
 class InstantBlame : public QObject
