@@ -10,7 +10,7 @@ local mm = require('MessageManager')
 local Install = require('Install')
 
 Hooks = {}
-AutoSuggestionDelay = 500
+AutoSuggestionDelay = 2000
 
 local function collectSuggestions(responseTable)
   local suggestions = {}
