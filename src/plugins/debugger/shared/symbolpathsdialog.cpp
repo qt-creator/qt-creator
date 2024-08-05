@@ -5,9 +5,11 @@
 
 #include "../debuggertr.h"
 
+#include <QApplication>
 #include <QDialogButtonBox>
 #include <QHBoxLayout>
 #include <QMessageBox>
+#include <QStyle>
 #include <QVBoxLayout>
 
 using namespace Utils;
@@ -23,7 +25,11 @@ SymbolPathsDialog::SymbolPathsDialog(QWidget *parent) :
     m_pixmapLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     m_pixmapLabel->setAlignment(Qt::AlignHCenter|Qt::AlignTop);
     m_pixmapLabel->setMargin(5);
-    m_pixmapLabel->setPixmap(QMessageBox::standardIcon(QMessageBox::Question));
+    const QStyle *style = QApplication::style();
+    const int iconSize = style->pixelMetric(QStyle::PM_MessageBoxIconSize);
+    const QIcon icon = style->standardIcon(QStyle::SP_MessageBoxQuestion);
+    const qreal dpr = qApp->devicePixelRatio();
+    m_pixmapLabel->setPixmap(icon.pixmap(QSize(iconSize, iconSize), dpr));
 
     m_msgLabel = new QLabel(Tr::tr("<html><head/><body><p>The debugger is not configured to use the "
         "public Microsoft Symbol Server.<br/>This is recommended for retrieval of the symbols "
