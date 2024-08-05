@@ -193,8 +193,7 @@ public:
     Utils::expected_str<void> openTerminal(const Utils::Environment &env,
                                            const Utils::FilePath &workingDir) const;
 
-    bool isEmptyCommandAllowed() const;
-    void setAllowEmptyCommand(bool allow);
+    Utils::BoolAspect allowEmptyCommand{this};
 
     bool isWindowsDevice() const { return osType() == Utils::OsTypeWindows; }
     bool isLinuxDevice() const { return osType() == Utils::OsTypeLinux; }

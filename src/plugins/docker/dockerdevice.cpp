@@ -622,7 +622,8 @@ DockerDevice::DockerDevice()
     setupId(IDevice::ManuallyAdded);
     setType(Constants::DOCKER_DEVICE_TYPE);
     setMachineType(IDevice::Hardware);
-    setAllowEmptyCommand(true);
+
+    allowEmptyCommand.setValue(true);
 
     setOpenTerminal([this](const Environment &env,
                            const FilePath &workingDir) -> expected_str<void> {

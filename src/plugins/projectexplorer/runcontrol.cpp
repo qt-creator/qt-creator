@@ -1419,7 +1419,7 @@ void SimpleTargetRunnerPrivate::start()
     }
 
     const IDevice::ConstPtr device = DeviceManager::deviceForPath(m_command.executable());
-    if (device && !device->isEmptyCommandAllowed() && m_command.isEmpty()) {
+    if (device && !device->allowEmptyCommand() && m_command.isEmpty()) {
         m_resultData.m_errorString = Tr::tr("Cannot run: No command given.");
         m_resultData.m_error = QProcess::FailedToStart;
         m_resultData.m_exitStatus = QProcess::CrashExit;

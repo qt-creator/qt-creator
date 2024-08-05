@@ -138,7 +138,6 @@ public:
     Utils::SynchronizedValue<SshParameters> sshParameters;
 
     PortList freePorts;
-    bool emptyCommandAllowed = false;
 
     QList<Icon> deviceIcons;
     QList<IDevice::DeviceAction> deviceActions;
@@ -162,6 +161,8 @@ IDevice::IDevice()
     registerAspect(&d->displayName);
     d->displayName.setSettingsKey(DisplayNameKey);
     d->displayName.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
+
+    // allowEmptyCommand.setSettingsKey() intentionally omitted, this is not persisted.
 
     auto validateDisplayName = [](const QString &old,
                                   const QString &newValue) -> expected_str<void> {
@@ -229,16 +230,6 @@ expected_str<void> IDevice::openTerminal(const Environment &env, const FilePath 
     QTC_ASSERT(canOpenTerminal(),
                return make_unexpected(Tr::tr("Opening a terminal is not supported.")));
     return d->openTerminal(env, workingDir);
-}
-
-bool IDevice::isEmptyCommandAllowed() const
-{
-    return d->emptyCommandAllowed;
-}
-
-void IDevice::setAllowEmptyCommand(bool allow)
-{
-    d->emptyCommandAllowed = allow;
 }
 
 bool IDevice::isAnyUnixDevice() const
