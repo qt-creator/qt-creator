@@ -61,7 +61,7 @@
 const char GIT_DIRECTORY[] = ".git";
 const char HEAD[] = "HEAD";
 const char CHERRY_PICK_HEAD[] = "CHERRY_PICK_HEAD";
-[[maybe_unused]] const char BRANCHES_PREFIX[] = "Branches: ";
+const char BRANCHES_PREFIX[] = "Branches: ";
 const char stashNamePrefix[] = "stash@{";
 const char noColorOption[] = "--no-color";
 const char colorOption[] = "--color=always";
@@ -467,7 +467,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
     const auto updateDescription = [this](const ReloadStorage &storage) {
         QString desc = storage.m_header;
         if (!storage.m_branches.isEmpty())
-            desc.append("Branches: " + storage.m_branches + '\n');
+            desc.append(BRANCHES_PREFIX + storage.m_branches + '\n');
         if (!storage.m_precedes.isEmpty())
             desc.append("Precedes: " + storage.m_precedes + '\n');
         QStringList follows;
@@ -963,7 +963,7 @@ FilePaths GitClient::unmanagedFiles(const FilePaths &filePaths) const
             return filePaths;
         const auto toAbs = [&wd](const QString &fp) { return wd.absoluteFilePath(fp); };
         const QStringList managedFilePaths =
-                Utils::transform(result.cleanedStdOut().split('\0', Qt::SkipEmptyParts), toAbs);
+                Utils::transform(result.cleanedStdOut().split(QChar('\0'), Qt::SkipEmptyParts), toAbs);
         const QStringList absPaths = Utils::transform(it.value(), toAbs);
         const QStringList filtered = Utils::filtered(absPaths, [&managedFilePaths](const QString &fp) {
             return !managedFilePaths.contains(fp);
