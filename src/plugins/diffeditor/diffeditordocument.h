@@ -8,6 +8,8 @@
 #include <coreplugin/patchtool.h>
 #include <coreplugin/textdocument.h>
 
+namespace TextEditor { class SyntaxHighlighter; }
+
 namespace DiffEditor {
 
 class DiffEditorController;
@@ -45,6 +47,11 @@ public:
 
     void setDescription(const QString &description);
     QString description() const;
+    void setDescriptionSyntaxHighlighterCreator(
+        const std::function<TextEditor::SyntaxHighlighter *()> &creator);
+    std::function<TextEditor::SyntaxHighlighter *()> descriptionSyntaxHighlighterCreator() const {
+        return m_descriptionHighlighter;
+    }
 
     void setContextLineCount(int lines);
     int contextLineCount() const;
@@ -71,6 +78,7 @@ signals:
     void temporaryStateChanged();
     void documentChanged();
     void descriptionChanged();
+    void descriptionHighlighterChanged();
 
 protected:
     bool saveImpl(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override;
@@ -85,6 +93,7 @@ private:
     Utils::FilePath m_workingDirectory;
     QString m_startupFile;
     QString m_description;
+    std::function<TextEditor::SyntaxHighlighter *()> m_descriptionHighlighter = {};
     int m_contextLineCount = 3;
     bool m_isContextLineCountForced = false;
     bool m_ignoreWhitespace = false;
