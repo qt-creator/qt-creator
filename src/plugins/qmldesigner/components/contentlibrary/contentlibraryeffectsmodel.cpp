@@ -101,7 +101,7 @@ void ContentLibraryEffectsModel::loadBundle(bool force)
     // clean up
     qDeleteAll(m_bundleCategories);
     m_bundleCategories.clear();
-    m_bundleExists = false;
+    setBundleExists(false);
     m_isEmpty = true;
     m_probeBundleDir = false;
     m_bundleObj = {};
@@ -180,7 +180,7 @@ void ContentLibraryEffectsModel::loadBundle(bool force)
     m_bundleSharedFiles = m_bundleObj.value("sharedFiles").toVariant().toStringList();
 
     m_bundlePath = bundleDir.path();
-    m_bundleExists = true;
+    setBundleExists(true);
     updateIsEmpty();
     resetModel();
 }
@@ -267,6 +267,14 @@ void ContentLibraryEffectsModel::removeFromProject(ContentLibraryItem *bundleIte
         m_widget->setImporterRunning(true);
     else
         qWarning() << __FUNCTION__ << err;
+}
+
+void ContentLibraryEffectsModel::setBundleExists(bool exists)
+{
+    if (m_bundleExists == exists)
+        return;
+    m_bundleExists = exists;
+    emit bundleExistsChanged();
 }
 
 } // namespace QmlDesigner

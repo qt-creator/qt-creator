@@ -19,7 +19,7 @@ class ContentLibraryMaterialsModel : public QAbstractListModel
 {
     Q_OBJECT
 
-    Q_PROPERTY(bool matBundleExists READ matBundleExists NOTIFY matBundleExistsChanged)
+    Q_PROPERTY(bool bundleExists READ bundleExists NOTIFY bundleExistsChanged)
     Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
     Q_PROPERTY(bool hasRequiredQuick3DImport READ hasRequiredQuick3DImport NOTIFY hasRequiredQuick3DImportChanged)
     Q_PROPERTY(QString baseWebUrl MEMBER m_baseUrl CONSTANT)
@@ -38,7 +38,7 @@ public:
     void setQuick3DImportVersion(int major, int minor);
 
     bool hasRequiredQuick3DImport() const;
-    bool matBundleExists() const;
+    bool bundleExists() const;
 
     QString bundlePath() const;
 
@@ -52,13 +52,14 @@ public:
     Q_INVOKABLE bool isMaterialDownloaded(QmlDesigner::ContentLibraryMaterial *mat) const;
 
     QString bundleId() const;
+    void setBundleExists(bool exists);
 
 signals:
     void isEmptyChanged();
     void hasRequiredQuick3DImportChanged();
     void materialVisibleChanged();
     void applyToSelectedTriggered(QmlDesigner::ContentLibraryMaterial *mat, bool add = false);
-    void matBundleExistsChanged();
+    void bundleExistsChanged();
 
 private:
     void loadMaterialBundle(bool forceReload = false);

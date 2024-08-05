@@ -221,7 +221,7 @@ void ContentLibraryMaterialsModel::loadMaterialBundle(bool forceReload)
     // clean up
     qDeleteAll(m_bundleCategories);
     m_bundleCategories.clear();
-    m_bundleExists = false;
+    setBundleExists(false);
     m_isEmpty = true;
     m_bundleObj = {};
     m_bundleId.clear();
@@ -289,7 +289,7 @@ void ContentLibraryMaterialsModel::loadMaterialBundle(bool forceReload)
         }
     }
 
-    m_bundleExists = true;
+    setBundleExists(true);
     updateIsEmpty();
     resetModel();
 }
@@ -299,7 +299,7 @@ bool ContentLibraryMaterialsModel::hasRequiredQuick3DImport() const
     return m_widget->hasQuick3DImport() && m_quick3dVersion >= Version{6, 3};
 }
 
-bool ContentLibraryMaterialsModel::matBundleExists() const
+bool ContentLibraryMaterialsModel::bundleExists() const
 {
     return m_bundleExists;
 }
@@ -393,6 +393,14 @@ void ContentLibraryMaterialsModel::removeFromProject(ContentLibraryMaterial *mat
 bool ContentLibraryMaterialsModel::isMaterialDownloaded(ContentLibraryMaterial *mat) const
 {
     return m_bundlePath.pathAppended(mat->qml()).exists();
+}
+
+void ContentLibraryMaterialsModel::setBundleExists(bool exists)
+{
+    if (m_bundleExists == exists)
+        return;
+    m_bundleExists = exists;
+    emit bundleExistsChanged();
 }
 
 } // namespace QmlDesigner
