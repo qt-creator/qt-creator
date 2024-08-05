@@ -6,19 +6,25 @@
 #include <QHeaderView>
 #include <QList>
 
-namespace Axivion::Internal {
+#include <optional>
 
-enum class SortOrder { None, Ascending, Descending };
+namespace Axivion::Internal {
 
 class IssueHeaderView : public QHeaderView
 {
     Q_OBJECT
 public:
-    explicit IssueHeaderView(QWidget *parent = nullptr) : QHeaderView(Qt::Horizontal, parent) {}
-    void setSortableColumns(const QList<bool> &sortable);
-    void setColumnWidths(const QList<int> &widths) { m_columnWidths = widths; }
+    struct ColumnInfo
+    {
+        int width = 0;
+        std::optional<Qt::SortOrder> sortOrder = std::nullopt;
+        bool sortable = false;
+    };
 
-    SortOrder currentSortOrder() const { return m_currentSortOrder; }
+    explicit IssueHeaderView(QWidget *parent = nullptr) : QHeaderView(Qt::Horizontal, parent) {}
+    void setColumnInfoList(const QList<ColumnInfo> &infos);
+
+    std::optional<Qt::SortOrder> currentSortOrder() const { return m_currentSortOrder; }
     int currentSortColumn() const;
 
 signals:
@@ -32,14 +38,13 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
 
 private:
-    void onToggleSort(int index, SortOrder order);
+    void onToggleSort(int index, Qt::SortOrder order);
     bool m_dragging = false;
     bool m_maybeToggleSort = false;
     int m_lastToggleLogicalPos = -1;
     int m_currentSortIndex = -1;
-    SortOrder m_currentSortOrder = SortOrder::None;
-    QList<bool> m_sortableColumns;
-    QList<int> m_columnWidths;
+    std::optional<Qt::SortOrder> m_currentSortOrder = std::nullopt;
+    QList<ColumnInfo> m_columnInfoList;
 };
 
 } // namespace Axivion::Internal

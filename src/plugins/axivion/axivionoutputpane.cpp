@@ -469,15 +469,16 @@ void IssuesWidget::updateTable()
 
     QStringList columnHeaders;
     QStringList hiddenColumns;
-    QList<bool> sortableColumns;
-    QList<int> columnWidths;
+    QList<IssueHeaderView::ColumnInfo> columnInfos;
     QList<Qt::Alignment> alignments;
     for (const Dto::ColumnInfoDto &column : m_currentTableInfo->columns) {
         columnHeaders << column.header.value_or(column.key);
         if (!column.showByDefault)
             hiddenColumns << column.key;
-        sortableColumns << column.canSort;
-        columnWidths << column.width;
+        IssueHeaderView::ColumnInfo info;
+        info.sortable = column.canSort;
+        info.width = column.width;
+        columnInfos.append(info);
         alignments << alignmentFromString(column.alignment);
     }
     m_addedFilter->setText("0");
@@ -487,8 +488,7 @@ void IssuesWidget::updateTable()
     m_issuesModel->clear();
     m_issuesModel->setHeader(columnHeaders);
     m_issuesModel->setAlignments(alignments);
-    m_headerView->setSortableColumns(sortableColumns);
-    m_headerView->setColumnWidths(columnWidths);
+    m_headerView->setColumnInfoList(columnInfos);
     int counter = 0;
     for (const QString &header : std::as_const(columnHeaders))
         m_issuesView->setColumnHidden(counter++, hiddenColumns.contains(header));
@@ -705,7 +705,7 @@ IssueListSearch IssuesWidget::searchFromUi() const
         QTC_ASSERT(m_currentTableInfo, return search);
         QTC_ASSERT((ulong)column < m_currentTableInfo->columns.size(), return search);
         search.sort = m_currentTableInfo->columns.at(m_headerView->currentSortColumn()).key
-                + (m_headerView->currentSortOrder() == SortOrder::Ascending ? " asc" : " desc");
+                + (m_headerView->currentSortOrder() == Qt::AscendingOrder ? " asc" : " desc");
     }
 
     return search;
